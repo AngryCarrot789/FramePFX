@@ -8,7 +8,7 @@ namespace FramePFX.Utils.Collections {
     /// </summary>
     public class InheritanceDictionary<T> {
         private readonly Dictionary<Type, TypeEntry> items;
-        private readonly TypeEntry rootEntry;
+        private TypeEntry rootEntry;
         private int version;
         private int totalEntries;
 
@@ -24,28 +24,17 @@ namespace FramePFX.Utils.Collections {
 
         public InheritanceDictionary(int initialMapCapacity) {
             this.items = initialMapCapacity == int.MinValue ? new Dictionary<Type, TypeEntry>() : new Dictionary<Type, TypeEntry>(initialMapCapacity);
-            this.rootEntry = new TypeEntry(typeof(object));
-            this.InsertRootEntry();
+            this.items[typeof(object)] = this.rootEntry = new TypeEntry(typeof(object));
             this.totalEntries = 1;
-        }
-
-        private void InsertRootEntry() {
-            this.items.Add(typeof(object), this.rootEntry);
-        }
-
-        private TypeEntry FindNearestBaseTypeEntryOrSelf(Type type) {
-            for (Type t = type; t != null; t = t.BaseType) {
-                if (this.items.TryGetValue(t, out TypeEntry entry)) {
-                    return entry;
-                }
-            }
-
-            return null;
         }
 
         private TypeEntry GetOrCreateEntry(Type key) {
             if (this.items.TryGetValue(key, out TypeEntry entry)) {
                 return entry;
+            }
+
+            if (key.IsInterface) {
+                throw new Exception("Interfaces are not allowed in an InheritanceDictionary");
             }
 
             List<Type> types = new List<Type> {key};
@@ -63,7 +52,7 @@ namespace FramePFX.Utils.Collections {
 #endif
             // THIS SHOULD NOT BE POSSIBLE!!!!!!!!!!!!!!!!!!!!
             if (!this.items.ContainsKey(typeof(object)))
-                this.InsertRootEntry();
+                this.items[typeof(object)] = this.rootEntry;
             return this.BakeTypes(this.rootEntry, types);
         }
 
@@ -117,20 +106,6 @@ namespace FramePFX.Utils.Collections {
         public ITypeEntry<T> GetEntry(Type key) => this.GetOrCreateEntry(key);
 
         /// <summary>
-        /// Either returns the entry for the given type, or finds the first entry available by navigating the given type's BaseTypes
-        /// </summary>
-        /// <param name="type">The starting type</param>
-        /// <returns>The first available entry as the given type or as one of its base types</returns>
-        public ITypeEntry<T> FindNearestBaseType(Type type, bool requireHasLocalValue = false) {
-            TypeEntry entry = this.FindNearestBaseTypeEntryOrSelf(type) ?? this.GetOrCreateEntry(type);
-            if (!requireHasLocalValue || entry.HasLocalValue) {
-                return entry;
-            }
-
-            return entry.nearestBaseTypeToExplicitValue;
-        }
-
-        /// <summary>
         /// Explicitly sets (or replaces) the local value of the given key, and updates any
         /// derived types' inherited values if they are not already explicitly set
         /// </summary>
@@ -158,7 +133,7 @@ namespace FramePFX.Utils.Collections {
             foreach (TypeEntry map in this.items.Values)
                 map.Dispose();
             this.items.Clear();
-            this.InsertRootEntry();
+            this.items[typeof(object)] = this.rootEntry = new TypeEntry(typeof(object));
             this.totalEntries = 1;
             this.version++;
         }
@@ -240,10 +215,16 @@ namespace FramePFX.Utils.Collections {
                 switch (this.state) {
                     case 0: return false;
                     case 1: {
-                        TypeEntry entry = this.dictionary.FindNearestBaseTypeEntryOrSelf(this.startingKey);
-                        if (entry == null || !entry.HasLocalValue && (entry = entry.nearestBaseTypeToExplicitValue) == null) {
-                            this.state = 4;
-                            return false;
+                        TypeEntry entry = this.dictionary.GetOrCreateEntry(this.startingKey);
+                        if (!entry.HasLocalValue) {
+                            entry = entry.nearestBaseTypeToExplicitValue;
+                            if (entry == null) {
+                                this.state = 4;
+                                return false;
+                            }
+                            else if (!entry.HasLocalValue) {
+                                throw new InvalidProgramException("Fatal error: nearest base type did not have an explicitly set value");
+                            }
                         }
 
                         this.version = this.dictionary.version;
@@ -357,12 +338,12 @@ namespace FramePFX.Utils.Collections {
                 this.baseType = superType;
                 if (superType.HasInheritedValue)
                     this.inheritedItem = superType.inheritedItem;
-                for (TypeEntry bt = superType; bt != null; bt = bt.baseType) {
-                    if (bt.HasLocalValue) {
-                        this.nearestBaseTypeToExplicitValue = bt;
+                for (TypeEntry super = superType; super != null; super = super.baseType) {
+                    if (super.HasLocalValue) {
+                        this.nearestBaseTypeToExplicitValue = super;
                     }
-                    else if (bt.nearestBaseTypeToExplicitValue != null) {
-                        this.nearestBaseTypeToExplicitValue = bt.nearestBaseTypeToExplicitValue;
+                    else if (super.nearestBaseTypeToExplicitValue != null) {
+                        this.nearestBaseTypeToExplicitValue = super.nearestBaseTypeToExplicitValue;
                     }
                     else {
                         continue;

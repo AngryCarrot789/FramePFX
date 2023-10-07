@@ -303,7 +303,9 @@ namespace FramePFX.WPF {
             }
 
             ((EditorMainWindow) this.MainWindow)?.ViewPortControl.VPViewBox.FitContentToCenter();
-            await editor.ActiveProject.Timeline.DoAutomationTickAndRenderToPlayback();
+            if (editor.ActiveProject != null) {
+                await editor.ActiveProject.Timeline.DoAutomationTickAndRenderToPlayback();
+            }
         }
 
         public static void RefreshControlsDictionary() {

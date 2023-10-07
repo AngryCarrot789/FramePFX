@@ -33,7 +33,6 @@ namespace FramePFX.WPF.Controls.Dragger {
         public static readonly DependencyProperty IsEditingTextBoxProperty = IsEditingTextBoxPropertyKey.DependencyProperty;
         public static readonly DependencyProperty RoundedPlacesProperty = DependencyProperty.Register("RoundedPlaces", typeof(int?), typeof(NumberDragger), new PropertyMetadata(null, (d, e) => ((NumberDragger) d).OnRoundedPlacesChanged((int?) e.OldValue, (int?) e.NewValue)));
         public static readonly DependencyProperty PreviewRoundedPlacesProperty = DependencyProperty.Register("PreviewRoundedPlaces", typeof(int?), typeof(NumberDragger), new PropertyMetadata((int?) 4, (d, e) => ((NumberDragger) d).OnPreviewRoundedPlacesChanged((int?) e.OldValue, (int?) e.NewValue)));
-        public static readonly DependencyProperty LockCursorWhileDraggingProperty = DependencyProperty.Register("LockCursorWhileDragging", typeof(bool), typeof(NumberDragger), new PropertyMetadata(BoolBox.True));
         public static readonly DependencyProperty DisplayTextOverrideProperty = DependencyProperty.Register("DisplayTextOverride", typeof(string), typeof(NumberDragger), new PropertyMetadata(null, (o, args) => ((NumberDragger) o).UpdateText()));
         public static readonly DependencyProperty EditingHintProperty = DependencyProperty.Register("EditingHint", typeof(string), typeof(NumberDragger), new PropertyMetadata(null));
         public static readonly DependencyProperty ForcedReadOnlyStateProperty = DependencyProperty.Register("ForcedReadOnlyState", typeof(bool?), typeof(NumberDragger), new PropertyMetadata(null));
@@ -122,11 +121,6 @@ namespace FramePFX.WPF.Controls.Dragger {
         public int? PreviewRoundedPlaces {
             get => (int?) this.GetValue(PreviewRoundedPlacesProperty);
             set => this.SetValue(PreviewRoundedPlacesProperty, value);
-        }
-
-        public bool LockCursorWhileDragging {
-            get => (bool) this.GetValue(LockCursorWhileDraggingProperty);
-            set => this.SetValue(LockCursorWhileDraggingProperty, value.Box());
         }
 
         /// <summary>
@@ -405,7 +399,8 @@ namespace FramePFX.WPF.Controls.Dragger {
             }
             else {
                 if (this.IsDragging) {
-                    this.Cursor = this.LockCursorWhileDragging ? Cursors.None : this.GetCursorForOrientation();
+                    // hide cursor while dragging
+                    this.Cursor = Cursors.None;
                     if (this.PART_TextBlock != null) {
                         this.PART_TextBlock.ClearValue(CursorProperty);
                     }
@@ -567,6 +562,12 @@ namespace FramePFX.WPF.Controls.Dragger {
                 return;
             }
 
+            if (!(this.lastClickPoint is Point lastClick)) {
+                return;
+            }
+
+            // System.Windows.Forms.Cursor
+
             if (e.LeftButton != MouseButtonState.Pressed) {
                 if (this.IsDragging) {
                     this.CompleteDrag();
@@ -589,8 +590,8 @@ namespace FramePFX.WPF.Controls.Dragger {
             }
 
             bool wrap = false;
-            Point mpos = e.GetPosition(this), wrapPoint = mpos;
-            if (this.lastClickPoint is Point lastClick && !this.IsDragging) {
+            Point mpos = e.GetPosition(this);
+            if (!this.IsDragging) {
                 if (Math.Abs(mpos.X - lastClick.X) < 5d && Math.Abs(mpos.Y - lastClick.Y) < 5d) {
                     return;
                 }
@@ -605,34 +606,6 @@ namespace FramePFX.WPF.Controls.Dragger {
             if (this.IsEditingTextBox) {
                 Debug.WriteLine("IsEditingTextBox and IsDragging were both true");
                 this.IsEditingTextBox = false;
-            }
-
-            if (this.LockCursorWhileDragging) {
-                double x = mpos.X, y = mpos.Y;
-                if (this.Orientation == Orientation.Horizontal) {
-                    if (mpos.X <= 0) {
-                        x = this.ActualWidth - 1;
-                        wrap = true;
-                    }
-                    else if (mpos.X >= this.ActualWidth) {
-                        x = 1;
-                        wrap = true;
-                    }
-                }
-                else {
-                    if (mpos.Y < 1) {
-                        y = this.ActualHeight - 1;
-                        wrap = true;
-                    }
-                    else if (mpos.X >= this.ActualHeight) {
-                        y = 1;
-                        wrap = true;
-                    }
-                }
-
-                if (wrap) {
-                    wrapPoint = new Point(x, y);
-                }
             }
 
             double change;
@@ -684,18 +657,14 @@ namespace FramePFX.WPF.Controls.Dragger {
             }
 
             this.Value = roundedValue;
-            this.lastMouseMove = mpos;
-
-            if (wrap) {
-                this.isUpdatingExternalMouse = true;
-                try {
-                    this.lastMouseMove = wrapPoint;
-                    Point sp = this.PointToScreen(wrapPoint);
-                    CursorUtils.SetCursorPos((int) Math.Round(sp.X), (int) Math.Round(sp.Y));
-                }
-                finally {
-                    this.isUpdatingExternalMouse = false;
-                }
+            this.lastMouseMove = this.lastClickPoint;
+            this.isUpdatingExternalMouse = true;
+            try {
+                Point sp = this.PointToScreen(lastClick);
+                CursorUtils.SetCursorPos((int) Math.Round(sp.X), (int) Math.Round(sp.Y));
+            }
+            finally {
+                this.isUpdatingExternalMouse = false;
             }
         }
 
@@ -830,7 +799,7 @@ namespace FramePFX.WPF.Controls.Dragger {
             this.ClearValue(IsDraggingPropertyKey);
 
             this.lastMouseMove = null;
-            if (this.LockCursorWhileDragging && this.lastClickPoint is Point point) {
+            if (this.lastClickPoint is Point point) {
                 this.isUpdatingExternalMouse = true;
                 try {
                     Point p = this.PointToScreen(point);

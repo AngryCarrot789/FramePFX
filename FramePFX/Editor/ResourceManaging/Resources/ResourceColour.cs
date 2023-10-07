@@ -1,16 +1,10 @@
-using FramePFX.Editor.ZSystem;
 using FramePFX.RBC;
 using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editor.ResourceManaging.Resources {
     public class ResourceColour : ResourceItem {
-        public static readonly ZProperty<SKColor> ColourProperty = ZProperty.RegisterU<SKColor>(typeof(ResourceColour), nameof(Colour));
-
-        public SKColor Colour {
-            get => this.GetValueU(ColourProperty);
-            set => this.SetValueU(ColourProperty, value);
-        }
+        public SKColor Colour;
 
         public float ScR {
             get => Maths.Clamp(this.Colour.Red / 255F, 0F, 1F);
@@ -57,11 +51,6 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
 
         public ResourceColour(byte r, byte g, byte b, byte a = 255) {
             this.Colour = new SKColor(r, g, b, a);
-        }
-
-        protected override void OnPropertyChanged(ZProperty property) {
-            base.OnPropertyChanged(property);
-            this.OnDataModified(property.Name);
         }
 
         public override void WriteToRBE(RBEDictionary data) {

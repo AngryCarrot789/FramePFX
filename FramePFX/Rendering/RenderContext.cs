@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using FramePFX.Editor;
 using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.VideoClips;
 using SkiaSharp;
@@ -26,6 +27,16 @@ namespace FramePFX.Rendering {
         /// The size of the rendering canvas, e.g. 1920,1080
         /// </summary>
         public Vector2 FrameSize { get; }
+
+        /// <summary>
+        /// Gets the rendering quality for the project at the time of the render
+        /// </summary>
+        public EnumRenderQuality RenderQuality;
+
+        /// <summary>
+        /// Gets the <see cref="SKFilterQuality"/> which is based on the <see cref="RenderQuality"/>
+        /// </summary>
+        public SKFilterQuality RenderFilterQuality;
 
         private List<(VideoClip, SKRect)> clipBoxes;
 
@@ -53,6 +64,11 @@ namespace FramePFX.Rendering {
         /// </summary>
         public void ClearPixels() {
             this.Canvas.Clear(SKColors.Black);
+        }
+
+        public void SetRenderQuality(EnumRenderQuality quality) {
+            this.RenderQuality = quality;
+            this.RenderFilterQuality = quality.ToFilterQuality();
         }
     }
 

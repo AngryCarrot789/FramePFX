@@ -43,11 +43,11 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         public override Task OnEndRender(RenderContext rc, long frame) {
             if (!this.ResourceImageKey.TryGetResource(out ResourceImage resource))
                 return Task.CompletedTask;
-            if (resource.image == null)
+            SKImage img = resource.image;
+            if (img == null)
                 return Task.CompletedTask;
-            SKFilterQuality quality = this.Project.RenderQuality.ToFilterQuality();
-            using (SKPaint paint = new SKPaint() {FilterQuality = quality, ColorF = new SKColorF(1f, 1f, 1f, (float) this.Opacity)})
-                rc.Canvas.DrawImage(resource.image, 0, 0, paint);
+            using (SKPaint paint = new SKPaint {FilterQuality = rc.RenderFilterQuality, ColorF = new SKColorF(1f, 1f, 1f, (float) this.Opacity)})
+                rc.Canvas.DrawImage(img, 0, 0, paint);
 
             return Task.CompletedTask;
         }

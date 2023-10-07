@@ -7,10 +7,12 @@ using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.RBC;
 using FramePFX.Rendering;
+using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips {
     public class TextVideoClip : VideoClip, IResourceHolder {
         private BitVector32 clipProps;
+        private SKTextBlob[] TextBlobs;
 
         // Use Local <property>
 
@@ -76,15 +78,10 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         }
 
         protected override void LoadUserDataIntoClone(Clip clone, ClipCloneFlags flags) {
-            base.LoadUserDataIntoClone(clone, flags & ~ClipCloneFlags.ResourceHelper);
+            base.LoadUserDataIntoClone(clone, flags);
             TextVideoClip clip = (TextVideoClip) clone;
             clip.Text = this.Text;
-
-            this.ResourceHelper.LoadDataIntoClone(clip.ResourceHelper);
-
-            RBEDictionary dictionary = new RBEDictionary();
-            BitVector32 props = this.clipProps;
-            clip.clipProps = props;
+            clip.clipProps = this.clipProps;
         }
 
         public override void WriteToRBE(RBEDictionary data) {
@@ -104,12 +101,27 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             return this.TextBlobBoundingBox;
         }
 
-
         public override bool OnBeginRender(long frame) {
-            return false;
+            return this.TextStyleKey.TryGetResource(out ResourceTextStyle _);
         }
 
         public override Task OnEndRender(RenderContext rc, long frame) {
+            if (!this.TextStyleKey.TryGetResource(out ResourceTextStyle r)) {
+                return Task.CompletedTask;
+            }
+
+            SKPaint paint = r.GeneratedPaint;
+            if (this.TextBlobs == null || paint == null) {
+                return Task.CompletedTask;
+            }
+
+            foreach (SKTextBlob blob in this.TextBlobs) {
+                if (blob != null) {
+                    // rc.Canvas.DrawText(blob, 0, size.Y * this.MediaScaleOrigin.Y, this.cachedPaint);
+                    rc.Canvas.DrawText(blob, 0, blob.Bounds.Height / 2f, r.GeneratedPaint);
+                }
+            }
+
             return Task.CompletedTask;
         }
 
@@ -123,6 +135,28 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         }
 
         public void GenerateTextCache() {
+            if (this.TextBlobs != null || string.IsNullOrEmpty(this.Text)) {
+                return;
+            }
+
+            if (!this.TextStyleKey.TryGetResource(out ResourceTextStyle resource)) {
+                return;
+            }
+
+            resource.GenerateCachedData();
+            if (resource.GeneratedFont != null) {
+                this.TextBlobs = ResourceTextStyle.CreateTextBlobs(this.Text, resource.GeneratedPaint, resource.GeneratedFont);
+                float w = 0, h = 0;
+                foreach (SKTextBlob blob in this.TextBlobs) {
+                    if (blob != null) {
+                        SKRect bound = blob.Bounds;
+                        w = Math.Max(w, bound.Width);
+                        h = Math.Max(h, bound.Height);
+                    }
+                }
+
+                this.TextBlobBoundingBox = new Vector2(w, h);
+            }
         }
     }
 }

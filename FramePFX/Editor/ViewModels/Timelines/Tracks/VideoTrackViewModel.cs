@@ -168,7 +168,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                 Clip newClip;
                 switch (resource.Model) {
                     case ResourceAVMedia media: {
-                        if (media.IsValidMediaFile) {
+                        if (!media.IsValidMediaFile) {
                             await Services.DialogService.ShowMessageAsync("Invalid media", "?????????? Demuxer is closed");
                             return;
                         }

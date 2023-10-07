@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using FramePFX.Automation;
 using FramePFX.Editor.Registries;
-using FramePFX.Editor.ZSystem;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
@@ -11,7 +10,7 @@ namespace FramePFX.Editor.Timelines {
     /// Base class for timeline tracks. A track simply contains clips, along with a few extra
     /// properties (like opacity for video tracks or gain for audio tracks, which typically affect all clips)
     /// </summary>
-    public abstract class Track : ZObject, IProjectBound, IAutomatable {
+    public abstract class Track : IProjectBound, IAutomatable {
         private readonly List<Clip> clips;
 
         /// <summary>

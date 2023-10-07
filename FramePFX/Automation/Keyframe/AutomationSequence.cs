@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Numerics;
 using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
-using FramePFX.Editor.ZSystem;
 using FramePFX.RBC;
 
 namespace FramePFX.Automation.Keyframe {
     /// <summary>
     /// Contains all of the key frames for a specific <see cref="AutomationKey"/>
     /// </summary>
-    public class AutomationSequence : ZObject {
+    public class AutomationSequence {
         private static readonly Func<KeyFrame, float> FuncGetFloat = k => ((KeyFrameFloat) k).Value;
         private static readonly Func<KeyFrame, double> FuncGetDouble = k => ((KeyFrameDouble) k).Value;
         private static readonly Func<KeyFrame, long> FuncGetLong = k => ((KeyFrameLong) k).Value;

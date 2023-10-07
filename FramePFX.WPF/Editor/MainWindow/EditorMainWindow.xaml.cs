@@ -311,6 +311,7 @@ namespace FramePFX.WPF.Editor.MainWindow {
                 if (this.ViewPortControl.ViewPortElement.BeginRender(out SKSurface surface)) {
                     try {
                         RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortControl.ViewPortElement.FrameInfo);
+                        context.SetRenderQuality(project.Model.RenderQuality);
                         context.ShouldProvideClipBounds = true;
                         context.ClearPixels();
                         try {

@@ -9,7 +9,6 @@ using FramePFX.Editor.Registries;
 using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.Timelines.VideoClips;
-using FramePFX.Editor.ZSystem;
 using FramePFX.RBC;
 using FramePFX.Rendering;
 using FramePFX.Utils;
@@ -20,7 +19,7 @@ namespace FramePFX.Editor.Timelines {
     /// <summary>
     /// A timeline or sequence, which contains a collection of tracks (which contain a collection of clips)
     /// </summary>
-    public class Timeline : ZObject, IProjectBound, IAutomatable {
+    public class Timeline : IProjectBound, IAutomatable {
         private readonly List<Track> tracks;
         private readonly TimelineRenderState renderState;
         private volatile bool isBeginningRender;
@@ -314,6 +313,10 @@ namespace FramePFX.Editor.Timelines {
             }
         }
 
+        // TODO: really gotta replace this by rendering each track in their own tasks
+        // This is why I added the ZProperty system, so that the state of the clips and tracks
+        // could be safely mirrored between "update" and "render" parts
+
         private bool BeginCompositeRenderInternal(long frame, CancellationToken token) {
             List<AdjustmentVideoClip> adjustments = this.renderState.AdjustmentStack;
             List<VideoClip> renderList = this.renderState.RenderList;
@@ -355,47 +358,9 @@ namespace FramePFX.Editor.Timelines {
             return true;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void PreProcessAjustments(long frame, RenderContext render) {
-            List<AdjustmentVideoClip> list = this.renderState.AdjustmentStack;
-            int count = list.Count;
-            if (count == 0)
-                return;
-
-            Vector2 size = render.FrameSize;
-            try {
-                for (int i = 0; i < count; i++) {
-                    BaseEffect.ProcessEffectList(list[i].Effects, frame, render, size, true);
-                }
-            }
-            catch (Exception e) {
-                this.CompleteRenderList(frame, true, e);
-                throw new Exception("Failed to pre-process adjustment layer effects", e);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void PostProcessAjustments(long frame, RenderContext render) {
-            List<AdjustmentVideoClip> list = this.renderState.AdjustmentStack;
-            int count = list.Count;
-            if (count == 0)
-                return;
-
-            Vector2 size = render.FrameSize;
-            try {
-                for (int i = count - 1; i >= 0; i--) {
-                    BaseEffect.ProcessEffectList(list[i].Effects, frame, render, size, false);
-                }
-            }
-            catch (Exception e) {
-                throw new Exception("Failed to post-process adjustment layer effects", e);
-            }
-        }
-
         public async Task EndCompositeRenderAsync(RenderContext render, long frame, CancellationToken token) {
             try {
                 render.Depth++;
-                VideoEditor.EditorRenderUpdateChannel.ProcessUpdates();
                 long a = Time.GetSystemTicks();
                 List<VideoClip> renderList = this.renderState.RenderList;
                 bool provideBoxInfo = render.ShouldProvideClipBounds;
@@ -492,6 +457,43 @@ namespace FramePFX.Editor.Timelines {
             finally {
                 this.renderState.IsRendering = false;
                 render.Depth--;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void PreProcessAjustments(long frame, RenderContext render) {
+            List<AdjustmentVideoClip> list = this.renderState.AdjustmentStack;
+            int count = list.Count;
+            if (count == 0)
+                return;
+
+            Vector2 size = render.FrameSize;
+            try {
+                for (int i = 0; i < count; i++) {
+                    BaseEffect.ProcessEffectList(list[i].Effects, frame, render, size, true);
+                }
+            }
+            catch (Exception e) {
+                this.CompleteRenderList(frame, true, e);
+                throw new Exception("Failed to pre-process adjustment layer effects", e);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void PostProcessAjustments(long frame, RenderContext render) {
+            List<AdjustmentVideoClip> list = this.renderState.AdjustmentStack;
+            int count = list.Count;
+            if (count == 0)
+                return;
+
+            Vector2 size = render.FrameSize;
+            try {
+                for (int i = count - 1; i >= 0; i--) {
+                    BaseEffect.ProcessEffectList(list[i].Effects, frame, render, size, false);
+                }
+            }
+            catch (Exception e) {
+                throw new Exception("Failed to post-process adjustment layer effects", e);
             }
         }
 

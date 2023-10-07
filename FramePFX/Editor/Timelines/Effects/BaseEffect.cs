@@ -6,7 +6,6 @@ using System.Runtime.CompilerServices;
 using FramePFX.Automation;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.Timelines.Effects.Video;
-using FramePFX.Editor.ZSystem;
 using FramePFX.Logger;
 using FramePFX.RBC;
 using FramePFX.Rendering;
@@ -16,7 +15,7 @@ namespace FramePFX.Editor.Timelines.Effects {
     /// <summary>
     /// The base class for all types of effects (audio, video, etc.). This class supports automation
     /// </summary>
-    public abstract class BaseEffect : ZObject, IAutomatable, IStrictFrameRange {
+    public abstract class BaseEffect : IAutomatable, IStrictFrameRange {
         /// <summary>
         /// Whether or not this effect can be removed from a clip. This is also used to determine if an
         /// effect can be copy and pasted into another clip. When this is false, it cannot be copied nor removed

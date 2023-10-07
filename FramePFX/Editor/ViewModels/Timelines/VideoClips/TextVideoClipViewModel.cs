@@ -21,7 +21,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             get => this.fontFamily;
             set {
                 if (this.Model.TextStyleKey.TryGetResource(out ResourceTextStyle resource)) {
-                    resource.OnDataModified(ref resource.FontFamily, value, nameof(resource.FontFamily));
+                    resource.FontFamily = value;
+                    resource.OnDataModified(nameof(resource.FontFamily));
                 }
             }
         }
@@ -32,7 +33,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             get => this.fontSize;
             set {
                 if (this.Model.TextStyleKey.TryGetResource(out ResourceTextStyle resource)) {
-                    resource.OnDataModified(ref resource.FontSize, value, nameof(resource.FontSize));
+                    resource.FontSize = value;
+                    resource.OnDataModified(nameof(resource.FontSize));
                 }
             }
         }
@@ -43,7 +45,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             get => this.skewX;
             set {
                 if (this.Model.TextStyleKey.TryGetResource(out ResourceTextStyle resource)) {
-                    resource.OnDataModified(ref resource.SkewX, value, nameof(resource.SkewX));
+                    resource.SkewX = value;
+                    resource.OnDataModified(nameof(resource.SkewX));
                 }
             }
         }

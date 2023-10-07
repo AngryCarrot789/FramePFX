@@ -15,7 +15,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         private VideoFrame renderFrameRgb, downloadedHwFrame;
         public unsafe SwsContext* scaler;
         private PictureFormat scalerInputFormat;
-        private VideoFrame readyFrame;
+        private VideoFrame lastReadyFrame;
         private long currentFrame = -1;
 
         // TODO: decoder thread
@@ -47,7 +47,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             if (resource.stream == null || resource.Demuxer == null)
                 return false;
 
-            if (frame != this.currentFrame || this.renderFrameRgb == null || resource.Demuxer == null) {
+            if (frame != this.currentFrame || this.renderFrameRgb == null) {
                 if (this.renderFrameRgb == null) {
                     unsafe {
                         AVCodecParameters* pars = resource.stream.Handle->codecpar;
@@ -59,7 +59,27 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                 TimeSpan timestamp = TimeSpan.FromSeconds((frame - this.FrameBegin + this.MediaFrameOffset) / timeScale);
                 // No need to dispose as the frames are stored in a frame buffer, which is disposed by the resource itself
                 this.currentFrame = frame;
-                this.GetFrameTask = Task.Run(() => resource.GetFrameAt(timestamp));
+                this.GetFrameTask = Task.Run(() => {
+                    VideoFrame ready = resource.GetFrameAt(timestamp);
+                    if (ready != null && !ready.IsDisposed) {
+                        // TODO: Maybe add an async frame fetcher that buffers the frames, or maybe add
+                        // a project preview resolution so that decoding is lightning fast for low resolution?
+
+                        // this.ApplyTransformation(rc);
+                        if (ready.IsHardwareFrame) {
+                            // As of ffmpeg 6.0, GetHardwareTransferFormats() only returns more than one format for VAAPI,
+                            // which isn't widely supported on Windows yet, so we can't transfer directly to RGB without
+                            // hacking into the API specific device context (like D3D11VA).
+                            ready.TransferTo(this.downloadedHwFrame ?? (this.downloadedHwFrame = new VideoFrame()));
+                            ready = this.downloadedHwFrame;
+                        }
+
+                        this.ScaleFrame(ready);
+                        return ready;
+                    }
+
+                    return null;
+                });
             }
 
             return true;
@@ -68,37 +88,36 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         public override async Task OnEndRender(RenderContext rc, long frame) {
             VideoFrame ready;
             if (this.GetFrameTask != null) {
-                this.readyFrame = ready = await this.GetFrameTask;
+                this.lastReadyFrame = ready = await this.GetFrameTask;
             }
             else {
-                ready = this.readyFrame;
+                ready = this.lastReadyFrame;
             }
 
-            if (ready != null && !ready.IsDisposed) {
-                // TODO: Maybe add an async frame fetcher that buffers the frames, or maybe add
-                // a project preview resolution so that decoding is lightning fast for low resolution?
+            if (ready == null || ready.IsDisposed) {
+                return;
+            }
 
-                // this.ApplyTransformation(rc);
-                if (ready.IsHardwareFrame) {
-                    // As of ffmpeg 6.0, GetHardwareTransferFormats() only returns more than one format for VAAPI,
-                    // which isn't widely supported on Windows yet, so we can't transfer directly to RGB without
-                    // hacking into the API specific device context (like D3D11VA).
-                    ready.TransferTo(this.downloadedHwFrame ?? (this.downloadedHwFrame = new VideoFrame()));
-                    ready = this.downloadedHwFrame;
-                }
+            unsafe {
+                byte* ptr;
+                GetFrameData(this.renderFrameRgb, 0, &ptr, out int rowBytes);
+                SKImageInfo image = new SKImageInfo(this.renderFrameRgb.Width, this.renderFrameRgb.Height, SKColorType.Rgba8888);
+                using (SKImage img = SKImage.FromPixels(image, (IntPtr) ptr, rowBytes)) {
+                    if (img == null) {
+                        return;
+                    }
 
-                unsafe {
-                    this.ScaleFrame(ready);
-                    // TODO: Maybe cache the SKPixmap, because renderFrameRgb lasts a long time, where the size remains unmodified probably
-                    byte* ptr;
-                    GetFrameData(this.renderFrameRgb, 0, &ptr, out int rowBytes);
-                    SKImageInfo image = new SKImageInfo(this.renderFrameRgb.Width, this.renderFrameRgb.Height, SKColorType.Rgba8888);
-                    using (SKImage img = SKImage.FromPixels(image, (IntPtr) ptr, rowBytes)) {
-                        SKFilterQuality quality = this.Project.RenderQuality.ToFilterQuality();
-                        using (SKPaint paint = new SKPaint() {FilterQuality = quality, ColorF = new SKColorF(1f, 1f, 1f, (float) this.Opacity)})
-                            rc.Canvas.DrawImage(img, 0, 0, paint);
+                    using (SKPaint paint = new SKPaint() {FilterQuality = rc.RenderFilterQuality, ColorF = new SKColorF(1f, 1f, 1f, (float) this.Opacity)}) {
+                        rc.Canvas.DrawImage(img, 0, 0, paint);
                     }
                 }
+            }
+        }
+
+        public override void OnRenderCompleted(long frame, bool isCancelled) {
+            base.OnRenderCompleted(frame, isCancelled);
+            if (isCancelled) {
+                this.GetFrameTask?.Wait();
             }
         }
 

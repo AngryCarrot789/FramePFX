@@ -1,7 +1,6 @@
 using System;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.ResourceManaging.ViewModels;
-using FramePFX.Editor.ZSystem;
 using FramePFX.Logger;
 using FramePFX.RBC;
 
@@ -9,7 +8,7 @@ namespace FramePFX.Editor.ResourceManaging {
     /// <summary>
     /// Base class for resource items and groups
     /// </summary>
-    public abstract class BaseResource : ZObject {
+    public abstract class BaseResource {
         /// <summary>
         /// The manager that this resource belongs to. Null if the resource is unregistered
         /// </summary>

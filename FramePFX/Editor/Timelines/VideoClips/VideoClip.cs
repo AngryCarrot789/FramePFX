@@ -5,24 +5,18 @@ using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.Timelines.Effects.Video;
 using FramePFX.Editor.Timelines.Events;
 using FramePFX.Editor.Timelines.Tracks;
-using FramePFX.Editor.ZSystem;
 using FramePFX.RBC;
 using FramePFX.Rendering;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timelines.VideoClips {
     public abstract class VideoClip : Clip {
-        public static readonly ZProperty<double> OpacityProperty = ZProperty.RegisterU<double>(typeof(VideoClip), nameof(Opacity));
-
         public static readonly AutomationKeyDouble OpacityKey = AutomationKey.RegisterDouble(nameof(VideoClip), nameof(Opacity), 1d, 0d, 1d);
 
         /// <summary>
         /// The opacity; how much of this clip is visible when rendered. Ranges from 0 to 1
         /// </summary>
-        public double Opacity {
-            get => this.GetValueU(OpacityProperty);
-            set => this.SetValueU(OpacityProperty, value);
-        }
+        public double Opacity;
 
         public byte OpacityByte {
             get => RenderUtils.DoubleToByte255(this.Opacity);

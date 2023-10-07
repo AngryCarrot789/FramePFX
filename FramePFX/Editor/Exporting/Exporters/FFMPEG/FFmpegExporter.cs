@@ -187,6 +187,7 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG {
                 }
 
                 RenderContext rc = new RenderContext(surface, surface.Canvas, frameInfo);
+                rc.SetRenderQuality(EnumRenderQuality.High);
                 long exportFrame = duration.Begin; // frame index, relative to export duration
                 long ptsFrame = 0; // frame index, relative to start of file
                 long frameEnd = duration.EndIndex;

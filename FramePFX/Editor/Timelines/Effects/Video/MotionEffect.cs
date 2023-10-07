@@ -1,6 +1,5 @@
 using System.Numerics;
 using FramePFX.Automation.Keys;
-using FramePFX.Editor.ZSystem;
 using FramePFX.Rendering;
 using FramePFX.Utils;
 
@@ -9,14 +8,6 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
     /// An effect that deals with picture transformations (as in position, scale and scale origin)
     /// </summary>
     public class MotionEffect : VideoEffect {
-        public static readonly ZProperty<Vector2> MediaPositionProperty = ZProperty.RegisterU<Vector2>(typeof(MotionEffect), nameof(MediaPosition));
-        public static readonly ZProperty<Vector2> MediaScaleProperty = ZProperty.RegisterU<Vector2>(typeof(MotionEffect), nameof(MediaScale));
-        public static readonly ZProperty<Vector2> MediaScaleOriginProperty = ZProperty.RegisterU<Vector2>(typeof(MotionEffect), nameof(MediaScaleOrigin));
-        public static readonly ZProperty<bool> UseAbsoluteScaleOriginProperty = ZProperty.RegisterU<bool>(typeof(MotionEffect), nameof(UseAbsoluteScaleOrigin));
-        public static readonly ZProperty<double> MediaRotationProperty = ZProperty.RegisterU<double>(typeof(MotionEffect), nameof(MediaRotation));
-        public static readonly ZProperty<Vector2> MediaRotationOriginProperty = ZProperty.RegisterU<Vector2>(typeof(MotionEffect), nameof(MediaRotationOrigin));
-        public static readonly ZProperty<bool> UseAbsoluteRotationOriginProperty = ZProperty.RegisterU<bool>(typeof(MotionEffect), nameof(UseAbsoluteRotationOrigin));
-
         public static readonly AutomationKeyVector2 MediaPositionKey = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaPosition), Vector2.Zero, Vectors.MinValue, Vectors.MaxValue);
         public static readonly AutomationKeyVector2 MediaScaleKey = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaScale), Vector2.One, Vectors.MinValue, Vectors.MaxValue);
         public static readonly AutomationKeyVector2 MediaScaleOriginKey = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaScaleOrigin), new Vector2(), Vectors.MinValue, Vectors.MaxValue);
@@ -28,39 +19,39 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
         /// <summary>
         /// The x and y coordinates of the video's media
         /// </summary>
-        public Vector2 MediaPosition { get => this.GetValueU(MediaPositionProperty); set => this.SetValueU(MediaPositionProperty, value); }
+        public Vector2 MediaPosition;
 
         /// <summary>
         /// The x and y scale of the 0video's media (relative to <see cref="MediaScaleOrigin"/>)
         /// </summary>
-        public Vector2 MediaScale { get => this.GetValueU(MediaScaleProperty); set => this.SetValueU(MediaScaleProperty, value); }
+        public Vector2 MediaScale;
 
         /// <summary>
         /// The scaling origin point of this video's media. Default value is 0,0 (top-left corner of the frame)
         /// </summary>
-        public Vector2 MediaScaleOrigin { get => this.GetValueU(MediaScaleOriginProperty); set => this.SetValueU(MediaScaleOriginProperty, value); }
+        public Vector2 MediaScaleOrigin;
 
         /// <summary>
         /// When false, the <see cref="MediaScaleOrigin"/> is relative to the media size (see <see cref="GetSize"/>). When
         /// true, <see cref="GetSize"/> is not called, and the <see cref="MediaScaleOrigin"/> is used directly
         /// </summary>
-        public bool UseAbsoluteScaleOrigin { get => this.GetValueU(UseAbsoluteScaleOriginProperty); set => this.SetValueU(UseAbsoluteScaleOriginProperty, value); }
+        public bool UseAbsoluteScaleOrigin;
 
         /// <summary>
         /// The clockwise rotation of the frame, in degrees
         /// </summary>
-        public double MediaRotation { get => this.GetValueU(MediaRotationProperty); set => this.SetValueU(MediaRotationProperty, value); }
+        public double MediaRotation;
 
         /// <summary>
         /// The scaling origin point of this video's media. Default value is 0,0 (top-left corner of the frame)
         /// </summary>
-        public Vector2 MediaRotationOrigin { get => this.GetValueU(MediaRotationOriginProperty); set => this.SetValueU(MediaRotationOriginProperty, value); }
+        public Vector2 MediaRotationOrigin;
 
         /// <summary>
         /// When false, the <see cref="MediaScaleOrigin"/> is relative to the media size (see <see cref="GetSize"/>). When
         /// true, <see cref="GetSize"/> is not called, and the <see cref="MediaScaleOrigin"/> is used directly
         /// </summary>
-        public bool UseAbsoluteRotationOrigin { get => this.GetValueU(UseAbsoluteRotationOriginProperty); set => this.SetValueU(UseAbsoluteRotationOriginProperty, value); }
+        public bool UseAbsoluteRotationOrigin;
 
         public MotionEffect() {
             this.AutomationData.AssignKey(MediaPositionKey, (s, f) => ((MotionEffect) s.AutomationData.Owner).MediaPosition = s.GetVector2Value(f));

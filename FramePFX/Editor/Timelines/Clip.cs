@@ -8,7 +8,6 @@ using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.Timelines.Events;
 using FramePFX.Editor.Timelines.ResourceHelpers;
-using FramePFX.Editor.ZSystem;
 using FramePFX.RBC;
 using FramePFX.RBC.Events;
 using FramePFX.Utils;
@@ -17,7 +16,7 @@ namespace FramePFX.Editor.Timelines {
     /// <summary>
     /// A model that represents a timeline track clip, such as a video or audio clip
     /// </summary>
-    public abstract class Clip : ZObject, IClip, IStrictFrameRange, IAutomatable, IDisposable {
+    public abstract class Clip : IClip, IStrictFrameRange, IAutomatable, IDisposable {
         private readonly List<BaseEffect> internalEffectList;
 
         /// <summary>
@@ -306,12 +305,12 @@ namespace FramePFX.Editor.Timelines {
         /// </summary>
         public void Dispose() {
             this.OnBeginDispose();
-            this.DisposeCore();
+            this.OnDisposeCore();
             this.OnEndDispose();
         }
 
         /// <summary>
-        /// Called just before <see cref="DisposeCore(ErrorList)"/>. This should not throw any exceptions
+        /// Called just before <see cref="OnDisposeCore"/>. This should not throw any exceptions
         /// </summary>
         protected virtual void OnBeginDispose() {
             this.IsDisposing = true;
@@ -324,7 +323,7 @@ namespace FramePFX.Editor.Timelines {
         /// Exceptions should not be thrown from this method, and instead, added to the given <see cref="ErrorList"/>
         /// </para>
         /// </summary>
-        protected virtual void DisposeCore() {
+        protected virtual void OnDisposeCore() {
             this.ClearEffects();
             if (this is IResourceHolder resourceClip) {
                 resourceClip.ResourceHelper.Dispose();
@@ -332,7 +331,7 @@ namespace FramePFX.Editor.Timelines {
         }
 
         /// <summary>
-        /// Called just after <see cref="DisposeCore(ErrorList)"/>. This should not throw any exceptions
+        /// Called just after <see cref="OnDisposeCore"/>. This should not throw any exceptions
         /// </summary>
         protected virtual void OnEndDispose() {
             this.IsDisposing = false;

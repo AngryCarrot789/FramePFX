@@ -8,7 +8,7 @@ namespace FramePFX.Utils.Collections {
     /// <typeparam name="T">The type of value this entry stores</typeparam>
     public interface ITypeEntry<out T> {
         /// <summary>
-        /// Gets the CLR type for this entry
+        /// Gets the CLR type that keys to this instance (as in, the key to the <see cref="InheritanceDictionary{T}"/>)
         /// </summary>
         Type Type { get; }
 

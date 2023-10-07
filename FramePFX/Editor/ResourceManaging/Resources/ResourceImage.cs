@@ -19,27 +19,10 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
         public ResourceImage() {
         }
 
-        private readonly struct UnmanagedImageFormat {
-            public readonly int Width;
-            public readonly int Height;
-            public readonly SKColorType ColorType;
-            public readonly SKAlphaType AlphaType;
-
-            public SKImageInfo ImageInfo => new SKImageInfo(this.Width, this.Height, this.ColorType, this.AlphaType);
-
-            public UnmanagedImageFormat(int width, int height, SKColorType colorType, SKAlphaType alphaType) {
-                this.Width = width;
-                this.Height = height;
-                this.ColorType = colorType;
-                this.AlphaType = alphaType;
-            }
-
-            public UnmanagedImageFormat(SKImageInfo info) {
-                this.Width = info.Width;
-                this.Height = info.Height;
-                this.ColorType = info.ColorType;
-                this.AlphaType = info.AlphaType;
-            }
+        public void SetBitmapImage(SKBitmap skBitmap) {
+            this.bitmap = skBitmap;
+            this.image = SKImage.FromBitmap(skBitmap);
+            this.IsRawBitmapMode = true;
         }
 
         public override void WriteToRBE(RBEDictionary data) {
@@ -97,8 +80,23 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
             }
         }
 
-        public async Task LoadImageAsync(string file, bool setOnline = true) {
-            SKBitmap loadedBitmap = await LoadBitmapAsync(file);
+        public async Task LoadImageAsync(string file) {
+            SKBitmap bmp = null;
+            SKImage img = null;
+            try {
+                using (BufferedStream stream = new BufferedStream(File.OpenRead(file), 32768)) {
+                    await Task.Run(() => {
+                        bmp = SKBitmap.Decode(stream);
+                        img = SKImage.FromBitmap(bmp);
+                    });
+                }
+            }
+            catch {
+                bmp?.Dispose();
+                img?.Dispose();
+                throw;
+            }
+
             if (this.bitmap != null || this.image != null) {
                 this.bitmap?.Dispose();
                 this.bitmap = null;
@@ -106,12 +104,8 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
                 this.image = null;
             }
 
-            this.bitmap = loadedBitmap;
-            this.image = await Task.Run(() => SKImage.FromBitmap(loadedBitmap));
-            if (setOnline && !this.IsOnline) {
-                this.IsOnline = true;
-                this.OnIsOnlineStateChanged();
-            }
+            this.image = img;
+            this.bitmap = bmp;
         }
 
         public override void Dispose() {
@@ -122,9 +116,26 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
             this.image = null;
         }
 
-        public static async Task<SKBitmap> LoadBitmapAsync(string path) {
-            using (BufferedStream stream = new BufferedStream(File.OpenRead(path), 16384)) {
-                return await Task.Run(() => SKBitmap.Decode(stream));
+        private readonly struct UnmanagedImageFormat {
+            public readonly int Width;
+            public readonly int Height;
+            public readonly SKColorType ColorType;
+            public readonly SKAlphaType AlphaType;
+
+            public SKImageInfo ImageInfo => new SKImageInfo(this.Width, this.Height, this.ColorType, this.AlphaType);
+
+            public UnmanagedImageFormat(int width, int height, SKColorType colorType, SKAlphaType alphaType) {
+                this.Width = width;
+                this.Height = height;
+                this.ColorType = colorType;
+                this.AlphaType = alphaType;
+            }
+
+            public UnmanagedImageFormat(SKImageInfo info) {
+                this.Width = info.Width;
+                this.Height = info.Height;
+                this.ColorType = info.ColorType;
+                this.AlphaType = info.AlphaType;
             }
         }
     }

@@ -47,20 +47,25 @@ namespace FramePFX.WPF.Interactivity {
             this.mObject.SetData(format, data, autoConvert);
         }
 
-        public bool GetBitmap(out SKBitmap bitmap) {
+        public bool GetBitmap(out SKBitmap bitmap, out int error) {
             if (!(this.GetData(NativeDropTypes.Bitmap) is InteropBitmap bmp)) {
+                error = 1;
                 bitmap = null;
                 return false;
             }
 
             if (bmp.Format.ToString() != "Bgra32") {
+                error = 2;
                 bitmap = null;
                 return false;
             }
 
             SKImageInfo info = new SKImageInfo(bmp.PixelWidth, bmp.PixelHeight);
+            System.Diagnostics.Debug.Assert(info.Width * (bmp.Format.BitsPerPixel / 8) == info.RowBytes);
+
             bitmap = new SKBitmap(info);
             bmp.CopyPixels(new Int32Rect(0, 0, info.Width, info.Height), bitmap.GetPixels(), info.BytesSize, info.RowBytes);
+            error = 0;
             return true;
         }
     }

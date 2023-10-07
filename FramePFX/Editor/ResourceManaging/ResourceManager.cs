@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FramePFX.Editor.ResourceManaging.Events;
+using FramePFX.Logger;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
@@ -69,7 +70,6 @@ namespace FramePFX.Editor.ResourceManaging {
             do {
                 id++;
             } while (this.uuidToItem.ContainsKey(id) && id != 0);
-
             return this.currId = id;
         }
 
@@ -107,8 +107,12 @@ namespace FramePFX.Editor.ResourceManaging {
         public ulong RegisterEntry(ResourceItem item) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "Item cannot be null");
-            if (item.UniqueId != EmptyId && this.uuidToItem.TryGetValue(item.UniqueId, out ResourceItem oldItem))
-                throw new Exception($"Resource is already registered with ID '{item.UniqueId}': {oldItem.GetType()}");
+            if (item.UniqueId != EmptyId) {
+                if (this.uuidToItem.TryGetValue(item.UniqueId, out ResourceItem oldItem))
+                    throw new Exception($"Resource is already registered with ID '{item.UniqueId}': {oldItem.GetType()}");
+                AppLogger.WriteLine("Resource's ID was already set to a non-empty value. It will be unsafely overridden");
+            }
+
             ulong id = this.GetNextId();
             this.uuidToItem[id] = item;
             ResourceItem.SetUniqueId(item, id);

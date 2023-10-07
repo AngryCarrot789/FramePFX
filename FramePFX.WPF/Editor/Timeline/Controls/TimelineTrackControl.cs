@@ -13,6 +13,7 @@ using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Interactivity;
+using FramePFX.Logger;
 using FramePFX.PropertyEditing;
 using FramePFX.Utils;
 using FramePFX.WPF.Editor.Resources;
@@ -63,20 +64,20 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             ResourceManagerViewModel manager;
             if ((Keyboard.Modifiers & ModifierKeys.Control) != 0 && e.Key == Key.V && this.DataContext is TrackViewModel track && (manager = track.Project?.ResourceManager) != null) {
                 IDataObject dataObject = Clipboard.GetDataObject();
-                if (dataObject == null) {
+                if (dataObject == null || !dataObject.GetDataPresent(NativeDropTypes.Bitmap)) {
                     return;
                 }
 
                 IDataObjekt objekt = new DataObjectWrapper(dataObject);
-                if (!objekt.GetBitmap(out SKBitmap bitmap)) {
+                if (!objekt.GetBitmap(out SKBitmap bitmap, out int error)) {
+                    AppLogger.WriteLine($"Failed to get bitmap from clipboard: {(error == 2 ? "invalid image format" : "invalid object")}");
                     return;
                 }
 
                 ResourceImage image = new ResourceImage();
                 image.DisplayName = "NewImage_" + RandomUtils.RandomLetters(6);
-                image.IsRawBitmapMode = true;
-                image.bitmap = bitmap;
-                image.image = SKImage.FromBitmap(bitmap);
+                bitmap.SetImmutable();
+                image.SetBitmapImage(bitmap);
                 ResourceItemViewModel resource = (ResourceItemViewModel) ResourceTypeFactory.Instance.CreateViewModelFromModel(image);
                 manager.CurrentFolder.AddItem(resource);
 

@@ -17,11 +17,11 @@ namespace FramePFX.Interactivity {
         private delegate Task NativeOnDroppedDelegate(object target, IDataObjekt drop, EnumDropType dropType, IDataContext context);
 
         // [dropType -> [handlerType -> func]]
-        private readonly Dictionary<Type, InheritanceDictionary<CustomHandlerPair>> registryCustom;
+        private readonly InheritanceDictionary<InheritanceDictionary<CustomHandlerPair>> registryCustom;
         private readonly Dictionary<string, InheritanceDictionary<NativeHandlerPair>> registryNative;
 
         public DragDropRegistry() {
-            this.registryCustom = new Dictionary<Type, InheritanceDictionary<CustomHandlerPair>>();
+            this.registryCustom = new InheritanceDictionary<InheritanceDictionary<CustomHandlerPair>>();
             this.registryNative = new Dictionary<string, InheritanceDictionary<NativeHandlerPair>>();
         }
 
@@ -32,7 +32,7 @@ namespace FramePFX.Interactivity {
             Type dropType = typeof(TValue);
             Type handlerType = typeof(T);
 
-            if (!this.registryCustom.TryGetValue(dropType, out InheritanceDictionary<CustomHandlerPair> handlerMap)) {
+            if (!this.registryCustom.TryGetLocalValue(dropType, out InheritanceDictionary<CustomHandlerPair> handlerMap)) {
                 this.registryCustom[dropType] = handlerMap = new InheritanceDictionary<CustomHandlerPair>();
             }
             else if (handlerMap.HasLocalValue(handlerType)) {
@@ -70,13 +70,11 @@ namespace FramePFX.Interactivity {
         /// <returns>True if the drag can occur (and show the appropriate icon based on the dropType), otherwise false</returns>
         public EnumDropType CanDrop(THandler target, object value, EnumDropType dropType, IDataContext context = null) {
             Type targetType = target.GetType();
-            for (Type valueType = value.GetType(); valueType != null; valueType = valueType.BaseType) {
-                if (this.registryCustom.TryGetValue(valueType, out InheritanceDictionary<CustomHandlerPair> handlerMap)) {
-                    foreach (ITypeEntry<CustomHandlerPair> entry in handlerMap.GetLocalValueEnumerable(targetType)) {
-                        EnumDropType dt = entry.LocalValue.CanDrop(target, value, dropType, context);
-                        if (dt != EnumDropType.None) {
-                            return dt;
-                        }
+            foreach (ITypeEntry<InheritanceDictionary<CustomHandlerPair>> handlerEntry in this.registryCustom.GetLocalValueEnumerable(value.GetType())) {
+                foreach (ITypeEntry<CustomHandlerPair> entry in handlerEntry.LocalValue.GetLocalValueEnumerable(targetType)) {
+                    EnumDropType dt = entry.LocalValue.CanDrop(target, value, dropType, context);
+                    if (dt != EnumDropType.None) {
+                        return dt;
                     }
                 }
             }
@@ -127,15 +125,13 @@ namespace FramePFX.Interactivity {
             }
 
             Type targetType = target.GetType();
-            for (Type valueType = value.GetType(); valueType != null; valueType = valueType.BaseType) {
-                if (this.registryCustom.TryGetValue(valueType, out InheritanceDictionary<CustomHandlerPair> handlerMap)) {
-                    foreach (ITypeEntry<CustomHandlerPair> entry in handlerMap.GetLocalValueEnumerable(targetType)) {
-                        CustomHandlerPair pair = entry.LocalValue;
-                        EnumDropType dt = pair.CanDrop(target, value, dropType, context);
-                        if (dt != EnumDropType.None) {
-                            await pair.OnDropped(target, value, dt, context);
-                            return true;
-                        }
+            foreach (ITypeEntry<InheritanceDictionary<CustomHandlerPair>> handlerEntry in this.registryCustom.GetLocalValueEnumerable(value.GetType())) {
+                foreach (ITypeEntry<CustomHandlerPair> entry in handlerEntry.LocalValue.GetLocalValueEnumerable(targetType)) {
+                    CustomHandlerPair pair = entry.LocalValue;
+                    EnumDropType dt = pair.CanDrop(target, value, dropType, context);
+                    if (dt != EnumDropType.None) {
+                        await pair.OnDropped(target, value, dt, context);
+                        return true;
                     }
                 }
             }

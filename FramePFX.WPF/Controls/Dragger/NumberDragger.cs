@@ -235,7 +235,6 @@ namespace FramePFX.WPF.Controls.Dragger {
         private TextBox PART_TextBox;
         private Point? lastClickPoint;
         private Point? lastMouseMove;
-        private (int, int)? screenClip;
         private double? previousValue;
         private bool ignoreMouseMove;
         private bool isUpdatingExternalMouse;
@@ -560,7 +559,11 @@ namespace FramePFX.WPF.Controls.Dragger {
 
         protected override void OnMouseMove(MouseEventArgs e) {
             base.OnMouseMove(e);
-            if (this.ignoreMouseMove || this.isUpdatingExternalMouse) {
+            if (this.ignoreMouseMove) {
+                return;
+            }
+
+            if (this.isUpdatingExternalMouse) {
                 return;
             }
 
@@ -607,22 +610,22 @@ namespace FramePFX.WPF.Controls.Dragger {
             if (this.LockCursorWhileDragging) {
                 double x = mpos.X, y = mpos.Y;
                 if (this.Orientation == Orientation.Horizontal) {
-                    if (mpos.X < 0) {
-                        x = this.ActualWidth;
+                    if (mpos.X <= 0) {
+                        x = this.ActualWidth - 1;
                         wrap = true;
                     }
-                    else if (mpos.X > this.ActualWidth) {
-                        x = 0;
+                    else if (mpos.X >= this.ActualWidth) {
+                        x = 1;
                         wrap = true;
                     }
                 }
                 else {
-                    if (mpos.Y < 0) {
-                        y = this.ActualHeight;
+                    if (mpos.Y < 1) {
+                        y = this.ActualHeight - 1;
                         wrap = true;
                     }
-                    else if (mpos.X > this.ActualHeight) {
-                        y = 0;
+                    else if (mpos.X >= this.ActualHeight) {
+                        y = 1;
                         wrap = true;
                     }
                 }
@@ -688,7 +691,7 @@ namespace FramePFX.WPF.Controls.Dragger {
                 try {
                     this.lastMouseMove = wrapPoint;
                     Point sp = this.PointToScreen(wrapPoint);
-                    CursorUtils.SetCursorPos((int) sp.X, (int) sp.Y);
+                    CursorUtils.SetCursorPos((int) Math.Round(sp.X), (int) Math.Round(sp.Y));
                 }
                 finally {
                     this.isUpdatingExternalMouse = false;

@@ -8,6 +8,7 @@ namespace FramePFX.Utils.Collections {
     public class InheritanceDictionary<T> {
         private readonly Dictionary<Type, TypeEntry> items;
         private readonly TypeEntry rootEntry;
+        private int version;
 
         public T this[Type key] {
             get => this.GetValue(key);
@@ -84,7 +85,7 @@ namespace FramePFX.Utils.Collections {
         /// <param name="key">The key to get the local (or inherited) value of</param>
         /// <param name="value">The value found</param>
         /// <returns>True if a value was available, false if not</returns>
-        public bool TryGetValue(Type key, out T value) {
+        public bool TryGetEffectiveValue(Type key, out T value) {
             TypeEntry entry = this.GetOrCreateEntry(key);
             value = entry.inheritedItem;
             return entry.HasInheritedValue;
@@ -151,6 +152,7 @@ namespace FramePFX.Utils.Collections {
                 map.Dispose();
             this.items.Clear();
             this.InsertRootEntry();
+            this.version++;
         }
 
         /// <summary>
@@ -160,6 +162,7 @@ namespace FramePFX.Utils.Collections {
         public void Clear(Type key) {
             if (this.items.TryGetValue(key, out TypeEntry entry)) {
                 entry.OnClear();
+                this.version++;
             }
         }
 
@@ -185,41 +188,71 @@ namespace FramePFX.Utils.Collections {
         }
 
         public struct LocalValueEntryEnumerator {
+            /// <summary>
+            /// Gets the current entry
+            /// </summary>
             public ITypeEntry<T> Current => this.currentEntry;
 
             private readonly InheritanceDictionary<T> dictionary;
             private readonly Type startingKey;
             private TypeEntry currentEntry;
             private int state;
+            private int version;
+            private int depth;
+
+            public int EnumerationDepth => this.depth;
 
             public LocalValueEntryEnumerator(InheritanceDictionary<T> dictionary, Type key) {
                 this.dictionary = dictionary;
                 this.startingKey = key;
                 this.currentEntry = null;
+                this.depth = this.version = 0;
+
+                // 0 = invalid,
+                // 1 = ready,
+                // 2 = enumerating,
+                // 3 = finished
+                // 4 = finished, because the first MoveNext() failed
                 this.state = 1;
             }
 
+            /// <summary>
+            /// Moves the numerator to the next base entry with a local value available. If no base type could be
+            /// found, then false is returned, otherwise true is returned and <see cref="Current"/> contains an
+            /// entry with a local value
+            /// </summary>
+            /// <returns>See above</returns>
+            /// <exception cref="InvalidOperationException">Concurrent modification (the dictionary was modified during enumeration)</exception>
+            /// <exception cref="InvalidProgramException">This really should not occur but this is thrown when the dictionary is broken or gets corrupted</exception>
             public bool MoveNext() {
                 switch (this.state) {
                     case 0: return false;
                     case 1: {
                         TypeEntry entry = this.dictionary.FindNearestBaseTypeEntryOrSelf(this.startingKey);
                         if (entry == null || !entry.HasLocalValue && (entry = entry.nearestBaseTypeToExplicitValue) == null) {
-                            this.state = -1;
+                            this.state = 4;
                             return false;
                         }
 
+                        this.version = this.dictionary.version;
                         this.currentEntry = entry;
                         this.state = 2;
+                        this.depth++;
                         return true;
                     }
                     case 2: {
+                        if (this.dictionary.version != this.version) {
+                            throw new InvalidOperationException("Concurrent modification of the original dictionary while enumerating");
+                        }
+
                         if ((this.currentEntry = this.currentEntry.nearestBaseTypeToExplicitValue) != null) {
                             if (this.currentEntry.HasLocalValue) {
+                                this.depth++;
                                 return true;
                             }
 
-                            throw new Exception("Fatal error: nearest base type did not have an explicitly set value");
+                            // lol invalid program
+                            throw new InvalidProgramException("Fatal error: nearest base type did not have an explicitly set value");
                         }
 
                         this.state = 3;
@@ -229,16 +262,16 @@ namespace FramePFX.Utils.Collections {
                 }
             }
 
+            /// <summary>
+            /// Reset this enumerator to the original state
+            /// </summary>
             public void Reset() {
                 this.state = 1;
                 this.currentEntry = null;
             }
-
-            public void Dispose() {
-            }
         }
 
-        public struct LocalValueEntryEnumerable {
+        public readonly struct LocalValueEntryEnumerable {
             private readonly InheritanceDictionary<T> dictionary;
             private readonly Type startingKey;
 
@@ -265,7 +298,7 @@ namespace FramePFX.Utils.Collections {
                 entry.OnExtendType(baseType);
                 baseType = entry;
             } while (--i >= 0);
-
+            this.version++;
             return entry;
         }
 

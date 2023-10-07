@@ -53,7 +53,10 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
             }
             catch (Exception e) {
                 await Services.DialogService.ShowMessageExAsync("Error opening image", $"Error opening '{this.FilePath}'", e.GetToString());
+                return;
             }
+
+            ResourceItem.SetOnlineState(this.Model, true);
         }
 
         public async Task SelectFileActionAsync() {
@@ -73,7 +76,10 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
                 }
                 catch (Exception e) {
                     await Services.DialogService.ShowMessageExAsync("Error opening image", $"Exception occurred while opening {path}", e.GetToString());
+                    return;
                 }
+
+                ResourceItem.SetOnlineState(this.Model, true);
             }
         }
 
@@ -85,7 +91,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
             Exception loadError = null;
             if (File.Exists(this.FilePath)) {
                 try {
-                    await this.Model.LoadImageAsync(this.FilePath, false);
+                    await this.Model.LoadImageAsync(this.FilePath);
                     return true;
                 }
                 catch (Exception e) {

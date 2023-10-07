@@ -1,5 +1,8 @@
+using System.Threading.Tasks;
 using FramePFX.Editor.ResourceManaging.Resources;
+using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Editor.Timelines.VideoClips;
+using FramePFX.Interactivity;
 
 namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
     public class TextVideoClipViewModel : VideoClipViewModel {
@@ -54,6 +57,13 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
         public TextVideoClipViewModel(TextVideoClip model) : base(model) {
             model.TextStyleKey.ResourceDataModified += this.OnResourceModified;
             model.TextStyleKey.ResourceChanged += this.OnResourceChanged;
+        }
+
+        static TextVideoClipViewModel() {
+            DropRegistry.Register<TextVideoClipViewModel, ResourceTextStyleViewModel>((clip, h, dt, ctx) => EnumDropType.Link, (clip, h, dt, c) => {
+                clip.Model.TextStyleKey.SetTargetResourceId(h.UniqueId);
+                return Task.CompletedTask;
+            });
         }
 
         private void OnResourceChanged(ResourceTextStyle oldItem, ResourceTextStyle newItem) {

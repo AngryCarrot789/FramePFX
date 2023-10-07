@@ -49,7 +49,6 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
 
         static ShapeSquareVideoClipViewModel() {
             DropRegistry.Register<ShapeSquareVideoClipViewModel, ResourceColourViewModel>((clip, h, dt, ctx) => {
-                // CanDrop()... misleading name but eh
                 return EnumDropType.Link;
             }, (clip, h, dt, c) => {
                 clip.Model.ColourKey.SetTargetResourceId(h.UniqueId);

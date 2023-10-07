@@ -7,7 +7,6 @@ namespace FramePFX.FFmpegWrapper.Codecs {
 
         public void SendPacket(MediaPacket pkt) {
             LavResult result = (LavResult) ffmpeg.avcodec_send_packet(this.Handle, pkt == null ? null : pkt.Handle);
-
             if (result != LavResult.Success && !(result == LavResult.EndOfFile && pkt == null)) {
                 result.ThrowIfError("Could not decode packet (hints: check if the decoder is open, try receiving frames first)");
             }

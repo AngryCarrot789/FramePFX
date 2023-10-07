@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using FFmpeg.AutoGen;
 using FramePFX.FFmpeg;
 using FramePFX.FFmpegWrapper;
@@ -21,6 +23,8 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
         private VideoDecoder decoder;
         private FrameQueue frameQueue;
         private bool hasHardwareDecoder;
+
+        public volatile Task CurrentGetFrameTask;
 
         public ResourceAVMedia() {
         }

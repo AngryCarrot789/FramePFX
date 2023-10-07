@@ -59,13 +59,16 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                 TimeSpan timestamp = TimeSpan.FromSeconds((frame - this.FrameBegin + this.MediaFrameOffset) / timeScale);
                 // No need to dispose as the frames are stored in a frame buffer, which is disposed by the resource itself
                 this.currentFrame = frame;
-                this.GetFrameTask = Task.Run(() => {
+                this.GetFrameTask = Task.Run(async () => {
+                    Task task = Interlocked.Exchange(ref resource.CurrentGetFrameTask, this.GetFrameTask);
+                    if (task != null && !task.IsCompleted) {
+                        await task;
+                    }
+
                     VideoFrame ready = resource.GetFrameAt(timestamp);
                     if (ready != null && !ready.IsDisposed) {
                         // TODO: Maybe add an async frame fetcher that buffers the frames, or maybe add
                         // a project preview resolution so that decoding is lightning fast for low resolution?
-
-                        // this.ApplyTransformation(rc);
                         if (ready.IsHardwareFrame) {
                             // As of ffmpeg 6.0, GetHardwareTransferFormats() only returns more than one format for VAAPI,
                             // which isn't widely supported on Windows yet, so we can't transfer directly to RGB without
@@ -111,13 +114,6 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                         rc.Canvas.DrawImage(img, 0, 0, paint);
                     }
                 }
-            }
-        }
-
-        public override void OnRenderCompleted(long frame, bool isCancelled) {
-            base.OnRenderCompleted(frame, isCancelled);
-            if (isCancelled) {
-                this.GetFrameTask?.Wait();
             }
         }
 

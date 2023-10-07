@@ -112,12 +112,20 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                     return;
                 foreach (string path in files) {
                     switch (Path.GetExtension(path).ToLower()) {
+                        case ".gif":
                         case ".mp3":
                         case ".wav":
                         case ".ogg":
                         case ".mp4":
+                        case ".wmv":
+                        case ".avi":
+                        case ".avchd":
+                        case ".f4v":
+                        case ".swf":
                         case ".mov":
                         case ".mkv":
+                        case ".qt":
+                        case ".webm":
                         case ".flv": {
                             ResourceAVMedia media = new ResourceAVMedia() {
                                 FilePath = path, DisplayName = Path.GetFileName(path)

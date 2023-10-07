@@ -98,7 +98,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         }
 
         public override Vector2? GetSize(RenderContext rc) {
-            return this.TextBlobBoundingBox;
+            return this.TextBlobs != null ? this.TextBlobBoundingBox : (Vector2?) null;
         }
 
         public override bool OnBeginRender(long frame) {
@@ -132,6 +132,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
 
         public void InvalidateTextCache() {
             this.TextBlobBoundingBox = new Vector2();
+            ResourceTextStyle.DisposeTextBlobs(ref this.TextBlobs);
         }
 
         public void GenerateTextCache() {

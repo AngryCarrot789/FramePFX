@@ -208,12 +208,26 @@ namespace FramePFX.Editor.ViewModels {
 
         public async Task OpenProjectAction() {
             string[] result = await Services.FilePicker.OpenFiles(Filters.ProjectTypeAndAllFiles, null, "Select a project file to open");
-            if (result == null || this.ActiveProject != null && !await this.PromptAndSaveProjectAction()) {
-                return;
+            if (result != null && (this.ActiveProject == null || await this.PromptAndSaveProjectAction())) {
+                await this.CloseProjectAction();
+                await this.OpenProjectAtAction(result[0]);
+                if (this.SelectedTimeline != null) {
+                    await this.SelectedTimeline.DoAutomationTickAndRenderToPlayback();
+                }
+            }
+        }
+
+        public async Task OpenProjectAtAction(string filePath, bool forceCloseProject = false) {
+            if (this.ActiveProject != null) {
+                if (forceCloseProject) {
+                    await this.CloseProjectAction();
+                }
+                else {
+                    throw new Exception("Another project is already open, it should be closed before opening another");
+                }
             }
 
-            string filePath = result[0];
-            AppLogger.WriteLine("Reading packed RBE project from file");
+            AppLogger.WriteLine("Reading packed RBE project from file: " + filePath);
             RBEDictionary dictionary;
             try {
                 dictionary = RBEUtils.ReadFromFilePacked(filePath) as RBEDictionary;

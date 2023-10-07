@@ -168,8 +168,9 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
         }
 
         public void Dispose() {
-            foreach (BaseResourcePathEntry entry in this.ResourceMap.Values)
+            foreach (BaseResourcePathEntry entry in this.ResourceMap.Values) {
                 entry.DisposePath();
+            }
         }
 
         public void LoadDataIntoClone(ResourceHelper clone) {
@@ -200,19 +201,26 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
                 this.onlineStateChangedHandler = this.OnEntryOnlineStateChangedInternal;
             }
 
+            private void SetResourcePath(ResourcePath newPath) {
+                if (this.path != null) {
+                    if (this.path.CanDispose) {
+                        this.path.Dispose();
+                    }
+
+                    this.path.ResourceChanged -= this.resourceChangedHandler;
+                    this.path = null;
+                }
+
+                this.path = newPath;
+                if (newPath != null) {
+                    newPath.ResourceChanged += this.resourceChangedHandler;
+                }
+            }
+
             public virtual void SetTargetResourceId(ulong id) {
                 if (id == ResourceManager.EmptyId)
                     throw new ArgumentException("ID must not be empty (0)");
-
-                ResourcePath oldPath = this.path;
-                if (oldPath != null) {
-                    this.path = null; // just in case the code below throws, don't reference a disposed instance
-                    oldPath.Dispose();
-                    oldPath.ResourceChanged -= this.resourceChangedHandler;
-                }
-
-                this.path = new ResourcePath(this, this.helper.Owner.Project?.ResourceManager, id);
-                this.path.ResourceChanged += this.resourceChangedHandler;
+                this.SetResourcePath(new ResourcePath(this, this.helper.Owner.Project?.ResourceManager, id));
             }
 
             public bool TryGetResource<T>(out T resource, bool requireIsOnline = true) where T : ResourceItem {
@@ -271,20 +279,10 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             }
 
             public static void ReadFromRBE(BaseResourcePathEntry entry, RBEDictionary dictionary) {
-                // handle this, just in case...
-                if (entry.path != null && entry.path.CanDispose) {
-                    entry.DisposePath();
-                }
-
-                entry.path = ResourcePath.ReadFromRBE(entry, dictionary);
+                entry.SetResourcePath(ResourcePath.ReadFromRBE(entry, dictionary));
             }
 
-            public void DisposePath() {
-                if (Helper.Exchange(ref this.path, null, out ResourcePath oldPath) && oldPath.CanDispose) {
-                    oldPath.Dispose();
-                    oldPath.ResourceChanged -= this.resourceChangedHandler;
-                }
-            }
+            public void DisposePath() => this.SetResourcePath(null);
         }
 
         private class ResourcePathEntry<T> : BaseResourcePathEntry, IResourcePathKey<T> where T : ResourceItem {

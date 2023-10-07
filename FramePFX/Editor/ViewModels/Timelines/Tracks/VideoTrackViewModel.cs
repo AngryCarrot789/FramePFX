@@ -226,7 +226,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                     case ResourceTextStyle text: {
                         TextVideoClip clip = new TextVideoClip() {
                             FrameSpan = defaultSpan,
-                            DisplayName = "Text Clip"
+                            DisplayName = "Text Clip",
+                            Text = "Sample Text"
                         };
 
                         clip.TextStyleKey.SetTargetResourceId(text.UniqueId);

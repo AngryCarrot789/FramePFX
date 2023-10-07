@@ -82,49 +82,6 @@ namespace FramePFX.WPF {
         public class ObjectEFromB : ObjectB { }
 
         public App() {
-            // InheritanceDictionary<string> dictionary = new InheritanceDictionary<string>();
-            // dictionary.SetValue(typeof(ObjectB), "B");
-            // dictionary.SetValue(typeof(ObjectEFromB), "E and B");
-            // dictionary.SetValue(typeof(ObjectD), "D");
-            // dictionary.SetValue(typeof(ObjectA), "A");
-            // string itemA = dictionary.GetValue(typeof(ObjectA));
-            // string itemB = dictionary.GetValue(typeof(ObjectB));
-            // string itemC = dictionary.GetValue(typeof(ObjectC));
-            // string itemD = dictionary.GetValue(typeof(ObjectD));
-            // string itemEFromB = dictionary.GetValue(typeof(ObjectEFromB));
-            // dictionary.Clear(typeof(ObjectA));
-            // itemA = dictionary.GetValue(typeof(ObjectA));
-            // itemB = dictionary.GetValue(typeof(ObjectB));
-            // itemC = dictionary.GetValue(typeof(ObjectC));
-            // itemD = dictionary.GetValue(typeof(ObjectD));
-            // itemEFromB = dictionary.GetValue(typeof(ObjectEFromB));
-            // List<string> list = dictionary.GetLocalValueEnumerator(typeof(ObjectD)).Select(x => x.LocalValue).ToList();
-            // dictionary.SetValue(typeof(ObjectC), "CCC!!!");
-            // list = dictionary.GetLocalValueEnumerator(typeof(ObjectD)).Select(x => x.LocalValue).ToList();
-            // dictionary.Clear();
-
-            /*
-                TypeMultiMap<string> map = new TypeMultiMap<string>();
-                map.Add(typeof(ObjectA), "A1");
-                map.Add(typeof(ObjectA), "A2");
-                map.Add(typeof(ObjectB), "B1");
-                map.Add(typeof(ObjectB), "B2");
-                map.Add(typeof(ObjectC), "C1");
-                map.Add(typeof(ObjectC), "C2");
-                map.Add(typeof(ObjectD), "D1");
-                map.Add(typeof(ObjectD), "D2");
-                map.Add(typeof(ObjectEFromB), "E and B 1");
-                map.Add(typeof(ObjectEFromB), "E and B 2");
-                IReadOnlyList<string> listEFromB = map.GetValues(typeof(ObjectEFromB));
-                IReadOnlyList<string> listD = map.GetValues(typeof(ObjectD));
-                map.Clear(typeof(ObjectB));
-                listD = map.GetValues(typeof(ObjectD));
-                map.Clear();
-             */
-
-            // List<string> ok = null;
-            // ok.Add("okdd");
-
             this.processor = new AttributeProcessor();
             Services.Application = new ApplicationDelegate(this);
             Services.ServiceManager.Register(Services.Application);
@@ -133,12 +90,6 @@ namespace FramePFX.WPF {
             foreach (FontFamily fontFamily in Fonts.SystemFontFamilies) {
                 FontFamilies.Add(fontFamily);
             }
-
-            // SortedList<long, string> aaaa = null;
-            // Dictionary<long, string> aa = null;
-            // aa[233] = ";";
-            // aaaa[23] = "";
-            // aaaa.Remove(23);
 
             // ICollection<FontFamily> fonts = Fonts.GetFontFamilies(new Uri("pack://application:,,,/Resources/Fonts/Oxanium/#"));
             // this.lastInput = DateTime.Now;
@@ -156,7 +107,7 @@ namespace FramePFX.WPF {
             // });
         }
 
-private async void Application_Startup(object sender, StartupEventArgs e) {
+        private async void Application_Startup(object sender, StartupEventArgs e) {
             // Dialogs may be shown, becoming the main window, possibly causing the
             // app to shutdown when the mode is OnMainWindowClose or OnLastWindowClose
 
@@ -200,7 +151,7 @@ private async void Application_Startup(object sender, StartupEventArgs e) {
             this.ShutdownMode = ShutdownMode.OnMainWindowClose;
             window.Show();
             await this.Dispatcher.Invoke(async () => {
-                await this.OnVideoEditorLoaded(window.Editor);
+                await this.OnVideoEditorLoaded(window.Editor, e.Args);
                 // new EditorWindow2() {
                 //     DataContext = window.Editor
                 // }.Show();
@@ -328,22 +279,29 @@ private async void Application_Startup(object sender, StartupEventArgs e) {
             }, DispatcherPriority.ApplicationIdle);
         }
 
-        public async Task OnVideoEditorLoaded(VideoEditorViewModel editor) {
+        public async Task OnVideoEditorLoaded(VideoEditorViewModel editor, string[] args) {
+            AppLogger.WriteLine($"FramePFX loaded. Command line args:\n{string.Join("\n", args)}");
+
             await editor.FileExplorer.LoadDefaultLocation();
 
-            await editor.LoadProject(new ProjectViewModel(CreateDemoProject()));
+            if (args.Length > 0 && File.Exists(args[0])) {
+                await editor.OpenProjectAtAction(args[0]);
+            }
+            else {
+                await editor.LoadProject(new ProjectViewModel(CreateDemoProject()));
+                ClipViewModel demoClip = editor.ActiveProject.Timeline.Tracks[1].Clips[0];
+                demoClip.IsSelected = true;
+                PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(CollectionUtils.SingleItem(demoClip));
+                VideoClipDataSingleEditorViewModel infoEditor = PFXPropertyEditorRegistry.Instance.ClipInfo.PropertyObjects.OfType<VideoClipDataSingleEditorViewModel>().FirstOrDefault();
+                if (infoEditor != null) {
+                    // shouldn't be null... but juuuust in case something bad did happen, check anyway
+                    infoEditor.IsOpacitySelected = true;
+                    demoClip.Timeline.PlayHeadFrame = 323;
+                }
 
-            ClipViewModel demoClip = editor.ActiveProject.Timeline.Tracks[1].Clips[0];
-            demoClip.IsSelected = true;
-            PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(CollectionUtils.SingleItem(demoClip));
-            VideoClipDataSingleEditorViewModel infoEditor = PFXPropertyEditorRegistry.Instance.ClipInfo.PropertyObjects.OfType<VideoClipDataSingleEditorViewModel>().FirstOrDefault();
-            if (infoEditor != null) {
-                // shouldn't be null... but juuuust in case something bad did happen, check anyway
-                infoEditor.IsOpacitySelected = true;
-                demoClip.Timeline.PlayHeadFrame = 323;
+                await ResourceCheckerViewModel.LoadProjectResources(editor.ActiveProject, true);
             }
 
-            await ResourceCheckerViewModel.LoadProjectResources(editor.ActiveProject, true);
             ((EditorMainWindow) this.MainWindow)?.ViewPortControl.VPViewBox.FitContentToCenter();
             await editor.ActiveProject.Timeline.DoAutomationTickAndRenderToPlayback();
         }

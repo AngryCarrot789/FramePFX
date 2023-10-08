@@ -3,7 +3,7 @@ using System.Windows.Input;
 
 namespace FramePFX.AdvancedContextService {
     /// <summary>
-    /// The default implementation for a context entry in which an ICommand is executed when clicked
+    /// The default implementation for a context entry that executes an ICommand when clicked
     /// </summary>
     public class CommandContextEntry : BaseContextEntry {
         private string inputGestureText;

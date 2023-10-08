@@ -222,6 +222,7 @@
     <Compile Include="Editor\MainWindow\ViewPortUserControl.xaml.cs">
       <DependentUpon>ViewPortUserControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Editor\Resources\ResourceDragDropAdorner.cs" />
     <Compile Include="Editor\Resources\ResourcesPanelControl.xaml.cs">
       <DependentUpon>ResourcesPanelControl.xaml</DependentUpon>
     </Compile>

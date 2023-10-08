@@ -54,7 +54,7 @@ namespace FramePFX.WPF.AdvancedContextService {
             object item = this.currentItem;
             this.currentItem = null;
             if (this.UsesItemContainerTemplate) {
-                DataTemplate dataTemplate = this.ItemContainerTemplateSelector.SelectTemplate(item, this);
+                DataTemplate dataTemplate = this.ItemContainerTemplateSelector?.SelectTemplate(item, this);
                 if (dataTemplate != null) {
                     object obj = dataTemplate.LoadContent();
                     if (obj is MenuItem || obj is Separator) {

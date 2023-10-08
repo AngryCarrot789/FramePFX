@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
@@ -139,7 +140,9 @@ namespace FramePFX.WPF {
 
             if (this.OutlineList != null) {
                 foreach ((VideoClip clip, SKRect rect) in this.OutlineList) {
-                    dc.DrawRectangle(null, this.OutlinePen, new Rect(rect.Left - half_thickness, rect.Top - half_thickness, rect.Width + thickness, rect.Height + thickness));
+                    Point pos = new Point(Math.Floor(rect.Left) - half_thickness, Math.Floor(rect.Top) - half_thickness);
+                    Size size = new Size(Math.Ceiling(rect.Width) + thickness, Math.Ceiling(rect.Height) + thickness);
+                    dc.DrawRectangle(null, this.OutlinePen, new Rect(pos, size));
                 }
 
                 this.OutlineList = null;

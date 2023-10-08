@@ -1,6 +1,7 @@
 using System;
 using System.Windows;
 using FramePFX.Interactivity;
+using FramePFX.Utils;
 
 namespace FramePFX.WPF.Interactivity {
     public static class FileDropAttachments {
@@ -18,8 +19,8 @@ namespace FramePFX.WPF.Interactivity {
                 typeof(FileDropAttachments),
                 new FrameworkPropertyMetadata(null, (o, args) => OnFileDropNotifierPropertyChanged(o, args, true)));
 
-        public static readonly DependencyPropertyKey IsProcessingDragDropEntryProperty = DependencyProperty.RegisterAttachedReadOnly("IsProcessingDragDropEntry", typeof(bool), typeof(FileDropAttachments), new PropertyMetadata(false));
-        public static readonly DependencyPropertyKey IsProcessingDragDropProcessProperty = DependencyProperty.RegisterAttachedReadOnly("IsProcessingDragDropProcess", typeof(bool), typeof(FileDropAttachments), new PropertyMetadata(false));
+        public static readonly DependencyPropertyKey IsProcessingDragDropEntryProperty = DependencyProperty.RegisterAttachedReadOnly("IsProcessingDragDropEntry", typeof(bool), typeof(FileDropAttachments), new PropertyMetadata(BoolBox.False));
+        public static readonly DependencyPropertyKey IsProcessingDragDropProcessProperty = DependencyProperty.RegisterAttachedReadOnly("IsProcessingDragDropProcess", typeof(bool), typeof(FileDropAttachments), new PropertyMetadata(BoolBox.False));
 
         public static void SetFileDropNotifier(FrameworkElement element, IFileDropNotifier value) {
             element.SetValue(FileDropNotifierProperty, value);
@@ -38,7 +39,7 @@ namespace FramePFX.WPF.Interactivity {
         }
 
         private static void SetIsProcessingDragDropEntry(FrameworkElement element, bool value) {
-            element.SetValue(IsProcessingDragDropEntryProperty, value);
+            element.SetValue(IsProcessingDragDropEntryProperty, value.Box());
         }
 
         public static bool GetIsProcessingDragDropEntry(FrameworkElement element) {
@@ -46,7 +47,7 @@ namespace FramePFX.WPF.Interactivity {
         }
 
         private static void SetIsProcessingDragDropProcess(FrameworkElement element, bool value) {
-            element.SetValue(IsProcessingDragDropProcessProperty, value);
+            element.SetValue(IsProcessingDragDropProcessProperty, value.Box());
         }
 
         public static bool GetIsProcessingDragDropProcess(FrameworkElement element) {
@@ -85,11 +86,11 @@ namespace FramePFX.WPF.Interactivity {
                 return;
             }
 
-            if (e.Data.GetDataPresent(DataFormats.FileDrop) && e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0) {
-                EnumDropType type = (EnumDropType) e.Effects;
+            if (e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0) {
                 SetIsProcessingDragDropEntry(element, true);
+                EnumDropType type = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
                 try {
-                    e.Effects = (DragDropEffects) handler.GetFileDropType(files);
+                    e.Effects = (DragDropEffects) handler.GetFileDropType(files, type);
                     e.Handled = true;
                 }
                 finally {
@@ -99,7 +100,7 @@ namespace FramePFX.WPF.Interactivity {
         }
 
         private static async void OnElementDrop(object sender, DragEventArgs e) {
-            FrameworkElement element = ((FrameworkElement) sender) ?? throw new Exception("Expected FrameworkElement");
+            FrameworkElement element = (FrameworkElement) sender ?? throw new Exception("Expected FrameworkElement");
             if (GetIsProcessingDragDropProcess(element)) {
                 return;
             }
@@ -110,7 +111,7 @@ namespace FramePFX.WPF.Interactivity {
             }
 
             if (e.Data.GetDataPresent(DataFormats.FileDrop) && e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0) {
-                EnumDropType type = (EnumDropType) e.Effects;
+                EnumDropType type = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
                 SetIsProcessingDragDropProcess(element, true);
                 try {
                     await handler.OnFilesDropped(files, type);

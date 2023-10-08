@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 
@@ -134,6 +135,15 @@ namespace FramePFX.WPF.Utils {
             }
 
             return ic;
+        }
+
+        public static AdornerLayer GetRootAdornerLayer(Visual visual) {
+            AdornerLayer layer = AdornerLayer.GetAdornerLayer(visual);
+            for (AdornerLayer parent = layer; parent != null; parent = GetParent(parent) is Visual v ? AdornerLayer.GetAdornerLayer(v) : null) {
+                layer = parent;
+            }
+
+            return layer;
         }
     }
 }

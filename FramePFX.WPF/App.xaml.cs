@@ -293,8 +293,7 @@ namespace FramePFX.WPF {
                 demoClip.IsSelected = true;
                 PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(CollectionUtils.SingleItem(demoClip));
                 VideoClipDataSingleEditorViewModel infoEditor = PFXPropertyEditorRegistry.Instance.ClipInfo.PropertyObjects.OfType<VideoClipDataSingleEditorViewModel>().FirstOrDefault();
-                if (infoEditor != null) {
-                    // shouldn't be null... but juuuust in case something bad did happen, check anyway
+                if (infoEditor != null) { // shouldn't be null... but juuuust in case something bad did happen, check anyway
                     infoEditor.IsOpacitySelected = true;
                     demoClip.Timeline.PlayHeadFrame = 323;
                 }

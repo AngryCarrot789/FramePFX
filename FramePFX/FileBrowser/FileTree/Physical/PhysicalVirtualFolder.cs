@@ -26,8 +26,8 @@ namespace FramePFX.FileBrowser.FileTree.Physical {
             }
 
             string name = Path.GetFileName(path);
-            if (this.nameToEntry.ContainsKey(name)) {
-                throw new Exception("Cannot add the same file twice at: " + path);
+            if (this.nameToEntry.TryGetValue(name, out TreeEntry existing)) {
+                this.RemoveItemCore(existing);
             }
 
             this.nameToEntry[name] = entry;
@@ -59,7 +59,7 @@ namespace FramePFX.FileBrowser.FileTree.Physical {
             return null;
         }
 
-        public EnumDropType GetFileDropType(string[] paths) {
+        public EnumDropType GetFileDropType(string[] paths, EnumDropType dropType) {
             return EnumDropType.Link;
         }
 

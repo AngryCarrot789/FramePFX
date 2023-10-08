@@ -4,11 +4,14 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using FramePFX.Editor.ResourceManaging.ViewModels;
+using FramePFX.Interactivity;
 using FramePFX.Logger;
 using FramePFX.Utils;
+using FramePFX.WPF.Utils;
 
 namespace FramePFX.WPF.Editor.Resources {
     public abstract class BaseResourceItemControl : ContentControl {
@@ -85,6 +88,7 @@ namespace FramePFX.WPF.Editor.Resources {
         private Point originMousePoint;
         private bool isDragActive;
         private bool isDragDropping;
+        private ResourceDragDropAdorner dropAdorner;
 
         public BaseResourceItemControl() {
         }
@@ -161,6 +165,19 @@ namespace FramePFX.WPF.Editor.Resources {
             base.OnMouseLeftButtonUp(e);
         }
 
+        protected override void OnGiveFeedback(GiveFeedbackEventArgs e) {
+            base.OnGiveFeedback(e);
+            if (this.dropAdorner != null) {
+                bool draw = this.dropAdorner.OnDropType(DropUtils.GetDropActionForModKeys((int) Keyboard.Modifiers, (EnumDropType) e.Effects));
+                Controls.CursorUtils.POINT point = Controls.CursorUtils.GetCursorPos();
+                Point relPos = this.PointFromScreen(new Point(point.x, point.y));
+                this.dropAdorner.Arrange(new System.Windows.Rect(relPos, this.dropAdorner.DesiredSize));
+                if (draw) {
+                    this.dropAdorner.InvalidateVisual();
+                }
+            }
+        }
+
         protected override void OnMouseMove(MouseEventArgs e) {
             base.OnMouseMove(e);
             if (!this.isDragActive || this.isDragDropping) {
@@ -178,6 +195,12 @@ namespace FramePFX.WPF.Editor.Resources {
 
                     List<BaseResourceViewModel> list = resource.Manager.SelectedItems.ToList();
 
+                    AdornerLayer layer = VisualTreeUtils.GetRootAdornerLayer(this);
+                    if (layer != null) {
+                        this.dropAdorner = new ResourceDragDropAdorner(this);
+                        layer.Add(this.dropAdorner);
+                    }
+
                     try {
                         this.isDragDropping = true;
                         DragDrop.DoDragDrop(this, new DataObject(ResourceListControl.ResourceDropType, list), DragDropEffects.Copy | DragDropEffects.Move | DragDropEffects.Link);
@@ -185,9 +208,13 @@ namespace FramePFX.WPF.Editor.Resources {
                     catch (Exception ex) {
                         AppLogger.WriteLine("Exception while executing resource item drag drop: " + ex.GetToString());
                     }
-                    finally {
-                        this.isDragDropping = false;
+
+                    this.isDragDropping = false;
+                    if (this.dropAdorner != null && layer != null) {
+                        layer.Remove(this.dropAdorner);
                     }
+
+                    this.dropAdorner = null;
                 }
             }
             else {

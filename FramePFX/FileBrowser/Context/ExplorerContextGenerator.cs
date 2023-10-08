@@ -13,6 +13,8 @@ namespace FramePFX.FileBrowser.Context {
 
         public RelayCommand<string> CopyStringCommand { get; }
 
+        public RelayCommand<TreeEntry> RemoveFromParentCommand { get; }
+
         public ExplorerContextGenerator() {
             this.OpenInExplorerCommand = new RelayCommand<string>((x) => {
                 if (!string.IsNullOrEmpty(x))
@@ -22,6 +24,10 @@ namespace FramePFX.FileBrowser.Context {
             this.CopyStringCommand = new RelayCommand<string>((x) => {
                 if (!string.IsNullOrEmpty(x))
                     Services.Clipboard.SetText(x);
+            });
+
+            this.RemoveFromParentCommand = new RelayCommand<TreeEntry>((x) => {
+                x.Parent?.RemoveItemCore(x);
             });
         }
 
@@ -40,6 +46,14 @@ namespace FramePFX.FileBrowser.Context {
             if (item.TryGetDataValue(Win32FileSystem.FilePathKey, out string path)) {
                 list.Add(new CommandContextEntry("Open in Explorer", this.OpenInExplorerCommand, path));
                 list.Add(new CommandContextEntry("Copy Path", this.CopyStringCommand, path));
+            }
+
+            if (item.Parent != null && item.Parent.IsRootContainer) {
+                if (list.Count > 0) {
+                    list.Add(SeparatorEntry.Instance);
+                }
+
+                list.Add(new CommandContextEntry("Remove from tree", this.RemoveFromParentCommand, item));
             }
         }
     }

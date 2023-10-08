@@ -52,8 +52,8 @@ namespace FramePFX.FileBrowser.FileTree {
             }
         }
 
-        public EnumDropType GetFileDropType(string[] paths) {
-            return EnumDropType.All;
+        public EnumDropType GetFileDropType(string[] paths, EnumDropType dropType) {
+            return EnumDropType.Link;
         }
 
         public Task OnFilesDropped(string[] paths, EnumDropType dropType) {

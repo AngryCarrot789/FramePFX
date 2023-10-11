@@ -94,7 +94,7 @@
                 <Border Background="{DynamicResource PanelBackground1}" IsEnabled="{Binding IsEditorEnabled, Mode=OneWay}">
                     <DockingManager x:Name="MyDockingManager">
                         <DockingManager.Theme>
-                            <av:GeneralDockTheme />
+                            <av:GeneralDockTheme/>
                         </DockingManager.Theme>
                         <LayoutRoot x:Name="LayoutRoot">
                             <LayoutPanel Orientation="Horizontal">

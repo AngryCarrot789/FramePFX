@@ -505,7 +505,10 @@
                         <DockPanel DockPanel.Dock="Top" Height="17">
                             <TextBlock Text="{Binding DisplayName}" FontWeight="DemiBold" TextTrimming="CharacterEllipsis" DockPanel.Dock="Right" />
                             <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" DockPanel.Dock="Left" Orientation="Horizontal" Margin="0,0,3,0">
-                                <ToggleButton Content="V" ToolTip="Toggle visibility" Width="17" IsChecked="{Binding IsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" />
+                                <ToggleButton Content="V" ToolTip="Toggle visibility" Width="17"
+                                              IsChecked="{Binding IsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              BorderThickness="0"
+                                              ctrl:AutomationControl.MousePressAutomationSequence="{Binding IsVisibleAutomationSequence, Mode=OneTime}"/>
                             </StackPanel>
                         </DockPanel>
                         <DockPanel Background="Transparent" Margin="0,2,0,0">
@@ -514,16 +517,14 @@
                                               Style="{StaticResource AbletonNumberDraggerStyle}" BorderThickness="0"
                                               HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" SnapsToDevicePixels="True" Height="17"
                                               ap2:HistoryHelper.DragId="{x:Static tt:VideoTrackViewModel.OpacityHistoryKey}"
-                                              IsDoubleClickToEdit="True" GotFocus="VideoTrackOpacityNumberDragger_GotFocus" />
-                            <DockPanel DataContext="{Binding AutomationData, Mode=OneTime}" HorizontalAlignment="Right" VerticalAlignment="Top" Height="17">
-                                <Button DockPanel.Dock="Right" Width="18" Content="O" ToolTip="Disables the current override, or all overrides"
-                                        Command="{Binding ToggleOverrideCommand, Mode=OneTime}" BorderThickness="0"
-                                        Background="{DynamicResource ABrush.Tone6.Background.Static}" />
-                                <Border Width="3" />
-                                <Button DockPanel.Dock="Right" Width="18" Command="{Binding DeselectSequenceCommand, Mode=OneTime}" Content="-"
-                                        ToolTip="Deselects the currently selected parameter, hiding the sequence editor" BorderThickness="0"
-                                        Background="{DynamicResource ABrush.Tone6.Background.Static}" />
-                                <tc:AutomationComboBox ItemsSource="{Binding Sequences, Mode=OneTime}" HorizontalContentAlignment="Left"
+                                              IsDoubleClickToEdit="True" ctrl:AutomationControl.FocusableAutomationSequence="{Binding OpacityAutomationSequence, Mode=OneTime}"/>
+                            <DockPanel HorizontalAlignment="Right" VerticalAlignment="Top" Height="17">
+                                <ToggleButton DockPanel.Dock="Right" Width="18" Content="O"
+                                              ToolTip="Toggles the override state of the currently active automation sequence"
+                                              IsChecked="{Binding AutomationData.ActiveSequence.IsOverrideEnabled, Mode=TwoWay}" BorderThickness="0"
+                                              Background="{DynamicResource ABrush.Tone6.Background.Static}"/>
+                                <tc:AutomationComboBox DataContext="{Binding AutomationData, Mode=OneTime}"
+                                                       ItemsSource="{Binding Sequences, Mode=OneTime}" HorizontalContentAlignment="Left"
                                                        SelectedItem="{Binding ActiveSequence}" BorderThickness="0"
                                                        Background="{DynamicResource ABrush.Tone6.Background.Static}"
                                                        DockPanel.Dock="Right" SnapsToDevicePixels="True" MinWidth="40" />
@@ -540,7 +541,10 @@
                         <DockPanel DockPanel.Dock="Top" Height="17">
                             <TextBlock Text="{Binding DisplayName}" FontWeight="DemiBold" TextTrimming="CharacterEllipsis" DockPanel.Dock="Right" />
                             <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" DockPanel.Dock="Left" Orientation="Horizontal" Margin="0,0,3,0">
-                                <ToggleButton Content="V" ToolTip="Toggle visibility" Width="17" IsChecked="{Binding IsMuted, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" />
+                                <ToggleButton Content="V" ToolTip="Toggle visibility" Width="17"
+                                              IsChecked="{Binding IsMuted, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                              BorderThickness="0"
+                                              ctrl:AutomationControl.MousePressAutomationSequence="{Binding IsMutedAutomationSequence, Mode=OneTime}"/>
                             </StackPanel>
                         </DockPanel>
                         <DockPanel Background="Transparent" Margin="0,2,0,0">
@@ -550,18 +554,16 @@
                                               Style="{StaticResource AbletonNumberDraggerStyle}" BorderThickness="0"
                                               HorizontalAlignment="Left" VerticalAlignment="Top" Width="50" SnapsToDevicePixels="True" Height="17"
                                               ap2:HistoryHelper.DragId="{x:Static tt:VideoTrackViewModel.OpacityHistoryKey}"
-                                              IsDoubleClickToEdit="True" GotFocus="AudioTrackOpacityNumberDragger_GotFocus" />
-                            <DockPanel DataContext="{Binding AutomationData, Mode=OneTime}" HorizontalAlignment="Right" VerticalAlignment="Top" Height="17">
-                                <Button DockPanel.Dock="Right" Width="18" Content="O" ToolTip="Disables the current override, or all overrides"
-                                        Command="{Binding ToggleOverrideCommand, Mode=OneTime}" BorderThickness="0"
-                                        Background="{DynamicResource ABrush.Tone6.Background.Static}" />
-                                <Border Width="3" />
-                                <Button DockPanel.Dock="Right" Width="18" Command="{Binding DeselectSequenceCommand, Mode=OneTime}" Content="-"
-                                        ToolTip="Deselects the currently selected parameter, hiding the sequence editor" BorderThickness="0"
-                                        Background="{DynamicResource ABrush.Tone6.Background.Static}" />
-                                <tc:AutomationComboBox ItemsSource="{Binding Sequences, Mode=OneTime}" HorizontalContentAlignment="Left"
-                                                       Background="{DynamicResource ABrush.Tone6.Background.Static}"
+                                              IsDoubleClickToEdit="True" ctrl:AutomationControl.FocusableAutomationSequence="{Binding VolumeAutomationSequence, Mode=OneTime}"/>
+                            <DockPanel HorizontalAlignment="Right" VerticalAlignment="Top" Height="17">
+                                <ToggleButton DockPanel.Dock="Right" Width="18" Content="O"
+                                              ToolTip="Toggles the override state of the currently active automation sequence"
+                                              IsChecked="{Binding AutomationData.ActiveSequence.IsOverrideEnabled, Mode=TwoWay}" BorderThickness="0"
+                                              Background="{DynamicResource ABrush.Tone6.Background.Static}"/>
+                                <tc:AutomationComboBox DataContext="{Binding AutomationData, Mode=OneTime}"
+                                                       ItemsSource="{Binding Sequences, Mode=OneTime}" HorizontalContentAlignment="Left"
                                                        SelectedItem="{Binding ActiveSequence}" BorderThickness="0"
+                                                       Background="{DynamicResource ABrush.Tone6.Background.Static}"
                                                        DockPanel.Dock="Right" SnapsToDevicePixels="True" MinWidth="40" />
                             </DockPanel>
                         </DockPanel>
@@ -596,21 +598,21 @@
                             <MultiTrigger.Conditions>
                                 <Condition Property="IsMouseOver" Value="True" />
                             </MultiTrigger.Conditions>
-                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ABrush.AccentTone2.Background.Static}" />
+                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ABrush.Tone2.Background.Static}" />
                         </MultiTrigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="Selector.IsSelectionActive" Value="False" />
                                 <Condition Property="IsSelected" Value="True" />
                             </MultiTrigger.Conditions>
-                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ABrush.AccentTone2.Background.Static}" />
+                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ABrush.Tone2.Background.Static}" />
                         </MultiTrigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="Selector.IsSelectionActive" Value="True" />
                                 <Condition Property="IsSelected" Value="True" />
                             </MultiTrigger.Conditions>
-                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ABrush.AccentTone2.Background.Static}" />
+                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ABrush.Tone2.Background.Static}" />
                         </MultiTrigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}" />

@@ -77,15 +77,11 @@ namespace FramePFX.WPF.Utils {
 
         public static DispatcherPriority ConvertPriority(ExecutionPriority priority) {
             switch (priority) {
-                case ExecutionPriority.Send: return DispatcherPriority.Send;
-
-                case ExecutionPriority.Normal: return DispatcherPriority.Normal;
-
-                case ExecutionPriority.Render: return DispatcherPriority.Render;
-
-                case ExecutionPriority.Background: return DispatcherPriority.Background;
-
                 case ExecutionPriority.AppIdle: return DispatcherPriority.ApplicationIdle;
+                case ExecutionPriority.Background: return DispatcherPriority.Background;
+                case ExecutionPriority.Render: return DispatcherPriority.Render;
+                case ExecutionPriority.Normal: return DispatcherPriority.Normal;
+                case ExecutionPriority.Send: return DispatcherPriority.Send;
                 default: throw new ArgumentOutOfRangeException(nameof(priority), priority, null);
             }
         }

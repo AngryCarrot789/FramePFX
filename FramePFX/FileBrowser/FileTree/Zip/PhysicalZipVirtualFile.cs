@@ -1,5 +1,4 @@
 using System;
-using System.IO.Compression;
 using FramePFX.FileBrowser.FileTree.Physical;
 
 namespace FramePFX.FileBrowser.FileTree.Zip {

@@ -9,27 +9,25 @@ namespace FramePFX.PropertyEditing.Editors {
 
         public float Max { get; }
 
-        public AutomatableFloatEditorViewModel(Type applicableType, AutomationKey automationKey, Func<IAutomatableViewModel, float> getter, Action<IAutomatableViewModel, float> setter) :
-            base(applicableType, automationKey, getter, setter) {
+        public AutomatableFloatEditorViewModel(Type targetType, string propertyName, AutomationKey automationKey) : base(targetType, propertyName, automationKey) {
             KeyDescriptorFloat desc = (KeyDescriptorFloat) automationKey.Descriptor;
             this.Min = float.IsInfinity(desc.Minimum) ? float.MinValue : desc.Minimum;
             this.Max = float.IsInfinity(desc.Maximum) ? float.MaxValue : desc.Maximum;
         }
 
-        public static AutomatableFloatEditorViewModel NewInstance<TOwner>(AutomationKey automationKey, Func<TOwner, float> getter, Action<TOwner, float> setter) where TOwner : IAutomatableViewModel {
-            return new AutomatableFloatEditorViewModel(typeof(TOwner), automationKey, (o) => getter((TOwner) o), (o, v) => setter((TOwner) o, v));
+        public static AutomatableFloatEditorViewModel NewInstance<TOwner>(string propertyName, AutomationKey automationKey) where TOwner : IAutomatableViewModel {
+            return new AutomatableFloatEditorViewModel(typeof(TOwner), propertyName, automationKey);
         }
 
-        protected override void OnValueChanged(IReadOnlyList<IAutomatableViewModel> handlers, float oldValue, float value) {
-            int count = handlers.Count;
-            if (count == 1) {
-                this.SetValuesAndHistory(value);
-            }
-            else {
+        protected override void OnValueChanged(IReadOnlyList<IAutomatableViewModel> handlers, float oldValue, float value, bool isIncrementOperation) {
+            if (isIncrementOperation) {
                 float change = value - oldValue;
-                for (int i = 0; i < count; i++) {
+                for (int i = 0, count = handlers.Count; i < count; i++) {
                     this.SetValueAndHistory(i, this.Getter(handlers[i]) + change);
                 }
+            }
+            else {
+                this.SetValuesAndHistory(value);
             }
         }
 

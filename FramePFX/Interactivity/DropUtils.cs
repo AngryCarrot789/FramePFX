@@ -1,5 +1,3 @@
-using FramePFX.History;
-
 namespace FramePFX.Interactivity {
     public static class DropUtils {
         private const int None = 0;

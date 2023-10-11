@@ -9,6 +9,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using FramePFX.Commands;
 using FramePFX.Utils;
+using FramePFX.Utils.Expressions;
 
 namespace FramePFX.WPF.Controls.Dragger {
     [TemplatePart(Name = nameof(PART_HintTextBlock), Type = typeof(TextBlock))]
@@ -731,12 +732,26 @@ namespace FramePFX.WPF.Controls.Dragger {
         }
 
         public bool TryCompleteEdit() {
-            if (!this.IsValueReadOnly && double.TryParse(this.PART_TextBox.Text, out double value)) {
+            if (this.IsValueReadOnly) {
+                return false;
+            }
+
+            if (double.TryParse(this.PART_TextBox.Text, out double value)) {
                 this.CompleteInputEdit(value);
                 return true;
             }
-            else {
-                return false;
+
+            using (ComplexNumericExpression.ExpressionState state = ComplexNumericExpression.DefaultParser.PushState()) {
+                state.SetVariable("value", this.Value);
+                try {
+                    value = state.Expression.Parse(this.PART_TextBox.Text);
+                }
+                catch {
+                    return false;
+                }
+
+                this.CompleteInputEdit(value);
+                return true;
             }
         }
 

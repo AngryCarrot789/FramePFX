@@ -41,8 +41,8 @@ namespace FramePFX.Editor.PropertyEditors.Tracks {
             this.displayNameHistory = new HistoryBuffer<HistoryTrackDisplayName>();
         }
 
-        protected override void OnClearHandlers() {
-            base.OnClearHandlers();
+        protected override void OnClearingHandlers() {
+            base.OnClearingHandlers();
             this.displayNameHistory.Clear();
         }
 

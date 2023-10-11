@@ -267,11 +267,8 @@ namespace FramePFX.Editor.Timelines {
             this.Height = data.GetDouble(nameof(this.Height), 60);
             this.TrackColour = data.TryGetString(nameof(this.TrackColour), out string colour) ? colour : TrackColours.GetRandomColour();
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
-            foreach (RBEBase entry in data.GetList(nameof(this.Clips)).List) {
-                if (!(entry is RBEDictionary dictionary))
-                    throw new Exception($"Resource dictionary contained a non dictionary child: {entry.Type}");
-                Clip clip = Clip.ReadSerialisedWithId(dictionary);
-                this.AddClip(clip);
+            foreach (RBEDictionary dictionary in data.GetList(nameof(this.Clips)).Cast<RBEDictionary>()) {
+                this.AddClip(Clip.ReadSerialisedWithId(dictionary));
             }
         }
 

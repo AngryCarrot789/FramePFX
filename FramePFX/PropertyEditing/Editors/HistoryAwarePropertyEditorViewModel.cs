@@ -14,9 +14,9 @@ namespace FramePFX.PropertyEditing.Editors {
             base.OnHandlersLoaded();
         }
 
-        protected override void OnClearHandlers() {
+        protected override void OnClearingHandlers() {
             this.HistoryManager = null;
-            base.OnClearHandlers();
+            base.OnClearingHandlers();
         }
 
         public bool IsChangingAny() {

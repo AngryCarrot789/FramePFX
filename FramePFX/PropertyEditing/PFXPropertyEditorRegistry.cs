@@ -36,8 +36,8 @@ namespace FramePFX.PropertyEditing {
 
             {
                 FixedPropertyGroupViewModel group = this.ClipInfo.CreateFixedSubGroup(typeof(ShapeSquareVideoClipViewModel), "Shape Info");
-                group.AddPropertyEditor("Width", AutomatableFloatEditorViewModel.NewInstance<ShapeSquareVideoClipViewModel>(ShapeSquareVideoClip.WidthKey, x => x.Width, (x, y) => x.Width = y));
-                group.AddPropertyEditor("Height", AutomatableFloatEditorViewModel.NewInstance<ShapeSquareVideoClipViewModel>(ShapeSquareVideoClip.HeightKey, x => x.Height, (x, y) => x.Height = y));
+                group.AddPropertyEditor("Width", new AutomatableFloatEditorViewModel(typeof(ShapeSquareVideoClipViewModel), nameof(ShapeSquareVideoClipViewModel.Width), ShapeSquareVideoClip.WidthKey));
+                group.AddPropertyEditor("Height", new AutomatableFloatEditorViewModel(typeof(ShapeSquareVideoClipViewModel), nameof(ShapeSquareVideoClipViewModel.Height), ShapeSquareVideoClip.HeightKey));
             }
 
             this.EffectInfo = new EffectListPropertyGroupViewModel();

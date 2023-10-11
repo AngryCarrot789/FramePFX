@@ -150,15 +150,17 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         /// Disposes the model, and then calls <see cref="OnModelDisposed"/>
         /// </summary>
         public void Dispose() {
-            using (ErrorList list = new ErrorList()) {
-                try {
-                    this.Model.Dispose();
-                }
-                catch (Exception e) {
-                    list.Add(new Exception("Failed to dispose model", e));
-                }
+            Exception exception = null;
+            try {
+                this.Model.Dispose();
+            }
+            catch (Exception e) {
+                exception = new Exception("Failed to dispose model", e);
+            }
 
-                this.OnModelDisposed();
+            this.OnModelDisposed();
+            if (exception != null) {
+                throw exception;
             }
         }
     }

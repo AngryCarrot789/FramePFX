@@ -11,6 +11,7 @@
                     xmlns:video="clr-namespace:FramePFX.Editor.PropertyEditors.Tracks.Video;assembly=FramePFX"
                     xmlns:wpf="clr-namespace:FramePFX.WPF"
                     xmlns:primitives="clr-namespace:FramePFX.PropertyEditing.Editors;assembly=FramePFX"
+                    xmlns:c="clr-namespace:FramePFX.WPF.Converters"
                     mc:Ignorable="d">
 
     <Style x:Key="AutomationEllipse" TargetType="{x:Type Ellipse}">
@@ -555,8 +556,12 @@
                                       EditStateChangedCommand="{Binding EditStateChangedCommand, Mode=OneTime}"
                                       Style="{StaticResource PropertyEditorNumberDraggerStyle}" />
                     <StackPanel Orientation="Horizontal" Grid.Column="1">
-                        <ToggleButton Content="O" IsChecked="{Binding IsOverrideEnabled}" Focusable="False" ToolTip="Insert Keyframe" Margin="2,0,0,0" Width="20" Height="20" ap:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0" />
-                        <Button Command="{Binding InsertKeyFrameCommand}" Focusable="False" ToolTip="Insert Keyframe" Margin="2,0,0,0" Width="20" Height="20" ap:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0">
+                        <ToggleButton Visibility="{Binding IsSingleSelection, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
+                                      Content="O" IsChecked="{Binding IsOverrideEnabled}" Focusable="False" ToolTip="Insert Keyframe"
+                                      Margin="2,0,0,0" Width="20" Height="20" ap:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0" />
+                        <Button Visibility="{Binding IsSingleSelection, Converter={x:Static c:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
+                                Command="{Binding InsertKeyFrameCommand}" Focusable="False" ToolTip="Insert Keyframe"
+                                Margin="2,0,0,0" Width="20" Height="20" ap:CornerRadiusHelper.Value="2" Background="Transparent" BorderThickness="0">
                             <Ellipse Width="8" Height="8" Fill="{DynamicResource ABrush.Glyph.Static}" />
                         </Button>
                         <Button Command="{Binding ResetValueCommand, Mode=OneTime}" ToolTip="Reset the opacity" Width="20" Height="20" ap:CornerRadiusHelper.Value="2" Background="Transparent" Margin="2,0,0,0" BorderThickness="0">

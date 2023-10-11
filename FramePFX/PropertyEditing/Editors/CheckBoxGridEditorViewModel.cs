@@ -22,8 +22,8 @@ namespace FramePFX.PropertyEditing.Editors {
             }
         }
 
-        protected override void OnClearHandlers() {
-            base.OnClearHandlers();
+        protected override void OnClearingHandlers() {
+            base.OnClearingHandlers();
             foreach (CheckBoxEditorViewModel editor in this.Editors) {
                 editor.ClearHandlers();
             }

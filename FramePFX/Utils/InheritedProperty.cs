@@ -6,15 +6,14 @@ namespace FramePFX.Utils {
     public class InheritedProperty<T> {
         private readonly InheritedProperty<T> parent;
         private T internalValue;
-        private bool hasValue;
 
         /// <summary>
-        /// Gets the current value (if <see cref="IsSet"/> is true) or the parent's value, or sets the current value and marks <see cref="IsSet"/> as true
+        /// Gets the current value (if <see cref="HasLocalValue"/> is true) or the parent's value, or sets the current value and marks <see cref="HasLocalValue"/> as true
         /// </summary>
         public T Value {
-            get => this.hasValue ? this.internalValue : (this.parent != null ? this.parent.Value : default);
+            get => this.HasLocalValue ? this.internalValue : (this.parent != null ? this.parent.Value : default);
             set {
-                this.hasValue = true;
+                this.HasLocalValue = true;
                 this.internalValue = value;
             }
         }
@@ -22,7 +21,7 @@ namespace FramePFX.Utils {
         /// <summary>
         /// Whether or not this current instance has a value set or not
         /// </summary>
-        public bool IsSet => this.hasValue;
+        public bool HasLocalValue { get; private set; }
 
         public InheritedProperty() {
         }
@@ -41,7 +40,7 @@ namespace FramePFX.Utils {
         }
 
         public bool GetValue(out T value) {
-            if (this.hasValue) {
+            if (this.HasLocalValue) {
                 value = this.internalValue;
                 return true;
             }
@@ -52,6 +51,11 @@ namespace FramePFX.Utils {
 
             value = default;
             return false;
+        }
+
+        public void Clear() {
+            this.HasLocalValue = false;
+            this.internalValue = default;
         }
     }
 }

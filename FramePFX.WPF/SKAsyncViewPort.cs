@@ -51,11 +51,6 @@ namespace FramePFX.WPF {
         private bool ignorePixelScaling;
         private bool isRendering;
 
-        // unused... for now
-        // private GameWindow gameWindow;
-        private readonly GRGlInterface grgInterface;
-        public readonly GRContext grContext;
-
         /// <summary>
         /// A list of clips to draw with their outline
         /// </summary>

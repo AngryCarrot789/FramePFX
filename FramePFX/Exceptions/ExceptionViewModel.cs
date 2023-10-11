@@ -49,7 +49,7 @@ namespace FramePFX.Exceptions {
         /// This exception's message
         /// </summary>
         public string Message {
-            get => ExceptionUtils.GetExceptionHeader(this.TheException, true);
+            get => ExceptionUtils.GetExceptionHeader(this.Exception, true);
         }
 
         public ExceptionDataViewModel Data { get; }
@@ -58,10 +58,10 @@ namespace FramePFX.Exceptions {
 
         public ExceptionViewModel InnerException => this.innerExceptions.First(x => !x.IsSuppressed);
 
-        public Exception TheException { get; }
+        public Exception Exception { get; }
 
         public ExceptionViewModel(ExceptionViewModel parent, Exception theException, bool isSuppressed) {
-            this.TheException = theException ?? throw new ArgumentNullException(nameof(theException), "Exception cannot be null");
+            this.Exception = theException ?? throw new ArgumentNullException(nameof(theException), "Exception cannot be null");
             this.Parent = parent;
             this.IsSuppressed = isSuppressed;
             this.innerExceptions = new EfficientObservableCollection<ExceptionViewModel>();
@@ -77,11 +77,17 @@ namespace FramePFX.Exceptions {
         public void Load() {
             this.innerExceptions.Clear();
             this.suppressedExceptions.Clear();
-            if (this.TheException.InnerException != null) {
-                this.innerExceptions.Add(new ExceptionViewModel(this, this.TheException.InnerException, false));
+            if (this.Exception.InnerException != null) {
+                this.innerExceptions.Add(new ExceptionViewModel(this, this.Exception.InnerException, false));
             }
 
-            List<Exception> suppressed = this.TheException.GetSuppressed(false);
+            if (this.Exception is AggregateException e) {
+                foreach (Exception ex in e.InnerExceptions) {
+                    this.innerExceptions.Add(new ExceptionViewModel(this, ex, false));
+                }
+            }
+
+            List<Exception> suppressed = this.Exception.GetSuppressed(false);
             if (suppressed != null) {
                 foreach (Exception exception in suppressed) {
                     this.suppressedExceptions.Add(new ExceptionViewModel(this, exception, true));

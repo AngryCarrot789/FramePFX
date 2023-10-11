@@ -33,14 +33,15 @@ namespace FramePFX.RBC {
 
         #region Getters And Setters (and similar util functions)
 
+        public bool ContainsKey(string key) => this.Map.ContainsKey(ValidateKey(key));
+
         public T GetElement<T>(string key) where T : RBEBase {
             if (this.TryGetElement(key, out T value)) {
                 return value;
             }
-            else {
-                string readableTypeName = TryGetIdByType(typeof(T), out RBEType type) ? type.ToString() : typeof(T).ToString();
-                throw new Exception($"No such entry '{key}' of type {readableTypeName}");
-            }
+
+            string readableTypeName = TryGetIdByType(typeof(T), out RBEType type) ? type.ToString() : typeof(T).ToString();
+            throw new Exception($"No such entry '{key}' of type {readableTypeName}");
         }
 
         public bool TryGetElement<T>(string key, out T element) where T : RBEBase {
@@ -74,7 +75,7 @@ namespace FramePFX.RBC {
         }
 
         public RBEDictionary CreateDictionary(string key) {
-            if (this.Map.ContainsKey(key))
+            if (this.ContainsKey(key))
                 throw new Exception("Key already in use: " + key);
             RBEDictionary dictionary = new RBEDictionary();
             this[key] = dictionary;
@@ -92,7 +93,7 @@ namespace FramePFX.RBC {
         }
 
         public RBEList CreateList(string key) {
-            if (this.Map.ContainsKey(key))
+            if (this.ContainsKey(key))
                 throw new Exception("Key already in use: " + key);
             RBEList list = new RBEList();
             this[key] = list;
@@ -287,10 +288,8 @@ namespace FramePFX.RBC {
             writer.Write((ushort) this.Map.Count);
             foreach (KeyValuePair<string, RBEBase> entry in this.Map) {
                 int length = entry.Key.Length;
-                if (length > 255) {
+                if (length > 255)
                     throw new Exception($"Map contained a key longer than 255 characters: {length}");
-                }
-
                 writer.Write((byte) length);
                 writer.Write(entry.Key.ToCharArray());
                 WriteIdAndElement(writer, entry.Value);

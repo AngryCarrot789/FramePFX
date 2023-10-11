@@ -89,6 +89,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
         };
 
         public AutomationSequenceViewModel VolumeAutomationSequence => this.AutomationData[AudioTrack.VolumeKey];
+        public AutomationSequenceViewModel IsMutedAutomationSequence => this.AutomationData[AudioTrack.IsMutedKey];
 
         public AudioTrackViewModel(AudioTrack model) : base(model) {
             this.AutomationData.AssignRefreshHandler(AudioTrack.VolumeKey, RefreshVolumeHandler);

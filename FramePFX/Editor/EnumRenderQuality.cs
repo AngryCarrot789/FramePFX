@@ -9,7 +9,7 @@ namespace FramePFX.Editor {
         /// <summary>
         /// Unspecified quality settings; SkiaSharp default
         /// </summary>
-        Unspecified,
+        UnspecifiedQuality,
 
         /// <summary>
         /// Low quality but fast render times
@@ -30,7 +30,7 @@ namespace FramePFX.Editor {
     public static class EnumRenderQualityExtensions {
         public static SKFilterQuality ToFilterQuality(this EnumRenderQuality quality) {
             switch (quality) {
-                case EnumRenderQuality.Unspecified: return SKFilterQuality.None;
+                case EnumRenderQuality.UnspecifiedQuality: return SKFilterQuality.None;
                 case EnumRenderQuality.Low: return SKFilterQuality.Low;
                 case EnumRenderQuality.Medium: return SKFilterQuality.Medium;
                 case EnumRenderQuality.High: return SKFilterQuality.High;

@@ -13,7 +13,7 @@ namespace FramePFX.Exceptions.Trace {
 
         public StackTraceViewModel(ExceptionViewModel exception) {
             this.Exception = exception;
-            this.TheTrace = new StackTrace(exception.TheException, 0, true);
+            this.TheTrace = new StackTrace(exception.Exception, 0, true);
             this.frames = new ObservableCollection<StackFrameViewModel>();
             this.Frames = new ReadOnlyObservableCollection<StackFrameViewModel>(this.frames);
             this.frames.Add(null);

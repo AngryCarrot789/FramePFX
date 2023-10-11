@@ -5,10 +5,10 @@ using FramePFX.Automation.ViewModels;
 
 namespace FramePFX.PropertyEditing.Editors {
     public class AutomatableBoolEditorViewModel : AutomatablePropertyEditorViewModel<bool> {
-        public AutomatableBoolEditorViewModel(Type applicableType, AutomationKey automationKey, Func<IAutomatableViewModel, bool> getter, Action<IAutomatableViewModel, bool> setter) : base(applicableType, automationKey, getter, setter) {
+        public AutomatableBoolEditorViewModel(Type targetType, string propertyName, AutomationKey automationKey) : base(targetType, propertyName, automationKey) {
         }
 
-        protected override void OnValueChanged(IReadOnlyList<IAutomatableViewModel> handlers, bool oldValue, bool value) {
+        protected override void OnValueChanged(IReadOnlyList<IAutomatableViewModel> handlers, bool oldValue, bool value, bool isIncrementOperation) {
             this.SetValuesAndHistory(value);
         }
 

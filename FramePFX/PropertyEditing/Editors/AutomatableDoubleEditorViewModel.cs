@@ -9,18 +9,17 @@ namespace FramePFX.PropertyEditing.Editors {
 
         public double Max { get; }
 
-        public AutomatableDoubleEditorViewModel(Type applicableType, AutomationKey automationKey, Func<IAutomatableViewModel, double> getter, Action<IAutomatableViewModel, double> setter) :
-            base(applicableType, automationKey, getter, setter) {
+        public AutomatableDoubleEditorViewModel(Type targetType, string propertyName, AutomationKey automationKey) : base(targetType, propertyName, automationKey) {
             KeyDescriptorDouble desc = (KeyDescriptorDouble) automationKey.Descriptor;
             this.Min = double.IsInfinity(desc.Minimum) ? double.MinValue : desc.Minimum;
             this.Max = double.IsInfinity(desc.Maximum) ? double.MaxValue : desc.Maximum;
         }
 
-        public static AutomatableDoubleEditorViewModel NewInstance<TOwner>(AutomationKey automationKey, Func<TOwner, double> getter, Action<TOwner, double> setter) where TOwner : IAutomatableViewModel {
-            return new AutomatableDoubleEditorViewModel(typeof(TOwner), automationKey, (o) => getter((TOwner) o), (o, v) => setter((TOwner) o, v));
+        public static AutomatableDoubleEditorViewModel NewInstance<TOwner>(string propertyName, AutomationKey automationKey) where TOwner : IAutomatableViewModel {
+            return new AutomatableDoubleEditorViewModel(typeof(TOwner), propertyName, automationKey);
         }
 
-        protected override void OnValueChanged(IReadOnlyList<IAutomatableViewModel> handlers, double oldValue, double value) {
+        protected override void OnValueChanged(IReadOnlyList<IAutomatableViewModel> handlers, double oldValue, double value, bool isIncrementOperation) {
             int count = handlers.Count;
             if (count == 1) {
                 this.SetValuesAndHistory(value);

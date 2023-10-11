@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using FFmpeg.AutoGen;
@@ -169,7 +168,7 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
         }
 
         public void DisposeMediaFile() {
-            using (ErrorList list = new ErrorList()) {
+            using (ErrorList list = new ErrorList("Failed to dispose media file")) {
                 try {
                     this.Demuxer?.Dispose();
                 }

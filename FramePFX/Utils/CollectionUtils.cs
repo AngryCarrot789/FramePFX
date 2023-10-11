@@ -25,7 +25,7 @@ namespace FramePFX.Utils {
         }
 
         public static void ForEachThenClear<T>(this ICollection<T> list, Action<T> consumer) {
-            using (ErrorList stack = new ErrorList()) {
+            using (ErrorList stack = new ErrorList("An exception occurred while enumerating one or more items before clearing the collection")) {
                 int i = 0;
                 foreach (T item in list) {
                     try {

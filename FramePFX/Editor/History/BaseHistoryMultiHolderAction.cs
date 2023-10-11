@@ -25,7 +25,7 @@ namespace FramePFX.Editor.History {
             }
 
             this.isRedoNext = true;
-            using (ErrorList stack = new ErrorList()) {
+            using (ErrorList stack = new ErrorList("Failed to undo one or more actions")) {
                 int index = 0;
                 foreach (T holder in this.holders) {
                     holder.IsHistoryChanging = true;
@@ -52,7 +52,7 @@ namespace FramePFX.Editor.History {
             }
 
             this.isRedoNext = false;
-            using (ErrorList stack = new ErrorList()) {
+            using (ErrorList stack = new ErrorList("Failed to redo one or more actions")) {
                 int index = 0;
                 foreach (T holder in this.holders) {
                     holder.IsHistoryChanging = true;

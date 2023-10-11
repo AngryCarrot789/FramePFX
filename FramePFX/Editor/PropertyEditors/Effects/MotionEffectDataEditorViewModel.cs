@@ -428,8 +428,8 @@ namespace FramePFX.Editor.PropertyEditors.Effects {
             this.RaisePropertyChanged(nameof(this.MediaRotationOriginAutomationSequence));
         }
 
-        protected override void OnClearHandlers() {
-            base.OnClearHandlers();
+        protected override void OnClearingHandlers() {
+            base.OnClearingHandlers();
             if (this.Handlers.Count == 1) {
                 MotionEffectViewModel clip = this.SingleSelection;
                 clip.MediaPositionAutomationSequence.RefreshValue -= this.RefreshMediaPositionHandler;

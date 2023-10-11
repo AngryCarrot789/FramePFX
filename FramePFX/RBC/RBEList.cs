@@ -19,6 +19,12 @@ namespace FramePFX.RBC {
             this.List = children ?? throw new ArgumentNullException(nameof(children), "List cannot be null");
         }
 
+        /// <summary>
+        /// Returns an enumerable of <see cref="List"/>, and pre-checks the list to ensure all values are the correc type
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         public IEnumerable<T> Cast<T>() where T : RBEBase {
             if (this.List.Any(x => !(x is T))) {
                 throw new Exception($"Expected list to contain only {GetReadableTypeName(typeof(T))} instances");

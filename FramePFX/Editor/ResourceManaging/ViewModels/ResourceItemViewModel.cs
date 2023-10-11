@@ -47,7 +47,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         }
 
         public virtual async Task SetOfflineAsync(bool user) {
-            using (ErrorList stack = ErrorList.NoAutoThrow) {
+            using (ErrorList stack = new ErrorList("Failed to set resource to offline")) {
                 // TODO: remove ErrorList usage and replace with something like an exception viewer
                 this.Model.Disable(stack, user);
                 if (stack.TryGetException(out Exception exception)) {
@@ -126,25 +126,26 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             // TODO: as per the SetOfflineAsync function comments, really gotta remove the ErrorList usage
 
             bool isOnline;
-            ErrorList list = ErrorList.NoAutoThrow;
-            try {
-                isOnline = await resource.LoadResource(checker, list);
-            }
-            catch (Exception e) {
-                string msg = e.GetToString();
-                string typeName = resource.GetType().Name;
-                AppLogger.WriteLine($"[FATAL] An unexpected exception occurred while loading resource: {typeName}\n{msg}");
-                await Services.DialogService.ShowMessageExAsync("Resource load error", $"An unexpected error occurred while loading resource '{typeName}' :(", msg);
-                throw new Exception($"Exception occurred while loading resource '{typeName}'", e);
-            }
-
-            ResourceItem.SetOnlineState(resource.Model, isOnline);
-            if (list.TryGetException(out Exception exception)) {
-                if (isOnline) {
-                    await Services.DialogService.ShowMessageExAsync("Resource warning", $"Resource loaded with one or more errors", exception.GetToString());
+            using (ErrorList list = new ErrorList("Failed to load resource", false)) {
+                try {
+                    isOnline = await resource.LoadResource(checker, list);
                 }
-                else {
-                    AppLogger.WriteLine("Resource could not be loaded due to one or more errors: " + exception.GetToString());
+                catch (Exception e) {
+                    string msg = e.GetToString();
+                    string typeName = resource.GetType().Name;
+                    AppLogger.WriteLine($"[FATAL] An unexpected exception occurred while loading resource: {typeName}\n{msg}");
+                    await Services.DialogService.ShowMessageExAsync("Resource load error", $"An unexpected error occurred while loading resource '{typeName}' :(", msg);
+                    throw new Exception($"Exception occurred while loading resource '{typeName}'", e);
+                }
+
+                ResourceItem.SetOnlineState(resource.Model, isOnline);
+                if (list.TryGetException(out Exception exception)) {
+                    if (isOnline) {
+                        await Services.DialogService.ShowMessageExAsync("Resource warning", $"Resource loaded with one or more errors", exception.GetToString());
+                    }
+                    else {
+                        AppLogger.WriteLine("Resource could not be loaded due to one or more errors: " + exception.GetToString());
+                    }
                 }
             }
 

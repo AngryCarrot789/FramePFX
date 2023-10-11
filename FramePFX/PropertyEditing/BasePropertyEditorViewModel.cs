@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace FramePFX.PropertyEditing {
@@ -8,7 +9,7 @@ namespace FramePFX.PropertyEditing {
     /// and reflecting those changes back to one or more handlers (via the <see cref="Handlers"/> list)
     /// </summary>
     public abstract class BasePropertyEditorViewModel : BasePropertyObjectViewModel {
-        private static readonly List<object> EmptyList = new List<object>();
+        private static readonly ReadOnlyCollection<object> EmptyList = new List<object>().AsReadOnly();
 
         private readonly Dictionary<object, PropertyHandler> handlerToDataMap;
 
@@ -35,9 +36,14 @@ namespace FramePFX.PropertyEditing {
         public bool IsEmpty => this.Handlers.Count < 1;
 
         /// <summary>
-        /// Whether or not this editor has more than 1 handler
+        /// Whether or not this editor has more than 1 active handlers
         /// </summary>
         public bool IsMultiSelection => this.Handlers.Count > 1;
+
+        /// <summary>
+        /// Whether or not this editor has only 1 active handler
+        /// </summary>
+        public bool IsSingleSelection => this.Handlers.Count == 1;
 
         /// <summary>
         /// A mode which helps determine if this editor can be used based on the input handler list
@@ -90,13 +96,14 @@ namespace FramePFX.PropertyEditing {
                 return;
             }
 
-            this.OnClearHandlers();
+            this.OnClearingHandlers();
             this.handlerToDataMap.Clear();
             this.Handlers = EmptyList;
             this.IsCurrentlyApplicable = false;
             this.RaisePropertyChanged(nameof(this.HasHandlers));
             this.RaisePropertyChanged(nameof(this.IsEmpty));
             this.RaisePropertyChanged(nameof(this.IsMultiSelection));
+            this.RaisePropertyChanged(nameof(this.IsSingleSelection));
         }
 
         /// <summary>
@@ -125,13 +132,14 @@ namespace FramePFX.PropertyEditing {
             this.RaisePropertyChanged(nameof(this.HasHandlers));
             this.RaisePropertyChanged(nameof(this.IsEmpty));
             this.RaisePropertyChanged(nameof(this.IsMultiSelection));
+            this.RaisePropertyChanged(nameof(this.IsSingleSelection));
             this.OnHandlersLoaded();
         }
 
         /// <summary>
         /// Called just before the handlers are cleared. When this is cleared, there is guaranteed to be 1 or more loaded handlers
         /// </summary>
-        protected virtual void OnClearHandlers() {
+        protected virtual void OnClearingHandlers() {
         }
 
         /// <summary>

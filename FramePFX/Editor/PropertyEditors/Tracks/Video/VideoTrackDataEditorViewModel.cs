@@ -72,8 +72,8 @@ namespace FramePFX.Editor.PropertyEditors.Tracks.Video {
             this.RaisePropertyChanged(nameof(this.Opacity));
         }
 
-        protected override void OnClearHandlers() {
-            base.OnClearHandlers();
+        protected override void OnClearingHandlers() {
+            base.OnClearingHandlers();
             if (this.Handlers.Count == 1) {
                 this.SingleSelection.OpacityAutomationSequence.RefreshValue -= this.RefreshOpacityHandler;
             }
@@ -130,8 +130,8 @@ namespace FramePFX.Editor.PropertyEditors.Tracks.Video {
             this.RaisePropertyChanged(nameof(this.InsertOpacityKeyFrameCommand));
         }
 
-        protected override void OnClearHandlers() {
-            base.OnClearHandlers();
+        protected override void OnClearingHandlers() {
+            base.OnClearingHandlers();
             this.IsOpacitySelected = false;
         }
     }

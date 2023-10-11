@@ -151,6 +151,7 @@
     <Compile Include="AttachedProperties\ToggleButtonHelper.cs" />
     <Compile Include="AttachedProperties\TopmostFocus.cs" />
     <Compile Include="BindingErrorListener.cs" />
+    <Compile Include="Controls\AutomationControl.cs" />
     <Compile Include="Controls\CancellableThumb.cs" />
     <Compile Include="Controls\CursorUtils.cs" />
     <Compile Include="Controls\Dragger\EditCompletedEventArgs.cs" />
@@ -170,6 +171,7 @@
     <Compile Include="Controls\IconTextPairControl.cs" />
     <Compile Include="Controls\InfiniteScrollViewer.cs" />
     <Compile Include="Controls\SelectionAdorder.cs" />
+    <Compile Include="Controls\VerticallySpacedStackPanel.cs" />
     <Compile Include="Controls\TreeExtension.cs" />
     <Compile Include="Controls\TreeViews\Automation\Peers\MultiSelectTreeViewAutomationPeer.cs" />
     <Compile Include="Controls\TreeViews\Automation\Peers\MultiSelectTreeViewItemAutomationPeer.cs" />
@@ -210,7 +212,6 @@
     <Compile Include="Converters\SingletonValueConverter.cs" />
     <Compile Include="Converters\SKColorToBrushConverter.cs" />
     <Compile Include="Converters\VolumeToDbConverter.cs" />
-    <Compile Include="DrawEventArgs.cs" />
     <Compile Include="Editor\Automation\AutomationActivityBrushConverter.cs" />
     <Compile Include="Editor\Automation\AutomationSequenceEditor.cs" />
     <Compile Include="Editor\Automation\DragMode.cs" />
@@ -387,6 +388,7 @@
     <Compile Include="Utils\CASLock.cs" />
     <Compile Include="Utils\DispatcherCallback.cs" />
     <Compile Include="Utils\DispatcherUtils.cs" />
+    <Compile Include="Utils\DoubleUtils.cs" />
     <Compile Include="Utils\DynamicCodeConverter.cs" />
     <Compile Include="Utils\KBUtils.cs" />
     <Compile Include="Utils\KeyUtils.cs" />

@@ -195,7 +195,7 @@ namespace FramePFX.WPF.AttachedProperties {
 
             // Here, we update the target's selection from the source list
             // This would require disconnecting selection changed events
-            using (ErrorList list = ErrorList.NoAutoThrow) {
+            using (ErrorList list = new ErrorList("Failed to handle observable collection changed event", false)) {
                 foreach (DependencyObject target in targets) {
                     try {
                         Selector selector = (Selector) target;

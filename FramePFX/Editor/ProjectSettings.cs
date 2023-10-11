@@ -42,7 +42,7 @@ namespace FramePFX.Editor {
             this.SampleRate = 44100;
             this.BitRate = 16;
             this.Channels = 2;
-            this.Quality = EnumRenderQuality.Medium;
+            this.Quality = EnumRenderQuality.UnspecifiedQuality;
         }
 
         public void ReadFromRBE(RBEDictionary data) {
@@ -51,7 +51,7 @@ namespace FramePFX.Editor {
             this.ChannelFormat = data.GetString(nameof(this.ChannelFormat));
             this.SampleRate = data.GetInt(nameof(this.SampleRate));
             this.BitRate = data.GetInt(nameof(this.BitRate));
-            this.Quality = (EnumRenderQuality) data.GetByte(nameof(this.Quality), (byte) EnumRenderQuality.Medium);
+            this.Quality = (EnumRenderQuality) data.GetByte(nameof(this.Quality), (byte) EnumRenderQuality.UnspecifiedQuality);
         }
 
         public void WriteToRBE(RBEDictionary data) {

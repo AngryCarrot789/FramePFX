@@ -59,7 +59,7 @@ namespace FramePFX.Editor.ViewModels {
 
         public event ProjectModifiedEvent ProjectModified;
 
-        public static IList<EnumRenderQuality> RenderQualities { get; } = new List<EnumRenderQuality>() {EnumRenderQuality.Unspecified, EnumRenderQuality.Low, EnumRenderQuality.Medium, EnumRenderQuality.High};
+        public static IList<EnumRenderQuality> RenderQualities { get; } = new List<EnumRenderQuality>() {EnumRenderQuality.UnspecifiedQuality, EnumRenderQuality.Low, EnumRenderQuality.Medium, EnumRenderQuality.High};
 
         public ProjectSettingsViewModel(ProjectSettings model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));

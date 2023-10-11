@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using FramePFX.Logger;
 
 namespace FramePFX.RBC {
     public class RBEByte : RBEBase {
@@ -150,15 +153,53 @@ namespace FramePFX.RBC {
     /// An RBE element that stores a string. Max string length is an unsigned short (<see cref="ushort.MaxValue"/>)
     /// </summary>
     public class RBEString : RBEBase {
+        public const int MaxValueLength = ushort.MaxValue;
+        private string value;
+
         public override RBEType Type => RBEType.String;
 
-        public string Value { get; set; }
+        public string Value {
+            get => this.value;
+            set {
+                if (value != null && value.Length > MaxValueLength) {
+                    AppLogger.WriteLine($"{nameof(RBEString)} value length exceeded {nameof(MaxValueLength)}");
+                }
+
+                this.value = value;
+            }
+        }
 
         public RBEString() {
         }
 
         public RBEString(string value) {
             this.Value = value;
+        }
+
+        public static string ClampLength(string input) {
+            if (input != null && input.Length > MaxValueLength)
+                return input.Substring(0, MaxValueLength);
+            return input;
+        }
+
+        public static void CreateStringList(RBEList list, string input) {
+            for (int i = 0, length = input.Length; i < length; i += MaxValueLength) {
+                list.Add(new RBEString(input.Substring(i, Math.Min(MaxValueLength, length - i))));
+            }
+        }
+
+        public static RBEList CreateStringList(string input) {
+            RBEList list = new RBEList(new List<RBEBase>(input.Length / MaxValueLength + 1));
+            CreateStringList(list, input);
+            return list;
+        }
+
+        public static string ReadFromStringList(RBEList list) {
+            IEnumerable<RBEString> enumerable = list.Cast<RBEString>();
+            StringBuilder sb = new StringBuilder(list.List.Count * MaxValueLength);
+            foreach (RBEString rbe in enumerable)
+                sb.Append(rbe.value);
+            return sb.ToString();
         }
 
         /// <summary>
@@ -191,14 +232,14 @@ namespace FramePFX.RBC {
         }
 
         protected override void Read(BinaryReader reader) {
-            this.Value = ReadString(reader);
+            this.value = ReadString(reader);
         }
 
         protected override void Write(BinaryWriter writer) {
-            WriteString(writer, this.Value);
+            WriteString(writer, this.value);
         }
 
         public override RBEBase Clone() => this.CloneCore();
-        public RBEString CloneCore() => new RBEString(this.Value);
+        public RBEString CloneCore() => new RBEString(this.value);
     }
 }

@@ -109,6 +109,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
         };
 
         public AutomationSequenceViewModel OpacityAutomationSequence => this.AutomationData[VideoTrack.OpacityKey];
+        public AutomationSequenceViewModel IsVisibleAutomationSequence => this.AutomationData[VideoTrack.IsVisibleKey];
 
         public RelayCommand ResetOpacityCommand { get; }
         public RelayCommand InsertOpacityKeyFrameCommand { get; }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reflection;
 using System.Security;
@@ -8,6 +9,7 @@ using System.Text;
 namespace FramePFX.Utils {
     public static class ExceptionUtils {
         private const String CAUSE_CAPTION = "Caused By: ";
+        private const String AGGREGATED_CAPTION = "Additionally Caused By: ";
         private const String SUPPRESSED_CAPTION = "Suppressed: ";
 
         public static List<Exception> GetSuppressed(this Exception e, bool create = true) {
@@ -40,8 +42,16 @@ namespace FramePFX.Utils {
                 list.Add($"    at {FormatFrame(frame, fileInfo)}");
             }
 
+            // Print aggregated exceptions, if any
+            ReadOnlyCollection<Exception> aggregations;
+            if (e is AggregateException aggregateException && (aggregations = aggregateException.InnerExceptions).Count > 0) {
+                foreach (Exception ex in aggregations) {
+                    GetEnclosedStackTrace(ex, list, message, fileInfo, trace, AGGREGATED_CAPTION, "    ", dejaVu);
+                }
+            }
+
             // Print suppressed exceptions, if any
-            List<Exception> suppressed = GetSuppressed(e, false);
+            IReadOnlyCollection<Exception> suppressed = GetSuppressed(e, false);
             if (suppressed != null && suppressed.Count > 0) {
                 foreach (Exception ex in suppressed) {
                     GetEnclosedStackTrace(ex, list, message, fileInfo, trace, SUPPRESSED_CAPTION, "    ", dejaVu);

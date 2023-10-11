@@ -37,8 +37,8 @@ namespace FramePFX.Editor.PropertyEditors.Clips {
             this.displayNameHistory = new HistoryBuffer<HistoryClipDisplayName>();
         }
 
-        protected override void OnClearHandlers() {
-            base.OnClearHandlers();
+        protected override void OnClearingHandlers() {
+            base.OnClearingHandlers();
             this.displayNameHistory.Clear();
         }
 

@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.ResourceChecker;
@@ -35,6 +36,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
                 return true;
             };
+
             foreach (BaseResource item in model.Items) {
                 // no need to set manager to ours because it will be null as we are in the ctor
                 BaseResourceViewModel viewModel = item.CreateViewModel();

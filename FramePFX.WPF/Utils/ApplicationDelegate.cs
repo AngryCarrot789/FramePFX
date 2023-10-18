@@ -33,7 +33,7 @@ namespace FramePFX.WPF.Utils {
                 action(parameter);
             }
             else {
-                this.dispatcher.Invoke(action, ConvertPriority(priority), parameter);
+                this.dispatcher.Invoke(ConvertPriority(priority), action, parameter);
             }
         }
 
@@ -62,7 +62,7 @@ namespace FramePFX.WPF.Utils {
                 return Task.CompletedTask;
             }
 
-            return this.dispatcher.InvokeAsync(() => action(parameter), ConvertPriority(priority), CancellationToken.None).Task;
+            return this.dispatcher.BeginInvoke(ConvertPriority(priority), action, parameter).Task;
         }
 
         public Task<T> InvokeAsync<T>(Func<T> function, ExecutionPriority priority) {

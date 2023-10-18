@@ -52,6 +52,12 @@ namespace FramePFX.ServiceManaging {
         /// <returns>A task that can be awaited, which is completed once the function returns on the UI thread</returns>
         Task InvokeAsync(Action action, ExecutionPriority priority = ExecutionPriority.Normal);
 
+        // Unless we are on the main thread and priority is Send, Invoke and InvokeAsync with the parameter provides
+        // practically no additional performance benifits for valuetype objects, because the parameter has to
+        // get boxed anyway, and not to mention the fact that WPF dispatcher operations create a instance of
+        // DispatcherOperationTaskSource which also creates a TaskCompletionSource and DispatcherOperationTaskMapping
+        // AND an instance of CulturePreservingExecutionContext gets created too...
+
         /// <summary>
         /// Asynchronously executes the given function on the UI thread, or dispatches its execution on the UI thread
         /// if we are not currently on it. This is the best way to execute a function on the UI thread asynchronously

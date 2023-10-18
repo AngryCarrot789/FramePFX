@@ -151,22 +151,10 @@ namespace FramePFX.WPF {
             this.MainWindow = window;
             this.ShutdownMode = ShutdownMode.OnMainWindowClose;
             window.Show();
-            await this.Dispatcher.Invoke(async () => {
-                await this.OnVideoEditorLoaded(window.Editor, e.Args);
-                // new EditorWindow2() {
-                //     DataContext = window.Editor
-                // }.Show();
-            }, DispatcherPriority.Loaded);
+            await this.Dispatcher.Invoke(() => this.OnVideoEditorLoaded(window.Editor, e.Args), DispatcherPriority.Loaded);
         }
 
         public async Task InitApp() {
-            // test expressions
-            using (var state = ComplexNumericExpression.DefaultParser.PushState()) {
-                state.SetVariable("Const3", 3);
-                state.SetVariable("ConstSexy", 69);
-                MessageBox.Show(state.Expression.Parse("150/sin(Const3*1.5*ConstSexy)+sum(20,75,3,2)/(10/sqrt(23.2*ConstSexy))").ToString());
-            }
-
             await this.SetActivity("Loading services...");
             this.processor.RegisterProcessor<ServiceImplementationAttribute>((typeInfo, attribute) => {
                 object instance;

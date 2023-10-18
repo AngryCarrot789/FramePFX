@@ -14,15 +14,12 @@ namespace FramePFX.Utils {
 
         public readonly Func<bool> CachedInvoke;
         public readonly Action CachedInvokeNoRet;
-        private readonly object locker;
 
         private readonly string debugId; // allows debugger breakpoint to match this
-        private volatile bool invokeLater;
         private readonly ExecutionPriority priority;
 
         public RapidDispatchCallback(Action action, ExecutionPriority priority = ExecutionPriority.Send, string debugId = null) {
             this.debugId = debugId;
-            this.locker = new object();
             this.action = action;
             this.priority = priority;
             this.executeAction = () => {
@@ -48,8 +45,10 @@ namespace FramePFX.Utils {
 
         public Task<bool> InvokeAsync() {
             if (Interlocked.CompareExchange(ref this.state, 1, 0) == 0) {
-                // i hope this works...
-                return Services.Application.InvokeAsync(this.executeAction, this.priority).ContinueWith(t => true);
+                Task task = Services.Application.InvokeAsync(this.executeAction, this.priority);
+                if (!task.IsCompleted)
+                    return task.ContinueWith(t => true);
+                return Task.FromResult(true);
             }
 
             return Task.FromResult(false);
@@ -63,15 +62,12 @@ namespace FramePFX.Utils {
 
         public readonly Func<T, bool> CachedInvoke;
         public readonly Action<T> CachedInvokeNoRet;
-        private readonly object locker;
 
         private readonly string debugId; // allows debugger breakpoint to match this
-        private volatile bool invokeLater;
         private readonly ExecutionPriority priority;
 
         public RapidDispatchCallback(Action<T> action, ExecutionPriority priority = ExecutionPriority.Send, string debugId = null) {
             this.debugId = debugId;
-            this.locker = new object();
             this.action = action;
             this.priority = priority;
             this.executeAction = (t) => {
@@ -97,8 +93,10 @@ namespace FramePFX.Utils {
 
         public Task<bool> InvokeAsync(T parameter) {
             if (Interlocked.CompareExchange(ref this.state, 1, 0) == 0) {
-                // i hope this works...
-                return Services.Application.InvokeAsync(this.executeAction, parameter, this.priority).ContinueWith(t => true);
+                Task task = Services.Application.InvokeAsync(this.executeAction, parameter, this.priority);
+                if (!task.IsCompleted)
+                    return task.ContinueWith(t => true);
+                return Task.FromResult(true);
             }
 
             return Task.FromResult(false);

@@ -14,7 +14,6 @@ using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using AvalonDock.Layout;
 using FramePFX.Editor;
-using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.History.ViewModels;
@@ -42,6 +41,8 @@ namespace FramePFX.WPF.Editor.MainWindow {
         public NotificationPanelViewModel NotificationPanel { get; }
 
         private readonly Func<TimelineViewModel, Task> doRenderActiveTimelineFunc;
+
+        private int number;
 
         public EditorMainWindow() {
             this.InitializeComponent();
@@ -312,7 +313,6 @@ namespace FramePFX.WPF.Editor.MainWindow {
                     try {
                         RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortControl.ViewPortElement.FrameInfo);
                         context.SetRenderQuality(project.Model.RenderQuality);
-                        context.ShouldProvideClipBounds = true;
                         context.ClearPixels();
                         try {
                             await timeline.Model.RenderAsync(context, frame, source.Token);
@@ -325,15 +325,6 @@ namespace FramePFX.WPF.Editor.MainWindow {
                             await editor.Playback.StopForRenderException();
                             await Services.DialogService.ShowMessageAsync("Render error", $"An error occurred while rendering timeline. See the logs for more info");
                         }
-
-                        List<(VideoClip, SKRect)> list = new List<(VideoClip, SKRect)>();
-                        foreach ((VideoClip clip, SKRect rect) in context.ClipBoundingBoxes) {
-                            if (timeline.GetTrackByModel(clip.Track).GetClipByModel(clip).IsSelected) {
-                                list.Add((clip, rect));
-                            }
-                        }
-
-                        this.ViewPortControl.ViewPortElement.OutlineList = list;
                     }
                     finally {
                         this.ViewPortControl.ViewPortElement.EndRender();
@@ -393,8 +384,6 @@ namespace FramePFX.WPF.Editor.MainWindow {
                 track.Height = Maths.Clamp(track.Height + e.VerticalChange, 24, 500);
             }
         }
-
-        private int number;
 
         private void MenuItem_OnClick(object sender, RoutedEventArgs e) {
             this.NotificationPanel.PushNotification(new MessageNotification("Header!!!", $"Some message here ({++this.number})", TimeSpan.FromSeconds(5)));

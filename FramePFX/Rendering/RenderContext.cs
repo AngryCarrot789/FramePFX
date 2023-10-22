@@ -38,15 +38,6 @@ namespace FramePFX.Rendering {
         /// </summary>
         public SKFilterQuality RenderFilterQuality;
 
-        private List<(VideoClip, SKRect)> clipBoxes;
-
-        public List<(VideoClip, SKRect)> ClipBoundingBoxes => this.clipBoxes ?? (this.clipBoxes = new List<(VideoClip, SKRect)>());
-
-        /// <summary>
-        /// Gets or sets a value that states if the render process should provide clip bounding box information (added to <see cref="ClipBoundingBoxes"/>)
-        /// </summary>
-        public bool ShouldProvideClipBounds;
-
         /// <summary>
         /// The timeline render depth. Rendering the main timeline only means that this value only ever reaches a value of 1
         /// </summary>

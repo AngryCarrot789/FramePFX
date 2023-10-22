@@ -126,5 +126,20 @@ namespace FramePFX.Utils {
 
             return left;
         }
+
+        public static int GetSortInsertionIndex<T>(T[] array, int left, int right, T item, Comparison<T> comparer) {
+            while (left <= right) {
+                int middle = left + (right - left) / 2;
+                int comparison = comparer(item, array[middle]);
+                if (comparison < 0)
+                    right = middle - 1;
+                else if (comparison > 0)
+                    left = middle + 1;
+                else
+                    return middle;
+            }
+
+            return left;
+        }
     }
 }

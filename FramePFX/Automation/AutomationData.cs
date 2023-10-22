@@ -55,11 +55,15 @@ namespace FramePFX.Automation {
             this.sequences = new List<AutomationSequence>();
         }
 
+        public AutomationSequence AssignKey(AutomationKey key) {
+            return this.AssignKey(key, this.Owner.CreateAssignment(key));
+        }
+
         /// <summary>
         /// Adds an automation sequence for the given key, allowing it to be automated
         /// </summary>
         /// <param name="key">The key to add</param>
-        public AutomationSequence AssignKey(AutomationKey key, UpdateAutomationValueEventHandler updateValueHandler = null) {
+        public AutomationSequence AssignKey(AutomationKey key, UpdateAutomationValueEventHandler updateValueHandler) {
             if (this.map.ContainsKey(key))
                 throw new Exception("Key is already assigned");
             AutomationSequence sequence = new AutomationSequence(this, key);

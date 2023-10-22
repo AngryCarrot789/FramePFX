@@ -4,10 +4,10 @@ using SkiaSharp;
 
 namespace FramePFX.Utils {
     public static class Vectors {
-        public static readonly Vector2 Zero = Vector2.Zero;
-        public static readonly Vector2 One = Vector2.One;
-        public static readonly Vector2 MinValue = new Vector2(float.MinValue);
-        public static readonly Vector2 MaxValue = new Vector2(float.MaxValue);
+        public static Vector2 Zero => default;
+        public static Vector2 One => default;
+        public static Vector2 MinValue => new Vector2(float.MinValue);
+        public static Vector2 MaxValue => new Vector2(float.MaxValue);
 
         public static Vector2 Clamp(this Vector2 a, Vector2 min, Vector2 max) => Vector2.Clamp(a, min, max);
         public static Vector3 Clamp(this Vector3 a, Vector3 min, Vector3 max) => Vector3.Clamp(a, min, max);

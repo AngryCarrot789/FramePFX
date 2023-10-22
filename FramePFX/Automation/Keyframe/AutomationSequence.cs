@@ -88,6 +88,16 @@ namespace FramePFX.Automation.Keyframe {
             this.UpdateValue?.Invoke(this, frame);
         }
 
+        /// <summary>
+        /// Adds the given handler to <see cref="UpdateValue"/>
+        /// </summary>
+        /// <param name="handler">The handler to add</param>
+        /// <returns>The current instance, for chain calling</returns>
+        public AutomationSequence AddUpdateHandler(UpdateAutomationValueEventHandler handler) {
+            this.UpdateValue += handler;
+            return this;
+        }
+
         #region Helper Getter Functions
 
         public float GetFloatValue(long frame, bool ignoreOverrideState = false) {

@@ -67,24 +67,27 @@ namespace FramePFX.Editor.Timelines {
                 if (!this.Map.TryGetValue(frame, out ClipList list))
                     this.Map[frame] = list = new ClipList();
                 else if (list.Contains(clip))
-                    continue; // ???
+                    throw new Exception("Did not expect clip to already exist in list");
                 list.Add(clip);
             }
         }
 
         private void RemoveClipInRange(Clip clip, long min, long max) {
-            for (long frame = min; frame <= max; frame++) {
-                int index = this.Map.IndexOfKey(frame);
+            for (long i = min; i <= max; i++) {
+                int index = this.Map.IndexOfKey(i);
                 if (index != -1) {
                     ClipList list = this.Map.Values[index];
                     if (list.RemoveClipAndGetIsEmpty(clip)) {
                         this.Map.RemoveAt(index);
                     }
                 }
+                else {
+                    throw new Exception("Expected ClipList to exist at index: " + i);
+                }
             }
         }
 
-        public void OnLocationChanged(Clip clip, FrameSpan oldSpan) {
+        public void OnSpanChanged(Clip clip, FrameSpan oldSpan) {
             FrameSpan newSpan = clip.FrameSpan;
             if (oldSpan == newSpan) {
                 return;
@@ -92,43 +95,27 @@ namespace FramePFX.Editor.Timelines {
 
             GetRange(oldSpan, out long oldA, out long oldB);
             GetRange(newSpan, out long newA, out long newB);
-            if (oldA != newA || oldB != newB) {
-                for (long frame = oldA; frame <= oldB; frame++) {
-                    if (this.Map.TryGetValue(frame, out ClipList list)) {
-                        if (list.RemoveClipAndGetIsEmpty(clip)) {
-                            this.Map.Remove(frame);
-                        }
-                    }
+            if (oldA == newA && oldB == newB) {
+                // ClipList list = this.Map[oldA];
+                // list.OnClipSpanChanged(clip, oldSpan);
+            }
+
+            for (long frame = oldA; frame <= oldB; frame++) {
+                if (this.Map[frame].RemoveClipAndGetIsEmpty(clip)) {
+                    this.Map.Remove(frame);
+                }
+            }
+
+            // Add the clip to the new grouped range
+            for (long frame = newA; frame <= newB; frame++) {
+                if (!this.Map.TryGetValue(frame, out ClipList list)) {
+                    this.Map[frame] = list = new ClipList();
                 }
 
-                // Add the clip to the new grouped range
-                for (long frame = newA; frame <= newB; frame++) {
-                    if (!this.Map.TryGetValue(frame, out ClipList list)) {
-                        this.Map[frame] = list = new ClipList();
-                    }
-
-                    list.Add(clip);
-                }
+                list.Add(clip);
             }
 
             this.ProcessSmallestAndLargestFrame();
-        }
-
-        public void MakeTopMost(Clip clip) {
-            if (this.Map.TryGetValue(GetIndex(clip.FrameBegin), out ClipList list)) {
-                int index = list.IndexOf(clip);
-                if (index == -1) {
-                    throw new Exception("Fatal error: clip does not exist in cache mapped list");
-                }
-
-                int newIndex = list.size - 1;
-                Clip removedItem = list.items[index];
-                list.RemoveAt(index);
-                list.Insert(newIndex, removedItem);
-            }
-            else {
-                throw new Exception("Clip does not exist in cache");
-            }
         }
 
         #endregion
@@ -196,6 +183,7 @@ namespace FramePFX.Editor.Timelines {
             public Clip[] items;
             public int size;
             private static readonly Clip[] EmptyArray = new Clip[0];
+            private static readonly Comparison<Clip> OrderByBegin = (a, b) => a.FrameBegin.CompareTo(b.FrameBegin);
 
             public ClipList() => this.items = EmptyArray;
 
@@ -203,24 +191,21 @@ namespace FramePFX.Editor.Timelines {
                 if (this.size == this.items.Length)
                     this.EnsureCapacity(this.size + 1);
                 this.items[this.size++] = item;
+                // this.Insert(CollectionUtils.GetSortInsertionIndex(this.items, 0, this.size - 1, item, OrderByBegin), item);
             }
 
-            public void Clear() {
-                if (this.size > 0) {
-                    Array.Clear(this.items, 0, this.size);
-                    this.size = 0;
-                }
-            }
-
-            public bool Contains(Clip item) {
-                for (int index = 0; index < this.size; ++index) {
-                    if (this.items[index] == item) {
-                        return true;
-                    }
+            public int IndexOf(Clip item) {
+                Clip[] array = this.items;
+                for (int i = array.Length - 1; i >= 0; i--) {
+                    Clip clip = array[i];
+                    if (item == clip)
+                        return i;
                 }
 
-                return false;
+                return -1;
             }
+
+            public bool Contains(Clip item) => this.IndexOf(item) != -1;
 
             private void EnsureCapacity(int min) {
                 int length = this.items.Length;
@@ -243,33 +228,15 @@ namespace FramePFX.Editor.Timelines {
                 this.items = objArray;
             }
 
-            public int IndexOf(Clip item) {
-                Clip[] array = this.items;
-                for (int i = 0; i < this.size; i++) {
-                    if (array[i] == item)
-                        return i;
-                }
-
-                return -1;
-            }
-
             public bool RemoveClipAndGetIsEmpty(Clip item) {
-                Clip[] array = this.items;
-                int nSz = this.size;
-                for (int i = 0; i < nSz; i++) {
-                    if (array[i] == item) {
-                        this.size = --nSz;
-                        if (i < nSz)
-                            Array.Copy(array, i + 1, array, i, nSz - i);
-                        array[nSz] = null;
-                        break;
-                    }
-                }
-
-                return nSz == 0;
+                int index = this.IndexOf(item);
+                if (index == -1)
+                    throw new Exception("Expected item to exist in list");
+                this.RemoveAt(index);
+                return this.size == 0;
             }
 
-            public void Insert(int index, Clip item) {
+            private void Insert(int index, Clip item) {
                 if (index > this.size)
                     throw new Exception("Index out of bounds");
                 if (this.size == this.items.Length)
@@ -280,13 +247,24 @@ namespace FramePFX.Editor.Timelines {
                 ++this.size;
             }
 
-            public void RemoveAt(int index) {
+            private void RemoveAt(int index) {
                 if (index >= this.size)
                     throw new Exception("Index out of bounds");
                 --this.size;
                 if (index < this.size)
                     Array.Copy(this.items, index + 1, this.items, index, this.size - index);
                 this.items[this.size] = null;
+            }
+
+            public void OnClipSpanChanged(Clip clip, FrameSpan oldSpan) {
+                int oldIndex = this.IndexOf(clip);
+                if (oldIndex == -1) {
+                    return;
+                }
+
+                this.RemoveAt(oldIndex);
+                int newIndex = CollectionUtils.GetSortInsertionIndex(this.items, 0, this.size - 1, clip, OrderByBegin);
+                this.Insert(newIndex, clip);
             }
         }
     }

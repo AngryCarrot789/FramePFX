@@ -10,7 +10,7 @@ using FramePFX.Rendering;
 using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips {
-    public class TextVideoClip : VideoClip, IResourceHolder {
+    public class TextVideoClip : VideoClip {
         private BitVector32 clipProps;
         private SKTextBlob[] TextBlobs;
 
@@ -23,12 +23,9 @@ namespace FramePFX.Editor.Timelines.VideoClips {
 
         private Vector2 TextBlobBoundingBox;
 
-        public ResourceHelper ResourceHelper { get; }
-
         public IResourcePathKey<ResourceTextStyle> TextStyleKey { get; }
 
         public TextVideoClip() {
-            this.ResourceHelper = new ResourceHelper(this);
             this.TextStyleKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceTextStyle>();
             this.TextStyleKey.ResourceChanged += this.OnResourceTextStyleChanged;
             this.TextStyleKey.ResourceDataModified += this.OnResourceTextStyleDataModified;
@@ -97,7 +94,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             this.clipProps = new BitVector32(data.GetInt("ClipPropData0"));
         }
 
-        public override Vector2? GetSize(RenderContext rc) {
+        public override Vector2? GetSize() {
             return this.TextBlobs != null ? this.TextBlobBoundingBox : (Vector2?) null;
         }
 

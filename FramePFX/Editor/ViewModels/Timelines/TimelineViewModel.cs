@@ -155,6 +155,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public bool IsHistoryChanging { get; set; }
 
+        public event TimelineEventHandler ClipSelectionChanged;
+
         public TimelineViewModel(Timeline model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.CachedTrackPropertyChangedHandler = this.OnTrackPropertyChanged;
@@ -267,6 +269,10 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public IEnumerable<ClipViewModel> GetSelectedClips() {
             return this.tracks.SelectMany(x => x.SelectedClips);
+        }
+
+        public IEnumerable<ClipViewModel> GetSelectedClipsAtFrame(long frame) {
+            return this.tracks.SelectMany(x => x.GetSelectedClipsAtFrame(frame));
         }
 
         public Task<VideoTrackViewModel> AddNewVideoTrackAction() => this.InsertNewVideoTrackAction(this.tracks.Count);
@@ -468,6 +474,10 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         public TrackViewModel GetTrackByModel(Track track) {
             int index = this.Model.IndexOfTrack(track);
             return index == -1 ? null : this.tracks[index];
+        }
+
+        public void OnSelectionChanged() {
+            this.ClipSelectionChanged?.Invoke(this);
         }
     }
 }

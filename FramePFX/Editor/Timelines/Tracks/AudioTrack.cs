@@ -22,8 +22,8 @@ namespace FramePFX.Editor.Timelines.Tracks {
         public double frequency = 441;
 
         public AudioTrack() {
-            this.AutomationData.AssignKey(VolumeKey, UpdateVolume);
-            this.AutomationData.AssignKey(IsMutedKey, UpdateIsMuted);
+            this.AutomationData.AssignKey(VolumeKey);
+            this.AutomationData.AssignKey(IsMutedKey);
         }
 
         /// <summary>

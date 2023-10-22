@@ -55,9 +55,8 @@ namespace FramePFX.WPF.AttachedProperties {
         }
 
         private static void ControlOnLostFocus(object sender, RoutedEventArgs e) {
-            if (sender is UIElement element) {
-                int oldIndex = GetPreviousData(element).OldFocusZIndex;
-                Panel.SetZIndex(element, oldIndex);
+            if (sender is UIElement element && element.GetValue(PreviousDataPropertyKey.DependencyProperty) is ZIndexExchangeData data) {
+                Panel.SetZIndex(element, data.OldFocusZIndex);
             }
         }
     }

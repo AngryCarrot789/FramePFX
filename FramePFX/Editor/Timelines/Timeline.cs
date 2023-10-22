@@ -339,16 +339,16 @@ namespace FramePFX.Editor.Timelines {
                         adjustments.Add((AdjustmentVideoClip) clip);
                     }
                     else {
-                        bool render;
+                        bool canRender;
                         try {
-                            render = ((VideoClip) clip).OnBeginRender(frame);
+                            canRender = ((VideoClip) clip).OnBeginRender(frame);
                         }
                         catch (Exception e) {
                             this.CompleteRenderList(frame, true, e);
                             throw new Exception("Failed to invoke " + nameof(VideoClip.OnBeginRender) + " for clip", e);
                         }
 
-                        if (render) {
+                        if (canRender) {
                             renderList.Add((VideoClip) clip);
                         }
                     }
@@ -363,7 +363,6 @@ namespace FramePFX.Editor.Timelines {
                 render.Depth++;
                 long a = Time.GetSystemTicks();
                 List<VideoClip> renderList = this.renderState.RenderList;
-                bool provideBoxInfo = render.ShouldProvideClipBounds;
                 SKPaint trackPaint = null, clipPaint = null;
                 int timelineCanvasSaveIndex = render.Canvas.Save();
                 render.Canvas.ClipRect(render.FrameSize.ToRectAsSize(0, 0));
@@ -380,7 +379,7 @@ namespace FramePFX.Editor.Timelines {
                         VideoClip clip = renderList[i];
                         int trackSaveCount = BeginTrackOpacityLayer(render, clip.Track, ref trackPaint);
                         int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
-                        Vector2? frameSize = clip.GetSize(render);
+                        Vector2? frameSize = clip.GetSize();
 
                         try {
                             BaseEffect.ProcessEffectList(clip.Effects, frame, render, frameSize, true);
@@ -404,11 +403,6 @@ namespace FramePFX.Editor.Timelines {
                         catch (Exception e) {
                             this.CompleteRenderList(frame, true, e, i);
                             throw new RenderException($"Failed to render '{clip}'", e);
-                        }
-
-                        if (render.Depth == 1 && provideBoxInfo && frameSize.HasValue) {
-                            SKRect rect = render.Canvas.TotalMatrix.MapRect(frameSize.Value.ToRectAsSize(0, 0));
-                            render.ClipBoundingBoxes.Add((clip, rect));
                         }
 
                         try {
@@ -449,8 +443,8 @@ namespace FramePFX.Editor.Timelines {
                     throw new Exception("Unexpected exception occurred during render", e);
                 }
 
-                this.renderState.Reset();
                 this.PostProcessAjustments(frame, render);
+                this.renderState.Reset();
                 render.Canvas.RestoreToCount(timelineCanvasSaveIndex);
                 this.LastRenderDurationTicks = Time.GetSystemTicks() - a;
             }

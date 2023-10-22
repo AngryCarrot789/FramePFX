@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using FramePFX.Actions.Contexts;
@@ -243,13 +244,6 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         public void OnUnitZoomChanged() {
             foreach (TimelineClipControl element in this.GetClipContainers()) {
                 element.OnUnitZoomChanged();
-            }
-        }
-
-        public void MakeTopElement(TimelineClipControl control) {
-            TrackViewModel track = this.ViewModel;
-            if (track != null && control.DataContext is ClipViewModel clip) {
-                track.MakeTopMost(clip);
             }
         }
 

@@ -6,22 +6,19 @@ using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.Rendering;
 
 namespace FramePFX.Editor.Timelines.VideoClips {
-    public class CompositionVideoClip : VideoClip, IResourceHolder {
+    public class CompositionVideoClip : VideoClip {
         private CancellationTokenSource tokenSource;
 
         private long relativeRenderFrame;
         private long relativePeriodicFrame;
 
-        public ResourceHelper ResourceHelper { get; }
-
         public IResourcePathKey<ResourceComposition> ResourceCompositionKey { get; }
 
         public CompositionVideoClip() {
-            this.ResourceHelper = new ResourceHelper(this);
             this.ResourceCompositionKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceComposition>();
         }
 
-        public override Vector2? GetSize(RenderContext rc) => rc.FrameSize;
+        public override Vector2? GetSize() => (Vector2?) this.Project.Settings.Resolution;
 
         public override bool OnBeginRender(long frame) {
             Project project;

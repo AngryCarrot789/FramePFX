@@ -1,30 +1,27 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Utils;
 using SkiaSharp;
 using Rect = System.Windows.Rect;
 using Size = System.Windows.Size;
 
 namespace FramePFX.WPF {
-    public sealed class SKAsyncViewPort : FrameworkElement {
+    public class SKAsyncViewPort : FrameworkElement {
         public static readonly DependencyProperty UseNearestNeighbourRenderingProperty =
             DependencyProperty.Register(
                 "UseNearestNeighbourRendering",
                 typeof(bool),
                 typeof(SKAsyncViewPort),
                 new FrameworkPropertyMetadata(
-                    BoolBox.False,
+                    BoolBox.True,
                     FrameworkPropertyMetadataOptions.AffectsRender,
                     (d, e) => RenderOptions.SetBitmapScalingMode(d, (bool) e.NewValue ? BitmapScalingMode.NearestNeighbor : BitmapScalingMode.Unspecified)));
 
         public bool UseNearestNeighbourRendering {
             get => (bool) this.GetValue(UseNearestNeighbourRenderingProperty);
-            set => this.SetValue(UseNearestNeighbourRenderingProperty, value);
+            set => this.SetValue(UseNearestNeighbourRenderingProperty, value.Box());
         }
 
         /// <summary>Gets the current canvas size.</summary>
@@ -50,11 +47,6 @@ namespace FramePFX.WPF {
         private WriteableBitmap bitmap;
         private bool ignorePixelScaling;
         private bool isRendering;
-
-        /// <summary>
-        /// A list of clips to draw with their outline
-        /// </summary>
-        public List<(VideoClip, SKRect)> OutlineList { get; set; }
 
         public SKAsyncViewPort() {
             this.designMode = DesignerProperties.GetIsInDesignMode(this);
@@ -95,10 +87,8 @@ namespace FramePFX.WPF {
             }
 
             bitmap.Lock();
-            this.targetSurface = SKSurface.Create(frameInfo, bitmap.BackBuffer, bitmap.BackBufferStride);
-            bitmap.Unlock();
-
-            surface = this.targetSurface;
+            surface = this.targetSurface = SKSurface.Create(frameInfo, bitmap.BackBuffer, bitmap.BackBufferStride);
+            // bitmap.Unlock();
 
             // this.targetSurface = surface = SKSurface.Create((GRRecordingContext) this.grContext, true, frameInfo, 0, GRSurfaceOrigin.TopLeft);
             if (this.IgnorePixelScaling) {
@@ -108,39 +98,33 @@ namespace FramePFX.WPF {
             }
 
             this.isRendering = true;
+            this.OnBeginRender();
             return true;
         }
 
         public void EndRender() {
             SKImageInfo info = this.skImageInfo;
-            this.bitmap.Lock();
+            // this.bitmap.Lock();
+            this.OnPreEndRender();
             this.bitmap.AddDirtyRect(new Int32Rect(0, 0, info.Width, info.Height));
             this.bitmap.Unlock();
+            this.OnPostEndRender();
             this.targetSurface.Dispose();
             this.targetSurface = null;
-
             this.isRendering = false;
             this.InvalidateVisual();
         }
 
-        private const double thickness = 2.5d;
-        private const double half_thickness = thickness / 2d;
-        private readonly Pen OutlinePen = new Pen(Brushes.Orange, 2.5f);
+        protected virtual void OnBeginRender() { }
+
+        protected virtual void OnPreEndRender() { }
+
+        protected virtual void OnPostEndRender() { }
 
         protected override void OnRender(DrawingContext dc) {
             WriteableBitmap bmp = this.bitmap;
             if (bmp != null) {
                 dc.DrawImage(bmp, new Rect(0d, 0d, this.ActualWidth, this.ActualHeight));
-            }
-
-            if (this.OutlineList != null) {
-                foreach ((VideoClip clip, SKRect rect) in this.OutlineList) {
-                    Point pos = new Point(Math.Floor(rect.Left) - half_thickness, Math.Floor(rect.Top) - half_thickness);
-                    Size size = new Size(Math.Ceiling(rect.Width) + thickness, Math.Ceiling(rect.Height) + thickness);
-                    dc.DrawRectangle(null, this.OutlinePen, new Rect(pos, size));
-                }
-
-                this.OutlineList = null;
             }
         }
 

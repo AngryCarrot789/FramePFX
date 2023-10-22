@@ -11,7 +11,7 @@ using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips {
-    public class AVMediaVideoClip : VideoClip, IResourceHolder {
+    public class AVMediaVideoClip : VideoClip {
         private VideoFrame renderFrameRgb, downloadedHwFrame;
         public unsafe SwsContext* scaler;
         private PictureFormat scalerInputFormat;
@@ -21,8 +21,6 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         // TODO: decoder thread
         // public override bool UseAsyncRendering => true;
 
-        public ResourceHelper ResourceHelper { get; }
-
         public IResourcePathKey<ResourceAVMedia> ResourceAVMediaKey { get; }
 
         public override bool UseCustomOpacityCalculation => true;
@@ -30,14 +28,13 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         private Task<VideoFrame> GetFrameTask;
 
         public AVMediaVideoClip() {
-            this.ResourceHelper = new ResourceHelper(this);
             this.ResourceAVMediaKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceAVMedia>();
             this.ResourceAVMediaKey.ResourceChanged += this.OnResourceChanged;
         }
 
         private bool TryGetResource(out ResourceAVMedia resource) => this.ResourceAVMediaKey.TryGetResource(out resource);
 
-        public override Vector2? GetSize(RenderContext rc) {
+        public override Vector2? GetSize() {
             return (Vector2?) (this.TryGetResource(out ResourceAVMedia resource) ? resource.GetResolution() : null);
         }
 

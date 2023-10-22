@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using System.Threading.Tasks;
 using FramePFX.Automation.Keys;
@@ -8,10 +9,12 @@ using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.RBC;
 using FramePFX.Rendering;
 using FramePFX.Utils;
+using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips {
     public abstract class VideoClip : Clip {
         public static readonly AutomationKeyDouble OpacityKey = AutomationKey.RegisterDouble(nameof(VideoClip), nameof(Opacity), 1d, 0d, 1d);
+        private SKMatrix __internalTransformationMatrix;
 
         /// <summary>
         /// The opacity; how much of this clip is visible when rendered. Ranges from 0 to 1
@@ -36,10 +39,40 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         public event ClipRenderInvalidatedEventHandler RenderInvalidated;
 
         public new VideoTrack Track => (VideoTrack) base.Track;
+        private bool isMatrixDirty;
+
+        /// <summary>
+        /// This video clip's transformation matrix, which is applied before it is rendered (if
+        /// <see cref="OnBeginRender"/> returns true of course). This is calculated by one or
+        /// more <see cref="MotionEffect"/> instances, where each instances' matrix is concatenated
+        /// in their orders in our effect list
+        /// </summary>
+        public SKMatrix TransformationMatrix {
+            get {
+                if (this.isMatrixDirty)
+                    this.CookTransformationMatrix();
+                return this.__internalTransformationMatrix;
+            }
+        }
+
+        public event RenderSizeChangedEventHandler RenderSizeChanged;
 
         protected VideoClip() {
             // using `(VideoClip) s.AutomationData.Owner` instead of `this` saves closure allocation
-            this.AutomationData.AssignKey(OpacityKey, (s, f) => ((VideoClip) s.AutomationData.Owner).Opacity = s.GetDoubleValue(f));
+            this.AutomationData.AssignKey(OpacityKey);
+            this.isMatrixDirty = true;
+        }
+
+        public void CookTransformationMatrix() {
+            SKMatrix matrix = SKMatrix.Identity;
+            foreach (BaseEffect effect in this.Effects) {
+                if (effect is ITransformationEffect) {
+                    matrix = matrix.PreConcat(((ITransformationEffect) effect).TransformationMatrix);
+                }
+            }
+
+            this.__internalTransformationMatrix = matrix;
+            this.isMatrixDirty = false;
         }
 
         /// <summary>
@@ -65,9 +98,21 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         /// Gets the amount of space this clip takes up on screen (unaffected by <see cref="MediaPosition"/> or <see cref="MediaScale"/>).
         /// If the value is unavailable, then the render viewport's width and height are used as a fallback
         /// </summary>
-        /// <param name="rc">The rendering context, which contains frame information and a target drawing canvas</param>
         /// <returns>A nullable vector (null indicating to use the current view port size)</returns>
-        public virtual Vector2? GetSize(RenderContext rc) => null;
+        public virtual Vector2? GetSize() => null;
+
+        /// <summary>
+        /// Fires the <see cref="RenderSizeChanged"/> event, and invalidates the clip render, causing the timeline to be rendered.
+        /// This should not be called during an export
+        /// </summary>
+        public virtual void OnRenderSizeChanged() {
+            if (this.Project.IsExporting) {
+                throw new InvalidOperationException("Render size cannot change during an export");
+            }
+
+            this.RenderSizeChanged?.Invoke(this);
+            this.InvalidateRender();
+        }
 
         /// <summary>
         /// Prepares this clip for being rendered at the given frame. This is called before anything should
@@ -110,6 +155,15 @@ namespace FramePFX.Editor.Timelines.VideoClips {
 
         public override bool IsEffectTypeAllowed(BaseEffect effect) {
             return effect is VideoEffect;
+        }
+
+        /// <summary>
+        /// Called when our <see cref="TransformationMatrix"/> should be marked as dirty,
+        /// meaning it is recalculated the next time it gets requested. This is typically called
+        /// by a <see cref="MotionEffect"/> when one is added, removed or when one of it's parameters changes
+        /// </summary>
+        public void InvalidateTransformationMatrix() {
+            this.isMatrixDirty = true;
         }
     }
 }

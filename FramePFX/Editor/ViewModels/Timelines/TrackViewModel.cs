@@ -100,6 +100,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.SelectedClips = new ObservableCollection<ClipViewModel>();
             this.SelectedClips.CollectionChanged += (sender, args) => {
                 this.RemoveSelectedClipsCommand.RaiseCanExecuteChanged();
+                this.Timeline?.OnSelectionChanged();
             };
 
             this.RemoveSelectedClipsCommand = new AsyncRelayCommand(this.RemoveSelectedClipsAction, () => this.SelectedClips.Count > 0);
@@ -238,19 +239,14 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             }
         }
 
+        // TODO: implement an optimised way of mapping Model->ViewModel and vice-versa,
+        // so that view models can sort of use the Track model's clip cache for more optimised iterations
         public IEnumerable<ClipViewModel> GetClipsAtFrame(long frame) {
             return this.clips.Where(clip => clip.IntersectsFrameAt(frame));
         }
 
-        public void MakeTopMost(ClipViewModel clip) {
-            if (!this.Model.TryGetIndexOfClip(clip.Model, out int index))
-                return;
-            int endIndex = this.clips.Count - 1;
-            if (index != endIndex) {
-                this.Model.MakeTopMost(clip.Model, index, endIndex);
-                this.clips.Move(index, endIndex);
-                this.TryRaiseLargestFrameInUseChanged();
-            }
+        public IEnumerable<ClipViewModel> GetSelectedClipsAtFrame(long frame) {
+            return this.clips.Where(clip => clip.IsSelected && clip.IntersectsFrameAt(frame));
         }
 
         public virtual bool CanDropResource(ResourceItemViewModel resource) {

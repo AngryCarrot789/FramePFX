@@ -68,7 +68,7 @@ namespace FramePFX.Editor.Timelines {
         public void OnClipFrameSpanChanged(Clip clip, FrameSpan oldSpan) {
             if (!ReferenceEquals(clip.Track, this))
                 throw new Exception("Clip's track does not match the current instance");
-            this.cache.OnLocationChanged(clip, oldSpan);
+            this.cache.OnSpanChanged(clip, oldSpan);
             // this.Timeline?.UpdateLargestFrame();
         }
 
@@ -195,11 +195,6 @@ namespace FramePFX.Editor.Timelines {
             foreach (int index in indices)
                 this.RemoveClipAt(index + offset++);
             this.isPerformingOptimisedCacheRemoval = false;
-        }
-
-        public void MakeTopMost(Clip clip, int oldIndex, int newIndex) {
-            this.clips.MoveItem(oldIndex, newIndex);
-            this.cache.MakeTopMost(clip);
         }
 
         public bool MoveClipToTrack(Clip clip, Track newTrack) {

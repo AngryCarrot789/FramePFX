@@ -14,6 +14,7 @@ using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Interactivity;
 using FramePFX.PropertyEditing;
 using FramePFX.Utils;
+using FramePFX.WPF.AttachedProperties;
 using FramePFX.WPF.Editor.Effects;
 using FramePFX.WPF.Editor.Resources;
 using FramePFX.WPF.Editor.Timeline.Utils;
@@ -158,6 +159,8 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         private bool isClipDragRunning;
         private bool isLoadedWithActiveDrag;
 
+        public static readonly object ConstOne = 1;
+
         public TimelineClipControl() {
             this.HorizontalAlignment = HorizontalAlignment.Left;
             this.VerticalAlignment = VerticalAlignment.Stretch;
@@ -165,6 +168,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             this.AllowDrop = true;
             this.Drop += this.OnDrop;
             this.Loaded += this.OnLoaded;
+            this.SetValue(TopmostFocus.FocusedZIndexProperty, ConstOne);
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e) {
@@ -287,10 +291,16 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
             }
         }
 
-        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
-            base.OnPreviewMouseLeftButtonDown(e);
-            this.Track?.MakeTopElement(this);
-        }
+        // private static readonly WeakReference LastSelectedTimelineClipControl = new WeakReference(null);
+//
+        // protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
+        //     base.OnPreviewMouseLeftButtonDown(e);
+        //     if (LastSelectedTimelineClipControl.Target is TimelineClipControl ctrl) {
+        //         Panel.SetZIndex(ctrl, 0);
+        //     }
+        //     LastSelectedTimelineClipControl.Target = this;
+        //     Panel.SetZIndex(this, 1);
+        // }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
             base.OnMouseLeftButtonDown(e);

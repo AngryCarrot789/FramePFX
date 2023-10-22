@@ -96,6 +96,11 @@ namespace FramePFX.Editor.Timelines {
 
         public IReadOnlyList<BaseEffect> Effects => this.internalEffectList;
 
+        /// <summary>
+        /// Gets this clip's resource helper class
+        /// </summary>
+        public ResourceHelper ResourceHelper { get; }
+        
         public event TrackChangedEventHandler TrackChanged;
         public event TimelineChangedEventHandler TrackTimelineChanged;
         public event ProjectChangedEventHandler TrackTimelineProjectChanged;
@@ -106,6 +111,7 @@ namespace FramePFX.Editor.Timelines {
         protected Clip() {
             this.AutomationData = new AutomationData(this);
             this.internalEffectList = new List<BaseEffect>();
+            this.ResourceHelper = new ResourceHelper(this);
             this.IsRenderingEnabled = true;
         }
 
@@ -134,8 +140,7 @@ namespace FramePFX.Editor.Timelines {
         /// <param name="oldTrack">The track this clip was originally in (not in by the time this method is called)</param>
         /// <param name="newTrack">The track that this clip now exists in</param>
         protected virtual void OnTrackChanged(Track oldTrack, Track newTrack) {
-            if (this is IResourceHolder)
-                ((IResourceHolder) this).ResourceHelper.OnTrackChanged(oldTrack, newTrack);
+            this.ResourceHelper.SetManager(newTrack?.Timeline?.Project?.ResourceManager);
             this.TrackChanged?.Invoke(oldTrack, newTrack);
         }
 
@@ -150,14 +155,12 @@ namespace FramePFX.Editor.Timelines {
         /// <param name="oldTimeline">Previous timeline</param>
         /// <param name="newTimeline">The new timeline, associated with our track</param>
         protected virtual void OnTrackTimelineChanged(Timeline oldTimeline, Timeline newTimeline) {
-            if (this is IResourceHolder)
-                ((IResourceHolder) this).ResourceHelper.OnTrackTimelineChanged(oldTimeline, newTimeline);
+            this.ResourceHelper.SetManager(newTimeline?.Project?.ResourceManager);
             this.TrackTimelineChanged?.Invoke(oldTimeline, newTimeline);
         }
 
         protected virtual void OnTrackTimelineProjectChanged(Project oldProject, Project newProject) {
-            if (this is IResourceHolder)
-                ((IResourceHolder) this).ResourceHelper.OnTrackTimelineProjectChanged(oldProject, newProject);
+            this.ResourceHelper.SetManager(newProject?.ResourceManager);
             this.TrackTimelineProjectChanged?.Invoke(oldProject, newProject);
         }
 
@@ -201,9 +204,7 @@ namespace FramePFX.Editor.Timelines {
                 effect.WriteToRBE(dictionary.CreateDictionary("Data"));
             }
 
-            if (this is IResourceHolder)
-                ((IResourceHolder) this).ResourceHelper.WriteToRootRBE(data);
-
+            this.ResourceHelper.WriteToRootRBE(data);
             this.SerialiseExtension?.Invoke(this, data);
         }
 
@@ -227,9 +228,7 @@ namespace FramePFX.Editor.Timelines {
                 BaseEffect.AddEffectToClip(this, effect);
             }
 
-            if (this is IResourceHolder)
-                ((IResourceHolder) this).ResourceHelper.ReadFromRootRBE(data);
-
+            this.ResourceHelper.ReadFromRootRBE(data);
             this.DeserialiseExtension?.Invoke(this, data);
         }
 
@@ -280,8 +279,8 @@ namespace FramePFX.Editor.Timelines {
         /// <param name="clone">The new clip instance</param>
         /// <param name="flags">Cloning flags</param>
         protected virtual void LoadUserDataIntoClone(Clip clone, ClipCloneFlags flags) {
-            if ((flags & ClipCloneFlags.ResourceHelper) != 0 && this is IResourceHolder) {
-                ((IResourceHolder) this).ResourceHelper.LoadDataIntoClone(((IResourceHolder) clone).ResourceHelper);
+            if ((flags & ClipCloneFlags.ResourceHelper) != 0) {
+                this.ResourceHelper.LoadDataIntoClone(clone.ResourceHelper);
             }
         }
 
@@ -325,9 +324,7 @@ namespace FramePFX.Editor.Timelines {
         /// </summary>
         protected virtual void OnDisposeCore() {
             this.ClearEffects();
-            if (this is IResourceHolder resourceClip) {
-                resourceClip.ResourceHelper.Dispose();
-            }
+            this.ResourceHelper.Dispose();
         }
 
         /// <summary>

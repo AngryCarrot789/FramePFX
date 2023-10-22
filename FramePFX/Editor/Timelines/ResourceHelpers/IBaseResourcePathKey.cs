@@ -4,12 +4,7 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
     /// <summary>
     /// The base interface for <see cref="IResourcePathKey{T}"/>, so that it can be used in a non-generic context
     /// </summary>
-    public interface IBaseResourcePathKey {
-        /// <summary>
-        /// Gets the resource helper that owns this resource path key. This is non-null
-        /// </summary>
-        ResourceHelper Helper { get; }
-
+    public interface IBaseResourcePathKey : IResourceHolder {
         /// <summary>
         /// Gets the base resource path object for this entry. May return null if no ID has been assigned yet
         /// </summary>

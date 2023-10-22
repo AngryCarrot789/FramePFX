@@ -54,7 +54,7 @@ namespace FramePFX.Editor.ResourceManaging {
         public void GetReferenceInfo(out int clips, out int unknown) {
             int nClips = 0, nUnknown = 0;
             foreach (ResourcePath reference in this.references) {
-                if (reference.Owner.Helper.Owner is Clip) {
+                if (reference.Owner.ResourceHelper.Owner is Clip) {
                     nClips++;
                 }
                 else {

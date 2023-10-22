@@ -46,23 +46,22 @@ namespace FramePFX.Editor.Timelines.Effects {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ProcessEffectList(IReadOnlyList<BaseEffect> effects, long frame, RenderContext render, Vector2? frameSize, bool isPreProcess) {
             // pre-process clip effects, such as translation, scale, etc.
-            int count = effects.Count;
+            int i, count = effects.Count;
             if (count == 0) {
                 return;
             }
 
+            BaseEffect effect;
             if (isPreProcess) {
-                for (int i = 0; i < count; i++) {
-                    BaseEffect effect = effects[i];
-                    if (effect is VideoEffect) {
+                for (i = 0; i < count; i++) {
+                    if ((effect = effects[i]) is VideoEffect) {
                         ((VideoEffect) effect).PreProcessFrame(frame, render, frameSize);
                     }
                 }
             }
             else {
-                for (int i = count - 1; i >= 0; i--) {
-                    BaseEffect effect = effects[i];
-                    if (effect is VideoEffect) {
+                for (i = count - 1; i >= 0; i--) {
+                    if ((effect = effects[i]) is VideoEffect) {
                         ((VideoEffect) effect).PostProcessFrame(frame, render, frameSize);
                     }
                 }

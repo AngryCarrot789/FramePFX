@@ -1,18 +1,14 @@
 using System.Numerics;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines.ResourceHelpers;
-using FramePFX.Rendering;
 
 namespace FramePFX.Editor.Timelines.VideoClips {
-    public class MpegMediaVideoClip : VideoClip, IResourceHolder {
+    public class MpegMediaVideoClip : VideoClip {
         public int StreamIndex { get; set; }
-
-        public ResourceHelper ResourceHelper { get; }
 
         public IResourcePathKey<ResourceMpegMedia> MpegMediaKey { get; }
 
         public MpegMediaVideoClip() {
-            this.ResourceHelper = new ResourceHelper(this);
             this.MpegMediaKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceMpegMedia>();
         }
 
@@ -20,7 +16,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             return new MpegMediaVideoClip();
         }
 
-        public override Vector2? GetSize(RenderContext rc) {
+        public override Vector2? GetSize() {
             return null;
         }
     }

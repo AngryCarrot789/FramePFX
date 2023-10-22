@@ -97,33 +97,18 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
 
         public void SetTargetResourceIdByTypeName<T>(ulong id) where T : ResourceItem => this.SetTargetResourceId(KeyForTypeName(typeof(T)), id);
 
-        public void OnTrackChanged(Track oldTrack, Track newTrack) {
-            this.SetManager(newTrack?.Timeline?.Project?.ResourceManager);
-        }
-
-        public void OnTrackTimelineChanged(Timeline oldTimeline, Timeline timeline) {
-            this.SetManager(timeline?.Project?.ResourceManager);
-        }
-
-        public void OnTrackTimelineProjectChanged(Project oldproject, Project newproject) {
-            this.SetManager(newproject?.ResourceManager);
-        }
-
-        private void SetManager(ResourceManager manager) {
-            using (ErrorList stack = new ErrorList()) {
-                foreach (BaseResourcePathEntry entry in this.ResourceMap.Values) {
-                    ResourcePath path = entry.path;
-                    if (path == null || ReferenceEquals(path.Manager, manager)) {
-                        continue;
-                    }
-
-                    try {
-                        path.SetManager(manager);
-                    }
-                    catch (Exception e) {
-                        stack.Add(e);
-                    }
+        /// <summary>
+        /// Sets the manager for all <see cref="IBaseResourcePathKey"/> entries in this helper
+        /// </summary>
+        /// <param name="manager"></param>
+        public void SetManager(ResourceManager manager) {
+            foreach (BaseResourcePathEntry entry in this.ResourceMap.Values) {
+                ResourcePath path = entry.path;
+                if (path == null || ReferenceEquals(path.Manager, manager)) {
+                    continue;
                 }
+
+                path.SetManager(manager);
             }
         }
 
@@ -189,12 +174,14 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             public readonly string entryKey;
             public ResourcePath path;
 
-            ResourceHelper IBaseResourcePathKey.Helper => this.helper;
+            ResourceHelper IResourceHolder.ResourceHelper => this.helper;
             ResourcePath IBaseResourcePathKey.Path => this.path;
             string IBaseResourcePathKey.Key => this.entryKey;
 
-            protected BaseResourcePathEntry(ResourceHelper clip, string entryKey) {
-                this.helper = clip ?? throw new ArgumentNullException(nameof(clip));
+            public Project Project => this.helper.Owner.Project;
+
+            protected BaseResourcePathEntry(ResourceHelper helper, string entryKey) {
+                this.helper = helper ?? throw new ArgumentNullException(nameof(helper));
                 this.entryKey = string.IsNullOrEmpty(entryKey) ? throw new ArgumentException("Entry id cannot be null or empty", nameof(entryKey)) : entryKey;
                 this.resourceChangedHandler = this.OnEntryResourceChangedInternal;
                 this.dataModifiedHandler = this.OnEntryResourceDataModifiedInternal;
@@ -290,7 +277,7 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             public event EntryResourceModifiedEventHandler<T> ResourceDataModified;
             public event EntryResourceOnlineStateChangedEventHandler<T> OnlineStateChanged;
 
-            public ResourcePathEntry(ResourceHelper clip, string entryKey) : base(clip, entryKey) {
+            public ResourcePathEntry(ResourceHelper helper, string entryKey) : base(helper, entryKey) {
             }
 
             public bool TryGetResource(out T resource, bool requireIsOnline = true) => base.TryGetResource(out resource, requireIsOnline);

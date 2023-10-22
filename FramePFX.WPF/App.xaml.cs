@@ -488,6 +488,7 @@ namespace FramePFX.WPF {
 
                 clip2.AddEffect(motion = new MotionEffect());
                 motion.MediaPosition = new Vector2(200, 200);
+                motion.MediaScaleOrigin = new Vector2(100, 100);
 
                 clip2.ColourKey.SetTargetResourceId(id_g);
                 track.AddClip(clip2);

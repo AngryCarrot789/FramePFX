@@ -10,7 +10,7 @@ using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips {
-    public class ShapeSquareVideoClip : VideoClip, IResourceHolder {
+    public class ShapeSquareVideoClip : VideoClip {
         public static readonly AutomationKeyFloat WidthKey = AutomationKey.RegisterFloat(nameof(ShapeSquareVideoClip), nameof(Width), 100f);
         public static readonly AutomationKeyFloat HeightKey = AutomationKey.RegisterFloat(nameof(ShapeSquareVideoClip), nameof(Height), 100f);
 
@@ -20,19 +20,15 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         private static readonly UpdateAutomationValueEventHandler UpdateHeight = (s, f) => ((ShapeSquareVideoClip) s.AutomationData.Owner).Height = s.GetFloatValue(f);
 
         public float Width;
-
         public float Height;
 
         public override bool UseCustomOpacityCalculation => true;
 
-        public ResourceHelper ResourceHelper { get; }
-
         public IResourcePathKey<ResourceColour> ColourKey { get; }
 
         public ShapeSquareVideoClip() {
-            this.AutomationData.AssignKey(WidthKey, UpdateWidth);
-            this.AutomationData.AssignKey(HeightKey, UpdateHeight);
-            this.ResourceHelper = new ResourceHelper(this);
+            this.AutomationData.AssignKey(WidthKey);
+            this.AutomationData.AssignKey(HeightKey);
             this.ColourKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceColour>();
             this.ColourKey.ResourceDataModified += this.ResourceHelperOnResourceDataModified;
         }
@@ -57,7 +53,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             this.Height = data.GetFloat(nameof(this.Height));
         }
 
-        public override Vector2? GetSize(RenderContext rc) {
+        public override Vector2? GetSize() {
             return new Vector2(this.Width, this.Height);
         }
 

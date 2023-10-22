@@ -6,15 +6,12 @@ using FramePFX.Rendering;
 using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips {
-    public class ImageVideoClip : VideoClip, IResourceHolder {
-        public ResourceHelper ResourceHelper { get; }
-
+    public class ImageVideoClip : VideoClip {
         public IResourcePathKey<ResourceImage> ResourceImageKey { get; set; }
 
         public override bool UseCustomOpacityCalculation => true;
 
         public ImageVideoClip() {
-            this.ResourceHelper = new ResourceHelper(this);
             this.ResourceImageKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceImage>();
             this.ResourceImageKey.ResourceDataModified += this.ResourceHelperOnResourceDataModified;
         }
@@ -28,7 +25,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             }
         }
 
-        public override Vector2? GetSize(RenderContext rc) {
+        public override Vector2? GetSize() {
             if (!this.ResourceImageKey.TryGetResource(out ResourceImage r) || r.image == null)
                 return null;
             return new Vector2(r.image.Width, r.image.Height);

@@ -1,20 +1,24 @@
 using System.Numerics;
+using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
 using FramePFX.Rendering;
 using FramePFX.Utils;
+using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.Effects.Video {
     /// <summary>
     /// An effect that deals with picture transformations (as in position, scale and scale origin)
     /// </summary>
-    public class MotionEffect : VideoEffect {
+    public class MotionEffect : VideoEffect, ITransformationEffect {
         public static readonly AutomationKeyVector2 MediaPositionKey = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaPosition), Vector2.Zero, Vectors.MinValue, Vectors.MaxValue);
         public static readonly AutomationKeyVector2 MediaScaleKey = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaScale), Vector2.One, Vectors.MinValue, Vectors.MaxValue);
-        public static readonly AutomationKeyVector2 MediaScaleOriginKey = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaScaleOrigin), new Vector2(), Vectors.MinValue, Vectors.MaxValue);
+        public static readonly AutomationKeyVector2 MediaScaleOriginKey = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaScaleOrigin), Vector2.Zero, Vectors.MinValue, Vectors.MaxValue);
         public static readonly AutomationKeyBoolean UseAbsoluteScaleOriginKey = AutomationKey.RegisterBool(nameof(MotionEffect), nameof(UseAbsoluteScaleOrigin));
         public static readonly AutomationKeyDouble MediaRotationKey = AutomationKey.RegisterDouble(nameof(MotionEffect), nameof(MediaRotation), 0d);
-        public static readonly AutomationKeyVector2 MediaRotationOriginKey = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaRotationOrigin), new Vector2(0.5f, 0.5f), Vectors.MinValue, Vectors.MaxValue);
+        public static readonly AutomationKeyVector2 MediaRotationOriginKey = AutomationKey.RegisterVec2(nameof(MotionEffect), nameof(MediaRotationOrigin), Vector2.Zero, Vectors.MinValue, Vectors.MaxValue);
         public static readonly AutomationKeyBoolean UseAbsoluteRotationOriginKey = AutomationKey.RegisterBool(nameof(MotionEffect), nameof(UseAbsoluteRotationOrigin));
+
+        private SKMatrix __internalTransformationMatrix;
 
         /// <summary>
         /// The x and y coordinates of the video's media
@@ -52,49 +56,70 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
         /// true, <see cref="GetSize"/> is not called, and the <see cref="MediaScaleOrigin"/> is used directly
         /// </summary>
         public bool UseAbsoluteRotationOrigin;
+        private bool isMatrixDirty;
 
-        public MotionEffect() {
-            this.AutomationData.AssignKey(MediaPositionKey, (s, f) => ((MotionEffect) s.AutomationData.Owner).MediaPosition = s.GetVector2Value(f));
-            this.AutomationData.AssignKey(MediaScaleKey, (s, f) => ((MotionEffect) s.AutomationData.Owner).MediaScale = s.GetVector2Value(f));
-            this.AutomationData.AssignKey(MediaScaleOriginKey, (s, f) => ((MotionEffect) s.AutomationData.Owner).MediaScaleOrigin = s.GetVector2Value(f));
-            this.AutomationData.AssignKey(UseAbsoluteScaleOriginKey, (s, f) => ((MotionEffect) s.AutomationData.Owner).UseAbsoluteScaleOrigin = s.GetBooleanValue(f));
-            this.AutomationData.AssignKey(MediaRotationKey, (s, f) => ((MotionEffect) s.AutomationData.Owner).MediaRotation = s.GetDoubleValue(f));
-            this.AutomationData.AssignKey(MediaRotationOriginKey, (s, f) => ((MotionEffect) s.AutomationData.Owner).MediaRotationOrigin = s.GetVector2Value(f));
-            this.AutomationData.AssignKey(UseAbsoluteRotationOriginKey, (s, f) => ((MotionEffect) s.AutomationData.Owner).UseAbsoluteRotationOrigin = s.GetBooleanValue(f));
+        /// <summary>
+        /// Our pre-computed matrix, which is updated when a parameter (that is used during the calculation of the matrix) is modified, triggered by automation updates
+        /// </summary>
+        public SKMatrix TransformationMatrix {
+            get {
+                if (this.isMatrixDirty) {
+                    this.isMatrixDirty = false;
+                    this.__internalTransformationMatrix = this.CreateTransformationMatrix();
+                }
+
+                return this.__internalTransformationMatrix;
+            }
         }
 
-        // apply transformation
+        public MotionEffect() {
+            this.isMatrixDirty = true;
+            UpdateAutomationValueEventHandler throwABrickAtMeThisSucks = (s, f) => this.InvalidateMatrix();
+            this.AutomationData.AssignKey(MediaPositionKey).AddUpdateHandler(throwABrickAtMeThisSucks);
+            this.AutomationData.AssignKey(MediaScaleKey).AddUpdateHandler(throwABrickAtMeThisSucks);
+            this.AutomationData.AssignKey(MediaScaleOriginKey).AddUpdateHandler(throwABrickAtMeThisSucks);
+            this.AutomationData.AssignKey(UseAbsoluteScaleOriginKey).AddUpdateHandler(throwABrickAtMeThisSucks);
+            this.AutomationData.AssignKey(MediaRotationKey).AddUpdateHandler(throwABrickAtMeThisSucks);
+            this.AutomationData.AssignKey(MediaRotationOriginKey).AddUpdateHandler(throwABrickAtMeThisSucks);
+            this.AutomationData.AssignKey(UseAbsoluteRotationOriginKey).AddUpdateHandler(throwABrickAtMeThisSucks);
+        }
 
-        public override void PreProcessFrame(long frame, RenderContext rc, Vector2? frameSize) {
-            base.PreProcessFrame(frame, rc, frameSize);
+        private void InvalidateMatrix() {
+            this.isMatrixDirty = true;
+            this.OwnerClip?.InvalidateTransformationMatrix();
+        }
+
+        /// <summary>
+        /// Creates a transformation matrix based on the current state of this effect
+        /// </summary>
+        /// <returns></returns>
+        public SKMatrix CreateTransformationMatrix() {
             Vector2 pos = this.MediaPosition;
             Vector2 scale = this.MediaScale;
             Vector2 scaleOrigin = this.MediaScaleOrigin;
             double rotation = this.MediaRotation;
-            Vector2 rotationOrigin = this.MediaRotationOrigin;
-            // maybe rotate, scale then translate?
+            Vector2 rotOrigin = this.MediaRotationOrigin;
 
-            rc.Canvas.Translate(pos.X, pos.Y);
-            if (frameSize.HasValue) {
-                // clip has size info that we can use to transform relative top-left corner
-                Vector2 size = frameSize.Value;
-                if (this.UseAbsoluteScaleOrigin)
-                    rc.Canvas.Scale(scale.X, scale.Y, scaleOrigin.X, scaleOrigin.Y);
-                else
-                    rc.Canvas.Scale(scale.X, scale.Y, size.X * scaleOrigin.X, size.Y * scaleOrigin.Y);
+            SKMatrix matrix = SKMatrix.Identity;
+            matrix = matrix.PreConcat(SKMatrix.CreateTranslation(pos.X, pos.Y));
+            matrix = matrix.PreConcat(SKMatrix.CreateScale(scale.X, scale.Y, scaleOrigin.X, scaleOrigin.Y));
+            matrix = matrix.PreConcat(SKMatrix.CreateRotationDegrees((float) rotation, rotOrigin.X, rotOrigin.Y));
+            return matrix;
+        }
 
-                if (this.UseAbsoluteRotationOrigin)
-                    rc.Canvas.RotateDegrees((float) rotation, rotationOrigin.X, rotationOrigin.Y);
-                else
-                    rc.Canvas.RotateDegrees((float) rotation, size.X * rotationOrigin.X, size.Y * rotationOrigin.Y);
-            }
-            else {
-                // worst case; clip has no size data so we assume it takes up 0 pixels
-                if (this.UseAbsoluteScaleOrigin)
-                    rc.Canvas.Scale(scale.X, scale.Y, scaleOrigin.X, scaleOrigin.Y);
-                if (this.UseAbsoluteRotationOrigin)
-                    rc.Canvas.RotateDegrees((float) rotation, rotationOrigin.X, rotationOrigin.Y);
-            }
+        protected override void OnRemovedFromClip() {
+            base.OnRemovedFromClip();
+            this.OwnerClip.InvalidateTransformationMatrix();
+        }
+
+        protected override void OnAddedToClip() {
+            base.OnAddedToClip();
+            this.OwnerClip.InvalidateTransformationMatrix();
+        }
+
+        public override void PreProcessFrame(long frame, RenderContext rc, Vector2? frameSize) {
+            base.PreProcessFrame(frame, rc, frameSize);
+            rc.Canvas.SetMatrix(rc.Canvas.TotalMatrix.PreConcat(this.TransformationMatrix));
         }
     }
 }

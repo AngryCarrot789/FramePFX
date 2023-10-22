@@ -1,9 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Numerics;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
@@ -13,11 +11,6 @@ using Rect = System.Windows.Rect;
 
 namespace FramePFX.WPF {
     public class AsyncEditorViewPort : SKAsyncViewPort {
-        /// <summary>
-        /// A list of clips to draw with their outline
-        /// </summary>
-        public List<(VideoClip, SKRect)> OutlineList { get; set; }
-
         private const double thickness = 2.5d;
         private const double half_thickness = thickness / 2d;
         private readonly Pen OutlinePen = new Pen(Brushes.Orange, 2.5f);

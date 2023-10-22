@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using FramePFX.Automation.Events;
 using FramePFX.Automation.Keyframe;
@@ -45,15 +46,35 @@ namespace FramePFX.Automation {
 
             ParameterExpression paramSeq = Expression.Parameter(typeof(AutomationSequence), "s");
             ParameterExpression paramFrame = Expression.Parameter(typeof(long), "f");
-            MemberExpression automationData = Expression.Property(paramSeq, "AutomationData");
-            UnaryExpression dataOwner = Expression.Convert(Expression.Property(automationData, "Owner"), automatable.GetType());
-            Expression target = Expression.PropertyOrField(dataOwner, key.Id);
+            MemberExpression automationData = Expression.Property(paramSeq, nameof(AutomationSequence.AutomationData));
+            MemberExpression rawDataOwner = Expression.Property(automationData, nameof(AutomationData.Owner));
 
+            MemberInfo targetMember = GetTargetPropertyOrField(automatable.GetType(), key.Id);
+            Type lowestOwnerType = targetMember.DeclaringType;
+            if (lowestOwnerType == null)
+                throw new Exception($"The target member named '{key.Id}' does not have a declaring type");
+
+            Expression target = Expression.MakeMemberAccess(Expression.Convert(rawDataOwner, lowestOwnerType), targetMember);
             MethodCallExpression getValue = Expression.Call(paramSeq, mdName, null, paramFrame, ConstFalse);
             Expression body = Expression.Assign(target, getValue);
             handler = Expression.Lambda<UpdateAutomationValueEventHandler>(body, paramSeq, paramFrame).Compile();
             CachedHandlers[key] = handler;
             return handler;
+        }
+
+        private static MemberInfo GetTargetPropertyOrField(Type type, string name) {
+            // Can't get public or private in a single method call, according to the Expression class
+            PropertyInfo p = type.GetProperty(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+            if (p != null)
+                return p;
+            FieldInfo f = type.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+            if (f != null)
+                return f;
+            if ((p = type.GetProperty(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy)) != null)
+                return p;
+            if ((f = type.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy)) != null)
+                return f;
+            throw new Exception($"Could not find a property or field with the name '{name}' in the type hierarchy for '{type.Name}'");
         }
     }
 }

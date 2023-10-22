@@ -1,5 +1,7 @@
 using System;
 using System.Threading.Tasks;
+using FramePFX.Editor.ViewModels;
+using FramePFX.Editor.ViewModels.Timelines;
 
 namespace FramePFX.ServiceManaging {
     /// <summary>

@@ -76,11 +76,11 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                     return;
                 }
 
-                long oldPlayHead = this.PlayHeadFrame;
+                // long oldPlayHead = this.PlayHeadFrame;
                 // AppLogger.WriteLine($"PlayHead seeked: {oldPlayHead} -> {value}");
                 if (!this.DoNotSetLastPlayHeadSeek)
                     this.LastPlayHeadSeek = value;
-                this.OnUserSeekedPlayHead(this.Model.PlayHeadFrame, value, true);
+                this.OnUserSeekedPlayHead(this.Model.PlayHeadFrame, value);
             }
         }
 
@@ -157,6 +157,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public event TimelineEventHandler ClipSelectionChanged;
 
+        private Task updateAndRenderTask;
+
         public TimelineViewModel(Timeline model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.CachedTrackPropertyChangedHandler = this.OnTrackPropertyChanged;
@@ -224,7 +226,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             TrackViewModel.OnTimelineChanged(track);
         }
 
-        public async void OnUserSeekedPlayHead(long oldFrame, long newFrame, bool? schedule) {
+        public async void OnUserSeekedPlayHead(long oldFrame, long newFrame) {
             if (newFrame >= this.MaxDuration) {
                 newFrame = this.MaxDuration - 1;
             }
@@ -244,17 +246,15 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 track.OnUserSeekedFrame(oldFrame, newFrame);
             }
 
-            if (schedule is bool b) {
-                this.isRendering = true;
-                try {
-                    await this.DoAutomationTickAndRenderToPlayback(b);
-                }
-                catch (TaskCanceledException) {
-                    // do nothing
-                }
-                finally {
-                    this.isRendering = false;
-                }
+            this.isRendering = true;
+            try {
+                await this.UpdateAndRenderTimelineToEditor(true);
+            }
+            catch (TaskCanceledException) {
+                // do nothing
+            }
+            finally {
+                this.isRendering = false;
             }
         }
 
@@ -280,14 +280,14 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public Task<AudioTrackViewModel> AddNewAudioTrackAction() => this.InsertNewAudioTrackAction(this.tracks.Count);
 
-        public async Task<VideoTrackViewModel> InsertNewVideoTrackAction(int index, bool render = true) {
+        public Task<VideoTrackViewModel> InsertNewVideoTrackAction(int index, bool render = true) {
             VideoTrackViewModel track = new VideoTrackViewModel(new VideoTrack() {DisplayName = "Video Track " + (this.tracks.Count + 1)});
             this.InsertTrack(index, track);
             if (render && this.Project?.Editor != null) {
-                await this.DoAutomationTickAndRenderToPlayback(true);
+                this.InvalidateAutomationAndRender();
             }
 
-            return track;
+            return Task.FromResult(track);
         }
 
         public Task<AudioTrackViewModel> InsertNewAudioTrackAction(int index) {
@@ -297,29 +297,40 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         }
 
         /// <summary>
-        /// Ticks the automation engine at this timeline's <see cref="PlayHeadFrame"/>, and then render (optionally
-        /// schedule the render too, which means the final render happens at some point in the near future,
-        /// rather than once this method returns)
+        /// Schedules an automation update and render at some point in the future (during a nearby application tick)
         /// </summary>
-        /// <param name="schedule">True to schedule the render for the near future, or false to render right now</param>
-        public async Task DoAutomationTickAndRenderToPlayback(bool schedule = false) {
-            ProjectViewModel project = this.Project;
-            if (project == null) {
-                AppLogger.WriteLine("Tried to tick and render timeline without an associated project");
-                AppLogger.WriteLine(Environment.StackTrace);
+        public void InvalidateAutomationAndRender() {
+            Task task = this.updateAndRenderTask;
+            if (task != null && !task.IsCompleted) {
                 return;
             }
 
-            VideoEditorViewModel editor = project.Editor;
-            if (editor == null) {
-                AppLogger.WriteLine("Tried to tick and render timeline whose project has no editor associated");
-                AppLogger.WriteLine(Environment.StackTrace);
-                return;
+            this.updateAndRenderTask = null;
+            if (this.GetEditor(out VideoEditorViewModel editor, out _)) {
+                this.updateAndRenderTask = Services.Application.Invoke(() => this.UpdateAndRenderTimelineToEditorInternal(editor), ExecutionPriority.Normal);
             }
+        }
 
+        /// <summary>
+        /// Performs an automation engine tick and then renders the state of the timeline to the editor,
+        /// optionally allowing the render to be scheduled for the future or to happen right now
+        /// </summary>
+        /// <param name="shouldScheduleRender">
+        /// Schedules the rendering to be done at some point in the future, instead of immediately
+        /// </param>
+        public Task UpdateAndRenderTimelineToEditor(bool shouldScheduleRender = false) {
+            Task task = this.updateAndRenderTask;
+            if (task != null && !task.IsCompleted)
+                return task;
+            if (this.GetEditor(out VideoEditorViewModel editor, out _))
+                return this.UpdateAndRenderTimelineToEditorInternal(editor, shouldScheduleRender);
+            return Task.CompletedTask;
+        }
+
+        private async Task UpdateAndRenderTimelineToEditorInternal(VideoEditorViewModel editor, bool shouldScheduleRender = false) {
             AutomationEngine.UpdateTimeline(this.Model, this.PlayHeadFrame);
             try {
-                await editor.DoDrawRenderFrame(this, schedule);
+                await editor.DoDrawRenderFrame(this, shouldScheduleRender);
             }
             catch (TaskCanceledException) {
                 // do nothing
@@ -378,6 +389,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.tracks.RemoveAt(index);
             this.InternalOnTrackRemoved(track);
             TrackViewModel.OnTimelineChanged(track);
+            this.InvalidateAutomationAndRender();
         }
 
         public void MoveSelectedTrack(int offset) {
@@ -412,6 +424,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 this.Model.MoveTrackIndex(selection[i], target);
                 selection[i] = target;
             }
+
+            this.InvalidateAutomationAndRender();
         }
 
         public void MoveSelectedTrackUp() => this.MoveSelectedTrack(-1);
@@ -478,6 +492,21 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public void OnSelectionChanged() {
             this.ClipSelectionChanged?.Invoke(this);
+        }
+
+        private bool GetEditor(out VideoEditorViewModel editor, out ProjectViewModel project) {
+            if ((project = this.Project) == null) {
+                AppLogger.WriteLine("Tried to tick and render timeline without an associated project:\n" + Environment.StackTrace);
+                editor = null;
+                return false;
+            }
+
+            if ((editor = project.Editor) == null) {
+                AppLogger.WriteLine("Tried to tick and render timeline whose project has no editor associated:\n" + Environment.StackTrace);
+                return false;
+            }
+
+            return true;
         }
     }
 }

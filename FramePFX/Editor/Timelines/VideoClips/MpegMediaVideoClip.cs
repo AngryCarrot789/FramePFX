@@ -16,7 +16,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             return new MpegMediaVideoClip();
         }
 
-        public override Vector2? GetSize() {
+        public override Vector2? GetFrameSize() {
             return null;
         }
     }

@@ -64,10 +64,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             this.InsertOpacityKeyFrameCommand = new RelayCommand(() => this.AutomationData[VideoClip.OpacityKey].GetActiveKeyFrameOrCreateNew(Math.Max(this.RelativePlayHead, 0)).SetDoubleValue(this.Opacity), this.IsPlayHeadFrameInRange);
             this.ToggleOpacityActiveCommand = new RelayCommand(() => this.AutomationData[VideoClip.OpacityKey].ToggleOverrideAction());
 
-            this.renderCallback = (x, s) => {
-                this.OnInvalidateRender(s); // assert ReferenceEquals(this.Model, x)
-            };
-
+            this.renderCallback = x => this.OnInvalidateRender();
             this.Model.RenderInvalidated += this.renderCallback;
             this.AutomationData.AssignRefreshHandler(VideoClip.OpacityKey, RefreshOpacityHandler);
         }
@@ -104,8 +101,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             this.Model.InvalidateRender();
         }
 
-        public virtual void OnInvalidateRender(bool schedule = true) {
-            this.Track?.Timeline.DoAutomationTickAndRenderToPlayback(schedule);
+        public virtual void OnInvalidateRender() {
+            this.Track?.Timeline?.InvalidateAutomationAndRender();
         }
 
         public override void Dispose() {
@@ -115,7 +112,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
 
         protected void InvalidateRenderForAutomationRefresh(in RefreshAutomationValueEventArgs e) {
             if (!e.IsDuringPlayback && !e.IsPlaybackTick) {
-                this.Model.InvalidateRender(true);
+                this.Model.InvalidateRender();
             }
         }
 

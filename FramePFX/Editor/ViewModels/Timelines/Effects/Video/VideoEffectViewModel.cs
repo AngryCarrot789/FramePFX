@@ -13,7 +13,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
 
         protected void InvalidateRenderForAutomationRefresh(in RefreshAutomationValueEventArgs e) {
             if (!e.IsDuringPlayback && !e.IsPlaybackTick) {
-                this.Model.OwnerClip.InvalidateRender(true);
+                this.Model.OwnerClip.InvalidateRender();
             }
         }
     }

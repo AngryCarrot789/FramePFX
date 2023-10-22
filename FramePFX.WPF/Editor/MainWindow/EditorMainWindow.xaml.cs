@@ -284,7 +284,8 @@ namespace FramePFX.WPF.Editor.MainWindow {
                     this.lastRenderTask = null;
                 }
 
-                // does this even work properly??? we might not be awaiting the actual render task, but instead, the dispatcher task
+                // does this even work properly??? we might not be awaiting the actual render task, but instead, the dispatcher task,
+                // unless the dispatcher task completes when doRenderActiveTimelineFunc completes? I don't know...
                 this.lastRenderTask = this.Dispatcher.BeginInvoke(DispatcherPriority.Send, this.doRenderActiveTimelineFunc, timeline).Task;
             }
             else if (this.Dispatcher.CheckAccess()) {

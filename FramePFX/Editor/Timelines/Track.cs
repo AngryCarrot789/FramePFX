@@ -167,7 +167,7 @@ namespace FramePFX.Editor.Timelines {
         public void InsertClip(int index, Clip clip) {
             if (clip.Track != null && clip.Track.TryGetIndexOfClip(clip, out _))
                 throw new Exception("Clip already exists and is valid in another track: " + clip.Track);
-            Clip.SetTrack(clip, this);
+            Clip.InternalSetTrack(clip, this);
             this.clips.Insert(index, clip);
             this.cache.OnClipAdded(clip);
         }
@@ -186,7 +186,7 @@ namespace FramePFX.Editor.Timelines {
             this.clips.RemoveAt(index);
             if (!this.isPerformingOptimisedCacheRemoval)
                 this.cache.OnClipRemoved(clip);
-            Clip.SetTrack(clip, null);
+            Clip.InternalSetTrack(clip, null);
         }
 
         public void RemoveClips(IEnumerable<int> indices) {

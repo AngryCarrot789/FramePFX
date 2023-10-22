@@ -53,7 +53,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             this.Height = data.GetFloat(nameof(this.Height));
         }
 
-        public override Vector2? GetSize() {
+        public override Vector2? GetFrameSize() {
             return new Vector2(this.Width, this.Height);
         }
 

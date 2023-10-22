@@ -28,7 +28,7 @@ namespace FramePFX.Editor.Actions.Clips {
             }
 
             composition.Manager.Project.Editor.OpenAndSelectTimeline(composition.Timeline);
-            await composition.Timeline.DoAutomationTickAndRenderToPlayback();
+            await composition.Timeline.UpdateAndRenderTimelineToEditor();
         }
     }
 }

@@ -379,10 +379,9 @@ namespace FramePFX.Editor.Timelines {
                         VideoClip clip = renderList[i];
                         int trackSaveCount = BeginTrackOpacityLayer(render, clip.Track, ref trackPaint);
                         int clipSaveCount = BeginClipOpacityLayer(render, clip, ref clipPaint);
-                        Vector2? frameSize = clip.GetSize();
 
                         try {
-                            BaseEffect.ProcessEffectList(clip.Effects, frame, render, frameSize, true);
+                            BaseEffect.ProcessEffectList(clip.Effects, frame, render, true);
                         }
                         catch (Exception e) {
                             this.CompleteRenderList(frame, true, e, i);
@@ -406,7 +405,7 @@ namespace FramePFX.Editor.Timelines {
                         }
 
                         try {
-                            BaseEffect.ProcessEffectList(clip.Effects, frame, render, frameSize, false);
+                            BaseEffect.ProcessEffectList(clip.Effects, frame, render, false);
                         }
                         catch (Exception e) {
                             try {
@@ -464,7 +463,7 @@ namespace FramePFX.Editor.Timelines {
             Vector2 size = render.FrameSize;
             try {
                 for (int i = 0; i < count; i++) {
-                    BaseEffect.ProcessEffectList(list[i].Effects, frame, render, size, true);
+                    BaseEffect.ProcessEffectList(list[i].Effects, frame, render, true);
                 }
             }
             catch (Exception e) {
@@ -483,7 +482,7 @@ namespace FramePFX.Editor.Timelines {
             Vector2 size = render.FrameSize;
             try {
                 for (int i = count - 1; i >= 0; i--) {
-                    BaseEffect.ProcessEffectList(list[i].Effects, frame, render, size, false);
+                    BaseEffect.ProcessEffectList(list[i].Effects, frame, render, false);
                 }
             }
             catch (Exception e) {

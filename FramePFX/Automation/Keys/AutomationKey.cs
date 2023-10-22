@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using FramePFX.Automation.Events;
 using FramePFX.Automation.Keyframe;
 
 namespace FramePFX.Automation.Keys {
@@ -21,7 +22,7 @@ namespace FramePFX.Automation.Keys {
         public string Domain { get; }
 
         /// <summary>
-        /// A unique ID (per domain; the same ID can be used across different domains), to identify this specific key
+        /// A unique ID for this key in its domain. The same ID can be used across multiple domains, but not the same domain
         /// </summary>
         public string Id { get; }
 
@@ -39,6 +40,8 @@ namespace FramePFX.Automation.Keys {
         /// The data type of this key
         /// </summary>
         public abstract AutomationDataType DataType { get; }
+
+        internal UpdateAutomationValueEventHandler __cachedUpdateHandler;
 
         protected AutomationKey(string domain, string id, KeyDescriptor descriptor) {
             this.Descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));

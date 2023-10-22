@@ -1,4 +1,3 @@
-using System.Numerics;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Rendering;
 
@@ -18,10 +17,7 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
         /// </summary>
         /// <param name="frame">The time frame at which the owner clip is being rendered</param>
         /// <param name="rc">The rendering context</param>
-        /// <param name="frameSize">
-        /// The size of our owner clip's frame, or null, if the clip does not have a frame size (in which cause, the the render context frame size)
-        /// </param>
-        public virtual void PreProcessFrame(long frame, RenderContext rc, Vector2? frameSize) {
+        public virtual void PreProcessFrame(long frame, RenderContext rc) {
         }
 
         /// <summary>
@@ -30,10 +26,7 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
         /// </summary>
         /// <param name="frame">The time frame at which the owner clip is being rendered</param>
         /// <param name="rc">The rendering context</param>
-        /// <param name="frameSize">
-        /// The size of our owner clip's frame, or null, if the clip does not have a frame size (in which cause, the the render context frame size)
-        /// </param>
-        public virtual void PostProcessFrame(long frame, RenderContext rc, Vector2? frameSize) {
+        public virtual void PostProcessFrame(long frame, RenderContext rc) {
         }
     }
 }

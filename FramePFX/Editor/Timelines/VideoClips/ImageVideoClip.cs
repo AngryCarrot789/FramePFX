@@ -25,7 +25,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             }
         }
 
-        public override Vector2? GetSize() {
+        public override Vector2? GetFrameSize() {
             if (!this.ResourceImageKey.TryGetResource(out ResourceImage r) || r.image == null)
                 return null;
             return new Vector2(r.image.Width, r.image.Height);

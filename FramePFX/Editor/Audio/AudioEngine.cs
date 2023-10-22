@@ -67,7 +67,7 @@ namespace FramePFX.Editor.Audio {
 
             int offset = checked((int) (this.currentSample % this.sampleRate));
 
-            // TODO: really improve this LOl
+            // TODO: really improve this LOT
 
             double** ptr_in = stackalloc double*[2];
             double* ptr_in_l = (double*) Marshal.AllocHGlobal(samples * 8);

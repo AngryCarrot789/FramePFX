@@ -119,7 +119,7 @@ namespace FramePFX.Editor.Actions.Clips {
 
             VideoEditorViewModel editor = timeline.Project.Editor;
             editor.OpenAndSelectTimeline(comp.Timeline);
-            await comp.Timeline.DoAutomationTickAndRenderToPlayback();
+            await comp.Timeline.UpdateAndRenderTimelineToEditor();
             return true;
         }
     }

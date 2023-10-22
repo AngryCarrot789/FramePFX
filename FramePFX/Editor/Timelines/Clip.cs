@@ -184,6 +184,12 @@ namespace FramePFX.Editor.Timelines {
 
         public void ClearEffects() => BaseEffect.ClearEffects(this);
 
+        protected virtual void OnEffectAdded(BaseEffect effect, int index) {
+        }
+
+        protected virtual void OnEffectRemoved(BaseEffect effect) {
+        }
+
         /// <summary>
         /// Writes this clip's data
         /// </summary>
@@ -376,8 +382,7 @@ namespace FramePFX.Editor.Timelines {
         }
 
         /// <summary>
-        /// Whether or not this clip can accept the given effect. This is overridden by video
-        /// and audio clips to check if the effect is a video effect or audio effect respectively
+        /// Whether or not this clip can accept the given effect. Video clips can only accept video effects, etc.
         /// </summary>
         /// <param name="effect">The non-null effect to check</param>
         /// <returns>True if the effect can be added, otherwise false</returns>
@@ -385,7 +390,7 @@ namespace FramePFX.Editor.Timelines {
 
         #region Static Helpers
 
-        public static void SetTrack(Clip clip, Track track) {
+        internal static void InternalSetTrack(Clip clip, Track track) {
             Track oldTrack = clip.Track;
             if (!ReferenceEquals(oldTrack, track)) {
                 clip.Track = track;
@@ -401,12 +406,20 @@ namespace FramePFX.Editor.Timelines {
             clip.OnTrackTimelineProjectChanged(oldProject, newProject);
         }
 
-        internal static void InternalInsertEffect(Clip clip, int index, BaseEffect effect) {
+        internal static void InternalOnInsertingEffect(Clip clip, int index, BaseEffect effect) {
             clip.internalEffectList.Insert(index, effect);
         }
 
-        internal static void InternalRemoveEffect(Clip clip, int index) {
+        internal static void InternalOnEffectAdded(Clip clip, int index, BaseEffect effect) {
+            clip.OnEffectAdded(effect, index);
+        }
+
+        internal static void InternalOnRemovingEffect(Clip clip, int index) {
             clip.internalEffectList.RemoveAt(index);
+        }
+
+        internal static void InternalOnEffectRemoved(Clip clip, BaseEffect effect) {
+            clip.OnEffectRemoved(effect);
         }
 
         #endregion

@@ -80,7 +80,7 @@ namespace FramePFX.Editor.Actions.Resources {
                     TextVideoClipViewModel clip = (TextVideoClipViewModel) ClipFactory.Instance.CreateViewModelFromModel(textClip);
                     track.AddClip(clip);
                     ClipViewModel.SetSelectedAndShowPropertyEditor(clip);
-                    await timeline.DoAutomationTickAndRenderToPlayback();
+                    await timeline.UpdateAndRenderTimelineToEditor();
                 }
             }
 

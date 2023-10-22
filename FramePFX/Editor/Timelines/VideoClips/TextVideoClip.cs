@@ -94,7 +94,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             this.clipProps = new BitVector32(data.GetInt("ClipPropData0"));
         }
 
-        public override Vector2? GetSize() {
+        public override Vector2? GetFrameSize() {
             return this.TextBlobs != null ? this.TextBlobBoundingBox : (Vector2?) null;
         }
 
@@ -130,6 +130,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         public void InvalidateTextCache() {
             this.TextBlobBoundingBox = new Vector2();
             ResourceTextStyle.DisposeTextBlobs(ref this.TextBlobs);
+            this.OnRenderSizeChanged();
         }
 
         public void GenerateTextCache() {
@@ -154,6 +155,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                 }
 
                 this.TextBlobBoundingBox = new Vector2(w, h);
+                this.OnRenderSizeChanged();
             }
         }
     }

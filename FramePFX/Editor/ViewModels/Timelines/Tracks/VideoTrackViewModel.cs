@@ -306,7 +306,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
         protected void InvalidateRenderForAutomationRefresh(in RefreshAutomationValueEventArgs e) {
             VideoEditorViewModel editor; // slight performance helper
             if (!e.IsDuringPlayback && (editor = this.Editor) != null && !editor.Playback.IsPlaying) {
-                this.Timeline.DoAutomationTickAndRenderToPlayback(true);
+                this.Timeline.InvalidateAutomationAndRender();
             }
         }
     }

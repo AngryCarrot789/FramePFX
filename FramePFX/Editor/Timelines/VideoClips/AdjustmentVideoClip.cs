@@ -5,7 +5,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         public AdjustmentVideoClip() {
         }
 
-        public override Vector2? GetSize() => (Vector2?) this.Project.Settings.Resolution;
+        public override Vector2? GetFrameSize() => (Vector2?) this.Project.Settings.Resolution;
 
         protected override Clip NewInstanceForClone() {
             return new AdjustmentVideoClip();

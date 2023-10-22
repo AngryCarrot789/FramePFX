@@ -183,7 +183,7 @@ namespace FramePFX.Editor.ViewModels {
                 this.IsEditorEnabled = true;
             }
 
-            await timeline.DoAutomationTickAndRenderToPlayback(false);
+            await timeline.UpdateAndRenderTimelineToEditor(false);
         }
 
         private void OnProjectModified(object sender, string property) {
@@ -211,7 +211,7 @@ namespace FramePFX.Editor.ViewModels {
                 await this.CloseProjectAction();
                 await this.OpenProjectAtAction(result[0]);
                 if (this.SelectedTimeline != null) {
-                    await this.SelectedTimeline.DoAutomationTickAndRenderToPlayback();
+                    await this.SelectedTimeline.UpdateAndRenderTimelineToEditor(false);
                 }
             }
         }

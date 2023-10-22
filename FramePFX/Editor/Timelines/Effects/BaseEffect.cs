@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using FramePFX.Automation;
 using FramePFX.Editor.Registries;
@@ -44,7 +43,7 @@ namespace FramePFX.Editor.Timelines.Effects {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void ProcessEffectList(IReadOnlyList<BaseEffect> effects, long frame, RenderContext render, Vector2? frameSize, bool isPreProcess) {
+        public static void ProcessEffectList(IReadOnlyList<BaseEffect> effects, long frame, RenderContext render, bool isPreProcess) {
             // pre-process clip effects, such as translation, scale, etc.
             int i, count = effects.Count;
             if (count == 0) {
@@ -55,14 +54,14 @@ namespace FramePFX.Editor.Timelines.Effects {
             if (isPreProcess) {
                 for (i = 0; i < count; i++) {
                     if ((effect = effects[i]) is VideoEffect) {
-                        ((VideoEffect) effect).PreProcessFrame(frame, render, frameSize);
+                        ((VideoEffect) effect).PreProcessFrame(frame, render);
                     }
                 }
             }
             else {
                 for (i = count - 1; i >= 0; i--) {
                     if ((effect = effects[i]) is VideoEffect) {
-                        ((VideoEffect) effect).PostProcessFrame(frame, render, frameSize);
+                        ((VideoEffect) effect).PostProcessFrame(frame, render);
                     }
                 }
             }
@@ -88,8 +87,9 @@ namespace FramePFX.Editor.Timelines.Effects {
 
             effect.OwnerClip = clip;
             effect.OnAddingToClip();
-            Clip.InternalInsertEffect(clip, index, effect);
+            Clip.InternalOnInsertingEffect(clip, index, effect);
             effect.OnAddedToClip();
+            Clip.InternalOnEffectAdded(clip, index, effect);
         }
 
         public static bool RemoveEffectFromOwner(BaseEffect effect) {
@@ -114,8 +114,9 @@ namespace FramePFX.Editor.Timelines.Effects {
             if (!ReferenceEquals(effect.OwnerClip, clip))
                 throw new Exception("The effect was stored in the clip's effect list but the owner did not match the clip");
             effect.OnRemovingFromClip();
-            Clip.InternalRemoveEffect(clip, index);
+            Clip.InternalOnRemovingEffect(clip, index);
             effect.OnRemovedFromClip();
+            Clip.InternalOnEffectRemoved(clip, effect);
             effect.OwnerClip = null;
         }
 

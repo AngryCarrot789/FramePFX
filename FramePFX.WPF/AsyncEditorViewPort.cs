@@ -46,7 +46,7 @@ namespace FramePFX.WPF {
             if (this.Timeline is TimelineViewModel timeline) {
                 foreach (TrackViewModel track in timeline.Tracks) {
                     foreach (ClipViewModel clip in track.GetSelectedClipsAtFrame(timeline.PlayHeadFrame)) {
-                        if (!(clip is VideoClipViewModel) || !(((VideoClip) clip.Model).GetSize() is Vector2 frameSize)) {
+                        if (!(clip is VideoClipViewModel) || !(((VideoClip) clip.Model).GetFrameSize() is Vector2 frameSize)) {
                             continue;
                         }
 

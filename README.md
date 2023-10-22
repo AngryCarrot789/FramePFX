@@ -5,6 +5,8 @@ I mainly started this as a learning tool into the world of video/audio processin
 
 I doubt this will ever even come close to those editors, but hopefully it will at least support some basic editing
 
+If you have any feedback/criticism for the app, that would be appreciate! Also feel free to contribute, if you would like to. You can see the TODO list near the bottom
+
 # Preview
 There are 6 themes. This is the `Soft Dark` theme. But there's also `Deep dark`, `Dark Grey`, `Grey`, `Red and Black` and a really bad `Light Theme` that makes discord's light theme look good
 ![](FramePFX.WPF_2023-09-22_22.08.29.png)
@@ -52,8 +54,27 @@ To drag videos, images, etc., into the editor: drag and drop the file to the top
 
 Oh and uh... don't drag drop something like your C:\ drive or a folder which contains 100,000s of files in the hierarchy into the ResourceListControl, otherwise the app will probably freeze as it recursively loads all of those files
 
+# TODO
 ### Audio
-I don't know how to implement audio playback yet, so that's a TODO thing. If you think you could help implement that, then feel free to give it a try
+I don't know how to implement audio playback yet, despite my best efforts to try and understand audio playback and how data is requested/delivered at the right times. I found a demo of libsoundio, which is in App.cs at the moment, but that's about it really
+### Rendering
+- Invalidating the 'render' of the current timeline is messy at the moment. I managed to clean it up a bit, but there's still these 4 options:
+    - Schedule automation then schedule render (or render immidiately)
+    - Do automation tick and schedule render (or render immidiately)
+- I don't feel too good about the render process... OnBeginRender, OnEndRender and OnRenderCompleted feels overcomplicated, even though it offers some convenience (e.g. cleanup resources in OnRenderCompleted), as well as how effects are done. It works though, so :/
+### Automation Engine
+- Add support for smooth interpolation (e.g. a curve between 2 key frames). I tried doing this, but had a hard time figuring out the math to do the interpolation, and also doing the hit testing for the UI
+### Timelines, Tracks
+- Add track effects
+### Clips
+- AVMediaVideoClip is extremely slow for large resolution videos (e.g. 4K takes around 40ms to decode and render onscreen), and only a few video codecs even seem to work. Lots of common file formats give an error like "found invalid data while decoding". I don't know FFmpeg much but I hope to somehow fix this at some point
+- Implement fading between 2 clips
+### Resources
+- Remove ErrorList usage in LoadResource, and replace with some sort of `ExceptionExplorer` that is visible in the resource checker dialog
+- Not sure if LoadResource should be moved to the model yet
+### General TODO:
+- Implement a way to directly map between Models and ViewModels (e.g. Clip->ClipViewModel, ResourceItem->ResourceItemViewModel). At the moment, I do the plain linear search for clips (IndexOf), but for resources, I decided to reference the ViewModel in the Model
+- CreateCompositionFromClipsAction's code is quite messy
 
 # Compiling
 FFmpeg's shared x64 libraries are the only external library (at the moment...). They can be found here: 

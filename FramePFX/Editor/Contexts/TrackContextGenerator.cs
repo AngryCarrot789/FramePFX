@@ -14,7 +14,7 @@ namespace FramePFX.Editor.Contexts {
                 list.Add(new ActionContextEntry(track, "actions.editor.NewVideoTrack", "Insert video track below"));
                 list.Add(new ActionContextEntry(track, "actions.editor.NewAudioTrack", "Insert audio track below"));
                 list.Add(SeparatorEntry.Instance);
-                list.Add(new CommandContextEntry("Delete track", track.Timeline.RemoveSelectedTracksCommand));
+                list.Add(new CommandContextEntry("Delete track(s)", track.Timeline.RemoveSelectedTracksCommand));
             }
             else if (context.TryGetContext(out TimelineViewModel timeline)) {
                 list.Add(new ActionContextEntry(timeline, "actions.editor.NewVideoTrack", "Add Video track"));

@@ -18,7 +18,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             this.ResourceCompositionKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceComposition>();
         }
 
-        public override Vector2? GetSize() => (Vector2?) this.Project.Settings.Resolution;
+        public override Vector2? GetFrameSize() => (Vector2?) this.Project.Settings.Resolution;
 
         public override bool OnBeginRender(long frame) {
             Project project;

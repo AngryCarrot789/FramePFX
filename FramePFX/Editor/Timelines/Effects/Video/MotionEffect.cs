@@ -72,6 +72,8 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
             }
         }
 
+        public event MatrixChangedEventHandler MatrixChanged;
+
         public MotionEffect() {
             this.isMatrixDirty = true;
             UpdateAutomationValueEventHandler throwABrickAtMeThisSucks = (s, f) => this.InvalidateMatrix();
@@ -87,13 +89,14 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
         private void InvalidateMatrix() {
             this.isMatrixDirty = true;
             this.OwnerClip?.InvalidateTransformationMatrix();
+            this.MatrixChanged?.Invoke(this);
         }
 
         /// <summary>
         /// Creates a transformation matrix based on the current state of this effect
         /// </summary>
         /// <returns></returns>
-        public SKMatrix CreateTransformationMatrix() {
+        private SKMatrix CreateTransformationMatrix() {
             Vector2 pos = this.MediaPosition;
             Vector2 scale = this.MediaScale;
             Vector2 scaleOrigin = this.MediaScaleOrigin;
@@ -117,8 +120,8 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
             this.OwnerClip.InvalidateTransformationMatrix();
         }
 
-        public override void PreProcessFrame(long frame, RenderContext rc, Vector2? frameSize) {
-            base.PreProcessFrame(frame, rc, frameSize);
+        public override void PreProcessFrame(long frame, RenderContext rc) {
+            base.PreProcessFrame(frame, rc);
             rc.Canvas.SetMatrix(rc.Canvas.TotalMatrix.PreConcat(this.TransformationMatrix));
         }
     }

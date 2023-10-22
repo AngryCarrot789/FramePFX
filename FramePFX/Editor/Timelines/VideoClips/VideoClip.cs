@@ -79,9 +79,8 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         /// Signals the video editor associated with this clip to render the current frame again. Optionally allows the
         /// re-render to be scheduled, making it happen at some point in the very near future
         /// </summary>
-        /// <param name="schedule">Schedule for the future and not in the current call</param>
-        public virtual void InvalidateRender(bool schedule = true) {
-            this.RenderInvalidated?.Invoke(this, schedule);
+        public virtual void InvalidateRender() {
+            this.RenderInvalidated?.Invoke(this);
         }
 
         public override void WriteToRBE(RBEDictionary data) {
@@ -95,11 +94,11 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         }
 
         /// <summary>
-        /// Gets the amount of space this clip takes up on screen (unaffected by <see cref="MediaPosition"/> or <see cref="MediaScale"/>).
-        /// If the value is unavailable, then the render viewport's width and height are used as a fallback
+        /// Gets the raw amount of space this clip takes up on screen, unaffected by standard transformation matrices.
+        /// If the value is unavailable, then typically the render viewport's width and height are used as a fallback
         /// </summary>
-        /// <returns>A nullable vector (null indicating to use the current view port size)</returns>
-        public virtual Vector2? GetSize() => null;
+        /// <returns>The size, if applicable, otherwise null</returns>
+        public virtual Vector2? GetFrameSize() => null;
 
         /// <summary>
         /// Fires the <see cref="RenderSizeChanged"/> event, and invalidates the clip render, causing the timeline to be rendered.

@@ -1,6 +1,7 @@
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
+using FramePFX.Automation;
 using FramePFX.Automation.Keys;
 using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.Timelines.Effects.Video;
@@ -58,8 +59,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         public event RenderSizeChangedEventHandler RenderSizeChanged;
 
         protected VideoClip() {
-            // using `(VideoClip) s.AutomationData.Owner` instead of `this` saves closure allocation
-            this.AutomationData.AssignKey(OpacityKey);
+            this.AutomationData.AssignKey(OpacityKey, this.CreateAssignment(OpacityKey));
             this.isMatrixDirty = true;
         }
 
@@ -154,6 +154,10 @@ namespace FramePFX.Editor.Timelines.VideoClips {
 
         public override bool IsEffectTypeAllowed(BaseEffect effect) {
             return effect is VideoEffect;
+        }
+
+        public override bool IsEffectTypeAllowed(Type effectType) {
+            return effectType.instanceof(typeof(VideoEffect));
         }
 
         /// <summary>

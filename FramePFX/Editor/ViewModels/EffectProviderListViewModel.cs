@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FramePFX.Editor.Registries;
+using FramePFX.Editor.Timelines.Effects.Video;
 using FramePFX.Editor.ViewModels.Timelines.Effects.Video;
 
 namespace FramePFX.Editor.ViewModels {
@@ -9,7 +10,7 @@ namespace FramePFX.Editor.ViewModels {
 
         public EffectProviderListViewModel() {
             List<EffectProviderViewModel> list = new List<EffectProviderViewModel> {
-                new EffectProviderViewModel("Motion", EffectFactory.Instance.GetTypeIdForViewModel(typeof(MotionEffectViewModel))),
+                new EffectProviderViewModel("Motion", typeof(MotionEffect)),
             };
 
             this.Effects = list;
@@ -19,9 +20,13 @@ namespace FramePFX.Editor.ViewModels {
     public class EffectProviderViewModel : BaseViewModel {
         public string Name { get; }
         public string EffectFactoryId { get; }
+        public Type EffectType { get; }
 
-        public EffectProviderViewModel(string name, string effectFactoryId) {
-            this.EffectFactoryId = effectFactoryId ?? throw new ArgumentNullException(nameof(effectFactoryId));
+        public EffectProviderViewModel(string name, Type effectType) {
+            this.EffectFactoryId = EffectFactory.Instance.GetTypeIdForModel(effectType);
+            if (string.IsNullOrEmpty(this.EffectFactoryId))
+                throw new InvalidOperationException("Unknown effect type: " + effectType);
+            this.EffectType = effectType;
             this.Name = name;
         }
     }

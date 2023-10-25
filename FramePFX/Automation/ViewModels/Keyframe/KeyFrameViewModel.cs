@@ -60,58 +60,54 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
             return "Value";
         }
 
+        /// <summary>
+        /// Gets the float value and raises the <see cref="BaseViewModel.PropertyChanged"/> event for the value
+        /// </summary>
+        /// <param name="value">The new value</param>
         public void SetFloatValue(float value) => ((KeyFrameFloatViewModel) this).Value = ((KeyDescriptorFloat) this.Model.sequence.Key.Descriptor).Clamp(value);
+
+        /// <summary>
+        /// Gets the double value and raises the <see cref="BaseViewModel.PropertyChanged"/> event for the value
+        /// </summary>
+        /// <param name="value">The new value</param>
         public void SetDoubleValue(double value) => ((KeyFrameDoubleViewModel) this).Value = ((KeyDescriptorDouble) this.Model.sequence.Key.Descriptor).Clamp(value);
+
+        /// <summary>
+        /// Gets the long value and raises the <see cref="BaseViewModel.PropertyChanged"/> event for the value
+        /// </summary>
+        /// <param name="value">The new value</param>
         public void SetLongValue(long value) => ((KeyFrameLongViewModel) this).Value = ((KeyDescriptorLong) this.Model.sequence.Key.Descriptor).Clamp(value);
+
+        /// <summary>
+        /// Gets the bool value and raises the <see cref="BaseViewModel.PropertyChanged"/> event for the value
+        /// </summary>
+        /// <param name="value">The new value</param>
         public void SetBooleanValue(bool value) => ((KeyFrameBooleanViewModel) this).Value = value;
+
+        /// <summary>
+        /// Gets the Vector2 value and raises the <see cref="BaseViewModel.PropertyChanged"/> event for the value
+        /// </summary>
+        /// <param name="value">The new value</param>
         public void SetVector2Value(Vector2 value) => ((KeyFrameVector2ViewModel) this).Value = ((KeyDescriptorVector2) this.Model.sequence.Key.Descriptor).Clamp(value);
 
         public void SetValueFromObject(object value) {
-            switch (this) {
-                case KeyFrameFloatViewModel i: {
-                    i.SetFloatValue((float) value);
-                }
-                    break;
-                case KeyFrameDoubleViewModel i: {
-                    i.SetDoubleValue((double) value);
-                }
-                    break;
-                case KeyFrameLongViewModel i: {
-                    i.SetLongValue((long) value);
-                }
-                    break;
-                case KeyFrameBooleanViewModel i: {
-                    i.SetBooleanValue((bool) value);
-                }
-                    break;
-                case KeyFrameVector2ViewModel i: {
-                    i.SetVector2Value((Vector2) value);
-                }
-                    break;
+            switch (this.Model.DataType) {
+                case AutomationDataType.Float:   ((KeyFrameFloatViewModel) this).SetFloatValue((float) value); break;
+                case AutomationDataType.Double:  ((KeyFrameDoubleViewModel) this).SetDoubleValue((double) value); break;
+                case AutomationDataType.Long:    ((KeyFrameLongViewModel) this).SetLongValue((long) value); break;
+                case AutomationDataType.Boolean: ((KeyFrameBooleanViewModel) this).SetBooleanValue((bool) value); break;
+                case AutomationDataType.Vector2: ((KeyFrameVector2ViewModel) this).SetVector2Value((Vector2) value); break;
             }
         }
 
         public static KeyFrameViewModel NewInstance(KeyFrame keyFrame) {
             switch (keyFrame.DataType) {
-                case AutomationDataType.Float: return new KeyFrameFloatViewModel((KeyFrameFloat) keyFrame);
-                case AutomationDataType.Double: return new KeyFrameDoubleViewModel((KeyFrameDouble) keyFrame);
-                case AutomationDataType.Long: return new KeyFrameLongViewModel((KeyFrameLong) keyFrame);
+                case AutomationDataType.Float:   return new KeyFrameFloatViewModel((KeyFrameFloat) keyFrame);
+                case AutomationDataType.Double:  return new KeyFrameDoubleViewModel((KeyFrameDouble) keyFrame);
+                case AutomationDataType.Long:    return new KeyFrameLongViewModel((KeyFrameLong) keyFrame);
                 case AutomationDataType.Boolean: return new KeyFrameBooleanViewModel((KeyFrameBoolean) keyFrame);
                 case AutomationDataType.Vector2: return new KeyFrameVector2ViewModel((KeyFrameVector2) keyFrame);
                 default: throw new Exception("Unknown key frame type: " + keyFrame?.GetType());
-            }
-        }
-
-        public static KeyFrameViewModel NewInstance(AutomationDataType type) {
-            // works the same as the switch cases below
-            // return NewInstance(KeyFrame.CreateInstance(type));
-            switch (type) {
-                case AutomationDataType.Float: return new KeyFrameFloatViewModel(new KeyFrameFloat());
-                case AutomationDataType.Double: return new KeyFrameDoubleViewModel(new KeyFrameDouble());
-                case AutomationDataType.Long: return new KeyFrameLongViewModel(new KeyFrameLong());
-                case AutomationDataType.Boolean: return new KeyFrameBooleanViewModel(new KeyFrameBoolean());
-                case AutomationDataType.Vector2: return new KeyFrameVector2ViewModel(new KeyFrameVector2());
-                default: throw new ArgumentOutOfRangeException(nameof(type), $"Invalid data type: {type}");
             }
         }
     }

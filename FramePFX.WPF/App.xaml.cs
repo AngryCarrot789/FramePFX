@@ -1,5 +1,6 @@
 ﻿using FFmpeg.AutoGen;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -37,6 +38,7 @@ using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.PropertyEditing;
 using System.Windows.Controls;
 using System.Windows.Media;
+using FramePFX.Automation.Keys;
 using FramePFX.Editor.Actions.Clips;
 using FramePFX.Editor.Actions.Tracks;
 using FramePFX.Logger;
@@ -73,6 +75,10 @@ namespace FramePFX.WPF {
 
         static App() {
             FontFamilies = new List<FontFamily>();
+            SortedList<AutomationKey, AutomationSequence> listd = new SortedList<AutomationKey, AutomationSequence>();
+            // listd.Add(VideoClip.OpacityKey, new AutomationSequence(null, VideoClip.OpacityKey));
+            // if (listd.TryGetValue(VideoClip.OpacityKey, out var seq)) {
+            // }
         }
 
         public class ObjectA { }

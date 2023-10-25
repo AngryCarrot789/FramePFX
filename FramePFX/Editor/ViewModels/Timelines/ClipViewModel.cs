@@ -221,7 +221,11 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         static ClipViewModel() {
             DropRegistry = new DragDropRegistry<ClipViewModel>();
-            DropRegistry.Register<ClipViewModel, EffectProviderViewModel>((clip, x, dt, ctx) => EnumDropType.Copy, async (clip, x, dt, ctx) => {
+            DropRegistry.Register<ClipViewModel, EffectProviderViewModel>((clip, x, dt, ctx) => {
+                if (clip.Model.IsEffectTypeAllowed(x.EffectType))
+                    return EnumDropType.Copy;
+                return EnumDropType.None;
+            }, async (clip, x, dt, ctx) => {
                 BaseEffect effect;
                 try {
                     effect = EffectFactory.Instance.CreateModel(x.EffectFactoryId);
@@ -234,7 +238,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 clip.AddEffect(EffectFactory.Instance.CreateViewModelFromModel(effect));
             });
         }
-
 
         public static void SetSelectedAndShowPropertyEditor(ClipViewModel clip) {
             clip.IsSelected = true;

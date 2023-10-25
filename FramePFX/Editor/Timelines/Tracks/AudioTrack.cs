@@ -1,8 +1,10 @@
 using System;
+using FramePFX.Automation;
 using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
 using FramePFX.Editor.Audio;
 using FramePFX.Editor.Timelines.AudioClips;
+using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timelines.Tracks {
     public class AudioTrack : Track {
@@ -22,8 +24,8 @@ namespace FramePFX.Editor.Timelines.Tracks {
         public double frequency = 441;
 
         public AudioTrack() {
-            this.AutomationData.AssignKey(VolumeKey);
-            this.AutomationData.AssignKey(IsMutedKey);
+            this.AutomationData.AssignKey(VolumeKey, this.CreateAssignment(VolumeKey));
+            this.AutomationData.AssignKey(IsMutedKey, this.CreateAssignment(IsMutedKey));
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Threading;
 using FramePFX.Automation.Events;
 using FramePFX.Automation.Keyframe;
 
@@ -8,13 +9,20 @@ namespace FramePFX.Automation.Keys {
     /// <summary>
     /// A key for a property that can be automated. Only one instance should exist for a specific piece of data (e.g. media position, visibility, etc)
     /// </summary>
-    public abstract class AutomationKey {
+    public abstract class AutomationKey : IEquatable<AutomationKey>, IComparable<AutomationKey> {
         private static readonly Dictionary<string, Dictionary<string, AutomationKey>> RegistryMap = new Dictionary<string, Dictionary<string, AutomationKey>>();
 
         // the "::" splitter must not change, otherwise old projects won't load
         public const string FullIdSplitter = "::";
+        private static volatile int RegistrationFlag;
+        private static volatile int NextGlobalIndex;
 
         private readonly int hashCode;
+
+        /// <summary>
+        /// Gets this key's global index, relative to the entire appplication
+        /// </summary>
+        public int GlobalIndex { get; private set; }
 
         /// <summary>
         /// The "domain" aka "group" that this key is stored in. This is typically the readable name of the type that stores the key (e.g. VideoClip)
@@ -34,7 +42,7 @@ namespace FramePFX.Automation.Keys {
         /// <summary>
         /// The <see cref="Domain"/> and <see cref="Id"/>, joined with <see cref="FullIdSplitter"/>
         /// </summary>
-        public string FullId => this.Domain + FullIdSplitter + this.Id;
+        public string FullId { get; }
 
         /// <summary>
         /// The data type of this key
@@ -47,6 +55,7 @@ namespace FramePFX.Automation.Keys {
             this.Descriptor = descriptor ?? throw new ArgumentNullException(nameof(descriptor));
             this.Domain = string.IsNullOrWhiteSpace(domain) ? throw new ArgumentException("domain cannot be null, empty or entirely whitespaces", nameof(domain)) : domain;
             this.Id = string.IsNullOrWhiteSpace(id) ? throw new ArgumentException("id cannot be null, empty or entirely whitespaces", nameof(id)) : id;
+            this.FullId = this.Domain + FullIdSplitter + this.Id;
             unchecked {
                 this.hashCode = (domain.GetHashCode() * 397) ^ id.GetHashCode();
             }
@@ -113,14 +122,24 @@ namespace FramePFX.Automation.Keys {
         }
 
         private static void RegisterInternal(AutomationKey key) {
-            if (!RegistryMap.TryGetValue(key.Domain, out Dictionary<string, AutomationKey> map)) {
-                RegistryMap[key.Domain] = map = new Dictionary<string, AutomationKey>();
-            }
-            else if (map.TryGetValue(key.Id, out AutomationKey existingKey)) {
-                throw new Exception($"Key already exists with the ID '{key.Id}': {existingKey}");
-            }
+            while (Interlocked.CompareExchange(ref RegistrationFlag, 1, 0) != 0)
+                Thread.SpinWait(32);
 
-            map[key.Id] = key;
+            try {
+                if (!RegistryMap.TryGetValue(key.Domain, out Dictionary<string, AutomationKey> map)) {
+                    RegistryMap[key.Domain] = map = new Dictionary<string, AutomationKey>();
+                }
+                else if (map.TryGetValue(key.Id, out AutomationKey existingKey)) {
+                    throw new Exception($"Key already exists with the ID '{key.Id}': {existingKey}");
+                }
+
+                map[key.Id] = key;
+                key.GlobalIndex = NextGlobalIndex;
+                Interlocked.Increment(ref NextGlobalIndex);
+            }
+            finally {
+                RegistrationFlag = 0;
+            }
         }
 
         public static AutomationKey GetKey(string domain, string id) {
@@ -128,10 +147,20 @@ namespace FramePFX.Automation.Keys {
         }
 
         public static bool TryGetKey(string domain, string id, out AutomationKey key) {
-            if (RegistryMap.TryGetValue(domain, out Dictionary<string, AutomationKey> map)) {
-                return map.TryGetValue(id, out key);
+            while (Interlocked.CompareExchange(ref RegistrationFlag, 2, 0) != 0)
+                Thread.Sleep(1);
+
+            bool x;
+            Dictionary<string, AutomationKey> map;
+            try {
+                x = RegistryMap.TryGetValue(domain, out map);
+            }
+            finally {
+                RegistrationFlag = 0;
             }
 
+            if (x && map.TryGetValue(id, out key))
+                return true;
             key = null;
             return false;
         }
@@ -143,16 +172,16 @@ namespace FramePFX.Automation.Keys {
         public abstract KeyFrame CreateKeyFrame();
 
         public override string ToString() {
-            return $"{this.GetType()}({this.FullId})";
+            return $"{this.GetType().Name}({this.FullId})";
         }
 
-        protected bool Equals(AutomationKey other) {
+        public bool Equals(AutomationKey other) {
             // cheaper to rule out the hash code than always doing type and string comparison
-            return this.hashCode == other.hashCode && this.GetType() == other.GetType() && this.Domain == other.Domain && this.Id == other.Id;
+            return !ReferenceEquals(other, null) && this.hashCode == other.hashCode && this.GetType() == other.GetType() && this.Domain == other.Domain && this.Id == other.Id;
         }
 
         public override bool Equals(object obj) {
-            return ReferenceEquals(this, obj) || obj is AutomationKey key && this.Equals(key);
+            return ReferenceEquals(this, obj) || obj is AutomationKey && this.Equals((AutomationKey) obj);
         }
 
         /// <summary>
@@ -172,6 +201,14 @@ namespace FramePFX.Automation.Keys {
         }
 
         public sealed override int GetHashCode() => this.hashCode;
+
+        public int CompareTo(AutomationKey other) {
+            if (ReferenceEquals(this, other))
+                return 0;
+            if (ReferenceEquals(null, other))
+                return 1;
+            return this.GlobalIndex.CompareTo(other.GlobalIndex);
+        }
     }
 
     public class AutomationKeyFloat : AutomationKey {

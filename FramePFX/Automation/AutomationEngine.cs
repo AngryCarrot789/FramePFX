@@ -19,38 +19,33 @@ using FramePFX.Utils;
 
 namespace FramePFX.Automation {
     public static class AutomationEngine {
-        public static void UpdateTimeline(Timeline timeline, long frame) {
-            UpdateAutomationData(timeline, frame);
-            foreach (Track track in timeline.Tracks) {
-                UpdateAutomationData(track, frame);
-                IReadOnlyList<Clip> clips = track.Clips;
-                for (int i = clips.Count - 1; i >= 0; i--) {
-                    Clip clip = clips[i];
-                    if (clip.GetRelativeFrame(frame, out long relative)) {
-                        UpdateAutomationData(clip, relative);
-                        foreach (BaseEffect effect in clip.Effects) {
-                            UpdateAutomationData(effect, relative);
-                        }
+        private static readonly List<Clip> UpdateClipList = new List<Clip>();
 
-                        if (clip is CompositionVideoClip composition && composition.ResourceCompositionKey.TryGetResource(out ResourceComposition resource)) {
-                            long duration = resource.Timeline.LargestFrameInUse;
-                            UpdateTimeline(resource.Timeline, duration > 0 ? relative % duration : 0);
+        public static void UpdateTimeline(Timeline timeline, long frame) {
+            timeline.AutomationData.Update(frame);
+            foreach (Track track in timeline.Tracks) {
+                track.AutomationData.Update(frame);
+                List<Clip> list = UpdateClipList;
+                track.GetClipsAtFrame(frame, list);
+                try {
+                    for (int i = 0, count = list.Count; i < count; i++) {
+                        Clip clip = list[i];
+                        if (clip.GetRelativeFrame(frame, out long relative)) {
+                            clip.AutomationData.Update(relative);
+                            foreach (BaseEffect effect in clip.Effects) {
+                                effect.AutomationData.Update(relative);
+                            }
+
+                            if (clip is CompositionVideoClip composition && composition.ResourceCompositionKey.TryGetResource(out ResourceComposition resource)) {
+                                long duration = resource.Timeline.LargestFrameInUse;
+                                UpdateTimeline(resource.Timeline, duration > 0 ? relative % duration : 0);
+                            }
                         }
                     }
                 }
-            }
-        }
-
-        private static void UpdateAutomationData(IAutomatable automatable, long frame) {
-            try {
-                automatable.IsAutomationChangeInProgress = true;
-                foreach (AutomationSequence sequence in automatable.AutomationData.Sequences) {
-                    if (sequence.IsAutomationReady)
-                        sequence.DoUpdateValue(frame);
+                finally {
+                    list.Clear();
                 }
-            }
-            finally {
-                automatable.IsAutomationChangeInProgress = false;
             }
         }
 
@@ -85,7 +80,7 @@ namespace FramePFX.Automation {
             try {
                 automatable.IsAutomationRefreshInProgress = true;
                 foreach (AutomationSequenceViewModel sequence in automatable.AutomationData.Sequences) {
-                    if (sequence.IsAutomationReady) {
+                    if (sequence.IsAutomationAllowed) {
                         sequence.DoRefreshValue(e);
                     }
                 }

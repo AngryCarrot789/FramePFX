@@ -383,10 +383,23 @@ namespace FramePFX.Editor.Timelines {
 
         /// <summary>
         /// Whether or not this clip can accept the given effect. Video clips can only accept video effects, etc.
+        /// This method MUST return the same value that <see cref="IsEffectTypeAllowed(Type)"/> would return for
+        /// the type of an effect instance passed to this method
         /// </summary>
         /// <param name="effect">The non-null effect to check</param>
         /// <returns>True if the effect can be added, otherwise false</returns>
-        public abstract bool IsEffectTypeAllowed(BaseEffect effect);
+        public virtual bool IsEffectTypeAllowed(BaseEffect effect) {
+            return this.IsEffectTypeAllowed(effect.GetType());
+        }
+
+        /// <summary>
+        /// Whether or not this clip can accept the given effect type. This MUST return the same value
+        /// that <see cref="IsEffectTypeAllowed(BaseEffect)"/> would return for an effect instance of
+        /// the exact type passed to this method
+        /// </summary>
+        /// <param name="effect">The non-null effect to check</param>
+        /// <returns>True if the effect can be added, otherwise false</returns>
+        public abstract bool IsEffectTypeAllowed(Type effectType);
 
         #region Static Helpers
 

@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using FramePFX.Automation.Events;
+using FramePFX.Automation.Keyframe;
 using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Commands;
 using FramePFX.Editor.History;

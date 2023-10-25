@@ -13,13 +13,13 @@ namespace FramePFX.Automation {
     /// object, where sequences are assigned via <see cref="AssignKey"/>
     /// </summary>
     public class AutomationData {
-        private readonly Dictionary<AutomationKey, AutomationSequence> map;
-        private readonly List<AutomationSequence> sequences;
+        private static readonly Comparer<AutomationKey> AutomationKeyComparer = Comparer<AutomationKey>.Create((a, b) => a.GlobalIndex.CompareTo(b.GlobalIndex));
+        private readonly SortedList<AutomationKey, AutomationSequence> map;
 
         /// <summary>
         /// An ordered enumerable collection of sequences
         /// </summary>
-        public IReadOnlyList<AutomationSequence> Sequences => this.sequences;
+        public IEnumerable<AutomationSequence> Sequences => this.map.Values;
 
         /// <summary>
         /// The object that owns this automation data instance
@@ -51,26 +51,20 @@ namespace FramePFX.Automation {
 
         public AutomationData(IAutomatable owner) {
             this.Owner = owner ?? throw new ArgumentNullException(nameof(owner));
-            this.map = new Dictionary<AutomationKey, AutomationSequence>();
-            this.sequences = new List<AutomationSequence>();
-        }
-
-        public AutomationSequence AssignKey(AutomationKey key) {
-            return this.AssignKey(key, this.Owner.CreateAssignment(key));
+            this.map = new SortedList<AutomationKey, AutomationSequence>(4, AutomationKeyComparer);
         }
 
         /// <summary>
         /// Adds an automation sequence for the given key, allowing it to be automated
         /// </summary>
         /// <param name="key">The key to add</param>
-        public AutomationSequence AssignKey(AutomationKey key, UpdateAutomationValueEventHandler updateValueHandler) {
+        public AutomationSequence AssignKey(AutomationKey key, UpdateAutomationValueEventHandler updateHandler = null) {
             if (this.map.ContainsKey(key))
                 throw new Exception("Key is already assigned");
             AutomationSequence sequence = new AutomationSequence(this, key);
             this.map[key] = sequence;
-            this.sequences.Add(sequence);
-            if (updateValueHandler != null) {
-                sequence.UpdateValue += updateValueHandler;
+            if (updateHandler != null) {
+                sequence.UpdateValue += updateHandler;
                 sequence.DoUpdateValue(-1);
             }
 
@@ -83,7 +77,7 @@ namespace FramePFX.Automation {
             if (this.ActiveKeyFullId != null)
                 data.SetString(nameof(this.ActiveKeyFullId), this.ActiveKeyFullId);
             RBEList list = data.CreateList(nameof(this.Sequences));
-            foreach (AutomationSequence sequence in this.sequences) {
+            foreach (AutomationSequence sequence in this.map.Values) {
                 RBEDictionary dictionary = list.AddDictionary();
                 dictionary.SetString("KeyId", sequence.Key.FullId);
                 sequence.WriteToRBE(dictionary);
@@ -112,8 +106,10 @@ namespace FramePFX.Automation {
 
         public void LoadDataIntoClone(AutomationData clone) {
             clone.ActiveKeyFullId = this.ActiveKeyFullId;
-            for (int i = 0, c = this.sequences.Count; i < c; i++) {
-                AutomationSequence.LoadDataIntoClone(this.sequences[i], clone.sequences[i]);
+            IList<AutomationSequence> listA = this.map.Values;
+            IList<AutomationSequence> listB = clone.map.Values;
+            for (int i = 0, c = this.map.Count; i < c; i++) {
+                AutomationSequence.LoadDataIntoClone(listA[i], listB[i]);
             }
         }
 
@@ -123,8 +119,24 @@ namespace FramePFX.Automation {
         /// be used to query the value instead of any actual key frame. Useful just after reading the state of an automation owner's data
         /// </summary>
         public void UpdateBackingStorage() {
-            foreach (AutomationSequence sequence in this.sequences) {
-                sequence.DoUpdateValue(-1);
+            IList<AutomationSequence> list = this.map.Values;
+            for (int i = 0, count = list.Count; i < count; i++) {
+                list[i].DoUpdateValue(-1);
+            }
+        }
+
+        public void Update(long frame) {
+            try {
+                this.Owner.IsAutomationChangeInProgress = true;
+                IList<AutomationSequence> list = this.map.Values;
+                for (int i = 0, count = list.Count; i < count; i++) {
+                    AutomationSequence sequence = list[i];
+                    if (sequence.IsAutomationAllowed)
+                        sequence.DoUpdateValue(frame);
+                }
+            }
+            finally {
+                this.Owner.IsAutomationChangeInProgress = false;
             }
         }
     }

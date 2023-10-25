@@ -20,7 +20,7 @@ namespace FramePFX.WPF {
                 typeof(bool),
                 typeof(SKAsyncViewPort),
                 new FrameworkPropertyMetadata(
-                    BoolBox.True,
+                    BoolBox.False,
                     FrameworkPropertyMetadataOptions.AffectsRender,
                     (d, e) => RenderOptions.SetBitmapScalingMode(d, (bool) e.NewValue ? BitmapScalingMode.NearestNeighbor : BitmapScalingMode.Unspecified)));
 
@@ -59,10 +59,22 @@ namespace FramePFX.WPF {
 
         public SKAsyncViewPort() {
             this.designMode = DesignerProperties.GetIsInDesignMode(this);
-            this.gameWindow = new GameWindow(100, 100, GraphicsMode.Default, "ok!");
-            this.gameWindow.MakeCurrent();
-            this.grgInterface = GRGlInterface.Create();
-            this.grContext = GRContext.CreateGl(this.grgInterface, new GRContextOptions());
+            this.UseNearestNeighbourRendering = !this.designMode; // true by default
+            if (!this.designMode) {
+                this.gameWindow = new GameWindow(
+                    1, 1,
+                    new GraphicsMode(new ColorFormat(32), 16, 0, 2, ColorFormat.Empty, 1, false),
+                    "FramePFX Off-Screen Rendering Window", // title, in case another app enumerates our windows
+                    GameWindowFlags.Default, // default flags (don't care about window looks as it's not shown)
+                    DisplayDevice.Default, // default display
+                    1, 0, // OGL version
+                    GraphicsContextFlags.Offscreen, // allow off-screen rendering optimisations hopefully?
+                    null, // shared context
+                    true); // is single thread
+                this.gameWindow.MakeCurrent();
+                this.grgInterface = GRGlInterface.Create();
+                this.grContext = GRContext.CreateGl(this.grgInterface, new GRContextOptions());
+            }
         }
 
         public bool BeginRender(out SKSurface surface) {
@@ -82,15 +94,16 @@ namespace FramePFX.WPF {
 
             SKImageInfo frameInfo = new SKImageInfo(scaledSize.Width, scaledSize.Height, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
             this.skImageInfo = frameInfo;
-            WriteableBitmap bitmap = this.bitmap;
-            if (bitmap == null || frameInfo.Width != bitmap.PixelWidth || frameInfo.Height != bitmap.PixelHeight) {
-                this.bitmap = bitmap = new WriteableBitmap(
+            WriteableBitmap bmp = this.bitmap;
+            if (bmp == null || frameInfo.Width != bmp.PixelWidth || frameInfo.Height != bmp.PixelHeight) {
+                this.bitmap = new WriteableBitmap(
                     frameInfo.Width, scaledSize.Height,
                     unscaledSize.Width == scaledSize.Width ? 96d : (96d * scaleX),
                     unscaledSize.Height == scaledSize.Height ? 96d : (96d * scaleY),
                     PixelFormats.Pbgra32, null);
                 this.gameWindow.Width = frameInfo.Width;
                 this.gameWindow.Height = frameInfo.Height;
+                this.targetSurface?.Dispose();
                 this.targetSurface = surface = SKSurface.Create((GRRecordingContext) this.grContext, true, frameInfo, 0, GRSurfaceOrigin.TopLeft);
             }
             else {

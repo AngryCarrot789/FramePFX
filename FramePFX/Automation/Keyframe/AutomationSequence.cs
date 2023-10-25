@@ -45,7 +45,7 @@ namespace FramePFX.Automation.Keyframe {
         /// Returns true when <see cref="IsOverrideEnabled"/> is false, and there are key
         /// frames present, meaning the automation engine can operate upon this sequence normally
         /// </summary>
-        public bool IsAutomationReady => !this.IsOverrideEnabled && this.HasKeyFrames;
+        public bool IsAutomationAllowed => !this.IsOverrideEnabled && this.HasKeyFrames;
 
         /// <summary>
         /// An enumerable of all the key frames, ordered by the timestamp (small to big)

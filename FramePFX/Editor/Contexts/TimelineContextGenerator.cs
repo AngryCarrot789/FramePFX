@@ -74,7 +74,7 @@ namespace FramePFX.Editor.Contexts {
                 };
 
                 if (track.IsRegionEmpty(clip.FrameSpan)) {
-                    track.CreateAndAddViewModel(clip, true);
+                    track.CreateAndAddViewModel(clip);
                 }
             }
 

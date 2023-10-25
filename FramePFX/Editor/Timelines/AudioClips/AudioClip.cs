@@ -1,3 +1,4 @@
+using System;
 using FramePFX.Editor.Timelines.Effects;
 
 namespace FramePFX.Editor.Timelines.AudioClips {
@@ -19,6 +20,10 @@ namespace FramePFX.Editor.Timelines.AudioClips {
 
         public override bool IsEffectTypeAllowed(BaseEffect effect) {
             return false; // no audio effects yet :(
+        }
+
+        public override bool IsEffectTypeAllowed(Type effectType) {
+            return false;
         }
     }
 }

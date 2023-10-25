@@ -53,24 +53,16 @@ namespace FramePFX.Automation.Keyframe {
 
         #endregion
 
-        #region Setter functions
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetFloatValue(float value) => ((KeyFrameFloat) this).Value = value;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetDoubleValue(double value) => ((KeyFrameDouble) this).Value = value;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetLongValue(long value) => ((KeyFrameLong) this).Value = value;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetBooleanValue(bool value) => ((KeyFrameBoolean) this).Value = value;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void SetVector2Value(Vector2 value) => ((KeyFrameVector2) this).Value = value;
-
-        #endregion
+        public static void SetValue(KeyFrame keyFrame, object value) {
+            switch (keyFrame.DataType) {
+                case AutomationDataType.Float:   keyFrame.SetFloatValue((float) value); break;
+                case AutomationDataType.Double:  keyFrame.SetDoubleValue((double) value); break;
+                case AutomationDataType.Long:    keyFrame.SetLongValue((long) value); break;
+                case AutomationDataType.Boolean: keyFrame.SetBooleanValue((bool) value); break;
+                case AutomationDataType.Vector2: keyFrame.SetVector2Value((Vector2) value); break;
+                default: throw new Exception("Invalid key frame data type");
+            }
+        }
 
         /// <summary>
         /// Assigns this key frame's value to the given key descriptor's default value
@@ -81,18 +73,6 @@ namespace FramePFX.Automation.Keyframe {
         /// Assigns this key frame's value to what the given sequence evaluates at the given frame
         /// </summary>
         public abstract void AssignCurrentValue(long frame, AutomationSequence seq, bool ignoreOverrideState = false);
-
-        // demo interpolation
-        // public static float GetMultiplier(long time, long timeA, long timeB) {
-        //     long range = timeB - timeA; // assert range >= 0
-        //     if (range == 0) // exact same timestamp
-        //         return 1f;
-        //     return (time - timeA) / (float) range;
-        // }
-        // public static float Interpolate(long time, long timeA, long timeB, float valA, float valB) {
-        //     float blend = GetMultiplier(time, timeA, timeB);
-        //     return blend * (valB - valA) + valA;
-        // }
 
         /// <summary>
         /// Whether or not the given key frame equals this key frame (equal timestamp and value)
@@ -128,14 +108,7 @@ namespace FramePFX.Automation.Keyframe {
         /// <returns>A new key frame instance</returns>
         /// <exception cref="ArgumentOutOfRangeException">Unknown automation data type</exception>
         public static KeyFrame CreateInstance(AutomationDataType type) {
-            switch (type) {
-                case AutomationDataType.Float: return new KeyFrameFloat();
-                case AutomationDataType.Double: return new KeyFrameDouble();
-                case AutomationDataType.Long: return new KeyFrameLong();
-                case AutomationDataType.Boolean: return new KeyFrameBoolean();
-                case AutomationDataType.Vector2: return new KeyFrameVector2();
-                default: throw new ArgumentOutOfRangeException(nameof(type), $"Invalid data type: {type}");
-            }
+            return AutomationDataTypeUtils.NewKeyFrame(type);
         }
 
         /// <summary>
@@ -191,6 +164,9 @@ namespace FramePFX.Automation.Keyframe {
             }
 
             double blend = (time - timeA) / (double) range;
+
+            // not used at the moment; doesn't seem to work property and I can't
+            // get it to render/behave correctly in the UI when rendered
             if (curve != 0d) {
                 blend = Math.Pow(blend, 1d / Math.Abs(curve));
                 // if (curve < 0d) {
@@ -200,6 +176,18 @@ namespace FramePFX.Automation.Keyframe {
 
             return blend;
         }
+
+        // demo interpolation
+        // public static float GetMultiplier(long time, long timeA, long timeB) {
+        //     long range = timeB - timeA; // assert range >= 0
+        //     if (range == 0) // exact same timestamp
+        //         return 1f;
+        //     return (time - timeA) / (float) range;
+        // }
+        // public static float Interpolate(long time, long timeA, long timeB, float valA, float valB) {
+        //     float blend = GetMultiplier(time, timeA, timeB);
+        //     return blend * (valB - valA) + valA;
+        // }
 
         /// <summary>
         /// Returns a blend 'multiplier' between the current instance's timestamp, and the given timestamp,

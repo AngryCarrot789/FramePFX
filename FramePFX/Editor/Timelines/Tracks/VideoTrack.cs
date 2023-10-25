@@ -1,6 +1,8 @@
+using FramePFX.Automation;
 using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
 using FramePFX.Editor.Timelines.VideoClips;
+using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timelines.Tracks {
     public class VideoTrack : Track {
@@ -33,8 +35,8 @@ namespace FramePFX.Editor.Timelines.Tracks {
         public VideoTrack() {
             this.Opacity = 1d;
             this.IsVisible = true;
-            this.AutomationData.AssignKey(OpacityKey);
-            this.AutomationData.AssignKey(IsVisibleKey);
+            this.AutomationData.AssignKey(OpacityKey, this.CreateAssignment(OpacityKey));
+            this.AutomationData.AssignKey(IsVisibleKey, this.CreateAssignment(IsVisibleKey));
         }
 
         protected override Track NewInstanceForClone() {

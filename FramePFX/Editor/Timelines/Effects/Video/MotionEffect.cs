@@ -1,5 +1,7 @@
 using System.Numerics;
+using FramePFX.Automation;
 using FramePFX.Automation.Events;
+using FramePFX.Automation.Keyframe;
 using FramePFX.Automation.Keys;
 using FramePFX.Rendering;
 using FramePFX.Utils;
@@ -77,13 +79,13 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
         public MotionEffect() {
             this.isMatrixDirty = true;
             UpdateAutomationValueEventHandler throwABrickAtMeThisSucks = (s, f) => this.InvalidateMatrix();
-            this.AutomationData.AssignKey(MediaPositionKey).AddUpdateHandler(throwABrickAtMeThisSucks);
-            this.AutomationData.AssignKey(MediaScaleKey).AddUpdateHandler(throwABrickAtMeThisSucks);
-            this.AutomationData.AssignKey(MediaScaleOriginKey).AddUpdateHandler(throwABrickAtMeThisSucks);
-            this.AutomationData.AssignKey(UseAbsoluteScaleOriginKey).AddUpdateHandler(throwABrickAtMeThisSucks);
-            this.AutomationData.AssignKey(MediaRotationKey).AddUpdateHandler(throwABrickAtMeThisSucks);
-            this.AutomationData.AssignKey(MediaRotationOriginKey).AddUpdateHandler(throwABrickAtMeThisSucks);
-            this.AutomationData.AssignKey(UseAbsoluteRotationOriginKey).AddUpdateHandler(throwABrickAtMeThisSucks);
+            this.AutomationData.AssignKey(MediaPositionKey, this.CreateAssignment(MediaPositionKey)).AddUpdateHandler(throwABrickAtMeThisSucks);
+            this.AutomationData.AssignKey(MediaScaleKey, this.CreateAssignment(MediaScaleKey)).AddUpdateHandler(throwABrickAtMeThisSucks);
+            this.AutomationData.AssignKey(MediaScaleOriginKey, this.CreateAssignment(MediaScaleOriginKey)).AddUpdateHandler(throwABrickAtMeThisSucks);
+            this.AutomationData.AssignKey(UseAbsoluteScaleOriginKey, this.CreateAssignment(UseAbsoluteScaleOriginKey)).AddUpdateHandler(throwABrickAtMeThisSucks);
+            this.AutomationData.AssignKey(MediaRotationKey, this.CreateAssignment(MediaRotationKey)).AddUpdateHandler(throwABrickAtMeThisSucks);
+            this.AutomationData.AssignKey(MediaRotationOriginKey, this.CreateAssignment(MediaRotationOriginKey)).AddUpdateHandler(throwABrickAtMeThisSucks);
+            this.AutomationData.AssignKey(UseAbsoluteRotationOriginKey, this.CreateAssignment(UseAbsoluteRotationOriginKey)).AddUpdateHandler(throwABrickAtMeThisSucks);
         }
 
         private void InvalidateMatrix() {

@@ -39,7 +39,7 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
         /// Returns true when <see cref="IsOverrideEnabled"/> is false, and there are key frames present,
         /// meaning the automation engine can operate upon this sequence normally
         /// </summary>
-        public bool IsAutomationReady => this.Model.IsAutomationReady;
+        public bool IsAutomationAllowed => this.Model.IsAutomationAllowed;
 
         /// <summary>
         /// Gets or sets if this sequence is currently active. Setting this property will modify our owner's active sequence
@@ -98,7 +98,7 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
 
         public void UpdateKeyFrameCollectionProperties() {
             this.RaisePropertyChanged(nameof(this.HasKeyFrames));
-            this.RaisePropertyChanged(nameof(this.IsAutomationReady));
+            this.RaisePropertyChanged(nameof(this.IsAutomationAllowed));
         }
 
         public void DoRefreshValue(long tlframe, bool isDuringPlayback, bool isPlaybackTick) {
@@ -158,24 +158,20 @@ namespace FramePFX.Automation.ViewModels.Keyframe {
             }
         }
 
-        public void AddKeyFrame(long frame, KeyFrameViewModel keyFrame, bool applyHistory = true) {
+        public void AddKeyFrame(long frame, KeyFrameViewModel keyFrame) {
             keyFrame.Frame = frame;
-            this.AddKeyFrame(keyFrame, applyHistory);
+            this.AddKeyFrame(keyFrame);
         }
 
-        public void AddKeyFrame(KeyFrameViewModel newKeyFrame, bool applyHistory = true) {
-            long frame = newKeyFrame.Frame;
-            if (frame < 0)
-                throw new ArgumentException("Keyframe time stamp must be non-negative: " + frame, nameof(newKeyFrame));
+        public void AddKeyFrame(KeyFrameViewModel newKeyFrame) {
+            if (newKeyFrame.Frame < 0)
+                throw new ArgumentException("Keyframe time stamp must be non-negative: " + newKeyFrame.Frame, nameof(newKeyFrame));
             if (newKeyFrame.Model.DataType != this.Model.DataType)
                 throw new ArgumentException($"Invalid key frame data type. Expected {this.Model.DataType}, got {newKeyFrame.Model.DataType}", nameof(newKeyFrame));
+            if (newKeyFrame.OwnerSequence != null)
+                throw new InvalidOperationException("Key frame was already added to another sequence");
 
             this.AddInternalUnsafe(this.Model.AddKeyFrame(newKeyFrame.Model), newKeyFrame);
-            if (applyHistory && !HistoryManagerViewModel.Instance.IsOperationActive) {
-                HistoryKeyFrameAdd action = new HistoryKeyFrameAdd(this);
-                action.unsafeKeyFrameList.Add(newKeyFrame);
-                HistoryManagerViewModel.Instance.AddAction(action, "Add key frame");
-            }
         }
 
         /// <summary>

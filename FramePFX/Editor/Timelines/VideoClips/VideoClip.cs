@@ -1,7 +1,6 @@
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
-using FramePFX.Automation;
 using FramePFX.Automation.Keys;
 using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.Timelines.Effects.Video;

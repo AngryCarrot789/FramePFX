@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.Timelines.Effects.Video;
-using FramePFX.Editor.ViewModels.Timelines.Effects.Video;
 
 namespace FramePFX.Editor.ViewModels {
     public class EffectProviderListViewModel : BaseViewModel {

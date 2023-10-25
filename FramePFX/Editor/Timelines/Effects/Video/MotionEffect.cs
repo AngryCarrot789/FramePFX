@@ -1,7 +1,5 @@
 using System.Numerics;
-using FramePFX.Automation;
 using FramePFX.Automation.Events;
-using FramePFX.Automation.Keyframe;
 using FramePFX.Automation.Keys;
 using FramePFX.Rendering;
 using FramePFX.Utils;

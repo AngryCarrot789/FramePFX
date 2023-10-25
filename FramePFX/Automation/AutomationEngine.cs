@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using FramePFX.Automation.Events;
-using FramePFX.Automation.Keyframe;
 using FramePFX.Automation.ViewModels;
 using FramePFX.Automation.ViewModels.Keyframe;
 using FramePFX.Editor;

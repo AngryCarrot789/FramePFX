@@ -138,6 +138,8 @@ namespace FramePFX.Editor.ViewModels {
                 if (timeline != null) {
                     timeline.InternalLastPlayHeadBeforePlaying = timeline.PlayHeadFrame;
                 }
+
+                this.UpdateClipSeekForStopOrPause();
             }
         }
 
@@ -149,6 +151,8 @@ namespace FramePFX.Editor.ViewModels {
                 if (timeline != null) {
                     timeline.PlayHeadFrame = timeline.InternalLastPlayHeadBeforePlaying;
                 }
+
+                this.UpdateClipSeekForStopOrPause();
             }
         }
 
@@ -174,6 +178,7 @@ namespace FramePFX.Editor.ViewModels {
 
         public async Task OnProjectChanging(ProjectViewModel project) {
             await this.StopRenderTimer();
+            this.UpdateClipSeekForStopOrPause();
             this.UpdatePlaybackCommands();
         }
 
@@ -185,6 +190,17 @@ namespace FramePFX.Editor.ViewModels {
 
             this.UpdatePlaybackCommands();
             this.RaisePropertyChanged(nameof(this.Project));
+            this.UpdateClipSeekForStopOrPause();
+        }
+
+        public void UpdateClipSeekForStopOrPause() {
+            foreach (TimelineViewModel timeline in this.Editor.ActiveTimelines) {
+                long oldFrame = timeline.InternalLastPlayHeadBeforePlaying;
+                long newFrame = timeline.PlayHeadFrame;
+                foreach (TrackViewModel track in timeline.Tracks) {
+                    track.OnUserSeekedFrame(oldFrame, newFrame);
+                }
+            }
         }
 
         public void SetTimerFrameRate(Rational frameRate) {

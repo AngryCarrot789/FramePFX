@@ -1,6 +1,5 @@
 using System.Numerics;
 using System.Threading.Tasks;
-using FramePFX.Automation;
 using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
 using FramePFX.Editor.ResourceManaging.Resources;

@@ -1,6 +1,5 @@
 using System;
 using System.Linq.Expressions;
-using System.Numerics;
 using System.Reflection;
 using FramePFX.Automation;
 using FramePFX.Automation.Events;

@@ -1,5 +1,4 @@
 using System;
-using FramePFX.Automation;
 using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
 using FramePFX.Editor.Audio;

@@ -1,6 +1,5 @@
 ﻿using FFmpeg.AutoGen;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -42,7 +41,6 @@ using FramePFX.Automation.Keys;
 using FramePFX.Editor.Actions.Clips;
 using FramePFX.Editor.Actions.Tracks;
 using FramePFX.Logger;
-using FramePFX.Utils.Expressions;
 using FontFamily = System.Windows.Media.FontFamily;
 using UndoAction = FramePFX.History.Actions.UndoAction;
 

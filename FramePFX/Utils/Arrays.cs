@@ -73,12 +73,14 @@ namespace FramePFX.Utils {
             return values;
         }
 
-        public static T[] CloneArray<T>(this T[] array) {
+        public static T[] CloneArray<T>(this T[] array) => CloneArray(array, array.Length);
+
+        public static T[] CloneArray<T>(this T[] array, int count) {
             if (array == null)
                 return null;
-            int length = array.Length;
-            T[] values = new T[length];
-            for (int i = 0; i < length; i++)
+            int len = array.Length;
+            T[] values = new T[Math.Max(len, count)];
+            for (int i = 0; i < len; i++)
                 values[i] = array[i];
             return values;
         }

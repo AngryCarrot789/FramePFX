@@ -9,6 +9,10 @@ namespace FramePFX.Editor.Actions.Clips {
         public SliceClipsAction() {
         }
 
+        public override bool CanExecute(AnActionEventArgs e) {
+            return EditorActionUtils.GetTimeline(e.DataContext, out TimelineViewModel timeline);
+        }
+
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
             if (!EditorActionUtils.GetTimeline(e.DataContext, out TimelineViewModel timeline)) {
                 if (e.IsUserInitiated) {
@@ -32,10 +36,6 @@ namespace FramePFX.Editor.Actions.Clips {
             }
 
             return true;
-        }
-
-        public override bool CanExecute(AnActionEventArgs e) {
-            return EditorActionUtils.GetTimeline(e.DataContext, out _);
         }
 
         public static async Task CutAllOnPlayHead(TimelineViewModel timeline) {

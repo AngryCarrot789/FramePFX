@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using FramePFX.AdvancedContextService;
+using FramePFX.AdvancedContextService.NCSP;
 using FramePFX.Automation;
 using FramePFX.Automation.ViewModels;
 using FramePFX.Commands;
@@ -17,6 +19,7 @@ using FramePFX.History.Tasks;
 using FramePFX.History.ViewModels;
 using FramePFX.Interactivity;
 using FramePFX.Utils;
+using SkiaSharp;
 
 namespace FramePFX.Editor.ViewModels.Timelines {
     /// <summary>
@@ -61,7 +64,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         }
 
         // Feels so wrong having colours here for some reason... should be done in a converter with enums maybe?
-        public string TrackColour {
+        public SKColor TrackColour {
             get => this.Model.TrackColour;
             set {
                 this.Model.TrackColour = value;
@@ -119,6 +122,21 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 string[] files = (string[]) objekt.GetData(NativeDropTypes.FileDrop);
                 await Services.DialogService.ShowDialogAsync("TODO", $"Dropping files directly into the timeline is not implemented yet.\nYou dropped: {string.Join(", ", files)}");
             });
+
+            IContextRegistration reg = ContextRegistry.Instance.RegisterType(typeof(TrackViewModel));
+            reg.AddEntry(new ActionContextEntry(null, "actions.general.RenameItem", "Rename track"));
+            reg.AddEntry(new ActionContextEntry(null, "actions.timeline.track.ChangeTrackColour", "Change colour"));
+            List<IContextEntry> newClipList = new List<IContextEntry> {
+                new ActionContextEntry(null, "actions.timeline.NewAdjustmentClip", "New adjustment clip")
+            };
+
+            reg.AddEntry(new GroupContextEntry("New clip...", newClipList));
+
+            reg.AddEntry(SeparatorEntry.Instance);
+            reg.AddEntry(new ActionContextEntry(null, "actions.editor.NewVideoTrack", "Insert video track below"));
+            reg.AddEntry(new ActionContextEntry(null, "actions.editor.NewAudioTrack", "Insert audio track below"));
+            reg.AddEntry(SeparatorEntry.Instance);
+            reg.AddEntry(new ActionContextEntry(null, "actions.editor.timeline.DeleteSelectedTracks", "Delete Track(s)"));
         }
 
         private static Comparison<ClipViewModel> SortClip = (a, b) => a.FrameBegin.CompareTo(b.FrameBegin);

@@ -35,6 +35,9 @@ namespace FramePFX.Editor.Contexts {
                 if (resItem is ResourceCompositionViewModel) {
                     list.Add(new ActionContextEntry(context, "actions.timeline.OpenCompositionObjectsTimeline", "Open timeline"));
                 }
+                else if (resItem is ResourceColourViewModel) {
+                    list.Add(new ActionContextEntry(null, "action.resources.ChangeResourceColour", "Change Colour..."));
+                }
 
                 if (resItem is ResourceItemViewModel item) {
                     if (selected.Count == 1) {

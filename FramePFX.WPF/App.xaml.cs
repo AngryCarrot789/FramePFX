@@ -229,6 +229,7 @@ namespace FramePFX.WPF {
                 ActionManager.Instance.Register("actions.resources.DeleteItems", new DeleteResourcesAction());
                 ActionManager.Instance.Register("actions.resources.GroupSelectionIntoFolder", new GroupSelectedResourcesAction());
                 ActionManager.Instance.Register("actions.editor.timeline.DeleteSelectedClips", new DeleteSelectedClips());
+                ActionManager.Instance.Register("actions.editor.timeline.DeleteSelectedTracks", new DeleteSelectedTracksAction());
                 ActionManager.Instance.Register("actions.editor.NewVideoTrack", new NewVideoTrackAction());
                 ActionManager.Instance.Register("actions.editor.NewAudioTrack", new NewAudioTrackAction());
                 ActionManager.Instance.Register("actions.editor.timeline.SliceClips", new SliceClipsAction());

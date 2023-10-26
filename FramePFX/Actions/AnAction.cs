@@ -13,6 +13,20 @@ namespace FramePFX.Actions {
         }
 
         /// <summary>
+        /// Checks if this action can actually be executed. This typically isn't checked before
+        /// <see cref="ExecuteAsync"/> is invoked; this is mainly used by the UI to determine if
+        /// something like a button or menu item is actually clickable
+        /// <para>
+        /// This method should be quick to execute, as it may be called quite often
+        /// </para>
+        /// </summary>
+        /// <param name="e">The action event args, containing info about the current context</param>
+        /// <returns>This action's presentation</returns>
+        public virtual bool CanExecute(AnActionEventArgs e) {
+            return true;
+        }
+
+        /// <summary>
         /// <para>
         /// Executes this specific action with the given action event args
         /// </para>
@@ -33,19 +47,5 @@ namespace FramePFX.Actions {
         /// <param name="e">The action event args, containing info about the current context</param>
         /// <returns>Whether the action execution was handled</returns>
         public abstract Task<bool> ExecuteAsync(AnActionEventArgs e);
-
-        /// <summary>
-        /// Checks if this action can actually be executed. This typically isn't checked before
-        /// <see cref="ExecuteAsync"/> is invoked; this is mainly used by the UI to determine if
-        /// something like a button or menu item is actually clickable
-        /// <para>
-        /// This method should be quick to execute, as it may be called quite often
-        /// </para>
-        /// </summary>
-        /// <param name="e">The action event args, containing info about the current context</param>
-        /// <returns>This action's presentation</returns>
-        public virtual bool CanExecute(AnActionEventArgs e) {
-            return true;
-        }
     }
 }

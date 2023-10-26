@@ -84,9 +84,7 @@ namespace FramePFX.Automation.Keyframe {
         /// Invokes the <see cref="UpdateValue"/> event, allowing any listeners to re-query their actual value at the given frame
         /// </summary>
         /// <param name="frame">The frame</param>
-        public void DoUpdateValue(long frame) {
-            this.UpdateValue?.Invoke(this, frame);
-        }
+        public void DoUpdateValue(long frame) => this.UpdateValue?.Invoke(this, frame);
 
         /// <summary>
         /// Adds the given handler to <see cref="UpdateValue"/>

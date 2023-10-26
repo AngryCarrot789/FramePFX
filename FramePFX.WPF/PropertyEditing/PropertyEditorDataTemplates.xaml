@@ -20,7 +20,7 @@
         <Setter Property="Fill">
             <Setter.Value>
                 <MultiBinding Converter="{StaticResource AutomationActivityBrushConverter}">
-                    <Binding Path="IsAutomationEnabled" Mode="OneWay" />
+                    <Binding Path="IsAutomationAllowed" Mode="OneWay" />
                     <Binding Path="IsActiveSequence" Mode="OneWay" />
                 </MultiBinding>
             </Setter.Value>

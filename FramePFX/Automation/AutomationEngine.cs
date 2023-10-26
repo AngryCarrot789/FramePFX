@@ -18,32 +18,48 @@ using FramePFX.Utils;
 
 namespace FramePFX.Automation {
     public static class AutomationEngine {
-        private static readonly List<Clip> UpdateClipList = new List<Clip>();
+        public static void UpdateTimeline(Timeline timeline, long frame, HashSet<Timeline> scanned = null) {
+            if (scanned == null)
+                scanned = new HashSet<Timeline>();
+            else if (scanned.Contains(timeline))
+                throw new Exception("Recursive timeline update detected");
+            else scanned.Add(timeline);
 
-        public static void UpdateTimeline(Timeline timeline, long frame) {
             timeline.AutomationData.Update(frame);
             foreach (Track track in timeline.Tracks) {
                 track.AutomationData.Update(frame);
-                List<Clip> list = UpdateClipList;
+                List<Clip> list = new List<Clip>();
                 track.GetClipsAtFrame(frame, list);
-                try {
-                    for (int i = 0, count = list.Count; i < count; i++) {
-                        Clip clip = list[i];
-                        if (clip.GetRelativeFrame(frame, out long relative)) {
-                            clip.AutomationData.Update(relative);
-                            foreach (BaseEffect effect in clip.Effects) {
-                                effect.AutomationData.Update(relative);
-                            }
+                for (int i = 0, count = list.Count; i < count; i++) {
+                    Clip clip = list[i];
+                    if (clip.GetRelativeFrame(frame, out long relative)) {
+                        clip.AutomationData.Update(relative);
+                        foreach (BaseEffect effect in clip.Effects) {
+                            effect.AutomationData.Update(relative);
+                        }
 
-                            if (clip is CompositionVideoClip composition && composition.ResourceCompositionKey.TryGetResource(out ResourceComposition resource)) {
-                                long duration = resource.Timeline.LargestFrameInUse;
-                                UpdateTimeline(resource.Timeline, duration > 0 ? relative % duration : 0);
-                            }
+                        if (clip is CompositionVideoClip composition && composition.ResourceCompositionKey.TryGetResource(out ResourceComposition resource)) {
+                            long duration = resource.Timeline.LargestFrameInUse;
+                            UpdateTimeline(resource.Timeline, duration > 0 ? relative % duration : 0, scanned);
                         }
                     }
                 }
-                finally {
-                    list.Clear();
+            }
+        }
+
+        public static void UpdateBackingStorage(Timeline timeline) {
+            timeline.AutomationData.UpdateBackingStorage();
+            foreach (Track track in timeline.Tracks) {
+                track.AutomationData.UpdateBackingStorage();
+                foreach (Clip clip in track.Clips) {
+                    clip.AutomationData.UpdateBackingStorage();
+                    foreach (BaseEffect effect in clip.Effects) {
+                        effect.AutomationData.UpdateBackingStorage();
+                    }
+
+                    if (clip is CompositionVideoClip composition && composition.ResourceCompositionKey.TryGetResource(out ResourceComposition resource)) {
+                        UpdateBackingStorage(resource.Timeline);
+                    }
                 }
             }
         }
@@ -86,28 +102,6 @@ namespace FramePFX.Automation {
             }
             finally {
                 automatable.IsAutomationRefreshInProgress = false;
-            }
-        }
-
-        public static void UpdateBackingStorage(Timeline timeline) {
-            timeline.AutomationData.UpdateBackingStorage();
-            foreach (Track track in timeline.Tracks)
-                UpdateBackingStorage(track);
-        }
-
-        public static void UpdateBackingStorage(Track track) {
-            track.AutomationData.UpdateBackingStorage();
-            foreach (Clip clip in track.Clips)
-                UpdateBackingStorage(clip);
-        }
-
-        public static void UpdateBackingStorage(Clip clip) {
-            clip.AutomationData.UpdateBackingStorage();
-            foreach (BaseEffect effect in clip.Effects)
-                effect.AutomationData.UpdateBackingStorage();
-
-            if (clip is CompositionVideoClip composition && composition.ResourceCompositionKey.TryGetResource(out ResourceComposition resource)) {
-                UpdateBackingStorage(resource.Timeline);
             }
         }
 

@@ -57,6 +57,18 @@ namespace FramePFX.Editor.Actions {
             }
         }
 
+        public static bool GetTrack(IDataContext context, out TrackViewModel track) {
+            if (context.TryGetContext(out ClipViewModel clip) && (track = clip.Track) != null) {
+                return true;
+            }
+            else if (context.TryGetContext(out track)) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+
         public static bool GetEditorWithProject(IDataContext context, out VideoEditorViewModel editor, out ProjectViewModel project) {
             if (context.TryGetContext(out ClipViewModel clip) && (project = clip.Project) != null && (editor = project.Editor) != null) {
                 return true;
@@ -102,6 +114,14 @@ namespace FramePFX.Editor.Actions {
 
         public static TimelineViewModel FindTimeline(IDataContext context) {
             return GetTimeline(context, out TimelineViewModel timeline) ? timeline : null;
+        }
+
+        public static bool HasClipOrTimeline(IDataContext dc) {
+            return dc.HasContext<ClipViewModel>() || dc.HasContext<TimelineViewModel>();
+        }
+
+        public static bool HasTrackOrTimeline(IDataContext dc) {
+            return dc.HasContext<TrackViewModel>() || dc.HasContext<TimelineViewModel>();
         }
 
         public static bool GetNewTrackData(IDataContext context, out TimelineViewModel timeline, out int index, AVType type) {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace FramePFX.Utils.Collections {
@@ -23,7 +24,7 @@ namespace FramePFX.Utils.Collections {
 
         public InheritanceDictionary(int initialMapCapacity) {
             this.items = initialMapCapacity == int.MinValue ? new Dictionary<Type, TypeEntry>() : new Dictionary<Type, TypeEntry>(initialMapCapacity);
-            this.items[typeof(object)] = this.rootEntry = new TypeEntry(typeof(object));
+            this.items[typeof(object)] = this.rootEntry = new TypeEntry(this, typeof(object));
             this.totalEntries = 1;
         }
 
@@ -102,6 +103,11 @@ namespace FramePFX.Utils.Collections {
             return false;
         }
 
+        /// <summary>
+        /// Gets or creates an entry for the given key
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public ITypeEntry<T> GetEntry(Type key) => this.GetOrCreateEntry(key);
 
         /// <summary>
@@ -113,6 +119,20 @@ namespace FramePFX.Utils.Collections {
         /// <returns>The previous local or inherited value</returns>
         public T SetValue(Type key, T value) {
             return this.GetOrCreateEntry(key).SetItemAndUpdateInherited(value);
+        }
+
+        /// <summary>
+        /// Explicitly sets (or replaces) the local value of the given entry, and updates any
+        /// derived types' inherited values if they are not already explicitly set
+        /// </summary>
+        /// <param name="entry"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public T SetValue(ITypeEntry<T> entry, T value) {
+            if (!(entry is TypeEntry te) || te.Owner != this)
+                throw new ArgumentException("Invalid entry");
+            return te.SetItemAndUpdateInherited(value);
         }
 
         /// <summary>
@@ -132,7 +152,7 @@ namespace FramePFX.Utils.Collections {
             foreach (TypeEntry map in this.items.Values)
                 map.Dispose();
             this.items.Clear();
-            this.items[typeof(object)] = this.rootEntry = new TypeEntry(typeof(object));
+            this.items[typeof(object)] = this.rootEntry = new TypeEntry(this, typeof(object));
             this.totalEntries = 1;
             this.version++;
         }
@@ -173,11 +193,13 @@ namespace FramePFX.Utils.Collections {
         /// A struct that allows enumerating the local values of a type hierarchy, starting at
         /// a specific top-level type and navigating through the base types in an efficient manner
         /// </summary>
-        public struct LocalValueEntryEnumerator {
+        public struct LocalValueEntryEnumerator { // : IEnumerator<ITypeEntry<T>>
             /// <summary>
             /// Gets the current entry
             /// </summary>
             public ITypeEntry<T> Current => this.currentEntry;
+
+            // object IEnumerator.Current => this.Current;
 
             private readonly InheritanceDictionary<T> dictionary;
             private readonly Type startingKey;
@@ -261,12 +283,14 @@ namespace FramePFX.Utils.Collections {
                 this.state = 1;
                 this.currentEntry = null;
             }
+
+            // void IDisposable.Dispose() => this.Reset();
         }
 
         /// <summary>
         /// A struct that has a <see cref="GetEnumerator"/> function, which returns a <see cref="LocalValueEntryEnumerator"/>
         /// </summary>
-        public readonly struct LocalValueEntryEnumerable {
+        public readonly struct LocalValueEntryEnumerable { //  : IEnumerable<ITypeEntry<T>>
             private readonly InheritanceDictionary<T> dictionary;
             private readonly Type startingKey;
 
@@ -278,6 +302,9 @@ namespace FramePFX.Utils.Collections {
             public LocalValueEntryEnumerator GetEnumerator() {
                 return new LocalValueEntryEnumerator(this.dictionary, this.startingKey);
             }
+
+            // IEnumerator<ITypeEntry<T>> IEnumerable<ITypeEntry<T>>.GetEnumerator() => this.GetEnumerator();
+            // IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
         }
 
         // Baked a hierarchy of types starting from 1 above foundType to the given key (base to derived)
@@ -288,7 +315,7 @@ namespace FramePFX.Utils.Collections {
             TypeEntry entry, baseType = foundEntry;
             int i = types.Count - 1, c = this.totalEntries;
             do {
-                entry = new TypeEntry(types[i]);
+                entry = new TypeEntry(this, types[i]);
                 this.items[types[i]] = entry;
                 entry.OnExtendType(baseType);
                 baseType = entry;
@@ -316,8 +343,10 @@ namespace FramePFX.Utils.Collections {
             IReadOnlyList<ITypeEntry<T>> ITypeEntry<T>.DerivedTypes => this.derivedList;
             ITypeEntry<T> ITypeEntry<T>.BaseType => this.baseType;
             ITypeEntry<T> ITypeEntry<T>.NearestBaseTypeWithLocalValue => this.nearestBaseTypeToExplicitValue;
+            public readonly InheritanceDictionary<T> Owner;
 
-            public TypeEntry(Type type) {
+            public TypeEntry(InheritanceDictionary<T> owner, Type type) {
+                this.Owner = owner;
                 this.type = type;
                 this.derivedList = new List<TypeEntry>(1);
             }

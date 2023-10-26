@@ -16,6 +16,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{4BAA92
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PFXCE", "PFXCE\PFXCE.vcxproj", "{8EF6A6EF-495C-41D7-AA12-FD8041468231}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ColorPicker", "ColorPicker\ColorPicker.csproj", "{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -62,6 +64,18 @@ Global
 		{8EF6A6EF-495C-41D7-AA12-FD8041468231}.Release|x64.Build.0 = Release|x64
 		{8EF6A6EF-495C-41D7-AA12-FD8041468231}.Release|x86.ActiveCfg = Release|Win32
 		{8EF6A6EF-495C-41D7-AA12-FD8041468231}.Release|x86.Build.0 = Release|Win32
+		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Debug|x64.Build.0 = Debug|Any CPU
+		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Debug|x86.Build.0 = Debug|Any CPU
+		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Release|x64.ActiveCfg = Release|Any CPU
+		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Release|x64.Build.0 = Release|Any CPU
+		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Release|x86.ActiveCfg = Release|Any CPU
+		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

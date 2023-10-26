@@ -25,7 +25,19 @@ namespace FramePFX.WPF.Converters {
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
-            throw new NotImplementedException();
+            bool isFloat = false;
+            if (targetType == typeof(SKColor) || (isFloat = targetType == typeof(SKColorF))) {
+                if (!(value is SolidColorBrush))
+                    throw new InvalidOperationException("Cannot convert back from non-brush");
+                Color c = ((SolidColorBrush) value).Color;
+                return isFloat ? new SKColorF(c.ScR, c.ScG, c.ScB, c.ScA) : new SKColor(c.R, c.G, c.B, c.A);
+            }
+            else if (value == null || value == DependencyProperty.UnsetValue) {
+                return DependencyProperty.UnsetValue;
+            }
+            else {
+                throw new NotSupportedException("Cannot convert back to type " + targetType);
+            }
         }
     }
 }

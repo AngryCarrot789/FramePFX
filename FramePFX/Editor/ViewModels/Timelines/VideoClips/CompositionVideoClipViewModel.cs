@@ -1,5 +1,7 @@
 using System;
 using System.Threading.Tasks;
+using FramePFX.AdvancedContextService;
+using FramePFX.AdvancedContextService.NCSP;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Editor.Timelines.VideoClips;
@@ -17,6 +19,9 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
                 clip.Model.ResourceCompositionKey.SetTargetResourceId(h.UniqueId);
                 return Task.CompletedTask;
             });
+
+            IContextRegistration reg = ContextRegistry.Instance.RegisterType(typeof(CompositionVideoClipViewModel));
+            reg.AddEntry(new ActionContextEntry(null, "actions.timeline.OpenCompositionObjectsTimeline", "Open timeline"));
         }
 
         public bool TryGetResource(out ResourceCompositionViewModel resource) {

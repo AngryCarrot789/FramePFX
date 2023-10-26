@@ -39,6 +39,11 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
         /// </summary>
         public IResourceHolder Owner { get; }
 
+        /// <summary>
+        /// Returns an unordered enumerable of this resource helper's registered keys
+        /// </summary>
+        public IEnumerable<IBaseResourcePathKey> RegisteredKeys => this.ResourceMap.Values;
+
         public ResourceHelper(IResourceHolder clip) {
             this.Owner = clip ?? throw new ArgumentNullException(nameof(clip));
             this.ResourceMap = new Dictionary<string, BaseResourcePathEntry>();

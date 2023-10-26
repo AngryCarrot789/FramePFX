@@ -9,7 +9,7 @@ namespace FramePFX.Utils {
     /// This stores each exception in a lazily-created internal list
     /// </summary>
     public class ErrorList : IDisposable, IEnumerable<Exception> {
-        private readonly bool canUseFirstException;
+        private readonly bool tryUseFirstException;
         private readonly bool throwOnDispose;
         private List<Exception> exceptions;
 
@@ -31,13 +31,15 @@ namespace FramePFX.Utils {
         /// <summary>
         /// Creates an exception stack that is not pushed onto the global stack
         /// </summary>
-        /// <param name="message">Message to use if an exception must be thrown and <see cref="throwOnDispose"/> is true. Ignored if <see cref="canUseFirstException"/> is true</param>
+        /// <param name="message">Message to use if an exception must be thrown and <see cref="throwOnDispose"/> is true. Ignored if <see cref="tryUseFirstException"/> is true</param>
         /// <param name="throwOnDispose">Whether to throw an exception (if possible) when <see cref="Dispose"/> is called</param>
-        /// <param name="canUseFirstException">Whether to use the first pushed exception as the main exception or to instead create one using <see cref="Message"/></param>
-        public ErrorList(string message, bool throwOnDispose = true, bool canUseFirstException = false) {
+        /// <param name="tryUseFirstException">
+        /// Whether to try and use the first (and only) pushed exception as the main exception or to instead create one using the message
+        /// </param>
+        public ErrorList(string message, bool throwOnDispose = true, bool tryUseFirstException = false) {
             this.Message = message;
             this.throwOnDispose = throwOnDispose;
-            this.canUseFirstException = canUseFirstException;
+            this.tryUseFirstException = tryUseFirstException;
         }
 
         /// <summary>
@@ -67,7 +69,7 @@ namespace FramePFX.Utils {
                 return false;
             }
 
-            if (list.Count == 1 && this.canUseFirstException) {
+            if (list.Count == 1 && this.tryUseFirstException) {
                 exception = list[0];
             }
             else {

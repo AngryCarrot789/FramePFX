@@ -5,9 +5,11 @@ using FramePFX.Automation.Keyframe;
 using FramePFX.Automation.Keys;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.ResourceManaging;
+using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.Timelines.Events;
 using FramePFX.Editor.Timelines.ResourceHelpers;
+using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.RBC;
 using FramePFX.RBC.Events;
 using FramePFX.Utils;
@@ -273,7 +275,14 @@ namespace FramePFX.Editor.Timelines {
             }
 
             this.LoadUserDataIntoClone(clone, flags);
-            AutomationEngine.UpdateBackingStorage(clone);
+            clone.AutomationData.UpdateBackingStorage();
+            foreach (BaseEffect effect1 in clone.Effects)
+                effect1.AutomationData.UpdateBackingStorage();
+
+            if (clone is CompositionVideoClip composition && composition.ResourceCompositionKey.TryGetResource(out ResourceComposition resource)) {
+                AutomationEngine.UpdateBackingStorage(resource.Timeline);
+            }
+
             return clone;
         }
 

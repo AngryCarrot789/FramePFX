@@ -4,6 +4,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using FramePFX.AdvancedContextService;
+using FramePFX.AdvancedContextService.NCSP;
 using FramePFX.Automation;
 using FramePFX.Automation.ViewModels;
 using FramePFX.Commands;
@@ -193,6 +195,10 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         static TimelineViewModel() {
             DeleteTracksDialog = Dialogs.YesCancelDialog.Clone();
             DeleteTracksDialog.ShowAlwaysUseNextResultOption = true;
+
+            IContextRegistration reg = ContextRegistry.Instance.RegisterType(typeof(TimelineViewModel));
+            reg.AddEntry(new ActionContextEntry(null, "actions.editor.NewVideoTrack", "Add Video track"));
+            reg.AddEntry(new ActionContextEntry(null, "actions.editor.NewAudioTrack", "Add Audio Track"));
         }
 
         public void SetProject(ProjectViewModel project) {
@@ -359,17 +365,33 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.RemoveTracks(list.ToList());
         }
 
-        public void RemoveTracks(IEnumerable<TrackViewModel> list) {
-            foreach (TrackViewModel item in list) {
-                this.Model.RemoveTrack(item.Model);
-                item.Timeline = null;
-                if (this.tracks.Remove(item)) {
-                    this.InternalOnTrackRemoved(item);
-                    TrackViewModel.OnTimelineChanged(item);
+        public async Task RemoveTracksAction(IEnumerable<TrackViewModel> enumerable, bool confirm) {
+            List<TrackViewModel> list = enumerable as List<TrackViewModel> ?? enumerable.ToList();
+            if (list.Count > 0) {
+                string s = Lang.S(list.Count);
+                int totalClips = list.Sum(x => x.Clips.Count);
+                string msg = $"Are you sure you want to delete {list.Count} track{s}{(totalClips > 0 ? $" with {totalClips} clips" : "")}?";
+                if (confirm && await DeleteTracksDialog.ShowAsync($"Delete track{s}?", msg) != "yes") {
+                    return;
                 }
-                else {
-                    AppLogger.WriteLine("Unexpected failure to remove track from timeline");
-                    AppLogger.WriteLine(Environment.StackTrace);
+
+                this.RemoveTracks(list);
+            }
+        }
+
+        public void RemoveTracks(IEnumerable<TrackViewModel> enumerable) {
+            List<TrackViewModel> list = enumerable as List<TrackViewModel> ?? enumerable.ToList();
+            foreach (TrackViewModel item in list) {
+                if (this.Model.RemoveTrack(item.Model)) {
+                    item.Timeline = null;
+                    if (this.tracks.Remove(item)) {
+                        this.InternalOnTrackRemoved(item);
+                        TrackViewModel.OnTimelineChanged(item);
+                    }
+                    else {
+                        AppLogger.WriteLine("Unexpected failure to remove track from timeline");
+                        AppLogger.WriteLine(Environment.StackTrace);
+                    }
                 }
             }
         }

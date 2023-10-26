@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using FramePFX.AdvancedContextService;
+using FramePFX.AdvancedContextService.NCSP;
 using FramePFX.Automation;
 using FramePFX.Automation.Events;
 using FramePFX.Automation.ViewModels;
@@ -237,6 +239,13 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
                 clip.AddEffect(EffectFactory.Instance.CreateViewModelFromModel(effect));
             });
+
+            IContextRegistration reg = ContextRegistry.Instance.RegisterType(typeof(ClipViewModel));
+            reg.AddEntry(new ActionContextEntry(null, "actions.general.RenameItem", "Rename Clip"));
+            reg.AddEntry(new ActionContextEntry(null, "actions.automation.AddKeyFrame", "Add key frame", "Adds a key frame to the active sequence"));
+            reg.AddEntry(new ActionContextEntry(null, "actions.editor.timeline.CreateCompositionFromSelection", "Create composition from selection", "Creates a composition clip from the selected clips"));
+            reg.AddEntry(SeparatorEntry.Instance);
+            reg.AddEntry(new ActionContextEntry(null, "actions.editor.timeline.DeleteSelectedClips", "Delete Clip(s)!!!"));
         }
 
         public static void SetSelectedAndShowPropertyEditor(ClipViewModel clip) {

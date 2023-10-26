@@ -3,8 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using FramePFX.Automation;
 using FramePFX.Editor.Registries;
+using FramePFX.Editor.ResourceManaging;
+using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.RBC;
 using FramePFX.Utils;
+using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines {
     /// <summary>
@@ -37,7 +40,7 @@ namespace FramePFX.Editor.Timelines {
         public string DisplayName { get; set; }
 
         public double Height { get; set; }
-        public string TrackColour { get; set; }
+        public SKColor TrackColour { get; set; }
 
         public long PreviousLargestFrameInUse => this.cache.PreviousLargestActiveFrame;
 
@@ -51,7 +54,6 @@ namespace FramePFX.Editor.Timelines {
         public bool IsAutomationChangeInProgress { get; set; }
 
         private readonly ClipRangeCache cache;
-        private bool isPerformingOptimisedCacheRemoval;
 
         protected Track() {
             this.clips = new ClipList();
@@ -165,9 +167,40 @@ namespace FramePFX.Editor.Timelines {
 
         public void AddClip(Clip clip) => this.InsertClip(this.clips.Count, clip);
 
+        // private static void CheckForRecursion(Timeline timeline, Clip clip, HashSet<Timeline> timelines = null) {
+        //     if (timelines == null)
+        //         timelines = new HashSet<Timeline>();
+        //     else if (timelines.Contains(timeline))
+        //         throw new Exception("Recursive error while adding clip");
+        //     else
+        //         timelines.Add(timeline);
+        //     if (timeline is CompositionTimeline composition) {
+        //         foreach (ResourcePath path in composition.Owner.References) {
+        //             if (path.Owner.ResourceHelper.Owner is Clip ownerClip && ownerClip.Track != null && ownerClip.Track.Timeline != null) {
+        //                 CheckForRecursion(ownerClip.Track.Timeline, clip, timelines);
+        //             }
+        //         }
+        //     }
+        // }
+        // 
+        // private static bool DoesTimelineUseResourceId(Timeline timeline, ulong id) {
+        //     foreach (Track track in timeline.Tracks) {
+        //         foreach (Clip clip in track.clips) {
+        //             foreach (IBaseResourcePathKey key in clip.ResourceHelper.RegisteredKeys) {
+        //                 if (key.Path != null && key.Path.ResourceId == id) {
+        //                     return true;
+        //                 }
+        //             }
+        //         }
+        //     }
+        // 
+        //     return false;
+        // }
+
         public void InsertClip(int index, Clip clip) {
             if (clip.Track != null && clip.Track.TryGetIndexOfClip(clip, out _))
                 throw new Exception("Clip already exists and is valid in another track: " + clip.Track);
+
             Clip.InternalSetTrack(clip, this);
             this.clips.Insert(index, clip);
             this.cache.OnClipAdded(clip);
@@ -185,17 +218,8 @@ namespace FramePFX.Editor.Timelines {
             if (!ReferenceEquals(this, clip.Track))
                 throw new Exception("Expected clip's track to equal this instance");
             this.clips.RemoveAt(index);
-            if (!this.isPerformingOptimisedCacheRemoval)
-                this.cache.OnClipRemoved(clip);
+            this.cache.OnClipRemoved(clip);
             Clip.InternalSetTrack(clip, null);
-        }
-
-        public void RemoveClips(IEnumerable<int> indices) {
-            int offset = 0;
-            this.isPerformingOptimisedCacheRemoval = true;
-            foreach (int index in indices)
-                this.RemoveClipAt(index + offset++);
-            this.isPerformingOptimisedCacheRemoval = false;
         }
 
         public bool MoveClipToTrack(Clip clip, Track newTrack) {
@@ -250,7 +274,7 @@ namespace FramePFX.Editor.Timelines {
         public virtual void WriteToRBE(RBEDictionary data) {
             data.SetString(nameof(this.DisplayName), this.DisplayName);
             data.SetDouble(nameof(this.Height), this.Height);
-            data.SetString(nameof(this.TrackColour), this.TrackColour);
+            data.SetUInt(nameof(this.TrackColour), (uint) this.TrackColour);
             this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
             RBEList list = data.CreateList(nameof(this.Clips));
             foreach (Clip clip in this.clips) {
@@ -261,7 +285,7 @@ namespace FramePFX.Editor.Timelines {
         public virtual void ReadFromRBE(RBEDictionary data) {
             this.DisplayName = data.GetString(nameof(this.DisplayName), null);
             this.Height = data.GetDouble(nameof(this.Height), 60);
-            this.TrackColour = data.TryGetString(nameof(this.TrackColour), out string colour) ? colour : TrackColours.GetRandomColour();
+            this.TrackColour = data.TryGetUInt(nameof(this.TrackColour), out uint colour) ? new SKColor(colour) : TrackColours.GetRandomColour();
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
             foreach (RBEDictionary dictionary in data.GetList(nameof(this.Clips)).Cast<RBEDictionary>()) {
                 this.AddClip(Clip.ReadSerialisedWithId(dictionary));
@@ -307,10 +331,21 @@ namespace FramePFX.Editor.Timelines {
 
         public ClipList() => this.items = EmptyArray;
 
-        public void Add(Clip item) {
+        // public void Add(Clip item) {
+        //     if (this.size == this.items.Length)
+        //         this.EnsureCapacity(this.size + 1);
+        //     this.items[this.size++] = item;
+        // }
+
+        public void Insert(int index, Clip item) {
+            if (index > this.size)
+                throw new Exception("Index out of bounds");
             if (this.size == this.items.Length)
                 this.EnsureCapacity(this.size + 1);
-            this.items[this.size++] = item;
+            if (index < this.size)
+                Array.Copy(this.items, index, this.items, index + 1, this.size - index);
+            this.items[index] = item;
+            ++this.size;
         }
 
         public int IndexOf(Clip item) {
@@ -332,17 +367,6 @@ namespace FramePFX.Editor.Timelines {
                 throw new Exception("Expected item to exist in list");
             this.RemoveAt(index);
             return this.size == 0;
-        }
-
-        public void Insert(int index, Clip item) {
-            if (index > this.size)
-                throw new Exception("Index out of bounds");
-            if (this.size == this.items.Length)
-                this.EnsureCapacity(this.size + 1);
-            if (index < this.size)
-                Array.Copy(this.items, index, this.items, index + 1, this.size - index);
-            this.items[index] = item;
-            ++this.size;
         }
 
         public void RemoveAt(int index) {

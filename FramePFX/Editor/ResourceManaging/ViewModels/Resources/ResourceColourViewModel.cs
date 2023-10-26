@@ -1,4 +1,7 @@
+using FramePFX.AdvancedContextService;
+using FramePFX.AdvancedContextService.NCSP;
 using FramePFX.Editor.ResourceManaging.Resources;
+using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using SkiaSharp;
 
 namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
@@ -78,6 +81,11 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
         }
 
         public ResourceColourViewModel(ResourceColour model) : base(model) {
+        }
+
+        static ResourceColourViewModel() {
+            IContextRegistration reg = ContextRegistry.Instance.RegisterType(typeof(ResourceColourViewModel));
+            reg.AddEntry(new ActionContextEntry(null, "action.resources.ChangeResourceColour", "Change Colour..."));
         }
 
         private void OnColourChanged() {

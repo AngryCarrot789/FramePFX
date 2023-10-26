@@ -128,7 +128,7 @@ namespace FramePFX.WPF.AdvancedContextService {
 
         protected override bool IsEnabledCore => base.IsEnabledCore && this.CanExecute;
 
-        protected DataContext GetDataContext(bool includeToggleState = true) {
+        protected DataContext GetAvailableContext(bool includeToggleState = true) {
             DataContext context = new DataContext();
             if (VisualTreeUtils.GetDataContext(this, out object dc) && !context.InternalContext.Contains(dc)) {
                 if (dc is IDataContext ctx) {
@@ -185,7 +185,8 @@ namespace FramePFX.WPF.AdvancedContextService {
                     this.CanExecute = false;
                 }
                 else {
-                    DataContext context = this.GetDataContext();
+                    AdvancedContextMenu parent = VisualTreeUtils.GetParent<AdvancedContextMenu>(this, false);
+                    DataContext context = parent?.LastContext ?? this.GetAvailableContext();
                     this.CanExecute = ActionManager.Instance.CanExecute(id, context);
                 }
             }
@@ -228,7 +229,8 @@ namespace FramePFX.WPF.AdvancedContextService {
         }
 
         private void DispatchAction(string id) {
-            DataContext context = this.GetDataContext();
+            AdvancedContextMenu parent = VisualTreeUtils.GetParent<AdvancedContextMenu>(this, false);
+            DataContext context = parent?.LastContext ?? this.GetAvailableContext();
             this.Dispatcher.BeginInvoke((Action) (() => this.ExecuteAction(id, context)), DispatcherPriority.Render);
         }
 

@@ -335,6 +335,10 @@
     <Compile Include="Resources\I18N\WPFDictionaryTranslator.cs" />
     <Compile Include="Resources\IconTypeToImageSourceConverter.cs" />
     <Compile Include="ServiceManaging\ClipboardService.cs" />
+    <Compile Include="ServiceManaging\ColourPickerService.cs" />
+    <Compile Include="ServiceManaging\ColourPickers\ColourPickerWindow.xaml.cs">
+      <DependentUpon>ColourPickerWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ServiceManaging\WinExplorerService.cs" />
     <Compile Include="Shortcuts\ActivationHandlerReference.cs" />
     <Compile Include="Shortcuts\Bindings\InputStateBinding.cs" />
@@ -507,6 +511,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ColorPicker\ColorPicker.csproj">
+      <Project>{5157a4ab-4707-4d48-b6a7-df2c38d0e6cf}</Project>
+      <Name>ColorPicker</Name>
+    </ProjectReference>
     <ProjectReference Include="..\FramePFX\FramePFX.csproj">
       <Project>{70a8c2eb-8e04-4708-8752-0be03930ceec}</Project>
       <Name>FramePFX</Name>
@@ -684,6 +692,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Resources\I18N\Text\en.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ServiceManaging\ColourPickers\ColourPickerWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

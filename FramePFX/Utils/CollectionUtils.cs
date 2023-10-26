@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml.Schema;
 
 namespace FramePFX.Utils {
     public static class CollectionUtils {
@@ -45,6 +46,12 @@ namespace FramePFX.Utils {
         public static void ClearAndAdd<T>(this ICollection<T> list, T value) {
             list.Clear();
             list.Add(value);
+        }
+
+        public static void AddCollectionRange<T>(this ICollection<T> list, IEnumerable<T> values) {
+            foreach (T t in values) {
+                list.Add(t);
+            }
         }
 
         public static void EnsureLength<T>(T[] array, int count) {
@@ -110,7 +117,7 @@ namespace FramePFX.Utils {
             return false;
         }
 
-        public static int GetSortInsertionIndex<T>(IReadOnlyList<T> list, T item, Comparison<T> comparer) {
+        public static int GetSortInsertionIndex<T>(IList<T> list, T item, Comparison<T> comparer) {
             int left = 0;
             int right = list.Count - 1;
             while (left <= right) {
@@ -140,6 +147,24 @@ namespace FramePFX.Utils {
             }
 
             return left;
+        }
+
+        public static T[] AddToArray<T>(this T[] array, T value, int additionalLength = 1) {
+            if (additionalLength < 1) {
+                throw new ArgumentOutOfRangeException(nameof(additionalLength), "Value must be greater than 0");
+            }
+
+            int oldLen = array.Length;
+            int newLen = oldLen + additionalLength;
+            if (additionalLength == 1)
+                array = array.CloneArray(newLen);
+            array[oldLen + 1] = value;
+            return array;
+        }
+
+        public static void InsertSorted<T>(this IList<T> list, T value, Comparison<T> comparison) {
+            int index = GetSortInsertionIndex(list, value, comparison);
+            list.Insert(index, value);
         }
     }
 }

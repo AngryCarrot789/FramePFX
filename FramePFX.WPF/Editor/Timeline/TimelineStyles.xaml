@@ -135,7 +135,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type tc:TimelineClipControl}">
                     <Grid Background="{TemplateBinding Background}" d:DataContext="{d:DesignInstance ctl:ClipViewModel}" Margin="0,-1,0,0">
-                        <Border Background="{Binding Track.TrackColour, FallbackValue=Black}" VerticalAlignment="Top" Height="{DynamicResource LayerHeight}">
+                        <Border Background="{Binding Track.TrackColour, FallbackValue=Black, Converter={x:Static c:SKColorToBrushConverter.Instance}}" VerticalAlignment="Top" Height="{DynamicResource LayerHeight}">
                             <TextBlock IsHitTestVisible="False" Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}" FontSize="11" VerticalAlignment="Center" Padding="4 1">
                                 <TextBlock.InputBindings>
                                     <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding EditDisplayNameCommand, Mode=OneTime}" />
@@ -588,7 +588,7 @@
                 <ControlTemplate TargetType="{x:Type ListBoxItem}">
                     <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true" BorderThickness="0 0 0 1">
                         <Grid d:DataContext="{d:DesignInstance ctl:TrackViewModel}">
-                            <Rectangle Fill="{Binding TrackColour}" Margin="0" Width="18" VerticalAlignment="Stretch" HorizontalAlignment="Left" />
+                            <Rectangle Fill="{Binding TrackColour, Converter={x:Static c:SKColorToBrushConverter.Instance}}" Margin="0" Width="18" VerticalAlignment="Stretch" HorizontalAlignment="Left" />
                             <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" Margin="18,4,0,4" />
                             <Thumb DragDelta="OnBottomThumbDrag" Margin="0,0,0,0" VerticalAlignment="Bottom" Background="Transparent" BorderThickness="0" Height="4" Cursor="SizeNS" />
                         </Grid>
@@ -815,7 +815,7 @@
                                     BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" />
                             <ListBox x:Name="PART_TrackList"
                                      sc:UIInputManager.FocusPath="Application/Editor/Timeline/TrackControllers"
-                                     acs:AdvancedContextMenu.ContextGenerator="{x:Static cx:TrackContextGenerator.Instance}"
+                                     acs:AdvancedContextMenu.ContextGenerator="{x:Static cx:TrackListContextGenerator.Instance}"
                                      Style="{StaticResource TrackListBoxStyle}"
                                      Grid.Row="1" Grid.Column="0"
                                      SelectionMode="Extended"
@@ -824,6 +824,7 @@
                                      ap2:ObservableSelectionHelper.SelectedItems="{Binding SelectedTracks, Mode=OneTime}"
                                      Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="Transparent"
                                      BorderThickness="0" Padding="0" />
+                            <!-- acs:AdvancedContextMenu.ContextGenerator="{x:Static cx:TimelineContextGenerator.Instance}" -->
                             <tc:TimelineEditorControl x:Name="PART_TimelineEditor"
                                                       ItemsSource="{Binding Tracks, Mode=OneTime}"
                                                       BorderThickness="0" Margin="0"
@@ -833,7 +834,7 @@
                                                       sc:UIInputManager.FocusPath="Application/Editor/Timeline/Surface"
                                                       UnitZoom="{Binding UnitZoom, Mode=OneWayToSource}"
                                                       PlayHeadFrame="{Binding PlayHeadFrame, Mode=TwoWay}"
-                                                      acs:AdvancedContextMenu.ContextGenerator="{x:Static cx:TimelineContextGenerator.Instance}"
+                                                      acs:AdvancedContextMenu.UseContextRegistry="True"
                                                       AutoScrollOnClipDrag="{Binding AutoScrollOnClipDrag, Mode=TwoWay}"
                                                       ScrollTimelineDuringPlayback="{Binding AutoScrollDuringPlayback, Mode=TwoWay}">
                                 <b:ShortcutCommandCollection.Collection>

@@ -27,14 +27,13 @@ namespace FramePFX.Editor.Contexts {
                 list.Add(SeparatorEntry.Instance);
                 list.Add(new CommandContextEntry("Delete Clip", clip.RemoveClipCommand));
             }
-
-            TimelineViewModel timeline = null;
-            if (context.TryGetContext(out TrackViewModel track)) {
+            else if (context.TryGetContext(out TrackViewModel track)) {
                 if (list.Count > 0) {
                     list.Add(SeparatorEntry.Instance);
                 }
 
                 list.Add(new ActionContextEntry(track, "actions.general.RenameItem", "Rename track"));
+                list.Add(new ActionContextEntry(track, "actions.timeline.track.ChangeTrackColour", "Change colour"));
                 List<IContextEntry> newClipList = new List<IContextEntry> {
                     new ActionContextEntry(track, "actions.timeline.NewAdjustmentClip", "New adjustment clip")
                 };
@@ -47,16 +46,13 @@ namespace FramePFX.Editor.Contexts {
                 list.Add(SeparatorEntry.Instance);
                 list.Add(new CommandContextEntry("Delete track(s)", track.Timeline.RemoveSelectedTracksCommand));
             }
-            else if (context.TryGetContext(out timeline)) {
+            else if (context.TryGetContext(out TimelineViewModel timeline)) {
                 if (list.Count > 0) {
                     list.Add(SeparatorEntry.Instance);
                 }
 
                 list.Add(new ActionContextEntry(timeline, "actions.editor.NewVideoTrack", "Add Video track"));
                 list.Add(new ActionContextEntry(timeline, "actions.editor.NewAudioTrack", "Add Audio Track"));
-            }
-
-            if (timeline != null || context.TryGetContext(out timeline)) {
             }
         }
     }

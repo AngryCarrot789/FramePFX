@@ -119,7 +119,7 @@ namespace FramePFX.WPF.Editor.Project.EditorDialogs {
 
         public ProjectSettings ToSettings() {
             return new ProjectSettings() {
-                Resolution = new Resolution(this.width, this.height),
+                Resolution = new Rect2i(this.width, this.height),
                 TimeBase = this.SelectedRational
             };
         }

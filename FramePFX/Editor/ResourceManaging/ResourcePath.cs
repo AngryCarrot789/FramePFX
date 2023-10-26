@@ -7,7 +7,12 @@ using FramePFX.RBC;
 
 namespace FramePFX.Editor.ResourceManaging {
     /// <summary>
-    /// A class which encapsulated a resource reference and handles the reference counter for the resource
+    /// A class which encapsulated a resource reference and handles the reference counter for the
+    /// resource, and provides events for when the resource changes, is replaced, removed and/or added back.
+    /// <para>
+    /// This class makes managing a resource much simpler, though it still needs a bit of work done I think, as
+    /// it's very easy to accidentally create a loading loop (and therefore a crash)
+    /// </para>
     /// </summary>
     public sealed class ResourcePath : IDisposable {
         private readonly ResourceAndManagerEventHandler resourceAddedHandler;
@@ -15,38 +20,43 @@ namespace FramePFX.Editor.ResourceManaging {
         private readonly ResourceReplacedEventHandler resourceReplacedHandler;
         private readonly ResourceAndManagerEventHandler onlineStateChangedHandler;
 
-        private ResourceItem cached;
-        private bool isDisposing;
-        private bool isDisposed;
-        private bool isManagerChanging;
-        private bool isReferencedCounted;
+        private ResourceItem cached;        // our cached resource
+        private bool isDisposing;           // are we currently disposing?
+        private bool isDisposed;            // are we disposed and cannot be used again?
+        private bool isManagerChanging;     // is the manager being changed? used for fail-fast exceptions
+        private bool isReferencedCounted;   // is this instance counted as a reference to our resource?
 
         public bool IsDisposing => this.isDisposing;
         public bool IsDisposed => this.isDisposed;
         public bool CanDispose => !this.isDisposed && !this.isDisposing;
 
+        /// <summary>
+        /// This resource path's manager, which is used to query resources from and listen to events
+        /// </summary>
         public ResourceManager Manager { get; private set; }
 
         /// <summary>
-        /// Gets this resource path's ID. This will not be <see cref="ResourceManager.EmptyId"/> and will therefore always be valid
+        /// Gets this resource path's ID. This will not be <see cref="ResourceManager.EmptyId"/>
+        /// and will therefore always be a valid ID
         /// </summary>
         public ulong ResourceId { get; private set; }
 
         /// <summary>
-        /// The online state of this resource. True means the state is valid and accessible. False
-        /// means the state is invalid and cannot be access. Null means the resource hasn't been resolved yet or
-        /// there is no manager associated with this instance
+        /// The online state of this path.
+        /// <para>True means we have resolved a resource and it is valid (as per <see cref="IsItemApplicable"/>)</para>
+        /// <para>False means the resource did not exist or was the wrong type (as per <see cref="IsItemApplicable"/>)</para>
+        /// <para>Null means the resource hasn't been resolved yet or there is no manager associated with this path</para>
         /// </summary>
         public bool? IsValid { get; private set; }
 
         /// <summary>
-        /// An event that gets fired when this path's internal cached resource changes, e.g. due to <see cref="TryGetResource"/> being
-        /// invokes and a resource being resolved, the resource being added or removed from the manager, etc
+        /// An event that gets fired when this path's resource changes. This can be due to the resource being deleted or
+        /// added back (after deletion), <see cref="TryGetResource"/> being invoked and a resource being resolved, etc.
         /// </summary>
         public event ResourceChangedEventHandler ResourceChanged;
 
         /// <summary>
-        /// An event fired when the online state of our cached resource changes
+        /// An event fired when the online state of our resource changes (as in, when <see cref="ResourceItem.IsOnline"/> changes)
         /// </summary>
         public event ResourceAndManagerEventHandler OnlineStateChanged;
 

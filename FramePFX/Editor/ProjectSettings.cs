@@ -5,7 +5,7 @@ namespace FramePFX.Editor {
     public class ProjectSettings {
         #region Video
 
-        public Resolution Resolution;
+        public Rect2i Resolution;
 
         /// <summary>
         /// This project's time base, which is the rate at which everything is synchronised to. This could be 30 fps, 60 fps, etc
@@ -46,7 +46,7 @@ namespace FramePFX.Editor {
         }
 
         public void ReadFromRBE(RBEDictionary data) {
-            this.Resolution = data.GetStruct<Resolution>(nameof(this.Resolution));
+            this.Resolution = data.GetStruct<Rect2i>(nameof(this.Resolution));
             this.TimeBase = (Rational) data.GetULong(nameof(this.TimeBase));
             this.ChannelFormat = data.GetString(nameof(this.ChannelFormat));
             this.SampleRate = data.GetInt(nameof(this.SampleRate));

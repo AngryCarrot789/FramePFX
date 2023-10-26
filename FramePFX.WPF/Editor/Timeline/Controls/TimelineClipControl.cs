@@ -292,7 +292,6 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         }
 
         // private static readonly WeakReference LastSelectedTimelineClipControl = new WeakReference(null);
-//
         // protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
         //     base.OnPreviewMouseLeftButtonDown(e);
         //     if (LastSelectedTimelineClipControl.Target is TimelineClipControl ctrl) {

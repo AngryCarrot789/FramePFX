@@ -33,7 +33,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             this.ColourKey.ResourceDataModified += this.ResourceHelperOnResourceDataModified;
         }
 
-        private void ResourceHelperOnResourceDataModified(ResourceColour resource, string property) {
+        private void ResourceHelperOnResourceDataModified(IResourcePathKey<ResourceColour> key, ResourceColour resource, string property) {
             switch (property) {
                 case nameof(ResourceColour.Colour):
                     this.InvalidateRender();

@@ -5,7 +5,7 @@ namespace FramePFX.Editor.Exporting.Exporters {
     public class FFmpegExportViewModel : ExporterViewModel {
         public new FFmpegExporter Exporter => (FFmpegExporter) base.Exporter;
 
-        public Resolution Resolution {
+        public Rect2i Resolution {
             get => this.Exporter.Resolution;
             set {
                 this.Exporter.Resolution = value;

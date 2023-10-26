@@ -478,12 +478,16 @@ namespace FramePFX.Editor.PropertyEditors.Effects {
             }
 
             protected override Task UndoAsync(MotionEffectViewModel holder, int i) {
+                if (this.editor.IsEmpty)
+                    return Task.CompletedTask;
                 holder.MediaScale = this.MediaScale[i].Original;
                 this.editor.RequeryScaleFromHandlers();
                 return Task.CompletedTask;
             }
 
             protected override Task RedoAsync(MotionEffectViewModel holder, int i) {
+                if (this.editor.IsEmpty)
+                    return Task.CompletedTask;
                 holder.MediaScale = this.MediaScale[i].Current;
                 this.editor.RequeryScaleFromHandlers();
                 return Task.CompletedTask;
@@ -500,12 +504,16 @@ namespace FramePFX.Editor.PropertyEditors.Effects {
             }
 
             protected override Task UndoAsync(MotionEffectViewModel holder, int i) {
+                if (this.editor.IsEmpty)
+                    return Task.CompletedTask;
                 holder.MediaScaleOrigin = this.MediaScaleOrigin[i].Original;
                 this.editor.RequeryScaleOriginFromHandlers();
                 return Task.CompletedTask;
             }
 
             protected override Task RedoAsync(MotionEffectViewModel holder, int i) {
+                if (this.editor.IsEmpty)
+                    return Task.CompletedTask;
                 holder.MediaScaleOrigin = this.MediaScaleOrigin[i].Current;
                 this.editor.RequeryScaleOriginFromHandlers();
                 return Task.CompletedTask;
@@ -522,12 +530,16 @@ namespace FramePFX.Editor.PropertyEditors.Effects {
             }
 
             protected override Task UndoAsync(MotionEffectViewModel holder, int i) {
+                if (this.editor.IsEmpty)
+                    return Task.CompletedTask;
                 holder.MediaRotation = this.MediaRotation[i].Original;
                 this.editor.RequeryRotationFromHandlers();
                 return Task.CompletedTask;
             }
 
             protected override Task RedoAsync(MotionEffectViewModel holder, int i) {
+                if (this.editor.IsEmpty)
+                    return Task.CompletedTask;
                 holder.MediaRotation = this.MediaRotation[i].Current;
                 this.editor.RequeryRotationFromHandlers();
                 return Task.CompletedTask;
@@ -544,12 +556,16 @@ namespace FramePFX.Editor.PropertyEditors.Effects {
             }
 
             protected override Task UndoAsync(MotionEffectViewModel holder, int i) {
+                if (this.editor.IsEmpty)
+                    return Task.CompletedTask;
                 holder.MediaRotationOrigin = this.MediaRotationOrigin[i].Original;
                 this.editor.RequeryRotationOriginFromHandlers();
                 return Task.CompletedTask;
             }
 
             protected override Task RedoAsync(MotionEffectViewModel holder, int i) {
+                if (this.editor.IsEmpty)
+                    return Task.CompletedTask;
                 holder.MediaRotationOrigin = this.MediaRotationOrigin[i].Current;
                 this.editor.RequeryRotationOriginFromHandlers();
                 return Task.CompletedTask;

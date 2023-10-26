@@ -82,16 +82,7 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF {
             }
 
             // calculate visible pixel bounds
-            Rect rect;
-            if (this.scroller != null) {
-                double width = Math.Min(this.scroller.ViewportWidth, this.ActualWidth);
-                double height = Math.Min(this.scroller.ViewportHeight, this.ActualHeight);
-                rect = new Rect(this.scroller.HorizontalOffset, this.scroller.VerticalOffset, width, height);
-            }
-            else {
-                rect = new Rect(new Point(), this.RenderSize);
-            }
-
+            Rect rect = UIUtils.GetVisibleRectUnsafe(this.scroller, this);
             if (this.Background is Brush bg) {
                 dc.DrawRectangle(bg, null, rect);
             }
@@ -110,7 +101,7 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF {
                 valueStep = this.ValueStepTransform(valueStep);
             }
 
-            double major_line_pos = this.DisplayZeroLine ? 0 : pixelStep;
+            // double major_line_pos = this.DisplayZeroLine ? 0 : pixelStep;
 
             int steps = Math.Min((int) Math.Floor(valueStep), SubStepNumber);
             double subpixel_size = pixelStep / steps;

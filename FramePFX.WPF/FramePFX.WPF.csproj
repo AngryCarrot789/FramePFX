@@ -403,6 +403,7 @@
     <Compile Include="Utils\ThreadSafeDP.cs" />
     <Compile Include="Utils\ThreadTimer.cs" />
     <Compile Include="Utils\Time.cs" />
+    <Compile Include="Utils\UIUtils.cs" />
     <Compile Include="Utils\UsageCounter.cs" />
     <Compile Include="Utils\Validate.cs" />
     <Compile Include="Utils\VisualTreeUtils.cs" />

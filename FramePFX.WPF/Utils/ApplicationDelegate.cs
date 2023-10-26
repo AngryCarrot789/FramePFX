@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -7,6 +8,7 @@ using FramePFX.ServiceManaging;
 
 namespace FramePFX.WPF.Utils {
     public class ApplicationDelegate : IApplication {
+        private static readonly FieldInfo DisableProcessingCountField;
         private readonly Dispatcher dispatcher;
         private readonly App app;
 
@@ -14,9 +16,20 @@ namespace FramePFX.WPF.Utils {
 
         public bool IsRunning => Application.Current != null;
 
+        public bool IsDispatcherSuspended {
+            get {
+                FieldInfo field = DisableProcessingCountField;
+                return field != null && (int) field.GetValue(this.dispatcher) > 0;
+            }
+        }
+
         public ApplicationDelegate(App app) {
             this.app = app ?? throw new ArgumentNullException(nameof(app));
             this.dispatcher = app.Dispatcher ?? throw new Exception("Application dispatcher detached");
+        }
+
+        static ApplicationDelegate() {
+            DisableProcessingCountField = typeof(Dispatcher).GetField("_disableProcessingCount", BindingFlags.Instance | BindingFlags.GetField | BindingFlags.NonPublic);
         }
 
         public void Invoke(Action action, ExecutionPriority priority) {

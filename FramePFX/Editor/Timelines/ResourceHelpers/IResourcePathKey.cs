@@ -18,9 +18,11 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
         event EntryResourceModifiedEventHandler<T> ResourceDataModified;
 
         /// <summary>
-        /// An event fired when the online state of our resource changes
+        /// An event fired when the online state of this entry changes, meaning, a resource was linked or unlinked.
+        /// This is not fired when the online state of a resource changes, that must be hooked
+        /// manually (with the help of the <see cref="ResourceChanged"/> event)
         /// </summary>
-        event EntryResourceOnlineStateChangedEventHandler<T> OnlineStateChanged;
+        event EntryOnlineStateChangedEventHandler<T> OnlineStateChanged;
 
         /// <summary>
         /// Tries to get the resource for this entry

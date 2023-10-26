@@ -2,7 +2,6 @@ using System;
 using System.Collections.Specialized;
 using System.Numerics;
 using System.Threading.Tasks;
-using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.RBC;
@@ -32,13 +31,13 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             this.clipProps = new BitVector32();
         }
 
-        protected void OnResourceTextStyleChanged(ResourceItem oldItem, ResourceItem newItem) {
+        protected void OnResourceTextStyleChanged(IResourcePathKey<ResourceTextStyle> key, ResourceTextStyle oldItem, ResourceTextStyle newItem) {
             this.InvalidateTextCache();
             if (newItem != null)
                 this.GenerateTextCache();
         }
 
-        protected void OnResourceTextStyleDataModified(ResourceItem resource, string property) {
+        protected void OnResourceTextStyleDataModified(IResourcePathKey<ResourceTextStyle> key, ResourceTextStyle resource, string property) {
             switch (property) {
                 case nameof(ResourceTextStyle.FontFamily):
                 case nameof(ResourceTextStyle.FontSize):

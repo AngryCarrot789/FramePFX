@@ -444,7 +444,7 @@ namespace FramePFX.WPF {
 
             // Demo project -- projects can be created as entirely models
             Project project = new Project();
-            project.Settings.Resolution = new Resolution(1920, 1080);
+            project.Settings.Resolution = new Rect2i(1920, 1080);
 
             ResourceManager manager = project.ResourceManager;
             ulong id_r = manager.RegisterEntry(manager.RootFolder.AddItemAndRet(new ResourceColour(220, 25, 25) {DisplayName = "colour_red"}));

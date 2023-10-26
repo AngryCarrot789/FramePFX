@@ -23,6 +23,8 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
             this.bitmap = skBitmap;
             this.image = SKImage.FromBitmap(skBitmap);
             this.IsRawBitmapMode = true;
+            this.OnDataModified(nameof(this.bitmap));
+            this.OnDataModified(nameof(this.image));
         }
 
         public override void WriteToRBE(RBEDictionary data) {

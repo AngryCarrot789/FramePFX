@@ -181,7 +181,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             return new AVMediaVideoClip();
         }
 
-        protected void OnResourceChanged(ResourceAVMedia oldItem, ResourceAVMedia newItem) {
+        protected void OnResourceChanged(IResourcePathKey<ResourceAVMedia> key, ResourceAVMedia newItem, ResourceAVMedia resourceAvMedia) {
             this.renderFrameRgb?.Dispose();
             this.renderFrameRgb = null;
             this.downloadedHwFrame?.Dispose();

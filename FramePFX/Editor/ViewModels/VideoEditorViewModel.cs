@@ -196,7 +196,7 @@ namespace FramePFX.Editor.ViewModels {
             }
 
             ProjectViewModel project = new ProjectViewModel(new Project());
-            project.Settings.Resolution = new Resolution(1280, 720);
+            project.Settings.Resolution = new Rect2i(1280, 720);
             if (this.ActiveProject != null) {
                 await this.CloseProjectAction();
             }

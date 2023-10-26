@@ -1,11 +1,9 @@
 using FramePFX.Editor.ResourceManaging;
 
 namespace FramePFX.Editor.Timelines.ResourceHelpers {
-    public delegate void EntryResourceModifiedEventHandler(ResourceHelper sender, ResourceModifiedEventArgs e);
-
     public delegate void EntryResourceChangedEventHandler(ResourceHelper sender, ResourceChangedEventArgs e);
-
-    public delegate void EntryResourceOnlineStateChangedEventHandler(ResourceHelper sender, ResourceItem item);
+    public delegate void EntryResourceModifiedEventHandler(ResourceHelper sender, ResourceModifiedEventArgs e);
+    public delegate void EntryOnlineStateChangedEventHandler(ResourceHelper sender, IBaseResourcePathKey key);
 
     public readonly struct ResourceModifiedEventArgs {
         /// <summary>

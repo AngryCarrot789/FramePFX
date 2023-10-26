@@ -14,7 +14,7 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG {
     // https://github.com/aligrudi/fbff/blob/master/ffs.c
 
     public class FFmpegExporter : ExportService {
-        public Resolution Resolution { get; set; }
+        public Rect2i Resolution { get; set; }
 
         public Rational FrameRate { get; set; }
 
@@ -40,7 +40,7 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG {
             Task renderTask = null;
             bool isRenderCancelled = false;
             FrameSpan duration = properties.Span;
-            Resolution resolution = this.Resolution;
+            Rect2i resolution = this.Resolution;
             Rational frameRate = this.FrameRate;
             AVCodecID codec_id = this.Codecs;
             Exception exception = null;

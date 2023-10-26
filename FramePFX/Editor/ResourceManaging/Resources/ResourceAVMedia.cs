@@ -43,11 +43,11 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
             this.FilePath = data.GetString(nameof(this.FilePath), null);
         }
 
-        public unsafe Resolution? GetResolution() {
+        public unsafe Rect2i? GetResolution() {
             if (this.stream != null) {
                 //Wrappers don't expose this stuff so :')
                 AVCodecParameters* pars = this.stream.Handle->codecpar;
-                return new Resolution(pars->width, pars->height);
+                return new Rect2i(pars->width, pars->height);
             }
 
             return null;

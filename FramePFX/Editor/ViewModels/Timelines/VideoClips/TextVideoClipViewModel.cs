@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
+using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Interactivity;
 
@@ -66,13 +67,13 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             });
         }
 
-        private void OnResourceChanged(ResourceTextStyle oldItem, ResourceTextStyle newItem) {
+        private void OnResourceChanged(IResourcePathKey<ResourceTextStyle> key, ResourceTextStyle newItem, ResourceTextStyle resourceTextStyle) {
             this.RaisePropertyChanged(ref this.fontSize, newItem?.FontSize ?? 12d, nameof(this.FontSize));
             this.RaisePropertyChanged(ref this.skewX, newItem?.SkewX ?? 0d, nameof(this.SkewX));
             this.RaisePropertyChanged(ref this.fontFamily, newItem?.FontFamily ?? "Consolas", nameof(this.FontFamily));
         }
 
-        private void OnResourceModified(ResourceTextStyle resource, string property) {
+        private void OnResourceModified(IResourcePathKey<ResourceTextStyle> key, ResourceTextStyle resource, string property) {
             switch (property) {
                 case nameof(resource.FontSize):
                     this.RaisePropertyChanged(ref this.fontSize, resource.FontSize, nameof(this.FontSize));

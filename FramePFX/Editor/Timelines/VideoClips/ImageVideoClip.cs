@@ -7,7 +7,7 @@ using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips {
     public class ImageVideoClip : VideoClip {
-        public IResourcePathKey<ResourceImage> ResourceImageKey { get; set; }
+        public IResourcePathKey<ResourceImage> ResourceImageKey { get; }
 
         public override bool UseCustomOpacityCalculation => true;
 
@@ -16,7 +16,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             this.ResourceImageKey.ResourceDataModified += this.ResourceHelperOnResourceDataModified;
         }
 
-        private void ResourceHelperOnResourceDataModified(ResourceImage resourceImage, string property) {
+        private void ResourceHelperOnResourceDataModified(IResourcePathKey<ResourceImage> key, ResourceImage resource, string property) {
             switch (property) {
                 case nameof(ResourceImage.FilePath):
                 case nameof(ResourceImage.IsRawBitmapMode):

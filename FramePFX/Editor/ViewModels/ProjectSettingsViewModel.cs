@@ -16,7 +16,7 @@ namespace FramePFX.Editor.ViewModels {
             }
         }
 
-        public Resolution Resolution {
+        public Rect2i Resolution {
             get => this.Model.Resolution;
             set {
                 this.Model.Resolution = value;

@@ -69,7 +69,7 @@ namespace FramePFX.Editor {
             this.ProjectFileName = this.ProjectName + Filters.DotFrameFPXExtension;
             this.ProjectFilePath = Path.Combine(this.ProjectFolder, this.ProjectFileName);
             this.Settings = new ProjectSettings() {
-                Resolution = new Resolution(1920, 1080)
+                Resolution = new Rect2i(1920, 1080)
             };
 
             this.ResourceManager = new ResourceManager(this);

@@ -16,6 +16,11 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
         string Key { get; }
 
         /// <summary>
+        /// Whether or not this <see cref="Path"/> is non-null and has a resource linked
+        /// </summary>
+        bool IsOnline { get; }
+
+        /// <summary>
         /// Sets the target ID for this entry. This will cause the <see cref="Path"/> property to be disposed and replaced with a new value
         /// </summary>
         /// <param name="id">The new resource path ID</param>

@@ -17,6 +17,12 @@ namespace FramePFX.ServiceManaging {
         bool IsRunning { get; }
 
         /// <summary>
+        /// Whether or not the dispatcher is currently suspended. When suspended,
+        /// invoking any dispatcher methods will cause an exception to be thrown
+        /// </summary>
+        bool IsDispatcherSuspended { get; }
+
+        /// <summary>
         /// Synchronously executes the given function on the UI thread, or dispatches its execution on the UI thread if we are not
         /// currently on it. This effectively blocks the current thread until the <see cref="Action"/> returns
         /// </summary>

@@ -13,7 +13,7 @@ namespace FramePFX.Editor.Timelines {
     /// </para>
     /// </summary>
     public class ClipRangeCache {
-        private readonly SortedList<long, ClipList> Map;
+        private readonly SortedList<long, CClipList> Map;
 
         public long SmallestActiveFrame { get; private set; }
         public long LargestActiveFrame { get; private set; }
@@ -22,11 +22,11 @@ namespace FramePFX.Editor.Timelines {
         public long PreviousLargestActiveFrame { get; private set; }
 
         public ClipRangeCache() {
-            this.Map = new SortedList<long, ClipList>();
+            this.Map = new SortedList<long, CClipList>();
         }
 
         public Clip GetPrimaryClipAt(long frame) {
-            if (!this.Map.TryGetValue(GetIndex(frame), out ClipList list)) {
+            if (!this.Map.TryGetValue(GetIndex(frame), out CClipList list)) {
                 return null;
             }
 
@@ -64,8 +64,8 @@ namespace FramePFX.Editor.Timelines {
 
         private void AddClipInRange(Clip clip, long min, long max) {
             for (long frame = min; frame <= max; frame++) {
-                if (!this.Map.TryGetValue(frame, out ClipList list))
-                    this.Map[frame] = list = new ClipList();
+                if (!this.Map.TryGetValue(frame, out CClipList list))
+                    this.Map[frame] = list = new CClipList();
                 else if (list.Contains(clip))
                     throw new Exception("Did not expect clip to already exist in list");
                 list.Add(clip);
@@ -76,7 +76,7 @@ namespace FramePFX.Editor.Timelines {
             for (long i = min; i <= max; i++) {
                 int index = this.Map.IndexOfKey(i);
                 if (index != -1) {
-                    ClipList list = this.Map.Values[index];
+                    CClipList list = this.Map.Values[index];
                     if (list.RemoveClipAndGetIsEmpty(clip)) {
                         this.Map.RemoveAt(index);
                     }
@@ -108,8 +108,8 @@ namespace FramePFX.Editor.Timelines {
 
             // Add the clip to the new grouped range
             for (long frame = newA; frame <= newB; frame++) {
-                if (!this.Map.TryGetValue(frame, out ClipList list)) {
-                    this.Map[frame] = list = new ClipList();
+                if (!this.Map.TryGetValue(frame, out CClipList list)) {
+                    this.Map[frame] = list = new CClipList();
                 }
 
                 list.Add(clip);
@@ -124,7 +124,7 @@ namespace FramePFX.Editor.Timelines {
             long min = 0, max = 0;
             int index = this.Map.Count - 1;
             if (index >= 0) {
-                ClipList list = this.Map.Values[index];
+                CClipList list = this.Map.Values[index];
                 for (int i = 0; i < list.size; i++) {
                     max = Math.Max(list.items[i].FrameEndIndex, max);
                 }
@@ -162,14 +162,14 @@ namespace FramePFX.Editor.Timelines {
         public bool IsRegionEmpty(FrameSpan span) {
             GetRange(span, out long a, out long b);
             for (long i = a; i <= b; i++) {
-                if (this.Map.TryGetValue(i, out ClipList list) && IntersectsAny(list, span))
+                if (this.Map.TryGetValue(i, out CClipList list) && IntersectsAny(list, span))
                     return false;
             }
 
             return true;
         }
 
-        private static bool IntersectsAny(ClipList list, FrameSpan span) {
+        private static bool IntersectsAny(CClipList list, FrameSpan span) {
             for (int j = list.size - 1; j >= 0; j--) {
                 if (list.items[j].FrameSpan.Intersects(span))
                     return true;
@@ -178,14 +178,13 @@ namespace FramePFX.Editor.Timelines {
             return false;
         }
 
-        private class ClipList {
+        private class CClipList {
             private const int DefaultCapacity = 4;
             public Clip[] items;
             public int size;
             private static readonly Clip[] EmptyArray = new Clip[0];
-            private static readonly Comparison<Clip> OrderByBegin = (a, b) => a.FrameBegin.CompareTo(b.FrameBegin);
 
-            public ClipList() => this.items = EmptyArray;
+            public CClipList() => this.items = EmptyArray;
 
             public void Add(Clip item) {
                 if (this.size == this.items.Length)
@@ -254,17 +253,6 @@ namespace FramePFX.Editor.Timelines {
                 if (index < this.size)
                     Array.Copy(this.items, index + 1, this.items, index, this.size - index);
                 this.items[this.size] = null;
-            }
-
-            public void OnClipSpanChanged(Clip clip, FrameSpan oldSpan) {
-                int oldIndex = this.IndexOf(clip);
-                if (oldIndex == -1) {
-                    return;
-                }
-
-                this.RemoveAt(oldIndex);
-                int newIndex = CollectionUtils.GetSortInsertionIndex(this.items, 0, this.size - 1, clip, OrderByBegin);
-                this.Insert(newIndex, clip);
             }
         }
     }

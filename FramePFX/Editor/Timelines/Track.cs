@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using FramePFX.Automation;
 using FramePFX.Editor.Registries;
@@ -11,7 +12,7 @@ namespace FramePFX.Editor.Timelines {
     /// properties (like opacity for video tracks or gain for audio tracks, which typically affect all clips)
     /// </summary>
     public abstract class Track : IProjectBound, IAutomatable {
-        private readonly List<Clip> clips;
+        private readonly ClipList clips;
 
         /// <summary>
         /// The timeline that created this track
@@ -23,7 +24,7 @@ namespace FramePFX.Editor.Timelines {
         /// <summary>
         /// This track's clips (unordered)
         /// </summary>
-        public IReadOnlyList<Clip> Clips => this.clips;
+        public ClipList Clips => this.clips;
 
         /// <summary>
         /// This track's registry ID, used to create instances dynamically through the <see cref="TrackFactory"/>
@@ -53,7 +54,7 @@ namespace FramePFX.Editor.Timelines {
         private bool isPerformingOptimisedCacheRemoval;
 
         protected Track() {
-            this.clips = new List<Clip>();
+            this.clips = new ClipList();
             this.cache = new ClipRangeCache();
             this.Height = 60;
             this.TrackColour = TrackColours.GetRandomColour();
@@ -120,21 +121,21 @@ namespace FramePFX.Editor.Timelines {
         }
 
         public int IndexOfClip(Clip clip) {
-            List<Clip> list = this.clips;
-            for (int i = 0, count = list.Count; i < count; i++) {
-                if (ReferenceEquals(this.clips[i], clip)) {
-                    return i;
-                }
-            }
-
-            return -1;
+            // List<Clip> list = this.clips;
+            // for (int i = 0, count = list.Count; i < count; i++) {
+            //     if (ReferenceEquals(this.clips[i], clip)) {
+            //         return i;
+            //     }
+            // }
+            // return -1;
+            return this.clips.IndexOf(clip);
         }
 
         public void GetClipsAtFrame(long frame, List<Clip> list) {
-            List<Clip> src = this.clips;
-            int count = src.Count, i = 0;
+            Clip[] arr = this.clips.items;
+            int count = this.clips.size, i = 0;
             while (i < count) {
-                Clip clip = src[i++];
+                Clip clip = arr[i++];
                 if (clip.IntersectsFrameAt(frame)) {
                     list.Add(clip);
                 }
@@ -290,5 +291,98 @@ namespace FramePFX.Editor.Timelines {
         }
 
         public bool IsRegionEmpty(FrameSpan span) => this.cache.IsRegionEmpty(span);
+    }
+
+    public class ClipList : IReadOnlyList<Clip> {
+        private const int DefaultCapacity = 4;
+        public Clip[] items;
+        public int size;
+        private static readonly Clip[] EmptyArray = new Clip[0];
+
+        public int Count => this.size;
+
+        public Clip this[int index] => index < this.size ? this.items[index] : throw new IndexOutOfRangeException("Index is too large");
+
+        public Span<Clip> Span => new Span<Clip>(this.items, 0, this.size);
+
+        public ClipList() => this.items = EmptyArray;
+
+        public void Add(Clip item) {
+            if (this.size == this.items.Length)
+                this.EnsureCapacity(this.size + 1);
+            this.items[this.size++] = item;
+        }
+
+        public int IndexOf(Clip item) {
+            Clip[] array = this.items;
+            for (int i = 0, count = this.size; i < count; i++) {
+                if (item == array[i]) {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        public bool Contains(Clip item) => this.IndexOf(item) != -1;
+
+        public bool RemoveClipAndGetIsEmpty(Clip item) {
+            int index = this.IndexOf(item);
+            if (index == -1)
+                throw new Exception("Expected item to exist in list");
+            this.RemoveAt(index);
+            return this.size == 0;
+        }
+
+        public void Insert(int index, Clip item) {
+            if (index > this.size)
+                throw new Exception("Index out of bounds");
+            if (this.size == this.items.Length)
+                this.EnsureCapacity(this.size + 1);
+            if (index < this.size)
+                Array.Copy(this.items, index, this.items, index + 1, this.size - index);
+            this.items[index] = item;
+            ++this.size;
+        }
+
+        public void RemoveAt(int index) {
+            if (index >= this.size)
+                throw new Exception("Index out of bounds");
+            --this.size;
+            if (index < this.size)
+                Array.Copy(this.items, index + 1, this.items, index, this.size - index);
+            this.items[this.size] = null;
+        }
+
+        private void EnsureCapacity(int min) {
+            int length = this.items.Length;
+            if (length >= min)
+                return;
+            int num = length == 0 ? DefaultCapacity : length * 2;
+            if (num > 0x7FEFFFFF)
+                num = 0x7FEFFFFF;
+            if (num < min)
+                num = min;
+
+            if (num < this.size)
+                throw new Exception("List is too large to increase capacity");
+            if (num == length)
+                return;
+
+            Clip[] objArray = new Clip[num];
+            if (this.size > 0)
+                Array.Copy(this.items, 0, objArray, 0, this.size);
+            this.items = objArray;
+        }
+
+        public Span<Clip>.Enumerator GetEnumerator() => this.Span.GetEnumerator();
+
+        IEnumerator<Clip> IEnumerable<Clip>.GetEnumerator() {
+            for (int i = 0; i < this.size; i++) {
+                yield return this.items[i];
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Clip>) this).GetEnumerator();
     }
 }

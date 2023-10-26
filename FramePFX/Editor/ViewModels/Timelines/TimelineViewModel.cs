@@ -301,7 +301,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         /// </summary>
         public void InvalidateAutomationAndRender() {
             Task task = this.updateAndRenderTask;
-            if (task != null && !task.IsCompleted) {
+            if (task != null && !task.IsCompleted || Services.Application.IsDispatcherSuspended) {
                 return;
             }
 

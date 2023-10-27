@@ -3,8 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using FramePFX.Automation;
 using FramePFX.Editor.Registries;
-using FramePFX.Editor.ResourceManaging;
-using FramePFX.Editor.Timelines.ResourceHelpers;
+using FramePFX.Editor.Timelines.Events;
 using FramePFX.RBC;
 using FramePFX.Utils;
 using SkiaSharp;
@@ -12,6 +11,28 @@ using SkiaSharp;
 namespace FramePFX.Editor.Timelines {
     public delegate void ClipInsertedIntoTrackEventHandler(Track track, Clip clip, int index);
     public delegate void ClipRemovedFromTrackEventHandler(Track track, Clip clip, int index);
+    public delegate void ClipMovedToTrackEventHandler(ClipMovedEventArgs e);
+
+    public class ClipMovedEventArgs : EventArgs {
+        public Track OldTrack { get; }
+        public Track NewTrack { get; }
+        public Clip Clip { get; }
+        public int OldIndex { get; }
+        public int NewIndex { get; }
+
+        /// <summary>
+        /// An additional object that can be used to pass information between handlers
+        /// </summary>
+        public object Parameter { get; set; }
+
+        public ClipMovedEventArgs(Track oldTrack, Track newTrack, Clip clip, int oldIndex, int newIndex) {
+            this.OldTrack = oldTrack;
+            this.NewTrack = newTrack;
+            this.Clip = clip;
+            this.OldIndex = oldIndex;
+            this.NewIndex = newIndex;
+        }
+    }
 
     /// <summary>
     /// Base class for timeline tracks. A track simply contains clips, along with a few extra
@@ -61,24 +82,28 @@ namespace FramePFX.Editor.Timelines {
         public event ClipInsertedIntoTrackEventHandler ClipInserted;
         public event ClipRemovedFromTrackEventHandler ClipRemoved;
 
+        /// <summary>
+        /// An event fired when a clip is moved from one track to another. This is invoked on both the
+        /// source and target track instances, and to know which track was the source and target, do
+        /// a reference equality comparison
+        /// </summary>
+        public event ClipMovedToTrackEventHandler ClipMovedToTrack;
+
+        private readonly ClipSpanChangedEventHandler clipSpanChangedHandler;
+
         protected Track() {
             this.clips = new ClipList();
             this.cache = new ClipRangeCache();
             this.Height = 60;
             this.TrackColour = TrackColours.GetRandomColour();
             this.AutomationData = new AutomationData(this);
+            this.clipSpanChangedHandler = this.OnClipSpanChanged;
         }
 
-        /// <summary>
-        /// Invoked when a clip's frame span changes, only when it is placed in this specific track. This MUST be called, otherwise the cache will get corrupted
-        /// </summary>
-        /// <param name="clip">The clip whose frame span changed</param>
-        /// <param name="oldSpan">The old frame span</param>
-        public void OnClipFrameSpanChanged(Clip clip, FrameSpan oldSpan) {
+        private void OnClipSpanChanged(Clip clip, FrameSpan oldSpan, FrameSpan newSpan) {
             if (!ReferenceEquals(clip.Track, this))
                 throw new Exception("Clip's track does not match the current instance");
             this.cache.OnSpanChanged(clip, oldSpan);
-            // this.Timeline?.UpdateLargestFrame();
         }
 
         public static void SetTimeline(Track track, Timeline timeline) {
@@ -210,6 +235,7 @@ namespace FramePFX.Editor.Timelines {
             Clip.InternalSetTrack(clip, this);
             this.clips.Insert(index, clip);
             this.cache.OnClipAdded(clip);
+            clip.ClipSpanChanged += this.clipSpanChangedHandler;
             this.ClipInserted?.Invoke(this, clip, index);
         }
 
@@ -226,6 +252,7 @@ namespace FramePFX.Editor.Timelines {
                 throw new Exception("Expected clip's track to equal this instance");
             this.clips.RemoveAt(index);
             this.cache.OnClipRemoved(clip);
+            clip.ClipSpanChanged -= this.clipSpanChangedHandler;
             Clip.InternalSetTrack(clip, null);
             this.ClipRemoved?.Invoke(this, clip, index);
         }
@@ -233,19 +260,35 @@ namespace FramePFX.Editor.Timelines {
         public bool MoveClipToTrack(Clip clip, Track newTrack) {
             if (!this.TryGetIndexOfClip(clip, out int index))
                 return false;
-            this.MoveClipToTrack(index, newTrack);
+            this.MoveClipToTrack(newTrack, index);
             return true;
         }
 
+        public void MoveClipToTrack(Track newTrack, int index) {
+            this.MoveClipToTrack(newTrack, index, newTrack.clips.Count);
+        }
+
         /// <summary>
-        /// Removes the clip at the given index from ourself, then adds that clip to the given track
+        /// Moves a clip from this track to the new track, from the old index to the new index
         /// </summary>
-        /// <param name="index"></param>
-        /// <param name="newTrack"></param>
-        public void MoveClipToTrack(int index, Track newTrack) {
-            Clip clip = this.clips[index];
-            this.RemoveClipAt(index);
-            newTrack.AddClip(clip);
+        /// <param name="newTrack">The target track</param>
+        /// <param name="oldIndex">The index of the clip in this track</param>
+        /// <param name="newIndex">The index of the clip in the target track</param>
+        public void MoveClipToTrack(Track newTrack, int oldIndex, int newIndex) {
+            Clip clip = this.clips[oldIndex];
+            if (!ReferenceEquals(this, clip.Track))
+                throw new Exception("Expected clip's track to equal this instance");
+            this.clips.RemoveAt(oldIndex);
+            this.cache.OnClipRemoved(clip);
+            clip.ClipSpanChanged -= this.clipSpanChangedHandler;
+            Clip.InternalSetTrack(clip, newTrack);
+            newTrack.clips.Insert(newIndex, clip);
+            newTrack.cache.OnClipAdded(clip);
+            clip.ClipSpanChanged += newTrack.clipSpanChangedHandler;
+
+            ClipMovedEventArgs args = new ClipMovedEventArgs(this, newTrack, clip, oldIndex, newIndex);
+            this.ClipMovedToTrack?.Invoke(args);
+            newTrack.ClipMovedToTrack?.Invoke(args);
         }
 
         #region Cloning
@@ -275,6 +318,8 @@ namespace FramePFX.Editor.Timelines {
 
         protected virtual void LoadDataIntoClonePost(Track clone, TrackCloneFlags flags) {
         }
+
+        public bool IsRegionEmpty(FrameSpan span) => this.cache.IsRegionEmpty(span);
 
         #endregion
 
@@ -321,7 +366,40 @@ namespace FramePFX.Editor.Timelines {
             return $"{this.GetType().Name} ({this.clips.Count.ToString()} clips between {this.cache.SmallestActiveFrame.ToString()} and {this.cache.LargestActiveFrame.ToString()})";
         }
 
-        public bool IsRegionEmpty(FrameSpan span) => this.cache.IsRegionEmpty(span);
+        public static FrameSpan GetSpanUntilClipOrFuckIt(Track track, long frame, long defaultDuration = 300, long maximumDurationToClip = 100000000) {
+            if (TryGetSpanUntilClip(track, frame, out var span, defaultDuration, maximumDurationToClip))
+                return span;
+            return new FrameSpan(frame, defaultDuration);
+        }
+
+        public static bool TryGetSpanUntilClip(Track track, long frame, out FrameSpan span, long unlimitedDuration = 300, long maxDuration = 100000000U) {
+            long minimum = long.MaxValue;
+            if (track.Clips.Count > 0) {
+                foreach (Clip clip in track.Clips) {
+                    if (clip.FrameBegin > frame) {
+                        if (clip.IntersectsFrameAt(frame)) {
+                            span = default;
+                            return false;
+                        }
+                        else {
+                            minimum = Math.Min(clip.FrameBegin, minimum);
+                            if (minimum <= frame) {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (minimum > frame && minimum != long.MaxValue) {
+                span = new FrameSpan(frame, Math.Min(minimum - frame, maxDuration));
+            }
+            else {
+                span = new FrameSpan(frame, unlimitedDuration);
+            }
+
+            return true;
+        }
     }
 
     public class ClipList : IReadOnlyList<Clip> {

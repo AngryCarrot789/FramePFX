@@ -67,14 +67,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             this.renderCallback = x => this.OnInvalidateRender();
             this.Model.RenderInvalidated += this.renderCallback;
             this.AutomationData.AssignRefreshHandler(VideoClip.OpacityKey, RefreshOpacityHandler);
-        }
-
-        // TODO: implement "OnPlayHeadEnter", "OnPlayHeadMoved", and "OnPlayHeadLeave" to refresh
-        // the key frame insertion commands
-
-        public override void OnUserSeekedFrame(long oldFrame, long newFrame) {
-            base.OnUserSeekedFrame(oldFrame, newFrame);
-            this.UpdateKeyFrameCommands();
+            model.FrameSeeked += (sender, oldframe, newframe) => this.UpdateKeyFrameCommands();
         }
 
         public override void OnClipMovedToPlayeHeadFrame(long frame) {
@@ -91,8 +84,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             this.InsertOpacityKeyFrameCommand.RaiseCanExecuteChanged();
         }
 
-        public override void OnFrameSpanChanged(FrameSpan oldSpan) {
-            base.OnFrameSpanChanged(oldSpan);
+        public override void OnFrameSpanChanged() {
+            base.OnFrameSpanChanged();
             this.Model.InvalidateRender();
         }
 

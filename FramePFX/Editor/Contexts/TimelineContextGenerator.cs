@@ -74,8 +74,8 @@ namespace FramePFX.Editor.Contexts {
                     FrameSpan = new FrameSpan(track.Timeline.PlayHeadFrame, track.Timeline.FPS.ToInt)
                 };
 
-                if (track.IsRegionEmpty(clip.FrameSpan)) {
-                    track.CreateAndAddViewModel(clip);
+                if (track.Model.IsRegionEmpty(clip.FrameSpan)) {
+                    track.Model.AddClip(clip);
                 }
             }
 

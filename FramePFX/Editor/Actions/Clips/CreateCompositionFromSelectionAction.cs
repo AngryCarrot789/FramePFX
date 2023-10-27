@@ -13,7 +13,6 @@ using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Editor.ViewModels.Timelines.Tracks;
-using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.Actions.Clips {
@@ -67,13 +66,12 @@ namespace FramePFX.Editor.Actions.Clips {
 
                 // This code keeps the same clip view model references, as cloning isn't necessary
                 foreach (ClipViewModel clip in selection) {
-                    oldTrack.RemoveClip(clip);
+                    oldTrack.Model.RemoveClip(clip.Model);
                     clip.Model.FrameSpan = clip.Model.FrameSpan.AddBegin(-trackBegin);
 
                     // just in case something is still listening
                     clip.RaisePropertyChanged(nameof(clip.FrameSpan));
-
-                    clonedTrackVM.AddClip(clip);
+                    clonedTrack.AddClip(clip.Model);
                     totalClips++;
                 }
             }
@@ -101,7 +99,7 @@ namespace FramePFX.Editor.Actions.Clips {
 
             {
                 FrameSpan span = new FrameSpan(trackBegin, finalTrackDuration);
-                VideoTrackViewModel track = (VideoTrackViewModel) oldTracks.FirstOrDefault(x => x is VideoTrackViewModel vid && vid.IsRegionEmpty(span));
+                VideoTrackViewModel track = (VideoTrackViewModel) oldTracks.FirstOrDefault(x => x is VideoTrackViewModel vid && ((TrackViewModel) vid).Model.IsRegionEmpty(span));
                 if (track == null || track.Timeline != timeline) {
                     track = await timeline.InsertNewVideoTrackAction(0, false);
                 }
@@ -112,9 +110,8 @@ namespace FramePFX.Editor.Actions.Clips {
                 clip.FrameSpan = span;
                 clip.DisplayName = $"New Composition ({totalClips} clips)";
                 clip.AddEffect(new MotionEffect());
-                CompositionVideoClipViewModel clipVM = new CompositionVideoClipViewModel(clip);
-                track.AddClip(clipVM);
-                ClipViewModel.SetSelectedAndShowPropertyEditor(clipVM);
+                track.Model.AddClip(clip);
+                ClipViewModel.SetSelectedAndShowPropertyEditor(track.LastClip);
             }
 
             VideoEditorViewModel editor = timeline.Project.Editor;

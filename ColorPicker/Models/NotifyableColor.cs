@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows.Media;
 
 namespace ColorPicker.Models {
     public class NotifyableColor : NotifyableObject {

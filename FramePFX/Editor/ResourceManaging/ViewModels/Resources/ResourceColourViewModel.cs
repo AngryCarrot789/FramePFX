@@ -1,7 +1,6 @@
 using FramePFX.AdvancedContextService;
 using FramePFX.AdvancedContextService.NCSP;
 using FramePFX.Editor.ResourceManaging.Resources;
-using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using SkiaSharp;
 
 namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {

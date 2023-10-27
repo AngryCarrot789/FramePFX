@@ -10,6 +10,7 @@ using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Editor.Timelines;
+using FramePFX.Editor.Timelines.Effects.Video;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels.Timelines.Removals;
@@ -163,7 +164,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                 double fps = track.Timeline.Project.Settings.FrameRate.ToDouble;
                 long defaultDuration = (long) (fps * 5);
 
-                if (!track.GetSpanUntilClip(frame, out FrameSpan defaultSpan)) {
+                if (!Track.TryGetSpanUntilClip(track.Model, frame, out FrameSpan defaultSpan)) {
                     defaultSpan = new FrameSpan(frame, defaultDuration);
                 }
 
@@ -249,7 +250,8 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                     default: return;
                 }
 
-                track.CreateAndAddViewModel(newClip, true);
+                newClip.AddEffect(new MotionEffect());
+                track.Model.AddClip(newClip);
                 if (newClip is VideoClip videoClipModel) {
                     videoClipModel.InvalidateRender();
                 }

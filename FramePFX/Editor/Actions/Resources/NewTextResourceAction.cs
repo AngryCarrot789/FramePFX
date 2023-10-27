@@ -1,14 +1,13 @@
 using System.Threading.Tasks;
 using FramePFX.Actions;
-using FramePFX.Editor.Registries;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
+using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.Effects.Video;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Editor.ViewModels.Timelines.Tracks;
-using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.Actions.Resources {
@@ -66,7 +65,7 @@ namespace FramePFX.Editor.Actions.Resources {
                 TimelineViewModel timeline = manager.Project.Editor?.SelectedTimeline;
                 if (timeline != null) {
                     VideoTrackViewModel track;
-                    if ((track = timeline.PrimarySelectedTrack as VideoTrackViewModel) == null || !track.GetSpanUntilClip(timeline.PlayHeadFrame, out FrameSpan span)) {
+                    if ((track = timeline.PrimarySelectedTrack as VideoTrackViewModel) == null || !Track.TryGetSpanUntilClip(track.Model, timeline.PlayHeadFrame, out FrameSpan span)) {
                         track = await timeline.InsertNewVideoTrackAction(0);
                         span = new FrameSpan(0, 300);
                     }
@@ -77,9 +76,8 @@ namespace FramePFX.Editor.Actions.Resources {
                     textClip.AddEffect(new MotionEffect());
                     textClip.DisplayName = name;
                     textClip.Text = "Sample Text";
-                    TextVideoClipViewModel clip = (TextVideoClipViewModel) ClipFactory.Instance.CreateViewModelFromModel(textClip);
-                    track.AddClip(clip);
-                    ClipViewModel.SetSelectedAndShowPropertyEditor(clip);
+                    track.Model.AddClip(textClip);
+                    ClipViewModel.SetSelectedAndShowPropertyEditor(track.LastClip);
                     await timeline.UpdateAndRenderTimelineToEditor();
                 }
             }

@@ -14,7 +14,8 @@ namespace FramePFX.Editor.Timelines {
         Track Track { get; }
 
         /// <summary>
-        /// Gets this clip's frame span
+        /// The position of this clip in terms of video frames, in the form of a
+        /// <see cref="Utils.FrameSpan"/> which has a begin and duration property
         /// </summary>
         FrameSpan FrameSpan { get; }
 
@@ -54,5 +55,10 @@ namespace FramePFX.Editor.Timelines {
         /// An event fired when this clip is being deserialised
         /// </summary>
         event ReadFromRBEEventHandler DeserialiseExtension;
+
+        /// <summary>
+        /// An event fired when this clip's <see cref="FrameSpan"/> changes
+        /// </summary>
+        event ClipSpanChangedEventHandler ClipSpanChanged;
     }
 }

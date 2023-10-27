@@ -5,10 +5,10 @@ using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using FramePFX.Actions.Contexts;
-using FramePFX.Editor;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels;
+using FramePFX.Editor.Timelines.Effects.Video;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
@@ -36,8 +36,6 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
         public double UnitZoom => this.Timeline?.UnitZoom ?? 1D;
 
         public TrackViewModel ViewModel => this.DataContext as TrackViewModel;
-
-        public ITrackResourceDropHandler ResourceItemDropHandler => this.DataContext as ITrackResourceDropHandler;
 
         private bool isProcessingAsyncDrop;
         public TimelineClipControl lastSelectedItem;
@@ -85,11 +83,12 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
 
                 ImageVideoClip imageClip = new ImageVideoClip();
                 imageClip.DisplayName = "an image!!! for " + image.DisplayName;
-                imageClip.FrameSpan = track.GetSpanUntilClipOrFuckIt(track.Timeline.PlayHeadFrame, maximumDurationToClip: 300);
+                imageClip.FrameSpan = FramePFX.Editor.Timelines.Track.GetSpanUntilClipOrFuckIt(track.Model, track.Timeline.PlayHeadFrame, maximumDurationToClip: 300);
                 imageClip.ResourceImageKey.SetTargetResourceId(id);
-                ClipViewModel newClip = track.CreateAndAddViewModel(imageClip, true);
-                newClip.IsSelected = true;
-                PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(new List<ClipViewModel>() {newClip});
+                imageClip.AddEffect(new MotionEffect());
+                track.Model.AddClip(imageClip);
+                track.LastClip.IsSelected = true;
+                PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(new List<ClipViewModel>() {track.LastClip});
 
                 Services.Application.Invoke(async () => {
                     await resource.LoadResourceAsync();

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using FramePFX.Automation;
 using FramePFX.Automation.Keyframe;
 using FramePFX.Automation.Keys;
@@ -21,6 +20,9 @@ namespace FramePFX.Editor.Timelines {
     /// </summary>
     public abstract class Clip : IClip, IStrictFrameRange, IAutomatable, IDisposable {
         private readonly List<BaseEffect> internalEffectList;
+        private FrameSpan frameSpan;
+        public long LastSeekedFrame;
+        public bool IsSelectedInUI; // this is disgusting...
 
         /// <summary>
         /// Returns the track that this clip is currently in. When this changes, <see cref="OnTrackChanged"/> is always called
@@ -51,14 +53,16 @@ namespace FramePFX.Editor.Timelines {
 
         public bool IsDisposing { get; private set; }
 
-        /// <summary>
-        /// The position of this clip in terms of video frames, in the form of a <see cref="Utils.FrameSpan"/> which
-        /// has a begin and duration property. This should only be set directly if the clip is not placed in a track,
-        /// otherwise, use <see cref="SetFrameSpan"/> in order to update the track's clip position cache
-        /// </summary>
-        public FrameSpan FrameSpan;
-
-        FrameSpan IClip.FrameSpan => this.FrameSpan;
+        public FrameSpan FrameSpan {
+            get => this.frameSpan;
+            set {
+                FrameSpan oldSpan = this.frameSpan;
+                if (oldSpan != value) {
+                    this.frameSpan = value;
+                    this.ClipSpanChanged?.Invoke(this, oldSpan, value);
+                }
+            }
+        }
 
         /// <summary>
         /// Helper property for getting and setting the <see cref="Utils.FrameSpan.Begin"/> property
@@ -103,13 +107,14 @@ namespace FramePFX.Editor.Timelines {
         /// Gets this clip's resource helper class
         /// </summary>
         public ResourceHelper ResourceHelper { get; }
-        
+
         public event TrackChangedEventHandler TrackChanged;
         public event TimelineChangedEventHandler TrackTimelineChanged;
         public event ProjectChangedEventHandler TrackTimelineProjectChanged;
         public event FrameSeekedEventHandler FrameSeeked;
         public event WriteToRBEEventHandler SerialiseExtension;
         public event ReadFromRBEEventHandler DeserialiseExtension;
+        public event ClipSpanChangedEventHandler ClipSpanChanged;
 
         protected Clip() {
             this.AutomationData = new AutomationData(this);
@@ -120,12 +125,6 @@ namespace FramePFX.Editor.Timelines {
 
         public KeyFrame GetDefaultKeyFrame(AutomationKey key) {
             return this.AutomationData[key].DefaultKeyFrame;
-        }
-
-        public void SetFrameSpan(FrameSpan span) {
-            FrameSpan oldSpan = this.FrameSpan;
-            this.FrameSpan = span;
-            this.Track?.OnClipFrameSpanChanged(this, oldSpan);
         }
 
         /// <summary>

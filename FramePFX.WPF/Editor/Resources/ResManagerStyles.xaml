@@ -95,6 +95,7 @@
     </Style>
 
     <Style TargetType="{x:Type res:ResourceFolderControl}" BasedOn="{StaticResource {x:Type res:BaseResourceItemControl}}">
+        <Setter Property="HeaderText" Value="{Binding DisplayName, Mode=OneWay}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type res:BaseResourceItemControl}">
@@ -161,7 +162,7 @@
         </Setter>
     </Style>
 
-    <res:ResourceItemContainerStyleSelector x:Key="ResourceItemContainerStyleSelector">
+    <res:ResourceItemContainerStyleSelector x:Key="ResourceItemContainerStyleSelector" ResourceFolderStyle="{StaticResource {x:Type res:ResourceFolderControl}}">
         <res:ResourceItemContainerStyleSelector.ResourceItemStyle>
             <!-- d:DataContext="{d:DesignInstance viewModels:ResourceItemViewModel}" -->
             <Style TargetType="{x:Type res:ResourceItemControl}" BasedOn="{StaticResource {x:Type res:BaseResourceItemControl}}">
@@ -174,12 +175,6 @@
                 </Style.Triggers>
             </Style>
         </res:ResourceItemContainerStyleSelector.ResourceItemStyle>
-        <res:ResourceItemContainerStyleSelector.ResourceFolderStyle>
-            <!-- d:DataContext="{d:DesignInstance viewModels:ResourceFolderViewModel}" -->
-            <Style TargetType="{x:Type res:ResourceFolderControl}" BasedOn="{StaticResource {x:Type res:BaseResourceItemControl}}">
-                <Setter Property="HeaderText" Value="{Binding DisplayName, Mode=OneWay}" />
-            </Style>
-        </res:ResourceItemContainerStyleSelector.ResourceFolderStyle>
     </res:ResourceItemContainerStyleSelector>
     <res:ResourceItemContainerDataTemplateSelector x:Key="ResourceItemContainerDataTemplateSelector">
         <res:ResourceItemContainerDataTemplateSelector.ResourceItemTemplate>

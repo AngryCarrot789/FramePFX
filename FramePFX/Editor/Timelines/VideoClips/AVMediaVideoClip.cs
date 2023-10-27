@@ -3,10 +3,10 @@ using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using FFmpeg.AutoGen;
+using FramePFX.Editor.Rendering;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.FFmpegWrapper;
-using FramePFX.Rendering;
 using FramePFX.Utils;
 using SkiaSharp;
 

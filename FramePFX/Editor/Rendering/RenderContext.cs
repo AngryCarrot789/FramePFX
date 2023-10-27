@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using FramePFX.Editor;
 using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.VideoClips;
 using SkiaSharp;
 
-namespace FramePFX.Rendering {
+namespace FramePFX.Editor.Rendering {
     public sealed class RenderContext {
         /// <summary>
         /// The target render surface

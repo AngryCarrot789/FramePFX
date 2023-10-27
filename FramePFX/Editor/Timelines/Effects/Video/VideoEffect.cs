@@ -1,5 +1,5 @@
+using FramePFX.Editor.Rendering;
 using FramePFX.Editor.Timelines.VideoClips;
-using FramePFX.Rendering;
 
 namespace FramePFX.Editor.Timelines.Effects.Video {
     public abstract class VideoEffect : BaseEffect {

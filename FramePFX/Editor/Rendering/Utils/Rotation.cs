@@ -1,7 +1,7 @@
 using System;
 using System.Numerics;
 
-namespace FramePFX.Rendering.Utils {
+namespace FramePFX.Editor.Rendering.Utils {
     public static class Rotation {
         /// <summary>
         /// Returns the position of a camera that is at a specific yaw and pitch, orbiting around 0,0,0

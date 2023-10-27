@@ -1,8 +1,8 @@
 using System.Numerics;
 using System.Threading.Tasks;
+using FramePFX.Editor.Rendering;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines.ResourceHelpers;
-using FramePFX.Rendering;
 using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips {

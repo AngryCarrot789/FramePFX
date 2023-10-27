@@ -546,6 +546,7 @@ namespace FramePFX.WPF {
         private void App_OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e) {
             AppLogger.WriteLine("Unhandled application exception");
             AppLogger.WriteLine(e.Exception.GetToString());
+            Services.DialogService.ShowMessageExAsync("Unhandled Exception", "FramePFX has encountered an expected error... it will crash now :(", e.Exception?.GetToString());
         }
     }
 }

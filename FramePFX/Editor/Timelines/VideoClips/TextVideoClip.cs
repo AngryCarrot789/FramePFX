@@ -2,10 +2,10 @@ using System;
 using System.Collections.Specialized;
 using System.Numerics;
 using System.Threading.Tasks;
+using FramePFX.Editor.Rendering;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.RBC;
-using FramePFX.Rendering;
 using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips {

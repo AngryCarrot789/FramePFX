@@ -1,7 +1,7 @@
 using System.Numerics;
 using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
-using FramePFX.Rendering;
+using FramePFX.Editor.Rendering;
 using FramePFX.Utils;
 using SkiaSharp;
 

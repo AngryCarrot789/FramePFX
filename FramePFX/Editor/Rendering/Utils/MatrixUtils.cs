@@ -2,7 +2,7 @@ using System;
 using System.Numerics;
 using Vector3 = System.Numerics.Vector3;
 
-namespace FramePFX.Rendering.Utils {
+namespace FramePFX.Editor.Rendering.Utils {
     public static class MatrixUtils {
         /// <summary>
         /// Creates a matrix that can be used to transform world coordinates into local coordinates, using the given position, rotation and scale

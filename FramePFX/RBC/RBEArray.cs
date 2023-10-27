@@ -316,7 +316,7 @@ namespace FramePFX.RBC {
         }
 
         public override RBEBase Clone() => this.CloneCore();
-        public RBEStringArray CloneCore() => new RBEStringArray(Arrays.CloneArray(this.Array));
+        public RBEStringArray CloneCore() => new RBEStringArray(Arrays.CloneArrayMax(this.Array));
     }
 
     public class RBEStructArray : RBEBase {

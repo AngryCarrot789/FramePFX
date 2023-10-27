@@ -115,11 +115,14 @@ namespace FramePFX.Editor.ViewModels {
         }
 
         public Task PlayFromFrame(long frame) {
-            TimelineViewModel timeline = this.Editor.SelectedTimeline;
+            return this.PlayFromFrame(this.Editor.SelectedTimeline, frame);
+        }
+
+        public Task PlayFromFrame(TimelineViewModel timeline, long frame, bool setLastSeekFrame = true) {
             if (timeline != null && this.Project != null) {
                 if (!this.IsPlaying) {
                     timeline.InternalLastPlayHeadBeforePlaying = timeline.PlayHeadFrame;
-                    timeline.PlayHeadFrame = frame;
+                    timeline.SetPlayHead(frame, setLastSeekFrame);
                     this.PlayInternal();
                 }
                 else {

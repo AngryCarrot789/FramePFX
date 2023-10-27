@@ -11,13 +11,8 @@ namespace FramePFX.Editor.Actions {
             }
 
             TimelineViewModel timeline = editor.SelectedTimeline;
-            long frame = timeline.LastPlayHeadSeek;
-            try {
-                timeline.DoNotSetLastPlayHeadSeek = true;
-                await editor.Playback.PlayFromFrame(frame);
-            }
-            finally {
-                timeline.DoNotSetLastPlayHeadSeek = false;
+            if (timeline != null) {
+                await editor.Playback.PlayFromFrame(timeline, timeline.LastPlayHeadSeek, false);
             }
 
             return true;

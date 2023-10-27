@@ -27,13 +27,11 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         private readonly RapidDispatchCallback rapidOnRenderCompleted;
         private readonly ObservableCollectionEx<TrackViewModel> tracks;
         private TrackViewModel primarySelectedTrack;
-        private volatile bool isRendering;
         private bool isRecordingKeyFrames;
         private long lastPlayHeadSeek;
         public long InternalLastPlayHeadBeforePlaying; // used for play/pause/stop
 
-        // used for things like PlayAtLastFrameAction
-        public bool DoNotSetLastPlayHeadSeek;
+        public bool IsSeekingFrame;
 
         TimelineViewModel ITimelineViewModelBound.Timeline => this;
         IAutomatable IAutomatableViewModel.AutomationModel => this.Model;
@@ -72,18 +70,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public long PlayHeadFrame {
             get => this.Model.PlayHeadFrame;
-            set {
-                if (this.isRendering) {
-                    this.RaisePropertyChanged();
-                    return;
-                }
-
-                // long oldPlayHead = this.PlayHeadFrame;
-                // AppLogger.WriteLine($"PlayHead seeked: {oldPlayHead} -> {value}");
-                if (!this.DoNotSetLastPlayHeadSeek)
-                    this.LastPlayHeadSeek = value;
-                this.OnUserSeekedPlayHead(this.Model.PlayHeadFrame, value);
-            }
+            set => this.SetPlayHead(value);
         }
 
         /// <summary>
@@ -201,6 +188,12 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             reg.AddEntry(new ActionContextEntry(null, "actions.editor.NewAudioTrack", "Add Audio Track"));
         }
 
+        public void SetPlayHead(long frame, bool setLastSeekFrame = true) {
+            if (setLastSeekFrame)
+                this.LastPlayHeadSeek = frame;
+            this.OnUserSeekedPlayHead(this.Model.PlayHeadFrame, frame);
+        }
+
         public void SetProject(ProjectViewModel project) {
             ProjectViewModel oldProject = this.Project;
             if (ReferenceEquals(oldProject, project)) {
@@ -232,7 +225,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             TrackViewModel.OnTimelineChanged(track);
         }
 
-        public async void OnUserSeekedPlayHead(long oldFrame, long newFrame) {
+        private async void OnUserSeekedPlayHead(long oldFrame, long newFrame) {
             if (newFrame >= this.MaxDuration) {
                 newFrame = this.MaxDuration - 1;
             }
@@ -252,7 +245,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 track.OnUserSeekedFrame(oldFrame, newFrame);
             }
 
-            this.isRendering = true;
+            this.IsSeekingFrame = true;
             try {
                 await this.UpdateAndRenderTimelineToEditor(true);
             }
@@ -260,7 +253,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 // do nothing
             }
             finally {
-                this.isRendering = false;
+                this.IsSeekingFrame = false;
             }
         }
 

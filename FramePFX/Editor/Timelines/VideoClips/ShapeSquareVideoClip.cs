@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
 using FramePFX.Editor.Rendering;
+using FramePFX.Editor.Rendering.PFXCE;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.RBC;
@@ -74,6 +75,13 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             }
 
             return Task.CompletedTask;
+        }
+
+        public void RenderDeferred(DeferredRenderContext ctx) {
+            if (this.ColourKey.TryGetResource(out ResourceColour r)) {
+                SKColor colour = RenderUtils.BlendAlpha(r.Colour, this.Opacity);
+                ctx.DrawRect(0, 0, this.Width, this.Height, colour, true);
+            }
         }
 
         protected override Clip NewInstanceForClone() {

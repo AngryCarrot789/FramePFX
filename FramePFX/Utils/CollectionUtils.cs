@@ -157,7 +157,7 @@ namespace FramePFX.Utils {
             int oldLen = array.Length;
             int newLen = oldLen + additionalLength;
             if (additionalLength == 1)
-                array = array.CloneArray(newLen);
+                array = array.CloneArrayMax(newLen);
             array[oldLen + 1] = value;
             return array;
         }

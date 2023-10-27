@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -189,8 +190,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 if (imgKey.TryGetResource(out ResourceImage img) && img.image != null) {
                     SKBitmap bmp = img.bitmap;
                     Size renderSize = this.control.RenderSize;
-                    double clipWidth = renderSize.Width;
-                    Rect2d clipRect = Rect2d.Floor(clipWidth, renderSize.Height);
+                    Rect2d clipRect = Rect2d.Floor(renderSize.Width, renderSize.Height);
                     Rect2d imgRect = new Rect2d(bmp.Width, bmp.Height).ResizeToHeight(clipRect.Height);
                     if (this.bitmap == null || this.bitmap.PixelWidth != bmp.Width || this.bitmap.PixelHeight != bmp.Height) {
                         this.bitmap = new WriteableBitmap(bmp.Width, bmp.Height, 96, 96, PixelFormats.Pbgra32, null);
@@ -201,8 +201,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                         this.HasImageChanged = false;
                     }
 
-                    // this introduces slight glitching when rendering, mostly along
-                    // the left and right edges of the last few drawn images
+                    // this introduces slight glitching when rendering, mostly for the last few drawn images
                     const double gap = 10;
                     double segment = imgRect.Width + gap;
                     Rect visible = UIUtils.GetVisibleRect(this.control.scroller, this.control);
@@ -215,7 +214,7 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                         }
 
                         Rect rect = new Rect(Math.Floor(i * segment), 0, imgRect.Width, clipRect.Height);
-                        if (rect.Right > clipWidth) {
+                        if (rect.Right > renderSize.Width) {
                             dc.PushClip(new RectangleGeometry(new Rect(new Point(), renderSize)));
                             dc.DrawImage(this.bitmap, rect);
                             dc.Pop();

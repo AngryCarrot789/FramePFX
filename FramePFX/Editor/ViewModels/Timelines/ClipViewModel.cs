@@ -130,7 +130,21 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         /// </summary>
         public bool IsSelected {
             get => this.isSelected;
-            set => this.RaisePropertyChanged(ref this.isSelected, value);
+            set {
+                if (this.isSelected == value) {
+                    return;
+                }
+
+                this.RaisePropertyChanged(ref this.isSelected, value);
+                if (value) {
+                    if (this.Track != null && !this.Track.SelectedClips.Contains(this)) {
+                        this.Track.SelectedClips.Add(this);
+                    }
+                }
+                else {
+                    this.Track?.SelectedClips.Remove(this);
+                }
+            }
         }
 
         public bool IsClipActive => this.Model.IsRenderingEnabled;
@@ -204,7 +218,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             foreach (BaseEffect fx in model.Effects) {
                 this.AddEffect(EffectFactory.Instance.CreateViewModelFromModel(fx), false);
             }
-
             this.skipUpdatePropertyEditor = false;
 
             this.EditDisplayNameCommand = new AsyncRelayCommand(async () => {
@@ -240,12 +253,12 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 clip.AddEffect(EffectFactory.Instance.CreateViewModelFromModel(effect));
             });
 
-            IContextRegistration reg = ContextRegistry.Instance.RegisterType(typeof(ClipViewModel));
-            reg.AddEntry(new ActionContextEntry(null, "actions.general.RenameItem", "Rename Clip"));
-            reg.AddEntry(new ActionContextEntry(null, "actions.automation.AddKeyFrame", "Add key frame", "Adds a key frame to the active sequence"));
-            reg.AddEntry(new ActionContextEntry(null, "actions.editor.timeline.CreateCompositionFromSelection", "Create composition from selection", "Creates a composition clip from the selected clips"));
-            reg.AddEntry(SeparatorEntry.Instance);
-            reg.AddEntry(new ActionContextEntry(null, "actions.editor.timeline.DeleteSelectedClips", "Delete Clip(s)!!!"));
+            // IContextRegistration reg = ContextRegistry.Instance.RegisterType(typeof(ClipViewModel));
+            // reg.AddEntry(new ActionContextEntry(null, "actions.general.RenameItem", "Rename Clip"));
+            // reg.AddEntry(new ActionContextEntry(null, "actions.automation.AddKeyFrame", "Add key frame", "Adds a key frame to the active sequence"));
+            // reg.AddEntry(new ActionContextEntry(null, "actions.editor.timeline.CreateCompositionFromSelection", "Create composition from selection", "Creates a composition clip from the selected clips"));
+            // reg.AddEntry(SeparatorEntry.Instance);
+            // reg.AddEntry(new ActionContextEntry(null, "actions.editor.timeline.DeleteSelectedClips", "Delete Clip(s)!!!"));
         }
 
         public static void SetSelectedAndShowPropertyEditor(ClipViewModel clip) {

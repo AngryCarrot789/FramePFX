@@ -10,12 +10,15 @@ namespace FramePFX.Editor.Actions.Tracks {
         }
 
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            HashSet<TrackViewModel> tracks = new HashSet<TrackViewModel>();
             TimelineViewModel timeline = null;
             if (e.DataContext.TryGetContext(out TrackViewModel targetTrack) && (timeline = targetTrack.Timeline) != null) {
-                tracks.Add(targetTrack);
+                if (!timeline.SelectedTracks.Contains(targetTrack)) {
+                    timeline.RemoveTrack(targetTrack);
+                    return true;
+                }
             }
 
+            HashSet<TrackViewModel> tracks = new HashSet<TrackViewModel>();
             if (timeline != null || EditorActionUtils.GetTimeline(e.DataContext, out timeline)) {
                 await timeline.RemoveTracksAction(tracks, true);
             }

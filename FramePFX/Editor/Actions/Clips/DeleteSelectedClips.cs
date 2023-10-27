@@ -16,8 +16,12 @@ namespace FramePFX.Editor.Actions.Clips {
 
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
             TimelineViewModel timeline = null;
-            if (e.DataContext.TryGetContext(out ClipViewModel targetClip)) {
-                targetClip.Track?.DisposeAndRemoveItemsAction(new List<ClipViewModel>() {targetClip});
+            if (e.DataContext.TryGetContext(out ClipViewModel targetClip) && targetClip.Track != null) {
+                if (!targetClip.Track.SelectedClips.Contains(targetClip)) {
+                    targetClip.Track?.DisposeAndRemoveItemsAction(new List<ClipViewModel>() {targetClip});
+                    return true;
+                }
+
                 timeline = targetClip.Track?.Timeline;
             }
 

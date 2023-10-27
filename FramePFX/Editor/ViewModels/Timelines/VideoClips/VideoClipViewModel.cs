@@ -105,11 +105,6 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             this.Track?.Timeline?.InvalidateAutomationAndRender();
         }
 
-        public override void Dispose() {
-            this.Model.RenderInvalidated -= this.renderCallback;
-            base.Dispose();
-        }
-
         protected void InvalidateRenderForAutomationRefresh(in RefreshAutomationValueEventArgs e) {
             if (!e.IsDuringPlayback && !e.IsPlaybackTick) {
                 this.Model.InvalidateRender();

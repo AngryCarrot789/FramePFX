@@ -824,7 +824,7 @@
                                      ap2:ObservableSelectionHelper.SelectedItems="{Binding SelectedTracks, Mode=OneTime}"
                                      Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="Transparent"
                                      BorderThickness="0" Padding="0" />
-                            <!-- acs:AdvancedContextMenu.ContextGenerator="{x:Static cx:TimelineContextGenerator.Instance}" -->
+                            <!-- acs:AdvancedContextMenu.UseContextRegistry="True" -->
                             <tc:TimelineEditorControl x:Name="PART_TimelineEditor"
                                                       ItemsSource="{Binding Tracks, Mode=OneTime}"
                                                       BorderThickness="0" Margin="0"
@@ -834,7 +834,7 @@
                                                       sc:UIInputManager.FocusPath="Application/Editor/Timeline/Surface"
                                                       UnitZoom="{Binding UnitZoom, Mode=OneWayToSource}"
                                                       PlayHeadFrame="{Binding PlayHeadFrame, Mode=TwoWay}"
-                                                      acs:AdvancedContextMenu.UseContextRegistry="True"
+                                                      acs:AdvancedContextMenu.ContextGenerator="{x:Static cx:TimelineContextGenerator.Instance}"
                                                       AutoScrollOnClipDrag="{Binding AutoScrollOnClipDrag, Mode=TwoWay}"
                                                       ScrollTimelineDuringPlayback="{Binding AutoScrollDuringPlayback, Mode=TwoWay}">
                                 <b:ShortcutCommandCollection.Collection>

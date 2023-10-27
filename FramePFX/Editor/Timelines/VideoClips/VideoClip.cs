@@ -62,7 +62,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             this.isMatrixDirty = true;
         }
 
-        public void CookTransformationMatrix() {
+        private void CookTransformationMatrix() {
             SKMatrix matrix = SKMatrix.Identity;
             foreach (BaseEffect effect in this.Effects) {
                 if (effect is ITransformationEffect) {

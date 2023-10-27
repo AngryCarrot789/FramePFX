@@ -94,8 +94,9 @@ namespace FramePFX.Editor.Timelines.Effects {
 
         public static bool RemoveEffectFromOwner(BaseEffect effect) {
             Clip owner = effect.OwnerClip;
-            if (owner == null)
+            if (owner == null) {
                 return false;
+            }
 
             int index = owner.Effects.IndexOf(effect);
             if (index < 0) {
@@ -118,12 +119,6 @@ namespace FramePFX.Editor.Timelines.Effects {
             effect.OnRemovedFromClip();
             Clip.InternalOnEffectRemoved(clip, effect);
             effect.OwnerClip = null;
-        }
-
-        public static void ClearEffects(Clip clip) {
-            for (int i = clip.Effects.Count - 1; i >= 0; i--) {
-                RemoveEffectAt(clip, i);
-            }
         }
 
         /// <summary>

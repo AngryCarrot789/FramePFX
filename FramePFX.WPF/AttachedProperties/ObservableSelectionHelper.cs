@@ -177,7 +177,7 @@ namespace FramePFX.WPF.AttachedProperties {
                     DependencyObject target = (DependencyObject) references[i].Target;
                     if (target != null) {
                         if (!GetIsProcessingSourceSelectionChanged(target)) {
-                            (targets ?? (targets = new List<DependencyObject>(2))).Add(target);
+                            (targets ?? (targets = new List<DependencyObject>(1))).Add(target);
                         }
                         else {
                             // ooops
@@ -197,11 +197,10 @@ namespace FramePFX.WPF.AttachedProperties {
             // This would require disconnecting selection changed events
             using (ErrorList list = new ErrorList("Failed to handle observable collection changed event", false)) {
                 foreach (DependencyObject target in targets) {
+                    UpdateTargetEventHandler(target, false);
                     try {
-                        Selector selector = (Selector) target;
-                        UpdateTargetEventHandler(target, false);
                         IList targetList;
-                        if (selector is ListBox listBox) {
+                        if (target is ListBox listBox) {
                             if (listBox.SelectionMode == SelectionMode.Single) {
                                 if (sourceList.Count < 1) {
                                     listBox.ClearValue(Selector.SelectedItemProperty);
@@ -216,7 +215,7 @@ namespace FramePFX.WPF.AttachedProperties {
                                 targetList = listBox.SelectedItems;
                             }
                         }
-                        else if (selector is MultiSelector ms) {
+                        else if (target is MultiSelector ms) {
                             targetList = ms.SelectedItems;
                         }
                         else {

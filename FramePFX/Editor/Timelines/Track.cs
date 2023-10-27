@@ -10,6 +10,9 @@ using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines {
+    public delegate void ClipInsertedIntoTrackEventHandler(Track track, Clip clip, int index);
+    public delegate void ClipRemovedFromTrackEventHandler(Track track, Clip clip, int index);
+
     /// <summary>
     /// Base class for timeline tracks. A track simply contains clips, along with a few extra
     /// properties (like opacity for video tracks or gain for audio tracks, which typically affect all clips)
@@ -54,6 +57,9 @@ namespace FramePFX.Editor.Timelines {
         public bool IsAutomationChangeInProgress { get; set; }
 
         private readonly ClipRangeCache cache;
+
+        public event ClipInsertedIntoTrackEventHandler ClipInserted;
+        public event ClipRemovedFromTrackEventHandler ClipRemoved;
 
         protected Track() {
             this.clips = new ClipList();
@@ -204,6 +210,7 @@ namespace FramePFX.Editor.Timelines {
             Clip.InternalSetTrack(clip, this);
             this.clips.Insert(index, clip);
             this.cache.OnClipAdded(clip);
+            this.ClipInserted?.Invoke(this, clip, index);
         }
 
         public bool RemoveClip(Clip clip) {
@@ -220,6 +227,7 @@ namespace FramePFX.Editor.Timelines {
             this.clips.RemoveAt(index);
             this.cache.OnClipRemoved(clip);
             Clip.InternalSetTrack(clip, null);
+            this.ClipRemoved?.Invoke(this, clip, index);
         }
 
         public bool MoveClipToTrack(Clip clip, Track newTrack) {
@@ -236,8 +244,7 @@ namespace FramePFX.Editor.Timelines {
         /// <param name="newTrack"></param>
         public void MoveClipToTrack(int index, Track newTrack) {
             Clip clip = this.clips[index];
-            this.clips.RemoveAt(index);
-            this.cache.OnClipRemoved(clip);
+            this.RemoveClipAt(index);
             newTrack.AddClip(clip);
         }
 

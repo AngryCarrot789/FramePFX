@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using FramePFX.Automation;
 using FramePFX.Automation.Keyframe;
 using FramePFX.Automation.Keys;
@@ -161,6 +162,12 @@ namespace FramePFX.Editor.Timelines {
             this.TrackTimelineChanged?.Invoke(oldTimeline, newTimeline);
         }
 
+        /// <summary>
+        /// Called when the timeline (that belongs to this clip's track)'s project changes. Realistically
+        /// this is only every called once during the deserialization of a project file
+        /// </summary>
+        /// <param name="oldProject">The previous project</param>
+        /// <param name="newProject">The new project</param>
         protected virtual void OnTrackTimelineProjectChanged(Project oldProject, Project newProject) {
             this.ResourceHelper.SetManager(newProject?.ResourceManager);
             this.TrackTimelineProjectChanged?.Invoke(oldProject, newProject);
@@ -176,20 +183,39 @@ namespace FramePFX.Editor.Timelines {
         public void AddEffect(BaseEffect effect) => BaseEffect.AddEffectToClip(this, effect);
         public void InsertEffect(BaseEffect effect, int index) => BaseEffect.InsertEffectIntoClip(this, effect, index);
 
+        /// <summary>
+        /// Removes the an effect from this clip
+        /// </summary>
+        /// <param name="effect">The effect to remove</param>
+        /// <returns></returns>
+        /// <exception cref="Exception">The effect does not belong to this clip</exception>
         public bool RemoveEffect(BaseEffect effect) {
-            if (effect.OwnerClip != null && !ReferenceEquals(effect.OwnerClip, this))
+            if (!ReferenceEquals(effect.OwnerClip, this))
                 throw new Exception("Effect does not belong to this clip");
             return BaseEffect.RemoveEffectFromOwner(effect);
         }
 
+        /// <summary>
+        /// Removes an effect at the given index
+        /// </summary>
+        /// <param name="index">The index of the effect</param>
         public void RemoveEffectAt(int index) => BaseEffect.RemoveEffectAt(this, index);
 
-        public void ClearEffects() => BaseEffect.ClearEffects(this);
+        /// <summary>
+        /// Clears all of this clip's effects
+        /// </summary>
+        public void ClearEffects() {
+            for (int i = this.Effects.Count - 1; i >= 0; i--) {
+                BaseEffect.RemoveEffectAt(this, i);
+            }
+        }
 
         protected virtual void OnEffectAdded(BaseEffect effect, int index) {
+
         }
 
         protected virtual void OnEffectRemoved(BaseEffect effect) {
+
         }
 
         /// <summary>

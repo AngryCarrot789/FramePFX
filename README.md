@@ -38,12 +38,11 @@ similar to how OBS can run without the front-end entirely, not that you'd want t
 View models still take a good few big responsibilities of the models though, such as firing the model events when view model properties change in order to force a re-render
 
 ### Rendering
-Previously rendering was done with SkiaSharp for simplicity, but I decided to move back to OpenGL to make use of shaders and general GPU rendering, at the price of having to deal with device-independent coordinates and manually allocating/deallocating rendering data (textures, meshes, shaders, etc.) which I still need to fully implement.
+Rendering is done with SkiaSharp for simplicity, using OpenGL as a backend (may switch to software rendering if there's any problems)
 
-Each track has its own framebuffer and texture, which the clip is rendered to (first found clip intersecting the playhead. will soon try to implement fading somehow). 
-Then each track's texture is drawn into the timeline's framebuffer, and then that is finally drawn into the default framebuffer. 
+The `Timeline` class handles the rendering. `BeginCompositeRender` iterates the tracks and the clips at the timeline's playhead (bottom to top), adds them to a list, and calls `Clip.OnBeginRender`. Then, `EndCompositeRenderAsync` iterates that list and calls `Clip.OnEndRender` which is where rendering actually occurs (returns a Task so it can be awaited). 
 
-The render context class contains a stack of active framebuffers, so recursive rendering (composition timelines) work
+Each clip is rendered synchronously, meaning if a clip's render process is very expensive or `AVMediaVideoClip` is waiting for the decoder to finish decoding a frame, it stalls the entire render process, which is why I really need to get around to implementing multi threaded rendering
 
 ### Resource list
 `ResourceListControl` and `ResourceItemControl` are an example of how to implement multi-selection, drag dropping, and also shift-selection (to select a range of items)
@@ -89,6 +88,6 @@ The front-end uses .NET Framework 4.8, and the back-end uses .NET Standard 2.0
 Currently there's only a WPF implementation, but I hope to switch to Avalonia at some point or MAUI. Most, if not all, of the important classes are located in the .NET Standard project, so it's relatively easy to port the app over to different platforms. However there's also OpenGL, FFmpeg, and some (unused at the moment) audio library dependencies too...
 
 ## BUGS
-- Importing certain video files can crash (some sort of "found invalid data while decoding" error)
+- Importing certain video files can cause the render to fail (some sort of "found invalid data while decoding" error)
 ## Licence
 Project is licenced under MIT. I'm not a lawyer but, AFAIK, FFmpeg and FFmpeg.AutoGen being licenced primarily under GNU Lesser General Public License allows MIT to be used as long as the FFmpeg source code is not modified (which in this project, it isn't)

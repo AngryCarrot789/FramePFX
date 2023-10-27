@@ -1,7 +1,7 @@
 ---
 name: Bug Report
 about: Create a report to help improve FramePFX
-title: "[BUG]"
+title: "[BUG] "
 labels: ''
 assignees: ''
 

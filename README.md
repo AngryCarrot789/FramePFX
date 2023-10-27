@@ -35,14 +35,16 @@ Click "Export" in the file menu at the top left, and you can specify some render
 I tried to wrap all models with view models so that the app can still function even if it had no view models or even UI, 
 similar to how OBS can run without the front-end entirely, not that you'd want to...
 
-View models still take a good few big responsibilities of the models though, such as firing the model events when view model properties change in order to force a re-render
+View models still take a good few big responsibilities of the models though, such as firing the model events when view model properties change in order to force a re-render, or the resource view models being the only thing that can "Load" the resource model, due to the ResourceCheckerViewModel being used (it seems weird to pass the resource checker to a model since the checker is a view model)
 
 ### Rendering
-Rendering is done with SkiaSharp for simplicity, using OpenGL as a backend (may switch to software rendering if there's any problems)
+Rendering is done with SkiaSharp for simplicity, using OpenGL as a backend (may switch to software rendering if there's any problems). 
 
 The `Timeline` class handles the rendering. `BeginCompositeRender` iterates the tracks and the clips at the timeline's playhead (bottom to top), adds them to a list, and calls `Clip.OnBeginRender`. Then, `EndCompositeRenderAsync` iterates that list and calls `Clip.OnEndRender` which is where rendering actually occurs (returns a Task so it can be awaited). 
 
 Each clip is rendered synchronously, meaning if a clip's render process is very expensive or `AVMediaVideoClip` is waiting for the decoder to finish decoding a frame, it stalls the entire render process, which is why I really need to get around to implementing multi threaded rendering
+
+I started working on a deferred rendering system (called XCE) which I might start using, although it requires a huge amount of work before it can be used. XCE is similar to WPF's DrawingContext and RenderData classes, where you write render instruction records that can be played back. Using XCE will let me draw on a specific rendering thread, but I'm not sure how much more performant it would be as apposed to just rendering on the main thread
 
 ### Resource list
 `ResourceListControl` and `ResourceItemControl` are an example of how to implement multi-selection, drag dropping, and also shift-selection (to select a range of items)
@@ -75,6 +77,8 @@ I don't know how to implement audio playback yet, despite my best efforts to try
 ### General TODO:
 - Implement a way to directly map between Models and ViewModels (e.g. Clip->ClipViewModel, ResourceItem->ResourceItemViewModel). At the moment, I do the plain linear search for clips (IndexOf), but for resources, I decided to reference the ViewModel in the Model
 - CreateCompositionFromClipsAction's code is quite messy
+### History system
+- I removed a lot of the undoable/redoable history actions because I was changing the code base all the time, so I will soon try to add back those history actions once I get the code base to an actual usable point
 
 # Compiling
 FFmpeg's shared x64 libraries are the only external library (at the moment...). They can be found here: 

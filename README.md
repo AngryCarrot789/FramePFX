@@ -62,6 +62,7 @@ I don't know how to implement audio playback yet, despite my best efforts to try
     - Schedule automation then schedule render (or render immidiately)
     - Do automation tick and schedule render (or render immidiately)
 - I don't feel too good about the render process... OnBeginRender, OnEndRender and OnRenderCompleted feels overcomplicated, even though it offers some convenience (e.g. cleanup resources in OnRenderCompleted), as well as how effects are done. It works though, so :/
+- Implement multi-threaded rendering, using things like double buffering and proxy objects to manage the data between main and render threads
 ### Automation Engine
 - Add support for smooth interpolation (e.g. a curve between 2 key frames). I tried doing this, but had a hard time figuring out the math to do the interpolation, and also doing the hit testing for the UI
 ### Timelines, Tracks

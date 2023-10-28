@@ -45,7 +45,7 @@ namespace FramePFX.Editor.ResourceManaging {
 
         public event ResourceModifiedEventHandler DataModified;
         public event ResourceAndManagerEventHandler OnlineStateChanged;
-        public event ResourceReferenceModifiedEventHandler ReferenceCountChanged;
+        public event ResourceReferencedEventHandler ReferenceCountChanged;
 
         protected ResourceItem() {
             this.references = new List<ResourcePath>();
@@ -74,11 +74,10 @@ namespace FramePFX.Editor.ResourceManaging {
         }
 
         public void RemoveReference(ResourcePath reference) {
-            if (reference == null)
-                throw new ArgumentNullException(nameof(reference));
-            if (!this.references.Remove(reference))
+            int index = this.references.IndexOf(reference);
+            if (index == -1)
                 throw new Exception("Object is not referenced");
-            this.ReferenceCountChanged?.Invoke(this, reference, false);
+            this.RemoveReferenceAt(index);
         }
 
         public void RemoveReferenceAt(int index) {
@@ -87,28 +86,8 @@ namespace FramePFX.Editor.ResourceManaging {
             this.ReferenceCountChanged?.Invoke(this, reference, false);
         }
 
-        /// <summary>
-        /// Gets whether or not this resource item has a manager associated, a valid unique ID and is registered with that manager
-        /// </summary>
-        /// <param name="isReferenceValid">
-        /// The registered resource is reference-equal to the current instance. This should always be true. If it's false, then something terrible has happened
-        /// </param>
-        /// <returns>True if this instance has a manager, a valid ID and is registered</returns>
-        public bool IsRegistered(out bool isReferenceValid) {
-            if (this.Manager != null && this.UniqueId != EmptyId && this.Manager.TryGetEntryItem(this.UniqueId, out ResourceItem resource)) {
-                isReferenceValid = ReferenceEquals(this, resource);
-                return true;
-            }
-
-            return isReferenceValid = false;
-        }
-
         public bool IsRegistered() {
-            if (!this.IsRegistered(out bool isReferenceValid))
-                return false;
-            if (!isReferenceValid)
-                throw new Exception("Registered resource is not reference-equal to the current instance");
-            return true;
+            return this.Manager != null && this.UniqueId != EmptyId && this.Manager.TryGetEntryItem(this.UniqueId, out ResourceItem resource);
         }
 
         /// <summary>

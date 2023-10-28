@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using FramePFX.Editor.ResourceManaging.Events;
+using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
@@ -12,18 +14,16 @@ namespace FramePFX.Editor.ResourceManaging {
 
         public IReadOnlyList<BaseResource> Items => this.items;
 
+        public event ResourceAddedEventHandler ResourceAdded;
+        public event ResourceRemovedEventHandler ResourceRemoved;
+        public event ResourceMovedEventHandler ResourceMoved;
+
         public ResourceFolder() {
             this.items = new List<BaseResource>();
         }
 
         public ResourceFolder(string displayName) : this() {
             this.DisplayName = displayName;
-        }
-
-        protected internal override void OnParentChainChanged() {
-            base.OnParentChainChanged();
-            foreach (BaseResource obj in this.items)
-                obj.OnParentChainChanged();
         }
 
         public override void OnAttachedToManager() {
@@ -68,19 +68,33 @@ namespace FramePFX.Editor.ResourceManaging {
         }
 
         public void InsertItem(int index, BaseResource item) {
-            if (this.items.Contains(item))
-                throw new Exception("Value already stored in this group");
+            if (item.Parent != null)
+                throw new InvalidOperationException("Item already exists in another folder");
+
+            if (index < 0 || index > this.items.Count)
+                throw new IndexOutOfRangeException($"Index must not be negative or exceed our items count ({index} < 0 || {index} > {this.items.Count})");
+
             bool isManagerDifferent = !ReferenceEquals(this.Manager, item.Manager);
+            bool wasRegistered = false;
             if (isManagerDifferent && item.Manager != null) {
+                if (item is ResourceItem resItem && resItem.IsRegistered()) {
+                    resItem.Manager.RemoveEntryByItem(resItem);
+                    wasRegistered = true;
+                }
+
                 item.OnDetatchedFromManager();
                 item.Manager = null;
             }
 
             this.items.Insert(index, item);
-            SetParent(item, this);
+            InternalSetParent(item, this);
+            this.ResourceAdded?.Invoke(this, item, index);
             if (isManagerDifferent && this.Manager != null) {
                 item.Manager = this.Manager;
                 item.OnAttachedToManager();
+                if (wasRegistered) {
+                    item.Manager.RegisterEntry((ResourceItem) item);
+                }
             }
         }
 
@@ -94,25 +108,72 @@ namespace FramePFX.Editor.ResourceManaging {
 
         public void RemoveItemAt(int index) {
             BaseResource item = this.items[index];
-            ExceptionUtils.Assert(item.Parent == this, "Expected item's parent to equal the us");
-            ExceptionUtils.Assert(item.Manager == this.Manager, "Expected item's manager to equal the our manager");
-            if (item.Manager != null) {
+            this.items.RemoveAt(index);
+            InternalSetParent(item, null);
+            this.ResourceRemoved?.Invoke(this, item, index);
+        }
+
+        public bool UnregisterAndRemoveItem(BaseResource item) {
+            int index = this.items.IndexOf(item);
+            if (index == -1)
+                return false;
+            this.UnregisterAndRemoveItemAt(index);
+            return true;
+        }
+
+        /// <summary>
+        /// Unregisters the item from the <see cref="ResourceManager"/> (if the item is registered), removes the item, and then disposes it
+        /// </summary>
+        /// <param name="index"></param>
+        public void UnregisterAndRemoveItemAt(int index) {
+            BaseResource item = this.items[index];
+            UnregisterAndDetatch(item as ResourceItem);
+            this.RemoveItemAt(index);
+        }
+
+        public bool UnregisterRemoveAndDisposeItem(BaseResource item) {
+            int index = this.items.IndexOf(item);
+            if (index == -1)
+                return false;
+            this.UnregisterDisposeAndRemoveItemAt(index);
+            return true;
+        }
+
+        /// <summary>
+        /// Unregisters the item from the <see cref="ResourceManager"/> (if the item is registered), disposes it, and then removes it
+        /// </summary>
+        /// <param name="index">The index of the item being deleted</param>
+        public void UnregisterDisposeAndRemoveItemAt(int index) {
+            BaseResource item = this.items[index];
+            UnregisterAndDetatch(item as ResourceItem);
+            item.Dispose();
+            this.RemoveItemAt(index);
+        }
+
+        private static void UnregisterAndDetatch(ResourceItem item) {
+            if (item != null && item.Manager != null) {
+                if (item.IsRegistered()) {
+                    item.Manager.RemoveEntryByItem(item);
+                }
+
                 item.OnDetatchedFromManager();
                 item.Manager = null;
             }
-
-            this.items.RemoveAt(index);
-            SetParent(item, null);
         }
 
-        public void MoveItemTo(int srcIndex, ResourceFolder target) {
-            this.MoveItemTo(srcIndex, target, target.items.Count);
+        public void MoveItemTo(ResourceFolder target, BaseResource item) {
+            int index = this.items.IndexOf(item);
+            if (index == -1)
+                throw new InvalidOperationException("Item is not stored in this folder");
+            this.MoveItemTo(target, index, target.items.Count);
         }
 
-        public void MoveItemTo(int srcIndex, ResourceFolder target, int dstIndex) {
+        public void MoveItemTo(ResourceFolder target, int srcIndex) {
+            this.MoveItemTo(target, srcIndex, target.items.Count);
+        }
+
+        public void MoveItemTo(ResourceFolder target, int srcIndex, int dstIndex) {
             BaseResource item = this.items[srcIndex];
-            ExceptionUtils.Assert(item.Parent == this, "Expected item's parent to equal the us");
-            ExceptionUtils.Assert(item.Manager == this.Manager, "Expected item's manager to equal the our manager");
             bool isManagerDifferent = !ReferenceEquals(item.Manager, target.Manager);
             if (isManagerDifferent && item.Manager != null) {
                 item.OnDetatchedFromManager();
@@ -121,38 +182,20 @@ namespace FramePFX.Editor.ResourceManaging {
 
             this.items.RemoveAt(srcIndex);
             target.items.Insert(dstIndex, item);
-            SetParent(item, target);
+            InternalSetParent(item, target);
+            ResourceMovedEventArgs args = new ResourceMovedEventArgs(this, target, item, srcIndex, dstIndex);
+            this.ResourceMoved?.Invoke(args);
+            target.ResourceMoved?.Invoke(args);
             if (isManagerDifferent && target.Manager != null) {
                 item.Manager = target.Manager;
                 item.OnAttachedToManager();
             }
         }
 
-        /// <summary>
-        /// Recursively sets this items' manager and group to null, then clears the collection
-        /// </summary>
-        public void Clear() {
-            for (int i = this.items.Count - 1; i >= 0; i--) {
-                this.RemoveItemAt(i);
-            }
-        }
-
-        /// <summary>
-        /// Clears this group's items, without setting the items' parent group or manager to null
-        /// </summary>
-        public void UnsafeClear() => this.items.Clear();
-
         public override void Dispose() {
             base.Dispose();
-            using (ErrorList list = new ErrorList("Exception disposing child resources", false)) {
-                foreach (BaseResource resource in this.items) {
-                    try {
-                        resource.Dispose();
-                    }
-                    catch (Exception e) {
-                        list.Add(new Exception("Exception while disposing " + resource.GetType(), e));
-                    }
-                }
+            for (int i = this.items.Count - 1; i >= 0; i--) {
+                this.UnregisterDisposeAndRemoveItemAt(i);
             }
         }
 

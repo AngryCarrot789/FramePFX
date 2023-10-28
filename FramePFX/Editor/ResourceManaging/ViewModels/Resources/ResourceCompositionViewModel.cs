@@ -16,9 +16,5 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
             base.SetManager(manager);
             this.Timeline.SetProject(manager?.Project);
         }
-
-        public override Task<bool> DeleteSelfAction() {
-            return base.DeleteSelfAction();
-        }
     }
 }

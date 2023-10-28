@@ -122,33 +122,33 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         }
 
         private async Task CreateResourceAction(string type) {
-            BaseResource resourceItem;
+            BaseResource item;
             switch (type) {
                 case nameof(ResourceColour):
-                    resourceItem = new ResourceColour() {
+                    item = new ResourceColour() {
                         DisplayName = "New Colour"
                     };
                     break;
                 case nameof(ResourceImage):
-                    resourceItem = new ResourceImage() {DisplayName = "New Image"};
+                    item = new ResourceImage() {DisplayName = "New Image"};
                     break;
                 case nameof(ResourceTextFile):
-                    resourceItem = new ResourceTextFile() {DisplayName = "New Text File"};
+                    item = new ResourceTextFile() {DisplayName = "New Text File"};
                     break;
                 case nameof(ResourceTextStyle):
-                    resourceItem = new ResourceTextStyle() {DisplayName = "New Text Style"};
+                    item = new ResourceTextStyle() {DisplayName = "New Text Style"};
                     break;
                 case nameof(ResourceFolder):
-                    resourceItem = new ResourceFolder() {DisplayName = "New Folder"};
+                    item = new ResourceFolder() {DisplayName = "New Folder"};
                     break;
                 case nameof(ResourceComposition):
-                    resourceItem = new ResourceComposition() {DisplayName = "New Composition Sequence"};
-                    ((ResourceComposition) resourceItem).Timeline.DisplayName = "Composition timeline";
-                    ((ResourceComposition) resourceItem).Timeline.AddTrack(new VideoTrack() {
+                    item = new ResourceComposition() {DisplayName = "New Composition Sequence"};
+                    ((ResourceComposition) item).Timeline.DisplayName = "Composition timeline";
+                    ((ResourceComposition) item).Timeline.AddTrack(new VideoTrack() {
                         DisplayName = "Track 1"
                     });
 
-                    ((ResourceComposition) resourceItem).Timeline.AddTrack(new VideoTrack() {
+                    ((ResourceComposition) item).Timeline.AddTrack(new VideoTrack() {
                         DisplayName = "Track 2"
                     });
                     break;
@@ -157,27 +157,26 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                     return;
             }
 
-            BaseResourceViewModel resObj = resourceItem.CreateViewModel();
-            if (resObj is ResourceItemViewModel item) {
-                if (!await ResourceItemViewModel.TryAddAndLoadNewResource(this.CurrentFolder, item)) {
+            BaseResourceViewModel resource = item.CreateViewModel();
+            if (item is ResourceItem) {
+                if (!await ResourceItemViewModel.TryAddAndLoadNewResource(this.CurrentFolder, (ResourceItemViewModel) resource)) {
                     await Services.DialogService.ShowMessageAsync("Resource error", "Could not load resource. See app logs for more details");
                 }
             }
-            else if (resObj is ResourceFolderViewModel group) {
-                await group.RenameAsync();
-                this.CurrentFolder.AddItem(group);
+            else {
+                this.CurrentFolder.AddItem(resource);
+                await resource.RenameAsync();
             }
 
-            if (resObj is ResourceCompositionViewModel composition) {
+            if (resource is ResourceCompositionViewModel composition) {
                 VideoEditorViewModel editor = this.Project.Editor;
                 editor?.OpenAndSelectTimeline(composition.Timeline);
             }
         }
 
         public void ClearAndDispose() {
-            this.Root.UnregisterHierarchy();
-            this.Root.DisposeChildrenAndClear(false);
-            this.Root.Dispose();
+            this.Root.Model.Dispose();
+            ((BaseResourceViewModel) this.Root).Model.Dispose();
         }
 
         public async Task OfflineAllAsync(bool user) {

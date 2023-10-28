@@ -65,24 +65,13 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             obj.parent = parent;
         }
 
-        public static void PostSetParent(BaseResourceViewModel obj, ResourceFolderViewModel parent, bool myParent) {
+        public static void PostSetParent(BaseResourceViewModel obj, ResourceFolderViewModel parent) {
             obj.RaisePropertyChanged(nameof(obj.Parent));
-            obj.OnParentChainChanged(myParent);
         }
 
         public static void SetParent(BaseResourceViewModel obj, ResourceFolderViewModel parent) {
             PreSetParent(obj, parent);
-            PostSetParent(obj, parent, true);
-        }
-
-        /// <summary>
-        /// Invoked when a parent in our hierarchy has changed (may not be our actual <see cref="Parent"/>)
-        /// </summary>
-        /// <param name="myParent">
-        /// True when our actual parent changed, false when the parent changed
-        /// higher up our hierarchy (e.g. the parent of our parent)
-        /// </param>
-        protected internal virtual void OnParentChainChanged(bool myParent) {
+            PostSetParent(obj, parent);
         }
 
         public virtual void SetManager(ResourceManagerViewModel newManager) {
@@ -107,7 +96,8 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             }
 
 #if DEBUG
-            this.Parent.RemoveItemAndDisposeAt(index);
+            ResourceFolderViewModel tempQualifier = this.Parent;
+            tempQualifier.Model.UnregisterDisposeAndRemoveItemAt(index);
 #else
             try {
                 this.Parent.RemoveItemAndDisposeAt(index);
@@ -118,12 +108,6 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 #endif
 
             return true;
-        }
-
-        /// <summary>
-        /// Called when the model associated with this view model is disposed
-        /// </summary>
-        protected virtual void OnModelDisposed() {
         }
 
         public async Task<bool> RenameAsync() {
@@ -144,24 +128,6 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             }
 
             return true;
-        }
-
-        /// <summary>
-        /// Disposes the model, and then calls <see cref="OnModelDisposed"/>
-        /// </summary>
-        public void Dispose() {
-            Exception exception = null;
-            try {
-                this.Model.Dispose();
-            }
-            catch (Exception e) {
-                exception = new Exception("Failed to dispose model", e);
-            }
-
-            this.OnModelDisposed();
-            if (exception != null) {
-                throw exception;
-            }
         }
     }
 }

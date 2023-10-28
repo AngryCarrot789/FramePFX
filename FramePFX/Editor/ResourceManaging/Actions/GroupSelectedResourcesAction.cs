@@ -18,7 +18,7 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
                     current.AddItem(newFolder);
                     foreach (BaseResourceViewModel item in selection) {
                         if (item != current && item.Parent == current) {
-                            current.MoveItemTo(item, newFolder);
+                            current.Model.MoveItemTo(newFolder.Model, item.Model);
                         }
                     }
                 }

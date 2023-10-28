@@ -17,7 +17,6 @@ namespace FramePFX.Editor.ResourceManaging {
     public sealed class ResourcePath : IDisposable {
         private readonly ResourceAndManagerEventHandler resourceAddedHandler;
         private readonly ResourceAndManagerEventHandler resourceRemovedHandler;
-        private readonly ResourceReplacedEventHandler resourceReplacedHandler;
         private readonly ResourceAndManagerEventHandler onlineStateChangedHandler;
 
         private ResourceItem cached;        // our cached resource
@@ -72,7 +71,6 @@ namespace FramePFX.Editor.ResourceManaging {
             this.Owner = owner ?? throw new ArgumentNullException(nameof(owner));
             this.resourceAddedHandler = this.OnManagerResourceAdded;
             this.resourceRemovedHandler = this.OnManagerResourceRemoved;
-            this.resourceReplacedHandler = this.OnManagerResourceReplaced;
             this.onlineStateChangedHandler = this.OnOnlineStateChanged;
             if (manager != null) {
                 this.Manager = manager;
@@ -155,13 +153,13 @@ namespace FramePFX.Editor.ResourceManaging {
         public void SetReferenceCount(ResourceItem item, bool isReferenced) {
             if (isReferenced) {
                 if (!this.isReferencedCounted) {
-                    this.isReferencedCounted = true;
                     item.AddReference(this);
+                    this.isReferencedCounted = true;
                 }
             }
             else if (this.isReferencedCounted) {
-                this.isReferencedCounted = false;
                 item.RemoveReference(this);
+                this.isReferencedCounted = false;
             }
         }
 
@@ -279,27 +277,6 @@ namespace FramePFX.Editor.ResourceManaging {
             this.SetInternalResource(null);
         }
 
-        private void OnManagerResourceReplaced(ResourceManager manager, ulong id, ResourceItem oldItem, ResourceItem newItem) {
-            if (this.isDisposed) {
-                AppLogger.WriteLine("RESOURCE IS DISPOSED BUT RECEIVED RESOURCE REPLACED EVENT!!!!!!!!!!!!!!!!!!!!!!!");
-                Debugger.Break();
-                return;
-            }
-
-            if (id != this.ResourceId) {
-                return;
-            }
-
-            if (this.IsValid == true) {
-                if (this.cached == null)
-                    throw new Exception("Expected our cached item to not be null");
-                if (!ReferenceEquals(this.cached, oldItem))
-                    throw new Exception("Expected the cached item to equal the new item");
-            }
-
-            this.SetInternalResource(newItem);
-        }
-
         private void OnOnlineStateChanged(ResourceManager manager, ResourceItem item) {
             this.OnlineStateChanged?.Invoke(manager, item);
         }
@@ -311,13 +288,11 @@ namespace FramePFX.Editor.ResourceManaging {
         private void AttachManager(ResourceManager manager) {
             manager.ResourceAdded += this.resourceAddedHandler;
             manager.ResourceRemoved += this.resourceRemovedHandler;
-            manager.ResourceReplaced += this.resourceReplacedHandler;
         }
 
         private void DetachManager(ResourceManager manager) {
             manager.ResourceAdded -= this.resourceAddedHandler;
             manager.ResourceRemoved -= this.resourceRemovedHandler;
-            manager.ResourceReplaced -= this.resourceReplacedHandler;
         }
 
         /// <summary>

@@ -11,6 +11,7 @@ using FramePFX.Commands;
 using FramePFX.Editor.History;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.Timelines;
+using FramePFX.Editor.Timelines.Events;
 using FramePFX.History;
 using FramePFX.History.Tasks;
 using FramePFX.History.ViewModels;
@@ -180,7 +181,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 ClipViewModel.PostSetTrack(clip, null);
                 this.TryRaiseLargestFrameInUseChanged();
             }
-            else if (ReferenceEquals(e.NewTrack, this.Model)) { // we are the target track; add the clip internally
+            else { // we are the target track; add the clip internally
                 if ((clip = e.Parameter as ClipViewModel) == null) {
                     throw new InvalidOperationException("Expected parameter to be a ClipViewModel");
                 }
@@ -190,9 +191,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 ClipViewModel.PostSetTrack(clip, this);
                 this.TryRaiseLargestFrameInUseChanged();
                 this.OnProjectModified();
-            }
-            else {
-                throw new Exception("???");
             }
         }
 

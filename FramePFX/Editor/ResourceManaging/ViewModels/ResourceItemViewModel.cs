@@ -175,13 +175,13 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
             bool result = false;
             folder.AddItem(resource);
-            ulong id = manager.Model.RegisterEntry(resource.Model);
+            ulong id = resource.Model.IsRegistered() ? resource.UniqueId : manager.Model.RegisterEntry(resource.Model);
             if (resource.IsOnline || await TryLoadResource(resource, checker)) {
                 result = true;
             }
             else {
                 if (!keepInHierarchyOnLoadFailure) {
-                    folder.RemoveItem(resource, unregisterHierarcy: true);
+                    folder.Model.UnregisterAndRemoveItem(resource.Model);
                 }
             }
 

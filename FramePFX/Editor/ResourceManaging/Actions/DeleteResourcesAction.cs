@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FramePFX.Actions;
 using FramePFX.Editor.ResourceManaging.ViewModels;
+using FramePFX.Logger;
 using FramePFX.Utils;
 using FramePFX.Views.Dialogs.Message;
 
@@ -48,7 +49,14 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
 
             try {
                 foreach (BaseResourceViewModel item in selection) {
-                    item.Parent?.RemoveItem(item);
+                    if (item.Model.Parent == null) {
+                        AppLogger.WriteLine($"[FATAL] Item in selection had no parent: {item.Model}");
+                        continue;
+                    }
+
+                    if (!item.Model.Parent.UnregisterRemoveAndDisposeItem(item.Model)) {
+                        throw new Exception("Corrupted resource item: valid parent, but was not stored in the parent list");
+                    }
                 }
             }
             catch (Exception ex) {

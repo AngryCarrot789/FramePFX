@@ -10,12 +10,12 @@ namespace FramePFX.Editor.ResourceManaging {
     /// </summary>
     public abstract class BaseResource {
         /// <summary>
-        /// The manager that this resource belongs to. Null if the resource is unregistered
+        /// The manager that this resource belongs to. Null if <see cref="Parent"/> is null, or there is just no manager associated with this hierarchy
         /// </summary>
         public ResourceManager Manager { get; set; }
 
         /// <summary>
-        /// The group that this object is currently in, or null, if this is a root object
+        /// The folder that this object is currently in. Null if we aren't in a folder
         /// </summary>
         public ResourceFolder Parent { get; private set; }
 
@@ -63,16 +63,8 @@ namespace FramePFX.Editor.ResourceManaging {
             return clone;
         }
 
-        public static void SetParent(BaseResource obj, ResourceFolder parent) {
+        protected static void InternalSetParent(BaseResource obj, ResourceFolder parent) {
             obj.Parent = parent;
-            obj.OnParentChainChanged();
-        }
-
-        /// <summary>
-        /// Called when this resource's parent chain is modified, e.g., a resource folder is moved into another resource folder,
-        /// this method is called for every single child of the group that was moved (recursively)
-        /// </summary>
-        protected internal virtual void OnParentChainChanged() {
         }
 
         /// <summary>
@@ -140,6 +132,9 @@ namespace FramePFX.Editor.ResourceManaging {
         /// </para>
         /// <para>
         /// If this object is a <see cref="ResourceItem"/>, it will not be unregistered from the resource manager; that must be done manually
+        /// </para>
+        /// <para>
+        /// If this object is a <see cref="ResourceFolder"/>, it will recursively dispose and clear the hierarchy of items
         /// </para>
         /// </summary>
         public virtual void Dispose() {

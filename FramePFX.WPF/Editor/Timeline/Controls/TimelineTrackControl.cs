@@ -76,10 +76,9 @@ namespace FramePFX.WPF.Editor.Timeline.Controls {
                 image.DisplayName = "NewImage_" + RandomUtils.RandomLetters(6);
                 bitmap.SetImmutable();
                 image.SetBitmapImage(bitmap);
-                ResourceItemViewModel resource = (ResourceItemViewModel) ResourceTypeFactory.Instance.CreateViewModelFromModel(image);
-                manager.CurrentFolder.AddItem(resource);
-
+                manager.CurrentFolder.Model.AddItem(image);
                 ulong id = manager.Model.RegisterEntry(image);
+                ResourceItemViewModel resource = (ResourceItemViewModel) manager.CurrentFolder.LastItem;
 
                 ImageVideoClip imageClip = new ImageVideoClip();
                 imageClip.DisplayName = "an image!!! for " + image.DisplayName;

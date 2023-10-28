@@ -30,11 +30,6 @@ namespace FramePFX.Editor.ResourceManaging {
         public event ResourceAndManagerEventHandler ResourceRemoved;
 
         /// <summary>
-        /// An event called when a resource is replaced with another resource
-        /// </summary>
-        public event ResourceReplacedEventHandler ResourceReplaced;
-
-        /// <summary>
         /// This manager's root resource folder, which contains the tree of resources. Registered entries are
         /// stored in this tree, and cached in an internal dictionary (for speed purposes), therefore it is
         /// important that this tree is not modified unless the internal dictionary is also modified accordingly
@@ -109,9 +104,13 @@ namespace FramePFX.Editor.ResourceManaging {
                 throw new ArgumentNullException(nameof(item), "Item cannot be null");
             if (item.UniqueId != EmptyId) {
                 if (this.uuidToItem.TryGetValue(item.UniqueId, out ResourceItem oldItem))
-                    throw new Exception($"Resource is already registered with ID '{item.UniqueId}': {oldItem.GetType()}");
-                AppLogger.WriteLine("Resource's ID was already set to a non-empty value. It will be unsafely overridden");
+                    throw new Exception($"Resource is already registered in this manager with ID '{item.UniqueId}': {oldItem.GetType()}");
+                if (item.Manager != null && item.Manager.uuidToItem.TryGetValue(item.UniqueId, out oldItem))
+                    throw new Exception($"Resource is already registered in another manager with ID '{item.UniqueId}': {oldItem.GetType()}");
             }
+
+            if (item.Manager != null && item.Manager != this)
+                throw new ArgumentException("Item's manager was non-null and did not equal the current instance");
 
             ulong id = this.GetNextId();
             this.uuidToItem[id] = item;
@@ -132,26 +131,6 @@ namespace FramePFX.Editor.ResourceManaging {
             this.ResourceAdded?.Invoke(this, item);
         }
 
-        /// <summary>
-        /// Replaces an existing resource item instance with another instance, while maintaining the same ID
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="item"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException"></exception>
-        public ResourceItem ReplaceEntry(ulong id, ResourceItem item) {
-            if (item == null)
-                throw new ArgumentNullException(nameof(item), "Item cannot be null");
-            if (id == EmptyId)
-                throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
-            this.uuidToItem.TryGetValue(id, out ResourceItem oldItem);
-            this.uuidToItem[id] = item;
-            ResourceItem.SetUniqueId(item, id);
-            this.ResourceReplaced?.Invoke(this, id, oldItem, item);
-            return oldItem;
-        }
-
         public ResourceItem DeleteEntryById(ulong id) {
             if (id == EmptyId)
                 throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
@@ -168,7 +147,7 @@ namespace FramePFX.Editor.ResourceManaging {
             return item;
         }
 
-        public bool DeleteEntryByItem(ResourceItem item) {
+        public bool RemoveEntryByItem(ResourceItem item) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "Item cannot be null");
             if (!ReferenceEquals(this, item.Manager))

@@ -9,31 +9,6 @@ using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines {
-    public delegate void ClipInsertedIntoTrackEventHandler(Track track, Clip clip, int index);
-    public delegate void ClipRemovedFromTrackEventHandler(Track track, Clip clip, int index);
-    public delegate void ClipMovedToTrackEventHandler(ClipMovedEventArgs e);
-
-    public class ClipMovedEventArgs : EventArgs {
-        public Track OldTrack { get; }
-        public Track NewTrack { get; }
-        public Clip Clip { get; }
-        public int OldIndex { get; }
-        public int NewIndex { get; }
-
-        /// <summary>
-        /// An additional object that can be used to pass information between handlers
-        /// </summary>
-        public object Parameter { get; set; }
-
-        public ClipMovedEventArgs(Track oldTrack, Track newTrack, Clip clip, int oldIndex, int newIndex) {
-            this.OldTrack = oldTrack;
-            this.NewTrack = newTrack;
-            this.Clip = clip;
-            this.OldIndex = oldIndex;
-            this.NewIndex = newIndex;
-        }
-    }
-
     /// <summary>
     /// Base class for timeline tracks. A track simply contains clips, along with a few extra
     /// properties (like opacity for video tracks or gain for audio tracks, which typically affect all clips)
@@ -79,15 +54,15 @@ namespace FramePFX.Editor.Timelines {
 
         private readonly ClipRangeCache cache;
 
-        public event ClipInsertedIntoTrackEventHandler ClipInserted;
-        public event ClipRemovedFromTrackEventHandler ClipRemoved;
+        public event ClipAddedEventHandler ClipInserted;
+        public event ClipRemovedEventHandler ClipRemoved;
 
         /// <summary>
         /// An event fired when a clip is moved from one track to another. This is invoked on both the
         /// source and target track instances, and to know which track was the source and target, do
         /// a reference equality comparison
         /// </summary>
-        public event ClipMovedToTrackEventHandler ClipMovedToTrack;
+        public event ClipMovedEventHandler ClipMovedToTrack;
 
         private readonly ClipSpanChangedEventHandler clipSpanChangedHandler;
 

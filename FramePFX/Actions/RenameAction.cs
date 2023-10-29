@@ -3,7 +3,7 @@ using FramePFX.Utils;
 
 namespace FramePFX.Actions {
     public class RenameAction : AnAction {
-        public RenameAction() {
+        public RenameAction() : base() {
         }
 
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {

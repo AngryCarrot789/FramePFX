@@ -30,9 +30,10 @@ namespace FramePFX.Actions.Helpers {
         /// Constructor for <see cref="CommandAction{T}"/>
         /// </summary>
         /// <param name="propertyName">The name of the <see cref="ICommand"/> property in <see cref="T"/></param>
+        /// <param name="id"></param>
         /// <exception cref="ArgumentNullException">Null property name</exception>
         /// <exception cref="Exception">No such property in <see cref="T"/> named by <see cref="propertyName"/></exception>
-        public CommandAction(string propertyName) : base() {
+        public CommandAction(string propertyName) {
             if (propertyName == null)
                 throw new ArgumentNullException(nameof(propertyName));
             PropertyInfo propertyInfo = typeof(T).GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
@@ -47,8 +48,9 @@ namespace FramePFX.Actions.Helpers {
         /// Constructor for <see cref="CommandAction{T}"/> which accepts a non-null function for getting an <see cref="ICommand"/> from an instance of <see cref="T"/>
         /// </summary>
         /// <param name="accessor">The command getter function</param>
+        /// <param name="id"></param>
         /// <exception cref="ArgumentNullException">Null function</exception>
-        public CommandAction(Func<T, ICommand> accessor) : base() {
+        public CommandAction(Func<T, ICommand> accessor) {
             this.CommandAccessor = accessor ?? throw new ArgumentNullException(nameof(accessor));
         }
 

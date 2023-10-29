@@ -6,7 +6,7 @@ using FramePFX.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Editor.Actions.Clips {
     public class DeleteSelectedClips : AnAction {
-        public DeleteSelectedClips() {
+        public DeleteSelectedClips() : base() {
         }
 
         public override bool CanExecute(AnActionEventArgs e) {

@@ -22,7 +22,7 @@ namespace FramePFX.Actions {
         /// could be available. All of this gives a wide range of access to the objects being acted upon
         /// </para>
         /// </summary>
-        public IDataContext DataContext { get; }
+        public DataContext DataContext { get; }
 
         /// <summary>
         /// Whether this action event was originally caused by a user or not, e.g. via a button/menu click or clicking a check box.
@@ -44,8 +44,12 @@ namespace FramePFX.Actions {
                 throw new ArgumentException("ActionId must be null or a non-empty string");
             }
 
+            if (dataContext == null)
+                throw new ArgumentNullException(nameof(dataContext), "Data context cannot be null");
+
             this.Manager = manager ?? throw new ArgumentNullException(nameof(manager), "Action manager cannot be null");
-            this.DataContext = dataContext ?? throw new ArgumentNullException(nameof(dataContext), "Data context cannot be null");
+            this.DataContext = new DataContext();
+            this.DataContext.Merge(dataContext);
             this.IsUserInitiated = isUserInitiated;
             this.ActionId = actionId;
         }

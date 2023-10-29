@@ -106,7 +106,7 @@
                         <KeyStroke Mods="ALT" Key="Right" />
                     </Shortcut>
 
-                    <Shortcut Name="NewTextClip" ActionId="actions.resources.newitem.NewText">
+                    <Shortcut Name="NewTextClip" ActionId="action.create.new.clip.TextClip">
                         <KeyStroke Mods="CTRL" Key="T" />
                     </Shortcut>
                 </Group>

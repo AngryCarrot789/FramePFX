@@ -4,6 +4,7 @@ using FramePFX.Actions;
 using FramePFX.Actions.Contexts;
 using FramePFX.AdvancedContextService;
 using FramePFX.Editor.ResourceManaging;
+using FramePFX.Editor.ResourceManaging.Actions;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
@@ -56,14 +57,14 @@ namespace FramePFX.Editor.Contexts {
             }
 
             if (context.TryGetContext(out ResourceManagerViewModel manager) || (resItem != null && (manager = resItem.Manager) != null)) {
-                ResourceFolderViewModel folder = resItem as ResourceFolderViewModel ?? manager.CurrentFolder;
                 List<IContextEntry> newList = new List<IContextEntry> {
-                    new CommandContextEntry("New Folder", manager.CreateResourceCommand, nameof(ResourceFolder)),
+                    new ActionContextEntry(null, "action.create.new.resource.ResourceFolder", "New Folder", "Create a new folder"),
                     SeparatorEntry.Instance,
-                    new ActionContextEntry(context, "actions.resources.newitem.NewText", "New Text", "Create a new text resource, and clip"),
-                    new CommandContextEntry("New ARGB Colour", manager.CreateResourceCommand, nameof(ResourceColour)),
-                    new CommandContextEntry("New Image", manager.CreateResourceCommand, nameof(ResourceImage)),
-                    new CommandContextEntry("New Composition Sequence", manager.CreateResourceCommand, nameof(ResourceComposition))
+                    new ActionContextEntry(null, "action.create.new.resource.ResourceTextFile", "New Text", "Create a new text resource, and clip"),
+                    new ActionContextEntry(null, "action.create.new.resource.ResourceColour", "New ARGB Colour"),
+                    new ActionContextEntry(null, "action.create.new.resource.ResourceImage", "New Image"),
+                    new ActionContextEntry(null, "action.create.new.resource.ResourceTextStyle", "New Text Style"),
+                    new ActionContextEntry(null, "action.create.new.resource.ResourceComposition", "New Composition Sequence")
                 };
 
                 if (list.Count > 0) {

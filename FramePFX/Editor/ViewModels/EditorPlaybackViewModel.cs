@@ -85,9 +85,13 @@ namespace FramePFX.Editor.ViewModels {
         }
 
         public void StopPlaybackForChangingTimeline() {
-            this.StopRenderTimer().ContinueWith(x => {
+            Task task = this.StopRenderTimer();
+            if (task.IsCompleted) {
                 this.UpdatePlaybackCommands();
-            });
+            }
+            else {
+                task.ContinueWith(x => this.UpdatePlaybackCommands());
+            }
         }
 
         public async Task StopRenderTimer() {

@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using FramePFX.Actions;
+using FramePFX.Editor.ResourceManaging.Actions;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
@@ -11,58 +12,40 @@ using FramePFX.Editor.ViewModels.Timelines.Tracks;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.Actions.Resources {
-    [ActionRegistration("actions.resources.newitem.NewText")]
+    [ActionRegistration("action.create.new.clip.TextClip")]
     public class NewTextResourceAction : AnAction {
         public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            ResourceManagerViewModel manager;
-            ResourceFolderViewModel folder;
+            if (!CreateResourceTextStyleAction.Instance.CanExecute(e))
+                return false;
 
-            if (!e.DataContext.TryGetContext(out folder)) {
-                if (!e.DataContext.TryGetContext(out manager)) {
-                    TimelineViewModel timeline;
-                    if (e.DataContext.TryGetContext(out ClipViewModel clip)) {
-                        timeline = clip.Timeline;
-                    }
-                    else if (e.DataContext.TryGetContext(out TrackViewModel track)) {
-                        timeline = track.Timeline;
-                    }
-                    else if (!e.DataContext.TryGetContext(out timeline)) {
-                        return false;
-                    }
-
-                    if (timeline == null) {
-                        return false;
-                    }
-
-                    manager = timeline.Project?.ResourceManager;
-                    if (manager == null)
-                        return false;
-                    folder = manager.CurrentFolder;
-                }
-                else if (manager.CurrentFolder == null) {
-                    return false;
-                }
-                else {
-                    folder = manager.CurrentFolder;
-                }
+            TimelineViewModel timeline;
+            if (e.DataContext.TryGetContext(out ClipViewModel clip)) {
+                timeline = clip.Timeline;
             }
-            else {
-                manager = folder.Manager;
+            else if (e.DataContext.TryGetContext(out TrackViewModel track)) {
+                timeline = track.Timeline;
+            }
+            else if (!e.DataContext.TryGetContext(out timeline)) {
+                return false;
             }
 
-            if (!TextIncrement.GetIncrementableString(folder.PredicateIsNameFree, "Sample Text", out string name))
+            if (timeline == null)
+                return false;
+
+            if (!await CreateResourceTextStyleAction.Instance.ExecuteAsync(e))
+                return false;
+
+            if (!e.DataContext.TryGet(CreateResourceTextStyleAction.CreatedResourceViewModelKey, out ResourceTextStyleViewModel resource)) {
+                return false;
+            }
+
+            if (!TextIncrement.GetIncrementableString(resource.Parent.PredicateIsNameFree, "Sample Text", out string name)) {
                 name = "Sample Text";
-            ResourceTextStyle resource = new ResourceTextStyle() {
-                DisplayName = name
-            };
-            ResourceTextStyleViewModel textStyle = resource.CreateViewModel<ResourceTextStyleViewModel>();
-            if (!await ResourceItemViewModel.TryAddAndLoadNewResource(folder, textStyle)) {
-                return true;
             }
 
-            folder.Manager.SelectedItems.Add(textStyle);
-            if (manager.Project != null) {
-                TimelineViewModel timeline = manager.Project.Editor?.SelectedTimeline;
+            resource.Parent.Manager.SelectedItems.Add(resource);
+            if (resource.Manager.Project != null) {
+                timeline = resource.Manager.Project.Editor?.SelectedTimeline;
                 if (timeline != null) {
                     VideoTrackViewModel track;
                     if ((track = timeline.PrimarySelectedTrack as VideoTrackViewModel) == null || !Track.TryGetSpanUntilClip(track.Model, timeline.PlayHeadFrame, out FrameSpan span)) {
@@ -71,7 +54,7 @@ namespace FramePFX.Editor.Actions.Resources {
                     }
 
                     TextVideoClip textClip = new TextVideoClip();
-                    textClip.TextStyleKey.SetTargetResourceId(textStyle.UniqueId);
+                    textClip.TextStyleKey.SetTargetResourceId(resource.UniqueId);
                     textClip.FrameSpan = span;
                     textClip.AddEffect(new MotionEffect());
                     textClip.DisplayName = name;

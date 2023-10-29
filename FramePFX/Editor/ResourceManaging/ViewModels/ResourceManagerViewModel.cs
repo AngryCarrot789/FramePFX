@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using FramePFX.Actions.Helpers;
 using FramePFX.Commands;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.ViewModels;
+using FramePFX.Logger;
 using FramePFX.PropertyEditing;
 
 namespace FramePFX.Editor.ResourceManaging.ViewModels {
@@ -48,8 +50,6 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             }
         }
 
-        public AsyncRelayCommand<string> CreateResourceCommand { get; }
-
         public ResourceManager Model { get; }
 
         public ProjectViewModel Project { get; }
@@ -73,7 +73,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                 PFXPropertyEditorRegistry.Instance.OnResourcesSelectionChanged(this.SelectedItems.ToList());
             };
 
-            this.CreateResourceCommand = new AsyncRelayCommand<string>(this.CreateResourceAction);
+            CommandTargetAction<string> cd;
             this.undoGroup = new LinkedList<ResourceFolderViewModel>();
             this.redoGroup = new LinkedList<ResourceFolderViewModel>();
         }
@@ -118,59 +118,6 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
                     this.NavigateToGroup(last, false);
                     return;
                 }
-            }
-        }
-
-        private async Task CreateResourceAction(string type) {
-            BaseResource item;
-            switch (type) {
-                case nameof(ResourceColour):
-                    item = new ResourceColour() {
-                        DisplayName = "New Colour"
-                    };
-                    break;
-                case nameof(ResourceImage):
-                    item = new ResourceImage() {DisplayName = "New Image"};
-                    break;
-                case nameof(ResourceTextFile):
-                    item = new ResourceTextFile() {DisplayName = "New Text File"};
-                    break;
-                case nameof(ResourceTextStyle):
-                    item = new ResourceTextStyle() {DisplayName = "New Text Style"};
-                    break;
-                case nameof(ResourceFolder):
-                    item = new ResourceFolder() {DisplayName = "New Folder"};
-                    break;
-                case nameof(ResourceComposition):
-                    item = new ResourceComposition() {DisplayName = "New Composition Sequence"};
-                    ((ResourceComposition) item).Timeline.DisplayName = "Composition timeline";
-                    ((ResourceComposition) item).Timeline.AddTrack(new VideoTrack() {
-                        DisplayName = "Track 1"
-                    });
-
-                    ((ResourceComposition) item).Timeline.AddTrack(new VideoTrack() {
-                        DisplayName = "Track 2"
-                    });
-                    break;
-                default:
-                    await Services.DialogService.ShowMessageAsync("Unknown item", $"Unknown item to create: {type}. Possible bug :(");
-                    return;
-            }
-
-            BaseResourceViewModel resource = item.CreateViewModel();
-            if (item is ResourceItem) {
-                if (!await ResourceItemViewModel.TryAddAndLoadNewResource(this.CurrentFolder, (ResourceItemViewModel) resource)) {
-                    await Services.DialogService.ShowMessageAsync("Resource error", "Could not load resource. See app logs for more details");
-                }
-            }
-            else {
-                this.CurrentFolder.AddItem(resource);
-                await resource.RenameAsync();
-            }
-
-            if (resource is ResourceCompositionViewModel composition) {
-                VideoEditorViewModel editor = this.Project.Editor;
-                editor?.OpenAndSelectTimeline(composition.Timeline);
             }
         }
 

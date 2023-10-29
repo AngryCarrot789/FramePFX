@@ -18,7 +18,6 @@ namespace FramePFX.Editor.ResourceChecker {
         protected InvalidResourceViewModel(ResourceItemViewModel resource) {
             this.Resource = resource ?? throw new ArgumentNullException(nameof(resource));
             this.SetOfflineCommand = new AsyncRelayCommand(this.SetOfflineAndRemove, () => this.Checker != null);
-            resource.Model.IsOnline = false;
         }
 
         /// <summary>

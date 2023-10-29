@@ -230,7 +230,15 @@ namespace FramePFX.WPF.AdvancedContextService {
 
         private void DispatchAction(string id) {
             AdvancedContextMenu parent = VisualTreeUtils.GetParent<AdvancedContextMenu>(this, false);
-            DataContext context = parent?.LastContext ?? this.GetAvailableContext();
+            DataContext context = parent?.LastContext;
+            if (context == null) {
+                context = this.GetAvailableContext();
+            }
+            else {
+                context = context.Clone();
+                context.Merge(this.GetAvailableContext());
+            }
+
             this.Dispatcher.BeginInvoke((Action) (() => this.ExecuteAction(id, context)), DispatcherPriority.Render);
         }
 

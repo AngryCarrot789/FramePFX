@@ -1,57 +1,42 @@
 using System;
-using System.Reflection;
 using System.Threading.Tasks;
-using System.Windows.Input;
+using FramePFX.Actions.Contexts;
 using FramePFX.Commands;
 
 namespace FramePFX.Actions.Helpers {
-    public class ActionCommand<T> : AnAction {
-        public Type TargetType { get; }
+    public abstract class BaseActionCommand : BaseAsyncRelayCommand {
+        public string ActionId { get; }
 
-        public string PropertyName { get; }
+        public IDataContext Context { get; }
 
-        public PropertyInfo Property { get; }
+        protected BaseActionCommand(string actionId, IDataContext context) {
+            if (string.IsNullOrWhiteSpace(actionId))
+                throw new ArgumentException("Action is must not be null, empty or whitespaces", nameof(actionId));
+            this.ActionId = actionId;
+            this.Context = context;
+        }
+    }
 
-        public ActionCommand(string propertyName) : base() {
-            this.PropertyName = propertyName ?? throw new ArgumentNullException(nameof(propertyName));
-            this.TargetType = typeof(T);
-            this.Property = this.TargetType.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
-            if (this.Property == null) {
-                throw new Exception($"No such property: {this.TargetType}.{propertyName}");
-            }
+    public class ActionCommand : BaseActionCommand {
+        public ActionCommand(string actionId, IDataContext context = null) : base(actionId, context) {
         }
 
-        public ICommand GetCommand(object instance) {
-            return this.Property.GetValue(instance) as ICommand;
+        protected override bool CanExecuteCore(object parameter) {
+            DataContext ctx = new DataContext();
+            if (parameter is IDataContext)
+                ctx.Merge((IDataContext) parameter);
+            if (this.Context != null)
+                ctx.Merge(this.Context);
+            return ActionManager.Instance.CanExecute(this.ActionId, ctx);
         }
 
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            if (!e.DataContext.TryGetContext(out T instance)) {
-                return false;
-            }
-
-            ICommand cmd = this.GetCommand(instance);
-            if (cmd == null || !cmd.CanExecute(null)) {
-                return false;
-            }
-
-            if (cmd is BaseAsyncRelayCommand asyncCmd) {
-                await asyncCmd.ExecuteAsync(null);
-            }
-            else {
-                cmd.Execute(null);
-            }
-
-            return true;
-        }
-
-        public override bool CanExecute(AnActionEventArgs e) {
-            if (!e.DataContext.TryGetContext(out T instance)) {
-                return false;
-            }
-
-            ICommand cmd = this.GetCommand(instance);
-            return cmd != null && cmd.CanExecute(null);
+        protected override Task ExecuteCoreAsync(object parameter) {
+            DataContext ctx = new DataContext();
+            if (parameter is IDataContext)
+                ctx.Merge((IDataContext) parameter);
+            if (this.Context != null)
+                ctx.Merge(this.Context);
+            return ActionManager.Instance.Execute(this.ActionId, ctx);
         }
     }
 }

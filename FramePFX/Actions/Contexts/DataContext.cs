@@ -26,6 +26,10 @@ namespace FramePFX.Actions.Contexts {
             this.AddContext(primaryContext);
         }
 
+        public static DataContext ForEntry(string key, object value) {
+            return new DataContext().Set(key, value);
+        }
+
         public T GetContext<T>() {
             this.TryGetContext(out T value); // value will be default or null
             return value;
@@ -82,7 +86,7 @@ namespace FramePFX.Actions.Contexts {
             this.InternalContext.Add(context);
         }
 
-        public void Set(string key, object value) {
+        public DataContext Set(string key, object value) {
             if (key == null) {
                 throw new ArgumentNullException(nameof(key), "Key cannot be null");
             }
@@ -97,6 +101,8 @@ namespace FramePFX.Actions.Contexts {
 
                 this.EntryMap[key] = value;
             }
+
+            return this;
         }
 
         public void Merge(IDataContext ctx) {
@@ -128,6 +134,12 @@ namespace FramePFX.Actions.Contexts {
                     map[a] = b;
                 }
             }
+        }
+
+        public DataContext Clone() {
+            DataContext ctx = new DataContext();
+            ctx.Merge(this);
+            return ctx;
         }
     }
 }

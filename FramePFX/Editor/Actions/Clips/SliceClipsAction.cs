@@ -6,7 +6,7 @@ using FramePFX.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Editor.Actions.Clips {
     public class SliceClipsAction : AnAction {
-        public SliceClipsAction() {
+        public SliceClipsAction() : base() {
         }
 
         public override bool CanExecute(AnActionEventArgs e) {

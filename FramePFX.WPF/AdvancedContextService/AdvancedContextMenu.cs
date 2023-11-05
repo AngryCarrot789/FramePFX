@@ -7,7 +7,9 @@ using FramePFX.Actions.Contexts;
 using FramePFX.AdvancedContextService;
 using FramePFX.AdvancedContextService.NCSP;
 using FramePFX.Utils;
+using FramePFX.WPF.Actions;
 using FramePFX.WPF.Utils;
+using ActionContextEntry = FramePFX.AdvancedContextService.ActionContextEntry;
 
 namespace FramePFX.WPF.AdvancedContextService {
     public class AdvancedContextMenu : ContextMenu {
@@ -158,14 +160,7 @@ namespace FramePFX.WPF.AdvancedContextService {
                 IContextGenerator generator = GetContextGenerator(sourceObject);
                 if (generator != null) {
                     List<IContextEntry> list = new List<IContextEntry>();
-                    DataContext context = new DataContext();
-                    if (VisualTreeUtils.GetDataContext(targetObject, out object tarDc))
-                        context.AddContext(tarDc);
-                    if (VisualTreeUtils.GetDataContext(sourceObject, out object srcDc))
-                        context.AddContext(srcDc);
-                    if (Window.GetWindow(sourceObject) is Window window && VisualTreeUtils.GetDataContext(window, out object winDc))
-                        context.AddContext(winDc);
-
+                    DataContext context = ActionContextProviderCollection.CreateContextFromTarget(targetObject);
                     if (generator is IWPFContextGenerator wpfGen) {
                         wpfGen.Generate(list, sourceObject, targetObject, VisualTreeUtils.GetDataContext(targetObject));
                     }
@@ -202,22 +197,14 @@ namespace FramePFX.WPF.AdvancedContextService {
                     return;
                 }
 
-                DataContext context = new DataContext();
-                context.AddContext(tarDc);
-                if (VisualTreeUtils.GetDataContext(sourceObject, out object srcDc))
-                    context.AddContext(srcDc);
-
-                if (Window.GetWindow(sourceObject) is Window window && VisualTreeUtils.GetDataContext(window, out object winDc))
-                    context.AddContext(winDc);
-
-                List<IContextEntry> list = ContextRegistry.Instance.GetActions(tarDc, context);
+                List<IContextEntry> list = ContextRegistry.Instance.GetActions(tarDc, null, false);
                 if (list.Count < 1) {
                     e.Handled = true;
                     return;
                 }
 
                 AdvancedContextMenu menu = GetOrCreateContextMenu(sourceObject);
-                menu.LastContext = context;
+                menu.LastContext = ActionContextProviderCollection.CreateContextFromTarget(targetObject);
                 menu.Items.Clear();
                 foreach (IContextEntry entry in CleanEntries(list)) {
                     menu.Items.Add(entry);

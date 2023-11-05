@@ -3,32 +3,36 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using FramePFX.Actions.Contexts;
+using FramePFX.Components;
 using FramePFX.Utils;
 
 namespace FramePFX.Actions {
+    /// <summary>
+    /// A class which manages all application actions
+    /// </summary>
     public class ActionManager {
-        public static ActionManager Instance { get; set; }
+        public static ActionManager Instance => IoC.Application.GetService<ActionManager>();
 
         private readonly Dictionary<string, LinkedList<CanExecuteChangedEventHandler>> updateEventMap;
         private readonly List<CanExecuteChangedEventHandler> globalUpdateEventMap;
-        private readonly Dictionary<string, AnAction> actions;
+        private readonly Dictionary<string, ExecutableAction> actions;
 
         /// <summary>
         /// Gets the number of actions registered
         /// </summary>
         public int Count => this.actions.Count;
 
-        public IEnumerable<KeyValuePair<string, AnAction>> Actions => this.actions;
+        public IEnumerable<KeyValuePair<string, ExecutableAction>> Actions => this.actions;
 
         public ActionManager() {
-            this.actions = new Dictionary<string, AnAction>();
+            this.actions = new Dictionary<string, ExecutableAction>();
             this.updateEventMap = new Dictionary<string, LinkedList<CanExecuteChangedEventHandler>>();
             this.globalUpdateEventMap = new List<CanExecuteChangedEventHandler>();
         }
 
-        public AnAction Unregister(string id) {
+        public ExecutableAction Unregister(string id) {
             ValidateId(id);
-            if (this.actions.TryGetValue(id, out AnAction action)) {
+            if (this.actions.TryGetValue(id, out ExecutableAction action)) {
                 this.actions.Remove(id);
                 return action;
             }
@@ -44,7 +48,7 @@ namespace FramePFX.Actions {
         /// <returns>The previous action registered with the given ID</returns>
         /// <exception cref="ArgumentException">Action ID is null or empty</exception>
         /// <exception cref="ArgumentNullException">Action is null</exception>
-        public void Register(string id, AnAction action) {
+        public void Register(string id, ExecutableAction action) {
             ValidateId(id);
             if (action == null)
                 throw new ArgumentNullException(nameof(action));
@@ -59,13 +63,13 @@ namespace FramePFX.Actions {
         /// <returns>The previous action registered with the given ID</returns>
         /// <exception cref="ArgumentException">Action ID is null or empty</exception>
         /// <exception cref="ArgumentNullException">Action is null</exception>
-        public void Register<T>(string id) where T : AnAction, new() {
+        public void Register<T>(string id) where T : ExecutableAction, new() {
             ValidateId(id);
             this.RegisterInternal(id, new T());
         }
 
-        private void RegisterInternal(string id, AnAction action) {
-            if (this.actions.TryGetValue(id, out AnAction existing)) {
+        private void RegisterInternal(string id, ExecutableAction action) {
+            if (this.actions.TryGetValue(id, out ExecutableAction existing)) {
                 throw new Exception($"An action is already registered with the ID '{id}': {existing.GetType()}");
             }
 
@@ -75,8 +79,8 @@ namespace FramePFX.Actions {
         /// <summary>
         /// Gets an action with the given ID
         /// </summary>
-        public virtual AnAction GetAction(string id) {
-            return !string.IsNullOrEmpty(id) && this.actions.TryGetValue(id, out AnAction action) ? action : null;
+        public virtual ExecutableAction GetAction(string id) {
+            return !string.IsNullOrEmpty(id) && this.actions.TryGetValue(id, out ExecutableAction action) ? action : null;
         }
 
         /// <summary>
@@ -93,14 +97,19 @@ namespace FramePFX.Actions {
         /// <exception cref="Exception">The context is null, or the assembly was compiled in debug mode and the action threw ane exception</exception>
         /// <exception cref="ArgumentException">ID is null, empty or consists of only whitespaces</exception>
         /// <exception cref="ArgumentNullException">Context is null</exception>
-        public Task<bool> Execute(string id, IDataContext context, bool isUserInitiated = true) {
+        public Task Execute(string id, IDataContext context, bool isUserInitiated = true) {
             ValidateId(id);
-            ValidateContext(context);
-            AnActionEventArgs args = new AnActionEventArgs(this, id, context, isUserInitiated);
-            return this.actions.TryGetValue(id, out AnAction action) ? this.ExecuteCore(action, args) : this.GetNoSuchActionResult(args);
+            if (this.actions.TryGetValue(id, out ExecutableAction action))
+                return this.Execute(id, action, context, isUserInitiated);
+            return Task.CompletedTask;
         }
 
-        protected virtual Task<bool> ExecuteCore(AnAction action, AnActionEventArgs e) {
+        public Task Execute(string id, ExecutableAction action, IDataContext context, bool isUserInitiated = true) {
+            ValidateContext(context);
+            return this.ExecuteCore(action, new ActionEventArgs(this, id, context, isUserInitiated));
+        }
+
+        protected virtual Task ExecuteCore(ExecutableAction action, ActionEventArgs e) {
             if (e.IsUserInitiated) {
                 return Debugger.IsAttached ? action.ExecuteAsync(e) : TryExecuteOrShowDialog(action, e);
             }
@@ -109,18 +118,13 @@ namespace FramePFX.Actions {
             }
         }
 
-        private static async Task<bool> TryExecuteOrShowDialog(AnAction action, AnActionEventArgs e) {
+        private static async Task TryExecuteOrShowDialog(ExecutableAction action, ActionEventArgs e) {
             try {
-                return await action.ExecuteAsync(e);
+                await action.ExecuteAsync(e);
             }
             catch (Exception ex) {
-                await Services.DialogService.ShowMessageExAsync("Action execution exception", $"An exception occurred while executing '{e.ActionId ?? action.GetType().ToString()}'", ex.GetToString());
-                return true;
+                await IoC.DialogService.ShowMessageExAsync("Action execution exception", $"An exception occurred while executing '{e.ActionId ?? action.GetType().ToString()}'", ex.GetToString());
             }
-        }
-
-        public virtual Task<bool> GetNoSuchActionResult(AnActionEventArgs e) {
-            return Task.FromResult(false);
         }
 
         /// <summary>
@@ -136,10 +140,10 @@ namespace FramePFX.Actions {
         public virtual bool CanExecute(string id, IDataContext context, bool isUserInitiated = true) {
             ValidateId(id);
             ValidateContext(context);
-            return this.actions.TryGetValue(id, out AnAction action) && action != null && action.CanExecute(new AnActionEventArgs(this, id, context, isUserInitiated));
+            return this.actions.TryGetValue(id, out ExecutableAction action) && action != null && action.CanExecute(new ActionEventArgs(this, id, context, isUserInitiated));
         }
 
-        public void AddPresentationUpdateHandler(string id, CanExecuteChangedEventHandler handler) {
+        public void AddCanUpdateHandler(string id, CanExecuteChangedEventHandler handler) {
             if (id != null && string.IsNullOrWhiteSpace(id))
                 throw new Exception("ID cannot be empty or whitespaces. It must be null or a valid string");
             if (handler == null)
@@ -158,7 +162,7 @@ namespace FramePFX.Actions {
             }
         }
 
-        public void RemovePresentationUpdateHandler(string id, CanExecuteChangedEventHandler handler) {
+        public void RemoveCanUpdateHandler(string id, CanExecuteChangedEventHandler handler) {
             if (id != null && string.IsNullOrWhiteSpace(id))
                 throw new Exception("ID cannot be empty or whitespaces. It must be null or a valid string");
             if (handler == null)
@@ -179,13 +183,12 @@ namespace FramePFX.Actions {
         /// <param name="context">The context to use. Cannot be null</param>
         /// <param name="isUserInitiated">Whether a user caused the action to need to be executed. Supply false if this was invoked by a task or scheduler for example</param>
         /// <returns></returns>
-        /// <exception cref="Exception">The context is null, or the assembly was compiled in debug mode and the GetPresentation function threw ane exception</exception>
         /// <exception cref="ArgumentException">ID is null, empty or consists of only whitespaces</exception>
         /// <exception cref="ArgumentNullException">Context is null</exception>
-        public bool UpdateGlobalPresentation(string id, IDataContext context, bool isUserInitiated = false) {
+        public bool OnCanUpdateChanged(string id, IDataContext context, bool isUserInitiated = false) {
             ValidateId(id);
             ValidateContext(context);
-            if (!this.actions.TryGetValue(id, out AnAction action)) {
+            if (!this.actions.TryGetValue(id, out ExecutableAction action)) {
                 return false;
             }
 
@@ -193,7 +196,7 @@ namespace FramePFX.Actions {
                 return false;
             }
 
-            AnActionEventArgs args = new AnActionEventArgs(this, id, context, isUserInitiated);
+            ActionEventArgs args = new ActionEventArgs(this, id, context, isUserInitiated);
             bool canExecute = action.CanExecute(args);
 
             if (list != null) {
@@ -219,6 +222,10 @@ namespace FramePFX.Actions {
             if (context == null) {
                 throw new ArgumentNullException(nameof(context), "Context cannot be null");
             }
+        }
+
+        public ActionEventArgs CreateArgs(string actionId, IDataContext context, bool isUserInitiated) {
+            return new ActionEventArgs(this, actionId, context, isUserInitiated);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace FramePFX.WPF.Resources.I18N {
             };
 
             // just in case there's some weird dependency on the translator, reload that first
-            ((WPFDictionaryTranslator) Services.Translator).Dictionary = dictionary;
+            ((WPFDictionaryTranslator) IoC.Translator).Dictionary = dictionary;
             I18NText = dictionary;
         }
 

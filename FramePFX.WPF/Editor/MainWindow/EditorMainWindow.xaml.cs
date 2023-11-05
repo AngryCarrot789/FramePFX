@@ -15,6 +15,7 @@ using System.Windows.Threading;
 using AvalonDock.Layout;
 using FramePFX.Editor;
 using FramePFX.Editor.Rendering;
+using FramePFX.Editor.Timelines;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.History.ViewModels;
@@ -22,31 +23,34 @@ using FramePFX.Logger;
 using FramePFX.Notifications;
 using FramePFX.Notifications.Types;
 using FramePFX.Utils;
-using FramePFX.WPF.Editor.Timeline;
-using FramePFX.WPF.Editor.Timeline.Controls;
+using FramePFX.WPF.Editor.Timelines;
+using FramePFX.WPF.Editor.Timelines.Controls;
 using FramePFX.WPF.Notifications;
 using FramePFX.WPF.Themes;
 using FramePFX.WPF.Views;
 using SkiaSharp;
+using Timeline = FramePFX.Editor.Timelines.Timeline;
 
 namespace FramePFX.WPF.Editor.MainWindow {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class EditorMainWindow : WindowEx, IVideoEditor, INotificationHandler {
+        private const string AnimationCompletedKey = "AnimationCompleted";
+
         public VideoEditorViewModel Editor => (VideoEditorViewModel) this.DataContext;
 
         private volatile int isRenderActive;
 
         public NotificationPanelViewModel NotificationPanel { get; }
 
-        private readonly Func<TimelineViewModel, Task> doRenderActiveTimelineFunc;
+        private readonly Func<Timeline, Task> doRenderActiveTimelineFunc;
 
         private int number;
 
         public EditorMainWindow() {
             this.InitializeComponent();
-            Services.BroadcastShortcutActivity = (x) => {
+            IoC.BroadcastShortcutActivity = (x) => {
                 this.NotificationBarTextBlock.Text = x;
             };
 
@@ -129,17 +133,17 @@ namespace FramePFX.WPF.Editor.MainWindow {
         }
 
         public void BeginNotificationFadeOutAnimation(NotificationViewModel notification, Action<NotificationViewModel, bool> onCompleteCallback = null) {
-            BaseViewModel.RemoveInternalData(notification, "AnimationCompleted");
+            BaseViewModel.RemoveInternalData(notification, AnimationCompletedKey);
             int index = (notification.Panel ?? this.NotificationPanel).Notifications.IndexOf(notification);
             if (index == -1) {
-                BaseViewModel.SetInternalData(notification, "AnimationCompleted", BoolBox.True);
+                BaseViewModel.SetInternalData(notification, AnimationCompletedKey, BoolBox.True);
                 return;
             }
 
             if (this.PopupNotificationList.ItemContainerGenerator.ContainerFromIndex(index) is NotificationControl control) {
                 DoubleAnimation animation = new DoubleAnimation(1d, 0d, TimeSpan.FromSeconds(2), FillBehavior.Stop);
                 animation.Completed += (sender, args) => {
-                    onCompleteCallback?.Invoke(notification, BaseViewModel.GetInternalData<bool>(notification, "AnimationCompleted"));
+                    onCompleteCallback?.Invoke(notification, BaseViewModel.GetInternalData<bool>(notification, AnimationCompletedKey));
                 };
 
                 control.BeginAnimation(OpacityProperty, animation);
@@ -147,11 +151,11 @@ namespace FramePFX.WPF.Editor.MainWindow {
         }
 
         public void CancelNotificationFadeOutAnimation(NotificationViewModel notification) {
-            if (BaseViewModel.GetInternalData<bool>(notification, "AnimationCompleted")) {
+            if (BaseViewModel.GetInternalData<bool>(notification, AnimationCompletedKey)) {
                 return;
             }
 
-            BaseViewModel.SetInternalData(notification, "AnimationCompleted", BoolBox.True);
+            BaseViewModel.SetInternalData(notification, AnimationCompletedKey, BoolBox.True);
             int index = (notification.Panel ?? this.NotificationPanel).Notifications.IndexOf(notification);
             if (index == -1) {
                 return;
@@ -267,7 +271,7 @@ namespace FramePFX.WPF.Editor.MainWindow {
 
         private Task lastRenderTask = Task.CompletedTask;
 
-        public async Task RenderToViewPortAsync(TimelineViewModel timeline, bool scheduleRender) {
+        public async Task RenderToViewPortAsync(Timeline timeline, bool scheduleRender) {
             if (Interlocked.CompareExchange(ref this.isRenderActive, 1, 0) != 0) {
                 return;
             }
@@ -299,11 +303,11 @@ namespace FramePFX.WPF.Editor.MainWindow {
             }
         }
 
-        private async Task RenderTimelineInternal(TimelineViewModel timeline) {
+        private async Task RenderTimelineInternal(Timeline timeline) {
             VideoEditorViewModel editor = this.Editor;
             ProjectViewModel project = editor.ActiveProject;
             if (project == null || project.Model.IsSaving || project.Model.IsExporting) {
-                Interlocked.Exchange(ref this.isRenderActive, 0);
+                this.isRenderActive = 0;
                 return;
             }
 
@@ -316,7 +320,8 @@ namespace FramePFX.WPF.Editor.MainWindow {
                         context.SetRenderQuality(project.Model.RenderQuality);
                         context.ClearPixels();
                         try {
-                            await timeline.Model.RenderAsync(context, frame, source.Token);
+                            await timeline.RenderAsync(context, frame, source.Token);
+                            AppLogger.WriteLine("Timeline rendered at: " + frame);
                         }
                         catch (TaskCanceledException) {
                             AppLogger.WriteLine("Render at " + nameof(this.RenderTimelineInternal) + " took longer than 3 second");
@@ -324,7 +329,7 @@ namespace FramePFX.WPF.Editor.MainWindow {
                         catch (Exception e) {
                             AppLogger.WriteLine("Exception rendering timeline: " + e.GetToString());
                             await editor.Playback.StopForRenderException();
-                            await Services.DialogService.ShowMessageAsync("Render error", $"An error occurred while rendering timeline. See the logs for more info");
+                            await IoC.DialogService.ShowMessageAsync("Render error", $"An error occurred while rendering timeline. See the logs for more info");
                         }
                     }
                     finally {
@@ -333,7 +338,7 @@ namespace FramePFX.WPF.Editor.MainWindow {
                 }
             }
             finally {
-                Interlocked.Exchange(ref this.isRenderActive, 0);
+                this.isRenderActive = 0;
             }
         }
 
@@ -344,14 +349,14 @@ namespace FramePFX.WPF.Editor.MainWindow {
                 }
             }
             catch (Exception e) {
-                await Services.DialogService.ShowMessageExAsync("Failed to close project", "Exception while closing project", e.GetToString());
+                await IoC.DialogService.ShowMessageExAsync("Failed to close project", "Exception while closing project", e.GetToString());
             }
 
             try {
                 this.Editor.Dispose();
             }
             catch (Exception e) {
-                await Services.DialogService.ShowMessageExAsync("Failed to dispose", "Exception while disposing editor", e.GetToString());
+                await IoC.DialogService.ShowMessageExAsync("Failed to dispose", "Exception while disposing editor", e.GetToString());
             }
 
             return true;
@@ -418,7 +423,7 @@ namespace FramePFX.WPF.Editor.MainWindow {
                 default: return;
             }
 
-            ThemesController.SetTheme(type);
+            ThemeController.SetTheme(type);
         }
     }
 }

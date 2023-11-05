@@ -12,6 +12,7 @@ using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Managing;
 using FramePFX.Shortcuts.Usage;
 using FramePFX.Utils;
+using FramePFX.WPF.Actions;
 using FramePFX.WPF.Shortcuts.Bindings;
 using FramePFX.WPF.Utils;
 
@@ -24,7 +25,7 @@ namespace FramePFX.WPF.Shortcuts {
         public new WPFShortcutManager Manager => (WPFShortcutManager) base.Manager;
 
         /// <summary>
-        /// The dependency object source that was focused during the input stroke currently being processed
+        /// The dependency object that was focused at the time of the input stroke
         /// </summary>
         public DependencyObject CurrentSource { get; private set; }
 
@@ -158,34 +159,12 @@ namespace FramePFX.WPF.Shortcuts {
         }
 
         public void SetupContext(Window root, DependencyObject obj) {
-            object o1, o2 = null, o3;
-            DataContext context = new DataContext();
-            if (VisualTreeUtils.GetDataContext(obj, out o1)) {
-                context.AddContext(o1);
+            DataContext ctx = ActionContextProviderCollection.CreateContextFromTarget(obj);
+            if (VisualTreeUtils.GetDataContext(root, out object context) && !ctx.Contains(context)) {
+                ctx.AddContext(context);
             }
 
-            ItemsControl itemsControl = VisualTreeUtils.GetItemsControlFromObject(obj);
-            if (itemsControl != null && (o2 = itemsControl.DataContext) != null && !ReferenceEquals(o1, o2)) {
-                context.AddContext(o2);
-            }
-
-            if (VisualTreeUtils.GetDataContext(root, out o3)) {
-                if (!ReferenceEquals(o1, o3) && !ReferenceEquals(o2, o3)) {
-                    context.AddContext(o3);
-                }
-            }
-
-            DependencyObject pathObject = obj;
-            while ((pathObject = VisualTreeUtils.FindNearestInheritedPropertyDefinition(UIInputManager.FocusPathProperty, pathObject)) != null) {
-                object dc;
-                if (pathObject is FrameworkElement element && !context.InternalContext.Contains(dc = element.DataContext)) {
-                    context.AddContext(dc);
-                }
-
-                pathObject = VisualTreeUtils.GetParent(pathObject);
-            }
-
-            this.CurrentDataContext = context;
+            this.CurrentDataContext = ctx;
             this.CurrentSource = obj;
         }
 
@@ -235,24 +214,24 @@ namespace FramePFX.WPF.Shortcuts {
 
         protected override bool OnNoSuchShortcutForKeyStroke(string @group, in KeyStroke stroke) {
             if (stroke.IsKeyDown) {
-                Services.BroadcastShortcutActivity("No such shortcut for key stroke: " + stroke + " in group: " + group);
+                IoC.BroadcastShortcutActivity("No such shortcut for key stroke: " + stroke + " in group: " + group);
             }
 
             return base.OnNoSuchShortcutForKeyStroke(@group, in stroke);
         }
 
         protected override bool OnNoSuchShortcutForMouseStroke(string @group, in MouseStroke stroke) {
-            Services.BroadcastShortcutActivity("No such shortcut for mouse stroke: " + stroke + " in group: " + group);
+            IoC.BroadcastShortcutActivity("No such shortcut for mouse stroke: " + stroke + " in group: " + group);
             return base.OnNoSuchShortcutForMouseStroke(@group, in stroke);
         }
 
         protected override bool OnCancelUsageForNoSuchNextKeyStroke(IShortcutUsage usage, GroupedShortcut shortcut, in KeyStroke stroke) {
-            Services.BroadcastShortcutActivity("No such shortcut for next key stroke: " + stroke);
+            IoC.BroadcastShortcutActivity("No such shortcut for next key stroke: " + stroke);
             return base.OnCancelUsageForNoSuchNextKeyStroke(usage, shortcut, in stroke);
         }
 
         protected override bool OnCancelUsageForNoSuchNextMouseStroke(IShortcutUsage usage, GroupedShortcut shortcut, in MouseStroke stroke) {
-            Services.BroadcastShortcutActivity("No such shortcut for next mouse stroke: " + stroke);
+            IoC.BroadcastShortcutActivity("No such shortcut for next mouse stroke: " + stroke);
             return base.OnCancelUsageForNoSuchNextMouseStroke(usage, shortcut, in stroke);
         }
 
@@ -262,7 +241,7 @@ namespace FramePFX.WPF.Shortcuts {
                 joiner.Append(pair.Key.CurrentStroke.ToString());
             }
 
-            Services.BroadcastShortcutActivity("Waiting for next input: " + joiner);
+            IoC.BroadcastShortcutActivity("Waiting for next input: " + joiner);
             return base.OnShortcutUsagesCreated();
         }
 
@@ -272,7 +251,7 @@ namespace FramePFX.WPF.Shortcuts {
                 joiner.Append(pair.Key.CurrentStroke.ToString());
             }
 
-            Services.BroadcastShortcutActivity("Waiting for next input: " + joiner);
+            IoC.BroadcastShortcutActivity("Waiting for next input: " + joiner);
             return base.OnSecondShortcutUsagesProgressed();
         }
     }

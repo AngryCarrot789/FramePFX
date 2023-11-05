@@ -11,7 +11,7 @@ using FramePFX.Utils;
 namespace FramePFX.Editor.ResourceManaging.Actions {
     [ActionRegistration("actions.resources.ToggleOnlineState")]
     public class ToggleResourceOnlineStateAction : ToggleAction {
-        protected override async Task<bool> OnToggled(AnActionEventArgs e, bool isToggled) {
+        protected override async Task<bool> OnToggled(ActionEventArgs e, bool isToggled) {
             if (!ResourceActionUtils.GetSelectedResources(e.DataContext, out List<BaseResourceViewModel> list))
                 return false;
 
@@ -23,7 +23,7 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
             return true;
         }
 
-        protected override async Task<bool> ExecuteNoToggle(AnActionEventArgs e) {
+        protected override async Task<bool> ExecuteNoToggle(ActionEventArgs e) {
             if (ResourceActionUtils.GetSelectedResources(e.DataContext, out List<BaseResourceViewModel> list)) {
                 List<ResourceItemViewModel> items = list.OfType<ResourceItemViewModel>().ToList();
                 if (items.Count > 0)
@@ -48,7 +48,7 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
                 }
 
                 if (stack.TryGetException(out Exception exception)) {
-                    await Services.DialogService.ShowMessageExAsync("Exception setting offline", "An exception occurred while setting one or more resource to offline", exception.GetToString());
+                    await IoC.DialogService.ShowMessageExAsync("Exception setting offline", "An exception occurred while setting one or more resource to offline", exception.GetToString());
                 }
             }
 
@@ -62,7 +62,7 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
 
             VideoEditorViewModel editor = altList.FirstOrDefault(x => x.Manager != null)?.Manager?.Project?.Editor;
             if (editor != null && editor.SelectedTimeline != null) {
-                await editor.DoDrawRenderFrame(editor.SelectedTimeline);
+                await editor.DoDrawRenderFrame(editor.SelectedTimeline.Model);
             }
         }
     }

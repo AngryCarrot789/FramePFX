@@ -21,7 +21,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             });
 
             IContextRegistration reg = ContextRegistry.Instance.RegisterType(typeof(CompositionVideoClipViewModel));
-            reg.AddEntry(new ActionContextEntry(null, "actions.timeline.OpenCompositionObjectsTimeline", "Open timeline"));
+            reg.AddEntry(new ActionContextEntry("actions.timeline.OpenCompositionObjectsTimeline", "Open timeline"));
         }
 
         public bool TryGetResource(out ResourceCompositionViewModel resource) {

@@ -22,7 +22,6 @@ namespace FramePFX.Shortcuts.Managing {
         // event handler storage
         private readonly Dictionary<string, List<ShortcutActivatedEventHandler>> shortcutHandlersMap;
         private readonly List<ShortcutActivatedEventHandler> shortcutHandlersList;
-        private readonly List<ShortcutActivatedEventHandler> shortcutHandlersListIgnoreHandlers;
 
         public ShortcutGroup Root {
             get => this.root;
@@ -56,30 +55,6 @@ namespace FramePFX.Shortcuts.Managing {
         }
 
         /// <summary>
-        /// An event that always gets fired whenever a shortcut is activated. These get fired after the path-specific handlers.
-        /// <para>
-        /// Unlike <see cref="ShortcutActivated"/>, these always get called. However, the bool return value of the handler's task is not used
-        /// </para>
-        /// <para>
-        /// Global shortcut activation handlers are not recommended because their progress cannot be
-        /// monitored (as in, there's no identifiable information except a method handler). Use the action system instead
-        /// </para>
-        /// </summary>
-        public event ShortcutActivatedEventHandler MonitorShortcutActivated {
-            add {
-                if (value == null)
-                    throw new ArgumentNullException(nameof(value));
-                this.shortcutHandlersListIgnoreHandlers.Remove(value); // remove just in case
-                this.shortcutHandlersListIgnoreHandlers.Add(value);
-            }
-            remove {
-                if (value == null)
-                    throw new ArgumentNullException(nameof(value));
-                this.shortcutHandlersListIgnoreHandlers.Remove(value);
-            }
-        }
-
-        /// <summary>
         /// An event fired when a <see cref="GroupedShortcut"/>'s shortcut is modified
         /// </summary>
         public event ShortcutModifiedEventHandler<GroupedShortcut> ShortcutModified;
@@ -95,7 +70,6 @@ namespace FramePFX.Shortcuts.Managing {
             this.stateGroups = new Dictionary<string, InputStateManager>();
             this.shortcutHandlersMap = new Dictionary<string, List<ShortcutActivatedEventHandler>>();
             this.shortcutHandlersList = new List<ShortcutActivatedEventHandler>();
-            this.shortcutHandlersListIgnoreHandlers = new List<ShortcutActivatedEventHandler>();
             this.root = ShortcutGroup.CreateRoot(this);
         }
 
@@ -256,33 +230,20 @@ namespace FramePFX.Shortcuts.Managing {
         /// <returns>A task, which contains the outcome result of the shortcut activation used by the processor's input manager</returns>
         public async Task<bool> OnShortcutActivated(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
             // Fire events first
-            IDataContext context = inputManager.CurrentDataContext;
             bool result = false;
+            IDataContext context = inputManager.CurrentDataContext;
             if (this.shortcutHandlersMap.TryGetValue(shortcut.FullPath, out List<ShortcutActivatedEventHandler> list)) {
                 foreach (ShortcutActivatedEventHandler handler in list) {
-                    if (await handler(inputManager, shortcut, context)) {
-                        result = true;
-                        break;
-                    }
+                    result |= await handler(inputManager, shortcut, context);
                 }
             }
 
-            if (!result) {
-                foreach (ShortcutActivatedEventHandler handler in this.shortcutHandlersList) {
-                    if (await handler(inputManager, shortcut, context)) {
-                        result = true;
-                        break;
-                    }
-                }
+            foreach (ShortcutActivatedEventHandler handler in this.shortcutHandlersList) {
+                result |= await handler(inputManager, shortcut, context);
             }
 
-            // Fire monitor handlers
-            foreach (ShortcutActivatedEventHandler handler in this.shortcutHandlersListIgnoreHandlers) {
-                await handler(inputManager, shortcut, context);
-            }
-
-            // attempt core activation
-            return result || await this.OnShortcutActivatedInternal(inputManager, shortcut);
+            // this.OnShortcutActivatedInternal is called here due to | not ||
+            return result | await this.OnShortcutActivatedInternal(inputManager, shortcut);
         }
 
         /// <summary>
@@ -292,6 +253,7 @@ namespace FramePFX.Shortcuts.Managing {
         /// <param name="shortcut">The shortcut that was activated</param>
         /// <returns>A task, which contains the outcome result of the shortcut activation used by the processor's input manager</returns>
         protected virtual async Task<bool> OnShortcutActivatedInternal(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
+            bool result = false;
             IDataContext context = inputManager.CurrentDataContext;
             // Fire debug reflection handlers
             foreach (object obj in context.Context) {
@@ -301,14 +263,11 @@ namespace FramePFX.Shortcuts.Managing {
                 }
 
                 object ret = info.Invoke(obj, type == 0 ? new object[0] : new object[] {context});
-                if (ret is Task task) {
-                    if (!task.IsCompleted)
-                        await task;
-                    return true;
+                if (ret is Task task && !task.IsCompleted) {
+                    await task;
                 }
-                else {
-                    return true;
-                }
+
+                result = true;
             }
 
             // Fire action manager. This is the main way of activating shortcuts
@@ -320,18 +279,13 @@ namespace FramePFX.Shortcuts.Managing {
                     context = ctx;
                 }
 
-                Services.BroadcastShortcutActivity($"Activating shortcut action: {shortcut} -> {shortcut.ActionId}...");
-                if (await ActionManager.Instance.Execute(shortcut.ActionId, context)) {
-                    Services.BroadcastShortcutActivity($"Activating shortcut action: {shortcut} -> {shortcut.ActionId}... Complete!");
-                    return true;
-                }
-                else {
-                    Services.BroadcastShortcutActivity($"Activating shortcut action: {shortcut} -> {shortcut.ActionId}... Incomplete!");
-                }
+                IoC.BroadcastShortcutActivity($"Activating shortcut action: {shortcut} -> {shortcut.ActionId}...");
+                await ActionManager.Instance.Execute(shortcut.ActionId, context);
+                IoC.BroadcastShortcutActivity($"Activating shortcut action: {shortcut} -> {shortcut.ActionId}... Complete!");
+                result = true;
             }
 
-            // Nothing handled the shortcut :( Maybe an overridden class will handle them?
-            return false;
+            return result;
         }
 
         /// <summary>

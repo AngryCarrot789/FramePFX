@@ -15,9 +15,9 @@
             xmlns:n="clr-namespace:FramePFX.Notifications;assembly=FramePFX"
             xmlns:resources="clr-namespace:FramePFX.WPF.Editor.Resources"
             xmlns:explorer="clr-namespace:FramePFX.WPF.Explorer"
-            xmlns:timeline="clr-namespace:FramePFX.WPF.Editor.Timeline"
             xmlns:e="clr-namespace:FramePFX.WPF.Editor.Effects"
             xmlns:local="clr-namespace:FramePFX.WPF.Editor.MainWindow"
+            xmlns:timelines="clr-namespace:FramePFX.WPF.Editor.Timelines"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance evm:VideoEditorViewModel}"
             Width="1408" Height="840"
@@ -28,7 +28,7 @@
             sc:UIInputManager.FocusPath="Application/Editor"
             Icon="/FramePFX-256.ico" FontWeight="SemiBold">
     <Window.Resources>
-        <editor:EditorTitleConverter x:Key="TitleConverter" DefaultTitle="Bootleg sony vegas (FramePFX v1.0.2)" />
+        <editor:EditorTitleConverter x:Key="TitleConverter" DefaultTitle="Bootleg sony vegas (FramePFX v1.0.0.800)" />
         <converters:NullToBoolConverter x:Key="NullToDisabledConverter" />
         <Style TargetType="{x:Type Slider}">
             <Setter Property="Stylus.IsPressAndHoldEnabled" Value="false" />
@@ -134,13 +134,13 @@
                                     </LayoutPanel>
                                     <LayoutAnchorablePane DockHeight="38*" x:Name="TimelineLayoutPane">
                                         <LayoutAnchorable Title="Project Timeline" ContentId="TimelineAnchor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
-                                            <timeline:PreAnchoredTimelineControl DataContext="{Binding ActiveProject.Timeline}" />
+                                            <timelines:PreAnchoredTimelineControl DataContext="{Binding ActiveProject.Timeline}" />
                                         </LayoutAnchorable>
                                     </LayoutAnchorablePane>
                                 </LayoutPanel>
                                 <LayoutAnchorablePane DockWidth="32*">
                                     <LayoutAnchorable Title="Property Editor" ContentId="PropertyEditorAnchor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
-                                        <pe:PropertyEditor x:Name="PFXPropertyEditor" EditorRegistry="{x:Static propEdit:PFXPropertyEditorRegistry.Instance}" FontFamily="{StaticResource FontOxanium}" />
+                                        <pe:PropertyEditor EditorRegistry="{x:Static propEdit:PFXPropertyEditorRegistry.Instance}" FontFamily="{StaticResource FontOxanium}" />
                                     </LayoutAnchorable>
                                 </LayoutAnchorablePane>
                             </LayoutPanel>
@@ -157,7 +157,8 @@
                                       HorizontalScrollBarVisibility="Auto" CanContentScroll="False">
                             <nn:NotificationList x:Name="PopupNotificationList"
                                                  ItemsSource="{Binding Notifications, Mode=OneTime}"
-                                                 ItemTemplateSelector="{StaticResource NotificationTemplateSelector}" MinWidth="300" />
+                                                 ItemTemplateSelector="{StaticResource NotificationTemplateSelector}"
+                                                 MinWidth="300" MaxWidth="300" />
                         </ScrollViewer>
                     </Border>
                 </Grid>

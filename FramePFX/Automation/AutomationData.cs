@@ -65,7 +65,7 @@ namespace FramePFX.Automation {
             this.map[key] = sequence;
             if (updateHandler != null) {
                 sequence.UpdateValue += updateHandler;
-                sequence.DoUpdateValue(-1);
+                sequence.DoValueUpdate(-1);
             }
 
             return sequence;
@@ -121,7 +121,7 @@ namespace FramePFX.Automation {
         public void UpdateBackingStorage() {
             IList<AutomationSequence> list = this.map.Values;
             for (int i = 0, count = list.Count; i < count; i++) {
-                list[i].DoUpdateValue(-1);
+                list[i].DoValueUpdate(-1);
             }
         }
 
@@ -132,7 +132,7 @@ namespace FramePFX.Automation {
                 for (int i = 0, count = list.Count; i < count; i++) {
                     AutomationSequence sequence = list[i];
                     if (sequence.IsAutomationAllowed)
-                        sequence.DoUpdateValue(frame);
+                        sequence.DoValueUpdate(frame);
                 }
             }
             finally {

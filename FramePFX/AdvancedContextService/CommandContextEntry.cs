@@ -28,7 +28,7 @@ namespace FramePFX.AdvancedContextService {
             set => this.RaisePropertyChanged(ref this.commandParameter, value);
         }
 
-        public CommandContextEntry(string header, string inputGestureText, string description, ICommand command, object commandParameter, IEnumerable<IContextEntry> children = null) : base(null, header, description, children) {
+        public CommandContextEntry(string header, string inputGestureText, string description, ICommand command, object commandParameter, IEnumerable<IContextEntry> children = null) : base(header, description, children) {
             this.inputGestureText = inputGestureText;
             this.command = command;
             this.commandParameter = commandParameter;

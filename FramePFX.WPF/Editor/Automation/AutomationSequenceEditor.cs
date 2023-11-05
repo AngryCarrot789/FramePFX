@@ -296,10 +296,6 @@ namespace FramePFX.WPF.Editor.Automation {
             return keyFrame;
         }
 
-        public void RemoveKeyFrameAt(AutomationSequenceViewModel sequence, int index) {
-            sequence.RemoveKeyFrameAt(index);
-        }
-
         #endregion
 
         #region Key point creation/deletion
@@ -633,7 +629,7 @@ namespace FramePFX.WPF.Editor.Automation {
 
                 if (lineHit == LineHitType.None) {
                     e.Handled = true;
-                    hitKey.keyFrame.OwnerSequence.RemoveKeyFrameAt(hitKey.Index);
+                    hitKey.keyFrame.OwnerSequence.RemoveKeyFrame(hitKey.keyFrame);
                 }
                 else if (this.Sequence is AutomationSequenceViewModel sequence) {
                     if (this.isCaptureInitialised) {
@@ -661,12 +657,12 @@ namespace FramePFX.WPF.Editor.Automation {
             base.OnMouseLeftButtonUp(e);
             if (this.captured != null) {
                 if (this.isCaptureInitialised && this.captureLineHit == LineHitType.None && this.Sequence is AutomationSequenceViewModel sequence) {
-                    int index = this.vmToPoint.TryGetValue(this.captured.keyFrame, out KeyFramePoint p) ? p.Index : -1; // this.backingList.IndexOf(this.captured);
-                    if (index == -1) {
+                    KeyFrameViewModel kf = this.vmToPoint.TryGetValue(this.captured.keyFrame, out KeyFramePoint p) ? p.keyFrame : null;
+                    if (kf == null) {
                         throw new Exception("Captured key frame not found in the backing list?");
                     }
                     else {
-                        this.RemoveKeyFrameAt(sequence, index);
+                        sequence.RemoveKeyFrame(kf);
                     }
                 }
 

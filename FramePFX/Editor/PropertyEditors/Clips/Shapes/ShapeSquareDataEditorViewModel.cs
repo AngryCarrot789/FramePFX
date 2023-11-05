@@ -78,11 +78,11 @@ namespace FramePFX.Editor.PropertyEditors.Clips.Shapes {
             this.WidthEditStateChangedCommand = new EditStateCommand(() => new HistorySquareWidth(this), "Modify width");
         }
 
-        private void RefreshWidth(AutomationSequenceViewModel sender, RefreshAutomationValueEventArgs e) {
+        private void RefreshWidth(AutomationSequenceViewModel sender, AutomationUpdateEventArgs e) {
             this.RaisePropertyChanged(ref this.width, this.SingleSelection.Width, nameof(this.Width));
         }
 
-        private void RefreshHeight(AutomationSequenceViewModel sender, RefreshAutomationValueEventArgs e) {
+        private void RefreshHeight(AutomationSequenceViewModel sender, AutomationUpdateEventArgs e) {
             this.RaisePropertyChanged(ref this.height, this.SingleSelection.Height, nameof(this.Height));
         }
 

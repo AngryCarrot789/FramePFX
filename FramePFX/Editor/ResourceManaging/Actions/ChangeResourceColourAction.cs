@@ -6,17 +6,17 @@ using SkiaSharp;
 
 namespace FramePFX.Editor.ResourceManaging.Actions {
     [ActionRegistration("action.resources.ChangeResourceColour")]
-    public class ChangeResourceColourAction : AnAction {
-        public override bool CanExecute(AnActionEventArgs e) {
+    public class ChangeResourceColourAction : ExecutableAction {
+        public override bool CanExecute(ActionEventArgs e) {
             return e.DataContext.HasContext<ResourceColourViewModel>();
         }
 
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
+        public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
             if (!e.DataContext.TryGetContext(out ResourceColourViewModel resource)) {
                 return false;
             }
 
-            if (Services.GetService<IColourPicker>().PickARGB(resource.Colour) is SKColor colour) {
+            if (IoC.GetService<IColourPicker>().PickARGB(resource.Colour) is SKColor colour) {
                 resource.Colour = colour;
             }
 

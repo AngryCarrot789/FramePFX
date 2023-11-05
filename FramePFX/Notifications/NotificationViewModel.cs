@@ -51,15 +51,13 @@ namespace FramePFX.Notifications {
         public void StartAutoHideTask() => this.StartAutoHideTask(this.Timeout);
 
         public virtual void StartAutoHideTask(TimeSpan span) {
-            if (this.autoHideTask != null && !this.autoHideTask.IsCompleted) {
+            if (span.Ticks <= 0 || (this.autoHideTask != null && !this.autoHideTask.IsCompleted)) {
                 return;
             }
 
-            if (span.Ticks > 0) {
-                this.expiryTime = span.Ticks;
-                this.cancellation = new CancellationTokenSource();
-                this.autoHideTask = Task.Run(() => this.HideTaskMain(this.cancellation.Token));
-            }
+            this.expiryTime = span.Ticks;
+            this.cancellation = new CancellationTokenSource();
+            this.autoHideTask = Task.Run(() => this.HideTaskMain(this.cancellation.Token));
         }
 
         public void CancelAutoHideTask() {
@@ -95,14 +93,17 @@ namespace FramePFX.Notifications {
             }
 
             if (!cancel.IsCancellationRequested) {
-                await Services.Application.InvokeAsync(this.AutoHideAction);
+                await IoC.Dispatcher.InvokeAsync(this.AutoHideAction);
             }
         }
 
         public virtual Task HideAction() {
-            this.CancelAutoHideTask();
-            this.Panel.RemoveNotification(this);
-            this.IsHidden = true;
+            if (!this.isHidden) {
+                this.CancelAutoHideTask();
+                this.Panel.RemoveNotification(this);
+                this.IsHidden = true;
+            }
+
             return Task.CompletedTask;
         }
 

@@ -11,7 +11,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Effects.Video {
         public VideoEffectViewModel(VideoEffect model) : base(model) {
         }
 
-        protected void InvalidateRenderForAutomationRefresh(in RefreshAutomationValueEventArgs e) {
+        protected void InvalidateRenderForAutomationRefresh(in AutomationUpdateEventArgs e) {
             if (!e.IsDuringPlayback && !e.IsPlaybackTick) {
                 this.Model.OwnerClip.InvalidateRender();
             }

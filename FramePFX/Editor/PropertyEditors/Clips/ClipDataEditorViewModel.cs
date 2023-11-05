@@ -18,7 +18,7 @@ namespace FramePFX.Editor.PropertyEditors.Clips {
             set {
                 this.RaisePropertyChanged(ref this.displayName, value);
                 if (!this.displayNameHistory.TryGetAction(out HistoryClipDisplayName action)) {
-                    this.displayNameHistory.PushAction(this.HistoryManager, action = new HistoryClipDisplayName(this.Clips));
+                    this.displayNameHistory.PushAction(action = new HistoryClipDisplayName(this.Clips));
                 }
 
                 foreach (Transaction<string> t in action.DisplayName) {
@@ -44,7 +44,7 @@ namespace FramePFX.Editor.PropertyEditors.Clips {
 
         protected override void OnHandlersLoaded() {
             base.OnHandlersLoaded();
-            this.displayName = GetEqualValue(this.Handlers, (x) => ((ClipViewModel) x).DisplayName, out string name) ? name : Services.Translator.GetString("S.PropertyEditor.NamedObject.DifferingDisplayNames");
+            this.displayName = GetEqualValue(this.Handlers, (x) => ((ClipViewModel) x).DisplayName, out string name) ? name : IoC.Translator.GetString("S.PropertyEditor.NamedObject.DifferingDisplayNames");
             this.RaisePropertyChanged(nameof(this.DisplayName));
         }
 

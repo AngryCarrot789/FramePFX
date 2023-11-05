@@ -5,7 +5,7 @@ using System.Windows.Input;
 using FramePFX.Commands;
 
 namespace FramePFX.Actions.Helpers {
-    public class CommandTargetAction<T> : AnAction {
+    public class CommandTargetAction<T> : ExecutableAction {
         public Type TargetType { get; }
 
         public string PropertyName { get; }
@@ -25,7 +25,7 @@ namespace FramePFX.Actions.Helpers {
             return this.Property.GetValue(instance) as ICommand;
         }
 
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
+        public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
             if (!e.DataContext.TryGetContext(out T instance)) {
                 return false;
             }
@@ -45,7 +45,7 @@ namespace FramePFX.Actions.Helpers {
             return true;
         }
 
-        public override bool CanExecute(AnActionEventArgs e) {
+        public override bool CanExecute(ActionEventArgs e) {
             if (!e.DataContext.TryGetContext(out T instance)) {
                 return false;
             }

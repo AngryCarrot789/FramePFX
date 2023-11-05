@@ -14,7 +14,6 @@ using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.Events;
 using FramePFX.History;
 using FramePFX.History.Tasks;
-using FramePFX.History.ViewModels;
 using FramePFX.Interactivity;
 using FramePFX.Utils;
 using SkiaSharp;
@@ -49,7 +48,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             set {
                 if (!this.IsHistoryChanging) {
                     if (!this.displayNameHistory.TryGetAction(out HistoryTrackDisplayName action))
-                        this.displayNameHistory.PushAction(HistoryManagerViewModel.Instance, action = new HistoryTrackDisplayName(this), "Edit display name");
+                        this.displayNameHistory.PushAction(action = new HistoryTrackDisplayName(this), "Edit display name");
                     action.DisplayName.SetCurrent(value);
                 }
 
@@ -115,13 +114,9 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.Model.ClipRemoved += this.OnModelClipRemoved;
             this.Model.ClipMovedToTrack += this.OnModelClipMovedToTrack;
 
-            Clip[] array = model.Clips.items;
-            int count = model.Clips.size;
-            for (int i = 0; i < count; i++) {
-                ClipViewModel vm = ClipFactory.Instance.CreateViewModelFromModel(array[i]);
-                ClipViewModel.PreSetTrack(vm, this);
-                this.clips.Insert(i, vm);
-                ClipViewModel.PostSetTrack(vm, this);
+            IReadOnlyList<Clip> list = model.Clips;
+            for (int i = 0, count = list.Count; i < count; i++) {
+                this.InsertClipVMInternal(ClipFactory.Instance.CreateViewModelFromModel(list[i]), i);
             }
         }
 
@@ -131,31 +126,13 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 return objekt.GetData(NativeDropTypes.FileDrop) is string[] files && files.Length > 0 ? EnumDropType.Copy : EnumDropType.None;
             }, async (model, objekt, type, c) => {
                 string[] files = (string[]) objekt.GetData(NativeDropTypes.FileDrop);
-                await Services.DialogService.ShowDialogAsync("TODO", $"Dropping files directly into the timeline is not implemented yet.\nYou dropped: {string.Join(", ", files)}");
+                await IoC.DialogService.ShowDialogAsync("TODO", $"Dropping files directly into the timeline is not implemented yet.\nYou dropped: {string.Join(", ", files)}");
             });
-
-            IContextRegistration reg = ContextRegistry.Instance.RegisterType(typeof(TrackViewModel));
-            reg.AddEntry(new ActionContextEntry(null, "actions.general.RenameItem", "Rename track"));
-            reg.AddEntry(new ActionContextEntry(null, "actions.timeline.track.ChangeTrackColour", "Change colour"));
-            List<IContextEntry> newClipList = new List<IContextEntry> {
-                new ActionContextEntry(null, "actions.timeline.NewAdjustmentClip", "New adjustment clip")
-            };
-
-            reg.AddEntry(new GroupContextEntry("New clip...", newClipList));
-
-            reg.AddEntry(SeparatorEntry.Instance);
-            reg.AddEntry(new ActionContextEntry(null, "actions.editor.NewVideoTrack", "Insert video track below"));
-            reg.AddEntry(new ActionContextEntry(null, "actions.editor.NewAudioTrack", "Insert audio track below"));
-            reg.AddEntry(SeparatorEntry.Instance);
-            reg.AddEntry(new ActionContextEntry(null, "actions.editor.timeline.DeleteSelectedTracks", "Delete Track(s)"));
         }
 
         private void OnModelClipInserted(Track track, Clip clip, int index) {
             ClipViewModel vm = ClipFactory.Instance.CreateViewModelFromModel(clip);
-            ClipViewModel.PreSetTrack(vm, this);
-            this.clips.Insert(index, vm);
-            ClipViewModel.PostSetTrack(vm, this);
-
+            this.InsertClipVMInternal(vm, index);
             this.OnProjectModified();
             this.TryRaiseLargestFrameInUseChanged();
         }
@@ -164,10 +141,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             ClipViewModel vm = this.clips[index];
             if (!ReferenceEquals(vm.Model, clip))
                 throw new Exception("Model-ViewModel list desynchronized");
-            ClipViewModel.PreSetTrack(vm, null);
-            this.clips.RemoveAt(index);
-            ClipViewModel.PostSetTrack(vm, null);
-
+            this.RemoveClipVMAtInternal(vm, index);
             this.OnProjectModified();
             this.TryRaiseLargestFrameInUseChanged();
         }
@@ -176,9 +150,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             ClipViewModel clip;
             if (ReferenceEquals(e.OldTrack, this.Model)) { // we are the source track; remove the clip internally
                 e.Parameter = clip = this.clips[e.OldIndex];
-                ClipViewModel.PreSetTrack(clip, null);
-                this.clips.RemoveAt(e.OldIndex);
-                ClipViewModel.PostSetTrack(clip, null);
+                this.RemoveClipVMAtInternal(clip, e.OldIndex);
                 this.TryRaiseLargestFrameInUseChanged();
             }
             else { // we are the target track; add the clip internally
@@ -186,12 +158,22 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                     throw new InvalidOperationException("Expected parameter to be a ClipViewModel");
                 }
 
-                ClipViewModel.PreSetTrack(clip, this);
-                this.clips.Insert(e.NewIndex, clip);
-                ClipViewModel.PostSetTrack(clip, this);
+                this.InsertClipVMInternal(clip, e.NewIndex);
                 this.TryRaiseLargestFrameInUseChanged();
                 this.OnProjectModified();
             }
+        }
+
+        private void InsertClipVMInternal(ClipViewModel clip, int index) {
+            ClipViewModel.PreSetTrack(clip, this);
+            this.clips.Insert(index, clip);
+            ClipViewModel.PostSetTrack(clip, this);
+        }
+
+        private void RemoveClipVMAtInternal(ClipViewModel clip, int index) {
+            ClipViewModel.PreSetTrack(clip, null);
+            this.clips.RemoveAt(index);
+            ClipViewModel.PostSetTrack(clip, null);
         }
 
         public virtual void OnProjectModified() => this.Project?.OnProjectModified();
@@ -204,7 +186,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 return;
             }
 
-            if (confirm && !await Services.DialogService.ShowYesNoDialogAsync($"Delete clip{Lang.S(list.Count)}?", $"Are you sure you want to delete {(list.Count == 1 ? "1 clip" : $"{list.Count} clips")}?")) {
+            if (confirm && !await IoC.DialogService.ShowYesNoDialogAsync($"Delete clip{Lang.S(list.Count)}?", $"Are you sure you want to delete {(list.Count == 1 ? "1 clip" : $"{list.Count} clips")}?")) {
                 return;
             }
 
@@ -228,7 +210,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 }
 
                 if (stack.TryGetException(out Exception exception)) {
-                    await Services.DialogService.ShowMessageExAsync("Error", "An error occurred while removing clips", exception.GetToString());
+                    await IoC.DialogService.ShowMessageExAsync("Error", "An error occurred while removing clips", exception.GetToString());
                 }
             }
         }
@@ -313,7 +295,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         }
 
         public async Task<bool> RenameAsync() {
-            string result = await Services.UserInput.ShowSingleInputDialogAsync("Change track name", "Input a new track name:", this.DisplayName ?? "", this.Timeline.TrackNameValidator);
+            string result = await IoC.UserInput.ShowSingleInputDialogAsync("Change track name", "Input a new track name:", this.DisplayName ?? "", this.Timeline.TrackNameValidator);
             if (result != null) {
                 this.DisplayName = result;
                 return true;

@@ -50,7 +50,7 @@ namespace FramePFX.Editor.ResourceManaging {
             this.uuidToItem = new Dictionary<ulong, ResourceItem>();
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.RootFolder = new ResourceFolder() {DisplayName = "<root>"};
-            this.RootFolder.Manager = this;
+            this.RootFolder.manager = this;
             this.RootFolder.OnAttachedToManager();
             this.IsResourceNotInUsePredicate = s => !this.EntryExists(s);
             this.IsResourceInUsePredicate = this.EntryExists;

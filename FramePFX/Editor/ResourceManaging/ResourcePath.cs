@@ -46,7 +46,7 @@ namespace FramePFX.Editor.ResourceManaging {
         /// <para>False means the resource did not exist or was the wrong type (as per <see cref="IsItemApplicable"/>)</para>
         /// <para>Null means the resource hasn't been resolved yet or there is no manager associated with this path</para>
         /// </summary>
-        public bool? IsValid { get; private set; }
+        public bool? IsLinked { get; private set; }
 
         /// <summary>
         /// An event that gets fired when this path's resource changes. This can be due to the resource being deleted or
@@ -100,7 +100,7 @@ namespace FramePFX.Editor.ResourceManaging {
                 this.DetachManager(oldManager);
 
             this.ClearInternalResource();
-            this.IsValid = null;
+            this.IsLinked = null;
 
             this.Manager = manager;
             if (manager != null)
@@ -111,10 +111,10 @@ namespace FramePFX.Editor.ResourceManaging {
 
         private void SetInternalResource(ResourceItem item, bool fireEvent = true) {
             ResourceItem oldItem = this.cached;
-            if (this.IsValid == true) {
+            if (this.IsLinked == true) {
                 if (oldItem == null)
                     throw new Exception("Expected non-null cached item when state is valid");
-                this.IsValid = null;
+                this.IsLinked = null;
             }
             else if (oldItem != null) {
                 throw new Exception("Expected null cached item when state is invalid or unknown");
@@ -131,7 +131,7 @@ namespace FramePFX.Editor.ResourceManaging {
 
         private void SetInternalResourceUnsafe(ResourceItem oldItem, ResourceItem newItem, bool fireEvent = true) {
             this.cached = newItem;
-            this.IsValid = newItem != null ? (bool?) true : null;
+            this.IsLinked = newItem != null ? (bool?) true : null;
             this.OnResourceChanged(oldItem, newItem);
             if (fireEvent) {
                 this.ResourceChanged?.Invoke(oldItem, newItem);
@@ -165,7 +165,7 @@ namespace FramePFX.Editor.ResourceManaging {
 
         private ResourceItem GetInternalResource() {
             ResourceItem item = this.cached;
-            if (this.IsValid == true) {
+            if (this.IsLinked == true) {
                 if (item == null)
                     throw new Exception("Expected non-null cached item when state is valid");
                 return item;
@@ -188,9 +188,9 @@ namespace FramePFX.Editor.ResourceManaging {
             }
 
             this.ResourceId = uniqueId;
-            if (this.IsValid == true)
+            if (this.IsLinked == true)
                 this.SetInternalResource(null, fireResourceChanged);
-            this.IsValid = null;
+            this.IsLinked = null;
         }
 
         /// <summary>
@@ -205,7 +205,7 @@ namespace FramePFX.Editor.ResourceManaging {
         public bool TryGetResource<T>(out T resource, bool requireIsOnline = true) where T : ResourceItem {
             this.EnsureNotDisposed();
             this.EnsureManagerNotChanging("Cannot attempt to get resource while manager is being set");
-            switch (this.IsValid) {
+            switch (this.IsLinked) {
                 case false: {
                     if (this.cached != null)
                         throw new Exception("Expected null cached item when state is invalid");
@@ -227,7 +227,7 @@ namespace FramePFX.Editor.ResourceManaging {
                         return t.IsOnline || !requireIsOnline;
                     }
 
-                    this.IsValid = false;
+                    this.IsLinked = false;
                     resource = null;
                     return false;
                 }
@@ -249,7 +249,7 @@ namespace FramePFX.Editor.ResourceManaging {
 
             if (item.UniqueId != this.ResourceId)
                 return;
-            if (this.IsValid == true)
+            if (this.IsLinked == true)
                 throw new Exception("Expected the state to be invalid or unknown, not valid");
             if (this.cached != null)
                 throw new Exception("Expected the cached item to be null");
@@ -257,17 +257,11 @@ namespace FramePFX.Editor.ResourceManaging {
         }
 
         private void OnManagerResourceRemoved(ResourceManager manager, ResourceItem item) {
-            if (this.isDisposed) {
-                AppLogger.WriteLine("RESOURCE IS DISPOSED BUT RECEIVED RESOURCE REMOVED EVENT!!!!!!!!!!!!!!!!!!!!!!!");
-                Debugger.Break();
-                return;
-            }
-
             if (item.UniqueId != this.ResourceId) {
                 return;
             }
 
-            if (this.IsValid == true) {
+            if (this.IsLinked == true) {
                 if (this.cached == null)
                     throw new Exception("Expected our cached item to not be null");
                 if (!ReferenceEquals(this.cached, item))

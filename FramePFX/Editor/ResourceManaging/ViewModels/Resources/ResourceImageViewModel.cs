@@ -38,12 +38,12 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
 
         public async Task RefreshActionAsync() {
             if (string.IsNullOrEmpty(this.FilePath)) {
-                await Services.DialogService.ShowMessageAsync("Empty file path", "The image path input is empty");
+                await IoC.DialogService.ShowMessageAsync("Empty file path", "The image path input is empty");
                 return;
             }
 
             if (!File.Exists(this.FilePath)) {
-                await Services.DialogService.ShowMessageAsync("No such file", $"Image file does not exist: {this.FilePath}");
+                await IoC.DialogService.ShowMessageAsync("No such file", $"Image file does not exist: {this.FilePath}");
                 return;
             }
 
@@ -52,7 +52,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
                 this.RequireImageReload = false;
             }
             catch (Exception e) {
-                await Services.DialogService.ShowMessageExAsync("Error opening image", $"Error opening '{this.FilePath}'", e.GetToString());
+                await IoC.DialogService.ShowMessageExAsync("Error opening image", $"Error opening '{this.FilePath}'", e.GetToString());
                 return;
             }
 
@@ -60,7 +60,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
         }
 
         public async Task SelectFileActionAsync() {
-            string[] result = await Services.FilePicker.OpenFiles(Filters.ImageTypesAndAll, this.FilePath, "Select an image to open", false);
+            string[] result = await IoC.FilePicker.OpenFiles(Filters.ImageTypesAndAll, this.FilePath, "Select an image to open", false);
             if (result != null) {
                 string path = result[0];
                 if (string.IsNullOrEmpty(path)) {
@@ -75,7 +75,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
                     await this.Model.LoadImageAsync(path);
                 }
                 catch (Exception e) {
-                    await Services.DialogService.ShowMessageExAsync("Error opening image", $"Exception occurred while opening {path}", e.GetToString());
+                    await IoC.DialogService.ShowMessageExAsync("Error opening image", $"Exception occurred while opening {path}", e.GetToString());
                     return;
                 }
 

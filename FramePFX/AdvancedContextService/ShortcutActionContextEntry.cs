@@ -9,16 +9,16 @@ namespace FramePFX.AdvancedContextService {
             set => this.RaisePropertyChanged(ref this.shortcutId, value);
         }
 
-        public ShortcutActionContextEntry(object dataContext, string actionId, string header, string description, IEnumerable<IContextEntry> children = null) : base(dataContext, actionId, header, description, children) {
+        public ShortcutActionContextEntry(object dataContext, string actionId, string header, string description, IEnumerable<IContextEntry> children = null) : base(actionId, header, description, children) {
         }
 
-        public ShortcutActionContextEntry(object dataContext, string actionId, string header, IEnumerable<IContextEntry> children = null) : base(dataContext, actionId, header, children) {
+        public ShortcutActionContextEntry(object dataContext, string actionId, string header, IEnumerable<IContextEntry> children = null) : base(actionId, header, children) {
         }
 
-        public ShortcutActionContextEntry(object dataContext, string actionId, IEnumerable<IContextEntry> children = null) : base(dataContext, actionId, children) {
+        public ShortcutActionContextEntry(object dataContext, string actionId, IEnumerable<IContextEntry> children = null) : base(actionId, children) {
         }
 
-        public ShortcutActionContextEntry(object dataContext, IEnumerable<IContextEntry> children = null) : base(dataContext, children) {
+        public ShortcutActionContextEntry(object dataContext, IEnumerable<IContextEntry> children = null) : base(children) {
         }
     }
 }

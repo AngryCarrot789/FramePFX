@@ -35,7 +35,7 @@ namespace FramePFX.FileBrowser.FileTree.Zip {
                     stream = this.StreamProvider();
                 }
                 catch (Exception e) {
-                    await Services.DialogService.ShowMessageExAsync("Zip Failure", "Failed to open zip stream", e.GetToString());
+                    await IoC.DialogService.ShowMessageExAsync("Zip Failure", "Failed to open zip stream", e.GetToString());
                     return false;
                 }
 
@@ -43,7 +43,7 @@ namespace FramePFX.FileBrowser.FileTree.Zip {
                     this.Archive = new ZipArchive(stream);
                 }
                 catch (Exception e) {
-                    await Services.DialogService.ShowMessageExAsync("Zip Failure", "Failed to read zip contents", e.GetToString());
+                    await IoC.DialogService.ShowMessageExAsync("Zip Failure", "Failed to read zip contents", e.GetToString());
                     stream.Dispose();
                     return false;
                 }

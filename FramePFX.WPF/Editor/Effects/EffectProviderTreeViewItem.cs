@@ -5,7 +5,7 @@ using System.Windows.Input;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Logger;
 using FramePFX.Utils;
-using FramePFX.WPF.Editor.Timeline.Utils;
+using FramePFX.WPF.Editor.Timelines.Utils;
 
 namespace FramePFX.WPF.Editor.Effects {
     public class EffectProviderTreeViewItem : TreeViewItem {

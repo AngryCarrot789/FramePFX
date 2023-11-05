@@ -53,7 +53,7 @@ namespace FramePFX.Editor.PropertyEditors.Tracks.Video {
             this.OpacityEditStateChangedCommand = new EditStateCommand(() => new HistoryClipOpacity(this), "Modify opacity");
         }
 
-        private void RefreshOpacity(AutomationSequenceViewModel sender, RefreshAutomationValueEventArgs e) {
+        private void RefreshOpacity(AutomationSequenceViewModel sender, AutomationUpdateEventArgs e) {
             this.RaisePropertyChanged(ref this.opacity, this.SingleSelection.Opacity, nameof(this.Opacity));
         }
 

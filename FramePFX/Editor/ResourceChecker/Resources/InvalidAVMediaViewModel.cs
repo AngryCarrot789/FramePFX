@@ -46,7 +46,7 @@ namespace FramePFX.Editor.ResourceChecker.Resources {
         }
 
         private async Task SelectFileAction() {
-            string[] file = await Services.FilePicker.OpenFiles(Filters.VideoFormatsAndAll, this.FilePath, "Select a video file to open");
+            string[] file = await IoC.FilePicker.OpenFiles(Filters.VideoFormatsAndAll, this.FilePath, "Select a video file to open");
             if (file != null) {
                 this.FilePath = file[0];
                 await this.LoadFileAction();

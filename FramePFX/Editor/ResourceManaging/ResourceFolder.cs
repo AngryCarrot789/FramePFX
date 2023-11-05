@@ -83,14 +83,14 @@ namespace FramePFX.Editor.ResourceManaging {
                 }
 
                 item.OnDetatchedFromManager();
-                item.Manager = null;
+                item.manager = null;
             }
 
             this.items.Insert(index, item);
             InternalSetParent(item, this);
             this.ResourceAdded?.Invoke(this, item, index);
             if (isManagerDifferent && this.Manager != null) {
-                item.Manager = this.Manager;
+                item.manager = this.Manager;
                 item.OnAttachedToManager();
                 if (wasRegistered) {
                     item.Manager.RegisterEntry((ResourceItem) item);
@@ -157,7 +157,7 @@ namespace FramePFX.Editor.ResourceManaging {
                 }
 
                 item.OnDetatchedFromManager();
-                item.Manager = null;
+                item.manager = null;
             }
         }
 
@@ -177,7 +177,7 @@ namespace FramePFX.Editor.ResourceManaging {
             bool isManagerDifferent = !ReferenceEquals(item.Manager, target.Manager);
             if (isManagerDifferent && item.Manager != null) {
                 item.OnDetatchedFromManager();
-                item.Manager = null;
+                item.manager = null;
             }
 
             this.items.RemoveAt(srcIndex);
@@ -187,7 +187,7 @@ namespace FramePFX.Editor.ResourceManaging {
             this.ResourceMoved?.Invoke(args);
             target.ResourceMoved?.Invoke(args);
             if (isManagerDifferent && target.Manager != null) {
-                item.Manager = target.Manager;
+                item.manager = target.Manager;
                 item.OnAttachedToManager();
             }
         }

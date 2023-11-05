@@ -48,7 +48,7 @@ namespace FramePFX.WPF.Editor.Resources {
                     await BaseResourceViewModel.DropRegistry.OnDropped(manager.Root, list, effects);
                 }
                 else if (!await BaseResourceViewModel.DropRegistry.OnDroppedNative(manager.Root, new DataObjectWrapper(e.Data), effects)) {
-                    await Services.DialogService.ShowMessageAsync("Unknown data", "Unknown dropped item. Drop files here");
+                    await IoC.DialogService.ShowMessageAsync("Unknown data", "Unknown dropped item. Drop files here");
                 }
             }
             finally {

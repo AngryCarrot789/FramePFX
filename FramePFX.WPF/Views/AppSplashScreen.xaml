@@ -14,7 +14,7 @@
         BorderThickness="3"
         FontFamily="{StaticResource FontOxanium}">
     <Grid>
-        <TextBlock Text="FramePFX v1.02" FontFamily="{StaticResource FontOxanium}" FontWeight="DemiBold" FontSize="64" VerticalAlignment="Top" TextAlignment="Center" Margin="0,12" />
+        <TextBlock Text="FramePFX v1.0.0.800" FontFamily="{StaticResource FontOxanium}" FontWeight="DemiBold" FontSize="64" VerticalAlignment="Top" TextAlignment="Center" Margin="0,12" />
         <TextBlock x:Name="CurrentActivityTextBlock" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Padding="10" FontSize="12" />
         <TextBlock FontFamily="{StaticResource FontOxanium}" Margin="0,92,0,228" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center">
             <Run Text="Stands for " /><Run FontWeight="Bold" Text="Frame Pixel Effect" /><Run Text="... couldn't think of anything better" />

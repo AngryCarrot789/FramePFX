@@ -10,6 +10,7 @@ namespace FramePFX.Editor.ResourceManaging {
     public abstract class ResourceItem : BaseResource, IDisposable {
         public const ulong EmptyId = ResourceManager.EmptyId;
         private bool isOnline;
+        private ulong uniqueId;
 
         /// <summary>
         /// Gets or sets if this resource is online (usable) or offline (not usable by clips).
@@ -33,7 +34,10 @@ namespace FramePFX.Editor.ResourceManaging {
         /// <summary>
         /// This resource item's unique identifier
         /// </summary>
-        public ulong UniqueId { get; private set; }
+        public ulong UniqueId {
+            get => this.uniqueId;
+            private set => this.uniqueId = value;
+        }
 
         /// <summary>
         /// Gets or sets the number of clips that reference this resource
@@ -43,7 +47,6 @@ namespace FramePFX.Editor.ResourceManaging {
         private readonly List<ResourcePath> references;
         public IReadOnlyList<ResourcePath> References => this.references;
 
-        public event ResourceModifiedEventHandler DataModified;
         public event ResourceAndManagerEventHandler OnlineStateChanged;
         public event ResourceReferencedEventHandler ReferenceCountChanged;
 
@@ -131,18 +134,6 @@ namespace FramePFX.Editor.ResourceManaging {
                 this.isOnline = false;
                 this.IsOfflineByUser = true;
             }
-        }
-
-        /// <summary>
-        /// Raises the <see cref="DataModified"/> event for this resource item with the given property, allowing listeners
-        /// to invalidate their objects that relied on the previous state of the property that changed e.g. text blobs)
-        /// </summary>
-        /// <param name="propertyName"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public virtual void OnDataModified([CallerMemberName] string propertyName = null) {
-            if (propertyName == null)
-                throw new ArgumentNullException(nameof(propertyName));
-            this.DataModified?.Invoke(this, propertyName);
         }
 
         public void OnDataModified<T>(ref T property, T newValue, [CallerMemberName] string propertyName = null) {

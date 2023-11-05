@@ -8,7 +8,7 @@ using FramePFX.Utils;
 using FramePFX.Views.Dialogs.Message;
 
 namespace FramePFX.Editor.ResourceManaging.Actions {
-    public class DeleteResourcesAction : AnAction {
+    public class DeleteResourcesAction : ExecutableAction {
         public static readonly MessageDialog ConfirmationDialog;
 
         static DeleteResourcesAction() {
@@ -16,7 +16,7 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
             ConfirmationDialog.IsAlwaysUseThisOptionChecked = true;
         }
 
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
+        public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
             if (!ResourceActionUtils.GetSelectedResources(e.DataContext, out List<BaseResourceViewModel> selection)) {
                 return false;
             }
@@ -42,7 +42,7 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
                     Lang.S(unknown > 0 ? unknown : clips),
                     Lang.ThisThese(resCount),
                     Lang.S(resCount));
-                if (!await Services.DialogService.ShowYesNoDialogAsync("Delete resources", msg)) {
+                if (!await IoC.DialogService.ShowYesNoDialogAsync("Delete resources", msg)) {
                     return true;
                 }
             }
@@ -60,7 +60,7 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
                 }
             }
             catch (Exception ex) {
-                await Services.DialogService.ShowMessageExAsync("Exception deleting items", "One or more items threw an exception while it was being deleted", ex.GetToString());
+                await IoC.DialogService.ShowMessageExAsync("Exception deleting items", "One or more items threw an exception while it was being deleted", ex.GetToString());
             }
 
             return true;

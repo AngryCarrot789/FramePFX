@@ -55,12 +55,11 @@ namespace FramePFX.Commands {
         /// </summary>
         public virtual void RaiseCanExecuteChanged() {
             if (this.CanExecuteChanged != null) {
-                IApplication application = Services.Application;
-                if (application.IsOnOwnerThread) {
+                if (IoC.Application.IsOnMainThread) {
                     this.CanExecuteChanged(this, EventArgs.Empty);
                 }
                 else {
-                    application.Invoke(() => this.CanExecuteChanged?.Invoke(this, EventArgs.Empty));
+                    IoC.Application.InvokeOnMainThread(() => this.CanExecuteChanged?.Invoke(this, EventArgs.Empty));
                 }
             }
         }

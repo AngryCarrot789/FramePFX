@@ -24,7 +24,7 @@ namespace FramePFX.AdvancedContextService {
             set => this.RaisePropertyChanged(ref this.commandParameter, value);
         }
 
-        public ShortcutCommandContextEntry(IEnumerable<string> shortcutIds, ICommand command, object commandParameter, IEnumerable<IContextEntry> children = null) : base(null, children) {
+        public ShortcutCommandContextEntry(IEnumerable<string> shortcutIds, ICommand command, object commandParameter, IEnumerable<IContextEntry> children = null) : base(children) {
             this.ShortcutIds = new ObservableCollectionEx<string>(shortcutIds ?? Enumerable.Empty<string>());
             this.command = command;
             this.commandParameter = commandParameter;

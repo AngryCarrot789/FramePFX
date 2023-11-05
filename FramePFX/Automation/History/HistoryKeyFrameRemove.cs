@@ -8,12 +8,16 @@ using FramePFX.RBC;
 
 namespace FramePFX.Automation.History {
     public class HistoryKeyFrameRemove : BaseHistoryHolderAction<AutomationSequenceViewModel> {
-        private readonly RBEList SerialisedData;
+        private RBEList SerialisedData;
         private List<KeyFrameViewModel> undoList;
 
         // Safer to store key frames in a serialises form,
         // just in case the original objects are modified
         public HistoryKeyFrameRemove(AutomationSequenceViewModel holder, IEnumerable<KeyFrameViewModel> keyFrames) : base(holder) {
+            this.Serialise(keyFrames);
+        }
+
+        private void Serialise(IEnumerable<KeyFrameViewModel> keyFrames) {
             RBEList list = new RBEList();
             foreach (KeyFrameViewModel keyFrame in keyFrames) {
                 RBEDictionary dictionary = new RBEDictionary();
@@ -46,6 +50,7 @@ namespace FramePFX.Automation.History {
                 throw new Exception("Impossible condition; undo never invoked or redo invoked twice in a row");
             }
 
+            this.Serialise(this.undoList);
             foreach (KeyFrameViewModel keyFrame in this.undoList) {
                 this.Holder.RemoveKeyFrame(keyFrame);
             }

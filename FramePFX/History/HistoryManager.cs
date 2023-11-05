@@ -158,6 +158,7 @@ namespace FramePFX.History {
         /// <exception cref="Exception">Undo or redo is in progress</exception>
         /// <exception cref="InvalidOperationException">Nothing to undo</exception>
         public async Task<HistoryAction> OnUndoAsync() {
+            IoC.Application.ValidateIsMainThread("Undo can only happen on the main thread");
             if (this.IsUndoing)
                 throw new Exception("Undo is already in progress");
             if (this.IsRedoing)
@@ -202,6 +203,7 @@ namespace FramePFX.History {
         /// <exception cref="Exception">Undo or redo is in progress</exception>
         /// <exception cref="InvalidOperationException">Nothing to redo</exception>
         public async Task<HistoryAction> OnRedoAsync() {
+            IoC.Application.ValidateIsMainThread("Redo can only happen on the main thread");
             if (this.IsUndoing)
                 throw new Exception("Undo is in progress");
             if (this.IsRedoing)

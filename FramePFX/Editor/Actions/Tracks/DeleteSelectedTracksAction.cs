@@ -4,12 +4,12 @@ using FramePFX.Actions;
 using FramePFX.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Editor.Actions.Tracks {
-    public class DeleteSelectedTracksAction : AnAction {
-        public override bool CanExecute(AnActionEventArgs e) {
+    public class DeleteSelectedTracksAction : ExecutableAction {
+        public override bool CanExecute(ActionEventArgs e) {
             return EditorActionUtils.GetTimeline(e.DataContext, out TimelineViewModel timeline);
         }
 
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
+        public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
             TimelineViewModel timeline = null;
             if (e.DataContext.TryGetContext(out TrackViewModel targetTrack) && (timeline = targetTrack.Timeline) != null) {
                 if (!timeline.SelectedTracks.Contains(targetTrack)) {

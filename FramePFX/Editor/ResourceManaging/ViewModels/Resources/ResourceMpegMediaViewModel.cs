@@ -31,14 +31,14 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
         }
 
         public async Task SelectFileAction() {
-            string[] file = await Services.FilePicker.OpenFiles(Filters.VideoFormatsAndAll, this.FilePath, "Select a video file to open");
+            string[] file = await IoC.FilePicker.OpenFiles(Filters.VideoFormatsAndAll, this.FilePath, "Select a video file to open");
             if (file != null) {
                 this.FilePath = file[0];
                 try {
                     this.Model.LoadMedia(this.FilePath);
                 }
                 catch (Exception e) {
-                    await Services.DialogService.ShowMessageExAsync("Failed", "An exception occurred opening the media", e.GetToString());
+                    await IoC.DialogService.ShowMessageExAsync("Failed", "An exception occurred opening the media", e.GetToString());
                 }
             }
         }

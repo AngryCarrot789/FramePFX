@@ -4,99 +4,66 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using FramePFX.App;
 using FramePFX.ServiceManaging;
+using FramePFX.WPF.App;
 
 namespace FramePFX.WPF.Utils {
-    public class ApplicationDelegate : IApplication {
-        private static readonly FieldInfo DisableProcessingCountField;
+    public class ApplicationDelegate : IDispatcher {
         private readonly Dispatcher dispatcher;
-        private readonly App app;
 
         public bool IsOnOwnerThread => this.dispatcher.CheckAccess();
 
-        public bool IsRunning => Application.Current != null;
-
-        public bool IsDispatcherSuspended {
-            get {
-                FieldInfo field = DisableProcessingCountField;
-                return field != null && (int) field.GetValue(this.dispatcher) > 0;
-            }
-        }
-
-        public ApplicationDelegate(App app) {
-            this.app = app ?? throw new ArgumentNullException(nameof(app));
+        public ApplicationDelegate(AppWPF app) {
             this.dispatcher = app.Dispatcher ?? throw new Exception("Application dispatcher detached");
         }
 
-        static ApplicationDelegate() {
-            DisableProcessingCountField = typeof(Dispatcher).GetField("_disableProcessingCount", BindingFlags.Instance | BindingFlags.GetField | BindingFlags.NonPublic);
-        }
-
-        public void Invoke(Action action, ExecutionPriority priority) {
-            if (priority == ExecutionPriority.Send && this.dispatcher.CheckAccess()) {
+        public void Invoke(Action action, DispatchPriority priority) {
+            if (priority == DispatchPriority.Send && this.dispatcher.CheckAccess()) {
                 action();
             }
             else {
-                this.dispatcher.Invoke(action, ConvertPriority(priority));
+                this.dispatcher.Invoke(action, ApplicationModel.ConvertPriority(priority));
             }
         }
 
-        public void Invoke<T>(Action<T> action, T parameter, ExecutionPriority priority) {
-            if (priority == ExecutionPriority.Send && this.dispatcher.CheckAccess()) {
+        public void Invoke<T>(Action<T> action, T parameter, DispatchPriority priority) {
+            if (priority == DispatchPriority.Send && this.dispatcher.CheckAccess()) {
                 action(parameter);
             }
             else {
-                this.dispatcher.Invoke(ConvertPriority(priority), action, parameter);
+                this.dispatcher.Invoke(ApplicationModel.ConvertPriority(priority), action, parameter);
             }
         }
 
-        public T Invoke<T>(Func<T> function, ExecutionPriority priority) {
-            if (priority == ExecutionPriority.Send && this.dispatcher.CheckAccess())
+        public T Invoke<T>(Func<T> function, DispatchPriority priority) {
+            if (priority == DispatchPriority.Send && this.dispatcher.CheckAccess())
                 return function();
-            return this.dispatcher.Invoke(function, ConvertPriority(priority));
+            return this.dispatcher.Invoke(function, ApplicationModel.ConvertPriority(priority));
         }
 
-        public T InvokeLater<T>(Func<T> function, bool wayLater = false) {
-            return this.dispatcher.Invoke(function, wayLater ? DispatcherPriority.Background : DispatcherPriority.Normal);
-        }
-
-        public Task InvokeAsync(Action action, ExecutionPriority priority) {
-            if (priority == ExecutionPriority.Send && this.dispatcher.CheckAccess()) {
+        public Task InvokeAsync(Action action, DispatchPriority priority) {
+            if (priority == DispatchPriority.Send && this.dispatcher.CheckAccess()) {
                 action();
                 return Task.CompletedTask;
             }
 
-            return this.dispatcher.InvokeAsync(action, ConvertPriority(priority), CancellationToken.None).Task;
+            return this.dispatcher.InvokeAsync(action, ApplicationModel.ConvertPriority(priority), CancellationToken.None).Task;
         }
 
-        public Task InvokeAsync<T>(Action<T> action, T parameter, ExecutionPriority priority) {
-            if (priority == ExecutionPriority.Send && this.dispatcher.CheckAccess()) {
+        public Task InvokeAsync<T>(Action<T> action, T parameter, DispatchPriority priority) {
+            if (priority == DispatchPriority.Send && this.dispatcher.CheckAccess()) {
                 action(parameter);
                 return Task.CompletedTask;
             }
 
-            return this.dispatcher.BeginInvoke(ConvertPriority(priority), action, parameter).Task;
+            return this.dispatcher.BeginInvoke(ApplicationModel.ConvertPriority(priority), action, parameter).Task;
         }
 
-        public Task<T> InvokeAsync<T>(Func<T> function, ExecutionPriority priority) {
-            if (priority == ExecutionPriority.Send && this.dispatcher.CheckAccess())
+        public Task<T> InvokeAsync<T>(Func<T> function, DispatchPriority priority) {
+            if (priority == DispatchPriority.Send && this.dispatcher.CheckAccess())
                 return Task.FromResult(function());
-            return this.dispatcher.InvokeAsync(function, ConvertPriority(priority), CancellationToken.None).Task;
-        }
-
-        public Task<T> InvokeLaterAsync<T>(Func<T> function, bool wayLater = false) {
-            return this.dispatcher.InvokeAsync(function, wayLater ? DispatcherPriority.Background : DispatcherPriority.Normal).Task;
-        }
-
-        public static DispatcherPriority ConvertPriority(ExecutionPriority priority) {
-            switch (priority) {
-                case ExecutionPriority.AppIdle: return DispatcherPriority.ApplicationIdle;
-                case ExecutionPriority.Background: return DispatcherPriority.Background;
-                case ExecutionPriority.Render: return DispatcherPriority.Render;
-                case ExecutionPriority.Normal: return DispatcherPriority.Normal;
-                case ExecutionPriority.Send: return DispatcherPriority.Send;
-                default: throw new ArgumentOutOfRangeException(nameof(priority), priority, null);
-            }
+            return this.dispatcher.InvokeAsync(function, ApplicationModel.ConvertPriority(priority), CancellationToken.None).Task;
         }
     }
 }

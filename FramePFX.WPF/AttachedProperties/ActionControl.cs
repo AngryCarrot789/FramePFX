@@ -1,57 +1,55 @@
+using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using FramePFX.Actions;
 using FramePFX.Actions.Contexts;
 using FramePFX.Utils;
-using FramePFX.WPF.Utils;
+using FramePFX.WPF.Actions;
 
 namespace FramePFX.WPF.AttachedProperties {
+    /// <summary>
+    /// A utility class for associating an executable action ID with a control, and handing the relative
+    /// "activation" event (e.g. ClickEvent) in order to actually execute the action. This class is more convenient
+    /// as a custom "ActionButton" class is not required
+    /// </summary>
     public static class ActionControl {
-        public static readonly DependencyProperty TargetActionIdProperty = DependencyProperty.RegisterAttached("TargetActionId", typeof(string), typeof(ActionControl), new PropertyMetadata(null, PropertyChangedCallback));
+        // Cache for faster runtime
+        private static readonly RoutedEventHandler OnControlLoadedHandler;
+        private static readonly RoutedEventHandler OnControlUnloadedHandler;
+        private static readonly RoutedEventHandler OnControlClickForInvokeActionHandler;
+
+        public static readonly DependencyProperty TargetActionIdProperty = DependencyProperty.RegisterAttached("TargetActionId", typeof(string), typeof(ActionControl), new PropertyMetadata(null, OnTargetActionIdPropertyChanged));
         private static readonly DependencyPropertyKey PresentationUpdateHandlerPropertyKey = DependencyProperty.RegisterAttachedReadOnly("PresentationUpdateHandler", typeof(UpdateHandler), typeof(ActionControl), new PropertyMetadata(default(CanExecuteChangedEventHandler)));
+
+        static ActionControl() {
+            OnControlLoadedHandler = OnControlLoaded;
+            OnControlUnloadedHandler = OnControlUnloaded;
+            OnControlClickForInvokeActionHandler = OnControlClickForInvokeAction;
+        }
 
         public static void SetTargetActionId(DependencyObject element, string value) => element.SetValue(TargetActionIdProperty, value);
         public static string GetTargetActionId(DependencyObject element) => (string) element.GetValue(TargetActionIdProperty);
 
-        private static UpdateHandler GetPresentationUpdateHandler(DependencyObject element) {
-            return (UpdateHandler) element.GetValue(PresentationUpdateHandlerPropertyKey.DependencyProperty);
-        }
-
-        private static void PropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            if (d is ButtonBase button) {
-                button.Click -= OnControlClickForInvokeAction;
-                if (GetPresentationUpdateHandler(button) is UpdateHandler oldHandler) {
-                    button.ClearValue(PresentationUpdateHandlerPropertyKey);
-                    ActionManager.Instance.RemovePresentationUpdateHandler(oldHandler.ActionId, oldHandler.Handler);
-                }
-
-                if (e.NewValue is string newId && !string.IsNullOrWhiteSpace(newId)) {
-                    button.Click += OnControlClickForInvokeAction;
-                    SetupHandler(button, newId);
+        private static void OnTargetActionIdPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+            Control control = (Control) d;
+            UpdateHandler.ClearHandlerInfo(control);
+            RoutedEvent clickHandler;
+            switch (d) {
+                case ButtonBase _: clickHandler = ButtonBase.ClickEvent; break;
+                case MenuItem _: clickHandler = MenuItem.ClickEvent; break;
+                default: {
+                    // don't throw for unsetting/removing value because meh
+                    if (e.NewValue != null)
+                        throw new Exception($"Unsupported control type: {d.GetType().Name} ({d})");
+                    return;
                 }
             }
-            else if (d is MenuItem menuItem) {
-                menuItem.Click -= OnControlClickForInvokeAction;
-                if (GetPresentationUpdateHandler(menuItem) is UpdateHandler oldHandler) {
-                    menuItem.ClearValue(PresentationUpdateHandlerPropertyKey);
-                    ActionManager.Instance.RemovePresentationUpdateHandler(oldHandler.ActionId, oldHandler.Handler);
-                }
 
-                if (e.NewValue is string newId && !string.IsNullOrWhiteSpace(newId)) {
-                    menuItem.Click += OnControlClickForInvokeAction;
-                    SetupHandler(menuItem, newId);
-                }
+            if (e.NewValue is string newId && !string.IsNullOrWhiteSpace(newId)) {
+                UpdateHandler.SetupHandler(control, clickHandler, newId);
             }
-        }
-
-        private static void SetupHandler(UIElement element, string actionId) {
-            UpdateHandler newHandler = new UpdateHandler(actionId, (id, action, args, canExecute) => {
-                element.IsEnabled = canExecute;
-            });
-
-            element.SetValue(PresentationUpdateHandlerPropertyKey, newHandler);
-            ActionManager.Instance.AddPresentationUpdateHandler(actionId, newHandler.Handler);
         }
 
         private static async void OnControlClickForInvokeAction(object sender, RoutedEventArgs e) {
@@ -62,23 +60,7 @@ namespace FramePFX.WPF.AttachedProperties {
                     return;
                 }
 
-                DataContext context = new DataContext();
-                object o1, o2 = null, o3;
-                if (VisualTreeUtils.GetDataContext(element, out o1)) {
-                    context.AddContext(o1);
-                }
-
-                ItemsControl itemsControl = VisualTreeUtils.GetItemsControlFromObject(element);
-                if (itemsControl != null && (o2 = itemsControl.DataContext) != null && !ReferenceEquals(o1, o2)) {
-                    context.AddContext(o2);
-                }
-
-                if (Window.GetWindow(element) is Window window && VisualTreeUtils.GetDataContext(window, out o3)) {
-                    if (!ReferenceEquals(o1, o3) && !ReferenceEquals(o2, o3)) {
-                        context.AddContext(o3);
-                    }
-                }
-
+                DataContext context = ActionContextProviderCollection.CreateContextFromTarget(element);
                 if (element is ToggleButton toggle) {
                     object obj = toggle.GetValue(ToggleButton.IsCheckedProperty);
                     if (obj is bool isChecked) {
@@ -94,14 +76,80 @@ namespace FramePFX.WPF.AttachedProperties {
         }
 
         private class UpdateHandler {
-            public string ActionId { get; }
+            private readonly Control element;
+            private readonly RoutedEvent clickEvent;
+            private readonly string ActionId;
+            private readonly CanExecuteChangedEventHandler Handler;
 
-            public CanExecuteChangedEventHandler Handler { get; }
-
-            public UpdateHandler(string actionId, CanExecuteChangedEventHandler handler) {
+            private UpdateHandler(string actionId, Control element, RoutedEvent clickEvent) {
                 this.ActionId = actionId;
-                this.Handler = handler;
+                this.element = element;
+                this.clickEvent = clickEvent;
+                this.Handler = this.OnCanUpdateChanged;
             }
+
+            private void OnCanUpdateChanged(string id, ExecutableAction action, ActionEventArgs args, bool canexecute) {
+                DataContext context = ActionContextProviderCollection.CreateContextFromTarget(this.element);
+                ActionEventArgs newArgs = args.Manager.CreateArgs(id, context, args.IsUserInitiated);
+                this.element.IsEnabled = action.CanExecute(newArgs);
+            }
+
+            public static void ClearHandlerInfo(Control control) {
+                if (control.GetValue(PresentationUpdateHandlerPropertyKey.DependencyProperty) is UpdateHandler handler) {
+                    control.RemoveHandler(handler.clickEvent, OnControlClickForInvokeActionHandler);
+                    control.Loaded -= OnControlLoadedHandler;
+                    control.Unloaded -= OnControlUnloadedHandler;
+                    control.SetValue(PresentationUpdateHandlerPropertyKey, null);
+                    ActionManager.Instance.RemoveCanUpdateHandler(handler.ActionId, handler.Handler);
+                }
+            }
+
+            public static void SetupHandler(Control control, RoutedEvent clickEvent, string actionId) {
+                UpdateHandler newHandler = new UpdateHandler(actionId, control, clickEvent);
+                control.SetValue(PresentationUpdateHandlerPropertyKey, newHandler);
+                control.AddHandler(clickEvent, OnControlClickForInvokeActionHandler);
+                if (control.IsLoaded) {
+                    newHandler.OnLoaded();
+                }
+                else {
+                    control.Loaded += OnControlLoadedHandler;
+                    Debug.WriteLine($"UpdateHandler: Control was unloaded. Loaded event added");
+                }
+            }
+
+            public void OnLoaded() {
+                ActionManager.Instance.AddCanUpdateHandler(this.ActionId, this.Handler);
+                this.element.Loaded -= OnControlLoadedHandler;
+                this.element.Unloaded += OnControlUnloadedHandler;
+                Debug.WriteLine($"UpdateHandler: OnLoaded. Control = {this.element}, ActionId = {this.ActionId}");
+            }
+
+            public void OnUnloaded() {
+                this.element.Unloaded -= OnControlUnloadedHandler;
+                this.element.Loaded += OnControlLoadedHandler;
+                Debug.WriteLine($"UpdateHandler: OnUnloaded. Control = {this.element}, ActionId = {this.ActionId}");
+                ActionManager.Instance.RemoveCanUpdateHandler(this.ActionId, this.Handler);
+            }
+        }
+
+        private static void OnControlLoaded(object sender, RoutedEventArgs e) {
+            if (GetUpdateHandler((DependencyObject) sender, out UpdateHandler handler)) {
+                handler.OnLoaded();
+            }
+        }
+
+        private static void OnControlUnloaded(object sender, RoutedEventArgs e) {
+            if (GetUpdateHandler((DependencyObject) sender, out UpdateHandler handler)) {
+                handler.OnUnloaded();
+            }
+        }
+
+        private static bool GetUpdateHandler(DependencyObject obj, out UpdateHandler handler) {
+            handler = (UpdateHandler) obj.GetValue(PresentationUpdateHandlerPropertyKey.DependencyProperty);
+            if (handler != null)
+                return true;
+            Debug.WriteLine("Did not expect UpdateHandler to be null. An event handler for the CanUpdateHandler may have leaked");
+            return false;
         }
     }
 }

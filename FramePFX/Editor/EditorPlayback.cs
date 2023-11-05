@@ -1,14 +1,18 @@
 using System;
+using System.Threading;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor {
     public class EditorPlayback {
         private volatile bool isPlaying;
+        private volatile int suspensionCount;
 
         public PrecisionTimer PlaybackTimer { get; }
 
         public bool UsePrecisionTimingMode { get; set; }
+
+        public bool IsPlaybackRenderAllowed => this.suspensionCount < 1;
 
         /// <summary>
         /// A UI specific thing. Whether or not zooming into the view port will zoom towards the cursor
@@ -32,6 +36,11 @@ namespace FramePFX.Editor {
             this.PlaybackTimer = new PrecisionTimer();
         }
 
+        public RenderSuspension SuspendRendering() {
+            Interlocked.Increment(ref this.suspensionCount);
+            return new RenderSuspension();
+        }
+
         public void WriteToRBE(RBEDictionary data) {
             data.SetBool(nameof(this.UsePrecisionTimingMode), this.UsePrecisionTimingMode);
             data.SetBool(nameof(this.ZoomToCursor), this.ZoomToCursor);
@@ -40,6 +49,18 @@ namespace FramePFX.Editor {
         public void ReadFromRBE(RBEDictionary data) {
             this.UsePrecisionTimingMode = data.GetBool(nameof(this.UsePrecisionTimingMode));
             this.ZoomToCursor = data.GetBool(nameof(this.ZoomToCursor));
+        }
+
+        public readonly struct RenderSuspension : IDisposable {
+            private readonly EditorPlayback playback;
+
+            private RenderSuspension(EditorPlayback playback) {
+                this.playback = playback;
+            }
+
+            public void Dispose() {
+                Interlocked.Decrement(ref this.playback.suspensionCount);
+            }
         }
     }
 }

@@ -6,48 +6,96 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
     /// A resource for storing styling information for a text clip
     /// </summary>
     public class ResourceTextStyle : ResourceItem {
-        public double FontSize;
-        public double SkewX;
-        public string FontFamily;
-        public SKColor Foreground;
-        public SKColor Border;
-        public double BorderThickness;
-        public bool IsAntiAliased;
-        public SKPaint GeneratedPaint;
-        public SKFont GeneratedFont;
+        private double fontSize;
+        private double skewX;
+        private string fontFamily;
+        private SKColor foreground;
+        private SKColor border;
+        private double borderThickness;
+        private bool isAntiAliased;
+
+        public double FontSize {
+            get => this.fontSize;
+            set {
+                this.fontSize = value;
+                this.InvalidateFontData();
+            }
+        }
+
+        public double SkewX {
+            get => this.skewX;
+            set {
+                this.skewX = value;
+                this.InvalidateFontData();
+            }
+        }
+
+        public string FontFamily {
+            get => this.fontFamily;
+            set {
+                this.fontFamily = value;
+                this.InvalidateFontData();
+            }
+        }
+
+        public SKColor Foreground {
+            get => this.foreground;
+            set {
+                this.foreground = value;
+                this.InvalidateFontData();
+            }
+        }
+
+        public SKColor Border {
+            get => this.border;
+            set {
+                this.border = value;
+                this.InvalidateFontData();
+            }
+        }
+
+        public double BorderThickness {
+            get => this.borderThickness;
+            set {
+                this.borderThickness = value;
+                this.InvalidateFontData();
+            }
+        }
+
+        public bool IsAntiAliased {
+            get => this.isAntiAliased;
+            set {
+                this.isAntiAliased = value;
+                this.InvalidateFontData();
+            }
+        }
+
+        public SKPaint GeneratedPaint { get; private set; }
+
+        public SKFont GeneratedFont { get; private set; }
 
         public ResourceTextStyle() {
-            this.FontSize = 40;
-            this.FontFamily = "Consolas";
-            this.Foreground = SKColors.White;
-            this.Border = SKColors.DarkGray;
-            this.BorderThickness = 5d;
-            this.IsAntiAliased = true;
+            this.fontSize = 40;
+            this.fontFamily = "Consolas";
+            this.foreground = SKColors.White;
+            this.border = SKColors.DarkGray;
+            this.borderThickness = 5d;
+            this.isAntiAliased = true;
         }
 
-        public override void OnDataModified(string propertyName = null) {
-            switch (propertyName) {
-                case nameof(this.FontFamily):
-                case nameof(this.FontSize):
-                case nameof(this.SkewX):
-                case nameof(this.BorderThickness):
-                case nameof(this.Foreground):
-                case nameof(this.IsAntiAliased):
-                    this.InvalidateCachedData();
-                    this.GenerateCachedData();
-                    break;
-            }
-
-            base.OnDataModified(propertyName);
-        }
-
-        public void InvalidateCachedData() {
+        /// <summary>
+        /// Invalidates the cached font and paint information. This is called automatically when any of our properties change
+        /// </summary>
+        public void InvalidateFontData() {
             this.GeneratedFont?.Dispose();
             this.GeneratedFont = null;
             this.GeneratedPaint?.Dispose();
             this.GeneratedPaint = null;
         }
 
+        /// <summary>
+        /// Generates our cached font and paint data. This must be called manually after invalidating font data
+        /// </summary>
         public void GenerateCachedData() {
             if (this.GeneratedFont == null) {
                 SKTypeface typeface = SKTypeface.FromFamilyName(string.IsNullOrEmpty(this.FontFamily) ? "Consolas" : this.FontFamily);
@@ -68,28 +116,28 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
 
         public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
-            data.SetDouble(nameof(this.FontSize), this.FontSize);
-            data.SetDouble(nameof(this.SkewX), this.SkewX);
-            data.SetString(nameof(this.FontFamily), this.FontFamily);
-            data.SetUInt(nameof(this.Foreground), (uint) this.Foreground);
-            data.SetUInt(nameof(this.Border), (uint) this.Border);
-            data.SetDouble(nameof(this.BorderThickness), this.BorderThickness);
-            data.SetBool(nameof(this.IsAntiAliased), this.IsAntiAliased);
+            data.SetDouble(nameof(this.FontSize), this.fontSize);
+            data.SetDouble(nameof(this.SkewX), this.skewX);
+            data.SetString(nameof(this.FontFamily), this.fontFamily);
+            data.SetUInt(nameof(this.Foreground), (uint) this.foreground);
+            data.SetUInt(nameof(this.Border), (uint) this.border);
+            data.SetDouble(nameof(this.BorderThickness), this.borderThickness);
+            data.SetBool(nameof(this.IsAntiAliased), this.isAntiAliased);
         }
 
         public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
-            this.FontSize = data.GetDouble(nameof(this.FontSize));
-            this.SkewX = data.GetDouble(nameof(this.SkewX));
-            this.FontFamily = data.GetString(nameof(this.FontFamily), null);
-            this.Foreground = data.GetUInt(nameof(this.Foreground));
-            this.Border = data.GetUInt(nameof(this.Border));
-            this.BorderThickness = data.GetDouble(nameof(this.BorderThickness));
-            this.IsAntiAliased = data.GetBool(nameof(this.IsAntiAliased));
+            this.fontSize = data.GetDouble(nameof(this.FontSize));
+            this.skewX = data.GetDouble(nameof(this.SkewX));
+            this.fontFamily = data.GetString(nameof(this.FontFamily), null);
+            this.foreground = data.GetUInt(nameof(this.Foreground));
+            this.border = data.GetUInt(nameof(this.Border));
+            this.borderThickness = data.GetDouble(nameof(this.BorderThickness));
+            this.isAntiAliased = data.GetBool(nameof(this.IsAntiAliased));
         }
 
         public static SKTextBlob[] CreateTextBlobs(string input, SKPaint paint, SKFont font) {
-            return CreateTextBlobs(input, font, paint.TextSize * 1.2f);
+            return CreateTextBlobs(input, font, paint.TextSize); // * 1.2f
         }
 
         public static SKTextBlob[] CreateTextBlobs(string input, SKFont font, float lineHeight) {
@@ -100,7 +148,7 @@ namespace FramePFX.Editor.ResourceManaging.Resources {
             string[] lines = input.Split('\n');
             SKTextBlob[] blobs = new SKTextBlob[lines.Length];
             for (int i = 0; i < lines.Length; i++) {
-                float y = 0 + (i * lineHeight);
+                float y = i * lineHeight;
                 blobs[i] = SKTextBlob.Create(lines[i], font, new SKPoint(0, y));
             }
 

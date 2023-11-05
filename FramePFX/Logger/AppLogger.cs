@@ -11,7 +11,7 @@ namespace FramePFX.Logger {
         private static readonly object PRINTLOCK = new object();
         private static readonly ThreadLocal<Stack<HeaderedLogEntry>> Headers;
         private static readonly List<(HeaderedLogEntry, LogEntry)> cachedEntries;
-        private static readonly InputDrivenTaskExecutor driver;
+        private static readonly RateLimitedExecutor driver;
 
         public static LoggerViewModel ViewModel { get; }
 
@@ -20,7 +20,7 @@ namespace FramePFX.Logger {
         static AppLogger() {
             Headers = new ThreadLocal<Stack<HeaderedLogEntry>>(() => new Stack<HeaderedLogEntry>());
             ViewModel = new LoggerViewModel();
-            driver = new InputDrivenTaskExecutor(() => Services.Application.InvokeAsync(WriteEntriesToViewModel), TimeSpan.FromMilliseconds(50));
+            driver = new RateLimitedExecutor(FlushEntries, TimeSpan.FromMilliseconds(50));
             cachedEntries = new List<(HeaderedLogEntry, LogEntry)>();
         }
 
@@ -97,24 +97,23 @@ namespace FramePFX.Logger {
         }
 
         public static Task FlushEntries() {
-            return WriteEntriesToViewModel();
-        }
+            return IoC.Application.InvokeOnMainThread(async () => {
+                List<(HeaderedLogEntry, LogEntry)> list;
+                lock (PRINTLOCK) {
+                    list = new List<(HeaderedLogEntry, LogEntry)>(cachedEntries);
+                    cachedEntries.Clear();
+                }
 
-        private static async Task WriteEntriesToViewModel() {
-            List<(HeaderedLogEntry, LogEntry)> list;
-            lock (PRINTLOCK) {
-                list = new List<(HeaderedLogEntry, LogEntry)>(cachedEntries);
-                cachedEntries.Clear();
-            }
+                const int blockSize = 10;
+                int count = list.Count;
+                for (int i = 0; i < count; i += blockSize) {
+                    int j = Math.Min(i + blockSize, count);
+                    // ExecutionPriority.Render
+                    await IoC.Application.InvokeOnMainThreadAsync(() => ProcessEntryBlock(list, i, j));
+                }
 
-            const int blockSize = 10;
-            int count = list.Count;
-            for (int i = 0; i < count; i += blockSize) {
-                int j = Math.Min(i + blockSize, count);
-                await Services.Application.InvokeAsync(() => ProcessEntryBlock(list, i, j), ExecutionPriority.Render);
-            }
-
-            OnLogEntryBlockPosted?.Invoke(null, EventArgs.Empty);
+                OnLogEntryBlockPosted?.Invoke(null, EventArgs.Empty);
+            });
         }
 
         private static void ProcessEntryBlock(List<(HeaderedLogEntry, LogEntry)> entries, int i, int j) {

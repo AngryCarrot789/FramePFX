@@ -9,95 +9,71 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
 
         public SKColor Colour {
             get => this.Model.Colour;
-            set {
-                this.Model.Colour = value;
-                this.OnColourChanged();
-            }
+            set => this.Model.Colour = value;
         }
 
         public float A {
             get => this.Model.ScA;
-            set {
-                this.Model.ScA = value;
-                this.OnColourChanged();
-            }
+            set => this.Model.ScA = value;
         }
 
         public byte ByteA {
             get => this.Model.ByteA;
-            set {
-                this.Model.ByteA = value;
-                this.OnColourChanged();
-            }
+            set => this.Model.ByteA = value;
         }
 
         public float R {
             get => this.Model.ScR;
-            set {
-                this.Model.ScR = value;
-                this.OnColourChanged();
-            }
+            set => this.Model.ScR = value;
         }
 
         public byte ByteR {
             get => this.Model.ByteR;
-            set {
-                this.Model.ByteR = value;
-                this.OnColourChanged();
-            }
+            set => this.Model.ByteR = value;
         }
 
         public float G {
             get => this.Model.ScG;
-            set {
-                this.Model.ScG = value;
-                this.OnColourChanged();
-            }
+            set => this.Model.ScG = value;
         }
 
         public byte ByteG {
             get => this.Model.ByteG;
-            set {
-                this.Model.ByteG = value;
-                this.OnColourChanged();
-            }
+            set => this.Model.ByteG = value;
         }
 
         public float B {
             get => this.Model.ScB;
-            set {
-                this.Model.ScB = value;
-                this.OnColourChanged();
-            }
+            set => this.Model.ScB = value;
         }
 
         public byte ByteB {
             get => this.Model.ByteB;
-            set {
-                this.Model.ByteB = value;
-                this.OnColourChanged();
-            }
+            set => this.Model.ByteB = value;
         }
 
         public ResourceColourViewModel(ResourceColour model) : base(model) {
         }
 
         static ResourceColourViewModel() {
+            PropertyMap.AddTranslation(typeof(ResourceColour), nameof(ResourceColour.Colour), nameof(Colour));
+
             IContextRegistration reg = ContextRegistry.Instance.RegisterType(typeof(ResourceColourViewModel));
-            reg.AddEntry(new ActionContextEntry(null, "action.resources.ChangeResourceColour", "Change Colour..."));
+            reg.AddEntry(new ActionContextEntry("action.resources.ChangeResourceColour", "Change Colour..."));
         }
 
-        private void OnColourChanged() {
-            this.Model.OnDataModified(nameof(this.Colour));
-            this.RaisePropertyChanged(nameof(this.Colour));
-            this.RaisePropertyChanged(nameof(this.A));
-            this.RaisePropertyChanged(nameof(this.ByteA));
-            this.RaisePropertyChanged(nameof(this.R));
-            this.RaisePropertyChanged(nameof(this.ByteR));
-            this.RaisePropertyChanged(nameof(this.G));
-            this.RaisePropertyChanged(nameof(this.ByteG));
-            this.RaisePropertyChanged(nameof(this.B));
-            this.RaisePropertyChanged(nameof(this.ByteB));
+        protected override void RaisePropertyChangedCore(string propertyName) {
+            base.RaisePropertyChangedCore(propertyName);
+            if (propertyName == nameof(this.Colour)) {
+                this.RaisePropertyChanged(nameof(this.A));
+                this.RaisePropertyChanged(nameof(this.ByteA));
+                this.RaisePropertyChanged(nameof(this.R));
+                this.RaisePropertyChanged(nameof(this.ByteR));
+                this.RaisePropertyChanged(nameof(this.G));
+                this.RaisePropertyChanged(nameof(this.ByteG));
+                this.RaisePropertyChanged(nameof(this.B));
+                this.RaisePropertyChanged(nameof(this.ByteB));
+            }
         }
     }
 }

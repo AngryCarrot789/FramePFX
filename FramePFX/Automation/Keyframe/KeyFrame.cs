@@ -8,24 +8,38 @@ using FramePFX.RBC;
 using FramePFX.Utils;
 
 namespace FramePFX.Automation.Keyframe {
+    public delegate void KeyFrameSequenceEventHandler(KeyFrame keyFrame, AutomationSequence sequence);
+
     /// <summary>
     /// A keyframe stores a time and value
     /// </summary>
     public abstract class KeyFrame {
         public AutomationSequence sequence;
+        public long frame; // The key frame time, relative to the project FPS. Converted when the project FPS changes
+        public double curveBend = 0D; // -1d to +1d. // A 'bend' in the interpolation. could add something more complicated?
 
-        // The key frame time, relative to the project FPS. Converted when the project FPS changes
-        public long frame;
-
-        // A 'bend' in the interpolation. could add something more complicated?
-        public double curveBend = 0D; // -1d to +1d
+        public long Frame {
+            get => this.frame;
+            set => this.frame = value;
+        }
 
         /// <summary>
         /// This key frame's data type
         /// </summary>
         public abstract AutomationDataType DataType { get; }
 
+        public event KeyFrameSequenceEventHandler Added;
+        public event KeyFrameSequenceEventHandler Removed;
+
         protected KeyFrame() {
+        }
+
+        public static void AddedInternal(KeyFrame keyFrame, AutomationSequence sequence) {
+            keyFrame.Added?.Invoke(keyFrame, sequence);
+        }
+
+        public static void RemovedInternal(KeyFrame keyFrame, AutomationSequence sequence) {
+            keyFrame.Removed?.Invoke(keyFrame, sequence);
         }
 
         // Was going to use this to map timeline frames to keyframe times (which would have a const fps of 1000)

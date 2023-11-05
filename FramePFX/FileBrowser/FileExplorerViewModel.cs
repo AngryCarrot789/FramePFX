@@ -63,7 +63,7 @@ namespace FramePFX.FileBrowser {
         }
 
         private async Task OpenFolderAction() {
-            string path = await Services.FilePicker.OpenFolder(null, "Select a folder to open");
+            string path = await IoC.FilePicker.OpenFolder(null, "Select a folder to open");
             if (string.IsNullOrEmpty(path)) {
                 return;
             }

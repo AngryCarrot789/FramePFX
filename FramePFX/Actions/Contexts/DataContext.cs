@@ -8,7 +8,7 @@ namespace FramePFX.Actions.Contexts {
 
         public List<object> InternalContext { get; }
 
-        public IEnumerable<object> Context => this.InternalContext;
+        public IReadOnlyList<object> Context => this.InternalContext;
 
         // not read only dictionary because EntryMap may be null
         public IEnumerable<(string, object)> Entries => this.EntryMap != null ? this.EntryMap.Select(x => (x.Key, x.Value)) : Enumerable.Empty<(string, object)>();
@@ -22,8 +22,8 @@ namespace FramePFX.Actions.Contexts {
             this.InternalContext = new List<object>();
         }
 
-        public DataContext(object primaryContext) : this() {
-            this.AddContext(primaryContext);
+        public DataContext(IDataContext merge) : this() {
+            this.Merge(merge);
         }
 
         public static DataContext ForEntry(string key, object value) {
@@ -54,6 +54,8 @@ namespace FramePFX.Actions.Contexts {
         public bool HasContext<T>() {
             return this.InternalContext.Any(x => x is T);
         }
+
+        public bool Contains(object context) => this.InternalContext.Contains(context);
 
         public bool TryGet<T>(string key, out T value) {
             if (key == null) {

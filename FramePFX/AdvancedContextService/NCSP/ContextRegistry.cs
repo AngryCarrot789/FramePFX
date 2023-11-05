@@ -34,7 +34,7 @@ namespace FramePFX.AdvancedContextService.NCSP {
             return true;
         }
 
-        public List<IContextEntry> GetActions(object target, IDataContext ctx) {
+        public List<IContextEntry> GetActions(object target, IDataContext ctx, bool checkCanExecute = true) {
             List<IContextEntry> entries = new List<IContextEntry>();
             InheritanceDictionary<TypeRegistration>.LocalValueEntryEnumerator enumerator = this.map.GetLocalValueEnumerator(target.GetType());
             if (!enumerator.MoveNext()) {
@@ -53,7 +53,7 @@ namespace FramePFX.AdvancedContextService.NCSP {
                 TypeRegistration reg = list[i];
                 foreach (IContextEntry entry in reg.actions) {
                     if (entry is ActionContextEntry ace) {
-                        if (string.IsNullOrWhiteSpace(ace.ActionId) || !ActionManager.Instance.CanExecute(ace.ActionId, ctx, true)) {
+                        if (string.IsNullOrWhiteSpace(ace.ActionId) || (checkCanExecute && !ActionManager.Instance.CanExecute(ace.ActionId, ctx, true))) {
                             continue;
                         }
                     }

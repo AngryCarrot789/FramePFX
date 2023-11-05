@@ -147,17 +147,17 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                     : EnumDropType.None;
             }, async (track, resource, dt, ctx) => {
                 if (!ctx.TryGet(DroppedFrameKey, out long frame)) {
-                    await Services.DialogService.ShowMessageAsync("Error", "Could not get the frame that this resource was dropped at");
+                    await IoC.DialogService.ShowMessageAsync("Error", "Could not get the frame that this resource was dropped at");
                     return;
                 }
 
                 if (!resource.Model.IsOnline) {
-                    await Services.DialogService.ShowMessageAsync("Resource Offline", "Cannot add an offline resource to the timeline");
+                    await IoC.DialogService.ShowMessageAsync("Resource Offline", "Cannot add an offline resource to the timeline");
                     return;
                 }
 
                 if (resource.UniqueId == ResourceManager.EmptyId || !resource.Model.IsRegistered()) {
-                    await Services.DialogService.ShowMessageAsync("Invalid resource", "This resource is not registered yet. This is a bug");
+                    await IoC.DialogService.ShowMessageAsync("Invalid resource", "This resource is not registered yet. This is a bug");
                     return;
                 }
 
@@ -172,7 +172,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
                 switch (resource.Model) {
                     case ResourceAVMedia media: {
                         if (!media.IsValidMediaFile) {
-                            await Services.DialogService.ShowMessageAsync("Invalid media", "?????????? Demuxer is closed");
+                            await IoC.DialogService.ShowMessageAsync("Invalid media", "?????????? Demuxer is closed");
                             return;
                         }
 
@@ -180,7 +180,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
 
                         long dur = (long) Math.Floor(span.TotalSeconds * fps);
                         if (dur < 1) {
-                            await Services.DialogService.ShowMessageAsync("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
+                            await IoC.DialogService.ShowMessageAsync("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
                             return;
                         }
 
@@ -306,7 +306,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.Tracks {
             return range;
         }
 
-        protected void InvalidateRenderForAutomationRefresh(in RefreshAutomationValueEventArgs e) {
+        protected void InvalidateRenderForAutomationRefresh(in AutomationUpdateEventArgs e) {
             VideoEditorViewModel editor; // slight performance helper
             if (!e.IsDuringPlayback && (editor = this.Editor) != null && !editor.Playback.IsPlaying) {
                 this.Timeline.InvalidateAutomationAndRender();

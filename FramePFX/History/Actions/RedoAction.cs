@@ -4,8 +4,8 @@ using FramePFX.History.ViewModels;
 using FramePFX.Notifications.Types;
 
 namespace FramePFX.History.Actions {
-    public class RedoAction : AnAction {
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
+    public class RedoAction : ExecutableAction {
+        public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
             HistoryManagerViewModel manager = HistoryManagerViewModel.Instance;
             if (manager.HasRedoActions) {
                 await manager.RedoAction();

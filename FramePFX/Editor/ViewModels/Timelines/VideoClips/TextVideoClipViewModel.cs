@@ -9,6 +9,11 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
     public class TextVideoClipViewModel : VideoClipViewModel {
         public new TextVideoClip Model => (TextVideoClip) ((ClipViewModel) this).Model;
 
+        /// <summary>
+        /// Gets if we have a text style resource linked
+        /// </summary>
+        public bool IsTextStyleLinked => this.Model.TextStyleKey.IsLinked;
+
         public string Text {
             get => this.Model.Text;
             set {
@@ -19,39 +24,13 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             }
         }
 
-        private string fontFamily;
-
         public string FontFamily {
-            get => this.fontFamily;
+            get => this.Model.TextStyleKey.TryGetResource(out ResourceTextStyle style) ? style.FontFamily : null;
             set {
-                if (this.Model.TextStyleKey.TryGetResource(out ResourceTextStyle resource)) {
-                    resource.FontFamily = value;
-                    resource.OnDataModified(nameof(resource.FontFamily));
-                }
-            }
-        }
-
-        private double fontSize;
-
-        public double FontSize {
-            get => this.fontSize;
-            set {
-                if (this.Model.TextStyleKey.TryGetResource(out ResourceTextStyle resource)) {
-                    resource.FontSize = value;
-                    resource.OnDataModified(nameof(resource.FontSize));
-                }
-            }
-        }
-
-        private double skewX;
-
-        public double SkewX {
-            get => this.skewX;
-            set {
-                if (this.Model.TextStyleKey.TryGetResource(out ResourceTextStyle resource)) {
-                    resource.SkewX = value;
-                    resource.OnDataModified(nameof(resource.SkewX));
-                }
+                if (!this.Model.TextStyleKey.TryGetResource(out ResourceTextStyle resource))
+                    return;
+                resource.FontFamily = value;
+                resource.OnDataModified(nameof(resource.FontFamily));
             }
         }
 
@@ -68,21 +47,14 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
         }
 
         private void OnResourceChanged(IResourcePathKey<ResourceTextStyle> key, ResourceTextStyle newItem, ResourceTextStyle resourceTextStyle) {
-            this.RaisePropertyChanged(ref this.fontSize, newItem?.FontSize ?? 12d, nameof(this.FontSize));
-            this.RaisePropertyChanged(ref this.skewX, newItem?.SkewX ?? 0d, nameof(this.SkewX));
-            this.RaisePropertyChanged(ref this.fontFamily, newItem?.FontFamily ?? "Consolas", nameof(this.FontFamily));
+            this.RaisePropertyChanged(nameof(this.IsTextStyleLinked));
+            this.RaisePropertyChanged(nameof(this.FontFamily));
         }
 
         private void OnResourceModified(IResourcePathKey<ResourceTextStyle> key, ResourceTextStyle resource, string property) {
             switch (property) {
-                case nameof(resource.FontSize):
-                    this.RaisePropertyChanged(ref this.fontSize, resource.FontSize, nameof(this.FontSize));
-                    break;
-                case nameof(resource.SkewX):
-                    this.RaisePropertyChanged(ref this.skewX, resource.SkewX, nameof(this.SkewX));
-                    break;
                 case nameof(resource.FontFamily):
-                    this.RaisePropertyChanged(ref this.fontFamily, resource.FontFamily, nameof(this.FontFamily));
+                    this.RaisePropertyChanged(nameof(this.FontFamily));
                     break;
             }
         }

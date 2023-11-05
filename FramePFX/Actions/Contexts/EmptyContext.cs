@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace FramePFX.Actions.Contexts {
@@ -7,7 +8,10 @@ namespace FramePFX.Actions.Contexts {
     /// An implementation of <see cref="IDataContext"/> that is completely empty
     /// </summary>
     public class EmptyContext : IDataContext {
-        public IEnumerable<object> Context { get; } = Enumerable.Empty<object>();
+        private static readonly ReadOnlyCollection<object> EMPTY = new List<object>().AsReadOnly();
+
+        public IReadOnlyList<object> Context { get; } = EMPTY;
+
         public IEnumerable<(string, object)> Entries { get; } = Enumerable.Empty<(string, object)>();
 
         public static EmptyContext Instance { get; } = new EmptyContext();
@@ -28,10 +32,9 @@ namespace FramePFX.Actions.Contexts {
         }
 
         public bool HasContext<T>() => false;
+        public bool Contains(object context) => false;
 
-        public T Get<T>(string key) {
-            return default;
-        }
+        public T Get<T>(string key) => default;
 
         public bool TryGet<T>(string key, out T value) {
             value = default;

@@ -26,7 +26,7 @@ namespace FramePFX.Editor.Timelines {
         /// <summary>
         /// This track's clips (unordered)
         /// </summary>
-        public ClipList Clips => this.clips;
+        public IReadOnlyList<Clip> Clips => this.clips;
 
         /// <summary>
         /// This track's registry ID, used to create instances dynamically through the <see cref="TrackFactory"/>
@@ -86,7 +86,7 @@ namespace FramePFX.Editor.Timelines {
             if (!ReferenceEquals(oldTimeline, timeline)) {
                 track.Timeline = timeline;
                 track.OnTimelineChanging(oldTimeline);
-                foreach (Clip clip in track.Clips) {
+                foreach (Clip clip in track.clips) {
                     Clip.InternalOnTrackTimelineChanged(clip, oldTimeline, timeline);
                 }
 
@@ -278,7 +278,7 @@ namespace FramePFX.Editor.Timelines {
                 this.AutomationData.LoadDataIntoClone(clone.AutomationData);
 
             if ((flags & TrackCloneFlags.Clips) != 0) {
-                foreach (Clip clip in this.Clips)
+                foreach (Clip clip in this.clips)
                     clone.AddClip(clip.Clone());
             }
 
@@ -349,8 +349,8 @@ namespace FramePFX.Editor.Timelines {
 
         public static bool TryGetSpanUntilClip(Track track, long frame, out FrameSpan span, long unlimitedDuration = 300, long maxDuration = 100000000U) {
             long minimum = long.MaxValue;
-            if (track.Clips.Count > 0) {
-                foreach (Clip clip in track.Clips) {
+            if (track.clips.Count > 0) {
+                foreach (Clip clip in track.clips) {
                     if (clip.FrameBegin > frame) {
                         if (clip.IntersectsFrameAt(frame)) {
                             span = default;

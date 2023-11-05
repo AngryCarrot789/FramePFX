@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.AdvancedContextService;
 using FramePFX.AdvancedContextService.NCSP;
+using FramePFX.App;
 using FramePFX.Automation;
 using FramePFX.Automation.ViewModels;
 using FramePFX.Commands;
@@ -151,7 +152,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         public TimelineViewModel(Timeline model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
             this.CachedTrackPropertyChangedHandler = this.OnTrackPropertyChanged;
-            this.rapidOnRenderCompleted = new RapidDispatchCallback(this.RefreshAutomationAndPlayhead, ExecutionPriority.Normal, "TimelineRapidCallback");
+            this.rapidOnRenderCompleted = new RapidDispatchCallback(this.RefreshAutomationAndPlayhead, DispatchPriority.Normal, "TimelineRapidCallback");
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
             this.AutomationData.SetActiveSequenceFromModelDeserialisation();
             this.tracks = new ObservableCollectionEx<TrackViewModel>();
@@ -184,8 +185,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             DeleteTracksDialog.ShowAlwaysUseNextResultOption = true;
 
             IContextRegistration reg = ContextRegistry.Instance.RegisterType(typeof(TimelineViewModel));
-            reg.AddEntry(new ActionContextEntry(null, "actions.editor.NewVideoTrack", "Add Video track"));
-            reg.AddEntry(new ActionContextEntry(null, "actions.editor.NewAudioTrack", "Add Audio Track"));
+            reg.AddEntry(new ActionContextEntry("actions.editor.NewVideoTrack", "Add Video track"));
+            reg.AddEntry(new ActionContextEntry("actions.editor.NewAudioTrack", "Add Audio Track"));
         }
 
         public void SetPlayHead(long frame, bool setLastSeekFrame = true) {
@@ -281,9 +282,11 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public Task<VideoTrackViewModel> InsertNewVideoTrackAction(int index, bool render = true) {
             VideoTrackViewModel track = new VideoTrackViewModel(new VideoTrack() {DisplayName = "Video Track " + (this.tracks.Count + 1)});
-            this.InsertTrack(index, track);
-            if (render && this.Project?.Editor != null) {
-                this.InvalidateAutomationAndRender();
+            using (IoC.Application.CreateWriteToken()) {
+                this.InsertTrack(index, track);
+                if (render && this.Project?.Editor != null) {
+                    this.InvalidateAutomationAndRender();
+                }
             }
 
             return Task.FromResult(track);
@@ -291,7 +294,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public Task<AudioTrackViewModel> InsertNewAudioTrackAction(int index) {
             AudioTrackViewModel track = new AudioTrackViewModel(new AudioTrack() {DisplayName = "Audio Track " + (this.tracks.Count + 1)});
-            this.InsertTrack(index, track);
+            using (IoC.Application.CreateWriteToken())
+                this.InsertTrack(index, track);
             return Task.FromResult(track);
         }
 
@@ -300,13 +304,14 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         /// </summary>
         public void InvalidateAutomationAndRender() {
             Task task = this.updateAndRenderTask;
-            if (task != null && !task.IsCompleted || Services.Application.IsDispatcherSuspended) {
+            if (task != null && !task.IsCompleted || IoC.Application.IsDispatcherSuspended) {
                 return;
             }
 
             this.updateAndRenderTask = null;
             if (this.GetEditor(out VideoEditorViewModel editor, out _)) {
-                this.updateAndRenderTask = Services.Application.Invoke(() => this.UpdateAndRenderTimelineToEditorInternal(editor), ExecutionPriority.Normal);
+                // this.updateAndRenderTask = this.UpdateAndRenderTimelineToEditorInternal(editor);
+                this.updateAndRenderTask = editor.ScheduleUpdateAndRender(this);
             }
         }
 
@@ -321,21 +326,11 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             Task task = this.updateAndRenderTask;
             if (task != null && !task.IsCompleted)
                 return task;
-            if (this.GetEditor(out VideoEditorViewModel editor, out _))
-                return this.UpdateAndRenderTimelineToEditorInternal(editor, shouldScheduleRender);
+            if (this.GetEditor(out VideoEditorViewModel editor, out _)) {
+                return editor.ScheduleUpdateAndRender(this, shouldScheduleRender);
+            }
+
             return Task.CompletedTask;
-        }
-
-        private async Task UpdateAndRenderTimelineToEditorInternal(VideoEditorViewModel editor, bool shouldScheduleRender = false) {
-            AutomationEngine.UpdateTimeline(this.Model, this.PlayHeadFrame);
-            try {
-                await editor.DoDrawRenderFrame(this, shouldScheduleRender);
-            }
-            catch (TaskCanceledException) {
-                // do nothing
-            }
-
-            this.RefreshAutomationAndPlayhead();
         }
 
         public Task RemoveSelectedTracksAction() {
@@ -457,7 +452,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
             this.Model.PlayHeadFrame = Periodic.Add(this.PlayHeadFrame, 1, 0L, this.MaxDuration);
             AutomationEngine.UpdateTimeline(this.Model, this.PlayHeadFrame);
-            editor.DoDrawRenderFrame(this).ContinueWith(t => this.rapidOnRenderCompleted.Invoke());
+            editor.DoDrawRenderFrame(this.Model).ContinueWith(t => this.rapidOnRenderCompleted.Invoke());
         }
 
         public void RefreshAutomationAndPlayhead() {

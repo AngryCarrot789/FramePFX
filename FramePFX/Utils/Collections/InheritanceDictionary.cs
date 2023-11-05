@@ -11,7 +11,7 @@ namespace FramePFX.Utils.Collections {
         private int version;
         private int totalEntries;
 
-        public int TotalEntries => this.totalEntries;
+        public bool IsEmpty => this.totalEntries <= 1;
 
         public T this[Type key] {
             get => this.GetEffectiveValue(key);
@@ -27,7 +27,21 @@ namespace FramePFX.Utils.Collections {
             this.totalEntries = 1;
         }
 
-        private TypeEntry GetOrCreateEntry(Type key) {
+        private bool TryGetEntrySlow(Type key, out TypeEntry entry) {
+            if (this.items.TryGetValue(key, out entry)) {
+                return true;
+            }
+
+            for (Type type = key.BaseType; type != null; type = type.BaseType) {
+                if (this.items.TryGetValue(type, out entry)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private TypeEntry GetOrCreateEntryInternal(Type key) {
             if (this.items.TryGetValue(key, out TypeEntry entry)) {
                 return entry;
             }
@@ -61,7 +75,7 @@ namespace FramePFX.Utils.Collections {
         /// <param name="key">The key to get the local (or inherited) value of</param>
         /// <returns>The effective value, or default</returns>
         public T GetEffectiveValue(Type key) {
-            return this.GetOrCreateEntry(key).inheritedItem;
+            return this.GetOrCreateEntryInternal(key).inheritedItem;
         }
 
         /// <summary>
@@ -70,7 +84,7 @@ namespace FramePFX.Utils.Collections {
         /// <param name="key">The key to get the local (or inherited) value of</param>
         /// <returns>The effective value, or default</returns>
         public T GetLocalValue(Type key) {
-            return this.GetOrCreateEntry(key).item;
+            return this.GetOrCreateEntryInternal(key).item;
         }
 
         /// <summary>
@@ -81,7 +95,7 @@ namespace FramePFX.Utils.Collections {
         /// <param name="value">The value found</param>
         /// <returns>True if a value was available, false if not</returns>
         public bool TryGetEffectiveValue(Type key, out T value) {
-            TypeEntry entry = this.GetOrCreateEntry(key);
+            TypeEntry entry = this.GetOrCreateEntryInternal(key);
             value = entry.inheritedItem;
             return entry.HasInheritedValue;
         }
@@ -107,7 +121,16 @@ namespace FramePFX.Utils.Collections {
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public ITypeEntry<T> GetEntry(Type key) => this.GetOrCreateEntry(key);
+        public ITypeEntry<T> GetOrCreateEntry(Type key) => this.GetOrCreateEntryInternal(key);
+
+        /// <summary>
+        /// Slowly gets an entry for the given key, by manually iterating the type hierarchy if the given
+        /// key does not already exist. Returns null if an entry could not be found. This method does not
+        /// mutate this dictionary
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public ITypeEntry<T> GetEntrySlowlyOrNull(Type key) => this.TryGetEntrySlow(key, out TypeEntry entry) ? entry : null;
 
         /// <summary>
         /// Explicitly sets (or replaces) the local value of the given key, and updates any
@@ -117,7 +140,7 @@ namespace FramePFX.Utils.Collections {
         /// <param name="value">The value to set</param>
         /// <returns>The previous local or inherited value</returns>
         public T SetValue(Type key, T value) {
-            return this.GetOrCreateEntry(key).SetItemAndUpdateInherited(value);
+            return this.GetOrCreateEntryInternal(key).SetItemAndUpdateInherited(value);
         }
 
         /// <summary>
@@ -175,8 +198,8 @@ namespace FramePFX.Utils.Collections {
         /// (includes the value of the key, if it has a value associated with it)
         /// </param>
         /// <returns>An enumerable instance</returns>
-        public LocalValueEntryEnumerator GetLocalValueEnumerator(Type key) {
-            return new LocalValueEntryEnumerator(this, key);
+        public LocalValueEntryEnumerator GetLocalValueEnumerator(Type key, bool canMutate = true) {
+            return new LocalValueEntryEnumerator(this, key, canMutate);
         }
 
         /// <summary>
@@ -184,8 +207,8 @@ namespace FramePFX.Utils.Collections {
         /// </summary>
         /// <param name="key">The starting key</param>
         /// <returns>The enumerable struct</returns>
-        public LocalValueEntryEnumerable GetLocalValueEnumerable(Type key) {
-            return new LocalValueEntryEnumerable(this, key);
+        public LocalValueEntryEnumerable GetLocalValueEnumerable(Type key, bool canMutate = true) {
+            return new LocalValueEntryEnumerable(this, key, canMutate);
         }
 
         /// <summary>
@@ -198,10 +221,13 @@ namespace FramePFX.Utils.Collections {
             /// </summary>
             public ITypeEntry<T> Current => this.currentEntry;
 
+            public T CurrentValue => this.currentEntry.item;
+
             // object IEnumerator.Current => this.Current;
 
             private readonly InheritanceDictionary<T> dictionary;
             private readonly Type startingKey;
+            private readonly bool canMutate;
             private TypeEntry currentEntry;
             private int state;
             private int version;
@@ -209,7 +235,8 @@ namespace FramePFX.Utils.Collections {
 
             public int EnumerationDepth => this.depth;
 
-            public LocalValueEntryEnumerator(InheritanceDictionary<T> dictionary, Type key) {
+            public LocalValueEntryEnumerator(InheritanceDictionary<T> dictionary, Type key, bool canMutate) {
+                this.canMutate = canMutate;
                 this.dictionary = dictionary;
                 this.startingKey = key;
                 this.currentEntry = null;
@@ -235,7 +262,16 @@ namespace FramePFX.Utils.Collections {
                 switch (this.state) {
                     case 0: return false;
                     case 1: {
-                        TypeEntry entry = this.dictionary.GetOrCreateEntry(this.startingKey);
+                        // slower at startup until all types are baked, making for fast reads
+                        TypeEntry entry;
+                        if (this.canMutate) {
+                            entry = this.dictionary.GetOrCreateEntryInternal(this.startingKey);
+                        }
+                        else if (!this.dictionary.TryGetEntrySlow(this.startingKey, out entry)) {
+                            this.state = 4;
+                            return false;
+                        }
+
                         if (!entry.HasLocalValue) {
                             entry = entry.nearestBaseTypeToExplicitValue;
                             if (entry == null) {
@@ -292,14 +328,16 @@ namespace FramePFX.Utils.Collections {
         public readonly struct LocalValueEntryEnumerable { //  : IEnumerable<ITypeEntry<T>>
             private readonly InheritanceDictionary<T> dictionary;
             private readonly Type startingKey;
+            private readonly bool canMutate;
 
-            public LocalValueEntryEnumerable(InheritanceDictionary<T> dictionary, Type key) {
+            public LocalValueEntryEnumerable(InheritanceDictionary<T> dictionary, Type key, bool canMutate) {
                 this.dictionary = dictionary;
                 this.startingKey = key;
+                this.canMutate = canMutate;
             }
 
             public LocalValueEntryEnumerator GetEnumerator() {
-                return new LocalValueEntryEnumerator(this.dictionary, this.startingKey);
+                return new LocalValueEntryEnumerator(this.dictionary, this.startingKey, this.canMutate);
             }
 
             // IEnumerator<ITypeEntry<T>> IEnumerable<ITypeEntry<T>>.GetEnumerator() => this.GetEnumerator();

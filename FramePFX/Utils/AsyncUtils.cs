@@ -1,22 +1,22 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using FramePFX.App;
 using FramePFX.ServiceManaging;
 
 namespace FramePFX.Utils {
     public static class AsyncUtils {
-        public static void ExecuteTask(Task task, bool forceLoop = false) {
+        public static void ExecuteWriteTask(Task task, bool forceLoop = false) {
             if (!task.IsCompleted && task.Status < TaskStatus.Running)
                 task.Start();
-            IApplication application = Services.Application;
-            if (forceLoop || !application.IsOnOwnerThread) {
+            if (forceLoop || !IoC.Application.IsOnMainThread) {
                 while (!task.IsCompleted) {
                     Thread.Sleep(1);
                 }
             }
             else {
                 while (!task.IsCompleted) {
-                    Services.Application.Invoke(() => Thread.Sleep(1), ExecutionPriority.Background);
+                    IoC.Dispatcher.Invoke(() => Thread.Sleep(1), DispatchPriority.Background);
                 }
             }
 
@@ -24,6 +24,12 @@ namespace FramePFX.Utils {
             if (task.IsFaulted && (e = task.Exception) != null) {
                 throw e;
             }
+        }
+
+        public static Task<T> ReturnConst<T>(this Task task, T value) {
+            if (task.IsCompleted)
+                return Task.FromResult(value);
+            return task.ContinueWith(x => value);
         }
     }
 }

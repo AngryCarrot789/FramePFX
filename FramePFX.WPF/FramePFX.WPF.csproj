@@ -117,10 +117,14 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
+    <ApplicationDefinition Include="AppWPF.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Actions\ActionContextProviderBase.cs" />
+    <Compile Include="Actions\ActionContextEntry.cs" />
+    <Compile Include="Actions\ActionContextObject.cs" />
+    <Compile Include="Actions\ActionContextProviderCollection.cs" />
     <Compile Include="AdvancedContextService\AdvancedActionMenuItem.cs" />
     <Compile Include="AdvancedContextService\AdvancedContextMenu.cs" />
     <Compile Include="AdvancedContextService\AdvancedMenuItem.cs" />
@@ -134,10 +138,11 @@
     <Compile Include="AdvancedContextService\Static\StaticMenuItemCollection.cs" />
     <Compile Include="AdvancedContextService\Static\StaticMenuSeparator.cs" />
     <Compile Include="AdvancedContextService\Static\StaticShortcutMenuItem.cs" />
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
+    <Compile Include="AppWPF.xaml.cs">
+      <DependentUpon>AppWPF.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="App\ApplicationModel.cs" />
     <Compile Include="AsyncEditorViewPort.cs" />
     <Compile Include="AttachedProperties\ActionControl.cs" />
     <Compile Include="AttachedProperties\AttachedInteractivity.cs" />
@@ -264,33 +269,33 @@
     <Compile Include="Editor\Resources\ResourceListControl.cs" />
     <Compile Include="Editor\Resources\ResourceTreeView.cs" />
     <Compile Include="Editor\Resources\ResourceTreeViewItem.cs" />
-    <Compile Include="Editor\Timeline\Controls\AutomationComboBox.cs" />
-    <Compile Include="Editor\Timeline\Controls\SelectionAdorner.cs" />
-    <Compile Include="Editor\Timeline\Controls\TimelineClipContents.cs" />
-    <Compile Include="Editor\Timeline\Controls\TimelineClipControl.cs" />
-    <Compile Include="Editor\Timeline\Controls\TimelineContentPanel.cs" />
-    <Compile Include="Editor\Timeline\Controls\TimelineControl.cs" />
-    <Compile Include="Editor\Timeline\Controls\TimelineEditorControl.cs" />
-    <Compile Include="Editor\Timeline\Controls\TimelinePlayHeadControl.cs" />
-    <Compile Include="Editor\Timeline\Controls\TimelinePreviewPlayHeadControl.cs" />
-    <Compile Include="Editor\Timeline\Controls\TimelineTrackControl.cs" />
-    <Compile Include="Editor\Timeline\Controls\V2\TimelineClipControlV2.cs" />
-    <Compile Include="Editor\Timeline\Controls\V2\TimelineControlV2.cs" />
-    <Compile Include="Editor\Timeline\Controls\V2\TimelineTrackControlV2.cs" />
-    <Compile Include="Editor\Timeline\PreAnchoredTimelineControl.xaml.cs">
+    <Compile Include="Editor\Timelines\Controls\AutomationComboBox.cs" />
+    <Compile Include="Editor\Timelines\Controls\SelectionAdorner.cs" />
+    <Compile Include="Editor\Timelines\Controls\TimelineClipContents.cs" />
+    <Compile Include="Editor\Timelines\Controls\TimelineClipControl.cs" />
+    <Compile Include="Editor\Timelines\Controls\TimelineContentPanel.cs" />
+    <Compile Include="Editor\Timelines\Controls\TimelineControl.cs" />
+    <Compile Include="Editor\Timelines\Controls\TimelineEditorControl.cs" />
+    <Compile Include="Editor\Timelines\Controls\TimelinePlayHeadControl.cs" />
+    <Compile Include="Editor\Timelines\Controls\TimelinePreviewPlayHeadControl.cs" />
+    <Compile Include="Editor\Timelines\Controls\TimelineTrackControl.cs" />
+    <Compile Include="Editor\Timelines\Controls\V2\TimelineClipControlV2.cs" />
+    <Compile Include="Editor\Timelines\Controls\V2\TimelineControlV2.cs" />
+    <Compile Include="Editor\Timelines\Controls\V2\TimelineTrackControlV2.cs" />
+    <Compile Include="Editor\Timelines\PreAnchoredTimelineControl.xaml.cs">
       <DependentUpon>PreAnchoredTimelineControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Editor\Timeline\TimelineStyles.xaml.cs">
+    <Compile Include="Editor\Timelines\TimelineStyles.xaml.cs">
       <DependentUpon>TimelineStyles.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Editor\Timeline\TimelineTrackListItemTemplateSelector.cs" />
-    <Compile Include="Editor\Timeline\Track\Clips\ClipType.cs" />
-    <Compile Include="Editor\Timeline\Track\Clips\IAudioClip.cs" />
-    <Compile Include="Editor\Timeline\Track\Clips\IClip.cs" />
-    <Compile Include="Editor\Timeline\Track\IndexMap.cs" />
-    <Compile Include="Editor\Timeline\Utils\ICGenUtils.cs" />
-    <Compile Include="Editor\Timeline\Utils\KeyboardUtils.cs" />
-    <Compile Include="Editor\Timeline\Utils\TimelineUtils.cs" />
+    <Compile Include="Editor\Timelines\TimelineTrackListItemTemplateSelector.cs" />
+    <Compile Include="Editor\Timelines\Track\Clips\ClipType.cs" />
+    <Compile Include="Editor\Timelines\Track\Clips\IAudioClip.cs" />
+    <Compile Include="Editor\Timelines\Track\Clips\IClip.cs" />
+    <Compile Include="Editor\Timelines\Track\IndexMap.cs" />
+    <Compile Include="Editor\Timelines\Utils\ICGenUtils.cs" />
+    <Compile Include="Editor\Timelines\Utils\KeyboardUtils.cs" />
+    <Compile Include="Editor\Timelines\Utils\TimelineUtils.cs" />
     <Compile Include="Explorer\BasicFileExplorerControl.xaml.cs">
       <DependentUpon>BasicFileExplorerControl.xaml</DependentUpon>
     </Compile>
@@ -386,7 +391,7 @@
     </Compile>
     <Compile Include="Themes\Converters\TreeViewLineConverter.cs" />
     <Compile Include="Themes\Generator\ThemeGenerator.cs" />
-    <Compile Include="Themes\ThemesController.cs" />
+    <Compile Include="Themes\ThemeController.cs" />
     <Compile Include="Themes\ThemeType.cs" />
     <Compile Include="Themes\ToneGenerator.cs" />
     <Compile Include="Utils\ApplicationDelegate.cs" />
@@ -522,7 +527,7 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Fonts\Oxanium\OFL.txt" />
-    <Resource Include="Editor\Timeline\Controls\TimelineClipControl-new-drag-broken.txt" />
+    <Resource Include="Editor\Timelines\Controls\TimelineClipControl-new-drag-broken.txt" />
     <Resource Include="Controls\TreeViews\Source Code.txt" />
     <Resource Include="FramePFX-256.ico" />
     <Content Include="Keymap.xml">
@@ -647,11 +652,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Editor\Timeline\PreAnchoredTimelineControl.xaml">
+    <Page Include="Editor\Timelines\PreAnchoredTimelineControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Editor\Timeline\TimelineStyles.xaml">
+    <Page Include="Editor\Timelines\TimelineStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

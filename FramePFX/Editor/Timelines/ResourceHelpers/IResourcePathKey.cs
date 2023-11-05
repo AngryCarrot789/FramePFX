@@ -13,7 +13,9 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
         event EntryResourceChangedEventHandler<T> ResourceChanged;
 
         /// <summary>
-        /// An event fired when the underlying resource raises a <see cref="ResourceItem.DataModified"/> event
+        /// An event fired when the underlying resource raises a <see cref="BaseResource.DataModified"/> event.
+        /// Attaching a handler to this is more convenient than manually listening to the <see cref="ResourceChanged"/>
+        /// event and then attaching/detatching the <see cref="BaseResource.DataModified"/> event
         /// </summary>
         event EntryResourceModifiedEventHandler<T> ResourceDataModified;
 

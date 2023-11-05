@@ -17,7 +17,6 @@ using FramePFX.Editor.ViewModels.Timelines.Effects;
 using FramePFX.Editor.ViewModels.Timelines.Events;
 using FramePFX.History;
 using FramePFX.History.Tasks;
-using FramePFX.History.ViewModels;
 using FramePFX.Interactivity;
 using FramePFX.PropertyEditing;
 using FramePFX.Utils;
@@ -64,7 +63,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             set {
                 if (!this.IsHistoryChanging && !this.IsDraggingAny && this.Track != null) {
                     if (!this.clipPositionHistory.TryGetAction(out HistoryVideoClipPosition action))
-                        this.clipPositionHistory.PushAction(HistoryManagerViewModel.Instance, action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
+                        this.clipPositionHistory.PushAction(action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
                     action.Span.SetCurrent(value);
                 }
 
@@ -97,7 +96,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
                 if (!this.IsHistoryChanging && !this.IsDraggingAny && this.Track != null) {
                     if (!this.clipPositionHistory.TryGetAction(out HistoryVideoClipPosition action))
-                        this.clipPositionHistory.PushAction(HistoryManagerViewModel.Instance, action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
+                        this.clipPositionHistory.PushAction(action = new HistoryVideoClipPosition(this), "Edit media pos/duration");
                     action.MediaFrameOffset.SetCurrent(value);
                 }
 
@@ -121,13 +120,11 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         /// Whether or not this clip is selected in the UI
         /// </summary>
         public bool IsSelected {
-            get => this.Model.IsSelectedInUI;
+            get => this.IsSelectedInUI;
             set {
-                if (this.Model.IsSelectedInUI == value) {
+                if (this.IsSelectedInUI == value)
                     return;
-                }
-
-                this.Model.IsSelectedInUI = value;
+                this.IsSelectedInUI = value;
                 this.RaisePropertyChanged();
                 if (value) {
                     if (this.Track != null && !this.Track.SelectedClips.Contains(this)) {
@@ -140,7 +137,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             }
         }
 
-        public bool IsClipActive => this.Model.IsRenderingEnabled;
+        public bool IsRenderingEnabled => this.Model.IsRenderingEnabled;
 
         /// <summary>
         /// The timeline associated with this clip. Clips should not really be modified when not inside a track
@@ -176,6 +173,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         public bool IsDraggingClip;
         public bool IsDraggingAny => this.IsDraggingLeftThumb || this.IsDraggingRightThumb || this.IsDraggingClip;
         public ClipDragOperation drag;
+        private bool IsSelectedInUI;
 
         #endregion
 
@@ -212,7 +210,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.skipUpdatePropertyEditor = false;
 
             this.EditDisplayNameCommand = new AsyncRelayCommand(async () => {
-                string name = await Services.UserInput.ShowSingleInputDialogAsync("Input a new name", "Input a new display name for this clip", this.DisplayName);
+                string name = await IoC.UserInput.ShowSingleInputDialogAsync("Input a new name", "Input a new display name for this clip", this.DisplayName);
                 if (name != null) {
                     this.DisplayName = name;
                 }
@@ -238,7 +236,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                     effect = EffectFactory.Instance.CreateModel(x.EffectFactoryId);
                 }
                 catch (Exception e) {
-                    await Services.DialogService.ShowMessageExAsync("Error", "Failed to create effect from the dropped effect", e.GetToString());
+                    await IoC.DialogService.ShowMessageExAsync("Error", "Failed to create effect from the dropped effect", e.GetToString());
                     return;
                 }
 
@@ -519,7 +517,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         }
 
         public async Task<bool> RenameAsync() {
-            string result = await Services.UserInput.ShowSingleInputDialogAsync("Rename clip", "Input a new clip name:", this.DisplayName ?? "", Validators.ForNonWhiteSpaceString());
+            string result = await IoC.UserInput.ShowSingleInputDialogAsync("Rename clip", "Input a new clip name:", this.DisplayName ?? "", Validators.ForNonWhiteSpaceString());
             if (result != null) {
                 this.DisplayName = result;
                 return true;

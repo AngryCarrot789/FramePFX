@@ -370,29 +370,29 @@ namespace FramePFX.Editor.PropertyEditors.Effects {
             this.RaisePropertyChanged(nameof(this.MediaRotationOriginY));
         }
 
-        private void RefreshMediaPosition(AutomationSequenceViewModel sender, RefreshAutomationValueEventArgs e) {
+        private void RefreshMediaPosition(AutomationSequenceViewModel sender, AutomationUpdateEventArgs e) {
             this.RaisePropertyChanged(ref this.mediaPosition, this.SingleSelection.MediaPosition, nameof(this.MediaPosition));
             this.RaisePropertyChanged(nameof(this.MediaPositionX));
             this.RaisePropertyChanged(nameof(this.MediaPositionY));
         }
 
-        private void RefreshMediaScale(AutomationSequenceViewModel sender, RefreshAutomationValueEventArgs e) {
+        private void RefreshMediaScale(AutomationSequenceViewModel sender, AutomationUpdateEventArgs e) {
             this.RaisePropertyChanged(ref this.mediaScale, this.SingleSelection.MediaScale, nameof(this.MediaScale));
             this.RaisePropertyChanged(nameof(this.MediaScaleX));
             this.RaisePropertyChanged(nameof(this.MediaScaleY));
         }
 
-        private void RefreshMediaScaleOrigin(AutomationSequenceViewModel sender, RefreshAutomationValueEventArgs e) {
+        private void RefreshMediaScaleOrigin(AutomationSequenceViewModel sender, AutomationUpdateEventArgs e) {
             this.RaisePropertyChanged(ref this.mediaScaleOrigin, this.SingleSelection.MediaScaleOrigin, nameof(this.MediaScaleOrigin));
             this.RaisePropertyChanged(nameof(this.MediaScaleOriginX));
             this.RaisePropertyChanged(nameof(this.MediaScaleOriginY));
         }
 
-        private void RefreshMediaRotation(AutomationSequenceViewModel sender, RefreshAutomationValueEventArgs e) {
+        private void RefreshMediaRotation(AutomationSequenceViewModel sender, AutomationUpdateEventArgs e) {
             this.RaisePropertyChanged(ref this.mediaRotation, this.SingleSelection.MediaRotation, nameof(this.MediaRotation));
         }
 
-        private void RefreshMediaRotationOrigin(AutomationSequenceViewModel sender, RefreshAutomationValueEventArgs e) {
+        private void RefreshMediaRotationOrigin(AutomationSequenceViewModel sender, AutomationUpdateEventArgs e) {
             this.RaisePropertyChanged(ref this.mediaRotationOrigin, this.SingleSelection.MediaRotationOrigin, nameof(this.MediaRotationOrigin));
             this.RaisePropertyChanged(nameof(this.MediaRotationOriginX));
             this.RaisePropertyChanged(nameof(this.MediaRotationOriginY));

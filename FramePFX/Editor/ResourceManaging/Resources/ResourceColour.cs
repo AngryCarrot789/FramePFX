@@ -1,72 +1,84 @@
+using FramePFX.Editor.ResourceManaging.Events;
 using FramePFX.RBC;
 using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editor.ResourceManaging.Resources {
     public class ResourceColour : ResourceItem {
-        public SKColor Colour;
+        private SKColor myColour;
+        public SKColor Colour {
+            get => this.myColour;
+            set {
+                if (this.myColour != value) {
+                    this.myColour = value;
+                    this.ColourChanged?.Invoke(this);
+                }
+            }
+        }
 
         public float ScR {
-            get => Maths.Clamp(this.Colour.Red / 255F, 0F, 1F);
-            set => this.Colour = this.Colour.WithRed((byte) Maths.Clamp((int) (value * 255F), 0, 255));
+            get => Maths.Clamp(this.myColour.Red / 255F, 0F, 1F);
+            set => this.myColour = this.myColour.WithRed((byte) Maths.Clamp((int) (value * 255F), 0, 255));
         }
 
         public float ScG {
-            get => Maths.Clamp(this.Colour.Green / 255F, 0F, 1F);
-            set => this.Colour = this.Colour.WithGreen((byte) Maths.Clamp((int) (value * 255F), 0, 255));
+            get => Maths.Clamp(this.myColour.Green / 255F, 0F, 1F);
+            set => this.myColour = this.myColour.WithGreen((byte) Maths.Clamp((int) (value * 255F), 0, 255));
         }
 
         public float ScB {
-            get => Maths.Clamp(this.Colour.Blue / 255F, 0F, 1F);
-            set => this.Colour = this.Colour.WithBlue((byte) Maths.Clamp((int) (value * 255F), 0, 255));
+            get => Maths.Clamp(this.myColour.Blue / 255F, 0F, 1F);
+            set => this.myColour = this.myColour.WithBlue((byte) Maths.Clamp((int) (value * 255F), 0, 255));
         }
 
         public float ScA {
-            get => Maths.Clamp(this.Colour.Alpha / 255F, 0F, 1F);
-            set => this.Colour = this.Colour.WithAlpha((byte) Maths.Clamp((int) (value * 255F), 0, 255));
+            get => Maths.Clamp(this.myColour.Alpha / 255F, 0F, 1F);
+            set => this.myColour = this.myColour.WithAlpha((byte) Maths.Clamp((int) (value * 255F), 0, 255));
         }
 
         public byte ByteR {
-            get => this.Colour.Red;
-            set => this.Colour = this.Colour.WithRed(value);
+            get => this.myColour.Red;
+            set => this.myColour = this.myColour.WithRed(value);
         }
 
         public byte ByteG {
-            get => this.Colour.Green;
-            set => this.Colour = this.Colour.WithGreen(value);
+            get => this.myColour.Green;
+            set => this.myColour = this.myColour.WithGreen(value);
         }
 
         public byte ByteB {
-            get => this.Colour.Blue;
-            set => this.Colour = this.Colour.WithBlue(value);
+            get => this.myColour.Blue;
+            set => this.myColour = this.myColour.WithBlue(value);
         }
 
         public byte ByteA {
-            get => this.Colour.Alpha;
-            set => this.Colour = this.Colour.WithAlpha(value);
+            get => this.myColour.Alpha;
+            set => this.myColour = this.myColour.WithAlpha(value);
         }
+
+        public event ResourceEventHandler ColourChanged;
 
         public ResourceColour() : this(0, 0, 0) {
         }
 
         public ResourceColour(byte r, byte g, byte b, byte a = 255) {
-            this.Colour = new SKColor(r, g, b, a);
+            this.myColour = new SKColor(r, g, b, a);
         }
 
         public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
-            data.SetInt(nameof(this.Colour), (int) (uint) this.Colour);
+            data.SetUInt(nameof(this.myColour), (uint) this.myColour);
         }
 
         public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
-            this.Colour = new SKColor(data.GetUInt(nameof(this.Colour)));
+            this.myColour = new SKColor(data.GetUInt(nameof(this.myColour)));
         }
 
         protected override void LoadCloneDataFromObject(BaseResource obj) {
             base.LoadCloneDataFromObject(obj);
             ResourceColour colour = (ResourceColour) obj;
-            this.Colour = colour.Colour;
+            this.myColour = colour.myColour;
         }
     }
 }

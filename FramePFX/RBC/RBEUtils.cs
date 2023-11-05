@@ -12,6 +12,30 @@ namespace FramePFX.RBC {
             set => defaultEncoding = value ?? throw new ArgumentNullException(nameof(value), "Default encoding value cannot be null");
         }
 
+        public static byte[] ToByteArray(RBEBase rbe, Encoding encoding, bool packed = false, int initialBufferSize = 2048) {
+            using (MemoryStream stream = new MemoryStream(initialBufferSize)) {
+                if (packed) {
+                    WriteToStream(rbe, stream, encoding);
+                }
+                else {
+                    WriteToStreamPacked(rbe, stream, encoding);
+                }
+
+                return stream.ToArray();
+            }
+        }
+
+        public static RBEBase FromByteArray(byte[] array, Encoding encoding, bool packed = false) {
+            using (MemoryStream stream = new MemoryStream(array, false)) {
+                if (packed) {
+                    return ReadFromStream(stream, encoding);
+                }
+                else {
+                    return ReadFromStreamPacked(stream, encoding);
+                }
+            }
+        }
+
         public static RBEBase ReadFromFile(string filePath) {
             using (Stream stream = new BufferedStream(File.OpenRead(filePath))) {
                 return ReadFromStream(stream);

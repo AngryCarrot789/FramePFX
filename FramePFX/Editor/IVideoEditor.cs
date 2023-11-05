@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using FramePFX.Editor.Timelines;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Notifications;
 using FramePFX.Views;
@@ -19,7 +20,7 @@ namespace FramePFX.Editor {
         /// <param name="timeline">The timeline to render</param>
         /// <param name="scheduleRender">True to schedule for some point in the future, false to render immediately</param>
         /// <returns>A task to await for the render to complete</returns>
-        Task RenderToViewPortAsync(TimelineViewModel timeline, bool scheduleRender = false);
+        Task RenderToViewPortAsync(Timeline timeline, bool scheduleRender = false);
 
         /// <summary>
         /// Opens and selects the UI element representing the given timeline. If it is not open,

@@ -85,7 +85,7 @@ namespace FramePFX.Editor.ResourceChecker {
                 return true;
             }
 
-            return await Services.GetService<IResourceCheckerService>().ShowCheckerDialog(checker);
+            return await IoC.GetService<IResourceCheckerService>().ShowCheckerDialog(checker);
         }
 
         private static async Task LoadResourcesRecursive(ResourceCheckerViewModel checker, BaseResourceViewModel resource, bool forceOnline = false) {

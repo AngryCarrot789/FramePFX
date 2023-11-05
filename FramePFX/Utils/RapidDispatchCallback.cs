@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using FramePFX.App;
 using FramePFX.ServiceManaging;
 
 namespace FramePFX.Utils {
@@ -16,9 +17,9 @@ namespace FramePFX.Utils {
         public readonly Action CachedInvokeNoRet;
 
         private readonly string debugId; // allows debugger breakpoint to match this
-        private readonly ExecutionPriority priority;
+        private readonly DispatchPriority priority;
 
-        public RapidDispatchCallback(Action action, ExecutionPriority priority = ExecutionPriority.Send, string debugId = null) {
+        public RapidDispatchCallback(Action action, DispatchPriority priority = DispatchPriority.Send, string debugId = null) {
             this.debugId = debugId;
             this.action = action;
             this.priority = priority;
@@ -31,12 +32,12 @@ namespace FramePFX.Utils {
             this.CachedInvokeNoRet = () => this.Invoke();
         }
 
-        public RapidDispatchCallback(Action action, string debugId) : this(action, ExecutionPriority.Send, debugId) {
+        public RapidDispatchCallback(Action action, string debugId) : this(action, DispatchPriority.Send, debugId) {
         }
 
         public bool Invoke() {
             if (Interlocked.CompareExchange(ref this.state, 1, 0) == 0) {
-                Services.Application.Invoke(this.executeAction, this.priority);
+                IoC.Dispatcher.Invoke(this.executeAction, this.priority);
                 return true;
             }
 
@@ -45,7 +46,7 @@ namespace FramePFX.Utils {
 
         public Task<bool> InvokeAsync() {
             if (Interlocked.CompareExchange(ref this.state, 1, 0) == 0) {
-                Task task = Services.Application.InvokeAsync(this.executeAction, this.priority);
+                Task task = IoC.Dispatcher.InvokeAsync(this.executeAction, this.priority);
                 if (!task.IsCompleted)
                     return task.ContinueWith(t => true);
                 return Task.FromResult(true);
@@ -64,9 +65,9 @@ namespace FramePFX.Utils {
         public readonly Action<T> CachedInvokeNoRet;
 
         private readonly string debugId; // allows debugger breakpoint to match this
-        private readonly ExecutionPriority priority;
+        private readonly DispatchPriority priority;
 
-        public RapidDispatchCallback(Action<T> action, ExecutionPriority priority = ExecutionPriority.Send, string debugId = null) {
+        public RapidDispatchCallback(Action<T> action, DispatchPriority priority = DispatchPriority.Send, string debugId = null) {
             this.debugId = debugId;
             this.action = action;
             this.priority = priority;
@@ -79,12 +80,12 @@ namespace FramePFX.Utils {
             this.CachedInvokeNoRet = t => this.Invoke(t);
         }
 
-        public RapidDispatchCallback(Action<T> action, string debugId) : this(action, ExecutionPriority.Send, debugId) {
+        public RapidDispatchCallback(Action<T> action, string debugId) : this(action, DispatchPriority.Send, debugId) {
         }
 
         public bool Invoke(T parameter) {
             if (Interlocked.CompareExchange(ref this.state, 1, 0) == 0) {
-                Services.Application.Invoke(this.executeAction, parameter, this.priority);
+                IoC.Dispatcher.Invoke(this.executeAction, parameter, this.priority);
                 return true;
             }
 
@@ -93,7 +94,7 @@ namespace FramePFX.Utils {
 
         public Task<bool> InvokeAsync(T parameter) {
             if (Interlocked.CompareExchange(ref this.state, 1, 0) == 0) {
-                Task task = Services.Application.InvokeAsync(this.executeAction, parameter, this.priority);
+                Task task = IoC.Dispatcher.InvokeAsync(this.executeAction, parameter, this.priority);
                 if (!task.IsCompleted)
                     return task.ContinueWith(t => true);
                 return Task.FromResult(true);

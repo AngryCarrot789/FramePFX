@@ -11,7 +11,7 @@ using FramePFX.Interactivity;
 using FramePFX.Logger;
 using FramePFX.Utils;
 using FramePFX.WPF.Controls.TreeViews.Controls;
-using FramePFX.WPF.Editor.Timeline.Utils;
+using FramePFX.WPF.Editor.Timelines.Utils;
 using FramePFX.WPF.Interactivity;
 
 namespace FramePFX.WPF.Editor.Resources {
@@ -181,7 +181,7 @@ namespace FramePFX.WPF.Editor.Resources {
                     await BaseResourceViewModel.DropRegistry.OnDropped(self, list, effects);
                 }
                 else if (!await BaseResourceViewModel.DropRegistry.OnDroppedNative(self, new DataObjectWrapper(e.Data), effects)) {
-                    await Services.DialogService.ShowMessageAsync("Unknown data", "Unknown dropped item. Drop files here");
+                    await IoC.DialogService.ShowMessageAsync("Unknown data", "Unknown dropped item. Drop files here");
                 }
             }
             finally {

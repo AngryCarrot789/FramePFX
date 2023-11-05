@@ -30,7 +30,7 @@ namespace FramePFX.WPF.Views.UserInputs {
         }
 
         public Task<bool> ShowSingleInputDialogAsync(SingleInputViewModel viewModel) {
-            if (Services.Application.IsOnOwnerThread) {
+            if (IoC.Application.IsOnMainThread) {
                 return Task.FromResult(this.ShowSingleInputDialog(viewModel));
             }
             else {

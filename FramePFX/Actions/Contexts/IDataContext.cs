@@ -9,7 +9,7 @@ namespace FramePFX.Actions.Contexts {
         /// <summary>
         /// Returns all of the available context. Will not return  null, but may be empty
         /// </summary>
-        IEnumerable<object> Context { get; }
+        IReadOnlyList<object> Context { get; }
 
         /// <summary>
         /// Returns all of the custom data. Will not return null, but may be empty
@@ -35,6 +35,13 @@ namespace FramePFX.Actions.Contexts {
         /// Returns whether this data context contains an instance of the given type
         /// </summary>
         bool HasContext<T>();
+
+        /// <summary>
+        /// Returns whether this data context contains the given context object
+        /// </summary>
+        /// <param name="context">The object</param>
+        /// <returns>A bool</returns>
+        bool Contains(object context);
 
         /// <summary>
         /// Gets custom data for the given key

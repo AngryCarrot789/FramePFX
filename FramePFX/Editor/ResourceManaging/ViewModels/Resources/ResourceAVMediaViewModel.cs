@@ -28,7 +28,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels.Resources {
         public void SetFilePath(string filePath) => this.FilePath = filePath;
 
         public async Task OpenFileAction() {
-            string[] file = await Services.FilePicker.OpenFiles(Filters.VideoFormatsAndAll, this.FilePath, "Select a video file to open");
+            string[] file = await IoC.FilePicker.OpenFiles(Filters.VideoFormatsAndAll, this.FilePath, "Select a video file to open");
             if (file == null) {
                 return;
             }

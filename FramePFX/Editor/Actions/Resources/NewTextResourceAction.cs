@@ -1,5 +1,7 @@
+using System;
 using System.Threading.Tasks;
 using FramePFX.Actions;
+using FramePFX.Editor.Registries;
 using FramePFX.Editor.ResourceManaging.Actions;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels;
@@ -9,43 +11,45 @@ using FramePFX.Editor.Timelines.Effects.Video;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Editor.ViewModels.Timelines.Tracks;
+using FramePFX.Logger;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.Actions.Resources {
     [ActionRegistration("action.create.new.clip.TextClip")]
-    public class NewTextResourceAction : AnAction {
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-            if (!CreateResourceTextStyleAction.Instance.CanExecute(e))
-                return false;
-
-            TimelineViewModel timeline;
-            if (e.DataContext.TryGetContext(out ClipViewModel clip)) {
-                timeline = clip.Timeline;
-            }
-            else if (e.DataContext.TryGetContext(out TrackViewModel track)) {
-                timeline = track.Timeline;
-            }
-            else if (!e.DataContext.TryGetContext(out timeline)) {
+    public class NewTextResourceAction : ExecutableAction {
+        public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
+            if (!EditorActionUtils.GetTimeline(e.DataContext, out TimelineViewModel timeline)) {
                 return false;
             }
 
-            if (timeline == null)
-                return false;
-
-            if (!await CreateResourceTextStyleAction.Instance.ExecuteAsync(e))
-                return false;
-
-            if (!e.DataContext.TryGet(CreateResourceTextStyleAction.CreatedResourceViewModelKey, out ResourceTextStyleViewModel resource)) {
+            if (!CreateResourceUtils.GetSelectedFolder(e.DataContext, out ResourceFolderViewModel folder) || folder.Manager == null) {
                 return false;
             }
 
+            ResourceTextStyle model;
+            try {
+                string type = ResourceTypeFactory.Instance.GetTypeIdForModel(typeof(ResourceTextStyle));
+                model = (ResourceTextStyle) ResourceTypeFactory.Instance.CreateModel(type);
+            }
+            catch (Exception ex) {
+                string str = ex.GetToString();
+                await IoC.DialogService.ShowMessageExAsync("Resource Failure", "Failed to create resource", str);
+                AppLogger.WriteLine("Failed to create resource: " + str);
+                return true;
+            }
+
+            folder.Model.AddItem(model);
+            folder.Manager.Model.RegisterEntry(model);
+            ResourceTextStyleViewModel resource = (ResourceTextStyleViewModel) folder.LastItem;
             if (!TextIncrement.GetIncrementableString(resource.Parent.PredicateIsNameFree, "Sample Text", out string name)) {
                 name = "Sample Text";
             }
 
+            resource.DisplayName = name;
+            await ResourceItemViewModel.TryLoadResource(resource, null);
             resource.Parent.Manager.SelectedItems.Add(resource);
-            if (resource.Manager.Project != null) {
-                timeline = resource.Manager.Project.Editor?.SelectedTimeline;
+            if (timeline.Project != null) {
+                timeline = timeline.Project.Editor?.SelectedTimeline;
                 if (timeline != null) {
                     VideoTrackViewModel track;
                     if ((track = timeline.PrimarySelectedTrack as VideoTrackViewModel) == null || !Track.TryGetSpanUntilClip(track.Model, timeline.PlayHeadFrame, out FrameSpan span)) {

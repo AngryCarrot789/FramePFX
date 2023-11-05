@@ -4,8 +4,8 @@ using FramePFX.Actions;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 
 namespace FramePFX.Editor.ResourceManaging.Actions {
-    public class GroupSelectedResourcesAction : AnAction {
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
+    public class GroupSelectedResourcesAction : ExecutableAction {
+        public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
             if (!ResourceActionUtils.GetSelectedResources(e.DataContext, out ResourceManagerViewModel manager, out List<BaseResourceViewModel> selection)) {
                 return false;
             }

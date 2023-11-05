@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace FramePFX.WPF.Utils {
     public class ResourceDictionaryDataTemplateSelector : DataTemplateSelector {
-        public ResourceDictionary ResourceDictionary { get; set; }
+        public ResourceDictionary ResourceDictionary { get; set; } = new ResourceDictionary();
 
         public override DataTemplate SelectTemplate(object item, DependencyObject container) {
             if (item != null && this.ResourceDictionary != null) {

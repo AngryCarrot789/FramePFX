@@ -1,7 +1,9 @@
 using System;
 
 namespace FramePFX.Editor.ResourceManaging.Events {
-    public delegate void ResourceModifiedEventHandler(ResourceItem item, string property);
+    public delegate void ResourceEventHandler(BaseResource resource);
+
+    public delegate void ResourceModifiedEventHandler(BaseResource item, string property);
     public delegate void ResourceReferencedEventHandler(ResourceItem item, ResourcePath reference, bool added);
 
     public delegate void ResourceAddedEventHandler(ResourceFolder parent, BaseResource item, int index);

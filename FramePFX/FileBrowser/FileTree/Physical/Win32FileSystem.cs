@@ -33,15 +33,15 @@ namespace FramePFX.FileBrowser.FileTree.Physical {
                 enumerable = info.EnumerateFileSystemInfos();
             }
             catch (DirectoryNotFoundException) {
-                await Services.DialogService.ShowMessageAsync("Directory not found", $"'{dirPath}' no longer exists");
+                await IoC.DialogService.ShowMessageAsync("Directory not found", $"'{dirPath}' no longer exists");
                 return false;
             }
             catch (UnauthorizedAccessException e) {
-                await Services.DialogService.ShowMessageExAsync("Unauthorized Access", $"Cannot access the folder '{dirPath}'", e.GetToString());
+                await IoC.DialogService.ShowMessageExAsync("Unauthorized Access", $"Cannot access the folder '{dirPath}'", e.GetToString());
                 return false;
             }
             catch (Exception e) {
-                await Services.DialogService.ShowMessageExAsync("Error", $"An error occurred while getting files at '{dirPath}'", e.GetToString());
+                await IoC.DialogService.ShowMessageExAsync("Error", $"An error occurred while getting files at '{dirPath}'", e.GetToString());
                 return false;
             }
 
@@ -51,7 +51,7 @@ namespace FramePFX.FileBrowser.FileTree.Physical {
                 }
             }
             catch (Exception e) {
-                await Services.DialogService.ShowMessageExAsync("Error", $"An error occurred while enumerating next file '{dirPath}'", e.GetToString());
+                await IoC.DialogService.ShowMessageExAsync("Error", $"An error occurred while enumerating next file '{dirPath}'", e.GetToString());
                 return true;
             }
 
@@ -121,15 +121,15 @@ namespace FramePFX.FileBrowser.FileTree.Physical {
                 enumerable = info.EnumerateFileSystemInfos();
             }
             catch (DirectoryNotFoundException) {
-                await Services.DialogService.ShowMessageAsync("Directory not found", $"'{dirPath}' no longer exists");
+                await IoC.DialogService.ShowMessageAsync("Directory not found", $"'{dirPath}' no longer exists");
                 return null;
             }
             catch (UnauthorizedAccessException e) {
-                await Services.DialogService.ShowMessageExAsync("Unauthorized Access", $"Cannot access the folder '{dirPath}'", e.GetToString());
+                await IoC.DialogService.ShowMessageExAsync("Unauthorized Access", $"Cannot access the folder '{dirPath}'", e.GetToString());
                 return null;
             }
             catch (Exception e) {
-                await Services.DialogService.ShowMessageExAsync("Error", $"An error occurred while getting files at '{dirPath}'", e.GetToString());
+                await IoC.DialogService.ShowMessageExAsync("Error", $"An error occurred while getting files at '{dirPath}'", e.GetToString());
                 return null;
             }
 
@@ -161,7 +161,7 @@ namespace FramePFX.FileBrowser.FileTree.Physical {
                         return false;
                 }
                 catch (Exception e) {
-                    await Services.DialogService.ShowMessageExAsync("Error", $"An error occurred while enumerating next file", e.GetToString());
+                    await IoC.DialogService.ShowMessageExAsync("Error", $"An error occurred while enumerating next file", e.GetToString());
                     return false;
                 }
 

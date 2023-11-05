@@ -4,11 +4,14 @@ using System.Threading.Tasks;
 using FramePFX.Commands;
 using FramePFX.Interactivity;
 using FramePFX.Utils;
+using FramePFX.Utils.Collections;
 using FramePFX.Views.Dialogs.Message;
 using FramePFX.Views.Dialogs.UserInputs;
 
 namespace FramePFX.Editor.ResourceManaging.ViewModels {
     public abstract class BaseResourceViewModel : BaseViewModel, IRenameTarget {
+        protected static readonly PropertyMap PropertyMap;
+
         private ResourceManagerViewModel manager;
         private ResourceFolderViewModel parent;
 
@@ -40,10 +43,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
         public string DisplayName {
             get => this.Model.DisplayName;
-            set {
-                this.Model.DisplayName = value;
-                this.RaisePropertyChanged();
-            }
+            set => this.Model.DisplayName = value;
         }
 
         public AsyncRelayCommand RenameCommand { get; }
@@ -52,13 +52,27 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
         protected BaseResourceViewModel(BaseResource model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
-            model.ViewModel = this;
             this.RenameCommand = new AsyncRelayCommand(this.RenameAsync, () => true);
             this.DeleteCommand = new AsyncRelayCommand(this.DeleteSelfAction, () => this.Parent != null);
+            model.ViewModel = this;
+            model.DataModified += this.OnModelDataModified;
+        }
+
+        protected virtual void OnModelDataModified(BaseResource item, string property) {
+            if (PropertyMap.GetPropertyForModel(item.GetType(), property, out string prop)) {
+                this.RaisePropertyChanged(prop);
+            }
         }
 
         static BaseResourceViewModel() {
+            PropertyMap = new PropertyMap();
             DropRegistry = new DragDropRegistry<BaseResourceViewModel>();
+
+            AddPropertyTranslation<BaseResource>(nameof(BaseResource.DisplayName), nameof(DisplayName));
+        }
+
+        protected static void AddPropertyTranslation<T>(string modelProperty, string viewModelProperty) where T : BaseResource {
+            PropertyMap.AddTranslation(typeof(T), modelProperty, viewModelProperty);
         }
 
         public static void PreSetParent(BaseResourceViewModel obj, ResourceFolderViewModel parent) {
@@ -81,17 +95,17 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         public virtual async Task<bool> DeleteSelfAction() {
             int index;
             if (this.Parent == null || (index = this.Parent.Items.IndexOf(this)) == -1) {
-                await Services.DialogService.ShowMessageAsync("Invalid item", "This resource is not located anywhere...?");
+                await IoC.DialogService.ShowMessageAsync("Invalid item", "This resource is not located anywhere...?");
                 return false;
             }
 
             if (this is ResourceItemViewModel) {
-                if (await Services.DialogService.ShowDialogAsync("Delete resource?", $"Delete resource{(this.DisplayName != null ? $"'{this.DisplayName}'" : "")}?", MsgDialogType.OKCancel) != MsgDialogResult.OK)
+                if (await IoC.DialogService.ShowDialogAsync("Delete resource?", $"Delete resource{(this.DisplayName != null ? $"'{this.DisplayName}'" : "")}?", MsgDialogType.OKCancel) != MsgDialogResult.OK)
                     return false;
             }
             else if (this is ResourceFolderViewModel group) {
                 int total = ResourceFolderViewModel.CountRecursive(group.Items);
-                if (total > 0 && await Services.DialogService.ShowDialogAsync("Delete selection?", $"Are you sure you want to delete this resource folder? It has {total} sub-item{Lang.S(total)}?", MsgDialogType.OKCancel) != MsgDialogResult.OK)
+                if (total > 0 && await IoC.DialogService.ShowDialogAsync("Delete selection?", $"Are you sure you want to delete this resource folder? It has {total} sub-item{Lang.S(total)}?", MsgDialogType.OKCancel) != MsgDialogResult.OK)
                     return false;
             }
 
@@ -111,12 +125,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
         }
 
         public async Task<bool> RenameAsync() {
-            // testing that the UI functions can be called from other threads
-            string result = null;
-            await Task.Run(async () => {
-                result = await Services.UserInput.ShowSingleInputDialogAsync("Rename group", "Input a new name for this group", this.DisplayName, Validators.ForNonWhiteSpaceString());
-            });
-
+            string result = await IoC.UserInput.ShowSingleInputDialogAsync("Rename group", "Input a new name for this group", this.DisplayName, Validators.ForNonWhiteSpaceString());
             if (string.IsNullOrWhiteSpace(result)) {
                 return false;
             }

@@ -5,7 +5,6 @@ using FramePFX.Editor.History;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.History;
 using FramePFX.History.Tasks;
-using FramePFX.History.ViewModels;
 using FramePFX.PropertyEditing;
 
 namespace FramePFX.Editor.PropertyEditors.Tracks {
@@ -19,7 +18,7 @@ namespace FramePFX.Editor.PropertyEditors.Tracks {
             set {
                 this.RaisePropertyChanged(ref this.displayName, value);
                 if (!this.displayNameHistory.TryGetAction(out HistoryTrackDisplayName action)) {
-                    this.displayNameHistory.PushAction(HistoryManagerViewModel.Instance, action = new HistoryTrackDisplayName(this.Tracks));
+                    this.displayNameHistory.PushAction(action = new HistoryTrackDisplayName(this.Tracks));
                 }
 
                 foreach (Transaction<string> t in action.DisplayName) {
@@ -48,7 +47,7 @@ namespace FramePFX.Editor.PropertyEditors.Tracks {
 
         protected override void OnHandlersLoaded() {
             base.OnHandlersLoaded();
-            this.displayName = GetEqualValue(this.Handlers, (x) => ((TrackViewModel) x).DisplayName, out string name) ? name : Services.Translator.GetString("S.PropertyEditor.NamedObject.DifferingDisplayNames");
+            this.displayName = GetEqualValue(this.Handlers, (x) => ((TrackViewModel) x).DisplayName, out string name) ? name : IoC.Translator.GetString("S.PropertyEditor.NamedObject.DifferingDisplayNames");
             this.RaisePropertyChanged(nameof(this.DisplayName));
         }
 

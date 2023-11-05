@@ -183,9 +183,9 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             ResourcePath IBaseResourcePathKey.Path => this.path;
             string IBaseResourcePathKey.Key => this.entryKey;
 
-            public bool IsOnline {
+            public bool IsLinked {
                 get {
-                    bool? v = this.path?.IsValid;
+                    bool? v = this.path?.IsLinked;
                     return v.HasValue && v.Value;
                 }
             }
@@ -201,7 +201,6 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             }
 
             private void SetResourcePath(ResourcePath newPath) {
-                bool oldIsOnline = this.IsOnline, newIsOnline = oldIsOnline;
                 if (this.path != null) {
                     if (this.path.CanDispose) {
                         this.path.Dispose();
@@ -209,19 +208,15 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
 
                     this.path.ResourceChanged -= this.resourceChangedHandler;
                     this.path = null;
-                    newIsOnline = false;
                 }
 
                 this.path = newPath;
                 if (newPath != null) {
                     newPath.ResourceChanged += this.resourceChangedHandler;
-                    newIsOnline = true;
                 }
 
-                if (oldIsOnline != newIsOnline) {
-                    this.OnOnlineStateChanged();
-                    this.helper.OnOnlineStateChanged(this);
-                }
+                this.OnOnlineStateChanged();
+                this.helper.OnOnlineStateChanged(this);
             }
 
             public virtual void SetTargetResourceId(ulong id) {
@@ -261,13 +256,15 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
 
             protected abstract void OnEntryResourceDataModified(ResourceItem sender, string property);
 
-            private void OnEntryResourceDataModifiedInternal(ResourceItem sender, string property) {
+            private void OnEntryResourceDataModifiedInternal(BaseResource sender, string property) {
+                if (!(sender is ResourceItem item))
+                    return;
                 if (this.path == null)
                     throw new InvalidOperationException("Expected resource path to be non-null");
-                if (!this.path.IsCachedItemEqualTo(sender))
+                if (!this.path.IsCachedItemEqualTo(item))
                     throw new InvalidOperationException("Received data modified event for a resource that does not equal the resource path's item");
-                this.OnEntryResourceDataModified(sender, property);
-                this.helper.OnResourceDataModified(this, sender, property);
+                this.OnEntryResourceDataModified(item, property);
+                this.helper.OnResourceDataModified(this, item, property);
             }
 
             protected abstract void OnOnlineStateChanged();

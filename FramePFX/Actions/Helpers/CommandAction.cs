@@ -11,7 +11,7 @@ namespace FramePFX.Actions.Helpers {
     /// Creates a new action which invokes an <see cref="ICommand"/>
     /// </summary>
     /// <typeparam name="T">The type which contains the target command</typeparam>
-    public class CommandAction<T> : AnAction {
+    public class CommandAction<T> : ExecutableAction {
         /// <summary>
         /// The function that gets the <see cref="ICommand"/> instance from an object.
         /// The function will not be null, but invoking it may return a null value
@@ -58,7 +58,7 @@ namespace FramePFX.Actions.Helpers {
             return new CommandActionBuilder();
         }
 
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
+        public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
             if (!e.DataContext.TryGetContext(out T instance)) {
                 return false;
             }
@@ -82,7 +82,7 @@ namespace FramePFX.Actions.Helpers {
             return this.ResultWhenExecuteSuccess;
         }
 
-        public override bool CanExecute(AnActionEventArgs e) {
+        public override bool CanExecute(ActionEventArgs e) {
             if (!e.DataContext.TryGetContext(out T instance)) {
                 return false;
             }
@@ -116,22 +116,22 @@ namespace FramePFX.Actions.Helpers {
             return this;
         }
 
-        public AnAction ToAction() {
+        public ExecutableAction ToAction() {
             return new CommandActionExImpl(this.accessors);
         }
 
-        private class CommandActionExImpl : AnAction {
+        private class CommandActionExImpl : ExecutableAction {
             private readonly Dictionary<Type, Func<object, ICommand>> accessors;
 
             public CommandActionExImpl(Dictionary<Type, Func<object, ICommand>> accessors) {
                 this.accessors = accessors;
             }
 
-            public override bool CanExecute(AnActionEventArgs e) {
+            public override bool CanExecute(ActionEventArgs e) {
                 return this.GetCommand(e.DataContext) != null;
             }
 
-            public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
+            public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
                 foreach (object obj in e.DataContext.Context) {
                     if (obj == null) {
                         continue;

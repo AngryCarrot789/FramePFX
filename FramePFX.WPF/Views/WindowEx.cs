@@ -181,30 +181,13 @@ namespace FramePFX.WPF.Views {
             }
         }
 
-        // [ActionRegistration("actions.views.windows.CloseViewAction")]
-        // private class CloseViewAction : AnAction {
-        //     public CloseViewAction() : base(() => "Close window", () => "Closes the current window") {
-        //     }
-        //     public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
-        //         if (e.DataContext.TryGetContext(out WindowEx w) && w.CanCloseWithEscapeKey) {
-        //             await w.CloseAsync();
-        //             return true;
-        //         }
-        //         return false;
-        //     }
-        //     public override Presentation GetPresentation(AnActionEventArgs e) {
-        //         return Presentation.BoolToEnabled(e.DataContext.TryGetContext<WindowEx>(out _));
-        //     }
-        // }
-
-
         // Binding a checkbox to the window's Topmost property is more effective and works both ways
         [ActionRegistration("actions.views.MakeWindowTopMost")]
         private class MakeTopMostAction : ToggleAction {
             public MakeTopMostAction() {
             }
 
-            protected override Task<bool> OnToggled(AnActionEventArgs e, bool isToggled) {
+            protected override Task<bool> OnToggled(ActionEventArgs e, bool isToggled) {
                 if (e.DataContext.TryGetContext(out WindowEx window)) {
                     window.Topmost = isToggled;
                     return Task.FromResult(true);
@@ -214,7 +197,7 @@ namespace FramePFX.WPF.Views {
                 }
             }
 
-            protected override Task<bool> ExecuteNoToggle(AnActionEventArgs e) {
+            protected override Task<bool> ExecuteNoToggle(ActionEventArgs e) {
                 if (e.DataContext.TryGetContext(out WindowEx window)) {
                     window.Topmost = !window.Topmost;
                     return Task.FromResult(true);
@@ -224,7 +207,7 @@ namespace FramePFX.WPF.Views {
                 }
             }
 
-            public override bool CanExecute(AnActionEventArgs e) {
+            public override bool CanExecute(ActionEventArgs e) {
                 return e.DataContext.TryGetContext<WindowEx>(out _);
             }
         }

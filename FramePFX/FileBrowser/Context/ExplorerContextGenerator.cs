@@ -18,12 +18,12 @@ namespace FramePFX.FileBrowser.Context {
         public ExplorerContextGenerator() {
             this.OpenInExplorerCommand = new RelayCommand<string>((x) => {
                 if (!string.IsNullOrEmpty(x))
-                    Services.ExplorerService.OpenFileInExplorer(x);
+                    IoC.ExplorerService.OpenFileInExplorer(x);
             });
 
             this.CopyStringCommand = new RelayCommand<string>((x) => {
                 if (!string.IsNullOrEmpty(x))
-                    Services.Clipboard.SetText(x);
+                    IoC.Clipboard.SetText(x);
             });
 
             this.RemoveFromParentCommand = new RelayCommand<TreeEntry>((x) => {

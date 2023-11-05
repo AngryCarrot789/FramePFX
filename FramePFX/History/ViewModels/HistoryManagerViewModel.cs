@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Commands;
 using FramePFX.Notifications;
+using FramePFX.TaskSystem;
 using FramePFX.Views.Dialogs.Progression;
 using FramePFX.Views.Dialogs.UserInputs;
 
@@ -167,10 +168,10 @@ namespace FramePFX.History.ViewModels {
 
         private async Task<bool> IsActionActiveHelper(string message) {
             if (this.manager.IsUndoing) {
-                await Services.DialogService.ShowMessageAsync("Undo already active", message + ". An undo operation is already in progress");
+                await IoC.DialogService.ShowMessageAsync("Undo already active", message + ". An undo operation is already in progress");
             }
             else if (this.manager.IsRedoing) {
-                await Services.DialogService.ShowMessageAsync("Redo already active", message + ". A redo operation is already in progress");
+                await IoC.DialogService.ShowMessageAsync("Redo already active", message + ". A redo operation is already in progress");
             }
             else {
                 return false;
@@ -186,44 +187,49 @@ namespace FramePFX.History.ViewModels {
                 return "Value is not an integer";
             });
 
-            string value = await Services.UserInput.ShowSingleInputDialogAsync(caption, message, def.ToString(), validator);
+            string value = await IoC.UserInput.ShowSingleInputDialogAsync(caption, message, def.ToString(), validator);
             if (value == null) {
                 return null;
             }
 
             if (int.TryParse(value, out int integer)) {
                 if (integer < 1) {
-                    await Services.DialogService.ShowMessageAsync("Invalid value", "Value must be more than 0");
+                    await IoC.DialogService.ShowMessageAsync("Invalid value", "Value must be more than 0");
                     return null;
                 }
 
                 return integer;
             }
 
-            await Services.DialogService.ShowMessageAsync("Invalid value", "Value is not an integer: " + value);
+            await IoC.DialogService.ShowMessageAsync("Invalid value", "Value is not an integer: " + value);
             return null;
         }
 
         public async Task ResetAsync() {
             if (this.manager.IsUndoing || this.manager.IsRedoing) {
-                IndeterminateProgressViewModel progress = new IndeterminateProgressViewModel(true) {
-                    Message = "Waiting for a history action to complete...",
-                    Titlebar = "Clearing history"
-                };
-
-                await Services.ProgressionDialogs.ShowIndeterminateAsync(progress);
-                do {
-                    await Task.Delay(250);
-                    if (progress.IsCancelled) {
-                        this.manager.UnsafeReset();
-                        goto end;
-                    }
-                } while (this.manager.IsUndoing || this.manager.IsRedoing);
+                await TaskManager.Instance.RunAsync(new TaskAction(async (p) => {
+                    p.IsIndeterminate = true;
+                    p.HeaderText = "Clearing History";
+                    p.FooterText = "Waiting for a history action to complete...";
+                    do {
+                        await Task.Delay(250);
+                        if (p.IsCancelled) {
+                            this.manager.UnsafeReset();
+                            p.FooterText = "Forcefully cancelled. App may be in an unstable state";
+                            this.RaiseReset();
+                            return;
+                        }
+                    } while (this.manager.IsUndoing || this.manager.IsRedoing);
+                    p.FooterText = "All tasks finished";
+                    this.RaiseReset();
+                }));
             }
 
             this.manager.Reset();
+            this.RaiseReset();
+        }
 
-            end:
+        private void RaiseReset() {
             this.RaisePropertyChanged(nameof(this.MaxUndo));
             this.RaisePropertyChanged(nameof(this.MaxRedo));
             this.RaisePropertyChanged(nameof(this.HasUndoActions));

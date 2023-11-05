@@ -10,6 +10,7 @@ using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.Timelines.Events;
 using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.Editor.Timelines.VideoClips;
+using FramePFX.Logger;
 using FramePFX.RBC;
 using FramePFX.RBC.Events;
 using FramePFX.Utils;
@@ -19,6 +20,8 @@ namespace FramePFX.Editor.Timelines {
     /// A model that represents a timeline track clip, such as a video or audio clip
     /// </summary>
     public abstract class Clip : IClip, IStrictFrameRange, IAutomatable, IDisposable {
+        public static readonly SerialisationRegistry Serialisation;
+
         private readonly List<BaseEffect> internalEffectList;
         private FrameSpan frameSpan;
         public long LastSeekedFrame;
@@ -123,6 +126,66 @@ namespace FramePFX.Editor.Timelines {
             this.IsRenderingEnabled = true;
         }
 
+        static Clip() {
+            Serialisation = new SerialisationRegistry();
+            Serialisation.Register<Clip>("1.0.0", (clip, data, ctx) => {
+                AppLogger.WriteLine("Serialising Clip 1.0.0: " + ctx.CurrentVersion);
+                if (!string.IsNullOrEmpty(clip.DisplayName))
+                    data.SetString(nameof(clip.DisplayName), clip.DisplayName);
+                data.SetStruct(nameof(clip.FrameSpan), clip.FrameSpan);
+                data.SetLong(nameof(clip.MediaFrameOffset), clip.MediaFrameOffset);
+                data.SetBool(nameof(clip.IsRenderingEnabled), clip.IsRenderingEnabled);
+                clip.AutomationData.WriteToRBE(data.CreateDictionary(nameof(clip.AutomationData)));
+                RBEList list = data.CreateList("Effects");
+                foreach (BaseEffect effect in clip.Effects) {
+                    if (!(effect.FactoryId is string id))
+                        throw new Exception("Unknown clip type: " + effect.GetType());
+                    RBEDictionary dictionary = list.AddDictionary();
+                    dictionary.SetString(nameof(BaseEffect.FactoryId), id);
+                    effect.WriteToRBE(dictionary.CreateDictionary("Data"));
+                }
+
+                clip.ResourceHelper.WriteToRootRBE(data);
+                clip.SerialiseExtension?.Invoke(clip, data);
+            }, (clip, data, ctx) => {
+                AppLogger.WriteLine("Deserialising Clip 1.0.0: " + ctx.CurrentVersion);
+                clip.DisplayName = data.GetString(nameof(clip.DisplayName), null);
+                clip.FrameSpan = data.GetStruct<FrameSpan>(nameof(clip.FrameSpan));
+                clip.MediaFrameOffset = data.GetLong(nameof(clip.MediaFrameOffset));
+                clip.IsRenderingEnabled = data.GetBool(nameof(clip.IsRenderingEnabled), true);
+                clip.AutomationData.ReadFromRBE(data.GetDictionary(nameof(clip.AutomationData)));
+                clip.ClearEffects(); // this shouldn't be necessary... but just in case
+                foreach (RBEBase entry in data.GetList("Effects").List) {
+                    if (!(entry is RBEDictionary dictionary))
+                        throw new Exception($"Effect resource dictionary contained a non dictionary child: {entry.Type}");
+                    string factoryId = dictionary.GetString(nameof(BaseEffect.FactoryId));
+                    BaseEffect effect = EffectFactory.Instance.CreateModel(factoryId);
+                    effect.ReadFromRBE(dictionary.GetDictionary("Data"));
+                    BaseEffect.AddEffectToClip(clip, effect);
+                }
+
+                clip.ResourceHelper.ReadFromRootRBE(data);
+                clip.DeserialiseExtension?.Invoke(clip, data);
+            });
+
+            // These 2 below purely exists to test the serialisation system
+            Serialisation.Register<Clip>("1.1.0", (clip, data, ctx) => {
+                AppLogger.WriteLine("Serialising Clip 1.1.0: " + ctx.CurrentVersion);
+                ctx.SerialiseLastVersion(clip, data);
+            }, (clip, data, ctx) => {
+                AppLogger.WriteLine("Deserialising Clip 1.1.0: " + ctx.CurrentVersion);
+                ctx.DeserialiseLastVersion(clip, data);
+            });
+
+            Serialisation.Register<Clip>("1.5.0", (clip, data, ctx) => {
+                AppLogger.WriteLine("Serialising Clip 1.5.0: " + ctx.CurrentVersion);
+                ctx.SerialiseLastVersion(clip, data);
+            }, (clip, data, ctx) => {
+                AppLogger.WriteLine("Deserialising Clip 1.5.0: " + ctx.CurrentVersion);
+                ctx.DeserialiseLastVersion(clip, data);
+            });
+        }
+
         public KeyFrame GetDefaultKeyFrame(AutomationKey key) {
             return this.AutomationData[key].DefaultKeyFrame;
         }
@@ -222,23 +285,7 @@ namespace FramePFX.Editor.Timelines {
         /// </summary>
         /// <param name="data"></param>
         public virtual void WriteToRBE(RBEDictionary data) {
-            if (!string.IsNullOrEmpty(this.DisplayName))
-                data.SetString(nameof(this.DisplayName), this.DisplayName);
-            data.SetStruct(nameof(this.FrameSpan), this.FrameSpan);
-            data.SetLong(nameof(this.MediaFrameOffset), this.MediaFrameOffset);
-            data.SetBool(nameof(this.IsRenderingEnabled), this.IsRenderingEnabled);
-            this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
-            RBEList list = data.CreateList("Effects");
-            foreach (BaseEffect effect in this.Effects) {
-                if (!(effect.FactoryId is string id))
-                    throw new Exception("Unknown clip type: " + effect.GetType());
-                RBEDictionary dictionary = list.AddDictionary();
-                dictionary.SetString(nameof(BaseEffect.FactoryId), id);
-                effect.WriteToRBE(dictionary.CreateDictionary("Data"));
-            }
-
-            this.ResourceHelper.WriteToRootRBE(data);
-            this.SerialiseExtension?.Invoke(this, data);
+            Serialisation.Serialise(this, data, new SerialisationContext(IoC.Application.Version));
         }
 
         /// <summary>
@@ -246,23 +293,7 @@ namespace FramePFX.Editor.Timelines {
         /// </summary>
         /// <param name="data"></param>
         public virtual void ReadFromRBE(RBEDictionary data) {
-            this.DisplayName = data.GetString(nameof(this.DisplayName), null);
-            this.FrameSpan = data.GetStruct<FrameSpan>(nameof(this.FrameSpan));
-            this.MediaFrameOffset = data.GetLong(nameof(this.MediaFrameOffset));
-            this.IsRenderingEnabled = data.GetBool(nameof(this.IsRenderingEnabled), true);
-            this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
-            this.ClearEffects(); // this shouldn't be necessary... but just in case
-            foreach (RBEBase entry in data.GetList("Effects").List) {
-                if (!(entry is RBEDictionary dictionary))
-                    throw new Exception($"Effect resource dictionary contained a non dictionary child: {entry.Type}");
-                string factoryId = dictionary.GetString(nameof(BaseEffect.FactoryId));
-                BaseEffect effect = EffectFactory.Instance.CreateModel(factoryId);
-                effect.ReadFromRBE(dictionary.GetDictionary("Data"));
-                BaseEffect.AddEffectToClip(this, effect);
-            }
-
-            this.ResourceHelper.ReadFromRootRBE(data);
-            this.DeserialiseExtension?.Invoke(this, data);
+            Serialisation.Deserialise(this, data, new SerialisationContext(IoC.Application.Version));
         }
 
         /// <summary>

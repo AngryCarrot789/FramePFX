@@ -7,6 +7,7 @@ using FramePFX.Editor.Timelines.Effects;
 using FramePFX.Editor.Timelines.Effects.Video;
 using FramePFX.Editor.Timelines.Events;
 using FramePFX.Editor.Timelines.Tracks;
+using FramePFX.Logger;
 using FramePFX.RBC;
 using FramePFX.Utils;
 using SkiaSharp;
@@ -60,6 +61,27 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         protected VideoClip() {
             this.AutomationData.AssignKey(OpacityKey, this.CreateAssignment(OpacityKey));
             this.isMatrixDirty = true;
+        }
+
+        static VideoClip() {
+            Serialisation.Register<VideoClip>("1.0.0", (clip, data, ctx) => {
+                AppLogger.WriteLine("Serialising VideoClip 1.0.0: " + ctx.CurrentVersion);
+                ctx.SerialiseBaseClass(clip, data);
+                data.SetDouble(nameof(clip.Opacity), clip.Opacity);
+            }, (clip, data, ctx) => {
+                AppLogger.WriteLine("Deserialising VideoClip 1.0.0: " + ctx.CurrentVersion);
+                ctx.DeserialiseBaseClass(clip, data);
+                clip.Opacity = data.GetDouble(nameof(clip.Opacity));
+            });
+
+            // This one purely just exists to test the functionality of the serialisation system
+            Serialisation.Register<VideoClip>("1.7.0", (clip, data, ctx) => {
+                AppLogger.WriteLine("Serialising VideoClip 1.7.0: " + ctx.CurrentVersion);
+                ctx.SerialiseLastVersion(clip, data);
+            }, (clip, data, ctx) => {
+                AppLogger.WriteLine("Deserialising VideoClip 1.7.0: " + ctx.CurrentVersion);
+                ctx.DeserialiseLastVersion(clip, data);
+            });
         }
 
         private void CookTransformationMatrix() {
@@ -166,6 +188,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         /// </summary>
         public void InvalidateTransformationMatrix() {
             this.isMatrixDirty = true;
+            this.InvalidateRender();
         }
     }
 }

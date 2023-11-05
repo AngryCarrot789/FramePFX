@@ -70,13 +70,13 @@ namespace FramePFX.Automation {
         }
 
         public static void RefreshTimeline(TimelineViewModel timeline, long frame) {
-            RefreshAutomationValueEventArgs args1 = new RefreshAutomationValueEventArgs(frame, true, true);
+            AutomationUpdateEventArgs args1 = new AutomationUpdateEventArgs(frame, true, true);
             RefreshSequences(timeline, in args1);
             foreach (TrackViewModel track in timeline.Tracks) {
                 RefreshSequences(track, in args1);
                 foreach (ClipViewModel clip in track.Clips) {
                     if (clip.Model.GetRelativeFrame(frame, out long relative)) {
-                        RefreshAutomationValueEventArgs args2 = new RefreshAutomationValueEventArgs(relative, true, true);
+                        AutomationUpdateEventArgs args2 = new AutomationUpdateEventArgs(relative, true, true);
                         RefreshSequences(clip, in args2);
                         foreach (BaseEffectViewModel effect in clip.Effects) {
                             RefreshSequences(effect, in args2);
@@ -91,7 +91,7 @@ namespace FramePFX.Automation {
             }
         }
 
-        private static void RefreshSequences(IAutomatableViewModel automatable, in RefreshAutomationValueEventArgs e) {
+        private static void RefreshSequences(IAutomatableViewModel automatable, in AutomationUpdateEventArgs e) {
             try {
                 automatable.IsAutomationRefreshInProgress = true;
                 foreach (AutomationSequenceViewModel sequence in automatable.AutomationData.Sequences) {
@@ -161,12 +161,12 @@ namespace FramePFX.Automation {
                 sequence.DefaultKeyFrame.Model.AssignCurrentValue(frame, sequence.Model);
             }
 
-            sequence.Model.DoUpdateValue(frame);
+            sequence.Model.DoValueUpdate(frame);
             sequence.DoRefreshValue(frame, timeline.Project.Editor.Playback.IsPlaying, false);
         }
 
         public static void OnKeyFrameChanged(AutomationDataViewModel data, AutomationSequenceViewModel sequence, KeyFrameViewModel keyFrame) {
-            TimelineViewModel timeline = data.Owner.Timeline;
+            Timeline timeline = data.Owner.Timeline.Model;
             if (timeline == null) {
                 throw new Exception("No timeline associated with automation data owner: " + data.Owner);
             }
@@ -176,7 +176,7 @@ namespace FramePFX.Automation {
                 frame = strict.ConvertTimelineToRelativeFrame(frame, out bool isValid);
             }
 
-            sequence.Model.DoUpdateValue(frame);
+            sequence.Model.DoValueUpdate(frame);
             sequence.DoRefreshValue(frame, timeline.Project.Editor.Playback.IsPlaying, false);
         }
     }

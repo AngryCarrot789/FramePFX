@@ -29,7 +29,7 @@ namespace FramePFX.Shortcuts.ViewModels {
         public virtual void OnShortcutModified(ShortcutViewModel shortcut, IShortcut oldShortcut) {
             this.Manager.OnShortcutModified(shortcut.Model, oldShortcut);
             this.ShortcutModified?.Invoke(shortcut, oldShortcut);
-            Services.OnShortcutModified?.Invoke(shortcut.Path);
+            IoC.OnShortcutModified?.Invoke(shortcut.Path);
         }
     }
 }

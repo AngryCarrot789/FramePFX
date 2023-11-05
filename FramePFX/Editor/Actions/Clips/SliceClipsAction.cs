@@ -5,18 +5,18 @@ using FramePFX.Actions;
 using FramePFX.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Editor.Actions.Clips {
-    public class SliceClipsAction : AnAction {
+    public class SliceClipsAction : ExecutableAction {
         public SliceClipsAction() : base() {
         }
 
-        public override bool CanExecute(AnActionEventArgs e) {
+        public override bool CanExecute(ActionEventArgs e) {
             return EditorActionUtils.GetTimeline(e.DataContext, out TimelineViewModel timeline);
         }
 
-        public override async Task<bool> ExecuteAsync(AnActionEventArgs e) {
+        public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
             if (!EditorActionUtils.GetTimeline(e.DataContext, out TimelineViewModel timeline)) {
                 if (e.IsUserInitiated) {
-                    await Services.DialogService.ShowMessageAsync("No timeline available", "Create a new project to cut clips");
+                    await IoC.DialogService.ShowMessageAsync("No timeline available", "Create a new project to cut clips");
                 }
 
                 return false;

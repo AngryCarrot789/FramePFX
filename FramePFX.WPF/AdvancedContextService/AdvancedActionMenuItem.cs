@@ -6,6 +6,7 @@ using FramePFX.Actions;
 using FramePFX.Actions.Contexts;
 using FramePFX.AdvancedContextService;
 using FramePFX.Utils;
+using FramePFX.WPF.Actions;
 using FramePFX.WPF.Shortcuts;
 using FramePFX.WPF.Shortcuts.Converters;
 using FramePFX.WPF.Utils;
@@ -101,7 +102,7 @@ namespace FramePFX.WPF.AdvancedContextService {
             if (string.IsNullOrEmpty(id))
                 return;
 
-            AnAction action = ActionManager.Instance.GetAction(id);
+            ExecutableAction action = ActionManager.Instance.GetAction(id);
             if (action == null)
                 return;
 
@@ -134,34 +135,12 @@ namespace FramePFX.WPF.AdvancedContextService {
                 if (dc is IDataContext ctx) {
                     context.Merge(ctx);
                 }
-                else if (dc is BaseContextEntry entry) {
-                    context.Merge(entry.Context);
-                }
                 else {
                     context.AddContext(dc);
                 }
             }
 
-            ItemsControl itemsControl = VisualTreeUtils.GetItemsControlFromObject(this);
-            if (itemsControl != null && (dc = itemsControl.DataContext) != null && !context.InternalContext.Contains(dc)) {
-                context.AddContext(dc);
-            }
-
-            if (Window.GetWindow(this) is Window root && VisualTreeUtils.GetDataContext(root, out dc)) {
-                if (!context.InternalContext.Contains(dc)) {
-                    context.AddContext(dc);
-                }
-            }
-
-            DependencyObject pathObject = this;
-            while ((pathObject = VisualTreeUtils.FindNearestInheritedPropertyDefinition(UIInputManager.FocusPathProperty, pathObject)) != null) {
-                if (pathObject is FrameworkElement element && !context.InternalContext.Contains(dc = element.DataContext)) {
-                    context.AddContext(dc);
-                }
-
-                pathObject = VisualTreeUtils.GetParent(pathObject);
-            }
-
+            ActionContextProviderCollection.CreateContextFromTarget(context, this, false, true);
             if (includeToggleState && this.IsCheckable) {
                 context.Set(ToggleAction.IsToggledKey, this.IsChecked.Box());
             }
@@ -185,7 +164,7 @@ namespace FramePFX.WPF.AdvancedContextService {
                     this.CanExecute = false;
                 }
                 else {
-                    AdvancedContextMenu parent = VisualTreeUtils.GetParent<AdvancedContextMenu>(this, false);
+                    AdvancedContextMenu parent = VisualTreeUtils.GetLastParent<AdvancedContextMenu>(this);
                     DataContext context = parent?.LastContext ?? this.GetAvailableContext();
                     this.CanExecute = ActionManager.Instance.CanExecute(id, context);
                 }

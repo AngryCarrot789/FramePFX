@@ -25,46 +25,47 @@ namespace FramePFX.Editor.Contexts {
                 }
 
                 if (selected.Count == 1) {
-                    list.Add(new ActionContextEntry(context, "actions.general.RenameItem", "Rename"));
+                    list.Add(new ActionContextEntry("actions.general.RenameItem", "Rename"));
                     list.Add(SeparatorEntry.Instance);
                 }
 
-                list.Add(new ActionContextEntry(context, "actions.resources.GroupSelectionIntoFolder", "Group into folder"));
-                list.Add(new ActionContextEntry(context, "actions.resources.DeleteItems", "Delete"));
+                list.Add(new ActionContextEntry("actions.resources.GroupSelectionIntoFolder", "Group into folder"));
+                list.Add(new ActionContextEntry("actions.resources.DeleteItems", "Delete"));
                 list.Add(SeparatorEntry.Instance);
 
                 if (resItem is ResourceCompositionViewModel) {
-                    list.Add(new ActionContextEntry(context, "actions.timeline.OpenCompositionObjectsTimeline", "Open timeline"));
+                    list.Add(new ActionContextEntry("actions.timeline.OpenCompositionObjectsTimeline", "Open timeline"));
                 }
                 else if (resItem is ResourceColourViewModel) {
-                    list.Add(new ActionContextEntry(null, "action.resources.ChangeResourceColour", "Change Colour..."));
+                    list.Add(new ActionContextEntry("action.resources.ChangeResourceColour", "Change Colour..."));
                 }
 
                 if (resItem is ResourceItemViewModel item) {
                     if (selected.Count == 1) {
                         if (item.IsOnline) {
-                            list.Add(new ActionContextEntry(context, "actions.resources.ToggleOnlineState", "Set Offline").Set(ToggleAction.IsToggledKey, BoolBox.False));
+                            list.Add(new ActionContextEntry("actions.resources.ToggleOnlineState", "Set Offline"));
                         }
                         else {
-                            list.Add(new ActionContextEntry(context, "actions.resources.ToggleOnlineState", "Set Online").Set(ToggleAction.IsToggledKey, BoolBox.True));
+                            list.Add(new ActionContextEntry("actions.resources.ToggleOnlineState", "Set Online"));
                         }
                     }
                     else {
-                        list.Add(new ActionContextEntry(context, "actions.resources.ToggleOnlineState", "Set All Online").Set(ToggleAction.IsToggledKey, BoolBox.True));
-                        list.Add(new ActionContextEntry(context, "actions.resources.ToggleOnlineState", "Set All Offline").Set(ToggleAction.IsToggledKey, BoolBox.False));
+                        list.Add(new ActionContextEntry("actions.resources.ToggleOnlineState", "Set All Online"));
+                        list.Add(new ActionContextEntry("actions.resources.ToggleOnlineState", "Set All Offline"));
                     }
                 }
             }
 
             if (context.TryGetContext(out ResourceManagerViewModel manager) || (resItem != null && (manager = resItem.Manager) != null)) {
                 List<IContextEntry> newList = new List<IContextEntry> {
-                    new ActionContextEntry(null, "action.create.new.resource.ResourceFolder", "New Folder", "Create a new folder"),
+                    new ActionContextEntry("action.create.new.resource.ResourceFolder", "New Folder", "Create a new folder"),
                     SeparatorEntry.Instance,
-                    new ActionContextEntry(null, "action.create.new.resource.ResourceTextFile", "New Text", "Create a new text resource, and clip"),
-                    new ActionContextEntry(null, "action.create.new.resource.ResourceColour", "New ARGB Colour"),
-                    new ActionContextEntry(null, "action.create.new.resource.ResourceImage", "New Image"),
-                    new ActionContextEntry(null, "action.create.new.resource.ResourceTextStyle", "New Text Style"),
-                    new ActionContextEntry(null, "action.create.new.resource.ResourceComposition", "New Composition Sequence")
+                    new ActionContextEntry("action.create.new.resource.ResourceTextStyle", "New Text Style"),
+                    new ActionContextEntry("action.create.new.resource.ResourceTextFile", "New Text File", "Create a new text file"),
+                    new ActionContextEntry("action.create.new.clip.TextClip", "New Text", "Create a new text style resource and a text clip"),
+                    new ActionContextEntry("action.create.new.resource.ResourceColour", "New ARGB Colour"),
+                    new ActionContextEntry("action.create.new.resource.ResourceImage", "New Image"),
+                    new ActionContextEntry("action.create.new.resource.ResourceComposition", "New Composition Sequence")
                 };
 
                 if (list.Count > 0) {

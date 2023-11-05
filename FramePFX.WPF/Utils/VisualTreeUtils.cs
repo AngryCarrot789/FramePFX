@@ -3,6 +3,9 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using FramePFX.Actions.Contexts;
+using FramePFX.Utils;
+using FramePFX.WPF.Actions;
 
 namespace FramePFX.WPF.Utils {
     public static class VisualTreeUtils {
@@ -32,31 +35,61 @@ namespace FramePFX.WPF.Utils {
             return obj;
         }
 
-        public static DependencyObject GetParent(DependencyObject source) {
+        /// <summary>
+        /// Gets the parent of the given source object
+        /// </summary>
+        /// <param name="source">The object to get the parent of</param>
+        /// <param name="visualOnly">
+        /// True to only allow the visual parent, otherwise false to allow visual,
+        /// logical and templated parents (in that order based on availability)
+        /// </param>
+        /// <returns>The parent, or null, if there was no parent available</returns>
+        public static DependencyObject GetParent(DependencyObject source, bool visualOnly = false) {
+            DependencyObject parent;
             if (source is Visual || source is Visual3D) {
-                return VisualTreeHelper.GetParent(source);
+                parent = VisualTreeHelper.GetParent(source);
+                if (parent == null && !visualOnly && source is FrameworkElement)
+                    parent = ((FrameworkElement) source).Parent ?? ((FrameworkElement) source).TemplatedParent;
+                return parent;
             }
-            else if (source is FrameworkContentElement fce) {
-                return fce.Parent;
+            else if (source is FrameworkContentElement) {
+                parent = ((FrameworkContentElement) source).Parent;
+                if (parent == null && !visualOnly)
+                    parent = ((FrameworkContentElement) source).TemplatedParent;
+                return parent;
             }
             else {
                 return null;
             }
         }
 
-        public static T GetParent<T>(DependencyObject obj, bool includeSelf = true) where T : class {
+        /// <summary>
+        /// Gets the first parent object of the given type
+        /// </summary>
+        /// <param name="obj">A child object</param>
+        /// <param name="includeSelf">True to check if obj is of the given generic type, and if so, return that. Otherwise, scan parents</param>
+        /// <typeparam name="T">Type of parent</typeparam>
+        /// <returns>The parent, or null, if none of the given type were found</returns>
+        public static T GetParent<T>(DependencyObject obj, bool includeSelf = true, bool visualOnly = false) where T : class {
             if (obj == null)
                 return null;
             if (includeSelf && obj is T)
                 return (T) (object) obj;
 
             do {
-                obj = GetParent(obj);
+                obj = GetParent(obj, visualOnly);
                 if (obj == null)
                     return null;
                 if (obj is T)
                     return (T) (object) obj;
             } while (true);
+        }
+
+        public static T GetLastParent<T>(DependencyObject obj, bool visualOnly = false) where T : class {
+            T lastParent = null;
+            for (T parent = GetParent<T>(obj, false, visualOnly); parent != null; parent = GetParent<T>((DependencyObject) (object) parent, false, visualOnly))
+                lastParent = parent;
+            return lastParent;
         }
 
         public static T FindVisualChild<T>(DependencyObject obj, bool includeSelf = true) where T : class {

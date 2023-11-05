@@ -85,14 +85,14 @@ namespace FramePFX.WPF.Shortcuts {
 
                     object param;
                     if (cmd is BaseAsyncRelayCommand asyncCommand) {
-                        Services.BroadcastShortcutActivity(Services.Translator.GetString("S.Shortcuts.Activate.InProgress", shortcut));
+                        IoC.BroadcastShortcutActivity(IoC.Translator.GetString("S.Shortcuts.Activate.InProgress", shortcut));
                         if (await asyncCommand.TryExecuteAsync(binding.CommandParameter)) {
-                            Services.BroadcastShortcutActivity(Services.Translator.GetString("S.Shortcuts.Activate.Completed", shortcut));
+                            IoC.BroadcastShortcutActivity(IoC.Translator.GetString("S.Shortcuts.Activate.Completed", shortcut));
                             result = true;
                         }
                     }
                     else if (cmd.CanExecute(param = binding.CommandParameter)) {
-                        Services.BroadcastShortcutActivity(Services.Translator.GetString("S.Shortcuts.Activate", shortcut));
+                        IoC.BroadcastShortcutActivity(IoC.Translator.GetString("S.Shortcuts.Activate", shortcut));
                         cmd.Execute(param);
                         result = true;
                     }

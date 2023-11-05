@@ -1,5 +1,7 @@
 using System;
+using System.Runtime.CompilerServices;
 using FramePFX.Editor.Registries;
+using FramePFX.Editor.ResourceManaging.Events;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Logger;
 using FramePFX.RBC;
@@ -9,10 +11,13 @@ namespace FramePFX.Editor.ResourceManaging {
     /// Base class for resource items and groups
     /// </summary>
     public abstract class BaseResource {
+        internal ResourceManager manager;
+        private string displayName;
+
         /// <summary>
         /// The manager that this resource belongs to. Null if <see cref="Parent"/> is null, or there is just no manager associated with this hierarchy
         /// </summary>
-        public ResourceManager Manager { get; set; }
+        public ResourceManager Manager => this.manager;
 
         /// <summary>
         /// The folder that this object is currently in. Null if we aren't in a folder
@@ -24,13 +29,23 @@ namespace FramePFX.Editor.ResourceManaging {
         /// </summary>
         public string FactoryId => ResourceTypeFactory.Instance.GetTypeIdForModel(this.GetType());
 
-        public string DisplayName { get; set; }
+        public string DisplayName {
+            get => this.displayName;
+            set {
+                if (this.displayName == value)
+                    return;
+                this.displayName = value;
+                this.OnDataModified(nameof(this.DisplayName));
+            }
+        }
 
         /// <summary>
         /// Gets or sets the view model associated with this resource item. This is a horrible hack around the
         /// fact that there's currently no other way to access a resource item view model by a resource ID
         /// </summary>
         public BaseResourceViewModel ViewModel { get; set; }
+
+        public event ResourceModifiedEventHandler DataModified;
 
         protected BaseResource() {
         }
@@ -65,6 +80,18 @@ namespace FramePFX.Editor.ResourceManaging {
 
         protected static void InternalSetParent(BaseResource obj, ResourceFolder parent) {
             obj.Parent = parent;
+        }
+
+        /// <summary>
+        /// Raises the <see cref="DataModified"/> event for this resource item with the given property, allowing listeners
+        /// to invalidate their objects that relied on the previous state of the property that changed e.g. text blobs)
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public virtual void OnDataModified([CallerMemberName] string propertyName = null) {
+            if (propertyName == null)
+                throw new ArgumentNullException(nameof(propertyName));
+            this.DataModified?.Invoke(this, propertyName);
         }
 
         /// <summary>

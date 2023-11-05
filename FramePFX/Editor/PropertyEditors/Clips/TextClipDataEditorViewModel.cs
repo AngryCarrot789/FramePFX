@@ -22,7 +22,7 @@ namespace FramePFX.Editor.PropertyEditors.Clips {
             get => this.fontFamily;
             set {
                 if (!this.historyFontFamily.TryGetAction(out HistoryFontFamilty action))
-                    this.historyFontFamily.PushAction(this.HistoryManager, action = new HistoryFontFamilty(this), "Change font family");
+                    this.historyFontFamily.PushAction(action = new HistoryFontFamilty(this), "Change font family");
                 this.fontFamily = value;
                 action.SetCurrentValue(value);
                 this.RaisePropertyChanged();
@@ -35,14 +35,14 @@ namespace FramePFX.Editor.PropertyEditors.Clips {
             get => this.text;
             set {
                 if (!this.historyText.TryGetAction(out HistoryText action))
-                    this.historyText.PushAction(this.HistoryManager, action = new HistoryText(this), "Change text");
+                    this.historyText.PushAction(action = new HistoryText(this), "Change text");
                 this.text = value;
                 action.SetCurrentValue(value);
                 this.RaisePropertyChanged();
             }
         }
 
-        public static string DifferentValueText => Services.Translator.GetString("S.PropertyEditor.NamedObject.DifferingDisplayNames");
+        public static string DifferentValueText => IoC.Translator.GetString("S.PropertyEditor.NamedObject.DifferingDisplayNames");
 
         public TextClipDataEditorViewModel() : base(typeof(TextVideoClipViewModel)) {
             this.historyFontFamily = new HistoryBuffer<HistoryFontFamilty>();
@@ -79,7 +79,7 @@ namespace FramePFX.Editor.PropertyEditors.Clips {
             }
         }
 
-        private void RefreshOpacityHandler(AutomationSequenceViewModel sender, RefreshAutomationValueEventArgs e) {
+        private void RefreshOpacityHandler(AutomationSequenceViewModel sender, AutomationUpdateEventArgs e) {
             this.RaisePropertyChanged(ref this.fontFamily, this.SingleSelection.FontFamily, nameof(this.FontFamily));
         }
 

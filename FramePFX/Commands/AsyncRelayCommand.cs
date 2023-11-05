@@ -65,15 +65,18 @@ namespace FramePFX.Commands {
                 parameter = GetConvertedParameter<T>(parameter);
             }
 
+            T param;
             if (parameter == null) {
-                return this.execute(default);
+                param = default;
             }
-            else if (parameter is T value) {
-                return this.execute(value);
+            else if (parameter is T) {
+                param = (T) parameter;
             }
             else {
                 return Task.CompletedTask;
             }
+
+            return this.execute(param);
         }
     }
 }

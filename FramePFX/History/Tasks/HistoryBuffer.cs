@@ -101,17 +101,16 @@ namespace FramePFX.History.Tasks {
         /// <summary>
         /// Adds the given action to the given manager
         /// </summary>
-        /// <param name="manager">Target manager</param>
         /// <param name="action">Action to push</param>
         /// <param name="information">The information to pass to the manager</param>
         /// <exception cref="InvalidOperationException"></exception>
-        public void PushAction(HistoryManagerViewModel manager, T action, string information = null) {
+        public void PushAction(T action, string information = null) {
             lock (this.locker) {
                 if (this.currentAction != null) {
                     throw new InvalidOperationException($"Action time has not expired. {nameof(this.TryGetAction)} should be invoked before this function");
                 }
 
-                manager.AddAction(this.currentAction = new EventHistoryAction(action), information);
+                HistoryManagerViewModel.Instance.AddAction(this.currentAction = new EventHistoryAction(action), information);
                 this.currentAction.Undo += this.undoHandler;
                 this.currentAction.Redo += this.redoHandler;
                 this.currentAction.Removed += this.removedHandler;

@@ -1,18 +1,23 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using FramePFX.Automation;
 using FramePFX.Commands;
 using FramePFX.Editor.Exporting;
 using FramePFX.Editor.Notifications;
 using FramePFX.Editor.ResourceChecker;
+using FramePFX.Editor.Timelines;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.FileBrowser;
 using FramePFX.History.ViewModels;
 using FramePFX.Logger;
+using FramePFX.Notifications;
 using FramePFX.Notifications.Types;
 using FramePFX.PropertyEditing;
 using FramePFX.RBC;
+using FramePFX.TaskSystem;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.ViewModels {
@@ -85,13 +90,17 @@ namespace FramePFX.Editor.ViewModels {
 
         public AsyncRelayCommand ExportCommand { get; }
 
-        private SavingProjectNotification notification;
+        private SavingProjectNotification saveNotification;
+
+        private readonly Dictionary<TaskAction, TaskNotification> taskNotifications;
+        private readonly Dictionary<TimelineViewModel, Task> timelineRenderTaskMap;
 
         public VideoEditorViewModel(IVideoEditor view) {
             this.View = view ?? throw new ArgumentNullException(nameof(view));
             this.Model = new VideoEditor();
             this.activeTimelines = new ObservableCollection<TimelineViewModel>();
             this.ActiveTimelines = new ReadOnlyObservableCollection<TimelineViewModel>(this.activeTimelines);
+            this.timelineRenderTaskMap = new Dictionary<TimelineViewModel, Task>();
             this.Playback = new EditorPlaybackViewModel(this);
             this.Playback.ProjectModified += this.OnProjectModified;
             this.Playback.Model.OnStepFrame = () => this.SelectedTimeline?.OnStepFrameCallback();
@@ -100,6 +109,20 @@ namespace FramePFX.Editor.ViewModels {
             this.ExportCommand = new AsyncRelayCommand(this.ExportAction, () => this.ActiveProject != null);
             this.FileExplorer = new FileExplorerViewModel();
             this.EffectsProviderList = new EffectProviderListViewModel();
+            this.taskNotifications = new Dictionary<TaskAction, TaskNotification>();
+            TaskManager.Instance.TaskStarted += this.OnTaskStarted;
+            TaskManager.Instance.TaskFinished += this.OnTaskFinished;
+        }
+
+        private void OnTaskStarted(TaskManager manager, TaskAction task) {
+            this.taskNotifications[task] = new TaskNotification(task);
+            this.View.NotificationPanel.PushNotification(this.taskNotifications[task]);
+        }
+
+        private void OnTaskFinished(TaskManager manager, TaskAction task) {
+            if (this.taskNotifications.TryGetValue(task, out TaskNotification n)) {
+                n.StartAutoHideTask(TimeSpan.FromSeconds(3));
+            }
         }
 
         public static void OnSelectedTimelineChangedInternal(VideoEditorViewModel editor, TimelineViewModel timeline, bool? scheduleRender = true) {
@@ -110,7 +133,6 @@ namespace FramePFX.Editor.ViewModels {
             editor.SelectedTimeline = timeline;
             editor.RaisePropertyChanged(nameof(editor.SelectedTimeline));
 
-
             if (timeline != null) {
                 editor.Model.ActiveTimeline = timeline.Model;
                 PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(timeline.GetSelectedClips().ToList());
@@ -118,7 +140,7 @@ namespace FramePFX.Editor.ViewModels {
                 PFXPropertyEditorRegistry.Instance.Root.CleanSeparators();
                 timeline.RefreshAutomationAndPlayhead();
                 if (scheduleRender.HasValue) {
-                    editor.DoDrawRenderFrame(timeline, scheduleRender.Value);
+                    editor.DoDrawRenderFrame(timeline.Model, scheduleRender.Value);
                 }
             }
             else {
@@ -177,7 +199,7 @@ namespace FramePFX.Editor.ViewModels {
 
             this.IsEditorEnabled = false;
             try {
-                await Services.GetService<IExportViewService>().ShowExportDialogAsync(setup);
+                await IoC.GetService<IExportViewService>().ShowExportDialogAsync(setup);
             }
             finally {
                 this.IsEditorEnabled = true;
@@ -206,7 +228,7 @@ namespace FramePFX.Editor.ViewModels {
         }
 
         public async Task OpenProjectAction() {
-            string[] result = await Services.FilePicker.OpenFiles(Filters.ProjectTypeAndAllFiles, null, "Select a project file to open");
+            string[] result = await IoC.FilePicker.OpenFiles(Filters.ProjectTypeAndAllFiles, null, "Select a project file to open");
             if (result != null && (this.ActiveProject == null || await this.PromptAndSaveProjectAction())) {
                 await this.CloseProjectAction();
                 await this.OpenProjectAtAction(result[0]);
@@ -234,12 +256,12 @@ namespace FramePFX.Editor.ViewModels {
             catch (Exception e) {
                 AppLogger.WriteLine("Failed to read packed RBE data");
                 AppLogger.WriteLine(e.GetToString());
-                await Services.DialogService.ShowMessageAsync("Read error", "Failed to read project from file. See logs for more info");
+                await IoC.DialogService.ShowMessageAsync("Read error", "Failed to read project from file. See logs for more info");
                 return;
             }
 
             if (dictionary == null) {
-                await Services.DialogService.ShowMessageAsync("Invalid project", "The project contains invalid data (non RBEDictionary)");
+                await IoC.DialogService.ShowMessageAsync("Invalid project", "The project contains invalid data (non RBEDictionary)");
                 return;
             }
 
@@ -251,7 +273,7 @@ namespace FramePFX.Editor.ViewModels {
                 pvm = new ProjectViewModel(projectModel);
             }
             catch (Exception e) {
-                await Services.DialogService.ShowMessageExAsync("Project load error", "Failed to load project", e.GetToString());
+                await IoC.DialogService.ShowMessageExAsync("Project load error", "Failed to load project", e.GetToString());
                 return;
             }
 
@@ -260,7 +282,7 @@ namespace FramePFX.Editor.ViewModels {
                     await this.CloseProjectAction();
                 }
                 catch (Exception e) {
-                    await Services.DialogService.ShowMessageExAsync("Exception", "Failed to close previous project. This error can be ignored", e.GetToString());
+                    await IoC.DialogService.ShowMessageExAsync("Exception", "Failed to close previous project. This error can be ignored", e.GetToString());
                 }
             }
 
@@ -374,7 +396,7 @@ namespace FramePFX.Editor.ViewModels {
                 throw new Exception("No active project");
             }
 
-            bool? result = await Services.DialogService.ShowYesNoCancelDialogAsync("Save project", "Do you want to save the current project first?");
+            bool? result = await IoC.DialogService.ShowYesNoCancelDialogAsync("Save project", "Do you want to save the current project first?");
             if (result == true) {
                 await this.ActiveProject.SaveActionAsync();
             }
@@ -400,29 +422,83 @@ namespace FramePFX.Editor.ViewModels {
         public async Task OnProjectSaving() {
             this.IsProjectSaving = true;
             await this.Playback.OnProjectSaving();
-            this.notification = new SavingProjectNotification();
-            this.View.NotificationPanel.PushNotification(this.notification, false);
-            this.notification.BeginSave();
+            this.saveNotification = new SavingProjectNotification();
+            this.View.NotificationPanel.PushNotification(this.saveNotification, false);
+            this.saveNotification.BeginSave();
         }
 
         public async Task OnProjectSaved(Exception e) {
             this.IsProjectSaving = false;
             await this.Playback.OnProjectSaved(e == null);
             if (e == null) {
-                this.notification.OnSaveComplete();
+                this.saveNotification.OnSaveComplete();
             }
             else {
-                this.notification.OnSaveFailed(e.Message + ". See logs for more info");
+                this.saveNotification.OnSaveFailed(e.Message + ". See logs for more info");
                 AppLogger.WriteLine(e.GetToString());
             }
 
-            this.notification.Timeout = TimeSpan.FromSeconds(5);
-            this.notification.StartAutoHideTask();
-            this.notification = null;
+            this.saveNotification.Timeout = TimeSpan.FromSeconds(5);
+            this.saveNotification.StartAutoHideTask();
+            this.saveNotification = null;
         }
 
-        public Task DoDrawRenderFrame(TimelineViewModel timeline, bool schedule = false) {
+        public Task DoDrawRenderFrame(Timeline timeline, bool schedule = false) {
             return this.View.RenderToViewPortAsync(timeline, schedule);
+        }
+
+        public Task ScheduleUpdateAndRender(TimelineViewModel timeline, bool shouldScheduleRender = false) {
+            if (this.timelineRenderTaskMap.TryGetValue(timeline, out Task task) && !task.IsCompleted) {
+                return task;
+            }
+
+            task = IoC.Application.InvokeOnMainThreadAsync(() => this.UpdateAndRenderTimeline(timeline, shouldScheduleRender));
+            this.timelineRenderTaskMap[timeline] = task;
+            return task;
+        }
+
+        private async Task UpdateAndRenderTimeline(TimelineViewModel timeline, bool shouldScheduleRender) {
+            if (this.SelectedTimeline != null && this.SelectedTimeline != timeline) {
+                return;
+            }
+
+            AutomationEngine.UpdateTimeline(timeline.Model, timeline.PlayHeadFrame);
+            try {
+                await this.View.RenderToViewPortAsync(timeline.Model, shouldScheduleRender);
+            }
+            catch (TaskCanceledException) {
+                // do nothing
+            }
+
+            timeline.RefreshAutomationAndPlayhead();
+        }
+    }
+
+    public class TaskNotification : NotificationViewModel {
+        public string Header {
+            get => this.Task.Tracker.HeaderText;
+            set => this.Task.Tracker.HeaderText = value;
+        }
+
+        public string Footer {
+            get => this.Task.Tracker.FooterText;
+            set => this.Task.Tracker.FooterText = value;
+        }
+
+        public TaskAction Task { get; }
+
+        public TaskNotification(TaskAction task) {
+            this.Task = task;
+            task.Tracker.PropertyChanged += (sender, args) => {
+                switch (args.PropertyName) {
+                    case nameof(IProgressTracker.HeaderText):
+                        this.RaisePropertyChanged(nameof(this.Header));
+                        break;
+                    case nameof(IProgressTracker.FooterText):
+                        this.RaisePropertyChanged(nameof(this.Footer));
+                        break;
+                }
+            };
         }
     }
 }

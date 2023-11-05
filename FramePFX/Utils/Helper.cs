@@ -1,5 +1,12 @@
 namespace FramePFX.Utils {
     public static class Helper {
+        /// <summary>
+        /// Gets the (old) value at location, updates it with the new value, and then returns that old value
+        /// </summary>
+        /// <param name="location">The field</param>
+        /// <param name="newValue">The new value</param>
+        /// <typeparam name="T">The type of value</typeparam>
+        /// <returns>The old value</returns>
         public static T Exchange<T>(ref T location, T newValue) {
             T value = location;
             location = newValue;

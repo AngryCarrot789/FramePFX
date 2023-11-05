@@ -98,7 +98,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             this.Track?.Timeline?.InvalidateAutomationAndRender();
         }
 
-        protected void InvalidateRenderForAutomationRefresh(in RefreshAutomationValueEventArgs e) {
+        protected void InvalidateRenderForAutomationRefresh(in AutomationUpdateEventArgs e) {
             if (!e.IsDuringPlayback && !e.IsPlaybackTick) {
                 this.Model.InvalidateRender();
             }

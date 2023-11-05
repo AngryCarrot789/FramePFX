@@ -91,7 +91,7 @@ namespace FramePFX.Shortcuts.ViewModels {
         }
 
         public void AddKeyStrokeAction() {
-            KeyStroke? result = Services.KeyboardDialogs.ShowGetKeyStrokeDialog();
+            KeyStroke? result = IoC.KeyboardDialogs.ShowGetKeyStrokeDialog();
             if (result.HasValue) {
                 this.InputStrokes.Add(new KeyStrokeViewModel(result.Value));
                 this.UpdateShortcutReference();
@@ -99,7 +99,7 @@ namespace FramePFX.Shortcuts.ViewModels {
         }
 
         public void AddMouseStrokeAction() {
-            MouseStroke? result = Services.MouseDialogs.ShowGetMouseStrokeDialog();
+            MouseStroke? result = IoC.MouseDialogs.ShowGetMouseStrokeDialog();
             if (result.HasValue) {
                 this.InputStrokes.Add(new MouseStrokeViewModel(result.Value));
                 this.UpdateShortcutReference();

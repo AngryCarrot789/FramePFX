@@ -185,7 +185,7 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
 
                             ResourceAVMediaViewModel vm = media.CreateViewModel<ResourceAVMediaViewModel>();
                             if (!await ResourceItemViewModel.TryAddAndLoadNewResource(folder, vm)) {
-                                await Services.DialogService.ShowMessageAsync("Resource error", "Could not load media resource. See app logs for more details");
+                                await IoC.DialogService.ShowMessageAsync("Resource error", "Could not load media resource. See app logs for more details");
                             }
 
                             break;

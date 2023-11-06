@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Specialized;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using FramePFX.Editor.Rendering;
 using FramePFX.Editor.ResourceManaging.Resources;
@@ -29,6 +30,19 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             this.TextStyleKey.ResourceChanged += this.OnResourceTextStyleChanged;
             this.TextStyleKey.ResourceDataModified += this.OnResourceTextStyleDataModified;
             this.clipProps = new BitVector32();
+        }
+
+        static TextVideoClip() {
+            Serialisation.Register<TextVideoClip>("1.0.0", (clip, data, ctx) => {
+                ctx.SerialiseBaseClass(clip, data);
+                if (!string.IsNullOrEmpty(clip.Text))
+                    data.SetString(nameof(clip.Text), clip.Text);
+                data.SetInt("ClipPropData0", clip.clipProps.Data);
+            }, (clip, data, ctx) => {
+                ctx.DeserialiseBaseClass(clip, data);
+                clip.Text = data.GetString(nameof(clip.Text), null);
+                clip.clipProps = new BitVector32(data.GetInt("ClipPropData0"));
+            });
         }
 
         protected void OnResourceTextStyleChanged(IResourcePathKey<ResourceTextStyle> key, ResourceTextStyle oldItem, ResourceTextStyle newItem) {
@@ -78,19 +92,6 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             TextVideoClip clip = (TextVideoClip) clone;
             clip.Text = this.Text;
             clip.clipProps = this.clipProps;
-        }
-
-        public override void WriteToRBE(RBEDictionary data) {
-            base.WriteToRBE(data);
-            if (!string.IsNullOrEmpty(this.Text))
-                data.SetString(nameof(this.Text), this.Text);
-            data.SetInt("ClipPropData0", this.clipProps.Data);
-        }
-
-        public override void ReadFromRBE(RBEDictionary data) {
-            base.ReadFromRBE(data);
-            this.Text = data.GetString(nameof(this.Text), null);
-            this.clipProps = new BitVector32(data.GetInt("ClipPropData0"));
         }
 
         public override Vector2? GetFrameSize() {

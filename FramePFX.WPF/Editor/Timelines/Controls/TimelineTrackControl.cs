@@ -89,13 +89,13 @@ namespace FramePFX.WPF.Editor.Timelines.Controls {
                 track.LastClip.IsSelected = true;
                 PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(new List<ClipViewModel>() {track.LastClip});
 
-                IoC.Application.InvokeOnMainThread(async () => {
+                IoC.Application.Dispatcher.Invoke(async () => {
                     await resource.LoadResourceAsync();
                     VideoEditorViewModel editor = track.Editor;
                     if (editor?.SelectedTimeline != null) {
                         await track.Editor.DoDrawRenderFrame(editor.SelectedTimeline.Model);
                     }
-                }, DispatchPriority.Normal);
+                });
             }
         }
 

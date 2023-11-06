@@ -99,7 +99,7 @@ namespace FramePFX.Editor.ResourceManaging {
         /// <see cref="Manager"/> is set to a non-null value prior to this call
         /// </summary>
         public virtual void OnAttachedToManager() {
-            AppLogger.WriteLine($"Attached to manager: {this.GetType().Name}");
+
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace FramePFX.Editor.ResourceManaging {
         /// <see cref="Manager"/> is set to null after this call
         /// </summary>
         public virtual void OnDetatchedFromManager() {
-            AppLogger.WriteLine($"Detached from manager: {this.GetType().Name}");
+
         }
 
         public static BaseResource ReadSerialisedWithType(RBEDictionary dictionary) {

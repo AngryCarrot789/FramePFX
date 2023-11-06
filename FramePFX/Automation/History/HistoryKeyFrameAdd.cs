@@ -12,20 +12,16 @@ namespace FramePFX.Automation.History {
         }
 
         protected override Task UndoAsyncForHolder() {
-            using (IoC.Application.CreateWriteToken()) {
-                foreach (KeyFrameViewModel keyFrame in this.unsafeKeyFrameList) {
-                    this.Holder.RemoveKeyFrame(keyFrame);
-                }
+            foreach (KeyFrameViewModel keyFrame in this.unsafeKeyFrameList) {
+                this.Holder.RemoveKeyFrame(keyFrame);
             }
 
             return Task.CompletedTask;
         }
 
         protected override Task RedoAsyncForHolder() {
-            using (IoC.Application.CreateWriteToken()) {
-                foreach (KeyFrameViewModel keyFrame in this.unsafeKeyFrameList) {
-                    this.Holder.AddKeyFrame(keyFrame);
-                }
+            foreach (KeyFrameViewModel keyFrame in this.unsafeKeyFrameList) {
+                this.Holder.AddKeyFrame(keyFrame);
             }
 
             return Task.CompletedTask;

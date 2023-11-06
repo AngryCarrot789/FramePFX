@@ -44,6 +44,7 @@ using FramePFX.Editor.Actions.Tracks;
 using FramePFX.Editor.Timelines;
 using FramePFX.Logger;
 using FramePFX.RBC;
+using FramePFX.ServiceManaging;
 using FramePFX.TaskSystem;
 using FramePFX.WPF.App;
 using FontFamily = System.Windows.Media.FontFamily;
@@ -70,7 +71,7 @@ namespace FramePFX.WPF {
         public AppWPF() {
             IoC.Application = this.application = new ApplicationModel(this);
             this.processor = new AttributeProcessor();
-            this.application.RegisterService(IoC.Dispatcher);
+            this.application.RegisterService(IoC.Application.Dispatcher);
             AppLogger.WriteLine("Application model setup and ready");
 
             // fonts must be loaded here, as they are used in some of the files in AppWPF.xaml

@@ -37,7 +37,7 @@ namespace FramePFX.Utils {
 
         public bool Invoke() {
             if (Interlocked.CompareExchange(ref this.state, 1, 0) == 0) {
-                IoC.Dispatcher.Invoke(this.executeAction, this.priority);
+                IoC.Application.Dispatcher.Invoke(this.executeAction, this.priority);
                 return true;
             }
 
@@ -46,7 +46,7 @@ namespace FramePFX.Utils {
 
         public Task<bool> InvokeAsync() {
             if (Interlocked.CompareExchange(ref this.state, 1, 0) == 0) {
-                Task task = IoC.Dispatcher.InvokeAsync(this.executeAction, this.priority);
+                Task task = IoC.Application.Dispatcher.InvokeAsync(this.executeAction, this.priority);
                 if (!task.IsCompleted)
                     return task.ContinueWith(t => true);
                 return Task.FromResult(true);
@@ -85,7 +85,7 @@ namespace FramePFX.Utils {
 
         public bool Invoke(T parameter) {
             if (Interlocked.CompareExchange(ref this.state, 1, 0) == 0) {
-                IoC.Dispatcher.Invoke(this.executeAction, parameter, this.priority);
+                IoC.Application.Dispatcher.Invoke(this.executeAction, parameter, this.priority);
                 return true;
             }
 
@@ -94,7 +94,7 @@ namespace FramePFX.Utils {
 
         public Task<bool> InvokeAsync(T parameter) {
             if (Interlocked.CompareExchange(ref this.state, 1, 0) == 0) {
-                Task task = IoC.Dispatcher.InvokeAsync(this.executeAction, parameter, this.priority);
+                Task task = IoC.Application.Dispatcher.InvokeAsync(this.executeAction, parameter, this.priority);
                 if (!task.IsCompleted)
                     return task.ContinueWith(t => true);
                 return Task.FromResult(true);

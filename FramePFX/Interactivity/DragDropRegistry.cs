@@ -12,8 +12,11 @@ namespace FramePFX.Interactivity {
     /// <typeparam name="THandler">The base handler type. This is only here to help reduce bugs</typeparam>
     public class DragDropRegistry<THandler> where THandler : class {
         private delegate EnumDropType CustomCanDropDelegate(object target, object drop, EnumDropType dropType, IDataContext context);
+
         private delegate Task CustomOnDroppedDelegate(object target, object drop, EnumDropType dropType, IDataContext context);
+
         private delegate EnumDropType NativeCanDropDelegate(object target, IDataObjekt drop, EnumDropType dropType, IDataContext context);
+
         private delegate Task NativeOnDroppedDelegate(object target, IDataObjekt drop, EnumDropType dropType, IDataContext context);
 
         // [dropType -> [handlerType -> func]]
@@ -69,19 +72,17 @@ namespace FramePFX.Interactivity {
         /// <param name="dropType">The drag drop type</param>
         /// <returns>True if the drag can occur (and show the appropriate icon based on the dropType), otherwise false</returns>
         public EnumDropType CanDrop(THandler target, object value, EnumDropType dropType, IDataContext context = null) {
-            using (IoC.Application.CreateReadToken()) {
-                Type targetType = target.GetType();
-                foreach (ITypeEntry<InheritanceDictionary<CustomHandlerPair>> handlerEntry in this.registryCustom.GetLocalValueEnumerable(value.GetType())) {
-                    foreach (ITypeEntry<CustomHandlerPair> entry in handlerEntry.LocalValue.GetLocalValueEnumerable(targetType)) {
-                        EnumDropType dt = entry.LocalValue.CanDrop(target, value, dropType, context);
-                        if (dt != EnumDropType.None) {
-                            return dt;
-                        }
+            Type targetType = target.GetType();
+            foreach (ITypeEntry<InheritanceDictionary<CustomHandlerPair>> handlerEntry in this.registryCustom.GetLocalValueEnumerable(value.GetType())) {
+                foreach (ITypeEntry<CustomHandlerPair> entry in handlerEntry.LocalValue.GetLocalValueEnumerable(targetType)) {
+                    EnumDropType dt = entry.LocalValue.CanDrop(target, value, dropType, context);
+                    if (dt != EnumDropType.None) {
+                        return dt;
                     }
                 }
-
-                return EnumDropType.None;
             }
+
+            return EnumDropType.None;
         }
 
         /// <summary>
@@ -92,23 +93,21 @@ namespace FramePFX.Interactivity {
         /// <param name="dropType">The drag drop type</param>
         /// <returns>True if the drag can occur (and show the appropriate icon based on the dropType), otherwise false</returns>
         public EnumDropType CanDropNative(THandler target, IDataObjekt value, EnumDropType dropType, IDataContext context = null) {
-            using (IoC.Application.CreateReadToken()) {
-                Type targetType = target.GetType();
-                foreach (KeyValuePair<string, InheritanceDictionary<NativeHandlerPair>> pair in this.registryNative) {
-                    if (!value.GetDataPresent(pair.Key)) {
-                        continue;
-                    }
-
-                    foreach (ITypeEntry<NativeHandlerPair> entry in pair.Value.GetLocalValueEnumerable(targetType)) {
-                        EnumDropType dt = entry.LocalValue.CanDrop(target, value, dropType, context);
-                        if (dt != EnumDropType.None) {
-                            return dt;
-                        }
-                    }
+            Type targetType = target.GetType();
+            foreach (KeyValuePair<string, InheritanceDictionary<NativeHandlerPair>> pair in this.registryNative) {
+                if (!value.GetDataPresent(pair.Key)) {
+                    continue;
                 }
 
-                return EnumDropType.None;
+                foreach (ITypeEntry<NativeHandlerPair> entry in pair.Value.GetLocalValueEnumerable(targetType)) {
+                    EnumDropType dt = entry.LocalValue.CanDrop(target, value, dropType, context);
+                    if (dt != EnumDropType.None) {
+                        return dt;
+                    }
+                }
             }
+
+            return EnumDropType.None;
         }
 
         /// <summary>
@@ -128,16 +127,14 @@ namespace FramePFX.Interactivity {
                 context = EmptyContext.Instance;
             }
 
-            using (IoC.Application.CreateWriteToken()) {
-                Type targetType = target.GetType();
-                foreach (ITypeEntry<InheritanceDictionary<CustomHandlerPair>> handlerEntry in this.registryCustom.GetLocalValueEnumerable(value.GetType())) {
-                    foreach (ITypeEntry<CustomHandlerPair> entry in handlerEntry.LocalValue.GetLocalValueEnumerable(targetType)) {
-                        CustomHandlerPair pair = entry.LocalValue;
-                        EnumDropType dt = pair.CanDrop(target, value, dropType, context);
-                        if (dt != EnumDropType.None) {
-                            await pair.OnDropped(target, value, dt, context);
-                            return true;
-                        }
+            Type targetType = target.GetType();
+            foreach (ITypeEntry<InheritanceDictionary<CustomHandlerPair>> handlerEntry in this.registryCustom.GetLocalValueEnumerable(value.GetType())) {
+                foreach (ITypeEntry<CustomHandlerPair> entry in handlerEntry.LocalValue.GetLocalValueEnumerable(targetType)) {
+                    CustomHandlerPair pair = entry.LocalValue;
+                    EnumDropType dt = pair.CanDrop(target, value, dropType, context);
+                    if (dt != EnumDropType.None) {
+                        await pair.OnDropped(target, value, dt, context);
+                        return true;
                     }
                 }
             }
@@ -155,19 +152,17 @@ namespace FramePFX.Interactivity {
         /// <returns>True if a drop handler was called, otherwise false</returns>
         public async Task<bool> OnDroppedNative(THandler target, IDataObjekt value, EnumDropType dropType, IDataContext context = null) {
             Type targetType = target.GetType();
-            using (IoC.Application.CreateWriteToken()) {
-                foreach (KeyValuePair<string, InheritanceDictionary<NativeHandlerPair>> registryPair in this.registryNative) {
-                    if (!value.GetDataPresent(registryPair.Key)) {
-                        continue;
-                    }
+            foreach (KeyValuePair<string, InheritanceDictionary<NativeHandlerPair>> registryPair in this.registryNative) {
+                if (!value.GetDataPresent(registryPair.Key)) {
+                    continue;
+                }
 
-                    foreach (ITypeEntry<NativeHandlerPair> entry in registryPair.Value.GetLocalValueEnumerable(targetType)) {
-                        NativeHandlerPair pair = entry.LocalValue;
-                        EnumDropType dt = pair.CanDrop(target, value, dropType, context);
-                        if (dt != EnumDropType.None) {
-                            await pair.OnDropped(target, value, dt, context);
-                            return true;
-                        }
+                foreach (ITypeEntry<NativeHandlerPair> entry in registryPair.Value.GetLocalValueEnumerable(targetType)) {
+                    NativeHandlerPair pair = entry.LocalValue;
+                    EnumDropType dt = pair.CanDrop(target, value, dropType, context);
+                    if (dt != EnumDropType.None) {
+                        await pair.OnDropped(target, value, dt, context);
+                        return true;
                     }
                 }
             }

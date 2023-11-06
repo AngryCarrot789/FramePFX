@@ -321,7 +321,12 @@ namespace FramePFX.WPF.Editor.MainWindow {
                         context.ClearPixels();
                         try {
                             await timeline.RenderAsync(context, frame, source.Token);
-                            AppLogger.WriteLine("Timeline rendered at: " + frame);
+
+                            // Was debugging why composition clip's weren't rendering correctly, and it was
+                            // because they were scheduling their own render while another timeline was selected.
+                            // Therefore, it's important the editor has final say over which specific timeline is drawn
+                            // to the preview, based on the selected timeline
+                            // AppLogger.WriteLine("Timeline rendered at: " + frame);
                         }
                         catch (TaskCanceledException) {
                             AppLogger.WriteLine("Render at " + nameof(this.RenderTimelineInternal) + " took longer than 3 second");
@@ -342,7 +347,7 @@ namespace FramePFX.WPF.Editor.MainWindow {
             }
         }
 
-        protected override async Task<bool> OnClosingAsync() {
+        protected override async Task<bool> CanCloseAsync() {
             try {
                 if (!await this.Editor.PromptSaveAndCloseProjectAction()) {
                     return false;

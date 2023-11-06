@@ -104,16 +104,6 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             this.RenderInvalidated?.Invoke(this);
         }
 
-        public override void WriteToRBE(RBEDictionary data) {
-            base.WriteToRBE(data);
-            data.SetDouble(nameof(this.Opacity), this.Opacity);
-        }
-
-        public override void ReadFromRBE(RBEDictionary data) {
-            base.ReadFromRBE(data);
-            this.Opacity = data.GetDouble(nameof(this.Opacity));
-        }
-
         /// <summary>
         /// Gets the raw amount of space this clip takes up on screen, unaffected by standard transformation matrices.
         /// If the value is unavailable, then typically the render viewport's width and height are used as a fallback

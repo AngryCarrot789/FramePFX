@@ -8,6 +8,10 @@ using FramePFX.Utils.Collections;
 namespace FramePFX.Editor {
     public delegate void SerialiseHandler<in T>(T obj, RBEDictionary data, SerialisationContext ctx);
 
+    /// <summary>
+    /// A class which helps version-based serialisation, for serialising objects of typically the current-version into binary
+    /// data (RBE system) and deserialising the current-version objects based on similar version or lower version binary data
+    /// </summary>
     public class SerialisationRegistry {
         private readonly InheritanceDictionary<TypeSerialisationInfo> map;
         private readonly ReaderWriterLockSlim locker;
@@ -102,7 +106,9 @@ namespace FramePFX.Editor {
                     return;
                 }
 
-                entry.RunSerialisation(serialise, obj, data, context, version);
+                {
+                    entry.RunSerialisation(serialise, obj, objType, data, context, version);
+                }
                 // This iterates highest->lowest version, which is not really what we want. We could reverse it (base->derived->more derived),
                 // however we lose some control over the order in which base serialisers are called, therefore, base class serialisers must be
                 // manually invoked
@@ -226,7 +232,7 @@ namespace FramePFX.Editor {
             return ~min;
         }
 
-        public void RunSerialisation(bool isSerialise, object obj, RBEDictionary data, SerialisationContext context, Version version) {
+        public void RunSerialisation(bool isSerialise, object obj, Type objType, RBEDictionary data, SerialisationContext context, Version version) {
             int index = BinarySearchIndexOf(this.versionInfo.Keys, version, (a, b) => a.CompareTo(b));
             if (index < 0)
                 index = ~index - 1;
@@ -242,6 +248,7 @@ namespace FramePFX.Editor {
                     context.CurrentVersion = this.versionInfo.Keys[index];
                     context.IsSerialisation = isSerialise;
                     context.CurrentObject = obj;
+                    context.CurrentType = objType;
                     for (int i = 0, count = list.Count; i < count; i++) {
                         list[i](obj, data, context);
                     }
@@ -273,9 +280,13 @@ namespace FramePFX.Editor {
         }
     }
 
+    /// <summary>
+    /// A struct that stores the current state of a <see cref="SerialisationContext"/>, for easily implementing a stack-based state
+    /// </summary>
     public struct ContextState {
         public bool isSerialisation;
         public object obj;
+        public Type type;
         public Version version;
         public SerialisationRegistry registry;
     }
@@ -288,14 +299,22 @@ namespace FramePFX.Editor {
         private ContextState state;
 
         /// <summary>
-        /// Gets the serialisation version, typically the version of the application. Serialisation
-        /// implementation can differ between application versions
+        /// Gets the target serialisation version, typically the version of the application. This is the version that is
+        /// typically stored in the file (read before-hand), and is used to determine what type of serialisers to target.
+        /// Serialisation implementation can differ between versions (duh)
         /// </summary>
         public Version TargetVersion { get; }
 
         /// <summary>
-        /// Gets or sets the version of the serialiser or deserialiser being used.
-        /// This will always be less than or equal to <see cref="TargetVersion"/>
+        /// Gets or sets the version of the serialiser or deserialiser being used. This will always be less than or
+        /// equal to <see cref="TargetVersion"/>. This may differ from <see cref="TargetVersion"/> when the state of
+        /// an object doesn't necessarily change between application versions and therefore needs no higher-version
+        /// serialisers.
+        /// <para>
+        /// An example is a Vector3 serialiser; there's only ever going to be 3 components so only a v1.0 serialiser
+        /// is all that is needed, which is the version that this property will be; 1.0.0.0. Target version may be higher,
+        /// not that it would be needed
+        /// </para>
         /// </summary>
         public Version CurrentVersion {
             get => this.state.version;
@@ -317,6 +336,15 @@ namespace FramePFX.Editor {
         public object CurrentObject {
             get => this.state.obj;
             set => this.state.obj = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the type being serialised/deserialised. This may be a base type of <see cref="CurrentObject"/>,
+        /// but will always be an instance of <see cref="CurrentObject"/>
+        /// </summary>
+        public Type CurrentType {
+            get => this.state.type;
+            set => this.state.type = value;
         }
 
         /// <summary>

@@ -9,13 +9,22 @@ using FramePFX.ServiceManaging;
 using FramePFX.WPF.App;
 
 namespace FramePFX.WPF.Utils {
-    public class ApplicationDelegate : IDispatcher {
+    public class DispatcherDelegate : IDispatcher {
+        private static readonly FieldInfo DisableProcessingCountField;
         private readonly Dispatcher dispatcher;
 
         public bool IsOnOwnerThread => this.dispatcher.CheckAccess();
 
-        public ApplicationDelegate(AppWPF app) {
-            this.dispatcher = app.Dispatcher ?? throw new Exception("Application dispatcher detached");
+        public bool IsSuspended {
+            get => (int) DisableProcessingCountField.GetValue(this.dispatcher) > 0;
+        }
+
+        public DispatcherDelegate(Dispatcher dispatcher) {
+            this.dispatcher = dispatcher ?? throw new Exception("Application dispatcher detached");
+        }
+
+        static DispatcherDelegate() {
+            DisableProcessingCountField = typeof(Dispatcher).GetField("_disableProcessingCount", BindingFlags.Instance | BindingFlags.GetField | BindingFlags.NonPublic);
         }
 
         public void Invoke(Action action, DispatchPriority priority) {

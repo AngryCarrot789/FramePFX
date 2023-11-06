@@ -13,6 +13,14 @@ namespace FramePFX.ServiceManaging {
         bool IsOnOwnerThread { get; }
 
         /// <summary>
+        /// Returns true if the dispatcher is currently suspended. Dispatcher suspension usually occurs
+        /// during the render phase, meaning, you cannot use the synchronous invoke methods of the dispatcher while on
+        /// the dispatcher thread, because they require pushing a new dispatch frame which is not allowed during suspension.
+        /// However, async invoke methods are allowed as they don't require pushing a dispatcher frame
+        /// </summary>
+        bool IsSuspended { get; }
+
+        /// <summary>
         /// Synchronously executes the given function on the UI thread, or dispatches its execution on the UI thread if we are not
         /// currently on it. This effectively blocks the current thread until the <see cref="Action"/> returns
         /// </summary>
@@ -23,6 +31,11 @@ namespace FramePFX.ServiceManaging {
         /// <summary>
         /// Synchronously executes the given function on the UI thread, or dispatches its execution on the UI thread if we are not
         /// currently on it. This effectively blocks the current thread until the <see cref="Action"/> returns
+        /// <para>
+        /// Unless already on the main thread with a priority of <see cref="DispatchPriority.Send"/>,
+        /// <see cref="Invoke"/> should be preferred over this method when an additional parameter is needed
+        /// due to the late-bound dynamic method invocation, which a lambda closure will likely outperform
+        /// </para>
         /// </summary>
         /// <param name="action">The function to execute on the UI thread</param>
         /// <param name="parameter">A parameter to pass to the action</param>
@@ -55,8 +68,13 @@ namespace FramePFX.ServiceManaging {
         // AND an instance of CulturePreservingExecutionContext gets created too...
 
         /// <summary>
-        /// Asynchronously executes the given function on the UI thread, or dispatches its execution on the UI thread
-        /// if we are not currently on it. This is the best way to execute a function on the UI thread asynchronously
+        /// Asynchronously executes the given function on the UI thread. If we are already on the main thread and
+        /// <see cref="priority"/> is <see cref="DispatchPriority.Send"/> then the action is invoked synchronously.
+        /// <para>
+        /// Unless already on the main thread with a priority of <see cref="DispatchPriority.Send"/>,
+        /// <see cref="InvokeAsync"/> should be preferred over this method when an additional parameter is needed
+        /// due to the late-bound dynamic method invocation, which a lambda closure will likely outperform
+        /// </para>
         /// </summary>
         /// <param name="action">The function to execute on the UI thread</param>
         /// <param name="parameter">A parameter to pass to the action</param>

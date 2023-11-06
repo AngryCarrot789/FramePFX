@@ -55,7 +55,7 @@ namespace FramePFX.Editor.Actions.Clips {
 
             List<TrackViewModel> newTracks = new List<TrackViewModel>();
             List<TrackViewModel> oldTracks = null;
-            IoC.Application.RunReadAction(() => {
+            await IoC.Application.Dispatcher.InvokeAsync(() => {
                 oldTracks = timeline.Tracks.ToList();
                 for (int i = oldTracks.Count - 1; i >= 0; i--) {
                     TrackViewModel oldTrack = oldTracks[i];
@@ -80,7 +80,7 @@ namespace FramePFX.Editor.Actions.Clips {
             long finalTrackDuration = trackEndIndex - trackBegin;
             for (int i = oldTracks.Count - 1; i >= 0; i--) {
                 TrackViewModel oldTrack = oldTracks[i];
-                await IoC.Application.InvokeOnMainThreadAsync(() => {
+                await IoC.Application.Dispatcher.InvokeAsync(() => {
                     // based on the code above, this will always have at least 1 item
                     List<ClipViewModel> selection = oldTrack.SelectedClips.ToList();
                     if (selection.Count == oldTrack.Clips.Count) {
@@ -121,7 +121,7 @@ namespace FramePFX.Editor.Actions.Clips {
                 comp.Timeline.AddTrack(track);
             }
 
-            await IoC.Application.InvokeOnMainThread(async () => {
+            await await IoC.Application.Dispatcher.InvokeAsync(async () => {
                 ResourceFolderViewModel activeFolder = timeline.Project.ResourceManager.CurrentFolder;
                 await ResourceItemViewModel.TryAddAndLoadNewResource(activeFolder, comp);
                 FrameSpan span = new FrameSpan(trackBegin, finalTrackDuration);
@@ -142,7 +142,7 @@ namespace FramePFX.Editor.Actions.Clips {
 
             tracker.FooterText = "Opening timeline in editor...";
             tracker.CompletionValue = 0.8d;
-            await IoC.Application.InvokeOnMainThread(async () => {
+            await await IoC.Application.Dispatcher.InvokeAsync(async () => {
                 VideoEditorViewModel editor = timeline.Project.Editor;
                 editor.OpenAndSelectTimeline(comp.Timeline);
                 await comp.Timeline.UpdateAndRenderTimelineToEditor();

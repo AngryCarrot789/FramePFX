@@ -81,7 +81,7 @@ namespace FramePFX.Utils {
             this.state = STATE_APPENDED_SAFE;
             if (!this.criticalIsProcessingAction && scheduleAction) {
                 this.isActionScheduled = true;
-                IoC.Application.InvokeOnMainThread(this.OnMainThreadCallback);
+                IoC.Application.Dispatcher.Invoke(this.OnMainThreadCallback);
             }
         }
 

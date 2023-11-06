@@ -97,7 +97,7 @@ namespace FramePFX.Logger {
         }
 
         public static Task FlushEntries() {
-            return IoC.Application.InvokeOnMainThread(async () => {
+            return IoC.Application.Dispatcher.Invoke(async () => {
                 List<(HeaderedLogEntry, LogEntry)> list;
                 lock (PRINTLOCK) {
                     list = new List<(HeaderedLogEntry, LogEntry)>(cachedEntries);
@@ -109,7 +109,7 @@ namespace FramePFX.Logger {
                 for (int i = 0; i < count; i += blockSize) {
                     int j = Math.Min(i + blockSize, count);
                     // ExecutionPriority.Render
-                    await IoC.Application.InvokeOnMainThreadAsync(() => ProcessEntryBlock(list, i, j));
+                    await IoC.Application.Dispatcher.InvokeAsync(() => ProcessEntryBlock(list, i, j));
                 }
 
                 OnLogEntryBlockPosted?.Invoke(null, EventArgs.Empty);

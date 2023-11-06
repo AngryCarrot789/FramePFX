@@ -53,7 +53,7 @@ namespace FramePFX.Utils {
             }
         }
 
-        private void RegisterInternal() => IoC.Application.InvokeOnMainThreadAsync(this.onDispatcherAction);
+        private void RegisterInternal() => IoC.Application.Dispatcher.InvokeAsync(this.onDispatcherAction);
 
         private void OnDispatcherAction() {
             this.isScheduled = 0;

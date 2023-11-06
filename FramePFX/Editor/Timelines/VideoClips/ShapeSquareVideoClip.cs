@@ -34,24 +34,24 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             this.ColourKey.ResourceDataModified += this.ResourceHelperOnResourceDataModified;
         }
 
+        static ShapeSquareVideoClip() {
+            Serialisation.Register<ShapeSquareVideoClip>("1.0.0", (clip, data, ctx) => {
+                ctx.SerialiseBaseClass(clip, data);
+                data.SetFloat(nameof(clip.Width), clip.Width);
+                data.SetFloat(nameof(clip.Height), clip.Height);
+            }, (clip, data, ctx) => {
+                ctx.DeserialiseBaseClass(clip, data);
+                clip.Width = data.GetFloat(nameof(clip.Width));
+                clip.Height = data.GetFloat(nameof(clip.Height));
+            });
+        }
+
         private void ResourceHelperOnResourceDataModified(IResourcePathKey<ResourceColour> key, ResourceColour resource, string property) {
             switch (property) {
                 case nameof(ResourceColour.Colour):
                     this.InvalidateRender();
                     break;
             }
-        }
-
-        public override void WriteToRBE(RBEDictionary data) {
-            base.WriteToRBE(data);
-            data.SetFloat(nameof(this.Width), this.Width);
-            data.SetFloat(nameof(this.Height), this.Height);
-        }
-
-        public override void ReadFromRBE(RBEDictionary data) {
-            base.ReadFromRBE(data);
-            this.Width = data.GetFloat(nameof(this.Width));
-            this.Height = data.GetFloat(nameof(this.Height));
         }
 
         public override Vector2? GetFrameSize() {

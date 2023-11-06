@@ -47,16 +47,6 @@ namespace FramePFX.Editor.Timelines {
         event FrameSeekedEventHandler FrameSeeked;
 
         /// <summary>
-        /// An event fired when this clip is being serialised
-        /// </summary>
-        event WriteToRBEEventHandler SerialiseExtension;
-
-        /// <summary>
-        /// An event fired when this clip is being deserialised
-        /// </summary>
-        event ReadFromRBEEventHandler DeserialiseExtension;
-
-        /// <summary>
         /// An event fired when this clip's <see cref="FrameSpan"/> changes
         /// </summary>
         event ClipSpanChangedEventHandler ClipSpanChanged;

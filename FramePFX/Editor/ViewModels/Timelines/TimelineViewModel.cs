@@ -282,11 +282,9 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public Task<VideoTrackViewModel> InsertNewVideoTrackAction(int index, bool render = true) {
             VideoTrackViewModel track = new VideoTrackViewModel(new VideoTrack() {DisplayName = "Video Track " + (this.tracks.Count + 1)});
-            using (IoC.Application.CreateWriteToken()) {
-                this.InsertTrack(index, track);
-                if (render && this.Project?.Editor != null) {
-                    this.InvalidateAutomationAndRender();
-                }
+            this.InsertTrack(index, track);
+            if (render && this.Project?.Editor != null) {
+                this.InvalidateAutomationAndRender();
             }
 
             return Task.FromResult(track);
@@ -294,8 +292,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public Task<AudioTrackViewModel> InsertNewAudioTrackAction(int index) {
             AudioTrackViewModel track = new AudioTrackViewModel(new AudioTrack() {DisplayName = "Audio Track " + (this.tracks.Count + 1)});
-            using (IoC.Application.CreateWriteToken())
-                this.InsertTrack(index, track);
+            this.InsertTrack(index, track);
             return Task.FromResult(track);
         }
 
@@ -304,7 +301,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         /// </summary>
         public void InvalidateAutomationAndRender() {
             Task task = this.updateAndRenderTask;
-            if (task != null && !task.IsCompleted || IoC.Application.IsDispatcherSuspended) {
+            if (task != null && !task.IsCompleted || IoC.Application.Dispatcher.IsSuspended) {
                 return;
             }
 

@@ -1,6 +1,6 @@
 namespace FramePFX.App {
     /// <summary>
-    /// A priority enum for dispatching method invocations onto the a thread
+    /// A priority enum for dispatching method invocations onto a thread
     /// </summary>
     public enum DispatchPriority {
         /// <summary>
@@ -19,12 +19,12 @@ namespace FramePFX.App {
         AfterRender,
 
         /// <summary>
-        /// The normal priority which most things use
+        /// The normal priority which most things use. The dispatcher system won't be bypassed using this priority
         /// </summary>
         Normal,
 
         /// <summary>
-        /// The highest priority which may allow the dispatcher system to be completely bypassed if already on the owner thread
+        /// The highest priority. Allows the dispatcher system to be completely bypassed if already on the owner thread
         /// </summary>
         Send
     }

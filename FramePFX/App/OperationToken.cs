@@ -5,11 +5,11 @@ namespace FramePFX.App {
     /// A struct which is used to create a write-safe
     /// </summary>
     public readonly struct OperationToken : IDisposable {
-        public readonly IApplication app;
+        public readonly IApplication_OLD app;
         public readonly byte Flags;
         private readonly Action<OperationToken> dispose;
 
-        public OperationToken(IApplication app, byte flags, Action<OperationToken> dispose) {
+        public OperationToken(IApplication_OLD app, byte flags, Action<OperationToken> dispose) {
             this.app = app;
             this.Flags = flags;
             this.dispose = dispose;

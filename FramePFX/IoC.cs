@@ -1,6 +1,7 @@
 using System;
 using FramePFX.App;
 using FramePFX.Components;
+using FramePFX.Logger;
 using FramePFX.ServiceManaging;
 using FramePFX.Shortcuts.Dialogs;
 using FramePFX.Views.Dialogs.FilePicking;
@@ -21,11 +22,6 @@ namespace FramePFX {
         public static Action<string> OnShortcutModified { get; set; } = (x) => { };
 
         public static Action<string> BroadcastShortcutActivity { get; set; } = (x) => { };
-
-        /// <summary>
-        /// An interface which wraps the application
-        /// </summary>
-        public static IDispatcher Dispatcher => GetService<IDispatcher>();
 
         /// <summary>
         /// Gets the application clipboard service

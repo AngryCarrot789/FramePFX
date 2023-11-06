@@ -452,7 +452,7 @@ namespace FramePFX.Editor.ViewModels {
                 return task;
             }
 
-            task = IoC.Application.InvokeOnMainThreadAsync(() => this.UpdateAndRenderTimeline(timeline, shouldScheduleRender));
+            task = IoC.Application.Dispatcher.InvokeAsync(() => this.UpdateAndRenderTimeline(timeline, shouldScheduleRender));
             this.timelineRenderTaskMap[timeline] = task;
             return task;
         }

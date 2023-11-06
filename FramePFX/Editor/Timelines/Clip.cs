@@ -115,8 +115,6 @@ namespace FramePFX.Editor.Timelines {
         public event TimelineChangedEventHandler TrackTimelineChanged;
         public event ProjectChangedEventHandler TrackTimelineProjectChanged;
         public event FrameSeekedEventHandler FrameSeeked;
-        public event WriteToRBEEventHandler SerialiseExtension;
-        public event ReadFromRBEEventHandler DeserialiseExtension;
         public event ClipSpanChangedEventHandler ClipSpanChanged;
 
         protected Clip() {
@@ -146,7 +144,6 @@ namespace FramePFX.Editor.Timelines {
                 }
 
                 clip.ResourceHelper.WriteToRootRBE(data);
-                clip.SerialiseExtension?.Invoke(clip, data);
             }, (clip, data, ctx) => {
                 AppLogger.WriteLine("Deserialising Clip 1.0.0: " + ctx.CurrentVersion);
                 clip.DisplayName = data.GetString(nameof(clip.DisplayName), null);
@@ -165,7 +162,6 @@ namespace FramePFX.Editor.Timelines {
                 }
 
                 clip.ResourceHelper.ReadFromRootRBE(data);
-                clip.DeserialiseExtension?.Invoke(clip, data);
             });
 
             // These 2 below purely exists to test the serialisation system
@@ -278,22 +274,6 @@ namespace FramePFX.Editor.Timelines {
 
         protected virtual void OnEffectRemoved(BaseEffect effect) {
 
-        }
-
-        /// <summary>
-        /// Writes this clip's data
-        /// </summary>
-        /// <param name="data"></param>
-        public virtual void WriteToRBE(RBEDictionary data) {
-            Serialisation.Serialise(this, data, new SerialisationContext(IoC.Application.Version));
-        }
-
-        /// <summary>
-        /// Reads this clip's data
-        /// </summary>
-        /// <param name="data"></param>
-        public virtual void ReadFromRBE(RBEDictionary data) {
-            Serialisation.Deserialise(this, data, new SerialisationContext(IoC.Application.Version));
         }
 
         /// <summary>
@@ -412,7 +392,7 @@ namespace FramePFX.Editor.Timelines {
         public static Clip ReadSerialisedWithId(RBEDictionary dictionary) {
             string id = dictionary.GetString(nameof(FactoryId));
             Clip clip = ClipFactory.Instance.CreateModel(id);
-            clip.ReadFromRBE(dictionary.GetDictionary("Data"));
+            Serialisation.Deserialise(clip, dictionary.GetDictionary("Data"), new SerialisationContext(IoC.Application.Version));
             return clip;
         }
 
@@ -420,7 +400,7 @@ namespace FramePFX.Editor.Timelines {
             if (!(clip.FactoryId is string id))
                 throw new Exception("Unknown clip type: " + clip.GetType());
             dictionary.SetString(nameof(FactoryId), id);
-            clip.WriteToRBE(dictionary.CreateDictionary("Data"));
+            Serialisation.Serialise(clip, dictionary.CreateDictionary("Data"), new SerialisationContext(IoC.Application.Version));
         }
 
         public static RBEDictionary WriteSerialisedWithId(Clip clip) {

@@ -16,7 +16,7 @@ namespace FramePFX.Utils {
             }
             else {
                 while (!task.IsCompleted) {
-                    IoC.Dispatcher.Invoke(() => Thread.Sleep(1), DispatchPriority.Background);
+                    IoC.Application.Dispatcher.Invoke(() => Thread.Sleep(1), DispatchPriority.Background);
                 }
             }
 

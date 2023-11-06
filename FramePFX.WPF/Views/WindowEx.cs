@@ -1,11 +1,13 @@
 using System;
 using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shell;
 using FramePFX.Actions;
+using FramePFX.Utils;
 using FramePFX.WPF.Utils;
 using FramePFX.WPF.Views.FilePicking;
 
@@ -83,6 +85,8 @@ namespace FramePFX.WPF.Views {
         }
 
         protected sealed override void OnClosing(CancelEventArgs e) {
+            // check isHandlingSyncClosing for recursive close attempt, even though it shouldn't occur
+            // check isHandlingAsyncClose for close attempt in async code (OnClosingInternal dispatches back to AMT)
             if (this.isHandlingSyncClosing || this.isHandlingAsyncClose) {
                 return;
             }
@@ -90,14 +94,13 @@ namespace FramePFX.WPF.Views {
             try {
                 this.isHandlingSyncClosing = true;
                 this.OnClosingInternal(e);
-                if (this.closeEventResult.HasValue) {
-                    try {
-                        // try finally juuust in case...
-                        e.Cancel = !this.closeEventResult.Value; // true = close, false = do not close
-                    }
-                    finally {
-                        this.closeEventResult = null;
-                    }
+
+                // closeEventResult is only set if the async state of OnClosingInternal does not require
+                // dispatching back to the main thread (no usage of Task.Delay(), no awaiting real async things, etc.).
+                // However when it does, cancel the close and let the async code handle the window's closing state (isHandlingAsyncClose becomes true)
+                bool? result = Helper.Exchange(ref this.closeEventResult, null);
+                if (result.HasValue) {
+                    e.Cancel = !result.Value; // true = close, false = do not close
                 }
                 else {
                     e.Cancel = true;
@@ -121,7 +124,7 @@ namespace FramePFX.WPF.Views {
             a task that is incomplete by the time the async state machine comes to actually "awaiting" it,
             then the behaviour changes:
                 OnClosing returns before CloseAsync is completed, setting isHandlingSyncClosing to false, meaning that
-                CloseAsyncInternal will manually close the window itself because the original OnClosing was cancelled
+                CloseAsync will manually close the window itself because the original OnClosing was cancelled
 
 
          */
@@ -136,25 +139,20 @@ namespace FramePFX.WPF.Views {
         /// Closes the window
         /// </summary>
         /// <returns>Whether the window was closed or not</returns>
-        public Task<bool> CloseAsync() {
-            // return await await Task.Run(async () => await DispatcherUtils.InvokeAsync(this.Dispatcher, this.CloseAsyncInternal));
-            return DispatcherUtils.Invoke(this.Dispatcher, this.CloseAsyncInternal);
-        }
-
-        private async Task<bool> CloseAsyncInternal() {
-            if (await this.OnClosingAsync()) {
-                if (!this.isHandlingSyncClosing) {
-                    try {
-                        this.isHandlingAsyncClose = true;
-                        await DispatcherUtils.InvokeAsync(this.Dispatcher, this.Close);
-                        return true;
-                    }
-                    finally {
-                        this.isHandlingAsyncClose = false;
-                    }
+        public async Task<bool> CloseAsync() {
+            if (await this.CanCloseAsync()) {
+                if (this.isHandlingSyncClosing) {
+                    return true;
                 }
 
-                return true;
+                try {
+                    this.isHandlingAsyncClose = true;
+                    this.Close();
+                    return true;
+                }
+                finally {
+                    this.isHandlingAsyncClose = false;
+                }
             }
             else {
                 return false;
@@ -165,7 +163,7 @@ namespace FramePFX.WPF.Views {
         /// Called when the window is trying to be closed
         /// </summary>
         /// <returns>True if the window can close, otherwise false to stop it from closing</returns>
-        protected virtual Task<bool> OnClosingAsync() {
+        protected virtual Task<bool> CanCloseAsync() {
             return Task.FromResult(true);
         }
 

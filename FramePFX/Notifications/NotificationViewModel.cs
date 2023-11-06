@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FramePFX.Commands;
+using FramePFX.ServiceManaging;
 using FramePFX.Utils;
 
 namespace FramePFX.Notifications {
@@ -93,7 +94,7 @@ namespace FramePFX.Notifications {
             }
 
             if (!cancel.IsCancellationRequested) {
-                await IoC.Dispatcher.InvokeAsync(this.AutoHideAction);
+                await IoC.Application.Dispatcher.InvokeAsync(this.AutoHideAction);
             }
         }
 

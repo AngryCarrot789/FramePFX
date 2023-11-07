@@ -3,7 +3,6 @@ using FramePFX.Editor.Timelines;
 
 namespace FramePFX.Editor {
     public class VideoEditor {
-        private readonly List<Timeline> activeTimelines;
         public volatile bool IsProjectSaving;
         public volatile bool IsProjectChanging;
 
@@ -19,40 +18,15 @@ namespace FramePFX.Editor {
         /// </summary>
         public Project ActiveProject { get; private set; }
 
-        /// <summary>
-        /// A list of timelines that are currently being viewed in the UI
-        /// </summary>
-        public IReadOnlyList<Timeline> ActiveTimelines => this.activeTimelines;
-
-        /// <summary>
-        /// Gets or sets the timeline that is currently active in the UI. This may be null if
-        /// there is no active project or the user closes the main timeline for some reason
-        /// </summary>
-        public Timeline ActiveTimeline { get; set; }
-
         public VideoEditor() {
             this.Playback = new EditorPlayback(this);
-            this.activeTimelines = new List<Timeline>();
         }
 
         static VideoEditor() {
         }
 
         public void SetProject(Project project) {
-            if (this.ActiveProject != null) {
-                this.activeTimelines.Clear();
-            }
-
             this.ActiveProject = project;
-            if (project != null) {
-                this.activeTimelines.Add(project.Timeline);
-                this.ActiveTimeline = this.activeTimelines[0];
-            }
-        }
-
-        public void ClearTimelines() {
-            this.ActiveTimeline = null;
-            this.activeTimelines.Clear();
         }
     }
 }

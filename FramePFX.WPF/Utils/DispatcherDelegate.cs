@@ -36,6 +36,12 @@ namespace FramePFX.WPF.Utils {
             }
         }
 
+        // Unless we are on the main thread and priority is Send, Invoke with the parameter provides
+        // practically no additional performance benifits for valuetype objects, because the parameter
+        // has to get boxed anyway, and not to mention the fact that WPF dispatcher operations create
+        // an instance of DispatcherOperationTaskSource which also creates a TaskCompletionSource and
+        // DispatcherOperationTaskMapping AND an instance of CulturePreservingExecutionContext gets created too...
+
         public void Invoke<T>(Action<T> action, T parameter, DispatchPriority priority) {
             if (priority == DispatchPriority.Send && this.dispatcher.CheckAccess()) {
                 action(parameter);
@@ -51,28 +57,19 @@ namespace FramePFX.WPF.Utils {
             return this.dispatcher.Invoke(function, ApplicationModel.ConvertPriority(priority));
         }
 
-        public Task InvokeAsync(Action action, DispatchPriority priority) {
+        public Task InvokeAsync(Action action, DispatchPriority priority, CancellationToken token = default) {
             if (priority == DispatchPriority.Send && this.dispatcher.CheckAccess()) {
                 action();
                 return Task.CompletedTask;
             }
 
-            return this.dispatcher.InvokeAsync(action, ApplicationModel.ConvertPriority(priority), CancellationToken.None).Task;
+            return this.dispatcher.InvokeAsync(action, ApplicationModel.ConvertPriority(priority), token).Task;
         }
 
-        public Task InvokeAsync<T>(Action<T> action, T parameter, DispatchPriority priority) {
-            if (priority == DispatchPriority.Send && this.dispatcher.CheckAccess()) {
-                action(parameter);
-                return Task.CompletedTask;
-            }
-
-            return this.dispatcher.BeginInvoke(ApplicationModel.ConvertPriority(priority), action, parameter).Task;
-        }
-
-        public Task<T> InvokeAsync<T>(Func<T> function, DispatchPriority priority) {
+        public Task<T> InvokeAsync<T>(Func<T> function, DispatchPriority priority, CancellationToken token = default) {
             if (priority == DispatchPriority.Send && this.dispatcher.CheckAccess())
                 return Task.FromResult(function());
-            return this.dispatcher.InvokeAsync(function, ApplicationModel.ConvertPriority(priority), CancellationToken.None).Task;
+            return this.dispatcher.InvokeAsync(function, ApplicationModel.ConvertPriority(priority), token).Task;
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FramePFX.App;
 
@@ -58,37 +59,18 @@ namespace FramePFX.ServiceManaging {
         /// </summary>
         /// <param name="action">The function to execute on the UI thread</param>
         /// <param name="priority">The priority of the dispatch</param>
+        /// <param name="token"></param>
         /// <returns>A task that can be awaited, which is completed once the function returns on the UI thread</returns>
-        Task InvokeAsync(Action action, DispatchPriority priority = DispatchPriority.Normal);
-
-        // Unless we are on the main thread and priority is Send, Invoke and InvokeAsync with the parameter provides
-        // practically no additional performance benifits for valuetype objects, because the parameter has to
-        // get boxed anyway, and not to mention the fact that WPF dispatcher operations create a instance of
-        // DispatcherOperationTaskSource which also creates a TaskCompletionSource and DispatcherOperationTaskMapping
-        // AND an instance of CulturePreservingExecutionContext gets created too...
-
-        /// <summary>
-        /// Asynchronously executes the given function on the UI thread. If we are already on the main thread and
-        /// <see cref="priority"/> is <see cref="DispatchPriority.Send"/> then the action is invoked synchronously.
-        /// <para>
-        /// Unless already on the main thread with a priority of <see cref="DispatchPriority.Send"/>,
-        /// <see cref="InvokeAsync"/> should be preferred over this method when an additional parameter is needed
-        /// due to the late-bound dynamic method invocation, which a lambda closure will likely outperform
-        /// </para>
-        /// </summary>
-        /// <param name="action">The function to execute on the UI thread</param>
-        /// <param name="parameter">A parameter to pass to the action</param>
-        /// <param name="priority">The priority of the dispatch</param>
-        /// <returns>A task that can be awaited, which is completed once the function returns on the UI thread</returns>
-        Task InvokeAsync<T>(Action<T> action, T parameter, DispatchPriority priority = DispatchPriority.Normal);
+        Task InvokeAsync(Action action, DispatchPriority priority = DispatchPriority.Normal, CancellationToken token = default);
 
         /// <summary>
         /// The same as <see cref="InvokeAsync"/> but allows a return value
         /// </summary>
         /// <param name="function">The function to execute on the UI thread</param>
         /// <param name="priority">The priority of the dispatch</param>
+        /// <param name="token"></param>
         /// <typeparam name="TResult">The return value for the function</typeparam>
         /// <returns>A task that can be awaited, which is completed once the function returns on the UI thread</returns>
-        Task<T> InvokeAsync<T>(Func<T> function, DispatchPriority priority = DispatchPriority.Normal);
+        Task<T> InvokeAsync<T>(Func<T> function, DispatchPriority priority = DispatchPriority.Normal, CancellationToken token = default);
     }
 }

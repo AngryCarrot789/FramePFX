@@ -37,16 +37,13 @@ namespace FramePFX.WPF.Editor.MainWindow {
     /// </summary>
     public partial class EditorMainWindow : WindowEx, IVideoEditor, INotificationHandler {
         private const string AnimationCompletedKey = "AnimationCompleted";
-
-        public VideoEditorViewModel Editor => (VideoEditorViewModel) this.DataContext;
-
+        private int number;
         private volatile int isRenderActive;
+        private Task lastRenderTask = null;
 
         public NotificationPanelViewModel NotificationPanel { get; }
 
-        private readonly Func<Timeline, Task> doRenderActiveTimelineFunc;
-
-        private int number;
+        public VideoEditorViewModel Editor => (VideoEditorViewModel) this.DataContext;
 
         public EditorMainWindow() {
             this.InitializeComponent();
@@ -54,7 +51,6 @@ namespace FramePFX.WPF.Editor.MainWindow {
                 this.NotificationBarTextBlock.Text = x;
             };
 
-            this.doRenderActiveTimelineFunc = this.RenderTimelineInternal;
             this.NotificationPanel = new NotificationPanelViewModel(this);
             this.DataContext = new VideoEditorViewModel(this);
 
@@ -69,17 +65,17 @@ namespace FramePFX.WPF.Editor.MainWindow {
 
                 switch (e.Action) {
                     case NotifyCollectionChangedAction.Add:
-                        foreach (TimelineViewModel item in e.NewItems.Cast<LayoutAnchorable>().Select(x => ((PreAnchoredTimelineControl) x.Content).DataContext as TimelineViewModel).Where(x => x != null))
+                        foreach (TimelineViewModel item in GetTimelinesFromLayoutAnchorable(e.NewItems.Cast<LayoutAnchorable>()))
                             editor.OnTimelineOpened(item);
                         break;
                     case NotifyCollectionChangedAction.Remove:
-                        foreach (TimelineViewModel item in e.OldItems.Cast<LayoutAnchorable>().Select(x => ((PreAnchoredTimelineControl) x.Content).DataContext as TimelineViewModel).Where(x => x != null))
+                        foreach (TimelineViewModel item in GetTimelinesFromLayoutAnchorable(e.OldItems.Cast<LayoutAnchorable>()))
                             editor.OnTimelineClosed(item);
                         break;
                     case NotifyCollectionChangedAction.Replace:
-                        foreach (TimelineViewModel item in e.OldItems.Cast<LayoutAnchorable>().Select(x => ((PreAnchoredTimelineControl) x.Content).DataContext as TimelineViewModel).Where(x => x != null))
+                        foreach (TimelineViewModel item in GetTimelinesFromLayoutAnchorable(e.OldItems.Cast<LayoutAnchorable>()))
                             editor.OnTimelineClosed(item);
-                        foreach (TimelineViewModel item in e.NewItems.Cast<LayoutAnchorable>().Select(x => ((PreAnchoredTimelineControl) x.Content).DataContext as TimelineViewModel).Where(x => x != null))
+                        foreach (TimelineViewModel item in GetTimelinesFromLayoutAnchorable(e.NewItems.Cast<LayoutAnchorable>()))
                             editor.OnTimelineOpened(item);
                         break;
                     case NotifyCollectionChangedAction.Move: break;
@@ -89,6 +85,10 @@ namespace FramePFX.WPF.Editor.MainWindow {
                     default: throw new ArgumentOutOfRangeException();
                 }
             };
+        }
+
+        private static IEnumerable<TimelineViewModel> GetTimelinesFromLayoutAnchorable(IEnumerable<LayoutAnchorable> enumerable) {
+            return enumerable.Select(x => ((PreAnchoredTimelineControl) x.Content).DataContext as TimelineViewModel).Where(x => x != null);
         }
 
         private void MyDockingManagerOnActiveContentChanged(object sender, EventArgs e) {
@@ -171,10 +171,7 @@ namespace FramePFX.WPF.Editor.MainWindow {
         public void CloseAllTimelinesExcept(TimelineViewModel timeline) {
             ObservableCollection<LayoutAnchorable> list = this.TimelineLayoutPane.Children;
             for (int i = list.Count - 1; i >= 0; i--) {
-                if (((PreAnchoredTimelineControl) list[i].Content).DataContext == timeline) {
-                    continue;
-                }
-                else {
+                if (((PreAnchoredTimelineControl) list[i].Content).DataContext != timeline) {
                     list.RemoveAt(i);
                 }
             }
@@ -236,40 +233,11 @@ namespace FramePFX.WPF.Editor.MainWindow {
             }
         }
 
-        // old OpenGL specific code
-
         public void OnExportBegin(bool prepare) {
-            // if (prepare)
-            //     this.ViewPortElement.ClearContext();
-            // else
-            //     this.ViewPortElement.MakeContextCurrent();
         }
 
         public void OnExportEnd() {
-            // this.ViewPortElement.ClearContext();
         }
-
-        // protected override void OnActivated(EventArgs e) {
-        //     base.OnActivated(e);
-        //     if (this.isRefreshing || this.Editor.IsClosingProject) {
-        //         return;
-        //     }
-        //     long time = Time.GetSystemMillis();
-        //     if ((time - this.lastRefreshTime) >= RefreshInterval) {
-        //         this.isRefreshing = true;
-        //         this.RefreshAction();
-        //     }
-        // }
-
-        // private async void RefreshAction() {
-        //     if (this.Editor.ActiveProject is ProjectViewModel vm) {
-        //         await ResourceCheckerViewModel.LoadProjectResources(vm, false);
-        //     }
-        //     this.isRefreshing = false;
-        //     this.lastRefreshTime = Time.GetSystemMillis();
-        // }
-
-        private Task lastRenderTask = Task.CompletedTask;
 
         public async Task RenderToViewPortAsync(Timeline timeline, bool scheduleRender) {
             if (Interlocked.CompareExchange(ref this.isRenderActive, 1, 0) != 0) {
@@ -277,20 +245,14 @@ namespace FramePFX.WPF.Editor.MainWindow {
             }
 
             if (scheduleRender) {
-                if (this.lastRenderTask != null) {
-                    try {
-                        await this.lastRenderTask;
-                    }
-                    catch (TaskCanceledException) {
-                        // do nothing
-                    }
-
-                    this.lastRenderTask = null;
+                // if a render is already scheduled and not completed, don't schedule render again.
+                // RenderToViewPortAsync can be called from any thread, and isRenderActive provides
+                // a guard against this changing
+                if (this.lastRenderTask == null || this.lastRenderTask.IsCompleted) {
+                    this.lastRenderTask = IoC.Application.Dispatcher.InvokeAsync(() => {
+                        this.lastRenderTask = this.RenderTimelineInternal(timeline);
+                    });
                 }
-
-                // does this even work properly??? we might not be awaiting the actual render task, but instead, the dispatcher task,
-                // unless the dispatcher task completes when doRenderActiveTimelineFunc completes? I don't know...
-                this.lastRenderTask = this.Dispatcher.BeginInvoke(DispatcherPriority.Send, this.doRenderActiveTimelineFunc, timeline).Task;
             }
             else if (this.Dispatcher.CheckAccess()) {
                 // could check this, but it risks a potential locked state with isRenderActive... maybe
@@ -299,7 +261,7 @@ namespace FramePFX.WPF.Editor.MainWindow {
                 await this.RenderTimelineInternal(timeline);
             }
             else {
-                await this.Dispatcher.BeginInvoke(DispatcherPriority.Send, this.doRenderActiveTimelineFunc, timeline).Task;
+                await await IoC.Application.Dispatcher.InvokeAsync(() => this.RenderTimelineInternal(timeline));
             }
         }
 

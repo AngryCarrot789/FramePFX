@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FramePFX.Automation;
 using FramePFX.Commands;
@@ -94,6 +95,8 @@ namespace FramePFX.Editor.ViewModels {
 
         private readonly Dictionary<TaskAction, TaskNotification> taskNotifications;
         private readonly Dictionary<TimelineViewModel, Task> timelineRenderTaskMap;
+        private TimelineViewModel scheduledNewSelectedTimeline;
+        private Task scheduledNewSelectionTask;
 
         public VideoEditorViewModel(IVideoEditor view) {
             this.View = view ?? throw new ArgumentNullException(nameof(view));
@@ -130,11 +133,13 @@ namespace FramePFX.Editor.ViewModels {
                 timeline = editor.ActiveProject?.Timeline;
             }
 
+            if (editor.SelectedTimeline == timeline) {
+                return;
+            }
+
             editor.SelectedTimeline = timeline;
             editor.RaisePropertyChanged(nameof(editor.SelectedTimeline));
-
             if (timeline != null) {
-                editor.Model.ActiveTimeline = timeline.Model;
                 PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(timeline.GetSelectedClips().ToList());
                 PFXPropertyEditorRegistry.Instance.OnTrackSelectionChanged(timeline.SelectedTracks.ToList());
                 PFXPropertyEditorRegistry.Instance.Root.CleanSeparators();
@@ -144,28 +149,52 @@ namespace FramePFX.Editor.ViewModels {
                 }
             }
             else {
-                editor.Model.ActiveTimeline = null;
                 PFXPropertyEditorRegistry.Instance.ClipInfo.ClearHierarchyState();
                 PFXPropertyEditorRegistry.Instance.TrackInfo.ClearHierarchyState();
             }
         }
 
         public void OnTimelineClosed(TimelineViewModel timeline) {
-            this.activeTimelines.Remove(timeline);
-            if (this.SelectedTimeline == timeline) {
-                OnSelectedTimelineChangedInternal(this, null);
+            if (timeline == null) {
+                return;
+            }
+
+            int index = this.activeTimelines.IndexOf(timeline);
+            if (index == -1) {
+                return;
+            }
+
+            bool isActive = this.SelectedTimeline == timeline;
+            this.activeTimelines.RemoveAt(index);
+            if (!isActive) {
+                return;
+            }
+
+            if (this.activeTimelines.Count > 0) {
+                this.scheduledNewSelectedTimeline = this.activeTimelines[Maths.Clamp(index - 1, 0, this.activeTimelines.Count - 1)];
+                if (this.scheduledNewSelectionTask == null || this.scheduledNewSelectionTask.IsCompleted) {
+                    this.scheduledNewSelectionTask = IoC.Application.Dispatcher.InvokeAsync(() => {
+                        TimelineViewModel newTimeline = Helper.Exchange(ref this.scheduledNewSelectedTimeline, null);
+                        if (newTimeline != null) {
+                            OnSelectedTimelineChangedInternal(this, newTimeline);
+                        }
+                    });
+                }
+            }
+            else {
+                this.scheduledNewSelectedTimeline = null;
             }
         }
 
         public void OnTimelineOpened(TimelineViewModel timeline) {
-            if (!this.activeTimelines.Contains(timeline)) {
-                this.activeTimelines.Add(timeline);
+            if (timeline != null && this.activeTimelines.Contains(timeline) && timeline != this.SelectedTimeline) {
+                OnSelectedTimelineChangedInternal(this, timeline, true);
             }
         }
 
         public void OnTimelinesCleared() {
             this.activeTimelines.Clear();
-            OnSelectedTimelineChangedInternal(this, null, null);
+            OnSelectedTimelineChangedInternal(this, null, true);
         }
 
         public void OpenAndSelectTimeline(TimelineViewModel timeline) {
@@ -174,6 +203,10 @@ namespace FramePFX.Editor.ViewModels {
             }
 
             if (timeline != null || (timeline = this.ActiveProject?.Timeline) != null) {
+                if (!this.activeTimelines.Contains(timeline)) {
+                    this.activeTimelines.Add(timeline);
+                }
+
                 this.View.OpenAndSelectTimeline(timeline);
             }
 
@@ -317,7 +350,6 @@ namespace FramePFX.Editor.ViewModels {
             await this.Playback.OnProjectChanging(project);
             if (this.activeProject != null) {
                 this.View.CloseAllTimelinesExcept(this.activeProject.Timeline);
-                this.Model.ClearTimelines();
                 this.activeTimelines.Clear();
                 this.activeProject.OnDisconnectFromEditor();
                 this.Model.SetProject(null);

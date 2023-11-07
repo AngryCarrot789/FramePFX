@@ -94,7 +94,7 @@ namespace FramePFX.Utils {
 
         public Task<bool> InvokeAsync(T parameter) {
             if (Interlocked.CompareExchange(ref this.state, 1, 0) == 0) {
-                Task task = IoC.Application.Dispatcher.InvokeAsync(this.executeAction, parameter, this.priority);
+                Task task = IoC.Application.Dispatcher.InvokeAsync(() => this.executeAction(parameter), this.priority);
                 if (!task.IsCompleted)
                     return task.ContinueWith(t => true);
                 return Task.FromResult(true);

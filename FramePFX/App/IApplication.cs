@@ -32,6 +32,6 @@ namespace FramePFX.App {
         /// Convenience function to throw an exception if not on the main thread
         /// </summary>
         /// <param name="exceptionMessage">The exception message</param>
-        void ValidateIsMainThread(string exceptionMessage = "Not on the main/write thread");
+        void ValidateIsMainThread(string exceptionMessage = "Not on the main thread");
     }
 }

@@ -93,9 +93,9 @@ namespace FramePFX.Editor.Actions.Clips {
 
                     // This code keeps the same clip view model references, as cloning isn't necessary
                     foreach (ClipViewModel clip in selection) {
-                        oldTrack.Model.RemoveClip(clip.Model);
+                        oldTrack.RemoveClip(clip);
                         clip.Model.FrameSpan = clip.Model.FrameSpan.AddBegin(-trackBegin);
-                        clonedTrack.AddClip(clip.Model);
+                        clonedTrackVM.AddClip(clip);
                         totalClips++;
                     }
                 });
@@ -136,7 +136,7 @@ namespace FramePFX.Editor.Actions.Clips {
                 clip.FrameSpan = span;
                 clip.DisplayName = $"New Composition ({totalClips} clips)";
                 clip.AddEffect(new MotionEffect());
-                track.Model.AddClip(clip);
+                track.AddClip(clip);
                 ClipViewModel.SetSelectedAndShowPropertyEditor(track.LastClip);
             });
 

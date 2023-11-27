@@ -54,16 +54,6 @@ namespace FramePFX.Editor.Timelines {
 
         private readonly ClipRangeCache cache;
 
-        public event ClipAddedEventHandler ClipInserted;
-        public event ClipRemovedEventHandler ClipRemoved;
-
-        /// <summary>
-        /// An event fired when a clip is moved from one track to another. This is invoked on both the
-        /// source and target track instances, and to know which track was the source and target, do
-        /// a reference equality comparison
-        /// </summary>
-        public event ClipMovedEventHandler ClipMovedToTrack;
-
         private readonly ClipSpanChangedEventHandler clipSpanChangedHandler;
 
         protected Track() {
@@ -129,13 +119,6 @@ namespace FramePFX.Editor.Timelines {
         }
 
         public int IndexOfClip(Clip clip) {
-            // List<Clip> list = this.clips;
-            // for (int i = 0, count = list.Count; i < count; i++) {
-            //     if (ReferenceEquals(this.clips[i], clip)) {
-            //         return i;
-            //     }
-            // }
-            // return -1;
             return this.clips.IndexOf(clip);
         }
 
@@ -173,52 +156,14 @@ namespace FramePFX.Editor.Timelines {
 
         public void AddClip(Clip clip) => this.InsertClip(this.clips.Count, clip);
 
-        // private static void CheckForRecursion(Timeline timeline, Clip clip, HashSet<Timeline> timelines = null) {
-        //     if (timelines == null)
-        //         timelines = new HashSet<Timeline>();
-        //     else if (timelines.Contains(timeline))
-        //         throw new Exception("Recursive error while adding clip");
-        //     else
-        //         timelines.Add(timeline);
-        //     if (timeline is CompositionTimeline composition) {
-        //         foreach (ResourcePath path in composition.Owner.References) {
-        //             if (path.Owner.ResourceHelper.Owner is Clip ownerClip && ownerClip.Track != null && ownerClip.Track.Timeline != null) {
-        //                 CheckForRecursion(ownerClip.Track.Timeline, clip, timelines);
-        //             }
-        //         }
-        //     }
-        // }
-        // 
-        // private static bool DoesTimelineUseResourceId(Timeline timeline, ulong id) {
-        //     foreach (Track track in timeline.Tracks) {
-        //         foreach (Clip clip in track.clips) {
-        //             foreach (IBaseResourcePathKey key in clip.ResourceHelper.RegisteredKeys) {
-        //                 if (key.Path != null && key.Path.ResourceId == id) {
-        //                     return true;
-        //                 }
-        //             }
-        //         }
-        //     }
-        // 
-        //     return false;
-        // }
-
         public void InsertClip(int index, Clip clip) {
             if (clip.Track != null && clip.Track.TryGetIndexOfClip(clip, out _))
                 throw new Exception("Clip already exists and is valid in another track: " + clip.Track);
 
-            Clip.InternalSetTrack(clip, this);
             this.clips.Insert(index, clip);
             this.cache.OnClipAdded(clip);
             clip.ClipSpanChanged += this.clipSpanChangedHandler;
-            this.ClipInserted?.Invoke(this, clip, index);
-        }
-
-        public bool RemoveClip(Clip clip) {
-            if (!this.TryGetIndexOfClip(clip, out int index))
-                return false;
-            this.RemoveClipAt(index);
-            return true;
+            Clip.InternalSetTrack(clip, this);
         }
 
         public void RemoveClipAt(int index) {
@@ -229,18 +174,6 @@ namespace FramePFX.Editor.Timelines {
             this.cache.OnClipRemoved(clip);
             clip.ClipSpanChanged -= this.clipSpanChangedHandler;
             Clip.InternalSetTrack(clip, null);
-            this.ClipRemoved?.Invoke(this, clip, index);
-        }
-
-        public bool MoveClipToTrack(Clip clip, Track newTrack) {
-            if (!this.TryGetIndexOfClip(clip, out int index))
-                return false;
-            this.MoveClipToTrack(newTrack, index);
-            return true;
-        }
-
-        public void MoveClipToTrack(Track newTrack, int index) {
-            this.MoveClipToTrack(newTrack, index, newTrack.clips.Count);
         }
 
         /// <summary>
@@ -256,14 +189,10 @@ namespace FramePFX.Editor.Timelines {
             this.clips.RemoveAt(oldIndex);
             this.cache.OnClipRemoved(clip);
             clip.ClipSpanChanged -= this.clipSpanChangedHandler;
-            Clip.InternalSetTrack(clip, newTrack);
             newTrack.clips.Insert(newIndex, clip);
             newTrack.cache.OnClipAdded(clip);
             clip.ClipSpanChanged += newTrack.clipSpanChangedHandler;
-
-            ClipMovedEventArgs args = new ClipMovedEventArgs(this, newTrack, clip, oldIndex, newIndex);
-            this.ClipMovedToTrack?.Invoke(args);
-            newTrack.ClipMovedToTrack?.Invoke(args);
+            Clip.InternalSetTrack(clip, newTrack);
         }
 
         #region Cloning

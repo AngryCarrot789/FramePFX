@@ -1,8 +1,8 @@
 using System;
 using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shell;
@@ -40,6 +40,16 @@ namespace FramePFX.WPF.Views {
         public WindowEx() : base() {
             this.showAction = this.Show;
             this.showDialogAction = this.ShowDialog;
+
+            TextBlock block;
+            ProgressBar bar;
+            StackPanel p;
+            this.Arrange(default);
+            this.InvalidateArrange();
+            ContentControl c;
+            UIElement el;
+            FrameworkElement e;
+            Grid grid;
         }
 
         public void SetToCenterOfScreen() {

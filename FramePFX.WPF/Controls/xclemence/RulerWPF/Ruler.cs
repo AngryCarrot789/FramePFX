@@ -129,12 +129,16 @@ namespace FramePFX.WPF.Controls.xclemence.RulerWPF {
 
                 for (int y = 1; y < steps; ++y) {
                     double sub_pixel = pixel + y * subpixel_size;
+                    // calculates p1 and p2 then calls DrawLine
                     this.positionManager.DrawMinorLine(dc, sub_pixel);
                 }
 
                 double text_value = i * valueStep;
                 if (Math.Abs(text_value - (int) text_value) < 0.00001d) {
+                    // calculates p1 and p2 then calls DrawLine
                     this.positionManager.DrawMajorLine(dc, pixel);
+
+                    // creates formatted text and DrawText
                     this.positionManager.DrawText(dc, text_value, pixel);
                 }
 

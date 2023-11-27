@@ -205,7 +205,6 @@ namespace FramePFX.Editor.Timelines {
         public void RemoveTrackAt(int index) {
             Track track = this.tracks[index];
             this.ValidateTrack(track, false);
-            ExceptionUtils.Assert(track.Timeline == this, "Expected track's timeline and the current timeline instance to be equal");
             this.tracks.RemoveAt(index);
             Track.SetTimeline(track, null);
         }

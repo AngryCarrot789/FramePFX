@@ -18,6 +18,7 @@
             xmlns:e="clr-namespace:FramePFX.WPF.Editor.Effects"
             xmlns:local="clr-namespace:FramePFX.WPF.Editor.MainWindow"
             xmlns:timelines="clr-namespace:FramePFX.WPF.Editor.Timelines"
+            xmlns:wpf="clr-namespace:FramePFX.WPF"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance evm:VideoEditorViewModel}"
             Width="1408" Height="840"
@@ -52,6 +53,7 @@
         </MultiBinding>
     </Window.Title>
     <Grid>
+        <Border x:Name="TestBorder" Width="5" Height="5"/>
         <DockPanel>
             <Border DockPanel.Dock="Top" Background="{DynamicResource ABrush.Tone6.Background.Static}"
                     BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0 0 0 1">

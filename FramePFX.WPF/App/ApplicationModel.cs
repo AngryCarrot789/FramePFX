@@ -30,8 +30,6 @@ namespace FramePFX.WPF.App {
 
         public IDispatcher Dispatcher { get; }
 
-        // I doubt this editor will ever be used by anyone except me, since it can barely do anything.
-        // Therefore, major changes won't be applied here LOL. I will still do revisions though because why not
         public Version Version { get; } = new Version(1, 0, 0, 800);
 
         public ApplicationModel(AppWPF app) {

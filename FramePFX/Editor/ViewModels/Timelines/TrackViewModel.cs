@@ -110,13 +110,9 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
             this.RemoveSelectedClipsCommand = new AsyncRelayCommand(this.RemoveSelectedClipsAction, () => this.SelectedClips.Count > 0);
             this.RenameTrackCommand = new AsyncRelayCommand(this.RenameAsync);
-            this.Model.ClipInserted += this.OnModelClipInserted;
-            this.Model.ClipRemoved += this.OnModelClipRemoved;
-            this.Model.ClipMovedToTrack += this.OnModelClipMovedToTrack;
-
             IReadOnlyList<Clip> list = model.Clips;
             for (int i = 0, count = list.Count; i < count; i++) {
-                this.InsertClipVMInternal(ClipFactory.Instance.CreateViewModelFromModel(list[i]), i);
+                this.InsertClipInternal(ClipFactory.Instance.CreateViewModelFromModel(list[i]), i);
             }
         }
 
@@ -130,50 +126,68 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             });
         }
 
-        private void OnModelClipInserted(Track track, Clip clip, int index) {
+        public ClipViewModel AddClip(Clip clip) {
             ClipViewModel vm = ClipFactory.Instance.CreateViewModelFromModel(clip);
-            this.InsertClipVMInternal(vm, index);
+            this.AddClip(vm);
+            return vm;
+        }
+
+        public void AddClip(ClipViewModel clip) {
+            this.InsertClip(this.clips.Count, clip);
+        }
+
+        public void InsertClip(int index, ClipViewModel clip) {
+            this.Model.InsertClip(index, clip.Model);
+            this.InsertClipInternal(clip, index);
             this.OnProjectModified();
             this.TryRaiseLargestFrameInUseChanged();
         }
 
-        private void OnModelClipRemoved(Track track, Clip clip, int index) {
-            ClipViewModel vm = this.clips[index];
-            if (!ReferenceEquals(vm.Model, clip))
-                throw new Exception("Model-ViewModel list desynchronized");
-            this.RemoveClipVMAtInternal(vm, index);
-            this.OnProjectModified();
-            this.TryRaiseLargestFrameInUseChanged();
-        }
-
-        private void OnModelClipMovedToTrack(ClipMovedEventArgs e) {
-            ClipViewModel clip;
-            if (ReferenceEquals(e.OldTrack, this.Model)) { // we are the source track; remove the clip internally
-                e.Parameter = clip = this.clips[e.OldIndex];
-                this.RemoveClipVMAtInternal(clip, e.OldIndex);
-                this.TryRaiseLargestFrameInUseChanged();
-            }
-            else { // we are the target track; add the clip internally
-                if ((clip = e.Parameter as ClipViewModel) == null) {
-                    throw new InvalidOperationException("Expected parameter to be a ClipViewModel");
-                }
-
-                this.InsertClipVMInternal(clip, e.NewIndex);
-                this.TryRaiseLargestFrameInUseChanged();
-                this.OnProjectModified();
-            }
-        }
-
-        private void InsertClipVMInternal(ClipViewModel clip, int index) {
+        private void InsertClipInternal(ClipViewModel clip, int index) {
             ClipViewModel.PreSetTrack(clip, this);
             this.clips.Insert(index, clip);
             ClipViewModel.PostSetTrack(clip, this);
         }
 
-        private void RemoveClipVMAtInternal(ClipViewModel clip, int index) {
+        public bool RemoveClip(ClipViewModel clip) {
+            int index = this.clips.IndexOf(clip);
+            if (index == -1)
+                return false;
+            this.RemoveClipAt(index);
+            return true;
+        }
+
+        public void RemoveClipAt(int index) {
+            ClipViewModel clip = this.clips[index];
+            this.Model.RemoveClipAt(index);
+
             ClipViewModel.PreSetTrack(clip, null);
             this.clips.RemoveAt(index);
             ClipViewModel.PostSetTrack(clip, null);
+
+            this.OnProjectModified();
+            this.TryRaiseLargestFrameInUseChanged();
+        }
+
+        public void MoveClipToTrack(ClipViewModel clip, TrackViewModel newTrack) {
+            int index = this.Model.IndexOfClip(clip.Model);
+            if (index == -1)
+                throw new InvalidOperationException("Clip did not exist in this track");
+            this.MoveClipToTrack(newTrack, index);
+        }
+
+        public void MoveClipToTrack(TrackViewModel newTrack, int srcIndex) {
+            this.MoveClipToTrack(newTrack, srcIndex, newTrack.clips.Count);
+        }
+
+        public void MoveClipToTrack(TrackViewModel newTrack, int srcIndex, int dstIndex) {
+            if (newTrack == this) {
+                throw new InvalidOperationException("Cannot move clip into the same track it already exists in");
+            }
+
+            ClipViewModel clip = this.clips[srcIndex];
+            this.RemoveClipAt(srcIndex);
+            newTrack.InsertClip(dstIndex, clip);
         }
 
         public virtual void OnProjectModified() => this.Project?.OnProjectModified();
@@ -197,7 +211,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             List<ClipViewModel> list = items as List<ClipViewModel> ?? items.ToList();
             using (ErrorList stack = new ErrorList("One or more exceptions occurred while removing clips", false, true)) {
                 foreach (ClipViewModel clip in list) {
-                    if (!this.Model.RemoveClip(clip.Model)) {
+                    if (!this.RemoveClip(clip)) {
                         continue;
                     }
 
@@ -252,7 +266,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             cloned.FrameSpan = FrameSpan.FromIndex(frame, span.EndIndex);
             cloned.MediaFrameOffset = frame - span.Begin;
             clip.FrameSpan = span.WithEndIndex(frame);
-            this.Model.AddClip(cloned);
+            this.AddClip(cloned);
             return Task.CompletedTask;
         }
 

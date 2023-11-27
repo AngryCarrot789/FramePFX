@@ -63,7 +63,7 @@ namespace FramePFX.Editor.Actions.Resources {
                     textClip.AddEffect(new MotionEffect());
                     textClip.DisplayName = name;
                     textClip.Text = "Sample Text";
-                    track.Model.AddClip(textClip);
+                    track.AddClip(textClip);
                     ClipViewModel.SetSelectedAndShowPropertyEditor(track.LastClip);
                     await timeline.UpdateAndRenderTimelineToEditor();
                 }

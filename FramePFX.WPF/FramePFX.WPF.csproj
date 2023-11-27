@@ -378,6 +378,7 @@
     <Compile Include="Shortcuts\WPFShortcutInputManager.cs" />
     <Compile Include="Shortcuts\WPFShortcutManager.cs" />
     <Compile Include="SKAsyncViewPort.cs" />
+    <Compile Include="SpacedUniformGrid.cs" />
     <Compile Include="Themes\Attached\CornerRadiusHelper.cs" />
     <Compile Include="Themes\Attached\MenuHelper.cs" />
     <Compile Include="Themes\Attached\PasswordBoxHelper.cs" />

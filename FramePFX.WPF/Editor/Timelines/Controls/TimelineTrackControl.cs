@@ -85,7 +85,7 @@ namespace FramePFX.WPF.Editor.Timelines.Controls {
                 imageClip.FrameSpan = FramePFX.Editor.Timelines.Track.GetSpanUntilClipOrFuckIt(track.Model, track.Timeline.PlayHeadFrame, maximumDurationToClip: 300);
                 imageClip.ResourceImageKey.SetTargetResourceId(id);
                 imageClip.AddEffect(new MotionEffect());
-                track.Model.AddClip(imageClip);
+                track.AddClip(imageClip);
                 track.LastClip.IsSelected = true;
                 PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(new List<ClipViewModel>() {track.LastClip});
 

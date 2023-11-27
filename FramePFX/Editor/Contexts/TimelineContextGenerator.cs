@@ -70,12 +70,9 @@ namespace FramePFX.Editor.Contexts {
             }
 
             if (track.Timeline != null) {
-                AdjustmentVideoClip clip = new AdjustmentVideoClip {
-                    FrameSpan = new FrameSpan(track.Timeline.PlayHeadFrame, track.Timeline.FPS.ToInt)
-                };
-
-                if (track.Model.IsRegionEmpty(clip.FrameSpan)) {
-                    track.Model.AddClip(clip);
+                FrameSpan span = new FrameSpan(track.Timeline.PlayHeadFrame, track.Timeline.FPS.ToInt);
+                if (track.Model.IsRegionEmpty(span)) {
+                    track.AddClip(new AdjustmentVideoClip {FrameSpan = span});
                 }
             }
 

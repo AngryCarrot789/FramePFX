@@ -523,7 +523,7 @@
         <ItemsControl ItemsSource="{Binding Editors, Mode=OneTime}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <UniformGrid IsItemsHost="True" Rows="1" Columns="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ItemsControl}}, Path=Items.Count}" />
+                    <wpf:SpacedUniformGrid IsItemsHost="True"/>
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>

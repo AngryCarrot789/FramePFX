@@ -227,6 +227,8 @@
     <Compile Include="Editor\Automation\LineHitType.cs" />
     <Compile Include="Editor\Effects\EffectProviderTreeView.cs" />
     <Compile Include="Editor\Effects\EffectProviderTreeViewItem.cs" />
+    <Compile Include="Editor\MainWindow\TimelineAnchorPane.cs" />
+    <Compile Include="Editor\MainWindow\TimelineLayoutPanel.cs" />
     <Compile Include="Editor\MainWindow\ViewPortUserControl.xaml.cs">
       <DependentUpon>ViewPortUserControl.xaml</DependentUpon>
     </Compile>
@@ -283,9 +285,6 @@
     <Compile Include="Editor\Timelines\Controls\V2\TimelineClipControlV2.cs" />
     <Compile Include="Editor\Timelines\Controls\V2\TimelineControlV2.cs" />
     <Compile Include="Editor\Timelines\Controls\V2\TimelineTrackControlV2.cs" />
-    <Compile Include="Editor\Timelines\PreAnchoredTimelineControl.xaml.cs">
-      <DependentUpon>PreAnchoredTimelineControl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Editor\Timelines\TimelineStyles.xaml.cs">
       <DependentUpon>TimelineStyles.xaml</DependentUpon>
     </Compile>
@@ -653,10 +652,6 @@
     <Page Include="Editor\Resources\ResManagerStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editor\Timelines\PreAnchoredTimelineControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Editor\Timelines\TimelineStyles.xaml">
       <Generator>MSBuild:Compile</Generator>

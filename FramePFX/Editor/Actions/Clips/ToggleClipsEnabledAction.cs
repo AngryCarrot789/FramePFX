@@ -7,14 +7,14 @@ using FramePFX.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Editor.Actions.Clips {
     [ActionRegistration("actions.timeline.ToggleEnableClips")]
-    public class ToggleClipsEnabledAction : ExecutableAction {
-        public override bool CanExecute(ActionEventArgs e) {
+    public class ToggleClipsEnabledAction : ContextAction {
+        public override bool CanExecute(ContextActionEventArgs e) {
             return EditorActionUtils.HasClipOrTimeline(e.DataContext);
         }
 
-        public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
+        public override async Task ExecuteAsync(ContextActionEventArgs e) {
             if (!EditorActionUtils.GetClipWithSelection(e.DataContext, out List<ClipViewModel> clips))
-                return false;
+                return;
 
             bool isEnabled = clips.Select(x => x.Model.IsRenderingEnabled).Count(x => x) < clips.Count;
 
@@ -30,8 +30,6 @@ namespace FramePFX.Editor.Actions.Clips {
             if (editor != null && timeline != null) {
                 await editor.DoDrawRenderFrame(timeline.Model, false);
             }
-
-            return true;
         }
 
         public static bool GetDominantBool(IReadOnlyList<bool> bools) {

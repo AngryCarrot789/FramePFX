@@ -5,7 +5,7 @@ using System.Windows.Input;
 using FramePFX.Commands;
 
 namespace FramePFX.Actions.Helpers {
-    public class CommandTargetAction<T> : ExecutableAction {
+    public class CommandTargetAction<T> : ContextAction {
         public Type TargetType { get; }
 
         public string PropertyName { get; }
@@ -25,14 +25,14 @@ namespace FramePFX.Actions.Helpers {
             return this.Property.GetValue(instance) as ICommand;
         }
 
-        public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
+        public override async Task ExecuteAsync(ContextActionEventArgs e) {
             if (!e.DataContext.TryGetContext(out T instance)) {
-                return false;
+                return;
             }
 
             ICommand cmd = this.GetCommand(instance);
             if (cmd == null || !cmd.CanExecute(null)) {
-                return false;
+                return;
             }
 
             if (cmd is BaseAsyncRelayCommand asyncCmd) {
@@ -41,11 +41,9 @@ namespace FramePFX.Actions.Helpers {
             else {
                 cmd.Execute(null);
             }
-
-            return true;
         }
 
-        public override bool CanExecute(ActionEventArgs e) {
+        public override bool CanExecute(ContextActionEventArgs e) {
             if (!e.DataContext.TryGetContext(out T instance)) {
                 return false;
             }

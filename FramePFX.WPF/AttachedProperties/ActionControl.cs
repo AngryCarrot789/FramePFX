@@ -88,9 +88,9 @@ namespace FramePFX.WPF.AttachedProperties {
                 this.Handler = this.OnCanUpdateChanged;
             }
 
-            private void OnCanUpdateChanged(string id, ExecutableAction action, ActionEventArgs args, bool canexecute) {
+            private void OnCanUpdateChanged(string id, ContextAction action, ContextActionEventArgs args, bool canexecute) {
                 DataContext context = ActionContextProviderCollection.CreateContextFromTarget(this.element);
-                ActionEventArgs newArgs = args.Manager.CreateArgs(id, context, args.IsUserInitiated);
+                ContextActionEventArgs newArgs = args.Manager.CreateArgs(id, context, args.IsUserInitiated);
                 this.element.IsEnabled = action.CanExecute(newArgs);
             }
 

@@ -4,14 +4,11 @@ using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Editor.Actions {
-    public class PlayAtLastFrameAction : ExecutableAction {
-        public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
-            if (!EditorActionUtils.GetEditorWithTimeline(e.DataContext, out VideoEditorViewModel editor, out TimelineViewModel timeline)) {
-                return false;
+    public class PlayAtLastFrameAction : ContextAction {
+        public override async Task ExecuteAsync(ContextActionEventArgs e) {
+            if (EditorActionUtils.GetEditorWithTimeline(e.DataContext, out VideoEditorViewModel editor, out TimelineViewModel timeline)) {
+                await editor.Playback.PlayFromFrame(timeline, timeline.LastPlayHeadSeek, false);
             }
-
-            await editor.Playback.PlayFromFrame(timeline, timeline.LastPlayHeadSeek, false);
-            return true;
         }
     }
 }

@@ -11,6 +11,12 @@
                 <ResourceDictionary Source="Themes/ControlColours.xaml" />
                 <ResourceDictionary Source="Themes/Controls.xaml" />
 
+                <ResourceDictionary Source="Themes/AvalonDock/DarkBrushes.xaml" />
+                <ResourceDictionary Source="Themes/AvalonDock/Themes/OverlayButtons.xaml" />
+                <ResourceDictionary Source="Themes/AvalonDock/Themes/Menu/MenuItem.xaml" />
+                <ResourceDictionary Source="Themes/AvalonDock/Themes/Icons/IconGeometry.xaml" />
+                <ResourceDictionary Source="Themes/AvalonDock/GeneralDockTheme.xaml" />
+
                 <!-- Localisation -->
                 <ResourceDictionary Source="Resources/I18N/Text/en.xaml" />
 
@@ -22,7 +28,6 @@
                 <!-- Other things -->
                 <ResourceDictionary Source="Controls/xclemence/RulerWPF/RulerStyle.xaml" />
                 <ResourceDictionary Source="Controls/ControlStyles.xaml" />
-                <ResourceDictionary Source="AdvancedContextService/ContextStyles.xaml" />
                 <ResourceDictionary Source="AdvancedContextService/ContextStyles.xaml" />
                 <ResourceDictionary Source="Editor/Timelines/TimelineStyles.xaml" />
                 <ResourceDictionary Source="Editor/Resources/ResManagerStyles.xaml" />

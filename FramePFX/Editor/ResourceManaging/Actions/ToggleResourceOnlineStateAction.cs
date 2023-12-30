@@ -11,7 +11,7 @@ using FramePFX.Utils;
 namespace FramePFX.Editor.ResourceManaging.Actions {
     [ActionRegistration("actions.resources.ToggleOnlineState")]
     public class ToggleResourceOnlineStateAction : ToggleAction {
-        protected override async Task<bool> OnToggled(ActionEventArgs e, bool isToggled) {
+        protected override async Task<bool> OnToggled(ContextActionEventArgs e, bool isToggled) {
             if (!ResourceActionUtils.GetSelectedResources(e.DataContext, out List<BaseResourceViewModel> list))
                 return false;
 
@@ -23,7 +23,7 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
             return true;
         }
 
-        protected override async Task<bool> ExecuteNoToggle(ActionEventArgs e) {
+        protected override async Task<bool> ExecuteNoToggle(ContextActionEventArgs e) {
             if (ResourceActionUtils.GetSelectedResources(e.DataContext, out List<BaseResourceViewModel> list)) {
                 List<ResourceItemViewModel> items = list.OfType<ResourceItemViewModel>().ToList();
                 if (items.Count > 0)

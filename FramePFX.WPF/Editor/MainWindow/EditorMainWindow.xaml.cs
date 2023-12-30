@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,11 +8,9 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Media.Animation;
-using System.Windows.Threading;
 using AvalonDock.Layout;
 using FramePFX.Editor;
 using FramePFX.Editor.Rendering;
-using FramePFX.Editor.Timelines;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.History.ViewModels;
@@ -51,74 +46,32 @@ namespace FramePFX.WPF.Editor.MainWindow {
                 this.NotificationBarTextBlock.Text = x;
             };
 
+            this.DataContextChanged += this.OnDataContextChanged;
             this.NotificationPanel = new NotificationPanelViewModel(this);
             this.DataContext = new VideoEditorViewModel(this);
 
             this.NotificationPanelPopup.DataContext = this.NotificationPanel;
-            this.TimelineLayoutPane.PropertyChanged += this.TimelineLayoutPaneOnPropertyChanged;
-            this.MyDockingManager.ActiveContentChanged += this.MyDockingManagerOnActiveContentChanged;
-            this.TimelineLayoutPane.Children.CollectionChanged += (sender, e) => {
-                VideoEditorViewModel editor = this.Editor;
-                if (editor == null) {
-                    return;
-                }
+            // this.TimelineLayoutPane.PropertyChanged += this.TimelineLayoutPaneOnPropertyChanged;
+            // this.MyDockingManager.ActiveContentChanged += this.MyDockingManagerOnActiveContentChanged;
+        }
 
-                switch (e.Action) {
-                    case NotifyCollectionChangedAction.Add:
-                        foreach (TimelineViewModel item in GetTimelinesFromLayoutAnchorable(e.NewItems.Cast<LayoutAnchorable>()))
-                            editor.OnTimelineOpened(item);
-                        break;
-                    case NotifyCollectionChangedAction.Remove:
-                        foreach (TimelineViewModel item in GetTimelinesFromLayoutAnchorable(e.OldItems.Cast<LayoutAnchorable>()))
-                            editor.OnTimelineClosed(item);
-                        break;
-                    case NotifyCollectionChangedAction.Replace:
-                        foreach (TimelineViewModel item in GetTimelinesFromLayoutAnchorable(e.OldItems.Cast<LayoutAnchorable>()))
-                            editor.OnTimelineClosed(item);
-                        foreach (TimelineViewModel item in GetTimelinesFromLayoutAnchorable(e.NewItems.Cast<LayoutAnchorable>()))
-                            editor.OnTimelineOpened(item);
-                        break;
-                    case NotifyCollectionChangedAction.Move: break;
-                    case NotifyCollectionChangedAction.Reset:
-                        editor.OnTimelinesCleared();
-                        break;
-                    default: throw new ArgumentOutOfRangeException();
-                }
-            };
+        private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e) {
+            if (e.OldValue is VideoEditorViewModel) {
+                BindingOperations.ClearBinding(this.PART_TimelineAnchorPane, TimelineAnchorPane.SelectedTimelineProperty);
+            }
+
+            if (e.NewValue is VideoEditorViewModel editor) {
+                this.PART_TimelineAnchorPane.Timelines = editor.ActiveTimelines;
+                BindingOperations.SetBinding(this.PART_TimelineAnchorPane, TimelineAnchorPane.SelectedTimelineProperty, new Binding(nameof(editor.SelectedTimeline)) {
+                    Source = editor,
+                    Mode = BindingMode.TwoWay,
+                    UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
+                });
+            }
         }
 
         private static IEnumerable<TimelineViewModel> GetTimelinesFromLayoutAnchorable(IEnumerable<LayoutAnchorable> enumerable) {
-            return enumerable.Select(x => ((PreAnchoredTimelineControl) x.Content).DataContext as TimelineViewModel).Where(x => x != null);
-        }
-
-        private void MyDockingManagerOnActiveContentChanged(object sender, EventArgs e) {
-            VideoEditorViewModel editor = this.Editor;
-            if (editor != null && this.MyDockingManager.ActiveContent is PreAnchoredTimelineControl control) {
-                if (control.DataContext is TimelineViewModel timeline) {
-                    VideoEditorViewModel.OnSelectedTimelineChangedInternal(editor, timeline);
-                }
-            }
-        }
-
-        private void TimelineLayoutPaneOnPropertyChanged(object sender, PropertyChangedEventArgs e) {
-            if (e.PropertyName == nameof(this.TimelineLayoutPane.SelectedContent)) {
-                VideoEditorViewModel editor = this.Editor;
-                if (editor == null) {
-                    return;
-                }
-
-                LayoutContent selected = this.TimelineLayoutPane.SelectedContent;
-                if (selected != null && selected.Content is PreAnchoredTimelineControl control) {
-                    if (control.DataContext is TimelineViewModel timeline) {
-                        VideoEditorViewModel.OnSelectedTimelineChangedInternal(editor, timeline);
-                        return;
-                    }
-
-                    if (editor.ActiveProject != null) {
-                        VideoEditorViewModel.OnSelectedTimelineChangedInternal(editor, editor.ActiveProject.Timeline);
-                    }
-                }
-            }
+            return enumerable.Select(x => ((TimelineControl) x.Content).DataContext as TimelineViewModel).Where(x => x != null);
         }
 
         protected override void OnActivated(EventArgs e) {
@@ -166,69 +119,8 @@ namespace FramePFX.WPF.Editor.MainWindow {
             }
         }
 
-        private IEnumerable<PreAnchoredTimelineControl> PreAnchoredTimelineControls => this.TimelineLayoutPane.Children.Select(x => (PreAnchoredTimelineControl) x.Content);
-
-        public void CloseAllTimelinesExcept(TimelineViewModel timeline) {
-            ObservableCollection<LayoutAnchorable> list = this.TimelineLayoutPane.Children;
-            for (int i = list.Count - 1; i >= 0; i--) {
-                if (((PreAnchoredTimelineControl) list[i].Content).DataContext != timeline) {
-                    list.RemoveAt(i);
-                }
-            }
-        }
-
-        public void OpenAndSelectTimeline(TimelineViewModel timeline) {
-            int i = 0;
-            foreach (LayoutAnchorable anchorable in this.TimelineLayoutPane.Children) {
-                if (ReferenceEquals(((PreAnchoredTimelineControl) anchorable.Content).DataContext, timeline)) {
-                    this.TimelineLayoutPane.SelectedContentIndex = i;
-                    if (anchorable.IsHidden) {
-                        anchorable.Show();
-                    }
-
-                    return;
-                }
-
-                i++;
-            }
-
-            LayoutAnchorable timelineAnchorable = new LayoutAnchorable {
-                Content = new PreAnchoredTimelineControl() {
-                    DataContext = timeline
-                },
-                CanClose = true,
-                CanDockAsTabbedDocument = true
-            };
-
-            BindingOperations.SetBinding(timelineAnchorable, LayoutContent.TitleProperty, new Binding(nameof(timeline.DisplayName)) {
-                Source = timeline,
-                Mode = BindingMode.TwoWay,
-                UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
-            });
-
-            this.TimelineLayoutPane.Children.Add(timelineAnchorable);
-        }
-
-        public bool GetTimelineControlForTimeline(TimelineViewModel timeline, out TimelineControl control) {
-            foreach (LayoutAnchorable anchorable in this.TimelineLayoutPane.Children) {
-                PreAnchoredTimelineControl preAnchorControl = (PreAnchoredTimelineControl) anchorable.Content;
-                if (preAnchorControl.PART_TimelineControl == null) {
-                    continue;
-                }
-
-                TimelineViewModel openedTimeline = (TimelineViewModel) preAnchorControl.DataContext;
-                if (openedTimeline == timeline) {
-                    control = preAnchorControl.PART_TimelineControl;
-                    return true;
-                }
-            }
-
-            control = null;
-            return false;
-        }
-
         public void OnFrameRateRatioChanged(TimelineViewModel timeline, double ratio) {
-            if (this.GetTimelineControlForTimeline(timeline, out TimelineControl control)) {
+            if (this.PART_TimelineAnchorPane.GetAnchorForTimeline(timeline, out TimelineControl control) != null) {
                 control.TimelineEditor?.OnFrameRateRatioChanged(ratio);
             }
         }

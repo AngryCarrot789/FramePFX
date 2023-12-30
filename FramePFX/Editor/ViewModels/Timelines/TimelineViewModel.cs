@@ -48,9 +48,16 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public TrackViewModel PreviouslySelectedTrack { get; private set; }
 
+        /// <summary>
+        /// Similar to <see cref="PreviouslySelectedTrack"/>, except this is always set when <see cref="PrimarySelectedTrack"/> 
+        /// is set, regardless of the tracks being equal. Used for ranged selection
+        /// </summary>
+        public TrackViewModel PreviouslySelectedTrackFrame { get; private set; }
+
         public TrackViewModel PrimarySelectedTrack {
             get => this.primarySelectedTrack;
             set {
+                this.PreviouslySelectedTrackFrame = this.primarySelectedTrack;
                 bool flag = ReferenceEquals(this.PreviouslySelectedTrack, this.primarySelectedTrack);
                 if (flag && ReferenceEquals(this.primarySelectedTrack, value)) {
                     return;

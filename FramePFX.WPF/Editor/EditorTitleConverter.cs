@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Threading;
 using System.Windows.Data;
 using FramePFX.Editor.ViewModels;
 
@@ -21,6 +22,8 @@ namespace FramePFX.WPF.Editor {
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
+            Lazy<string> lazyName = new Lazy<string>(() => "lol!", LazyThreadSafetyMode.ExecutionAndPublication);
+            Console.WriteLine(lazyName.Value);
             throw new NotImplementedException();
         }
     }

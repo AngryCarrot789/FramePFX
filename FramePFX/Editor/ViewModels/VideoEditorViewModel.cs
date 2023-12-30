@@ -26,7 +26,7 @@ namespace FramePFX.Editor.ViewModels {
     /// A view model that represents a video editor
     /// </summary>
     public class VideoEditorViewModel : BaseViewModel, IDisposable {
-        private readonly ObservableCollection<TimelineViewModel> activeTimelines;
+        private TimelineViewModel selectedTimeline;
         private ProjectViewModel activeProject;
         private bool isClosingProject;
         private bool isEditorEnabled;
@@ -49,13 +49,20 @@ namespace FramePFX.Editor.ViewModels {
         /// <summary>
         /// A collection of timelines currently active in the UI
         /// </summary>
-        public ReadOnlyObservableCollection<TimelineViewModel> ActiveTimelines { get; }
+        public ObservableCollection<TimelineViewModel> ActiveTimelines { get; }
 
         /// <summary>
         /// Gets or sets the timeline that is currently active in the UI.
         /// Updating this may cause a render to be triggered asynchronously
         /// </summary>
-        public TimelineViewModel SelectedTimeline { get; private set; }
+        public TimelineViewModel SelectedTimeline {
+            get => this.selectedTimeline;
+            set {
+                if (this.selectedTimeline == value)
+                    return;
+                SetSelectedTimelineInternal(this, value);
+            }
+        }
 
         public bool IsProjectSaving {
             get => this.Model.IsProjectSaving;
@@ -91,18 +98,17 @@ namespace FramePFX.Editor.ViewModels {
 
         public AsyncRelayCommand ExportCommand { get; }
 
+        public RelayCommand<TimelineViewModel> CloseTimelineCommand { get; }
+
         private SavingProjectNotification saveNotification;
 
-        private readonly Dictionary<TaskAction, TaskNotification> taskNotifications;
+        private readonly Dictionary<TaskProgram, TaskNotification> taskNotifications;
         private readonly Dictionary<TimelineViewModel, Task> timelineRenderTaskMap;
-        private TimelineViewModel scheduledNewSelectedTimeline;
-        private Task scheduledNewSelectionTask;
 
         public VideoEditorViewModel(IVideoEditor view) {
             this.View = view ?? throw new ArgumentNullException(nameof(view));
             this.Model = new VideoEditor();
-            this.activeTimelines = new ObservableCollection<TimelineViewModel>();
-            this.ActiveTimelines = new ReadOnlyObservableCollection<TimelineViewModel>(this.activeTimelines);
+            this.ActiveTimelines = new ObservableCollection<TimelineViewModel>();
             this.timelineRenderTaskMap = new Dictionary<TimelineViewModel, Task>();
             this.Playback = new EditorPlaybackViewModel(this);
             this.Playback.ProjectModified += this.OnProjectModified;
@@ -112,32 +118,39 @@ namespace FramePFX.Editor.ViewModels {
             this.ExportCommand = new AsyncRelayCommand(this.ExportAction, () => this.ActiveProject != null);
             this.FileExplorer = new FileExplorerViewModel();
             this.EffectsProviderList = new EffectProviderListViewModel();
-            this.taskNotifications = new Dictionary<TaskAction, TaskNotification>();
+            this.taskNotifications = new Dictionary<TaskProgram, TaskNotification>();
             TaskManager.Instance.TaskStarted += this.OnTaskStarted;
             TaskManager.Instance.TaskFinished += this.OnTaskFinished;
+
+            this.CloseTimelineCommand = new RelayCommand<TimelineViewModel>((t) => {
+                if (this.SelectedTimeline == t) {
+                    this.SelectedTimeline = null;
+                }
+
+                this.ActiveTimelines.Remove(t);
+                if (this.SelectedTimeline == null && this.ActiveTimelines.Count > 0) {
+                    this.SelectedTimeline = this.ActiveTimelines[0];
+                }
+            });
         }
 
-        private void OnTaskStarted(TaskManager manager, TaskAction task) {
+        private void OnTaskStarted(TaskManager manager, TaskProgram task) {
             this.taskNotifications[task] = new TaskNotification(task);
             this.View.NotificationPanel.PushNotification(this.taskNotifications[task]);
         }
 
-        private void OnTaskFinished(TaskManager manager, TaskAction task) {
+        private void OnTaskFinished(TaskManager manager, TaskProgram task) {
             if (this.taskNotifications.TryGetValue(task, out TaskNotification n)) {
                 n.StartAutoHideTask(TimeSpan.FromSeconds(3));
             }
         }
 
-        public static void OnSelectedTimelineChangedInternal(VideoEditorViewModel editor, TimelineViewModel timeline, bool? scheduleRender = true) {
+        public static void SetSelectedTimelineInternal(VideoEditorViewModel editor, TimelineViewModel timeline, bool? scheduleRender = true) {
             if (timeline == null) {
                 timeline = editor.ActiveProject?.Timeline;
             }
 
-            if (editor.SelectedTimeline == timeline) {
-                return;
-            }
-
-            editor.SelectedTimeline = timeline;
+            editor.selectedTimeline = timeline;
             editor.RaisePropertyChanged(nameof(editor.SelectedTimeline));
             if (timeline != null) {
                 PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(timeline.GetSelectedClips().ToList());
@@ -154,65 +167,18 @@ namespace FramePFX.Editor.ViewModels {
             }
         }
 
-        public void OnTimelineClosed(TimelineViewModel timeline) {
-            if (timeline == null) {
-                return;
-            }
-
-            int index = this.activeTimelines.IndexOf(timeline);
-            if (index == -1) {
-                return;
-            }
-
-            bool isActive = this.SelectedTimeline == timeline;
-            this.activeTimelines.RemoveAt(index);
-            if (!isActive) {
-                return;
-            }
-
-            if (this.activeTimelines.Count > 0) {
-                this.scheduledNewSelectedTimeline = this.activeTimelines[Maths.Clamp(index - 1, 0, this.activeTimelines.Count - 1)];
-                if (this.scheduledNewSelectionTask == null || this.scheduledNewSelectionTask.IsCompleted) {
-                    this.scheduledNewSelectionTask = IoC.Application.Dispatcher.InvokeAsync(() => {
-                        TimelineViewModel newTimeline = Helper.Exchange(ref this.scheduledNewSelectedTimeline, null);
-                        if (newTimeline != null) {
-                            OnSelectedTimelineChangedInternal(this, newTimeline);
-                        }
-                    });
-                }
-            }
-            else {
-                this.scheduledNewSelectedTimeline = null;
-            }
-        }
-
-        public void OnTimelineOpened(TimelineViewModel timeline) {
-            if (timeline != null && this.activeTimelines.Contains(timeline) && timeline != this.SelectedTimeline) {
-                OnSelectedTimelineChangedInternal(this, timeline, true);
-            }
-        }
-
-        public void OnTimelinesCleared() {
-            this.activeTimelines.Clear();
-            OnSelectedTimelineChangedInternal(this, null, true);
-        }
-
         public void OpenAndSelectTimeline(TimelineViewModel timeline) {
             if (this.SelectedTimeline != null) {
                 this.Playback.StopPlaybackForChangingTimeline();
             }
 
             if (timeline != null || (timeline = this.ActiveProject?.Timeline) != null) {
-                if (!this.activeTimelines.Contains(timeline)) {
-                    this.activeTimelines.Add(timeline);
+                if (!this.ActiveTimelines.Contains(timeline)) {
+                    this.ActiveTimelines.Add(timeline);
                 }
-
-                this.View.OpenAndSelectTimeline(timeline);
             }
 
-            if (this.SelectedTimeline != timeline) {
-                OnSelectedTimelineChangedInternal(this, timeline);
-            }
+            SetSelectedTimelineInternal(this, timeline);
         }
 
         public async Task ExportAction() {
@@ -349,8 +315,7 @@ namespace FramePFX.Editor.ViewModels {
             PFXPropertyEditorRegistry.Instance.Root.ClearHierarchyState();
             await this.Playback.OnProjectChanging(project);
             if (this.activeProject != null) {
-                this.View.CloseAllTimelinesExcept(this.activeProject.Timeline);
-                this.activeTimelines.Clear();
+                this.ActiveTimelines.Clear();
                 this.activeProject.OnDisconnectFromEditor();
                 this.Model.SetProject(null);
                 try {
@@ -374,8 +339,8 @@ namespace FramePFX.Editor.ViewModels {
 
                 this.Model.SetProject(project.Model);
                 this.activeProject.OnConnectToEditor(this);
-                this.activeTimelines.Add(project.Timeline);
-                OnSelectedTimelineChangedInternal(this, project.Timeline);
+                this.ActiveTimelines.Add(project.Timeline);
+                SetSelectedTimelineInternal(this, project.Timeline);
             }
 
             this.Model.IsProjectChanging = false;
@@ -517,9 +482,9 @@ namespace FramePFX.Editor.ViewModels {
             set => this.Task.Tracker.FooterText = value;
         }
 
-        public TaskAction Task { get; }
+        public TaskProgram Task { get; }
 
-        public TaskNotification(TaskAction task) {
+        public TaskNotification(TaskProgram task) {
             this.Task = task;
             task.Tracker.PropertyChanged += (sender, args) => {
                 switch (args.PropertyName) {

@@ -2,57 +2,57 @@ using System;
 using System.Threading.Tasks;
 
 namespace FramePFX.Actions {
-    public class LambdaAction : ExecutableAction {
-        public Func<ActionEventArgs, Task<bool>> ExecuteFunction { get; }
+    public class LambdaAction : ContextAction {
+        public Func<ContextActionEventArgs, Task<bool>> ExecuteFunction { get; }
 
-        public Func<ActionEventArgs, bool> CanExecuteFunction { get; }
+        public Func<ContextActionEventArgs, bool> CanExecuteFunction { get; }
 
-        public LambdaAction(Func<ActionEventArgs, Task<bool>> action, Func<ActionEventArgs, bool> getPresentation) : base() {
+        public LambdaAction(Func<ContextActionEventArgs, Task<bool>> action, Func<ContextActionEventArgs, bool> getPresentation) : base() {
             this.ExecuteFunction = action ?? throw new ArgumentNullException(nameof(action), "Action function cannot be null");
             this.CanExecuteFunction = getPresentation;
         }
 
-        public override Task<bool> ExecuteAsync(ActionEventArgs e) {
+        public override Task ExecuteAsync(ContextActionEventArgs e) {
             return this.ExecuteFunction(e);
         }
 
-        public override bool CanExecute(ActionEventArgs e) {
+        public override bool CanExecute(ContextActionEventArgs e) {
             return this.CanExecuteFunction != null ? this.CanExecuteFunction(e) : base.CanExecute(e);
         }
 
-        public static ExecutableAction Lambda(Func<ActionEventArgs, Task<bool>> action) {
+        public static ContextAction Lambda(Func<ContextActionEventArgs, Task<bool>> action) {
             return new LambdaAction(action, null);
         }
 
-        public static ExecutableAction LambdaEx(Func<ActionEventArgs, Task<bool>> action, Func<ActionEventArgs, bool> getPresentation) {
+        public static ContextAction LambdaEx(Func<ContextActionEventArgs, Task<bool>> action, Func<ContextActionEventArgs, bool> getPresentation) {
             return new LambdaAction(action, getPresentation);
         }
 
-        public static ExecutableAction LambdaForContext<T>(Func<T, Task<bool>> action) {
+        public static ContextAction LambdaForContext<T>(Func<T, Task<bool>> action) {
             return Lambda(GetLambdaExecutor(action));
         }
 
-        public static ExecutableAction LambdaForContextEx<T>(Func<T, Task<bool>> action, Func<T, bool> presentation, bool noContextAvailable = false) {
+        public static ContextAction LambdaForContextEx<T>(Func<T, Task<bool>> action, Func<T, bool> presentation, bool noContextAvailable = false) {
             return LambdaEx(GetLambdaExecutor(action), GetLambdaPresentator(presentation, noContextAvailable));
         }
 
-        public static ExecutableAction LambdaI18N(Func<ActionEventArgs, Task<bool>> action) {
+        public static ContextAction LambdaI18N(Func<ContextActionEventArgs, Task<bool>> action) {
             return new LambdaAction(action, null);
         }
 
-        public static ExecutableAction LambdaI18NEx(Func<ActionEventArgs, Task<bool>> action, Func<ActionEventArgs, bool> getPresentation) {
+        public static ContextAction LambdaI18NEx(Func<ContextActionEventArgs, Task<bool>> action, Func<ContextActionEventArgs, bool> getPresentation) {
             return new LambdaAction(action, getPresentation);
         }
 
-        public static ExecutableAction LambdaForContextI18N<T>(Func<T, Task<bool>> action) {
+        public static ContextAction LambdaForContextI18N<T>(Func<T, Task<bool>> action) {
             return LambdaI18N(GetLambdaExecutor(action));
         }
 
-        public static ExecutableAction LambdaForContextI18NEx<T>(Func<T, Task<bool>> action, Func<T, bool> presentation, bool noContextAvailable = false) {
+        public static ContextAction LambdaForContextI18NEx<T>(Func<T, Task<bool>> action, Func<T, bool> presentation, bool noContextAvailable = false) {
             return LambdaI18NEx(GetLambdaExecutor(action), GetLambdaPresentator(presentation, noContextAvailable));
         }
 
-        private static Func<ActionEventArgs, Task<bool>> GetLambdaExecutor<T>(Func<T, Task<bool>> action) {
+        private static Func<ContextActionEventArgs, Task<bool>> GetLambdaExecutor<T>(Func<T, Task<bool>> action) {
             return async x => {
                 if (x.DataContext.TryGetContext(out T context)) {
                     return await action(context);
@@ -63,7 +63,7 @@ namespace FramePFX.Actions {
             };
         }
 
-        private static Func<ActionEventArgs, bool> GetLambdaPresentator<T>(Func<T, bool> action, bool noContextAvailable) {
+        private static Func<ContextActionEventArgs, bool> GetLambdaPresentator<T>(Func<T, bool> action, bool noContextAvailable) {
             return x => x.DataContext.TryGetContext(out T editor) ? action(editor) : noContextAvailable;
         }
     }

@@ -48,6 +48,10 @@ namespace FramePFX.WPF.Editor.Timelines.Controls {
             this.DragOver += this.OnDragOver;
         }
 
+        protected override void OnChildDesiredSizeChanged(UIElement child) {
+            // base.OnChildDesiredSizeChanged(child);
+        }
+
         protected override void OnPreviewKeyDown(KeyEventArgs e) {
             if (e.Key == Key.System && (e.SystemKey == Key.LeftAlt || e.SystemKey == Key.RightAlt) && e.OriginalSource is TimelineClipControl) {
                 e.Handled = true;

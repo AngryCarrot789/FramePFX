@@ -161,10 +161,13 @@ namespace FramePFX.WPF.Controls {
             }
         }
 
+        private readonly ScaleTransform scaleTransform;
+
         public FreeMoveViewPortV2() {
             this.Loaded += this.OnLoaded;
             this.PreviewMouseWheel += this.OnPreviewMouseWheel;
             this.Background = Brushes.Transparent;
+            this.InternalTransform = this.scaleTransform = new ScaleTransform(1d, 1d);
         }
 
         private void OnMinimumZoomChanged(double oldValue, double newValue) {
@@ -196,18 +199,20 @@ namespace FramePFX.WPF.Controls {
             this.VerticalOffset = 0;
             this.ZoomScale = 0;
 
-            // Process new zoom after layout update which occurs just after render
-            this.Dispatcher.Invoke(() => {
-                Size childSize = child.DesiredSize;
-                double ratioW = this.ActualWidth / childSize.Width;
-                double ratioH = this.ActualHeight / childSize.Height;
-                if (ratioH < ratioW && childSize.Height > 0) {
-                    this.ZoomScale = this.ActualHeight / childSize.Height;
-                }
-                else if (childSize.Width > 0) {
-                    this.ZoomScale = this.ActualWidth / childSize.Width;
-                }
-            }, DispatcherPriority.Render);
+            this.UpdateLayout();
+
+            Size childSize = child.DesiredSize;
+            double ratioW = this.ActualWidth / childSize.Width;
+            double ratioH = this.ActualHeight / childSize.Height;
+            if (ratioH < ratioW && childSize.Height > 0) {
+                this.ZoomScale = this.ActualHeight / childSize.Height;
+            }
+            else if (childSize.Width > 0) {
+                this.ZoomScale = this.ActualWidth / childSize.Width;
+            }
+            else {
+                this.ZoomScale = 1;
+            }
         }
 
         private void OnPreviewMouseWheel(object sender, MouseWheelEventArgs e) {
@@ -292,7 +297,13 @@ namespace FramePFX.WPF.Controls {
                 Size desired = child.DesiredSize;
                 double left = ((arrangeSize.Width - desired.Width) / 2) + this.HorizontalOffset;
                 double top = ((arrangeSize.Height - desired.Height) / 2) + this.VerticalOffset;
-                this.InternalTransform = new ScaleTransform(this.ZoomScale, this.ZoomScale, arrangeSize.Width / 2d, arrangeSize.Height / 2d);
+                // this.InternalTransform = new ScaleTransform(this.ZoomScale, this.ZoomScale, arrangeSize.Width / 2d, arrangeSize.Height / 2d);
+
+                double zoom = this.ZoomScale;
+                this.scaleTransform.ScaleX = zoom;
+                this.scaleTransform.ScaleY = zoom;
+                this.scaleTransform.CenterX = arrangeSize.Width / 2d;
+                this.scaleTransform.CenterY = arrangeSize.Height / 2d;
 
                 // Size visualSize = new Size(desired.Width * this.ZoomScale, desired.Height * this.ZoomScale);
                 // if (visualSize.Width > arrangeSize.Width) {

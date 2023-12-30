@@ -18,30 +18,28 @@ using FramePFX.Utils;
 
 namespace FramePFX.Editor.Actions.Clips {
     [ActionRegistration("actions.editor.timeline.CreateCompositionFromSelection")]
-    public class CreateCompositionFromClipsAction : ExecutableAction {
+    public class CreateCompositionFromClipsAction : ContextAction {
         private bool isExecuting;
 
-        public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
+        public override async Task ExecuteAsync(ContextActionEventArgs e) {
             if (this.isExecuting) {
-                return true;
+                return;
             }
 
             // TODO: probably clean this function up a bit LOL
             // Find timeline from possible selected items
 
             if (!EditorActionUtils.GetTimeline(e.DataContext, out TimelineViewModel timeline)) {
-                return false;
+                return;
             }
 
             try {
                 this.isExecuting = true;
-                await TaskManager.Instance.RunAsync(new TaskAction((t) => RunTask(timeline, t)));
+                await TaskManager.Instance.RunAsync(new TaskProgram((t) => RunTask(timeline, t)));
             }
             finally {
                 this.isExecuting = false;
             }
-
-            return true;
         }
 
         private static async Task<bool> RunTask(TimelineViewModel timeline, IProgressTracker tracker) {

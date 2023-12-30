@@ -20,8 +20,9 @@
                     xmlns:videoClips="clr-namespace:FramePFX.Editor.ViewModels.Timelines.VideoClips;assembly=FramePFX"
                     xmlns:sc="clr-namespace:FramePFX.WPF.Shortcuts"
                     xmlns:tc="clr-namespace:FramePFX.WPF.Editor.Timelines.Controls"
-                    xmlns:timelines="clr-namespace:FramePFX.WPF.Editor.Timelines"
+                    xmlns:tl="clr-namespace:FramePFX.WPF.Editor.Timelines"
                     xmlns:v2="clr-namespace:FramePFX.WPF.Editor.Timelines.Controls.V2"
+                    xmlns:mainWindow="clr-namespace:FramePFX.WPF.Editor.MainWindow"
                     mc:Ignorable="d">
     <c:BoolToVisibilityConverter x:Key="BoolToVisibleOrCollapsedConverter" TrueValue="Visible" FalseValue="Collapsed" UnsetValue="Collapsed" NonBoolValue="Collapsed" />
     <Style TargetType="{x:Type ctrl:CancellableThumb}" BasedOn="{StaticResource {x:Type Thumb}}" />
@@ -497,8 +498,8 @@
         </Setter>
     </Style>
 
-    <timelines:TimelineTrackListItemTemplateSelector x:Key="TimelineTrackListItemContainerSelector">
-        <timelines:TimelineTrackListItemTemplateSelector.VideoTrackTemplate>
+    <tl:TimelineTrackListItemTemplateSelector x:Key="TimelineTrackListItemContainerSelector">
+        <tl:TimelineTrackListItemTemplateSelector.VideoTrackTemplate>
             <DataTemplate DataType="{x:Type tt:VideoTrackViewModel}">
                 <Grid Margin="4,0">
                     <DockPanel SnapsToDevicePixels="True">
@@ -533,8 +534,8 @@
                     </DockPanel>
                 </Grid>
             </DataTemplate>
-        </timelines:TimelineTrackListItemTemplateSelector.VideoTrackTemplate>
-        <timelines:TimelineTrackListItemTemplateSelector.AudioTrackTemplate>
+        </tl:TimelineTrackListItemTemplateSelector.VideoTrackTemplate>
+        <tl:TimelineTrackListItemTemplateSelector.AudioTrackTemplate>
             <DataTemplate DataType="{x:Type tt:AudioTrackViewModel}">
                 <Grid Margin="4,0">
                     <DockPanel SnapsToDevicePixels="True">
@@ -570,8 +571,8 @@
                     </DockPanel>
                 </Grid>
             </DataTemplate>
-        </timelines:TimelineTrackListItemTemplateSelector.AudioTrackTemplate>
-    </timelines:TimelineTrackListItemTemplateSelector>
+        </tl:TimelineTrackListItemTemplateSelector.AudioTrackTemplate>
+    </tl:TimelineTrackListItemTemplateSelector>
 
     <Style x:Key="TrackListBoxItemContainerStyle" TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
         <Setter Property="Height" Value="{Binding Height, Mode=TwoWay, FallbackValue=60}" />
@@ -729,10 +730,17 @@
 
     <Style TargetType="{x:Type tc:TimelineControl}">
         <Setter Property="Background" Value="{DynamicResource PanelBackground2}" />
+        <Setter Property="sc:UIInputManager.FocusPath" Value="Application/Editor/Timeline" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type tc:TimelineControl}">
                     <DockPanel d:DataContext="{d:DesignInstance ctl:TimelineViewModel}" IsEnabled="{Binding Project, Converter={x:Static c:NullToBoolConverter.NullToFalse}}">
+                        <b:ShortcutCommandCollection.Collection>
+                            <b:ShortcutCommandCollection>
+                                <b:ShortcutCommandBinding ShortcutPath="Application/Editor/Timeline/TogglePlayPause"
+                                                          Command="{Binding Project.Editor.Playback.TogglePlayCommand, Mode=OneWay}" />
+                            </b:ShortcutCommandCollection>
+                        </b:ShortcutCommandCollection.Collection>
                         <Border DockPanel.Dock="Bottom" Height="28" Background="{DynamicResource ABrush.Tone6.Background.Static}"
                                 BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,1,0,0">
                             <DockPanel Margin="2">

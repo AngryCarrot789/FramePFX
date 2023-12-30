@@ -16,14 +16,14 @@ using FramePFX.Utils;
 
 namespace FramePFX.Editor.Actions.Resources {
     [ActionRegistration("action.create.new.clip.TextClip")]
-    public class NewTextResourceAction : ExecutableAction {
-        public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
+    public class NewTextResourceAction : ContextAction {
+        public override async Task ExecuteAsync(ContextActionEventArgs e) {
             if (!EditorActionUtils.GetTimeline(e.DataContext, out TimelineViewModel timeline)) {
-                return false;
+                return;
             }
 
             if (!CreateResourceUtils.GetSelectedFolder(e.DataContext, out ResourceFolderViewModel folder) || folder.Manager == null) {
-                return false;
+                return;
             }
 
             ResourceTextStyle model;
@@ -35,7 +35,7 @@ namespace FramePFX.Editor.Actions.Resources {
                 string str = ex.GetToString();
                 await IoC.DialogService.ShowMessageExAsync("Resource Failure", "Failed to create resource", str);
                 AppLogger.WriteLine("Failed to create resource: " + str);
-                return true;
+                return;
             }
 
             folder.Model.AddItem(model);
@@ -68,8 +68,6 @@ namespace FramePFX.Editor.Actions.Resources {
                     await timeline.UpdateAndRenderTimelineToEditor();
                 }
             }
-
-            return true;
         }
     }
 }

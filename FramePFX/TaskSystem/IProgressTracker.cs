@@ -9,10 +9,10 @@ namespace FramePFX.TaskSystem {
         /// <summary>
         /// Gets the task associated with this tracker
         /// </summary>
-        TaskAction Task { get; }
+        TaskProgram Task { get; }
 
         /// <summary>
-        /// Gets if the task is running
+        /// Returns true when our <see cref="Task"/> is still running, false when it has completed (may have failed)
         /// </summary>
         bool IsRunning { get; }
 

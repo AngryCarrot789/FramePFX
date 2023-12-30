@@ -6,26 +6,35 @@ using FramePFX.Logger;
 using FramePFX.Utils;
 
 namespace FramePFX.TaskSystem {
-    public delegate void TaskStartedEventHandler(TaskManager manager, TaskAction task);
-    public delegate void TaskFinishedEventHandler(TaskManager manager, TaskAction task);
+    public delegate void TaskStartedEventHandler(TaskManager manager, TaskProgram task);
+    public delegate void TaskFinishedEventHandler(TaskManager manager, TaskProgram task);
 
     /// <summary>
-    /// A class
+    /// A class that manages registered tasks
     /// </summary>
     public class TaskManager {
         public static TaskManager Instance { get; } = new TaskManager();
 
         private readonly object RunLock;
-        private readonly List<TaskAction> tasks;
+        private readonly List<TaskProgram> tasks;
         private readonly List<IProgressTracker> cancellableTrackersForWritePriority;
+        private readonly ThreadLocal<TaskProgram> threadProgram;
 
         public event TaskStartedEventHandler TaskStarted;
         public event TaskFinishedEventHandler TaskFinished;
 
+        /// <summary>
+        /// Gets the task running on the current thread. May be null if there is no task
+        /// </summary>
+        public TaskProgram CurrentTask {
+            get => this.threadProgram.IsValueCreated ? this.threadProgram.Value : null;
+        }
+
         public TaskManager() {
             this.RunLock = new object();
-            this.tasks = new List<TaskAction>();
+            this.tasks = new List<TaskProgram>();
             this.cancellableTrackersForWritePriority = new List<IProgressTracker>();
+            this.threadProgram = new ThreadLocal<TaskProgram>();
         }
 
         public void OnApplicationWriteActionStarting() {
@@ -36,8 +45,8 @@ namespace FramePFX.TaskSystem {
             }
         }
 
-        private class BoolRef {
-            public volatile bool value;
+        private class TaskStartState {
+            public volatile int state;
         }
 
         /// <summary>
@@ -46,7 +55,7 @@ namespace FramePFX.TaskSystem {
         /// <param name="task">The task to execute</param>
         /// <exception cref="ArgumentNullException">Task is null</exception>
         /// <exception cref="Exception">Task's OnPreStart method threw</exception>
-        public void Run(TaskAction task, bool cancelOnAppWriteAction = false) {
+        public void Run(TaskProgram task, bool cancelOnAppWriteAction = false) {
             if (task == null)
                 throw new ArgumentNullException(nameof(task));
 
@@ -64,10 +73,11 @@ namespace FramePFX.TaskSystem {
                     this.cancellableTrackersForWritePriority.Add(task.Tracker);
                 }
 
-                BoolRef bref = new BoolRef();
+                TaskStartState state = new TaskStartState();
                 task.Task = Task.Run(async () => {
-                    CancellationToken token = task.CancellationToken.Token;
-                    while (!bref.value) {
+                    CancellationToken token = task.CancellationTokenSource.Token;
+                    this.threadProgram.Value = task;
+                    while (state.state == 0) {
                         await Task.Delay(1, token);
                     }
 
@@ -104,7 +114,7 @@ namespace FramePFX.TaskSystem {
                     this.TaskStarted?.Invoke(this, task);
                 }
                 finally {
-                    bref.value = true;
+                    state.state = 1;
                 }
             }
         }
@@ -112,16 +122,16 @@ namespace FramePFX.TaskSystem {
         /// <summary>
         /// Runs the given task, and awaits its completion
         /// </summary>
-        public async Task RunAsync(TaskAction task, bool cancelOnAppWriteAction = false) {
+        public async Task RunAsync(TaskProgram task, bool cancelOnAppWriteAction = false) {
             this.Run(task, cancelOnAppWriteAction);
             await task.Task;
         }
 
-        private void OnCompletedInternal(TaskAction task, ErrorList errorList) {
+        private void OnCompletedInternal(TaskProgram task, ErrorList errorList) {
             lock (this.RunLock) {
+                this.threadProgram.Value = null;
                 this.tasks.Remove(task);
                 this.cancellableTrackersForWritePriority.Remove(task.Tracker);
-                task.OnTaskCompleted();
                 if (errorList.TryGetException(out Exception exception)) {
                     AppLogger.WriteLine("Exception while running task: " + exception.GetToString());
                 }

@@ -63,20 +63,14 @@ namespace FramePFX.Editor.Contexts {
     }
 
     [ActionRegistration("actions.timeline.NewAdjustmentClip")]
-    public class NewAdjustmentClipAction : ExecutableAction {
-        public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
-            if (!e.DataContext.TryGetContext(out TrackViewModel track)) {
-                return false;
-            }
-
-            if (track.Timeline != null) {
+    public class NewAdjustmentClipAction : ContextAction {
+        public override async Task ExecuteAsync(ContextActionEventArgs e) {
+            if (e.DataContext.TryGetContext(out TrackViewModel track) && track.Timeline != null) {
                 FrameSpan span = new FrameSpan(track.Timeline.PlayHeadFrame, track.Timeline.FPS.ToInt);
                 if (track.Model.IsRegionEmpty(span)) {
                     track.AddClip(new AdjustmentVideoClip {FrameSpan = span});
                 }
             }
-
-            return true;
         }
     }
 }

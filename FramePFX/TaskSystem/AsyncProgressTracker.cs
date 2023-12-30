@@ -15,7 +15,7 @@ namespace FramePFX.TaskSystem {
         private string footerText;
         private bool isRunning;
 
-        public TaskAction Task { get; }
+        public TaskProgram Task { get; }
 
         public bool IsRunning {
             get => this.isRunning;
@@ -30,16 +30,8 @@ namespace FramePFX.TaskSystem {
         public bool IsCancelled => this.isCancelled != 0;
 
         public double CompletionValue {
-            get {
-                if (this.IsIndeterminate)
-                    throw new InvalidOperationException("Indicator is indeterminate");
-                return this.completion;
-            }
-            set {
-                if (this.IsIndeterminate)
-                    throw new InvalidOperationException("Indicator is indeterminate");
-                this.tracker.RaisePropertyChanged(ref this.completion, value);
-            }
+            get => this.completion;
+            set => this.tracker.RaisePropertyChanged(ref this.completion, value);
         }
 
         public string HeaderText {
@@ -54,8 +46,8 @@ namespace FramePFX.TaskSystem {
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public AsyncProgressTracker(TaskAction task) {
-            this.tracker = new LatePropertyChangedManager(this, this.RaisePropertyChanged);
+        public AsyncProgressTracker(TaskProgram task) {
+            this.tracker = new LatePropertyChangedManager(this, p => this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(p)));
             this.Task = task;
         }
 
@@ -89,11 +81,6 @@ namespace FramePFX.TaskSystem {
                 TaskManager.Instance.Cancel(this);
                 this.tracker.RaisePropertyChanged(nameof(this.IsCancelled));
             }
-        }
-
-        [Annotations.NotifyPropertyChangedInvocator]
-        protected void RaisePropertyChanged([CallerMemberName] string propertyName = null) {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

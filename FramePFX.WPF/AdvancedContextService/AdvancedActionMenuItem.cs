@@ -102,7 +102,7 @@ namespace FramePFX.WPF.AdvancedContextService {
             if (string.IsNullOrEmpty(id))
                 return;
 
-            ExecutableAction action = ActionManager.Instance.GetAction(id);
+            ContextAction action = ActionManager.Instance.GetAction(id);
             if (action == null)
                 return;
 

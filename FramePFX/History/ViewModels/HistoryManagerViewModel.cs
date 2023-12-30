@@ -207,7 +207,7 @@ namespace FramePFX.History.ViewModels {
 
         public async Task ResetAsync() {
             if (this.manager.IsUndoing || this.manager.IsRedoing) {
-                await TaskManager.Instance.RunAsync(new TaskAction(async (p) => {
+                await TaskManager.Instance.RunAsync(new TaskProgram(async (p) => {
                     p.IsIndeterminate = true;
                     p.HeaderText = "Clearing History";
                     p.FooterText = "Waiting for a history action to complete...";

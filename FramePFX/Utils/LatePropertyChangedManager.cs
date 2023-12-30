@@ -90,7 +90,7 @@ namespace FramePFX.Utils {
                 this.criticalIsProcessingAction = true;
                 try {
                     // OnPropertyChanged called, is now updating field, but may be attempting to
-                    // schedule a write action on the main thread. Spin wait until that's done, so we know
+                    // schedule an action on the main thread. Spin wait until that's done, so we know
                     while (Interlocked.CompareExchange(ref this.state, STATE_AMT_PROCESSING, STATE_APPENDED_SAFE) != STATE_APPENDED_SAFE) {
                         if (!Thread.Yield())
                             Thread.Sleep(1);

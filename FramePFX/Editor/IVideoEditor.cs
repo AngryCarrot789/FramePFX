@@ -23,14 +23,6 @@ namespace FramePFX.Editor {
         Task RenderToViewPortAsync(Timeline timeline, bool scheduleRender = false);
 
         /// <summary>
-        /// Opens and selects the UI element representing the given timeline. If it is not open,
-        /// a new UI object is created and selected. If it is already open but not selected,
-        /// then it is selected. And if it's already selected then nothing happens
-        /// </summary>
-        /// <param name="timeline">The timeline to show in the UI</param>
-        void OpenAndSelectTimeline(TimelineViewModel timeline);
-
-        /// <summary>
         /// Called by the editor when the project frame rate changes, in order to try to adjust the timeline zoom
         /// level and scroll such that it looks like nothing visually changed (apart from the ruler times which will change)
         /// </summary>
@@ -48,7 +40,5 @@ namespace FramePFX.Editor {
         /// Invoked on the export thread when an export ends
         /// </summary>
         void OnExportEnd();
-
-        void CloseAllTimelinesExcept(TimelineViewModel timeline);
     }
 }

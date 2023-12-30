@@ -4,10 +4,10 @@ using FramePFX.Actions;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 
 namespace FramePFX.Editor.ResourceManaging.Actions {
-    public class GroupSelectedResourcesAction : ExecutableAction {
-        public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
+    public class GroupSelectedResourcesAction : ContextAction {
+        public override async Task ExecuteAsync(ContextActionEventArgs e) {
             if (!ResourceActionUtils.GetSelectedResources(e.DataContext, out ResourceManagerViewModel manager, out List<BaseResourceViewModel> selection)) {
-                return false;
+                return;
             }
 
             ResourceFolderViewModel current = manager.CurrentFolder;
@@ -23,8 +23,6 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
                     }
                 }
             }
-
-            return true;
         }
     }
 }

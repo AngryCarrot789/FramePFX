@@ -44,8 +44,8 @@ namespace FramePFX.WPF.Views {
             TextBlock block;
             ProgressBar bar;
             StackPanel p;
-            this.Arrange(default);
-            this.InvalidateArrange();
+            // this.Arrange(default);
+            // this.InvalidateArrange();
             ContentControl c;
             UIElement el;
             FrameworkElement e;
@@ -195,7 +195,7 @@ namespace FramePFX.WPF.Views {
             public MakeTopMostAction() {
             }
 
-            protected override Task<bool> OnToggled(ActionEventArgs e, bool isToggled) {
+            protected override Task<bool> OnToggled(ContextActionEventArgs e, bool isToggled) {
                 if (e.DataContext.TryGetContext(out WindowEx window)) {
                     window.Topmost = isToggled;
                     return Task.FromResult(true);
@@ -205,7 +205,7 @@ namespace FramePFX.WPF.Views {
                 }
             }
 
-            protected override Task<bool> ExecuteNoToggle(ActionEventArgs e) {
+            protected override Task<bool> ExecuteNoToggle(ContextActionEventArgs e) {
                 if (e.DataContext.TryGetContext(out WindowEx window)) {
                     window.Topmost = !window.Topmost;
                     return Task.FromResult(true);
@@ -215,7 +215,7 @@ namespace FramePFX.WPF.Views {
                 }
             }
 
-            public override bool CanExecute(ActionEventArgs e) {
+            public override bool CanExecute(ContextActionEventArgs e) {
                 return e.DataContext.TryGetContext<WindowEx>(out _);
             }
         }

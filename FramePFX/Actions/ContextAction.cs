@@ -23,8 +23,24 @@ namespace FramePFX.Actions {
     /// These actions can be executed through the <see cref="ActionManager.Execute(string, Contexts.IDataContext, bool)"/> function
     /// </para>
     /// </summary>
-    public abstract class ExecutableAction {
-        protected ExecutableAction() {
+    public abstract class ContextAction {
+        /// <summary>
+        /// Gets the unique singleton ID for this context action. This is set after the
+        /// current instance is registered with a <see cref="ActionManager"/>
+        /// </summary>
+        public string Id { get; internal set; }
+
+        /// <summary>
+        /// Gets or sets the display name for this action. May be null, making it an unnamed action
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Gets or sets a readable description for what this action
+        /// </summary>
+        public string Description { get; set; }
+
+        protected ContextAction() {
         }
 
         /// <summary>
@@ -37,30 +53,16 @@ namespace FramePFX.Actions {
         /// </summary>
         /// <param name="e">The action event args, containing info about the current context</param>
         /// <returns>True if executing this action would most likely result in success, otherwise false</returns>
-        public virtual bool CanExecute(ActionEventArgs e) {
+        public virtual bool CanExecute(ContextActionEventArgs e) {
             return true;
         }
 
         /// <summary>
-        /// <para>
         /// Executes this specific action with the given action event args
-        /// </para>
-        /// <para>
-        /// About the return value: The bool state is not used, however, it used to be used by the shortcut processor
-        /// to check if any next actions should be executed, but that's done regardless of the return value
-        /// </para>
-        /// <para>
-        /// In this case, it's typically a better option for the return value to be whether this action is actually executable
-        /// in some form, instead of whether if it executed successfully or not
-        /// </para>
-        /// <para>
-        /// For example, RemoveSelectedItemsAction: the args data context did not contain some sort of "list" object, so returning false
-        /// makes sense. However, if it did contain a list but there were 0 items actually selected, then returning true may be the better option.
-        /// </para>
         /// </summary>
         /// <param name="e">The action event args, containing info about the current context</param>
         /// <returns>Whether the action execution was handled</returns>
-        public abstract Task<bool> ExecuteAsync(ActionEventArgs e);
+        public abstract Task ExecuteAsync(ContextActionEventArgs e);
 
         /// <summary>
         /// Creates a builder, which can be used to build an action based on specific data context types
@@ -143,11 +145,11 @@ namespace FramePFX.Actions {
             return this;
         }
 
-        public ExecutableAction Build() {
+        public ContextAction Build() {
             return new BuiltActionImpl(this.entries, this.converters);
         }
 
-        private class BuiltActionImpl : ExecutableAction {
+        private class BuiltActionImpl : ContextAction {
             private readonly InheritanceDictionary<EntryBase> entryMap;
             private readonly InheritanceDictionary<ObjectConverter> converterMap;
 
@@ -163,13 +165,13 @@ namespace FramePFX.Actions {
                 }
             }
 
-            private IEnumerable<object> GetFinalObjects(ActionEventArgs e) {
+            private IEnumerable<object> GetFinalObjects(ContextActionEventArgs e) {
                 if (this.converterMap.IsEmpty)
                     return e.DataContext.Context;
                 return this.GetFinalObjectsImpl(e);
             }
 
-            private IEnumerable<object> GetFinalObjectsImpl(ActionEventArgs e) {
+            private IEnumerable<object> GetFinalObjectsImpl(ContextActionEventArgs e) {
                 foreach (object context in e.DataContext.Context) {
                     yield return context;
                     InheritanceDictionary<ObjectConverter>.LocalValueEntryEnumerator enumerable = this.converterMap.GetLocalValueEnumerator(context.GetType());
@@ -182,7 +184,7 @@ namespace FramePFX.Actions {
                 }
             }
 
-            public override bool CanExecute(ActionEventArgs e) {
+            public override bool CanExecute(ContextActionEventArgs e) {
                 foreach (object value in this.GetFinalObjects(e)) {
                     InheritanceDictionary<EntryBase>.LocalValueEntryEnumerator enumerator = this.entryMap.GetLocalValueEnumerator(value.GetType());
                     while (enumerator.MoveNext()) {
@@ -196,18 +198,16 @@ namespace FramePFX.Actions {
                 return false;
             }
 
-            public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
+            public override async Task ExecuteAsync(ContextActionEventArgs e) {
                 foreach (object value in this.GetFinalObjects(e)) {
                     InheritanceDictionary<EntryBase>.LocalValueEntryEnumerator enumerator = this.entryMap.GetLocalValueEnumerator(value.GetType());
                     while (enumerator.MoveNext()) {
                         EntryBase entry = enumerator.Current.LocalValue;
                         if (entry.CanExecute(value) && await entry.Execute(value)) {
-                            return true;
+                            return;
                         }
                     }
                 }
-
-                return false;
             }
         }
 

@@ -8,6 +8,7 @@ using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.ViewModels;
+using FramePFX.Editor.ViewModels.Timelines.Tracks;
 using FramePFX.Logger;
 using FramePFX.Utils;
 
@@ -35,14 +36,14 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
         }
     }
 
-    public abstract class CreateAndAddResourceAction<T> : ExecutableAction where T : BaseResource {
+    public abstract class CreateAndAddResourceAction<T> : ContextAction where T : BaseResource {
         public string RegistryTypeId { get; }
 
         protected CreateAndAddResourceAction() {
             this.RegistryTypeId = ResourceTypeFactory.Instance.GetTypeIdForModel(typeof(T));
         }
 
-        public override bool CanExecute(ActionEventArgs e) {
+        public override bool CanExecute(ContextActionEventArgs e) {
             return CreateResourceUtils.GetSelectedFolder(e.DataContext, out _);
         }
 
@@ -50,9 +51,9 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
             return "New Resource";
         }
 
-        public sealed override async Task<bool> ExecuteAsync(ActionEventArgs e) {
+        public sealed override async Task ExecuteAsync(ContextActionEventArgs e) {
             if (!CreateResourceUtils.GetSelectedFolder(e.DataContext, out ResourceFolderViewModel folder)) {
-                return false;
+                return;
             }
 
             BaseResource model;
@@ -63,27 +64,25 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
                 string str = ex.GetToString();
                 AppLogger.WriteLine("Failed to create resource: " + str);
                 await IoC.DialogService.ShowMessageExAsync("Resource Failure", "Failed to create resource", str);
-                return true;
+                return;
             }
 
             if (model is T resource) {
                 resource.DisplayName = this.GetDefaultDisplayName();
-                folder.Model.AddItem(model);
+                folder.Model.AddItem(resource);
                 if (await this.PreProcessCanKeepInFolder(folder, resource, e)) {
                     await this.PostProcessItemCreation(folder, resource, e);
                 }
                 else {
-                    folder.Model.UnregisterRemoveAndDisposeItem(model);
+                    folder.Model.UnregisterRemoveAndDisposeItem(resource);
                 }
             }
             else {
                 await IoC.DialogService.ShowMessageAsync("Resource Failure", "Resource type error... this should not have occured XD.\nID = " + this.RegistryTypeId + ", actual type = " + model.GetType().Name);
             }
-
-            return true;
         }
 
-        public virtual async Task<bool> PreProcessCanKeepInFolder(ResourceFolderViewModel folder, T tItem, ActionEventArgs e) {
+        public virtual async Task<bool> PreProcessCanKeepInFolder(ResourceFolderViewModel folder, T tItem, ContextActionEventArgs e) {
             if (!(tItem is ResourceItem resource)) {
                 return true;
             }
@@ -100,7 +99,7 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
             }
         }
 
-        public virtual Task PostProcessItemCreation(ResourceFolderViewModel folder, T resource, ActionEventArgs e) {
+        public virtual Task PostProcessItemCreation(ResourceFolderViewModel folder, T resource, ContextActionEventArgs e) {
             return Task.CompletedTask;
         }
     }
@@ -136,17 +135,17 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
 
     [ActionRegistration("action.create.new.resource.ResourceComposition")]
     public class CreateCompositionResourceAction : CreateAndAddResourceAction<ResourceComposition> {
-        public override Task PostProcessItemCreation(ResourceFolderViewModel folder, ResourceComposition resource, ActionEventArgs e) {
+        public override Task PostProcessItemCreation(ResourceFolderViewModel folder, ResourceComposition resource, ContextActionEventArgs e) {
             resource.Timeline.DisplayName = "Composition timeline";
-            resource.Timeline.AddTrack(new VideoTrack() {
-                DisplayName = "Track 1"
-            });
-
-            resource.Timeline.AddTrack(new VideoTrack() {
-                DisplayName = "Track 2"
-            });
-
             ResourceCompositionViewModel item = (ResourceCompositionViewModel) folder.LastItem;
+            item.Timeline.AddTrack(new VideoTrackViewModel(new VideoTrack() {
+                DisplayName = "Track 1"
+            }));
+
+            item.Timeline.AddTrack(new VideoTrackViewModel(new VideoTrack() {
+                DisplayName = "Track 2"
+            }));
+
             folder.Manager.Project?.Editor?.OpenAndSelectTimeline(item.Timeline);
             return base.PostProcessItemCreation(folder, resource, e);
         }

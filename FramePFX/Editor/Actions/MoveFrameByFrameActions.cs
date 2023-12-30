@@ -6,46 +6,46 @@ using FramePFX.Utils;
 namespace FramePFX.Editor.Actions {
     public class MoveFrameByFrameActions {
         [ActionRegistration("actions.timeline.surface.MoveBack")]
-        public class MoveBackAction : ExecutableAction {
-            public override Task<bool> ExecuteAsync(ActionEventArgs e) => ExecuteGeneral(e, -1);
+        public class MoveBackAction : ContextAction {
+            public override Task ExecuteAsync(ContextActionEventArgs e) => ExecuteGeneral(e, -1);
         }
 
         [ActionRegistration("actions.timeline.surface.MoveForward")]
-        public class MoveForwardAction : ExecutableAction {
-            public override Task<bool> ExecuteAsync(ActionEventArgs e) => ExecuteGeneral(e, 1);
+        public class MoveForwardAction : ContextAction {
+            public override Task ExecuteAsync(ContextActionEventArgs e) => ExecuteGeneral(e, 1);
         }
 
         [ActionRegistration("actions.timeline.surface.ExpandEndBackwards")]
-        public class ExpandEndBackwardsAction : ExecutableAction {
-            public override Task<bool> ExecuteAsync(ActionEventArgs e) => ExecuteGeneral(e, -1, true);
+        public class ExpandEndBackwardsAction : ContextAction {
+            public override Task ExecuteAsync(ContextActionEventArgs e) => ExecuteGeneral(e, -1, true);
         }
 
         [ActionRegistration("actions.timeline.surface.ExpandEndForward")]
-        public class ExpandEndForwardAction : ExecutableAction {
-            public override Task<bool> ExecuteAsync(ActionEventArgs e) => ExecuteGeneral(e, 1, true);
+        public class ExpandEndForwardAction : ContextAction {
+            public override Task ExecuteAsync(ContextActionEventArgs e) => ExecuteGeneral(e, 1, true);
         }
 
         [ActionRegistration("actions.timeline.surface.ExpandBeginBack")]
-        public class ExpandBeginBackAction : ExecutableAction {
-            public override Task<bool> ExecuteAsync(ActionEventArgs e) => ExecuteGeneral(e, -1, true, true);
+        public class ExpandBeginBackAction : ContextAction {
+            public override Task ExecuteAsync(ContextActionEventArgs e) => ExecuteGeneral(e, -1, true, true);
         }
 
         [ActionRegistration("actions.timeline.surface.ExpandBeginForward")]
-        public class ExpandBeginForwardAction : ExecutableAction {
-            public override Task<bool> ExecuteAsync(ActionEventArgs e) => ExecuteGeneral(e, 1, true, true);
+        public class ExpandBeginForwardAction : ContextAction {
+            public override Task ExecuteAsync(ContextActionEventArgs e) => ExecuteGeneral(e, 1, true, true);
         }
 
         [ActionRegistration("actions.timeline.FrameBack")]
-        public class TimelineFrameBackAction : ExecutableAction {
-            public override Task<bool> ExecuteAsync(ActionEventArgs e) => ExecuteTimeline(e, -1, false);
+        public class TimelineFrameBackAction : ContextAction {
+            public override Task ExecuteAsync(ContextActionEventArgs e) => ExecuteTimeline(e, -1, false);
         }
 
         [ActionRegistration("actions.timeline.FrameForward")]
-        public class TimelineFrameForwardAction : ExecutableAction {
-            public override Task<bool> ExecuteAsync(ActionEventArgs e) => ExecuteTimeline(e, 1, false);
+        public class TimelineFrameForwardAction : ContextAction {
+            public override Task ExecuteAsync(ContextActionEventArgs e) => ExecuteTimeline(e, 1, false);
         }
 
-        public static Task<bool> ExecuteGeneral(ActionEventArgs e, long amount, bool expandMode = false, bool resizeBothWays = false, bool forcePlayHead = false) {
+        public static Task<bool> ExecuteGeneral(ContextActionEventArgs e, long amount, bool expandMode = false, bool resizeBothWays = false, bool forcePlayHead = false) {
             if (e.DataContext.TryGetContext(out ClipViewModel clip) && clip.Timeline != null) {
                 OnClipAction(clip, amount, expandMode, resizeBothWays, forcePlayHead);
             }
@@ -62,7 +62,7 @@ namespace FramePFX.Editor.Actions {
             return Task.FromResult(true);
         }
 
-        public static Task<bool> ExecuteTimeline(ActionEventArgs e, long amount, bool canMultiplyZoom = true) {
+        public static Task<bool> ExecuteTimeline(ContextActionEventArgs e, long amount, bool canMultiplyZoom = true) {
             TimelineViewModel timeline;
             if (e.DataContext.TryGetContext(out ClipViewModel clip) && (timeline = clip.Timeline) != null) {
                 OnTimelineAction(timeline, amount, canMultiplyZoom);

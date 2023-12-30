@@ -5,7 +5,7 @@ namespace FramePFX.Actions {
     /// <summary>
     /// Action event arguments for when an action is about to be executed
     /// </summary>
-    public class ActionEventArgs {
+    public class ContextActionEventArgs {
         /// <summary>
         /// The action manager associated with this event
         /// </summary>
@@ -16,10 +16,10 @@ namespace FramePFX.Actions {
         /// The data context for this specific action execution. This will not be null, but it may be empty (contain no inner data or data context)
         /// </para>
         /// <para>
-        /// In the context of actual context specific actions, this will typically contain the UI control being acted upon (along with
-        /// its data context), the list UI control that it may exist in (e.g. ListBox) and its data context, and finally the UI control
-        /// for the shell/window/dialog and its data context (e.g. WindowEx). There may be more, but these 6 are the main ones that
-        /// could be available. All of this gives a wide range of access to the objects being acted upon
+        /// In the context of actual context specific actions, this will typically contain the UI control's DataContext,
+        /// the data context of the list UI control that it may exist in (e.g. ListBox), and finally the data context for
+        /// the shell/window/dialog. There may be more, but these are the main ones that could be available. All of this
+        /// gives a wide range of access to the objects being acted upon
         /// </para>
         /// </summary>
         public IDataContext DataContext { get; }
@@ -39,7 +39,7 @@ namespace FramePFX.Actions {
         /// </summary>
         public string ActionId { get; }
 
-        public ActionEventArgs(ActionManager manager, string actionId, IDataContext dataContext, bool isUserInitiated) {
+        public ContextActionEventArgs(ActionManager manager, string actionId, IDataContext dataContext, bool isUserInitiated) {
             if (actionId != null && actionId.Length < 1) {
                 throw new ArgumentException("ActionId must be null or a non-empty string");
             }

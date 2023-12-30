@@ -8,7 +8,7 @@ using FramePFX.Utils;
 using FramePFX.Views.Dialogs.Message;
 
 namespace FramePFX.Editor.ResourceManaging.Actions {
-    public class DeleteResourcesAction : ExecutableAction {
+    public class DeleteResourcesAction : ContextAction {
         public static readonly MessageDialog ConfirmationDialog;
 
         static DeleteResourcesAction() {
@@ -16,13 +16,13 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
             ConfirmationDialog.IsAlwaysUseThisOptionChecked = true;
         }
 
-        public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
+        public override async Task ExecuteAsync(ContextActionEventArgs e) {
             if (!ResourceActionUtils.GetSelectedResources(e.DataContext, out List<BaseResourceViewModel> selection)) {
-                return false;
+                return;
             }
 
             if (selection.Count < 1) {
-                return true;
+                return;
             }
 
             int clips = 0, unknown = 0, resCount = selection.Count;
@@ -43,7 +43,7 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
                     Lang.ThisThese(resCount),
                     Lang.S(resCount));
                 if (!await IoC.DialogService.ShowYesNoDialogAsync("Delete resources", msg)) {
-                    return true;
+                    return;
                 }
             }
 
@@ -62,8 +62,6 @@ namespace FramePFX.Editor.ResourceManaging.Actions {
             catch (Exception ex) {
                 await IoC.DialogService.ShowMessageExAsync("Exception deleting items", "One or more items threw an exception while it was being deleted", ex.GetToString());
             }
-
-            return true;
         }
     }
 }

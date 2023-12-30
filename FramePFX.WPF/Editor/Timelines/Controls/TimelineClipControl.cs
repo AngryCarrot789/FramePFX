@@ -75,7 +75,7 @@ namespace FramePFX.WPF.Editor.Timelines.Controls {
                 new PropertyMetadata(null));
 
         /// <summary>
-        /// The zoom level of this timeline track
+        /// The zoom level of the track that this clip is in. Returns 1 when not in a track
         /// <para>
         /// This is a value used for converting frames into pixels
         /// </para>
@@ -204,7 +204,7 @@ namespace FramePFX.WPF.Editor.Timelines.Controls {
             Size size = new Size(this.FrameDuration * this.UnitZoom, constraint.Height);
             if (this.VisualChildrenCount > 0) {
                 UIElement visualChild = (UIElement) this.GetVisualChild(0);
-                visualChild?.Measure(size); // shouldn't be null due to the VisualChildrenCount logic
+                visualChild?.Measure(size);
             }
 
             return size;
@@ -218,7 +218,7 @@ namespace FramePFX.WPF.Editor.Timelines.Controls {
                     this.IsSelected = !this.IsSelected;
                 }
                 else if (!timeline.GetSelectedClipContainers().HasAtleast(2)) {
-                    this.Timeline?.SetPrimarySelection(this, true);
+                    timeline?.SetPrimarySelection(this, true);
                 }
             }
         }
@@ -359,7 +359,8 @@ namespace FramePFX.WPF.Editor.Timelines.Controls {
             if (timeline == null || targetTrack == null)
                 return false;
 
-            TrackViewModel trackA = timeline.PreviouslySelectedTrack;
+            // TODO: PreviouslySelectedTrack doesn't work properly
+            TrackViewModel trackA = timeline.PreviouslySelectedTrackFrame;
             if (trackA == null || (iA = timeline.Tracks.IndexOf(trackA)) == -1)
                 return false;
             if ((iB = timeline.Tracks.IndexOf(targetTrack)) == -1)
@@ -519,9 +520,9 @@ namespace FramePFX.WPF.Editor.Timelines.Controls {
                     timeline.AutoScrollFrame(this.FrameBegin, this.FrameBegin + this.FrameDuration);
                 }
 
-                if (!didJustDragTrack && Math.Abs(diffY) >= 1.0d) {
+                if (timeline != null && !didJustDragTrack && Math.Abs(diffY) >= 1.0d) {
                     int index = 0;
-                    List<TimelineTrackControl> tracks = this.Timeline.GetTrackContainers().ToList();
+                    List<TimelineTrackControl> tracks = timeline.GetTrackContainers().ToList();
                     foreach (TimelineTrackControl track in tracks) {
                         if (!(track.DataContext is TrackViewModel vm))
                             continue;
@@ -534,7 +535,7 @@ namespace FramePFX.WPF.Editor.Timelines.Controls {
                     }
 
                     if (index < tracks.Count) {
-                        this.Timeline.ClipMousePosForTrackTransition = lastClickPoint;
+                        timeline.ClipMousePosForTrackTransition = lastClickPoint;
                         clip.OnDragToTrack(index);
                     }
                 }

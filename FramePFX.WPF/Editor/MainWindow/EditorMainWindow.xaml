@@ -19,6 +19,7 @@
             xmlns:local="clr-namespace:FramePFX.WPF.Editor.MainWindow"
             xmlns:timelines="clr-namespace:FramePFX.WPF.Editor.Timelines"
             xmlns:wpf="clr-namespace:FramePFX.WPF"
+            xmlns:tl="clr-namespace:FramePFX.Editor.ViewModels.Timelines;assembly=FramePFX"
             mc:Ignorable="d"
             d:DataContext="{d:DesignInstance evm:VideoEditorViewModel}"
             Width="1408" Height="840"
@@ -90,6 +91,17 @@
                 </StackPanel>
             </Border>
             <Grid>
+                <Grid.Resources>
+                    <DataTemplate x:Key="TimelineTabOrPaneTitleDataTemplate">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Title}" VerticalAlignment="Center" Padding="2,0,5,0"/>
+                            <Button DataContext="{Binding Content.DataContext}"
+                                    d:DataContext="{d:DesignInstance tl:TimelineViewModel}"
+                                    Command="{Binding Project.Editor.CloseTimelineCommand}" CommandParameter="{Binding}"
+                                    Content="X" Padding="5,0"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </Grid.Resources>
                 <Border Background="{DynamicResource PanelBackground1}" IsEnabled="{Binding IsEditorEnabled, Mode=OneWay}">
                     <DockingManager x:Name="MyDockingManager">
                         <DockingManager.Theme>
@@ -134,9 +146,21 @@
                                             </LayoutAnchorable>
                                         </LayoutAnchorablePane>
                                     </LayoutPanel>
-                                    <LayoutAnchorablePane DockHeight="38*" x:Name="TimelineLayoutPane">
-                                        <LayoutAnchorable Title="Project Timeline" ContentId="TimelineAnchor" CanHide="False" CanClose="False" CanAutoHide="False" CanDockAsTabbedDocument="True" CanFloat="True">
-                                            <timelines:PreAnchoredTimelineControl DataContext="{Binding ActiveProject.Timeline}" />
+                                    <LayoutAnchorablePane DockHeight="38*">
+                                        <LayoutAnchorable CanDockAsTabbedDocument="False" Title="Timelines (separate dock)">
+                                            <!--
+                                                AvalonDock doesn't allow you to filter the child items based on type, in fact,
+                                                there doesn't appear to be any kind of possible filtering, which means a second
+                                                DockingManager is required in order for dock separation
+                                             -->
+                                            <DockingManager AnchorableTitleTemplate="{StaticResource TimelineTabOrPaneTitleDataTemplate}"
+                                                            DocumentTitleTemplate="{StaticResource TimelineTabOrPaneTitleDataTemplate}">
+                                                <LayoutRoot>
+                                                    <LayoutPanel>
+                                                        <local:TimelineAnchorPane x:Name="PART_TimelineAnchorPane" DockHeight="38*" CanRepositionItems="False"/>
+                                                    </LayoutPanel>
+                                                </LayoutRoot>
+                                            </DockingManager>
                                         </LayoutAnchorable>
                                     </LayoutAnchorablePane>
                                 </LayoutPanel>

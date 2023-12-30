@@ -19,7 +19,7 @@ namespace FramePFX.App {
         bool IsOnMainThread { get; }
 
         /// <summary>
-        /// Gets the application dispatcher. This is used to dispatch method invocations onto the application's main thread (AMT)
+        /// Gets the application dispatcher. This is used to dispatch method invocations onto this application's thread (AMT)
         /// </summary>
         IDispatcher Dispatcher { get; }
 

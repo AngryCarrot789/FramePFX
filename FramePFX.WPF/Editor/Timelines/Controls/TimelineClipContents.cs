@@ -88,7 +88,6 @@ namespace FramePFX.WPF.Editor.Timelines.Controls {
             this.SetupCachedData(newClip);
         }
 
-        [SuppressMessage("ReSharper", "UseSwitchCasePatternVariable")]
         private void SetupCachedData(ClipViewModel clip) {
             this.cached?.Dispose();
             switch (clip) {

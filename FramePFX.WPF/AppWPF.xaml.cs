@@ -104,6 +104,13 @@ namespace FramePFX.WPF {
                 FontFamilies.Add(fontFamily);
             }
 
+            // this.Dispatcher.InvokeAsync(() => {
+            //     Debugger.Break();
+            // }, DispatcherPriority.Loaded);
+            // this.Dispatcher.InvokeAsync(() => {
+            //     Debugger.Break();
+            // }, DispatcherPriority.Render);
+
             // ICollection<FontFamily> fonts = Fonts.GetFontFamilies(new Uri("pack://application:,,,/Resources/Fonts/Oxanium/#"));
             // this.lastInput = DateTime.Now;
             // this.monitor = new InputDrivenTaskExecutor(() => {
@@ -118,6 +125,13 @@ namespace FramePFX.WPF {
             //         await Task.Delay(20);
             //     }
             // });
+
+            // new Thread(() => {
+            //     Thread.Sleep(10000);
+            //     this.Dispatcher.InvokeAsync(() => this.MainWindow.Width = 100);
+            //     this.Dispatcher.Invoke(() => {
+            //     });
+            // }).Start();
         }
 
         private async void Application_Startup(object sender, StartupEventArgs e) {
@@ -164,7 +178,7 @@ namespace FramePFX.WPF {
             await this.Dispatcher.Invoke(() => this.OnVideoEditorLoaded(window.Editor, e.Args), DispatcherPriority.Loaded);
 
             if (Debugger.IsAttached) {
-                TaskManager.Instance.Run(new TaskAction(async (progress) => {
+                TaskManager.Instance.Run(new TaskProgram(async (progress) => {
                     progress.HeaderText = "Debug Counting task";
                     progress.IsIndeterminate = false;
                     for (int i = 0; i < 5; i++) {
@@ -198,9 +212,9 @@ namespace FramePFX.WPF {
             });
 
             this.processor.RegisterProcessor<ActionRegistrationAttribute>((typeInfo, attribute) => {
-                ExecutableAction action;
+                ContextAction action;
                 try {
-                    action = (ExecutableAction) Activator.CreateInstance(typeInfo, true);
+                    action = (ContextAction) Activator.CreateInstance(typeInfo, true);
                 }
                 catch (Exception e) {
                     throw new Exception($"Failed to create an instance of the registered action '{typeInfo.FullName}'", e);
@@ -259,7 +273,7 @@ namespace FramePFX.WPF {
             }
 
             AppLogger.PushHeader($"Registered {ActionManager.Instance.Count} actions", false);
-            foreach (KeyValuePair<string, ExecutableAction> pair in ActionManager.Instance.Actions) {
+            foreach (KeyValuePair<string, ContextAction> pair in ActionManager.Instance.Actions) {
                 AppLogger.WriteLine($"{pair.Key}: {pair.Value.GetType()}");
             }
 

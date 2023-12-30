@@ -5,12 +5,12 @@ using FramePFX.Editor.ViewModels.Timelines.VideoClips;
 
 namespace FramePFX.Editor.Actions.Clips {
     [ActionRegistration("actions.timeline.OpenCompositionObjectsTimeline")]
-    public class OpenCompositionObjectsTimelineAction : ExecutableAction {
-        public override bool CanExecute(ActionEventArgs e) {
+    public class OpenCompositionObjectsTimelineAction : ContextAction {
+        public override bool CanExecute(ContextActionEventArgs e) {
             return e.DataContext.HasContext<CompositionVideoClipViewModel>() || e.DataContext.HasContext<ResourceCompositionViewModel>();
         }
 
-        public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
+        public override async Task ExecuteAsync(ContextActionEventArgs e) {
             if (e.DataContext.TryGetContext(out CompositionVideoClipViewModel clip)) {
                 if (clip.TryGetResource(out ResourceCompositionViewModel resource)) {
                     await OpenTimeline(resource);
@@ -19,11 +19,6 @@ namespace FramePFX.Editor.Actions.Clips {
             else if (e.DataContext.TryGetContext(out ResourceCompositionViewModel resource)) {
                 await OpenTimeline(resource);
             }
-            else {
-                return false;
-            }
-
-            return true;
         }
 
         public static async Task OpenTimeline(ResourceCompositionViewModel composition) {

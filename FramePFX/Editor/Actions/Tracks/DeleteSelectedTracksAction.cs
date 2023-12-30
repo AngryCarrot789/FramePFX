@@ -4,29 +4,26 @@ using FramePFX.Actions;
 using FramePFX.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Editor.Actions.Tracks {
-    public class DeleteSelectedTracksAction : ExecutableAction {
-        public override bool CanExecute(ActionEventArgs e) {
+    public class DeleteSelectedTracksAction : ContextAction {
+        public override bool CanExecute(ContextActionEventArgs e) {
             return EditorActionUtils.GetTimeline(e.DataContext, out TimelineViewModel timeline);
         }
 
-        public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
+        public override async Task ExecuteAsync(ContextActionEventArgs e) {
             TimelineViewModel timeline = null;
             if (e.DataContext.TryGetContext(out TrackViewModel targetTrack) && (timeline = targetTrack.Timeline) != null) {
                 if (!timeline.SelectedTracks.Contains(targetTrack)) {
                     timeline.RemoveTrack(targetTrack);
-                    return true;
+                    return;
                 }
             }
 
             HashSet<TrackViewModel> tracks = new HashSet<TrackViewModel>();
-            if (timeline != null || EditorActionUtils.GetTimeline(e.DataContext, out timeline)) {
-                await timeline.RemoveTracksAction(tracks, true);
-            }
-            else {
-                return false;
+            if (timeline == null && !EditorActionUtils.GetTimeline(e.DataContext, out timeline)) {
+                return;
             }
 
-            return true;
+            await timeline.RemoveTracksAction(tracks, true);
         }
 
         public static async Task CutAllOnPlayHead(TimelineViewModel timeline) {

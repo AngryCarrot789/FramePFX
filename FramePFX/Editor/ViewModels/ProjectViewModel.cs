@@ -80,7 +80,9 @@ namespace FramePFX.Editor.ViewModels {
             this.Settings = new ProjectSettingsViewModel(project.Settings);
             this.Settings.ProjectModified += (sender, property) => this.OnProjectModified();
             this.ResourceManager = new ResourceManagerViewModel(this, project.ResourceManager);
-            this.Timeline = new TimelineViewModel(project.Timeline);
+            this.Timeline = new TimelineViewModel(project.Timeline) {
+                DisplayName = "Project Timeline"
+            };
             this.Timeline.SetProject(this);
             this.SaveCommand = new AsyncRelayCommand(this.SaveActionAsync, () => this.Editor != null && !this.IsSaving);
             this.SaveAsCommand = new AsyncRelayCommand(this.SaveAsActionAsync, () => this.Editor != null && !this.IsSaving);

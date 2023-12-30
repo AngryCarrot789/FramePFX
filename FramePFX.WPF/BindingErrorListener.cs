@@ -15,7 +15,6 @@ namespace FramePFX.WPF {
             PresentationTraceSources.DataBindingSource.Listeners.Add(new BindingErrorListener());
         }
 
-
         public override void Write(string message) {
             if (string.IsNullOrEmpty(message)) {
                 return;

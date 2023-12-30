@@ -6,22 +6,18 @@ using SkiaSharp;
 
 namespace FramePFX.Editor.Actions.Tracks {
     [ActionRegistration("actions.timeline.track.ChangeTrackColour")]
-    public class ChangeTrackColourAction : ExecutableAction {
-        public override bool CanExecute(ActionEventArgs e) {
+    public class ChangeTrackColourAction : ContextAction {
+        public override bool CanExecute(ContextActionEventArgs e) {
             return EditorActionUtils.GetTrack(e.DataContext, out TrackViewModel track);
         }
 
-        public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
-            if (!EditorActionUtils.GetTrack(e.DataContext, out TrackViewModel track)) {
-                return false;
+        public override async Task ExecuteAsync(ContextActionEventArgs e) {
+            if (EditorActionUtils.GetTrack(e.DataContext, out TrackViewModel track)) {
+                IColourPicker picker = IoC.GetService<IColourPicker>();
+                if (picker.PickARGB(track.TrackColour) is SKColor colour) {
+                    track.TrackColour = colour;
+                }
             }
-
-            IColourPicker picker = IoC.GetService<IColourPicker>();
-            if (picker.PickARGB(track.TrackColour) is SKColor colour) {
-                track.TrackColour = colour;
-            }
-
-            return true;
         }
     }
 }

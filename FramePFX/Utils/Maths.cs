@@ -86,6 +86,7 @@ namespace FramePFX.Utils {
 
         // https://stackoverflow.com/a/51099524/11034928
         public static int GetDigitCount(ulong v) {
+            // could optimise similar to a binary search, but hopefully the JIT will help out
             if (v < 10L)
                 return 1;
             if (v < 100L)
@@ -126,27 +127,19 @@ namespace FramePFX.Utils {
         }
 
         public static void Swap(ref float a, ref float b) {
-            float A = a;
-            a = b;
-            b = A;
+            float tmp = a; a = b; b = tmp;
         }
 
         public static void Swap(ref double a, ref double b) {
-            double A = a;
-            a = b;
-            b = A;
+            double tmp = a; a = b; b = tmp;
         }
 
         public static void Swap(ref long a, ref long b) {
-            long A = a;
-            a = b;
-            b = A;
+            long tmp = a; a = b; b = tmp;
         }
 
         public static void Swap(ref int a, ref int b) {
-            int A = a;
-            a = b;
-            b = A;
+            int tmp = a; a = b; b = tmp;
         }
 
         public static double GetRange(float min, float max) {

@@ -5,21 +5,21 @@ using FramePFX.Actions;
 using FramePFX.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Editor.Actions.Clips {
-    public class SliceClipsAction : ExecutableAction {
+    public class SliceClipsAction : ContextAction {
         public SliceClipsAction() : base() {
         }
 
-        public override bool CanExecute(ActionEventArgs e) {
+        public override bool CanExecute(ContextActionEventArgs e) {
             return EditorActionUtils.GetTimeline(e.DataContext, out TimelineViewModel timeline);
         }
 
-        public override async Task<bool> ExecuteAsync(ActionEventArgs e) {
+        public override async Task ExecuteAsync(ContextActionEventArgs e) {
             if (!EditorActionUtils.GetTimeline(e.DataContext, out TimelineViewModel timeline)) {
                 if (e.IsUserInitiated) {
                     await IoC.DialogService.ShowMessageAsync("No timeline available", "Create a new project to cut clips");
                 }
 
-                return false;
+                return;
             }
 
             long frame = timeline.PlayHeadFrame;
@@ -34,8 +34,6 @@ namespace FramePFX.Editor.Actions.Clips {
             else {
                 await CutAllOnPlayHead(timeline);
             }
-
-            return true;
         }
 
         public static async Task CutAllOnPlayHead(TimelineViewModel timeline) {

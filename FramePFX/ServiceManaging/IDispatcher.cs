@@ -5,7 +5,7 @@ using FramePFX.App;
 
 namespace FramePFX.ServiceManaging {
     /// <summary>
-    /// An interface used to access an application dispatcher. This can be used to execute methods on the owner thread
+    /// An interface used to execute actions on another thread, either synchronously (blocking via void) or asynchronously (non-blocking via task)
     /// </summary>
     public interface IDispatcher {
         /// <summary>

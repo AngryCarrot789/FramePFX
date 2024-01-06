@@ -110,14 +110,13 @@ namespace FramePFX.Editor.ResourceManaging.ViewModels {
             }
 
 #if DEBUG
-            ResourceFolderViewModel tempQualifier = this.Parent;
-            tempQualifier.Model.UnregisterDisposeAndRemoveItemAt(index);
+            this.Parent.Model.UnregisterDisposeAndRemoveItemAt(index);
 #else
             try {
-                this.Parent.RemoveItemAndDisposeAt(index);
+                this.Parent.Model.UnregisterDisposeAndRemoveItemAt(index);
             }
             catch (Exception e) {
-                await Services.DialogService.ShowMessageExAsync("Error deleting item", "An exception occurred while deleting this item", e.GetToString());
+                await IoC.DialogService.ShowMessageExAsync("Error deleting item", "An exception occurred while deleting this item", e.GetToString());
             }
 #endif
 

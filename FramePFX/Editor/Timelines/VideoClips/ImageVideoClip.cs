@@ -9,7 +9,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
     public class ImageVideoClip : VideoClip {
         public IResourcePathKey<ResourceImage> ResourceImageKey { get; }
 
-        public override bool UseCustomOpacityCalculation => true;
+        public override bool UsesCustomOpacityCalculation => true;
 
         public ImageVideoClip() {
             this.ResourceImageKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceImage>();

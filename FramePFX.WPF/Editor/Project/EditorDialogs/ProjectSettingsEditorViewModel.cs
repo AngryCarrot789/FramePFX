@@ -69,7 +69,7 @@ namespace FramePFX.WPF.Editor.Project.EditorDialogs {
         //                 else {
         //                     string oldText = this.userInputText;
         //                     this.FrameRateModificationLock.Execute(async () => {
-        //                         await Services.DialogService.ShowMessageAsync("Invalid FPS", "The given value is not a valid number: " + value);
+        //                         await IoC.DialogService.ShowMessageAsync("Invalid FPS", "The given value is not a valid number: " + value);
         //                         this.userInputText = oldText;
         //                         this.RaisePropertyChanged(nameof(this.UserInputText));
         //                     });

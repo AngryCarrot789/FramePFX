@@ -227,7 +227,7 @@ namespace FramePFX.WPF.AdvancedContextService {
             }
 #if !DEBUG
             catch (Exception e) {
-                await Services.DialogService.ShowMessageExAsync(
+                await IoC.DialogService.ShowMessageExAsync(
                     "Error",
                     "An unexpected error occurred while processing action. " +
                     "FramePFX may or may not crash now, but you should probably restart and save just in case",

@@ -435,7 +435,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 }
 
                 this.tracks.Move(selection[i], target);
-                this.Model.MoveTrackIndex(selection[i], target);
+                this.Model.MoveTrackUnsafe(selection[i], target);
                 selection[i] = target;
             }
 

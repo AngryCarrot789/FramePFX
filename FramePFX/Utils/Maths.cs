@@ -60,6 +60,10 @@ namespace FramePFX.Utils {
             }
         }
 
+        public static double InverseLerp(double a, double b, double value) {
+            return !Equals(a, b) ? ((value - a) / (b - a)) : 0f;
+        }
+
         public static int Ceil(int value, int multiple) {
             int mod = value % multiple;
             return mod == 0 ? value : value + (multiple - mod);

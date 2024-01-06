@@ -327,7 +327,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         // [ShortcutTarget("Application/RenameItem")]
         // public async Task OnShortcutActivated() {
         //     await Task.Run(async () => {
-        //         await Services.DialogService.ShowDialogAsync("t", "ttt");
+        //         await IoC.DialogService.ShowDialogAsync("t", "ttt");
         //     });
         // }
 

@@ -23,7 +23,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         public float Width;
         public float Height;
 
-        public override bool UseCustomOpacityCalculation => true;
+        public override bool UsesCustomOpacityCalculation => true;
 
         public IResourcePathKey<ResourceColour> ColourKey { get; }
 

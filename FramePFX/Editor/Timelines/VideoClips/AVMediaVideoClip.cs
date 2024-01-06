@@ -23,7 +23,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
 
         public IResourcePathKey<ResourceAVMedia> ResourceAVMediaKey { get; }
 
-        public override bool UseCustomOpacityCalculation => true;
+        public override bool UsesCustomOpacityCalculation => true;
 
         private Task<VideoFrame> GetFrameTask;
 

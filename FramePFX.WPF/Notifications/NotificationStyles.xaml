@@ -6,7 +6,8 @@
                     xmlns:edn="clr-namespace:FramePFX.Editor.Notifications;assembly=FramePFX"
                     xmlns:sp="clr-namespace:FramePFX.WPF.Editor.Notifications.SavingProject"
                     xmlns:utils="clr-namespace:FramePFX.WPF.Utils"
-                    xmlns:viewModels="clr-namespace:FramePFX.Editor.ViewModels;assembly=FramePFX">
+                    xmlns:viewModels="clr-namespace:FramePFX.Editor.ViewModels;assembly=FramePFX"
+                    xmlns:taskSystem="clr-namespace:FramePFX.TaskSystem;assembly=FramePFX">
     <SolidColorBrush x:Key="NotificationHeaderBackground" Color="{DynamicResource AColour.Tone7.Background.Static}" />
     <SolidColorBrush x:Key="NotificationBackground" Color="{DynamicResource AColour.Tone6.Background.Static}" />
 
@@ -63,7 +64,7 @@
                         </Label>
                     </Grid>
                 </DataTemplate>
-                <DataTemplate DataType="{x:Type viewModels:TaskNotification}">
+                <DataTemplate DataType="{x:Type taskSystem:TaskNotification}">
                     <Grid>
                         <Grid.InputBindings>
                             <MouseBinding MouseAction="MiddleClick" Command="{Binding HideCommand, Mode=OneTime}" />

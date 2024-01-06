@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FramePFX.Actions;
 using FramePFX.Actions.Contexts;
 using FramePFX.AdvancedContextService;
+using FramePFX.Editor.Timelines.Effects.Video;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Editor.ViewModels.Timelines.VideoClips;
@@ -40,7 +42,8 @@ namespace FramePFX.Editor.Contexts {
                 list.Add(new ActionContextEntry("actions.general.RenameItem", "Rename track"));
                 list.Add(new ActionContextEntry("actions.timeline.track.ChangeTrackColour", "Change colour"));
                 List<IContextEntry> newClipList = new List<IContextEntry> {
-                    new ActionContextEntry("actions.timeline.NewAdjustmentClip", "New adjustment clip")
+                    new ActionContextEntry("actions.timeline.NewAdjustmentClip", "New adjustment clip"),
+                    new ActionContextEntry("actions.timeline.NewTimerClip", "New Timer/Stopwatch clip")
                 };
 
                 list.Add(new GroupContextEntry("New clip...", newClipList));
@@ -69,6 +72,20 @@ namespace FramePFX.Editor.Contexts {
                 FrameSpan span = new FrameSpan(track.Timeline.PlayHeadFrame, track.Timeline.FPS.ToInt);
                 if (track.Model.IsRegionEmpty(span)) {
                     track.AddClip(new AdjustmentVideoClip {FrameSpan = span});
+                }
+            }
+        }
+    }
+
+    [ActionRegistration("actions.timeline.NewTimerClip")]
+    public class NewTimerClipAction : ContextAction {
+        public override async Task ExecuteAsync(ContextActionEventArgs e) {
+            if (e.DataContext.TryGetContext(out TrackViewModel track) && track.Timeline != null) {
+                FrameSpan span = new FrameSpan(track.Timeline.PlayHeadFrame, (long) Math.Round(track.Timeline.FPS.ToDouble * 10d));
+                if (track.Model.IsRegionEmpty(span)) {
+                    TimerClip clip = new TimerClip() {FrameSpan = span};
+                    clip.AddEffect(new MotionEffect());
+                    track.AddClip(clip);
                 }
             }
         }

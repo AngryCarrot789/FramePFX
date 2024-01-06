@@ -31,7 +31,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         /// Whether or not this clip handles it's own opacity calculation to help with render performance. Default
         /// value is false, meaning an <see cref="Opacity"/> value that isn't 1d requires a temporary bitmap to render the clip
         /// </summary>
-        public virtual bool UseCustomOpacityCalculation { get => false; }
+        public virtual bool UsesCustomOpacityCalculation { get => false; }
 
         /// <summary>
         /// An event invoked when this video clip changes in some way that affects its render. 

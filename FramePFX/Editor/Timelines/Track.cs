@@ -9,6 +9,7 @@ using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines {
+
     /// <summary>
     /// Base class for timeline tracks. A track simply contains clips, along with a few extra
     /// properties (like opacity for video tracks or gain for audio tracks, which typically affect all clips)
@@ -53,8 +54,23 @@ namespace FramePFX.Editor.Timelines {
         public bool IsAutomationChangeInProgress { get; set; }
 
         private readonly ClipRangeCache cache;
-
         private readonly ClipSpanChangedEventHandler clipSpanChangedHandler;
+
+        /// <summary>
+        /// An event fired when this track is moved from one timeline to another. So far, this is only called once
+        /// during the project load phase. This track will exist in the new timeline and not the old timeline
+        /// </summary>
+        public event TrackMoveEventHandler TrackMoved;
+
+        public event ProjectChangedEventHandler ProjectChanging;
+        public event ProjectChangedEventHandler ProjectChanged;
+
+        private int IndexInTimeline {
+            get {
+                int index = this.Timeline.IndexOfTrack(this);
+                return index >= 0 ? index : throw new Exception("This track does not exist in its new timeline???");
+            }
+        }
 
         protected Track() {
             this.clips = new ClipList();
@@ -71,47 +87,37 @@ namespace FramePFX.Editor.Timelines {
             this.cache.OnSpanChanged(clip, oldSpan);
         }
 
-        public static void SetTimeline(Track track, Timeline timeline) {
+        public static void SetTimeline(Track track, Timeline timeline, int indexOfTrack) {
             Timeline oldTimeline = track.Timeline;
             if (!ReferenceEquals(oldTimeline, timeline)) {
                 track.Timeline = timeline;
-                track.OnTimelineChanging(oldTimeline);
-                foreach (Clip clip in track.clips) {
+                foreach (Clip clip in track.clips)
                     Clip.InternalOnTrackTimelineChanged(clip, oldTimeline, timeline);
-                }
-
-                track.OnTimelineChanged(oldTimeline);
+                track.OnTimelineChanged(oldTimeline, indexOfTrack);
             }
         }
 
         public static void OnTimelineProjectChanged(Track track, Project oldProject, Project newProject) {
             track.OnProjectChanging(oldProject, newProject);
-            foreach (Clip clip in track.clips) {
+            foreach (Clip clip in track.clips)
                 Clip.InternalOnTrackTimelineProjectChanged(clip, oldProject, newProject);
-            }
-
             track.OnProjectChanged(oldProject, newProject);
-        }
-
-        /// <summary>
-        /// Called when this track is about to be moved to a new timeline. <see cref="Timeline"/> is
-        /// the previous timeline, and <see cref="newTimeline"/> is the new one
-        /// </summary>
-        /// <param name="oldTimeline">The previous timeline. May be null, meaning this track was added to a timeline</param>
-        protected virtual void OnTimelineChanging(Timeline oldTimeline) {
         }
 
         /// <summary>
         /// Called when this track is moved from one timeline to another
         /// </summary>
         /// <param name="oldTimeline">The previous timeline. May be null, meaning this track was added to a timeline</param>
-        protected virtual void OnTimelineChanged(Timeline oldTimeline) {
+        protected virtual void OnTimelineChanged(Timeline oldTimeline, int oldIndexInTimeline) {
+            this.TrackMoved?.Invoke(oldTimeline, oldIndexInTimeline, this.Timeline, this.IndexInTimeline);
         }
 
         protected virtual void OnProjectChanging(Project oldProject, Project newProject) {
+            this.ProjectChanging?.Invoke(this, oldProject, newProject);
         }
 
         protected virtual void OnProjectChanged(Project oldProject, Project newProject) {
+            this.ProjectChanged?.Invoke(this, oldProject, newProject);
         }
 
         public bool TryGetIndexOfClip(Clip clip, out int index) {
@@ -159,7 +165,8 @@ namespace FramePFX.Editor.Timelines {
         public void InsertClip(int index, Clip clip) {
             if (clip.Track != null && clip.Track.TryGetIndexOfClip(clip, out _))
                 throw new Exception("Clip already exists and is valid in another track: " + clip.Track);
-
+            if (!this.IsClipTypeAcceptable(clip))
+                throw new Exception("This track does not accept the clip");
             this.clips.Insert(index, clip);
             this.cache.OnClipAdded(clip);
             clip.ClipSpanChanged += this.clipSpanChangedHandler;
@@ -186,6 +193,8 @@ namespace FramePFX.Editor.Timelines {
             Clip clip = this.clips[oldIndex];
             if (!ReferenceEquals(this, clip.Track))
                 throw new Exception("Expected clip's track to equal this instance");
+            if (!newTrack.IsClipTypeAcceptable(clip))
+                throw new Exception("New track does not accept the clip being moved");
             this.clips.RemoveAt(oldIndex);
             this.cache.OnClipRemoved(clip);
             clip.ClipSpanChanged -= this.clipSpanChangedHandler;
@@ -319,12 +328,6 @@ namespace FramePFX.Editor.Timelines {
         public Span<Clip> Span => new Span<Clip>(this.items, 0, this.size);
 
         public ClipList() => this.items = EmptyArray;
-
-        // public void Add(Clip item) {
-        //     if (this.size == this.items.Length)
-        //         this.EnsureCapacity(this.size + 1);
-        //     this.items[this.size++] = item;
-        // }
 
         public void Insert(int index, Clip item) {
             if (index > this.size)

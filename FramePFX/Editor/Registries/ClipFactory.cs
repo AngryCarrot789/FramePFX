@@ -23,6 +23,7 @@ namespace FramePFX.Editor.Registries {
             this.Register<MpegMediaVideoClip, MpegMediaVideoClipViewModel>("cv_media");
             this.Register<CompositionVideoClip, CompositionVideoClipViewModel>("cv_comp");
             this.Register<AdjustmentVideoClip, AdjustmentVideoClipViewModel>("cv_adjust");
+            this.Register<TimerClip, TimerClipViewModel>("cv_timer");
 
             #endregion
 

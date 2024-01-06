@@ -80,6 +80,10 @@ namespace FramePFX.Editor.ResourceManaging {
 
         public bool IsItemApplicable(ResourceItem item) => this.Owner.IsItemTypeApplicable(item);
 
+        /// <summary>
+        /// Clears this resource's internal cached object and then sets/replaces the <see cref="ResourceManager"/>
+        /// </summary>
+        /// <param name="manager"></param>
         public void SetManager(ResourceManager manager) {
             this.EnsureNotDisposed();
             this.EnsureNotDisposing();
@@ -100,7 +104,6 @@ namespace FramePFX.Editor.ResourceManaging {
                 this.DetachManager(oldManager);
 
             this.ClearInternalResource();
-            this.IsLinked = null;
 
             this.Manager = manager;
             if (manager != null)

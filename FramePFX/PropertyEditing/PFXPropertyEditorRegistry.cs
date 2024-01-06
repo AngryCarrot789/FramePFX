@@ -40,6 +40,11 @@ namespace FramePFX.PropertyEditing {
                 group.AddPropertyEditor("Height", new AutomatableFloatEditorViewModel(typeof(ShapeSquareVideoClipViewModel), nameof(ShapeSquareVideoClipViewModel.Height), ShapeSquareVideoClip.HeightKey));
             }
 
+            {
+                FixedPropertyGroupViewModel group = this.ClipInfo.CreateFixedSubGroup(typeof(TimerClipViewModel), "Timer Info");
+                group.AddPropertyEditor("Editor", new TimerClipDataEditorViewModel());
+            }
+
             this.EffectInfo = new EffectListPropertyGroupViewModel();
             this.ClipInfo.AddSubGroup(this.EffectInfo, "Effects", false);
             this.EffectInfo.RegisterType(typeof(MotionEffectViewModel), "Motion", (single) => {

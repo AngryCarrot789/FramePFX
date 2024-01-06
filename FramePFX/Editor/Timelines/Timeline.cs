@@ -192,7 +192,7 @@ namespace FramePFX.Editor.Timelines {
         public void InsertTrack(int index, Track track) {
             this.ValidateTrack(track, true);
             this.tracks.Insert(index, track);
-            Track.SetTimeline(track, this);
+            Track.SetTimeline(track, this, index);
         }
 
         public bool RemoveTrack(Track track) {
@@ -206,11 +206,10 @@ namespace FramePFX.Editor.Timelines {
             Track track = this.tracks[index];
             this.ValidateTrack(track, false);
             this.tracks.RemoveAt(index);
-            Track.SetTimeline(track, null);
+            Track.SetTimeline(track, null, index);
         }
 
-        public void MoveTrackIndex(int oldIndex, int newIndex) {
-            Track track = this.tracks[oldIndex];
+        public void MoveTrackUnsafe(int oldIndex, int newIndex) {
             this.tracks.MoveItem(oldIndex, newIndex);
         }
 
@@ -229,7 +228,7 @@ namespace FramePFX.Editor.Timelines {
 
             this.tracks.RemoveAt(index);
             timeline.tracks.Add(track);
-            Track.SetTimeline(track, timeline);
+            Track.SetTimeline(track, timeline, index);
         }
 
         public void ClearTracks() {
@@ -498,7 +497,7 @@ namespace FramePFX.Editor.Timelines {
         }
 
         private static int BeginClipOpacityLayer(RenderContext render, VideoClip clip, ref SKPaint paint) {
-            if (clip.UseCustomOpacityCalculation || Maths.Equals(clip.Opacity, 1d)) {
+            if (clip.UsesCustomOpacityCalculation || Maths.Equals(clip.Opacity, 1d)) {
                 return render.Canvas.Save();
             }
             else {

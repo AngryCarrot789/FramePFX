@@ -25,7 +25,6 @@ namespace FramePFX.Editor.Timelines {
         private readonly List<BaseEffect> internalEffectList;
         private FrameSpan frameSpan;
         public long LastSeekedFrame;
-        public bool IsSelectedInUI; // this is disgusting...
 
         /// <summary>
         /// Returns the track that this clip is currently in. When this changes, <see cref="OnTrackChanged"/> is always called
@@ -112,10 +111,9 @@ namespace FramePFX.Editor.Timelines {
         public ResourceHelper ResourceHelper { get; }
 
         public event TrackChangedEventHandler TrackChanged;
-        public event TimelineChangedEventHandler TrackTimelineChanged;
-        public event ProjectChangedEventHandler TrackTimelineProjectChanged;
         public event FrameSeekedEventHandler FrameSeeked;
         public event ClipSpanChangedEventHandler ClipSpanChanged;
+        public event ProjectChangedEventHandler ProjectChanged;
 
         protected Clip() {
             this.AutomationData = new AutomationData(this);
@@ -203,32 +201,6 @@ namespace FramePFX.Editor.Timelines {
         protected virtual void OnTrackChanged(Track oldTrack, Track newTrack) {
             this.ResourceHelper.SetManager(newTrack?.Timeline?.Project?.ResourceManager);
             this.TrackChanged?.Invoke(oldTrack, newTrack);
-        }
-
-        /// <summary>
-        /// Called only when this clip's track's timeline changes. This is called after
-        /// <see cref="Timelines.Track.OnTimelineChanging"/> but before <see cref="Timelines.Track.OnTimelineChanged"/>
-        /// <para>
-        /// This is only called when the track (that holds us) timeline changes, but not when not when this clip
-        /// is moved between tracks with differing timelines; that should be handled in <see cref="OnTrackChanged"/>
-        /// </para>
-        /// </summary>
-        /// <param name="oldTimeline">Previous timeline</param>
-        /// <param name="newTimeline">The new timeline, associated with our track</param>
-        protected virtual void OnTrackTimelineChanged(Timeline oldTimeline, Timeline newTimeline) {
-            this.ResourceHelper.SetManager(newTimeline?.Project?.ResourceManager);
-            this.TrackTimelineChanged?.Invoke(oldTimeline, newTimeline);
-        }
-
-        /// <summary>
-        /// Called when the timeline (that belongs to this clip's track)'s project changes. Realistically
-        /// this is only every called once during the deserialization of a project file
-        /// </summary>
-        /// <param name="oldProject">The previous project</param>
-        /// <param name="newProject">The new project</param>
-        protected virtual void OnTrackTimelineProjectChanged(Project oldProject, Project newProject) {
-            this.ResourceHelper.SetManager(newProject?.ResourceManager);
-            this.TrackTimelineProjectChanged?.Invoke(oldProject, newProject);
         }
 
         public long GetRelativeFrame(long playhead) => playhead - this.FrameBegin;
@@ -457,11 +429,12 @@ namespace FramePFX.Editor.Timelines {
         }
 
         internal static void InternalOnTrackTimelineChanged(Clip clip, Timeline oldTimeline, Timeline newTimeline) {
-            clip.OnTrackTimelineChanged(oldTimeline, newTimeline);
+            clip.ResourceHelper.SetManager(newTimeline?.Project?.ResourceManager);
         }
 
         internal static void InternalOnTrackTimelineProjectChanged(Clip clip, Project oldProject, Project newProject) {
-            clip.OnTrackTimelineProjectChanged(oldProject, newProject);
+            clip.ResourceHelper.SetManager(newProject?.ResourceManager);
+            clip.ProjectChanged?.Invoke(clip, oldProject, newProject);
         }
 
         internal static void InternalOnInsertingEffect(Clip clip, int index, BaseEffect effect) {

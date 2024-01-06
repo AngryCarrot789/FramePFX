@@ -12,6 +12,7 @@
                     xmlns:wpf="clr-namespace:FramePFX.WPF"
                     xmlns:primitives="clr-namespace:FramePFX.PropertyEditing.Editors;assembly=FramePFX"
                     xmlns:c="clr-namespace:FramePFX.WPF.Converters"
+                    xmlns:cc="clr-namespace:FramePFX.WPF.PropertyEditing.Converters"
                     mc:Ignorable="d">
 
     <Style x:Key="AutomationEllipse" TargetType="{x:Type Ellipse}">
@@ -132,13 +133,43 @@
                 <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth2}" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <TextBlock Grid.Row="0" Grid.Column="0" FontWeight="Normal" Padding="6,0" Text="Font" Height="18" Margin="0" />
-            <ComboBox Grid.Row="0" Grid.Column="2" FontWeight="Normal" Padding="1,1" SelectedItem="{Binding FontFamily, Mode=TwoWay}" ItemsSource="{x:Static wpf:AppWPF.FontFamilies}" Margin="0" />
+            <ComboBox  Grid.Row="0" Grid.Column="2" FontWeight="Normal" Padding="1,1" SelectedItem="{Binding FontFamily, Mode=TwoWay}" ItemsSource="{x:Static wpf:AppWPF.FontFamilies}" Margin="0" />
             <TextBlock Grid.Row="1" Grid.Column="0" FontWeight="Normal" Padding="6,0" Text="Text" Height="18" Margin="0" />
-            <TextBox Grid.Row="1" Grid.Column="2" AcceptsReturn="True" AcceptsTab="True" FontWeight="Normal" Padding="1,1" Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" Height="100" Margin="0" />
+            <TextBox   Grid.Row="1" Grid.Column="2" AcceptsReturn="True" AcceptsTab="True" FontWeight="Normal" Padding="1,1" Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" Height="100" Margin="0" />
+        </Grid>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type clips:TimerClipDataEditorViewModel}">
+        <Grid Margin="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth0}" />
+                <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth1}" />
+                <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type pe:PropertyEditor}}, Path=ColumnWidth2}" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.Resources>
+                <c:BoolConverter x:Key="UseStartTimeConverter" TrueValue="Zero" FalseValue="Exact Start"/>
+                <c:BoolConverter x:Key="UseEndTimeConverter" TrueValue="Clip Length" FalseValue="Exact End"/>
+            </Grid.Resources>
+
+            <TextBlock Grid.Row="0" Grid.Column="0" FontWeight="Normal" Padding="6,0" Text="Font" Height="18" Margin="0" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <CheckBox Margin="2,0,0,0" Content="{Binding UseClipStartTime, Converter={StaticResource UseStartTimeConverter}}" Grid.Row="1" Grid.Column="0" IsChecked="{Binding UseClipStartTime, Mode=TwoWay}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <CheckBox Margin="2,0,0,0" Content="{Binding UseClipEndTime, Converter={StaticResource UseEndTimeConverter}}" Grid.Row="2" Grid.Column="0" IsChecked="{Binding UseClipEndTime, Mode=TwoWay}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
+            <ComboBox Grid.Row="0" Grid.Column="2" FontWeight="Normal" Padding="1,1" SelectedItem="{Binding FontFamily, Mode=TwoWay}" ItemsSource="{x:Static wpf:AppWPF.FontFamilies}" Margin="0" />
+            <dr:NumberDragger Margin="2,0,0,0" ToolTip="The exact timer start time" IsEnabled="{Binding UseClipStartTime, Converter={x:Static c:InvertBoolConverter.Instance}}" Grid.Row="1" Grid.Column="2" Value="{Binding StartTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={x:Static cc:DoubleToTimeSpanConverter.Instance}}" Minimum="0" Maximum="100000000" BorderThickness="0"/>
+            <dr:NumberDragger Margin="2,0,0,0" ToolTip="The exact timer end time" IsEnabled="{Binding UseClipEndTime, Converter={x:Static c:InvertBoolConverter.Instance}}" Grid.Row="2" Grid.Column="2" Value="{Binding EndTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={x:Static cc:DoubleToTimeSpanConverter.Instance}}" Minimum="0" Maximum="100000000" BorderThickness="0"/>
+
+            <TextBlock Grid.Row="3" Grid.ColumnSpan="3" Padding="2" Text="Keep both checkboxes off to use uniform timing (second per second). Exact times must be manually synced based on project FPS and clip length" TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Grid>
     </DataTemplate>
 

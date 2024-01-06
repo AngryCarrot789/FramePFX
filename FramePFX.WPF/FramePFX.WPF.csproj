@@ -219,6 +219,8 @@
     <Compile Include="Converters\SingletonValueConverter.cs" />
     <Compile Include="Converters\SKColorToBrushConverter.cs" />
     <Compile Include="Converters\VolumeToDbConverter.cs" />
+    <Compile Include="DataTemplates\DataTemplateManager.cs" />
+    <Compile Include="DataTemplates\RegisteredTemplateType.cs" />
     <Compile Include="Editor\Automation\AutomationActivityBrushConverter.cs" />
     <Compile Include="Editor\Automation\AutomationSequenceEditor.cs" />
     <Compile Include="Editor\Automation\DragMode.cs" />
@@ -327,6 +329,7 @@
     <Compile Include="Notifications\NotificationControl.cs" />
     <Compile Include="Notifications\NotificationDataTemplateSelector.cs" />
     <Compile Include="Notifications\NotificationList.cs" />
+    <Compile Include="PropertyEditing\Converters\DoubleToTimeSpanConverter.cs" />
     <Compile Include="PropertyEditing\IPropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\ISelectablePropertyControl.cs" />
     <Compile Include="PropertyEditing\PropertyEditorItemStyleSelector.cs" />

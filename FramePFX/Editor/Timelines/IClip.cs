@@ -26,22 +26,6 @@ namespace FramePFX.Editor.Timelines {
         event TrackChangedEventHandler TrackChanged;
 
         /// <summary>
-        /// An event fired when the track (that holds us) timeline changes (as in, a track was added to,
-        /// removed from or moved between timelines). Typically, this is only called when when a track is
-        /// created and added to the timeline, or deleted/removed from the timeline.
-        /// <para>
-        /// However, a track could be moved from the project timeline to a composition
-        /// timeline, in which case, the old and new tracks will be non-null
-        /// </para>
-        /// </summary>
-        event TimelineChangedEventHandler TrackTimelineChanged;
-
-        /// <summary>
-        /// An event fired when the out track's timeline's project changes
-        /// </summary>
-        event ProjectChangedEventHandler TrackTimelineProjectChanged;
-
-        /// <summary>
         /// An event fired when the user seeks a specific frame on the timeline. This is not fired during playback
         /// </summary>
         event FrameSeekedEventHandler FrameSeeked;

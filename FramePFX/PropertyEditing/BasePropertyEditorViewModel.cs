@@ -4,6 +4,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace FramePFX.PropertyEditing {
+    public delegate void PropertyEditorEventHandler(BasePropertyEditorViewModel sender);
+
     /// <summary>
     /// The base property editor view model class for handling any type of property modification
     /// and reflecting those changes back to one or more handlers (via the <see cref="Handlers"/> list)
@@ -49,6 +51,21 @@ namespace FramePFX.PropertyEditing {
         /// A mode which helps determine if this editor can be used based on the input handler list
         /// </summary>
         public virtual ApplicabilityMode ApplicabilityMode => ApplicabilityMode.All;
+
+        /// <summary>
+        /// An event called when <see cref="SetHandlers"/> is called
+        /// </summary>
+        public event PropertyEditorEventHandler Loaded;
+
+        /// <summary>
+        /// An event called just after <see cref="ClearHandlers"/> is called (before any internal logic)
+        /// </summary>
+        public event PropertyEditorEventHandler Clearing;
+
+        /// <summary>
+        /// An event called when <see cref="ClearHandlers"/> is called (after all internal logic is completed)
+        /// </summary>
+        public event PropertyEditorEventHandler Cleared;
 
         protected BasePropertyEditorViewModel(Type applicableType) : base(applicableType) {
             this.handlerToDataMap = new Dictionary<object, PropertyHandler>();
@@ -96,6 +113,7 @@ namespace FramePFX.PropertyEditing {
                 return;
             }
 
+            this.Clearing?.Invoke(this);
             this.OnClearingHandlers();
             this.handlerToDataMap.Clear();
             this.Handlers = EmptyList;
@@ -104,6 +122,13 @@ namespace FramePFX.PropertyEditing {
             this.RaisePropertyChanged(nameof(this.IsEmpty));
             this.RaisePropertyChanged(nameof(this.IsMultiSelection));
             this.RaisePropertyChanged(nameof(this.IsSingleSelection));
+            this.Cleared?.Invoke(this);
+        }
+
+        /// <summary>
+        /// Called just before the handlers are cleared. When this is cleared, there is guaranteed to be 1 or more loaded handlers
+        /// </summary>
+        protected virtual void OnClearingHandlers() {
         }
 
         /// <summary>
@@ -137,15 +162,10 @@ namespace FramePFX.PropertyEditing {
         }
 
         /// <summary>
-        /// Called just before the handlers are cleared. When this is cleared, there is guaranteed to be 1 or more loaded handlers
-        /// </summary>
-        protected virtual void OnClearingHandlers() {
-        }
-
-        /// <summary>
         /// Called just after all handlers are fulled loaded. When this is cleared, there is guaranteed to be 1 or more loaded handlers
         /// </summary>
         protected virtual void OnHandlersLoaded() {
+            this.Loaded?.Invoke(this);
         }
 
         /// <summary>

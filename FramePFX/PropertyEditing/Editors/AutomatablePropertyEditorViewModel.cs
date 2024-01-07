@@ -14,7 +14,7 @@ using FramePFX.History;
 using FramePFX.Utils;
 
 namespace FramePFX.PropertyEditing.Editors {
-    public abstract class AutomatablePropertyEditorViewModel<TValue> : BasePropertyEditorViewModel {
+    public abstract class AutomatablePropertyEditorViewModel<TValue> : BaseAutomatablePropertyEditorViewModel {
         private static readonly Dictionary<PropertyPath, PropertyData> GeneratedPropertyData;
         private readonly RefreshAutomationValueEventHandler RefreshValueForSingleHandler;
         private readonly PropertyPath propertyPath;
@@ -91,9 +91,9 @@ namespace FramePFX.PropertyEditing.Editors {
             get => this.isOverrideEnabled;
             set {
                 this.RaisePropertyChanged(ref this.isOverrideEnabled, value);
-                if (value && !this.IsEmpty) {
+                if (!this.IsEmpty) {
                     foreach (IAutomatableViewModel item in this.castedHandlerList) {
-                        item.AutomationData[this.AutomationKey].IsOverrideEnabled = true;
+                        item.AutomationData[this.AutomationKey].IsOverrideEnabled = value;
                     }
                 }
             }
@@ -115,10 +115,6 @@ namespace FramePFX.PropertyEditing.Editors {
             }
         }
 
-        public RelayCommand ResetValueCommand { get; }
-
-        public RelayCommand InsertKeyFrameCommand { get; }
-
         public EditStateCommand EditStateChangedCommand { get; }
 
         protected AutomatablePropertyEditorViewModel(Type targetType, string propertyName, AutomationKey automationKey) : base(targetType) {
@@ -132,18 +128,15 @@ namespace FramePFX.PropertyEditing.Editors {
             this.AutomationKey = automationKey ?? throw new ArgumentNullException(nameof(automationKey));
             this.RefreshValueForSingleHandler = (sender, e) => this.RaisePropertyChanged(ref this.value, this.Getter(this.SingleHandler), nameof(this.Value));
             this.EditStateChangedCommand = new EditStateCommand(() => new HistoryValue(this), "Modify opacity");
-            this.ResetValueCommand = new RelayCommand(this.ResetValue, () => this.HasHandlers);
-            this.InsertKeyFrameCommand = new RelayCommand(() => {
-                foreach (IAutomatableViewModel handler in this.MyHandlers) {
-                    if (AutomationUtils.GetSuitableFrameForAutomatable(handler, this.AutomationKey, out long frame)) {
-                        this.InsertKeyFrame(handler, frame);
-                    }
-                }
-            }, () => this.IsMultiSelection);
         }
 
         static AutomatablePropertyEditorViewModel() {
             GeneratedPropertyData = new Dictionary<PropertyPath, PropertyData>();
+        }
+
+        protected override void OnUpdateCommands(ClipAutomatableEditorHelper obj) {
+            base.OnUpdateCommands(obj);
+            this.RaisePropertyChanged(nameof(this.IsOverrideEnabled));
         }
 
         /// <summary>
@@ -170,7 +163,7 @@ namespace FramePFX.PropertyEditing.Editors {
         /// </summary>
         protected abstract void InsertKeyFrame(IAutomatableViewModel handler, long frame);
 
-        public void ResetValue() {
+        public override void ResetValue() {
             if (!this.HasHandlers) {
                 return;
             }
@@ -184,6 +177,15 @@ namespace FramePFX.PropertyEditing.Editors {
             this.OnResetValue(this.castedHandlerList);
             if (isEditStateForced) {
                 this.EditStateChangedCommand.OnFinishEdit();
+            }
+        }
+
+        public override void InsertKeyFrame() {
+            base.InsertKeyFrame();
+            foreach (IAutomatableViewModel handler in this.MyHandlers) {
+                if (AutomationUtils.GetSuitableFrameForAutomatable(handler, this.AutomationKey, out long frame)) {
+                    this.InsertKeyFrame(handler, frame);
+                }
             }
         }
 

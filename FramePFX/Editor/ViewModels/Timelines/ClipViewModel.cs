@@ -12,6 +12,7 @@ using FramePFX.Editor.History;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.Timelines;
 using FramePFX.Editor.Timelines.Effects;
+using FramePFX.Editor.Timelines.Events;
 using FramePFX.Editor.ViewModels.Timelines.Dragging;
 using FramePFX.Editor.ViewModels.Timelines.Effects;
 using FramePFX.Editor.ViewModels.Timelines.Events;
@@ -187,7 +188,12 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         public ReadOnlyObservableCollection<BaseEffectViewModel> Effects { get; }
 
         /// <summary>
-        /// Called when a
+        /// An event fired when the user seeks a specific frame on the timeline. This is not fired during playback
+        /// </summary>
+        public event FrameSeekedEventHandler FrameSeeked;
+
+        /// <summary>
+        /// Called when this clip is moved or resized such that it now intersects the playhead
         /// </summary>
         public event ClipMovedOverPlayeHeadEventHandler ClipMovedOverPlayHead;
 
@@ -256,6 +262,15 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             TimelineViewModel timeline = clip.Timeline;
             List<ClipViewModel> list = timeline != null ? timeline.GetSelectedClips().ToList() : CollectionUtils.SingleItem(clip);
             PFXPropertyEditorRegistry.Instance.OnClipSelectionChanged(list);
+        }
+
+        /// <summary>
+        /// Called when the user moves the timeline play head over this clip
+        /// </summary>
+        /// <param name="oldFrame">The previous play head position</param>
+        /// <param name="newFrame">The new/current play head position</param>
+        public virtual void OnFrameSeeked(long oldFrame, long newFrame) {
+            this.FrameSeeked?.Invoke(this, oldFrame, newFrame);
         }
 
         private void AutomationDataOnActiveSequenceChanged(AutomationDataViewModel sender, ActiveSequenceChangedEventArgs e) {

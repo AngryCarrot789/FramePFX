@@ -284,7 +284,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 FrameSpan span = clip.FrameSpan;
                 long relative = newFrame - span.Begin;
                 if (relative >= 0 && relative < span.Duration) {
-                    clip.Model.OnFrameSeeked(oldFrame, newFrame);
+                    clip.OnFrameSeeked(oldFrame, newFrame);
                     clip.Model.LastSeekedFrame = newFrame;
                 }
                 else if (clip.Model.LastSeekedFrame != -1) {

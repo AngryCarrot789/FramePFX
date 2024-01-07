@@ -302,33 +302,15 @@ namespace FramePFX.Editor.PropertyEditors.Effects {
 
         private static bool GetOriginVectorForCommand(int index, out Vector2 vec) {
             switch (index) {
-                case 0:
-                    vec = new Vector2(0.0f, 0.0f);
-                    break;
-                case 1:
-                    vec = new Vector2(0.5f, 0.0f);
-                    break;
-                case 2:
-                    vec = new Vector2(1.0f, 0.0f);
-                    break;
-                case 3:
-                    vec = new Vector2(0.0f, 0.5f);
-                    break;
-                case 4:
-                    vec = new Vector2(0.5f, 0.5f);
-                    break;
-                case 5:
-                    vec = new Vector2(1.0f, 0.5f);
-                    break;
-                case 6:
-                    vec = new Vector2(0.0f, 1.0f);
-                    break;
-                case 7:
-                    vec = new Vector2(0.5f, 1.0f);
-                    break;
-                case 8:
-                    vec = new Vector2(1.0f, 1.0f);
-                    break;
+                case 0: vec = new Vector2(0.0f, 0.0f); break;
+                case 1: vec = new Vector2(0.5f, 0.0f); break;
+                case 2: vec = new Vector2(1.0f, 0.0f); break;
+                case 3: vec = new Vector2(0.0f, 0.5f); break;
+                case 4: vec = new Vector2(0.5f, 0.5f); break;
+                case 5: vec = new Vector2(1.0f, 0.5f); break;
+                case 6: vec = new Vector2(0.0f, 1.0f); break;
+                case 7: vec = new Vector2(0.5f, 1.0f); break;
+                case 8: vec = new Vector2(1.0f, 1.0f); break;
                 default:
                     vec = default;
                     return false;

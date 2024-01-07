@@ -111,7 +111,6 @@ namespace FramePFX.Editor.Timelines {
         public ResourceHelper ResourceHelper { get; }
 
         public event TrackChangedEventHandler TrackChanged;
-        public event FrameSeekedEventHandler FrameSeeked;
         public event ClipSpanChangedEventHandler ClipSpanChanged;
         public event ProjectChangedEventHandler ProjectChanged;
 
@@ -182,15 +181,6 @@ namespace FramePFX.Editor.Timelines {
 
         public KeyFrame GetDefaultKeyFrame(AutomationKey key) {
             return this.AutomationData[key].DefaultKeyFrame;
-        }
-
-        /// <summary>
-        /// Called when the user moves the timeline play head over this clip
-        /// </summary>
-        /// <param name="oldFrame">The previous play head position</param>
-        /// <param name="newFrame">The new/current play head position</param>
-        public virtual void OnFrameSeeked(long oldFrame, long newFrame) {
-            this.FrameSeeked?.Invoke(this, oldFrame, newFrame);
         }
 
         /// <summary>

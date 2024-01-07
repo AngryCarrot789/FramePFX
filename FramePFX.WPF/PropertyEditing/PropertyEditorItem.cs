@@ -39,11 +39,14 @@ namespace FramePFX.WPF.PropertyEditing {
 
         public PropertyEditorItemsControl ParentItemsControl => GetParentItemsControl(this);
 
+        private static readonly DependencyPropertyChangedEventHandler DataContextChangedHandler = (sender, args) => {
+            PropertyEditorItem item = (PropertyEditorItem) sender;
+            bool selectable = args.NewValue is BasePropertyGroupViewModel group && group.IsSelectable;
+            item.SetValue(IsSelectableProperty, selectable.Box());
+        };
+
         public PropertyEditorItem() {
-            this.DataContextChanged += (sender, args) => {
-                bool selectable = args.NewValue is BasePropertyGroupViewModel group && group.IsSelectable;
-                this.SetValue(IsSelectableProperty, selectable.Box());
-            };
+            this.DataContextChanged += DataContextChangedHandler;
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {

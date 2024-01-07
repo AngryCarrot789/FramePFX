@@ -67,7 +67,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
             this.renderCallback = x => this.OnInvalidateRender();
             this.Model.RenderInvalidated += this.renderCallback;
             this.AutomationData.AssignRefreshHandler(VideoClip.OpacityKey, RefreshOpacityHandler);
-            model.FrameSeeked += (sender, oldframe, newframe) => this.UpdateKeyFrameCommands();
+            this.FrameSeeked += (sender, oldframe, newframe) => this.UpdateKeyFrameCommands();
         }
 
         public override void OnClipMovedToPlayeHeadFrame(long frame) {

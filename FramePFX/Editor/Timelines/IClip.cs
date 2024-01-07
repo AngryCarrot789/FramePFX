@@ -26,11 +26,6 @@ namespace FramePFX.Editor.Timelines {
         event TrackChangedEventHandler TrackChanged;
 
         /// <summary>
-        /// An event fired when the user seeks a specific frame on the timeline. This is not fired during playback
-        /// </summary>
-        event FrameSeekedEventHandler FrameSeeked;
-
-        /// <summary>
         /// An event fired when this clip's <see cref="FrameSpan"/> changes
         /// </summary>
         event ClipSpanChangedEventHandler ClipSpanChanged;

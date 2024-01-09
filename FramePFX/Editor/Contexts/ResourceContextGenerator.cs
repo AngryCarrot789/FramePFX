@@ -1,14 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using FramePFX.Actions;
 using FramePFX.Actions.Contexts;
 using FramePFX.AdvancedContextService;
-using FramePFX.Editor.ResourceManaging;
-using FramePFX.Editor.ResourceManaging.Actions;
-using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
-using FramePFX.Utils;
 
 namespace FramePFX.Editor.Contexts {
     /// <summary>

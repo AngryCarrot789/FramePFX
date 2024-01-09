@@ -329,7 +329,7 @@
     <Compile Include="Notifications\NotificationControl.cs" />
     <Compile Include="Notifications\NotificationDataTemplateSelector.cs" />
     <Compile Include="Notifications\NotificationList.cs" />
-    <Compile Include="PropertyEditing\Converters\DoubleToTimeSpanConverter.cs" />
+    <Compile Include="PropertyEditing\Converters\SecondsToTimeSpanConverter.cs" />
     <Compile Include="PropertyEditing\IPropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\ISelectablePropertyControl.cs" />
     <Compile Include="PropertyEditing\PropertyEditorItemStyleSelector.cs" />

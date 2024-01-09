@@ -1,13 +1,10 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using FFmpeg.AutoGen;
 using FramePFX.Automation.Events;
-using FramePFX.Automation.History;
 using FramePFX.Automation.Keyframe;
 using FramePFX.Automation.Keys;
 using FramePFX.History;
-using FramePFX.History.ViewModels;
 using FramePFX.Utils;
 
 namespace FramePFX.Automation.ViewModels.Keyframe {

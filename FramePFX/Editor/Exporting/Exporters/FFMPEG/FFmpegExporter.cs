@@ -13,7 +13,7 @@ using LavResult = FramePFX.FFmpegWrapper.LavResult;
 namespace FramePFX.Editor.Exporting.Exporters.FFMPEG {
     // https://github.com/aligrudi/fbff/blob/master/ffs.c
 
-    public class FFmpegExporter : ExportService {
+    public class FFmpegExporter : Exporter {
         public Rect2i Resolution { get; set; }
 
         public Rational FrameRate { get; set; }
@@ -201,6 +201,8 @@ namespace FramePFX.Editor.Exporting.Exporters.FFMPEG {
                     rc.ClearPixels();
                     AutomationEngine.UpdateTimeline(project.Timeline, exportFrame);
                     try {
+                        // TODO: work out a better way around this; some clips read the timeline's play head positions
+                        project.Timeline.PlayHeadFrame = exportFrame;
                         renderTask = project.Timeline.RenderAsync(rc, exportFrame, cancellation);
                         while (!renderTask.IsCompleted) {
                             Thread.Sleep(1);

@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using FramePFX.Actions;
-using FramePFX.Utils;
 
 namespace FramePFX.AdvancedContextService {
     public class ActionCheckableContextEntry : ActionContextEntry {

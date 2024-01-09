@@ -1,6 +1,5 @@
 using FramePFX.Editor.Timelines.Events;
 using FramePFX.Editor.Timelines.ResourceHelpers;
-using FramePFX.RBC.Events;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timelines {

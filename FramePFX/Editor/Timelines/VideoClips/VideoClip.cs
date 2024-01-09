@@ -8,7 +8,6 @@ using FramePFX.Editor.Timelines.Effects.Video;
 using FramePFX.Editor.Timelines.Events;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Logger;
-using FramePFX.RBC;
 using FramePFX.Utils;
 using SkiaSharp;
 
@@ -59,7 +58,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         public event RenderSizeChangedEventHandler RenderSizeChanged;
 
         protected VideoClip() {
-            this.AutomationData.AssignKey(OpacityKey, this.CreateAssignment(OpacityKey));
+            this.AutomationData.AssignKey(OpacityKey, this.CreateReflectiveParameterUpdater(OpacityKey));
             this.isMatrixDirty = true;
         }
 

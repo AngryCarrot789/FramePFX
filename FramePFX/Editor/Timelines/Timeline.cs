@@ -205,8 +205,10 @@ namespace FramePFX.Editor.Timelines {
         public void RemoveTrackAt(int index) {
             Track track = this.tracks[index];
             this.ValidateTrack(track, false);
-            this.tracks.RemoveAt(index);
+            track.RemoveAllClips();
             Track.SetTimeline(track, null, index);
+            track.Destroy();
+            this.tracks.RemoveAt(index);
         }
 
         public void MoveTrackUnsafe(int oldIndex, int newIndex) {
@@ -235,7 +237,7 @@ namespace FramePFX.Editor.Timelines {
             using (ErrorList list = new ErrorList()) {
                 for (int i = this.tracks.Count - 1; i >= 0; i--) {
                     try {
-                        this.tracks[i].Clear();
+                        this.tracks[i].RemoveAllClips();
                     }
                     catch (Exception e) {
                         list.Add(e);

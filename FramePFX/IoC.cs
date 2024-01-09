@@ -1,7 +1,6 @@
 using System;
 using FramePFX.App;
 using FramePFX.Components;
-using FramePFX.Logger;
 using FramePFX.ServiceManaging;
 using FramePFX.Shortcuts.Dialogs;
 using FramePFX.Views.Dialogs.FilePicking;

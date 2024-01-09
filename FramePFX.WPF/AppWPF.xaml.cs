@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -30,7 +29,6 @@ using FramePFX.Utils;
 using FramePFX.WPF.Resources.I18N;
 using FramePFX.WPF.Shortcuts;
 using FramePFX.WPF.Shortcuts.Converters;
-using FramePFX.WPF.Utils;
 using FramePFX.WPF.Views;
 using SoundIOSharp;
 using FramePFX.WPF.Editor.MainWindow;
@@ -38,13 +36,11 @@ using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.PropertyEditing;
 using System.Windows.Controls;
 using System.Windows.Media;
-using FramePFX.App;
 using FramePFX.Editor.Actions.Clips;
 using FramePFX.Editor.Actions.Tracks;
 using FramePFX.Editor.Timelines;
 using FramePFX.Logger;
 using FramePFX.RBC;
-using FramePFX.ServiceManaging;
 using FramePFX.TaskSystem;
 using FramePFX.WPF.App;
 using FontFamily = System.Windows.Media.FontFamily;
@@ -339,7 +335,7 @@ namespace FramePFX.WPF {
             await editor.FileExplorer.LoadDefaultLocation();
 
             if (args.Length > 0 && File.Exists(args[0])) {
-                await editor.OpenProjectAtAction(args[0]);
+                await editor.ReadAndOpenProjectAction(args[0]);
             }
             else {
                 await editor.LoadProject(new ProjectViewModel(CreateDemoProject()));

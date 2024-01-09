@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using FramePFX.Automation;
 using FramePFX.Editor.Registries;
+using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.Timelines.Events;
+using FramePFX.Logger;
 using FramePFX.RBC;
 using FramePFX.Utils;
 using SkiaSharp;
@@ -91,16 +93,18 @@ namespace FramePFX.Editor.Timelines {
             Timeline oldTimeline = track.Timeline;
             if (!ReferenceEquals(oldTimeline, timeline)) {
                 track.Timeline = timeline;
+                ResourceManager manager = timeline?.Project?.ResourceManager;
                 foreach (Clip clip in track.clips)
-                    Clip.InternalOnTrackTimelineChanged(clip, oldTimeline, timeline);
+                    clip.ResourceHelper.SetManager(manager);
                 track.OnTimelineChanged(oldTimeline, indexOfTrack);
             }
         }
 
         public static void OnTimelineProjectChanged(Track track, Project oldProject, Project newProject) {
             track.OnProjectChanging(oldProject, newProject);
+            ResourceManager manager = newProject?.ResourceManager;
             foreach (Clip clip in track.clips)
-                Clip.InternalOnTrackTimelineProjectChanged(clip, oldProject, newProject);
+                clip.ResourceHelper.SetManager(manager);
             track.OnProjectChanged(oldProject, newProject);
         }
 
@@ -173,10 +177,14 @@ namespace FramePFX.Editor.Timelines {
             Clip.InternalSetTrack(clip, this);
         }
 
+        /// <summary>
+        /// Removes this clip from the track. This method does not destroy the clip, that must be done before-hand
+        /// </summary>
+        /// <param name="index">The index to remove the clip at</param>
         public void RemoveClipAt(int index) {
             Clip clip = this.clips[index];
             if (!ReferenceEquals(this, clip.Track))
-                throw new Exception("Expected clip's track to equal this instance");
+                AppLogger.WriteLine("WARNING: The clip being removed references a track that is not equal to the track that contains the clip");
             this.clips.RemoveAt(index);
             this.cache.OnClipRemoved(clip);
             clip.ClipSpanChanged -= this.clipSpanChangedHandler;
@@ -262,7 +270,7 @@ namespace FramePFX.Editor.Timelines {
         /// <summary>
         /// Clears all clips in this track
         /// </summary>
-        public void Clear() {
+        public void RemoveAllClips() {
             using (ErrorList list = new ErrorList()) {
                 for (int i = this.clips.Count - 1; i >= 0; i--) {
                     try {
@@ -312,6 +320,27 @@ namespace FramePFX.Editor.Timelines {
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Destroys this track, recursively destroying all resources associated with it (e.g. all effects,
+        /// all clips and their effects and so on). This is literally just dispose but with a different name,
+        /// as a destroyed track could be reused, though it shouldn't really be
+        /// </summary>
+        public void Destroy() {
+            using (ErrorList list = new ErrorList()) {
+                for (int i = this.clips.Count - 1; i >= 0; i--) {
+                    Clip clip = this.clips[i];
+                    clip.Destroy();
+
+                    try {
+                        this.RemoveClipAt(i);
+                    }
+                    catch (Exception e) {
+                        list.Add(e);
+                    }
+                }
+            }
         }
     }
 

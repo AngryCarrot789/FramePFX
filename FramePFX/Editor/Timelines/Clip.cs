@@ -12,14 +12,13 @@ using FramePFX.Editor.Timelines.ResourceHelpers;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.Logger;
 using FramePFX.RBC;
-using FramePFX.RBC.Events;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor.Timelines {
     /// <summary>
     /// A model that represents a timeline track clip, such as a video or audio clip
     /// </summary>
-    public abstract class Clip : IClip, IStrictFrameRange, IAutomatable, IDisposable {
+    public abstract class Clip : IClip, IStrictFrameRange, IAutomatable {
         public static readonly SerialisationRegistry Serialisation;
 
         private readonly List<BaseEffect> internalEffectList;
@@ -52,8 +51,6 @@ namespace FramePFX.Editor.Timelines {
         /// This clip's factory ID, used for creating a new instance dynamically via reflection
         /// </summary>
         public string FactoryId => ClipFactory.Instance.GetTypeIdForModel(this.GetType());
-
-        public bool IsDisposing { get; private set; }
 
         public FrameSpan FrameSpan {
             get => this.frameSpan;
@@ -112,7 +109,6 @@ namespace FramePFX.Editor.Timelines {
 
         public event TrackChangedEventHandler TrackChanged;
         public event ClipSpanChangedEventHandler ClipSpanChanged;
-        public event ProjectChangedEventHandler ProjectChanged;
 
         protected Clip() {
             this.AutomationData = new AutomationData(this);
@@ -148,14 +144,13 @@ namespace FramePFX.Editor.Timelines {
                 clip.MediaFrameOffset = data.GetLong(nameof(clip.MediaFrameOffset));
                 clip.IsRenderingEnabled = data.GetBool(nameof(clip.IsRenderingEnabled), true);
                 clip.AutomationData.ReadFromRBE(data.GetDictionary(nameof(clip.AutomationData)));
-                clip.ClearEffects(); // this shouldn't be necessary... but just in case
                 foreach (RBEBase entry in data.GetList("Effects").List) {
                     if (!(entry is RBEDictionary dictionary))
                         throw new Exception($"Effect resource dictionary contained a non dictionary child: {entry.Type}");
                     string factoryId = dictionary.GetString(nameof(BaseEffect.FactoryId));
                     BaseEffect effect = EffectFactory.Instance.CreateModel(factoryId);
                     effect.ReadFromRBE(dictionary.GetDictionary("Data"));
-                    BaseEffect.AddEffectToClip(clip, effect);
+                    clip.AddEffect(effect);
                 }
 
                 clip.ResourceHelper.ReadFromRootRBE(data);
@@ -224,8 +219,9 @@ namespace FramePFX.Editor.Timelines {
         /// <summary>
         /// Clears all of this clip's effects
         /// </summary>
-        public void ClearEffects() {
+        public void DestroyAndClearEffects() {
             for (int i = this.Effects.Count - 1; i >= 0; i--) {
+                this.Effects[i].Destroy();
                 BaseEffect.RemoveEffectAt(this, i);
             }
         }
@@ -302,30 +298,10 @@ namespace FramePFX.Editor.Timelines {
         #region Dispose
 
         /// <summary>
-        /// Disposes this clip, releasing any resources it is using. This is called when a clip is about to be no longer reachable (e.g. when the user deletes it).
-        /// <para>
-        /// When clips are removed from the timeline, they are serialised (and stored in the history manager) then disposed.
-        /// When the user undoes that, they're deserialised and a new instance is created. This means that the original reference
-        /// of the deleted clip is not reused for simplicity sakes.
-        /// </para>
-        /// <para>
-        /// Dispose only throws an exception in truly exceptional cases that should result in the app crashing
-        /// </para>
-        /// <para>
-        /// This function clears all effects and releases any resource handles
-        /// </para>
+        /// Recursively destroys all effects and other destroyable resources with this clip, and finally destroys any clip data
         /// </summary>
-        public void Dispose() {
-            this.OnBeginDispose();
-            this.OnDisposeCore();
-            this.OnEndDispose();
-        }
-
-        /// <summary>
-        /// Called just before <see cref="OnDisposeCore"/>. This should not throw any exceptions
-        /// </summary>
-        protected virtual void OnBeginDispose() {
-            this.IsDisposing = true;
+        public void Destroy() {
+            this.OnDestroyCore();
         }
 
         /// <summary>
@@ -335,16 +311,9 @@ namespace FramePFX.Editor.Timelines {
         /// Exceptions should not be thrown from this method, and instead, added to the given <see cref="ErrorList"/>
         /// </para>
         /// </summary>
-        protected virtual void OnDisposeCore() {
-            this.ClearEffects();
+        protected virtual void OnDestroyCore() {
+            this.DestroyAndClearEffects();
             this.ResourceHelper.Dispose();
-        }
-
-        /// <summary>
-        /// Called just after <see cref="OnDisposeCore"/>. This should not throw any exceptions
-        /// </summary>
-        protected virtual void OnEndDispose() {
-            this.IsDisposing = false;
         }
 
         #endregion
@@ -416,15 +385,6 @@ namespace FramePFX.Editor.Timelines {
                 clip.Track = track;
                 clip.OnTrackChanged(oldTrack, track);
             }
-        }
-
-        internal static void InternalOnTrackTimelineChanged(Clip clip, Timeline oldTimeline, Timeline newTimeline) {
-            clip.ResourceHelper.SetManager(newTimeline?.Project?.ResourceManager);
-        }
-
-        internal static void InternalOnTrackTimelineProjectChanged(Clip clip, Project oldProject, Project newProject) {
-            clip.ResourceHelper.SetManager(newProject?.ResourceManager);
-            clip.ProjectChanged?.Invoke(clip, oldProject, newProject);
         }
 
         internal static void InternalOnInsertingEffect(Clip clip, int index, BaseEffect effect) {

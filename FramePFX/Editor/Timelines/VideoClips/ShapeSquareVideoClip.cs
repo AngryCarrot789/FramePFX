@@ -6,7 +6,6 @@ using FramePFX.Editor.Rendering;
 using FramePFX.Editor.Rendering.PFXCE;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.Timelines.ResourceHelpers;
-using FramePFX.RBC;
 using FramePFX.Utils;
 using SkiaSharp;
 
@@ -28,8 +27,8 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         public IResourcePathKey<ResourceColour> ColourKey { get; }
 
         public ShapeSquareVideoClip() {
-            this.AutomationData.AssignKey(WidthKey, this.CreateAssignment(WidthKey));
-            this.AutomationData.AssignKey(HeightKey, this.CreateAssignment(HeightKey));
+            this.AutomationData.AssignKey(WidthKey, this.CreateReflectiveParameterUpdater(WidthKey));
+            this.AutomationData.AssignKey(HeightKey, this.CreateReflectiveParameterUpdater(HeightKey));
             this.ColourKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceColour>();
             this.ColourKey.ResourceDataModified += this.ResourceHelperOnResourceDataModified;
         }

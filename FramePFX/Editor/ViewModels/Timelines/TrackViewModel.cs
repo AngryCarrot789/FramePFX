@@ -3,15 +3,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using FramePFX.AdvancedContextService;
-using FramePFX.AdvancedContextService.NCSP;
 using FramePFX.Automation;
 using FramePFX.Automation.ViewModels;
 using FramePFX.Commands;
 using FramePFX.Editor.History;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.Timelines;
-using FramePFX.Editor.Timelines.Events;
 using FramePFX.History;
 using FramePFX.History.Tasks;
 using FramePFX.Interactivity;
@@ -216,7 +213,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                     }
 
                     try {
-                        clip.Model.Dispose();
+                        clip.Model.Destroy();
                     }
                     catch (Exception e) {
                         stack.Add(new Exception($"Failed to dispose {clip.GetType()} properly", e));
@@ -236,7 +233,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             for (int i = this.clips.Count - 1; i >= 0; i--) {
                 ClipViewModel clip = this.clips[i];
                 this.Model.RemoveClipAt(i);
-                clip.Model.Dispose();
+                clip.Model.Destroy();
             }
         }
 

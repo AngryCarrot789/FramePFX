@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FramePFX.Editor.ResourceManaging.Events;
-using FramePFX.Editor.ResourceManaging.ViewModels;
 using FramePFX.RBC;
-using FramePFX.Utils;
 
 namespace FramePFX.Editor.ResourceManaging {
     /// <summary>
@@ -213,20 +211,6 @@ namespace FramePFX.Editor.ResourceManaging {
                 foreach (BaseResource obj in ((ResourceFolder) resource).items) {
                     RegisterHierarchy(manager, obj);
                 }
-            }
-        }
-
-        public override void OnProjectLoaded() {
-            base.OnProjectLoaded();
-            foreach (BaseResource resource in this.items) {
-                resource.OnProjectLoaded();
-            }
-        }
-
-        public override void OnProjectUnloaded() {
-            base.OnProjectUnloaded();
-            foreach (BaseResource resource in this.items) {
-                resource.OnProjectUnloaded();
             }
         }
     }

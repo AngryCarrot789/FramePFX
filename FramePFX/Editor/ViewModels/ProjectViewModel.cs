@@ -65,9 +65,7 @@ namespace FramePFX.Editor.ViewModels {
 
         public bool IsExporting {
             get => this.Model.IsExporting;
-            set {
-                if (this.IsExporting == value)
-                    return;
+            private set {
                 this.Model.IsExporting = value;
                 this.RaisePropertyChanged();
             }
@@ -105,6 +103,14 @@ namespace FramePFX.Editor.ViewModels {
             cancel.ToolTip = "Cancel project save; no files will be created, deleted or moved";
 
             ShouldCreateDataFolderDialog.ShowAlwaysUseNextResultOption = true;
+        }
+
+        public void OnExportBegin() {
+            this.IsExporting = true;
+        }
+
+        public void OnExportEnded() {
+            this.IsExporting = false;
         }
 
         public async Task OpenSettingsAction() {

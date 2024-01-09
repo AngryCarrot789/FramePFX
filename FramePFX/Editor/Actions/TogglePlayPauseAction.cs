@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using FramePFX.Actions;
 using FramePFX.Editor.ViewModels;
-using FramePFX.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Editor.Actions {
     public class TogglePlayPauseAction : ContextAction {

@@ -18,7 +18,6 @@ using FramePFX.Logger;
 using FramePFX.Notifications;
 using FramePFX.Notifications.Types;
 using FramePFX.Utils;
-using FramePFX.WPF.Editor.Timelines;
 using FramePFX.WPF.Editor.Timelines.Controls;
 using FramePFX.WPF.Notifications;
 using FramePFX.WPF.Themes;

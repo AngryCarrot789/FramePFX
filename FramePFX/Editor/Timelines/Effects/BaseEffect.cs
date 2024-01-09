@@ -35,8 +35,6 @@ namespace FramePFX.Editor.Timelines.Effects {
         /// </summary>
         public Clip OwnerClip { get; private set; }
 
-        public Project Project => this.OwnerClip.Track.Timeline.Project;
-
         protected BaseEffect() {
             this.IsRemoveable = true;
             this.AutomationData = new AutomationData(this);
@@ -175,10 +173,14 @@ namespace FramePFX.Editor.Timelines.Effects {
             return this.OwnerClip?.IsTimelineFrameInRange(timeline) ?? false;
         }
 
+        public virtual void Destroy() {
+
+        }
+
         public BaseEffect Clone() {
+            BaseEffect effect = EffectFactory.Instance.CreateModel(this.FactoryId);
             RBEDictionary dictionary = new RBEDictionary();
             this.WriteToRBE(dictionary);
-            BaseEffect effect = EffectFactory.Instance.CreateModel(this.FactoryId);
             effect.ReadFromRBE(dictionary);
             return effect;
         }

@@ -77,13 +77,13 @@ namespace FramePFX.Editor.Timelines.Effects.Video {
         public MotionEffect() {
             this.isMatrixDirty = true;
             UpdateAutomationValueEventHandler throwABrickAtMeThisSucks = (s, f) => this.InvalidateMatrix();
-            this.AutomationData.AssignKey(MediaPositionKey, this.CreateAssignment(MediaPositionKey)).AddUpdateHandler(throwABrickAtMeThisSucks);
-            this.AutomationData.AssignKey(MediaScaleKey, this.CreateAssignment(MediaScaleKey)).AddUpdateHandler(throwABrickAtMeThisSucks);
-            this.AutomationData.AssignKey(MediaScaleOriginKey, this.CreateAssignment(MediaScaleOriginKey)).AddUpdateHandler(throwABrickAtMeThisSucks);
-            this.AutomationData.AssignKey(UseAbsoluteScaleOriginKey, this.CreateAssignment(UseAbsoluteScaleOriginKey)).AddUpdateHandler(throwABrickAtMeThisSucks);
-            this.AutomationData.AssignKey(MediaRotationKey, this.CreateAssignment(MediaRotationKey)).AddUpdateHandler(throwABrickAtMeThisSucks);
-            this.AutomationData.AssignKey(MediaRotationOriginKey, this.CreateAssignment(MediaRotationOriginKey)).AddUpdateHandler(throwABrickAtMeThisSucks);
-            this.AutomationData.AssignKey(UseAbsoluteRotationOriginKey, this.CreateAssignment(UseAbsoluteRotationOriginKey)).AddUpdateHandler(throwABrickAtMeThisSucks);
+            this.AutomationData.AssignKey(MediaPositionKey, this.CreateReflectiveParameterUpdater(MediaPositionKey)).AddUpdateHandler(throwABrickAtMeThisSucks);
+            this.AutomationData.AssignKey(MediaScaleKey, this.CreateReflectiveParameterUpdater(MediaScaleKey)).AddUpdateHandler(throwABrickAtMeThisSucks);
+            this.AutomationData.AssignKey(MediaScaleOriginKey, this.CreateReflectiveParameterUpdater(MediaScaleOriginKey)).AddUpdateHandler(throwABrickAtMeThisSucks);
+            this.AutomationData.AssignKey(UseAbsoluteScaleOriginKey, this.CreateReflectiveParameterUpdater(UseAbsoluteScaleOriginKey)).AddUpdateHandler(throwABrickAtMeThisSucks);
+            this.AutomationData.AssignKey(MediaRotationKey, this.CreateReflectiveParameterUpdater(MediaRotationKey)).AddUpdateHandler(throwABrickAtMeThisSucks);
+            this.AutomationData.AssignKey(MediaRotationOriginKey, this.CreateReflectiveParameterUpdater(MediaRotationOriginKey)).AddUpdateHandler(throwABrickAtMeThisSucks);
+            this.AutomationData.AssignKey(UseAbsoluteRotationOriginKey, this.CreateReflectiveParameterUpdater(UseAbsoluteRotationOriginKey)).AddUpdateHandler(throwABrickAtMeThisSucks);
         }
 
         private void InvalidateMatrix() {

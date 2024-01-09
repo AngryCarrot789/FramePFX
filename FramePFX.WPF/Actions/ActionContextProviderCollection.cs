@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using FramePFX.Actions.Contexts;
 using FramePFX.Utils;
 using FramePFX.WPF.Shortcuts;
-using FramePFX.WPF.Shortcuts.Bindings;
 using FramePFX.WPF.Utils;
 
 namespace FramePFX.WPF.Actions {

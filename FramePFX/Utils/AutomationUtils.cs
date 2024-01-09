@@ -12,10 +12,9 @@ using FramePFX.Editor.ViewModels.Timelines;
 
 namespace FramePFX.Utils {
     public static class AutomationUtils {
-        public static readonly ConstantExpression ConstFalse;
+        public static readonly ConstantExpression ConstFalse = Expression.Constant(BoolBox.False);
 
         static AutomationUtils() {
-            ConstFalse = Expression.Constant(BoolBox.False);
         }
 
         public static bool GetSuitableFrameForAutomatable(IAutomatableViewModel automatable, AutomationKey key, out long frame) {
@@ -82,23 +81,23 @@ namespace FramePFX.Utils {
             return automatable.AutomationData[key].GetOverride();
         }
 
-        public static UpdateAutomationValueEventHandler CreateAssignment(this IAutomatable automatable, AutomationKey key) {
+        public static UpdateAutomationValueEventHandler CreateReflectiveParameterUpdater(this IAutomatable automatable, AutomationKey key) {
             return GetOrCreateAssignmentInternal(automatable.GetType(), key.Id, key);
         }
 
-        public static UpdateAutomationValueEventHandler CreateAssignment(this IAutomatable automatable, string memberName, AutomationKey key) {
+        public static UpdateAutomationValueEventHandler CreateReflectiveParameterUpdater(this IAutomatable automatable, string memberName, AutomationKey key) {
             return GetOrCreateAssignmentInternal(automatable.GetType(), memberName, key);
         }
 
-        public static UpdateAutomationValueEventHandler CreateAssignment(Type targetType, AutomationKey key) {
+        public static UpdateAutomationValueEventHandler CreateReflectiveParameterUpdater(Type targetType, AutomationKey key) {
             return GetOrCreateAssignmentInternal(targetType, key.Id, key);
         }
 
-        public static UpdateAutomationValueEventHandler CreateAssignment(Type targetType, string memberName, AutomationKey key) {
+        public static UpdateAutomationValueEventHandler CreateReflectiveParameterUpdater(Type targetType, string memberName, AutomationKey key) {
             return GetOrCreateAssignmentInternal(targetType, memberName, key);
         }
 
-        public static UpdateAutomationValueEventHandler GetOrCreateAssignmentInternal(Type targetType, string memberName, AutomationKey key) {
+        private static UpdateAutomationValueEventHandler GetOrCreateAssignmentInternal(Type targetType, string memberName, AutomationKey key) {
             UpdateAutomationValueEventHandler handler = key.__cachedUpdateHandler;
             if (handler == null)
                 key.__cachedUpdateHandler = handler = CreateAssignmentInternal(targetType, key.DataType, memberName);

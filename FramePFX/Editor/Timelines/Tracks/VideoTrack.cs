@@ -34,8 +34,8 @@ namespace FramePFX.Editor.Timelines.Tracks {
         public VideoTrack() {
             this.Opacity = 1d;
             this.IsVisible = true;
-            this.AutomationData.AssignKey(OpacityKey, this.CreateAssignment(OpacityKey));
-            this.AutomationData.AssignKey(IsVisibleKey, this.CreateAssignment(IsVisibleKey));
+            this.AutomationData.AssignKey(OpacityKey, this.CreateReflectiveParameterUpdater(OpacityKey));
+            this.AutomationData.AssignKey(IsVisibleKey, this.CreateReflectiveParameterUpdater(IsVisibleKey));
         }
 
         protected override Track NewInstanceForClone() {

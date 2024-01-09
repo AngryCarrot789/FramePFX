@@ -1,20 +1,26 @@
 using System;
 using System.Threading.Tasks;
+using FramePFX.Automation.Keys;
 using FramePFX.Editor.Rendering;
 using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editor.Timelines.VideoClips {
     public class TimerClip : VideoClip {
+        public static readonly AutomationKeyDouble SpeedProperty = AutomationKey.RegisterDouble(nameof(TimerClip), "Speed", 1.0f);
+
         public bool UseClipStartTime;
         public bool UseClipEndTime;
-
         public TimeSpan StartTime;
         public TimeSpan EndTime;
 
         private string fontFamily = "Consolas";
         private SKFont cachedFont;
         private SKTypeface cachedTypeFace;
+
+        public bool IsUsingAutomatableSpeedMode;
+        public double Speed = 1.0d;
+        public double CurrentTotalSeconds;
 
         public string FontFamily {
             get => this.fontFamily;
@@ -28,6 +34,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
         }
 
         public TimerClip() {
+            this.AutomationData.AssignKey(SpeedProperty, this.CreateReflectiveParameterUpdater(SpeedProperty));
             this.UseClipStartTime = this.UseClipEndTime = true;
         }
 
@@ -36,26 +43,33 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                 throw new Exception("No project associated with clip");
             }
 
-            Rational fps = project.Settings.TimeBase;
-            long beginFrame = this.FrameBegin, endFrame = this.FrameEndIndex;
-
-            TimeSpan start, end;
-            if (this.UseClipStartTime) {
-                start = default; //TimeSpan.FromSeconds(this.FrameBegin / fps.ToDouble);
+            TimeSpan time;
+            if (this.IsUsingAutomatableSpeedMode) {
+                time = TimeSpan.FromSeconds(this.CurrentTotalSeconds);
             }
             else {
-                start = this.StartTime;
+                Rational fps = project.Settings.TimeBase;
+                long beginFrame = this.FrameBegin, endFrame = this.FrameEndIndex;
+
+                TimeSpan start, end;
+                if (this.UseClipStartTime) {
+                    start = default;
+                }
+                else {
+                    start = this.StartTime;
+                }
+
+                if (this.UseClipEndTime) {
+                    end = TimeSpan.FromSeconds(this.FrameDuration / fps.ToDouble);
+                }
+                else {
+                    end = this.EndTime;
+                }
+
+                double percent = Maths.InverseLerp(beginFrame, endFrame, this.TimelinePlayhead);
+                time = TimeSpan.FromSeconds(Maths.Lerp(start.TotalSeconds, end.TotalSeconds, percent));
             }
 
-            if (this.UseClipEndTime) {
-                end = TimeSpan.FromSeconds(this.FrameDuration / fps.ToDouble);
-            }
-            else {
-                end = this.EndTime;
-            }
-
-            double percent = Maths.InverseLerp(beginFrame, endFrame, this.TimelinePlayhead);
-            TimeSpan time = TimeSpan.FromSeconds(Maths.Lerp(start.TotalSeconds, end.TotalSeconds, percent));
             return string.Format("{0:00}:{1:00}:{2:00}.{3:00}", (int) time.TotalHours, time.Minutes, time.Seconds, time.Milliseconds / 10.0);
         }
 
@@ -73,6 +87,10 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                 clip.StartTime = new TimeSpan(data.GetLong("StartTime"));
                 clip.EndTime = new TimeSpan(data.GetLong("EndTime"));
             });
+        }
+
+        protected override void OnTrackChanged(Track oldTrack, Track newTrack) {
+            base.OnTrackChanged(oldTrack, newTrack);
         }
 
         public override bool OnBeginRender(long frame) {

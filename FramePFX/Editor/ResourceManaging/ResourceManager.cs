@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using FramePFX.Editor.ResourceManaging.Events;
-using FramePFX.Logger;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
@@ -240,13 +239,5 @@ namespace FramePFX.Editor.ResourceManaging {
         }
 
         #endregion
-
-        public void OnProjectLoaded() {
-            this.RootFolder.OnProjectLoaded();
-        }
-
-        public void OnProjectUnloaded() {
-            this.RootFolder.OnProjectUnloaded();
-        }
     }
 }

@@ -2,10 +2,10 @@ using System.Threading;
 
 namespace FramePFX.Editor.Exporting {
     /// <summary>
-    /// A service that implement a project export procedure
+    /// A class that implements the final export of a project
     /// </summary>
-    public abstract class ExportService {
-        protected ExportService() {
+    public abstract class Exporter {
+        protected Exporter() {
         }
 
         /// <summary>

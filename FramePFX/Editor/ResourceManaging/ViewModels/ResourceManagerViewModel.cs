@@ -4,12 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Actions.Helpers;
-using FramePFX.Commands;
-using FramePFX.Editor.ResourceManaging.Resources;
-using FramePFX.Editor.ResourceManaging.ViewModels.Resources;
-using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.ViewModels;
-using FramePFX.Logger;
 using FramePFX.PropertyEditing;
 
 namespace FramePFX.Editor.ResourceManaging.ViewModels {

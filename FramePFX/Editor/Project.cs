@@ -3,11 +3,12 @@ using System.IO;
 using FramePFX.Automation;
 using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.Timelines;
-using FramePFX.Logger;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
 namespace FramePFX.Editor {
+    public delegate void ProjectEventHandler(Project project);
+
     public class Project {
         public volatile bool IsSaving;
 
@@ -25,7 +26,13 @@ namespace FramePFX.Editor {
         /// </summary>
         public VideoEditor Editor { get; set; }
 
-        public bool IsExporting { get; set; }
+        private bool isExporting;
+        public bool IsExporting {
+            get => this.isExporting;
+            set {
+                this.isExporting = value;
+            }
+        }
 
         public bool IsLoaded { get; private set; }
 
@@ -120,28 +127,6 @@ namespace FramePFX.Editor {
             this.ResourceManager.ReadFromRBE(data.GetDictionary(nameof(this.ResourceManager)));
             this.Timeline.ReadFromRBE(data.GetDictionary(nameof(this.Timeline)));
             this.UpdateTimelineBackingStorage();
-        }
-
-        /// <summary>
-        /// Sets this project in a loaded state. The OpenGL context must be current before calling this
-        /// </summary>
-        public void OnLoaded() {
-            if (this.IsLoaded)
-                return;
-            AppLogger.WriteLine("Load project internal");
-            this.IsLoaded = true;
-            this.ResourceManager.OnProjectLoaded();
-        }
-
-        /// <summary>
-        /// Sets the project in an unloaded state. The OpenGL context must be current before calling this
-        /// </summary>
-        public void OnUnloaded() {
-            if (!this.IsLoaded)
-                return;
-            AppLogger.WriteLine("Unload project internal");
-            this.IsLoaded = false;
-            this.ResourceManager.OnProjectUnloaded();
         }
 
         /// <summary>

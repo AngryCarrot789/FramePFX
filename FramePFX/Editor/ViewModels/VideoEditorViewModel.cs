@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using FramePFX.Automation;
 using FramePFX.Commands;
@@ -14,7 +13,6 @@ using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.FileBrowser;
 using FramePFX.History.ViewModels;
 using FramePFX.Logger;
-using FramePFX.Notifications;
 using FramePFX.Notifications.Types;
 using FramePFX.PropertyEditing;
 using FramePFX.RBC;
@@ -230,37 +228,27 @@ namespace FramePFX.Editor.ViewModels {
             string[] result = await IoC.FilePicker.OpenFiles(Filters.ProjectTypeAndAllFiles, null, "Select a project file to open");
             if (result != null && (this.ActiveProject == null || await this.PromptAndSaveProjectAction())) {
                 await this.CloseProjectAction();
-                await this.OpenProjectAtAction(result[0]);
+                await this.ReadAndOpenProjectAction(result[0]);
                 if (this.SelectedTimeline != null) {
                     await this.SelectedTimeline.UpdateAndRenderTimelineToEditor(false);
                 }
             }
         }
 
-        public async Task OpenProjectAtAction(string filePath, bool forceCloseProject = false) {
+        public async Task ReadAndOpenProjectAction(string filePath) {
             if (this.ActiveProject != null) {
-                if (forceCloseProject) {
-                    await this.CloseProjectAction();
-                }
-                else {
-                    throw new Exception("Another project is already open, it should be closed before opening another");
-                }
+                throw new Exception("Another project is already open, it should be closed before opening another");
             }
 
             AppLogger.WriteLine("Reading packed RBE project from file: " + filePath);
             RBEDictionary dictionary;
             try {
-                dictionary = RBEUtils.ReadFromFilePacked(filePath) as RBEDictionary;
+                dictionary = (RBEDictionary) RBEUtils.ReadFromFilePacked(filePath);
             }
             catch (Exception e) {
                 AppLogger.WriteLine("Failed to read packed RBE data");
                 AppLogger.WriteLine(e.GetToString());
                 await IoC.DialogService.ShowMessageAsync("Read error", "Failed to read project from file. See logs for more info");
-                return;
-            }
-
-            if (dictionary == null) {
-                await IoC.DialogService.ShowMessageAsync("Invalid project", "The project contains invalid data (non RBEDictionary)");
                 return;
             }
 
@@ -319,10 +307,6 @@ namespace FramePFX.Editor.ViewModels {
                 this.activeProject.OnDisconnectFromEditor();
                 this.Model.SetProject(null);
                 try {
-                    if (this.activeProject.Model.IsLoaded) {
-                        this.activeProject.Model.OnUnloaded();
-                    }
-
                     this.activeProject.Dispose();
                 }
                 catch (Exception e) {
@@ -333,10 +317,6 @@ namespace FramePFX.Editor.ViewModels {
 
             this.activeProject = project;
             if (project != null) {
-                if (!project.Model.IsLoaded) {
-                    project.Model.OnLoaded();
-                }
-
                 this.Model.SetProject(project.Model);
                 this.activeProject.OnConnectToEditor(this);
                 this.ActiveTimelines.Add(project.Timeline);

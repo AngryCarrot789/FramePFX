@@ -7,7 +7,6 @@ using FramePFX.Automation.Events;
 using FramePFX.Automation.Keys;
 using FramePFX.Automation.ViewModels;
 using FramePFX.Automation.ViewModels.Keyframe;
-using FramePFX.Commands;
 using FramePFX.Editor.History;
 using FramePFX.Editor.PropertyEditors;
 using FramePFX.History;

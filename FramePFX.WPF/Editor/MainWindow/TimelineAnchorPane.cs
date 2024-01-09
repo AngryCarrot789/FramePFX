@@ -6,7 +6,6 @@ using System.Windows;
 using System.Windows.Data;
 using AvalonDock.Layout;
 using FramePFX.Editor.ViewModels.Timelines;
-using FramePFX.WPF.Editor.Timelines;
 using FramePFX.WPF.Editor.Timelines.Controls;
 
 namespace FramePFX.WPF.Editor.MainWindow {

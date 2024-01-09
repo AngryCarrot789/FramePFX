@@ -116,8 +116,10 @@ namespace FramePFX.Editor.Exporting {
             editor.View.OnExportBegin(true);
 
             CancellationTokenSource source = new CancellationTokenSource();
-            this.Project.IsExporting = true;
+            this.Project.OnExportBegin();
             bool isCancelled = false;
+            Exception badException = null;
+
             try {
                 AppLogger.PushHeader("Begin Export");
                 ExportProperties properties = new ExportProperties(this.RenderSpan, this.FilePath);
@@ -126,8 +128,7 @@ namespace FramePFX.Editor.Exporting {
 
                 try {
                     // Export will most likely be using unsafe code, meaning async won't work
-                    await Task.Factory.StartNew(
-                        () => {
+                    await Task.Factory.StartNew(() => {
                             try {
                                 editor.View.OnExportBegin(false);
                                 exporter.Exporter.Export(this.Project.Model, export, new ExportProperties(this.RenderSpan, this.FilePath), source.Token);
@@ -164,11 +165,23 @@ namespace FramePFX.Editor.Exporting {
                 await window.CloseWindowAsync();
                 await this.Dialog.CloseDialogAsync(true);
             }
+            catch (Exception e) {
+                badException = e;
+            }
             finally {
                 AppLogger.PopHeader();
-                this.Project.IsExporting = false;
+                try {
+                    this.Project.OnExportEnded();
+                }
+                catch (Exception e) {
+                    badException = badException == null ? e : new AggregateException("Multiple exceptions occurred during export", badException, e);
+                }
+
                 source.Dispose();
             }
+
+            if (badException != null)
+                throw badException;
         }
     }
 }

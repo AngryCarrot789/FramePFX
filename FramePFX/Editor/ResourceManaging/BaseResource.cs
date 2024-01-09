@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.ResourceManaging.Events;
 using FramePFX.Editor.ResourceManaging.ViewModels;
-using FramePFX.Logger;
 using FramePFX.RBC;
 
 namespace FramePFX.Editor.ResourceManaging {
@@ -165,12 +164,6 @@ namespace FramePFX.Editor.ResourceManaging {
         /// </para>
         /// </summary>
         public virtual void Dispose() {
-        }
-
-        public virtual void OnProjectLoaded() {
-        }
-
-        public virtual void OnProjectUnloaded() {
         }
     }
 }

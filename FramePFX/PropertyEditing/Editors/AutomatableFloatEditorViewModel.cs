@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using FramePFX.Automation.Keys;
 using FramePFX.Automation.ViewModels;
-using FramePFX.Utils;
 
 namespace FramePFX.PropertyEditing.Editors {
     public class AutomatableFloatEditorViewModel : AutomatablePropertyEditorViewModel<float> {

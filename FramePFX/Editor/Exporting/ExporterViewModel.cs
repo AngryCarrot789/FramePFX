@@ -1,10 +1,10 @@
 namespace FramePFX.Editor.Exporting {
     public abstract class ExporterViewModel : BaseViewModel {
-        public ExportService Exporter { get; }
+        public Exporter Exporter { get; }
 
         public string ReadableName { get; }
 
-        protected ExporterViewModel(string readableName, ExportService exporter) {
+        protected ExporterViewModel(string readableName, Exporter exporter) {
             this.ReadableName = readableName;
             this.Exporter = exporter;
         }

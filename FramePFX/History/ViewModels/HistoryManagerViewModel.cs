@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using FramePFX.Commands;
 using FramePFX.Notifications;
 using FramePFX.TaskSystem;
-using FramePFX.Views.Dialogs.Progression;
 using FramePFX.Views.Dialogs.UserInputs;
 
 namespace FramePFX.History.ViewModels {

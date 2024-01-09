@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using FramePFX.Editor.ResourceManaging.Resources;
 using FramePFX.Editor.ViewModels.Timelines;
 

@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using FramePFX.Editor.Timelines;
-
 namespace FramePFX.Editor {
     public class VideoEditor {
         public volatile bool IsProjectSaving;

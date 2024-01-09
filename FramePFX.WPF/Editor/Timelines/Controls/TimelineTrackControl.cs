@@ -85,7 +85,7 @@ namespace FramePFX.WPF.Editor.Timelines.Controls {
 
                 ImageVideoClip imageClip = new ImageVideoClip();
                 imageClip.DisplayName = "an image!!! for " + image.DisplayName;
-                imageClip.FrameSpan = FramePFX.Editor.Timelines.Track.GetSpanUntilClipOrFuckIt(track.Model, track.Timeline.PlayHeadFrame, maximumDurationToClip: 300);
+                imageClip.FrameSpan = FramePFX.Editor.Timelines.Track.GetSpanUntilClipOrLimitedDuration(track.Model, track.Timeline.PlayHeadFrame, maximumDurationToClip: 300);
                 imageClip.ResourceImageKey.SetTargetResourceId(id);
                 imageClip.AddEffect(new MotionEffect());
                 track.AddClip(imageClip);

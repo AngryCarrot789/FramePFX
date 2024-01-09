@@ -79,6 +79,9 @@
                     <Shortcut Name="SliceClipsAction" ActionId="actions.editor.timeline.SliceClips" Description="Cuts the selected clip in half where the play head is. If you have no selection, then all clips over the play head are sliced">
                         <KeyStroke Key="S" />
                     </Shortcut>
+                    <Shortcut Name="DuplicateClipsAction" ActionId="actions.editor.timeline.DuplicateClips">
+                        <KeyStroke Mods="CTRL" Key="D" />
+                    </Shortcut>
 
                     <Shortcut Name="MoveBack" ActionId="actions.timeline.surface.MoveBack">
                         <KeyStroke Key="Left" />

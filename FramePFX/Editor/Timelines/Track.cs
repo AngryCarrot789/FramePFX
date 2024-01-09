@@ -287,13 +287,24 @@ namespace FramePFX.Editor.Timelines {
             return $"{this.GetType().Name} ({this.clips.Count.ToString()} clips between {this.cache.SmallestActiveFrame.ToString()} and {this.cache.LargestActiveFrame.ToString()})";
         }
 
-        public static FrameSpan GetSpanUntilClipOrFuckIt(Track track, long frame, long defaultDuration = 300, long maximumDurationToClip = 100000000) {
+        public static FrameSpan GetSpanUntilClipOrLimitedDuration(Track track, long frame, long defaultDuration = 300, long maximumDurationToClip = 100000000) {
             if (TryGetSpanUntilClip(track, frame, out var span, defaultDuration, maximumDurationToClip))
                 return span;
             return new FrameSpan(frame, defaultDuration);
         }
 
-        public static bool TryGetSpanUntilClip(Track track, long frame, out FrameSpan span, long unlimitedDuration = 300, long maxDuration = 100000000U) {
+        /// <summary>
+        /// Tries to calculate a frame span that can fill in the space, starting at the frame parameter and extending
+        /// either the unlimitedDuration parameter or the amount of space between frame and the nearest clip.
+        /// When a clip intersects frame, this method returns false. Use <see cref="GetSpanUntilClipOrLimitedDuration"/> to return a span with defaultDuration instead
+        /// </summary>
+        /// <param name="track"></param>
+        /// <param name="frame"></param>
+        /// <param name="span">The output span</param>
+        /// <param name="defaultDuration">The default duration for the span when there are no clips in the way</param>
+        /// <param name="maxDurationLimit">An upper limit for how long the output span can be</param>
+        /// <returns></returns>
+        public static bool TryGetSpanUntilClip(Track track, long frame, out FrameSpan span, long defaultDuration = 300, long maxDurationLimit = 100000000U) {
             long minimum = long.MaxValue;
             if (track.clips.Count > 0) {
                 foreach (Clip clip in track.clips) {
@@ -313,10 +324,10 @@ namespace FramePFX.Editor.Timelines {
             }
 
             if (minimum > frame && minimum != long.MaxValue) {
-                span = new FrameSpan(frame, Math.Min(minimum - frame, maxDuration));
+                span = new FrameSpan(frame, Math.Min(minimum - frame, maxDurationLimit));
             }
             else {
-                span = new FrameSpan(frame, unlimitedDuration);
+                span = new FrameSpan(frame, defaultDuration);
             }
 
             return true;

@@ -266,6 +266,7 @@ namespace FramePFX.WPF {
                 ActionManager.Instance.Register("actions.editor.NewVideoTrack", new NewVideoTrackAction());
                 ActionManager.Instance.Register("actions.editor.NewAudioTrack", new NewAudioTrackAction());
                 ActionManager.Instance.Register("actions.editor.timeline.SliceClips", new SliceClipsAction());
+                ActionManager.Instance.Register("actions.editor.timeline.DuplicateClips", new DuplicateClipsAction());
             }
 
             AppLogger.PushHeader($"Registered {ActionManager.Instance.Count} actions", false);

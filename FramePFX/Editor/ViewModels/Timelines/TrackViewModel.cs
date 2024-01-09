@@ -267,6 +267,12 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             return Task.CompletedTask;
         }
 
+        public ClipViewModel DuplicateClipAction(ClipViewModel clip, FrameSpan newFrameSpan) {
+            Clip cloned = clip.Model.Clone();
+            cloned.FrameSpan = newFrameSpan;
+            return this.AddClip(cloned);
+        }
+
         public bool IsClipTypeAcceptable(ClipViewModel clip) {
             return this.Model.IsClipTypeAcceptable(clip.Model);
         }

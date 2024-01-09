@@ -38,7 +38,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             this.UseClipStartTime = this.UseClipEndTime = true;
         }
 
-        public string GetCurrentTimeString() {
+        public string GetCurrentTimeString(long frame) {
             if (!(this.Project is Project project)) {
                 throw new Exception("No project associated with clip");
             }
@@ -66,7 +66,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                     end = this.EndTime;
                 }
 
-                double percent = Maths.InverseLerp(beginFrame, endFrame, this.TimelinePlayhead);
+                double percent = Maths.InverseLerp(beginFrame, endFrame, frame);
                 time = TimeSpan.FromSeconds(Maths.Lerp(start.TotalSeconds, end.TotalSeconds, percent));
             }
 
@@ -99,7 +99,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
 
         public override Task OnEndRender(RenderContext rc, long frame) {
             using (SKPaint paint = new SKPaint() {IsAntialias = true, Color = SKColors.White}) {
-                string text = this.GetCurrentTimeString();
+                string text = this.GetCurrentTimeString(frame);
                 if (this.cachedFont == null) {
                     this.cachedTypeFace = this.fontFamily != null ? SKTypeface.FromFamilyName(this.fontFamily) : SKTypeface.CreateDefault();
                     this.cachedFont = new SKFont(this.cachedTypeFace, 100F);

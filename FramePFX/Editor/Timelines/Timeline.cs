@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -8,6 +9,7 @@ using FramePFX.Automation;
 using FramePFX.Editor.Registries;
 using FramePFX.Editor.Rendering;
 using FramePFX.Editor.Timelines.Effects;
+using FramePFX.Editor.Timelines.Events;
 using FramePFX.Editor.Timelines.Tracks;
 using FramePFX.Editor.Timelines.VideoClips;
 using FramePFX.RBC;
@@ -16,6 +18,10 @@ using SkiaSharp;
 using Vector2 = System.Numerics.Vector2;
 
 namespace FramePFX.Editor.Timelines {
+    public delegate void PlayHeadPositionChangedEventHandler(Timeline timeline, long oldPos, long newPos);
+
+    public delegate void TimelineEventHandler(Timeline timeline);
+
     /// <summary>
     /// A timeline or sequence, which contains a collection of tracks (which contain a collection of clips)
     /// </summary>
@@ -23,30 +29,55 @@ namespace FramePFX.Editor.Timelines {
         private readonly List<Track> tracks;
         private readonly TimelineRenderState renderState;
         private volatile bool isBeginningRender;
-
-        // not a chance anyone's creating more than 9 quintillion clips or tracks
         private long nextClipId;
         private long nextTrackId;
+        private long playHeadFrame;
+        private long maxDuration;
+        private long largestFrameInUse;
+        private string displayName;
 
         /// <summary>
-        /// The project associated with this timeline. This is set to a non-null value immediately
-        /// after creating the project's main timeline. However, for composition timelines, this will
-        /// be null until that resource is added to the resource manager hierarchy, and is set to null
-        /// when removed from a manager (which typically only happens once)
+        /// The project associated with this timeline. This may change for things like composition timelines
+        /// when a resource is added to the resource manager and a project becomes associated with the resource.
         /// </summary>
         public Project Project { get; private set; }
 
         /// <summary>
         /// The current play head
         /// </summary>
-        public long PlayHeadFrame { get; set; }
+        public long PlayHeadFrame {
+            get => this.playHeadFrame;
+            set {
+                if (this.playHeadFrame == value)
+                    return;
+                long oldFrame = this.playHeadFrame;
+                this.playHeadFrame = value;
+                this.PlayHeadPositionChanged?.Invoke(this, oldFrame, value);
+            }
+        }
 
         /// <summary>
         /// This timeline's maximum duration
         /// </summary>
-        public long MaxDuration { get; set; }
+        public long MaxDuration {
+            get => this.maxDuration;
+            set {
+                if (this.maxDuration == value)
+                    return;
+                this.maxDuration = value;
+                this.MaxDurationChanged?.Invoke(this);
+            }
+        }
 
-        public long LargestFrameInUse { get; private set; }
+        public long LargestFrameInUse {
+            get => this.largestFrameInUse;
+            private set {
+                if (this.largestFrameInUse == value)
+                    return;
+                this.largestFrameInUse = value;
+                this.LargestFrameChanged?.Invoke(this);
+            }
+        }
 
         /// <summary>
         /// A list of tracks that this timeline contains
@@ -57,17 +88,55 @@ namespace FramePFX.Editor.Timelines {
 
         public bool IsAutomationChangeInProgress { get; set; }
 
-        public string DisplayName { get; set; }
+        public string DisplayName {
+            get => this.displayName;
+            set {
+                if (this.displayName == value)
+                    return;
+                this.displayName = value;
+                this.DisplayNameChanged?.Invoke(this);
+            }
+        }
 
         /// <summary>
         /// Gets the number of ticks the previous render took
         /// </summary>
         public long LastRenderDurationTicks { get; private set; }
 
+        /// <summary>
+        /// An event fired when this timeline's project has changed
+        /// </summary>
+        public event ProjectChangedEventHandler ProjectChanged;
+
+        /// <summary>
+        /// An event fired when this timeline's play head position changes
+        /// </summary>
+        public event PlayHeadPositionChangedEventHandler PlayHeadPositionChanged;
+
+        /// <summary>
+        /// An event fired when this timeline's display name changes, aka readable name
+        /// </summary>
+        public event TimelineEventHandler DisplayNameChanged;
+
+        /// <summary>
+        /// An event fired when this timeline's maximum duration changes
+        /// </summary>
+        public event TimelineEventHandler MaxDurationChanged;
+
+        /// <summary>
+        /// An event fired when the largest frame changes
+        /// </summary>
+        public event TimelineEventHandler LargestFrameChanged;
+
+        private readonly TrackEventHandler TrackLargestFrameChangedHandler;
+
         public Timeline() {
             this.tracks = new List<Track>();
             this.AutomationData = new AutomationData(this);
             this.renderState = new TimelineRenderState(this);
+            this.TrackLargestFrameChangedHandler = track => {
+                this.UpdateLargestFrame();
+            };
         }
 
         public void UpdateLargestFrame() {
@@ -87,33 +156,19 @@ namespace FramePFX.Editor.Timelines {
         }
 
         /// <summary>
-        /// Sets the project associated with this timeline
-        /// <para>
-        /// For the project's main timeline, it is called in the project's constructor and therefore only once
-        /// </para>
-        /// <para>
-        /// For composition timelines, this is called when a composition resource's manager changes
-        /// </para>
+        /// Sets the project associated with this timeline. This will notify all tracks, clips and effects of a project change
         /// </summary>
-        /// <param name="project"></param>
+        /// <param name="project">The new project</param>
         public void SetProject(Project project) {
-            Project oldProject = this.Project;
-            if (ReferenceEquals(oldProject, project))
-                return;
+            if (!ReferenceEquals(this.Project, project)) {
+                ProjectChangedEventArgs args = new ProjectChangedEventArgs(this.Project, project);
+                this.Project = project;
+                foreach (Track track in this.Tracks) {
+                    Track.OnTimelineProjectChanged(track, args);
+                }
 
-            this.OnProjectChanging(project);
-            this.Project = project;
-            foreach (Track track in this.Tracks) {
-                Track.OnTimelineProjectChanged(track, oldProject, project);
+                this.ProjectChanged?.Invoke(this, args);
             }
-
-            this.OnProjectChanged(oldProject);
-        }
-
-        protected virtual void OnProjectChanging(Project newProject) {
-        }
-
-        protected virtual void OnProjectChanged(Project oldProject) {
         }
 
         public FrameSpan GetUsedFrameSpan() {
@@ -192,7 +247,9 @@ namespace FramePFX.Editor.Timelines {
         public void InsertTrack(int index, Track track) {
             this.ValidateTrack(track, true);
             this.tracks.Insert(index, track);
-            Track.SetTimeline(track, this, index);
+            Track.SetTimeline(track, this);
+            track.LargestFrameChanged += this.TrackLargestFrameChangedHandler;
+            this.UpdateLargestFrame();
         }
 
         public bool RemoveTrack(Track track) {
@@ -205,10 +262,10 @@ namespace FramePFX.Editor.Timelines {
         public void RemoveTrackAt(int index) {
             Track track = this.tracks[index];
             this.ValidateTrack(track, false);
-            track.RemoveAllClips();
-            Track.SetTimeline(track, null, index);
-            track.Destroy();
+            track.LargestFrameChanged -= this.TrackLargestFrameChangedHandler;
+            Track.SetTimeline(track, null);
             this.tracks.RemoveAt(index);
+            this.UpdateLargestFrame();
         }
 
         public void MoveTrackUnsafe(int oldIndex, int newIndex) {
@@ -230,7 +287,7 @@ namespace FramePFX.Editor.Timelines {
 
             this.tracks.RemoveAt(index);
             timeline.tracks.Add(track);
-            Track.SetTimeline(track, timeline, index);
+            Track.SetTimeline(track, timeline);
         }
 
         public void ClearTracks() {

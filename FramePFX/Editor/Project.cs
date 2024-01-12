@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using FramePFX.Automation;
 using FramePFX.Editor.ResourceManaging;
 using FramePFX.Editor.Timelines;
@@ -9,8 +10,10 @@ using FramePFX.Utils;
 namespace FramePFX.Editor {
     public delegate void ProjectEventHandler(Project project);
 
-    public class Project {
-        public volatile bool IsSaving;
+    public class Project : IObservableObject {
+        private string projectName;
+        private bool isSaving;
+        private bool isExporting;
 
         public ProjectSettings Settings { get; }
 
@@ -26,28 +29,23 @@ namespace FramePFX.Editor {
         /// </summary>
         public VideoEditor Editor { get; set; }
 
-        private bool isExporting;
-        public bool IsExporting {
-            get => this.isExporting;
-            set {
-                this.isExporting = value;
-            }
+        public bool IsSaving {
+            get => this.isSaving;
+            set => this.OnPropertyChanged(ref this.isSaving, value);
         }
 
-        public bool IsLoaded { get; private set; }
-
-        /// <summary>
-        /// Gets or sets this project's settings' rendering quality
-        /// </summary>
-        public EnumRenderQuality RenderQuality {
-            get => this.Settings.Quality;
-            set => this.Settings.Quality = value;
+        public bool IsExporting {
+            get => this.isExporting;
+            set => this.OnPropertyChanged(ref this.isExporting, value);
         }
 
         /// <summary>
         /// Gets or sets the active project name
         /// </summary>
-        public string ProjectName { get; private set; }
+        public string ProjectName {
+            get => this.projectName;
+            set => this.OnPropertyChanged(ref this.projectName, value);
+        }
 
         /// <summary>
         /// Gets or sets the folder in which the project file is located in
@@ -70,7 +68,7 @@ namespace FramePFX.Editor {
         public bool IsUsingTempFolder { get; private set; }
 
         public Project() {
-            this.ProjectName = "New Project";
+            this.projectName = "New Project";
             this.IsUsingTempFolder = true;
             this.ProjectFolder = RandomUtils.RandomPrefixedLettersWhere(Path.GetTempPath(), 16, x => !Directory.Exists(x));
             this.ProjectFileName = this.ProjectName + Filters.DotFrameFPXExtension;
@@ -165,5 +163,12 @@ namespace FramePFX.Editor {
         public void OnConnectedToEditor(VideoEditor editor) {
             this.Editor = editor;
         }
+
+        private void OnPropertyChanged<T>(ref T field, T newValue, [CallerMemberName] string propertyName = null) {
+            field = newValue;
+            this.PropertyChanged?.Invoke(this, propertyName);
+        }
+
+        public event ObservablePropertyChangedEventHandler PropertyChanged;
     }
 }

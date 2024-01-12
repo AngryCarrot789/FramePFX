@@ -57,7 +57,7 @@ namespace FramePFX.Editor.Exporting.Exporters {
 
         public override void LoadProjectDefaults(Project project) {
             this.Resolution = project.Settings.Resolution;
-            this.FrameRate = project.Settings.TimeBase;
+            this.FrameRate = project.Settings.FrameRate;
         }
     }
 }

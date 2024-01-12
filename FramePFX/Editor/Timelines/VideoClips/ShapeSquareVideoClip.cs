@@ -30,7 +30,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             this.AutomationData.AssignKey(WidthKey, this.CreateReflectiveParameterUpdater(WidthKey));
             this.AutomationData.AssignKey(HeightKey, this.CreateReflectiveParameterUpdater(HeightKey));
             this.ColourKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceColour>();
-            this.ColourKey.ResourceDataModified += this.ResourceHelperOnResourceDataModified;
+            this.ColourKey.ResourceDataModified += this.OnColourDataChanged;
         }
 
         static ShapeSquareVideoClip() {
@@ -45,7 +45,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
             });
         }
 
-        private void ResourceHelperOnResourceDataModified(IResourcePathKey<ResourceColour> key, ResourceColour resource, string property) {
+        private void OnColourDataChanged(IResourcePathKey<ResourceColour> key, ResourceColour resource, string property) {
             switch (property) {
                 case nameof(ResourceColour.Colour):
                     this.InvalidateRender();

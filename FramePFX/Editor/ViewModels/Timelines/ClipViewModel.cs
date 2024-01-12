@@ -227,7 +227,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             });
 
             this.AutomationData.SetActiveSequenceFromModelDeserialisation();
-            model.ClipSpanChanged += (clip, oldSpan, newSpan) => this.OnFrameSpanChanged();
+            model.FrameSpanChanged += (clip, oldSpan, newSpan) => this.OnFrameSpanChanged();
         }
 
         static ClipViewModel() {
@@ -347,7 +347,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         // }
 
         public virtual void OnFrameSpanChanged() {
-            this.RaisePropertyChanged();
+            this.RaisePropertyChanged(nameof(this.FrameSpan));
             this.RaisePropertyChanged(nameof(this.FrameBegin));
             this.RaisePropertyChanged(nameof(this.FrameDuration));
             this.RaisePropertyChanged(nameof(this.FrameEndIndex));

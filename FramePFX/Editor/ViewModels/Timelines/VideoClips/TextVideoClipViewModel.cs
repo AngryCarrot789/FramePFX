@@ -12,7 +12,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
         /// <summary>
         /// Gets if we have a text style resource linked
         /// </summary>
-        public bool IsTextStyleLinked => this.Model.TextStyleKey.IsLinked;
+        public bool IsTextStyleLinked => this.Model.TextStyleKey.ActiveLink != null;
 
         public string Text {
             get => this.Model.Text;

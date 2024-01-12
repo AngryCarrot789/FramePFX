@@ -161,7 +161,7 @@ namespace FramePFX.Automation {
                 sequence.DefaultKeyFrame.Model.AssignCurrentValue(frame, sequence.Model);
             }
 
-            sequence.Model.DoValueUpdate(frame);
+            sequence.Model.UpdateValue(frame);
             sequence.DoRefreshValue(frame, timeline.Project.Editor.Playback.IsPlaying, false);
         }
 
@@ -176,7 +176,7 @@ namespace FramePFX.Automation {
                 frame = strict.ConvertTimelineToRelativeFrame(frame, out bool isValid);
             }
 
-            sequence.Model.DoValueUpdate(frame);
+            sequence.Model.UpdateValue(frame);
             sequence.DoRefreshValue(frame, timeline.Project.Editor.Playback.IsPlaying, false);
         }
     }

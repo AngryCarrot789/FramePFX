@@ -66,12 +66,7 @@ namespace FramePFX.Automation.Keyframe {
         /// <summary>
         /// An event fired, notifying any listeners to query their live value from the automation data
         /// </summary>
-        public event UpdateAutomationValueEventHandler UpdateValue;
-
-        /// <summary>
-        /// An event fired after all multicast handlers listening to <see cref="UpdateValue"/> have been fired
-        /// </summary>
-        public event AutomationRefreshEventHandler RefreshValue;
+        public event UpdateAutomationValueEventHandler Update;
 
         public event KeyFrameAddedEventHandler KeyFrameAdded;
         public event KeyFrameRemovedEventHandler KeyFrameRemoved;
@@ -92,21 +87,20 @@ namespace FramePFX.Automation.Keyframe {
         }
 
         /// <summary>
-        /// Invokes the <see cref="UpdateValue"/> event, allowing any listeners to re-query their actual value at the given frame
+        /// Invokes the <see cref="Update"/> event, allowing any listeners to re-query their actual value at the given frame
         /// </summary>
-        /// <param name="frame">The frame</param>
-        public void DoValueUpdate(long frame) {
-            this.UpdateValue?.Invoke(this, frame);
-            this.RefreshValue?.Invoke(this, frame);
+        /// <param name="frame">The frame. May be -1, signaling to reset the value to default</param>
+        public void UpdateValue(long frame) {
+            this.Update?.Invoke(this, frame);
         }
 
         /// <summary>
-        /// Adds the given handler to <see cref="UpdateValue"/>
+        /// Adds the given handler to <see cref="Update"/>
         /// </summary>
         /// <param name="handler">The handler to add</param>
         /// <returns>The current instance, for chain calling</returns>
         public AutomationSequence AddUpdateHandler(UpdateAutomationValueEventHandler handler) {
-            this.UpdateValue += handler;
+            this.Update += handler;
             return this;
         }
 
@@ -347,7 +341,6 @@ namespace FramePFX.Automation.Keyframe {
         private void InsertInternal(int index, KeyFrame keyFrame) {
             this.keyFrameList.Insert(index, keyFrame);
             this.KeyFrameAdded?.Invoke(this, keyFrame, index);
-            KeyFrame.AddedInternal(keyFrame, this);
         }
 
         public bool RemoveKeyFrame(KeyFrame keyFrame, out int oldIndex) {
@@ -370,7 +363,6 @@ namespace FramePFX.Automation.Keyframe {
             keyFrame.sequence = null;
             this.keyFrameList.RemoveAt(index);
             this.KeyFrameRemoved?.Invoke(this, keyFrame, index);
-            KeyFrame.RemovedInternal(keyFrame, this);
         }
 
         // read/write operations are used for cloning as well as reading from disk

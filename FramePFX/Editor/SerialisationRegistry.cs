@@ -138,6 +138,22 @@ namespace FramePFX.Editor {
             return b;
         }
 
+        public static Version GetLowerVersionV2(Version a) {
+            Version b;
+            if (a.Revision > 0)
+                b = new Version(a.Major, a.Minor, a.Build, a.Revision - 1);
+            else if (a.Build > 0)
+                b = new Version(a.Major, a.Minor, a.Build - 1, int.MaxValue);
+            else if (a.Minor > 0)
+                b = new Version(a.Major, a.Minor - 1, int.MaxValue, int.MaxValue);
+            else if (a.Major > 0)
+                b = new Version(a.Major - 1, int.MaxValue, int.MaxValue, int.MaxValue);
+            else
+                throw new InvalidOperationException("No version exists below 0.0.0.0");
+            Debug.Assert(b < a, "B should be less than A", "Version B is supposed to be less than Version A");
+            return b;
+        }
+
         internal void RunBaseSerialisersInternal<T>(bool serialise, T obj, RBEDictionary data, SerialisationContext context) where T : class {
             Type baseType = typeof(T).BaseType;
             if (baseType != null) {

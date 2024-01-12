@@ -12,7 +12,7 @@ namespace FramePFX.Editor.Timelines {
     /// Chunks are 128 frames (0-127)
     /// </para>
     /// </summary>
-    public class ClipRangeCache {
+    public class ClipRangeCache : IObservableObject {
         private readonly SortedList<long, CClipList> Map;
 
         public long SmallestActiveFrame { get; private set; }
@@ -20,6 +20,8 @@ namespace FramePFX.Editor.Timelines {
 
         public long PreviousSmallestActiveFrame { get; private set; }
         public long PreviousLargestActiveFrame { get; private set; }
+
+        public event ObservablePropertyChangedEventHandler PropertyChanged;
 
         public ClipRangeCache() {
             this.Map = new SortedList<long, CClipList>();
@@ -52,6 +54,11 @@ namespace FramePFX.Editor.Timelines {
             this.SmallestActiveFrame = Math.Min(this.SmallestActiveFrame, span.Begin);
             this.PreviousLargestActiveFrame = this.LargestActiveFrame;
             this.LargestActiveFrame = Math.Max(this.LargestActiveFrame, span.EndIndex);
+
+            this.PropertyChanged?.Invoke(this, nameof(this.PreviousSmallestActiveFrame));
+            this.PropertyChanged?.Invoke(this, nameof(this.SmallestActiveFrame));
+            this.PropertyChanged?.Invoke(this, nameof(this.PreviousLargestActiveFrame));
+            this.PropertyChanged?.Invoke(this, nameof(this.LargestActiveFrame));
         }
 
         public void Remove(FrameSpan location, Clip clip) {
@@ -141,9 +148,13 @@ namespace FramePFX.Editor.Timelines {
 
             this.PreviousSmallestActiveFrame = this.SmallestActiveFrame;
             this.SmallestActiveFrame = min;
-
             this.PreviousLargestActiveFrame = this.LargestActiveFrame;
             this.LargestActiveFrame = max;
+            
+            this.PropertyChanged?.Invoke(this, nameof(this.PreviousSmallestActiveFrame));
+            this.PropertyChanged?.Invoke(this, nameof(this.SmallestActiveFrame));
+            this.PropertyChanged?.Invoke(this, nameof(this.PreviousLargestActiveFrame));
+            this.PropertyChanged?.Invoke(this, nameof(this.LargestActiveFrame));
         }
 
         #region Util functions

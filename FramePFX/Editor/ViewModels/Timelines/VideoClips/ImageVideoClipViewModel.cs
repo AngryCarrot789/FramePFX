@@ -17,7 +17,7 @@ namespace FramePFX.Editor.ViewModels.Timelines.VideoClips {
                 return EnumDropType.Link;
             }, (clip, h, dt, c) => {
                 IResourcePathKey<ResourceImage> key = clip.Model.ResourceImageKey;
-                if (key.Path != null && key.Path.ResourceId != h.UniqueId) {
+                if (key.ActiveLink != null && key.ActiveLink.ResourceId != h.UniqueId) {
                     key.SetTargetResourceId(h.UniqueId);
                     clip.OnInvalidateRender();
                 }

@@ -27,10 +27,7 @@ namespace FramePFX.Editor.ViewModels {
 
         public bool IsSaving {
             get => this.Model.IsSaving;
-            private set {
-                this.Model.IsSaving = value;
-                this.RaisePropertyChanged();
-            }
+            private set => this.Model.IsSaving = value;
         }
 
         public ProjectSettingsViewModel Settings { get; }
@@ -65,22 +62,27 @@ namespace FramePFX.Editor.ViewModels {
 
         public bool IsExporting {
             get => this.Model.IsExporting;
-            private set {
-                this.Model.IsExporting = value;
-                this.RaisePropertyChanged();
-            }
+            private set => this.Model.IsExporting = value;
         }
 
         public Project Model { get; }
 
         public ProjectViewModel(Project project) {
             this.Model = project ?? throw new ArgumentNullException(nameof(project));
+            project.PropertyChanged += (sender, property) => {
+                switch (property) {
+                    case nameof(Project.IsSaving): this.RaisePropertyChanged(nameof(this.IsSaving)); break;
+                    case nameof(Project.IsExporting): this.RaisePropertyChanged(nameof(this.IsExporting)); break;
+                    case nameof(Project.ProjectName): this.RaisePropertyChanged(nameof(this.ProjectName)); break;
+                }
+            };
+
             this.Settings = new ProjectSettingsViewModel(project.Settings);
-            this.Settings.ProjectModified += (sender, property) => this.OnProjectModified();
             this.ResourceManager = new ResourceManagerViewModel(this, project.ResourceManager);
             this.Timeline = new TimelineViewModel(project.Timeline) {
                 DisplayName = "Project Timeline"
             };
+
             this.Timeline.SetProject(this);
             this.SaveCommand = new AsyncRelayCommand(this.SaveActionAsync, () => this.Editor != null && !this.IsSaving);
             this.SaveAsCommand = new AsyncRelayCommand(this.SaveAsActionAsync, () => this.Editor != null && !this.IsSaving);
@@ -128,14 +130,14 @@ namespace FramePFX.Editor.ViewModels {
                 this.Settings.Resolution = result.Resolution;
 
                 Rational oldFps = this.Settings.FrameRate;
-                this.Settings.FrameRate = result.TimeBase;
-                playback.SetTimerFrameRate(result.TimeBase);
+                this.Settings.FrameRate = result.FrameRate;
+                playback.SetTimerFrameRate(result.FrameRate);
 
                 if (oldFps != this.Settings.FrameRate) {
                     if (await IoC.DialogService.ShowYesNoDialogAsync("Convert Framerate", "Do you want to convert clip and automation to match the new FPS?")) {
-                        AutomationEngine.ConvertProjectFrameRate(this, oldFps, result.TimeBase);
+                        AutomationEngine.ConvertProjectFrameRate(this, oldFps, result.FrameRate);
                         if (this.editor?.SelectedTimeline != null) {
-                            double ratio = result.TimeBase.ToDouble / oldFps.ToDouble;
+                            double ratio = result.FrameRate.ToDouble / oldFps.ToDouble;
                             this.Editor?.View?.OnFrameRateRatioChanged(this.editor.SelectedTimeline, ratio);
                         }
                     }

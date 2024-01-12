@@ -48,7 +48,7 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                 time = TimeSpan.FromSeconds(this.CurrentTotalSeconds);
             }
             else {
-                Rational fps = project.Settings.TimeBase;
+                Rational fps = project.Settings.FrameRate;
                 long beginFrame = this.FrameBegin, endFrame = this.FrameEndIndex;
 
                 TimeSpan start, end;
@@ -87,10 +87,6 @@ namespace FramePFX.Editor.Timelines.VideoClips {
                 clip.StartTime = new TimeSpan(data.GetLong("StartTime"));
                 clip.EndTime = new TimeSpan(data.GetLong("EndTime"));
             });
-        }
-
-        protected override void OnTrackChanged(Track oldTrack, Track newTrack) {
-            base.OnTrackChanged(oldTrack, newTrack);
         }
 
         public override bool OnBeginRender(long frame) {

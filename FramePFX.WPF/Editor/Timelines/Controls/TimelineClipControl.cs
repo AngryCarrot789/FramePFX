@@ -9,6 +9,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using FramePFX.Editor.ResourceManaging.ViewModels;
+using FramePFX.Editor.Timelines.Events;
 using FramePFX.Editor.ViewModels;
 using FramePFX.Editor.ViewModels.Timelines;
 using FramePFX.Interactivity;
@@ -22,7 +23,20 @@ using FramePFX.WPF.Interactivity;
 
 namespace FramePFX.WPF.Editor.Timelines.Controls {
     public class TimelineClipControl : Control {
-        private static readonly object LongZeroObject = 0L;
+                private static readonly RoutedEventHandler UnloadedEventHandler = (sender, e) => {
+                    TimelineClipControl control = (TimelineClipControl) sender;
+                    if (control.connectedModel != null) {
+                        control.UnloadClipModelState();
+                    }
+                };
+
+                private static readonly RoutedEventHandler LoadedEventHandler = (sender, e) => {
+                    TimelineClipControl control = (TimelineClipControl) sender;
+                    if (control.DataContext is ClipViewModel clip) {
+                        control.LoadClipModelState(clip);
+                    }
+                };
+
         public static readonly RoutedEvent SelectedEvent = Selector.SelectedEvent.AddOwner(typeof(TimelineClipControl));
         public static readonly RoutedEvent UnselectedEvent = Selector.UnselectedEvent.AddOwner(typeof(TimelineClipControl));
 
@@ -33,32 +47,6 @@ namespace FramePFX.WPF.Editor.Timelines.Controls {
                     BoolBox.False,
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault | FrameworkPropertyMetadataOptions.Journal,
                     (d, e) => ((TimelineClipControl) d).OnSelectionChanged((bool) e.OldValue, (bool) e.NewValue)));
-
-        public static readonly DependencyProperty FrameBeginProperty =
-            DependencyProperty.Register(
-                "FrameBegin",
-                typeof(long),
-                typeof(TimelineClipControl),
-                new FrameworkPropertyMetadata(
-                    LongZeroObject,
-                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault | FrameworkPropertyMetadataOptions.AffectsArrange,
-                    (d, e) => {
-                        if ((long) e.OldValue != (long) e.NewValue) {
-                            TimelineClipControl control = ((TimelineClipControl) d);
-                            Canvas.SetLeft(control, control.PixelStart);
-                        }
-                    },
-                    (d, v) => (long) v < 0 ? LongZeroObject : v));
-
-        public static readonly DependencyProperty FrameDurationProperty =
-            DependencyProperty.Register(
-                "FrameDuration",
-                typeof(long),
-                typeof(TimelineClipControl),
-                new FrameworkPropertyMetadata(
-                    LongZeroObject,
-                    FrameworkPropertyMetadataOptions.BindsTwoWayByDefault | FrameworkPropertyMetadataOptions.AffectsMeasure,
-                    null, (d, v) => (long) v < 0 ? LongZeroObject : v));
 
         public static readonly DependencyProperty IsDroppableTargetOverProperty =
             DependencyProperty.Register(
@@ -74,13 +62,30 @@ namespace FramePFX.WPF.Editor.Timelines.Controls {
                 typeof(TimelineClipControl),
                 new PropertyMetadata(null));
 
-        /// <summary>
-        /// The zoom level of the track that this clip is in. Returns 1 when not in a track
-        /// <para>
-        /// This is a value used for converting frames into pixels
-        /// </para>
-        /// </summary>
-        public double UnitZoom => this.Track?.UnitZoom ?? 1d;
+        private ClipViewModel connectedModel;
+        private long _frameBegin;
+        private long _frameDuration;
+        private bool isProcessingAsyncDrop;
+        private bool isUpdatingUnitZoom;
+        private Point? lastLeftClickPoint;
+        private Thumb PART_ThumbLeft;
+        private Thumb PART_ThumbRight;
+        private bool isProcessingLeftThumbDrag;
+        private bool isProcessingRightThumbDrag;
+        private bool isProcessingMouseMove;
+        private bool isClipDragRunning;
+        private bool isLoadedWithActiveDrag;
+        private readonly FrameSpanChangedEventHandler FrameSpanChangedHandler;
+
+        public event RoutedEventHandler Selected {
+            add => this.AddHandler(SelectedEvent, value);
+            remove => this.RemoveHandler(SelectedEvent, value);
+        }
+
+        public event RoutedEventHandler Unselected {
+            add => this.AddHandler(UnselectedEvent, value);
+            remove => this.RemoveHandler(UnselectedEvent, value);
+        }
 
         [Category("Appearance")]
         public bool IsSelected {
@@ -92,16 +97,26 @@ namespace FramePFX.WPF.Editor.Timelines.Controls {
         /// The zero-based frame index where this element begins (relative to the parent timeline track)
         /// </summary>
         public long FrameBegin {
-            get => (long) this.GetValue(FrameBeginProperty);
-            set => this.SetValue(FrameBeginProperty, value);
+            get => this._frameBegin;
+            set {
+                if (this._frameBegin != value) {
+                    this._frameBegin = value;
+                    Canvas.SetLeft(this, this.PixelStart);
+                }
+            }
         }
 
         /// <summary>
         /// This element's duration, in frames
         /// </summary>
         public long FrameDuration {
-            get => (long) this.GetValue(FrameDurationProperty);
-            set => this.SetValue(FrameDurationProperty, value);
+            get => this._frameDuration;
+            set {
+                if (this._frameDuration != value) {
+                    this._frameDuration = value;
+                    this.InvalidateMeasure();
+                }
+            }
         }
 
         public FrameSpan Span {
@@ -111,6 +126,14 @@ namespace FramePFX.WPF.Editor.Timelines.Controls {
                 this.FrameDuration = value.Duration;
             }
         }
+
+        /// <summary>
+        /// The zoom level of the track that this clip is in. Returns 1 when not in a track
+        /// <para>
+        /// This is a value used for converting frames into pixels
+        /// </para>
+        /// </summary>
+        public double UnitZoom => this.Track?.UnitZoom ?? 1d;
 
         /// <summary>
         /// The calculated width of this element based on the frame duration and zoom
@@ -133,33 +156,24 @@ namespace FramePFX.WPF.Editor.Timelines.Controls {
             set => this.SetValue(IsDroppableTargetOverProperty, value);
         }
 
-        public event RoutedEventHandler Selected {
-            add => this.AddHandler(SelectedEvent, value);
-            remove => this.RemoveHandler(SelectedEvent, value);
-        }
-
-        public event RoutedEventHandler Unselected {
-            add => this.AddHandler(UnselectedEvent, value);
-            remove => this.RemoveHandler(UnselectedEvent, value);
-        }
-
         public TimelineTrackControl Track => ItemsControl.ItemsControlFromItemContainer(this) as TimelineTrackControl;
 
         public TimelineEditorControl Timeline => this.Track?.Timeline;
 
-        private bool isProcessingAsyncDrop;
-        private bool isUpdatingUnitZoom;
-        private Point? lastLeftClickPoint;
-
-        private Thumb PART_ThumbLeft;
-        private Thumb PART_ThumbRight;
-        private bool isProcessingLeftThumbDrag;
-        private bool isProcessingRightThumbDrag;
-        private bool isProcessingMouseMove;
-        private bool isClipDragRunning;
-        private bool isLoadedWithActiveDrag;
-
         public static readonly object ConstOne = 1;
+
+        private static readonly DependencyPropertyChangedEventHandler DataContextChangedHandler = (sender, args) => {
+            TimelineClipControl control = (TimelineClipControl) sender;
+            if (args.OldValue is ClipViewModel) {
+                if (args.OldValue != control.connectedModel)
+                    throw new Exception("WTF");
+                control.UnloadClipModelState();
+            }
+
+            if (args.NewValue is ClipViewModel newClip) {
+                control.LoadClipModelState(newClip);
+            }
+        };
 
         public TimelineClipControl() {
             this.HorizontalAlignment = HorizontalAlignment.Left;
@@ -167,11 +181,40 @@ namespace FramePFX.WPF.Editor.Timelines.Controls {
             this.Focusable = true;
             this.AllowDrop = true;
             this.Drop += this.OnDrop;
-            this.Loaded += this.OnLoaded;
+            this.Loaded += this.FocusHandlerForAutoDrag;
+            this.Loaded += LoadedEventHandler;
+            this.Unloaded += UnloadedEventHandler;
             this.SetValue(TopmostFocus.FocusedZIndexProperty, ConstOne);
+            this.DataContextChanged += DataContextChangedHandler;
+            this.FrameSpanChangedHandler = (clip, oldSpan, newSpan) => {
+                this.Span = newSpan;
+            };
         }
 
-        private void OnLoaded(object sender, RoutedEventArgs e) {
+        public void LoadClipModelState(ClipViewModel newClip) {
+            if (this.connectedModel != null) {
+                if (!ReferenceEquals(this.connectedModel, newClip)) {
+                    throw new Exception("Invalid state");
+                }
+
+                return;
+            }
+
+            this.connectedModel = newClip;
+            newClip.Model.FrameSpanChanged += this.FrameSpanChangedHandler;
+            this.Span = newClip.Model.FrameSpan;
+        }
+
+        public void UnloadClipModelState() {
+            if (this.connectedModel == null) {
+                return;
+            }
+
+            this.connectedModel.Model.FrameSpanChanged -= this.FrameSpanChangedHandler;
+            this.connectedModel = null;
+        }
+
+        private void FocusHandlerForAutoDrag(object sender, RoutedEventArgs e) {
             if (this.DataContext is ClipViewModel handler) {
                 this.CoerceValue(IsSelectedProperty);
                 if (handler.IsDraggingClip) {
@@ -183,7 +226,7 @@ namespace FramePFX.WPF.Editor.Timelines.Controls {
                 }
             }
 
-            this.Loaded -= this.OnLoaded;
+            this.Loaded -= this.FocusHandlerForAutoDrag;
         }
 
         public override void OnApplyTemplate() {
@@ -442,10 +485,9 @@ namespace FramePFX.WPF.Editor.Timelines.Controls {
                 return;
             }
 
-            bool didJustDragTrack = false;
-            if (this.isLoadedWithActiveDrag) {
+            bool didJustDragTrack = this.isLoadedWithActiveDrag;
+            if (didJustDragTrack) {
                 this.isLoadedWithActiveDrag = false;
-                didJustDragTrack = true;
                 if (clip.IsDraggingClip) {
                     this.lastLeftClickPoint = this.Timeline.ClipMousePosForTrackTransition;
                     this.isClipDragRunning = true;

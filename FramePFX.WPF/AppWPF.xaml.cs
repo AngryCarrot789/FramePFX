@@ -64,32 +64,7 @@ namespace FramePFX.WPF {
         static AppWPF() {
         }
 
-        public struct MinMax
-        {
-            internal double minWidth;
-            internal double maxWidth;
-            internal double minHeight;
-            internal double maxHeight;
-
-            internal MinMax(double eMinWidth,double eMaxWidth,double eMinHeight,double eMaxHeight,double eWidth, double eHeight)
-            {
-                this.maxHeight = eMaxHeight;
-                this.minHeight = eMinHeight;
-                double height = eHeight;
-                this.maxHeight = Math.Max(Math.Min(double.IsNaN(height) ? double.PositiveInfinity : height, this.maxHeight), this.minHeight);
-                this.minHeight = Math.Max(Math.Min(this.maxHeight, double.IsNaN(height) ? 0.0 : height), this.minHeight);
-                this.maxWidth = eMaxWidth;
-                this.minWidth = eMinWidth;
-                double width = eWidth;
-                this.maxWidth = Math.Max(Math.Min(double.IsNaN(width) ? double.PositiveInfinity : width, this.maxWidth), this.minWidth);
-                this.minWidth = Math.Max(Math.Min(this.maxWidth, double.IsNaN(width) ? 0.0 : width), this.minWidth);
-            }
-        }
-
         public AppWPF() {
-            //MinMax minMax = new MinMax(0, double.PositiveInfinity, 0, double.PositiveInfinity, 0, 0);
-
-
             IoC.Application = this.application = new ApplicationModel(this);
             this.processor = new AttributeProcessor();
             this.application.RegisterService(IoC.Application.Dispatcher);

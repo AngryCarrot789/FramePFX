@@ -120,7 +120,7 @@ namespace FramePFX.WPF.Editor.Project.EditorDialogs {
         public ProjectSettings ToSettings() {
             return new ProjectSettings() {
                 Resolution = new Rect2i(this.width, this.height),
-                TimeBase = this.SelectedRational
+                FrameRate = this.SelectedRational
             };
         }
 
@@ -128,7 +128,7 @@ namespace FramePFX.WPF.Editor.Project.EditorDialogs {
             this.Width = settings.Resolution.Width;
             this.Height = settings.Resolution.Height;
 
-            Rational fps = settings.TimeBase;
+            Rational fps = settings.FrameRate;
             for (int i = 0; i < rationals.Length; i++) {
                 if (fps <= rationals[i]) {
                     this.SelectedIndex = i;

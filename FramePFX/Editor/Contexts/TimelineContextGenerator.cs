@@ -19,7 +19,7 @@ namespace FramePFX.Editor.Contexts {
 
         public void Generate(List<IContextEntry> list, IDataContext context) {
             if (context.TryGetContext(out ClipViewModel clip)) {
-                if (clip is CompositionVideoClipViewModel compositionClip && compositionClip.Model.ResourceCompositionKey.IsLinked) {
+                if (clip is CompositionVideoClipViewModel) {
                     list.Add(new ActionContextEntry("actions.timeline.OpenCompositionObjectsTimeline", "Open timeline"));
                 }
 

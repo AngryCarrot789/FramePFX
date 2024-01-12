@@ -44,19 +44,19 @@ namespace FramePFX.Editor.ResourceManaging {
         /// </summary>
         public int ReferenceCount => this.references.Count;
 
-        private readonly List<ResourcePath> references;
-        public IReadOnlyList<ResourcePath> References => this.references;
+        private readonly List<ResourceLink> references;
+        public IReadOnlyList<ResourceLink> References => this.references;
 
         public event ResourceAndManagerEventHandler OnlineStateChanged;
         public event ResourceReferencedEventHandler ReferenceCountChanged;
 
         protected ResourceItem() {
-            this.references = new List<ResourcePath>();
+            this.references = new List<ResourceLink>();
         }
 
         public void GetReferenceInfo(out int clips, out int unknown) {
             int nClips = 0, nUnknown = 0;
-            foreach (ResourcePath reference in this.references) {
+            foreach (ResourceLink reference in this.references) {
                 if (reference.Owner.ResourceHelper.Owner is Clip) {
                     nClips++;
                 }
@@ -69,14 +69,14 @@ namespace FramePFX.Editor.ResourceManaging {
             unknown = nUnknown;
         }
 
-        public void AddReference(ResourcePath reference) {
+        public void AddReference(ResourceLink reference) {
             if (reference == null)
                 throw new ArgumentNullException(nameof(reference));
             this.references.Add(reference);
             this.ReferenceCountChanged?.Invoke(this, reference, true);
         }
 
-        public void RemoveReference(ResourcePath reference) {
+        public void RemoveReference(ResourceLink reference) {
             int index = this.references.IndexOf(reference);
             if (index == -1)
                 throw new Exception("Object is not referenced");
@@ -84,7 +84,7 @@ namespace FramePFX.Editor.ResourceManaging {
         }
 
         public void RemoveReferenceAt(int index) {
-            ResourcePath reference = this.references[index];
+            ResourceLink reference = this.references[index];
             this.references.RemoveAt(index);
             this.ReferenceCountChanged?.Invoke(this, reference, false);
         }

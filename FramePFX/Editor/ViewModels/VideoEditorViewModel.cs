@@ -109,7 +109,6 @@ namespace FramePFX.Editor.ViewModels {
             this.ActiveTimelines = new ObservableCollection<TimelineViewModel>();
             this.timelineRenderTaskMap = new Dictionary<TimelineViewModel, Task>();
             this.Playback = new EditorPlaybackViewModel(this);
-            this.Playback.ProjectModified += this.OnProjectModified;
             this.Playback.Model.OnStepFrame = () => this.SelectedTimeline?.OnStepFrameCallback();
             this.NewProjectCommand = new AsyncRelayCommand(this.NewProjectAction);
             this.OpenProjectCommand = new AsyncRelayCommand(this.OpenProjectAction);
@@ -262,15 +261,6 @@ namespace FramePFX.Editor.ViewModels {
             catch (Exception e) {
                 await IoC.DialogService.ShowMessageExAsync("Project load error", "Failed to load project", e.GetToString());
                 return;
-            }
-
-            if (this.ActiveProject != null) {
-                try {
-                    await this.CloseProjectAction();
-                }
-                catch (Exception e) {
-                    await IoC.DialogService.ShowMessageExAsync("Exception", "Failed to close previous project. This error can be ignored", e.GetToString());
-                }
             }
 
             await this.LoadProject(pvm);

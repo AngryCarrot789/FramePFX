@@ -64,8 +64,8 @@ namespace FramePFX.Automation {
             AutomationSequence sequence = new AutomationSequence(this, key);
             this.map[key] = sequence;
             if (updateHandler != null) {
-                sequence.UpdateValue += updateHandler;
-                sequence.DoValueUpdate(-1);
+                sequence.Update += updateHandler;
+                sequence.UpdateValue(-1);
             }
 
             return sequence;
@@ -114,14 +114,14 @@ namespace FramePFX.Automation {
         }
 
         /// <summary>
-        /// Fires the <see cref="AutomationSequence.UpdateValue"/> event for each sequence stored in this data, and
+        /// Fires the <see cref="AutomationSequence.Update"/> event for each sequence stored in this data, and
         /// updates it with a frame of -1, indicating that the <see cref="AutomationSequence.DefaultKeyFrame"/> should
         /// be used to query the value instead of any actual key frame. Useful just after reading the state of an automation owner's data
         /// </summary>
         public void UpdateBackingStorage() {
             IList<AutomationSequence> list = this.map.Values;
             for (int i = 0, count = list.Count; i < count; i++) {
-                list[i].DoValueUpdate(-1);
+                list[i].UpdateValue(-1);
             }
         }
 
@@ -132,7 +132,7 @@ namespace FramePFX.Automation {
                 for (int i = 0, count = list.Count; i < count; i++) {
                     AutomationSequence sequence = list[i];
                     if (sequence.IsAutomationAllowed)
-                        sequence.DoValueUpdate(frame);
+                        sequence.UpdateValue(frame);
                 }
             }
             finally {

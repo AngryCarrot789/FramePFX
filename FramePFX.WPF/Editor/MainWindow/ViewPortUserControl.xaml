@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:FramePFX.WPF.Editor.MainWindow" xmlns:controls="clr-namespace:FramePFX.WPF.Controls" xmlns:wpf="clr-namespace:FramePFX.WPF"
              xmlns:viewModels="clr-namespace:FramePFX.Editor.ViewModels;assembly=FramePFX"
+             xmlns:editor="clr-namespace:FramePFX.Editor;assembly=FramePFX"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance viewModels:EditorPlaybackViewModel}">
@@ -39,7 +40,7 @@
         <Border Background="{DynamicResource PanelBackground3}" VerticalAlignment="Top" Height="24" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0 1 0 0">
             <Grid>
                 <ComboBox DataContext="{Binding Editor.ActiveProject.Settings}" HorizontalAlignment="Left" BorderThickness="0"
-                          ItemsSource="{x:Static viewModels:ProjectSettingsViewModel.RenderQualities}"
+                          ItemsSource="{x:Static editor:ProjectSettings.RenderQualities}"
                           SelectedItem="{Binding RenderQuality, Mode=TwoWay}"
                           ToolTip="Rendering quality" />
             </Grid>

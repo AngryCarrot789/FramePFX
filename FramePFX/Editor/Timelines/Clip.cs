@@ -18,15 +18,14 @@ namespace FramePFX.Editor.Timelines {
     /// <summary>
     /// A model that represents a timeline track clip, such as a video or audio clip
     /// </summary>
-    public abstract class Clip : IClip, IStrictFrameRange, IAutomatable {
+    public abstract class Clip : IResourceHolder, IProjectBound, IStrictFrameRange, IAutomatable {
         public static readonly SerialisationRegistry Serialisation;
-
         private readonly List<BaseEffect> internalEffectList;
         private FrameSpan frameSpan;
         public long LastSeekedFrame;
 
         /// <summary>
-        /// Returns the track that this clip is currently in. When this changes, <see cref="OnTrackChanged"/> is always called
+        /// Gets the track that this clip is currently placed in
         /// </summary>
         public Track Track { get; private set; }
 
@@ -52,13 +51,17 @@ namespace FramePFX.Editor.Timelines {
         /// </summary>
         public string FactoryId => ClipFactory.Instance.GetTypeIdForModel(this.GetType());
 
+        /// <summary>
+        /// The position of this clip in terms of video frames, in the form of a
+        /// <see cref="Utils.FrameSpan"/> which has a begin and duration property
+        /// </summary>
         public FrameSpan FrameSpan {
             get => this.frameSpan;
             set {
                 FrameSpan oldSpan = this.frameSpan;
                 if (oldSpan != value) {
                     this.frameSpan = value;
-                    this.ClipSpanChanged?.Invoke(this, oldSpan, value);
+                    this.FrameSpanChanged?.Invoke(this, oldSpan, value);
                 }
             }
         }
@@ -107,8 +110,16 @@ namespace FramePFX.Editor.Timelines {
         /// </summary>
         public ResourceHelper ResourceHelper { get; }
 
+        /// <summary>
+        /// An event fired when this clip was either removed from a
+        /// track, added to a track, or moved from one track to another
+        /// </summary>
         public event TrackChangedEventHandler TrackChanged;
-        public event ClipSpanChangedEventHandler ClipSpanChanged;
+
+        /// <summary>
+        /// An event fired when this clip's <see cref="FrameSpan"/> changes
+        /// </summary>
+        public event FrameSpanChangedEventHandler FrameSpanChanged;
 
         protected Clip() {
             this.AutomationData = new AutomationData(this);
@@ -188,6 +199,14 @@ namespace FramePFX.Editor.Timelines {
             this.TrackChanged?.Invoke(oldTrack, newTrack);
         }
 
+        /// <summary>
+        /// Invoked when the project associated with our track's timeline changes
+        /// </summary>
+        /// <param name="e">The project change event args</param>
+        protected virtual void OnProjectChanged(ProjectChangedEventArgs e) {
+            this.ResourceHelper.SetManager(e.NewProject?.ResourceManager);
+        }
+
         public long GetRelativeFrame(long playhead) => playhead - this.FrameBegin;
 
         public bool GetRelativeFrame(long playhead, out long frame) {
@@ -253,15 +272,12 @@ namespace FramePFX.Editor.Timelines {
         /// splitting or duplicating clips, or even duplicating a track
         /// </summary>
         /// <returns></returns>
-        public Clip Clone(ClipCloneFlags flags = ClipCloneFlags.DefaultFlags) {
+        public Clip Clone(ClipCloneFlags flags = ClipCloneFlags.All) {
             Clip clone = this.NewInstanceForClone();
             clone.DisplayName = this.DisplayName;
             clone.FrameSpan = this.FrameSpan;
             clone.MediaFrameOffset = this.MediaFrameOffset;
-            if ((flags & ClipCloneFlags.AutomationData) != 0) {
-                this.AutomationData.LoadDataIntoClone(clone.AutomationData);
-            }
-
+            this.AutomationData.LoadDataIntoClone(clone.AutomationData);
             if ((flags & ClipCloneFlags.Effects) != 0) {
                 foreach (BaseEffect effect in this.internalEffectList) {
                     BaseEffect.AddEffectToClip(clone, effect.Clone());
@@ -270,8 +286,8 @@ namespace FramePFX.Editor.Timelines {
 
             this.LoadUserDataIntoClone(clone, flags);
             clone.AutomationData.UpdateBackingStorage();
-            foreach (BaseEffect effect1 in clone.Effects)
-                effect1.AutomationData.UpdateBackingStorage();
+            foreach (BaseEffect effect in clone.Effects)
+                effect.AutomationData.UpdateBackingStorage();
 
             if (clone is CompositionVideoClip composition && composition.ResourceCompositionKey.TryGetResource(out ResourceComposition resource)) {
                 AutomationEngine.UpdateBackingStorage(resource.Timeline);
@@ -404,5 +420,7 @@ namespace FramePFX.Editor.Timelines {
         }
 
         #endregion
+
+        public static void OnProjectChangedInternal(Clip clip, ProjectChangedEventArgs e) => clip.OnProjectChanged(e);
     }
 }

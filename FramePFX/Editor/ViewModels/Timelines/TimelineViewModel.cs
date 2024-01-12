@@ -23,13 +23,13 @@ using FramePFX.Views.Dialogs.UserInputs;
 namespace FramePFX.Editor.ViewModels.Timelines {
     public class TimelineViewModel : BaseViewModel, IAutomatableViewModel, IProjectViewModelBound {
         public static readonly MessageDialog DeleteTracksDialog;
-        private readonly PropertyChangedEventHandler CachedTrackPropertyChangedHandler;
         private readonly RapidDispatchCallback rapidOnRenderCompleted;
         private readonly ObservableCollectionEx<TrackViewModel> tracks;
         private TrackViewModel primarySelectedTrack;
         private bool isRecordingKeyFrames;
         private long lastPlayHeadSeek;
         public long InternalLastPlayHeadBeforePlaying; // used for play/pause/stop
+        private volatile bool IsProcessingPlayHeadForThreadPlayback;
 
         public bool IsSeekingFrame;
 
@@ -109,10 +109,7 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public string DisplayName {
             get => this.Model.DisplayName;
-            set {
-                this.Model.DisplayName = value;
-                this.RaisePropertyChanged();
-            }
+            set => this.Model.DisplayName = value;
         }
 
         private bool autoScrollOnClipDrag;
@@ -157,7 +154,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
 
         public TimelineViewModel(Timeline model) {
             this.Model = model ?? throw new ArgumentNullException(nameof(model));
-            this.CachedTrackPropertyChangedHandler = this.OnTrackPropertyChanged;
             this.rapidOnRenderCompleted = new RapidDispatchCallback(this.RefreshAutomationAndPlayhead, DispatchPriority.Normal, "TimelineRapidCallback");
             this.AutomationData = new AutomationDataViewModel(this, model.AutomationData);
             this.AutomationData.SetActiveSequenceFromModelDeserialisation();
@@ -179,11 +175,16 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 TrackViewModel trackVm = TrackFactory.Instance.CreateViewModelFromModel(track);
                 trackVm.Timeline = this;
                 this.tracks.Add(trackVm);
-                this.InternalOnTrackAdded(trackVm);
                 TrackViewModel.OnTimelineChanged(trackVm);
             }
 
-            this.UpdateAndRefreshLargestFrame();
+            model.PlayHeadPositionChanged += (timeline, oldPos, newPos) => {
+                if (!this.IsProcessingPlayHeadForThreadPlayback)
+                    this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
+            };
+            model.DisplayNameChanged += timeline => this.RaisePropertyChanged(nameof(this.DisplayName));
+            model.MaxDurationChanged += timeline => this.RaisePropertyChanged(nameof(this.MaxDuration));
+            model.LargestFrameChanged += timeline => this.RaisePropertyChanged(nameof(this.LargestFrameInUse));
         }
 
         static TimelineViewModel() {
@@ -228,7 +229,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.Model.InsertTrack(index, track.Model);
             track.Timeline = this;
             this.tracks.Insert(index, track);
-            this.InternalOnTrackAdded(track);
             TrackViewModel.OnTimelineChanged(track);
         }
 
@@ -246,8 +246,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             }
 
             this.Model.PlayHeadFrame = newFrame;
-            this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
-
             foreach (TrackViewModel track in this.tracks) {
                 track.OnUserSeekedFrame(oldFrame, newFrame);
             }
@@ -376,7 +374,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 if (this.Model.RemoveTrack(item.Model)) {
                     item.Timeline = null;
                     if (this.tracks.Remove(item)) {
-                        this.InternalOnTrackRemoved(item);
                         TrackViewModel.OnTimelineChanged(item);
                     }
                     else {
@@ -400,7 +397,6 @@ namespace FramePFX.Editor.ViewModels.Timelines {
             this.Model.RemoveTrackAt(index);
             track.Timeline = null;
             this.tracks.RemoveAt(index);
-            this.InternalOnTrackRemoved(track);
             TrackViewModel.OnTimelineChanged(track);
             this.InvalidateAutomationAndRender();
         }
@@ -453,15 +449,18 @@ namespace FramePFX.Editor.ViewModels.Timelines {
                 return;
             }
 
+            this.IsProcessingPlayHeadForThreadPlayback = true;
             this.Model.PlayHeadFrame = Periodic.Add(this.PlayHeadFrame, 1, 0L, this.MaxDuration);
             AutomationEngine.UpdateTimeline(this.Model, this.PlayHeadFrame);
-            editor.DoDrawRenderFrame(this.Model).ContinueWith(t => this.rapidOnRenderCompleted.Invoke());
+            editor.DoDrawRenderFrame(this.Model).ContinueWith(t => {
+                this.IsProcessingPlayHeadForThreadPlayback = false;
+                this.rapidOnRenderCompleted.Invoke();
+            });
         }
 
         public void RefreshAutomationAndPlayhead() {
             AutomationEngine.RefreshTimeline(this, this.PlayHeadFrame);
             this.RaisePropertyChanged(nameof(this.PlayHeadFrame));
-
             this.LastRenderMillis = Math.Round(this.Model.LastRenderDurationTicks / Time.TICK_PER_MILLIS_D, 3);
             this.RaisePropertyChanged(nameof(this.LastRenderMillis));
         }
@@ -469,30 +468,8 @@ namespace FramePFX.Editor.ViewModels.Timelines {
         public virtual void ClearAndDispose() {
             for (int i = this.tracks.Count - 1; i >= 0; i--) {
                 TrackViewModel track = this.tracks[i];
-                this.RemoveTrackAt(i);
                 track.ClearAndDispose();
-            }
-        }
-
-        private void InternalOnTrackAdded(TrackViewModel track) {
-            track.PropertyChanged += this.CachedTrackPropertyChangedHandler;
-            this.UpdateAndRefreshLargestFrame();
-        }
-
-        private void InternalOnTrackRemoved(TrackViewModel track) {
-            track.PropertyChanged -= this.CachedTrackPropertyChangedHandler;
-            this.UpdateAndRefreshLargestFrame();
-        }
-
-        private void UpdateAndRefreshLargestFrame() {
-            this.Model.UpdateLargestFrame();
-            this.RaisePropertyChanged(nameof(this.LargestFrameInUse));
-        }
-
-        private void OnTrackPropertyChanged(object sender, PropertyChangedEventArgs e) {
-            if (e.PropertyName == nameof(TrackViewModel.LargestFrameInUse)) {
-                this.Model.UpdateLargestFrame();
-                this.RaisePropertyChanged(nameof(this.LargestFrameInUse));
+                this.RemoveTrackAt(i);
             }
         }
 

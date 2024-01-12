@@ -57,10 +57,10 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
         /// <param name="key">The key to use</param>
         /// <returns>An interface which wraps the internal key entry object</returns>
         /// <exception cref="InvalidOperationException">The key is already in use</exception>
-        public IResourcePathKey<T> RegisterKey<T>(string key) where T : ResourceItem {
+        public IResourcePathKey<T> RegisterKey<T>(string key, ResourcePathFlags flags = ResourcePathFlags.None) where T : ResourceItem {
             if (this.ResourceMap.ContainsKey(key))
                 throw new InvalidOperationException("Key already registered: " + key);
-            ResourcePathEntry<T> entry = new ResourcePathEntry<T>(this, key);
+            ResourcePathEntry<T> entry = new ResourcePathEntry<T>(this, key, flags);
             this.ResourceMap[key] = entry;
             return entry;
         }
@@ -108,31 +108,35 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
         /// <param name="manager"></param>
         public void SetManager(ResourceManager manager) {
             foreach (BaseResourcePathEntry entry in this.ResourceMap.Values) {
-                ResourcePath path = entry.path;
-                if (path == null || ReferenceEquals(path.Manager, manager)) {
+                ResourceLink link = entry.link;
+                if (link == null || ReferenceEquals(link.Manager, manager)) {
                     continue;
                 }
 
-                path.SetManager(manager);
+                link.SetManager(manager);
             }
         }
 
         private void OnResourceChanged(BaseResourcePathEntry key, ResourceItem oldItem, ResourceItem newItem) {
             this.ResourceChanged?.Invoke(this, new ResourceChangedEventArgs(key, oldItem, newItem));
-            this.TriggerClipRender();
+            this.TryInvalidateVisual();
         }
 
         private void OnResourceDataModified(IBaseResourcePathKey key, ResourceItem sender, string property) {
             this.ResourceDataModified?.Invoke(this, new ResourceModifiedEventArgs(key, sender, property));
-            this.TriggerClipRender();
+            this.TryInvalidateVisual();
         }
 
         private void OnOnlineStateChanged(IBaseResourcePathKey key) {
             this.OnlineStateChanged?.Invoke(this, key);
-            this.TriggerClipRender();
+            // if ((key.Flags & ResourcePathFlags.AffectRender) != 0) {
+            //     this.TryInvalidateVisual();
+            // }
+
+            this.TryInvalidateVisual();
         }
 
-        private void TriggerClipRender() {
+        private void TryInvalidateVisual() {
             if (this.Owner is VideoClip clip && clip.Project != null)
                 clip.InvalidateRender();
         }
@@ -165,9 +169,9 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
 
         public void LoadDataIntoClone(ResourceHelper clone) {
             foreach (KeyValuePair<string, BaseResourcePathEntry> pair in this.ResourceMap) {
-                ResourcePath path = pair.Value.path;
-                if (path != null)
-                    clone.ResourceMap[pair.Key].SetTargetResourceId(path.ResourceId);
+                ResourceLink link = pair.Value.link;
+                if (link != null)
+                    clone.ResourceMap[pair.Key].SetTargetResourceId(link.ResourceId);
             }
         }
 
@@ -177,42 +181,43 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             private readonly ResourceModifiedEventHandler dataModifiedHandler;
             private readonly ResourceAndManagerEventHandler onlineStateChangedHandler;
             public readonly string entryKey;
-            public ResourcePath path;
+            public ResourceLink link;
+            private readonly ResourcePathFlags flags;
+
+            public ResourcePathFlags Flags => this.flags;
 
             ResourceHelper IResourceHolder.ResourceHelper => this.helper;
-            ResourcePath IBaseResourcePathKey.Path => this.path;
+            ResourceLink IBaseResourcePathKey.ActiveLink => this.link;
             string IBaseResourcePathKey.Key => this.entryKey;
-
-            public bool IsLinked {
-                get {
-                    bool? v = this.path?.IsLinked;
-                    return v.HasValue && v.Value;
-                }
-            }
 
             public Project Project => this.helper.Owner.Project;
 
-            protected BaseResourcePathEntry(ResourceHelper helper, string entryKey) {
+            protected BaseResourcePathEntry(ResourceHelper helper, string entryKey, ResourcePathFlags flags) {
                 this.helper = helper ?? throw new ArgumentNullException(nameof(helper));
                 this.entryKey = string.IsNullOrEmpty(entryKey) ? throw new ArgumentException("Entry id cannot be null or empty", nameof(entryKey)) : entryKey;
+                this.flags = flags;
                 this.resourceChangedHandler = this.OnEntryResourceChangedInternal;
                 this.dataModifiedHandler = this.OnEntryResourceDataModifiedInternal;
                 this.onlineStateChangedHandler = this.OnResourceOnlineStateChangedInternal;
             }
 
-            private void SetResourcePath(ResourcePath newPath) {
-                if (this.path != null) {
-                    if (this.path.CanDispose) {
-                        this.path.Dispose();
+            public bool HasFlag(ResourcePathFlags flag) {
+                return (this.flags | flag) != 0;
+            }
+
+            private void SetResourcePath(ResourceLink newLink) {
+                if (this.link != null) {
+                    if (this.link.CanDispose) {
+                        this.link.Dispose();
                     }
 
-                    this.path.ResourceChanged -= this.resourceChangedHandler;
-                    this.path = null;
+                    this.link.ResourceChanged -= this.resourceChangedHandler;
+                    this.link = null;
                 }
 
-                this.path = newPath;
-                if (newPath != null) {
-                    newPath.ResourceChanged += this.resourceChangedHandler;
+                this.link = newLink;
+                if (newLink != null) {
+                    newLink.ResourceChanged += this.resourceChangedHandler;
                 }
 
                 this.OnOnlineStateChanged();
@@ -222,12 +227,12 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             public virtual void SetTargetResourceId(ulong id) {
                 if (id == ResourceManager.EmptyId)
                     throw new ArgumentException("ID must not be empty (0)");
-                this.SetResourcePath(new ResourcePath(this, this.helper.Owner.Project?.ResourceManager, id));
+                this.SetResourcePath(new ResourceLink(this, this.helper.Owner.Project?.ResourceManager, id));
             }
 
             public bool TryGetResource<T>(out T resource, bool requireIsOnline = true) where T : ResourceItem {
-                if (this.path != null)
-                    return this.path.TryGetResource(out resource, requireIsOnline);
+                if (this.link != null)
+                    return this.link.TryGetResource(out resource, requireIsOnline);
                 resource = null;
                 return false;
             }
@@ -259,10 +264,8 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             private void OnEntryResourceDataModifiedInternal(BaseResource sender, string property) {
                 if (!(sender is ResourceItem item))
                     return;
-                if (this.path == null)
+                if (this.link == null)
                     throw new InvalidOperationException("Expected resource path to be non-null");
-                if (!this.path.IsCachedItemEqualTo(item))
-                    throw new InvalidOperationException("Received data modified event for a resource that does not equal the resource path's item");
                 this.OnEntryResourceDataModified(item, property);
                 this.helper.OnResourceDataModified(this, item, property);
             }
@@ -270,20 +273,18 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             protected abstract void OnOnlineStateChanged();
 
             private void OnResourceOnlineStateChangedInternal(ResourceManager manager, ResourceItem item) {
-                if (!this.path.IsCachedItemEqualTo(item))
-                    throw new InvalidOperationException("Received data modified event for a resource that does not equal the resource path's item");
                 this.OnOnlineStateChanged();
                 this.helper.OnOnlineStateChanged(this);
             }
 
             public static void WriteToRBE(BaseResourcePathEntry entry, RBEDictionary resourceMapDictionary) {
-                if (entry.path == null)
+                if (entry.link == null)
                     return;
-                ResourcePath.WriteToRBE(entry.path, resourceMapDictionary.CreateDictionary(entry.entryKey));
+                ResourceLink.WriteToRBE(entry.link, resourceMapDictionary.CreateDictionary(entry.entryKey));
             }
 
             public static void ReadFromRBE(BaseResourcePathEntry entry, RBEDictionary dictionary) {
-                entry.SetResourcePath(ResourcePath.ReadFromRBE(entry, dictionary));
+                entry.SetResourcePath(ResourceLink.ReadFromRBE(entry, dictionary));
             }
 
             public void DisposePath() => this.SetResourcePath(null);
@@ -294,7 +295,7 @@ namespace FramePFX.Editor.Timelines.ResourceHelpers {
             public event EntryResourceModifiedEventHandler<T> ResourceDataModified;
             public event EntryOnlineStateChangedEventHandler<T> OnlineStateChanged;
 
-            public ResourcePathEntry(ResourceHelper helper, string entryKey) : base(helper, entryKey) {
+            public ResourcePathEntry(ResourceHelper helper, string entryKey, ResourcePathFlags flags) : base(helper, entryKey, flags) {
             }
 
             public bool TryGetResource(out T resource, bool requireIsOnline = true) => base.TryGetResource(out resource, requireIsOnline);

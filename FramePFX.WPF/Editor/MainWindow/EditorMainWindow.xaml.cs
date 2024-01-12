@@ -170,7 +170,7 @@ namespace FramePFX.WPF.Editor.MainWindow {
                 if (this.ViewPortControl.ViewPortElement.BeginRender(out SKSurface surface)) {
                     try {
                         RenderContext context = new RenderContext(surface, surface.Canvas, this.ViewPortControl.ViewPortElement.FrameInfo);
-                        context.SetRenderQuality(project.Model.RenderQuality);
+                        context.SetRenderQuality(project.Model.Settings.Quality);
                         context.ClearPixels();
                         try {
                             await timeline.RenderAsync(context, frame, source.Token);

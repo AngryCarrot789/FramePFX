@@ -1,3 +1,11 @@
+# !! Code will be replaced soon !!
+I decided to mostly abandon the MVVM side of this editor because it makes adding/changing things way harder due to me trying way to hard to 
+stick to pure MVVM. But instead of re-working this repo, I decided to create a new one at https://github.com/AngryCarrot789/FramePFXNewFrameworkTests.
+
+Once I get all features in this repo implemented in that new one, I'll copy over all the code from that one to here, deleting the MVVM side entirely (though it will still be accessible through github push history).
+
+From there, I hope to maybe try and reimplement some of the MVVM things if it isn't too much of a burden and doesn't require creating replicates of the editor, project, timeline, track, clip and effect clases as view models versions  
+
 # FramePFX
 A small (non-linear) video editor, written in C# using WPF/MVVM
 

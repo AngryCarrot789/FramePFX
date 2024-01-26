@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using FramePFX.Logger;
 
 namespace FramePFX.RBC {
     public class RBEByte : RBEBase {
@@ -162,7 +161,7 @@ namespace FramePFX.RBC {
             get => this.value;
             set {
                 if (value != null && value.Length > MaxValueLength) {
-                    AppLogger.WriteLine($"{nameof(RBEString)} value length exceeded {nameof(MaxValueLength)}");
+                    throw new Exception("Value length exceeds the maximum value of " + MaxValueLength);
                 }
 
                 this.value = value;

@@ -1,8 +1,7 @@
 using System;
-using FramePFX.Commands;
 
 namespace FramePFX.Logger {
-    public class LogEntry : BaseViewModel {
+    public class LogEntry {
         /// <summary>
         /// Gets the time at which this log entry was created
         /// </summary>
@@ -19,10 +18,6 @@ namespace FramePFX.Logger {
         /// Gets the string content containing the log message
         /// </summary>
         public string Content { get; }
-
-        public static AsyncRelayCommand<LogEntry> ShowStackTraceCommand { get; } = new AsyncRelayCommand<LogEntry>((x) => {
-            return IoC.DialogService.ShowMessageAsync("Entry Stack Trace", string.IsNullOrEmpty(x.StackTrace) ? "No trace available" : x.StackTrace);
-        });
 
         public LogEntry(DateTime logTime, int index, string stackTrace, string content) {
             this.LogTime = logTime;

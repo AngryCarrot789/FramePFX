@@ -55,6 +55,13 @@ namespace FramePFX.Utils {
             return true;
         }
 
+        /// <summary>
+        /// Creates a new array and may use unsafe methods of copying data
+        /// from the source to destination if the array is large enough
+        /// </summary>
+        /// <param name="array"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static unsafe T[] CloneArrayUnsafe<T>(this T[] array) where T : unmanaged {
             if (array == null)
                 return null;

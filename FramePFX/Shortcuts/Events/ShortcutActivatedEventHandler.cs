@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using FramePFX.Actions.Contexts;
+using FramePFX.Interactivity;
 using FramePFX.Shortcuts.Managing;
 
 namespace FramePFX.Shortcuts.Events {

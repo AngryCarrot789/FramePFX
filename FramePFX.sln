@@ -3,79 +3,24 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34018.315
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FramePFX.WPF", "FramePFX.WPF\FramePFX.WPF.csproj", "{1DCEA0BD-29B9-4E37-B7A0-B58A54963208}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FramePFX", "FramePFX\FramePFX.csproj", "{70A8C2EB-8E04-4708-8752-0BE03930CEEC}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{070E3833-D196-47D1-9509-E1F89C25EB33}"
 	ProjectSection(SolutionItems) = preProject
 		docs\Automation.md = docs\Automation.md
+		docs\TheUI.md = docs\TheUI.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{4BAA92B5-442A-431D-BFBD-96CC86759FFE}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PFXCE", "PFXCE\PFXCE.vcxproj", "{8EF6A6EF-495C-41D7-AA12-FD8041468231}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ColorPicker", "ColorPicker\ColorPicker.csproj", "{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FramePFX", "FramePFX\FramePFX.csproj", "{82D8612A-A293-4B2C-9D9D-8BF7270157A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
-		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
-		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1DCEA0BD-29B9-4E37-B7A0-B58A54963208}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{1DCEA0BD-29B9-4E37-B7A0-B58A54963208}.Debug|Any CPU.Build.0 = Debug|x64
-		{1DCEA0BD-29B9-4E37-B7A0-B58A54963208}.Debug|x64.ActiveCfg = Debug|x64
-		{1DCEA0BD-29B9-4E37-B7A0-B58A54963208}.Debug|x64.Build.0 = Debug|x64
-		{1DCEA0BD-29B9-4E37-B7A0-B58A54963208}.Debug|x86.ActiveCfg = Debug|x64
-		{1DCEA0BD-29B9-4E37-B7A0-B58A54963208}.Debug|x86.Build.0 = Debug|x64
-		{1DCEA0BD-29B9-4E37-B7A0-B58A54963208}.Release|Any CPU.ActiveCfg = Release|x64
-		{1DCEA0BD-29B9-4E37-B7A0-B58A54963208}.Release|Any CPU.Build.0 = Release|x64
-		{1DCEA0BD-29B9-4E37-B7A0-B58A54963208}.Release|x64.ActiveCfg = Release|x64
-		{1DCEA0BD-29B9-4E37-B7A0-B58A54963208}.Release|x64.Build.0 = Release|x64
-		{1DCEA0BD-29B9-4E37-B7A0-B58A54963208}.Release|x86.ActiveCfg = Release|x64
-		{1DCEA0BD-29B9-4E37-B7A0-B58A54963208}.Release|x86.Build.0 = Release|x64
-		{70A8C2EB-8E04-4708-8752-0BE03930CEEC}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{70A8C2EB-8E04-4708-8752-0BE03930CEEC}.Debug|Any CPU.Build.0 = Debug|x64
-		{70A8C2EB-8E04-4708-8752-0BE03930CEEC}.Debug|x64.ActiveCfg = Debug|x64
-		{70A8C2EB-8E04-4708-8752-0BE03930CEEC}.Debug|x64.Build.0 = Debug|x64
-		{70A8C2EB-8E04-4708-8752-0BE03930CEEC}.Debug|x86.ActiveCfg = Debug|x64
-		{70A8C2EB-8E04-4708-8752-0BE03930CEEC}.Debug|x86.Build.0 = Debug|x64
-		{70A8C2EB-8E04-4708-8752-0BE03930CEEC}.Release|Any CPU.ActiveCfg = Release|x64
-		{70A8C2EB-8E04-4708-8752-0BE03930CEEC}.Release|Any CPU.Build.0 = Release|x64
-		{70A8C2EB-8E04-4708-8752-0BE03930CEEC}.Release|x64.ActiveCfg = Release|x64
-		{70A8C2EB-8E04-4708-8752-0BE03930CEEC}.Release|x64.Build.0 = Release|x64
-		{70A8C2EB-8E04-4708-8752-0BE03930CEEC}.Release|x86.ActiveCfg = Release|x64
-		{70A8C2EB-8E04-4708-8752-0BE03930CEEC}.Release|x86.Build.0 = Release|x64
-		{8EF6A6EF-495C-41D7-AA12-FD8041468231}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{8EF6A6EF-495C-41D7-AA12-FD8041468231}.Debug|Any CPU.Build.0 = Debug|x64
-		{8EF6A6EF-495C-41D7-AA12-FD8041468231}.Debug|x64.ActiveCfg = Debug|x64
-		{8EF6A6EF-495C-41D7-AA12-FD8041468231}.Debug|x64.Build.0 = Debug|x64
-		{8EF6A6EF-495C-41D7-AA12-FD8041468231}.Debug|x86.ActiveCfg = Debug|Win32
-		{8EF6A6EF-495C-41D7-AA12-FD8041468231}.Debug|x86.Build.0 = Debug|Win32
-		{8EF6A6EF-495C-41D7-AA12-FD8041468231}.Release|Any CPU.ActiveCfg = Release|x64
-		{8EF6A6EF-495C-41D7-AA12-FD8041468231}.Release|Any CPU.Build.0 = Release|x64
-		{8EF6A6EF-495C-41D7-AA12-FD8041468231}.Release|x64.ActiveCfg = Release|x64
-		{8EF6A6EF-495C-41D7-AA12-FD8041468231}.Release|x64.Build.0 = Release|x64
-		{8EF6A6EF-495C-41D7-AA12-FD8041468231}.Release|x86.ActiveCfg = Release|Win32
-		{8EF6A6EF-495C-41D7-AA12-FD8041468231}.Release|x86.Build.0 = Release|Win32
-		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Debug|x64.Build.0 = Debug|Any CPU
-		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Debug|x86.Build.0 = Debug|Any CPU
-		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Release|x64.ActiveCfg = Release|Any CPU
-		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Release|x64.Build.0 = Release|Any CPU
-		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Release|x86.ActiveCfg = Release|Any CPU
-		{5157A4AB-4707-4D48-B6A7-DF2C38D0E6CF}.Release|x86.Build.0 = Release|Any CPU
+		{82D8612A-A293-4B2C-9D9D-8BF7270157A2}.Debug|x64.ActiveCfg = Debug|x64
+		{82D8612A-A293-4B2C-9D9D-8BF7270157A2}.Debug|x64.Build.0 = Debug|x64
+		{82D8612A-A293-4B2C-9D9D-8BF7270157A2}.Release|x64.ActiveCfg = Release|x64
+		{82D8612A-A293-4B2C-9D9D-8BF7270157A2}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

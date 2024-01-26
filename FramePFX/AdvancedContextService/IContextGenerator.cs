@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using FramePFX.Actions.Contexts;
+using FramePFX.Interactivity;
 
 namespace FramePFX.AdvancedContextService {
     /// <summary>

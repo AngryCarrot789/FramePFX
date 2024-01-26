@@ -13,7 +13,7 @@ namespace FramePFX.Utils {
         /// </summary>
         public static readonly long TICK_PER_SECOND = Stopwatch.Frequency; // windows = 10,000,000
 
-        public static readonly double TICK_PER_SECOND_D = Stopwatch.Frequency; // windows = 10000000.0d
+        public static readonly double TICK_PER_SECOND_D = Stopwatch.Frequency; // windows = 10,000,000.0d
 
         /// <summary>
         /// A multiplier for converting ticks to milliseconds

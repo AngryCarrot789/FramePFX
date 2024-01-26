@@ -3,28 +3,37 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Threading;
 using FramePFX.Utils;
 
 namespace FramePFX.Logger {
-    public static class AppLogger {
-        private static readonly object PRINTLOCK = new object();
-        private static readonly ThreadLocal<Stack<HeaderedLogEntry>> Headers;
-        private static readonly List<(HeaderedLogEntry, LogEntry)> cachedEntries;
-        private static readonly RateLimitedExecutor driver;
+    public delegate void AppLoggerEventHandler(AppLogger logger);
 
-        public static LoggerViewModel ViewModel { get; }
+    public class AppLogger {
+        public static AppLogger Instance { get; } = new AppLogger();
 
-        public static event EventHandler OnLogEntryBlockPosted;
+        private readonly object PrintLock = new object();
+        private readonly ThreadLocal<Stack<HeaderedLogEntry>> headers;
+        private readonly List<(HeaderedLogEntry, LogEntry)> cachedEntries;
+        private readonly RateLimitedExecutor driver;
 
-        static AppLogger() {
-            Headers = new ThreadLocal<Stack<HeaderedLogEntry>>(() => new Stack<HeaderedLogEntry>());
-            ViewModel = new LoggerViewModel();
-            driver = new RateLimitedExecutor(FlushEntries, TimeSpan.FromMilliseconds(50));
-            cachedEntries = new List<(HeaderedLogEntry, LogEntry)>();
+        private readonly HeaderedLogEntry rootEntry;
+
+        public HeaderedLogEntry RootEntry => this.rootEntry;
+
+        public AppLogger() {
+            this.rootEntry = new HeaderedLogEntry(DateTime.Now, 0, Environment.StackTrace, "<root>");
+            this.cachedEntries = new List<(HeaderedLogEntry, LogEntry)>();
+            this.headers = new ThreadLocal<Stack<HeaderedLogEntry>>(() => new Stack<HeaderedLogEntry>());
+            this.driver = new RateLimitedExecutor(this.FlushEntries, TimeSpan.FromMilliseconds(50));
         }
 
-        private static int GetNextIndex(Stack<HeaderedLogEntry> stack) {
-            return stack.Count > 0 ? stack.Peek().Entries.Count : ViewModel.Entries.Count;
+        static AppLogger() {
+        }
+
+        private int GetNextIndex(Stack<HeaderedLogEntry> stack) {
+            return (stack.Count > 0 ? stack.Peek() : this.rootEntry).Entries.Count;
         }
 
         /// <summary>
@@ -35,20 +44,20 @@ namespace FramePFX.Logger {
         /// </para>
         /// </summary>
         /// <param name="header"></param>
-        public static void PushHeader(string header, bool autoExpand = true) {
-            Stack<HeaderedLogEntry> stack = Headers.Value;
+        public void PushHeader(string header, bool autoExpand = true) {
+            Stack<HeaderedLogEntry> stack = this.headers.Value;
             if (stack.Count < 10) {
                 if (string.IsNullOrEmpty(header))
                     header = "<empty header>";
-                header = CanonicaliseLine(header);
+                header = this.CanonicaliseLine(header);
                 HeaderedLogEntry top = stack.Count > 0 ? stack.Peek() : null;
-                lock (PRINTLOCK) {
-                    HeaderedLogEntry entry = new HeaderedLogEntry(DateTime.Now, GetNextIndex(stack), Environment.StackTrace, header);
+                lock (this.PrintLock) {
+                    HeaderedLogEntry entry = new HeaderedLogEntry(DateTime.Now, this.GetNextIndex(stack), Environment.StackTrace, header);
                     if (!autoExpand)
                         entry.IsExpanded = false;
                     stack.Push(entry);
-                    cachedEntries.Add((top, entry));
-                    driver.OnInput();
+                    this.cachedEntries.Add((top, entry));
+                    this.driver.OnInput();
                 }
             }
             else {
@@ -60,18 +69,18 @@ namespace FramePFX.Logger {
         /// <summary>
         /// Pops the last header
         /// </summary>
-        public static void PopHeader() {
-            Stack<HeaderedLogEntry> stack = Headers.Value;
+        public void PopHeader() {
+            Stack<HeaderedLogEntry> stack = this.headers.Value;
             if (stack.Count > 0) {
                 stack.Pop();
             }
             else {
-                Debug.WriteLine("Excessive calls to " + nameof(PopHeader));
+                Debug.WriteLine("Excessive calls to " + nameof(this.PopHeader));
                 Debugger.Break();
             }
         }
 
-        private static string CanonicaliseLine(string line) {
+        private string CanonicaliseLine(string line) {
             int tmpLen;
             if (string.IsNullOrEmpty(line)) {
                 line = "<empty log entry>";
@@ -83,24 +92,25 @@ namespace FramePFX.Logger {
             return line.Trim();
         }
 
-        public static void WriteLine(string line) {
-            line = CanonicaliseLine(line);
-            Stack<HeaderedLogEntry> stack = Headers.Value;
+        public void WriteLine(string line) {
+            line = this.CanonicaliseLine(line);
+            Stack<HeaderedLogEntry> stack = this.headers.Value;
             HeaderedLogEntry top = stack.Count > 0 ? stack.Peek() : null;
-            lock (PRINTLOCK) {
-                LogEntry entry = new LogEntry(DateTime.Now, top?.Entries.Count ?? ViewModel.Entries.Count, Environment.StackTrace, line);
-                cachedEntries.Add((top, entry));
+            lock (this.PrintLock) {
+                LogEntry entry = new LogEntry(DateTime.Now, (top ?? this.rootEntry).Entries.Count, Environment.StackTrace, line);
+                this.cachedEntries.Add((top, entry));
             }
 
-            driver.OnInput();
+            this.driver.OnInput();
         }
 
-        public static Task FlushEntries() {
-            return IoC.Application.Dispatcher.Invoke(async () => {
+        public Task FlushEntries() {
+            Dispatcher dispatcher = Application.Current.Dispatcher;
+            return dispatcher.Invoke(async () => {
                 List<(HeaderedLogEntry, LogEntry)> list;
-                lock (PRINTLOCK) {
-                    list = new List<(HeaderedLogEntry, LogEntry)>(cachedEntries);
-                    cachedEntries.Clear();
+                lock (this.PrintLock) {
+                    list = new List<(HeaderedLogEntry, LogEntry)>(this.cachedEntries);
+                    this.cachedEntries.Clear();
                 }
 
                 const int blockSize = 10;
@@ -108,21 +118,19 @@ namespace FramePFX.Logger {
                 for (int i = 0; i < count; i += blockSize) {
                     int j = Math.Min(i + blockSize, count);
                     // ExecutionPriority.Render
-                    await IoC.Application.Dispatcher.InvokeAsync(() => ProcessEntryBlock(list, i, j));
+                    await dispatcher.InvokeAsync(() => this.ProcessEntryBlock(list, i, j));
                 }
-
-                OnLogEntryBlockPosted?.Invoke(null, EventArgs.Empty);
             });
         }
 
-        private static void ProcessEntryBlock(List<(HeaderedLogEntry, LogEntry)> entries, int i, int j) {
+        private void ProcessEntryBlock(List<(HeaderedLogEntry, LogEntry)> entries, int i, int j) {
             for (int k = i; k < j; k++) {
                 (HeaderedLogEntry parent, LogEntry entry) = entries[k];
                 if (parent != null) {
-                    parent.Entries.Add(entry);
+                    parent.AddEntry(entry);
                 }
                 else {
-                    ViewModel.AddRoot(entry);
+                    this.rootEntry.AddEntry(entry);
                 }
             }
         }

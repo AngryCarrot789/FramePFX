@@ -1,3 +1,0 @@
-I made a few modifications and fixed a bug with dependency properties being
-registered with the wrong type in the MultiSelectTreeView class
-https://github.com/ygoe/MultiSelectTreeView

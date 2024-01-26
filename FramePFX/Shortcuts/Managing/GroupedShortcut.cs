@@ -1,6 +1,6 @@
 using System;
 using System.Text;
-using FramePFX.Actions.Contexts;
+using FramePFX.Interactivity;
 
 namespace FramePFX.Shortcuts.Managing {
     /// <summary>

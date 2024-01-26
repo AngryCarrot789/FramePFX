@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using FramePFX.Actions;
-using FramePFX.Actions.Contexts;
+using FramePFX.Interactivity;
 using FramePFX.Utils.Collections;
 
 namespace FramePFX.AdvancedContextService.NCSP {

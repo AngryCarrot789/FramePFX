@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
 using FramePFX.Actions;
-using FramePFX.Actions.Contexts;
+using FramePFX.Interactivity;
 using FramePFX.Shortcuts.Attributes;
 using FramePFX.Shortcuts.Events;
+using FramePFX.Shortcuts.Inputs;
+using FramePFX.Shortcuts.Usage;
 
 namespace FramePFX.Shortcuts.Managing {
+    public delegate void ShortcutActivityEventHandler(ShortcutInputManager manager);
+
     /// <summary>
     /// A class for storing and managing shortcuts
     /// </summary>
@@ -279,9 +283,7 @@ namespace FramePFX.Shortcuts.Managing {
                     context = ctx;
                 }
 
-                IoC.BroadcastShortcutActivity($"Activating shortcut action: {shortcut} -> {shortcut.ActionId}...");
                 await ActionManager.Instance.Execute(shortcut.ActionId, context);
-                IoC.BroadcastShortcutActivity($"Activating shortcut action: {shortcut} -> {shortcut.ActionId}... Complete!");
                 result = true;
             }
 
@@ -394,6 +396,24 @@ namespace FramePFX.Shortcuts.Managing {
         public void OnShortcutModified(GroupedShortcut shortcut, IShortcut oldShortcut) {
             this.InvalidateShortcutCache();
             this.ShortcutModified?.Invoke(shortcut, oldShortcut);
+        }
+
+        protected internal virtual void OnSecondShortcutUsagesProgressed(ShortcutInputManager inputManager) {
+        }
+
+        protected internal virtual void OnShortcutUsagesCreated(ShortcutInputManager inputManager) {
+        }
+
+        protected internal virtual void OnCancelUsageForNoSuchNextMouseStroke(ShortcutInputManager inputManager, IShortcutUsage usage, GroupedShortcut shortcut, MouseStroke stroke) {
+        }
+
+        protected internal virtual void OnCancelUsageForNoSuchNextKeyStroke(ShortcutInputManager inputManager, IShortcutUsage usage, GroupedShortcut shortcut, KeyStroke stroke) {
+        }
+
+        protected internal virtual void OnNoSuchShortcutForMouseStroke(ShortcutInputManager inputManager, string @group, MouseStroke stroke) {
+        }
+
+        protected internal virtual void OnNoSuchShortcutForKeyStroke(ShortcutInputManager inputManager, string @group, KeyStroke stroke) {
         }
     }
 }

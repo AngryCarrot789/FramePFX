@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 
 namespace FramePFX.Utils.Collections {
-    public enum ListChangeMode {
+    public enum ListChangeEventType {
         /// <summary>
         /// Represents an insertion event. <see cref="ListChangedEventArgs.NewIndex"/> contains the insertion index
         /// </summary>
@@ -18,66 +17,36 @@ namespace FramePFX.Utils.Collections {
 
     public readonly struct ListChangedEventArgs<T> {
         /// <summary>
-        /// The event mode
+        /// The event type
         /// </summary>
-        public readonly ListChangeMode Mode;
+        public readonly ListChangeEventType EventType;
 
         /// <summary>
-        /// The removal index, replace index, or source index during a move event
+        /// The index of the item during a remove, replace or move event
         /// </summary>
         public readonly int OldIndex;
 
         /// <summary>
-        /// The insertion index, replace index, or destination index during a move event
+        /// The insertion index, or destination index during a replace or move event
         /// </summary>
         public readonly int NewIndex;
 
         /// <summary>
-        /// Gets the value associated with this event. This is only valid during <see cref="ListChangeMode.Insert"/> and <see cref="ListChangeMode.Replace"/>
+        /// Gets the previous value. This is only valid during a <see cref="ListChangeEventType.Remove"/> or <see cref="ListChangeEventType.Replace"/>
         /// </summary>
-        public readonly T Value;
+        public readonly T OldValue;
 
-        public ListChangedEventArgs(ListChangeMode mode, int oldIndex, int newIndex, T value) {
-            this.Mode = mode;
+        /// <summary>
+        /// Gets the value associated with this event. This is only valid during <see cref="ListChangeEventType.Insert"/> and <see cref="ListChangeEventType.Replace"/>
+        /// </summary>
+        public readonly T NewValue;
+
+        public ListChangedEventArgs(ListChangeEventType eventType, int oldIndex, int newIndex, T oldValue, T newValue) {
+            this.EventType = eventType;
             this.OldIndex = oldIndex;
             this.NewIndex = newIndex;
-            this.Value = value;
-        }
-
-        public ListChangedEventArgs(NotifyCollectionChangedEventArgs e) {
-            switch (e.Action) {
-                case NotifyCollectionChangedAction.Add:
-                    this.Mode = ListChangeMode.Insert;
-                    this.OldIndex = -1;
-                    this.NewIndex = e.NewStartingIndex;
-                    this.Value = (T) e.NewItems[0];
-                    break;
-                case NotifyCollectionChangedAction.Move:
-                    this.Mode = ListChangeMode.Move;
-                    this.OldIndex = e.OldStartingIndex;
-                    this.NewIndex = e.NewStartingIndex;
-                    this.Value = (T) e.NewItems[0];
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    this.Mode = ListChangeMode.Remove;
-                    this.OldIndex = e.OldStartingIndex;
-                    this.NewIndex = -1;
-                    this.Value = default;
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                    this.Mode = ListChangeMode.Replace;
-                    this.OldIndex = e.OldStartingIndex;
-                    this.NewIndex = e.NewStartingIndex;
-                    this.Value = (T) e.NewItems[0];
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    this.Mode = ListChangeMode.Clear;
-                    this.OldIndex = -1;
-                    this.NewIndex = -1;
-                    this.Value = default;
-                    break;
-                default: throw new ArgumentOutOfRangeException();
-            }
+            this.OldValue = oldValue;
+            this.NewValue = newValue;
         }
     }
 
@@ -87,9 +56,7 @@ namespace FramePFX.Utils.Collections {
         event ListChangedEventHandler<T> ListChanged;
     }
 
-    public class ObservableList<T> : Collection<T>, INotifyPropertyChanged, INotifyCollectionChanged, INotifyCollectionChangedEx<T> {
-        private const string CountString = "Count";
-        private const string IndexerName = "Item[]";
+    public class ObservableList<T> : Collection<T>, INotifyCollectionChangedEx<T> {
         private int collectionChangeLoopCount;
 
         public event ListChangedEventHandler<T> ListChanged;
@@ -102,60 +69,43 @@ namespace FramePFX.Utils.Collections {
         }
 
         public ObservableList(IEnumerable<T> collection) {
-            if (collection == null)
-                throw new ArgumentNullException(nameof(collection));
-            this.CopyFrom(collection);
+            this.CopyFrom(collection ?? throw new ArgumentNullException(nameof(collection)));
         }
 
         private void CopyFrom(IEnumerable<T> collection) {
-            IList<T> items = this.Items;
             if (collection == null)
                 return;
+            IList<T> items = this.Items;
             foreach (T obj in collection)
                 items.Add(obj);
         }
 
         public void Move(int oldIndex, int newIndex) => this.MoveItem(oldIndex, newIndex);
 
-        event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged {
-            add => this.PropertyChanged += value;
-            remove => this.PropertyChanged -= value;
-        }
-
-        [field: NonSerialized]
-        public virtual event NotifyCollectionChangedEventHandler CollectionChanged;
-
         protected override void ClearItems() {
             this.CheckReentrancy();
             base.ClearItems();
-            this.OnPropertyChanged("Count");
-            this.OnPropertyChanged("Item[]");
-            this.OnCollectionReset();
+            this.OnCollectionChanged(new ListChangedEventArgs<T>(ListChangeEventType.Clear, -1, -1, default, default));
         }
 
         protected override void RemoveItem(int index) {
             this.CheckReentrancy();
             T obj = this[index];
             base.RemoveItem(index);
-            this.OnPropertyChanged("Count");
-            this.OnPropertyChanged("Item[]");
-            this.OnCollectionChanged(NotifyCollectionChangedAction.Remove, obj, index);
+            this.OnCollectionChanged(new ListChangedEventArgs<T>(ListChangeEventType.Remove, index, -1, obj, default));
         }
 
         protected override void InsertItem(int index, T item) {
             this.CheckReentrancy();
             base.InsertItem(index, item);
-            this.OnPropertyChanged("Count");
-            this.OnPropertyChanged("Item[]");
-            this.OnCollectionChanged(NotifyCollectionChangedAction.Add, item, index);
+            this.OnCollectionChanged(new ListChangedEventArgs<T>(ListChangeEventType.Insert, -1, index, default, item));
         }
 
         protected override void SetItem(int index, T item) {
             this.CheckReentrancy();
             T obj = this[index];
             base.SetItem(index, item);
-            this.OnPropertyChanged("Item[]");
-            this.OnCollectionChanged(NotifyCollectionChangedAction.Replace, obj, item, index);
+            this.OnCollectionChanged(new ListChangedEventArgs<T>(ListChangeEventType.Replace, -1, index, obj, item));
         }
 
         protected virtual void MoveItem(int oldIndex, int newIndex) {
@@ -163,23 +113,15 @@ namespace FramePFX.Utils.Collections {
             T obj = this[oldIndex];
             base.RemoveItem(oldIndex);
             base.InsertItem(newIndex, obj);
-            this.OnPropertyChanged("Item[]");
-            this.OnCollectionChanged(NotifyCollectionChangedAction.Move, obj, newIndex, oldIndex);
+            this.OnCollectionChanged(new ListChangedEventArgs<T>(ListChangeEventType.Move, oldIndex, newIndex, default, default));
         }
 
-        protected virtual void OnPropertyChanged(PropertyChangedEventArgs e) {
-            this.PropertyChanged?.Invoke(this, e);
-        }
-
-        protected virtual event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e) {
-            if (this.CollectionChanged == null && this.ListChanged == null)
+        protected virtual void OnCollectionChanged(ListChangedEventArgs<T> e) {
+            if (this.ListChanged == null)
                 return;
             try {
                 this.collectionChangeLoopCount++;
-                this.CollectionChanged?.Invoke(this, e);
-                this.ListChanged?.Invoke(this, new ListChangedEventArgs<T>(e));
+                this.ListChanged?.Invoke(this, e);
             }
             finally {
                 this.collectionChangeLoopCount--;
@@ -187,22 +129,20 @@ namespace FramePFX.Utils.Collections {
         }
 
         protected void CheckReentrancy() {
-            if (this.collectionChangeLoopCount > 0 && this.CollectionChanged != null && this.CollectionChanged.GetInvocationList().Length > 1)
+            if (this.collectionChangeLoopCount > 0 && this.ListChanged != null && this.ListChanged.GetInvocationList().Length > 1)
                 throw new InvalidOperationException("Cannot modify collection during a collection change event");
         }
+    }
 
-        private void OnPropertyChanged(string propertyName) => this.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
+    public class ReadOnlyObservableList<T> : ReadOnlyCollection<T>, INotifyCollectionChangedEx<T> {
+        public event ListChangedEventHandler<T> ListChanged;
 
-        private void OnCollectionChanged(NotifyCollectionChangedAction action, object item, int index) => this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, item, index));
-
-        private void OnCollectionChanged(NotifyCollectionChangedAction action, object item, int index, int oldIndex) {
-            this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, item, index, oldIndex));
+        public ReadOnlyObservableList(ObservableList<T> list) : base(list) {
+            list.ListChanged += this.OnListCollectionChanged;
         }
 
-        private void OnCollectionChanged(NotifyCollectionChangedAction action, object oldItem, object newItem, int index) {
-            this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, newItem, oldItem, index));
+        private void OnListCollectionChanged(object sender, ListChangedEventArgs<T> args) {
+            this.ListChanged?.Invoke(this, args);
         }
-
-        private void OnCollectionReset() => this.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
     }
 }

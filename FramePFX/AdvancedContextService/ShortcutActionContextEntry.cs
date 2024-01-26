@@ -2,12 +2,7 @@ using System.Collections.Generic;
 
 namespace FramePFX.AdvancedContextService {
     public class ShortcutActionContextEntry : ActionContextEntry {
-        private string shortcutId;
-
-        public string ShortcutId {
-            get => this.shortcutId;
-            set => this.RaisePropertyChanged(ref this.shortcutId, value);
-        }
+        public string ShortcutId { get; set; }
 
         public ShortcutActionContextEntry(object dataContext, string actionId, string header, string description, IEnumerable<IContextEntry> children = null) : base(actionId, header, description, children) {
         }

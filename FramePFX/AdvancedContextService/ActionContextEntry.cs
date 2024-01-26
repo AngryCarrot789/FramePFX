@@ -6,14 +6,10 @@ namespace FramePFX.AdvancedContextService {
     /// The class for action-based context entries. The header, tooltip, etc, are automatically fetched
     /// </summary>
     public class ActionContextEntry : BaseContextEntry {
-        private string actionId;
-        public string ActionId {
-            get => this.actionId;
-            set => this.RaisePropertyChanged(ref this.actionId, value);
-        }
+        public string ActionId { get; }
 
         public ActionContextEntry(string actionId, string header, string description, IEnumerable<IContextEntry> children = null) : base(header, description, children) {
-            this.actionId = actionId;
+            this.ActionId = actionId;
         }
 
         public ActionContextEntry(string actionId, string header, IEnumerable<IContextEntry> children = null) : this(actionId, header, null, children) {

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FramePFX.Actions.Contexts;
+using FramePFX.Interactivity;
 using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Usage;
 using FramePFX.Utils;
@@ -349,7 +349,8 @@ namespace FramePFX.Shortcuts.Managing {
         /// <param name="group"></param>
         /// <param name="stroke">The received keyboard stroke</param>
         /// <returns>The key stroke event outcome. True = Handled/Cancelled, False = Ignored/Continue</returns>
-        protected virtual bool OnNoSuchShortcutForKeyStroke(string group, in KeyStroke stroke) {
+        protected virtual bool OnNoSuchShortcutForKeyStroke(string group, KeyStroke stroke) {
+            this.Manager.OnNoSuchShortcutForKeyStroke(this, group, stroke);
             return false;
         }
 
@@ -359,7 +360,8 @@ namespace FramePFX.Shortcuts.Managing {
         /// <param name="group"></param>
         /// <param name="stroke">The received mouse input stroke</param>
         /// <returns>The mouse stroke event outcome. True = Handled/Cancelled, False = Ignored/Continue</returns>
-        protected virtual bool OnNoSuchShortcutForMouseStroke(string group, in MouseStroke stroke) {
+        protected virtual bool OnNoSuchShortcutForMouseStroke(string group, MouseStroke stroke) {
+            this.Manager.OnNoSuchShortcutForMouseStroke(this, group, stroke);
             return false;
         }
 
@@ -369,7 +371,8 @@ namespace FramePFX.Shortcuts.Managing {
         /// </summary>
         /// <param name="stroke">The key stroke that was received</param>
         /// <returns>Whether to cancel the usage or not. True = cancel, False = keep</returns>
-        protected virtual bool OnCancelUsageForNoSuchNextKeyStroke(IShortcutUsage usage, GroupedShortcut shortcut, in KeyStroke stroke) {
+        protected virtual bool OnCancelUsageForNoSuchNextKeyStroke(IShortcutUsage usage, GroupedShortcut shortcut, KeyStroke stroke) {
+            this.Manager.OnCancelUsageForNoSuchNextKeyStroke(this, usage, shortcut, stroke);
             return this.OnCancelUsage(usage, shortcut);
         }
 
@@ -379,7 +382,8 @@ namespace FramePFX.Shortcuts.Managing {
         /// </summary>
         /// <param name="stroke">The mouse stroke that was received</param>
         /// <returns>Whether to cancel the usage or not. True = cancel, False = keep</returns>
-        protected virtual bool OnCancelUsageForNoSuchNextMouseStroke(IShortcutUsage usage, GroupedShortcut shortcut, in MouseStroke stroke) {
+        protected virtual bool OnCancelUsageForNoSuchNextMouseStroke(IShortcutUsage usage, GroupedShortcut shortcut, MouseStroke stroke) {
+            this.Manager.OnCancelUsageForNoSuchNextMouseStroke(this, usage, shortcut, stroke);
             return this.OnCancelUsage(usage, shortcut);
         }
 
@@ -402,6 +406,7 @@ namespace FramePFX.Shortcuts.Managing {
         /// </summary>
         /// <returns>The mouse stroke event outcome. True = Handled/Cancelled, False = Ignored/Continue</returns>
         protected virtual bool OnShortcutUsagesCreated() {
+            this.Manager.OnShortcutUsagesCreated(this);
             return true;
         }
 
@@ -416,6 +421,7 @@ namespace FramePFX.Shortcuts.Managing {
         }
 
         protected virtual bool OnSecondShortcutUsagesProgressed() {
+            this.Manager.OnSecondShortcutUsagesProgressed(this);
             return true;
         }
 

@@ -1,0 +1,30 @@
+﻿<Application x:Class="FramePFX.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Startup="App_OnStartup">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Control Styles -->
+                <ResourceDictionary Source="Themes/ColourDictionaries/SoftDark.xaml"/>
+                <ResourceDictionary Source="Themes/ControlColours.xaml"/>
+                <ResourceDictionary Source="Themes/Controls.xaml"/>
+
+                <!-- General styles that don't really rely on that many other styles -->
+                <ResourceDictionary Source="Editors/Controls/GeneralControlStyles.xaml"/>
+                <ResourceDictionary Source="Editors/Controls/Dragger/NumberDraggerStyles.xaml"/>
+
+                <!-- Multi-select tree -->
+                <ResourceDictionary Source="Editors/Controls/TreeViews/Themes/EditTextBox.xaml"/>
+                <ResourceDictionary Source="Editors/Controls/TreeViews/Themes/MultiSelectTreeView.Aero2.xaml"/>
+                <ResourceDictionary Source="Editors/Controls/TreeViews/Themes/MultiSelectTreeViewItem.Aero2.xaml"/>
+
+                <!-- Advanced styles, some of these should probably be user controls -->
+                <ResourceDictionary Source="Editors/Controls/Resources/ResourceStyles.xaml"/>
+                <ResourceDictionary Source="Editors/Controls/Timelines/TimelineStyles.xaml"/>
+                <ResourceDictionary Source="PropertyEditing/Controls/PropertyEditorStyles.xaml"/>
+                <ResourceDictionary Source="PropertyEditing/Controls/PropertyEditorSlotContentStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

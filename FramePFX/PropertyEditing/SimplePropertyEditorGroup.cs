@@ -3,12 +3,13 @@ using System.Collections.Generic;
 
 namespace FramePFX.PropertyEditing {
     /// <summary>
-    /// A general property editor group, which supports a single list of handler objects
+    /// A general property editor group, which supports a single list of handler objects, and manages the
+    /// applicability state of its child slots or <see cref="SimplePropertyEditorGroup"/> objects
     /// </summary>
-    public class PropertyEditorGroup : BasePropertyEditorGroup {
+    public class SimplePropertyEditorGroup : BasePropertyEditorGroup {
         public IReadOnlyList<object> Handlers { get; private set; }
 
-        public PropertyEditorGroup(Type applicableType) : base(applicableType) {
+        public SimplePropertyEditorGroup(Type applicableType) : base(applicableType) {
 
         }
 
@@ -29,7 +30,7 @@ namespace FramePFX.PropertyEditing {
                     case PropertyEditorSlot editor:
                         editor.ClearHandlers();
                         break;
-                    case PropertyEditorGroup group:
+                    case SimplePropertyEditorGroup group:
                         group.ClearHierarchy();
                         break;
                 }
@@ -65,7 +66,7 @@ namespace FramePFX.PropertyEditing {
             bool isApplicable = false;
             for (int i = 0, end = this.PropertyObjects.Count - 1; i <= end; i++) {
                 BasePropertyEditorObject obj = this.PropertyObjects[i];
-                if (obj is PropertyEditorGroup group) {
+                if (obj is SimplePropertyEditorGroup group) {
                     group.SetupHierarchyState(input);
                     isApplicable |= group.IsCurrentlyApplicable;
                 }
@@ -78,7 +79,7 @@ namespace FramePFX.PropertyEditing {
             this.IsCurrentlyApplicable = isApplicable;
         }
 
-        protected static bool AreAnyApplicable(PropertyEditorGroup group, IReadOnlyList<object> sources) {
+        protected static bool AreAnyApplicable(SimplePropertyEditorGroup group, IReadOnlyList<object> sources) {
             // return sources.Any(x => group.IsApplicable(x));
             for (int i = 0, c = sources.Count; i < c; i++)
                 if (group.IsObjectApplicable(sources[i]))

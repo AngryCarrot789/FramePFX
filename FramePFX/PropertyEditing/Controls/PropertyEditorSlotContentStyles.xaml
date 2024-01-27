@@ -2,20 +2,24 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:l="clr-namespace:FramePFX.PropertyEditing.Controls"
                     xmlns:d="clr-namespace:FramePFX.Editors.Controls.Dragger"
-                    xmlns:s="clr-namespace:FramePFX.Editors.PropertyEditors.Clips"
-                    xmlns:clips="clr-namespace:FramePFX.Editors.PropertyEditors.AControls.Clips">
+                    xmlns:clips="clr-namespace:FramePFX.Editors.PropertyEditors.AControls.Clips"
+                    xmlns:effects="clr-namespace:FramePFX.Editors.PropertyEditors.AControls.Effects"
+                    xmlns:s="clr-namespace:System;assembly=mscorlib">
+    <s:Double x:Key="FloatMinValue">-3.402823E+38</s:Double>
+    <s:Double x:Key="FloatMaxValue">3.402823E+38</s:Double>
+
     <Style TargetType="{x:Type clips:VideoClipOpacityPropertyEditorControl}">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type clips:VideoClipOpacityPropertyEditorControl}">
-                    <Grid>
+                    <Grid Margin="2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="Opacity" Grid.Column="0"/>
-                        <d:NumberDragger Height="16" BorderBrush="Black"
+                        <TextBlock Text="Opacity" Grid.Column="0" VerticalAlignment="Center"/>
+                        <d:NumberDragger Height="20" BorderBrush="Black"
                                          VerticalAlignment="Top"
                                          Minimum="0" Maximum="1"
                                          TinyChange="0.0001" SmallChange="0.001"
@@ -33,14 +37,51 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type clips:ClipDisplayNamePropertyEditorControl}">
-                    <Grid>
+                    <Grid Margin="2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="Display Name" Grid.Column="0"/>
-                        <TextBox x:Name="PART_TextBox" Grid.Column="2"/>
+                        <TextBlock Text="Display Name" Grid.Column="0" VerticalAlignment="Center"/>
+                        <TextBox x:Name="PART_TextBox" Grid.Column="2" Padding="2" VerticalAlignment="Center"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type effects:MotionEffectMediaPosEditorControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type effects:MotionEffectMediaPosEditorControl}">
+                    <Grid Margin="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Pos X" Grid.Column="0" VerticalAlignment="Center"/>
+                        <Grid Grid.Column="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="3"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <d:NumberDragger Grid.Column="0" Height="20" BorderBrush="Black" VerticalAlignment="Center"
+                                             Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}"
+                                             TinyChange="0.01" SmallChange="0.1"
+                                             LargeChange="1" MassiveChange="5"
+                                             Style="{StaticResource AbletonNumberDraggerStyle}"
+                                             x:Name="PART_DraggerX" Padding="0,0,0,0"/>
+
+                            <d:NumberDragger Grid.Column="2" Height="20" BorderBrush="Black" VerticalAlignment="Center"
+                                             Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}"
+                                             TinyChange="0.01" SmallChange="0.1"
+                                             LargeChange="1" MassiveChange="5"
+                                             Style="{StaticResource AbletonNumberDraggerStyle}"
+                                             x:Name="PART_DraggerY" Padding="0,0,0,0"/>
+                        </Grid>
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>

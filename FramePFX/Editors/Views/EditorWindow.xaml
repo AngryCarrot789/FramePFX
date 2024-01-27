@@ -114,7 +114,7 @@
                     <Border Background="{DynamicResource PanelBackground3}" 
                             BorderBrush="{DynamicResource PanelBorderBrush}" 
                             BorderThickness="0 1 0 0">
-                        <controls:PropertyEditorControl x:Name="ThePropertyEditor"/>
+                        <controls:PropertyEditorControl x:Name="ThePropertyEditor" Focusable="True" Background="Transparent"/>
                     </Border>
                 </GroupBox>
                 <Border Grid.Column="1" Focusable="False" UseLayoutRounding="True" SnapsToDevicePixels="True" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>

@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using FramePFX.Editors.Controls.Binders;
+using FramePFX.Editors.Controls.Dragger;
 using FramePFX.Utils;
 
 namespace FramePFX.PropertyEditing.Controls {
@@ -42,6 +43,8 @@ namespace FramePFX.PropertyEditing.Controls {
 
         public PropertyEditorSlot Model { get; private set; }
 
+        public PropertyEditorGroupControl OwnerGroup { get; private set; }
+
         private readonly GetSetAutoPropertyBinder<PropertyEditorSlot> isSelectedBinder = new GetSetAutoPropertyBinder<PropertyEditorSlot>(IsSelectedProperty, nameof(PropertyEditorSlot.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.IsSelected = (bool) v);
 
         public PropertyEditorSlotControl() {
@@ -54,13 +57,48 @@ namespace FramePFX.PropertyEditing.Controls {
         protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
             base.OnPreviewMouseDown(e);
             if (!e.Handled && this.IsSelectable) {
-                this.IsSelected = true;
+                if ((Keyboard.Modifiers & ModifierKeys.Control) != 0) {
+                    this.IsSelected = !this.IsSelected;
+                }
+                else if (this.Model.PropertyEditor is BasePropertyEditor editor) {
+                    editor.ClearSelection();
+                    this.IsSelected = true;
+                }
+                else {
+                    return;
+                }
+
+                if (this.OwnerGroup?.PropertyEditor is PropertyEditorControl editorControl) {
+                    editorControl.TouchedSlot = this;
+                }
+
+                // if (!(e.OriginalSource is UIElement element)) {
+                //     e.Handled = true;
+                //     return;
+                // }
+                //
+                // if (CanHandleClick(element, element is FrameworkElement fe ? (fe.TemplatedParent as Control) : null)) {
+                //     e.Handled = true;
+                // }
             }
         }
 
-        public void ConnectModel(PropertyEditorSlot item) {
+        private static bool CanHandleClick(UIElement originalSource, Control templatedParent) {
+            if (originalSource.Focusable || templatedParent != null && templatedParent.Focusable) {
+                return false;
+            }
+
+            if (originalSource is TextBoxBase || originalSource.GetType().Name == "TextBoxView") {
+                return false;
+            }
+
+            return true;
+        }
+
+        public void ConnectModel(PropertyEditorGroupControl ownerGroup, PropertyEditorSlot item) {
             BasePropEditControlContent content = BasePropEditControlContent.NewContentInstance(item.GetType());
             this.Model = item;
+            this.OwnerGroup = ownerGroup;
             this.Content = content;
             this.InvalidateMeasure();
             content.InvalidateMeasure();
@@ -75,6 +113,7 @@ namespace FramePFX.PropertyEditing.Controls {
             ((BasePropEditControlContent) this.Content).Disconnect();
             this.isSelectedBinder.Detatch();
             this.Model = null;
+            this.OwnerGroup = null;
         }
 
         private void OnSelectionChanged(bool oldValue, bool newValue) {

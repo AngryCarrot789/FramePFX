@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using FramePFX.Editors.PropertyEditors.AControls.Effects.Motion;
+using FramePFX.Editors.PropertyEditors.Effects.Motion;
 using FramePFX.Editors.Timelines.Effects;
 using FramePFX.PropertyEditing;
 
-namespace FramePFX.Editors.PropertyEditors.AControls.Effects {
+namespace FramePFX.Editors.PropertyEditors.Effects {
     /// <summary>
     /// A property editor group that encapsulates a single instance of an effect.
     /// For now, the effect property editor only supports single selection
@@ -17,7 +16,7 @@ namespace FramePFX.Editors.PropertyEditors.AControls.Effects {
         public BaseEffect Effect { get; private set; }
 
         public EffectPropertyEditorGroup(Type applicableType) : base(applicableType) {
-
+            this.DisplayName = applicableType.Name;
         }
 
         static EffectPropertyEditorGroup() {

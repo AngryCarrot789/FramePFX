@@ -61,13 +61,13 @@ namespace FramePFX.Editors.PropertyEditors.Clips {
         }
 
         public void RequeryOpacityFromHandlers() {
-            this.Opacity = GetEqualValue(this.Handlers, (x) => ((VideoClip) x).Opacity, out double d) ? d : default;
+            this.opacity = GetEqualValue(this.Handlers, (x) => ((VideoClip) x).Opacity, out double d) ? d : default;
             this.OpacityChanged?.Invoke(this);
         }
 
         // Event handler only added for single selection
         private void OnParameterChanged(AutomationSequence sequence) {
-            this.Opacity = this.SingleSelection.Opacity;
+            this.opacity = this.SingleSelection.Opacity;
             this.OpacityChanged?.Invoke(this);
         }
     }

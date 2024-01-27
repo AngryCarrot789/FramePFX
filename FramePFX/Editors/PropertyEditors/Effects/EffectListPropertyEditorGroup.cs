@@ -3,15 +3,15 @@ using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Effects;
 using FramePFX.PropertyEditing;
 
-namespace FramePFX.Editors.PropertyEditors.AControls.Effects {
+namespace FramePFX.Editors.PropertyEditors.Effects {
     /// <summary>
     /// A group which manages a collection of effects
     /// </summary>
     public class EffectListPropertyEditorGroup : BasePropertyEditorGroup {
         public IHaveEffects EffectOwner { get; private set; }
 
-        public EffectListPropertyEditorGroup(Type applicableType) : base(typeof(BaseEffect)) {
-
+        public EffectListPropertyEditorGroup() : base(typeof(object)) {
+            this.DisplayName = "Effects";
         }
 
         /// <summary>

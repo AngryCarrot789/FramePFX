@@ -84,7 +84,7 @@ namespace FramePFX.Editors.Controls.Timelines {
             this.Dispatcher.InvokeAsync(() => {
                 Timeline timeline = this.Timeline;
                 if (timeline != null)
-                    VideoEditorPropertyEditor.Instance.ClipGroup.SetupHierarchyState(timeline.SelectedClips.ToList());
+                    VideoEditorPropertyEditor.Instance.UpdateClipSelection(timeline);
             }, DispatcherPriority.Background);
         }
 

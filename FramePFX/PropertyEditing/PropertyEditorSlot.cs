@@ -24,6 +24,7 @@ namespace FramePFX.PropertyEditing {
                 if (this.isSelected == value)
                     return;
                 this.isSelected = value;
+                BasePropertyEditor.UpdateSelection(this);
                 this.IsSelectedChanged?.Invoke(this);
             }
         }
@@ -59,6 +60,11 @@ namespace FramePFX.PropertyEditing {
 
         protected PropertyEditorSlot(Type applicableType) : base(applicableType) {
             this.Handlers = EmptyList;
+        }
+
+        protected override void OnPropertyEditorChanged(BasePropertyEditor oldEditor, BasePropertyEditor newEditor) {
+            base.OnPropertyEditorChanged(oldEditor, newEditor);
+            BasePropertyEditor.UpdateSelection(this);
         }
 
         /// <summary>
@@ -148,7 +154,7 @@ namespace FramePFX.PropertyEditing {
                 case ApplicabilityMode.All: {
                     // return sources.All(x => editor.IsApplicable(x));
                     for (int i = 0, c = input.Count; i < c; i++) {
-                        if (!slot.IsApplicable(input[i])) {
+                        if (!slot.IsObjectApplicable(input[i])) {
                             output = null;
                             return false;
                         }
@@ -159,7 +165,7 @@ namespace FramePFX.PropertyEditing {
                 }
                 case ApplicabilityMode.Any: {
                     for (int i = 0, c = input.Count; i < c; i++) {
-                        if (slot.IsApplicable(input[i])) {
+                        if (slot.IsObjectApplicable(input[i])) {
                             List<object> list = new List<object>();
                             do {
                                 list.Add(input[i++]);

@@ -1,6 +1,7 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using FramePFX.Editors.Controls.Binders;
 using FramePFX.Utils;
 
@@ -20,10 +21,12 @@ namespace FramePFX.PropertyEditing.Controls {
 
         public BasePropertyEditorGroup Model { get; private set; }
 
+        public PropertyEditorControl PropertyEditor { get; private set; }
+
         public Expander TheExpander { get; private set; }
 
         private readonly AutoPropertyUpdateBinder<BasePropertyEditorGroup> displayNameBinder = new AutoPropertyUpdateBinder<BasePropertyEditorGroup>(nameof(BasePropertyEditorGroup.DisplayNameChanged), UpdateControlDisplayName, null);
-        private readonly AutoPropertyUpdateBinder<BasePropertyEditorGroup> isVisibleBinder = new AutoPropertyUpdateBinder<BasePropertyEditorGroup>(nameof(BasePropertyEditorGroup.IsCurrentlyApplicableChanged), obj => ((PropertyEditorGroupControl) obj.Control).Visibility = (obj.Model.IsRoot || obj.Model.IsCurrentlyApplicable) ? Visibility.Visible : Visibility.Collapsed, null);
+        private readonly AutoPropertyUpdateBinder<BasePropertyEditorGroup> isVisibleBinder = new AutoPropertyUpdateBinder<BasePropertyEditorGroup>(nameof(BasePropertyEditorGroup.IsCurrentlyApplicableChanged), obj => ((PropertyEditorGroupControl) obj.Control).Visibility = (obj.Model.IsRoot || obj.Model.IsVisible) ? Visibility.Visible : Visibility.Collapsed, null);
         private readonly AutoPropertyUpdateBinder<BasePropertyEditorGroup> isExpandedBinder = new AutoPropertyUpdateBinder<BasePropertyEditorGroup>(nameof(BasePropertyEditorGroup.IsExpandedChanged), obj => ((PropertyEditorGroupControl) obj.Control).IsExpanded = obj.Model.IsExpanded, obj => obj.Model.IsExpanded = ((PropertyEditorGroupControl) obj.Control).IsExpanded);
 
         public PropertyEditorGroupControl() {
@@ -32,6 +35,15 @@ namespace FramePFX.PropertyEditing.Controls {
 
         static PropertyEditorGroupControl() {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(PropertyEditorGroupControl), new FrameworkPropertyMetadata(typeof(PropertyEditorGroupControl)));
+        }
+
+        protected override void OnMouseDown(MouseButtonEventArgs e) {
+            base.OnMouseDown(e);
+
+            if (!e.Handled && e.OriginalSource is PropertyEditorControlPanel) {
+                e.Handled = true;
+                this.PropertyEditor?.PropertyEditor?.ClearSelection();
+            }
         }
 
         public override void OnApplyTemplate() {
@@ -45,10 +57,14 @@ namespace FramePFX.PropertyEditing.Controls {
             }
         }
 
-        public void ConnectModel(BasePropertyEditorGroup group) {
+        public void ConnectModel(PropertyEditorControl propertyEditor, BasePropertyEditorGroup group) {
+            if (propertyEditor == null)
+                throw new ArgumentNullException(nameof(propertyEditor));
+            this.PropertyEditor = propertyEditor;
             this.Model = group;
             this.Model.ItemAdded += this.ModelOnItemAdded;
             this.Model.ItemRemoved += this.ModelOnItemRemoved;
+            this.Model.ItemMoved += ModelOnItemMoved;
             this.displayNameBinder.Attach(this, group);
             this.isVisibleBinder.Attach(this, group);
             this.isExpandedBinder.Attach(this, group);
@@ -69,6 +85,7 @@ namespace FramePFX.PropertyEditing.Controls {
             this.isExpandedBinder.Detatch();
             this.Model.ItemAdded -= this.ModelOnItemAdded;
             this.Model.ItemRemoved -= this.ModelOnItemRemoved;
+            this.Model.ItemMoved -= this.ModelOnItemMoved;
             this.Model = null;
         }
 
@@ -78,6 +95,10 @@ namespace FramePFX.PropertyEditing.Controls {
 
         private void ModelOnItemRemoved(BasePropertyEditorGroup @group, BasePropertyEditorObject item, int index) {
             this.Panel.RemoveItem(index);
+        }
+
+        private void ModelOnItemMoved(BasePropertyEditorGroup @group, BasePropertyEditorObject item, int oldindex, int newindex) {
+            this.Panel.MoveItem(oldindex, newindex);
         }
 
         private void GetTemplateChild<T>(string name, out T value) where T : DependencyObject {

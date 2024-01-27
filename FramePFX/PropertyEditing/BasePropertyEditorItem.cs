@@ -10,7 +10,7 @@ namespace FramePFX.PropertyEditing {
         private bool isCurrentlyApplicable;
 
         /// <summary>
-        /// Gets or sets if this item is applicable, meaning it is visible and interactable
+        /// Gets or sets if this item is applicable
         /// </summary>
         public bool IsCurrentlyApplicable {
             get => this.isCurrentlyApplicable;
@@ -23,13 +23,18 @@ namespace FramePFX.PropertyEditing {
         }
 
         /// <summary>
+        /// This item is visible in the UI. This returns <see cref="IsCurrentlyApplicable"/> by default, which is the default behaviour
+        /// </summary>
+        public virtual bool IsVisible => this.isCurrentlyApplicable;
+
+        /// <summary>
         /// The lowest applicable type. This will be null for the root group container. A valid group will contain a non-null applicable type
         /// </summary>
         public Type ApplicableType { get; }
 
         /// <summary>
-        /// The handler count mode for this object, which determines if this object is applicable for
-        /// a specific number of handlers
+        /// The handler count mode for this object, which determines if this object is
+        /// applicable for a specific number of handler objects. Defaults to Any
         /// </summary>
         public virtual HandlerCountMode HandlerCountMode => HandlerCountMode.Any;
 
@@ -44,7 +49,7 @@ namespace FramePFX.PropertyEditing {
         /// </summary>
         /// <param name="value">The handler</param>
         /// <returns>Handler is acceptable for this group</returns>
-        public bool IsApplicable(object value) => this.ApplicableType.IsInstanceOfType(value);
+        public bool IsObjectApplicable(object value) => this.ApplicableType.IsInstanceOfType(value);
 
         /// <summary>
         /// A helper function that determines if this object can accept a specific number of handler objects.

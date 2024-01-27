@@ -22,11 +22,17 @@ namespace FramePFX.Logger {
 
         public HeaderedLogEntry RootEntry => this.rootEntry;
 
+        public event LogEntryAddedEventHandler MessageLogged;
+
         public AppLogger() {
             this.rootEntry = new HeaderedLogEntry(DateTime.Now, 0, Environment.StackTrace, "<root>");
             this.cachedEntries = new List<(HeaderedLogEntry, LogEntry)>();
             this.headers = new ThreadLocal<Stack<HeaderedLogEntry>>(() => new Stack<HeaderedLogEntry>());
             this.driver = new RateLimitedExecutor(this.FlushEntries, TimeSpan.FromMilliseconds(50));
+
+            this.MessageLogged += (sender, entry) => {
+                Debug.WriteLine(entry.Content);
+            };
         }
 
         static AppLogger() {
@@ -132,6 +138,8 @@ namespace FramePFX.Logger {
                 else {
                     this.rootEntry.AddEntry(entry);
                 }
+
+                this.MessageLogged?.Invoke(parent, entry);
             }
         }
     }

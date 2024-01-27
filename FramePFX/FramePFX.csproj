@@ -85,7 +85,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Editors\PropertyEditors\AControls\Effects\MotionEffectMediaPosEditorControl.cs" />
+    <Compile Include="Editors\PropertyEditors\Effects\EffectListPropertyEditorGroup.cs" />
+    <Compile Include="Editors\PropertyEditors\Effects\EffectPropertyEditorGroup.cs" />
+    <Compile Include="Editors\PropertyEditors\Effects\Motion\MotionEffectPropertyEditorGroup.cs" />
+    <Compile Include="Editors\PropertyEditors\Effects\TODO\EffectListPropertyEditorGroup.cs" />
+    <Compile Include="Editors\PropertyEditors\Effects\TODO\EffectPropertyEditorGroup.cs" />
     <Compile Include="PropertyEditing\ApplicabilityMode.cs" />
+    <Compile Include="PropertyEditing\BasePropertyEditor.cs" />
     <Compile Include="PropertyEditing\BasePropertyEditorGroup.cs" />
     <Compile Include="PropertyEditing\BasePropertyEditorItem.cs" />
     <Compile Include="PropertyEditing\BasePropertyEditorObject.cs" />
@@ -94,7 +101,7 @@
     <Compile Include="PropertyEditing\Controls\PropertyEditorControlPanel.cs" />
     <Compile Include="PropertyEditing\Controls\PropertyEditorGroupControl.cs" />
     <Compile Include="PropertyEditing\Controls\PropertyEditorSlotControl.cs" />
-    <Compile Include="PropertyEditing\FixedPropertyEditorGroup.cs" />
+    <Compile Include="PropertyEditing\SimplePropertyEditorGroup.cs" />
     <Compile Include="PropertyEditing\HandlerCountMode.cs" />
     <Compile Include="PropertyEditing\PropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\VideoEditorPropertyEditor.cs" />

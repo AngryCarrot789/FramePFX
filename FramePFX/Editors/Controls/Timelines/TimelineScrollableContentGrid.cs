@@ -25,6 +25,7 @@ namespace FramePFX.Editors.Controls.Timelines {
                 this.TimelineControl.SetPlayHeadToMouseCursor(point.X, isClickSequence);
                 if (isClickSequence) {
                     this.TimelineControl.Timeline?.ClearClipSelection();
+                    this.TimelineControl.UpdatePropertyEditorClipSelection();
                 }
             }
         }

@@ -1,6 +1,7 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace FramePFX.PropertyEditing.Controls {
     /// <summary>
@@ -12,6 +13,8 @@ namespace FramePFX.PropertyEditing.Controls {
         /// </summary>
         public PropertyEditorGroupControl OwnerGroup { get; set; }
 
+        public PropertyEditorControl PropertyEditor => this.OwnerGroup?.PropertyEditor;
+
         public int Count => this.InternalChildren.Count;
 
         public PropertyEditorControlPanel() {
@@ -22,18 +25,22 @@ namespace FramePFX.PropertyEditing.Controls {
         }
 
         public void InsertItem(BasePropertyEditorObject item, int index) {
+            PropertyEditorControl editor = this.OwnerGroup?.PropertyEditor;
+            if (editor == null)
+                throw new InvalidOperationException("Cannot insert items while our owner group's editor is null");
+
             Control control;
-            if (item is FixedPropertyEditorGroup) {
+            if (item is BasePropertyEditorGroup) {
                 control = new PropertyEditorGroupControl();
                 this.InternalChildren.Insert(index, control);
                 control.ApplyTemplate();
-                ((PropertyEditorGroupControl) control).ConnectModel((FixedPropertyEditorGroup) item);
+                ((PropertyEditorGroupControl) control).ConnectModel(this.OwnerGroup.PropertyEditor, (BasePropertyEditorGroup) item);
             }
             else if (item is PropertyEditorSlot) {
                 control = new PropertyEditorSlotControl();
                 this.InternalChildren.Insert(index, control);
                 control.ApplyTemplate();
-                ((PropertyEditorSlotControl) control).ConnectModel((PropertyEditorSlot) item);
+                ((PropertyEditorSlotControl) control).ConnectModel(this.OwnerGroup, (PropertyEditorSlot) item);
             }
             else {
                 throw new InvalidOperationException("Invalid model: " + item);
@@ -50,6 +57,12 @@ namespace FramePFX.PropertyEditing.Controls {
             }
 
             this.InternalChildren.RemoveAt(index);
+        }
+
+        public void MoveItem(int oldIndex, int newIndex) {
+            UIElement control = this.InternalChildren[oldIndex];
+            this.InternalChildren.RemoveAt(oldIndex);
+            this.InternalChildren.Insert(newIndex, control);
         }
     }
 }

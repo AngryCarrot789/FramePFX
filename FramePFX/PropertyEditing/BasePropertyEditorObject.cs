@@ -1,3 +1,5 @@
+using System;
+
 namespace FramePFX.PropertyEditing {
     public delegate void PropertyEditorObjectEventHandler(BasePropertyEditorObject sender);
 
@@ -10,15 +12,41 @@ namespace FramePFX.PropertyEditing {
         /// </summary>
         public BasePropertyEditorGroup Parent { get; private set; }
 
+        public BasePropertyEditor PropertyEditor { get; private set; }
+
         protected BasePropertyEditorObject() {
+
         }
 
-        public static void OnAddedToGroup(BasePropertyEditorObject propObj, BasePropertyEditorGroup parent) {
+        /// <summary>
+        /// Called when this object is added or removed from a group whose property editor is different.
+        /// This method is called for an entire object hierarchy; the children of a group's children
+        /// </summary>
+        /// <param name="oldEditor">The previous editor</param>
+        /// <param name="newEditor">The new editor</param>
+        protected virtual void OnPropertyEditorChanged(BasePropertyEditor oldEditor, BasePropertyEditor newEditor) {
+        }
+
+        protected static void OnAddedToGroup(BasePropertyEditorObject propObj, BasePropertyEditorGroup parent) {
+            if (propObj.Parent == parent)
+                throw new InvalidOperationException("Object already added to this parent");
             propObj.Parent = parent;
+            SetPropertyEditor(propObj, parent?.PropertyEditor);
         }
 
-        public static void OnRemovedFromGroup(BasePropertyEditorObject propObj, BasePropertyEditorGroup parent) {
+        protected static void OnRemovedFromGroup(BasePropertyEditorObject propObj, BasePropertyEditorGroup parent) {
+            if (propObj.Parent == null)
+                throw new InvalidOperationException("Object does not exist in a parent");
             propObj.Parent = null;
+            SetPropertyEditor(propObj, null);
+        }
+
+        internal static void SetPropertyEditor(BasePropertyEditorObject obj, BasePropertyEditor newEditor) {
+            BasePropertyEditor oldEditor = obj.PropertyEditor;
+            if (oldEditor != newEditor) {
+                obj.PropertyEditor = newEditor;
+                obj.OnPropertyEditorChanged(oldEditor, newEditor);
+            }
         }
     }
 }

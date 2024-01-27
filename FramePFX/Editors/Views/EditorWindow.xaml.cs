@@ -30,7 +30,7 @@ namespace FramePFX.Editors.Views {
 
         private void EditorWindow_Loaded(object sender, RoutedEventArgs e) {
             this.ThePropertyEditor.ApplyTemplate();
-            this.ThePropertyEditor.RootGroup = VideoEditorPropertyEditor.Instance.Root;
+            this.ThePropertyEditor.PropertyEditor = VideoEditorPropertyEditor.Instance;
             if (this.ViewPortElement.BeginRender(out SKSurface surface)) {
                 using (SKPaint paint = new SKPaint() { Color = SKColors.Black }) {
                     surface.Canvas.DrawRect(0, 0, 1280, 720, paint);

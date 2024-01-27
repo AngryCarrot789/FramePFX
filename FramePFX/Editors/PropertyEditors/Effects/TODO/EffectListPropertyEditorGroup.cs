@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using FramePFX.AdvancedContextService.NCSP;
 using FramePFX.Editors.Timelines;
 using FramePFX.PropertyEditing;
-using FramePFX.Utils;
 
-namespace FramePFX.Editors.PropertyEditors.Effects {
+namespace FramePFX.Editors.PropertyEditors.Effects.TODO {
     /// <summary>
     /// A property editor group that contains dynamically created <see cref="EffectPropertyEditorGroup"/> objects (that
     /// represent the effects themselves) based on an input list of objects that can have effects applied (e.g. clips or tracks)

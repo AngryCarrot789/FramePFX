@@ -4,11 +4,13 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using FramePFX.Editors.PropertyEditors.AControls.Clips;
+using FramePFX.Editors.PropertyEditors.AControls.Effects;
 using FramePFX.Editors.PropertyEditors.Clips;
+using FramePFX.Editors.PropertyEditors.Effects.Motion;
 
 namespace FramePFX.PropertyEditing.Controls {
     public abstract class BasePropEditControlContent : Control {
-        private static readonly Dictionary<Type, Func<BasePropEditControlContent>> Constructors = new Dictionary<Type, Func<BasePropEditControlContent>>();
+        private static readonly Dictionary<Type, Func<BasePropEditControlContent>> Constructors;
 
         public PropertyEditorSlotControl Slot { get; private set; }
 
@@ -20,6 +22,7 @@ namespace FramePFX.PropertyEditing.Controls {
             Constructors = new Dictionary<Type, Func<BasePropEditControlContent>>();
             RegisterType(typeof(VideoClipOpacityPropertyEditorSlot), () => new VideoClipOpacityPropertyEditorControl());
             RegisterType(typeof(ClipDisplayNamePropertyEditorSlot), () => new ClipDisplayNamePropertyEditorControl());
+            RegisterType(typeof(MotionEffectMediaPosPropertyEditorSlot), () => new MotionEffectMediaPosEditorControl());
         }
 
         public static void RegisterType<T>(Type trackType, Func<T> func) where T : BasePropEditControlContent {

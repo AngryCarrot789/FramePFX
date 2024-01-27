@@ -1,18 +1,26 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using FramePFX.Utils;
 
 namespace FramePFX.PropertyEditing {
     public delegate void BasePropertyEditorGroupChildEventHandler(BasePropertyEditorGroup group, BasePropertyEditorObject item, int index);
+    public delegate void BasePropertyEditorGroupChildMovedEventHandler(BasePropertyEditorGroup group, BasePropertyEditorObject item, int oldIndex, int newIndex);
     public delegate void BasePropertyEditorGroupEventHandler(BasePropertyEditorGroup group);
 
     public abstract class BasePropertyEditorGroup : BasePropertyEditorItem {
         private readonly List<BasePropertyEditorObject> propObjs;
         private string displayName;
-        private bool isExpanded;
+        private bool isExpanded = true; // expand by default
 
+        /// <summary>
+        /// Gets a read-only collection that contains all of our child <see cref="BasePropertyEditorObject"/> objects
+        /// </summary>
         public ReadOnlyCollection<BasePropertyEditorObject> PropertyObjects { get; }
 
+        /// <summary>
+        /// Gets or sets this group's display name
+        /// </summary>
         public string DisplayName {
             get => this.displayName;
             set {
@@ -24,7 +32,7 @@ namespace FramePFX.PropertyEditing {
         }
 
         /// <summary>
-        /// Gets or sets if this
+        /// Gets or sets if this group is expanded or not
         /// </summary>
         public bool IsExpanded {
             get => this.isExpanded;
@@ -38,16 +46,22 @@ namespace FramePFX.PropertyEditing {
 
         public bool IsRoot => this.Parent == null;
 
-        public virtual bool IsVisibleWhenNotApplicable => false;
-
         public event BasePropertyEditorGroupChildEventHandler ItemAdded;
         public event BasePropertyEditorGroupChildEventHandler ItemRemoved;
+        public event BasePropertyEditorGroupChildMovedEventHandler ItemMoved;
         public event BasePropertyEditorGroupEventHandler DisplayNameChanged;
         public event BasePropertyEditorGroupEventHandler IsExpandedChanged;
 
         public BasePropertyEditorGroup(Type applicableType) : base(applicableType) {
             this.propObjs = new List<BasePropertyEditorObject>();
             this.PropertyObjects = this.propObjs.AsReadOnly();
+        }
+
+        protected override void OnPropertyEditorChanged(BasePropertyEditor oldEditor, BasePropertyEditor newEditor) {
+            base.OnPropertyEditorChanged(oldEditor, newEditor);
+            foreach (BasePropertyEditorObject obj in this.propObjs) {
+                SetPropertyEditor(obj, newEditor);
+            }
         }
 
         public void ExpandHierarchy() {
@@ -72,6 +86,10 @@ namespace FramePFX.PropertyEditing {
         public void AddItem(BasePropertyEditorObject propObj) => this.InsertItem(this.propObjs.Count, propObj);
 
         public void InsertItem(int index, BasePropertyEditorObject propObj) {
+            if (propObj == null)
+                throw new ArgumentNullException(nameof(propObj));
+            if (!this.IsPropertyEditorObjectAcceptable(propObj))
+                throw new ArgumentException("The specific property editor object is not allowed: " + propObj);
             this.propObjs.Insert(index, propObj);
             OnAddedToGroup(propObj, this);
             this.ItemAdded?.Invoke(this, propObj, index);
@@ -92,6 +110,17 @@ namespace FramePFX.PropertyEditing {
             this.ItemRemoved?.Invoke(this, propObj, index);
         }
 
-        public abstract void ClearHierarchyState();
+        public void MoveItem(int oldIndex, int newIndex) {
+            BasePropertyEditorObject propObj = this.propObjs[oldIndex];
+            this.propObjs.MoveItem(oldIndex, newIndex);
+            this.ItemMoved?.Invoke(this, propObj, oldIndex, newIndex);
+        }
+
+        /// <summary>
+        /// Used to determine if calling <see cref="InsertItem"/> or <see cref="AddItem"/> with the given object is allowed or not
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public abstract bool IsPropertyEditorObjectAcceptable(BasePropertyEditorObject obj);
     }
 }

@@ -1,8 +1,5 @@
-using System;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using FramePFX.Editors.Rendering;
-using SkiaSharp;
 
 namespace FramePFX.Editors.Timelines.Effects {
     public class PixilateEffect : VideoEffect {

@@ -11,6 +11,8 @@ namespace FramePFX.Editors.Automation.Params {
     /// A class that stores information about a registered parameter for a specific type of automatable object
     /// </summary>
     public abstract class Parameter : IEquatable<Parameter> {
+        public static readonly ParameterKey Empty = default;
+
         private static readonly Dictionary<ParameterKey, Parameter> RegistryMap;
         private static readonly Dictionary<Type, List<Parameter>> TypeToParametersMap;
 
@@ -108,6 +110,8 @@ namespace FramePFX.Editors.Automation.Params {
 
         public abstract object GetObjectValue(IAutomatable automatable);
 
+        public abstract object GetObjectValue(long frame, AutomationSequence sequence);
+
         public KeyFrame CreateKeyFrame(long frame = 0L) => KeyFrame.CreateDefault(this, frame);
 
         #region Registering parameters
@@ -176,6 +180,11 @@ namespace FramePFX.Editors.Automation.Params {
         }
 
         public static bool TryGetParameterByKey(ParameterKey key, out Parameter parameter) {
+            if (key.IsEmpty) {
+                parameter = null;
+                return false;
+            }
+
             while (Interlocked.CompareExchange(ref RegistrationFlag, 2, 0) != 0)
                 Thread.Sleep(1);
 
@@ -244,6 +253,8 @@ namespace FramePFX.Editors.Automation.Params {
         public float GetEffectiveValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
 
         public override object GetObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
+
+        public override object GetObjectValue(long frame, AutomationSequence sequence) => sequence.GetFloatValue(frame);
     }
 
     public sealed class ParameterDouble : Parameter {
@@ -265,6 +276,8 @@ namespace FramePFX.Editors.Automation.Params {
         public double GetEffectiveValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
 
         public override object GetObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
+
+        public override object GetObjectValue(long frame, AutomationSequence sequence) => sequence.GetDoubleValue(frame);
     }
 
     public sealed class ParameterLong : Parameter {
@@ -286,6 +299,8 @@ namespace FramePFX.Editors.Automation.Params {
         public long GetEffectiveValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
 
         public override object GetObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
+
+        public override object GetObjectValue(long frame, AutomationSequence sequence) => sequence.GetLongValue(frame);
     }
 
     public sealed class ParameterBoolean : Parameter {
@@ -307,5 +322,7 @@ namespace FramePFX.Editors.Automation.Params {
         public bool GetEffectiveValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
 
         public override object GetObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
+
+        public override object GetObjectValue(long frame, AutomationSequence sequence) => sequence.GetBooleanValue(frame);
     }
 }

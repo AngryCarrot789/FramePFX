@@ -36,17 +36,8 @@ namespace FramePFX.Editors.Controls.Binders {
             this.UpdateModel?.Invoke();
         }
 
-        [SwitchAutomationDataType]
         protected override void UpdateControlCore() {
-            object value;
-            switch (this.Parameter.DataType) {
-                case AutomationDataType.Float: value = ((ParameterFloat) this.Parameter).GetEffectiveValue(this.Model); break;
-                case AutomationDataType.Double: value = ((ParameterDouble) this.Parameter).GetEffectiveValue(this.Model); break;
-                case AutomationDataType.Long: value = ((ParameterLong) this.Parameter).GetEffectiveValue(this.Model); break;
-                case AutomationDataType.Boolean: value = ((ParameterBoolean) this.Parameter).GetEffectiveValue(this.Model); break;
-                default: throw new ArgumentOutOfRangeException();
-            }
-
+            object value = this.Parameter.GetObjectValue(this.Model);
             this.Control.SetValue(this.Property, value);
         }
     }

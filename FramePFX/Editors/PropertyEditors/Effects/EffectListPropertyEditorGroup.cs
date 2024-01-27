@@ -1,4 +1,3 @@
-using System;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Effects;
 using FramePFX.PropertyEditing;

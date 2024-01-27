@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
-using FramePFX.Utils;
 
 namespace FramePFX.Editors.Controls {
     public class SpacedStackPanel : Panel {

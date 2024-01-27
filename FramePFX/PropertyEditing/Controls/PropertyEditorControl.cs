@@ -1,8 +1,6 @@
 using System;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 
 namespace FramePFX.PropertyEditing.Controls {
     public class PropertyEditorControl : Control {

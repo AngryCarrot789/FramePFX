@@ -42,6 +42,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
         private bool isCanvasClear;
         private VideoClip theClipToRender;
         private List<VideoEffect> theEffectsToApplyToClip;
+        private double renderOpacity;
 
         public VideoTrack() {
             this.Opacity = OpacityParameter.Descriptor.DefaultValue;
@@ -66,6 +67,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
 
                     this.theClipToRender = clip;
                     this.theEffectsToApplyToClip = effects;
+                    this.renderOpacity = this.Opacity;
                     return true;
                 }
             }
@@ -127,7 +129,10 @@ namespace FramePFX.Editors.Timelines.Tracks {
 
         public void DrawFrameIntoSurface(SKSurface dstSurface) {
             if (this.surface != null) {
-                this.surface.Draw(dstSurface.Canvas, 0, 0, null);
+                byte trackOpacityByte = RenderUtils.DoubleToByte255(this.renderOpacity);
+                using (SKPaint paint = new SKPaint {Color = new SKColor(255, 255, 255, trackOpacityByte)}) {
+                    this.surface.Draw(dstSurface.Canvas, 0, 0, paint);
+                }
             }
         }
 

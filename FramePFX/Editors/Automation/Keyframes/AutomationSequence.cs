@@ -400,9 +400,11 @@ namespace FramePFX.Editors.Automation.Keyframes {
         public KeyFrame GetOrCreateKeyFrameAtFrame(long frame, out int index, bool assignCurrentValue = false) {
             KeyFrame keyFrame;
             if ((index = this.GetLastFrameExactlyAt(frame)) == -1) {
+                // object value = assignCurrentValue ? this.GetObjectValue(frame, true) : null;
+                object value = assignCurrentValue ? this.Parameter.GetObjectValue(frame, this) : null;
                 index = this.AddNewKeyFrame(frame, out keyFrame);
                 if (assignCurrentValue) {
-                    keyFrame.AssignCurrentValue(frame, this, true);
+                    keyFrame.SetValueFromObject(value);
                 }
             }
             else {
@@ -487,11 +489,10 @@ namespace FramePFX.Editors.Automation.Keyframes {
 
         public static void UpdateAutomation(AutomationSequence sequence) {
             // TODO: this feels really bad...
-
             IAutomatable owner = sequence.AutomationData.Owner;
             Timeline timeline = owner.Timeline;
             if (timeline == null) {
-                throw new Exception("Automation data owner's timeline was null");
+                return;
             }
 
             long frame = timeline.PlayHeadPosition;

@@ -42,14 +42,14 @@ namespace FramePFX.PropertyEditing {
         public bool IsEmpty => this.Handlers.Count < 1;
 
         /// <summary>
-        /// Whether or not this editor has more than 1 active handlers
-        /// </summary>
-        public bool IsMultiSelection => this.Handlers.Count > 1;
-
-        /// <summary>
         /// Whether or not this editor has only 1 active handler
         /// </summary>
         public bool IsSingleHandler => this.Handlers.Count == 1;
+
+        /// <summary>
+        /// Whether or not this editor has more than 1 active handlers
+        /// </summary>
+        public bool IsMultiHandler => this.Handlers.Count > 1;
 
         /// <summary>
         /// A mode which helps determine if this editor can be used based on the input handler list

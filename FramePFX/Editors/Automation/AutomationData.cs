@@ -5,8 +5,6 @@ using FramePFX.Editors.Automation.Params;
 using FramePFX.RBC;
 
 namespace FramePFX.Editors.Automation {
-    public delegate void ActiveParameterChangedEventHandler(AutomationData data, ParameterKey oldKey, ParameterKey newKey);
-
     /// <summary>
     /// Contains a collection of <see cref="AutomationSequence"/> objects mapped by an <see cref="Parameter"/>. This
     /// class is designed to be immutable; it is typically created in the constructor of an <see cref="IAutomatable"/>
@@ -15,7 +13,6 @@ namespace FramePFX.Editors.Automation {
     public class AutomationData {
         private static readonly Comparer<Parameter> AutomationParameterComparer = Comparer<Parameter>.Create((a, b) => a.GlobalIndex.CompareTo(b.GlobalIndex));
         private readonly SortedList<Parameter, AutomationSequence> sequences;
-        private ParameterKey activeParameter;
 
         /// <summary>
         /// Returns a read-only list of our sequences. Sequences are lazily created to save memory
@@ -56,26 +53,12 @@ namespace FramePFX.Editors.Automation {
         /// that maps to a parameter that is incompatible with this automation data
         /// </para>
         /// </summary>
-        public ParameterKey ActiveParameter {
-            get => this.activeParameter;
-            set {
-                ParameterKey oldKey = this.activeParameter;
-                if (oldKey.Equals(value))
-                    return;
-                this.activeParameter = value;
-                this.ActiveParameterChanged?.Invoke(this, oldKey, value);
-            }
-        }
+        public ParameterKey ActiveParameter { get; set; }
 
         /// <summary>
         /// An event fired when a sequence updates a value of its automation data owner. This event is fired after all handler to <see cref="AutomationSequence.ParameterChanged"/> have been invoked; this method is a general handler for all parameter value changes
         /// </summary>
         public event ParameterChangedEventHandler ParameterValueChanged;
-
-        /// <summary>
-        /// An event fired when our <see cref="ActiveParameter"/> property changes
-        /// </summary>
-        public event ActiveParameterChangedEventHandler ActiveParameterChanged;
 
         public AutomationData(IAutomatable owner) {
             this.Owner = owner ?? throw new ArgumentNullException(nameof(owner));

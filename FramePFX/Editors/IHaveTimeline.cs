@@ -1,5 +1,4 @@
 using FramePFX.Editors.Timelines;
-using OpenTK.Graphics.ES11;
 
 namespace FramePFX.Editors {
     public delegate void TimelineChangedEventHandler(IHaveTimeline sender, Timeline oldTimeline, Timeline newTimeline);

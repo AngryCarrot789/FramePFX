@@ -1,9 +1,11 @@
 using System;
 using System.Numerics;
+using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.Resources;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines.Effects;
 using FramePFX.Editors.Timelines.Tracks;
 using SkiaSharp;
 
@@ -51,28 +53,43 @@ namespace FramePFX.Editors {
             ulong id_w = manager.RegisterEntry(folder.AddItemAndRet(new ResourceColour(220, 220, 220) {DisplayName = "white colour"}));
             ulong id_d = manager.RegisterEntry(folder.AddItemAndRet(new ResourceColour(50, 100, 220) {DisplayName = "idek"}));
 
+            VideoClipShape CreateShapeAt(Vector2 pos, Vector2 size, FrameSpan span, string name) {
+                VideoClipShape shape = new VideoClipShape() {
+                    FrameSpan = span
+                };
+                MotionEffect motion = new MotionEffect();
+                ((KeyFrameFloat) motion.AutomationData[MotionEffect.MediaPositionXParameter].DefaultKeyFrame).Value = pos.X;
+                ((KeyFrameFloat) motion.AutomationData[MotionEffect.MediaPositionYParameter].DefaultKeyFrame).Value = pos.Y;
+                shape.AddEffect(motion);
+
+                shape.RectSize = size;
+                shape.DisplayName = name;
+                motion.AutomationData.UpdateBackingStorage();
+                shape.AutomationData.UpdateBackingStorage();
+                return shape;
+            }
 
             {
                 Track track = new VideoTrack() {DisplayName = "Vid Track 1"};
-                track.AddClip(new VideoClipShape() { PointDemoHelper = new Vector2(150, 150), FrameSpan = new FrameSpan(0, 100), DisplayName = "Clip 1"});
-                track.AddClip(new VideoClipShape() { PointDemoHelper = new Vector2(300, 150), FrameSpan = new FrameSpan(150, 100), DisplayName = "Clip 2"});
-                track.AddClip(new VideoClipShape() { PointDemoHelper = new Vector2(450, 150), FrameSpan = new FrameSpan(300, 250), DisplayName = "Clip 3"});
+                track.AddClip(CreateShapeAt(new Vector2(150, 150), new Vector2(100, 30), new FrameSpan(0, 100), "Clip 1"));
+                track.AddClip(CreateShapeAt(new Vector2(300, 150), new Vector2(100, 30), new FrameSpan(150, 100), "Clip 2"));
+                track.AddClip(CreateShapeAt(new Vector2(450, 150), new Vector2(100, 30), new FrameSpan(300, 250), "Clip 3"));
                 project.MainTimeline.AddTrack(track);
             }
 
             {
                 Track track = new VideoTrack() {DisplayName = "Vid Track 2"};
-                track.AddClip(new VideoClipShape() { PointDemoHelper = new Vector2(150, 300), FrameSpan = new FrameSpan(100, 50), DisplayName = "Clip 4"});
-                track.AddClip(new VideoClipShape() { PointDemoHelper = new Vector2(300, 300), FrameSpan = new FrameSpan(150, 200), DisplayName = "Clip 5"});
-                track.AddClip(new VideoClipShape() { PointDemoHelper = new Vector2(450, 300), FrameSpan = new FrameSpan(500, 125), DisplayName = "Clip 6"});
+                track.AddClip(CreateShapeAt(new Vector2(150, 300), new Vector2(100, 30), new FrameSpan(100, 50), "Clip 4"));
+                track.AddClip(CreateShapeAt(new Vector2(300, 300), new Vector2(100, 30), new FrameSpan(150, 200), "Clip 5"));
+                track.AddClip(CreateShapeAt(new Vector2(450, 300), new Vector2(100, 30), new FrameSpan(500, 125), "Clip 6"));
                 project.MainTimeline.AddTrack(track);
             }
 
             {
                 Track track = new VideoTrack() {DisplayName = "Vid Track 3!!"};
-                track.AddClip(new VideoClipShape() { PointDemoHelper = new Vector2(150, 450), FrameSpan = new FrameSpan(20, 80), DisplayName = "Clip 7"});
-                track.AddClip(new VideoClipShape() { PointDemoHelper = new Vector2(300, 450), FrameSpan = new FrameSpan(150, 100), DisplayName = "Clip 8"});
-                track.AddClip(new VideoClipShape() { PointDemoHelper = new Vector2(450, 450), FrameSpan = new FrameSpan(350, 200), DisplayName = "Clip 9"});
+                track.AddClip(CreateShapeAt(new Vector2(150, 450), new Vector2(100, 30), new FrameSpan(20, 80), "Clip 7"));
+                track.AddClip(CreateShapeAt(new Vector2(300, 450), new Vector2(100, 30), new FrameSpan(150, 100), "Clip 8"));
+                track.AddClip(CreateShapeAt(new Vector2(450, 450), new Vector2(100, 30), new FrameSpan(350, 200), "Clip 9"));
                 project.MainTimeline.AddTrack(track);
             }
 
@@ -90,7 +107,6 @@ namespace FramePFX.Editors {
 
             ProjectSettings settings = project.Settings;
             project.RenderManager.UpdateFrameInfo(new SKImageInfo(settings.Width, settings.Height, SKColorType.Bgra8888));
-
             project.RenderManager.InvalidateRender();
         }
 

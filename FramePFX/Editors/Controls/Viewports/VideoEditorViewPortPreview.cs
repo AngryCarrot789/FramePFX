@@ -1,8 +1,14 @@
-﻿using System.Windows;
+﻿using System;
+using System.Linq;
+using System.Windows;
 using System.Windows.Media;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines;
+using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines.Tracks;
+using FramePFX.Editors.Utils;
 using SkiaSharp;
+using Vector2 = System.Numerics.Vector2;
 
 namespace FramePFX.Editors.Controls.Viewports {
     /// <summary>
@@ -76,20 +82,18 @@ namespace FramePFX.Editors.Controls.Viewports {
 
         protected override void OnRender(DrawingContext dc) {
             base.OnRender(dc);
-            // if (this.Timeline is Timeline timeline) {
-            //     foreach (Track track in timeline.Tracks) {
-            //         foreach (Clip clip in track.GetSelectedClipsAtFrame(timeline.PlayHeadPosition)) {
-            //             if (!(clip is VideoClip) || !(((VideoClip)clip.Model).GetFrameSize() is Vector2 frameSize)) {
-            //                 continue;
-            //             }
-            //
-            //             SKRect rect = ((VideoClip)clip.Model).TransformationMatrix.MapRect(frameSize.ToRectAsSize(0, 0));
-            //             Point pos = new Point(Math.Floor(rect.Left) - half_thickness, Math.Floor(rect.Top) - half_thickness);
-            //             Size size = new Size(Math.Ceiling(rect.Width) + thickness, Math.Ceiling(rect.Height) + thickness);
-            //             dc.DrawRectangle(null, this.OutlinePen, new Rect(pos, size));
-            //         }
-            //     }
-            // }
+            if (this.VideoEditor?.Project?.MainTimeline is Timeline timeline) {
+                foreach (Track track in timeline.Tracks) {
+                    foreach (Clip clip in track.GetClipsAtFrame(timeline.PlayHeadPosition).Where(x => x.IsSelected)) {
+                        if (clip is VideoClip videoClip && videoClip.GetRenderSize() is Vector2 frameSize) {
+                            SKRect rect = videoClip.TransformationMatrix.MapRect(frameSize.ToSkiaAsSize(0, 0));
+                            Point pos = new Point(Math.Floor(rect.Left) - half_thickness, Math.Floor(rect.Top) - half_thickness);
+                            Size size = new Size(Math.Ceiling(rect.Width) + thickness, Math.Ceiling(rect.Height) + thickness);
+                            dc.DrawRectangle(null, this.OutlinePen, new Rect(pos, size));
+                        }
+                    }
+                }
+            }
         }
     }
 }

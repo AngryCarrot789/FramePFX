@@ -39,8 +39,7 @@ namespace FramePFX.Editors.Controls.Automation {
                 return false;
             }
             else {
-                keyFrame = sequence.GetOrCreateKeyFrameAtFrame(frame, out _);
-                keyFrame.AssignCurrentValue(frame, sequence);
+                keyFrame = sequence.GetOrCreateKeyFrameAtFrame(frame, out _, true);
                 return true;
             }
         }

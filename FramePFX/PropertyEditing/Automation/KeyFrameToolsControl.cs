@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -11,7 +10,6 @@ using FramePFX.Editors.Controls.Automation;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Effects;
-using Track = FramePFX.Editors.Timelines.Tracks.Track;
 
 namespace FramePFX.PropertyEditing.Automation {
     /// <summary>
@@ -87,7 +85,6 @@ namespace FramePFX.PropertyEditing.Automation {
             KeyFrameToolsControl control = (KeyFrameToolsControl) d;
             if (e.OldValue is AutomationSequence oldSequence) {
                 oldSequence.OverrideStateChanged -= control.OnOverrideStateChanged;
-                oldSequence.AutomationData.ActiveParameterChanged -= control.OnActiveParameterChanged;
 
                 control.strictFrameRange = null;
                 IAutomatable oldOwner = oldSequence.AutomationData.Owner;
@@ -98,7 +95,6 @@ namespace FramePFX.PropertyEditing.Automation {
 
             if (e.NewValue is AutomationSequence newSequence) {
                 newSequence.OverrideStateChanged += control.OnOverrideStateChanged;
-                newSequence.AutomationData.ActiveParameterChanged += control.OnActiveParameterChanged;
 
                 IAutomatable newOwner = newSequence.AutomationData.Owner;
                 control.strictFrameRange = newOwner as IStrictFrameRange;
@@ -149,10 +145,6 @@ namespace FramePFX.PropertyEditing.Automation {
             if (this.isUpdatingToggleOverride)
                 return;
             this.PART_ToggleOverride.IsChecked = sequence.IsOverrideEnabled;
-        }
-
-        private void OnActiveParameterChanged(AutomationData data, ParameterKey oldkey, ParameterKey newkey) {
-
         }
     }
 }

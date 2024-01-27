@@ -3,10 +3,14 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using FramePFX.Editors.Automation;
+using FramePFX.Editors.Automation.Keyframes;
+using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Controls.Automation;
 using FramePFX.Editors.Controls.Binders;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines.Effects;
 using FramePFX.Utils;
 using Timeline = FramePFX.Editors.Timelines.Timeline;
 
@@ -135,10 +139,13 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             this.displayNameBinder.Attach(this, this.Model);
             this.frameSpanBinder.Attach(this, this.Model);
             this.isSelectedBinder.Attach(this, this.Model);
+            this.Model.ActiveSequenceChanged += this.ClipActiveSequenceChanged;
             if (this.AutomationEditor is AutomationSequenceEditor editor) {
                 editor.FrameDuration = this.frameDuration;
                 editor.Sequence = this.Model.AutomationData[VideoClip.OpacityParameter];
             }
+
+            this.Model.AutomationData.ActiveParameter = VideoClip.OpacityParameter.Key;
         }
 
         public void OnRemoving() {
@@ -146,6 +153,13 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             this.frameSpanBinder.Detatch();
             this.isSelectedBinder.Detatch();
             this.AutomationEditor.Sequence = null;
+            this.Model.ActiveSequenceChanged -= this.ClipActiveSequenceChanged;
+        }
+
+        private void ClipActiveSequenceChanged(Clip clip, AutomationSequence oldsequence, AutomationSequence newsequence) {
+            if (this.AutomationEditor is AutomationSequenceEditor editor) {
+                editor.Sequence = newsequence;
+            }
         }
 
         public void OnRemoved() {

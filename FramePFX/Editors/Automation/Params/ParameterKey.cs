@@ -56,7 +56,7 @@ namespace FramePFX.Editors.Automation.Params {
         }
 
         public override int GetHashCode() {
-            return unchecked((this.Domain.GetHashCode() * 397) ^ this.Name.GetHashCode());
+            return this.IsEmpty ? 0 : unchecked((this.Domain.GetHashCode() * 397) ^ this.Name.GetHashCode());
         }
     }
 }

@@ -85,16 +85,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Editors\PropertyEditors\AControls\Standard\AutomatedDoublePropertyEditorControl.cs" />
-    <Compile Include="Editors\PropertyEditors\AControls\Standard\AutomatedFloatPropertyEditorControl.cs" />
+    <Compile Include="PropertyEditing\Controls\Standard\ParameterDoublePropertyEditorControl.cs" />
+    <Compile Include="PropertyEditing\Controls\Standard\ParameterFloatPropertyEditorControl.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\EffectListPropertyEditorGroup.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\EffectPropertyEditorGroup.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\Motion\MotionEffectPropertyEditorGroup.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\TODO\EffectListPropertyEditorGroup.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\TODO\EffectPropertyEditorGroup.cs" />
-    <Compile Include="Editors\PropertyEditors\Standard\AutomatedDoublePropertyEditorSlot.cs" />
-    <Compile Include="Editors\PropertyEditors\Standard\AutomatedFloatPropertyEditorSlot.cs" />
-    <Compile Include="Editors\PropertyEditors\Standard\DragStepProfile.cs" />
+    <Compile Include="PropertyEditing\Controls\Standard\ParameterPropertyEditorControl.cs" />
+    <Compile Include="PropertyEditing\Standard\ParameterDoublePropertyEditorSlot.cs" />
+    <Compile Include="PropertyEditing\Standard\ParameterFloatPropertyEditorSlot.cs" />
+    <Compile Include="PropertyEditing\Standard\ParameterPropertyEditorSlot.cs" />
+    <Compile Include="PropertyEditing\Standard\DragStepProfile.cs" />
     <Compile Include="PropertyEditing\ApplicabilityMode.cs" />
     <Compile Include="PropertyEditing\Automation\KeyFrameToolsControl.cs" />
     <Compile Include="PropertyEditing\BasePropertyEditor.cs" />
@@ -524,16 +526,11 @@
     <Compile Include="Editors\Factories\TrackFactory.cs" />
     <Compile Include="Editors\IHaveProject.cs" />
     <Compile Include="Editors\IHaveTimeline.cs" />
-    <Compile Include="Editors\Media_OLD\Images\ImageMediaSource.cs" />
-    <Compile Include="Editors\Media_OLD\Images\ImageMediaSourceTrack.cs" />
-    <Compile Include="Editors\Media_OLD\MediaSource.cs" />
-    <Compile Include="Editors\Media_OLD\MediaSourceTrack.cs" />
-    <Compile Include="Editors\Media_OLD\VideoMediaSourceTrack.cs" />
     <Compile Include="Editors\PlaybackManager.cs" />
     <Compile Include="Editors\PlayState.cs" />
     <Compile Include="Editors\Project.cs" />
     <Compile Include="Editors\ProjectSettings.cs" />
-    <Compile Include="Editors\PropertyEditors\AControls\Clips\ClipDisplayNamePropertyEditorControl.cs" />
+    <Compile Include="Editors\PropertyEditors\ClipDisplayNamePropertyEditorControl.cs" />
     <Compile Include="Editors\PropertyEditors\Clips\ClipDisplayNamePropertyEditorSlot.cs" />
     <Compile Include="Editors\Rendering\PreRenderContext.cs" />
     <Compile Include="Editors\Rendering\RenderContext.cs" />
@@ -714,12 +711,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Editors\PropertyEditors\AControls\Effects" />
+    <Folder Include="Editors\PropertyEditors\AControls\Clips\" />
     <Folder Include="Editors\PropertyEditors\AControls\Effects\" />
+    <Folder Include="Editors\PropertyEditors\AControls\Standard\" />
     <Folder Include="Editors\PropertyEditors\AControls\Tracks\" />
-    <Folder Include="Editors\PropertyEditors\Effects\" />
-    <Folder Include="Editors\PropertyEditors\Tracks\" />
-    <Folder Include="PropertyEditing\Specialized\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\SkiaSharp.NativeAssets.macOS.2.88.7\build\net462\SkiaSharp.NativeAssets.macOS.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.macOS.2.88.7\build\net462\SkiaSharp.NativeAssets.macOS.targets')" />

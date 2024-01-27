@@ -2,10 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using FramePFX.Editors.PropertyEditors.Clips;
 using FramePFX.Editors.PropertyEditors.Effects;
-using FramePFX.Editors.PropertyEditors.Standard;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
-using FramePFX.Editors.Timelines.Effects;
+using FramePFX.PropertyEditing.Standard;
 
 namespace FramePFX.PropertyEditing {
     /// <summary>
@@ -25,7 +24,7 @@ namespace FramePFX.PropertyEditing {
                 };
 
                 this.ClipGroup.AddItem(new ClipDisplayNamePropertyEditorSlot());
-                this.ClipGroup.AddItem(new AutomatedDoublePropertyEditorSlot(VideoClip.OpacityParameter, typeof(VideoClip), "Opacity", DragStepProfile.UnitOne));
+                this.ClipGroup.AddItem(new ParameterDoublePropertyEditorSlot(VideoClip.OpacityParameter, typeof(VideoClip), "Opacity", DragStepProfile.UnitOne));
 
                 this.EffectListGroup = new EffectListPropertyEditorGroup();
                 this.ClipGroup.AddItem(this.EffectListGroup);

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
-using FramePFX.Editors.PropertyEditors.AControls.Clips;
-using FramePFX.Editors.PropertyEditors.AControls.Standard;
+using FramePFX.Editors.PropertyEditors;
 using FramePFX.Editors.PropertyEditors.Clips;
-using FramePFX.Editors.PropertyEditors.Standard;
+using FramePFX.PropertyEditing.Controls.Standard;
+using FramePFX.PropertyEditing.Standard;
 
 namespace FramePFX.PropertyEditing.Controls {
     public abstract class BasePropEditControlContent : Control {
@@ -24,8 +24,8 @@ namespace FramePFX.PropertyEditing.Controls {
             RegisterType(typeof(ClipDisplayNamePropertyEditorSlot), () => new ClipDisplayNamePropertyEditorControl());
 
             // standard editors
-            RegisterType(typeof(AutomatedDoublePropertyEditorSlot), () => new AutomatedDoublePropertyEditorControl());
-            RegisterType(typeof(AutomatedFloatPropertyEditorSlot), () => new AutomatedFloatPropertyEditorControl());
+            RegisterType(typeof(ParameterDoublePropertyEditorSlot), () => new ParameterDoublePropertyEditorControl());
+            RegisterType(typeof(ParameterFloatPropertyEditorSlot), () => new ParameterFloatPropertyEditorControl());
         }
 
         public static void RegisterType<T>(Type trackType, Func<T> func) where T : BasePropEditControlContent {

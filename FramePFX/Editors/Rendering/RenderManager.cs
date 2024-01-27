@@ -97,11 +97,13 @@ namespace FramePFX.Editors.Rendering {
                 this.surface.Canvas.Clear(SKColors.Transparent);
                 await Task.WhenAll(tasks);
 
-                SKPaint paint = null;
+                // SKPaint paint = null;
                 foreach (VideoTrack track in tracks) {
-                    int count = BeginTrackOpacityLayer(this.surface.Canvas, track, ref paint);
+                    // int count = BeginTrackOpacityLayer(this.surface.Canvas, track, ref paint);
+                    // int count = this.surface.Canvas.Save();
                     track.DrawFrameIntoSurface(this.surface);
-                    EndOpacityLayer(this.surface.Canvas, count, ref paint);
+                    // this.surface.Canvas.RestoreToCount(count);
+                    // EndOpacityLayer(this.surface.Canvas, count, ref paint);
                 }
             });
 

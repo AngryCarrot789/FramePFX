@@ -203,7 +203,7 @@ namespace FramePFX.Editors.Controls.Timelines {
             this.GetTemplateChild("PART_AddVideoTrackButton", out Button addVideoTrackButton);
 
             toggleTrackAutomationBtn.IsThreeState = false;
-            toggleTrackAutomationBtn.IsChecked = false;
+            toggleTrackAutomationBtn.IsChecked = true;
             toggleClipAutomationBtn.IsThreeState = false;
             toggleClipAutomationBtn.IsChecked = true;
 
@@ -245,6 +245,8 @@ namespace FramePFX.Editors.Controls.Timelines {
                 t.AddTrack(track);
                 track.InvalidateRender();
             });
+
+            this.UpdateVisibilityStates();
         }
 
         private void UpdateClipAutomationVisibilityState() {
@@ -265,6 +267,10 @@ namespace FramePFX.Editors.Controls.Timelines {
         }
 
         private void OnTrackAutomationToggleChanged(object sender, RoutedEventArgs e) {
+            this.UpdateVisibilityStates();
+        }
+
+        private void UpdateVisibilityStates() {
             this.UpdateTrackAutomationVisibilityState();
             foreach (TimelineTrackControl track in this.TrackStorage.GetTracks()) {
                 this.UpdateTrackAutomationVisibility(track);

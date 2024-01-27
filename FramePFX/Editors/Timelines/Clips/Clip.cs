@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using FramePFX.Destroying;
 using FramePFX.Editors.Automation;
+using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Factories;
 using FramePFX.Editors.ResourceManaging.ResourceHelpers;
@@ -14,12 +15,14 @@ namespace FramePFX.Editors.Timelines.Clips {
     public delegate void ClipSpanChangedEventHandler(Clip clip, FrameSpan oldSpan, FrameSpan newSpan);
     public delegate void ClipEventHandler(Clip clip);
     public delegate void ClipTrackChangedEventHandler(Clip clip, Track oldTrack, Track newTrack);
+    public delegate void ClipActiveSequenceChangedEventHandler(Clip clip, AutomationSequence oldSequence, AutomationSequence newSequence);
 
     public abstract class Clip : IAutomatable, IStrictFrameRange, IResourceHolder, IHaveEffects, IDestroy {
         private readonly List<BaseEffect> internalEffectList;
         private FrameSpan span;
         private string displayName;
         private bool isSelected;
+        private AutomationSequence activeSequence;
 
         public Track Track { get; private set; }
 
@@ -71,6 +74,17 @@ namespace FramePFX.Editors.Timelines.Clips {
             }
         }
 
+        public AutomationSequence ActiveSequence {
+            get => this.activeSequence;
+            set {
+                AutomationSequence oldSequence = this.activeSequence;
+                if (oldSequence == value)
+                    return;
+                this.activeSequence = value;
+                this.ActiveSequenceChanged?.Invoke(this, oldSequence, value);
+            }
+        }
+
         public ResourceHelper ResourceHelper { get; }
 
         public string FactoryId => ClipFactory.Instance.GetId(this.GetType());
@@ -84,6 +98,12 @@ namespace FramePFX.Editors.Timelines.Clips {
 
         public event ClipTrackChangedEventHandler TrackChanged;
         public event TimelineChangedEventHandler TimelineChanged;
+
+        /// <summary>
+        /// An event fired when this clip's automation sequence editor's sequence changes. The new sequence
+        /// may not directly belong to the clip, but may belong to an effect added to the clip
+        /// </summary>
+        public event ClipActiveSequenceChangedEventHandler ActiveSequenceChanged;
 
         protected Clip() {
             this.internalEffectList = new List<BaseEffect>();

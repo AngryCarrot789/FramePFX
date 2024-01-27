@@ -1,11 +1,9 @@
-using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using FramePFX.Editors.Controls.Binders;
-using FramePFX.Editors.Controls.Dragger;
 using FramePFX.Utils;
 
 namespace FramePFX.PropertyEditing.Controls {
@@ -108,9 +106,9 @@ namespace FramePFX.PropertyEditing.Controls {
             this.isSelectedBinder.Attach(this, this.Model);
 
             BasePropEditControlContent content = (BasePropEditControlContent) this.Content;
-            content.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
             content.InvalidateMeasure();
             content.ApplyTemplate();
+            content.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
             content.Connect(this);
             content.InvalidateMeasure();
             // content.UpdateLayout();

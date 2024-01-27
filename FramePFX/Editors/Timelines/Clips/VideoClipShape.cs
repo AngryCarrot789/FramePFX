@@ -1,6 +1,5 @@
 using System.Numerics;
 using FramePFX.Editors.Rendering;
-using FramePFX.Editors.Timelines.Effects;
 using SkiaSharp;
 
 namespace FramePFX.Editors.Timelines.Clips {
@@ -12,25 +11,8 @@ namespace FramePFX.Editors.Timelines.Clips {
 
         public Vector2 RectSize { get; set; } = new Vector2(100, 40);
 
-        public Vector2 PointDemoHelper {
-            get {
-                MotionEffect fx = (MotionEffect) this.Effects[0];
-                return new Vector2(fx.MediaPositionX, fx.MediaPositionY);
-            }
-            set {
-                MotionEffect fx = (MotionEffect) this.Effects[0];
-                fx.MediaPositionX = value.X;
-                fx.MediaPositionY = value.Y;
-            }
-        }
-
         public VideoClipShape() {
             this.UsesCustomOpacityCalculation = true;
-
-            // demo -- add a sample opacity automation key frame
-            this.AutomationData[OpacityParameter].AddNewKeyFrame(0, out _);
-
-            this.AddEffect(new MotionEffect());
         }
 
         public override Vector2? GetRenderSize() {
@@ -50,7 +32,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         public override void RenderFrame(RenderContext rc) {
             RenderData d = this.renderData;
             SKColor colour = RenderUtils.BlendAlpha(d.colour, d.opacity);
-            using (SKPaint paint = new SKPaint() {Color = colour}) {
+            using (SKPaint paint = new SKPaint() {Color = colour, IsAntialias = true}) {
                 rc.Canvas.DrawRect(0, 0, d.size.X, d.size.Y, paint);
             }
         }

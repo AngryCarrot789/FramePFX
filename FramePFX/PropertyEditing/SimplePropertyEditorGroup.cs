@@ -1,22 +1,25 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace FramePFX.PropertyEditing {
-    public class FixedPropertyEditorGroup : BasePropertyEditorGroup {
-        private readonly List<object> handlers;
+    /// <summary>
+    /// A general property editor group, which supports a single list of handler objects
+    /// </summary>
+    public class PropertyEditorGroup : BasePropertyEditorGroup {
+        public IReadOnlyList<object> Handlers { get; private set; }
 
-        public ReadOnlyCollection<object> Handlers { get; }
+        public PropertyEditorGroup(Type applicableType) : base(applicableType) {
 
-        public FixedPropertyEditorGroup(Type applicableType) : base(applicableType) {
-            this.handlers = new List<object>();
-            this.Handlers = this.handlers.AsReadOnly();
+        }
+
+        public override bool IsPropertyEditorObjectAcceptable(BasePropertyEditorObject obj) {
+            return obj is PropertyEditorSlot || obj is BasePropertyEditorGroup;
         }
 
         /// <summary>
         /// Recursively clears the state of all groups and editors
         /// </summary>
-        public override void ClearHierarchyState() {
+        public void ClearHierarchy() {
             if (!this.IsCurrentlyApplicable && !this.IsRoot) {
                 return;
             }
@@ -26,14 +29,14 @@ namespace FramePFX.PropertyEditing {
                     case PropertyEditorSlot editor:
                         editor.ClearHandlers();
                         break;
-                    case BasePropertyEditorGroup group:
-                        group.ClearHierarchyState();
+                    case PropertyEditorGroup group:
+                        group.ClearHierarchy();
                         break;
                 }
             }
 
             this.IsCurrentlyApplicable = false;
-            this.handlers.Clear();
+            this.Handlers = null;
         }
 
         /// <summary>
@@ -44,7 +47,7 @@ namespace FramePFX.PropertyEditing {
         /// </summary>
         /// <param name="input">Input list of objects</param>
         public virtual void SetupHierarchyState(IReadOnlyList<object> input) {
-            this.ClearHierarchyState();
+            this.ClearHierarchy();
             if (!this.IsHandlerCountAcceptable(input.Count)) {
                 return;
             }
@@ -53,16 +56,16 @@ namespace FramePFX.PropertyEditing {
                 return;
             }
 
-            // TODO: maybe calculate every possible type from the given input (scanning each object's hierarchy
+            // maybe calculate every possible type from the given input (scanning each object's hierarchy
             // and adding each type to a HashSet), and then using that to check for applicability.
             // It would probably be slower for single selections, which is most likely what will be used...
             // but the performance difference for multi select would make it worth it tbh
 
-            this.handlers.AddRange(input);
+            this.Handlers = input;
             bool isApplicable = false;
             for (int i = 0, end = this.PropertyObjects.Count - 1; i <= end; i++) {
                 BasePropertyEditorObject obj = this.PropertyObjects[i];
-                if (obj is FixedPropertyEditorGroup group) {
+                if (obj is PropertyEditorGroup group) {
                     group.SetupHierarchyState(input);
                     isApplicable |= group.IsCurrentlyApplicable;
                 }
@@ -75,10 +78,10 @@ namespace FramePFX.PropertyEditing {
             this.IsCurrentlyApplicable = isApplicable;
         }
 
-        protected static bool AreAnyApplicable(FixedPropertyEditorGroup group, IReadOnlyList<object> sources) {
+        protected static bool AreAnyApplicable(PropertyEditorGroup group, IReadOnlyList<object> sources) {
             // return sources.Any(x => group.IsApplicable(x));
             for (int i = 0, c = sources.Count; i < c; i++)
-                if (group.IsApplicable(sources[i]))
+                if (group.IsObjectApplicable(sources[i]))
                     return true;
             return false;
         }

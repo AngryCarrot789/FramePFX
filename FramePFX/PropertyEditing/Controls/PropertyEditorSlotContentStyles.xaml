@@ -3,31 +3,35 @@
                     xmlns:l="clr-namespace:FramePFX.PropertyEditing.Controls"
                     xmlns:d="clr-namespace:FramePFX.Editors.Controls.Dragger"
                     xmlns:clips="clr-namespace:FramePFX.Editors.PropertyEditors.AControls.Clips"
-                    xmlns:effects="clr-namespace:FramePFX.Editors.PropertyEditors.AControls.Effects"
-                    xmlns:s="clr-namespace:System;assembly=mscorlib">
+                    xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:c="clr-namespace:FramePFX.Editors.Controls"
+                    xmlns:ap="clr-namespace:FramePFX.Themes.Attached"
+                    xmlns:a="clr-namespace:FramePFX.PropertyEditing.Automation"
+                    xmlns:standard="clr-namespace:FramePFX.Editors.PropertyEditors.AControls.Standard">
     <s:Double x:Key="FloatMinValue">-3.402823E+38</s:Double>
     <s:Double x:Key="FloatMaxValue">3.402823E+38</s:Double>
 
-    <Style TargetType="{x:Type clips:VideoClipOpacityPropertyEditorControl}">
+    <Style TargetType="{x:Type a:KeyFrameToolsControl}">
+        <Setter Property="Background" Value="{DynamicResource AColour.Tone4.Border.Static}"/>
+        <Setter Property="BorderBrush" Value="Black"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type clips:VideoClipOpacityPropertyEditorControl}">
-                    <Grid Margin="2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
-                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
-                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="Opacity" Grid.Column="0" VerticalAlignment="Center"/>
-                        <d:NumberDragger Height="20" BorderBrush="Black"
-                                         VerticalAlignment="Top"
-                                         Minimum="0" Maximum="1"
-                                         TinyChange="0.0001" SmallChange="0.001"
-                                         LargeChange="0.002" MassiveChange="0.01"
-                                         Style="{StaticResource AbletonNumberDraggerStyle}"
-                                         x:Name="PART_OpacityDragger" Padding="0,1,0,0"
-                                         Grid.Column="2"/>
-                    </Grid>
+                <ControlTemplate TargetType="{x:Type a:KeyFrameToolsControl}">
+                    <c:SpacedStackPanel x:Name="PART_AutomationPanel" Orientation="Horizontal">
+                        <Button x:Name="PART_InsertKeyFrame" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                Height="20" Width="20" ap:CornerRadiusHelper.Value="2"
+                                ToolTip="Insert a key frame at the current play head">
+                            <Ellipse Width="8" Height="8" Fill="{DynamicResource ABrush.Glyph.Static}"/>
+                        </Button>
+                        <ToggleButton x:Name="PART_ToggleOverride" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                      Height="20" Width="20" ap:CornerRadiusHelper.Value="2" IsThreeState="False"
+                                      ToolTip="Toggles the parameter override state for this track. This is used to enable or disable automation for the parameter">
+                            <TextBlock Text="O" Margin="0,1,0,0"/>
+                        </ToggleButton>
+                        <Button x:Name="PART_ResetValue" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                Width="20" Height="20" ap:CornerRadiusHelper.Value="2" ToolTip="Reset the opacity">
+                            <Path Width="12" Height="14" Stretch="Fill" Fill="{DynamicResource ABrush.Glyph.Static}" Data="{StaticResource ResetGeometry}" />
+                        </Button>
+                    </c:SpacedStackPanel>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -37,7 +41,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type clips:ClipDisplayNamePropertyEditorControl}">
-                    <Grid Margin="2">
+                    <Grid Margin="5,0,2,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
@@ -51,37 +55,54 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type effects:MotionEffectMediaPosEditorControl}">
+    <Style TargetType="{x:Type standard:AutomatedDoublePropertyEditorControl}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type effects:MotionEffectMediaPosEditorControl}">
-                    <Grid Margin="2">
+                <ControlTemplate TargetType="{x:Type standard:AutomatedDoublePropertyEditorControl}">
+                    <Grid Margin="5,0,2,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="Pos X" Grid.Column="0" VerticalAlignment="Center"/>
-                        <Grid Grid.Column="2">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="3"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <d:NumberDragger Grid.Column="0" Height="20" BorderBrush="Black" VerticalAlignment="Center"
-                                             Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}"
-                                             TinyChange="0.01" SmallChange="0.1"
-                                             LargeChange="1" MassiveChange="5"
-                                             Style="{StaticResource AbletonNumberDraggerStyle}"
-                                             x:Name="PART_DraggerX" Padding="0,0,0,0"/>
+                        <TextBlock x:Name="PART_DisplayName" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
+                        <DockPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Center">
+                            <a:KeyFrameToolsControl Margin="2,0,0,0" DockPanel.Dock="Right" x:Name="PART_KeyFrameTools"/>
+                            <d:NumberDragger Height="20" BorderBrush="Black"
+                                                 Minimum="{StaticResource FloatMinValue}"
+                                                 Maximum="{StaticResource FloatMaxValue}"
+                                                 TinyChange="0.01" SmallChange="0.1"
+                                                 LargeChange="1" MassiveChange="5"
+                                                 Style="{StaticResource AbletonNumberDraggerWithoutProgressStyle}"
+                                                 x:Name="PART_DraggerX"/>
+                        </DockPanel>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
-                            <d:NumberDragger Grid.Column="2" Height="20" BorderBrush="Black" VerticalAlignment="Center"
-                                             Minimum="{StaticResource FloatMinValue}" Maximum="{StaticResource FloatMaxValue}"
+    <Style TargetType="{x:Type standard:AutomatedFloatPropertyEditorControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type standard:AutomatedFloatPropertyEditorControl}">
+                    <Grid Margin="5,0,2,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="PART_DisplayName" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
+                        <DockPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Center">
+                            <a:KeyFrameToolsControl Margin="2,0,0,0" DockPanel.Dock="Right" x:Name="PART_KeyFrameTools"/>
+                            <d:NumberDragger Height="20" BorderBrush="Black"
+                                             Minimum="{StaticResource FloatMinValue}"
+                                             Maximum="{StaticResource FloatMaxValue}"
                                              TinyChange="0.01" SmallChange="0.1"
                                              LargeChange="1" MassiveChange="5"
-                                             Style="{StaticResource AbletonNumberDraggerStyle}"
-                                             x:Name="PART_DraggerY" Padding="0,0,0,0"/>
-                        </Grid>
+                                             Style="{StaticResource AbletonNumberDraggerWithoutProgressStyle}"
+                                             x:Name="PART_DraggerX"/>
+                        </DockPanel>
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>

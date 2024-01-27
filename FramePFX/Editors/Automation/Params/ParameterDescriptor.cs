@@ -1,4 +1,5 @@
 using System;
+using System.Security.Permissions;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Utils;
 

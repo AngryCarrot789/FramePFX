@@ -43,6 +43,7 @@ namespace FramePFX.PropertyEditing.Controls {
             if (!e.Handled && e.OriginalSource is PropertyEditorControlPanel) {
                 e.Handled = true;
                 this.PropertyEditor?.PropertyEditor?.ClearSelection();
+                this.Focus();
             }
         }
 
@@ -91,6 +92,7 @@ namespace FramePFX.PropertyEditing.Controls {
 
         private void ModelOnItemAdded(BasePropertyEditorGroup @group, BasePropertyEditorObject item, int index) {
             this.Panel.InsertItem(item, index);
+            this.Panel.UpdateLayout();
         }
 
         private void ModelOnItemRemoved(BasePropertyEditorGroup @group, BasePropertyEditorObject item, int index) {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using FramePFX.Utils;
 
 namespace FramePFX.Editors.Controls {
     public class SpacedStackPanel : Panel {
@@ -38,6 +39,10 @@ namespace FramePFX.Editors.Controls {
             Size totalSize = new Size();
             UIElementCollection items = this.InternalChildren;
             int itemCount = items.Count;
+            if (itemCount < 1) {
+                return totalSize;
+            }
+
             Size availableSize = constraint;
             bool isHorizontal = this.Orientation == Orientation.Horizontal;
             if (isHorizontal) {

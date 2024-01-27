@@ -4,15 +4,15 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using FramePFX.Editors.PropertyEditors.AControls.Clips;
-using FramePFX.Editors.PropertyEditors.AControls.Effects;
+using FramePFX.Editors.PropertyEditors.AControls.Standard;
 using FramePFX.Editors.PropertyEditors.Clips;
-using FramePFX.Editors.PropertyEditors.Effects.Motion;
+using FramePFX.Editors.PropertyEditors.Standard;
 
 namespace FramePFX.PropertyEditing.Controls {
     public abstract class BasePropEditControlContent : Control {
         private static readonly Dictionary<Type, Func<BasePropEditControlContent>> Constructors;
 
-        public PropertyEditorSlotControl Slot { get; private set; }
+        public PropertyEditorSlotControl SlotControl { get; private set; }
 
         protected BasePropEditControlContent() {
         }
@@ -20,9 +20,12 @@ namespace FramePFX.PropertyEditing.Controls {
         static BasePropEditControlContent() {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(BasePropEditControlContent), new FrameworkPropertyMetadata(typeof(BasePropEditControlContent)));
             Constructors = new Dictionary<Type, Func<BasePropEditControlContent>>();
-            RegisterType(typeof(VideoClipOpacityPropertyEditorSlot), () => new VideoClipOpacityPropertyEditorControl());
+            // specific case editors
             RegisterType(typeof(ClipDisplayNamePropertyEditorSlot), () => new ClipDisplayNamePropertyEditorControl());
-            RegisterType(typeof(MotionEffectMediaPosPropertyEditorSlot), () => new MotionEffectMediaPosEditorControl());
+
+            // standard editors
+            RegisterType(typeof(AutomatedDoublePropertyEditorSlot), () => new AutomatedDoublePropertyEditorControl());
+            RegisterType(typeof(AutomatedFloatPropertyEditorSlot), () => new AutomatedFloatPropertyEditorControl());
         }
 
         public static void RegisterType<T>(Type trackType, Func<T> func) where T : BasePropEditControlContent {
@@ -52,13 +55,13 @@ namespace FramePFX.PropertyEditing.Controls {
         }
 
         public void Connect(PropertyEditorSlotControl slot) {
-            this.Slot = slot;
+            this.SlotControl = slot;
             this.OnConnected();
         }
 
         public void Disconnect() {
             this.OnDisconnected();
-            this.Slot = null;
+            this.SlotControl = null;
         }
 
         protected abstract void OnConnected();

@@ -41,7 +41,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
         }
 
         private static void UpdateOpacityForModel(AutomationBinder<VideoTrack> binder) {
-            AutomatedControlUtils.SetDefaultKeyFrameOrAddNew(binder.Model, ((TrackControlSurfaceVideo) binder.Control).OpacityDragger, binder.Parameter, RangeBase.ValueProperty);
+            AutomatedUtils.SetDefaultKeyFrameOrAddNew(binder.Model, ((TrackControlSurfaceVideo) binder.Control).OpacityDragger, binder.Parameter, RangeBase.ValueProperty);
             binder.Model.InvalidateRender();
         }
 
@@ -51,7 +51,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
         }
 
         private static void UpdateVisibilityForModel(AutomationBinder<VideoTrack> binder) {
-            AutomatedControlUtils.SetDefaultKeyFrameOrAddNew(binder.Model, ((TrackControlSurfaceVideo) binder.Control).VisibilityButton, binder.Parameter, ToggleButton.IsCheckedProperty);
+            AutomatedUtils.SetDefaultKeyFrameOrAddNew(binder.Model, ((TrackControlSurfaceVideo) binder.Control).VisibilityButton, binder.Parameter, ToggleButton.IsCheckedProperty);
             binder.Model.InvalidateRender();
         }
 

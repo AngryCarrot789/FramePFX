@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -56,19 +57,10 @@ namespace FramePFX.PropertyEditing.Controls {
                 this.RootGroupControl.DisconnectModel();
             }
 
+            this.InvalidateMeasure();
+            this.UpdateLayout();
             if (newEditor != null) {
                 this.RootGroupControl.ConnectModel(this, newEditor.Root);
-            }
-        }
-
-        private static void OnRootGroupChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            PropertyEditorControl control = (PropertyEditorControl) d;
-            if (e.OldValue is SimplePropertyEditorGroup) {
-                control.RootGroupControl.DisconnectModel();
-            }
-
-            if (e.NewValue is SimplePropertyEditorGroup newGroup) {
-                control.RootGroupControl.ConnectModel(control, newGroup);
             }
         }
     }

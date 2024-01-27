@@ -5,6 +5,8 @@ using FramePFX.Editors.Automation.Params;
 using FramePFX.RBC;
 
 namespace FramePFX.Editors.Automation {
+    public delegate void ActiveParameterChangedEventHandler(AutomationData data, ParameterKey oldKey, ParameterKey newKey);
+
     /// <summary>
     /// Contains a collection of <see cref="AutomationSequence"/> objects mapped by an <see cref="Parameter"/>. This
     /// class is designed to be immutable; it is typically created in the constructor of an <see cref="IAutomatable"/>
@@ -13,6 +15,7 @@ namespace FramePFX.Editors.Automation {
     public class AutomationData {
         private static readonly Comparer<Parameter> AutomationParameterComparer = Comparer<Parameter>.Create((a, b) => a.GlobalIndex.CompareTo(b.GlobalIndex));
         private readonly SortedList<Parameter, AutomationSequence> sequences;
+        private ParameterKey activeParameter;
 
         /// <summary>
         /// Returns a read-only list of our sequences. Sequences are lazily created to save memory
@@ -44,15 +47,35 @@ namespace FramePFX.Editors.Automation {
             }
         }
 
+
         /// <summary>
-        /// The active key's full ID, only really used by the UI
+        /// Gets or sets the parameter key that is currently active. This is used by
+        /// the UI to display an automation sequence editor for a specific parameter.
+        /// <para>
+        /// The actual key's path is not verified, so this may return a parameter key
+        /// that maps to a parameter that is incompatible with this automation data
+        /// </para>
         /// </summary>
-        public string ActiveKeyFullId { get; set; }
+        public ParameterKey ActiveParameter {
+            get => this.activeParameter;
+            set {
+                ParameterKey oldKey = this.activeParameter;
+                if (oldKey.Equals(value))
+                    return;
+                this.activeParameter = value;
+                this.ActiveParameterChanged?.Invoke(this, oldKey, value);
+            }
+        }
 
         /// <summary>
         /// An event fired when a sequence updates a value of its automation data owner. This event is fired after all handler to <see cref="AutomationSequence.ParameterChanged"/> have been invoked; this method is a general handler for all parameter value changes
         /// </summary>
-        public event ParameterChangedEventHandler ParameterChanged;
+        public event ParameterChangedEventHandler ParameterValueChanged;
+
+        /// <summary>
+        /// An event fired when our <see cref="ActiveParameter"/> property changes
+        /// </summary>
+        public event ActiveParameterChangedEventHandler ActiveParameterChanged;
 
         public AutomationData(IAutomatable owner) {
             this.Owner = owner ?? throw new ArgumentNullException(nameof(owner));
@@ -93,8 +116,8 @@ namespace FramePFX.Editors.Automation {
         }
 
         public void WriteToRBE(RBEDictionary data) {
-            if (this.ActiveKeyFullId != null)
-                data.SetString(nameof(this.ActiveKeyFullId), this.ActiveKeyFullId);
+            if (!this.ActiveParameter.IsEmpty)
+                data.SetString(nameof(this.ActiveParameter), this.ActiveParameter.ToString());
 
             RBEList list = data.CreateList(nameof(this.Sequences));
             foreach (AutomationSequence sequence in this.sequences.Values) {
@@ -105,7 +128,7 @@ namespace FramePFX.Editors.Automation {
         }
 
         public void ReadFromRBE(RBEDictionary data) {
-            this.ActiveKeyFullId = data.GetString(nameof(this.ActiveKeyFullId), null);
+            this.ActiveParameter = ParameterKey.Parse(data.GetString(nameof(this.ActiveParameter), null));
             RBEList list = data.GetList(nameof(this.Sequences));
             foreach (RBEBase rbe in list.List) {
                 if (!(rbe is RBEDictionary dictionary))
@@ -123,7 +146,7 @@ namespace FramePFX.Editors.Automation {
         }
 
         public void LoadDataIntoClone(AutomationData clone) {
-            clone.ActiveKeyFullId = this.ActiveKeyFullId;
+            clone.ActiveParameter = this.ActiveParameter;
             IList<AutomationSequence> listA = this.sequences.Values;
             IList<AutomationSequence> listB = clone.sequences.Values;
             for (int i = 0, c = this.sequences.Count; i < c; i++) {
@@ -155,13 +178,17 @@ namespace FramePFX.Editors.Automation {
             }
         }
 
-        private void ValidateParameter(Parameter parameter) {
-            if (!parameter.OwnerType.IsInstanceOfType(this.Owner))
+        public bool IsParameterValid(Parameter parameter) {
+            return parameter.OwnerType.IsInstanceOfType(this.Owner);
+        }
+
+        public void ValidateParameter(Parameter parameter) {
+            if (!this.IsParameterValid(parameter))
                 throw new ArgumentException("Invalid parameter key for this automation data: " + parameter.Key + ". The owner types are incompatible");
         }
 
         internal static void OnParameterValueChanged(AutomationSequence sequence) {
-            sequence.AutomationData.ParameterChanged?.Invoke(sequence);
+            sequence.AutomationData.ParameterValueChanged?.Invoke(sequence);
             sequence.Parameter.OnParameterValueChanged(sequence);
         }
 

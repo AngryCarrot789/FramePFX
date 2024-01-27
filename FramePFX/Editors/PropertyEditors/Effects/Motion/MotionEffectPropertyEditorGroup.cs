@@ -1,7 +1,5 @@
-using FramePFX.Editors.Automation.Keyframes;
-using FramePFX.Editors.Controls.Automation;
+using FramePFX.Editors.PropertyEditors.Standard;
 using FramePFX.Editors.Timelines.Effects;
-using FramePFX.PropertyEditing;
 using FramePFX.Utils;
 
 namespace FramePFX.Editors.PropertyEditors.Effects.Motion {
@@ -10,77 +8,15 @@ namespace FramePFX.Editors.PropertyEditors.Effects.Motion {
 
         public MotionEffectPropertyEditorGroup() : base(typeof(MotionEffect)) {
             this.DisplayName = "Motion";
-            this.AddItem(new MotionEffectMediaPosPropertyEditorSlot());
-        }
-    }
-
-    public delegate void MotionEffectPropertyEditorEventHandler(MotionEffectMediaPosPropertyEditorSlot sender);
-
-    public class MotionEffectMediaPosPropertyEditorSlot : PropertyEditorSlot {
-        private float posX;
-        private float posY;
-
-        public MotionEffect Effect => (MotionEffect) this.Handlers[0];
-
-        public float PosX {
-            get => this.posX;
-            set {
-                this.posX = value;
-                MotionEffect effect = this.Effect;
-                AutomatedControlUtils.SetDefaultKeyFrameOrAddNew(effect, MotionEffect.MediaPositionXParameter, value);
-                this.MediaPositionXChanged?.Invoke(this);
-            }
-        }
-
-        public float PosY {
-            get => this.posY;
-            set {
-                this.posY = value;
-                MotionEffect effect = this.Effect;
-                AutomatedControlUtils.SetDefaultKeyFrameOrAddNew(effect, MotionEffect.MediaPositionYParameter, value);
-                this.MediaPositionYChanged?.Invoke(this);
-            }
-        }
-
-        public override bool IsSelectable => true;
-
-        public event MotionEffectPropertyEditorEventHandler MediaPositionXChanged;
-        public event MotionEffectPropertyEditorEventHandler MediaPositionYChanged;
-
-        public MotionEffectMediaPosPropertyEditorSlot() : base(typeof(MotionEffect)) {
-
-        }
-
-        protected override void OnHandlersLoaded() {
-            base.OnHandlersLoaded();
-            this.Effect.AutomationData[MotionEffect.MediaPositionXParameter].ParameterChanged += this.OnMediaPosChanged;
-            this.Effect.AutomationData[MotionEffect.MediaPositionYParameter].ParameterChanged += this.OnMediaPosChanged;
-            this.RequeryOpacityFromHandlers();
-        }
-
-        protected override void OnClearingHandlers() {
-            base.OnClearingHandlers();
-            this.Effect.AutomationData[MotionEffect.MediaPositionXParameter].ParameterChanged -= this.OnMediaPosChanged;
-            this.Effect.AutomationData[MotionEffect.MediaPositionYParameter].ParameterChanged -= this.OnMediaPosChanged;
-        }
-
-        public void RequeryOpacityFromHandlers() {
-            this.posX = this.Effect.MediaPositionX;
-            this.posY = this.Effect.MediaPositionY;
-            this.MediaPositionXChanged?.Invoke(this);
-            this.MediaPositionYChanged?.Invoke(this);
-        }
-
-        // Event handler only added for single selection
-        private void OnMediaPosChanged(AutomationSequence sequence) {
-            if (sequence.Parameter.Equals(MotionEffect.MediaPositionXParameter)) {
-                this.posX = this.Effect.MediaPositionX;
-                this.MediaPositionXChanged?.Invoke(this);
-            }
-            else {
-                this.posY = this.Effect.MediaPositionY;
-                this.MediaPositionYChanged?.Invoke(this);
-            }
+            this.AddItem(new AutomatedFloatPropertyEditorSlot(MotionEffect.MediaPositionXParameter, typeof(MotionEffect), "Pos X", DragStepProfile.HugeRange));
+            this.AddItem(new AutomatedFloatPropertyEditorSlot(MotionEffect.MediaPositionYParameter, typeof(MotionEffect), "Pos Y", DragStepProfile.HugeRange));
+            this.AddItem(new AutomatedFloatPropertyEditorSlot(MotionEffect.MediaScaleXParameter, typeof(MotionEffect), "Scale X", DragStepProfile.UnitOne));
+            this.AddItem(new AutomatedFloatPropertyEditorSlot(MotionEffect.MediaScaleYParameter, typeof(MotionEffect), "Scale Y", DragStepProfile.UnitOne));
+            this.AddItem(new AutomatedFloatPropertyEditorSlot(MotionEffect.MediaScaleOriginXParameter, typeof(MotionEffect), "Scale Origin X", DragStepProfile.HugeRange));
+            this.AddItem(new AutomatedFloatPropertyEditorSlot(MotionEffect.MediaScaleOriginYParameter, typeof(MotionEffect), "Scale Origin Y", DragStepProfile.HugeRange));
+            this.AddItem(new AutomatedDoublePropertyEditorSlot(MotionEffect.MediaRotationParameter, typeof(MotionEffect), "Rotation", DragStepProfile.Rotation));
+            this.AddItem(new AutomatedFloatPropertyEditorSlot(MotionEffect.MediaRotationOriginXParameter, typeof(MotionEffect), "Rotation Origin Y", DragStepProfile.HugeRange));
+            this.AddItem(new AutomatedFloatPropertyEditorSlot(MotionEffect.MediaRotationOriginYParameter, typeof(MotionEffect), "Rotation Origin Y", DragStepProfile.HugeRange));
         }
     }
 }

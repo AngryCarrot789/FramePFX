@@ -13,6 +13,7 @@ using FramePFX.Editors.Timelines.Tracks;
 namespace FramePFX.Editors.Timelines.Clips {
     public delegate void ClipSpanChangedEventHandler(Clip clip, FrameSpan oldSpan, FrameSpan newSpan);
     public delegate void ClipEventHandler(Clip clip);
+    public delegate void ClipTrackChangedEventHandler(Clip clip, Track oldTrack, Track newTrack);
 
     public abstract class Clip : IAutomatable, IStrictFrameRange, IResourceHolder, IHaveEffects, IDestroy {
         private readonly List<BaseEffect> internalEffectList;
@@ -81,6 +82,9 @@ namespace FramePFX.Editors.Timelines.Clips {
         public event ClipEventHandler DisplayNameChanged;
         public event ClipEventHandler IsSelectedChanged;
 
+        public event ClipTrackChangedEventHandler TrackChanged;
+        public event TimelineChangedEventHandler TimelineChanged;
+
         protected Clip() {
             this.internalEffectList = new List<BaseEffect>();
             this.Effects = this.internalEffectList.AsReadOnly();
@@ -136,6 +140,14 @@ namespace FramePFX.Editors.Timelines.Clips {
 
         protected virtual void OnTrackChanged(Track oldTrack, Track newTrack) {
             this.ResourceHelper.SetManager(newTrack?.Project?.ResourceManager);
+            this.TrackChanged?.Invoke(this, oldTrack, newTrack);
+
+            Timeline oldTimeline = oldTrack?.Timeline;
+            Timeline newTimeline = newTrack?.Timeline;
+
+            if (!ReferenceEquals(oldTimeline, newTimeline)) {
+                this.TimelineChanged?.Invoke(this, oldTimeline, newTimeline);
+            }
         }
 
         public bool IntersectsFrameAt(long playHead) {
@@ -253,18 +265,34 @@ namespace FramePFX.Editors.Timelines.Clips {
 
         internal static void OnAddedToTrack(Clip clip, Track track) {
             Track oldTrack = clip.Track;
-            if (!ReferenceEquals(oldTrack, track)) {
-                clip.Track = track;
-                clip.OnTrackChanged(oldTrack, track);
+            if (ReferenceEquals(oldTrack, track)) {
+                throw new Exception("Clip added to the same track?");
             }
+
+            clip.Track = track;
+            clip.OnTrackChanged(oldTrack, track);
         }
 
-        internal static void OnRemovedFromTrack(Clip clip, Track track) {
+        internal static void OnRemovedFromTrack(Clip clip) {
+            Track oldTrack = clip.Track;
+            if (ReferenceEquals(oldTrack, null)) {
+                throw new Exception("Clip removed from no track???");
+            }
+
             clip.Track = null;
+            clip.OnTrackChanged(oldTrack, null);
         }
 
         internal static void OnMovedToTrack(Clip clip, Track oldTrack, Track newTrack) {
             clip.Track = newTrack;
+            clip.OnTrackChanged(oldTrack, newTrack);
+        }
+
+        internal static void OnTrackTimelineChanged(Clip clip, Timeline oldTimeline, Timeline newTimeline) {
+            clip.TimelineChanged?.Invoke(clip, oldTimeline, newTimeline);
+            foreach (BaseEffect effect in clip.Effects) {
+                BaseEffect.OnClipTimelineChanged(effect, oldTimeline, newTimeline);
+            }
         }
     }
 }

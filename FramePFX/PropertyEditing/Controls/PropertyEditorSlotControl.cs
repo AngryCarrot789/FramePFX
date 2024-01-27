@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -95,18 +96,24 @@ namespace FramePFX.PropertyEditing.Controls {
             return true;
         }
 
-        public void ConnectModel(PropertyEditorGroupControl ownerGroup, PropertyEditorSlot item) {
+        public void OnAdding(PropertyEditorGroupControl ownerGroup, PropertyEditorSlot item) {
             BasePropEditControlContent content = BasePropEditControlContent.NewContentInstance(item.GetType());
             this.Model = item;
             this.OwnerGroup = ownerGroup;
             this.Content = content;
-            this.InvalidateMeasure();
+        }
+
+        public void ConnectModel() {
+            this.IsSelectable = this.Model.IsSelectable;
+            this.isSelectedBinder.Attach(this, this.Model);
+
+            BasePropEditControlContent content = (BasePropEditControlContent) this.Content;
+            content.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
             content.InvalidateMeasure();
             content.ApplyTemplate();
             content.Connect(this);
-
-            this.IsSelectable = item.IsSelectable;
-            this.isSelectedBinder.Attach(this, item);
+            content.InvalidateMeasure();
+            // content.UpdateLayout();
         }
 
         public void DisconnectModel() {

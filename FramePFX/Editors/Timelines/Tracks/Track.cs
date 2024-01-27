@@ -99,9 +99,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
         public event EffectOwnerEventHandler EffectRemoved;
         public event EffectMovedEventHandler EffectMoved;
 
-        // Not sure if this will ever be used since track removal should typically be
-        // handled at a higher level, but this could work for lazy event handler removal
-        public event TimelineTrackIndexEventHandler Removed;
+        public event TimelineChangedEventHandler TimelineChanged;
 
         private readonly List<Clip> clips;
         private readonly ClipRangeCache cache;
@@ -176,7 +174,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
         public void RemoveClipAt(int index) {
             Clip clip = this.clips[index];
             this.InternalRemoveClipAt(index, clip);
-            Clip.OnRemovedFromTrack(clip, this);
+            Clip.OnRemovedFromTrack(clip);
             this.ClipRemoved?.Invoke(this, clip, index);
             this.InvalidateRender();
         }
@@ -391,10 +389,11 @@ namespace FramePFX.Editors.Timelines.Tracks {
             clip.Track?.cache.OnSpanChanged(clip, oldSpan);
         }
 
-        // A 2nd version is required because the timeline's TrackRemoved event must be called after
-        // the timeline reference is set to null, but before the track' own removed event is fired
-        internal static void OnRemovedFromTimeline2(Timeline timeline, Track track, int index) {
-            track.Removed?.Invoke(timeline, track, index);
+        internal static void OnTrackTimelineChanged(Track track, Timeline oldTimeline, Timeline newTimeline) {
+            track.TimelineChanged?.Invoke(track, oldTimeline, newTimeline);
+            foreach (Clip clip in track.clips) {
+                Clip.OnTrackTimelineChanged(clip, oldTimeline, newTimeline);
+            }
         }
 
         internal static void OnIsClipSelectedChanged(Clip clip) {

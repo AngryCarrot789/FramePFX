@@ -196,6 +196,8 @@ namespace FramePFX.Editors.Timelines {
         public void AddTrack(Track track) => this.InsertTrack(this.tracks.Count, track);
 
         public void InsertTrack(int index, Track track) {
+            if (track.Timeline != null)
+                throw new ArgumentException("Track already exists in another timeline. It must be removed first");
             if (this.tracks.Contains(track))
                 throw new InvalidOperationException("This track already contains the track");
             this.tracks.Insert(index, track);
@@ -211,6 +213,7 @@ namespace FramePFX.Editors.Timelines {
             }
 
             Track.OnAddedToTimeline(track, this);
+            Track.OnTrackTimelineChanged(track, null, this);
             this.TrackAdded?.Invoke(this, track, index);
             this.UpdateLargestFrame();
         }
@@ -241,8 +244,8 @@ namespace FramePFX.Editors.Timelines {
             }
 
             Track.OnRemovedFromTimeline1(track, this);
+            Track.OnTrackTimelineChanged(track, this, null);
             this.TrackRemoved?.Invoke(this, track, index);
-            Track.OnRemovedFromTimeline2(this, track, index);
             this.UpdateLargestFrame();
         }
 

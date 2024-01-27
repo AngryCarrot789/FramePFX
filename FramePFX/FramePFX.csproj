@@ -85,13 +85,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Editors\PropertyEditors\AControls\Effects\MotionEffectMediaPosEditorControl.cs" />
+    <Compile Include="Editors\PropertyEditors\AControls\Standard\AutomatedDoublePropertyEditorControl.cs" />
+    <Compile Include="Editors\PropertyEditors\AControls\Standard\AutomatedFloatPropertyEditorControl.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\EffectListPropertyEditorGroup.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\EffectPropertyEditorGroup.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\Motion\MotionEffectPropertyEditorGroup.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\TODO\EffectListPropertyEditorGroup.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\TODO\EffectPropertyEditorGroup.cs" />
+    <Compile Include="Editors\PropertyEditors\Standard\AutomatedDoublePropertyEditorSlot.cs" />
+    <Compile Include="Editors\PropertyEditors\Standard\AutomatedFloatPropertyEditorSlot.cs" />
+    <Compile Include="Editors\PropertyEditors\Standard\DragStepProfile.cs" />
     <Compile Include="PropertyEditing\ApplicabilityMode.cs" />
+    <Compile Include="PropertyEditing\Automation\KeyFrameToolsControl.cs" />
     <Compile Include="PropertyEditing\BasePropertyEditor.cs" />
     <Compile Include="PropertyEditing\BasePropertyEditorGroup.cs" />
     <Compile Include="PropertyEditing\BasePropertyEditorItem.cs" />
@@ -425,7 +430,7 @@
     <Compile Include="Editors\Automation\Params\ValueAccessor.cs" />
     <Compile Include="Editors\Automation\SwitchAutomationDataTypeAttribute.cs" />
     <Compile Include="Editors\Collections\SelectionList.cs" />
-    <Compile Include="Editors\Controls\Automation\AutomatedControlUtils.cs" />
+    <Compile Include="Editors\Controls\Automation\AutomatedUtils.cs" />
     <Compile Include="Editors\Controls\Automation\AutomationActivityBrushConverter.cs" />
     <Compile Include="Editors\Controls\Automation\AutomationSequenceEditor.cs" />
     <Compile Include="Editors\Controls\Automation\DragMode.cs" />
@@ -529,9 +534,7 @@
     <Compile Include="Editors\Project.cs" />
     <Compile Include="Editors\ProjectSettings.cs" />
     <Compile Include="Editors\PropertyEditors\AControls\Clips\ClipDisplayNamePropertyEditorControl.cs" />
-    <Compile Include="Editors\PropertyEditors\AControls\Clips\VideoClipOpacityPropertyEditorControl.cs" />
     <Compile Include="Editors\PropertyEditors\Clips\ClipDisplayNamePropertyEditorSlot.cs" />
-    <Compile Include="Editors\PropertyEditors\Clips\VideoClipOpacityPropertyEditorSlot.cs" />
     <Compile Include="Editors\Rendering\PreRenderContext.cs" />
     <Compile Include="Editors\Rendering\RenderContext.cs" />
     <Compile Include="Editors\Rendering\RenderFrameInfo.cs" />
@@ -711,6 +714,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Editors\PropertyEditors\AControls\Effects" />
     <Folder Include="Editors\PropertyEditors\AControls\Effects\" />
     <Folder Include="Editors\PropertyEditors\AControls\Tracks\" />
     <Folder Include="Editors\PropertyEditors\Effects\" />

@@ -139,7 +139,7 @@ namespace FramePFX.Editors.Automation.Keyframes {
                 case AutomationDataType.Double:  return new KeyFrameDouble();
                 case AutomationDataType.Long:    return new KeyFrameLong();
                 case AutomationDataType.Boolean: return new KeyFrameBoolean();
-                default: throw new ArgumentOutOfRangeException(nameof(type), type, null);
+                default: throw new ArgumentOutOfRangeException(nameof(type), type, "Invalid automation data type enum");
             }
         }
 
@@ -151,7 +151,7 @@ namespace FramePFX.Editors.Automation.Keyframes {
         /// <param name="sequence">The sequence, in order to access to actual value at the given frame</param>
         /// <returns>A new key frame instance</returns>
         /// <exception cref="ArgumentOutOfRangeException">Unknown automation data type</exception>
-        public static KeyFrame CreateInstance(AutomationSequence sequence, long time) {
+        public static KeyFrame CreateInstance(AutomationSequence sequence, long time = 0L) {
             KeyFrame keyFrame = CreateInstance(sequence.DataType); // same as sequence.Key.CreateKeyFrame()
             keyFrame.myFrame = time;
             keyFrame.AssignCurrentValue(time, sequence);

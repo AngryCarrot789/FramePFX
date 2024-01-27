@@ -1,10 +1,13 @@
 using System;
+using System.Runtime.CompilerServices;
 using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Factories;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
+using FramePFX.Interactivity;
 using FramePFX.RBC;
+using FramePFX.Utils;
 
 namespace FramePFX.Editors.Timelines.Effects {
     public abstract class BaseEffect : IStrictFrameRange, IAutomatable {
@@ -38,6 +41,8 @@ namespace FramePFX.Editors.Timelines.Effects {
         public Project Project => this.Timeline?.Project;
 
         public long RelativePlayHead => this.Owner?.RelativePlayHead ?? 0;
+
+        public event TimelineChangedEventHandler TimelineChanged;
 
         public AutomationData AutomationData { get; }
 
@@ -76,11 +81,17 @@ namespace FramePFX.Editors.Timelines.Effects {
         }
 
         protected virtual void OnAdded() {
-
+            Timeline timeline = this.Owner.Timeline;
+            if (timeline != null) {
+                this.TimelineChanged?.Invoke(this, null, timeline);
+            }
         }
 
         protected virtual void OnRemoved() {
-
+            Timeline timeline = this.Owner.Timeline;
+            if (timeline != null) {
+                this.TimelineChanged?.Invoke(this, timeline, null);
+            }
         }
 
         public long ConvertRelativeToTimelineFrame(long relative) {
@@ -133,6 +144,10 @@ namespace FramePFX.Editors.Timelines.Effects {
                 throw new InvalidOperationException("Effect type is not accepted: " + effect.GetType());
             if (owner.Effects.Contains(effect))
                 throw new InvalidOperationException("Cannot add an effect that was already added");
+        }
+
+        internal static void OnClipTimelineChanged(BaseEffect effect, Timeline oldTimeline, Timeline newTimeline) {
+            effect.TimelineChanged?.Invoke(effect, oldTimeline, newTimeline);
         }
     }
 }

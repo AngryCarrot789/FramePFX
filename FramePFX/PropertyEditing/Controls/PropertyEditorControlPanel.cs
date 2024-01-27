@@ -38,9 +38,12 @@ namespace FramePFX.PropertyEditing.Controls {
             }
             else if (item is PropertyEditorSlot) {
                 control = new PropertyEditorSlotControl();
+                ((PropertyEditorSlotControl) control).OnAdding(this.OwnerGroup, (PropertyEditorSlot) item);
+                control.InvalidateMeasure();
                 this.InternalChildren.Insert(index, control);
+                ((PropertyEditorSlotControl) control).UpdateLayout();
                 control.ApplyTemplate();
-                ((PropertyEditorSlotControl) control).ConnectModel(this.OwnerGroup, (PropertyEditorSlot) item);
+                ((PropertyEditorSlotControl) control).ConnectModel();
             }
             else {
                 throw new InvalidOperationException("Invalid model: " + item);

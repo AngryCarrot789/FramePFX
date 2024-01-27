@@ -163,11 +163,11 @@ namespace FramePFX.Editors.Automation.Keyframes {
         }
 
         private T GetValueInternal<T>(long frame, Func<KeyFrame, T> toValue, Func<long, KeyFrame, KeyFrame, T> interpolate, bool ignoreOverride = false) {
-            if ((!ignoreOverride && this.IsOverrideEnabled) || !this.GetIndicesForInterpolation(frame, out int a, out int b)) {
-                return toValue(this.DefaultKeyFrame);
+            if ((ignoreOverride || !this.IsOverrideEnabled) && this.GetIndicesForInterpolation(frame, out int a, out int b)) {
+                return b == -1 ? toValue(this.keyFrameList[a]) : interpolate(frame, this.keyFrameList[a], this.keyFrameList[b]);
             }
             else {
-                return b == -1 ? toValue(this.keyFrameList[a]) : interpolate(frame, this.keyFrameList[a], this.keyFrameList[b]);
+                return toValue(this.DefaultKeyFrame);
             }
         }
 
@@ -385,6 +385,31 @@ namespace FramePFX.Editors.Automation.Keyframes {
         /// <returns>The key frame</returns>
         public KeyFrame GetKeyFrameAtIndex(int index) {
             return this.keyFrameList[index];
+        }
+
+        /// <summary>
+        /// Gets or creates a key frame at the given frame. This returns the last
+        /// key frame if there are multiple key frames at the given frame.
+        /// </summary>
+        /// <param name="frame">The key frame time</param>
+        /// <param name="assignCurrentValue">
+        /// When creating a key frame: true to calculate the current value at the frame and assign
+        /// the key frame's value to it, otherwise false to use our parameter's default value
+        /// </param>
+        /// <returns>A non-null key frame</returns>
+        public KeyFrame GetOrCreateKeyFrameAtFrame(long frame, out int index, bool assignCurrentValue = false) {
+            KeyFrame keyFrame;
+            if ((index = this.GetLastFrameExactlyAt(frame)) == -1) {
+                index = this.AddNewKeyFrame(frame, out keyFrame);
+                if (assignCurrentValue) {
+                    keyFrame.AssignCurrentValue(frame, this, true);
+                }
+            }
+            else {
+                keyFrame = this.keyFrameList[index];
+            }
+
+            return keyFrame;
         }
 
         // read/write operations are used for cloning as well as reading from disk

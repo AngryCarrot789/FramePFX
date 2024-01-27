@@ -49,7 +49,7 @@ namespace FramePFX.PropertyEditing {
         /// <summary>
         /// Whether or not this editor has only 1 active handler
         /// </summary>
-        public bool IsSingleSelection => this.Handlers.Count == 1;
+        public bool IsSingleHandler => this.Handlers.Count == 1;
 
         /// <summary>
         /// A mode which helps determine if this editor can be used based on the input handler list
@@ -57,6 +57,8 @@ namespace FramePFX.PropertyEditing {
         public virtual ApplicabilityMode ApplicabilityMode => ApplicabilityMode.All;
 
         public event PropertyEditorSlotEventHandler IsSelectedChanged;
+        public event PropertyEditorSlotEventHandler HandlersLoaded;
+        public event PropertyEditorSlotEventHandler HandlersCleared;
 
         protected PropertyEditorSlot(Type applicableType) : base(applicableType) {
             this.Handlers = EmptyList;
@@ -81,6 +83,7 @@ namespace FramePFX.PropertyEditing {
             this.OnClearingHandlers();
             this.Handlers = EmptyList;
             this.IsCurrentlyApplicable = false;
+            this.HandlersCleared?.Invoke(this);
         }
 
         /// <summary>
@@ -116,7 +119,7 @@ namespace FramePFX.PropertyEditing {
         /// Called just after all handlers are fulled loaded. When this is cleared, there is guaranteed to be 1 or more loaded handlers
         /// </summary>
         protected virtual void OnHandlersLoaded() {
-
+            this.HandlersLoaded?.Invoke(this);
         }
 
         /// <summary>

@@ -197,6 +197,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
                 track.Height = Track.MinimumHeight;
             }
 
+            this.OnTrackExpandedChanged();
             this.ignoreTrackHeightChanged = false;
         }
 
@@ -216,7 +217,20 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
                 this.ToggleExpandTrackButton.IsChecked = true;
             }
 
+            this.OnTrackExpandedChanged();
             this.ignoreExpandTrackEvent = false;
+        }
+
+        private void OnTrackExpandedChanged() {
+            TimelineTrackControl control = this.Owner.TrackList.TimelineControl.GetTimelineControlFromTrack(this.Owner.Track);
+            if (this.ToggleExpandTrackButton.IsChecked == true) {
+                this.AutomationPanel.Visibility = Visibility.Visible;
+                control.AutomationEditor.Visibility = Visibility.Visible;
+            }
+            else {
+                this.AutomationPanel.Visibility = Visibility.Collapsed;
+                control.AutomationEditor.Visibility = Visibility.Collapsed;
+            }
         }
 
         protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {

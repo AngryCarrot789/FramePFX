@@ -15,6 +15,11 @@ namespace FramePFX.Editors.Automation.Params {
         /// </summary>
         public string Name { get; }
 
+        /// <summary>
+        /// Returns true if this parameter is default meaning it wasn't created via the proper constructor
+        /// </summary>
+        public bool IsEmpty => this.Domain == null || this.Name == null; // just in case of malicious modification...??? random electron from space maybe
+
         public ParameterKey(string domain, string name) {
             this.Domain = domain ?? throw new ArgumentNullException(nameof(domain));
             this.Name = name ?? throw new ArgumentNullException(nameof(name));
@@ -42,16 +47,16 @@ namespace FramePFX.Editors.Automation.Params {
             return this.Domain + Parameter.FullIdSplitter + this.Name;
         }
 
+        public bool Equals(ParameterKey key) {
+            return this.Domain == key.Domain && this.Name == key.Name;
+        }
+
         public override bool Equals(object obj) {
             return obj is ParameterKey key && this.Equals(key);
         }
 
         public override int GetHashCode() {
             return unchecked((this.Domain.GetHashCode() * 397) ^ this.Name.GetHashCode());
-        }
-
-        public bool Equals(ParameterKey key) {
-            return this.Domain == key.Domain && this.Name == key.Name;
         }
     }
 }

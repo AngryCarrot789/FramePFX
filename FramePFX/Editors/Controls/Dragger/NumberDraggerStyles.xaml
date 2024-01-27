@@ -64,4 +64,38 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <Style x:Key="AbletonNumberDraggerWithoutProgressStyle" TargetType="{x:Type l:NumberDragger}" BasedOn="{StaticResource {x:Type l:NumberDragger}}">
+        <Setter Property="Background" Value="{DynamicResource PanelBackground2}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type l:NumberDragger}">
+                    <Grid SnapsToDevicePixels="True">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                UseLayoutRounding="True" SnapsToDevicePixels="True"/>
+                        <Grid Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                            <TextBlock Text="0" x:Name="PART_TextBlock" Padding="2,0"
+                                       Background="Transparent"
+                                       HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                       VerticalAlignment="Center"/>
+                            <TextBox Text="0" x:Name="PART_TextBox" VerticalContentAlignment="Center"
+                                     HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                     BorderThickness="0" Background="Transparent" HorizontalAlignment="Stretch"
+                                     VerticalAlignment="Center" Padding="0,0,0,0"/>
+                            <TextBlock x:Name="PART_HintTextBlock" Padding="2,0,2,0"
+                                       Background="Transparent"
+                                       HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                       Foreground="{DynamicResource ABrush.Foreground.Disabled}"
+                                       Text="{TemplateBinding EditingHint}" Visibility="Collapsed"/>
+                        </Grid>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

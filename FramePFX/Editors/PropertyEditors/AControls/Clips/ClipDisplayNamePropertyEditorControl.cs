@@ -6,7 +6,7 @@ using FramePFX.PropertyEditing.Controls;
 
 namespace FramePFX.Editors.PropertyEditors.AControls.Clips {
     public class ClipDisplayNamePropertyEditorControl : BasePropEditControlContent {
-        public ClipDisplayNamePropertyEditorSlot SlotModel => (ClipDisplayNamePropertyEditorSlot) base.Slot.Model;
+        public ClipDisplayNamePropertyEditorSlot SlotModel => (ClipDisplayNamePropertyEditorSlot) base.SlotControl.Model;
 
         private TextBox displayNameBox;
 

@@ -217,7 +217,7 @@ namespace FramePFX.Editors.Timelines {
         }
 
         public override string ToString() {
-            return $"{this.Begin}->{this.EndIndex} (Duration: {this.Duration})";
+            return $"{this.Begin}->{this.EndIndex} ({this.Duration})";
         }
 
         public bool Equals(FrameSpan other) {

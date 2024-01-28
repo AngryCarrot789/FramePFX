@@ -70,7 +70,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
                 if (this.isSelected == value)
                     return;
                 this.isSelected = value;
-                Timeline.OnIsTrackSelectedChanged(this);
+                Timeline.InternalOnTrackSelectedChanged(this);
                 this.IsSelectedChanged?.Invoke(this);
             }
         }
@@ -84,7 +84,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
         /// <summary>
         /// Gets the index of this track within our owner timeline
         /// </summary>
-        public int IndexInTimeline => this.Timeline?.Tracks.IndexOf(this) ?? -1;
+        public int IndexInTimeline => this.indexInTimeline;
 
         public AutomationData AutomationData { get; }
 
@@ -109,8 +109,10 @@ namespace FramePFX.Editors.Timelines.Tracks {
         private string displayName = "Track";
         private SKColor colour;
         private bool isSelected;
+        private int indexInTimeline; // updated by timeline
 
         protected Track() {
+            this.indexInTimeline = -1;
             this.clips = new List<Clip>();
             this.Clips = new ReadOnlyCollection<Clip>(this.clips);
             this.cache = new ClipRangeCache();
@@ -229,7 +231,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
                     clip.IsSelected = false;
             }
 
-            Timeline.OnTrackSelectionCleared(this);
+            Timeline.InternalOnTrackSelectionCleared(this);
         }
 
         public void InvalidateRender() {
@@ -239,8 +241,8 @@ namespace FramePFX.Editors.Timelines.Tracks {
         public virtual void Destroy() {
             for (int i = this.clips.Count - 1; i >= 0; i--) {
                 Clip clip = this.clips[i];
-                this.RemoveClipAt(i);
                 clip.Destroy();
+                this.RemoveClipAt(i);
             }
         }
 
@@ -375,28 +377,28 @@ namespace FramePFX.Editors.Timelines.Tracks {
             return true;
         }
 
-        internal static void OnAddedToTimeline(Track track, Timeline timeline) {
+        #region Internal Access Helpers -- Used internally only
+
+        internal static void InternalOnAddedToTimeline(Track track, Timeline timeline) {
             track.Timeline = timeline;
         }
 
-        #region Internal Access Helpers -- Used internally only
-
-        internal static void OnRemovedFromTimeline1(Track track, Timeline timeline) {
+        internal static void InternalOnRemovedFromTimeline1(Track track, Timeline timeline) {
             track.Timeline = null;
         }
 
-        internal static void OnClipSpanChanged(Clip clip, FrameSpan oldSpan) {
+        internal static void InternalOnClipSpanChanged(Clip clip, FrameSpan oldSpan) {
             clip.Track?.cache.OnSpanChanged(clip, oldSpan);
         }
 
-        internal static void OnTrackTimelineChanged(Track track, Timeline oldTimeline, Timeline newTimeline) {
+        internal static void InternalOnTrackTimelineChanged(Track track, Timeline oldTimeline, Timeline newTimeline) {
             track.TimelineChanged?.Invoke(track, oldTimeline, newTimeline);
             foreach (Clip clip in track.clips) {
                 Clip.OnTrackTimelineChanged(clip, oldTimeline, newTimeline);
             }
         }
 
-        internal static void OnIsClipSelectedChanged(Clip clip) {
+        internal static void InternalOnIsClipSelectedChanged(Clip clip) {
             // If the track is null, it means the clip was either removed previously
             // and therefore its selection has already been processed, or has never been
             // added and therefore we don't care about the new selected state
@@ -422,6 +424,10 @@ namespace FramePFX.Editors.Timelines.Tracks {
             }
 
             Timeline.OnIsClipSelectedChanged(clip);
+        }
+
+        internal static void InternalUpdateTrackIndex(Track track, int newIndex) {
+            track.indexInTimeline = newIndex;
         }
 
         #endregion

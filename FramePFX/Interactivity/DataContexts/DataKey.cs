@@ -10,6 +10,10 @@ namespace FramePFX.Interactivity.DataContexts {
             this.ReadableName = readableName;
             this.DataType = type;
         }
+
+        public override string ToString() {
+            return $"DataKey(\"{this.ReadableName}\")";
+        }
     }
 
     public class DataKey<T> : DataKey {

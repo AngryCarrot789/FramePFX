@@ -5,7 +5,9 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using FramePFX.AdvancedContextService.WPF;
 using FramePFX.Editors.Automation.Keyframes;
+using FramePFX.Editors.Contextual;
 using FramePFX.Editors.Controls.Automation;
 using FramePFX.Editors.Controls.Binders;
 using FramePFX.Editors.Controls.Resources.Explorers;
@@ -76,7 +78,6 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
 
         public double PixelWidth => this.frameDuration * this.TimelineZoom;
 
-        private const double MinDragInitPx = 5d;
         private const double EdgeGripSize = 8d;
         public const double HeaderSize = Editors.Timelines.Tracks.Track.MinimumHeight;
 
@@ -84,8 +85,10 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
         private long frameDuration;
 
         private DragState dragState;
-        private Point clickPoint;
-        private bool isUpdatingFrameSpanFromDrag;
+
+        private Point clickPos;
+        private Point clickPosAbs;
+
         private bool hasMadeExceptionalSelectionInMouseDown;
         private bool isMovingBetweenTracks;
         private bool isProcessingAsyncDrop;
@@ -108,6 +111,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             this.GotFocus += this.OnGotFocus;
             this.LostFocus += this.OnLostFocus;
             this.renderSizeRectGeometry = new RectangleGeometry();
+            AdvancedContextMenu.SetContextGenerator(this, ClipContextRegistry.Instance);
         }
 
         public override void OnApplyTemplate() {
@@ -185,13 +189,14 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
 
         protected override void OnMouseDown(MouseButtonEventArgs e) {
             base.OnMouseDown(e);
-            if (this.Model == null) {
+            if (this.Model == null || e.ChangedButton != MouseButton.Left) {
                 return;
             }
 
             e.Handled = true;
             this.Focus();
-            this.clickPoint = e.GetPosition(this);
+            this.clickPos = e.GetPosition(this);
+            this.clickPosAbs = this.PointToScreen(this.clickPos);
             this.SetDragState(DragState.Initiated);
             if (!this.IsMouseCaptured) {
                 this.CaptureMouse();
@@ -258,7 +263,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
 
         protected override void OnMouseUp(MouseButtonEventArgs e) {
             base.OnMouseUp(e);
-            if (this.Model == null) {
+            if (this.Model == null || e.ChangedButton != MouseButton.Left) {
                 return;
             }
 
@@ -332,38 +337,46 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                 return;
             }
 
-            if (this.isUpdatingFrameSpanFromDrag) {
-                // prevent possible stack overflow exceptions, at the cost of the UI possibly glitching a bit.
-                // In my testing, this case is never reached, so it would require something very weird to happen
-                return;
-            }
-
             if (this.isMovingBetweenTracks) {
                 this.isMovingBetweenTracks = false;
                 return;
             }
 
-            Point mpos = e.GetPosition(this);
+            Point mPos = e.GetPosition(this);
+
+            {
+                // This is used to prevent "drag jumping" which occurs when a screen pixel is
+                // somewhere in between a frame in a sweet spot that results in the control
+                // jumping back and forth. To test, do CTRL+MouseWheelUp once to zoom in a bit,
+                // and then drag a clip 1 frame at a time and you might see it with the code below removed.
+                // This code is pretty much the exact same as what Thumb uses
+                Point mPosAbs = this.PointToScreen(mPos);
+                if (mPosAbs == this.clickPosAbs)
+                    return;
+                this.clickPosAbs = mPosAbs;
+            }
 
             if (e.LeftButton != MouseButtonState.Pressed) {
                 this.SetDragState(DragState.None);
-                this.SetCursorForMousePoint(mpos);
+                this.SetCursorForMousePoint(mPos);
                 this.ReleaseMouseCapture();
                 return;
             }
 
-            this.SetCursorForMousePoint(mpos);
+            this.SetCursorForMousePoint(mPos);
             TrackStoragePanel ctrl;
             if (this.Track == null || (ctrl = this.Track.OwnerPanel) == null) {
                 return;
             }
 
             if (this.dragState == DragState.Initiated) {
-                if (Math.Abs(mpos.X - this.clickPoint.X) < MinDragInitPx && Math.Abs(mpos.Y - this.clickPoint.Y) < MinDragInitPx) {
+                double minDragX = SystemParameters.MinimumHorizontalDragDistance;
+                double minDragY = SystemParameters.MinimumVerticalDragDistance;
+                if (Math.Abs(mPos.X - this.clickPos.X) < minDragX && Math.Abs(mPos.Y - this.clickPos.Y) < minDragY) {
                     return;
                 }
 
-                ClipPart part = this.GetPartForPoint(this.clickPoint);
+                ClipPart part = this.GetPartForPoint(this.clickPos);
                 switch (part) {
                     case ClipPart.Header:
                         this.SetDragState(DragState.DragBody);
@@ -381,37 +394,36 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             }
 
             double zoom = this.Model.Track?.Timeline?.Zoom ?? 1.0;
-            Vector mdif = mpos - this.clickPoint;
+            Vector mPosDifRel = mPos - this.clickPos;
+
+            // Vector mPosDiff = absMpos - this.screenClickPos;
             FrameSpan oldSpan = this.Model.FrameSpan;
             if (this.dragState == DragState.DragBody) {
-                if (Math.Abs(mdif.X) >= 1.0d) {
-                    long offset = (long) Math.Round(mdif.X / zoom);
+                double frameOffsetDouble = (mPosDifRel.X / zoom);
+                long offset = (long) Math.Round(frameOffsetDouble);
+                if (offset != 0) {
+                    // If begin is 2 and offset is -5, this sets offset to -2
+                    // and since newBegin = begin+offset (2 + -2)
+                    // this ensures begin never drops below 0
+                    if ((oldSpan.Begin + offset) < 0) {
+                        offset = -oldSpan.Begin;
+                    }
+
                     if (offset != 0) {
-                        // If begin is 2 and offset is -5, this sets offset to -2
-                        // and since newBegin = begin+offset (2 + -2)
-                        // this ensures begin never drops below 0
-                        if ((oldSpan.Begin + offset) < 0) {
-                            offset = -oldSpan.Begin;
+                        FrameSpan newSpan = new FrameSpan(oldSpan.Begin + offset, oldSpan.Duration);
+                        long newEndIndex = newSpan.EndIndex;
+                        if (newEndIndex > ctrl.Timeline.MaxDuration) {
+                            ctrl.Timeline.MaxDuration = newEndIndex + 300;
                         }
 
-                        if (offset != 0) {
-                            FrameSpan newSpan = new FrameSpan(oldSpan.Begin + offset, oldSpan.Duration);
-                            long newEndIndex = newSpan.EndIndex;
-                            if (newEndIndex > ctrl.Timeline.MaxDuration) {
-                                ctrl.Timeline.MaxDuration = newEndIndex + 300;
-                            }
-
-                            this.isUpdatingFrameSpanFromDrag = true;
-                            this.Model.FrameSpan = newSpan;
-                            this.isUpdatingFrameSpanFromDrag = false;
-                        }
+                        this.Model.FrameSpan = newSpan;
                     }
                 }
 
-                if (Math.Abs(mdif.Y) >= 1.0d && ctrl.Timeline is Timeline timeline) {
+                if (Math.Abs(mPosDifRel.Y) >= 1.0d && ctrl.Timeline is Timeline timeline) {
                     int trackIndex = timeline.Tracks.IndexOf(this.Model.Track);
                     const double area = 0;
-                    if (mpos.Y < Math.Min(area, this.clickPoint.Y)) {
+                    if (mPos.Y < Math.Min(area, this.clickPos.Y)) {
                         if (trackIndex < 1) {
                             return;
                         }
@@ -419,7 +431,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                         this.isMovingBetweenTracks = true;
                         this.Model.MoveToTrack(timeline.Tracks[trackIndex - 1]);
                     }
-                    else if (mpos.Y > (this.ActualHeight - area)) {
+                    else if (mPos.Y > (this.ActualHeight - area)) {
                         if (trackIndex >= (timeline.Tracks.Count - 1)) {
                             return;
                         }
@@ -430,8 +442,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                 }
             }
             else if (this.dragState == DragState.DragLeftEdge || this.dragState == DragState.DragRightEdge) {
-                if (Math.Abs(mdif.X) >= 1.0d) {
-                    long offset = (long) Math.Round(mdif.X / zoom);
+                if (Math.Abs(mPosDifRel.X) >= 1.0d) {
+                    long offset = (long) Math.Round(mPosDifRel.X / zoom);
                     if (offset == 0) {
                         return;
                     }
@@ -456,15 +468,13 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                                 ctrl.Timeline.MaxDuration = newEndIndex + 300;
                             }
 
-                            this.isUpdatingFrameSpanFromDrag = true;
                             this.Model.FrameSpan = newSpan;
-                            this.isUpdatingFrameSpanFromDrag = false;
 
                             // account for there being no "grip" control aligned to the right side;
                             // since the clip is resized, the origin point will not work correctly and
                             // results in an exponential endIndex increase unless the below code is used.
                             // This code is not needed for the left grip because it just naturally isn't
-                            this.clickPoint.X += (newSpan.EndIndex - oldSpan.EndIndex) * zoom;
+                            this.clickPos.X += (newSpan.EndIndex - oldSpan.EndIndex) * zoom;
                         }
                     }
                     else {
@@ -486,9 +496,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                                 ctrl.Timeline.MaxDuration = newEndIndex + 300;
                             }
 
-                            this.isUpdatingFrameSpanFromDrag = true;
                             this.Model.FrameSpan = newSpan;
-                            this.isUpdatingFrameSpanFromDrag = false;
                         }
                     }
                 }

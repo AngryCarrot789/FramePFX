@@ -4367,16 +4367,6 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ToggleButton}">
                     <Border Background="Transparent" Height="16" Padding="1" Width="16">
-                        <!--
-                        <Path x:Name="ExpandPath"
-                              Data="{StaticResource TreeArrow}"
-                              Fill="{DynamicResource TreeViewItem.TreeArrow.Static.Fill}"
-                              Stroke="{DynamicResource TreeViewItem.TreeArrow.Static.Stroke}">
-                            <Path.RenderTransform>
-                                <RotateTransform Angle="135" CenterY="3" CenterX="3"/>
-                            </Path.RenderTransform>
-                        </Path>
-                        -->
                         <Grid>
                             <Rectangle x:Name="ExpandPath"
                                        Fill="{DynamicResource TreeViewItem.TreeArrow.Static.Fill}"

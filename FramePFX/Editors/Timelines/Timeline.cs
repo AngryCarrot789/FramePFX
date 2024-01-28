@@ -22,7 +22,6 @@ namespace FramePFX.Editors.Timelines {
 
         public ReadOnlyCollection<Track> Tracks { get; }
 
-
         /// <summary>
         /// Gets or sets the total length of all tracks, in frames. This is incremented on demand when necessary, and is used for UI calculations
         /// </summary>
@@ -198,7 +197,7 @@ namespace FramePFX.Editors.Timelines {
         public void InsertTrack(int index, Track track) {
             if (track.Timeline != null)
                 throw new ArgumentException("Track already exists in another timeline. It must be removed first");
-            if (this.tracks.Contains(track))
+            if (track.IndexInTimeline != -1)
                 throw new InvalidOperationException("This track already contains the track");
             this.tracks.Insert(index, track);
             if (track.IsSelected)
@@ -212,16 +211,19 @@ namespace FramePFX.Editors.Timelines {
                 }
             }
 
-            Track.OnAddedToTimeline(track, this);
-            Track.OnTrackTimelineChanged(track, null, this);
+            this.UpdateIndexForInsertionOrRemoval(index);
+            Track.InternalOnAddedToTimeline(track, this);
+            Track.InternalOnTrackTimelineChanged(track, null, this);
             this.TrackAdded?.Invoke(this, track, index);
             this.UpdateLargestFrame();
             this.InvalidateRender();
         }
 
         public bool RemoveTrack(Track track) {
-            int index = this.tracks.IndexOf(track);
+            int index = track.IndexInTimeline;
             if (index == -1)
+                return false;
+            if (track.Timeline != this)
                 return false;
             this.RemoveTrackAt(index);
             return true;
@@ -244,8 +246,9 @@ namespace FramePFX.Editors.Timelines {
                 }
             }
 
-            Track.OnRemovedFromTimeline1(track, this);
-            Track.OnTrackTimelineChanged(track, this, null);
+            this.UpdateIndexForInsertionOrRemoval(index);
+            Track.InternalOnRemovedFromTimeline1(track, this);
+            Track.InternalOnTrackTimelineChanged(track, this, null);
             this.TrackRemoved?.Invoke(this, track, index);
             this.UpdateLargestFrame();
             this.InvalidateRender();
@@ -254,6 +257,7 @@ namespace FramePFX.Editors.Timelines {
         public void MoveTrackIndex(int oldIndex, int newIndex) {
             if (oldIndex != newIndex) {
                 this.tracks.MoveItem(oldIndex, newIndex);
+                this.UpdateIndexForTrackMove(oldIndex, newIndex);
 
                 // update anchor
                 TrackPoint anchor = this.RangedSelectionAnchor;
@@ -262,6 +266,7 @@ namespace FramePFX.Editors.Timelines {
                 }
 
                 this.TrackMoved?.Invoke(this, this.tracks[newIndex], oldIndex, newIndex);
+                this.InvalidateRender();
             }
         }
 
@@ -273,42 +278,26 @@ namespace FramePFX.Editors.Timelines {
             }
         }
 
-        // Called by the track directly, in order to guarantee that selection is
-        // handled before any track IsSelectedChanged event handlers
-        public static void OnIsTrackSelectedChanged(Track track) {
-            // See comment about the track's version of this method
-            if (track.Timeline == null) {
-                return;
-            }
-
-            List<Track> selected = track.Timeline.selectedTracks;
-            if (track.IsSelected) {
-                selected.Add(track);
-            }
-            else if (selected.Count > 0) {
-                if (selected[0] == track) {
-                    selected.RemoveAt(0);
-                }
-                else { // assume back to front removal
-                    int index = selected.LastIndexOf(track);
-                    if (index == -1) {
-                        throw new Exception("Track was never selected");
-                    }
-
-                    selected.RemoveAt(index);
-                }
+        private void UpdateIndexForInsertionOrRemoval(int index) {
+            List<Track> list = this.tracks;
+            for (int i = list.Count - 1; i >= index; i--) {
+                Track.InternalUpdateTrackIndex(list[i], i);
             }
         }
 
-        public static void SetMainTimelineProjectReference(Timeline timeline, Project project) {
-            // no need to tell clips or tracks that our project changed, since there is guaranteed
-            // to be none, unless this method is called outside of the project's constructor
-            timeline.Project = project;
-        }
+        private void UpdateIndexForTrackMove(int oldIndex, int newIndex) {
+            int min, max;
+            if (newIndex < oldIndex) {
+                min = newIndex;
+                max = oldIndex;
+            }
+            else {
+                min = oldIndex;
+                max = newIndex;
+            }
 
-        // TODO: composition timelines
-        public static void SetCompositionTimelineProjectReference(Timeline timeline, Project project) {
-
+            Track.InternalUpdateTrackIndex(this.tracks[min], min);
+            this.UpdateIndexForInsertionOrRemoval(max);
         }
 
         /// <summary>
@@ -354,6 +343,8 @@ namespace FramePFX.Editors.Timelines {
             }
         }
 
+        public void InvalidateRender() => this.Project?.RenderManager.InvalidateRender();
+
         internal static void OnIsClipSelectedChanged(Clip clip) {
             // UI modifies the anchor directly
             // clip.Track.Timeline.RangedSelectionAnchor = clip.IsSelected ? clip : null;
@@ -365,12 +356,71 @@ namespace FramePFX.Editors.Timelines {
             // }
         }
 
-        public void InvalidateRender() {
-            this.Project?.RenderManager.InvalidateRender();
+        // Called by the track directly, in order to guarantee that selection is
+        // handled before any track IsSelectedChanged event handlers
+        internal static void InternalOnTrackSelectedChanged(Track track) {
+            // See comment about the track's version of this method
+            if (track.Timeline == null) {
+                return;
+            }
+
+            List<Track> selected = track.Timeline.selectedTracks;
+            if (track.IsSelected) {
+                selected.Add(track);
+            }
+            else if (selected.Count > 0) {
+                if (selected[0] == track) {
+                    selected.RemoveAt(0);
+                }
+                else { // assume back to front removal
+                    int index = selected.LastIndexOf(track);
+                    if (index == -1) {
+                        throw new Exception("Track was never selected");
+                    }
+
+                    selected.RemoveAt(index);
+                }
+            }
         }
 
-        public static void OnTrackSelectionCleared(Track track) {
+        internal static void InternalSetMainTimelineProjectReference(Timeline timeline, Project project) {
+            // no need to tell clips or tracks that our project changed, since there is guaranteed
+            // to be none, unless this method is called outside of the project's constructor
+            timeline.Project = project;
+        }
 
+        // TODO: composition timelines
+        internal static void InternalSetCompositionTimelineProjectReference(Timeline timeline, Project project) {
+
+        }
+
+        internal static void InternalOnTrackSelectionCleared(Track track) {
+
+        }
+
+        public HashSet<Clip> GetSelectedClipsWith(Clip value) {
+            HashSet<Clip> clips = new HashSet<Clip>(this.SelectedClips);
+            if (value != null)
+                clips.Add(value);
+            return clips;
+        }
+
+        public int GetSelectedClipCountWith(Clip clip) {
+            int count = 0;
+            foreach (Track track in this.tracks) {
+                count += track.SelectedClipCount;
+            }
+
+            if (clip != null && !clip.IsSelected) {
+                count++;
+            }
+
+            return count;
+        }
+
+        public void DeleteTrack(Track track) {
+            track.Destroy();
+            this.RemoveTrack(track);
         }
     }
 }

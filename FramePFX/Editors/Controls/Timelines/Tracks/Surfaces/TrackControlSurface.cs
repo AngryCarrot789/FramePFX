@@ -8,8 +8,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
+using FramePFX.AdvancedContextService.WPF;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Automation.Params;
+using FramePFX.Editors.Contextual;
 using FramePFX.Editors.Controls.Binders;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Utils;
@@ -223,14 +225,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
 
         private void OnTrackExpandedChanged() {
             TimelineTrackControl control = this.Owner.TrackList.TimelineControl.GetTimelineControlFromTrack(this.Owner.Track);
-            if (this.ToggleExpandTrackButton.IsChecked == true) {
-                this.AutomationPanel.Visibility = Visibility.Visible;
-                control.AutomationEditor.Visibility = Visibility.Visible;
-            }
-            else {
-                this.AutomationPanel.Visibility = Visibility.Collapsed;
-                control.AutomationEditor.Visibility = Visibility.Collapsed;
-            }
+            this.AutomationPanel.Visibility = control.desiredAutomationVisibility;
         }
 
         protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {

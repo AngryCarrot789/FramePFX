@@ -1,4 +1,5 @@
 using System;
+using FramePFX.Destroying;
 using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Factories;
@@ -7,7 +8,7 @@ using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.RBC;
 
 namespace FramePFX.Editors.Timelines.Effects {
-    public abstract class BaseEffect : IStrictFrameRange, IAutomatable {
+    public abstract class BaseEffect : IStrictFrameRange, IAutomatable, IDestroy {
         /// <summary>
         /// Gets the object that this effect is applied to. At the moment, this is either a <see cref="Clip"/> or <see cref="Track"/>
         /// </summary>
@@ -145,6 +146,10 @@ namespace FramePFX.Editors.Timelines.Effects {
 
         internal static void OnClipTimelineChanged(BaseEffect effect, Timeline oldTimeline, Timeline newTimeline) {
             effect.TimelineChanged?.Invoke(effect, oldTimeline, newTimeline);
+        }
+
+        public virtual void Destroy() {
+
         }
     }
 }

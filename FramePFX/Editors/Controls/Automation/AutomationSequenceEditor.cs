@@ -592,10 +592,9 @@ namespace FramePFX.Editors.Controls.Automation {
                     }
                     else {
                         sequence.RemoveKeyFrame(kf, out _);
+                        this.ClearCapture();
                     }
                 }
-
-                this.ClearCapture();
             }
             else {
                 Point pos = e.GetPosition(this);

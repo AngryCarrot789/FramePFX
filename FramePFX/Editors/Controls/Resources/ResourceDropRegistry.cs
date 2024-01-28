@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Interactivity;
+using FramePFX.Logger;
 using FramePFX.Utils;
 
 namespace FramePFX.Editors.Controls.Resources {
@@ -35,36 +35,27 @@ namespace FramePFX.Editors.Controls.Resources {
                     return Task.CompletedTask;
                 }
 
-                List<BaseResource> loadList = new List<BaseResource>();
                 foreach (BaseResource resource in resources) {
                     if (resource is ResourceFolder group && group.IsParentInHierarchy(folder)) {
                         continue;
                     }
 
                     if (dropType == EnumDropType.Copy) {
-                        BaseResource clone = BaseResource.CloneAndRegister(resource);
+                        BaseResource clone = BaseResource.Clone(resource);
                         if (!TextIncrement.GetIncrementableString(folder.IsNameFree, clone.DisplayName, out string name))
                             name = clone.DisplayName;
                         clone.DisplayName = name;
                         folder.AddItem(clone);
-                        loadList.Add(clone);
                     }
                     else if (resource.Parent != null) {
                         if (resource.Parent != folder) {
-                            // might drag drop a resource in the same group
+                            // drag dropped a resource into the same folder
                             resource.Parent.MoveItemTo(folder, resource);
-                            loadList.Add(resource);
                         }
                     }
                     else {
-                        if (resource is ResourceItem item && item.Manager != null && !item.IsRegistered()) {
-                            item.Manager.RegisterEntry(item);
-                            Debug.WriteLine("Unexpected unregistered item dropped\n" + new StackTrace(true));
-                            Debugger.Break();
-                        }
-
-                        folder.AddItem(resource);
-                        loadList.Add(resource);
+                        // ???
+                        AppLogger.Instance.WriteLine("A resource was dropped with a null parent???");
                     }
                 }
 

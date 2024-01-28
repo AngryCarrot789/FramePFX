@@ -1,6 +1,8 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using FramePFX.AdvancedContextService.WPF;
+using FramePFX.Editors.Contextual;
 using FramePFX.Editors.Controls.Binders;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.DataContexts;
@@ -31,6 +33,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
         private bool wasFocusedBeforeMoving;
 
         public TrackControlSurfaceListBoxItem() {
+            AdvancedContextMenu.SetContextGenerator(this, TrackContextRegistry.Instance);
         }
 
         static TrackControlSurfaceListBoxItem() {

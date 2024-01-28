@@ -34,18 +34,84 @@ namespace FramePFX.Editors.ResourceManaging {
             return true;
         }
 
-        public override void OnAttachedToManager() {
+        protected internal override void OnAttachedToManager() {
             base.OnAttachedToManager();
             foreach (BaseResource resource in this.items) {
                 resource.OnAttachedToManager();
             }
         }
 
-        public override void OnDetatchedFromManager() {
+        protected internal override void OnDetatchedFromManager() {
             base.OnDetatchedFromManager();
             foreach (BaseResource resource in this.items) {
                 resource.OnDetatchedFromManager();
             }
+        }
+
+        /// <summary>
+        /// Adds the item to this resource folder
+        /// </summary>
+        /// <param name="item"></param>
+        public void AddItem(BaseResource item) {
+            this.InsertItem(this.items.Count, item);
+        }
+
+        public void InsertItem(int index, BaseResource item) {
+            if (item.Parent != null)
+                throw new InvalidOperationException("Item already exists in another folder");
+            if (index < 0 || index > this.items.Count)
+                throw new IndexOutOfRangeException($"Index must not be negative or exceed our items count ({index} < 0 || {index} > {this.items.Count})");
+            this.items.Insert(index, item);
+            InternalOnItemAdded(item, this);
+            this.ResourceAdded?.Invoke(this, item, index);
+            if (this.Manager != null && item is ResourceItem && ((ResourceItem) item).UniqueId == ResourceManager.EmptyId)
+                throw new Exception("Expected item to be registered");
+        }
+
+        public bool RemoveItem(BaseResource item) {
+            int index = this.items.IndexOf(item);
+            if (index < 0)
+                return false;
+            this.RemoveItemAt(index);
+            return true;
+        }
+
+        public void RemoveItemAt(int index) {
+            BaseResource item = this.items[index];
+            this.items.RemoveAt(index);
+            InternalOnItemRemoved(item, this);
+            this.ResourceRemoved?.Invoke(this, item, index);
+        }
+
+        public void MoveItemTo(ResourceFolder target, BaseResource item) {
+            int index = this.items.IndexOf(item);
+            if (index == -1)
+                throw new InvalidOperationException("Item is not stored in this folder");
+            this.MoveItemTo(target, index, target.items.Count);
+        }
+
+        public void MoveItemTo(ResourceFolder target, int srcIndex) => this.MoveItemTo(target, srcIndex, target.items.Count);
+
+        public void MoveItemTo(ResourceFolder target, int srcIndex, int dstIndex) {
+            BaseResource item = this.items[srcIndex];
+            if (target.Manager != null && target.Manager != this.Manager)
+                throw new Exception("Target's manager is non-null and different from the current instance");
+            this.items.RemoveAt(srcIndex);
+            target.items.Insert(dstIndex, item);
+            InternalOnItemMoved(item, target);
+            ResourceMovedEventArgs args = new ResourceMovedEventArgs(this, target, item, srcIndex, dstIndex);
+            this.ResourceMoved?.Invoke(this, args);
+            target.ResourceMoved?.Invoke(target, args);
+        }
+
+        public bool IsParentInHierarchy(ResourceFolder item, bool startAtThis = true) {
+            for (ResourceFolder parent = startAtThis ? this : this.Parent; item != null; item = item.Parent) {
+                if (ReferenceEquals(parent, item)) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public override void WriteToRBE(RBEDictionary data) {
@@ -69,141 +135,6 @@ namespace FramePFX.Editors.ResourceManaging {
             ResourceFolder folder = (ResourceFolder) clone;
             foreach (BaseResource child in this.items) {
                 folder.AddItem(Clone(child));
-            }
-        }
-
-        public void AddItem(BaseResource item) {
-            this.InsertItem(this.items.Count, item);
-        }
-
-        public void InsertItem(int index, BaseResource item) {
-            if (item.Parent != null)
-                throw new InvalidOperationException("Item already exists in another folder");
-            if (index < 0 || index > this.items.Count)
-                throw new IndexOutOfRangeException($"Index must not be negative or exceed our items count ({index} < 0 || {index} > {this.items.Count})");
-            bool isManagerDifferent = !ReferenceEquals(this.Manager, item.Manager);
-            bool wasRegistered = false;
-            if (isManagerDifferent && item.Manager != null) {
-                if (item is ResourceItem resItem && resItem.IsRegistered()) {
-                    resItem.Manager.UnregisterItem(resItem);
-                    wasRegistered = true;
-                }
-
-                DetatchInternal(item);
-            }
-
-            this.items.Insert(index, item);
-            InternalSetParent(item, this);
-            this.ResourceAdded?.Invoke(this, item, index);
-            if (isManagerDifferent && this.Manager != null) {
-                AttachInternal(item, this.Manager);
-                if (wasRegistered) {
-                    item.Manager.RegisterEntry((ResourceItem) item);
-                }
-            }
-        }
-
-        public bool RemoveItem(BaseResource item) {
-            int index = this.items.IndexOf(item);
-            if (index < 0)
-                return false;
-            this.RemoveItemAt(index);
-            return true;
-        }
-
-        public void RemoveItemAt(int index) {
-            BaseResource item = this.items[index];
-            this.items.RemoveAt(index);
-            InternalSetParent(item, null);
-            this.ResourceRemoved?.Invoke(this, item, index);
-        }
-
-        public void MoveItemTo(ResourceFolder target, BaseResource item) {
-            int index = this.items.IndexOf(item);
-            if (index == -1)
-                throw new InvalidOperationException("Item is not stored in this folder");
-            this.MoveItemTo(target, index, target.items.Count);
-        }
-
-        public void MoveItemTo(ResourceFolder target, int srcIndex) {
-            this.MoveItemTo(target, srcIndex, target.items.Count);
-        }
-
-        public void MoveItemTo(ResourceFolder target, int srcIndex, int dstIndex) {
-            BaseResource item = this.items[srcIndex];
-            if (target.Manager != null && target.Manager != this.Manager)
-                throw new Exception("Target's manager is non-null and different from the current instance");
-            this.items.RemoveAt(srcIndex);
-            target.items.Insert(dstIndex, item);
-            InternalSetParent(item, target);
-            ResourceMovedEventArgs args = new ResourceMovedEventArgs(this, target, item, srcIndex, dstIndex);
-            this.ResourceMoved?.Invoke(this, args);
-            target.ResourceMoved?.Invoke(target, args);
-        }
-
-        /// <summary>
-        /// Unregisters the item from the <see cref="ResourceManager"/> (if the item is registered), removes the item, and then disposes it
-        /// </summary>
-        /// <param name="index"></param>
-        public void UnregisterAndRemoveItemAt(int index) {
-            BaseResource item = this.items[index];
-            UnregisterAndDetatch(item as ResourceItem);
-            this.RemoveItemAt(index);
-        }
-
-        public bool UnregisterRemoveAndDisposeItem(BaseResource item) {
-            int index = this.items.IndexOf(item);
-            if (index == -1)
-                return false;
-            this.UnregisterDisposeAndRemoveItemAt(index);
-            return true;
-        }
-
-        /// <summary>
-        /// Unregisters the item from the <see cref="ResourceManager"/> (if the item is registered), disposes it, and then removes it
-        /// </summary>
-        /// <param name="index">The index of the item being deleted</param>
-        public void UnregisterDisposeAndRemoveItemAt(int index) {
-            BaseResource item = this.items[index];
-            UnregisterAndDetatch(item as ResourceItem);
-            item.Dispose();
-            this.RemoveItemAt(index);
-        }
-
-        private static void UnregisterAndDetatch(ResourceItem item) {
-            if (item != null && item.Manager != null) {
-                if (item.IsRegistered()) {
-                    item.Manager.UnregisterItem(item);
-                }
-
-                DetatchInternal(item);
-            }
-        }
-
-        public bool IsParentInHierarchy(ResourceFolder item, bool startAtThis = true) {
-            for (ResourceFolder parent = startAtThis ? this : this.Parent; item != null; item = item.Parent) {
-                if (ReferenceEquals(parent, item)) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Registers all items in the hierarchy of the given resource if it's a group. If
-        /// it is just a resource item, then the item is registered. This is a recursive function
-        /// </summary>
-        /// <param name="manager">The (non-null) manager to register items with</param>
-        /// <param name="resource">Target item</param>
-        public static void RegisterHierarchy(ResourceManager manager, BaseResource resource) {
-            if (resource is ResourceItem) {
-                manager.RegisterEntry((ResourceItem) resource);
-            }
-            else if (resource is ResourceFolder) {
-                foreach (BaseResource obj in ((ResourceFolder) resource).items) {
-                    RegisterHierarchy(manager, obj);
-                }
             }
         }
     }

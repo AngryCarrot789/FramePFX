@@ -137,7 +137,7 @@ namespace FramePFX.Editors.ResourceManaging {
         /// </summary>
         /// <param name="item">The item to register</param>
         /// <returns></returns>
-        public ulong RegisterEntry(ResourceItem item) {
+        private ulong RegisterEntry(ResourceItem item) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "Item cannot be null");
             if (item.UniqueId != EmptyId)
@@ -148,7 +148,7 @@ namespace FramePFX.Editors.ResourceManaging {
             return item.UniqueId;
         }
 
-        public void RegisterEntry(ulong id, ResourceItem item) {
+        private void RegisterEntry(ulong id, ResourceItem item) {
             if (id == EmptyId)
                 throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
             if (item == null)
@@ -166,7 +166,7 @@ namespace FramePFX.Editors.ResourceManaging {
             this.ResourceAdded?.Invoke(this, item);
         }
 
-        public ResourceItem UnregisterItemById(ulong id) {
+        private ResourceItem UnregisterItemById(ulong id) {
             if (id == EmptyId)
                 throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
             if (!this.uuidToItem.TryGetValue(id, out ResourceItem item))
@@ -182,7 +182,7 @@ namespace FramePFX.Editors.ResourceManaging {
             return item;
         }
 
-        public bool UnregisterItem(ResourceItem item) {
+        private bool UnregisterItem(ResourceItem item) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "Item cannot be null");
             if (item.UniqueId == EmptyId)
@@ -286,5 +286,13 @@ namespace FramePFX.Editors.ResourceManaging {
         }
 
         #endregion
+
+        internal static void InternalRegister(ResourceItem item) {
+            item.Manager.RegisterEntry(item);
+        }
+
+        internal static void InternalUnregister(ResourceItem item) {
+            item.Manager.UnregisterItem(item);
+        }
     }
 }

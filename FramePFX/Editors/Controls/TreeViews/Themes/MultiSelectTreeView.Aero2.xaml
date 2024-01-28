@@ -1,8 +1,7 @@
-﻿<ResourceDictionary
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:controls="clr-namespace:FramePFX.Editors.Controls.TreeViews.Controls"
-    xmlns:ap="clr-namespace:FramePFX.AttachedProperties">
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:FramePFX.Editors.Controls.TreeViews.Controls"
+                    xmlns:ap="clr-namespace:FramePFX.AttachedProperties">
 
     <Style TargetType="{x:Type controls:MultiSelectTreeView}">
         <Setter Property="Background" Value="{DynamicResource TreeView.Static.Background}"/>

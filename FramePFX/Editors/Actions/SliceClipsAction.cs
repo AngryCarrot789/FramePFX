@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Actions;
 using FramePFX.Editors.Timelines;

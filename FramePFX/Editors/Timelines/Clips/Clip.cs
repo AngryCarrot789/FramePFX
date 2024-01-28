@@ -48,7 +48,7 @@ namespace FramePFX.Editors.Timelines.Clips {
                 if (oldSpan == value)
                     return;
                 this.span = value;
-                Track.OnClipSpanChanged(this, oldSpan);
+                Track.InternalOnClipSpanChanged(this, oldSpan);
                 this.OnFrameSpanChanged(oldSpan, value);
             }
         }
@@ -69,7 +69,7 @@ namespace FramePFX.Editors.Timelines.Clips {
                 if (this.isSelected == value)
                     return;
                 this.isSelected = value;
-                Track.OnIsClipSelectedChanged(this);
+                Track.InternalOnIsClipSelectedChanged(this);
                 this.IsSelectedChanged?.Invoke(this);
             }
         }
@@ -121,6 +121,9 @@ namespace FramePFX.Editors.Timelines.Clips {
         public Clip Clone(ClipCloneOptions options) {
             string id = this.FactoryId;
             Clip clone = ClipFactory.Instance.NewClip(id);
+            if (clone.GetType() != this.GetType())
+                throw new Exception("Cloned object type does not match the item type");
+
             this.LoadDataIntoClone(clone, options);
             if (options.CloneEffects) {
                 foreach (BaseEffect effect in this.Effects) {
@@ -280,7 +283,11 @@ namespace FramePFX.Editors.Timelines.Clips {
         }
 
         public virtual void Destroy() {
-
+            for (int i = this.Effects.Count - 1; i >= 0; i--) {
+                BaseEffect effect = this.Effects[i];
+                effect.Destroy();
+                this.RemoveEffectAt(i);
+            }
         }
 
         internal static void OnAddedToTrack(Clip clip, Track track) {

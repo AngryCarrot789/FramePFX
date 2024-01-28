@@ -31,7 +31,13 @@ namespace FramePFX.Interactivity.DataContexts {
         public DataContext Set<T>(DataKey<T> key, T value) => this.SetRaw(key, value);
 
         public DataContext SetRaw(DataKey key, object value) {
-            (this.map ?? (this.map = new Dictionary<DataKey, object>()))[key] = value;
+            if (value == null) {
+                this.map?.Remove(key);
+            }
+            else {
+                (this.map ?? (this.map = new Dictionary<DataKey, object>()))[key] = value;
+            }
+
             return this;
         }
 
@@ -75,6 +81,15 @@ namespace FramePFX.Interactivity.DataContexts {
                     myMap[entry.Key] = entry.Value;
                 }
             }
+        }
+
+        public override string ToString() {
+            string details = "";
+            if (this.map != null && this.map.Count > 0) {
+                details = string.Join(", ", this.map.Select(x => "\"" + x.Key.ReadableName + "\"" + "=" + x.Value));
+            }
+
+            return "$DataContext[" + details + "]";
         }
     }
 }

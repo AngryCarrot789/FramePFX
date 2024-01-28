@@ -26,6 +26,8 @@
     <Color x:Key="AColour.AccentTone3.Background.Static" R="45" G="125" B="215" A="255"/>
     <Color x:Key="AColour.AccentTone3.Border.Static" R="50" G="135" B="200" A="255"/>
 
+    <Color x:Key="AColour.Tone0.Background.Static" R="20" G="20" B="20" A="255"/>
+    <Color x:Key="AColour.Tone0.Border.Static" R="0" G="0" B="0" A="255"/>
     <Color x:Key="AColour.Tone1.Background.Static" R="24" G="24" B="24" A="255"/>
     <Color x:Key="AColour.Tone1.Border.Static" R="20" G="20" B="20" A="255"/>
     <Color x:Key="AColour.Tone2.Background.Static" R="28" G="28" B="28" A="255"/>
@@ -123,6 +125,8 @@
     <SolidColorBrush x:Key="ABrush.ColourfulGlyph.MouseDown" Color="{StaticResource AColour.ColourfulGlyph.MouseDown}"/>
     <SolidColorBrush x:Key="ABrush.ColourfulGlyph.Selected" Color="{StaticResource AColour.ColourfulGlyph.Selected}"/>
     <SolidColorBrush x:Key="ABrush.ColourfulGlyph.Selected.Inactive" Color="{StaticResource AColour.ColourfulGlyph.Selected.Inactive}"/>
+    <SolidColorBrush x:Key="ABrush.Tone0.Background.Static" Color="{StaticResource AColour.Tone0.Background.Static}"/>
+    <SolidColorBrush x:Key="ABrush.Tone0.Border.Static" Color="{StaticResource AColour.Tone0.Border.Static}"/>
     <SolidColorBrush x:Key="ABrush.Tone1.Background.Static" Color="{StaticResource AColour.Tone1.Background.Static}"/>
     <SolidColorBrush x:Key="ABrush.Tone1.Border.Static" Color="{StaticResource AColour.Tone1.Border.Static}"/>
     <SolidColorBrush x:Key="ABrush.Tone2.Background.Static" Color="{StaticResource AColour.Tone2.Background.Static}"/>

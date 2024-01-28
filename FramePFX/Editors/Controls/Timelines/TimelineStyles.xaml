@@ -11,7 +11,9 @@
                     xmlns:tracks="clr-namespace:FramePFX.Editors.Controls.Timelines.Tracks"
                     xmlns:clips="clr-namespace:FramePFX.Editors.Controls.Timelines.Tracks.Clips"
                     xmlns:p="clr-namespace:FramePFX.Editors.Controls.Timelines.Playheads"
-                    xmlns:wpf="clr-namespace:FramePFX.Shortcuts.WPF">
+                    xmlns:wpf="clr-namespace:FramePFX.Shortcuts.WPF"
+                    xmlns:wpf1="clr-namespace:FramePFX.AdvancedContextService.WPF"
+                    xmlns:ctx="clr-namespace:FramePFX.Editors.Contextual">
     <!-- TimelineTrackListBox's     Background = track gap colour in ListBox -->
     <!-- TimelineTrackListBoxItem's Background = its background -->
 
@@ -160,7 +162,7 @@
     </Style>
 
     <Style TargetType="{x:Type ct:TimelineControl}">
-        <Setter Property="Background" Value="{DynamicResource PanelBorderBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource PanelBackground0}"/>
         <Setter Property="wpf:UIInputManager.FocusPath" Value="Application/Editor/Timeline"/>
         <Setter Property="Template">
             <Setter.Value>

@@ -19,7 +19,7 @@
                                 <ColumnDefinition Width="1"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <t:ResourceTreeView x:Name="PART_ResourceTree" Grid.Column="0" BorderThickness="0"/>
+                            <t:ResourceTreeView x:Name="PART_ResourceTree" BorderThickness="0" Grid.Column="0"/>
                             <explorers:ResourceExplorerListControl x:Name="PART_ResourceList" Grid.Column="2"/>
                             <Border Focusable="False" UseLayoutRounding="True" Grid.Column="1" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                             <GridSplitter Focusable="False" Grid.Column="1" BorderThickness="0" Background="Transparent" Margin="-5,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>

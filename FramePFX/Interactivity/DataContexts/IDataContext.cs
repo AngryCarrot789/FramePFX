@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace FramePFX.Interactivity.DataContexts {
     /// <summary>
-    /// An immutable object that stores context information, along other custom data
+    /// An immutable object that stores context information. Any entry will always have a non-null value; null values are not permitted
     /// </summary>
     public interface IDataContext {
         /// <summary>

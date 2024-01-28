@@ -75,14 +75,14 @@ namespace FramePFX.Editors {
             Project project = new Project();
 
             ResourceManager manager = project.ResourceManager;
-            ulong id_r = manager.RegisterEntry(manager.RootContainer.AddItemAndRet(new ResourceColour(220, 25, 25) {DisplayName = "colour_red"}));
-            ulong id_g = manager.RegisterEntry(manager.RootContainer.AddItemAndRet(new ResourceColour(25, 220, 25) {DisplayName = "colour_green"}));
-            ulong id_b = manager.RegisterEntry(manager.RootContainer.AddItemAndRet(new ResourceColour(25, 25, 220) {DisplayName = "colour_blue"}));
+            ResourceColour id_r = manager.RootContainer.AddItemAndRet(new ResourceColour(220, 25, 25) {DisplayName = "colour_red"});
+            ResourceColour id_g = manager.RootContainer.AddItemAndRet(new ResourceColour(25, 220, 25) {DisplayName = "colour_green"});
+            ResourceColour id_b = manager.RootContainer.AddItemAndRet(new ResourceColour(25, 25, 220) {DisplayName = "colour_blue"});
 
             ResourceFolder folder = new ResourceFolder("Extra Colours");
             manager.RootContainer.AddItem(folder);
-            ulong id_w = manager.RegisterEntry(folder.AddItemAndRet(new ResourceColour(220, 220, 220) {DisplayName = "white colour"}));
-            ulong id_d = manager.RegisterEntry(folder.AddItemAndRet(new ResourceColour(50, 100, 220) {DisplayName = "idek"}));
+            ResourceColour id_w = folder.AddItemAndRet(new ResourceColour(220, 220, 220) {DisplayName = "white colour"});
+            ResourceColour id_d = folder.AddItemAndRet(new ResourceColour(50, 100, 220) {DisplayName = "idek"});
 
             VideoClipShape CreateShapeAt(Vector2 pos, Vector2 size, FrameSpan span, string name) {
                 VideoClipShape shape = new VideoClipShape() {

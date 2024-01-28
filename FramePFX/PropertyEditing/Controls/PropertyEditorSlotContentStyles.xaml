@@ -29,7 +29,7 @@
                         </ToggleButton>
                         <Button x:Name="PART_ResetValue" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
                                 Width="20" Height="20" ap:CornerRadiusHelper.Value="2" ToolTip="Reset the opacity">
-                            <Path Width="12" Height="14" Stretch="Fill" Fill="{DynamicResource ABrush.Glyph.Static}" Data="{StaticResource ResetGeometry}" />
+                            <Path Width="12" Height="14" Stretch="Fill" Fill="{DynamicResource ABrush.Glyph.Static}" Data="{StaticResource ResetGeometry}"/>
                         </Button>
                     </c:SpacedStackPanel>
                 </ControlTemplate>

@@ -9,7 +9,6 @@ using System.Windows;
 using System.Windows.Controls;
 using FramePFX.Actions;
 using FramePFX.Editors.Actions;
-using FramePFX.Logger;
 using FramePFX.Utils;
 
 namespace FramePFX {
@@ -51,15 +50,16 @@ namespace FramePFX {
             }
 
             ActionManager.Instance.Register("actions.timeline.NewVideoTrack", new NewVideoTrackAction());
-
             ActionManager.Instance.Register("actions.timeline.MoveTrackUpAction", new MoveTrackUpAction());
             ActionManager.Instance.Register("actions.timeline.MoveTrackDownAction", new MoveTrackDownAction());
             ActionManager.Instance.Register("actions.timeline.MoveTrackToTopAction", new MoveTrackToTopAction());
             ActionManager.Instance.Register("actions.timeline.MoveTrackToBottomAction", new MoveTrackToBottomAction());
-
+            ActionManager.Instance.Register("actions.timeline.ToggleTrackAutomationAction", new ToggleTrackAutomationAction());
+            ActionManager.Instance.Register("actions.timeline.ToggleClipAutomationAction", new ToggleClipAutomationAction());
             ActionManager.Instance.Register("actions.timeline.TogglePlayAction", new TogglePlayAction());
-
             ActionManager.Instance.Register("actions.timeline.SliceClipsAction", new SliceClipsAction());
+            ActionManager.Instance.Register("actions.timeline.DeleteSelectedClips", new DeleteClipsAction());
+            ActionManager.Instance.Register("actions.timeline.DeleteSelectedTracks", new DeleteTracksAction());
 
             // Editor init
             VideoEditor.Instance.LoadDefaultProject();

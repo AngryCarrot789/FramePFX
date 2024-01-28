@@ -30,7 +30,7 @@ namespace FramePFX.Editors {
             this.RenderManager = new RenderManager(this);
             this.ResourceManager = new ResourceManager(this);
             this.MainTimeline = new Timeline();
-            Timeline.SetMainTimelineProjectReference(this.MainTimeline, this);
+            Timeline.InternalSetMainTimelineProjectReference(this.MainTimeline, this);
         }
 
         /// <summary>

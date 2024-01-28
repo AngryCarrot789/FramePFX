@@ -1,12 +1,11 @@
-﻿using System.Linq;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.Timelines;
-using FramePFX.Editors.Timelines.Clips;
-using FramePFX.Editors.Timelines.Tracks;
+using FramePFX.Interactivity.DataContexts;
 using FramePFX.PropertyEditing;
+using FramePFX.Shortcuts.WPF;
 using FramePFX.Themes;
 using FramePFX.Views;
 using SkiaSharp;
@@ -23,9 +22,13 @@ namespace FramePFX.Editors.Views {
             set => this.SetValue(EditorProperty, value);
         }
 
+        private readonly DataContext actionSystemDataContext;
+
         public EditorWindow() {
+            this.actionSystemDataContext = new DataContext();
             this.InitializeComponent();
             this.Loaded += this.EditorWindow_Loaded;
+            UIInputManager.SetActionSystemDataContext(this, this.actionSystemDataContext);
         }
 
         private void EditorWindow_Loaded(object sender, RoutedEventArgs e) {
@@ -64,6 +67,7 @@ namespace FramePFX.Editors.Views {
                 this.ViewPortElement.VideoEditor = newEditor;
             }
 
+            this.actionSystemDataContext.Set(DataKeys.EditorKey, newEditor);
             Project project = newEditor?.Project;
             if (project != null) {
                 this.UpdateResourceManager(project.ResourceManager);
@@ -74,6 +78,7 @@ namespace FramePFX.Editors.Views {
                 this.UpdateTimeline(null);
             }
 
+            this.actionSystemDataContext.Set(DataKeys.ProjectKey, project);
             this.UpdatePlayBackButtons(newEditor?.Playback);
         }
 
@@ -97,6 +102,7 @@ namespace FramePFX.Editors.Views {
         private void OnEditorProjectChanged(VideoEditor editor, Project oldProject, Project newProject) {
             this.UpdateResourceManager(newProject?.ResourceManager);
             this.UpdateTimeline(newProject?.MainTimeline);
+            this.actionSystemDataContext.Set(DataKeys.ProjectKey, newProject);
         }
 
         private void UpdateResourceManager(ResourceManager manager) {

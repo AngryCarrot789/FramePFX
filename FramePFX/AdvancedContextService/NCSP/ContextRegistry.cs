@@ -6,7 +6,7 @@ using FramePFX.Utils.Collections;
 
 namespace FramePFX.AdvancedContextService.NCSP {
     /// <summary>
-    /// Provides a registration
+    /// Provides a registration for object context menus
     /// </summary>
     public class ContextRegistry {
         public static ContextRegistry Instance { get; } = new ContextRegistry();
@@ -63,7 +63,7 @@ namespace FramePFX.AdvancedContextService.NCSP {
 
                 // slightly reduce memory usage
                 if (reg.actions.Count > 0 && i != endIndex && (i == 0 || !(entries[i - 1] is SeparatorEntry))) {
-                    entries.Add(SeparatorEntry.Instance);
+                    entries.Add(SeparatorEntry.NewInstance);
                 }
             }
 

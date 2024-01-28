@@ -85,11 +85,25 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AdvancedContextService\EventContextEntry.cs" />
+    <Compile Include="AdvancedContextService\WPF\AdvancedActionMenuItem.cs" />
+    <Compile Include="AdvancedContextService\WPF\AdvancedContextMenu.cs" />
+    <Compile Include="AdvancedContextService\WPF\AdvancedEventMenuItem.cs" />
+    <Compile Include="AdvancedContextService\WPF\AdvancedMenuItem.cs" />
+    <Compile Include="AdvancedContextService\WPF\AdvancedMenuItemStyleSelector.cs" />
+    <Compile Include="AdvancedContextService\WPF\AdvancedShortcutMenuItem.cs" />
+    <Compile Include="Editors\Actions\DeleteClipsAction.cs" />
+    <Compile Include="Editors\Actions\DeleteTracksAction.cs" />
     <Compile Include="Editors\Actions\MoveTrackAction.cs" />
     <Compile Include="Editors\Actions\NewVideoTrackAction.cs" />
     <Compile Include="Editors\Actions\SliceClipsAction.cs" />
+    <Compile Include="Editors\Actions\ToggleClipAutomationAction.cs" />
     <Compile Include="Editors\Actions\TogglePlayAction.cs" />
+    <Compile Include="Editors\Actions\ToggleTrackAutomationAction.cs" />
+    <Compile Include="Editors\Contextual\ClipContextRegistry.cs" />
+    <Compile Include="Editors\Contextual\TrackContextRegistry.cs" />
     <Compile Include="Editors\Controls\Timelines\ClipDropRegistry.cs" />
+    <Compile Include="Editors\Timelines\TimelineUtils.cs" />
     <Compile Include="Interactivity\DataContexts\DataContext.cs" />
     <Compile Include="Interactivity\DataContexts\DataContextEntry.cs" />
     <Compile Include="Interactivity\DataContexts\DataKey.cs" />
@@ -298,6 +312,10 @@
     <Compile Include="Views\Validators\IntRangeValidationRule.cs" />
     <Compile Include="Views\Validators\NonEmptyStringValidationRule.cs" />
     <Compile Include="Views\WindowEx.cs" />
+    <Page Include="AdvancedContextService\WPF\ContextStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Editors\Controls\Dragger\NumberDraggerStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -314,39 +332,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Editors\Controls\TreeViews\Themes\Aero.NormalColor.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editors\Controls\TreeViews\Themes\Aero2.NormalColor.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editors\Controls\TreeViews\Themes\Classic.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Editors\Controls\TreeViews\Themes\EditTextBox.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editors\Controls\TreeViews\Themes\Generic.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editors\Controls\TreeViews\Themes\Luna.Homestead.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editors\Controls\TreeViews\Themes\Luna.Metallic.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editors\Controls\TreeViews\Themes\Luna.NormalColor.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editors\Controls\TreeViews\Themes\MultiSelectTreeView.Aero.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -354,27 +340,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Editors\Controls\TreeViews\Themes\MultiSelectTreeView.Classic.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editors\Controls\TreeViews\Themes\MultiSelectTreeViewItem.Aero.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Editors\Controls\TreeViews\Themes\MultiSelectTreeViewItem.Aero2.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editors\Controls\TreeViews\Themes\MultiSelectTreeViewItem.Classic.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editors\Controls\TreeViews\Themes\MultiSelectTreeViewItem.Luna.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editors\Controls\TreeViews\Themes\Royale.NormalColor.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

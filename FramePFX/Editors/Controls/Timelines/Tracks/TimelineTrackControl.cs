@@ -4,6 +4,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using FramePFX.AdvancedContextService.WPF;
+using FramePFX.Editors.Contextual;
 using FramePFX.Editors.Controls.Automation;
 using FramePFX.Editors.Controls.Binders;
 using FramePFX.Editors.Controls.Timelines.Tracks.Clips;
@@ -67,13 +69,14 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
 
         private readonly GetSetAutoPropertyBinder<Track> isSelectedBinder = new GetSetAutoPropertyBinder<Track>(IsSelectedProperty, nameof(VideoTrack.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.IsSelected = (bool) v);
         private MovedClip? clipBeingMoved;
-        private Visibility desiredAutomationVisibility;
+        public Visibility desiredAutomationVisibility;
 
         public TimelineTrackControl() {
             this.HorizontalAlignment = HorizontalAlignment.Stretch;
             this.VerticalAlignment = VerticalAlignment.Top;
             this.TrackColourBrush = new LinearGradientBrush();
             this.UseLayoutRounding = true;
+            AdvancedContextMenu.SetContextGenerator(this, TrackContextRegistry.Instance);
         }
 
         public override void OnApplyTemplate() {
@@ -228,7 +231,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             this.UpdateAutomationVisibility();
         }
 
-        private void UpdateAutomationVisibility() {
+        public void UpdateAutomationVisibility() {
             if (DoubleUtils.AreClose(this.Track.Height, Track.MinimumHeight)) {
                 this.AutomationEditor.Visibility = Visibility.Collapsed;
             }

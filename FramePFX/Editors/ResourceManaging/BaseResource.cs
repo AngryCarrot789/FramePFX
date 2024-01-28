@@ -17,7 +17,8 @@ namespace FramePFX.Editors.ResourceManaging {
         public ResourceManager Manager { get; private set; }
 
         /// <summary>
-        /// The folder that this object is currently in. If this is null, then <see cref="Manager"/> will also be null
+        /// The folder that this object is currently in. This will be null or either the root folder in a resource manager,
+        /// or if this resource just isn't in a resource tree. If this is null, then <see cref="Manager"/> will also be null
         /// </summary>
         public ResourceFolder Parent { get; private set; }
 
@@ -51,11 +52,11 @@ namespace FramePFX.Editors.ResourceManaging {
         public event BaseResourceEventHandler IsSelectedChanged;
 
         protected BaseResource() {
+
         }
 
         /// <summary>
-        /// Creates a clone of the item, and also any child items if the item is a group. This will not register
-        /// anything with the resource manager, that must be done manually or via <see cref="CloneAndRegister"/>
+        /// Creates a clone of the item, and also any child items if the item is a group
         /// </summary>
         /// <param name="item">The item to clone</param>
         /// <returns>A cloned and fully registered but offline resource</returns>
@@ -69,27 +70,10 @@ namespace FramePFX.Editors.ResourceManaging {
         }
 
         /// <summary>
-        /// Clones the item and registers the clone and any child items with the given item's resource manager, if available
-        /// </summary>
-        /// <param name="item">The item to clone</param>
-        /// <returns>A cloned and fully registered but offline resource</returns>
-        /// <exception cref="Exception">Internal error with the resource registry; cloned item type does not match the original item</exception>
-        public static BaseResource CloneAndRegister(BaseResource item) {
-            BaseResource clone = Clone(item);
-            if (item.Manager != null)
-                ResourceFolder.RegisterHierarchy(item.Manager, clone);
-            return clone;
-        }
-
-        protected static void InternalSetParent(BaseResource obj, ResourceFolder parent) {
-            obj.Parent = parent;
-        }
-
-        /// <summary>
         /// Invoked when this resource is added to a resource manager's resource hierarchy.
         /// <see cref="Manager"/> is set to a non-null value prior to this call
         /// </summary>
-        public virtual void OnAttachedToManager() {
+        protected internal virtual void OnAttachedToManager() {
             ResourceManager.UpdateSelection(this);
         }
 
@@ -97,7 +81,7 @@ namespace FramePFX.Editors.ResourceManaging {
         /// Invoked when this resource is removed from a resource manager's resource hierarchy.
         /// <see cref="Manager"/> is set to null after this call
         /// </summary>
-        public virtual void OnDetatchedFromManager() {
+        protected internal virtual void OnDetatchedFromManager() {
             ResourceManager.UpdateSelection(this);
         }
 
@@ -166,14 +150,27 @@ namespace FramePFX.Editors.ResourceManaging {
             root.OnAttachedToManager();
         }
 
-        internal static void AttachInternal(BaseResource resource, ResourceManager manager) {
-            resource.Manager = manager;
-            resource.OnAttachedToManager();
+        protected static void InternalOnItemAdded(BaseResource obj, ResourceFolder parent) {
+            obj.Parent = parent;
+            ResourceManager manager = parent.Manager;
+            if (manager != null) {
+                obj.Manager = manager;
+                obj.OnAttachedToManager();
+            }
         }
 
-        internal static void DetatchInternal(BaseResource resource) {
-            resource.OnDetatchedFromManager();
-            resource.Manager = null;
+        protected static void InternalOnItemRemoved(BaseResource obj, ResourceFolder parent) {
+            obj.Parent = null;
+            if (obj.Manager != null) {
+                obj.OnDetatchedFromManager();
+                obj.Manager = null;
+            }
+        }
+
+        protected static void InternalOnItemMoved(BaseResource obj, ResourceFolder newParent) {
+            if (obj.Manager != newParent.Manager)
+                throw new Exception("Manager was different");
+            obj.Parent = newParent;
         }
     }
 }

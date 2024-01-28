@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using FramePFX.AdvancedContextService.WPF;
+using FramePFX.Editors.Contextual;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.DataContexts;
@@ -30,6 +32,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             this.itemContentCacheMap = new Dictionary<Type, Stack<TrackControlSurface>>();
             this.ItemsPanel = new ItemsPanelTemplate(new FrameworkElementFactory(typeof(TrackControlSurfaceListBoxPanel)));
             this.SelectionMode = SelectionMode.Extended;
+            AdvancedContextMenu.SetContextGenerator(this, TrackContextRegistry.Instance);
         }
 
         static TrackControlSurfaceListBox() {

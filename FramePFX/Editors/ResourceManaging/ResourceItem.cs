@@ -37,6 +37,16 @@ namespace FramePFX.Editors.ResourceManaging {
         protected ResourceItem() {
         }
 
+        protected internal override void OnAttachedToManager() {
+            base.OnAttachedToManager();
+            ResourceManager.InternalRegister(this);
+        }
+
+        protected internal override void OnDetatchedFromManager() {
+            base.OnDetatchedFromManager();
+            ResourceManager.InternalUnregister(this);
+        }
+
         public bool IsRegistered() {
             return this.Manager != null && this.UniqueId != EmptyId;
         }

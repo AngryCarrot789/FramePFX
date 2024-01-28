@@ -85,20 +85,18 @@ namespace FramePFX.Editors.ResourceManaging {
             bool wasRegistered = false;
             if (isManagerDifferent && item.Manager != null) {
                 if (item is ResourceItem resItem && resItem.IsRegistered()) {
-                    resItem.Manager.RemoveEntryByItem(resItem);
+                    resItem.Manager.UnregisterItem(resItem);
                     wasRegistered = true;
                 }
 
-                item.OnDetatchedFromManager();
-                item.manager = null;
+                DetatchInternal(item);
             }
 
             this.items.Insert(index, item);
             InternalSetParent(item, this);
             this.ResourceAdded?.Invoke(this, item, index);
             if (isManagerDifferent && this.Manager != null) {
-                item.manager = this.Manager;
-                item.OnAttachedToManager();
+                AttachInternal(item, this.Manager);
                 if (wasRegistered) {
                     item.Manager.RegisterEntry((ResourceItem) item);
                 }
@@ -120,12 +118,27 @@ namespace FramePFX.Editors.ResourceManaging {
             this.ResourceRemoved?.Invoke(this, item, index);
         }
 
-        public bool UnregisterAndRemoveItem(BaseResource item) {
+        public void MoveItemTo(ResourceFolder target, BaseResource item) {
             int index = this.items.IndexOf(item);
             if (index == -1)
-                return false;
-            this.UnregisterAndRemoveItemAt(index);
-            return true;
+                throw new InvalidOperationException("Item is not stored in this folder");
+            this.MoveItemTo(target, index, target.items.Count);
+        }
+
+        public void MoveItemTo(ResourceFolder target, int srcIndex) {
+            this.MoveItemTo(target, srcIndex, target.items.Count);
+        }
+
+        public void MoveItemTo(ResourceFolder target, int srcIndex, int dstIndex) {
+            BaseResource item = this.items[srcIndex];
+            if (target.Manager != null && target.Manager != this.Manager)
+                throw new Exception("Target's manager is non-null and different from the current instance");
+            this.items.RemoveAt(srcIndex);
+            target.items.Insert(dstIndex, item);
+            InternalSetParent(item, target);
+            ResourceMovedEventArgs args = new ResourceMovedEventArgs(this, target, item, srcIndex, dstIndex);
+            this.ResourceMoved?.Invoke(this, args);
+            target.ResourceMoved?.Invoke(target, args);
         }
 
         /// <summary>
@@ -160,42 +173,10 @@ namespace FramePFX.Editors.ResourceManaging {
         private static void UnregisterAndDetatch(ResourceItem item) {
             if (item != null && item.Manager != null) {
                 if (item.IsRegistered()) {
-                    item.Manager.RemoveEntryByItem(item);
+                    item.Manager.UnregisterItem(item);
                 }
 
-                item.OnDetatchedFromManager();
-                item.manager = null;
-            }
-        }
-
-        public void MoveItemTo(ResourceFolder target, BaseResource item) {
-            int index = this.items.IndexOf(item);
-            if (index == -1)
-                throw new InvalidOperationException("Item is not stored in this folder");
-            this.MoveItemTo(target, index, target.items.Count);
-        }
-
-        public void MoveItemTo(ResourceFolder target, int srcIndex) {
-            this.MoveItemTo(target, srcIndex, target.items.Count);
-        }
-
-        public void MoveItemTo(ResourceFolder target, int srcIndex, int dstIndex) {
-            BaseResource item = this.items[srcIndex];
-            bool isManagerDifferent = !ReferenceEquals(item.Manager, target.Manager);
-            if (isManagerDifferent && item.Manager != null) {
-                item.OnDetatchedFromManager();
-                item.manager = null;
-            }
-
-            this.items.RemoveAt(srcIndex);
-            target.items.Insert(dstIndex, item);
-            InternalSetParent(item, target);
-            ResourceMovedEventArgs args = new ResourceMovedEventArgs(this, target, item, srcIndex, dstIndex);
-            this.ResourceMoved?.Invoke(this, args);
-            target.ResourceMoved?.Invoke(target, args);
-            if (isManagerDifferent && target.Manager != null) {
-                item.manager = target.Manager;
-                item.OnAttachedToManager();
+                DetatchInternal(item);
             }
         }
 

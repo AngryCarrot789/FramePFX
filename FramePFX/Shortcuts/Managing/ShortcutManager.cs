@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading.Tasks;
 using FramePFX.Actions;
 using FramePFX.Interactivity;
-using FramePFX.Shortcuts.Attributes;
+using FramePFX.Interactivity.DataContexts;
 using FramePFX.Shortcuts.Events;
 using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Usage;
@@ -16,7 +15,6 @@ namespace FramePFX.Shortcuts.Managing {
     /// A class for storing and managing shortcuts
     /// </summary>
     public abstract class ShortcutManager {
-        private static readonly Dictionary<Type, CachedTypeData> shortcutPathToMethodCache = new Dictionary<Type, CachedTypeData>();
         private List<GroupedShortcut> allShortcuts;
         private readonly Dictionary<string, LinkedList<GroupedShortcut>> actionToShortcut; // linked because there will only really be like 1 or 2 ever
         private readonly Dictionary<string, GroupedShortcut> pathToShortcut;
@@ -257,37 +255,13 @@ namespace FramePFX.Shortcuts.Managing {
         /// <param name="shortcut">The shortcut that was activated</param>
         /// <returns>A task, which contains the outcome result of the shortcut activation used by the processor's input manager</returns>
         protected virtual async Task<bool> OnShortcutActivatedInternal(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
-            bool result = false;
-            IDataContext context = inputManager.CurrentDataContext;
-            // Fire debug reflection handlers
-            foreach (object obj in context.Context) {
-                MethodInfo info = CachedTypeData.GetMethod(shortcut.FullPath, obj.GetType(), out int type);
-                if (info == null) {
-                    continue;
-                }
-
-                object ret = info.Invoke(obj, type == 0 ? new object[0] : new object[] {context});
-                if (ret is Task task && !task.IsCompleted) {
-                    await task;
-                }
-
-                result = true;
-            }
-
             // Fire action manager. This is the main way of activating shortcuts
             if (ActionManager.Instance.GetAction(shortcut.ActionId) != null) {
-                if (shortcut.ActionContext != null) {
-                    DataContext ctx = new DataContext();
-                    ctx.Merge(context);
-                    ctx.Merge(shortcut.ActionContext);
-                    context = ctx;
-                }
-
-                await ActionManager.Instance.Execute(shortcut.ActionId, context);
-                result = true;
+                await ActionManager.Instance.Execute(shortcut.ActionId, inputManager.CurrentDataContext);
+                return true;
             }
 
-            return result;
+            return false;
         }
 
         /// <summary>
@@ -319,78 +293,6 @@ namespace FramePFX.Shortcuts.Managing {
             if (!this.stateGroups.TryGetValue(id, out InputStateManager group))
                 this.stateGroups[id] = group = new InputStateManager(this, id);
             return group;
-        }
-
-        private class CachedTypeData {
-            private readonly Type type;
-            private readonly Dictionary<string, (MethodInfo, int)> methods;
-
-            private CachedTypeData(Type type, Dictionary<string, (MethodInfo, int)> methods) {
-                this.type = type;
-                this.methods = methods;
-            }
-
-            public static CachedTypeData ForType(Type type) {
-                if (shortcutPathToMethodCache.TryGetValue(type, out CachedTypeData data)) {
-                    return data;
-                }
-
-                List<Type> list = new List<Type>();
-                for (Type t = type.BaseType; t != null && !shortcutPathToMethodCache.ContainsKey(t); t = t.BaseType) {
-                    list.Add(t);
-                }
-
-                for (int i = list.Count - 1; i > 0; i--) {
-                    Type t = list[i];
-                    shortcutPathToMethodCache[t] = GenerateInfo(t);
-                }
-
-                return shortcutPathToMethodCache[type] = GenerateInfo(type);
-            }
-
-            public static MethodInfo GetMethod(string path, Type type, out int invocationType) {
-                for (Type t = type; t != null; t = t.BaseType) {
-                    CachedTypeData data = ForType(t);
-                    if (data != null && data.methods.TryGetValue(path, out (MethodInfo, int) info)) {
-                        invocationType = info.Item2;
-                        return info.Item1;
-                    }
-                }
-
-                invocationType = 0;
-                return null;
-            }
-
-            private static CachedTypeData GenerateInfo(Type type) {
-                Dictionary<string, (MethodInfo, int)> info = new Dictionary<string, (MethodInfo, int)>();
-                foreach (MethodInfo md in type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)) {
-                    ShortcutTargetAttribute attrib = md.GetCustomAttribute<ShortcutTargetAttribute>();
-                    if (attrib != null && attrib.ShortcutPaths != null) {
-                        int ptype;
-                        ParameterInfo[] p = md.GetParameters();
-                        if (p.Length == 0) {
-                            ptype = 0;
-                        }
-                        else if (p.Length == 1) {
-                            if (p[0].ParameterType == typeof(IDataContext)) {
-                                ptype = 1;
-                            }
-                            else {
-                                continue;
-                            }
-                        }
-                        else {
-                            continue;
-                        }
-
-                        foreach (string path in attrib.ShortcutPaths) {
-                            info[path] = (md, ptype);
-                        }
-                    }
-                }
-
-                return info.Count > 0 ? new CachedTypeData(type, info) : null;
-            }
         }
 
         public void OnShortcutModified(GroupedShortcut shortcut, IShortcut oldShortcut) {

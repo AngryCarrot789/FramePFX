@@ -1,5 +1,7 @@
 using System.Numerics;
 using FramePFX.Editors.Rendering;
+using FramePFX.Editors.ResourceManaging.ResourceHelpers;
+using FramePFX.Editors.ResourceManaging.Resources;
 using SkiaSharp;
 
 namespace FramePFX.Editors.Timelines.Clips {
@@ -11,8 +13,14 @@ namespace FramePFX.Editors.Timelines.Clips {
 
         public Vector2 RectSize { get; set; } = new Vector2(100, 40);
 
+        public IResourcePathKey<ResourceColour> ColourKey { get; }
+
         public VideoClipShape() {
             this.UsesCustomOpacityCalculation = true;
+            this.ColourKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceColour>();
+            this.ColourKey.ResourceChanged += (key, item, newItem) => {
+                this.InvalidateRender();
+            };
         }
 
         public override Vector2? GetRenderSize() {
@@ -23,7 +31,7 @@ namespace FramePFX.Editors.Timelines.Clips {
             this.renderData = new RenderData() {
                 opacity = this.Opacity,
                 size = this.RectSize,
-                colour = this.Track?.Colour ?? SKColors.White
+                colour = this.ColourKey.TryGetResource(out ResourceColour resource) ? resource.Colour : (this.Track?.Colour ?? SKColors.White)
             };
 
             return true;

@@ -5,12 +5,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using FramePFX.Actions.WPF;
-using FramePFX.Interactivity;
+using FramePFX.Interactivity.DataContexts;
 using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Managing;
 using FramePFX.Shortcuts.WPF.Bindings;
-using FramePFX.Utils;
 
 namespace FramePFX.Shortcuts.WPF {
     public class WPFShortcutInputManager : ShortcutInputManager {
@@ -155,12 +153,7 @@ namespace FramePFX.Shortcuts.WPF {
         }
 
         public void SetupContext(Window root, DependencyObject obj) {
-            DataContext ctx = ActionContextProviderCollection.CreateContextFromTarget(obj);
-            if (VisualTreeUtils.GetDataContext(root, out object context) && !ctx.Contains(context)) {
-                ctx.AddContext(context);
-            }
-
-            this.CurrentDataContext = ctx;
+            this.CurrentDataContext = UIInputManager.GetDataContext(obj);
             this.CurrentSource = obj;
         }
 

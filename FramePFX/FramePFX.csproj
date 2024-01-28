@@ -85,6 +85,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Editors\Controls\Timelines\ClipDropRegistry.cs" />
+    <Compile Include="Interactivity\DataContexts\DataContext.cs" />
+    <Compile Include="Interactivity\DataContexts\DataContextEntry.cs" />
+    <Compile Include="Interactivity\DataContexts\DataKey.cs" />
+    <Compile Include="Interactivity\DataContexts\DataKeys.cs" />
+    <Compile Include="Interactivity\DataContexts\EmptyContext.cs" />
+    <Compile Include="Interactivity\DataContexts\IDataContext.cs" />
     <Compile Include="PropertyEditing\Controls\Standard\ParameterDoublePropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\Controls\Standard\ParameterFloatPropertyEditorControl.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\EffectListPropertyEditorGroup.cs" />
@@ -376,12 +383,7 @@
     <Compile Include="Actions\AnAction.cs" />
     <Compile Include="Actions\AnActionEventArgs.cs" />
     <Compile Include="Actions\CanExecuteChangedEventHandler.cs" />
-    <Compile Include="Actions\RenameAction.cs" />
     <Compile Include="Actions\ToggleAction.cs" />
-    <Compile Include="Actions\WPF\ActionContextEntry.cs" />
-    <Compile Include="Actions\WPF\ActionContextObject.cs" />
-    <Compile Include="Actions\WPF\ActionContextProviderBase.cs" />
-    <Compile Include="Actions\WPF\ActionContextProviderCollection.cs" />
     <Compile Include="AdvancedContextService\ActionCheckableContextEntry.cs" />
     <Compile Include="AdvancedContextService\ActionContextEntry.cs" />
     <Compile Include="AdvancedContextService\BaseContextEntry.cs" />
@@ -589,14 +591,11 @@
     <Compile Include="Editors\Views\EditorWindow.xaml.cs">
       <DependentUpon>EditorWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Interactivity\DataContext.cs" />
     <Compile Include="Interactivity\DataObjectWrapper.cs" />
     <Compile Include="Interactivity\DragDropRegistry.cs" />
     <Compile Include="Interactivity\DropMetadata.cs" />
     <Compile Include="Interactivity\DropUtils.cs" />
-    <Compile Include="Interactivity\EmptyContext.cs" />
     <Compile Include="Interactivity\EnumDropType.cs" />
-    <Compile Include="Interactivity\IDataContext.cs" />
     <Compile Include="Interactivity\IDataObjekt.cs" />
     <Compile Include="Interactivity\IFileDropHandler.cs" />
     <Compile Include="Interactivity\NativeDropTypes.cs" />

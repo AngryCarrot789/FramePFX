@@ -63,8 +63,6 @@ namespace FramePFX.Shortcuts.Keymapping {
                     shortcutElement.SetAttribute("ActionId", shortcut.ActionId);
                 if (!string.IsNullOrWhiteSpace(shortcut.Description))
                     shortcutElement.SetAttribute("Description", shortcut.Description);
-                if (shortcut.ActionContext != null)
-                    this.SerialiseContext(doc, shortcutElement, shortcut.ActionContext);
 
                 if (!shortcut.Shortcut.IsEmpty) {
                     // trust that IsEmpty is correct
@@ -147,54 +145,6 @@ namespace FramePFX.Shortcuts.Keymapping {
             }
         }
 
-        protected void SerialiseContext(XmlDocument doc, XmlElement shortcutElement, DataContext context) {
-            if (context.EntryMap != null && context.EntryMap.Count > 0) {
-                List<string> flags = new List<string>();
-                List<KeyValuePair<string, string>> entries = new List<KeyValuePair<string, string>>();
-                foreach (KeyValuePair<string, object> pair in context.EntryMap) {
-                    if (string.IsNullOrWhiteSpace(pair.Key)) {
-                        continue;
-                    }
-
-                    if (pair.Value is bool flag) {
-                        if (flag) {
-                            flags.Add(pair.Key);
-                        }
-                        else {
-                            entries.Add(new KeyValuePair<string, string>(pair.Key, "false"));
-                        }
-                    }
-                    else if (pair.Value is string str) {
-                        // allow empty strings
-                        entries.Add(new KeyValuePair<string, string>(pair.Key, str));
-                    }
-                    else {
-                        throw new Exception($"Context entry with key '{pair.Key}' was not a string: {pair.Value}");
-                    }
-                }
-
-                XmlElement contextElement = doc.CreateElement("Shortcut.Context");
-                if (flags.Count > 0) {
-                    XmlElement element = doc.CreateElement("Flags");
-                    element.InnerText = string.Join(" ", flags);
-                    contextElement.AppendChild(element);
-                }
-
-                if (entries.Count > 0) {
-                    foreach (KeyValuePair<string, string> pair in entries) {
-                        XmlElement element = doc.CreateElement("Flag");
-                        element.SetAttribute("Key", pair.Key);
-                        element.SetAttribute("Value", pair.Value);
-                        contextElement.AppendChild(element);
-                    }
-                }
-
-                if (contextElement.ChildNodes.Count > 0) {
-                    shortcutElement.AppendChild(contextElement);
-                }
-            }
-        }
-
         #endregion
 
         #region Deserialisation
@@ -219,7 +169,6 @@ namespace FramePFX.Shortcuts.Keymapping {
 
         private void DeserialiseGroupData(XmlElement src, ShortcutGroup dst) {
             foreach (XmlElement child in src.ChildNodes.OfType<XmlElement>()) {
-                DataContext context = null;
                 switch (child.Name) {
                     case "Group": {
                         ShortcutGroup innerGroup = dst.CreateGroupByName(GetElementName(dst, child), GetIsGlobal(child), GetIsInherit(child));
@@ -308,73 +257,6 @@ namespace FramePFX.Shortcuts.Keymapping {
                                 case "mousestroke":
                                     inputs.Add(this.DeserialiseMouseStroke(innerElement));
                                     break;
-                                case "Shortcut.Context":
-                                case "Shortcut.context": {
-                                    if (innerElement.ChildNodes.Count < 1) {
-                                        break;
-                                    }
-
-                                    context = new DataContext();
-                                    foreach (XmlElement contextNode in innerElement.ChildNodes.OfType<XmlElement>()) {
-                                        if (contextNode.Name.EqualsIgnoreCase("flags")) {
-                                            string flags = contextNode.InnerText;
-                                            if (string.IsNullOrWhiteSpace(flags)) {
-                                                throw new Exception($"Missing or invalid flags string");
-                                            }
-
-                                            foreach (string flag in flags.Split(' ')) {
-                                                if (!string.IsNullOrWhiteSpace(flag)) {
-                                                    context.Set(flag, BoolBox.True);
-                                                }
-                                            }
-                                        }
-                                        else {
-                                            bool isBoolFlag, isFloatEntry = false, isIntEntry = false;
-                                            if ((isBoolFlag = contextNode.Name.EqualsIgnoreCase("flag")) ||
-                                                (isFloatEntry = contextNode.Name.EqualsIgnoreCase("floatentry")) ||
-                                                (isIntEntry = contextNode.Name.EqualsIgnoreCase("intentry")) ||
-                                                contextNode.Name.EqualsIgnoreCase("entry")) {
-                                                // slightly messy code above but it works
-                                                string key = GetAttributeNullable(contextNode, "Key");
-                                                string value = GetAttributeNullable(contextNode, "Value");
-                                                if (string.IsNullOrEmpty(key)) {
-                                                    throw new Exception($"Invalid flag key. Got '{key}'");
-                                                }
-
-                                                if (isBoolFlag) {
-                                                    if ("true".EqualsIgnoreCase(value)) {
-                                                        context.Set(key, BoolBox.True);
-                                                    }
-                                                    else if ("false".EqualsIgnoreCase(value)) {
-                                                        context.Set(key, BoolBox.False);
-                                                    }
-                                                    else {
-                                                        throw new Exception($"Invalid flag value. Expected 'true' or 'false', but got '{value}'");
-                                                    }
-                                                }
-                                                else if (isIntEntry) {
-                                                    if (value == null || !long.TryParse(value, out long v))
-                                                        throw new Exception("Invalid int entry value: " + value);
-                                                    context.Set(key, v);
-                                                }
-                                                else if (isFloatEntry) {
-                                                    if (value == null || !double.TryParse(value, out double v))
-                                                        throw new Exception("Invalid float entry value: " + value);
-                                                    context.Set(key, v);
-                                                }
-                                                else {
-                                                    context.Set(key, value ?? "");
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    if (context.EntryMap == null || context.EntryMap.Count < 1) {
-                                        context = null;
-                                    }
-
-                                    break;
-                                }
                             }
                         }
 
@@ -400,7 +282,6 @@ namespace FramePFX.Shortcuts.Keymapping {
                         managed.ActionId = GetAttributeNullable(child, "ActionId");
                         managed.Description = GetDescription(child);
                         managed.DisplayName = GetDisplayName(child);
-                        managed.ActionContext = context;
                         break;
                     }
                 }

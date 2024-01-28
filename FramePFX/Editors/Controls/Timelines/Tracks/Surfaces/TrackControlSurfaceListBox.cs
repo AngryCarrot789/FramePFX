@@ -5,6 +5,8 @@ using System.Windows;
 using System.Windows.Controls;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
+using FramePFX.Interactivity.DataContexts;
+using FramePFX.Shortcuts.WPF;
 
 namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
     /// <summary>
@@ -54,6 +56,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
                 for (int i = this.Items.Count - 1; i >= 0; i--) {
                     this.RemoveTrackInternal(i);
                 }
+
+                UIInputManager.ClearActionSystemDataContext(this);
             }
 
             if (newTimeline != null) {
@@ -65,6 +69,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
                 foreach (Track track in newTimeline.Tracks) {
                     this.InsertTrackInternal(track, i++);
                 }
+
+                UIInputManager.SetActionSystemDataContext(this, new DataContext().Set(DataKeys.TimelineKey, newTimeline));
             }
         }
 

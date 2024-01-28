@@ -288,6 +288,11 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
 
             return button;
         }
+
+        public void SetAutomationVisibility(Visibility visibility) {
+            if (this.AutomationPanel != null)
+                this.AutomationPanel.Visibility = visibility;
+        }
     }
 
     public class TrackListItemParameterViewModel : INotifyPropertyChanged {

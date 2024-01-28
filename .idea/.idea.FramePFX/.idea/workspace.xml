@@ -8,60 +8,55 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3dd42830-fb81-4631-b072-52d6b7c558b4" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/ClipDisplayNamePropertyEditorControl.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Standard/ParameterDoublePropertyEditorControl.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Standard/ParameterFloatPropertyEditorControl.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Standard/ParameterPropertyEditorControl.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Standard/DragStepProfile.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Standard/ParameterDoublePropertyEditorSlot.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Standard/ParameterFloatPropertyEditorSlot.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Standard/ParameterPropertyEditorSlot.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/ClipDropRegistry.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/Interactivity/DataContexts/DataContext.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/Interactivity/DataContexts/DataContextEntry.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/Interactivity/DataContexts/DataKey.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/Interactivity/DataContexts/DataKeys.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/Interactivity/DataContexts/EmptyContext.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/Interactivity/DataContexts/IDataContext.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.FramePFX/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FramePFX/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Actions/ActionManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Actions/ActionManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Actions/AnAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Actions/AnAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Actions/AnActionEventArgs.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Actions/AnActionEventArgs.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Actions/RenameAction.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Actions/ToggleAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Actions/ToggleAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Actions/WPF/ActionContextEntry.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Actions/WPF/ActionContextObject.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Actions/WPF/ActionContextProviderBase.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Actions/WPF/ActionContextProviderCollection.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/AdvancedContextService/IContextGenerator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/AdvancedContextService/IContextGenerator.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/AdvancedContextService/NCSP/ContextRegistry.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/AdvancedContextService/NCSP/ContextRegistry.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FramePFX/App.xaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/App.xaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Automation/AutomationData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Automation/AutomationData.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Automation/AutomationEngine.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Automation/AutomationEngine.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Automation/Keyframes/AutomationSequence.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Automation/Keyframes/AutomationSequence.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Automation/Params/Parameter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Automation/Params/Parameter.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Automation/Params/ParameterDescriptor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Automation/Params/ParameterDescriptor.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Automation/Params/ParameterKey.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Automation/Params/ParameterKey.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Automation/AutomatedUtils.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Automation/AutomatedUtils.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Binders/SimpleAutomationBinder.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Binders/SimpleAutomationBinder.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/SpacedStackPanel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/SpacedStackPanel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Automation/AutomationSequenceEditor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Automation/AutomationSequenceEditor.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Automation/KeyFramePoint.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Automation/KeyFramePoint.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TimelineControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TimelineControl.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Clips/TimelineClipControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Clips/TimelineClipControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Viewports/VideoEditorViewPortPreview.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Viewports/VideoEditorViewPortPreview.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/IHaveTimeline.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/IHaveTimeline.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Media_OLD/Images/ImageMediaSource.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Media_OLD/Images/ImageMediaSourceTrack.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Media_OLD/MediaSource.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Media_OLD/MediaSourceTrack.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Media_OLD/VideoMediaSourceTrack.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/AControls/Clips/ClipDisplayNamePropertyEditorControl.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/AControls/Standard/AutomatedDoublePropertyEditorControl.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/AControls/Standard/AutomatedFloatPropertyEditorControl.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/Effects/EffectListPropertyEditorGroup.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/Effects/EffectListPropertyEditorGroup.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/Effects/Motion/MotionEffectPropertyEditorGroup.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/Effects/Motion/MotionEffectPropertyEditorGroup.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/Standard/AutomatedDoublePropertyEditorSlot.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/Standard/AutomatedFloatPropertyEditorSlot.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/Standard/DragStepProfile.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Rendering/RenderManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Rendering/RenderManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Clips/Clip.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Clips/Clip.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Surfaces/TrackControlSurface.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Surfaces/TrackControlSurface.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Surfaces/TrackControlSurfaceListBox.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Surfaces/TrackControlSurfaceListBox.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Surfaces/TrackControlSurfaceListBoxItem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Surfaces/TrackControlSurfaceListBoxItem.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/TimelineTrackControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/TimelineTrackControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Project.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Project.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/BaseResource.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/BaseResource.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/ResourceFolder.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/ResourceFolder.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/ResourceItem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/ResourceItem.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/ResourceManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/ResourceManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Resources/ResourceColour.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Resources/ResourceColour.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Clips/VideoClipShape.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Clips/VideoClipShape.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Effects/BaseEffect.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Effects/BaseEffect.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Effects/PixilateEffect.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Effects/PixilateEffect.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Tracks/VideoTrack.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Tracks/VideoTrack.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Utils/SKUtils.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Utils/SKUtils.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FramePFX/Editors/VideoEditor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/VideoEditor.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FramePFX/FramePFX.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/FramePFX.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Properties/AssemblyInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Properties/AssemblyInfo.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Automation/KeyFrameToolsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Automation/KeyFrameToolsControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/BasePropEditControlContent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/BasePropEditControlContent.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorControlPanel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorControlPanel.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorSlotContentStyles.xaml" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorSlotContentStyles.xaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorSlotControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorSlotControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/PropertyEditorSlot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/PropertyEditorSlot.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/VideoEditorPropertyEditor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/VideoEditorPropertyEditor.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Interactivity/DataContext.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Interactivity/DragDropRegistry.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Interactivity/DragDropRegistry.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Interactivity/EmptyContext.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Interactivity/IDataContext.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Shortcuts/Events/ShortcutActivatedEventHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Shortcuts/Events/ShortcutActivatedEventHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Shortcuts/Keymapping/XMLShortcutSerialiser.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Shortcuts/Keymapping/XMLShortcutSerialiser.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Shortcuts/Managing/GroupedShortcut.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Shortcuts/Managing/GroupedShortcut.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Shortcuts/Managing/ShortcutInputManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Shortcuts/Managing/ShortcutInputManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Shortcuts/Managing/ShortcutManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Shortcuts/Managing/ShortcutManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Shortcuts/WPF/UIInputManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Shortcuts/WPF/UIInputManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Shortcuts/WPF/WPFShortcutInputManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Shortcuts/WPF/WPFShortcutInputManager.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -101,57 +96,57 @@
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Timelines/Timeline.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/IHaveTimeline.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Timelines/Tracks/Track.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Timelines/Effects/BaseEffect.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Automation/AutomatedControlUtils.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorStyles.xaml" />
-      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorGroupControl.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/SpacedStackPanel.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorControl.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorControlPanel.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/AControls/Clips/VideoClipOpacityPropertyEditorControl.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/AControls/Effects/MotionEffectMediaPosEditorControl.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/BasePropEditControlContent.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Automation/Params/ParameterDescriptor.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/Standard/AutomatedDoublePropertyEditorSlot.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/Standard/DoubleStepProfile.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/Standard/AutomatedFloatPropertyEditorSlot.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/AControls/Standard/AutomatedDoublePropertyEditorControl.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/VideoEditorPropertyEditor.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/AControls/Standard/AutomatedFloatPropertyEditorControl.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/Standard/DragStepProfile.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/Effects/Motion/MotionEffectPropertyEditorGroup.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Surfaces/TrackControlSurface.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/TimelineTrackControl.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TimelineControl.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/PropertyEditorSlot.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Standard/ParameterDoublePropertyEditorSlot.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Standard/AutomatedDoublePropertyEditorControl.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Standard/ParameterPropertyEditorControl.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Standard/ParameterFloatPropertyEditorSlot.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorSlotControl.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Standard/ParameterFloatPropertyEditorControl.cs" />
       <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Standard/ParameterDoublePropertyEditorControl.cs" />
       <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorSlotContentStyles.xaml" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Automation/AutomatedUtils.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Automation/AutomationEngine.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Automation/Keyframes/AutomationSequence.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/VideoEditor.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Utils/SKUtils.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Viewports/VideoEditorViewPortPreview.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Rendering/RenderManager.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Timelines/Tracks/VideoTrack.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Binders/SimpleAutomationBinder.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Timelines/Clips/VideoClipShape.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Automation/Params/Parameter.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Automation/Params/ParameterKey.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Timelines/Clips/Clip.cs" />
       <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Standard/ParameterPropertyEditorSlot.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Automation/AutomationData.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Clips/TimelineClipControl.cs" />
       <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Automation/KeyFrameToolsControl.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Viewports/VideoEditorViewPortPreview.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Rendering/RenderManager.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Timelines/Tracks/VideoTrack.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Surfaces/TrackControlSurface.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Automation/KeyFramePoint.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Automation/AutomationSequenceEditor.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/App.xaml.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Interactivity/DataContexts/DataKey.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Interactivity/DataContexts/DataKeys.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Interactivity/IDataContext.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Interactivity/EmptyContext.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Shortcuts/Managing/GroupedShortcut.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Shortcuts/Managing/ShortcutManager.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Shortcuts/Keymapping/XMLShortcutSerialiser.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Actions/ToggleAction.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Actions/AnActionEventArgs.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Interactivity/DataContext.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Interactivity/DataContexts/DataContextKey.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Interactivity/DataContexts/DataContextEntry.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Shortcuts/WPF/WPFShortcutInputManager.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Interactivity/DataContexts/DataContext.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TimelineControl.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Shortcuts/WPF/UIInputManager.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Surfaces/TrackControlSurfaceListBox.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Surfaces/TrackControlSurfaceListBoxItem.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/ClipDisplayNamePropertyEditorControl.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/TimelineTrackControl.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Timelines/Clips/VideoClipShape.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/VideoEditor.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Automation/Keyframes/KeyFrameUtils.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Project.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/BaseResource.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/ResourceManager.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/ResourceFolder.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Clips/TimelineClipControl.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/ClipDropRegistry.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/ResourceItem.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Resources/ResourceColour.cs" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="2bVmNasuD1gRewhm3s2Vrxru3IS" />
@@ -168,7 +163,7 @@
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.21609196" />
-    <property name="settings.editor.selected.configurable" value="configurable.group.editor" />
+    <property name="settings.editor.selected.configurable" value="RiderCSharpLiveTemplatesSettingsId" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="RunManager">
@@ -204,7 +199,10 @@
       <workItem from="1706349955125" duration="1023000" />
       <workItem from="1706351028546" duration="6159000" />
       <workItem from="1706361060637" duration="16827000" />
-      <workItem from="1706382342836" duration="11672000" />
+      <workItem from="1706382342836" duration="14256000" />
+      <workItem from="1706401738735" duration="2148000" />
+      <workItem from="1706436409457" duration="3979000" />
+      <workItem from="1706440516091" duration="11017000" />
     </task>
     <task id="LOCAL-00001" summary="Replaced old app with new app, which does not use MVVM much anymore">
       <created>1706309146757</created>
@@ -220,7 +218,14 @@
       <option name="project" value="LOCAL" />
       <updated>1706378365902</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Improved rendering performance by applying track opacity in the final frame assembly, instead of applying it to the track's surface itself. Also improved property editor, fixed key frame insertion and made the clip's automation editor support effect parameters too">
+      <created>1706394193309</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1706394193309</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -244,6 +249,39 @@
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="Replaced old app with new app, which does not use MVVM much anymore" />
     <MESSAGE value="Added most automatable parameters for motion effect, and added general automation slot (double/float for now) that can be used for anything" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added most automatable parameters for motion effect, and added general automation slot (double/float for now) that can be used for anything" />
+    <MESSAGE value="Improved rendering performance by applying track opacity in the final frame assembly, instead of applying it to the track's surface itself. Also improved property editor, fixed key frame insertion and made the clip's automation editor support effect parameters too" />
+    <option name="LAST_COMMIT_MESSAGE" value="Improved rendering performance by applying track opacity in the final frame assembly, instead of applying it to the track's surface itself. Also improved property editor, fixed key frame insertion and made the clip's automation editor support effect parameters too" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/ClipDropRegistry.cs</url>
+          <line>16</line>
+          <properties documentPath="F:\VSProjsV2\FramePFX\FramePFX\Editors\Controls\Timelines\ClipDropRegistry.cs" initialLine="16" containingFunctionPresentation="lambda expression inside constructor 'ClipDropRegistry'">
+            <startOffsets>
+              <option value="672" />
+            </startOffsets>
+            <endOffsets>
+              <option value="719" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/FramePFX/Editors/Timelines/Clips/VideoClipShape.cs</url>
+          <line>30</line>
+          <properties documentPath="F:\VSProjsV2\FramePFX\FramePFX\Editors\Timelines\Clips\VideoClipShape.cs" initialLine="30" containingFunctionPresentation="method 'PrepareRenderFrame'">
+            <startOffsets>
+              <option value="1113" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1385" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

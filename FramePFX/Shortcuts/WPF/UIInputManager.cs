@@ -1,12 +1,16 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
+using FramePFX.Interactivity.DataContexts;
 using FramePFX.Utils;
 
 namespace FramePFX.Shortcuts.WPF {
     public class UIInputManager : INotifyPropertyChanged {
+        public delegate void FocusedPathChangedEventHandler(string oldPath, string newPath);
         public static UIInputManager Instance { get; } = new UIInputManager();
 
         public static readonly DependencyProperty FocusPathProperty = DependencyProperty.RegisterAttached("FocusPath", typeof(string), typeof(UIInputManager), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
@@ -17,8 +21,19 @@ namespace FramePFX.Shortcuts.WPF {
         public static readonly DependencyProperty CanProcessTextBoxKeyStrokeProperty = DependencyProperty.RegisterAttached("CanProcessTextBoxKeyStroke", typeof(bool), typeof(UIInputManager), new PropertyMetadata(BoolBox.False));
         public static readonly DependencyProperty CanProcessTextBoxKeyStrokeWithModifiersProperty = DependencyProperty.RegisterAttached("CanProcessTextBoxKeyStrokeWithModifiers", typeof(bool), typeof(UIInputManager), new PropertyMetadata(BoolBox.True));
         public static readonly DependencyProperty CanProcessTextBoxMouseStrokeProperty = DependencyProperty.RegisterAttached("CanProcessTextBoxMouseStroke", typeof(bool), typeof(UIInputManager), new PropertyMetadata(BoolBox.True));
+        public static readonly DependencyProperty ActionSystemDataContextProperty = DependencyProperty.RegisterAttached("ActionSystemDataContext", typeof(IDataContext), typeof(UIInputManager), new PropertyMetadata(null));
 
-        public delegate void FocusedPathChangedEventHandler(string oldPath, string newPath);
+        public static void SetActionSystemDataContext(DependencyObject element, IDataContext value) {
+            element.SetValue(ActionSystemDataContextProperty, value);
+        }
+
+        public static IDataContext GetActionSystemDataContext(DependencyObject element) {
+            return (IDataContext) element.GetValue(ActionSystemDataContextProperty);
+        }
+
+        public static void ClearActionSystemDataContext(DependencyObject element) {
+            element.ClearValue(ActionSystemDataContextProperty);
+        }
 
         public static event FocusedPathChangedEventHandler OnFocusedPathChanged;
 
@@ -294,5 +309,25 @@ namespace FramePFX.Shortcuts.WPF {
         }
 
         #endregion
+
+        public static DataContext GetDataContext(DependencyObject obj) {
+            DataContext ctx = new DataContext();
+
+            // Scan top-down in order to allow deeper object's entries to override higher up entries
+            List<DependencyObject> visualTree = new List<DependencyObject>();
+            for (DependencyObject dp = obj; dp != null; dp = VisualTreeUtils.GetParent(dp)) {
+                visualTree.Add(dp);
+            }
+
+            for (int i = visualTree.Count - 1; i >= 0; i--) {
+                DependencyObject dp = visualTree[i];
+                object localEntry = dp.ReadLocalValue(ActionSystemDataContextProperty);
+                if (localEntry != DependencyProperty.UnsetValue && localEntry is IDataContext dpCtx) {
+                    ctx.Merge(dpCtx);
+                }
+            }
+
+            return ctx;
+        }
     }
 }

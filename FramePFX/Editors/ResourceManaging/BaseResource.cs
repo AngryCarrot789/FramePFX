@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using FramePFX.Editors.Factories;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.RBC;
@@ -8,17 +9,16 @@ namespace FramePFX.Editors.ResourceManaging {
     /// Base class for resource items and groups
     /// </summary>
     public abstract class BaseResource {
-        internal ResourceManager manager;
         private string displayName;
         private bool isSelected;
 
         /// <summary>
-        /// The manager that this resource belongs to. Null if <see cref="Parent"/> is null, or there is just no manager associated with this hierarchy
+        /// The manager that this resource belongs to. This will be non-null when <see cref="Parent"/> is non-null
         /// </summary>
-        public ResourceManager Manager => this.manager;
+        public ResourceManager Manager { get; private set; }
 
         /// <summary>
-        /// The folder that this object is currently in. Null if we aren't in a folder
+        /// The folder that this object is currently in. If this is null, then <see cref="Manager"/> will also be null
         /// </summary>
         public ResourceFolder Parent { get; private set; }
 
@@ -157,6 +157,24 @@ namespace FramePFX.Editors.ResourceManaging {
         /// </para>
         /// </summary>
         public virtual void Dispose() {
+        }
+
+        /// <summary>
+        /// An internal method used to set a manager's root folder's manager
+        /// </summary>
+        internal static void SetManagerForRootFolder(ResourceFolder root, ResourceManager owner) {
+            root.Manager = owner;
+            root.OnAttachedToManager();
+        }
+
+        internal static void AttachInternal(BaseResource resource, ResourceManager manager) {
+            resource.Manager = manager;
+            resource.OnAttachedToManager();
+        }
+
+        internal static void DetatchInternal(BaseResource resource) {
+            resource.OnDetatchedFromManager();
+            resource.Manager = null;
         }
     }
 }

@@ -62,6 +62,7 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
 
         public ResourceColour(byte r, byte g, byte b, byte a = 255) {
             this.myColour = new SKColor(r, g, b, a);
+            this.Enable(new ErrorList());
         }
 
         public override void WriteToRBE(RBEDictionary data) {

@@ -124,6 +124,8 @@ namespace FramePFX.Editors.Timelines.Tracks {
                 if (renderException != null) {
                     throw renderException;
                 }
+
+                this.surface.Flush(true, true);
             }
         }
 

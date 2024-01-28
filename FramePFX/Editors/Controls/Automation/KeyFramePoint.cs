@@ -27,7 +27,7 @@ namespace FramePFX.Editors.Controls.Automation {
         public bool IsPointSelected;
         public bool IsMouseOverPoint;
         public LineHitType LastLineHitType;
-        internal bool HasCreatedForEmptyList;
+        internal bool InitialPreventRemoveOnMouseUp;
 
         public KeyFramePoint Next {
             get {

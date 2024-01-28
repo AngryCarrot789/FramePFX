@@ -1,8 +1,9 @@
 using System.Threading.Tasks;
+using FramePFX.Interactivity.DataContexts;
 
 namespace FramePFX.Actions {
     public abstract class ToggleAction : AnAction {
-        public const string IsToggledKey = "toggled";
+        public static readonly DataKey<bool> IsToggledKey = new DataKey<bool>("Toggled");
 
         /// <summary>
         /// Gets whether the given event context is toggled or not

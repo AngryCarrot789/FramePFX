@@ -3,6 +3,8 @@ using System.Windows;
 using System.Windows.Controls;
 using FramePFX.Editors.Controls.Binders;
 using FramePFX.Editors.Timelines.Tracks;
+using FramePFX.Interactivity.DataContexts;
+using FramePFX.Shortcuts.WPF;
 using FramePFX.Utils;
 
 namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
@@ -50,6 +52,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             this.TrackList = ownerList;
             this.Track.HeightChanged += this.OnTrackHeightChanged;
             this.Content = ownerList.GetContentObject(track.GetType());
+            UIInputManager.SetActionSystemDataContext(this, new DataContext().Set(DataKeys.TrackKey, track));
         }
 
         public void OnAddedToList() {
@@ -65,6 +68,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             content.Disconnect();
             this.Content = null;
             this.TrackList.ReleaseContentObject(this.Track.GetType(), content);
+            UIInputManager.ClearActionSystemDataContext(this);
         }
 
         public void OnRemovedFromList() {

@@ -38,6 +38,7 @@ namespace FramePFX.Editors {
         /// </summary>
         public void Destroy() {
             this.MainTimeline.Destroy();
+            this.ResourceManager.ClearEntries();
         }
 
         internal static void OnOpened(VideoEditor editor, Project project) {

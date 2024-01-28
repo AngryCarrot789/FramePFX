@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.RBC;
 using FramePFX.Utils;
@@ -78,8 +79,7 @@ namespace FramePFX.Editors.ResourceManaging {
             this.uuidToItem = new Dictionary<ulong, ResourceItem>();
             this.selectedItems = new HashSet<BaseResource>(64, new ReferenceEqualityComparer<BaseResource>());
             this.RootContainer = new ResourceFolder() {DisplayName = "<root>"};
-            this.RootContainer.manager = this;
-            this.RootContainer.OnAttachedToManager();
+            BaseResource.SetManagerForRootFolder(this.RootContainer, this);
             this.currentFolder = this.RootContainer;
             this.IsResourceNotInUsePredicate = s => !this.EntryExists(s);
             this.IsResourceInUsePredicate = this.EntryExists;
@@ -107,20 +107,22 @@ namespace FramePFX.Editors.ResourceManaging {
                 throw new Exception("Cannot read data while resources are still registered");
 
             this.RootContainer.ReadFromRBE(data.GetDictionary(nameof(this.RootContainer)));
-            AccumulateEntriesRecursive(this, this.RootContainer, this.uuidToItem);
+            this.AccumulateEntriesRecursive(this.RootContainer);
             this.currId = data.GetULong("CurrId", 0UL);
         }
 
-        private static void AccumulateEntriesRecursive(ResourceManager manager, BaseResource obj, Dictionary<ulong, ResourceItem> resources) {
+        private void AccumulateEntriesRecursive(BaseResource obj) {
             if (obj is ResourceItem item) {
-                if (resources.TryGetValue(item.UniqueId, out ResourceItem entry))
+                if (item.UniqueId == EmptyId)
+                    throw new Exception("Deserialised resource has an empty ID: " + item.GetType());
+                if (this.uuidToItem.TryGetValue(item.UniqueId, out ResourceItem entry))
                     throw new Exception($"A resource already exists with the id '{item.UniqueId}': {entry}");
-                resources[item.UniqueId] = item;
-                manager.ResourceAdded?.Invoke(manager, item);
+                this.uuidToItem[item.UniqueId] = item;
+                this.ResourceAdded?.Invoke(this, item);
             }
             else if (obj is ResourceFolder group) {
                 foreach (BaseResource subItem in group.Items) {
-                    AccumulateEntriesRecursive(manager, subItem, resources);
+                    this.AccumulateEntriesRecursive(subItem);
                 }
             }
             else {
@@ -128,67 +130,71 @@ namespace FramePFX.Editors.ResourceManaging {
             }
         }
 
+        /// <summary>
+        /// Registers the resource item with a randomly generated unique ID. The resource must exist in a resource
+        /// tree (as in, its <see cref="BaseResource.Parent"/> cannot be null) and its <see cref="ResourceItem.UniqueId"/>
+        /// must be empty (meaning, unregistered) otherwise an exception will be thrown
+        /// </summary>
+        /// <param name="item">The item to register</param>
+        /// <returns></returns>
         public ulong RegisterEntry(ResourceItem item) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "Item cannot be null");
-            if (item.UniqueId != EmptyId) {
-                if (this.uuidToItem.TryGetValue(item.UniqueId, out ResourceItem oldItem))
-                    throw new Exception($"Resource is already registered in this manager with ID '{item.UniqueId}': {oldItem.GetType()}");
-                if (item.Manager != null && item.Manager.uuidToItem.TryGetValue(item.UniqueId, out oldItem))
-                    throw new Exception($"Resource is already registered in another manager with ID '{item.UniqueId}': {oldItem.GetType()}");
-            }
-
-            if (item.Manager != null && item.Manager != this)
-                throw new ArgumentException("Item's manager was non-null and did not equal the current instance");
-
-            ulong id = this.GetNextId();
-            this.uuidToItem[id] = item;
-            ResourceItem.SetUniqueId(item, id);
-            this.ResourceAdded?.Invoke(this, item);
-            return id;
+            if (item.UniqueId != EmptyId)
+                throw new Exception("Item already has an ID associated with it");
+            if (item.Manager == null)
+                throw new Exception("Item does not exist in a resource tree; it cannot be registered");
+            this.RegisterEntryInternal(this.GetNextId(), item);
+            return item.UniqueId;
         }
 
         public void RegisterEntry(ulong id, ResourceItem item) {
-            if (item == null)
-                throw new ArgumentNullException(nameof(item), "Item cannot be null");
             if (id == EmptyId)
                 throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
-            if (this.uuidToItem.TryGetValue(id, out ResourceItem oldItem))
-                throw new Exception($"Resource already exists with the id '{id}': {oldItem.GetType()}");
+            if (item == null)
+                throw new ArgumentNullException(nameof(item), "Item cannot be null");
+            if (item.UniqueId != EmptyId)
+                throw new Exception("Item already has an ID associated with it");
+            if (item.Manager == null)
+                throw new Exception("Item does not exist in a resource tree; it cannot be registered");
+            this.RegisterEntryInternal(id, item);
+        }
+
+        private void RegisterEntryInternal(ulong id, ResourceItem item) {
             this.uuidToItem[id] = item;
             ResourceItem.SetUniqueId(item, id);
             this.ResourceAdded?.Invoke(this, item);
         }
 
-        public ResourceItem DeleteEntryById(ulong id) {
+        public ResourceItem UnregisterItemById(ulong id) {
             if (id == EmptyId)
                 throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
             if (!this.uuidToItem.TryGetValue(id, out ResourceItem item))
                 return null;
-#if DEBUG
             if (item.UniqueId != id) {
                 System.Diagnostics.Debugger.Break();
                 throw new Exception("Existing resource's ID does not equal the given ID; Corrupted application?");
             }
-#endif
+
             this.uuidToItem.Remove(id);
+            ResourceItem.SetUniqueId(item, EmptyId);
             this.ResourceRemoved?.Invoke(this, item);
             return item;
         }
 
-        public bool RemoveEntryByItem(ResourceItem item) {
+        public bool UnregisterItem(ResourceItem item) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "Item cannot be null");
-            if (!ReferenceEquals(this, item.Manager))
-                throw new ArgumentException("Item's manager does not equal the current instance", nameof(item));
             if (item.UniqueId == EmptyId)
-                throw new ArgumentException("Item ID cannot be zero (null)", nameof(item));
-            if (!this.uuidToItem.TryGetValue(item.UniqueId, out ResourceItem oldItem))
                 return false;
-            if (!ReferenceEquals(oldItem, item))
-                throw new Exception("Existing resource does not reference equal the given resource; Corrupted application?");
+            if (!ReferenceEquals(item.Manager, this))
+                return false;
+            if (!this.uuidToItem.Remove(item.UniqueId)) {
+                System.Diagnostics.Debugger.Break();
+                throw new Exception("Corrupted application data");
+            }
 
-            this.uuidToItem.Remove(item.UniqueId);
+            ResourceItem.SetUniqueId(item, EmptyId);
             this.ResourceRemoved?.Invoke(this, item);
             return true;
         }
@@ -227,30 +233,29 @@ namespace FramePFX.Editors.ResourceManaging {
         /// <exception cref="ArgumentException">The item's manager does not match the current instance</exception>
         /// <exception cref="Exception">The item's unique ID is null, empty or only whitespaces</exception>
         public bool EntryExists(ResourceItem item, out bool isRefEqual) {
+            isRefEqual = false;
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "Item cannot be null");
-            if (!ReferenceEquals(this, item.Manager))
-                throw new ArgumentException("Item's manager does not equal the current instance", nameof(item));
             if (item.UniqueId == EmptyId)
-                throw new Exception("Item's ID cannot be zero (null)");
+                return false;
+            if (!ReferenceEquals(this, item.Manager))
+                return false;
             if (!this.uuidToItem.TryGetValue(item.UniqueId, out ResourceItem entryItem))
-                return isRefEqual = false; // one liner ;)
+                throw new Exception("Corrupted application: entry's manager equals this instance but does not exist in the map");
             isRefEqual = ReferenceEquals(entryItem, item);
             return true;
         }
 
         public void ClearEntries() {
             using (ErrorList stack = new ErrorList()) {
-                foreach (ResourceItem item in this.uuidToItem.Values) {
+                foreach (KeyValuePair<ulong, ResourceItem> entry in this.uuidToItem.ToList()) {
                     try {
-                        this.ResourceRemoved?.Invoke(this, item);
+                        this.UnregisterItem(entry.Value);
                     }
                     catch (Exception e) {
                         stack.Add(e);
                     }
                 }
-
-                this.uuidToItem.Clear();
             }
         }
 
@@ -269,7 +274,7 @@ namespace FramePFX.Editors.ResourceManaging {
         }
 
         public static void UpdateSelection(BaseResource resource) {
-            ResourceManager manager = resource.manager;
+            ResourceManager manager = resource.Manager;
             if (manager != null) {
                 if (resource.IsSelected) {
                     manager.selectedItems.Add(resource);

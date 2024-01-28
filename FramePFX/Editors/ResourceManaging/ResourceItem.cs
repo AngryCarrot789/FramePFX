@@ -2,18 +2,18 @@ using System;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.Editors.ResourceManaging.Resources;
 using FramePFX.RBC;
+using FramePFX.Utils;
 
 namespace FramePFX.Editors.ResourceManaging {
     /// <summary>
-    /// The base class for all resource items that can be used by clip objects
-    /// to store and access data shareable across multiple clips
+    /// The base class for all resource items that can be used by clip objects to store and access
+    /// data shareable across multiple clips
     /// </summary>
     public abstract class ResourceItem : BaseResource, IDisposable {
         public const ulong EmptyId = ResourceManager.EmptyId;
 
         /// <summary>
-        /// Gets or sets if this resource is online (usable) or offline (not usable by clips).
-        /// <see cref="OnIsOnlineStateChanged"/> must be called after modifying this value
+        /// Gets if this resource is online (usable) or offline (not usable by clips)
         /// </summary>
         public bool IsOnline { get; private set; }
 
@@ -23,7 +23,9 @@ namespace FramePFX.Editors.ResourceManaging {
         public bool IsOfflineByUser { get; set; }
 
         /// <summary>
-        /// This resource item's unique identifier
+        /// This resource item's current unique identifier. This is only set by our <see cref="ResourceManager"/> (to
+        /// a valid value when registering, or <see cref="EmptyId"/> if unregistering) or during the deserialisation
+        /// phase of this resource, in which case a special registration will occur that uses this property directly
         /// </summary>
         public ulong UniqueId { get; private set; }
 
@@ -36,7 +38,7 @@ namespace FramePFX.Editors.ResourceManaging {
         }
 
         public bool IsRegistered() {
-            return this.Manager != null && this.UniqueId != EmptyId && this.Manager.TryGetEntryItem(this.UniqueId, out ResourceItem resource);
+            return this.Manager != null && this.UniqueId != EmptyId;
         }
 
         /// <summary>
@@ -66,6 +68,35 @@ namespace FramePFX.Editors.ResourceManaging {
         /// False if it was disabled by something else, such as an error
         /// </param>
         protected virtual void OnDisableCore(bool user) {
+        }
+
+        /// <summary>
+        /// Tries to enable this resource. If there were errors, they will be caught and added to the input error list
+        /// </summary>
+        public void Enable(ErrorList list) {
+            if (this.IsOnline)
+                return;
+
+            bool success = false;
+            try {
+                this.OnEnable();
+                success = true;
+            }
+            catch (Exception e) {
+                list.Add(e);
+            }
+
+            if (success) {
+                this.IsOnline = true;
+                this.IsOfflineByUser = false;
+                this.OnIsOnlineStateChanged();
+            }
+        }
+
+        /// <summary>
+        /// Enable this resource; load any external things, open files, etc. ready for clips to use them
+        /// </summary>
+        protected virtual void OnEnable() {
         }
 
         public override void WriteToRBE(RBEDictionary data) {

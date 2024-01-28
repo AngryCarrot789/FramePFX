@@ -9,6 +9,8 @@ using FramePFX.Editors.Controls.Binders;
 using FramePFX.Editors.Controls.Timelines.Tracks.Clips;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
+using FramePFX.Interactivity.DataContexts;
+using FramePFX.Shortcuts.WPF;
 using FramePFX.Utils;
 using SkiaSharp;
 
@@ -65,6 +67,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
 
         private readonly GetSetAutoPropertyBinder<Track> isSelectedBinder = new GetSetAutoPropertyBinder<Track>(IsSelectedProperty, nameof(VideoTrack.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.IsSelected = (bool) v);
         private MovedClip? clipBeingMoved;
+        private Visibility desiredAutomationVisibility;
 
         public TimelineTrackControl() {
             this.HorizontalAlignment = HorizontalAlignment.Stretch;
@@ -158,6 +161,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             track.ClipMovedTracks += this.OnClipMovedTracks;
             track.HeightChanged += this.OnTrackHeightChanged;
             track.ColourChanged += this.OnTrackColourChanged;
+            UIInputManager.SetActionSystemDataContext(this, new DataContext().Set(DataKeys.TrackKey, track));
         }
 
         public void OnAdded() {
@@ -177,6 +181,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             this.Track.ColourChanged -= this.OnTrackColourChanged;
             this.isSelectedBinder.Detatch();
             this.StoragePanel.ClearClipsInternal();
+            UIInputManager.ClearActionSystemDataContext(this);
         }
 
         public void OnRemoved() {
@@ -199,6 +204,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
         }
 
         private void OnTrackHeightChanged(Track track) {
+            this.UpdateAutomationVisibility();
             this.InvalidateMeasure();
             this.StoragePanel.InvalidateMeasure();
             this.OwnerPanel?.InvalidateVisual();
@@ -216,5 +222,19 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
         }
 
         public IEnumerable<TimelineClipControl> GetClips() => this.StoragePanel.GetClips();
+
+        public void SetAutomationVisibility(Visibility visibility) {
+            this.desiredAutomationVisibility = visibility;
+            this.UpdateAutomationVisibility();
+        }
+
+        private void UpdateAutomationVisibility() {
+            if (DoubleUtils.AreClose(this.Track.Height, Track.MinimumHeight)) {
+                this.AutomationEditor.Visibility = Visibility.Collapsed;
+            }
+            else {
+                this.AutomationEditor.Visibility = this.desiredAutomationVisibility;
+            }
+        }
     }
 }

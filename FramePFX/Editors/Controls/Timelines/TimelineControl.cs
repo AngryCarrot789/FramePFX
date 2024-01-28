@@ -18,8 +18,10 @@ using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Effects;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity;
+using FramePFX.Interactivity.DataContexts;
 using FramePFX.Logger;
 using FramePFX.PropertyEditing;
+using FramePFX.Shortcuts.WPF;
 using FramePFX.Utils;
 using SkiaSharp;
 using Track = FramePFX.Editors.Timelines.Tracks.Track;
@@ -67,6 +69,8 @@ namespace FramePFX.Editors.Controls.Timelines {
         public Visibility ClipAutomationVisibility { get; private set; }
 
         private readonly List<Button> timelineActionButtons;
+        private bool isUpdatingTrackAutomationButton;
+        private bool isUpdatingClipAutomationButton;
 
         public TimelineControl() {
             this.MouseLeftButtonDown += (s, e) => {
@@ -246,19 +250,40 @@ namespace FramePFX.Editors.Controls.Timelines {
                 track.InvalidateRender();
             });
 
-            this.UpdateVisibilityStates();
-        }
-
-        private void UpdateClipAutomationVisibilityState() {
-            this.ClipAutomationVisibility = (this.ToggleClipAutomationButton.IsChecked ?? false) ? Visibility.Visible : Visibility.Collapsed;
-        }
-
-        private void UpdateTrackAutomationVisibilityState() {
-            this.TrackAutomationVisibility = (this.ToggleTrackAutomationButton.IsChecked ?? false) ? Visibility.Visible : Visibility.Collapsed;
+            this.UpdateTrackAutomationVisibilityState();
+            this.UpdateClipAutomationVisibilityState();
         }
 
         private void OnClipAutomationToggleChanged(object sender, RoutedEventArgs e) {
-            this.UpdateClipAutomationVisibilityState();
+            if (this.isUpdatingClipAutomationButton)
+                return;
+            this.Timeline.Project.Editor.ShowClipAutomation = this.ToggleClipAutomationButton.IsChecked == true;
+        }
+
+        private void OnTrackAutomationToggleChanged(object sender, RoutedEventArgs e) {
+            if (this.isUpdatingTrackAutomationButton)
+                return;
+            this.Timeline.Project.Editor.ShowTrackAutomation = this.ToggleTrackAutomationButton.IsChecked == true;
+        }
+
+        private void OnShowTrackAutomationChanged(VideoEditor editor) => this.UpdateTrackAutomationVisibilityState();
+
+        private void OnShowClipAutomationChanged(VideoEditor editor) => this.UpdateClipAutomationVisibilityState();
+
+        private void UpdateClipAutomationVisibilityState() {
+            Timeline timeline = this.Timeline;
+            if (timeline == null)
+                return;
+            bool state = timeline.Project.Editor.ShowClipAutomation;
+            try {
+                this.isUpdatingClipAutomationButton = true;
+                this.ToggleClipAutomationButton.IsChecked = state;
+            }
+            finally {
+                this.isUpdatingClipAutomationButton = false;
+            }
+
+            this.ClipAutomationVisibility = state ? Visibility.Visible : Visibility.Collapsed;
             foreach (TimelineTrackControl track in this.TrackStorage.GetTracks()) {
                 foreach (TimelineClipControl clip in track.GetClips()) {
                     this.UpdateClipAutomationVisibility(clip);
@@ -266,12 +291,20 @@ namespace FramePFX.Editors.Controls.Timelines {
             }
         }
 
-        private void OnTrackAutomationToggleChanged(object sender, RoutedEventArgs e) {
-            this.UpdateVisibilityStates();
-        }
+        private void UpdateTrackAutomationVisibilityState() {
+            Timeline timeline = this.Timeline;
+            if (timeline == null)
+                return;
+            bool state = timeline.Project.Editor.ShowTrackAutomation;
+            try {
+                this.isUpdatingTrackAutomationButton = true;
+                this.ToggleTrackAutomationButton.IsChecked = state;
+            }
+            finally {
+                this.isUpdatingTrackAutomationButton = false;
+            }
 
-        private void UpdateVisibilityStates() {
-            this.UpdateTrackAutomationVisibilityState();
+            this.TrackAutomationVisibility = state ? Visibility.Visible : Visibility.Collapsed;
             foreach (TimelineTrackControl track in this.TrackStorage.GetTracks()) {
                 this.UpdateTrackAutomationVisibility(track);
             }
@@ -282,22 +315,13 @@ namespace FramePFX.Editors.Controls.Timelines {
         }
 
         public void UpdateTrackAutomationVisibility(TimelineTrackControl control) {
-            if (control.AutomationEditor != null) {
-                if (!DoubleUtils.AreClose(control.Track.Height, Track.MinimumHeight)) {
-                    control.AutomationEditor.Visibility = this.TrackAutomationVisibility;
-                }
-            }
+            control.SetAutomationVisibility(this.TrackAutomationVisibility);
         }
 
         public void UpdateTrackAutomationVisibility(TrackControlSurfaceListBoxItem control) {
             if (control.Content is TrackControlSurface surface) {
-                this.UpdateTrackAutomationVisibility(surface);
+                surface.SetAutomationVisibility(this.TrackAutomationVisibility);
             }
-        }
-
-        public void UpdateTrackAutomationVisibility(TrackControlSurface surface) {
-            if (surface.AutomationPanel != null)
-                surface.AutomationPanel.Visibility = this.TrackAutomationVisibility;
         }
 
         public void UpdateClipAutomationVisibility(TimelineClipControl control) {
@@ -321,6 +345,9 @@ namespace FramePFX.Editors.Controls.Timelines {
                 oldTimeline.ZoomTimeline -= this.OnTimelineZoomed;
                 oldTimeline.TrackAdded -= this.OnTimelineTrackEvent;
                 oldTimeline.TrackRemoved -= this.OnTimelineTrackEvent;
+                oldTimeline.Project.Editor.ShowClipAutomationChanged -= this.OnShowClipAutomationChanged;
+                oldTimeline.Project.Editor.ShowTrackAutomationChanged -= this.OnShowTrackAutomationChanged;
+                this.ClearValue(UIInputManager.ActionSystemDataContextProperty);
             }
 
             this.TrackStorage.Timeline = newTimeline;
@@ -333,15 +360,21 @@ namespace FramePFX.Editors.Controls.Timelines {
                 newTimeline.ZoomTimeline += this.OnTimelineZoomed;
                 newTimeline.TrackAdded += this.OnTimelineTrackEvent;
                 newTimeline.TrackRemoved += this.OnTimelineTrackEvent;
+                newTimeline.Project.Editor.ShowClipAutomationChanged += this.OnShowClipAutomationChanged;
+                newTimeline.Project.Editor.ShowTrackAutomationChanged += this.OnShowTrackAutomationChanged;
                 if (this.Ruler != null)
                     this.Ruler.MaxValue = newTimeline.MaxDuration;
                 this.UpdateBorderThicknesses(newTimeline);
+                this.SetValue(UIInputManager.ActionSystemDataContextProperty, new DataContext().Set(DataKeys.TimelineKey, newTimeline));
             }
 
             bool canExecute = newTimeline != null;
             foreach (Button button in this.timelineActionButtons) {
                 button.IsEnabled = canExecute;
             }
+
+            this.UpdateTrackAutomationVisibilityState();
+            this.UpdateClipAutomationVisibilityState();
         }
 
         private void OnTimelineTrackEvent(Timeline timeline, Track track, int index) {

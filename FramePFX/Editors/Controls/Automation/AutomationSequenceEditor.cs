@@ -527,76 +527,54 @@ namespace FramePFX.Editors.Controls.Automation {
 
         #region User Input Handling
 
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
-            base.OnMouseLeftButtonDown(e);
-            if (this.backingList.Count < 1) {
+        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
+            base.OnPreviewMouseLeftButtonDown(e);
+            if (!(this.Sequence is AutomationSequence sequence)) {
                 return;
             }
 
-            this.lastMousePoint = e.GetPosition(this);
-            if (this.GetIntersection(ref this.lastMousePoint, out KeyFramePoint hitKey, out LineHitType lineHit)) {
-                if (this.captured != null) {
-                    this.ClearCapture(lineHit != LineHitType.None);
-                }
-
-                this.SetPointCaptured(hitKey, true, lineHit);
-                if (hitKey.HasCreatedForEmptyList) {
-                    hitKey.HasCreatedForEmptyList = false;
+            Point mPos = e.GetPosition(this);
+            this.lastMousePoint = mPos;
+            if (this.backingList.Count < 1) {
+                if (this.isCaptureInitialised) {
                     this.isCaptureInitialised = false;
                 }
 
-                this.InvalidateVisual();
-                e.Handled = true;
-                return;
+                KeyFrame kf = this.CreateKeyFrameAt(sequence, mPos, true);
+                KeyFramePoint kfp = this.GetPointByKeyFrame(kf);
+                kfp.InitialPreventRemoveOnMouseUp = true;
+                this.SetPointCaptured(kfp, true, LineHitType.None);
             }
-
-            this.captured = null;
-        }
-
-        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
-            base.OnPreviewMouseLeftButtonDown(e);
-            Point mPos = e.GetPosition(this);
-            if (this.backingList.Count > 0 && e.ClickCount > 1) {
+            else {
                 if (this.GetIntersection(ref mPos, out KeyFramePoint hitKey, out LineHitType lineHit)) {
                     if (this.captured != null) {
                         this.ClearCapture(lineHit != LineHitType.None);
                     }
 
-                    if (lineHit == LineHitType.None) {
-                        e.Handled = true;
-                        hitKey.keyFrame.sequence.RemoveKeyFrame(hitKey.keyFrame, out _);
-                    }
-                    else if (this.Sequence is AutomationSequence sequence) {
+                    if (lineHit != LineHitType.None) {
                         if (this.isCaptureInitialised) {
-                            this.lastMousePoint = mPos;
                             this.isCaptureInitialised = false;
                         }
 
                         this.CreateKeyFrameAt(sequence, mPos, true);
                     }
+                    else {
+                        this.SetPointCaptured(hitKey, true, lineHit);
+                        if (hitKey.InitialPreventRemoveOnMouseUp) {
+                            hitKey.InitialPreventRemoveOnMouseUp = false;
+                            this.isCaptureInitialised = false;
+                        }
+                    }
 
                     this.InvalidateVisual();
                     e.Handled = true;
                 }
-                else if (this.Sequence is AutomationSequence sequence) {
+                else {
                     if (this.isCaptureInitialised) {
-                        this.lastMousePoint = mPos;
                         this.isCaptureInitialised = false;
                     }
 
                     this.CreateKeyFrameAt(sequence, mPos, true);
-                }
-            }
-            else if (this.backingList.Count == 0) {
-                if (this.Sequence is AutomationSequence sequence) {
-                    if (this.isCaptureInitialised) {
-                        this.lastMousePoint = mPos;
-                        this.isCaptureInitialised = false;
-                    }
-
-                    KeyFrame kf = this.CreateKeyFrameAt(sequence, mPos, true);
-                    KeyFramePoint kfp = this.GetPointByKeyFrame(kf);
-                    kfp.HasCreatedForEmptyList = true;
                 }
             }
         }
@@ -609,8 +587,8 @@ namespace FramePFX.Editors.Controls.Automation {
                     if (kf == null) {
                         throw new Exception("Captured key frame not found in the backing list?");
                     }
-                    else if (p.HasCreatedForEmptyList) {
-                        p.HasCreatedForEmptyList = false;
+                    else if (p.InitialPreventRemoveOnMouseUp) {
+                        p.InitialPreventRemoveOnMouseUp = false;
                     }
                     else {
                         sequence.RemoveKeyFrame(kf, out _);
@@ -618,6 +596,12 @@ namespace FramePFX.Editors.Controls.Automation {
                 }
 
                 this.ClearCapture();
+            }
+            else {
+                Point pos = e.GetPosition(this);
+                if (this.GetIntersection(ref pos, out KeyFramePoint kf, out LineHitType hitType) && hitType == LineHitType.None) {
+                    kf.keyFrame.sequence.RemoveKeyFrame(kf.keyFrame, out _);
+                }
             }
 
             this.InvalidateVisual();

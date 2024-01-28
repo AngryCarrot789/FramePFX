@@ -22,18 +22,49 @@ namespace FramePFX.Editors {
     /// </summary>
     public class VideoEditor {
         /// <summary>
+        /// Gets the singleton instance of the video editor
+        /// </summary>
+        public static VideoEditor Instance { get; } = new VideoEditor();
+
+        private bool showClipAutomation;
+        private bool showTrackAutomation;
+
+        /// <summary>
         /// Gets the project that is currently loaded
         /// </summary>
         public Project Project { get; private set; }
 
         public PlaybackManager Playback { get; }
 
+        public bool ShowClipAutomation {
+            get => this.showClipAutomation;
+            set {
+                if (this.showClipAutomation == value)
+                    return;
+                this.showClipAutomation = value;
+                this.ShowClipAutomationChanged?.Invoke(this);
+            }
+        }
+
+        public bool ShowTrackAutomation {
+            get => this.showTrackAutomation;
+            set {
+                if (this.showTrackAutomation == value)
+                    return;
+                this.showTrackAutomation = value;
+                this.ShowTrackAutomationChanged?.Invoke(this);
+            }
+        }
+
         public event ProjectChangedEventHandler ProjectChanged;
+        public event VideoEditorEventHandler ShowClipAutomationChanged;
+        public event VideoEditorEventHandler ShowTrackAutomationChanged;
 
         public VideoEditor() {
             this.Playback = new PlaybackManager(this);
             this.Playback.SetFrameRate(60.0);
             this.Playback.StartTimer();
+            this.showClipAutomation = true;
         }
 
         public void LoadDefaultProject() {
@@ -58,8 +89,8 @@ namespace FramePFX.Editors {
                     FrameSpan = span
                 };
                 MotionEffect motion = new MotionEffect();
-                ((KeyFrameFloat) motion.AutomationData[MotionEffect.MediaPositionXParameter].DefaultKeyFrame).Value = pos.X;
-                ((KeyFrameFloat) motion.AutomationData[MotionEffect.MediaPositionYParameter].DefaultKeyFrame).Value = pos.Y;
+                motion.AutomationData[MotionEffect.MediaPositionXParameter].DefaultKeyFrame.SetFloatValue(pos.X);
+                motion.AutomationData[MotionEffect.MediaPositionYParameter].DefaultKeyFrame.SetFloatValue(pos.Y);
                 shape.AddEffect(motion);
 
                 shape.RectSize = size;

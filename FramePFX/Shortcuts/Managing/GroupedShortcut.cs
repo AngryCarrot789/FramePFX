@@ -1,6 +1,5 @@
 using System;
 using System.Text;
-using FramePFX.Interactivity;
 
 namespace FramePFX.Shortcuts.Managing {
     /// <summary>
@@ -63,11 +62,6 @@ namespace FramePFX.Shortcuts.Managing {
         /// </para>
         /// </summary>
         public RepeatMode RepeatMode { get; set; }
-
-        /// <summary>
-        /// Additional context for this shortcut to be passed to the action system
-        /// </summary>
-        public DataContext ActionContext { get; set; }
 
         /// <summary>
         /// The shortcut itself. Will not be null

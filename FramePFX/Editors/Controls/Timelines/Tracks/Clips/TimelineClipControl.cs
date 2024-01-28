@@ -1,16 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Controls.Automation;
 using FramePFX.Editors.Controls.Binders;
+using FramePFX.Editors.Controls.Resources.Explorers;
+using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Effects;
+using FramePFX.Interactivity;
+using FramePFX.Interactivity.DataContexts;
+using FramePFX.Shortcuts.WPF;
 using FramePFX.Utils;
 using Timeline = FramePFX.Editors.Timelines.Timeline;
 
@@ -22,6 +29,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
         private static readonly FontFamily SegoeUI = new FontFamily("Segoe UI");
         public static readonly DependencyProperty DisplayNameProperty = DependencyProperty.Register("DisplayName", typeof(string), typeof(TimelineClipControl), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
         public static readonly DependencyProperty IsSelectedProperty = DependencyProperty.Register("IsSelected", typeof(bool), typeof(TimelineClipControl), new PropertyMetadata(BoolBox.False));
+        public static readonly DependencyProperty IsDroppableTargetOverProperty = DependencyProperty.Register("IsDroppableTargetOver", typeof(bool), typeof(TimelineClipControl), new PropertyMetadata(BoolBox.False));
 
         public string DisplayName {
             get => (string) this.GetValue(DisplayNameProperty);
@@ -31,6 +39,11 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
         public bool IsSelected {
             get => (bool) this.GetValue(IsSelectedProperty);
             set => this.SetValue(IsSelectedProperty, value);
+        }
+
+        public bool IsDroppableTargetOver {
+            get => (bool) this.GetValue(IsDroppableTargetOverProperty);
+            set => this.SetValue(IsDroppableTargetOverProperty, value);
         }
 
         public long FrameBegin {
@@ -61,7 +74,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
         public AutomationSequenceEditor AutomationEditor { get; private set; }
 
         public double TimelineZoom => this.Model.Track?.Timeline?.Zoom ?? 1d;
-        
+
         public double PixelBegin => this.frameBegin * this.TimelineZoom;
 
         public double PixelWidth => this.frameDuration * this.TimelineZoom;
@@ -78,6 +91,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
         private bool isUpdatingFrameSpanFromDrag;
         private bool hasMadeExceptionalSelectionInMouseDown;
         private bool isMovingBetweenTracks;
+        private bool isProcessingAsyncDrop;
 
         private GlyphRun glyphRun;
         private readonly RectangleGeometry renderSizeRectGeometry;
@@ -92,6 +106,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
         private readonly GetSetAutoPropertyBinder<Clip> isSelectedBinder = new GetSetAutoPropertyBinder<Clip>(IsSelectedProperty, nameof(VideoClip.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.IsSelected = (bool) v);
 
         public TimelineClipControl() {
+            this.AllowDrop = true;
             this.VerticalAlignment = VerticalAlignment.Stretch;
             this.GotFocus += this.OnGotFocus;
             this.LostFocus += this.OnLostFocus;
@@ -133,6 +148,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
         public void OnAdding(TimelineTrackControl trackList, Clip clip) {
             this.Track = trackList;
             this.Model = clip;
+            UIInputManager.SetActionSystemDataContext(this, new DataContext().Set(DataKeys.ClipKey, clip));
         }
 
         public void OnAdded() {
@@ -154,6 +170,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             this.isSelectedBinder.Detatch();
             this.AutomationEditor.Sequence = null;
             this.Model.ActiveSequenceChanged -= this.ClipActiveSequenceChanged;
+            UIInputManager.ClearActionSystemDataContext(this);
         }
 
         private void ClipActiveSequenceChanged(Clip clip, AutomationSequence oldsequence, AutomationSequence newsequence) {
@@ -295,11 +312,19 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             }
 
             switch (state) {
-                case DragState.None:          this.ClearValue(CursorProperty); break;
-                case DragState.Initiated:     break;
-                case DragState.DragBody:      this.Cursor = Cursors.SizeAll; break;
-                case DragState.DragLeftEdge:  this.Cursor = Cursors.SizeWE; break;
-                case DragState.DragRightEdge: this.Cursor = Cursors.SizeWE; break;
+                case DragState.None:
+                    this.ClearValue(CursorProperty);
+                    break;
+                case DragState.Initiated: break;
+                case DragState.DragBody:
+                    this.Cursor = Cursors.SizeAll;
+                    break;
+                case DragState.DragLeftEdge:
+                    this.Cursor = Cursors.SizeWE;
+                    break;
+                case DragState.DragRightEdge:
+                    this.Cursor = Cursors.SizeWE;
+                    break;
                 default: throw new ArgumentOutOfRangeException(nameof(state), state, null);
             }
         }
@@ -523,6 +548,85 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
         public void OnZoomChanged(double newZoom) {
             // this.InvalidateMeasure();
             this.AutomationEditor.UnitZoom = newZoom;
+        }
+
+        protected override void OnDragEnter(DragEventArgs e) {
+            this.OnDragOver(e);
+        }
+
+        protected override void OnDragOver(DragEventArgs e) {
+            e.Handled = true;
+            if (this.isProcessingAsyncDrop) {
+                e.Effects = DragDropEffects.None;
+                return;
+            }
+
+            EnumDropType outputEffects = EnumDropType.None;
+            EnumDropType inputEffects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
+            if (inputEffects != EnumDropType.None && this.Model is Clip target) {
+                if (e.Data.GetData(ResourceExplorerListControl.ResourceDropType) is List<BaseResource> resources) {
+                    if (resources.Count == 1 && resources[0] is ResourceItem) {
+                        outputEffects = ClipDropRegistry.DropRegistry.CanDrop(target, resources[0], inputEffects);
+                    }
+                }
+                // else if (e.Data.GetData(EffectProviderTreeViewItem.ProviderDropType) is EffectProvider provider) {
+                //     outputEffects = ClipDropRegistry.DropRegistry.CanDrop(target, provider, inputEffects);
+                // }
+                else {
+                    outputEffects = ClipDropRegistry.DropRegistry.CanDropNative(target, new DataObjectWrapper(e.Data), inputEffects);
+                }
+
+                if (outputEffects != EnumDropType.None) {
+                    this.OnAcceptDrop();
+                    e.Effects = (DragDropEffects) outputEffects;
+                }
+                else {
+                    this.IsDroppableTargetOver = false;
+                    e.Effects = DragDropEffects.None;
+                }
+            }
+        }
+
+        private void OnAcceptDrop() {
+            if (!this.IsDroppableTargetOver)
+                this.IsDroppableTargetOver = true;
+        }
+
+        protected override void OnDragLeave(DragEventArgs e) {
+            base.OnDragLeave(e);
+            this.Dispatcher.Invoke(() => {
+                this.ClearValue(IsDroppableTargetOverProperty);
+            }, DispatcherPriority.Loaded);
+        }
+
+        protected override async void OnDrop(DragEventArgs e) {
+            base.OnDrop(e);
+            e.Handled = true;
+            if (this.isProcessingAsyncDrop || !(this.Model is Clip clip)) {
+                return;
+            }
+
+            EnumDropType effects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
+            if (e.Effects == DragDropEffects.None) {
+                return;
+            }
+
+            try {
+                this.isProcessingAsyncDrop = true;
+                if (e.Data.GetData(ResourceExplorerListControl.ResourceDropType) is List<BaseResource> items && items.Count == 1 && items[0] is ResourceItem) {
+                    await ClipDropRegistry.DropRegistry.OnDropped(clip, items[0], effects);
+                }
+                // else if (e.Data.GetData(EffectProviderTreeViewItem.ProviderDropType) is EffectProvider provider) {
+                //     await ClipDropRegistry.DropRegistry.OnDropped(drop, provider, effects);
+                // }
+                else {
+                    await ClipDropRegistry.DropRegistry.OnDroppedNative(clip, new DataObjectWrapper(e.Data), effects);
+                }
+            }
+            finally {
+                this.isProcessingAsyncDrop = false;
+                this.IsDroppableTargetOver = false;
+            }
         }
 
         private ClipPart GetPartForPoint(Point mpos) {

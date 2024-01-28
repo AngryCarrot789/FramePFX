@@ -10,7 +10,7 @@ namespace FramePFX.Interactivity.DataContexts {
 
         public IEnumerable<KeyValuePair<DataKey, object>> Entries { get; } = Enumerable.Empty<KeyValuePair<DataKey, object>>();
 
-        public bool TryGet<T>(DataKey<T> key, out T value) {
+        public bool TryGetContext<T>(DataKey<T> key, out T value) {
             value = default;
             return false;
         }

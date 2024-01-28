@@ -130,10 +130,8 @@ namespace FramePFX.Editors.Automation {
 
         public void LoadDataIntoClone(AutomationData clone) {
             clone.ActiveParameter = this.ActiveParameter;
-            IList<AutomationSequence> listA = this.sequences.Values;
-            IList<AutomationSequence> listB = clone.sequences.Values;
-            for (int i = 0, c = this.sequences.Count; i < c; i++) {
-                AutomationSequence.LoadDataIntoClone(listA[i], listB[i]);
+            foreach (KeyValuePair<Parameter,AutomationSequence> seq in this.sequences) {
+                AutomationSequence.LoadDataIntoClone(seq.Value, clone[seq.Key]);
             }
         }
 

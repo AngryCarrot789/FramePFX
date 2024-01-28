@@ -17,7 +17,7 @@ namespace FramePFX.Interactivity.DataContexts {
         /// <param name="value"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        bool TryGet<T>(DataKey<T> key, out T value);
+        bool TryGetContext<T>(DataKey<T> key, out T value);
 
         /// <summary>
         /// Checks if the given data key is contained in this context

@@ -216,6 +216,7 @@ namespace FramePFX.Editors.Timelines {
             Track.OnTrackTimelineChanged(track, null, this);
             this.TrackAdded?.Invoke(this, track, index);
             this.UpdateLargestFrame();
+            this.InvalidateRender();
         }
 
         public bool RemoveTrack(Track track) {
@@ -247,6 +248,7 @@ namespace FramePFX.Editors.Timelines {
             Track.OnTrackTimelineChanged(track, this, null);
             this.TrackRemoved?.Invoke(this, track, index);
             this.UpdateLargestFrame();
+            this.InvalidateRender();
         }
 
         public void MoveTrackIndex(int oldIndex, int newIndex) {

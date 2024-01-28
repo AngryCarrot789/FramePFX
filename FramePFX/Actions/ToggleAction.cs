@@ -11,7 +11,7 @@ namespace FramePFX.Actions {
         /// <param name="e">The action event args, containing info about the current context</param>
         /// <returns>A nullable boolean that states the toggle state, or null if no toggle state is present</returns>
         public virtual bool? GetIsToggled(AnActionEventArgs e) {
-            return e.DataContext.TryGet(IsToggledKey, out bool value) ? (bool?) value : null;
+            return e.DataContext.TryGetContext(IsToggledKey, out bool value) ? (bool?) value : null;
         }
 
         public override Task ExecuteAsync(AnActionEventArgs e) {

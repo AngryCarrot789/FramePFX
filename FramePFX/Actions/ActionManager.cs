@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
-using FramePFX.Interactivity;
 using FramePFX.Interactivity.DataContexts;
 
 namespace FramePFX.Actions {

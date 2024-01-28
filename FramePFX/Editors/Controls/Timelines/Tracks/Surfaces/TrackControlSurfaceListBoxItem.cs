@@ -28,6 +28,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
         public TrackControlSurfaceListBox TrackList { get; private set; }
 
         private readonly GetSetAutoPropertyBinder<Track> isSelectedBinder = new GetSetAutoPropertyBinder<Track>(IsSelectedProperty, nameof(VideoTrack.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.IsSelected = (bool) v);
+        private bool wasFocusedBeforeMoving;
 
         public TrackControlSurfaceListBoxItem() {
         }
@@ -77,9 +78,17 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
         }
 
         public void OnIndexMoving(int oldIndex, int newIndex) {
+            this.isSelectedBinder.Detatch();
+            this.wasFocusedBeforeMoving = this.IsFocused;
         }
 
         public void OnIndexMoved(int oldIndex, int newIndex) {
+            this.isSelectedBinder.Attach(this, this.Track);
+            this.Height = this.Track.Height;
+            if (this.wasFocusedBeforeMoving) {
+                this.wasFocusedBeforeMoving = false;
+                this.Focus();
+            }
         }
 
         #endregion

@@ -35,7 +35,7 @@ namespace FramePFX.Interactivity.DataContexts {
             return this;
         }
 
-        public bool TryGet<T>(DataKey<T> key, out T value) {
+        public bool TryGetContext<T>(DataKey<T> key, out T value) {
             if (this.map != null && this.map.TryGetValue(key, out object objVal)) {
                 value = (T) objVal;
                 return true;

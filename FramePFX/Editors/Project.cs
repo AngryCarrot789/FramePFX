@@ -1,3 +1,4 @@
+using System.Threading;
 using FramePFX.Destroying;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.ResourceManaging;
@@ -37,6 +38,11 @@ namespace FramePFX.Editors {
         /// This is called when closing a project, or loading a new project (old project destroyed, new one is loaded)
         /// </summary>
         public void Destroy() {
+            // TODO: this is no good
+            while (this.RenderManager.IsRendering)
+                Thread.Sleep(1);
+            this.RenderManager.Dispose();
+
             this.MainTimeline.Destroy();
             this.ResourceManager.ClearEntries();
         }

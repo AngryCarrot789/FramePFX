@@ -9,11 +9,6 @@
             <KeyStroke Mods="CTRL" Key="R" />
         </Shortcut>
         <Group Name="Editor">
-            <Group Name="ViewPort">
-                <Shortcut Name="TogglePlayPause" ActionId="actions.editor.timeline.TogglePlayPause">
-                    <KeyStroke Key="Space" />
-                </Shortcut>
-            </Group>
             <Shortcut Name="ToggleAutomationActive">
                 <KeyStroke Key="NumPad0" />
             </Shortcut>
@@ -63,7 +58,18 @@
             </Shortcut>
             <!-- ################################################################################################### -->
 
-            <Group Name="Resources">
+            <!-- Shortcuts for the view port panel -->
+            <Group Name="ViewPort">
+                <Shortcut Name="TogglePlayPause" ActionId="actions.editor.timeline.TogglePlayPause">
+                    <KeyStroke Key="Space" />
+                </Shortcut>
+            </Group>
+            <!-- Shortcuts for the property editor panel -->
+            <Group Name="PropertyEditor">
+
+            </Group>
+            <!-- Shortcuts for the view port panel -->
+            <Group Name="ResourceManager">
                 <Shortcut Name="DeleteItems" ActionId="actions.resources.DeleteItems" Description="Deletes all of the selected resources">
                     <KeyStroke Key="Delete" />
                 </Shortcut>
@@ -71,18 +77,16 @@
                     <KeyStroke Mods="CTRL" Key="G" />
                 </Shortcut>
             </Group>
+            <!-- Shortcuts for the timeline panel -->
             <Group Name="Timeline">
-                <Group Name="Surface">
+                <!-- Shortcuts for specifically the timeline sequence -->
+                <Group Name="Sequence">
                     <Shortcut Name="DeleteSelectedClips" ActionId="actions.editor.timeline.DeleteSelectedClips" Description="Deletes all of the selected clips">
                         <KeyStroke Key="Delete" />
-                    </Shortcut>
-                    <Shortcut Name="SliceClipsAction" ActionId="actions.editor.timeline.SliceClips" Description="Cuts the selected clip in half where the play head is. If you have no selection, then all clips over the play head are sliced">
-                        <KeyStroke Key="S" />
                     </Shortcut>
                     <Shortcut Name="DuplicateClipsAction" ActionId="actions.editor.timeline.DuplicateClips">
                         <KeyStroke Mods="CTRL" Key="D" />
                     </Shortcut>
-
                     <Shortcut Name="MoveBack" ActionId="actions.timeline.surface.MoveBack">
                         <KeyStroke Key="Left" />
                     </Shortcut>
@@ -113,29 +117,39 @@
                         <KeyStroke Mods="CTRL" Key="T" />
                     </Shortcut>
                 </Group>
-                <Group Name="TrackControllers">
+
+                <!-- Shortcuts for specifically the track control surface -->
+                <Group Name="ControlSurface">
                     <Shortcut Name="DeleteSelectedTrack" Description="Deletes the selected clip">
                         <KeyStroke Key="Delete" />
                     </Shortcut>
                 </Group>
-                <Shortcut Name="NewVideoTrack" ActionId="actions.editor.NewVideoTrack" Description="Creates a new video clip">
+
+                <Shortcut Name="NewVideoTrack" ActionId="actions.timeline.NewVideoTrack" Description="Creates a new video clip">
                     <KeyStroke Mods="CTRL+SHIFT" Key="Q" />
                 </Shortcut>
-                <Shortcut Name="NewAudioTrack" ActionId="actions.editor.NewAudioTrack" Description="Creates a new audio clip">
-                    <KeyStroke Mods="CTRL" Key="Q" />
+
+                <Shortcut Name="MoveSelectedTrackUp" ActionId="actions.timeline.MoveTrackUpAction">
+                    <KeyStroke Mods="CTRL" Key="NumPad8" />
                 </Shortcut>
-                <Shortcut Name="MoveSelectedTrackUp">
+                <Shortcut Name="MoveSelectedTrackDown" ActionId="actions.timeline.MoveTrackDownAction">
+                    <KeyStroke Mods="CTRL" Key="NumPad2" />
+                </Shortcut>
+                <Shortcut Name="MoveSelectedTrackToTop" ActionId="actions.timeline.MoveTrackToTopAction">
                     <KeyStroke Mods="CTRL+SHIFT" Key="NumPad8" />
                 </Shortcut>
-                <Shortcut Name="MoveSelectedTrackDown">
+                <Shortcut Name="MoveSelectedTrackToBottom" ActionId="actions.timeline.MoveTrackToBottomAction">
                     <KeyStroke Mods="CTRL+SHIFT" Key="NumPad2" />
                 </Shortcut>
-                <Shortcut Name="TogglePlayPause" ActionId="actions.editor.timeline.TogglePlayPause">
+
+                <Shortcut Name="TogglePlay" ActionId="actions.timeline.TogglePlayAction">
                     <KeyStroke Key="Space" />
                 </Shortcut>
-                <Shortcut Name="PlayAtLastStopFrame" ActionId="actions.editor.timeline.PlayAtLastStopFrame">
-                    <KeyStroke Mods="CTRL" Key="Space" />
+
+                <Shortcut Name="SliceClips" ActionId="actions.timeline.SliceClipsAction" Description="Cuts the selected clip in half where the play head is. If you have no selection, then all clips over the play head are sliced">
+                    <KeyStroke Key="S" />
                 </Shortcut>
+
                 <Shortcut Name="AddKeyFrame" ActionId="actions.automation.AddKeyFrame" Description="Adds a new key frame at the play head at the playhead for the clip's or clip's active sequence">
                     <KeyStroke Key="K" />
                 </Shortcut>

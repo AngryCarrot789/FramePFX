@@ -85,6 +85,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Editors\Actions\MoveTrackAction.cs" />
+    <Compile Include="Editors\Actions\NewVideoTrackAction.cs" />
+    <Compile Include="Editors\Actions\SliceClipsAction.cs" />
+    <Compile Include="Editors\Actions\TogglePlayAction.cs" />
     <Compile Include="Editors\Controls\Timelines\ClipDropRegistry.cs" />
     <Compile Include="Interactivity\DataContexts\DataContext.cs" />
     <Compile Include="Interactivity\DataContexts\DataContextEntry.cs" />

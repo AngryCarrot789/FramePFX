@@ -79,6 +79,16 @@ namespace FramePFX.Editors {
             this.intervalTicks = (long) Math.Round(1000.0 / frameRate * Time.TICK_PER_MILLIS);
         }
 
+        public void Play() {
+            if (!(this.Editor.Project is Project project) || this.PlayState == PlayState.Play) {
+                return;
+            }
+
+            this.PlayState = PlayState.Play;
+            this.PlaybackStateChanged?.Invoke(this, this.PlayState, project.MainTimeline.PlayHeadPosition);
+            this.thread_IsPlaying = true;
+        }
+
         public void Play(long frame) {
             if (!(this.Editor.Project is Project project)) {
                 return;

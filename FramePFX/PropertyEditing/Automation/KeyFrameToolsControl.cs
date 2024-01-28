@@ -5,7 +5,6 @@ using System.Windows.Controls.Primitives;
 using FramePFX.Editors;
 using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Keyframes;
-using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Controls.Automation;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;

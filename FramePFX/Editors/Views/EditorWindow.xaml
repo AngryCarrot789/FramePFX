@@ -16,7 +16,7 @@
             Title="FramePFX (remake test environment)"
             Height="840" Width="1348"
             FontFamily="{StaticResource FontOxanium}" FontWeight="Medium"
-            wpf:UIInputManager.FocusPath="Application.EditorWindow">
+            wpf:UIInputManager.FocusPath="Application/Editor">
     <Grid Margin="0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -50,14 +50,18 @@
                     <ColumnDefinition Width="1"/>
                     <ColumnDefinition Width="27*"/>
                 </Grid.ColumnDefinitions>
-                <GroupBox Grid.Column="0" BorderThickness="0" Header="Resources">
+                <GroupBox Grid.Column="0" BorderThickness="0" Header="Resources"
+                          wpf:UIInputManager.FocusPath="Application/Editor/ResourceManager"
+                          Focusable="True">
                     <Border Background="{DynamicResource PanelBackground3}" 
                             BorderBrush="{DynamicResource PanelBorderBrush}" 
                             BorderThickness="0 1 0 0">
                         <resources:ResourcePanelControl x:Name="TheResourcePanel"/>
                     </Border>
                 </GroupBox>
-                <GroupBox Grid.Column="2" BorderThickness="0" Header="View Port Preview">
+                <GroupBox Grid.Column="2" BorderThickness="0" Header="View Port Preview"
+                          wpf:UIInputManager.FocusPath="Application/Editor/ViewPort"
+                          Focusable="True">
                     <DockPanel>
                         <Border Background="{DynamicResource PanelBackground3}" DockPanel.Dock="Bottom" Height="32" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0 1 0 0">
                             <DockPanel>
@@ -110,7 +114,8 @@
                         </Grid>
                     </DockPanel>
                 </GroupBox>
-                <GroupBox Grid.Column="4" BorderThickness="0" Header="Property Editor">
+                <GroupBox Grid.Column="4" BorderThickness="0" Header="Property Editor"
+                          wpf:UIInputManager.FocusPath="Application/Editor/PropertyEditor" Focusable="True">
                     <Border Background="{DynamicResource PanelBackground3}" 
                             BorderBrush="{DynamicResource PanelBorderBrush}" 
                             BorderThickness="0 1 0 0">
@@ -125,7 +130,9 @@
             <GroupBox Header="Timeline" 
                       Grid.Row="2" 
                       Grid.ColumnSpan="3"
-                      BorderThickness="0" Background="{DynamicResource ABrush.Tone5.Background.Static}">
+                      BorderThickness="0" Background="{DynamicResource ABrush.Tone5.Background.Static}"
+                      Focusable="True"
+                      wpf:UIInputManager.FocusPath="Application/Editor/Timeline">
                 <Border BorderThickness="0,1,0,0" BorderBrush="{DynamicResource PanelBorderBrush}">
                     <tl:TimelineControl VerticalAlignment="Stretch" x:Name="TheTimeline"/>
                 </Border>

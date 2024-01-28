@@ -48,26 +48,6 @@ namespace FramePFX.Editors.Views {
             base.OnKeyDown(e);
             if (e.Key == Key.LeftAlt) {
                 e.Handled = true;
-                return;
-            }
-
-            if (e.Key == Key.S) {
-                Timeline timeline = this.Editor?.Project?.MainTimeline;
-                if (timeline == null) {
-                    return;
-                }
-
-                Clip selected = null;
-                foreach (Track track in timeline.Tracks) {
-                    if ((selected = track.Clips.FirstOrDefault(x => x.IsSelected)) != null) {
-                        break;
-                    }
-                }
-
-                long playHead = timeline.PlayHeadPosition;
-                if (selected != null && selected.IntersectsFrameAt(playHead) && playHead != selected.FrameSpan.Begin && playHead != selected.FrameSpan.EndIndex) {
-                    selected.CutAt(playHead - selected.FrameSpan.Begin);
-                }
             }
         }
 

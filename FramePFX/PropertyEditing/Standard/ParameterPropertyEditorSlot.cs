@@ -4,8 +4,6 @@ using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Effects;
-using FramePFX.Editors.Timelines.Tracks;
-using OpenTK.Graphics.ES11;
 
 namespace FramePFX.PropertyEditing.Standard {
     public delegate void ParameterPropertyEditorSlotEventHandler(ParameterPropertyEditorSlot slot);

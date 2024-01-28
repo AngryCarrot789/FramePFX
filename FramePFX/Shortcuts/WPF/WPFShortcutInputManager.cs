@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using FramePFX.Interactivity.DataContexts;
 using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Managing;
 using FramePFX.Shortcuts.WPF.Bindings;

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using FramePFX.Interactivity;
 using FramePFX.Interactivity.DataContexts;
 
 namespace FramePFX.AdvancedContextService {

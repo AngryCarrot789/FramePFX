@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using FramePFX.Actions;
-using FramePFX.Interactivity;
 using FramePFX.Interactivity.DataContexts;
 using FramePFX.Utils.Collections;
 

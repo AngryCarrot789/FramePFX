@@ -20,10 +20,14 @@ namespace FramePFX.Editors.Rendering {
 
         public SKImageInfo ImageInfo { get; private set; }
 
+        public bool IsRendering => this.isRendering;
+
         private volatile bool isRendering;
         private volatile int isRenderScheduled;
         private volatile int isRenderScheduledDuringRender;
         private volatile Task renderTask;
+        private bool isDisposed;
+        internal int _suspendRenderCount;
 
         private SKBitmap bitmap;
         private SKPixmap pixmap;
@@ -33,6 +37,15 @@ namespace FramePFX.Editors.Rendering {
 
         public RenderManager(Project project) {
             this.Project = project;
+        }
+
+        public void Dispose() {
+            if (this.isRendering)
+                throw new InvalidOperationException("Cannot dispose while rendering");
+            this.bitmap?.Dispose();
+            this.pixmap?.Dispose();
+            this.surface?.Dispose();
+            this.isDisposed = true;
         }
 
         public void UpdateFrameInfo(SKImageInfo info) {
@@ -145,7 +158,7 @@ namespace FramePFX.Editors.Rendering {
         /// Schedules the timeline to be re-drawn once the application is no longer busy
         /// </summary>
         public void InvalidateRender() {
-            if (Interlocked.CompareExchange(ref this.isRenderScheduled, 1, 0) != 0) {
+            if (this.isDisposed || this._suspendRenderCount > 0 || Interlocked.CompareExchange(ref this.isRenderScheduled, 1, 0) != 0) {
                 return;
             }
 
@@ -153,6 +166,10 @@ namespace FramePFX.Editors.Rendering {
         }
 
         private void DoRenderTimeline() {
+            if (this._suspendRenderCount > 0) {
+                return;
+            }
+
             this.renderTask = this.RenderTimelineAsync(this.Project.MainTimeline, this.Project.MainTimeline.PlayHeadPosition);
             this.renderTask.ContinueWith(x => {
                 this.renderTask = null;
@@ -163,6 +180,25 @@ namespace FramePFX.Editors.Rendering {
         public void Draw(SKSurface target) {
             this.surface.Flush();
             this.surface.Draw(target.Canvas, 0, 0, null);
+        }
+
+        public SuspendRender SuspendRender() {
+            ++this._suspendRenderCount;
+            return new SuspendRender(this);
+        }
+    }
+
+    public struct SuspendRender : IDisposable {
+        internal RenderManager manager;
+
+        public SuspendRender(RenderManager manager) {
+            this.manager = manager;
+        }
+
+        public void Dispose() {
+            if (this.manager != null)
+                --this.manager._suspendRenderCount;
+            this.manager = null;
         }
     }
 }

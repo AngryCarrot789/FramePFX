@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -61,12 +60,12 @@ namespace FramePFX.Shortcuts.WPF {
         }
 
         /// <summary>
-        /// Sets the element's focus path for the specific element, which is used to evaluate which shortcuts are visible to the element
+        /// Sets the element's focus path for the specific element, which is used to evaluate which shortcuts are visible to the element and its visual tree
         /// </summary>
         public static void SetFocusPath(DependencyObject element, string value) => element.SetValue(FocusPathProperty, value);
 
         /// <summary>
-        /// Gets the element's focus path for the specific element, which is used to evaluate which shortcuts are visible to the element
+        /// Gets the element's focus path for the specific element, which is used to evaluate which shortcuts are visible to the element and its visual tree
         /// </summary>
         public static string GetFocusPath(DependencyObject element) => (string) element.GetValue(FocusPathProperty);
 

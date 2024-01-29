@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using FramePFX.Editors.ResourceManaging.Autoloading;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.RBC;
 using SkiaSharp;
@@ -88,15 +89,35 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             }
         }
 
-        public async Task LoadImageAsync(string file) {
+        protected override bool OnEnable(ResourceLoader loader) {
+            try {
+                this.LoadImageAsync(this.FilePath);
+                return true;
+            }
+            catch (Exception e) {
+                loader?.AddEntry(new InvalidImagePathEntry(this) {FilePath = this.FilePath});
+                return false;
+            }
+        }
+
+        public override bool TryEnableForInvalidEntry(InvalidResourceEntry _entry) {
+            InvalidImagePathEntry entry = (InvalidImagePathEntry) _entry;
+            try {
+                this.LoadImageAsync(entry.FilePath);
+                return base.TryEnableForInvalidEntry(entry);
+            }
+            catch (Exception e) {
+                return false;
+            }
+        }
+
+        public void LoadImageAsync(string file) {
             SKBitmap bmp = null;
             SKImage img = null;
             try {
                 using (BufferedStream stream = new BufferedStream(File.OpenRead(file), 32768)) {
-                    await Task.Run(() => {
-                        bmp = SKBitmap.Decode(stream);
-                        img = SKImage.FromBitmap(bmp);
-                    });
+                    bmp = SKBitmap.Decode(stream);
+                    img = SKImage.FromBitmap(bmp);
                 }
             }
             catch {
@@ -117,8 +138,8 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             this.ImageChanged?.Invoke(this);
         }
 
-        public override void Dispose() {
-            base.Dispose();
+        public override void Destroy() {
+            this.Destroy();
             this.bitmap?.Dispose();
             this.bitmap = null;
             this.image?.Dispose();

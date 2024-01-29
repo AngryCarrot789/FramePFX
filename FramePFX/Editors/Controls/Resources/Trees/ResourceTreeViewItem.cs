@@ -5,13 +5,17 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using FramePFX.AdvancedContextService.WPF;
+using FramePFX.Editors.Contextual;
 using FramePFX.Editors.Controls.Binders;
 using FramePFX.Editors.Controls.Resources.Explorers;
 using FramePFX.Editors.Controls.TreeViews.Controls;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.Interactivity;
+using FramePFX.Interactivity.DataContexts;
 using FramePFX.Logger;
+using FramePFX.Shortcuts.WPF;
 using FramePFX.Utils;
 
 namespace FramePFX.Editors.Controls.Resources.Trees {
@@ -64,6 +68,7 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
         public ResourceTreeViewItem() {
             this.itemCache = new Stack<ResourceTreeViewItem>();
             this.AllowDrop = true;
+            AdvancedContextMenu.SetContextGenerator(this,  ResourceContextRegistry.Instance);
         }
 
         static ResourceTreeViewItem() => DefaultStyleKeyProperty.OverrideMetadata(typeof(ResourceTreeViewItem), new FrameworkPropertyMetadata(typeof(ResourceTreeViewItem)));
@@ -95,6 +100,7 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
 
             this.displayNameBinder.Attach(this, this.Resource);
             this.isSelectedBinder.Attach(this, this.Resource);
+            UIInputManager.SetActionSystemDataContext(this, new DataContext().Set(DataKeys.ResourceObjectKey, this.Resource));
         }
 
         public void OnRemoving() {
@@ -111,6 +117,7 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
 
             this.displayNameBinder.Detatch();
             this.isSelectedBinder.Detatch();
+            UIInputManager.ClearActionSystemDataContext(this);
         }
 
         public void OnRemoved() {

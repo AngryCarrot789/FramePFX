@@ -139,6 +139,9 @@ namespace FramePFX.Editors {
             ProjectSettings settings = project.Settings;
             project.RenderManager.UpdateFrameInfo(new SKImageInfo(settings.Width, settings.Height, SKColorType.Bgra8888));
             project.RenderManager.InvalidateRender();
+
+            // TODO: add event for FrameRate
+            this.Playback.SetFrameRate(settings.FrameRate);
         }
 
         public void CloseProject() {

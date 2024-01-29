@@ -8,8 +8,6 @@ using FramePFX.Editors.Timelines.Effects;
 using SkiaSharp;
 
 namespace FramePFX.Editors.Timelines.Tracks {
-    public delegate void VideoTrackEventHandler(VideoTrack track);
-
     public class VideoTrack : Track {
         public static readonly ParameterDouble OpacityParameter =
             Parameter.RegisterDouble(
@@ -47,6 +45,16 @@ namespace FramePFX.Editors.Timelines.Tracks {
         public VideoTrack() {
             this.Opacity = OpacityParameter.Descriptor.DefaultValue;
             this.Visible = VisibleParameter.Descriptor.DefaultValue;
+        }
+
+        public override void Destroy() {
+            base.Destroy();
+            this.bitmap?.Dispose();
+            this.bitmap = null;
+            this.pixmap?.Dispose();
+            this.pixmap = null;
+            this.surface?.Dispose();
+            this.surface = null;
         }
 
         public bool PrepareRenderFrame(SKImageInfo imgInfo, long frame) {

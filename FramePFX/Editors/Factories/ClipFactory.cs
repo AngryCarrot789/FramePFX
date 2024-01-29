@@ -10,6 +10,7 @@ namespace FramePFX.Editors.Factories {
             // this.RegisterType("clip_vid", typeof(VideoClip));
             this.RegisterType("vc_shape", typeof(VideoClipShape));
             this.RegisterType("vc_image", typeof(ImageVideoClip));
+            this.RegisterType("vc_timecode", typeof(TimecodeClip));
         }
 
         public Clip NewClip(string id) {

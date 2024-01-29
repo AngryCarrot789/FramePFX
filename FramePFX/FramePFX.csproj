@@ -101,8 +101,21 @@
     <Compile Include="Editors\Actions\TogglePlayAction.cs" />
     <Compile Include="Editors\Actions\ToggleTrackAutomationAction.cs" />
     <Compile Include="Editors\Contextual\ClipContextRegistry.cs" />
+    <Compile Include="Editors\Contextual\ResourceContextRegistry.cs" />
     <Compile Include="Editors\Contextual\TrackContextRegistry.cs" />
     <Compile Include="Editors\Controls\Timelines\ClipDropRegistry.cs" />
+    <Compile Include="Editors\RenderLockedData.cs" />
+    <Compile Include="Editors\ResourceManaging\Actions\ChangeResourceOnlineStateAction.cs" />
+    <Compile Include="Editors\ResourceManaging\Actions\DeleteResourcesAction.cs" />
+    <Compile Include="Editors\ResourceManaging\Autoloading\Controls\InvalidImagePathEntryControl.cs" />
+    <Compile Include="Editors\ResourceManaging\Autoloading\Controls\InvalidResourceEntryControl.cs" />
+    <Compile Include="Editors\ResourceManaging\Autoloading\Controls\ResourceLoaderDialog.xaml.cs">
+      <DependentUpon>ResourceLoaderDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Editors\ResourceManaging\Autoloading\InvalidImagePathEntry.cs" />
+    <Compile Include="Editors\ResourceManaging\Autoloading\InvalidResourceEntry.cs" />
+    <Compile Include="Editors\ResourceManaging\Autoloading\ResourceLoader.cs" />
+    <Compile Include="Editors\Timelines\Clips\TimecodeClip.cs" />
     <Compile Include="Editors\Timelines\TimelineUtils.cs" />
     <Compile Include="Interactivity\DataContexts\DataContext.cs" />
     <Compile Include="Interactivity\DataContexts\DataContextEntry.cs" />
@@ -343,6 +356,14 @@
     <Page Include="Editors\Controls\TreeViews\Themes\MultiSelectTreeViewItem.Aero2.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Editors\ResourceManaging\Autoloading\Controls\InvalidResourceControlStyles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Editors\ResourceManaging\Autoloading\Controls\ResourceLoaderDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Editors\Views\EditorWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

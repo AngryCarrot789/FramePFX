@@ -83,6 +83,8 @@ namespace FramePFX.AdvancedContextService.WPF {
         private bool hasFirstLoad;
         private bool hasExplicitGesture;
 
+        public new ActionContextEntry Entry => (ActionContextEntry) base.Entry;
+
         public AdvancedActionMenuItem() {
             this.Loaded += this.OnLoaded;
         }
@@ -125,15 +127,6 @@ namespace FramePFX.AdvancedContextService.WPF {
 
         protected override bool IsEnabledCore => base.IsEnabledCore && this.CanExecute;
 
-        protected DataContext GetAvailableContext(bool includeToggleState = true) {
-            DataContext context = UIInputManager.GetDataContext(this);
-            if (includeToggleState && this.IsCheckable) {
-                context.SetRaw(ToggleAction.IsToggledKey, this.IsChecked.Box());
-            }
-
-            return context;
-        }
-
         public void UpdateVisuals() {
             if (!this.IsLoaded)
                 return;
@@ -150,9 +143,9 @@ namespace FramePFX.AdvancedContextService.WPF {
                     this.CanExecute = false;
                 }
                 else {
-                    AdvancedContextMenu parent = VisualTreeUtils.GetLastParent<AdvancedContextMenu>(this);
-                    DataContext context = parent?.ContextOnMenuOpen ?? this.GetAvailableContext();
-                    this.CanExecute = ActionManager.Instance.CanExecute(id, context);
+                    AdvancedContextMenu parent = this.Menu;
+                    DataContext context = parent?.ContextOnMenuOpen;
+                    this.CanExecute = context != null && ActionManager.Instance.CanExecute(id, context);
                 }
             }
         }
@@ -194,14 +187,10 @@ namespace FramePFX.AdvancedContextService.WPF {
         }
 
         private void DispatchAction(string id) {
-            AdvancedContextMenu parent = VisualTreeUtils.GetParent<AdvancedContextMenu>(this, false);
+            AdvancedContextMenu parent = this.Menu;
             DataContext context = parent?.ContextOnMenuOpen;
             if (context == null) {
-                context = this.GetAvailableContext();
-            }
-            else {
-                context = context.Clone();
-                context.Merge(this.GetAvailableContext());
+                return;
             }
 
             this.Dispatcher.BeginInvoke((Action) (() => this.ExecuteAction(id, context)), DispatcherPriority.Render);

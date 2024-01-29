@@ -7,8 +7,6 @@ using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editors.Timelines.Clips {
-    public delegate void VideoClipEventHandler(VideoClip track);
-
     /// <summary>
     /// The base class for all clips that produce video data, whether that be an image, a video frame at some time, text, particles, etc.
     /// <para>

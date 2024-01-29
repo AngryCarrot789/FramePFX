@@ -137,5 +137,18 @@ namespace FramePFX.Editors.ResourceManaging {
                 folder.AddItem(Clone(child));
             }
         }
+
+        public static void DestroyHierarchy(BaseResource item) {
+            if (item is ResourceFolder folder) {
+                foreach (BaseResource child in folder.items) {
+                    DestroyHierarchy(child);
+                }
+
+                folder.Destroy();
+            }
+            else {
+                item.Destroy();
+            }
+        }
     }
 }

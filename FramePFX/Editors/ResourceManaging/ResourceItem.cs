@@ -1,4 +1,6 @@
 using System;
+using FramePFX.Editors.ResourceManaging.Autoloading;
+using FramePFX.Editors.ResourceManaging.Autoloading.Controls;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.Editors.ResourceManaging.Resources;
 using FramePFX.RBC;
@@ -9,7 +11,7 @@ namespace FramePFX.Editors.ResourceManaging {
     /// The base class for all resource items that can be used by clip objects to store and access
     /// data shareable across multiple clips
     /// </summary>
-    public abstract class ResourceItem : BaseResource, IDisposable {
+    public abstract class ResourceItem : BaseResource {
         public const ulong EmptyId = ResourceManager.EmptyId;
 
         /// <summary>
@@ -35,6 +37,7 @@ namespace FramePFX.Editors.ResourceManaging {
         public event ResourceItemEventHandler OnlineStateChanged;
 
         protected ResourceItem() {
+
         }
 
         protected internal override void OnAttachedToManager() {
@@ -81,32 +84,51 @@ namespace FramePFX.Editors.ResourceManaging {
         }
 
         /// <summary>
-        /// Tries to enable this resource. If there were errors, they will be caught and added to the input error list
+        /// Tries to enable this resource. If there were errors, they will be caught and added to the loader
         /// </summary>
-        public void Enable(ErrorList list) {
-            if (this.IsOnline)
-                return;
-
-            bool success = false;
-            try {
-                this.OnEnable();
-                success = true;
-            }
-            catch (Exception e) {
-                list.Add(e);
+        public bool Enable(ResourceLoader loader) {
+            if (this.IsOnline) {
+                return true;
             }
 
-            if (success) {
-                this.IsOnline = true;
-                this.IsOfflineByUser = false;
-                this.OnIsOnlineStateChanged();
+            if (this.OnEnable(loader)) {
+                this.EnableCore();
+                return true;
+            }
+            else {
+                return false;
             }
         }
 
         /// <summary>
-        /// Enable this resource; load any external things, open files, etc. ready for clips to use them
+        /// Try to enable this resource; load any external things, open files, etc. ready for clips to use them.
+        /// <para>
+        /// If there are errors, then add entries to the resource loader if it is non-null
+        /// </para>
         /// </summary>
-        protected virtual void OnEnable() {
+        /// <param name="loader"></param>
+        protected virtual bool OnEnable(ResourceLoader loader) {
+            return true;
+        }
+
+        /// <summary>
+        /// Called from a resource loader interface to try and load this item from the entry it created
+        /// </summary>
+        /// <param name="entry"></param>
+        /// <returns></returns>
+        public virtual bool TryEnableForInvalidEntry(InvalidResourceEntry entry) {
+            this.EnableCore();
+            return true;
+        }
+
+        protected void EnableCore() {
+            if (this.IsOnline) {
+                throw new InvalidOperationException("Already enabled");
+            }
+
+            this.IsOnline = true;
+            this.IsOfflineByUser = false;
+            this.OnIsOnlineStateChanged();
         }
 
         public override void WriteToRBE(RBEDictionary data) {

@@ -9,6 +9,7 @@ using FramePFX.Editors.Contextual;
 using FramePFX.Editors.Controls.Automation;
 using FramePFX.Editors.Controls.Binders;
 using FramePFX.Editors.Controls.Timelines.Tracks.Clips;
+using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.DataContexts;
@@ -70,12 +71,14 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
         private readonly GetSetAutoPropertyBinder<Track> isSelectedBinder = new GetSetAutoPropertyBinder<Track>(IsSelectedProperty, nameof(VideoTrack.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.IsSelected = (bool) v);
         private MovedClip? clipBeingMoved;
         public Visibility desiredAutomationVisibility;
+        private readonly DataContext actionSystemDataContext;
 
         public TimelineTrackControl() {
             this.HorizontalAlignment = HorizontalAlignment.Stretch;
             this.VerticalAlignment = VerticalAlignment.Top;
             this.TrackColourBrush = new LinearGradientBrush();
             this.UseLayoutRounding = true;
+            UIInputManager.SetActionSystemDataContext(this, this.actionSystemDataContext = new DataContext());
             AdvancedContextMenu.SetContextGenerator(this, TrackContextRegistry.Instance);
         }
 
@@ -89,8 +92,17 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
         protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
             base.OnPreviewMouseDown(e);
             if (this.Track != null) {
-                if (this.Track.Timeline.HasAnySelectedTracks)
-                    this.Track.Timeline.ClearTrackSelection();
+                Timeline timeline = this.Track.Timeline;
+
+                // update context data, used by action system and context menu system
+                if (e.ChangedButton == MouseButton.Left || e.ChangedButton == MouseButton.Right) {
+                    Point point = e.GetPosition(this);
+                    long frameX = TimelineUtils.PixelToFrame(point.X, timeline?.Zoom ?? 1.0, true);
+                    this.actionSystemDataContext.Set(DataKeys.TrackMouseFrameKey, frameX);
+                }
+
+                if (timeline != null && timeline.HasAnySelectedTracks)
+                    timeline.ClearTrackSelection();
                 this.Track.IsSelected = true;
             }
         }
@@ -164,7 +176,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             track.ClipMovedTracks += this.OnClipMovedTracks;
             track.HeightChanged += this.OnTrackHeightChanged;
             track.ColourChanged += this.OnTrackColourChanged;
-            UIInputManager.SetActionSystemDataContext(this, new DataContext().Set(DataKeys.TrackKey, track));
+            this.actionSystemDataContext.Set(DataKeys.TrackKey, track);
         }
 
         public void OnAdded() {
@@ -184,7 +196,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             this.Track.ColourChanged -= this.OnTrackColourChanged;
             this.isSelectedBinder.Detatch();
             this.StoragePanel.ClearClipsInternal();
-            UIInputManager.ClearActionSystemDataContext(this);
+            this.actionSystemDataContext.Set(DataKeys.TrackKey, null);
         }
 
         public void OnRemoved() {

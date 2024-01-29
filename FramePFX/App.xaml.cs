@@ -9,10 +9,35 @@ using System.Windows;
 using System.Windows.Controls;
 using FramePFX.Actions;
 using FramePFX.Editors.Actions;
+using FramePFX.Editors.ResourceManaging;
+using FramePFX.Editors.ResourceManaging.Actions;
+using FramePFX.Editors.ResourceManaging.Autoloading;
+using FramePFX.Editors.ResourceManaging.Autoloading.Controls;
+using FramePFX.Editors.ResourceManaging.Resources;
 using FramePFX.Utils;
 
 namespace FramePFX {
     public partial class App : Application {
+        private void RegisterActions(ActionManager manager) {
+            // timelines, tracks and clips
+            manager.Register("actions.timeline.NewVideoTrack", new NewVideoTrackAction());
+            manager.Register("actions.timeline.MoveTrackUpAction", new MoveTrackUpAction());
+            manager.Register("actions.timeline.MoveTrackDownAction", new MoveTrackDownAction());
+            manager.Register("actions.timeline.MoveTrackToTopAction", new MoveTrackToTopAction());
+            manager.Register("actions.timeline.MoveTrackToBottomAction", new MoveTrackToBottomAction());
+            manager.Register("actions.timeline.ToggleTrackAutomationAction", new ToggleTrackAutomationAction());
+            manager.Register("actions.timeline.ToggleClipAutomationAction", new ToggleClipAutomationAction());
+            manager.Register("actions.timeline.TogglePlayAction", new TogglePlayAction());
+            manager.Register("actions.timeline.SliceClipsAction", new SliceClipsAction());
+            manager.Register("actions.timeline.DeleteSelectedClips", new DeleteClipsAction());
+            manager.Register("actions.timeline.DeleteSelectedTracks", new DeleteTracksAction());
+
+            // resources
+            manager.Register("actions.resources.EnableResourcesAction", new EnableResourcesAction());
+            manager.Register("actions.resources.DeleteResourcesAction", new DeleteResourcesAction());
+            manager.Register("actions.resources.DisableResourcesAction", new DisableResourcesAction());
+        }
+
         private void App_OnStartup(object sender, StartupEventArgs args) {
             // Pre init stuff
             ToolTipService.ShowDurationProperty.OverrideMetadata(typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));
@@ -49,17 +74,7 @@ namespace FramePFX {
                 }
             }
 
-            ActionManager.Instance.Register("actions.timeline.NewVideoTrack", new NewVideoTrackAction());
-            ActionManager.Instance.Register("actions.timeline.MoveTrackUpAction", new MoveTrackUpAction());
-            ActionManager.Instance.Register("actions.timeline.MoveTrackDownAction", new MoveTrackDownAction());
-            ActionManager.Instance.Register("actions.timeline.MoveTrackToTopAction", new MoveTrackToTopAction());
-            ActionManager.Instance.Register("actions.timeline.MoveTrackToBottomAction", new MoveTrackToBottomAction());
-            ActionManager.Instance.Register("actions.timeline.ToggleTrackAutomationAction", new ToggleTrackAutomationAction());
-            ActionManager.Instance.Register("actions.timeline.ToggleClipAutomationAction", new ToggleClipAutomationAction());
-            ActionManager.Instance.Register("actions.timeline.TogglePlayAction", new TogglePlayAction());
-            ActionManager.Instance.Register("actions.timeline.SliceClipsAction", new SliceClipsAction());
-            ActionManager.Instance.Register("actions.timeline.DeleteSelectedClips", new DeleteClipsAction());
-            ActionManager.Instance.Register("actions.timeline.DeleteSelectedTracks", new DeleteTracksAction());
+            this.RegisterActions(ActionManager.Instance);
 
             // Editor init
             VideoEditor.Instance.LoadDefaultProject();
@@ -69,6 +84,20 @@ namespace FramePFX {
 
             this.Dispatcher.InvokeAsync(() => {
                 window.Editor = VideoEditor.Instance;
+
+                // ResourceManager manager = VideoEditor.Instance.Project.ResourceManager;
+                // ResourceImage img1 = new ResourceImage() { FilePath = "path 1"};
+                // ResourceImage img2 = new ResourceImage() { FilePath = "path 2"};
+                // manager.RootContainer.AddItem(img1);
+                // manager.RootContainer.AddItem(img2);
+                // 
+                // ResourceLoader loader = new ResourceLoader();
+                // img1.Enable(loader);
+                // img2.Enable(loader);
+                // if (!ResourceLoaderDialog.TryLoadResources(loader)) {
+                //     return;
+                // }
+
                 // Timeline timeline = editor.CurrentProject.MainTimeline;
                 // Task.Run(async () => {
                 //     for (int i = timeline.Tracks.Count - 1; i >= 0; i--) {

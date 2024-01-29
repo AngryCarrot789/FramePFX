@@ -1,4 +1,5 @@
 using System;
+using FramePFX.Destroying;
 using FramePFX.Editors.Factories;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.RBC;
@@ -7,7 +8,7 @@ namespace FramePFX.Editors.ResourceManaging {
     /// <summary>
     /// Base class for resource items and groups
     /// </summary>
-    public abstract class BaseResource {
+    public abstract class BaseResource : IDestroy {
         private string displayName;
         private bool isSelected;
 
@@ -139,7 +140,8 @@ namespace FramePFX.Editors.ResourceManaging {
         /// If this object is a <see cref="ResourceFolder"/>, the child hierarchy will not be disposed; it will only dispose this object specifically
         /// </para>
         /// </summary>
-        public virtual void Dispose() {
+        public virtual void Destroy() {
+
         }
 
         /// <summary>

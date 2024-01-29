@@ -46,6 +46,7 @@ namespace FramePFX.AdvancedContextService.WPF {
         public virtual void OnRemoving() {
             this.headerBinder.Detatch();
             this.toolTipBinder.Detatch();
+            AdvancedContextMenu.ClearItemNodes(this);
         }
 
         public virtual void OnRemoved() {

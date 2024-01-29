@@ -7,9 +7,13 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
+using FramePFX.AdvancedContextService.WPF;
+using FramePFX.Editors.Contextual;
 using FramePFX.Editors.Controls.Binders;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Interactivity;
+using FramePFX.Interactivity.DataContexts;
+using FramePFX.Shortcuts.WPF;
 using FramePFX.Utils;
 
 namespace FramePFX.Editors.Controls.Resources.Explorers {
@@ -46,7 +50,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         private bool isProcessingAsyncDrop;
 
         public ResourceExplorerListItem() {
-
+            AdvancedContextMenu.SetContextGenerator(this, ResourceContextRegistry.Instance);
         }
 
         protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {
@@ -256,6 +260,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
             // call OnConnect here so that WPF has a chance between
             // OnAdding and OnAdded to apply the content's template
             ((ResourceExplorerListItemContent) this.Content).Connect(this);
+            UIInputManager.SetActionSystemDataContext(this, new DataContext().Set(DataKeys.ResourceObjectKey, this.Model));
         }
 
         public void OnRemovingFromList() {
@@ -265,6 +270,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
             content.Disconnect();
             this.Content = null;
             this.ResourceExplorerList.ReleaseContentObject(this.Model.GetType(), content);
+            UIInputManager.ClearActionSystemDataContext(this);
         }
 
         public void OnRemovedFromList() {

@@ -13,6 +13,11 @@ namespace FramePFX.Editors.Controls.Timelines {
                 clip.ColourKey.SetTargetResourceId(h.UniqueId);
                 return Task.CompletedTask;
             });
+
+            DropRegistry.Register<ImageVideoClip, ResourceImage>((clip, h, dt, ctx) => EnumDropType.Link, (clip, h, dt, c) => {
+                clip.ResourceImageKey.SetTargetResourceId(h.UniqueId);
+                return Task.CompletedTask;
+            });
         }
     }
 }

@@ -91,9 +91,14 @@ namespace FramePFX.AdvancedContextService.WPF {
             }
         }
 
-        internal static void ClearItemNodes(ItemsControl parent) {
-            ItemCollection list = parent.Items;
-            AdvancedContextMenu menu = parent.Parent as AdvancedContextMenu;
+        internal static void ClearItemNodes(ItemsControl control) {
+            ItemCollection list = control.Items;
+            AdvancedContextMenu menu;
+            switch (control) {
+                case AdvancedContextMenu a: menu = a; break;
+                case AdvancedMenuItem b: menu = b.Menu; break;
+                default: menu = null; break;
+            }
 
             for (int i = list.Count - 1; i >= 0; i--) {
                 FrameworkElement item = (FrameworkElement) list[i];
@@ -115,6 +120,12 @@ namespace FramePFX.AdvancedContextService.WPF {
 
         public static void OnContextMenuOpeningForGenerable(object sender, ContextMenuEventArgs e) {
             if (sender is DependencyObject sourceObject && e.OriginalSource is DependencyObject targetObject) {
+                AdvancedContextMenu menu = GetOrCreateContextMenu(sourceObject);
+                if (menu.Items.Count > 0) {
+                    // assume that they right clicked again while the menu was opened
+                    return;
+                }
+
                 IContextGenerator generator = GetContextGenerator(sourceObject);
                 if (generator != null) {
                     List<IContextEntry> list = new List<IContextEntry>();
@@ -125,12 +136,7 @@ namespace FramePFX.AdvancedContextService.WPF {
                         return;
                     }
 
-                    AdvancedContextMenu menu = GetOrCreateContextMenu(sourceObject);
                     menu.ContextOnMenuOpen = context;
-                    if (menu.Items.Count > 0) {
-                        ClearItemNodes(menu);
-                    }
-
                     InsertItemNodes(menu, menu, list);
                 }
             }

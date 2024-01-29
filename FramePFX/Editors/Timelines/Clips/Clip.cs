@@ -12,8 +12,8 @@ using FramePFX.Editors.Timelines.Effects;
 using FramePFX.Editors.Timelines.Tracks;
 
 namespace FramePFX.Editors.Timelines.Clips {
-    public delegate void ClipSpanChangedEventHandler(Clip clip, FrameSpan oldSpan, FrameSpan newSpan);
     public delegate void ClipEventHandler(Clip clip);
+    public delegate void ClipSpanChangedEventHandler(Clip clip, FrameSpan oldSpan, FrameSpan newSpan);
     public delegate void ClipTrackChangedEventHandler(Clip clip, Track oldTrack, Track newTrack);
     public delegate void ClipActiveSequenceChangedEventHandler(Clip clip, AutomationSequence oldSequence, AutomationSequence newSequence);
 

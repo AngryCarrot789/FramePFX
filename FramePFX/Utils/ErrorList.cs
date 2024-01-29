@@ -24,7 +24,7 @@ namespace FramePFX.Utils {
         public bool IsEmpty => this.exceptions == null || this.exceptions.Count < 1;
 
         /// <summary>
-        /// The exception message that is used in the <see cref="Dispose"/> function to throw an exception when there are exceptions in the stack
+        /// The exception message that is used in the <see cref="Destroy"/> function to throw an exception when there are exceptions in the stack
         /// </summary>
         public string Message { get; set; }
 
@@ -32,7 +32,7 @@ namespace FramePFX.Utils {
         /// Creates an exception stack that is not pushed onto the global stack
         /// </summary>
         /// <param name="message">Message to use if an exception must be thrown and <see cref="throwOnDispose"/> is true. Ignored if <see cref="tryUseFirstException"/> is true</param>
-        /// <param name="throwOnDispose">Whether to throw an exception (if possible) when <see cref="Dispose"/> is called</param>
+        /// <param name="throwOnDispose">Whether to throw an exception (if possible) when <see cref="Destroy"/> is called</param>
         /// <param name="tryUseFirstException">
         /// Whether to try and use the first (and only) pushed exception as the main exception or to instead create one using the message
         /// </param>
@@ -43,10 +43,10 @@ namespace FramePFX.Utils {
         }
 
         /// <summary>
-        /// Creates an exception stack that uses the first exception pushed as the root/thrown exception when <see cref="Dispose"/> is
+        /// Creates an exception stack that uses the first exception pushed as the root/thrown exception when <see cref="Destroy"/> is
         /// called. If <see cref="throwOnDispose"/> is false though, then no exception will be thrown on the dispose call
         /// </summary>
-        /// <param name="throwOnDispose">Whether to throw an exception (if possible) when <see cref="Dispose"/> is called</param>
+        /// <param name="throwOnDispose">Whether to throw an exception (if possible) when <see cref="Destroy"/> is called</param>
         public ErrorList(bool throwOnDispose = true) : this(null, throwOnDispose, true) {
         }
 

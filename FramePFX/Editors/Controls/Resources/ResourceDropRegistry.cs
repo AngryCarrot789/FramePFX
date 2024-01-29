@@ -1,7 +1,12 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
+using FramePFX.Editors.Factories;
 using FramePFX.Editors.ResourceManaging;
+using FramePFX.Editors.ResourceManaging.Autoloading.Controls;
+using FramePFX.Editors.ResourceManaging.Resources;
 using FramePFX.Interactivity;
+using FramePFX.Interactivity.DataContexts;
 using FramePFX.Logger;
 using FramePFX.Utils;
 
@@ -60,6 +65,29 @@ namespace FramePFX.Editors.Controls.Resources {
                 }
 
                 return Task.CompletedTask;
+            });
+
+            DropRegistry.RegisterNative<ResourceFolder>(NativeDropTypes.FileDrop, (folder, objekt, dropType, c) => {
+                return objekt.GetData(NativeDropTypes.FileDrop) is string[] files && files.Length > 0 ? EnumDropType.Copy : EnumDropType.None;
+            }, async (folder, objekt, dropType, c) => {
+                if (!(objekt.GetData(NativeDropTypes.FileDrop) is string[] files))
+                    return;
+                foreach (string path in files) {
+                    switch (Path.GetExtension(path).ToLower()) {
+                        case ".png":
+                        case ".bmp":
+                        case ".jpg":
+                        case ".jpeg": {
+                            ResourceImage image = new ResourceImage(){FilePath = path, DisplayName = Path.GetFileName(path)};
+                            if (!ResourceLoaderDialog.TryLoadResources(image)) {
+                                return;
+                            }
+
+                            folder.AddItem(image);
+                            break;
+                        }
+                    }
+                }
             });
         }
     }

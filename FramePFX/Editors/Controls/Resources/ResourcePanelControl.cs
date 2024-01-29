@@ -4,6 +4,8 @@ using System.Windows.Controls;
 using FramePFX.Editors.Controls.Resources.Explorers;
 using FramePFX.Editors.Controls.Resources.Trees;
 using FramePFX.Editors.ResourceManaging;
+using FramePFX.Interactivity.DataContexts;
+using FramePFX.Shortcuts.WPF;
 
 namespace FramePFX.Editors.Controls.Resources {
     /// <summary>
@@ -28,7 +30,6 @@ namespace FramePFX.Editors.Controls.Resources {
         public ResourceTreeView ResourceTreeView { get; private set; }
 
         public ResourcePanelControl() {
-
         }
 
         public override void OnApplyTemplate() {
@@ -45,6 +46,12 @@ namespace FramePFX.Editors.Controls.Resources {
         private void OnResourceManagerChanged(ResourceManager oldManager, ResourceManager newManager) {
             this.ResourceExplorerList.ResourceManager = newManager;
             this.ResourceTreeView.ResourceManager = newManager;
+            if (newManager != null) {
+                UIInputManager.SetActionSystemDataContext(this, new DataContext().Set(DataKeys.ResourceManagerKey, newManager));
+            }
+            else {
+                UIInputManager.ClearActionSystemDataContext(this);
+            }
         }
     }
 }

@@ -36,12 +36,18 @@ namespace FramePFX.Editors.Rendering {
         /// </summary>
         public Vector2 FrameSize => new Vector2(this.ImageInfo.Width, this.ImageInfo.Height);
 
-        public RenderContext(SKImageInfo imageInfo, SKSurface surface, SKBitmap bitmap, SKPixmap pixmap) {
+        public EnumRenderQuality Quality { get; }
+
+        public SKFilterQuality FilterQuality { get; }
+
+        public RenderContext(SKImageInfo imageInfo, SKSurface surface, SKBitmap bitmap, SKPixmap pixmap, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality) {
             this.ImageInfo = imageInfo;
             this.Surface = surface;
             this.Canvas = surface.Canvas;
             this.Bitmap = bitmap;
             this.Pixmap = pixmap;
+            this.Quality = quality;
+            this.FilterQuality = quality.ToFilterQuality();
         }
     }
 }

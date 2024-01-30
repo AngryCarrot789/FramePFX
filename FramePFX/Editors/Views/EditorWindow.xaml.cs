@@ -1,6 +1,10 @@
-﻿using System.Windows;
+﻿using System;
+using System.IO;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using FramePFX.Editors.Exporting;
+using FramePFX.Editors.Exporting.Controls;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.Timelines;
 using FramePFX.Interactivity.DataContexts;
@@ -159,6 +163,20 @@ namespace FramePFX.Editors.Views {
             }
 
             ThemeController.SetTheme(type);
+        }
+
+        private void Export_Click(object sender, RoutedEventArgs e) {
+            Project project = this.Editor.Project;
+            project.Editor.Playback.Pause();
+            ExportDialog dialog = new ExportDialog {
+                ExportSetup = new ExportSetup(project) {
+                    Properties = {
+                        Span = new FrameSpan(0, project.MainTimeline.LargestFrameInUse),
+                        FilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "OutputVideo.mp4")
+                    }
+                }
+            };
+            dialog.ShowDialog();
         }
     }
 }

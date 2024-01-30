@@ -7,6 +7,7 @@
                     xmlns:views="clr-namespace:FramePFX.Views"
                     xmlns:c="clr-namespace:FramePFX.Themes.Converters">
     <FontFamily x:Key="FontOxanium">pack://application:,,,/Resources/Fonts/Oxanium/#Oxanium</FontFamily>
+    <PopupAnimation x:Key="{x:Static SystemParameters.MenuPopupAnimationKey}">Fade</PopupAnimation>
     <BorderGapMaskConverter x:Key="BorderGapMaskConverter"/>
     <Style x:Key="FocusVisual">
         <Setter Property="Control.Template">

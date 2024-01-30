@@ -25,6 +25,11 @@ namespace FramePFX.Editors {
 
         public RenderManager RenderManager { get; }
 
+        /// <summary>
+        /// Gets or sets if a video is being exported. Used by the view port to optimise the UI for rendering
+        /// </summary>
+        public bool IsExporting { get; set; }
+
         public Project() {
             this.Settings = ProjectSettings.Default;
             this.RenderManager = new RenderManager(this);

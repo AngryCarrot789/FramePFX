@@ -26,7 +26,9 @@
         <Menu Grid.Row="0" 
               Background="{Binding TitlebarBrush, RelativeSource={RelativeSource AncestorType={x:Type v:WindowEx}, Mode=FindAncestor}}"
               BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1">
-            <MenuItem Header="File"/>
+            <MenuItem Header="File">
+                <MenuItem Header="Export" Click="Export_Click"/>
+            </MenuItem>
             <MenuItem Header="Theme">
                 <MenuItem Header="Deep Dark" Click="SetThemeClick" Uid="0"/>
                 <MenuItem Header="Soft Dark (default)" Click="SetThemeClick" Uid="1"/>

@@ -43,6 +43,10 @@
     <ApplicationIcon>FramePFX-256.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FFmpeg.AutoGen, Version=6.1.0.0, Culture=neutral, PublicKeyToken=9b7632533a381715">
+      <HintPath>..\packages\FFmpeg.AutoGen.6.1.0\lib\netstandard2.0\FFmpeg.AutoGen.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="OpenTK, Version=3.3.3.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenTK.3.3.3\lib\net20\OpenTK.dll</HintPath>
     </Reference>
@@ -104,6 +108,21 @@
     <Compile Include="Editors\Contextual\ResourceContextRegistry.cs" />
     <Compile Include="Editors\Contextual\TrackContextRegistry.cs" />
     <Compile Include="Editors\Controls\Timelines\ClipDropRegistry.cs" />
+    <Compile Include="Editors\Exporting\Controls\ExportDialog.xaml.cs">
+      <DependentUpon>ExportDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Editors\Exporting\Controls\ExportProgressDialog.xaml.cs">
+      <DependentUpon>ExportProgressDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Editors\Exporting\Exporter.cs" />
+    <Compile Include="Editors\Exporting\ExportProperties.cs" />
+    <Compile Include="Editors\Exporting\ExportSetup.cs" />
+    <Compile Include="Editors\Exporting\FFMPEG\FFmpegExporter.cs" />
+    <Compile Include="Editors\Exporting\FFMPEG\FFUtils.cs" />
+    <Compile Include="Editors\Exporting\FFMPEG\LavResult.cs" />
+    <Compile Include="Editors\Exporting\IExportProgress.cs" />
+    <Compile Include="Editors\Rational.cs" />
+    <Compile Include="Editors\Rendering\EnumRenderQuality.cs" />
     <Compile Include="Editors\RenderLockedData.cs" />
     <Compile Include="Editors\ResourceManaging\Actions\ChangeResourceOnlineStateAction.cs" />
     <Compile Include="Editors\ResourceManaging\Actions\DeleteResourcesAction.cs" />
@@ -284,6 +303,7 @@
     <Compile Include="Utils\PointUtils.cs" />
     <Compile Include="Utils\PrecisionTimer.cs" />
     <Compile Include="Utils\RandomUtils.cs" />
+    <Compile Include="Utils\RapidDispatchCallback.cs" />
     <Compile Include="Utils\RateLimitedExecutor.cs" />
     <Compile Include="Utils\Reference.cs" />
     <Compile Include="Utils\ReferenceEqualityComparer.cs" />
@@ -356,6 +376,14 @@
     <Page Include="Editors\Controls\TreeViews\Themes\MultiSelectTreeViewItem.Aero2.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Editors\Exporting\Controls\ExportDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Editors\Exporting\Controls\ExportProgressDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Editors\ResourceManaging\Autoloading\Controls\InvalidResourceControlStyles.xaml">
       <SubType>Designer</SubType>
@@ -696,6 +724,7 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="FramePFX-256.ico" />
+    <Content Include="Editors\Controls\TreeViews\LICENCE" />
     <Content Include="Keymap.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

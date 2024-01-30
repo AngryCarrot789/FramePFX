@@ -88,7 +88,7 @@ namespace FramePFX.Editors.Timelines {
         /// <param name="value">The new end index value. This value is trusted to be non-negative</param>
         /// <returns>A new frame span</returns>
         /// <exception cref="ArgumentOutOfRangeException">Input value is less than the begin value</exception>
-        public FrameSpan WithEndIndex(long value) {
+        public FrameSpan MoveEndIndex(long value) {
             if (value < this.Begin) {
                 throw new ArgumentOutOfRangeException(nameof(value), $"Value cannot be smaller than the begin index ({value} < {this.Begin})");
             }
@@ -97,12 +97,12 @@ namespace FramePFX.Editors.Timelines {
         }
 
         /// <summary>
-        /// Same as <see cref="WithEndIndex"/>, but instead of throwing, the span is clamped to empty
+        /// Same as <see cref="MoveEndIndex"/>, but instead of throwing, the span is clamped to empty
         /// </summary>
         /// <param name="value">The new end index value. This value is trusted to be non-negative</param>
         /// <param name="upperLimit">The upper limit for the end index. By default, this is <see cref="long.MaxValue"/> meaning effectively no upper limit</param>
         /// <returns>A new frame span, or empty when the value is less than or equal to the begin value</returns>
-        public FrameSpan WithEndIndexClamped(long value, long upperLimit = long.MaxValue) {
+        public FrameSpan MoveEndIndexClamped(long value, long upperLimit = long.MaxValue) {
             if (value > this.Begin) {
                 if (value > upperLimit)
                     value = upperLimit;
@@ -118,7 +118,7 @@ namespace FramePFX.Editors.Timelines {
         /// <param name="value">The new begin 'index'. This value is trusted to be non-negative</param>
         /// <returns>A new frame span</returns>
         /// <exception cref="ArgumentOutOfRangeException">Input value is greater than the end index</exception>
-        public FrameSpan WithBeginIndex(long value) {
+        public FrameSpan MoveBegin(long value) {
             long endIndex = this.Begin + this.Duration;
             if (value > endIndex) {
                 throw new ArgumentOutOfRangeException(nameof(value), $"New begin value cannot exceed the end index ({value} > {endIndex})");
@@ -128,12 +128,12 @@ namespace FramePFX.Editors.Timelines {
         }
 
         /// <summary>
-        /// Same as <see cref="WithBeginIndex"/>, but instead of throwing, the span is clamped to empty
+        /// Same as <see cref="MoveBegin"/>, but instead of throwing, the span is clamped to empty
         /// </summary>
         /// <param name="value">The new end index value. This value is trusted to be non-negative</param>
         /// <param name="lowerLimit">The lower limit for the begin 'index'. By default, this is 0</param>
         /// <returns>A new frame span, or empty when the value is greater than or equal to the end index value</returns>
-        public FrameSpan WithBeginIndexClamped(long value, long lowerLimit = 0L) {
+        public FrameSpan MoveBeginIndexClamped(long value, long lowerLimit = 0L) {
             long endIndex = this.Begin + this.Duration;
             if (value < lowerLimit)
                 value = lowerLimit;
@@ -141,19 +141,19 @@ namespace FramePFX.Editors.Timelines {
         }
 
         public FrameSpan AddEndIndex(long value) {
-            return this.WithEndIndex(this.EndIndex + value);
+            return this.MoveEndIndex(this.EndIndex + value);
         }
 
         public FrameSpan AddEndIndexClamped(long value, long upperLimit = long.MaxValue) {
-            return this.WithEndIndexClamped(this.EndIndex + value, upperLimit);
+            return this.MoveEndIndexClamped(this.EndIndex + value, upperLimit);
         }
 
         public FrameSpan AddBeginIndex(long value) {
-            return this.WithBeginIndex(this.Begin + value);
+            return this.MoveBegin(this.Begin + value);
         }
 
         public FrameSpan AddBeginIndexClamped(long value, long lowerLimit = 0L) {
-            return this.WithBeginIndexClamped(this.Begin + value, lowerLimit);
+            return this.MoveBeginIndexClamped(this.Begin + value, lowerLimit);
         }
 
         public FrameSpan AddBegin(long value) {

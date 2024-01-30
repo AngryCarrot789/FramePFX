@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -148,6 +149,11 @@ namespace FramePFX.Editors.ResourceManaging.Autoloading.Controls {
         private void Cancel_Click(object sender, RoutedEventArgs e) {
             this.DialogResult = false;
             this.Close();
+        }
+
+        protected override void OnClosed(EventArgs e) {
+            base.OnClosed(e);
+            this.ResourceLoader = null;
         }
     }
 }

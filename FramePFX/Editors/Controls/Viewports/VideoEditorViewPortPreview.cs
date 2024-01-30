@@ -67,6 +67,10 @@ namespace FramePFX.Editors.Controls.Viewports {
         }
 
         private void OnFrameAvailable(RenderManager manager) {
+            if (manager.Project.IsExporting) {
+                return;
+            }
+
             if (!this.BeginRender(out SKSurface surface)) {
                 return;
             }

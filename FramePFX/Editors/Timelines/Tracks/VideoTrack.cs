@@ -84,7 +84,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
         }
 
         // CALLED ON A RENDER THREAD
-        public void RenderFrame(SKImageInfo imgInfo) {
+        public void RenderFrame(SKImageInfo imgInfo, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality) {
             if (this.surface == null || this.surfaceInfo != imgInfo) {
                 this.surface?.Dispose();
                 this.bitmap?.Dispose();
@@ -109,7 +109,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
                 SKPaint transparency = null;
                 int clipOpacityLayer = RenderManager.BeginClipOpacityLayer(this.surface.Canvas, this.theClipToRender, ref transparency);
 
-                RenderContext ctx = new RenderContext(imgInfo, this.surface, this.bitmap, this.pixmap);
+                RenderContext ctx = new RenderContext(imgInfo, this.surface, this.bitmap, this.pixmap, quality);
                 for (int i = 0; i < fxListCount; i++) {
                     fxList[i].PreProcessFrame(ctx);
                 }

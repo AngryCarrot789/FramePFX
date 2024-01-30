@@ -72,7 +72,7 @@ namespace FramePFX.Editors.Rendering {
         /// This is an async method; the returned task will be completed when the render is completed
         /// </summary>
         /// <param name="frame">The frame to render</param>
-        private async Task RenderTimelineAsync(Timeline timeline, long frame) {
+        public async Task RenderTimelineAsync(Timeline timeline, long frame, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality) {
             if (timeline == null)
                 throw new ArgumentNullException(nameof(timeline), "Cannot render a null timeline");
             if (frame < 0 || frame >= timeline.MaxDuration)
@@ -104,7 +104,7 @@ namespace FramePFX.Editors.Rendering {
                 Task[] tasks = new Task[tracks.Count];
                 for (int i = 0; i < tracks.Count; i++) {
                     VideoTrack track = tracks[i];
-                    tasks[i] = Task.Run(() => track.RenderFrame(imageInfo));
+                    tasks[i] = Task.Run(() => track.RenderFrame(imageInfo, quality));
                 }
 
                 this.surface.Canvas.Clear(SKColors.Transparent);
@@ -177,12 +177,16 @@ namespace FramePFX.Editors.Rendering {
             });
         }
 
+        /// <summary>
+        /// Draws the currently rendered frame into the given surface
+        /// </summary>
+        /// <param name="target">The surface in which our rendered frame is drawn into</param>
         public void Draw(SKSurface target) {
             this.surface.Flush();
             this.surface.Draw(target.Canvas, 0, 0, null);
         }
 
-        public SuspendRender SuspendRender() {
+        public SuspendRender SuspendRenderInvalidation() {
             ++this._suspendRenderCount;
             return new SuspendRender(this);
         }

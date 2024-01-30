@@ -7,6 +7,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using FFmpeg.AutoGen;
 using FramePFX.Actions;
 using FramePFX.Editors.Actions;
 using FramePFX.Editors.ResourceManaging;

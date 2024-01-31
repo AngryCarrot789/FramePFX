@@ -9,20 +9,22 @@ If you have any feedback/criticism for the app, that would be appreciate! Also f
 
 # Preview
 There are 6 themes. This is the `Soft Dark` theme. But there's also `Deep dark`, `Dark Grey`, `Grey`, `Red and Black` and a really bad `Light Theme`
-![](3eOhGMSIiN.png)
+![](FramePFX_2024-01-31_02.41.43.png)
 
 ### Automation/animation
 Always found automating parameters in the standard editors to be generally finicky. Ableton Live has a really good automation editor though, so I took a fair bit of inspiration from it:
-- Each clip has it's own keyframe/envelope editor that stretches the entirety of the clip. 
+- Each clip has it's own keyframe/envelope editor that stretches the entirety of the clip. Effects also use this
 - Tracks have the same, but it stretches the entire timeline. 
 - Automating project settings, or anything else really, will soon be do-able on a timeline automation specific track (allowing for more than just video/audio tracks)
+
+The clip's automation sequence editor's target parameter can be changed by selecting a row (I call them "slots") in the property editor. The currently selected slot is what the clip shows (if clip automation is visible, click C to toggle)
 
 # Backend stuff
 
 ### Models and the UI
 
-I previously made this using MVVM everywhere, but it made adding new changes really difficult, so I decided to go with a
-mostly non-view-model design, where the models are just the state and the views add/remove event handlers for those methods
+I previously made this using MVVM everywhere, but it made adding new features really difficult, so I decided to go with a
+mostly non-view-model design, where the models are just the state and the views add/remove event handlers to obverse the model states
 
 This turns out to be a lot more performant, somewhat just as easy to add new features, and the signals between ViewModel/View not
 being entirely commands. But it does mean moving this to something like Avalonia (which I haven't thought of doing yet) would be a lot
@@ -46,9 +48,10 @@ The render phase is like this:
 - The final frame is now completed, `FrameRendered` is fired in the render manager, and the view port hooks onto that event and draws the rendered frame
 
 ### Resource list
-The resources are shareable between clips, so that clips can obviously share similar details (e.g. same text or font/font size), or same image, same shape colour, etc.
+The resources are shareable between clips, so that clips can obviously share similar details (e.g. same text or font/font size), or same image, 
+same shape colour, etc.
 
-To drag videos, images, etc., into the editor: drag and drop the file to the top left "resource manager", and then drag one of those items into the timeline. Will soon support directly dropping a clip into the timeline
+To drag videos, images, etc., into the editor: drag and drop the file to the top left "resource manager panel", and then drag one of those items into the timeline
 
 # TODO
 ### Audio
@@ -61,25 +64,23 @@ I don't know how to implement audio playback yet, despite my best efforts to try
 - *[From old editor version]* AVMediaVideoClip is extremely slow for large resolution videos (e.g. 4K takes around 40ms to decode and render onscreen), and only a few video codecs even seem to work. Lots of common file formats give an error like "found invalid 
   data while decoding". I don't know FFmpeg much but I hope to somehow fix this at some point
 - Implement fading between 2 clips
-### Resources
-- Implement an automatic resource loader, that auto-loads stuff like images, videos, etc., and shows a window specifying any
-  errors encountered and allowing you to fix those errors
 ### History system
 - There's no undo functionality yet
 
 # Building
 
-At the moment, FFmpeg isn't used (as I have to reimplement the export system since I rewrote the entire app). However,
-you would just need FFmpeg's shared x64 libraries. They can be found here: 
+FFmpeg is used for exporting videos, and at the moment, the app won't start without the libraries in the same directory as the app's `.exe`.
+You just need FFmpeg's shared x64 libraries, they can be found here: 
 https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip
 
-You build the project (debug or release), then place all of the FFmpeg DLL files in the bin folder (usually `<solution>\FramePFX\bin\x64\Debug`), and then you should be able to run the editor, and debug it if you want. 
+You build the project (64 bit always, debug or release, **Not 32/x86/AnyCPU**), then place all of the FFmpeg DLL files in the bin 
+folder (usually `<solution>\FramePFX\bin\x64\Debug`), and then you should be able to run the editor, and debug it if you want. 
 
 The project uses .NET Framework 4.8, so you will need that installed
 
 ### Possible build problems
-Sometimes, the SkiaSharp nuget library doesn't copy the skia library files to the bin folder, so you need to do that manually:
-Copy `\packages\SkiaSharp.2.88.7\runtimes\win-x64\native\libSkiaSharp.dll` to the bin folder
+Sometimes, the SkiaSharp nuget library doesn't copy the skia library files to the bin folder when you clone this repo and built, 
+so you need to do that manually: It seems like you just copy `\packages\SkiaSharp.2.88.7\runtimes\win-x64\native\libSkiaSharp.dll` to the bin folder
 
 ## BUGS
 - *[From old editor version]* Importing certain video files can cause the render to fail (some sort of "found invalid data while decoding" error)

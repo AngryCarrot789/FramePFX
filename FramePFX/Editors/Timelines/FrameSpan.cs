@@ -199,11 +199,9 @@ namespace FramePFX.Editors.Timelines {
             return frame >= this.Begin && frame < this.EndIndex;
         }
 
-        public bool Intersects(FrameSpan span) {
-            return Intersects(this, span);
-        }
+        public bool Intersects(FrameSpan span) => Intersects(in this, in span);
 
-        public static bool Intersects(FrameSpan a, FrameSpan b) {
+        public static bool Intersects(in FrameSpan a, in FrameSpan b) {
             // no idea if this works both ways... CBA to test lolol
             return a.Begin < b.EndIndex && a.EndIndex > b.Begin;
         }

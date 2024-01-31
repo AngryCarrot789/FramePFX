@@ -138,16 +138,17 @@ namespace FramePFX.Editors.ResourceManaging {
             }
         }
 
-        public static void DestroyHierarchy(BaseResource item) {
-            if (item is ResourceFolder folder) {
+        public static void DestroyHierarchy(BaseResource resource) {
+            if (resource is ResourceFolder folder) {
+                folder.Destroy(); // call folder method just in case
                 foreach (BaseResource child in folder.items) {
                     DestroyHierarchy(child);
                 }
-
-                folder.Destroy();
             }
             else {
-                item.Destroy();
+                // The overridden method for ResourceItem calls disable, so there's
+                // no need to do it here since that will just hurt performance
+                resource.Destroy();
             }
         }
     }

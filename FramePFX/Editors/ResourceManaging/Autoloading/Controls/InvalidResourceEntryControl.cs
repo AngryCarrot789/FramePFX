@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using FramePFX.Editors.ResourceManaging.Resources;
 
 namespace FramePFX.Editors.ResourceManaging.Autoloading.Controls {
     /// <summary>
@@ -22,6 +23,7 @@ namespace FramePFX.Editors.ResourceManaging.Autoloading.Controls {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(InvalidResourceEntryControl), new FrameworkPropertyMetadata(typeof(InvalidResourceEntryControl)));
             Constructors = new Dictionary<Type, Func<InvalidResourceEntryControl>>();
             RegisterType(typeof(InvalidImagePathEntry), () => new InvalidImagePathEntryControl());
+            RegisterType(typeof(InvalidMediaPathEntry), () => new InvalidMediaPathEntryControl());
         }
 
         public virtual void AttachToEntry(InvalidResourceEntry entry) {

@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using FramePFX.Editors.ResourceManaging.Autoloading;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.RBC;
+using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editors.ResourceManaging.Resources {
@@ -17,12 +18,12 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             }
         }
 
-        public bool IsRawBitmapMode { get; set; }
+        public bool IsRawBitmapMode { get; private set; }
 
         public SKBitmap bitmap;
         public SKImage image;
 
-        public event BaseResourceEventHandler ImageChanged;
+        public event ResourceEventHandler ImageChanged;
 
         public ResourceImage() {
         }
@@ -45,7 +46,10 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
                         Marshal.Copy(pixels, array, 0, array.Length);
                         data.SetBool(nameof(this.IsRawBitmapMode), true);
                         data.SetByteArray(nameof(this.bitmap), array);
-                        data.SetStruct("BitmapImageFormat", new UnmanagedImageFormat(this.bitmap.Info));
+
+                        UnmanagedImageFormat imgFormat = new UnmanagedImageFormat(this.bitmap.Info);
+                        data.SetStruct("BitmapImageFormat", imgFormat);
+                        data.SetInt("BitmapImageFormatHashCode", imgFormat.GetHashCode());
                     }
                 }
             }
@@ -56,30 +60,32 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
 
         public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
-            // juuust in case...
-            if (this.bitmap != null || this.image != null) {
-                this.bitmap?.Dispose();
-                this.image?.Dispose();
-            }
-
             this.IsRawBitmapMode = data.GetBool(nameof(this.IsRawBitmapMode), false);
             if (this.IsRawBitmapMode) {
+                int hashCode = data.GetInt("BitmapImageFormatHashCode");
                 UnmanagedImageFormat format = data.GetStruct<UnmanagedImageFormat>("BitmapImageFormat");
-                if (format.Width > 0 && format.Height > 0) {
-                    unsafe {
-                        try {
-                            byte[] array = data.GetByteArray(nameof(this.bitmap));
-                            this.bitmap = new SKBitmap();
-                            fixed (byte* ptr = array) {
-                                this.bitmap.InstallPixels(format.ImageInfo, (IntPtr) ptr);
-                            }
+                if (format.Width <= 0 || format.Height <= 0) {
+                    return;
+                }
 
-                            this.image = this.bitmap != null ? SKImage.FromBitmap(this.bitmap) : null;
+                // !!!
+                if (format.GetHashCode() != hashCode) {
+                    return;
+                }
+
+                unsafe {
+                    try {
+                        byte[] array = data.GetByteArray(nameof(this.bitmap));
+                        this.bitmap = new SKBitmap();
+                        fixed (byte* ptr = array) {
+                            this.bitmap.InstallPixels(format.ImageInfo, (IntPtr) ptr);
                         }
-                        catch (Exception e) {
-                            this.bitmap?.Dispose();
-                            this.image?.Dispose();
-                        }
+
+                        this.image = this.bitmap != null ? SKImage.FromBitmap(this.bitmap) : null;
+                    }
+                    catch (Exception e) {
+                        this.bitmap?.Dispose();
+                        this.image?.Dispose();
                     }
                 }
             }
@@ -141,13 +147,25 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             this.ImageChanged?.Invoke(this);
         }
 
+        protected override void OnDisableCore(bool user) {
+            base.OnDisableCore(user);
+            this.DisposeImage(false);
+        }
+
         public override void Destroy() {
             base.Destroy();
-            this.bitmap?.Dispose();
-            this.bitmap = null;
-            this.image?.Dispose();
-            this.image = null;
-            this.ImageChanged?.Invoke(this);
+            this.DisposeImage(true);
+        }
+
+        private void DisposeImage(bool force) {
+            if ((this.bitmap != null || this.image != null) && (!this.IsRawBitmapMode || force)) {
+                this.bitmap?.Dispose();
+                this.bitmap = null;
+                this.image?.Dispose();
+                this.image = null;
+                this.IsRawBitmapMode = false;
+                this.ImageChanged?.Invoke(this);
+            }
         }
 
         private readonly struct UnmanagedImageFormat {
@@ -170,6 +188,24 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
                 this.Height = info.Height;
                 this.ColorType = info.ColorType;
                 this.AlphaType = info.AlphaType;
+            }
+
+            public bool Equals(UnmanagedImageFormat other) {
+                return this.Width == other.Width && this.Height == other.Height && this.ColorType == other.ColorType && this.AlphaType == other.AlphaType;
+            }
+
+            public override bool Equals(object obj) {
+                return obj is UnmanagedImageFormat other && this.Equals(other);
+            }
+
+            public override int GetHashCode() {
+                unchecked {
+                    int hash = this.Width;
+                    hash = (hash * 397) ^ this.Height;
+                    hash = (hash * 397) ^ (int) this.ColorType;
+                    hash = (hash * 397) ^ (int) this.AlphaType;
+                    return hash;
+                }
             }
         }
     }

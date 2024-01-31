@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using FramePFX.Editors.Controls.Binders;
+using FramePFX.Editors.ResourceManaging.Resources;
 
 namespace FramePFX.Editors.ResourceManaging.Autoloading.Controls {
     public class InvalidImagePathEntryControl : InvalidResourceEntryControl {

@@ -18,8 +18,12 @@ namespace FramePFX.Editors.ResourceManaging.Actions {
             foreach (BaseResource item in resources) {
                 // since it's a hash set, we might end up removing a folder containing some
                 // selected items, so parent will be null since it deletes the hierarchy
-                item.Parent?.RemoveItem(item);
+                if (item.Parent == null) {
+                    continue;
+                }
+
                 ResourceFolder.DestroyHierarchy(item);
+                item.Parent.RemoveItem(item);
             }
 
             return Task.CompletedTask;

@@ -79,7 +79,7 @@ namespace FramePFX.Editors.ResourceManaging {
             this.uuidToItem = new Dictionary<ulong, ResourceItem>();
             this.selectedItems = new HashSet<BaseResource>(64, new ReferenceEqualityComparer<BaseResource>());
             this.RootContainer = new ResourceFolder() {DisplayName = "<root>"};
-            BaseResource.SetManagerForRootFolder(this.RootContainer, this);
+            BaseResource.InternalSetManagerForRootFolder(this.RootContainer, this);
             this.currentFolder = this.RootContainer;
             this.IsResourceNotInUsePredicate = s => !this.EntryExists(s);
             this.IsResourceInUsePredicate = this.EntryExists;

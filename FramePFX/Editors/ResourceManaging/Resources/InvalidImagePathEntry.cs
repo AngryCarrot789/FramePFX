@@ -1,6 +1,6 @@
-using FramePFX.Editors.ResourceManaging.Resources;
+using FramePFX.Editors.ResourceManaging.Autoloading;
 
-namespace FramePFX.Editors.ResourceManaging.Autoloading {
+namespace FramePFX.Editors.ResourceManaging.Resources {
     /// <summary>
     /// An entry that represents an invalid image path that does not exist or couldn't represent an image
     /// </summary>

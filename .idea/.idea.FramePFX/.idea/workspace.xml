@@ -7,44 +7,73 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3dd42830-fb81-4631-b072-52d6b7c558b4" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/FramePFX/ApplicationCore.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/Converters/EmptyStringToVisibilityConverter.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/Editors/Actions/DeleteClipOwnerTrackAction.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/Editors/Actions/RenameAction.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Actions/GroupResourcesAction.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/IApplicationStartupProgress.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/IServiceManager.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/ServiceManager.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/Services/Messages/IMessageDialogService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/Services/Messages/IUserInputDialogService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/Services/WPF/Messages/MessageDialog.xaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/Services/WPF/Messages/MessageDialog.xaml.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/Services/WPF/Messages/SingleInputDialog.xaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/Services/WPF/Messages/SingleInputDialog.xaml.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/Services/WPF/Messages/WPFMessageDialogService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/Services/WPF/Messages/WPFUserInputDialogService.cs" afterDir="false" />
+    <list default="true" id="3dd42830-fb81-4631-b072-52d6b7c558b4" name="Default Changelist" comment="Added modal dialogs for messages/inputs, added more actions and shortcuts (rename track, clip, resource), fixed shortcut manager firing multiple shortcuts when a previous one was executed successfully, fixed advanced action menu item, removed unused imports, and fixed resource explorer's current folder not being synced with the resource manager">
+      <change afterPath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Autoloading/Controls/InvalidMediaPathEntryControl.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Resources/InvalidMediaPathEntry.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Resources/ResourceAVMedia.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpeg/AudioStream.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpeg/FFmpegDecodeThread.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpeg/FFmpegReader.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpeg/FrameQueue.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpeg/StreamWrapper.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpeg/VideoStream.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/AudioFormat.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/AudioFrame.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/AudioQueue.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/Codecs/AudioDecoder.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/Codecs/AudioEncoder.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/Codecs/CodecBase.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/Codecs/CodecHardwareConfig.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/Codecs/MediaDecoder.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/Codecs/MediaEncoder.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/Codecs/VideoDecoder.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/Codecs/VideoEncoder.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/Containers/ContainerTypes.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/Containers/IOContext.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/Containers/MediaDemuxer.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/Containers/MediaMuxer.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/Containers/MediaStream.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/Containers/StreamIOContext.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/EnumAliases.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/FFObject.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/FFUtils.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/HardwareDevice.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/HardwareFrameConstraints.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/HardwareFramePool.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/LavResult.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/MediaFrame.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/MediaPacket.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/PictureFormat.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/SwResampler.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/SwScaler.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/FFmpegWrapper/VideoFrame.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX/IoC.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.FramePFX/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FramePFX/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Actions/ActionManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Actions/ActionManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/AdvancedContextService/WPF/AdvancedActionMenuItem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/AdvancedContextService/WPF/AdvancedActionMenuItem.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/AdvancedContextService/WPF/ContextStyles.xaml" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/AdvancedContextService/WPF/ContextStyles.xaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/App.xaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/App.xaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Actions/DeleteTracksAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Actions/DeleteTracksAction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Contextual/ClipContextRegistry.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Contextual/ClipContextRegistry.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Contextual/ResourceContextRegistry.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Contextual/ResourceContextRegistry.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Contextual/TrackContextRegistry.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Contextual/TrackContextRegistry.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/Explorers/ResourceExplorerListControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/Explorers/ResourceExplorerListControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/Trees/ResourceTreeViewItem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/Trees/ResourceTreeViewItem.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TimelineStyles.xaml" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TimelineStyles.xaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Effects/BaseEffect.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Effects/BaseEffect.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/Explorers/ResourceExplorerListItemContent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/Explorers/ResourceExplorerListItemContent.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/ResourceDropRegistry.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/ResourceDropRegistry.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TimelineScrollableContentGrid.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TimelineScrollableContentGrid.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TrackDropRegistry.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TrackDropRegistry.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Exporting/FFMPEG/FFmpegExporter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Exporting/FFMPEG/FFmpegExporter.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Factories/ClipFactory.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Factories/ClipFactory.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/ProjectSettings.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/ProjectSettings.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Actions/DeleteResourcesAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Actions/DeleteResourcesAction.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Autoloading/Controls/InvalidImagePathEntryControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Autoloading/Controls/InvalidImagePathEntryControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Autoloading/Controls/InvalidResourceEntryControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Autoloading/Controls/InvalidResourceEntryControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Autoloading/InvalidImagePathEntry.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Resources/InvalidImagePathEntry.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/BaseResource.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/BaseResource.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Events/ResourceEvents.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Events/ResourceEvents.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/ResourceFolder.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/ResourceFolder.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/ResourceHelpers/ResourceLink.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/ResourceHelpers/ResourceLink.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/ResourceItem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/ResourceItem.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/ResourceManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/ResourceManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Resources/ResourceColour.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Resources/ResourceColour.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Resources/ResourceImage.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Resources/ResourceImage.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Clips/AVMediaVideoClip.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Clips/AVMediaVideoClip.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Views/EditorWindow.xaml" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Views/EditorWindow.xaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Views/EditorWindow.xaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Views/EditorWindow.xaml.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FramePFX/FramePFX.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/FramePFX.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Keymap.xml" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Keymap.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Shortcuts/Managing/ShortcutInputManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Shortcuts/Managing/ShortcutInputManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Shortcuts/Managing/ShortcutManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Shortcuts/Managing/ShortcutManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Shortcuts/WPF/UIInputManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Shortcuts/WPF/UIInputManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Shortcuts/WPF/WPFShortcutInputManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Shortcuts/WPF/WPFShortcutInputManager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Views/AppSplashScreen.xaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Views/AppSplashScreen.xaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Views/WindowEx.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Views/WindowEx.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/packages.config" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/packages.config" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,6 +93,7 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/6b/0ed9e50f/TaskContinuation.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/Timelines/Effects/MotionEffect.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/95/9b62bb56/TextBoxBase.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/13/b3cd42da/Task`1.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/6e/dcf41832/PopupControlService.cs" root0="SKIP_HIGHLIGHTING" />
@@ -74,11 +104,13 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/86B893CE-ABAA-4728-B507-5924DDA4273C/14/0ada9676/RoutedEventArgs.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/4d/2623c7be/IScrollInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/51/a78625e5/FrameworkElement.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Shortcuts/WPF/WPFShortcutInputManager.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/03/9cce8587/FrameworkTemplate.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1DE758BF-1EFC-4C40-BA31-66103772CEFF/5d/256a0f74/UIElement.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/49/759108e1/Application.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/c8/9c5d340a/TextBoxView.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/ce/add3f1dc/HeaderedItemsControl.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/AdvancedContextService/WPF/AdvancedActionMenuItem.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/ee/a16fc989/ArgumentOutOfRangeException.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/b4/0b52d8d6/ItemsControl.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/82/0b3f3067/ContentPresenter.cs" root0="SKIP_HIGHLIGHTING" />
@@ -87,6 +119,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/62/8c146bee/Marshal.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/9f/8f336552/PropertyInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/27/318c4c65/ContinuationTaskFromResultTask`1.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Shortcuts/Managing/ShortcutInputManager.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/8f/33542a37/RangeBase.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/26/428a428a/RootBrowserWindow.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/9AC74066-410C-42B2-B276-C816C284ED85/a1/86f042c7/DependencyObject.cs" root0="SKIP_HIGHLIGHTING" />
@@ -105,66 +138,58 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/04/e43dc648/TextBlock.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/9c/aeb725af/ContextMenu.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/9a/4dac6f25/KeyValuePair`2.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1DE758BF-1EFC-4C40-BA31-66103772CEFF/ad/50cf3311/MILMedia.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/bf/b5b50698/List`1.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/0a/2eb0d04a/Associates.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/Contextual/ResourceContextRegistry.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/19/90017466/Thread.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1DE758BF-1EFC-4C40-BA31-66103772CEFF/ae/43c68e58/MediaPlayerState.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/91/cdad1676/SKRect.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1DE758BF-1EFC-4C40-BA31-66103772CEFF/60/f59580f8/MediaPlayer.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/D1286D07-7FDF-4F8E-B772-3A106735DC7B/32/fbe71cab/StreamPipeSink.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/af/fcef3f4a/BindingFlags.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/49/d5d29df9/ThrowHelper.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/FramePFX/obj/x64/Debug/App.g.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/D1286D07-7FDF-4F8E-B772-3A106735DC7B/6f/84608ced/IVideoFrame.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/Controls/Automation/KeyFramePoint.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/bc/93b83ad8/Monitor.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/4a/7badbeec/RuntimeMethodHandle.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1DE758BF-1EFC-4C40-BA31-66103772CEFF/89/c2f24e97/DragEventArgs.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/c6/dcf2cb59/MenuItem.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/D1286D07-7FDF-4F8E-B772-3A106735DC7B/c0/4037971b/RawVideoPipeSource.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/01/8c13c4eb/ExceptionDispatchInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/4e/1fe431fa/Signature.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/67/84d5fb5d/ToolTipService.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/22/b8ffb658/Type.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/d0/d988a030/ThreadStart.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/Automation/Keyframes/KeyFrame.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/D1286D07-7FDF-4F8E-B772-3A106735DC7B/51/0eaf2ee3/IPipeSource.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/8B924B14-576E-44F2-A15C-03F7E950C49A/38/c4f6019c/AVIOContext.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/96/76487f51/RuntimeMethodInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/a7/98bac7d1/RuntimePropertyInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/9314F5D0-39F3-4063-8E3A-78D50AA1A6D0/13/8383ae14/SDL.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/D1286D07-7FDF-4F8E-B772-3A106735DC7B/77/58c53526/IPipeSink.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/21C9D999-1BF2-482F-96F6-A7F4A7737122/e0/db8c9167/Vector2.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/D1286D07-7FDF-4F8E-B772-3A106735DC7B/6b/149d5042/OutputPipeArgument.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/9AC74066-410C-42B2-B276-C816C284ED85/36/1ecaba17/DispatcherProcessingDisabled.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1C19FF9D-4065-482B-8087-0CA6390883CD/68/413508bc/Stack`1.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/80/ffd9edf3/CultureInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/f9/afa684dc/PopupAnimation.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/D1286D07-7FDF-4F8E-B772-3A106735DC7B/72/76914d21/FFMpegArguments.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/cf/7db1131d/ContextMenuService.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/18/1684a7aa/Selector.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/e1/d3f9a107/ValidationError.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1DE758BF-1EFC-4C40-BA31-66103772CEFF/d1/f9e506f4/PixelFormat.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/b7/07fb8a72/Control.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/AdvancedContextService/WPF/AdvancedContextMenu.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/44/a67d03ac/Validation.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/9c/7693834b/Popup.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/fa/2bce2862/TaskScheduler.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/Controls/Resources/Explorers/ResourceExplorerListControl.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/65/9b7ab224/CustomPopupPlacementCallback.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Surfaces/TrackControlSurfaceListBoxItem.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Surfaces/TrackControlSurface.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Actions/SelectAllTracksAction.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/TimelineTrackControl.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Resources/ResourceImage.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/BaseResource.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/PropertyEditorSlot.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/BasePropertyEditor.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/ResourceManager.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/ResourceItem.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Timelines/FrameSpan.cs" />
-      <option value="$PROJECT_DIR$/README.md" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Views/EditorWindow.xaml" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Timelines/Tracks/Track.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Timelines/Effects/BaseEffect.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Shortcuts/Managing/ShortcutManager.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Actions/ActionManager.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Shortcuts/WPF/InputKeyArgs.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Shortcuts/WPF/WPFShortcutInputManager.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/IApplicationStartupProgress.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Views/AppSplashScreen.xaml.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/IServiceManager.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/ServiceManager.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Converters/EmptyStringToVisibilityConverter.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Services/Messages/IMessageDialogService.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Services/WPF/Messages/MessageDialog.xaml" />
       <option value="$PROJECT_DIR$/FramePFX/Services/WPF/Messages/MessageDialog.xaml.cs" />
@@ -176,8 +201,6 @@
       <option value="$PROJECT_DIR$/FramePFX/Services/WPF/Messages/SingleInputDialog.xaml.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Shortcuts/Managing/ShortcutInputManager.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Shortcuts/WPF/UIInputManager.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/App.xaml.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Actions/DeleteClipOwnerTrackAction.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Actions/DeleteClipsAction.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Actions/DeleteTracksAction.cs" />
       <option value="$PROJECT_DIR$/FramePFX/AdvancedContextService/WPF/ContextStyles.xaml" />
@@ -186,12 +209,38 @@
       <option value="$PROJECT_DIR$/FramePFX/Editors/Contextual/ClipContextRegistry.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Contextual/TrackContextRegistry.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Actions/RenameAction.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/ApplicationCore.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Keymap.xml" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Contextual/ResourceContextRegistry.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Actions/GroupResourcesAction.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/Trees/ResourceTreeViewItem.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/Explorers/ResourceExplorerListControl.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Actions/DeleteClipOwnerTrackAction.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TimelineScrollableContentGrid.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/ApplicationCore.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/App.xaml.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Autoloading/ResourceLoader.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/BaseResource.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Contextual/ResourceContextRegistry.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/ResourceFolder.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Actions/DeleteResourcesAction.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Resources/ResourceImage.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/ResourceItem.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/FFmpeg/FFmpegReader.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/FFmpegWrapper/AudioFormat.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Resources/InvalidImagePathEntry.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Resources/InvalidMediaPathEntry.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Factories/ClipFactory.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/ResourceDropRegistry.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/IoC.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TrackDropRegistry.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/Explorers/ResourceExplorerListItemContent.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Autoloading/Controls/InvalidMediaFileEntryControl.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Autoloading/Controls/InvalidResourceEntryControl.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/ResourceManaging/Resources/ResourceAVMedia.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/ProjectSettings.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Views/EditorWindow.xaml" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Views/EditorWindow.xaml.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Timelines/Clips/AVMediaVideoClip.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Exporting/FFMPEG/FFmpegExporter.cs" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="2bVmNasuD1gRewhm3s2Vrxru3IS" />
@@ -259,7 +308,7 @@
       <workItem from="1706569472264" duration="3707000" />
       <workItem from="1706636901067" duration="1997000" />
       <workItem from="1706650274225" duration="19420000" />
-      <workItem from="1706691951858" duration="15569000" />
+      <workItem from="1706691951858" duration="27950000" />
     </task>
     <task id="LOCAL-00001" summary="Replaced old app with new app, which does not use MVVM much anymore">
       <created>1706309146757</created>
@@ -345,7 +394,14 @@
       <option name="project" value="LOCAL" />
       <updated>1706669819672</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Added modal dialogs for messages/inputs, added more actions and shortcuts (rename track, clip, resource), fixed shortcut manager firing multiple shortcuts when a previous one was executed successfully, fixed advanced action menu item, removed unused imports, and fixed resource explorer's current folder not being synced with the resource manager">
+      <created>1706707899449</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1706707899449</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -379,7 +435,8 @@
     <MESSAGE value="Fixed desynchronisation of ResourceManager selected items. Added track drag-drop registry, renamed ResourceItem Enable function to be more descriptive of the intention; Enable is meant to be an &quot;auto-enable&quot; feature" />
     <MESSAGE value="Added new content to README" />
     <MESSAGE value="Fixed desynchronisation of timeline track selection collection" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed desynchronisation of timeline track selection collection" />
+    <MESSAGE value="Added modal dialogs for messages/inputs, added more actions and shortcuts (rename track, clip, resource), fixed shortcut manager firing multiple shortcuts when a previous one was executed successfully, fixed advanced action menu item, removed unused imports, and fixed resource explorer's current folder not being synced with the resource manager" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added modal dialogs for messages/inputs, added more actions and shortcuts (rename track, clip, resource), fixed shortcut manager firing multiple shortcuts when a previous one was executed successfully, fixed advanced action menu item, removed unused imports, and fixed resource explorer's current folder not being synced with the resource manager" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -409,19 +466,6 @@
             </endOffsets>
           </properties>
           <option name="timeStamp" value="10" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/Explorers/ResourceExplorerListItemContent.cs</url>
-          <line>200</line>
-          <properties documentPath="F:\VSProjsV2\FramePFX\FramePFX\Editors\Controls\Resources\Explorers\ResourceExplorerListItemContent.cs" initialLine="200" containingFunctionPresentation="method 'OnDisconnected'">
-            <startOffsets>
-              <option value="7640" />
-            </startOffsets>
-            <endOffsets>
-              <option value="7662" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="28" />
         </line-breakpoint>
         <breakpoint enabled="true" suspend="NONE" type="DotNet Exception Breakpoints">
           <properties exception="System.DllNotFoundException" isInternal="false" displayValue="DllNotFoundException" namespaceName="System">

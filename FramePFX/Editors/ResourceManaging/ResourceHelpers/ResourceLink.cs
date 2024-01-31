@@ -56,7 +56,7 @@ namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
         /// <summary>
         /// An event fired when the online state of our resource changes (as in, when <see cref="ResourceItem.IsOnline"/> changes)
         /// </summary>
-        public event BaseResourceEventHandler OnlineStateChanged;
+        public event ResourceEventHandler OnlineStateChanged;
 
         /// <summary>
         /// Gets the resource path key that owns this resource path

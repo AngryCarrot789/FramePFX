@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using System.Windows;
 using FramePFX.Editors.ResourceManaging;
@@ -8,6 +9,7 @@ using FramePFX.Editors.Timelines.Effects;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.DataContexts;
+using FramePFX.Services.Messages;
 
 namespace FramePFX.Editors.Controls.Timelines {
     public static class TrackDropRegistry {
@@ -24,7 +26,7 @@ namespace FramePFX.Editors.Controls.Timelines {
             });
 
             DropRegistry.Register<VideoTrack, ResourceItem>((track, resource, dt, ctx) => {
-                return resource is ResourceColour || resource is ResourceImage || resource is ResourceTextStyle
+                return resource is ResourceColour || resource is ResourceImage || resource is ResourceTextStyle || resource is ResourceAVMedia
                     ? EnumDropType.Copy
                     : EnumDropType.None;
             }, async (track, resource, dt, ctx) => {
@@ -47,6 +49,39 @@ namespace FramePFX.Editors.Controls.Timelines {
                 FrameSpan defaultSpan = track.GetSpanUntilClipOrLimitedDuration(frame, (long) (fps * 5));
                 Clip theNewClip;
                 switch (resource) {
+                    case ResourceAVMedia media: {
+                        if (media.Demuxer == null) {
+                            IoC.MessageService.ShowMessage("Resource demuxer offline", "The resource's demuxer is not available");
+                            return;
+                        }
+
+                        TimeSpan span = media.GetDuration();
+                        long dur = (long) Math.Floor(span.TotalSeconds * fps);
+                        if (dur < 1) {
+                            IoC.MessageService.ShowMessage("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
+                            return;
+                        }
+
+                        // image files are 1
+                        if (dur == 1) {
+                            dur = defaultSpan.Duration;
+                        }
+
+                        long newProjectDuration = frame + dur + 600;
+                        if (newProjectDuration > track.Timeline.MaxDuration) {
+                            track.Timeline.MaxDuration = newProjectDuration;
+                        }
+
+                        AVMediaVideoClip clip = new AVMediaVideoClip() {
+                            FrameSpan = new FrameSpan(frame, dur),
+                            DisplayName = "Media Clip"
+                        };
+
+                        clip.ResourceAVMediaKey.SetTargetResourceId(media.UniqueId);
+                        theNewClip = clip;
+
+                        break;
+                    }
                     case ResourceColour argb: {
                         VideoClipShape clip = new VideoClipShape {
                             FrameSpan = defaultSpan,

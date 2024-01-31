@@ -186,6 +186,7 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
             SKPixmap pixmap = new SKPixmap(imgInfo, ptr, imgInfo.RowBytes);
             SKSurface surface = null;
             SuspendRender? suspendRender = null;
+            SwsContext* s = null;
             try {
                 surface = SKSurface.Create(pixmap);
                 if (surface == null) {
@@ -199,6 +200,13 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
                 RenderManager renderManager = project.RenderManager;
                 suspendRender = renderManager.SuspendRenderInvalidation();
                 Timeline timeline = project.MainTimeline;
+
+                int width = RNDTO2(c->width);
+                int height = RNDTO2(c->height);
+                s = ffmpeg.sws_getContext(
+                    resolution.Width, resolution.Height, AVPixelFormat.AV_PIX_FMT_BGRA,
+                    width, height, AVPixelFormat.AV_PIX_FMT_YUV420P,
+                    ffmpeg.SWS_BILINEAR, null, null, null);
 
                 for (; exportFrame < frameEnd; exportFrame++, ptsFrame++) {
                     if (cancellation.IsCancellationRequested) {
@@ -249,20 +257,15 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
                     byte* data = (byte*) pixmap.GetPixels();
                     int stride = pixmap.RowBytes;
                     {
-                        int width = RNDTO2(c->width);
-                        int height = RNDTO2(c->height);
-                        // int ystride = RNDTO32(width);
-                        // int uvstride = RNDTO32(width / 2);
-                        // int ysize = ystride * height;
-                        // int vusize = uvstride * (height / 2);
-                        // int size = ysize + (2 * vusize);
-                        SwsContext* s = ffmpeg.sws_getContext(
-                            resolution.Width, resolution.Height, AVPixelFormat.AV_PIX_FMT_BGRA,
-                            width, height, AVPixelFormat.AV_PIX_FMT_YUV420P,
-                            ffmpeg.SWS_BILINEAR, null, null, null);
+                        // int width = RNDTO2(c->width);
+                        // int height = RNDTO2(c->height);
+                        // SwsContext* s = ffmpeg.sws_getContext(
+                        //     resolution.Width, resolution.Height, AVPixelFormat.AV_PIX_FMT_BGRA,
+                        //     width, height, AVPixelFormat.AV_PIX_FMT_YUV420P,
+                        //     ffmpeg.SWS_BILINEAR, null, null, null);
 
                         ffmpeg.sws_scale(s, new[] {data}, new[] {stride}, 0, c->height, frame_data_arrays, frame_line_sizes);
-                        ffmpeg.sws_freeContext(s);
+                        // ffmpeg.sws_freeContext(s);
                     }
 
                     frame->pts = ptsFrame;
@@ -341,6 +344,8 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
                 bitmap.Dispose();
                 pixmap.Dispose();
                 surface?.Dispose();
+                if (s != null)
+                    ffmpeg.sws_freeContext(s);
             }
 
             ffmpeg.av_write_trailer(oc);

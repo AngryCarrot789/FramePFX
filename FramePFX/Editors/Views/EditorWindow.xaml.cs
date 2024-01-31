@@ -38,17 +38,6 @@ namespace FramePFX.Editors.Views {
         private void EditorWindow_Loaded(object sender, RoutedEventArgs e) {
             this.ThePropertyEditor.ApplyTemplate();
             this.ThePropertyEditor.PropertyEditor = VideoEditorPropertyEditor.Instance;
-            if (this.ViewPortElement.BeginRender(out SKSurface surface)) {
-                using (SKPaint paint = new SKPaint() { Color = SKColors.Black }) {
-                    surface.Canvas.DrawRect(0, 0, 1280, 720, paint);
-                }
-
-                using (SKPaint paint = new SKPaint() { Color = SKColors.OrangeRed }) {
-                    surface.Canvas.DrawRect(0, 0, 90, 30, paint);
-                }
-
-                this.ViewPortElement.EndRender();
-            }
         }
 
         protected override void OnKeyDown(KeyEventArgs e) {
@@ -62,18 +51,19 @@ namespace FramePFX.Editors.Views {
             if (oldEditor != null) {
                 oldEditor.ProjectChanged -= this.OnEditorProjectChanged;
                 oldEditor.Playback.PlaybackStateChanged -= this.OnEditorPlaybackStateChanged;
-                this.ViewPortElement.VideoEditor = null;
+                this.PART_ViewPort.VideoEditor = null;
             }
 
             if (newEditor != null) {
                 newEditor.ProjectChanged += this.OnEditorProjectChanged;
                 newEditor.Playback.PlaybackStateChanged += this.OnEditorPlaybackStateChanged;
-                this.ViewPortElement.VideoEditor = newEditor;
+                this.PART_ViewPort.VideoEditor = newEditor;
             }
 
             this.actionSystemDataContext.Set(DataKeys.EditorKey, newEditor);
             Project project = newEditor?.Project;
             if (project != null) {
+                this.UpdateRenderSettings(project.Settings);
                 this.UpdateResourceManager(project.ResourceManager);
                 this.UpdateTimeline(project.MainTimeline);
             }
@@ -104,9 +94,17 @@ namespace FramePFX.Editors.Views {
         }
 
         private void OnEditorProjectChanged(VideoEditor editor, Project oldProject, Project newProject) {
+            this.UpdateRenderSettings(newProject?.Settings);
             this.UpdateResourceManager(newProject?.ResourceManager);
             this.UpdateTimeline(newProject?.MainTimeline);
             this.actionSystemDataContext.Set(DataKeys.ProjectKey, newProject);
+        }
+
+        private void UpdateRenderSettings(ProjectSettings settings) {
+            if (settings != null) {
+                this.PART_ViewPort.Width = settings.Width;
+                this.PART_ViewPort.Height = settings.Height;
+            }
         }
 
         private void UpdateResourceManager(ResourceManager manager) {

@@ -6,7 +6,15 @@ using FramePFX.RBC;
 namespace FramePFX.Editors.ResourceManaging {
     /// <summary>
     /// The base class for all resource items that can be used by clip objects to store and access
-    /// data shareable across multiple clips
+    /// data shareable across multiple clips.
+    /// <para>
+    /// Resource items have an online status, which can be used to for example reduce memory usage when
+    /// resources aren't in use, such as Image and AVMedia resources.
+    /// While a resource can force itself online via <see cref="EnableCore"/>, the general idea is that
+    /// resources can load themselves based on their state, and if there was a problem or missing data,
+    /// they add error entries called <see cref="InvalidResourceEntry"/> objects which get added to
+    /// a <see cref="ResourceLoader"/> which is used to present a collection of errors to the user
+    /// </para>
     /// </summary>
     public abstract class ResourceItem : BaseResource {
         public const ulong EmptyId = ResourceManager.EmptyId;
@@ -52,7 +60,7 @@ namespace FramePFX.Editors.ResourceManaging {
         }
 
         /// <summary>
-        /// A method that forces this resource offline, releasing any resources in the process. This may call <see cref="Dispose"/> or <see cref="DisposeCore"/>
+        /// A method that forces this resource offline, releasing any resources in the process
         /// </summary>
         /// <param name="user">
         /// Whether or not this resource was disabled by the user force disabling
@@ -60,28 +68,33 @@ namespace FramePFX.Editors.ResourceManaging {
         /// </param>
         /// <returns></returns>
         public void Disable(bool user) {
-            if (!this.IsOnline)
+            if (!this.IsOnline) {
                 return;
+            }
 
             this.OnDisableCore(user);
             this.IsOnline = false;
             this.IsOfflineByUser = user;
-            this.OnIsOnlineStateChanged();
+            this.OnOnlineStateChanged();
         }
 
         /// <summary>
         /// Called by <see cref="Disable"/> when this resource item is about to be disabled. This can
-        /// do things like release file locks/handles, unload image bitmap data to reduce memory usage, etc.
+        /// do things like release file locks/handles, unload bitmaps to reduce memory usage, etc.
+        /// <para>
+        /// Any errors should just be logged to the console
+        /// </para>
         /// </summary>
         /// <param name="user">
-        /// True if this was disabled forcefully by the user via the UI,
-        /// False if it was disabled by something else, such as an error
+        /// True if this was disabled forcefully by the user via the UI. False if it was disabled by something
+        /// else, such as an error or this resource being deleted
         /// </param>
         protected virtual void OnDisableCore(bool user) {
         }
 
         /// <summary>
-        /// Tries to enable this resource. If there were errors, they will be caught and added to the loader.
+        /// Tries to enable this resource based on its current state. If there were errors, they
+        /// will be added to the given <see cref="ResourceLoader"/> (if it is non-null).
         /// If already online, then nothing happens and true is returned
         /// </summary>
         public bool TryAutoEnable(ResourceLoader loader) {
@@ -104,18 +117,23 @@ namespace FramePFX.Editors.ResourceManaging {
         /// is already loaded, then this method can return true to signal to put this resource into an online
         /// state, as this method is only called when offline
         /// <para>
-        /// If there are errors, then add entries to the resource loader if it is non-null
+        /// If there are errors, then add entries to the resource loader (if it is non-null)
         /// </para>
         /// </summary>
-        /// <param name="loader"></param>
+        /// <param name="loader">The loader to add error entries to. May be null if errors are not processed</param>
         protected virtual bool OnTryAutoEnable(ResourceLoader loader) {
             return true;
         }
 
         /// <summary>
-        /// Called from a resource loader to try and load this resource from the entry we created.
+        /// Called from a resource loader to try and load this resource from an entry this resource created.
         /// This method calls <see cref="EnableCore"/>, which enables this resource. Overriding methods
-        /// should not call the base method if they could not be loaded from the given entry
+        /// should not call the base method if they could not be loaded from the given entry.
+        /// <para>
+        /// If <see cref="OnTryAutoEnable"/> added multiple entries, then you must implement your own way
+        /// of identifying which entry is which (e.g. an ID property). Typically, you would just check
+        /// the entry type and process it accordingly
+        /// </para>
         /// </summary>
         /// <param name="entry">The entry that we created</param>
         /// <returns>True if the resource was successfully enabled, otherwise false</returns>
@@ -136,7 +154,7 @@ namespace FramePFX.Editors.ResourceManaging {
 
             this.IsOnline = true;
             this.IsOfflineByUser = false;
-            this.OnIsOnlineStateChanged();
+            this.OnOnlineStateChanged();
         }
 
         public override void WriteToRBE(RBEDictionary data) {
@@ -156,8 +174,16 @@ namespace FramePFX.Editors.ResourceManaging {
             }
         }
 
-        public virtual void OnIsOnlineStateChanged() {
+        public virtual void OnOnlineStateChanged() {
             this.OnlineStateChanged?.Invoke(this);
+        }
+
+        public override void Destroy() {
+            if (this.IsOnline) {
+                this.Disable(false);
+            }
+
+            base.Destroy();
         }
 
         /// <summary>

@@ -54,6 +54,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
             RegisterType(typeof(ResourceColour), () => new RELICColour());
             RegisterType(typeof(ResourceImage), () => new RELICImage());
             RegisterType(typeof(ResourceTextStyle), () => new RELICTextStyle());
+            RegisterType(typeof(ResourceAVMedia), () => new RELICAVMedia());
         }
 
         protected override Size MeasureOverride(Size constraint) {
@@ -229,6 +230,12 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
 
     public class RELICTextStyle : ResourceExplorerListItemContent {
         public RELICTextStyle() {
+
+        }
+    }
+
+    public class RELICAVMedia : ResourceExplorerListItemContent {
+        public RELICAVMedia() {
 
         }
     }

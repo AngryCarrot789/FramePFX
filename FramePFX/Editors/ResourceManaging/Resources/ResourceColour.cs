@@ -55,7 +55,7 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             set => this.myColour = this.myColour.WithAlpha(value);
         }
 
-        public event Events.BaseResourceEventHandler ColourChanged;
+        public event Events.ResourceEventHandler ColourChanged;
 
         public ResourceColour() : this(0, 0, 0) {
         }

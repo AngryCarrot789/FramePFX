@@ -71,6 +71,33 @@ namespace FramePFX.Editors.Controls.Resources {
                 if (objekt.GetData(NativeDropTypes.FileDrop) is string[] files) {
                     foreach (string path in files) {
                         switch (Path.GetExtension(path).ToLower()) {
+                            case ".gif":
+                            case ".mp3":
+                            case ".wav":
+                            case ".ogg":
+                            case ".mp4":
+                            case ".wmv":
+                            case ".avi":
+                            case ".avchd":
+                            case ".f4v":
+                            case ".swf":
+                            case ".mov":
+                            case ".mkv":
+                            case ".qt":
+                            case ".webm":
+                            case ".flv": {
+                                ResourceAVMedia media = new ResourceAVMedia() {
+                                    FilePath = path, DisplayName = Path.GetFileName(path)
+                                };
+
+                                if (!ResourceLoaderDialog.TryLoadResources(media)) {
+                                    break;
+                                }
+
+                                folder.AddItem(media);
+
+                                break;
+                            }
                             case ".png":
                             case ".bmp":
                             case ".jpg":

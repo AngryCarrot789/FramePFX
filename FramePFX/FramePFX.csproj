@@ -47,6 +47,7 @@
       <HintPath>..\packages\FFmpeg.AutoGen.6.1.0\lib\netstandard2.0\FFmpeg.AutoGen.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="mscorlib" />
     <Reference Include="OpenTK, Version=3.3.3.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenTK.3.3.3\lib\net20\OpenTK.dll</HintPath>
     </Reference>
@@ -66,8 +67,9 @@
     <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
     </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -135,16 +137,55 @@
     <Compile Include="Editors\ResourceManaging\Actions\DeleteResourcesAction.cs" />
     <Compile Include="Editors\ResourceManaging\Actions\GroupResourcesAction.cs" />
     <Compile Include="Editors\ResourceManaging\Autoloading\Controls\InvalidImagePathEntryControl.cs" />
+    <Compile Include="Editors\ResourceManaging\Autoloading\Controls\InvalidMediaPathEntryControl.cs" />
     <Compile Include="Editors\ResourceManaging\Autoloading\Controls\InvalidResourceEntryControl.cs" />
     <Compile Include="Editors\ResourceManaging\Autoloading\Controls\ResourceLoaderDialog.xaml.cs">
       <DependentUpon>ResourceLoaderDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Editors\ResourceManaging\Autoloading\InvalidImagePathEntry.cs" />
     <Compile Include="Editors\ResourceManaging\Autoloading\InvalidResourceEntry.cs" />
     <Compile Include="Editors\ResourceManaging\Autoloading\ResourceLoader.cs" />
+    <Compile Include="Editors\ResourceManaging\Resources\InvalidImagePathEntry.cs" />
+    <Compile Include="Editors\ResourceManaging\Resources\InvalidMediaPathEntry.cs" />
+    <Compile Include="Editors\ResourceManaging\Resources\ResourceAVMedia.cs" />
     <Compile Include="Editors\Timelines\Clips\AVMediaVideoClip.cs" />
     <Compile Include="Editors\Timelines\Clips\TimecodeClip.cs" />
     <Compile Include="Editors\Timelines\TimelineUtils.cs" />
+    <Compile Include="FFmpegWrapper\AudioFormat.cs" />
+    <Compile Include="FFmpegWrapper\AudioFrame.cs" />
+    <Compile Include="FFmpegWrapper\AudioQueue.cs" />
+    <Compile Include="FFmpegWrapper\Codecs\AudioDecoder.cs" />
+    <Compile Include="FFmpegWrapper\Codecs\AudioEncoder.cs" />
+    <Compile Include="FFmpegWrapper\Codecs\CodecBase.cs" />
+    <Compile Include="FFmpegWrapper\Codecs\CodecHardwareConfig.cs" />
+    <Compile Include="FFmpegWrapper\Codecs\MediaDecoder.cs" />
+    <Compile Include="FFmpegWrapper\Codecs\MediaEncoder.cs" />
+    <Compile Include="FFmpegWrapper\Codecs\VideoDecoder.cs" />
+    <Compile Include="FFmpegWrapper\Codecs\VideoEncoder.cs" />
+    <Compile Include="FFmpegWrapper\Containers\ContainerTypes.cs" />
+    <Compile Include="FFmpegWrapper\Containers\IOContext.cs" />
+    <Compile Include="FFmpegWrapper\Containers\MediaDemuxer.cs" />
+    <Compile Include="FFmpegWrapper\Containers\MediaMuxer.cs" />
+    <Compile Include="FFmpegWrapper\Containers\MediaStream.cs" />
+    <Compile Include="FFmpegWrapper\Containers\StreamIOContext.cs" />
+    <Compile Include="FFmpegWrapper\EnumAliases.cs" />
+    <Compile Include="FFmpegWrapper\FFObject.cs" />
+    <Compile Include="FFmpegWrapper\FFUtils.cs" />
+    <Compile Include="FFmpegWrapper\HardwareDevice.cs" />
+    <Compile Include="FFmpegWrapper\HardwareFrameConstraints.cs" />
+    <Compile Include="FFmpegWrapper\HardwareFramePool.cs" />
+    <Compile Include="FFmpegWrapper\LavResult.cs" />
+    <Compile Include="FFmpegWrapper\MediaFrame.cs" />
+    <Compile Include="FFmpegWrapper\MediaPacket.cs" />
+    <Compile Include="FFmpegWrapper\PictureFormat.cs" />
+    <Compile Include="FFmpegWrapper\SwResampler.cs" />
+    <Compile Include="FFmpegWrapper\SwScaler.cs" />
+    <Compile Include="FFmpegWrapper\VideoFrame.cs" />
+    <Compile Include="FFmpeg\AudioStream.cs" />
+    <Compile Include="FFmpeg\FFmpegDecodeThread.cs" />
+    <Compile Include="FFmpeg\FFmpegReader.cs" />
+    <Compile Include="FFmpeg\FrameQueue.cs" />
+    <Compile Include="FFmpeg\StreamWrapper.cs" />
+    <Compile Include="FFmpeg\VideoStream.cs" />
     <Compile Include="IApplicationStartupProgress.cs" />
     <Compile Include="Interactivity\DataContexts\DataContext.cs" />
     <Compile Include="Interactivity\DataContexts\DataContextEntry.cs" />
@@ -152,6 +193,7 @@
     <Compile Include="Interactivity\DataContexts\DataKeys.cs" />
     <Compile Include="Interactivity\DataContexts\EmptyContext.cs" />
     <Compile Include="Interactivity\DataContexts\IDataContext.cs" />
+    <Compile Include="IoC.cs" />
     <Compile Include="IServiceManager.cs" />
     <Compile Include="PropertyEditing\Controls\Standard\BaseParameterPropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\Controls\Standard\ParameterDoublePropertyEditorControl.cs" />

@@ -8,7 +8,7 @@ namespace FramePFX.Editors.ResourceManaging {
     /// <summary>
     /// Base class for resource items and groups
     /// </summary>
-    public abstract class BaseResource : IDestroy {
+    public abstract class BaseResource {
         private string displayName;
         private bool isSelected;
 
@@ -49,8 +49,8 @@ namespace FramePFX.Editors.ResourceManaging {
             }
         }
 
-        public event BaseResourceEventHandler DisplayNameChanged;
-        public event BaseResourceEventHandler IsSelectedChanged;
+        public event ResourceEventHandler DisplayNameChanged;
+        public event ResourceEventHandler IsSelectedChanged;
 
         protected BaseResource() {
 
@@ -128,16 +128,18 @@ namespace FramePFX.Editors.ResourceManaging {
         }
 
         /// <summary>
-        /// Invoked when this resource is about to be completely deleted. It will not have a parent object
-        /// associated. This should dispose used resources and object, unregister event handlers, etc.
+        /// Destroys this resource's data, such as disposing objects, unregistering event handlers, etc.
         /// <para>
         /// Any errors should be logged to the application logger
         /// </para>
         /// <para>
-        /// If this object is a <see cref="ResourceItem"/>, it will not be unregistered from the resource manager; that must be done manually
+        /// If this object is a <see cref="ResourceFolder"/> then the child hierarchy will be destroyed
+        /// as well. However, the act of destroying is simply meant to revert the resource's data to a
+        /// default state, therefore, this method would not remove any items
         /// </para>
         /// <para>
-        /// If this object is a <see cref="ResourceFolder"/>, the child hierarchy will not be disposed; it will only dispose this object specifically
+        /// If this object is a <see cref="ResourceItem"/> then <see cref="ResourceItem.Disable"/> is
+        /// called to disable the object before being destroyed
         /// </para>
         /// </summary>
         public virtual void Destroy() {
@@ -147,7 +149,7 @@ namespace FramePFX.Editors.ResourceManaging {
         /// <summary>
         /// An internal method used to set a manager's root folder's manager
         /// </summary>
-        internal static void SetManagerForRootFolder(ResourceFolder root, ResourceManager owner) {
+        internal static void InternalSetManagerForRootFolder(ResourceFolder root, ResourceManager owner) {
             root.Manager = owner;
             root.OnAttachedToManager();
         }

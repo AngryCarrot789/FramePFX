@@ -142,30 +142,30 @@
     </Style>
 
     <Style TargetType="{x:Type explorers:ResourceExplorerListItemContent}"></Style>
-    <Style TargetType="{x:Type explorers:ResourceExplorerListItemContentFolder}" BasedOn="{StaticResource {x:Type explorers:ResourceExplorerListItemContent}}">
+    <Style TargetType="{x:Type explorers:RELICFolder}" BasedOn="{StaticResource {x:Type explorers:ResourceExplorerListItemContent}}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type explorers:ResourceExplorerListItemContentFolder}">
+                <ControlTemplate TargetType="{x:Type explorers:RELICFolder}">
                     <TextBlock Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ItemCount, StringFormat='{}{0} Items'}"
                                VerticalAlignment="Center" HorizontalAlignment="Center"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
-    <Style TargetType="{x:Type explorers:ResourceExplorerListItemContentColour}" BasedOn="{StaticResource {x:Type explorers:ResourceExplorerListItemContent}}">
+    <Style TargetType="{x:Type explorers:RELICColour}" BasedOn="{StaticResource {x:Type explorers:ResourceExplorerListItemContent}}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type explorers:ResourceExplorerListItemContentColour}">
+                <ControlTemplate TargetType="{x:Type explorers:RELICColour}">
                     <Border Background="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Colour}"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
-    <Style TargetType="{x:Type explorers:ResourceExplorerListItemContentImage}" BasedOn="{StaticResource {x:Type explorers:ResourceExplorerListItemContent}}">
+    <Style TargetType="{x:Type explorers:RELICImage}" BasedOn="{StaticResource {x:Type explorers:ResourceExplorerListItemContent}}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type explorers:ResourceExplorerListItemContentImage}">
-
+                <ControlTemplate TargetType="{x:Type explorers:RELICImage}">
+                    <Image x:Name="PART_Image" Stretch="Fill"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

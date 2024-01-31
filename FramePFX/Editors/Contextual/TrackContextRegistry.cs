@@ -63,7 +63,7 @@ namespace FramePFX.Editors.Contextual {
             }
 
             FrameSpan span = new FrameSpan(0, 300);
-            if (context.TryGetContext(DataKeys.TrackMouseFrameKey, out long frame)) {
+            if (context.TryGetContext(DataKeys.TrackContextMouseFrameKey, out long frame)) {
                 span = span.WithBegin(frame);
             }
 

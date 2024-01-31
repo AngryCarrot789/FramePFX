@@ -84,14 +84,15 @@ namespace FramePFX.Editors.ResourceManaging {
         }
 
         /// <summary>
-        /// Tries to enable this resource. If there were errors, they will be caught and added to the loader
+        /// Tries to enable this resource. If there were errors, they will be caught and added to the loader.
+        /// If already online, then nothing happens and true is returned
         /// </summary>
-        public bool Enable(ResourceLoader loader) {
+        public bool TryAutoEnable(ResourceLoader loader) {
             if (this.IsOnline) {
                 return true;
             }
 
-            if (this.OnEnable(loader)) {
+            if (this.OnTryAutoEnable(loader)) {
                 this.EnableCore();
                 return true;
             }
@@ -101,26 +102,36 @@ namespace FramePFX.Editors.ResourceManaging {
         }
 
         /// <summary>
-        /// Try to enable this resource; load any external things, open files, etc. ready for clips to use them.
+        /// Called by <see cref="TryAutoEnable"/> to try and enable this resource based on its current state.
+        /// This could load any external things, open files, etc. ready for clips to use them. If that stuff
+        /// is already loaded, then this method can return true to signal to put this resource into an online
+        /// state, as this method is only called when offline
         /// <para>
         /// If there are errors, then add entries to the resource loader if it is non-null
         /// </para>
         /// </summary>
         /// <param name="loader"></param>
-        protected virtual bool OnEnable(ResourceLoader loader) {
+        protected virtual bool OnTryAutoEnable(ResourceLoader loader) {
             return true;
         }
 
         /// <summary>
-        /// Called from a resource loader interface to try and load this item from the entry it created
+        /// Called from a resource loader to try and load this resource from the entry we created.
+        /// This method calls <see cref="EnableCore"/>, which enables this resource. Overriding methods
+        /// should not call the base method if they could not be loaded from the given entry
         /// </summary>
-        /// <param name="entry"></param>
-        /// <returns></returns>
-        public virtual bool TryEnableForInvalidEntry(InvalidResourceEntry entry) {
+        /// <param name="entry">The entry that we created</param>
+        /// <returns>True if the resource was successfully enabled, otherwise false</returns>
+        public virtual bool TryEnableForLoaderEntry(InvalidResourceEntry entry) {
             this.EnableCore();
             return true;
         }
 
+        /// <summary>
+        /// Forcefully enables this resource item, if the <see cref="TryAutoEnable"/> method is unnecessary,
+        /// e.g. because resources were loaded in a non-standard or direct way
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
         protected void EnableCore() {
             if (this.IsOnline) {
                 throw new InvalidOperationException("Already enabled");
@@ -152,24 +163,9 @@ namespace FramePFX.Editors.ResourceManaging {
             this.OnlineStateChanged?.Invoke(this);
         }
 
-        private void SetOnlineStateHelper(bool newOnlineState) {
-            if (this.IsOnline == newOnlineState)
-                return;
-            this.IsOnline = newOnlineState;
-            if (newOnlineState) {
-                this.IsOfflineByUser = false;
-            }
-
-            this.OnIsOnlineStateChanged();
-        }
-
         /// <summary>
         /// Internal method for setting a resource item's unique ID
         /// </summary>
         internal static void SetUniqueId(ResourceItem item, ulong id) => item.UniqueId = id;
-
-        protected static void SetOnlineHelper(ResourceImage resourceImage) {
-            resourceImage.SetOnlineStateHelper(true);
-        }
     }
 }

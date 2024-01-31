@@ -16,7 +16,7 @@ namespace FramePFX.Editors.ResourceManaging.Actions {
                     ResourceItem item = (ResourceItem)obj;
                     if (item.IsOnline != state) {
                         if (state) {
-                            item.Enable(loader);
+                            item.TryAutoEnable(loader);
                         }
                         else {
                             item.Disable(true);

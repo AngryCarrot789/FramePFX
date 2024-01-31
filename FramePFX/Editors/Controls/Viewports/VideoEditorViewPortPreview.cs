@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
@@ -7,6 +9,7 @@ using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Editors.Utils;
+using FramePFX.Utils;
 using SkiaSharp;
 using Vector2 = System.Numerics.Vector2;
 
@@ -18,10 +21,16 @@ namespace FramePFX.Editors.Controls.Viewports {
         private const double thickness = 2.5d;
         private const double half_thickness = thickness / 2d;
         public static readonly DependencyProperty VideoEditorProperty = DependencyProperty.Register("VideoEditor", typeof(VideoEditor), typeof(VideoEditorViewPortPreview), new PropertyMetadata(null, OnVideoEditorChanged));
+        public static readonly DependencyProperty DrawSelectedElementsProperty = DependencyProperty.Register("DrawSelectedElements", typeof(bool), typeof(VideoEditorViewPortPreview), new FrameworkPropertyMetadata(BoolBox.True, FrameworkPropertyMetadataOptions.AffectsRender));
 
         public VideoEditor VideoEditor {
             get => (VideoEditor) this.GetValue(VideoEditorProperty);
             set => this.SetValue(VideoEditorProperty, value);
+        }
+
+        public bool DrawSelectedElements {
+            get => (bool) this.GetValue(DrawSelectedElementsProperty);
+            set => this.SetValue(DrawSelectedElementsProperty, value.Box());
         }
 
         private readonly Pen OutlinePen = new Pen(Brushes.Orange, 2.5f);
@@ -86,9 +95,15 @@ namespace FramePFX.Editors.Controls.Viewports {
 
         protected override void OnRender(DrawingContext dc) {
             base.OnRender(dc);
-            if (this.VideoEditor?.Project?.MainTimeline is Timeline timeline) {
+            if (this.DrawSelectedElements && this.VideoEditor?.Project?.MainTimeline is Timeline timeline) {
                 foreach (Track track in timeline.Tracks) {
-                    foreach (Clip clip in track.GetClipsAtFrame(timeline.PlayHeadPosition).Where(x => x.IsSelected)) {
+                    if (!(track is VideoTrack)) {
+                        continue;
+                    }
+
+                    // potentially faster than scanning SelectedClips due to track clip chunking
+                    IEnumerable<Clip> clips = track.GetClipsAtFrame(timeline.PlayHeadPosition).Where(x => x.IsSelected);
+                    foreach (Clip clip in clips) {
                         if (clip is VideoClip videoClip && videoClip.GetRenderSize() is Vector2 frameSize) {
                             SKRect rect = videoClip.TransformationMatrix.MapRect(frameSize.ToSkiaAsSize(0, 0));
                             Point pos = new Point(Math.Floor(rect.Left) - half_thickness, Math.Floor(rect.Top) - half_thickness);

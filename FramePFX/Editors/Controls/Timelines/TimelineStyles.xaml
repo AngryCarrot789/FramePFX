@@ -13,7 +13,8 @@
                     xmlns:p="clr-namespace:FramePFX.Editors.Controls.Timelines.Playheads"
                     xmlns:wpf="clr-namespace:FramePFX.Shortcuts.WPF"
                     xmlns:wpf1="clr-namespace:FramePFX.AdvancedContextService.WPF"
-                    xmlns:ctx="clr-namespace:FramePFX.Editors.Contextual">
+                    xmlns:ctx="clr-namespace:FramePFX.Editors.Contextual"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
     <!-- TimelineTrackListBox's     Background = track gap colour in ListBox -->
     <!-- TimelineTrackListBoxItem's Background = its background -->
 
@@ -109,6 +110,7 @@
 
     <Style TargetType="{x:Type tracks:TimelineTrackControl}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone2.Background.Static}"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type tracks:TimelineTrackControl}">
@@ -399,7 +401,7 @@
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate DataType="{x:Type s:TrackListItemParameterViewModel}">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Ellipse Margin="0,0,4,0" VerticalAlignment="Center" 
+                                                    <Ellipse Margin="0,0,4,0" VerticalAlignment="Center"
                                                              Visibility="{Binding IsAutomated, Mode=OneWay, Converter={x:Static co:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
                                                              Width="5" Height="5">
                                                         <Ellipse.Fill>
@@ -411,7 +413,7 @@
                                                     </Ellipse>
                                                     <TextBlock Text="{Binding Name, Mode=OneTime}"/>
                                                 </StackPanel>
-                                            </DataTemplate>
+                                            </DataTemplate>                                            
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
                                     <Button BorderBrush="Black" Height="18" Width="18" ToolTip="Insert a key frame at the current play head"

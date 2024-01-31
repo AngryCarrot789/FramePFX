@@ -100,6 +100,7 @@
     <Compile Include="Editors\Actions\DeleteTracksAction.cs" />
     <Compile Include="Editors\Actions\MoveTrackAction.cs" />
     <Compile Include="Editors\Actions\NewVideoTrackAction.cs" />
+    <Compile Include="Editors\Actions\SelectAllTracksAction.cs" />
     <Compile Include="Editors\Actions\SliceClipsAction.cs" />
     <Compile Include="Editors\Actions\ToggleClipAutomationAction.cs" />
     <Compile Include="Editors\Actions\TogglePlayAction.cs" />
@@ -108,6 +109,7 @@
     <Compile Include="Editors\Contextual\ResourceContextRegistry.cs" />
     <Compile Include="Editors\Contextual\TrackContextRegistry.cs" />
     <Compile Include="Editors\Controls\Timelines\ClipDropRegistry.cs" />
+    <Compile Include="Editors\Controls\Timelines\TrackDropRegistry.cs" />
     <Compile Include="Editors\Exporting\Controls\ExportDialog.xaml.cs">
       <DependentUpon>ExportDialog.xaml</DependentUpon>
     </Compile>
@@ -340,12 +342,6 @@
     <Compile Include="Utils\VisualTreeUtils.cs" />
     <Compile Include="Views\AppSplashScreen.xaml.cs">
       <DependentUpon>AppSplashScreen.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\PropertyPageDemoWindow.xaml.cs">
-      <DependentUpon>PropertyPageDemoWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\TestControlPreview.xaml.cs">
-      <DependentUpon>TestControlPreview.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Validators\DoubleRangeValidationRule.cs" />
     <Compile Include="Views\Validators\IntRangeValidationRule.cs" />
@@ -672,14 +668,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\AppSplashScreen.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\PropertyPageDemoWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\TestControlPreview.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

@@ -8,10 +8,13 @@ using FramePFX.AdvancedContextService.WPF;
 using FramePFX.Editors.Contextual;
 using FramePFX.Editors.Controls.Automation;
 using FramePFX.Editors.Controls.Binders;
+using FramePFX.Editors.Controls.Resources.Explorers;
 using FramePFX.Editors.Controls.Timelines.Tracks.Clips;
+using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
+using FramePFX.Interactivity;
 using FramePFX.Interactivity.DataContexts;
 using FramePFX.Shortcuts.WPF;
 using FramePFX.Utils;
@@ -69,6 +72,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
         public Track Track { get; private set; }
 
         private bool isUpdatingSelectedProperty;
+        private bool isProcessingAsyncDrop;
         private MovedClip? clipBeingMoved;
         public Visibility desiredAutomationVisibility;
         private readonly DataContext actionSystemDataContext;
@@ -78,8 +82,18 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             this.VerticalAlignment = VerticalAlignment.Top;
             this.TrackColourBrush = new LinearGradientBrush();
             this.UseLayoutRounding = true;
+            this.AllowDrop = true;
+            this.Focusable = true;
             UIInputManager.SetActionSystemDataContext(this, this.actionSystemDataContext = new DataContext());
             AdvancedContextMenu.SetContextGenerator(this, TrackContextRegistry.Instance);
+        }
+
+        public long GetFrameAtMousePoint(MouseDevice device) {
+            return this.GetFrameAtMousePoint(device.GetPosition(this));
+        }
+
+        public long GetFrameAtMousePoint(Point pointRelativeToThis) {
+            return TimelineUtils.PixelToFrame(pointRelativeToThis.X, this.OwnerTimeline?.Timeline?.Zoom ?? 1.0, true);
         }
 
         public override void OnApplyTemplate() {
@@ -96,14 +110,76 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
 
                 // update context data, used by action system and context menu system
                 if (e.ChangedButton == MouseButton.Left || e.ChangedButton == MouseButton.Right) {
-                    Point point = e.GetPosition(this);
-                    long frameX = TimelineUtils.PixelToFrame(point.X, timeline?.Zoom ?? 1.0, true);
-                    this.actionSystemDataContext.Set(DataKeys.TrackMouseFrameKey, frameX);
+                    this.actionSystemDataContext.Set(DataKeys.TrackContextMouseFrameKey, this.GetFrameAtMousePoint(e.MouseDevice));
                 }
 
                 if (timeline != null && timeline.HasAnySelectedTracks)
                     timeline.ClearTrackSelection();
                 this.Track.SetIsSelected(true, true);
+            }
+        }
+
+        protected override void OnDragEnter(DragEventArgs e) {
+            base.OnDragEnter(e);
+            this.OnDragOver(e);
+        }
+
+        protected override void OnDragOver(DragEventArgs e) {
+            base.OnDragOver(e);
+            e.Handled = true;
+            this.actionSystemDataContext.Set(DataKeys.TrackDropFrameKey, this.GetFrameAtMousePoint(e.GetPosition(this)));
+            if (this.isProcessingAsyncDrop || this.Track == null) {
+                e.Effects = DragDropEffects.None;
+                return;
+            }
+
+            EnumDropType inputEffects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
+            if (inputEffects == EnumDropType.None) {
+                e.Effects = DragDropEffects.None;
+                return;
+            }
+
+            EnumDropType outputEffects = EnumDropType.None;
+            if (e.Data.GetData(ResourceExplorerListControl.ResourceDropType) is List<BaseResource> resources) {
+                if (resources.Count == 1 && resources[0] is ResourceItem) {
+                    outputEffects = TrackDropRegistry.DropRegistry.CanDrop(this.Track, resources[0], inputEffects, this.actionSystemDataContext);
+                }
+            }
+            else {
+                outputEffects = TrackDropRegistry.DropRegistry.CanDropNative(this.Track, new DataObjectWrapper(e.Data), inputEffects, this.actionSystemDataContext);
+            }
+
+            e.Effects = (DragDropEffects) outputEffects;
+        }
+
+        protected override async void OnDrop(DragEventArgs e) {
+            base.OnDrop(e);
+            e.Handled = true;
+            if (this.isProcessingAsyncDrop || this.Track == null) {
+                return;
+            }
+
+            EnumDropType effects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
+            if (e.Effects == DragDropEffects.None) {
+                return;
+            }
+
+            try {
+                this.isProcessingAsyncDrop = true;
+                if (e.Data.GetData(ResourceExplorerListControl.ResourceDropType) is List<BaseResource> items) {
+                    if (items.Count == 1 && items[0] is ResourceItem) {
+                        await TrackDropRegistry.DropRegistry.OnDropped(this.Track, items[0], effects, this.actionSystemDataContext);
+                    }
+                }
+                // else if (e.Data.GetData(EffectProviderTreeViewItem.ProviderDropType) is EffectProvider provider) {
+                //     await Track.DropRegistry.OnDropped(track, provider, effects, this.GetDropDataContext(e.GetPosition(this)));
+                // }
+                else {
+                    await TrackDropRegistry.DropRegistry.OnDroppedNative(this.Track, new DataObjectWrapper(e.Data), effects, this.actionSystemDataContext);
+                }
+            }
+            finally {
+                this.isProcessingAsyncDrop = false;
             }
         }
 

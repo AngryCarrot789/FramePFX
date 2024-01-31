@@ -58,7 +58,7 @@ namespace FramePFX.Editors.ResourceManaging.Autoloading {
                 return true;
             }
 
-            if (item.TryEnableForInvalidEntry(this.entries[index])) {
+            if (item.TryEnableForLoaderEntry(this.entries[index])) {
                 this.RemoveEntryAt(index);
                 return true;
             }

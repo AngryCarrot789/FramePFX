@@ -241,6 +241,12 @@ namespace FramePFX.Editors.Timelines.Tracks {
             Timeline.InternalOnTrackSelectionCleared(this);
         }
 
+        public void SelectAll() {
+            foreach (Clip clip in this.Clips) {
+                clip.IsSelected = true;
+            }
+        }
+
         public void InvalidateRender() {
             this.Timeline?.InvalidateRender();
         }
@@ -438,5 +444,6 @@ namespace FramePFX.Editors.Timelines.Tracks {
         }
 
         #endregion
+
     }
 }

@@ -256,10 +256,12 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         public void OnAddedToList() {
             this.displayNameBinder.Attach(this, this.Model);
             this.isSelectedBinder.Attach(this, this.Model);
+            ResourceExplorerListItemContent content = (ResourceExplorerListItemContent) this.Content;
+            content.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
 
             // call OnConnect here so that WPF has a chance between
             // OnAdding and OnAdded to apply the content's template
-            ((ResourceExplorerListItemContent) this.Content).Connect(this);
+            content.Connect(this);
             UIInputManager.SetActionSystemDataContext(this, new DataContext().Set(DataKeys.ResourceObjectKey, this.Model));
         }
 

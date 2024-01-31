@@ -4,14 +4,16 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using FramePFX.Editors.Controls.Binders;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.Editors.ResourceManaging.Resources;
+using OpenTK.Graphics.OpenGL;
 using SkiaSharp;
 
 namespace FramePFX.Editors.Controls.Resources.Explorers {
-    public class ResourceExplorerListItemContent : Control {
+    public abstract class ResourceExplorerListItemContent : Control {
         private static readonly Dictionary<Type, Func<ResourceExplorerListItemContent>> Constructors;
 
         public ResourceExplorerListItem ListItem { get; private set;}
@@ -33,7 +35,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
             // Just try to find a base control type. It should be found first try unless I forgot to register a new control type
             bool hasLogged = false;
             for (Type type = resourceType; type != null; type = type.BaseType) {
-                if (Constructors.TryGetValue(resourceType, out var func)) {
+                if (Constructors.TryGetValue(resourceType, out Func<ResourceExplorerListItemContent> func)) {
                     return func();
                 }
 
@@ -49,10 +51,14 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
 
         static ResourceExplorerListItemContent() {
             Constructors = new Dictionary<Type, Func<ResourceExplorerListItemContent>>();
-            RegisterType(typeof(ResourceFolder), () => new ResourceExplorerListItemContentFolder());
-            RegisterType(typeof(ResourceColour), () => new ResourceExplorerListItemContentColour());
-            RegisterType(typeof(ResourceImage), () => new ResourceExplorerListItemContentImage());
-            RegisterType(typeof(ResourceTextStyle), () => new ResourceExplorerListItemContentTextStyle());
+            RegisterType(typeof(ResourceFolder), () => new RELICFolder());
+            RegisterType(typeof(ResourceColour), () => new RELICColour());
+            RegisterType(typeof(ResourceImage), () => new RELICImage());
+            RegisterType(typeof(ResourceTextStyle), () => new RELICTextStyle());
+        }
+
+        protected override Size MeasureOverride(Size constraint) {
+            return base.MeasureOverride(constraint);
         }
 
         public void Connect(ResourceExplorerListItem item) {
@@ -72,10 +78,28 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         protected virtual void OnDisconnected() {
 
         }
+
+        #region Template Utils
+
+        protected void GetTemplateChild<T>(string name, out T value) where T : DependencyObject {
+            if ((value = this.GetTemplateChild(name) as T) == null)
+                throw new Exception("Missing part: " + name + " of type " + typeof(T));
+        }
+
+        protected T GetTemplateChild<T>(string name) where T : DependencyObject {
+            this.GetTemplateChild(name, out T value);
+            return value;
+        }
+
+        protected bool TryGetTemplateChild<T>(string name, out T value) where T : DependencyObject {
+            return (value = this.GetTemplateChild(name) as T) != null;
+        }
+
+        #endregion
     }
 
-    public class ResourceExplorerListItemContentFolder : ResourceExplorerListItemContent {
-        public static readonly DependencyProperty ItemCountProperty = DependencyProperty.Register("ItemCount", typeof(int), typeof(ResourceExplorerListItemContentFolder), new PropertyMetadata(0));
+    public class RELICFolder : ResourceExplorerListItemContent {
+        public static readonly DependencyProperty ItemCountProperty = DependencyProperty.Register("ItemCount", typeof(int), typeof(RELICFolder), new PropertyMetadata(0));
 
         public int ItemCount {
             get => (int) this.GetValue(ItemCountProperty);
@@ -84,7 +108,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
 
         public new ResourceFolder Resource => (ResourceFolder) base.Resource;
 
-        public ResourceExplorerListItemContentFolder() {
+        public RELICFolder() {
 
         }
 
@@ -112,8 +136,8 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         }
     }
 
-    public class ResourceExplorerListItemContentColour : ResourceExplorerListItemContent {
-        public static readonly DependencyProperty ColourProperty = DependencyProperty.Register("Colour", typeof(Brush), typeof(ResourceExplorerListItemContentColour), new PropertyMetadata(null));
+    public class RELICColour : ResourceExplorerListItemContent {
+        public static readonly DependencyProperty ColourProperty = DependencyProperty.Register("Colour", typeof(Brush), typeof(RELICColour), new PropertyMetadata(null));
 
         public Brush Colour {
             get => (Brush) this.GetValue(ColourProperty);
@@ -123,16 +147,16 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         public new ResourceColour Resource => (ResourceColour) base.Resource;
 
         private readonly AutoPropertyUpdateBinder<ResourceColour> colourBinder = new AutoPropertyUpdateBinder<ResourceColour>(ColourProperty, nameof(ResourceColour.ColourChanged), binder => {
-            ResourceExplorerListItemContentColour element = (ResourceExplorerListItemContentColour) binder.Control;
+            RELICColour element = (RELICColour) binder.Control;
             SKColor c = binder.Model.Colour;
             ((SolidColorBrush) element.Colour).Color = Color.FromArgb(c.Alpha, c.Red, c.Green, c.Blue);
         }, binder => {
-            ResourceExplorerListItemContentColour element = (ResourceExplorerListItemContentColour) binder.Control;
+            RELICColour element = (RELICColour) binder.Control;
             Color c = ((SolidColorBrush) element.Colour).Color;
             binder.Model.Colour = new SKColor(c.R, c.G, c.B, c.A);
         });
 
-        public ResourceExplorerListItemContentColour() {
+        public RELICColour() {
             this.Colour = new SolidColorBrush();
         }
 
@@ -152,16 +176,60 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         }
     }
 
-    public class ResourceExplorerListItemContentImage : ResourceExplorerListItemContent {
+    public class RELICImage : ResourceExplorerListItemContent {
         public new ResourceImage Resource => (ResourceImage) base.Resource;
 
-        public ResourceExplorerListItemContentImage() {
+        private Image PART_Image;
+        private WriteableBitmap bitmap;
 
+        public RELICImage() {
+
+        }
+
+        public override void OnApplyTemplate() {
+            base.OnApplyTemplate();
+            this.PART_Image = this.GetTemplateChild<Image>(nameof(this.PART_Image));
+        }
+
+        protected override void OnConnected() {
+            base.OnConnected();
+            this.Resource.ImageChanged += this.ResourceOnImageChanged;
+            this.TryLoadImage(this.Resource);
+        }
+
+        protected override void OnDisconnected() {
+            base.OnDisconnected();
+            this.Resource.ImageChanged -= this.ResourceOnImageChanged;
+            this.ClearImage();
+        }
+
+        private void ResourceOnImageChanged(BaseResource resource) {
+            this.TryLoadImage((ResourceImage) resource);
+        }
+
+        private void TryLoadImage(ResourceImage imgRes) {
+            if (imgRes.bitmap != null) {
+                SKBitmap bmp = imgRes.bitmap;
+                if (this.bitmap == null || this.bitmap.PixelWidth != bmp.Width || this.bitmap.PixelHeight != bmp.Height) {
+                    this.bitmap = new WriteableBitmap(bmp.Width, bmp.Height, 96, 96, PixelFormats.Pbgra32, null);
+                }
+
+                this.bitmap.WritePixels(new Int32Rect(0, 0, bmp.Width, bmp.Height), bmp.GetPixels(), bmp.ByteCount, bmp.RowBytes, 0, 0);
+                this.PART_Image.Source = this.bitmap;
+            }
+            else {
+                this.ClearImage();
+            }
+        }
+
+        private void ClearImage() {
+            this.bitmap = null;
+            this.PART_Image.Source = null;
         }
     }
 
-    public class ResourceExplorerListItemContentTextStyle : ResourceExplorerListItemContent {
-        public ResourceExplorerListItemContentTextStyle() {
+    public class RELICTextStyle : ResourceExplorerListItemContent {
+        public RELICTextStyle() {
 
         }
     }

@@ -69,25 +69,27 @@ namespace FramePFX.Editors.Controls.Resources {
 
             DropRegistry.RegisterNative<ResourceFolder>(NativeDropTypes.FileDrop, (folder, objekt, dropType, c) => {
                 return objekt.GetData(NativeDropTypes.FileDrop) is string[] files && files.Length > 0 ? EnumDropType.Copy : EnumDropType.None;
-            }, async (folder, objekt, dropType, c) => {
-                if (!(objekt.GetData(NativeDropTypes.FileDrop) is string[] files))
-                    return;
-                foreach (string path in files) {
-                    switch (Path.GetExtension(path).ToLower()) {
-                        case ".png":
-                        case ".bmp":
-                        case ".jpg":
-                        case ".jpeg": {
-                            ResourceImage image = new ResourceImage(){FilePath = path, DisplayName = Path.GetFileName(path)};
-                            if (!ResourceLoaderDialog.TryLoadResources(image)) {
-                                return;
-                            }
+            }, (folder, objekt, dropType, c) => {
+                if (objekt.GetData(NativeDropTypes.FileDrop) is string[] files) {
+                    foreach (string path in files) {
+                        switch (Path.GetExtension(path).ToLower()) {
+                            case ".png":
+                            case ".bmp":
+                            case ".jpg":
+                            case ".jpeg": {
+                                ResourceImage image = new ResourceImage() {FilePath = path, DisplayName = Path.GetFileName(path)};
+                                if (!ResourceLoaderDialog.TryLoadResources(image)) {
+                                    return Task.CompletedTask;
+                                }
 
-                            folder.AddItem(image);
-                            break;
+                                folder.AddItem(image);
+                                break;
+                            }
                         }
                     }
                 }
+
+                return Task.CompletedTask;
             });
         }
     }

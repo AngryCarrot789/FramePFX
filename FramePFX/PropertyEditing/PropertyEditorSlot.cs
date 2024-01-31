@@ -24,7 +24,7 @@ namespace FramePFX.PropertyEditing {
                 if (this.isSelected == value)
                     return;
                 this.isSelected = value;
-                BasePropertyEditor.UpdateSelection(this);
+                BasePropertyEditor.InternalProcessSelectionChanged(this);
                 this.IsSelectedChanged?.Invoke(this);
             }
         }
@@ -66,7 +66,7 @@ namespace FramePFX.PropertyEditing {
 
         protected override void OnPropertyEditorChanged(BasePropertyEditor oldEditor, BasePropertyEditor newEditor) {
             base.OnPropertyEditorChanged(oldEditor, newEditor);
-            BasePropertyEditor.UpdateSelection(this);
+            BasePropertyEditor.InternalProcessSelectionForEditorChanged(this, oldEditor, newEditor);
         }
 
         /// <summary>

@@ -60,6 +60,13 @@
             <Group Name="Timeline">
                 <!-- Shortcuts for specifically the timeline sequence -->
                 <Group Name="Sequence">
+                    <Shortcut Name="SelectAllClipsInTimeline" ActionId="actions.timeline.SelectAllClipsInTimelineAction">
+                        <KeyStroke Mods="CTRL" Key="A"/>
+                    </Shortcut>
+                    <Shortcut Name="SelectAllClipsInTrack" ActionId="actions.timeline.SelectAllClipsInTrackAction">
+                        <KeyStroke Mods="CTRL+SHIFT" Key="A"/>
+                    </Shortcut>
+
                     <Shortcut Name="DeleteSelectedClips" ActionId="actions.timeline.DeleteSelectedClips" Description="Deletes all of the selected clips">
                         <KeyStroke Key="Delete"/>
                     </Shortcut>
@@ -100,6 +107,10 @@
 
                 <!-- Shortcuts for specifically the track control surface -->
                 <Group Name="ControlSurface">
+                    <Shortcut Name="SelectAllTracks" ActionId="actions.timeline.SelectAllTracksAction">
+                        <KeyStroke Mods="CTRL" Key="A"/>
+                    </Shortcut>
+
 					<Shortcut Name="DeleteSelectedTracks" ActionId="actions.timeline.DeleteSelectedTracks" Description="Deletes all of the selected tracks">
 						<KeyStroke Key="Delete"/>
 					</Shortcut>

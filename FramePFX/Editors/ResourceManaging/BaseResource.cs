@@ -44,7 +44,7 @@ namespace FramePFX.Editors.ResourceManaging {
                 if (this.isSelected == value)
                     return;
                 this.isSelected = value;
-                ResourceManager.UpdateSelection(this);
+                ResourceManager.InternalProcessResourceSelectionChanged(this);
                 this.IsSelectedChanged?.Invoke(this);
             }
         }
@@ -75,7 +75,7 @@ namespace FramePFX.Editors.ResourceManaging {
         /// <see cref="Manager"/> is set to a non-null value prior to this call
         /// </summary>
         protected internal virtual void OnAttachedToManager() {
-            ResourceManager.UpdateSelection(this);
+            ResourceManager.InternalProcessResourceSelectionOnAttached(this);
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace FramePFX.Editors.ResourceManaging {
         /// <see cref="Manager"/> is set to null after this call
         /// </summary>
         protected internal virtual void OnDetatchedFromManager() {
-            ResourceManager.UpdateSelection(this);
+            ResourceManager.InternalProcessResourceSelectionOnDetatched(this);
         }
 
         public static BaseResource ReadSerialisedWithType(RBEDictionary dictionary) {

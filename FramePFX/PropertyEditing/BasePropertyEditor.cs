@@ -16,7 +16,7 @@ namespace FramePFX.PropertyEditing {
             BasePropertyEditorObject.SetPropertyEditor(this.Root, this);
         }
 
-        public static void UpdateSelection(PropertyEditorSlot slot) {
+        internal static void InternalProcessSelectionChanged(PropertyEditorSlot slot) {
             BasePropertyEditor editor = slot.PropertyEditor;
             if (editor != null) {
                 if (slot.IsSelected) {
@@ -25,6 +25,16 @@ namespace FramePFX.PropertyEditing {
                 else {
                     editor.selectedSlots.Remove(slot);
                 }
+            }
+        }
+
+        internal static void InternalProcessSelectionForEditorChanged(PropertyEditorSlot slot, BasePropertyEditor oldEditor, BasePropertyEditor newEditor) {
+            if (oldEditor != null && slot.IsSelected) {
+                oldEditor.selectedSlots.Remove(slot);
+            }
+
+            if (newEditor != null && slot.IsSelected) {
+                newEditor.selectedSlots.Add(slot);
             }
         }
 

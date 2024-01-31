@@ -273,7 +273,9 @@ namespace FramePFX.Editors.ResourceManaging {
             return TextIncrement.GetIncrementableString(accept, $"{file}::{streamName}", out output, 10000);
         }
 
-        public static void UpdateSelection(BaseResource resource) {
+        #endregion
+
+        internal static void InternalProcessResourceSelectionChanged(BaseResource resource) {
             ResourceManager manager = resource.Manager;
             if (manager != null) {
                 if (resource.IsSelected) {
@@ -285,7 +287,17 @@ namespace FramePFX.Editors.ResourceManaging {
             }
         }
 
-        #endregion
+        internal static void InternalProcessResourceSelectionOnAttached(BaseResource resource) {
+            ResourceManager manager;
+            if (resource.IsSelected && (manager = resource.Manager) != null) {
+                manager.selectedItems.Add(resource);
+            }
+        }
+
+        internal static void InternalProcessResourceSelectionOnDetatched(BaseResource resource) {
+            if (resource.IsSelected)
+                resource.Manager?.selectedItems.Remove(resource);
+        }
 
         internal static void InternalRegister(ResourceItem item) {
             item.Manager.RegisterEntry(item);

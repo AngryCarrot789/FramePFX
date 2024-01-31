@@ -32,7 +32,7 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             this.bitmap = skBitmap;
             this.image = SKImage.FromBitmap(skBitmap);
             this.IsRawBitmapMode = true;
-            ResourceItem.SetOnlineHelper(this);
+            this.TryAutoEnable(null);
             this.ImageChanged?.Invoke(this);
         }
 
@@ -89,7 +89,11 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             }
         }
 
-        protected override bool OnEnable(ResourceLoader loader) {
+        protected override bool OnTryAutoEnable(ResourceLoader loader) {
+            if (string.IsNullOrEmpty(this.FilePath) || this.image != null) {
+                return true;
+            }
+
             try {
                 this.LoadImageAsync(this.FilePath);
                 return true;
@@ -100,11 +104,11 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             }
         }
 
-        public override bool TryEnableForInvalidEntry(InvalidResourceEntry _entry) {
-            InvalidImagePathEntry entry = (InvalidImagePathEntry) _entry;
+        public override bool TryEnableForLoaderEntry(InvalidResourceEntry entry) {
+            InvalidImagePathEntry imgEntry = (InvalidImagePathEntry) entry;
             try {
-                this.LoadImageAsync(entry.FilePath);
-                return base.TryEnableForInvalidEntry(entry);
+                this.LoadImageAsync(imgEntry.FilePath);
+                return base.TryEnableForLoaderEntry(imgEntry);
             }
             catch (Exception e) {
                 return false;
@@ -139,7 +143,7 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
         }
 
         public override void Destroy() {
-            this.Destroy();
+            base.Destroy();
             this.bitmap?.Dispose();
             this.bitmap = null;
             this.image?.Dispose();

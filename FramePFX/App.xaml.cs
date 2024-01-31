@@ -32,6 +32,9 @@ namespace FramePFX {
             manager.Register("actions.timeline.SliceClipsAction", new SliceClipsAction());
             manager.Register("actions.timeline.DeleteSelectedClips", new DeleteClipsAction());
             manager.Register("actions.timeline.DeleteSelectedTracks", new DeleteTracksAction());
+            manager.Register("actions.timeline.SelectAllClipsInTimelineAction", new SelectAllClipsInTimelineAction());
+            manager.Register("actions.timeline.SelectAllClipsInTrackAction", new SelectAllClipsInTrackAction());
+            manager.Register("actions.timeline.SelectAllTracksAction", new SelectAllTracksAction());
 
             // resources
             manager.Register("actions.resources.EnableResourcesAction", new EnableResourcesAction());

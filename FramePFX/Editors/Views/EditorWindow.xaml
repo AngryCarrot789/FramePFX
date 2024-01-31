@@ -76,12 +76,16 @@
                                 </Grid>
 
                                 <!-- Right Panel -->
-                                <Grid Margin="0,0,5,0" DockPanel.Dock="Right">
-                                    <CheckBox Focusable="False" HorizontalAlignment="Right"
-                                              Content="Use NN Render" Padding="1,0,0,0"
+                                <StackPanel Margin="0,0,5,0" DockPanel.Dock="Right" Orientation="Horizontal">
+                                    <CheckBox Focusable="False"
+                                              Content="Use NN" Padding="1,0,0,0"
                                               IsChecked="{Binding UseNearestNeighbourRendering, ElementName=ViewPortElement, Mode=TwoWay}"
                                               ToolTip="Toggle between Nearest-Neighbour and Linear scaling for the VIEW PORT ONLY. Nearest-neighbour does not use smoothing between pixels, and is closer to what you will see in the final render. This is only really apparent when zoomed in or with low resolution frames"/>
-                                </Grid>
+                                    <CheckBox Focusable="False"
+                                              Content="Sel" Padding="1,0,0,0"
+                                              IsChecked="{Binding DrawSelectedElements, ElementName=ViewPortElement, Mode=TwoWay}"
+                                              ToolTip="Toggles whether or not selected elements are outlined"/>
+                                </StackPanel>
 
                                 <!-- Center Panel -->
                                 <StackPanel Margin="0,4" Orientation="Horizontal" HorizontalAlignment="Center">

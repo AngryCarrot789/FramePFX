@@ -1251,8 +1251,6 @@
     </Style>
 
     <Style TargetType="{x:Type TextBlock}">
-        <Setter Property="TextWrapping" Value="NoWrap"/>
-        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
         <Setter Property="TextAlignment" Value="Left"/>
         <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>

@@ -6,7 +6,7 @@ namespace FramePFX.PropertyEditing.Controls {
     public class PropertyEditorControl : Control {
         private static readonly GridLength Star = new GridLength(1, GridUnitType.Star);
         public static readonly DependencyProperty PropertyEditorProperty = DependencyProperty.Register("PropertyEditor", typeof(BasePropertyEditor), typeof(PropertyEditorControl), new PropertyMetadata(null, (d, e) => ((PropertyEditorControl) d).OnPropertyEditorChanged((BasePropertyEditor) e.OldValue, (BasePropertyEditor) e.NewValue)));
-        public static readonly DependencyProperty ColumnWidth0Property = DependencyProperty.Register("ColumnWidth0", typeof(GridLength), typeof(PropertyEditorControl), new PropertyMetadata(new GridLength(100d)));
+        public static readonly DependencyProperty ColumnWidth0Property = DependencyProperty.Register("ColumnWidth0", typeof(GridLength), typeof(PropertyEditorControl), new PropertyMetadata(new GridLength(85d)));
         public static readonly DependencyProperty ColumnWidth1Property = DependencyProperty.Register("ColumnWidth1", typeof(GridLength), typeof(PropertyEditorControl), new PropertyMetadata(new GridLength(5)));
         public static readonly DependencyProperty ColumnWidth2Property = DependencyProperty.Register("ColumnWidth2", typeof(GridLength), typeof(PropertyEditorControl), new PropertyMetadata(Star));
 

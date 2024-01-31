@@ -26,6 +26,7 @@ namespace FramePFX.PropertyEditing.Controls {
             // standard editors
             RegisterType(typeof(ParameterDoublePropertyEditorSlot), () => new ParameterDoublePropertyEditorControl());
             RegisterType(typeof(ParameterFloatPropertyEditorSlot), () => new ParameterFloatPropertyEditorControl());
+            RegisterType(typeof(ParameterVector2PropertyEditorSlot), () => new ParameterVector2PropertyEditorControl());
         }
 
         public static void RegisterType<T>(Type trackType, Func<T> func) where T : BasePropEditControlContent {

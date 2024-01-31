@@ -306,7 +306,7 @@ namespace FramePFX.Editors.Timelines {
         public void ClearTrackSelection() {
             List<Track> list = this.selectedTracks;
             for (int i = list.Count - 1; i >= 0; i--) {
-                list[i].IsSelected = false;
+                list[i].SetIsSelected(false);
             }
         }
 

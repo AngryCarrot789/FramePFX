@@ -34,7 +34,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
 
         private static readonly DependencyPropertyKey TrackColourBrushPropertyKey = DependencyProperty.RegisterReadOnly("TrackColourBrush", typeof(Brush), typeof(TimelineTrackControl), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
         public static readonly DependencyProperty TrackColourBrushProperty = TrackColourBrushPropertyKey.DependencyProperty;
-        public static readonly DependencyProperty IsSelectedProperty = DependencyProperty.Register("IsSelected", typeof(bool), typeof(TimelineTrackControl), new PropertyMetadata(BoolBox.False));
+        public static readonly DependencyProperty IsSelectedProperty = DependencyProperty.Register("IsSelected", typeof(bool), typeof(TimelineTrackControl), new PropertyMetadata(BoolBox.False, (d, e) => ((TimelineTrackControl) d).OnIsSelectedChanged((bool) e.NewValue)));
 
         public Brush TrackColourBrush {
             get => (Brush) this.GetValue(TrackColourBrushProperty);
@@ -68,7 +68,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
 
         public Track Track { get; private set; }
 
-        private readonly GetSetAutoPropertyBinder<Track> isSelectedBinder = new GetSetAutoPropertyBinder<Track>(IsSelectedProperty, nameof(VideoTrack.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.IsSelected = (bool) v);
+        private bool isUpdatingSelectedProperty;
         private MovedClip? clipBeingMoved;
         public Visibility desiredAutomationVisibility;
         private readonly DataContext actionSystemDataContext;
@@ -103,7 +103,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
 
                 if (timeline != null && timeline.HasAnySelectedTracks)
                     timeline.ClearTrackSelection();
-                this.Track.IsSelected = true;
+                this.Track.SetIsSelected(true, true);
             }
         }
 
@@ -176,16 +176,37 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             track.ClipMovedTracks += this.OnClipMovedTracks;
             track.HeightChanged += this.OnTrackHeightChanged;
             track.ColourChanged += this.OnTrackColourChanged;
+            this.Track.IsSelectedChanged += this.TrackOnIsSelectedChanged;
             this.actionSystemDataContext.Set(DataKeys.TrackKey, track);
         }
 
+        private void OnIsSelectedChanged(bool selected) {
+            if (this.isUpdatingSelectedProperty)
+                return;
+            this.Track.SetIsSelected(selected, false);
+        }
+
+        private void TrackOnIsSelectedChanged(Track track, bool isPrimarySelection) {
+            try {
+                this.isUpdatingSelectedProperty = true;
+                this.IsSelected = track.IsSelected;
+                if (track.IsSelected && isPrimarySelection) {
+                    this.Focus();
+                }
+            }
+            finally {
+                this.isUpdatingSelectedProperty = false;
+            }
+        }
+
         public void OnAdded() {
-            this.isSelectedBinder.Attach(this, this.Track);
             this.UpdateTrackColour();
             int i = 0;
             foreach (Clip clip in this.Track.Clips) {
                 this.StoragePanel.InsertClip(clip, i++);
             }
+
+            this.IsSelected = this.Track?.IsSelected ?? false;
         }
 
         public void OnRemoving() {
@@ -194,7 +215,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             this.Track.ClipMovedTracks -= this.OnClipMovedTracks;
             this.Track.HeightChanged -= this.OnTrackHeightChanged;
             this.Track.ColourChanged -= this.OnTrackColourChanged;
-            this.isSelectedBinder.Detatch();
+            this.Track.IsSelectedChanged -= this.TrackOnIsSelectedChanged;
             this.StoragePanel.ClearClipsInternal();
             this.actionSystemDataContext.Set(DataKeys.TrackKey, null);
         }

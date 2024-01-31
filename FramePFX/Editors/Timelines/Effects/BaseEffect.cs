@@ -66,6 +66,8 @@ namespace FramePFX.Editors.Timelines.Effects {
             return clone;
         }
 
+        public virtual bool IsObjectValidForOwner(IHaveEffects owner) => true;
+
         protected virtual void LoadDataIntoClone(BaseEffect clone) {
             this.AutomationData.LoadDataIntoClone(clone.AutomationData);
         }
@@ -139,7 +141,9 @@ namespace FramePFX.Editors.Timelines.Effects {
             if (index < 0 || index > owner.Effects.Count)
                 throw new IndexOutOfRangeException($"Index is out of range: {index} < 0 || {index} > {owner.Effects.Count}");
             if (!owner.IsEffectTypeAccepted(effect.GetType()))
-                throw new InvalidOperationException("Effect type is not accepted: " + effect.GetType());
+                throw new InvalidOperationException("Owner does not accept the effect type: " + effect.GetType());
+            if (!effect.IsObjectValidForOwner(owner))
+                throw new InvalidOperationException("Effect does not accept the owner type: " + owner.GetType());
             if (owner.Effects.Contains(effect))
                 throw new InvalidOperationException("Cannot add an effect that was already added");
         }

@@ -1,10 +1,12 @@
 using System;
+using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Utils;
 
 namespace FramePFX.Editors.Controls.Automation {
     public static class KeyPointUtils {
+        [SwitchAutomationDataType]
         public static double GetY(KeyFrame keyFrame, double height) {
             Parameter key = keyFrame.sequence.Parameter;
             switch (keyFrame) {
@@ -24,9 +26,9 @@ namespace FramePFX.Editors.Controls.Automation {
                     double offset = (height / 100) * 10;
                     return frame.Value ? (height - offset) : offset;
                 }
-                // case KeyFrameVector2 _: {
-                //     return height / 2d;
-                // }
+                case KeyFrameVector2 _: {
+                    return height / 2d;
+                }
                 default: {
                     throw new Exception($"Unknown key frame: {keyFrame}");
                 }

@@ -3,7 +3,7 @@ using FramePFX.Editors.Automation.Params;
 using FramePFX.PropertyEditing.Standard;
 
 namespace FramePFX.PropertyEditing.Controls.Standard {
-    public class ParameterDoublePropertyEditorControl : ParameterPropertyEditorControl {
+    public class ParameterDoublePropertyEditorControl : BaseSliderParameterPropertyEditorControl {
         public new ParameterDoublePropertyEditorSlot SlotModel => (ParameterDoublePropertyEditorSlot) base.SlotControl.Model;
 
         public ParameterDoublePropertyEditorControl() {

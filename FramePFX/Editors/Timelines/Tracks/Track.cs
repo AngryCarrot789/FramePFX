@@ -13,6 +13,7 @@ using SkiaSharp;
 
 namespace FramePFX.Editors.Timelines.Tracks {
     public delegate void TrackEventHandler(Track track);
+    public delegate void TrackSelectedEventHandler(Track track, bool isPrimarySelection);
     public delegate void TrackClipIndexEventHandler(Track track, Clip clip, int index);
     public delegate void ClipMovedEventHandler(Clip clip, Track oldTrack, int oldIndex, Track newTrack, int newIndex);
 
@@ -64,16 +65,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
             }
         }
 
-        public bool IsSelected {
-            get => this.isSelected;
-            set {
-                if (this.isSelected == value)
-                    return;
-                this.isSelected = value;
-                Timeline.InternalOnTrackSelectedChanged(this);
-                this.IsSelectedChanged?.Invoke(this);
-            }
-        }
+        public bool IsSelected => this.isSelected;
 
         public long LargestFrameInUse => this.cache.LargestActiveFrame;
 
@@ -94,7 +86,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
         public event TrackEventHandler HeightChanged;
         public event TrackEventHandler DisplayNameChanged;
         public event TrackEventHandler ColourChanged;
-        public event TrackEventHandler IsSelectedChanged;
+        public event TrackSelectedEventHandler IsSelectedChanged;
         public event EffectOwnerEventHandler EffectAdded;
         public event EffectOwnerEventHandler EffectRemoved;
         public event EffectMovedEventHandler EffectMoved;
@@ -122,6 +114,21 @@ namespace FramePFX.Editors.Timelines.Tracks {
             this.colour = RenderUtils.RandomColour();
             this.selectedClips = new List<Clip>();
             this.AutomationData = new AutomationData(this);
+        }
+
+        /// <summary>
+        /// Sets this track's selected state
+        /// </summary>
+        /// <param name="value">The new selection state</param>
+        /// <param name="isPrimary">Represents the UI focused state, as if the user clicked on the track to focus it</param>
+        public void SetIsSelected(bool value, bool isPrimary = false) {
+            if (this.isSelected == value && !isPrimary) {
+                return;
+            }
+
+            this.isSelected = value;
+            Timeline.InternalOnTrackSelectedChanged(this);
+            this.IsSelectedChanged?.Invoke(this, isPrimary);
         }
 
         public bool IsAutomated(Parameter parameter) {

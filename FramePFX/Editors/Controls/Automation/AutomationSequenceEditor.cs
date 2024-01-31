@@ -216,7 +216,7 @@ namespace FramePFX.Editors.Controls.Automation {
 
         public KeyFrame CreateKeyFrameAt(AutomationSequence sequence, Point point, ref bool capturePoint) {
             long timestamp = (long) Math.Round(point.X / this.UnitZoom);
-            KeyFrame keyFrame = KeyFrame.CreateDefault(sequence.Parameter, timestamp);
+            KeyFrame keyFrame = KeyFrame.CreateInstance(sequence, timestamp);
             sequence.AddKeyFrame(keyFrame);
             if (this.TryGetPointByKeyFrame(keyFrame, out KeyFramePoint keyFramePoint)) {
                 if (!this.IsValueRangeHuge) {
@@ -499,6 +499,7 @@ namespace FramePFX.Editors.Controls.Automation {
                     break;
                 }
                 case AutomationDataType.Boolean: break;
+                case AutomationDataType.Vector2: break;
                 default: throw new ArgumentOutOfRangeException();
             }
         }

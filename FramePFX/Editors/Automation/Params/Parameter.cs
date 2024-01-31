@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Threading;
 using FramePFX.Editors.Automation.Keyframes;
 
@@ -116,18 +117,21 @@ namespace FramePFX.Editors.Automation.Params {
 
         #region Registering parameters
 
+        public static ParameterFloat RegisterFloat(Type ownerType, string domain, string name, ValueAccessor<float> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterFloat(ownerType, domain, name, new ParameterDescriptorFloat(), accessor, flags);
         public static ParameterFloat RegisterFloat(Type ownerType, string domain, string name, float defaultValue, ValueAccessor<float> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterFloat(ownerType, domain, name, new ParameterDescriptorFloat(defaultValue), accessor, flags);
         public static ParameterFloat RegisterFloat(Type ownerType, string domain, string name, float defaultValue, float minValue, float maxValue, ValueAccessor<float> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterFloat(ownerType, domain, name, new ParameterDescriptorFloat(defaultValue, minValue, maxValue), accessor, flags);
         public static ParameterFloat RegisterFloat(Type ownerType, string domain, string name, ParameterDescriptorFloat desc, ValueAccessor<float> accessor, ParameterFlags flags = ParameterFlags.None) {
             return (ParameterFloat) Register(new ParameterFloat(ownerType, new ParameterKey(domain, name), desc, accessor, flags));
         }
 
+        public static ParameterDouble RegisterDouble(Type ownerType, string domain, string name, ValueAccessor<double> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterDouble(ownerType, domain, name, new ParameterDescriptorDouble(), accessor, flags);
         public static ParameterDouble RegisterDouble(Type ownerType, string domain, string name, double defaultValue, ValueAccessor<double> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterDouble(ownerType, domain, name, new ParameterDescriptorDouble(defaultValue), accessor, flags);
         public static ParameterDouble RegisterDouble(Type ownerType, string domain, string name, double defaultValue, double minValue, double maxValue, ValueAccessor<double> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterDouble(ownerType, domain, name, new ParameterDescriptorDouble(defaultValue, minValue, maxValue), accessor, flags);
         public static ParameterDouble RegisterDouble(Type ownerType, string domain, string name, ParameterDescriptorDouble desc, ValueAccessor<double> accessor, ParameterFlags flags = ParameterFlags.None) {
             return (ParameterDouble) Register(new ParameterDouble(ownerType, new ParameterKey(domain, name), desc, accessor, flags));
         }
 
+        public static ParameterLong RegisterLong(Type ownerType, string domain, string name, ValueAccessor<long> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterLong(ownerType, domain, name, new ParameterDescriptorLong(), accessor, flags);
         public static ParameterLong RegisterLong(Type ownerType, string domain, string name, long defaultValue, ValueAccessor<long> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterLong(ownerType, domain, name, new ParameterDescriptorLong(defaultValue), accessor, flags);
         public static ParameterLong RegisterLong(Type ownerType, string domain, string name, long defaultValue, long minValue, long maxValue, ValueAccessor<long> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterLong(ownerType, domain, name, new ParameterDescriptorLong(defaultValue, minValue, maxValue), accessor, flags);
         public static ParameterLong RegisterLong(Type ownerType, string domain, string name, ParameterDescriptorLong desc, ValueAccessor<long> accessor, ParameterFlags flags = ParameterFlags.None) {
@@ -138,6 +142,13 @@ namespace FramePFX.Editors.Automation.Params {
         public static ParameterBoolean RegisterBoolean(Type ownerType, string domain, string name, bool defaultValue, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterBoolean(ownerType, domain, name, new ParameterDescriptorBoolean(defaultValue), accessor, flags);
         public static ParameterBoolean RegisterBoolean(Type ownerType, string domain, string name, ParameterDescriptorBoolean desc, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None) {
             return (ParameterBoolean) Register(new ParameterBoolean(ownerType, new ParameterKey(domain, name), desc, accessor, flags));
+        }
+
+        public static ParameterVector2 RegisterVector2(Type ownerType, string domain, string name, ValueAccessor<Vector2> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterVector2(ownerType, domain, name, new ParameterDescriptorVector2(), accessor, flags);
+        public static ParameterVector2 RegisterVector2(Type ownerType, string domain, string name, Vector2 defaultValue, ValueAccessor<Vector2> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterVector2(ownerType, domain, name, new ParameterDescriptorVector2(defaultValue), accessor, flags);
+        public static ParameterVector2 RegisterVector2(Type ownerType, string domain, string name, Vector2 defaultValue, Vector2 minValue, Vector2 maxValue, ValueAccessor<Vector2> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterVector2(ownerType, domain, name, new ParameterDescriptorVector2(defaultValue, minValue, maxValue), accessor, flags);
+        public static ParameterVector2 RegisterVector2(Type ownerType, string domain, string name, ParameterDescriptorVector2 desc, ValueAccessor<Vector2> accessor, ParameterFlags flags = ParameterFlags.None) {
+            return (ParameterVector2) Register(new ParameterVector2(ownerType, new ParameterKey(domain, name), desc, accessor, flags));
         }
 
         public static Parameter Register(Parameter parameter) {
@@ -324,5 +335,28 @@ namespace FramePFX.Editors.Automation.Params {
         public override object GetObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
 
         public override object GetObjectValue(long frame, AutomationSequence sequence) => sequence.GetBooleanValue(frame);
+    }
+
+    public sealed class ParameterVector2 : Parameter {
+        private readonly ValueAccessor<Vector2> accessor;
+
+        /// <summary>
+        /// Gets the <see cref="ParameterDescriptorVector2"/> for this parameter. This just casts the base <see cref="Parameter.Descriptor"/> property
+        /// </summary>
+        public new ParameterDescriptorVector2 Descriptor => (ParameterDescriptorVector2) base.Descriptor;
+
+        public ParameterVector2(Type ownerType, ParameterKey key, ParameterDescriptorVector2 descriptor, ValueAccessor<Vector2> accessor, ParameterFlags flags = ParameterFlags.None) : base(ownerType, key, descriptor, flags) {
+            this.accessor = accessor;
+        }
+
+        public override void SetValue(AutomationSequence sequence, long frame) {
+            this.accessor.SetValue(sequence.AutomationData.Owner, sequence.GetVector2Value(frame));
+        }
+
+        public Vector2 GetEffectiveValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
+
+        public override object GetObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
+
+        public override object GetObjectValue(long frame, AutomationSequence sequence) => sequence.GetVector2Value(frame);
     }
 }

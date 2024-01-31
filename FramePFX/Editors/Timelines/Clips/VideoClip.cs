@@ -36,13 +36,13 @@ namespace FramePFX.Editors.Timelines.Clips {
                 nameof(VideoClip),
                 "Opacity",
                 new ParameterDescriptorDouble(1, 0, 1),
-                ValueAccessors.Reflective<double>(typeof(VideoClip), nameof(Opacity)),
+                ValueAccessors.LinqExpression<double>(typeof(VideoClip), nameof(Opacity)),
                 ParameterFlags.InvalidatesRender);
 
-        private SKMatrix __internalTransformationMatrix;
+        private SKMatrix _internalTransformationMatrix;
         private bool isMatrixDirty;
 
-        public double Opacity;
+        public double Opacity { get; private set; }
 
         public byte OpacityByte => RenderUtils.DoubleToByte255(this.Opacity);
 
@@ -62,7 +62,7 @@ namespace FramePFX.Editors.Timelines.Clips {
             get {
                 if (this.isMatrixDirty)
                     this.CookTransformationMatrix();
-                return this.__internalTransformationMatrix;
+                return this._internalTransformationMatrix;
             }
         }
 
@@ -121,7 +121,7 @@ namespace FramePFX.Editors.Timelines.Clips {
                 }
             }
 
-            this.__internalTransformationMatrix = matrix;
+            this._internalTransformationMatrix = matrix;
             this.isMatrixDirty = false;
         }
     }

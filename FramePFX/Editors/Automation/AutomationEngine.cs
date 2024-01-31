@@ -6,7 +6,10 @@ using FramePFX.Editors.Timelines.Tracks;
 namespace FramePFX.Editors.Automation {
     public static class AutomationEngine {
         public static void UpdateValues(Timeline timeline) {
-            long playHead = timeline.PlayHeadPosition;
+            UpdateValues(timeline, timeline.PlayHeadPosition);
+        }
+
+        public static void UpdateValues(Timeline timeline, long playHead) {
             foreach (Track track in timeline.Tracks) {
                 track.AutomationData.Update(playHead);
                 foreach (Clip clip in track.GetClipsAtFrame(playHead)) {

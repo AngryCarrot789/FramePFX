@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.RBC;
@@ -13,6 +14,7 @@ namespace FramePFX.Editors.Automation.Keyframes {
     public delegate void DoubleKeyFrameValueChanged(KeyFrameDouble keyFrame, double oldValue, double newValue);
     public delegate void LongKeyFrameValueChanged(KeyFrameLong keyFrame, long oldValue, long newValue);
     public delegate void BooleanKeyFrameValueChanged(KeyFrameBoolean keyFrame, bool oldValue, bool newValue);
+    public delegate void Vector2KeyFrameValueChanged(KeyFrameVector2 keyFrame, Vector2 oldValue, Vector2 newValue);
 
     /// <summary>
     /// A keyframe stores a time and value
@@ -75,18 +77,6 @@ namespace FramePFX.Editors.Automation.Keyframes {
 
         #region Getter functions
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public float GetFloatValue() => ((KeyFrameFloat) this).Value;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public double GetDoubleValue() => ((KeyFrameDouble) this).Value;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public long GetLongValue() => ((KeyFrameLong) this).Value;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool GetBooleanValue() => ((KeyFrameBoolean) this).Value;
-
         #endregion
 
         /// <summary>
@@ -139,6 +129,7 @@ namespace FramePFX.Editors.Automation.Keyframes {
                 case AutomationDataType.Double:  return new KeyFrameDouble();
                 case AutomationDataType.Long:    return new KeyFrameLong();
                 case AutomationDataType.Boolean: return new KeyFrameBoolean();
+                case AutomationDataType.Vector2: return new KeyFrameVector2();
                 default: throw new ArgumentOutOfRangeException(nameof(type), type, "Invalid automation data type enum");
             }
         }
@@ -268,6 +259,7 @@ namespace FramePFX.Editors.Automation.Keyframes {
                 float oldValue = this.myValue;
                 if (oldValue == value)
                     return;
+                AutomationSequence.InternalVerifyValue(this, value);
                 this.myValue = value;
                 this.OnValueChanged();
                 this.FloatValueChanged?.Invoke(this, oldValue, value);
@@ -469,17 +461,16 @@ namespace FramePFX.Editors.Automation.Keyframes {
 
         public bool Interpolate(long time, KeyFrameBoolean frame) {
             this.ValidateTime(time, frame);
-            bool thisVal = this.Value;
-            if (thisVal == frame.Value) {
-                return this.Value;
+            if (this.myValue == frame.Value) {
+                return this.myValue;
             }
 
             double blend = this.GetInterpolationMultiplier(time, frame);
             if (blend >= 0.5d) {
-                return !thisVal;
+                return !this.myValue;
             }
             else {
-                return thisVal;
+                return this.myValue;
             }
         }
 
@@ -495,6 +486,62 @@ namespace FramePFX.Editors.Automation.Keyframes {
 
         public override bool IsEqualTo(KeyFrame other) {
             return base.IsEqualTo(other) && other is KeyFrameBoolean keyFrame && keyFrame.myValue == this.myValue;
+        }
+    }
+
+    public class KeyFrameVector2 : KeyFrame {
+        private Vector2 myValue;
+
+        public Vector2 Value {
+            get => this.myValue;
+            set {
+                Vector2 oldValue = this.myValue;
+                if (oldValue == value)
+                    return;
+                this.myValue = value;
+                this.OnValueChanged();
+                this.Vector2ValueChanged?.Invoke(this, oldValue, value);
+                AutomationSequence.OnKeyFrameValueChanged(this.sequence, this);
+            }
+        }
+
+        public event Vector2KeyFrameValueChanged Vector2ValueChanged;
+
+        public override AutomationDataType DataType => AutomationDataType.Vector2;
+
+        public KeyFrameVector2() { }
+
+        public KeyFrameVector2(long frame, Vector2 value) {
+            this.myFrame = frame;
+            this.Value = value;
+        }
+
+        public override void SetValueFromObject(object value) => this.Value = (Vector2) value;
+
+        public override object GetObjectValue() => this.Value;
+
+        public override void AssignDefaultValue(ParameterDescriptor desc) => this.Value = ((ParameterDescriptorVector2) desc).DefaultValue;
+
+        public override void AssignCurrentValue(long frame, AutomationSequence seq, bool ignoreOverrideState = false) => this.Value = seq.GetVector2Value(frame, ignoreOverrideState);
+
+        public Vector2 Interpolate(long time, KeyFrameVector2 frame) {
+            this.ValidateTime(time, frame);
+            double blend = this.GetInterpolationMultiplier(time, frame);
+            return this.Value.Lerp(frame.myValue, (float) blend);
+        }
+
+        public override void WriteToRBE(RBEDictionary data) {
+            base.WriteToRBE(data);
+            data.SetStruct(nameof(this.Value), this.Value);
+        }
+
+        public override void ReadFromRBE(RBEDictionary data) {
+            base.ReadFromRBE(data);
+            this.Value = data.GetStruct<Vector2>(nameof(this.Value));
+        }
+
+        public override bool IsEqualTo(KeyFrame other) {
+            return base.IsEqualTo(other) && other is KeyFrameVector2 keyFrame && this.myValue.Equals(keyFrame.myValue);
         }
     }
 }

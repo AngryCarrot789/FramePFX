@@ -18,6 +18,8 @@ namespace FramePFX.Editors.Timelines.Effects {
         protected VideoEffect() {
         }
 
+        public override bool IsObjectValidForOwner(IHaveEffects owner) => owner is VideoClip || owner is VideoTrack;
+
         /// <summary>
         /// Called after a video clip's <see cref="VideoClip.PrepareRenderFrame"/> method when it returns true
         /// <para>

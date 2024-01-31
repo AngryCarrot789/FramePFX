@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Utils;
 
@@ -41,6 +42,8 @@ namespace FramePFX.Editors.Automation.Params {
         }
 
         public float Clamp(float value) => Maths.Clamp(value, this.Minimum, this.Maximum);
+
+        public bool IsValueOutOfRange(float value) => value < this.Minimum || value > this.Maximum;
     }
 
     public sealed class ParameterDescriptorDouble : ParameterDescriptor {
@@ -70,6 +73,8 @@ namespace FramePFX.Editors.Automation.Params {
         }
 
         public double Clamp(double value) => Maths.Clamp(value, this.Minimum, this.Maximum);
+
+        public bool IsValueOutOfRange(double value) => value < this.Minimum || value > this.Maximum;
     }
 
     public sealed class ParameterDescriptorLong : ParameterDescriptor {
@@ -99,6 +104,8 @@ namespace FramePFX.Editors.Automation.Params {
         }
 
         public long Clamp(long value) => Maths.Clamp(value, this.Minimum, this.Maximum);
+
+        public bool IsValueOutOfRange(long value) => value < this.Minimum || value > this.Maximum;
     }
 
     public sealed class ParameterDescriptorBoolean : ParameterDescriptor {
@@ -109,6 +116,47 @@ namespace FramePFX.Editors.Automation.Params {
 
         public ParameterDescriptorBoolean(bool defaultValue = false) : base(AutomationDataType.Boolean) {
             this.DefaultValue = defaultValue;
+        }
+    }
+
+    public sealed class ParameterDescriptorVector2 : ParameterDescriptor {
+        /// <summary>
+        /// The default value of the parameter
+        /// </summary>
+        public Vector2 DefaultValue { get; }
+
+        /// <summary>
+        /// The minimum value of the parameter. The final effective value may not drop below this
+        /// </summary>
+        public Vector2 Minimum { get; }
+
+        /// <summary>
+        /// The maximum value of the parameter. The final effective value may not exceed this
+        /// </summary>
+        public Vector2 Maximum { get; }
+
+        public ParameterDescriptorVector2() : this(default) {
+
+        }
+
+        public ParameterDescriptorVector2(Vector2 defaultValue) : this(defaultValue, Vectors.MinValue, Vectors.MaxValue) {
+
+        }
+
+        public ParameterDescriptorVector2(Vector2 defaultValue, Vector2 minimum, Vector2 maximum) : base(AutomationDataType.Vector2) {
+            if (minimum.X > maximum.X || minimum.Y > maximum.Y)
+                throw new ArgumentException($"Minimum value exceeds the maximum value: {minimum} > {maximum}", nameof(minimum));
+            if (defaultValue.X < minimum.X || defaultValue.X > maximum.X || defaultValue.Y < minimum.Y || defaultValue.Y > maximum.Y)
+                throw new ArgumentOutOfRangeException(nameof(defaultValue), $"Default value ({defaultValue}) falls out of range of the min/max values ({minimum}/{maximum})");
+            this.DefaultValue = defaultValue;
+            this.Minimum = minimum;
+            this.Maximum = maximum;
+        }
+
+        public Vector2 Clamp(Vector2 value) => Vector2.Clamp(value, this.Minimum, this.Maximum);
+
+        public bool IsValueOutOfRange(Vector2 value) {
+            return value.IsLessThan(this.Minimum) || value.IsGreaterThan(this.Maximum);
         }
     }
 }

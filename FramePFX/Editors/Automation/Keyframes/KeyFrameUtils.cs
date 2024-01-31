@@ -1,3 +1,4 @@
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using FramePFX.Editors.Automation.Params;
 
@@ -17,6 +18,9 @@ namespace FramePFX.Editors.Automation.Keyframes {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetBooleanValue(this KeyFrame kf, bool value) => ((KeyFrameBoolean) kf).Value = value;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SetVector2Value(this KeyFrame kf, Vector2 value) => ((KeyFrameVector2) kf).Value = value;
+
         #endregion
 
         #region Clamped Setters
@@ -32,6 +36,9 @@ namespace FramePFX.Editors.Automation.Keyframes {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetBooleanValue(this KeyFrame kf, bool value, ParameterDescriptor desc) => ((KeyFrameBoolean) kf).Value = value;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SetVector2Value(this KeyFrame kf, Vector2 value, ParameterDescriptor desc) => ((KeyFrameVector2) kf).Value = value;
 
         #endregion
     }

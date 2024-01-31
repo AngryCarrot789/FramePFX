@@ -14,7 +14,7 @@ namespace FramePFX.Editors.Actions {
             }
 
             Timeline timeline;
-            if ((timeline = focusedClip.Timeline) != null || e.DataContext.TryGetContext(DataKeys.TimelineKey, out timeline)) {
+            if ((timeline = focusedClip?.Timeline) != null || e.DataContext.TryGetContext(DataKeys.TimelineKey, out timeline)) {
                 foreach (Clip clip in timeline.SelectedClips) {
                     clips.Add(clip);
                 }

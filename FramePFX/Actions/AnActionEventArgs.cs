@@ -12,14 +12,12 @@ namespace FramePFX.Actions {
         public ActionManager Manager { get; }
 
         /// <summary>
+        /// The action-system-data-context for this specific action execution. This will not be null,
+        /// but it may be empty (contain no inner data or data context)
         /// <para>
-        /// The data context for this specific action execution. This will not be null, but it may be empty (contain no inner data or data context)
-        /// </para>
-        /// <para>
-        /// In the context of actual context specific actions, this will typically contain the UI control's DataContext,
-        /// the data context of the list UI control that it may exist in (e.g. ListBox), and finally the data context for
-        /// the shell/window/dialog. There may be more, but these are the main ones that could be available. All of this
-        /// gives a wide range of access to the objects being acted upon
+        /// In terms of actual context specific actions, this will typically contain the data keys that UI controls
+        /// have associated with themselves, merged from top to bottom (top of visual tree to the contextual element).
+        /// This gives a wide range of access to the objects being acted upon
         /// </para>
         /// </summary>
         public IDataContext DataContext { get; }

@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Numerics;
 using System.Windows;
 using System.Windows.Media;
+using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Utils;
@@ -183,7 +185,7 @@ namespace FramePFX.Editors.Controls.Automation {
             }
         }
 
-         public virtual void RenderLine(SKSurface suface, KeyFramePoint target, ref Rect drawing_area, byte opacity = 255) {
+        public virtual void RenderLine(SKSurface suface, KeyFramePoint target, ref Rect drawing_area, byte opacity = 255) {
             Point p1 = this.GetLocation();
             Point p2 = target.GetLocation();
             if (IsLineVisible(ref drawing_area, ref p1, ref p2)) {
@@ -201,6 +203,7 @@ namespace FramePFX.Editors.Controls.Automation {
             }
         }
 
+        [SwitchAutomationDataType]
         public bool SetValueForMousePoint(Point point) {
             double height = this.editor.ActualHeight;
             if (double.IsNaN(height) || height <= 0d) {
@@ -210,13 +213,13 @@ namespace FramePFX.Editors.Controls.Automation {
             Parameter key = this.keyFrame.sequence.Parameter;
             switch (this.keyFrame) {
                 case KeyFrameFloat frame when key.Descriptor is ParameterDescriptorFloat fd:
-                    frame.SetFloatValue((float) Maths.Clamp(Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum), fd.Minimum, fd.Maximum));
+                    frame.SetFloatValue((float) Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum), fd);
                     break;
                 case KeyFrameDouble frame when key.Descriptor is ParameterDescriptorDouble fd:
-                    frame.SetDoubleValue(Maths.Clamp(Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum), fd.Minimum, fd.Maximum));
+                    frame.SetDoubleValue(Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum), fd);
                     break;
                 case KeyFrameLong frame when key.Descriptor is ParameterDescriptorLong fd:
-                    frame.SetLongValue((long) Maths.Clamp(Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum), fd.Minimum, fd.Maximum));
+                    frame.SetLongValue((long) Math.Round(Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum)), fd);
                     break;
                 case KeyFrameBoolean frame:
                     double offset = (height / 100) * 30;
@@ -232,7 +235,7 @@ namespace FramePFX.Editors.Controls.Automation {
                     }
 
                     return true;
-                // case KeyFrameVector2 frame when key.Descriptor is ParameterDescriptorVector2 fd && this is KeyFramePointVec2 v2:
+                // case KeyFrameVector2 frame when key.Descriptor is ParameterDescriptorVector2 fd:
                 //     double x = Maths.Clamp(Maths.Map(point.X, height, 0, fd.Minimum.X, fd.Maximum.X), fd.Minimum.X, fd.Maximum.X) / this.editor.UnitZoom;
                 //     double y = Maths.Clamp(Maths.Map(point.Y, height, 0, fd.Minimum.Y, fd.Maximum.Y), fd.Minimum.Y, fd.Maximum.Y);
                 //     frame.Value = new Vector2((float) x, (float) y);

@@ -6,20 +6,17 @@ using FramePFX.PropertyEditing.Automation;
 using FramePFX.PropertyEditing.Standard;
 
 namespace FramePFX.PropertyEditing.Controls.Standard {
-    public abstract class ParameterPropertyEditorControl : BasePropEditControlContent {
+    public abstract class BaseSliderParameterPropertyEditorControl : BaseParameterPropertyEditorControl {
         protected NumberDragger dragger;
         protected TextBlock displayName;
         protected KeyFrameToolsControl keyFrameTools;
         protected bool IsUpdatingControl;
-        protected IAutomatable singleHandler;
 
-        public ParameterPropertyEditorSlot SlotModel => (ParameterPropertyEditorSlot) base.SlotControl.Model;
-
-        protected ParameterPropertyEditorControl() {
+        protected BaseSliderParameterPropertyEditorControl() {
 
         }
 
-        static ParameterPropertyEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(ParameterPropertyEditorControl), new FrameworkPropertyMetadata(typeof(ParameterPropertyEditorControl)));
+        static BaseSliderParameterPropertyEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(BaseSliderParameterPropertyEditorControl), new FrameworkPropertyMetadata(typeof(BaseSliderParameterPropertyEditorControl)));
 
         protected abstract void UpdateControlValue();
 
@@ -52,6 +49,7 @@ namespace FramePFX.PropertyEditing.Controls.Standard {
         }
 
         protected sealed override void OnConnected() {
+            base.OnConnected();
             ParameterPropertyEditorSlot slot = this.SlotModel;
             slot.ValueChanged += this.OnSlotValueChanged;
             slot.HandlersLoaded += this.OnHandlersChanged;
@@ -65,6 +63,7 @@ namespace FramePFX.PropertyEditing.Controls.Standard {
         protected abstract void OnConnectedOverride();
 
         protected override void OnDisconnected() {
+            base.OnDisconnected();
             ParameterPropertyEditorSlot slot = this.SlotModel;
             slot.ValueChanged -= this.OnSlotValueChanged;
             slot.HandlersLoaded -= this.OnHandlersChanged;

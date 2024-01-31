@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
@@ -19,10 +20,12 @@ namespace FramePFX.Editors.Automation.Keyframes {
         private static readonly Func<KeyFrame, double> FuncGetDouble = k => ((KeyFrameDouble) k).Value;
         private static readonly Func<KeyFrame, long> FuncGetLong = k => ((KeyFrameLong) k).Value;
         private static readonly Func<KeyFrame, bool> FuncGetBool = k => ((KeyFrameBoolean) k).Value;
+        private static readonly Func<KeyFrame, Vector2> FuncGetVector2 = k => ((KeyFrameVector2) k).Value;
         private static readonly Func<long, KeyFrame, KeyFrame, float> FuncCalcFloat = (t, a, b) => ((KeyFrameFloat) a).Interpolate(t, (KeyFrameFloat) b);
         private static readonly Func<long, KeyFrame, KeyFrame, double> FuncCalcDouble = (t, a, b) => ((KeyFrameDouble) a).Interpolate(t, (KeyFrameDouble) b);
         private static readonly Func<long, KeyFrame, KeyFrame, long> FuncCalcLong = (t, a, b) => ((KeyFrameLong) a).Interpolate(t, (KeyFrameLong) b);
         private static readonly Func<long, KeyFrame, KeyFrame, bool> FuncCalcBool = (t, a, b) => ((KeyFrameBoolean) a).Interpolate(t, (KeyFrameBoolean) b);
+        private static readonly Func<long, KeyFrame, KeyFrame, Vector2> FuncCalcVector2 = (t, a, b) => ((KeyFrameVector2) a).Interpolate(t, (KeyFrameVector2) b);
         private readonly List<KeyFrame> keyFrameList;
         private bool isOverrideEnabled;
 
@@ -160,6 +163,11 @@ namespace FramePFX.Editors.Automation.Keyframes {
         public bool GetBooleanValue(long frame, bool ignoreOverrideState = false) {
             ValidateType(AutomationDataType.Boolean, this.DataType);
             return this.GetValueInternal(frame, FuncGetBool, FuncCalcBool, ignoreOverrideState);
+        }
+
+        public Vector2 GetVector2Value(long frame, bool ignoreOverrideState = false) {
+            ValidateType(AutomationDataType.Vector2, this.DataType);
+            return this.GetValueInternal(frame, FuncGetVector2, FuncCalcVector2, ignoreOverrideState);
         }
 
         private T GetValueInternal<T>(long frame, Func<KeyFrame, T> toValue, Func<long, KeyFrame, KeyFrame, T> interpolate, bool ignoreOverride = false) {
@@ -501,6 +509,30 @@ namespace FramePFX.Editors.Automation.Keyframes {
             }
 
             sequence.UpdateValue(frame);
+        }
+
+        public static void InternalVerifyValue(KeyFrameFloat keyFrame, float value) {
+            if (keyFrame.sequence != null && ((ParameterDescriptorFloat) keyFrame.sequence.Parameter.Descriptor).IsValueOutOfRange(value)) {
+                throw new ArgumentOutOfRangeException(nameof(value), "Key frame value is out of range");
+            }
+        }
+
+        public static void InternalVerifyValue(KeyFrameDouble keyFrame, double value) {
+            if (keyFrame.sequence != null && ((ParameterDescriptorDouble) keyFrame.sequence.Parameter.Descriptor).IsValueOutOfRange(value)) {
+                throw new ArgumentOutOfRangeException(nameof(value), "Key frame value is out of range");
+            }
+        }
+
+        public static void InternalVerifyValue(KeyFrameLong keyFrame, long value) {
+            if (keyFrame.sequence != null && ((ParameterDescriptorLong) keyFrame.sequence.Parameter.Descriptor).IsValueOutOfRange(value)) {
+                throw new ArgumentOutOfRangeException(nameof(value), "Key frame value is out of range");
+            }
+        }
+
+        public static void InternalVerifyValue(KeyFrameVector2 keyFrame, Vector2 value) {
+            if (keyFrame.sequence != null && ((ParameterDescriptorVector2) keyFrame.sequence.Parameter.Descriptor).IsValueOutOfRange(value)) {
+                throw new ArgumentOutOfRangeException(nameof(value), "Key frame value is out of range");
+            }
         }
     }
 }

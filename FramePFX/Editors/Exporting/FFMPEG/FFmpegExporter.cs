@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using FFmpeg.AutoGen;
+using FramePFX.Editors.Automation;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines;
 using FramePFX.Logger;
@@ -215,7 +216,7 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
 
                         long finalExportFrame = exportFrame;
                         renderTask = dispatcher.Invoke(() => {
-                            timeline.PlayHeadPosition = finalExportFrame;
+                            AutomationEngine.UpdateValues(timeline, finalExportFrame);
                             return renderManager.RenderTimelineAsync(timeline, finalExportFrame);
                         }, DispatcherPriority.Send, cancellation);
 

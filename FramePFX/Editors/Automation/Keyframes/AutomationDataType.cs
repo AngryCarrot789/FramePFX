@@ -18,8 +18,11 @@ namespace FramePFX.Editors.Automation.Keyframes {
         /// <summary>
         /// An automated boolean value
         /// </summary>
-        Boolean
+        Boolean,
 
-        // TODO: maybe vector2 automation?
+        /// <summary>
+        /// An automated vector2 value. This contains both an X and Y value
+        /// </summary>
+        Vector2
     }
 }

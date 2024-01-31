@@ -14,7 +14,8 @@ namespace FramePFX.Editors.Exporting.Controls {
     /// </summary>
     public partial class ExportDialog : WindowEx {
         public static readonly DependencyProperty ExportSetupProperty = DependencyProperty.Register("ExportSetup", typeof(ExportSetup), typeof(ExportDialog), new PropertyMetadata(null, (d, e) => ((ExportDialog) d).OnSetupChanged((ExportSetup) e.OldValue, (ExportSetup) e.NewValue)));
-        private bool isUpdatingControl;
+        private bool isProcessingFrameSpanControls;
+        private bool isProcessingFilePathControl;
 
         public ExportSetup ExportSetup {
             get => (ExportSetup) this.GetValue(ExportSetupProperty);
@@ -25,26 +26,37 @@ namespace FramePFX.Editors.Exporting.Controls {
             this.InitializeComponent();
             this.PART_BeginFrameDragger.ValueChanged += this.BeginFrameDraggerOnValueChanged;
             this.PART_EndFrameDragger.ValueChanged += this.EndFrameDraggerOnValueChanged;
+            this.PART_FilePathTextBox.TextChanged += this.FilePathTextBoxOnTextChanged;
         }
 
         private void BeginFrameDraggerOnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
-            if (this.isUpdatingControl)
+            if (this.isProcessingFrameSpanControls)
                 return;
 
-            this.isUpdatingControl = true;
+            this.isProcessingFrameSpanControls = true;
             ExportProperties props = this.ExportSetup.Properties;
             props.Span = props.Span.MoveBegin((long) e.NewValue);
-            this.isUpdatingControl = false;
+            this.isProcessingFrameSpanControls = false;
         }
 
         private void EndFrameDraggerOnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
-            if (this.isUpdatingControl)
+            if (this.isProcessingFrameSpanControls)
                 return;
 
-            this.isUpdatingControl = true;
+            this.isProcessingFrameSpanControls = true;
             ExportProperties props = this.ExportSetup.Properties;
             props.Span = props.Span.MoveEndIndex((long) e.NewValue);
-            this.isUpdatingControl = false;
+            this.isProcessingFrameSpanControls = false;
+        }
+
+        private void FilePathTextBoxOnTextChanged(object sender, TextChangedEventArgs e) {
+            if (this.isProcessingFilePathControl)
+                return;
+
+            this.isProcessingFilePathControl = true;
+            ExportProperties props = this.ExportSetup.Properties;
+            props.FilePath = this.PART_FilePathTextBox.Text;
+            this.isProcessingFilePathControl = false;
         }
 
         private void UpdateBeginFrameDragger() {
@@ -151,7 +163,6 @@ namespace FramePFX.Editors.Exporting.Controls {
             setup.Project.RenderManager.InvalidateRender();
             ((Button) sender).IsEnabled = true;
             progressDialog.Close();
-            this.DialogResult = true;
             this.Close();
         }
 

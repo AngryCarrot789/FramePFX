@@ -89,8 +89,7 @@ namespace FramePFX.Editors {
                     FrameSpan = span
                 };
                 MotionEffect motion = new MotionEffect();
-                motion.AutomationData[MotionEffect.MediaPositionXParameter].DefaultKeyFrame.SetFloatValue(pos.X);
-                motion.AutomationData[MotionEffect.MediaPositionYParameter].DefaultKeyFrame.SetFloatValue(pos.Y);
+                motion.AutomationData[MotionEffect.MediaPositionParameter].DefaultKeyFrame.SetVector2Value(pos);
                 shape.AddEffect(motion);
 
                 shape.RectSize = size;

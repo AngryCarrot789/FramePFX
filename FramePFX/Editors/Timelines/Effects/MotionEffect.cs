@@ -1,31 +1,25 @@
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Rendering;
+using OpenTK;
 using SkiaSharp;
+using Vector2 = System.Numerics.Vector2;
 
 namespace FramePFX.Editors.Timelines.Effects {
     public class MotionEffect : VideoEffect, ITransformationEffect {
-        public static readonly ParameterFloat MediaPositionXParameter =               Parameter.RegisterFloat(typeof(MotionEffect), nameof(MotionEffect), nameof(MediaPositionX),           0, ValueAccessors.LinqExpression<float>(typeof(MotionEffect), nameof(MediaPositionX)), ParameterFlags.InvalidatesRender);
-        public static readonly ParameterFloat MediaPositionYParameter =               Parameter.RegisterFloat(typeof(MotionEffect), nameof(MotionEffect), nameof(MediaPositionY),           0, ValueAccessors.LinqExpression<float>(typeof(MotionEffect), nameof(MediaPositionY)), ParameterFlags.InvalidatesRender);
-        public static readonly ParameterFloat MediaScaleXParameter =                  Parameter.RegisterFloat(typeof(MotionEffect), nameof(MotionEffect), nameof(MediaScaleX),              1, ValueAccessors.LinqExpression<float>(typeof(MotionEffect), nameof(MediaScaleX)), ParameterFlags.InvalidatesRender);
-        public static readonly ParameterFloat MediaScaleYParameter =                  Parameter.RegisterFloat(typeof(MotionEffect), nameof(MotionEffect), nameof(MediaScaleY),              1, ValueAccessors.LinqExpression<float>(typeof(MotionEffect), nameof(MediaScaleY)), ParameterFlags.InvalidatesRender);
-        public static readonly ParameterFloat MediaScaleOriginXParameter =            Parameter.RegisterFloat(typeof(MotionEffect), nameof(MotionEffect), nameof(MediaScaleOriginX),        0, ValueAccessors.LinqExpression<float>(typeof(MotionEffect), nameof(MediaScaleOriginX)), ParameterFlags.InvalidatesRender);
-        public static readonly ParameterFloat MediaScaleOriginYParameter =            Parameter.RegisterFloat(typeof(MotionEffect), nameof(MotionEffect), nameof(MediaScaleOriginY),        0, ValueAccessors.LinqExpression<float>(typeof(MotionEffect), nameof(MediaScaleOriginY)), ParameterFlags.InvalidatesRender);
-        public static readonly ParameterBoolean UseAbsoluteScaleOriginParameter =     Parameter.RegisterBoolean(typeof(MotionEffect), nameof(MotionEffect), nameof(UseAbsoluteScaleOrigin),    ValueAccessors.Reflective<bool>(typeof(MotionEffect), nameof(UseAbsoluteScaleOrigin)), ParameterFlags.InvalidatesRender);
-        public static readonly ParameterDouble MediaRotationParameter =               Parameter.RegisterDouble(typeof(MotionEffect), nameof(MotionEffect), nameof(MediaRotation),           0, ValueAccessors.LinqExpression<double>(typeof(MotionEffect), nameof(MediaRotation)), ParameterFlags.InvalidatesRender);
-        public static readonly ParameterFloat MediaRotationOriginXParameter =         Parameter.RegisterFloat(typeof(MotionEffect), nameof(MotionEffect), nameof(MediaRotationOriginX),     0, ValueAccessors.LinqExpression<float>(typeof(MotionEffect), nameof(MediaRotationOriginX)), ParameterFlags.InvalidatesRender);
-        public static readonly ParameterFloat MediaRotationOriginYParameter =         Parameter.RegisterFloat(typeof(MotionEffect), nameof(MotionEffect), nameof(MediaRotationOriginY),     0, ValueAccessors.LinqExpression<float>(typeof(MotionEffect), nameof(MediaRotationOriginY)), ParameterFlags.InvalidatesRender);
-        public static readonly ParameterBoolean UseAbsoluteRotationOriginParameter =  Parameter.RegisterBoolean(typeof(MotionEffect), nameof(MotionEffect), nameof(UseAbsoluteRotationOrigin), ValueAccessors.Reflective<bool>(typeof(MotionEffect), nameof(UseAbsoluteRotationOrigin)), ParameterFlags.InvalidatesRender);
+        public static readonly ParameterVector2 MediaPositionParameter =               Parameter.RegisterVector2(typeof(MotionEffect), nameof(MotionEffect), nameof(MediaPosition),                        ValueAccessors.LinqExpression<Vector2>(typeof(MotionEffect), nameof(MediaPosition)), ParameterFlags.InvalidatesRender);
+        public static readonly ParameterVector2 MediaScaleParameter =                  Parameter.RegisterVector2(typeof(MotionEffect), nameof(MotionEffect), nameof(MediaScale),              Vector2.One, ValueAccessors.LinqExpression<Vector2>(typeof(MotionEffect), nameof(MediaScale)), ParameterFlags.InvalidatesRender);
+        public static readonly ParameterVector2 MediaScaleOriginParameter =            Parameter.RegisterVector2(typeof(MotionEffect), nameof(MotionEffect), nameof(MediaScaleOrigin),                     ValueAccessors.LinqExpression<Vector2>(typeof(MotionEffect), nameof(MediaScaleOrigin)), ParameterFlags.InvalidatesRender);
+        public static readonly ParameterBoolean UseAbsoluteScaleOriginParameter =     Parameter.RegisterBoolean(typeof(MotionEffect), nameof(MotionEffect), nameof(UseAbsoluteScaleOrigin),                ValueAccessors.Reflective<bool>(typeof(MotionEffect), nameof(UseAbsoluteScaleOrigin)), ParameterFlags.InvalidatesRender);
+        public static readonly ParameterDouble MediaRotationParameter =               Parameter.RegisterDouble(typeof(MotionEffect), nameof(MotionEffect), nameof(MediaRotation),             0,           ValueAccessors.LinqExpression<double>(typeof(MotionEffect), nameof(MediaRotation)), ParameterFlags.InvalidatesRender);
+        public static readonly ParameterVector2 MediaRotationOriginParameter =         Parameter.RegisterVector2(typeof(MotionEffect), nameof(MotionEffect), nameof(MediaRotationOrigin),                  ValueAccessors.LinqExpression<Vector2>(typeof(MotionEffect), nameof(MediaRotationOrigin)), ParameterFlags.InvalidatesRender);
+        public static readonly ParameterBoolean UseAbsoluteRotationOriginParameter =  Parameter.RegisterBoolean(typeof(MotionEffect), nameof(MotionEffect), nameof(UseAbsoluteRotationOrigin),             ValueAccessors.Reflective<bool>(typeof(MotionEffect), nameof(UseAbsoluteRotationOrigin)), ParameterFlags.InvalidatesRender);
 
-        public float MediaPositionX;
-        public float MediaPositionY;
-        public float MediaScaleX;
-        public float MediaScaleY;
-        public float MediaScaleOriginX;
-        public float MediaScaleOriginY;
+        public Vector2 MediaPosition;
+        public Vector2 MediaScale;
+        public Vector2 MediaScaleOrigin;
         public double MediaRotation;
-        public float MediaRotationOriginX;
-        public float MediaRotationOriginY;
+        public Vector2 MediaRotationOrigin;
         public bool UseAbsoluteScaleOrigin;
         public bool UseAbsoluteRotationOrigin;
         private SKMatrix __internalTransformationMatrix;
@@ -50,21 +44,17 @@ namespace FramePFX.Editors.Timelines.Effects {
 
         public MotionEffect() {
             this.isMatrixDirty = true;
-            this.MediaPositionX = MediaPositionXParameter.Descriptor.DefaultValue;
-            this.MediaPositionY = MediaPositionYParameter.Descriptor.DefaultValue;
-            this.MediaScaleX = MediaScaleXParameter.Descriptor.DefaultValue;
-            this.MediaScaleY = MediaScaleYParameter.Descriptor.DefaultValue;
-            this.MediaScaleOriginX = MediaScaleOriginXParameter.Descriptor.DefaultValue;
-            this.MediaScaleOriginY = MediaScaleOriginYParameter.Descriptor.DefaultValue;
+            this.MediaPosition = MediaPositionParameter.Descriptor.DefaultValue;
+            this.MediaScale = MediaScaleParameter.Descriptor.DefaultValue;
+            this.MediaScaleOrigin = MediaScaleOriginParameter.Descriptor.DefaultValue;
             this.UseAbsoluteScaleOrigin = UseAbsoluteScaleOriginParameter.Descriptor.DefaultValue;
             this.MediaRotation = MediaRotationParameter.Descriptor.DefaultValue;
-            this.MediaRotationOriginX = MediaRotationOriginXParameter.Descriptor.DefaultValue;
-            this.MediaRotationOriginY = MediaRotationOriginYParameter.Descriptor.DefaultValue;
+            this.MediaRotationOrigin = MediaRotationOriginParameter.Descriptor.DefaultValue;
             this.UseAbsoluteRotationOrigin = UseAbsoluteRotationOriginParameter.Descriptor.DefaultValue;
         }
 
         static MotionEffect() {
-            Parameter.AddMultipleHandlers(OnParameterValueChanged, MediaPositionXParameter, MediaPositionYParameter, MediaScaleXParameter, MediaScaleYParameter, MediaScaleOriginXParameter, MediaScaleOriginYParameter, UseAbsoluteScaleOriginParameter, MediaRotationParameter, MediaRotationOriginXParameter, MediaRotationOriginYParameter, UseAbsoluteRotationOriginParameter);
+            Parameter.AddMultipleHandlers(OnParameterValueChanged, MediaPositionParameter, MediaScaleParameter, MediaScaleOriginParameter, UseAbsoluteScaleOriginParameter, MediaRotationParameter, MediaRotationOriginParameter, UseAbsoluteRotationOriginParameter);
         }
 
         public override void PrepareRender(PreRenderContext ctx, long frame) {
@@ -91,9 +81,9 @@ namespace FramePFX.Editors.Timelines.Effects {
         /// <returns></returns>
         private SKMatrix CreateTransformationMatrix() {
             SKMatrix matrix = SKMatrix.Identity;
-            matrix = matrix.PreConcat(SKMatrix.CreateTranslation(this.MediaPositionX, this.MediaPositionY));
-            matrix = matrix.PreConcat(SKMatrix.CreateScale(this.MediaScaleX, this.MediaScaleY, this.MediaScaleOriginX, this.MediaScaleOriginY));
-            matrix = matrix.PreConcat(SKMatrix.CreateRotationDegrees((float) this.MediaRotation, this.MediaRotationOriginX, this.MediaRotationOriginY));
+            matrix = matrix.PreConcat(SKMatrix.CreateTranslation(this.MediaPosition.X, this.MediaPosition.Y));
+            matrix = matrix.PreConcat(SKMatrix.CreateScale(this.MediaScale.X, this.MediaScale.Y, this.MediaScaleOrigin.X, this.MediaScaleOrigin.Y));
+            matrix = matrix.PreConcat(SKMatrix.CreateRotationDegrees((float) this.MediaRotation, this.MediaRotationOrigin.X, this.MediaRotationOrigin.Y));
             return matrix;
         }
 

@@ -124,6 +124,7 @@
     <Compile Include="Editors\Rational.cs" />
     <Compile Include="Editors\Rendering\EnumRenderQuality.cs" />
     <Compile Include="Editors\RenderLockedData.cs" />
+    <Compile Include="Editors\RenderLockedDataWrapper.cs" />
     <Compile Include="Editors\ResourceManaging\Actions\ChangeResourceOnlineStateAction.cs" />
     <Compile Include="Editors\ResourceManaging\Actions\DeleteResourcesAction.cs" />
     <Compile Include="Editors\ResourceManaging\Autoloading\Controls\InvalidImagePathEntryControl.cs" />
@@ -134,6 +135,7 @@
     <Compile Include="Editors\ResourceManaging\Autoloading\InvalidImagePathEntry.cs" />
     <Compile Include="Editors\ResourceManaging\Autoloading\InvalidResourceEntry.cs" />
     <Compile Include="Editors\ResourceManaging\Autoloading\ResourceLoader.cs" />
+    <Compile Include="Editors\Timelines\Clips\AVMediaVideoClip.cs" />
     <Compile Include="Editors\Timelines\Clips\TimecodeClip.cs" />
     <Compile Include="Editors\Timelines\TimelineUtils.cs" />
     <Compile Include="Interactivity\DataContexts\DataContext.cs" />
@@ -142,6 +144,7 @@
     <Compile Include="Interactivity\DataContexts\DataKeys.cs" />
     <Compile Include="Interactivity\DataContexts\EmptyContext.cs" />
     <Compile Include="Interactivity\DataContexts\IDataContext.cs" />
+    <Compile Include="PropertyEditing\Controls\Standard\BaseParameterPropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\Controls\Standard\ParameterDoublePropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\Controls\Standard\ParameterFloatPropertyEditorControl.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\EffectListPropertyEditorGroup.cs" />
@@ -149,7 +152,8 @@
     <Compile Include="Editors\PropertyEditors\Effects\Motion\MotionEffectPropertyEditorGroup.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\TODO\EffectListPropertyEditorGroup.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\TODO\EffectPropertyEditorGroup.cs" />
-    <Compile Include="PropertyEditing\Controls\Standard\ParameterPropertyEditorControl.cs" />
+    <Compile Include="PropertyEditing\Controls\Standard\BaseSliderParameterPropertyEditorControl.cs" />
+    <Compile Include="PropertyEditing\Controls\Standard\ParameterVector2PropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\Standard\ParameterDoublePropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\Standard\ParameterFloatPropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\Standard\ParameterPropertyEditorSlot.cs" />
@@ -168,6 +172,7 @@
     <Compile Include="PropertyEditing\SimplePropertyEditorGroup.cs" />
     <Compile Include="PropertyEditing\HandlerCountMode.cs" />
     <Compile Include="PropertyEditing\PropertyEditorSlot.cs" />
+    <Compile Include="PropertyEditing\Standard\ParameterVector2PropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\VideoEditorPropertyEditor.cs" />
     <Compile Include="RBC\BinaryUtils.cs" />
     <Compile Include="RBC\Events\ReadFromRBEEventHandler.cs" />
@@ -331,6 +336,7 @@
     <Compile Include="Utils\Validate.cs" />
     <Compile Include="Utils\ValueModState.cs" />
     <Compile Include="Utils\Vec2i.cs" />
+    <Compile Include="Utils\Vectors.cs" />
     <Compile Include="Utils\VisualTreeUtils.cs" />
     <Compile Include="Views\AppSplashScreen.xaml.cs">
       <DependentUpon>AppSplashScreen.xaml</DependentUpon>

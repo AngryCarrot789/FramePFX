@@ -38,6 +38,8 @@ namespace FramePFX.Editors.Automation.Params {
     }
 
     public static class ValueAccessors {
+        private static ParameterExpression InstanceParameter;
+
         /// <summary>
         /// Creates a reflection-based value accessor. This is recommended for
         /// low memory usage and also low general usage of the accessor itself
@@ -67,7 +69,7 @@ namespace FramePFX.Editors.Automation.Params {
             if (lowestOwnerType == null)
                 throw new Exception($"The target member named '{propertyOrField}' does not have a declaring type somehow");
 
-            ParameterExpression paramInstance = Expression.Parameter(typeof(IAutomatable), "instance");
+            ParameterExpression paramInstance = InstanceParameter ?? (InstanceParameter = Expression.Parameter(typeof(IAutomatable), "instance"));
             UnaryExpression castToOwner = Expression.Convert(paramInstance, lowestOwnerType);
             MemberExpression dataMember = Expression.MakeMemberAccess(castToOwner, targetMember);
 
@@ -96,7 +98,7 @@ namespace FramePFX.Editors.Automation.Params {
 
             public ReflectiveFieldValueAccessor(FieldInfo info) {
                 this.IsObjectPreferred = true;
-                this.info = info;
+                this.info = info ?? throw new ArgumentNullException(nameof(info));
             }
 
             public override T GetValue(IAutomatable instance) {
@@ -121,7 +123,7 @@ namespace FramePFX.Editors.Automation.Params {
 
             public ReflectivePropertyValueAccessor(PropertyInfo info) {
                 this.IsObjectPreferred = true;
-                this.info = info;
+                this.info = info ?? throw new ArgumentNullException(nameof(info));
             }
 
             public override T GetValue(IAutomatable instance) {
@@ -146,8 +148,8 @@ namespace FramePFX.Editors.Automation.Params {
             private readonly AutoSetter<T> set;
 
             public DelegateValueAccessor(AutoGetter<T> get, AutoSetter<T> set) {
-                this.get = get;
-                this.set = set;
+                this.get = get ?? throw new ArgumentNullException(nameof(get));
+                this.set = set ?? throw new ArgumentNullException(nameof(set));
             }
 
             public override T GetValue(IAutomatable instance) {
@@ -170,14 +172,14 @@ namespace FramePFX.Editors.Automation.Params {
         private static MemberInfo GetPropertyOrField(Type type, string name) {
             // Can't get public or private in a single method call, according to the Expression class
             PropertyInfo p = type.GetProperty(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
-            if (p != null)
+            if (!ReferenceEquals(p, null))
                 return p;
             FieldInfo f = type.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
-            if (f != null)
+            if (!ReferenceEquals(f, null))
                 return f;
-            if ((p = type.GetProperty(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy)) != null)
+            if (!ReferenceEquals(p = type.GetProperty(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy), null))
                 return p;
-            if ((f = type.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy)) != null)
+            if (!ReferenceEquals(f = type.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy), null))
                 return f;
             throw new Exception($"No such field or property with the name '{name}' in the type hierarchy for '{type.Name}'");
         }

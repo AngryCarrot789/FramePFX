@@ -68,8 +68,9 @@ namespace FramePFX.Editors.Rendering {
         }
 
         /// <summary>
-        /// Renders the timeline at the given frame, based on the current state of the project.
-        /// This is an async method; the returned task will be completed when the render is completed
+        /// Renders the timeline at the given frame, based on the current state of the project. This is an async method;
+        /// the preparation phase will have been completed by the time this method returns but the returned task will be
+        /// completed when the render is completed
         /// </summary>
         /// <param name="frame">The frame to render</param>
         public async Task RenderTimelineAsync(Timeline timeline, long frame, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality) {
@@ -100,6 +101,9 @@ namespace FramePFX.Editors.Rendering {
                 }
             }
 
+            // This seems way too simple... or maybe it really is this simple but other
+            // open source video editors just design their rendering system completely differently?
+            // Either way, this works and it works well... for now when there are no composition clips
             await Task.Run(async () => {
                 Task[] tasks = new Task[tracks.Count];
                 for (int i = 0; i < tracks.Count; i++) {

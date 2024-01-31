@@ -13,7 +13,7 @@
             Background="{DynamicResource PanelBorderBrush}"
             BorderBrush="{DynamicResource PanelBorderBrush}"
             TitlebarBrush="{DynamicResource ABrush.Tone7.Background.Static}"
-            Title="FramePFX (remake test environment)"
+            Title="Bootleg sony vegas (FramePFX v0.1)"
             Height="840" Width="1348"
             FontFamily="{StaticResource FontOxanium}" FontWeight="Medium"
             wpf:UIInputManager.FocusPath="Application/Editor">

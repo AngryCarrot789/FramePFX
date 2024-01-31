@@ -13,8 +13,9 @@ namespace FramePFX.Editors.Actions {
             int focusedIndex = -1;
             HashSet<Track> tracks = new HashSet<Track>();
             if (e.DataContext.TryGetContext(DataKeys.TrackKey, out Track focusedTrack)) {
-                tracks.Add(focusedTrack);
                 focusedIndex = focusedTrack.IndexInTimeline;
+                if (!focusedTrack.IsSelected)
+                    focusedTrack.SetIsSelected(true, false);
             }
 
             Timeline timeline;

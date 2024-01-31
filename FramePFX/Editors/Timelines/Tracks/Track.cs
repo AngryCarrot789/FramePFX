@@ -122,13 +122,15 @@ namespace FramePFX.Editors.Timelines.Tracks {
         /// <param name="value">The new selection state</param>
         /// <param name="isPrimary">Represents the UI focused state, as if the user clicked on the track to focus it</param>
         public void SetIsSelected(bool value, bool isPrimary = false) {
-            if (this.isSelected == value && !isPrimary) {
-                return;
-            }
+            bool isSelectionChange = this.isSelected != value;
+            if (isSelectionChange || isPrimary) {
+                if (isSelectionChange) {
+                    this.isSelected = value;
+                    Timeline.InternalOnTrackSelectedChanged(this);
+                }
 
-            this.isSelected = value;
-            Timeline.InternalOnTrackSelectedChanged(this);
-            this.IsSelectedChanged?.Invoke(this, isPrimary);
+                this.IsSelectedChanged?.Invoke(this, isPrimary);
+            }
         }
 
         public bool IsAutomated(Parameter parameter) {

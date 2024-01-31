@@ -1,10 +1,7 @@
 using System;
 using FramePFX.Editors.ResourceManaging.Autoloading;
-using FramePFX.Editors.ResourceManaging.Autoloading.Controls;
 using FramePFX.Editors.ResourceManaging.Events;
-using FramePFX.Editors.ResourceManaging.Resources;
 using FramePFX.RBC;
-using FramePFX.Utils;
 
 namespace FramePFX.Editors.ResourceManaging {
     /// <summary>

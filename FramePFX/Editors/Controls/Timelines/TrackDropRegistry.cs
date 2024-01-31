@@ -1,6 +1,4 @@
-using System;
 using System.Numerics;
-using System.Threading.Tasks;
 using System.Windows;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.Resources;

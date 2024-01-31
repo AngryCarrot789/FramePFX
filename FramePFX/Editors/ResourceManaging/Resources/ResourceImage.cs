@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using FramePFX.Editors.ResourceManaging.Autoloading;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.RBC;

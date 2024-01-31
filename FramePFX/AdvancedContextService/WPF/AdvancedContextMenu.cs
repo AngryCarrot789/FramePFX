@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
 using FramePFX.Interactivity.DataContexts;
 using FramePFX.Shortcuts.WPF;

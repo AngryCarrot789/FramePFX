@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.RBC;
 using FramePFX.Utils;

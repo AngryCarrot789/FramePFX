@@ -37,6 +37,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         private readonly Stack<ResourceExplorerListItem> itemCache;
         private readonly Dictionary<Type, Stack<ResourceExplorerListItemContent>> itemContentCacheMap;
         private bool isProcessingAsyncDrop;
+        private bool isProcessingManagerCurrentFolderChanged;
 
         public ResourceExplorerListItem lastSelectedItem;
 
@@ -187,6 +188,11 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
                     this.InsertResourceInternal(resource, i++);
                 }
             }
+
+            ResourceManager manager;
+            if (!this.isProcessingManagerCurrentFolderChanged && (manager = this.ResourceManager) != null) {
+                manager.CurrentFolder = newFolder;
+            }
         }
 
         private void CurrentFolder_OnResourceAdded(ResourceFolder parent, BaseResource item, int index) {
@@ -210,7 +216,25 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         }
 
         private void OnResourceManagerChanged(ResourceManager oldManager, ResourceManager newManager) {
+            if (oldManager != null) {
+                oldManager.CurrentFolderChanged -= this.OnManagerCurrentFolderChanged;
+            }
+
+            if (newManager != null) {
+                newManager.CurrentFolderChanged += this.OnManagerCurrentFolderChanged;
+            }
+
             this.CurrentFolder = newManager?.CurrentFolder;
+        }
+
+        private void OnManagerCurrentFolderChanged(ResourceManager manager, ResourceFolder oldFolder, ResourceFolder newFolder) {
+            try {
+                this.isProcessingManagerCurrentFolderChanged = true;
+                this.CurrentFolder = newFolder;
+            }
+            finally {
+                this.isProcessingManagerCurrentFolderChanged = false;
+            }
         }
 
         private void InsertResourceInternal(BaseResource resource, int index) {

@@ -148,6 +148,10 @@ namespace FramePFX.Shortcuts.WPF {
 
         private static void OnPreProcessInput(object sender, PreProcessInputEventArgs args) {
             switch (args.StagingItem.Input) {
+                case KeyboardFocusChangedEventArgs e: {
+                    OnApplicationKeyboardFocusChanged(e, args);
+                    break;
+                }
                 case KeyEventArgs e:
                     if (OnApplicationKeyEvent(e, args))
                         args.Cancel();
@@ -161,6 +165,13 @@ namespace FramePFX.Shortcuts.WPF {
                         args.Cancel();
                     break;
             }
+        }
+
+        private static void OnApplicationKeyboardFocusChanged(KeyboardFocusChangedEventArgs e, PreProcessInputEventArgs args) {
+            if (!(e.Device is KeyboardDevice keyboard) || !(keyboard.Target is DependencyObject focused))
+                return;
+
+            ProcessFocusGroupChange(focused);
         }
 
         private static bool OnApplicationKeyEvent(KeyEventArgs e, PreProcessInputEventArgs inputArgs) {
@@ -309,11 +320,20 @@ namespace FramePFX.Shortcuts.WPF {
 
         #endregion
 
+        /// <summary>
+        /// Does bottom-to-top scan of the element's visual tree, and then accumulates and merged all of the data keys
+        /// associated with each object from top to bottom, ensuring the bottom of the visual tree has the most power
+        /// over the final data context key values
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public static DataContext GetDataContext(DependencyObject obj) {
             DataContext ctx = new DataContext();
 
             // Scan top-down in order to allow deeper object's entries to override higher up entries
-            List<DependencyObject> visualTree = new List<DependencyObject>();
+            // 32 is a good balance between too big and too small.
+            // After some tests, property editor slots have 46 visual parents, clips have 36, tracks have 19
+            List<DependencyObject> visualTree = new List<DependencyObject>(32);
             for (DependencyObject dp = obj; dp != null; dp = VisualTreeUtils.GetParent(dp)) {
                 visualTree.Add(dp);
             }

@@ -253,14 +253,9 @@ namespace FramePFX.Shortcuts.Managing {
         /// <param name="inputManager">The processor that caused this activation</param>
         /// <param name="shortcut">The shortcut that was activated</param>
         /// <returns>A task, which contains the outcome result of the shortcut activation used by the processor's input manager</returns>
-        protected virtual async Task<bool> OnShortcutActivatedInternal(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
+        protected virtual Task<bool> OnShortcutActivatedInternal(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
             // Fire action manager. This is the main way of activating shortcuts
-            if (ActionManager.Instance.GetAction(shortcut.ActionId) != null) {
-                await ActionManager.Instance.Execute(shortcut.ActionId, inputManager.CurrentDataContext);
-                return true;
-            }
-
-            return false;
+            return ActionManager.Instance.TryExecute(shortcut.ActionId, inputManager.CurrentDataContext);
         }
 
         /// <summary>

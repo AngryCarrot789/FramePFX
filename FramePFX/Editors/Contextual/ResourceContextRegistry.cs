@@ -3,6 +3,9 @@ using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.Autoloading;
 using FramePFX.Interactivity.DataContexts;
 using System.Collections.Generic;
+using System.Linq;
+using FramePFX.Editors.ResourceManaging.Autoloading.Controls;
+using FramePFX.Utils;
 
 namespace FramePFX.Editors.Contextual {
     public class ResourceContextRegistry : IContextGenerator {
@@ -13,14 +16,51 @@ namespace FramePFX.Editors.Contextual {
                 return;
             }
 
-            int selectedCount = resource.Manager.SelectedItems.Count;
+            int actualSelection = resource.Manager.SelectedItems.Count;
+            int itemCount = actualSelection;
             if (!resource.IsSelected)
-                selectedCount++;
+                itemCount++;
 
-            list.Add(new EventContextEntry(this.EnableResources, selectedCount == 1 ? "Enable Resource" : "Enable Resources"));
-            list.Add(new EventContextEntry(this.DisableResources, selectedCount == 1 ? "Disable Resource" : "Disable Resources"));
+            ActionContextEntry groupAction = null;
+            if (resource.Manager != null) {
+                ResourceFolder currFolder = resource.Manager.CurrentFolder;
+                int groupCount = currFolder.Items.Count(x => x.IsSelected);
+                if (!resource.IsSelected && currFolder.Items.Contains(resource)) {
+                    groupCount++;
+                }
+
+                if (groupCount > 0) {
+                    groupAction = new ActionContextEntry("actions.resources.GroupResourcesAction", groupCount == 1 ? "Group into folder" : $"Group {groupCount} items into folder", "Groups all selected items in the explorer into a folder. Grouping items in the tree is currently unsupported");
+                }
+            }
+
+            if (itemCount == 1) {
+                list.Add(new ActionContextEntry("actions.resources.RenameResourceAction", "Rename resource"));
+                if (groupAction != null) {
+                    list.Add(groupAction);
+                }
+
+                if (resource is ResourceItem item) {
+                    list.Add(new SeparatorEntry());
+                    if (item.IsOnline) {
+                        list.Add(new EventContextEntry(this.DisableResources, "Set Offline"));
+                    }
+                    else {
+                        list.Add(new EventContextEntry(this.EnableResources, "Set Online"));
+                    }
+                }
+            }
+            else {
+                if (groupAction != null) {
+                    list.Add(groupAction);
+                }
+
+                list.Add(new EventContextEntry(this.EnableResources, $"Set {itemCount} items Online"));
+                list.Add(new EventContextEntry(this.DisableResources, $"Set {itemCount} items Offline"));
+            }
+
             list.Add(new SeparatorEntry());
-            list.Add(new EventContextEntry(this.DeleteResources, selectedCount == 1 ? "Delete Resource" : "Delete Resources"));
+            list.Add(new ActionContextEntry("actions.resources.DeleteResourcesAction", itemCount == 1 ? "Delete Resource" : $"Delete {itemCount} Resources"));
         }
 
         private void DeleteResources(IDataContext context) {
@@ -49,7 +89,7 @@ namespace FramePFX.Editors.Contextual {
             if (!focusedResource.IsSelected)
                 resources.Add(focusedResource);
 
-            SetHierarchyOnlineState(resources, true, new ResourceLoader());
+            ResourceLoaderDialog.TryLoadResources(resources);
         }
 
         private void DisableResources(IDataContext context) {

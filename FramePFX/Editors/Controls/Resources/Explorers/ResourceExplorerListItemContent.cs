@@ -9,7 +9,6 @@ using FramePFX.Editors.Controls.Binders;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.Editors.ResourceManaging.Resources;
-using OpenTK.Graphics.OpenGL;
 using SkiaSharp;
 
 namespace FramePFX.Editors.Controls.Resources.Explorers {

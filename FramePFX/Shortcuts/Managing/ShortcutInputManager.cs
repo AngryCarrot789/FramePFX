@@ -86,7 +86,10 @@ namespace FramePFX.Shortcuts.Managing {
                 try {
                     this.AccumulateInstantActivationShortcuts();
                     foreach (GroupedShortcut s in this.cachedInstantActivationList) {
-                        result |= await this.Manager.OnShortcutActivated(this, s);
+                        if (await this.Manager.OnShortcutActivated(this, s)) {
+                            result = true;
+                            break;
+                        }
                     }
                 }
                 finally {
@@ -197,7 +200,10 @@ namespace FramePFX.Shortcuts.Managing {
                 try {
                     this.AccumulateInstantActivationShortcuts();
                     foreach (GroupedShortcut s in this.cachedInstantActivationList) {
-                        result |= await this.Manager.OnShortcutActivated(this, s);
+                        if (await this.Manager.OnShortcutActivated(this, s)) {
+                            result = true;
+                            break;
+                        }
                     }
                 }
                 finally {

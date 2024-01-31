@@ -1,0 +1,44 @@
+﻿<v:WindowEx x:Class="FramePFX.Services.WPF.Messages.SingleInputDialog"
+            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+            xmlns:local="clr-namespace:FramePFX.Services.WPF.Messages"
+            xmlns:v="clr-namespace:FramePFX.Views"
+            xmlns:c="clr-namespace:FramePFX.Editors.Controls"
+            xmlns:ap="clr-namespace:FramePFX.Themes.Attached"
+            mc:Ignorable="d"
+            Title="SingleInputDialog" Height="150" Width="350"
+            Background="{DynamicResource PanelBackground2}"
+            Style="{StaticResource CustomWindowStyleEx}">
+    <FrameworkElement.Resources>
+        <Style x:Key="ValidationTextBoxStyle" TargetType="{x:Type TextBox}" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Style.Triggers>
+                <DataTrigger Value="False" Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:SingleInputDialog}}, Path=IsValueValid, Mode=OneWay}">
+                    <Setter Property="BorderBrush" Value="Red"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </FrameworkElement.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="42"/>
+        </Grid.RowDefinitions>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="10">
+                <TextBlock x:Name="PART_MessageTextBlock" Background="Transparent" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                <TextBox x:Name="PART_TextInputBox" Padding="3,5" VerticalContentAlignment="Center"
+                         Style="{StaticResource ValidationTextBoxStyle}"/>
+            </StackPanel>
+        </ScrollViewer>
+        <Border Grid.Row="1" Background="{DynamicResource ABrush.Tone4.Background.Static}"
+                BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}"
+                BorderThickness="0,1,0,0">
+            <c:SpacedStackPanel Orientation="Horizontal" InterElementGap="5" HorizontalAlignment="Right" Margin="10,0">
+                <Button Content="OK" x:Name="PART_ButtonOK" VerticalAlignment="Center" Padding="10,3" Width="70" ap:CornerRadiusHelper.Value="2" Click="OnClickOK"/>
+                <Button Content="Cancel" x:Name="PART_ButtonCancel" VerticalAlignment="Center" Padding="10,3" Width="70" ap:CornerRadiusHelper.Value="2" Click="OnClickCancel"/>
+            </c:SpacedStackPanel>
+        </Border>
+    </Grid>
+</v:WindowEx>

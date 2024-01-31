@@ -88,9 +88,9 @@ namespace FramePFX.Editors.Timelines.Effects {
         }
 
         protected virtual void OnRemoved() {
-            Timeline timeline = this.Owner.Timeline;
-            if (timeline != null) {
-                this.TimelineChanged?.Invoke(this, timeline, null);
+            Timeline oldTimeline = this.Owner.Timeline;
+            if (oldTimeline != null) {
+                this.TimelineChanged?.Invoke(this, oldTimeline, null);
             }
         }
 

@@ -1,7 +1,6 @@
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Rendering;
-using OpenTK;
 using SkiaSharp;
 using Vector2 = System.Numerics.Vector2;
 

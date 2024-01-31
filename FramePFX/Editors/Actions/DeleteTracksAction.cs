@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FramePFX.Actions;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.DataContexts;
-using FramePFX.Utils;
 
 namespace FramePFX.Editors.Actions {
     public class DeleteTracksAction : AnAction {
@@ -14,8 +12,6 @@ namespace FramePFX.Editors.Actions {
             HashSet<Track> tracks = new HashSet<Track>();
             if (e.DataContext.TryGetContext(DataKeys.TrackKey, out Track focusedTrack)) {
                 focusedIndex = focusedTrack.IndexInTimeline;
-                if (!focusedTrack.IsSelected)
-                    focusedTrack.SetIsSelected(true, false);
             }
 
             Timeline timeline;
@@ -26,9 +22,10 @@ namespace FramePFX.Editors.Actions {
             }
 
             foreach (Track track in tracks) {
-                track.Destroy();
-                track.Timeline.RemoveTrack(track);
+                track.Timeline.DeleteTrack(track);
             }
+
+            focusedTrack?.Timeline?.DeleteTrack(focusedTrack);
 
             if (timeline != null && timeline.Tracks.Count > 0) {
                 if (focusedIndex >= 0) {

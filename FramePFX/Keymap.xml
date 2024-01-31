@@ -2,12 +2,6 @@
 
 <KeyMap Version="1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Keymap.xsd">
     <Group Name="Application">
-        <Shortcut Name="RenameItem" ActionId="actions.general.RenameItem" Description="Rename the thing">
-            <KeyStroke Key="F2"/>
-        </Shortcut>
-        <Shortcut Name="RenameItem2" ActionId="actions.general.RenameItem" Description="Rename the thing">
-            <KeyStroke Mods="CTRL" Key="R"/>
-        </Shortcut>
         <Group Name="Editor">
             <Shortcut Name="SaveProject" ActionId="actions.project.SaveAction">
                 <KeyStroke Mods="CTRL" Key="S"/>
@@ -49,17 +43,39 @@
             </Group>
             <!-- Shortcuts for the view port panel -->
             <Group Name="ResourceManager">
-                <Shortcut Name="DeleteItems" ActionId="actions.resources.DeleteItems" Description="Deletes all of the selected resources">
+                <Shortcut Name="DeleteItems" ActionId="actions.resources.DeleteResourcesAction" Description="Deletes all of the selected resources">
                     <KeyStroke Key="Delete"/>
                 </Shortcut>
-                <Shortcut Name="GroupSelection" ActionId="actions.resources.GroupSelectionIntoFolder" Description="Puts the selected items into their own group">
+                <Shortcut Name="GroupSelection" ActionId="actions.resources.GroupResourcesAction" Description="Groups all selected items in the explorer into a folder. Grouping items in the tree is currently unsupported">
                     <KeyStroke Mods="CTRL" Key="G"/>
+                </Shortcut>
+                <Shortcut Name="RenameResource1" ActionId="actions.resources.RenameResourceAction">
+                    <KeyStroke Key="F2"/>
+                </Shortcut>
+                <Shortcut Name="RenameResource2" ActionId="actions.resources.RenameResourceAction">
+                    <KeyStroke Mods="CTRL" Key="R"/>
                 </Shortcut>
             </Group>
             <!-- Shortcuts for the timeline panel -->
             <Group Name="Timeline">
                 <!-- Shortcuts for specifically the timeline sequence -->
                 <Group Name="Sequence">
+                    <Group Name="Track">
+                        <Group Name="Clip">
+                            <Shortcut Name="RenameClip1" ActionId="actions.timeline.RenameClipAction">
+                                <KeyStroke Key="F2"/>
+                            </Shortcut>
+                            <Shortcut Name="RenameClip2" ActionId="actions.timeline.RenameClipAction">
+                                <KeyStroke Mods="CTRL" Key="R"/>
+                            </Shortcut>
+                        </Group>
+                        <Shortcut Name="RenameTrack1" ActionId="actions.timeline.RenameTrackAction">
+                            <KeyStroke Key="F2"/>
+                        </Shortcut>
+                        <Shortcut Name="RenameTrack2" ActionId="actions.timeline.RenameTrackAction">
+                            <KeyStroke Mods="CTRL" Key="R"/>
+                        </Shortcut>
+                    </Group>
                     <Shortcut Name="SelectAllClipsInTimeline" ActionId="actions.timeline.SelectAllClipsInTimelineAction">
                         <KeyStroke Mods="CTRL" Key="A"/>
                     </Shortcut>
@@ -110,10 +126,15 @@
                     <Shortcut Name="SelectAllTracks" ActionId="actions.timeline.SelectAllTracksAction">
                         <KeyStroke Mods="CTRL" Key="A"/>
                     </Shortcut>
-
 					<Shortcut Name="DeleteSelectedTracks" ActionId="actions.timeline.DeleteSelectedTracks" Description="Deletes all of the selected tracks">
 						<KeyStroke Key="Delete"/>
 					</Shortcut>
+                    <Shortcut Name="RenameTrack1" ActionId="actions.timeline.RenameTrackAction">
+                        <KeyStroke Key="F2"/>
+                    </Shortcut>
+                    <Shortcut Name="RenameTrack2" ActionId="actions.timeline.RenameTrackAction">
+                        <KeyStroke Mods="CTRL" Key="R"/>
+                    </Shortcut>
                 </Group>
 
                 <Shortcut Name="NewVideoTrack" ActionId="actions.timeline.NewVideoTrack" Description="Creates a new video clip">

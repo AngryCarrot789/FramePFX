@@ -103,6 +103,26 @@ namespace FramePFX.Actions {
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Tries to execute the given action. If it does not exist, this method returns a task with a result
+        /// of false. Otherwise, a result with a result of true. Action completion is too subjective which is why
+        /// this returns the action existence boolean
+        /// </summary>
+        /// <param name="actionId">The target action id</param>
+        /// <param name="dataContext">The data context to pass to the action event args</param>
+        /// <param name="isUserInitiated">True when executed as a user, which is usually the default</param>
+        /// <returns>A task with a result of Whether or not the action exists</returns>
+        public Task<bool> TryExecute(string actionId, IDataContext dataContext, bool isUserInitiated = true) {
+            ValidateId(actionId);
+            ValidateContext(dataContext);
+            if (!this.actions.TryGetValue(actionId, out AnAction action)) {
+                return Task.FromResult(false);
+            }
+
+            Task task = this.ExecuteCore(action, new AnActionEventArgs(this, actionId, dataContext, isUserInitiated));
+            return task.IsCompleted ? Task.FromResult(true) : task.ContinueWith(t => true);
+        }
+
         public Task Execute(string id, AnAction action, IDataContext context, bool isUserInitiated = true) {
             ValidateContext(context);
             return this.ExecuteCore(action, new AnActionEventArgs(this, id, context, isUserInitiated));
@@ -222,10 +242,6 @@ namespace FramePFX.Actions {
             if (context == null) {
                 throw new ArgumentNullException(nameof(context), "Context cannot be null");
             }
-        }
-
-        public AnActionEventArgs CreateArgs(string actionId, IDataContext context, bool isUserInitiated) {
-            return new AnActionEventArgs(this, actionId, context, isUserInitiated);
         }
     }
 }

@@ -11,18 +11,13 @@
 
     <Style TargetType="{x:Type acs:AdvancedShortcutMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedMenuItem}}"/>
 
-    <!-- Dammit visual studio why won't you accept d:DataContext on styles :'( -->
     <Style d:DataContext="{d:DesignInstance acsc:BaseContextEntry}" x:Key="BaseContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedMenuItem}}">
-        <Setter Property="Header" Value="{Binding Header, Mode=OneWay}"/>
-        <Setter Property="ToolTip" Value="{Binding Description, Mode=OneWay}"/>
         <Setter Property="ItemsSource" Value="{Binding Children, Mode=OneTime}"/>
     </Style>
 
-    <Style d:DataContext="{d:DesignInstance acsc:ActionContextEntry}" x:Key="ActionContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedActionMenuItem}" BasedOn="{StaticResource BaseContextEntry_AdvancedMenuItemStyle}">
-        <Setter Property="ActionId" Value="{Binding ActionId, Mode=OneWay}"/>
-    </Style>
+    <Style x:Key="ActionContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedActionMenuItem}" BasedOn="{StaticResource BaseContextEntry_AdvancedMenuItemStyle}"/>
 
-    <Style d:DataContext="{d:DesignInstance acsc:GroupContextEntry}" x:Key="GroupContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedMenuItem}" BasedOn="{StaticResource BaseContextEntry_AdvancedMenuItemStyle}"/>
+    <Style x:Key="GroupContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedMenuItem}" BasedOn="{StaticResource BaseContextEntry_AdvancedMenuItemStyle}"/>
 
     <acs:AdvancedMenuItemStyleSelector x:Key="AdvancedMenuItemContainerStyleSelector"
                                        x:Shared="True"

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Numerics;
 using System.Windows;
 using System.Windows.Media;
 using FramePFX.Editors.Automation;

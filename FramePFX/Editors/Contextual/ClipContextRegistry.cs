@@ -14,28 +14,11 @@ namespace FramePFX.Editors.Contextual {
 
             int selectedCount = clip.Timeline.GetSelectedClipCountWith(clip);
 
-            list.Add(new EventContextEntry(DeleteSelectedClips, selectedCount == 1 ? "Delete Clip" : "Delete Clips"));
-            list.Add(SeparatorEntry.NewInstance);
-            list.Add(new EventContextEntry(DeleteTrackClipIsIn, "Delete Track"));
-        }
-
-        private static void DeleteSelectedClips(IDataContext context) {
-            if (!context.TryGetContext(DataKeys.ClipKey, out Clip clip) || clip.Timeline == null) {
-                return;
-            }
-
-            foreach (Clip theClip in clip.Timeline.GetSelectedClipsWith(clip)) {
-                theClip.Destroy();
-                theClip.Track.RemoveClip(theClip);
-            }
-        }
-
-        private static void DeleteTrackClipIsIn(IDataContext context) {
-            if (!context.TryGetContext(DataKeys.ClipKey, out Clip clip)) {
-                return;
-            }
-
-            clip.Timeline?.DeleteTrack(clip.Track);
+            // list.Add(new EventContextEntry(DeleteSelectedClips, selectedCount == 1 ? "Delete Clip" : "Delete Clips"));
+            list.Add(new ActionContextEntry("actions.timeline.RenameClipAction", "Rename clip"));
+            list.Add(new SeparatorEntry());
+            list.Add(new ActionContextEntry("actions.timeline.DeleteSelectedClips", selectedCount == 1 ? "Delete Clip" : "Delete Clips", "Delete all selected clips in this timeline"));
+            list.Add(new ActionContextEntry("actions.timeline.DeleteClipOwnerTrack", "Delete Track", "Deletes the track that this clip resides in"));
         }
     }
 }

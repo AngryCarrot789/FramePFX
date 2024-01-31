@@ -35,14 +35,16 @@ namespace FramePFX.Shortcuts.WPF {
         }
 
         public static bool CanProcessKeyEvent(DependencyObject focused, KeyEventArgs e) {
-            if (!(focused is TextBoxBase)) {
-                return true;
-            }
-            else if (e.KeyboardDevice.Modifiers == ModifierKeys.None) {
-                return UIInputManager.GetCanProcessTextBoxKeyStroke(focused);
+            if (focused is TextBoxBase) {
+                if (e.KeyboardDevice.Modifiers == ModifierKeys.None) {
+                    return UIInputManager.GetCanProcessTextBoxKeyStroke(focused);
+                }
+                else {
+                    return UIInputManager.GetCanProcessTextBoxKeyStrokeWithModifiers(focused);
+                }
             }
             else {
-                return UIInputManager.GetCanProcessTextBoxKeyStrokeWithModifiers(focused);
+                return true;
             }
         }
 
@@ -54,7 +56,7 @@ namespace FramePFX.Shortcuts.WPF {
         public async void OnInputSourceMouseDown(Window root, DependencyObject focused, MouseButtonEventArgs e) {
             try {
                 this.isProcessingMouse = true;
-                this.SetupContext(root, focused);
+                this.SetupContext(focused);
                 MouseStroke stroke = new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, false, e.ClickCount);
                 if (await this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke)) {
                     e.Handled = true;
@@ -70,7 +72,7 @@ namespace FramePFX.Shortcuts.WPF {
         public async void OnInputSourceMouseUp(Window root, DependencyObject focused, MouseButtonEventArgs e) {
             try {
                 this.isProcessingMouse = true;
-                this.SetupContext(root, focused);
+                this.SetupContext(focused);
                 MouseStroke stroke = new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, false, e.ClickCount);
                 if (await this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke)) {
                     e.Handled = true;
@@ -97,7 +99,7 @@ namespace FramePFX.Shortcuts.WPF {
 
             try {
                 this.isProcessingMouse = true;
-                this.SetupContext(sender, focused);
+                this.SetupContext(focused);
                 MouseStroke stroke = new MouseStroke(button, (int) Keyboard.Modifiers, false, 0, e.Delta);
                 if (await this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke)) {
                     e.Handled = true;
@@ -124,21 +126,14 @@ namespace FramePFX.Shortcuts.WPF {
         }
 
         public async void OnInputSourceKeyEvent(Window root, WPFShortcutInputManager processor, DependencyObject focused, KeyEventArgs e, Key key, bool isRelease, bool isPreviewEvent) {
-#if PRINT_DEBUG_KEYSTROKES
-            if (!isPreviewEvent) {
-                System.Diagnostics.Debug.WriteLine($"{(isRelease ? "UP  " : "DOWN")}: {e.Key}");
-            }
-#endif
-
             if (!CanProcessEventType(focused, isPreviewEvent) || !CanProcessKeyEvent(focused, e)) {
                 return;
             }
 
-            ModifierKeys mods = ShortcutUtils.IsModifierKey(key) ? ModifierKeys.None : e.KeyboardDevice.Modifiers;
-
             try {
                 this.isProcessingKey = true;
-                this.SetupContext(root, focused);
+                this.SetupContext(focused);
+                ModifierKeys mods = ShortcutUtils.IsModifierKey(key) ? ModifierKeys.None : e.KeyboardDevice.Modifiers;
                 KeyStroke stroke = new KeyStroke((int) key, (int) mods, isRelease);
                 if (await processor.OnKeyStroke(UIInputManager.Instance.FocusedPath, stroke, e.IsRepeat)) {
                     e.Handled = true;
@@ -151,7 +146,7 @@ namespace FramePFX.Shortcuts.WPF {
             }
         }
 
-        public void SetupContext(Window root, DependencyObject obj) {
+        public void SetupContext(DependencyObject obj) {
             this.CurrentDataContext = UIInputManager.GetDataContext(obj);
             this.CurrentSource = obj;
         }

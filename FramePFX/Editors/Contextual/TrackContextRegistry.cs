@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using FramePFX.AdvancedContextService;
 using FramePFX.Editors.Factories;
 using FramePFX.Editors.Timelines;
@@ -20,10 +19,12 @@ namespace FramePFX.Editors.Contextual {
                     selectedCount++;
 
                 timeline = track.Timeline;
-                list.Add(new EventContextEntry(DeleteSelectedTracks, selectedCount == 1 ? "Delete Track" : "Delete Tracks"));
+                list.Add(new ActionContextEntry("actions.timeline.RenameTrackAction", "Rename track"));
                 list.Add(new SeparatorEntry());
                 list.Add(new EventContextEntry((c) => AddClipByType(c, ClipFactory.Instance.GetId(typeof(ImageVideoClip))), "Add Image Clip"));
                 list.Add(new EventContextEntry((c) => AddClipByType(c, ClipFactory.Instance.GetId(typeof(TimecodeClip))), "Add Timecode Clip"));
+                list.Add(new SeparatorEntry());
+                list.Add(new ActionContextEntry("actions.timeline.DeleteSelectedTracks", selectedCount == 1 ? "Delete Track" : "Delete Tracks", "Delete selected tracks in this timeline"));
             }
 
             if (timeline != null || context.TryGetContext(DataKeys.TimelineKey, out timeline)) {
@@ -42,19 +43,6 @@ namespace FramePFX.Editors.Contextual {
                     DisplayName = "New Video Track"
                 });
             }
-        }
-
-        private static void DeleteSelectedTracks(IDataContext context) {
-            if (!context.TryGetContext(DataKeys.TrackKey, out Track track) || track.Timeline == null) {
-                return;
-            }
-
-            foreach (Track theTrack in track.Timeline.SelectedTracks.ToList()) {
-                theTrack.Timeline.DeleteTrack(theTrack);
-            }
-
-            if (track.Timeline != null)
-                track.Timeline.DeleteTrack(track);
         }
 
         private static void AddClipByType(IDataContext context, string id) {

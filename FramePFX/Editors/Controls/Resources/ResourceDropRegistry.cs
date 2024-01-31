@@ -1,12 +1,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using FramePFX.Editors.Factories;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.Autoloading.Controls;
 using FramePFX.Editors.ResourceManaging.Resources;
 using FramePFX.Interactivity;
-using FramePFX.Interactivity.DataContexts;
 using FramePFX.Logger;
 using FramePFX.Utils;
 

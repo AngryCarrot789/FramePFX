@@ -206,16 +206,22 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
                 }
 
                 if (e.ClickCount > 1) {
-                    this.CanExpandNextMouseUp = true;
+                    // this.CanExpandNextMouseUp = true;
+                    e.Handled = true;
                 }
+                else {
+                    if (Keyboard.Modifiers == ModifierKeys.None && this.Resource is ResourceFolder folder && this.ResourceTree?.ResourceManager is ResourceManager manager) {
+                        manager.CurrentFolder = folder;
+                    }
 
-                if (CanBeginDragDrop() && !e.Handled) {
-                    if ((this.IsFocused || this.Focus()) && !this.isDragDropping) {
-                        this.CaptureMouse();
-                        this.originMousePoint = e.GetPosition(this);
-                        this.isDragActive = true;
-                        e.Handled = true;
-                        return;
+                    if (CanBeginDragDrop() && !e.Handled) {
+                        if ((this.IsFocused || this.Focus()) && !this.isDragDropping) {
+                            this.CaptureMouse();
+                            this.originMousePoint = e.GetPosition(this);
+                            this.isDragActive = true;
+                            e.Handled = true;
+                            return;
+                        }
                     }
                 }
             }

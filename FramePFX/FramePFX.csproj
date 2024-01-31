@@ -96,10 +96,14 @@
     <Compile Include="AdvancedContextService\WPF\AdvancedMenuItem.cs" />
     <Compile Include="AdvancedContextService\WPF\AdvancedMenuItemStyleSelector.cs" />
     <Compile Include="AdvancedContextService\WPF\AdvancedShortcutMenuItem.cs" />
+    <Compile Include="ApplicationCore.cs" />
+    <Compile Include="Converters\EmptyStringToVisibilityConverter.cs" />
+    <Compile Include="Editors\Actions\DeleteClipOwnerTrackAction.cs" />
     <Compile Include="Editors\Actions\DeleteClipsAction.cs" />
     <Compile Include="Editors\Actions\DeleteTracksAction.cs" />
     <Compile Include="Editors\Actions\MoveTrackAction.cs" />
     <Compile Include="Editors\Actions\NewVideoTrackAction.cs" />
+    <Compile Include="Editors\Actions\RenameAction.cs" />
     <Compile Include="Editors\Actions\SelectAllTracksAction.cs" />
     <Compile Include="Editors\Actions\SliceClipsAction.cs" />
     <Compile Include="Editors\Actions\ToggleClipAutomationAction.cs" />
@@ -129,6 +133,7 @@
     <Compile Include="Editors\RenderLockedDataWrapper.cs" />
     <Compile Include="Editors\ResourceManaging\Actions\ChangeResourceOnlineStateAction.cs" />
     <Compile Include="Editors\ResourceManaging\Actions\DeleteResourcesAction.cs" />
+    <Compile Include="Editors\ResourceManaging\Actions\GroupResourcesAction.cs" />
     <Compile Include="Editors\ResourceManaging\Autoloading\Controls\InvalidImagePathEntryControl.cs" />
     <Compile Include="Editors\ResourceManaging\Autoloading\Controls\InvalidResourceEntryControl.cs" />
     <Compile Include="Editors\ResourceManaging\Autoloading\Controls\ResourceLoaderDialog.xaml.cs">
@@ -140,12 +145,14 @@
     <Compile Include="Editors\Timelines\Clips\AVMediaVideoClip.cs" />
     <Compile Include="Editors\Timelines\Clips\TimecodeClip.cs" />
     <Compile Include="Editors\Timelines\TimelineUtils.cs" />
+    <Compile Include="IApplicationStartupProgress.cs" />
     <Compile Include="Interactivity\DataContexts\DataContext.cs" />
     <Compile Include="Interactivity\DataContexts\DataContextEntry.cs" />
     <Compile Include="Interactivity\DataContexts\DataKey.cs" />
     <Compile Include="Interactivity\DataContexts\DataKeys.cs" />
     <Compile Include="Interactivity\DataContexts\EmptyContext.cs" />
     <Compile Include="Interactivity\DataContexts\IDataContext.cs" />
+    <Compile Include="IServiceManager.cs" />
     <Compile Include="PropertyEditing\Controls\Standard\BaseParameterPropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\Controls\Standard\ParameterDoublePropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\Controls\Standard\ParameterFloatPropertyEditorControl.cs" />
@@ -188,6 +195,17 @@
     <Compile Include="RBC\RBEStruct.cs" />
     <Compile Include="RBC\RBEType.cs" />
     <Compile Include="RBC\RBEUtils.cs" />
+    <Compile Include="ServiceManager.cs" />
+    <Compile Include="Services\Messages\IMessageDialogService.cs" />
+    <Compile Include="Services\Messages\IUserInputDialogService.cs" />
+    <Compile Include="Services\WPF\Messages\MessageDialog.xaml.cs">
+      <DependentUpon>MessageDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Services\WPF\Messages\SingleInputDialog.xaml.cs">
+      <DependentUpon>SingleInputDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Services\WPF\Messages\WPFMessageDialogService.cs" />
+    <Compile Include="Services\WPF\Messages\WPFUserInputDialogService.cs" />
     <Compile Include="Shortcuts\Attributes\ShortcutTargetAttribute.cs" />
     <Compile Include="Shortcuts\Dialogs\IKeyboardDialogService.cs" />
     <Compile Include="Shortcuts\Dialogs\IMouseDialogService.cs" />
@@ -631,6 +649,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Services\WPF\Messages\MessageDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Services\WPF\Messages\SingleInputDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Themes\ColourDictionaries\DarkGreyTheme.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -728,6 +754,7 @@
     <Folder Include="Editors\PropertyEditors\AControls\Effects\" />
     <Folder Include="Editors\PropertyEditors\AControls\Standard\" />
     <Folder Include="Editors\PropertyEditors\AControls\Tracks\" />
+    <Folder Include="Services\Messages\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\SkiaSharp.NativeAssets.macOS.2.88.7\build\net462\SkiaSharp.NativeAssets.macOS.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.macOS.2.88.7\build\net462\SkiaSharp.NativeAssets.macOS.targets')" />

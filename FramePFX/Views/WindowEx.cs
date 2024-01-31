@@ -67,7 +67,7 @@ namespace FramePFX.Views {
             return Application.Current.MainWindow;
         }
 
-        public void SetToCenterOfScreen() {
+        public void CalculateOwnerAndSetCentered() {
             Window owner = GetCurrentActiveWindow();
             if (owner != this && owner.Owner != this) {
                 this.Owner = owner;

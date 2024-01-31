@@ -7,7 +7,6 @@ using System.Windows.Media;
 using FramePFX.AdvancedContextService.WPF;
 using FramePFX.Editors.Contextual;
 using FramePFX.Editors.Controls.Automation;
-using FramePFX.Editors.Controls.Binders;
 using FramePFX.Editors.Controls.Resources.Explorers;
 using FramePFX.Editors.Controls.Timelines.Tracks.Clips;
 using FramePFX.Editors.ResourceManaging;

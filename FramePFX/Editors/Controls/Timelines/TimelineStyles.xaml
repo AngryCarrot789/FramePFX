@@ -110,6 +110,7 @@
 
     <Style TargetType="{x:Type tracks:TimelineTrackControl}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone2.Background.Static}"/>
+        <Setter Property="wpf:UIInputManager.FocusPath" Value="Application/Editor/Timeline/Sequence/Track"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -130,6 +131,7 @@
 
     <Style TargetType="{x:Type clips:TimelineClipControl}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
+        <Setter Property="wpf:UIInputManager.FocusPath" Value="Application/Editor/Timeline/Sequence/Track/Clip"/>
         <Setter Property="Focusable" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>

@@ -101,7 +101,7 @@ namespace FramePFX.Editors.Rendering {
                     continue;
                 }
 
-                if (videoTrack.PrepareRenderFrame(imageInfo, frame)) {
+                if (videoTrack.PrepareRenderFrame(imageInfo, frame, quality)) {
                     tracks.Add(videoTrack);
                 }
             }
@@ -120,7 +120,7 @@ namespace FramePFX.Editors.Rendering {
                 for (int i = 0; i < tracks.Count; i++) {
                     if (!tasks[i].IsCompleted)
                         await tasks[i];
-                    tracks[i].DrawFrameIntoSurface(this.surface, this.bitmap);
+                    tracks[i].DrawFrameIntoSurface(this.surface);
                 }
             });
 

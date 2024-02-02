@@ -33,11 +33,8 @@ namespace FramePFX.Editors {
 
         // the time at which the playback began. Used to skip frames future frames that could not
         // be rendered in time while still trying maintaining an accurate frame rate
-        private DateTime playTime;
         private DateTime lastRenderTime;
-        private long accumulatedPlaybackRateTicks;
         private double accumulatedRateMillis;
-        private long playFrame;
 
         /// <summary>
         /// The editor which owns this playback manager object. This does not change
@@ -113,7 +110,6 @@ namespace FramePFX.Editors {
             this.PlayState = PlayState.Play;
             this.PlaybackStateChanged?.Invoke(this, this.PlayState, targetFrame);
             this.lastRenderTime = DateTime.Now;
-            this.playFrame = targetFrame;
             this.thread_IsPlaying = true;
         }
 

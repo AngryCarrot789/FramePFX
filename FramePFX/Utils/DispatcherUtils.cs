@@ -5,14 +5,6 @@ using System.Windows.Threading;
 
 namespace FramePFX.Utils {
     public static class DispatcherUtils {
-        public static void ThrowOrLog(string msg) {
-#if DEBUG
-            throw new Exception(msg);
-#else
-            FramePFX.Logger.AppLogger.WriteLine(msg);
-#endif
-        }
-
         public static Task WaitUntilRenderPhase(Dispatcher dispatcher) {
             return dispatcher.InvokeAsync(() => {
             }, DispatcherPriority.Render).Task;

@@ -4,6 +4,112 @@ using System.Collections.Generic;
 
 namespace FramePFX.Utils {
     public static class CollectionUtils {
+        public static bool CollectionEquals(this IEnumerable a, IEnumerable b) {
+            if (ReferenceEquals(a, b)) {
+                return true;
+            }
+            else if (a == null || b == null) {
+                return false;
+            }
+            else if (a is IList listA && b is IList listB) {
+                return CollectionEquals(listA, listB);
+            }
+            else if (a is ICollection cA && b is ICollection cB) {
+                return CollectionEquals(cA, cB);
+            }
+            else {
+                return EnumeratorsEquals(a.GetEnumerator(), b.GetEnumerator());
+            }
+        }
+
+        public static bool CollectionEquals(this IList a, IList b) {
+            if (ReferenceEquals(a, b))
+                return true;
+            else if (a == null || b == null)
+                return false;
+            else if (a.Count != b.Count)
+                return false;
+
+            int count = a.Count;
+            if (count < 1) {
+                return true;
+            }
+
+            for (int i = 0; i < count; i++) {
+                if (!Equals(a[i], b[i])) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static bool CollectionEquals(this ICollection a, ICollection b) {
+            if (ReferenceEquals(a, b))
+                return true;
+            else if (a == null || b == null)
+                return false;
+            else if (a.Count != b.Count)
+                return false;
+
+            int count = a.Count;
+            if (count < 1) {
+                return true;
+            }
+
+            IEnumerator enumA = a.GetEnumerator();
+            IEnumerator enumB = b.GetEnumerator();
+            try {
+                for (int i = 0; i < count; i++) {
+                    if (!enumA.MoveNext() || !enumB.MoveNext()) {
+                        return false;
+                    }
+
+                    if (!Equals(enumA.Current, enumB.Current)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            finally {
+                if (enumA is IDisposable)
+                    ((IDisposable) enumA).Dispose();
+                if (enumB is IDisposable)
+                    ((IDisposable) enumB).Dispose();
+            }
+        }
+
+        public static bool EnumeratorsEquals(this IEnumerator a, IEnumerator b, bool disposeA = true, bool disposeB = true) {
+            try {
+                if (ReferenceEquals(a, b))
+                    return true;
+                else if (a == null || b == null)
+                    return false;
+
+                while (true) {
+                    if (!a.MoveNext()) {
+                        return !b.MoveNext();
+                    }
+                    else if (!b.MoveNext()) {
+                        return false;
+                    }
+                    else if (!Equals(a.Current, b.Current)) {
+                        return false;
+                    }
+                }
+            }
+            finally {
+                if (disposeA && a is IDisposable) {
+                    ((IDisposable) a).Dispose();
+                }
+
+                if (disposeB && b is IDisposable) {
+                    ((IDisposable) b).Dispose();
+                }
+            }
+        }
+
         public static void ForEach<T>(this IEnumerable<T> enumerable, Action<T> consumer) {
             foreach (T value in enumerable) {
                 consumer(value);

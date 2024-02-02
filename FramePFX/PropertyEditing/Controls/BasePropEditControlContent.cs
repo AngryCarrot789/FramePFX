@@ -23,6 +23,7 @@ namespace FramePFX.PropertyEditing.Controls {
             // specific case editors
             RegisterType(typeof(ClipDisplayNamePropertyEditorSlot), () => new ClipDisplayNamePropertyEditorControl());
             RegisterType(typeof(VideoClipMediaFrameOffsetPropertyEditorSlot), () => new VideoClipMediaFrameOffsetPropertyEditorControl());
+            RegisterType(typeof(TimecodeFontFamilyPropertyEditorSlot), () => new TimecodeFontFamilyPropertyEditorControl());
 
             // standard editors
             RegisterType(typeof(ParameterDoublePropertyEditorSlot), () => new ParameterDoublePropertyEditorControl());
@@ -30,8 +31,10 @@ namespace FramePFX.PropertyEditing.Controls {
             RegisterType(typeof(ParameterVector2PropertyEditorSlot), () => new ParameterVector2PropertyEditorControl());
         }
 
-        public static void RegisterType<T>(Type trackType, Func<T> func) where T : BasePropEditControlContent {
-            Constructors[trackType] = func;
+        public static void RegisterType<T>(Type slotType, Func<T> func) where T : BasePropEditControlContent {
+            if (!typeof(PropertyEditorSlot).IsAssignableFrom(slotType))
+                throw new ArgumentException("Slot type is invalid: cannot assign " + slotType + " to " + typeof(PropertyEditorSlot));
+            Constructors.Add(slotType, func);
         }
 
         public static BasePropEditControlContent NewContentInstance(Type slotType) {
@@ -58,10 +61,17 @@ namespace FramePFX.PropertyEditing.Controls {
 
         public void Connect(PropertyEditorSlotControl slot) {
             this.SlotControl = slot;
+            slot.Model.HandlersLoaded += this.OnHandlersChanged;
+            slot.Model.HandlersCleared += this.OnHandlersChanged;
+            this.UpdateVisibility();
             this.OnConnected();
         }
 
         public void Disconnect() {
+            PropertyEditorSlot slot = this.SlotControl.Model;
+            slot.HandlersLoaded -= this.OnHandlersChanged;
+            slot.HandlersCleared -= this.OnHandlersChanged;
+            this.UpdateVisibility();
             this.OnDisconnected();
             this.SlotControl = null;
         }
@@ -82,6 +92,21 @@ namespace FramePFX.PropertyEditing.Controls {
 
         protected bool TryGetTemplateChild<T>(string name, out T value) where T : DependencyObject {
             return (value = this.GetTemplateChild(name) as T) != null;
+        }
+
+        private void OnHandlersChanged(PropertyEditorSlot sender) {
+            this.UpdateVisibility();
+        }
+
+        private void UpdateVisibility() {
+            PropertyEditorSlot slot = this.SlotControl.Model;
+            if (slot.IsVisible) {
+                if (this.Visibility != Visibility.Visible)
+                    this.Visibility = Visibility.Visible;
+            }
+            else if (this.Visibility != Visibility.Collapsed) {
+                this.Visibility = Visibility.Collapsed;
+            }
         }
     }
 }

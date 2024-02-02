@@ -34,7 +34,7 @@ namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
         public event EntryOnlineStateChangedEventHandler OnlineStateChanged;
 
         /// <summary>
-        /// The resource holder object that owns this helper. This is typically an object that extends <see cref="Clip"/>
+        /// The object that created this <see cref="ResourceHelper"/> instance
         /// </summary>
         public IResourceHolder Owner { get; }
 

@@ -333,6 +333,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
         }
 
         public IEnumerable<TimelineClipControl> GetClips() => this.StoragePanel.GetClips();
+        public TimelineClipControl GetClipAt(int index) => this.StoragePanel.GetClipAt(index);
 
         public void SetAutomationVisibility(Visibility visibility) {
             this.desiredAutomationVisibility = visibility;

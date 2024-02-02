@@ -29,11 +29,11 @@ namespace FramePFX.PropertyEditing.Controls {
                 throw new InvalidOperationException("Cannot insert items while our owner group's editor is null");
 
             Control control;
-            if (item is BasePropertyEditorGroup) {
-                control = new PropertyEditorGroupControl();
+            if (item is BasePropertyEditorGroup group) {
+                control = group.GroupType == GroupType.NoExpander ? new PropertyEditorGroupNonExpanderControl() : new PropertyEditorGroupControl();
                 this.InternalChildren.Insert(index, control);
                 control.ApplyTemplate();
-                ((PropertyEditorGroupControl) control).ConnectModel(this.OwnerGroup.PropertyEditor, (BasePropertyEditorGroup) item);
+                ((PropertyEditorGroupControl) control).ConnectModel(this.OwnerGroup.PropertyEditor, group);
             }
             else if (item is PropertyEditorSlot) {
                 control = new PropertyEditorSlotControl();

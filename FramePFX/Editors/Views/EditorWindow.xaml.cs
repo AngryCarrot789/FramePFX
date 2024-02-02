@@ -35,7 +35,7 @@ namespace FramePFX.Editors.Views {
         private readonly NumberAverager renderTimeAverager;
 
         public EditorWindow() {
-            this.renderTimeAverager = new NumberAverager(5); // average 5 samples. Will take a second to catch up at 5 fps but meh
+            this.renderTimeAverager = new NumberAverager(10); // average 5 samples. Will take a second to catch up at 5 fps but meh
             this.actionSystemDataContext = new DataContext();
             this.InitializeComponent();
             this.Loaded += this.EditorWindow_Loaded;
@@ -61,7 +61,7 @@ namespace FramePFX.Editors.Views {
             this.renderTimeAverager.PushValue(manager.AverageRenderTimeMillis);
 
             double averageMillis = this.renderTimeAverager.GetAverage();
-            this.PART_LastRenderTimeTextBlock.Text = averageMillis.ToString();
+            this.PART_AvgRenderTimeBlock.Text = $"{Math.Round(averageMillis, 2).ToString(),5} ms ({((int) Math.Round(1000.0 / averageMillis)).ToString(),3} FPS)";
         }
 
         private void EditorWindow_Loaded(object sender, RoutedEventArgs e) {

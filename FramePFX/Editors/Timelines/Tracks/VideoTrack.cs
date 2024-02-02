@@ -71,10 +71,10 @@ namespace FramePFX.Editors.Timelines.Tracks {
             this.myRenderDataLock.Dispose();
         }
 
-        public bool PrepareRenderFrame(SKImageInfo imgInfo, long frame) {
+        public bool PrepareRenderFrame(SKImageInfo imgInfo, long frame, EnumRenderQuality quality) {
             VideoClip clip = (VideoClip) this.GetClipAtFrame(frame);
             if (clip != null) {
-                PreRenderContext ctx = new PreRenderContext(imgInfo);
+                PreRenderContext ctx = new PreRenderContext(imgInfo, quality);
 
                 if (clip.PrepareRenderFrame(ctx, frame - clip.FrameSpan.Begin)) {
                     List<VideoEffect> effects = new List<VideoEffect>();
@@ -98,7 +98,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
         }
 
         // CALLED ON A RENDER THREAD
-        public void RenderFrame(SKImageInfo imgInfo, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality) {
+        public void RenderFrame(SKImageInfo imgInfo, EnumRenderQuality quality) {
             RenderLockedDataWrapper<TrackRenderData> locker = this.myRenderDataLock;
             TrackRenderData rd;
             lock (locker.Locker) {
@@ -159,7 +159,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
             locker.OnRenderFinished();
         }
 
-        public void DrawFrameIntoSurface(SKSurface dstSurface, SKBitmap dstBitmap) {
+        public void DrawFrameIntoSurface(SKSurface dstSurface) {
             RenderLockedDataWrapper<TrackRenderData> rdw = this.myRenderDataLock;
             lock (rdw.Locker) {
                 TrackRenderData rd = rdw.Value;

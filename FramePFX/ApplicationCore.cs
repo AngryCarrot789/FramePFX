@@ -45,6 +45,7 @@ namespace FramePFX {
             manager.Register("actions.timeline.ToggleClipAutomationAction", new ToggleClipAutomationAction());
             manager.Register("actions.timeline.TogglePlayAction", new TogglePlayAction());
             manager.Register("actions.timeline.SliceClipsAction", new SliceClipsAction());
+            manager.Register("actions.timeline.DuplicateClipsAction", new DuplicateClipAction());
             manager.Register("actions.timeline.DeleteSelectedClips", new DeleteClipsAction());
             manager.Register("actions.timeline.DeleteSelectedTracks", new DeleteTracksAction());
             manager.Register("actions.timeline.DeleteClipOwnerTrack", new DeleteClipOwnerTrackAction());

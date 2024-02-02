@@ -222,7 +222,7 @@ namespace FramePFX.Shortcuts.Managing {
         /// Invoked when a <see cref="ShortcutInputManager"/> activates a shortcut. This should be called first, in order to
         /// fire the <see cref="MonitorShortcutActivated"/> event handlers.
         /// <para>
-        /// If none of the event handlers handle the activation, this method calls <see cref="OnShortcutActivatedInternal"/>
+        /// If none of the event handlers handle the activation, this method calls <see cref="OnShortcutActivatedOverride"/>
         /// which then attempts to invoke the debug reflection handlers, action manager, etc.
         /// </para>
         /// </summary>
@@ -243,8 +243,8 @@ namespace FramePFX.Shortcuts.Managing {
                 result |= await handler(inputManager, shortcut, context);
             }
 
-            // this.OnShortcutActivatedInternal is called here due to | not ||
-            return result | await this.OnShortcutActivatedInternal(inputManager, shortcut);
+            // this.OnShortcutActivatedOverride is called here due to | not ||
+            return result | await this.OnShortcutActivatedOverride(inputManager, shortcut);
         }
 
         /// <summary>
@@ -253,7 +253,7 @@ namespace FramePFX.Shortcuts.Managing {
         /// <param name="inputManager">The processor that caused this activation</param>
         /// <param name="shortcut">The shortcut that was activated</param>
         /// <returns>A task, which contains the outcome result of the shortcut activation used by the processor's input manager</returns>
-        protected virtual Task<bool> OnShortcutActivatedInternal(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
+        protected virtual Task<bool> OnShortcutActivatedOverride(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
             // Fire action manager. This is the main way of activating shortcuts
             return ActionManager.Instance.TryExecute(shortcut.ActionId, inputManager.CurrentDataContext);
         }
@@ -306,10 +306,10 @@ namespace FramePFX.Shortcuts.Managing {
         protected internal virtual void OnCancelUsageForNoSuchNextKeyStroke(ShortcutInputManager inputManager, IShortcutUsage usage, GroupedShortcut shortcut, KeyStroke stroke) {
         }
 
-        protected internal virtual void OnNoSuchShortcutForMouseStroke(ShortcutInputManager inputManager, string @group, MouseStroke stroke) {
+        protected internal virtual void OnNoSuchShortcutForMouseStroke(ShortcutInputManager inputManager, string group, MouseStroke stroke) {
         }
 
-        protected internal virtual void OnNoSuchShortcutForKeyStroke(ShortcutInputManager inputManager, string @group, KeyStroke stroke) {
+        protected internal virtual void OnNoSuchShortcutForKeyStroke(ShortcutInputManager inputManager, string group, KeyStroke stroke) {
         }
     }
 }

@@ -22,6 +22,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
         }
 
         public IEnumerable<TimelineClipControl> GetClips() => this.InternalChildren.Cast<TimelineClipControl>();
+        public TimelineClipControl GetClipAt(int index) => (TimelineClipControl) this.InternalChildren[index];
 
         public void InsertClip(Clip clip, int index) {
             this.InsertClip(this.itemCache.Count > 0 ? this.itemCache.Pop() : new TimelineClipControl(), clip, index);

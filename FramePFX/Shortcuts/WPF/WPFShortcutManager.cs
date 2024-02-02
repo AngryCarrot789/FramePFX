@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using FramePFX.Editors.Views;
@@ -97,16 +98,32 @@ namespace FramePFX.Shortcuts.WPF {
             BroadcastShortcutActivity("No such shortcut for next key stroke: " + stroke);
         }
 
-        protected internal override void OnNoSuchShortcutForMouseStroke(ShortcutInputManager inputManager, string @group, MouseStroke stroke) {
+        protected internal override void OnNoSuchShortcutForMouseStroke(ShortcutInputManager inputManager, string group, MouseStroke stroke) {
             base.OnNoSuchShortcutForMouseStroke(inputManager,group, stroke);
             BroadcastShortcutActivity("No such shortcut for mouse stroke: " + stroke + " in group: " + group);
         }
 
-        protected internal override void OnNoSuchShortcutForKeyStroke(ShortcutInputManager inputManager, string @group, KeyStroke stroke) {
+        protected internal override void OnNoSuchShortcutForKeyStroke(ShortcutInputManager inputManager, string group, KeyStroke stroke) {
             base.OnNoSuchShortcutForKeyStroke(inputManager, group, stroke);
             if (stroke.IsKeyDown) {
                 BroadcastShortcutActivity("No such shortcut for key stroke: " + stroke + " in group: " + group);
             }
+        }
+
+        protected override async Task<bool> OnShortcutActivatedOverride(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
+            bool result;
+            Task<bool> task = base.OnShortcutActivatedOverride(inputManager, shortcut);
+            if (task.IsCompleted) {
+                result = task.Result;
+                BroadcastShortcutActivity($"Activated shortcut action: {shortcut} -> {shortcut.ActionId}!");
+            }
+            else {
+                BroadcastShortcutActivity($"Activating shortcut action: {shortcut} -> {shortcut.ActionId}...");
+                result = await task;
+                BroadcastShortcutActivity($"Activating shortcut action: {shortcut} -> {shortcut.ActionId}... Complete!");
+            }
+
+            return result;
         }
 
         private static void BroadcastShortcutActivity(string msg) {

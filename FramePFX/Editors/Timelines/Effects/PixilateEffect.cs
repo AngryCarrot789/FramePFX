@@ -1,5 +1,6 @@
 using System.Numerics;
 using FramePFX.Editors.Rendering;
+using FramePFX.Editors.Timelines.Clips;
 
 namespace FramePFX.Editors.Timelines.Effects {
     public class PixilateEffect : VideoEffect {
@@ -8,7 +9,7 @@ namespace FramePFX.Editors.Timelines.Effects {
 
         public override void PrepareRender(PreRenderContext ctx, long frame) {
             base.PrepareRender(ctx, frame);
-            if (this.IsClipEffect) {
+            if (this.Owner is VideoClip) {
                 this.renderSize = this.OwnerClip.GetRenderSize() ?? new Vector2();
             }
             else {

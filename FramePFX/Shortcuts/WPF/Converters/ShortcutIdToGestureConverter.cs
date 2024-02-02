@@ -46,12 +46,27 @@ namespace FramePFX.Shortcuts.WPF.Converters {
             return (gesture = ShortcutsToGesture(shortcut, null)) != null;
         }
 
-        public static string ShortcutsToGesture(IEnumerable<GroupedShortcut> shortcuts, string fallback) {
-            return shortcuts.Select(ToString).JoinString(", ", " or ", fallback);
+        public static string ShortcutsToGesture(IEnumerable<GroupedShortcut> shortcuts, string fallback, bool removeDupliateInputStrokes = true) {
+            if (removeDupliateInputStrokes) {
+                HashSet<string> strokes = new HashSet<string>();
+                List<string> newList = new List<string>();
+                foreach (GroupedShortcut sc in shortcuts) {
+                    string text = ToString(sc);
+                    if (!strokes.Contains(text)) {
+                        strokes.Add(text);
+                        newList.Add(text);
+                    }
+                }
+
+                return newList.JoinString(", ", " or ", fallback);
+            }
+            else {
+                return shortcuts.Select(ToString).JoinString(", ", " or ", fallback);
+            }
         }
 
         public static string ToString(GroupedShortcut shortcut) {
-            return string.Join(", ", shortcut.Shortcut.InputStrokes.Select(ToString));
+            return string.Join("+", shortcut.Shortcut.InputStrokes.Select(ToString));
         }
 
         public static string ToString(IInputStroke stroke) {

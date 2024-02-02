@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Numerics;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Timelines;
-using FramePFX.Editors.Timelines.Clips;
 using FramePFX.RBC;
 
 namespace FramePFX.Editors.Automation.Keyframes {
@@ -463,7 +462,7 @@ namespace FramePFX.Editors.Automation.Keyframes {
         }
 
         public static void LoadDataIntoClone(AutomationSequence src, AutomationSequence dst) {
-            if (src.Parameter != dst.Parameter) {
+            if (!src.Parameter.Equals(dst.Parameter)) {
                 throw new Exception($"Key mis-match: {src.Parameter} != {dst.Parameter}");
             }
 

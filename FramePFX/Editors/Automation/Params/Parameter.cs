@@ -151,6 +151,13 @@ namespace FramePFX.Editors.Automation.Params {
             return (ParameterVector2) Register(new ParameterVector2(ownerType, new ParameterKey(domain, name), desc, accessor, flags));
         }
 
+        /// <summary>
+        /// Registers the given parameter
+        /// </summary>
+        /// <param name="parameter">The parameter to register</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">The parameter was already registered</exception>
+        /// <exception cref="Exception">The parameter's key is already in use</exception>
         public static Parameter Register(Parameter parameter) {
             if (parameter.GlobalIndex != 0) {
                 throw new InvalidOperationException("Parameter was already registered with a global index of " + parameter.GlobalIndex);

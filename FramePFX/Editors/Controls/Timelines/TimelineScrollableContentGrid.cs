@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using FramePFX.AttachedProperties;
 using FramePFX.Editors.Timelines;
 
 namespace FramePFX.Editors.Controls.Timelines {
@@ -14,7 +15,13 @@ namespace FramePFX.Editors.Controls.Timelines {
 
         public TimelineControl TimelineControl { get; set; }
 
+        public bool HandleBringIntoView {
+            get => HandleRequestBringIntoView.GetIsEnabled(this);
+            set => HandleRequestBringIntoView.SetIsEnabled(this, value);
+        }
+
         public TimelineScrollableContentGrid() {
+            this.HandleBringIntoView = true;
         }
 
         protected override void OnMouseDown(MouseButtonEventArgs e) {

@@ -1,6 +1,7 @@
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Rendering;
+using FramePFX.Editors.Timelines.Clips;
 using SkiaSharp;
 using Vector2 = System.Numerics.Vector2;
 
@@ -21,8 +22,8 @@ namespace FramePFX.Editors.Timelines.Effects {
         public Vector2 MediaRotationOrigin;
         public bool UseAbsoluteScaleOrigin;
         public bool UseAbsoluteRotationOrigin;
-        private SKMatrix __internalTransformationMatrix;
-        private SKMatrix renderMatrixProxy;
+        private SKMatrix internalTransformationMatrix;
+        private SKMatrix render_TransformationMatrix;
         private bool isMatrixDirty;
 
         public event MatrixChangedEventHandler MatrixChanged;
@@ -34,10 +35,10 @@ namespace FramePFX.Editors.Timelines.Effects {
             get {
                 if (this.isMatrixDirty) {
                     this.isMatrixDirty = false;
-                    this.__internalTransformationMatrix = this.CreateTransformationMatrix();
+                    this.internalTransformationMatrix = this.CreateTransformationMatrix();
                 }
 
-                return this.__internalTransformationMatrix;
+                return this.internalTransformationMatrix;
             }
         }
 
@@ -56,20 +57,34 @@ namespace FramePFX.Editors.Timelines.Effects {
             Parameter.AddMultipleHandlers(OnParameterValueChanged, MediaPositionParameter, MediaScaleParameter, MediaScaleOriginParameter, UseAbsoluteScaleOriginParameter, MediaRotationParameter, MediaRotationOriginParameter, UseAbsoluteRotationOriginParameter);
         }
 
+        protected override void LoadDataIntoClone(BaseEffect clone) {
+            base.LoadDataIntoClone(clone);
+            MotionEffect fx = (MotionEffect) clone;
+
+            // fx.MediaPosition = this.MediaPosition;
+            // fx.MediaScale = this.MediaScale;
+            // fx.MediaScaleOrigin = this.MediaScaleOrigin;
+            // fx.MediaRotation = this.MediaRotation;
+            // fx.MediaRotationOrigin = this.MediaRotationOrigin;
+            // fx.UseAbsoluteScaleOrigin = this.UseAbsoluteScaleOrigin;
+            // fx.UseAbsoluteRotationOrigin = this.UseAbsoluteRotationOrigin;
+            // fx.internalTransformationMatrix = this.internalTransformationMatrix;
+        }
+
         public override void PrepareRender(PreRenderContext ctx, long frame) {
             base.PrepareRender(ctx, frame);
-            this.renderMatrixProxy = this.TransformationMatrix;
+            this.render_TransformationMatrix = this.TransformationMatrix;
         }
 
         public override void PreProcessFrame(RenderContext rc) {
             base.PreProcessFrame(rc);
-            rc.Canvas.SetMatrix(rc.Canvas.TotalMatrix.PreConcat(this.renderMatrixProxy));
+            rc.Canvas.SetMatrix(rc.Canvas.TotalMatrix.PreConcat(this.render_TransformationMatrix));
         }
 
         private static void OnParameterValueChanged(AutomationSequence sequence) {
             MotionEffect effect = (MotionEffect) sequence.AutomationData.Owner;
             effect.isMatrixDirty = true;
-            if (effect.IsClipEffect) {
+            if (effect.Owner is VideoClip) {
                 effect.OwnerClip.InvalidateTransformationMatrix();
             }
         }
@@ -88,13 +103,13 @@ namespace FramePFX.Editors.Timelines.Effects {
 
         protected override void OnAdded() {
             base.OnAdded();
-            if (this.IsClipEffect)
+            if (this.Owner is VideoClip)
                 this.OwnerClip.InvalidateTransformationMatrix();
         }
 
         protected override void OnRemoved() {
             base.OnRemoved();
-            if (this.IsClipEffect)
+            if (this.Owner is VideoClip)
                 this.OwnerClip.InvalidateTransformationMatrix();
         }
     }

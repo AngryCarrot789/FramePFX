@@ -48,24 +48,12 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
-    <Reference Include="NanoProfiler, Version=2.2.1.0, Culture=neutral, PublicKeyToken=132fc11abeaff685">
-      <HintPath>..\packages\NanoProfiler.2.2.1\lib\net45\NanoProfiler.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NanoProfiler.Storages.Json, Version=2.2.1.0, Culture=neutral, PublicKeyToken=132fc11abeaff685">
-      <HintPath>..\packages\NanoProfiler.Storages.Json.2.2.1\lib\net45\NanoProfiler.Storages.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="OpenTK, Version=3.3.3.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenTK.3.3.3\lib\net20\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="PresentationFramework.Aero2" />
     <Reference Include="SkiaSharp, Version=2.88.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>..\packages\SkiaSharp.2.88.7\lib\net462\SkiaSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="slf4net, Version=1.0.0.0, Culture=neutral, PublicKeyToken=592edb3b6b36b5ba">
-      <HintPath>..\packages\slf4net.1.0.0\lib\net40\slf4net.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -117,6 +105,7 @@
     <Compile Include="Editors\Actions\DeleteClipOwnerTrackAction.cs" />
     <Compile Include="Editors\Actions\DeleteClipsAction.cs" />
     <Compile Include="Editors\Actions\DeleteTracksAction.cs" />
+    <Compile Include="Editors\Actions\DuplicateClipAction.cs" />
     <Compile Include="Editors\Actions\MoveTrackAction.cs" />
     <Compile Include="Editors\Actions\NewVideoTrackAction.cs" />
     <Compile Include="Editors\Actions\RenameAction.cs" />
@@ -144,7 +133,9 @@
     <Compile Include="Editors\Exporting\FFMPEG\LavResult.cs" />
     <Compile Include="Editors\Exporting\IExportProgress.cs" />
     <Compile Include="Editors\PropertyEditors\AControls\ClipDisplayNamePropertyEditorControl.cs" />
+    <Compile Include="Editors\PropertyEditors\AControls\TimecodeFontFamilyPropertyEditorControl.cs" />
     <Compile Include="Editors\PropertyEditors\AControls\VideoClipMediaFrameOffsetPropertyEditorControl.cs" />
+    <Compile Include="Editors\PropertyEditors\Clips\TimecodeFontFamilyPropertyEditorSlot.cs" />
     <Compile Include="Editors\PropertyEditors\Clips\VideoClipMediaFrameOffsetPropertyEditorSlot.cs" />
     <Compile Include="Editors\Rational.cs" />
     <Compile Include="Editors\Rendering\EnumRenderQuality.cs" />
@@ -166,6 +157,7 @@
     <Compile Include="Editors\ResourceManaging\Resources\ResourceAVMedia.cs" />
     <Compile Include="Editors\Timelines\Clips\AVMediaVideoClip.cs" />
     <Compile Include="Editors\Timelines\Clips\TimecodeClip.cs" />
+    <Compile Include="Editors\Timelines\IStrictFrameRange.cs" />
     <Compile Include="Editors\Timelines\TimelineUtils.cs" />
     <Compile Include="FFmpegWrapper\AudioFormat.cs" />
     <Compile Include="FFmpegWrapper\AudioFrame.cs" />
@@ -213,6 +205,9 @@
     <Compile Include="IoC.cs" />
     <Compile Include="IServiceManager.cs" />
     <Compile Include="Profiling\Profiler.cs" />
+    <Compile Include="PropertyEditing\Controls\GroupTypeToStyleConverter.cs" />
+    <Compile Include="PropertyEditing\Controls\GroupTypeToTemplateConverter.cs" />
+    <Compile Include="PropertyEditing\Controls\PropertyEditorGroupNonExpanderControl.cs" />
     <Compile Include="PropertyEditing\Controls\Standard\BaseParameterPropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\Controls\Standard\ParameterDoublePropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\Controls\Standard\ParameterFloatPropertyEditorControl.cs" />
@@ -223,6 +218,7 @@
     <Compile Include="Editors\PropertyEditors\Effects\TODO\EffectPropertyEditorGroup.cs" />
     <Compile Include="PropertyEditing\Controls\Standard\BaseSliderParameterPropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\Controls\Standard\ParameterVector2PropertyEditorControl.cs" />
+    <Compile Include="PropertyEditing\GroupType.cs" />
     <Compile Include="PropertyEditing\Standard\ParameterDoublePropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\Standard\ParameterFloatPropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\Standard\ParameterPropertyEditorSlot.cs" />
@@ -516,7 +512,6 @@
     <Compile Include="Converters\NullConverter.cs" />
     <Compile Include="Converters\VolumeToDbConverter.cs" />
     <Compile Include="Destroying\IDestroy.cs" />
-    <Compile Include="Editors\Automation\AutomatableHelper.cs" />
     <Compile Include="Editors\Automation\AutomationData.cs" />
     <Compile Include="Editors\Automation\AutomationEngine.cs" />
     <Compile Include="Editors\Automation\IAutomatable.cs" />
@@ -662,7 +657,6 @@
     <Compile Include="Editors\ResourceManaging\Resources\ResourceTextStyle.cs" />
     <Compile Include="Editors\Timelines\Clips\Clip.cs" />
     <Compile Include="Editors\Timelines\Clips\ImageVideoClip.cs" />
-    <Compile Include="Editors\Timelines\Clips\IStrictFrameRange.cs" />
     <Compile Include="Editors\Timelines\Clips\VideoClip.cs" />
     <Compile Include="Editors\Timelines\Clips\VideoClipShape.cs" />
     <Compile Include="Editors\Timelines\Effects\BaseEffect.cs" />

@@ -4,8 +4,10 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using FramePFX.Destroying;
 using FramePFX.Editors.Automation;
+using FramePFX.Editors.Factories;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
+using FramePFX.RBC;
 using FramePFX.Utils;
 
 namespace FramePFX.Editors.Timelines {
@@ -157,6 +159,41 @@ namespace FramePFX.Editors.Timelines {
             this.SelectedTracks = this.selectedTracks.AsReadOnly();
             this.maxDuration = 5000L;
             this.Zoom = 1.0d;
+        }
+
+        public virtual void WriteToRBE(RBEDictionary data) {
+            data.SetLong(nameof(this.PlayHeadPosition), this.PlayHeadPosition);
+            data.SetLong(nameof(this.StopHeadPosition), this.StopHeadPosition);
+            data.SetLong(nameof(this.MaxDuration), this.MaxDuration);
+            RBEList list = data.CreateList(nameof(this.Tracks));
+            foreach (Track track in this.tracks) {
+                if (!(track.FactoryId is string registryId))
+                    throw new Exception("Unknown track type: " + track.GetType());
+                RBEDictionary dictionary = list.AddDictionary();
+                dictionary.SetString(nameof(Track.FactoryId), registryId);
+                track.WriteToRBE(dictionary.CreateDictionary("Data"));
+            }
+        }
+
+        public virtual void ReadFromRBE(RBEDictionary data) {
+            // just in case...
+            for (int i = this.tracks.Count - 1; i >= 0; i--) {
+                this.DeleteTrackAt(i);
+            }
+
+            this.playHeadPosition = data.GetLong(nameof(this.PlayHeadPosition));
+            this.stopHeadPosition = data.GetLong(nameof(this.StopHeadPosition));
+            this.maxDuration = data.GetLong(nameof(this.MaxDuration));
+            foreach (RBEDictionary dictionary in data.GetList(nameof(this.Tracks)).Cast<RBEDictionary>()) {
+                string registryId = dictionary.GetString(nameof(Track.FactoryId));
+                Track track = TrackFactory.Instance.NewTrack(registryId);
+                track.ReadFromRBE(dictionary.GetDictionary("Data"));
+                this.AddTrack(track);
+            }
+
+            // Recalculate a new max duration, just in case the clips somehow exceed the current value
+            this.maxDuration = Math.Max(this.maxDuration, this.tracks.Count < 1 ? 0 : this.tracks.Max(x => x.Clips.Count < 1 ? 0 : x.Clips.Max(y => y.FrameSpan.EndIndex)));
+            this.UpdateLargestFrame();
         }
 
         public void UpdateLargestFrame() {
@@ -421,6 +458,17 @@ namespace FramePFX.Editors.Timelines {
         public void DeleteTrack(Track track) {
             track.Destroy();
             this.RemoveTrack(track);
+        }
+
+        public void DeleteTrackAt(int index) {
+            this.tracks[index].Destroy();
+            this.RemoveTrackAt(index);
+        }
+
+        public void TryExpandForFrame(long frame) {
+            if (frame > this.maxDuration) {
+                this.MaxDuration = frame + 1000;
+            }
         }
     }
 }

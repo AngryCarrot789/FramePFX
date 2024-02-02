@@ -33,11 +33,48 @@
                                       SnapsToDevicePixels="false"
                                       Stroke="{DynamicResource Expander.Static.Arrow.Stroke}"
                                       StrokeThickness="2" VerticalAlignment="Center"
-                                      Width="10" Margin="5,1,0,0"/>
+                                      Width="10" Margin="5,-1,0,0"/>
                                 <ContentPresenter Margin="19,0,0,0" x:Name="contentPresenter" Focusable="False" RecognizesAccessKey="True"
                                                   SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                             </Grid>
                             <GridSplitter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" Background="Transparent" Margin="-4,0"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="true">
+                            <Setter Property="Data" TargetName="arrow" Value="M 0,0 L 4,4.5 L 8,0"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter Property="Stroke" TargetName="arrow" Value="{DynamicResource Expander.MouseOver.Arrow.Stroke}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="true">
+                            <Setter Property="Stroke" TargetName="arrow" Value="{DynamicResource Expander.Pressed.Arrow.Stroke}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Stroke" TargetName="arrow" Value="{DynamicResource Expander.Disabled.Arrow.Stroke}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SecondaryHierarchicalExpanderToggleButtonStyle" TargetType="{x:Type ToggleButton}">
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ToggleButton}">
+                    <Border Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
+                        <Grid Margin="0,2" HorizontalAlignment="Left">
+                            <Path x:Name="arrow" Data="M 2,0 L 6,4 L 2,8"
+                                  HorizontalAlignment="Left"
+                                  SnapsToDevicePixels="false"
+                                  Stroke="{DynamicResource Expander.Static.Arrow.Stroke}"
+                                  StrokeThickness="2" VerticalAlignment="Center"
+                                  Width="10" Margin="5,-1,0,0"/>
+                            <ContentPresenter Margin="19,0,0,0" x:Name="contentPresenter" Focusable="False" RecognizesAccessKey="True"
+                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -151,15 +188,80 @@
         </Setter>
     </Style>
 
-    <Style x:Key="OuterHierarchicalExpanderStyle" TargetType="{x:Type Expander}" BasedOn="{StaticResource HierarchicalExpanderStyle}">
+    <Style x:Key="PrimaryHierarchialExpanderStyle" TargetType="{x:Type Expander}" BasedOn="{StaticResource HierarchicalExpanderStyle}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone6.Background.Static}"/>
     </Style>
 
-    <Style x:Key="InnerHierarchicalExpanderStyle" TargetType="{x:Type Expander}" BasedOn="{StaticResource HierarchicalExpanderStyle}">
-        <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Background.Static}"/>
+    <Style x:Key="SecondaryHierarchialExpanderStyle" TargetType="{x:Type Expander}">
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone6.Background.Static}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Expander}">
+                    <Border Background="Transparent" BorderBrush="Transparent" BorderThickness="0,0,0,1" 
+                            SnapsToDevicePixels="true" HorizontalAlignment="Stretch">
+                        <DockPanel Margin="0,0,0,0">
+                            <Border DockPanel.Dock="Top" Background="Transparent" BorderBrush="Transparent" BorderThickness="0">
+                                <Grid Margin="0,0,0,0">
+                                    <ToggleButton x:Name="HeaderSite" ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                                  ContentTemplateSelector="{TemplateBinding HeaderTemplateSelector}"
+                                                  Content="{TemplateBinding Header}" DockPanel.Dock="Top"
+                                                  Foreground="{TemplateBinding Foreground}"
+                                                  FontWeight="SemiBold"
+                                                  FocusVisualStyle="{StaticResource ExpanderHeaderFocusVisual}"
+                                                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                                  MinWidth="0" MinHeight="0" Padding="0"
+                                                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                  HorizontalAlignment="Stretch"
+                                                  Background="Transparent"
+                                                  Style="{StaticResource SecondaryHierarchicalExpanderToggleButtonStyle}"
+                                                  Margin="0"/>
+                                </Grid>
+                            </Border>
+                            <ContentPresenter x:Name="ExpandSite" DockPanel.Dock="Bottom" Focusable="false"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              Margin="{TemplateBinding Padding}" Visibility="Collapsed"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              ToolTip="{x:Null}"/>
+                        </DockPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding IsSelectable, RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorSlotControl}}}" Value="True">
+                            <Setter TargetName="HeaderSite" Property="HorizontalAlignment" Value="Left"/>
+                        </DataTrigger>
+                        <Trigger Property="IsExpanded" Value="true">
+                            <Setter Property="Visibility" TargetName="ExpandSite" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
+                        </Trigger>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorSlotControl}}}" Value="True"/>
+                                <Condition Binding="{Binding IsSelectable, RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorSlotControl}}}" Value="True"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Background" Value="{DynamicResource ABrush.AccentTone3.Background.Static}"/>
+                        </MultiDataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
+    <l:GroupTypeToStyleConverter x:Key="GroupTypeToHierarchialExpanderStyleConverter"
+                                 PrimaryExpander="{StaticResource PrimaryHierarchialExpanderStyle}"
+                                 SecondaryExpander="{StaticResource SecondaryHierarchialExpanderStyle}"/>
+
     <!-- ################################## Property Editor Styles ################################## -->
+
+    <ControlTemplate x:Key="NonExpandableGroupControlTemplate" TargetType="{x:Type l:PropertyEditorGroupControl}">
+        <l:PropertyEditorControlPanel x:Name="PART_Panel" Margin="{TemplateBinding Padding}"/>
+    </ControlTemplate>
+
+    <Style x:Key="NonExpandableGroupControlStyle" TargetType="{x:Type l:PropertyEditorGroupControl}">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Template" Value="{StaticResource NonExpandableGroupControlTemplate}"/>
+    </Style>
 
     <Style TargetType="{x:Type l:PropertyEditorGroupControl}">
         <Setter Property="Padding" Value="0"/>
@@ -168,14 +270,14 @@
                 <ControlTemplate TargetType="{x:Type l:PropertyEditorGroupControl}">
                     <Grid Margin="{TemplateBinding Padding}">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="{Binding ColumnWidth0, RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}}"/>
-                            <ColumnDefinition Width="{Binding ColumnWidth1, RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}}"/>
-                            <ColumnDefinition Width="{Binding ColumnWidth2, RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}}"/>
+                            <ColumnDefinition Width="{Binding PropertyEditor.ColumnWidth0, RelativeSource={RelativeSource TemplatedParent}}"/>
+                            <ColumnDefinition Width="{Binding PropertyEditor.ColumnWidth1, RelativeSource={RelativeSource TemplatedParent}}"/>
+                            <ColumnDefinition Width="{Binding PropertyEditor.ColumnWidth2, RelativeSource={RelativeSource TemplatedParent}}"/>
                         </Grid.ColumnDefinitions>
                         <Expander x:Name="PART_Expander" Grid.ColumnSpan="3" Margin="0,0,0,0"
                                   FontWeight="Normal"
                                   IsExpanded="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsExpanded, Mode=TwoWay}"
-                                  Style="{StaticResource OuterHierarchicalExpanderStyle}">
+                                  Style="{TemplateBinding GroupType, Converter={StaticResource GroupTypeToHierarchialExpanderStyleConverter}}">
                             <l:PropertyEditorControlPanel x:Name="PART_Panel" Margin="0,0,0,0"/>
                         </Expander>
                     </Grid>
@@ -184,15 +286,11 @@
         </Setter>
     </Style>
 
-    <Style x:Key="RootPropertyGroupStyle" TargetType="{x:Type l:PropertyEditorGroupControl}" BasedOn="{StaticResource {x:Type l:PropertyEditorGroupControl}}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type l:PropertyEditorGroupControl}">
-                    <l:PropertyEditorControlPanel x:Name="PART_Panel" Background="Transparent" Margin="0"/>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+    <Style TargetType="{x:Type l:PropertyEditorGroupNonExpanderControl}" BasedOn="{StaticResource {x:Type l:PropertyEditorGroupControl}}">
+        <Setter Property="Template" Value="{StaticResource NonExpandableGroupControlTemplate}"/>
     </Style>
+
+    <Style x:Key="RootPropertyGroupStyle" TargetType="{x:Type l:PropertyEditorGroupControl}" BasedOn="{StaticResource NonExpandableGroupControlStyle}"/>
 
     <Style TargetType="{x:Type l:PropertyEditorSlotControl}">
         <Setter Property="Background" Value="Transparent"/>

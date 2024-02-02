@@ -11,7 +11,9 @@ namespace FramePFX.PropertyEditing.Controls.Standard {
         protected BaseParameterPropertyEditorControl() {
         }
 
-        static BaseParameterPropertyEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(BaseParameterPropertyEditorControl), new FrameworkPropertyMetadata(typeof(BaseParameterPropertyEditorControl)));
+        static BaseParameterPropertyEditorControl() {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(BaseParameterPropertyEditorControl), new FrameworkPropertyMetadata(typeof(BaseParameterPropertyEditorControl)));
+        }
 
         protected override void OnConnected() {
 

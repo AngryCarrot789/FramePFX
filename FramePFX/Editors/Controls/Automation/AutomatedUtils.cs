@@ -2,7 +2,7 @@ using System.Windows;
 using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Automation.Params;
-using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines;
 
 namespace FramePFX.Editors.Controls.Automation {
     public static class AutomatedUtils {

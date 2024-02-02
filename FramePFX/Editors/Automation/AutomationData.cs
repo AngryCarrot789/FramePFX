@@ -133,6 +133,8 @@ namespace FramePFX.Editors.Automation {
             foreach (KeyValuePair<Parameter,AutomationSequence> seq in this.sequences) {
                 AutomationSequence.LoadDataIntoClone(seq.Value, clone[seq.Key]);
             }
+
+            clone.UpdateBackingStorage();
         }
 
         /// <summary>

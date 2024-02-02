@@ -7,12 +7,10 @@ using SkiaSharp;
 
 namespace FramePFX.Editors.Timelines.Clips {
     public class ImageVideoClip : VideoClip {
-        public IResourcePathKey<ResourceImage> ResourceImageKey { get; }
-
-        private SKFilterQuality renderQuality = SKFilterQuality.Medium;
+        private readonly RenderLockedData<SKImage> lockedImage;
         private double renderOpacity;
 
-        private readonly RenderLockedData<SKImage> lockedImage;
+        public IResourcePathKey<ResourceImage> ResourceImageKey { get; }
 
         public ImageVideoClip() {
             this.ResourceImageKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceImage>();
@@ -28,19 +26,17 @@ namespace FramePFX.Editors.Timelines.Clips {
             return null;
         }
 
-        private void SignalDisposeImageOnRender() => this.lockedImage.Dispose();
+        private void SignalDisposeImage() => this.lockedImage.Dispose();
 
         private void OnResoureChanged(IResourcePathKey<ResourceImage> key, ResourceImage olditem, ResourceImage newitem) {
-            this.SignalDisposeImageOnRender();
+            this.SignalDisposeImage();
             if (olditem != null)
                 olditem.ImageChanged -= this.OnImageChanged;
             if (newitem != null)
                 newitem.ImageChanged += this.OnImageChanged;
         }
 
-        private void OnImageChanged(BaseResource resource) {
-            this.SignalDisposeImageOnRender();
-        }
+        private void OnImageChanged(BaseResource resource) => this.SignalDisposeImage();
 
         public override bool PrepareRenderFrame(PreRenderContext ctx, long frame) {
             if (this.ResourceImageKey.TryGetResource(out ResourceImage resource) && resource.image != null) {
@@ -57,7 +53,7 @@ namespace FramePFX.Editors.Timelines.Clips {
                 return;
             }
 
-            using (SKPaint paint = new SKPaint {FilterQuality = this.renderQuality, ColorF = RenderUtils.BlendAlpha(SKColors.White, this.renderOpacity)})
+            using (SKPaint paint = new SKPaint {FilterQuality = rc.FilterQuality, ColorF = RenderUtils.BlendAlpha(SKColors.White, this.renderOpacity)})
                 rc.Canvas.DrawImage(image, 0, 0, paint);
 
             renderArea = rc.Canvas.TotalMatrix.MapRect(new SKRect(0, 0, image.Width, image.Height));

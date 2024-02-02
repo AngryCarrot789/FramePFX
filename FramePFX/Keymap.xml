@@ -82,13 +82,8 @@
                     <Shortcut Name="SelectAllClipsInTrack" ActionId="actions.timeline.SelectAllClipsInTrackAction">
                         <KeyStroke Mods="CTRL+SHIFT" Key="A"/>
                     </Shortcut>
-
                     <Shortcut Name="DeleteSelectedClips" ActionId="actions.timeline.DeleteSelectedClips" Description="Deletes all of the selected clips">
                         <KeyStroke Key="Delete"/>
-                    </Shortcut>
-					
-                    <Shortcut Name="DuplicateClipsAction" ActionId="actions.editor.timeline.DuplicateClips">
-                        <KeyStroke Mods="CTRL" Key="D"/>
                     </Shortcut>
                     <Shortcut Name="MoveBack" ActionId="actions.timeline.surface.MoveBack">
                         <KeyStroke Key="Left"/>
@@ -160,6 +155,9 @@
 
                 <Shortcut Name="SliceClips" ActionId="actions.timeline.SliceClipsAction" Description="Cuts the selected clip in half where the play head is. If you have no selection, then all clips over the play head are sliced">
                     <KeyStroke Key="S"/>
+                </Shortcut>
+                <Shortcut Name="DuplicateClips" ActionId="actions.timeline.DuplicateClipsAction">
+                    <KeyStroke Mods="CTRL" Key="D"/>
                 </Shortcut>
 
                 <Shortcut Name="AddKeyFrame" ActionId="actions.automation.AddKeyFrame" Description="Adds a new key frame at the play head at the playhead for the clip's or clip's active sequence">

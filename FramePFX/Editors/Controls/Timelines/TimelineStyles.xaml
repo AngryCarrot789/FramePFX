@@ -223,7 +223,6 @@
                                       wpf:UIInputManager.FocusPath="Application/Editor/Timeline/Sequence">
                             <ct:TimelineScrollableContentGrid x:Name="PART_ContentGrid"
                                                               Timeline="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Timeline}"
-                                                              ap:HandleRequestBringIntoView.IsEnabled="True"
                                                               Background="{TemplateBinding Background}"
                                                               HorizontalAlignment="Left">
                                 <Grid.RowDefinitions>

@@ -8,6 +8,7 @@ using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Factories;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Effects;
+using FramePFX.RBC;
 using FramePFX.Utils;
 using SkiaSharp;
 
@@ -158,6 +159,31 @@ namespace FramePFX.Editors.Timelines.Tracks {
                 for (int i = 0; i < this.clips.Count; i++) {
                     clone.InsertClip(i, this.clips[i].Clone(options.ClipCloneOptions));
                 }
+            }
+        }
+
+        public virtual void WriteToRBE(RBEDictionary data) {
+            data.SetDouble(nameof(this.Height), this.Height);
+            data.SetString(nameof(this.DisplayName), this.DisplayName);
+            data.SetUInt(nameof(this.Colour), (uint) this.Colour);
+            this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
+            RBEList list = data.CreateList(nameof(this.Clips));
+            BaseEffect.WriteSerialisedWithIdList(this, data.CreateList("Effects"));
+            foreach (Clip clip in this.clips) {
+                Clip.WriteSerialisedWithId(list.AddDictionary(), clip);
+            }
+        }
+
+        public virtual void ReadFromRBE(RBEDictionary data) {
+            // should maybe guard against NaN/Infinity?
+            this.Height = Maths.Clamp(data.GetDouble(nameof(this.Height), DefaultHeight), MinimumHeight, MaximumHeight);
+            this.DisplayName = data.GetString(nameof(this.DisplayName), null);
+            if (data.TryGetUInt(nameof(this.Colour), out uint colourU32))
+                this.Colour = new SKColor(colourU32);
+            this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
+            BaseEffect.ReadSerialisedWithIdList(this, data.GetList("Effects"));
+            foreach (RBEDictionary dictionary in data.GetList(nameof(this.Clips)).Cast<RBEDictionary>()) {
+                this.AddClip(Clip.ReadSerialisedWithId(dictionary));
             }
         }
 
@@ -367,7 +393,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
             if (this.clips.Count > 0) {
                 foreach (Clip clip in this.clips) {
                     long begin = clip.FrameSpan.Begin;
-                    if (begin > frame) {
+                    if (begin >= frame) {
                         if (clip.IntersectsFrameAt(frame)) {
                             span = default;
                             return false;

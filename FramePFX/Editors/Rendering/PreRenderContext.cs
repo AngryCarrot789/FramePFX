@@ -13,8 +13,14 @@ namespace FramePFX.Editors.Rendering {
         /// </summary>
         public Vector2 FrameSize => new Vector2(this.ImageInfo.Width, this.ImageInfo.Height);
 
-        public PreRenderContext(SKImageInfo imageInfo) {
+        public EnumRenderQuality RenderQuality { get; }
+
+        public SKFilterQuality FilterQuality { get; }
+
+        public PreRenderContext(SKImageInfo imageInfo, EnumRenderQuality renderQuality) {
             this.ImageInfo = imageInfo;
+            this.RenderQuality = renderQuality;
+            this.FilterQuality = renderQuality.ToFilterQuality();
         }
     }
 }

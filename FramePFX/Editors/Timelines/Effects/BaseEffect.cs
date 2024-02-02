@@ -15,12 +15,14 @@ namespace FramePFX.Editors.Timelines.Effects {
         public IHaveEffects Owner { get; private set; }
 
         /// <summary>
-        /// Returns true when <see cref="Owner"/> is a clip, otherwise it is a track or null
+        /// Returns true when <see cref="Owner"/> is a clip, otherwise it is a track or null.
+        /// This will return true for any type of clip remember!
         /// </summary>
         public bool IsClipEffect => this.Owner is Clip;
 
         /// <summary>
-        /// Returns true when <see cref="Owner"/> is a track, otherwise it is a clip or null
+        /// Returns true when <see cref="Owner"/> is a <see cref="Track"/>, otherwise it is a clip or null.
+        /// This will return true for any type of track remember!
         /// </summary>
         public bool IsTrackEffect => this.Owner is Track;
 
@@ -72,6 +74,33 @@ namespace FramePFX.Editors.Timelines.Effects {
             this.AutomationData.LoadDataIntoClone(clone.AutomationData);
         }
 
+        public static BaseEffect ReadSerialisedWithId(RBEDictionary dictionary) {
+            string id = dictionary.GetString(nameof(FactoryId));
+            RBEDictionary data = dictionary.GetDictionary("Data");
+            BaseEffect effect = EffectFactory.Instance.NewEffect(id);
+            effect.ReadFromRBE(data);
+            return effect;
+        }
+
+        public static void WriteSerialisedWithIdList(IHaveEffects srcOwner, RBEList list) {
+            foreach (BaseEffect effect in srcOwner.Effects) {
+                if (!(effect.FactoryId is string id))
+                    throw new Exception("Unknown clip type: " + effect.GetType());
+                RBEDictionary dictionary = list.AddDictionary();
+                dictionary.SetString(nameof(FactoryId), id);
+                effect.WriteToRBE(dictionary.CreateDictionary("Data"));
+            }
+        }
+
+        public static void ReadSerialisedWithIdList(IHaveEffects dstOwner, RBEList list) {
+            foreach (RBEDictionary dictionary in list.Cast<RBEDictionary>()) {
+                string factoryId = dictionary.GetString(nameof(FactoryId));
+                BaseEffect effect = EffectFactory.Instance.NewEffect(factoryId);
+                effect.ReadFromRBE(dictionary.GetDictionary("Data"));
+                dstOwner.AddEffect(effect);
+            }
+        }
+
         public virtual void WriteToRBE(RBEDictionary data) {
             this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
         }
@@ -103,7 +132,7 @@ namespace FramePFX.Editors.Timelines.Effects {
                 return clip.ConvertTimelineToRelativeFrame(timeline, out inRange);
             }
 
-            inRange = this.IsTrackEffect;
+            inRange = this.Owner is Track;
             return timeline;
         }
 

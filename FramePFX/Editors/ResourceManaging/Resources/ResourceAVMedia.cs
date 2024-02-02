@@ -146,7 +146,7 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             try {
                 this.decoder = (VideoDecoder) this.Demuxer.CreateStreamDecoder(this.stream, false);
                 this.frameQueue = new FrameQueue(this.stream, 8);
-                // this.hasHardwareDecoder = this.TrySetupHardwareDecoder();
+                this.hasHardwareDecoder = this.TrySetupHardwareDecoder();
                 this.decoder.Open();
             }
             catch (Exception e) {
@@ -193,6 +193,26 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             this.decoder = null;
             this.frameQueue = null;
             this.hasHardwareDecoder = false;
+        }
+
+        private bool TrySetupHardwareDecoder() {
+            if (this.decoder.PixelFormat != AVPixelFormat.AV_PIX_FMT_YUV420P &&
+                this.decoder.PixelFormat != AVPixelFormat.AV_PIX_FMT_YUV420P10LE) {
+                //TODO: SetupHardwareAccelerator() will return NONE from get_format() rather than fallback to sw formats,
+                //      causing SendPacket() to throw with InvalidData for sources with unsupported hw pixel formats like YUV444.
+                return false;
+            }
+
+            foreach (CodecHardwareConfig config in this.decoder.GetHardwareConfigs()) {
+                using (HardwareDevice device = HardwareDevice.Create(config.DeviceType)) {
+                    if (device != null) {
+                        this.decoder.SetupHardwareAccelerator(device, config.PixelFormat);
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }

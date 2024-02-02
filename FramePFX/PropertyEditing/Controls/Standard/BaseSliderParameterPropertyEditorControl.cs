@@ -40,6 +40,10 @@ namespace FramePFX.PropertyEditing.Controls.Standard {
             }
         }
 
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
+            base.OnRenderSizeChanged(sizeInfo);
+        }
+
         public override void OnApplyTemplate() {
             base.OnApplyTemplate();
             this.dragger = this.GetTemplateChild<NumberDragger>("PART_DraggerX");

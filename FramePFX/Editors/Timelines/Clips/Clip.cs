@@ -10,6 +10,7 @@ using FramePFX.Editors.Factories;
 using FramePFX.Editors.ResourceManaging.ResourceHelpers;
 using FramePFX.Editors.Timelines.Effects;
 using FramePFX.Editors.Timelines.Tracks;
+using FramePFX.RBC;
 
 namespace FramePFX.Editors.Timelines.Clips {
     public delegate void ClipEventHandler(Clip clip);
@@ -102,6 +103,9 @@ namespace FramePFX.Editors.Timelines.Clips {
             }
         }
 
+        /// <summary>
+        /// Stores the sequence that this clip's automation sequence editor is using. This is only really used for the UI
+        /// </summary>
         public AutomationSequence ActiveSequence {
             get => this.activeSequence;
             set {
@@ -170,9 +174,48 @@ namespace FramePFX.Editors.Timelines.Clips {
         protected virtual void LoadDataIntoClone(Clip clone, ClipCloneOptions options) {
             clone.span = this.span;
             clone.displayName = this.displayName;
+            clone.mediaFrameOffset = this.mediaFrameOffset;
+            clone.span = this.span;
+        }
+
+        public static void WriteSerialisedWithId(RBEDictionary dictionary, Clip clip) {
+            if (!(clip.FactoryId is string id))
+                throw new Exception("Unknown clip type: " + clip.GetType());
+            dictionary.SetString(nameof(FactoryId), id);
+            clip.WriteToRBE(dictionary.CreateDictionary("Data"));
+        }
+
+        public static Clip ReadSerialisedWithId(RBEDictionary dictionary) {
+            string id = dictionary.GetString(nameof(FactoryId));
+            Clip clip = ClipFactory.Instance.NewClip(id);
+            clip.ReadFromRBE(dictionary.GetDictionary("Data"));
+            return clip;
+        }
+
+        public virtual void WriteToRBE(RBEDictionary data) {
+            if (!string.IsNullOrEmpty(this.DisplayName))
+                data.SetString(nameof(this.DisplayName), this.DisplayName);
+            data.SetStruct(nameof(this.FrameSpan), this.FrameSpan);
+            data.SetLong(nameof(this.MediaFrameOffset), this.MediaFrameOffset);
+            // data.SetBool(nameof(this.IsRenderingEnabled), this.IsRenderingEnabled);
+            this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
+            BaseEffect.WriteSerialisedWithIdList(this, data.CreateList("Effects"));
+            this.ResourceHelper.WriteToRootRBE(data);
+        }
+
+        public virtual void ReadFromRBE(RBEDictionary data) {
+            this.DisplayName = data.GetString(nameof(this.DisplayName), null);
+            this.FrameSpan = data.GetStruct<FrameSpan>(nameof(this.FrameSpan));
+            this.MediaFrameOffset = data.GetLong(nameof(this.MediaFrameOffset));
+            // this.IsRenderingEnabled = data.GetBool(nameof(this.IsRenderingEnabled), true);
+            this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
+            BaseEffect.ReadSerialisedWithIdList(this, data.GetList("Effects"));
+            this.ResourceHelper.ReadFromRootRBE(data);
         }
 
         public void MoveToTrack(Track dstTrack) {
+            if (ReferenceEquals(this.Track, dstTrack))
+                return;
             this.MoveToTrack(dstTrack, dstTrack.Clips.Count);
         }
 
@@ -184,7 +227,7 @@ namespace FramePFX.Editors.Timelines.Clips {
 
             int index = this.Track.Clips.IndexOf(this);
             if (index == -1) {
-                throw new Exception("Clip did not exist in its owner track");
+                throw new Exception("Fatal error: clip did not exist in its owner track");
             }
 
             this.Track.MoveClipToTrack(index, dstTrack, dstIndex);
@@ -251,6 +294,10 @@ namespace FramePFX.Editors.Timelines.Clips {
 
             this.FrameSpan = spanLeft;
             clone.FrameSpan = spanRight;
+        }
+
+        public void Duplicate() {
+            
         }
 
         public long ConvertRelativeToTimelineFrame(long relative) => this.span.Begin + relative;

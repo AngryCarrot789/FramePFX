@@ -24,7 +24,13 @@ namespace FramePFX.Editors.ResourceManaging {
         /// </summary>
         public Project Project { get; }
 
-        public IEnumerable<KeyValuePair<ulong, ResourceItem>> Entries => this.uuidToItem;
+        /// <summary>
+        /// Maps a <see cref="ResourceItem"/>'s <see cref="ResourceItem.UniqueId"/> to the resource itself.
+        /// This dictionary is updated whenever a resource is added or removed from this resource manager folder
+        /// hierarchy. We use a dictionary for performance reasons, as traversing the folder hierarchy to find a
+        /// resource from its ID can take a long time if there are lots of resources
+        /// </summary>
+        public IReadOnlyDictionary<ulong, ResourceItem> UuidToItems => this.uuidToItem;
 
         /// <summary>
         /// An event called when a resource is added to this manager
@@ -37,15 +43,15 @@ namespace FramePFX.Editors.ResourceManaging {
         public event ResourceAndManagerEventHandler ResourceRemoved;
 
         /// <summary>
-        /// This manager's root resource folder, which contains the tree of resources. Registered entries are
-        /// stored in this tree, and cached in an internal dictionary (for speed purposes), therefore it is
-        /// important that this tree is not modified unless the internal dictionary is also modified accordingly
+        /// This manager's root resource folder, which contains the tree of resources. All
+        /// <see cref="ResourceItem"/> objects in this tree are cached in an internal dictionary
+        /// (for speed purposes). See the <see cref="UuidToItems"/> docs for more info
         /// </summary>
         public ResourceFolder RootContainer { get; }
 
         /// <summary>
         /// Gets or sets the current folder that is being displayed to the user. This value will never be null,
-        /// and assigning it to null will result in it becoming <see cref="RootContainer"/>
+        /// and assigning it to null will result in <see cref="RootContainer"/> being used instead
         /// </summary>
         public ResourceFolder CurrentFolder {
             get => this.currentFolder;
@@ -93,7 +99,7 @@ namespace FramePFX.Editors.ResourceManaging {
             ulong id = this.currId;
             do {
                 id++;
-            } while (this.uuidToItem.ContainsKey(id) && id != 0);
+            } while (this.uuidToItem.ContainsKey(id));
             return this.currId = id;
         }
 

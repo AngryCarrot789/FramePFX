@@ -44,6 +44,11 @@ namespace FramePFX.PropertyEditing {
             }
         }
 
+        /// <summary>
+        /// Gets the group type. This should not change during the lifetime of this instance
+        /// </summary>
+        public virtual GroupType GroupType => GroupType.PrimaryExpander;
+
         public bool IsRoot => this.Parent == null;
 
         public event BasePropertyEditorGroupChildEventHandler ItemAdded;

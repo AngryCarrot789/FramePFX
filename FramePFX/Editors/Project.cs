@@ -3,6 +3,7 @@ using FramePFX.Destroying;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.Timelines;
+using FramePFX.RBC;
 
 namespace FramePFX.Editors {
     public class Project : IDestroy {
@@ -36,6 +37,14 @@ namespace FramePFX.Editors {
             this.ResourceManager = new ResourceManager(this);
             this.MainTimeline = new Timeline();
             Timeline.InternalSetMainTimelineProjectReference(this.MainTimeline, this);
+        }
+
+        public void WriteToRBE(RBEDictionary data) {
+            this.ResourceManager.WriteToRBE(data.CreateDictionary("ResourceManager"));
+            this.MainTimeline.WriteToRBE(data.CreateDictionary("Timeline"));
+        }
+
+        public void ReadFromRBE(RBEDictionary data) {
         }
 
         /// <summary>

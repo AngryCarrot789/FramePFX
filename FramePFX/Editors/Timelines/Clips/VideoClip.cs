@@ -3,6 +3,7 @@ using System.Numerics;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines.Effects;
+using FramePFX.RBC;
 using FramePFX.Utils;
 using SkiaSharp;
 
@@ -39,10 +40,10 @@ namespace FramePFX.Editors.Timelines.Clips {
                 ValueAccessors.LinqExpression<double>(typeof(VideoClip), nameof(Opacity)),
                 ParameterFlags.InvalidatesRender);
 
-        private SKMatrix _internalTransformationMatrix;
+        private SKMatrix internalTransformationMatrix;
         private bool isMatrixDirty;
 
-        public double Opacity { get; private set; }
+        public double Opacity;
 
         public byte OpacityByte => RenderUtils.DoubleToByte255(this.Opacity);
 
@@ -62,12 +63,23 @@ namespace FramePFX.Editors.Timelines.Clips {
             get {
                 if (this.isMatrixDirty)
                     this.CookTransformationMatrix();
-                return this._internalTransformationMatrix;
+                return this.internalTransformationMatrix;
             }
         }
 
         protected VideoClip() {
             this.Opacity = OpacityParameter.Descriptor.DefaultValue;
+        }
+
+        public override void WriteToRBE(RBEDictionary data) {
+            base.WriteToRBE(data);
+            // we don't write Opacity here since it's an automatable parameter and therefore
+            // the value is saved either in the default key frame or in key frames
+        }
+
+        public override void ReadFromRBE(RBEDictionary data) {
+            base.ReadFromRBE(data);
+            this.InvalidateTransformationMatrix();
         }
 
         /// <summary>
@@ -108,7 +120,8 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// <param name="rc">The rendering context, containing things such as the surface and canvas to draw to</param>
         /// <param name="renderArea">
         /// Used as an optimisation to know where this clip actually drew data, and only that area will be used.
-        /// This defaults to the destination surface's frame size, meaning it is unoptimised by default
+        /// This defaults to the destination surface's frame size (calculated via the render context's image info),
+        /// meaning it is unoptimised by default
         /// </param>
         public abstract void RenderFrame(RenderContext rc, ref SKRect renderArea);
 
@@ -120,12 +133,12 @@ namespace FramePFX.Editors.Timelines.Clips {
         private void CookTransformationMatrix() {
             SKMatrix matrix = SKMatrix.Identity;
             foreach (BaseEffect effect in this.Effects) {
-                if (effect is ITransformationEffect) {
-                    matrix = matrix.PreConcat(((ITransformationEffect) effect).TransformationMatrix);
+                if (effect is ITransformationEffect tfx) {
+                    matrix = matrix.PreConcat(tfx.TransformationMatrix);
                 }
             }
 
-            this._internalTransformationMatrix = matrix;
+            this.internalTransformationMatrix = matrix;
             this.isMatrixDirty = false;
         }
     }

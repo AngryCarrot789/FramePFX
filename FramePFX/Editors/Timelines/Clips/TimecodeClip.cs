@@ -1,6 +1,7 @@
 using System;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines.Tracks;
+using FramePFX.RBC;
 using FramePFX.Utils;
 using SkiaSharp;
 
@@ -10,10 +11,21 @@ namespace FramePFX.Editors.Timelines.Clips {
         public bool UseClipEndTime;
         public TimeSpan StartTime;
         public TimeSpan EndTime;
-
         private string fontFamily = "Consolas";
-        private SKFont cachedFont;
-        private SKTypeface cachedTypeFace;
+
+        private class LockedFontData : IDisposable {
+            public SKFont cachedFont;
+            public SKTypeface cachedTypeFace;
+
+            public void Dispose() {
+                this.cachedFont?.Dispose();
+                this.cachedFont = null;
+                this.cachedTypeFace?.Dispose();
+                this.cachedTypeFace = null;
+            }
+        }
+
+        private readonly RenderLockedDataWrapper<LockedFontData> fontData;
 
         private TimeSpan render_StartTime;
         private TimeSpan render_EndTime;
@@ -26,17 +38,16 @@ namespace FramePFX.Editors.Timelines.Clips {
                 if (this.fontFamily == value)
                     return;
                 this.fontFamily = value;
-                this.cachedFont?.Dispose();
-                this.cachedFont = null;
-                this.cachedTypeFace?.Dispose();
-                this.cachedTypeFace = null;
+                this.fontData.Dispose();
                 this.FontFamilyChanged?.Invoke(this);
+                this.InvalidateRender();
             }
         }
 
         public event ClipEventHandler FontFamilyChanged;
 
         public TimecodeClip() {
+            this.fontData = new RenderLockedDataWrapper<LockedFontData>(new LockedFontData());
             this.UseClipStartTime = this.UseClipEndTime = true;
         }
 
@@ -62,6 +73,25 @@ namespace FramePFX.Editors.Timelines.Clips {
             // });
         }
 
+        public override void WriteToRBE(RBEDictionary data) {
+            base.WriteToRBE(data);
+            data.SetBool("UseClipStart", this.UseClipStartTime);
+            data.SetBool("UseClipEnd", this.UseClipEndTime);
+            data.SetLong("StartTime", this.StartTime.Ticks);
+            data.SetLong("EndTime", this.EndTime.Ticks);
+            if (this.fontFamily != null)
+                data.SetString("FontFamily", this.fontFamily);
+        }
+
+        public override void ReadFromRBE(RBEDictionary data) {
+            base.ReadFromRBE(data);
+            this.UseClipStartTime = data.GetBool("UseClipStart");
+            this.UseClipEndTime = data.GetBool("UseClipEnd");
+            this.StartTime = new TimeSpan(data.GetLong("StartTime"));
+            this.EndTime = new TimeSpan(data.GetLong("EndTime"));
+            this.fontFamily = data.GetString("FontFamily", null);
+        }
+
         protected override void LoadDataIntoClone(Clip clone, ClipCloneOptions options) {
             base.LoadDataIntoClone(clone, options);
             TimecodeClip timer = (TimecodeClip) clone;
@@ -83,16 +113,35 @@ namespace FramePFX.Editors.Timelines.Clips {
         }
 
         public override void RenderFrame(RenderContext rc, ref SKRect renderArea) {
-            using (SKPaint paint = new SKPaint() {IsAntialias = true, Color = SKColors.White}) {
-                string text = this.GetCurrentTimeString();
-                if (this.cachedFont == null) {
-                    this.cachedTypeFace = this.fontFamily != null ? SKTypeface.FromFamilyName(this.fontFamily) : SKTypeface.CreateDefault();
-                    this.cachedFont = new SKFont(this.cachedTypeFace, 100F);
+            LockedFontData fd = this.fontData.Value;
+            lock (this.fontData.Locker) {
+                if (!this.fontData.OnRenderBegin() || fd.cachedFont == null || fd.cachedTypeFace == null) {
+                    fd.cachedTypeFace = this.fontFamily != null ? SKTypeface.FromFamilyName(this.fontFamily) : SKTypeface.CreateDefault();
+                    fd.cachedFont = new SKFont(fd.cachedTypeFace, 100F);
+                    this.fontData.OnResetAndRenderBegin();
                 }
+            }
 
-                using (SKTextBlob blob = SKTextBlob.Create(text, this.cachedFont)) {
-                    rc.Canvas.DrawText(blob, 0, blob.Bounds.Height / 2f, paint);
+            // 446x59 for oxanium
+
+            // using (SKPaint paint = new SKPaint() {IsAntialias = true, Color = SKColors.White}) {
+            //     string text = this.GetCurrentTimeString();
+            //     using (SKTextBlob blob = SKTextBlob.Create(text, fd.cachedFont)) {
+            //         rc.Canvas.DrawText(blob, -blob.Bounds.Left, -blob.Bounds.Top, paint);
+            //     }
+            // }
+
+            using (SKPaint paint = new SKPaint() { IsAntialias = true, Color = SKColors.White }) {
+                string text = this.GetCurrentTimeString();
+                using (SKTextBlob blob = SKTextBlob.Create(text, fd.cachedFont)) {
+                    float a = fd.cachedFont.GetFontMetrics(out SKFontMetrics metrics);
+                    float baselineOffset = metrics.Descent;
+                    rc.Canvas.DrawText(blob, 0, -blob.Bounds.Top - baselineOffset, paint);
                 }
+            }
+
+            lock (this.fontData.Locker) {
+                this.fontData.OnRenderFinished();
             }
         }
     }

@@ -11,17 +11,27 @@ namespace FramePFX.PropertyEditing.Controls {
     /// </summary>
     public class PropertyEditorGroupControl : Control {
         public static readonly DependencyProperty IsExpandedProperty = DependencyProperty.Register("IsExpanded", typeof(bool), typeof(PropertyEditorGroupControl), new PropertyMetadata(BoolBox.False));
+        public static readonly DependencyProperty GroupTypeProperty = DependencyProperty.Register("GroupType", typeof(GroupType), typeof(PropertyEditorGroupControl), new PropertyMetadata(GroupType.PrimaryExpander));
+        public static readonly DependencyProperty PropertyEditorProperty = DependencyProperty.Register("PropertyEditor", typeof(PropertyEditorControl), typeof(PropertyEditorGroupControl), new PropertyMetadata(null));
 
         public bool IsExpanded {
             get => (bool) this.GetValue(IsExpandedProperty);
             set => this.SetValue(IsExpandedProperty, value.Box());
         }
 
+        public GroupType GroupType {
+            get => (GroupType) this.GetValue(GroupTypeProperty);
+            set => this.SetValue(GroupTypeProperty, value);
+        }
+
+        public PropertyEditorControl PropertyEditor {
+            get => (PropertyEditorControl) this.GetValue(PropertyEditorProperty);
+            set => this.SetValue(PropertyEditorProperty, value);
+        }
+
         public PropertyEditorControlPanel Panel { get; private set; }
 
         public BasePropertyEditorGroup Model { get; private set; }
-
-        public PropertyEditorControl PropertyEditor { get; private set; }
 
         public Expander TheExpander { get; private set; }
 
@@ -65,7 +75,8 @@ namespace FramePFX.PropertyEditing.Controls {
             this.Model = group;
             this.Model.ItemAdded += this.ModelOnItemAdded;
             this.Model.ItemRemoved += this.ModelOnItemRemoved;
-            this.Model.ItemMoved += ModelOnItemMoved;
+            this.Model.ItemMoved += this.ModelOnItemMoved;
+            this.GroupType = this.Model.GroupType;
             this.displayNameBinder.Attach(this, group);
             this.isVisibleBinder.Attach(this, group);
             this.isExpandedBinder.Attach(this, group);
@@ -90,16 +101,16 @@ namespace FramePFX.PropertyEditing.Controls {
             this.Model = null;
         }
 
-        private void ModelOnItemAdded(BasePropertyEditorGroup @group, BasePropertyEditorObject item, int index) {
+        private void ModelOnItemAdded(BasePropertyEditorGroup group, BasePropertyEditorObject item, int index) {
             this.Panel.InsertItem(item, index);
             this.Panel.UpdateLayout();
         }
 
-        private void ModelOnItemRemoved(BasePropertyEditorGroup @group, BasePropertyEditorObject item, int index) {
+        private void ModelOnItemRemoved(BasePropertyEditorGroup group, BasePropertyEditorObject item, int index) {
             this.Panel.RemoveItem(index);
         }
 
-        private void ModelOnItemMoved(BasePropertyEditorGroup @group, BasePropertyEditorObject item, int oldindex, int newindex) {
+        private void ModelOnItemMoved(BasePropertyEditorGroup group, BasePropertyEditorObject item, int oldindex, int newindex) {
             this.Panel.MoveItem(oldindex, newindex);
         }
 

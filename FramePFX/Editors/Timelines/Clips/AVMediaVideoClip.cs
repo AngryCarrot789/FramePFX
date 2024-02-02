@@ -13,48 +13,20 @@ using SkiaSharp;
 namespace FramePFX.Editors.Timelines.Clips {
     public class AVMediaVideoClip : VideoClip {
         private VideoFrame renderFrameRgb, downloadedHwFrame;
-        public unsafe SwsContext* scaler;
+        private unsafe SwsContext* scaler;
         private PictureFormat scalerInputFormat;
         private VideoFrame lastReadyFrame;
         private long currentFrame = -1;
-        public Task<VideoFrame> decodeFrameTask;
-
+        private Task<VideoFrame> decodeFrameTask;
         private long decodeFrameBegin;
         private long lastDecodeFrameDuration;
-
-        private double targetFrameIntervalTicks;
+        private double render_Opacity;
 
         public IResourcePathKey<ResourceAVMedia> ResourceAVMediaKey { get; }
 
         public AVMediaVideoClip() {
             this.ResourceAVMediaKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceAVMedia>();
             this.ResourceAVMediaKey.ResourceChanged += this.OnResourceChanged;
-        }
-
-        protected override void OnProjectChanged(Project oldProject, Project newProject) {
-            base.OnProjectChanged(oldProject, newProject);
-            if (oldProject != null) {
-                oldProject.Settings.FrameRateChanged -= this.OnProjectFrameRateChanged;
-            }
-
-            if (newProject != null) {
-                newProject.Settings.FrameRateChanged -= this.OnProjectFrameRateChanged;
-            }
-
-            this.UpdateTargetFrameRate();
-        }
-
-        private void OnProjectFrameRateChanged(ProjectSettings settings) {
-            this.UpdateTargetFrameRate();
-        }
-
-        private void UpdateTargetFrameRate() {
-            if (this.Project == null) {
-                return;
-            }
-
-            double fps = this.Project.Settings.FrameRate.AsDouble;
-            this.targetFrameIntervalTicks = Time.TICK_PER_SECOND_D / fps;
         }
 
         private bool TryGetResource(out ResourceAVMedia resource) => this.ResourceAVMediaKey.TryGetResource(out resource);
@@ -86,49 +58,50 @@ namespace FramePFX.Editors.Timelines.Clips {
             if (resource.stream == null || resource.Demuxer == null)
                 return false;
 
-            if (frame != this.currentFrame || this.renderFrameRgb == null) {
-                if (this.renderFrameRgb == null) {
-                    unsafe {
-                        AVCodecParameters* pars = resource.stream.Handle->codecpar;
-                        this.renderFrameRgb = new VideoFrame(pars->width, pars->height, PixelFormats.RGBA);
-                    }
+            this.render_Opacity = this.Opacity;
+            if (frame == this.currentFrame && this.renderFrameRgb != null) {
+                return true;
+            }
+
+            if (this.renderFrameRgb == null) {
+                unsafe {
+                    AVCodecParameters* pars = resource.stream.Handle->codecpar;
+                    this.renderFrameRgb = new VideoFrame(pars->width, pars->height, PixelFormats.RGBA);
+                }
+            }
+
+            // TimeSpan timestamp = TimeSpan.FromTicks((long) ((frame - this.MediaFrameOffset) * this.targetFrameIntervalTicks));
+            TimeSpan timestamp = TimeSpan.FromSeconds((frame - this.MediaFrameOffset) / this.Project.Settings.FrameRate.AsDouble);
+
+            // No need to dispose as the frames are stored in a frame buffer, which is disposed by the resource itself
+            this.currentFrame = frame;
+            this.decodeFrameTask = Task.Run(async () => {
+                this.decodeFrameBegin = Time.GetSystemTicks();
+                Task resourceRenderTask = Interlocked.Exchange(ref resource.CurrentGetFrameTask, this.decodeFrameTask);
+                if (resourceRenderTask != null && !resourceRenderTask.IsCompleted) {
+                    await resourceRenderTask;
                 }
 
-                FrameSpan span = this.FrameSpan;
-                // double timeScale = this.Project.Settings.FrameRate.AsDouble;
-                // TimeSpan timestamp = TimeSpan.FromSeconds((frame - this.MediaFrameOffset) / timeScale);
-                TimeSpan timestamp = TimeSpan.FromTicks((long) ((frame - this.MediaFrameOffset) * this.targetFrameIntervalTicks));
-
-                // No need to dispose as the frames are stored in a frame buffer, which is disposed by the resource itself
-                this.currentFrame = frame;
-                this.decodeFrameTask = Task.Run(async () => {
-                    this.decodeFrameBegin = Time.GetSystemTicks();
-                    Task resourceRenderTask = Interlocked.Exchange(ref resource.CurrentGetFrameTask, this.decodeFrameTask);
-                    if (resourceRenderTask != null && !resourceRenderTask.IsCompleted) {
-                        await resourceRenderTask;
+                VideoFrame output = null;
+                VideoFrame ready = resource.GetFrameAt(timestamp);
+                if (ready != null && !ready.IsDisposed) {
+                    // TODO: Maybe add an async frame fetcher that buffers the frames, or maybe add
+                    // a project preview resolution so that decoding is lightning fast for low resolution?
+                    if (ready.IsHardwareFrame) {
+                        // As of ffmpeg 6.0, GetHardwareTransferFormats() only returns more than one format for VAAPI,
+                        // which isn't widely supported on Windows yet, so we can't transfer directly to RGB without
+                        // hacking into the API specific device context (like D3D11VA).
+                        ready.TransferTo(this.downloadedHwFrame ?? (this.downloadedHwFrame = new VideoFrame()));
+                        ready = this.downloadedHwFrame;
                     }
 
-                    VideoFrame output = null;
-                    VideoFrame ready = resource.GetFrameAt(timestamp);
-                    if (ready != null && !ready.IsDisposed) {
-                        // TODO: Maybe add an async frame fetcher that buffers the frames, or maybe add
-                        // a project preview resolution so that decoding is lightning fast for low resolution?
-                        if (ready.IsHardwareFrame) {
-                            // As of ffmpeg 6.0, GetHardwareTransferFormats() only returns more than one format for VAAPI,
-                            // which isn't widely supported on Windows yet, so we can't transfer directly to RGB without
-                            // hacking into the API specific device context (like D3D11VA).
-                            ready.TransferTo(this.downloadedHwFrame ?? (this.downloadedHwFrame = new VideoFrame()));
-                            ready = this.downloadedHwFrame;
-                        }
+                    this.ScaleFrame(ready);
+                    output = ready;
+                }
 
-                        this.ScaleFrame(ready);
-                        output = ready;
-                    }
-
-                    this.lastDecodeFrameDuration = Time.GetSystemTicks() - this.decodeFrameBegin;
-                    return output;
-                });
-            }
+                this.lastDecodeFrameDuration = Time.GetSystemTicks() - this.decodeFrameBegin;
+                return output;
+            });
 
             return true;
         }
@@ -137,32 +110,36 @@ namespace FramePFX.Editors.Timelines.Clips {
             VideoFrame ready;
             if (this.decodeFrameTask != null) {
                 this.lastReadyFrame = ready = this.decodeFrameTask.Result;
-                // System.Diagnostics.Debug.WriteLine("Last decode time: " + Math.Round((double) this.lastDecodeFrameDuration) / Time.TICK_PER_MILLIS + " ms");
+                System.Diagnostics.Debug.WriteLine("Last decode time: " + Math.Round((double) this.lastDecodeFrameDuration) / Time.TICK_PER_MILLIS + " ms");
             }
             else {
                 ready = this.lastReadyFrame;
             }
 
-            if (ready != null && !ready.IsDisposed) {
-                unsafe {
-                    byte* ptr;
-                    GetFrameData(this.renderFrameRgb, 0, &ptr, out int rowBytes);
-                    SKImageInfo image = new SKImageInfo(this.renderFrameRgb.Width, this.renderFrameRgb.Height, SKColorType.Rgba8888);
-                    using (SKImage img = SKImage.FromPixels(image, (IntPtr) ptr, rowBytes)) {
-                        if (img == null) {
-                            return;
-                        }
-
-                        using (SKPaint paint = new SKPaint() {FilterQuality = rc.FilterQuality, ColorF = new SKColorF(1f, 1f, 1f, (float) this.Opacity)}) {
-                            rc.Canvas.DrawImage(img, 0, 0, paint);
-                        }
-
-                        renderArea = rc.TranslateRect(new SKRect(0, 0, img.Width, img.Height));
-                    }
-                }
-            }
-            else {
+            if (ready == null || ready.IsDisposed) {
                 renderArea = default;
+                return;
+            }
+
+            unsafe {
+                long startA = Time.GetSystemTicks();
+                byte* ptr;
+                GetFrameData(this.renderFrameRgb, 0, &ptr, out int rowBytes);
+                SKImageInfo image = new SKImageInfo(this.renderFrameRgb.Width, this.renderFrameRgb.Height, SKColorType.Rgba8888);
+                using (SKImage img = SKImage.FromPixels(image, (IntPtr) ptr, rowBytes)) {
+                    if (img == null) {
+                        return;
+                    }
+
+                    using (SKPaint paint = new SKPaint() {FilterQuality = rc.FilterQuality, ColorF = new SKColorF(1f, 1f, 1f, (float) this.render_Opacity)}) {
+                        rc.Canvas.DrawImage(img, 0, 0, paint);
+                    }
+
+                    renderArea = rc.TranslateRect(new SKRect(0, 0, img.Width, img.Height));
+                }
+
+                long time = Time.GetSystemTicks() - startA;
+                System.Diagnostics.Debug.WriteLine("Last render time: " + Math.Round((double) time) / Time.TICK_PER_MILLIS + " ms");
             }
         }
 
@@ -179,33 +156,6 @@ namespace FramePFX.Editors.Timelines.Clips {
             ffmpeg.sws_scale(this.scaler, src->data, src->linesize, 0, this.scalerInputFormat.Height, dst->data, dst->linesize);
         }
 
-        public static unsafe (int, int) GetPlaneSize(VideoFrame frame, int plane) {
-            (int x, int y) size = (frame.Width, frame.Height);
-
-            //https://github.com/FFmpeg/FFmpeg/blob/c558fcf41e2027a1096d00b286954da2cc4ae73f/libavutil/imgutils.c#L111
-            if (plane == 0) {
-                return size;
-            }
-
-            AVPixFmtDescriptor* desc = ffmpeg.av_pix_fmt_desc_get(frame.PixelFormat);
-            if (desc == null || (desc->flags & ffmpeg.AV_PIX_FMT_FLAG_HWACCEL) != 0) {
-                throw new InvalidOperationException();
-            }
-
-            for (uint i = 0; i < 4; i++) {
-                if (desc->comp[i].plane != plane)
-                    continue;
-                if ((i == 1 || i == 2) && (desc->flags & ffmpeg.AV_PIX_FMT_FLAG_RGB) == 0) {
-                    size.x = Maths.CeilShr(size.x, desc->log2_chroma_w);
-                    size.y = Maths.CeilShr(size.y, desc->log2_chroma_h);
-                }
-
-                return size;
-            }
-
-            throw new Exception("Could not get plane size");
-        }
-
         public static unsafe void GetFrameData(VideoFrame frame, int plane, byte** data, out int stride) {
             int height = frame.GetPlaneSize(plane).Height;
             AVFrame* ptr = frame.Handle;
@@ -218,15 +168,6 @@ namespace FramePFX.Editors.Timelines.Clips {
             }
 
             stride = rowSize / sizeof(byte);
-        }
-
-        private static unsafe bool IsFormatEqual(AVFrame* src, AVFrame* dst, PictureFormat srcFmt, PictureFormat dstFmt) {
-            return src->format == (int) srcFmt.PixelFormat &&
-                   src->width == srcFmt.Width &&
-                   src->height == srcFmt.Height &&
-                   dst->format == (int) dstFmt.PixelFormat &&
-                   dst->width == dstFmt.Width &&
-                   dst->height == dstFmt.Height;
         }
     }
 }

@@ -141,9 +141,6 @@
                 <GroupBox.Header>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Timeline"/>
-                        <Separator Style="{StaticResource VerticalSeparator}"/>
-                        <TextBlock Text="Avg Render Time: "/>
-                        <TextBlock x:Name="PART_LastRenderTimeTextBlock" Text="0"/>
                     </StackPanel>
                 </GroupBox.Header>
                 <Border BorderThickness="0,1,0,0" BorderBrush="{DynamicResource PanelBorderBrush}">
@@ -154,7 +151,16 @@
             <GridSplitter Grid.Row="1" BorderThickness="0" Background="Transparent" Margin="0,-3,0,-12" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
         </Grid>
         <Border Grid.Row="2" Background="{DynamicResource ABrush.Tone5.Background.Static}" BorderThickness="0,1,0,0">
-            <TextBlock Padding="4,0" VerticalAlignment="Center" x:Name="ActivityTextBlock"/>
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                    <Separator Style="{StaticResource VerticalSeparator}" Margin="5,0" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}"/>
+                    <StackPanel Orientation="Horizontal" ToolTip="The amount of time it took to render a single frame. This is averaged over 5 frames" VerticalAlignment="Center">
+                        <TextBlock Text="Render: " VerticalAlignment="Center"/>
+                        <TextBlock x:Name="PART_AvgRenderTimeBlock" Text="" FontFamily="Consolas" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </StackPanel>
+                <TextBlock Padding="4,0" VerticalAlignment="Center" x:Name="ActivityTextBlock" FontFamily="Segoe UI"/>
+            </DockPanel>
         </Border>
     </Grid>
 </v:WindowEx>

@@ -11,9 +11,11 @@ using FramePFX.Editors.Contextual;
 using FramePFX.Editors.Controls.Automation;
 using FramePFX.Editors.Controls.Binders;
 using FramePFX.Editors.Controls.Resources.Explorers;
+using FramePFX.Editors.Factories;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.DataContexts;
 using FramePFX.Shortcuts.WPF;
@@ -27,7 +29,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
     public sealed class TimelineClipControl : Control {
         private static readonly FontFamily SegoeUI = new FontFamily("Segoe UI");
         public static readonly DependencyProperty DisplayNameProperty = DependencyProperty.Register("DisplayName", typeof(string), typeof(TimelineClipControl), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
-        public static readonly DependencyProperty IsSelectedProperty = DependencyProperty.Register("IsSelected", typeof(bool), typeof(TimelineClipControl), new PropertyMetadata(BoolBox.False));
+        public static readonly DependencyProperty IsSelectedProperty = DependencyProperty.Register("IsSelected", typeof(bool), typeof(TimelineClipControl), new PropertyMetadata(BoolBox.False, OnIsSelectedChanged));
+
         public static readonly DependencyProperty IsDroppableTargetOverProperty = DependencyProperty.Register("IsDroppableTargetOver", typeof(bool), typeof(TimelineClipControl), new PropertyMetadata(BoolBox.False));
 
         public string DisplayName {
@@ -85,6 +88,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
         private long frameDuration;
 
         private DragState dragState;
+        private Track trackAtDragBegin;
+        private FrameSpan spanAtDragBegin;
 
         private Point clickPos;
         private Point clickPosAbs;
@@ -105,6 +110,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
         private readonly AutoPropertyUpdateBinder<Clip> frameSpanBinder = new AutoPropertyUpdateBinder<Clip>(nameof(VideoClip.FrameSpanChanged), obj => ((TimelineClipControl) obj.Control).SetSizeFromSpan(obj.Model.FrameSpan), null);
         private readonly GetSetAutoPropertyBinder<Clip> isSelectedBinder = new GetSetAutoPropertyBinder<Clip>(IsSelectedProperty, nameof(VideoClip.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.IsSelected = (bool) v);
 
+        private TimelineClipControl dragCopyOwnerControl;
+
         public TimelineClipControl() {
             this.AllowDrop = true;
             this.VerticalAlignment = VerticalAlignment.Stretch;
@@ -119,6 +126,27 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             if (!(this.GetTemplateChild("PART_AutomationSequence") is AutomationSequenceEditor sequenceEditor))
                 throw new Exception("Missing PART_AutomationSequence");
             this.AutomationEditor = sequenceEditor;
+        }
+
+        private static void OnIsSelectedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+            if ((bool) e.NewValue) {
+                TimelineClipControl clip = (TimelineClipControl) d;
+                clip.Focus();
+                // if (clip.Track?.OwnerTimeline?.TimelineContentGrid is TimelineScrollableContentGrid grid) {
+                //     bool oldValue = grid.HandleBringIntoView;
+                //     grid.HandleBringIntoView = false;
+                //     try {
+                //         clip.Focus();
+                //         clip.BringIntoView();
+                //     }
+                //     finally {
+                //         grid.HandleBringIntoView = oldValue;
+                //     }
+                // }
+                // else {
+                //     clip.Focus();
+                // }
+            }
         }
 
         protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {
@@ -187,11 +215,22 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
 
         #endregion
 
+        protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
+            base.OnPreviewMouseDown(e);
+            if (e.ChangedButton != MouseButton.Left && this.dragState != DragState.None) {
+                e.Handled = true;
+                this.Focus();
+            }
+        }
+
         protected override void OnMouseDown(MouseButtonEventArgs e) {
             base.OnMouseDown(e);
             if (this.Model == null || e.ChangedButton != MouseButton.Left) {
                 return;
             }
+
+            this.spanAtDragBegin = this.Model.FrameSpan;
+            this.trackAtDragBegin = this.Model.Track;
 
             e.Handled = true;
             this.Focus();
@@ -261,6 +300,131 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             }
         }
 
+        protected override void OnKeyDown(KeyEventArgs e) {
+            base.OnKeyDown(e);
+            if (!e.Handled && this.dragState > DragState.Initiated) {
+                if (e.Key == Key.Escape) {
+                    this.SetDragState(DragState.None);
+                    this.SetCursorForMousePoint(Mouse.GetPosition(this));
+                    this.ReleaseMouseCapture();
+
+                    // it better not be null!!!
+                    if (this.trackAtDragBegin != null) {
+                        this.Model.FrameSpan = this.spanAtDragBegin;
+                        if (!ReferenceEquals(this.Model.Track, this.trackAtDragBegin)) {
+                            this.Model.MoveToTrack(this.trackAtDragBegin);
+                        }
+
+                        this.trackAtDragBegin = null;
+                    }
+                }
+                else if (e.Key == Key.LeftCtrl && this.dragState == DragState.DragBody && this.dragCopyOwnerControl == null) {
+                    this.BeginDragCopyWithPhantomClip();
+                }
+            }
+        }
+
+        protected override void OnKeyUp(KeyEventArgs e) {
+            base.OnKeyUp(e);
+            if (!e.Handled && e.Key == Key.LeftCtrl && this.dragCopyOwnerControl != null) {
+                this.CancelDragCopyWithPhantomClip();
+            }
+        }
+
+        protected override void OnContextMenuOpening(ContextMenuEventArgs e) {
+            base.OnContextMenuOpening(e);
+            if (this.dragState != DragState.None) {
+                e.Handled = true;
+            }
+        }
+
+        private void BeginDragCopyWithPhantomClip() {
+            FrameSpan phantomSpan = this.Model.FrameSpan;
+            if (this.trackAtDragBegin != null) {
+                this.Model.FrameSpan = this.spanAtDragBegin;
+                if (!ReferenceEquals(this.Model.Track, this.trackAtDragBegin)) {
+                    this.Model.MoveToTrack(this.trackAtDragBegin);
+                }
+
+                this.trackAtDragBegin = null;
+            }
+
+            this.Model.Track.ClearClipSelection();
+
+            // Create a bare type clone, not a full deep clone. This is because the
+            // user can cancel the drag, so it would just be wasting CPU cycles cloning
+            // the whole thing only for the user to press esc or release CTRL and cancel it
+            Clip clone = ClipFactory.Instance.NewClip(this.Model.FactoryId);
+            clone.FrameSpan = phantomSpan;
+            clone.DisplayName = this.Model.DisplayName + " (!PHANTOM!)";
+            this.Model.Track.AddClip(clone);
+
+            TimelineClipControl cloneControl = this.Track.GetClipAt(clone.Track.Clips.Count - 1);
+            cloneControl.dragCopyOwnerControl = this;
+            this.SetDragState(DragState.None);
+            this.SetCursorForMousePoint(Mouse.GetPosition(this));
+            this.ReleaseMouseCapture();
+
+            // IsSelected works both ways, could also set clone.IsSelected too
+            cloneControl.IsSelected = true;
+            cloneControl.Focus();
+            cloneControl.clickPos = this.clickPos;
+            cloneControl.clickPosAbs = this.clickPosAbs;
+            cloneControl.SetDragState(DragState.DragBody);
+            if (!this.IsMouseCaptured) {
+                cloneControl.CaptureMouse();
+            }
+        }
+
+        private void CancelDragCopyWithPhantomClip() {
+            TimelineClipControl owner = this.dragCopyOwnerControl;
+            this.dragCopyOwnerControl = null;
+            this.SetDragState(DragState.None);
+            this.SetCursorForMousePoint(Mouse.GetPosition(this));
+            this.ReleaseMouseCapture();
+
+            this.Model.Track.RemoveClip(this.Model);
+
+            owner.IsSelected = true;
+            owner.Focus();
+            owner.clickPos = this.clickPos;
+            owner.clickPosAbs = this.clickPosAbs;
+            owner.SetDragState(DragState.DragBody);
+            if (!this.IsMouseCaptured) {
+                owner.CaptureMouse();
+            }
+        }
+
+        private void DropThisPhantomClipIntoTrackForReal() {
+            Clip phantomModel = this.Model;
+            Track phantomTrack = phantomModel.Track;
+            TimelineTrackControl phantomTrackControl = this.Track;
+            TimelineClipControl owner = this.dragCopyOwnerControl;
+
+            FrameSpan targetSpan = phantomModel.FrameSpan;
+
+            this.SetDragState(DragState.None);
+            this.SetCursorForMousePoint(Mouse.GetPosition(this));
+            this.ReleaseMouseCapture();
+
+            this.dragCopyOwnerControl = null;
+
+            int index = phantomTrack.Clips.IndexOf(phantomModel);
+            if (index == -1) {
+                throw new Exception("WTF");
+            }
+
+            Clip realClone = owner.Model.Clone();
+            realClone.FrameSpan = targetSpan;
+
+            phantomTrack.RemoveClipAt(index);
+            phantomTrack.InsertClip(index, realClone);
+
+            TimelineClipControl newSelf = phantomTrackControl.GetClipAt(index);
+            newSelf.IsSelected = true;
+            newSelf.Focus();
+        }
+
         protected override void OnMouseUp(MouseButtonEventArgs e) {
             base.OnMouseUp(e);
             if (this.Model == null || e.ChangedButton != MouseButton.Left) {
@@ -268,6 +432,11 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             }
 
             e.Handled = true;
+            if (this.dragCopyOwnerControl != null) {
+                this.DropThisPhantomClipIntoTrackForReal();
+                return;
+            }
+
             DragState lastDragState = this.dragState;
             if (this.dragState == DragState.Initiated && !this.hasMadeExceptionalSelectionInMouseDown) {
                 this.Track.OwnerPanel.SetPlayHeadToMouseCursor(e.MouseDevice);
@@ -351,7 +520,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                 // and then drag a clip 1 frame at a time and you might see it with the code below removed.
                 // This code is pretty much the exact same as what Thumb uses
                 Point mPosAbs = this.PointToScreen(mPos);
-                if (mPosAbs == this.clickPosAbs)
+                // don't care about the Y pos :P
+                if (DoubleUtils.AreClose(mPosAbs.X, this.clickPosAbs.X))
                     return;
                 this.clickPosAbs = mPosAbs;
             }
@@ -373,6 +543,11 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                 double minDragX = SystemParameters.MinimumHorizontalDragDistance;
                 double minDragY = SystemParameters.MinimumVerticalDragDistance;
                 if (Math.Abs(mPos.X - this.clickPos.X) < minDragX && Math.Abs(mPos.Y - this.clickPos.Y) < minDragY) {
+                    return;
+                }
+
+                if ((Keyboard.Modifiers & ModifierKeys.Control) != 0 && this.dragCopyOwnerControl == null) {
+                    this.BeginDragCopyWithPhantomClip();
                     return;
                 }
 
@@ -413,7 +588,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                         FrameSpan newSpan = new FrameSpan(oldSpan.Begin + offset, oldSpan.Duration);
                         long newEndIndex = newSpan.EndIndex;
                         if (newEndIndex > ctrl.Timeline.MaxDuration) {
-                            ctrl.Timeline.MaxDuration = newEndIndex + 300;
+                            ctrl.Timeline.TryExpandForFrame(newEndIndex);
                         }
 
                         this.Model.FrameSpan = newSpan;
@@ -462,11 +637,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                             }
 
                             FrameSpan newSpan = FrameSpan.FromIndex(newBegin, oldSpan.EndIndex);
-                            long newEndIndex = newSpan.EndIndex;
-                            if (newEndIndex > ctrl.Timeline.MaxDuration) {
-                                ctrl.Timeline.MaxDuration = newEndIndex + 300;
-                            }
-
+                            ctrl.Timeline.TryExpandForFrame(newSpan.EndIndex);
                             this.Model.FrameSpan = newSpan;
                             this.Model.MediaFrameOffset += (oldSpan.Begin - newSpan.Begin);
                         }
@@ -487,10 +658,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                             // }
 
                             FrameSpan newSpan = FrameSpan.FromIndex(oldSpan.Begin, newEndIndex);
-                            if (newEndIndex > ctrl.Timeline.MaxDuration) {
-                                ctrl.Timeline.MaxDuration = newEndIndex + 300;
-                            }
-
+                            ctrl.Timeline.TryExpandForFrame(newEndIndex);
                             this.Model.FrameSpan = newSpan;
 
                             // account for there being no "grip" control aligned to the right side;
@@ -502,6 +670,18 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                     }
                 }
             }
+        }
+
+        private void BeginDragCopy() {
+
+        }
+
+        private void CancelDragCopy(bool continueDraggingSelf) {
+
+        }
+
+        private void ConfirmDragCopy() {
+
         }
 
         protected override Size MeasureOverride(Size availableSize) {

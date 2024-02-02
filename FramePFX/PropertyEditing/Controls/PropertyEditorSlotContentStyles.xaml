@@ -4,19 +4,18 @@
                     xmlns:d="clr-namespace:FramePFX.Editors.Controls.Dragger"
                     xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:c="clr-namespace:FramePFX.Editors.Controls"
                     xmlns:ap="clr-namespace:FramePFX.Themes.Attached"
-                    xmlns:a="clr-namespace:FramePFX.PropertyEditing.Automation"
                     xmlns:clips="clr-namespace:FramePFX.Editors.PropertyEditors"
-                    xmlns:standard="clr-namespace:FramePFX.PropertyEditing.Controls.Standard"
-                    xmlns:ac="clr-namespace:FramePFX.Editors.PropertyEditors.AControls">
+                    xmlns:ac="clr-namespace:FramePFX.Editors.PropertyEditors.AControls"
+                    xmlns:automation="clr-namespace:FramePFX.PropertyEditing.Controls.Automation">
     <s:Double x:Key="FloatMinValue">-3.402823E+38</s:Double>
     <s:Double x:Key="FloatMaxValue">3.402823E+38</s:Double>
 
-    <Style TargetType="{x:Type a:KeyFrameToolsControl}">
+    <Style TargetType="{x:Type automation:KeyFrameToolsControl}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Border.Static}"/>
         <Setter Property="BorderBrush" Value="Black"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type a:KeyFrameToolsControl}">
+                <ControlTemplate TargetType="{x:Type automation:KeyFrameToolsControl}">
                     <c:SpacedStackPanel x:Name="PART_AutomationPanel" Orientation="Horizontal">
                         <Button x:Name="PART_InsertKeyFrame" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
                                 Height="20" Width="20" ap:CornerRadiusHelper.Value="2"
@@ -92,10 +91,10 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type standard:BaseSliderParameterPropertyEditorControl}">
+    <Style TargetType="{x:Type automation:BaseSliderParameterPropertyEditorControl}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type standard:BaseSliderParameterPropertyEditorControl}">
+                <ControlTemplate TargetType="{x:Type automation:BaseSliderParameterPropertyEditorControl}">
                     <Grid Margin="5,0,2,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
@@ -104,7 +103,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock x:Name="PART_DisplayName" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
                         <DockPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Center">
-                            <a:KeyFrameToolsControl x:Name="PART_KeyFrameTools" Margin="2,0,0,0" DockPanel.Dock="Right"/>
+                            <automation:KeyFrameToolsControl x:Name="PART_KeyFrameTools" Margin="2,0,0,0" DockPanel.Dock="Right"/>
                             <d:NumberDragger x:Name="PART_DraggerX" Height="20"
                                              BorderBrush="Black" Style="{StaticResource AbletonNumberDraggerWithoutProgressStyle}"
                                              HorizontalContentAlignment="Left" Padding="4,2" PreviewRoundedPlaces="2"/>
@@ -115,13 +114,13 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type standard:ParameterFloatPropertyEditorControl}" BasedOn="{StaticResource {x:Type standard:BaseSliderParameterPropertyEditorControl}}"/>
-    <Style TargetType="{x:Type standard:ParameterDoublePropertyEditorControl}" BasedOn="{StaticResource {x:Type standard:BaseSliderParameterPropertyEditorControl}}"/>
+    <Style TargetType="{x:Type automation:ParameterFloatPropertyEditorControl}" BasedOn="{StaticResource {x:Type automation:BaseSliderParameterPropertyEditorControl}}"/>
+    <Style TargetType="{x:Type automation:ParameterDoublePropertyEditorControl}" BasedOn="{StaticResource {x:Type automation:BaseSliderParameterPropertyEditorControl}}"/>
 
-    <Style TargetType="{x:Type standard:ParameterVector2PropertyEditorControl}">
+    <Style TargetType="{x:Type automation:ParameterVector2PropertyEditorControl}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type standard:ParameterVector2PropertyEditorControl}">
+                <ControlTemplate TargetType="{x:Type automation:ParameterVector2PropertyEditorControl}">
                     <Grid Margin="5,0,2,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
@@ -130,7 +129,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock x:Name="PART_DisplayName" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
                         <DockPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Center">
-                            <a:KeyFrameToolsControl x:Name="PART_KeyFrameTools" Margin="2,0,0,0" DockPanel.Dock="Right"/>
+                            <automation:KeyFrameToolsControl x:Name="PART_KeyFrameTools" Margin="2,0,0,0" DockPanel.Dock="Right"/>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>

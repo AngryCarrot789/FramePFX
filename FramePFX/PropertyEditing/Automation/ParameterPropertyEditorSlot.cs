@@ -1,11 +1,11 @@
-﻿using FramePFX.Editors.Automation.Params;
-using System;
+﻿using System;
 using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Keyframes;
+using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Effects;
 
-namespace FramePFX.PropertyEditing.Standard {
+namespace FramePFX.PropertyEditing.Automation {
     public delegate void ParameterPropertyEditorSlotEventHandler(ParameterPropertyEditorSlot slot);
 
     public abstract class ParameterPropertyEditorSlot : PropertyEditorSlot {

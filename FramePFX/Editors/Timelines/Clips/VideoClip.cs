@@ -43,9 +43,19 @@ namespace FramePFX.Editors.Timelines.Clips {
         private SKMatrix internalTransformationMatrix;
         private bool isMatrixDirty;
 
+        /// <summary>
+        /// The actual live opacity of this clip. This is updated by the automation engine, and is not thread-safe (see <see cref="InternalRenderOpacity"/>)
+        /// </summary>
         public double Opacity;
 
         public byte OpacityByte => RenderUtils.DoubleToByte255(this.Opacity);
+
+        /// <summary>
+        /// Updated by the rendering engine when a clip begins rendering. This is a thread safe proxy of <see cref="Opacity"/>
+        /// </summary>
+        public double InternalRenderOpacity;
+
+        public byte InternalRenderOpacityByte => RenderUtils.DoubleToByte255(this.InternalRenderOpacity);
 
         /// <summary>
         /// Returns true if this clip handles its own opacity calculations in order for a more

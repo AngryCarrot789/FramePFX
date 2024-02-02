@@ -1,26 +1,46 @@
+using System.Numerics;
 using System.Windows;
 using System.Windows.Controls;
 using FramePFX.Editors.Automation;
+using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Controls.Dragger;
 using FramePFX.PropertyEditing.Automation;
-using FramePFX.PropertyEditing.Standard;
 
-namespace FramePFX.PropertyEditing.Controls.Standard {
-    public abstract class BaseSliderParameterPropertyEditorControl : BaseParameterPropertyEditorControl {
-        protected NumberDragger dragger;
+namespace FramePFX.PropertyEditing.Controls.Automation {
+    public class ParameterVector2PropertyEditorControl : BaseParameterPropertyEditorControl {
+        protected NumberDragger draggerX;
+        protected NumberDragger draggerY;
         protected TextBlock displayName;
         protected KeyFrameToolsControl keyFrameTools;
         protected bool IsUpdatingControl;
 
-        protected BaseSliderParameterPropertyEditorControl() {
+        public new ParameterVector2PropertyEditorSlot SlotModel => (ParameterVector2PropertyEditorSlot) base.SlotControl.Model;
+
+        public ParameterVector2PropertyEditorControl() {
 
         }
 
-        static BaseSliderParameterPropertyEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(BaseSliderParameterPropertyEditorControl), new FrameworkPropertyMetadata(typeof(BaseSliderParameterPropertyEditorControl)));
+        static ParameterVector2PropertyEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(ParameterVector2PropertyEditorControl), new FrameworkPropertyMetadata(typeof(ParameterVector2PropertyEditorControl)));
 
-        protected abstract void UpdateControlValue();
+        public override void OnApplyTemplate() {
+            base.OnApplyTemplate();
+            this.draggerX = this.GetTemplateChild<NumberDragger>("PART_DraggerX");
+            this.draggerY = this.GetTemplateChild<NumberDragger>("PART_DraggerY");
+            this.displayName = this.GetTemplateChild<TextBlock>("PART_DisplayName");
+            this.keyFrameTools = this.GetTemplateChild<KeyFrameToolsControl>("PART_KeyFrameTools");
+            this.draggerX.ValueChanged += (sender, args) => this.OnControlValueChanged();
+            this.draggerY.ValueChanged += (sender, args) => this.OnControlValueChanged();
+        }
 
-        protected abstract void UpdateModelValue();
+        protected void UpdateControlValue() {
+            Vector2 value = this.SlotModel.Value;
+            this.draggerX.Value = value.X;
+            this.draggerY.Value = value.Y;
+        }
+
+        protected void UpdateModelValue() {
+            this.SlotModel.Value = new Vector2((float) this.draggerX.Value, (float) this.draggerY.Value);
+        }
 
         private void OnModelValueChanged() {
             if (this.SlotModel != null) {
@@ -40,19 +60,7 @@ namespace FramePFX.PropertyEditing.Controls.Standard {
             }
         }
 
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
-            base.OnRenderSizeChanged(sizeInfo);
-        }
-
-        public override void OnApplyTemplate() {
-            base.OnApplyTemplate();
-            this.dragger = this.GetTemplateChild<NumberDragger>("PART_DraggerX");
-            this.displayName = this.GetTemplateChild<TextBlock>("PART_DisplayName");
-            this.keyFrameTools = this.GetTemplateChild<KeyFrameToolsControl>("PART_KeyFrameTools");
-            this.dragger.ValueChanged += (sender, args) => this.OnControlValueChanged();
-        }
-
-        protected sealed override void OnConnected() {
+        protected override void OnConnected() {
             base.OnConnected();
             ParameterPropertyEditorSlot slot = this.SlotModel;
             slot.ValueChanged += this.OnSlotValueChanged;
@@ -64,8 +72,6 @@ namespace FramePFX.PropertyEditing.Controls.Standard {
             this.OnHandlerListChanged(true);
         }
 
-        protected abstract void OnConnectedOverride();
-
         protected override void OnDisconnected() {
             base.OnDisconnected();
             ParameterPropertyEditorSlot slot = this.SlotModel;
@@ -73,6 +79,21 @@ namespace FramePFX.PropertyEditing.Controls.Standard {
             slot.HandlersLoaded -= this.OnHandlersChanged;
             slot.HandlersCleared -= this.OnHandlersChanged;
             this.OnHandlerListChanged(false);
+        }
+
+        protected void OnConnectedOverride() {
+            ParameterVector2PropertyEditorSlot slot = this.SlotModel;
+            ParameterDescriptorVector2 desc = slot.Parameter.Descriptor;
+            this.draggerX.Minimum = desc.Minimum.X;
+            this.draggerX.Maximum = desc.Maximum.X;
+            this.draggerY.Minimum = desc.Minimum.Y;
+            this.draggerY.Maximum = desc.Maximum.Y;
+
+            DragStepProfile profile = slot.StepProfile;
+            this.draggerX.TinyChange = this.draggerY.TinyChange = profile.TinyStep;
+            this.draggerX.SmallChange = this.draggerY.SmallChange = profile.SmallStep;
+            this.draggerX.LargeChange = this.draggerY.LargeChange = profile.NormalStep;
+            this.draggerX.MassiveChange = this.draggerY.MassiveChange = profile.LargeStep;
         }
 
         private void OnSlotValueChanged(ParameterPropertyEditorSlot slot) {

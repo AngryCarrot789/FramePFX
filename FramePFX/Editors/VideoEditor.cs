@@ -131,12 +131,14 @@ namespace FramePFX.Editors {
                 throw new Exception("A project is already loaded; it must be unloaded first");
             }
 
+            project.Settings.FrameRateChanged += this.OnProjectFrameRateChanged;
             this.Project = project;
+
             Project.OnOpened(this, project);
             this.ProjectChanged?.Invoke(this, null, project);
 
             ProjectSettings settings = project.Settings;
-            project.RenderManager.UpdateFrameInfo(new SKImageInfo(settings.Width, settings.Height, SKColorType.Bgra8888));
+            project.RenderManager.UpdateFrameInfo();
             project.RenderManager.InvalidateRender();
 
             // TODO: add event for FrameRate
@@ -149,10 +151,15 @@ namespace FramePFX.Editors {
                 throw new Exception("There is no project opened");
             }
 
+            oldProject.Settings.FrameRateChanged -= this.OnProjectFrameRateChanged;
             oldProject.Destroy();
             this.Project = null;
             this.ProjectChanged?.Invoke(this, oldProject, null);
             Project.OnClosed(this, oldProject);
+        }
+
+        private void OnProjectFrameRateChanged(ProjectSettings settings) {
+            this.Playback.SetFrameRate(settings.FrameRate);
         }
     }
 }

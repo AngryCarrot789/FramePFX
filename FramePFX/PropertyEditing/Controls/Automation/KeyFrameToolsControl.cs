@@ -10,7 +10,7 @@ using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Effects;
 
-namespace FramePFX.PropertyEditing.Automation {
+namespace FramePFX.PropertyEditing.Controls.Automation {
     /// <summary>
     /// A control which contains the common 3 buttons for automation: toggle override, insert key frame and reset value
     /// </summary>

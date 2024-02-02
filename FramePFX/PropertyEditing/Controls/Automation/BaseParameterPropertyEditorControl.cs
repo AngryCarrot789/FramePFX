@@ -1,8 +1,8 @@
 using System.Windows;
 using FramePFX.Editors.Automation;
-using FramePFX.PropertyEditing.Standard;
+using FramePFX.PropertyEditing.Automation;
 
-namespace FramePFX.PropertyEditing.Controls.Standard {
+namespace FramePFX.PropertyEditing.Controls.Automation {
     public abstract class BaseParameterPropertyEditorControl : BasePropEditControlContent {
         protected IAutomatable singleHandler;
 

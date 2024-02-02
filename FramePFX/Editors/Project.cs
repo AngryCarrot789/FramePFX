@@ -32,7 +32,7 @@ namespace FramePFX.Editors {
         public bool IsExporting { get; set; }
 
         public Project() {
-            this.Settings = ProjectSettings.Default;
+            this.Settings = ProjectSettings.CreateDefault(this);
             this.RenderManager = new RenderManager(this);
             this.ResourceManager = new ResourceManager(this);
             this.MainTimeline = new Timeline();
@@ -45,6 +45,8 @@ namespace FramePFX.Editors {
         }
 
         public void ReadFromRBE(RBEDictionary data) {
+            this.ResourceManager.ReadFromRBE(data.GetDictionary("ResourceManager"));
+            this.MainTimeline.ReadFromRBE(data.GetDictionary("Timeline"));
         }
 
         /// <summary>
@@ -55,10 +57,12 @@ namespace FramePFX.Editors {
             // TODO: this is no good
             while (this.RenderManager.IsRendering)
                 Thread.Sleep(1);
-            this.RenderManager.Dispose();
+            using (this.RenderManager.SuspendRenderInvalidation()) {
+                this.MainTimeline.Destroy();
+                this.ResourceManager.ClearEntries();
+            }
 
-            this.MainTimeline.Destroy();
-            this.ResourceManager.ClearEntries();
+            this.RenderManager.Dispose();
         }
 
         internal static void OnOpened(VideoEditor editor, Project project) {

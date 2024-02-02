@@ -77,6 +77,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
                 PreRenderContext ctx = new PreRenderContext(imgInfo, quality);
 
                 if (clip.PrepareRenderFrame(ctx, frame - clip.FrameSpan.Begin)) {
+                    clip.InternalRenderOpacity = clip.Opacity;
                     List<VideoEffect> effects = new List<VideoEffect>();
                     ReadOnlyCollection<BaseEffect> fxList = clip.Effects;
                     int fxCount = fxList.Count;

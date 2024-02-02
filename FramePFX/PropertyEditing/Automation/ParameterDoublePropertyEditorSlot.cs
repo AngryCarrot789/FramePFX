@@ -3,7 +3,7 @@ using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Controls.Automation;
 
-namespace FramePFX.PropertyEditing.Standard {
+namespace FramePFX.PropertyEditing.Automation {
     public class ParameterDoublePropertyEditorSlot : ParameterPropertyEditorSlot {
         private double value;
 

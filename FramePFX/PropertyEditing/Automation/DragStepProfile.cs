@@ -1,4 +1,4 @@
-namespace FramePFX.PropertyEditing.Standard {
+namespace FramePFX.PropertyEditing.Automation {
     /// <summary>
     /// Contains information about how a number dragger should step value changes
     /// </summary>

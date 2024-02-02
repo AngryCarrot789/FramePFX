@@ -1,5 +1,5 @@
 using FramePFX.Editors.Timelines.Effects;
-using FramePFX.PropertyEditing.Standard;
+using FramePFX.PropertyEditing.Automation;
 
 namespace FramePFX.Editors.PropertyEditors.Effects.Motion {
     public class MotionEffectPropertyEditorGroup : EffectPropertyEditorGroup {

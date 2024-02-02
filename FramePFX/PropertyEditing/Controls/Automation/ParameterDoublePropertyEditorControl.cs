@@ -1,8 +1,8 @@
 using System.Windows;
 using FramePFX.Editors.Automation.Params;
-using FramePFX.PropertyEditing.Standard;
+using FramePFX.PropertyEditing.Automation;
 
-namespace FramePFX.PropertyEditing.Controls.Standard {
+namespace FramePFX.PropertyEditing.Controls.Automation {
     public class ParameterDoublePropertyEditorControl : BaseSliderParameterPropertyEditorControl {
         public new ParameterDoublePropertyEditorSlot SlotModel => (ParameterDoublePropertyEditorSlot) base.SlotControl.Model;
 

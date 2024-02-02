@@ -59,15 +59,23 @@ namespace FramePFX.Editors.Controls.Viewports {
         private void SetProject(Project project) {
             Project oldProject = this.activeProject;
             if (oldProject != null) {
+                oldProject.Settings.ResolutionChanged -= this.UpdateResolution;
                 oldProject.MainTimeline.PlayHeadChanged -= OnTimelineSeeked;
                 oldProject.RenderManager.FrameRendered -= this.OnFrameAvailable;
             }
 
             this.activeProject = project;
             if (project != null) {
+                project.Settings.ResolutionChanged += this.UpdateResolution;
                 project.MainTimeline.PlayHeadChanged += OnTimelineSeeked;
                 project.RenderManager.FrameRendered += this.OnFrameAvailable;
+                this.UpdateResolution(project.Settings);
             }
+        }
+
+        private void UpdateResolution(ProjectSettings settings) {
+            this.Width = settings.Width;
+            this.Height = settings.Height;
         }
 
         private static void OnTimelineSeeked(Timeline timeline, long oldFrame, long frame) {

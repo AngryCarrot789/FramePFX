@@ -40,7 +40,6 @@ namespace FramePFX.Editors.Timelines.Clips {
 
         public override bool PrepareRenderFrame(PreRenderContext ctx, long frame) {
             this.renderData = new RenderData() {
-                opacity = this.Opacity,
                 size = this.Size,
                 colour = this.ColourKey.TryGetResource(out ResourceColour resource) ? resource.Colour : (this.Track?.Colour ?? SKColors.White)
             };
@@ -50,7 +49,7 @@ namespace FramePFX.Editors.Timelines.Clips {
 
         public override void RenderFrame(RenderContext rc, ref SKRect renderArea) {
             RenderData d = this.renderData;
-            SKColor colour = RenderUtils.BlendAlpha(d.colour, d.opacity);
+            SKColor colour = RenderUtils.BlendAlpha(d.colour, this.InternalRenderOpacity);
             using (SKPaint paint = new SKPaint() {Color = colour, IsAntialias = true}) {
                 rc.Canvas.DrawRect(0, 0, d.size.X, d.size.Y, paint);
             }
@@ -59,7 +58,6 @@ namespace FramePFX.Editors.Timelines.Clips {
         }
 
         private struct RenderData {
-            public double opacity; // the clip opacity
             public Vector2 size;
             public SKColor colour;
         }

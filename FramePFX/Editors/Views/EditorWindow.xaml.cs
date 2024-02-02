@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using FramePFX.Editors.Exporting;
 using FramePFX.Editors.Exporting.Controls;
+using FramePFX.Editors.ProjectProps;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.Timelines;
@@ -30,12 +31,11 @@ namespace FramePFX.Editors.Views {
         }
 
         private readonly DataContext actionSystemDataContext;
-        private readonly DispatcherTimer updateRenderIntervalTimer;
 
         private readonly NumberAverager renderTimeAverager;
 
         public EditorWindow() {
-            this.renderTimeAverager = new NumberAverager(10); // average 5 samples. Will take a second to catch up at 5 fps but meh
+            this.renderTimeAverager = new NumberAverager(5); // average 5 samples. Will take a second to catch up at 5 fps but meh
             this.actionSystemDataContext = new DataContext();
             this.InitializeComponent();
             this.Loaded += this.EditorWindow_Loaded;
@@ -214,6 +214,14 @@ namespace FramePFX.Editors.Views {
                 }
             };
             dialog.ShowDialog();
+        }
+
+        private void EditProjectSettings_Click(object sender, RoutedEventArgs e) {
+            Project project = this.Editor?.Project;
+            if (project == null)
+                return;
+
+            ProjectPropertiesDialog.ShowNewDialog(project);
         }
     }
 }

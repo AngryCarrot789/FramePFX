@@ -4,9 +4,8 @@ using System.Collections.ObjectModel;
 using FramePFX.Utils;
 
 namespace FramePFX.PropertyEditing {
-    public delegate void BasePropertyEditorGroupChildEventHandler(BasePropertyEditorGroup group, BasePropertyEditorObject item, int index);
-    public delegate void BasePropertyEditorGroupChildMovedEventHandler(BasePropertyEditorGroup group, BasePropertyEditorObject item, int oldIndex, int newIndex);
-    public delegate void BasePropertyEditorGroupEventHandler(BasePropertyEditorGroup group);
+    public delegate void PropertyEditorGroupChildEventHandler(BasePropertyEditorGroup group, BasePropertyEditorObject item, int index);
+    public delegate void PropertyEditorGroupChildMovedEventHandler(BasePropertyEditorGroup group, BasePropertyEditorObject item, int oldIndex, int newIndex);
 
     public abstract class BasePropertyEditorGroup : BasePropertyEditorItem {
         private readonly List<BasePropertyEditorObject> propObjs;
@@ -51,11 +50,11 @@ namespace FramePFX.PropertyEditing {
 
         public bool IsRoot => this.Parent == null;
 
-        public event BasePropertyEditorGroupChildEventHandler ItemAdded;
-        public event BasePropertyEditorGroupChildEventHandler ItemRemoved;
-        public event BasePropertyEditorGroupChildMovedEventHandler ItemMoved;
-        public event BasePropertyEditorGroupEventHandler DisplayNameChanged;
-        public event BasePropertyEditorGroupEventHandler IsExpandedChanged;
+        public event PropertyEditorGroupChildEventHandler ItemAdded;
+        public event PropertyEditorGroupChildEventHandler ItemRemoved;
+        public event PropertyEditorGroupChildMovedEventHandler ItemMoved;
+        public event BasePropertyEditorItemEventHandler DisplayNameChanged;
+        public event BasePropertyEditorItemEventHandler IsExpandedChanged;
 
         public BasePropertyEditorGroup(Type applicableType) : base(applicableType) {
             this.propObjs = new List<BasePropertyEditorObject>();

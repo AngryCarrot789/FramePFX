@@ -20,7 +20,6 @@ namespace FramePFX.Editors.Timelines.Clips {
         private Task<VideoFrame> decodeFrameTask;
         private long decodeFrameBegin;
         private long lastDecodeFrameDuration;
-        private double render_Opacity;
 
         public IResourcePathKey<ResourceAVMedia> ResourceAVMediaKey { get; }
 
@@ -58,7 +57,6 @@ namespace FramePFX.Editors.Timelines.Clips {
             if (resource.stream == null || resource.Demuxer == null)
                 return false;
 
-            this.render_Opacity = this.Opacity;
             if (frame == this.currentFrame && this.renderFrameRgb != null) {
                 return true;
             }
@@ -110,7 +108,7 @@ namespace FramePFX.Editors.Timelines.Clips {
             VideoFrame ready;
             if (this.decodeFrameTask != null) {
                 this.lastReadyFrame = ready = this.decodeFrameTask.Result;
-                System.Diagnostics.Debug.WriteLine("Last decode time: " + Math.Round((double) this.lastDecodeFrameDuration) / Time.TICK_PER_MILLIS + " ms");
+                // System.Diagnostics.Debug.WriteLine("Last decode time: " + Math.Round((double) this.lastDecodeFrameDuration) / Time.TICK_PER_MILLIS + " ms");
             }
             else {
                 ready = this.lastReadyFrame;
@@ -131,7 +129,7 @@ namespace FramePFX.Editors.Timelines.Clips {
                         return;
                     }
 
-                    using (SKPaint paint = new SKPaint() {FilterQuality = rc.FilterQuality, ColorF = new SKColorF(1f, 1f, 1f, (float) this.render_Opacity)}) {
+                    using (SKPaint paint = new SKPaint() {FilterQuality = rc.FilterQuality, ColorF = new SKColorF(1f, 1f, 1f, (float) this.InternalRenderOpacity)}) {
                         rc.Canvas.DrawImage(img, 0, 0, paint);
                     }
 
@@ -139,7 +137,7 @@ namespace FramePFX.Editors.Timelines.Clips {
                 }
 
                 long time = Time.GetSystemTicks() - startA;
-                System.Diagnostics.Debug.WriteLine("Last render time: " + Math.Round((double) time) / Time.TICK_PER_MILLIS + " ms");
+                // System.Diagnostics.Debug.WriteLine("Last render time: " + Math.Round((double) time) / Time.TICK_PER_MILLIS + " ms");
             }
         }
 

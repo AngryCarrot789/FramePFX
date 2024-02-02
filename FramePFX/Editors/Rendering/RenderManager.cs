@@ -14,7 +14,7 @@ namespace FramePFX.Editors.Rendering {
     public delegate void FrameRenderedEventHandler(RenderManager manager);
 
     /// <summary>
-    /// A class that manages the rendering capabilities of a project
+    /// A class that manages the audio-visual rendering for a project
     /// </summary>
     public class RenderManager {
         public Project Project { get; }
@@ -32,6 +32,7 @@ namespace FramePFX.Editors.Rendering {
 
         private SKBitmap bitmap;
         private SKPixmap pixmap;
+        // public but unsafe access to the underlying surface, used by view port. Must not be replaced externally
         public SKSurface surface;
 
         public Task ScheduledRenderTask => this.scheduledRenderTask;
@@ -42,6 +43,11 @@ namespace FramePFX.Editors.Rendering {
 
         public RenderManager(Project project) {
             this.Project = project;
+            this.Project.Settings.ResolutionChanged += this.SettingsOnResolutionChanged;
+        }
+
+        private void SettingsOnResolutionChanged(ProjectSettings settings) {
+            this.UpdateFrameInfo();
         }
 
         public void Dispose() {
@@ -53,16 +59,19 @@ namespace FramePFX.Editors.Rendering {
             this.isDisposed = true;
         }
 
-        public void UpdateFrameInfo(SKImageInfo info) {
-            if (this.ImageInfo == info) {
-                return;
-            }
-
+        public void UpdateFrameInfo() {
             if (this.IsRendering) {
                 throw new InvalidOperationException("Cannot change frame info while rendering");
             }
 
+            ProjectSettings settings = this.Project.Settings;
+            SKImageInfo info = new SKImageInfo(settings.Width, settings.Height, SKColorType.Bgra8888);
+            if (this.ImageInfo == info) {
+                return;
+            }
+
             this.ImageInfo = info;
+            this.surface?.Dispose();
             this.bitmap?.Dispose();
             this.pixmap?.Dispose();
             this.bitmap = new SKBitmap(info);
@@ -131,24 +140,16 @@ namespace FramePFX.Editors.Rendering {
 
         // SaveLayer requires a temporary drawing bitmap, which can slightly
         // decrease performance, so only SaveLayer when absolutely necessary
-        public static int SaveLayerForOpacity(SKCanvas canvas, double opacity, ref SKPaint transparency) {
-            return canvas.SaveLayer(transparency ?? (transparency = new SKPaint {
-                Color = new SKColor(255, 255, 255, RenderUtils.DoubleToByte255(opacity))
-            }));
-        }
 
         public static int BeginClipOpacityLayer(SKCanvas canvas, VideoClip clip, ref SKPaint paint) {
-            if (clip.UsesCustomOpacityCalculation || clip.Opacity >= 1.0) { // check greater than just in case...
+            if (clip.UsesCustomOpacityCalculation || clip.InternalRenderOpacity >= 1.0) { // check greater than just in case...
                 return canvas.Save();
             }
             else {
-                return SaveLayerForOpacity(canvas, clip.Opacity, ref paint);
+                return canvas.SaveLayer(paint ?? (paint = new SKPaint {
+                    Color = new SKColor(255, 255, 255, clip.InternalRenderOpacityByte)
+                }));
             }
-        }
-
-        public static int BeginTrackOpacityLayer(SKCanvas canvas, VideoTrack track, ref SKPaint paint) {
-            // TODO: optimise this, because it adds about 3ms of extra lag per layer with an opacity less than 1 (due to bitmap allocation obviously)
-            return track.Opacity >= 1.0 ? canvas.Save() : SaveLayerForOpacity(canvas, track.Opacity, ref paint);
         }
 
         public static void EndOpacityLayer(SKCanvas canvas, int count, ref SKPaint paint) {

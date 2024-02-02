@@ -65,7 +65,7 @@
                           wpf:UIInputManager.FocusPath="Application/Editor/ViewPort"
                           Focusable="True">
                     <DockPanel>
-                        <Border Background="{DynamicResource PanelBackground3}" DockPanel.Dock="Bottom" Height="32" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0 1 0 0">
+                        <Border Background="{DynamicResource ABrush.Tone5.Background.Static}" DockPanel.Dock="Bottom" Height="32" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0 1 0 0">
                             <DockPanel>
                                 <!-- Left Panel -->
                                 <Grid Margin="5,0,0,0" DockPanel.Dock="Left">
@@ -106,16 +106,17 @@
                             </DockPanel>
                         </Border>
                         <Border DockPanel.Dock="Top" Height="24" 
-                                Background="{DynamicResource PanelBackground3}"
+                                Background="{DynamicResource ABrush.Tone5.Background.Static}"
                                 BorderBrush="{DynamicResource PanelBorderBrush}"
                                 BorderThickness="0,1,0,0">
                             <Grid>
                                 <ComboBox HorizontalAlignment="Left" BorderThickness="0" ToolTip="Rendering quality"/>
+                                <Button Content="Edit Project Settings" HorizontalAlignment="Right" Padding="15,0" BorderThickness="0" Click="EditProjectSettings_Click"/>
                             </Grid>
                         </Border>
                         <Grid Background="Transparent">
                             <cv:FreeMoveViewPort x:Name="VPViewBox" ClipToBounds="True" Background="{DynamicResource PanelBackground1}">
-                                <cv:VideoEditorViewPortPreview x:Name="PART_ViewPort" Width="1280" Height="720"/>
+                                <cv:VideoEditorViewPortPreview x:Name="PART_ViewPort" Width="1" Height="1"/>
                             </cv:FreeMoveViewPort>
                         </Grid>
                     </DockPanel>

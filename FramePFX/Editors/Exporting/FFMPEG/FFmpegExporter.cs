@@ -14,7 +14,7 @@ using SkiaSharp;
 
 namespace FramePFX.Editors.Exporting.FFMPEG {
     public class FFmpegExporter : Exporter {
-        public (int, int) Resolution { get; set; }
+        public Vec2i Resolution { get; set; }
 
         public Rational FrameRate { get; set; }
 
@@ -40,7 +40,7 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
             Task renderTask = null;
             bool isRenderCancelled = false;
             FrameSpan duration = properties.Span;
-            (int Width, int Height) resolution = this.Resolution;
+            Vec2i resolution = this.Resolution;
             Rational frameRate = this.FrameRate;
             AVCodecID codec_id = this.Codecs;
             Exception exception = null;
@@ -90,8 +90,8 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
             }
 
             c->bit_rate = this.BitRate;
-            c->width = resolution.Width;
-            c->height = resolution.Height;
+            c->width = resolution.X;
+            c->height = resolution.Y;
             c->time_base = frameRate.Inverse;
             st->time_base = c->time_base;
             c->gop_size = this.GopValue;
@@ -180,7 +180,7 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
                 goto fail_or_end;
             }
 
-            SKImageInfo imgInfo = new SKImageInfo(resolution.Width, resolution.Height, SKColorType.Bgra8888, SKAlphaType.Premul);
+            SKImageInfo imgInfo = new SKImageInfo(resolution.X, resolution.Y, SKColorType.Bgra8888, SKAlphaType.Premul);
             SKBitmap bitmap = new SKBitmap(imgInfo);
             IntPtr ptr = bitmap.GetAddress(0, 0);
             SKPixmap pixmap = new SKPixmap(imgInfo, ptr, imgInfo.RowBytes);
@@ -204,7 +204,7 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
                 int width = RNDTO2(c->width);
                 int height = RNDTO2(c->height);
                 s = ffmpeg.sws_getContext(
-                    resolution.Width, resolution.Height, AVPixelFormat.AV_PIX_FMT_BGRA,
+                    resolution.X, resolution.Y, AVPixelFormat.AV_PIX_FMT_BGRA,
                     width, height, AVPixelFormat.AV_PIX_FMT_YUV420P,
                     ffmpeg.SWS_BILINEAR, null, null, null);
 
@@ -215,7 +215,6 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
                     }
 
                     try {
-                        // TODO: work out a better way around this; some clips read the timeline's play head positions
                         Dispatcher dispatcher = Application.Current?.Dispatcher;
                         if (dispatcher == null) {
                             isRenderCancelled = true;
@@ -250,10 +249,6 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
                     }
 
                     surface.Flush();
-                    // is it even possible to hardware accelerate this?
-                    // currently, this is reading pixels from GPU to main memory, then
-                    // sws_scale takes those raw pixels and converts to YUV
-
                     byte* data = (byte*) pixmap.GetPixels();
                     int stride = pixmap.RowBytes;
                     {
@@ -400,7 +395,7 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
 
         public override void LoadProjectDefaults(Project project) {
             ProjectSettings set = project.Settings;
-            this.Resolution = (set.Width, set.Height);
+            this.Resolution = set.Resolution;
             this.FrameRate = project.Settings.FrameRate;
         }
     }

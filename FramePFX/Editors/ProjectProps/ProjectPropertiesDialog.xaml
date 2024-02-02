@@ -1,0 +1,64 @@
+﻿<views:WindowEx x:Class="FramePFX.Editors.ProjectProps.ProjectPropertiesDialog"
+                xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                xmlns:local="clr-namespace:FramePFX.Editors.Views"
+                xmlns:views="clr-namespace:FramePFX.Views" 
+                xmlns:c="clr-namespace:FramePFX.Editors.Controls" 
+                xmlns:dr="clr-namespace:FramePFX.Editors.Controls.Dragger"
+                mc:Ignorable="d"
+                Title="ProjectSettingsWindow" Height="450" Width="300"
+                Style="{StaticResource CustomWindowStyleEx}">
+    <Grid Margin="5,5,5,0">
+        <TabControl Margin="0,0,0,42" BorderBrush="{DynamicResource ABrush.AccentTone3.Border.Static}">
+            <TabItem Header="Video">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="75"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="5"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="5"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="5"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="329.12"/>
+                        <RowDefinition Height="45"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Padding="5,3,5,5" VerticalAlignment="Center" Text="Resolution" Grid.Column="1" Grid.Row="1"/>
+                    <Grid Grid.Column="2" Grid.Row="1" Margin="0,0,0,5" Grid.RowSpan="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <dr:NumberDragger Grid.Column="0" x:Name="PART_WidthDragger" Padding="0,1"
+                                          Style="{StaticResource AbletonNumberDraggerStyle}"
+                                          BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}"
+                                          Minimum="1" Maximum="65535" TinyChange="1" SmallChange="1" LargeChange="1" MassiveChange="5"/>
+
+                        <dr:NumberDragger Grid.Column="2" x:Name="PART_HeightDragger" Padding="0,1" 
+                                          Style="{StaticResource AbletonNumberDraggerStyle}"
+                                          BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}"
+                                          Minimum="1" Maximum="65535" TinyChange="1" SmallChange="1" LargeChange="1" MassiveChange="5"/>
+                    </Grid>
+
+                    <TextBlock Padding="5,3,5,5" VerticalAlignment="Center" Text="Frame rate" Grid.Column="1" Grid.Row="3"/>
+                    <dr:NumberDragger Grid.Column="2" Grid.Row="3" x:Name="PART_FrameRateDragger" Padding="0,1" 
+                                      Style="{StaticResource AbletonNumberDraggerStyle}"
+                                      BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}"
+                                      TinyChange="0.01" SmallChange="0.1" LargeChange="1" MassiveChange="2" Margin="0,0,0,329" Grid.RowSpan="2"
+                                      Minimum="1" Maximum="120"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <c:SpacedStackPanel Orientation="Horizontal" InterElementGap="5" VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="42">
+            <Button Content="Apply and Close" VerticalAlignment="Center" Padding="15,3" Click="ApplyAndCloseClick"/>
+            <Button Content="Cancel" VerticalAlignment="Center" Padding="15,3" Click="CancelAndCloseClick"/>
+        </c:SpacedStackPanel>
+    </Grid>
+</views:WindowEx>

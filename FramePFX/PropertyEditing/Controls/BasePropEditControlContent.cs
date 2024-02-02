@@ -5,8 +5,8 @@ using System.Windows;
 using System.Windows.Controls;
 using FramePFX.Editors.PropertyEditors.AControls;
 using FramePFX.Editors.PropertyEditors.Clips;
-using FramePFX.PropertyEditing.Controls.Standard;
-using FramePFX.PropertyEditing.Standard;
+using FramePFX.PropertyEditing.Automation;
+using FramePFX.PropertyEditing.Controls.Automation;
 
 namespace FramePFX.PropertyEditing.Controls {
     public abstract class BasePropEditControlContent : Control {

@@ -1,32 +1,27 @@
+using System;
+using FramePFX.RBC;
+using FramePFX.Utils;
+
 namespace FramePFX.Editors {
     public delegate void ProjectSettingsEventHandler(ProjectSettings settings);
 
     public class ProjectSettings {
-        public static ProjectSettings Default => new ProjectSettings(1920, 1080, new Rational(60, 1));
-
-        private int width;
-        private int height;
+        private Vec2i resolution;
         private Rational frameRate;
 
-        public int Width {
-            get => this.width;
+        public Vec2i Resolution {
+            get => this.resolution;
             set {
-                if (this.width == value)
+                if (this.resolution == value)
                     return;
-                this.width = value;
-                this.WidthChanged?.Invoke(this);
+                this.resolution = value;
+                this.ResolutionChanged?.Invoke(this);
             }
         }
 
-        public int Height {
-            get => this.height;
-            set {
-                if (this.height == value)
-                    return;
-                this.height = value;
-                this.HeightChanged?.Invoke(this);
-            }
-        }
+        public int Width => this.resolution.X;
+
+        public int Height => this.resolution.Y;
 
         public Rational FrameRate {
             get => this.frameRate;
@@ -38,17 +33,48 @@ namespace FramePFX.Editors {
             }
         }
 
-        public event ProjectSettingsEventHandler WidthChanged;
-        public event ProjectSettingsEventHandler HeightChanged;
+        public event ProjectSettingsEventHandler ResolutionChanged;
         public event ProjectSettingsEventHandler FrameRateChanged;
 
-        public ProjectSettings() {
+        /// <summary>
+        /// Gets the project associated with these settings
+        /// </summary>
+        public Project Project { get; }
+
+        public ProjectSettings(Project project, int width, int height, Rational frameRate) : this(project) {
+            this.resolution = new Vec2i(width, height);
+            this.frameRate = frameRate;
         }
 
-        public ProjectSettings(int width, int height, Rational frameRate) {
-            this.Width = width;
-            this.Height = height;
-            this.FrameRate = frameRate;
+        public ProjectSettings(Project project) {
+            this.Project = project ?? throw new ArgumentNullException(nameof(project));
+        }
+
+        public static ProjectSettings CreateDefault(Project project) {
+            return new ProjectSettings(project, 1920, 1080, new Rational(60, 1));
+        }
+
+        public ProjectSettings Clone(Project project = null) {
+            ProjectSettings settings = new ProjectSettings(project ?? this.Project);
+            RBEDictionary dictionary = new RBEDictionary();
+            this.WriteToRBE(dictionary);
+            settings.ReadFromRBE(dictionary);
+            return settings;
+        }
+
+        public void WriteToRBE(RBEDictionary dictionary) {
+            dictionary.SetULong(nameof(this.FrameRate), (ulong) this.frameRate);
+            dictionary.SetULong(nameof(this.Resolution), (ulong) this.resolution);
+        }
+
+        public void ReadFromRBE(RBEDictionary dictionary) {
+            this.frameRate = (Rational) dictionary.GetULong(nameof(this.FrameRate));
+            this.resolution = (Vec2i) dictionary.GetULong(nameof(this.Resolution));
+        }
+
+        public void WriteInto(ProjectSettings settings) {
+            settings.Resolution = this.Resolution;
+            settings.FrameRate = this.FrameRate;
         }
     }
 }

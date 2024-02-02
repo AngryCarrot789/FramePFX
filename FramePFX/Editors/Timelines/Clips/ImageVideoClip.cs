@@ -8,7 +8,6 @@ using SkiaSharp;
 namespace FramePFX.Editors.Timelines.Clips {
     public class ImageVideoClip : VideoClip {
         private readonly RenderLockedData<SKImage> lockedImage;
-        private double renderOpacity;
 
         public IResourcePathKey<ResourceImage> ResourceImageKey { get; }
 
@@ -40,7 +39,6 @@ namespace FramePFX.Editors.Timelines.Clips {
 
         public override bool PrepareRenderFrame(PreRenderContext ctx, long frame) {
             if (this.ResourceImageKey.TryGetResource(out ResourceImage resource) && resource.image != null) {
-                this.renderOpacity = this.Opacity;
                 this.lockedImage.OnPrepareRender(resource.image);
                 return true;
             }
@@ -53,7 +51,7 @@ namespace FramePFX.Editors.Timelines.Clips {
                 return;
             }
 
-            using (SKPaint paint = new SKPaint {FilterQuality = rc.FilterQuality, ColorF = RenderUtils.BlendAlpha(SKColors.White, this.renderOpacity)})
+            using (SKPaint paint = new SKPaint {FilterQuality = rc.FilterQuality, ColorF = RenderUtils.BlendAlpha(SKColors.White, this.InternalRenderOpacity)})
                 rc.Canvas.DrawImage(image, 0, 0, paint);
 
             renderArea = rc.Canvas.TotalMatrix.MapRect(new SKRect(0, 0, image.Width, image.Height));

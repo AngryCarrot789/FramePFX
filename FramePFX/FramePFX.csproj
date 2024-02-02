@@ -132,11 +132,15 @@
     <Compile Include="Editors\Exporting\FFMPEG\FFUtils.cs" />
     <Compile Include="Editors\Exporting\FFMPEG\LavResult.cs" />
     <Compile Include="Editors\Exporting\IExportProgress.cs" />
+    <Compile Include="Editors\ProjectProps\ProjectPropertiesDialog.xaml.cs">
+      <DependentUpon>ProjectPropertiesDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Editors\PropertyEditors\AControls\ClipDisplayNamePropertyEditorControl.cs" />
     <Compile Include="Editors\PropertyEditors\AControls\TimecodeFontFamilyPropertyEditorControl.cs" />
     <Compile Include="Editors\PropertyEditors\AControls\VideoClipMediaFrameOffsetPropertyEditorControl.cs" />
     <Compile Include="Editors\PropertyEditors\Clips\TimecodeFontFamilyPropertyEditorSlot.cs" />
     <Compile Include="Editors\PropertyEditors\Clips\VideoClipMediaFrameOffsetPropertyEditorSlot.cs" />
+    <Compile Include="Editors\PropertyEditors\ProjectPropertiesPropertyEditorGroup.cs" />
     <Compile Include="Editors\Rational.cs" />
     <Compile Include="Editors\Rendering\EnumRenderQuality.cs" />
     <Compile Include="Editors\RenderLockedData.cs" />
@@ -205,26 +209,26 @@
     <Compile Include="IoC.cs" />
     <Compile Include="IServiceManager.cs" />
     <Compile Include="Profiling\Profiler.cs" />
-    <Compile Include="PropertyEditing\Controls\GroupTypeToStyleConverter.cs" />
-    <Compile Include="PropertyEditing\Controls\GroupTypeToTemplateConverter.cs" />
+    <Compile Include="PropertyEditing\Controls\Automation\KeyFrameToolsControl.cs" />
+    <Compile Include="PropertyEditing\Controls\Converters\GroupTypeToStyleConverter.cs" />
+    <Compile Include="PropertyEditing\Controls\Converters\GroupTypeToTemplateConverter.cs" />
     <Compile Include="PropertyEditing\Controls\PropertyEditorGroupNonExpanderControl.cs" />
-    <Compile Include="PropertyEditing\Controls\Standard\BaseParameterPropertyEditorControl.cs" />
-    <Compile Include="PropertyEditing\Controls\Standard\ParameterDoublePropertyEditorControl.cs" />
-    <Compile Include="PropertyEditing\Controls\Standard\ParameterFloatPropertyEditorControl.cs" />
+    <Compile Include="PropertyEditing\Controls\Automation\BaseParameterPropertyEditorControl.cs" />
+    <Compile Include="PropertyEditing\Controls\Automation\ParameterDoublePropertyEditorControl.cs" />
+    <Compile Include="PropertyEditing\Controls\Automation\ParameterFloatPropertyEditorControl.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\EffectListPropertyEditorGroup.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\EffectPropertyEditorGroup.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\Motion\MotionEffectPropertyEditorGroup.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\TODO\EffectListPropertyEditorGroup.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\TODO\EffectPropertyEditorGroup.cs" />
-    <Compile Include="PropertyEditing\Controls\Standard\BaseSliderParameterPropertyEditorControl.cs" />
-    <Compile Include="PropertyEditing\Controls\Standard\ParameterVector2PropertyEditorControl.cs" />
+    <Compile Include="PropertyEditing\Controls\Automation\BaseSliderParameterPropertyEditorControl.cs" />
+    <Compile Include="PropertyEditing\Controls\Automation\ParameterVector2PropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\GroupType.cs" />
-    <Compile Include="PropertyEditing\Standard\ParameterDoublePropertyEditorSlot.cs" />
-    <Compile Include="PropertyEditing\Standard\ParameterFloatPropertyEditorSlot.cs" />
-    <Compile Include="PropertyEditing\Standard\ParameterPropertyEditorSlot.cs" />
-    <Compile Include="PropertyEditing\Standard\DragStepProfile.cs" />
+    <Compile Include="PropertyEditing\Automation\ParameterDoublePropertyEditorSlot.cs" />
+    <Compile Include="PropertyEditing\Automation\ParameterFloatPropertyEditorSlot.cs" />
+    <Compile Include="PropertyEditing\Automation\ParameterPropertyEditorSlot.cs" />
+    <Compile Include="PropertyEditing\Automation\DragStepProfile.cs" />
     <Compile Include="PropertyEditing\ApplicabilityMode.cs" />
-    <Compile Include="PropertyEditing\Automation\KeyFrameToolsControl.cs" />
     <Compile Include="PropertyEditing\BasePropertyEditor.cs" />
     <Compile Include="PropertyEditing\BasePropertyEditorGroup.cs" />
     <Compile Include="PropertyEditing\BasePropertyEditorItem.cs" />
@@ -237,7 +241,7 @@
     <Compile Include="PropertyEditing\SimplePropertyEditorGroup.cs" />
     <Compile Include="PropertyEditing\HandlerCountMode.cs" />
     <Compile Include="PropertyEditing\PropertyEditorSlot.cs" />
-    <Compile Include="PropertyEditing\Standard\ParameterVector2PropertyEditorSlot.cs" />
+    <Compile Include="PropertyEditing\Automation\ParameterVector2PropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\VideoEditorPropertyEditor.cs" />
     <Compile Include="RBC\BinaryUtils.cs" />
     <Compile Include="RBC\Events\ReadFromRBEEventHandler.cs" />
@@ -458,6 +462,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Editors\Exporting\Controls\ExportProgressDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Editors\ProjectProps\ProjectPropertiesDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -801,9 +809,6 @@
     <Content Include="Keymap.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Services\Messages\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\SkiaSharp.NativeAssets.macOS.2.88.7\build\net462\SkiaSharp.NativeAssets.macOS.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.macOS.2.88.7\build\net462\SkiaSharp.NativeAssets.macOS.targets')" />

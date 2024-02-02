@@ -135,6 +135,7 @@
         <Setter Property="Focusable" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type clips:TimelineClipControl}">
@@ -146,7 +147,7 @@
                                                         HorizontalAlignment="Stretch"
                                                         VerticalAlignment="Stretch"
                                                         Margin="0,20,0,0"/>
-                            <Border x:Name="PART_SelectionBorder" Margin="-1"
+                            <Border x:Name="PART_SelectionBorder" Margin="-1,0,-2,0"
                                     BorderThickness="2"
                                     BorderBrush="YellowGreen"
                                     Visibility="Hidden"

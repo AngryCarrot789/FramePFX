@@ -3,11 +3,11 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace FramePFX.PropertyEditing.Controls {
-    public class GroupTypeToTemplateConverter : IValueConverter {
-        public FrameworkTemplate PrimaryExpander { get; set; }
-        public FrameworkTemplate SecondaryExpander { get; set; }
-        public FrameworkTemplate NoExpanderStyle { get; set; }
+namespace FramePFX.PropertyEditing.Controls.Converters {
+    public class GroupTypeToStyleConverter : IValueConverter {
+        public Style PrimaryExpander { get; set; }
+        public Style SecondaryExpander { get; set; }
+        public Style NoExpanderStyle { get; set; }
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
             if (value == DependencyProperty.UnsetValue || !(value is GroupType groupType)) {

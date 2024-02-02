@@ -422,11 +422,14 @@ namespace FramePFX.Editors.Timelines {
 
         internal static void InternalSetMainTimelineProjectReference(Timeline timeline, Project project) {
             // no need to tell clips or tracks that our project changed, since there is guaranteed
-            // to be none, unless this method is called outside of the project's constructor
+            // to be none, unless this method is called outside of the project's constructor which it
+            // shouldn't have been anyway
             timeline.Project = project;
         }
 
         // TODO: composition timelines
+        // This will have to traverse the entire timeline tree, and possible any other composition clips within
+        // the timeline to update all of their projects to the given one
         internal static void InternalSetCompositionTimelineProjectReference(Timeline timeline, Project project) {
 
         }

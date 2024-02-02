@@ -165,7 +165,7 @@ namespace FramePFX.Views {
         /// </summary>
         /// <returns>Whether the window was closed or not</returns>
         public async Task<bool> CloseAsync() {
-            if (await this.CanCloseAsync()) {
+            if (await this.OnClosingAsync()) {
                 if (this.isHandlingSyncClosing) {
                     return true;
                 }
@@ -188,7 +188,7 @@ namespace FramePFX.Views {
         /// Called when the window is trying to be closed
         /// </summary>
         /// <returns>True if the window can close, otherwise false to stop it from closing</returns>
-        protected virtual Task<bool> CanCloseAsync() {
+        protected virtual Task<bool> OnClosingAsync() {
             return Task.FromResult(true);
         }
 

@@ -90,8 +90,8 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             double distThreshold = 0.5 / this.stream.AvgFrameRate; //will dupe too many frames if set to 1.0
 
             if (Math.Abs(frameDist) > distThreshold) {
-                //If the nearest frame is past or too far after the requested timestamp, seek to the nearest keyframe before it
-                if (frameDist < 0 || frameDist > 5.0) {
+                // If the nearest frame is past or too far after the requested timestamp, seek to the nearest keyframe before it
+                if (frameDist < 0 || frameDist > 3.0) {
                     this.Demuxer.Seek(timestamp);
                     this.decoder.Flush();
                 }

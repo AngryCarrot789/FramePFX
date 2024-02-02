@@ -19,11 +19,42 @@ namespace FramePFX.Editors.Timelines.Clips {
         private long currentFrame = -1;
         public Task<VideoFrame> decodeFrameTask;
 
+        private long decodeFrameBegin;
+        private long lastDecodeFrameDuration;
+
+        private double targetFrameIntervalTicks;
+
         public IResourcePathKey<ResourceAVMedia> ResourceAVMediaKey { get; }
 
         public AVMediaVideoClip() {
             this.ResourceAVMediaKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceAVMedia>();
             this.ResourceAVMediaKey.ResourceChanged += this.OnResourceChanged;
+        }
+
+        protected override void OnProjectChanged(Project oldProject, Project newProject) {
+            base.OnProjectChanged(oldProject, newProject);
+            if (oldProject != null) {
+                oldProject.Settings.FrameRateChanged -= this.OnProjectFrameRateChanged;
+            }
+
+            if (newProject != null) {
+                newProject.Settings.FrameRateChanged -= this.OnProjectFrameRateChanged;
+            }
+
+            this.UpdateTargetFrameRate();
+        }
+
+        private void OnProjectFrameRateChanged(ProjectSettings settings) {
+            this.UpdateTargetFrameRate();
+        }
+
+        private void UpdateTargetFrameRate() {
+            if (this.Project == null) {
+                return;
+            }
+
+            double fps = this.Project.Settings.FrameRate.AsDouble;
+            this.targetFrameIntervalTicks = Time.TICK_PER_SECOND_D / fps;
         }
 
         private bool TryGetResource(out ResourceAVMedia resource) => this.ResourceAVMediaKey.TryGetResource(out resource);
@@ -64,16 +95,20 @@ namespace FramePFX.Editors.Timelines.Clips {
                 }
 
                 FrameSpan span = this.FrameSpan;
-                double timeScale = this.Project.Settings.FrameRate;
-                TimeSpan timestamp = TimeSpan.FromSeconds(frame / timeScale);
+                // double timeScale = this.Project.Settings.FrameRate.AsDouble;
+                // TimeSpan timestamp = TimeSpan.FromSeconds((frame - this.MediaFrameOffset) / timeScale);
+                TimeSpan timestamp = TimeSpan.FromTicks((long) ((frame - this.MediaFrameOffset) * this.targetFrameIntervalTicks));
+
                 // No need to dispose as the frames are stored in a frame buffer, which is disposed by the resource itself
                 this.currentFrame = frame;
                 this.decodeFrameTask = Task.Run(async () => {
-                    Task task = Interlocked.Exchange(ref resource.CurrentGetFrameTask, this.decodeFrameTask);
-                    if (task != null && !task.IsCompleted) {
-                        await task;
+                    this.decodeFrameBegin = Time.GetSystemTicks();
+                    Task resourceRenderTask = Interlocked.Exchange(ref resource.CurrentGetFrameTask, this.decodeFrameTask);
+                    if (resourceRenderTask != null && !resourceRenderTask.IsCompleted) {
+                        await resourceRenderTask;
                     }
 
+                    VideoFrame output = null;
                     VideoFrame ready = resource.GetFrameAt(timestamp);
                     if (ready != null && !ready.IsDisposed) {
                         // TODO: Maybe add an async frame fetcher that buffers the frames, or maybe add
@@ -87,42 +122,47 @@ namespace FramePFX.Editors.Timelines.Clips {
                         }
 
                         this.ScaleFrame(ready);
-                        return ready;
+                        output = ready;
                     }
 
-                    return null;
+                    this.lastDecodeFrameDuration = Time.GetSystemTicks() - this.decodeFrameBegin;
+                    return output;
                 });
             }
 
             return true;
         }
 
-        public override void RenderFrame(RenderContext rc) {
+        public override void RenderFrame(RenderContext rc, ref SKRect renderArea) {
             VideoFrame ready;
             if (this.decodeFrameTask != null) {
                 this.lastReadyFrame = ready = this.decodeFrameTask.Result;
+                // System.Diagnostics.Debug.WriteLine("Last decode time: " + Math.Round((double) this.lastDecodeFrameDuration) / Time.TICK_PER_MILLIS + " ms");
             }
             else {
                 ready = this.lastReadyFrame;
             }
 
-            if (ready == null || ready.IsDisposed) {
-                return;
-            }
+            if (ready != null && !ready.IsDisposed) {
+                unsafe {
+                    byte* ptr;
+                    GetFrameData(this.renderFrameRgb, 0, &ptr, out int rowBytes);
+                    SKImageInfo image = new SKImageInfo(this.renderFrameRgb.Width, this.renderFrameRgb.Height, SKColorType.Rgba8888);
+                    using (SKImage img = SKImage.FromPixels(image, (IntPtr) ptr, rowBytes)) {
+                        if (img == null) {
+                            return;
+                        }
 
-            unsafe {
-                byte* ptr;
-                GetFrameData(this.renderFrameRgb, 0, &ptr, out int rowBytes);
-                SKImageInfo image = new SKImageInfo(this.renderFrameRgb.Width, this.renderFrameRgb.Height, SKColorType.Rgba8888);
-                using (SKImage img = SKImage.FromPixels(image, (IntPtr) ptr, rowBytes)) {
-                    if (img == null) {
-                        return;
-                    }
+                        using (SKPaint paint = new SKPaint() {FilterQuality = rc.FilterQuality, ColorF = new SKColorF(1f, 1f, 1f, (float) this.Opacity)}) {
+                            rc.Canvas.DrawImage(img, 0, 0, paint);
+                        }
 
-                    using (SKPaint paint = new SKPaint() {FilterQuality = rc.FilterQuality, ColorF = new SKColorF(1f, 1f, 1f, (float) this.Opacity)}) {
-                        rc.Canvas.DrawImage(img, 0, 0, paint);
+                        renderArea = rc.TranslateRect(new SKRect(0, 0, img.Width, img.Height));
                     }
                 }
+            }
+            else {
+                renderArea = default;
             }
         }
 

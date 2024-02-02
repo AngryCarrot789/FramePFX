@@ -72,7 +72,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         }
 
         public override bool PrepareRenderFrame(PreRenderContext ctx, long frame) {
-            double fps = this.Project.Settings.FrameRate;
+            double fps = this.Project.Settings.FrameRate.AsDouble;
 
             long playHead = this.FrameSpan.Begin + frame;
             this.render_Frame = playHead;
@@ -82,7 +82,7 @@ namespace FramePFX.Editors.Timelines.Clips {
             return true;
         }
 
-        public override void RenderFrame(RenderContext rc) {
+        public override void RenderFrame(RenderContext rc, ref SKRect renderArea) {
             using (SKPaint paint = new SKPaint() {IsAntialias = true, Color = SKColors.White}) {
                 string text = this.GetCurrentTimeString();
                 if (this.cachedFont == null) {

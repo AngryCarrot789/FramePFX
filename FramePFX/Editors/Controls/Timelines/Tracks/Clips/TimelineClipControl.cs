@@ -321,10 +321,10 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                 case DragState.DragBody:
                     this.Cursor = Cursors.SizeAll;
                     break;
-                case DragState.DragLeftEdge:
+                case DragState.DragLeftGrip:
                     this.Cursor = Cursors.SizeWE;
                     break;
-                case DragState.DragRightEdge:
+                case DragState.DragRightGrip:
                     this.Cursor = Cursors.SizeWE;
                     break;
                 default: throw new ArgumentOutOfRangeException(nameof(state), state, null);
@@ -382,10 +382,10 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                         this.SetDragState(DragState.DragBody);
                         break;
                     case ClipPart.LeftGrip:
-                        this.SetDragState(DragState.DragLeftEdge);
+                        this.SetDragState(DragState.DragLeftGrip);
                         break;
                     case ClipPart.RightGrip:
-                        this.SetDragState(DragState.DragRightEdge);
+                        this.SetDragState(DragState.DragRightGrip);
                         break;
                 }
             }
@@ -441,14 +441,37 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                     }
                 }
             }
-            else if (this.dragState == DragState.DragLeftEdge || this.dragState == DragState.DragRightEdge) {
+            else if (this.dragState == DragState.DragLeftGrip || this.dragState == DragState.DragRightGrip) {
                 if (Math.Abs(mPosDifRel.X) >= 1.0d) {
                     long offset = (long) Math.Round(mPosDifRel.X / zoom);
                     if (offset == 0) {
                         return;
                     }
 
-                    if (this.dragState == DragState.DragRightEdge) {
+                    if (this.dragState == DragState.DragLeftGrip) {
+                        if ((oldSpan.Begin + offset) < 0) {
+                            offset = -oldSpan.Begin;
+                        }
+
+                        if (offset != 0) {
+                            long newBegin = oldSpan.Begin + offset;
+                            // Clamps the offset to ensure we don't end up with a negative duration
+                            if (newBegin >= oldSpan.EndIndex) {
+                                // subtract 1 to ensure clip is always 1 frame long
+                                newBegin = oldSpan.EndIndex - 1;
+                            }
+
+                            FrameSpan newSpan = FrameSpan.FromIndex(newBegin, oldSpan.EndIndex);
+                            long newEndIndex = newSpan.EndIndex;
+                            if (newEndIndex > ctrl.Timeline.MaxDuration) {
+                                ctrl.Timeline.MaxDuration = newEndIndex + 300;
+                            }
+
+                            this.Model.FrameSpan = newSpan;
+                            this.Model.MediaFrameOffset += (oldSpan.Begin - newSpan.Begin);
+                        }
+                    }
+                    else {
                         // Clamps the offset to ensure we don't end up with a negative duration
                         if ((oldSpan.EndIndex + offset) <= oldSpan.Begin) {
                             // add 1 to ensure clip is always 1 frame long, just because ;)
@@ -475,28 +498,6 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                             // results in an exponential endIndex increase unless the below code is used.
                             // This code is not needed for the left grip because it just naturally isn't
                             this.clickPos.X += (newSpan.EndIndex - oldSpan.EndIndex) * zoom;
-                        }
-                    }
-                    else {
-                        if ((oldSpan.Begin + offset) < 0) {
-                            offset = -oldSpan.Begin;
-                        }
-
-                        if (offset != 0) {
-                            long newBegin = oldSpan.Begin + offset;
-                            // Clamps the offset to ensure we don't end up with a negative duration
-                            if (newBegin >= oldSpan.EndIndex) {
-                                // subtract 1 to ensure clip is always 1 frame long
-                                newBegin = oldSpan.EndIndex - 1;
-                            }
-
-                            FrameSpan newSpan = FrameSpan.FromIndex(newBegin, oldSpan.EndIndex);
-                            long newEndIndex = newSpan.EndIndex;
-                            if (newEndIndex > ctrl.Timeline.MaxDuration) {
-                                ctrl.Timeline.MaxDuration = newEndIndex + 300;
-                            }
-
-                            this.Model.FrameSpan = newSpan;
                         }
                     }
                 }
@@ -541,6 +542,11 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
 
             if (this.glyphRun != null) {
                 dc.DrawGlyphRun(Brushes.White, this.glyphRun);
+            }
+
+            if (this.Model.MediaFrameOffset > 0) {
+                double pixelX = TimelineUtils.FrameToPixel(this.Model.MediaFrameOffset, this.TimelineZoom);
+                dc.DrawRectangle(Brushes.White, null, new Rect(pixelX, 0, 1, 5));
             }
 
             dc.Pop();
@@ -665,10 +671,10 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                     this.SetCursorForDragState(DragState.DragBody, true);
                     break;
                 case ClipPart.LeftGrip:
-                    this.SetCursorForDragState(DragState.DragLeftEdge, true);
+                    this.SetCursorForDragState(DragState.DragLeftGrip, true);
                     break;
                 case ClipPart.RightGrip:
-                    this.SetCursorForDragState(DragState.DragRightEdge, true);
+                    this.SetCursorForDragState(DragState.DragRightGrip, true);
                     break;
                 default: throw new ArgumentOutOfRangeException();
             }
@@ -678,8 +684,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             None,
             Initiated,
             DragBody,
-            DragLeftEdge,
-            DragRightEdge
+            DragLeftGrip,
+            DragRightGrip
         }
 
         private enum ClipPart {

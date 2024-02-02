@@ -1,5 +1,4 @@
 using System;
-using FramePFX.Destroying;
 using FramePFX.Editors.Factories;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.RBC;

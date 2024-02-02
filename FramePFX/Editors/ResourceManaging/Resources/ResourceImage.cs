@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using FramePFX.Editors.ResourceManaging.Autoloading;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.RBC;
-using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editors.ResourceManaging.Resources {

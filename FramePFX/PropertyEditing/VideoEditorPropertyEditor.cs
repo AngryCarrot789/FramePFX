@@ -25,6 +25,11 @@ namespace FramePFX.PropertyEditing {
 
                 this.ClipGroup.AddItem(new ClipDisplayNamePropertyEditorSlot());
                 this.ClipGroup.AddItem(new ParameterDoublePropertyEditorSlot(VideoClip.OpacityParameter, typeof(VideoClip), "Opacity", DragStepProfile.UnitOne));
+                this.ClipGroup.AddItem(new VideoClipMediaFrameOffsetPropertyEditorSlot());
+
+                SimplePropertyEditorGroup shapeGroup = new SimplePropertyEditorGroup(typeof(VideoClipShape));
+                shapeGroup.AddItem(new ParameterVector2PropertyEditorSlot(VideoClipShape.SizeParameter, typeof(VideoClipShape), "Size", DragStepProfile.InfPixelRange));
+                this.ClipGroup.AddItem(shapeGroup);
 
                 this.EffectListGroup = new EffectListPropertyEditorGroup();
                 this.ClipGroup.AddItem(this.EffectListGroup);

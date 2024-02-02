@@ -6,7 +6,7 @@ namespace FramePFX.PropertyEditing.Standard {
         public static readonly DragStepProfile UnitOne = new DragStepProfile(0.0001, 0.005, 0.001, 0.01);
         public static readonly DragStepProfile Percentage = new DragStepProfile(0.001, 0.01, 0.1, 1.0);
         public static readonly DragStepProfile Rotation = new DragStepProfile(0.005, 0.05, 0.5, 2);
-        public static readonly DragStepProfile HugeRange = new DragStepProfile(0.05, 0.1, 1.0, 5);
+        public static readonly DragStepProfile InfPixelRange = new DragStepProfile(0.05, 0.1, 1.0, 5);
 
         /// <summary>1
         /// A tiny step change, when holding CTRL+SHIFT

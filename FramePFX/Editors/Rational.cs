@@ -28,9 +28,9 @@ namespace FramePFX.Editors {
         /// <summary>
         /// <see cref="ffmpeg.av_q2d"/>
         /// </summary>
-        public double ToDouble => this.num / (double) this.den;
+        public double AsDouble => this.num / (double) this.den;
 
-        public int ToInt => (int) Math.Round(this.ToDouble);
+        public int AsInt => (int) Math.Round(this.AsDouble);
 
         public bool IsNaN => this.num == 0 && this.den == 0;
 
@@ -160,7 +160,7 @@ namespace FramePFX.Editors {
         }
 
         public override string ToString() {
-            return $"{this.num}/{this.den}({Math.Round(this.ToDouble, 4)})";
+            return $"{this.num}/{this.den}({Math.Round(this.AsDouble, 4)})";
         }
 
         public int CompareTo(object value) {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using FramePFX.Actions;
 using FramePFX.Editors.Actions;
@@ -7,6 +8,7 @@ using FramePFX.Editors.ResourceManaging.Actions;
 using FramePFX.Logger;
 using FramePFX.Services.Messages;
 using FramePFX.Services.WPF.Messages;
+using Profiler = FramePFX.Profiling.Profiler;
 
 namespace FramePFX {
     /// <summary>
@@ -18,6 +20,10 @@ namespace FramePFX {
         public IServiceManager Services => this.serviceManager;
 
         public static ApplicationCore Instance { get; private set; }
+
+        private readonly ThreadLocal<Profiler> profilers = new ThreadLocal<Profiler>(() => new Profiler());
+
+        public Profiler Profiler => this.profilers.Value;
 
         private ApplicationCore() {
             this.serviceManager = new ServiceManager();

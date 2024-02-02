@@ -106,7 +106,11 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// assigned rendering thread, therefore, this method should not access un-synchronised clip data
         /// </summary>
         /// <param name="rc">The rendering context, containing things such as the surface and canvas to draw to</param>
-        public abstract void RenderFrame(RenderContext rc);
+        /// <param name="renderArea">
+        /// Used as an optimisation to know where this clip actually drew data, and only that area will be used.
+        /// This defaults to the destination surface's frame size, meaning it is unoptimised by default
+        /// </param>
+        public abstract void RenderFrame(RenderContext rc, ref SKRect renderArea);
 
         public void InvalidateTransformationMatrix() {
             this.isMatrixDirty = true;

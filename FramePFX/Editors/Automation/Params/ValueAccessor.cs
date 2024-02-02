@@ -6,8 +6,8 @@ namespace FramePFX.Editors.Automation.Params {
     /// <summary>
     /// A class used by parameters to get and set the effective value of a specific parameter for an object
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public abstract class ValueAccessor<T> {
+    /// <typeparam name="TValue">The type of value this accessor accesses</typeparam>
+    public abstract class ValueAccessor<TValue> {
         /// <summary>
         /// Returns true when the boxed getter and setters are preferred,
         /// e.g. this instance is reflection-based which always used boxed values
@@ -17,7 +17,7 @@ namespace FramePFX.Editors.Automation.Params {
         /// <summary>
         /// Gets the generic value
         /// </summary>
-        public abstract T GetValue(IAutomatable instance);
+        public abstract TValue GetValue(IAutomatable instance);
 
         /// <summary>
         /// Gets the boxed value
@@ -27,7 +27,7 @@ namespace FramePFX.Editors.Automation.Params {
         /// <summary>
         /// Sets the generic value
         /// </summary>
-        public abstract void SetValue(IAutomatable instance, T value);
+        public abstract void SetValue(IAutomatable instance, TValue value);
 
         /// <summary>
         /// Sets the object value
@@ -46,14 +46,14 @@ namespace FramePFX.Editors.Automation.Params {
         /// </summary>
         /// <param name="owner">The class that contains the property or field</param>
         /// <param name="propertyOrField">The name of the property or field</param>
-        /// <typeparam name="T">The value type</typeparam>
+        /// <typeparam name="TValue">The value type</typeparam>
         /// <returns>A value accessor</returns>
         /// <exception cref="Exception">No property or field found with the specified name</exception>
-        public static ValueAccessor<T> Reflective<T>(Type owner, string propertyOrField) {
+        public static ValueAccessor<TValue> Reflective<TValue>(Type owner, string propertyOrField) {
             MemberInfo info = GetPropertyOrField(owner, propertyOrField);
             if (info is PropertyInfo)
-                return new ReflectivePropertyValueAccessor<T>((PropertyInfo) info);
-            return new ReflectiveFieldValueAccessor<T>((FieldInfo) info);
+                return new ReflectivePropertyValueAccessor<TValue>((PropertyInfo) info);
+            return new ReflectiveFieldValueAccessor<TValue>((FieldInfo) info);
         }
 
         /// <summary>
@@ -61,9 +61,9 @@ namespace FramePFX.Editors.Automation.Params {
         /// </summary>
         /// <param name="owner">The class that contains the property or field</param>
         /// <param name="propertyOrField">The name of the property or field</param>
-        /// <typeparam name="T">The value type</typeparam>
+        /// <typeparam name="TValue">The value type</typeparam>
         /// <returns>A value accessor</returns>
-        public static ValueAccessor<T> LinqExpression<T>(Type owner, string propertyOrField) {
+        public static ValueAccessor<TValue> LinqExpression<TValue>(Type owner, string propertyOrField) {
             MemberInfo targetMember = GetPropertyOrField(owner, propertyOrField);
             Type lowestOwnerType = targetMember.DeclaringType;
             if (lowestOwnerType == null)
@@ -73,13 +73,13 @@ namespace FramePFX.Editors.Automation.Params {
             UnaryExpression castToOwner = Expression.Convert(paramInstance, lowestOwnerType);
             MemberExpression dataMember = Expression.MakeMemberAccess(castToOwner, targetMember);
 
-            AutoGetter<T> getter = Expression.Lambda<AutoGetter<T>>(dataMember, paramInstance).Compile();
+            AutoGetter<TValue> getter = Expression.Lambda<AutoGetter<TValue>>(dataMember, paramInstance).Compile();
 
-            ParameterExpression paramValue = Expression.Parameter(typeof(T), "value");
+            ParameterExpression paramValue = Expression.Parameter(typeof(TValue), "value");
             BinaryExpression assignValue = Expression.Assign(dataMember, paramValue);
-            AutoSetter<T> setter = Expression.Lambda<AutoSetter<T>>(assignValue, paramInstance, paramValue).Compile();
+            AutoSetter<TValue> setter = Expression.Lambda<AutoSetter<TValue>>(assignValue, paramInstance, paramValue).Compile();
 
-            return new DelegateValueAccessor<T>(getter, setter);
+            return new DelegateValueAccessor<TValue>(getter, setter);
         }
 
         /// <summary>
@@ -87,13 +87,13 @@ namespace FramePFX.Editors.Automation.Params {
         /// </summary>
         /// <param name="getter"></param>
         /// <param name="setter"></param>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
         /// <returns></returns>
-        public static ValueAccessor<T> Lambda<T>(AutoGetter<T> getter, AutoSetter<T> setter) {
-            return new DelegateValueAccessor<T>(getter, setter);
+        public static ValueAccessor<TValue> Lambda<TValue>(AutoGetter<TValue> getter, AutoSetter<TValue> setter) {
+            return new DelegateValueAccessor<TValue>(getter, setter);
         }
 
-        private class ReflectiveFieldValueAccessor<T> : ValueAccessor<T> {
+        private class ReflectiveFieldValueAccessor<TValue> : ValueAccessor<TValue> {
             private readonly FieldInfo info;
 
             public ReflectiveFieldValueAccessor(FieldInfo info) {
@@ -101,15 +101,15 @@ namespace FramePFX.Editors.Automation.Params {
                 this.info = info ?? throw new ArgumentNullException(nameof(info));
             }
 
-            public override T GetValue(IAutomatable instance) {
-                return (T) this.info.GetValue(instance);
+            public override TValue GetValue(IAutomatable instance) {
+                return (TValue) this.info.GetValue(instance);
             }
 
             public override object GetObjectValue(IAutomatable instance) {
                 return this.info.GetValue(instance);
             }
 
-            public override void SetValue(IAutomatable instance, T value) {
+            public override void SetValue(IAutomatable instance, TValue value) {
                 this.info.SetValue(instance, value);
             }
 
@@ -118,7 +118,7 @@ namespace FramePFX.Editors.Automation.Params {
             }
         }
 
-        private class ReflectivePropertyValueAccessor<T> : ValueAccessor<T> {
+        private class ReflectivePropertyValueAccessor<TValue> : ValueAccessor<TValue> {
             private readonly PropertyInfo info;
 
             public ReflectivePropertyValueAccessor(PropertyInfo info) {
@@ -126,15 +126,15 @@ namespace FramePFX.Editors.Automation.Params {
                 this.info = info ?? throw new ArgumentNullException(nameof(info));
             }
 
-            public override T GetValue(IAutomatable instance) {
-                return (T) this.info.GetValue(instance);
+            public override TValue GetValue(IAutomatable instance) {
+                return (TValue) this.info.GetValue(instance);
             }
 
             public override object GetObjectValue(IAutomatable instance) {
                 return this.info.GetValue(instance);
             }
 
-            public override void SetValue(IAutomatable instance, T value) {
+            public override void SetValue(IAutomatable instance, TValue value) {
                 this.info.SetValue(instance, value);
             }
 
@@ -143,16 +143,16 @@ namespace FramePFX.Editors.Automation.Params {
             }
         }
 
-        private class DelegateValueAccessor<T> : ValueAccessor<T> {
-            private readonly AutoGetter<T> get;
-            private readonly AutoSetter<T> set;
+        private class DelegateValueAccessor<TValue> : ValueAccessor<TValue> {
+            private readonly AutoGetter<TValue> get;
+            private readonly AutoSetter<TValue> set;
 
-            public DelegateValueAccessor(AutoGetter<T> get, AutoSetter<T> set) {
+            public DelegateValueAccessor(AutoGetter<TValue> get, AutoSetter<TValue> set) {
                 this.get = get ?? throw new ArgumentNullException(nameof(get));
                 this.set = set ?? throw new ArgumentNullException(nameof(set));
             }
 
-            public override T GetValue(IAutomatable instance) {
+            public override TValue GetValue(IAutomatable instance) {
                 return this.get(instance);
             }
 
@@ -160,12 +160,12 @@ namespace FramePFX.Editors.Automation.Params {
                 return this.get(instance);
             }
 
-            public override void SetValue(IAutomatable instance, T value) {
+            public override void SetValue(IAutomatable instance, TValue value) {
                 this.set(instance, value);
             }
 
             public override void SetObjectValue(IAutomatable instance, object value) {
-                this.set(instance, (T) value);
+                this.set(instance, (TValue) value);
             }
         }
 

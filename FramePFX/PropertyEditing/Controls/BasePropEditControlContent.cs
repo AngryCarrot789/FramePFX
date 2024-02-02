@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
-using FramePFX.Editors.PropertyEditors;
+using FramePFX.Editors.PropertyEditors.AControls;
 using FramePFX.Editors.PropertyEditors.Clips;
 using FramePFX.PropertyEditing.Controls.Standard;
 using FramePFX.PropertyEditing.Standard;
@@ -22,6 +22,7 @@ namespace FramePFX.PropertyEditing.Controls {
             Constructors = new Dictionary<Type, Func<BasePropEditControlContent>>();
             // specific case editors
             RegisterType(typeof(ClipDisplayNamePropertyEditorSlot), () => new ClipDisplayNamePropertyEditorControl());
+            RegisterType(typeof(VideoClipMediaFrameOffsetPropertyEditorSlot), () => new VideoClipMediaFrameOffsetPropertyEditorControl());
 
             // standard editors
             RegisterType(typeof(ParameterDoublePropertyEditorSlot), () => new ParameterDoublePropertyEditorControl());

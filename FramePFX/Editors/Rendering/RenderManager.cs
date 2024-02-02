@@ -7,6 +7,7 @@ using System.Windows.Threading;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
+using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editors.Rendering {
@@ -20,18 +21,22 @@ namespace FramePFX.Editors.Rendering {
 
         public SKImageInfo ImageInfo { get; private set; }
 
-        public bool IsRendering => this.isRendering;
+        public bool IsRendering => this.isRendering != 0;
 
-        private volatile bool isRendering;
+        private double averageRenderTimeMillis;
+        private volatile int isRendering;
         private volatile int isRenderScheduled;
-        private volatile int isRenderScheduledDuringRender;
-        private volatile Task renderTask;
+        private volatile Task scheduledRenderTask;
         private bool isDisposed;
-        internal int _suspendRenderCount;
+        internal volatile int suspendRenderCount;
 
         private SKBitmap bitmap;
         private SKPixmap pixmap;
-        private SKSurface surface;
+        public SKSurface surface;
+
+        public Task ScheduledRenderTask => this.scheduledRenderTask;
+
+        public double AverageRenderTimeMillis => this.averageRenderTimeMillis;
 
         public event FrameRenderedEventHandler FrameRendered;
 
@@ -40,7 +45,7 @@ namespace FramePFX.Editors.Rendering {
         }
 
         public void Dispose() {
-            if (this.isRendering)
+            if (this.IsRendering)
                 throw new InvalidOperationException("Cannot dispose while rendering");
             this.bitmap?.Dispose();
             this.pixmap?.Dispose();
@@ -53,7 +58,7 @@ namespace FramePFX.Editors.Rendering {
                 return;
             }
 
-            if (this.isRendering) {
+            if (this.IsRendering) {
                 throw new InvalidOperationException("Cannot change frame info while rendering");
             }
 
@@ -74,18 +79,18 @@ namespace FramePFX.Editors.Rendering {
         /// </summary>
         /// <param name="frame">The frame to render</param>
         public async Task RenderTimelineAsync(Timeline timeline, long frame, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality) {
+            if (!Application.Current.Dispatcher.CheckAccess())
+                throw new InvalidOperationException("Cannot start rendering while not on the main thread");
             if (timeline == null)
                 throw new ArgumentNullException(nameof(timeline), "Cannot render a null timeline");
             if (frame < 0 || frame >= timeline.MaxDuration)
                 throw new ArgumentOutOfRangeException(nameof(frame), "Frame is not within the bounds of the timeline");
-            if (this.isRendering)
-                throw new InvalidOperationException("Render already in progress");
             if (this.ImageInfo.Width < 1 || this.ImageInfo.Height < 1)
                 throw new InvalidOperationException("The current frame info is invalid");
-            if (!Application.Current.Dispatcher.CheckAccess())
-                throw new InvalidOperationException("Cannot start rendering while not on the main thread");
+            if (Interlocked.CompareExchange(ref this.isRendering, 1, 0) != 0)
+                throw new InvalidOperationException("Render already in progress");
 
-            this.isRendering = true;
+            long beginRender = Time.GetSystemTicks();
             SKImageInfo imageInfo = this.ImageInfo;
             List<VideoTrack> tracks = new List<VideoTrack>();
 
@@ -111,20 +116,16 @@ namespace FramePFX.Editors.Rendering {
                     tasks[i] = Task.Run(() => track.RenderFrame(imageInfo, quality));
                 }
 
-                this.surface.Canvas.Clear(SKColors.Transparent);
-                await Task.WhenAll(tasks);
-
-                // SKPaint paint = null;
-                foreach (VideoTrack track in tracks) {
-                    // int count = BeginTrackOpacityLayer(this.surface.Canvas, track, ref paint);
-                    // int count = this.surface.Canvas.Save();
-                    track.DrawFrameIntoSurface(this.surface);
-                    // this.surface.Canvas.RestoreToCount(count);
-                    // EndOpacityLayer(this.surface.Canvas, count, ref paint);
+                this.surface.Canvas.Clear(SKColors.Black);
+                for (int i = 0; i < tracks.Count; i++) {
+                    if (!tasks[i].IsCompleted)
+                        await tasks[i];
+                    tracks[i].DrawFrameIntoSurface(this.surface, this.bitmap);
                 }
             });
 
-            this.isRendering = false;
+            this.averageRenderTimeMillis = (Time.GetSystemTicks() - beginRender) / Time.TICK_PER_MILLIS_D;
+            this.isRendering = 0;
             this.FrameRendered?.Invoke(this);
         }
 
@@ -162,23 +163,27 @@ namespace FramePFX.Editors.Rendering {
         /// Schedules the timeline to be re-drawn once the application is no longer busy
         /// </summary>
         public void InvalidateRender() {
-            if (this.isDisposed || this._suspendRenderCount > 0 || Interlocked.CompareExchange(ref this.isRenderScheduled, 1, 0) != 0) {
+            if (this.isDisposed || this.suspendRenderCount > 0 || Interlocked.CompareExchange(ref this.isRenderScheduled, 1, 0) != 0) {
                 return;
             }
 
-            Application.Current.Dispatcher.InvokeAsync(this.DoRenderTimeline, DispatcherPriority.Loaded);
+            Application.Current.Dispatcher.InvokeAsync(() => {
+                this.scheduledRenderTask = this.DoScheduledRender();
+            }, DispatcherPriority.Send);
         }
 
-        private void DoRenderTimeline() {
-            if (this._suspendRenderCount > 0) {
-                return;
+        private async Task DoScheduledRender() {
+            if (this.suspendRenderCount < 1) {
+                try {
+                    await this.RenderTimelineAsync(this.Project.MainTimeline, this.Project.MainTimeline.PlayHeadPosition, EnumRenderQuality.Low);
+                }
+                finally {
+                    this.isRenderScheduled = 0;
+                }
             }
-
-            this.renderTask = this.RenderTimelineAsync(this.Project.MainTimeline, this.Project.MainTimeline.PlayHeadPosition);
-            this.renderTask.ContinueWith(x => {
-                this.renderTask = null;
+            else {
                 this.isRenderScheduled = 0;
-            });
+            }
         }
 
         /// <summary>
@@ -188,10 +193,23 @@ namespace FramePFX.Editors.Rendering {
         public void Draw(SKSurface target) {
             this.surface.Flush();
             this.surface.Draw(target.Canvas, 0, 0, null);
+
+            // SKImageInfo imgInfo = this.ImageInfo;
+            // IntPtr srcPtr = this.bitmap.GetPixels();
+            // IntPtr dstPtr = target.PeekPixels().GetPixels();
+            // if (srcPtr != IntPtr.Zero && dstPtr != IntPtr.Zero) {
+            //     unsafe {
+            //         System.Runtime.CompilerServices.Unsafe.CopyBlock(dstPtr.ToPointer(), srcPtr.ToPointer(), (uint) imgInfo.BytesSize64);
+            //     }
+            // }
+
+            // using (SKImage img = SKImage.FromBitmap(this.bitmap)) {
+            //     target.Canvas.DrawImage(img, 0, 0, null);
+            // }
         }
 
         public SuspendRender SuspendRenderInvalidation() {
-            ++this._suspendRenderCount;
+            Interlocked.Increment(ref this.suspendRenderCount);
             return new SuspendRender(this);
         }
     }
@@ -205,7 +223,7 @@ namespace FramePFX.Editors.Rendering {
 
         public void Dispose() {
             if (this.manager != null)
-                --this.manager._suspendRenderCount;
+                Interlocked.Decrement(ref this.manager.suspendRenderCount);
             this.manager = null;
         }
     }

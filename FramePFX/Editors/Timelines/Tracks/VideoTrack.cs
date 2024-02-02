@@ -39,6 +39,10 @@ namespace FramePFX.Editors.Timelines.Tracks {
             public SKSurface surface;
             public SKImageInfo surfaceInfo;
 
+            // Very important for fast rendering: clips modify this value
+            // which is what contains the area of actual pixels drawn
+            public SKRect renderArea;
+
             public void Dispose() {
                 this.bitmap?.Dispose();
                 this.bitmap = null;
@@ -108,18 +112,15 @@ namespace FramePFX.Editors.Timelines.Tracks {
                     rd.bitmap = new SKBitmap(imgInfo);
                     IntPtr ptr = rd.bitmap.GetAddress(0, 0);
 
-                    rd.pixmap = new SKPixmap(imgInfo, ptr, imgInfo.RowBytes);
-                    rd.surface = SKSurface.Create(rd.pixmap);
+                    int rowBytes = imgInfo.RowBytes;
+                    rd.pixmap = new SKPixmap(imgInfo, ptr, rowBytes);
+                    rd.surface = SKSurface.Create(rd.pixmap.Info, ptr, rowBytes, null, null, null);
                     locker.OnResetAndRenderBegin();
                 }
             }
 
-            if (!this.isCanvasClear) {
-                rd.surface.Canvas.Clear(SKColors.Transparent);
-                this.isCanvasClear = true;
-            }
-
             if (this.theClipToRender != null) {
+                rd.surface.Canvas.Clear(SKColors.Transparent);
                 List<VideoEffect> fxList = this.theEffectsToApplyToClip;
                 int fxListCount = fxList.Count;
                 Exception renderException = null;
@@ -131,8 +132,9 @@ namespace FramePFX.Editors.Timelines.Tracks {
                     fxList[i].PreProcessFrame(ctx);
                 }
 
+                SKRect renderArea = new SKRect(0, 0, imgInfo.Width, imgInfo.Height);
                 try {
-                    this.theClipToRender.RenderFrame(ctx);
+                    this.theClipToRender.RenderFrame(ctx, ref renderArea);
                 }
                 catch (Exception e) {
                     renderException = e;
@@ -151,21 +153,76 @@ namespace FramePFX.Editors.Timelines.Tracks {
                 }
 
                 rd.surface.Flush(true, true);
+                rd.renderArea = renderArea;
             }
 
             locker.OnRenderFinished();
         }
 
-        public void DrawFrameIntoSurface(SKSurface dstSurface) {
-            RenderLockedDataWrapper<TrackRenderData> rd = this.myRenderDataLock;
-            lock (rd.Locker) {
-                if (rd.Value.surface != null && rd.OnRenderBegin()) {
-                    byte trackOpacityByte = RenderUtils.DoubleToByte255(this.renderOpacity);
-                    using (SKPaint paint = new SKPaint {Color = new SKColor(255, 255, 255, trackOpacityByte)}) {
-                        rd.Value.surface.Draw(dstSurface.Canvas, 0, 0, paint);
+        public void DrawFrameIntoSurface(SKSurface dstSurface, SKBitmap dstBitmap) {
+            RenderLockedDataWrapper<TrackRenderData> rdw = this.myRenderDataLock;
+            lock (rdw.Locker) {
+                TrackRenderData rd = rdw.Value;
+                if (rd.surface != null && rdw.OnRenderBegin()) {
+                    if (rd.renderArea.Width > 0 && rd.renderArea.Height > 0) {
+                        // Regular skia way: pretty slow but accounts for transparency
+                        byte trackOpacityByte = RenderUtils.DoubleToByte255(this.renderOpacity);
+                        using (SKPaint paint = new SKPaint {Color = new SKColor(255, 255, 255, trackOpacityByte)}) {
+                            SKRect frameRect = new SKRect(0, 0, rd.surfaceInfo.Width, rd.surfaceInfo.Height);
+                            SKRect usedArea = rd.renderArea;
+                            if (usedArea == frameRect) {
+                                // clip rendered to the whole frame or did not use optimisations
+                                rd.surface.Draw(dstSurface.Canvas, 0, 0, paint);
+                            }
+                            else {
+                                // clip only drew to a part of the screen, so only draw that part
+
+                                // While this works, having to create an image to wrap it isn't great...
+                                // using (SKImage img = SKImage.FromBitmap(rd.bitmap)) {
+                                //     dstSurface.Canvas.DrawImage(img, usedArea, usedArea, paint);
+                                // }
+
+                                // This does the exact same as above; creates an image and draws it :/
+                                // dstSurface.Canvas.DrawBitmap(rd.bitmap, usedArea, usedArea, paint);
+
+                                // Now this fucking works beautufilly!!!!!!!!!!!!!!!!
+                                using (SKImage img = SKImage.FromPixels(rd.surfaceInfo, rd.bitmap.GetPixels(), rd.surfaceInfo.RowBytes)) {
+                                    dstSurface.Canvas.DrawImage(img, usedArea, usedArea, paint);
+                                }
+
+                                // using (SKImage img2 = SKImage.FromTexture()) {
+                                //     dstSurface.Canvas.DrawImage(img2, 0, 0, paint);
+                                // }
+
+                                // Just as slow as drawing the entire surface
+                                // dstSurface.Canvas.DrawSurface(rd.surface, new SKPoint(rdA.Left, rdA.Top));
+                            }
+                            // rd.Value.surface.Draw(dstSurface.Canvas, 0, 0, paint);
+                        }
+
+                        // IntPtr srcPtr = rd.Value.surface.PeekPixels().GetPixels();
+                        // IntPtr dstPtr = dstSurface.PeekPixels().GetPixels();
+                        // if (srcPtr != IntPtr.Zero && dstPtr != IntPtr.Zero) {
+                        //     unsafe {
+                        //         // My version: slow as shit, but accounts for transparency
+                        //         int cbPixels = rd.Value.surfaceInfo.BytesSize;
+                        //         void* srcPx = srcPtr.ToPointer();
+                        //         void* dstPx = dstPtr.ToPointer();
+                        //         for (int i = 0; i < cbPixels; i += 4) {
+                        //             // massively assumes BGRA/RGBA/4bbp
+                        //             int pixel = *(int*) ((byte*) srcPx + i);
+                        //             if (pixel != 0) {
+                        //                 *(int*) ((byte*) dstPx + i) = pixel;
+                        //             }
+                        //         }
+                        //
+                        //         // memcpy: fast as fuck but does not account for transparency
+                        //         // System.Runtime.CompilerServices.Unsafe.CopyBlock(dstPtr.ToPointer(), srcPtr.ToPointer(), (uint) rd.Value.surfaceInfo.BytesSize64);
+                        //     }
+                        // }
                     }
 
-                    rd.OnRenderFinished();
+                    rdw.OnRenderFinished();
                 }
             }
         }

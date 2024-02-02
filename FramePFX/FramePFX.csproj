@@ -48,6 +48,14 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
+    <Reference Include="NanoProfiler, Version=2.2.1.0, Culture=neutral, PublicKeyToken=132fc11abeaff685">
+      <HintPath>..\packages\NanoProfiler.2.2.1\lib\net45\NanoProfiler.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NanoProfiler.Storages.Json, Version=2.2.1.0, Culture=neutral, PublicKeyToken=132fc11abeaff685">
+      <HintPath>..\packages\NanoProfiler.Storages.Json.2.2.1\lib\net45\NanoProfiler.Storages.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="OpenTK, Version=3.3.3.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenTK.3.3.3\lib\net20\OpenTK.dll</HintPath>
     </Reference>
@@ -55,10 +63,15 @@
     <Reference Include="SkiaSharp, Version=2.88.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <HintPath>..\packages\SkiaSharp.2.88.7\lib\net462\SkiaSharp.dll</HintPath>
     </Reference>
+    <Reference Include="slf4net, Version=1.0.0.0, Culture=neutral, PublicKeyToken=592edb3b6b36b5ba">
+      <HintPath>..\packages\slf4net.1.0.0\lib\net40\slf4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
     </Reference>
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
@@ -71,6 +84,7 @@
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -129,6 +143,9 @@
     <Compile Include="Editors\Exporting\FFMPEG\FFUtils.cs" />
     <Compile Include="Editors\Exporting\FFMPEG\LavResult.cs" />
     <Compile Include="Editors\Exporting\IExportProgress.cs" />
+    <Compile Include="Editors\PropertyEditors\AControls\ClipDisplayNamePropertyEditorControl.cs" />
+    <Compile Include="Editors\PropertyEditors\AControls\VideoClipMediaFrameOffsetPropertyEditorControl.cs" />
+    <Compile Include="Editors\PropertyEditors\Clips\VideoClipMediaFrameOffsetPropertyEditorSlot.cs" />
     <Compile Include="Editors\Rational.cs" />
     <Compile Include="Editors\Rendering\EnumRenderQuality.cs" />
     <Compile Include="Editors\RenderLockedData.cs" />
@@ -195,6 +212,7 @@
     <Compile Include="Interactivity\DataContexts\IDataContext.cs" />
     <Compile Include="IoC.cs" />
     <Compile Include="IServiceManager.cs" />
+    <Compile Include="Profiling\Profiler.cs" />
     <Compile Include="PropertyEditing\Controls\Standard\BaseParameterPropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\Controls\Standard\ParameterDoublePropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\Controls\Standard\ParameterFloatPropertyEditorControl.cs" />
@@ -613,7 +631,6 @@
     <Compile Include="Editors\PlayState.cs" />
     <Compile Include="Editors\Project.cs" />
     <Compile Include="Editors\ProjectSettings.cs" />
-    <Compile Include="Editors\PropertyEditors\ClipDisplayNamePropertyEditorControl.cs" />
     <Compile Include="Editors\PropertyEditors\Clips\ClipDisplayNamePropertyEditorSlot.cs" />
     <Compile Include="Editors\Rendering\PreRenderContext.cs" />
     <Compile Include="Editors\Rendering\RenderContext.cs" />
@@ -792,10 +809,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Editors\PropertyEditors\AControls\Clips\" />
-    <Folder Include="Editors\PropertyEditors\AControls\Effects\" />
-    <Folder Include="Editors\PropertyEditors\AControls\Standard\" />
-    <Folder Include="Editors\PropertyEditors\AControls\Tracks\" />
     <Folder Include="Services\Messages\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

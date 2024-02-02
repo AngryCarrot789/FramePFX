@@ -62,7 +62,7 @@ namespace FramePFX.Editors {
 
         public VideoEditor() {
             this.Playback = new PlaybackManager(this);
-            this.Playback.SetFrameRate(60.0);
+            this.Playback.SetFrameRate(new Rational(1, 1));
             this.Playback.StartTimer();
             this.showClipAutomation = true;
         }
@@ -92,7 +92,7 @@ namespace FramePFX.Editors {
                 motion.AutomationData[MotionEffect.MediaPositionParameter].DefaultKeyFrame.SetVector2Value(pos);
                 shape.AddEffect(motion);
 
-                shape.RectSize = size;
+                shape.Size = size;
                 shape.DisplayName = name;
                 motion.AutomationData.UpdateBackingStorage();
                 shape.AutomationData.UpdateBackingStorage();
@@ -151,8 +151,8 @@ namespace FramePFX.Editors {
 
             oldProject.Destroy();
             this.Project = null;
-            Project.OnClosed(this, oldProject);
             this.ProjectChanged?.Invoke(this, oldProject, null);
+            Project.OnClosed(this, oldProject);
         }
     }
 }

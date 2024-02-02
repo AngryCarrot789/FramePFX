@@ -6,7 +6,8 @@
                     xmlns:ap="clr-namespace:FramePFX.Themes.Attached"
                     xmlns:a="clr-namespace:FramePFX.PropertyEditing.Automation"
                     xmlns:clips="clr-namespace:FramePFX.Editors.PropertyEditors"
-                    xmlns:standard="clr-namespace:FramePFX.PropertyEditing.Controls.Standard">
+                    xmlns:standard="clr-namespace:FramePFX.PropertyEditing.Controls.Standard"
+                    xmlns:ac="clr-namespace:FramePFX.Editors.PropertyEditors.AControls">
     <s:Double x:Key="FloatMinValue">-3.402823E+38</s:Double>
     <s:Double x:Key="FloatMaxValue">3.402823E+38</s:Double>
 
@@ -37,10 +38,10 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type clips:ClipDisplayNamePropertyEditorControl}">
+    <Style TargetType="{x:Type ac:ClipDisplayNamePropertyEditorControl}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type clips:ClipDisplayNamePropertyEditorControl}">
+                <ControlTemplate TargetType="{x:Type ac:ClipDisplayNamePropertyEditorControl}">
                     <Grid Margin="5,0,2,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
@@ -49,6 +50,24 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="Display Name" Grid.Column="0" VerticalAlignment="Center"/>
                         <TextBox x:Name="PART_TextBox" Grid.Column="2" Padding="2" VerticalAlignment="Center"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type ac:VideoClipMediaFrameOffsetPropertyEditorControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ac:VideoClipMediaFrameOffsetPropertyEditorControl}">
+                    <Grid Margin="5,0,2,0" ToolTip="A frame offset from the start of this clip which is where the actual media begins">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Media Offset" Grid.Column="0" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="PART_TextBlock" Grid.Column="2" Padding="2" VerticalAlignment="Center"/>
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>

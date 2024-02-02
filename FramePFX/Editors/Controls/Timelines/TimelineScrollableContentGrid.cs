@@ -1,7 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using FramePFX.Editors.Timelines;
 
 namespace FramePFX.Editors.Controls.Timelines {

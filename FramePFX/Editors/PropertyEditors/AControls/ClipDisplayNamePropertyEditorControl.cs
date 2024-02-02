@@ -4,7 +4,7 @@ using FramePFX.Editors.Controls.Binders;
 using FramePFX.Editors.PropertyEditors.Clips;
 using FramePFX.PropertyEditing.Controls;
 
-namespace FramePFX.Editors.PropertyEditors {
+namespace FramePFX.Editors.PropertyEditors.AControls {
     public class ClipDisplayNamePropertyEditorControl : BasePropEditControlContent {
         public ClipDisplayNamePropertyEditorSlot SlotModel => (ClipDisplayNamePropertyEditorSlot) base.SlotControl.Model;
 

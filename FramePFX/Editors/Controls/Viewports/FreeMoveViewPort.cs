@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace FramePFX.Editors.Controls.Viewports {
     public class FreeMoveViewPort : Border {
@@ -184,7 +185,9 @@ namespace FramePFX.Editors.Controls.Viewports {
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e) {
-            this.FitContentToCenter();
+            this.Dispatcher.InvokeAsync(() => {
+                this.FitContentToCenter();
+            }, DispatcherPriority.Background);
         }
 
         public void FitContentToCenter() {

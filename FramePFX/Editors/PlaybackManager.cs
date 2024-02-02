@@ -1,6 +1,8 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
+using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines;
 using FramePFX.Utils;
 
@@ -28,6 +30,14 @@ namespace FramePFX.Editors {
         private Thread thread;
 
         public PlayState PlayState { get; private set; } = PlayState.Stop;
+
+        // the time at which the playback began. Used to skip frames future frames that could not
+        // be rendered in time while still trying maintaining an accurate frame rate
+        private DateTime playTime;
+        private DateTime lastRenderTime;
+        private long accumulatedPlaybackRateTicks;
+        private double accumulatedRateMillis;
+        private long playFrame;
 
         /// <summary>
         /// The editor which owns this playback manager object. This does not change
@@ -75,8 +85,8 @@ namespace FramePFX.Editors {
             this.thread?.Join();
         }
 
-        public void SetFrameRate(double frameRate) {
-            this.intervalTicks = (long) Math.Round(1000.0 / frameRate * Time.TICK_PER_MILLIS);
+        public void SetFrameRate(Rational frameRate) {
+            this.intervalTicks = (long) Math.Round(1000.0 / frameRate.AsDouble * Time.TICK_PER_MILLIS);
         }
 
         public void Play() {
@@ -84,9 +94,7 @@ namespace FramePFX.Editors {
                 return;
             }
 
-            this.PlayState = PlayState.Play;
-            this.PlaybackStateChanged?.Invoke(this, this.PlayState, project.MainTimeline.PlayHeadPosition);
-            this.thread_IsPlaying = true;
+            this.PlayInternal(project.MainTimeline.PlayHeadPosition);
         }
 
         public void Play(long frame) {
@@ -98,8 +106,14 @@ namespace FramePFX.Editors {
                 return;
             }
 
+            this.PlayInternal(frame);
+        }
+
+        private void PlayInternal(long targetFrame) {
             this.PlayState = PlayState.Play;
-            this.PlaybackStateChanged?.Invoke(this, this.PlayState, frame);
+            this.PlaybackStateChanged?.Invoke(this, this.PlayState, targetFrame);
+            this.lastRenderTime = DateTime.Now;
+            this.playFrame = targetFrame;
             this.thread_IsPlaying = true;
         }
 
@@ -134,20 +148,64 @@ namespace FramePFX.Editors {
         }
 
         private void OnTimerFrame() {
-            Application.Current.Dispatcher.Invoke(() => {
-                if (this.thread_IsPlaying && this.Editor.Project is Project project) {
-                    Timeline timeline = project.MainTimeline;
+            if (!this.thread_IsPlaying) {
+                return;
+            }
 
-                    // Increment or wrap to beginning
-                    if (timeline.PlayHeadPosition == (timeline.MaxDuration - 1)) {
-                        timeline.PlayHeadPosition = 0;
+            Project project = this.Editor.Project;
+            if (project == null) {
+                return;
+            }
+
+            using (project.RenderManager.SuspendRenderInvalidation()) {
+                Task renderTask = Application.Current.Dispatcher.Invoke(() => {
+                    if (project.Editor == null || !this.thread_IsPlaying) {
+                        return Task.CompletedTask;
                     }
-                    else {
-                        // This is not how I indent to cause a re-render, but for now, changing the play head triggers a render
-                        timeline.PlayHeadPosition++;
+
+                    // A lot of this extra code is to maintain the frame rate even if the render is stalling.
+                    // IF for example there are a bunch of high quality videos being rendered and the render
+                    // is waiting for them to decode, there could be a say 100ms render interval (10fps),
+                    // and since we don't want to playback at 10 fps, we try to catch up by skipping a few frames
+
+                    // However... this has a possible runaway effect specifically for things like decoder seeking;
+                    // If we skip frames, the render will take even longer, meaning we skip more frames, and so on,
+                    // So, frame skipping is limited to 3 frames just to be safe. Still need to work out a better
+                    // solution but for now, 3 frames should be generally safe
+                    Timeline timeline = project.MainTimeline;
+                    double fps = project.Settings.FrameRate.AsDouble;
+                    double expectedInterval = Time.TICK_PER_SECOND_D / fps;
+                    double actualInterval = DateTime.Now.Ticks - this.lastRenderTime.Ticks;
+                    this.lastRenderTime = DateTime.Now;
+
+                    long incr = 1;
+                    if (actualInterval > expectedInterval) {
+                        double diffMillis = (actualInterval - expectedInterval) / Time.TICK_PER_MILLIS_D;
+                        double incrDouble = (diffMillis / (1000.0 / fps)) + this.accumulatedRateMillis;
+                        long extra = (long) Math.Floor(incrDouble);
+                        this.accumulatedRateMillis = (incrDouble - extra);
+                        incr += extra;
                     }
-                }
-            });
+
+                    // Don't allow jumps of more than 3 frames, otherwise that runaway thing might occur
+                    incr = Math.Min(incr, 3);
+
+                    long newPlayHead = Periodic.Add(timeline.PlayHeadPosition, incr, 0, timeline.MaxDuration - 1);
+                    timeline.PlayHeadPosition = newPlayHead;
+                    if ((project.RenderManager.ScheduledRenderTask?.IsCompleted ?? true)) {
+                        return RenderTimeline(project.RenderManager, timeline, timeline.PlayHeadPosition);
+                    }
+
+                    return Task.CompletedTask;
+                });
+
+                renderTask.Wait();
+            }
+        }
+
+        private static async Task RenderTimeline(RenderManager renderManager, Timeline timeline, long frame) {
+            // await (renderManager.ScheduledRenderTask ?? Task.CompletedTask);
+            await renderManager.RenderTimelineAsync(timeline, frame);
         }
 
         private void TimerMain() {

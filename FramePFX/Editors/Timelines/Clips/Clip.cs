@@ -14,6 +14,7 @@ using FramePFX.Editors.Timelines.Tracks;
 namespace FramePFX.Editors.Timelines.Clips {
     public delegate void ClipEventHandler(Clip clip);
     public delegate void ClipSpanChangedEventHandler(Clip clip, FrameSpan oldSpan, FrameSpan newSpan);
+    public delegate void ClipMediaOffsetChangedEventHandler(Clip clip, long oldOffset, long newOffset);
     public delegate void ClipTrackChangedEventHandler(Clip clip, Track oldTrack, Track newTrack);
     public delegate void ClipActiveSequenceChangedEventHandler(Clip clip, AutomationSequence oldSequence, AutomationSequence newSequence);
 
@@ -23,6 +24,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         private string displayName;
         private bool isSelected;
         private AutomationSequence activeSequence;
+        private long mediaFrameOffset;
 
         public Track Track { get; private set; }
 
@@ -41,15 +43,41 @@ namespace FramePFX.Editors.Timelines.Clips {
 
         public AutomationData AutomationData { get; }
 
+        /// <summary>
+        /// Gets or sets this clip's frame span, that is, a beginning and duration property contain in a
+        /// single struct that represents the location and duration of a clip within a track
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException">Begin or duration were negative</exception>
         public FrameSpan FrameSpan {
             get => this.span;
             set {
                 FrameSpan oldSpan = this.span;
                 if (oldSpan == value)
                     return;
+                if (value.Begin < 0 || value.Duration < 0)
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "Span contained negative values");
                 this.span = value;
                 Track.InternalOnClipSpanChanged(this, oldSpan);
                 this.OnFrameSpanChanged(oldSpan, value);
+            }
+        }
+
+        /// <summary>
+        /// A frame offset (relative to the project FPS) that is how many frames ahead or behind this clip's media begins.
+        /// This is changed when a clip's left grip is dragged. This is negative when the media starts before the clip
+        /// starts, and is positive when the media begins after the clip starts.
+        /// <para>
+        /// When dragging the left grip, it is calculated as: <code>MediaFrameOffset += (oldSpan.Begin - newSpan.Begin)</code>
+        /// </para>
+        /// </summary>
+        public long MediaFrameOffset {
+            get => this.mediaFrameOffset;
+            set {
+                long oldValue = this.mediaFrameOffset;
+                if (value == oldValue)
+                    return;
+                this.mediaFrameOffset = value;
+                this.MediaFrameOffsetChanged?.Invoke(this, oldValue, value);
             }
         }
 
@@ -93,6 +121,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         public event EffectOwnerEventHandler EffectRemoved;
         public event EffectMovedEventHandler EffectMoved;
         public event ClipSpanChangedEventHandler FrameSpanChanged;
+        public event ClipMediaOffsetChangedEventHandler MediaFrameOffsetChanged;
         public event ClipEventHandler DisplayNameChanged;
         public event ClipEventHandler IsSelectedChanged;
 
@@ -161,6 +190,14 @@ namespace FramePFX.Editors.Timelines.Clips {
             this.Track.MoveClipToTrack(index, dstTrack, dstIndex);
         }
 
+        /// <summary>
+        /// Invoked when this clip's track changes. The cause of this is either the clip being added to, removed
+        /// from or moved between tracks. This method calls <see cref="OnProjectChanged"/> if possible. The
+        /// old and new tracks will not match. This method must be called by overriders, as this method
+        /// updates the resource helper, fires appropriate events, etc.
+        /// </summary>
+        /// <param name="oldTrack">The previous track</param>
+        /// <param name="newTrack">The new track</param>
         protected virtual void OnTrackChanged(Track oldTrack, Track newTrack) {
             this.ResourceHelper.SetManager(newTrack?.Project?.ResourceManager);
             this.TrackChanged?.Invoke(this, oldTrack, newTrack);
@@ -171,6 +208,23 @@ namespace FramePFX.Editors.Timelines.Clips {
             if (!ReferenceEquals(oldTimeline, newTimeline)) {
                 this.TimelineChanged?.Invoke(this, oldTimeline, newTimeline);
             }
+
+            Project oldProject = oldTimeline?.Project;
+            Project newProject = newTimeline?.Project;
+            if (oldProject != newProject) {
+                this.OnProjectChanged(oldProject, newProject);
+            }
+        }
+
+        /// <summary>
+        /// Invoked when this clip's project changes. The cause of this can be many, such as a clip being added to or
+        /// removed from a track, our track being added to a timeline, our track's timeline's project changing (only
+        /// possible with composition timelines), and possibly other causes maybe. The old and new project will not match
+        /// </summary>
+        /// <param name="oldProject">The previous project</param>
+        /// <param name="newProject">The new project</param>
+        protected virtual void OnProjectChanged(Project oldProject, Project newProject) {
+
         }
 
         public bool IntersectsFrameAt(long playHead) {

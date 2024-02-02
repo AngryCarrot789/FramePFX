@@ -2,11 +2,11 @@ namespace FramePFX.Editors {
     public delegate void ProjectSettingsEventHandler(ProjectSettings settings);
 
     public class ProjectSettings {
-        public static ProjectSettings Default => new ProjectSettings(1920, 1080, 60);
+        public static ProjectSettings Default => new ProjectSettings(1920, 1080, new Rational(60, 1));
 
         private int width;
         private int height;
-        private double frameRate;
+        private Rational frameRate;
 
         public int Width {
             get => this.width;
@@ -28,7 +28,7 @@ namespace FramePFX.Editors {
             }
         }
 
-        public double FrameRate {
+        public Rational FrameRate {
             get => this.frameRate;
             set {
                 if (this.frameRate == value)
@@ -45,7 +45,7 @@ namespace FramePFX.Editors {
         public ProjectSettings() {
         }
 
-        public ProjectSettings(int width, int height, double frameRate) {
+        public ProjectSettings(int width, int height, Rational frameRate) {
             this.Width = width;
             this.Height = height;
             this.FrameRate = frameRate;

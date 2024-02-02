@@ -225,7 +225,7 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
                         long finalExportFrame = exportFrame;
                         renderTask = dispatcher.Invoke(() => {
                             AutomationEngine.UpdateValues(timeline, finalExportFrame);
-                            return renderManager.RenderTimelineAsync(timeline, finalExportFrame);
+                            return renderManager.RenderTimelineAsync(timeline, finalExportFrame, EnumRenderQuality.High);
                         }, DispatcherPriority.Send, cancellation);
 
                         surface.Canvas.Clear(SKColors.Black);
@@ -401,7 +401,7 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
         public override void LoadProjectDefaults(Project project) {
             ProjectSettings set = project.Settings;
             this.Resolution = (set.Width, set.Height);
-            this.FrameRate = Rational.FromDouble(project.Settings.FrameRate);
+            this.FrameRate = project.Settings.FrameRate;
         }
     }
 }

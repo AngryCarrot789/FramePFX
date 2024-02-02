@@ -52,7 +52,7 @@ namespace FramePFX.Editors.Timelines.Clips {
             return false;
         }
 
-        public override void RenderFrame(RenderContext rc) {
+        public override void RenderFrame(RenderContext rc, ref SKRect renderArea) {
             if (!this.lockedImage.OnRenderBegin(out SKImage image)) {
                 return;
             }
@@ -60,6 +60,7 @@ namespace FramePFX.Editors.Timelines.Clips {
             using (SKPaint paint = new SKPaint {FilterQuality = this.renderQuality, ColorF = RenderUtils.BlendAlpha(SKColors.White, this.renderOpacity)})
                 rc.Canvas.DrawImage(image, 0, 0, paint);
 
+            renderArea = rc.Canvas.TotalMatrix.MapRect(new SKRect(0, 0, image.Width, image.Height));
             this.lockedImage.OnRenderFinished();
         }
     }

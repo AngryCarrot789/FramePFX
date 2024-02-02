@@ -112,12 +112,12 @@ namespace FramePFX.Services.WPF.Messages {
             this.Close();
         }
 
-        protected override Task<bool> CanCloseAsync() {
+        protected override Task<bool> OnClosingAsync() {
             if (!this.explicitDialogResult.HasValue) {
                 this.explicitDialogResult = false;
             }
 
-            return base.CanCloseAsync();
+            return base.OnClosingAsync();
         }
 
         private void UpdateTextBoxAndValidState() {

@@ -133,12 +133,19 @@
                 <Border Grid.Column="3" Focusable="False" UseLayoutRounding="True" SnapsToDevicePixels="True" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                 <GridSplitter Grid.Column="3" Focusable="False" BorderThickness="0" Background="Transparent" Margin="-5,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </Grid>
-            <GroupBox Header="Timeline" 
-                      Grid.Row="2" 
+            <GroupBox Grid.Row="2" 
                       Grid.ColumnSpan="3"
                       BorderThickness="0" Background="{DynamicResource ABrush.Tone5.Background.Static}"
                       Focusable="True"
                       wpf:UIInputManager.FocusPath="Application/Editor/Timeline">
+                <GroupBox.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Timeline"/>
+                        <Separator Style="{StaticResource VerticalSeparator}"/>
+                        <TextBlock Text="Avg Render Time: "/>
+                        <TextBlock x:Name="PART_LastRenderTimeTextBlock" Text="0"/>
+                    </StackPanel>
+                </GroupBox.Header>
                 <Border BorderThickness="0,1,0,0" BorderBrush="{DynamicResource PanelBorderBrush}">
                     <tl:TimelineControl VerticalAlignment="Stretch" x:Name="TheTimeline"/>
                 </Border>

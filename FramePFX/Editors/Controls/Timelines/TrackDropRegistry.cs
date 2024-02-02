@@ -9,7 +9,6 @@ using FramePFX.Editors.Timelines.Effects;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.DataContexts;
-using FramePFX.Services.Messages;
 
 namespace FramePFX.Editors.Controls.Timelines {
     public static class TrackDropRegistry {
@@ -45,7 +44,7 @@ namespace FramePFX.Editors.Controls.Timelines {
                     return;
                 }
 
-                double fps = track.Timeline.Project.Settings.FrameRate;
+                double fps = track.Timeline.Project.Settings.FrameRate.AsDouble;
                 FrameSpan defaultSpan = track.GetSpanUntilClipOrLimitedDuration(frame, (long) (fps * 5));
                 Clip theNewClip;
                 switch (resource) {
@@ -86,7 +85,7 @@ namespace FramePFX.Editors.Controls.Timelines {
                         VideoClipShape clip = new VideoClipShape {
                             FrameSpan = defaultSpan,
                             DisplayName = "Shape Clip",
-                            RectSize = new Vector2(200, 200)
+                            Size = new Vector2(200, 200)
                         };
 
                         clip.ColourKey.SetTargetResourceId(argb.UniqueId);

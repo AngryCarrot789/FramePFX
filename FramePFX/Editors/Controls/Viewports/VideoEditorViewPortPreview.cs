@@ -79,17 +79,23 @@ namespace FramePFX.Editors.Controls.Viewports {
                 return;
             }
 
-            if (!this.BeginRender(out SKSurface surface)) {
-                return;
+            if (this.BeginRenderWithSurface(manager.surface)) {
+                this.EndRenderWithSurface(manager.surface);
             }
 
-            try {
-                surface.Canvas.Clear(SKColors.Black);
-                manager.Draw(surface);
-            }
-            finally {
-                this.EndRender();
-            }
+            // if (!this.BeginRender(out SKSurface surface)) {
+            //     return;
+            // }
+            // try {
+            //     surface.Canvas.Clear(SKColors.Black);
+            //     long start = Time.GetSystemTicks();
+            //     manager.Draw(surface);
+            //     long duration = Time.GetSystemTicks() - start;
+            //     System.Diagnostics.Debug.WriteLine((duration / Time.TICK_PER_MILLIS_D).ToString());
+            // }
+            // finally {
+            //     this.EndRender();
+            // }
         }
 
         protected override void OnRender(DrawingContext dc) {

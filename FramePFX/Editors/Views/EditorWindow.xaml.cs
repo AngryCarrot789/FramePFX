@@ -1,18 +1,21 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using FramePFX.Editors.Exporting;
 using FramePFX.Editors.Exporting.Controls;
+using FramePFX.Editors.Rendering;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.Timelines;
 using FramePFX.Interactivity.DataContexts;
 using FramePFX.PropertyEditing;
 using FramePFX.Shortcuts.WPF;
 using FramePFX.Themes;
+using FramePFX.Utils;
 using FramePFX.Views;
-using SkiaSharp;
 
 namespace FramePFX.Editors.Views {
     /// <summary>
@@ -27,12 +30,38 @@ namespace FramePFX.Editors.Views {
         }
 
         private readonly DataContext actionSystemDataContext;
+        private readonly DispatcherTimer updateRenderIntervalTimer;
+
+        private readonly NumberAverager renderTimeAverager;
 
         public EditorWindow() {
+            this.renderTimeAverager = new NumberAverager(5); // average 5 samples. Will take a second to catch up at 5 fps but meh
             this.actionSystemDataContext = new DataContext();
             this.InitializeComponent();
             this.Loaded += this.EditorWindow_Loaded;
             UIInputManager.SetActionSystemDataContext(this, this.actionSystemDataContext);
+        }
+
+        protected override Task<bool> OnClosingAsync() {
+            // Close the project (which also destroys it) so that we can safely close and destroy all
+            // used objects (e.g. images, file locks, video files, etc.) even thought it may not be
+            // strictly necessary, still seems like a good idea to do so
+            if (this.Editor is VideoEditor editor) {
+                if (editor.Project != null) {
+                    editor.CloseProject();
+                }
+
+                this.Editor = null;
+            }
+
+            return Task.FromResult(true);
+        }
+
+        private void UpdateFrameRenderInterval(RenderManager manager) {
+            this.renderTimeAverager.PushValue(manager.AverageRenderTimeMillis);
+
+            double averageMillis = this.renderTimeAverager.GetAverage();
+            this.PART_LastRenderTimeTextBlock.Text = averageMillis.ToString();
         }
 
         private void EditorWindow_Loaded(object sender, RoutedEventArgs e) {
@@ -51,6 +80,10 @@ namespace FramePFX.Editors.Views {
             if (oldEditor != null) {
                 oldEditor.ProjectChanged -= this.OnEditorProjectChanged;
                 oldEditor.Playback.PlaybackStateChanged -= this.OnEditorPlaybackStateChanged;
+                if (oldEditor.Project != null) {
+                    this.OnProjectChanged(oldEditor.Project, null);
+                }
+
                 this.PART_ViewPort.VideoEditor = null;
             }
 
@@ -62,17 +95,11 @@ namespace FramePFX.Editors.Views {
 
             this.actionSystemDataContext.Set(DataKeys.EditorKey, newEditor);
             Project project = newEditor?.Project;
+            this.actionSystemDataContext.Set(DataKeys.ProjectKey, project);
             if (project != null) {
-                this.UpdateRenderSettings(project.Settings);
-                this.UpdateResourceManager(project.ResourceManager);
-                this.UpdateTimeline(project.MainTimeline);
-            }
-            else {
-                this.UpdateResourceManager(null);
-                this.UpdateTimeline(null);
+                this.OnProjectChanged(null, project);
             }
 
-            this.actionSystemDataContext.Set(DataKeys.ProjectKey, project);
             this.UpdatePlayBackButtons(newEditor?.Playback);
         }
 
@@ -94,10 +121,22 @@ namespace FramePFX.Editors.Views {
         }
 
         private void OnEditorProjectChanged(VideoEditor editor, Project oldProject, Project newProject) {
+            this.OnProjectChanged(oldProject, newProject);
+            this.actionSystemDataContext.Set(DataKeys.ProjectKey, newProject);
+        }
+
+        private void OnProjectChanged(Project oldProject, Project newProject) {
+            if (oldProject != null) {
+                oldProject.RenderManager.FrameRendered -= this.UpdateFrameRenderInterval;
+            }
+
+            if (newProject != null) {
+                newProject.RenderManager.FrameRendered += this.UpdateFrameRenderInterval;
+            }
+
             this.UpdateRenderSettings(newProject?.Settings);
             this.UpdateResourceManager(newProject?.ResourceManager);
             this.UpdateTimeline(newProject?.MainTimeline);
-            this.actionSystemDataContext.Set(DataKeys.ProjectKey, newProject);
         }
 
         private void UpdateRenderSettings(ProjectSettings settings) {

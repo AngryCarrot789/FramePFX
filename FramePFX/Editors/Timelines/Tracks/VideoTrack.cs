@@ -16,7 +16,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
                 "Opacity",
                 new ParameterDescriptorDouble(1, 0, 1),
                 ValueAccessors.LinqExpression<double>(typeof(VideoTrack), nameof(Opacity)),
-                ParameterFlags.InvalidatesRender);
+                ParameterFlags.AffectsRender);
 
         public static readonly ParameterBoolean VisibleParameter =
             Parameter.RegisterBoolean(
@@ -25,7 +25,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
                 "Visible",
                 new ParameterDescriptorBoolean(true),
                 ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(Visible)),
-                ParameterFlags.InvalidatesRender);
+                ParameterFlags.AffectsRender);
 
         /// <summary> The track opacity. This is an automated parameter and should therefore not be modified directly </summary>
         public double Opacity;

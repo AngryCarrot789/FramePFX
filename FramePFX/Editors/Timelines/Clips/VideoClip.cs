@@ -38,7 +38,7 @@ namespace FramePFX.Editors.Timelines.Clips {
                 "Opacity",
                 new ParameterDescriptorDouble(1, 0, 1),
                 ValueAccessors.LinqExpression<double>(typeof(VideoClip), nameof(Opacity)),
-                ParameterFlags.InvalidatesRender);
+                ParameterFlags.AffectsRender);
 
         private SKMatrix internalTransformationMatrix;
         private bool isMatrixDirty;

@@ -40,8 +40,6 @@ namespace FramePFX.Editors.Timelines.Effects {
 
         public Project Project => this.Timeline?.Project;
 
-        public long RelativePlayHead => this.Owner?.RelativePlayHead ?? 0;
-
         public event TimelineChangedEventHandler TimelineChanged;
 
         public AutomationData AutomationData { get; }
@@ -58,6 +56,11 @@ namespace FramePFX.Editors.Timelines.Effects {
 
         protected BaseEffect() {
             this.AutomationData = new AutomationData(this);
+        }
+
+        public bool GetRelativePlayHead(out long playHead) {
+            playHead = this.ConvertTimelineToRelativeFrame(this.Timeline?.PlayHeadPosition ?? 0, out bool isInRange);
+            return isInRange;
         }
 
         public BaseEffect Clone() {

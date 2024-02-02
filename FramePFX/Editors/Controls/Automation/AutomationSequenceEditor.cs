@@ -594,6 +594,7 @@ namespace FramePFX.Editors.Controls.Automation {
                     else {
                         sequence.RemoveKeyFrame(kf, out _);
                         this.ClearCapture();
+                        this.TriggerUpdateAndRender();
                     }
                 }
             }
@@ -601,10 +602,19 @@ namespace FramePFX.Editors.Controls.Automation {
                 Point pos = e.GetPosition(this);
                 if (this.GetIntersection(ref pos, out KeyFramePoint kf, out LineHitType hitType) && hitType == LineHitType.None) {
                     kf.keyFrame.sequence.RemoveKeyFrame(kf.keyFrame, out _);
+                    this.TriggerUpdateAndRender();
                 }
             }
 
             this.InvalidateVisual();
+        }
+
+        private void TriggerUpdateAndRender() {
+            AutomationSequence sequence = this.Sequence;
+            if (sequence != null && (sequence.Parameter.Flags & ParameterFlags.AffectsRender) != 0) {
+                sequence.UpdateValue();
+                sequence.InvalidateTimelineRender();
+            }
         }
 
         private void UpdateMouseOver(Point point, bool invalidateRender = true) {

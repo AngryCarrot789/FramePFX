@@ -143,6 +143,10 @@
                             BorderBrush="{DynamicResource PanelBorderBrush}"
                             UseLayoutRounding="True" SnapsToDevicePixels="True">
                         <Grid>
+                            <ContentPresenter x:Name="PART_ContentPresenter"
+                                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                              Margin="0,20,0,0"/>
                             <a:AutomationSequenceEditor x:Name="PART_AutomationSequence"
                                                         HorizontalAlignment="Stretch"
                                                         VerticalAlignment="Stretch"

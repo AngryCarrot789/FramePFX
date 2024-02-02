@@ -42,6 +42,10 @@ namespace FramePFX.Editors.Views {
             UIInputManager.SetActionSystemDataContext(this, this.actionSystemDataContext);
         }
 
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
+            base.OnRenderSizeChanged(sizeInfo);
+        }
+
         protected override Task<bool> OnClosingAsync() {
             // Close the project (which also destroys it) so that we can safely close and destroy all
             // used objects (e.g. images, file locks, video files, etc.) even thought it may not be

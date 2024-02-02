@@ -17,7 +17,7 @@ namespace FramePFX.Editors.Timelines.Clips {
                 nameof(Size),
                 new Vector2(100, 30),
                 ValueAccessors.LinqExpression<Vector2>(typeof(VideoClipShape), nameof(Size)),
-                ParameterFlags.InvalidatesRender);
+                ParameterFlags.AffectsRender);
 
         private RenderData renderData;
 

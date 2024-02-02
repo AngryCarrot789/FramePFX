@@ -35,13 +35,6 @@ namespace FramePFX.Editors.Timelines.Clips {
 
         public ReadOnlyCollection<BaseEffect> Effects { get; }
 
-        public long RelativePlayHead {
-            get {
-                Timeline timeline = this.Timeline;
-                return timeline != null ? (this.Timeline.PlayHeadPosition - this.span.Begin) : 0;
-            }
-        }
-
         public AutomationData AutomationData { get; }
 
         /// <summary>
@@ -147,6 +140,11 @@ namespace FramePFX.Editors.Timelines.Clips {
 
         protected virtual void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan) {
             this.FrameSpanChanged?.Invoke(this, oldSpan, newSpan);
+        }
+
+        public bool GetRelativePlayHead(out long playHead) {
+            playHead = this.ConvertTimelineToRelativeFrame(this.Timeline?.PlayHeadPosition ?? 0, out bool isInRange);
+            return isInRange;
         }
 
         public Clip Clone() => this.Clone(ClipCloneOptions.Default);

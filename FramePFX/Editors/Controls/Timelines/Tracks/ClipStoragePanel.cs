@@ -33,8 +33,10 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
                 throw new InvalidOperationException("Cannot insert clips without a track associated");
             control.OnAdding(this.Track, clip);
             this.InternalChildren.Insert(index, control);
+
             // control.InvalidateMeasure();
             // control.UpdateLayout();
+
             control.ApplyTemplate();
             control.OnAdded();
             this.Track.OwnerPanel.TimelineControl.UpdateClipAutomationVisibility(control);

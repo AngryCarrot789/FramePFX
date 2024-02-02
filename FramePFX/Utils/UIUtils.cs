@@ -14,6 +14,8 @@ namespace FramePFX.Utils {
                 Point position = element.TranslatePoint(new Point(), scroller);
                 double vpBeginX = scroller.HorizontalOffset;
                 double vpBeginY = scroller.VerticalOffset;
+                // bug: when you maximize a window, these 2 don't update in time
+                // so ViewportWidth might be say 500 but the RenderSize width will be maybe 1920 :/
                 double vpEndX = vpBeginX + scroller.ViewportWidth;
                 double vpEndY = vpBeginY + scroller.ViewportHeight;
                 double absPosX = vpBeginX + position.X;

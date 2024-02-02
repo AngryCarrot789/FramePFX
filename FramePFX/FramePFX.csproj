@@ -119,6 +119,8 @@
     <Compile Include="Editors\Contextual\TrackContextRegistry.cs" />
     <Compile Include="Editors\Controls\Timelines\ClipDropRegistry.cs" />
     <Compile Include="Editors\Controls\Timelines\TrackDropRegistry.cs" />
+    <Compile Include="Editors\Controls\Timelines\Tracks\Clips\ImageClipContent.cs" />
+    <Compile Include="Editors\Controls\Timelines\Tracks\Clips\TimelineClipContent.cs" />
     <Compile Include="Editors\Exporting\Controls\ExportDialog.xaml.cs">
       <DependentUpon>ExportDialog.xaml</DependentUpon>
     </Compile>
@@ -160,6 +162,7 @@
     <Compile Include="Editors\ResourceManaging\Resources\InvalidMediaPathEntry.cs" />
     <Compile Include="Editors\ResourceManaging\Resources\ResourceAVMedia.cs" />
     <Compile Include="Editors\Timelines\Clips\AVMediaVideoClip.cs" />
+    <Compile Include="Editors\Timelines\Clips\TextClip.cs" />
     <Compile Include="Editors\Timelines\Clips\TimecodeClip.cs" />
     <Compile Include="Editors\Timelines\IStrictFrameRange.cs" />
     <Compile Include="Editors\Timelines\TimelineUtils.cs" />
@@ -390,6 +393,8 @@
     <Compile Include="Utils\RandomUtils.cs" />
     <Compile Include="Utils\RapidDispatchCallback.cs" />
     <Compile Include="Utils\RateLimitedExecutor.cs" />
+    <Compile Include="Utils\Rect2d.cs" />
+    <Compile Include="Utils\Rect2i.cs" />
     <Compile Include="Utils\Reference.cs" />
     <Compile Include="Utils\ReferenceEqualityComparer.cs" />
     <Compile Include="Utils\ResourceDictionaryDataTemplateSelector.cs" />

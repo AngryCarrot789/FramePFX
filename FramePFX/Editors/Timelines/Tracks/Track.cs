@@ -27,8 +27,6 @@ namespace FramePFX.Editors.Timelines.Tracks {
 
         public Timeline Timeline { get; private set; }
 
-        public long RelativePlayHead => this.Timeline?.PlayHeadPosition ?? 0;
-
         public Project Project => this.Timeline?.Project;
 
         public ReadOnlyCollection<Clip> Clips { get; }
@@ -115,6 +113,17 @@ namespace FramePFX.Editors.Timelines.Tracks {
             this.colour = RenderUtils.RandomColour();
             this.selectedClips = new List<Clip>();
             this.AutomationData = new AutomationData(this);
+        }
+
+        public bool GetRelativePlayHead(out long playHead) {
+            if (this.Timeline == null) {
+                playHead = 0L;
+                return false;
+            }
+            else {
+                playHead = this.Timeline.PlayHeadPosition;
+                return true;
+            }
         }
 
         /// <summary>

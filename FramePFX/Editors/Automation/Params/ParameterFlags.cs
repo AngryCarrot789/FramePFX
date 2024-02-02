@@ -10,6 +10,6 @@ namespace FramePFX.Editors.Automation.Params {
         /// <summary>
         /// The parameter invalidates the state of the currently rendered frame, causing a re-render to be required to be up to date
         /// </summary>
-        InvalidatesRender
+        AffectsRender
     }
 }

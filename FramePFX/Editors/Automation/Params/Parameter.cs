@@ -64,7 +64,7 @@ namespace FramePFX.Editors.Automation.Params {
         /// <summary>
         /// An event fired when this parameter changes in any <see cref="AutomationSequence"/> throughout the entire application
         /// </summary>
-        public event ParameterChangedEventHandler ParameterChanged;
+        public event ParameterChangedEventHandler ParameterValueChanged;
 
         protected Parameter(Type ownerType, ParameterKey key, ParameterDescriptor descriptor, ParameterFlags flags) {
             if (descriptor == null)
@@ -83,10 +83,16 @@ namespace FramePFX.Editors.Automation.Params {
             TypeToParametersMap = new Dictionary<Type, List<Parameter>>();
         }
 
+        /// <summary>
+        /// Invokes the <see cref="ParameterValueChanged"/> event for the given sequence. This is only fired
+        /// when the underlying effective value actually changes for the sequence's owner
+        /// </summary>
+        /// <param name="sequence"></param>
+        /// <exception cref="ArgumentException"></exception>
         public void OnParameterValueChanged(AutomationSequence sequence) {
             if (sequence.Parameter.GlobalIndex != this.GlobalIndex)
                 throw new ArgumentException("Sequence's parameter does not match the current instance");
-            this.ParameterChanged?.Invoke(sequence);
+            this.ParameterValueChanged?.Invoke(sequence);
         }
 
         /// <summary>
@@ -96,14 +102,14 @@ namespace FramePFX.Editors.Automation.Params {
         /// <param name="parameters">The parameters to add an event handler for</param>
         public static void AddMultipleHandlers(ParameterChangedEventHandler handler, params Parameter[] parameters) {
             foreach (Parameter parameter in parameters) {
-                parameter.ParameterChanged += handler;
+                parameter.ParameterValueChanged += handler;
             }
         }
 
         /// <summary>
         /// Calculates and sets effective value of the sequence's data owner. Calling this method directly will
         /// not result in any events being fired, therefore, this method shouldn't really be called directly.
-        /// Instead, use <see cref="AutomationSequence.UpdateValue"/> which fires the appropriate sequence of events
+        /// Instead, use <see cref="AutomationSequence.UpdateValue(long)"/> which fires the appropriate sequence of events
         /// </summary>
         /// <param name="sequence">The sequence used to reference the parameter and automation data owner</param>
         /// <param name="frame">The frame which should be used to calculate the new effective value</param>

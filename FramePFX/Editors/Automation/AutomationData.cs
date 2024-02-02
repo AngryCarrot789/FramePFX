@@ -56,7 +56,9 @@ namespace FramePFX.Editors.Automation {
         public ParameterKey ActiveParameter { get; set; }
 
         /// <summary>
-        /// An event fired when a sequence updates a value of its automation data owner. This event is fired after all handler to <see cref="AutomationSequence.ParameterChanged"/> have been invoked; this method is a general handler for all parameter value changes
+        /// An event fired when a sequence updates a value of its automation data owner. This event
+        /// is fired after all handler to <see cref="AutomationSequence.ParameterChanged"/> have been invoked;
+        /// this handler is a general handler for all parameter value changes relative to our owner
         /// </summary>
         public event ParameterChangedEventHandler ParameterValueChanged;
 
@@ -170,13 +172,15 @@ namespace FramePFX.Editors.Automation {
                 throw new ArgumentException("Invalid parameter key for this automation data: " + parameter.Key + ". The owner types are incompatible");
         }
 
-        internal static void OnParameterValueChanged(AutomationSequence sequence) {
-            sequence.AutomationData.ParameterValueChanged?.Invoke(sequence);
-            sequence.Parameter.OnParameterValueChanged(sequence);
-        }
-
         public bool IsAutomated(Parameter parameter) {
             return this.TryGetSequence(parameter, out AutomationSequence sequence) && sequence.HasKeyFrames;
+        }
+
+        public void InvalidateTimelineRender() => this.Owner.Timeline?.InvalidateRender();
+
+        internal static void InternalOnParameterValueChanged(AutomationSequence sequence) {
+            sequence.AutomationData.ParameterValueChanged?.Invoke(sequence);
+            sequence.Parameter.OnParameterValueChanged(sequence);
         }
     }
 }

@@ -36,7 +36,7 @@ namespace FramePFX.Editors.Automation.Keyframes {
         /// <summary>
         /// A keyframe that initially stores the default value for our parameter.
         /// It is used when there are no key frames, <see cref="IsOverrideEnabled"/> is true,
-        /// or when <see cref="UpdateValue"/> is called with a negative frame
+        /// or when <see cref="UpdateValue(long)"/> is called with a negative frame
         /// </summary>
         public KeyFrame DefaultKeyFrame { get; }
 
@@ -54,12 +54,13 @@ namespace FramePFX.Editors.Automation.Keyframes {
                 this.isOverrideEnabled = value;
                 this.OverrideStateChanged?.Invoke(this);
 
-                long frame = this.AutomationData.Owner.RelativePlayHead;
-                if (value) {
-                    this.DefaultKeyFrame.AssignCurrentValue(frame, this, true);
-                }
+                if (this.AutomationData.Owner.GetRelativePlayHead(out long playHead)) {
+                    if (value) {
+                        this.DefaultKeyFrame.AssignCurrentValue(playHead, this, true);
+                    }
 
-                this.UpdateValue(frame);
+                    this.UpdateValue(playHead);
+                }
             }
         }
 
@@ -131,16 +132,42 @@ namespace FramePFX.Editors.Automation.Keyframes {
                 this.IsValueChanging = true;
                 this.Parameter.SetValue(this, frame);
                 this.ParameterChanged?.Invoke(this);
-                AutomationData.OnParameterValueChanged(this);
-                if ((this.Parameter.Flags & ParameterFlags.InvalidatesRender) != 0) {
-                    Timeline timeline = this.AutomationData.Owner.Timeline;
-                    timeline?.InvalidateRender();
+                AutomationData.InternalOnParameterValueChanged(this);
+                if ((this.Parameter.Flags & ParameterFlags.AffectsRender) != 0) {
+                    this.InvalidateTimelineRender();
                 }
             }
             finally {
                 this.IsValueChanging = false;
             }
         }
+
+        /// <summary>
+        /// Tries to query our automation data owner's relative frame and checks if it is in range of the automatable
+        /// object. If it is, then <see cref="UpdateValue(long)"/> is called to update its effective value
+        /// </summary>
+        public void UpdateValue() {
+            // TODO: this feels really bad...
+            IAutomatable owner = this.AutomationData.Owner;
+            Timeline timeline = owner.Timeline;
+            if (timeline != null) {
+                long frame = timeline.PlayHeadPosition;
+                bool isValid = true;
+                if (owner is IStrictFrameRange strict) {
+                    frame = strict.ConvertTimelineToRelativeFrame(frame, out isValid);
+                }
+
+                if (isValid) {
+                    this.UpdateValue(frame);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Accesses our automation data's owner's timeline and invalidates its render. Does nothing
+        /// if the timeline is null (e.g. clip or track is not in a timeline yet)
+        /// </summary>
+        public void InvalidateTimelineRender() => this.AutomationData.InvalidateTimelineRender();
 
         #region Helper Getter Functions
 
@@ -483,31 +510,11 @@ namespace FramePFX.Editors.Automation.Keyframes {
         }
 
         public static void OnKeyFrameValueChanged(AutomationSequence sequence, KeyFrame keyFrame) {
-            if (sequence != null) {
-                UpdateAutomation(sequence);
-            }
+            sequence?.UpdateValue();
         }
 
         public static void OnKeyFramePositionChanged(AutomationSequence sequence, KeyFrame keyFrame) {
-            if (sequence != null) {
-                UpdateAutomation(sequence);
-            }
-        }
-
-        public static void UpdateAutomation(AutomationSequence sequence) {
-            // TODO: this feels really bad...
-            IAutomatable owner = sequence.AutomationData.Owner;
-            Timeline timeline = owner.Timeline;
-            if (timeline == null) {
-                return;
-            }
-
-            long frame = timeline.PlayHeadPosition;
-            if (owner is IStrictFrameRange strict) {
-                frame = strict.ConvertTimelineToRelativeFrame(frame, out bool isValid);
-            }
-
-            sequence.UpdateValue(frame);
+            sequence?.UpdateValue();
         }
 
         public static void InternalVerifyValue(KeyFrameFloat keyFrame, float value) {

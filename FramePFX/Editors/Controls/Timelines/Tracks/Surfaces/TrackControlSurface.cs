@@ -100,12 +100,13 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
                 Parameter parameter = this.selectedParameter?.Parameter;
                 if (parameter != null) {
                     Track track = this.Owner.Track;
-                    long frame = track.RelativePlayHead;
-                    AutomationSequence seq = track.AutomationData[parameter];
-                    object value = parameter.GetObjectValue(track);
-                    seq.AddNewKeyFrame(frame, out KeyFrame keyFrame);
-                    keyFrame.SetValueFromObject(value);
-                    seq.UpdateValue(frame);
+                    if (track.GetRelativePlayHead(out long playHead)) {
+                        AutomationSequence seq = track.AutomationData[parameter];
+                        object value = parameter.GetObjectValue(track);
+                        seq.AddNewKeyFrame(playHead, out KeyFrame keyFrame);
+                        keyFrame.SetValueFromObject(value);
+                        seq.UpdateValue(playHead);
+                    }
                 }
             });
 

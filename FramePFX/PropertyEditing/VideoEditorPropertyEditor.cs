@@ -30,6 +30,7 @@ namespace FramePFX.PropertyEditing {
                 this.ClipGroup.AddItem(new ParameterDoublePropertyEditorSlot(VideoClip.OpacityParameter, typeof(VideoClip), "Opacity", DragStepProfile.UnitOne));
                 this.ClipGroup.AddItem(new VideoClipMediaFrameOffsetPropertyEditorSlot());
                 this.ClipGroup.AddItem(new TimecodeFontFamilyPropertyEditorSlot());
+                this.ClipGroup.AddItem(new ParameterDoublePropertyEditorSlot(TimecodeClip.FontSizeParameter, typeof(TimecodeClip), "Font Size", DragStepProfile.Percentage));
 
                 SimplePropertyEditorGroup shapeGroup = new SimplePropertyEditorGroup(typeof(VideoClipShape)) {
                     DisplayName = "Shape Info"

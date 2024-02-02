@@ -61,18 +61,17 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
 
         private void OnInsertKeyFrameClicked(object sender, RoutedEventArgs e) {
             if (this.AutomationSequence is AutomationSequence sequence) {
-                AutomatedUtils.TryAddKeyFrameAtLocation(sequence, out KeyFrame keyFrame);
+                AutomatedUtils.TryAddKeyFrameAtLocation(sequence, out _);
+                sequence.UpdateValue();
             }
         }
 
         private void OnResetValueClicked(object sender, RoutedEventArgs e) {
             if (this.AutomationSequence is AutomationSequence sequence) {
-                if (AutomatedUtils.TryAddKeyFrameAtLocation(sequence, out KeyFrame keyFrame)) {
-                    keyFrame.AssignDefaultValue(sequence.Parameter.Descriptor);
-                }
-                else {
-                    sequence.IsOverrideEnabled = true;
-                }
+                AutomatedUtils.GetDefaultKeyFrameOrAddNew(sequence, out KeyFrame keyFrame);
+                keyFrame.AssignDefaultValue(sequence.Parameter.Descriptor);
+                sequence.UpdateValue();
+                // sequence.InvalidateTimelineRender();
             }
         }
 

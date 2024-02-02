@@ -69,6 +69,7 @@ namespace FramePFX.Editors.Controls.Timelines {
         public Visibility ClipAutomationVisibility { get; private set; }
 
         private readonly List<Button> timelineActionButtons;
+        private readonly Dictionary<Type, Stack<TimelineClipContent>> itemContentCacheMap;
         private bool isUpdatingTrackAutomationButton;
         private bool isUpdatingClipAutomationButton;
 
@@ -78,6 +79,7 @@ namespace FramePFX.Editors.Controls.Timelines {
             };
 
             this.timelineActionButtons = new List<Button>();
+            this.itemContentCacheMap = new Dictionary<Type, Stack<TimelineClipContent>>();
         }
 
         /// <summary>
@@ -435,6 +437,7 @@ namespace FramePFX.Editors.Controls.Timelines {
                 double scaled_target_offset = target_offset * newzoom;
                 double new_offset = scaled_target_offset - mouse_x;
                 scroller.ScrollToHorizontalOffset(new_offset);
+                // this.InvalidateMeasure();
             }
             else if ((mods & ModifierKeys.Shift) != 0) {
                 if (e.Delta < 0) {
@@ -494,6 +497,30 @@ namespace FramePFX.Editors.Controls.Timelines {
 
         public TimelineTrackControl GetTimelineControlFromTrack(Track track) {
             return this.TrackStorage.GetTrackByModel(track);
+        }
+
+        public TimelineClipContent GetClipContentObject(Type clipType) {
+            TimelineClipContent content;
+            if (this.itemContentCacheMap.TryGetValue(clipType, out Stack<TimelineClipContent> stack) && stack.Count > 0) {
+                content = stack.Pop();
+            }
+            else {
+                content = TimelineClipContent.NewInstance(clipType);
+            }
+
+            return content;
+        }
+
+        public bool ReleaseContentObject(Type trackType, TimelineClipContent contentControl) {
+            if (!this.itemContentCacheMap.TryGetValue(trackType, out Stack<TimelineClipContent> stack)) {
+                this.itemContentCacheMap[trackType] = stack = new Stack<TimelineClipContent>();
+            }
+            else if (stack.Count > 4) {
+                return false;
+            }
+
+            stack.Push(contentControl);
+            return true;
         }
     }
 }

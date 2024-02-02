@@ -56,12 +56,12 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
         /// <summary>
         /// Gets our panel's timeline control
         /// </summary>
-        public TimelineControl OwnerTimeline { get; private set; }
+        public TimelineControl TimelineControl { get; private set; }
 
         /// <summary>
         /// Gets the panel which stores this track's clip items
         /// </summary>
-        public ClipStoragePanel StoragePanel { get; private set; }
+        public ClipStoragePanel ClipStoragePanel { get; private set; }
 
         /// <summary>
         /// Gets this track's automation editor
@@ -92,13 +92,13 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
         }
 
         public long GetFrameAtMousePoint(Point pointRelativeToThis) {
-            return TimelineUtils.PixelToFrame(pointRelativeToThis.X, this.OwnerTimeline?.Timeline?.Zoom ?? 1.0, true);
+            return TimelineUtils.PixelToFrame(pointRelativeToThis.X, this.TimelineControl?.Timeline?.Zoom ?? 1.0, true);
         }
 
         public override void OnApplyTemplate() {
             base.OnApplyTemplate();
-            this.StoragePanel = (ClipStoragePanel) this.GetTemplateChild("PART_TrackClipPanel") ?? throw new Exception("Missing PART_TrackClipPanel");
-            this.StoragePanel.Track = this;
+            this.ClipStoragePanel = (ClipStoragePanel) this.GetTemplateChild("PART_TrackClipPanel") ?? throw new Exception("Missing PART_TrackClipPanel");
+            this.ClipStoragePanel.Track = this;
             this.AutomationEditor = (AutomationSequenceEditor) this.GetTemplateChild("PART_AutomationSequenceEditor") ?? throw new Exception("Missing PART_AutomationSequenceEditor");
         }
 
@@ -187,11 +187,11 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
         }
 
         private void OnClipAdded(Track track, Clip clip, int index) {
-            this.StoragePanel.InsertClip(clip, index);
+            this.ClipStoragePanel.InsertClip(clip, index);
         }
 
         private void OnClipRemoved(Track track, Clip clip, int index) {
-            this.StoragePanel.RemoveClipInternal(index);
+            this.ClipStoragePanel.RemoveClipInternal(index);
         }
 
         private void OnClipMovedTracks(Clip clip, Track oldTrack, int oldIndex, Track newTrack, int newIndex) {
@@ -205,8 +205,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
                     throw new Exception("Could not find destination track. Is the UI timeline corrupted or did the clip move between timelines?");
                 }
 
-                TimelineClipControl control = (TimelineClipControl) this.StoragePanel.MyInternalChildren[oldIndex];
-                this.StoragePanel.RemoveClipInternal(oldIndex, false);
+                TimelineClipControl control = (TimelineClipControl) this.ClipStoragePanel.MyInternalChildren[oldIndex];
+                this.ClipStoragePanel.RemoveClipInternal(oldIndex, false);
                 dstTrack.clipBeingMoved = new MovedClip(control, clip);
             }
             else if (newTrack == this.Track) {
@@ -214,7 +214,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
                     throw new Exception("Clip control being moved is null. Is the UI timeline corrupted or did the clip move between timelines?");
                 }
 
-                this.StoragePanel.InsertClip(movedClip.control, movedClip.clip, newIndex);
+                this.ClipStoragePanel.InsertClip(movedClip.control, movedClip.clip, newIndex);
                 this.clipBeingMoved = null;
             }
         }
@@ -242,7 +242,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
         }
 
         public void OnAdding(TrackStoragePanel parent, Track track) {
-            this.OwnerTimeline = parent.TimelineControl ?? throw new Exception("Parent track panel has no timeline control associated with it");
+            this.TimelineControl = parent.TimelineControl ?? throw new Exception("Parent track panel has no timeline control associated with it");
             this.OwnerPanel = parent;
             this.Track = track;
 
@@ -253,6 +253,40 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             track.ColourChanged += this.OnTrackColourChanged;
             this.Track.IsSelectedChanged += this.TrackOnIsSelectedChanged;
             this.actionSystemDataContext.Set(DataKeys.TrackKey, track);
+        }
+
+        public void OnAdded() {
+            this.UpdateTrackColour();
+            int i = 0;
+            foreach (Clip clip in this.Track.Clips) {
+                this.ClipStoragePanel.InsertClip(clip, i++);
+            }
+
+            this.IsSelected = this.Track?.IsSelected ?? false;
+        }
+
+        public void OnRemoving() {
+            this.Track.ClipAdded -= this.OnClipAdded;
+            this.Track.ClipRemoved -= this.OnClipRemoved;
+            this.Track.ClipMovedTracks -= this.OnClipMovedTracks;
+            this.Track.HeightChanged -= this.OnTrackHeightChanged;
+            this.Track.ColourChanged -= this.OnTrackColourChanged;
+            this.Track.IsSelectedChanged -= this.TrackOnIsSelectedChanged;
+            this.ClipStoragePanel.ClearClipsInternal();
+            this.actionSystemDataContext.Set(DataKeys.TrackKey, null);
+        }
+
+        public void OnRemoved() {
+            this.OwnerPanel = null;
+            this.Track = null;
+        }
+
+        public void OnIndexMoving(int oldIndex, int newIndex) {
+
+        }
+
+        public void OnIndexMoved(int oldIndex, int newIndex) {
+
         }
 
         private void OnIsSelectedChanged(bool selected) {
@@ -274,42 +308,9 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             }
         }
 
-        public void OnAdded() {
-            this.UpdateTrackColour();
-            int i = 0;
-            foreach (Clip clip in this.Track.Clips) {
-                this.StoragePanel.InsertClip(clip, i++);
-            }
-
-            this.IsSelected = this.Track?.IsSelected ?? false;
-        }
-
-        public void OnRemoving() {
-            this.Track.ClipAdded -= this.OnClipAdded;
-            this.Track.ClipRemoved -= this.OnClipRemoved;
-            this.Track.ClipMovedTracks -= this.OnClipMovedTracks;
-            this.Track.HeightChanged -= this.OnTrackHeightChanged;
-            this.Track.ColourChanged -= this.OnTrackColourChanged;
-            this.Track.IsSelectedChanged -= this.TrackOnIsSelectedChanged;
-            this.StoragePanel.ClearClipsInternal();
-            this.actionSystemDataContext.Set(DataKeys.TrackKey, null);
-        }
-
-        public void OnRemoved() {
-            this.OwnerPanel = null;
-            this.Track = null;
-        }
-
-        public void OnIndexMoving(int oldIndex, int newIndex) {
-
-        }
-
-        public void OnIndexMoved(int oldIndex, int newIndex) {
-
-        }
-
         public void OnZoomChanged(double newZoom) {
-            foreach (TimelineClipControl clip in this.StoragePanel.MyInternalChildren) {
+            // this.InvalidateMeasure();
+            foreach (TimelineClipControl clip in this.ClipStoragePanel.MyInternalChildren) {
                 clip.OnZoomChanged(newZoom);
             }
         }
@@ -317,23 +318,23 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
         private void OnTrackHeightChanged(Track track) {
             this.UpdateAutomationVisibility();
             this.InvalidateMeasure();
-            this.StoragePanel.InvalidateMeasure();
+            this.ClipStoragePanel.InvalidateMeasure();
             this.OwnerPanel?.InvalidateVisual();
         }
 
         private void OnTrackColourChanged(Track track) {
             this.UpdateTrackColour();
-            foreach (TimelineClipControl clip in this.StoragePanel.MyInternalChildren) {
+            foreach (TimelineClipControl clip in this.ClipStoragePanel.MyInternalChildren) {
                 clip.InvalidateVisual();
             }
         }
 
         public void OnClipSpanChanged() {
-            this.StoragePanel.InvalidateArrange();
+            this.ClipStoragePanel.InvalidateArrange();
         }
 
-        public IEnumerable<TimelineClipControl> GetClips() => this.StoragePanel.GetClips();
-        public TimelineClipControl GetClipAt(int index) => this.StoragePanel.GetClipAt(index);
+        public IEnumerable<TimelineClipControl> GetClips() => this.ClipStoragePanel.GetClips();
+        public TimelineClipControl GetClipAt(int index) => this.ClipStoragePanel.GetClipAt(index);
 
         public void SetAutomationVisibility(Visibility visibility) {
             this.desiredAutomationVisibility = visibility;

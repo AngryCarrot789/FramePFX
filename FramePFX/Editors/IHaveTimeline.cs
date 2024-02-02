@@ -13,13 +13,12 @@ namespace FramePFX.Editors {
         Timeline Timeline { get; }
 
         /// <summary>
-        /// Gets the playhead that is relative to this object. Return 0 for a null timeline
-        /// <para>
-        /// Tracks just return the play head. Clips return 'playhead - FrameBegin'. Track effects
-        /// return the track's play head and clip effects return the clip's relative play head
-        /// </para>
+        /// Tries to get the play head relative to this object. If <see cref="Timeline"/> is null or the play head
+        /// is otherwise inaccessible or the play head is not in range then false is returned
         /// </summary>
-        long RelativePlayHead { get; }
+        /// <param name="playHead">The relative play head</param>
+        /// <returns>True if in range</returns>
+        bool GetRelativePlayHead(out long playHead);
 
         /// <summary>
         /// An event fired when this object's effective timeline changed. This may be called either when this effect

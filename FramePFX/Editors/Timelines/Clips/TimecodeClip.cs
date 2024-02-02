@@ -1,4 +1,5 @@
 using System;
+using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.RBC;
@@ -7,6 +8,10 @@ using SkiaSharp;
 
 namespace FramePFX.Editors.Timelines.Clips {
     public class TimecodeClip : VideoClip {
+        public static readonly ParameterDouble FontSizeParameter = Parameter.RegisterDouble(typeof(TimecodeClip), nameof(TimecodeClip), nameof(FontSize), 40, ValueAccessors.LinqExpression<double>(typeof(TimecodeClip), nameof(FontSize)), ParameterFlags.AffectsRender);
+
+        public double FontSize;
+
         public bool UseClipStartTime;
         public bool UseClipEndTime;
         public TimeSpan StartTime;
@@ -31,6 +36,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         private TimeSpan render_EndTime;
         private FrameSpan render_Span;
         private long render_Frame;
+        private double renderFontSize;
 
         public string FontFamily {
             get => this.fontFamily;
@@ -48,6 +54,7 @@ namespace FramePFX.Editors.Timelines.Clips {
 
         public TimecodeClip() {
             this.fontData = new RenderLockedDataWrapper<LockedFontData>(new LockedFontData());
+            this.FontSize = FontSizeParameter.Descriptor.DefaultValue;
             this.UseClipStartTime = this.UseClipEndTime = true;
         }
 
@@ -58,19 +65,11 @@ namespace FramePFX.Editors.Timelines.Clips {
         }
 
         static TimecodeClip() {
-            // Serialisation.Register<TimecodeClip>("1.0.0", (clip, data, ctx) => {
-            //     ctx.SerialiseBaseClass(clip, data);
-            //     data.SetBool("UseClipStart", clip.UseClipStartTime);
-            //     data.SetBool("UseClipEnd", clip.UseClipEndTime);
-            //     data.SetLong("StartTime", clip.StartTime.Ticks);
-            //     data.SetLong("EndTime", clip.EndTime.Ticks);
-            // }, (clip, data, ctx) => {
-            //     ctx.DeserialiseBaseClass(clip, data);
-            //     clip.UseClipStartTime = data.GetBool("UseClipStart");
-            //     clip.UseClipEndTime = data.GetBool("UseClipEnd");
-            //     clip.StartTime = new TimeSpan(data.GetLong("StartTime"));
-            //     clip.EndTime = new TimeSpan(data.GetLong("EndTime"));
-            // });
+            FontSizeParameter.ParameterValueChanged += sequence => {
+                TimecodeClip owner = (TimecodeClip) sequence.AutomationData.Owner;
+                owner.fontData.Dispose();
+                owner.InvalidateRender();
+            };
         }
 
         public override void WriteToRBE(RBEDictionary data) {
@@ -109,6 +108,7 @@ namespace FramePFX.Editors.Timelines.Clips {
             this.render_Span = this.FrameSpan;
             this.render_StartTime = this.UseClipStartTime ? default : this.StartTime;
             this.render_EndTime = this.UseClipEndTime ? TimeSpan.FromSeconds(this.FrameSpan.Duration / fps) : this.EndTime;
+            this.renderFontSize = this.FontSize;
             return true;
         }
 
@@ -117,7 +117,7 @@ namespace FramePFX.Editors.Timelines.Clips {
             lock (this.fontData.Locker) {
                 if (!this.fontData.OnRenderBegin() || fd.cachedFont == null || fd.cachedTypeFace == null) {
                     fd.cachedTypeFace = this.fontFamily != null ? SKTypeface.FromFamilyName(this.fontFamily) : SKTypeface.CreateDefault();
-                    fd.cachedFont = new SKFont(fd.cachedTypeFace, 100F);
+                    fd.cachedFont = new SKFont(fd.cachedTypeFace, (float) this.renderFontSize);
                     this.fontData.OnResetAndRenderBegin();
                 }
             }
@@ -131,12 +131,52 @@ namespace FramePFX.Editors.Timelines.Clips {
             //     }
             // }
 
+            string text = this.GetCurrentTimeString();
+            // using (SKPaint paint = new SKPaint() { IsAntialias = true, Color = SKColors.White }) {
+            //     using (SKTextBlob blob = SKTextBlob.Create(text, fd.cachedFont)) {
+            //         fd.cachedFont.GetFontMetrics(out SKFontMetrics metrics);
+            //         float y = -blob.Bounds.Top - metrics.Descent;
+            //         renderArea = new SKRect(0, 0, blob.Bounds.Right, blob.Bounds.Height);
+            //         using (SKPaint p2 = new SKPaint() {Color = SKColors.Cyan}) {
+            //             rc.Canvas.DrawRect(renderArea, p2);
+            //         }
+            //         rc.Canvas.DrawText(blob, 0, y, paint);
+            //     }
+            // }
+
             using (SKPaint paint = new SKPaint() { IsAntialias = true, Color = SKColors.White }) {
-                string text = this.GetCurrentTimeString();
                 using (SKTextBlob blob = SKTextBlob.Create(text, fd.cachedFont)) {
-                    float a = fd.cachedFont.GetFontMetrics(out SKFontMetrics metrics);
-                    float baselineOffset = metrics.Descent;
-                    rc.Canvas.DrawText(blob, 0, -blob.Bounds.Top - baselineOffset, paint);
+                    fd.cachedFont.GetFontMetrics(out SKFontMetrics metrics);
+                    // using (SKPaint p3 = new SKPaint() {Color = SKColors.Orange}) {
+                    //     float width = blob.Bounds.Right + blob.Bounds.Left;
+                    //     float height = -metrics.Ascent;
+                    //     // blob.Bounds.Height - (metrics.Descent * 2)
+                    //     rc.Canvas.DrawRect(0, 0, width, blob.Bounds.Height, p3);
+                    // }
+
+                    // This stuff will be clipped out by the renderArea rect, but this was just me trying to
+                    // figure out what the heck Skia is doing lol
+                    // using (SKPaint p = new SKPaint() {Color = SKColors.Red}) {
+                    //     rc.Canvas.DrawRect(new SKRect(0, 0, blob.Bounds.Right - (metrics.XMax + metrics.XMin), metrics.Bottom), p);
+                    // }
+                    // using (SKPaint p = new SKPaint() {Color = SKColors.Green}) {
+                    //     rc.Canvas.DrawRect(blob.Bounds.Left, blob.Bounds.Top, -metrics.XMin, blob.Bounds.Height, p);
+                    // }
+                    // using (SKPaint p = new SKPaint() {Color = SKColors.BlueViolet}) {
+                    //     rc.Canvas.DrawRect(blob.Bounds.Left + -metrics.XMin, blob.Bounds.Top, blob.Bounds.Right - (blob.Bounds.Left + -metrics.XMin), metrics.Bottom, p);
+                    // }
+                    // using (SKPaint p = new SKPaint() {Color = SKColors.Yellow}) {
+                    //     rc.Canvas.DrawRect(new SKRect(blob.Bounds.Right + metrics.XMax, blob.Bounds.Top + metrics.Bottom, blob.Bounds.Right, blob.Bounds.Bottom), p);
+                    // }
+
+                    // we can get away with this since we just use numbers and not any 'special'
+                    // characters with bits below the baseline and whatnot
+                    SKRect realFinalRenderArea = new SKRect(0, 0, blob.Bounds.Right, blob.Bounds.Bottom - metrics.Ascent - metrics.Descent);
+                    rc.Canvas.DrawText(blob, 0, -blob.Bounds.Top - metrics.Descent, paint);
+
+                    // we still need to tell the track the rendering area, otherwise we're copying the entire frame which is
+                    // unacceptable. Even though there will most likely be a bunch of transparent padding pixels, it's still better
+                    renderArea = rc.TranslateRect(realFinalRenderArea);
                 }
             }
 

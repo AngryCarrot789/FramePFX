@@ -7,48 +7,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3dd42830-fb81-4631-b072-52d6b7c558b4" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/FramePFX/Editors/MatrixUtils.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX/Editors/Timelines/IDisplayName.cs" afterDir="false" />
+    <list default="true" id="3dd42830-fb81-4631-b072-52d6b7c558b4" name="Default Changelist" comment="Added video track effect support (default project has motion effects for all tracks), started adding support for composition clips, added property editor slots for tracks,">
+      <change afterPath="$PROJECT_DIR$/FramePFX_2024-02-03_01.07.07.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FramePFX_2024-02-03_01.08.52.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.FramePFX/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FramePFX/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Actions/DeleteTracksAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Actions/DeleteTracksAction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Actions/SelectAllTracksAction.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Actions/SelectAllTracksAction.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Automation/AutomationData.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Automation/AutomationData.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Automation/AutomatedUtils.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Automation/AutomatedUtils.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/Explorers/ResourceExplorerListControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/Explorers/ResourceExplorerListControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/Explorers/ResourceExplorerListItem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/Explorers/ResourceExplorerListItem.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/ResourceDropRegistry.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/ResourceDropRegistry.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/ResourceStyles.xaml" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/ResourceStyles.xaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/Trees/ResourceTreeViewItem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/Trees/ResourceTreeViewItem.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TimelineControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TimelineControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TimelineStyles.xaml" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TimelineStyles.xaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TrackDropRegistry.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TrackDropRegistry.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Clips/TimelineClipContent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Clips/TimelineClipContent.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Clips/TimelineClipControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Clips/TimelineClipControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Surfaces/TrackControlSurfaceListBoxItem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Surfaces/TrackControlSurfaceListBoxItem.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/TimelineTrackControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/TimelineTrackControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Project.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Project.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/AControls/ClipDisplayNamePropertyEditorControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/AControls/DisplayNamePropertyEditorControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/AControls/TimecodeFontFamilyPropertyEditorControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/AControls/TimecodeFontFamilyPropertyEditorControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/Clips/ClipDisplayNamePropertyEditorSlot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/Clips/DisplayNamePropertyEditorSlot.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/ProjectPropertiesPropertyEditorGroup.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/ProjectPropertiesPropertyEditorGroup.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Clips/Clip.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Clips/Clip.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Clips/VideoClip.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Clips/VideoClip.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Effects/BaseEffect.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Effects/BaseEffect.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Effects/MotionEffect.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Effects/MotionEffect.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Timeline.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Timeline.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Tracks/Track.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Tracks/Track.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Tracks/VideoTrack.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Timelines/Tracks/VideoTrack.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/VideoEditor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/VideoEditor.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Views/EditorWindow.xaml.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Views/EditorWindow.xaml.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/FramePFX.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/FramePFX.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Automation/ParameterDoublePropertyEditorSlot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Automation/ParameterDoublePropertyEditorSlot.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Automation/ParameterFloatPropertyEditorSlot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Automation/ParameterFloatPropertyEditorSlot.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Automation/ParameterVector2PropertyEditorSlot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Automation/ParameterVector2PropertyEditorSlot.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Automation/KeyFrameToolsControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Automation/KeyFrameToolsControl.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/BasePropEditControlContent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/BasePropEditControlContent.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorSlotContentStyles.xaml" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorSlotContentStyles.xaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/VideoEditorPropertyEditor.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/VideoEditorPropertyEditor.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -129,6 +92,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/aa/59f80e21/SKPositionedRunBuffer.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/01/8c13c4eb/ExceptionDispatchInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/4e/1fe431fa/Signature.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/PropertyEditing/VideoEditorPropertyEditor.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/22/b8ffb658/Type.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/D1286D07-7FDF-4F8E-B772-3A106735DC7B/51/0eaf2ee3/IPipeSource.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/805945F3-27B0-47AD-B8F6-389D9D8F82C3/07/5c70ad7b/ReadOnlySpan`1.cs" root0="SKIP_HIGHLIGHTING" />
@@ -201,6 +165,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/0a/2eb0d04a/Associates.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1DE758BF-1EFC-4C40-BA31-66103772CEFF/ae/43c68e58/MediaPlayerState.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/3a/84e152ec/SkiaApi.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/Timelines/Tracks/VideoTrack.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1DE758BF-1EFC-4C40-BA31-66103772CEFF/60/f59580f8/MediaPlayer.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/c6/425a0745/CancellationToken.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/fa/05706327/SkiaExtensions.cs" root0="SKIP_HIGHLIGHTING" />
@@ -226,7 +191,6 @@
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/ClipStoragePanel.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Utils/Rect2d.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Utils/Rect2i.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Clips/TimelineClipContent.cs" />
@@ -277,6 +241,7 @@
       <option value="$PROJECT_DIR$/FramePFX/Editors/Timelines/Effects/MotionEffect.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Timelines/Tracks/VideoTrack.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/VideoEditor.cs" />
+      <option value="$PROJECT_DIR$/README.md" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="2bVmNasuD1gRewhm3s2Vrxru3IS" />
@@ -354,7 +319,7 @@
       <workItem from="1706842937885" duration="1798000" />
       <workItem from="1706864893902" duration="21708000" />
       <workItem from="1706889733653" duration="23703000" />
-      <workItem from="1706915229706" duration="6333000" />
+      <workItem from="1706915229706" duration="8234000" />
     </task>
     <task id="LOCAL-00001" summary="Replaced old app with new app, which does not use MVVM much anymore">
       <created>1706309146757</created>
@@ -482,7 +447,14 @@
       <option name="project" value="LOCAL" />
       <updated>1706913336079</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Added video track effect support (default project has motion effects for all tracks), started adding support for composition clips, added property editor slots for tracks,">
+      <created>1706921634334</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1706921634334</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -522,7 +494,8 @@
     <MESSAGE value="Added project serialisation, added clip drag-copy feature to drag and drop a cloned clip by holding CTRL, fixed property editors not hiding when not applicable, added shortcut activation message in the activity bar, made timecode clip thread safe (I hope...), fixed duplicate input strokes in context menus, fixed possible bug where multiple resource entries use the same id of 0, added hardware decoder support for AVMediaVideoClip although I don't think it works most the time, added primary/secondary expander states and no-expander state to property editor groups, and finally made AutomationData update the backing storage after deserialising/cloning" />
     <MESSAGE value="Added project settings dialog that lets you edit resolution and frame rate" />
     <MESSAGE value="Added font size to timecode clip, fixed issues with automation updates not happening and key frames being inserted when they aren't supposed to be, added clip content controls (only used by image clips at the moment)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added font size to timecode clip, fixed issues with automation updates not happening and key frames being inserted when they aren't supposed to be, added clip content controls (only used by image clips at the moment)" />
+    <MESSAGE value="Added video track effect support (default project has motion effects for all tracks), started adding support for composition clips, added property editor slots for tracks," />
+    <option name="LAST_COMMIT_MESSAGE" value="Added video track effect support (default project has motion effects for all tracks), started adding support for composition clips, added property editor slots for tracks," />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

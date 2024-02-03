@@ -29,7 +29,7 @@ namespace FramePFX.PropertyEditing.Controls {
             set => this.SetValue(PropertyEditorProperty, value);
         }
 
-        public PropertyEditorControlPanel Panel { get; private set; }
+        public PropertyEditorItemsPanel Panel { get; private set; }
 
         public BasePropertyEditorGroup Model { get; private set; }
 
@@ -50,7 +50,7 @@ namespace FramePFX.PropertyEditing.Controls {
         protected override void OnMouseDown(MouseButtonEventArgs e) {
             base.OnMouseDown(e);
 
-            if (!e.Handled && e.OriginalSource is PropertyEditorControlPanel) {
+            if (!e.Handled && e.OriginalSource is PropertyEditorItemsPanel) {
                 e.Handled = true;
                 this.PropertyEditor?.PropertyEditor?.ClearSelection();
                 this.Focus();
@@ -59,7 +59,7 @@ namespace FramePFX.PropertyEditing.Controls {
 
         public override void OnApplyTemplate() {
             base.OnApplyTemplate();
-            this.GetTemplateChild("PART_Panel", out PropertyEditorControlPanel panel);
+            this.GetTemplateChild("PART_Panel", out PropertyEditorItemsPanel panel);
             this.Panel = panel;
             this.Panel.OwnerGroup = this;
 
@@ -73,10 +73,11 @@ namespace FramePFX.PropertyEditing.Controls {
                 throw new ArgumentNullException(nameof(propertyEditor));
             this.PropertyEditor = propertyEditor;
             this.Model = group;
-            this.Model.ItemAdded += this.ModelOnItemAdded;
-            this.Model.ItemRemoved += this.ModelOnItemRemoved;
-            this.Model.ItemMoved += this.ModelOnItemMoved;
-            this.GroupType = this.Model.GroupType;
+            group.ItemAdded += this.ModelOnItemAdded;
+            group.ItemRemoved += this.ModelOnItemRemoved;
+            group.ItemMoved += this.ModelOnItemMoved;
+            group.IsCurrentlyApplicableChanged += this.GroupOnIsCurrentlyApplicableChanged;
+            this.GroupType = group.GroupType;
             this.displayNameBinder.Attach(this, group);
             this.isVisibleBinder.Attach(this, group);
             this.isExpandedBinder.Attach(this, group);
@@ -85,6 +86,10 @@ namespace FramePFX.PropertyEditing.Controls {
             foreach (BasePropertyEditorObject obj in group.PropertyObjects) {
                 this.Panel.InsertItem(obj, i++);
             }
+        }
+
+        private void GroupOnIsCurrentlyApplicableChanged(BasePropertyEditorItem sender) {
+
         }
 
         public void DisconnectModel() {
@@ -98,6 +103,7 @@ namespace FramePFX.PropertyEditing.Controls {
             this.Model.ItemAdded -= this.ModelOnItemAdded;
             this.Model.ItemRemoved -= this.ModelOnItemRemoved;
             this.Model.ItemMoved -= this.ModelOnItemMoved;
+            this.Model.IsCurrentlyApplicableChanged -= this.GroupOnIsCurrentlyApplicableChanged;
             this.Model = null;
         }
 

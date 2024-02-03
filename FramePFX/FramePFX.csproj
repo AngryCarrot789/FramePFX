@@ -100,6 +100,7 @@
     <Compile Include="AdvancedContextService\WPF\AdvancedMenuItem.cs" />
     <Compile Include="AdvancedContextService\WPF\AdvancedMenuItemStyleSelector.cs" />
     <Compile Include="AdvancedContextService\WPF\AdvancedShortcutMenuItem.cs" />
+    <Compile Include="AdvancedContextService\WPF\IAdvancedMenu.cs" />
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Converters\EmptyStringToVisibilityConverter.cs" />
     <Compile Include="Editors\Actions\DeleteClipOwnerTrackAction.cs" />
@@ -240,7 +241,7 @@
     <Compile Include="PropertyEditing\BasePropertyEditorObject.cs" />
     <Compile Include="PropertyEditing\Controls\BasePropEditControlContent.cs" />
     <Compile Include="PropertyEditing\Controls\PropertyEditorControl.cs" />
-    <Compile Include="PropertyEditing\Controls\PropertyEditorControlPanel.cs" />
+    <Compile Include="PropertyEditing\Controls\PropertyEditorItemsPanel.cs" />
     <Compile Include="PropertyEditing\Controls\PropertyEditorGroupControl.cs" />
     <Compile Include="PropertyEditing\Controls\PropertyEditorSlotControl.cs" />
     <Compile Include="PropertyEditing\SimplePropertyEditorGroup.cs" />

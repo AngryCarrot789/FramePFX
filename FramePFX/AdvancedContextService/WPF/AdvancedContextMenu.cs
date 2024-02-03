@@ -7,7 +7,7 @@ using FramePFX.Interactivity.DataContexts;
 using FramePFX.Shortcuts.WPF;
 
 namespace FramePFX.AdvancedContextService.WPF {
-    public class AdvancedContextMenu : ContextMenu {
+    public class AdvancedContextMenu : ContextMenu, IAdvancedMenu {
         public static readonly DependencyProperty ContextGeneratorProperty =
             DependencyProperty.RegisterAttached(
                 "ContextGenerator",
@@ -26,7 +26,12 @@ namespace FramePFX.AdvancedContextService.WPF {
             this.itemCache = new Dictionary<Type, Stack<FrameworkElement>>();
         }
 
-        private bool PushCachedItem(Type entryType, FrameworkElement item) {
+        public bool PushCachedItem(Type entryType, FrameworkElement item) {
+            if (item == null)
+                throw new ArgumentNullException(nameof(item));
+            if (entryType == null)
+                throw new ArgumentNullException(nameof(entryType));
+
             if (!this.itemCache.TryGetValue(entryType, out Stack<FrameworkElement> stack)) {
                 this.itemCache[entryType] = stack = new Stack<FrameworkElement>();
             }
@@ -38,7 +43,10 @@ namespace FramePFX.AdvancedContextService.WPF {
             return true;
         }
 
-        private FrameworkElement PopCachedItem(Type entryType) {
+        public FrameworkElement PopCachedItem(Type entryType) {
+            if (entryType == null)
+                throw new ArgumentNullException(nameof(entryType));
+
             if (this.itemCache.TryGetValue(entryType, out Stack<FrameworkElement> stack) && stack.Count > 0) {
                 return stack.Pop();
             }
@@ -46,7 +54,7 @@ namespace FramePFX.AdvancedContextService.WPF {
             return null;
         }
 
-        public FrameworkElement CreateChildMenuItem(IContextEntry entry) {
+        public FrameworkElement CreateChildItem(IContextEntry entry) {
             FrameworkElement element = this.PopCachedItem(entry.GetType());
             if (element == null) {
                 switch (entry) {
@@ -78,7 +86,7 @@ namespace FramePFX.AdvancedContextService.WPF {
         internal static void InsertItemNodes(AdvancedContextMenu menu, ItemsControl parent, List<IContextEntry> entries) {
             ItemCollection items = menu.Items;
             foreach (IContextEntry entry in CleanEntries(entries)) {
-                FrameworkElement element = menu.CreateChildMenuItem(entry);
+                FrameworkElement element = menu.CreateChildItem(entry);
                 AdvancedMenuItem parentNode = parent as AdvancedMenuItem;
                 if (element is AdvancedMenuItem menuItem) {
                     menuItem.OnAdding(menu, parentNode, (BaseContextEntry) entry);

@@ -7,11 +7,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3dd42830-fb81-4631-b072-52d6b7c558b4" name="Default Changelist" comment="Added video track effect support (default project has motion effects for all tracks), started adding support for composition clips, added property editor slots for tracks,">
-      <change afterPath="$PROJECT_DIR$/FramePFX_2024-02-03_01.07.07.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FramePFX_2024-02-03_01.08.52.png" afterDir="false" />
+    <list default="true" id="3dd42830-fb81-4631-b072-52d6b7c558b4" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/FramePFX/AdvancedContextService/WPF/IAdvancedMenu.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.FramePFX/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FramePFX/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/AdvancedContextService/WPF/AdvancedContextMenu.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/AdvancedContextService/WPF/AdvancedContextMenu.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TimelineStyles.xaml" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TimelineStyles.xaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/FramePFX.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/FramePFX.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Automation/ParameterPropertyEditorSlot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Automation/ParameterPropertyEditorSlot.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Automation/BaseParameterPropertyEditorControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Automation/BaseParameterPropertyEditorControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Automation/BaseSliderParameterPropertyEditorControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Automation/BaseSliderParameterPropertyEditorControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Automation/ParameterDoublePropertyEditorControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Automation/ParameterDoublePropertyEditorControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Automation/ParameterFloatPropertyEditorControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Automation/ParameterFloatPropertyEditorControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Automation/ParameterVector2PropertyEditorControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Automation/ParameterVector2PropertyEditorControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/BasePropEditControlContent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/BasePropEditControlContent.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorControlPanel.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorItemsPanel.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorGroupControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorGroupControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorSlotContentStyles.xaml" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorSlotContentStyles.xaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorSlotControl.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorSlotControl.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorStyles.xaml" beforeDir="false" afterPath="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorStyles.xaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,12 +44,13 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/6b/0ed9e50f/TaskContinuation.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/Timelines/Clips/Clip.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/13/b3cd42da/Task`1.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/6e/dcf41832/PopupControlService.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/1b/c51ea8f1/StandardTaskContinuation.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4AA941E3-D488-4FE6-86EF-52218EAB4EE6/e1/407e7385/HashSet`1.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/86B893CE-ABAA-4728-B507-5924DDA4273C/14/0ada9676/RoutedEventArgs.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/86B893CE-ABAA-4728-B507-5924DDA4273C/49/f157171e/MediaContext.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/03/9cce8587/FrameworkTemplate.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/49/759108e1/Application.cs" root0="SKIP_HIGHLIGHTING" />
@@ -48,11 +62,14 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/27/318c4c65/ContinuationTaskFromResultTask`1.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/1e/71a0822b/SKPixmap.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/5d/2987bc05/SKTypeface.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/Controls/Timelines/Tracks/TimelineTrackControl.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/8f/33542a37/RangeBase.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/fb/2a8a7e26/SKFont.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/Controls/Resources/Explorers/ResourceExplorerListItem.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/3b/e63060ee/StackPanel.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/67/2556384b/SKTextBlob.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/9AC74066-410C-42B2-B276-C816C284ED85/a1/86f042c7/DependencyObject.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/34/b81e8ac6/RuntimeType.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/b8/353ba466/MethodBase.cs" root0="SKIP_HIGHLIGHTING" />
@@ -67,16 +84,19 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/93/379ad236/Thumb.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/04/e43dc648/TextBlock.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/9AC74066-410C-42B2-B276-C816C284ED85/6f/71dea63b/ExceptionWrapper.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/50/e2d1302d/Void.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/15/a6ee6807/Object.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1DE758BF-1EFC-4C40-BA31-66103772CEFF/89/981cdc82/ContextLayoutManager.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/8B924B14-576E-44F2-A15C-03F7E950C49A/98/39de579e/AVPixelFormat.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/bf/b5b50698/List`1.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/86B893CE-ABAA-4728-B507-5924DDA4273C/21/c3a2ef18/VisualCollection.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/0b/65935eb6/ContentControl.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/19/90017466/Thread.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1C19FF9D-4065-482B-8087-0CA6390883CD/7d/6361c65c/ThrowHelper.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/Timelines/Clips/VideoClip.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/91/cdad1676/SKRect.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/D1286D07-7FDF-4F8E-B772-3A106735DC7B/32/fbe71cab/StreamPipeSink.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/fe/6dc11b5a/ISKSkipObjectRegistration.cs" root0="SKIP_HIGHLIGHTING" />
@@ -87,43 +107,40 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/d2/cafa48c9/SKTextBlobBuilder.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/4a/7badbeec/RuntimeMethodHandle.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1DE758BF-1EFC-4C40-BA31-66103772CEFF/89/c2f24e97/DragEventArgs.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/Timelines/Timeline.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/D1286D07-7FDF-4F8E-B772-3A106735DC7B/c0/4037971b/RawVideoPipeSource.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/aa/59f80e21/SKPositionedRunBuffer.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/01/8c13c4eb/ExceptionDispatchInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/4e/1fe431fa/Signature.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/PropertyEditing/VideoEditorPropertyEditor.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/22/b8ffb658/Type.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/D1286D07-7FDF-4F8E-B772-3A106735DC7B/51/0eaf2ee3/IPipeSource.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/805945F3-27B0-47AD-B8F6-389D9D8F82C3/07/5c70ad7b/ReadOnlySpan`1.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/Controls/Timelines/Tracks/Clips/TimelineClipControl.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/VideoEditor.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/96/76487f51/RuntimeMethodInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/9314F5D0-39F3-4063-8E3A-78D50AA1A6D0/13/8383ae14/SDL.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/D1286D07-7FDF-4F8E-B772-3A106735DC7B/77/58c53526/IPipeSink.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/805945F3-27B0-47AD-B8F6-389D9D8F82C3/b7/c67a1c71/MemoryExtensions.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/21C9D999-1BF2-482F-96F6-A7F4A7737122/e0/db8c9167/Vector2.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/Actions/DeleteTracksAction.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/d6/3bf49721/ISKReferenceCounted.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/D1286D07-7FDF-4F8E-B772-3A106735DC7B/6b/149d5042/OutputPipeArgument.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/86B893CE-ABAA-4728-B507-5924DDA4273C/66/8f45f950/UIElement.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1C19FF9D-4065-482B-8087-0CA6390883CD/68/413508bc/Stack`1.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/D1286D07-7FDF-4F8E-B772-3A106735DC7B/72/76914d21/FFMpegArguments.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/18/1684a7aa/Selector.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/19/7c168501/GRGlInterface.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/e1/d3f9a107/ValidationError.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/Controls/Timelines/TimelineStyles.xaml" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1DE758BF-1EFC-4C40-BA31-66103772CEFF/d1/f9e506f4/PixelFormat.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/b7/07fb8a72/Control.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/61/7b67620d/SKFontMetrics.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/44/a67d03ac/Validation.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0780F9DF-F867-477C-9167-B46BE64C1DD6/92/3905d157/ProfilingStorageBase.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/95/9b62bb56/TextBoxBase.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/9A44CB3E-BBAE-491B-8CA4-D61A8AE1345A/9d/4e865e8d/JsonProfilingStorage.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/Controls/Resources/Explorers/ResourceExplorerListControl.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/03/38011776/IServiceProvider.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/BC84029B-1123-4266-BC37-9616E5F03999/fe/305a72c4/Unsafe.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/2a/788cb728/ITextView.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/75/996bb56e/Ellipse.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/86B893CE-ABAA-4728-B507-5924DDA4273C/96/c98f3b56/HwndSource.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/4d/2623c7be/IScrollInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0780F9DF-F867-477C-9167-B46BE64C1DD6/98/ac7a410f/ProfilingSession.cs" root0="SKIP_HIGHLIGHTING" />
@@ -133,11 +150,9 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/c8/9c5d340a/TextBoxView.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/2d/d1e25592/SKColor.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/c1/5e4ad3fa/SKPaint.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/Controls/Timelines/TrackDropRegistry.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/c5/4a24de17/Task.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/3a/9310e0f0/Buffer.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/62/8c146bee/Marshal.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/9f/8f336552/PropertyInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/8B924B14-576E-44F2-A15C-03F7E950C49A/d7/a2a45fbe/AVBufferRef.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/26/428a428a/RootBrowserWindow.cs" root0="SKIP_HIGHLIGHTING" />
@@ -147,70 +162,52 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/d5/111b4783/ContextMenuEventArgs.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/ec/fd1c1795/SKMatrix.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/01/5e9325fd/Window.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/Controls/Timelines/TimelineControl.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/79/73933b76/SKSurface.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/2c/7b32869a/GRBackend.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/90/cc56477f/MethodInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/7b/900488db/GRRecordingContext.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/Controls/Resources/ResourceDropRegistry.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/26/ee01f3b9/ScrollViewer.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/21/7e8835c2/MenuBase.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/4d/f0f39756/SKImageInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/de/d95175a7/SKData.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/PropertyEditing/Automation/ParameterFloatPropertyEditorSlot.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/9c/aeb725af/ContextMenu.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/9a/4dac6f25/KeyValuePair`2.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1DE758BF-1EFC-4C40-BA31-66103772CEFF/ad/50cf3311/MILMedia.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/b6/5208e3ff/SKBitmap.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/0a/2eb0d04a/Associates.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1DE758BF-1EFC-4C40-BA31-66103772CEFF/ae/43c68e58/MediaPlayerState.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/3a/84e152ec/SkiaApi.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/Timelines/Tracks/VideoTrack.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/1DE758BF-1EFC-4C40-BA31-66103772CEFF/60/f59580f8/MediaPlayer.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/c6/425a0745/CancellationToken.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0E0E9A1F-F639-4501-8B4C-48C2B5257498/fa/05706327/SkiaExtensions.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/PropertyEditing/Automation/ParameterDoublePropertyEditorSlot.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/44/8329324f/Setter.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/bc/93b83ad8/Monitor.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/FramePFX/obj/x64/Debug/Editors/ResourceManaging/Autoloading/Controls/ResourceLoaderDialog.g.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/c6/dcf2cb59/MenuItem.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/PropertyEditing/Controls/PropertyEditorSlotContentStyles.xaml" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/Timelines/Effects/MotionEffect.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/67/84d5fb5d/ToolTipService.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/d0/d988a030/ThreadStart.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/8B924B14-576E-44F2-A15C-03F7E950C49A/38/c4f6019c/AVIOContext.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/a7/98bac7d1/RuntimePropertyInfo.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://F:/VSProjsV2/FramePFX/FramePFX/Editors/Automation/AutomationData.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/9AC74066-410C-42B2-B276-C816C284ED85/36/1ecaba17/DispatcherProcessingDisabled.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/80/ffd9edf3/CultureInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/f9/afa684dc/PopupAnimation.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/cf/7db1131d/ContextMenuService.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock:///Dummy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/9c/7693834b/Popup.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/105DA115-9EC9-496A-B931-0694C7B11DD2/fa/2bce2862/TaskScheduler.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/18F1331B-6757-42A0-999B-B7BBA0E2C3A9/65/9b7ab224/CustomPopupPlacementCallback.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
-      <option value="$PROJECT_DIR$/FramePFX/Utils/Rect2d.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Utils/Rect2i.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Clips/TimelineClipContent.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TimelineScrollableContentGrid.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TrackStoragePanel.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Clips/ImageClipContent.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Surfaces/TrackControlSurface.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Automation/AutomatedUtils.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/IHaveTimeline.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Automation/AutomationSequenceEditor.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/BasePropEditControlContent.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Views/EditorWindow.xaml.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Utils/UIUtils.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Timelines/Clips/TextClip.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Timelines/Clips/TimecodeClip.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Automation/Params/Parameter.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Automation/Keyframes/AutomationSequence.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Factories/ClipFactory.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/Tracks/Clips/TimelineClipControl.cs" />
-      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TimelineStyles.xaml" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/ResourceStyles.xaml" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/Explorers/ResourceExplorerListItem.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Resources/Explorers/ResourceExplorerListControl.cs" />
@@ -242,6 +239,22 @@
       <option value="$PROJECT_DIR$/FramePFX/Editors/Timelines/Tracks/VideoTrack.cs" />
       <option value="$PROJECT_DIR$/FramePFX/Editors/VideoEditor.cs" />
       <option value="$PROJECT_DIR$/README.md" />
+      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorGroupControl.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/PropertyEditors/AControls/TimecodeFontFamilyPropertyEditorControl.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorStyles.xaml" />
+      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorItemsPanel.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Automation/ParameterPropertyEditorSlot.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/PropertyEditorSlot.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/Editors/Controls/Timelines/TimelineStyles.xaml" />
+      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/BasePropEditControlContent.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Automation/BaseSliderParameterPropertyEditorControl.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Automation/ParameterDoublePropertyEditorControl.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Automation/ParameterFloatPropertyEditorControl.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Automation/ParameterVector2PropertyEditorControl.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/Automation/BaseParameterPropertyEditorControl.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/PropertyEditing/Controls/PropertyEditorSlotContentStyles.xaml" />
+      <option value="$PROJECT_DIR$/FramePFX/AdvancedContextService/WPF/IAdvancedMenu.cs" />
+      <option value="$PROJECT_DIR$/FramePFX/AdvancedContextService/WPF/AdvancedContextMenu.cs" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="2bVmNasuD1gRewhm3s2Vrxru3IS" />
@@ -319,7 +332,8 @@
       <workItem from="1706842937885" duration="1798000" />
       <workItem from="1706864893902" duration="21708000" />
       <workItem from="1706889733653" duration="23703000" />
-      <workItem from="1706915229706" duration="8234000" />
+      <workItem from="1706915229706" duration="8667000" />
+      <workItem from="1706955967782" duration="5068000" />
     </task>
     <task id="LOCAL-00001" summary="Replaced old app with new app, which does not use MVVM much anymore">
       <created>1706309146757</created>
@@ -454,7 +468,14 @@
       <option name="project" value="LOCAL" />
       <updated>1706921634334</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="Updated README with 2 more pictures and info">
+      <created>1706924128511</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1706924128511</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -495,7 +516,8 @@
     <MESSAGE value="Added project settings dialog that lets you edit resolution and frame rate" />
     <MESSAGE value="Added font size to timecode clip, fixed issues with automation updates not happening and key frames being inserted when they aren't supposed to be, added clip content controls (only used by image clips at the moment)" />
     <MESSAGE value="Added video track effect support (default project has motion effects for all tracks), started adding support for composition clips, added property editor slots for tracks," />
-    <option name="LAST_COMMIT_MESSAGE" value="Added video track effect support (default project has motion effects for all tracks), started adding support for composition clips, added property editor slots for tracks," />
+    <MESSAGE value="Updated README with 2 more pictures and info" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated README with 2 more pictures and info" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -19,7 +19,8 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
             this.SlotModel.Value = this.dragger.Value;
         }
 
-        protected override void OnConnectedOverride() {
+        protected override void OnConnected() {
+            base.OnConnected();
             ParameterDoublePropertyEditorSlot slot = this.SlotModel;
             ParameterDescriptorDouble desc = slot.Parameter.Descriptor;
             this.dragger.Minimum = desc.Minimum;
@@ -32,4 +33,5 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
             this.dragger.MassiveChange = profile.LargeStep;
         }
     }
+
 }

@@ -1,12 +1,18 @@
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Shapes;
 using FramePFX.Editors.Automation;
+using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.PropertyEditing.Automation;
 
 namespace FramePFX.PropertyEditing.Controls.Automation {
     public abstract class BaseParameterPropertyEditorControl : BasePropEditControlContent {
         protected IAutomatable singleHandler;
-
-        public ParameterPropertyEditorSlot SlotModel => (ParameterPropertyEditorSlot) base.SlotControl.Model;
+        protected AutomationSequence singleHandlerSequence;
+        private TextBlock displayName;
+        private KeyFrameToolsControl keyFrameTools;
+        private Ellipse automationLed;
 
         protected BaseParameterPropertyEditorControl() {
         }
@@ -15,12 +21,76 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(BaseParameterPropertyEditorControl), new FrameworkPropertyMetadata(typeof(BaseParameterPropertyEditorControl)));
         }
 
-        protected override void OnConnected() {
+        public override void OnApplyTemplate() {
+            base.OnApplyTemplate();
+            this.displayName = this.GetTemplateChild<TextBlock>("PART_DisplayName");
+            this.automationLed = (Ellipse) this.GetTemplateChild("PART_AutomationLED");
+            this.keyFrameTools = this.GetTemplateChild<KeyFrameToolsControl>("PART_KeyFrameTools");
+        }
 
+        protected override void OnConnected() {
+            ParameterPropertyEditorSlot slot = (ParameterPropertyEditorSlot) this.SlotModel;
+            slot.HandlersLoaded += this.OnHandlersChanged;
+            slot.HandlersCleared += this.OnHandlersChanged;
+            slot.DisplayNameChanged += this.OnSlotDisplayNameChanged;
+            this.displayName.Text = slot.DisplayName;
+            this.OnHandlerListChanged(true);
         }
 
         protected override void OnDisconnected() {
+            ParameterPropertyEditorSlot slot = (ParameterPropertyEditorSlot) this.SlotModel;
+            slot.DisplayNameChanged -= this.OnSlotDisplayNameChanged;
+            slot.HandlersLoaded -= this.OnHandlersChanged;
+            slot.HandlersCleared -= this.OnHandlersChanged;
+            this.OnHandlerListChanged(false);
+        }
 
+        private void OnSlotDisplayNameChanged(ParameterPropertyEditorSlot slot) {
+            if (this.displayName != null)
+                this.displayName.Text = slot.DisplayName;
+        }
+
+        private void OnHandlerListChanged(bool connect) {
+            ParameterPropertyEditorSlot slot = (ParameterPropertyEditorSlot) this.SlotModel;
+            if (connect && slot != null && slot.Handlers.Count == 1) {
+                this.singleHandler = (IAutomatable) slot.Handlers[0];
+                this.keyFrameTools.Visibility = Visibility.Visible;
+                this.singleHandlerSequence = this.singleHandler.AutomationData[slot.Parameter];
+                this.keyFrameTools.AutomationSequence = this.singleHandlerSequence;
+                this.singleHandlerSequence.OverrideStateChanged += this.OnOverrideStateChanged;
+                this.singleHandlerSequence.KeyFrameAdded += this.OnKeyFrameAddedOrRemoved;
+                this.singleHandlerSequence.KeyFrameRemoved += this.OnKeyFrameAddedOrRemoved;
+            }
+            else {
+                this.keyFrameTools.Visibility = Visibility.Collapsed;
+                if (this.singleHandlerSequence != null) {
+                    this.singleHandlerSequence.OverrideStateChanged -= this.OnOverrideStateChanged;
+                    this.singleHandlerSequence.KeyFrameAdded -= this.OnKeyFrameAddedOrRemoved;
+                    this.singleHandlerSequence.KeyFrameRemoved -= this.OnKeyFrameAddedOrRemoved;
+                    this.singleHandlerSequence = null;
+                }
+
+                this.keyFrameTools.AutomationSequence = null;
+            }
+        }
+
+        private void OnHandlersChanged(PropertyEditorSlot sender) {
+            this.OnHandlerListChanged(true);
+        }
+
+        private void OnKeyFrameAddedOrRemoved(AutomationSequence sequence, KeyFrame keyframe, int index) {
+            this.automationLed.Visibility = sequence.IsEmpty ? Visibility.Collapsed : Visibility.Visible;
+            this.UpdateLEDColour(sequence);
+        }
+
+        private void OnOverrideStateChanged(AutomationSequence sequence) {
+            this.UpdateLEDColour(sequence);
+        }
+
+        private void UpdateLEDColour(AutomationSequence sequence) {
+            if (this.automationLed != null) {
+                this.automationLed.Fill = sequence.IsOverrideEnabled ? Brushes.Gray : Brushes.OrangeRed;
+            }
         }
     }
 }

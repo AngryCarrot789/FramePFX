@@ -20,7 +20,8 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
             this.SlotModel.Value = (float) this.dragger.Value;
         }
 
-        protected override void OnConnectedOverride() {
+        protected override void OnConnected() {
+            base.OnConnected();
             ParameterFloatPropertyEditorSlot slot = this.SlotModel;
             ParameterDescriptorFloat desc = slot.Parameter.Descriptor;
             this.dragger.Minimum = desc.Minimum;

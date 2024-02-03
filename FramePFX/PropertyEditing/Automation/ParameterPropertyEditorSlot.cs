@@ -37,15 +37,13 @@ namespace FramePFX.PropertyEditing.Automation {
         }
 
         private void OnIsSelectedChanged(PropertyEditorSlot sender) {
-            if (!this.IsSelected)
-                return;
-
+            bool selected = this.IsSelected;
             foreach (IAutomatable automatable in this.Handlers) {
                 if (automatable is Clip clip) {
-                    clip.ActiveSequence = clip.AutomationData[this.Parameter];
+                    clip.ActiveSequence = selected ? clip.AutomationData[this.Parameter] : null;
                 }
                 else if (automatable is BaseEffect effect && effect.Owner is Clip effectClipOwner) {
-                    effectClipOwner.ActiveSequence = effect.AutomationData[this.Parameter];
+                    effectClipOwner.ActiveSequence = selected ? effect.AutomationData[this.Parameter] : null;
                 }
             }
         }

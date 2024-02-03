@@ -1,12 +1,13 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace FramePFX.PropertyEditing.Controls {
     /// <summary>
     /// A panel which is used to store child group and slot controls (as well as things like separators)
     /// </summary>
-    public class PropertyEditorControlPanel : StackPanel {
+    public class PropertyEditorItemsPanel : StackPanel {
         /// <summary>
         /// Gets or sets the group that this panel belongs to
         /// </summary>
@@ -16,11 +17,30 @@ namespace FramePFX.PropertyEditing.Controls {
 
         public int Count => this.InternalChildren.Count;
 
-        public PropertyEditorControlPanel() {
+        public PropertyEditorItemsPanel() {
         }
 
-        static PropertyEditorControlPanel() {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(PropertyEditorControlPanel), new FrameworkPropertyMetadata(typeof(PropertyEditorControlPanel)));
+        protected override Size MeasureOverride(Size constraint) {
+            return base.MeasureOverride(constraint);
+        }
+
+        protected override Size ArrangeOverride(Size arrangeSize) {
+            return base.ArrangeOverride(arrangeSize);
+        }
+
+        protected override void OnMouseDown(MouseButtonEventArgs e) {
+            base.OnMouseDown(e);
+            if (e.Handled || e.ChangedButton != MouseButton.Left) {
+                return;
+            }
+
+            if (ReferenceEquals(e.OriginalSource, this)) {
+                this.PropertyEditor?.PropertyEditor?.ClearSelection();
+            }
+        }
+
+        static PropertyEditorItemsPanel() {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(PropertyEditorItemsPanel), new FrameworkPropertyMetadata(typeof(PropertyEditorItemsPanel)));
         }
 
         public void InsertItem(BasePropertyEditorObject item, int index) {

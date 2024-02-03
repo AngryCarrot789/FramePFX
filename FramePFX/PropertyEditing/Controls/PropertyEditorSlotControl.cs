@@ -104,6 +104,7 @@ namespace FramePFX.PropertyEditing.Controls {
         public void ConnectModel() {
             this.IsSelectable = this.Model.IsSelectable;
             this.isSelectedBinder.Attach(this, this.Model);
+            this.Model.IsCurrentlyApplicableChanged += this.Model_IsCurrentlyApplicableChanged;
 
             BasePropEditControlContent content = (BasePropEditControlContent) this.Content;
             content.InvalidateMeasure();
@@ -111,12 +112,14 @@ namespace FramePFX.PropertyEditing.Controls {
             content.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
             content.Connect(this);
             content.InvalidateMeasure();
+            this.UpdateVisibility();
             // content.UpdateLayout();
         }
 
         public void DisconnectModel() {
             ((BasePropEditControlContent) this.Content).Disconnect();
             this.isSelectedBinder.Detatch();
+            this.UpdateVisibility();
             this.Model = null;
             this.OwnerGroup = null;
         }
@@ -128,6 +131,21 @@ namespace FramePFX.PropertyEditing.Controls {
         protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {
             base.OnPropertyChanged(e);
             this.isSelectedBinder.OnPropertyChanged(e);
+        }
+
+        private void Model_IsCurrentlyApplicableChanged(BasePropertyEditorItem sender) {
+            this.UpdateVisibility();
+        }
+
+        protected virtual void UpdateVisibility() {
+            if (this.Model.IsVisible) {
+                if (this.Visibility != Visibility.Visible) {
+                    this.Visibility = Visibility.Visible;
+                }
+            }
+            else if (this.Visibility != Visibility.Collapsed) {
+                this.Visibility = Visibility.Collapsed;
+            }
         }
     }
 }

@@ -160,7 +160,7 @@
                                     Panel.ZIndex="3"/>
                             <Border x:Name="PART_DropActivityOutline" Margin="-1,0,-2,0"
                                     BorderThickness="2"
-                                    BorderBrush="Orange"
+                                    BorderBrush="OrangeRed"
                                     Visibility="{TemplateBinding IsDroppableTargetOver, Converter={x:Static co:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
                                     HorizontalAlignment="Stretch"
                                     VerticalAlignment="Stretch"

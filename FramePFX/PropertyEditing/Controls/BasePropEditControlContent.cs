@@ -14,6 +14,8 @@ namespace FramePFX.PropertyEditing.Controls {
 
         public PropertyEditorSlotControl SlotControl { get; private set; }
 
+        public PropertyEditorSlot SlotModel => this.SlotControl.Model;
+
         protected BasePropEditControlContent() {
         }
 
@@ -61,17 +63,10 @@ namespace FramePFX.PropertyEditing.Controls {
 
         public void Connect(PropertyEditorSlotControl slot) {
             this.SlotControl = slot;
-            slot.Model.HandlersLoaded += this.OnHandlersChanged;
-            slot.Model.HandlersCleared += this.OnHandlersChanged;
-            this.UpdateVisibility();
             this.OnConnected();
         }
 
         public void Disconnect() {
-            PropertyEditorSlot slot = this.SlotControl.Model;
-            slot.HandlersLoaded -= this.OnHandlersChanged;
-            slot.HandlersCleared -= this.OnHandlersChanged;
-            this.UpdateVisibility();
             this.OnDisconnected();
             this.SlotControl = null;
         }
@@ -92,21 +87,6 @@ namespace FramePFX.PropertyEditing.Controls {
 
         protected bool TryGetTemplateChild<T>(string name, out T value) where T : DependencyObject {
             return (value = this.GetTemplateChild(name) as T) != null;
-        }
-
-        private void OnHandlersChanged(PropertyEditorSlot sender) {
-            this.UpdateVisibility();
-        }
-
-        private void UpdateVisibility() {
-            PropertyEditorSlot slot = this.SlotControl.Model;
-            if (slot.IsVisible) {
-                if (this.Visibility != Visibility.Visible)
-                    this.Visibility = Visibility.Visible;
-            }
-            else if (this.Visibility != Visibility.Collapsed) {
-                this.Visibility = Visibility.Collapsed;
-            }
         }
     }
 }

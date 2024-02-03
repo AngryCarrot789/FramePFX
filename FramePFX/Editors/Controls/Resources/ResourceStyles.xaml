@@ -135,13 +135,18 @@
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
                         </Trigger>
+                        <Trigger Property="IsDroppableTargetOver" Value="True">
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="OrangeRed"/>
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type explorers:ResourceExplorerListItemContent}"></Style>
+    <Style TargetType="{x:Type explorers:ResourceExplorerListItemContent}">
+
+    </Style>
     <Style TargetType="{x:Type explorers:RELICFolder}" BasedOn="{StaticResource {x:Type explorers:ResourceExplorerListItemContent}}">
         <Setter Property="Template">
             <Setter.Value>

@@ -10,7 +10,7 @@ using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Contextual;
 using FramePFX.Editors.Controls.Automation;
 using FramePFX.Editors.Controls.Binders;
-using FramePFX.Editors.Controls.Resources.Explorers;
+using FramePFX.Editors.Controls.Resources;
 using FramePFX.Editors.Factories;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.Timelines;
@@ -40,12 +40,12 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
 
         public bool IsSelected {
             get => (bool) this.GetValue(IsSelectedProperty);
-            set => this.SetValue(IsSelectedProperty, value);
+            set => this.SetValue(IsSelectedProperty, value.Box());
         }
 
         public bool IsDroppableTargetOver {
             get => (bool) this.GetValue(IsDroppableTargetOverProperty);
-            set => this.SetValue(IsDroppableTargetOverProperty, value);
+            set => this.SetValue(IsDroppableTargetOverProperty, value.Box());
         }
 
         public long FrameBegin {
@@ -810,7 +810,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             EnumDropType outputEffects = EnumDropType.None;
             EnumDropType inputEffects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
             if (inputEffects != EnumDropType.None && this.Model is Clip target) {
-                if (e.Data.GetData(ResourceExplorerListControl.ResourceDropType) is List<BaseResource> resources) {
+                if (e.Data.GetData(ResourceDropRegistry.ResourceDropType) is List<BaseResource> resources) {
                     if (resources.Count == 1 && resources[0] is ResourceItem) {
                         outputEffects = ClipDropRegistry.DropRegistry.CanDrop(target, resources[0], inputEffects);
                     }
@@ -859,7 +859,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
 
             try {
                 this.isProcessingAsyncDrop = true;
-                if (e.Data.GetData(ResourceExplorerListControl.ResourceDropType) is List<BaseResource> items && items.Count == 1 && items[0] is ResourceItem) {
+                if (e.Data.GetData(ResourceDropRegistry.ResourceDropType) is List<BaseResource> items && items.Count == 1 && items[0] is ResourceItem) {
                     await ClipDropRegistry.DropRegistry.OnDropped(clip, items[0], effects);
                 }
                 // else if (e.Data.GetData(EffectProviderTreeViewItem.ProviderDropType) is EffectProvider provider) {

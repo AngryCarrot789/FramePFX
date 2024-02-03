@@ -158,6 +158,13 @@
                                     HorizontalAlignment="Stretch"
                                     VerticalAlignment="Stretch"
                                     Panel.ZIndex="3"/>
+                            <Border x:Name="PART_DropActivityOutline" Margin="-1,0,-2,0"
+                                    BorderThickness="2"
+                                    BorderBrush="Orange"
+                                    Visibility="{TemplateBinding IsDroppableTargetOver, Converter={x:Static co:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    Panel.ZIndex="4"/>
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>

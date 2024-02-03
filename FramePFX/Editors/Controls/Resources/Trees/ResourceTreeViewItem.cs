@@ -293,7 +293,7 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
 
                 try {
                     this.isDragDropping = true;
-                    DragDrop.DoDragDrop(this, new DataObject(ResourceExplorerListControl.ResourceDropType, list), DragDropEffects.Copy | DragDropEffects.Move | DragDropEffects.Link);
+                    DragDrop.DoDragDrop(this, new DataObject(ResourceDropRegistry.ResourceDropType, list), DragDropEffects.Copy | DragDropEffects.Move | DragDropEffects.Link);
                 }
                 catch (Exception ex) {
                     AppLogger.Instance.WriteLine("Exception while executing resource tree item drag drop: " + ex.GetToString());

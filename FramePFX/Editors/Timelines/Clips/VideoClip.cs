@@ -3,8 +3,8 @@ using System.Numerics;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines.Effects;
+using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.RBC;
-using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editors.Timelines.Clips {
@@ -41,7 +41,7 @@ namespace FramePFX.Editors.Timelines.Clips {
                 ParameterFlags.AffectsRender);
 
         private SKMatrix internalTransformationMatrix;
-        private bool isMatrixDirty;
+        private bool isMatrixDirty = true;
 
         /// <summary>
         /// The actual live opacity of this clip. This is updated by the automation engine, and is not thread-safe (see <see cref="InternalRenderOpacity"/>)
@@ -71,14 +71,23 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// </summary>
         public SKMatrix TransformationMatrix {
             get {
-                if (this.isMatrixDirty)
-                    this.CookTransformationMatrix();
+                if (this.isMatrixDirty) {
+                    VideoTrack track = (VideoTrack) this.Track;
+                    this.internalTransformationMatrix = MatrixUtils.ConcatEffectMatrices(this, track?.TransformationMatrix ?? SKMatrix.Identity);
+                    this.isMatrixDirty = false;
+                }
+
                 return this.internalTransformationMatrix;
             }
         }
 
         protected VideoClip() {
             this.Opacity = OpacityParameter.Descriptor.DefaultValue;
+        }
+
+        protected override void OnTrackChanged(Track oldTrack, Track newTrack) {
+            base.OnTrackChanged(oldTrack, newTrack);
+            this.InvalidateTransformationMatrix();
         }
 
         public override void WriteToRBE(RBEDictionary data) {
@@ -99,9 +108,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// <returns>The size, if applicable, otherwise null</returns>
         public virtual Vector2? GetRenderSize() => null;
 
-        public override bool IsEffectTypeAccepted(Type effectType) {
-            return effectType.instanceof(typeof(VideoEffect));
-        }
+        public override bool IsEffectTypeAccepted(Type effectType) => typeof(VideoEffect).IsAssignableFrom(effectType);
 
         /// <summary>
         /// Propagates the render invalidated state to our project's <see cref="RenderManager"/>
@@ -138,18 +145,6 @@ namespace FramePFX.Editors.Timelines.Clips {
         public void InvalidateTransformationMatrix() {
             this.isMatrixDirty = true;
             this.InvalidateRender();
-        }
-
-        private void CookTransformationMatrix() {
-            SKMatrix matrix = SKMatrix.Identity;
-            foreach (BaseEffect effect in this.Effects) {
-                if (effect is ITransformationEffect tfx) {
-                    matrix = matrix.PreConcat(tfx.TransformationMatrix);
-                }
-            }
-
-            this.internalTransformationMatrix = matrix;
-            this.isMatrixDirty = false;
         }
     }
 }

@@ -44,7 +44,7 @@ namespace FramePFX.Editors.Controls.Timelines {
                     return;
                 }
 
-                double fps = track.Timeline.Project.Settings.FrameRate.AsDouble;
+                double fps = track.Project.Settings.FrameRate.AsDouble;
                 FrameSpan defaultSpan = track.GetSpanUntilClipOrLimitedDuration(frame, (long) (fps * 5));
                 Clip theNewClip;
                 switch (resource) {

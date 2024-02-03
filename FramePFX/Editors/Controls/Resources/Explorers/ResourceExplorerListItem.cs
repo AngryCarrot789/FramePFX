@@ -150,17 +150,19 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
                 Point posB = this.originMousePoint;
                 Point change = new Point(Math.Abs(posA.X - posB.X), Math.Abs(posA.X - posB.X));
                 if (change.X > 5 || change.Y > 5) {
-                    List<BaseResource> list = this.ResourceExplorerList.GetSelectedResources().ToList();
+                    List<BaseResource> list = !this.IsSelected ? new List<BaseResource>() {this.Model} : this.ResourceExplorerList.GetSelectedResources().ToList();
+
                     try {
                         this.isDragDropping = true;
-                        DragDrop.DoDragDrop(this, new DataObject(ResourceExplorerListControl.ResourceDropType, list), DragDropEffects.Copy | DragDropEffects.Move | DragDropEffects.Link);
+                        DragDrop.DoDragDrop(this, new DataObject(ResourceDropRegistry.ResourceDropType, list), DragDropEffects.Copy | DragDropEffects.Move | DragDropEffects.Link);
                     }
                     catch (Exception ex) {
                         Debugger.Break();
                         Debug.WriteLine("Exception while executing resource item drag drop: " + ex.GetToString());
                     }
-
-                    this.isDragDropping = false;
+                    finally {
+                        this.isDragDropping = false;
+                    }
                 }
             }
             else {
@@ -231,8 +233,8 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         /// <returns>True if there were resources available, otherwise false, meaning no resources are being dragged</returns>
         public static bool GetDropResourceListForEvent(DragEventArgs e, out List<BaseResource> resources, out EnumDropType effects) {
             effects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
-            if (e.Data.GetDataPresent(ResourceExplorerListControl.ResourceDropType)) {
-                object obj = e.Data.GetData(ResourceExplorerListControl.ResourceDropType);
+            if (e.Data.GetDataPresent(ResourceDropRegistry.ResourceDropType)) {
+                object obj = e.Data.GetData(ResourceDropRegistry.ResourceDropType);
                 if ((resources = obj as List<BaseResource>) != null) {
                     return true;
                 }

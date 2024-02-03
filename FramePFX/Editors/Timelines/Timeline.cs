@@ -250,7 +250,6 @@ namespace FramePFX.Editors.Timelines {
 
             this.UpdateIndexForInsertionOrRemoval(index);
             Track.InternalOnAddedToTimeline(track, this);
-            Track.InternalOnTrackTimelineChanged(track, null, this);
             this.TrackAdded?.Invoke(this, track, index);
             this.UpdateLargestFrame();
             this.InvalidateRender();
@@ -285,7 +284,6 @@ namespace FramePFX.Editors.Timelines {
 
             this.UpdateIndexForInsertionOrRemoval(index);
             Track.InternalOnRemovedFromTimeline1(track, this);
-            Track.InternalOnTrackTimelineChanged(track, this, null);
             this.TrackRemoved?.Invoke(this, track, index);
             this.UpdateLargestFrame();
             this.InvalidateRender();
@@ -318,7 +316,7 @@ namespace FramePFX.Editors.Timelines {
         private void UpdateIndexForInsertionOrRemoval(int index) {
             List<Track> list = this.tracks;
             for (int i = list.Count - 1; i >= index; i--) {
-                Track.InternalUpdateTrackIndex(list[i], i);
+                Track.InternalSetPrecomputedTrackIndex(list[i], i);
             }
         }
 
@@ -333,7 +331,7 @@ namespace FramePFX.Editors.Timelines {
                 max = newIndex;
             }
 
-            Track.InternalUpdateTrackIndex(this.tracks[min], min);
+            Track.InternalSetPrecomputedTrackIndex(this.tracks[min], min);
             this.UpdateIndexForInsertionOrRemoval(max);
         }
 
@@ -382,12 +380,12 @@ namespace FramePFX.Editors.Timelines {
 
         public void InvalidateRender() => this.Project?.RenderManager.InvalidateRender();
 
-        internal static void OnIsClipSelectedChanged(Clip clip) {
+        internal static void InternalOnIsClipSelectedChanged(Clip clip) {
             // UI modifies the anchor directly
             // clip.Track.Timeline.RangedSelectionAnchor = clip.IsSelected ? clip : null;
         }
 
-        internal static void OnClipRemovedFromTrack(Track track, Clip clip) {
+        internal static void InternalOnClipRemovedFromTrack(Track track, Clip clip) {
             // if (track.Timeline.RangedSelectionAnchorClip == clip) {
             //     track.Timeline.RangedSelectionAnchorClip = null;
             // }
@@ -431,7 +429,15 @@ namespace FramePFX.Editors.Timelines {
         // This will have to traverse the entire timeline tree, and possible any other composition clips within
         // the timeline to update all of their projects to the given one
         internal static void InternalSetCompositionTimelineProjectReference(Timeline timeline, Project project) {
+            Project oldProject = timeline.Project;
+            if (ReferenceEquals(oldProject, project)) {
+                throw new InvalidOperationException("Cannot set same project instance");
+            }
 
+            timeline.Project = project;
+            foreach (Track track in timeline.tracks) {
+                Track.InternalOnTimelineProjectChanged(track, oldProject, project);
+            }
         }
 
         internal static void InternalOnTrackSelectionCleared(Track track) {

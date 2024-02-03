@@ -24,6 +24,9 @@ namespace FramePFX.Editors {
 
         public ProjectSettings Settings { get; }
 
+        /// <summary>
+        /// Gets this project's render manager, which handles rendering of video and audio
+        /// </summary>
         public RenderManager RenderManager { get; }
 
         /// <summary>

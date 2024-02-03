@@ -18,8 +18,8 @@ namespace FramePFX.PropertyEditing.Automation {
                 ParameterVector2 parameter = this.Parameter;
                 for (int i = 0, c = this.Handlers.Count; i < c; i++) {
                     IAutomatable obj = (IAutomatable) this.Handlers[i];
-                    Vector2 newClipValue = parameter.Descriptor.Clamp(useAddition ? (parameter.GetEffectiveValue(obj) + change) : value);
-                    AutomatedUtils.SetDefaultKeyFrameOrAddNew(obj, parameter, newClipValue);
+                    Vector2 newValue = parameter.Descriptor.Clamp(useAddition ? (parameter.GetEffectiveValue(obj) + change) : value);
+                    AutomatedUtils.SetDefaultKeyFrameOrAddNew(obj, parameter, newValue);
                 }
 
                 this.OnValueChanged();

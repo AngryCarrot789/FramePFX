@@ -2,6 +2,7 @@ using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines.Tracks;
 using SkiaSharp;
 using Vector2 = System.Numerics.Vector2;
 
@@ -25,6 +26,7 @@ namespace FramePFX.Editors.Timelines.Effects {
         private SKMatrix internalTransformationMatrix;
         private SKMatrix render_TransformationMatrix;
         private bool isMatrixDirty;
+        private SKMatrix oldMatrix;
 
         public event MatrixChangedEventHandler MatrixChanged;
 
@@ -78,15 +80,20 @@ namespace FramePFX.Editors.Timelines.Effects {
 
         public override void PreProcessFrame(RenderContext rc) {
             base.PreProcessFrame(rc);
-            rc.Canvas.SetMatrix(rc.Canvas.TotalMatrix.PreConcat(this.render_TransformationMatrix));
+            this.oldMatrix = rc.Canvas.TotalMatrix;
+            SKMatrix newMatrix = this.oldMatrix.PreConcat(this.render_TransformationMatrix);
+            rc.Canvas.SetMatrix(newMatrix);
+        }
+
+        public override void PostProcessFrame(RenderContext rc) {
+            base.PostProcessFrame(rc);
+            // rc.Canvas.SetMatrix(this.oldMatrix);
         }
 
         private static void OnParameterValueChanged(AutomationSequence sequence) {
             MotionEffect effect = (MotionEffect) sequence.AutomationData.Owner;
             effect.isMatrixDirty = true;
-            if (effect.Owner is VideoClip) {
-                effect.OwnerClip.InvalidateTransformationMatrix();
-            }
+            effect.InvalidateOwnerMatrix();
         }
 
         /// <summary>
@@ -103,14 +110,21 @@ namespace FramePFX.Editors.Timelines.Effects {
 
         protected override void OnAdded() {
             base.OnAdded();
-            if (this.Owner is VideoClip)
-                this.OwnerClip.InvalidateTransformationMatrix();
+            this.InvalidateOwnerMatrix();
         }
 
         protected override void OnRemoved() {
             base.OnRemoved();
-            if (this.Owner is VideoClip)
-                this.OwnerClip.InvalidateTransformationMatrix();
+            this.InvalidateOwnerMatrix();
+        }
+
+        public void InvalidateOwnerMatrix() {
+            switch (this.Owner) {
+                case VideoClip clip: clip.InvalidateTransformationMatrix();
+                    break;
+                case VideoTrack track: track.InvalidateTransformationMatrix();
+                    break;
+            }
         }
     }
 }

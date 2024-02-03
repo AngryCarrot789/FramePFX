@@ -5,14 +5,14 @@ using FramePFX.Editors.PropertyEditors.Clips;
 using FramePFX.PropertyEditing.Controls;
 
 namespace FramePFX.Editors.PropertyEditors.AControls {
-    public class ClipDisplayNamePropertyEditorControl : BasePropEditControlContent {
-        public ClipDisplayNamePropertyEditorSlot SlotModel => (ClipDisplayNamePropertyEditorSlot) base.SlotControl.Model;
+    public class DisplayNamePropertyEditorControl : BasePropEditControlContent {
+        public DisplayNamePropertyEditorSlot SlotModel => (DisplayNamePropertyEditorSlot) base.SlotControl.Model;
 
         private TextBox displayNameBox;
 
-        private readonly GetSetAutoPropertyBinder<ClipDisplayNamePropertyEditorSlot> displayNameBinder = new GetSetAutoPropertyBinder<ClipDisplayNamePropertyEditorSlot>(TextBox.TextProperty, nameof(ClipDisplayNamePropertyEditorSlot.DisplayNameChanged), binder => binder.Model.DisplayName, (binder, v) => binder.Model.SetValue((string) v));
+        private readonly GetSetAutoPropertyBinder<DisplayNamePropertyEditorSlot> displayNameBinder = new GetSetAutoPropertyBinder<DisplayNamePropertyEditorSlot>(TextBox.TextProperty, nameof(DisplayNamePropertyEditorSlot.DisplayNameChanged), binder => binder.Model.DisplayName, (binder, v) => binder.Model.SetValue((string) v));
 
-        public ClipDisplayNamePropertyEditorControl() {
+        public DisplayNamePropertyEditorControl() {
         }
 
         public override void OnApplyTemplate() {
@@ -21,8 +21,8 @@ namespace FramePFX.Editors.PropertyEditors.AControls {
             this.displayNameBox.TextChanged += (sender, args) => this.displayNameBinder.OnControlValueChanged();
         }
 
-        static ClipDisplayNamePropertyEditorControl() {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(ClipDisplayNamePropertyEditorControl), new FrameworkPropertyMetadata(typeof(ClipDisplayNamePropertyEditorControl)));
+        static DisplayNamePropertyEditorControl() {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(DisplayNamePropertyEditorControl), new FrameworkPropertyMetadata(typeof(DisplayNamePropertyEditorControl)));
         }
 
         protected override void OnConnected() {

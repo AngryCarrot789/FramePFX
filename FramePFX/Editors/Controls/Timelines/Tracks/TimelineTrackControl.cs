@@ -7,7 +7,7 @@ using System.Windows.Media;
 using FramePFX.AdvancedContextService.WPF;
 using FramePFX.Editors.Contextual;
 using FramePFX.Editors.Controls.Automation;
-using FramePFX.Editors.Controls.Resources.Explorers;
+using FramePFX.Editors.Controls.Resources;
 using FramePFX.Editors.Controls.Timelines.Tracks.Clips;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.Timelines;
@@ -15,6 +15,7 @@ using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.DataContexts;
+using FramePFX.PropertyEditing;
 using FramePFX.Shortcuts.WPF;
 using FramePFX.Utils;
 using SkiaSharp;
@@ -115,6 +116,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
                 if (timeline != null && timeline.HasAnySelectedTracks)
                     timeline.ClearTrackSelection();
                 this.Track.SetIsSelected(true, true);
+                VideoEditorPropertyEditor.Instance.UpdateTrackSelectionAsync(timeline);
             }
         }
 
@@ -139,7 +141,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             }
 
             EnumDropType outputEffects = EnumDropType.None;
-            if (e.Data.GetData(ResourceExplorerListControl.ResourceDropType) is List<BaseResource> resources) {
+            if (e.Data.GetData(ResourceDropRegistry.ResourceDropType) is List<BaseResource> resources) {
                 if (resources.Count == 1 && resources[0] is ResourceItem) {
                     outputEffects = TrackDropRegistry.DropRegistry.CanDrop(this.Track, resources[0], inputEffects, this.actionSystemDataContext);
                 }
@@ -165,7 +167,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
 
             try {
                 this.isProcessingAsyncDrop = true;
-                if (e.Data.GetData(ResourceExplorerListControl.ResourceDropType) is List<BaseResource> items) {
+                if (e.Data.GetData(ResourceDropRegistry.ResourceDropType) is List<BaseResource> items) {
                     if (items.Count == 1 && items[0] is ResourceItem) {
                         await TrackDropRegistry.DropRegistry.OnDropped(this.Track, items[0], effects, this.actionSystemDataContext);
                     }

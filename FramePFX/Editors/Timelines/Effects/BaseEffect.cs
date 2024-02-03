@@ -29,16 +29,16 @@ namespace FramePFX.Editors.Timelines.Effects {
         /// <summary>
         /// Casts <see cref="Owner"/> to a <see cref="Clip"/>
         /// </summary>
-        public Clip OwnerClip => (Clip) this.Owner;
+        public Clip OwnerClip => this.Owner as Clip;
 
         /// <summary>
         /// Casts <see cref="Owner"/> to a <see cref="Track"/>
         /// </summary>
-        public Track OwnerTrack => (Track) this.Owner;
+        public Track OwnerTrack => this.Owner as Track;
 
         public Timeline Timeline => this.Owner?.Timeline;
 
-        public Project Project => this.Timeline?.Project;
+        public Project Project => this.Owner?.Project;
 
         public event TimelineChangedEventHandler TimelineChanged;
 

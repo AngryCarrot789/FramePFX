@@ -3,6 +3,7 @@ using FramePFX.Actions;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.DataContexts;
+using FramePFX.PropertyEditing;
 
 namespace FramePFX.Editors.Actions {
     public class SelectAllTracksAction : AnAction {
@@ -21,6 +22,8 @@ namespace FramePFX.Editors.Actions {
             else if (timeline.Tracks.Count > 0) {
                 timeline.Tracks[timeline.Tracks.Count - 1].SetIsSelected(true, true);
             }
+
+            VideoEditorPropertyEditor.Instance.UpdateTrackSelectionAsync(timeline);
         }
 
         public override bool CanExecute(AnActionEventArgs e) {
@@ -45,6 +48,7 @@ namespace FramePFX.Editors.Actions {
         public override Task ExecuteAsync(AnActionEventArgs e) {
             if (e.DataContext.TryGetContext(DataKeys.TrackKey, out Track track)) {
                 track.SelectAll();
+                VideoEditorPropertyEditor.Instance.UpdateClipSelectionAsync(track.Timeline);
             }
 
             return Task.CompletedTask;

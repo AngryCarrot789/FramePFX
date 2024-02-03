@@ -76,7 +76,22 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
         }
 
         private static bool GetClipForAutomatable(IAutomatable automatable, out Clip clip) {
-            return (clip = automatable as Clip) != null || automatable is BaseEffect effect && (clip = effect.OwnerClip) != null;
+            if (automatable == null) {
+                clip = null;
+                return false;
+            }
+            else if (automatable is Clip automatableClip) {
+                clip = automatableClip;
+            }
+            else if (automatable is BaseEffect effect && effect.Owner is Clip effectOwnerClip) {
+                clip = effectOwnerClip;
+            }
+            else {
+                clip = null;
+                return false;
+            }
+
+            return true;
         }
 
         private static void OnAutomationSequenceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {

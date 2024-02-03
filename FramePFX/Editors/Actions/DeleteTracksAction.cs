@@ -4,6 +4,7 @@ using FramePFX.Actions;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.DataContexts;
+using FramePFX.PropertyEditing;
 
 namespace FramePFX.Editors.Actions {
     public class DeleteTracksAction : AnAction {
@@ -27,18 +28,22 @@ namespace FramePFX.Editors.Actions {
 
             focusedTrack?.Timeline?.DeleteTrack(focusedTrack);
 
-            if (timeline != null && timeline.Tracks.Count > 0) {
-                if (focusedIndex >= 0) {
-                    if (focusedIndex >= timeline.Tracks.Count) {
-                        timeline.Tracks[timeline.Tracks.Count - 1].SetIsSelected(true, true);
+            if (timeline != null) {
+                if (timeline.Tracks.Count > 0) {
+                    if (focusedIndex >= 0) {
+                        if (focusedIndex >= timeline.Tracks.Count) {
+                            timeline.Tracks[timeline.Tracks.Count - 1].SetIsSelected(true, true);
+                        }
+                        else {
+                            timeline.Tracks[focusedIndex].SetIsSelected(true, true);
+                        }
                     }
                     else {
-                        timeline.Tracks[focusedIndex].SetIsSelected(true, true);
+                        timeline.Tracks[0].SetIsSelected(true, true);
                     }
                 }
-                else {
-                    timeline.Tracks[0].SetIsSelected(true, true);
-                }
+
+                VideoEditorPropertyEditor.Instance.UpdateTrackSelectionAsync(timeline);
             }
 
             return Task.CompletedTask;

@@ -18,7 +18,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
     public delegate void TrackClipIndexEventHandler(Track track, Clip clip, int index);
     public delegate void ClipMovedEventHandler(Clip clip, Track oldTrack, int oldIndex, Track newTrack, int newIndex);
 
-    public abstract class Track : IAutomatable, IHaveEffects, IDestroy {
+    public abstract class Track : IDisplayName, IAutomatable, IHaveEffects, IDestroy {
         public const double MinimumHeight = 20;
         public const double DefaultHeight = 56;
         public const double MaximumHeight = 250;
@@ -27,7 +27,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
 
         public Timeline Timeline { get; private set; }
 
-        public Project Project => this.Timeline?.Project;
+        public Project Project { get; private set; }
 
         public ReadOnlyCollection<Clip> Clips { get; }
 
@@ -47,10 +47,11 @@ namespace FramePFX.Editors.Timelines.Tracks {
         public string DisplayName {
             get => this.displayName;
             set {
-                if (this.displayName == value)
+                string oldName = this.displayName;
+                if (oldName == value)
                     return;
                 this.displayName = value;
-                this.DisplayNameChanged?.Invoke(this);
+                this.DisplayNameChanged?.Invoke(this, oldName, value);
             }
         }
 
@@ -83,7 +84,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
         public event TrackClipIndexEventHandler ClipRemoved;
         public event ClipMovedEventHandler ClipMovedTracks;
         public event TrackEventHandler HeightChanged;
-        public event TrackEventHandler DisplayNameChanged;
+        public event DisplayNameChangedEventHandler DisplayNameChanged;
         public event TrackEventHandler ColourChanged;
         public event TrackSelectedEventHandler IsSelectedChanged;
         public event EffectOwnerEventHandler EffectAdded;
@@ -204,7 +205,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
             if (this.clips.Contains(clip))
                 throw new InvalidOperationException("This track already contains the clip");
             this.InternalInsertClipAt(index, clip);
-            Clip.OnAddedToTrack(clip, this);
+            Clip.InternalOnClipAddedToTrack(clip, this);
             this.ClipAdded?.Invoke(this, clip, index);
             this.InvalidateRender();
         }
@@ -220,7 +221,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
         public void RemoveClipAt(int index) {
             Clip clip = this.clips[index];
             this.InternalRemoveClipAt(index, clip);
-            Clip.OnRemovedFromTrack(clip);
+            Clip.InternalOnClipRemovedFromTrack(clip);
             this.ClipRemoved?.Invoke(this, clip, index);
             this.InvalidateRender();
         }
@@ -237,7 +238,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
                 throw new InvalidOperationException("The destination track (" + dstTrack.GetType().Name + ") does not accept the clip type " + clip.GetType().Name);
             this.InternalRemoveClipAt(srcIndex, clip);
             dstTrack.InternalInsertClipAt(dstIndex, clip);
-            Clip.OnMovedToTrack(clip, this, dstTrack);
+            Clip.InternalOnClipMovedToTrack(clip, this, dstTrack);
             this.ClipMovedTracks?.Invoke(clip, this, srcIndex, dstTrack, dstIndex);
             dstTrack.ClipMovedTracks?.Invoke(clip, this, srcIndex, dstTrack, dstIndex);
             this.InvalidateRender();
@@ -256,7 +257,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
             this.cache.OnClipRemoved(clip);
             if (clip.IsSelected)
                 this.selectedClips.Remove(clip);
-            Timeline.OnClipRemovedFromTrack(this, clip);
+            Timeline.InternalOnClipRemovedFromTrack(this, clip);
         }
 
         public abstract bool IsClipTypeAccepted(Type type);
@@ -329,6 +330,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
 
         public void InsertEffect(int index, BaseEffect effect) {
             BaseEffect.ValidateInsertEffect(this, effect, index);
+            this.internalEffectList.Insert(index, effect);
             BaseEffect.OnAddedInternal(this, effect);
             this.OnEffectAdded(index, effect);
         }
@@ -430,22 +432,24 @@ namespace FramePFX.Editors.Timelines.Tracks {
         #region Internal Access Helpers -- Used internally only
 
         internal static void InternalOnAddedToTimeline(Track track, Timeline timeline) {
-            track.Timeline = timeline;
+            InternalOnTrackTimelineChanged(track, null, timeline);
         }
 
         internal static void InternalOnRemovedFromTimeline1(Track track, Timeline timeline) {
-            track.Timeline = null;
+            InternalOnTrackTimelineChanged(track, timeline, null);
+        }
+
+        internal static void InternalOnTrackTimelineChanged(Track track, Timeline oldTimeline, Timeline newTimeline) {
+            track.Timeline = newTimeline;
+            track.Project = newTimeline?.Project;
+            track.TimelineChanged?.Invoke(track, oldTimeline, newTimeline);
+            foreach (Clip clip in track.clips) {
+                Clip.InternalOnTrackTimelineChanged(clip, oldTimeline, newTimeline);
+            }
         }
 
         internal static void InternalOnClipSpanChanged(Clip clip, FrameSpan oldSpan) {
             clip.Track?.cache.OnSpanChanged(clip, oldSpan);
-        }
-
-        internal static void InternalOnTrackTimelineChanged(Track track, Timeline oldTimeline, Timeline newTimeline) {
-            track.TimelineChanged?.Invoke(track, oldTimeline, newTimeline);
-            foreach (Clip clip in track.clips) {
-                Clip.OnTrackTimelineChanged(clip, oldTimeline, newTimeline);
-            }
         }
 
         internal static void InternalOnIsClipSelectedChanged(Clip clip) {
@@ -473,14 +477,24 @@ namespace FramePFX.Editors.Timelines.Tracks {
                 }
             }
 
-            Timeline.OnIsClipSelectedChanged(clip);
+            Timeline.InternalOnIsClipSelectedChanged(clip);
         }
 
-        internal static void InternalUpdateTrackIndex(Track track, int newIndex) {
+        internal static void InternalSetPrecomputedTrackIndex(Track track, int newIndex) {
             track.indexInTimeline = newIndex;
         }
 
-        #endregion
+        internal static void InternalOnTimelineProjectChanged(Track track, Project oldProject, Project newProject) {
+            if (ReferenceEquals(track.Project, newProject)) {
+                throw new InvalidOperationException("Fatal error: clip's project equals the new project???");
+            }
 
+            track.Project = newProject;
+            foreach (Clip clip in track.clips) {
+                Clip.InternalOnTimelineProjectChanged(clip, oldProject, newProject);
+            }
+        }
+
+        #endregion
     }
 }

@@ -16,7 +16,6 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
     public class ResourceExplorerListControl : MultiSelector {
         public static readonly DependencyProperty ResourceManagerProperty = DependencyProperty.Register("ResourceManager", typeof(ResourceManager), typeof(ResourceExplorerListControl), new PropertyMetadata(null, (d, e) => ((ResourceExplorerListControl) d).OnResourceManagerChanged((ResourceManager) e.OldValue, (ResourceManager) e.NewValue)));
         public static readonly DependencyProperty CurrentFolderProperty = DependencyProperty.Register("CurrentFolder", typeof(ResourceFolder), typeof(ResourceExplorerListControl), new PropertyMetadata(null, (d, e) => ((ResourceExplorerListControl) d).OnCurrentFolderChanged((ResourceFolder) e.OldValue, (ResourceFolder) e.NewValue)));
-        public const string ResourceDropType = "PFXResource_DropType";
 
         public ResourceManager ResourceManager {
             get => (ResourceManager) this.GetValue(ResourceManagerProperty);

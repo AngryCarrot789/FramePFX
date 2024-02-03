@@ -19,7 +19,7 @@ namespace FramePFX.Editors.Timelines.Clips {
     public delegate void ClipTrackChangedEventHandler(Clip clip, Track oldTrack, Track newTrack);
     public delegate void ClipActiveSequenceChangedEventHandler(Clip clip, AutomationSequence oldSequence, AutomationSequence newSequence);
 
-    public abstract class Clip : IAutomatable, IStrictFrameRange, IResourceHolder, IHaveEffects, IDestroy {
+    public abstract class Clip : IDisplayName, IAutomatable, IStrictFrameRange, IResourceHolder, IHaveEffects, IDestroy {
         private readonly List<BaseEffect> internalEffectList;
         private FrameSpan span;
         private string displayName;
@@ -27,11 +27,20 @@ namespace FramePFX.Editors.Timelines.Clips {
         private AutomationSequence activeSequence;
         private long mediaFrameOffset;
 
+        /// <summary>
+        /// Gets the track that this clip is placed in
+        /// </summary>
         public Track Track { get; private set; }
 
-        public Timeline Timeline => this.Track?.Timeline;
+        /// <summary>
+        /// Gets the timeline that this clip exists in
+        /// </summary>
+        public Timeline Timeline { get; private set; }
 
-        public Project Project => this.Timeline?.Project;
+        /// <summary>
+        /// Gets the project that this clip exists in
+        /// </summary>
+        public Project Project { get; private set; }
 
         public ReadOnlyCollection<BaseEffect> Effects { get; }
 
@@ -78,10 +87,11 @@ namespace FramePFX.Editors.Timelines.Clips {
         public string DisplayName {
             get => this.displayName;
             set {
-                if (this.displayName == value)
+                string oldName = this.displayName;
+                if (oldName == value)
                     return;
                 this.displayName = value;
-                this.DisplayNameChanged?.Invoke(this);
+                this.DisplayNameChanged?.Invoke(this, oldName, value);
             }
         }
 
@@ -119,7 +129,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         public event EffectMovedEventHandler EffectMoved;
         public event ClipSpanChangedEventHandler FrameSpanChanged;
         public event ClipMediaOffsetChangedEventHandler MediaFrameOffsetChanged;
-        public event ClipEventHandler DisplayNameChanged;
+        public event DisplayNameChangedEventHandler DisplayNameChanged;
         public event ClipEventHandler IsSelectedChanged;
 
         public event ClipTrackChangedEventHandler TrackChanged;
@@ -240,20 +250,28 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// <param name="oldTrack">The previous track</param>
         /// <param name="newTrack">The new track</param>
         protected virtual void OnTrackChanged(Track oldTrack, Track newTrack) {
-            this.ResourceHelper.SetManager(newTrack?.Project?.ResourceManager);
-            this.TrackChanged?.Invoke(this, oldTrack, newTrack);
-
+            Debug.WriteLine("Clip's track changed: " + oldTrack + " -> " + newTrack);
             Timeline oldTimeline = oldTrack?.Timeline;
             Timeline newTimeline = newTrack?.Timeline;
-
+            this.TrackChanged?.Invoke(this, oldTrack, newTrack);
             if (!ReferenceEquals(oldTimeline, newTimeline)) {
-                this.TimelineChanged?.Invoke(this, oldTimeline, newTimeline);
+                this.Timeline = newTimeline;
+                this.OnTimelineChanged(oldTimeline, newTimeline);
             }
+        }
 
+        protected virtual void OnTimelineChanged(Timeline oldTimeline, Timeline newTimeline) {
+            Debug.WriteLine("Clip's timeline changed: " + oldTimeline + " -> " + newTimeline);
+            this.TimelineChanged?.Invoke(this, oldTimeline, newTimeline);
             Project oldProject = oldTimeline?.Project;
             Project newProject = newTimeline?.Project;
-            if (oldProject != newProject) {
+            if (!ReferenceEquals(oldProject, newProject)) {
+                this.Project = newProject;
                 this.OnProjectChanged(oldProject, newProject);
+            }
+
+            foreach (BaseEffect effect in this.Effects) {
+                BaseEffect.OnClipTimelineChanged(effect, oldTimeline, newTimeline);
             }
         }
 
@@ -265,7 +283,8 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// <param name="oldProject">The previous project</param>
         /// <param name="newProject">The new project</param>
         protected virtual void OnProjectChanged(Project oldProject, Project newProject) {
-
+            Debug.WriteLine("Clip's project changed: " + oldProject + " -> " + newProject);
+            this.ResourceHelper.SetManager(newProject?.ResourceManager);
         }
 
         public bool IntersectsFrameAt(long playHead) {
@@ -295,7 +314,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         }
 
         public void Duplicate() {
-            
+
         }
 
         public long ConvertRelativeToTimelineFrame(long relative) => this.span.Begin + relative;
@@ -389,36 +408,56 @@ namespace FramePFX.Editors.Timelines.Clips {
             }
         }
 
-        internal static void OnAddedToTrack(Clip clip, Track track) {
+        /// <summary>
+        /// [INTERNAL ONLY] Called when the clip is added to the given track
+        /// </summary>
+        internal static void InternalOnClipAddedToTrack(Clip clip, Track track) {
             Track oldTrack = clip.Track;
             if (ReferenceEquals(oldTrack, track)) {
                 throw new Exception("Clip added to the same track?");
             }
 
-            clip.Track = track;
-            clip.OnTrackChanged(oldTrack, track);
+            clip.OnTrackChanged(oldTrack, clip.Track = track);
         }
 
-        internal static void OnRemovedFromTrack(Clip clip) {
+        /// <summary>
+        /// [INTERNAL ONLY] Called when the clip is removed from its owner track
+        /// </summary>
+        internal static void InternalOnClipRemovedFromTrack(Clip clip) {
             Track oldTrack = clip.Track;
             if (ReferenceEquals(oldTrack, null)) {
                 throw new Exception("Clip removed from no track???");
             }
 
-            clip.Track = null;
-            clip.OnTrackChanged(oldTrack, null);
+            clip.OnTrackChanged(oldTrack, clip.Track = null);
         }
 
-        internal static void OnMovedToTrack(Clip clip, Track oldTrack, Track newTrack) {
+        /// <summary>
+        /// [INTERNAL ONLY] Called when a clip moves from one track to another
+        /// </summary>
+        internal static void InternalOnClipMovedToTrack(Clip clip, Track oldTrack, Track newTrack) {
             clip.Track = newTrack;
             clip.OnTrackChanged(oldTrack, newTrack);
         }
 
-        internal static void OnTrackTimelineChanged(Clip clip, Timeline oldTimeline, Timeline newTimeline) {
-            clip.TimelineChanged?.Invoke(clip, oldTimeline, newTimeline);
-            foreach (BaseEffect effect in clip.Effects) {
-                BaseEffect.OnClipTimelineChanged(effect, oldTimeline, newTimeline);
+        /// <summary>
+        /// [INTERNAL ONLY] Called when the timeline of the track that the given clip resides in changes
+        /// </summary>
+        internal static void InternalOnTrackTimelineChanged(Clip clip, Timeline oldTimeline, Timeline newTimeline) {
+            clip.Timeline = newTimeline;
+            clip.OnTimelineChanged(oldTimeline, newTimeline);
+        }
+
+        /// <summary>
+        /// [INTERNAL ONLY] Called when the timeline of the track that the given clip resides in changes
+        /// </summary>
+        internal static void InternalOnTimelineProjectChanged(Clip clip, Project oldProject, Project newProject) {
+            if (ReferenceEquals(clip.Project, newProject)) {
+                throw new InvalidOperationException("Fatal error: clip's project equals the new project???");
             }
+
+            clip.Project = newProject;
+            clip.OnProjectChanged(oldProject, newProject);
         }
     }
 }

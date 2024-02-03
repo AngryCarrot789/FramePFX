@@ -134,10 +134,11 @@
     <Compile Include="Editors\Exporting\FFMPEG\FFUtils.cs" />
     <Compile Include="Editors\Exporting\FFMPEG\LavResult.cs" />
     <Compile Include="Editors\Exporting\IExportProgress.cs" />
+    <Compile Include="Editors\MatrixUtils.cs" />
     <Compile Include="Editors\ProjectProps\ProjectPropertiesDialog.xaml.cs">
       <DependentUpon>ProjectPropertiesDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Editors\PropertyEditors\AControls\ClipDisplayNamePropertyEditorControl.cs" />
+    <Compile Include="Editors\PropertyEditors\AControls\DisplayNamePropertyEditorControl.cs" />
     <Compile Include="Editors\PropertyEditors\AControls\TimecodeFontFamilyPropertyEditorControl.cs" />
     <Compile Include="Editors\PropertyEditors\AControls\VideoClipMediaFrameOffsetPropertyEditorControl.cs" />
     <Compile Include="Editors\PropertyEditors\Clips\TimecodeFontFamilyPropertyEditorSlot.cs" />
@@ -164,6 +165,7 @@
     <Compile Include="Editors\Timelines\Clips\AVMediaVideoClip.cs" />
     <Compile Include="Editors\Timelines\Clips\TextClip.cs" />
     <Compile Include="Editors\Timelines\Clips\TimecodeClip.cs" />
+    <Compile Include="Editors\Timelines\IDisplayName.cs" />
     <Compile Include="Editors\Timelines\IStrictFrameRange.cs" />
     <Compile Include="Editors\Timelines\TimelineUtils.cs" />
     <Compile Include="FFmpegWrapper\AudioFormat.cs" />
@@ -639,7 +641,7 @@
     <Compile Include="Editors\PlayState.cs" />
     <Compile Include="Editors\Project.cs" />
     <Compile Include="Editors\ProjectSettings.cs" />
-    <Compile Include="Editors\PropertyEditors\Clips\ClipDisplayNamePropertyEditorSlot.cs" />
+    <Compile Include="Editors\PropertyEditors\Clips\DisplayNamePropertyEditorSlot.cs" />
     <Compile Include="Editors\Rendering\PreRenderContext.cs" />
     <Compile Include="Editors\Rendering\RenderContext.cs" />
     <Compile Include="Editors\Rendering\RenderFrameInfo.cs" />

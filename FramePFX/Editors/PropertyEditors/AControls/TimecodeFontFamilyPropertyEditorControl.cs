@@ -2,7 +2,6 @@ using System.Windows;
 using System.Windows.Controls;
 using FramePFX.Editors.Controls.Binders;
 using FramePFX.Editors.PropertyEditors.Clips;
-using FramePFX.PropertyEditing;
 using FramePFX.PropertyEditing.Controls;
 
 namespace FramePFX.Editors.PropertyEditors.AControls {

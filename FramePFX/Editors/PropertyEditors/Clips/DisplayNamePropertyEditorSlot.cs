@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
-using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines;
 using FramePFX.PropertyEditing;
 
 namespace FramePFX.Editors.PropertyEditors.Clips {
-    public class ClipDisplayNamePropertyEditorSlot : PropertyEditorSlot {
-        public IEnumerable<VideoClip> Clips => this.Handlers.Cast<VideoClip>();
+    public class DisplayNamePropertyEditorSlot : PropertyEditorSlot {
+        public IEnumerable<IDisplayName> DisplayNameHandlers => this.Handlers.Cast<IDisplayName>();
 
-        public VideoClip SingleSelection => (VideoClip) this.Handlers[0];
+        public IDisplayName SingleSelection => (IDisplayName) this.Handlers[0];
 
         public string DisplayName { get; private set; }
 
@@ -16,7 +16,7 @@ namespace FramePFX.Editors.PropertyEditors.Clips {
         public event PropertyEditorSlotEventHandler DisplayNameChanged;
         private bool isProcessingValueChange;
 
-        public ClipDisplayNamePropertyEditorSlot() : base(typeof(Clip)) {
+        public DisplayNamePropertyEditorSlot() : base(typeof(IDisplayName)) {
 
         }
 
@@ -25,7 +25,7 @@ namespace FramePFX.Editors.PropertyEditors.Clips {
 
             this.DisplayName = value;
             for (int i = 0, c = this.Handlers.Count; i < c; i++) {
-                Clip clip = (Clip) this.Handlers[i];
+                IDisplayName clip = (IDisplayName) this.Handlers[i];
                 clip.DisplayName = value;
             }
 
@@ -50,15 +50,15 @@ namespace FramePFX.Editors.PropertyEditors.Clips {
         }
 
         public void RequeryOpacityFromHandlers() {
-            this.DisplayName = GetEqualValue(this.Handlers, x => ((Clip) x).DisplayName, out string d) ? d : "<different values>";
+            this.DisplayName = GetEqualValue(this.Handlers, x => ((IDisplayName) x).DisplayName, out string d) ? d : "<different values>";
             this.DisplayNameChanged?.Invoke(this);
         }
 
-        private void OnClipDisplayNameChanged(Clip clip) {
+        private void OnClipDisplayNameChanged(IDisplayName sender, string oldName, string newName) {
             if (this.isProcessingValueChange)
                 return;
-            if (this.DisplayName != clip.DisplayName) {
-                this.DisplayName = clip.DisplayName;
+            if (this.DisplayName != sender.DisplayName) {
+                this.DisplayName = sender.DisplayName;
                 this.DisplayNameChanged?.Invoke(this);
             }
         }

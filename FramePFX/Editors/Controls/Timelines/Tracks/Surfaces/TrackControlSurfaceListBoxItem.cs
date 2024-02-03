@@ -1,6 +1,4 @@
 using System;
-using System.Numerics;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using FramePFX.AdvancedContextService.WPF;
@@ -8,6 +6,7 @@ using FramePFX.Editors.Contextual;
 using FramePFX.Editors.Controls.Binders;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.DataContexts;
+using FramePFX.PropertyEditing;
 using FramePFX.Shortcuts.WPF;
 using FramePFX.Utils;
 
@@ -36,6 +35,12 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
 
         public TrackControlSurfaceListBoxItem() {
             AdvancedContextMenu.SetContextGenerator(this, TrackContextRegistry.Instance);
+            this.Selected += this.OnSelectionChanged;
+            this.Unselected += this.OnSelectionChanged;
+        }
+
+        private void OnSelectionChanged(object sender, RoutedEventArgs e) {
+            VideoEditorPropertyEditor.Instance.UpdateTrackSelectionAsync(this.TrackList.Timeline);
         }
 
         static TrackControlSurfaceListBoxItem() {

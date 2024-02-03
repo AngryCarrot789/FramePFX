@@ -12,6 +12,11 @@ namespace FramePFX.Editors.Controls.Resources {
     public static class ResourceDropRegistry {
         public static DragDropRegistry<BaseResource> DropRegistry { get; }
 
+        /// <summary>
+        /// The drag-drop identifier for a resource drag-drop
+        /// </summary>
+        public const string ResourceDropType = "PFXResource_DropType";
+
         static ResourceDropRegistry() {
             DropRegistry = new DragDropRegistry<BaseResource>();
 
@@ -39,7 +44,7 @@ namespace FramePFX.Editors.Controls.Resources {
                 }
 
                 foreach (BaseResource resource in resources) {
-                    if (resource is ResourceFolder group && group.IsParentInHierarchy(folder)) {
+                    if (resource is ResourceFolder group && @group.IsParentInHierarchy(folder)) {
                         continue;
                     }
 

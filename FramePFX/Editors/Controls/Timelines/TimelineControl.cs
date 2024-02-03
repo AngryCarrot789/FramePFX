@@ -5,7 +5,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Threading;
 using FramePFX.Editors.Controls.Rulers;
 using FramePFX.Editors.Controls.Timelines.Playheads;
 using FramePFX.Editors.Controls.Timelines.Tracks;
@@ -87,11 +86,7 @@ namespace FramePFX.Editors.Controls.Timelines {
         /// </summary>
         /// <param name="timeline"></param>
         public void UpdatePropertyEditorClipSelection() {
-            this.Dispatcher.InvokeAsync(() => {
-                Timeline timeline = this.Timeline;
-                if (timeline != null)
-                    VideoEditorPropertyEditor.Instance.UpdateClipSelection(timeline);
-            }, DispatcherPriority.Background);
+            VideoEditorPropertyEditor.Instance.UpdateClipSelectionAsync(this.Timeline);
         }
 
         public Point GetTimelinePointFromClip(Point pointInClip) {

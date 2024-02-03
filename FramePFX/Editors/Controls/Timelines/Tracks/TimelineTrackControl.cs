@@ -115,7 +115,9 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
 
                 if (timeline != null && timeline.HasAnySelectedTracks)
                     timeline.ClearTrackSelection();
-                this.Track.SetIsSelected(true, true);
+
+                // don't focus if the click hit a clip, since the clip will be focused right after so it's pointless
+                this.Track.SetIsSelected(true, !(e.OriginalSource is TimelineClipControl));
                 VideoEditorPropertyEditor.Instance.UpdateTrackSelectionAsync(timeline);
             }
         }

@@ -26,8 +26,8 @@ namespace FramePFX.Editors.Automation.Params {
         }
 
         public static bool TryParse(string input, out ParameterKey key) {
-            int index = input.IndexOf(Parameter.FullIdSplitter);
-            if (index == -1) {
+            int index;
+            if (input == null || (index = input.IndexOf(Parameter.FullIdSplitter)) == -1) {
                 key = default;
                 return false;
             }
@@ -41,6 +41,10 @@ namespace FramePFX.Editors.Automation.Params {
             if (TryParse(input, out ParameterKey key))
                 return key;
             throw new FormatException("Invalid parameter key string: " + input);
+        }
+
+        public static ParameterKey Parse(string input, ParameterKey defaultKey) {
+            return TryParse(input, out ParameterKey key) ? key : defaultKey;
         }
 
         public override string ToString() {

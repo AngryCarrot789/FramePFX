@@ -16,8 +16,7 @@ namespace FramePFX.Editors.Actions {
                 return Task.CompletedTask;
             }
 
-            IUserInputDialogService service = ApplicationCore.Instance.Services.GetService<IUserInputDialogService>();
-            if (service.ShowSingleInputDialog("Rename resource item", "Input a new name for this resource", resource.DisplayName) is string newDisplayName) {
+            if (IoC.UserInputService.ShowSingleInputDialog("Rename resource item", "Input a new name for this resource", resource.DisplayName) is string newDisplayName) {
                 resource.DisplayName = newDisplayName;
             }
 
@@ -31,8 +30,7 @@ namespace FramePFX.Editors.Actions {
                 return Task.CompletedTask;
             }
 
-            IUserInputDialogService service = ApplicationCore.Instance.Services.GetService<IUserInputDialogService>();
-            if (service.ShowSingleInputDialog("Rename clip", "Input a new name for this clip", clip.DisplayName) is string newDisplayName) {
+            if (IoC.UserInputService.ShowSingleInputDialog("Rename clip", "Input a new name for this clip", clip.DisplayName) is string newDisplayName) {
                 clip.DisplayName = newDisplayName;
             }
 
@@ -46,8 +44,7 @@ namespace FramePFX.Editors.Actions {
                 return Task.CompletedTask;
             }
 
-            IUserInputDialogService service = ApplicationCore.Instance.Services.GetService<IUserInputDialogService>();
-            if (service.ShowSingleInputDialog("Rename track", "Input a new name for this track", track.DisplayName) is string newDisplayName) {
+            if (IoC.UserInputService.ShowSingleInputDialog("Rename track", "Input a new name for this track", track.DisplayName) is string newDisplayName) {
                 track.DisplayName = newDisplayName;
             }
 

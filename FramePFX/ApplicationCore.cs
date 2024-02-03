@@ -6,7 +6,9 @@ using FramePFX.Actions;
 using FramePFX.Editors.Actions;
 using FramePFX.Editors.ResourceManaging.Actions;
 using FramePFX.Logger;
+using FramePFX.Services.Files;
 using FramePFX.Services.Messages;
+using FramePFX.Services.WPF.Files;
 using FramePFX.Services.WPF.Messages;
 using Profiler = FramePFX.Profiling.Profiler;
 
@@ -32,6 +34,7 @@ namespace FramePFX {
         private async Task Setup(IApplicationStartupProgress progress) {
             this.serviceManager.Register<IMessageDialogService>(new WPFMessageDialogService());
             this.serviceManager.Register<IUserInputDialogService>(new WPFUserInputDialogService());
+            this.serviceManager.Register<IFilePickDialogService>(new WPFFilePickDialogService());
         }
 
         private void RegisterActions(ActionManager manager) {
@@ -61,6 +64,13 @@ namespace FramePFX {
             manager.Register("actions.resources.EnableResourcesAction", new EnableResourcesAction());
             manager.Register("actions.resources.DeleteResourcesAction", new DeleteResourcesAction());
             manager.Register("actions.resources.DisableResourcesAction", new DisableResourcesAction());
+
+            // Editor
+            manager.Register("actions.editor.NewProjectAction", new NewProjectAction());
+            manager.Register("actions.editor.OpenProjectAction", new OpenProjectAction());
+            manager.Register("actions.editor.SaveProjectAction", new SaveProjectAction());
+            manager.Register("actions.editor.SaveProjectAsAction", new SaveProjectAsAction());
+            manager.Register("actions.editor.ExportAction", new ExportAction());
 
             AppLogger.Instance.PushHeader($"Registered {ActionManager.Instance.Count} actions", false);
             foreach (KeyValuePair<string, AnAction> pair in ActionManager.Instance.Actions) {

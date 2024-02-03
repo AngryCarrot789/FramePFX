@@ -3,10 +3,10 @@ using System.Windows.Threading;
 using FramePFX.Interactivity.DataContexts;
 
 namespace FramePFX.AdvancedContextService.WPF {
-    public class AdvancedEventMenuItem : AdvancedMenuItem {
+    public class AdvancedContextEventMenuItem : AdvancedContextMenuItem {
         public new EventContextEntry Entry => (EventContextEntry) base.Entry;
 
-        public AdvancedEventMenuItem() {
+        public AdvancedContextEventMenuItem() {
 
         }
 

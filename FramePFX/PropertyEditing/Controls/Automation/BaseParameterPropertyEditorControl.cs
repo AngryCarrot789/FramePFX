@@ -60,6 +60,7 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
                 this.singleHandlerSequence.OverrideStateChanged += this.OnOverrideStateChanged;
                 this.singleHandlerSequence.KeyFrameAdded += this.OnKeyFrameAddedOrRemoved;
                 this.singleHandlerSequence.KeyFrameRemoved += this.OnKeyFrameAddedOrRemoved;
+                this.UpdateLEDColour(this.singleHandlerSequence);
             }
             else {
                 this.keyFrameTools.Visibility = Visibility.Collapsed;
@@ -79,7 +80,6 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
         }
 
         private void OnKeyFrameAddedOrRemoved(AutomationSequence sequence, KeyFrame keyframe, int index) {
-            this.automationLed.Visibility = sequence.IsEmpty ? Visibility.Collapsed : Visibility.Visible;
             this.UpdateLEDColour(sequence);
         }
 
@@ -88,7 +88,8 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
         }
 
         private void UpdateLEDColour(AutomationSequence sequence) {
-            if (this.automationLed != null) {
+            if (this.automationLed != null && sequence != null) {
+                this.automationLed.Visibility = sequence.IsEmpty ? Visibility.Collapsed : Visibility.Visible;
                 this.automationLed.Fill = sequence.IsOverrideEnabled ? Brushes.Gray : Brushes.OrangeRed;
             }
         }

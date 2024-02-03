@@ -96,7 +96,7 @@ namespace FramePFX.Editors.Views {
                 this.PART_ViewPort.VideoEditor = newEditor;
             }
 
-            this.actionSystemDataContext.Set(DataKeys.EditorKey, newEditor);
+            this.actionSystemDataContext.Set(DataKeys.VideoEditorKey, newEditor);
             Project project = newEditor?.Project;
             this.actionSystemDataContext.Set(DataKeys.ProjectKey, project);
             if (project != null) {
@@ -203,20 +203,6 @@ namespace FramePFX.Editors.Views {
             }
 
             ThemeController.SetTheme(type);
-        }
-
-        private void Export_Click(object sender, RoutedEventArgs e) {
-            Project project = this.Editor.Project;
-            project.Editor.Playback.Pause();
-            ExportDialog dialog = new ExportDialog {
-                ExportSetup = new ExportSetup(project) {
-                    Properties = {
-                        Span = new FrameSpan(0, project.MainTimeline.LargestFrameInUse),
-                        FilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "OutputVideo.mp4")
-                    }
-                }
-            };
-            dialog.ShowDialog();
         }
 
         private void EditProjectSettings_Click(object sender, RoutedEventArgs e) {

@@ -20,11 +20,6 @@ namespace FramePFX.Editors {
     /// The class which stores all of the data for the video editor application
     /// </summary>
     public class VideoEditor {
-        /// <summary>
-        /// Gets the singleton instance of the video editor
-        /// </summary>
-        public static VideoEditor Instance { get; } = new VideoEditor();
-
         private bool showClipAutomation;
         private bool showTrackAutomation;
 

@@ -168,10 +168,9 @@ namespace FramePFX.Shortcuts.WPF {
         }
 
         private static void OnApplicationKeyboardFocusChanged(KeyboardFocusChangedEventArgs e, PreProcessInputEventArgs args) {
-            if (!(e.Device is KeyboardDevice keyboard) || !(keyboard.Target is DependencyObject focused))
-                return;
-
-            ProcessFocusGroupChange(focused);
+            if (e.Device is KeyboardDevice keyboard && keyboard.Target is DependencyObject focused) {
+                ProcessFocusGroupChange(focused);
+            }
         }
 
         private static bool OnApplicationKeyEvent(KeyEventArgs e, PreProcessInputEventArgs inputArgs) {

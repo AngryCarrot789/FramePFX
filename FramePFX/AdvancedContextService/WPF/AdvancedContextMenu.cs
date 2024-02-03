@@ -58,9 +58,9 @@ namespace FramePFX.AdvancedContextService.WPF {
             FrameworkElement element = this.PopCachedItem(entry.GetType());
             if (element == null) {
                 switch (entry) {
-                    case ActionContextEntry _: element = new AdvancedActionMenuItem(); break;
-                    case EventContextEntry _:  element = new AdvancedEventMenuItem(); break;
-                    case BaseContextEntry _:   element = new AdvancedMenuItem(); break;
+                    case ActionContextEntry _: element = new AdvancedContextActionMenuItem(); break;
+                    case EventContextEntry _:  element = new AdvancedContextEventMenuItem(); break;
+                    case BaseContextEntry _:   element = new AdvancedContextMenuItem(); break;
                     case SeparatorEntry _:     element = new Separator(); break;
                     default: throw new Exception("Unknown item type: " + entry?.GetType());
                 }
@@ -87,8 +87,8 @@ namespace FramePFX.AdvancedContextService.WPF {
             ItemCollection items = menu.Items;
             foreach (IContextEntry entry in CleanEntries(entries)) {
                 FrameworkElement element = menu.CreateChildItem(entry);
-                AdvancedMenuItem parentNode = parent as AdvancedMenuItem;
-                if (element is AdvancedMenuItem menuItem) {
+                AdvancedContextMenuItem parentNode = parent as AdvancedContextMenuItem;
+                if (element is AdvancedContextMenuItem menuItem) {
                     menuItem.OnAdding(menu, parentNode, (BaseContextEntry) entry);
                     items.Add(menuItem);
                     menuItem.OnAdded();
@@ -104,13 +104,13 @@ namespace FramePFX.AdvancedContextService.WPF {
             AdvancedContextMenu menu;
             switch (control) {
                 case AdvancedContextMenu a: menu = a; break;
-                case AdvancedMenuItem b: menu = b.Menu; break;
+                case AdvancedContextMenuItem b: menu = b.Menu; break;
                 default: menu = null; break;
             }
 
             for (int i = list.Count - 1; i >= 0; i--) {
                 FrameworkElement item = (FrameworkElement) list[i];
-                if (item is AdvancedMenuItem menuItem) {
+                if (item is AdvancedContextMenuItem menuItem) {
                     Type type = menuItem.Entry.GetType();
                     menuItem.OnRemoving();
                     list.RemoveAt(i);

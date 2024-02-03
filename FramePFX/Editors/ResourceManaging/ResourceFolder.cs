@@ -37,14 +37,14 @@ namespace FramePFX.Editors.ResourceManaging {
         protected internal override void OnAttachedToManager() {
             base.OnAttachedToManager();
             foreach (BaseResource resource in this.items) {
-                resource.OnAttachedToManager();
+                InternalSetResourceManager(resource, this.Manager);
             }
         }
 
         protected internal override void OnDetatchedFromManager() {
             base.OnDetatchedFromManager();
             foreach (BaseResource resource in this.items) {
-                resource.OnDetatchedFromManager();
+                InternalSetResourceManager(resource, null);
             }
         }
 

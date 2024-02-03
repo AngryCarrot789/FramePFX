@@ -94,22 +94,26 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AdvancedContextService\EventContextEntry.cs" />
-    <Compile Include="AdvancedContextService\WPF\AdvancedActionMenuItem.cs" />
+    <Compile Include="AdvancedContextService\WPF\AdvancedContextActionMenuItem.cs" />
     <Compile Include="AdvancedContextService\WPF\AdvancedContextMenu.cs" />
-    <Compile Include="AdvancedContextService\WPF\AdvancedEventMenuItem.cs" />
-    <Compile Include="AdvancedContextService\WPF\AdvancedMenuItem.cs" />
-    <Compile Include="AdvancedContextService\WPF\AdvancedMenuItemStyleSelector.cs" />
-    <Compile Include="AdvancedContextService\WPF\AdvancedShortcutMenuItem.cs" />
+    <Compile Include="AdvancedContextService\WPF\AdvancedContextEventMenuItem.cs" />
+    <Compile Include="AdvancedContextService\WPF\AdvancedContextMenuItem.cs" />
+    <Compile Include="AdvancedContextService\WPF\AdvancedContextShortcutMenuItem.cs" />
     <Compile Include="AdvancedContextService\WPF\IAdvancedMenu.cs" />
+    <Compile Include="AdvancedMenuService\WPF\AdvancedActionMenuItem.cs" />
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Converters\EmptyStringToVisibilityConverter.cs" />
     <Compile Include="Editors\Actions\DeleteClipOwnerTrackAction.cs" />
     <Compile Include="Editors\Actions\DeleteClipsAction.cs" />
     <Compile Include="Editors\Actions\DeleteTracksAction.cs" />
     <Compile Include="Editors\Actions\DuplicateClipAction.cs" />
+    <Compile Include="Editors\Actions\ExportAction.cs" />
     <Compile Include="Editors\Actions\MoveTrackAction.cs" />
+    <Compile Include="Editors\Actions\NewProjectAction.cs" />
     <Compile Include="Editors\Actions\NewVideoTrackAction.cs" />
+    <Compile Include="Editors\Actions\OpenProjectAction.cs" />
     <Compile Include="Editors\Actions\RenameAction.cs" />
+    <Compile Include="Editors\Actions\SaveProjectAction.cs" />
     <Compile Include="Editors\Actions\SelectAllTracksAction.cs" />
     <Compile Include="Editors\Actions\SliceClipsAction.cs" />
     <Compile Include="Editors\Actions\ToggleClipAutomationAction.cs" />
@@ -262,8 +266,10 @@
     <Compile Include="RBC\RBEType.cs" />
     <Compile Include="RBC\RBEUtils.cs" />
     <Compile Include="ServiceManager.cs" />
+    <Compile Include="Services\Files\IFilePickDialogService.cs" />
     <Compile Include="Services\Messages\IMessageDialogService.cs" />
     <Compile Include="Services\Messages\IUserInputDialogService.cs" />
+    <Compile Include="Services\WPF\Files\WPFFilePickDialogService.cs" />
     <Compile Include="Services\WPF\Messages\MessageDialog.xaml.cs">
       <DependentUpon>MessageDialog.xaml</DependentUpon>
     </Compile>
@@ -373,6 +379,8 @@
     <Compile Include="Utils\FastStringBuf.cs" />
     <Compile Include="Utils\FFmpegError.cs" />
     <Compile Include="Utils\FileUtils.cs" />
+    <Compile Include="Utils\Filter.cs" />
+    <Compile Include="Utils\Filters.cs" />
     <Compile Include="Utils\HandlerList.cs" />
     <Compile Include="Utils\Helper.cs" />
     <Compile Include="Utils\IDisposableEx.cs" />

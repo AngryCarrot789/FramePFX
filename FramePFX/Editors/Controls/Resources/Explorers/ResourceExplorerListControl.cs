@@ -309,11 +309,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         }
 
         public IEnumerable<BaseResource> GetSelectedResources() {
-            foreach (ResourceExplorerListItem resource in this.GetSelectedControls()) {
-                if (resource.Model != null) {
-                    yield return resource.Model;
-                }
-            }
+            return this.ResourceManager?.SelectedItems ?? new List<BaseResource>();
         }
     }
 }

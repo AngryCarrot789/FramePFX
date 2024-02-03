@@ -3,15 +3,23 @@
 <KeyMap Version="1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Keymap.xsd">
     <Group Name="Application">
         <Group Name="Editor">
-            <Shortcut Name="SaveProject" ActionId="actions.project.SaveAction">
-                <KeyStroke Mods="CTRL" Key="S"/>
+            <Shortcut Name="NewProject" ActionId="actions.editor.NewProjectAction">
+                <KeyStroke Mods="CTRL" Key="N"/>
             </Shortcut>
-            <Shortcut Name="SaveProjectAs" ActionId="actions.project.SaveAsAction">
-                <KeyStroke Mods="CTRL+SHIFT" Key="S"/>
-            </Shortcut>
-            <Shortcut Name="OpenProject" ActionId="actions.project.OpenAction">
+            <Shortcut Name="OpenProject" ActionId="actions.editor.OpenProjectAction">
                 <KeyStroke Mods="CTRL" Key="O"/>
             </Shortcut>
+            <Shortcut Name="SaveProject" ActionId="actions.editor.SaveProjectAction">
+                <KeyStroke Mods="CTRL" Key="S"/>
+            </Shortcut>
+            <Shortcut Name="SaveProjectAs" ActionId="actions.editor.SaveProjectAsAction">
+                <KeyStroke Mods="CTRL+SHIFT" Key="S"/>
+            </Shortcut>
+            <Shortcut Name="ExportShortcut" ActionId="actions.editor.ExportAction">
+                <KeyStroke Mods="CTRL" Key="E"/>
+            </Shortcut>
+
+            <!-- TODO: implement history -->
             <Shortcut Name="UndoShortcut" ActionId="actions.project.history.UndoAction">
                 <KeyStroke Mods="CTRL" Key="Z"/>
             </Shortcut>

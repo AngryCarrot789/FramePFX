@@ -4,10 +4,9 @@ using System.Windows.Threading;
 using FramePFX.Actions;
 using FramePFX.Interactivity.DataContexts;
 using FramePFX.Shortcuts.WPF.Converters;
-using FramePFX.Utils;
 
 namespace FramePFX.AdvancedContextService.WPF {
-    public class AdvancedActionMenuItem : AdvancedMenuItem {
+    public class AdvancedContextActionMenuItem : AdvancedContextMenuItem {
         public bool IsExecuting { get; private set; }
 
         private bool canExecute;
@@ -27,7 +26,7 @@ namespace FramePFX.AdvancedContextService.WPF {
 
         protected override bool IsEnabledCore => base.IsEnabledCore && this.CanExecute;
 
-        public AdvancedActionMenuItem() {
+        public AdvancedContextActionMenuItem() {
             this.Loaded += this.OnLoaded;
         }
 

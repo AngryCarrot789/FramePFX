@@ -176,9 +176,8 @@ namespace FramePFX.Editors.Timelines {
         }
 
         public virtual void ReadFromRBE(RBEDictionary data) {
-            // just in case...
-            for (int i = this.tracks.Count - 1; i >= 0; i--) {
-                this.DeleteTrackAt(i);
+            if (this.tracks.Count > 0) {
+                throw new InvalidOperationException("Cannot read track RBE data while there are still tracks");
             }
 
             this.playHeadPosition = data.GetLong(nameof(this.PlayHeadPosition));

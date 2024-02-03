@@ -157,8 +157,7 @@ namespace FramePFX.Editors.ResourceManaging {
             obj.Parent = parent;
             ResourceManager manager = parent.Manager;
             if (manager != null) {
-                obj.Manager = manager;
-                obj.OnAttachedToManager();
+                InternalSetResourceManager(obj, manager);
             }
         }
 
@@ -174,6 +173,21 @@ namespace FramePFX.Editors.ResourceManaging {
             if (obj.Manager != newParent.Manager)
                 throw new Exception("Manager was different");
             obj.Parent = newParent;
+        }
+
+        protected static void InternalSetResourceManager(BaseResource resource, ResourceManager manager) {
+            if (ReferenceEquals(resource.Manager, manager)) {
+                throw new InvalidOperationException("Cannot set manager to same instance");
+            }
+
+            if (manager != null) {
+                resource.Manager = manager;
+                resource.OnAttachedToManager();
+            }
+            else {
+                resource.OnDetatchedFromManager();
+                resource.Manager = null;
+            }
         }
     }
 }

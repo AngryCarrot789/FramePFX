@@ -5,12 +5,12 @@ using FramePFX.Editors.Controls.Binders;
 
 namespace FramePFX.AdvancedContextService.WPF {
     /// <summary>
-    /// A menu item entry in a <see cref="AdvancedContextMenu"/> or <see cref="AdvancedMenuItem"/>
+    /// A menu item entry in a <see cref="AdvancedContextMenu"/> or <see cref="AdvancedContextMenuItem"/>
     /// </summary>
-    public class AdvancedMenuItem : MenuItem {
+    public class AdvancedContextMenuItem : MenuItem {
         public AdvancedContextMenu Menu { get; private set; }
 
-        public AdvancedMenuItem ParentNode { get; private set; }
+        public AdvancedContextMenuItem ParentNode { get; private set; }
 
         public BaseContextEntry Entry { get; private set; }
 
@@ -19,7 +19,7 @@ namespace FramePFX.AdvancedContextService.WPF {
         private readonly GetSetAutoPropertyBinder<BaseContextEntry> headerBinder = new GetSetAutoPropertyBinder<BaseContextEntry>(HeaderProperty, nameof(BaseContextEntry.HeaderChanged), b => b.Model.Header, (b, v) => b.Model.Header = v?.ToString());
         private readonly GetSetAutoPropertyBinder<BaseContextEntry> toolTipBinder = new GetSetAutoPropertyBinder<BaseContextEntry>(ToolTipProperty, nameof(BaseContextEntry.DescriptionChanged), b => b.Model.Description, (b, v) => b.Model.Description = v?.ToString());
 
-        public AdvancedMenuItem() {
+        public AdvancedContextMenuItem() {
 
         }
 
@@ -29,7 +29,7 @@ namespace FramePFX.AdvancedContextService.WPF {
             this.toolTipBinder.OnPropertyChanged(e);
         }
 
-        public virtual void OnAdding(AdvancedContextMenu menu, AdvancedMenuItem parent, BaseContextEntry entry) {
+        public virtual void OnAdding(AdvancedContextMenu menu, AdvancedContextMenuItem parent, BaseContextEntry entry) {
             this.Menu = menu;
             this.ParentNode = parent;
             this.Entry = entry;

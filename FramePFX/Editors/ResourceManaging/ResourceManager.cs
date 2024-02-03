@@ -30,7 +30,7 @@ namespace FramePFX.Editors.ResourceManaging {
         /// hierarchy. We use a dictionary for performance reasons, as traversing the folder hierarchy to find a
         /// resource from its ID can take a long time if there are lots of resources
         /// </summary>
-        public IReadOnlyDictionary<ulong, ResourceItem> UuidToItems => this.uuidToItem;
+        public IReadOnlyDictionary<ulong, ResourceItem> EntryMap => this.uuidToItem;
 
         /// <summary>
         /// An event called when a resource is added to this manager
@@ -45,7 +45,7 @@ namespace FramePFX.Editors.ResourceManaging {
         /// <summary>
         /// This manager's root resource folder, which contains the tree of resources. All
         /// <see cref="ResourceItem"/> objects in this tree are cached in an internal dictionary
-        /// (for speed purposes). See the <see cref="UuidToItems"/> docs for more info
+        /// (for speed purposes). See the <see cref="EntryMap"/> docs for more info
         /// </summary>
         public ResourceFolder RootContainer { get; }
 
@@ -113,57 +113,35 @@ namespace FramePFX.Editors.ResourceManaging {
                 throw new Exception("Cannot read data while resources are still registered");
 
             this.RootContainer.ReadFromRBE(data.GetDictionary(nameof(this.RootContainer)));
-            this.AccumulateEntriesRecursive(this.RootContainer);
+            // this.AccumulateEntriesRecursive(this.RootContainer);
             this.currId = data.GetULong("CurrId", 0UL);
         }
 
-        private void AccumulateEntriesRecursive(BaseResource obj) {
-            if (obj is ResourceItem item) {
-                if (item.UniqueId == EmptyId)
-                    throw new Exception("Deserialised resource has an empty ID: " + item.GetType());
-                if (this.uuidToItem.TryGetValue(item.UniqueId, out ResourceItem entry))
-                    throw new Exception($"A resource already exists with the id '{item.UniqueId}': {entry}");
-                this.uuidToItem[item.UniqueId] = item;
-                this.ResourceAdded?.Invoke(this, item);
-            }
-            else if (obj is ResourceFolder group) {
-                foreach (BaseResource subItem in group.Items) {
-                    this.AccumulateEntriesRecursive(subItem);
-                }
-            }
-            else {
-                throw new Exception($"Unknown resource object type: {obj}");
-            }
-        }
+        // private void AccumulateEntriesRecursive(BaseResource obj) {
+        //     if (obj is ResourceItem item) {
+        //         if (item.UniqueId == EmptyId)
+        //             throw new Exception("Deserialised resource has an empty ID: " + item.GetType());
+        //         if (this.uuidToItem.TryGetValue(item.UniqueId, out ResourceItem entry))
+        //             throw new Exception($"A resource already exists with the id '{item.UniqueId}': {entry}");
+        //         this.uuidToItem[item.UniqueId] = item;
+        //         this.ResourceAdded?.Invoke(this, item);
+        //     }
+        //     else if (obj is ResourceFolder group) {
+        //         foreach (BaseResource subItem in group.Items) {
+        //             this.AccumulateEntriesRecursive(subItem);
+        //         }
+        //     }
+        //     else {
+        //         throw new Exception($"Unknown resource object type: {obj}");
+        //     }
+        // }
 
-        /// <summary>
-        /// Registers the resource item with a randomly generated unique ID. The resource must exist in a resource
-        /// tree (as in, its <see cref="BaseResource.Parent"/> cannot be null) and its <see cref="ResourceItem.UniqueId"/>
-        /// must be empty (meaning, unregistered) otherwise an exception will be thrown
-        /// </summary>
-        /// <param name="item">The item to register</param>
-        /// <returns></returns>
-        private ulong RegisterEntry(ResourceItem item) {
+        private void RegisterEntryUsingExistingOrRandomId(ResourceItem item) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "Item cannot be null");
-            if (item.UniqueId != EmptyId)
-                throw new Exception("Item already has an ID associated with it");
             if (item.Manager == null)
                 throw new Exception("Item does not exist in a resource tree; it cannot be registered");
-            this.RegisterEntryInternal(this.GetNextId(), item);
-            return item.UniqueId;
-        }
-
-        private void RegisterEntry(ulong id, ResourceItem item) {
-            if (id == EmptyId)
-                throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
-            if (item == null)
-                throw new ArgumentNullException(nameof(item), "Item cannot be null");
-            if (item.UniqueId != EmptyId)
-                throw new Exception("Item already has an ID associated with it");
-            if (item.Manager == null)
-                throw new Exception("Item does not exist in a resource tree; it cannot be registered");
-            this.RegisterEntryInternal(id, item);
+            this.RegisterEntryInternal(item.UniqueId == EmptyId ? this.GetNextId() : item.UniqueId, item);
         }
 
         private void RegisterEntryInternal(ulong id, ResourceItem item) {
@@ -305,11 +283,11 @@ namespace FramePFX.Editors.ResourceManaging {
                 resource.Manager?.selectedItems.Remove(resource);
         }
 
-        internal static void InternalRegister(ResourceItem item) {
-            item.Manager.RegisterEntry(item);
+        internal static void InternalOnItemAttachedToManager(ResourceItem item) {
+            item.Manager.RegisterEntryUsingExistingOrRandomId(item);
         }
 
-        internal static void InternalUnregister(ResourceItem item) {
+        internal static void InternalOnItemDetatchedFromManager(ResourceItem item) {
             item.Manager.UnregisterItem(item);
         }
     }

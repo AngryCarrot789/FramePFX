@@ -2,39 +2,14 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                    xmlns:acsc="clr-namespace:FramePFX.AdvancedContextService;assembly=FramePFX"
                     xmlns:acs="clr-namespace:FramePFX.AdvancedContextService.WPF"
                     mc:Ignorable="d">
-    <Style TargetType="{x:Type acs:AdvancedMenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}"/>
-
-    <Style TargetType="{x:Type acs:AdvancedActionMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedMenuItem}}"/>
-
-    <Style TargetType="{x:Type acs:AdvancedShortcutMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedMenuItem}}"/>
-
-    <Style d:DataContext="{d:DesignInstance acsc:BaseContextEntry}" x:Key="BaseContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedMenuItem}}">
-        <Setter Property="ItemsSource" Value="{Binding Children, Mode=OneTime}"/>
-    </Style>
-
-    <Style x:Key="ActionContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedActionMenuItem}" BasedOn="{StaticResource BaseContextEntry_AdvancedMenuItemStyle}"/>
-
-    <Style x:Key="GroupContextEntry_AdvancedMenuItemStyle" TargetType="{x:Type acs:AdvancedMenuItem}" BasedOn="{StaticResource BaseContextEntry_AdvancedMenuItemStyle}"/>
-
-    <acs:AdvancedMenuItemStyleSelector x:Key="AdvancedMenuItemContainerStyleSelector"
-                                       x:Shared="True"
-                                       NonCheckableActionMenuItemStyle="{StaticResource ActionContextEntry_AdvancedMenuItemStyle}"
-                                       GroupingMenuItemStyle="{StaticResource GroupContextEntry_AdvancedMenuItemStyle}"
-                                       DefaultAdvancedMenuItemStyle="{StaticResource {x:Type acs:AdvancedMenuItem}}"
-                                       SeparatorStyle="{StaticResource {x:Type Separator}}">
-        <acs:AdvancedMenuItemStyleSelector.CheckableActionMenuItemStyle>
-            <Style TargetType="{x:Type acs:AdvancedActionMenuItem}" BasedOn="{StaticResource ActionContextEntry_AdvancedMenuItemStyle}">
-                <Setter Property="IsCheckable" Value="True"/>
-            </Style>
-        </acs:AdvancedMenuItemStyleSelector.CheckableActionMenuItemStyle>
-    </acs:AdvancedMenuItemStyleSelector>
+    <Style TargetType="{x:Type acs:AdvancedContextMenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}"/>
+    <Style TargetType="{x:Type acs:AdvancedContextActionMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedContextMenuItem}}"/>
+    <Style TargetType="{x:Type acs:AdvancedContextShortcutMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedContextMenuItem}}"/>
 
     <Style TargetType="{x:Type acs:AdvancedContextMenu}" BasedOn="{StaticResource {x:Type ContextMenu}}">
         <Setter Property="UsesItemContainerTemplate" Value="False"/>
-        <Setter Property="ItemContainerStyleSelector" Value="{StaticResource AdvancedMenuItemContainerStyleSelector}" />
         <!--
         can't remember why I added this setter...
         <Setter Property="ScrollViewer.IsDeferredScrollingEnabled" Value="True"/>

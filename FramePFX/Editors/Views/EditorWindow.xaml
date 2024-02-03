@@ -8,6 +8,8 @@
             xmlns:cv="clr-namespace:FramePFX.Editors.Controls.Viewports"
             xmlns:resources="clr-namespace:FramePFX.Editors.Controls.Resources"
             xmlns:wpf="clr-namespace:FramePFX.Shortcuts.WPF" xmlns:controls="clr-namespace:FramePFX.PropertyEditing.Controls"
+            xmlns:wpf1="clr-namespace:FramePFX.AdvancedContextService.WPF"
+            xmlns:c="clr-namespace:FramePFX.AdvancedMenuService.WPF"
             mc:Ignorable="d"
             Style="{StaticResource CustomWindowStyleEx}"
             Background="{DynamicResource PanelBorderBrush}"
@@ -23,11 +25,16 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
-        <Menu Grid.Row="0" 
+        <Menu Grid.Row="0"
               Background="{Binding TitlebarBrush, RelativeSource={RelativeSource AncestorType={x:Type v:WindowEx}, Mode=FindAncestor}}"
               BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1">
             <MenuItem Header="File">
-                <MenuItem Header="Export" Click="Export_Click"/>
+                <c:AdvancedActionMenuItem Header="New Project"        ActionId="actions.editor.NewProjectAction"/>
+                <c:AdvancedActionMenuItem Header="Open Project..."    ActionId="actions.editor.OpenProjectAction"/>
+                <c:AdvancedActionMenuItem Header="Save Project"       ActionId="actions.editor.SaveProjectAction"/>
+                <c:AdvancedActionMenuItem Header="Save Project As..." ActionId="actions.editor.SaveProjectAsAction"/>
+                <Separator/>
+                <c:AdvancedActionMenuItem Header="Export Video" ActionId="actions.editor.ExportAction"/>
             </MenuItem>
             <MenuItem Header="Theme">
                 <MenuItem Header="Deep Dark" Click="SetThemeClick" Uid="0"/>

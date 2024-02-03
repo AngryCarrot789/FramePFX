@@ -44,7 +44,8 @@ namespace FramePFX {
             await this.splash.SetAction("Loading FramePFX main window...", null);
 
             // Editor init
-            VideoEditor.Instance.LoadDefaultProject();
+            VideoEditor editor = new VideoEditor();
+            editor.LoadDefaultProject();
 
             EditorWindow window = new EditorWindow();
             window.Show();
@@ -52,7 +53,7 @@ namespace FramePFX {
             this.MainWindow = window;
             this.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
-            this.Dispatcher.InvokeAsync(() => window.Editor = VideoEditor.Instance, DispatcherPriority.Loaded);
+            this.Dispatcher.InvokeAsync(() => window.Editor = editor, DispatcherPriority.Loaded);
         }
 
         public async Task InitWPFApp() {

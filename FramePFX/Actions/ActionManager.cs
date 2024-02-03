@@ -85,7 +85,7 @@ namespace FramePFX.Actions {
         /// <summary>
         /// Executes an action with the given ID and context
         /// </summary>
-        /// <param name="id">The action ID to execute</param>
+        /// <param name="actionId">The action ID to execute</param>
         /// <param name="context">The context to use. Cannot be null</param>
         /// <param name="isUserInitiated">
         /// Whether a user executed the action, e.g. via a button/menu click or clicking a check box.
@@ -96,10 +96,10 @@ namespace FramePFX.Actions {
         /// <exception cref="Exception">The context is null, or the assembly was compiled in debug mode and the action threw ane exception</exception>
         /// <exception cref="ArgumentException">ID is null, empty or consists of only whitespaces</exception>
         /// <exception cref="ArgumentNullException">Context is null</exception>
-        public Task Execute(string id, IDataContext context, bool isUserInitiated = true) {
-            ValidateId(id);
-            if (this.actions.TryGetValue(id, out AnAction action))
-                return this.Execute(id, action, context, isUserInitiated);
+        public Task Execute(string actionId, IDataContext context, bool isUserInitiated = true) {
+            ValidateId(actionId);
+            if (this.actions.TryGetValue(actionId, out AnAction action))
+                return this.Execute(actionId, action, context, isUserInitiated);
             return Task.CompletedTask;
         }
 
@@ -123,9 +123,10 @@ namespace FramePFX.Actions {
             return task.IsCompleted ? Task.FromResult(true) : task.ContinueWith(t => true);
         }
 
-        public Task Execute(string id, AnAction action, IDataContext context, bool isUserInitiated = true) {
+        public Task Execute(string actionId, AnAction action, IDataContext context, bool isUserInitiated = true) {
+            ValidateId(actionId);
             ValidateContext(context);
-            return this.ExecuteCore(action, new AnActionEventArgs(this, id, context, isUserInitiated));
+            return this.ExecuteCore(action, new AnActionEventArgs(this, actionId, context, isUserInitiated));
         }
 
         protected virtual Task ExecuteCore(AnAction action, AnActionEventArgs e) {

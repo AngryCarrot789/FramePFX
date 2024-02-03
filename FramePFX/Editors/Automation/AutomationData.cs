@@ -113,7 +113,7 @@ namespace FramePFX.Editors.Automation {
         }
 
         public void ReadFromRBE(RBEDictionary data) {
-            this.ActiveParameter = ParameterKey.Parse(data.GetString(nameof(this.ActiveParameter), null));
+            this.ActiveParameter = ParameterKey.Parse(data.GetString(nameof(this.ActiveParameter), null), default);
             RBEList list = data.GetList(nameof(this.Sequences));
             foreach (RBEBase rbe in list.List) {
                 if (!(rbe is RBEDictionary dictionary))

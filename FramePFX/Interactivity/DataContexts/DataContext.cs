@@ -69,16 +69,27 @@ namespace FramePFX.Interactivity.DataContexts {
         public void Merge(IDataContext ctx) {
             if (ctx is DataContext dc) {
                 if (dc.map != null) {
-                    Dictionary<DataKey, object> myMap = this.map ?? (this.map = new Dictionary<DataKey, object>(dc.map.Count));
-                    foreach (KeyValuePair<DataKey,object> entry in dc.map) {
-                        myMap[entry.Key] = entry.Value;
+                    using (Dictionary<DataKey, object>.Enumerator enumerator = dc.map.GetEnumerator()) {
+                        if (enumerator.MoveNext()) {
+                            Dictionary<DataKey, object> myMap = this.map ?? (this.map = new Dictionary<DataKey, object>());
+                            do {
+                                KeyValuePair<DataKey, object> entry = enumerator.Current;
+                                myMap[entry.Key] = entry.Value;
+                            } while (enumerator.MoveNext());
+                        }
                     }
                 }
             }
-            else {
-                Dictionary<DataKey, object> myMap = this.map ?? (this.map = new Dictionary<DataKey, object>());
-                foreach (KeyValuePair<DataKey,object> entry in ctx.Entries) {
-                    myMap[entry.Key] = entry.Value;
+            else if (ctx != null && !(ctx is EmptyContext)) {
+                using (IEnumerator<KeyValuePair<DataKey, object>> enumerator = ctx.Entries.GetEnumerator()) {
+                    // try not to allocate map when there are no entries
+                    if (enumerator.MoveNext()) {
+                        Dictionary<DataKey, object> myMap = this.map ?? (this.map = new Dictionary<DataKey, object>());
+                        do {
+                            KeyValuePair<DataKey, object> entry = enumerator.Current;
+                            myMap[entry.Key] = entry.Value;
+                        } while (enumerator.MoveNext());
+                    }
                 }
             }
         }

@@ -38,7 +38,8 @@ namespace FramePFX.Editors.Automation.Keyframes {
         public static void SetBooleanValue(this KeyFrame kf, bool value, ParameterDescriptor desc) => ((KeyFrameBoolean) kf).Value = value;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SetVector2Value(this KeyFrame kf, Vector2 value, ParameterDescriptor desc) => ((KeyFrameVector2) kf).Value = value;
+        public static void SetVector2Value(this KeyFrame kf, Vector2 value, ParameterDescriptor desc) => ((KeyFrameVector2) kf).Value = ((ParameterDescriptorVector2) desc).Clamp(value);
+        public static void SetVector2Value(this KeyFrame kf, float x, float y, ParameterDescriptor desc) => ((KeyFrameVector2) kf).Value = ((ParameterDescriptorVector2) desc).Clamp(new Vector2(x, y));
 
         #endregion
     }

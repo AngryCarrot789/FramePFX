@@ -1,9 +1,11 @@
 using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Threading;
 using FramePFX.Actions;
 using FramePFX.Interactivity.DataContexts;
 using FramePFX.Shortcuts.WPF.Converters;
+using FramePFX.Utils;
 
 namespace FramePFX.AdvancedContextService.WPF {
     public class AdvancedContextActionMenuItem : AdvancedContextMenuItem {
@@ -106,15 +108,15 @@ namespace FramePFX.AdvancedContextService.WPF {
                 if (!string.IsNullOrWhiteSpace(id) && context != null)
                     await ActionManager.Instance.Execute(id, context);
             }
-#if !DEBUG
             catch (Exception e) {
-                IoC.MessageService.ShowMessage(
-                    "Error",
-                    "An unexpected error occurred while processing action. " +
-                    "FramePFX may or may not crash now, but you should probably restart and save just in case",
-                    e.GetToString());
+                if (!Debugger.IsAttached) {
+                    IoC.MessageService.ShowMessage(
+                        "Error",
+                        "An unexpected error occurred while processing action. " +
+                        "FramePFX may or may not crash now, but you should probably restart and save just in case",
+                        e.GetToString());
+                }
             }
-#endif
             finally {
                 this.IsExecuting = false;
                 this.UpdateCanExecuteVisual();

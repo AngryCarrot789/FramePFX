@@ -126,6 +126,16 @@
     <Compile Include="Editors\Controls\Timelines\TrackDropRegistry.cs" />
     <Compile Include="Editors\Controls\Timelines\Tracks\Clips\ImageClipContent.cs" />
     <Compile Include="Editors\Controls\Timelines\Tracks\Clips\TimelineClipContent.cs" />
+    <Compile Include="Editors\DataTransfer\DataParameter.cs" />
+    <Compile Include="Editors\DataTransfer\DataParameterGeneric.cs" />
+    <Compile Include="Editors\DataTransfer\DataParameterBoolean.cs" />
+    <Compile Include="Editors\DataTransfer\DataParameterDouble.cs" />
+    <Compile Include="Editors\DataTransfer\DataParameterFlags.cs" />
+    <Compile Include="Editors\DataTransfer\DataParameterFloat.cs" />
+    <Compile Include="Editors\DataTransfer\DataParameterLong.cs" />
+    <Compile Include="Editors\DataTransfer\DataParameterString.cs" />
+    <Compile Include="Editors\DataTransfer\TransferableData.cs" />
+    <Compile Include="Editors\DataTransfer\ITransferableData.cs" />
     <Compile Include="Editors\Exporting\Controls\ExportDialog.xaml.cs">
       <DependentUpon>ExportDialog.xaml</DependentUpon>
     </Compile>
@@ -222,6 +232,12 @@
     <Compile Include="PropertyEditing\Controls\Automation\KeyFrameToolsControl.cs" />
     <Compile Include="PropertyEditing\Controls\Converters\GroupTypeToStyleConverter.cs" />
     <Compile Include="PropertyEditing\Controls\Converters\GroupTypeToTemplateConverter.cs" />
+    <Compile Include="PropertyEditing\Controls\DataTransfer\BaseDataParameterPropertyEditorControl.cs" />
+    <Compile Include="PropertyEditing\Controls\DataTransfer\BaseNumberDataParamPropEditorControl.cs" />
+    <Compile Include="PropertyEditing\Controls\DataTransfer\DataParameterBooleanPropertyEditorControl.cs" />
+    <Compile Include="PropertyEditing\Controls\DataTransfer\DataParameterDoublePropertyEditorControl.cs" />
+    <Compile Include="PropertyEditing\Controls\DataTransfer\DataParameterFloatPropertyEditorControl.cs" />
+    <Compile Include="PropertyEditing\Controls\DataTransfer\DataParameterStringPropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\Controls\PropertyEditorGroupNonExpanderControl.cs" />
     <Compile Include="PropertyEditing\Controls\Automation\BaseParameterPropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\Controls\Automation\ParameterDoublePropertyEditorControl.cs" />
@@ -231,8 +247,13 @@
     <Compile Include="Editors\PropertyEditors\Effects\Motion\MotionEffectPropertyEditorGroup.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\TODO\EffectListPropertyEditorGroup.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\TODO\EffectPropertyEditorGroup.cs" />
-    <Compile Include="PropertyEditing\Controls\Automation\BaseSliderParameterPropertyEditorControl.cs" />
+    <Compile Include="PropertyEditing\Controls\Automation\BaseNumberParameterPropEditorControl.cs" />
     <Compile Include="PropertyEditing\Controls\Automation\ParameterVector2PropertyEditorControl.cs" />
+    <Compile Include="PropertyEditing\DataTransfer\DataParameterBooleanPropertyEditorSlot.cs" />
+    <Compile Include="PropertyEditing\DataTransfer\DataParameterDoublePropertyEditorSlot.cs" />
+    <Compile Include="PropertyEditing\DataTransfer\DataParameterFloatPropertyEditorSlot.cs" />
+    <Compile Include="PropertyEditing\DataTransfer\DataParameterPropertyEditorSlot.cs" />
+    <Compile Include="PropertyEditing\DataTransfer\DataParameterStringPropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\GroupType.cs" />
     <Compile Include="PropertyEditing\Automation\ParameterDoublePropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\Automation\ParameterFloatPropertyEditorSlot.cs" />

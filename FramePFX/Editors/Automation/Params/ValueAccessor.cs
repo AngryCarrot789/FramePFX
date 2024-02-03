@@ -17,24 +17,22 @@ namespace FramePFX.Editors.Automation.Params {
         /// <summary>
         /// Gets the generic value
         /// </summary>
-        public abstract TValue GetValue(IAutomatable instance);
+        public abstract TValue GetValue(object owner);
 
         /// <summary>
         /// Gets the boxed value
         /// </summary>
-        public abstract object GetObjectValue(IAutomatable instance);
+        public abstract object GetObjectValue(object owner);
 
         /// <summary>
         /// Sets the generic value
         /// </summary>
-        public abstract void SetValue(IAutomatable instance, TValue value);
+        public abstract void SetValue(object owner, TValue value);
 
         /// <summary>
         /// Sets the object value
         /// </summary>
-        /// <param name="instance"></param>
-        /// <param name="value"></param>
-        public abstract void SetObjectValue(IAutomatable instance, object value);
+        public abstract void SetObjectValue(object owner, object value);
     }
 
     public static class ValueAccessors {
@@ -65,12 +63,12 @@ namespace FramePFX.Editors.Automation.Params {
         /// <returns>A value accessor</returns>
         public static ValueAccessor<TValue> LinqExpression<TValue>(Type owner, string propertyOrField) {
             MemberInfo targetMember = GetPropertyOrField(owner, propertyOrField);
-            Type lowestOwnerType = targetMember.DeclaringType;
-            if (lowestOwnerType == null)
+            Type memberOwnerType = targetMember.DeclaringType;
+            if (memberOwnerType == null)
                 throw new Exception($"The target member named '{propertyOrField}' does not have a declaring type somehow");
 
-            ParameterExpression paramInstance = InstanceParameter ?? (InstanceParameter = Expression.Parameter(typeof(IAutomatable), "instance"));
-            UnaryExpression castToOwner = Expression.Convert(paramInstance, lowestOwnerType);
+            ParameterExpression paramInstance = InstanceParameter ?? (InstanceParameter = Expression.Parameter(typeof(object), "instance"));
+            UnaryExpression castToOwner = Expression.Convert(paramInstance, memberOwnerType);
             MemberExpression dataMember = Expression.MakeMemberAccess(castToOwner, targetMember);
 
             AutoGetter<TValue> getter = Expression.Lambda<AutoGetter<TValue>>(dataMember, paramInstance).Compile();
@@ -101,20 +99,20 @@ namespace FramePFX.Editors.Automation.Params {
                 this.info = info ?? throw new ArgumentNullException(nameof(info));
             }
 
-            public override TValue GetValue(IAutomatable instance) {
-                return (TValue) this.info.GetValue(instance);
+            public override TValue GetValue(object owner) {
+                return (TValue) this.info.GetValue(owner);
             }
 
-            public override object GetObjectValue(IAutomatable instance) {
-                return this.info.GetValue(instance);
+            public override object GetObjectValue(object owner) {
+                return this.info.GetValue(owner);
             }
 
-            public override void SetValue(IAutomatable instance, TValue value) {
-                this.info.SetValue(instance, value);
+            public override void SetValue(object owner, TValue value) {
+                this.info.SetValue(owner, value);
             }
 
-            public override void SetObjectValue(IAutomatable instance, object value) {
-                this.info.SetValue(instance, value);
+            public override void SetObjectValue(object owner, object value) {
+                this.info.SetValue(owner, value);
             }
         }
 
@@ -126,20 +124,20 @@ namespace FramePFX.Editors.Automation.Params {
                 this.info = info ?? throw new ArgumentNullException(nameof(info));
             }
 
-            public override TValue GetValue(IAutomatable instance) {
-                return (TValue) this.info.GetValue(instance);
+            public override TValue GetValue(object owner) {
+                return (TValue) this.info.GetValue(owner);
             }
 
-            public override object GetObjectValue(IAutomatable instance) {
-                return this.info.GetValue(instance);
+            public override object GetObjectValue(object owner) {
+                return this.info.GetValue(owner);
             }
 
-            public override void SetValue(IAutomatable instance, TValue value) {
-                this.info.SetValue(instance, value);
+            public override void SetValue(object owner, TValue value) {
+                this.info.SetValue(owner, value);
             }
 
-            public override void SetObjectValue(IAutomatable instance, object value) {
-                this.info.SetValue(instance, value);
+            public override void SetObjectValue(object owner, object value) {
+                this.info.SetValue(owner, value);
             }
         }
 
@@ -152,20 +150,20 @@ namespace FramePFX.Editors.Automation.Params {
                 this.set = set ?? throw new ArgumentNullException(nameof(set));
             }
 
-            public override TValue GetValue(IAutomatable instance) {
-                return this.get(instance);
+            public override TValue GetValue(object owner) {
+                return this.get(owner);
             }
 
-            public override object GetObjectValue(IAutomatable instance) {
-                return this.get(instance);
+            public override object GetObjectValue(object owner) {
+                return this.get(owner);
             }
 
-            public override void SetValue(IAutomatable instance, TValue value) {
-                this.set(instance, value);
+            public override void SetValue(object owner, TValue value) {
+                this.set(owner, value);
             }
 
-            public override void SetObjectValue(IAutomatable instance, object value) {
-                this.set(instance, (TValue) value);
+            public override void SetObjectValue(object owner, object value) {
+                this.set(owner, (TValue) value);
             }
         }
 

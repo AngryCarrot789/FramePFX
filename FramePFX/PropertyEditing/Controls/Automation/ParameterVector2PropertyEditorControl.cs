@@ -1,7 +1,5 @@
 using System.Numerics;
 using System.Windows;
-using System.Windows.Controls;
-using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Controls.Dragger;
 using FramePFX.PropertyEditing.Automation;

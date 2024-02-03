@@ -6,6 +6,7 @@ using FramePFX.Destroying;
 using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Automation.Params;
+using FramePFX.Editors.DataTransfer;
 using FramePFX.Editors.Factories;
 using FramePFX.Editors.ResourceManaging.ResourceHelpers;
 using FramePFX.Editors.Timelines.Effects;
@@ -19,7 +20,7 @@ namespace FramePFX.Editors.Timelines.Clips {
     public delegate void ClipTrackChangedEventHandler(Clip clip, Track oldTrack, Track newTrack);
     public delegate void ClipActiveSequenceChangedEventHandler(Clip clip, AutomationSequence oldSequence, AutomationSequence newSequence);
 
-    public abstract class Clip : IDisplayName, IAutomatable, IStrictFrameRange, IResourceHolder, IHaveEffects, IDestroy {
+    public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStrictFrameRange, IResourceHolder, IHaveEffects, IDestroy {
         private readonly List<BaseEffect> internalEffectList;
         private FrameSpan span;
         private string displayName;
@@ -43,6 +44,8 @@ namespace FramePFX.Editors.Timelines.Clips {
         public Project Project { get; private set; }
 
         public ReadOnlyCollection<BaseEffect> Effects { get; }
+
+        public TransferableData TransferableData { get; }
 
         public AutomationData AutomationData { get; }
 
@@ -146,6 +149,7 @@ namespace FramePFX.Editors.Timelines.Clips {
             this.Effects = this.internalEffectList.AsReadOnly();
             this.ResourceHelper = new ResourceHelper(this);
             this.AutomationData = new AutomationData(this);
+            this.TransferableData = new TransferableData(this);
         }
 
         protected virtual void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan) {

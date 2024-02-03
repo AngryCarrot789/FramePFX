@@ -7,6 +7,8 @@ using FramePFX.Editors.PropertyEditors.AControls;
 using FramePFX.Editors.PropertyEditors.Clips;
 using FramePFX.PropertyEditing.Automation;
 using FramePFX.PropertyEditing.Controls.Automation;
+using FramePFX.PropertyEditing.Controls.DataTransfer;
+using FramePFX.PropertyEditing.DataTransfer;
 
 namespace FramePFX.PropertyEditing.Controls {
     public abstract class BasePropEditControlContent : Control {
@@ -31,6 +33,11 @@ namespace FramePFX.PropertyEditing.Controls {
             RegisterType(typeof(ParameterDoublePropertyEditorSlot), () => new ParameterDoublePropertyEditorControl());
             RegisterType(typeof(ParameterFloatPropertyEditorSlot), () => new ParameterFloatPropertyEditorControl());
             RegisterType(typeof(ParameterVector2PropertyEditorSlot), () => new ParameterVector2PropertyEditorControl());
+
+            RegisterType(typeof(DataParameterDoublePropertyEditorSlot), () => new DataParameterDoublePropertyEditorControl());
+            RegisterType(typeof(DataParameterFloatPropertyEditorSlot), () => new DataParameterFloatPropertyEditorControl());
+            RegisterType(typeof(DataParameterBooleanPropertyEditorSlot), () => new DataParameterBooleanPropertyEditorControl());
+            RegisterType(typeof(DataParameterStringPropertyEditorSlot), () => new DataParameterStringPropertyEditorControl());
         }
 
         public static void RegisterType<T>(Type slotType, Func<T> func) where T : BasePropEditControlContent {

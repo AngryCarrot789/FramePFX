@@ -1,21 +1,17 @@
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Shapes;
-using FramePFX.Editors.Automation;
 using FramePFX.Editors.Controls.Dragger;
 using FramePFX.PropertyEditing.Automation;
 
 namespace FramePFX.PropertyEditing.Controls.Automation {
-    public abstract class BaseSliderParameterPropertyEditorControl : BaseParameterPropertyEditorControl {
+    public abstract class BaseNumberParameterPropEditorControl : BaseParameterPropertyEditorControl {
         protected NumberDragger dragger;
         protected bool IsUpdatingControl;
-        private Ellipse automationLed;
 
-        protected BaseSliderParameterPropertyEditorControl() {
+        protected BaseNumberParameterPropEditorControl() {
 
         }
 
-        static BaseSliderParameterPropertyEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(BaseSliderParameterPropertyEditorControl), new FrameworkPropertyMetadata(typeof(BaseSliderParameterPropertyEditorControl)));
+        static BaseNumberParameterPropEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(BaseNumberParameterPropEditorControl), new FrameworkPropertyMetadata(typeof(BaseNumberParameterPropEditorControl)));
 
         protected abstract void UpdateControlValue();
 
@@ -37,10 +33,6 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
             if (!this.IsUpdatingControl && this.SlotModel != null) {
                 this.UpdateModelValue();
             }
-        }
-
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
-            base.OnRenderSizeChanged(sizeInfo);
         }
 
         public override void OnApplyTemplate() {

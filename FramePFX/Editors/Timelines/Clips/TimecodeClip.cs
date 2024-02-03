@@ -1,5 +1,6 @@
 using System;
 using FramePFX.Editors.Automation.Params;
+using FramePFX.Editors.DataTransfer;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.RBC;
@@ -9,13 +10,16 @@ using SkiaSharp;
 namespace FramePFX.Editors.Timelines.Clips {
     public class TimecodeClip : VideoClip {
         public static readonly ParameterDouble FontSizeParameter = Parameter.RegisterDouble(typeof(TimecodeClip), nameof(TimecodeClip), nameof(FontSize), 40, ValueAccessors.LinqExpression<double>(typeof(TimecodeClip), nameof(FontSize)), ParameterFlags.AffectsRender);
+        public static readonly DataParameterBoolean UseClipStartTimeParameter = DataParameter.Register(new DataParameterBoolean(typeof(TimecodeClip), nameof(UseClipStartTime), true, ValueAccessors.Reflective<bool>(typeof(TimecodeClip), nameof(UseClipStartTime)), DataParameterFlags.AffectsRender));
+        public static readonly DataParameterBoolean UseClipEndTimeParameter = DataParameter.Register(new DataParameterBoolean(typeof(TimecodeClip), nameof(UseClipEndTime), true, ValueAccessors.Reflective<bool>(typeof(TimecodeClip), nameof(UseClipEndTime)), DataParameterFlags.AffectsRender));
+        public static readonly DataParameterDouble StartTimeParameter = DataParameter.Register(new DataParameterDouble(typeof(TimecodeClip), nameof(StartTime), 0.0, ValueAccessors.Reflective<double>(typeof(TimecodeClip), nameof(StartTime)), DataParameterFlags.AffectsRender));
+        public static readonly DataParameterDouble EndTimeParameter = DataParameter.Register(new DataParameterDouble(typeof(TimecodeClip), nameof(EndTime), 0.0, ValueAccessors.Reflective<double>(typeof(TimecodeClip), nameof(EndTime)), DataParameterFlags.AffectsRender));
 
         public double FontSize;
-
         public bool UseClipStartTime;
         public bool UseClipEndTime;
-        public TimeSpan StartTime;
-        public TimeSpan EndTime;
+        public double StartTime;
+        public double EndTime;
         private string fontFamily = "Consolas";
 
         private class LockedFontData : IDisposable {
@@ -55,7 +59,8 @@ namespace FramePFX.Editors.Timelines.Clips {
         public TimecodeClip() {
             this.fontData = new RenderLockedDataWrapper<LockedFontData>(new LockedFontData());
             this.FontSize = FontSizeParameter.Descriptor.DefaultValue;
-            this.UseClipStartTime = this.UseClipEndTime = true;
+            this.UseClipStartTime = UseClipStartTimeParameter.DefaultValue;
+            this.UseClipEndTime = UseClipEndTimeParameter.DefaultValue;
         }
 
         private string GetCurrentTimeString() {
@@ -76,8 +81,8 @@ namespace FramePFX.Editors.Timelines.Clips {
             base.WriteToRBE(data);
             data.SetBool("UseClipStart", this.UseClipStartTime);
             data.SetBool("UseClipEnd", this.UseClipEndTime);
-            data.SetLong("StartTime", this.StartTime.Ticks);
-            data.SetLong("EndTime", this.EndTime.Ticks);
+            data.SetDouble("StartTime", this.StartTime);
+            data.SetDouble("EndTime", this.EndTime);
             if (this.fontFamily != null)
                 data.SetString("FontFamily", this.fontFamily);
         }
@@ -86,8 +91,8 @@ namespace FramePFX.Editors.Timelines.Clips {
             base.ReadFromRBE(data);
             this.UseClipStartTime = data.GetBool("UseClipStart");
             this.UseClipEndTime = data.GetBool("UseClipEnd");
-            this.StartTime = new TimeSpan(data.GetLong("StartTime"));
-            this.EndTime = new TimeSpan(data.GetLong("EndTime"));
+            this.StartTime = data.GetDouble("StartTime");
+            this.EndTime = data.GetDouble("EndTime");
             this.fontFamily = data.GetString("FontFamily", null);
         }
 
@@ -106,8 +111,10 @@ namespace FramePFX.Editors.Timelines.Clips {
             long playHead = this.FrameSpan.Begin + frame;
             this.render_Frame = playHead;
             this.render_Span = this.FrameSpan;
-            this.render_StartTime = this.UseClipStartTime ? default : this.StartTime;
-            this.render_EndTime = this.UseClipEndTime ? TimeSpan.FromSeconds(this.FrameSpan.Duration / fps) : this.EndTime;
+            this.render_StartTime = this.UseClipStartTime ? default : TimeSpan.FromSeconds(this.StartTime);
+            this.render_EndTime = this.UseClipEndTime ? TimeSpan.FromSeconds(this.FrameSpan.Duration / fps) : TimeSpan.FromSeconds(this.EndTime);
+            if (this.UseClipEndTime)
+                this.render_EndTime += this.render_StartTime;
             this.renderFontSize = this.FontSize;
             return true;
         }

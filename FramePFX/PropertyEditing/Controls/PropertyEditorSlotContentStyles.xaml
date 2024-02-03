@@ -6,7 +6,9 @@
                     xmlns:ap="clr-namespace:FramePFX.Themes.Attached"
                     xmlns:clips="clr-namespace:FramePFX.Editors.PropertyEditors"
                     xmlns:ac="clr-namespace:FramePFX.Editors.PropertyEditors.AControls"
-                    xmlns:automation="clr-namespace:FramePFX.PropertyEditing.Controls.Automation">
+                    xmlns:automation="clr-namespace:FramePFX.PropertyEditing.Controls.Automation"
+                    xmlns:dataTransfer="clr-namespace:FramePFX.PropertyEditing.Controls.DataTransfer"
+                    xmlns:converters="clr-namespace:FramePFX.Converters">
     <s:Double x:Key="FloatMinValue">-3.402823E+38</s:Double>
     <s:Double x:Key="FloatMaxValue">3.402823E+38</s:Double>
 
@@ -36,6 +38,26 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <Style x:Key="NonToggleableCheckBox" TargetType="{x:Type CheckBox}">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type CheckBox}">
+                    <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="Left"
+                                      RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                      VerticalAlignment="Center" Width="Auto"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <converters:BoolConverter x:Key="IsCheckBoxToggleableToStyleConverter" TrueValue="{StaticResource {x:Type CheckBox}}" FalseValue="{StaticResource NonToggleableCheckBox}"/>
+
+    <!-- Specific Property Editors -->
 
     <Style TargetType="{x:Type ac:DisplayNamePropertyEditorControl}">
         <Setter Property="Template">
@@ -91,10 +113,14 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type automation:BaseSliderParameterPropertyEditorControl}">
+    <!-- ######################################################################################################################################################################## -->
+
+    <!-- Automatable Property Editors -->
+
+    <Style TargetType="{x:Type automation:BaseNumberParameterPropEditorControl}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type automation:BaseSliderParameterPropertyEditorControl}">
+                <ControlTemplate TargetType="{x:Type automation:BaseNumberParameterPropEditorControl}">
                     <Grid Margin="5,0,2,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
@@ -117,8 +143,8 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type automation:ParameterFloatPropertyEditorControl}" BasedOn="{StaticResource {x:Type automation:BaseSliderParameterPropertyEditorControl}}"/>
-    <Style TargetType="{x:Type automation:ParameterDoublePropertyEditorControl}" BasedOn="{StaticResource {x:Type automation:BaseSliderParameterPropertyEditorControl}}"/>
+    <Style TargetType="{x:Type automation:ParameterFloatPropertyEditorControl}" BasedOn="{StaticResource {x:Type automation:BaseNumberParameterPropEditorControl}}"/>
+    <Style TargetType="{x:Type automation:ParameterDoublePropertyEditorControl}" BasedOn="{StaticResource {x:Type automation:BaseNumberParameterPropEditorControl}}"/>
 
     <Style TargetType="{x:Type automation:ParameterVector2PropertyEditorControl}">
         <Setter Property="Template">
@@ -155,4 +181,71 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <!-- ######################################################################################################################################################################## -->
+
+    <!-- Data Transferable Property Editors -->
+    <Style TargetType="{x:Type dataTransfer:BaseNumberDataParamPropEditorControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type dataTransfer:BaseNumberDataParamPropEditorControl}">
+                    <Grid Margin="5,0,2,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox x:Name="PART_DisplayNameCheckBox" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0"
+                                  Style="{TemplateBinding IsCheckBoxToggleable, Converter={StaticResource IsCheckBoxToggleableToStyleConverter}}"/>
+                        <d:NumberDragger x:Name="PART_DraggerX" Grid.Row="0" Grid.Column="2" Height="20"
+                                         BorderBrush="Black" Style="{StaticResource AbletonNumberDraggerWithoutProgressStyle}"
+                                         HorizontalContentAlignment="Left" Padding="4,2" PreviewRoundedPlaces="2"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type dataTransfer:DataParameterBooleanPropertyEditorControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type dataTransfer:DataParameterBooleanPropertyEditorControl}">
+                    <Grid Margin="5,0,2,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox x:Name="PART_DisplayNameCheckBox" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0"
+                                  Style="{TemplateBinding IsCheckBoxToggleable, Converter={StaticResource IsCheckBoxToggleableToStyleConverter}}"/>
+                        <CheckBox x:Name="PART_CheckBox" Grid.Row="0" Grid.Column="2" Height="20" HorizontalContentAlignment="Left" Padding="4,2"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type dataTransfer:DataParameterStringPropertyEditorControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type dataTransfer:DataParameterStringPropertyEditorControl}">
+                    <Grid Margin="5,0,2,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox x:Name="PART_DisplayNameCheckBox" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0"
+                                  Style="{TemplateBinding IsCheckBoxToggleable, Converter={StaticResource IsCheckBoxToggleableToStyleConverter}}"/>
+                        <TextBox x:Name="PART_TextBox" Grid.Column="2" Padding="2" VerticalAlignment="Center"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type dataTransfer:DataParameterFloatPropertyEditorControl}" BasedOn="{StaticResource {x:Type dataTransfer:BaseNumberDataParamPropEditorControl}}"/>
+    <Style TargetType="{x:Type dataTransfer:DataParameterDoublePropertyEditorControl}" BasedOn="{StaticResource {x:Type dataTransfer:BaseNumberDataParamPropEditorControl}}"/>
+
+    <!-- ######################################################################################################################################################################## -->
 </ResourceDictionary>

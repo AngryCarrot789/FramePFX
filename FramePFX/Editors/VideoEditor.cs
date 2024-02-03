@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.Resources;
@@ -7,6 +8,7 @@ using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Effects;
 using FramePFX.Editors.Timelines.Tracks;
+using FramePFX.Utils;
 
 namespace FramePFX.Editors {
     public delegate void ProjectChangedEventHandler(VideoEditor editor, Project oldProject, Project newProject);
@@ -68,6 +70,59 @@ namespace FramePFX.Editors {
 
             Project project = new Project();
 
+            // Old default project
+            // ResourceManager manager = project.ResourceManager;
+            // ResourceColour id_r = manager.RootContainer.AddItemAndRet(new ResourceColour(220, 25, 25) {DisplayName = "colour_red"});
+            // ResourceColour id_g = manager.RootContainer.AddItemAndRet(new ResourceColour(25, 220, 25) {DisplayName = "colour_green"});
+            // ResourceColour id_b = manager.RootContainer.AddItemAndRet(new ResourceColour(25, 25, 220) {DisplayName = "colour_blue"});
+            //
+            // ResourceFolder folder = new ResourceFolder("Extra Colours");
+            // manager.RootContainer.AddItem(folder);
+            // ResourceColour id_w = folder.AddItemAndRet(new ResourceColour(220, 220, 220) {DisplayName = "white colour"});
+            // ResourceColour id_d = folder.AddItemAndRet(new ResourceColour(50, 100, 220) {DisplayName = "idek"});
+            //
+            // VideoClipShape CreateShapeAt(Vector2 pos, Vector2 size, FrameSpan span, string name) {
+            //     VideoClipShape shape = new VideoClipShape() {
+            //         FrameSpan = span
+            //     };
+            //     MotionEffect motion = new MotionEffect();
+            //     motion.AutomationData[MotionEffect.MediaPositionParameter].DefaultKeyFrame.SetVector2Value(pos);
+            //     shape.AddEffect(motion);
+            //
+            //     shape.Size = size;
+            //     shape.DisplayName = name;
+            //     motion.AutomationData.UpdateBackingStorage();
+            //     shape.AutomationData.UpdateBackingStorage();
+            //     return shape;
+            // }
+            //
+            // {
+            //     Track track = new VideoTrack() {DisplayName = "Vid Track 1"};
+            //     track.AddClip(CreateShapeAt(new Vector2(150, 150), new Vector2(100, 30), new FrameSpan(0, 100), "Clip 1"));
+            //     track.AddClip(CreateShapeAt(new Vector2(300, 150), new Vector2(100, 30), new FrameSpan(150, 100), "Clip 2"));
+            //     track.AddClip(CreateShapeAt(new Vector2(450, 150), new Vector2(100, 30), new FrameSpan(300, 250), "Clip 3"));
+            //     track.AddEffect(new MotionEffect());
+            //     project.MainTimeline.AddTrack(track);
+            // }
+            //
+            // {
+            //     Track track = new VideoTrack() {DisplayName = "Vid Track 2"};
+            //     track.AddClip(CreateShapeAt(new Vector2(150, 300), new Vector2(100, 30), new FrameSpan(100, 50), "Clip 4"));
+            //     track.AddClip(CreateShapeAt(new Vector2(300, 300), new Vector2(100, 30), new FrameSpan(150, 200), "Clip 5"));
+            //     track.AddClip(CreateShapeAt(new Vector2(450, 300), new Vector2(100, 30), new FrameSpan(500, 125), "Clip 6"));
+            //     track.AddEffect(new MotionEffect());
+            //     project.MainTimeline.AddTrack(track);
+            // }
+            //
+            // {
+            //     Track track = new VideoTrack() {DisplayName = "Vid Track 3!!"};
+            //     track.AddClip(CreateShapeAt(new Vector2(150, 450), new Vector2(100, 30), new FrameSpan(20, 80), "Clip 7"));
+            //     track.AddClip(CreateShapeAt(new Vector2(300, 450), new Vector2(100, 30), new FrameSpan(150, 100), "Clip 8"));
+            //     track.AddClip(CreateShapeAt(new Vector2(450, 450), new Vector2(100, 30), new FrameSpan(350, 200), "Clip 9"));
+            //     track.AddEffect(new MotionEffect());
+            //     project.MainTimeline.AddTrack(track);
+            // }
+
             ResourceManager manager = project.ResourceManager;
             ResourceColour id_r = manager.RootContainer.AddItemAndRet(new ResourceColour(220, 25, 25) {DisplayName = "colour_red"});
             ResourceColour id_g = manager.RootContainer.AddItemAndRet(new ResourceColour(25, 220, 25) {DisplayName = "colour_green"});
@@ -78,46 +133,84 @@ namespace FramePFX.Editors {
             ResourceColour id_w = folder.AddItemAndRet(new ResourceColour(220, 220, 220) {DisplayName = "white colour"});
             ResourceColour id_d = folder.AddItemAndRet(new ResourceColour(50, 100, 220) {DisplayName = "idek"});
 
-            VideoClipShape CreateShapeAt(Vector2 pos, Vector2 size, FrameSpan span, string name) {
-                VideoClipShape shape = new VideoClipShape() {
-                    FrameSpan = span
+            MotionEffect motion;
+            {
+                VideoTrack track = new VideoTrack() {
+                    DisplayName = "Track 1 with stuff"
                 };
-                MotionEffect motion = new MotionEffect();
-                motion.AutomationData[MotionEffect.MediaPositionParameter].DefaultKeyFrame.SetVector2Value(pos);
-                shape.AddEffect(motion);
+                track.AddEffect(new MotionEffect());
+                project.MainTimeline.AddTrack(track);
+                track.AutomationData[VideoTrack.OpacityParameter].AddKeyFrame(new KeyFrameDouble(0, 0.3d));
+                track.AutomationData[VideoTrack.OpacityParameter].AddKeyFrame(new KeyFrameDouble(50, 0.5d));
+                track.AutomationData[VideoTrack.OpacityParameter].AddKeyFrame(new KeyFrameDouble(100, 1d));
+                track.AutomationData.ActiveParameter = VideoTrack.OpacityParameter.Key;
 
-                shape.Size = size;
-                shape.DisplayName = name;
-                motion.AutomationData.UpdateBackingStorage();
-                shape.AutomationData.UpdateBackingStorage();
-                return shape;
+                VideoClipShape clip1 = new VideoClipShape {
+                    FrameSpan = new FrameSpan(0, 120),
+                    DisplayName = "Clip colour_red"
+                };
+
+                clip1.AutomationData[VideoClipShape.SizeParameter].DefaultKeyFrame.SetVector2Value(200, 200, VideoClipShape.SizeParameter.Descriptor);
+
+                clip1.AddEffect(motion = new MotionEffect());
+
+                clip1.ColourKey.SetTargetResourceId(id_r.UniqueId);
+                clip1.AutomationData.UpdateBackingStorage();
+                track.AddClip(clip1);
+
+                VideoClipShape clip2 = new VideoClipShape {
+                    FrameSpan = new FrameSpan(150, 30),
+                    DisplayName = "Clip colour_green"
+                };
+
+                clip2.AutomationData[VideoClipShape.SizeParameter].DefaultKeyFrame.SetVector2Value(200, 200, VideoClipShape.SizeParameter.Descriptor);
+
+                clip2.AddEffect(motion = new MotionEffect());
+                motion.MediaScaleOrigin = new Vector2(100, 100);
+
+                clip2.ColourKey.SetTargetResourceId(id_g.UniqueId);
+                clip2.AutomationData.UpdateBackingStorage();
+                track.AddClip(clip2);
+            }
+            {
+                VideoTrack track = new VideoTrack() {DisplayName = "Track 2"};
+                track.AddEffect(new MotionEffect());
+                project.MainTimeline.AddTrack(track);
+
+                VideoClipShape clip1 = new VideoClipShape {
+                    FrameSpan = new FrameSpan(300, 90),
+                    DisplayName = "Clip colour_blue"
+                };
+
+                clip1.AutomationData[VideoClipShape.SizeParameter].DefaultKeyFrame.SetVector2Value(400, 400, VideoClipShape.SizeParameter.Descriptor);
+                clip1.AddEffect(motion = new MotionEffect());
+
+                clip1.ColourKey.SetTargetResourceId(id_b.UniqueId);
+                clip1.AutomationData.UpdateBackingStorage();
+                track.AddClip(clip1);
+                VideoClipShape clip2 = new VideoClipShape {
+                    FrameSpan = new FrameSpan(15, 130),
+                    DisplayName = "Clip blueish"
+                };
+
+                clip2.AutomationData[VideoClipShape.SizeParameter].DefaultKeyFrame.SetVector2Value(100, 1000, VideoClipShape.SizeParameter.Descriptor);
+                clip2.AddEffect(motion = new MotionEffect());
+                motion.AutomationData[MotionEffect.MediaPositionParameter].AddKeyFrame(new KeyFrameVector2(10L, Vector2.Zero));
+                motion.AutomationData[MotionEffect.MediaPositionParameter].AddKeyFrame(new KeyFrameVector2(75L, new Vector2(100, 200)));
+                motion.AutomationData[MotionEffect.MediaPositionParameter].AddKeyFrame(new KeyFrameVector2(90L, new Vector2(400, 400)));
+                motion.AutomationData[MotionEffect.MediaPositionParameter].AddKeyFrame(new KeyFrameVector2(115L, new Vector2(100, 700)));
+                motion.AutomationData.ActiveParameter = MotionEffect.MediaPositionParameter.Key;
+                clip2.ColourKey.SetTargetResourceId(id_d.UniqueId);
+                clip2.AutomationData.UpdateBackingStorage();
+                track.AddClip(clip2);
             }
 
             {
-                Track track = new VideoTrack() {DisplayName = "Vid Track 1"};
-                track.AddClip(CreateShapeAt(new Vector2(150, 150), new Vector2(100, 30), new FrameSpan(0, 100), "Clip 1"));
-                track.AddClip(CreateShapeAt(new Vector2(300, 150), new Vector2(100, 30), new FrameSpan(150, 100), "Clip 2"));
-                track.AddClip(CreateShapeAt(new Vector2(450, 150), new Vector2(100, 30), new FrameSpan(300, 250), "Clip 3"));
-                track.AddEffect(new MotionEffect());
-                project.MainTimeline.AddTrack(track);
-            }
-
-            {
-                Track track = new VideoTrack() {DisplayName = "Vid Track 2"};
-                track.AddClip(CreateShapeAt(new Vector2(150, 300), new Vector2(100, 30), new FrameSpan(100, 50), "Clip 4"));
-                track.AddClip(CreateShapeAt(new Vector2(300, 300), new Vector2(100, 30), new FrameSpan(150, 200), "Clip 5"));
-                track.AddClip(CreateShapeAt(new Vector2(450, 300), new Vector2(100, 30), new FrameSpan(500, 125), "Clip 6"));
-                track.AddEffect(new MotionEffect());
-                project.MainTimeline.AddTrack(track);
-            }
-
-            {
-                Track track = new VideoTrack() {DisplayName = "Vid Track 3!!"};
-                track.AddClip(CreateShapeAt(new Vector2(150, 450), new Vector2(100, 30), new FrameSpan(20, 80), "Clip 7"));
-                track.AddClip(CreateShapeAt(new Vector2(300, 450), new Vector2(100, 30), new FrameSpan(150, 100), "Clip 8"));
-                track.AddClip(CreateShapeAt(new Vector2(450, 450), new Vector2(100, 30), new FrameSpan(350, 200), "Clip 9"));
-                track.AddEffect(new MotionEffect());
-                project.MainTimeline.AddTrack(track);
+                VideoTrack empty = new VideoTrack() {
+                    DisplayName = "Empty Track"
+                };
+                empty.AddEffect(new MotionEffect());
+                project.MainTimeline.AddTrack(empty);
             }
 
             this.SetProject(project);

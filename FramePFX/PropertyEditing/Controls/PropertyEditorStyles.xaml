@@ -178,16 +178,114 @@
         </Setter>
     </Style>
 
+    <Style x:Key="HierarchicalExpanderToggleButtonStyle_OLD" TargetType="{x:Type ToggleButton}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ToggleButton}">
+                    <Border Padding="0">
+                        <DockPanel Background="Transparent" SnapsToDevicePixels="False">
+                            <!-- original:  M 1,1.5 L 4.5,5 L 8,1.5  -->
+                            <!-- Pointing down:  M 1,0 L 5,4.5 L 9,0  -->
+                            <!-- Pointing right: M 1,0 L 5,4 L 1,8 -->
+                            <Path x:Name="arrow" Data="M 2,0 L 6,4 L 2,8"
+                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                  SnapsToDevicePixels="false"
+                                  Stroke="{DynamicResource Expander.Static.Arrow.Stroke}"
+                                  StrokeThickness="2" VerticalAlignment="Center"
+                                  Width="10" Margin="5,1,0,0" />
+                            <ContentPresenter Margin="4,0,0,0" x:Name="contentPresenter" Focusable="False" RecognizesAccessKey="True"
+                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" />
+                            <Separator x:Name="PART_Separator" Margin="8,0,0,0" IsHitTestVisible="True" />
+                        </DockPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="true">
+                            <Setter Property="Data" TargetName="arrow" Value="M 0,0 L 4,4.5 L 8,0" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter Property="Stroke" TargetName="arrow" Value="{DynamicResource Expander.MouseOver.Arrow.Stroke}" />
+                            <Setter Property="Background" TargetName="PART_Separator" Value="{DynamicResource SeparatorMouseOverBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="true">
+                            <Setter Property="Stroke" TargetName="arrow" Value="{DynamicResource Expander.Pressed.Arrow.Stroke}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Stroke" TargetName="arrow" Value="{DynamicResource Expander.Disabled.Arrow.Stroke}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SecondaryHierarchialExpanderStyle" TargetType="{x:Type Expander}">
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Expander}">
+                    <Border BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Background="{TemplateBinding Background}"
+                            SnapsToDevicePixels="true"
+                            HorizontalAlignment="Stretch">
+                        <DockPanel>
+                            <Separator Margin="0,5" DockPanel.Dock="Bottom" x:Name="PART_Separator" />
+                            <ToggleButton x:Name="HeaderSite" ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                          ContentTemplateSelector="{TemplateBinding HeaderTemplateSelector}"
+                                          Content="{TemplateBinding Header}" DockPanel.Dock="Top"
+                                          Foreground="{TemplateBinding Foreground}"
+                                          FontWeight="{TemplateBinding FontWeight}"
+                                          FocusVisualStyle="{StaticResource ExpanderHeaderFocusVisual}"
+                                          FontStyle="{TemplateBinding FontStyle}"
+                                          FontStretch="{TemplateBinding FontStretch}"
+                                          FontSize="{TemplateBinding FontSize}"
+                                          FontFamily="{TemplateBinding FontFamily}"
+                                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          Margin="1,1,0,1" MinWidth="0" MinHeight="0"
+                                          Padding="{TemplateBinding Padding}"
+                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          HorizontalAlignment="Stretch"
+                                          Style="{StaticResource HierarchicalExpanderToggleButtonStyle_OLD}" />
+                            <ContentPresenter x:Name="ExpandSite" DockPanel.Dock="Bottom" Focusable="false"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              Margin="0,0,0,0" Visibility="Collapsed"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </DockPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsExpanded" Value="true">
+                            <Setter Property="Visibility" TargetName="ExpandSite" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Disabled}" />
+                        </Trigger>
+                        <Trigger SourceName="HeaderSite" Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" TargetName="PART_Separator" Value="{DynamicResource SeparatorMouseOverBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="PrimaryHierarchialExpanderStyle" TargetType="{x:Type Expander}" BasedOn="{StaticResource HierarchicalExpanderStyle}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone6.Background.Static}"/>
     </Style>
 
+    <!--
     <Style x:Key="SecondaryHierarchialExpanderStyle" TargetType="{x:Type Expander}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone6.Background.Static}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Expander}">
-                    <Border Background="Transparent" BorderBrush="Transparent" BorderThickness="0,0,0,1" 
+                    <Border Background="Transparent" BorderBrush="Transparent" BorderThickness="0,0,0,1"
                             SnapsToDevicePixels="true" HorizontalAlignment="Stretch">
                         <DockPanel Margin="0,0,0,0">
                             <Border DockPanel.Dock="Top" Background="Transparent" BorderBrush="Transparent" BorderThickness="0">
@@ -237,6 +335,7 @@
             </Setter.Value>
         </Setter>
     </Style>
+    -->
 
     <converters:GroupTypeToStyleConverter x:Key="GroupTypeToHierarchialExpanderStyleConverter"
                                  PrimaryExpander="{StaticResource PrimaryHierarchialExpanderStyle}"

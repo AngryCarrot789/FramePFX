@@ -46,7 +46,7 @@ namespace FramePFX.PropertyEditing {
         /// <summary>
         /// Gets the group type. This should not change during the lifetime of this instance
         /// </summary>
-        public virtual GroupType GroupType => GroupType.PrimaryExpander;
+        public GroupType GroupType { get; }
 
         public bool IsRoot => this.Parent == null;
 
@@ -56,9 +56,10 @@ namespace FramePFX.PropertyEditing {
         public event BasePropertyEditorItemEventHandler DisplayNameChanged;
         public event BasePropertyEditorItemEventHandler IsExpandedChanged;
 
-        public BasePropertyEditorGroup(Type applicableType) : base(applicableType) {
+        public BasePropertyEditorGroup(Type applicableType, GroupType groupType = GroupType.PrimaryExpander) : base(applicableType) {
             this.propObjs = new List<BasePropertyEditorObject>();
             this.PropertyObjects = this.propObjs.AsReadOnly();
+            this.GroupType = groupType;
         }
 
         protected override void OnPropertyEditorChanged(BasePropertyEditor oldEditor, BasePropertyEditor newEditor) {

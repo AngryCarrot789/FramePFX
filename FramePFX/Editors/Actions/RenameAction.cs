@@ -4,7 +4,6 @@ using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.DataContexts;
-using FramePFX.Services.Messages;
 
 namespace FramePFX.Editors.Actions {
     public abstract class RenameAction : AnAction {

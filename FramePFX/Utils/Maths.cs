@@ -24,11 +24,11 @@ namespace FramePFX.Utils {
         public static long Clamp(long value, long min, long max) => Math.Max(Math.Min(value, max), min);
         public static decimal Clamp(decimal value, decimal min, decimal max) => Math.Max(Math.Min(value, max), min);
 
-        public static bool Equals(double a, double b, double tolerance = 0.0001d) {
+        public static bool Equals(double a, double b, double tolerance = 0.000001D) {
             return Math.Abs(a - b) < tolerance;
         }
 
-        public static bool Equals(float a, float b, float tolerance = 0.001f) {
+        public static bool Equals(float a, float b, float tolerance = 0.000001F) {
             return Math.Abs(a - b) < tolerance;
         }
 

@@ -9,7 +9,7 @@ namespace FramePFX.PropertyEditing {
     public class SimplePropertyEditorGroup : BasePropertyEditorGroup {
         public IReadOnlyList<object> Handlers { get; private set; }
 
-        public SimplePropertyEditorGroup(Type applicableType) : base(applicableType) {
+        public SimplePropertyEditorGroup(Type applicableType, GroupType groupType = GroupType.PrimaryExpander) : base(applicableType, groupType) {
 
         }
 

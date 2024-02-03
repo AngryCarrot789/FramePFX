@@ -31,7 +31,7 @@ namespace FramePFX.Editors.Automation {
         public AutomationSequence this[Parameter parameter] {
             get {
                 if (parameter == null) {
-                    throw new ArgumentNullException(nameof(parameter), "Key cannot be null");
+                    throw new ArgumentNullException(nameof(parameter), "Parameter cannot be null");
                 }
 
                 if (this.sequences.TryGetValue(parameter, out AutomationSequence sequence)) {
@@ -43,7 +43,6 @@ namespace FramePFX.Editors.Automation {
                 return sequence;
             }
         }
-
 
         /// <summary>
         /// Gets or sets the parameter key that is currently active. This is used by
@@ -180,7 +179,7 @@ namespace FramePFX.Editors.Automation {
 
         internal static void InternalOnParameterValueChanged(AutomationSequence sequence) {
             sequence.AutomationData.ParameterValueChanged?.Invoke(sequence);
-            sequence.Parameter.OnParameterValueChanged(sequence);
+            Parameter.InternalOnParameterValueChanged(sequence.Parameter, sequence);
         }
     }
 }

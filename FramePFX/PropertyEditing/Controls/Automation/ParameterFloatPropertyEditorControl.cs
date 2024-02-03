@@ -3,7 +3,7 @@ using FramePFX.Editors.Automation.Params;
 using FramePFX.PropertyEditing.Automation;
 
 namespace FramePFX.PropertyEditing.Controls.Automation {
-    public class ParameterFloatPropertyEditorControl : BaseSliderParameterPropertyEditorControl {
+    public class ParameterFloatPropertyEditorControl : BaseNumberParameterPropEditorControl {
         public new ParameterFloatPropertyEditorSlot SlotModel => (ParameterFloatPropertyEditorSlot) base.SlotControl.Model;
 
         public ParameterFloatPropertyEditorControl() {

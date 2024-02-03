@@ -1,11 +1,9 @@
 using System.IO;
 using System.Threading.Tasks;
-using System.Windows;
 using FramePFX.Actions;
 using FramePFX.Editors.Automation;
 using FramePFX.Interactivity.DataContexts;
 using FramePFX.Utils;
-using FramePFX.Views;
 
 namespace FramePFX.Editors.Actions {
     public class OpenProjectAction : AnAction {

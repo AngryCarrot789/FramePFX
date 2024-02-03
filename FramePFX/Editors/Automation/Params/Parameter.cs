@@ -5,13 +5,13 @@ using System.Threading;
 using FramePFX.Editors.Automation.Keyframes;
 
 namespace FramePFX.Editors.Automation.Params {
-    public delegate T AutoGetter<out T>(IAutomatable a);
-    public delegate void AutoSetter<in T>(IAutomatable a, T v);
+    public delegate T AutoGetter<out T>(object a);
+    public delegate void AutoSetter<in T>(object a, T v);
 
     /// <summary>
     /// A class that stores information about a registered parameter for a specific type of automatable object
     /// </summary>
-    public abstract class Parameter : IEquatable<Parameter> {
+    public abstract class Parameter : IEquatable<Parameter>, IComparable<Parameter> {
         public static readonly ParameterKey Empty = default;
 
         private static readonly Dictionary<ParameterKey, Parameter> RegistryMap;
@@ -81,18 +81,6 @@ namespace FramePFX.Editors.Automation.Params {
         static Parameter() {
             RegistryMap = new Dictionary<ParameterKey, Parameter>();
             TypeToParametersMap = new Dictionary<Type, List<Parameter>>();
-        }
-
-        /// <summary>
-        /// Invokes the <see cref="ParameterValueChanged"/> event for the given sequence. This is only fired
-        /// when the underlying effective value actually changes for the sequence's owner
-        /// </summary>
-        /// <param name="sequence"></param>
-        /// <exception cref="ArgumentException"></exception>
-        public void OnParameterValueChanged(AutomationSequence sequence) {
-            if (sequence.Parameter.GlobalIndex != this.GlobalIndex)
-                throw new ArgumentException("Sequence's parameter does not match the current instance");
-            this.ParameterValueChanged?.Invoke(sequence);
         }
 
         /// <summary>
@@ -232,6 +220,14 @@ namespace FramePFX.Editors.Automation.Params {
         // ReSharper disable once NonReadonlyMemberInGetHashCode
         public override int GetHashCode() => this.GlobalIndex;
 
+        public int CompareTo(Parameter other) {
+            if (ReferenceEquals(this, other))
+                return 0;
+            if (ReferenceEquals(null, other))
+                return 1;
+            return this.GlobalIndex.CompareTo(other.GlobalIndex);
+        }
+
         /// <summary>
         /// Returns an enumerable of all parameters that are applicable to the given type.
         /// </summary>
@@ -255,6 +251,19 @@ namespace FramePFX.Editors.Automation.Params {
             }
 
             return parameters;
+        }
+
+        /// <summary>
+        /// Invokes the <see cref="ParameterValueChanged"/> event for the given sequence. This is only fired
+        /// when the underlying effective value actually changes for the sequence's owner
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <param name="sequence"></param>
+        /// <exception cref="ArgumentException"></exception>
+        internal static void InternalOnParameterValueChanged(Parameter parameter, AutomationSequence sequence) {
+            if (sequence.Parameter.GlobalIndex != parameter.GlobalIndex)
+                throw new ArgumentException("Sequence's parameter does not match the current instance");
+            parameter.ParameterValueChanged?.Invoke(sequence);
         }
     }
 

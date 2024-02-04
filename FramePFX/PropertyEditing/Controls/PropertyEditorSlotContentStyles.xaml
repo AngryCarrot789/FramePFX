@@ -145,6 +145,7 @@
 
     <Style TargetType="{x:Type automation:ParameterFloatPropertyEditorControl}" BasedOn="{StaticResource {x:Type automation:BaseNumberParameterPropEditorControl}}"/>
     <Style TargetType="{x:Type automation:ParameterDoublePropertyEditorControl}" BasedOn="{StaticResource {x:Type automation:BaseNumberParameterPropEditorControl}}"/>
+    <Style TargetType="{x:Type automation:ParameterLongPropertyEditorControl}" BasedOn="{StaticResource {x:Type automation:BaseNumberParameterPropEditorControl}}"/>
 
     <Style TargetType="{x:Type automation:ParameterVector2PropertyEditorControl}">
         <Setter Property="Template">
@@ -246,6 +247,7 @@
 
     <Style TargetType="{x:Type dataTransfer:DataParameterFloatPropertyEditorControl}" BasedOn="{StaticResource {x:Type dataTransfer:BaseNumberDataParamPropEditorControl}}"/>
     <Style TargetType="{x:Type dataTransfer:DataParameterDoublePropertyEditorControl}" BasedOn="{StaticResource {x:Type dataTransfer:BaseNumberDataParamPropEditorControl}}"/>
+    <Style TargetType="{x:Type dataTransfer:DataParameterLongPropertyEditorControl}" BasedOn="{StaticResource {x:Type dataTransfer:BaseNumberDataParamPropEditorControl}}"/>
 
     <!-- ######################################################################################################################################################################## -->
 </ResourceDictionary>

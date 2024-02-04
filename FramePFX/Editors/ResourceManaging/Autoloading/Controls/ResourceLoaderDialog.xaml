@@ -21,8 +21,8 @@
         <Border Background="{DynamicResource PanelBackground3}" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" BorderThickness="0" Grid.Column="1" Grid.Row="1">
             <Grid>
                 <Button Click="OfflineAll_Clicked" ap:CornerRadiusHelper.Value="2" Content="Offline All" Height="25" Margin="0,0,182,0" HorizontalAlignment="Right" Width="80" Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" />
-                <Button Click="OfflineSelected_Click" ap:CornerRadiusHelper.Value="2" Content="Cancel" Height="25" Margin="0,0,10,0" HorizontalAlignment="Right" Width="72" Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" />
-                <Button Click="Cancel_Click" ap:CornerRadiusHelper.Value="2" Content="Offline" Height="25" Margin="0,0,92,0" HorizontalAlignment="Right" Width="80" Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" />
+                <Button Click="OfflineSelected_Click" ap:CornerRadiusHelper.Value="2" Content="Offline" Height="25" Margin="0,0,92,0" HorizontalAlignment="Right" Width="80" Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" />
+                <Button Click="Cancel_Click" ap:CornerRadiusHelper.Value="2" Content="Cancel" Height="25" Margin="0,0,10,0" HorizontalAlignment="Right" Width="72" Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}" />
             </Grid>
         </Border>
         <Grid Grid.Row="0" Grid.RowSpan="2">

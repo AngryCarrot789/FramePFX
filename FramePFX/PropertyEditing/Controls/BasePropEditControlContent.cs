@@ -30,10 +30,12 @@ namespace FramePFX.PropertyEditing.Controls {
             RegisterType(typeof(TimecodeFontFamilyPropertyEditorSlot), () => new TimecodeFontFamilyPropertyEditorControl());
 
             // standard editors
+            RegisterType(typeof(ParameterLongPropertyEditorSlot), () => new ParameterLongPropertyEditorControl());
             RegisterType(typeof(ParameterDoublePropertyEditorSlot), () => new ParameterDoublePropertyEditorControl());
             RegisterType(typeof(ParameterFloatPropertyEditorSlot), () => new ParameterFloatPropertyEditorControl());
             RegisterType(typeof(ParameterVector2PropertyEditorSlot), () => new ParameterVector2PropertyEditorControl());
 
+            RegisterType(typeof(DataParameterLongPropertyEditorSlot), () => new DataParameterLongPropertyEditorControl());
             RegisterType(typeof(DataParameterDoublePropertyEditorSlot), () => new DataParameterDoublePropertyEditorControl());
             RegisterType(typeof(DataParameterFloatPropertyEditorSlot), () => new DataParameterFloatPropertyEditorControl());
             RegisterType(typeof(DataParameterBooleanPropertyEditorSlot), () => new DataParameterBooleanPropertyEditorControl());

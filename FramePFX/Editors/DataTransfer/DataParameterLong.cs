@@ -34,9 +34,9 @@ namespace FramePFX.Editors.DataTransfer {
             this.hasRangeLimit = minValue != long.MinValue || maxValue != long.MaxValue;
         }
 
-        public double Clamp(double value) => Maths.Clamp(value, this.Minimum, this.Maximum);
+        public long Clamp(long value) => Maths.Clamp(value, this.Minimum, this.Maximum);
 
-        public bool IsValueOutOfRange(double value) => value < this.Minimum || value > this.Maximum;
+        public bool IsValueOutOfRange(long value) => value < this.Minimum || value > this.Maximum;
 
         public override void SetValue(ITransferableData owner, long value) {
             if (this.hasRangeLimit) {

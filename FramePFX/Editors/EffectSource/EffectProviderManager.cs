@@ -17,7 +17,7 @@ namespace FramePFX.Editors.EffectSource {
             this.Entries = this.entries.AsReadOnly();
 
             this.RegisterEffect<MotionEffect>("Motion Effect", null);
-            this.RegisterEffect<PixelateEffect>("Pixelate Effect", (p) => p.BlockSize = 16);
+            this.RegisterEffect<CPUPixelateEffect>("CPU Pixelate Effect", (p) => p.BlockSize = 16);
         }
 
         public void RegisterEffect<T>(string displayName, Action<T> postProcessor) where T : BaseEffect {

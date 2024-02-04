@@ -24,6 +24,7 @@ namespace FramePFX.Editors.ResourceManaging.Autoloading.Controls {
             this.InitializeComponent();
             this.controls = new List<InvalidResourceEntryControl>();
             this.PART_ListBox.SelectionChanged += this.OnSelectedItemChanged;
+            this.CalculateOwnerAndSetCentered();
         }
 
         private static void LoadResources(IEnumerable<BaseResource> resources, ResourceLoader loader) {

@@ -39,6 +39,7 @@ namespace FramePFX.Editors.ResourceManaging.Autoloading {
 
         public void RemoveEntryAt(int index) {
             InvalidResourceEntry entry = this.entries[index];
+            this.entries.RemoveAt(index);
             InvalidResourceEntry.InternalSetLoader(entry, null);
             this.EntryRemoved?.Invoke(this, entry, index);
         }

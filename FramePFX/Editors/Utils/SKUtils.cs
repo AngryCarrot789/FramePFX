@@ -40,5 +40,17 @@ namespace FramePFX.Editors.Utils {
         public static SKRect Round(this SKRect rect) {
             return new SKRect((float) Math.Round(rect.Left), (float) Math.Round(rect.Top), (float) Math.Round(rect.Right), (float) Math.Round(rect.Bottom));
         }
+
+        public static SKRectI FloorAndCeilI(this SKRect rect) {
+            return new SKRectI((int) Math.Floor(rect.Left), (int) Math.Floor(rect.Top), (int) Math.Ceiling(rect.Right), (int) Math.Ceiling(rect.Bottom));
+        }
+
+        public static SKRectI CeilAndFloorI(this SKRect rect) {
+            return new SKRectI((int) Math.Ceiling(rect.Left), (int) Math.Ceiling(rect.Top), (int) Math.Floor(rect.Right), (int) Math.Floor(rect.Bottom));
+        }
+
+        public static SKRectI RoundI(this SKRect rect) {
+            return new SKRectI((int) Math.Round(rect.Left), (int) Math.Round(rect.Top), (int) Math.Round(rect.Right), (int) Math.Round(rect.Bottom));
+        }
     }
 }

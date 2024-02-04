@@ -23,7 +23,7 @@ namespace FramePFX.Editors.PropertyEditors.Effects {
         static EffectPropertyEditorGroup() {
             Constructors = new Dictionary<Type, Func<EffectPropertyEditorGroup>>();
             RegisterEffect<MotionEffect>(() => new MotionEffectPropertyEditorGroup());
-            RegisterEffect<PixelateEffect>(() => new PixelateEffectPropertyEditorGroup());
+            RegisterEffect<CPUPixelateEffect>(() => new CPUPixelateEffectPropertyEditorGroup());
         }
 
         public static void RegisterEffect<T>(Func<EffectPropertyEditorGroup> constructor) where T : BaseEffect {

@@ -165,7 +165,7 @@
     <Compile Include="Editors\PropertyEditors\AControls\VideoClipMediaFrameOffsetPropertyEditorControl.cs" />
     <Compile Include="Editors\PropertyEditors\Clips\TimecodeFontFamilyPropertyEditorSlot.cs" />
     <Compile Include="Editors\PropertyEditors\Clips\VideoClipMediaFrameOffsetPropertyEditorSlot.cs" />
-    <Compile Include="Editors\PropertyEditors\Effects\Pixelate\PixelateEffectPropertyEditorGroup.cs" />
+    <Compile Include="Editors\PropertyEditors\Effects\Pixelate\CPUPixelateEffectPropertyEditorGroup.cs" />
     <Compile Include="Editors\PropertyEditors\ProjectPropertiesPropertyEditorGroup.cs" />
     <Compile Include="Editors\Rational.cs" />
     <Compile Include="Editors\Rendering\EnumRenderQuality.cs" />
@@ -237,7 +237,9 @@
     <Compile Include="IoC.cs" />
     <Compile Include="IServiceManager.cs" />
     <Compile Include="Profiling\Profiler.cs" />
+    <Compile Include="PropertyEditing\Automation\ParameterLongPropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\Controls\Automation\KeyFrameToolsControl.cs" />
+    <Compile Include="PropertyEditing\Controls\Automation\ParameterLongPropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\Controls\Converters\GroupTypeToStyleConverter.cs" />
     <Compile Include="PropertyEditing\Controls\Converters\GroupTypeToTemplateConverter.cs" />
     <Compile Include="PropertyEditing\Controls\DataTransfer\BaseDataParameterPropertyEditorControl.cs" />
@@ -245,6 +247,7 @@
     <Compile Include="PropertyEditing\Controls\DataTransfer\DataParameterBooleanPropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\Controls\DataTransfer\DataParameterDoublePropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\Controls\DataTransfer\DataParameterFloatPropertyEditorControl.cs" />
+    <Compile Include="PropertyEditing\Controls\DataTransfer\DataParameterLongPropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\Controls\DataTransfer\DataParameterStringPropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\Controls\PropertyEditorGroupNonExpanderControl.cs" />
     <Compile Include="PropertyEditing\Controls\Automation\BaseParameterPropertyEditorControl.cs" />
@@ -260,6 +263,7 @@
     <Compile Include="PropertyEditing\DataTransfer\DataParameterBooleanPropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\DataTransfer\DataParameterDoublePropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\DataTransfer\DataParameterFloatPropertyEditorSlot.cs" />
+    <Compile Include="PropertyEditing\DataTransfer\DataParameterLongPropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\DataTransfer\DataParameterPropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\DataTransfer\DataParameterStringPropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\GroupType.cs" />
@@ -719,7 +723,7 @@
     <Compile Include="Editors\Timelines\Effects\BaseEffect.cs" />
     <Compile Include="Editors\Timelines\Effects\ITransformationEffect.cs" />
     <Compile Include="Editors\Timelines\Effects\MotionEffect.cs" />
-    <Compile Include="Editors\Timelines\Effects\PixelateEffect.cs" />
+    <Compile Include="Editors\Timelines\Effects\CPUPixelateEffect.cs" />
     <Compile Include="Editors\Timelines\Effects\VideoEffect.cs" />
     <Compile Include="Editors\Timelines\FrameSpan.cs" />
     <Compile Include="Editors\Timelines\IHaveEffects.cs" />

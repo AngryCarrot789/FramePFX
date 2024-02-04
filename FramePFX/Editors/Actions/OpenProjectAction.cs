@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 using FramePFX.Actions;
 using FramePFX.Editors.Automation;
+using FramePFX.Editors.ResourceManaging.Autoloading.Controls;
 using FramePFX.Interactivity.DataContexts;
 using FramePFX.Utils;
 
@@ -45,6 +46,17 @@ namespace FramePFX.Editors.Actions {
             }
 
             editor.SetProject(project);
+
+            if (!ResourceLoaderDialog.TryLoadResources(project.ResourceManager.RootContainer)) {
+                try {
+                    editor.CloseProject();
+                }
+                catch (Exception e) {
+                    IoC.MessageService.ShowMessage("Close Error", "An exception occurred while closing the project", e.GetToString());
+                }
+
+                return false;
+            }
 
             AutomationEngine.UpdateValues(project.MainTimeline);
             project.RenderManager.InvalidateRender();

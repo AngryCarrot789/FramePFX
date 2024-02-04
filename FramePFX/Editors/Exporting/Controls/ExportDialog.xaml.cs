@@ -182,7 +182,7 @@ namespace FramePFX.Editors.Exporting.Controls {
             catch (Exception ex) {
                 string err = ex.GetToString();
                 AppLogger.Instance.WriteLine("Error exporting: " + err);
-                MessageBox.Show("An error occurred while exporting: " + err, "Export failure");
+                IoC.MessageService.ShowMessage("Export failure", "An exception occurred while exporting video", err);
             }
             finally {
                 setup.Project.IsExporting = false;

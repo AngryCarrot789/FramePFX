@@ -1,3 +1,4 @@
+using System;
 using System.Numerics;
 using SkiaSharp;
 
@@ -5,7 +6,7 @@ namespace FramePFX.Editors.Rendering {
     /// <summary>
     /// The rendering context used to render a clip, and may also be used by effects to access the back buffer
     /// </summary>
-    public readonly struct RenderContext {
+    public class RenderContext {
         /// <summary>
         /// The image info associated with our <see cref="Surface"/>
         /// </summary>

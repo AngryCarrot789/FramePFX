@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines;
+using FramePFX.Logger;
 using FramePFX.Utils;
 
 namespace FramePFX.Editors {
@@ -113,6 +114,10 @@ namespace FramePFX.Editors {
             this.thread_IsPlaying = true;
         }
 
+        private void OnAboutToStopPlaying() {
+            this.thread_IsPlaying = false;
+        }
+
         public void Pause() {
             if (this.PlayState != PlayState.Play) {
                 return;
@@ -122,7 +127,7 @@ namespace FramePFX.Editors {
                 return;
             }
 
-            this.thread_IsPlaying = false;
+            this.OnAboutToStopPlaying();
             project.MainTimeline.StopHeadPosition = project.MainTimeline.PlayHeadPosition;
             this.PlayState = PlayState.Pause;
             this.PlaybackStateChanged?.Invoke(this, this.PlayState, project.MainTimeline.StopHeadPosition);
@@ -137,10 +142,10 @@ namespace FramePFX.Editors {
                 return;
             }
 
+            this.OnAboutToStopPlaying();
             this.PlayState = PlayState.Stop;
             this.PlaybackStateChanged?.Invoke(this, this.PlayState, project.MainTimeline.StopHeadPosition);
             project.MainTimeline.PlayHeadPosition = project.MainTimeline.StopHeadPosition;
-            this.thread_IsPlaying = false;
         }
 
         private void OnTimerFrame() {
@@ -189,19 +194,32 @@ namespace FramePFX.Editors {
                     long newPlayHead = Periodic.Add(timeline.PlayHeadPosition, incr, 0, timeline.MaxDuration - 1);
                     timeline.PlayHeadPosition = newPlayHead;
                     if ((project.RenderManager.ScheduledRenderTask?.IsCompleted ?? true)) {
-                        return RenderTimeline(project.RenderManager, timeline, timeline.PlayHeadPosition);
+                        return RenderTimeline(project.RenderManager, timeline, timeline.PlayHeadPosition, CancellationToken.None);
                     }
 
                     return Task.CompletedTask;
                 });
 
-                renderTask.Wait();
+                try {
+                    renderTask.Wait();
+                }
+                catch (TaskCanceledException) {
+                }
+                catch (OperationCanceledException) {
+                }
+                catch (Exception e) {
+                    this.thread_IsPlaying = false;
+                    AppLogger.Instance.WriteLine("Render exception on playback thread");
+                    AppLogger.Instance.WriteLine(e.GetToString());
+                }
             }
         }
 
-        private static async Task RenderTimeline(RenderManager renderManager, Timeline timeline, long frame) {
+        private static async Task RenderTimeline(RenderManager renderManager, Timeline timeline, long frame, CancellationToken cancellationToken) {
             // await (renderManager.ScheduledRenderTask ?? Task.CompletedTask);
-            await renderManager.RenderTimelineAsync(timeline, frame);
+            if (cancellationToken.IsCancellationRequested)
+                throw new TaskCanceledException();
+            await renderManager.RenderTimelineAsync(timeline, frame, cancellationToken);
         }
 
         private void TimerMain() {

@@ -135,6 +135,7 @@ namespace FramePFX.Editors.Timelines.Clips {
                     }
 
                     renderArea = rc.TranslateRect(new SKRect(0, 0, img.Width, img.Height));
+                    // renderArea = new SKRect(0, 0, img.Width, img.Height);
                 }
 
                 long time = Time.GetSystemTicks() - startA;

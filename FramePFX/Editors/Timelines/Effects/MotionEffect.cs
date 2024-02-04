@@ -27,6 +27,7 @@ namespace FramePFX.Editors.Timelines.Effects {
         private SKMatrix render_TransformationMatrix;
         private bool isMatrixDirty;
         private SKMatrix oldMatrix;
+        private int restoreCount;
 
         public event MatrixChangedEventHandler MatrixChanged;
 
@@ -70,14 +71,13 @@ namespace FramePFX.Editors.Timelines.Effects {
 
         public override void PreProcessFrame(RenderContext rc) {
             base.PreProcessFrame(rc);
-            this.oldMatrix = rc.Canvas.TotalMatrix;
-            SKMatrix newMatrix = this.oldMatrix.PreConcat(this.render_TransformationMatrix);
-            rc.Canvas.SetMatrix(newMatrix);
+            this.restoreCount = rc.Canvas.Save();
+            rc.Canvas.SetMatrix(rc.Canvas.TotalMatrix.PreConcat(this.render_TransformationMatrix));
         }
 
         public override void PostProcessFrame(RenderContext rc, ref SKRect renderArea) {
             base.PostProcessFrame(rc, ref renderArea);
-            // rc.Canvas.SetMatrix(this.oldMatrix);
+            rc.Canvas.RestoreToCount(this.restoreCount);
         }
 
         private static void OnParameterValueChanged(AutomationSequence sequence) {

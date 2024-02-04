@@ -224,7 +224,7 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
                         long finalExportFrame = exportFrame;
                         renderTask = dispatcher.Invoke(() => {
                             AutomationEngine.UpdateValues(timeline, finalExportFrame);
-                            return renderManager.RenderTimelineAsync(timeline, finalExportFrame, EnumRenderQuality.High);
+                            return renderManager.RenderTimelineAsync(timeline, finalExportFrame, cancellation, EnumRenderQuality.High);
                         }, DispatcherPriority.Send, cancellation);
 
                         surface.Canvas.Clear(SKColors.Black);
@@ -236,6 +236,10 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
                         renderManager.Draw(surface);
                     }
                     catch (TaskCanceledException) {
+                        isRenderCancelled = true;
+                        goto fail_or_end;
+                    }
+                    catch (OperationCanceledException) {
                         isRenderCancelled = true;
                         goto fail_or_end;
                     }

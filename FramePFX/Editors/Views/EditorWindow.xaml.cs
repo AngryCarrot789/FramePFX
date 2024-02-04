@@ -144,6 +144,7 @@ namespace FramePFX.Editors.Views {
             this.UpdateResourceManager(newProject?.ResourceManager);
             this.UpdateTimeline(newProject?.MainTimeline);
             this.UpdateWindowTitle(newProject);
+            this.UpdatePlayBackButtons(newProject?.Editor.Playback);
         }
 
         private void OnProjectFilePathChanged(Project project) {

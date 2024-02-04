@@ -192,6 +192,8 @@ namespace FramePFX.Editors.Timelines.Clips {
                     // unacceptable. Even though there will most likely be a bunch of transparent padding pixels, it's still better
                     renderArea = rc.TranslateRect(realFinalRenderArea);
                     this.lastRenderRect = renderArea;
+                    // renderArea = realFinalRenderArea;
+                    // this.lastRenderRect = rc.TranslateRect(realFinalRenderArea);
                 }
             }
 

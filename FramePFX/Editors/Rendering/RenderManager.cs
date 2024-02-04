@@ -29,6 +29,7 @@ namespace FramePFX.Editors.Rendering {
         private volatile Task scheduledRenderTask;
         private bool isDisposed;
         internal volatile int suspendRenderCount;
+        private volatile int isRenderCancelled;
 
         private SKBitmap bitmap;
         private SKPixmap pixmap;
@@ -82,7 +83,7 @@ namespace FramePFX.Editors.Rendering {
             this.surface = SKSurface.Create(this.pixmap);
         }
 
-        private void CheckRender(Timeline timeline, long frame) {
+        private void BeginRender(Timeline timeline, long frame) {
             if (!Application.Current.Dispatcher.CheckAccess())
                 throw new InvalidOperationException("Cannot start rendering while not on the main thread");
             if (timeline == null)
@@ -101,47 +102,60 @@ namespace FramePFX.Editors.Rendering {
         /// completed when the render is completed
         /// </summary>
         /// <param name="frame">The frame to render</param>
-        public async Task RenderTimelineAsync(Timeline timeline, long frame, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality) {
-            this.CheckRender(timeline, frame);
-            long beginRender = Time.GetSystemTicks();
-            SKImageInfo imageInfo = this.ImageInfo;
-            List<VideoTrack> tracks = new List<VideoTrack>();
+        public async Task RenderTimelineAsync(Timeline timeline, long frame, CancellationToken token, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality) {
+            this.BeginRender(timeline, frame);
+            long beginRender;
+            List<VideoTrack> trackList;
+            SKImageInfo imgInfo;
+            try {
+                trackList = new List<VideoTrack>();
+                imgInfo = this.ImageInfo;
+                beginRender = Time.GetSystemTicks();
 
-            // render bottom to top, as most video editors do
-            for (int i = timeline.Tracks.Count - 1; i >= 0; i--) {
-                Track track = timeline.Tracks[i];
-                if (!(track is VideoTrack videoTrack) || !videoTrack.Visible) {
-                    continue;
-                }
+                // render bottom to top, as most video editors do
+                for (int i = timeline.Tracks.Count - 1; i >= 0; i--) {
+                    Track track = timeline.Tracks[i];
+                    if (!(track is VideoTrack videoTrack) || !videoTrack.Visible) {
+                        continue;
+                    }
 
-                if (videoTrack.PrepareRenderFrame(imageInfo, frame, quality)) {
-                    tracks.Add(videoTrack);
+                    if (videoTrack.PrepareRenderFrame(imgInfo, frame, quality)) {
+                        trackList.Add(videoTrack);
+                    }
                 }
+            }
+            catch (Exception) {
+                this.isRendering = 0;
+                throw;
             }
 
             // This seems way too simple... or maybe it really is this simple but other
             // open source video editors just design their rendering system completely differently?
             // Either way, this works and it works well... for now when there are no composition clips
+
             await Task.Run(async () => {
-                Task[] tasks = new Task[tracks.Count];
-                for (int i1 = 0; i1 < tracks.Count; i1++) {
-                    VideoTrack track1 = tracks[i1];
-                    tasks[i1] = Task.Run(() => track1.RenderFrame(imageInfo, quality));
+                try {
+                    Task[] tasks = new Task[trackList.Count];
+                    for (int i = 0; i < tasks.Length; i++) {
+                        VideoTrack track = trackList[i];
+                        tasks[i] = Task.Run(() => track.RenderFrame(imgInfo, quality), token);
+                    }
+
+                    this.surface.Canvas.Clear(SKColors.Black);
+                    for (int i = 0; i < trackList.Count; i++) {
+                        if (!tasks[i].IsCompleted)
+                            await tasks[i];
+                        trackList[i].DrawFrameIntoSurface(this.surface);
+                    }
+
+                    this.averageRenderTimeMillis = (Time.GetSystemTicks() - beginRender) / Time.TICK_PER_MILLIS_D;
+                }
+                finally {
+                    this.isRendering = 0;
                 }
 
-                this.surface.Canvas.Clear(SKColors.Black);
-                for (int i2 = 0; i2 < tracks.Count; i2++) {
-                    if (!tasks[i2].IsCompleted)
-                        await tasks[i2];
-                    tracks[i2].DrawFrameIntoSurface(this.surface);
-                }
+            }, token);
 
-                this.averageRenderTimeMillis = (Time.GetSystemTicks() - beginRender) / Time.TICK_PER_MILLIS_D;
-                this.isRendering = 0;
-            });
-
-            this.averageRenderTimeMillis = (Time.GetSystemTicks() - beginRender) / Time.TICK_PER_MILLIS_D;
-            this.isRendering = 0;
             this.FrameRendered?.Invoke(this);
         }
 
@@ -183,7 +197,11 @@ namespace FramePFX.Editors.Rendering {
         private async Task DoScheduledRender() {
             if (this.suspendRenderCount < 1) {
                 try {
-                    await this.RenderTimelineAsync(this.Project.MainTimeline, this.Project.MainTimeline.PlayHeadPosition, EnumRenderQuality.Low);
+                    await this.RenderTimelineAsync(
+                        this.Project.MainTimeline,
+                        this.Project.MainTimeline.PlayHeadPosition,
+                        CancellationToken.None,
+                        EnumRenderQuality.Low);
                 }
                 finally {
                     this.isRenderScheduled = 0;

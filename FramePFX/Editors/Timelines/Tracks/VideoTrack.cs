@@ -161,10 +161,11 @@ namespace FramePFX.Editors.Timelines.Tracks {
 
                 RenderContext ctx = new RenderContext(imgInfo, rd.surface, rd.bitmap, rd.pixmap, quality);
 
+                int trackSaveCount = ctx.Canvas.Save();
                 foreach (VideoEffect fx in this.theEffectsToApplyToTrack) {
                     fx.PreProcessFrame(ctx);
                 }
-                
+
                 int clipSaveCount = RenderManager.BeginClipOpacityLayer(ctx.Canvas, this.theClipToRender, ref transparency);
 
                 foreach (VideoEffect fx in this.theEffectsToApplyToClip) {
@@ -188,6 +189,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
                 }
 
                 RenderManager.EndOpacityLayer(ctx.Canvas, clipSaveCount, ref transparency);
+                ctx.Canvas.RestoreToCount(trackSaveCount);
 
                 this.theClipToRender = null;
                 this.theEffectsToApplyToClip = null;
@@ -199,6 +201,10 @@ namespace FramePFX.Editors.Timelines.Tracks {
 
                 rd.surface.Flush(true, true);
                 rd.renderArea = renderArea.FloorAndCeil();
+                // using (SKPaint paint1 = new SKPaint() {Color = SKColors.Green})
+                //     rd.surface.Canvas.DrawRect(renderArea, paint1);
+                // using (SKPaint paint1 = new SKPaint() {Color = SKColors.Red})
+                //     rd.surface.Canvas.DrawRect(rd.renderArea, paint1);
             }
 
             locker.OnRenderFinished();

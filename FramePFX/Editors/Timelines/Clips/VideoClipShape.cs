@@ -56,6 +56,7 @@ namespace FramePFX.Editors.Timelines.Clips {
             }
 
             renderArea = rc.TranslateRect(new SKRect(0, 0, d.size.X, d.size.Y));
+            // renderArea = new SKRect(0, 0, d.size.X, d.size.Y);
         }
 
         private struct RenderData {

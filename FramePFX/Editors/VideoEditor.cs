@@ -229,7 +229,6 @@ namespace FramePFX.Editors {
             project.RenderManager.UpdateFrameInfo();
             project.RenderManager.InvalidateRender();
 
-            // TODO: add event for FrameRate
             this.Playback.SetFrameRate(settings.FrameRate);
         }
 

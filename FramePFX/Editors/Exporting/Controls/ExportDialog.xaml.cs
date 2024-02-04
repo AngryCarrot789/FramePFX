@@ -179,6 +179,9 @@ namespace FramePFX.Editors.Exporting.Controls {
             catch (TaskCanceledException) {
                 isCancelled = true;
             }
+            catch (OperationCanceledException) {
+                isCancelled = true;
+            }
             catch (Exception ex) {
                 string err = ex.GetToString();
                 AppLogger.Instance.WriteLine("Error exporting: " + err);

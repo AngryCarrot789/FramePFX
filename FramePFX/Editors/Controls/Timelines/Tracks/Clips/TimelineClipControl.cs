@@ -10,7 +10,9 @@ using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Contextual;
 using FramePFX.Editors.Controls.Automation;
 using FramePFX.Editors.Controls.Binders;
+using FramePFX.Editors.Controls.EffectProviding;
 using FramePFX.Editors.Controls.Resources;
+using FramePFX.Editors.EffectSource;
 using FramePFX.Editors.Factories;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.Timelines;
@@ -815,9 +817,9 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                         outputEffects = ClipDropRegistry.DropRegistry.CanDrop(target, resources[0], inputEffects);
                     }
                 }
-                // else if (e.Data.GetData(EffectProviderTreeViewItem.ProviderDropType) is EffectProvider provider) {
-                //     outputEffects = ClipDropRegistry.DropRegistry.CanDrop(target, provider, inputEffects);
-                // }
+                else if (e.Data.GetData(EffectProviderListBox.EffectProviderDropType) is EffectProviderEntry provider) {
+                    outputEffects = ClipDropRegistry.DropRegistry.CanDrop(target, provider, inputEffects);
+                }
                 else {
                     outputEffects = ClipDropRegistry.DropRegistry.CanDropNative(target, new DataObjectWrapper(e.Data), inputEffects);
                 }
@@ -862,9 +864,9 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                 if (e.Data.GetData(ResourceDropRegistry.ResourceDropType) is List<BaseResource> items && items.Count == 1 && items[0] is ResourceItem) {
                     await ClipDropRegistry.DropRegistry.OnDropped(clip, items[0], effects);
                 }
-                // else if (e.Data.GetData(EffectProviderTreeViewItem.ProviderDropType) is EffectProvider provider) {
-                //     await ClipDropRegistry.DropRegistry.OnDropped(drop, provider, effects);
-                // }
+                else if (e.Data.GetData(EffectProviderListBox.EffectProviderDropType) is EffectProviderEntry provider) {
+                    await ClipDropRegistry.DropRegistry.OnDropped(clip, provider, effects);
+                }
                 else {
                     await ClipDropRegistry.DropRegistry.OnDroppedNative(clip, new DataObjectWrapper(e.Data), effects);
                 }

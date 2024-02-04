@@ -6,15 +6,44 @@ using FramePFX.Editors.Timelines.Clips;
 namespace FramePFX.Editors.Timelines.Tracks {
     public delegate void ClipRangeCacheEventHandler(ClipRangeCache handler);
 
+    /// <summary>
+    /// A class that stores clips in chunks of 128 frames (0-127, 128-255, 256-383, etc.) to efficiently
+    /// locate clips at a particular frame, rather than having to scan the entire track's clip list
+    /// </summary>
     public class ClipRangeCache {
         private readonly SortedList<long, ClipList> Map;
 
+        /// <summary>
+        /// The smallest frame that any clip takes up based on their span's begin property.
+        /// This is basically calculated as:
+        /// <code>
+        /// foreach (clip in track) value = min(value, clip.Span.FrameBegin)
+        /// </code>
+        /// </summary>
         public long SmallestActiveFrame { get; private set; }
+
+        /// <summary>
+        /// The largest frame that any clip takes up based on their span's end index property.
+        /// This is basically calculated as:
+        /// <code>
+        /// foreach (clip in track) value = max(value, clip.Span.FrameEndIndex)
+        /// </code>
+        /// </summary>
         public long LargestActiveFrame { get; private set; }
 
+        /// <summary>
+        /// The previous value of <see cref="SmallestActiveFrame"/> before it changed
+        /// </summary>
         public long PreviousSmallestActiveFrame { get; private set; }
+
+        /// <summary>
+        /// The previous version of <see cref="LargestActiveFrame"/> before it changed
+        /// </summary>
         public long PreviousLargestActiveFrame { get; private set; }
 
+        /// <summary>
+        /// Called when a clip is added, removed or its span changed
+        /// </summary>
         public event ClipRangeCacheEventHandler FrameDataChanged;
 
         public ClipRangeCache() {

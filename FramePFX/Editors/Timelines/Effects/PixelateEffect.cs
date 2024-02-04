@@ -1,10 +1,27 @@
 using System.Numerics;
+using FramePFX.Editors.Automation.Params;
+using FramePFX.Editors.DataTransfer;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines.Clips;
+using SkiaSharp;
 
 namespace FramePFX.Editors.Timelines.Effects {
-    public class PixilateEffect : VideoEffect {
-        public int BlocKSize = 4;
+    public class PixelateEffect : VideoEffect {
+        public static readonly DataParameterDouble BlockSizeParameter =
+            DataParameter.Register(
+                new DataParameterDouble(
+                    typeof(PixelateEffect),
+                    nameof(BlockSize), default(double),
+                    ValueAccessors.Reflective<double>(typeof(PixelateEffect), nameof(BlockSize)),
+                    DataParameterFlags.AffectsRender));
+
+        private double blockSize;
+
+        public double BlockSize {
+            get => this.blockSize;
+            set => DataParameter.SetValueHelper(this, BlockSizeParameter, ref this.blockSize, value);
+        }
+
         private Vector2 renderSize;
 
         public override void PrepareRender(PreRenderContext ctx, long frame) {
@@ -17,8 +34,12 @@ namespace FramePFX.Editors.Timelines.Effects {
             }
         }
 
-        public override void PostProcessFrame(RenderContext rc) {
-            base.PostProcessFrame(rc);
+        public override void PostProcessFrame(RenderContext rc, ref SKRect renderArea) {
+            base.PostProcessFrame(rc, ref renderArea);
+
+            using (SKPaint paint = new SKPaint() {Color = SKColors.Orange}) {
+                rc.Canvas.DrawRect(new SKRect(0, 0, (float) this.BlockSize, (float) this.BlockSize), paint);
+            }
 
             // int width = (int) this.renderSize.X;
             // int height = (int) this.renderSize.Y;

@@ -22,10 +22,6 @@ namespace FramePFX.Editors.DataTransfer {
             this.sequences = new SortedList<DataParameter, ParameterData>();
         }
 
-        public void SetValueFromObject(DataParameter parameter, object value) {
-            this.GetParamData(parameter).SetObjectValue(value);
-        }
-
         /// <summary>
         /// Adds a value changed event handler to the given parameter for this specific property data's owner
         /// </summary>
@@ -41,8 +37,7 @@ namespace FramePFX.Editors.DataTransfer {
         /// <param name="parameter"></param>
         /// <param name="handler"></param>
         public void RemoveValueChangedHandler(DataParameter parameter, DataParameterValueChangedEventHandler handler) {
-            ParameterData data = this.GetInternalParameterDataOrNull(parameter);
-            if (data != null) {
+            if (this.TryGetParameterData(parameter, out ParameterData data)) {
                 data.ValueChanged -= handler;
             }
         }
@@ -56,56 +51,34 @@ namespace FramePFX.Editors.DataTransfer {
                 throw new ArgumentException("Invalid parameter key for this automation data: " + parameter.Key + ". The owner types are incompatible");
         }
 
+        private bool TryGetParameterData(DataParameter parameter, out ParameterData data) {
+            if (parameter == null)
+                throw new ArgumentNullException(nameof(parameter), "Parameter cannot be null");
+            if (this.sequences.TryGetValue(parameter, out data))
+                return true;
+            this.ValidateParameter(parameter);
+            return false;
+        }
+
         private ParameterData GetParamData(DataParameter parameter) {
             if (parameter == null)
                 throw new ArgumentNullException(nameof(parameter), "Parameter cannot be null");
             if (this.sequences.TryGetValue(parameter, out ParameterData data))
                 return data;
-
             this.ValidateParameter(parameter);
-            this.sequences[parameter] = data = new ParameterData(this, parameter);
+            this.sequences[parameter] = data = new ParameterData();
             return data;
         }
 
-        private ParameterData GetInternalParameterDataOrNull(DataParameter parameter) {
-            if (parameter == null)
-                throw new ArgumentNullException(nameof(parameter), "Parameter cannot be null");
-            if (this.sequences.TryGetValue(parameter, out ParameterData data))
-                return data;
-            this.ValidateParameter(parameter);
-            return null;
-        }
-
         private class ParameterData {
-            public readonly TransferableData propertyData;
-            public readonly DataParameter parameter;
             public bool isValueChanging;
-
             public event DataParameterValueChangedEventHandler ValueChanged;
 
-
-            public ParameterData(TransferableData propertyData, DataParameter parameter) {
-                this.propertyData = propertyData;
-                this.parameter = parameter;
+            public ParameterData() {
             }
 
             public void OnValueChanged(DataParameter param, ITransferableData owner) {
                 this.ValueChanged?.Invoke(param, owner);
-            }
-
-            public void SetObjectValue(object value) {
-                if (this.isValueChanging) {
-                    throw new InvalidOperationException("Already updating the value");
-                }
-
-                try {
-                    this.isValueChanging = true;
-                    ITransferableData owner = this.propertyData.Owner;
-                    this.parameter.SetObjectValue(owner, value);
-                }
-                finally {
-                    this.isValueChanging = false;
-                }
             }
         }
 
@@ -125,13 +98,19 @@ namespace FramePFX.Editors.DataTransfer {
                 internalData.OnValueChanged(parameter, owner);
                 data.ValueChanged?.Invoke(parameter, owner);
                 DataParameter.InternalOnParameterValueChanged(parameter, owner);
-                if ((parameter.Flags & DataParameterFlags.AffectsRender) != 0 && owner is IHaveTimeline timelineOwner) {
-                    timelineOwner?.Timeline.InvalidateRender();
+                if ((parameter.Flags & DataParameterFlags.AffectsRender) != 0 && owner is IHaveProject projHolder) {
+                    projHolder.Project?.RenderManager.InvalidateRender();
                 }
             }
             finally {
                 internalData.isValueChanging = false;
             }
+        }
+
+        public bool IsValueChanging(DataParameter parameter) {
+            if (this.TryGetParameterData(parameter, out ParameterData data))
+                return data != null && data.isValueChanging;
+            return false;
         }
     }
 }

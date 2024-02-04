@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using FramePFX.Editors.PropertyEditors.Effects.Motion;
+using FramePFX.Editors.PropertyEditors.Effects.Pixelate;
 using FramePFX.Editors.Timelines.Effects;
 using FramePFX.PropertyEditing;
 
@@ -22,6 +23,7 @@ namespace FramePFX.Editors.PropertyEditors.Effects {
         static EffectPropertyEditorGroup() {
             Constructors = new Dictionary<Type, Func<EffectPropertyEditorGroup>>();
             RegisterEffect<MotionEffect>(() => new MotionEffectPropertyEditorGroup());
+            RegisterEffect<PixelateEffect>(() => new PixelateEffectPropertyEditorGroup());
         }
 
         public static void RegisterEffect<T>(Func<EffectPropertyEditorGroup> constructor) where T : BaseEffect {

@@ -64,10 +64,9 @@ namespace FramePFX.Editors.Timelines.Clips {
         public bool UsesCustomOpacityCalculation { get; protected set; }
 
         /// <summary>
-        /// This video clip's transformation matrix, which is applied before it is rendered (if
-        /// <see cref="OnBeginRender"/> returns true of course). This is calculated by one or
-        /// more <see cref="MotionEffect"/> instances, where each instances' matrix is concatenated
-        /// in their orders in our effect list
+        /// This video clip's transformation matrix. This is calculated by one or more <see cref="MotionEffect"/> instances
+        /// in both this clip's effects and our owner track's effects, where each instances' matrix is pre-concatenated
+        /// in their orders in the effect lists
         /// </summary>
         public SKMatrix TransformationMatrix {
             get {
@@ -119,7 +118,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// Propagates the render invalidated state to our project's <see cref="RenderManager"/>
         /// </summary>
         public void InvalidateRender() {
-            this.Track?.InvalidateRender();
+            this.Project?.RenderManager.InvalidateRender();
         }
 
         protected override void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan) {

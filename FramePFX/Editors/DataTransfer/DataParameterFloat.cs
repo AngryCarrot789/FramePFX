@@ -20,15 +20,15 @@ namespace FramePFX.Editors.DataTransfer {
 
         private readonly bool hasRangeLimit;
 
-        public DataParameterFloat(Type ownerType, string key, ValueAccessor<float> accessor, DataParameterFlags flags) : this(ownerType, key, 0.0F, accessor, flags) {
+        public DataParameterFloat(Type ownerType, string key, ValueAccessor<float> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, key, 0.0F, accessor, flags) {
 
         }
 
-        public DataParameterFloat(Type ownerType, string key, float defValue, ValueAccessor<float> accessor, DataParameterFlags flags) : this(ownerType, key, defValue, float.MinValue, float.MaxValue, accessor, flags) {
+        public DataParameterFloat(Type ownerType, string key, float defValue, ValueAccessor<float> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, key, defValue, float.MinValue, float.MaxValue, accessor, flags) {
 
         }
 
-        public DataParameterFloat(Type ownerType, string key, float defValue, float minValue, float maxValue, ValueAccessor<float> accessor, DataParameterFlags flags) : base(ownerType, key, defValue, accessor, flags) {
+        public DataParameterFloat(Type ownerType, string key, float defValue, float minValue, float maxValue, ValueAccessor<float> accessor, DataParameterFlags flags = DataParameterFlags.None) : base(ownerType, key, defValue, accessor, flags) {
             if (minValue > maxValue)
                 throw new ArgumentException($"Minimum value exceeds the maximum value: {minValue} > {maxValue}", nameof(minValue));
             if (defValue < minValue || defValue > maxValue)

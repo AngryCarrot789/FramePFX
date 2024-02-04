@@ -21,6 +21,16 @@ namespace FramePFX.Editors.Controls.Viewports {
         private const double half_thickness = thickness / 2d;
         public static readonly DependencyProperty VideoEditorProperty = DependencyProperty.Register("VideoEditor", typeof(VideoEditor), typeof(VideoEditorViewPortPreview), new PropertyMetadata(null, OnVideoEditorChanged));
         public static readonly DependencyProperty DrawSelectedElementsProperty = DependencyProperty.Register("DrawSelectedElements", typeof(bool), typeof(VideoEditorViewPortPreview), new FrameworkPropertyMetadata(BoolBox.True, FrameworkPropertyMetadataOptions.AffectsRender));
+        public static readonly DependencyProperty SelectionOutlineBrushProperty = DependencyProperty.Register("SelectionOutlineBrush", typeof(Brush), typeof(VideoEditorViewPortPreview), new PropertyMetadata(Brushes.Orange, InvalidateSelectionPen));
+
+        private static void InvalidateSelectionPen(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+            ((VideoEditorViewPortPreview) d).OutlinePen = null;
+        }
+
+        public Brush SelectionOutlineBrush {
+            get => (Brush) this.GetValue(SelectionOutlineBrushProperty);
+            set => this.SetValue(SelectionOutlineBrushProperty, value);
+        }
 
         public VideoEditor VideoEditor {
             get => (VideoEditor) this.GetValue(VideoEditorProperty);
@@ -32,7 +42,7 @@ namespace FramePFX.Editors.Controls.Viewports {
             set => this.SetValue(DrawSelectedElementsProperty, value.Box());
         }
 
-        private readonly Pen OutlinePen = new Pen(Brushes.Orange, 2.5f);
+        private Pen OutlinePen;
 
         private Project activeProject;
 
@@ -87,7 +97,7 @@ namespace FramePFX.Editors.Controls.Viewports {
                 return;
             }
 
-            if (this.BeginRenderWithSurface(manager.surface)) {
+            if (this.BeginRenderWithSurface(manager.ImageInfo)) {
                 this.EndRenderWithSurface(manager.surface);
             }
 
@@ -118,14 +128,23 @@ namespace FramePFX.Editors.Controls.Viewports {
                     IEnumerable<Clip> clips = track.GetClipsAtFrame(timeline.PlayHeadPosition).Where(x => x.IsSelected);
                     foreach (Clip clip in clips) {
                         if (clip is VideoClip videoClip && videoClip.GetRenderSize() is Vector2 frameSize) {
-                            SKRect rect = videoClip.TransformationMatrix.MapRect(frameSize.ToSkiaAsSize(0, 0));
-                            Point pos = new Point(Math.Floor(rect.Left) - half_thickness, Math.Floor(rect.Top) - half_thickness);
-                            Size size = new Size(Math.Ceiling(rect.Width) + thickness, Math.Ceiling(rect.Height) + thickness);
-                            dc.DrawRectangle(null, this.OutlinePen, new Rect(pos, size));
+                            Pen pen = this.OutlinePen ?? (this.OutlinePen = new Pen(this.SelectionOutlineBrush ?? Brushes.Transparent, 2.5));
+                            DrawClipOutline(videoClip, frameSize, dc, pen);
                         }
                     }
                 }
             }
+        }
+
+        private static void DrawClipOutline(VideoClip clip, Vector2 renderSize, DrawingContext ctx, Pen pen) {
+            SKRect rect = clip.TransformationMatrix.MapRect(renderSize.ToRectWH());
+            double realX = Math.Floor(rect.Left);
+            double realY = Math.Floor(rect.Top);
+            double realW = Math.Ceiling(rect.Width + (rect.Left - realX));
+            double realH = Math.Ceiling(rect.Height + (rect.Top - realY));
+            Point pos = new Point(realX - half_thickness, realY - half_thickness);
+            Size size = new Size(realW + thickness, realH + thickness);
+            ctx.DrawRectangle(null, pen, new Rect(pos, size));
         }
     }
 }

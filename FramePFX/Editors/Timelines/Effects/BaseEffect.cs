@@ -2,13 +2,14 @@ using System;
 using FramePFX.Destroying;
 using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Params;
+using FramePFX.Editors.DataTransfer;
 using FramePFX.Editors.Factories;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.RBC;
 
 namespace FramePFX.Editors.Timelines.Effects {
-    public abstract class BaseEffect : IStrictFrameRange, IAutomatable, IDestroy {
+    public abstract class BaseEffect : IStrictFrameRange, IAutomatable, ITransferableData, IDestroy {
         /// <summary>
         /// Gets the object that this effect is applied to. At the moment, this is either a <see cref="Clip"/> or <see cref="Track"/>
         /// </summary>
@@ -42,6 +43,8 @@ namespace FramePFX.Editors.Timelines.Effects {
 
         public event TimelineChangedEventHandler TimelineChanged;
 
+        public TransferableData TransferableData { get; }
+
         public AutomationData AutomationData { get; }
 
         /// <summary>
@@ -56,6 +59,7 @@ namespace FramePFX.Editors.Timelines.Effects {
 
         protected BaseEffect() {
             this.AutomationData = new AutomationData(this);
+            this.TransferableData = new TransferableData(this);
         }
 
         public bool GetRelativePlayHead(out long playHead) {

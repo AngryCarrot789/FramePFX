@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Automation.Params;
+using FramePFX.Editors.Timelines;
 using FramePFX.RBC;
 
 namespace FramePFX.Editors.Automation {
@@ -142,23 +143,22 @@ namespace FramePFX.Editors.Automation {
         /// Updates all sequences using a frame of -1, indicating that the <see cref="AutomationSequence.DefaultKeyFrame"/> should
         /// be used to query the value instead of any actual key frame. Useful just after reading the state of an automation owner's data
         /// </summary>
-        public void UpdateBackingStorage() {
-            IList<AutomationSequence> list = this.sequences.Values;
-            for (int i = 0, count = list.Count; i < count; i++) {
-                list[i].UpdateValue(-1);
-            }
-        }
+        public void UpdateBackingStorage() => this.UpdateAll(-1);
 
         /// <summary>
         /// Updates all sequences' effective values
         /// </summary>
         /// <param name="frame">The frame used to calculate the effective value</param>
-        public void Update(long frame) {
+        public void UpdateAll(long frame) {
             IList<AutomationSequence> list = this.sequences.Values;
             for (int i = 0, count = list.Count; i < count; i++) {
-                AutomationSequence sequence = list[i];
-                if (sequence.CanAutomate)
-                    sequence.UpdateValue(frame);
+                list[i].UpdateValue(frame);
+            }
+        }
+
+        public void UpdateAll() {
+            if (this.Owner.GetRelativePlayHead(out long playHead)) {
+                this.UpdateAll(playHead);
             }
         }
 

@@ -1,6 +1,7 @@
 ﻿<Application x:Class="FramePFX.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:effectProviding="clr-namespace:FramePFX.Editors.Controls.EffectProviding"
              Startup="App_OnStartup">
     <Application.Resources>
         <ResourceDictionary>
@@ -28,6 +29,8 @@
                 <ResourceDictionary Source="Editors/ResourceManaging/Autoloading/Controls/InvalidResourceControlStyles.xaml"/>
                 <ResourceDictionary Source="Editors/Exporting/ExporterStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <Style TargetType="{x:Type effectProviding:EffectProviderListBox}" BasedOn="{StaticResource {x:Type ListBox}}"/>
+            <Style TargetType="{x:Type effectProviding:EffectProviderListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

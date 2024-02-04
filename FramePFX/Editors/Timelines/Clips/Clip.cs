@@ -1,4 +1,5 @@
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -90,13 +91,14 @@ namespace FramePFX.Editors.Timelines.Clips {
         public string DisplayName {
             get => this.displayName;
             set {
-                string oldName = this.displayName;
-                if (oldName == value)
+                string oldValue = this.displayName;
+                if (oldValue == value)
                     return;
                 this.displayName = value;
-                this.DisplayNameChanged?.Invoke(this, oldName, value);
+                this.DisplayNameChanged?.Invoke(this, oldValue, value);
             }
         }
+
 
         public bool IsSelected {
             get => this.isSelected;
@@ -131,8 +133,8 @@ namespace FramePFX.Editors.Timelines.Clips {
         public event EffectOwnerEventHandler EffectRemoved;
         public event EffectMovedEventHandler EffectMoved;
         public event ClipSpanChangedEventHandler FrameSpanChanged;
-        public event ClipMediaOffsetChangedEventHandler MediaFrameOffsetChanged;
         public event DisplayNameChangedEventHandler DisplayNameChanged;
+        public event ClipMediaOffsetChangedEventHandler MediaFrameOffsetChanged;
         public event ClipEventHandler IsSelectedChanged;
 
         public event ClipTrackChangedEventHandler TrackChanged;
@@ -154,6 +156,8 @@ namespace FramePFX.Editors.Timelines.Clips {
 
         protected virtual void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan) {
             this.FrameSpanChanged?.Invoke(this, oldSpan, newSpan);
+            if (this.GetRelativePlayHead(out long relativeFrame))
+                AutomationEngine.UpdateValues(this, relativeFrame);
         }
 
         public bool GetRelativePlayHead(out long playHead) {
@@ -205,8 +209,8 @@ namespace FramePFX.Editors.Timelines.Clips {
         }
 
         public virtual void WriteToRBE(RBEDictionary data) {
-            if (!string.IsNullOrEmpty(this.DisplayName))
-                data.SetString(nameof(this.DisplayName), this.DisplayName);
+            if (!string.IsNullOrEmpty(this.displayName))
+                data.SetString(nameof(this.DisplayName), this.displayName);
             data.SetStruct(nameof(this.FrameSpan), this.FrameSpan);
             data.SetLong(nameof(this.MediaFrameOffset), this.MediaFrameOffset);
             // data.SetBool(nameof(this.IsRenderingEnabled), this.IsRenderingEnabled);
@@ -216,7 +220,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         }
 
         public virtual void ReadFromRBE(RBEDictionary data) {
-            this.DisplayName = data.GetString(nameof(this.DisplayName), null);
+            this.displayName = data.GetString(nameof(this.DisplayName), null);
             this.FrameSpan = data.GetStruct<FrameSpan>(nameof(this.FrameSpan));
             this.MediaFrameOffset = data.GetLong(nameof(this.MediaFrameOffset));
             // this.IsRenderingEnabled = data.GetBool(nameof(this.IsRenderingEnabled), true);

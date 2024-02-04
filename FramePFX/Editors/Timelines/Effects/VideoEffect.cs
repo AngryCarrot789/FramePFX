@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
+using SkiaSharp;
 
 namespace FramePFX.Editors.Timelines.Effects {
     public abstract class VideoEffect : BaseEffect {
@@ -14,6 +15,14 @@ namespace FramePFX.Editors.Timelines.Effects {
         /// Casts <see cref="Owner"/> to a <see cref="VideoTrack"/>
         /// </summary>
         public new VideoTrack OwnerTrack => (VideoTrack) this.Owner;
+
+        /// <summary>
+        /// The render area rect that a clip generated via its <see cref="VideoClip.RenderFrame"/> method.
+        /// As this is only set after the clip is rendered, it is only valid in our <see cref="PostProcessFrame"/>
+        /// method. . This value is set for both track and clip effects, just in case the track
+        /// effect wants to do further optimisation  needs to know
+        /// </summary>
+        public SKRect ClipRenderArea { get; set; }
 
         protected VideoEffect() {
         }
@@ -44,38 +53,27 @@ namespace FramePFX.Editors.Timelines.Effects {
         }
 
         /// <summary>
-        /// Called after <see cref="PreProcessFrame"/> and after a clip has been drawn to the <see cref="RenderContext"/>.
-        /// This can be used to, for example, create some weird effects on the clip. This is where you'd actually do your frame modification
+        /// Called after <see cref="PreProcessFrame"/> and after a clip has been drawn to the
+        /// <see cref="RenderContext"/>. This can be used to, for example, create some weird effects
+        /// on the clip. This is where you'd actually do your frame modification
         /// <para>
         /// This is called on a rendering thread
         /// </para>
         /// </summary>
         /// <param name="rc">The rendering context</param>
-        public virtual void PostProcessFrame(RenderContext rc) {
-        }
-
-        public static void ProcessEffectList(IList<BaseEffect> effects, long frame, RenderContext render, bool isPreProcess) {
-            // pre-process clip effects, such as translation, scale, etc.
-            int i, count = effects.Count;
-            if (count == 0) {
-                return;
-            }
-
-            BaseEffect effect;
-            if (isPreProcess) {
-                for (i = 0; i < count; i++) {
-                    if ((effect = effects[i]) is VideoEffect) {
-                        ((VideoEffect) effect).PreProcessFrame(render);
-                    }
-                }
-            }
-            else {
-                for (i = count - 1; i >= 0; i--) {
-                    if ((effect = effects[i]) is VideoEffect) {
-                        ((VideoEffect) effect).PostProcessFrame(render);
-                    }
-                }
-            }
+        /// <param name="renderArea">
+        /// The render area rect that a clip generated via its <see cref="VideoClip.RenderFrame"/> method.
+        /// The rect contains the actual area that was rendered into, but may default to the full frame
+        /// if the clip is unoptimised. This value is valid for both clip and track effects just in case
+        /// they need it, and can be modified by both in case they affect the final rendering area (e.g.
+        /// liquify effect).
+        /// <para>
+        /// <see cref="MotionEffect"/> is an exception where it does affect the render area but doesn't modify
+        /// this value, because the clip calculates its render area from the current matrix. Therefore,
+        /// effects extending <see cref="ITransformationEffect"/> shouldn't really need to modify this
+        /// </para>
+        /// </param>
+        public virtual void PostProcessFrame(RenderContext rc, ref SKRect renderArea) {
         }
     }
 }

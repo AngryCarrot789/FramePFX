@@ -5,19 +5,19 @@ namespace FramePFX.Editors {
         private volatile bool isRendering;
         private volatile int disposeState;
 
-        public object Locker { get; }
+        public object DisposeLock { get; }
 
         public T Value { get; }
 
         public RenderLockedDataWrapper(T value) {
-            this.Locker = new object();
+            this.DisposeLock = new object();
             this.Value = value;
         }
 
         /// <summary>
         /// Tries to begin rendering. If the value is disposed, it should be initialised after this
         /// call and then <see cref="OnResetAndRenderBegin"/> should be called. This method MUST be
-        /// called while <see cref="Locker"/> is acquired
+        /// called while <see cref="DisposeLock"/> is acquired
         /// </summary>
         /// <returns>True if not disposed, otherwise false</returns>
         public bool OnRenderBegin() {
@@ -40,7 +40,7 @@ namespace FramePFX.Editors {
         public void OnRenderFinished() {
             if (!this.isRendering)
                 throw new InvalidOperationException("Expected to be rendering");
-            lock (this.Locker) {
+            lock (this.DisposeLock) {
                 if (this.disposeState == 1) {
                     this.DisposeResource();
                 }
@@ -54,7 +54,7 @@ namespace FramePFX.Editors {
         /// Marks the value to be disposed if in use, or disposes of the resource right now if not in use
         /// </summary>
         public void Dispose() {
-            lock (this.Locker) {
+            lock (this.DisposeLock) {
                 if (this.isRendering) {
                     this.disposeState = 1;
                 }

@@ -103,6 +103,18 @@ namespace FramePFX.Editors.DataTransfer {
             TypeToParametersMap = new Dictionary<Type, List<DataParameter>>();
         }
 
+        public bool IsValueChanging(ITransferableData owner) {
+            return owner.TransferableData.IsValueChanging(this);
+        }
+
+        public void AddValueChangedHandler(ITransferableData owner, DataParameterValueChangedEventHandler handler) {
+            owner.TransferableData.AddValueChangedHandler(this, handler);
+        }
+
+        public void RemoveValueChangedHandler(ITransferableData owner, DataParameterValueChangedEventHandler handler) {
+            owner.TransferableData.RemoveValueChangedHandler(this, handler);
+        }
+
         /// <summary>
         /// Gets the object value from the given owner, boxing if required
         /// </summary>
@@ -209,6 +221,15 @@ namespace FramePFX.Editors.DataTransfer {
 
         internal static void InternalOnParameterValueChanged(DataParameter parameter, ITransferableData owner) {
             parameter.ValueChanged?.Invoke(parameter, owner);
+        }
+
+        public static void SetValueHelper<T>(ITransferableData owner, DataParameterGeneric<T> parameter, ref T field, T newValue) {
+            if (parameter.IsValueChanging(owner)) {
+                field = newValue;
+            }
+            else {
+                parameter.SetValue(owner, newValue);
+            }
         }
     }
 }

@@ -5,20 +5,21 @@ using FramePFX.Editors.Timelines.Tracks;
 
 namespace FramePFX.Editors.Automation {
     public static class AutomationEngine {
-        public static void UpdateValues(Timeline timeline) {
-            UpdateValues(timeline, timeline.PlayHeadPosition);
-        }
+        public static void UpdateValues(Timeline timeline) => UpdateValues(timeline, timeline.PlayHeadPosition);
 
         public static void UpdateValues(Timeline timeline, long playHead) {
             foreach (Track track in timeline.Tracks) {
-                track.AutomationData.Update(playHead);
+                track.AutomationData.UpdateAll(playHead);
                 foreach (Clip clip in track.GetClipsAtFrame(playHead)) {
-                    long relative = clip.ConvertTimelineToRelativeFrame(playHead, out _);
-                    clip.AutomationData.Update(relative);
-                    foreach (BaseEffect effect in clip.Effects) {
-                        effect.AutomationData.Update(relative);
-                    }
+                    UpdateValues(clip, clip.ConvertTimelineToRelativeFrame(playHead, out _));
                 }
+            }
+        }
+
+        public static void UpdateValues(Clip clip, long relativePlayHead) {
+            clip.AutomationData.UpdateAll(relativePlayHead);
+            foreach (BaseEffect effect in clip.Effects) {
+                effect.AutomationData.UpdateAll(relativePlayHead);
             }
         }
     }

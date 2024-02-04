@@ -10,9 +10,11 @@
             xmlns:wpf="clr-namespace:FramePFX.Shortcuts.WPF" xmlns:controls="clr-namespace:FramePFX.PropertyEditing.Controls"
             xmlns:wpf1="clr-namespace:FramePFX.AdvancedContextService.WPF"
             xmlns:c="clr-namespace:FramePFX.AdvancedMenuService.WPF"
+            xmlns:fxsrc="clr-namespace:FramePFX.Editors.EffectSource"
+            xmlns:effectProviding="clr-namespace:FramePFX.Editors.Controls.EffectProviding"
             mc:Ignorable="d"
             Style="{StaticResource CustomWindowStyleEx}"
-            Background="{DynamicResource PanelBorderBrush}"
+            Background="{DynamicResource PanelBackground0}"
             BorderBrush="{DynamicResource PanelBorderBrush}"
             TitlebarBrush="{DynamicResource ABrush.Tone7.Background.Static}"
             Height="840" Width="1348"
@@ -58,15 +60,16 @@
                     <ColumnDefinition Width="1"/>
                     <ColumnDefinition Width="27*"/>
                 </Grid.ColumnDefinitions>
-                <GroupBox Grid.Column="0" BorderThickness="0" Header="Resources"
-                          wpf:UIInputManager.FocusPath="Application/Editor/ResourceManager"
-                          Focusable="True">
-                    <Border Background="{DynamicResource PanelBackground3}" 
-                            BorderBrush="{DynamicResource PanelBorderBrush}" 
-                            BorderThickness="0 1 0 0">
-                        <resources:ResourcePanelControl x:Name="TheResourcePanel"/>
-                    </Border>
-                </GroupBox>
+                <Border Background="{DynamicResource PanelBackground3}">
+                    <TabControl Grid.Column="0" BorderBrush="{DynamicResource PanelBorderBrush}" Margin="0" Style="{StaticResource NoOffsetTabControl}">
+                        <TabItem Header="Resources" wpf:UIInputManager.FocusPath="Application/Editor/ResourceManager">
+                            <resources:ResourcePanelControl x:Name="TheResourcePanel" Background="{DynamicResource PanelBackground3}" Focusable="True" />
+                        </TabItem>
+                        <TabItem Header="Effects" wpf:UIInputManager.FocusPath="Application/Editor/EffectSourcePanel">
+                            <effectProviding:EffectProviderListBox EffectProviderManager="{x:Static fxsrc:EffectProviderManager.Instance}"/>
+                        </TabItem>
+                    </TabControl>
+                </Border>
                 <GroupBox Grid.Column="2" BorderThickness="0" Header="View Port Preview"
                           wpf:UIInputManager.FocusPath="Application/Editor/ViewPort"
                           Focusable="True">
@@ -157,7 +160,7 @@
             <Border Grid.Row="1" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <GridSplitter Grid.Row="1" BorderThickness="0" Background="Transparent" Margin="0,-3,0,-12" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
         </Grid>
-        <Border Grid.Row="2" Background="{DynamicResource ABrush.Tone5.Background.Static}" BorderThickness="0,1,0,0">
+        <Border Grid.Row="2" Background="{DynamicResource ABrush.Tone5.Background.Static}" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource PanelBorderBrush}">
             <DockPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
                     <Separator Style="{StaticResource VerticalSeparator}" Margin="5,0" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}"/>

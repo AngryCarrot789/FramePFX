@@ -19,15 +19,15 @@ namespace FramePFX.Editors.DataTransfer {
         /// </summary>
         public int MaximumChars { get; }
 
-        public DataParameterString(Type ownerType, string key, ValueAccessor<string> accessor, DataParameterFlags flags) : this(ownerType, key, null, accessor, flags) {
+        public DataParameterString(Type ownerType, string key, ValueAccessor<string> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, key, null, accessor, flags) {
 
         }
 
-        public DataParameterString(Type ownerType, string key, string defValue, ValueAccessor<string> accessor, DataParameterFlags flags) : this(ownerType, key, defValue, 0, int.MaxValue, accessor, flags) {
+        public DataParameterString(Type ownerType, string key, string defValue, ValueAccessor<string> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, key, defValue, 0, int.MaxValue, accessor, flags) {
 
         }
 
-        public DataParameterString(Type ownerType, string key, string defValue, int minChars, int maxChars, ValueAccessor<string> accessor, DataParameterFlags flags) : base(ownerType, key, defValue, accessor, flags) {
+        public DataParameterString(Type ownerType, string key, string defValue, int minChars, int maxChars, ValueAccessor<string> accessor, DataParameterFlags flags = DataParameterFlags.None) : base(ownerType, key, defValue, accessor, flags) {
             if (minChars > maxChars)
                 throw new ArgumentException($"Minimum value exceeds the maximum value: {minChars} > {maxChars}", nameof(minChars));
             this.hasCharLimit = minChars != 0 || maxChars != int.MinValue;

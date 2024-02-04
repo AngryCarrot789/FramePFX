@@ -119,7 +119,7 @@ namespace FramePFX.Editors.Controls.Viewports {
             return true;
         }
 
-        public bool BeginRenderWithSurface(SKSurface surface) {
+        public bool BeginRenderWithSurface(SKImageInfo frameInfo) {
             PresentationSource source;
             if (this.isRendering || this.designMode || (source = PresentationSource.FromVisual(this)) == null) {
                 return false;
@@ -131,7 +131,6 @@ namespace FramePFX.Editors.Controls.Viewports {
                 return false;
             }
 
-            SKImageInfo frameInfo = new SKImageInfo(scaledSize.Width, scaledSize.Height, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
             this.skImageInfo = frameInfo;
             WriteableBitmap bmp = this.bitmap;
             if (bmp == null || frameInfo.Width != bmp.PixelWidth || frameInfo.Height != bmp.PixelHeight) {

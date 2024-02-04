@@ -122,6 +122,8 @@
     <Compile Include="Editors\Contextual\ClipContextRegistry.cs" />
     <Compile Include="Editors\Contextual\ResourceContextRegistry.cs" />
     <Compile Include="Editors\Contextual\TrackContextRegistry.cs" />
+    <Compile Include="Editors\Controls\EffectProviding\EffectProviderListBox.cs" />
+    <Compile Include="Editors\Controls\EffectProviding\EffectProviderListBoxItem.cs" />
     <Compile Include="Editors\Controls\Timelines\ClipDropRegistry.cs" />
     <Compile Include="Editors\Controls\Timelines\TrackDropRegistry.cs" />
     <Compile Include="Editors\Controls\Timelines\Tracks\Clips\ImageClipContent.cs" />
@@ -136,6 +138,9 @@
     <Compile Include="Editors\DataTransfer\DataParameterString.cs" />
     <Compile Include="Editors\DataTransfer\TransferableData.cs" />
     <Compile Include="Editors\DataTransfer\ITransferableData.cs" />
+    <Compile Include="Editors\DisposalSync.cs" />
+    <Compile Include="Editors\EffectSource\EffectProviderEntry.cs" />
+    <Compile Include="Editors\EffectSource\EffectProviderManager.cs" />
     <Compile Include="Editors\Exporting\Controls\ExportDialog.xaml.cs">
       <DependentUpon>ExportDialog.xaml</DependentUpon>
     </Compile>
@@ -160,6 +165,7 @@
     <Compile Include="Editors\PropertyEditors\AControls\VideoClipMediaFrameOffsetPropertyEditorControl.cs" />
     <Compile Include="Editors\PropertyEditors\Clips\TimecodeFontFamilyPropertyEditorSlot.cs" />
     <Compile Include="Editors\PropertyEditors\Clips\VideoClipMediaFrameOffsetPropertyEditorSlot.cs" />
+    <Compile Include="Editors\PropertyEditors\Effects\Pixelate\PixelateEffectPropertyEditorGroup.cs" />
     <Compile Include="Editors\PropertyEditors\ProjectPropertiesPropertyEditorGroup.cs" />
     <Compile Include="Editors\Rational.cs" />
     <Compile Include="Editors\Rendering\EnumRenderQuality.cs" />
@@ -713,7 +719,7 @@
     <Compile Include="Editors\Timelines\Effects\BaseEffect.cs" />
     <Compile Include="Editors\Timelines\Effects\ITransformationEffect.cs" />
     <Compile Include="Editors\Timelines\Effects\MotionEffect.cs" />
-    <Compile Include="Editors\Timelines\Effects\PixilateEffect.cs" />
+    <Compile Include="Editors\Timelines\Effects\PixelateEffect.cs" />
     <Compile Include="Editors\Timelines\Effects\VideoEffect.cs" />
     <Compile Include="Editors\Timelines\FrameSpan.cs" />
     <Compile Include="Editors\Timelines\IHaveEffects.cs" />

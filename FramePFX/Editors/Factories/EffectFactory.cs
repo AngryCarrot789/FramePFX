@@ -6,6 +6,7 @@ namespace FramePFX.Editors.Factories {
 
         private EffectFactory() {
             this.RegisterType("vfx_motion", typeof(MotionEffect));
+            this.RegisterType("vfx_pixelate", typeof(PixelateEffect));
         }
 
         public BaseEffect NewEffect(string id) {

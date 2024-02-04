@@ -61,16 +61,6 @@ namespace FramePFX.Editors.Timelines.Effects {
 
         protected override void LoadDataIntoClone(BaseEffect clone) {
             base.LoadDataIntoClone(clone);
-            MotionEffect fx = (MotionEffect) clone;
-
-            // fx.MediaPosition = this.MediaPosition;
-            // fx.MediaScale = this.MediaScale;
-            // fx.MediaScaleOrigin = this.MediaScaleOrigin;
-            // fx.MediaRotation = this.MediaRotation;
-            // fx.MediaRotationOrigin = this.MediaRotationOrigin;
-            // fx.UseAbsoluteScaleOrigin = this.UseAbsoluteScaleOrigin;
-            // fx.UseAbsoluteRotationOrigin = this.UseAbsoluteRotationOrigin;
-            // fx.internalTransformationMatrix = this.internalTransformationMatrix;
         }
 
         public override void PrepareRender(PreRenderContext ctx, long frame) {
@@ -85,8 +75,8 @@ namespace FramePFX.Editors.Timelines.Effects {
             rc.Canvas.SetMatrix(newMatrix);
         }
 
-        public override void PostProcessFrame(RenderContext rc) {
-            base.PostProcessFrame(rc);
+        public override void PostProcessFrame(RenderContext rc, ref SKRect renderArea) {
+            base.PostProcessFrame(rc, ref renderArea);
             // rc.Canvas.SetMatrix(this.oldMatrix);
         }
 

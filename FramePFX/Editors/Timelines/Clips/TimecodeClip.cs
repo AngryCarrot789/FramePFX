@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using System.Windows;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.DataTransfer;
 using FramePFX.Editors.Rendering;
@@ -127,7 +128,7 @@ namespace FramePFX.Editors.Timelines.Clips {
 
         public override void RenderFrame(RenderContext rc, ref SKRect renderArea) {
             LockedFontData fd = this.fontData.Value;
-            lock (this.fontData.Locker) {
+            lock (this.fontData.DisposeLock) {
                 if (!this.fontData.OnRenderBegin() || fd.cachedFont == null || fd.cachedTypeFace == null) {
                     fd.cachedTypeFace = this.fontFamily != null ? SKTypeface.FromFamilyName(this.fontFamily) : SKTypeface.CreateDefault();
                     fd.cachedFont = new SKFont(fd.cachedTypeFace, (float) this.renderFontSize);
@@ -194,7 +195,7 @@ namespace FramePFX.Editors.Timelines.Clips {
                 }
             }
 
-            lock (this.fontData.Locker) {
+            lock (this.fontData.DisposeLock) {
                 this.fontData.OnRenderFinished();
             }
         }

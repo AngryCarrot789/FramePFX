@@ -55,7 +55,7 @@ namespace FramePFX.Editors.Timelines.Clips {
             using (SKPaint paint = new SKPaint {FilterQuality = rc.FilterQuality, ColorF = RenderUtils.BlendAlpha(SKColors.White, this.InternalRenderOpacity)})
                 rc.Canvas.DrawImage(image, 0, 0, paint);
 
-            renderArea = rc.Canvas.TotalMatrix.MapRect(new SKRect(0, 0, image.Width, image.Height));
+            renderArea = rc.TranslateRect(new SKRect(0, 0, image.Width, image.Height));
             this.lockedImage.OnRenderFinished();
         }
     }

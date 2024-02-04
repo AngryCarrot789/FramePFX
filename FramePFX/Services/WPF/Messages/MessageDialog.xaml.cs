@@ -26,6 +26,8 @@ namespace FramePFX.Services.WPF.Messages {
             this.InitializeComponent();
             this.CalculateOwnerAndSetCentered();
             this.PART_HeaderTextBlock.Visibility = Visibility.Collapsed;
+            this.MaxWidth = 800;
+            this.MaxHeight = 800;
 
             this.Loaded += (sender, args) => {
                 // 588x260 = window

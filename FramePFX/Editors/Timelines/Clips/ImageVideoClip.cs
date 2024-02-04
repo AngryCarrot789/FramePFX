@@ -12,6 +12,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         public IResourcePathKey<ResourceImage> ResourceImageKey { get; }
 
         public ImageVideoClip() {
+            this.UsesCustomOpacityCalculation = true;
             this.ResourceImageKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceImage>();
             this.ResourceImageKey.ResourceChanged += this.OnResoureChanged;
             this.lockedImage = new RenderLockedData<SKImage>();

@@ -26,6 +26,7 @@
                 <ResourceDictionary Source="PropertyEditing/Controls/PropertyEditorStyles.xaml"/>
                 <ResourceDictionary Source="PropertyEditing/Controls/PropertyEditorSlotContentStyles.xaml"/>
                 <ResourceDictionary Source="Editors/ResourceManaging/Autoloading/Controls/InvalidResourceControlStyles.xaml"/>
+                <ResourceDictionary Source="Editors/Exporting/ExporterStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

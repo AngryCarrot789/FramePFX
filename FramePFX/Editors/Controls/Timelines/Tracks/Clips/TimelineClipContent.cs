@@ -45,7 +45,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             }
 
             for (Type type = clipType; type != null; type = type.BaseType) {
-                if (Constructors.TryGetValue(clipType, out Func<TimelineClipContent> func)) {
+                if (Constructors.TryGetValue(type, out Func<TimelineClipContent> func)) {
                     return func();
                 }
             }

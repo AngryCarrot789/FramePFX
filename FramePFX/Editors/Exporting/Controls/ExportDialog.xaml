@@ -57,7 +57,7 @@
             <ComboBox x:Name="PART_ComboBox" Grid.Column="2" Grid.Row="5" VerticalAlignment="Center"/>
 
             <Border Grid.ColumnSpan="4" Grid.Row="7" Background="{DynamicResource PanelBackground1}" BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}" BorderThickness="0,1">
-
+                <ContentPresenter x:Name="PART_ExportContentPresenter"/>
             </Border>
 
             <c:SpacedStackPanel Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="2" 

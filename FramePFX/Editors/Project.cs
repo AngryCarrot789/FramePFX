@@ -75,6 +75,7 @@ namespace FramePFX.Editors {
         public event ProjectEventHandler ProjectFilePathChanged;
 
         public Project() {
+            this.projectName = "Unnamed Project";
             this.Settings = ProjectSettings.CreateDefault(this);
             this.RenderManager = new RenderManager(this);
             this.ResourceManager = new ResourceManager(this);
@@ -112,11 +113,13 @@ namespace FramePFX.Editors {
             try {
                 RBEDictionary manager = data.GetDictionary("ResourceManager");
                 RBEDictionary timeline = data.GetDictionary("Timeline");
+                RBEDictionary settings = data.GetDictionary("Settings");
 
                 this.ProjectName = data.GetString(nameof(this.ProjectName), "Unnamed project");
 
                 // TODO: video editor specific settings that can be applied when this project is loaded
 
+                this.Settings.ReadFromRBE(settings);
                 this.ResourceManager.ReadFromRBE(manager);
                 this.MainTimeline.ReadFromRBE(timeline);
             }
@@ -157,6 +160,7 @@ namespace FramePFX.Editors {
 
         private void WriteProjectData(RBEDictionary data) {
             try {
+                this.Settings.WriteToRBE(data.CreateDictionary("Settings"));
                 this.ResourceManager.WriteToRBE(data.CreateDictionary("ResourceManager"));
                 this.MainTimeline.WriteToRBE(data.CreateDictionary("Timeline"));
                 data.SetString(nameof(this.ProjectName), this.ProjectName);
@@ -180,6 +184,25 @@ namespace FramePFX.Editors {
             }
 
             this.RenderManager.Dispose();
+        }
+
+        public static Project ReadProjectAt(string filePath) {
+            Project project = new Project();
+            using (project.RenderManager.SuspendRenderInvalidation()) {
+                try {
+                    project.ReadFromFile(filePath);
+                }
+                catch {
+                    try {
+                        project.Destroy();
+                    }
+                    catch { /* ignored */ }
+
+                    throw;
+                }
+            }
+
+            return project;
         }
 
         internal static void OnOpened(VideoEditor editor, Project project) {

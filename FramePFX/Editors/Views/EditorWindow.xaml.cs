@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -80,8 +81,9 @@ namespace FramePFX.Editors.Views {
             if (oldEditor != null) {
                 oldEditor.ProjectChanged -= this.OnEditorProjectChanged;
                 oldEditor.Playback.PlaybackStateChanged -= this.OnEditorPlaybackStateChanged;
-                if (oldEditor.Project != null) {
-                    this.OnProjectChanged(oldEditor.Project, null);
+                Project oldProject = oldEditor.Project;
+                if (oldProject != null) {
+                    this.OnProjectChanged(oldProject, null);
                 }
 
                 this.PART_ViewPort.VideoEditor = null;
@@ -128,15 +130,47 @@ namespace FramePFX.Editors.Views {
         private void OnProjectChanged(Project oldProject, Project newProject) {
             if (oldProject != null) {
                 oldProject.RenderManager.FrameRendered -= this.UpdateFrameRenderInterval;
+                oldProject.ProjectFilePathChanged -= this.OnProjectFilePathChanged;
+                oldProject.ProjectNameChanged -= this.OnProjectNameChanged;
             }
 
             if (newProject != null) {
                 newProject.RenderManager.FrameRendered += this.UpdateFrameRenderInterval;
+                newProject.ProjectFilePathChanged += this.OnProjectFilePathChanged;
+                newProject.ProjectNameChanged += this.OnProjectNameChanged;
             }
 
             this.UpdateRenderSettings(newProject?.Settings);
             this.UpdateResourceManager(newProject?.ResourceManager);
             this.UpdateTimeline(newProject?.MainTimeline);
+            this.UpdateWindowTitle(newProject);
+        }
+
+        private void OnProjectFilePathChanged(Project project) {
+            this.UpdateWindowTitle(project);
+        }
+
+        private void OnProjectNameChanged(Project project) {
+            this.UpdateWindowTitle(project);
+        }
+
+        private void UpdateWindowTitle(Project project) {
+            const string DefaultTitle = "Bootleg song vegas (FramePFX v1.0.2)";
+            if (project == null) {
+                this.Title = DefaultTitle;
+            }
+            else {
+                StringBuilder sb = new StringBuilder().Append(DefaultTitle);
+                if (!string.IsNullOrEmpty(project.ProjectFilePath)) {
+                    sb.Append(" - ").Append(project.ProjectFilePath);
+                }
+
+                if (!string.IsNullOrWhiteSpace(project.ProjectName)) {
+                    sb.Append(" [").Append(project.ProjectName).Append("]");
+                }
+
+                this.Title = sb.ToString();
+            }
         }
 
         private void UpdateRenderSettings(ProjectSettings settings) {

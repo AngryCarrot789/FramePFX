@@ -34,7 +34,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
             // Just try to find a base control type. It should be found first try unless I forgot to register a new control type
             bool hasLogged = false;
             for (Type type = resourceType; type != null; type = type.BaseType) {
-                if (Constructors.TryGetValue(resourceType, out Func<ResourceExplorerListItemContent> func)) {
+                if (Constructors.TryGetValue(type, out Func<ResourceExplorerListItemContent> func)) {
                     return func();
                 }
 

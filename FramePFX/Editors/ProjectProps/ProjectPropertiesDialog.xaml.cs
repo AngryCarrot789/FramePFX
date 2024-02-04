@@ -44,19 +44,17 @@ namespace FramePFX.Editors.ProjectProps {
                 }
             }
 
-            using (project.RenderManager.SuspendRenderInvalidation()) {
-                ProjectPropertiesDialog dialog = new ProjectPropertiesDialog();
-                ProjectSettings cloned = new ProjectSettings(project);
-                project.Settings.WriteInto(cloned);
-                dialog.Settings = cloned;
+            ProjectPropertiesDialog dialog = new ProjectPropertiesDialog();
+            ProjectSettings cloned = new ProjectSettings(project);
+            project.Settings.WriteInto(cloned);
+            dialog.Settings = cloned;
 
-                if (dialog.ShowDialog() == true) {
-                    dialog.Settings.WriteInto(project.Settings);
-                    return true;
-                }
-
-                return false;
+            if (dialog.ShowDialog() == true) {
+                dialog.Settings.WriteInto(project.Settings);
+                return true;
             }
+
+            return false;
         }
 
         private void OnSettingsPropertyChanged(ProjectSettings oldSettings, ProjectSettings newSettings) {

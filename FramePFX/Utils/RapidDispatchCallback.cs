@@ -10,26 +10,18 @@ namespace FramePFX.Utils {
     /// </summary>
     public class RapidDispatchCallback {
         private volatile int state;
-        private readonly Action action;
         private readonly Action executeAction;
-
-        public readonly Func<bool> CachedInvoke;
-        public readonly Action CachedInvokeNoRet;
 
         private readonly string debugId; // allows debugger breakpoint to match this
         private readonly DispatcherPriority priority;
 
         public RapidDispatchCallback(Action action, DispatcherPriority priority = DispatcherPriority.Send, string debugId = null) {
             this.debugId = debugId;
-            this.action = action;
             this.priority = priority;
             this.executeAction = () => {
-                this.action();
+                action();
                 this.state = 0;
             };
-
-            this.CachedInvoke = this.Invoke;
-            this.CachedInvokeNoRet = () => this.Invoke();
         }
 
         public RapidDispatchCallback(Action action, string debugId) : this(action, DispatcherPriority.Send, debugId) {

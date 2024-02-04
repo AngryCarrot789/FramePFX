@@ -5,6 +5,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using FramePFX.AdvancedContextService.WPF;
+using FramePFX.Editors.Contextual;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.Interactivity;
@@ -45,6 +47,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
             this.itemContentCacheMap = new Dictionary<Type, Stack<ResourceExplorerListItemContent>>();
             this.AllowDrop = true;
             this.CanSelectMultipleItems = true;
+            AdvancedContextMenu.SetContextGenerator(this, ResourceContextRegistry.Instance);
         }
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {

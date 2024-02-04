@@ -104,6 +104,11 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// <summary>
         /// Gets the raw amount of space this clip takes up on screen, unaffected by standard transformation matrices.
         /// If the value is unavailable, then typically the render viewport's width and height are used as a fallback
+        /// <para>
+        /// This value also may only be available after the clip has rendered at least once, and it may also be
+        /// completely different after each render phase due to the nature of the clip itself, so this should just
+        /// be treated as a general hint
+        /// </para>
         /// </summary>
         /// <returns>The size, if applicable, otherwise null</returns>
         public virtual Vector2? GetRenderSize() => null;

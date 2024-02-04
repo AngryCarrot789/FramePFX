@@ -16,6 +16,7 @@ namespace FramePFX.Editors.Exporting.Controls {
         public static readonly DependencyProperty ExportSetupProperty = DependencyProperty.Register("ExportSetup", typeof(ExportSetup), typeof(ExportDialog), new PropertyMetadata(null, (d, e) => ((ExportDialog) d).OnSetupChanged((ExportSetup) e.OldValue, (ExportSetup) e.NewValue)));
         private bool isProcessingFrameSpanControls;
         private bool isProcessingFilePathControl;
+        private bool isUpdatingComboBox;
 
         public ExportSetup ExportSetup {
             get => (ExportSetup) this.GetValue(ExportSetupProperty);
@@ -27,6 +28,17 @@ namespace FramePFX.Editors.Exporting.Controls {
             this.PART_BeginFrameDragger.ValueChanged += this.BeginFrameDraggerOnValueChanged;
             this.PART_EndFrameDragger.ValueChanged += this.EndFrameDraggerOnValueChanged;
             this.PART_FilePathTextBox.TextChanged += this.FilePathTextBoxOnTextChanged;
+            this.PART_ComboBox.SelectionChanged += this.PART_ComboBoxOnSelectionChanged;
+        }
+
+        private void PART_ComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e) {
+            if (this.isUpdatingComboBox || !(this.ExportSetup is ExportSetup setup)) {
+                return;
+            }
+
+            this.isUpdatingComboBox = true;
+            setup.SelectedExporterIndex = this.PART_ComboBox.SelectedIndex;
+            this.isUpdatingComboBox = false;
         }
 
         private void BeginFrameDraggerOnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
@@ -80,12 +92,15 @@ namespace FramePFX.Editors.Exporting.Controls {
             if (oldSetup != null) {
                 oldSetup.Properties.SpanChanged -= this.PropertiesOnSpanChanged;
                 oldSetup.Properties.FilePathChanged -= this.PropertiesOnFilePathChanged;
+                oldSetup.SelectedExporterIndexChanged -= this.OnSelectedExporterChanged;
+                this.SetCurrentExporterContent(null);
                 this.PART_ComboBox.Items.Clear();
             }
 
             if (newSetup != null) {
                 newSetup.Properties.SpanChanged += this.PropertiesOnSpanChanged;
                 newSetup.Properties.FilePathChanged += this.PropertiesOnFilePathChanged;
+                newSetup.SelectedExporterIndexChanged += this.OnSelectedExporterChanged;
                 foreach (Exporter exporter in newSetup.Exporters) {
                     this.PART_ComboBox.Items.Add(exporter.DisplayName);
                 }
@@ -94,6 +109,29 @@ namespace FramePFX.Editors.Exporting.Controls {
                 this.PART_FilePathTextBox.Text = newSetup.Properties.FilePath;
                 this.UpdateBeginFrameDragger();
                 this.UpdateEndFrameDragger();
+                this.SetCurrentExporterContent(newSetup.SelectedExporter);
+            }
+        }
+
+        private void OnSelectedExporterChanged(ExportSetup sender) {
+            this.SetCurrentExporterContent(sender.SelectedExporter);
+            this.isUpdatingComboBox = true;
+            this.PART_ComboBox.SelectedIndex = sender.SelectedExporterIndex;
+            this.isUpdatingComboBox = false;
+        }
+
+        private void SetCurrentExporterContent(Exporter newExporter) {
+            if (this.Content is ExporterContent oldContent) {
+                oldContent.Disconnected();
+                this.PART_ExportContentPresenter.Content = null;
+            }
+
+            if (newExporter != null) {
+                ExporterContent content = ExporterContent.NewInstance(newExporter.GetType());
+                this.PART_ExportContentPresenter.Content = content;
+                content.Measure(this.DesiredSize);
+                content.InvalidateMeasure();
+                content.Connected(newExporter);
             }
         }
 

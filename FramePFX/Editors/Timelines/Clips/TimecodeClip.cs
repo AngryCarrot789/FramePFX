@@ -1,4 +1,5 @@
 using System;
+using System.Numerics;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.DataTransfer;
 using FramePFX.Editors.Rendering;
@@ -41,6 +42,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         private FrameSpan render_Span;
         private long render_Frame;
         private double renderFontSize;
+        private SKRect lastRenderRect;
 
         public string FontFamily {
             get => this.fontFamily;
@@ -103,6 +105,10 @@ namespace FramePFX.Editors.Timelines.Clips {
             timer.UseClipEndTime = this.UseClipEndTime;
             timer.StartTime = this.StartTime;
             timer.EndTime = this.EndTime;
+        }
+
+        public override Vector2? GetRenderSize() {
+            return new Vector2(this.lastRenderRect.Width, this.lastRenderRect.Height);
         }
 
         public override bool PrepareRenderFrame(PreRenderContext ctx, long frame) {
@@ -184,6 +190,7 @@ namespace FramePFX.Editors.Timelines.Clips {
                     // we still need to tell the track the rendering area, otherwise we're copying the entire frame which is
                     // unacceptable. Even though there will most likely be a bunch of transparent padding pixels, it's still better
                     renderArea = rc.TranslateRect(realFinalRenderArea);
+                    this.lastRenderRect = renderArea;
                 }
             }
 

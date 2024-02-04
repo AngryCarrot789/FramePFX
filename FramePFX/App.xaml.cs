@@ -45,15 +45,15 @@ namespace FramePFX {
 
             // Editor init
             VideoEditor editor = new VideoEditor();
-            editor.LoadDefaultProject();
 
             EditorWindow window = new EditorWindow();
             window.Show();
             this.splash.Close();
             this.MainWindow = window;
             this.ShutdownMode = ShutdownMode.OnMainWindowClose;
-
-            this.Dispatcher.InvokeAsync(() => window.Editor = editor, DispatcherPriority.Loaded);
+            window.Editor = editor;
+            await ApplicationCore.Instance.OnEditorLoaded(editor, args.Args);
+            // this.Dispatcher.InvokeAsync(() => window.Editor = editor, DispatcherPriority.Loaded);
         }
 
         public async Task InitWPFApp() {

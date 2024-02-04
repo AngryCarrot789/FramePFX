@@ -47,12 +47,12 @@ namespace FramePFX.Editors.Exporting.Controls {
 
         public void OnFrameRendered(long frame) {
             Interlocked.Increment(ref this.currentRenderFrame);
-            this.rapidUpdateRender.Invoke();
+            this.rapidUpdateRender.InvokeAsync();
         }
 
         public void OnFrameEncoded(long frame) {
             Interlocked.Increment(ref this.currentEncodeFrame);
-            this.rapidUpdateEncode.Invoke();
+            this.rapidUpdateEncode.InvokeAsync();
         }
     }
 }

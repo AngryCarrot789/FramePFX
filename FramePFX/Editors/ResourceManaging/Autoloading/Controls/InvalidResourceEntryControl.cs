@@ -64,7 +64,7 @@ namespace FramePFX.Editors.ResourceManaging.Autoloading.Controls {
             // Just try to find a base control type. It should be found first try unless I forgot to register a new control type
             bool hasLogged = false;
             for (Type type = resourceType; type != null; type = type.BaseType) {
-                if (Constructors.TryGetValue(resourceType, out var func)) {
+                if (Constructors.TryGetValue(type, out var func)) {
                     return func();
                 }
 

@@ -54,7 +54,7 @@ namespace FramePFX.PropertyEditing.Controls {
             // Just try to find a base control type. It should be found first try unless I forgot to register a new control type
             bool hasLogged = false;
             for (Type type = slotType; type != null; type = type.BaseType) {
-                if (Constructors.TryGetValue(slotType, out Func<BasePropEditControlContent> func)) {
+                if (Constructors.TryGetValue(type, out Func<BasePropEditControlContent> func)) {
                     return func();
                 }
 

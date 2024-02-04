@@ -139,6 +139,7 @@
     <Compile Include="Editors\Exporting\Controls\ExportDialog.xaml.cs">
       <DependentUpon>ExportDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Editors\Exporting\Controls\ExporterContent.cs" />
     <Compile Include="Editors\Exporting\Controls\ExportProgressDialog.xaml.cs">
       <DependentUpon>ExportProgressDialog.xaml</DependentUpon>
     </Compile>
@@ -146,6 +147,7 @@
     <Compile Include="Editors\Exporting\ExportProperties.cs" />
     <Compile Include="Editors\Exporting\ExportSetup.cs" />
     <Compile Include="Editors\Exporting\FFMPEG\FFmpegExporter.cs" />
+    <Compile Include="Editors\Exporting\FFMPEG\FFmpegExporterContent.cs" />
     <Compile Include="Editors\Exporting\FFMPEG\FFUtils.cs" />
     <Compile Include="Editors\Exporting\FFMPEG\LavResult.cs" />
     <Compile Include="Editors\Exporting\IExportProgress.cs" />
@@ -499,6 +501,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Editors\Exporting\Controls\ExportProgressDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Editors\Exporting\ExporterStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

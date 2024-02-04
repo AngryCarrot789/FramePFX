@@ -9,7 +9,8 @@
             xmlns:ap="clr-namespace:FramePFX.Themes.Attached"
             mc:Ignorable="d"
             Title="MessageDialog" Height="175" Width="400"
-            Background="{DynamicResource PanelBackground2}">
+            Background="{DynamicResource PanelBackground2}"
+            Style="{StaticResource CustomWindowStyleEx}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>

@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using FramePFX.Actions;
+using FramePFX.Editors;
 using FramePFX.Editors.Actions;
 using FramePFX.Editors.ResourceManaging.Actions;
 using FramePFX.Logger;
@@ -10,6 +12,7 @@ using FramePFX.Services.Files;
 using FramePFX.Services.Messages;
 using FramePFX.Services.WPF.Files;
 using FramePFX.Services.WPF.Messages;
+using FramePFX.Utils;
 using Profiler = FramePFX.Profiling.Profiler;
 
 namespace FramePFX {
@@ -29,6 +32,17 @@ namespace FramePFX {
 
         private ApplicationCore() {
             this.serviceManager = new ServiceManager();
+        }
+
+        public async Task OnEditorLoaded(VideoEditor editor, string[] args) {
+            if (args.Length > 0 && File.Exists(args[0]) && args[0].EndsWith(Filters.DotFramePFXExtension)) {
+                if (!OpenProjectAction.OpenProjectAt(editor, args[0])) {
+                    editor.LoadDefaultProject();
+                }
+            }
+            else {
+                editor.LoadDefaultProject();
+            }
         }
 
         private async Task Setup(IApplicationStartupProgress progress) {

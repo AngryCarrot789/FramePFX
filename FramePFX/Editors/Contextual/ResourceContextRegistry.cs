@@ -5,15 +5,33 @@ using FramePFX.Interactivity.DataContexts;
 using System.Collections.Generic;
 using System.Linq;
 using FramePFX.Editors.ResourceManaging.Autoloading.Controls;
+using FramePFX.Editors.ResourceManaging.Resources;
 using FramePFX.Utils;
 
 namespace FramePFX.Editors.Contextual {
     public class ResourceContextRegistry : IContextGenerator {
         public static ResourceContextRegistry Instance { get; } = new ResourceContextRegistry();
 
+        public static void GenerateNewResourceEntries(List<IContextEntry> list){
+            list.Add(new EventContextEntry(AddColourResource, "Add new Colour Resource"));
+        }
+
+        private static void AddColourResource(IDataContext ctx) {
+            if (ctx.TryGetContext(DataKeys.ResourceManagerKey, out ResourceManager manager)) {
+                manager.RootContainer.AddItem(new ResourceColour() {Colour = RenderUtils.RandomColour(), DisplayName = "New Colour"});
+            }
+        }
+
         public void Generate(List<IContextEntry> list, IDataContext context) {
             if (!context.TryGetContext(DataKeys.ResourceObjectKey, out BaseResource resource)) {
+                if (context.ContainsKey(DataKeys.ResourceManagerKey)) {
+                    GenerateNewResourceEntries(list);
+                }
+
                 return;
+            }
+            else if (context.ContainsKey(DataKeys.ResourceManagerKey)) {
+                GenerateNewResourceEntries(list);
             }
 
             int actualSelection = resource.Manager.SelectedItems.Count;
@@ -32,6 +50,10 @@ namespace FramePFX.Editors.Contextual {
                 if (groupCount > 0) {
                     groupAction = new ActionContextEntry("actions.resources.GroupResourcesAction", "Group item(s) into folder", "Groups all selected items in the explorer into a folder. Grouping items in the tree is currently unsupported");
                 }
+            }
+
+            if (list.Count > 0) {
+                list.Add(new SeparatorEntry());
             }
 
             if (itemCount == 1) {

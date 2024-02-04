@@ -48,6 +48,7 @@ namespace FramePFX.Editors.Rendering {
 
         private void SettingsOnResolutionChanged(ProjectSettings settings) {
             this.UpdateFrameInfo();
+            this.InvalidateRender();
         }
 
         public void Dispose() {
@@ -81,13 +82,7 @@ namespace FramePFX.Editors.Rendering {
             this.surface = SKSurface.Create(this.pixmap);
         }
 
-        /// <summary>
-        /// Renders the timeline at the given frame, based on the current state of the project. This is an async method;
-        /// the preparation phase will have been completed by the time this method returns but the returned task will be
-        /// completed when the render is completed
-        /// </summary>
-        /// <param name="frame">The frame to render</param>
-        public async Task RenderTimelineAsync(Timeline timeline, long frame, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality) {
+        private void CheckRender(Timeline timeline, long frame) {
             if (!Application.Current.Dispatcher.CheckAccess())
                 throw new InvalidOperationException("Cannot start rendering while not on the main thread");
             if (timeline == null)
@@ -98,7 +93,16 @@ namespace FramePFX.Editors.Rendering {
                 throw new InvalidOperationException("The current frame info is invalid");
             if (Interlocked.CompareExchange(ref this.isRendering, 1, 0) != 0)
                 throw new InvalidOperationException("Render already in progress");
+        }
 
+        /// <summary>
+        /// Renders the timeline at the given frame, based on the current state of the project. This is an async method;
+        /// the preparation phase will have been completed by the time this method returns but the returned task will be
+        /// completed when the render is completed
+        /// </summary>
+        /// <param name="frame">The frame to render</param>
+        public async Task RenderTimelineAsync(Timeline timeline, long frame, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality) {
+            this.CheckRender(timeline, frame);
             long beginRender = Time.GetSystemTicks();
             SKImageInfo imageInfo = this.ImageInfo;
             List<VideoTrack> tracks = new List<VideoTrack>();
@@ -120,17 +124,20 @@ namespace FramePFX.Editors.Rendering {
             // Either way, this works and it works well... for now when there are no composition clips
             await Task.Run(async () => {
                 Task[] tasks = new Task[tracks.Count];
-                for (int i = 0; i < tracks.Count; i++) {
-                    VideoTrack track = tracks[i];
-                    tasks[i] = Task.Run(() => track.RenderFrame(imageInfo, quality));
+                for (int i1 = 0; i1 < tracks.Count; i1++) {
+                    VideoTrack track1 = tracks[i1];
+                    tasks[i1] = Task.Run(() => track1.RenderFrame(imageInfo, quality));
                 }
 
                 this.surface.Canvas.Clear(SKColors.Black);
-                for (int i = 0; i < tracks.Count; i++) {
-                    if (!tasks[i].IsCompleted)
-                        await tasks[i];
-                    tracks[i].DrawFrameIntoSurface(this.surface);
+                for (int i2 = 0; i2 < tracks.Count; i2++) {
+                    if (!tasks[i2].IsCompleted)
+                        await tasks[i2];
+                    tracks[i2].DrawFrameIntoSurface(this.surface);
                 }
+
+                this.averageRenderTimeMillis = (Time.GetSystemTicks() - beginRender) / Time.TICK_PER_MILLIS_D;
+                this.isRendering = 0;
             });
 
             this.averageRenderTimeMillis = (Time.GetSystemTicks() - beginRender) / Time.TICK_PER_MILLIS_D;

@@ -145,7 +145,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             // Just try to find a base control type. It should be found first try unless I forgot to register a new control type
             bool hasLogged = false;
             for (Type type = trackType; type != null; type = type.BaseType) {
-                if (Constructors.TryGetValue(trackType, out Func<TrackControlSurface> func)) {
+                if (Constructors.TryGetValue(type, out Func<TrackControlSurface> func)) {
                     return func();
                 }
 

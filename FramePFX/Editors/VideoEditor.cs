@@ -1,6 +1,5 @@
 using System;
 using System.Numerics;
-using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.Resources;
@@ -8,7 +7,6 @@ using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Effects;
 using FramePFX.Editors.Timelines.Tracks;
-using FramePFX.Utils;
 
 namespace FramePFX.Editors {
     public delegate void ProjectChangedEventHandler(VideoEditor editor, Project oldProject, Project newProject);

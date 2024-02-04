@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using FramePFX.Actions;
@@ -29,29 +30,25 @@ namespace FramePFX.Editors.Actions {
                 IoC.MessageService.ShowMessage("No such file", "That project file does not exist");
             }
 
-            Project project = new Project();
-            using (project.RenderManager.SuspendRenderInvalidation()) {
-                try {
-                    project.ReadFromFile(filePath);
-                }
-                catch (IOException ex) {
-                    IoC.MessageService.ShowMessage("Read Error", "An exception occurred while reading the project", ex.GetToString());
-                    try {
-                        project.Destroy();
-                    }
-                    catch { /* ignored */
-                    }
+            OpenProjectAt(editor, filePath);
+            return Task.CompletedTask;
+        }
 
-                    return Task.CompletedTask;
-                }
-
-                editor.SetProject(project);
+        public static bool OpenProjectAt(VideoEditor editor, string filePath) {
+            Project project;
+            try {
+                project = Project.ReadProjectAt(filePath);
             }
+            catch (Exception ex) {
+                IoC.MessageService.ShowMessage("Read Error", "An exception occurred while reading the project", ex.GetToString());
+                return false;
+            }
+
+            editor.SetProject(project);
 
             AutomationEngine.UpdateValues(project.MainTimeline);
             project.RenderManager.InvalidateRender();
-
-            return Task.CompletedTask;
+            return true;
         }
     }
 }

@@ -99,12 +99,15 @@ I don't know how to implement audio playback yet, despite my best efforts to try
 
 # Building
 
-FFmpeg is used for exporting videos, and at the moment, the app won't start without the libraries in the same directory as the app's `.exe`.
+FFmpeg is used for exporting videos and also other things (such as AVRational). The app won't start without the libraries.
 You just need FFmpeg's shared x64 libraries, they can be found here: 
 https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip
 
-You build the project (64 bit always, debug or release, **Not 32/x86/AnyCPU**), then place all of the FFmpeg DLL files in the bin 
-folder (usually `<solution>\FramePFX\bin\x64\Debug`), and then you should be able to run the editor, and debug it if you want. 
+Extract the zip and rename it to `ffmpeg` (it should contain bin, include, etc.). Place this folder in the solution directory (recommended) or in the 
+bin folder aka the same folder as the app .exe (might work, haven't tried)
+
+First build the C++ project (64 bit), which is the FramePFX native engine which will soon be used for audio processing and drawing using OpenGL or DirectX. 
+Then, build the C# project (64 bit always, debug or release, **Not 32/x86/AnyCPU**), and then you should be able to run the editor, and debug it if you want. 
 
 The project uses .NET Framework 4.8, so you will need that installed
 

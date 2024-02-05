@@ -21,6 +21,8 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         public static readonly DependencyProperty IsDroppableTargetOverProperty = DependencyProperty.Register("IsDroppableTargetOver", typeof(bool), typeof(ResourceExplorerListItem), new PropertyMetadata(BoolBox.False));
         public static readonly DependencyProperty IsSelectedProperty = Selector.IsSelectedProperty.AddOwner(typeof(ResourceExplorerListItem), new FrameworkPropertyMetadata(BoolBox.False, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, (d, e) => ((ResourceExplorerListItem) d).OnIsSelectedChanged((bool) e.NewValue)));
         public static readonly DependencyProperty DisplayNameProperty = DependencyProperty.Register("DisplayName", typeof(string), typeof(ResourceExplorerListItem), new PropertyMetadata(null));
+        private static readonly DependencyPropertyKey IsResourceOnlinePropertyKey = DependencyProperty.RegisterReadOnly("IsResourceOnline", typeof(bool), typeof(ResourceExplorerListItem), new PropertyMetadata(BoolBox.True));
+        public static readonly DependencyProperty IsResourceOnlineProperty = IsResourceOnlinePropertyKey.DependencyProperty;
 
         public bool IsDroppableTargetOver {
             get => (bool) this.GetValue(IsDroppableTargetOverProperty);
@@ -29,12 +31,17 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
 
         public bool IsSelected {
             get => (bool) this.GetValue(IsSelectedProperty);
-            set => this.SetValue(IsSelectedProperty, value);
+            set => this.SetValue(IsSelectedProperty, value.Box());
         }
 
         public string DisplayName {
             get => (string) this.GetValue(DisplayNameProperty);
             set => this.SetValue(DisplayNameProperty, value);
+        }
+
+        public bool IsResourceOnline {
+            get => (bool) this.GetValue(IsResourceOnlineProperty);
+            private set => this.SetValue(IsResourceOnlinePropertyKey, value.Box());
         }
 
         public BaseResource Model { get; private set; }
@@ -195,8 +202,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
                     await ResourceDropRegistry.DropRegistry.OnDropped(folder, list, effects);
                 }
                 else if (!await ResourceDropRegistry.DropRegistry.OnDroppedNative(folder, new DataObjectWrapper(e.Data), effects)) {
-                    MessageBox.Show("Unknown dropped item. Drop files here", "Unknown data");
-                    // await IoC.DialogService.ShowMessageAsync("Unknown data", "Unknown dropped item. Drop files here");
+                    IoC.MessageService.ShowMessage("Unknown Data", "Unknown dropped item. Drop files here");
                 }
             }
             finally {
@@ -258,6 +264,11 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         public void OnAddedToList() {
             this.displayNameBinder.Attach(this, this.Model);
             this.isSelectedBinder.Attach(this, this.Model);
+            if (this.Model is ResourceItem item) {
+                item.OnlineStateChanged += this.UpdateIsOnlineState;
+                this.UpdateIsOnlineState(item);
+            }
+
             ResourceExplorerListItemContent content = (ResourceExplorerListItemContent) this.Content;
             content.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
 
@@ -270,6 +281,10 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         public void OnRemovingFromList() {
             this.displayNameBinder.Detatch();
             this.isSelectedBinder.Detatch();
+            if (this.Model is ResourceItem item) {
+                item.OnlineStateChanged -= this.UpdateIsOnlineState;
+            }
+
             ResourceExplorerListItemContent content = (ResourceExplorerListItemContent) this.Content;
             content.Disconnect();
             this.Content = null;
@@ -280,6 +295,10 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         public void OnRemovedFromList() {
             this.ResourceExplorerList = null;
             this.Model = null;
+        }
+
+        private void UpdateIsOnlineState(ResourceItem resource) {
+            this.IsResourceOnline = resource.IsOnline;
         }
     }
 }

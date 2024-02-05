@@ -21,7 +21,7 @@ namespace FramePFX.Editors.Controls.Timelines {
                 return objekt.GetData(NativeDropTypes.FileDrop) is string[] files && files.Length > 0 ? EnumDropType.Copy : EnumDropType.None;
             }, async (model, objekt, type, c) => {
                 string[] files = (string[]) objekt.GetData(NativeDropTypes.FileDrop);
-                MessageBox.Show($"Dropping files directly into the timeline is not implemented yet.\nYou dropped: {string.Join(", ", files)}", "STILL TODO");
+                IoC.MessageService.ShowMessage("STILL TODO", $"Dropping files directly into the timeline is not implemented yet.\nYou dropped: {string.Join(", ", files)}");
             });
 
             DropRegistry.Register<VideoTrack, ResourceItem>((track, resource, dt, ctx) => {
@@ -30,17 +30,17 @@ namespace FramePFX.Editors.Controls.Timelines {
                     : EnumDropType.None;
             }, async (track, resource, dt, ctx) => {
                 if (!ctx.TryGetContext(DataKeys.TrackDropFrameKey, out long frame)) {
-                    MessageBox.Show("Drag drop error: no track frame location", "Drop err");
+                    IoC.MessageService.ShowMessage("Drop err", "Drag drop error: no track frame location");
                     return;
                 }
 
                 if (!resource.IsOnline) {
-                    MessageBox.Show("Cannot add an offline resource to the timeline", "Resource Offline");
+                    IoC.MessageService.ShowMessage("Resource Offline", "Cannot add an offline resource to the timeline");
                     return;
                 }
 
                 if (resource.UniqueId == ResourceManager.EmptyId || !resource.IsRegistered()) {
-                    MessageBox.Show("This resource is not registered yet. This is a bug", "Invalid resource");
+                    IoC.MessageService.ShowMessage("Invalid resource", "This resource is not registered yet. This is a bug");
                     return;
                 }
 

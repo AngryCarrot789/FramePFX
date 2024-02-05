@@ -231,16 +231,8 @@ namespace FramePFX.Editors.ResourceManaging {
         }
 
         public void ClearEntries() {
-            using (ErrorList stack = new ErrorList()) {
-                foreach (KeyValuePair<ulong, ResourceItem> entry in this.uuidToItem.ToList()) {
-                    try {
-                        this.UnregisterItem(entry.Value);
-                    }
-                    catch (Exception e) {
-                        stack.Add(e);
-                    }
-                }
-            }
+            ResourceFolder.DestroyHierarchy(this.RootContainer);
+            ResourceFolder.ClearHierarchy(this.RootContainer);
         }
 
         #region Static Helper Functions

@@ -162,7 +162,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
                     await ResourceDropRegistry.DropRegistry.OnDropped(currentFolder, list, effects);
                 }
                 else if (!await ResourceDropRegistry.DropRegistry.OnDroppedNative(currentFolder, new DataObjectWrapper(e.Data), effects)) {
-                    MessageBox.Show("Unknown dropped item. Drop files here", "Unknown data");
+                    IoC.MessageService.ShowMessage("Unknown data", "Unknown dropped item. Drop files here");
                     // await IoC.DialogService.ShowMessageAsync("Unknown data", "Unknown dropped item. Drop files here");
                 }
             }

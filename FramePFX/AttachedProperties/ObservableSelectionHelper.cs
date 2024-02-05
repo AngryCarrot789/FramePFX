@@ -330,9 +330,9 @@ namespace FramePFX.AttachedProperties {
                 }
 
                 if (list.TryGetException(out Exception error)) {
-                    MessageBox.Show("An exception occurred while processing selection change. " +
-                                    "This may have corrupted the application in some way, so please restart.\n\n" +
-                                    "See the app logs for more info", "Error");
+                    IoC.MessageService.ShowMessage("Error", "An exception occurred while processing selection change. " +
+                                                            "This may have corrupted the application in some way, so please restart.\n\n" +
+                                                            "See the app logs for more info");
                 }
             }
         }

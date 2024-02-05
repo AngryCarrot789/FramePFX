@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
 using System.Windows;
 using FramePFX.Actions;
+using FramePFX.Editors.Timelines.Effects;
+using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.DataContexts;
 using FramePFX.Views;
 
@@ -44,7 +46,14 @@ namespace FramePFX.Editors.Actions {
                 return Task.CompletedTask;
             }
 
-            editor.SetProject(new Project());
+            Project project = new Project();
+            VideoTrack track = new VideoTrack() {
+                DisplayName = "Video Track 1"
+            };
+
+            track.AddEffect(new MotionEffect());
+            project.MainTimeline.AddTrack(track);
+            editor.SetProject(project);
             return Task.CompletedTask;
         }
     }

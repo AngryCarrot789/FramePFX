@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
 using FramePFX.Interactivity.DataContexts;
+using FramePFX.Utils;
 
 namespace FramePFX.Actions {
     /// <summary>
@@ -143,8 +144,7 @@ namespace FramePFX.Actions {
                 await action.ExecuteAsync(e);
             }
             catch (Exception ex) {
-                MessageBox.Show($"An exception occurred while executing '{e.ActionId ?? action.GetType().ToString()}':\n{ex.Message}", "Action execution exception");
-                // await IoC.DialogService.ShowMessageExAsync("Action execution exception", , ex.GetToString());
+                IoC.MessageService.ShowMessage("Action execution exception", $"An exception occurred while executing '{e.ActionId ?? action.GetType().ToString()}'", ex.GetToString());
             }
         }
 

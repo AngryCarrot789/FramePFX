@@ -186,6 +186,7 @@
     <Compile Include="Editors\ResourceManaging\Resources\InvalidMediaPathEntry.cs" />
     <Compile Include="Editors\ResourceManaging\Resources\ResourceAVMedia.cs" />
     <Compile Include="Editors\Timelines\Clips\AVMediaVideoClip.cs" />
+    <Compile Include="Editors\Timelines\Clips\ClipGroup.cs" />
     <Compile Include="Editors\Timelines\Clips\TextClip.cs" />
     <Compile Include="Editors\Timelines\Clips\TimecodeClip.cs" />
     <Compile Include="Editors\Timelines\IDisplayName.cs" />

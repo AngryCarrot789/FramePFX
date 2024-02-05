@@ -29,6 +29,8 @@ namespace FramePFX.Editors.Timelines.Clips {
         private AutomationSequence activeSequence;
         private long mediaFrameOffset;
 
+        private ClipGroup myGroup;
+
         /// <summary>
         /// Gets the track that this clip is placed in
         /// </summary>
@@ -467,5 +469,8 @@ namespace FramePFX.Editors.Timelines.Clips {
             clip.Project = newProject;
             clip.OnProjectChanged(oldProject, newProject);
         }
+
+        internal static ClipGroup InternalGetGroup(Clip clip) => clip.myGroup;
+        internal static void InternalSetGroup(Clip clip, ClipGroup group) => clip.myGroup = group;
     }
 }

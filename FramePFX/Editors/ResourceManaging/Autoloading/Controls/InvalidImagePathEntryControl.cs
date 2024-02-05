@@ -26,7 +26,7 @@ namespace FramePFX.Editors.ResourceManaging.Autoloading.Controls {
 
         private void ConfirmClick(object sender, RoutedEventArgs e) {
             if (!this.Entry.TryLoad()) {
-                MessageBox.Show("File path is still invalid");
+                IoC.MessageService.ShowMessage("No such file", "File path is still invalid");
             }
         }
 

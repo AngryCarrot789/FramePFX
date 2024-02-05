@@ -9,6 +9,7 @@ using FramePFX.FFmpegWrapper;
 using FramePFX.FFmpegWrapper.Codecs;
 using FramePFX.FFmpegWrapper.Containers;
 using FramePFX.Logger;
+using FramePFX.RBC;
 using FramePFX.Utils;
 
 namespace FramePFX.Editors.ResourceManaging.Resources {
@@ -40,6 +41,17 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
 
         public ResourceAVMedia() {
 
+        }
+
+        public override void WriteToRBE(RBEDictionary data) {
+            base.WriteToRBE(data);
+            if (!string.IsNullOrEmpty(this.filePath))
+                data.SetString(nameof(this.FilePath), this.filePath);
+        }
+
+        public override void ReadFromRBE(RBEDictionary data) {
+            base.ReadFromRBE(data);
+            this.filePath = data.GetString(nameof(this.FilePath), null);
         }
 
         protected override bool OnTryAutoEnable(ResourceLoader loader) {

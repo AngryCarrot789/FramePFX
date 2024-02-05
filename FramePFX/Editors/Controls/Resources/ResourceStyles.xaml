@@ -109,10 +109,15 @@
                         </DockPanel>
                     </Border>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="IsResourceOnline" Value="True"/>
+                            </MultiTrigger.Conditions>
                             <Setter Property="Background" TargetName="PART_HeaderBorder" Value="{DynamicResource Item.MouseOver.Background}"/>
                             <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource Item.MouseOver.Border}"/>
-                        </Trigger>
+                        </MultiTrigger>
+
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
                         </Trigger>
@@ -138,6 +143,18 @@
                         <Trigger Property="IsDroppableTargetOver" Value="True">
                             <Setter Property="BorderBrush" TargetName="Bd" Value="OrangeRed"/>
                         </Trigger>
+                        <Trigger Property="IsResourceOnline" Value="False">
+                            <Setter Property="Background" TargetName="PART_HeaderBorder" Value="Red"/>
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="Red"/>
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="IsResourceOnline" Value="False"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" TargetName="PART_HeaderBorder" Value="DarkRed"/>
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="DarkRed"/>
+                        </MultiTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>

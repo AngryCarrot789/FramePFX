@@ -27,8 +27,6 @@ namespace FramePFX.Editors.Exporting.Controls {
 
         public CancellationTokenSource Cancellation { get; }
 
-        private bool isCancelled;
-
         public ExportProgressDialog(FrameSpan renderSpan, CancellationTokenSource cancellation) {
             this.renderSpan = renderSpan;
             this.InitializeComponent();
@@ -36,13 +34,17 @@ namespace FramePFX.Editors.Exporting.Controls {
             this.Cancellation = cancellation;
             this.currentRenderFrame = renderSpan.Begin;
             this.currentEncodeFrame = renderSpan.Begin;
-            this.rapidUpdateRender = new RapidDispatchCallback(() => {
-                this.PART_RenderProgressBar.Value = this.RenderProgressPercentage;
-            }, "ExportUpdateRender");
+            this.PART_FrameProgressText.Text = "0/" + (this.EndFrame - 1);
+            this.rapidUpdateRender = new RapidDispatchCallback(this.UpdateRenderedFrame, "ExportUpdateRender");
 
             this.rapidUpdateEncode = new RapidDispatchCallback(() => {
                 this.PART_EncodeProgressBar.Value = this.EncodeProgressPercentage;
             }, "ExportUpdateEncode");
+        }
+
+        private void UpdateRenderedFrame() {
+            this.PART_RenderProgressBar.Value = this.RenderProgressPercentage;
+            this.PART_FrameProgressText.Text = $"{this.currentRenderFrame}/{this.EndFrame - 1}";
         }
 
         public void OnFrameRendered(long frame) {

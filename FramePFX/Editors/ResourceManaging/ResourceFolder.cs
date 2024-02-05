@@ -151,5 +151,14 @@ namespace FramePFX.Editors.ResourceManaging {
                 resource.Destroy();
             }
         }
+
+        public static void ClearHierarchy(BaseResource resource) {
+            if (resource is ResourceFolder folder) {
+                for (int i = folder.items.Count - 1; i >= 0; i--) {
+                    ClearHierarchy(folder.items[i]);
+                    folder.RemoveItemAt(i);
+                }
+            }
+        }
     }
 }

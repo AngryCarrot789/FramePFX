@@ -147,8 +147,7 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
                     await ResourceDropRegistry.DropRegistry.OnDropped(manager.RootContainer, list, effects);
                 }
                 else if (!await ResourceDropRegistry.DropRegistry.OnDroppedNative(manager.RootContainer, new DataObjectWrapper(e.Data), effects)) {
-                    MessageBox.Show("Unknown dropped item. Drop files here", "Unknown data");
-                    // await IoC.DialogService.ShowMessageAsync("Unknown data", "Unknown dropped item. Drop files here");
+                    IoC.MessageService.ShowMessage("Unknown Data", "Unknown dropped item. Drop files here");
                 }
             }
             finally {

@@ -70,7 +70,9 @@ namespace FramePFX {
 
             RuntimeHelpers.RunClassConstructor(typeof(UIInputManager).TypeHandle);
 
+            // This is where services are registered
             await ApplicationCore.InternalSetupNewInstance(this.splash);
+            // Most if not all services are available below here
 
             await AppLogger.Instance.FlushEntries();
             await this.splash.SetAction("Loading shortcuts and actions...", null);
@@ -90,11 +92,11 @@ namespace FramePFX {
                     }
                 }
                 catch (Exception ex) {
-                    MessageBox.Show("Failed to read keymap file" + keymapFilePath + ":" + ex.GetToString());
+                    IoC.MessageService.ShowMessage("Keymap", "Failed to read keymap file" + keymapFilePath + ":" + ex.GetToString());
                 }
             }
             else {
-                MessageBox.Show("Keymap file does not exist at " + keymapFilePath);
+                IoC.MessageService.ShowMessage("Keymap", "Keymap file does not exist at " + keymapFilePath);
             }
 
             await this.splash.SetAction("Loading FFmpeg...", null);
@@ -103,8 +105,7 @@ namespace FramePFX {
                 ffmpeg.avdevice_register_all();
             }
             catch (Exception e) {
-                MessageBox.Show("The FFmpeg libraries (avcodec-60.dll, avfilter-9, and all other 6 dlls files) must be placed in the build folder which is where the EXE is, e.g. /FramePFX/bin/x64/Debug", "FFmpeg not found");
-                throw new Exception("FFmpeg Unavailable. Copy FFmpeg DLLs into the same folder as the app's .exe", e);
+                IoC.MessageService.ShowMessage("FFmpeg registration failed", "The FFmpeg libraries (avcodec-60.dll, avfilter-9, and all other 6 dlls files) must be placed in the build folder which is where the EXE is, e.g. /FramePFX/bin/x64/Debug", e.GetToString());
             }
         }
     }

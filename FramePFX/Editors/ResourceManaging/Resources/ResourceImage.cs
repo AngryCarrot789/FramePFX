@@ -3,7 +3,9 @@ using System.IO;
 using System.Runtime.InteropServices;
 using FramePFX.Editors.ResourceManaging.Autoloading;
 using FramePFX.Editors.ResourceManaging.Events;
+using FramePFX.Logger;
 using FramePFX.RBC;
+using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editors.ResourceManaging.Resources {
@@ -22,16 +24,22 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
         public SKBitmap bitmap;
         public SKImage image;
 
+        public object Shared0; // a shared WriteableBitmap for ImageClipContent
+        public bool Shared1; // arePixelsDirty
+
         public event ResourceEventHandler ImageChanged;
 
         public ResourceImage() {
         }
 
-        public void SetBitmapImage(SKBitmap skBitmap) {
+        public void SetBitmapImage(SKBitmap skBitmap, bool enableResource = true) {
             this.bitmap = skBitmap;
             this.image = SKImage.FromBitmap(skBitmap);
             this.IsRawBitmapMode = true;
-            this.TryAutoEnable(null);
+            if (enableResource) {
+                this.TryAutoEnable(null);
+            }
+
             this.ImageChanged?.Invoke(this);
         }
 
@@ -93,6 +101,21 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             }
         }
 
+        protected override void LoadDataIntoClone(BaseResource clone) {
+            base.LoadDataIntoClone(clone);
+            ResourceImage cloned = (ResourceImage) clone;
+            if (this.IsRawBitmapMode) {
+                if (this.bitmap != null) {
+                    cloned.bitmap = this.bitmap.Copy();
+                    if (cloned.bitmap != null)
+                        cloned.image = SKImage.FromBitmap(cloned.bitmap);
+                }
+            }
+            else {
+                cloned.filePath = this.filePath;
+            }
+        }
+
         protected override bool OnTryAutoEnable(ResourceLoader loader) {
             if (string.IsNullOrEmpty(this.FilePath) || this.image != null) {
                 return true;
@@ -109,14 +132,17 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
         }
 
         public override bool TryEnableForLoaderEntry(InvalidResourceEntry entry) {
-            InvalidImagePathEntry imgEntry = (InvalidImagePathEntry) entry;
-            try {
-                this.LoadImageAsync(imgEntry.FilePath);
-                return base.TryEnableForLoaderEntry(imgEntry);
+            if (entry is InvalidImagePathEntry imgEntry) {
+                try {
+                    this.LoadImageAsync(imgEntry.FilePath);
+                }
+                catch (Exception e) {
+                    AppLogger.Instance.WriteLine("Failed to autoload load image file: " + e.GetToString());
+                    return false;
+                }
             }
-            catch (Exception e) {
-                return false;
-            }
+
+            return base.TryEnableForLoaderEntry(entry);
         }
 
         public void LoadImageAsync(string file) {
@@ -156,8 +182,8 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             this.DisposeImage(true);
         }
 
-        private void DisposeImage(bool force) {
-            if ((this.bitmap != null || this.image != null) && (!this.IsRawBitmapMode || force)) {
+        private void DisposeImage(bool canDisposeRawBitmap) {
+            if ((this.bitmap != null || this.image != null) && (!this.IsRawBitmapMode || canDisposeRawBitmap)) {
                 this.bitmap?.Dispose();
                 this.bitmap = null;
                 this.image?.Dispose();

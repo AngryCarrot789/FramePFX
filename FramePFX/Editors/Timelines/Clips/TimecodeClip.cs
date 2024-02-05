@@ -60,6 +60,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         public event ClipEventHandler FontFamilyChanged;
 
         public TimecodeClip() {
+            this.UsesCustomOpacityCalculation = true;
             this.fontData = new RenderLockedDataWrapper<LockedFontData>(new LockedFontData());
             this.FontSize = FontSizeParameter.Descriptor.DefaultValue;
             this.UseClipStartTime = UseClipStartTimeParameter.DefaultValue;
@@ -158,7 +159,7 @@ namespace FramePFX.Editors.Timelines.Clips {
             //     }
             // }
 
-            using (SKPaint paint = new SKPaint() { IsAntialias = true, Color = SKColors.White }) {
+            using (SKPaint paint = new SKPaint() { IsAntialias = true, Color = SKColors.White.WithAlpha(this.InternalRenderOpacityByte) }) {
                 using (SKTextBlob blob = SKTextBlob.Create(text, fd.cachedFont)) {
                     fd.cachedFont.GetFontMetrics(out SKFontMetrics metrics);
                     // using (SKPaint p3 = new SKPaint() {Color = SKColors.Orange}) {

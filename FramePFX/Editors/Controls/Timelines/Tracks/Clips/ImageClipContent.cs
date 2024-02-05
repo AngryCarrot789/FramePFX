@@ -12,9 +12,6 @@ using SkiaSharp;
 
 namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
     public class ImageClipContent : TimelineClipContent {
-        private WriteableBitmap bitmap;
-        private bool arePixelsDirty;
-
         public new ImageVideoClip Model => (ImageVideoClip) base.Model;
 
         public ImageClipContent() {
@@ -22,7 +19,6 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
 
         protected override void OnConnected() {
             base.OnConnected();
-            this.arePixelsDirty = true;
             IResourcePathKey<ResourceImage> imgKey = this.Model.ResourceImageKey;
             imgKey.ResourceChanged += this.ResourceImageKeyOnResourceChanged;
             imgKey.OnlineStateChanged += this.ResourceImageKeyOnOnlineStateChanged;
@@ -42,11 +38,11 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                 olditem.ImageChanged -= this.OnImageChanged;
             if (newitem != null)
                 newitem.ImageChanged += this.OnImageChanged;
-            this.OnImageChanged(newitem);
+            this.InvalidateVisual();
         }
 
         private void OnImageChanged(BaseResource resource) {
-            this.arePixelsDirty = true;
+            ((ResourceImage) resource).Shared1 = true;
             this.InvalidateVisual();
         }
 
@@ -75,18 +71,19 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             }
 
             SKBitmap bmp = img.bitmap;
+            WriteableBitmap bitmap = (WriteableBitmap) img.Shared0;
+            if (bitmap == null || bitmap.PixelWidth != bmp.Width || bitmap.PixelHeight != bmp.Height) {
+                img.Shared0 = bitmap = new WriteableBitmap(bmp.Width, bmp.Height, 96, 96, PixelFormats.Pbgra32, null);
+                img.Shared1 = true;
+            }
+
+            if (img.Shared1) {
+                img.Shared1 = false;
+                bitmap.WritePixels(new Int32Rect(0, 0, bmp.Width, bmp.Height), bmp.GetPixels(), bmp.ByteCount, bmp.RowBytes, 0, 0);
+            }
 
             Rect2d clipRect = Rect2d.Floor(renderSize.Width, renderSize.Height);
             Rect2d imgRect = new Rect2d(bmp.Width, bmp.Height).ResizeToHeight(clipRect.Height);
-            if (this.bitmap == null || this.bitmap.PixelWidth != bmp.Width || this.bitmap.PixelHeight != bmp.Height) {
-                this.bitmap = new WriteableBitmap(bmp.Width, bmp.Height, 96, 96, PixelFormats.Pbgra32, null);
-                this.arePixelsDirty = true;
-            }
-
-            if (this.arePixelsDirty) {
-                this.bitmap.WritePixels(new Int32Rect(0, 0, bmp.Width, bmp.Height), bmp.GetPixels(), bmp.ByteCount, bmp.RowBytes, 0, 0);
-                this.arePixelsDirty = false;
-            }
 
             // this introduces slight glitching when rendering, mostly for the last few drawn images
             const double gap = 20;
@@ -106,12 +103,12 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                 Rect rect = new Rect(Math.Floor(i * segment), 0, imgRect.Width, clipRect.Height);
                 if (rect.Right > renderSize.Width) {
                     dc.PushClip(new RectangleGeometry(new Rect(new Point(), renderSize)));
-                    dc.DrawImage(this.bitmap, rect);
+                    dc.DrawImage(bitmap, rect);
                     dc.Pop();
                     break;
                 }
                 else {
-                    dc.DrawImage(this.bitmap, rect);
+                    dc.DrawImage(bitmap, rect);
                 }
 
                 i++;

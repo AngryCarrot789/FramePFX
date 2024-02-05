@@ -3,6 +3,7 @@ using FramePFX.Editors.Rendering;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.ResourceHelpers;
 using FramePFX.Editors.ResourceManaging.Resources;
+using FramePFX.Editors.Timelines.Tracks;
 using SkiaSharp;
 
 namespace FramePFX.Editors.Timelines.Clips {
@@ -16,6 +17,11 @@ namespace FramePFX.Editors.Timelines.Clips {
             this.ResourceImageKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceImage>();
             this.ResourceImageKey.ResourceChanged += this.OnResoureChanged;
             this.lockedImage = new RenderLockedData<SKImage>();
+        }
+
+        protected override void LoadDataIntoClone(Clip clone, ClipCloneOptions options) {
+            base.LoadDataIntoClone(clone, options);
+
         }
 
         public override Vector2? GetRenderSize() {

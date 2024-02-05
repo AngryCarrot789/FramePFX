@@ -182,18 +182,13 @@ namespace FramePFX.Editors.Timelines.Clips {
                 }
             }
 
-            if (options.CloneAutomationData) {
+            if (options.CloneAutomationData)
                 this.AutomationData.LoadDataIntoClone(clone.AutomationData);
-            }
+
+            if (options.CloneResourceLinks)
+                this.ResourceHelper.LoadDataIntoClone(clone.ResourceHelper);
 
             return clone;
-        }
-
-        protected virtual void LoadDataIntoClone(Clip clone, ClipCloneOptions options) {
-            clone.span = this.span;
-            clone.displayName = this.displayName;
-            clone.mediaFrameOffset = this.mediaFrameOffset;
-            clone.span = this.span;
         }
 
         public static void WriteSerialisedWithId(RBEDictionary dictionary, Clip clip) {
@@ -229,6 +224,13 @@ namespace FramePFX.Editors.Timelines.Clips {
             this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
             BaseEffect.ReadSerialisedWithIdList(this, data.GetList("Effects"));
             this.ResourceHelper.ReadFromRootRBE(data);
+        }
+
+        protected virtual void LoadDataIntoClone(Clip clone, ClipCloneOptions options) {
+            clone.span = this.span;
+            clone.displayName = this.displayName;
+            clone.mediaFrameOffset = this.mediaFrameOffset;
+            clone.span = this.span;
         }
 
         public void MoveToTrack(Track dstTrack) {

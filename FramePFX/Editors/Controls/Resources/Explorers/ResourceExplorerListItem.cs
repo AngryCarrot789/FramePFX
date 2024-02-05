@@ -148,7 +148,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
 
         protected override void OnMouseMove(MouseEventArgs e) {
             base.OnMouseMove(e);
-            if (!this.isDragActive || this.isDragDropping || this.Model == null || this.ResourceExplorerList == null) {
+            if (!this.isDragActive || this.isDragDropping || this.Model?.Manager == null || this.ResourceExplorerList == null) {
                 return;
             }
 
@@ -156,8 +156,9 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
                 Point posA = e.GetPosition(this);
                 Point posB = this.originMousePoint;
                 Point change = new Point(Math.Abs(posA.X - posB.X), Math.Abs(posA.X - posB.X));
-                if (change.X > 5 || change.Y > 5) {
-                    List<BaseResource> list = !this.IsSelected ? new List<BaseResource>() {this.Model} : this.ResourceExplorerList.GetSelectedResources().ToList();
+                ResourceFolder currFolder;
+                if ((change.X > 5 || change.Y > 5) && (currFolder = this.Model.Manager.CurrentFolder) == this.Model.Parent) {
+                    List<BaseResource> list = this.IsSelected ? currFolder.Items.Where(x => x.IsSelected).ToList() : new List<BaseResource>() {this.Model};
 
                     try {
                         this.isDragDropping = true;

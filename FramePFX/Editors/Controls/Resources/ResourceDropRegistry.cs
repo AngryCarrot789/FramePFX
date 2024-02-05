@@ -43,6 +43,7 @@ namespace FramePFX.Editors.Controls.Resources {
                     return Task.CompletedTask;
                 }
 
+                List<ResourceItem> items = new List<ResourceItem>();
                 foreach (BaseResource resource in resources) {
                     if (resource is ResourceFolder group && @group.IsParentInHierarchy(folder)) {
                         continue;
@@ -54,6 +55,8 @@ namespace FramePFX.Editors.Controls.Resources {
                             name = clone.DisplayName;
                         clone.DisplayName = name;
                         folder.AddItem(clone);
+                        if (clone is ResourceItem)
+                            items.Add((ResourceItem) clone);
                     }
                     else if (resource.Parent != null) {
                         if (resource.Parent != folder) {
@@ -66,6 +69,8 @@ namespace FramePFX.Editors.Controls.Resources {
                         AppLogger.Instance.WriteLine("A resource was dropped with a null parent???");
                     }
                 }
+
+                ResourceLoaderDialog.TryLoadResources(items);
 
                 return Task.CompletedTask;
             });

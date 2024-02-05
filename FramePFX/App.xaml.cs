@@ -14,6 +14,7 @@ using FramePFX.Logger;
 using FramePFX.Shortcuts.WPF.Converters;
 using FramePFX.Utils;
 using FramePFX.Views;
+using FramePFX.Natives;
 
 namespace FramePFX {
     public partial class App : Application {
@@ -27,6 +28,16 @@ namespace FramePFX {
             this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             this.MainWindow = this.splash = new AppSplashScreen();
             this.splash.Show();
+
+            await this.splash.SetAction("Loading PFXCE native library...", null);
+            try {
+                PFXNative.InitialiseLibrary();
+            }
+            catch (Exception e) {
+                // MessageBox.Show("Fatal error loading native PFXCE library. Since it is not used at the moment, this can be ignored. Be sure to built the C++ project to prevent this warning\n" + e.GetToString(), "Native Library Failure (you can ignore this)");
+                // this.Dispatcher.Invoke(() => this.Shutdown(0), DispatcherPriority.Background);
+                // return;
+            }
 
             try {
                 AppLogger.Instance.PushHeader("FramePFX initialisation");
@@ -54,6 +65,11 @@ namespace FramePFX {
             window.Editor = editor;
             await ApplicationCore.Instance.OnEditorLoaded(editor, args.Args);
             // this.Dispatcher.InvokeAsync(() => window.Editor = editor, DispatcherPriority.Loaded);
+        }
+
+        protected override void OnExit(ExitEventArgs e) {
+            base.OnExit(e);
+            PFXNative.ShutdownLibrary();
         }
 
         public async Task InitWPFApp() {

@@ -13,8 +13,6 @@ BOOL __stdcall DllMain(HINSTANCE dllHandle, ULONG reason, CONTEXT * ctx) {
 
         // TODO: init
 
-        printf("lol!!! DllMain");
-
         result = SUCCEEDED(hr);
         break;
     }

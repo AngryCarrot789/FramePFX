@@ -2,6 +2,7 @@
 using System.CodeDom;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 
 namespace FramePFX.Natives {
@@ -9,13 +10,6 @@ namespace FramePFX.Natives {
     /// A class which contains all of the native methods available through the PFX native composition engine
     /// </summary>
     internal class PFXNative {
-        private const string DLL_NAME = "FramePFX.NativeEngine.dll";
-#if DEBUG
-        private const string DLL_PATH = "..\\..\\..\\..\\x64\\Debug\\" + DLL_NAME;
-#else
-        private const string DLL_PATH = "..\\..\\..\\..\\x64\\Release\\" + DLL_NAME;
-#endif
-
         #region System Helpers
 
         [DllImport("kernel32.dll")]
@@ -29,14 +23,34 @@ namespace FramePFX.Natives {
 
         #endregion
 
+        // Prefix: PFXCEFUNC_
+
         private delegate int PFXCEFUNC_InitEngine();
+        public unsafe delegate int PFXCEFUNC_PixelateVfx(uint* pImg, int srcWidth, int srcHeight, int left, int top, int right, int bottom, int blockSize);
 
         private static PFXCEFUNC_InitEngine InitEngine;
+        public static PFXCEFUNC_PixelateVfx PFXCE_PixelateVfx;
 
         private static IntPtr LibraryAddress;
 
         public static void InitialiseLibrary() {
-            LibraryAddress = LoadLibrary(DLL_PATH);
+            const string DLL_NAME = "FramePFX.NativeEngine.dll";
+#if DEBUG
+            const string STATIC_DLL_PATH = "..\\..\\..\\..\\x64\\Debug\\" + DLL_NAME;
+#else
+            const string STATIC_DLL_PATH = "..\\..\\..\\..\\x64\\Release\\" + DLL_NAME;
+#endif
+
+            string binFilePath = Path.Combine(Path.GetFullPath("."), DLL_NAME);
+            if (!File.Exists(binFilePath)) {
+                binFilePath = STATIC_DLL_PATH;
+            }
+
+            if (!File.Exists(binFilePath)) {
+                throw new Exception("Library DLL could not be found. Make sure you built the C++ project first");
+            }
+
+            LibraryAddress = LoadLibrary(binFilePath);
             if (LibraryAddress == IntPtr.Zero) {
                 throw new Exception("Failed to load library", new Win32Exception());
             }
@@ -45,6 +59,8 @@ namespace FramePFX.Natives {
             if (InitEngine() != 1) {
                 throw new Exception("Engine initialisation failed");
             }
+
+            PFXCE_PixelateVfx = GetFunction<PFXCEFUNC_PixelateVfx>("PFXCE_PixelateVfx");
         }
 
         public static void ShutdownLibrary() {

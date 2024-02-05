@@ -400,6 +400,7 @@
     <Compile Include="Utils\Collections\ReferenceDictionary.cs" />
     <Compile Include="Utils\Collections\TypeMultiTable.cs" />
     <Compile Include="Utils\CollectionUtils.cs" />
+    <Compile Include="Utils\Colour.cs" />
     <Compile Include="Utils\CursorUtils.cs" />
     <Compile Include="Utils\DispatcherCallback.cs" />
     <Compile Include="Utils\DispatcherUtils.cs" />

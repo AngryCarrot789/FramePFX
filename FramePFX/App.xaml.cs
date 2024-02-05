@@ -34,9 +34,9 @@ namespace FramePFX {
                 PFXNative.InitialiseLibrary();
             }
             catch (Exception e) {
-                // MessageBox.Show("Fatal error loading native PFXCE library. Since it is not used at the moment, this can be ignored. Be sure to built the C++ project to prevent this warning\n" + e.GetToString(), "Native Library Failure (you can ignore this)");
-                // this.Dispatcher.Invoke(() => this.Shutdown(0), DispatcherPriority.Background);
-                // return;
+                MessageBox.Show("Error loading native engine library. Be sure to built the C++ project\n" + e.GetToString(), "Native Library Failure");
+                this.Dispatcher.Invoke(() => this.Shutdown(0), DispatcherPriority.Background);
+                return;
             }
 
             try {
@@ -117,11 +117,24 @@ namespace FramePFX {
 
             await this.splash.SetAction("Loading FFmpeg...", null);
 
-            try {
-                ffmpeg.avdevice_register_all();
+            string ffmpegFolderPath = Path.Combine(Path.GetFullPath("."), "ffmpeg\\bin");
+            if (!Directory.Exists(ffmpegFolderPath)) {
+                ffmpegFolderPath = Path.GetFullPath("..\\..\\..\\..\\ffmpeg\\bin\\");
             }
-            catch (Exception e) {
-                IoC.MessageService.ShowMessage("FFmpeg registration failed", "The FFmpeg libraries (avcodec-60.dll, avfilter-9, and all other 6 dlls files) must be placed in the build folder which is where the EXE is, e.g. /FramePFX/bin/x64/Debug", e.GetToString());
+
+            if (!Directory.Exists(ffmpegFolderPath)) {
+                IoC.MessageService.ShowMessage("FFmpeg not found", "Could not find the FFmpeg folder. Make sure 'ffmpeg' (containing bin, include, lib, etc.) exists in either the solution directory or the same folder as the .exe");
+            }
+            else {
+                ffmpeg.RootPath = ffmpegFolderPath;
+
+                try {
+                    // ffmpeg.RootPath = ""
+                    ffmpeg.avdevice_register_all();
+                }
+                catch (Exception e) {
+                    IoC.MessageService.ShowMessage("FFmpeg registration failed", "Failed to register all FFmpeg devices", e.GetToString());
+                }
             }
         }
     }

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using FFmpeg.AutoGen;
 using FramePFX.Editors.ProjectProps;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.ResourceManaging;
@@ -129,14 +130,14 @@ namespace FramePFX.Editors.Views {
 
         private void OnProjectChanged(Project oldProject, Project newProject) {
             if (oldProject != null) {
-                oldProject.RenderManager.FrameRendered -= this.UpdateFrameRenderInterval;
+                oldProject.ActiveTimelineChanged -= this.OnActiveTimelineChanged;
                 oldProject.ProjectFilePathChanged -= this.OnProjectFilePathChanged;
                 oldProject.ProjectNameChanged -= this.OnProjectNameChanged;
                 oldProject.IsModifiedChanged -= this.OnProjectModifiedChanged;
             }
 
             if (newProject != null) {
-                newProject.RenderManager.FrameRendered += this.UpdateFrameRenderInterval;
+                newProject.ActiveTimelineChanged += this.OnActiveTimelineChanged;
                 newProject.ProjectFilePathChanged += this.OnProjectFilePathChanged;
                 newProject.ProjectNameChanged += this.OnProjectNameChanged;
                 newProject.IsModifiedChanged += this.OnProjectModifiedChanged;
@@ -144,9 +145,62 @@ namespace FramePFX.Editors.Views {
 
             this.UpdateRenderSettings(newProject?.Settings);
             this.UpdateResourceManager(newProject?.ResourceManager);
-            this.UpdateTimeline(newProject?.MainTimeline);
+            this.OnActiveTimelineChanged(oldProject?.ActiveTimeline, newProject?.ActiveTimeline);
             this.UpdateWindowTitle(newProject);
             this.UpdatePlayBackButtons(newProject?.Editor.Playback);
+        }
+
+        private void OnActiveTimelineChanged(Project project, Timeline oldTimeline, Timeline newTimeline) {
+            this.OnActiveTimelineChanged(oldTimeline, newTimeline);
+        }
+
+        private void PART_CloseTimelineButton_OnClick(object sender, RoutedEventArgs e) {
+            if (this.TheTimeline.Timeline is CompositionTimeline timeline && timeline.Project != null) {
+                timeline.Project.ActiveTimeline = null;
+            }
+        }
+
+        private void OnActiveTimelineChanged(Timeline oldTimeline, Timeline newTimeline) {
+            if (oldTimeline != null) {
+                oldTimeline.RenderManager.FrameRendered -= this.UpdateFrameRenderInterval;
+                if (oldTimeline is CompositionTimeline oldComposition) {
+                    oldComposition.Resource.DisplayNameChanged -= this.OnCompositionTimelineDisplayNameChanged;
+                }
+            }
+
+            if (newTimeline != null) {
+                newTimeline.RenderManager.FrameRendered += this.UpdateFrameRenderInterval;
+                if (newTimeline is CompositionTimeline newComposition) {
+                    newComposition.Resource.DisplayNameChanged += this.OnCompositionTimelineDisplayNameChanged;
+                }
+            }
+
+            this.TheTimeline.Timeline = newTimeline;
+            this.UpdateTimelineName();
+
+            if (newTimeline is Timeline timeline) {
+                this.PART_CloseTimelineButton.IsEnabled = timeline is CompositionTimeline;
+            }
+            else {
+                this.PART_CloseTimelineButton.IsEnabled = false;
+            }
+        }
+
+        private void OnCompositionTimelineDisplayNameChanged(BaseResource resource) {
+            this.UpdateTimelineName();
+        }
+
+        private void UpdateTimelineName() {
+            Timeline timeline = this.TheTimeline.Timeline;
+            if (timeline == null) {
+                this.PART_TimelineName.Text = "No timeline loaded";
+            }
+            else if (timeline is CompositionTimeline composition) {
+                this.PART_TimelineName.Text = composition.Resource.DisplayName;
+            }
+            else {
+                this.PART_TimelineName.Text = "Project Timeline";
+            }
         }
 
         private void OnProjectModifiedChanged(Project project) {
@@ -194,10 +248,6 @@ namespace FramePFX.Editors.Views {
             this.TheResourcePanel.ResourceManager = manager;
         }
 
-        private void UpdateTimeline(Timeline timeline) {
-            this.TheTimeline.Timeline = timeline;
-        }
-
         private void OnFitToContentClicked(object sender, RoutedEventArgs e) {
             this.VPViewBox.FitContentToCenter();
         }
@@ -208,14 +258,14 @@ namespace FramePFX.Editors.Views {
                     editor.Playback.Pause();
                 }
                 else if (editor.Project != null) {
-                    editor.Playback.Play(editor.Project.MainTimeline.PlayHeadPosition);
+                    editor.Playback.Play(editor.Playback.Timeline.PlayHeadPosition);
                 }
             }
         }
 
         private void PlayClick(object sender, RoutedEventArgs e) {
             if (this.Editor is VideoEditor editor && editor.Project != null) {
-                editor.Playback.Play(editor.Project.MainTimeline.PlayHeadPosition);
+                editor.Playback.Play(editor.Playback.Timeline.PlayHeadPosition);
             }
         }
 

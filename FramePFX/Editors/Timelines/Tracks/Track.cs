@@ -159,9 +159,16 @@ namespace FramePFX.Editors.Timelines.Tracks {
             clone.height = Maths.Clamp(this.height, MinimumHeight, MaximumHeight);
             clone.displayName = this.displayName;
             clone.colour = this.colour;
-            if (options.CloneClips) {
+
+            this.AutomationData.LoadDataIntoClone(clone.AutomationData);
+            foreach (BaseEffect effect in this.Effects) {
+                if (effect.IsCloneable)
+                    clone.AddEffect(effect.Clone());
+            }
+
+            if (options.ClipCloneOptions is ClipCloneOptions clipCloneOptions) {
                 for (int i = 0; i < this.clips.Count; i++) {
-                    clone.InsertClip(i, this.clips[i].Clone(options.ClipCloneOptions));
+                    clone.InsertClip(i, this.clips[i].Clone(clipCloneOptions));
                 }
             }
         }
@@ -280,7 +287,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
         }
 
         public void InvalidateRender() {
-            this.Project?.RenderManager.InvalidateRender();
+            this.Timeline?.RenderManager.InvalidateRender();
         }
 
         public virtual void Destroy() {

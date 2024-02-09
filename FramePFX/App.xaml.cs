@@ -29,6 +29,11 @@ namespace FramePFX {
             this.MainWindow = this.splash = new AppSplashScreen();
             this.splash.Show();
 
+            string[] envArgs = Environment.GetCommandLineArgs();
+            if (envArgs.Length > 0 && Path.GetDirectoryName(envArgs[0]) is string dir && dir.Length > 0) {
+                Directory.SetCurrentDirectory(dir);
+            }
+
             await this.splash.SetAction("Loading PFXCE native library...", null);
             try {
                 PFXNative.InitialiseLibrary();
@@ -74,11 +79,6 @@ namespace FramePFX {
 
         public async Task InitWPFApp() {
             await this.splash.SetAction("Loading services...", null);
-            string[] envArgs = Environment.GetCommandLineArgs();
-            if (envArgs.Length > 0 && Path.GetDirectoryName(envArgs[0]) is string dir && dir.Length > 0) {
-                Directory.SetCurrentDirectory(dir);
-            }
-
             ShortcutManager.Instance = new WPFShortcutManager();
             ShortcutManager.Instance.ShortcutModified += (sender, value) => {
                 GlobalUpdateShortcutGestureConverter.BroadcastChange();

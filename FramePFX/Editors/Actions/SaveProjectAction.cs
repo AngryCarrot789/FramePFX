@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using FramePFX.Actions;
@@ -32,7 +33,7 @@ namespace FramePFX.Editors.Actions {
                 project.WriteToFile(filePath);
                 return true;
             }
-            catch (IOException e) {
+            catch (Exception e) {
                 IoC.MessageService.ShowMessage("Save Error", "An exception occurred while saving project", e.GetToString());
                 return false;
             }

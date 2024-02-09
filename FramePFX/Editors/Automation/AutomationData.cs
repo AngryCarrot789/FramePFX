@@ -187,7 +187,7 @@ namespace FramePFX.Editors.Automation {
             return this.TryGetSequence(parameter, out AutomationSequence sequence) && sequence.HasKeyFrames;
         }
 
-        public void InvalidateTimelineRender() => this.Owner.Project?.RenderManager.InvalidateRender();
+        public void InvalidateTimelineRender() => this.Owner.Timeline?.RenderManager.InvalidateRender();
 
         internal static void InternalOnParameterValueChanged(AutomationSequence sequence) {
             sequence.AutomationData.ParameterValueChanged?.Invoke(sequence);

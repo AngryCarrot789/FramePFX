@@ -215,11 +215,12 @@ namespace FramePFX.Editors.Timelines.Tracks {
             locker.OnRenderFinished();
         }
 
-        public void DrawFrameIntoSurface(SKSurface dstSurface) {
+        public void DrawFrameIntoSurface(SKSurface dstSurface, out SKRect usedRenderingArea) {
             DisposalSync<TrackRenderData> rdw = this.myRenderDataLock;
             lock (rdw.DisposeLock) {
                 TrackRenderData rd = rdw.Value;
                 if (rd.surface == null || !rdw.OnRenderBegin()) {
+                    usedRenderingArea = default;
                     return;
                 }
 
@@ -251,7 +252,12 @@ namespace FramePFX.Editors.Timelines.Tracks {
                             // Just as slow as drawing the entire surface
                             // dstSurface.Canvas.DrawSurface(rd.surface, new SKPoint(rdA.Left, rdA.Top));
                         }
+
+                        usedRenderingArea = usedArea;
                     }
+                }
+                else {
+                    usedRenderingArea = default;
                 }
 
                 rdw.OnRenderFinished();

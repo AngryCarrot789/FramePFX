@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using FramePFX.Editors.Timelines.Clips;
 
 namespace FramePFX.Interactivity.DataContexts {
     /// <summary>

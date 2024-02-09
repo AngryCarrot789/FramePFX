@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using FramePFX.Editors.Exporting.FFMPEG;
+using FramePFX.Editors.Timelines;
 
 namespace FramePFX.Editors.Exporting {
     public delegate void ExportSetupEventHandler(ExportSetup sender);
@@ -10,6 +11,11 @@ namespace FramePFX.Editors.Exporting {
         public IReadOnlyList<Exporter> Exporters => this.exporters;
 
         public Project Project { get; }
+
+        /// <summary>
+        /// The timeline being exported. This is usually the project's main timeline, but may also be a composition timeline
+        /// </summary>
+        public Timeline Timeline { get; }
 
         public ExportProperties Properties { get; }
 
@@ -39,8 +45,9 @@ namespace FramePFX.Editors.Exporting {
 
         public event ExportSetupEventHandler SelectedExporterIndexChanged;
 
-        public ExportSetup(Project project) {
+        public ExportSetup(Project project, Timeline timeline) {
             this.Project = project;
+            this.Timeline = timeline;
             this.exporters = new List<Exporter> {
                 new FFmpegExporter()
             };

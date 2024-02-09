@@ -7,6 +7,7 @@ using System.Windows.Threading;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
+using FramePFX.Editors.Utils;
 using FramePFX.Utils;
 using SkiaSharp;
 
@@ -14,10 +15,10 @@ namespace FramePFX.Editors.Rendering {
     public delegate void FrameRenderedEventHandler(RenderManager manager);
 
     /// <summary>
-    /// A class that manages the audio-visual rendering for a project
+    /// A class that manages the audio-visual rendering for a timeline
     /// </summary>
     public class RenderManager {
-        public Project Project { get; }
+        public Timeline Timeline { get; }
 
         public SKImageInfo ImageInfo { get; private set; }
 
@@ -31,6 +32,7 @@ namespace FramePFX.Editors.Rendering {
         internal volatile int suspendRenderCount;
         private volatile int isRenderCancelled;
 
+        private volatile bool isSkiaValid;
         private SKBitmap bitmap;
         private SKPixmap pixmap;
         // public but unsafe access to the underlying surface, used by view port. Must not be replaced externally
@@ -38,68 +40,92 @@ namespace FramePFX.Editors.Rendering {
 
         public Task ScheduledRenderTask => this.scheduledRenderTask;
 
+        /// <summary>
+        /// Gets the rect containing the bounds of the pixels that were modified during the last render
+        /// </summary>
+        public SKRect LastRenderRect;
+
         public double AverageRenderTimeMillis => this.averageRenderTimeMillis;
 
         public event FrameRenderedEventHandler FrameRendered;
 
-        private readonly Thread renderThread;
-        private volatile bool isRenderThreadRunning;
-
-        public RenderManager(Project project) {
-            this.Project = project;
-            this.Project.Settings.ResolutionChanged += this.SettingsOnResolutionChanged;
+        public RenderManager(Timeline timeline) {
+            this.Timeline = timeline;
             // this.renderThread = new Thread(this.RenderThreadMain);
         }
 
+        public SuspendRender CancelRenderAndWaitForCompletion() {
+            SuspendRender suspension = this.SuspendRenderInvalidation();
+            this.isRenderCancelled = 1;
+            while (this.isRendering != 0)
+                Thread.Sleep(1);
+            return suspension;
+        }
+
+        public static void InternalOnTimelineProjectChanged(RenderManager manager, Project oldProject, Project newProject) {
+            if (oldProject != null) {
+                oldProject.Settings.ResolutionChanged -= manager.SettingsOnResolutionChanged;
+                manager.DisposeCanvas();
+            }
+
+            if (newProject != null) {
+                newProject.Settings.ResolutionChanged += manager.SettingsOnResolutionChanged;
+                manager.SettingsOnResolutionChanged(newProject.Settings);
+            }
+        }
+
         private void SettingsOnResolutionChanged(ProjectSettings settings) {
-            this.UpdateFrameInfo();
+            this.UpdateFrameInfo(settings);
             this.InvalidateRender();
         }
 
         public void Dispose() {
-            if (this.IsRendering)
-                throw new InvalidOperationException("Cannot dispose while rendering");
-            this.bitmap?.Dispose();
-            this.pixmap?.Dispose();
-            this.surface?.Dispose();
+            this.DisposeCanvas();
             this.isDisposed = true;
         }
 
-        public void UpdateFrameInfo() {
-            if (this.IsRendering) {
-                throw new InvalidOperationException("Cannot change frame info while rendering");
+        private void DisposeCanvas() {
+            using (this.CancelRenderAndWaitForCompletion()) {
+                this.DisposeSkiaObjects();
             }
-
-            ProjectSettings settings = this.Project.Settings;
-            SKImageInfo info = new SKImageInfo(settings.Width, settings.Height, SKColorType.Bgra8888);
-            if (this.ImageInfo == info) {
-                return;
-            }
-
-            this.ImageInfo = info;
-            this.surface?.Dispose();
-            this.bitmap?.Dispose();
-            this.pixmap?.Dispose();
-            this.bitmap = new SKBitmap(info);
-
-            IntPtr ptr = this.bitmap.GetAddress(0, 0);
-            this.pixmap = new SKPixmap(info, ptr, info.RowBytes);
-            this.surface = SKSurface.Create(this.pixmap);
         }
 
-        private void BeginRender(Timeline timeline, long frame) {
+        private void DisposeSkiaObjects() {
+            this.isSkiaValid = false;
+            this.bitmap?.Dispose();
+            this.pixmap?.Dispose();
+            this.surface?.Dispose();
+        }
+
+        public void UpdateFrameInfo(ProjectSettings settings) {
+            using (this.CancelRenderAndWaitForCompletion()) {
+                SKImageInfo info = new SKImageInfo(settings.Width, settings.Height, SKColorType.Bgra8888);
+                if (this.ImageInfo == info && this.isSkiaValid) {
+                    return;
+                }
+
+                this.DisposeSkiaObjects();
+                this.ImageInfo = info;
+                this.bitmap = new SKBitmap(info);
+
+                IntPtr ptr = this.bitmap.GetAddress(0, 0);
+                this.pixmap = new SKPixmap(info, ptr, info.RowBytes);
+                this.surface = SKSurface.Create(this.pixmap);
+                this.isSkiaValid = true;
+            }
+        }
+
+        private void BeginRender(long frame) {
             if (!Application.Current.Dispatcher.CheckAccess())
                 throw new InvalidOperationException("Cannot start rendering while not on the main thread");
-            if (timeline == null)
-                throw new ArgumentNullException(nameof(timeline), "Cannot render a null timeline");
-            if (frame < 0 || frame >= timeline.MaxDuration)
+            if (frame < 0 || frame >= this.Timeline.MaxDuration)
                 throw new ArgumentOutOfRangeException(nameof(frame), "Frame is not within the bounds of the timeline");
             if (this.ImageInfo.Width < 1 || this.ImageInfo.Height < 1)
                 throw new InvalidOperationException("The current frame info is invalid");
             if (Interlocked.CompareExchange(ref this.isRendering, 1, 0) != 0)
                 throw new InvalidOperationException("Render already in progress");
-
-
+            // possible race condition... maybe guard lock swapping isRendering with 1, instead of using CAS?
+            this.isRenderCancelled = 0;
         }
 
         /// <summary>
@@ -108,8 +134,8 @@ namespace FramePFX.Editors.Rendering {
         /// completed when the render is completed
         /// </summary>
         /// <param name="frame">The frame to render</param>
-        public async Task RenderTimelineAsync(Timeline timeline, long frame, CancellationToken token, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality) {
-            this.BeginRender(timeline, frame);
+        public Task RenderTimelineAsync(long frame, CancellationToken token, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality) {
+            this.BeginRender(frame);
             long beginRender;
             List<VideoTrack> trackList;
             SKImageInfo imgInfo;
@@ -119,8 +145,8 @@ namespace FramePFX.Editors.Rendering {
                 beginRender = Time.GetSystemTicks();
 
                 // render bottom to top, as most video editors do
-                for (int i = timeline.Tracks.Count - 1; i >= 0; i--) {
-                    Track track = timeline.Tracks[i];
+                for (int i = this.Timeline.Tracks.Count - 1; i >= 0; i--) {
+                    Track track = this.Timeline.Tracks[i];
                     if (!(track is VideoTrack videoTrack) || !VideoTrack.VisibleParameter.GetCurrentValue(videoTrack)) {
                         continue;
                     }
@@ -139,30 +165,38 @@ namespace FramePFX.Editors.Rendering {
             // open source video editors just design their rendering system completely differently?
             // Either way, this works and it works well... for now when there are no composition clips
 
-            await Task.Run(async () => {
+            return Task.Run(async () => {
+                SKRect totalRenderArea = default;
                 try {
+                    this.CheckRenderCancelled();
                     Task[] tasks = new Task[trackList.Count];
                     for (int i = 0; i < tasks.Length; i++) {
                         VideoTrack track = trackList[i];
                         tasks[i] = Task.Run(() => track.RenderFrame(imgInfo, quality), token);
                     }
 
+                    this.CheckRenderCancelled();
                     this.surface.Canvas.Clear(SKColors.Black);
                     for (int i = 0; i < trackList.Count; i++) {
                         if (!tasks[i].IsCompleted)
                             await tasks[i];
-                        trackList[i].DrawFrameIntoSurface(this.surface);
+                        trackList[i].DrawFrameIntoSurface(this.surface, out SKRect usedRenderingArea);
+                        totalRenderArea = SKRect.Union(totalRenderArea, usedRenderingArea);
                     }
 
                     this.averageRenderTimeMillis = (Time.GetSystemTicks() - beginRender) / Time.TICK_PER_MILLIS_D;
                 }
                 finally {
+                    this.LastRenderRect = totalRenderArea;
                     this.isRendering = 0;
                 }
 
             }, token);
+        }
 
-            this.FrameRendered?.Invoke(this);
+        private void CheckRenderCancelled() {
+            if (this.isRenderCancelled != 0 || !this.isSkiaValid)
+                throw new TaskCanceledException();
         }
 
         // SaveLayer requires a temporary drawing bitmap, which can slightly
@@ -191,7 +225,11 @@ namespace FramePFX.Editors.Rendering {
         /// Schedules the timeline to be re-drawn once the application is no longer busy
         /// </summary>
         public void InvalidateRender() {
-            if (this.isDisposed || this.suspendRenderCount > 0 || Interlocked.CompareExchange(ref this.isRenderScheduled, 1, 0) != 0) {
+            if (this.isDisposed || this.suspendRenderCount > 0) {
+                return;
+            }
+
+            if (!this.Timeline.IsActive || Interlocked.CompareExchange(ref this.isRenderScheduled, 1, 0) != 0) {
                 return;
             }
 
@@ -200,18 +238,22 @@ namespace FramePFX.Editors.Rendering {
             }, DispatcherPriority.Send);
         }
 
+
+        /// <summary>
+        /// Raises the <see cref="FrameRendered"/> event
+        /// </summary>
+        public void OnFrameCompleted() => this.FrameRendered?.Invoke(this);
+
         private async Task DoScheduledRender() {
             if (this.suspendRenderCount < 1) {
                 try {
-                    await this.RenderTimelineAsync(
-                        this.Project.MainTimeline,
-                        this.Project.MainTimeline.PlayHeadPosition,
-                        CancellationToken.None,
-                        EnumRenderQuality.Low);
+                    await this.RenderTimelineAsync(this.Timeline.PlayHeadPosition, CancellationToken.None, EnumRenderQuality.Low);
                 }
                 finally {
                     this.isRenderScheduled = 0;
                 }
+
+                this.OnFrameCompleted();
             }
             else {
                 this.isRenderScheduled = 0;
@@ -223,8 +265,24 @@ namespace FramePFX.Editors.Rendering {
         /// </summary>
         /// <param name="target">The surface in which our rendered frame is drawn into</param>
         public void Draw(SKSurface target) {
+            SKRect usedArea = this.LastRenderRect;
+            if (!(usedArea.Width > 0) || !(usedArea.Height > 0)) {
+                return;
+            }
+
             this.surface.Flush();
-            this.surface.Draw(target.Canvas, 0, 0, null);
+            // this.surface.Draw(target.Canvas, 0, 0, null);
+
+            // this is the same code that VideoTrack uses for efficient final frame assembly
+            SKRect frameRect = this.ImageInfo.ToRect();
+            if (usedArea == frameRect) {
+                this.surface.Draw(target.Canvas, 0, 0, null);
+            }
+            else {
+                using (SKImage img = SKImage.FromPixels(this.ImageInfo, this.bitmap.GetPixels())) {
+                    target.Canvas.DrawImage(img, usedArea, usedArea);
+                }
+            }
 
             // SKImageInfo imgInfo = this.ImageInfo;
             // IntPtr srcPtr = this.bitmap.GetPixels();
@@ -240,14 +298,6 @@ namespace FramePFX.Editors.Rendering {
             // }
         }
 
-        private void RenderThreadMain() {
-            while (this.isRenderThreadRunning) {
-
-            }
-
-
-        }
-
         public SuspendRender SuspendRenderInvalidation() {
             Interlocked.Increment(ref this.suspendRenderCount);
             return new SuspendRender(this);
@@ -257,7 +307,7 @@ namespace FramePFX.Editors.Rendering {
     public struct SuspendRender : IDisposable {
         internal RenderManager manager;
 
-        public SuspendRender(RenderManager manager) {
+        internal SuspendRender(RenderManager manager) {
             this.manager = manager;
         }
 

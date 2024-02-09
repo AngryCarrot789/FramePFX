@@ -1,8 +1,6 @@
 using System;
 using System.IO;
-using System.Threading;
 using FramePFX.Destroying;
-using FramePFX.Editors.Rendering;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.Timelines;
 using FramePFX.RBC;
@@ -10,8 +8,39 @@ using FramePFX.RBC;
 namespace FramePFX.Editors {
     public delegate void ProjectEventHandler(Project project);
 
+    public delegate void ActiveTimelineChangedEventHandler(Project project, Timeline oldTimeline, Timeline newTimeline);
+
     public class Project : IDestroy {
         private string projectName;
+        private Timeline activeTimeline;
+
+        /// <summary>
+        /// Gets or sets the active timeline in the UI. This is the timeline that all timeline actions are applied
+        /// on (e.g. cutting clips) and is also the timeline that is rendered to the UI
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        public Timeline ActiveTimeline {
+            get => this.activeTimeline;
+            set {
+                if (value == null)
+                    value = this.MainTimeline;
+                Timeline oldTimeline = this.activeTimeline;
+                if (oldTimeline == value)
+                    return;
+                if (value.Project != this)
+                    throw new InvalidOperationException("The new active timeline's project does not match the current instance");
+
+                this.activeTimeline = value;
+                Timeline.InternalOnActiveTimelineChanged(oldTimeline, value);
+                if (this.Editor != null)
+                    VideoEditor.InternalOnActiveTimelineChanged(this.Editor, oldTimeline, value);
+
+                value.RenderManager.UpdateFrameInfo(this.Settings);
+                value.RenderManager.InvalidateRender();
+
+                this.ActiveTimelineChanged?.Invoke(this, oldTimeline, value);
+            }
+        }
 
         /// <summary>
         /// Gets this project's primary timeline. This does not change
@@ -29,11 +58,6 @@ namespace FramePFX.Editors {
         public VideoEditor Editor { get; private set; }
 
         public ProjectSettings Settings { get; }
-
-        /// <summary>
-        /// Gets this project's render manager, which handles rendering of video and audio
-        /// </summary>
-        public RenderManager RenderManager { get; }
 
         /// <summary>
         /// Gets or sets if a video is being exported. Used by the view port to optimise the UI for rendering
@@ -80,12 +104,18 @@ namespace FramePFX.Editors {
         public event ProjectEventHandler ProjectFilePathChanged;
         public event ProjectEventHandler IsModifiedChanged;
 
+        /// <summary>
+        /// An event fired when our <see cref="ActiveTimeline"/> changes.
+        /// The old and new timeline values will always be non-null
+        /// </summary>
+        public event ActiveTimelineChangedEventHandler ActiveTimelineChanged;
+
         public Project() {
             this.projectName = "Unnamed Project";
             this.Settings = ProjectSettings.CreateDefault(this);
-            this.RenderManager = new RenderManager(this);
             this.ResourceManager = new ResourceManager(this);
             this.MainTimeline = new Timeline();
+            this.activeTimeline = this.MainTimeline;
             Timeline.InternalSetMainTimelineProjectReference(this.MainTimeline, this);
         }
 
@@ -181,20 +211,13 @@ namespace FramePFX.Editors {
         /// This is called when closing a project, or loading a new project (old project destroyed, new one is loaded)
         /// </summary>
         public void Destroy() {
-            // TODO: this is no good
-            while (this.RenderManager.IsRendering)
-                Thread.Sleep(1);
-            using (this.RenderManager.SuspendRenderInvalidation()) {
-                this.MainTimeline.Destroy();
-                this.ResourceManager.Clear();
-            }
-
-            this.RenderManager.Dispose();
+            this.MainTimeline.Destroy();
+            this.ResourceManager.Clear();
         }
 
         public static Project ReadProjectAt(string filePath) {
             Project project = new Project();
-            using (project.RenderManager.SuspendRenderInvalidation()) {
+            using (project.MainTimeline.RenderManager.SuspendRenderInvalidation()) {
                 try {
                     project.ReadFromFile(filePath);
                 }

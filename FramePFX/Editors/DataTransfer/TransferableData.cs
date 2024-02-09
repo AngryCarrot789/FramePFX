@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using FramePFX.Editors.Timelines;
 
 namespace FramePFX.Editors.DataTransfer {
     /// <summary>
@@ -98,11 +99,11 @@ namespace FramePFX.Editors.DataTransfer {
                 internalData.OnValueChanged(parameter, owner);
                 data.ValueChanged?.Invoke(parameter, owner);
                 DataParameter.InternalOnParameterValueChanged(parameter, owner);
-                if (parameter.Flags != DataParameterFlags.None && owner is IHaveProject projHolder && projHolder.Project is Project project) {
-                    if ((parameter.Flags & DataParameterFlags.ModifiesProject) != 0)
+                if (parameter.Flags != DataParameterFlags.None) {
+                    if ((parameter.Flags & DataParameterFlags.ModifiesProject) != 0 && owner is IHaveProject projHolder && projHolder.Project is Project project)
                         project.MarkModified();
-                    if ((parameter.Flags & DataParameterFlags.AffectsRender) != 0)
-                        project.RenderManager.InvalidateRender();
+                    if ((parameter.Flags & DataParameterFlags.AffectsRender) != 0 && owner is IHaveTimeline timelineHolder && timelineHolder.Timeline is Timeline timeline)
+                        timeline.RenderManager.InvalidateRender();
                 }
             }
             finally {

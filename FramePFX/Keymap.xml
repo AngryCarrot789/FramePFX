@@ -174,7 +174,7 @@
                 <Shortcut Name="AddKeyFrame" ActionId="actions.automation.AddKeyFrame" Description="Adds a new key frame at the play head at the playhead for the clip's or clip's active sequence">
                     <KeyStroke Key="K"/>
                 </Shortcut>
-                <Shortcut Name="CreateCompositionFromSelection" ActionId="actions.editor.timeline.CreateCompositionFromSelection">
+                <Shortcut Name="CreateCompositionFromSelection" ActionId="actions.timeline.ConvertSelectionIntoCompositionAction">
                     <KeyStroke Mods="ALT" Key="C"/>
                 </Shortcut>
                 <Shortcut Name="ToggleDragScroll" ActionId="actions.editor.timeline.ToggleAutoScrollOnClipDrag">

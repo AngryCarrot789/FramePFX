@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using FramePFX.Destroying;
 using FramePFX.Editors.Automation;
 using FramePFX.Editors.Factories;
+using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.RBC;
@@ -136,6 +138,10 @@ namespace FramePFX.Editors.Timelines {
 
         public double Zoom { get; private set; }
 
+        public bool IsActive { get; private set; }
+
+        public RenderManager RenderManager { get; }
+
         public event TimelineTrackIndexEventHandler TrackAdded;
         public event TimelineTrackIndexEventHandler TrackRemoved;
         public event TimelineTrackMovedEventHandler TrackMoved;
@@ -159,6 +165,7 @@ namespace FramePFX.Editors.Timelines {
             this.SelectedTracks = this.selectedTracks.AsReadOnly();
             this.maxDuration = 5000L;
             this.Zoom = 1.0d;
+            this.RenderManager = new RenderManager(this);
         }
 
         public virtual void WriteToRBE(RBEDictionary data) {
@@ -195,6 +202,23 @@ namespace FramePFX.Editors.Timelines {
             this.UpdateLargestFrame();
         }
 
+        public void LoadDataIntoClone(Timeline clone) {
+            if (this.tracks.Count > 0) {
+                throw new InvalidOperationException("Cannot read track RBE data while there are still tracks");
+            }
+
+            clone.playHeadPosition = this.playHeadPosition;
+            clone.stopHeadPosition = this.stopHeadPosition;
+            clone.maxDuration = this.maxDuration;
+            foreach (Track track in this.tracks) {
+                clone.AddTrack(track.Clone());
+            }
+
+            // Recalculate a new max duration, just in case the clips somehow exceed the current value
+            clone.maxDuration = this.maxDuration;
+            clone.UpdateLargestFrame();
+        }
+
         public void UpdateLargestFrame() {
             IReadOnlyList<Track> list = this.Tracks;
             int count = list.Count;
@@ -208,6 +232,10 @@ namespace FramePFX.Editors.Timelines {
             }
             else {
                 this.LargestFrameInUse = 0;
+            }
+
+            if (this.largestFrameInUse > this.maxDuration) {
+                this.MaxDuration = this.largestFrameInUse + 100;
             }
         }
 
@@ -234,7 +262,7 @@ namespace FramePFX.Editors.Timelines {
             if (track.Timeline != null)
                 throw new ArgumentException("Track already exists in another timeline. It must be removed first");
             if (track.IndexInTimeline != -1)
-                throw new InvalidOperationException("This track already contains the track");
+                throw new InvalidOperationException("The track already exists in another timeline");
             this.tracks.Insert(index, track);
             if (track.IsSelected)
                 this.selectedTracks.Add(track);
@@ -305,11 +333,18 @@ namespace FramePFX.Editors.Timelines {
         }
 
         public virtual void Destroy() {
-            for (int i = this.tracks.Count - 1; i >= 0; i--) {
-                Track track = this.tracks[i];
-                this.RemoveTrackAt(i);
-                track.Destroy();
+            // TODO: this is no good
+            while (this.RenderManager.IsRendering)
+                Thread.Sleep(1);
+            using (this.RenderManager.SuspendRenderInvalidation()) {
+                for (int i = this.tracks.Count - 1; i >= 0; i--) {
+                    Track track = this.tracks[i];
+                    this.RemoveTrackAt(i);
+                    track.Destroy();
+                }
             }
+
+            this.RenderManager.Dispose();
         }
 
         private void UpdateIndexForInsertionOrRemoval(int index) {
@@ -377,7 +412,43 @@ namespace FramePFX.Editors.Timelines {
             }
         }
 
-        public void InvalidateRender() => this.Project?.RenderManager.InvalidateRender();
+        public void InvalidateRender() => this.RenderManager.InvalidateRender();
+
+        public HashSet<Clip> GetSelectedClipsWith(Clip value) {
+            HashSet<Clip> clips = new HashSet<Clip>(this.SelectedClips);
+            if (value != null)
+                clips.Add(value);
+            return clips;
+        }
+
+        public int GetSelectedClipCountWith(Clip clip) {
+            int count = 0;
+            foreach (Track track in this.tracks) {
+                count += track.SelectedClipCount;
+            }
+
+            if (clip != null && !clip.IsSelected) {
+                count++;
+            }
+
+            return count;
+        }
+
+        public void DeleteTrack(Track track) {
+            track.Destroy();
+            this.RemoveTrack(track);
+        }
+
+        public void DeleteTrackAt(int index) {
+            this.tracks[index].Destroy();
+            this.RemoveTrackAt(index);
+        }
+
+        public void TryExpandForFrame(long frame) {
+            if (frame > this.maxDuration) {
+                this.MaxDuration = frame + 1000;
+            }
+        }
 
         internal static void InternalOnIsClipSelectedChanged(Clip clip) {
             // UI modifies the anchor directly
@@ -422,6 +493,8 @@ namespace FramePFX.Editors.Timelines {
             // to be none, unless this method is called outside of the project's constructor which it
             // shouldn't have been anyway
             timeline.Project = project;
+            timeline.IsActive = true;
+            RenderManager.InternalOnTimelineProjectChanged(timeline.RenderManager, null, project);
         }
 
         // TODO: composition timelines
@@ -437,46 +510,17 @@ namespace FramePFX.Editors.Timelines {
             foreach (Track track in timeline.tracks) {
                 Track.InternalOnTimelineProjectChanged(track, oldProject, project);
             }
+
+            RenderManager.InternalOnTimelineProjectChanged(timeline.RenderManager, oldProject, project);
         }
 
         internal static void InternalOnTrackSelectionCleared(Track track) {
 
         }
 
-        public HashSet<Clip> GetSelectedClipsWith(Clip value) {
-            HashSet<Clip> clips = new HashSet<Clip>(this.SelectedClips);
-            if (value != null)
-                clips.Add(value);
-            return clips;
-        }
-
-        public int GetSelectedClipCountWith(Clip clip) {
-            int count = 0;
-            foreach (Track track in this.tracks) {
-                count += track.SelectedClipCount;
-            }
-
-            if (clip != null && !clip.IsSelected) {
-                count++;
-            }
-
-            return count;
-        }
-
-        public void DeleteTrack(Track track) {
-            track.Destroy();
-            this.RemoveTrack(track);
-        }
-
-        public void DeleteTrackAt(int index) {
-            this.tracks[index].Destroy();
-            this.RemoveTrackAt(index);
-        }
-
-        public void TryExpandForFrame(long frame) {
-            if (frame > this.maxDuration) {
-                this.MaxDuration = frame + 1000;
-            }
+        public static void InternalOnActiveTimelineChanged(Timeline oldTimeline, Timeline newTimeline) {
+            oldTimeline.IsActive = false;
+            newTimeline.IsActive = true;
         }
     }
 }

@@ -1,15 +1,12 @@
 namespace FramePFX.Editors.Timelines.Tracks {
     public struct TrackCloneOptions {
         public static readonly TrackCloneOptions Default = new TrackCloneOptions() {
-            ClipCloneOptions = ClipCloneOptions.Default,
-            CloneClips = true
+            ClipCloneOptions = Tracks.ClipCloneOptions.Default,
         };
 
-        public bool CloneClips;
-        public ClipCloneOptions ClipCloneOptions;
+        public ClipCloneOptions? ClipCloneOptions;
 
-        public TrackCloneOptions(bool cloneClips, ClipCloneOptions clipCloneOptions) {
-            this.CloneClips = cloneClips;
+        public TrackCloneOptions(ClipCloneOptions? clipCloneOptions) {
             this.ClipCloneOptions = clipCloneOptions;
         }
     }

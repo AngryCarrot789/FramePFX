@@ -84,7 +84,7 @@ namespace FramePFX.AdvancedContextService.WPF {
         }
 
         internal static void InsertItemNodes(AdvancedContextMenu menu, ItemsControl parent, List<IContextEntry> entries) {
-            ItemCollection items = menu.Items;
+            ItemCollection items = parent.Items;
             foreach (IContextEntry entry in CleanEntries(entries)) {
                 FrameworkElement element = menu.CreateChildItem(entry);
                 AdvancedContextMenuItem parentNode = parent as AdvancedContextMenuItem;

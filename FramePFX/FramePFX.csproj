@@ -104,6 +104,7 @@
     <Compile Include="AdvancedMenuService\WPF\AdvancedActionMenuItem.cs" />
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Converters\EmptyStringToVisibilityConverter.cs" />
+    <Compile Include="Editors\Actions\ConvertSelectionIntoCompositionAction.cs" />
     <Compile Include="Editors\Actions\DeleteClipOwnerTrackAction.cs" />
     <Compile Include="Editors\Actions\DeleteClipsAction.cs" />
     <Compile Include="Editors\Actions\DeleteTracksAction.cs" />
@@ -121,6 +122,7 @@
     <Compile Include="Editors\Actions\ToggleClipVisibilityAction.cs" />
     <Compile Include="Editors\Actions\TogglePlayAction.cs" />
     <Compile Include="Editors\Actions\ToggleTrackAutomationAction.cs" />
+    <Compile Include="Editors\CompositionTimeline.cs" />
     <Compile Include="Editors\Contextual\ClipContextRegistry.cs" />
     <Compile Include="Editors\Contextual\ResourceContextRegistry.cs" />
     <Compile Include="Editors\Contextual\TrackContextRegistry.cs" />
@@ -187,8 +189,11 @@
     <Compile Include="Editors\ResourceManaging\Resources\InvalidImagePathEntry.cs" />
     <Compile Include="Editors\ResourceManaging\Resources\InvalidMediaPathEntry.cs" />
     <Compile Include="Editors\ResourceManaging\Resources\ResourceAVMedia.cs" />
+    <Compile Include="Editors\ResourceManaging\Resources\ResourceComposition.cs" />
     <Compile Include="Editors\Timelines\Clips\ClipGroup.cs" />
     <Compile Include="Editors\Timelines\Clips\Core\AVMediaVideoClip.cs" />
+    <Compile Include="Editors\Timelines\Clips\Core\CompositionVideoClip.cs" />
+    <Compile Include="Editors\Timelines\Clips\Core\ICompositionClip.cs" />
     <Compile Include="Editors\Timelines\Clips\Core\ImageVideoClip.cs" />
     <Compile Include="Editors\Timelines\Clips\Core\TextClip.cs" />
     <Compile Include="Editors\Timelines\Clips\Core\TimecodeClip.cs" />

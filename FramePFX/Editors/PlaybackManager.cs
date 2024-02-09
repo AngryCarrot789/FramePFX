@@ -43,6 +43,11 @@ namespace FramePFX.Editors {
         public VideoEditor Editor { get; }
 
         /// <summary>
+        /// Gets the timeline that this playback manager processes. This changes when the editor's project's <see cref="Project.ActiveTimeline"/> changes
+        /// </summary>
+        public Timeline Timeline { get; private set; }
+
+        /// <summary>
         /// An event fired when the play, pause or stop methods are called, if the current playback state does not match the matching function
         /// </summary>
         public event PlaybackStateEventHandler PlaybackStateChanged;
@@ -52,7 +57,7 @@ namespace FramePFX.Editors {
         }
 
         public bool CanSetPlayStateTo(PlayState newState) {
-            if (this.Editor.Project == null) {
+            if (this.Timeline == null) {
                 return false;
             }
 
@@ -88,19 +93,19 @@ namespace FramePFX.Editors {
         }
 
         public void Play() {
-            if (!(this.Editor.Project is Project project) || this.PlayState == PlayState.Play) {
+            if (this.Timeline == null || this.PlayState == PlayState.Play) {
                 return;
             }
 
-            this.PlayInternal(project.MainTimeline.PlayHeadPosition);
+            this.PlayInternal(this.Timeline.PlayHeadPosition);
         }
 
         public void Play(long frame) {
-            if (!(this.Editor.Project is Project project)) {
+            if (this.Timeline == null) {
                 return;
             }
 
-            if (this.PlayState == PlayState.Play && project.MainTimeline.PlayHeadPosition == frame) {
+            if (this.PlayState == PlayState.Play && this.Timeline.PlayHeadPosition == frame) {
                 return;
             }
 
@@ -119,33 +124,25 @@ namespace FramePFX.Editors {
         }
 
         public void Pause() {
-            if (this.PlayState != PlayState.Play) {
-                return;
-            }
-
-            if (!(this.Editor.Project is Project project)) {
+            if (this.PlayState != PlayState.Play || this.Timeline == null) {
                 return;
             }
 
             this.OnAboutToStopPlaying();
-            project.MainTimeline.StopHeadPosition = project.MainTimeline.PlayHeadPosition;
+            this.Timeline.StopHeadPosition = this.Timeline.PlayHeadPosition;
             this.PlayState = PlayState.Pause;
-            this.PlaybackStateChanged?.Invoke(this, this.PlayState, project.MainTimeline.StopHeadPosition);
+            this.PlaybackStateChanged?.Invoke(this, this.PlayState, this.Timeline.StopHeadPosition);
         }
 
         public void Stop() {
-            if (this.PlayState != PlayState.Play) {
-                return;
-            }
-
-            if (!(this.Editor.Project is Project project)) {
+            if (this.PlayState != PlayState.Play || this.Timeline == null) {
                 return;
             }
 
             this.OnAboutToStopPlaying();
             this.PlayState = PlayState.Stop;
-            this.PlaybackStateChanged?.Invoke(this, this.PlayState, project.MainTimeline.StopHeadPosition);
-            project.MainTimeline.PlayHeadPosition = project.MainTimeline.StopHeadPosition;
+            this.PlaybackStateChanged?.Invoke(this, this.PlayState, this.Timeline.StopHeadPosition);
+            this.Timeline.PlayHeadPosition = this.Timeline.StopHeadPosition;
         }
 
         private void OnTimerFrame() {
@@ -153,13 +150,18 @@ namespace FramePFX.Editors {
                 return;
             }
 
-            Project project = this.Editor.Project;
-            if (project == null) {
+            if (this.Timeline == null || this.Timeline.Project == null) {
                 return;
             }
 
-            using (project.RenderManager.SuspendRenderInvalidation()) {
+            using (this.Timeline.RenderManager.SuspendRenderInvalidation()) {
                 Task renderTask = Application.Current.Dispatcher.Invoke(() => {
+                    Timeline timeline = this.Timeline;
+                    Project project;
+                    if (timeline == null || (project = timeline.Project) == null || !timeline.IsActive) {
+                        return Task.CompletedTask;
+                    }
+
                     if (project.Editor == null || !this.thread_IsPlaying) {
                         return Task.CompletedTask;
                     }
@@ -173,7 +175,6 @@ namespace FramePFX.Editors {
                     // If we skip frames, the render will take even longer, meaning we skip more frames, and so on,
                     // So, frame skipping is limited to 3 frames just to be safe. Still need to work out a better
                     // solution but for now, 3 frames should be generally safe
-                    Timeline timeline = project.MainTimeline;
                     double fps = project.Settings.FrameRate.AsDouble;
                     double expectedInterval = Time.TICK_PER_SECOND_D / fps;
                     double actualInterval = DateTime.Now.Ticks - this.lastRenderTime.Ticks;
@@ -193,8 +194,8 @@ namespace FramePFX.Editors {
 
                     long newPlayHead = Periodic.Add(timeline.PlayHeadPosition, incr, 0, timeline.MaxDuration - 1);
                     timeline.PlayHeadPosition = newPlayHead;
-                    if ((project.RenderManager.ScheduledRenderTask?.IsCompleted ?? true)) {
-                        return RenderTimeline(project.RenderManager, timeline, timeline.PlayHeadPosition, CancellationToken.None);
+                    if ((timeline.RenderManager.ScheduledRenderTask?.IsCompleted ?? true)) {
+                        return RenderTimeline(timeline.RenderManager, timeline.PlayHeadPosition, CancellationToken.None);
                     }
 
                     return Task.CompletedTask;
@@ -215,11 +216,12 @@ namespace FramePFX.Editors {
             }
         }
 
-        private static async Task RenderTimeline(RenderManager renderManager, Timeline timeline, long frame, CancellationToken cancellationToken) {
+        private static async Task RenderTimeline(RenderManager renderManager, long frame, CancellationToken cancellationToken) {
             // await (renderManager.ScheduledRenderTask ?? Task.CompletedTask);
             if (cancellationToken.IsCancellationRequested)
                 throw new TaskCanceledException();
-            await renderManager.RenderTimelineAsync(timeline, frame, cancellationToken);
+            await renderManager.RenderTimelineAsync(frame, cancellationToken);
+            renderManager.OnFrameCompleted();
         }
 
         private void TimerMain() {
@@ -272,6 +274,11 @@ namespace FramePFX.Editors {
             //     }
             //     frameEndTicks = Time.GetSystemTicks();
             // }
+        }
+
+        internal static void InternalOnActiveTimelineChanged(PlaybackManager playback, Timeline oldTimeline, Timeline newTimeline) {
+            playback.Stop();
+            playback.Timeline = newTimeline;
         }
     }
 }

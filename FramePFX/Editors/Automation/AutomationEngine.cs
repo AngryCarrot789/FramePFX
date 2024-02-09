@@ -1,5 +1,7 @@
+using FramePFX.Editors.ResourceManaging.Resources;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines.Clips.Core;
 using FramePFX.Editors.Timelines.Effects;
 using FramePFX.Editors.Timelines.Tracks;
 
@@ -20,6 +22,10 @@ namespace FramePFX.Editors.Automation {
             clip.AutomationData.UpdateAllAutomated(relativePlayHead);
             foreach (BaseEffect effect in clip.Effects) {
                 effect.AutomationData.UpdateAllAutomated(relativePlayHead);
+            }
+
+            if (clip is ICompositionClip compClip && compClip.ResourceCompositionKey.TryGetResource(out ResourceComposition compResource)) {
+                UpdateValues(compResource.Timeline, relativePlayHead);
             }
         }
     }

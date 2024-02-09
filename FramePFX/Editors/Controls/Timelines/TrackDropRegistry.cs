@@ -24,7 +24,7 @@ namespace FramePFX.Editors.Controls.Timelines {
             });
 
             DropRegistry.Register<VideoTrack, ResourceItem>((track, resource, dt, ctx) => {
-                return resource is ResourceColour || resource is ResourceImage || resource is ResourceTextStyle || resource is ResourceAVMedia
+                return resource is ResourceColour || resource is ResourceImage || resource is ResourceTextStyle || resource is ResourceAVMedia || resource is ResourceComposition
                     ? EnumDropType.Copy
                     : EnumDropType.None;
             }, async (track, resource, dt, ctx) => {
@@ -98,6 +98,14 @@ namespace FramePFX.Editors.Controls.Timelines {
                         };
 
                         clip.ResourceImageKey.SetTargetResourceId(img.UniqueId);
+                        theNewClip = clip;
+                        break;
+                    }
+                    case ResourceComposition comp: {
+                        CompositionVideoClip clip = new CompositionVideoClip() {
+                            FrameSpan = defaultSpan,
+                        };
+                        clip.ResourceCompositionKey.SetTargetResourceId(comp.UniqueId);
                         theNewClip = clip;
                         break;
                     }

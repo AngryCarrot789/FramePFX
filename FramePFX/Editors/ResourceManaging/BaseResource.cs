@@ -71,18 +71,26 @@ namespace FramePFX.Editors.ResourceManaging {
 
         /// <summary>
         /// Invoked when this resource is added to a resource manager's resource hierarchy.
-        /// <see cref="Manager"/> is set to a non-null value prior to this call
+        /// <see cref="Manager"/> is set to a non-null value prior to this call.
+        /// <para>
+        /// The cause of this call is either this resource being added, or a folder containing
+        /// this resource (possibly deep in the hierarchy) was added (assigning the manager
+        /// reference for all sub-resources recursively)
+        /// </para>
         /// </summary>
         protected internal virtual void OnAttachedToManager() {
-            ResourceManager.InternalProcessResourceSelectionOnAttached(this);
         }
 
         /// <summary>
         /// Invoked when this resource is removed from a resource manager's resource hierarchy.
-        /// <see cref="Manager"/> is set to null after this call
+        /// <see cref="Manager"/> is set to null after this call.
+        /// <para>
+        /// The cause of this call is either this resource being removed, or a folder containing
+        /// this resource (possibly deep in the hierarchy) was removed (clearing the manager
+        /// reference for all sub-resources recursively)
+        /// </para>
         /// </summary>
         protected internal virtual void OnDetatchedFromManager() {
-            ResourceManager.InternalProcessResourceSelectionOnDetatched(this);
         }
 
         public static BaseResource ReadSerialisedWithType(RBEDictionary dictionary) {
@@ -148,6 +156,7 @@ namespace FramePFX.Editors.ResourceManaging {
         /// An internal method used to set a manager's root folder's manager
         /// </summary>
         internal static void InternalSetManagerForRootFolder(ResourceFolder root, ResourceManager owner) {
+            // root folder selection should not be processed
             root.Manager = owner;
             root.OnAttachedToManager();
         }
@@ -163,6 +172,7 @@ namespace FramePFX.Editors.ResourceManaging {
         protected static void InternalOnItemRemoved(BaseResource obj, ResourceFolder parent) {
             obj.Parent = null;
             if (obj.Manager != null) {
+                ResourceManager.InternalProcessResourceSelectionOnDetatched(obj);
                 obj.OnDetatchedFromManager();
                 obj.Manager = null;
             }
@@ -181,9 +191,11 @@ namespace FramePFX.Editors.ResourceManaging {
 
             if (manager != null) {
                 resource.Manager = manager;
+                ResourceManager.InternalProcessResourceSelectionOnAttached(resource);
                 resource.OnAttachedToManager();
             }
             else {
+                ResourceManager.InternalProcessResourceSelectionOnDetatched(resource);
                 resource.OnDetatchedFromManager();
                 resource.Manager = null;
             }

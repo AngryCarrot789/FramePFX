@@ -54,7 +54,7 @@ namespace FramePFX.Editors.Controls {
             double offset = 0.0, theGap = this.InterElementGap;
             for (int i = 0; i < itemCount; ++i) {
                 UIElement element = items[i];
-                if (element == null) {
+                if (element == null || element.Visibility == Visibility.Collapsed) {
                     continue;
                 }
 
@@ -84,7 +84,7 @@ namespace FramePFX.Editors.Controls {
             double offset = 0.0, theGap = this.InterElementGap;
             for (int i = 0; i < count; ++i) {
                 UIElement element = items[i];
-                if (element == null) {
+                if (element == null || element.Visibility == Visibility.Collapsed) {
                     continue;
                 }
 

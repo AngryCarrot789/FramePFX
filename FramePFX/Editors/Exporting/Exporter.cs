@@ -17,12 +17,12 @@ namespace FramePFX.Editors.Exporting {
         /// The given project should not be modified externally during render
         /// </para>
         /// </summary>
-        /// <param name="project"></param>
+        /// <param name="setup">The export setup</param>
         /// <param name="progress">A helper class for updating the UI of export progress (optionally used, but should be non-null)</param>
         /// <param name="properties">Specific export properties that aren't necessarily related to the project itself</param>
         /// <param name="cancellation"></param>
         /// <returns></returns>
-        public abstract void Export(Project project, IExportProgress progress, ExportProperties properties, CancellationToken cancellation);
+        public abstract void Export(ExportSetup setup, IExportProgress progress, ExportProperties properties, CancellationToken cancellation);
 
         public abstract void LoadProjectDefaults(Project project);
     }

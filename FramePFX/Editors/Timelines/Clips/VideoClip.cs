@@ -165,7 +165,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// Propagates the render invalidated state to our project's <see cref="RenderManager"/>
         /// </summary>
         public void InvalidateRender() {
-            this.Project?.RenderManager.InvalidateRender();
+            this.Timeline?.RenderManager.InvalidateRender();
         }
 
         protected override void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan) {

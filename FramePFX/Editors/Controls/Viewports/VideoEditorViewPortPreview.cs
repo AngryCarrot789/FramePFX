@@ -70,16 +70,32 @@ namespace FramePFX.Editors.Controls.Viewports {
             Project oldProject = this.activeProject;
             if (oldProject != null) {
                 oldProject.Settings.ResolutionChanged -= this.UpdateResolution;
-                oldProject.MainTimeline.PlayHeadChanged -= OnTimelineSeeked;
-                oldProject.RenderManager.FrameRendered -= this.OnFrameAvailable;
+                oldProject.ActiveTimelineChanged -= this.OnProjectActiveTimelineChanged;
+                this.UpdateTimelineChanged(oldProject.ActiveTimeline, null);
             }
 
             this.activeProject = project;
             if (project != null) {
                 project.Settings.ResolutionChanged += this.UpdateResolution;
-                project.MainTimeline.PlayHeadChanged += OnTimelineSeeked;
-                project.RenderManager.FrameRendered += this.OnFrameAvailable;
+                project.ActiveTimelineChanged += this.OnProjectActiveTimelineChanged;
+                this.UpdateTimelineChanged(null, project.ActiveTimeline);
                 this.UpdateResolution(project.Settings);
+            }
+        }
+
+        private void OnProjectActiveTimelineChanged(Project project, Timeline oldTimeline, Timeline newTimeline) {
+            this.UpdateTimelineChanged(oldTimeline, newTimeline);
+        }
+
+        private void UpdateTimelineChanged(Timeline oldTimeline, Timeline newTimeline) {
+            if (oldTimeline != null) {
+                oldTimeline.PlayHeadChanged -= OnTimelineSeeked;
+                oldTimeline.RenderManager.FrameRendered -= this.OnFrameAvailable;
+            }
+
+            if (newTimeline != null) {
+                newTimeline.PlayHeadChanged += OnTimelineSeeked;
+                newTimeline.RenderManager.FrameRendered += this.OnFrameAvailable;
             }
         }
 
@@ -89,11 +105,11 @@ namespace FramePFX.Editors.Controls.Viewports {
         }
 
         private static void OnTimelineSeeked(Timeline timeline, long oldFrame, long frame) {
-            timeline.Project.RenderManager.InvalidateRender();
+            timeline.RenderManager.InvalidateRender();
         }
 
         private void OnFrameAvailable(RenderManager manager) {
-            if (manager.Project.IsExporting) {
+            if (manager.Timeline.Project?.IsExporting ?? false) {
                 return;
             }
 
@@ -118,7 +134,7 @@ namespace FramePFX.Editors.Controls.Viewports {
 
         protected override void OnRender(DrawingContext dc) {
             base.OnRender(dc);
-            if (this.DrawSelectedElements && this.VideoEditor?.Project?.MainTimeline is Timeline timeline) {
+            if (this.DrawSelectedElements && this.VideoEditor?.Project?.ActiveTimeline is Timeline timeline) {
                 foreach (Track track in timeline.Tracks) {
                     if (!(track is VideoTrack)) {
                         continue;

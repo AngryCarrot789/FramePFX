@@ -61,7 +61,7 @@ namespace FramePFX.Editors.Actions {
 
             project.SetUnModified();
             AutomationEngine.UpdateValues(project.MainTimeline);
-            project.RenderManager.InvalidateRender();
+            project.MainTimeline.RenderManager.InvalidateRender();
             Debug.Assert(project.IsModified == false, "Expected automation update and render invalidation to not mark project as modified");
 
             return true;

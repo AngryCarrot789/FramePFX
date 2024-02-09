@@ -220,10 +220,11 @@ namespace FramePFX.Editors {
             this.ProjectChanged?.Invoke(this, null, project);
 
             ProjectSettings settings = project.Settings;
-            project.RenderManager.UpdateFrameInfo();
-            project.RenderManager.InvalidateRender();
+            project.ActiveTimeline.RenderManager.UpdateFrameInfo(settings);
+            project.ActiveTimeline.RenderManager.InvalidateRender();
 
             this.Playback.SetFrameRate(settings.FrameRate);
+            PlaybackManager.InternalOnActiveTimelineChanged(this.Playback, null, project.ActiveTimeline);
             VideoEditorPropertyEditor.Instance.OnProjectChanged();
         }
 
@@ -233,6 +234,7 @@ namespace FramePFX.Editors {
                 throw new Exception("There is no project opened");
             }
 
+            PlaybackManager.InternalOnActiveTimelineChanged(this.Playback, oldProject.ActiveTimeline, null);
             oldProject.Settings.FrameRateChanged -= this.OnProjectFrameRateChanged;
             oldProject.Destroy();
             this.Project = null;
@@ -243,6 +245,10 @@ namespace FramePFX.Editors {
 
         private void OnProjectFrameRateChanged(ProjectSettings settings) {
             this.Playback.SetFrameRate(settings.FrameRate);
+        }
+
+        internal static void InternalOnActiveTimelineChanged(VideoEditor editor, Timeline oldTimeline, Timeline newTimeline) {
+            PlaybackManager.InternalOnActiveTimelineChanged(editor.Playback, oldTimeline, newTimeline);
         }
     }
 }

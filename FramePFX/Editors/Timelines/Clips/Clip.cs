@@ -238,6 +238,7 @@ namespace FramePFX.Editors.Timelines.Clips {
             clone.displayName = this.displayName;
             clone.mediaFrameOffset = this.mediaFrameOffset;
             clone.span = this.span;
+            // other cloneable objects are processed in the main Clone method
         }
 
         public void MoveToTrack(Track dstTrack) {

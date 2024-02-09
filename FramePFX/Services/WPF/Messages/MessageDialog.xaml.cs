@@ -36,6 +36,7 @@ namespace FramePFX.Services.WPF.Messages {
             this.PART_HeaderTextBlock.Visibility = Visibility.Collapsed;
             this.MaxWidth = 800;
             this.MaxHeight = 800;
+            this.SetButtonVisibilities((MessageBoxButton) ButtonsProperty.DefaultMetadata.DefaultValue);
 
             this.Loaded += (sender, args) => {
                 // 588x260 = window
@@ -90,34 +91,37 @@ namespace FramePFX.Services.WPF.Messages {
         }
 
         private static void OnButtonsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            MessageDialog dialog = (MessageDialog) d;
-            switch ((MessageBoxButton) e.NewValue) {
+            ((MessageDialog) d).SetButtonVisibilities((MessageBoxButton) e.NewValue);
+        }
+
+        private void SetButtonVisibilities(MessageBoxButton buttons) {
+            switch (buttons) {
                 case MessageBoxButton.OK: {
-                    dialog.PART_ButtonOK.Visibility = Visibility.Visible;
-                    dialog.PART_ButtonYes.Visibility = Visibility.Collapsed;
-                    dialog.PART_ButtonNo.Visibility = Visibility.Collapsed;
-                    dialog.PART_ButtonCancel.Visibility = Visibility.Collapsed;
+                    this.PART_ButtonOK.Visibility = Visibility.Visible;
+                    this.PART_ButtonYes.Visibility = Visibility.Collapsed;
+                    this.PART_ButtonNo.Visibility = Visibility.Collapsed;
+                    this.PART_ButtonCancel.Visibility = Visibility.Collapsed;
                     break;
                 }
                 case MessageBoxButton.OKCancel: {
-                    dialog.PART_ButtonOK.Visibility = Visibility.Visible;
-                    dialog.PART_ButtonCancel.Visibility = Visibility.Visible;
-                    dialog.PART_ButtonYes.Visibility = Visibility.Collapsed;
-                    dialog.PART_ButtonNo.Visibility = Visibility.Collapsed;
+                    this.PART_ButtonOK.Visibility = Visibility.Visible;
+                    this.PART_ButtonCancel.Visibility = Visibility.Visible;
+                    this.PART_ButtonYes.Visibility = Visibility.Collapsed;
+                    this.PART_ButtonNo.Visibility = Visibility.Collapsed;
                     break;
                 }
                 case MessageBoxButton.YesNoCancel: {
-                    dialog.PART_ButtonCancel.Visibility = Visibility.Visible;
-                    dialog.PART_ButtonYes.Visibility = Visibility.Visible;
-                    dialog.PART_ButtonNo.Visibility = Visibility.Visible;
-                    dialog.PART_ButtonOK.Visibility = Visibility.Collapsed;
+                    this.PART_ButtonCancel.Visibility = Visibility.Visible;
+                    this.PART_ButtonYes.Visibility = Visibility.Visible;
+                    this.PART_ButtonNo.Visibility = Visibility.Visible;
+                    this.PART_ButtonOK.Visibility = Visibility.Collapsed;
                     break;
                 }
                 case MessageBoxButton.YesNo: {
-                    dialog.PART_ButtonYes.Visibility = Visibility.Visible;
-                    dialog.PART_ButtonNo.Visibility = Visibility.Visible;
-                    dialog.PART_ButtonOK.Visibility = Visibility.Collapsed;
-                    dialog.PART_ButtonCancel.Visibility = Visibility.Collapsed;
+                    this.PART_ButtonYes.Visibility = Visibility.Visible;
+                    this.PART_ButtonNo.Visibility = Visibility.Visible;
+                    this.PART_ButtonOK.Visibility = Visibility.Collapsed;
+                    this.PART_ButtonCancel.Visibility = Visibility.Collapsed;
                     break;
                 }
                 default: throw new ArgumentOutOfRangeException();

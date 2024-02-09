@@ -74,7 +74,7 @@ namespace FramePFX.Editors.Exporting.Controls {
         private void UpdateBeginFrameDragger() {
             ExportSetup setup = this.ExportSetup;
             ExportProperties props = setup.Properties;
-            this.PART_EndFrameDragger.Maximum = setup.Project.MainTimeline.MaxDuration;
+            this.PART_EndFrameDragger.Maximum = setup.Timeline.MaxDuration;
             this.PART_EndFrameDragger.Minimum = props.Span.Begin;
             this.PART_EndFrameDragger.Value = props.Span.EndIndex;
             this.PART_DurationTextBlock.Text = props.Span.Duration.ToString();
@@ -173,7 +173,7 @@ namespace FramePFX.Editors.Exporting.Controls {
                 setup.Project.IsExporting = true;
                 // Export will most likely be using unsafe code, meaning async won't work
                 await Task.Factory.StartNew(() => {
-                    exporter.Export(setup.Project, progressDialog, setup.Properties, this.exportToken.Token);
+                    exporter.Export(setup, progressDialog, setup.Properties, this.exportToken.Token);
                 }, TaskCreationOptions.LongRunning);
             }
             catch (TaskCanceledException) {
@@ -201,7 +201,7 @@ namespace FramePFX.Editors.Exporting.Controls {
             }
 
             this.isRendering = false;
-            setup.Project.RenderManager.InvalidateRender();
+            setup.Timeline.RenderManager.InvalidateRender();
             ((Button) sender).IsEnabled = true;
             progressDialog.Close();
             this.Close();

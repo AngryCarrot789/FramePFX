@@ -72,6 +72,7 @@ namespace FramePFX {
             manager.Register("actions.timeline.RenameClipAction", new RenameClipAction());
             manager.Register("actions.timeline.RenameTrackAction", new RenameTrackAction());
             manager.Register("actions.timeline.ToggleClipVisibilityAction", new ToggleClipVisibilityAction());
+            manager.Register("actions.timeline.ConvertSelectionIntoCompositionAction", new ConvertSelectionIntoCompositionAction());
 
             // resources
             manager.Register("actions.resources.RenameResourceAction", new RenameResourceAction());
@@ -85,7 +86,8 @@ namespace FramePFX {
             manager.Register("actions.editor.OpenProjectAction", new OpenProjectAction());
             manager.Register("actions.editor.SaveProjectAction", new SaveProjectAction());
             manager.Register("actions.editor.SaveProjectAsAction", new SaveProjectAsAction());
-            manager.Register("actions.editor.ExportAction", new ExportAction());
+            manager.Register("actions.editor.ExportAction", new ExportAction(false));
+            manager.Register("actions.editor.ExportContextualTimelineAction", new ExportAction(true));
 
             AppLogger.Instance.PushHeader($"Registered {ActionManager.Instance.Count} actions", false);
             foreach (KeyValuePair<string, AnAction> pair in ActionManager.Instance.Actions) {

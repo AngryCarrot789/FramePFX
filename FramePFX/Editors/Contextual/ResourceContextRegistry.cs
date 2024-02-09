@@ -12,14 +12,42 @@ namespace FramePFX.Editors.Contextual {
     public class ResourceContextRegistry : IContextGenerator {
         public static ResourceContextRegistry Instance { get; } = new ResourceContextRegistry();
 
-        public static void GenerateNewResourceEntries(List<IContextEntry> list){
-            list.Add(new EventContextEntry(AddColourResource, "Add new Colour Resource"));
+        public static void GenerateNewResourceEntries(List<IContextEntry> list) {
+            List<IContextEntry> toAdd = new List<IContextEntry>();
+            toAdd.Add(new EventContextEntry(AddColourResource, "Colour"));
+            toAdd.Add(new EventContextEntry(AddCompositionResource, "Composition Timeline"));
+
+            list.Add(new GroupContextEntry("Add new...", toAdd));
+        }
+
+        private static bool GetFolder(IDataContext ctx, out ResourceFolder folder) {
+            if (ctx.TryGetContext(DataKeys.ResourceObjectKey, out BaseResource resource) && (folder = resource as ResourceFolder) != null) {
+                return true;
+            }
+            else if (ctx.TryGetContext(DataKeys.ResourceManagerKey, out ResourceManager manager)) {
+                folder = manager.CurrentFolder;
+                return true;
+            }
+
+            folder = null;
+            return false;
         }
 
         private static void AddColourResource(IDataContext ctx) {
-            if (ctx.TryGetContext(DataKeys.ResourceManagerKey, out ResourceManager manager)) {
-                manager.RootContainer.AddItem(new ResourceColour() {Colour = RenderUtils.RandomColour(), DisplayName = "New Colour"});
+            if (GetFolder(ctx, out ResourceFolder folder)) {
+                AddNewResource(folder, new ResourceColour() {Colour = RenderUtils.RandomColour(), DisplayName = "New Colour"});
             }
+        }
+
+        private static void AddCompositionResource(IDataContext ctx) {
+            if (GetFolder(ctx, out ResourceFolder folder)) {
+                AddNewResource(folder, new ResourceComposition() {DisplayName = "New Composition"});
+            }
+        }
+
+        private static void AddNewResource(ResourceFolder folder, BaseResource resource) {
+            folder.AddItem(resource);
+            ResourceLoaderDialog.TryLoadResources(resource);
         }
 
         public void Generate(List<IContextEntry> list, IDataContext context) {
@@ -65,11 +93,16 @@ namespace FramePFX.Editors.Contextual {
                 if (resource is ResourceItem item) {
                     list.Add(new SeparatorEntry());
                     if (item.IsOnline) {
-                        list.Add(new EventContextEntry(this.DisableResources, "Set Offline"));
+                        list.Add(new EventContextEntry(DisableResources, "Set Offline"));
                     }
                     else {
-                        list.Add(new EventContextEntry(this.EnableResources, "Set Online"));
+                        list.Add(new EventContextEntry(EnableResources, "Set Online"));
                     }
+                }
+
+                if (resource is ResourceComposition) {
+                    list.Add(new SeparatorEntry());
+                    list.Add(new EventContextEntry(OpenTimeline, "Open Timeline"));
                 }
             }
             else {
@@ -77,15 +110,15 @@ namespace FramePFX.Editors.Contextual {
                     list.Add(groupAction);
                 }
 
-                list.Add(new EventContextEntry(this.EnableResources, $"Set All Online"));
-                list.Add(new EventContextEntry(this.DisableResources, $"Set All Offline"));
+                list.Add(new EventContextEntry(EnableResources, $"Set All Online"));
+                list.Add(new EventContextEntry(DisableResources, $"Set All Offline"));
             }
 
             list.Add(new SeparatorEntry());
             list.Add(new ActionContextEntry("actions.resources.DeleteResourcesAction", itemCount == 1 ? "Delete Resource" : $"Delete Resources"));
         }
 
-        private void EnableResources(IDataContext context) {
+        private static void EnableResources(IDataContext context) {
             if (!context.TryGetContext(DataKeys.ResourceObjectKey, out BaseResource focusedResource)) {
                 return;
             }
@@ -97,7 +130,7 @@ namespace FramePFX.Editors.Contextual {
             ResourceLoaderDialog.TryLoadResources(resources);
         }
 
-        private void DisableResources(IDataContext context) {
+        private static void DisableResources(IDataContext context) {
             if (!context.TryGetContext(DataKeys.ResourceObjectKey, out BaseResource focusedResource)) {
                 return;
             }
@@ -126,6 +159,18 @@ namespace FramePFX.Editors.Contextual {
                     }
                 }
             }
+        }
+
+        private static void OpenTimeline(IDataContext context) {
+            if (!context.TryGetContext(DataKeys.ResourceObjectKey, out BaseResource focusedResource) || !(focusedResource is ResourceComposition composition)) {
+                return;
+            }
+
+            if (composition.Manager == null) {
+                return;
+            }
+
+            composition.Manager.Project.ActiveTimeline = composition.Timeline;
         }
     }
 }

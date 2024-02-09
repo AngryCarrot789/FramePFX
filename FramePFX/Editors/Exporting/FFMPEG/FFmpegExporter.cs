@@ -36,7 +36,7 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
         public static int RNDTO2(int X) => (int) ((X) & 0xFFFFFFFE);
         public static int RNDTO32(int X) => (int) ((X % 32) != 0 ? ((X + 32) & 0xFFFFFFE0) : X);
 
-        public override unsafe void Export(Project project, IExportProgress progress, ExportProperties properties, CancellationToken cancellation) {
+        public override unsafe void Export(ExportSetup setup, IExportProgress progress, ExportProperties properties, CancellationToken cancellation) {
             Task renderTask = null;
             bool isRenderCancelled = false;
             FrameSpan duration = properties.Span;
@@ -197,9 +197,9 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
                 long ptsFrame = 0; // frame index, relative to start of file
                 long frameEnd = duration.EndIndex;
 
-                RenderManager renderManager = project.RenderManager;
+                Timeline timeline = setup.Timeline;
+                RenderManager renderManager = timeline.RenderManager;
                 suspendRender = renderManager.SuspendRenderInvalidation();
-                Timeline timeline = project.MainTimeline;
 
                 int width = RNDTO2(c->width);
                 int height = RNDTO2(c->height);
@@ -224,7 +224,7 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
                         long finalExportFrame = exportFrame;
                         renderTask = dispatcher.Invoke(() => {
                             AutomationEngine.UpdateValues(timeline, finalExportFrame);
-                            return renderManager.RenderTimelineAsync(timeline, finalExportFrame, cancellation, EnumRenderQuality.High);
+                            return renderManager.RenderTimelineAsync(finalExportFrame, cancellation, EnumRenderQuality.High);
                         }, DispatcherPriority.Send, cancellation);
 
                         surface.Canvas.Clear(SKColors.Black);

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using FramePFX.Editors.Automation.Params;
+using FramePFX.Editors.Timelines;
 using FramePFX.RBC;
 
 namespace FramePFX.Editors.Automation.Keyframes {
@@ -136,8 +137,8 @@ namespace FramePFX.Editors.Automation.Keyframes {
                 if (flags != ParameterFlags.None) {
                     // we don't mark project as modified here as effective values are runtime only.
                     // what does mark it modified are key frame changes, sequence changes (add/remove keyframes), etc.
-                    if ((flags & ParameterFlags.AffectsRender) != 0 && this.AutomationData.Owner.Project is Project project) {
-                        project.RenderManager.InvalidateRender();
+                    if ((flags & ParameterFlags.AffectsRender) != 0 && this.AutomationData.Owner.Timeline is Timeline timeline) {
+                        timeline.RenderManager.InvalidateRender();
                     }
                 }
             }
@@ -407,11 +408,12 @@ namespace FramePFX.Editors.Automation.Keyframes {
                 return;
             }
 
-            if (this.AutomationData.Owner.Project is Project project) {
-                if ((flags & ParameterFlags.ModifiesProject) != 0)
-                    project.MarkModified();
-                if ((flags & ParameterFlags.AffectsRender) != 0)
-                    project.RenderManager.InvalidateRender();
+            IAutomatable owner = this.AutomationData.Owner;
+            if ((flags & ParameterFlags.ModifiesProject) != 0 && owner.Project is Project project)
+                project.MarkModified();
+
+            if ((flags & ParameterFlags.AffectsRender) != 0 && owner.Timeline is Timeline timeline) {
+                timeline.RenderManager.InvalidateRender();
             }
         }
 

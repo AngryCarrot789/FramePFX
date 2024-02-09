@@ -9,25 +9,52 @@ using FramePFX.Interactivity.DataContexts;
 
 namespace FramePFX.Editors.Actions {
     public class ExportAction : AnAction {
+        public bool ExportContextualTimeline { get; }
+
+        public ExportAction(bool exportContextualTimeline) {
+            this.ExportContextualTimeline = exportContextualTimeline;
+        }
+
         public override bool CanExecute(AnActionEventArgs e) {
-            return TryGetProject(e.DataContext, out Project project) && !project.IsExporting;
+            if (this.ExportContextualTimeline) {
+                return TryGetTimeline(e.DataContext, out Timeline timeline) && timeline.Project != null && !timeline.Project.IsExporting;
+            }
+            else {
+                return TryGetProject(e.DataContext, out Project project) && !project.IsExporting;
+            }
         }
 
         public override Task ExecuteAsync(AnActionEventArgs e) {
-            if (TryGetProject(e.DataContext, out Project project)) {
-                project.Editor.Playback.Pause();
-                ExportDialog dialog = new ExportDialog {
-                    ExportSetup = new ExportSetup(project) {
-                        Properties = {
-                            Span = new FrameSpan(0, project.MainTimeline.LargestFrameInUse),
-                            FilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "OutputVideo.mp4")
-                        }
-                    }
-                };
+            Project project;
+            Timeline timeline;
+            if (this.ExportContextualTimeline) {
+                if (!TryGetTimeline(e.DataContext, out timeline)) {
+                    return Task.CompletedTask;
+                }
+            }
+            else {
+                if (!TryGetProject(e.DataContext, out project)) {
+                    return Task.CompletedTask;
+                }
 
-                dialog.ShowDialog();
+                timeline = project.MainTimeline;
             }
 
+            if ((project = timeline.Project) == null) {
+                return Task.CompletedTask;
+            }
+
+            project.Editor.Playback.Pause();
+            ExportDialog dialog = new ExportDialog {
+                ExportSetup = new ExportSetup(project, timeline) {
+                    Properties = {
+                        Span = new FrameSpan(0, timeline.LargestFrameInUse),
+                        FilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "OutputVideo.mp4")
+                    }
+                }
+            };
+
+            dialog.ShowDialog();
             return Task.CompletedTask;
         }
 
@@ -35,6 +62,22 @@ namespace FramePFX.Editors.Actions {
             if (ctx.TryGetContext(DataKeys.ProjectKey, out project))
                 return true;
             return ctx.TryGetContext(DataKeys.VideoEditorKey, out VideoEditor editor) && (project = editor.Project) != null;
+        }
+
+        public static bool TryGetTimeline(IDataContext ctx, out Timeline timeline) {
+            if (ctx.TryGetContext(DataKeys.TimelineKey, out timeline))
+                return true;
+            if (ctx.TryGetContext(DataKeys.ProjectKey, out Project project)) {
+                timeline = project.ActiveTimeline;
+                return true;
+            }
+
+            if (ctx.TryGetContext(DataKeys.VideoEditorKey, out VideoEditor editor) && (project = editor.Project) != null) {
+                timeline = project.ActiveTimeline;
+                return true;
+            }
+
+            return false;
         }
     }
 }

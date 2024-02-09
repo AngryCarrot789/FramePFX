@@ -16,7 +16,7 @@ namespace FramePFX.Editors.Timelines.Effects {
                 nameof(BlockSize),
                 16, 0, 1024, // def/min/max
                 ValueAccessors.LinqExpression<long>(typeof(CPUPixelateEffect), nameof(BlockSize)),
-                ParameterFlags.AffectsRender);
+                ParameterFlags.StandardProjectVisual);
 
         public long BlockSize;
 

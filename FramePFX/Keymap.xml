@@ -167,6 +167,9 @@
                 <Shortcut Name="DuplicateClips" ActionId="actions.timeline.DuplicateClipsAction">
                     <KeyStroke Mods="CTRL" Key="D"/>
                 </Shortcut>
+                <Shortcut Name="ToggleClipVisibility" ActionId="actions.timeline.ToggleClipVisibilityAction">
+                    <KeyStroke Key="D0"/>
+                </Shortcut>
 
                 <Shortcut Name="AddKeyFrame" ActionId="actions.automation.AddKeyFrame" Description="Adds a new key frame at the play head at the playhead for the clip's or clip's active sequence">
                     <KeyStroke Key="K"/>
@@ -179,9 +182,6 @@
                 </Shortcut>
                 <Shortcut Name="ToggleAutoPlaybackScroll" ActionId="actions.editor.timeline.ToggleAutoScrollDuringPlayback">
                     <KeyStroke Mods="CTRL+SHIFT" Key="T"/>
-                </Shortcut>
-                <Shortcut Name="ToggleEnableClips" ActionId="actions.timeline.ToggleEnableClips">
-                    <KeyStroke Key="D0"/>
                 </Shortcut>
             </Group>
         </Group>

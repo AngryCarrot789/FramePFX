@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Numerics;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.ResourceManaging;
@@ -202,7 +203,9 @@ namespace FramePFX.Editors {
                 project.MainTimeline.AddTrack(empty);
             }
 
+            project.SetUnModified();
             this.SetProject(project);
+            Debug.Assert(project.IsModified == false, "Expected editor not to modify project while setting it as the active project");
         }
 
         public void SetProject(Project project) {

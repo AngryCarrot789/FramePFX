@@ -124,7 +124,7 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
                         return;
                     }
 
-                    using (SKPaint paint = new SKPaint() {FilterQuality = rc.FilterQuality, ColorF = new SKColorF(1f, 1f, 1f, (float) this.InternalRenderOpacity)}) {
+                    using (SKPaint paint = new SKPaint() {FilterQuality = rc.FilterQuality, ColorF = new SKColorF(1f, 1f, 1f, (float) this.RenderOpacity)}) {
                         rc.Canvas.DrawImage(img, 0, 0, paint);
                     }
 

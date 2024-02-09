@@ -98,8 +98,11 @@ namespace FramePFX.Editors.DataTransfer {
                 internalData.OnValueChanged(parameter, owner);
                 data.ValueChanged?.Invoke(parameter, owner);
                 DataParameter.InternalOnParameterValueChanged(parameter, owner);
-                if ((parameter.Flags & DataParameterFlags.AffectsRender) != 0 && owner is IHaveProject projHolder) {
-                    projHolder.Project?.RenderManager.InvalidateRender();
+                if (parameter.Flags != DataParameterFlags.None && owner is IHaveProject projHolder && projHolder.Project is Project project) {
+                    if ((parameter.Flags & DataParameterFlags.ModifiesProject) != 0)
+                        project.MarkModified();
+                    if ((parameter.Flags & DataParameterFlags.AffectsRender) != 0)
+                        project.RenderManager.InvalidateRender();
                 }
             }
             finally {

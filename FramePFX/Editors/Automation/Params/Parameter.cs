@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Threading;
 using FramePFX.Editors.Automation.Keyframes;
+using FramePFX.Utils;
 
 namespace FramePFX.Editors.Automation.Params {
     public delegate T AccessGetter<out T>(object a);
@@ -167,7 +168,7 @@ namespace FramePFX.Editors.Automation.Params {
         /// Registers the given parameter
         /// </summary>
         /// <param name="parameter">The parameter to register</param>
-        /// <returns></returns>
+        /// <returns>The parameter passed in as an arg</returns>
         /// <exception cref="InvalidOperationException">The parameter was already registered</exception>
         /// <exception cref="Exception">The parameter's key is already in use</exception>
         public static Parameter Register(Parameter parameter) {
@@ -301,6 +302,12 @@ namespace FramePFX.Editors.Automation.Params {
             this.accessor.SetValue(sequence.AutomationData.Owner, sequence.GetFloatValue(frame));
         }
 
+        /// <summary>
+        /// Get this float parameter's current effective value for the given owner instance.
+        /// See <see cref="GetCurrentObjectValue"/> for more info about the returned value
+        /// </summary>
+        /// <param name="automatable">The owner instance</param>
+        /// <returns>The current effective value</returns>
         public float GetCurrentValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
 
         public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
@@ -324,6 +331,12 @@ namespace FramePFX.Editors.Automation.Params {
             this.accessor.SetValue(sequence.AutomationData.Owner, sequence.GetDoubleValue(frame));
         }
 
+        /// <summary>
+        /// Get this double parameter's current effective value for the given owner instance.
+        /// See <see cref="GetCurrentObjectValue"/> for more info about the returned value
+        /// </summary>
+        /// <param name="automatable">The owner instance</param>
+        /// <returns>The current effective value</returns>
         public double GetCurrentValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
 
         public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
@@ -347,6 +360,12 @@ namespace FramePFX.Editors.Automation.Params {
             this.accessor.SetValue(sequence.AutomationData.Owner, sequence.GetLongValue(frame));
         }
 
+        /// <summary>
+        /// Get this long parameter's current effective value for the given owner instance.
+        /// See <see cref="GetCurrentObjectValue"/> for more info about the returned value
+        /// </summary>
+        /// <param name="automatable">The owner instance</param>
+        /// <returns>The current effective value</returns>
         public long GetCurrentValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
 
         public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
@@ -367,9 +386,22 @@ namespace FramePFX.Editors.Automation.Params {
         }
 
         public override void EvaluateAndUpdateValue(AutomationSequence sequence, long frame) {
-            this.accessor.SetValue(sequence.AutomationData.Owner, sequence.GetBooleanValue(frame));
+            // Allow optimised boxing of boolean
+            bool value = sequence.GetBooleanValue(frame);
+            if (this.accessor.IsObjectPreferred) {
+                this.accessor.SetObjectValue(sequence.AutomationData.Owner, value.Box());
+            }
+            else {
+                this.accessor.SetValue(sequence.AutomationData.Owner, value);
+            }
         }
 
+        /// <summary>
+        /// Get this boolean parameter's current effective value for the given owner instance.
+        /// See <see cref="GetCurrentObjectValue"/> for more info about the returned value
+        /// </summary>
+        /// <param name="automatable">The owner instance</param>
+        /// <returns>The current effective value</returns>
         public bool GetCurrentValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
 
         public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
@@ -393,6 +425,12 @@ namespace FramePFX.Editors.Automation.Params {
             this.accessor.SetValue(sequence.AutomationData.Owner, sequence.GetVector2Value(frame));
         }
 
+        /// <summary>
+        /// Get this vector2 parameter's current effective value for the given owner instance.
+        /// See <see cref="GetCurrentObjectValue"/> for more info about the returned value
+        /// </summary>
+        /// <param name="automatable">The owner instance</param>
+        /// <returns>The current effective value</returns>
         public Vector2 GetCurrentValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
 
         public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);

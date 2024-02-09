@@ -12,6 +12,7 @@ using FramePFX.Editors.Controls.Automation;
 using FramePFX.Editors.Controls.Binders;
 using FramePFX.Editors.Controls.EffectProviding;
 using FramePFX.Editors.Controls.Resources;
+using FramePFX.Editors.DataTransfer;
 using FramePFX.Editors.EffectSource;
 using FramePFX.Editors.Factories;
 using FramePFX.Editors.ResourceManaging;
@@ -32,6 +33,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
         private static readonly FontFamily SegoeUI = new FontFamily("Segoe UI");
         public static readonly DependencyProperty DisplayNameProperty = DependencyProperty.Register("DisplayName", typeof(string), typeof(TimelineClipControl), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
         public static readonly DependencyProperty IsSelectedProperty = DependencyProperty.Register("IsSelected", typeof(bool), typeof(TimelineClipControl), new PropertyMetadata(BoolBox.False, OnIsSelectedChanged));
+        private static readonly Pen WhitePen = new Pen(Brushes.White, 2.0d);
 
         public static readonly DependencyProperty IsDroppableTargetOverProperty = DependencyProperty.Register("IsDroppableTargetOver", typeof(bool), typeof(TimelineClipControl), new PropertyMetadata(BoolBox.False));
 
@@ -161,6 +163,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
 
         static TimelineClipControl() {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(TimelineClipControl), new FrameworkPropertyMetadata(typeof(TimelineClipControl)));
+            if (WhitePen.CanFreeze)
+                WhitePen.Freeze();
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
@@ -179,10 +183,24 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             this.FrameDuration = span.Duration;
         }
 
+        private void OnVisibilityParameterChanged(DataParameter parameter, ITransferableData owner) {
+            this.UpdateClipVisibleState();
+        }
+
+        private void UpdateClipVisibleState() {
+            this.IsClipVisible = !(this.Model is VideoClip clip) || VideoClip.IsVisibleParameter.GetValue(clip);
+            this.InvalidateVisual();
+        }
+
         public void OnAdding(TimelineTrackControl trackList, Clip clip) {
             this.Track = trackList;
             this.Model = clip;
             this.Content = trackList.TimelineControl.GetClipContentObject(clip.GetType());
+            if (clip is VideoClip) {
+                clip.TransferableData.AddValueChangedHandler(VideoClip.IsVisibleParameter, this.OnVisibilityParameterChanged);
+                this.UpdateClipVisibleState();
+            }
+
             UIInputManager.SetActionSystemDataContext(this, new DataContext().Set(DataKeys.ClipKey, clip));
         }
 
@@ -211,6 +229,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             this.isSelectedBinder.Detatch();
             this.AutomationEditor.Sequence = null;
             this.Model.ActiveSequenceChanged -= this.ClipActiveSequenceChanged;
+            if (this.Model is VideoClip)
+                this.Model.TransferableData.RemoveValueChangedHandler(VideoClip.IsVisibleParameter, this.OnVisibilityParameterChanged);
 
             TimelineClipContent content = (TimelineClipContent) this.Content;
             if (content != null) {
@@ -767,12 +787,19 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
 
             dc.PushClip(this.renderSizeRectGeometry);
 
-            if (this.Background is Brush background) {
+            if (!this.IsClipVisible) {
+                dc.DrawRectangle(Brushes.Gray, null, rect);
+            }
+            else if (this.Background is Brush background) {
                 dc.DrawRectangle(background, null, rect);
             }
 
-            if (this.Track?.TrackColourBrush is Brush headerBrush) {
-                dc.DrawRectangle(headerBrush, null, new Rect(0, 0, rect.Width, Math.Min(rect.Height, HeaderSize)));
+            Rect headerRect = new Rect(0, 0, rect.Width, Math.Min(rect.Height, HeaderSize));
+            if (!this.IsClipVisible) {
+                dc.DrawRectangle(Brushes.DarkRed, null, headerRect);
+            }
+            else if (this.Track?.TrackColourBrush is Brush headerBrush) {
+                dc.DrawRectangle(headerBrush, null, headerRect);
             }
 
             // glyph run is way faster than using formatted text
@@ -797,6 +824,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             // dc.DrawLine(pen, new Point(0d, 0d), new Point(0d, rect.Height));
             // dc.DrawLine(pen, new Point(rect.Width - 1d, 0d), new Point(rect.Width - 1d, rect.Height));
         }
+
+        public bool IsClipVisible { get; private set; }
 
         #endregion
 

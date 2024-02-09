@@ -7,6 +7,7 @@ using FramePFX.Editors.Factories;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.RBC;
+using FramePFX.Utils;
 
 namespace FramePFX.Editors.Timelines.Effects {
     public abstract class BaseEffect : IStrictFrameRange, IAutomatable, ITransferableData, IDestroy {

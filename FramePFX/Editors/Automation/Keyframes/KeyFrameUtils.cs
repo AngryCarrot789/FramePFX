@@ -36,24 +36,49 @@ namespace FramePFX.Editors.Automation.Keyframes {
             return automatable.AutomationData[parameter].DefaultKeyFrame;
         }
 
-        public static void SetDefaultValue(this IAutomatable automatable, ParameterFloat parameter, float value) {
-            automatable.AutomationData[parameter].DefaultKeyFrame.SetFloatValue(value, ((Parameter) parameter).Descriptor);
+        public static void SetDefaultValue(this IAutomatable automatable, ParameterFloat parameter, float value, bool enableOverride = false) {
+            AutomationSequence seq = automatable.AutomationData[parameter];
+            if (enableOverride)
+                seq.IsOverrideEnabled = true;
+            seq.DefaultKeyFrame.SetFloatValue(value, ((Parameter) parameter).Descriptor);
+            if (!seq.CanAutomate)
+                seq.UpdateValue();
         }
 
-        public static void SetDefaultValue(this IAutomatable automatable, ParameterDouble parameter, double value) {
-            automatable.AutomationData[parameter].DefaultKeyFrame.SetDoubleValue(value, ((Parameter) parameter).Descriptor);
+        public static void SetDefaultValue(this IAutomatable automatable, ParameterDouble parameter, double value, bool enableOverride = false) {
+            AutomationSequence seq = automatable.AutomationData[parameter];
+            if (enableOverride)
+                seq.IsOverrideEnabled = true;
+            seq.DefaultKeyFrame.SetDoubleValue(value, ((Parameter) parameter).Descriptor);
+            if (!seq.CanAutomate)
+                seq.UpdateValue();
         }
 
-        public static void SetDefaultValue(this IAutomatable automatable, ParameterLong parameter, long value) {
-            automatable.AutomationData[parameter].DefaultKeyFrame.SetLongValue(value, ((Parameter) parameter).Descriptor);
+        public static void SetDefaultValue(this IAutomatable automatable, ParameterLong parameter, long value, bool enableOverride = false) {
+            AutomationSequence seq = automatable.AutomationData[parameter];
+            if (enableOverride)
+                seq.IsOverrideEnabled = true;
+            seq.DefaultKeyFrame.SetLongValue(value, ((Parameter) parameter).Descriptor);
+            if (!seq.CanAutomate)
+                seq.UpdateValue();
         }
 
-        public static void SetDefaultValue(this IAutomatable automatable, ParameterBoolean parameter, bool value) {
-            automatable.AutomationData[parameter].DefaultKeyFrame.SetBooleanValue(value, ((Parameter) parameter).Descriptor);
+        public static void SetDefaultValue(this IAutomatable automatable, ParameterBoolean parameter, bool value, bool enableOverride = false) {
+            AutomationSequence seq = automatable.AutomationData[parameter];
+            if (enableOverride)
+                seq.IsOverrideEnabled = true;
+            seq.DefaultKeyFrame.SetBooleanValue(value, ((Parameter) parameter).Descriptor);
+            if (!seq.CanAutomate)
+                seq.UpdateValue();
         }
 
-        public static void SetDefaultValue(this IAutomatable automatable, ParameterVector2 parameter, Vector2 value) {
-            automatable.AutomationData[parameter].DefaultKeyFrame.SetVector2Value(value, ((Parameter) parameter).Descriptor);
+        public static void SetDefaultValue(this IAutomatable automatable, ParameterVector2 parameter, Vector2 value, bool enableOverride = false) {
+            AutomationSequence seq = automatable.AutomationData[parameter];
+            if (enableOverride)
+                seq.IsOverrideEnabled = true;
+            seq.DefaultKeyFrame.SetVector2Value(value, ((Parameter) parameter).Descriptor);
+            if (!seq.CanAutomate)
+                seq.UpdateValue();
         }
 
         public static void SetDefaultValue(this IAutomatable automatable, ParameterVector2 parameter, float x, float y) => SetDefaultValue(automatable, parameter, new Vector2(x, y));

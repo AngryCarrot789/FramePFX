@@ -132,8 +132,13 @@ namespace FramePFX.Editors.Automation.Keyframes {
                 this.Parameter.EvaluateAndUpdateValue(this, frame);
                 this.ParameterChanged?.Invoke(this);
                 AutomationData.InternalOnParameterValueChanged(this);
-                if ((this.Parameter.Flags & ParameterFlags.AffectsRender) != 0) {
-                    this.InvalidateTimelineRender();
+                ParameterFlags flags = this.Parameter.Flags;
+                if (flags != ParameterFlags.None) {
+                    // we don't mark project as modified here as effective values are runtime only.
+                    // what does mark it modified are key frame changes, sequence changes (add/remove keyframes), etc.
+                    if ((flags & ParameterFlags.AffectsRender) != 0 && this.AutomationData.Owner.Project is Project project) {
+                        project.RenderManager.InvalidateRender();
+                    }
                 }
             }
             finally {
@@ -150,12 +155,6 @@ namespace FramePFX.Editors.Automation.Keyframes {
                 this.UpdateValue(playHead);
             }
         }
-
-        /// <summary>
-        /// Accesses our automation data's owner's timeline and invalidates its render. Does nothing
-        /// if the timeline is null (e.g. clip or track is not in a timeline yet)
-        /// </summary>
-        public void InvalidateTimelineRender() => this.AutomationData.InvalidateTimelineRender();
 
         #region Helper Getter Functions
 
@@ -376,6 +375,7 @@ namespace FramePFX.Editors.Automation.Keyframes {
         private void InsertInternal(int index, KeyFrame keyFrame) {
             this.keyFrameList.Insert(index, keyFrame);
             this.KeyFrameAdded?.Invoke(this, keyFrame, index);
+            this.OnKeyFrameListChanged();
         }
 
         public bool RemoveKeyFrame(KeyFrame keyFrame, out int oldIndex) {
@@ -398,6 +398,21 @@ namespace FramePFX.Editors.Automation.Keyframes {
             keyFrame.sequence = null;
             this.keyFrameList.RemoveAt(index);
             this.KeyFrameRemoved?.Invoke(this, keyFrame, index);
+            this.OnKeyFrameListChanged();
+        }
+
+        private void OnKeyFrameListChanged() {
+            ParameterFlags flags = this.Parameter.Flags;
+            if (flags == ParameterFlags.None) {
+                return;
+            }
+
+            if (this.AutomationData.Owner.Project is Project project) {
+                if ((flags & ParameterFlags.ModifiesProject) != 0)
+                    project.MarkModified();
+                if ((flags & ParameterFlags.AffectsRender) != 0)
+                    project.RenderManager.InvalidateRender();
+            }
         }
 
         /// <summary>
@@ -497,33 +512,46 @@ namespace FramePFX.Editors.Automation.Keyframes {
             return $"{nameof(AutomationSequence)}<{this.Parameter.Key} of type {this.DataType} ({this.keyFrameList.Count} keyframes)>";
         }
 
-        public static void OnKeyFrameValueChanged(AutomationSequence sequence, KeyFrame keyFrame) {
+        internal static void InternalOnKeyFrameValueChanged(AutomationSequence sequence, KeyFrame keyFrame) {
             sequence?.UpdateValue();
+            OnKeyFrameModified(sequence, keyFrame);
         }
 
-        public static void OnKeyFramePositionChanged(AutomationSequence sequence, KeyFrame keyFrame) {
+        internal static void InternalOnKeyFramePositionChanged(AutomationSequence sequence, KeyFrame keyFrame) {
             sequence?.UpdateValue();
+            OnKeyFrameModified(sequence, keyFrame);
         }
 
-        public static void InternalVerifyValue(KeyFrameFloat keyFrame, float value) {
+        private static void OnKeyFrameModified(AutomationSequence sequence, KeyFrame keyFrame) {
+            if (sequence == null)
+                return;
+            ParameterFlags flags = sequence.Parameter.Flags;
+            if (flags != ParameterFlags.None) {
+                if ((flags & ParameterFlags.ModifiesProject) != 0 && sequence.AutomationData.Owner.Project is Project project) {
+                    project.MarkModified();
+                }
+            }
+        }
+
+        internal static void InternalVerifyValue(KeyFrameFloat keyFrame, float value) {
             if (keyFrame.sequence != null && ((ParameterDescriptorFloat) keyFrame.sequence.Parameter.Descriptor).IsValueOutOfRange(value)) {
                 throw new ArgumentOutOfRangeException(nameof(value), "Key frame value is out of range");
             }
         }
 
-        public static void InternalVerifyValue(KeyFrameDouble keyFrame, double value) {
+        internal static void InternalVerifyValue(KeyFrameDouble keyFrame, double value) {
             if (keyFrame.sequence != null && ((ParameterDescriptorDouble) keyFrame.sequence.Parameter.Descriptor).IsValueOutOfRange(value)) {
                 throw new ArgumentOutOfRangeException(nameof(value), "Key frame value is out of range");
             }
         }
 
-        public static void InternalVerifyValue(KeyFrameLong keyFrame, long value) {
+        internal static void InternalVerifyValue(KeyFrameLong keyFrame, long value) {
             if (keyFrame.sequence != null && ((ParameterDescriptorLong) keyFrame.sequence.Parameter.Descriptor).IsValueOutOfRange(value)) {
                 throw new ArgumentOutOfRangeException(nameof(value), "Key frame value is out of range");
             }
         }
 
-        public static void InternalVerifyValue(KeyFrameVector2 keyFrame, Vector2 value) {
+        internal static void InternalVerifyValue(KeyFrameVector2 keyFrame, Vector2 value) {
             if (keyFrame.sequence != null && ((ParameterDescriptorVector2) keyFrame.sequence.Parameter.Descriptor).IsValueOutOfRange(value)) {
                 throw new ArgumentOutOfRangeException(nameof(value), "Key frame value is out of range");
             }

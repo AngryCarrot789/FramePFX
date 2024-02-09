@@ -55,6 +55,11 @@ namespace FramePFX.Editors {
         }
 
         /// <summary>
+        /// Returns true if this project has been modified since being created or loaded
+        /// </summary>
+        public bool IsModified { get; private set; }
+
+        /// <summary>
         /// Gets or sets if this project has been saved at least once
         /// </summary>
         public bool HasSavedOnce { get; set; }
@@ -73,6 +78,7 @@ namespace FramePFX.Editors {
 
         public event ProjectEventHandler ProjectNameChanged;
         public event ProjectEventHandler ProjectFilePathChanged;
+        public event ProjectEventHandler IsModifiedChanged;
 
         public Project() {
             this.projectName = "Unnamed Project";
@@ -211,6 +217,23 @@ namespace FramePFX.Editors {
 
         internal static void OnClosed(VideoEditor editor, Project project) {
             project.Editor = null;
+        }
+
+        /// <summary>
+        /// Notifies the project that it has unsaved data
+        /// </summary>
+        public void MarkModified() {
+            if (this.IsModified)
+                return;
+            this.IsModified = true;
+            this.IsModifiedChanged?.Invoke(this);
+        }
+
+        public void SetUnModified() {
+            if (!this.IsModified)
+                return;
+            this.IsModified = false;
+            this.IsModifiedChanged?.Invoke(this);
         }
     }
 }

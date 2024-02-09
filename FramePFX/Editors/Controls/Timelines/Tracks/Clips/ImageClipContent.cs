@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -11,8 +12,10 @@ using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
-    public class ImageClipContent : TimelineClipContent {
+    public class ImageClipContent : TimelineVideoClipContent {
         public new ImageVideoClip Model => (ImageVideoClip) base.Model;
+
+        private static FormattedText ClipDisabledText;
 
         public ImageClipContent() {
         }
@@ -27,6 +30,11 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             if (scroller != null) {
                 scroller.ScrollChanged += this.ScrollerOnScrollChanged;
             }
+        }
+
+        protected override void OnClipVisibilityChanged() {
+            base.OnClipVisibilityChanged();
+            this.InvalidateVisual();
         }
 
         private void ScrollerOnScrollChanged(object sender, ScrollChangedEventArgs e) {
@@ -59,12 +67,17 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
         }
 
         protected override void OnRender(DrawingContext dc) {
+            if (!this.IsClipVisible) {
+                return;
+            }
+
             Size renderSize = this.RenderSize;
             if (renderSize.Height < 1.0) {
                 return;
             }
 
             ImageVideoClip clip = this.Model;
+
             IResourcePathKey<ResourceImage> imgKey = clip.ResourceImageKey;
             if (!imgKey.TryGetResource(out ResourceImage img) || img.image == null) {
                 return;

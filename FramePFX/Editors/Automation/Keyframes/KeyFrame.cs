@@ -31,7 +31,7 @@ namespace FramePFX.Editors.Automation.Keyframes {
                     return;
                 this.myFrame = value;
                 this.FrameChanged?.Invoke(this, oldFrame, value);
-                AutomationSequence.OnKeyFramePositionChanged(this.sequence, this);
+                AutomationSequence.InternalOnKeyFramePositionChanged(this.sequence, this);
             }
         }
 
@@ -256,13 +256,13 @@ namespace FramePFX.Editors.Automation.Keyframes {
             get => this.myValue;
             set {
                 float oldValue = this.myValue;
-                if (oldValue == value)
+                if (Maths.Equals(oldValue, value))
                     return;
                 AutomationSequence.InternalVerifyValue(this, value);
                 this.myValue = value;
                 this.OnValueChanged();
                 this.FloatValueChanged?.Invoke(this, oldValue, value);
-                AutomationSequence.OnKeyFrameValueChanged(this.sequence, this);
+                AutomationSequence.InternalOnKeyFrameValueChanged(this.sequence, this);
             }
         }
 
@@ -313,12 +313,13 @@ namespace FramePFX.Editors.Automation.Keyframes {
             get => this.myValue;
             set {
                 double oldValue = this.myValue;
-                if (oldValue == value)
+                if (Maths.Equals(oldValue, value))
                     return;
+                AutomationSequence.InternalVerifyValue(this, value);
                 this.myValue = value;
                 this.OnValueChanged();
                 this.DoubleValueChanged?.Invoke(this, oldValue, value);
-                AutomationSequence.OnKeyFrameValueChanged(this.sequence, this);
+                AutomationSequence.InternalOnKeyFrameValueChanged(this.sequence, this);
             }
         }
 
@@ -371,10 +372,11 @@ namespace FramePFX.Editors.Automation.Keyframes {
                 long oldValue = this.myValue;
                 if (oldValue == value)
                     return;
+                AutomationSequence.InternalVerifyValue(this, value);
                 this.myValue = value;
                 this.OnValueChanged();
                 this.LongValueChanged?.Invoke(this, oldValue, value);
-                AutomationSequence.OnKeyFrameValueChanged(this.sequence, this);
+                AutomationSequence.InternalOnKeyFrameValueChanged(this.sequence, this);
             }
         }
 
@@ -435,7 +437,7 @@ namespace FramePFX.Editors.Automation.Keyframes {
                 this.myValue = value;
                 this.OnValueChanged();
                 this.BooleanValueChanged?.Invoke(this, oldValue, value);
-                AutomationSequence.OnKeyFrameValueChanged(this.sequence, this);
+                AutomationSequence.InternalOnKeyFrameValueChanged(this.sequence, this);
             }
         }
 
@@ -497,10 +499,11 @@ namespace FramePFX.Editors.Automation.Keyframes {
                 Vector2 oldValue = this.myValue;
                 if (oldValue == value)
                     return;
+                AutomationSequence.InternalVerifyValue(this, value);
                 this.myValue = value;
                 this.OnValueChanged();
                 this.Vector2ValueChanged?.Invoke(this, oldValue, value);
-                AutomationSequence.OnKeyFrameValueChanged(this.sequence, this);
+                AutomationSequence.InternalOnKeyFrameValueChanged(this.sequence, this);
             }
         }
 

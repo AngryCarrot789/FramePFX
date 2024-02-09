@@ -71,6 +71,7 @@ namespace FramePFX {
             manager.Register("actions.timeline.SelectAllTracksAction", new SelectAllTracksAction());
             manager.Register("actions.timeline.RenameClipAction", new RenameClipAction());
             manager.Register("actions.timeline.RenameTrackAction", new RenameTrackAction());
+            manager.Register("actions.timeline.ToggleClipVisibilityAction", new ToggleClipVisibilityAction());
 
             // resources
             manager.Register("actions.resources.RenameResourceAction", new RenameResourceAction());

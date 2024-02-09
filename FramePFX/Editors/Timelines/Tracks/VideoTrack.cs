@@ -18,17 +18,17 @@ namespace FramePFX.Editors.Timelines.Tracks {
                 nameof(Opacity),
                 new ParameterDescriptorDouble(1, 0, 1),
                 ValueAccessors.LinqExpression<double>(typeof(VideoTrack), nameof(Opacity)),
-                ParameterFlags.AffectsRender);
+                ParameterFlags.StandardProjectVisual);
 
-        public static readonly ParameterBoolean VisibleParameter = Parameter.RegisterBoolean(typeof(VideoTrack), nameof(VideoTrack), nameof(Visible), true, ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(Visible)), ParameterFlags.AffectsRender);
+        public static readonly ParameterBoolean VisibleParameter = Parameter.RegisterBoolean(typeof(VideoTrack), nameof(VideoTrack), nameof(Visible), true, ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(Visible)), ParameterFlags.StandardProjectVisual);
 
-        public static readonly ParameterVector2 MediaPositionParameter =             Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaPosition),             ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaPosition)), ParameterFlags.AffectsRender);
-        public static readonly ParameterVector2 MediaScaleParameter =                Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaScale), Vector2.One,   ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaScale)), ParameterFlags.AffectsRender);
-        public static readonly ParameterVector2 MediaScaleOriginParameter =          Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaScaleOrigin),          ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaScaleOrigin)), ParameterFlags.AffectsRender);
-        public static readonly ParameterBoolean UseAbsoluteScaleOriginParameter =    Parameter.RegisterBoolean(typeof(VideoTrack), nameof(VideoTrack), nameof(UseAbsoluteScaleOrigin),    ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(UseAbsoluteScaleOrigin)), ParameterFlags.AffectsRender);
-        public static readonly ParameterDouble MediaRotationParameter =              Parameter.RegisterDouble(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaRotation),              ValueAccessors.LinqExpression<double>(typeof(VideoTrack), nameof(MediaRotation)), ParameterFlags.AffectsRender);
-        public static readonly ParameterVector2 MediaRotationOriginParameter =       Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaRotationOrigin),       ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaRotationOrigin)), ParameterFlags.AffectsRender);
-        public static readonly ParameterBoolean UseAbsoluteRotationOriginParameter = Parameter.RegisterBoolean(typeof(VideoTrack), nameof(VideoTrack), nameof(UseAbsoluteRotationOrigin), ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(UseAbsoluteRotationOrigin)), ParameterFlags.AffectsRender);
+        public static readonly ParameterVector2 MediaPositionParameter =             Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaPosition),             ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaPosition)), ParameterFlags.StandardProjectVisual);
+        public static readonly ParameterVector2 MediaScaleParameter =                Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaScale), Vector2.One,   ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaScale)), ParameterFlags.StandardProjectVisual);
+        public static readonly ParameterVector2 MediaScaleOriginParameter =          Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaScaleOrigin),          ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaScaleOrigin)), ParameterFlags.StandardProjectVisual);
+        public static readonly ParameterBoolean UseAbsoluteScaleOriginParameter =    Parameter.RegisterBoolean(typeof(VideoTrack), nameof(VideoTrack), nameof(UseAbsoluteScaleOrigin),    ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(UseAbsoluteScaleOrigin)), ParameterFlags.StandardProjectVisual);
+        public static readonly ParameterDouble MediaRotationParameter =              Parameter.RegisterDouble(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaRotation),              ValueAccessors.LinqExpression<double>(typeof(VideoTrack), nameof(MediaRotation)), ParameterFlags.StandardProjectVisual);
+        public static readonly ParameterVector2 MediaRotationOriginParameter =       Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaRotationOrigin),       ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaRotationOrigin)), ParameterFlags.StandardProjectVisual);
+        public static readonly ParameterBoolean UseAbsoluteRotationOriginParameter = Parameter.RegisterBoolean(typeof(VideoTrack), nameof(VideoTrack), nameof(UseAbsoluteRotationOrigin), ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(UseAbsoluteRotationOrigin)), ParameterFlags.StandardProjectVisual);
 
         // Transformation data
         private Vector2 MediaPosition;
@@ -109,30 +109,23 @@ namespace FramePFX.Editors.Timelines.Tracks {
 
         public bool PrepareRenderFrame(SKImageInfo imgInfo, long frame, EnumRenderQuality quality) {
             VideoClip clip = (VideoClip) this.GetClipAtFrame(frame);
-            if (clip != null) {
+            if (clip != null && VideoClip.IsVisibleParameter.GetValue(clip)) {
                 PreRenderContext ctx = new PreRenderContext(imgInfo, quality);
                 if (!clip.PrepareRenderFrame(ctx, frame - clip.FrameSpan.Begin)) {
                     return false;
                 }
 
+                clip.RenderOpacity = VideoClip.OpacityParameter.GetCurrentValue(clip);
                 List<VideoEffect> trackEffects = new List<VideoEffect>();
-                ReadOnlyCollection<BaseEffect> trackFxList = this.Effects;
-                int trackFxCount = trackFxList.Count;
-                for (int i = 0; i < trackFxCount; i++) {
-                    if (trackFxList[i] is VideoEffect videoFx) {
-                        videoFx.PrepareRender(ctx, frame);
-                        trackEffects.Add(videoFx);
-                    }
+                foreach (VideoEffect videoFx in InternalGetEffectListUnsafe(this)) {
+                    videoFx.PrepareRender(ctx, frame);
+                    trackEffects.Add(videoFx);
                 }
 
-                clip.InternalRenderOpacity = clip.Opacity;
                 List<VideoEffect> clipEffects = new List<VideoEffect>();
-                ReadOnlyCollection<BaseEffect> clipFxList = clip.Effects;
-                foreach (BaseEffect bfx in clipFxList) {
-                    if (bfx is VideoEffect videoFx) {
-                        videoFx.PrepareRender(ctx, frame);
-                        clipEffects.Add(videoFx);
-                    }
+                foreach (VideoEffect videoFx in Clip.InternalGetEffectListUnsafe(clip)) {
+                    videoFx.PrepareRender(ctx, frame);
+                    clipEffects.Add(videoFx);
                 }
 
                 this.theClipToRender = clip;

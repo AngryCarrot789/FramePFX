@@ -17,7 +17,7 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
                 nameof(Size),
                 new Vector2(100, 30),
                 ValueAccessors.LinqExpression<Vector2>(typeof(VideoClipShape), nameof(Size)),
-                ParameterFlags.AffectsRender);
+                ParameterFlags.StandardProjectVisual);
 
         private RenderData renderData;
 
@@ -49,7 +49,7 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
 
         public override void RenderFrame(RenderContext rc, ref SKRect renderArea) {
             RenderData d = this.renderData;
-            SKColor colour = RenderUtils.BlendAlpha(d.colour, this.InternalRenderOpacity);
+            SKColor colour = RenderUtils.BlendAlpha(d.colour, this.RenderOpacity);
             using (SKPaint paint = new SKPaint() {Color = colour, IsAntialias = true}) {
                 rc.Canvas.DrawRect(0, 0, d.size.X, d.size.Y, paint);
             }

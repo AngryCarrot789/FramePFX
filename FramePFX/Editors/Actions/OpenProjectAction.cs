@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using FramePFX.Actions;
@@ -58,8 +59,11 @@ namespace FramePFX.Editors.Actions {
                 return false;
             }
 
+            project.SetUnModified();
             AutomationEngine.UpdateValues(project.MainTimeline);
             project.RenderManager.InvalidateRender();
+            Debug.Assert(project.IsModified == false, "Expected automation update and render invalidation to not mark project as modified");
+
             return true;
         }
     }

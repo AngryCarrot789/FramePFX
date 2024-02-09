@@ -6,14 +6,14 @@ using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Clips.Core;
 
 namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
-    public class TimelineClipContent : Control {
+    public abstract class TimelineClipContent : Control {
         private static readonly Dictionary<Type, Func<TimelineClipContent>> Constructors = new Dictionary<Type, Func<TimelineClipContent>>();
 
         public TimelineClipControl ClipControl { get; private set; }
 
         public Clip Model => this.ClipControl?.Model;
 
-        public TimelineClipContent() {
+        protected TimelineClipContent() {
         }
 
         static TimelineClipContent() {
@@ -22,6 +22,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
 
         public void Connect(TimelineClipControl owner) {
             this.ClipControl = owner;
+
+
             this.OnConnected();
         }
 

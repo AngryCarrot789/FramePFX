@@ -169,12 +169,12 @@ namespace FramePFX.Editors.Rendering {
         // decrease performance, so only SaveLayer when absolutely necessary
 
         public static int BeginClipOpacityLayer(SKCanvas canvas, VideoClip clip, ref SKPaint paint) {
-            if (clip.UsesCustomOpacityCalculation || clip.InternalRenderOpacity >= 1.0) { // check greater than just in case...
+            if (clip.UsesCustomOpacityCalculation || clip.RenderOpacity >= 1.0) { // check greater than just in case...
                 return canvas.Save();
             }
             else {
                 return canvas.SaveLayer(paint ?? (paint = new SKPaint {
-                    Color = new SKColor(255, 255, 255, clip.InternalRenderOpacityByte)
+                    Color = new SKColor(255, 255, 255, clip.RenderOpacityByte)
                 }));
             }
         }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using FramePFX.Editors.Timelines.Effects;
 
@@ -13,7 +14,7 @@ namespace FramePFX.Editors.Timelines {
         /// <summary>
         /// Returns a list of effects. This collection is read-only so it cannot and also must not be modified directly
         /// </summary>
-        ReadOnlyCollection<BaseEffect> Effects { get; }
+        IReadOnlyList<BaseEffect> Effects { get; }
 
         /// <summary>
         /// An event fired when an effect is added to this object

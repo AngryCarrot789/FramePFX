@@ -118,6 +118,7 @@
     <Compile Include="Editors\Actions\SelectAllTracksAction.cs" />
     <Compile Include="Editors\Actions\SliceClipsAction.cs" />
     <Compile Include="Editors\Actions\ToggleClipAutomationAction.cs" />
+    <Compile Include="Editors\Actions\ToggleClipVisibilityAction.cs" />
     <Compile Include="Editors\Actions\TogglePlayAction.cs" />
     <Compile Include="Editors\Actions\ToggleTrackAutomationAction.cs" />
     <Compile Include="Editors\Contextual\ClipContextRegistry.cs" />
@@ -129,6 +130,7 @@
     <Compile Include="Editors\Controls\Timelines\TrackDropRegistry.cs" />
     <Compile Include="Editors\Controls\Timelines\Tracks\Clips\ImageClipContent.cs" />
     <Compile Include="Editors\Controls\Timelines\Tracks\Clips\TimelineClipContent.cs" />
+    <Compile Include="Editors\Controls\Timelines\Tracks\Clips\TimelineVideoClipContent.cs" />
     <Compile Include="Editors\DataTransfer\DataParameter.cs" />
     <Compile Include="Editors\DataTransfer\DataParameterGeneric.cs" />
     <Compile Include="Editors\DataTransfer\DataParameterBoolean.cs" />
@@ -193,7 +195,6 @@
     <Compile Include="Editors\Timelines\Clips\Core\VideoClipShape.cs" />
     <Compile Include="Editors\Timelines\IDisplayName.cs" />
     <Compile Include="Editors\Timelines\IStrictFrameRange.cs" />
-    <Compile Include="Editors\Timelines\TimelineUtils.cs" />
     <Compile Include="FFmpegWrapper\AudioFormat.cs" />
     <Compile Include="FFmpegWrapper\AudioFrame.cs" />
     <Compile Include="FFmpegWrapper\AudioQueue.cs" />

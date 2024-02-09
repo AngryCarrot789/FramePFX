@@ -1,6 +1,7 @@
 using System;
 using System.Numerics;
 using FramePFX.Editors.Automation.Params;
+using FramePFX.Editors.DataTransfer;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines.Effects;
 using FramePFX.Editors.Timelines.Tracks;
@@ -38,15 +39,17 @@ namespace FramePFX.Editors.Timelines.Clips {
                 nameof(Opacity),
                 new ParameterDescriptorDouble(1, 0, 1),
                 ValueAccessors.LinqExpression<double>(typeof(VideoClip), nameof(Opacity)),
-                ParameterFlags.AffectsRender);
+                ParameterFlags.StandardProjectVisual);
 
-        public static readonly ParameterVector2 MediaPositionParameter =             Parameter.RegisterVector2(typeof(VideoClip), nameof(VideoClip), nameof(MediaPosition),             ValueAccessors.LinqExpression<Vector2>(typeof(VideoClip), nameof(MediaPosition)), ParameterFlags.AffectsRender);
-        public static readonly ParameterVector2 MediaScaleParameter =                Parameter.RegisterVector2(typeof(VideoClip), nameof(VideoClip), nameof(MediaScale), Vector2.One,   ValueAccessors.LinqExpression<Vector2>(typeof(VideoClip), nameof(MediaScale)), ParameterFlags.AffectsRender);
-        public static readonly ParameterVector2 MediaScaleOriginParameter =          Parameter.RegisterVector2(typeof(VideoClip), nameof(VideoClip), nameof(MediaScaleOrigin),          ValueAccessors.LinqExpression<Vector2>(typeof(VideoClip), nameof(MediaScaleOrigin)), ParameterFlags.AffectsRender);
-        public static readonly ParameterBoolean UseAbsoluteScaleOriginParameter =    Parameter.RegisterBoolean(typeof(VideoClip), nameof(VideoClip), nameof(UseAbsoluteScaleOrigin),    ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(UseAbsoluteScaleOrigin)), ParameterFlags.AffectsRender);
-        public static readonly ParameterDouble MediaRotationParameter =              Parameter.RegisterDouble(typeof(VideoClip), nameof(VideoClip), nameof(MediaRotation),              ValueAccessors.LinqExpression<double>(typeof(VideoClip), nameof(MediaRotation)), ParameterFlags.AffectsRender);
-        public static readonly ParameterVector2 MediaRotationOriginParameter =       Parameter.RegisterVector2(typeof(VideoClip), nameof(VideoClip), nameof(MediaRotationOrigin),       ValueAccessors.LinqExpression<Vector2>(typeof(VideoClip), nameof(MediaRotationOrigin)), ParameterFlags.AffectsRender);
-        public static readonly ParameterBoolean UseAbsoluteRotationOriginParameter = Parameter.RegisterBoolean(typeof(VideoClip), nameof(VideoClip), nameof(UseAbsoluteRotationOrigin), ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(UseAbsoluteRotationOrigin)), ParameterFlags.AffectsRender);
+        public static readonly ParameterVector2 MediaPositionParameter =             Parameter.RegisterVector2(typeof(VideoClip), nameof(VideoClip), nameof(MediaPosition),             ValueAccessors.LinqExpression<Vector2>(typeof(VideoClip), nameof(MediaPosition)), ParameterFlags.StandardProjectVisual);
+        public static readonly ParameterVector2 MediaScaleParameter =                Parameter.RegisterVector2(typeof(VideoClip), nameof(VideoClip), nameof(MediaScale), Vector2.One,   ValueAccessors.LinqExpression<Vector2>(typeof(VideoClip), nameof(MediaScale)), ParameterFlags.StandardProjectVisual);
+        public static readonly ParameterVector2 MediaScaleOriginParameter =          Parameter.RegisterVector2(typeof(VideoClip), nameof(VideoClip), nameof(MediaScaleOrigin),          ValueAccessors.LinqExpression<Vector2>(typeof(VideoClip), nameof(MediaScaleOrigin)), ParameterFlags.StandardProjectVisual);
+        public static readonly ParameterBoolean UseAbsoluteScaleOriginParameter =    Parameter.RegisterBoolean(typeof(VideoClip), nameof(VideoClip), nameof(UseAbsoluteScaleOrigin),    ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(UseAbsoluteScaleOrigin)), ParameterFlags.StandardProjectVisual);
+        public static readonly ParameterDouble MediaRotationParameter =              Parameter.RegisterDouble(typeof(VideoClip), nameof(VideoClip), nameof(MediaRotation),              ValueAccessors.LinqExpression<double>(typeof(VideoClip), nameof(MediaRotation)), ParameterFlags.StandardProjectVisual);
+        public static readonly ParameterVector2 MediaRotationOriginParameter =       Parameter.RegisterVector2(typeof(VideoClip), nameof(VideoClip), nameof(MediaRotationOrigin),       ValueAccessors.LinqExpression<Vector2>(typeof(VideoClip), nameof(MediaRotationOrigin)), ParameterFlags.StandardProjectVisual);
+        public static readonly ParameterBoolean UseAbsoluteRotationOriginParameter = Parameter.RegisterBoolean(typeof(VideoClip), nameof(VideoClip), nameof(UseAbsoluteRotationOrigin), ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(UseAbsoluteRotationOrigin)), ParameterFlags.StandardProjectVisual);
+
+        public static readonly DataParameterBoolean IsVisibleParameter = DataParameter.Register(new DataParameterBoolean(typeof(VideoClip), nameof(IsVisible), true, ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(IsVisible)), DataParameterFlags.StandardProjectVisual));
 
         // Transformation data
         private Vector2 MediaPosition;
@@ -59,20 +62,20 @@ namespace FramePFX.Editors.Timelines.Clips {
         private SKMatrix clipTransformationMatrix;
         private SKMatrix finalTransformationMatrix;
         private bool isMatrixDirty;
+        private bool IsVisible;
 
-        /// <summary>
-        /// The actual live opacity of this clip. This is updated by the automation engine, and is not thread-safe (see <see cref="InternalRenderOpacity"/>)
-        /// </summary>
-        public double Opacity;
-
-        public byte OpacityByte => RenderUtils.DoubleToByte255(this.Opacity);
+        // video clip stuff
+        private double Opacity;
 
         /// <summary>
         /// Updated by the rendering engine when a clip begins rendering. This is a thread safe proxy of <see cref="Opacity"/>
         /// </summary>
-        public double InternalRenderOpacity;
+        public double RenderOpacity;
 
-        public byte InternalRenderOpacityByte => RenderUtils.DoubleToByte255(this.InternalRenderOpacity);
+        /// <summary>
+        /// This is <see cref="RenderOpacity"/> converted to a byte
+        /// </summary>
+        public byte RenderOpacityByte => RenderUtils.DoubleToByte255(this.RenderOpacity);
 
         /// <summary>
         /// Returns true if this clip handles its own opacity calculations in order for a more
@@ -106,6 +109,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         protected VideoClip() {
             this.isMatrixDirty = true;
             this.Opacity = OpacityParameter.Descriptor.DefaultValue;
+            this.IsVisible = IsVisibleParameter.DefaultValue;
             this.MediaPosition = MediaPositionParameter.Descriptor.DefaultValue;
             this.MediaScale = MediaScaleParameter.Descriptor.DefaultValue;
             this.MediaScaleOrigin = MediaScaleOriginParameter.Descriptor.DefaultValue;
@@ -132,13 +136,15 @@ namespace FramePFX.Editors.Timelines.Clips {
 
         public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
+            data.SetBool(nameof(this.IsVisible), this.IsVisible);
             // we don't write Opacity here since it's an automatable parameter and therefore
             // the value is saved either in the default key frame or in key frames
         }
 
         public override void ReadFromRBE(RBEDictionary data) {
             base.ReadFromRBE(data);
-            this.InvalidateTransformationMatrix();
+            this.IsVisible = data.GetBool(nameof(this.IsVisible));
+            this.isMatrixDirty = true;
         }
 
         /// <summary>

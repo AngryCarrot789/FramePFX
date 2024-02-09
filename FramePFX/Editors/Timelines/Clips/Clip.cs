@@ -45,7 +45,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// </summary>
         public Project Project { get; private set; }
 
-        public ReadOnlyCollection<BaseEffect> Effects { get; }
+        public IReadOnlyList<BaseEffect> Effects => this.internalEffectList;
 
         public TransferableData TransferableData { get; }
 
@@ -86,6 +86,7 @@ namespace FramePFX.Editors.Timelines.Clips {
                     return;
                 this.mediaFrameOffset = value;
                 this.MediaFrameOffsetChanged?.Invoke(this, oldValue, value);
+                this.MarkProjectModified();
             }
         }
 
@@ -97,6 +98,7 @@ namespace FramePFX.Editors.Timelines.Clips {
                     return;
                 this.displayName = value;
                 this.DisplayNameChanged?.Invoke(this, oldValue, value);
+                this.MarkProjectModified();
             }
         }
 
@@ -149,14 +151,19 @@ namespace FramePFX.Editors.Timelines.Clips {
 
         protected Clip() {
             this.internalEffectList = new List<BaseEffect>();
-            this.Effects = this.internalEffectList.AsReadOnly();
             this.ResourceHelper = new ResourceHelper(this);
             this.AutomationData = new AutomationData(this);
             this.TransferableData = new TransferableData(this);
         }
 
+        /// <summary>
+        /// Marks our project (if available) as modified
+        /// </summary>
+        public void MarkProjectModified() => this.Project?.MarkModified();
+
         protected virtual void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan) {
             this.FrameSpanChanged?.Invoke(this, oldSpan, newSpan);
+            this.MarkProjectModified();
             if (this.GetRelativePlayHead(out long relativeFrame))
                 AutomationEngine.UpdateValues(this, relativeFrame);
         }
@@ -474,5 +481,8 @@ namespace FramePFX.Editors.Timelines.Clips {
 
         internal static ClipGroup InternalGetGroup(Clip clip) => clip.myGroup;
         internal static void InternalSetGroup(Clip clip, ClipGroup group) => clip.myGroup = group;
+
+        // Only used for faster code
+        internal static List<BaseEffect> InternalGetEffectListUnsafe(Clip clip) => clip.internalEffectList;
     }
 }

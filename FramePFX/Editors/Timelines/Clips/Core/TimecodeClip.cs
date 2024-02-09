@@ -10,11 +10,11 @@ using SkiaSharp;
 
 namespace FramePFX.Editors.Timelines.Clips.Core {
     public class TimecodeClip : VideoClip {
-        public static readonly ParameterDouble FontSizeParameter = Parameter.RegisterDouble(typeof(TimecodeClip), nameof(TimecodeClip), nameof(FontSize), 40, ValueAccessors.LinqExpression<double>(typeof(TimecodeClip), nameof(FontSize)), ParameterFlags.AffectsRender);
-        public static readonly DataParameterBoolean UseClipStartTimeParameter = DataParameter.Register(new DataParameterBoolean(typeof(TimecodeClip), nameof(UseClipStartTime), true, ValueAccessors.Reflective<bool>(typeof(TimecodeClip), nameof(UseClipStartTime)), DataParameterFlags.AffectsRender));
-        public static readonly DataParameterBoolean UseClipEndTimeParameter = DataParameter.Register(new DataParameterBoolean(typeof(TimecodeClip), nameof(UseClipEndTime), true, ValueAccessors.Reflective<bool>(typeof(TimecodeClip), nameof(UseClipEndTime)), DataParameterFlags.AffectsRender));
-        public static readonly DataParameterDouble StartTimeParameter = DataParameter.Register(new DataParameterDouble(typeof(TimecodeClip), nameof(StartTime), 0.0, ValueAccessors.Reflective<double>(typeof(TimecodeClip), nameof(StartTime)), DataParameterFlags.AffectsRender));
-        public static readonly DataParameterDouble EndTimeParameter = DataParameter.Register(new DataParameterDouble(typeof(TimecodeClip), nameof(EndTime), 0.0, ValueAccessors.Reflective<double>(typeof(TimecodeClip), nameof(EndTime)), DataParameterFlags.AffectsRender));
+        public static readonly ParameterDouble FontSizeParameter = Parameter.RegisterDouble(typeof(TimecodeClip), nameof(TimecodeClip), nameof(FontSize), 40, ValueAccessors.LinqExpression<double>(typeof(TimecodeClip), nameof(FontSize)), ParameterFlags.StandardProjectVisual);
+        public static readonly DataParameterBoolean UseClipStartTimeParameter = DataParameter.Register(new DataParameterBoolean(typeof(TimecodeClip), nameof(UseClipStartTime), true, ValueAccessors.Reflective<bool>(typeof(TimecodeClip), nameof(UseClipStartTime)), DataParameterFlags.StandardProjectVisual));
+        public static readonly DataParameterBoolean UseClipEndTimeParameter = DataParameter.Register(new DataParameterBoolean(typeof(TimecodeClip), nameof(UseClipEndTime), true, ValueAccessors.Reflective<bool>(typeof(TimecodeClip), nameof(UseClipEndTime)), DataParameterFlags.StandardProjectVisual));
+        public static readonly DataParameterDouble StartTimeParameter = DataParameter.Register(new DataParameterDouble(typeof(TimecodeClip), nameof(StartTime), 0.0, ValueAccessors.Reflective<double>(typeof(TimecodeClip), nameof(StartTime)), DataParameterFlags.StandardProjectVisual));
+        public static readonly DataParameterDouble EndTimeParameter = DataParameter.Register(new DataParameterDouble(typeof(TimecodeClip), nameof(EndTime), 0.0, ValueAccessors.Reflective<double>(typeof(TimecodeClip), nameof(EndTime)), DataParameterFlags.StandardProjectVisual));
 
         private double FontSize;
         private bool UseClipStartTime;
@@ -64,6 +64,8 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
             this.FontSize = FontSizeParameter.Descriptor.DefaultValue;
             this.UseClipStartTime = UseClipStartTimeParameter.DefaultValue;
             this.UseClipEndTime = UseClipEndTimeParameter.DefaultValue;
+            this.StartTime = StartTimeParameter.DefaultValue;
+            this.EndTime = EndTimeParameter.DefaultValue;
         }
 
         private string GetCurrentTimeString() {
@@ -158,7 +160,7 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
             //     }
             // }
 
-            using (SKPaint paint = new SKPaint() { IsAntialias = true, Color = SKColors.White.WithAlpha(this.InternalRenderOpacityByte) }) {
+            using (SKPaint paint = new SKPaint() { IsAntialias = true, Color = SKColors.White.WithAlpha(this.RenderOpacityByte) }) {
                 using (SKTextBlob blob = SKTextBlob.Create(text, fd.cachedFont)) {
                     fd.cachedFont.GetFontMetrics(out SKFontMetrics metrics);
                     // using (SKPaint p3 = new SKPaint() {Color = SKColors.Orange}) {

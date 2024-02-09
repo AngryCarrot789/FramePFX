@@ -32,7 +32,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
 
         public ReadOnlyCollection<Clip> Clips { get; }
 
-        public ReadOnlyCollection<BaseEffect> Effects { get; }
+        public IReadOnlyList<BaseEffect> Effects => this.internalEffectList;
 
         public double Height {
             get => this.height;
@@ -111,7 +111,6 @@ namespace FramePFX.Editors.Timelines.Tracks {
             this.cache = new ClipRangeCache();
             this.cache.FrameDataChanged += this.OnRangeCachedFrameDataChanged;
             this.internalEffectList = new List<BaseEffect>();
-            this.Effects = this.internalEffectList.AsReadOnly();
             this.colour = RenderUtils.RandomColour();
             this.selectedClips = new List<Clip>();
             this.AutomationData = new AutomationData(this);
@@ -496,6 +495,9 @@ namespace FramePFX.Editors.Timelines.Tracks {
                 Clip.InternalOnTimelineProjectChanged(clip, oldProject, newProject);
             }
         }
+
+        // Only used for faster code
+        internal static List<BaseEffect> InternalGetEffectListUnsafe(Track track) => track.internalEffectList;
 
         #endregion
     }

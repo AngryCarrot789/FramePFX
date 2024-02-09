@@ -49,9 +49,6 @@ namespace FramePFX.Editors.DataTransfer {
                 throw new ArgumentNullException(nameof(ownerType));
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentException("Key cannot be null, empty or consist of only whitespaces");
-            if (flags < DataParameterFlags.None || flags > DataParameterFlags.AffectsRender)
-                throw new ArgumentOutOfRangeException(nameof(flags), flags, "Flags value was invalid");
-
             this.OwnerType = ownerType;
             this.Key = key;
             this.Flags = flags;

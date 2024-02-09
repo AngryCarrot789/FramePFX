@@ -132,12 +132,14 @@ namespace FramePFX.Editors.Views {
                 oldProject.RenderManager.FrameRendered -= this.UpdateFrameRenderInterval;
                 oldProject.ProjectFilePathChanged -= this.OnProjectFilePathChanged;
                 oldProject.ProjectNameChanged -= this.OnProjectNameChanged;
+                oldProject.IsModifiedChanged -= this.OnProjectModifiedChanged;
             }
 
             if (newProject != null) {
                 newProject.RenderManager.FrameRendered += this.UpdateFrameRenderInterval;
                 newProject.ProjectFilePathChanged += this.OnProjectFilePathChanged;
                 newProject.ProjectNameChanged += this.OnProjectNameChanged;
+                newProject.IsModifiedChanged += this.OnProjectModifiedChanged;
             }
 
             this.UpdateRenderSettings(newProject?.Settings);
@@ -145,6 +147,10 @@ namespace FramePFX.Editors.Views {
             this.UpdateTimeline(newProject?.MainTimeline);
             this.UpdateWindowTitle(newProject);
             this.UpdatePlayBackButtons(newProject?.Editor.Playback);
+        }
+
+        private void OnProjectModifiedChanged(Project project) {
+            this.UpdateWindowTitle(project);
         }
 
         private void OnProjectFilePathChanged(Project project) {
@@ -169,6 +175,9 @@ namespace FramePFX.Editors.Views {
                 if (!string.IsNullOrWhiteSpace(project.ProjectName)) {
                     sb.Append(" [").Append(project.ProjectName).Append("]");
                 }
+
+                if (project.IsModified)
+                    sb.Append("*");
 
                 this.Title = sb.ToString();
             }

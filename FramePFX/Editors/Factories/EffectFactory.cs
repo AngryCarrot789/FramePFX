@@ -5,7 +5,6 @@ namespace FramePFX.Editors.Factories {
         public static EffectFactory Instance { get; } = new EffectFactory();
 
         private EffectFactory() {
-            this.RegisterType("vfx_motion", typeof(MotionEffect));
             this.RegisterType("vfx_pixelate", typeof(CPUPixelateEffect));
         }
 

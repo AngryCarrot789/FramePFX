@@ -9,11 +9,11 @@ namespace FramePFX.Editors.Automation.Params {
     public delegate void AutoSetter<in T>(object a, T v);
 
     /// <summary>
-    /// A class that stores information about a registered parameter for a specific type of automatable object
+    /// A class that stores information about a registered parameter for a specific type of automatable object.
+    /// Parameters are basically just an identifier for a specific channel of automatable data, such as the Opacity parameter
+    /// in video clips and video tracks
     /// </summary>
     public abstract class Parameter : IEquatable<Parameter>, IComparable<Parameter> {
-        public static readonly ParameterKey Empty = default;
-
         private static readonly Dictionary<ParameterKey, Parameter> RegistryMap;
         private static readonly Dictionary<Type, List<Parameter>> TypeToParametersMap;
 
@@ -45,7 +45,7 @@ namespace FramePFX.Editors.Automation.Params {
 
         /// <summary>
         /// Gets this parameter's descriptor, which contains information about the behaviour of the parameter's
-        /// value such as minimum and maximum value range, default value, rounding, decimal precision, etc.
+        /// value such as minimum and maximum value range, default value, rounding/decimal precision, etc.
         /// </summary>
         public ParameterDescriptor Descriptor { get; }
 
@@ -57,19 +57,19 @@ namespace FramePFX.Editors.Automation.Params {
         public int GlobalIndex { get; private set; }
 
         /// <summary>
-        /// Gets this parameter's special flags, which add extra functionality
+        /// Gets this parameter's special flags, which allows automatic functionality (e.g. triggering render when the effective value changes)
         /// </summary>
         public ParameterFlags Flags { get; }
 
         /// <summary>
-        /// An event fired when this parameter changes in any <see cref="AutomationSequence"/> throughout the entire application
+        /// An event fired when this parameter's effective value changes for any <see cref="AutomationSequence"/> throughout the entire application
         /// </summary>
         public event ParameterChangedEventHandler ParameterValueChanged;
 
         protected Parameter(Type ownerType, ParameterKey key, ParameterDescriptor descriptor, ParameterFlags flags) {
             if (descriptor == null)
                 throw new ArgumentNullException(nameof(descriptor));
-            if (ownerType == null)
+            if (ReferenceEquals(ownerType, null))
                 throw new ArgumentNullException(nameof(ownerType));
             this.Key = key;
             this.OwnerType = ownerType;
@@ -84,7 +84,7 @@ namespace FramePFX.Editors.Automation.Params {
         }
 
         /// <summary>
-        /// Adds the given event handler to all of the given parameters
+        /// A convenience function that adds the given event handler to all of the given parameters
         /// </summary>
         /// <param name="handler">The handler to add</param>
         /// <param name="parameters">The parameters to add an event handler for</param>
@@ -103,8 +103,26 @@ namespace FramePFX.Editors.Automation.Params {
         /// <param name="frame">The frame which should be used to calculate the new effective value</param>
         public abstract void SetValue(AutomationSequence sequence, long frame);
 
-        public abstract object GetObjectValue(IAutomatable automatable);
+        /// <summary>
+        /// Gets this parameter's current effective value for the given owner instance. The returned value may be out of date,
+        /// e.g. a key frame value or time changed but the automation value was not re-evaluated (there is no flag to check if this is the case)
+        /// </summary>
+        /// <param name="automatable">The owner instance</param>
+        /// <returns>The possibly boxed effective value</returns>
+        public abstract object GetCurrentObjectValue(IAutomatable automatable);
 
+        /// <summary>
+        /// Evaluates the value of this parameter from the given sequence at the given frame, and returned the (possibly boxed) effective value.
+        /// This value is (obviously) guaranteed to be up to date with the automation data.
+        /// <para>
+        /// For example, if this parameter is a <see cref="ParameterDouble"/>, then this method just returns the value
+        /// from <see cref="AutomationSequence.GetDoubleValue"/>. This method is entirely just for convenience (at the cost of boxing performance)
+        /// if handling each parameter type is too much of a hassle
+        /// </para>
+        /// </summary>
+        /// <param name="frame">The frame that is used to calculate the value</param>
+        /// <param name="sequence">The sequence to calculate the value from</param>
+        /// <returns>The up to date effective value as an object (possibly boxed)</returns>
         public abstract object GetObjectValue(long frame, AutomationSequence sequence);
 
         public KeyFrame CreateKeyFrame(long frame = 0L) => KeyFrame.CreateDefault(this, frame);
@@ -283,9 +301,9 @@ namespace FramePFX.Editors.Automation.Params {
             this.accessor.SetValue(sequence.AutomationData.Owner, sequence.GetFloatValue(frame));
         }
 
-        public float GetEffectiveValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
+        public float GetCurrentValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
 
-        public override object GetObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
+        public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
 
         public override object GetObjectValue(long frame, AutomationSequence sequence) => sequence.GetFloatValue(frame);
     }
@@ -306,9 +324,9 @@ namespace FramePFX.Editors.Automation.Params {
             this.accessor.SetValue(sequence.AutomationData.Owner, sequence.GetDoubleValue(frame));
         }
 
-        public double GetEffectiveValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
+        public double GetCurrentValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
 
-        public override object GetObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
+        public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
 
         public override object GetObjectValue(long frame, AutomationSequence sequence) => sequence.GetDoubleValue(frame);
     }
@@ -329,9 +347,9 @@ namespace FramePFX.Editors.Automation.Params {
             this.accessor.SetValue(sequence.AutomationData.Owner, sequence.GetLongValue(frame));
         }
 
-        public long GetEffectiveValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
+        public long GetCurrentValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
 
-        public override object GetObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
+        public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
 
         public override object GetObjectValue(long frame, AutomationSequence sequence) => sequence.GetLongValue(frame);
     }
@@ -352,9 +370,9 @@ namespace FramePFX.Editors.Automation.Params {
             this.accessor.SetValue(sequence.AutomationData.Owner, sequence.GetBooleanValue(frame));
         }
 
-        public bool GetEffectiveValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
+        public bool GetCurrentValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
 
-        public override object GetObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
+        public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
 
         public override object GetObjectValue(long frame, AutomationSequence sequence) => sequence.GetBooleanValue(frame);
     }
@@ -375,9 +393,9 @@ namespace FramePFX.Editors.Automation.Params {
             this.accessor.SetValue(sequence.AutomationData.Owner, sequence.GetVector2Value(frame));
         }
 
-        public Vector2 GetEffectiveValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
+        public Vector2 GetCurrentValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
 
-        public override object GetObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
+        public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
 
         public override object GetObjectValue(long frame, AutomationSequence sequence) => sequence.GetVector2Value(frame);
     }

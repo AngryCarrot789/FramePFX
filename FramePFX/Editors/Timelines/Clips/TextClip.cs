@@ -8,7 +8,7 @@ namespace FramePFX.Editors.Timelines.Clips {
 
         public double FontSize;
 
-        public override bool PrepareRenderFrame(PreRenderContext ctx, long frame) {
+        public override bool PrepareRenderFrame(PreRenderContext rc, long frame) {
             throw new System.NotImplementedException();
         }
 

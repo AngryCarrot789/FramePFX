@@ -37,7 +37,7 @@ namespace FramePFX.Editors.Controls.Binders {
         }
 
         protected override void UpdateControlCore() {
-            object value = this.Parameter.GetObjectValue(this.Model);
+            object value = this.Parameter.GetCurrentObjectValue(this.Model);
             this.Control.SetValue(this.Property, value);
         }
     }

@@ -214,6 +214,7 @@ namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
 
                 this.link = newLink;
                 if (newLink != null) {
+                    newLink.SetManager(this.Project?.ResourceManager);
                     newLink.ResourceChanged += this.resourceChangedHandler;
                 }
 
@@ -224,7 +225,7 @@ namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
             public virtual void SetTargetResourceId(ulong id) {
                 if (id == ResourceManager.EmptyId)
                     throw new ArgumentException("ID must not be empty (0)");
-                this.SetResourcePath(new ResourceLink(this, this.helper.Owner.Project?.ResourceManager, id));
+                this.SetResourcePath(new ResourceLink(this, id));
             }
 
             public bool TryGetResource<T>(out T resource, bool requireIsOnline = true) where T : ResourceItem {

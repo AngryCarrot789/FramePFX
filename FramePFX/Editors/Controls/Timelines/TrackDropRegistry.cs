@@ -105,7 +105,6 @@ namespace FramePFX.Editors.Controls.Timelines {
                     default: return;
                 }
 
-                theNewClip.AddEffect(new MotionEffect());
                 track.AddClip(theNewClip);
                 track.InvalidateRender();
             });

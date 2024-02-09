@@ -180,7 +180,7 @@ namespace FramePFX.Editors {
                 Thread.Sleep(1);
             using (this.RenderManager.SuspendRenderInvalidation()) {
                 this.MainTimeline.Destroy();
-                this.ResourceManager.ClearEntries();
+                this.ResourceManager.Clear();
             }
 
             this.RenderManager.Dispose();

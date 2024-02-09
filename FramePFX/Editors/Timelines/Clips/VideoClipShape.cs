@@ -39,7 +39,7 @@ namespace FramePFX.Editors.Timelines.Clips {
             return new Vector2(this.Size.X, this.Size.Y);
         }
 
-        public override bool PrepareRenderFrame(PreRenderContext ctx, long frame) {
+        public override bool PrepareRenderFrame(PreRenderContext rc, long frame) {
             this.renderData = new RenderData() {
                 size = this.Size,
                 colour = this.ColourKey.TryGetResource(out ResourceColour resource) ? resource.Colour : (this.Track?.Colour ?? SKColors.White)

@@ -7,7 +7,7 @@ namespace FramePFX.Editors.Automation {
     /// an <see cref="AutomationDataType"/>, a key frame type, parameter type, etc, so that I know what to
     /// change if I add any new data types
     /// </summary>
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor)]
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor | AttributeTargets.Class)]
     public class SwitchAutomationDataTypeAttribute : Attribute {
 
     }

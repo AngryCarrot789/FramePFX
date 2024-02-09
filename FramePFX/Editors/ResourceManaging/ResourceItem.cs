@@ -32,7 +32,7 @@ namespace FramePFX.Editors.ResourceManaging {
         /// <summary>
         /// This resource item's current unique identifier. This is only set by our <see cref="ResourceManager"/> (to
         /// a valid value when registering, or <see cref="EmptyId"/> if unregistering) or during the deserialisation
-        /// phase of this resource, in which case a special registration will occur that uses this property directly
+        /// phase of this resource
         /// </summary>
         public ulong UniqueId { get; private set; }
 
@@ -159,7 +159,7 @@ namespace FramePFX.Editors.ResourceManaging {
 
         public override void WriteToRBE(RBEDictionary data) {
             base.WriteToRBE(data);
-            if (this.UniqueId != 0)
+            if (this.UniqueId != EmptyId)
                 data.SetULong(nameof(this.UniqueId), this.UniqueId);
             if (!this.IsOnline)
                 data.SetBool(nameof(this.IsOnline), false);

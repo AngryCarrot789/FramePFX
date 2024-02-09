@@ -52,7 +52,7 @@ namespace FramePFX.Editors.Timelines.Clips {
             }
         }
 
-        public override bool PrepareRenderFrame(PreRenderContext ctx, long frame) {
+        public override bool PrepareRenderFrame(PreRenderContext rc, long frame) {
             if (!this.TryGetResource(out ResourceAVMedia resource))
                 return false;
             if (resource.stream == null || resource.Demuxer == null)
@@ -74,13 +74,8 @@ namespace FramePFX.Editors.Timelines.Clips {
 
             // No need to dispose as the frames are stored in a frame buffer, which is disposed by the resource itself
             this.currentFrame = frame;
-            this.decodeFrameTask = Task.Run(async () => {
+            this.decodeFrameTask = Task.Run(() => {
                 this.decodeFrameBegin = Time.GetSystemTicks();
-                Task resourceRenderTask = Interlocked.Exchange(ref resource.CurrentGetFrameTask, this.decodeFrameTask);
-                if (resourceRenderTask != null && !resourceRenderTask.IsCompleted) {
-                    await resourceRenderTask;
-                }
-
                 VideoFrame output = null;
                 VideoFrame ready = resource.GetFrameAt(timestamp);
                 if (ready != null && !ready.IsDisposed) {

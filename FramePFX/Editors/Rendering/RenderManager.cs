@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -42,9 +43,13 @@ namespace FramePFX.Editors.Rendering {
 
         public event FrameRenderedEventHandler FrameRendered;
 
+        private readonly Thread renderThread;
+        private volatile bool isRenderThreadRunning;
+
         public RenderManager(Project project) {
             this.Project = project;
             this.Project.Settings.ResolutionChanged += this.SettingsOnResolutionChanged;
+            // this.renderThread = new Thread(this.RenderThreadMain);
         }
 
         private void SettingsOnResolutionChanged(ProjectSettings settings) {
@@ -94,6 +99,8 @@ namespace FramePFX.Editors.Rendering {
                 throw new InvalidOperationException("The current frame info is invalid");
             if (Interlocked.CompareExchange(ref this.isRendering, 1, 0) != 0)
                 throw new InvalidOperationException("Render already in progress");
+
+
         }
 
         /// <summary>
@@ -115,7 +122,7 @@ namespace FramePFX.Editors.Rendering {
                 // render bottom to top, as most video editors do
                 for (int i = timeline.Tracks.Count - 1; i >= 0; i--) {
                     Track track = timeline.Tracks[i];
-                    if (!(track is VideoTrack videoTrack) || !videoTrack.Visible) {
+                    if (!(track is VideoTrack videoTrack) || !VideoTrack.VisibleParameter.GetCurrentValue(videoTrack)) {
                         continue;
                     }
 
@@ -232,6 +239,14 @@ namespace FramePFX.Editors.Rendering {
             // using (SKImage img = SKImage.FromBitmap(this.bitmap)) {
             //     target.Canvas.DrawImage(img, 0, 0, null);
             // }
+        }
+
+        private void RenderThreadMain() {
+            while (this.isRenderThreadRunning) {
+
+            }
+
+
         }
 
         public SuspendRender SuspendRenderInvalidation() {

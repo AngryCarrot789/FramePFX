@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines.Effects;
@@ -35,13 +36,30 @@ namespace FramePFX.Editors.Timelines.Clips {
             Parameter.RegisterDouble(
                 typeof(VideoClip),
                 nameof(VideoClip),
-                "Opacity",
+                nameof(Opacity),
                 new ParameterDescriptorDouble(1, 0, 1),
                 ValueAccessors.LinqExpression<double>(typeof(VideoClip), nameof(Opacity)),
                 ParameterFlags.AffectsRender);
 
-        private SKMatrix internalTransformationMatrix;
-        private bool isMatrixDirty = true;
+        public static readonly ParameterVector2 MediaPositionParameter =             Parameter.RegisterVector2(typeof(VideoClip), nameof(VideoClip), nameof(MediaPosition),             ValueAccessors.LinqExpression<Vector2>(typeof(VideoClip), nameof(MediaPosition)), ParameterFlags.AffectsRender);
+        public static readonly ParameterVector2 MediaScaleParameter =                Parameter.RegisterVector2(typeof(VideoClip), nameof(VideoClip), nameof(MediaScale), Vector2.One,   ValueAccessors.LinqExpression<Vector2>(typeof(VideoClip), nameof(MediaScale)), ParameterFlags.AffectsRender);
+        public static readonly ParameterVector2 MediaScaleOriginParameter =          Parameter.RegisterVector2(typeof(VideoClip), nameof(VideoClip), nameof(MediaScaleOrigin),          ValueAccessors.LinqExpression<Vector2>(typeof(VideoClip), nameof(MediaScaleOrigin)), ParameterFlags.AffectsRender);
+        public static readonly ParameterBoolean UseAbsoluteScaleOriginParameter =    Parameter.RegisterBoolean(typeof(VideoClip), nameof(VideoClip), nameof(UseAbsoluteScaleOrigin),    ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(UseAbsoluteScaleOrigin)), ParameterFlags.AffectsRender);
+        public static readonly ParameterDouble MediaRotationParameter =              Parameter.RegisterDouble(typeof(VideoClip), nameof(VideoClip), nameof(MediaRotation),              ValueAccessors.LinqExpression<double>(typeof(VideoClip), nameof(MediaRotation)), ParameterFlags.AffectsRender);
+        public static readonly ParameterVector2 MediaRotationOriginParameter =       Parameter.RegisterVector2(typeof(VideoClip), nameof(VideoClip), nameof(MediaRotationOrigin),       ValueAccessors.LinqExpression<Vector2>(typeof(VideoClip), nameof(MediaRotationOrigin)), ParameterFlags.AffectsRender);
+        public static readonly ParameterBoolean UseAbsoluteRotationOriginParameter = Parameter.RegisterBoolean(typeof(VideoClip), nameof(VideoClip), nameof(UseAbsoluteRotationOrigin), ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(UseAbsoluteRotationOrigin)), ParameterFlags.AffectsRender);
+
+        // Transformation data
+        private Vector2 MediaPosition;
+        private Vector2 MediaScale;
+        private Vector2 MediaScaleOrigin;
+        private double MediaRotation;
+        private Vector2 MediaRotationOrigin;
+        private bool UseAbsoluteScaleOrigin;
+        private bool UseAbsoluteRotationOrigin;
+        private SKMatrix clipTransformationMatrix;
+        private SKMatrix finalTransformationMatrix;
+        private bool isMatrixDirty;
 
         /// <summary>
         /// The actual live opacity of this clip. This is updated by the automation engine, and is not thread-safe (see <see cref="InternalRenderOpacity"/>)
@@ -64,24 +82,48 @@ namespace FramePFX.Editors.Timelines.Clips {
         public bool UsesCustomOpacityCalculation { get; protected set; }
 
         /// <summary>
-        /// This video clip's transformation matrix. This is calculated by one or more <see cref="MotionEffect"/> instances
-        /// in both this clip's effects and our owner track's effects, where each instances' matrix is pre-concatenated
-        /// in their orders in the effect lists
+        /// Gets (or calculates, if dirty) this clip's final transformation matrix, which is a concatenation of
+        /// our <see cref="ClipTransformationMatrix"/> and our parent track's transformation matrix (or identity, if not in a track yet)
         /// </summary>
-        public SKMatrix TransformationMatrix {
+        public SKMatrix ClipAndTrackTransformationMatrix {
             get {
-                if (this.isMatrixDirty) {
-                    VideoTrack track = (VideoTrack) this.Track;
-                    this.internalTransformationMatrix = MatrixUtils.ConcatEffectMatrices(this, track?.TransformationMatrix ?? SKMatrix.Identity);
-                    this.isMatrixDirty = false;
-                }
+                if (this.isMatrixDirty)
+                    this.GenerateMatrices();
+                return this.finalTransformationMatrix;
+            }
+        }
 
-                return this.internalTransformationMatrix;
+        /// <summary>
+        /// Gets (or calculates, if dirty) this clip's transformation matrix entirely based on our transformation properties (therefore does not contain our track's matrix)
+        /// </summary>
+        public SKMatrix ClipTransformationMatrix {
+            get {
+                if (this.isMatrixDirty)
+                    this.GenerateMatrices();
+                return this.clipTransformationMatrix;
             }
         }
 
         protected VideoClip() {
+            this.isMatrixDirty = true;
             this.Opacity = OpacityParameter.Descriptor.DefaultValue;
+            this.MediaPosition = MediaPositionParameter.Descriptor.DefaultValue;
+            this.MediaScale = MediaScaleParameter.Descriptor.DefaultValue;
+            this.MediaScaleOrigin = MediaScaleOriginParameter.Descriptor.DefaultValue;
+            this.UseAbsoluteScaleOrigin = UseAbsoluteScaleOriginParameter.Descriptor.DefaultValue;
+            this.MediaRotation = MediaRotationParameter.Descriptor.DefaultValue;
+            this.MediaRotationOrigin = MediaRotationOriginParameter.Descriptor.DefaultValue;
+            this.UseAbsoluteRotationOrigin = UseAbsoluteRotationOriginParameter.Descriptor.DefaultValue;
+        }
+
+        static VideoClip() {
+            Parameter.AddMultipleHandlers(s => ((VideoClip) s.AutomationData.Owner).InvalidateTransformationMatrix(), MediaPositionParameter, MediaScaleParameter, MediaScaleOriginParameter, UseAbsoluteScaleOriginParameter, MediaRotationParameter, MediaRotationOriginParameter, UseAbsoluteRotationOriginParameter);
+        }
+
+        private void GenerateMatrices() {
+            this.clipTransformationMatrix = MatrixUtils.CreateTransformationMatrix(this.MediaPosition, this.MediaScale, this.MediaRotation, this.MediaScaleOrigin, this.MediaRotationOrigin);
+            this.finalTransformationMatrix = this.Track is VideoTrack vidTrack ? vidTrack.TransformationMatrix.PreConcat(this.clipTransformationMatrix) : this.clipTransformationMatrix;
+            this.isMatrixDirty = false;
         }
 
         protected override void OnTrackChanged(Track oldTrack, Track newTrack) {
@@ -130,9 +172,10 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// Prepares this clip for rendering. This is called on the main thread, and allows rendering data
         /// to be cached locally so that it can be accessed safely by a render thread in <see cref="RenderFrame"/>.
         /// </summary>
-        /// <param name="ctx"></param>
+        /// <param name="rc">The pre-render setup context</param>
         /// <param name="frame">The play head frame, relative to this clip. This will always be within range of our span</param>
-        public abstract bool PrepareRenderFrame(PreRenderContext ctx, long frame);
+        /// <returns>True if this clip can be rendered (meaning <see cref="RenderFrame"/> may be called after this call)</returns>
+        public abstract bool PrepareRenderFrame(PreRenderContext rc, long frame);
 
         /// <summary>
         /// Renders this clip using the given rendering context data. This is called on a randomly

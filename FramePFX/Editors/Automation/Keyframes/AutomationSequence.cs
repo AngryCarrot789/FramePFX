@@ -34,9 +34,9 @@ namespace FramePFX.Editors.Automation.Keyframes {
         public bool IsEmpty => this.keyFrameList.Count < 1;
 
         /// <summary>
-        /// A keyframe that initially stores the default value for our parameter.
-        /// It is used when there are no key frames, <see cref="IsOverrideEnabled"/> is true,
-        /// or when <see cref="UpdateValue(long)"/> is called with a negative frame
+        /// A keyframe that stores the initial value for this automation sequence. It is used when there are no key
+        /// frames, <see cref="IsOverrideEnabled"/> is true, or when <see cref="UpdateValue(long)"/> is called with
+        /// a negative frame
         /// </summary>
         public KeyFrame DefaultKeyFrame { get; }
 

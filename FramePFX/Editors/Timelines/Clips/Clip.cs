@@ -178,7 +178,8 @@ namespace FramePFX.Editors.Timelines.Clips {
             this.LoadDataIntoClone(clone, options);
             if (options.CloneEffects) {
                 foreach (BaseEffect effect in this.Effects) {
-                    clone.AddEffect(effect.Clone());
+                    if (effect.IsCloneable)
+                        clone.AddEffect(effect.Clone());
                 }
             }
 

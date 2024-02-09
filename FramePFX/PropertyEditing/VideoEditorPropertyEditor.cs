@@ -41,6 +41,16 @@ namespace FramePFX.PropertyEditing {
                 this.ClipGroup.AddItem(new VideoClipMediaFrameOffsetPropertyEditorSlot());
 
                 {
+                    SimplePropertyEditorGroup group = new SimplePropertyEditorGroup(typeof(VideoClip), GroupType.SecondaryExpander) {DisplayName = "Motion/Transformation"};
+                    group.AddItem(new ParameterVector2PropertyEditorSlot(VideoClip.MediaPositionParameter, typeof(VideoClip), "Pos", DragStepProfile.InfPixelRange));
+                    group.AddItem(new ParameterVector2PropertyEditorSlot(VideoClip.MediaScaleParameter, typeof(VideoClip), "Scale", DragStepProfile.UnitOne));
+                    group.AddItem(new ParameterVector2PropertyEditorSlot(VideoClip.MediaScaleOriginParameter, typeof(VideoClip), "Scale Origin", DragStepProfile.InfPixelRange));
+                    group.AddItem(new ParameterDoublePropertyEditorSlot(VideoClip.MediaRotationParameter, typeof(VideoClip), "Rotation", DragStepProfile.Rotation));
+                    group.AddItem(new ParameterVector2PropertyEditorSlot(VideoClip.MediaRotationOriginParameter, typeof(VideoClip), "Rotation Origin", DragStepProfile.InfPixelRange));
+                    this.ClipGroup.AddItem(group);
+                }
+
+                {
                     SimplePropertyEditorGroup group = new SimplePropertyEditorGroup(typeof(VideoClipShape), GroupType.SecondaryExpander) {DisplayName = "Shape Info"};
                     group.AddItem(new ParameterVector2PropertyEditorSlot(VideoClipShape.SizeParameter, typeof(VideoClipShape), "Size", DragStepProfile.InfPixelRange));
                     this.ClipGroup.AddItem(group);
@@ -68,6 +78,17 @@ namespace FramePFX.PropertyEditing {
 
                 this.TrackGroup.AddItem(new DisplayNamePropertyEditorSlot());
                 this.TrackGroup.AddItem(new ParameterDoublePropertyEditorSlot(VideoTrack.OpacityParameter, typeof(VideoTrack), "Opacity", DragStepProfile.UnitOne));
+
+                {
+                    SimplePropertyEditorGroup group = new SimplePropertyEditorGroup(typeof(VideoTrack), GroupType.SecondaryExpander) {DisplayName = "Motion/Transformation"};
+                    group.AddItem(new ParameterVector2PropertyEditorSlot(VideoTrack.MediaPositionParameter, typeof(VideoTrack), "Pos", DragStepProfile.InfPixelRange));
+                    group.AddItem(new ParameterVector2PropertyEditorSlot(VideoTrack.MediaScaleParameter, typeof(VideoTrack), "Scale", DragStepProfile.UnitOne));
+                    group.AddItem(new ParameterVector2PropertyEditorSlot(VideoTrack.MediaScaleOriginParameter, typeof(VideoTrack), "Scale Origin", DragStepProfile.InfPixelRange));
+                    group.AddItem(new ParameterDoublePropertyEditorSlot(VideoTrack.MediaRotationParameter, typeof(VideoTrack), "Rotation", DragStepProfile.Rotation));
+                    group.AddItem(new ParameterVector2PropertyEditorSlot(VideoTrack.MediaRotationOriginParameter, typeof(VideoTrack), "Rotation Origin", DragStepProfile.InfPixelRange));
+                    this.TrackGroup.AddItem(group);
+                }
+
                 this.TrackEffectListGroup = new EffectListPropertyEditorGroup();
                 this.TrackGroup.AddItem(this.TrackEffectListGroup);
             }

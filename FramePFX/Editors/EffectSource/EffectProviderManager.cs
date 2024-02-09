@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Factories;
 using FramePFX.Editors.Timelines.Effects;
 
@@ -16,8 +17,7 @@ namespace FramePFX.Editors.EffectSource {
             this.entries = new List<EffectProviderEntry>();
             this.Entries = this.entries.AsReadOnly();
 
-            this.RegisterEffect<MotionEffect>("Motion Effect", null);
-            this.RegisterEffect<CPUPixelateEffect>("CPU Pixelate Effect", (p) => p.BlockSize = 16);
+            this.RegisterEffect<CPUPixelateEffect>("CPU Pixelate Effect", (p) => p.SetDefaultValue(CPUPixelateEffect.BlockSizeParameter, 16));
         }
 
         public void RegisterEffect<T>(string displayName, Action<T> postProcessor) where T : BaseEffect {

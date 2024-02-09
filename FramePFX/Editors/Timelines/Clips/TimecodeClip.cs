@@ -17,11 +17,11 @@ namespace FramePFX.Editors.Timelines.Clips {
         public static readonly DataParameterDouble StartTimeParameter = DataParameter.Register(new DataParameterDouble(typeof(TimecodeClip), nameof(StartTime), 0.0, ValueAccessors.Reflective<double>(typeof(TimecodeClip), nameof(StartTime)), DataParameterFlags.AffectsRender));
         public static readonly DataParameterDouble EndTimeParameter = DataParameter.Register(new DataParameterDouble(typeof(TimecodeClip), nameof(EndTime), 0.0, ValueAccessors.Reflective<double>(typeof(TimecodeClip), nameof(EndTime)), DataParameterFlags.AffectsRender));
 
-        public double FontSize;
-        public bool UseClipStartTime;
-        public bool UseClipEndTime;
-        public double StartTime;
-        public double EndTime;
+        private double FontSize;
+        private bool UseClipStartTime;
+        private bool UseClipEndTime;
+        private double StartTime;
+        private double EndTime;
         private string fontFamily = "Consolas";
 
         private class LockedFontData : IDisposable {
@@ -36,7 +36,7 @@ namespace FramePFX.Editors.Timelines.Clips {
             }
         }
 
-        private readonly RenderLockedDataWrapper<LockedFontData> fontData;
+        private readonly DisposalSync<LockedFontData> fontData;
 
         private TimeSpan render_StartTime;
         private TimeSpan render_EndTime;
@@ -61,7 +61,7 @@ namespace FramePFX.Editors.Timelines.Clips {
 
         public TimecodeClip() {
             this.UsesCustomOpacityCalculation = true;
-            this.fontData = new RenderLockedDataWrapper<LockedFontData>(new LockedFontData());
+            this.fontData = new DisposalSync<LockedFontData>(new LockedFontData());
             this.FontSize = FontSizeParameter.Descriptor.DefaultValue;
             this.UseClipStartTime = UseClipStartTimeParameter.DefaultValue;
             this.UseClipEndTime = UseClipEndTimeParameter.DefaultValue;
@@ -113,7 +113,7 @@ namespace FramePFX.Editors.Timelines.Clips {
             return new Vector2(this.lastRenderRect.Width, this.lastRenderRect.Height);
         }
 
-        public override bool PrepareRenderFrame(PreRenderContext ctx, long frame) {
+        public override bool PrepareRenderFrame(PreRenderContext rc, long frame) {
             double fps = this.Project.Settings.FrameRate.AsDouble;
 
             long playHead = this.FrameSpan.Begin + frame;

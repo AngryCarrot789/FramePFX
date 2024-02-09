@@ -63,18 +63,12 @@ namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
         /// </summary>
         public IBaseResourcePathKey Owner { get; }
 
-        public ResourceLink(IBaseResourcePathKey owner, ulong resourceId) : this(owner, null, resourceId) { }
-
-        public ResourceLink(IBaseResourcePathKey owner, ResourceManager manager, ulong resourceId) {
+        public ResourceLink(IBaseResourcePathKey owner, ulong resourceId) {
             this.ResourceId = resourceId == ResourceManager.EmptyId ? throw new ArgumentException("Unique id cannot be 0 (null)") : resourceId;
             this.Owner = owner ?? throw new ArgumentNullException(nameof(owner));
             this.resourceAddedHandler = this.OnManagerResourceAdded;
             this.resourceRemovedHandler = this.OnManagerResourceRemoved;
             this.onlineStateChangedHandler = this.OnOnlineStateChanged;
-            if (manager != null) {
-                this.Manager = manager;
-                this.AttachManager(manager);
-            }
         }
 
         public bool IsItemApplicable(ResourceItem item) => this.Owner.IsItemTypeApplicable(item);
@@ -89,11 +83,6 @@ namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
             this.EnsureManagerNotChanging("Cannot set manager while it is already being set");
             ResourceManager oldManager = this.Manager;
             if (ReferenceEquals(oldManager, manager)) {
-                if (manager != null) {
-                    Debugger.Break();
-                    AppLogger.Instance.WriteLine($"[{this.GetType().Name}] Attempted to set the same manager instance:\n{Environment.StackTrace}");
-                }
-
                 return;
             }
 
@@ -111,7 +100,7 @@ namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
             this.isManagerChanging = false;
         }
 
-        private void SetInternalResource(ResourceItem newItem, bool fireEvent = true) {
+        private void SetInternalResource(ResourceItem newItem) {
             ResourceItem oldItem = this.cached;
             if (newItem == null) {
                 if (oldItem == null)
@@ -126,9 +115,6 @@ namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
             }
 
             this.OnResourceChanged(oldItem, newItem);
-            if (fireEvent) {
-                this.ResourceChanged?.Invoke(oldItem, newItem);
-            }
         }
 
         private void OnResourceChanged(ResourceItem oldItem, ResourceItem newItem) {
@@ -141,6 +127,8 @@ namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
                 newItem.OnlineStateChanged += this.onlineStateChangedHandler;
                 this.SetReferenceCount(newItem, true);
             }
+
+            this.ResourceChanged?.Invoke(oldItem, newItem);
         }
 
         public void SetReferenceCount(ResourceItem item, bool isReferenced) {

@@ -138,26 +138,25 @@ namespace FramePFX.Editors.ResourceManaging {
             }
         }
 
-        public static void DestroyHierarchy(BaseResource resource) {
-            if (resource is ResourceFolder folder) {
-                folder.Destroy(); // call folder method just in case
-                foreach (BaseResource child in folder.items) {
-                    DestroyHierarchy(child);
-                }
-            }
-            else {
-                // The overridden method for ResourceItem calls disable, so there's
-                // no need to do it here since that will just hurt performance
-                resource.Destroy();
-            }
-        }
+        /// <summary>
+        /// Clears a folder recursively, while also allowing all resources to be destroyed too
+        /// </summary>
+        /// <param name="folder">The folder to clear recursively. Null accepted for convenience (e.g. resource as ResourceFolder)</param>
+        /// <param name="destroy">True to destroy resources before removing</param>
+        public static void ClearHierarchy(ResourceFolder folder, bool destroy = true) {
+            if (folder == null)
+                return;
 
-        public static void ClearHierarchy(BaseResource resource) {
-            if (resource is ResourceFolder folder) {
-                for (int i = folder.items.Count - 1; i >= 0; i--) {
-                    ClearHierarchy(folder.items[i]);
-                    folder.RemoveItemAt(i);
-                }
+            // we iterate back to front as it's far more efficient since it won't result
+            // in n-1 copies of all elements when removing from the front of the list.
+            // Even if we made 'items' a LinkedList, WPF still uses array based collections
+            for (int i = folder.items.Count - 1; i >= 0; i--) {
+                BaseResource item = folder.items[i];
+                if (destroy)
+                    item.Destroy();
+                if (item is ResourceFolder)
+                    ClearHierarchy((ResourceFolder) item, destroy);
+                folder.RemoveItemAt(i);
             }
         }
     }

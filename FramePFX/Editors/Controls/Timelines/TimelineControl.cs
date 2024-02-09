@@ -163,7 +163,6 @@ namespace FramePFX.Editors.Controls.Timelines {
             imgClip.DisplayName = imgRes.DisplayName;
             imgClip.FrameSpan = track.GetSpanUntilClipOrLimitedDuration(track.Timeline.PlayHeadPosition, maxDurationLimit: 300);
             imgClip.ResourceImageKey.SetTargetResourceId(imgRes.UniqueId);
-            imgClip.AddEffect(new MotionEffect());
             imgClip.IsSelected = true;
             track.AddClip(imgClip);
 

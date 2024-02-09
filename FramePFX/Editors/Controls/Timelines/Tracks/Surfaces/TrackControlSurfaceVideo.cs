@@ -47,7 +47,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
 
         private static void UpdateOpacityForControl(AutomationBinder<VideoTrack> binder) {
             TrackControlSurfaceVideo control = (TrackControlSurfaceVideo) binder.Control;
-            control.OpacityDragger.Value = binder.Model.Opacity;
+            control.OpacityDragger.Value = VideoTrack.OpacityParameter.GetCurrentValue(binder.Model);
         }
 
         private static void UpdateVisibilityForModel(AutomationBinder<VideoTrack> binder) {
@@ -57,7 +57,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
 
         private static void UpdateVisibilityForControl(AutomationBinder<VideoTrack> binder) {
             TrackControlSurfaceVideo control = (TrackControlSurfaceVideo) binder.Control;
-            control.VisibilityButton.IsChecked = binder.Model.Visible;
+            control.VisibilityButton.IsChecked = VideoTrack.VisibleParameter.GetCurrentValue(binder.Model);
         }
 
         protected override void OnConnected() {

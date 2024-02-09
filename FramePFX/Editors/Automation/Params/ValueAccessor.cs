@@ -4,13 +4,12 @@ using System.Reflection;
 
 namespace FramePFX.Editors.Automation.Params {
     /// <summary>
-    /// A class used by parameters to get and set the effective value of a specific parameter for an object
+    /// A class used by parameters (and data parameters) to get and set the effective value of a specific parameter for an object
     /// </summary>
     /// <typeparam name="TValue">The type of value this accessor accesses</typeparam>
     public abstract class ValueAccessor<TValue> {
         /// <summary>
-        /// Returns true when the boxed getter and setters are preferred,
-        /// e.g. this instance is reflection-based which always used boxed values
+        /// Returns true when the boxed getter and setters are preferred, e.g. this instance is reflection-based which always uses boxed values
         /// </summary>
         public bool IsObjectPreferred { get; protected set; }
 
@@ -20,7 +19,7 @@ namespace FramePFX.Editors.Automation.Params {
         public abstract TValue GetValue(object owner);
 
         /// <summary>
-        /// Gets the boxed value
+        /// Gets the object value
         /// </summary>
         public abstract object GetObjectValue(object owner);
 

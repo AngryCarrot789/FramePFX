@@ -102,7 +102,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
                     Track track = this.Owner.Track;
                     if (track.GetRelativePlayHead(out long playHead)) {
                         AutomationSequence seq = track.AutomationData[parameter];
-                        object value = parameter.GetObjectValue(track);
+                        object value = parameter.GetCurrentObjectValue(track);
                         seq.AddNewKeyFrame(playHead, out KeyFrame keyFrame);
                         keyFrame.SetValueFromObject(value);
                         seq.UpdateValue(playHead);

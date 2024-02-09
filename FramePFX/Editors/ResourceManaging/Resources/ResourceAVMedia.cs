@@ -35,7 +35,6 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
         public VideoDecoder decoder;
         public FrameQueue frameQueue;
         public bool hasHardwareDecoder;
-        public volatile Task CurrentGetFrameTask;
 
         public event ResourceEventHandler FilePathChanged;
 

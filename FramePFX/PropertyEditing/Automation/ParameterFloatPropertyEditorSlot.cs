@@ -17,7 +17,7 @@ namespace FramePFX.PropertyEditing.Automation {
                 ParameterFloat parameter = this.Parameter;
                 for (int i = 0, c = this.Handlers.Count; i < c; i++) {
                     IAutomatable obj = (IAutomatable) this.Handlers[i];
-                    float newValue = parameter.Descriptor.Clamp(useAddition ? (parameter.GetEffectiveValue(obj) + change) : value);
+                    float newValue = parameter.Descriptor.Clamp(useAddition ? (parameter.GetCurrentValue(obj) + change) : value);
                     AutomatedUtils.SetDefaultKeyFrameOrAddNew(obj, parameter, newValue);
                 }
 
@@ -34,7 +34,7 @@ namespace FramePFX.PropertyEditing.Automation {
         }
 
         public override void QueryValueFromHandlers() {
-            this.value = GetEqualValue(this.Handlers, (x) => this.Parameter.GetEffectiveValue((IAutomatable) x), out float d) ? d : default;
+            this.value = GetEqualValue(this.Handlers, (x) => this.Parameter.GetCurrentValue((IAutomatable) x), out float d) ? d : default;
         }
     }
 }

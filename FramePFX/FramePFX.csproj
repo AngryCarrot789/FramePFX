@@ -139,7 +139,6 @@
     <Compile Include="Editors\DataTransfer\DataParameterString.cs" />
     <Compile Include="Editors\DataTransfer\TransferableData.cs" />
     <Compile Include="Editors\DataTransfer\ITransferableData.cs" />
-    <Compile Include="Editors\DisposalSync.cs" />
     <Compile Include="Editors\EffectSource\EffectProviderEntry.cs" />
     <Compile Include="Editors\EffectSource\EffectProviderManager.cs" />
     <Compile Include="Editors\Exporting\Controls\ExportDialog.xaml.cs">
@@ -171,7 +170,7 @@
     <Compile Include="Editors\Rational.cs" />
     <Compile Include="Editors\Rendering\EnumRenderQuality.cs" />
     <Compile Include="Editors\RenderLockedData.cs" />
-    <Compile Include="Editors\RenderLockedDataWrapper.cs" />
+    <Compile Include="Editors\DisposalSync.cs" />
     <Compile Include="Editors\ResourceManaging\Actions\ChangeResourceOnlineStateAction.cs" />
     <Compile Include="Editors\ResourceManaging\Actions\DeleteResourcesAction.cs" />
     <Compile Include="Editors\ResourceManaging\Actions\GroupResourcesAction.cs" />
@@ -258,7 +257,6 @@
     <Compile Include="PropertyEditing\Controls\Automation\ParameterFloatPropertyEditorControl.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\EffectListPropertyEditorGroup.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\EffectPropertyEditorGroup.cs" />
-    <Compile Include="Editors\PropertyEditors\Effects\Motion\MotionEffectPropertyEditorGroup.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\TODO\EffectListPropertyEditorGroup.cs" />
     <Compile Include="Editors\PropertyEditors\Effects\TODO\EffectPropertyEditorGroup.cs" />
     <Compile Include="PropertyEditing\Controls\Automation\BaseNumberParameterPropEditorControl.cs" />
@@ -725,8 +723,6 @@
     <Compile Include="Editors\Timelines\Clips\VideoClip.cs" />
     <Compile Include="Editors\Timelines\Clips\VideoClipShape.cs" />
     <Compile Include="Editors\Timelines\Effects\BaseEffect.cs" />
-    <Compile Include="Editors\Timelines\Effects\ITransformationEffect.cs" />
-    <Compile Include="Editors\Timelines\Effects\MotionEffect.cs" />
     <Compile Include="Editors\Timelines\Effects\CPUPixelateEffect.cs" />
     <Compile Include="Editors\Timelines\Effects\VideoEffect.cs" />
     <Compile Include="Editors\Timelines\FrameSpan.cs" />
@@ -867,7 +863,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\SkiaSharp.NativeAssets.macOS.2.88.7\build\net462\SkiaSharp.NativeAssets.macOS.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.macOS.2.88.7\build\net462\SkiaSharp.NativeAssets.macOS.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

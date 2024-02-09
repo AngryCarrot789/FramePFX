@@ -57,7 +57,6 @@ namespace FramePFX.Editors.Contextual {
 
             Clip clip = ClipFactory.Instance.NewClip(id);
             clip.FrameSpan = span;
-            clip.AddEffect(new MotionEffect());
             track.AddClip(clip);
         }
     }

@@ -132,13 +132,12 @@ namespace FramePFX.Editors.ResourceManaging {
         /// Any errors should be logged to the application logger
         /// </para>
         /// <para>
-        /// If this object is a <see cref="ResourceFolder"/> then the child hierarchy will be destroyed
-        /// as well. However, the act of destroying is simply meant to revert the resource's data to a
-        /// default state, therefore, this method would not remove any items
+        /// If this object is a <see cref="ResourceFolder"/> then the child hierarchy will NOT be
+        /// destroyed, use <see cref="ResourceFolder.ClearHierarchy"/> instead
         /// </para>
         /// <para>
         /// If this object is a <see cref="ResourceItem"/> then <see cref="ResourceItem.Disable"/> is
-        /// called to disable the object before being destroyed
+        /// called to disable the object
         /// </para>
         /// </summary>
         public virtual void Destroy() {

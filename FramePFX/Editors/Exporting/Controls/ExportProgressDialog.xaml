@@ -1,13 +1,13 @@
 ﻿<v:WindowEx x:Class="FramePFX.Editors.Exporting.Controls.ExportProgressDialog"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:FramePFX.Editors.Exporting.Controls" xmlns:c="clr-namespace:FramePFX.Editors.Controls"
-        xmlns:v="clr-namespace:FramePFX.Views"
-        mc:Ignorable="d"
-        Title="ExportProgressDialog" Height="215" Width="374"
-        Style="{StaticResource CustomWindowStyleEx}">
+            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+            xmlns:v="clr-namespace:FramePFX.Views"
+            mc:Ignorable="d"
+            Title="Export Progress"
+            Height="215" Width="374"
+            Style="{StaticResource CustomWindowStyleEx}">
     <Grid Margin="15">
         <StackPanel>
             <TextBlock Text="Render Progress" Padding="0,5"/>
@@ -16,7 +16,7 @@
             <TextBlock Text="Encode Progress" Padding="0,5"/>
             <ProgressBar Height="20" x:Name="PART_EncodeProgressBar"/>
             <Separator Margin="0,5"/>
-            <TextBox x:Name="PART_FrameProgressText"/>
+            <TextBlock x:Name="PART_FrameProgressText"/>
         </StackPanel>
     </Grid>
 </v:WindowEx>

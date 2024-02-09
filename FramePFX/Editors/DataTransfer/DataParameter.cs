@@ -116,14 +116,14 @@ namespace FramePFX.Editors.DataTransfer {
         }
 
         /// <summary>
-        /// Gets the object value from the given owner, boxing if required
+        /// Gets the object value from the given owner, boxing if necessary
         /// </summary>
         /// <param name="owner">The owner instance</param>
-        /// <returns>The object, possibly boxed, value</returns>
+        /// <returns>The possibly boxed value</returns>
         public abstract object GetObjectValue(ITransferableData owner);
 
         /// <summary>
-        /// Sets the value from the given object, unboxing if required.Throws a cast exception if impossible
+        /// Sets the value from the given object, unboxing if necessary. Throws an exception if the value is incompatible
         /// </summary>
         /// <param name="owner">The owner instance</param>
         /// <param name="value">The new value</param>
@@ -149,7 +149,7 @@ namespace FramePFX.Editors.DataTransfer {
 
         public static DataParameter GetParameterByKey(string key) {
             if (!TryGetParameterByKey(key, out DataParameter parameter))
-                throw new Exception("No such parameter with the key: " + key.ToString());
+                throw new Exception("No such parameter with the key: " + key);
             return parameter;
         }
 

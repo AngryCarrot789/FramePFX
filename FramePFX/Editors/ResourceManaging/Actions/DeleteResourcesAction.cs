@@ -22,7 +22,7 @@ namespace FramePFX.Editors.ResourceManaging.Actions {
                     continue;
                 }
 
-                ResourceFolder.DestroyHierarchy(item);
+                ResourceFolder.ClearHierarchy(item as ResourceFolder);
                 item.Parent.RemoveItem(item);
             }
 

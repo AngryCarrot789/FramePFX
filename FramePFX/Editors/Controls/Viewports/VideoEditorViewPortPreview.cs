@@ -137,7 +137,7 @@ namespace FramePFX.Editors.Controls.Viewports {
         }
 
         private static void DrawClipOutline(VideoClip clip, Vector2 renderSize, DrawingContext ctx, Pen pen) {
-            SKRect rect = clip.TransformationMatrix.MapRect(renderSize.ToRectWH());
+            SKRect rect = clip.ClipAndTrackTransformationMatrix.MapRect(renderSize.ToRectWH());
             double realX = Math.Floor(rect.Left);
             double realY = Math.Floor(rect.Top);
             double realW = Math.Ceiling(rect.Width + (rect.Left - realX));

@@ -8,7 +8,7 @@
                 xmlns:c="clr-namespace:FramePFX.Editors.Controls" 
                 xmlns:dr="clr-namespace:FramePFX.Editors.Controls.Dragger"
                 mc:Ignorable="d"
-                Title="ProjectSettingsWindow" Height="450" Width="300"
+                Title="Project Settings" Height="450" Width="300"
                 Style="{StaticResource CustomWindowStyleEx}">
     <Grid Margin="5,5,5,0">
         <TabControl Margin="0,0,0,42" BorderBrush="{DynamicResource ABrush.AccentTone3.Border.Static}">

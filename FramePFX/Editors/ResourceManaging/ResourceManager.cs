@@ -112,29 +112,9 @@ namespace FramePFX.Editors.ResourceManaging {
             if (this.uuidToItem.Count > 0)
                 throw new Exception("Cannot read data while resources are still registered");
 
-            this.RootContainer.ReadFromRBE(data.GetDictionary(nameof(this.RootContainer)));
-            // this.AccumulateEntriesRecursive(this.RootContainer);
             this.currId = data.GetULong("CurrId", 0UL);
+            this.RootContainer.ReadFromRBE(data.GetDictionary(nameof(this.RootContainer)));
         }
-
-        // private void AccumulateEntriesRecursive(BaseResource obj) {
-        //     if (obj is ResourceItem item) {
-        //         if (item.UniqueId == EmptyId)
-        //             throw new Exception("Deserialised resource has an empty ID: " + item.GetType());
-        //         if (this.uuidToItem.TryGetValue(item.UniqueId, out ResourceItem entry))
-        //             throw new Exception($"A resource already exists with the id '{item.UniqueId}': {entry}");
-        //         this.uuidToItem[item.UniqueId] = item;
-        //         this.ResourceAdded?.Invoke(this, item);
-        //     }
-        //     else if (obj is ResourceFolder group) {
-        //         foreach (BaseResource subItem in group.Items) {
-        //             this.AccumulateEntriesRecursive(subItem);
-        //         }
-        //     }
-        //     else {
-        //         throw new Exception($"Unknown resource object type: {obj}");
-        //     }
-        // }
 
         private void RegisterEntryUsingExistingOrRandomId(ResourceItem item) {
             if (item == null)
@@ -150,22 +130,6 @@ namespace FramePFX.Editors.ResourceManaging {
             this.ResourceAdded?.Invoke(this, item);
         }
 
-        private ResourceItem UnregisterItemById(ulong id) {
-            if (id == EmptyId)
-                throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
-            if (!this.uuidToItem.TryGetValue(id, out ResourceItem item))
-                return null;
-            if (item.UniqueId != id) {
-                System.Diagnostics.Debugger.Break();
-                throw new Exception("Existing resource's ID does not equal the given ID; Corrupted application?");
-            }
-
-            this.uuidToItem.Remove(id);
-            ResourceItem.SetUniqueId(item, EmptyId);
-            this.ResourceRemoved?.Invoke(this, item);
-            return item;
-        }
-
         private bool UnregisterItem(ResourceItem item) {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "Item cannot be null");
@@ -178,15 +142,9 @@ namespace FramePFX.Editors.ResourceManaging {
                 throw new Exception("Corrupted application data");
             }
 
-            ResourceItem.SetUniqueId(item, EmptyId);
             this.ResourceRemoved?.Invoke(this, item);
+            ResourceItem.SetUniqueId(item, EmptyId);
             return true;
-        }
-
-        public ResourceItem GetEntryItem(ulong id) {
-            if (id == EmptyId)
-                throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
-            return this.uuidToItem[id];
         }
 
         public bool TryGetEntryItem(ulong id, out ResourceItem resource) {
@@ -208,31 +166,10 @@ namespace FramePFX.Editors.ResourceManaging {
         }
 
         /// <summary>
-        /// Checks if the given item is registered
+        /// Destroys and clears our <see cref="RootContainer"/>
         /// </summary>
-        /// <param name="item">The item to check</param>
-        /// <param name="isRefEqual">Whether the given item's reference is equal to the actual registered item. This should be true. False means something has gone horribly wrong at some point!</param>
-        /// <returns>Whether or not the item's id is registered in the manager</returns>
-        /// <exception cref="ArgumentNullException">The item is null</exception>
-        /// <exception cref="ArgumentException">The item's manager does not match the current instance</exception>
-        /// <exception cref="Exception">The item's unique ID is null, empty or only whitespaces</exception>
-        public bool EntryExists(ResourceItem item, out bool isRefEqual) {
-            isRefEqual = false;
-            if (item == null)
-                throw new ArgumentNullException(nameof(item), "Item cannot be null");
-            if (item.UniqueId == EmptyId)
-                return false;
-            if (!ReferenceEquals(this, item.Manager))
-                return false;
-            if (!this.uuidToItem.TryGetValue(item.UniqueId, out ResourceItem entryItem))
-                throw new Exception("Corrupted application: entry's manager equals this instance but does not exist in the map");
-            isRefEqual = ReferenceEquals(entryItem, item);
-            return true;
-        }
-
-        public void ClearEntries() {
-            ResourceFolder.DestroyHierarchy(this.RootContainer);
-            ResourceFolder.ClearHierarchy(this.RootContainer);
+        public void Clear() {
+            ResourceFolder.ClearHierarchy(this.RootContainer, true);
         }
 
         #region Static Helper Functions

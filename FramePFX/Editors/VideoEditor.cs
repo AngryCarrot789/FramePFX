@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.Resources;
@@ -131,12 +132,10 @@ namespace FramePFX.Editors {
             ResourceColour id_w = folder.AddItemAndRet(new ResourceColour(220, 220, 220) {DisplayName = "white colour"});
             ResourceColour id_d = folder.AddItemAndRet(new ResourceColour(50, 100, 220) {DisplayName = "idek"});
 
-            MotionEffect motion;
             {
                 VideoTrack track = new VideoTrack() {
                     DisplayName = "Track 1 with stuff"
                 };
-                track.AddEffect(new MotionEffect());
                 project.MainTimeline.AddTrack(track);
                 track.AutomationData[VideoTrack.OpacityParameter].AddKeyFrame(new KeyFrameDouble(0, 0.3d));
                 track.AutomationData[VideoTrack.OpacityParameter].AddKeyFrame(new KeyFrameDouble(50, 0.5d));
@@ -148,9 +147,7 @@ namespace FramePFX.Editors {
                     DisplayName = "Clip colour_red"
                 };
 
-                clip1.AutomationData[VideoClipShape.SizeParameter].DefaultKeyFrame.SetVector2Value(200, 200, VideoClipShape.SizeParameter.Descriptor);
-
-                clip1.AddEffect(motion = new MotionEffect());
+                clip1.SetDefaultValue(VideoClipShape.SizeParameter, 200, 200);
 
                 clip1.ColourKey.SetTargetResourceId(id_r.UniqueId);
                 clip1.AutomationData.UpdateBackingStorage();
@@ -161,10 +158,8 @@ namespace FramePFX.Editors {
                     DisplayName = "Clip colour_green"
                 };
 
-                clip2.AutomationData[VideoClipShape.SizeParameter].DefaultKeyFrame.SetVector2Value(200, 200, VideoClipShape.SizeParameter.Descriptor);
-
-                clip2.AddEffect(motion = new MotionEffect());
-                motion.MediaScaleOrigin = new Vector2(100, 100);
+                clip2.SetDefaultValue(VideoClipShape.SizeParameter, new Vector2(200, 200));
+                clip2.SetDefaultValue(VideoClip.MediaScaleOriginParameter, new Vector2(100, 100));
 
                 clip2.ColourKey.SetTargetResourceId(id_g.UniqueId);
                 clip2.AutomationData.UpdateBackingStorage();
@@ -172,7 +167,6 @@ namespace FramePFX.Editors {
             }
             {
                 VideoTrack track = new VideoTrack() {DisplayName = "Track 2"};
-                track.AddEffect(new MotionEffect());
                 project.MainTimeline.AddTrack(track);
 
                 VideoClipShape clip1 = new VideoClipShape {
@@ -180,8 +174,7 @@ namespace FramePFX.Editors {
                     DisplayName = "Clip colour_blue"
                 };
 
-                clip1.AutomationData[VideoClipShape.SizeParameter].DefaultKeyFrame.SetVector2Value(400, 400, VideoClipShape.SizeParameter.Descriptor);
-                clip1.AddEffect(motion = new MotionEffect());
+                clip1.SetDefaultValue(VideoClipShape.SizeParameter, 400, 400);
 
                 clip1.ColourKey.SetTargetResourceId(id_b.UniqueId);
                 clip1.AutomationData.UpdateBackingStorage();
@@ -191,13 +184,12 @@ namespace FramePFX.Editors {
                     DisplayName = "Clip blueish"
                 };
 
-                clip2.AutomationData[VideoClipShape.SizeParameter].DefaultKeyFrame.SetVector2Value(100, 1000, VideoClipShape.SizeParameter.Descriptor);
-                clip2.AddEffect(motion = new MotionEffect());
-                motion.AutomationData[MotionEffect.MediaPositionParameter].AddKeyFrame(new KeyFrameVector2(10L, Vector2.Zero));
-                motion.AutomationData[MotionEffect.MediaPositionParameter].AddKeyFrame(new KeyFrameVector2(75L, new Vector2(100, 200)));
-                motion.AutomationData[MotionEffect.MediaPositionParameter].AddKeyFrame(new KeyFrameVector2(90L, new Vector2(400, 400)));
-                motion.AutomationData[MotionEffect.MediaPositionParameter].AddKeyFrame(new KeyFrameVector2(115L, new Vector2(100, 700)));
-                motion.AutomationData.ActiveParameter = MotionEffect.MediaPositionParameter.Key;
+                clip2.SetDefaultValue(VideoClipShape.SizeParameter, 100, 1000);
+                clip2.AutomationData[VideoClip.MediaPositionParameter].AddKeyFrame(new KeyFrameVector2(10L, Vector2.Zero));
+                clip2.AutomationData[VideoClip.MediaPositionParameter].AddKeyFrame(new KeyFrameVector2(75L, new Vector2(100, 200)));
+                clip2.AutomationData[VideoClip.MediaPositionParameter].AddKeyFrame(new KeyFrameVector2(90L, new Vector2(400, 400)));
+                clip2.AutomationData[VideoClip.MediaPositionParameter].AddKeyFrame(new KeyFrameVector2(115L, new Vector2(100, 700)));
+                clip2.AutomationData.ActiveParameter = VideoClip.MediaPositionParameter.Key;
                 clip2.ColourKey.SetTargetResourceId(id_d.UniqueId);
                 clip2.AutomationData.UpdateBackingStorage();
                 track.AddClip(clip2);
@@ -207,7 +199,6 @@ namespace FramePFX.Editors {
                 VideoTrack empty = new VideoTrack() {
                     DisplayName = "Empty Track"
                 };
-                empty.AddEffect(new MotionEffect());
                 project.MainTimeline.AddTrack(empty);
             }
 

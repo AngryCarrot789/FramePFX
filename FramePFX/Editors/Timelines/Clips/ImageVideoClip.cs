@@ -19,11 +19,6 @@ namespace FramePFX.Editors.Timelines.Clips {
             this.lockedImage = new RenderLockedData<SKImage>();
         }
 
-        protected override void LoadDataIntoClone(Clip clone, ClipCloneOptions options) {
-            base.LoadDataIntoClone(clone, options);
-
-        }
-
         public override Vector2? GetRenderSize() {
             if (this.ResourceImageKey.TryGetResource(out ResourceImage res) && res.image != null) {
                 return new Vector2(res.image.Width, res.image.Height);
@@ -44,7 +39,7 @@ namespace FramePFX.Editors.Timelines.Clips {
 
         private void OnImageChanged(BaseResource resource) => this.SignalDisposeImage();
 
-        public override bool PrepareRenderFrame(PreRenderContext ctx, long frame) {
+        public override bool PrepareRenderFrame(PreRenderContext rc, long frame) {
             if (this.ResourceImageKey.TryGetResource(out ResourceImage resource) && resource.image != null) {
                 this.lockedImage.OnPrepareRender(resource.image);
                 return true;

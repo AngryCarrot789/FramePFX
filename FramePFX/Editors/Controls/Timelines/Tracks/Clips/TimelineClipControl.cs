@@ -445,6 +445,10 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             }
         }
 
+        private void SetClipSpanForDrag(FrameSpan newSpan) {
+            this.Model.FrameSpan = newSpan;
+        }
+
         protected override void OnMouseMove(MouseEventArgs e) {
             base.OnMouseMove(e);
             if (this.Model == null) {
@@ -536,7 +540,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                             ctrl.Timeline.TryExpandForFrame(newEndIndex);
                         }
 
-                        this.Model.FrameSpan = newSpan;
+                        this.SetClipSpanForDrag(newSpan);
                     }
                 }
 
@@ -583,7 +587,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
 
                             FrameSpan newSpan = FrameSpan.FromIndex(newBegin, oldSpan.EndIndex);
                             ctrl.Timeline.TryExpandForFrame(newSpan.EndIndex);
-                            this.Model.FrameSpan = newSpan;
+                            this.SetClipSpanForDrag(newSpan);
                             this.Model.MediaFrameOffset += (oldSpan.Begin - newSpan.Begin);
                         }
                     }
@@ -604,7 +608,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
 
                             FrameSpan newSpan = FrameSpan.FromIndex(oldSpan.Begin, newEndIndex);
                             ctrl.Timeline.TryExpandForFrame(newEndIndex);
-                            this.Model.FrameSpan = newSpan;
+                            this.SetClipSpanForDrag(newSpan);
 
                             // account for there being no "grip" control aligned to the right side;
                             // since the clip is resized, the origin point will not work correctly and
@@ -669,7 +673,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             // the whole thing only for the user to press esc or release CTRL and cancel it
             Clip clone = ClipFactory.Instance.NewClip(this.Model.FactoryId);
             clone.FrameSpan = phantomSpan;
-            clone.DisplayName = this.Model.DisplayName + " (!PHANTOM!)";
+            clone.DisplayName = this.Model.DisplayName + " (phantom)";
             this.Model.Track.AddClip(clone);
 
             TimelineClipControl cloneControl = this.Track.GetClipAt(clone.Track.Clips.Count - 1);

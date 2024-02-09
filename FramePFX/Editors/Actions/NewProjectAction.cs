@@ -51,7 +51,6 @@ namespace FramePFX.Editors.Actions {
                 DisplayName = "Video Track 1"
             };
 
-            track.AddEffect(new MotionEffect());
             project.MainTimeline.AddTrack(track);
             editor.SetProject(project);
             return Task.CompletedTask;

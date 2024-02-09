@@ -35,22 +35,20 @@ namespace FramePFX.Natives {
 
         public static void InitialiseLibrary() {
             const string DLL_NAME = "FramePFX.NativeEngine.dll";
-#if DEBUG
-            const string STATIC_DLL_PATH = "..\\..\\..\\..\\x64\\Debug\\" + DLL_NAME;
-#else
-            const string STATIC_DLL_PATH = "..\\..\\..\\..\\x64\\Release\\" + DLL_NAME;
-#endif
-
-            string binFilePath = Path.Combine(Path.GetFullPath("."), DLL_NAME);
-            if (!File.Exists(binFilePath)) {
-                binFilePath = STATIC_DLL_PATH;
+            string dllPath = Path.Combine(Path.GetFullPath("."), DLL_NAME);
+            if (!File.Exists(dllPath)) {
+                #if DEBUG
+                dllPath = "..\\..\\..\\..\\x64\\Debug\\" + DLL_NAME;
+                #else
+                dllPath = "..\\..\\..\\..\\x64\\Release\\" + DLL_NAME;
+                #endif
             }
 
-            if (!File.Exists(binFilePath)) {
+            if (!File.Exists(dllPath)) {
                 throw new Exception("Library DLL could not be found. Make sure you built the C++ project first");
             }
 
-            LibraryAddress = LoadLibrary(binFilePath);
+            LibraryAddress = LoadLibrary(dllPath);
             if (LibraryAddress == IntPtr.Zero) {
                 throw new Exception("Failed to load library", new Win32Exception());
             }

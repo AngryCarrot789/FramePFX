@@ -8,14 +8,13 @@ using FramePFX.Utils;
 
 namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
     /// <summary>
-    /// A helper class that manages resource manager events automatically
+    /// A helper class that manages resource manager events automatically and stores a collection of resource keys
     /// <para>
-    /// This class only exists so that clips don't have to extend 'BaseResourceVideoClip', 'BaseResourceAudioClip',
-    /// etc., and instead they can inherit from <see cref="IResourceHolder"/>. This allows the same functionality
-    /// to be reused for video clips, audio clips, etc.
+    /// This class only exists so that clips can have simple resource usages with hot-swappable resource usages.
     /// </para>
     /// </summary>
     public class ResourceHelper {
+        // TODO: create frugal collection, as most clips only ever have 0 or 1 resources
         private readonly Dictionary<string, BaseResourcePathEntry> ResourceMap;
 
         /// <summary>

@@ -1,6 +1,5 @@
 using System;
 using System.Numerics;
-using System.Windows;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.DataTransfer;
 using FramePFX.Editors.Rendering;
@@ -9,7 +8,7 @@ using FramePFX.RBC;
 using FramePFX.Utils;
 using SkiaSharp;
 
-namespace FramePFX.Editors.Timelines.Clips {
+namespace FramePFX.Editors.Timelines.Clips.Core {
     public class TimecodeClip : VideoClip {
         public static readonly ParameterDouble FontSizeParameter = Parameter.RegisterDouble(typeof(TimecodeClip), nameof(TimecodeClip), nameof(FontSize), 40, ValueAccessors.LinqExpression<double>(typeof(TimecodeClip), nameof(FontSize)), ParameterFlags.AffectsRender);
         public static readonly DataParameterBoolean UseClipStartTimeParameter = DataParameter.Register(new DataParameterBoolean(typeof(TimecodeClip), nameof(UseClipStartTime), true, ValueAccessors.Reflective<bool>(typeof(TimecodeClip), nameof(UseClipStartTime)), DataParameterFlags.AffectsRender));

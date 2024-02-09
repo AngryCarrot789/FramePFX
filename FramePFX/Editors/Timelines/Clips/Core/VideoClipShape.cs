@@ -3,10 +3,9 @@ using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.ResourceManaging.ResourceHelpers;
 using FramePFX.Editors.ResourceManaging.Resources;
-using FramePFX.Editors.Utils;
 using SkiaSharp;
 
-namespace FramePFX.Editors.Timelines.Clips {
+namespace FramePFX.Editors.Timelines.Clips.Core {
     /// <summary>
     /// A video clip that draws a basic square, used as a debug video clip mostly
     /// </summary>

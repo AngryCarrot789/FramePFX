@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines.Clips.Core;
 using FramePFX.PropertyEditing;
 
 namespace FramePFX.Editors.PropertyEditors.Clips {

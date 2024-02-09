@@ -33,6 +33,7 @@ namespace FramePFX.PropertyEditing.Controls {
             RegisterType(typeof(ParameterLongPropertyEditorSlot), () => new ParameterLongPropertyEditorControl());
             RegisterType(typeof(ParameterDoublePropertyEditorSlot), () => new ParameterDoublePropertyEditorControl());
             RegisterType(typeof(ParameterFloatPropertyEditorSlot), () => new ParameterFloatPropertyEditorControl());
+            RegisterType(typeof(ParameterBooleanPropertyEditorSlot), () => new ParameterBooleanPropertyEditorControl());
             RegisterType(typeof(ParameterVector2PropertyEditorSlot), () => new ParameterVector2PropertyEditorControl());
 
             RegisterType(typeof(DataParameterLongPropertyEditorSlot), () => new DataParameterLongPropertyEditorControl());

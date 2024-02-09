@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines.Clips.Core;
 
 namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
     public class TimelineClipContent : Control {

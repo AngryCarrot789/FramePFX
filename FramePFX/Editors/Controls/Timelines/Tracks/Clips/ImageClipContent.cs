@@ -6,7 +6,7 @@ using System.Windows.Media.Imaging;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.ResourceHelpers;
 using FramePFX.Editors.ResourceManaging.Resources;
-using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines.Clips.Core;
 using FramePFX.Utils;
 using SkiaSharp;
 

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.RBC;
 using FramePFX.Utils;

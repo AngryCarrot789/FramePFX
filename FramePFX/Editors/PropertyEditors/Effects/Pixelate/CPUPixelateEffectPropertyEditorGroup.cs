@@ -1,6 +1,5 @@
 using FramePFX.Editors.Timelines.Effects;
 using FramePFX.PropertyEditing.Automation;
-using FramePFX.PropertyEditing.DataTransfer;
 
 namespace FramePFX.Editors.PropertyEditors.Effects.Pixelate {
     public class CPUPixelateEffectPropertyEditorGroup : EffectPropertyEditorGroup {

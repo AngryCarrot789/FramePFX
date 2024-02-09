@@ -8,7 +8,7 @@
             xmlns:c="clr-namespace:FramePFX.Editors.Controls"
             xmlns:ap="clr-namespace:FramePFX.Themes.Attached"
             mc:Ignorable="d"
-            Title="MessageDialog" Height="175" Width="400"
+            Title="MessageDialog" MinHeight="140" Height="175" Width="400"
             Background="{DynamicResource PanelBackground2}"
             Style="{StaticResource CustomWindowStyleEx}">
     <Grid>
@@ -29,7 +29,10 @@
                 BorderThickness="0,1,0,0"
                 x:Name="ButtonBarBorder">
             <c:SpacedStackPanel Orientation="Horizontal" InterElementGap="5" HorizontalAlignment="Right" Margin="10,0">
-                <Button Content="OK" VerticalAlignment="Center" Padding="10,3" Width="70" ap:CornerRadiusHelper.Value="2" Click="OnClickOK"/>
+                <Button Content="OK" VerticalAlignment="Center" Padding="10,3" Width="70" ap:CornerRadiusHelper.Value="2" Click="OnButtonClicked" x:Name="PART_ButtonOK"/>
+                <Button Content="Yes" VerticalAlignment="Center" Padding="10,3" Width="70" ap:CornerRadiusHelper.Value="2" Click="OnButtonClicked" x:Name="PART_ButtonYes"/>
+                <Button Content="No" VerticalAlignment="Center" Padding="10,3" Width="70" ap:CornerRadiusHelper.Value="2" Click="OnButtonClicked" x:Name="PART_ButtonNo"/>
+                <Button Content="Cancel" VerticalAlignment="Center" Padding="10,3" Width="70" ap:CornerRadiusHelper.Value="2" Click="OnButtonClicked" x:Name="PART_ButtonCancel"/>
             </c:SpacedStackPanel>
         </Border>
     </Grid>

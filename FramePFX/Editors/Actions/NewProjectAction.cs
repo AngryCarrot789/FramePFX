@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using System.Windows;
 using FramePFX.Actions;
-using FramePFX.Editors.Timelines.Effects;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.DataContexts;
 using FramePFX.Views;
@@ -16,7 +15,7 @@ namespace FramePFX.Editors.Actions {
                 return true;
             }
 
-            MessageBoxResult result = MessageBox.Show(WindowEx.GetCurrentActiveWindow(), "A project is already open. Do you want to save it?", "Project already open", MessageBoxButton.YesNoCancel);
+            MessageBoxResult result = IoC.MessageService.ShowMessage("Project already open", "A project is already open. Do you want to save it?", MessageBoxButton.YesNoCancel);
             switch (result) {
                 case MessageBoxResult.Cancel: return false;
                 case MessageBoxResult.Yes: {

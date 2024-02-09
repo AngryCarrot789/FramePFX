@@ -1,5 +1,4 @@
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -163,7 +162,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         }
 
         public bool GetRelativePlayHead(out long playHead) {
-            playHead = this.ConvertTimelineToRelativeFrame(this.Timeline?.PlayHeadPosition ?? 0, out bool isInRange);
+            playHead = this.ConvertTimelineToRelativeFrame(this.Timeline?.PlayHeadPosition ?? this.span.Begin, out bool isInRange);
             return isInRange;
         }
 

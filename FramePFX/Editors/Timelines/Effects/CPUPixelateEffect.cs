@@ -1,7 +1,6 @@
 using System;
 using System.Numerics;
 using FramePFX.Editors.Automation.Params;
-using FramePFX.Editors.DataTransfer;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Utils;

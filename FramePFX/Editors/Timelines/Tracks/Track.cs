@@ -22,6 +22,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
         public const double MinimumHeight = 20;
         public const double DefaultHeight = 56;
         public const double MaximumHeight = 250;
+        public const double HeightCmpTol = 0.0000000000001D;
 
         public string FactoryId => TrackFactory.Instance.GetId(this.GetType());
 
@@ -37,7 +38,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
             get => this.height;
             set {
                 value = Maths.Clamp(value, MinimumHeight, MaximumHeight);
-                if (this.height == value)
+                if (Maths.Equals(this.height, value, HeightCmpTol))
                     return;
                 this.height = value;
                 this.HeightChanged?.Invoke(this);
@@ -117,14 +118,8 @@ namespace FramePFX.Editors.Timelines.Tracks {
         }
 
         public bool GetRelativePlayHead(out long playHead) {
-            if (this.Timeline == null) {
-                playHead = 0L;
-                return false;
-            }
-            else {
-                playHead = this.Timeline.PlayHeadPosition;
-                return true;
-            }
+            playHead = this.Timeline?.PlayHeadPosition ?? 0L;
+            return true;
         }
 
         /// <summary>
@@ -286,10 +281,17 @@ namespace FramePFX.Editors.Timelines.Tracks {
         }
 
         public void InvalidateRender() {
-            this.Timeline?.InvalidateRender();
+            this.Project?.RenderManager.InvalidateRender();
         }
 
         public virtual void Destroy() {
+            this.ClearTrack();
+        }
+
+        /// <summary>
+        /// Destroys and removes all clips. All clips are removed back to front so this method calls <see cref="ClipRemoved"/> for every clip
+        /// </summary>
+        public void ClearTrack() {
             for (int i = this.clips.Count - 1; i >= 0; i--) {
                 Clip clip = this.clips[i];
                 clip.Destroy();

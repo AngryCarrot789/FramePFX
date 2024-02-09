@@ -1,13 +1,13 @@
 using System;
 using System.Numerics;
-using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.Resources;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
-using FramePFX.Editors.Timelines.Effects;
+using FramePFX.Editors.Timelines.Clips.Core;
 using FramePFX.Editors.Timelines.Tracks;
+using FramePFX.PropertyEditing;
 
 namespace FramePFX.Editors {
     public delegate void ProjectChangedEventHandler(VideoEditor editor, Project oldProject, Project newProject);
@@ -221,6 +221,7 @@ namespace FramePFX.Editors {
             project.RenderManager.InvalidateRender();
 
             this.Playback.SetFrameRate(settings.FrameRate);
+            VideoEditorPropertyEditor.Instance.OnProjectChanged();
         }
 
         public void CloseProject() {
@@ -234,6 +235,7 @@ namespace FramePFX.Editors {
             this.Project = null;
             this.ProjectChanged?.Invoke(this, oldProject, null);
             Project.OnClosed(this, oldProject);
+            VideoEditorPropertyEditor.Instance.OnProjectChanged();
         }
 
         private void OnProjectFrameRateChanged(ProjectSettings settings) {

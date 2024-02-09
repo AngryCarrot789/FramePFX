@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Automation.Params;
-using FramePFX.Editors.Timelines;
 using FramePFX.RBC;
 
 namespace FramePFX.Editors.Automation {
@@ -159,6 +158,19 @@ namespace FramePFX.Editors.Automation {
         public void UpdateAll() {
             if (this.Owner.GetRelativePlayHead(out long playHead)) {
                 this.UpdateAll(playHead);
+            }
+        }
+
+        /// <summary>
+        /// Updates all sequences' effective values, if there are key frames available and override is not enabled
+        /// </summary>
+        /// <param name="frame"></param>
+        public void UpdateAllAutomated(long frame) {
+            IList<AutomationSequence> list = this.sequences.Values;
+            for (int i = 0, count = list.Count; i < count; i++) {
+                AutomationSequence x = list[i];
+                if (x.CanAutomate)
+                    x.UpdateValue(frame);
             }
         }
 

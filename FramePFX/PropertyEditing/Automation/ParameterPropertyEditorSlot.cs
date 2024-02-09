@@ -67,7 +67,11 @@ namespace FramePFX.PropertyEditing.Automation {
             this.OnValueChanged();
         }
 
-        public abstract void QueryValueFromHandlers();
+        /// <summary>
+        /// Sets the local value of this slot based on our handlers. This method does not need to
+        /// call <see cref="OnValueChanged"/> as it is called automatically after this call
+        /// </summary>
+        protected abstract void QueryValueFromHandlers();
 
         protected void OnValueChanged() {
             this.ValueChanged?.Invoke(this);

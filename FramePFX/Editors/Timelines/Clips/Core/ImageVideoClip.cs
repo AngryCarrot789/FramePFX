@@ -3,10 +3,9 @@ using FramePFX.Editors.Rendering;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.ResourceHelpers;
 using FramePFX.Editors.ResourceManaging.Resources;
-using FramePFX.Editors.Timelines.Tracks;
 using SkiaSharp;
 
-namespace FramePFX.Editors.Timelines.Clips {
+namespace FramePFX.Editors.Timelines.Clips.Core {
     public class ImageVideoClip : VideoClip {
         private readonly RenderLockedData<SKImage> lockedImage;
 

@@ -33,5 +33,4 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
             this.dragger.MassiveChange = profile.LargeStep;
         }
     }
-
 }

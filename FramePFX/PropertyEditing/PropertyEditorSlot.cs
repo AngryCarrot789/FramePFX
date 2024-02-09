@@ -140,12 +140,14 @@ namespace FramePFX.PropertyEditing {
             }
 
             equal = getter(objects[0]);
-            if (count > 1) {
-                EqualityComparer<T> comparator = EqualityComparer<T>.Default;
-                for (int i = 1; i < count; i++) {
-                    if (!comparator.Equals(getter(objects[i]), equal)) {
-                        return false;
-                    }
+            if (count == 1) {
+                return true;
+            }
+
+            EqualityComparer<T> comparator = EqualityComparer<T>.Default;
+            for (int i = 1; i < count; i++) {
+                if (!comparator.Equals(getter(objects[i]), equal)) {
+                    return false;
                 }
             }
 

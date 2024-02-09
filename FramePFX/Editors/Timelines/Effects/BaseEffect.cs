@@ -63,8 +63,17 @@ namespace FramePFX.Editors.Timelines.Effects {
         }
 
         public bool GetRelativePlayHead(out long playHead) {
-            playHead = this.ConvertTimelineToRelativeFrame(this.Timeline?.PlayHeadPosition ?? 0, out bool isInRange);
-            return isInRange;
+            if (this.Owner is Clip clip) {
+                return clip.GetRelativePlayHead(out playHead);
+            }
+            else if (this.Owner is Track track) {
+                playHead = track.Timeline?.PlayHeadPosition ?? 0L;
+                return true;
+            }
+            else {
+                playHead = 0;
+                return true;
+            }
         }
 
         public BaseEffect Clone() {

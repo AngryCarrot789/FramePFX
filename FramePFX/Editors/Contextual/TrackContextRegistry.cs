@@ -3,7 +3,7 @@ using FramePFX.AdvancedContextService;
 using FramePFX.Editors.Factories;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
-using FramePFX.Editors.Timelines.Effects;
+using FramePFX.Editors.Timelines.Clips.Core;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.DataContexts;
 

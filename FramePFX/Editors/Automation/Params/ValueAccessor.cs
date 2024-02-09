@@ -70,11 +70,11 @@ namespace FramePFX.Editors.Automation.Params {
             UnaryExpression castToOwner = Expression.Convert(paramInstance, memberOwnerType);
             MemberExpression dataMember = Expression.MakeMemberAccess(castToOwner, targetMember);
 
-            AutoGetter<TValue> getter = Expression.Lambda<AutoGetter<TValue>>(dataMember, paramInstance).Compile();
+            AccessGetter<TValue> getter = Expression.Lambda<AccessGetter<TValue>>(dataMember, paramInstance).Compile();
 
             ParameterExpression paramValue = Expression.Parameter(typeof(TValue), "value");
             BinaryExpression assignValue = Expression.Assign(dataMember, paramValue);
-            AutoSetter<TValue> setter = Expression.Lambda<AutoSetter<TValue>>(assignValue, paramInstance, paramValue).Compile();
+            AccessSetter<TValue> setter = Expression.Lambda<AccessSetter<TValue>>(assignValue, paramInstance, paramValue).Compile();
 
             return new DelegateValueAccessor<TValue>(getter, setter);
         }
@@ -82,13 +82,20 @@ namespace FramePFX.Editors.Automation.Params {
         /// <summary>
         /// Creates a value accessor using the given getter and setter
         /// </summary>
-        /// <param name="getter"></param>
-        /// <param name="setter"></param>
-        /// <typeparam name="TValue"></typeparam>
-        /// <returns></returns>
-        public static ValueAccessor<TValue> Lambda<TValue>(AutoGetter<TValue> getter, AutoSetter<TValue> setter) {
+        /// <param name="getter">The value getter</param>
+        /// <param name="setter">The value setter</param>
+        /// <typeparam name="TValue">The value type</typeparam>
+        /// <returns>A value accessor</returns>
+        public static ValueAccessor<TValue> GetSet<TValue>(AccessGetter<TValue> getter, AccessSetter<TValue> setter) {
             return new DelegateValueAccessor<TValue>(getter, setter);
         }
+
+        // /// <summary>
+        // /// Creates a value accessor that uses a dictionary to map an owner to a <see cref="TValue"/>
+        // /// </summary>
+        // /// <typeparam name="TValue">The value type</typeparam>
+        // /// <returns>The storage value accessor</returns>
+        // public static ValueAccessor<TValue> MappedStorage<TValue>() => new MappedStorageValueAccessor<TValue>();
 
         private class ReflectiveFieldValueAccessor<TValue> : ValueAccessor<TValue> {
             private readonly FieldInfo info;
@@ -141,10 +148,10 @@ namespace FramePFX.Editors.Automation.Params {
         }
 
         private class DelegateValueAccessor<TValue> : ValueAccessor<TValue> {
-            private readonly AutoGetter<TValue> get;
-            private readonly AutoSetter<TValue> set;
+            private readonly AccessGetter<TValue> get;
+            private readonly AccessSetter<TValue> set;
 
-            public DelegateValueAccessor(AutoGetter<TValue> get, AutoSetter<TValue> set) {
+            public DelegateValueAccessor(AccessGetter<TValue> get, AccessSetter<TValue> set) {
                 this.get = get ?? throw new ArgumentNullException(nameof(get));
                 this.set = set ?? throw new ArgumentNullException(nameof(set));
             }
@@ -165,6 +172,28 @@ namespace FramePFX.Editors.Automation.Params {
                 this.set(owner, (TValue) value);
             }
         }
+
+        // Need to finish WeakReferenceDictionary first, not that I'd use this class anyway but still
+        // private class MappedStorageValueAccessor<TValue> : ValueAccessor<TValue> {
+        //     private readonly ReferenceDictionary<object, TValue> map;
+        //     private readonly WeakReference tempRef;
+        //     public MappedStorageValueAccessor() {
+        //         this.map = new ReferenceDictionary<object, TValue>();
+        //         this.tempRef = new WeakReference(null);
+        //     }
+        //     public override TValue GetValue(object owner) {
+        //         return this.map.TryGetValue(owner, out TValue value) ? value : default;
+        //     }
+        //     public override object GetObjectValue(object owner) {
+        //         return this.map.TryGetValue(owner, out TValue value) ? (object) value : null;
+        //     }
+        //     public override void SetValue(object owner, TValue value) {
+        //         this.map[new WeakReference(owner)] = value;
+        //     }
+        //     public override void SetObjectValue(object owner, object value) {
+        //         this.map[new WeakReference(owner)] = (TValue) value;
+        //     }
+        // }
 
         private static MemberInfo GetPropertyOrField(Type type, string name) {
             // Can't get public or private in a single method call, according to the Expression class

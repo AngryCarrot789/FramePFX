@@ -7,6 +7,7 @@ using FramePFX.Editors.PropertyEditors.Clips;
 using FramePFX.Editors.PropertyEditors.Effects;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines.Clips.Core;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.PropertyEditing.Automation;
 using FramePFX.PropertyEditing.DataTransfer;
@@ -154,6 +155,13 @@ namespace FramePFX.PropertyEditing {
             else {
                 this.TrackEffectListGroup.ClearHierarchy();
             }
+        }
+
+        public void OnProjectChanged() {
+            this.ClipEffectListGroup.ClearHierarchy();
+            this.TrackEffectListGroup.ClearHierarchy();
+            this.ClipGroup.ClearHierarchy();
+            this.TrackGroup.ClearHierarchy();
         }
     }
 }

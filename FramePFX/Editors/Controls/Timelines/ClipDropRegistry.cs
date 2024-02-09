@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using FramePFX.Editors.EffectSource;
-using FramePFX.Editors.Factories;
 using FramePFX.Editors.ResourceManaging.Resources;
 using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines.Clips.Core;
 using FramePFX.Editors.Timelines.Effects;
 using FramePFX.Interactivity;
 using FramePFX.Utils;

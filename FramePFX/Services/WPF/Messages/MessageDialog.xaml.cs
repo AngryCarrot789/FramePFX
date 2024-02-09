@@ -11,6 +11,7 @@ namespace FramePFX.Services.WPF.Messages {
     public partial class MessageDialog : WindowEx {
         public static readonly DependencyProperty HeaderProperty = DependencyProperty.Register("Header", typeof(string), typeof(MessageDialog), new PropertyMetadata(null, OnHeaderChanged));
         public static readonly DependencyProperty MessageProperty = DependencyProperty.Register("Message", typeof(string), typeof(MessageDialog), new PropertyMetadata(null, OnMessageChanged));
+        public static readonly DependencyProperty ButtonsProperty = DependencyProperty.Register("Buttons", typeof(MessageBoxButton), typeof(MessageDialog), new PropertyMetadata(MessageBoxButton.OK, OnButtonsChanged));
 
         public string Header {
             get => (string) this.GetValue(HeaderProperty);
@@ -21,6 +22,13 @@ namespace FramePFX.Services.WPF.Messages {
             get => (string) this.GetValue(MessageProperty);
             set => this.SetValue(MessageProperty, value);
         }
+
+        public MessageBoxButton Buttons {
+            get => (MessageBoxButton) this.GetValue(ButtonsProperty);
+            set => this.SetValue(ButtonsProperty, value);
+        }
+
+        private MessageBoxResult clickedButton;
 
         public MessageDialog() {
             this.InitializeComponent();
@@ -81,8 +89,61 @@ namespace FramePFX.Services.WPF.Messages {
             dialog.PART_ContentTextBox.Text = (string) e.NewValue;
         }
 
-        private void OnClickOK(object sender, RoutedEventArgs e) {
+        private static void OnButtonsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+            MessageDialog dialog = (MessageDialog) d;
+            switch ((MessageBoxButton) e.NewValue) {
+                case MessageBoxButton.OK: {
+                    dialog.PART_ButtonOK.Visibility = Visibility.Visible;
+                    dialog.PART_ButtonYes.Visibility = Visibility.Collapsed;
+                    dialog.PART_ButtonNo.Visibility = Visibility.Collapsed;
+                    dialog.PART_ButtonCancel.Visibility = Visibility.Collapsed;
+                    break;
+                }
+                case MessageBoxButton.OKCancel: {
+                    dialog.PART_ButtonOK.Visibility = Visibility.Visible;
+                    dialog.PART_ButtonCancel.Visibility = Visibility.Visible;
+                    dialog.PART_ButtonYes.Visibility = Visibility.Collapsed;
+                    dialog.PART_ButtonNo.Visibility = Visibility.Collapsed;
+                    break;
+                }
+                case MessageBoxButton.YesNoCancel: {
+                    dialog.PART_ButtonCancel.Visibility = Visibility.Visible;
+                    dialog.PART_ButtonYes.Visibility = Visibility.Visible;
+                    dialog.PART_ButtonNo.Visibility = Visibility.Visible;
+                    dialog.PART_ButtonOK.Visibility = Visibility.Collapsed;
+                    break;
+                }
+                case MessageBoxButton.YesNo: {
+                    dialog.PART_ButtonYes.Visibility = Visibility.Visible;
+                    dialog.PART_ButtonNo.Visibility = Visibility.Visible;
+                    dialog.PART_ButtonOK.Visibility = Visibility.Collapsed;
+                    dialog.PART_ButtonCancel.Visibility = Visibility.Collapsed;
+                    break;
+                }
+                default: throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private void OnButtonClicked(object sender, RoutedEventArgs e) {
+            if (ReferenceEquals(sender, this.PART_ButtonOK)) {
+                this.clickedButton = MessageBoxResult.OK;
+            }
+            else if (ReferenceEquals(sender, this.PART_ButtonYes)) {
+                this.clickedButton = MessageBoxResult.Yes;
+            }
+            else if (ReferenceEquals(sender, this.PART_ButtonNo)) {
+                this.clickedButton = MessageBoxResult.No;
+            }
+            else if (ReferenceEquals(sender, this.PART_ButtonCancel)) {
+                this.clickedButton = MessageBoxResult.Cancel;
+            }
+            else {
+                this.clickedButton = MessageBoxResult.None;
+            }
+
             this.Close();
         }
+
+        public MessageBoxResult GetClickedButton() => this.clickedButton;
     }
 }

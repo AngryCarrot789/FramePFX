@@ -24,11 +24,49 @@ namespace FramePFX.Utils {
         public static long Clamp(long value, long min, long max) => Math.Max(Math.Min(value, max), min);
         public static decimal Clamp(decimal value, decimal min, decimal max) => Math.Max(Math.Min(value, max), min);
 
+        public static int Compare(double a, double b, double tolerance = 0.000001D) {
+            if (double.IsNaN(a)) {
+                return double.IsNaN(b) ? 0 : -1;
+            }
+            else if (double.IsNaN(b)) {
+                return 1;
+            }
+            else {
+                double d = Math.Abs(a - b);
+                if (d < tolerance) {
+                    return 0;
+                }
+                else if (a > b) {
+                    return 1;
+                }
+                else {
+                    return -1;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks if two doubles are equal within a certain tolerance range. The default tolerance is 0.000001,
+        /// which is enough precision to handle values between Int32 <see cref="int.MinValue"/> and <see cref="int.MaxValue"/>
+        /// </summary>
+        /// <param name="a">The lhs</param>
+        /// <param name="b">The rhs</param>
+        /// <param name="tolerance">The tolerance</param>
+        /// <returns>True if the difference between a and b are less than the given tolerance</returns>
         public static bool Equals(double a, double b, double tolerance = 0.000001D) {
             return Math.Abs(a - b) < tolerance;
         }
 
-        public static bool Equals(float a, float b, float tolerance = 0.000001F) {
+        /// <summary>
+        /// Checks if two doubles are equal within a certain tolerance range. The default tolerance is 0.01F,
+        /// which is enough precision to handle values between -1000 and +1000. 0.01F is enough to handle between
+        /// Int16 <see cref="short.MinValue"/> and <see cref="short.MaxValue"/>
+        /// </summary>
+        /// <param name="a">The lhs</param>
+        /// <param name="b">The rhs</param>
+        /// <param name="tolerance">The tolerance</param>
+        /// <returns>True if the difference between a and b are less than the given tolerance</returns>
+        public static bool Equals(float a, float b, float tolerance = 0.0001F) {
             return Math.Abs(a - b) < tolerance;
         }
 

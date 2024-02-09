@@ -59,7 +59,7 @@ namespace FramePFX.Editors.Automation.Keyframes {
         }
 
         /// <summary>
-        /// Unboxes (if primitive) the value and sets it as this key frame's value
+        /// Sets this key frame's value from the given (possibly boxed) value
         /// </summary>
         /// <param name="value">The new value</param>
         public abstract void SetValueFromObject(object value);

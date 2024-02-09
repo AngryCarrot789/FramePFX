@@ -1,4 +1,5 @@
 using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines.Clips.Core;
 
 namespace FramePFX.Editors.Factories {
     public class ClipFactory : ReflectiveObjectFactory<Clip> {

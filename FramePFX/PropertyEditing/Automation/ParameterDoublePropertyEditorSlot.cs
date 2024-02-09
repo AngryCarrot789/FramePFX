@@ -15,9 +15,10 @@ namespace FramePFX.PropertyEditing.Automation {
                 bool useAddition = this.IsMultiHandler;
                 double change = value - oldVal;
                 ParameterDouble parameter = this.Parameter;
+                ParameterDescriptorDouble pdesc = parameter.Descriptor;
                 for (int i = 0, c = this.Handlers.Count; i < c; i++) {
                     IAutomatable obj = (IAutomatable) this.Handlers[i];
-                    double newValue = parameter.Descriptor.Clamp(useAddition ? (parameter.GetCurrentValue(obj) + change) : value);
+                    double newValue = pdesc.Clamp(useAddition ? (parameter.GetCurrentValue(obj) + change) : value);
                     AutomatedUtils.SetDefaultKeyFrameOrAddNew(obj, parameter, newValue);
                 }
 
@@ -33,7 +34,7 @@ namespace FramePFX.PropertyEditing.Automation {
             this.StepProfile = stepProfile;
         }
 
-        public override void QueryValueFromHandlers() {
+        protected override void QueryValueFromHandlers() {
             this.value = GetEqualValue(this.Handlers, (x) => this.Parameter.GetCurrentValue((IAutomatable) x), out double d) ? d : default;
         }
     }

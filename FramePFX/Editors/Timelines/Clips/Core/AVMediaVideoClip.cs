@@ -1,6 +1,5 @@
 using System;
 using System.Numerics;
-using System.Threading;
 using System.Threading.Tasks;
 using FFmpeg.AutoGen;
 using FramePFX.Editors.Rendering;
@@ -10,7 +9,7 @@ using FramePFX.FFmpegWrapper;
 using FramePFX.Utils;
 using SkiaSharp;
 
-namespace FramePFX.Editors.Timelines.Clips {
+namespace FramePFX.Editors.Timelines.Clips.Core {
     public class AVMediaVideoClip : VideoClip {
         private VideoFrame renderFrameRgb, downloadedHwFrame;
         private unsafe SwsContext* scaler;

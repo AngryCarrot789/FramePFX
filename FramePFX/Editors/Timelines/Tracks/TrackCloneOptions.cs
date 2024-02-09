@@ -8,9 +8,9 @@ namespace FramePFX.Editors.Timelines.Tracks {
         public bool CloneClips;
         public ClipCloneOptions ClipCloneOptions;
 
-        public TrackCloneOptions(bool cloneClips) {
+        public TrackCloneOptions(bool cloneClips, ClipCloneOptions clipCloneOptions) {
             this.CloneClips = cloneClips;
-            this.ClipCloneOptions = ClipCloneOptions.Default;
+            this.ClipCloneOptions = clipCloneOptions;
         }
     }
 }

@@ -5,8 +5,8 @@ using System.Threading;
 using FramePFX.Editors.Automation.Keyframes;
 
 namespace FramePFX.Editors.Automation.Params {
-    public delegate T AutoGetter<out T>(object a);
-    public delegate void AutoSetter<in T>(object a, T v);
+    public delegate T AccessGetter<out T>(object a);
+    public delegate void AccessSetter<in T>(object a, T v);
 
     /// <summary>
     /// A class that stores information about a registered parameter for a specific type of automatable object.
@@ -101,7 +101,7 @@ namespace FramePFX.Editors.Automation.Params {
         /// </summary>
         /// <param name="sequence">The sequence used to reference the parameter and automation data owner</param>
         /// <param name="frame">The frame which should be used to calculate the new effective value</param>
-        public abstract void SetValue(AutomationSequence sequence, long frame);
+        public abstract void EvaluateAndUpdateValue(AutomationSequence sequence, long frame);
 
         /// <summary>
         /// Gets this parameter's current effective value for the given owner instance. The returned value may be out of date,
@@ -112,7 +112,7 @@ namespace FramePFX.Editors.Automation.Params {
         public abstract object GetCurrentObjectValue(IAutomatable automatable);
 
         /// <summary>
-        /// Evaluates the value of this parameter from the given sequence at the given frame, and returned the (possibly boxed) effective value.
+        /// Evaluates the value of this parameter from the given sequence at the given frame, and returned the effective value as an object.
         /// This value is (obviously) guaranteed to be up to date with the automation data.
         /// <para>
         /// For example, if this parameter is a <see cref="ParameterDouble"/>, then this method just returns the value
@@ -123,7 +123,7 @@ namespace FramePFX.Editors.Automation.Params {
         /// <param name="frame">The frame that is used to calculate the value</param>
         /// <param name="sequence">The sequence to calculate the value from</param>
         /// <returns>The up to date effective value as an object (possibly boxed)</returns>
-        public abstract object GetObjectValue(long frame, AutomationSequence sequence);
+        public abstract object EvaluateObjectValue(long frame, AutomationSequence sequence);
 
         public KeyFrame CreateKeyFrame(long frame = 0L) => KeyFrame.CreateDefault(this, frame);
 
@@ -297,7 +297,7 @@ namespace FramePFX.Editors.Automation.Params {
             this.accessor = accessor;
         }
 
-        public override void SetValue(AutomationSequence sequence, long frame) {
+        public override void EvaluateAndUpdateValue(AutomationSequence sequence, long frame) {
             this.accessor.SetValue(sequence.AutomationData.Owner, sequence.GetFloatValue(frame));
         }
 
@@ -305,7 +305,7 @@ namespace FramePFX.Editors.Automation.Params {
 
         public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
 
-        public override object GetObjectValue(long frame, AutomationSequence sequence) => sequence.GetFloatValue(frame);
+        public override object EvaluateObjectValue(long frame, AutomationSequence sequence) => sequence.GetFloatValue(frame);
     }
 
     public sealed class ParameterDouble : Parameter {
@@ -320,7 +320,7 @@ namespace FramePFX.Editors.Automation.Params {
             this.accessor = accessor;
         }
 
-        public override void SetValue(AutomationSequence sequence, long frame) {
+        public override void EvaluateAndUpdateValue(AutomationSequence sequence, long frame) {
             this.accessor.SetValue(sequence.AutomationData.Owner, sequence.GetDoubleValue(frame));
         }
 
@@ -328,7 +328,7 @@ namespace FramePFX.Editors.Automation.Params {
 
         public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
 
-        public override object GetObjectValue(long frame, AutomationSequence sequence) => sequence.GetDoubleValue(frame);
+        public override object EvaluateObjectValue(long frame, AutomationSequence sequence) => sequence.GetDoubleValue(frame);
     }
 
     public sealed class ParameterLong : Parameter {
@@ -343,7 +343,7 @@ namespace FramePFX.Editors.Automation.Params {
             this.accessor = accessor;
         }
 
-        public override void SetValue(AutomationSequence sequence, long frame) {
+        public override void EvaluateAndUpdateValue(AutomationSequence sequence, long frame) {
             this.accessor.SetValue(sequence.AutomationData.Owner, sequence.GetLongValue(frame));
         }
 
@@ -351,7 +351,7 @@ namespace FramePFX.Editors.Automation.Params {
 
         public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
 
-        public override object GetObjectValue(long frame, AutomationSequence sequence) => sequence.GetLongValue(frame);
+        public override object EvaluateObjectValue(long frame, AutomationSequence sequence) => sequence.GetLongValue(frame);
     }
 
     public sealed class ParameterBoolean : Parameter {
@@ -366,7 +366,7 @@ namespace FramePFX.Editors.Automation.Params {
             this.accessor = accessor;
         }
 
-        public override void SetValue(AutomationSequence sequence, long frame) {
+        public override void EvaluateAndUpdateValue(AutomationSequence sequence, long frame) {
             this.accessor.SetValue(sequence.AutomationData.Owner, sequence.GetBooleanValue(frame));
         }
 
@@ -374,7 +374,7 @@ namespace FramePFX.Editors.Automation.Params {
 
         public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
 
-        public override object GetObjectValue(long frame, AutomationSequence sequence) => sequence.GetBooleanValue(frame);
+        public override object EvaluateObjectValue(long frame, AutomationSequence sequence) => sequence.GetBooleanValue(frame);
     }
 
     public sealed class ParameterVector2 : Parameter {
@@ -389,7 +389,7 @@ namespace FramePFX.Editors.Automation.Params {
             this.accessor = accessor;
         }
 
-        public override void SetValue(AutomationSequence sequence, long frame) {
+        public override void EvaluateAndUpdateValue(AutomationSequence sequence, long frame) {
             this.accessor.SetValue(sequence.AutomationData.Owner, sequence.GetVector2Value(frame));
         }
 
@@ -397,6 +397,6 @@ namespace FramePFX.Editors.Automation.Params {
 
         public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
 
-        public override object GetObjectValue(long frame, AutomationSequence sequence) => sequence.GetVector2Value(frame);
+        public override object EvaluateObjectValue(long frame, AutomationSequence sequence) => sequence.GetVector2Value(frame);
     }
 }

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using FramePFX.Editors.Automation.Params;
-using FramePFX.Editors.Timelines;
 using FramePFX.RBC;
 
 namespace FramePFX.Editors.Automation.Keyframes {
@@ -130,7 +129,7 @@ namespace FramePFX.Editors.Automation.Keyframes {
 
             try {
                 this.IsValueChanging = true;
-                this.Parameter.SetValue(this, frame);
+                this.Parameter.EvaluateAndUpdateValue(this, frame);
                 this.ParameterChanged?.Invoke(this);
                 AutomationData.InternalOnParameterValueChanged(this);
                 if ((this.Parameter.Flags & ParameterFlags.AffectsRender) != 0) {
@@ -147,19 +146,8 @@ namespace FramePFX.Editors.Automation.Keyframes {
         /// object. If it is, then <see cref="UpdateValue(long)"/> is called to update its effective value
         /// </summary>
         public void UpdateValue() {
-            // TODO: this feels really bad...
-            IAutomatable owner = this.AutomationData.Owner;
-            Timeline timeline = owner.Timeline;
-            if (timeline != null) {
-                long frame = timeline.PlayHeadPosition;
-                bool isValid = true;
-                if (owner is IStrictFrameRange strict) {
-                    frame = strict.ConvertTimelineToRelativeFrame(frame, out isValid);
-                }
-
-                if (isValid) {
-                    this.UpdateValue(frame);
-                }
+            if (this.AutomationData.Owner.GetRelativePlayHead(out long playHead)) {
+                this.UpdateValue(playHead);
             }
         }
 
@@ -435,7 +423,7 @@ namespace FramePFX.Editors.Automation.Keyframes {
             KeyFrame keyFrame;
             if ((index = this.GetLastFrameExactlyAt(frame)) == -1) {
                 // object value = assignCurrentValue ? this.GetObjectValue(frame, true) : null;
-                object value = assignCurrentValue ? this.Parameter.GetObjectValue(frame, this) : null;
+                object value = assignCurrentValue ? this.Parameter.EvaluateObjectValue(frame, this) : null;
                 index = this.AddNewKeyFrame(frame, out keyFrame);
                 if (assignCurrentValue) {
                     keyFrame.SetValueFromObject(value);

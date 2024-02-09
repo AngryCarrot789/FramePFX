@@ -24,7 +24,8 @@ namespace FramePFX.RBC {
             }
         }
 
-        public RBEDictionary() : this(new Dictionary<string, RBEBase>()) {
+        public RBEDictionary() {
+            this.Map = new Dictionary<string, RBEBase>();
         }
 
         public RBEDictionary(Dictionary<string, RBEBase> map) {
@@ -103,6 +104,8 @@ namespace FramePFX.RBC {
         public bool GetBool(string key) => this.GetByte(key) != 0;
         public bool GetBool(string key, bool def) => this.TryGetElement(key, out RBEByte rbe) ? (rbe.Value != 0) : def;
         public bool TryGetBool(string key, out bool value) => this.TryGetElementValue<RBEByte, bool>(key, e => e.Value != 0, out value);
+
+        // These are kinda pointless since you can just cast to/from the appropriately sized integer, but still
 
         public T GetEnum8<T>(string key) where T : unmanaged, Enum => BinaryUtils.ToEnum8<T>(this.GetByte(key));
         public T GetEnum8<T>(string key, T def) where T : unmanaged, Enum => this.TryGetElement(key, out RBEByte rbe) ? BinaryUtils.ToEnum8<T>(rbe.Value) : def;

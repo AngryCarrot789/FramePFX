@@ -1,11 +1,10 @@
 using System;
 using System.Numerics;
-using System.Windows;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.Resources;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
-using FramePFX.Editors.Timelines.Effects;
+using FramePFX.Editors.Timelines.Clips.Core;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.DataContexts;

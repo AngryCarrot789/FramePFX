@@ -185,10 +185,12 @@
     <Compile Include="Editors\ResourceManaging\Resources\InvalidImagePathEntry.cs" />
     <Compile Include="Editors\ResourceManaging\Resources\InvalidMediaPathEntry.cs" />
     <Compile Include="Editors\ResourceManaging\Resources\ResourceAVMedia.cs" />
-    <Compile Include="Editors\Timelines\Clips\AVMediaVideoClip.cs" />
     <Compile Include="Editors\Timelines\Clips\ClipGroup.cs" />
-    <Compile Include="Editors\Timelines\Clips\TextClip.cs" />
-    <Compile Include="Editors\Timelines\Clips\TimecodeClip.cs" />
+    <Compile Include="Editors\Timelines\Clips\Core\AVMediaVideoClip.cs" />
+    <Compile Include="Editors\Timelines\Clips\Core\ImageVideoClip.cs" />
+    <Compile Include="Editors\Timelines\Clips\Core\TextClip.cs" />
+    <Compile Include="Editors\Timelines\Clips\Core\TimecodeClip.cs" />
+    <Compile Include="Editors\Timelines\Clips\Core\VideoClipShape.cs" />
     <Compile Include="Editors\Timelines\IDisplayName.cs" />
     <Compile Include="Editors\Timelines\IStrictFrameRange.cs" />
     <Compile Include="Editors\Timelines\TimelineUtils.cs" />
@@ -239,8 +241,10 @@
     <Compile Include="IServiceManager.cs" />
     <Compile Include="Natives\PFXNative.cs" />
     <Compile Include="Profiling\Profiler.cs" />
+    <Compile Include="PropertyEditing\Automation\ParameterBooleanPropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\Automation\ParameterLongPropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\Controls\Automation\KeyFrameToolsControl.cs" />
+    <Compile Include="PropertyEditing\Controls\Automation\ParameterBooleanPropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\Controls\Automation\ParameterLongPropertyEditorControl.cs" />
     <Compile Include="PropertyEditing\Controls\Converters\GroupTypeToStyleConverter.cs" />
     <Compile Include="PropertyEditing\Controls\Converters\GroupTypeToTemplateConverter.cs" />
@@ -397,6 +401,7 @@
     <Compile Include="Utils\Collections\PropertyMap.cs" />
     <Compile Include="Utils\Collections\ReferenceDictionary.cs" />
     <Compile Include="Utils\Collections\TypeMultiTable.cs" />
+    <Compile Include="Utils\Collections\WeakReferenceDictionary.cs" />
     <Compile Include="Utils\CollectionUtils.cs" />
     <Compile Include="Utils\Colour.cs" />
     <Compile Include="Utils\CursorUtils.cs" />
@@ -719,9 +724,7 @@
     <Compile Include="Editors\ResourceManaging\Resources\ResourceImage.cs" />
     <Compile Include="Editors\ResourceManaging\Resources\ResourceTextStyle.cs" />
     <Compile Include="Editors\Timelines\Clips\Clip.cs" />
-    <Compile Include="Editors\Timelines\Clips\ImageVideoClip.cs" />
     <Compile Include="Editors\Timelines\Clips\VideoClip.cs" />
-    <Compile Include="Editors\Timelines\Clips\VideoClipShape.cs" />
     <Compile Include="Editors\Timelines\Effects\BaseEffect.cs" />
     <Compile Include="Editors\Timelines\Effects\CPUPixelateEffect.cs" />
     <Compile Include="Editors\Timelines\Effects\VideoEffect.cs" />

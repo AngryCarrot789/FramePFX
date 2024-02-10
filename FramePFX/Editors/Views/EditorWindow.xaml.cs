@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using FFmpeg.AutoGen;
+using FramePFX.Editors.Automation;
 using FramePFX.Editors.ProjectProps;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.ResourceManaging;
@@ -39,6 +39,18 @@ namespace FramePFX.Editors.Views {
             this.Loaded += this.EditorWindow_Loaded;
             UIInputManager.SetActionSystemDataContext(this, this.actionSystemDataContext);
         }
+
+        // static EditorWindow() {
+        //     WindowStateProperty.OverrideMetadata(typeof(EditorWindow), new FrameworkPropertyMetadata(WindowStateProperty.DefaultMetadata.DefaultValue, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnWindowStateChanged));
+        // }
+
+        // private static void OnWindowStateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+        //     EditorWindow wnd = (EditorWindow) d;
+        //     wnd.Dispatcher.InvokeAsync(() => {
+        //         wnd.WindowState = (WindowState) e.NewValue;
+        //         wnd.Width = wnd.ActualWidth;
+        //     }, DispatcherPriority.Background);
+        // }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
             base.OnRenderSizeChanged(sizeInfo);
@@ -300,11 +312,31 @@ namespace FramePFX.Editors.Views {
         }
 
         private void EditProjectSettings_Click(object sender, RoutedEventArgs e) {
-            Project project = this.Editor?.Project;
-            if (project == null)
+            VideoEditor editor = this.Editor;
+            Project project = editor?.Project;
+            if (project == null) {
                 return;
+            }
+
+            Rational oldFps = project.Settings.FrameRate;
 
             ProjectPropertiesDialog.ShowNewDialog(project);
+
+            Rational newFps = project.Settings.FrameRate;
+            if (oldFps == newFps) {
+                return;
+            }
+
+            if (IoC.MessageService.ShowMessage("Convert Project", "Do you want to convert the project to suit the new frame rate? (resize clips and automation, etc.)", MessageBoxButton.YesNo) != MessageBoxResult.Yes) {
+                return;
+            }
+
+            double ratio = newFps.AsDouble / oldFps.AsDouble;
+            AutomationEngine.ConvertProjectFrameRate(project, ratio);
+
+            double amount = 1.0 / ratio;
+            project.ActiveTimeline.SetZoom(amount, ZoomType.Direct);
+            project.ActiveTimeline.PlayHeadPosition = (long) Math.Round(project.ActiveTimeline.PlayHeadPosition * ratio);
         }
     }
 }

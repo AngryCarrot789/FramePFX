@@ -20,7 +20,12 @@ namespace FramePFX.Editors.Controls {
             ushort[] indices = new ushort[text.Length];
             double[] advWidths = new double[text.Length];
             for (int i = 0; i < text.Length; i++) {
-                ushort index = gtf.CharacterToGlyphMap[text[i]];
+                if (!gtf.CharacterToGlyphMap.TryGetValue(text[i], out ushort index)) {
+                    if (!gtf.CharacterToGlyphMap.TryGetValue('?', out index)) {
+                        index = 0;
+                    }
+                }
+
                 indices[i] = index;
                 advWidths[i] = gtf.AdvanceWidths[index] * emSize;
             }

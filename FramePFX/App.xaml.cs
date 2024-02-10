@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using FFmpeg.AutoGen;
+using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Logger;
 using FramePFX.Shortcuts.WPF.Converters;
 using FramePFX.Utils;
@@ -70,6 +71,8 @@ namespace FramePFX {
             window.Editor = editor;
             await ApplicationCore.Instance.OnEditorLoaded(editor, args.Args);
             // this.Dispatcher.InvokeAsync(() => window.Editor = editor, DispatcherPriority.Loaded);
+
+            // AudioTrack.PlaySineWave();
         }
 
         protected override void OnExit(ExitEventArgs e) {

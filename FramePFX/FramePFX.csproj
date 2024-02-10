@@ -48,6 +48,10 @@
       <HintPath>..\packages\FFmpeg.AutoGen.6.1.0\lib\netstandard2.0\FFmpeg.AutoGen.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="libsoundio-sharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\libsoundio-sharp-net.1.0.0\lib\netstandard2.0\libsoundio-sharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="OpenTK, Version=3.3.3.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenTK.3.3.3\lib\net20\OpenTK.dll</HintPath>
@@ -173,6 +177,7 @@
     <Compile Include="Editors\PropertyEditors\ProjectPropertiesPropertyEditorGroup.cs" />
     <Compile Include="Editors\Rational.cs" />
     <Compile Include="Editors\Rendering\EnumRenderQuality.cs" />
+    <Compile Include="Editors\Rendering\RenderSetup.cs" />
     <Compile Include="Editors\RenderLockedData.cs" />
     <Compile Include="Editors\DisposalSync.cs" />
     <Compile Include="Editors\ResourceManaging\Actions\ChangeResourceOnlineStateAction.cs" />
@@ -190,6 +195,7 @@
     <Compile Include="Editors\ResourceManaging\Resources\InvalidMediaPathEntry.cs" />
     <Compile Include="Editors\ResourceManaging\Resources\ResourceAVMedia.cs" />
     <Compile Include="Editors\ResourceManaging\Resources\ResourceComposition.cs" />
+    <Compile Include="Editors\Timelines\Clips\AudioClip.cs" />
     <Compile Include="Editors\Timelines\Clips\ClipGroup.cs" />
     <Compile Include="Editors\Timelines\Clips\Core\AVMediaVideoClip.cs" />
     <Compile Include="Editors\Timelines\Clips\Core\CompositionVideoClip.cs" />
@@ -200,6 +206,7 @@
     <Compile Include="Editors\Timelines\Clips\Core\VideoClipShape.cs" />
     <Compile Include="Editors\Timelines\IDisplayName.cs" />
     <Compile Include="Editors\Timelines\IStrictFrameRange.cs" />
+    <Compile Include="Editors\Timelines\Tracks\AudioTrack.cs" />
     <Compile Include="FFmpegWrapper\AudioFormat.cs" />
     <Compile Include="FFmpegWrapper\AudioFrame.cs" />
     <Compile Include="FFmpegWrapper\AudioQueue.cs" />

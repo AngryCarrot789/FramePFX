@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Numerics;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Rendering;
@@ -139,7 +138,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
         }
 
         // CALLED ON A RENDER THREAD
-        public void RenderFrame(SKImageInfo imgInfo, EnumRenderQuality quality) {
+        public void RenderVideoFrame(SKImageInfo imgInfo, EnumRenderQuality quality) {
             DisposalSync<TrackRenderData> locker = this.myRenderDataLock;
             TrackRenderData rd;
             lock (locker.DisposeLock) {

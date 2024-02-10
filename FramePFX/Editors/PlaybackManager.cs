@@ -35,7 +35,9 @@ namespace FramePFX.Editors {
         // the time at which the playback began. Used to skip frames future frames that could not
         // be rendered in time while still trying maintaining an accurate frame rate
         private DateTime lastRenderTime;
-        private double accumulatedRateMillis;
+        private double accumulatedVideoSubFrames;
+        private double audioSamplesPerFrame;
+        private double accumulatedAudioSubSamples;
 
         /// <summary>
         /// The editor which owns this playback manager object. This does not change
@@ -89,7 +91,9 @@ namespace FramePFX.Editors {
         }
 
         public void SetFrameRate(Rational frameRate) {
-            this.intervalTicks = (long) Math.Round(1000.0 / frameRate.AsDouble * Time.TICK_PER_MILLIS);
+            double fps = frameRate.AsDouble;
+            this.intervalTicks = (long) Math.Round(Time.TICK_PER_SECOND_D / fps);
+            this.audioSamplesPerFrame = (int) Math.Ceiling(48000.0 / fps);
         }
 
         public void Play() {
@@ -183,9 +187,9 @@ namespace FramePFX.Editors {
                     long incr = 1;
                     if (actualInterval > expectedInterval) {
                         double diffMillis = (actualInterval - expectedInterval) / Time.TICK_PER_MILLIS_D;
-                        double incrDouble = (diffMillis / (1000.0 / fps)) + this.accumulatedRateMillis;
+                        double incrDouble = (diffMillis / (1000.0 / fps)) + this.accumulatedVideoSubFrames;
                         long extra = (long) Math.Floor(incrDouble);
-                        this.accumulatedRateMillis = (incrDouble - extra);
+                        this.accumulatedVideoSubFrames = (incrDouble - extra);
                         incr += extra;
                     }
 

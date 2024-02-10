@@ -60,7 +60,7 @@ namespace FramePFX.Editors.Views {
         }
 
         private void UpdateFrameRenderInterval(RenderManager manager) {
-            this.renderTimeAverager.PushValue(manager.AverageRenderTimeMillis);
+            this.renderTimeAverager.PushValue(manager.AverageVideoRenderTimeMillis);
 
             double averageMillis = this.renderTimeAverager.GetAverage();
             this.PART_AvgRenderTimeBlock.Text = $"{Math.Round(averageMillis, 2).ToString(),5} ms ({((int) Math.Round(1000.0 / averageMillis)).ToString(),3} FPS)";

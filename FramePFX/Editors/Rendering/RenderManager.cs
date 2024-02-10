@@ -24,7 +24,8 @@ namespace FramePFX.Editors.Rendering {
 
         public bool IsRendering => this.isRendering != 0;
 
-        private double averageRenderTimeMillis;
+        private double averageVideoRenderTimeMillis;
+        private double averageAudioRenderTimeMillis;
         private volatile int isRendering;
         private volatile int isRenderScheduled;
         private volatile Task scheduledRenderTask;
@@ -45,7 +46,10 @@ namespace FramePFX.Editors.Rendering {
         /// </summary>
         public SKRect LastRenderRect;
 
-        public double AverageRenderTimeMillis => this.averageRenderTimeMillis;
+        private byte[][] audioFrames;
+
+        public double AverageVideoRenderTimeMillis => this.averageVideoRenderTimeMillis;
+        public double AverageAudioRenderTimeMillis => this.averageAudioRenderTimeMillis;
 
         public event FrameRenderedEventHandler FrameRendered;
 
@@ -134,64 +138,97 @@ namespace FramePFX.Editors.Rendering {
         /// completed when the render is completed
         /// </summary>
         /// <param name="frame">The frame to render</param>
-        public Task RenderTimelineAsync(long frame, CancellationToken token, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality) {
+        public async Task RenderTimelineAsync(long frame, CancellationToken token, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality) {
+            Project project = this.Timeline.Project;
+            if (project == null) {
+                return;
+            }
+
             this.BeginRender(frame);
             long beginRender;
-            List<VideoTrack> trackList;
+            long samples;
+            List<VideoTrack> videoTrackList;
+            List<AudioTrack> audioTrackList;
             SKImageInfo imgInfo;
+
             try {
-                trackList = new List<VideoTrack>();
+                videoTrackList = new List<VideoTrack>();
+                audioTrackList = new List<AudioTrack>();
                 imgInfo = this.ImageInfo;
                 beginRender = Time.GetSystemTicks();
+
+                double fps = project.Settings.FrameRate.AsDouble;
+                samples = (long) Math.Ceiling(48000.0 / fps);
 
                 // render bottom to top, as most video editors do
                 for (int i = this.Timeline.Tracks.Count - 1; i >= 0; i--) {
                     Track track = this.Timeline.Tracks[i];
-                    if (!(track is VideoTrack videoTrack) || !VideoTrack.VisibleParameter.GetCurrentValue(videoTrack)) {
-                        continue;
+                    if (track is VideoTrack videoTrack && VideoTrack.VisibleParameter.GetCurrentValue(videoTrack)) {
+                        if (videoTrack.PrepareRenderFrame(imgInfo, frame, quality)) {
+                            videoTrackList.Add(videoTrack);
+                        }
                     }
 
-                    if (videoTrack.PrepareRenderFrame(imgInfo, frame, quality)) {
-                        trackList.Add(videoTrack);
+                    if (track is AudioTrack audioTrack) {
+                        if (audioTrack.PrepareRenderFrame(frame, samples, quality)) {
+                            audioTrackList.Add(audioTrack);
+                        }
                     }
                 }
             }
-            catch (Exception) {
+            catch {
                 this.isRendering = 0;
                 throw;
             }
 
-            // This seems way too simple... or maybe it really is this simple but other
-            // open source video editors just design their rendering system completely differently?
-            // Either way, this works and it works well... for now when there are no composition clips
-
-            return Task.Run(async () => {
-                SKRect totalRenderArea = default;
-                try {
-                    this.CheckRenderCancelled();
-                    Task[] tasks = new Task[trackList.Count];
-                    for (int i = 0; i < tasks.Length; i++) {
-                        VideoTrack track = trackList[i];
-                        tasks[i] = Task.Run(() => track.RenderFrame(imgInfo, quality), token);
-                    }
-
-                    this.CheckRenderCancelled();
-                    this.surface.Canvas.Clear(SKColors.Black);
-                    for (int i = 0; i < trackList.Count; i++) {
-                        if (!tasks[i].IsCompleted)
-                            await tasks[i];
-                        trackList[i].DrawFrameIntoSurface(this.surface, out SKRect usedRenderingArea);
-                        totalRenderArea = SKRect.Union(totalRenderArea, usedRenderingArea);
-                    }
-
-                    this.averageRenderTimeMillis = (Time.GetSystemTicks() - beginRender) / Time.TICK_PER_MILLIS_D;
-                }
-                finally {
-                    this.LastRenderRect = totalRenderArea;
-                    this.isRendering = 0;
+            SKRect totalRenderArea = default;
+            Task renderVideo = Task.Run(async () => {
+                this.CheckRenderCancelled();
+                Task[] tasks = new Task[videoTrackList.Count];
+                for (int i = 0; i < tasks.Length; i++) {
+                    VideoTrack track = videoTrackList[i];
+                    tasks[i] = Task.Run(() => track.RenderVideoFrame(imgInfo, quality), token);
                 }
 
+                this.CheckRenderCancelled();
+                this.surface.Canvas.Clear(SKColors.Black);
+                for (int i = 0; i < videoTrackList.Count; i++) {
+                    if (!tasks[i].IsCompleted)
+                        await tasks[i];
+                    videoTrackList[i].DrawFrameIntoSurface(this.surface, out SKRect usedRenderingArea);
+                    totalRenderArea = SKRect.Union(totalRenderArea, usedRenderingArea);
+                }
+
+                this.averageVideoRenderTimeMillis = (Time.GetSystemTicks() - beginRender) / Time.TICK_PER_MILLIS_D;
             }, token);
+
+            Task renderAudio = Task.Run(async () => {
+                this.CheckRenderCancelled();
+
+                Task[] tasks = new Task[audioTrackList.Count];
+                for (int i = 0; i < tasks.Length; i++) {
+                    AudioTrack track = audioTrackList[i];
+                    tasks[i] = Task.Run(() => track.RenderAudioFrame(samples, quality), token);
+                }
+
+                this.CheckRenderCancelled();
+                this.audioFrames = new byte[audioTrackList.Count][];
+                for (int i = 0; i < audioTrackList.Count; i++) {
+                    if (!tasks[i].IsCompleted)
+                        await tasks[i];
+                    this.audioFrames[i] = audioTrackList[i].GetAudioSamples();
+                }
+
+                this.averageAudioRenderTimeMillis = (Time.GetSystemTicks() - beginRender) / Time.TICK_PER_MILLIS_D;
+            }, token);
+
+            try {
+                await Task.WhenAll(renderVideo, renderAudio);
+            }
+            finally {
+                this.LastRenderRect = totalRenderArea;
+                this.isRendering = 0;
+            }
         }
 
         private void CheckRenderCancelled() {

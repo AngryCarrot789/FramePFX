@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -46,7 +47,8 @@ namespace FramePFX.Editors.Rendering {
         /// </summary>
         public SKRect LastRenderRect;
 
-        private byte[][] audioFrames;
+        public IntPtr channelL;
+        public IntPtr channelR;
 
         public double AverageVideoRenderTimeMillis => this.averageVideoRenderTimeMillis;
         public double AverageAudioRenderTimeMillis => this.averageAudioRenderTimeMillis;
@@ -70,11 +72,16 @@ namespace FramePFX.Editors.Rendering {
             if (oldProject != null) {
                 oldProject.Settings.ResolutionChanged -= manager.SettingsOnResolutionChanged;
                 manager.DisposeCanvas();
+                Marshal.FreeHGlobal(manager.channelL);
+                Marshal.FreeHGlobal(manager.channelR);
             }
 
             if (newProject != null) {
                 newProject.Settings.ResolutionChanged += manager.SettingsOnResolutionChanged;
                 manager.SettingsOnResolutionChanged(newProject.Settings);
+                int count = newProject.Settings.BufferSize * sizeof(float);
+                manager.channelL = Marshal.AllocHGlobal(count);
+                manager.channelR = Marshal.AllocHGlobal(count);
             }
         }
 
@@ -158,7 +165,8 @@ namespace FramePFX.Editors.Rendering {
                 beginRender = Time.GetSystemTicks();
 
                 double fps = project.Settings.FrameRate.AsDouble;
-                samples = (long) Math.Ceiling(48000.0 / fps);
+                // samples = (long) Math.Ceiling(44100.0 / fps) + 16384;
+                samples = project.Settings.BufferSize;
 
                 // render bottom to top, as most video editors do
                 for (int i = this.Timeline.Tracks.Count - 1; i >= 0; i--) {
@@ -212,11 +220,13 @@ namespace FramePFX.Editors.Rendering {
                 }
 
                 this.CheckRenderCancelled();
-                this.audioFrames = new byte[audioTrackList.Count][];
+
                 for (int i = 0; i < audioTrackList.Count; i++) {
                     if (!tasks[i].IsCompleted)
                         await tasks[i];
-                    this.audioFrames[i] = audioTrackList[i].GetAudioSamples();
+                    unsafe {
+                        audioTrackList[i].CopySamples((float*) this.channelL, (float*) this.channelR, samples);
+                    }
                 }
 
                 this.averageAudioRenderTimeMillis = (Time.GetSystemTicks() - beginRender) / Time.TICK_PER_MILLIS_D;

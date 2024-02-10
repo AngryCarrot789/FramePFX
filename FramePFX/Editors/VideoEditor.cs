@@ -70,59 +70,6 @@ namespace FramePFX.Editors {
 
             Project project = new Project();
 
-            // Old default project
-            // ResourceManager manager = project.ResourceManager;
-            // ResourceColour id_r = manager.RootContainer.AddItemAndRet(new ResourceColour(220, 25, 25) {DisplayName = "colour_red"});
-            // ResourceColour id_g = manager.RootContainer.AddItemAndRet(new ResourceColour(25, 220, 25) {DisplayName = "colour_green"});
-            // ResourceColour id_b = manager.RootContainer.AddItemAndRet(new ResourceColour(25, 25, 220) {DisplayName = "colour_blue"});
-            //
-            // ResourceFolder folder = new ResourceFolder("Extra Colours");
-            // manager.RootContainer.AddItem(folder);
-            // ResourceColour id_w = folder.AddItemAndRet(new ResourceColour(220, 220, 220) {DisplayName = "white colour"});
-            // ResourceColour id_d = folder.AddItemAndRet(new ResourceColour(50, 100, 220) {DisplayName = "idek"});
-            //
-            // VideoClipShape CreateShapeAt(Vector2 pos, Vector2 size, FrameSpan span, string name) {
-            //     VideoClipShape shape = new VideoClipShape() {
-            //         FrameSpan = span
-            //     };
-            //     MotionEffect motion = new MotionEffect();
-            //     motion.AutomationData[MotionEffect.MediaPositionParameter].DefaultKeyFrame.SetVector2Value(pos);
-            //     shape.AddEffect(motion);
-            //
-            //     shape.Size = size;
-            //     shape.DisplayName = name;
-            //     motion.AutomationData.UpdateBackingStorage();
-            //     shape.AutomationData.UpdateBackingStorage();
-            //     return shape;
-            // }
-            //
-            // {
-            //     Track track = new VideoTrack() {DisplayName = "Vid Track 1"};
-            //     track.AddClip(CreateShapeAt(new Vector2(150, 150), new Vector2(100, 30), new FrameSpan(0, 100), "Clip 1"));
-            //     track.AddClip(CreateShapeAt(new Vector2(300, 150), new Vector2(100, 30), new FrameSpan(150, 100), "Clip 2"));
-            //     track.AddClip(CreateShapeAt(new Vector2(450, 150), new Vector2(100, 30), new FrameSpan(300, 250), "Clip 3"));
-            //     track.AddEffect(new MotionEffect());
-            //     project.MainTimeline.AddTrack(track);
-            // }
-            //
-            // {
-            //     Track track = new VideoTrack() {DisplayName = "Vid Track 2"};
-            //     track.AddClip(CreateShapeAt(new Vector2(150, 300), new Vector2(100, 30), new FrameSpan(100, 50), "Clip 4"));
-            //     track.AddClip(CreateShapeAt(new Vector2(300, 300), new Vector2(100, 30), new FrameSpan(150, 200), "Clip 5"));
-            //     track.AddClip(CreateShapeAt(new Vector2(450, 300), new Vector2(100, 30), new FrameSpan(500, 125), "Clip 6"));
-            //     track.AddEffect(new MotionEffect());
-            //     project.MainTimeline.AddTrack(track);
-            // }
-            //
-            // {
-            //     Track track = new VideoTrack() {DisplayName = "Vid Track 3!!"};
-            //     track.AddClip(CreateShapeAt(new Vector2(150, 450), new Vector2(100, 30), new FrameSpan(20, 80), "Clip 7"));
-            //     track.AddClip(CreateShapeAt(new Vector2(300, 450), new Vector2(100, 30), new FrameSpan(150, 100), "Clip 8"));
-            //     track.AddClip(CreateShapeAt(new Vector2(450, 450), new Vector2(100, 30), new FrameSpan(350, 200), "Clip 9"));
-            //     track.AddEffect(new MotionEffect());
-            //     project.MainTimeline.AddTrack(track);
-            // }
-
             ResourceManager manager = project.ResourceManager;
             ResourceColour id_r = manager.RootContainer.AddItemAndRet(new ResourceColour(220, 25, 25) {DisplayName = "colour_red"});
             ResourceColour id_g = manager.RootContainer.AddItemAndRet(new ResourceColour(25, 220, 25) {DisplayName = "colour_green"});
@@ -201,6 +148,12 @@ namespace FramePFX.Editors {
                     DisplayName = "Empty Track"
                 };
                 project.MainTimeline.AddTrack(empty);
+
+                // AudioTrack audio = new AudioTrack() {
+                //     DisplayName = "Audio!!!"
+                // };
+                // audio.AddClip(new AudioClip() {FrameSpan = new FrameSpan(100, 200), DisplayName = "An audio clip"});
+                // project.MainTimeline.AddTrack(audio);
             }
 
             project.SetUnModified();

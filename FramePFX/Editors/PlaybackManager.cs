@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -6,6 +7,7 @@ using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines;
 using FramePFX.Logger;
 using FramePFX.Utils;
+using NAudio.Wave;
 
 namespace FramePFX.Editors {
     /// <summary>
@@ -54,8 +56,12 @@ namespace FramePFX.Editors {
         /// </summary>
         public event PlaybackStateEventHandler PlaybackStateChanged;
 
+        private WaveOut waveOut;
+        private readonly PlaybackAudioSampleProvider sampleProvider;
+
         public PlaybackManager(VideoEditor editor) {
             this.Editor = editor;
+            this.sampleProvider = new PlaybackAudioSampleProvider(this);
         }
 
         public bool CanSetPlayStateTo(PlayState newState) {
@@ -93,7 +99,7 @@ namespace FramePFX.Editors {
         public void SetFrameRate(Rational frameRate) {
             double fps = frameRate.AsDouble;
             this.intervalTicks = (long) Math.Round(Time.TICK_PER_SECOND_D / fps);
-            this.audioSamplesPerFrame = (int) Math.Ceiling(48000.0 / fps);
+            this.audioSamplesPerFrame = (int) Math.Ceiling(44100.0 / fps);
         }
 
         public void Play() {
@@ -117,13 +123,20 @@ namespace FramePFX.Editors {
         }
 
         private void PlayInternal(long targetFrame) {
+            if (this.waveOut == null) {
+                this.waveOut = new WaveOut();
+                this.waveOut.Init(this.sampleProvider);
+            }
+
             this.PlayState = PlayState.Play;
             this.PlaybackStateChanged?.Invoke(this, this.PlayState, targetFrame);
             this.lastRenderTime = DateTime.Now;
+            this.waveOut.Play();
             this.thread_IsPlaying = true;
         }
 
         private void OnAboutToStopPlaying() {
+            this.waveOut.Stop();
             this.thread_IsPlaying = false;
         }
 
@@ -282,6 +295,9 @@ namespace FramePFX.Editors {
 
         internal static void InternalOnActiveTimelineChanged(PlaybackManager playback, Timeline oldTimeline, Timeline newTimeline) {
             playback.Stop();
+            playback.waveOut?.Dispose();
+            playback.waveOut = null;
+
             playback.Timeline = newTimeline;
         }
     }

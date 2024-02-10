@@ -69,6 +69,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
 
         protected override void OnDisconnected() {
             base.OnDisconnected();
+            this.MyTrack = null;
             this.opacityBinder.Detatch();
             this.visibilityBinder.Detatch();
         }

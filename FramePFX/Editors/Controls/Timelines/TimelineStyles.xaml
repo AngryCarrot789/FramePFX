@@ -445,6 +445,75 @@
         </Setter>
     </Style>
 
+    <Style TargetType="{x:Type s:TrackControlSurfaceAudio}" BasedOn="{StaticResource {x:Type s:TrackControlSurface}}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type s:TrackControlSurfaceAudio}">
+                    <Grid>
+                        <Border Width="21" Background="{TemplateBinding TrackColourBrush}" BorderThickness="0,0,1,0" HorizontalAlignment="Left" VerticalAlignment="Stretch"
+                                BorderBrush="{DynamicResource PanelBorderBrush}">
+                            <DockPanel>
+                                <ToggleButton DockPanel.Dock="Top" Width="20" Height="20"
+                                              Style="{StaticResource TrackListExpandToggleButtonStyle}"
+                                              Background="Transparent" x:Name="PART_ExpandTrackButton"
+                                              Focusable="False"/>
+                                <Button x:Name="PART_DeleteTrackButton" Content="x"
+                                        DockPanel.Dock="Bottom"
+                                        Width="20" Height="20"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        ToolTip="Deletes this track"
+                                        Focusable="False"/>
+                                <Border/>
+                            </DockPanel>
+                        </Border>
+                        <DockPanel Margin="21,0,0,0">
+                            <DockPanel Margin="2,2,0,0" LastChildFill="False" DockPanel.Dock="Top">
+                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                </StackPanel>
+                                <TextBlock Grid.Row="0" Grid.Column="2" DockPanel.Dock="Right" Margin="0,1,4,0"
+                                           Text="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=DisplayName}"/>
+                            </DockPanel>
+                            <Grid DockPanel.Dock="Bottom" Margin="2">
+                                <c:SpacedStackPanel x:Name="PART_AutomationPanel" Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+                                    <ComboBox Width="100" Height="18" BorderBrush="Black"
+                                              Background="{DynamicResource ABrush.Tone6.Background.Static}"
+                                              ToolTip="A list of automatable parameters available for this track"
+                                              x:Name="PART_ParameterComboBox"
+                                              SelectedIndex="0">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type s:TrackListItemParameterViewModel}">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Ellipse Margin="0,0,4,0" VerticalAlignment="Center"
+                                                             Visibility="{Binding IsAutomated, Mode=OneWay, Converter={x:Static co:BoolToVisibilityConverter.BoolToVisibleOrCollapsed}}"
+                                                             Width="5" Height="5">
+                                                        <Ellipse.Fill>
+                                                            <MultiBinding Converter="{StaticResource AutomationBrushConverter}">
+                                                                <Binding Path="IsAutomated" Mode="OneWay"/>
+                                                                <Binding Path="IsOverrideEnabled" Mode="OneWay"/>
+                                                            </MultiBinding>
+                                                        </Ellipse.Fill>
+                                                    </Ellipse>
+                                                    <TextBlock Text="{Binding Name, Mode=OneTime}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                    <Button BorderBrush="Black" Height="18" Width="18" ToolTip="Insert a key frame at the current play head"
+                                            x:Name="PART_InsertKeyFrameButton">
+                                        <Ellipse Width="8" Height="8" Fill="{DynamicResource ABrush.Glyph.Static}"/>
+                                    </Button>
+                                    <Button Content="O" BorderBrush="Black" Height="18" Width="18" ToolTip="Toggles the parameter override state for this track. This is used to enable or disable automation for the parameter"
+                                            x:Name="PART_OverrideButton"/>
+                                </c:SpacedStackPanel>
+                            </Grid>
+                        </DockPanel>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style TargetType="{x:Type p:PlayheadPositionTextControl}">
         <Setter Property="FontFamily" Value="{StaticResource FontOxanium}"/>
         <Setter Property="Template">

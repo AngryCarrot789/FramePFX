@@ -259,6 +259,8 @@ namespace FramePFX.Editors.Timelines {
         public void AddTrack(Track track) => this.InsertTrack(this.tracks.Count, track);
 
         public void InsertTrack(int index, Track track) {
+            if (track.Timeline == this)
+                throw new ArgumentException("Track already exists in this timeline. It must be removed first");
             if (track.Timeline != null)
                 throw new ArgumentException("Track already exists in another timeline. It must be removed first");
             if (track.IndexInTimeline != -1)

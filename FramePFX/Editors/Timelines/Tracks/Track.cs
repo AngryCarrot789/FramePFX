@@ -146,6 +146,10 @@ namespace FramePFX.Editors.Timelines.Tracks {
             this.Timeline?.UpdateLargestFrame();
         }
 
+        protected virtual void OnProjectChanged(Project oldProject, Project newProject) {
+
+        }
+
         public Track Clone() => this.Clone(TrackCloneOptions.Default);
 
         public Track Clone(TrackCloneOptions options) {
@@ -451,6 +455,13 @@ namespace FramePFX.Editors.Timelines.Tracks {
             track.Timeline = newTimeline;
             track.Project = newTimeline?.Project;
             track.TimelineChanged?.Invoke(track, oldTimeline, newTimeline);
+            Project oldProject = oldTimeline?.Project;
+            Project newProject = newTimeline?.Project;
+            if (!ReferenceEquals(oldProject, newProject)) {
+                track.Project = newProject;
+                track.OnProjectChanged(oldProject, newProject);
+            }
+
             foreach (Clip clip in track.clips) {
                 Clip.InternalOnTrackTimelineChanged(clip, oldTimeline, newTimeline);
             }
@@ -498,6 +509,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
             }
 
             track.Project = newProject;
+            track.OnProjectChanged(oldProject, newProject);
             foreach (Clip clip in track.clips) {
                 Clip.InternalOnTimelineProjectChanged(clip, oldProject, newProject);
             }

@@ -135,6 +135,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
 
         static TrackControlSurface() {
             RegisterType(typeof(VideoTrack), () => new TrackControlSurfaceVideo());
+            RegisterType(typeof(AudioTrack), () => new TrackControlSurfaceAudio());
         }
 
         public static TrackControlSurface NewInstance(Type trackType) {

@@ -217,7 +217,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             this.Model.ActiveSequenceChanged += this.ClipActiveSequenceChanged;
             if (this.AutomationEditor is AutomationSequenceEditor editor) {
                 editor.FrameDuration = this.frameDuration;
-                editor.Sequence = this.Model.AutomationData[VideoClip.OpacityParameter];
+                editor.Sequence = this.Model is VideoClip ? this.Model.AutomationData[VideoClip.OpacityParameter] : null;
             }
 
             this.Model.AutomationData.ActiveParameter = VideoClip.OpacityParameter.Key;

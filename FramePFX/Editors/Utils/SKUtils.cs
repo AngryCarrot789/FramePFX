@@ -52,5 +52,13 @@ namespace FramePFX.Editors.Utils {
         public static SKRectI RoundI(this SKRect rect) {
             return new SKRectI((int) Math.Round(rect.Left), (int) Math.Round(rect.Top), (int) Math.Round(rect.Right), (int) Math.Round(rect.Bottom));
         }
+
+        public static SKRect ClampMinMax(this SKRect rect, SKRect max) {
+            if (rect.Left < max.Left)     rect.Left = max.Left;
+            if (rect.Top < max.Top)       rect.Top = max.Top;
+            if (rect.Right > max.Right)   rect.Right = max.Right;
+            if (rect.Bottom > max.Bottom) rect.Bottom = max.Bottom;
+            return rect;
+        }
     }
 }

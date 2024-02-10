@@ -184,6 +184,9 @@ namespace FramePFX.Editors.Views {
             else {
                 this.PART_CloseTimelineButton.IsEnabled = false;
             }
+
+            if (this.Editor is VideoEditor editor)
+                this.UpdatePlayBackButtons(editor.Playback);
         }
 
         private void OnCompositionTimelineDisplayNameChanged(BaseResource resource) {

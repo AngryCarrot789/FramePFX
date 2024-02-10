@@ -82,32 +82,29 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             return this.Demuxer.Duration ?? TimeSpan.Zero;
         }
 
-        public VideoFrame GetFrameAt(TimeSpan timestamp) {
-            if (this.stream == null) {
+        public VideoFrame GetFrameAt(TimeSpan timestamp, out double minDistanceToTimeStampSecs) {
+            if (this.stream == null || this.decoder == null) {
+                minDistanceToTimeStampSecs = 0d;
                 return null;
             }
 
-            if (this.decoder == null) {
-                return null;
-            }
-
-            //Images have a single frame, which we'll miss if we don't clamp timestamp to zero.
+            // Images have a single frame, which we'll miss if we don't clamp timestamp to zero.
             if (timestamp > this.GetDuration()) {
                 timestamp = this.GetDuration();
             }
 
-            VideoFrame frame = this.frameQueue.GetNearest(timestamp, out double frameDist);
+            VideoFrame frame = this.frameQueue.GetNearest(timestamp, out minDistanceToTimeStampSecs);
             double distThreshold = 0.5 / this.stream.AvgFrameRate; //will dupe too many frames if set to 1.0
 
-            if (Math.Abs(frameDist) > distThreshold) {
+            if (Math.Abs(minDistanceToTimeStampSecs) > distThreshold) {
                 // If the nearest frame is past or too far after the requested timestamp, seek to the nearest keyframe before it
-                if (frameDist < 0 || frameDist > 3.0) {
+                if (minDistanceToTimeStampSecs < 0 || minDistanceToTimeStampSecs > 3.0) {
                     this.Demuxer.Seek(timestamp);
                     this.decoder.Flush();
                 }
 
                 this.DecodeFramesUntil(timestamp);
-                frame = this.frameQueue.GetNearest(timestamp, out _);
+                frame = this.frameQueue.GetNearest(timestamp, out minDistanceToTimeStampSecs);
             }
 
             return frame;
@@ -117,7 +114,7 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             while (true) {
                 VideoFrame frame = this.frameQueue.Current();
                 if (this.decoder.ReceiveFrame(frame)) {
-                    if (this.frameQueue.Shift() is TimeSpan ts && ts >= endTime) {
+                    if (this.frameQueue.Shift(out long spanTicks) && spanTicks >= endTime.Ticks) {
                         return true;
                     }
                 }

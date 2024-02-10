@@ -214,7 +214,8 @@
                                       x:Name="PART_TrackListScrollViewer"
                                       ap:ScrollBinder.VerticalBindGroup="TimelineVerticalScrollGroup"
                                       Style="{StaticResource ScrollViewerWithPanelBorderBars}"
-                                      wpf:UIInputManager.FocusPath="Application/Editor/Timeline/ControlSurface">
+                                      wpf:UIInputManager.FocusPath="Application/Editor/Timeline/ControlSurface"
+                                      wpf1:AdvancedContextMenu.ContextGenerator="{x:Static ctx:TrackContextRegistry.Instance}">
                             <s:TrackControlSurfaceListBox x:Name="PART_TrackListBox"
                                                           Padding="0"
                                                           VerticalAlignment="Top"

@@ -270,7 +270,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// <param name="oldTrack">The previous track</param>
         /// <param name="newTrack">The new track</param>
         protected virtual void OnTrackChanged(Track oldTrack, Track newTrack) {
-            Debug.WriteLine("Clip's track changed: " + oldTrack + " -> " + newTrack);
+            // Debug.WriteLine("Clip's track changed: " + oldTrack + " -> " + newTrack);
             Timeline oldTimeline = oldTrack?.Timeline;
             Timeline newTimeline = newTrack?.Timeline;
             this.TrackChanged?.Invoke(this, oldTrack, newTrack);
@@ -281,7 +281,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         }
 
         protected virtual void OnTimelineChanged(Timeline oldTimeline, Timeline newTimeline) {
-            Debug.WriteLine("Clip's timeline changed: " + oldTimeline + " -> " + newTimeline);
+            // Debug.WriteLine("Clip's timeline changed: " + oldTimeline + " -> " + newTimeline);
             this.TimelineChanged?.Invoke(this, oldTimeline, newTimeline);
             Project oldProject = oldTimeline?.Project;
             Project newProject = newTimeline?.Project;
@@ -303,7 +303,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// <param name="oldProject">The previous project</param>
         /// <param name="newProject">The new project</param>
         protected virtual void OnProjectChanged(Project oldProject, Project newProject) {
-            Debug.WriteLine("Clip's project changed: " + oldProject + " -> " + newProject);
+            // Debug.WriteLine("Clip's project changed: " + oldProject + " -> " + newProject);
             this.ResourceHelper.SetManager(newProject?.ResourceManager);
         }
 

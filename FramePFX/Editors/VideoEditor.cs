@@ -217,14 +217,14 @@ namespace FramePFX.Editors {
             this.Project = project;
 
             Project.OnOpened(this, project);
-            this.ProjectChanged?.Invoke(this, null, project);
+            PlaybackManager.InternalOnActiveTimelineChanged(this.Playback, null, project.ActiveTimeline);
 
             ProjectSettings settings = project.Settings;
             project.ActiveTimeline.RenderManager.UpdateFrameInfo(settings);
             project.ActiveTimeline.RenderManager.InvalidateRender();
 
             this.Playback.SetFrameRate(settings.FrameRate);
-            PlaybackManager.InternalOnActiveTimelineChanged(this.Playback, null, project.ActiveTimeline);
+            this.ProjectChanged?.Invoke(this, null, project);
             VideoEditorPropertyEditor.Instance.OnProjectChanged();
         }
 

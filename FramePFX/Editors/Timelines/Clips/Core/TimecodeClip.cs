@@ -193,7 +193,7 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
                     // we still need to tell the track the rendering area, otherwise we're copying the entire frame which is
                     // unacceptable. Even though there will most likely be a bunch of transparent padding pixels, it's still better
                     renderArea = rc.TranslateRect(realFinalRenderArea);
-                    this.lastRenderRect = renderArea;
+                    this.lastRenderRect = realFinalRenderArea;
                     // renderArea = realFinalRenderArea;
                     // this.lastRenderRect = rc.TranslateRect(realFinalRenderArea);
                 }

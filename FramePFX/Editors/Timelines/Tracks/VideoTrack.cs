@@ -178,13 +178,16 @@ namespace FramePFX.Editors.Timelines.Tracks {
                     fx.PreProcessFrame(ctx);
                 }
 
-                SKRect renderArea = new SKRect(0, 0, imgInfo.Width, imgInfo.Height);
+                SKRect frameArea = new SKRect(0, 0, imgInfo.Width, imgInfo.Height);
+                SKRect renderArea = frameArea;
                 try {
                     this.theClipToRender.RenderFrame(ctx, ref renderArea);
                 }
                 catch (Exception e) {
                     renderException = e;
                 }
+
+                renderArea = renderArea.ClampMinMax(frameArea);
 
                 foreach (VideoEffect fx in this.theEffectsToApplyToClip) {
                     fx.PostProcessFrame(ctx, ref renderArea);
@@ -224,10 +227,10 @@ namespace FramePFX.Editors.Timelines.Tracks {
                     return;
                 }
 
-                SKRect usedArea = rd.renderArea;
+                SKRect frameRect = rd.surfaceInfo.ToRect();
+                SKRect usedArea = rd.renderArea.ClampMinMax(frameRect);
                 if (usedArea.Width > 0 && usedArea.Height > 0) {
                     using (SKPaint paint = new SKPaint {Color = new SKColor(255, 255, 255, RenderUtils.DoubleToByte255(this.renderOpacity))}) {
-                        SKRect frameRect = rd.surfaceInfo.ToRect();
                         if (usedArea == frameRect) {
                             // clip rendered to the whole frame or did not use optimisations, therefore
                             // skia's surface draw might be generally faster... maybe?

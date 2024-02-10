@@ -58,6 +58,8 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
 
                 RenderManager render = this.renderResource.Timeline.RenderManager;
                 render.Draw(rc.Surface);
+
+                renderArea = rc.TranslateRect(render.LastRenderRect);
             }
             catch (AggregateException e) {
                 if (e.InnerExceptions.FirstOrDefault(x => x is TaskCanceledException) != null) {

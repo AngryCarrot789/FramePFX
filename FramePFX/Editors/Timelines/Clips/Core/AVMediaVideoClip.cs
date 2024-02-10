@@ -76,7 +76,7 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
             this.decodeFrameTask = Task.Run(() => {
                 this.decodeFrameBegin = Time.GetSystemTicks();
                 VideoFrame output = null;
-                VideoFrame ready = resource.GetFrameAt(timestamp);
+                VideoFrame ready = resource.GetFrameAt(timestamp, out _);
                 if (ready != null && !ready.IsDisposed) {
                     // TODO: Maybe add an async frame fetcher that buffers the frames, or maybe add
                     // a project preview resolution so that decoding is lightning fast for low resolution?

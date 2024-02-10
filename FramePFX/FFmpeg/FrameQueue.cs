@@ -1,4 +1,5 @@
 using System;
+using FFmpeg.AutoGen;
 using FramePFX.FFmpegWrapper;
 using FramePFX.FFmpegWrapper.Containers;
 
@@ -23,25 +24,33 @@ namespace FramePFX.FFmpeg {
             return this.frames[this.index % this.frames.Length];
         }
 
-        public TimeSpan? Shift() {
+        public bool Shift(out long spanTicks) {
             VideoFrame lastFrame = this.Current();
             this.index++;
-            return this.GetTime(lastFrame);
+            return this.GetFramePresentationTime(lastFrame, out spanTicks);
         }
 
-        public TimeSpan? GetTime(VideoFrame frame) {
-            return frame.PresentationTimestamp is long pts ? this.stream.GetTimestamp(pts) : (TimeSpan?) null;
+        public unsafe bool GetFramePresentationTime(VideoFrame frame, out long spanTicks) {
+            long pts = frame.frame->pts;
+            if (pts == ffmpeg.AV_NOPTS_VALUE) {
+                spanTicks = 0;
+                return false;
+            }
+            else {
+                spanTicks = ffmpeg.av_rescale_q(pts, this.stream.TimeBase, FFUtils.TimeSpanRational);
+                return true;
+            }
         }
 
-        public VideoFrame GetNearest(TimeSpan timestamp, out double nearestDist) {
+        public VideoFrame GetNearest(TimeSpan timestamp, out double minDistToTimeStampTicks) {
             VideoFrame nearestFrame = null;
-            nearestDist = double.PositiveInfinity;
+            minDistToTimeStampTicks = double.PositiveInfinity;
             foreach (VideoFrame frame in this.frames) {
-                if (frame.PresentationTimestamp is long pts) {
-                    double dist = (timestamp - this.stream.GetTimestamp(pts)).TotalSeconds;
-                    if (Math.Abs(dist) < Math.Abs(nearestDist)) {
+                if (this.GetFramePresentationTime(frame, out long ticks)) {
+                    double distance = new TimeSpan(timestamp.Ticks - ticks).TotalSeconds;
+                    if (Math.Abs(distance) < Math.Abs(minDistToTimeStampTicks)) {
                         nearestFrame = frame;
-                        nearestDist = dist;
+                        minDistToTimeStampTicks = distance;
                     }
                 }
             }

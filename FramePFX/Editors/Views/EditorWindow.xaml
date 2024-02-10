@@ -150,9 +150,9 @@
                       wpf:UIInputManager.FocusPath="Application/Editor/Timeline">
                 <GroupBox.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Timeline" x:Name="PART_TimelineName"/>
+                        <TextBlock Text="Timeline" x:Name="PART_TimelineName" VerticalAlignment="Center"/>
                         <Separator Style="{StaticResource VerticalSeparator}" Margin="5,0"/>
-                        <Button x:Name="PART_CloseTimelineButton" Click="PART_CloseTimelineButton_OnClick" Content="Close Timeline" ToolTip="Closes the active composition timeline and opens the project timeline"/>
+                        <Button x:Name="PART_CloseTimelineButton" Click="PART_CloseTimelineButton_OnClick" Content="Close Timeline" ToolTip="Closes the active composition timeline and opens the project timeline" Padding="5,0"/>
                     </StackPanel>
                 </GroupBox.Header>
                 <Border BorderThickness="0,1,0,0" BorderBrush="{DynamicResource PanelBorderBrush}">

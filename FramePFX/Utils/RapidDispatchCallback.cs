@@ -48,6 +48,10 @@ namespace FramePFX.Utils {
         }
     }
 
+    /// <summary>
+    ///
+    /// </summary>
+    /// <typeparam name="T">The parameter passed to the callback action</typeparam>
     public class RapidDispatchCallback<T> {
         private volatile int state;
         private readonly Action<T> action;

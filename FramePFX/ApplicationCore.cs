@@ -72,14 +72,15 @@ namespace FramePFX {
             manager.Register("actions.timeline.RenameClipAction", new RenameClipAction());
             manager.Register("actions.timeline.RenameTrackAction", new RenameTrackAction());
             manager.Register("actions.timeline.ToggleClipVisibilityAction", new ToggleClipVisibilityAction());
-            manager.Register("actions.timeline.ConvertSelectionIntoCompositionAction", new ConvertSelectionIntoCompositionAction());
+            manager.Register("actions.timeline.CreateCompositionFromSelectionAction", new CreateCompositionFromSelectionAction());
 
             // resources
             manager.Register("actions.resources.RenameResourceAction", new RenameResourceAction());
             manager.Register("actions.resources.GroupResourcesAction", new GroupResourcesAction());
             manager.Register("actions.resources.EnableResourcesAction", new EnableResourcesAction());
-            manager.Register("actions.resources.DeleteResourcesAction", new DeleteResourcesAction());
             manager.Register("actions.resources.DisableResourcesAction", new DisableResourcesAction());
+            manager.Register("actions.resources.DeleteResourcesAction", new DeleteResourcesAction());
+            manager.Register("actions.resources.OpenCompositionResourceTimelineAction", new OpenCompositionResourceTimelineAction());
 
             // Editor
             manager.Register("actions.editor.NewProjectAction", new NewProjectAction());

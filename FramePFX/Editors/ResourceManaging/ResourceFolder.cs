@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.RBC;
 
@@ -15,6 +16,16 @@ namespace FramePFX.Editors.ResourceManaging {
         public event ResourceAddedEventHandler ResourceAdded;
         public event ResourceRemovedEventHandler ResourceRemoved;
         public event ResourceMovedEventHandler ResourceMoved;
+
+        /// <summary>
+        /// Returns an enumerable that returns all of our items whose <see cref="BaseResource.IsSelected"/> property is true
+        /// </summary>
+        public IEnumerable<BaseResource> SelectedItems => this.items.Where(x => x.IsSelected);
+
+        /// <summary>
+        /// Counts all items whose <see cref="BaseResource.IsSelected"/> property is true
+        /// </summary>
+        public int SelectedItemCount => this.items.Count(x => x.IsSelected);
 
         public ResourceFolder() {
             this.items = new List<BaseResource>();
@@ -66,6 +77,17 @@ namespace FramePFX.Editors.ResourceManaging {
             this.ResourceAdded?.Invoke(this, item, index);
             if (this.Manager != null && item is ResourceItem && ((ResourceItem) item).UniqueId == ResourceManager.EmptyId)
                 throw new Exception("Expected item to be registered");
+        }
+
+        /// <summary>
+        /// Checks if this folder contains the given item
+        /// </summary>
+        /// <param name="item">The item to check</param>
+        /// <returns>True if this folder contains the item</returns>
+        public bool Contains(BaseResource item) {
+            // This assumes no maliciously corrupted resource items,
+            // meaning this code should always work under proper conditions
+            return ReferenceEquals(item.Parent, this);
         }
 
         public bool RemoveItem(BaseResource item) {
@@ -139,17 +161,19 @@ namespace FramePFX.Editors.ResourceManaging {
         }
 
         /// <summary>
-        /// Clears a folder recursively, while also allowing all resources to be destroyed too
+        /// Clears a folder recursively (all items of sub folders, etc.), optionally destroying the resources too
         /// </summary>
         /// <param name="folder">The folder to clear recursively. Null accepted for convenience (e.g. resource as ResourceFolder)</param>
         /// <param name="destroy">True to destroy resources before removing</param>
         public static void ClearHierarchy(ResourceFolder folder, bool destroy = true) {
-            if (folder == null)
+            if (folder == null) {
                 return;
+            }
 
             // we iterate back to front as it's far more efficient since it won't result
             // in n-1 copies of all elements when removing from the front of the list.
             // Even if we made 'items' a LinkedList, WPF still uses array based collections
+            // so the UI could stall this operation for large folders
             for (int i = folder.items.Count - 1; i >= 0; i--) {
                 BaseResource item = folder.items[i];
                 if (destroy)

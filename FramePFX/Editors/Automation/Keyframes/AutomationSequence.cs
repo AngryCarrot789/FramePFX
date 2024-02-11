@@ -137,7 +137,8 @@ namespace FramePFX.Editors.Automation.Keyframes {
                 if (flags != ParameterFlags.None) {
                     // we don't mark project as modified here as effective values are runtime only.
                     // what does mark it modified are key frame changes, sequence changes (add/remove keyframes), etc.
-                    if ((flags & ParameterFlags.AffectsRender) != 0 && this.AutomationData.Owner.Timeline is Timeline timeline) {
+                    Timeline timeline = this.AutomationData.Owner.Timeline;
+                    if (timeline != null && (flags & ParameterFlags.AffectsRender) != 0 && timeline.Project.Editor?.Playback.PlayState != PlayState.Play) {
                         timeline.RenderManager.InvalidateRender();
                     }
                 }

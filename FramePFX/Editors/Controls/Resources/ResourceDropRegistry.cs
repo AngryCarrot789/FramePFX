@@ -31,7 +31,7 @@ namespace FramePFX.Editors.Controls.Resources {
                         return EnumDropType.None;
                     }
                     else if (dropType != EnumDropType.Copy) {
-                        if (target.Items.Contains(item)) {
+                        if (target.Contains(item)) {
                             return EnumDropType.None;
                         }
                     }

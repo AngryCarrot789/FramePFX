@@ -29,7 +29,7 @@ namespace FramePFX.Editors.Rendering {
         private double averageAudioRenderTimeMillis;
         private volatile int isRendering;
         private volatile int isRenderScheduled;
-        private volatile Task scheduledRenderTask;
+        private volatile Task lastRenderTask;
         private bool isDisposed;
         internal volatile int suspendRenderCount;
         private volatile int isRenderCancelled;
@@ -40,7 +40,10 @@ namespace FramePFX.Editors.Rendering {
         // public but unsafe access to the underlying surface, used by view port. Must not be replaced externally
         public SKSurface surface;
 
-        public Task ScheduledRenderTask => this.scheduledRenderTask;
+        public Task LastRenderTask {
+            get => this.lastRenderTask;
+            set => this.lastRenderTask = value;
+        }
 
         /// <summary>
         /// Gets the rect containing the bounds of the pixels that were modified during the last render
@@ -145,10 +148,10 @@ namespace FramePFX.Editors.Rendering {
         /// completed when the render is completed
         /// </summary>
         /// <param name="frame">The frame to render</param>
-        public async Task RenderTimelineAsync(long frame, CancellationToken token, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality) {
+        public Task RenderTimelineAsync(long frame, CancellationToken token, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality) {
             Project project = this.Timeline.Project;
             if (project == null) {
-                return;
+                return Task.CompletedTask;
             }
 
             this.BeginRender(frame);
@@ -164,7 +167,7 @@ namespace FramePFX.Editors.Rendering {
                 imgInfo = this.ImageInfo;
                 beginRender = Time.GetSystemTicks();
 
-                double fps = project.Settings.FrameRate.AsDouble;
+                // double fps = project.Settings.FrameRate.AsDouble;
                 // samples = (long) Math.Ceiling(44100.0 / fps) + 16384;
                 samples = project.Settings.BufferSize;
 
@@ -232,13 +235,10 @@ namespace FramePFX.Editors.Rendering {
                 this.averageAudioRenderTimeMillis = (Time.GetSystemTicks() - beginRender) / Time.TICK_PER_MILLIS_D;
             }, token);
 
-            try {
-                await Task.WhenAll(renderVideo, renderAudio);
-            }
-            finally {
+            return Task.WhenAll(renderVideo, renderAudio).ContinueWith(t => {
                 this.LastRenderRect = totalRenderArea;
                 this.isRendering = 0;
-            }
+            });
         }
 
         private void CheckRenderCancelled() {
@@ -276,12 +276,18 @@ namespace FramePFX.Editors.Rendering {
                 return;
             }
 
-            if (!this.Timeline.IsActive || Interlocked.CompareExchange(ref this.isRenderScheduled, 1, 0) != 0) {
+            if (!this.Timeline.IsActive) {
+                // if (this.Timeline is CompositionTimeline composition)
+                //     composition.TryNotifyParentTimelineRenderInvalidated();
+                return;
+            }
+
+            if (Interlocked.CompareExchange(ref this.isRenderScheduled, 1, 0) != 0) {
                 return;
             }
 
             Application.Current.Dispatcher.InvokeAsync(() => {
-                this.scheduledRenderTask = this.DoScheduledRender();
+                this.lastRenderTask = this.DoScheduledRender();
             }, DispatcherPriority.Send);
         }
 

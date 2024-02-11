@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace FramePFX.Utils {
     /// <summary>
     /// A class used for executing a tasks when an input signal is received, and ensuring the task is not
-    /// executed too quickly (time since last execution will exceed <see cref="MinimumInterval"/>)
+    /// executed too quickly (time since last execution will exceed <see cref="MinimumInterval"/>).
     /// </summary>
     public class RateLimitedExecutor {
         private volatile bool isCondition;
@@ -15,7 +15,8 @@ namespace FramePFX.Utils {
         private readonly object locker = new object();
 
         /// <summary>
-        /// A function that returns a task that is awaited when required
+        /// A function that returns a task that is awaited when required. This is executed on a
+        /// task scheduler thread, so it must be prepared to use the application dispatcher (if necessary)
         /// </summary>
         public Func<Task> Execute { get; set; }
 
@@ -26,7 +27,7 @@ namespace FramePFX.Utils {
 
         public RateLimitedExecutor() : this(null) { }
 
-        public RateLimitedExecutor(Func<Task> userTask) : this(userTask, TimeSpan.FromMilliseconds(250)) { }
+        public RateLimitedExecutor(Func<Task> execute) : this(execute, TimeSpan.FromMilliseconds(250)) { }
 
         public RateLimitedExecutor(Func<Task> execute, TimeSpan minimumInterval) {
             this.Execute = execute;

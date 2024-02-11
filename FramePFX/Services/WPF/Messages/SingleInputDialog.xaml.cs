@@ -53,6 +53,12 @@ namespace FramePFX.Services.WPF.Messages {
             this.InitializeComponent();
             this.CalculateOwnerAndSetCentered();
             this.PART_TextInputBox.TextChanged += this.OnTextInputBoxValueChanged;
+            this.Loaded += this.OnLoaded;
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e) {
+            this.PART_TextInputBox.Focus();
+            this.PART_TextInputBox.SelectAll();
         }
 
         protected override void OnPreviewKeyDown(KeyEventArgs e) {

@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -189,9 +188,10 @@ namespace FramePFX.Editors {
                     // and since we don't want to playback at 10 fps, we try to catch up by skipping a few frames
 
                     // However... this has a possible runaway effect specifically for things like decoder seeking;
-                    // If we skip frames, the render will take even longer, meaning we skip more frames, and so on,
+                    // If we skip frames, the decoders may have to seek frames, further stalling the render meaning
+                    // it will take even longer, meaning we skip more frames, and so on...
                     // So, frame skipping is limited to 3 frames just to be safe. Still need to work out a better
-                    // solution but for now, 3 frames should be generally safe
+                    // solution but for now 3 frames should be generally safe
                     double fps = project.Settings.FrameRate.AsDouble;
                     double expectedInterval = Time.TICK_PER_SECOND_D / fps;
                     double actualInterval = DateTime.Now.Ticks - this.lastRenderTime.Ticks;
@@ -211,7 +211,7 @@ namespace FramePFX.Editors {
 
                     long newPlayHead = Periodic.Add(timeline.PlayHeadPosition, incr, 0, timeline.MaxDuration - 1);
                     timeline.PlayHeadPosition = newPlayHead;
-                    if ((timeline.RenderManager.ScheduledRenderTask?.IsCompleted ?? true)) {
+                    if ((timeline.RenderManager.LastRenderTask?.IsCompleted ?? true)) {
                         return RenderTimeline(timeline.RenderManager, timeline.PlayHeadPosition, CancellationToken.None);
                     }
 
@@ -220,6 +220,10 @@ namespace FramePFX.Editors {
 
                 try {
                     renderTask.Wait();
+                }
+                catch (AggregateException) {
+                    if (!renderTask.IsCanceled)
+                        throw;
                 }
                 catch (TaskCanceledException) {
                 }
@@ -237,7 +241,7 @@ namespace FramePFX.Editors {
             // await (renderManager.ScheduledRenderTask ?? Task.CompletedTask);
             if (cancellationToken.IsCancellationRequested)
                 throw new TaskCanceledException();
-            await renderManager.RenderTimelineAsync(frame, cancellationToken);
+            await (renderManager.LastRenderTask = renderManager.RenderTimelineAsync(frame, cancellationToken));
             renderManager.OnFrameCompleted();
         }
 

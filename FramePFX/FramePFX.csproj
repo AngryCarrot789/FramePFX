@@ -144,7 +144,7 @@
     <Compile Include="AdvancedMenuService\WPF\AdvancedActionMenuItem.cs" />
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Converters\EmptyStringToVisibilityConverter.cs" />
-    <Compile Include="Editors\Actions\ConvertSelectionIntoCompositionAction.cs" />
+    <Compile Include="Editors\Actions\CreateCompositionFromSelectionAction.cs" />
     <Compile Include="Editors\Actions\DeleteClipOwnerTrackAction.cs" />
     <Compile Include="Editors\Actions\DeleteClipsAction.cs" />
     <Compile Include="Editors\Actions\DeleteTracksAction.cs" />
@@ -153,6 +153,7 @@
     <Compile Include="Editors\Actions\MoveTrackAction.cs" />
     <Compile Include="Editors\Actions\NewProjectAction.cs" />
     <Compile Include="Editors\Actions\NewVideoTrackAction.cs" />
+    <Compile Include="Editors\Actions\OpenCompositionResourceTimelineAction.cs" />
     <Compile Include="Editors\Actions\OpenProjectAction.cs" />
     <Compile Include="Editors\Actions\RenameAction.cs" />
     <Compile Include="Editors\Actions\SaveProjectAction.cs" />
@@ -174,6 +175,7 @@
     <Compile Include="Editors\Controls\Timelines\Tracks\Clips\TimelineClipContent.cs" />
     <Compile Include="Editors\Controls\Timelines\Tracks\Clips\TimelineVideoClipContent.cs" />
     <Compile Include="Editors\Controls\Timelines\Tracks\Surfaces\TrackControlSurfaceAudio.cs" />
+    <Compile Include="Editors\Controls\Viewports\SKPreviewViewPortEx.cs" />
     <Compile Include="Editors\DataTransfer\DataParameter.cs" />
     <Compile Include="Editors\DataTransfer\DataParameterGeneric.cs" />
     <Compile Include="Editors\DataTransfer\DataParameterBoolean.cs" />

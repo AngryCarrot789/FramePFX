@@ -3,7 +3,8 @@
                     xmlns:l="clr-namespace:FramePFX.Editors.Controls.Resources"
                     xmlns:explorers="clr-namespace:FramePFX.Editors.Controls.Resources.Explorers"
                     xmlns:t="clr-namespace:FramePFX.Editors.Controls.Resources.Trees"
-                    xmlns:mst="clr-namespace:FramePFX.Editors.Controls.TreeViews.Controls">
+                    xmlns:mst="clr-namespace:FramePFX.Editors.Controls.TreeViews.Controls"
+                    xmlns:vps="clr-namespace:FramePFX.Editors.Controls.Viewports">
     <ItemsPanelTemplate x:Key="HorizontalWrapPanelItemsPanelTemplate">
         <WrapPanel Orientation="Horizontal"/>
     </ItemsPanelTemplate>
@@ -183,11 +184,22 @@
             </Setter.Value>
         </Setter>
     </Style>
+
     <Style TargetType="{x:Type explorers:RELICImage}" BasedOn="{StaticResource {x:Type explorers:ResourceExplorerListItemContent}}">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type explorers:RELICImage}">
                     <Image x:Name="PART_Image" Stretch="Fill"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type explorers:RELICComposition}" BasedOn="{StaticResource {x:Type explorers:ResourceExplorerListItemContent}}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type explorers:RELICComposition}">
+                    <vps:SKPreviewViewPortEx x:Name="PART_ViewPort"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

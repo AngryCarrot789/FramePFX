@@ -1,5 +1,3 @@
-using System;
-
 namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
     /// <summary>
     /// The base interface for <see cref="IResourcePathKey{T}"/>, so that it can be used in a non-generic context
@@ -26,8 +24,12 @@ namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
         /// Sets the target ID for this entry. This will cause the <see cref="ActiveLink"/> property to be disposed and replaced with a new value
         /// </summary>
         /// <param name="id">The new resource path ID</param>
-        /// <exception cref="ArgumentException">The id is empty (0)</exception>
         void SetTargetResourceId(ulong id);
+
+        /// <summary>
+        /// Clears the active resource link, if present
+        /// </summary>
+        void ClearResourceLink();
 
         /// <summary>
         /// Checks if the given item's type is actually applicable to this resource path key

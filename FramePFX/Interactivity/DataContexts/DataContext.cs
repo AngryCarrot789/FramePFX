@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using FramePFX.Editors.Timelines.Clips;
 
 namespace FramePFX.Interactivity.DataContexts {
     public class DataContext : IDataContext {

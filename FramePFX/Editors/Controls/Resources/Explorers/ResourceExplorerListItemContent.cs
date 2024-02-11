@@ -1,17 +1,24 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using FramePFX.Editors.Controls.Binders;
+using FramePFX.Editors.Controls.Viewports;
+using FramePFX.Editors.Rendering;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.Editors.ResourceManaging.Resources;
+using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editors.Controls.Resources.Explorers {
+    /// <summary>
+    /// The abstract control for the content of a resource item in the explorer list (aka RELIC)
+    /// </summary>
     public abstract class ResourceExplorerListItemContent : Control {
         private static readonly Dictionary<Type, Func<ResourceExplorerListItemContent>> Constructors;
 
@@ -242,8 +249,60 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
     }
 
     public class RELICComposition : ResourceExplorerListItemContent {
-        public RELICComposition() {
+        private SKPreviewViewPortEx PART_ViewPort;
 
+        public new ResourceComposition Resource => (ResourceComposition) base.Resource;
+
+        private readonly RateLimitedExecutor updatePreviewExecutor;
+
+        public RELICComposition() {
+            this.updatePreviewExecutor = new RateLimitedExecutor(this.OnUpdatePreview, TimeSpan.FromSeconds(0.2));
+        }
+
+        private async Task OnUpdatePreview() {
+            if (this.PART_ViewPort == null || this.ListItem == null)
+                return;
+
+            await Application.Current.Dispatcher.Invoke(async () => {
+                if (this.PART_ViewPort == null || this.ListItem == null) {
+                    return;
+                }
+
+                ResourceComposition resource = this.Resource;
+                RenderManager rm = resource.Timeline.RenderManager;
+                if (rm.surface != null) {
+                    await (rm.LastRenderTask ?? Task.CompletedTask);
+                    if (rm.LastRenderRect.Width > 0 && rm.LastRenderRect.Height > 0) {
+                        if (this.PART_ViewPort.BeginRenderWithSurface(rm.ImageInfo)) {
+                            this.PART_ViewPort.EndRenderWithSurface(rm.surface);
+                        }
+                    }
+                }
+            });
+        }
+
+        private void OnFrameRendered() {
+
+        }
+
+        public override void OnApplyTemplate() {
+            base.OnApplyTemplate();
+            this.PART_ViewPort = this.GetTemplateChild<SKPreviewViewPortEx>(nameof(this.PART_ViewPort));
+        }
+
+        protected override void OnConnected() {
+            base.OnConnected();
+            this.Resource.Timeline.RenderManager.FrameRendered += this.RenderManagerOnFrameRendered;
+            this.updatePreviewExecutor.OnInput();
+        }
+
+        protected override void OnDisconnected() {
+            base.OnDisconnected();
+            this.Resource.Timeline.RenderManager.FrameRendered -= this.RenderManagerOnFrameRendered;
+        }
+
+        private void RenderManagerOnFrameRendered(RenderManager manager) {
+            this.updatePreviewExecutor.OnInput();
         }
     }
 }

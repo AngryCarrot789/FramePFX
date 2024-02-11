@@ -193,6 +193,14 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             }
         }
 
+        public void ClearRawBitmapImage() {
+            if (!this.IsRawBitmapMode) {
+                throw new InvalidOperationException("Not using a raw bitmap");
+            }
+
+            this.DisposeImage(true);
+        }
+
         private readonly struct UnmanagedImageFormat {
             public readonly int Width;
             public readonly int Height;

@@ -1,9 +1,11 @@
+using System;
 using FramePFX.AdvancedContextService;
 using FramePFX.Editors.ResourceManaging;
-using FramePFX.Editors.ResourceManaging.Autoloading;
 using FramePFX.Interactivity.DataContexts;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Windows;
 using FramePFX.Editors.ResourceManaging.Autoloading.Controls;
 using FramePFX.Editors.ResourceManaging.Resources;
 using FramePFX.Utils;
@@ -11,6 +13,168 @@ using FramePFX.Utils;
 namespace FramePFX.Editors.Contextual {
     public class ResourceContextRegistry : IContextGenerator {
         public static ResourceContextRegistry Instance { get; } = new ResourceContextRegistry();
+
+        /// <summary>
+        /// Extracts the contextual resource selection from the most desirable folder (based on the contextual resource)
+        /// </summary>
+        /// <param name="ctx">Data Context</param>
+        /// <param name="folder">The folder that contains items in the selection array</param>
+        /// <param name="selection">
+        /// Either a single item (not selected or only selected item in folder) or all selected
+        /// items in the folder. Always contains at least 1 item when this method returns true
+        /// </param>
+        /// <returns>True if the context contained a resource</returns>
+        public static bool GetSingleFolderSelectionContext(IDataContext ctx, out ResourceFolder folder, out BaseResource[] selection) {
+            if (!ctx.TryGetContext(DataKeys.ResourceObjectKey, out BaseResource resource) || resource.Parent == null || resource.Manager == null) {
+                folder = null;
+                selection = null;
+                return false;
+            }
+
+            folder = resource.Manager.CurrentFolder;
+            if (!folder.Contains(resource)) {
+                folder = resource.Parent;
+            }
+
+            int selected = folder.Items.Count(x => x.IsSelected);
+            if (!resource.IsSelected || selected == 1) {
+                selection = new BaseResource[] {resource};
+                return true;
+            }
+            else if (selected > 0) {
+                selection = folder.Items.Where(x => x.IsSelected).ToArray();
+                if (selection.Length < 1) {
+                    Debugger.Break();
+                    throw new Exception("Selection corruption: was folder modified during selection evaluation?");
+                }
+
+                return true;
+            }
+            else {
+                Debugger.Break();
+                throw new Exception("Selection corruption: zero selected items in folder while resource in folder was selected");
+            }
+        }
+
+        public static bool GetTreeContext(IDataContext ctx, out BaseResource[] selection) {
+            if (!ctx.TryGetContext(DataKeys.ResourceObjectKey, out BaseResource resource) || resource.Parent == null || resource.Manager == null) {
+                selection = null;
+                return false;
+            }
+
+            int selected = resource.Manager.SelectedItems.Count;
+            if (!resource.IsSelected || selected == 1) {
+                selection = new BaseResource[] {resource};
+                return true;
+            }
+            else if (selected > 0) {
+                selection = resource.Manager.SelectedItems.ToArray();
+                Debug.Assert(selection.Length > 0, "selection.Length > 0");
+                return true;
+            }
+            else {
+                Debugger.Break();
+                throw new Exception("Selection corruption: zero selected items in folder while resource in folder was selected");
+            }
+        }
+
+        public static bool GetSingleSelection(IDataContext ctx, out BaseResource resource) {
+            if (!ctx.TryGetContext(DataKeys.ResourceObjectKey, out resource) || resource.Parent == null || resource.Manager == null) {
+                return false;
+            }
+
+            return !resource.IsSelected || resource.Manager.SelectedItems.Count == 1;
+        }
+
+        /// <summary>
+        /// Either gets the <see cref="DataKeys.ResourceObjectKey"/> as a folder or the resource
+        /// manager's current folder. Does not process any selection states
+        /// </summary>
+        /// <param name="ctx">Data Context</param>
+        /// <param name="folder">The folder</param>
+        /// <returns>True if the data contains contained a folder or a resource manager</returns>
+        public static bool GetTargetFolder(IDataContext ctx, out ResourceFolder folder) {
+            if (ctx.TryGetContext(DataKeys.ResourceObjectKey, out BaseResource resource) && (folder = resource as ResourceFolder) != null) {
+                return true;
+            }
+            else if (ctx.TryGetContext(DataKeys.ResourceManagerKey, out ResourceManager manager)) {
+                folder = manager.CurrentFolder;
+                return true;
+            }
+            else {
+                folder = null;
+                return false;
+            }
+        }
+
+        public void Generate(List<IContextEntry> list, IDataContext context) {
+            if (!GetSingleFolderSelectionContext(context, out ResourceFolder folder, out BaseResource[] selection)) {
+                if (context.ContainsKey(DataKeys.ResourceManagerKey)) {
+                    GenerateNewResourceEntries(list);
+                }
+
+                return;
+            }
+
+            if (selection.Length == 1) {
+                BaseResource resource = selection[0];
+                list.Add(new ActionContextEntry("actions.resources.RenameResourceAction", "Rename"));
+                list.Add(new ActionContextEntry("actions.resources.GroupResourcesAction", "Add to new folder", "Adds this item to a new folder"));
+
+                if (resource is ResourceItem item) {
+                    list.Add(new SeparatorEntry());
+                    if (item.IsOnline) {
+                        list.Add(new ActionContextEntry("actions.resources.DisableResourcesAction", "Set Offline"));
+                    }
+                    else {
+                        list.Add(new ActionContextEntry("actions.resources.EnableResourcesAction", "Set Online"));
+                    }
+
+                    switch (resource) {
+                        case ResourceComposition _:
+                            list.Add(new SeparatorEntry());
+                            list.Add(new ActionContextEntry("actions.resources.OpenCompositionResourceTimelineAction", "Open Timeline"));
+                            break;
+                        case ResourceImage _:
+                            list.Add(new SeparatorEntry());
+                            list.Add(new EventContextEntry(ChangeResourceImagePath, "Change Image Path"));
+                            break;
+                    }
+                }
+
+                list.Add(new SeparatorEntry());
+                list.Add(new ActionContextEntry("actions.resources.DeleteResourcesAction", "Delete Resource"));
+            }
+            else {
+                list.Add(new ActionContextEntry("actions.resources.GroupResourcesAction", "Group items into folder", "Groups all selected items in the explorer into a folder. Grouping items in the tree is currently unsupported"));
+                list.Add(new SeparatorEntry());
+                list.Add(new ActionContextEntry("actions.resources.EnableResourcesAction", "Set All Online"));
+                list.Add(new ActionContextEntry("actions.resources.DisableResourcesAction", "Set All Offline"));
+                list.Add(new SeparatorEntry());
+                list.Add(new ActionContextEntry("actions.resources.DeleteResourcesAction", "Delete Resources"));
+            }
+        }
+
+        private static void ChangeResourceImagePath(IDataContext ctx) {
+            if (GetSingleSelection(ctx, out BaseResource resource) && resource is ResourceImage image) {
+                string filePath = IoC.FilePickService.OpenFile("Select a new image file for this resource", Filters.ImageTypesAndAll);
+                if (filePath == null) {
+                    return;
+                }
+
+                if (image.IsRawBitmapMode) {
+                    if (IoC.MessageService.ShowMessage("Clear Raw Bitmap", "This image stores a pure bitmap instead of being file-based. Do you want to clear the bitmap?", MessageBoxButton.OKCancel) != MessageBoxResult.OK) {
+                        return;
+                    }
+
+                    image.ClearRawBitmapImage();
+                }
+
+                image.Disable(true);
+                image.FilePath = filePath;
+                ResourceLoaderDialog.TryLoadResources(image);
+            }
+        }
 
         public static void GenerateNewResourceEntries(List<IContextEntry> list) {
             List<IContextEntry> toAdd = new List<IContextEntry>();
@@ -20,27 +184,14 @@ namespace FramePFX.Editors.Contextual {
             list.Add(new GroupContextEntry("Add new...", toAdd));
         }
 
-        private static bool GetFolder(IDataContext ctx, out ResourceFolder folder) {
-            if (ctx.TryGetContext(DataKeys.ResourceObjectKey, out BaseResource resource) && (folder = resource as ResourceFolder) != null) {
-                return true;
-            }
-            else if (ctx.TryGetContext(DataKeys.ResourceManagerKey, out ResourceManager manager)) {
-                folder = manager.CurrentFolder;
-                return true;
-            }
-
-            folder = null;
-            return false;
-        }
-
         private static void AddColourResource(IDataContext ctx) {
-            if (GetFolder(ctx, out ResourceFolder folder)) {
+            if (GetTargetFolder(ctx, out ResourceFolder folder)) {
                 AddNewResource(folder, new ResourceColour() {Colour = RenderUtils.RandomColour(), DisplayName = "New Colour"});
             }
         }
 
         private static void AddCompositionResource(IDataContext ctx) {
-            if (GetFolder(ctx, out ResourceFolder folder)) {
+            if (GetTargetFolder(ctx, out ResourceFolder folder)) {
                 AddNewResource(folder, new ResourceComposition() {DisplayName = "New Composition"});
             }
         }
@@ -48,129 +199,6 @@ namespace FramePFX.Editors.Contextual {
         private static void AddNewResource(ResourceFolder folder, BaseResource resource) {
             folder.AddItem(resource);
             ResourceLoaderDialog.TryLoadResources(resource);
-        }
-
-        public void Generate(List<IContextEntry> list, IDataContext context) {
-            if (!context.TryGetContext(DataKeys.ResourceObjectKey, out BaseResource resource)) {
-                if (context.ContainsKey(DataKeys.ResourceManagerKey)) {
-                    GenerateNewResourceEntries(list);
-                }
-
-                return;
-            }
-            else if (context.ContainsKey(DataKeys.ResourceManagerKey)) {
-                GenerateNewResourceEntries(list);
-            }
-
-            int actualSelection = resource.Manager.SelectedItems.Count;
-            int itemCount = actualSelection;
-            if (!resource.IsSelected)
-                itemCount++;
-
-            ActionContextEntry groupAction = null;
-            if (resource.Manager != null) {
-                ResourceFolder currFolder = resource.Manager.CurrentFolder;
-                int groupCount = currFolder.Items.Count(x => x.IsSelected);
-                if (!resource.IsSelected && currFolder.Items.Contains(resource)) {
-                    groupCount++;
-                }
-
-                if (groupCount > 0) {
-                    groupAction = new ActionContextEntry("actions.resources.GroupResourcesAction", "Group item(s) into folder", "Groups all selected items in the explorer into a folder. Grouping items in the tree is currently unsupported");
-                }
-            }
-
-            if (list.Count > 0) {
-                list.Add(new SeparatorEntry());
-            }
-
-            if (itemCount == 1) {
-                list.Add(new ActionContextEntry("actions.resources.RenameResourceAction", "Rename resource"));
-                if (groupAction != null) {
-                    list.Add(groupAction);
-                }
-
-                if (resource is ResourceItem item) {
-                    list.Add(new SeparatorEntry());
-                    if (item.IsOnline) {
-                        list.Add(new EventContextEntry(DisableResources, "Set Offline"));
-                    }
-                    else {
-                        list.Add(new EventContextEntry(EnableResources, "Set Online"));
-                    }
-                }
-
-                if (resource is ResourceComposition) {
-                    list.Add(new SeparatorEntry());
-                    list.Add(new EventContextEntry(OpenTimeline, "Open Timeline"));
-                }
-            }
-            else {
-                if (groupAction != null) {
-                    list.Add(groupAction);
-                }
-
-                list.Add(new EventContextEntry(EnableResources, $"Set All Online"));
-                list.Add(new EventContextEntry(DisableResources, $"Set All Offline"));
-            }
-
-            list.Add(new SeparatorEntry());
-            list.Add(new ActionContextEntry("actions.resources.DeleteResourcesAction", itemCount == 1 ? "Delete Resource" : $"Delete Resources"));
-        }
-
-        private static void EnableResources(IDataContext context) {
-            if (!context.TryGetContext(DataKeys.ResourceObjectKey, out BaseResource focusedResource)) {
-                return;
-            }
-
-            HashSet<BaseResource> resources = new HashSet<BaseResource>(focusedResource.Manager.SelectedItems);
-            if (!focusedResource.IsSelected)
-                resources.Add(focusedResource);
-
-            ResourceLoaderDialog.TryLoadResources(resources);
-        }
-
-        private static void DisableResources(IDataContext context) {
-            if (!context.TryGetContext(DataKeys.ResourceObjectKey, out BaseResource focusedResource)) {
-                return;
-            }
-
-            HashSet<BaseResource> resources = new HashSet<BaseResource>(focusedResource.Manager.SelectedItems);
-            if (!focusedResource.IsSelected)
-                resources.Add(focusedResource);
-
-            SetHierarchyOnlineState(resources, false, null);
-        }
-
-        private static void SetHierarchyOnlineState(IEnumerable<BaseResource> resources, bool state, ResourceLoader loader) {
-            foreach (BaseResource obj in resources) {
-                if (obj is ResourceFolder folder) {
-                    SetHierarchyOnlineState(folder.Items, state, loader);
-                }
-                else {
-                    ResourceItem item = (ResourceItem)obj;
-                    if (item.IsOnline != state) {
-                        if (state) {
-                            item.TryAutoEnable(loader);
-                        }
-                        else {
-                            item.Disable(true);
-                        }
-                    }
-                }
-            }
-        }
-
-        private static void OpenTimeline(IDataContext context) {
-            if (!context.TryGetContext(DataKeys.ResourceObjectKey, out BaseResource focusedResource) || !(focusedResource is ResourceComposition composition)) {
-                return;
-            }
-
-            if (composition.Manager == null) {
-                return;
-            }
-
-            composition.Manager.Project.ActiveTimeline = composition.Timeline;
         }
     }
 }

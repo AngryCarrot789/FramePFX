@@ -12,14 +12,13 @@ using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.DataContexts;
 
 namespace FramePFX.Editors.Actions {
-    public class ConvertSelectionIntoCompositionAction : AnAction {
+    public class CreateCompositionFromSelectionAction : AnAction {
         public override bool CanExecute(AnActionEventArgs e) {
             return e.DataContext.ContainsKey(DataKeys.TimelineKey);
         }
 
         public override Task ExecuteAsync(AnActionEventArgs e) {
-            Project project;
-            if (!e.DataContext.TryGetContext(DataKeys.TimelineKey, out Timeline timeline) || (project = timeline.Project) == null || !e.DataContext.TryGetContext(DataKeys.ProjectKey, out project)) {
+            if (!e.DataContext.TryGetContext(DataKeys.TimelineKey, out Timeline timeline) || !e.DataContext.TryGetContext(DataKeys.ProjectKey, out Project project) || (project = timeline.Project) == null) {
                 return Task.CompletedTask;
             }
 
@@ -56,7 +55,7 @@ namespace FramePFX.Editors.Actions {
             foreach (Clip clip in selected) {
                 Track srcTrack = clip.Track;
                 int srcTrackIndex = srcTrack.IndexInTimeline;
-                int dstTrackIndex = srcTrackIndex + trackStart;
+                int dstTrackIndex = srcTrackIndex - trackStart;
                 Track dstTrack = tracks[dstTrackIndex];
                 if (dstTrack == null) {
                     tracks[dstTrackIndex] = dstTrack = srcTrack.Clone(new TrackCloneOptions(null));
@@ -70,9 +69,11 @@ namespace FramePFX.Editors.Actions {
 
             ResourceComposition composition = new ResourceComposition();
             project.ResourceManager.CurrentFolder.AddItem(composition);
+            composition.TryAutoEnable(null);
 
             foreach (Track track in tracks) {
-                composition.Timeline.AddTrack(track);
+                if (track != null)
+                    composition.Timeline.AddTrack(track);
             }
 
             for (int i = 1; i < oldTracks.Length; i++) {

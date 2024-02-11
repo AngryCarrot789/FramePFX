@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.ResourceManaging.ResourceHelpers;
 using FramePFX.Editors.ResourceManaging.Resources;
-using FramePFX.RBC;
 using SkiaSharp;
 
 namespace FramePFX.Editors.Timelines.Clips.Core {
@@ -55,10 +54,9 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
         public override void RenderFrame(RenderContext rc, ref SKRect renderArea) {
             try {
                 this.renderTask.Wait();
-
                 RenderManager render = this.renderResource.Timeline.RenderManager;
+                render.OnFrameCompleted();
                 render.Draw(rc.Surface);
-
                 renderArea = rc.TranslateRect(render.LastRenderRect);
             }
             catch (AggregateException e) {

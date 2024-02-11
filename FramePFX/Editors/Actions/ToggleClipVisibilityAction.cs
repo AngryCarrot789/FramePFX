@@ -2,12 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FramePFX.Actions;
-using FramePFX.Editors.Automation.Keyframes;
-using FramePFX.Editors.Controls.Automation;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Interactivity.DataContexts;
-using FramePFX.Utils;
 
 namespace FramePFX.Editors.Actions {
     public class ToggleClipVisibilityAction : AnAction {

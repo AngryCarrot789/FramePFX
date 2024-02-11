@@ -3,7 +3,6 @@ using System.Windows;
 using FramePFX.Actions;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.DataContexts;
-using FramePFX.Views;
 
 namespace FramePFX.Editors.Actions {
     public class NewProjectAction : AnAction {

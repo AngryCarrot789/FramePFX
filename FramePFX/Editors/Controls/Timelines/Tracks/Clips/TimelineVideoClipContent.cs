@@ -1,4 +1,3 @@
-using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.DataTransfer;
 using FramePFX.Editors.Timelines.Clips;
 
@@ -18,6 +17,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
         protected override void OnConnected() {
             base.OnConnected();
             base.Model.TransferableData.AddValueChangedHandler(VideoClip.IsVisibleParameter, this.OnVisibilityParameterChanged);
+            this.UpdateClipVisibility();
         }
 
         protected override void OnDisconnected() {
@@ -26,7 +26,15 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
         }
 
         private void OnVisibilityParameterChanged(DataParameter parameter, ITransferableData owner) {
-            bool value = VideoClip.IsVisibleParameter.GetValue(owner);
+            this.UpdateClipVisibility();
+        }
+
+        private void UpdateClipVisibility() {
+            if (this.Model == null) {
+                return;
+            }
+
+            bool value = VideoClip.IsVisibleParameter.GetValue(this.Model);
             if (this.IsClipVisible != value) {
                 this.IsClipVisible = value;
                 this.OnClipVisibilityChanged();

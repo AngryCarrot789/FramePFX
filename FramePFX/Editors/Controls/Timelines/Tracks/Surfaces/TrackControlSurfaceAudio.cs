@@ -1,8 +1,3 @@
-using System.Windows;
-using System.Windows.Controls.Primitives;
-using FramePFX.Editors.Controls.Automation;
-using FramePFX.Editors.Controls.Binders;
-using FramePFX.Editors.Controls.Dragger;
 using FramePFX.Editors.Timelines.Tracks;
 
 namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {

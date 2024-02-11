@@ -227,6 +227,11 @@ namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
                 this.SetResourcePath(new ResourceLink(this, id));
             }
 
+            public void ClearResourceLink() {
+                if (this.link != null)
+                    this.SetResourcePath(null);
+            }
+
             public bool TryGetResource<T>(out T resource, bool requireIsOnline = true) where T : ResourceItem {
                 if (this.link != null)
                     return this.link.TryGetResource(out resource, requireIsOnline);

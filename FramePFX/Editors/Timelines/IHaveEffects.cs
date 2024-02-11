@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using FramePFX.Editors.Timelines.Effects;
 
 namespace FramePFX.Editors.Timelines {

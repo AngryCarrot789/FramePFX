@@ -10,7 +10,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using FFmpeg.AutoGen;
-using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Logger;
 using FramePFX.Shortcuts.WPF.Converters;
 using FramePFX.Utils;

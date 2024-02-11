@@ -1,23 +1,17 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using FramePFX.Actions;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Editors.Contextual;
 
 namespace FramePFX.Editors.ResourceManaging.Actions {
     public class DeleteResourcesAction : AnAction {
         public override Task ExecuteAsync(AnActionEventArgs e) {
-            IDataContext context = e.DataContext;
-            if (!context.TryGetContext(DataKeys.ResourceObjectKey, out BaseResource resource)) {
+            if (!ResourceContextRegistry.GetTreeContext(e.DataContext, out BaseResource[] items)) {
                 return Task.CompletedTask;
             }
 
-            HashSet<BaseResource> resources = new HashSet<BaseResource>(resource.Manager.SelectedItems);
-            if (!resource.IsSelected)
-                resources.Add(resource);
-
-            foreach (BaseResource item in resources) {
-                // since it's a hash set, we might end up removing a folder containing some
-                // selected items, so parent will be null since it deletes the hierarchy
+            foreach (BaseResource item in items) {
+                // Since the tree's selected items will be unordered (hash set), we might end up removing
+                // a folder containing some selected items, so parent will be null since it deletes the hierarchy
                 if (item.Parent == null) {
                     continue;
                 }

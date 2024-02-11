@@ -42,7 +42,6 @@ namespace FramePFX.Editors.ResourceManaging {
         public event ResourceItemEventHandler OnlineStateChanged;
 
         protected ResourceItem() {
-
         }
 
         protected internal override void OnAttachedToManager() {
@@ -97,6 +96,13 @@ namespace FramePFX.Editors.ResourceManaging {
         /// will be added to the given <see cref="ResourceLoader"/> (if it is non-null).
         /// If already online, then nothing happens and true is returned
         /// </summary>
+        /// <param name="loader">
+        /// The loader in which error entries can be added to which can be used by the user to
+        /// fix this resource. May be null, in which case, errors are ignored
+        /// </param>
+        /// <returns>
+        /// True if the resource is already online or is now online, or false meaning the resource could not enable itself
+        /// </returns>
         public bool TryAutoEnable(ResourceLoader loader) {
             if (this.IsOnline) {
                 return true;

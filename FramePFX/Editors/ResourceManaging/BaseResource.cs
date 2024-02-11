@@ -52,7 +52,7 @@ namespace FramePFX.Editors.ResourceManaging {
         public event ResourceEventHandler IsSelectedChanged;
 
         protected BaseResource() {
-
+            this.displayName = "A Resource";
         }
 
         /// <summary>

@@ -156,7 +156,9 @@ namespace FramePFX.Commands {
         public virtual bool CanExecute(string id, IDataContext context, bool isUserInitiated = true) {
             ValidateId(id);
             ValidateContext(context);
-            return this.commands.TryGetValue(id, out Command command) && command != null && command.CanExecute(new CommandEventArgs(this, id, context, isUserInitiated));
+            if (!this.commands.TryGetValue(id, out Command command))
+                return false;
+            return command.CanExecute(new CommandEventArgs(this, id, context, isUserInitiated));
         }
 
         public void AddCanUpdateHandler(string id, CanExecuteChangedEventHandler handler) {

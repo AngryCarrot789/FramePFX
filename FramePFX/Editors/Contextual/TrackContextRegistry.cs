@@ -19,12 +19,12 @@ namespace FramePFX.Editors.Contextual {
                     selectedCount++;
 
                 timeline = track.Timeline;
-                list.Add(new CommandContextEntry("actions.timeline.RenameTrackAction", "Rename track"));
+                list.Add(new CommandContextEntry("commands.timeline.RenameTrackCommand", "Rename track"));
                 list.Add(new SeparatorEntry());
                 list.Add(new EventContextEntry((c) => AddClipByType(c, ClipFactory.Instance.GetId(typeof(ImageVideoClip))), "Add Image Clip"));
                 list.Add(new EventContextEntry((c) => AddClipByType(c, ClipFactory.Instance.GetId(typeof(TimecodeClip))), "Add Timecode Clip"));
                 list.Add(new SeparatorEntry());
-                list.Add(new CommandContextEntry("actions.timeline.DeleteSelectedTracks", selectedCount == 1 ? "Delete Track" : "Delete Tracks", "Delete selected tracks in this timeline"));
+                list.Add(new CommandContextEntry("commands.timeline.DeleteSelectedTracks", selectedCount == 1 ? "Delete Track" : "Delete Tracks", "Delete selected tracks in this timeline"));
             }
 
             if (timeline != null || context.TryGetContext(DataKeys.TimelineKey, out timeline)) {

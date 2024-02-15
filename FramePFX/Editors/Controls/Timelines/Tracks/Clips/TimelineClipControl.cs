@@ -21,7 +21,6 @@ using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.DataContexts;
-using FramePFX.Shortcuts.WPF;
 using FramePFX.Utils;
 using Timeline = FramePFX.Editors.Timelines.Timeline;
 
@@ -188,8 +187,11 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
         }
 
         private void UpdateClipVisibleState() {
-            this.IsClipVisible = !(this.Model is VideoClip clip) || VideoClip.IsVisibleParameter.GetValue(clip);
-            this.InvalidateVisual();
+            bool newValue = !(this.Model is VideoClip clip) || VideoClip.IsVisibleParameter.GetValue(clip);
+            if (newValue != this.IsClipVisible) {
+                this.IsClipVisible = newValue;
+                this.InvalidateVisual();
+            }
         }
 
         public void OnAdding(TimelineTrackControl trackList, Clip clip) {
@@ -201,7 +203,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                 this.UpdateClipVisibleState();
             }
 
-            UIInputManager.SetActionSystemDataContext(this, new DataContext().Set(DataKeys.ClipKey, clip));
+            DataManager.SetContextData(this, new DataContext().Set(DataKeys.ClipKey, clip));
         }
 
         public void OnAdded() {
@@ -239,7 +241,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                 this.Track.TimelineControl.ReleaseContentObject(this.Track.GetType(), content);
             }
 
-            UIInputManager.ClearActionSystemDataContext(this);
+            DataManager.ClearContextData(this);
         }
 
         public void OnRemoved() {

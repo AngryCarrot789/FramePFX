@@ -16,7 +16,6 @@ using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.DataContexts;
 using FramePFX.PropertyEditing;
-using FramePFX.Shortcuts.WPF;
 using FramePFX.Utils;
 using SkiaSharp;
 
@@ -69,13 +68,37 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
         /// </summary>
         public AutomationSequenceEditor AutomationEditor { get; private set; }
 
+        public static readonly DependencyProperty IsAutomationEditorVisibleProperty =
+            DependencyProperty.Register(
+                "IsAutomationEditorVisible",
+                typeof(bool),
+                typeof(TimelineTrackControl), new FrameworkPropertyMetadata(BoolBox.True, PropertyChangedCallback, (d, e) => ((TimelineTrackControl) d).OnCoerceAutomationVisible(e)));
+
+        private static void PropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+            if (((TimelineTrackControl) d).AutomationEditor is AutomationSequenceEditor editor)
+                editor.Visibility = (bool) e.NewValue ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private object OnCoerceAutomationVisible(object value) {
+            if (this.Track == null || DoubleUtils.AreClose(this.Track.Height, Track.MinimumHeight)) {
+                return BoolBox.False;
+            }
+            else {
+                return (bool) value ? BoolBox.True : BoolBox.False;
+            }
+        }
+
+        public bool IsAutomationEditorVisible {
+            get => (bool) this.GetValue(IsAutomationEditorVisibleProperty);
+            set => this.SetValue(IsAutomationEditorVisibleProperty, value.Box());
+        }
+
         public Track Track { get; private set; }
 
         private bool isUpdatingSelectedProperty;
         private bool isProcessingAsyncDrop;
         private MovedClip? clipBeingMoved;
-        public Visibility desiredAutomationVisibility;
-        private readonly DataContext actionSystemDataContext;
+        private readonly DataContext contextData;
 
         public TimelineTrackControl() {
             this.HorizontalAlignment = HorizontalAlignment.Stretch;
@@ -84,7 +107,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             this.UseLayoutRounding = true;
             this.AllowDrop = true;
             this.Focusable = true;
-            UIInputManager.SetActionSystemDataContext(this, this.actionSystemDataContext = new DataContext());
+            DataManager.SetContextData(this, this.contextData = new DataContext());
             AdvancedContextMenu.SetContextGenerator(this, TrackContextRegistry.Instance);
         }
 
@@ -110,7 +133,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
 
                 // update context data, used by action system and context menu system
                 if (e.ChangedButton == MouseButton.Left || e.ChangedButton == MouseButton.Right) {
-                    this.actionSystemDataContext.Set(DataKeys.TrackContextMouseFrameKey, this.GetFrameAtMousePoint(e.MouseDevice));
+                    this.contextData.Set(DataKeys.TrackContextMouseFrameKey, this.GetFrameAtMousePoint(e.MouseDevice));
                 }
 
                 if (timeline != null && timeline.HasAnySelectedTracks)
@@ -130,7 +153,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
         protected override void OnDragOver(DragEventArgs e) {
             base.OnDragOver(e);
             e.Handled = true;
-            this.actionSystemDataContext.Set(DataKeys.TrackDropFrameKey, this.GetFrameAtMousePoint(e.GetPosition(this)));
+            this.contextData.Set(DataKeys.TrackDropFrameKey, this.GetFrameAtMousePoint(e.GetPosition(this)));
             if (this.isProcessingAsyncDrop || this.Track == null) {
                 e.Effects = DragDropEffects.None;
                 return;
@@ -145,11 +168,11 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             EnumDropType outputEffects = EnumDropType.None;
             if (e.Data.GetData(ResourceDropRegistry.ResourceDropType) is List<BaseResource> resources) {
                 if (resources.Count == 1 && resources[0] is ResourceItem) {
-                    outputEffects = TrackDropRegistry.DropRegistry.CanDrop(this.Track, resources[0], inputEffects, this.actionSystemDataContext);
+                    outputEffects = TrackDropRegistry.DropRegistry.CanDrop(this.Track, resources[0], inputEffects, this.contextData);
                 }
             }
             else {
-                outputEffects = TrackDropRegistry.DropRegistry.CanDropNative(this.Track, new DataObjectWrapper(e.Data), inputEffects, this.actionSystemDataContext);
+                outputEffects = TrackDropRegistry.DropRegistry.CanDropNative(this.Track, new DataObjectWrapper(e.Data), inputEffects, this.contextData);
             }
 
             e.Effects = (DragDropEffects) outputEffects;
@@ -171,14 +194,14 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
                 this.isProcessingAsyncDrop = true;
                 if (e.Data.GetData(ResourceDropRegistry.ResourceDropType) is List<BaseResource> items) {
                     if (items.Count == 1 && items[0] is ResourceItem) {
-                        await TrackDropRegistry.DropRegistry.OnDropped(this.Track, items[0], effects, this.actionSystemDataContext);
+                        await TrackDropRegistry.DropRegistry.OnDropped(this.Track, items[0], effects, this.contextData);
                     }
                 }
                 // else if (e.Data.GetData(EffectProviderTreeViewItem.ProviderDropType) is EffectProvider provider) {
                 //     await Track.DropRegistry.OnDropped(track, provider, effects, this.GetDropDataContext(e.GetPosition(this)));
                 // }
                 else {
-                    await TrackDropRegistry.DropRegistry.OnDroppedNative(this.Track, new DataObjectWrapper(e.Data), effects, this.actionSystemDataContext);
+                    await TrackDropRegistry.DropRegistry.OnDroppedNative(this.Track, new DataObjectWrapper(e.Data), effects, this.contextData);
                 }
             }
             finally {
@@ -256,7 +279,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             track.HeightChanged += this.OnTrackHeightChanged;
             track.ColourChanged += this.OnTrackColourChanged;
             this.Track.IsSelectedChanged += this.TrackOnIsSelectedChanged;
-            this.actionSystemDataContext.Set(DataKeys.TrackKey, track);
+            this.contextData.Set(DataKeys.TrackKey, track);
         }
 
         public void OnAdded() {
@@ -277,7 +300,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             this.Track.ColourChanged -= this.OnTrackColourChanged;
             this.Track.IsSelectedChanged -= this.TrackOnIsSelectedChanged;
             this.ClipStoragePanel.ClearClipsInternal();
-            this.actionSystemDataContext.Set(DataKeys.TrackKey, null);
+            this.contextData.Set(DataKeys.TrackKey, null);
         }
 
         public void OnRemoved() {
@@ -320,7 +343,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
         }
 
         private void OnTrackHeightChanged(Track track) {
-            this.UpdateAutomationVisibility();
+            this.CoerceValue(IsAutomationEditorVisibleProperty);
             this.InvalidateMeasure();
             this.ClipStoragePanel.InvalidateMeasure();
             this.OwnerPanel?.InvalidateVisual();
@@ -340,18 +363,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
         public IEnumerable<TimelineClipControl> GetClips() => this.ClipStoragePanel.GetClips();
         public TimelineClipControl GetClipAt(int index) => this.ClipStoragePanel.GetClipAt(index);
 
-        public void SetAutomationVisibility(Visibility visibility) {
-            this.desiredAutomationVisibility = visibility;
-            this.UpdateAutomationVisibility();
-        }
-
-        public void UpdateAutomationVisibility() {
-            if (DoubleUtils.AreClose(this.Track.Height, Track.MinimumHeight)) {
-                this.AutomationEditor.Visibility = Visibility.Collapsed;
-            }
-            else {
-                this.AutomationEditor.Visibility = this.desiredAutomationVisibility;
-            }
+        public void SetAutomationVisibility(bool visibility) {
+            this.IsAutomationEditorVisible = visibility;
         }
     }
 }

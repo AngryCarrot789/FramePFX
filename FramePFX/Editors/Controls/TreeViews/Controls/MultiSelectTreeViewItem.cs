@@ -195,11 +195,8 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
 
         internal MultiSelectTreeView ParentTreeView {
             get {
-                for (ItemsControl itemsControl = this.ParentItemsControl;
-                    itemsControl != null;
-                    itemsControl = ItemsControlFromItemContainer(itemsControl)) {
-                    MultiSelectTreeView treeView = itemsControl as MultiSelectTreeView;
-                    if (treeView != null) {
+                for (ItemsControl ic = this.ParentItemsControl; ic != null; ic = ItemsControlFromItemContainer(ic)) {
+                    if (ic is MultiSelectTreeView treeView) {
                         return this.lastParentTreeView = treeView;
                     }
                 }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using FramePFX.Actions;
+using FramePFX.Commands;
 using FramePFX.Interactivity.DataContexts;
 using FramePFX.Shortcuts.Events;
 using FramePFX.Shortcuts.Inputs;
@@ -15,7 +14,7 @@ namespace FramePFX.Shortcuts.Managing {
     /// </summary>
     public abstract class ShortcutManager {
         private List<GroupedShortcut> allShortcuts;
-        private readonly Dictionary<string, LinkedList<GroupedShortcut>> actionToShortcut; // linked because there will only really be like 1 or 2 ever
+        private readonly Dictionary<string, LinkedList<GroupedShortcut>> cmdToShortcut; // linked because there will only really be like 1 or 2 ever
         private readonly Dictionary<string, GroupedShortcut> pathToShortcut;
         private readonly Dictionary<string, InputStateManager> stateGroups;
         private ShortcutGroup root;
@@ -38,7 +37,7 @@ namespace FramePFX.Shortcuts.Managing {
         /// if a previous handler was already handled. These get fired after the path-specific handlers
         /// <para>
         /// Global shortcut activation handlers are not recommended because their progress cannot be
-        /// monitored (as in, there's no identifiable information except a method handler). Use the action system instead
+        /// monitored (as in, there's no identifiable information except a method handler). Use the command system instead
         /// </para>
         /// </summary>
         public event ShortcutActivatedEventHandler ShortcutActivated {
@@ -66,7 +65,7 @@ namespace FramePFX.Shortcuts.Managing {
         public static ShortcutManager Instance { get; set; }
 
         protected ShortcutManager() {
-            this.actionToShortcut = new Dictionary<string, LinkedList<GroupedShortcut>>();
+            this.cmdToShortcut = new Dictionary<string, LinkedList<GroupedShortcut>>();
             this.pathToShortcut = new Dictionary<string, GroupedShortcut>();
             this.stateGroups = new Dictionary<string, InputStateManager>();
             this.shortcutHandlersMap = new Dictionary<string, List<ShortcutActivatedEventHandler>>();
@@ -78,7 +77,7 @@ namespace FramePFX.Shortcuts.Managing {
         /// Adds a new shortcut activation handlers, if it isn't already added
         /// <para>
         /// Global shortcut activation handlers are not recommended because their progress cannot be
-        /// monitored (as in, there's no identifiable information except a method handler). Use the action system instead
+        /// monitored (as in, there's no identifiable information except a method handler). Use the command system instead
         /// </para>
         /// </summary>
         /// <param name="path">The full shortcut path (e.g. App/MyGroup/CoolShortcut)</param>
@@ -103,7 +102,7 @@ namespace FramePFX.Shortcuts.Managing {
         /// Removes a shortcut handler for the given path, if it was added (duh)
         /// <para>
         /// Global shortcut activation handlers are not recommended because their progress cannot be
-        /// monitored (as in, there's no identifiable information except a method handler). Use the action system instead
+        /// monitored (as in, there's no identifiable information except a method handler). Use the command system instead
         /// </summary>
         /// <param name="path">The full shortcut path (e.g. App/MyGroup/CoolShortcut)</param>
         /// <param name="handler">The handler to remove</param>
@@ -124,10 +123,9 @@ namespace FramePFX.Shortcuts.Managing {
             // return this.Root.GetShortcutByPath(path);
         }
 
-        public GroupedShortcut FindFirstShortcutByAction(string actionId) {
+        public GroupedShortcut FindFirstShortcutByCommandId(string cmdId) {
             this.EnsureCacheBuilt();
-            return this.actionToShortcut.TryGetValue(actionId, out LinkedList<GroupedShortcut> list) && list.Count > 0 ? list.First.Value : null;
-            // return this.Root.FindFirstShortcutByAction(actionId);
+            return this.cmdToShortcut.TryGetValue(cmdId, out LinkedList<GroupedShortcut> list) && list.Count > 0 ? list.First.Value : null;
         }
 
         /// <summary>
@@ -145,7 +143,7 @@ namespace FramePFX.Shortcuts.Managing {
         public virtual void InvalidateShortcutCache() {
             this.allShortcuts = null;
             this.stateGroups.Clear();
-            this.actionToShortcut.Clear();
+            this.cmdToShortcut.Clear();
             this.pathToShortcut.Clear();
         }
 
@@ -160,9 +158,9 @@ namespace FramePFX.Shortcuts.Managing {
             return this.allShortcuts;
         }
 
-        public IEnumerable<GroupedShortcut> GetShortcutsByAction(string actionId) {
+        public IEnumerable<GroupedShortcut> GetShortcutsByCommandId(string cmdId) {
             this.EnsureCacheBuilt();
-            return this.actionToShortcut.TryGetValue(actionId, out LinkedList<GroupedShortcut> value) ? value : null;
+            return this.cmdToShortcut.TryGetValue(cmdId, out LinkedList<GroupedShortcut> value) ? value : null;
         }
 
         public static void GetAllShortcuts(ShortcutGroup rootGroup, ICollection<GroupedShortcut> accumulator) {
@@ -183,16 +181,16 @@ namespace FramePFX.Shortcuts.Managing {
 
         private void RebuildShortcutCache() {
             this.allShortcuts = new List<GroupedShortcut>(64);
-            this.actionToShortcut.Clear();
+            this.cmdToShortcut.Clear();
             this.pathToShortcut.Clear();
             if (this.root != null) {
                 GetAllShortcuts(this.root, this.allShortcuts);
             }
 
             foreach (GroupedShortcut shortcut in this.allShortcuts) {
-                if (!string.IsNullOrWhiteSpace(shortcut.ActionId)) {
-                    if (!this.actionToShortcut.TryGetValue(shortcut.ActionId, out LinkedList<GroupedShortcut> list)) {
-                        this.actionToShortcut[shortcut.ActionId] = list = new LinkedList<GroupedShortcut>();
+                if (!string.IsNullOrWhiteSpace(shortcut.CommandId)) {
+                    if (!this.cmdToShortcut.TryGetValue(shortcut.CommandId, out LinkedList<GroupedShortcut> list)) {
+                        this.cmdToShortcut[shortcut.CommandId] = list = new LinkedList<GroupedShortcut>();
                     }
 
                     list.AddLast(shortcut);
@@ -223,28 +221,28 @@ namespace FramePFX.Shortcuts.Managing {
         /// fire the <see cref="MonitorShortcutActivated"/> event handlers.
         /// <para>
         /// If none of the event handlers handle the activation, this method calls <see cref="OnShortcutActivatedOverride"/>
-        /// which then attempts to invoke the debug reflection handlers, action manager, etc.
+        /// which then attempts to invoke the debug reflection handlers, command manager, etc.
         /// </para>
         /// </summary>
         /// <param name="inputManager">The processor that caused this activation</param>
         /// <param name="shortcut">The shortcut that was activated</param>
-        /// <returns>A task, which contains the outcome result of the shortcut activation used by the processor's input manager</returns>
-        public async Task<bool> OnShortcutActivated(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
+        /// <returns>The outcome of the shortcut activation used by the processor's input manager</returns>
+        public bool OnShortcutActivated(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
             // Fire events first
             bool result = false;
-            IDataContext context = inputManager.CurrentDataContext;
+            IDataContext context = null;
             if (this.shortcutHandlersMap.TryGetValue(shortcut.FullPath, out List<ShortcutActivatedEventHandler> list)) {
                 foreach (ShortcutActivatedEventHandler handler in list) {
-                    result |= await handler(inputManager, shortcut, context);
+                    result |= handler(inputManager, shortcut, context ?? (context = inputManager.GetCurrentDataContext()));
                 }
             }
 
             foreach (ShortcutActivatedEventHandler handler in this.shortcutHandlersList) {
-                result |= await handler(inputManager, shortcut, context);
+                result |= handler(inputManager, shortcut, context ?? (context = inputManager.GetCurrentDataContext()));
             }
 
             // this.OnShortcutActivatedOverride is called here due to | not ||
-            return result | await this.OnShortcutActivatedOverride(inputManager, shortcut);
+            return result | this.OnShortcutActivatedOverride(inputManager, shortcut);
         }
 
         /// <summary>
@@ -252,10 +250,10 @@ namespace FramePFX.Shortcuts.Managing {
         /// </summary>
         /// <param name="inputManager">The processor that caused this activation</param>
         /// <param name="shortcut">The shortcut that was activated</param>
-        /// <returns>A task, which contains the outcome result of the shortcut activation used by the processor's input manager</returns>
-        protected virtual Task<bool> OnShortcutActivatedOverride(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
-            // Fire action manager. This is the main way of activating shortcuts
-            return ActionManager.Instance.TryExecute(shortcut.ActionId, inputManager.CurrentDataContext);
+        /// <returns>The result of the shortcut activation used by the processor's input manager</returns>
+        protected virtual bool OnShortcutActivatedOverride(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
+            // Fire command. This is the main way of activating shortcuts
+            return CommandManager.Instance.TryExecute(shortcut.CommandId, inputManager.ProvideContextInternal);
         }
 
         /// <summary>
@@ -263,9 +261,8 @@ namespace FramePFX.Shortcuts.Managing {
         /// </summary>
         /// <param name="inputManager">The processor which caused the state to be activated</param>
         /// <param name="state">The state that was activated</param>
-        /// <returns>A task to await</returns>
-        protected internal virtual Task OnInputStateActivated(ShortcutInputManager inputManager, GroupedInputState state) {
-            return Task.CompletedTask;
+        protected internal virtual void OnInputStateActivated(ShortcutInputManager inputManager, GroupedInputState state) {
+
         }
 
         /// <summary>
@@ -273,9 +270,8 @@ namespace FramePFX.Shortcuts.Managing {
         /// </summary>
         /// <param name="inputManager">The processor which caused the state to be deactivated</param>
         /// <param name="state">The state that was activated</param>
-        /// <returns>A task to await</returns>
-        protected internal virtual Task OnInputStateDeactivated(ShortcutInputManager inputManager, GroupedInputState state) {
-            return Task.CompletedTask;
+        protected internal virtual void OnInputStateDeactivated(ShortcutInputManager inputManager, GroupedInputState state) {
+
         }
 
         /// <summary>

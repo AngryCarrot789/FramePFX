@@ -135,34 +135,34 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AdvancedContextService\EventContextEntry.cs" />
-    <Compile Include="AdvancedContextService\WPF\AdvancedContextActionMenuItem.cs" />
+    <Compile Include="AdvancedContextService\WPF\AdvancedContextCommandMenuItem.cs" />
     <Compile Include="AdvancedContextService\WPF\AdvancedContextMenu.cs" />
     <Compile Include="AdvancedContextService\WPF\AdvancedContextEventMenuItem.cs" />
     <Compile Include="AdvancedContextService\WPF\AdvancedContextMenuItem.cs" />
     <Compile Include="AdvancedContextService\WPF\AdvancedContextShortcutMenuItem.cs" />
     <Compile Include="AdvancedContextService\WPF\IAdvancedMenu.cs" />
-    <Compile Include="AdvancedMenuService\WPF\AdvancedActionMenuItem.cs" />
+    <Compile Include="AdvancedMenuService\WPF\AdvancedCommandMenuItem.cs" />
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Converters\EmptyStringToVisibilityConverter.cs" />
-    <Compile Include="Editors\Actions\CreateCompositionFromSelectionAction.cs" />
-    <Compile Include="Editors\Actions\DeleteClipOwnerTrackAction.cs" />
-    <Compile Include="Editors\Actions\DeleteClipsAction.cs" />
-    <Compile Include="Editors\Actions\DeleteTracksAction.cs" />
-    <Compile Include="Editors\Actions\DuplicateClipAction.cs" />
-    <Compile Include="Editors\Actions\ExportAction.cs" />
-    <Compile Include="Editors\Actions\MoveTrackAction.cs" />
-    <Compile Include="Editors\Actions\NewProjectAction.cs" />
-    <Compile Include="Editors\Actions\NewVideoTrackAction.cs" />
-    <Compile Include="Editors\Actions\OpenCompositionResourceTimelineAction.cs" />
-    <Compile Include="Editors\Actions\OpenProjectAction.cs" />
-    <Compile Include="Editors\Actions\RenameAction.cs" />
-    <Compile Include="Editors\Actions\SaveProjectAction.cs" />
-    <Compile Include="Editors\Actions\SelectAllTracksAction.cs" />
-    <Compile Include="Editors\Actions\SliceClipsAction.cs" />
-    <Compile Include="Editors\Actions\ToggleClipAutomationAction.cs" />
-    <Compile Include="Editors\Actions\ToggleClipVisibilityAction.cs" />
-    <Compile Include="Editors\Actions\TogglePlayAction.cs" />
-    <Compile Include="Editors\Actions\ToggleTrackAutomationAction.cs" />
+    <Compile Include="Editors\Actions\CreateCompositionFromSelectionCommand.cs" />
+    <Compile Include="Editors\Actions\DeleteClipOwnerTrackCommand.cs" />
+    <Compile Include="Editors\Actions\DeleteClipsCommand.cs" />
+    <Compile Include="Editors\Actions\DeleteTracksCommand.cs" />
+    <Compile Include="Editors\Actions\DuplicateClipCommand.cs" />
+    <Compile Include="Editors\Actions\ExportCommand.cs" />
+    <Compile Include="Editors\Actions\MoveTrackCommand.cs" />
+    <Compile Include="Editors\Actions\NewProjectCommand.cs" />
+    <Compile Include="Editors\Actions\NewVideoTrackCommand.cs" />
+    <Compile Include="Editors\Actions\OpenCompositionResourceTimelineCommand.cs" />
+    <Compile Include="Editors\Actions\OpenProjectCommand.cs" />
+    <Compile Include="Editors\Actions\RenameCommands.cs" />
+    <Compile Include="Editors\Actions\SaveProjectCommand.cs" />
+    <Compile Include="Editors\Actions\SelectAllTracksCommand.cs" />
+    <Compile Include="Editors\Actions\SliceClipsCommand.cs" />
+    <Compile Include="Editors\Actions\ToggleClipAutomationCommand.cs" />
+    <Compile Include="Editors\Actions\ToggleClipVisibilityCommand.cs" />
+    <Compile Include="Editors\Actions\TogglePlayCommand.cs" />
+    <Compile Include="Editors\Actions\ToggleTrackAutomationCommand.cs" />
     <Compile Include="Editors\CompositionTimeline.cs" />
     <Compile Include="Editors\Contextual\ClipContextRegistry.cs" />
     <Compile Include="Editors\Contextual\ResourceContextRegistry.cs" />
@@ -219,9 +219,9 @@
     <Compile Include="Editors\Rendering\EnumRenderQuality.cs" />
     <Compile Include="Editors\RenderLockedData.cs" />
     <Compile Include="Editors\DisposalSync.cs" />
-    <Compile Include="Editors\ResourceManaging\Actions\ChangeResourceOnlineStateAction.cs" />
-    <Compile Include="Editors\ResourceManaging\Actions\DeleteResourcesAction.cs" />
-    <Compile Include="Editors\ResourceManaging\Actions\GroupResourcesAction.cs" />
+    <Compile Include="Editors\ResourceManaging\Actions\ChangeResourceOnlineStateCommand.cs" />
+    <Compile Include="Editors\ResourceManaging\Actions\DeleteResourcesCommand.cs" />
+    <Compile Include="Editors\ResourceManaging\Actions\GroupResourcesCommand.cs" />
     <Compile Include="Editors\ResourceManaging\Autoloading\Controls\InvalidImagePathEntryControl.cs" />
     <Compile Include="Editors\ResourceManaging\Autoloading\Controls\InvalidMediaPathEntryControl.cs" />
     <Compile Include="Editors\ResourceManaging\Autoloading\Controls\InvalidResourceEntryControl.cs" />
@@ -287,11 +287,14 @@
     <Compile Include="Interactivity\DataContexts\DataContextEntry.cs" />
     <Compile Include="Interactivity\DataContexts\DataKey.cs" />
     <Compile Include="Interactivity\DataContexts\DataKeys.cs" />
+    <Compile Include="Interactivity\DataContexts\DataManager.cs" />
     <Compile Include="Interactivity\DataContexts\EmptyContext.cs" />
     <Compile Include="Interactivity\DataContexts\IDataContext.cs" />
     <Compile Include="IoC.cs" />
     <Compile Include="IServiceManager.cs" />
     <Compile Include="Natives\PFXNative.cs" />
+    <Compile Include="Notifications\Notification.cs" />
+    <Compile Include="Notifications\NotificationManager.cs" />
     <Compile Include="Profiling\Profiler.cs" />
     <Compile Include="PropertyEditing\Automation\ParameterBooleanPropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\Automation\ParameterLongPropertyEditorSlot.cs" />
@@ -407,7 +410,7 @@
     <Compile Include="Shortcuts\WPF\ActivationHandlerReference.cs" />
     <Compile Include="Shortcuts\WPF\Bindings\InputStateBinding.cs" />
     <Compile Include="Shortcuts\WPF\Bindings\InputStateCollection.cs" />
-    <Compile Include="Shortcuts\WPF\Converters\ActionIdToGestureConverter.cs" />
+    <Compile Include="Shortcuts\WPF\Converters\CommandIdToGestureConverter.cs" />
     <Compile Include="Shortcuts\WPF\Converters\GlobalUpdateShortcutGestureConverter.cs" />
     <Compile Include="Shortcuts\WPF\Converters\KeyStrokeStringConverter.cs" />
     <Compile Include="Shortcuts\WPF\Converters\MouseStrokeStringConverter.cs" />
@@ -593,22 +596,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="Actions\ActionManager.cs" />
-    <Compile Include="Actions\ActionRegistrationAttribute.cs" />
-    <Compile Include="Actions\AnAction.cs" />
-    <Compile Include="Actions\AnActionEventArgs.cs" />
-    <Compile Include="Actions\CanExecuteChangedEventHandler.cs" />
-    <Compile Include="Actions\ToggleAction.cs" />
-    <Compile Include="AdvancedContextService\ActionCheckableContextEntry.cs" />
-    <Compile Include="AdvancedContextService\ActionContextEntry.cs" />
+    <Compile Include="Commands\CommandManager.cs" />
+    <Compile Include="Commands\Command.cs" />
+    <Compile Include="Commands\CommandEventArgs.cs" />
+    <Compile Include="Commands\CanExecuteChangedEventHandler.cs" />
+    <Compile Include="Commands\ToggleBasedCommand.cs" />
+    <Compile Include="AdvancedContextService\CommandContextEntry.cs" />
     <Compile Include="AdvancedContextService\BaseContextEntry.cs" />
     <Compile Include="AdvancedContextService\GroupContextEntry.cs" />
     <Compile Include="AdvancedContextService\IContextEntry.cs" />
     <Compile Include="AdvancedContextService\IContextGenerator.cs" />
-    <Compile Include="AdvancedContextService\IContextProvider.cs" />
     <Compile Include="AdvancedContextService\NCSP\ContextRegistry.cs" />
     <Compile Include="AdvancedContextService\SeparatorEntry.cs" />
-    <Compile Include="AdvancedContextService\ShortcutActionContextEntry.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>

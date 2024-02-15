@@ -36,4 +36,4 @@ To make a shortcut run code, there a few things you can do
 
 In WPF, you can use the `ShortcutCommandBinding` which can be added to a `ShortcutCommandCollection` associated with a dependency object
 
-You can also use the action system (which uses action IDs). This allows registered actions to be invoked at will
+You can also use the command system (which uses command IDs). This allows registered commands to be invoked at will

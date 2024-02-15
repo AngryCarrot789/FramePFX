@@ -3,45 +3,45 @@
 <KeyMap Version="1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Keymap.xsd">
     <Group Name="Application">
         <Group Name="Editor">
-            <Shortcut Name="NewProject" ActionId="actions.editor.NewProjectAction">
+            <Shortcut Name="NewProject" CommandId="commands.editor.NewProjectCommand">
                 <KeyStroke Mods="CTRL" Key="N"/>
             </Shortcut>
-            <Shortcut Name="OpenProject" ActionId="actions.editor.OpenProjectAction">
+            <Shortcut Name="OpenProject" CommandId="commands.editor.OpenProjectCommand">
                 <KeyStroke Mods="CTRL" Key="O"/>
             </Shortcut>
-            <Shortcut Name="SaveProject" ActionId="actions.editor.SaveProjectAction">
+            <Shortcut Name="SaveProject" CommandId="commands.editor.SaveProjectCommand">
                 <KeyStroke Mods="CTRL" Key="S"/>
             </Shortcut>
-            <Shortcut Name="SaveProjectAs" ActionId="actions.editor.SaveProjectAsAction">
+            <Shortcut Name="SaveProjectAs" CommandId="commands.editor.SaveProjectAsCommand">
                 <KeyStroke Mods="CTRL+SHIFT" Key="S"/>
             </Shortcut>
-            <Shortcut Name="ExportShortcut" ActionId="actions.editor.ExportAction">
+            <Shortcut Name="ExportShortcut" CommandId="commands.editor.ExportCommand">
                 <KeyStroke Mods="CTRL" Key="E"/>
             </Shortcut>
 
             <!-- TODO: implement history -->
-            <Shortcut Name="UndoShortcut" ActionId="actions.project.history.UndoAction">
+            <Shortcut Name="UndoShortcut" CommandId="commands.project.history.UndoCommand">
                 <KeyStroke Mods="CTRL" Key="Z"/>
             </Shortcut>
-            <Shortcut Name="RedoShortcut1" ActionId="actions.project.history.RedoAction">
+            <Shortcut Name="RedoShortcut1" CommandId="commands.project.history.RedoCommand">
                 <KeyStroke Mods="CTRL+SHIFT" Key="Z"/>
             </Shortcut>
-            <Shortcut Name="RedoShortcut2" ActionId="actions.project.history.RedoAction">
+            <Shortcut Name="RedoShortcut2" CommandId="commands.project.history.RedoCommand">
                 <KeyStroke Mods="CTRL" Key="Y"/>
             </Shortcut>
 
             <!-- ################################## Automation helper shortcuts #################################### -->
-            <Shortcut Name="ToggleTrackAutomationVisibility" ActionId="actions.timeline.ToggleTrackAutomationAction">
+            <Shortcut Name="ToggleTrackAutomationVisibility" CommandId="commands.timeline.ToggleTrackAutomationCommand">
                 <KeyStroke Key="T"/>
             </Shortcut>
-            <Shortcut Name="ToggleClipAutomationAction" ActionId="actions.timeline.ToggleClipAutomationAction">
+            <Shortcut Name="ToggleClipAutomation" CommandId="commands.timeline.ToggleClipAutomationCommand">
                 <KeyStroke Key="C"/>
             </Shortcut>
             <!-- ################################################################################################### -->
 
             <!-- Shortcuts for the view port panel -->
             <Group Name="ViewPort">
-                <Shortcut Name="TogglePlayPause" ActionId="actions.timeline.TogglePlayAction">
+                <Shortcut Name="TogglePlayPause" CommandId="commands.timeline.TogglePlayCommand">
                     <KeyStroke Key="Space"/>
                 </Shortcut>
             </Group>
@@ -51,16 +51,16 @@
             </Group>
             <!-- Shortcuts for the view port panel -->
             <Group Name="ResourceManager">
-                <Shortcut Name="DeleteItems" ActionId="actions.resources.DeleteResourcesAction" Description="Deletes all of the selected resources">
+                <Shortcut Name="DeleteItems" CommandId="commands.resources.DeleteResourcesCommand" Description="Deletes all of the selected resources">
                     <KeyStroke Key="Delete"/>
                 </Shortcut>
-                <Shortcut Name="GroupSelection" ActionId="actions.resources.GroupResourcesAction" Description="Groups all selected items in the explorer into a folder. Grouping items in the tree is currently unsupported">
+                <Shortcut Name="GroupSelection" CommandId="commands.resources.GroupResourcesCommand" Description="Groups all selected items in the explorer into a folder. Grouping items in the tree is currently unsupported">
                     <KeyStroke Mods="CTRL" Key="G"/>
                 </Shortcut>
-                <Shortcut Name="RenameResource1" ActionId="actions.resources.RenameResourceAction">
+                <Shortcut Name="RenameResource1" CommandId="commands.resources.RenameResourceCommand">
                     <KeyStroke Key="F2"/>
                 </Shortcut>
-                <Shortcut Name="RenameResource2" ActionId="actions.resources.RenameResourceAction">
+                <Shortcut Name="RenameResource2" CommandId="commands.resources.RenameResourceCommand">
                     <KeyStroke Mods="CTRL" Key="R"/>
                 </Shortcut>
             </Group>
@@ -70,117 +70,117 @@
                 <Group Name="Sequence">
                     <Group Name="Track">
                         <Group Name="Clip">
-                            <Shortcut Name="RenameClip1" ActionId="actions.timeline.RenameClipAction">
+                            <Shortcut Name="RenameClip1" CommandId="commands.timeline.RenameClipCommand">
                                 <KeyStroke Key="F2"/>
                             </Shortcut>
-                            <Shortcut Name="RenameClip2" ActionId="actions.timeline.RenameClipAction">
+                            <Shortcut Name="RenameClip2" CommandId="commands.timeline.RenameClipCommand">
                                 <KeyStroke Mods="CTRL" Key="R"/>
                             </Shortcut>
                         </Group>
-                        <Shortcut Name="RenameTrack1" ActionId="actions.timeline.RenameTrackAction">
+                        <Shortcut Name="RenameTrack1" CommandId="commands.timeline.RenameTrackCommand">
                             <KeyStroke Key="F2"/>
                         </Shortcut>
-                        <Shortcut Name="RenameTrack2" ActionId="actions.timeline.RenameTrackAction">
+                        <Shortcut Name="RenameTrack2" CommandId="commands.timeline.RenameTrackCommand">
                             <KeyStroke Mods="CTRL" Key="R"/>
                         </Shortcut>
                     </Group>
-                    <Shortcut Name="SelectAllClipsInTimeline" ActionId="actions.timeline.SelectAllClipsInTimelineAction">
+                    <Shortcut Name="SelectAllClipsInTimeline" CommandId="commands.timeline.SelectAllClipsInTimelineCommand">
                         <KeyStroke Mods="CTRL" Key="A"/>
                     </Shortcut>
-                    <Shortcut Name="SelectAllClipsInTrack" ActionId="actions.timeline.SelectAllClipsInTrackAction">
+                    <Shortcut Name="SelectAllClipsInTrack" CommandId="commands.timeline.SelectAllClipsInTrackCommand">
                         <KeyStroke Mods="CTRL+SHIFT" Key="A"/>
                     </Shortcut>
-                    <Shortcut Name="DeleteSelectedClips" ActionId="actions.timeline.DeleteSelectedClips" Description="Deletes all of the selected clips">
+                    <Shortcut Name="DeleteSelectedClips" CommandId="commands.timeline.DeleteSelectedClips" Description="Deletes all of the selected clips">
                         <KeyStroke Key="Delete"/>
                     </Shortcut>
-                    <Shortcut Name="MoveBack" ActionId="actions.timeline.surface.MoveBack">
+                    <Shortcut Name="MoveBack" CommandId="commands.timeline.surface.MoveBack">
                         <KeyStroke Key="Left"/>
                     </Shortcut>
-                    <Shortcut Name="MoveForward" ActionId="actions.timeline.surface.MoveForward">
+                    <Shortcut Name="MoveForward" CommandId="commands.timeline.surface.MoveForward">
                         <KeyStroke Key="Right"/>
                     </Shortcut>
-                    <Shortcut Name="ExpandEndBackwards" ActionId="actions.timeline.surface.ExpandEndBackwards">
+                    <Shortcut Name="ExpandEndBackwards" CommandId="commands.timeline.surface.ExpandEndBackwards">
                         <KeyStroke Mods="SHIFT" Key="Left"/>
                     </Shortcut>
-                    <Shortcut Name="ExpandEndForward" ActionId="actions.timeline.surface.ExpandEndForward">
+                    <Shortcut Name="ExpandEndForward" CommandId="commands.timeline.surface.ExpandEndForward">
                         <KeyStroke Mods="SHIFT" Key="Right"/>
                     </Shortcut>
-                    <Shortcut Name="ExpandBeginBack" ActionId="actions.timeline.surface.ExpandBeginBack">
+                    <Shortcut Name="ExpandBeginBack" CommandId="commands.timeline.surface.ExpandBeginBack">
                         <KeyStroke Mods="CTRL+SHIFT" Key="Left"/>
                     </Shortcut>
-                    <Shortcut Name="ExpandBeginForward" ActionId="actions.timeline.surface.ExpandBeginForward">
+                    <Shortcut Name="ExpandBeginForward" CommandId="commands.timeline.surface.ExpandBeginForward">
                         <KeyStroke Mods="CTRL+SHIFT" Key="Right"/>
                     </Shortcut>
 
-                    <Shortcut Name="PlayHeadFrameBack" ActionId="actions.timeline.FrameBack">
+                    <Shortcut Name="PlayHeadFrameBack" CommandId="commands.timeline.FrameBack">
                         <KeyStroke Mods="ALT" Key="Left"/>
                     </Shortcut>
-                    <Shortcut Name="PlayHeadFrameForward" ActionId="actions.timeline.FrameForward">
+                    <Shortcut Name="PlayHeadFrameForward" CommandId="commands.timeline.FrameForward">
                         <KeyStroke Mods="ALT" Key="Right"/>
                     </Shortcut>
 
-                    <Shortcut Name="NewTextClip" ActionId="action.create.new.clip.TextClip">
+                    <Shortcut Name="NewTextClip" CommandId="Command.create.new.clip.TextClip">
                         <KeyStroke Mods="CTRL" Key="T"/>
                     </Shortcut>
                 </Group>
 
                 <!-- Shortcuts for specifically the track control surface -->
                 <Group Name="ControlSurface">
-                    <Shortcut Name="SelectAllTracks" ActionId="actions.timeline.SelectAllTracksAction">
+                    <Shortcut Name="SelectAllTracks" CommandId="commands.timeline.SelectAllTracksCommand">
                         <KeyStroke Mods="CTRL" Key="A"/>
                     </Shortcut>
-					<Shortcut Name="DeleteSelectedTracks" ActionId="actions.timeline.DeleteSelectedTracks" Description="Deletes all of the selected tracks">
+					<Shortcut Name="DeleteSelectedTracks" CommandId="commands.timeline.DeleteSelectedTracks" Description="Deletes all of the selected tracks">
 						<KeyStroke Key="Delete"/>
 					</Shortcut>
-                    <Shortcut Name="RenameTrack1" ActionId="actions.timeline.RenameTrackAction">
+                    <Shortcut Name="RenameTrack1" CommandId="commands.timeline.RenameTrackCommand">
                         <KeyStroke Key="F2"/>
                     </Shortcut>
-                    <Shortcut Name="RenameTrack2" ActionId="actions.timeline.RenameTrackAction">
+                    <Shortcut Name="RenameTrack2" CommandId="commands.timeline.RenameTrackCommand">
                         <KeyStroke Mods="CTRL" Key="R"/>
                     </Shortcut>
                 </Group>
 
-                <Shortcut Name="NewVideoTrack" ActionId="actions.timeline.NewVideoTrack" Description="Creates a new video clip">
+                <Shortcut Name="NewVideoTrack" CommandId="commands.timeline.NewVideoTrack" Description="Creates a new video clip">
                     <KeyStroke Mods="CTRL+SHIFT" Key="Q"/>
                 </Shortcut>
 
-                <Shortcut Name="MoveSelectedTrackUp" ActionId="actions.timeline.MoveTrackUpAction">
+                <Shortcut Name="MoveSelectedTrackUp" CommandId="commands.timeline.MoveTrackUpCommand">
                     <KeyStroke Mods="CTRL" Key="NumPad8"/>
                 </Shortcut>
-                <Shortcut Name="MoveSelectedTrackDown" ActionId="actions.timeline.MoveTrackDownAction">
+                <Shortcut Name="MoveSelectedTrackDown" CommandId="commands.timeline.MoveTrackDownCommand">
                     <KeyStroke Mods="CTRL" Key="NumPad2"/>
                 </Shortcut>
-                <Shortcut Name="MoveSelectedTrackToTop" ActionId="actions.timeline.MoveTrackToTopAction">
+                <Shortcut Name="MoveSelectedTrackToTop" CommandId="commands.timeline.MoveTrackToTopCommand">
                     <KeyStroke Mods="CTRL+SHIFT" Key="NumPad8"/>
                 </Shortcut>
-                <Shortcut Name="MoveSelectedTrackToBottom" ActionId="actions.timeline.MoveTrackToBottomAction">
+                <Shortcut Name="MoveSelectedTrackToBottom" CommandId="commands.timeline.MoveTrackToBottomCommand">
                     <KeyStroke Mods="CTRL+SHIFT" Key="NumPad2"/>
                 </Shortcut>
 
-                <Shortcut Name="TogglePlay" ActionId="actions.timeline.TogglePlayAction">
+                <Shortcut Name="TogglePlay" CommandId="commands.timeline.TogglePlayCommand">
                     <KeyStroke Key="Space"/>
                 </Shortcut>
 
-                <Shortcut Name="SliceClips" ActionId="actions.timeline.SliceClipsAction" Description="Cuts the selected clip in half where the play head is. If you have no selection, then all clips over the play head are sliced">
+                <Shortcut Name="SliceClips" CommandId="commands.timeline.SliceClipsCommand" Description="Cuts the selected clip in half where the play head is. If you have no selection, then all clips over the play head are sliced">
                     <KeyStroke Key="S"/>
                 </Shortcut>
-                <Shortcut Name="DuplicateClips" ActionId="actions.timeline.DuplicateClipsAction">
+                <Shortcut Name="DuplicateClips" CommandId="commands.timeline.DuplicateClipsCommand">
                     <KeyStroke Mods="CTRL" Key="D"/>
                 </Shortcut>
-                <Shortcut Name="ToggleClipVisibility" ActionId="actions.timeline.ToggleClipVisibilityAction">
+                <Shortcut Name="ToggleClipVisibility" CommandId="commands.timeline.ToggleClipVisibilityCommand">
                     <KeyStroke Key="D0"/>
                 </Shortcut>
 
-                <Shortcut Name="AddKeyFrame" ActionId="actions.automation.AddKeyFrame" Description="Adds a new key frame at the play head at the playhead for the clip's or clip's active sequence">
+                <Shortcut Name="AddKeyFrame" CommandId="commands.automation.AddKeyFrame" Description="Adds a new key frame at the play head at the playhead for the clip's or clip's active sequence">
                     <KeyStroke Key="K"/>
                 </Shortcut>
-                <Shortcut Name="CreateCompositionFromSelection" ActionId="actions.timeline.CreateCompositionFromSelectionAction">
+                <Shortcut Name="CreateCompositionFromSelection" CommandId="commands.timeline.CreateCompositionFromSelectionCommand">
                     <KeyStroke Mods="ALT" Key="C"/>
                 </Shortcut>
-                <Shortcut Name="ToggleDragScroll" ActionId="actions.editor.timeline.ToggleAutoScrollOnClipDrag">
+                <Shortcut Name="ToggleDragScroll" CommandId="commands.editor.timeline.ToggleAutoScrollOnClipDrag">
                     <KeyStroke Mods="CTRL+SHIFT" Key="D"/>
                 </Shortcut>
-                <Shortcut Name="ToggleAutoPlaybackScroll" ActionId="actions.editor.timeline.ToggleAutoScrollDuringPlayback">
+                <Shortcut Name="ToggleAutoPlaybackScroll" CommandId="commands.editor.timeline.ToggleAutoScrollDuringPlayback">
                     <KeyStroke Mods="CTRL+SHIFT" Key="T"/>
                 </Shortcut>
             </Group>

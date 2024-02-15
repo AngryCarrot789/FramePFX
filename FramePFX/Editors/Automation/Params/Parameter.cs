@@ -202,7 +202,7 @@ namespace FramePFX.Editors.Automation.Params {
 
         public static Parameter GetParameterByKey(ParameterKey key) {
             if (!TryGetParameterByKey(key, out Parameter parameter))
-                throw new Exception("No such parameter with the key: " + key.ToString());
+                throw new Exception("No such parameter with the key: " + key);
             return parameter;
         }
 

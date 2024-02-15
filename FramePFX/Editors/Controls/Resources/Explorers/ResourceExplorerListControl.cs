@@ -299,7 +299,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
             if (!this.itemContentCacheMap.TryGetValue(resourceType, out Stack<ResourceExplorerListItemContent> stack)) {
                 this.itemContentCacheMap[resourceType] = stack = new Stack<ResourceExplorerListItemContent>();
             }
-            else if (stack.Count > MaxItemContentCacheSize) {
+            else if (stack.Count == MaxItemContentCacheSize) {
                 return false;
             }
 

@@ -15,7 +15,6 @@ using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.DataContexts;
 using FramePFX.Logger;
-using FramePFX.Shortcuts.WPF;
 using FramePFX.Utils;
 
 namespace FramePFX.Editors.Controls.Resources.Trees {
@@ -100,7 +99,7 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
 
             this.displayNameBinder.Attach(this, this.Resource);
             this.isSelectedBinder.Attach(this, this.Resource);
-            UIInputManager.SetActionSystemDataContext(this, new DataContext().Set(DataKeys.ResourceObjectKey, this.Resource));
+            DataManager.SetContextData(this, new DataContext().Set(DataKeys.ResourceObjectKey, this.Resource));
         }
 
         public void OnRemoving() {
@@ -117,7 +116,7 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
 
             this.displayNameBinder.Detatch();
             this.isSelectedBinder.Detatch();
-            UIInputManager.ClearActionSystemDataContext(this);
+            DataManager.ClearContextData(this);
         }
 
         public void OnRemoved() {
@@ -196,13 +195,10 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
 
         protected override void OnMouseDown(MouseButtonEventArgs e) {
             if (e.ChangedButton == MouseButton.Left) {
-                ResourceTreeView parent = this.ResourceTree;
-                int count = parent.SelectedItems.Count;
-                if (count < 1 || !this.IsSelected) {
-                    if (count < 1 || !KeyboardUtils.AreAnyModifiersPressed(ModifierKeys.Control)) {
-                        parent.ClearSelection();
-                        this.IsSelected = true;
-                    }
+                ResourceTreeView tree = this.ResourceTree;
+                if (tree.SelectedItems.Count < 1 || !this.IsSelected && !KeyboardUtils.AreAnyModifiersPressed(ModifierKeys.Control)) {
+                    tree.ClearSelection();
+                    this.IsSelected = true;
                 }
 
                 if (e.ClickCount > 1) {

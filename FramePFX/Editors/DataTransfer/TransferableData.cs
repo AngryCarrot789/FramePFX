@@ -43,6 +43,10 @@ namespace FramePFX.Editors.DataTransfer {
             }
         }
 
+        public bool IsValueChanging(DataParameter parameter) {
+            return this.TryGetParameterData(parameter, out ParameterData data) && data.isValueChanging;
+        }
+
         public bool IsParameterValid(DataParameter parameter) {
             return parameter.OwnerType.IsInstanceOfType(this.Owner);
         }
@@ -75,18 +79,15 @@ namespace FramePFX.Editors.DataTransfer {
             public bool isValueChanging;
             public event DataParameterValueChangedEventHandler ValueChanged;
 
-            public ParameterData() {
-            }
-
             public void OnValueChanged(DataParameter param, ITransferableData owner) {
-                this.ValueChanged?.Invoke(param, owner);
+                 this.ValueChanged?.Invoke(param, owner);
             }
         }
 
         public static void InternalBeginValueChange(DataParameter parameter, ITransferableData owner) {
             ParameterData internalData = owner.TransferableData.GetParamData(parameter);
             if (internalData.isValueChanging) {
-                throw new InvalidOperationException("Value is already changing. This would most likely result in a stack overflow exception");
+                throw new InvalidOperationException("Value is already changing. This exception is thrown as the alternative is most likely a stack overflow exception");
             }
 
             internalData.isValueChanging = true;
@@ -109,12 +110,6 @@ namespace FramePFX.Editors.DataTransfer {
             finally {
                 internalData.isValueChanging = false;
             }
-        }
-
-        public bool IsValueChanging(DataParameter parameter) {
-            if (this.TryGetParameterData(parameter, out ParameterData data))
-                return data != null && data.isValueChanging;
-            return false;
         }
     }
 }

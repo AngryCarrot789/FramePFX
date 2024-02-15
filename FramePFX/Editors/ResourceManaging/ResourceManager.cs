@@ -115,14 +115,6 @@ namespace FramePFX.Editors.ResourceManaging {
             this.RootContainer.ReadFromRBE(data.GetDictionary(nameof(this.RootContainer)));
         }
 
-        private void RegisterEntryUsingExistingOrRandomId(ResourceItem item) {
-            if (item == null)
-                throw new ArgumentNullException(nameof(item), "Item cannot be null");
-            if (item.Manager == null)
-                throw new Exception("Item does not exist in a resource tree; it cannot be registered");
-            this.RegisterEntryInternal(item.UniqueId == EmptyId ? this.GetNextId() : item.UniqueId, item);
-        }
-
         private void RegisterEntryInternal(ulong id, ResourceItem item) {
             this.uuidToItem[id] = item;
             ResourceItem.SetUniqueId(item, id);
@@ -199,23 +191,29 @@ namespace FramePFX.Editors.ResourceManaging {
             }
         }
 
-        internal static void InternalProcessResourceSelectionOnAttached(BaseResource resource) {
-            ResourceManager manager;
-            if (resource.IsSelected && (manager = resource.Manager) != null) {
-                manager.selectedItems.Add(resource);
-            }
-        }
-
-        internal static void InternalProcessResourceSelectionOnDetatched(BaseResource resource) {
+        internal static void InternalProcessResourceOnAttached(BaseResource resource, ResourceManager manager) {
             if (resource.IsSelected)
-                resource.Manager?.selectedItems.Remove(resource);
+                manager.selectedItems.Add(resource);
+            manager.Project.MarkModified();
         }
 
-        internal static void InternalOnItemAttachedToManager(ResourceItem item) {
-            item.Manager.RegisterEntryUsingExistingOrRandomId(item);
+        internal static void InternalProcessResourceOnDetatched(BaseResource resource) {
+            ResourceManager manager = resource.Manager;
+            if (manager == null)
+                throw new InvalidOperationException("Expected resource item to have a manager associated with it when it was being detatched...");
+            if (resource.IsSelected)
+                manager.selectedItems.Remove(resource);
+            manager.Project.MarkModified();
         }
 
-        internal static void InternalOnItemDetatchedFromManager(ResourceItem item) {
+        internal static void InternalOnResourceItemAttachedToManager(ResourceItem item) {
+            ResourceManager manager = item.Manager;
+            if (manager == null)
+                throw new InvalidOperationException("Expected resource item to have a manager associated with it when it was being attached...");
+            manager.RegisterEntryInternal(item.UniqueId == EmptyId ? manager.GetNextId() : item.UniqueId, item);
+        }
+
+        internal static void InternalOnResourceItemDetatchedFromManager(ResourceItem item) {
             item.Manager.UnregisterItem(item);
         }
     }

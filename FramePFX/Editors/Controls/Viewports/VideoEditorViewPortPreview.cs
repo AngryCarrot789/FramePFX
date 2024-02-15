@@ -43,6 +43,7 @@ namespace FramePFX.Editors.Controls.Viewports {
         }
 
         private Pen OutlinePen;
+        private Pen EffectiveDrawAreaOutlinePen;
 
         private Project activeProject;
 
@@ -149,6 +150,12 @@ namespace FramePFX.Editors.Controls.Viewports {
                         }
                     }
                 }
+
+                // SKRect rect = timeline.RenderManager.LastRenderRect;
+                // if (rect.Width > 0 && rect.Height > 0) {
+                //     Pen pen = this.EffectiveDrawAreaOutlinePen ?? (this.EffectiveDrawAreaOutlinePen = new Pen(Brushes.DarkRed, 2.5));
+                //     DrawRectWithPen(dc, pen, rect);
+                // }
             }
         }
 
@@ -160,6 +167,18 @@ namespace FramePFX.Editors.Controls.Viewports {
             double realH = Math.Ceiling(rect.Height + (rect.Top - realY));
             Point pos = new Point(realX - half_thickness, realY - half_thickness);
             Size size = new Size(realW + thickness, realH + thickness);
+            ctx.DrawRectangle(null, pen, new Rect(pos, size));
+        }
+
+        private static void DrawRectWithPen(DrawingContext ctx, Pen pen, SKRect rect) {
+            double realX = Math.Floor(rect.Left);
+            double realY = Math.Floor(rect.Top);
+            double realW = Math.Ceiling(rect.Width + (rect.Left - realX));
+            double realH = Math.Ceiling(rect.Height + (rect.Top - realY));
+            double thickA = pen.Thickness;
+            double thickB = thickA / 2.0;
+            Point pos = new Point(realX - thickB, realY - thickB);
+            Size size = new Size(realW + thickA, realH + thickA);
             ctx.DrawRectangle(null, pen, new Rect(pos, size));
         }
     }

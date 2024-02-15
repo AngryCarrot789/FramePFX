@@ -172,7 +172,7 @@ namespace FramePFX.Editors.ResourceManaging {
         protected static void InternalOnItemRemoved(BaseResource obj, ResourceFolder parent) {
             obj.Parent = null;
             if (obj.Manager != null) {
-                ResourceManager.InternalProcessResourceSelectionOnDetatched(obj);
+                ResourceManager.InternalProcessResourceOnDetatched(obj);
                 obj.OnDetatchedFromManager();
                 obj.Manager = null;
             }
@@ -191,11 +191,11 @@ namespace FramePFX.Editors.ResourceManaging {
 
             if (manager != null) {
                 resource.Manager = manager;
-                ResourceManager.InternalProcessResourceSelectionOnAttached(resource);
+                ResourceManager.InternalProcessResourceOnAttached(resource, manager);
                 resource.OnAttachedToManager();
             }
             else {
-                ResourceManager.InternalProcessResourceSelectionOnDetatched(resource);
+                ResourceManager.InternalProcessResourceOnDetatched(resource);
                 resource.OnDetatchedFromManager();
                 resource.Manager = null;
             }

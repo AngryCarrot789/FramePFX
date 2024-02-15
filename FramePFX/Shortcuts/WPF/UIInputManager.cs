@@ -1,10 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
-using FramePFX.Interactivity.DataContexts;
 using FramePFX.Utils;
 
 namespace FramePFX.Shortcuts.WPF {
@@ -20,19 +18,6 @@ namespace FramePFX.Shortcuts.WPF {
         public static readonly DependencyProperty CanProcessTextBoxKeyStrokeProperty = DependencyProperty.RegisterAttached("CanProcessTextBoxKeyStroke", typeof(bool), typeof(UIInputManager), new PropertyMetadata(BoolBox.False));
         public static readonly DependencyProperty CanProcessTextBoxKeyStrokeWithModifiersProperty = DependencyProperty.RegisterAttached("CanProcessTextBoxKeyStrokeWithModifiers", typeof(bool), typeof(UIInputManager), new PropertyMetadata(BoolBox.True));
         public static readonly DependencyProperty CanProcessTextBoxMouseStrokeProperty = DependencyProperty.RegisterAttached("CanProcessTextBoxMouseStroke", typeof(bool), typeof(UIInputManager), new PropertyMetadata(BoolBox.True));
-        public static readonly DependencyProperty ActionSystemDataContextProperty = DependencyProperty.RegisterAttached("ActionSystemDataContext", typeof(IDataContext), typeof(UIInputManager), new PropertyMetadata(null));
-
-        public static void SetActionSystemDataContext(DependencyObject element, IDataContext value) {
-            element.SetValue(ActionSystemDataContextProperty, value);
-        }
-
-        public static IDataContext GetActionSystemDataContext(DependencyObject element) {
-            return (IDataContext) element.GetValue(ActionSystemDataContextProperty);
-        }
-
-        public static void ClearActionSystemDataContext(DependencyObject element) {
-            element.ClearValue(ActionSystemDataContextProperty);
-        }
 
         public static event FocusedPathChangedEventHandler OnFocusedPathChanged;
 
@@ -111,7 +96,7 @@ namespace FramePFX.Shortcuts.WPF {
             if (oldPath != newPath) {
                 Instance.FocusedPath = newPath;
                 RaiseFocusGroupPathChanged(oldPath, newPath);
-                UpdateFocusGroup(obj);
+                UpdateFocusGroup(obj, newPath);
             }
         }
 
@@ -121,10 +106,15 @@ namespace FramePFX.Shortcuts.WPF {
         /// that element, and false for the last element that was focused
         /// </summary>
         /// <param name="target">Target/focused element which now has focus</param>
-        public static void UpdateFocusGroup(DependencyObject target) {
+        /// <param name="newPath"></param>
+        public static void UpdateFocusGroup(DependencyObject target, string newPath) {
             if (CurrentlyFocusedObject.TryGetTarget(out DependencyObject lastFocused)) {
                 CurrentlyFocusedObject.SetTarget(null);
                 SetIsPathFocused(lastFocused, false);
+            }
+
+            if (string.IsNullOrEmpty(newPath)) {
+                return;
             }
 
             DependencyObject root = VisualTreeUtils.FindNearestInheritedPropertyDefinition(FocusPathProperty, target);
@@ -318,34 +308,5 @@ namespace FramePFX.Shortcuts.WPF {
         }
 
         #endregion
-
-        /// <summary>
-        /// Does bottom-to-top scan of the element's visual tree, and then accumulates and merged all of the data keys
-        /// associated with each object from top to bottom, ensuring the bottom of the visual tree has the most power
-        /// over the final data context key values
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public static DataContext GetDataContext(DependencyObject obj) {
-            DataContext ctx = new DataContext();
-
-            // Scan top-down in order to allow deeper object's entries to override higher up entries
-            // 32 is a good balance between too big and too small.
-            // After some tests, property editor slots have 46 visual parents, clips have 36, tracks have 19
-            List<DependencyObject> visualTree = new List<DependencyObject>(32);
-            for (DependencyObject dp = obj; dp != null; dp = VisualTreeUtils.GetParent(dp)) {
-                visualTree.Add(dp);
-            }
-
-            for (int i = visualTree.Count - 1; i >= 0; i--) {
-                DependencyObject dp = visualTree[i];
-                object localEntry = dp.ReadLocalValue(ActionSystemDataContextProperty);
-                if (localEntry != DependencyProperty.UnsetValue && localEntry is IDataContext dpCtx) {
-                    ctx.Merge(dpCtx);
-                }
-            }
-
-            return ctx;
-        }
     }
 }

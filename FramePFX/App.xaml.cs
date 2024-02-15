@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using FFmpeg.AutoGen;
+using FramePFX.Commands;
 using FramePFX.Logger;
 using FramePFX.Shortcuts.WPF.Converters;
 using FramePFX.Utils;
@@ -68,7 +69,7 @@ namespace FramePFX {
             this.MainWindow = window;
             this.ShutdownMode = ShutdownMode.OnMainWindowClose;
             window.Editor = editor;
-            await ApplicationCore.Instance.OnEditorLoaded(editor, args.Args);
+            ApplicationCore.Instance.OnEditorLoaded(editor, args.Args);
             // this.Dispatcher.InvokeAsync(() => window.Editor = editor, DispatcherPriority.Loaded);
 
             // AudioTrack.PlaySineWave();
@@ -89,13 +90,13 @@ namespace FramePFX {
             RuntimeHelpers.RunClassConstructor(typeof(UIInputManager).TypeHandle);
 
             // This is where services are registered
-            await ApplicationCore.InternalSetupNewInstance(this.splash);
+            ApplicationCore.InternalSetupNewInstance(this.splash);
             // Most if not all services are available below here
 
             await AppLogger.Instance.FlushEntries();
-            await this.splash.SetAction("Loading shortcuts and actions...", null);
+            await this.splash.SetAction("Loading shortcuts and commands...", null);
 
-            ApplicationCore.InternalRegisterActions();
+            ApplicationCore.Instance.RegisterActions(CommandManager.Instance);
 
             // TODO: user modifiable keymap, and also save it to user documents
             // also, use version attribute to check out of date keymap, and offer to

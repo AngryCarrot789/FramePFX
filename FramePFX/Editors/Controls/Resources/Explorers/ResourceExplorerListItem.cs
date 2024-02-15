@@ -13,7 +13,6 @@ using FramePFX.Editors.Controls.Binders;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.DataContexts;
-using FramePFX.Shortcuts.WPF;
 using FramePFX.Utils;
 
 namespace FramePFX.Editors.Controls.Resources.Explorers {
@@ -122,7 +121,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
                             explorerList.SetItemSelectedProperty(this, false);
                         }
                         else {
-                            // list.MakePrimarySelection(this);
+                            explorerList.MakePrimarySelection(this);
                         }
                     }
                 }
@@ -272,11 +271,8 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
 
             ResourceExplorerListItemContent content = (ResourceExplorerListItemContent) this.Content;
             content.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-
-            // call OnConnect here so that WPF has a chance between
-            // OnAdding and OnAdded to apply the content's template
             content.Connect(this);
-            UIInputManager.SetActionSystemDataContext(this, new DataContext().Set(DataKeys.ResourceObjectKey, this.Model));
+            DataManager.SetContextData(this, new DataContext().Set(DataKeys.ResourceObjectKey, this.Model));
         }
 
         public void OnRemovingFromList() {
@@ -290,7 +286,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
             content.Disconnect();
             this.Content = null;
             this.ResourceExplorerList.ReleaseContentObject(this.Model.GetType(), content);
-            UIInputManager.ClearActionSystemDataContext(this);
+            DataManager.ClearContextData(this);
         }
 
         public void OnRemovedFromList() {

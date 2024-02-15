@@ -189,15 +189,15 @@ namespace FramePFX.Shortcuts.Managing {
             return path != null && focused != null && (inherit ? focused.StartsWith(path) : focused.Equals(path));
         }
 
-        public GroupedShortcut FindFirstShortcutByAction(string actionId) {
+        public GroupedShortcut FindFirstShortcutByCommandId(string cmdId) {
             foreach (GroupedShortcut shortcut in this.shortcuts) {
-                if (actionId.Equals(shortcut.ActionId)) {
+                if (cmdId.Equals(shortcut.CommandId)) {
                     return shortcut;
                 }
             }
 
             foreach (ShortcutGroup group in this.Groups) {
-                GroupedShortcut result = group.FindFirstShortcutByAction(actionId);
+                GroupedShortcut result = group.FindFirstShortcutByCommandId(cmdId);
                 if (result != null) {
                     return result;
                 }

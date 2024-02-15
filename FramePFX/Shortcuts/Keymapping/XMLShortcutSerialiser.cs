@@ -58,8 +58,8 @@ namespace FramePFX.Shortcuts.Keymapping {
                         break;
                 }
 
-                if (!string.IsNullOrWhiteSpace(shortcut.ActionId))
-                    shortcutElement.SetAttribute("ActionId", shortcut.ActionId);
+                if (!string.IsNullOrWhiteSpace(shortcut.CommandId))
+                    shortcutElement.SetAttribute("CommandId", shortcut.CommandId);
                 if (!string.IsNullOrWhiteSpace(shortcut.Description))
                     shortcutElement.SetAttribute("Description", shortcut.Description);
 
@@ -278,7 +278,7 @@ namespace FramePFX.Shortcuts.Keymapping {
                         GroupedShortcut managed = dst.AddShortcut(name, shortcut, GetIsGlobal(child));
                         managed.IsInherited = GetIsInherit(child);
                         managed.RepeatMode = GetRepeatMode(child);
-                        managed.ActionId = GetAttributeNullable(child, "ActionId");
+                        managed.CommandId = GetAttributeNullable(child, "CommandId");
                         managed.Description = GetDescription(child);
                         managed.DisplayName = GetDisplayName(child);
                         break;

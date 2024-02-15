@@ -42,18 +42,14 @@ namespace FramePFX.Utils {
         /// </param>
         /// <returns>The parent, or null, if there was no parent available</returns>
         public static DependencyObject GetParent(DependencyObject source, bool visualOnly = false) {
-            DependencyObject parent;
             if (source is Visual || source is Visual3D) {
-                parent = VisualTreeHelper.GetParent(source);
-                if (parent == null && !visualOnly && source is FrameworkElement)
-                    parent = ((FrameworkElement) source).Parent ?? ((FrameworkElement) source).TemplatedParent;
+                DependencyObject parent = VisualTreeHelper.GetParent(source);
+                if (parent == null && !visualOnly && source is FrameworkElement srcElem)
+                    parent = srcElem.Parent ?? srcElem.TemplatedParent;
                 return parent;
             }
-            else if (source is FrameworkContentElement) {
-                parent = ((FrameworkContentElement) source).Parent;
-                if (parent == null && !visualOnly)
-                    parent = ((FrameworkContentElement) source).TemplatedParent;
-                return parent;
+            else if (source is FrameworkContentElement srcContentElem) {
+                return srcContentElem.Parent ?? srcContentElem.TemplatedParent;
             }
             else {
                 return null;

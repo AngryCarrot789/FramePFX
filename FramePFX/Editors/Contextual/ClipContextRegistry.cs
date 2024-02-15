@@ -17,12 +17,12 @@ namespace FramePFX.Editors.Contextual {
             int selectedCount = clip.Timeline.GetSelectedClipCountWith(clip);
 
             // list.Add(new EventContextEntry(DeleteSelectedClips, selectedCount == 1 ? "Delete Clip" : "Delete Clips"));
-            list.Add(new ActionContextEntry("actions.timeline.RenameClipAction", "Rename clip"));
+            list.Add(new CommandContextEntry("actions.timeline.RenameClipAction", "Rename clip"));
             if (clip is ICompositionClip)
                 list.Add(new EventContextEntry(OpenClipTimeline, "Open Composition Timeline"));
             list.Add(new SeparatorEntry());
-            list.Add(new ActionContextEntry("actions.timeline.DeleteSelectedClips", selectedCount == 1 ? "Delete Clip" : "Delete Clips", "Delete all selected clips in this timeline"));
-            list.Add(new ActionContextEntry("actions.timeline.DeleteClipOwnerTrack", "Delete Track", "Deletes the track that this clip resides in"));
+            list.Add(new CommandContextEntry("actions.timeline.DeleteSelectedClips", selectedCount == 1 ? "Delete Clip" : "Delete Clips", "Delete all selected clips in this timeline"));
+            list.Add(new CommandContextEntry("actions.timeline.DeleteClipOwnerTrack", "Delete Track", "Deletes the track that this clip resides in"));
         }
 
         private static void OpenClipTimeline(IDataContext obj) {

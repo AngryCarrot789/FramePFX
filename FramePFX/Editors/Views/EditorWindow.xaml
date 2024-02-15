@@ -30,12 +30,12 @@
               Background="{Binding TitlebarBrush, RelativeSource={RelativeSource AncestorType={x:Type v:WindowEx}, Mode=FindAncestor}}"
               BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1">
             <MenuItem Header="File">
-                <c:AdvancedActionMenuItem Header="New Project"        ActionId="actions.editor.NewProjectAction"/>
-                <c:AdvancedActionMenuItem Header="Open Project..."    ActionId="actions.editor.OpenProjectAction"/>
-                <c:AdvancedActionMenuItem Header="Save Project"       ActionId="actions.editor.SaveProjectAction"/>
-                <c:AdvancedActionMenuItem Header="Save Project As..." ActionId="actions.editor.SaveProjectAsAction"/>
+                <c:AdvancedCommandMenuItem Header="New Project"        CommandId="actions.editor.NewProjectAction"/>
+                <c:AdvancedCommandMenuItem Header="Open Project..."    CommandId="actions.editor.OpenProjectAction"/>
+                <c:AdvancedCommandMenuItem Header="Save Project"       CommandId="actions.editor.SaveProjectAction"/>
+                <c:AdvancedCommandMenuItem Header="Save Project As..." CommandId="actions.editor.SaveProjectAsAction"/>
                 <Separator/>
-                <c:AdvancedActionMenuItem Header="Export Video" ActionId="actions.editor.ExportAction"/>
+                <c:AdvancedCommandMenuItem Header="Export Video" CommandId="actions.editor.ExportAction"/>
             </MenuItem>
             <MenuItem Header="Theme">
                 <MenuItem Header="Deep Dark" Click="SetThemeClick" Uid="0"/>

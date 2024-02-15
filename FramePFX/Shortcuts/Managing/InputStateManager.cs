@@ -28,81 +28,6 @@ namespace FramePFX.Shortcuts.Managing {
             this.Id = id;
         }
 
-        // public async Task OnInputStateTriggered(ShortcutProcessor processor, GroupedInputState state, bool isActive) {
-        //     if (state == null)
-        //         throw new ArgumentNullException(nameof(state));
-        //     if (isActive) {
-        //         // State is already activated, but the user tried to activate it again; can be ignored
-        //         if (this.activeState != null) {
-        //             if (this.activeState == state) {
-        //                 if (state.IsActive) {
-        //                     return;
-        //                 }
-        //                 else {
-        //                     throw new Exception("Expected current state to be active. It was deactivated without the manager's notice");
-        //                 }
-        //             }
-        //             else {
-        //                 GroupedInputState lastActive = this.activeState;
-        //                 this.lastState = lastActive;
-        //                 this.activeState = state;
-        //                 await lastActive.OnDeactivated();
-        //             }
-        //         }
-        //         else {
-        //             this.EnsureHasNoLastActivation();
-        //             this.activeState = state;
-        //         }
-        //
-        //         await state.OnActivated();
-        //         this.LastActivationTime = Time.GetSystemMillis();
-        //     }
-        //     else {
-        //         if (this.activeState == null) {
-        //             this.EnsureHasNoLastActivation();
-        //             if (state.IsActive)
-        //                 throw new Exception("Expected active state (being deactivated) to equal the current state");
-        //         }
-        //         else {
-        //             if (this.activeState != state) { // another state forcefully deactivated
-        //                 this.EnsureHasNoLastActivation();
-        //                 if (state.IsActive) // this means that a state was activated without the state manager being aware
-        //                     throw new Exception("Expected state (being deactivated) to equal the current state");
-        //             }
-        //             else if (state.IsActive) {
-        //                 if (this.lastState == null) {
-        //                     // no previous activation available; just disable the current one and set the last one as the state
-        //                     this.activeState = null;
-        //                     this.lastState = state;
-        //                     await state.OnDeactivated();
-        //                 }
-        //                 else if (this.LastActivationTime == -1) {
-        //                     throw new Exception("Last execution time should have been valid");
-        //                 }
-        //                 else {
-        //                     long time = Time.GetSystemMillis();
-        //                     long interval = time - this.LastActivationTime;
-        //                     await state.OnDeactivated();
-        //                     if (interval > 400) {
-        //                         // switch back to last state
-        //                         this.activeState = this.lastState;
-        //                         this.lastState = null;
-        //                         await state.OnActivated();
-        //                     }
-        //
-        //                     this.LastActivationTime = -1;
-        //                 }
-        //             }
-        //             else {
-        //                 // this shouldn't really happen; activeState should be null and line 67 should be handled
-        //                 this.activeState = null;
-        //                 this.lastState = null;
-        //                 this.LastActivationTime = 0;
-        //             }
-        //         }
-        //     }
-        // }
-
         // The input state that was active before another input state was activated
         private GroupedInputState activeInput;
         private GroupedInputState lastActiveInput;
@@ -124,21 +49,21 @@ namespace FramePFX.Shortcuts.Managing {
         /// <param name="inputManager">The processor that caused this input state to be triggered</param>
         /// <param name="state">The input state to modify</param>
         /// <param name="activate">Whether or not to activate or deactivate the state</param>
-        public async Task OnInputStateTriggered(ShortcutInputManager inputManager, GroupedInputState state, bool activate) {
+        public void OnInputStateTriggered(ShortcutInputManager inputManager, GroupedInputState state, bool activate) {
             if (activate) {
                 if (!state.IsActive) {
                     foreach (GroupedInputState inputState in this.inputStates) {
                         if (inputState.IsActive) {
-                            await inputState.OnDeactivated(inputManager);
+                            inputState.OnDeactivated(inputManager);
                         }
                     }
 
-                    await state.OnActivated(inputManager);
+                    state.OnActivated(inputManager);
                     this.lastActiveInput = state;
                 }
             }
             else if (state.IsActive) {
-                await state.OnDeactivated(inputManager);
+                state.OnDeactivated(inputManager);
             }
 
             // if (true) { // !state.IsInputPressAndRelease()

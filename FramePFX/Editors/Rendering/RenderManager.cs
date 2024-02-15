@@ -192,6 +192,7 @@ namespace FramePFX.Editors.Rendering {
                 throw;
             }
 
+            bool isFirstRenderRect = true;
             SKRect totalRenderArea = default;
             Task renderVideo = Task.Run(async () => {
                 this.CheckRenderCancelled();
@@ -207,7 +208,13 @@ namespace FramePFX.Editors.Rendering {
                     if (!tasks[i].IsCompleted)
                         await tasks[i];
                     videoTrackList[i].DrawFrameIntoSurface(this.surface, out SKRect usedRenderingArea);
-                    totalRenderArea = SKRect.Union(totalRenderArea, usedRenderingArea);
+                    if (isFirstRenderRect) {
+                        totalRenderArea = usedRenderingArea;
+                        isFirstRenderRect = false;
+                    }
+                    else {
+                        totalRenderArea = SKRect.Union(totalRenderArea, usedRenderingArea);
+                    }
                 }
 
                 this.averageVideoRenderTimeMillis = (Time.GetSystemTicks() - beginRender) / Time.TICK_PER_MILLIS_D;

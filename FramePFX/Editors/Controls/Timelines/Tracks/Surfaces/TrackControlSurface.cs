@@ -199,7 +199,6 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
                 track.Height = Track.MinimumHeight;
             }
 
-            this.OnTrackExpandedChanged();
             this.ignoreTrackHeightChanged = false;
         }
 
@@ -219,13 +218,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
                 this.ToggleExpandTrackButton.IsChecked = true;
             }
 
-            this.OnTrackExpandedChanged();
             this.ignoreExpandTrackEvent = false;
-        }
-
-        private void OnTrackExpandedChanged() {
-            TimelineTrackControl control = this.Owner.TrackList.TimelineControl.GetTimelineControlFromTrack(this.Owner.Track);
-            this.AutomationPanel.Visibility = control.desiredAutomationVisibility;
         }
 
         protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {
@@ -284,9 +277,9 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             return button;
         }
 
-        public void SetAutomationVisibility(Visibility visibility) {
+        public void SetAutomationVisibility(bool visibility) {
             if (this.AutomationPanel != null)
-                this.AutomationPanel.Visibility = visibility;
+                this.AutomationPanel.Visibility = visibility ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 

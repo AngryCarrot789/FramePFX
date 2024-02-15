@@ -16,6 +16,11 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
     /// A audio-visual media resource. This handles a cached collection of decoders
     /// </summary>
     public class ResourceAVMedia : ResourceItem {
+        public class DeocderData : IDisposable {
+            public void Dispose() {
+            }
+        }
+
         private string filePath;
         private string loadedFilePath;
 
@@ -35,10 +40,11 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
         public FrameQueue frameQueue;
         public bool hasHardwareDecoder;
 
+        // private readonly DisposalSync<DeocderData> decoderData;
+
         public event ResourceEventHandler FilePathChanged;
 
         public ResourceAVMedia() {
-
         }
 
         public override void WriteToRBE(RBEDictionary data) {

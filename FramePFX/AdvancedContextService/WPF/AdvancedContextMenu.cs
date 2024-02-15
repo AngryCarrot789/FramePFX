@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using FramePFX.Interactivity.DataContexts;
-using FramePFX.Shortcuts.WPF;
 
 namespace FramePFX.AdvancedContextService.WPF {
     public class AdvancedContextMenu : ContextMenu, IAdvancedMenu {
@@ -35,7 +34,7 @@ namespace FramePFX.AdvancedContextService.WPF {
             if (!this.itemCache.TryGetValue(entryType, out Stack<FrameworkElement> stack)) {
                 this.itemCache[entryType] = stack = new Stack<FrameworkElement>();
             }
-            else if (stack.Count > 16) {
+            else if (stack.Count == 16) {
                 return false;
             }
 
@@ -58,7 +57,7 @@ namespace FramePFX.AdvancedContextService.WPF {
             FrameworkElement element = this.PopCachedItem(entry.GetType());
             if (element == null) {
                 switch (entry) {
-                    case ActionContextEntry _: element = new AdvancedContextActionMenuItem(); break;
+                    case CommandContextEntry _: element = new AdvancedContextCommandMenuItem(); break;
                     case EventContextEntry _:  element = new AdvancedContextEventMenuItem(); break;
                     case BaseContextEntry _:   element = new AdvancedContextMenuItem(); break;
                     case SeparatorEntry _:     element = new Separator(); break;
@@ -137,7 +136,7 @@ namespace FramePFX.AdvancedContextService.WPF {
                 IContextGenerator generator = GetContextGenerator(sourceObject);
                 if (generator != null) {
                     List<IContextEntry> list = new List<IContextEntry>();
-                    DataContext context = UIInputManager.GetDataContext(targetObject);
+                    DataContext context = DataManager.GetDataContext(targetObject);
                     generator.Generate(list, context);
                     if (list.Count < 1) {
                         e.Handled = true;

@@ -46,9 +46,9 @@ namespace FramePFX.Shortcuts.Managing {
         public bool IsInherited { get; set; }
 
         /// <summary>
-        /// The ID for an optional action that this shortcut will trigger when activated
+        /// The ID for an optional command that this shortcut will trigger when activated
         /// </summary>
-        public string ActionId { get; set; }
+        public string CommandId { get; set; }
 
         /// <summary>
         /// This shortcut's full path (the parent's path if it's not the root object, and this shortcut's name). Will not be null and will always containing valid characters

@@ -27,7 +27,7 @@ namespace FramePFX.Shortcuts.WPF.Converters {
             }
 
             // This could probably go in the guinness world records
-            header = shortcut.DisplayName ?? shortcut.Name ?? shortcut.FullPath ?? shortcut.ActionId ?? fallback ?? shortcut.Shortcut.ToString();
+            header = shortcut.DisplayName ?? shortcut.Name ?? shortcut.FullPath ?? shortcut.CommandId ?? fallback ?? shortcut.Shortcut.ToString();
             return true;
         }
     }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using FramePFX.Interactivity.DataContexts;
 using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Managing;
 using FramePFX.Shortcuts.WPF.Bindings;
@@ -21,6 +22,8 @@ namespace FramePFX.Shortcuts.WPF {
         /// The dependency object that was focused at the time of the input stroke
         /// </summary>
         public DependencyObject CurrentSource { get; private set; }
+
+        private DataContext lazyCurrentDataContext;
 
         public WPFShortcutInputManager(WPFShortcutManager manager) : base(manager) {
             this.inputBindingStateMap = new Dictionary<string, List<InputStateBinding>>();
@@ -48,44 +51,42 @@ namespace FramePFX.Shortcuts.WPF {
             }
         }
 
-        // Using async void here could possibly be dangerous if the awaited processor method (e.g. OnMouseStroke) halts
-        // for a while due to a dialog for example. However... the methods should only really be callable when the window
-        // is actually focused. But if the "root" event source is not a window then it could possibly be a problem
-        // IsProcessingMouse and IsProcessingKey should prevent this issue
+        private void ClearCurrentContext() {
+            this.lazyCurrentDataContext = null;
+            this.CurrentSource = null;
+        }
 
-        public async void OnInputSourceMouseDown(Window root, DependencyObject focused, MouseButtonEventArgs e) {
+        public void OnInputSourceMouseDown(Window root, DependencyObject focused, MouseButtonEventArgs e) {
             try {
                 this.isProcessingMouse = true;
                 this.SetupContext(focused);
                 MouseStroke stroke = new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, false, e.ClickCount);
-                if (await this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke)) {
+                if (this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke)) {
                     e.Handled = true;
                 }
             }
             finally {
                 this.isProcessingMouse = false;
-                this.CurrentDataContext = null;
-                this.CurrentSource = null;
+                this.ClearCurrentContext();
             }
         }
 
-        public async void OnInputSourceMouseUp(Window root, DependencyObject focused, MouseButtonEventArgs e) {
+        public void OnInputSourceMouseUp(Window root, DependencyObject focused, MouseButtonEventArgs e) {
             try {
                 this.isProcessingMouse = true;
                 this.SetupContext(focused);
                 MouseStroke stroke = new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, false, e.ClickCount);
-                if (await this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke)) {
+                if (this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke)) {
                     e.Handled = true;
                 }
             }
             finally {
                 this.isProcessingMouse = false;
-                this.CurrentDataContext = null;
-                this.CurrentSource = null;
+                this.ClearCurrentContext();
             }
         }
 
-        public async void OnInputSourceMouseWheel(Window sender, DependencyObject focused, MouseWheelEventArgs e) {
+        public void OnInputSourceMouseWheel(Window sender, DependencyObject focused, MouseWheelEventArgs e) {
             int button;
             if (e.Delta < 0) {
                 button = WPFShortcutManager.BUTTON_WHEEL_DOWN;
@@ -101,14 +102,13 @@ namespace FramePFX.Shortcuts.WPF {
                 this.isProcessingMouse = true;
                 this.SetupContext(focused);
                 MouseStroke stroke = new MouseStroke(button, (int) Keyboard.Modifiers, false, 0, e.Delta);
-                if (await this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke)) {
+                if (this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke)) {
                     e.Handled = true;
                 }
             }
             finally {
                 this.isProcessingMouse = false;
-                this.CurrentDataContext = null;
-                this.CurrentSource = null;
+                this.ClearCurrentContext();
             }
         }
 
@@ -125,7 +125,7 @@ namespace FramePFX.Shortcuts.WPF {
             return false;
         }
 
-        public async void OnInputSourceKeyEvent(Window root, WPFShortcutInputManager processor, DependencyObject focused, KeyEventArgs e, Key key, bool isRelease, bool isPreviewEvent) {
+        public void OnInputSourceKeyEvent(Window root, WPFShortcutInputManager processor, DependencyObject focused, KeyEventArgs e, Key key, bool isRelease, bool isPreviewEvent) {
             if (!CanProcessEventType(focused, isPreviewEvent) || !CanProcessKeyEvent(focused, e)) {
                 return;
             }
@@ -135,43 +135,51 @@ namespace FramePFX.Shortcuts.WPF {
                 this.SetupContext(focused);
                 ModifierKeys mods = ShortcutUtils.IsModifierKey(key) ? ModifierKeys.None : e.KeyboardDevice.Modifiers;
                 KeyStroke stroke = new KeyStroke((int) key, (int) mods, isRelease);
-                if (await processor.OnKeyStroke(UIInputManager.Instance.FocusedPath, stroke, e.IsRepeat)) {
+                if (processor.OnKeyStroke(UIInputManager.Instance.FocusedPath, stroke, e.IsRepeat)) {
                     e.Handled = true;
                 }
             }
             finally {
-                this.CurrentDataContext = null;
-                this.CurrentSource = null;
+                this.ClearCurrentContext();
                 this.isProcessingKey = false;
             }
         }
 
         public void SetupContext(DependencyObject obj) {
-            this.CurrentDataContext = UIInputManager.GetDataContext(obj);
             this.CurrentSource = obj;
         }
 
-        protected override async Task ProcessInputStates() {
+        public override IDataContext GetCurrentDataContext() {
+            if (this.lazyCurrentDataContext == null) {
+                if (this.CurrentSource == null)
+                    return null;
+                this.lazyCurrentDataContext = DataManager.GetDataContext(this.CurrentSource);
+            }
+
+            return this.lazyCurrentDataContext;
+        }
+
+        protected override void ProcessInputStates() {
             try {
                 if (this.CurrentSource != null) {
                     InputStateCollection.GetInputStateBindingHierarchy(this.CurrentSource, this.inputBindingStateMap);
                 }
 
-                await base.ProcessInputStates();
+                base.ProcessInputStates();
             }
             finally {
                 this.inputBindingStateMap.Clear();
             }
         }
 
-        protected internal override async Task OnInputStateActivated(GroupedInputState state) {
-            await base.OnInputStateActivated(state);
-            await this.ProcessTriggerState(state.FullPath, true);
+        protected internal override void OnInputStateActivated(GroupedInputState state) {
+            base.OnInputStateActivated(state);
+            this.ProcessTriggerState(state.FullPath, true);
         }
 
-        protected internal override async Task OnInputStateDeactivated(GroupedInputState state) {
-            await base.OnInputStateDeactivated(state);
-            await this.ProcessTriggerState(state.FullPath, false);
+        protected internal override void OnInputStateDeactivated(GroupedInputState state) {
+            base.OnInputStateDeactivated(state);
+            this.ProcessTriggerState(state.FullPath, false);
         }
 
         private Task ProcessTriggerState(string path, bool isActive) {

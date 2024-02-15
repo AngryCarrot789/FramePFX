@@ -14,7 +14,7 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
     public class SelectionMultiple : ISelectionStrategy {
         private readonly MultiSelectTreeView treeView;
         private BorderSelectionLogic borderSelectionLogic;
-        private object lastShiftRoot;
+        private MultiSelectTreeViewItem lastShiftRoot;
 
         public SelectionMultiple(MultiSelectTreeView treeView) {
             this.treeView = treeView;
@@ -47,8 +47,7 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
                 }
             }
             else {
-                if (this.treeView.SelectedItems.Count == 1 &&
-                    this.treeView.SelectedItems[0] == item) {
+                if (this.treeView.SelectedItems.Count == 1 && this.treeView.SelectedItems[0] == item) {
                     // Requested to select the single already-selected item. Don't change the selection.
                     FocusHelper.Focus(item, true);
                     this.lastShiftRoot = item;
@@ -61,21 +60,20 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
         }
 
         public bool SelectCore(MultiSelectTreeViewItem item) {
+            IList selection = this.treeView.SelectedItems;
             if (IsControlKeyDown) {
-                if (!this.treeView.SelectedItems.Contains(item)) {
-                    this.treeView.SelectedItems.Add(item);
+                if (!selection.Contains(item)) {
+                    selection.Add(item);
                 }
 
                 this.lastShiftRoot = item;
             }
-            else if (IsShiftKeyDown && this.treeView.SelectedItems.Count > 0) {
-                object firstSelectedItem = this.lastShiftRoot ?? this.treeView.SelectedItems.First();
-                MultiSelectTreeViewItem shiftRootItem = this.treeView.GetTreeViewItemsFor(new List<object> {firstSelectedItem}).First();
-
-                List<MultiSelectTreeViewItem> newSelection = this.treeView.GetNodesToSelectBetween(shiftRootItem, item).Select(n => n).ToList();
+            else if (IsShiftKeyDown && selection.Count > 0) {
+                MultiSelectTreeViewItem firstSelectedItem = (MultiSelectTreeViewItem) (this.lastShiftRoot ?? selection.First());
+                List<MultiSelectTreeViewItem> newSelection = this.treeView.GetNodesToSelectBetween(firstSelectedItem, item).Select(n => n).ToList();
                 // Make a copy of the list because we're modifying it while enumerating it
-                object[] selectedItems = new object[this.treeView.SelectedItems.Count];
-                this.treeView.SelectedItems.CopyTo(selectedItems, 0);
+                object[] selectedItems = new object[selection.Count];
+                selection.CopyTo(selectedItems, 0);
                 // Remove all items no longer selected
                 foreach (object selItem in selectedItems.Where(i => !newSelection.Contains(i))) {
                     PreviewSelectionChangedEventArgs e = new PreviewSelectionChangedEventArgs(false, selItem);
@@ -86,12 +84,12 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
                     }
 
                     if (!e.CancelThis) {
-                        this.treeView.SelectedItems.Remove(selItem);
+                        selection.Remove(selItem);
                     }
                 }
 
                 // Add new selected items
-                foreach (object newItem in newSelection.Where(i => !selectedItems.Contains(i))) {
+                foreach (MultiSelectTreeViewItem newItem in newSelection.Where(i => !selectedItems.Contains(i))) {
                     PreviewSelectionChangedEventArgs e = new PreviewSelectionChangedEventArgs(true, newItem);
                     this.OnPreviewSelectionChanged(e);
                     if (e.CancelAll) {
@@ -100,13 +98,13 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
                     }
 
                     if (!e.CancelThis) {
-                        this.treeView.SelectedItems.Add(newItem);
+                        selection.Add(newItem);
                     }
                 }
             }
             else {
-                if (this.treeView.SelectedItems.Count > 0) {
-                    foreach (object selItem in new ArrayList(this.treeView.SelectedItems)) {
+                if (selection.Count > 0) {
+                    foreach (MultiSelectTreeViewItem selItem in new ArrayList(selection)) {
                         PreviewSelectionChangedEventArgs e2 = new PreviewSelectionChangedEventArgs(false, selItem);
                         this.OnPreviewSelectionChanged(e2);
                         if (e2.CancelAll) {
@@ -116,7 +114,7 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
                         }
 
                         if (!e2.CancelThis) {
-                            this.treeView.SelectedItems.Remove(selItem);
+                            selection.Remove(selItem);
                         }
                     }
                 }
@@ -129,7 +127,7 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
                     return false;
                 }
 
-                this.treeView.SelectedItems.Add(item);
+                selection.Add(item);
                 this.lastShiftRoot = item;
             }
 
@@ -169,25 +167,25 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
 
         public bool SelectNextFromKey() {
             List<MultiSelectTreeViewItem> items = MultiSelectTreeView.GetEntireTreeRecursive(this.treeView, false, false);
-            MultiSelectTreeViewItem item = this.treeView.GetNextItem(this.GetFocusedItem(), items);
+            MultiSelectTreeViewItem item = MultiSelectTreeView.GetNextItem(this.GetFocusedItem(), items);
             return this.SelectFromKey(item);
         }
 
         public bool SelectPreviousFromKey() {
             List<MultiSelectTreeViewItem> items = MultiSelectTreeView.GetEntireTreeRecursive(this.treeView, false, false);
-            MultiSelectTreeViewItem item = this.treeView.GetPreviousItem(this.GetFocusedItem(), items);
+            MultiSelectTreeViewItem item = MultiSelectTreeView.GetPreviousItem(this.GetFocusedItem(), items);
             return this.SelectFromKey(item);
         }
 
         public bool SelectFirstFromKey() {
             List<MultiSelectTreeViewItem> items = MultiSelectTreeView.GetEntireTreeRecursive(this.treeView, false, false);
-            MultiSelectTreeViewItem item = this.treeView.GetFirstItem(items);
+            MultiSelectTreeViewItem item = MultiSelectTreeView.GetFirstItem(items);
             return this.SelectFromKey(item);
         }
 
         public bool SelectLastFromKey() {
             List<MultiSelectTreeViewItem> items = MultiSelectTreeView.GetEntireTreeRecursive(this.treeView, false, false);
-            MultiSelectTreeViewItem item = this.treeView.GetLastItem(items);
+            MultiSelectTreeViewItem item = MultiSelectTreeView.GetLastItem(items);
             return this.SelectFromKey(item);
         }
 
@@ -323,7 +321,7 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
                 offset = -offset;
             targetY += offset;
             while (true) {
-                MultiSelectTreeViewItem newItem = down ? this.treeView.GetNextItem(item, items) : this.treeView.GetPreviousItem(item, items);
+                MultiSelectTreeViewItem newItem = down ? MultiSelectTreeView.GetNextItem(item, items) : MultiSelectTreeView.GetPreviousItem(item, items);
                 if (newItem == null)
                     break;
                 item = newItem;

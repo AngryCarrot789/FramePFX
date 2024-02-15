@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using FramePFX.Editors.Views;
@@ -110,19 +109,10 @@ namespace FramePFX.Shortcuts.WPF {
             }
         }
 
-        protected override async Task<bool> OnShortcutActivatedOverride(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
-            bool result;
-            Task<bool> task = base.OnShortcutActivatedOverride(inputManager, shortcut);
-            if (task.IsCompleted) {
-                result = task.Result;
-                BroadcastShortcutActivity($"Activated shortcut action: {shortcut} -> {shortcut.ActionId}!");
-            }
-            else {
-                BroadcastShortcutActivity($"Activating shortcut action: {shortcut} -> {shortcut.ActionId}...");
-                result = await task;
-                BroadcastShortcutActivity($"Activating shortcut action: {shortcut} -> {shortcut.ActionId}... Complete!");
-            }
-
+        protected override bool OnShortcutActivatedOverride(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
+            BroadcastShortcutActivity($"Activating shortcut command: {shortcut} -> {shortcut.CommandId}...");
+            bool result = base.OnShortcutActivatedOverride(inputManager, shortcut);
+            BroadcastShortcutActivity($"Activated shortcut command: {shortcut} -> {shortcut.CommandId}!");
             return result;
         }
 

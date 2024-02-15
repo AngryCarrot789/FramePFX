@@ -19,7 +19,6 @@ using FramePFX.Interactivity;
 using FramePFX.Interactivity.DataContexts;
 using FramePFX.Logger;
 using FramePFX.PropertyEditing;
-using FramePFX.Shortcuts.WPF;
 using FramePFX.Utils;
 using SkiaSharp;
 using Track = FramePFX.Editors.Timelines.Tracks.Track;
@@ -62,9 +61,9 @@ namespace FramePFX.Editors.Controls.Timelines {
         public ToggleButton ToggleClipAutomationButton { get; private set; }
         public ToggleButton ToggleTrackAutomationButton { get; private set; }
 
-        public Visibility TrackAutomationVisibility { get; private set; }
+        public bool IsTrackAutomationVisibility { get; private set; }
 
-        public Visibility ClipAutomationVisibility { get; private set; }
+        public bool IsClipAutomationVisibility { get; private set; }
 
         private readonly List<Button> timelineActionButtons;
         private readonly Dictionary<Type, Stack<TimelineClipContent>> itemContentCacheMap;
@@ -277,7 +276,7 @@ namespace FramePFX.Editors.Controls.Timelines {
                 this.isUpdatingClipAutomationButton = false;
             }
 
-            this.ClipAutomationVisibility = state ? Visibility.Visible : Visibility.Collapsed;
+            this.IsClipAutomationVisibility = state;
             foreach (TimelineTrackControl track in this.TrackStorage.GetTracks()) {
                 foreach (TimelineClipControl clip in track.GetClips()) {
                     this.UpdateClipAutomationVisibility(clip);
@@ -298,7 +297,7 @@ namespace FramePFX.Editors.Controls.Timelines {
                 this.isUpdatingTrackAutomationButton = false;
             }
 
-            this.TrackAutomationVisibility = state ? Visibility.Visible : Visibility.Collapsed;
+            this.IsTrackAutomationVisibility = state;
             foreach (TimelineTrackControl track in this.TrackStorage.GetTracks()) {
                 this.UpdateTrackAutomationVisibility(track);
             }
@@ -309,18 +308,18 @@ namespace FramePFX.Editors.Controls.Timelines {
         }
 
         public void UpdateTrackAutomationVisibility(TimelineTrackControl control) {
-            control.SetAutomationVisibility(this.TrackAutomationVisibility);
+            control.SetAutomationVisibility(this.IsTrackAutomationVisibility);
         }
 
         public void UpdateTrackAutomationVisibility(TrackControlSurfaceListBoxItem control) {
             if (control.Content is TrackControlSurface surface) {
-                surface.SetAutomationVisibility(this.TrackAutomationVisibility);
+                surface.SetAutomationVisibility(this.IsTrackAutomationVisibility);
             }
         }
 
         public void UpdateClipAutomationVisibility(TimelineClipControl control) {
             if (control.AutomationEditor != null) {
-                control.AutomationEditor.Visibility = this.ClipAutomationVisibility;
+                control.AutomationEditor.Visibility = this.IsClipAutomationVisibility ? Visibility.Visible : Visibility.Collapsed;
             }
         }
 
@@ -341,7 +340,7 @@ namespace FramePFX.Editors.Controls.Timelines {
                 oldTimeline.TrackRemoved -= this.OnTimelineTrackEvent;
                 oldTimeline.Project.Editor.ShowClipAutomationChanged -= this.OnShowClipAutomationChanged;
                 oldTimeline.Project.Editor.ShowTrackAutomationChanged -= this.OnShowTrackAutomationChanged;
-                this.ClearValue(UIInputManager.ActionSystemDataContextProperty);
+                this.ClearValue(DataManager.ContextDataProperty);
             }
 
             this.TrackStorage.Timeline = newTimeline;
@@ -359,7 +358,7 @@ namespace FramePFX.Editors.Controls.Timelines {
                 if (this.Ruler != null)
                     this.Ruler.MaxValue = newTimeline.MaxDuration;
                 this.UpdateBorderThicknesses(newTimeline);
-                this.SetValue(UIInputManager.ActionSystemDataContextProperty, new DataContext().Set(DataKeys.TimelineKey, newTimeline));
+                this.SetValue(DataManager.ContextDataProperty, new DataContext().Set(DataKeys.TimelineKey, newTimeline));
             }
 
             bool canExecute = newTimeline != null;
@@ -508,7 +507,7 @@ namespace FramePFX.Editors.Controls.Timelines {
             if (!this.itemContentCacheMap.TryGetValue(trackType, out Stack<TimelineClipContent> stack)) {
                 this.itemContentCacheMap[trackType] = stack = new Stack<TimelineClipContent>();
             }
-            else if (stack.Count > 4) {
+            else if (stack.Count == 4) {
                 return false;
             }
 

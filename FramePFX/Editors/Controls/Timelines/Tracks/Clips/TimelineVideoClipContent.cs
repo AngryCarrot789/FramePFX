@@ -30,14 +30,13 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
         }
 
         private void UpdateClipVisibility() {
-            if (this.Model == null) {
-                return;
-            }
-
-            bool value = VideoClip.IsVisibleParameter.GetValue(this.Model);
-            if (this.IsClipVisible != value) {
-                this.IsClipVisible = value;
-                this.OnClipVisibilityChanged();
+            VideoClip clip = this.Model;
+            if (clip != null) {
+                bool value = VideoClip.IsVisibleParameter.GetValue(clip);
+                if (this.IsClipVisible != value) {
+                    this.IsClipVisible = value;
+                    this.OnClipVisibilityChanged();
+                }
             }
         }
 

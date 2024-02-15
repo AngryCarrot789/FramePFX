@@ -11,7 +11,6 @@ using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.Timelines;
 using FramePFX.Interactivity.DataContexts;
 using FramePFX.PropertyEditing;
-using FramePFX.Shortcuts.WPF;
 using FramePFX.Themes;
 using FramePFX.Utils;
 using FramePFX.Views;
@@ -28,16 +27,16 @@ namespace FramePFX.Editors.Views {
             set => this.SetValue(EditorProperty, value);
         }
 
-        private readonly DataContext actionSystemDataContext;
+        private readonly DataContext contextData;
 
         private readonly NumberAverager renderTimeAverager;
 
         public EditorWindow() {
             this.renderTimeAverager = new NumberAverager(5); // average 5 samples. Will take a second to catch up at 5 fps but meh
-            this.actionSystemDataContext = new DataContext();
+            this.contextData = new DataContext();
             this.InitializeComponent();
             this.Loaded += this.EditorWindow_Loaded;
-            UIInputManager.SetActionSystemDataContext(this, this.actionSystemDataContext);
+            DataManager.SetContextData(this, this.contextData);
         }
 
         // static EditorWindow() {
@@ -108,9 +107,9 @@ namespace FramePFX.Editors.Views {
                 this.PART_ViewPort.VideoEditor = newEditor;
             }
 
-            this.actionSystemDataContext.Set(DataKeys.VideoEditorKey, newEditor);
+            this.contextData.Set(DataKeys.VideoEditorKey, newEditor);
             Project project = newEditor?.Project;
-            this.actionSystemDataContext.Set(DataKeys.ProjectKey, project);
+            this.contextData.Set(DataKeys.ProjectKey, project);
             if (project != null) {
                 this.OnProjectChanged(null, project);
             }
@@ -137,7 +136,7 @@ namespace FramePFX.Editors.Views {
 
         private void OnEditorProjectChanged(VideoEditor editor, Project oldProject, Project newProject) {
             this.OnProjectChanged(oldProject, newProject);
-            this.actionSystemDataContext.Set(DataKeys.ProjectKey, newProject);
+            this.contextData.Set(DataKeys.ProjectKey, newProject);
         }
 
         private void OnProjectChanged(Project oldProject, Project newProject) {

@@ -6,7 +6,6 @@ using System.Windows.Controls;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.DataContexts;
-using FramePFX.Shortcuts.WPF;
 
 namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
     /// <summary>
@@ -59,7 +58,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
                     this.RemoveTrackInternal(i);
                 }
 
-                UIInputManager.ClearActionSystemDataContext(this);
+                DataManager.ClearContextData(this);
             }
 
             if (newTimeline != null) {
@@ -72,7 +71,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
                     this.InsertTrackInternal(track, i++);
                 }
 
-                UIInputManager.SetActionSystemDataContext(this, new DataContext().Set(DataKeys.TimelineKey, newTimeline));
+                DataManager.SetContextData(this, new DataContext().Set(DataKeys.TimelineKey, newTimeline));
             }
         }
 
@@ -130,7 +129,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             if (!this.itemContentCacheMap.TryGetValue(trackType, out Stack<TrackControlSurface> stack)) {
                 this.itemContentCacheMap[trackType] = stack = new Stack<TrackControlSurface>();
             }
-            else if (stack.Count > 4) {
+            else if (stack.Count == 4) {
                 return false;
             }
 

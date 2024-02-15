@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using FramePFX.Shortcuts.Inputs;
 
 namespace FramePFX.Shortcuts.Managing {
@@ -100,13 +99,13 @@ namespace FramePFX.Shortcuts.Managing {
         /// </summary>
         /// <param name="shortcutProcessor"></param>
         /// <returns>A task to await for activation</returns>
-        public Task OnActivated(ShortcutInputManager inputManager) {
+        public void OnActivated(ShortcutInputManager inputManager) {
             if (this.IsActive) {
                 throw new Exception("Already active; cannot activate again");
             }
 
             this.IsActive = true;
-            return inputManager.OnInputStateActivated(this);
+            inputManager.OnInputStateActivated(this);
         }
 
         /// <summary>
@@ -114,13 +113,13 @@ namespace FramePFX.Shortcuts.Managing {
         /// </summary>
         /// <param name="shortcutProcessor"></param>
         /// <returns>A task to await for activation</returns>
-        public Task OnDeactivated(ShortcutInputManager inputManager) {
+        public void OnDeactivated(ShortcutInputManager inputManager) {
             if (!this.IsActive) {
                 throw new Exception("Not active; cannot deactivate again");
             }
 
             this.IsActive = false;
-            return inputManager.OnInputStateDeactivated(this);
+            inputManager.OnInputStateDeactivated(this);
         }
 
         public override string ToString() {

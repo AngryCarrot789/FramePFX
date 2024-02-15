@@ -83,7 +83,12 @@ namespace FramePFX.Editors.Contextual {
                 return false;
             }
 
-            return !resource.IsSelected || resource.Manager.SelectedItems.Count == 1;
+            ResourceFolder folder = resource.Manager.CurrentFolder;
+            if (!folder.Contains(resource)) {
+                folder = resource.Parent;
+            }
+
+            return !resource.IsSelected || folder.Items.Count(x => x.IsSelected) == 1;
         }
 
         /// <summary>
@@ -118,22 +123,22 @@ namespace FramePFX.Editors.Contextual {
 
             if (selection.Length == 1) {
                 BaseResource resource = selection[0];
-                list.Add(new ActionContextEntry("actions.resources.RenameResourceAction", "Rename"));
-                list.Add(new ActionContextEntry("actions.resources.GroupResourcesAction", "Add to new folder", "Adds this item to a new folder"));
+                list.Add(new CommandContextEntry("actions.resources.RenameResourceAction", "Rename"));
+                list.Add(new CommandContextEntry("actions.resources.GroupResourcesAction", "Add to new folder", "Adds this item to a new folder"));
 
                 if (resource is ResourceItem item) {
                     list.Add(new SeparatorEntry());
                     if (item.IsOnline) {
-                        list.Add(new ActionContextEntry("actions.resources.DisableResourcesAction", "Set Offline"));
+                        list.Add(new CommandContextEntry("actions.resources.DisableResourcesAction", "Set Offline"));
                     }
                     else {
-                        list.Add(new ActionContextEntry("actions.resources.EnableResourcesAction", "Set Online"));
+                        list.Add(new CommandContextEntry("actions.resources.EnableResourcesAction", "Set Online"));
                     }
 
                     switch (resource) {
                         case ResourceComposition _:
                             list.Add(new SeparatorEntry());
-                            list.Add(new ActionContextEntry("actions.resources.OpenCompositionResourceTimelineAction", "Open Timeline"));
+                            list.Add(new CommandContextEntry("actions.resources.OpenCompositionResourceTimelineAction", "Open Timeline"));
                             break;
                         case ResourceImage _:
                             list.Add(new SeparatorEntry());
@@ -143,15 +148,15 @@ namespace FramePFX.Editors.Contextual {
                 }
 
                 list.Add(new SeparatorEntry());
-                list.Add(new ActionContextEntry("actions.resources.DeleteResourcesAction", "Delete Resource"));
+                list.Add(new CommandContextEntry("actions.resources.DeleteResourcesAction", "Delete Resource"));
             }
             else {
-                list.Add(new ActionContextEntry("actions.resources.GroupResourcesAction", "Group items into folder", "Groups all selected items in the explorer into a folder. Grouping items in the tree is currently unsupported"));
+                list.Add(new CommandContextEntry("actions.resources.GroupResourcesAction", "Group items into folder", "Groups all selected items in the explorer into a folder. Grouping items in the tree is currently unsupported"));
                 list.Add(new SeparatorEntry());
-                list.Add(new ActionContextEntry("actions.resources.EnableResourcesAction", "Set All Online"));
-                list.Add(new ActionContextEntry("actions.resources.DisableResourcesAction", "Set All Offline"));
+                list.Add(new CommandContextEntry("actions.resources.EnableResourcesAction", "Set All Online"));
+                list.Add(new CommandContextEntry("actions.resources.DisableResourcesAction", "Set All Offline"));
                 list.Add(new SeparatorEntry());
-                list.Add(new ActionContextEntry("actions.resources.DeleteResourcesAction", "Delete Resources"));
+                list.Add(new CommandContextEntry("actions.resources.DeleteResourcesAction", "Delete Resources"));
             }
         }
 

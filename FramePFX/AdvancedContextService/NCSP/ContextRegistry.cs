@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using FramePFX.Actions;
+using FramePFX.Commands;
 using FramePFX.Interactivity.DataContexts;
 using FramePFX.Utils.Collections;
 
@@ -52,8 +52,8 @@ namespace FramePFX.AdvancedContextService.NCSP {
             for (int i = 0, endIndex = list.Count - 1; i <= endIndex; i++) {
                 TypeRegistration reg = list[i];
                 foreach (IContextEntry entry in reg.actions) {
-                    if (entry is ActionContextEntry ace) {
-                        if (string.IsNullOrWhiteSpace(ace.ActionId) || (checkCanExecute && !ActionManager.Instance.CanExecute(ace.ActionId, ctx, true))) {
+                    if (entry is CommandContextEntry ace) {
+                        if (string.IsNullOrWhiteSpace(ace.CommandId) || (checkCanExecute && !CommandManager.Instance.CanExecute(ace.CommandId, ctx, true))) {
                             continue;
                         }
                     }

@@ -65,25 +65,27 @@ same shape colour, etc.
 
 To drag videos, images, etc., into the editor: drag and drop the file to the top left "resource manager panel", and then drag one of those items into the timeline
 
-# Action system, shortcut system and context menus
-I created a system that is inspired from IntelliJ IDEA's action system, where you have a single action manager which contains all of the actions. You access actions
-via a string key (simplest type of key to use), and then execute the action by passing in a 'data context' object (`IDataContext`). The data context maps data key objects 
-to the actual object. These objects are set by UI components, and when an action is going to be executed, the visual tree is traversed from the target element to the root 
+# Command system, shortcut system and context menus
+I created a system that is inspired from IntelliJ IDEA's action system, where you have a single command manager which contains all of the commands. You access commands
+via a string key (simplest type of key to use), and then execute the command by passing in a 'data context' object (`IDataContext`). The data context maps data key objects 
+to the actual object. These objects are set by UI components, and when a command is going to be executed, the visual tree is traversed from the target element to the root 
 element, and then all available data keys are merged from top to bottom (allowing bottom-level elements to override top level ones... not that they'd want to but still)
 
 This means that when you for example press F2 or CTRL+R while focused on a clip, there's a lot of data keys between the root window and the clip UI object, and so
-in the rename action, you have access to all of them; the editor, project, timeline, track and clip. Whereas if you just have the window focused and press a shortcut, you 
-may only have the editor and project available. It's context sensitive
+in the rename command, you have access to all of them; the editor, project, timeline, track and clip. Whereas if you just have the window focused and press a shortcut, you 
+may only have the editor and project available; It's context sensitive, duh
 
 The shortcut system listens to inputs at an application level instead of receiving input from a specific window (however, a window can only really process shortcuts if it
 has a focus path associated with it, which can be set via the `UIInputManager.FocusPath` attached property). To save the details, the shortcut system figures out a list of shortcuts
 to "activate" based on the current global focus path. Keymap.xml contains the shortcuts (and some unused ones from the old app version)
 
 Context menus use the `AdvancedContextMenu` class. Context menu items are generated on demand each time the context menu is open, which isn't the most performant option
-but it's pretty quick for now (much quicker now than before when I used binding and ItemsSource). I try to only use the `ActionContextEntry` (which maps to a `AdvancedActionMenuItem`) 
-menu item which invokes an action but I sometimes use a `EventContextEntry` because it's much easier to use, but less portable as shortcuts can't activate/invoke them
+but it's pretty quick for now (much quicker now than before when I used binding and ItemsSource). I try to only use the `CommandContextEntry` (which maps to a `AdvancedCommandMenuItem`) 
+menu item which invokes a command but I sometimes use a `EventContextEntry` because it's much easier to use, but less portable as shortcuts can't activate/invoke them
 
-I'm not using any of WPF's built in input system to execute actions (such as commands and InputBinding) as it's not flexible enough; you can't change the key maps, at least not easily
+I'm not using any of WPF's built in input system to execute commands (such as ICommand and InputBinding) as it's not flexible enough (you can't change the key maps, at least not easily).
+This command system is also unrelated to the ICommand interface provided with C#, however they follow similar patterns (CanExecute/Execute) except CanExecute is rarely called before Execute 
+in this system, so a registered command must check the objects' states before acting upon them (which you usually didn't do with ICommand)
 
 # TODO
 ### Audio

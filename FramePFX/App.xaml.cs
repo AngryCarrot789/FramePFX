@@ -3,6 +3,7 @@ using FramePFX.Editors;
 using FramePFX.Shortcuts.Managing;
 using FramePFX.Shortcuts.WPF;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -70,9 +71,6 @@ namespace FramePFX {
             this.ShutdownMode = ShutdownMode.OnMainWindowClose;
             window.Editor = editor;
             ApplicationCore.Instance.OnEditorLoaded(editor, args.Args);
-            // this.Dispatcher.InvokeAsync(() => window.Editor = editor, DispatcherPriority.Loaded);
-
-            // AudioTrack.PlaySineWave();
         }
 
         protected override void OnExit(ExitEventArgs e) {

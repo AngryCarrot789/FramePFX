@@ -9,7 +9,7 @@ namespace FramePFX.Editors.DataTransfer {
     /// which is why it is important that the setter methods of the data properties are not called directly
     /// </summary>
     public class TransferableData {
-        private readonly SortedList<DataParameter, ParameterData> sequences;
+        private Dictionary<int, ParameterData> sequences;
 
         public ITransferableData Owner { get; }
 
@@ -20,7 +20,6 @@ namespace FramePFX.Editors.DataTransfer {
 
         public TransferableData(ITransferableData owner) {
             this.Owner = owner ?? throw new ArgumentNullException(nameof(owner));
-            this.sequences = new SortedList<DataParameter, ParameterData>();
         }
 
         /// <summary>
@@ -59,20 +58,26 @@ namespace FramePFX.Editors.DataTransfer {
         private bool TryGetParameterData(DataParameter parameter, out ParameterData data) {
             if (parameter == null)
                 throw new ArgumentNullException(nameof(parameter), "Parameter cannot be null");
-            if (this.sequences.TryGetValue(parameter, out data))
+            if (this.sequences != null && this.sequences.TryGetValue(parameter.GlobalIndex, out data))
                 return true;
             this.ValidateParameter(parameter);
+            data = null;
             return false;
         }
 
         private ParameterData GetParamData(DataParameter parameter) {
             if (parameter == null)
                 throw new ArgumentNullException(nameof(parameter), "Parameter cannot be null");
-            if (this.sequences.TryGetValue(parameter, out ParameterData data))
+            
+            ParameterData data;
+            if (this.sequences == null)
+                this.sequences = new Dictionary<int, ParameterData>();
+            else if (this.sequences.TryGetValue(parameter.GlobalIndex, out data))
                 return data;
             this.ValidateParameter(parameter);
-            this.sequences[parameter] = data = new ParameterData();
+            this.sequences[parameter.GlobalIndex] = data = new ParameterData();
             return data;
+
         }
 
         private class ParameterData {

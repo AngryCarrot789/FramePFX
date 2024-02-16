@@ -218,7 +218,6 @@
     <Compile Include="Editors\Rational.cs" />
     <Compile Include="Editors\Rendering\EnumRenderQuality.cs" />
     <Compile Include="Editors\RenderLockedData.cs" />
-    <Compile Include="Editors\DisposalSync.cs" />
     <Compile Include="Editors\ResourceManaging\Actions\ChangeResourceOnlineStateCommand.cs" />
     <Compile Include="Editors\ResourceManaging\Actions\DeleteResourcesCommand.cs" />
     <Compile Include="Editors\ResourceManaging\Actions\GroupResourcesCommand.cs" />
@@ -438,7 +437,6 @@
     <Compile Include="Themes\Generator\ThemeGenerator.cs" />
     <Compile Include="Themes\ThemeController.cs" />
     <Compile Include="Themes\ThemeType.cs" />
-    <Compile Include="Utils\AdvancedDisposable.cs" />
     <Compile Include="Utils\Arrays.cs" />
     <Compile Include="Utils\AsyncLock.cs" />
     <Compile Include="Utils\AudioUtils.cs" />
@@ -462,7 +460,7 @@
     <Compile Include="Utils\CursorUtils.cs" />
     <Compile Include="Utils\DispatcherCallback.cs" />
     <Compile Include="Utils\DispatcherUtils.cs" />
-    <Compile Include="Utils\DisposalException.cs" />
+    <Compile Include="Utils\DisposableRef.cs" />
     <Compile Include="Utils\DoubleUtils.cs" />
     <Compile Include="Utils\DynamicCodeConverter.cs" />
     <Compile Include="Utils\EfficientObservableCollection.cs" />
@@ -478,7 +476,6 @@
     <Compile Include="Utils\Filters.cs" />
     <Compile Include="Utils\HandlerList.cs" />
     <Compile Include="Utils\Helper.cs" />
-    <Compile Include="Utils\IDisposableEx.cs" />
     <Compile Include="Utils\InheritedProperty.cs" />
     <Compile Include="Utils\IntRect.cs" />
     <Compile Include="Utils\IRenameTarget.cs" />
@@ -517,7 +514,6 @@
     <Compile Include="Utils\TextPointerUtils.cs" />
     <Compile Include="Utils\TextRange.cs" />
     <Compile Include="Utils\TextUtils.cs" />
-    <Compile Include="Utils\ThreadSafeDP.cs" />
     <Compile Include="Utils\ThreadTimer.cs" />
     <Compile Include="Utils\Time.cs" />
     <Compile Include="Utils\Tristate.cs" />

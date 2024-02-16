@@ -26,6 +26,7 @@ namespace FramePFX.Editors.Controls.Timelines.Playheads {
 
             if (newTimeline != null) {
                 newTimeline.ZoomTimeline += this.OnTimelineZoomed;
+                this.SetPixelFromFrameAndZoom(this.GetFrame(newTimeline), newTimeline.Zoom);
             }
         }
 

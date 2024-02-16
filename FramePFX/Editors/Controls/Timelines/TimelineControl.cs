@@ -340,7 +340,7 @@ namespace FramePFX.Editors.Controls.Timelines {
                 oldTimeline.TrackRemoved -= this.OnTimelineTrackEvent;
                 oldTimeline.Project.Editor.ShowClipAutomationChanged -= this.OnShowClipAutomationChanged;
                 oldTimeline.Project.Editor.ShowTrackAutomationChanged -= this.OnShowTrackAutomationChanged;
-                this.ClearValue(DataManager.ContextDataProperty);
+                DataManager.ClearContextData(this);
             }
 
             this.TrackStorage.Timeline = newTimeline;
@@ -358,7 +358,7 @@ namespace FramePFX.Editors.Controls.Timelines {
                 if (this.Ruler != null)
                     this.Ruler.MaxValue = newTimeline.MaxDuration;
                 this.UpdateBorderThicknesses(newTimeline);
-                this.SetValue(DataManager.ContextDataProperty, new DataContext().Set(DataKeys.TimelineKey, newTimeline));
+                DataManager.SetContextData(this, new DataContext().Set(DataKeys.TimelineKey, newTimeline));
             }
 
             bool canExecute = newTimeline != null;

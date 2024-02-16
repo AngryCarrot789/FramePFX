@@ -50,7 +50,7 @@ namespace FramePFX.Editors.DataTransfer {
                 error = e;
             }
             finally {
-                this.OnEndValueChangedHelper(owner, ref error);
+                this.OnEndValueChangeHelper(owner, ref error);
             }
         }
 
@@ -68,16 +68,7 @@ namespace FramePFX.Editors.DataTransfer {
                 error = e;
             }
             finally {
-                this.OnEndValueChangedHelper(owner, ref error);
-            }
-        }
-
-        protected void OnEndValueChangedHelper(ITransferableData owner, ref Exception e) {
-            try {
-                this.OnEndValueChange(owner);
-            }
-            catch (Exception exception) {
-                e = e != null ? new AggregateException("An exception occurred while updating the value and finalizing the transaction", e, exception) : exception;
+                this.OnEndValueChangeHelper(owner, ref error);
             }
         }
     }

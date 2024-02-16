@@ -23,6 +23,7 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
         public IResourcePathKey<ResourceAVMedia> ResourceAVMediaKey { get; }
 
         public AVMediaVideoClip() {
+            this.IsMediaFrameSensitive = true;
             this.UsesCustomOpacityCalculation = true;
             this.ResourceAVMediaKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceAVMedia>();
             this.ResourceAVMediaKey.ResourceChanged += this.OnResourceChanged;

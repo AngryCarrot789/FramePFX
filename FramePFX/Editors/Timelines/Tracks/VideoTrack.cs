@@ -6,6 +6,7 @@ using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Effects;
 using FramePFX.Editors.Utils;
+using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editors.Timelines.Tracks {
@@ -78,14 +79,14 @@ namespace FramePFX.Editors.Timelines.Tracks {
         }
 
         // rendering data
-        private readonly DisposalSync<TrackRenderData> myRenderDataLock;
+        private readonly DisposableRef<TrackRenderData> myRenderDataLock;
         private VideoClip theClipToRender;
         private List<VideoEffect> theEffectsToApplyToClip;
         private List<VideoEffect> theEffectsToApplyToTrack;
         private double renderOpacity;
 
         public VideoTrack() {
-            this.myRenderDataLock = new DisposalSync<TrackRenderData>(new TrackRenderData());
+            this.myRenderDataLock = new DisposableRef<TrackRenderData>(new TrackRenderData(), true);
             this.Opacity = OpacityParameter.Descriptor.DefaultValue;
             this.Visible = VisibleParameter.Descriptor.DefaultValue;
             this.MediaPosition = MediaPositionParameter.Descriptor.DefaultValue;
@@ -139,11 +140,10 @@ namespace FramePFX.Editors.Timelines.Tracks {
 
         // CALLED ON A RENDER THREAD
         public void RenderVideoFrame(SKImageInfo imgInfo, EnumRenderQuality quality) {
-            DisposalSync<TrackRenderData> locker = this.myRenderDataLock;
-            TrackRenderData rd;
-            lock (locker.DisposeLock) {
-                rd = locker.Value;
-                if (!locker.OnRenderBegin() || rd.surfaceInfo != imgInfo) {
+            DisposableRef<TrackRenderData> locker = this.myRenderDataLock;
+            TrackRenderData rd = locker.Value;
+            lock (locker) {
+                if (!locker.TryBeginUsage() || rd.surfaceInfo != imgInfo) {
                     rd.Dispose();
                     rd.surface?.Dispose();
                     rd.bitmap?.Dispose();
@@ -155,7 +155,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
                     int rowBytes = imgInfo.RowBytes;
                     rd.pixmap = new SKPixmap(imgInfo, ptr, rowBytes);
                     rd.surface = SKSurface.Create(rd.pixmap.Info, ptr, rowBytes, null, null, new SKSurfaceProperties(SKPixelGeometry.BgrHorizontal));
-                    locker.OnResetAndRenderBegin();
+                    locker.ResetAndBeginUsage();
                 }
             }
 
@@ -214,56 +214,56 @@ namespace FramePFX.Editors.Timelines.Tracks {
                 //     rd.surface.Canvas.DrawRect(rd.renderArea, paint1);
             }
 
-            locker.OnRenderFinished();
+            locker.CompleteUsage();
         }
 
         public void DrawFrameIntoSurface(SKSurface dstSurface, out SKRect usedRenderingArea) {
-            DisposalSync<TrackRenderData> rdw = this.myRenderDataLock;
-            lock (rdw.DisposeLock) {
-                TrackRenderData rd = rdw.Value;
-                if (rd.surface == null || !rdw.OnRenderBegin()) {
+            DisposableRef<TrackRenderData> rdw = this.myRenderDataLock;
+            TrackRenderData rd = rdw.Value;
+            lock (rdw) {
+                if (!rdw.TryBeginUsage()) {
                     usedRenderingArea = default;
                     return;
                 }
-
-                SKRect frameRect = rd.surfaceInfo.ToRect();
-                SKRect usedArea = rd.renderArea.ClampMinMax(frameRect);
-                if (usedArea.Width > 0 && usedArea.Height > 0) {
-                    using (SKPaint paint = new SKPaint {Color = new SKColor(255, 255, 255, RenderUtils.DoubleToByte255(this.renderOpacity))}) {
-                        if (usedArea == frameRect) {
-                            // clip rendered to the whole frame or did not use optimisations, therefore
-                            // skia's surface draw might be generally faster... maybe?
-                            rd.surface.Draw(dstSurface.Canvas, 0, 0, paint);
-                        }
-                        else {
-                            // clip only drew to a part of the screen, so only draw that part
-
-                            // While this works, having to create an image to wrap it isn't great...
-                            // using (SKImage img = SKImage.FromBitmap(rd.bitmap)) {
-                            //     dstSurface.Canvas.DrawImage(img, usedArea, usedArea, paint);
-                            // }
-
-                            // This does the exact same as above; creates an image and draws it :/
-                            // dstSurface.Canvas.DrawBitmap(rd.bitmap, usedArea, usedArea, paint);
-
-                            // Now this fucking works beautufilly!!!!!!!!!!!!!!!!
-                            using (SKImage img = SKImage.FromPixels(rd.surfaceInfo, rd.bitmap.GetPixels())) {
-                                dstSurface.Canvas.DrawImage(img, usedArea, usedArea, paint);
-                            }
-
-                            // Just as slow as drawing the entire surface
-                            // dstSurface.Canvas.DrawSurface(rd.surface, new SKPoint(rdA.Left, rdA.Top));
-                        }
-
-                        usedRenderingArea = usedArea;
-                    }
-                }
-                else {
-                    usedRenderingArea = default;
-                }
-
-                rdw.OnRenderFinished();
             }
+
+            SKRect frameRect = rd.surfaceInfo.ToRect();
+            SKRect usedArea = rd.renderArea.ClampMinMax(frameRect);
+            if (usedArea.Width > 0 && usedArea.Height > 0) {
+                using (SKPaint paint = new SKPaint {Color = new SKColor(255, 255, 255, RenderUtils.DoubleToByte255(this.renderOpacity))}) {
+                    if (usedArea == frameRect) {
+                        // clip rendered to the whole frame or did not use optimisations, therefore
+                        // skia's surface draw might be generally faster... maybe?
+                        rd.surface.Draw(dstSurface.Canvas, 0, 0, paint);
+                    }
+                    else {
+                        // clip only drew to a part of the screen, so only draw that part
+
+                        // While this works, having to create an image to wrap it isn't great...
+                        // using (SKImage img = SKImage.FromBitmap(rd.bitmap)) {
+                        //     dstSurface.Canvas.DrawImage(img, usedArea, usedArea, paint);
+                        // }
+
+                        // This does the exact same as above; creates an image and draws it :/
+                        // dstSurface.Canvas.DrawBitmap(rd.bitmap, usedArea, usedArea, paint);
+
+                        // Now this fucking works beautufilly!!!!!!!!!!!!!!!!
+                        using (SKImage img = SKImage.FromPixels(rd.surfaceInfo, rd.bitmap.GetPixels())) {
+                            dstSurface.Canvas.DrawImage(img, usedArea, usedArea, paint);
+                        }
+
+                        // Just as slow as drawing the entire surface
+                        // dstSurface.Canvas.DrawSurface(rd.surface, new SKPoint(rdA.Left, rdA.Top));
+                    }
+
+                    usedRenderingArea = usedArea;
+                }
+            }
+            else {
+                usedRenderingArea = default;
+            }
+
+            rdw.CompleteUsage();
         }
 
         public override bool IsClipTypeAccepted(Type type) => typeof(VideoClip).IsAssignableFrom(type);

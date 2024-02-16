@@ -320,7 +320,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             this.Focus();
             this.clickPos = e.GetPosition(this);
             this.clickPosAbs = this.PointToScreen(this.clickPos);
-            this.SetDragState(DragState.Initiated);
+            if (this.GetPartForPoint(this.clickPos) > ClipPart.Body)
+                this.SetDragState(DragState.Initiated);
             if (!this.IsMouseCaptured) {
                 this.CaptureMouse();
             }
@@ -435,7 +436,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             }
 
             DragState lastDragState = this.dragState;
-            if (this.dragState == DragState.Initiated && !this.hasMadeExceptionalSelectionInMouseDown) {
+            if (this.dragState != DragState.Initiated && !this.hasMadeExceptionalSelectionInMouseDown) {
                 this.Track.OwnerPanel.SetPlayHeadToMouseCursor(e.MouseDevice);
             }
 
@@ -610,7 +611,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                             FrameSpan newSpan = FrameSpan.FromIndex(newBegin, oldSpan.EndIndex);
                             ctrl.Timeline.TryExpandForFrame(newSpan.EndIndex);
                             this.SetClipSpanForDrag(newSpan);
-                            this.Model.MediaFrameOffset += (oldSpan.Begin - newSpan.Begin);
+                            if (this.Model.IsMediaFrameSensitive)
+                                this.Model.MediaFrameOffset += (oldSpan.Begin - newSpan.Begin);
                         }
                     }
                     else {

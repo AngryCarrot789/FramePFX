@@ -324,38 +324,25 @@ namespace FramePFX.Editors.Rendering {
         /// Draws the currently rendered frame into the given surface
         /// </summary>
         /// <param name="target">The surface in which our rendered frame is drawn into</param>
-        public void Draw(SKSurface target) {
+        /// <param name="paint">The paint used for drawing, e.g., for adding opacity</param>
+        public void Draw(SKSurface target, SKPaint paint = null) {
             SKRect usedArea = this.LastRenderRect;
             if (!(usedArea.Width > 0) || !(usedArea.Height > 0)) {
                 return;
             }
 
             this.surface.Flush();
-            // this.surface.Draw(target.Canvas, 0, 0, null);
 
             // this is the same code that VideoTrack uses for efficient final frame assembly
             SKRect frameRect = this.ImageInfo.ToRect();
             if (usedArea == frameRect) {
-                this.surface.Draw(target.Canvas, 0, 0, null);
+                this.surface.Draw(target.Canvas, 0, 0, paint);
             }
             else {
                 using (SKImage img = SKImage.FromPixels(this.ImageInfo, this.bitmap.GetPixels())) {
-                    target.Canvas.DrawImage(img, usedArea, usedArea);
+                    target.Canvas.DrawImage(img, usedArea, usedArea, paint);
                 }
             }
-
-            // SKImageInfo imgInfo = this.ImageInfo;
-            // IntPtr srcPtr = this.bitmap.GetPixels();
-            // IntPtr dstPtr = target.PeekPixels().GetPixels();
-            // if (srcPtr != IntPtr.Zero && dstPtr != IntPtr.Zero) {
-            //     unsafe {
-            //         System.Runtime.CompilerServices.Unsafe.CopyBlock(dstPtr.ToPointer(), srcPtr.ToPointer(), (uint) imgInfo.BytesSize64);
-            //     }
-            // }
-
-            // using (SKImage img = SKImage.FromBitmap(this.bitmap)) {
-            //     target.Canvas.DrawImage(img, 0, 0, null);
-            // }
         }
 
         public SuspendRender SuspendRenderInvalidation() {

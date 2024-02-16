@@ -74,6 +74,9 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// This is changed when a clip's left grip is dragged. This is negative when the media starts before the clip
         /// starts, and is positive when the media begins after the clip starts.
         /// <para>
+        /// This value is only modified by the UI drag actions when <see cref="IsMediaFrameSensitive"/> is true
+        /// </para>
+        /// <para>
         /// When dragging the left grip, it is calculated as: <code>MediaFrameOffset += (oldSpan.Begin - newSpan.Begin)</code>
         /// </para>
         /// </summary>
@@ -112,6 +115,12 @@ namespace FramePFX.Editors.Timelines.Clips {
                 this.IsSelectedChanged?.Invoke(this);
             }
         }
+
+        /// <summary>
+        /// Gets or sets a value which indicates that this clip is sensitive to the <see cref="MediaFrameOffset"/> value. False by default,
+        /// meaning <see cref="MediaFrameOffset"/> is ignored by this clip. True for things like audio clips and AVMedia clips
+        /// </summary>
+        public bool IsMediaFrameSensitive { get; protected set; }
 
         /// <summary>
         /// Stores the sequence that this clip's automation sequence editor is using. This is only really used for the UI

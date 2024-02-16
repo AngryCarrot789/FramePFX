@@ -35,7 +35,7 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
             }
         }
 
-        private readonly DisposalSync<LockedFontData> fontData;
+        private readonly DisposableRef<LockedFontData> fontData;
 
         private TimeSpan render_StartTime;
         private TimeSpan render_EndTime;
@@ -60,7 +60,7 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
 
         public TimecodeClip() {
             this.UsesCustomOpacityCalculation = true;
-            this.fontData = new DisposalSync<LockedFontData>(new LockedFontData());
+            this.fontData = new DisposableRef<LockedFontData>(new LockedFontData(), true);
             this.FontSize = FontSizeParameter.Descriptor.DefaultValue;
             this.UseClipStartTime = UseClipStartTimeParameter.DefaultValue;
             this.UseClipEndTime = UseClipEndTimeParameter.DefaultValue;
@@ -129,62 +129,16 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
         }
 
         public override void RenderFrame(RenderContext rc, ref SKRect renderArea) {
-            LockedFontData fd = this.fontData.Value;
-            lock (this.fontData.DisposeLock) {
-                if (!this.fontData.OnRenderBegin() || fd.cachedFont == null || fd.cachedTypeFace == null) {
-                    fd.cachedTypeFace = this.fontFamily != null ? SKTypeface.FromFamilyName(this.fontFamily) : SKTypeface.CreateDefault();
-                    fd.cachedFont = new SKFont(fd.cachedTypeFace, (float) this.renderFontSize);
-                    this.fontData.OnResetAndRenderBegin();
-                }
-            }
-
-            // 446x59 for oxanium
-
-            // using (SKPaint paint = new SKPaint() {IsAntialias = true, Color = SKColors.White}) {
-            //     string text = this.GetCurrentTimeString();
-            //     using (SKTextBlob blob = SKTextBlob.Create(text, fd.cachedFont)) {
-            //         rc.Canvas.DrawText(blob, -blob.Bounds.Left, -blob.Bounds.Top, paint);
-            //     }
-            // }
+            this.fontData.BeginUsage(this, (clip, data) => {
+                data.cachedTypeFace = clip.fontFamily != null ? SKTypeface.FromFamilyName(clip.fontFamily) : SKTypeface.CreateDefault();
+                data.cachedFont = new SKFont(data.cachedTypeFace, (float) clip.renderFontSize);
+            });
 
             string text = this.GetCurrentTimeString();
-            // using (SKPaint paint = new SKPaint() { IsAntialias = true, Color = SKColors.White }) {
-            //     using (SKTextBlob blob = SKTextBlob.Create(text, fd.cachedFont)) {
-            //         fd.cachedFont.GetFontMetrics(out SKFontMetrics metrics);
-            //         float y = -blob.Bounds.Top - metrics.Descent;
-            //         renderArea = new SKRect(0, 0, blob.Bounds.Right, blob.Bounds.Height);
-            //         using (SKPaint p2 = new SKPaint() {Color = SKColors.Cyan}) {
-            //             rc.Canvas.DrawRect(renderArea, p2);
-            //         }
-            //         rc.Canvas.DrawText(blob, 0, y, paint);
-            //     }
-            // }
-
+            LockedFontData fd = this.fontData.Value;
             using (SKPaint paint = new SKPaint() { IsAntialias = true, Color = SKColors.White.WithAlpha(this.RenderOpacityByte) }) {
                 using (SKTextBlob blob = SKTextBlob.Create(text, fd.cachedFont)) {
                     fd.cachedFont.GetFontMetrics(out SKFontMetrics metrics);
-                    // using (SKPaint p3 = new SKPaint() {Color = SKColors.Orange}) {
-                    //     float width = blob.Bounds.Right + blob.Bounds.Left;
-                    //     float height = -metrics.Ascent;
-                    //     // blob.Bounds.Height - (metrics.Descent * 2)
-                    //     rc.Canvas.DrawRect(0, 0, width, blob.Bounds.Height, p3);
-                    // }
-
-                    // This stuff will be clipped out by the renderArea rect, but this was just me trying to
-                    // figure out what the heck Skia is doing lol
-                    // using (SKPaint p = new SKPaint() {Color = SKColors.Red}) {
-                    //     rc.Canvas.DrawRect(new SKRect(0, 0, blob.Bounds.Right - (metrics.XMax + metrics.XMin), metrics.Bottom), p);
-                    // }
-                    // using (SKPaint p = new SKPaint() {Color = SKColors.Green}) {
-                    //     rc.Canvas.DrawRect(blob.Bounds.Left, blob.Bounds.Top, -metrics.XMin, blob.Bounds.Height, p);
-                    // }
-                    // using (SKPaint p = new SKPaint() {Color = SKColors.BlueViolet}) {
-                    //     rc.Canvas.DrawRect(blob.Bounds.Left + -metrics.XMin, blob.Bounds.Top, blob.Bounds.Right - (blob.Bounds.Left + -metrics.XMin), metrics.Bottom, p);
-                    // }
-                    // using (SKPaint p = new SKPaint() {Color = SKColors.Yellow}) {
-                    //     rc.Canvas.DrawRect(new SKRect(blob.Bounds.Right + metrics.XMax, blob.Bounds.Top + metrics.Bottom, blob.Bounds.Right, blob.Bounds.Bottom), p);
-                    // }
-
                     // we can get away with this since we just use numbers and not any 'special'
                     // characters with bits below the baseline and whatnot
                     SKRect realFinalRenderArea = new SKRect(0, 0, blob.Bounds.Right, blob.Bounds.Bottom - metrics.Ascent - metrics.Descent);
@@ -194,14 +148,10 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
                     // unacceptable. Even though there will most likely be a bunch of transparent padding pixels, it's still better
                     renderArea = rc.TranslateRect(realFinalRenderArea);
                     this.lastRenderRect = realFinalRenderArea;
-                    // renderArea = realFinalRenderArea;
-                    // this.lastRenderRect = rc.TranslateRect(realFinalRenderArea);
                 }
             }
 
-            lock (this.fontData.DisposeLock) {
-                this.fontData.OnRenderFinished();
-            }
+            this.fontData.CompleteUsage();
         }
     }
 }

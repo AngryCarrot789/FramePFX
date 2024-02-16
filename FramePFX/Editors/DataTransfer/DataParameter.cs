@@ -144,6 +144,17 @@ namespace FramePFX.Editors.DataTransfer {
             TransferableData.InternalEndValueChange(this, owner);
         }
 
+        protected void OnEndValueChangeHelper(ITransferableData owner, ref Exception e) {
+            try {
+                this.OnEndValueChange(owner);
+            }
+            catch (Exception exception) {
+                e = e != null
+                    ? new AggregateException("An exception occurred while updating the value and finalizing the transaction", e, exception)
+                    : new Exception("An exception occurred while processing the end of a value change transaction", exception);
+            }
+        }
+
         public static DataParameter GetParameterByKey(string key) {
             if (!TryGetParameterByKey(key, out DataParameter parameter))
                 throw new Exception("No such parameter with the key: " + key);

@@ -19,6 +19,7 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
         private ResourceComposition renderResource;
 
         public CompositionVideoClip() {
+            this.UsesCustomOpacityCalculation = true;
             this.ResourceCompositionKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceComposition>();
             this.ResourceCompositionKey.ResourceChanged += this.ResourceCompositionKeyOnResourceChanged;
         }
@@ -56,7 +57,8 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
                 this.renderTask.Wait();
                 RenderManager render = this.renderResource.Timeline.RenderManager;
                 render.OnFrameCompleted();
-                render.Draw(rc.Surface);
+                using (SKPaint paint = new SKPaint {FilterQuality = rc.FilterQuality, ColorF = RenderUtils.BlendAlpha(SKColors.White, this.RenderOpacity)})
+                    render.Draw(rc.Surface, paint);
                 renderArea = rc.TranslateRect(render.LastRenderRect);
             }
             catch (AggregateException e) {

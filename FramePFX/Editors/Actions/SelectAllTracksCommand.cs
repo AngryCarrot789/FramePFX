@@ -1,5 +1,4 @@
-using System.Threading.Tasks;
-using FramePFX.Commands;
+using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.DataContexts;
@@ -30,13 +29,11 @@ namespace FramePFX.Editors.Actions {
             return e.DataContext.ContainsKey(DataKeys.TimelineKey) || e.DataContext.ContainsKey(DataKeys.TrackKey);
         }
 
-        public override Task ExecuteAsync(CommandEventArgs e) {
+        public override void Execute(CommandEventArgs e) {
             Timeline timeline;
-            if (e.DataContext.TryGetContext(DataKeys.TrackKey, out Track track) && (timeline = track.Timeline) != null || e.DataContext.TryGetContext(DataKeys.TimelineKey, out timeline)) {
+            if (DataKeys.TrackKey.TryGetContext(e.DataContext, out Track track) && (timeline = track.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.DataContext, out timeline)) {
                 SelectAll(timeline, track, false);
             }
-
-            return Task.CompletedTask;
         }
     }
 
@@ -45,13 +42,11 @@ namespace FramePFX.Editors.Actions {
             return e.DataContext.ContainsKey(DataKeys.TrackKey);
         }
 
-        public override Task ExecuteAsync(CommandEventArgs e) {
-            if (e.DataContext.TryGetContext(DataKeys.TrackKey, out Track track)) {
+        public override void Execute(CommandEventArgs e) {
+            if (DataKeys.TrackKey.TryGetContext(e.DataContext, out Track track)) {
                 track.SelectAll();
                 VideoEditorPropertyEditor.Instance.UpdateClipSelectionAsync(track.Timeline);
             }
-
-            return Task.CompletedTask;
         }
     }
 
@@ -60,13 +55,11 @@ namespace FramePFX.Editors.Actions {
             return e.DataContext.ContainsKey(DataKeys.TrackKey) || e.DataContext.ContainsKey(DataKeys.TimelineKey);
         }
 
-        public override Task ExecuteAsync(CommandEventArgs e) {
+        public override void Execute(CommandEventArgs e) {
             Timeline timeline;
-            if (e.DataContext.TryGetContext(DataKeys.TrackKey, out Track track) && (timeline = track.Timeline) != null || e.DataContext.TryGetContext(DataKeys.TimelineKey, out timeline)) {
+            if (DataKeys.TrackKey.TryGetContext(e.DataContext, out Track track) && (timeline = track.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.DataContext, out timeline)) {
                 SelectAllTracksCommand.SelectAll(timeline, track, true);
             }
-
-            return Task.CompletedTask;
         }
     }
 }

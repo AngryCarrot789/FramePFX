@@ -136,7 +136,7 @@ namespace FramePFX.AdvancedContextService.WPF {
                 IContextGenerator generator = GetContextGenerator(sourceObject);
                 if (generator != null) {
                     List<IContextEntry> list = new List<IContextEntry>();
-                    DataContext context = DataManager.GetDataContext(targetObject);
+                    DataContext context = DataManager.EvaluateContextData(targetObject);
                     generator.Generate(list, context);
                     if (list.Count < 1) {
                         e.Handled = true;

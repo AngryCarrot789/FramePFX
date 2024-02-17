@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -29,6 +28,9 @@ namespace FramePFX.Views {
             set => this.SetValue(CanCloseWithEscapeKeyProperty, value);
         }
 
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetActiveWindow();
+
         private bool isHandlingSyncClosing;
         private bool isHandlingAsyncClose;
         private bool? closeEventResult;
@@ -36,22 +38,34 @@ namespace FramePFX.Views {
         private readonly Action showAction;
         private readonly Func<bool?> showDialogAction;
 
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetActiveWindow();
+        private readonly WindowInteropHelper helper;
+        private readonly EventHandler SingleContentRenderHandler;
+        private readonly RoutedEventHandler SingleLoadedHandler;
 
         public WindowEx() : base() {
             this.showAction = this.Show;
             this.showDialogAction = this.ShowDialog;
+            this.helper = new WindowInteropHelper(this);
+            this.SingleContentRenderHandler = (sender, args) => {
+                WinDarkTheme.UpdateDarkTheme(this.helper.Handle, true);
+                this.ContentRendered -= this.SingleContentRenderHandler;
+            };
 
-            TextBlock block;
-            ProgressBar bar;
-            StackPanel p;
-            // this.Arrange(default);
-            // this.InvalidateArrange();
-            ContentControl c;
-            UIElement el;
-            FrameworkElement e;
-            Grid grid;
+            this.SingleLoadedHandler = (s, e) => {
+                WinDarkTheme.UpdateDarkTheme(this.helper.Handle, true);
+                this.Loaded -= this.SingleLoadedHandler;
+            };
+
+            this.ContentRendered += this.SingleContentRenderHandler;
+            this.Loaded += this.SingleLoadedHandler;
+        }
+
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
+            base.OnRenderSizeChanged(sizeInfo);
+        }
+
+        static WindowEx() {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(WindowEx), new FrameworkPropertyMetadata(typeof(WindowEx)));
         }
 
         public static Window GetCurrentActiveWindow() {
@@ -97,7 +111,7 @@ namespace FramePFX.Views {
             };
 
             WindowChrome.SetWindowChrome(this, chrome);
-
+            // WindowChrome.SetWindowChrome(this, null);
             // <Setter Property="WindowChrome.WindowChrome">
             //     <Setter.Value>
             //         <!-- In order to have a window shadow, GlassFrameThickness needs to be non-zero which is annoying -->

@@ -67,7 +67,7 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
         public ResourceTreeViewItem() {
             this.itemCache = new Stack<ResourceTreeViewItem>();
             this.AllowDrop = true;
-            AdvancedContextMenu.SetContextGenerator(this,  ResourceContextRegistry.Instance);
+            AdvancedContextMenu.SetContextGenerator(this, ResourceContextRegistry.Instance);
         }
 
         static ResourceTreeViewItem() => DefaultStyleKeyProperty.OverrideMetadata(typeof(ResourceTreeViewItem), new FrameworkPropertyMetadata(typeof(ResourceTreeViewItem)));

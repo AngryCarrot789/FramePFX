@@ -1,5 +1,4 @@
-using System.Threading.Tasks;
-using FramePFX.Commands;
+using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
@@ -8,8 +7,8 @@ using FramePFX.PropertyEditing;
 
 namespace FramePFX.Editors.Actions {
     public class DuplicateClipCommand : Command {
-        public override Task ExecuteAsync(CommandEventArgs e) {
-            if (e.DataContext.TryGetContext(DataKeys.ClipKey, out Clip clip) && clip.Track is Track track) {
+        public override void Execute(CommandEventArgs e) {
+            if (DataKeys.ClipKey.TryGetContext(e.DataContext, out Clip clip) && clip.Track is Track track) {
                 if (clip.Track.TryGetSpanUntilClip(clip.FrameSpan.EndIndex, out FrameSpan span, clip.FrameSpan.Duration, clip.FrameSpan.Duration)) {
                     if (track.Timeline != null) {
                         track.Timeline.TryExpandForFrame(span.EndIndex);
@@ -25,8 +24,6 @@ namespace FramePFX.Editors.Actions {
                     }
                 }
             }
-
-            return Task.CompletedTask;
         }
     }
 }

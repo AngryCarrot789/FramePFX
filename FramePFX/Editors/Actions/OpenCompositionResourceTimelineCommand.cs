@@ -1,5 +1,4 @@
-using System.Threading.Tasks;
-using FramePFX.Commands;
+using FramePFX.CommandSystem;
 using FramePFX.Editors.Contextual;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.Resources;
@@ -12,12 +11,10 @@ namespace FramePFX.Editors.Actions {
             return resource is ResourceComposition composition && composition.Manager.Project.ActiveTimeline != composition.Timeline;
         }
 
-        public override Task ExecuteAsync(CommandEventArgs e) {
+        public override void Execute(CommandEventArgs e) {
             if (ResourceContextRegistry.GetSingleSelection(e.DataContext, out BaseResource resource) && resource is ResourceComposition composition) {
                 composition.Manager.Project.ActiveTimeline = composition.Timeline;
             }
-
-            return Task.CompletedTask;
         }
     }
 }

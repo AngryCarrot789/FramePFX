@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using FramePFX.Commands;
+using FramePFX.CommandSystem;
 using FramePFX.Editors.ResourceManaging.Resources;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
@@ -17,16 +16,16 @@ namespace FramePFX.Editors.Actions {
             return e.DataContext.ContainsKey(DataKeys.TimelineKey);
         }
 
-        public override Task ExecuteAsync(CommandEventArgs e) {
-            if (!e.DataContext.TryGetContext(DataKeys.TimelineKey, out Timeline timeline) || !e.DataContext.TryGetContext(DataKeys.ProjectKey, out Project project) || (project = timeline.Project) == null) {
-                return Task.CompletedTask;
+        public override void Execute(CommandEventArgs e) {
+            if (!DataKeys.TimelineKey.TryGetContext(e.DataContext, out Timeline timeline) || !DataKeys.ProjectKey.TryGetContext(e.DataContext, out Project project) || (project = timeline.Project) == null) {
+                return;
             }
 
             int trackStart = int.MaxValue, trackEnd = int.MinValue;
-            List<Clip> selected = e.DataContext.TryGetContext(DataKeys.ClipKey, out Clip focusedClip) ? timeline.GetSelectedClipsWith(focusedClip).ToList() : timeline.SelectedClips.ToList();
+            List<Clip> selected = DataKeys.ClipKey.TryGetContext(e.DataContext, out Clip focusedClip) ? timeline.GetSelectedClipsWith(focusedClip).ToList() : timeline.SelectedClips.ToList();
             if (selected.Count < 1) {
                 IoC.MessageService.ShowMessage("No selection", "No selected clips!");
-                return Task.CompletedTask;
+                return;
             }
 
             timeline.ClearClipSelection();
@@ -37,7 +36,7 @@ namespace FramePFX.Editors.Actions {
                 int index = clip.Track.IndexInTimeline;
                 if (index == -1) {
                     IoC.MessageService.ShowMessage("Error", "One or more selected clips did not have a track associated... this is a very bad bug");
-                    return Task.CompletedTask;
+                    return;
                 }
 
                 if (index < trackStart)
@@ -97,7 +96,6 @@ namespace FramePFX.Editors.Actions {
                     project.ActiveTimeline = composition.Timeline;
                 }
             }, DispatcherPriority.Background);
-            return Task.CompletedTask;
         }
     }
 }

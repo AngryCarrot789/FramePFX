@@ -103,7 +103,8 @@
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 Background="{TemplateBinding Background}"
-                                Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true"
+                                Padding="{TemplateBinding Padding}" 
+                                SnapsToDevicePixels="true"
                                 VerticalAlignment="Center" HorizontalAlignment="Stretch">
                             <ContentPresenter x:Name="PART_Header"
                                               FocusManager.IsFocusScope="True"

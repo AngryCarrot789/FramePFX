@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using FramePFX.Commands;
+using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Interactivity.DataContexts;
@@ -11,9 +10,9 @@ namespace FramePFX.Editors.Actions {
         public ToggleClipVisibilityCommand() {
         }
 
-        public override Task ExecuteAsync(CommandEventArgs e) {
-            if (!e.DataContext.TryGetContext(DataKeys.ClipKey, out Clip keyedClip) || !(keyedClip is VideoClip focusedClip)) {
-                return Task.CompletedTask;
+        public override void Execute(CommandEventArgs e) {
+            if (!DataKeys.ClipKey.TryGetContext(e.DataContext, out Clip keyedClip) || !(keyedClip is VideoClip focusedClip)) {
+                return;
             }
 
             if (!(focusedClip.Timeline is Timeline timeline) || timeline.GetSelectedClipCountWith(focusedClip) == 1) {
@@ -36,8 +35,6 @@ namespace FramePFX.Editors.Actions {
                     VideoClip.IsVisibleParameter.SetValue(theClip, value);
                 }
             }
-
-            return Task.CompletedTask;
         }
     }
 }

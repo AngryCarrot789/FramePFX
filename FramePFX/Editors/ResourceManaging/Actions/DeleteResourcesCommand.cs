@@ -1,12 +1,11 @@
-using System.Threading.Tasks;
-using FramePFX.Commands;
+using FramePFX.CommandSystem;
 using FramePFX.Editors.Contextual;
 
 namespace FramePFX.Editors.ResourceManaging.Actions {
     public class DeleteResourcesCommand : Command {
-        public override Task ExecuteAsync(CommandEventArgs e) {
+        public override void Execute(CommandEventArgs e) {
             if (!ResourceContextRegistry.GetTreeContext(e.DataContext, out BaseResource[] items)) {
-                return Task.CompletedTask;
+                return;
             }
 
             foreach (BaseResource item in items) {
@@ -19,8 +18,6 @@ namespace FramePFX.Editors.ResourceManaging.Actions {
                 ResourceFolder.ClearHierarchy(item as ResourceFolder);
                 item.Parent.RemoveItem(item);
             }
-
-            return Task.CompletedTask;
         }
     }
 }

@@ -16,7 +16,7 @@ namespace FramePFX.Shortcuts.WPF {
         public const int BUTTON_WHEEL_DOWN = 142; // Towards the user
         public const string DEFAULT_USAGE_ID = "DEF";
 
-        public static WPFShortcutManager WPFInstance => (WPFShortcutManager) Instance ?? throw new Exception("No shortcut manager available");
+        public static WPFShortcutManager WPFInstance => (WPFShortcutManager) Instance ?? throw new Exception("No WPF shortcut manager available");
 
         static WPFShortcutManager() {
             KeyStroke.KeyCodeToStringProvider = (x) => ((Key) x).ToString();

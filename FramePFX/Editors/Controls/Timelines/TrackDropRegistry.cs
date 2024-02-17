@@ -28,7 +28,7 @@ namespace FramePFX.Editors.Controls.Timelines {
                     ? EnumDropType.Copy
                     : EnumDropType.None;
             }, async (track, resource, dt, ctx) => {
-                if (!ctx.TryGetContext(DataKeys.TrackDropFrameKey, out long frame)) {
+                if (!DataKeys.TrackDropFrameKey.TryGetContext(ctx, out long frame)) {
                     IoC.MessageService.ShowMessage("Drop err", "Drag drop error: no track frame location");
                     return;
                 }

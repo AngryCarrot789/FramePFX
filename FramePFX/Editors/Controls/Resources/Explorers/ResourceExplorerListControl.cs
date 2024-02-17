@@ -104,7 +104,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         }
 
         public void MakePrimarySelection(ResourceExplorerListItem item) {
-            this.UnselectAll();
+            this.ResourceManager?.ClearSelection();
             this.SetItemSelectedProperty(item, true);
             this.lastSelectedItem = item;
         }

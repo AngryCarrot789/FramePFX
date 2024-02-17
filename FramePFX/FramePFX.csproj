@@ -139,9 +139,9 @@
     <Compile Include="AdvancedContextService\WPF\AdvancedContextMenu.cs" />
     <Compile Include="AdvancedContextService\WPF\AdvancedContextEventMenuItem.cs" />
     <Compile Include="AdvancedContextService\WPF\AdvancedContextMenuItem.cs" />
-    <Compile Include="AdvancedContextService\WPF\AdvancedContextShortcutMenuItem.cs" />
     <Compile Include="AdvancedContextService\WPF\IAdvancedMenu.cs" />
     <Compile Include="AdvancedMenuService\WPF\AdvancedCommandMenuItem.cs" />
+    <Compile Include="AdvancedMenuService\WPF\ContextCapturingMenuItem.cs" />
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Converters\EmptyStringToVisibilityConverter.cs" />
     <Compile Include="Editors\Actions\CreateCompositionFromSelectionCommand.cs" />
@@ -407,8 +407,6 @@
     <Compile Include="Shortcuts\Usage\MouseKeyboardShortcutUsage.cs" />
     <Compile Include="Shortcuts\Usage\MouseShortcutUsage.cs" />
     <Compile Include="Shortcuts\WPF\ActivationHandlerReference.cs" />
-    <Compile Include="Shortcuts\WPF\Bindings\InputStateBinding.cs" />
-    <Compile Include="Shortcuts\WPF\Bindings\InputStateCollection.cs" />
     <Compile Include="Shortcuts\WPF\Converters\CommandIdToGestureConverter.cs" />
     <Compile Include="Shortcuts\WPF\Converters\GlobalUpdateShortcutGestureConverter.cs" />
     <Compile Include="Shortcuts\WPF\Converters\KeyStrokeStringConverter.cs" />
@@ -463,7 +461,6 @@
     <Compile Include="Utils\DisposableRef.cs" />
     <Compile Include="Utils\DoubleUtils.cs" />
     <Compile Include="Utils\DynamicCodeConverter.cs" />
-    <Compile Include="Utils\EfficientObservableCollection.cs" />
     <Compile Include="Utils\ErrorList.cs" />
     <Compile Include="Utils\EventArgsCache.cs" />
     <Compile Include="Utils\ExceptionUtils.cs" />
@@ -484,14 +481,10 @@
     <Compile Include="Utils\KeyUtils.cs" />
     <Compile Include="Utils\Lang.cs" />
     <Compile Include="Utils\Maths.cs" />
-    <Compile Include="Utils\MutableBitmap.cs" />
     <Compile Include="Utils\NumberAverager.cs" />
-    <Compile Include="Utils\NumberRangeStore.cs" />
     <Compile Include="Utils\Numerics\SizeI.cs" />
     <Compile Include="Utils\Numerics\Vector2i.cs" />
-    <Compile Include="Utils\ObservableCollectionEx.cs" />
     <Compile Include="Utils\Periodic.cs" />
-    <Compile Include="Utils\PointUtils.cs" />
     <Compile Include="Utils\PrecisionTimer.cs" />
     <Compile Include="Utils\RandomUtils.cs" />
     <Compile Include="Utils\RapidDispatchCallback.cs" />
@@ -505,7 +498,6 @@
     <Compile Include="Utils\ScrollerUtils.cs" />
     <Compile Include="Utils\ShellIconSize.cs" />
     <Compile Include="Utils\ShellUtils.cs" />
-    <Compile Include="Utils\Singleton.cs" />
     <Compile Include="Utils\SingletonEnumerator.cs" />
     <Compile Include="Utils\SingletonList.cs" />
     <Compile Include="Utils\StringJoiner.cs" />
@@ -516,12 +508,8 @@
     <Compile Include="Utils\TextUtils.cs" />
     <Compile Include="Utils\ThreadTimer.cs" />
     <Compile Include="Utils\Time.cs" />
-    <Compile Include="Utils\Tristate.cs" />
     <Compile Include="Utils\TypeUtils.cs" />
     <Compile Include="Utils\UIUtils.cs" />
-    <Compile Include="Utils\UsageCounter.cs" />
-    <Compile Include="Utils\Validate.cs" />
-    <Compile Include="Utils\ValueModState.cs" />
     <Compile Include="Utils\Vec2i.cs" />
     <Compile Include="Utils\Vectors.cs" />
     <Compile Include="Utils\VisualTreeUtils.cs" />
@@ -531,6 +519,7 @@
     <Compile Include="Views\Validators\DoubleRangeValidationRule.cs" />
     <Compile Include="Views\Validators\IntRangeValidationRule.cs" />
     <Compile Include="Views\Validators\NonEmptyStringValidationRule.cs" />
+    <Compile Include="Views\WinDarkTheme.cs" />
     <Compile Include="Views\WindowEx.cs" />
     <Page Include="AdvancedContextService\WPF\ContextStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -592,11 +581,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="Commands\CommandManager.cs" />
-    <Compile Include="Commands\Command.cs" />
-    <Compile Include="Commands\CommandEventArgs.cs" />
-    <Compile Include="Commands\CanExecuteChangedEventHandler.cs" />
-    <Compile Include="Commands\ToggleBasedCommand.cs" />
+    <Compile Include="CommandSystem\CommandManager.cs" />
+    <Compile Include="CommandSystem\Command.cs" />
+    <Compile Include="CommandSystem\CommandEventArgs.cs" />
+    <Compile Include="CommandSystem\ToggleBasedCommand.cs" />
     <Compile Include="AdvancedContextService\CommandContextEntry.cs" />
     <Compile Include="AdvancedContextService\BaseContextEntry.cs" />
     <Compile Include="AdvancedContextService\GroupContextEntry.cs" />

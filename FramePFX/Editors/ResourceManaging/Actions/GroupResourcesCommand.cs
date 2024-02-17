@@ -1,12 +1,11 @@
-using System.Threading.Tasks;
-using FramePFX.Commands;
+using FramePFX.CommandSystem;
 using FramePFX.Editors.Contextual;
 
 namespace FramePFX.Editors.ResourceManaging.Actions {
     public class GroupResourcesCommand : Command {
-        public override Task ExecuteAsync(CommandEventArgs e) {
+        public override void Execute(CommandEventArgs e) {
             if (!ResourceContextRegistry.GetSingleFolderSelectionContext(e.DataContext, out ResourceFolder currFolder, out BaseResource[] items)) {
-                return Task.CompletedTask;
+                return;
             }
 
             foreach (BaseResource resource in items) {
@@ -18,8 +17,6 @@ namespace FramePFX.Editors.ResourceManaging.Actions {
             foreach (BaseResource resource in items) {
                 currFolder.MoveItemTo(folder, resource);
             }
-
-            return Task.CompletedTask;
         }
     }
 }

@@ -1,38 +1,44 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using FramePFX.Interactivity.DataContexts;
 using FramePFX.Utils;
 
-namespace FramePFX.Commands {
+namespace FramePFX.CommandSystem {
     /// <summary>
     /// A class which manages registered commands and the execution of commands
     /// </summary>
     public class CommandManager {
+        // using this just in case I soon add more data associated with commands
+        private class CommandEntry {
+            public readonly Command Command;
+
+            public CommandEntry(Command command) {
+                this.Command = command;
+            }
+        }
+
         public static CommandManager Instance { get; } = new CommandManager();
 
-        private readonly Dictionary<string, LinkedList<CanExecuteChangedEventHandler>> updateEventMap;
-        private readonly List<CanExecuteChangedEventHandler> globalUpdateEventMap;
-        private readonly Dictionary<string, Command> commands;
+        private readonly Dictionary<string, CommandEntry> commands;
 
         /// <summary>
         /// Gets the number of commands registered
         /// </summary>
         public int Count => this.commands.Count;
 
-        public IEnumerable<KeyValuePair<string, Command>> Commands => this.commands;
+        public IEnumerable<KeyValuePair<string, Command>> Commands => this.commands.Select(x => new KeyValuePair<string, Command>(x.Key, x.Value.Command));
 
         public CommandManager() {
-            this.commands = new Dictionary<string, Command>();
-            this.updateEventMap = new Dictionary<string, LinkedList<CanExecuteChangedEventHandler>>();
-            this.globalUpdateEventMap = new List<CanExecuteChangedEventHandler>();
+            this.commands = new Dictionary<string, CommandEntry>();
         }
 
         public Command Unregister(string id) {
             ValidateId(id);
-            if (this.commands.TryGetValue(id, out Command cmd)) {
+            if (this.commands.TryGetValue(id, out CommandEntry entry)) {
                 this.commands.Remove(id);
-                return cmd;
+                return entry.Command;
             }
 
             return null;
@@ -53,18 +59,18 @@ namespace FramePFX.Commands {
         }
 
         private void RegisterInternal(string id, Command command) {
-            if (this.commands.TryGetValue(id, out Command existing)) {
-                throw new Exception($"a command is already registered with the ID '{id}': {existing.GetType()}");
+            if (this.commands.TryGetValue(id, out CommandEntry existing)) {
+                throw new Exception($"a command is already registered with the ID '{id}': {existing.Command.GetType()}");
             }
 
-            this.commands[id] = command;
+            this.commands[id] = new CommandEntry(command);
         }
 
         /// <summary>
         /// Gets a command with the given ID
         /// </summary>
         public virtual Command GetCommandById(string id) {
-            return !string.IsNullOrEmpty(id) && this.commands.TryGetValue(id, out Command command) ? command : null;
+            return !string.IsNullOrEmpty(id) && this.commands.TryGetValue(id, out CommandEntry command) ? command.Command : null;
         }
 
         /// <summary>
@@ -82,8 +88,8 @@ namespace FramePFX.Commands {
         /// <exception cref="ArgumentNullException">Context is null</exception>
         public void Execute(string cmdId, IDataContext context, bool isUserInitiated = true) {
             ValidateId(cmdId);
-            if (this.commands.TryGetValue(cmdId, out Command cmd))
-                this.Execute(cmdId, cmd, context, isUserInitiated);
+            if (this.commands.TryGetValue(cmdId, out CommandEntry cmd))
+                this.Execute(cmdId, cmd.Command, context, isUserInitiated);
         }
 
         /// <summary>
@@ -98,12 +104,12 @@ namespace FramePFX.Commands {
             ValidateId(commandId);
             if (dataContextProvider == null)
                 throw new ArgumentNullException(nameof(dataContextProvider), "Data context provider cannot be null");
-            if (!this.commands.TryGetValue(commandId, out Command command))
+            if (!this.commands.TryGetValue(commandId, out CommandEntry command))
                 return false;
 
             IDataContext dataContext = dataContextProvider();
             ValidateContext(dataContext);
-            this.ExecuteCore(command, new CommandEventArgs(this, commandId, dataContext, isUserInitiated));
+            this.ExecuteCore(command.Command, new CommandEventArgs(this, commandId, dataContext, isUserInitiated));
             return true;
         }
 
@@ -121,22 +127,17 @@ namespace FramePFX.Commands {
         }
 
         protected virtual void ExecuteCore(Command command, CommandEventArgs e) {
-            if (e.IsUserInitiated) {
-                if (Debugger.IsAttached) {
-                    command.ExecuteAsync(e);
-                }
-                else {
-                    TryExecuteOrShowDialog(command, e);
-                }
+            if (!e.IsUserInitiated || Debugger.IsAttached) { // allow debugger to catch exception
+                command.Execute(e);
             }
             else {
-                command.ExecuteAsync(e);
+                TryExecuteOrShowDialog(command, e);
             }
         }
 
         private static void TryExecuteOrShowDialog(Command command, CommandEventArgs e) {
             try {
-                command.ExecuteAsync(e);
+                command.Execute(e);
             }
             catch (Exception ex) {
                 IoC.MessageService.ShowMessage("Command execution exception", $"An exception occurred while executing '{e.CommandId ?? command.GetType().ToString()}'", ex.GetToString());
@@ -156,78 +157,9 @@ namespace FramePFX.Commands {
         public virtual bool CanExecute(string id, IDataContext context, bool isUserInitiated = true) {
             ValidateId(id);
             ValidateContext(context);
-            if (!this.commands.TryGetValue(id, out Command command))
+            if (!this.commands.TryGetValue(id, out CommandEntry command))
                 return false;
-            return command.CanExecute(new CommandEventArgs(this, id, context, isUserInitiated));
-        }
-
-        public void AddCanUpdateHandler(string id, CanExecuteChangedEventHandler handler) {
-            if (id != null && string.IsNullOrWhiteSpace(id))
-                throw new Exception("ID cannot be empty or whitespaces. It must be null or a valid string");
-            if (handler == null)
-                throw new ArgumentNullException(nameof(handler), "Handler cannot be null");
-
-            if (id == null) {
-                if (!this.globalUpdateEventMap.Contains(handler))
-                    this.globalUpdateEventMap.Add(handler);
-            }
-            else {
-                if (!this.updateEventMap.TryGetValue(id, out LinkedList<CanExecuteChangedEventHandler> list)) {
-                    this.updateEventMap[id] = list = new LinkedList<CanExecuteChangedEventHandler>();
-                }
-
-                list.AddLast(handler);
-            }
-        }
-
-        public void RemoveCanUpdateHandler(string id, CanExecuteChangedEventHandler handler) {
-            if (id != null && string.IsNullOrWhiteSpace(id))
-                throw new Exception("ID cannot be empty or whitespaces. It must be null or a valid string");
-            if (handler == null)
-                throw new ArgumentNullException(nameof(handler), "Handler cannot be null");
-
-            if (id == null) {
-                this.globalUpdateEventMap.Remove(handler);
-            }
-            else if (this.updateEventMap.TryGetValue(id, out LinkedList<CanExecuteChangedEventHandler> list)) {
-                list.Remove(handler);
-            }
-        }
-
-        /// <summary>
-        /// Invokes all handlers that listen to the given command ID
-        /// </summary>
-        /// <param name="id">The command ID to execute</param>
-        /// <param name="context">The context to use. Cannot be null</param>
-        /// <param name="isUserInitiated">Whether a user caused the command to need to be executed. Supply false if this was invoked by a task or scheduler for example</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException">ID is null, empty or consists of only whitespaces</exception>
-        /// <exception cref="ArgumentNullException">Context is null</exception>
-        public bool OnCanUpdateChanged(string id, IDataContext context, bool isUserInitiated = false) {
-            ValidateId(id);
-            ValidateContext(context);
-            if (!this.commands.TryGetValue(id, out Command command)) {
-                return false;
-            }
-
-            if (!this.updateEventMap.TryGetValue(id, out LinkedList<CanExecuteChangedEventHandler> list) && this.globalUpdateEventMap.Count < 1) {
-                return false;
-            }
-
-            CommandEventArgs args = new CommandEventArgs(this, id, context, isUserInitiated);
-            bool canExecute = command.CanExecute(args);
-
-            if (list != null) {
-                foreach (CanExecuteChangedEventHandler handler in list) {
-                    handler(id, command, args, canExecute);
-                }
-            }
-
-            foreach (CanExecuteChangedEventHandler handler in this.globalUpdateEventMap) {
-                handler(id, command, args, canExecute);
-            }
-
-            return true;
+            return command.Command.CanExecute(new CommandEventArgs(this, id, context, isUserInitiated));
         }
 
         public static void ValidateId(string id) {

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using FramePFX.Commands;
+using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.DataContexts;
@@ -8,15 +7,15 @@ using FramePFX.PropertyEditing;
 
 namespace FramePFX.Editors.Actions {
     public class DeleteTracksCommand : Command {
-        public override Task ExecuteAsync(CommandEventArgs e) {
+        public override void Execute(CommandEventArgs e) {
             int focusedIndex = -1;
             HashSet<Track> tracks = new HashSet<Track>();
-            if (e.DataContext.TryGetContext(DataKeys.TrackKey, out Track focusedTrack)) {
+            if (DataKeys.TrackKey.TryGetContext(e.DataContext, out Track focusedTrack)) {
                 focusedIndex = focusedTrack.IndexInTimeline;
             }
 
             Timeline timeline;
-            if ((timeline = focusedTrack?.Timeline) != null || e.DataContext.TryGetContext(DataKeys.TimelineKey, out timeline)) {
+            if ((timeline = focusedTrack?.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.DataContext, out timeline)) {
                 foreach (Track track in timeline.SelectedTracks) {
                     tracks.Add(track);
                 }
@@ -45,8 +44,6 @@ namespace FramePFX.Editors.Actions {
 
                 VideoEditorPropertyEditor.Instance.UpdateTrackSelectionAsync(timeline);
             }
-
-            return Task.CompletedTask;
         }
     }
 }

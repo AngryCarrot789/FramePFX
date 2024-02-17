@@ -1,6 +1,5 @@
 using System;
-using System.Threading.Tasks;
-using FramePFX.Commands;
+using FramePFX.CommandSystem;
 using FramePFX.Interactivity.DataContexts;
 using FramePFX.Utils;
 
@@ -38,24 +37,22 @@ namespace FramePFX.Editors.Actions {
             }
         }
 
-        public override Task ExecuteAsync(CommandEventArgs e) {
-            if (!e.DataContext.TryGetContext(DataKeys.ProjectKey, out Project project)) {
-                return Task.CompletedTask;
+        public override void Execute(CommandEventArgs e) {
+            if (!DataKeys.ProjectKey.TryGetContext(e.DataContext, out Project project)) {
+                return;
             }
 
             SaveProject(project);
-            return Task.CompletedTask;
         }
     }
 
     public class SaveProjectAsCommand : Command {
-        public override Task ExecuteAsync(CommandEventArgs e) {
-            if (!e.DataContext.TryGetContext(DataKeys.ProjectKey, out Project project)) {
-                return Task.CompletedTask;
+        public override void Execute(CommandEventArgs e) {
+            if (!DataKeys.ProjectKey.TryGetContext(e.DataContext, out Project project)) {
+                return;
             }
 
             SaveProjectCommand.SaveProjectAs(project);
-            return Task.CompletedTask;
         }
     }
 }

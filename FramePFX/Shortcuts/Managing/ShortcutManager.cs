@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using FramePFX.Commands;
+using FramePFX.CommandSystem;
 using FramePFX.Interactivity.DataContexts;
 using FramePFX.Shortcuts.Events;
 using FramePFX.Shortcuts.Inputs;
@@ -253,7 +253,7 @@ namespace FramePFX.Shortcuts.Managing {
         /// <returns>The result of the shortcut activation used by the processor's input manager</returns>
         protected virtual bool OnShortcutActivatedOverride(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
             // Fire command. This is the main way of activating shortcuts
-            return CommandManager.Instance.TryExecute(shortcut.CommandId, inputManager.ProvideContextInternal);
+            return CommandManager.Instance.TryExecute(shortcut.CommandId, inputManager.ProvideCurrentContextInternal);
         }
 
         /// <summary>

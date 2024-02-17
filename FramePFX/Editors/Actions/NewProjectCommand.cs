@@ -1,6 +1,5 @@
-using System.Threading.Tasks;
 using System.Windows;
-using FramePFX.Commands;
+using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.DataContexts;
 
@@ -35,13 +34,13 @@ namespace FramePFX.Editors.Actions {
             return true;
         }
 
-        public override Task ExecuteAsync(CommandEventArgs e) {
-            if (!e.DataContext.TryGetContext(DataKeys.VideoEditorKey, out VideoEditor editor)) {
-                return Task.CompletedTask;
+        public override void Execute(CommandEventArgs e) {
+            if (!DataKeys.VideoEditorKey.TryGetContext(e.DataContext, out VideoEditor editor)) {
+                return;
             }
 
             if (!CloseProject(editor)) {
-                return Task.CompletedTask;
+                return;
             }
 
             Project project = new Project();
@@ -51,7 +50,6 @@ namespace FramePFX.Editors.Actions {
 
             project.MainTimeline.AddTrack(track);
             editor.SetProject(project);
-            return Task.CompletedTask;
         }
     }
 }

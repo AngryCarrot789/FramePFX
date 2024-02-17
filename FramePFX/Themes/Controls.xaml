@@ -5077,8 +5077,7 @@
                 <!-- In order to have a window shadow, GlassFrameThickness needs to be non-zero which is annoying -->
                 <!-- because the glass frame causes this weird flickering white border when resizing :( -->
                 <!-- Seems like it's the best idea to just put Top to 1 and the rest on 0, because you'll probably notice it less -->
-                <WindowChrome CaptionHeight="26" ResizeBorderThickness="6" CornerRadius="0" GlassFrameThickness="1 0 0 0"
-                              NonClientFrameEdges="None" UseAeroCaptionButtons="False"/>
+                <WindowChrome CaptionHeight="26" ResizeBorderThickness="6" CornerRadius="0" GlassFrameThickness="1 0 0 0" NonClientFrameEdges="None" UseAeroCaptionButtons="False"/>
             </Setter.Value>
         </Setter>
         <Setter Property="Template">
@@ -5190,6 +5189,7 @@
         </Style.Triggers>
     </Style>
 
+    <!-- This is required for all windows based on WindowEx due to DefaultStyleProperty stuff -->
     <Style x:Key="CustomWindowStyleEx" TargetType="{x:Type views:WindowEx}" BasedOn="{StaticResource CustomWindowStyle}">
         <Setter Property="TitlebarBrush" Value="{DynamicResource Window.Static.Title.Background}"/>
         <Setter Property="Template">

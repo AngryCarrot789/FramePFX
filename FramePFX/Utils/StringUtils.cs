@@ -47,10 +47,13 @@ namespace FramePFX.Utils {
         }
 
         public static string Repeat(char ch, int count) {
-            char[] chars = new char[count];
-            for (int i = 0; i < count; i++)
-                chars[i] = ch;
-            return new string(chars);
+            // char[] chars = new char[count];
+            // for (int i = 0; i < count; i++)
+            //     chars[i] = ch;
+            // return new string(chars);
+
+            // C# has an optimised version I guess...
+            return count == 0 ? string.Empty : new String(ch, count);
         }
 
         public static string Repeat(string str, int count) {
@@ -60,13 +63,20 @@ namespace FramePFX.Utils {
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Tries to pad or trim the string based on a fixed character limit, padding using the given 'fit' character.
+        /// The trim is a hard cut without any ellipse, and the pad just inserts the fit character
+        /// </summary>
+        /// <param name="str">The string to pad or trim</param>
+        /// <param name="length">The character limit</param>
+        /// <param name="fit">A padding character</param>
+        /// <returns>The padded, trimmed or original string</returns>
         public static string FitLength(this string str, int length, char fit = ' ') {
             int strlen = str.Length;
             if (strlen > length) {
                 return str.Substring(0, length);
             }
-
-            if (strlen < length) {
+            else if (strlen < length) {
                 return str + Repeat(fit, length - strlen);
             }
             else {
@@ -79,8 +89,16 @@ namespace FramePFX.Utils {
         }
 
         public static string RemoveChar(this string @this, char ch) {
-            StringBuilder sb = new StringBuilder(@this.Length);
-            foreach (char character in @this) {
+            int index = @this.IndexOf(ch);
+            if (index == -1)
+                return @this;
+
+            int count = @this.Length;
+            StringBuilder sb = new StringBuilder(count);
+            sb.Append(@this, 0, index);
+
+            for (int i = index + 1; i < count; i++) {
+                char character = @this[i];
                 if (character != ch) {
                     sb.Append(character);
                 }
@@ -128,9 +146,6 @@ namespace FramePFX.Utils {
         private static readonly object[] EmptyArray = new object[0];
 
         public static String Format(String format, params Object[] args) {
-            // return splice(format, Appender.forArray(args)); // just as fast as below once JIT'd
-            // Remaking this by accepting format.toCharArray() would not make it any faster,
-            // and would actually make it slightly slower due to the extra array copy/allocation
             int i, j, k, num;
             if (format == null || (i = format.IndexOf('{', j = 0)) == -1)
                 return format;

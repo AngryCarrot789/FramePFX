@@ -11,7 +11,7 @@ namespace FramePFX.Shortcuts.Managing {
         private bool? isPressAndRelease;
         private bool? isToggleBehaviour;
 
-        public ShortcutManager Manager => this.Parent.Manager;
+        public ShortcutManager Manager => this.Parent?.Manager;
 
         public ShortcutGroup Parent { get; }
 

@@ -127,16 +127,16 @@
                                 <Condition Property="Selector.IsSelectionActive" Value="False"/>
                                 <Condition Property="IsSelected" Value="True"/>
                             </MultiTrigger.Conditions>
-                            <Setter Property="Background" TargetName="PART_HeaderBorder" Value="{DynamicResource Item.SelectedInactive.Background}"/>
-                            <Setter Property="BorderBrush" TargetName="Bd" Value="LawnGreen"/>
+                            <Setter Property="Background" TargetName="PART_HeaderBorder" Value="{DynamicResource ABrush.AccentTone1.Background.Static}"/>
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource ABrush.AccentTone1.Border.Static}"/>
                         </MultiTrigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="Selector.IsSelectionActive" Value="True"/>
                                 <Condition Property="IsSelected" Value="True"/>
                             </MultiTrigger.Conditions>
-                            <Setter Property="Background" TargetName="PART_HeaderBorder" Value="{DynamicResource Item.SelectedActive.Background}"/>
-                            <Setter Property="BorderBrush" TargetName="Bd" Value="LightGreen"/>
+                            <Setter Property="Background" TargetName="PART_HeaderBorder" Value="{DynamicResource ABrush.AccentTone3.Background.Static}"/>
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource ABrush.AccentTone3.Border.Static}"/>
                         </MultiTrigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}"/>

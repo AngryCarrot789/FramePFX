@@ -10,7 +10,7 @@ namespace FramePFX.Editors.Contextual {
         public static ClipContextRegistry Instance { get; } = new ClipContextRegistry();
 
         public void Generate(List<IContextEntry> list, IDataContext context) {
-            if (!context.TryGetContext(DataKeys.ClipKey, out Clip clip)) {
+            if (!DataKeys.ClipKey.TryGetContext(context, out Clip clip)) {
                 return;
             }
 
@@ -25,8 +25,8 @@ namespace FramePFX.Editors.Contextual {
             list.Add(new CommandContextEntry("commands.timeline.DeleteClipOwnerTrack", "Delete Track", "Deletes the track that this clip resides in"));
         }
 
-        private static void OpenClipTimeline(IDataContext obj) {
-            if (obj.TryGetContext(DataKeys.ClipKey, out Clip clip) && clip is ICompositionClip compositionClip) {
+        private static void OpenClipTimeline(IDataContext ctx) {
+            if (DataKeys.ClipKey.TryGetContext(ctx, out Clip clip) && clip is ICompositionClip compositionClip) {
                 if (clip.Project is Project project && compositionClip.ResourceCompositionKey.TryGetResource(out ResourceComposition resource)) {
                     project.ActiveTimeline = resource.Timeline;
                 }

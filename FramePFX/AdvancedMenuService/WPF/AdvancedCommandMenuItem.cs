@@ -1,6 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
-using FramePFX.Commands;
+using FramePFX.CommandSystem;
 using FramePFX.Interactivity.DataContexts;
 
 namespace FramePFX.AdvancedMenuService.WPF {
@@ -12,7 +12,22 @@ namespace FramePFX.AdvancedMenuService.WPF {
             set => this.SetValue(CommandIdProperty, value);
         }
 
-        private DataContext loadedDataContext;
+        private bool canExecute;
+
+        protected bool CanExecute {
+            get => this.canExecute;
+            set {
+                this.canExecute = value;
+
+                // Causes IsEnableCore to be fetched, which returns false if we are executing something or
+                // we have no valid command, causing this menu item to be "disabled"
+                this.CoerceValue(IsEnabledProperty);
+            }
+        }
+
+        protected override bool IsEnabledCore => base.IsEnabledCore && this.CanExecute;
+
+        private IDataContext loadedDataContext;
 
         public AdvancedCommandMenuItem() {
             this.Click += this.OnClick;
@@ -21,8 +36,8 @@ namespace FramePFX.AdvancedMenuService.WPF {
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e) {
-            this.loadedDataContext = DataManager.GetDataContext(this);
-            this.IsEnabled = this.CommandId is string id && CommandManager.Instance.CanExecute(id, this.loadedDataContext);
+            this.loadedDataContext = ContextCapturingMenuItem.GetCapturedContextData(this) ?? DataManager.EvaluateContextData(this);
+            this.CanExecute = this.CommandId is string id && CommandManager.Instance.CanExecute(id, this.loadedDataContext);
         }
 
         private void OnUnloaded(object sender, RoutedEventArgs e) {
@@ -30,9 +45,8 @@ namespace FramePFX.AdvancedMenuService.WPF {
         }
 
         private void OnClick(object sender, RoutedEventArgs e) {
-            if (this.CommandId is string commandId) {
-                DataContext dataContext = this.loadedDataContext ?? DataManager.GetDataContext(this);
-                CommandManager.Instance.Execute(commandId, dataContext);
+            if (this.loadedDataContext != null && this.CommandId is string commandId) {
+                CommandManager.Instance.Execute(commandId, this.loadedDataContext);
             }
         }
     }

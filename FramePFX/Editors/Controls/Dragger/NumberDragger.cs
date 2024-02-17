@@ -32,9 +32,7 @@ namespace FramePFX.Editors.Controls.Dragger {
         public static readonly DependencyProperty RestoreValueOnCancelProperty = DependencyProperty.Register("RestoreValueOnCancel", typeof(bool), typeof(NumberDragger), new PropertyMetadata(BoolBox.True));
         public static readonly DependencyProperty ChangeMapperProperty = DependencyProperty.Register("ChangeMapper", typeof(IChangeMapper), typeof(NumberDragger), new PropertyMetadata(null));
         public static readonly DependencyProperty ValuePreProcessorProperty = DependencyProperty.Register("ValuePreProcessor", typeof(IValuePreProcessor), typeof(NumberDragger), new PropertyMetadata(null));
-        public static readonly DependencyProperty EditStateChangedCommandProperty = DependencyProperty.Register("EditStateChangedCommand", typeof(ICommand), typeof(NumberDragger), new PropertyMetadata(null));
         public static readonly DependencyProperty IsDoubleClickToEditProperty = DependencyProperty.Register("IsDoubleClickToEdit", typeof(bool), typeof(NumberDragger), new PropertyMetadata(BoolBox.False));
-        public static readonly DependencyProperty ResetValueCommandProperty = DependencyProperty.Register("ResetValueCommand", typeof(ICommand), typeof(NumberDragger), new PropertyMetadata(null));
 
         #region Properties
 
@@ -158,25 +156,9 @@ namespace FramePFX.Editors.Controls.Dragger {
             set => this.SetValue(ValuePreProcessorProperty, value);
         }
 
-        /// <summary>
-        /// Gets or sets a command executed when the edit state changes. A <see cref="ValueModState"/> is passed as a parameter.
-        /// <para>
-        /// Supports async relay commands
-        /// </para>
-        /// </summary>
-        public ICommand EditStateChangedCommand {
-            get => (ICommand) this.GetValue(EditStateChangedCommandProperty);
-            set => this.SetValue(EditStateChangedCommandProperty, value);
-        }
-
         public bool IsDoubleClickToEdit {
             get => (bool) this.GetValue(IsDoubleClickToEditProperty);
             set => this.SetValue(IsDoubleClickToEditProperty, value.Box());
-        }
-
-        public ICommand ResetValueCommand {
-            get => (ICommand) this.GetValue(ResetValueCommandProperty);
-            set => this.SetValue(ResetValueCommandProperty, value);
         }
 
         public bool IsValueReadOnly {

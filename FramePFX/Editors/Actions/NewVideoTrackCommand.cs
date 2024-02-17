@@ -1,14 +1,13 @@
-using System.Threading.Tasks;
-using FramePFX.Commands;
+using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.DataContexts;
 
 namespace FramePFX.Editors.Actions {
     public class NewVideoTrackCommand : Command {
-        public override Task ExecuteAsync(CommandEventArgs e) {
-            if (!e.DataContext.TryGetContext(DataKeys.TimelineKey, out Timeline timeline)) {
-                return Task.CompletedTask;
+        public override void Execute(CommandEventArgs e) {
+            if (!DataKeys.TimelineKey.TryGetContext(e.DataContext, out Timeline timeline)) {
+                return;
             }
 
             VideoTrack track = new VideoTrack() {
@@ -16,7 +15,6 @@ namespace FramePFX.Editors.Actions {
             };
 
             timeline.AddTrack(track);
-            return Task.CompletedTask;
         }
     }
 }

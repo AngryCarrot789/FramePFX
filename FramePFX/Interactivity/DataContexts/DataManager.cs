@@ -4,7 +4,7 @@ using FramePFX.Utils;
 
 namespace FramePFX.Interactivity.DataContexts {
     /// <summary>
-    /// A class that is used to extract contextual information from a WPF component
+    /// A class that is used to extract contextual information from WPF components
     /// </summary>
     public static class DataManager {
         /// <summary>
@@ -47,7 +47,7 @@ namespace FramePFX.Interactivity.DataContexts {
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static DataContext GetDataContext(DependencyObject obj) {
+        public static DataContext EvaluateContextData(DependencyObject obj) {
             DataContext ctx = new DataContext();
 
             // I thought about using TreeLevel, then thought reflection was too slow, so then I profiled the code...

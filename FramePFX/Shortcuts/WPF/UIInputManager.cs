@@ -259,12 +259,7 @@ namespace FramePFX.Shortcuts.WPF {
                 return false;
             }
 
-            if (isDown) {
-                processor.OnInputSourceMouseDown(window, focused, e);
-            }
-            else {
-                processor.OnInputSourceMouseUp(window, focused, e);
-            }
+            processor.OnInputSourceMouseButton(window, focused, e, !isDown);
 
             if (processor.isProcessingMouse)
                 e.Handled = true;

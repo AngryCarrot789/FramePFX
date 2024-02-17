@@ -51,12 +51,12 @@ namespace FramePFX.Natives {
                 throw new Exception("Failed to load library", new Win32Exception());
             }
 
-            InitEngine = GetFunction<PFXCEFUNC_InitEngine>("PFXCE_InitEngine");
+            GetFunction("PFXCE_InitEngine", out InitEngine);
             if (InitEngine() != 1) {
                 throw new Exception("Engine initialisation failed");
             }
 
-            PFXCE_PixelateVfx = GetFunction<PFXCEFUNC_PixelateVfx>("PFXCE_PixelateVfx");
+            GetFunction("PFXCE_PixelateVfx", out PFXCE_PixelateVfx);
         }
 
         public static void ShutdownLibrary() {
@@ -70,14 +70,13 @@ namespace FramePFX.Natives {
             }
         }
 
-        private static T GetFunction<T>(string functionName) where T : Delegate {
+        private static void GetFunction<T>(string functionName, out T function) where T : Delegate {
             IntPtr pFuncAddress = GetProcAddress(LibraryAddress, functionName);
             if (pFuncAddress == IntPtr.Zero)
                 throw new Exception("Could not find function address for name: " + functionName);
-            Delegate theDelegate = Marshal.GetDelegateForFunctionPointer(pFuncAddress, typeof(T));
-            if (theDelegate == null)
+            function = (T) Marshal.GetDelegateForFunctionPointer(pFuncAddress, typeof(T));
+            if (function == null)
                 throw new Exception("Could not create delegate for function pointer");
-            return (T)theDelegate;
         }
     }
 }

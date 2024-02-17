@@ -1,7 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using FramePFX.Commands;
+using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.DataContexts;
@@ -15,20 +14,19 @@ namespace FramePFX.Editors.Actions {
             this.Offset = offset;
         }
 
-        public override Task ExecuteAsync(CommandEventArgs e) {
-            if (!e.DataContext.TryGetContext(DataKeys.TrackKey, out Track track)) {
-                if (e.DataContext.TryGetContext(DataKeys.TimelineKey, out Timeline timeline)) {
+        public override void Execute(CommandEventArgs e) {
+            if (!DataKeys.TrackKey.TryGetContext(e.DataContext, out Track track)) {
+                if (DataKeys.TimelineKey.TryGetContext(e.DataContext, out Timeline timeline)) {
                     if (timeline.SelectedTracks.Count < 1)
-                        return Task.CompletedTask;
+                        return;
                     track = timeline.SelectedTracks[timeline.SelectedTracks.Count - 1];
                 }
                 else {
-                    return Task.CompletedTask;
+                    return;
                 }
             }
 
             MoveTrack(track, this.Offset);
-            return Task.CompletedTask;
         }
 
         public static void MoveTrack(Track track, int offset) {

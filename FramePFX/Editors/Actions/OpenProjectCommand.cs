@@ -1,8 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
-using FramePFX.Commands;
+using FramePFX.CommandSystem;
 using FramePFX.Editors.Automation;
 using FramePFX.Editors.ResourceManaging.Autoloading.Controls;
 using FramePFX.Interactivity.DataContexts;
@@ -14,18 +13,18 @@ namespace FramePFX.Editors.Actions {
             return e.DataContext.ContainsKey(DataKeys.VideoEditorKey);
         }
 
-        public override Task ExecuteAsync(CommandEventArgs e) {
-            if (!e.DataContext.TryGetContext(DataKeys.VideoEditorKey, out VideoEditor editor)) {
-                return Task.CompletedTask;
+        public override void Execute(CommandEventArgs e) {
+            if (!DataKeys.VideoEditorKey.TryGetContext(e.DataContext, out VideoEditor editor)) {
+                return;
             }
 
             if (!NewProjectCommand.CloseProject(editor)) {
-                return Task.CompletedTask;
+                return;
             }
 
             string filePath = IoC.FilePickService.OpenFile("Open a project file (.fpfx)", Filters.ProjectType);
             if (filePath == null) {
-                return Task.CompletedTask;
+                return;
             }
 
             if (!File.Exists(filePath)) {
@@ -33,7 +32,6 @@ namespace FramePFX.Editors.Actions {
             }
 
             OpenProjectAt(editor, filePath);
-            return Task.CompletedTask;
         }
 
         public static bool OpenProjectAt(VideoEditor editor, string filePath) {

@@ -8,15 +8,14 @@ namespace FramePFX.Interactivity.DataContexts {
     public sealed class EmptyContext : IDataContext {
         public static IDataContext Instance { get; } = new EmptyContext();
 
-        public IEnumerable<KeyValuePair<DataKey, object>> Entries { get; } = Enumerable.Empty<KeyValuePair<DataKey, object>>();
+        public IEnumerable<KeyValuePair<string, object>> Entries { get; } = Enumerable.Empty<KeyValuePair<string, object>>();
 
-        public bool TryGetContext<T>(DataKey<T> key, out T value) {
+        public bool TryGetContext(string key, out object value) {
             value = default;
             return false;
         }
 
         public bool ContainsKey(DataKey key) => false;
-
-        public bool HasFlag(DataKey<bool> key) => false;
+        public bool ContainsKey(string key) => false;
     }
 }

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.RBC;
 using FramePFX.Utils;
@@ -215,6 +217,13 @@ namespace FramePFX.Editors.ResourceManaging {
 
         internal static void InternalOnResourceItemDetatchedFromManager(ResourceItem item) {
             item.Manager.UnregisterItem(item);
+        }
+
+        public void ClearSelection() {
+            foreach (BaseResource selected in this.selectedItems.ToList()) {
+                Debug.Assert(selected.IsSelected, "Expected item in selectedItems set to be selected!!!");
+                selected.IsSelected = false;
+            }
         }
     }
 }

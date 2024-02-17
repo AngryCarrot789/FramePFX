@@ -7,26 +7,26 @@ using FramePFX.Editors.Timelines.Tracks;
 
 namespace FramePFX.Interactivity.DataContexts {
     public static class DataKeys {
-        public static readonly DataKey<VideoEditor> VideoEditorKey = new DataKey<VideoEditor>("VideoEditor");
-        public static readonly DataKey<Project> ProjectKey = new DataKey<Project>("Project");
-        public static readonly DataKey<Timeline> TimelineKey = new DataKey<Timeline>("Timeline");
-        public static readonly DataKey<Track> TrackKey = new DataKey<Track>("Track");
-        public static readonly DataKey<Clip> ClipKey = new DataKey<Clip>("Clip");
-        public static readonly DataKey<BaseEffect> EffectKey = new DataKey<BaseEffect>("Effect");
+        public static readonly DataKey<VideoEditor> VideoEditorKey = DataKey<VideoEditor>.Create("VideoEditor");
+        public static readonly DataKey<Project> ProjectKey = DataKey<Project>.Create("Project");
+        public static readonly DataKey<Timeline> TimelineKey = DataKey<Timeline>.Create("Timeline");
+        public static readonly DataKey<Track> TrackKey = DataKey<Track>.Create("Track");
+        public static readonly DataKey<Clip> ClipKey = DataKey<Clip>.Create("Clip");
+        public static readonly DataKey<BaseEffect> EffectKey = DataKey<BaseEffect>.Create("Effect");
 
         /// <summary>
         /// A data key for the location of the mouse cursor, in frames, when a context menu
         /// was opened (well, specifically when the track was right clicked)
         /// </summary>
-        public static readonly DataKey<long> TrackContextMouseFrameKey = new DataKey<long>("TrackFrameContextMousePos");
+        public static readonly DataKey<long> TrackContextMouseFrameKey = DataKey<long>.Create("TrackFrameContextMousePos");
 
         /// <summary>
         /// A data key for the data object drop location, in frames. This is basically where the mouse
         /// cursor was when the drop occurred converted into frames
         /// </summary>
-        public static readonly DataKey<long> TrackDropFrameKey = new DataKey<long>("TrackFrameDropPos");
+        public static readonly DataKey<long> TrackDropFrameKey = DataKey<long>.Create("TrackFrameDropPos");
 
-        public static readonly DataKey<ResourceManager> ResourceManagerKey = new DataKey<ResourceManager>("ResourceManager");
-        public static readonly DataKey<BaseResource> ResourceObjectKey = new DataKey<BaseResource>("ResourceObject");
+        public static readonly DataKey<ResourceManager> ResourceManagerKey = DataKey<ResourceManager>.Create("ResourceManager");
+        public static readonly DataKey<BaseResource> ResourceObjectKey = DataKey<BaseResource>.Create("ResourceObject");
     }
 }

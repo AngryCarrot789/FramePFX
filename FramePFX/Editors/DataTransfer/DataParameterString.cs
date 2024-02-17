@@ -39,15 +39,8 @@ namespace FramePFX.Editors.DataTransfer {
         }
 
         public override void SetValue(ITransferableData owner, string value) {
-            if (this.hasCharLimit) {
-                if (value.Length < this.MinimumChars) {
-                    value += StringUtils.Repeat(' ', this.MinimumChars - value.Length);
-                }
-                else if (value.Length > this.MaximumChars) {
-                    value = value.Substring(0, this.MaximumChars);
-                }
-            }
-
+            if (this.hasCharLimit)
+                value = value.FitLength(this.MinimumChars);
             base.SetValue(owner, value);
         }
 

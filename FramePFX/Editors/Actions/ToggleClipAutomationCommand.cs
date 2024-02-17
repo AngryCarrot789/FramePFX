@@ -1,14 +1,12 @@
 ﻿using FramePFX.Interactivity.DataContexts;
-using System.Threading.Tasks;
-using FramePFX.Commands;
+using FramePFX.CommandSystem;
 
 namespace FramePFX.Editors.Actions {
     public class ToggleClipAutomationCommand : Command {
-        public override Task ExecuteAsync(CommandEventArgs e) {
-            if (!e.DataContext.TryGetContext(DataKeys.VideoEditorKey, out VideoEditor editor))
-                return Task.CompletedTask;
+        public override void Execute(CommandEventArgs e) {
+            if (!DataKeys.VideoEditorKey.TryGetContext(e.DataContext, out VideoEditor editor))
+                return;
             editor.ShowClipAutomation = !editor.ShowClipAutomation;
-            return Task.CompletedTask;
         }
     }
 }

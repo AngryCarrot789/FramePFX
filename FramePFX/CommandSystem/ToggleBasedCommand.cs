@@ -1,9 +1,8 @@
-using System.Threading.Tasks;
 using FramePFX.Interactivity.DataContexts;
 
-namespace FramePFX.Commands {
+namespace FramePFX.CommandSystem {
     public abstract class ToggleBasedCommand : Command {
-        public static readonly DataKey<bool> IsToggledKey = new DataKey<bool>("Toggled");
+        public static readonly DataKey<bool> IsToggledKey = DataKey<bool>.Create("Toggled");
 
         /// <summary>
         /// Gets whether the given event context is toggled or not
@@ -11,16 +10,16 @@ namespace FramePFX.Commands {
         /// <param name="e">The command event args, containing info about the current context</param>
         /// <returns>A nullable boolean that states the toggle state, or null if no toggle state is present</returns>
         public virtual bool? GetIsToggled(CommandEventArgs e) {
-            return e.DataContext.TryGetContext(IsToggledKey, out bool value) ? (bool?) value : null;
+            return IsToggledKey.TryGetContext(e.DataContext, out bool value) ? (bool?) value : null;
         }
 
-        public override Task ExecuteAsync(CommandEventArgs e) {
+        public override void Execute(CommandEventArgs e) {
             bool? result = this.GetIsToggled(e);
             if (result.HasValue) {
-                return this.OnToggled(e, result.Value);
+                this.OnToggled(e, result.Value);
             }
             else {
-                return this.ExecuteNoToggle(e);
+                this.ExecuteNoToggle(e);
             }
         }
 
@@ -30,7 +29,7 @@ namespace FramePFX.Commands {
         /// <param name="e">The command event args, containing info about the current context</param>
         /// <param name="isToggled">The toggle state of whatever called the command</param>
         /// <returns>Whether the command was executed successfully</returns>
-        protected abstract Task<bool> OnToggled(CommandEventArgs e, bool isToggled);
+        protected abstract void OnToggled(CommandEventArgs e, bool isToggled);
 
         /// <summary>
         /// Called when the command was executed without any toggle info. This can be
@@ -38,7 +37,7 @@ namespace FramePFX.Commands {
         /// </summary>
         /// <param name="e">The command event args, containing info about the current context</param>
         /// <returns>Whether the command was executed successfully</returns>
-        protected abstract Task<bool> ExecuteNoToggle(CommandEventArgs e);
+        protected abstract void ExecuteNoToggle(CommandEventArgs e);
 
         public override bool CanExecute(CommandEventArgs e) {
             bool? result = this.GetIsToggled(e);

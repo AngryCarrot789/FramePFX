@@ -1,7 +1,7 @@
 using System;
 using FramePFX.Interactivity.DataContexts;
 
-namespace FramePFX.Commands {
+namespace FramePFX.CommandSystem {
     /// <summary>
     /// Command event arguments for when a command is about to be executed
     /// </summary>

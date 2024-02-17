@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
-using FramePFX.Commands;
+using FramePFX.CommandSystem;
 using FramePFX.Shortcuts.Managing;
 
 namespace FramePFX.Shortcuts.WPF.Converters {

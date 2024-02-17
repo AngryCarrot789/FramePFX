@@ -1,11 +1,10 @@
-using System.Threading.Tasks;
 using FramePFX.Interactivity.DataContexts;
 
-namespace FramePFX.Commands {
+namespace FramePFX.CommandSystem {
     /// <summary>
     /// Represents some sort of action that can be executed. Commands use provided contextual
     /// information (see <see cref="CommandEventArgs.DataContext"/>) to do work. Commands do
-    /// their work in the <see cref="ExecuteAsync"/> method, and can optionally specify their
+    /// their work in the <see cref="Execute"/> method, and can optionally specify their
     /// executability via the <see cref="CanExecute"/> method
     /// <para>
     /// Commands are the primary things used by the shortcut system to do some work. They
@@ -21,7 +20,7 @@ namespace FramePFX.Commands {
 
         /// <summary>
         /// Checks if this command can actually be executed. This typically isn't checked before
-        /// <see cref="ExecuteAsync"/> is invoked; this is mainly used by the UI to determine if
+        /// <see cref="Execute"/> is invoked; this is mainly used by the UI to determine if
         /// something like a button or menu item is actually clickable
         /// <para>
         /// This method should be quick to execute, as it may be called quite often
@@ -39,7 +38,6 @@ namespace FramePFX.Commands {
         /// Executes this specific command with the given command event args
         /// </summary>
         /// <param name="e">The command event args, containing info about the current context</param>
-        /// <returns>A task that can await the completion of this command</returns>
-        public abstract Task ExecuteAsync(CommandEventArgs e);
+        public abstract void Execute(CommandEventArgs e);
     }
 }

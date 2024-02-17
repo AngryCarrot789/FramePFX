@@ -9,7 +9,7 @@ namespace FramePFX.Shortcuts.Managing {
     public sealed class GroupedShortcut : IGroupedObject {
         private IShortcut shortcut;
 
-        public ShortcutManager Manager => this.Parent.Manager;
+        public ShortcutManager Manager => this.Parent?.Manager;
 
         public ShortcutGroup Parent { get; }
 

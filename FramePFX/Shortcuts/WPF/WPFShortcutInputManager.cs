@@ -1,18 +1,14 @@
 // #define PRINT_DEBUG_KEYSTROKES
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using FramePFX.Interactivity.DataContexts;
 using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Managing;
-using FramePFX.Shortcuts.WPF.Bindings;
 
 namespace FramePFX.Shortcuts.WPF {
     public class WPFShortcutInputManager : ShortcutInputManager {
-        private readonly Dictionary<string, List<InputStateBinding>> inputBindingStateMap;
         internal bool isProcessingKey;
         internal bool isProcessingMouse;
 
@@ -26,7 +22,6 @@ namespace FramePFX.Shortcuts.WPF {
         private DataContext lazyCurrentDataContext;
 
         public WPFShortcutInputManager(WPFShortcutManager manager) : base(manager) {
-            this.inputBindingStateMap = new Dictionary<string, List<InputStateBinding>>();
         }
 
         public static bool CanProcessEventType(DependencyObject obj, bool isPreviewEvent) {
@@ -56,26 +51,11 @@ namespace FramePFX.Shortcuts.WPF {
             this.CurrentSource = null;
         }
 
-        public void OnInputSourceMouseDown(Window root, DependencyObject focused, MouseButtonEventArgs e) {
+        public void OnInputSourceMouseButton(Window root, DependencyObject focused, MouseButtonEventArgs e, bool isRelease) {
             try {
                 this.isProcessingMouse = true;
                 this.SetupContext(focused);
-                MouseStroke stroke = new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, false, e.ClickCount);
-                if (this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke)) {
-                    e.Handled = true;
-                }
-            }
-            finally {
-                this.isProcessingMouse = false;
-                this.ClearCurrentContext();
-            }
-        }
-
-        public void OnInputSourceMouseUp(Window root, DependencyObject focused, MouseButtonEventArgs e) {
-            try {
-                this.isProcessingMouse = true;
-                this.SetupContext(focused);
-                MouseStroke stroke = new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, false, e.ClickCount);
+                MouseStroke stroke = new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, isRelease, e.ClickCount);
                 if (this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke)) {
                     e.Handled = true;
                 }
@@ -153,43 +133,10 @@ namespace FramePFX.Shortcuts.WPF {
             if (this.lazyCurrentDataContext == null) {
                 if (this.CurrentSource == null)
                     return null;
-                this.lazyCurrentDataContext = DataManager.GetDataContext(this.CurrentSource);
+                this.lazyCurrentDataContext = DataManager.EvaluateContextData(this.CurrentSource);
             }
 
             return this.lazyCurrentDataContext;
-        }
-
-        protected override void ProcessInputStates() {
-            try {
-                if (this.CurrentSource != null) {
-                    InputStateCollection.GetInputStateBindingHierarchy(this.CurrentSource, this.inputBindingStateMap);
-                }
-
-                base.ProcessInputStates();
-            }
-            finally {
-                this.inputBindingStateMap.Clear();
-            }
-        }
-
-        protected internal override void OnInputStateActivated(GroupedInputState state) {
-            base.OnInputStateActivated(state);
-            this.ProcessTriggerState(state.FullPath, true);
-        }
-
-        protected internal override void OnInputStateDeactivated(GroupedInputState state) {
-            base.OnInputStateDeactivated(state);
-            this.ProcessTriggerState(state.FullPath, false);
-        }
-
-        private Task ProcessTriggerState(string path, bool isActive) {
-            if (this.inputBindingStateMap.TryGetValue(path, out List<InputStateBinding> list)) {
-                foreach (InputStateBinding binding in list) {
-                    binding.IsActive = isActive;
-                }
-            }
-
-            return Task.CompletedTask;
         }
     }
 }

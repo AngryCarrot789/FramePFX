@@ -24,7 +24,7 @@ namespace FramePFX.Utils {
                 average += elem;
             }
 
-            return average / (double) this.averages.Length;
+            return average / this.averages.Length;
         }
     }
 }

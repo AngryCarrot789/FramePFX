@@ -25,7 +25,7 @@ namespace FramePFX.Editors.Contextual {
         /// </param>
         /// <returns>True if the context contained a resource</returns>
         public static bool GetSingleFolderSelectionContext(IDataContext ctx, out ResourceFolder folder, out BaseResource[] selection) {
-            if (!ctx.TryGetContext(DataKeys.ResourceObjectKey, out BaseResource resource) || resource.Parent == null || resource.Manager == null) {
+            if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource resource) || resource.Parent == null || resource.Manager == null) {
                 folder = null;
                 selection = null;
                 return false;
@@ -57,7 +57,7 @@ namespace FramePFX.Editors.Contextual {
         }
 
         public static bool GetTreeContext(IDataContext ctx, out BaseResource[] selection) {
-            if (!ctx.TryGetContext(DataKeys.ResourceObjectKey, out BaseResource resource) || resource.Parent == null || resource.Manager == null) {
+            if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource resource) || resource.Parent == null || resource.Manager == null) {
                 selection = null;
                 return false;
             }
@@ -79,7 +79,7 @@ namespace FramePFX.Editors.Contextual {
         }
 
         public static bool GetSingleSelection(IDataContext ctx, out BaseResource resource) {
-            if (!ctx.TryGetContext(DataKeys.ResourceObjectKey, out resource) || resource.Parent == null || resource.Manager == null) {
+            if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out resource) || resource.Parent == null || resource.Manager == null) {
                 return false;
             }
 
@@ -99,10 +99,10 @@ namespace FramePFX.Editors.Contextual {
         /// <param name="folder">The folder</param>
         /// <returns>True if the data contains contained a folder or a resource manager</returns>
         public static bool GetTargetFolder(IDataContext ctx, out ResourceFolder folder) {
-            if (ctx.TryGetContext(DataKeys.ResourceObjectKey, out BaseResource resource) && (folder = resource as ResourceFolder) != null) {
+            if (DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource resource) && (folder = resource as ResourceFolder) != null) {
                 return true;
             }
-            else if (ctx.TryGetContext(DataKeys.ResourceManagerKey, out ResourceManager manager)) {
+            else if (DataKeys.ResourceManagerKey.TryGetContext(ctx, out ResourceManager manager)) {
                 folder = manager.CurrentFolder;
                 return true;
             }

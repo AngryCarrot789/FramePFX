@@ -100,7 +100,7 @@ namespace FramePFX {
             manager.Register("commands.editor.SaveProjectCommand", new SaveProjectCommand());
             manager.Register("commands.editor.SaveProjectAsCommand", new SaveProjectAsCommand());
             manager.Register("commands.editor.ExportCommand", new ExportCommand(false));
-            manager.Register("commands.editor.ExportContextualTimelineCommand", new ExportCommand(true));
+            manager.Register("commands.editor.ExportActiveTimelineCommand", new ExportCommand(true));
 
             AppLogger.Instance.PushHeader($"Registered {CommandManager.Instance.Count} commands", false);
             foreach (KeyValuePair<string, Command> pair in CommandManager.Instance.Commands) {

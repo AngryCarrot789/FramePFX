@@ -8,14 +8,14 @@ using FramePFX.Interactivity.DataContexts;
 
 namespace FramePFX.Editors.Actions {
     public class ExportCommand : Command {
-        public bool ExportContextualTimeline { get; }
+        public bool ExportActiveTimeline { get; }
 
-        public ExportCommand(bool exportContextualTimeline) {
-            this.ExportContextualTimeline = exportContextualTimeline;
+        public ExportCommand(bool exportActiveTimeline) {
+            this.ExportActiveTimeline = exportActiveTimeline;
         }
 
         public override bool CanExecute(CommandEventArgs e) {
-            if (this.ExportContextualTimeline) {
+            if (this.ExportActiveTimeline) {
                 return TryGetTimeline(e.DataContext, out Timeline timeline) && timeline.Project != null && !timeline.Project.IsExporting;
             }
             else {
@@ -26,7 +26,7 @@ namespace FramePFX.Editors.Actions {
         public override void Execute(CommandEventArgs e) {
             Project project;
             Timeline timeline;
-            if (this.ExportContextualTimeline) {
+            if (this.ExportActiveTimeline) {
                 if (!TryGetTimeline(e.DataContext, out timeline)) {
                     return;
                 }

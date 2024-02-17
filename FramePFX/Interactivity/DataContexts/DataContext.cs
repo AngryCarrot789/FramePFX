@@ -8,6 +8,8 @@ namespace FramePFX.Interactivity.DataContexts {
 
         public IEnumerable<KeyValuePair<string, object>> Entries => this.map ?? Enumerable.Empty<KeyValuePair<string, object>>();
 
+        public int Count => this.map?.Count ?? 0;
+
         public DataContext() {
 
         }

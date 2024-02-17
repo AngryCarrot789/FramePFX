@@ -18,6 +18,9 @@
             <Shortcut Name="ExportShortcut" CommandId="commands.editor.ExportCommand">
                 <KeyStroke Mods="CTRL" Key="E"/>
             </Shortcut>
+            <Shortcut Name="ExportActiveTimelineShortcut" CommandId="commands.editor.ExportActiveTimelineCommand">
+                <KeyStroke Mods="CTRL+SHIFT" Key="E"/>
+            </Shortcut>
 
             <!-- TODO: implement history -->
             <Shortcut Name="UndoShortcut" CommandId="commands.project.history.UndoCommand">

@@ -141,7 +141,7 @@
     <Compile Include="AdvancedContextService\WPF\AdvancedContextMenuItem.cs" />
     <Compile Include="AdvancedContextService\WPF\IAdvancedMenu.cs" />
     <Compile Include="AdvancedMenuService\WPF\AdvancedCommandMenuItem.cs" />
-    <Compile Include="AdvancedMenuService\WPF\ContextCapturingMenuItem.cs" />
+    <Compile Include="AdvancedMenuService\WPF\ContextCapturingMenu.cs" />
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Converters\EmptyStringToVisibilityConverter.cs" />
     <Compile Include="Editors\Actions\CreateCompositionFromSelectionCommand.cs" />

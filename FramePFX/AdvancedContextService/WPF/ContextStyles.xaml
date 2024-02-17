@@ -5,7 +5,7 @@
                     xmlns:acs="clr-namespace:FramePFX.AdvancedContextService.WPF"
                     xmlns:wpf="clr-namespace:FramePFX.AdvancedMenuService.WPF"
                     mc:Ignorable="d">
-    <Style TargetType="{x:Type wpf:ContextCapturingMenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}"/>
+    <Style TargetType="{x:Type wpf:ContextCapturingMenu}" BasedOn="{StaticResource {x:Type Menu}}"/>
     <Style TargetType="{x:Type wpf:AdvancedCommandMenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}"/>
     <Style TargetType="{x:Type acs:AdvancedContextMenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}"/>
     <Style TargetType="{x:Type acs:AdvancedContextCommandMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedContextMenuItem}}"/>

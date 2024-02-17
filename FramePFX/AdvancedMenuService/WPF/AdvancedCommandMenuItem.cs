@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.DataContexts;
+using FramePFX.Shortcuts.WPF.Converters;
 
 namespace FramePFX.AdvancedMenuService.WPF {
     public class AdvancedCommandMenuItem : MenuItem {
@@ -36,8 +37,17 @@ namespace FramePFX.AdvancedMenuService.WPF {
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e) {
-            this.loadedDataContext = ContextCapturingMenuItem.GetCapturedContextData(this) ?? DataManager.EvaluateContextData(this);
-            this.CanExecute = this.CommandId is string id && CommandManager.Instance.CanExecute(id, this.loadedDataContext);
+            this.loadedDataContext = ContextCapturingMenu.GetCapturedContextData(this) ?? DataManager.EvaluateContextData(this);
+            string id = this.CommandId;
+            if (string.IsNullOrWhiteSpace(id))
+                id = null;
+
+            this.CanExecute = id != null && CommandManager.Instance.CanExecute(id, this.loadedDataContext);
+            if (this.CanExecute) {
+                if (CommandIdToGestureConverter.CommandIdToGesture(id, null, out string value)) {
+                    this.SetCurrentValue(InputGestureTextProperty, value);
+                }
+            }
         }
 
         private void OnUnloaded(object sender, RoutedEventArgs e) {

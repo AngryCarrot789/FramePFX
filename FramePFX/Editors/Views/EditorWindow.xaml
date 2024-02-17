@@ -26,17 +26,20 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
-        <Menu Grid.Row="0"
-              Background="{Binding TitlebarBrush, RelativeSource={RelativeSource AncestorType={x:Type v:WindowEx}, Mode=FindAncestor}}"
-              BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1">
-            <c:ContextCapturingMenuItem Header="File">
+        <c:ContextCapturingMenu Grid.Row="0"
+                                Background="{Binding TitlebarBrush, RelativeSource={RelativeSource AncestorType={x:Type v:WindowEx}, Mode=FindAncestor}}"
+                                BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1">
+            <MenuItem Header="File">
                 <c:AdvancedCommandMenuItem Header="New Project"        CommandId="commands.editor.NewProjectCommand"/>
                 <c:AdvancedCommandMenuItem Header="Open Project..."    CommandId="commands.editor.OpenProjectCommand"/>
                 <c:AdvancedCommandMenuItem Header="Save Project"       CommandId="commands.editor.SaveProjectCommand"/>
                 <c:AdvancedCommandMenuItem Header="Save Project As..." CommandId="commands.editor.SaveProjectAsCommand"/>
                 <Separator/>
-                <c:AdvancedCommandMenuItem Header="Export Video" CommandId="commands.editor.ExportCommand"/>
-            </c:ContextCapturingMenuItem>
+                <c:AdvancedCommandMenuItem Header="Export" CommandId="commands.editor.ExportCommand"
+                                           ToolTip="Export the current project"/>
+                <c:AdvancedCommandMenuItem Header="Export Active Timeline" CommandId="commands.editor.ExportActiveTimelineCommand"
+                                           ToolTip="Exports the currently active timeline only (not the project timeline)"/>
+            </MenuItem>
             <MenuItem Header="Theme">
                 <MenuItem Header="Deep Dark" Click="SetThemeClick" Uid="0"/>
                 <MenuItem Header="Soft Dark (default)" Click="SetThemeClick" Uid="1"/>
@@ -45,7 +48,7 @@
                 <MenuItem Header="Red and Black" Click="SetThemeClick" Uid="4"/>
                 <MenuItem Header="Light Theme" Click="SetThemeClick" Uid="5"/>
             </MenuItem>
-        </Menu>
+        </c:ContextCapturingMenu>
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" MinHeight="100"/>

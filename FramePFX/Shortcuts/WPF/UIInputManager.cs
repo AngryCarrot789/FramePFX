@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
+using FramePFX.AdvancedMenuService.WPF;
 using FramePFX.Utils;
 
 namespace FramePFX.Shortcuts.WPF {
@@ -42,6 +43,7 @@ namespace FramePFX.Shortcuts.WPF {
 
         static UIInputManager() {
             InputManager.Current.PreProcessInput += OnPreProcessInput;
+            InputManager.Current.PostProcessInput += OnPostProcessInput;
         }
 
         /// <summary>
@@ -154,6 +156,12 @@ namespace FramePFX.Shortcuts.WPF {
                     if (OnApplicationMouseWheelEvent(e))
                         args.Cancel();
                     break;
+            }
+        }
+
+        private static void OnPostProcessInput(object sender, ProcessInputEventArgs args) {
+            if (args.StagingItem.Input is KeyboardFocusChangedEventArgs e) {
+                ContextCapturingMenu.OnKeyboardFocusChanged(sender, e, args);
             }
         }
 

@@ -110,6 +110,13 @@ namespace FramePFX.Editors.Exporting.Controls {
                 this.UpdateBeginFrameDragger();
                 this.UpdateEndFrameDragger();
                 this.SetCurrentExporterContent(newSetup.SelectedExporter);
+                if (newSetup.Timeline == newSetup.Project.MainTimeline || !(newSetup.Timeline is CompositionTimeline composition)) {
+                    this.Title = "Export Project";
+                }
+                else {
+                    string title = composition.Resource.DisplayName;
+                    this.Title = string.IsNullOrWhiteSpace(title) ? "Export Composition Timeline" : $"Export '{title}' timeline";
+                }
             }
         }
 

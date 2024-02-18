@@ -4,7 +4,7 @@ using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Automation.Params;
 
 namespace FramePFX.Editors.Controls.Binders {
-    public sealed class AutomationBinder<TModel> : BaseObjectBinder<TModel> where TModel : class, IHaveTimeline, IAutomatable {
+    public sealed class AutomationBinder<TModel> : BaseBinder<TModel> where TModel : class, IHaveTimeline, IAutomatable {
         private readonly ParameterChangedEventHandler handler;
 
         public Parameter Parameter { get; }

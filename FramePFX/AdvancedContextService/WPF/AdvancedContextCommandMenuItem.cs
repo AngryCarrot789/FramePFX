@@ -48,6 +48,10 @@ namespace FramePFX.AdvancedContextService.WPF {
         }
 
         public void UpdateCanExecuteVisual() {
+            this.UpdateCanExecuteVisual(this.Menu?.ContextOnMenuOpen);
+        }
+
+        public void UpdateCanExecuteVisual(IDataContext ctx) {
             if (!this.IsLoaded) {
                 return;
             }
@@ -56,9 +60,8 @@ namespace FramePFX.AdvancedContextService.WPF {
                 this.CanExecute = false;
             }
             else {
-                DataContext context = this.Menu?.ContextOnMenuOpen;
-                string id = this.Entry.CommandId;
-                this.CanExecute = context != null && !string.IsNullOrWhiteSpace(id) && CommandManager.Instance.CanExecute(id, context);
+                string cmdId = this.Entry.CommandId;
+                this.CanExecute = !string.IsNullOrWhiteSpace(cmdId) && CommandManager.Instance.CanExecute(cmdId, ctx, true);
             }
         }
 

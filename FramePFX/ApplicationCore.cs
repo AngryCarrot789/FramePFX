@@ -116,5 +116,9 @@ namespace FramePFX {
             Instance = new ApplicationCore();
             Instance.Setup(progress);
         }
+
+        public void Destroy() {
+            this.VideoEditor = null;
+        }
     }
 }

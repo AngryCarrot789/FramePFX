@@ -116,7 +116,10 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
                     clip.FrameSpanChanged += control.OnOwnerClipFrameSpanChanged;
 
                 control.UpdateInsertKeyFrame(newOwner);
-                control.OnClipTimelineChanged(newOwner, null, newOwner.Timeline);
+
+                Timeline timeline = newOwner.Timeline;
+                if (timeline != null)
+                    control.OnClipTimelineChanged(newOwner, null, timeline);
             }
             else {
                 control.UpdateInsertKeyFrame(null);

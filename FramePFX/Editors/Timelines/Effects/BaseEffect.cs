@@ -1,5 +1,4 @@
 using System;
-using FramePFX.Destroying;
 using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.DataTransfer;
@@ -8,6 +7,7 @@ using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.RBC;
 using FramePFX.Utils;
+using FramePFX.Utils.Destroying;
 
 namespace FramePFX.Editors.Timelines.Effects {
     public abstract class BaseEffect : IStrictFrameRange, IAutomatable, ITransferableData, IDestroy {

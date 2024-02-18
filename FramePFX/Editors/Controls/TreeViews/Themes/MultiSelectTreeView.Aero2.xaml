@@ -28,7 +28,7 @@
                                       Padding="{TemplateBinding Control.Padding}"
                                       SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}"
                                       Focusable="False" ap:HorizontalScrolling.UseHorizontalScrolling="True">
-                            <Grid>
+                            <Grid x:Name="PART_ScrollViewerContent">
                                 <ItemsPresenter x:Name="content"/>
                                 <Canvas>
                                     <Border x:Name="selectionBorder"

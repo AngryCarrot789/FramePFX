@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace FramePFX.Utils {
+namespace FramePFX.Utils.Disposable {
     /// <summary>
     /// A class that stores a mutable disposable value that can be disposed and re-generated,
     /// and manages its disposal when used by different thread.

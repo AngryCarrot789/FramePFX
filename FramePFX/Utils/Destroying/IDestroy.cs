@@ -1,4 +1,4 @@
-namespace FramePFX.Destroying {
+namespace FramePFX.Utils.Destroying {
     /// <summary>
     /// An interface for an object that can be 'destroyed'. Destroyed objects are effectively reverted to their natural default state
     /// </summary>

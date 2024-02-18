@@ -17,7 +17,7 @@ namespace FramePFX.Editors.Controls.Binders {
     /// </para>
     /// </summary>
     /// <typeparam name="TModel">The type of model</typeparam>
-    public abstract class BaseObjectBinder<TModel> : IBinder<TModel> where TModel : class {
+    public abstract class BaseBinder<TModel> : IBinder<TModel> where TModel : class {
         public FrameworkElement Control { get; private set; }
 
         public TModel Model { get; private set; }
@@ -30,7 +30,7 @@ namespace FramePFX.Editors.Controls.Binders {
         /// </summary>
         public bool IsUpdatingControl { get; protected set; }
 
-        protected BaseObjectBinder() {
+        protected BaseBinder() {
 
         }
 

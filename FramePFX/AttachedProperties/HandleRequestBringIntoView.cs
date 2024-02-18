@@ -10,7 +10,7 @@ namespace FramePFX.AttachedProperties {
                 typeof(HandleRequestBringIntoView),
                 new PropertyMetadata(BoolBox.False, PropertyChangedCallback));
 
-        public static void SetIsEnabled(DependencyObject element, bool value) => element.SetValue(IsEnabledProperty, value);
+        public static void SetIsEnabled(DependencyObject element, bool value) => element.SetValue(IsEnabledProperty, value.Box());
 
         public static bool GetIsEnabled(DependencyObject element) => (bool) element.GetValue(IsEnabledProperty);
 

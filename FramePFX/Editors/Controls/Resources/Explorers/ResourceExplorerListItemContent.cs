@@ -154,7 +154,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
 
         public new ResourceColour Resource => (ResourceColour) base.Resource;
 
-        private readonly AutoPropertyUpdateBinder<ResourceColour> colourBinder = new AutoPropertyUpdateBinder<ResourceColour>(ColourProperty, nameof(ResourceColour.ColourChanged), binder => {
+        private readonly UpdaterAutoEventPropertyBinder<ResourceColour> colourBinder = new UpdaterAutoEventPropertyBinder<ResourceColour>(ColourProperty, nameof(ResourceColour.ColourChanged), binder => {
             RELICColour element = (RELICColour) binder.Control;
             SKColor c = binder.Model.Colour;
             ((SolidColorBrush) element.Colour).Color = Color.FromArgb(c.Alpha, c.Red, c.Green, c.Blue);
@@ -166,11 +166,6 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
 
         public RELICColour() {
             this.Colour = new SolidColorBrush();
-        }
-
-        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {
-            base.OnPropertyChanged(e);
-            this.colourBinder.OnPropertyChanged(e);
         }
 
         protected override void OnConnected() {

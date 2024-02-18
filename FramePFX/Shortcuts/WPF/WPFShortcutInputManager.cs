@@ -46,7 +46,11 @@ namespace FramePFX.Shortcuts.WPF {
             }
         }
 
-        private void ClearCurrentContext() {
+        public void BeginInputProcessing(DependencyObject obj) {
+            this.CurrentSource = obj;
+        }
+
+        private void EndInputProcessing() {
             this.lazyCurrentDataContext = null;
             this.CurrentSource = null;
         }
@@ -54,7 +58,7 @@ namespace FramePFX.Shortcuts.WPF {
         public void OnInputSourceMouseButton(Window root, DependencyObject focused, MouseButtonEventArgs e, bool isRelease) {
             try {
                 this.isProcessingMouse = true;
-                this.SetupContext(focused);
+                this.BeginInputProcessing(focused);
                 MouseStroke stroke = new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, isRelease, e.ClickCount);
                 if (this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke)) {
                     e.Handled = true;
@@ -62,7 +66,7 @@ namespace FramePFX.Shortcuts.WPF {
             }
             finally {
                 this.isProcessingMouse = false;
-                this.ClearCurrentContext();
+                this.EndInputProcessing();
             }
         }
 
@@ -80,7 +84,7 @@ namespace FramePFX.Shortcuts.WPF {
 
             try {
                 this.isProcessingMouse = true;
-                this.SetupContext(focused);
+                this.BeginInputProcessing(focused);
                 MouseStroke stroke = new MouseStroke(button, (int) Keyboard.Modifiers, false, 0, e.Delta);
                 if (this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke)) {
                     e.Handled = true;
@@ -88,7 +92,7 @@ namespace FramePFX.Shortcuts.WPF {
             }
             finally {
                 this.isProcessingMouse = false;
-                this.ClearCurrentContext();
+                this.EndInputProcessing();
             }
         }
 
@@ -112,7 +116,7 @@ namespace FramePFX.Shortcuts.WPF {
 
             try {
                 this.isProcessingKey = true;
-                this.SetupContext(focused);
+                this.BeginInputProcessing(focused);
                 ModifierKeys mods = ShortcutUtils.IsModifierKey(key) ? ModifierKeys.None : e.KeyboardDevice.Modifiers;
                 KeyStroke stroke = new KeyStroke((int) key, (int) mods, isRelease);
                 if (processor.OnKeyStroke(UIInputManager.Instance.FocusedPath, stroke, e.IsRepeat)) {
@@ -120,13 +124,9 @@ namespace FramePFX.Shortcuts.WPF {
                 }
             }
             finally {
-                this.ClearCurrentContext();
                 this.isProcessingKey = false;
+                this.EndInputProcessing();
             }
-        }
-
-        public void SetupContext(DependencyObject obj) {
-            this.CurrentSource = obj;
         }
 
         public override IDataContext GetCurrentDataContext() {

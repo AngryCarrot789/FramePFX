@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using FramePFX.Destroying;
 using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Automation.Params;
@@ -11,6 +10,7 @@ using FramePFX.Editors.ResourceManaging.ResourceHelpers;
 using FramePFX.Editors.Timelines.Effects;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.RBC;
+using FramePFX.Utils.Destroying;
 
 namespace FramePFX.Editors.Timelines.Clips {
     public delegate void ClipEventHandler(Clip clip);
@@ -148,6 +148,9 @@ namespace FramePFX.Editors.Timelines.Clips {
         public event ClipMediaOffsetChangedEventHandler MediaFrameOffsetChanged;
         public event ClipEventHandler IsSelectedChanged;
 
+        /// <summary>
+        /// An event fired when this clip's track changes. This may be called when:
+        /// </summary>
         public event ClipTrackChangedEventHandler TrackChanged;
         public event TimelineChangedEventHandler TimelineChanged;
 
@@ -279,9 +282,9 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// <param name="newTrack">The new track</param>
         protected virtual void OnTrackChanged(Track oldTrack, Track newTrack) {
             // Debug.WriteLine("Clip's track changed: " + oldTrack + " -> " + newTrack);
+            this.TrackChanged?.Invoke(this, oldTrack, newTrack);
             Timeline oldTimeline = oldTrack?.Timeline;
             Timeline newTimeline = newTrack?.Timeline;
-            this.TrackChanged?.Invoke(this, oldTrack, newTrack);
             if (!ReferenceEquals(oldTimeline, newTimeline)) {
                 this.Timeline = newTimeline;
                 this.OnTimelineChanged(oldTimeline, newTimeline);
@@ -441,10 +444,8 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// </summary>
         internal static void InternalOnClipAddedToTrack(Clip clip, Track track) {
             Track oldTrack = clip.Track;
-            if (ReferenceEquals(oldTrack, track)) {
+            if (oldTrack == track)
                 throw new Exception("Clip added to the same track?");
-            }
-
             clip.OnTrackChanged(oldTrack, clip.Track = track);
         }
 
@@ -453,10 +454,8 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// </summary>
         internal static void InternalOnClipRemovedFromTrack(Clip clip) {
             Track oldTrack = clip.Track;
-            if (ReferenceEquals(oldTrack, null)) {
-                throw new Exception("Clip removed from no track???");
-            }
-
+            if (oldTrack == null)
+                throw new InvalidOperationException("Clip removed from no track???");
             clip.OnTrackChanged(oldTrack, clip.Track = null);
         }
 
@@ -464,28 +463,29 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// [INTERNAL ONLY] Called when a clip moves from one track to another
         /// </summary>
         internal static void InternalOnClipMovedToTrack(Clip clip, Track oldTrack, Track newTrack) {
-            clip.Track = newTrack;
-            clip.OnTrackChanged(oldTrack, newTrack);
+            if (clip.Track != oldTrack)
+                throw new InvalidOperationException("Expected clip's old timeline to equal the given old timeline");
+            clip.OnTrackChanged(oldTrack, clip.Track = newTrack);
         }
 
         /// <summary>
         /// [INTERNAL ONLY] Called when the timeline of the track that the given clip resides in changes
         /// </summary>
         internal static void InternalOnTrackTimelineChanged(Clip clip, Timeline oldTimeline, Timeline newTimeline) {
-            clip.Timeline = newTimeline;
-            clip.OnTimelineChanged(oldTimeline, newTimeline);
+            if (clip.Timeline != oldTimeline)
+                throw new InvalidOperationException("Expected clip's old timeline to equal the given old timeline");
+            clip.OnTimelineChanged(oldTimeline, clip.Timeline = newTimeline);
         }
 
         /// <summary>
         /// [INTERNAL ONLY] Called when the timeline of the track that the given clip resides in changes
         /// </summary>
         internal static void InternalOnTimelineProjectChanged(Clip clip, Project oldProject, Project newProject) {
-            if (ReferenceEquals(clip.Project, newProject)) {
-                throw new InvalidOperationException("Fatal error: clip's project equals the new project???");
-            }
-
-            clip.Project = newProject;
-            clip.OnProjectChanged(oldProject, newProject);
+            if (clip.Project != oldProject)
+                throw new InvalidOperationException("Expected clip's old project to equal the given old project");
+            if (clip.Project == newProject)
+                throw new InvalidOperationException("Did not expect clip's current project to equal the new project");
+            clip.OnProjectChanged(oldProject, clip.Project = newProject);
         }
 
         internal static ClipGroup InternalGetGroup(Clip clip) => clip.myGroup;

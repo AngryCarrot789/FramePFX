@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using FramePFX.Destroying;
 using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Factories;
@@ -10,6 +9,7 @@ using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Effects;
 using FramePFX.RBC;
 using FramePFX.Utils;
+using FramePFX.Utils.Destroying;
 using SkiaSharp;
 
 namespace FramePFX.Editors.Timelines.Tracks {
@@ -262,7 +262,6 @@ namespace FramePFX.Editors.Timelines.Tracks {
             this.cache.OnClipRemoved(clip);
             if (clip.IsSelected)
                 this.selectedClips.Remove(clip);
-            Timeline.InternalOnClipRemovedFromTrack(this, clip);
         }
 
         public abstract bool IsClipTypeAccepted(Type type);
@@ -495,8 +494,6 @@ namespace FramePFX.Editors.Timelines.Tracks {
                     list.RemoveAt(index);
                 }
             }
-
-            Timeline.InternalOnIsClipSelectedChanged(clip);
         }
 
         internal static void InternalSetPrecomputedTrackIndex(Track track, int newIndex) {

@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using FramePFX.AdvancedMenuService.WPF;
+using FramePFX.Interactivity.DataContexts;
 using FramePFX.Utils;
+using CommandManager = FramePFX.CommandSystem.CommandManager;
 
 namespace FramePFX.Shortcuts.WPF {
     public class UIInputManager : INotifyPropertyChanged {
@@ -162,7 +164,20 @@ namespace FramePFX.Shortcuts.WPF {
         private static void OnPostProcessInput(object sender, ProcessInputEventArgs args) {
             if (args.StagingItem.Input is KeyboardFocusChangedEventArgs e) {
                 ContextCapturingMenu.OnKeyboardFocusChanged(sender, e, args);
+                CommandManager.Instance.OnApplicationFocusChanged(() => {
+                    if (Keyboard.FocusedElement is DependencyObject obj)
+                        return DataManager.EvaluateContextData(obj);
+                    return EmptyContext.Instance;
+                });
             }
+
+            /*
+             case TextCompositionEventArgs e:
+                 if (!e.Handled && e.RoutedEvent == TextCompositionManager.TextInputEvent)
+                     if (OnApplicationTextCompositionEvent(e, args))
+                         e.Handled = true;
+                 break;
+             */
         }
 
         private static void OnApplicationKeyboardFocusChanged(KeyboardFocusChangedEventArgs e, PreProcessInputEventArgs args) {

@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
-using FramePFX.Destroying;
 using FramePFX.Editors.Automation;
+using FramePFX.Editors.DataTransfer;
 using FramePFX.Editors.Factories;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.RBC;
 using FramePFX.Utils;
+using FramePFX.Utils.Destroying;
 
 namespace FramePFX.Editors.Timelines {
     public delegate void TimelineTrackIndexEventHandler(Timeline timeline, Track track, int index);
@@ -19,7 +20,7 @@ namespace FramePFX.Editors.Timelines {
     public delegate void PlayheadChangedEventHandler(Timeline timeline, long oldValue, long newValue);
     public delegate void ZoomEventHandler(Timeline timeline, double oldZoom, double newZoom, ZoomType zoomType);
 
-    public class Timeline : IDestroy {
+    public class Timeline : ITransferableData, IDestroy {
         public Project Project { get; private set; }
 
         public TrackPoint RangedSelectionAnchor { get; set; } = TrackPoint.Invalid;
@@ -73,7 +74,7 @@ namespace FramePFX.Editors.Timelines {
                 long oldPlayHead = this.playHeadPosition;
                 this.playHeadPosition = value;
                 this.PlayHeadChanged?.Invoke(this, oldPlayHead, value);
-                AutomationEngine.UpdateValues(this);
+                AutomationEngine.UpdateValues(this, value);
             }
         }
 
@@ -142,6 +143,8 @@ namespace FramePFX.Editors.Timelines {
 
         public RenderManager RenderManager { get; }
 
+        public TransferableData TransferableData { get; }
+
         public event TimelineTrackIndexEventHandler TrackAdded;
         public event TimelineTrackIndexEventHandler TrackRemoved;
         public event TimelineTrackMovedEventHandler TrackMoved;
@@ -159,6 +162,7 @@ namespace FramePFX.Editors.Timelines {
         private long largestFrameInUse;
 
         public Timeline() {
+            this.TransferableData = new TransferableData(this);
             this.tracks = new List<Track>();
             this.Tracks = new ReadOnlyCollection<Track>(this.tracks);
             this.selectedTracks = new List<Track>();
@@ -452,17 +456,6 @@ namespace FramePFX.Editors.Timelines {
             if (frame > this.maxDuration) {
                 this.MaxDuration = frame + 1000;
             }
-        }
-
-        internal static void InternalOnIsClipSelectedChanged(Clip clip) {
-            // UI modifies the anchor directly
-            // clip.Track.Timeline.RangedSelectionAnchor = clip.IsSelected ? clip : null;
-        }
-
-        internal static void InternalOnClipRemovedFromTrack(Track track, Clip clip) {
-            // if (track.Timeline.RangedSelectionAnchorClip == clip) {
-            //     track.Timeline.RangedSelectionAnchorClip = null;
-            // }
         }
 
         // Called by the track directly, in order to guarantee that selection is

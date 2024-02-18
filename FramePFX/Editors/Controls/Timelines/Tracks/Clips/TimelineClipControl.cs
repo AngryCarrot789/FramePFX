@@ -109,14 +109,14 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
         // The clip control that created this current instance (we are the phantom clip)
         private TimelineClipControl dragCopyOwnerControl;
 
-        private readonly AutoPropertyUpdateBinder<Clip> displayNameBinder = new AutoPropertyUpdateBinder<Clip>(DisplayNameProperty, nameof(VideoClip.DisplayNameChanged), b => {
+        private readonly UpdaterAutoEventPropertyBinder<Clip> displayNameBinder = new UpdaterAutoEventPropertyBinder<Clip>(DisplayNameProperty, nameof(VideoClip.DisplayNameChanged), b => {
             TimelineClipControl control = (TimelineClipControl) b.Control;
             control.glyphRun = null;
             control.DisplayName = b.Model.DisplayName;
         }, b => b.Model.DisplayName = ((TimelineClipControl) b.Control).DisplayName);
 
-        private readonly AutoPropertyUpdateBinder<Clip> frameSpanBinder = new AutoPropertyUpdateBinder<Clip>(nameof(VideoClip.FrameSpanChanged), obj => ((TimelineClipControl) obj.Control).SetSizeFromSpan(obj.Model.FrameSpan), null);
-        private readonly GetSetAutoPropertyBinder<Clip> isSelectedBinder = new GetSetAutoPropertyBinder<Clip>(IsSelectedProperty, nameof(VideoClip.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.IsSelected = (bool) v);
+        private readonly UpdaterAutoEventPropertyBinder<Clip> frameSpanBinder = new UpdaterAutoEventPropertyBinder<Clip>(nameof(VideoClip.FrameSpanChanged), obj => ((TimelineClipControl) obj.Control).SetSizeFromSpan(obj.Model.FrameSpan), null);
+        private readonly GetSetAutoEventPropertyBinder<Clip> isSelectedBinder = new GetSetAutoEventPropertyBinder<Clip>(IsSelectedProperty, nameof(VideoClip.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.IsSelected = (bool) v);
 
         public TimelineClipControl() {
             this.AllowDrop = true;
@@ -153,11 +153,6 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                 //     clip.Focus();
                 // }
             }
-        }
-
-        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {
-            base.OnPropertyChanged(e);
-            this.isSelectedBinder?.OnPropertyChanged(e);
         }
 
         static TimelineClipControl() {

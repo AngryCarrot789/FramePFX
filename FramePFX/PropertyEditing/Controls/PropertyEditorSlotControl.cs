@@ -44,7 +44,7 @@ namespace FramePFX.PropertyEditing.Controls {
 
         public PropertyEditorGroupControl OwnerGroup { get; private set; }
 
-        private readonly GetSetAutoPropertyBinder<PropertyEditorSlot> isSelectedBinder = new GetSetAutoPropertyBinder<PropertyEditorSlot>(IsSelectedProperty, nameof(PropertyEditorSlot.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.IsSelected = (bool) v);
+        private readonly GetSetAutoEventPropertyBinder<PropertyEditorSlot> isSelectedBinder = new GetSetAutoEventPropertyBinder<PropertyEditorSlot>(IsSelectedProperty, nameof(PropertyEditorSlot.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.IsSelected = (bool) v);
 
         public PropertyEditorSlotControl() {
         }
@@ -126,11 +126,6 @@ namespace FramePFX.PropertyEditing.Controls {
 
         private void OnSelectionChanged(bool oldValue, bool newValue) {
 
-        }
-
-        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {
-            base.OnPropertyChanged(e);
-            this.isSelectedBinder.OnPropertyChanged(e);
         }
 
         private void Model_IsCurrentlyApplicableChanged(BasePropertyEditorItem sender) {

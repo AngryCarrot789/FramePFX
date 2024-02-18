@@ -10,7 +10,7 @@ namespace FramePFX.Editors.PropertyEditors.AControls {
 
         private TextBox displayNameBox;
 
-        private readonly GetSetAutoPropertyBinder<DisplayNamePropertyEditorSlot> displayNameBinder = new GetSetAutoPropertyBinder<DisplayNamePropertyEditorSlot>(TextBox.TextProperty, nameof(DisplayNamePropertyEditorSlot.DisplayNameChanged), binder => binder.Model.DisplayName, (binder, v) => binder.Model.SetValue((string) v));
+        private readonly GetSetAutoEventPropertyBinder<DisplayNamePropertyEditorSlot> displayNameBinder = new GetSetAutoEventPropertyBinder<DisplayNamePropertyEditorSlot>(TextBox.TextProperty, nameof(DisplayNamePropertyEditorSlot.DisplayNameChanged), binder => binder.Model.DisplayName, (binder, v) => binder.Model.SetValue((string) v));
 
         public DisplayNamePropertyEditorControl() {
         }
@@ -18,7 +18,6 @@ namespace FramePFX.Editors.PropertyEditors.AControls {
         public override void OnApplyTemplate() {
             base.OnApplyTemplate();
             this.displayNameBox = this.GetTemplateChild<TextBox>("PART_TextBox");
-            this.displayNameBox.TextChanged += (sender, args) => this.displayNameBinder.OnControlValueChanged();
         }
 
         static DisplayNamePropertyEditorControl() {

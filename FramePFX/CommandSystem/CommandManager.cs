@@ -2,10 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Windows;
+using System.Windows.Threading;
 using FramePFX.Interactivity.DataContexts;
+using FramePFX.Logger;
 using FramePFX.Utils;
 
 namespace FramePFX.CommandSystem {
+    public delegate void FocusChangedEventHandler(CommandManager manager, IDataContext newFocus);
+
     /// <summary>
     /// A class which manages registered commands and the execution of commands
     /// </summary>
@@ -13,6 +18,7 @@ namespace FramePFX.CommandSystem {
         // using this just in case I soon add more data associated with commands
         private class CommandEntry {
             public readonly Command Command;
+            public HashSet<CommandUsageContext> usages;
 
             public CommandEntry(Command command) {
                 this.Command = command;
@@ -22,6 +28,8 @@ namespace FramePFX.CommandSystem {
         public static CommandManager Instance { get; } = new CommandManager();
 
         private readonly Dictionary<string, CommandEntry> commands;
+        private readonly Dictionary<string, HashSet<CommandUsageContext>> commandsWithUsages;
+        private readonly HashSet<FocusChangedEventHandler> focusChangeHandlerSet;
 
         /// <summary>
         /// Gets the number of commands registered
@@ -30,8 +38,26 @@ namespace FramePFX.CommandSystem {
 
         public IEnumerable<KeyValuePair<string, Command>> Commands => this.commands.Select(x => new KeyValuePair<string, Command>(x.Key, x.Value.Command));
 
+        /// <summary>
+        /// An event fired when the application's focus changes, possibly invalidating the executability state of a command presentation
+        /// </summary>
+        public event FocusChangedEventHandler FocusChanged {
+            add {
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+                this.focusChangeHandlerSet.Add(value);
+            }
+            remove {
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+                this.focusChangeHandlerSet.Remove(value);
+            }
+        }
+
         public CommandManager() {
             this.commands = new Dictionary<string, CommandEntry>();
+            this.focusChangeHandlerSet = new HashSet<FocusChangedEventHandler>();
+            this.commandsWithUsages = new Dictionary<string, HashSet<CommandUsageContext>>();
         }
 
         public Command Unregister(string id) {
@@ -64,6 +90,49 @@ namespace FramePFX.CommandSystem {
             }
 
             this.commands[id] = new CommandEntry(command);
+        }
+
+        public void RegisterUsage(string cmdId, CommandUsageContext usage) {
+            ValidateId(cmdId);
+            if (usage == null)
+                throw new ArgumentNullException(nameof(usage));
+            if (!this.commands.TryGetValue(cmdId, out CommandEntry entry))
+                throw new InvalidOperationException("Cannot add usage to non-existent command: " + cmdId);
+
+            HashSet<CommandUsageContext> list1 = entry.usages;
+            if (list1 == null)
+                entry.usages = list1 = new HashSet<CommandUsageContext>();
+            else if (list1.Contains(usage))
+                return;
+            list1.Add(usage);
+
+            if (!this.commandsWithUsages.TryGetValue(cmdId, out HashSet<CommandUsageContext> list2))
+                this.commandsWithUsages[cmdId] = list2 = new HashSet<CommandUsageContext>();
+            list2.Add(usage);
+
+            CommandUsageContext.OnRegisteredInternal(usage, cmdId);
+        }
+
+        public void UnregisterUsage(string cmdId, CommandUsageContext usage) {
+            ValidateId(cmdId);
+            if (usage == null)
+                throw new ArgumentNullException(nameof(usage));
+            if (!this.commands.TryGetValue(cmdId, out CommandEntry entry))
+                throw new InvalidOperationException("Cannot remove usage from non-existent command: " + cmdId);
+
+            HashSet<CommandUsageContext> list1 = entry.usages;
+            if (list1 != null && list1.Remove(usage)) {
+                HashSet<CommandUsageContext> list = this.commandsWithUsages[cmdId];
+                if (!list.Remove(usage)) {
+                    AppLogger.Instance.WriteLine("Error: failed to remove from commandsWithUsages");
+                    Debugger.Break();
+                }
+
+                if (list.Count < 1)
+                    this.commandsWithUsages.Remove(cmdId);
+
+                CommandUsageContext.OnUnregisteredInternal(usage);
+            }
         }
 
         /// <summary>
@@ -162,6 +231,40 @@ namespace FramePFX.CommandSystem {
             return command.Command.CanExecute(new CommandEventArgs(this, id, context, isUserInitiated));
         }
 
+        /// <summary>
+        /// Invokes all focus change handlers for the given ID. This also invokes global handlers first
+        /// </summary>
+        /// <exception cref="ArgumentNullException">newFocusProvider is null</exception>
+        public void OnApplicationFocusChanged(Func<IDataContext> newFocusProvider) {
+            if (newFocusProvider == null)
+                throw new ArgumentNullException(nameof(newFocusProvider));
+            Application.Current.Dispatcher.InvokeAsync(() => {
+                this.OnFocusChangeCore(newFocusProvider);
+            }, DispatcherPriority.Background);
+        }
+
+        private void OnFocusChangeCore(Func<IDataContext> newFocusProvider) {
+            // only calls newFocusProvider if there are handlers
+            IDataContext ctx = null;
+            if (this.focusChangeHandlerSet.Count >= 1) {
+                ValidateContext(ctx = newFocusProvider());
+                foreach (FocusChangedEventHandler handler in this.focusChangeHandlerSet) {
+                    handler(this, ctx);
+                }
+            }
+
+            if (this.commandsWithUsages.Count > 0) {
+                if (ctx == null)
+                    ValidateContext(ctx = newFocusProvider());
+                // call ToList just in case the handlers registers/unregisters another usage
+                foreach (KeyValuePair<string, HashSet<CommandUsageContext>> commandsWithUsage in this.commandsWithUsages.ToList()) {
+                    foreach (CommandUsageContext usage in commandsWithUsage.Value) {
+                        usage.OnFocusChanged(ctx);
+                    }
+                }
+            }
+        }
+
         public static void ValidateId(string id) {
             if (string.IsNullOrWhiteSpace(id)) {
                 throw new ArgumentException("Command ID cannot be null or empty", nameof(id));
@@ -172,6 +275,10 @@ namespace FramePFX.CommandSystem {
             if (context == null) {
                 throw new ArgumentNullException(nameof(context), "Context cannot be null");
             }
+        }
+
+        public void UpdateForFocusChange(CommandUsageContext usage, IDataContext focus) {
+
         }
     }
 }

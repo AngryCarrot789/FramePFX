@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Windows;
 using System.Windows.Controls;
 using FramePFX.Editors.Controls.Binders;
 
@@ -16,17 +15,11 @@ namespace FramePFX.AdvancedContextService.WPF {
 
         public ItemsControl ParentObject => (ItemsControl) this.ParentNode ?? this.Menu;
 
-        private readonly GetSetAutoPropertyBinder<BaseContextEntry> headerBinder = new GetSetAutoPropertyBinder<BaseContextEntry>(HeaderProperty, nameof(BaseContextEntry.HeaderChanged), b => b.Model.Header, (b, v) => b.Model.Header = v?.ToString());
-        private readonly GetSetAutoPropertyBinder<BaseContextEntry> toolTipBinder = new GetSetAutoPropertyBinder<BaseContextEntry>(ToolTipProperty, nameof(BaseContextEntry.DescriptionChanged), b => b.Model.Description, (b, v) => b.Model.Description = v?.ToString());
+        private readonly GetSetAutoEventPropertyBinder<BaseContextEntry> headerBinder = new GetSetAutoEventPropertyBinder<BaseContextEntry>(HeaderProperty, nameof(BaseContextEntry.HeaderChanged), b => b.Model.Header, (b, v) => b.Model.Header = v?.ToString());
+        private readonly GetSetAutoEventPropertyBinder<BaseContextEntry> toolTipBinder = new GetSetAutoEventPropertyBinder<BaseContextEntry>(ToolTipProperty, nameof(BaseContextEntry.DescriptionChanged), b => b.Model.Description, (b, v) => b.Model.Description = v?.ToString());
 
         public AdvancedContextMenuItem() {
 
-        }
-
-        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {
-            base.OnPropertyChanged(e);
-            this.headerBinder.OnPropertyChanged(e);
-            this.toolTipBinder.OnPropertyChanged(e);
         }
 
         public virtual void OnAdding(AdvancedContextMenu menu, AdvancedContextMenuItem parent, BaseContextEntry entry) {

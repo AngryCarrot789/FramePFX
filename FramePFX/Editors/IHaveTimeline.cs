@@ -21,9 +21,14 @@ namespace FramePFX.Editors {
         bool GetRelativePlayHead(out long playHead);
 
         /// <summary>
-        /// An event fired when this object's effective timeline changed. This may be called either when this effect
-        /// is added/removed from a clip, this clip is added/removed from a track, when this clip's track is added/removed
-        /// from a timeline or when this track is added/removed from a timeline
+        /// An event fired when this object's effective timeline changed. This may be called when:
+        /// <br/>
+        /// - We are an effect and we get added to or removed from a clip
+        /// <br/>
+        /// - We are a clip and we are get added to or removed from a track,
+        ///   or our owner track is added to or removed from a timeline
+        /// <br/>
+        /// - We are a track and we are added to or removed from a timeline
         /// </summary>
         event TimelineChangedEventHandler TimelineChanged;
     }

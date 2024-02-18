@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using FramePFX.AttachedProperties;
 using FramePFX.Editors.Controls.Resources.Explorers;
 using FramePFX.Editors.Controls.TreeViews.Controls;
 using FramePFX.Editors.ResourceManaging;
@@ -35,7 +36,7 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
 
         private readonly Dictionary<ResourceTreeViewItem, BaseResource> controlToModel;
         private readonly Dictionary<BaseResource, ResourceTreeViewItem> modelToControl;
-        private readonly Stack<ResourceTreeViewItem> itemCache;
+        internal readonly Stack<ResourceTreeViewItem> itemCache;
         private bool isProcessingAsyncDrop;
         private ResourceFolder rootFolder;
         private BaseResource targetDropResourceFolder; // the drop target for DragDrop
@@ -50,6 +51,23 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
 
         static ResourceTreeView() {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(ResourceTreeView), new FrameworkPropertyMetadata(typeof(ResourceTreeView)));
+        }
+
+        public ResourceTreeViewItem GetCachedItemOrNew() {
+            return this.itemCache.Count > 0 ? this.itemCache.Pop() : new ResourceTreeViewItem();
+        }
+
+        public void PushCachedItem(ResourceTreeViewItem item) {
+            if (this.itemCache.Count < 128) {
+                this.itemCache.Push(item);
+            }
+        }
+
+        public override void OnApplyTemplate() {
+            base.OnApplyTemplate();
+            if (this.GetTemplateChild("PART_ScrollViewerContent") is FrameworkElement element) {
+                HandleRequestBringIntoView.SetIsEnabled(element, true);
+            }
         }
 
         public void AddResourceMapping(ResourceTreeViewItem control, BaseResource resource) {
@@ -105,7 +123,7 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
         }
 
         public void InsertNode(BaseResource item, int index) {
-            this.InsertNode(this.itemCache.Count > 0 ? this.itemCache.Pop() : new ResourceTreeViewItem(), item, index);
+            this.InsertNode(this.GetCachedItemOrNew(), item, index);
         }
 
         public void InsertNode(ResourceTreeViewItem control, BaseResource resource, int index) {
@@ -123,8 +141,8 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
             this.Items.RemoveAt(index);
             this.RemoveResourceMapping(control, model);
             control.OnRemoved();
-            if (canCache && this.itemCache.Count < 16)
-                this.itemCache.Push(control);
+            if (canCache)
+                this.PushCachedItem(control);
         }
 
         protected override void OnDragEnter(DragEventArgs e) => this.OnDragOver(e);

@@ -2,12 +2,13 @@ using System;
 using FramePFX.Editors.Factories;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.RBC;
+using FramePFX.Utils.Destroying;
 
 namespace FramePFX.Editors.ResourceManaging {
     /// <summary>
     /// Base class for resource items and groups
     /// </summary>
-    public abstract class BaseResource {
+    public abstract class BaseResource : IDestroy {
         private string displayName;
         private bool isSelected;
 

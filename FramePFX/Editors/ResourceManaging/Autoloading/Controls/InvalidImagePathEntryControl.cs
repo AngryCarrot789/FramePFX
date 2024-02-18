@@ -8,7 +8,7 @@ namespace FramePFX.Editors.ResourceManaging.Autoloading.Controls {
         private TextBox filePathBox;
         private Button confirmButton;
 
-        private readonly GetSetAutoPropertyBinder<InvalidImagePathEntry> filePathBinder = new GetSetAutoPropertyBinder<InvalidImagePathEntry>(TextBox.TextProperty, nameof(InvalidImagePathEntry.FilePathChanged), b => b.Model.FilePath, (b, v) => b.Model.FilePath = (string) v);
+        private readonly GetSetAutoEventPropertyBinder<InvalidImagePathEntry> filePathBinder = new GetSetAutoEventPropertyBinder<InvalidImagePathEntry>(TextBox.TextProperty, nameof(InvalidImagePathEntry.FilePathChanged), b => b.Model.FilePath, (b, v) => b.Model.FilePath = (string) v);
 
         public InvalidImagePathEntryControl() {
 
@@ -17,7 +17,6 @@ namespace FramePFX.Editors.ResourceManaging.Autoloading.Controls {
         public override void OnApplyTemplate() {
             base.OnApplyTemplate();
             this.filePathBox = this.GetTemplateChild<TextBox>("PART_TextBox");
-            this.filePathBox.TextChanged += (sender, args) => this.filePathBinder.OnControlValueChanged();
             this.confirmButton = this.GetTemplateChild<Button>("PART_Button");
             this.confirmButton.Click += this.ConfirmClick;
         }

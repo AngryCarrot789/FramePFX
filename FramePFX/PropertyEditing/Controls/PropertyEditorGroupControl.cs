@@ -35,9 +35,9 @@ namespace FramePFX.PropertyEditing.Controls {
 
         public Expander TheExpander { get; private set; }
 
-        private readonly AutoPropertyUpdateBinder<BasePropertyEditorGroup> displayNameBinder = new AutoPropertyUpdateBinder<BasePropertyEditorGroup>(nameof(BasePropertyEditorGroup.DisplayNameChanged), UpdateControlDisplayName, null);
-        private readonly AutoPropertyUpdateBinder<BasePropertyEditorGroup> isVisibleBinder = new AutoPropertyUpdateBinder<BasePropertyEditorGroup>(nameof(BasePropertyEditorGroup.IsCurrentlyApplicableChanged), obj => ((PropertyEditorGroupControl) obj.Control).Visibility = (obj.Model.IsRoot || obj.Model.IsVisible) ? Visibility.Visible : Visibility.Collapsed, null);
-        private readonly AutoPropertyUpdateBinder<BasePropertyEditorGroup> isExpandedBinder = new AutoPropertyUpdateBinder<BasePropertyEditorGroup>(nameof(BasePropertyEditorGroup.IsExpandedChanged), obj => ((PropertyEditorGroupControl) obj.Control).IsExpanded = obj.Model.IsExpanded, obj => obj.Model.IsExpanded = ((PropertyEditorGroupControl) obj.Control).IsExpanded);
+        private readonly UpdaterAutoEventPropertyBinder<BasePropertyEditorGroup> displayNameBinder = new UpdaterAutoEventPropertyBinder<BasePropertyEditorGroup>(nameof(BasePropertyEditorGroup.DisplayNameChanged), UpdateControlDisplayName, null);
+        private readonly UpdaterAutoEventPropertyBinder<BasePropertyEditorGroup> isVisibleBinder = new UpdaterAutoEventPropertyBinder<BasePropertyEditorGroup>(nameof(BasePropertyEditorGroup.IsCurrentlyApplicableChanged), obj => ((PropertyEditorGroupControl) obj.Control).Visibility = (obj.Model.IsRoot || obj.Model.IsVisible) ? Visibility.Visible : Visibility.Collapsed, null);
+        private readonly UpdaterAutoEventPropertyBinder<BasePropertyEditorGroup> isExpandedBinder = new UpdaterAutoEventPropertyBinder<BasePropertyEditorGroup>(nameof(BasePropertyEditorGroup.IsExpandedChanged), obj => ((PropertyEditorGroupControl) obj.Control).IsExpanded = obj.Model.IsExpanded, obj => obj.Model.IsExpanded = ((PropertyEditorGroupControl) obj.Control).IsExpanded);
 
         public PropertyEditorGroupControl() {
 

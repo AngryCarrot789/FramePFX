@@ -18,6 +18,10 @@ namespace FramePFX.CommandSystem {
         protected Command() {
         }
 
+        // When focus changes, raise notification to update commands
+        // Then fire ContextDataChanged for those command hooks or whatever, they can then disconnect
+        // old event handlers and attach new ones
+
         /// <summary>
         /// Checks if this command can actually be executed. This typically isn't checked before
         /// <see cref="Execute"/> is invoked; this is mainly used by the UI to determine if
@@ -39,5 +43,14 @@ namespace FramePFX.CommandSystem {
         /// </summary>
         /// <param name="e">The command event args, containing info about the current context</param>
         public abstract void Execute(CommandEventArgs e);
+
+        /// <summary>
+        /// Updates the state of the given command usage context based on the event args and this command
+        /// </summary>
+        /// <param name="usage">The usage</param>
+        /// <param name="e">The args</param>
+        public virtual void Update(CommandUsageContext usage, CommandEventArgs e) {
+
+        }
     }
 }

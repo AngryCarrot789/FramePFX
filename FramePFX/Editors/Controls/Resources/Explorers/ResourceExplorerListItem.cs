@@ -47,8 +47,8 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
 
         public ResourceExplorerListControl ResourceExplorerList { get; private set; }
 
-        private readonly GetSetAutoPropertyBinder<BaseResource> displayNameBinder = new GetSetAutoPropertyBinder<BaseResource>(DisplayNameProperty, nameof(BaseResource.DisplayNameChanged), b => b.Model.DisplayName, (b, v) => b.Model.DisplayName = (string) v);
-        private readonly GetSetAutoPropertyBinder<BaseResource> isSelectedBinder = new GetSetAutoPropertyBinder<BaseResource>(IsSelectedProperty, nameof(BaseResource.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.IsSelected = (bool) v);
+        private readonly GetSetAutoEventPropertyBinder<BaseResource> displayNameBinder = new GetSetAutoEventPropertyBinder<BaseResource>(DisplayNameProperty, nameof(BaseResource.DisplayNameChanged), b => b.Model.DisplayName, (b, v) => b.Model.DisplayName = (string) v);
+        private readonly GetSetAutoEventPropertyBinder<BaseResource> isSelectedBinder = new GetSetAutoEventPropertyBinder<BaseResource>(IsSelectedProperty, nameof(BaseResource.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.IsSelected = (bool) v);
 
         private Point originMousePoint;
         private bool isDragActive;
@@ -59,15 +59,9 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
             AdvancedContextMenu.SetContextGenerator(this, ResourceContextRegistry.Instance);
         }
 
-        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {
-            base.OnPropertyChanged(e);
-            this.displayNameBinder.OnPropertyChanged(e);
-            this.isSelectedBinder.OnPropertyChanged(e);
-        }
-
         protected override void OnMouseDoubleClick(MouseButtonEventArgs e) {
             base.OnMouseDoubleClick(e);
-            if (e.ChangedButton == MouseButton.Left) {
+            if (e.ChangedButton == MouseButton.Left && Keyboard.Modifiers == ModifierKeys.None) {
                 if (this.Model is ResourceFolder folder) {
                     if (this.ResourceExplorerList != null) {
                         this.ResourceExplorerList.CurrentFolder = folder;

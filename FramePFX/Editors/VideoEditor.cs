@@ -162,12 +162,13 @@ namespace FramePFX.Editors {
         }
 
         public void SetProject(Project project) {
-            if (this.Project != null) {
-                throw new Exception("A project is already loaded; it must be unloaded first");
-            }
+            if (this.Project != null)
+                throw new Exception("A project is already loaded; it must be unloaded first (CloseProject)");
+            if (project == null)
+                throw new ArgumentNullException(nameof(project));
 
-            project.Settings.FrameRateChanged += this.OnProjectFrameRateChanged;
             this.Project = project;
+            project.Settings.FrameRateChanged += this.OnProjectFrameRateChanged;
 
             Project.OnOpened(this, project);
             PlaybackManager.InternalOnActiveTimelineChanged(this.Playback, null, project.ActiveTimeline);
@@ -189,7 +190,6 @@ namespace FramePFX.Editors {
 
             PlaybackManager.InternalOnActiveTimelineChanged(this.Playback, oldProject.ActiveTimeline, null);
             oldProject.Settings.FrameRateChanged -= this.OnProjectFrameRateChanged;
-            oldProject.Destroy();
             this.Project = null;
             this.ProjectChanged?.Invoke(this, oldProject, null);
             Project.OnClosed(this, oldProject);

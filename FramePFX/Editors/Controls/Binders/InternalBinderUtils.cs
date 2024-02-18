@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 
 namespace FramePFX.Editors.Controls.Binders {
-    internal static class BinderUtils {
+    internal static class InternalBinderUtils {
         internal static readonly MethodInfo InvokeActionMethod = typeof(Action).GetMethod("Invoke");
         internal static readonly Dictionary<Type, CachedEventTypeInfo> CachedEventTypeMap = new Dictionary<Type, CachedEventTypeInfo>();
 

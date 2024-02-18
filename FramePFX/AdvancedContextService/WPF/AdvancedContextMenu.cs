@@ -17,7 +17,7 @@ namespace FramePFX.AdvancedContextService.WPF {
         private static readonly ContextMenuEventHandler MenuOpenHandlerForGenerable = OnContextMenuOpeningForGenerable;
         private static readonly ContextMenuEventHandler MenuCloseHandlerForGenerable = OnContextMenuClosingForGenerable;
 
-        public DataContext ContextOnMenuOpen;
+        internal DataContext ContextOnMenuOpen;
 
         private readonly Dictionary<Type, Stack<FrameworkElement>> itemCache;
 

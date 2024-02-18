@@ -10,7 +10,7 @@ namespace FramePFX.Editors.PropertyEditors.AControls {
 
         private TextBox fontFamilyTextBox;
 
-        private readonly GetSetAutoPropertyBinder<TimecodeFontFamilyPropertyEditorSlot> fontFamilyBinder = new GetSetAutoPropertyBinder<TimecodeFontFamilyPropertyEditorSlot>(TextBox.TextProperty, nameof(TimecodeFontFamilyPropertyEditorSlot.FontFamilyChanged), binder => binder.Model.FontFamily, (binder, v) => binder.Model.SetValue((string) v));
+        private readonly GetSetAutoEventPropertyBinder<TimecodeFontFamilyPropertyEditorSlot> fontFamilyBinder = new GetSetAutoEventPropertyBinder<TimecodeFontFamilyPropertyEditorSlot>(TextBox.TextProperty, nameof(TimecodeFontFamilyPropertyEditorSlot.FontFamilyChanged), binder => binder.Model.FontFamily, (binder, v) => binder.Model.SetValue((string) v));
 
         public TimecodeFontFamilyPropertyEditorControl() {
         }
@@ -18,7 +18,7 @@ namespace FramePFX.Editors.PropertyEditors.AControls {
         public override void OnApplyTemplate() {
             base.OnApplyTemplate();
             this.fontFamilyTextBox = this.GetTemplateChild<TextBox>("PART_TextBox");
-            this.fontFamilyTextBox.TextChanged += (sender, args) => this.fontFamilyBinder.OnControlValueChanged();
+            // this.fontFamilyTextBox.TextChanged += (sender, args) => this.fontFamilyBinder.OnControlValueChanged();
         }
 
         static TimecodeFontFamilyPropertyEditorControl() {

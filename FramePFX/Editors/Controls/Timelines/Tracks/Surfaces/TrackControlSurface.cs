@@ -38,9 +38,9 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             set => this.SetValue(DisplayNameProperty, value);
         }
 
-        private readonly GetSetAutoPropertyBinder<Track> displayNameBinder = new GetSetAutoPropertyBinder<Track>(DisplayNameProperty, nameof(Track.DisplayNameChanged), b => b.Model.DisplayName, (b, v) => b.Model.DisplayName = (string) v);
+        private readonly GetSetAutoEventPropertyBinder<Track> displayNameBinder = new GetSetAutoEventPropertyBinder<Track>(DisplayNameProperty, nameof(Track.DisplayNameChanged), b => b.Model.DisplayName, (b, v) => b.Model.DisplayName = (string) v);
 
-        private readonly AutoPropertyUpdateBinder<Track> trackColourBinder = new AutoPropertyUpdateBinder<Track>(TrackColourBrushProperty, nameof(Track.ColourChanged), binder => {
+        private readonly UpdaterAutoEventPropertyBinder<Track> trackColourBinder = new UpdaterAutoEventPropertyBinder<Track>(TrackColourBrushProperty, nameof(Track.ColourChanged), binder => {
             TrackControlSurface element = (TrackControlSurface) binder.Control;
             SKColor c = element.Owner.Track?.Colour ?? SKColors.Black;
             ((SolidColorBrush) element.TrackColourBrush).Color = Color.FromArgb(c.Alpha, c.Red, c.Green, c.Blue);
@@ -219,12 +219,6 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             }
 
             this.ignoreExpandTrackEvent = false;
-        }
-
-        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {
-            base.OnPropertyChanged(e);
-            this.displayNameBinder?.OnPropertyChanged(e);
-            this.trackColourBinder?.OnPropertyChanged(e);
         }
 
         public void Connect(TrackControlSurfaceListBoxItem owner) {

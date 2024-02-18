@@ -6,6 +6,7 @@ using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.RBC;
 using FramePFX.Utils;
+using FramePFX.Utils.Disposable;
 using SkiaSharp;
 
 namespace FramePFX.Editors.Timelines.Clips.Core {

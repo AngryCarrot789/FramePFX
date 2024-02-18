@@ -5,6 +5,7 @@ using System.Linq;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.RBC;
 using FramePFX.Utils;
+using FramePFX.Utils.Destroying;
 
 namespace FramePFX.Editors.ResourceManaging {
     public delegate void CurrentFolderChangedEventHandler(ResourceManager manager, ResourceFolder oldFolder, ResourceFolder newFolder);
@@ -12,7 +13,7 @@ namespace FramePFX.Editors.ResourceManaging {
     /// <summary>
     /// Stores registered <see cref="ResourceItem"/> entries and maps <see cref="ResourceItem.UniqueId"/> to a <see cref="ResourceItem"/>
     /// </summary>
-    public class ResourceManager {
+    public class ResourceManager : IDestroy {
         private ulong currId; // starts at 0, incremented by GetNextId()
         public const ulong EmptyId = 0UL;
         private const string EmptyIdErrorMessage = "ID cannot be zero (null)";
@@ -224,6 +225,10 @@ namespace FramePFX.Editors.ResourceManaging {
                 Debug.Assert(selected.IsSelected, "Expected item in selectedItems set to be selected!!!");
                 selected.IsSelected = false;
             }
+        }
+
+        public void Destroy() {
+
         }
     }
 }

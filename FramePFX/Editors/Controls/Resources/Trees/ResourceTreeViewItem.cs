@@ -54,29 +54,21 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
 
         public MovedResource MovedResource { get; set; }
 
-        private readonly Stack<ResourceTreeViewItem> itemCache;
         private bool isProcessingAsyncDrop;
         private bool isDragDropping;
         private Point originMousePoint;
         private bool isDragActive;
         private bool CanExpandNextMouseUp;
 
-        private readonly GetSetAutoPropertyBinder<BaseResource> displayNameBinder = new GetSetAutoPropertyBinder<BaseResource>(HeaderProperty, nameof(BaseResource.DisplayNameChanged), b => b.Model.DisplayName, (b, v) => b.Model.DisplayName = (string) v);
-        private readonly GetSetAutoPropertyBinder<BaseResource> isSelectedBinder = new GetSetAutoPropertyBinder<BaseResource>(IsSelectedProperty, nameof(BaseResource.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.IsSelected = (bool) v);
+        private readonly GetSetAutoEventPropertyBinder<BaseResource> displayNameBinder = new GetSetAutoEventPropertyBinder<BaseResource>(HeaderProperty, nameof(BaseResource.DisplayNameChanged), b => b.Model.DisplayName, (b, v) => b.Model.DisplayName = (string) v);
+        private readonly GetSetAutoEventPropertyBinder<BaseResource> isSelectedBinder = new GetSetAutoEventPropertyBinder<BaseResource>(IsSelectedProperty, nameof(BaseResource.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.IsSelected = (bool) v);
 
         public ResourceTreeViewItem() {
-            this.itemCache = new Stack<ResourceTreeViewItem>();
             this.AllowDrop = true;
             AdvancedContextMenu.SetContextGenerator(this, ResourceContextRegistry.Instance);
         }
 
         static ResourceTreeViewItem() => DefaultStyleKeyProperty.OverrideMetadata(typeof(ResourceTreeViewItem), new FrameworkPropertyMetadata(typeof(ResourceTreeViewItem)));
-
-        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {
-            base.OnPropertyChanged(e);
-            this.displayNameBinder.OnPropertyChanged(e);
-            this.isSelectedBinder.OnPropertyChanged(e);
-        }
 
         public void OnAdding(ResourceTreeView resourceTree, ResourceTreeViewItem parentNode, BaseResource resource) {
             this.ResourceTree = resourceTree;
@@ -160,13 +152,16 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
         public ResourceTreeViewItem GetNodeAt(int index) => (ResourceTreeViewItem) this.Items[index];
 
         public void InsertNode(BaseResource item, int index) {
-            this.InsertNode(this.itemCache.Count > 0 ? this.itemCache.Pop() : new ResourceTreeViewItem(), item, index);
+            this.InsertNode(null, item, index);
         }
 
         public void InsertNode(ResourceTreeViewItem control, BaseResource resource, int index) {
             ResourceTreeView tree = this.ResourceTree;
             if (tree == null)
                 throw new InvalidOperationException("Cannot add children when we have no resource tree associated");
+            if (control == null)
+                control = tree.GetCachedItemOrNew();
+
             control.OnAdding(tree, this, resource);
             this.Items.Insert(index, control);
             tree.AddResourceMapping(control, resource);
@@ -185,8 +180,8 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
             this.Items.RemoveAt(index);
             tree.RemoveResourceMapping(control, resource);
             control.OnRemoved();
-            if (canCache && this.itemCache.Count < 16)
-                this.itemCache.Push(control);
+            if (canCache)
+                tree.PushCachedItem(control);
         }
 
         public static bool CanBeginDragDrop() {

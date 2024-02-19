@@ -139,6 +139,15 @@ namespace FramePFX.Editors.Timelines.Clips {
         }
 
         static VideoClip() {
+            SerialisationRegistry.Register<VideoClip>(0, (clip, data, ctx) => {
+                ctx.DeserialiseBaseClass(clip, data);
+                clip.IsVisible = data.GetBool(nameof(clip.IsVisible));
+                clip.isMatrixDirty = true;
+            }, (clip, data, ctx) => {
+                ctx.SerialiseBaseClass(clip, data);
+                data.SetBool(nameof(clip.IsVisible), clip.IsVisible);
+            });
+
             Parameter.AddMultipleHandlers(s => ((VideoClip) s.AutomationData.Owner).InvalidateTransformationMatrix(), MediaPositionParameter, MediaScaleParameter, MediaScaleOriginParameter, UseAbsoluteScaleOriginParameter, MediaRotationParameter, MediaRotationOriginParameter, UseAbsoluteRotationOriginParameter);
         }
 
@@ -151,19 +160,6 @@ namespace FramePFX.Editors.Timelines.Clips {
         protected override void OnTrackChanged(Track oldTrack, Track newTrack) {
             base.OnTrackChanged(oldTrack, newTrack);
             this.InvalidateTransformationMatrix();
-        }
-
-        public override void WriteToRBE(RBEDictionary data) {
-            base.WriteToRBE(data);
-            data.SetBool(nameof(this.IsVisible), this.IsVisible);
-            // we don't write Opacity here since it's an automatable parameter and therefore
-            // the value is saved either in the default key frame or in key frames
-        }
-
-        public override void ReadFromRBE(RBEDictionary data) {
-            base.ReadFromRBE(data);
-            this.IsVisible = data.GetBool(nameof(this.IsVisible));
-            this.isMatrixDirty = true;
         }
 
         /// <summary>

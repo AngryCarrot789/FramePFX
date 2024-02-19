@@ -26,6 +26,7 @@ using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.DataTransfer;
 using FramePFX.Editors.Factories;
 using FramePFX.Editors.ResourceManaging.ResourceHelpers;
+using FramePFX.Editors.Serialisation;
 using FramePFX.Editors.Timelines.Effects;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.RBC;
@@ -39,6 +40,7 @@ namespace FramePFX.Editors.Timelines.Clips {
     public delegate void ClipActiveSequenceChangedEventHandler(Clip clip, AutomationSequence oldSequence, AutomationSequence newSequence);
 
     public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStrictFrameRange, IResourceHolder, IHaveEffects, IDestroy {
+        public static readonly SerialisationRegistry SerialisationRegistry;
         private readonly List<BaseEffect> internalEffectList;
         private FrameSpan span;
         private string displayName;
@@ -186,6 +188,42 @@ namespace FramePFX.Editors.Timelines.Clips {
             this.TransferableData = new TransferableData(this);
         }
 
+        static Clip() {
+            SerialisationRegistry = new SerialisationRegistry();
+
+            // Is this even a good system? Minor updates could be handled in one of these too i suppose...
+            // Build Version 0 is the absolute lowest version the app can be in. If there's a new feature added,
+            // that obviously means the app build number is now higher and so that version should be used to register
+            // a new serialiser/deserialiser that also calls the previous version (or does a complete rewrite, if necessary)
+            SerialisationRegistry.Register<Clip>(0, (clip, data, ctx) => {
+                clip.displayName = data.GetString(nameof(clip.DisplayName), null);
+                clip.FrameSpan = data.GetStruct<FrameSpan>(nameof(clip.FrameSpan));
+                clip.MediaFrameOffset = data.GetLong(nameof(clip.MediaFrameOffset));
+                // clip.IsRenderingEnabled = data.GetBool(nameof(clip.IsRenderingEnabled), true);
+                clip.AutomationData.ReadFromRBE(data.GetDictionary(nameof(clip.AutomationData)));
+                BaseEffect.ReadSerialisedWithIdList(clip, data.GetList("Effects"));
+                clip.ResourceHelper.ReadFromRootRBE(data);
+            }, (clip, data, ctx) => {
+                if (!string.IsNullOrEmpty(clip.displayName))
+                    data.SetString(nameof(clip.DisplayName), clip.displayName);
+                data.SetStruct(nameof(clip.FrameSpan), clip.FrameSpan);
+                data.SetLong(nameof(clip.MediaFrameOffset), clip.MediaFrameOffset);
+                // data.SetBool(nameof(clip.IsRenderingEnabled), clip.IsRenderingEnabled);
+                clip.AutomationData.WriteToRBE(data.CreateDictionary(nameof(clip.AutomationData)));
+                BaseEffect.WriteSerialisedWithIdList(clip, data.CreateList("Effects"));
+                clip.ResourceHelper.WriteToRootRBE(data);
+            });
+
+            // Example new serialisers for new feature added in new build version
+            // SerialisationRegistry.Register<Clip>(1, (clip, data, ctx) => {
+            //     ctx.DeserialiseLastVersion(clip, data);
+            //     clip.SpecialProperty = ...
+            // }, (clip, data, ctx) => {
+            //     ctx.SerialiseLastVersion(clip, data);
+            //     ... = clip.SpecialProperty;
+            // });
+        }
+
         /// <summary>
         /// Marks our project (if available) as modified
         /// </summary>
@@ -232,35 +270,14 @@ namespace FramePFX.Editors.Timelines.Clips {
             if (!(clip.FactoryId is string id))
                 throw new Exception("Unknown clip type: " + clip.GetType());
             dictionary.SetString(nameof(FactoryId), id);
-            clip.WriteToRBE(dictionary.CreateDictionary("Data"));
+            SerialisationRegistry.Serialise(clip, dictionary.CreateDictionary("Data"), SerialisationContext.ForAppVersion);
         }
 
         public static Clip ReadSerialisedWithId(RBEDictionary dictionary) {
             string id = dictionary.GetString(nameof(FactoryId));
             Clip clip = ClipFactory.Instance.NewClip(id);
-            clip.ReadFromRBE(dictionary.GetDictionary("Data"));
+            SerialisationRegistry.Deserialise(clip, dictionary.GetDictionary("Data"), SerialisationContext.ForAppVersion);
             return clip;
-        }
-
-        public virtual void WriteToRBE(RBEDictionary data) {
-            if (!string.IsNullOrEmpty(this.displayName))
-                data.SetString(nameof(this.DisplayName), this.displayName);
-            data.SetStruct(nameof(this.FrameSpan), this.FrameSpan);
-            data.SetLong(nameof(this.MediaFrameOffset), this.MediaFrameOffset);
-            // data.SetBool(nameof(this.IsRenderingEnabled), this.IsRenderingEnabled);
-            this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
-            BaseEffect.WriteSerialisedWithIdList(this, data.CreateList("Effects"));
-            this.ResourceHelper.WriteToRootRBE(data);
-        }
-
-        public virtual void ReadFromRBE(RBEDictionary data) {
-            this.displayName = data.GetString(nameof(this.DisplayName), null);
-            this.FrameSpan = data.GetStruct<FrameSpan>(nameof(this.FrameSpan));
-            this.MediaFrameOffset = data.GetLong(nameof(this.MediaFrameOffset));
-            // this.IsRenderingEnabled = data.GetBool(nameof(this.IsRenderingEnabled), true);
-            this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
-            BaseEffect.ReadSerialisedWithIdList(this, data.GetList("Effects"));
-            this.ResourceHelper.ReadFromRootRBE(data);
         }
 
         protected virtual void LoadDataIntoClone(Clip clone, ClipCloneOptions options) {

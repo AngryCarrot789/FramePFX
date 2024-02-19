@@ -239,6 +239,7 @@
     <Compile Include="Editors\ResourceManaging\Resources\InvalidMediaPathEntry.cs" />
     <Compile Include="Editors\ResourceManaging\Resources\ResourceAVMedia.cs" />
     <Compile Include="Editors\ResourceManaging\Resources\ResourceComposition.cs" />
+    <Compile Include="Editors\Serialisation\SerialisationRegistry.cs" />
     <Compile Include="Editors\Timelines\Clips\AudioClip.cs" />
     <Compile Include="Editors\Timelines\Clips\ClipGroup.cs" />
     <Compile Include="Editors\Timelines\Clips\Core\AVMediaVideoClip.cs" />

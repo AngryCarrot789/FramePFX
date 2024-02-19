@@ -95,30 +95,28 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
         }
 
         static TimecodeClip() {
+            SerialisationRegistry.Register<TimecodeClip>(0, (clip, data, ctx) => {
+                ctx.DeserialiseBaseClass(clip, data);
+                clip.UseClipStartTime = data.GetBool("UseClipStart");
+                clip.UseClipEndTime = data.GetBool("UseClipEnd");
+                clip.StartTime = data.GetDouble("StartTime");
+                clip.EndTime = data.GetDouble("EndTime");
+                clip.fontFamily = data.GetString("FontFamily", null);
+            }, (clip, data, ctx) => {
+                ctx.SerialiseBaseClass(clip, data);
+                data.SetBool("UseClipStart", clip.UseClipStartTime);
+                data.SetBool("UseClipEnd", clip.UseClipEndTime);
+                data.SetDouble("StartTime", clip.StartTime);
+                data.SetDouble("EndTime", clip.EndTime);
+                if (clip.fontFamily != null)
+                    data.SetString("FontFamily", clip.fontFamily);
+            });
+
             FontSizeParameter.ParameterValueChanged += sequence => {
                 TimecodeClip owner = (TimecodeClip) sequence.AutomationData.Owner;
                 owner.fontData.Dispose();
                 owner.InvalidateRender();
             };
-        }
-
-        public override void WriteToRBE(RBEDictionary data) {
-            base.WriteToRBE(data);
-            data.SetBool("UseClipStart", this.UseClipStartTime);
-            data.SetBool("UseClipEnd", this.UseClipEndTime);
-            data.SetDouble("StartTime", this.StartTime);
-            data.SetDouble("EndTime", this.EndTime);
-            if (this.fontFamily != null)
-                data.SetString("FontFamily", this.fontFamily);
-        }
-
-        public override void ReadFromRBE(RBEDictionary data) {
-            base.ReadFromRBE(data);
-            this.UseClipStartTime = data.GetBool("UseClipStart");
-            this.UseClipEndTime = data.GetBool("UseClipEnd");
-            this.StartTime = data.GetDouble("StartTime");
-            this.EndTime = data.GetDouble("EndTime");
-            this.fontFamily = data.GetString("FontFamily", null);
         }
 
         protected override void LoadDataIntoClone(Clip clone, ClipCloneOptions options) {

@@ -50,6 +50,23 @@ namespace FramePFX {
 
         public VideoEditor VideoEditor { get; private set; }
 
+        /// <summary>
+        /// Gets the current version of the application. This value does not change during runtime.
+        /// <para>The <see cref="Version.Major"/> property is used to represent a rewrite of the application (for next update)</para>
+        /// <para>The <see cref="Version.Minor"/> property is used to represent a large change (for next update)</para>
+        /// <para>The <see cref="Version.Build"/> property is used to represent any change to the code (for next update)</para>
+        /// <para>
+        /// 'for next update' meaning the number is incremented when there's a push to the github, as this is
+        /// easiest to track. Many different changes can count as one update
+        /// </para>
+        /// </summary>
+        public Version CurrentVersion { get; } = new Version(1, 0, 0, 0);
+
+        /// <summary>
+        /// Gets the current build version of this application. This accesses <see cref="CurrentVersion"/>, and changes whenever a new change is made to the application (regardless of how small)
+        /// </summary>
+        public int CurrentBuild => this.CurrentVersion.Build;
+
         private ApplicationCore() {
             this.serviceManager = new ServiceManager();
         }

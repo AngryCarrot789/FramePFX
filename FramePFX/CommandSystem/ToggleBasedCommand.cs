@@ -17,7 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.CommandSystem {
     public abstract class ToggleBasedCommand : Command {
@@ -29,7 +29,7 @@ namespace FramePFX.CommandSystem {
         /// <param name="e">The command event args, containing info about the current context</param>
         /// <returns>A nullable boolean that states the toggle state, or null if no toggle state is present</returns>
         public virtual bool? GetIsToggled(CommandEventArgs e) {
-            return IsToggledKey.TryGetContext(e.DataContext, out bool value) ? (bool?) value : null;
+            return IsToggledKey.TryGetContext(e.Context, out bool value) ? (bool?) value : null;
         }
 
         public override void Execute(CommandEventArgs e) {

@@ -20,7 +20,7 @@
 using System.Windows;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines.Tracks;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editors.Actions {
     public class NewProjectCommand : Command {
@@ -54,7 +54,7 @@ namespace FramePFX.Editors.Actions {
         }
 
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.VideoEditorKey.TryGetContext(e.DataContext, out VideoEditor editor)) {
+            if (!DataKeys.VideoEditorKey.TryGetContext(e.Context, out VideoEditor editor)) {
                 return;
             }
 

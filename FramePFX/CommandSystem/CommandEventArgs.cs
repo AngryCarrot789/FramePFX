@@ -18,7 +18,7 @@
 //
 
 using System;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.CommandSystem {
     /// <summary>
@@ -38,7 +38,7 @@ namespace FramePFX.CommandSystem {
         /// This gives a wide range of access to the objects being acted upon
         /// </para>
         /// </summary>
-        public IDataContext DataContext { get; }
+        public IContextData Context { get; }
 
         /// <summary>
         /// Whether this command event was originally caused by a user or not, e.g. via a button/menu click or clicking a check box.
@@ -55,16 +55,16 @@ namespace FramePFX.CommandSystem {
         /// </summary>
         public string CommandId { get; }
 
-        public CommandEventArgs(CommandManager manager, string commandId, IDataContext dataContext, bool isUserInitiated) {
+        public CommandEventArgs(CommandManager manager, string commandId, IContextData contextData, bool isUserInitiated) {
             if (commandId != null && commandId.Length < 1) {
                 throw new ArgumentException("CommandId must be null or a non-empty string");
             }
 
-            if (dataContext == null)
-                throw new ArgumentNullException(nameof(dataContext), "Data context cannot be null");
+            if (contextData == null)
+                throw new ArgumentNullException(nameof(contextData), "Data context cannot be null");
 
             this.Manager = manager ?? throw new ArgumentNullException(nameof(manager), "Command manager cannot be null");
-            this.DataContext = new DataContext(dataContext);
+            this.Context = new ContextData(contextData);
             this.IsUserInitiated = isUserInitiated;
             this.CommandId = commandId;
         }

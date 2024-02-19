@@ -17,13 +17,13 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using FramePFX.Interactivity.DataContexts;
 using FramePFX.CommandSystem;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editors.Actions {
     public class ToggleTrackAutomationCommand : Command {
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.VideoEditorKey.TryGetContext(e.DataContext, out VideoEditor editor))
+            if (!DataKeys.VideoEditorKey.TryGetContext(e.Context, out VideoEditor editor))
                 return;
             editor.ShowTrackAutomation = !editor.ShowTrackAutomation;
         }

@@ -28,7 +28,7 @@ using FramePFX.Editors.ProjectProps;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.Timelines;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.PropertyEditing;
 using FramePFX.Themes;
 using FramePFX.Utils;
@@ -46,13 +46,13 @@ namespace FramePFX.Editors.Views {
             set => this.SetValue(EditorProperty, value);
         }
 
-        private readonly DataContext contextData;
+        private readonly ContextData contextData;
 
         private readonly NumberAverager renderTimeAverager;
 
         public EditorWindow() {
             this.renderTimeAverager = new NumberAverager(5); // average 5 samples. Will take a second to catch up at 5 fps but meh
-            this.contextData = new DataContext();
+            this.contextData = new ContextData();
             this.InitializeComponent();
             this.Loaded += this.EditorWindow_Loaded;
             DataManager.SetContextData(this, this.contextData);

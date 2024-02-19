@@ -31,7 +31,7 @@ using FramePFX.Editors.Contextual;
 using FramePFX.Editors.Controls.Binders;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Interactivity;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 
 namespace FramePFX.Editors.Controls.Resources.Explorers {
@@ -285,7 +285,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
             ResourceExplorerListItemContent content = (ResourceExplorerListItemContent) this.Content;
             content.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
             content.Connect(this);
-            DataManager.SetContextData(this, new DataContext().Set(DataKeys.ResourceObjectKey, this.Model));
+            DataManager.SetContextData(this, new ContextData().Set(DataKeys.ResourceObjectKey, this.Model));
         }
 
         public void OnRemovingFromList() {

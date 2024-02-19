@@ -169,11 +169,15 @@ namespace FramePFX.Editors.Automation.Keyframes {
 
         /// <summary>
         /// Tries to query our automation data owner's relative frame and checks if it is in range of the automatable
-        /// object. If it is, then <see cref="UpdateValue(long)"/> is called to update its effective value
+        /// object. If it is, then <see cref="UpdateValue(long)"/> is called to update its effective value, otherwise,
+        /// it is called with a frame of -1 to signal to use the default frame value
         /// </summary>
-        public void UpdateValue() {
+        public void UpdateValue(bool canUpdateUsingDefaultValue = true) {
             if (this.AutomationData.Owner.GetRelativePlayHead(out long playHead)) {
                 this.UpdateValue(playHead);
+            }
+            else if (canUpdateUsingDefaultValue) {
+                this.UpdateValue(-1);
             }
         }
 

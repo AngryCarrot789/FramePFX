@@ -20,7 +20,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using FramePFX.CommandSystem;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.Shortcuts.WPF.Converters;
 
 namespace FramePFX.AdvancedMenuService.WPF {
@@ -47,7 +47,7 @@ namespace FramePFX.AdvancedMenuService.WPF {
 
         protected override bool IsEnabledCore => base.IsEnabledCore && this.CanExecute;
 
-        private IDataContext loadedDataContext;
+        private IContextData loadedContextData;
 
         public AdvancedCommandMenuItem() {
             this.Click += this.OnClick;
@@ -56,12 +56,12 @@ namespace FramePFX.AdvancedMenuService.WPF {
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e) {
-            this.loadedDataContext = ContextCapturingMenu.GetCapturedContextData(this) ?? DataManager.EvaluateContextData(this);
+            this.loadedContextData = ContextCapturingMenu.GetCapturedContextData(this) ?? DataManager.EvaluateContextData(this);
             string id = this.CommandId;
             if (string.IsNullOrWhiteSpace(id))
                 id = null;
 
-            this.CanExecute = id != null && CommandManager.Instance.CanExecute(id, this.loadedDataContext);
+            this.CanExecute = id != null && CommandManager.Instance.CanExecute(id, this.loadedContextData);
             if (this.CanExecute) {
                 if (CommandIdToGestureConverter.CommandIdToGesture(id, null, out string value)) {
                     this.SetCurrentValue(InputGestureTextProperty, value);
@@ -70,12 +70,12 @@ namespace FramePFX.AdvancedMenuService.WPF {
         }
 
         private void OnUnloaded(object sender, RoutedEventArgs e) {
-            this.loadedDataContext = null;
+            this.loadedContextData = null;
         }
 
         private void OnClick(object sender, RoutedEventArgs e) {
-            if (this.loadedDataContext != null && this.CommandId is string commandId) {
-                CommandManager.Instance.Execute(commandId, this.loadedDataContext);
+            if (this.loadedContextData != null && this.CommandId is string commandId) {
+                CommandManager.Instance.Execute(commandId, this.loadedContextData);
             }
         }
     }

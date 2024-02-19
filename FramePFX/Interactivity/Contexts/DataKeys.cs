@@ -24,7 +24,7 @@ using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Effects;
 using FramePFX.Editors.Timelines.Tracks;
 
-namespace FramePFX.Interactivity.DataContexts {
+namespace FramePFX.Interactivity.Contexts {
     public static class DataKeys {
         public static readonly DataKey<VideoEditor> VideoEditorKey = DataKey<VideoEditor>.Create("VideoEditor");
         public static readonly DataKey<Project> ProjectKey = DataKey<Project>.Create("Project");

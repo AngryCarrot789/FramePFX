@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Windows;
 using FramePFX.Utils;
 
-namespace FramePFX.Interactivity.DataContexts {
+namespace FramePFX.Interactivity.Contexts {
     /// <summary>
     /// A class that is used to extract contextual information from WPF components
     /// </summary>
@@ -32,22 +32,22 @@ namespace FramePFX.Interactivity.DataContexts {
         public static readonly DependencyProperty ContextDataProperty =
             DependencyProperty.RegisterAttached(
                 "ContextData",
-                typeof(IDataContext),
+                typeof(IContextData),
                 typeof(DataManager),
                 new PropertyMetadata(null));
 
         /// <summary>
         /// Sets or replaces the context data for the specific dependency object
         /// </summary>
-        public static void SetContextData(DependencyObject element, IDataContext value) {
+        public static void SetContextData(DependencyObject element, IContextData value) {
             element.SetValue(ContextDataProperty, value);
         }
 
         /// <summary>
         /// Gets the context data for the specific dependency object
         /// </summary>
-        public static IDataContext GetContextData(DependencyObject element) {
-            return (IDataContext) element.GetValue(ContextDataProperty);
+        public static IContextData GetContextData(DependencyObject element) {
+            return (IContextData) element.GetValue(ContextDataProperty);
         }
 
         /// <summary>
@@ -66,8 +66,8 @@ namespace FramePFX.Interactivity.DataContexts {
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static DataContext EvaluateContextData(DependencyObject obj) {
-            DataContext ctx = new DataContext();
+        public static ContextData EvaluateContextData(DependencyObject obj) {
+            ContextData ctx = new ContextData();
 
             // I thought about using TreeLevel, then thought reflection was too slow, so then I profiled the code...
             // This entire method (for a clip, 26 visual elements to the root) takes about 20 microseconds
@@ -89,7 +89,7 @@ namespace FramePFX.Interactivity.DataContexts {
             for (int i = visualTree.Count - 1; i >= 0; i--) {
                 DependencyObject dp = visualTree[i];
                 object localEntry = dp.ReadLocalValue(ContextDataProperty);
-                if (localEntry != DependencyProperty.UnsetValue && localEntry is IDataContext dpCtx) {
+                if (localEntry != DependencyProperty.UnsetValue && localEntry is IContextData dpCtx) {
                     ctx.Merge(dpCtx);
                 }
             }

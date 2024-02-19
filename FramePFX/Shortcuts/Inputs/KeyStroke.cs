@@ -40,7 +40,7 @@ namespace FramePFX.Shortcuts.Inputs {
         public static Func<int, bool, string> ModifierToStringProvider { get; set; } = (x, s) => new StringBuilder(16).Append("MOD(").Append(x).Append(')').ToString();
 
         /// <summary>
-        /// The key code involved (cannot be a modifier key). This key code is relative to whatever key system the platform is running on
+        /// The key code involved. This key code is relative to whatever key system the platform is running on
         /// </summary>
         public int KeyCode { get; }
 

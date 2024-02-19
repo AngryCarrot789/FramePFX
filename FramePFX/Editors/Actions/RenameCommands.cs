@@ -21,12 +21,12 @@ using FramePFX.CommandSystem;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editors.Actions {
     public class RenameResourceCommand : Command {
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.ResourceObjectKey.TryGetContext(e.DataContext, out BaseResource resource)) {
+            if (!DataKeys.ResourceObjectKey.TryGetContext(e.Context, out BaseResource resource)) {
                 return;
             }
 
@@ -38,7 +38,7 @@ namespace FramePFX.Editors.Actions {
 
     public class RenameClipCommand : Command {
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.ClipKey.TryGetContext(e.DataContext, out Clip clip)) {
+            if (!DataKeys.ClipKey.TryGetContext(e.Context, out Clip clip)) {
                 return;
             }
 
@@ -50,7 +50,7 @@ namespace FramePFX.Editors.Actions {
 
     public class RenameTrackCommand : Command {
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.TrackKey.TryGetContext(e.DataContext, out Track track)) {
+            if (!DataKeys.TrackKey.TryGetContext(e.Context, out Track track)) {
                 return;
             }
 

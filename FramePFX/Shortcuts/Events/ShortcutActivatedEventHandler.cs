@@ -17,9 +17,9 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.Shortcuts.Managing;
 
 namespace FramePFX.Shortcuts.Events {
-    public delegate bool ShortcutActivatedEventHandler(ShortcutInputManager inputManager, GroupedShortcut shortcut, IDataContext context);
+    public delegate bool ShortcutActivatedEventHandler(ShortcutInputManager inputManager, GroupedShortcut shortcut, IContextData context);
 }

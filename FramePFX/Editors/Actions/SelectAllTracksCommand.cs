@@ -20,7 +20,7 @@
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.PropertyEditing;
 
 namespace FramePFX.Editors.Actions {
@@ -45,12 +45,12 @@ namespace FramePFX.Editors.Actions {
         }
 
         public override bool CanExecute(CommandEventArgs e) {
-            return e.DataContext.ContainsKey(DataKeys.TimelineKey) || e.DataContext.ContainsKey(DataKeys.TrackKey);
+            return e.Context.ContainsKey(DataKeys.TimelineKey) || e.Context.ContainsKey(DataKeys.TrackKey);
         }
 
         public override void Execute(CommandEventArgs e) {
             Timeline timeline;
-            if (DataKeys.TrackKey.TryGetContext(e.DataContext, out Track track) && (timeline = track.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.DataContext, out timeline)) {
+            if (DataKeys.TrackKey.TryGetContext(e.Context, out Track track) && (timeline = track.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.Context, out timeline)) {
                 SelectAll(timeline, track, false);
             }
         }
@@ -58,11 +58,11 @@ namespace FramePFX.Editors.Actions {
 
     public class SelectAllClipsInTrackCommand : Command {
         public override bool CanExecute(CommandEventArgs e) {
-            return e.DataContext.ContainsKey(DataKeys.TrackKey);
+            return e.Context.ContainsKey(DataKeys.TrackKey);
         }
 
         public override void Execute(CommandEventArgs e) {
-            if (DataKeys.TrackKey.TryGetContext(e.DataContext, out Track track)) {
+            if (DataKeys.TrackKey.TryGetContext(e.Context, out Track track)) {
                 track.SelectAll();
                 VideoEditorPropertyEditor.Instance.UpdateClipSelectionAsync(track.Timeline);
             }
@@ -71,12 +71,12 @@ namespace FramePFX.Editors.Actions {
 
     public class SelectAllClipsInTimelineCommand : Command {
         public override bool CanExecute(CommandEventArgs e) {
-            return e.DataContext.ContainsKey(DataKeys.TrackKey) || e.DataContext.ContainsKey(DataKeys.TimelineKey);
+            return e.Context.ContainsKey(DataKeys.TrackKey) || e.Context.ContainsKey(DataKeys.TimelineKey);
         }
 
         public override void Execute(CommandEventArgs e) {
             Timeline timeline;
-            if (DataKeys.TrackKey.TryGetContext(e.DataContext, out Track track) && (timeline = track.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.DataContext, out timeline)) {
+            if (DataKeys.TrackKey.TryGetContext(e.Context, out Track track) && (timeline = track.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.Context, out timeline)) {
                 SelectAllTracksCommand.SelectAll(timeline, track, true);
             }
         }

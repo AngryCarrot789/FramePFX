@@ -64,141 +64,119 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
         private static readonly DependencyPropertyKey IsLeftMousePressedPropertyKey = DependencyProperty.RegisterReadOnly("IsLeftMousePressed", typeof(bool), typeof(MultiSelectTreeViewItem), new PropertyMetadata(BoolBox.False));
         public static readonly DependencyProperty IsLeftMousePressedProperty = IsLeftMousePressedPropertyKey.DependencyProperty;
 
-        private bool IsUsingItemSource;
-
-        public MultiSelectTreeViewItem() {
-        }
-
-        protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue) {
-            base.OnItemsSourceChanged(oldValue, newValue);
-            this.IsUsingItemSource = newValue != null;
-        }
-
-        static MultiSelectTreeViewItem() {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(MultiSelectTreeViewItem), new FrameworkPropertyMetadata(typeof(MultiSelectTreeViewItem)));
-            VirtualizingPanel.IsVirtualizingProperty.OverrideMetadata(typeof(MultiSelectTreeViewItem), new FrameworkPropertyMetadata(BoolBox.False));
-        }
-
-        internal void InvokeMouseDown() {
-            MouseButtonEventArgs e = new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Right) {
-                RoutedEvent = Mouse.MouseDownEvent
-            };
-            this.OnMouseDown(e);
-        }
-
         public Brush BackgroundFocused {
-            get { return (Brush) this.GetValue(BackgroundFocusedProperty); }
-            set { this.SetValue(BackgroundFocusedProperty, value); }
+            get => (Brush) this.GetValue(BackgroundFocusedProperty);
+            set => this.SetValue(BackgroundFocusedProperty, value);
         }
 
         public Brush BackgroundSelected {
-            get { return (Brush) this.GetValue(BackgroundSelectedProperty); }
-            set { this.SetValue(BackgroundSelectedProperty, value); }
+            get => (Brush) this.GetValue(BackgroundSelectedProperty);
+            set => this.SetValue(BackgroundSelectedProperty, value);
         }
 
         public Brush ForegroundSelected {
-            get { return (Brush) this.GetValue(ForegroundSelectedProperty); }
-            set { this.SetValue(ForegroundSelectedProperty, value); }
+            get => (Brush) this.GetValue(ForegroundSelectedProperty);
+            set => this.SetValue(ForegroundSelectedProperty, value);
         }
 
         public Brush BackgroundSelectedHovered {
-            get { return (Brush) this.GetValue(BackgroundSelectedHoveredProperty); }
-            set { this.SetValue(BackgroundSelectedHoveredProperty, value); }
+            get => (Brush) this.GetValue(BackgroundSelectedHoveredProperty);
+            set => this.SetValue(BackgroundSelectedHoveredProperty, value);
         }
 
         public Brush BackgroundHovered {
-            get { return (Brush) this.GetValue(BackgroundHoveredProperty); }
-            set { this.SetValue(BackgroundHoveredProperty, value); }
+            get => (Brush) this.GetValue(BackgroundHoveredProperty);
+            set => this.SetValue(BackgroundHoveredProperty, value);
         }
 
         public Brush BackgroundInactive {
-            get { return (Brush) this.GetValue(BackgroundInactiveProperty); }
-            set { this.SetValue(BackgroundInactiveProperty, value); }
+            get => (Brush) this.GetValue(BackgroundInactiveProperty);
+            set => this.SetValue(BackgroundInactiveProperty, value);
         }
 
         public Brush ForegroundInactive {
-            get { return (Brush) this.GetValue(ForegroundInactiveProperty); }
-            set { this.SetValue(ForegroundInactiveProperty, value); }
+            get => (Brush) this.GetValue(ForegroundInactiveProperty);
+            set => this.SetValue(ForegroundInactiveProperty, value);
         }
 
         public Brush BorderBrushInactive {
-            get { return (Brush) this.GetValue(BorderBrushInactiveProperty); }
-            set { this.SetValue(BorderBrushInactiveProperty, value); }
+            get => (Brush) this.GetValue(BorderBrushInactiveProperty);
+            set => this.SetValue(BorderBrushInactiveProperty, value);
         }
 
         public Brush BorderBrushHovered {
-            get { return (Brush) this.GetValue(BorderBrushHoveredProperty); }
-            set { this.SetValue(BorderBrushHoveredProperty, value); }
+            get => (Brush) this.GetValue(BorderBrushHoveredProperty);
+            set => this.SetValue(BorderBrushHoveredProperty, value);
         }
 
         public Brush BorderBrushFocused {
-            get { return (Brush) this.GetValue(BorderBrushFocusedProperty); }
-            set { this.SetValue(BorderBrushFocusedProperty, value); }
+            get => (Brush) this.GetValue(BorderBrushFocusedProperty);
+            set => this.SetValue(BorderBrushFocusedProperty, value);
         }
 
         public Brush BorderBrushSelected {
-            get { return (Brush) this.GetValue(BorderBrushSelectedProperty); }
-            set { this.SetValue(BorderBrushSelectedProperty, value); }
+            get => (Brush) this.GetValue(BorderBrushSelectedProperty);
+            set => this.SetValue(BorderBrushSelectedProperty, value);
         }
 
         public DataTemplate ContentTemplateEdit {
-            get { return (DataTemplate) this.GetValue(ContentTemplateEditProperty); }
-            set { this.SetValue(ContentTemplateEditProperty, value); }
+            get => (DataTemplate) this.GetValue(ContentTemplateEditProperty);
+            set => this.SetValue(ContentTemplateEditProperty, value);
         }
 
         public bool IsExpanded {
-            get { return (bool) this.GetValue(IsExpandedProperty); }
-            set { this.SetValue(IsExpandedProperty, value.Box()); }
+            get => (bool) this.GetValue(IsExpandedProperty);
+            set => this.SetValue(IsExpandedProperty, value.Box());
         }
 
         public bool IsEditable {
-            get { return (bool) this.GetValue(IsEditableProperty); }
-            set { this.SetValue(IsEditableProperty, value.Box()); }
+            get => (bool) this.GetValue(IsEditableProperty);
+            set => this.SetValue(IsEditableProperty, value.Box());
         }
 
         public new bool IsVisible {
-            get { return (bool) this.GetValue(IsVisibleProperty); }
-            set { this.SetValue(IsVisibleProperty, value.Box()); }
+            get => (bool) this.GetValue(IsVisibleProperty);
+            set => this.SetValue(IsVisibleProperty, value.Box());
         }
 
         public bool IsEditing {
-            get { return (bool) this.GetValue(IsEditingProperty); }
-            set { this.SetValue(IsEditingProperty, value.Box()); }
+            get => (bool) this.GetValue(IsEditingProperty);
+            set => this.SetValue(IsEditingProperty, value.Box());
         }
 
         public bool IsSelected {
-            get { return (bool) this.GetValue(IsSelectedProperty); }
-            set { this.SetValue(IsSelectedProperty, value.Box()); }
+            get => (bool) this.GetValue(IsSelectedProperty);
+            set => this.SetValue(IsSelectedProperty, value.Box());
         }
 
         public string DisplayName {
-            get { return (string) this.GetValue(DisplayNameProperty); }
-            set { this.SetValue(DisplayNameProperty, value); }
+            get => (string) this.GetValue(DisplayNameProperty);
+            set => this.SetValue(DisplayNameProperty, value);
         }
 
         public bool HoverHighlighting {
-            get { return (bool) this.GetValue(HoverHighlightingProperty); }
-            set { this.SetValue(HoverHighlightingProperty, value.Box()); }
+            get => (bool) this.GetValue(HoverHighlightingProperty);
+            set => this.SetValue(HoverHighlightingProperty, value.Box());
         }
 
         public int ItemIndent {
-            get { return (int) this.GetValue(ItemIndentProperty); }
-            set { this.SetValue(ItemIndentProperty, value); }
+            get => (int) this.GetValue(ItemIndentProperty);
+            set => this.SetValue(ItemIndentProperty, value);
         }
 
         public bool IsKeyboardMode {
-            get { return (bool) this.GetValue(IsKeyboardModeProperty); }
-            set { this.SetValue(IsKeyboardModeProperty, value.Box()); }
+            get => (bool) this.GetValue(IsKeyboardModeProperty);
+            set => this.SetValue(IsKeyboardModeProperty, value.Box());
         }
 
         public string Remarks {
-            get { return (string) this.GetValue(RemarksProperty); }
-            set { this.SetValue(RemarksProperty, value); }
+            get => (string) this.GetValue(RemarksProperty);
+            set => this.SetValue(RemarksProperty, value);
         }
 
         public DataTemplate RemarksTemplate {
-            get { return (DataTemplate) this.GetValue(RemarksTemplateProperty); }
-            set { this.SetValue(RemarksTemplateProperty, value); }
+            get => (DataTemplate) this.GetValue(RemarksTemplateProperty);
+            set => this.SetValue(RemarksTemplateProperty, value);
         }
 
         public bool IsLeftMousePressed => (bool) this.GetValue(IsLeftMousePressedProperty);
@@ -227,6 +205,20 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
 
         private ItemsControl ParentItemsControl => ItemsControlFromItemContainer(this);
 
+        public MultiSelectTreeViewItem() {
+        }
+
+        static MultiSelectTreeViewItem() {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(MultiSelectTreeViewItem), new FrameworkPropertyMetadata(typeof(MultiSelectTreeViewItem)));
+            VirtualizingPanel.IsVirtualizingProperty.OverrideMetadata(typeof(MultiSelectTreeViewItem), new FrameworkPropertyMetadata(BoolBox.False));
+        }
+
+        internal void InvokeMouseDown() {
+            this.OnMouseDown(new MouseButtonEventArgs(Mouse.PrimaryDevice, 0, MouseButton.Right) {
+                RoutedEvent = Mouse.MouseDownEvent
+            });
+        }
+
         protected static void OnIsSelectedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
             // The item has been selected through its IsSelected property. Update the SelectedItems
             // list accordingly (this is the authoritative collection). No PreviewSelectionChanged
@@ -249,15 +241,14 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
                 return;
 
             switch (e.Property.Name) {
-                //System.Diagnostics.Debug.WriteLine("P(" + ParentTreeView.Name + "): " + e.Property + " " + e.NewValue);
-                case "IsEditing": {
+                case nameof(this.IsEditing): {
                     if ((bool) e.NewValue == false) {
                         this.StopEditing();
                     }
 
                     break;
                 }
-                case "IsExpanded": {
+                case nameof(this.IsExpanded): {
                     // Bring newly expanded child nodes into view if they'd be outside of the current view
                     if ((bool) e.NewValue) {
                         if (this.VisualChildrenCount > 0) {
@@ -274,7 +265,7 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
 
                     break;
                 }
-                case "IsVisible": {
+                case nameof(UIElement.IsVisible): {
                     // Deselect invisible item and its children (If one resists, don't hide)
                     if ((bool) e.NewValue == false) {
                         if (!this.ParentTreeView.DeselectRecursive(this, true)) {

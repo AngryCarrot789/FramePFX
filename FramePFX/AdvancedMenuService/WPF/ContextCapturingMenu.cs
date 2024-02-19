@@ -25,7 +25,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.AdvancedMenuService.WPF {
     /// <summary>
@@ -35,7 +35,7 @@ namespace FramePFX.AdvancedMenuService.WPF {
     /// </summary>
     public class ContextCapturingMenu : Menu {
         private const BindingFlags InternalInstanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-        public static readonly DependencyProperty CapturedContextDataProperty = DependencyProperty.RegisterAttached("CapturedContextData", typeof(IDataContext), typeof(ContextCapturingMenu), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly DependencyProperty CapturedContextDataProperty = DependencyProperty.RegisterAttached("CapturedContextData", typeof(IContextData), typeof(ContextCapturingMenu), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
         private static readonly EventInfo MenuModeChangedEventInfo = typeof(MenuBase).GetEvent("InternalMenuModeChanged", InternalInstanceFlags | BindingFlags.DeclaredOnly);
         private static readonly PropertyInfo IsMenuModePropertyInfo = typeof(MenuBase).GetProperty("IsMenuMode", InternalInstanceFlags | BindingFlags.DeclaredOnly);
 
@@ -101,13 +101,13 @@ namespace FramePFX.AdvancedMenuService.WPF {
         // }
 
         private void CaptureContextFromObject(DependencyObject focused) {
-            DataContext ctx = DataManager.EvaluateContextData(focused);
+            ContextData ctx = DataManager.EvaluateContextData(focused);
             Debug.WriteLine("Context captured with " + ctx.Count + " entries");
             SetCapturedContextData(this, ctx);
         }
 
-        public static void SetCapturedContextData(DependencyObject element, IDataContext value) => element.SetValue(CapturedContextDataProperty, value);
+        public static void SetCapturedContextData(DependencyObject element, IContextData value) => element.SetValue(CapturedContextDataProperty, value);
 
-        public static IDataContext GetCapturedContextData(DependencyObject element) => (IDataContext) element.GetValue(CapturedContextDataProperty);
+        public static IContextData GetCapturedContextData(DependencyObject element) => (IContextData) element.GetValue(CapturedContextDataProperty);
     }
 }

@@ -23,12 +23,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.Logger;
 using FramePFX.Utils;
 
 namespace FramePFX.CommandSystem {
-    public delegate void FocusChangedEventHandler(CommandManager manager, IDataContext newFocus);
+    public delegate void FocusChangedEventHandler(CommandManager manager, IContextData newFocus);
 
     /// <summary>
     /// A class which manages registered commands and the execution of commands
@@ -174,7 +174,7 @@ namespace FramePFX.CommandSystem {
         /// <exception cref="Exception">The context is null, or the assembly was compiled in debug mode and the command threw ane exception</exception>
         /// <exception cref="ArgumentException">ID is null, empty or consists of only whitespaces</exception>
         /// <exception cref="ArgumentNullException">Context is null</exception>
-        public void Execute(string cmdId, IDataContext context, bool isUserInitiated = true) {
+        public void Execute(string cmdId, IContextData context, bool isUserInitiated = true) {
             ValidateId(cmdId);
             if (this.commands.TryGetValue(cmdId, out CommandEntry cmd))
                 this.Execute(cmdId, cmd.Command, context, isUserInitiated);
@@ -186,18 +186,18 @@ namespace FramePFX.CommandSystem {
         /// this returns the command existence boolean
         /// </summary>
         /// <param name="commandId">The target command id</param>
-        /// <param name="dataContextProvider">A function that provides the data context if required (if the command exists)</param>
+        /// <param name="contextProvider">A function that provides the data context if required (if the command exists)</param>
         /// <param name="isUserInitiated">True when executed as a user, which is usually the default</param>
-        public bool TryExecute(string commandId, Func<IDataContext> dataContextProvider, bool isUserInitiated = true) {
+        public bool TryExecute(string commandId, Func<IContextData> contextProvider, bool isUserInitiated = true) {
             ValidateId(commandId);
-            if (dataContextProvider == null)
-                throw new ArgumentNullException(nameof(dataContextProvider), "Data context provider cannot be null");
+            if (contextProvider == null)
+                throw new ArgumentNullException(nameof(contextProvider), "Data context provider cannot be null");
             if (!this.commands.TryGetValue(commandId, out CommandEntry command))
                 return false;
 
-            IDataContext dataContext = dataContextProvider();
-            ValidateContext(dataContext);
-            this.ExecuteCore(command.Command, new CommandEventArgs(this, commandId, dataContext, isUserInitiated));
+            IContextData context = contextProvider();
+            ValidateContext(context);
+            this.ExecuteCore(command.Command, new CommandEventArgs(this, commandId, context, isUserInitiated));
             return true;
         }
 
@@ -208,7 +208,7 @@ namespace FramePFX.CommandSystem {
         /// <param name="cmd"></param>
         /// <param name="context"></param>
         /// <param name="isUserInitiated"></param>
-        public void Execute(string cmdId, Command cmd, IDataContext context, bool isUserInitiated = true) {
+        public void Execute(string cmdId, Command cmd, IContextData context, bool isUserInitiated = true) {
             ValidateId(cmdId);
             ValidateContext(context);
             this.ExecuteCore(cmd, new CommandEventArgs(this, cmdId, context, isUserInitiated));
@@ -242,7 +242,7 @@ namespace FramePFX.CommandSystem {
         /// <exception cref="Exception">The context is null, or the assembly was compiled in debug mode and the GetPresentation function threw ane exception</exception>
         /// <exception cref="ArgumentException">ID is null, empty or consists of only whitespaces</exception>
         /// <exception cref="ArgumentNullException">Context is null</exception>
-        public virtual bool CanExecute(string id, IDataContext context, bool isUserInitiated = true) {
+        public virtual bool CanExecute(string id, IContextData context, bool isUserInitiated = true) {
             ValidateId(id);
             ValidateContext(context);
             if (!this.commands.TryGetValue(id, out CommandEntry command))
@@ -254,7 +254,7 @@ namespace FramePFX.CommandSystem {
         /// Invokes all focus change handlers for the given ID. This also invokes global handlers first
         /// </summary>
         /// <exception cref="ArgumentNullException">newFocusProvider is null</exception>
-        public void OnApplicationFocusChanged(Func<IDataContext> newFocusProvider) {
+        public void OnApplicationFocusChanged(Func<IContextData> newFocusProvider) {
             if (newFocusProvider == null)
                 throw new ArgumentNullException(nameof(newFocusProvider));
             Application.Current.Dispatcher.InvokeAsync(() => {
@@ -262,9 +262,9 @@ namespace FramePFX.CommandSystem {
             }, DispatcherPriority.Background);
         }
 
-        private void OnFocusChangeCore(Func<IDataContext> newFocusProvider) {
+        private void OnFocusChangeCore(Func<IContextData> newFocusProvider) {
             // only calls newFocusProvider if there are handlers
-            IDataContext ctx = null;
+            IContextData ctx = null;
             if (this.focusChangeHandlerSet.Count >= 1) {
                 ValidateContext(ctx = newFocusProvider());
                 foreach (FocusChangedEventHandler handler in this.focusChangeHandlerSet) {
@@ -290,13 +290,13 @@ namespace FramePFX.CommandSystem {
             }
         }
 
-        public static void ValidateContext(IDataContext context) {
+        public static void ValidateContext(IContextData context) {
             if (context == null) {
                 throw new ArgumentNullException(nameof(context), "Context cannot be null");
             }
         }
 
-        public void UpdateForFocusChange(CommandUsageContext usage, IDataContext focus) {
+        public void UpdateForFocusChange(CommandUsageContext usage, IContextData focus) {
 
         }
     }

@@ -135,8 +135,6 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
 
         internal ISelectionStrategy Selection { get; private set; }
 
-        private bool IsUsingItemSource;
-
         #endregion
 
         #region Constructors and Destructors
@@ -151,11 +149,6 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
             this.Selection.PreviewSelectionChanged += (s, e) => {
                 this.OnPreviewSelectionChanged(e);
             };
-        }
-
-        protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue) {
-            base.OnItemsSourceChanged(oldValue, newValue);
-            this.IsUsingItemSource = newValue != null;
         }
 
         #endregion
@@ -381,6 +374,23 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
             }
         }
 
+        public static void ProcessTree(Action<MultiSelectTreeViewItem> item, ItemsControl parent, bool includeInvisible, bool includeDisabled = true, bool useBottomToTop = false) {
+            ItemCollection items = parent.Items;
+            for (int i = 0, count = items.Count; i < count; i++) {
+                MultiSelectTreeViewItem tve = (MultiSelectTreeViewItem) items[i];
+                if ((includeInvisible || tve.IsVisible) && (includeDisabled || tve.IsEnabled)) {
+                    if (!useBottomToTop)
+                        item(tve);
+
+                    if (includeInvisible || tve.IsExpanded)
+                        ProcessTree(item, tve, includeInvisible, includeDisabled, useBottomToTop);
+
+                    if (useBottomToTop)
+                        item(tve);
+                }
+            }
+        }
+
         internal static IEnumerable<MultiSelectTreeViewItem> EnumerableTreeRecursive(ItemsControl parent, bool includeInvisible, bool includeDisabled = true) {
             ItemCollection items = parent.Items;
             for (int i = 0, count = items.Count; i < count; i++) {
@@ -457,24 +467,24 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
         private void OnSelectedItemsChanged(object sender, NotifyCollectionChangedEventArgs e) {
             switch (e.Action) {
                 case NotifyCollectionChangedAction.Add:
-                    // Make sure we don't confuse MultiSelectTreeViewItems and their DataContexts while development
-                    object last = null;
-                    foreach (MultiSelectTreeViewItem item in e.NewItems) {
-                        if (!item.IsSelected) {
-                            item.IsSelected = true;
+                    if (e.NewItems.Count > 0) {
+                        foreach (MultiSelectTreeViewItem item in e.NewItems) {
+                            if (!item.IsSelected) {
+                                item.IsSelected = true;
+                            }
                         }
 
-                        last = item;
+                        this.LastSelectedItem = e.NewItems[e.NewItems.Count - 1];
                     }
 
-                    this.LastSelectedItem = last;
                     break;
                 case NotifyCollectionChangedAction.Remove:
                     foreach (MultiSelectTreeViewItem item in e.OldItems) {
                         item.IsSelected = false;
                         if (item == this.LastSelectedItem) {
-                            if (this.SelectedItems.Count > 0) {
-                                this.LastSelectedItem = this.SelectedItems[this.SelectedItems.Count - 1];
+                            IList selection = this.SelectedItems;
+                            if (selection.Count > 0) {
+                                this.LastSelectedItem = selection[selection.Count - 1];
                             }
                             else {
                                 this.LastSelectedItem = null;

@@ -34,7 +34,7 @@ using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips.Core;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.Logger;
 using FramePFX.PropertyEditing;
 using FramePFX.Utils;
@@ -368,7 +368,7 @@ namespace FramePFX.Editors.Controls.Timelines {
                 newTimeline.Project.Editor.ShowClipAutomationChanged += this.OnShowClipAutomationChanged;
                 newTimeline.Project.Editor.ShowTrackAutomationChanged += this.OnShowTrackAutomationChanged;
                 this.UpdateBorderThicknesses(newTimeline);
-                DataManager.SetContextData(this, new DataContext().Set(DataKeys.TimelineKey, newTimeline));
+                DataManager.SetContextData(this, new ContextData().Set(DataKeys.TimelineKey, newTimeline));
             }
 
             bool canExecute = newTimeline != null;

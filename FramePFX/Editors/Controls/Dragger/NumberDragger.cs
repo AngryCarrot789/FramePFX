@@ -45,13 +45,14 @@ namespace FramePFX.Editors.Controls.Dragger {
         public static readonly DependencyProperty IsEditingTextBoxProperty = IsEditingTextBoxPropertyKey.DependencyProperty;
         public static readonly DependencyProperty RoundedPlacesProperty = DependencyProperty.Register("RoundedPlaces", typeof(int?), typeof(NumberDragger), new PropertyMetadata(null, (d, e) => ((NumberDragger) d).OnRoundedPlacesChanged((int?) e.OldValue, (int?) e.NewValue)));
         public static readonly DependencyProperty PreviewRoundedPlacesProperty = DependencyProperty.Register("PreviewRoundedPlaces", typeof(int?), typeof(NumberDragger), new PropertyMetadata((int?) 4, (d, e) => ((NumberDragger) d).OnPreviewRoundedPlacesChanged((int?) e.OldValue, (int?) e.NewValue)));
-        public static readonly DependencyProperty DisplayTextOverrideProperty = DependencyProperty.Register("DisplayTextOverride", typeof(string), typeof(NumberDragger), new PropertyMetadata(null, (o, args) => ((NumberDragger) o).UpdateText()));
+        public static readonly DependencyProperty PreviewDisplayTextOverrideProperty = DependencyProperty.Register("PreviewDisplayTextOverride", typeof(string), typeof(NumberDragger), new PropertyMetadata(null, (o, args) => ((NumberDragger) o).UpdateText()));
         public static readonly DependencyProperty EditingHintProperty = DependencyProperty.Register("EditingHint", typeof(string), typeof(NumberDragger), new PropertyMetadata(null));
-        public static readonly DependencyProperty ForcedReadOnlyStateProperty = DependencyProperty.Register("ForcedReadOnlyState", typeof(bool?), typeof(NumberDragger), new PropertyMetadata(null));
         public static readonly DependencyProperty RestoreValueOnCancelProperty = DependencyProperty.Register("RestoreValueOnCancel", typeof(bool), typeof(NumberDragger), new PropertyMetadata(BoolBox.True));
         public static readonly DependencyProperty ChangeMapperProperty = DependencyProperty.Register("ChangeMapper", typeof(IChangeMapper), typeof(NumberDragger), new PropertyMetadata(null));
         public static readonly DependencyProperty ValuePreProcessorProperty = DependencyProperty.Register("ValuePreProcessor", typeof(IValuePreProcessor), typeof(NumberDragger), new PropertyMetadata(null));
         public static readonly DependencyProperty IsDoubleClickToEditProperty = DependencyProperty.Register("IsDoubleClickToEdit", typeof(bool), typeof(NumberDragger), new PropertyMetadata(BoolBox.False));
+        public static readonly DependencyProperty ForcedReadOnlyStateProperty = DependencyProperty.Register("ForcedReadOnlyState", typeof(bool?), typeof(NumberDragger), new PropertyMetadata(null));
+        public static readonly DependencyProperty PreviewValueFormatterProperty = DependencyProperty.Register("PreviewValueFormatter", typeof(IValueFormatter), typeof(NumberDragger), new PropertyMetadata(null));
 
         #region Properties
 
@@ -138,9 +139,9 @@ namespace FramePFX.Editors.Controls.Dragger {
         /// This is only displayed when the value is non-null and not an empty string
         /// </para>
         /// </summary>
-        public string DisplayTextOverride {
-            get => (string) this.GetValue(DisplayTextOverrideProperty);
-            set => this.SetValue(DisplayTextOverrideProperty, value);
+        public string PreviewDisplayTextOverride {
+            get => (string) this.GetValue(PreviewDisplayTextOverrideProperty);
+            set => this.SetValue(PreviewDisplayTextOverrideProperty, value);
         }
 
         /// <summary>
@@ -150,11 +151,6 @@ namespace FramePFX.Editors.Controls.Dragger {
         public string EditingHint {
             get => (string) this.GetValue(EditingHintProperty);
             set => this.SetValue(EditingHintProperty, value);
-        }
-
-        public bool? ForcedReadOnlyState {
-            get => (bool?) this.GetValue(ForcedReadOnlyStateProperty);
-            set => this.SetValue(ForcedReadOnlyStateProperty, value.BoxNullable());
         }
 
         /// <summary>
@@ -178,6 +174,16 @@ namespace FramePFX.Editors.Controls.Dragger {
         public bool IsDoubleClickToEdit {
             get => (bool) this.GetValue(IsDoubleClickToEditProperty);
             set => this.SetValue(IsDoubleClickToEditProperty, value.Box());
+        }
+
+        public IValueFormatter PreviewValueFormatter {
+            get => (IValueFormatter) this.GetValue(PreviewValueFormatterProperty);
+            set => this.SetValue(PreviewValueFormatterProperty, value);
+        }
+
+        public bool? ForcedReadOnlyState {
+            get => (bool?) this.GetValue(ForcedReadOnlyStateProperty);
+            set => this.SetValue(ForcedReadOnlyStateProperty, value.BoxNullable());
         }
 
         public bool IsValueReadOnly {
@@ -479,10 +485,15 @@ namespace FramePFX.Editors.Controls.Dragger {
 
                 if (this.PART_TextBlock == null)
                     return;
-                string text = this.DisplayTextOverride;
+                string text = this.PreviewDisplayTextOverride;
                 if (string.IsNullOrEmpty(text)) {
-                    double value = this.GetRoundedValue(this.Value, true, out int? places);
-                    text = places.HasValue ? value.ToString("F" + places.Value.ToString()) : value.ToString();
+                    if (this.PreviewValueFormatter is IValueFormatter formatter) {
+                        text = formatter.ToString(this.Value, this.PreviewRoundedPlaces);
+                    }
+                    else {
+                        double value = this.GetRoundedValue(this.Value, true, out int? places);
+                        text = places.HasValue ? value.ToString("F" + places.Value.ToString()) : value.ToString();
+                    }
                 }
 
                 this.PART_TextBlock.Text = text;

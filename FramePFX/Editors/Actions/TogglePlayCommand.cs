@@ -18,12 +18,12 @@
 //
 
 using FramePFX.CommandSystem;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editors.Actions {
     public class TogglePlayCommand : Command {
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.VideoEditorKey.TryGetContext(e.DataContext, out VideoEditor editor))
+            if (!DataKeys.VideoEditorKey.TryGetContext(e.Context, out VideoEditor editor))
                 return;
 
             if (editor.Playback.PlayState == PlayState.Play) {

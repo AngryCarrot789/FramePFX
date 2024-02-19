@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.PropertyEditing;
 
 namespace FramePFX.Editors.Actions {
@@ -29,12 +29,12 @@ namespace FramePFX.Editors.Actions {
         public override void Execute(CommandEventArgs e) {
             int focusedIndex = -1;
             HashSet<Track> tracks = new HashSet<Track>();
-            if (DataKeys.TrackKey.TryGetContext(e.DataContext, out Track focusedTrack)) {
+            if (DataKeys.TrackKey.TryGetContext(e.Context, out Track focusedTrack)) {
                 focusedIndex = focusedTrack.IndexInTimeline;
             }
 
             Timeline timeline;
-            if ((timeline = focusedTrack?.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.DataContext, out timeline)) {
+            if ((timeline = focusedTrack?.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.Context, out timeline)) {
                 foreach (Track track in timeline.SelectedTracks) {
                     tracks.Add(track);
                 }

@@ -20,12 +20,12 @@
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editors.Actions {
     public class NewVideoTrackCommand : Command {
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.TimelineKey.TryGetContext(e.DataContext, out Timeline timeline)) {
+            if (!DataKeys.TimelineKey.TryGetContext(e.Context, out Timeline timeline)) {
                 return;
             }
 

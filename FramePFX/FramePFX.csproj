@@ -171,6 +171,7 @@
     <Compile Include="Editors\Contextual\ResourceContextRegistry.cs" />
     <Compile Include="Editors\Contextual\TrackContextRegistry.cs" />
     <Compile Include="Editors\Controls\Binders\DataParameterPropertyBinder.cs" />
+    <Compile Include="Editors\Controls\Dragger\UnitToPercentFormatter.cs" />
     <Compile Include="Editors\Controls\EffectProviding\EffectProviderListBox.cs" />
     <Compile Include="Editors\Controls\EffectProviding\EffectProviderListBoxItem.cs" />
     <Compile Include="Editors\Controls\Timelines\ClipDropRegistry.cs" />
@@ -287,13 +288,12 @@
     <Compile Include="FFmpeg\StreamWrapper.cs" />
     <Compile Include="FFmpeg\VideoStream.cs" />
     <Compile Include="IApplicationStartupProgress.cs" />
-    <Compile Include="Interactivity\DataContexts\DataContext.cs" />
-    <Compile Include="Interactivity\DataContexts\DataContextEntry.cs" />
-    <Compile Include="Interactivity\DataContexts\DataKey.cs" />
-    <Compile Include="Interactivity\DataContexts\DataKeys.cs" />
-    <Compile Include="Interactivity\DataContexts\DataManager.cs" />
-    <Compile Include="Interactivity\DataContexts\EmptyContext.cs" />
-    <Compile Include="Interactivity\DataContexts\IDataContext.cs" />
+    <Compile Include="Interactivity\Contexts\ContextData.cs" />
+    <Compile Include="Interactivity\Contexts\DataKey.cs" />
+    <Compile Include="Interactivity\Contexts\DataKeys.cs" />
+    <Compile Include="Interactivity\Contexts\DataManager.cs" />
+    <Compile Include="Interactivity\Contexts\EmptyContext.cs" />
+    <Compile Include="Interactivity\Contexts\IContextData.cs" />
     <Compile Include="IoC.cs" />
     <Compile Include="IServiceManager.cs" />
     <Compile Include="Natives\PFXNative.cs" />

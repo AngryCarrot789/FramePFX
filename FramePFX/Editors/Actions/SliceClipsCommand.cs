@@ -22,15 +22,15 @@ using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editors.Actions {
     public class SliceClipsCommand : Command {
         public override void Execute(CommandEventArgs e) {
-            if (DataKeys.ClipKey.TryGetContext(e.DataContext, out Clip clip) && clip.Timeline is Timeline timeline) {
+            if (DataKeys.ClipKey.TryGetContext(e.Context, out Clip clip) && clip.Timeline is Timeline timeline) {
                 SliceClip(clip, timeline.PlayHeadPosition);
             }
-            else if (DataKeys.TimelineKey.TryGetContext(e.DataContext, out timeline)) {
+            else if (DataKeys.TimelineKey.TryGetContext(e.Context, out timeline)) {
                 List<Clip> clips = new List<Clip>();
                 foreach (Track track in timeline.Tracks) {
                     clips.AddRange(track.GetClipsAtFrame(timeline.PlayHeadPosition));

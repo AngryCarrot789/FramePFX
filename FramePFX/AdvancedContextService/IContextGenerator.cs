@@ -18,7 +18,7 @@
 //
 
 using System.Collections.Generic;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.AdvancedContextService {
     /// <summary>
@@ -30,6 +30,6 @@ namespace FramePFX.AdvancedContextService {
         /// </summary>
         /// <param name="list">The list in which entries should be added to</param>
         /// <param name="context">The context data available</param>
-        void Generate(List<IContextEntry> list, IDataContext context);
+        void Generate(List<IContextEntry> list, IContextData context);
     }
 }

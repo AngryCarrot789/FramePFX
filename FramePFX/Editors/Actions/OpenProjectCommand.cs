@@ -23,17 +23,17 @@ using System.IO;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Automation;
 using FramePFX.Editors.ResourceManaging.Autoloading.Controls;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 
 namespace FramePFX.Editors.Actions {
     public class OpenProjectCommand : Command {
         public override bool CanExecute(CommandEventArgs e) {
-            return e.DataContext.ContainsKey(DataKeys.VideoEditorKey);
+            return e.Context.ContainsKey(DataKeys.VideoEditorKey);
         }
 
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.VideoEditorKey.TryGetContext(e.DataContext, out VideoEditor editor)) {
+            if (!DataKeys.VideoEditorKey.TryGetContext(e.Context, out VideoEditor editor)) {
                 return;
             }
 

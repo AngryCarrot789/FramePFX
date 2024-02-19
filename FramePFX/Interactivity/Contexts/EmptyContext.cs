@@ -1,39 +1,40 @@
-// 
+//
 // Copyright (c) 2023-2024 REghZy
-// 
+//
 // This file is part of FramePFX.
-// 
+//
 // FramePFX is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either
 // version 3.0 of the License, or (at your option) any later version.
-// 
+//
 // FramePFX is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // Lesser General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
-// 
+//
 
-namespace FramePFX.Interactivity.DataContexts {
-    public class DataContextEntry {
-        /// <summary>
-        /// Gets the data key
-        /// </summary>
-        public DataKey Key { get; }
+using System.Collections.Generic;
+using System.Linq;
 
-        /// <summary>
-        /// Gets the data value
-        /// </summary>
-        public object Value { get; }
+namespace FramePFX.Interactivity.Contexts {
+    /// <summary>
+    /// An implementation of <see cref="IContextData"/> that is completely empty
+    /// </summary>
+    public sealed class EmptyContext : IContextData {
+        public static IContextData Instance { get; } = new EmptyContext();
 
-        public DataContextEntry(DataKey key, object value) {
-            this.Key = key;
-            this.Value = value;
+        public IEnumerable<KeyValuePair<string, object>> Entries { get; } = Enumerable.Empty<KeyValuePair<string, object>>();
+
+        public bool TryGetContext(string key, out object value) {
+            value = default;
+            return false;
         }
 
-        public static DataContextEntry Of<T>(DataKey<T> key, T value) => new DataContextEntry(key, value);
+        public bool ContainsKey(DataKey key) => false;
+        public bool ContainsKey(string key) => false;
     }
 }

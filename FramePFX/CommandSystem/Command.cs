@@ -17,12 +17,12 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.CommandSystem {
     /// <summary>
     /// Represents some sort of action that can be executed. Commands use provided contextual
-    /// information (see <see cref="CommandEventArgs.DataContext"/>) to do work. Commands do
+    /// information (see <see cref="CommandEventArgs.Context"/>) to do work. Commands do
     /// their work in the <see cref="Execute"/> method, and can optionally specify their
     /// executability via the <see cref="CanExecute"/> method
     /// <para>
@@ -30,7 +30,7 @@ namespace FramePFX.CommandSystem {
     /// can also be used by things like context menus
     /// </para>
     /// <para>
-    /// These commands can be executed through the <see cref="CommandManager.Execute(string, Command, IDataContext, bool)"/> function
+    /// These commands can be executed through the <see cref="CommandManager.Execute(string, Command, IContextData, bool)"/> function
     /// </para>
     /// </summary>
     public abstract class Command {

@@ -32,7 +32,7 @@ using FramePFX.Editors.Controls.TreeViews.Controls;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.Interactivity;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.Logger;
 using FramePFX.Utils;
 
@@ -110,7 +110,7 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
 
             this.displayNameBinder.Attach(this, this.Resource);
             this.isSelectedBinder.Attach(this, this.Resource);
-            DataManager.SetContextData(this, new DataContext().Set(DataKeys.ResourceObjectKey, this.Resource));
+            DataManager.SetContextData(this, new ContextData().Set(DataKeys.ResourceObjectKey, this.Resource));
         }
 
         public void OnRemoving() {

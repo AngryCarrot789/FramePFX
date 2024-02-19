@@ -19,7 +19,7 @@
 
 using System;
 using FramePFX.CommandSystem;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 
 namespace FramePFX.Editors.Actions {
@@ -57,7 +57,7 @@ namespace FramePFX.Editors.Actions {
         }
 
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.ProjectKey.TryGetContext(e.DataContext, out Project project)) {
+            if (!DataKeys.ProjectKey.TryGetContext(e.Context, out Project project)) {
                 return;
             }
 
@@ -67,7 +67,7 @@ namespace FramePFX.Editors.Actions {
 
     public class SaveProjectAsCommand : Command {
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.ProjectKey.TryGetContext(e.DataContext, out Project project)) {
+            if (!DataKeys.ProjectKey.TryGetContext(e.Context, out Project project)) {
                 return;
             }
 

@@ -20,7 +20,7 @@
 using System;
 using System.Collections.Generic;
 using FramePFX.CommandSystem;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.Shortcuts.Events;
 using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Usage;
@@ -32,9 +32,9 @@ namespace FramePFX.Shortcuts.Managing {
     /// A class for storing and managing shortcuts
     /// </summary>
     public abstract class ShortcutManager {
-        private List<GroupedShortcut> allShortcuts;
-        private readonly Dictionary<string, LinkedList<GroupedShortcut>> cmdToShortcut; // linked because there will only really be like 1 or 2 ever
-        private readonly Dictionary<string, GroupedShortcut> pathToShortcut;
+        private List<GroupedShortcut> cachedAllShortcuts;
+        private readonly Dictionary<string, LinkedList<GroupedShortcut>> cachedCmdToShortcut; // linked because there will only really be like 1 or 2 ever
+        private readonly Dictionary<string, GroupedShortcut> cachedPathToShortcut;
         private readonly Dictionary<string, InputStateManager> stateGroups;
         private ShortcutGroup root;
 
@@ -84,8 +84,8 @@ namespace FramePFX.Shortcuts.Managing {
         public static ShortcutManager Instance { get; set; }
 
         protected ShortcutManager() {
-            this.cmdToShortcut = new Dictionary<string, LinkedList<GroupedShortcut>>();
-            this.pathToShortcut = new Dictionary<string, GroupedShortcut>();
+            this.cachedCmdToShortcut = new Dictionary<string, LinkedList<GroupedShortcut>>();
+            this.cachedPathToShortcut = new Dictionary<string, GroupedShortcut>();
             this.stateGroups = new Dictionary<string, InputStateManager>();
             this.shortcutHandlersMap = new Dictionary<string, List<ShortcutActivatedEventHandler>>();
             this.shortcutHandlersList = new List<ShortcutActivatedEventHandler>();
@@ -138,19 +138,20 @@ namespace FramePFX.Shortcuts.Managing {
 
         public GroupedShortcut FindShortcutByPath(string path) {
             this.EnsureCacheBuilt();
-            return this.pathToShortcut.TryGetValue(path, out GroupedShortcut x) ? x : null;
+            return this.cachedPathToShortcut.TryGetValue(path, out GroupedShortcut x) ? x : null;
             // return this.Root.GetShortcutByPath(path);
         }
 
         public GroupedShortcut FindFirstShortcutByCommandId(string cmdId) {
             this.EnsureCacheBuilt();
-            return this.cmdToShortcut.TryGetValue(cmdId, out LinkedList<GroupedShortcut> list) && list.Count > 0 ? list.First.Value : null;
+            return this.cachedCmdToShortcut.TryGetValue(cmdId, out LinkedList<GroupedShortcut> list) && list.Count > 0 ? list.First.Value : null;
         }
 
         /// <summary>
         /// Called when the root group changes
         /// </summary>
         protected virtual void OnRootChanged(ShortcutGroup oldRoot, ShortcutGroup newRoot) {
+            this.InvalidateShortcutCache();
         }
 
         /// <summary>
@@ -160,10 +161,10 @@ namespace FramePFX.Shortcuts.Managing {
         /// </para>
         /// </summary>
         public virtual void InvalidateShortcutCache() {
-            this.allShortcuts = null;
+            this.cachedAllShortcuts = null;
             this.stateGroups.Clear();
-            this.cmdToShortcut.Clear();
-            this.pathToShortcut.Clear();
+            this.cachedCmdToShortcut.Clear();
+            this.cachedPathToShortcut.Clear();
         }
 
         /// <summary>
@@ -174,12 +175,12 @@ namespace FramePFX.Shortcuts.Managing {
 
         public IEnumerable<GroupedShortcut> GetAllShortcuts() {
             this.EnsureCacheBuilt();
-            return this.allShortcuts;
+            return this.cachedAllShortcuts;
         }
 
         public IEnumerable<GroupedShortcut> GetShortcutsByCommandId(string cmdId) {
             this.EnsureCacheBuilt();
-            return this.cmdToShortcut.TryGetValue(cmdId, out LinkedList<GroupedShortcut> value) ? value : null;
+            return this.cachedCmdToShortcut.TryGetValue(cmdId, out LinkedList<GroupedShortcut> value) ? value : null;
         }
 
         public static void GetAllShortcuts(ShortcutGroup rootGroup, ICollection<GroupedShortcut> accumulator) {
@@ -193,23 +194,23 @@ namespace FramePFX.Shortcuts.Managing {
         }
 
         protected void EnsureCacheBuilt() {
-            if (this.allShortcuts == null) {
+            if (this.cachedAllShortcuts == null) {
                 this.RebuildShortcutCache();
             }
         }
 
         private void RebuildShortcutCache() {
-            this.allShortcuts = new List<GroupedShortcut>(64);
-            this.cmdToShortcut.Clear();
-            this.pathToShortcut.Clear();
+            this.cachedAllShortcuts = new List<GroupedShortcut>(64);
+            this.cachedCmdToShortcut.Clear();
+            this.cachedPathToShortcut.Clear();
             if (this.root != null) {
-                GetAllShortcuts(this.root, this.allShortcuts);
+                GetAllShortcuts(this.root, this.cachedAllShortcuts);
             }
 
-            foreach (GroupedShortcut shortcut in this.allShortcuts) {
+            foreach (GroupedShortcut shortcut in this.cachedAllShortcuts) {
                 if (!string.IsNullOrWhiteSpace(shortcut.CommandId)) {
-                    if (!this.cmdToShortcut.TryGetValue(shortcut.CommandId, out LinkedList<GroupedShortcut> list)) {
-                        this.cmdToShortcut[shortcut.CommandId] = list = new LinkedList<GroupedShortcut>();
+                    if (!this.cachedCmdToShortcut.TryGetValue(shortcut.CommandId, out LinkedList<GroupedShortcut> list)) {
+                        this.cachedCmdToShortcut[shortcut.CommandId] = list = new LinkedList<GroupedShortcut>();
                     }
 
                     list.AddLast(shortcut);
@@ -217,13 +218,13 @@ namespace FramePFX.Shortcuts.Managing {
 
                 // path should only be null or non-empty
                 if (!string.IsNullOrWhiteSpace(shortcut.FullPath)) {
-                    if (this.pathToShortcut.ContainsKey(shortcut.FullPath))
+                    if (this.cachedPathToShortcut.ContainsKey(shortcut.FullPath))
                         throw new Exception("Duplicate shortcut path: " + shortcut.FullPath);
-                    this.pathToShortcut[shortcut.FullPath] = shortcut;
+                    this.cachedPathToShortcut[shortcut.FullPath] = shortcut;
                 }
             }
 
-            this.allShortcuts.TrimExcess();
+            this.cachedAllShortcuts.TrimExcess();
         }
 
         public IEnumerable<GroupedShortcut> FindShortcutsByPaths(IEnumerable<string> paths) {
@@ -249,15 +250,15 @@ namespace FramePFX.Shortcuts.Managing {
         public bool OnShortcutActivated(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
             // Fire events first
             bool result = false;
-            IDataContext context = null;
+            IContextData context = null;
             if (this.shortcutHandlersMap.TryGetValue(shortcut.FullPath, out List<ShortcutActivatedEventHandler> list)) {
                 foreach (ShortcutActivatedEventHandler handler in list) {
-                    result |= handler(inputManager, shortcut, context ?? (context = inputManager.GetCurrentDataContext()));
+                    result |= handler(inputManager, shortcut, context ?? (context = inputManager.GetCurrentContext()));
                 }
             }
 
             foreach (ShortcutActivatedEventHandler handler in this.shortcutHandlersList) {
-                result |= handler(inputManager, shortcut, context ?? (context = inputManager.GetCurrentDataContext()));
+                result |= handler(inputManager, shortcut, context ?? (context = inputManager.GetCurrentContext()));
             }
 
             // this.OnShortcutActivatedOverride is called here due to | not ||

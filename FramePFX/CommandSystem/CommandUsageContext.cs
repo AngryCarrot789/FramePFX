@@ -17,7 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.CommandSystem {
     /// <summary>
@@ -43,7 +43,7 @@ namespace FramePFX.CommandSystem {
         /// <summary>
         /// Called when the application's focus changes
         /// </summary>
-        public virtual void OnFocusChanged(IDataContext newFocus) {
+        public virtual void OnFocusChanged(IContextData newFocus) {
             CommandManager.Instance.UpdateForFocusChange(this, newFocus);
         }
 
@@ -51,7 +51,7 @@ namespace FramePFX.CommandSystem {
         /// Called when the executability state of this usage's command may have changed
         /// </summary>
         /// <param name="context">The context to use to evaluate the executability</param>
-        public virtual void OnCanExecuteInvalidated(IDataContext context) {
+        public virtual void OnCanExecuteInvalidated(IContextData context) {
 
         }
 

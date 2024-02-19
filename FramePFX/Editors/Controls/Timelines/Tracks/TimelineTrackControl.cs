@@ -33,7 +33,7 @@ using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.PropertyEditing;
 using FramePFX.Utils;
 using SkiaSharp;
@@ -117,7 +117,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
         private bool isUpdatingSelectedProperty;
         private bool isProcessingAsyncDrop;
         private MovedClip? clipBeingMoved;
-        private readonly DataContext contextData;
+        private readonly ContextData contextData;
 
         public TimelineTrackControl() {
             this.HorizontalAlignment = HorizontalAlignment.Stretch;
@@ -126,7 +126,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             this.UseLayoutRounding = true;
             this.AllowDrop = true;
             this.Focusable = true;
-            DataManager.SetContextData(this, this.contextData = new DataContext());
+            DataManager.SetContextData(this, this.contextData = new ContextData());
             AdvancedContextMenu.SetContextGenerator(this, TrackContextRegistry.Instance);
         }
 
@@ -211,14 +211,11 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
 
             try {
                 this.isProcessingAsyncDrop = true;
-                if (e.Data.GetData(ResourceDropRegistry.ResourceDropType) is List<BaseResource> items) {
-                    if (items.Count == 1 && items[0] is ResourceItem) {
-                        await TrackDropRegistry.DropRegistry.OnDropped(this.Track, items[0], effects, this.contextData);
+                if (e.Data.GetData(ResourceDropRegistry.ResourceDropType) is List<BaseResource> resources) {
+                    if (resources.Count == 1 && resources[0] is ResourceItem) {
+                        await TrackDropRegistry.DropRegistry.OnDropped(this.Track, resources[0], effects, this.contextData);
                     }
                 }
-                // else if (e.Data.GetData(EffectProviderTreeViewItem.ProviderDropType) is EffectProvider provider) {
-                //     await Track.DropRegistry.OnDropped(track, provider, effects, this.GetDropDataContext(e.GetPosition(this)));
-                // }
                 else {
                     await TrackDropRegistry.DropRegistry.OnDroppedNative(this.Track, new DataObjectWrapper(e.Data), effects, this.contextData);
                 }

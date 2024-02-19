@@ -22,7 +22,7 @@ using System.Linq;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editors.Actions {
     public class ToggleClipVisibilityCommand : Command {
@@ -30,7 +30,7 @@ namespace FramePFX.Editors.Actions {
         }
 
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.ClipKey.TryGetContext(e.DataContext, out Clip keyedClip) || !(keyedClip is VideoClip focusedClip)) {
+            if (!DataKeys.ClipKey.TryGetContext(e.Context, out Clip keyedClip) || !(keyedClip is VideoClip focusedClip)) {
                 return;
             }
 

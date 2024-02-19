@@ -19,7 +19,7 @@
 
 using System;
 using System.Windows;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.CommandSystem {
     public class UICommandUsageContext : CommandUsageContext {
@@ -29,7 +29,7 @@ namespace FramePFX.CommandSystem {
             this.Element = element ?? throw new ArgumentNullException(nameof(element));
         }
 
-        public override void OnCanExecuteInvalidated(IDataContext context) {
+        public override void OnCanExecuteInvalidated(IContextData context) {
             this.Element.IsEnabled = this.CommandId == null || CommandManager.Instance.CanExecute(this.CommandId, context, true);
         }
     }

@@ -22,13 +22,13 @@ using FramePFX.AdvancedContextService;
 using FramePFX.Editors.ResourceManaging.Resources;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Clips.Core;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editors.Contextual {
     public class ClipContextRegistry : IContextGenerator {
         public static ClipContextRegistry Instance { get; } = new ClipContextRegistry();
 
-        public void Generate(List<IContextEntry> list, IDataContext context) {
+        public void Generate(List<IContextEntry> list, IContextData context) {
             if (!DataKeys.ClipKey.TryGetContext(context, out Clip clip)) {
                 return;
             }
@@ -44,7 +44,7 @@ namespace FramePFX.Editors.Contextual {
             list.Add(new CommandContextEntry("commands.timeline.DeleteClipOwnerTrack", "Delete Track", "Deletes the track that this clip resides in"));
         }
 
-        private static void OpenClipTimeline(IDataContext ctx) {
+        private static void OpenClipTimeline(IContextData ctx) {
             if (DataKeys.ClipKey.TryGetContext(ctx, out Clip clip) && clip is ICompositionClip compositionClip) {
                 if (clip.Project is Project project && compositionClip.ResourceCompositionKey.TryGetResource(out ResourceComposition resource)) {
                     project.ActiveTimeline = resource.Timeline;

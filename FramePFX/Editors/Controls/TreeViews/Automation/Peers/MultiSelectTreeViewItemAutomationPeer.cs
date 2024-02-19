@@ -35,8 +35,7 @@ using FramePFX.Editors.Controls.TreeViews.Controls;
 
 namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers {
     /// <summary>
-    /// Macht <see cref="T:FramePFX.WPF.Controls.TreeViews.Controls.MultiSelectTreeViewItem"/>-Typen für
-    /// UI-Automatisierung verfügbar.
+    /// Powers UI-Automation for <see cref="MultiSelectTreeViewItem"/> types
     /// </summary>
     public class MultiSelectTreeViewItemAutomationPeer :
         ItemsControlAutomationPeer,
@@ -83,8 +82,7 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers {
         #region IInvokeProvider members
 
         public void Invoke() {
-            MultiSelectTreeViewItem treeViewItem = (MultiSelectTreeViewItem) this.Owner;
-            treeViewItem.InvokeMouseDown();
+            ((MultiSelectTreeViewItem) this.Owner).InvokeMouseDown();
         }
 
         #endregion IInvokeProvider members

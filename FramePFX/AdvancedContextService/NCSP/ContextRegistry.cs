@@ -20,7 +20,7 @@
 using System;
 using System.Collections.Generic;
 using FramePFX.CommandSystem;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils.Collections;
 
 namespace FramePFX.AdvancedContextService.NCSP {
@@ -53,7 +53,7 @@ namespace FramePFX.AdvancedContextService.NCSP {
             return true;
         }
 
-        public List<IContextEntry> GetActions(object target, IDataContext ctx, bool checkCanExecute = true) {
+        public List<IContextEntry> GetActions(object target, IContextData ctx, bool checkCanExecute = true) {
             List<IContextEntry> entries = new List<IContextEntry>();
             InheritanceDictionary<TypeRegistration>.LocalValueEntryEnumerator enumerator = this.map.GetLocalValueEnumerator(target.GetType());
             if (!enumerator.MoveNext()) {

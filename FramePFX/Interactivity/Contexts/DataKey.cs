@@ -20,7 +20,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace FramePFX.Interactivity.DataContexts {
+namespace FramePFX.Interactivity.Contexts {
     public abstract class DataKey {
         private static readonly Dictionary<string, DataKey> Registry;
 
@@ -89,7 +89,7 @@ namespace FramePFX.Interactivity.DataContexts {
             return key;
         }
 
-        public bool TryGetContext(IDataContext context, out T value) {
+        public bool TryGetContext(IContextData context, out T value) {
             if (context.TryGetContext(this.Id, out object obj)) {
                 value = (T) obj;
                 return true;
@@ -100,7 +100,7 @@ namespace FramePFX.Interactivity.DataContexts {
             }
         }
 
-        public T GetContext(IDataContext context, T def = default) {
+        public T GetContext(IContextData context, T def = default) {
             return context.TryGetContext(this.Id, out object obj) ? (T) obj : def;
         }
     }

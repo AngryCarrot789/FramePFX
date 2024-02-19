@@ -19,7 +19,7 @@
 
 using System;
 using System.Windows.Threading;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.AdvancedContextService.WPF {
     public class AdvancedContextEventMenuItem : AdvancedContextMenuItem {
@@ -31,7 +31,7 @@ namespace FramePFX.AdvancedContextService.WPF {
 
         protected override void OnClick() {
             EventContextEntry entry = this.Entry;
-            DataContext context = this.Menu.ContextOnMenuOpen;
+            ContextData context = this.Menu.ContextOnMenuOpen;
             if (entry != null && context != null) {
                 this.Dispatcher.BeginInvoke((Action) (() => entry.Action?.Invoke(context)), DispatcherPriority.Render);
             }

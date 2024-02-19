@@ -24,7 +24,7 @@ using FramePFX.AdvancedContextService.WPF;
 using FramePFX.Editors.Contextual;
 using FramePFX.Editors.Controls.Binders;
 using FramePFX.Editors.Timelines.Tracks;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.PropertyEditing;
 using FramePFX.Utils;
 
@@ -76,7 +76,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             this.TrackList = ownerList;
             this.Track.HeightChanged += this.OnTrackHeightChanged;
             this.Content = ownerList.GetContentObject(track.GetType());
-            DataManager.SetContextData(this, new DataContext().Set(DataKeys.TrackKey, track));
+            DataManager.SetContextData(this, new ContextData().Set(DataKeys.TrackKey, track));
         }
 
         public void OnAddedToList() {

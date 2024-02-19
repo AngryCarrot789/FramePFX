@@ -23,7 +23,7 @@ using System.Windows.Controls;
 using FramePFX.Editors.Controls.Resources.Explorers;
 using FramePFX.Editors.Controls.Resources.Trees;
 using FramePFX.Editors.ResourceManaging;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editors.Controls.Resources {
     /// <summary>
@@ -65,7 +65,7 @@ namespace FramePFX.Editors.Controls.Resources {
             this.ResourceExplorerList.ResourceManager = newManager;
             this.ResourceTreeView.ResourceManager = newManager;
             if (newManager != null) {
-                DataManager.SetContextData(this, new DataContext().Set(DataKeys.ResourceManagerKey, newManager));
+                DataManager.SetContextData(this, new ContextData().Set(DataKeys.ResourceManagerKey, newManager));
             }
             else {
                 DataManager.ClearContextData(this);

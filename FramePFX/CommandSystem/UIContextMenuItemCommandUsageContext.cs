@@ -20,7 +20,7 @@
 using System;
 using System.Windows;
 using FramePFX.AdvancedContextService.WPF;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.CommandSystem {
     public class UIContextMenuItemCommandUsageContext : CommandUsageContext {
@@ -33,7 +33,7 @@ namespace FramePFX.CommandSystem {
             this.CanExecute = true;
         }
 
-        public override void OnCanExecuteInvalidated(IDataContext context) {
+        public override void OnCanExecuteInvalidated(IContextData context) {
             this.CanExecute = this.CommandId == null || CommandManager.Instance.CanExecute(this.CommandId, context, true);
             this.MenuItem.CoerceValue(UIElement.IsEnabledProperty);
         }

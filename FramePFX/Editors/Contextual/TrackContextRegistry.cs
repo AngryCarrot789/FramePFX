@@ -24,13 +24,13 @@ using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Clips.Core;
 using FramePFX.Editors.Timelines.Tracks;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editors.Contextual {
     public class TrackContextRegistry : IContextGenerator {
         public static TrackContextRegistry Instance { get; } = new TrackContextRegistry();
 
-        public void Generate(List<IContextEntry> list, IDataContext context) {
+        public void Generate(List<IContextEntry> list, IContextData context) {
             Timeline timeline = null;
             if (DataKeys.TrackKey.TryGetContext(context, out Track track) && track.Timeline != null) {
                 int selectedCount = track.Timeline.SelectedTracks.Count;
@@ -55,7 +55,7 @@ namespace FramePFX.Editors.Contextual {
             }
         }
 
-        private static void AddVideoTrack(IDataContext context) {
+        private static void AddVideoTrack(IContextData context) {
             Timeline timeline;
             if (DataKeys.TrackKey.TryGetContext(context, out Track track) && (timeline = track.Timeline) != null || DataKeys.TimelineKey.TryGetContext(context, out timeline)) {
                 timeline.AddTrack(new VideoTrack() {
@@ -64,7 +64,7 @@ namespace FramePFX.Editors.Contextual {
             }
         }
 
-        private static void AddClipByType(IDataContext context, string id) {
+        private static void AddClipByType(IContextData context, string id) {
             if (!DataKeys.TrackKey.TryGetContext(context, out Track track)) {
                 return;
             }

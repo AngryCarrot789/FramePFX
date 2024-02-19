@@ -23,7 +23,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using FramePFX.AdvancedMenuService.WPF;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 using CommandManager = FramePFX.CommandSystem.CommandManager;
 

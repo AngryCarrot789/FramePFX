@@ -22,7 +22,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Threading;
 using FramePFX.CommandSystem;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.Shortcuts.WPF.Converters;
 using FramePFX.Utils;
 
@@ -70,7 +70,7 @@ namespace FramePFX.AdvancedContextService.WPF {
             this.UpdateCanExecuteVisual(this.Menu?.ContextOnMenuOpen);
         }
 
-        public void UpdateCanExecuteVisual(IDataContext ctx) {
+        public void UpdateCanExecuteVisual(IContextData ctx) {
             if (!this.IsLoaded) {
                 return;
             }
@@ -85,15 +85,6 @@ namespace FramePFX.AdvancedContextService.WPF {
         }
 
         protected override void OnClick() {
-            // Originally used a binding to bind this menu item's command to an CommandContextEntry's
-            // internal command, but you lose the ability to access Keyboard.FocusedElement, so it's
-            // better to just handle the click manually
-            // context should not be an instance of CommandContextEntry... but just in case
-            // if (this.DataContext is CommandContextEntry || this.DataContext is CommandContextEntry) {
-            //     base.OnClick(); // clicking is handled in the entry
-            //     return;
-            // }
-
             if (this.IsExecuting) {
                 this.CanExecute = false;
                 return;
@@ -115,13 +106,13 @@ namespace FramePFX.AdvancedContextService.WPF {
         }
 
         private void DispatchCommand(string cmdId) {
-            DataContext context = this.Menu?.ContextOnMenuOpen;
+            ContextData context = this.Menu?.ContextOnMenuOpen;
             if (context != null) {
                 this.Dispatcher.BeginInvoke((Action) (() => this.ExecuteCommand(cmdId, context)), DispatcherPriority.Render);
             }
         }
 
-        private void ExecuteCommand(string cmdId, DataContext context) {
+        private void ExecuteCommand(string cmdId, ContextData context) {
             try {
                 if (!string.IsNullOrWhiteSpace(cmdId) && context != null)
                     CommandManager.Instance.Execute(cmdId, context);

@@ -26,6 +26,9 @@ using System.Windows.Automation.Provider;
 using FramePFX.Editors.Controls.TreeViews.Controls;
 
 namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers {
+    /// <summary>
+    /// Powers UI-Automation for <see cref="MultiSelectTreeView"/> types
+    /// </summary>
     public class MultiSelectTreeViewAutomationPeer : ItemsControlAutomationPeer, ISelectionProvider {
         #region Constructor
 

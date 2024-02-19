@@ -19,11 +19,11 @@
 
 using System.Collections.Generic;
 
-namespace FramePFX.Interactivity.DataContexts {
+namespace FramePFX.Interactivity.Contexts {
     /// <summary>
-    /// An immutable object that stores context information. Any entry will always have a non-null value; null values are not permitted
+    /// An immutable object that stores context information. Any entry will always have a non-null value (null values are not permitted)
     /// </summary>
-    public interface IDataContext {
+    public interface IContextData {
         /// <summary>
         /// Returns all of the custom data. Will not return null, but may be empty
         /// </summary>

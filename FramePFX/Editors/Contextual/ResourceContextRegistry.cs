@@ -20,13 +20,13 @@
 using System;
 using FramePFX.AdvancedContextService;
 using FramePFX.Editors.ResourceManaging;
-using FramePFX.Interactivity.DataContexts;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using FramePFX.Editors.ResourceManaging.Autoloading.Controls;
 using FramePFX.Editors.ResourceManaging.Resources;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 
 namespace FramePFX.Editors.Contextual {
@@ -43,7 +43,7 @@ namespace FramePFX.Editors.Contextual {
         /// items in the folder. Always contains at least 1 item when this method returns true
         /// </param>
         /// <returns>True if the context contained a resource</returns>
-        public static bool GetSingleFolderSelectionContext(IDataContext ctx, out ResourceFolder folder, out BaseResource[] selection) {
+        public static bool GetSingleFolderSelectionContext(IContextData ctx, out ResourceFolder folder, out BaseResource[] selection) {
             if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource resource) || resource.Parent == null || resource.Manager == null) {
                 folder = null;
                 selection = null;
@@ -75,7 +75,7 @@ namespace FramePFX.Editors.Contextual {
             }
         }
 
-        public static bool GetTreeContext(IDataContext ctx, out BaseResource[] selection) {
+        public static bool GetTreeContext(IContextData ctx, out BaseResource[] selection) {
             if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource resource) || resource.Parent == null || resource.Manager == null) {
                 selection = null;
                 return false;
@@ -97,7 +97,7 @@ namespace FramePFX.Editors.Contextual {
             }
         }
 
-        public static bool GetSingleSelection(IDataContext ctx, out BaseResource resource) {
+        public static bool GetSingleSelection(IContextData ctx, out BaseResource resource) {
             if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out resource) || resource.Parent == null || resource.Manager == null) {
                 return false;
             }
@@ -117,7 +117,7 @@ namespace FramePFX.Editors.Contextual {
         /// <param name="ctx">Data Context</param>
         /// <param name="folder">The folder</param>
         /// <returns>True if the data contains contained a folder or a resource manager</returns>
-        public static bool GetTargetFolder(IDataContext ctx, out ResourceFolder folder) {
+        public static bool GetTargetFolder(IContextData ctx, out ResourceFolder folder) {
             if (DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource resource) && (folder = resource as ResourceFolder) != null) {
                 return true;
             }
@@ -131,7 +131,7 @@ namespace FramePFX.Editors.Contextual {
             }
         }
 
-        public void Generate(List<IContextEntry> list, IDataContext context) {
+        public void Generate(List<IContextEntry> list, IContextData context) {
             if (!GetSingleFolderSelectionContext(context, out ResourceFolder folder, out BaseResource[] selection)) {
                 if (context.ContainsKey(DataKeys.ResourceManagerKey)) {
                     GenerateNewResourceEntries(list);
@@ -179,7 +179,7 @@ namespace FramePFX.Editors.Contextual {
             }
         }
 
-        private static void ChangeResourceImagePath(IDataContext ctx) {
+        private static void ChangeResourceImagePath(IContextData ctx) {
             if (GetSingleSelection(ctx, out BaseResource resource) && resource is ResourceImage image) {
                 string filePath = IoC.FilePickService.OpenFile("Select a new image file for this resource", Filters.ImageTypesAndAll);
                 if (filePath == null) {
@@ -208,13 +208,13 @@ namespace FramePFX.Editors.Contextual {
             list.Add(new GroupContextEntry("Add new...", toAdd));
         }
 
-        private static void AddColourResource(IDataContext ctx) {
+        private static void AddColourResource(IContextData ctx) {
             if (GetTargetFolder(ctx, out ResourceFolder folder)) {
                 AddNewResource(folder, new ResourceColour() {Colour = RenderUtils.RandomColour(), DisplayName = "New Colour"});
             }
         }
 
-        private static void AddCompositionResource(IDataContext ctx) {
+        private static void AddCompositionResource(IContextData ctx) {
             if (GetTargetFolder(ctx, out ResourceFolder folder)) {
                 AddNewResource(folder, new ResourceComposition() {DisplayName = "New Composition"});
             }

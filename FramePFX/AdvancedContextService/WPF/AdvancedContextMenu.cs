@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.AdvancedContextService.WPF {
     public class AdvancedContextMenu : ContextMenu, IAdvancedMenu {
@@ -36,7 +36,7 @@ namespace FramePFX.AdvancedContextService.WPF {
         private static readonly ContextMenuEventHandler MenuOpenHandlerForGenerable = OnContextMenuOpeningForGenerable;
         private static readonly ContextMenuEventHandler MenuCloseHandlerForGenerable = OnContextMenuClosingForGenerable;
 
-        internal DataContext ContextOnMenuOpen;
+        internal ContextData ContextOnMenuOpen;
 
         private readonly Dictionary<Type, Stack<FrameworkElement>> itemCache;
 
@@ -155,7 +155,7 @@ namespace FramePFX.AdvancedContextService.WPF {
                 IContextGenerator generator = GetContextGenerator(sourceObject);
                 if (generator != null) {
                     List<IContextEntry> list = new List<IContextEntry>();
-                    DataContext context = DataManager.EvaluateContextData(targetObject);
+                    ContextData context = DataManager.EvaluateContextData(targetObject);
                     generator.Generate(list, context);
                     if (list.Count < 1) {
                         e.Handled = true;

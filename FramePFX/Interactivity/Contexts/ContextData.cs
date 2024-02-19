@@ -21,21 +21,24 @@ using System.Collections.Generic;
 using System.Linq;
 using FramePFX.Utils;
 
-namespace FramePFX.Interactivity.DataContexts {
-    public class DataContext : IDataContext {
+namespace FramePFX.Interactivity.Contexts {
+    /// <summary>
+    /// The main implementation of <see cref="IContextData"/>
+    /// </summary>
+    public class ContextData : IContextData {
         private Dictionary<string, object> map;
 
         public IEnumerable<KeyValuePair<string, object>> Entries => this.map ?? Enumerable.Empty<KeyValuePair<string, object>>();
 
         public int Count => this.map?.Count ?? 0;
 
-        public DataContext() {
+        public ContextData() {
 
         }
 
-        public DataContext(IDataContext ctx) {
-            if (ctx is DataContext dctx) {
-                this.map = dctx.map != null ? new Dictionary<string, object>(dctx.map) : null;
+        public ContextData(IContextData ctx) {
+            if (ctx is ContextData cd) {
+                this.map = cd.map != null ? new Dictionary<string, object>(cd.map) : null;
             }
             else if (ctx != EmptyContext.Instance) {
                 using (IEnumerator<KeyValuePair<string, object>> enumerable = ctx.Entries.GetEnumerator()) {
@@ -50,10 +53,10 @@ namespace FramePFX.Interactivity.DataContexts {
             }
         }
 
-        public DataContext Set<T>(DataKey<T> key, T value) => this.SetRaw(key.Id, value);
-        public DataContext Set(DataKey<bool> key, bool? value) => this.SetRaw(key.Id, value.BoxNullable());
+        public ContextData Set<T>(DataKey<T> key, T value) => this.SetRaw(key.Id, value);
+        public ContextData Set(DataKey<bool> key, bool? value) => this.SetRaw(key.Id, value.BoxNullable());
 
-        public DataContext SetRaw(string key, object value) {
+        public ContextData SetRaw(string key, object value) {
             if (value == null) {
                 this.map?.Remove(key);
             }
@@ -79,17 +82,17 @@ namespace FramePFX.Interactivity.DataContexts {
             return this.map != null && this.map.ContainsKey(key);
         }
 
-        public DataContext Clone() {
-            DataContext ctx = new DataContext();
+        public ContextData Clone() {
+            ContextData ctx = new ContextData();
             if (this.map != null)
                 ctx.map = new Dictionary<string, object>(this.map);
             return ctx;
         }
 
-        public void Merge(IDataContext ctx) {
-            if (ctx is DataContext dc) {
-                if (dc.map != null) {
-                    using (Dictionary<string, object>.Enumerator enumerator = dc.map.GetEnumerator()) {
+        public void Merge(IContextData ctx) {
+            if (ctx is ContextData cd) {
+                if (cd.map != null) {
+                    using (Dictionary<string, object>.Enumerator enumerator = cd.map.GetEnumerator()) {
                         if (enumerator.MoveNext()) {
                             Dictionary<string, object> myMap = this.map ?? (this.map = new Dictionary<string, object>());
                             do {
@@ -120,7 +123,7 @@ namespace FramePFX.Interactivity.DataContexts {
                 details = string.Join(", ", this.map.Select(x => "\"" + x.Key + "\"" + "=" + x.Value));
             }
 
-            return "$DataContext[" + details + "]";
+            return "ContextData[" + details + "]";
         }
     }
 }

@@ -21,18 +21,18 @@ using System.Collections.Generic;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editors.Actions {
     public class DeleteClipsCommand : Command {
         public override void Execute(CommandEventArgs e) {
             HashSet<Clip> clips = new HashSet<Clip>();
-            if (DataKeys.ClipKey.TryGetContext(e.DataContext, out Clip focusedClip)) {
+            if (DataKeys.ClipKey.TryGetContext(e.Context, out Clip focusedClip)) {
                 clips.Add(focusedClip);
             }
 
             Timeline timeline;
-            if ((timeline = focusedClip?.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.DataContext, out timeline)) {
+            if ((timeline = focusedClip?.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.Context, out timeline)) {
                 foreach (Clip clip in timeline.SelectedClips) {
                     clips.Add(clip);
                 }

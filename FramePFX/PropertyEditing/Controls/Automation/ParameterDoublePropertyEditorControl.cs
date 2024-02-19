@@ -19,7 +19,9 @@
 
 using System.Windows;
 using FramePFX.Editors.Automation.Params;
+using FramePFX.Editors.Controls.Dragger;
 using FramePFX.PropertyEditing.Automation;
+using FramePFX.Utils;
 
 namespace FramePFX.PropertyEditing.Controls.Automation {
     public class ParameterDoublePropertyEditorControl : BaseNumberParameterPropEditorControl {
@@ -50,6 +52,10 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
             this.dragger.SmallChange = profile.SmallStep;
             this.dragger.LargeChange = profile.NormalStep;
             this.dragger.MassiveChange = profile.LargeStep;
+
+            if (slot.CanUsePercentageForUnitRange && DoubleUtils.AreClose(desc.Maximum - desc.Minimum, 1.0)) {
+                this.dragger.PreviewValueFormatter = new UnitToPercentFormatter();
+            }
         }
     }
 }

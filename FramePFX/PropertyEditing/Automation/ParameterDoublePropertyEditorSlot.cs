@@ -49,8 +49,14 @@ namespace FramePFX.PropertyEditing.Automation {
 
         public DragStepProfile StepProfile { get; }
 
-        public ParameterDoublePropertyEditorSlot(ParameterDouble parameter, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName) {
+        /// <summary>
+        /// Returns true if the UI can attempt to show a 0.0 to 1.0 range as a percentage range (0-100%)
+        /// </summary>
+        public bool CanUsePercentageForUnitRange { get; }
+
+        public ParameterDoublePropertyEditorSlot(ParameterDouble parameter, Type applicableType, string displayName, DragStepProfile stepProfile, bool canUsePercentageForUnitRange = true) : base(parameter, applicableType, displayName) {
             this.StepProfile = stepProfile;
+            this.CanUsePercentageForUnitRange = canUsePercentageForUnitRange;
         }
 
         protected override void QueryValueFromHandlers() {

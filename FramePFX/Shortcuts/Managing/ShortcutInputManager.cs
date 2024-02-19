@@ -20,7 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Usage;
 using FramePFX.Utils;
@@ -53,7 +53,7 @@ namespace FramePFX.Shortcuts.Managing {
         public Dictionary<IShortcutUsage, GroupedShortcut> ActiveUsages { get; }
 
         // We pass this to the CommandManager so that we don't generate the context data when it's unnecessary
-        internal readonly Func<IDataContext> ProvideCurrentContextInternal;
+        internal readonly Func<IContextData> ProvideCurrentContextInternal;
 
         public ShortcutInputManager(ShortcutManager manager) {
             this.Manager = manager ?? throw new ArgumentNullException(nameof(manager));
@@ -61,14 +61,14 @@ namespace FramePFX.Shortcuts.Managing {
             this.cachedShortcutList = new List<GroupedShortcut>(8);
             this.cachedInputStateList = new List<(GroupedInputState, bool)>();
             this.cachedInstantActivationList = new List<GroupedShortcut>(4);
-            this.ProvideCurrentContextInternal = this.GetCurrentDataContext;
+            this.ProvideCurrentContextInternal = this.GetCurrentContext;
         }
 
         /// <summary>
         /// Gets the current data context associated with an input phase
         /// </summary>
         /// <returns>The data context</returns>
-        public abstract IDataContext GetCurrentDataContext();
+        public abstract IContextData GetCurrentContext();
 
         #region Shortcut Accumulation
 

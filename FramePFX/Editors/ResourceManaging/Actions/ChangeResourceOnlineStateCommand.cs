@@ -38,7 +38,7 @@ namespace FramePFX.Editors.ResourceManaging.Actions {
 
     public class EnableResourcesCommand : ChangeResourceOnlineStateCommand {
         public override void Execute(CommandEventArgs e) {
-            if (!ResourceContextRegistry.GetTreeContext(e.DataContext, out BaseResource[] items)) {
+            if (!ResourceContextRegistry.GetTreeContext(e.Context, out BaseResource[] items)) {
                 return;
             }
 
@@ -48,7 +48,7 @@ namespace FramePFX.Editors.ResourceManaging.Actions {
 
     public class DisableResourcesCommand : ChangeResourceOnlineStateCommand {
         public override void Execute(CommandEventArgs e) {
-            if (!ResourceContextRegistry.GetTreeContext(e.DataContext, out BaseResource[] items)) {
+            if (!ResourceContextRegistry.GetTreeContext(e.Context, out BaseResource[] items)) {
                 return;
             }
 

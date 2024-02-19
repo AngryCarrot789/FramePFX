@@ -39,7 +39,7 @@ using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 using Timeline = FramePFX.Editors.Timelines.Timeline;
 
@@ -217,7 +217,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                 this.UpdateClipVisibleState();
             }
 
-            DataManager.SetContextData(this, new DataContext().Set(DataKeys.ClipKey, clip));
+            DataManager.SetContextData(this, new ContextData().Set(DataKeys.ClipKey, clip));
         }
 
         public void OnAdded() {

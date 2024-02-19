@@ -23,7 +23,7 @@ using FramePFX.CommandSystem;
 using FramePFX.Editors.Exporting;
 using FramePFX.Editors.Exporting.Controls;
 using FramePFX.Editors.Timelines;
-using FramePFX.Interactivity.DataContexts;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editors.Actions {
     public class ExportCommand : Command {
@@ -35,10 +35,10 @@ namespace FramePFX.Editors.Actions {
 
         public override bool CanExecute(CommandEventArgs e) {
             if (this.ExportActiveTimeline) {
-                return TryGetTimeline(e.DataContext, out Timeline timeline) && timeline.Project != null && !timeline.Project.IsExporting;
+                return TryGetTimeline(e.Context, out Timeline timeline) && timeline.Project != null && !timeline.Project.IsExporting;
             }
             else {
-                return TryGetProject(e.DataContext, out Project project) && !project.IsExporting;
+                return TryGetProject(e.Context, out Project project) && !project.IsExporting;
             }
         }
 
@@ -46,12 +46,12 @@ namespace FramePFX.Editors.Actions {
             Project project;
             Timeline timeline;
             if (this.ExportActiveTimeline) {
-                if (!TryGetTimeline(e.DataContext, out timeline)) {
+                if (!TryGetTimeline(e.Context, out timeline)) {
                     return;
                 }
             }
             else {
-                if (!TryGetProject(e.DataContext, out project)) {
+                if (!TryGetProject(e.Context, out project)) {
                     return;
                 }
 
@@ -75,13 +75,13 @@ namespace FramePFX.Editors.Actions {
             dialog.ShowDialog();
         }
 
-        public static bool TryGetProject(IDataContext ctx, out Project project) {
+        public static bool TryGetProject(IContextData ctx, out Project project) {
             if (DataKeys.ProjectKey.TryGetContext(ctx, out project))
                 return true;
             return DataKeys.VideoEditorKey.TryGetContext(ctx, out VideoEditor editor) && (project = editor.Project) != null;
         }
 
-        public static bool TryGetTimeline(IDataContext ctx, out Timeline timeline) {
+        public static bool TryGetTimeline(IContextData ctx, out Timeline timeline) {
             if (DataKeys.TimelineKey.TryGetContext(ctx, out timeline))
                 return true;
             if (DataKeys.ProjectKey.TryGetContext(ctx, out Project project)) {

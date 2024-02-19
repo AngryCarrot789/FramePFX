@@ -513,9 +513,6 @@ namespace FramePFX.Editors.Timelines {
             RenderManager.InternalOnTimelineProjectChanged(timeline.RenderManager, null, project);
         }
 
-        // TODO: composition timelines
-        // This will have to traverse the entire timeline tree, and possible any other composition clips within
-        // the timeline to update all of their projects to the given one
         internal static void InternalSetCompositionTimelineProjectReference(Timeline timeline, Project project) {
             Project oldProject = timeline.Project;
             if (ReferenceEquals(oldProject, project)) {

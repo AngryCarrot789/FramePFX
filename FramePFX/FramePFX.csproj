@@ -711,7 +711,6 @@
     <Compile Include="Editors\Controls\Viewports\FreeMoveViewPort.cs" />
     <Compile Include="Editors\Controls\Viewports\SKAsyncViewPort.cs" />
     <Compile Include="Editors\Controls\Viewports\VideoEditorViewPortPreview.cs" />
-    <Compile Include="Editors\EditorDataKeys.cs" />
     <Compile Include="Editors\Factories\ClipFactory.cs" />
     <Compile Include="Editors\Factories\EffectFactory.cs" />
     <Compile Include="Editors\Factories\ObjectFactory.cs" />

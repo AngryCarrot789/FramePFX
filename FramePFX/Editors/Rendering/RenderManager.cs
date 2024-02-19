@@ -223,7 +223,7 @@ namespace FramePFX.Editors.Rendering {
 
                 this.CheckRenderCancelled();
                 this.surface.Canvas.Clear(SKColors.Black);
-                for (int i = 0; i < videoTrackList.Count; i++) {
+                for (int i = 0; i < tasks.Length; i++) {
                     if (!tasks[i].IsCompleted)
                         await tasks[i];
                     videoTrackList[i].DrawFrameIntoSurface(this.surface, out SKRect usedRenderingArea);
@@ -250,7 +250,7 @@ namespace FramePFX.Editors.Rendering {
 
                 this.CheckRenderCancelled();
 
-                for (int i = 0; i < audioTrackList.Count; i++) {
+                for (int i = 0; i < tasks.Length; i++) {
                     if (!tasks[i].IsCompleted)
                         await tasks[i];
                     unsafe {
@@ -264,7 +264,7 @@ namespace FramePFX.Editors.Rendering {
             return Task.WhenAll(renderVideo, renderAudio).ContinueWith(t => {
                 this.LastRenderRect = totalRenderArea;
                 this.isRendering = 0;
-            });
+            }, TaskContinuationOptions.ExecuteSynchronously);
         }
 
         private void CheckRenderCancelled() {

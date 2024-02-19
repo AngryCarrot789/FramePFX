@@ -120,7 +120,13 @@ so you need to do that manually: It seems like you just copy `\packages\SkiaShar
 ## BUGS
 - Importing certain video files can cause the render to fail (some sort of "found invalid data while decoding" error)
 
-## Licence
-Licenced under the GNU General Public License version 3.0 or later (GPL v3.0+).
+# Licence
+All source files in FramePFX are under the GNU General Public License version 3.0 or later (GPL v3.0+).
+FramePFX uses libraries that have other licences, such as MIT/LGPL licences.
 
-See Licence.md for more info
+If any source file is missing a copyright notice, it is assumed to be licenced under the same
+licence as FramePFX
+
+Currently, the used LGPL parts are:
+- FFmpeg.AutoGen, which is licenced under the GNU Lesser General Public License version 3.0 (LGPL v3.0)
+- FFmpeg

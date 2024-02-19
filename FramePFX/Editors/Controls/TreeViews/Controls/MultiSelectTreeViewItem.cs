@@ -1,4 +1,27 @@
-﻿using System;
+﻿/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012 Yves Goergen, Goroll
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+ * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+ * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -15,7 +38,6 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
     [TemplatePart(Name = "ItemsHost", Type = typeof(ItemsPresenter))]
     [StyleTypedProperty(Property = "ItemContainerStyle", StyleTargetType = typeof(MultiSelectTreeViewItem))]
     public class MultiSelectTreeViewItem : HeaderedItemsControl {
-        // IHierarchicalVirtualizationAndScrollInfo
         public static readonly DependencyProperty BackgroundFocusedProperty = DependencyProperty.Register("BackgroundFocused", typeof(Brush), typeof(MultiSelectTreeViewItem), new FrameworkPropertyMetadata(SystemColors.HighlightBrush, null));
         public static readonly DependencyProperty BackgroundSelectedHoveredProperty = DependencyProperty.Register("BackgroundSelectedHovered", typeof(Brush), typeof(MultiSelectTreeViewItem), new FrameworkPropertyMetadata(Brushes.DarkGray, null));
         public static readonly DependencyProperty BackgroundSelectedProperty = DependencyProperty.Register("BackgroundSelected", typeof(Brush), typeof(MultiSelectTreeViewItem), new FrameworkPropertyMetadata(SystemColors.HighlightBrush, null));
@@ -45,7 +67,6 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
         private bool IsUsingItemSource;
 
         public MultiSelectTreeViewItem() {
-
         }
 
         protected override void OnItemsSourceChanged(IEnumerable oldValue, IEnumerable newValue) {
@@ -64,15 +85,6 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
             };
             this.OnMouseDown(e);
         }
-
-        // HierarchicalVirtualizationConstraints IHierarchicalVirtualizationAndScrollInfo.Constraints {
-        //     get => GroupItem.HierarchicalVirtualizationConstraintsField.GetValue((DependencyObject) this);
-        //     set {
-        //         if (value.CacheLengthUnit == VirtualizationCacheLengthUnit.Page)
-        //             throw new InvalidOperationException(System.Windows.SR.Get("PageCacheSizeNotAllowed"));
-        //         GroupItem.HierarchicalVirtualizationConstraintsField.SetValue((DependencyObject) this, value);
-        //     }
-        // }
 
         public Brush BackgroundFocused {
             get { return (Brush) this.GetValue(BackgroundFocusedProperty); }
@@ -236,49 +248,45 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
             if (this.ParentTreeView == null)
                 return;
 
-            //System.Diagnostics.Debug.WriteLine("P(" + ParentTreeView.Name + "): " + e.Property + " " + e.NewValue);
-            if (e.Property.Name == "IsEditing") {
-                if ((bool) e.NewValue == false) {
-                    this.StopEditing();
-                }
-            }
-
-            if (e.Property.Name == "IsExpanded") {
-                // Bring newly expanded child nodes into view if they'd be outside of the current view
-                if ((bool) e.NewValue == true) {
-                    if (this.VisualChildrenCount > 0) {
-                        ((FrameworkElement) this.GetVisualChild(this.VisualChildrenCount - 1)).BringIntoView();
+            switch (e.Property.Name) {
+                //System.Diagnostics.Debug.WriteLine("P(" + ParentTreeView.Name + "): " + e.Property + " " + e.NewValue);
+                case "IsEditing": {
+                    if ((bool) e.NewValue == false) {
+                        this.StopEditing();
                     }
-                }
 
-                // Deselect children of collapsed item
-                // (If one resists, don't collapse)
-                if ((bool) e.NewValue == false) {
-                    if (!this.ParentTreeView.DeselectRecursive(this, false)) {
-                        this.IsExpanded = true;
-                    }
+                    break;
                 }
-            }
-
-            if (e.Property.Name == "IsVisible") {
-                // Deselect invisible item and its children
-                // (If one resists, don't hide)
-                if ((bool) e.NewValue == false) {
-                    if (!this.ParentTreeView.DeselectRecursive(this, true)) {
-                        this.IsVisible = true;
+                case "IsExpanded": {
+                    // Bring newly expanded child nodes into view if they'd be outside of the current view
+                    if ((bool) e.NewValue) {
+                        if (this.VisualChildrenCount > 0) {
+                            ((FrameworkElement) this.GetVisualChild(this.VisualChildrenCount - 1))?.BringIntoView();
+                        }
                     }
+
+                    // Deselect children of collapsed item (If one resists, don't collapse)
+                    if ((bool) e.NewValue == false) {
+                        if (!this.ParentTreeView.DeselectRecursive(this, false)) {
+                            this.IsExpanded = true;
+                        }
+                    }
+
+                    break;
+                }
+                case "IsVisible": {
+                    // Deselect invisible item and its children (If one resists, don't hide)
+                    if ((bool) e.NewValue == false) {
+                        if (!this.ParentTreeView.DeselectRecursive(this, true)) {
+                            this.IsVisible = true;
+                        }
+                    }
+
+                    break;
                 }
             }
 
             base.OnPropertyChanged(e);
-        }
-
-        protected override DependencyObject GetContainerForItemOverride() {
-            return new MultiSelectTreeViewItem();
-        }
-
-        protected override bool IsItemItsOwnContainerOverride(object item) {
-            return item is MultiSelectTreeViewItem;
         }
 
         protected override AutomationPeer OnCreateAutomationPeer() {
@@ -407,23 +415,16 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
         }
 
         protected override void OnGotFocus(RoutedEventArgs e) {
-            // Do not call the base method because it would bring all of its children into view on
-            // selecting which is not the desired behaviour.
             //base.OnGotFocus(e);
             this.ParentTreeView.LastFocusedItem = this;
-            //System.Diagnostics.Debug.WriteLine("MultiSelectTreeViewItem.OnGotFocus(), DisplayName = " + DisplayName);
-            //System.Diagnostics.Debug.WriteLine(Environment.StackTrace);
         }
 
         protected override void OnLostFocus(RoutedEventArgs e) {
             base.OnLostFocus(e);
             this.IsEditing = false;
-            //System.Diagnostics.Debug.WriteLine("MultiSelectTreeViewItem.OnLostFocus(), DisplayName = " + DisplayName);
-            //System.Diagnostics.Debug.WriteLine(Environment.StackTrace);
         }
 
         protected override void OnMouseDown(MouseButtonEventArgs e) {
-            //System.Diagnostics.Debug.WriteLine("MultiSelectTreeViewItem.OnMouseDown(Item = " + this.DisplayName + ", Button = " + e.ChangedButton + ")");
             base.OnMouseDown(e);
 
             FrameworkElement itemContent = (FrameworkElement) this.Template.FindName("headerBorder", this);
@@ -472,8 +473,7 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
             MultiSelectTreeView parentTV;
             switch (e.Action) {
                 case NotifyCollectionChangedAction.Remove:
-                    // Remove all items from the SelectedItems list that have been removed from the
-                    // Items list
+                    // Remove all items from the SelectedItems list that have been removed from the Items list
                     parentTV = this.ParentTreeView ?? this.lastParentTreeView;
                     if (parentTV != null) {
                         foreach (object item in e.OldItems) {
@@ -481,15 +481,13 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
                             if (parentTV.Selection is SelectionMultiple multiselection) {
                                 multiselection.InvalidateLastShiftRoot(item);
                             }
-                            // Don't preview and ask, it is already gone so it must be removed from
-                            // the SelectedItems list
+                            // Don't preview and ask, it is already gone so it must be removed from the SelectedItems list
                         }
                     }
 
                     break;
                 case NotifyCollectionChangedAction.Reset:
-                    // Remove all items from the SelectedItems list that are no longer in the Items
-                    // list
+                    // Remove all items from the SelectedItems list that are no longer in the Items list
                     parentTV = this.ParentTreeView ?? this.lastParentTreeView;
                     if (parentTV != null) {
                         object[] selection = new object[parentTV.SelectedItems.Count];

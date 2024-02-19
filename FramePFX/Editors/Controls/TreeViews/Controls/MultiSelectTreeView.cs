@@ -1,4 +1,27 @@
-﻿using System;
+﻿/*
+ * The MIT License (MIT)
+ *
+ * Copyright (c) 2012 Yves Goergen, Goroll
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+ * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
+ * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -18,10 +41,7 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
         #region Constants and Fields
 
         public event EventHandler<PreviewSelectionChangedEventArgs> PreviewSelectionChanged;
-
-        // TODO: Provide more details. Fire once for every single change and once for all groups of changes, with different flags
         public event EventHandler SelectionChanged;
-
         public static readonly DependencyProperty BackgroundSelectionRectangleProperty = DependencyProperty.Register("BackgroundSelectionRectangle", typeof(Brush), typeof(MultiSelectTreeView), new PropertyMetadata(new SolidColorBrush(Color.FromArgb(0x60, 0x33, 0x99, 0xFF))));
         public static readonly DependencyProperty BorderBrushSelectionRectangleProperty = DependencyProperty.Register("BorderBrushSelectionRectangle", typeof(Brush), typeof(MultiSelectTreeView), new PropertyMetadata(new SolidColorBrush(Color.FromRgb(0x33, 0x99, 0xFF))));
         public static readonly DependencyProperty HoverHighlightingProperty = DependencyProperty.Register("HoverHighlighting", typeof(bool), typeof(MultiSelectTreeView), new PropertyMetadata(BoolBox.True));
@@ -510,9 +530,9 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
             // i.e. be queued in the dispatcher. Otherwise the TreeView could keep its focus
             // because other focus things are still going on and interfering this final request.
 
-            MultiSelectTreeViewItem lastFocusedItem = this.LastFocusedItem;
-            if (lastFocusedItem != null) {
-                this.Dispatcher.BeginInvoke((Action) (() => FocusHelper.Focus(lastFocusedItem)));
+            MultiSelectTreeViewItem lastFocused = this.LastFocusedItem;
+            if (lastFocused != null) {
+                this.Dispatcher.BeginInvoke((Action) (() => FocusHelper.Focus(lastFocused)));
             }
             else {
                 MultiSelectTreeViewItem firstNode = EnumerableTreeRecursiveFirst((x) => true, this, false);
@@ -520,14 +540,6 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
                     this.Dispatcher.BeginInvoke((Action) (() => FocusHelper.Focus(firstNode)));
                 }
             }
-        }
-
-        protected override void OnMouseDown(MouseButtonEventArgs e) {
-            base.OnMouseDown(e);
-
-            // This happens when a mouse button was pressed in an area which is not covered by an
-            // item. Then, it should be focused which in turn passes on the focus to an item.
-            this.Focus();
         }
 
         protected void OnPreviewSelectionChanged(PreviewSelectionChangedEventArgs e) {

@@ -1,3 +1,22 @@
+//
+// Copyright (c) 2023-2024 REghZy
+//
+// This file is part of FramePFX.
+//
+// FramePFX is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either
+// version 3.0 of the License, or (at your option) any later version.
+//
+// FramePFX is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
+//
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,7 +24,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using FramePFX.Editors.Controls.Rulers;
 using FramePFX.Editors.Controls.Timelines.Playheads;
 using FramePFX.Editors.Controls.Timelines.Tracks;
 using FramePFX.Editors.Controls.Timelines.Tracks.Clips;
@@ -54,7 +72,7 @@ namespace FramePFX.Editors.Controls.Timelines {
 
         public StopHeadControl StopHead { get; private set; }
 
-        public Ruler Ruler { get; private set; }
+        public TimelineRuler TimelineRuler { get; private set; }
 
         public Border RulerContainerBorder { get; private set; } // contains the ruler
 
@@ -71,10 +89,6 @@ namespace FramePFX.Editors.Controls.Timelines {
         private bool isUpdatingClipAutomationButton;
 
         public TimelineControl() {
-            this.MouseLeftButtonDown += (s, e) => {
-                // ((TimelineControl) s).MovePlayHeadToMouseCursor(e.GetPosition((IInputElement) s).X + (this.TimelineScrollViewer?.HorizontalOffset ?? 0d), false);
-            };
-
             this.timelineActionButtons = new List<Button>();
             this.itemContentCacheMap = new Dictionary<Type, Stack<TimelineClipContent>>();
         }
@@ -187,7 +201,7 @@ namespace FramePFX.Editors.Controls.Timelines {
             this.GetTemplateChild("PART_TrackListScrollViewer", out ScrollViewer scrollViewer);
             this.GetTemplateChild("PART_SequenceScrollViewer", out ScrollViewer timelineScrollViewer);
             this.GetTemplateChild("PART_PlayheadPositionPreviewControl", out PlayheadPositionTextControl playheadPosPreview);
-            this.GetTemplateChild("PART_Ruler", out Ruler ruler);
+            this.GetTemplateChild("PART_Ruler", out TimelineRuler ruler);
             this.GetTemplateChild("PART_PlayHeadControl", out PlayHeadControl playHead);
             this.GetTemplateChild("PART_StopHeadControl", out StopHeadControl stopHead);
             this.GetTemplateChild("PART_TimestampBoard", out Border timeStampBoard);
@@ -223,10 +237,7 @@ namespace FramePFX.Editors.Controls.Timelines {
             this.TimelineBorder = timelineBorder;
             this.TrackListScrollViewer = scrollViewer;
             this.PlayHeadPositionPreview = playheadPosPreview;
-            this.Ruler = ruler;
-            if (this.Timeline is Timeline myTimeline)
-                this.Ruler.MaxValue = myTimeline.MaxDuration;
-
+            this.TimelineRuler = ruler;
             this.PlayHead = playHead;
             this.StopHead = stopHead;
             this.TimelineScrollViewer = timelineScrollViewer;
@@ -348,6 +359,7 @@ namespace FramePFX.Editors.Controls.Timelines {
             this.PlayHeadPositionPreview.Timeline = newTimeline;
             this.PlayHead.Timeline = newTimeline;
             this.StopHead.Timeline = newTimeline;
+            this.TimelineRuler.Timeline = newTimeline;
             if (newTimeline != null) {
                 newTimeline.MaxDurationChanged += this.OnTimelineMaxDurationChanged;
                 newTimeline.ZoomTimeline += this.OnTimelineZoomed;
@@ -355,8 +367,6 @@ namespace FramePFX.Editors.Controls.Timelines {
                 newTimeline.TrackRemoved += this.OnTimelineTrackEvent;
                 newTimeline.Project.Editor.ShowClipAutomationChanged += this.OnShowClipAutomationChanged;
                 newTimeline.Project.Editor.ShowTrackAutomationChanged += this.OnShowTrackAutomationChanged;
-                if (this.Ruler != null)
-                    this.Ruler.MaxValue = newTimeline.MaxDuration;
                 this.UpdateBorderThicknesses(newTimeline);
                 DataManager.SetContextData(this, new DataContext().Set(DataKeys.TimelineKey, newTimeline));
             }
@@ -379,6 +389,11 @@ namespace FramePFX.Editors.Controls.Timelines {
             Thickness thickness = new Thickness(0, 0, 0, (timeline.Tracks.Count < 1) ? 0 : 1);
             this.TimelineBorder.BorderThickness = thickness;
             this.TrackList.BorderThickness = thickness;
+        }
+
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
+            base.OnRenderSizeChanged(sizeInfo);
+            this.TimelineRuler?.InvalidateMeasure();
         }
 
         protected override void OnPreviewMouseWheel(MouseWheelEventArgs e) {
@@ -447,8 +462,6 @@ namespace FramePFX.Editors.Controls.Timelines {
         }
 
         private void OnTimelineMaxDurationChanged(Timeline timeline) {
-            if (this.Ruler != null)
-                this.Ruler.MaxValue = timeline.MaxDuration;
             if (this.TimelineContentGrid != null)
                 this.TimelineContentGrid.Width = TimelineUtils.FrameToPixel(timeline.MaxDuration, timeline.Zoom);
         }

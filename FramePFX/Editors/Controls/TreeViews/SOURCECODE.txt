@@ -1,0 +1,8 @@
+This is a heavy modification of the MultiSelectTreeView library,
+where ItemsSource is not supported for typical MVVM usage.
+
+This is the Github link of an (old) fork that I created with some fixes,
+but doesn't match this project's source for the tree view:
+https://github.com/AngryCarrot789/MultiSelectTreeView
+
+The licence for the library is contained in the source files of this directory

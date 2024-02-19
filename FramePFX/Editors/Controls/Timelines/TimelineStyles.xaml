@@ -5,7 +5,6 @@
                     xmlns:ct="clr-namespace:FramePFX.Editors.Controls.Timelines"
                     xmlns:d="clr-namespace:FramePFX.Editors.Controls.Dragger"
                     xmlns:co="clr-namespace:FramePFX.Converters"
-                    xmlns:rulers="clr-namespace:FramePFX.Editors.Controls.Rulers"
                     xmlns:a="clr-namespace:FramePFX.Editors.Controls.Automation"
                     xmlns:s="clr-namespace:FramePFX.Editors.Controls.Timelines.Tracks.Surfaces"
                     xmlns:tracks="clr-namespace:FramePFX.Editors.Controls.Timelines.Tracks"
@@ -244,14 +243,11 @@
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
                                 <Border x:Name="PART_TimestampBoard" Grid.Row="0" Background="{DynamicResource ABrush.Tone3.Background.Static}">
-                                    <rulers:Ruler x:Name="PART_Ruler" VerticalAlignment="Stretch"
-                                             HorizontalAlignment="Stretch"
-                                             MinorStepRatio="0.5"
-                                             MajorLineThickness="1"
-                                             MinorLineThickness="0.5"
-                                             SnapsToDevicePixels="True"
-                                             UseLayoutRounding="True"
-                                             Background="{DynamicResource ABrush.Tone4.Background.Static}"/>
+                                    <ct:TimelineRuler x:Name="PART_Ruler" VerticalAlignment="Stretch"
+                                                      HorizontalAlignment="Stretch"
+                                                      SnapsToDevicePixels="True"
+                                                      UseLayoutRounding="True"
+                                                      Background="{DynamicResource ABrush.Tone4.Background.Static}"/>
                                 </Border>
                                 <Border Grid.Row="2"
                                         x:Name="PART_TimelineSequenceBorder"

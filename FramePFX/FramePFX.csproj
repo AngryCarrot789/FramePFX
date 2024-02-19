@@ -174,6 +174,7 @@
     <Compile Include="Editors\Controls\EffectProviding\EffectProviderListBox.cs" />
     <Compile Include="Editors\Controls\EffectProviding\EffectProviderListBoxItem.cs" />
     <Compile Include="Editors\Controls\Timelines\ClipDropRegistry.cs" />
+    <Compile Include="Editors\Controls\Timelines\TimelineRuler.cs" />
     <Compile Include="Editors\Controls\Timelines\TrackDropRegistry.cs" />
     <Compile Include="Editors\Controls\Timelines\Tracks\Clips\ImageClipContent.cs" />
     <Compile Include="Editors\Controls\Timelines\Tracks\Clips\TimelineClipContent.cs" />
@@ -677,15 +678,6 @@
     <Compile Include="Editors\Controls\Resources\Trees\MovedResource.cs" />
     <Compile Include="Editors\Controls\Resources\Trees\ResourceTreeView.cs" />
     <Compile Include="Editors\Controls\Resources\Trees\ResourceTreeViewItem.cs" />
-    <Compile Include="Editors\Controls\Rulers\Ruler.cs" />
-    <Compile Include="Editors\Controls\Rulers\RulerBase.cs" />
-    <Compile Include="Editors\Controls\Rulers\RulerStepProperties.cs" />
-    <Compile Include="Editors\Controls\Rulers\Rulers\HorizontalRulerManager.cs" />
-    <Compile Include="Editors\Controls\Rulers\Rulers\LeftRulerManager.cs" />
-    <Compile Include="Editors\Controls\Rulers\Rulers\RulerPosition.cs" />
-    <Compile Include="Editors\Controls\Rulers\Rulers\RulerPositionManager.cs" />
-    <Compile Include="Editors\Controls\Rulers\Rulers\TopRulerManager.cs" />
-    <Compile Include="Editors\Controls\Rulers\Rulers\VerticalRulerManager.cs" />
     <Compile Include="Editors\Controls\SpacedStackPanel.cs" />
     <Compile Include="Editors\Controls\SpacedUniformGrid.cs" />
     <Compile Include="Editors\Controls\Timelines\AutomationBrushConverter.cs" />
@@ -716,7 +708,6 @@
     <Compile Include="Editors\Controls\TreeViews\Controls\MultiSelectTreeView.cs" />
     <Compile Include="Editors\Controls\TreeViews\Controls\MultiSelectTreeViewItem.cs" />
     <Compile Include="Editors\Controls\TreeViews\Controls\SelectionMultiple.cs" />
-    <Compile Include="Editors\Controls\TreeViews\Controls\ThicknessLeftConverter.cs" />
     <Compile Include="Editors\Controls\Viewports\FreeMoveViewPort.cs" />
     <Compile Include="Editors\Controls\Viewports\SKAsyncViewPort.cs" />
     <Compile Include="Editors\Controls\Viewports\VideoEditorViewPortPreview.cs" />
@@ -895,12 +886,11 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Editors\Controls\TreeViews\Source Code.txt" />
     <Resource Include="Resources\Fonts\Oxanium\OFL.txt" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="FramePFX-256.ico" />
-    <Content Include="Editors\Controls\TreeViews\LICENCE" />
+    <Content Include="Editors\Controls\TreeViews\SOURCECODE.txt" />
     <Content Include="Keymap.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

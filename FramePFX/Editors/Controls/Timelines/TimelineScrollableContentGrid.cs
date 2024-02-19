@@ -1,4 +1,23 @@
-﻿using System.Windows;
+﻿// 
+// Copyright (c) 2023-2024 REghZy
+// 
+// This file is part of FramePFX.
+// 
+// FramePFX is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either
+// version 3.0 of the License, or (at your option) any later version.
+// 
+// FramePFX is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// Lesser General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
+// 
+
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using FramePFX.AttachedProperties;
@@ -28,7 +47,7 @@ namespace FramePFX.Editors.Controls.Timelines {
             base.OnMouseDown(e);
             if (!e.Handled && e.LeftButton == MouseButtonState.Pressed && this.TimelineControl != null) {
                 Point point = e.GetPosition(this);
-                bool isClickSequence = point.Y > this.TimelineControl.Ruler.ActualHeight;
+                bool isClickSequence = point.Y > this.TimelineControl.TimelineRuler.ActualHeight;
                 this.TimelineControl.SetPlayHeadToMouseCursor(point.X, isClickSequence);
                 if (isClickSequence) {
                     this.TimelineControl.Timeline?.ClearClipSelection();

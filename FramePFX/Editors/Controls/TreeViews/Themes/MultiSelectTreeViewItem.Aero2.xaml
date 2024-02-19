@@ -52,7 +52,6 @@
         </Setter>
     </Style>
 
-    <controls:ThicknessLeftConverter x:Key="ThicknessLeftConverter"/>
     <Style TargetType="{x:Type controls:MultiSelectTreeViewItem}">
         <Setter Property="KeyboardNavigation.IsTabStop" Value="False"/>
         <Setter Property="VirtualizingStackPanel.VirtualizationMode" Value="Recycling"/>

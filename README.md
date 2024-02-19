@@ -121,4 +121,6 @@ so you need to do that manually: It seems like you just copy `\packages\SkiaShar
 - Importing certain video files can cause the render to fail (some sort of "found invalid data while decoding" error)
 
 ## Licence
-Project is licenced under MIT. I'm not a lawyer but, AFAIK, FFmpeg and FFmpeg.AutoGen being licenced primarily under GNU Lesser General Public License allows MIT to be used as long as the FFmpeg source code is not modified (which in this project, it isn't)
+Licenced under the GNU General Public License version 3.0 or later (GPL v3.0+).
+
+See Licence.md for more info

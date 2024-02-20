@@ -125,7 +125,7 @@ namespace FramePFX.Editors.ResourceManaging {
         }
 
         public void WriteToRBE(RBEDictionary data) {
-            this.RootContainer.WriteToRBE(data.CreateDictionary(nameof(this.RootContainer)));
+            BaseResource.SerialisationRegistry.Serialise(this.RootContainer, data.CreateDictionary(nameof(this.RootContainer)));
             data.SetULong("CurrId", this.currId);
         }
 
@@ -134,7 +134,7 @@ namespace FramePFX.Editors.ResourceManaging {
                 throw new Exception("Cannot read data while resources are still registered");
 
             this.currId = data.GetULong("CurrId", 0UL);
-            this.RootContainer.ReadFromRBE(data.GetDictionary(nameof(this.RootContainer)));
+            BaseResource.SerialisationRegistry.Deserialise(this.RootContainer, data.GetDictionary(nameof(this.RootContainer)));
         }
 
         private void RegisterEntryInternal(ulong id, ResourceItem item) {

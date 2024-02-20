@@ -96,14 +96,14 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
 
         static TimecodeClip() {
             SerialisationRegistry.Register<TimecodeClip>(0, (clip, data, ctx) => {
-                ctx.DeserialiseBaseClass(clip, data);
+                ctx.DeserialiseBaseType(data);
                 clip.UseClipStartTime = data.GetBool("UseClipStart");
                 clip.UseClipEndTime = data.GetBool("UseClipEnd");
                 clip.StartTime = data.GetDouble("StartTime");
                 clip.EndTime = data.GetDouble("EndTime");
                 clip.fontFamily = data.GetString("FontFamily", null);
             }, (clip, data, ctx) => {
-                ctx.SerialiseBaseClass(clip, data);
+                ctx.SerialiseBaseType(data);
                 data.SetBool("UseClipStart", clip.UseClipStartTime);
                 data.SetBool("UseClipEnd", clip.UseClipEndTime);
                 data.SetDouble("StartTime", clip.StartTime);

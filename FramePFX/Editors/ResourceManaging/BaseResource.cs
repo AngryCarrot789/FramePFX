@@ -20,6 +20,7 @@
 using System;
 using FramePFX.Editors.Factories;
 using FramePFX.Editors.ResourceManaging.Events;
+using FramePFX.Editors.Serialisation;
 using FramePFX.RBC;
 using FramePFX.Utils.Destroying;
 
@@ -28,6 +29,8 @@ namespace FramePFX.Editors.ResourceManaging {
     /// Base class for resource items and groups
     /// </summary>
     public abstract class BaseResource : IDestroy {
+        public static readonly SerialisationRegistry SerialisationRegistry;
+
         private string displayName;
         private bool isSelected;
 
@@ -75,6 +78,16 @@ namespace FramePFX.Editors.ResourceManaging {
             this.displayName = "A Resource";
         }
 
+        static BaseResource() {
+            SerialisationRegistry = new SerialisationRegistry();
+            SerialisationRegistry.Register<BaseResource>(0, (resource, data, ctx) => {
+                resource.DisplayName = data.GetString(nameof(resource.DisplayName), null);
+            }, (resource, data, ctx) => {
+                if (!string.IsNullOrEmpty(resource.DisplayName))
+                    data.SetString(nameof(resource.DisplayName), resource.DisplayName);
+            });
+        }
+
         /// <summary>
         /// Creates a clone of the item, and also any child items if the item is a group
         /// </summary>
@@ -118,31 +131,22 @@ namespace FramePFX.Editors.ResourceManaging {
             if (string.IsNullOrEmpty(registryId))
                 throw new Exception("Missing the registry ID for item");
             RBEDictionary data = dictionary.GetDictionary("Data");
-            BaseResource resource = ResourceTypeFactory.Instance.NewResource(registryId);
-            resource.ReadFromRBE(data);
-            return resource;
+            BaseResource item = ResourceTypeFactory.Instance.NewResource(registryId);
+            SerialisationRegistry.Deserialise(item, data);
+            return item;
         }
 
         public static void WriteSerialisedWithType(RBEDictionary dictionary, BaseResource item) {
             if (!(item.FactoryId is string id))
                 throw new Exception("Unknown resource item type: " + item.GetType());
             dictionary.SetString(nameof(FactoryId), id);
-            item.WriteToRBE(dictionary.CreateDictionary("Data"));
+            SerialisationRegistry.Serialise(item, dictionary.CreateDictionary("Data"));
         }
 
         public static RBEDictionary WriteSerialisedWithType(BaseResource clip) {
             RBEDictionary dictionary = new RBEDictionary();
             WriteSerialisedWithType(dictionary, clip);
             return dictionary;
-        }
-
-        public virtual void ReadFromRBE(RBEDictionary data) {
-            this.DisplayName = data.GetString(nameof(this.DisplayName), null);
-        }
-
-        public virtual void WriteToRBE(RBEDictionary data) {
-            if (!string.IsNullOrEmpty(this.DisplayName))
-                data.SetString(nameof(this.DisplayName), this.DisplayName);
         }
 
         /// <summary>

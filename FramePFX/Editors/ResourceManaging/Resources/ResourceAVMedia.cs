@@ -66,15 +66,15 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
         public ResourceAVMedia() {
         }
 
-        public override void WriteToRBE(RBEDictionary data) {
-            base.WriteToRBE(data);
-            if (!string.IsNullOrEmpty(this.filePath))
-                data.SetString(nameof(this.FilePath), this.filePath);
-        }
-
-        public override void ReadFromRBE(RBEDictionary data) {
-            base.ReadFromRBE(data);
-            this.filePath = data.GetString(nameof(this.FilePath), null);
+        static ResourceAVMedia() {
+            SerialisationRegistry.Register<ResourceAVMedia>(0, (resource, data, ctx) => {
+                ctx.DeserialiseBaseType(data);
+                resource.filePath = data.GetString(nameof(resource.FilePath), null);
+            }, (resource, data, ctx) => {
+                ctx.SerialiseBaseType(data);
+                if (!string.IsNullOrEmpty(resource.filePath))
+                    data.SetString(nameof(resource.FilePath), resource.filePath);
+            });
         }
 
         protected override bool OnTryAutoEnable(ResourceLoader loader) {

@@ -24,6 +24,7 @@ using System.Diagnostics;
 using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Factories;
+using FramePFX.Editors.Serialisation;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Effects;
 using FramePFX.RBC;
@@ -38,6 +39,8 @@ namespace FramePFX.Editors.Timelines.Tracks {
     public delegate void ClipMovedEventHandler(Clip clip, Track oldTrack, int oldIndex, Track newTrack, int newIndex);
 
     public abstract class Track : IDisplayName, IAutomatable, IHaveEffects, IDestroy {
+        public static readonly SerialisationRegistry SerialisationRegistry;
+
         public const double MinimumHeight = 20;
         public const double DefaultHeight = 56;
         public const double MaximumHeight = 250;
@@ -135,6 +138,32 @@ namespace FramePFX.Editors.Timelines.Tracks {
             this.AutomationData = new AutomationData(this);
         }
 
+        static Track() {
+            SerialisationRegistry = new SerialisationRegistry();
+            SerialisationRegistry.Register<Track>(0, (track, data, ctx) => {
+                // should maybe guard against NaN/Infinity?
+                track.Height = Maths.Clamp(data.GetDouble(nameof(track.Height), DefaultHeight), MinimumHeight, MaximumHeight);
+                track.DisplayName = data.GetString(nameof(track.DisplayName), null);
+                if (data.TryGetUInt(nameof(track.Colour), out uint colourU32))
+                    track.Colour = new SKColor(colourU32);
+                track.AutomationData.ReadFromRBE(data.GetDictionary(nameof(track.AutomationData)));
+                BaseEffect.ReadSerialisedWithIdList(track, data.GetList("Effects"));
+                foreach (RBEDictionary dictionary in data.GetList(nameof(track.Clips)).Cast<RBEDictionary>()) {
+                    track.AddClip(Clip.ReadSerialisedWithId(dictionary));
+                }
+            }, (track, data, ctx) => {
+                data.SetDouble(nameof(track.Height), track.Height);
+                data.SetString(nameof(track.DisplayName), track.DisplayName);
+                data.SetUInt(nameof(track.Colour), (uint) track.Colour);
+                track.AutomationData.WriteToRBE(data.CreateDictionary(nameof(track.AutomationData)));
+                RBEList list = data.CreateList(nameof(track.Clips));
+                BaseEffect.WriteSerialisedWithIdList(track, data.CreateList("Effects"));
+                foreach (Clip clip in track.clips) {
+                    Clip.WriteSerialisedWithId(list.AddDictionary(), clip);
+                }
+            });
+        }
+
         public bool GetRelativePlayHead(out long playHead) {
             playHead = this.Timeline?.PlayHeadPosition ?? 0L;
             return true;
@@ -193,31 +222,6 @@ namespace FramePFX.Editors.Timelines.Tracks {
                 for (int i = 0; i < this.clips.Count; i++) {
                     clone.InsertClip(i, this.clips[i].Clone(clipCloneOptions));
                 }
-            }
-        }
-
-        public virtual void WriteToRBE(RBEDictionary data) {
-            data.SetDouble(nameof(this.Height), this.Height);
-            data.SetString(nameof(this.DisplayName), this.DisplayName);
-            data.SetUInt(nameof(this.Colour), (uint) this.Colour);
-            this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
-            RBEList list = data.CreateList(nameof(this.Clips));
-            BaseEffect.WriteSerialisedWithIdList(this, data.CreateList("Effects"));
-            foreach (Clip clip in this.clips) {
-                Clip.WriteSerialisedWithId(list.AddDictionary(), clip);
-            }
-        }
-
-        public virtual void ReadFromRBE(RBEDictionary data) {
-            // should maybe guard against NaN/Infinity?
-            this.Height = Maths.Clamp(data.GetDouble(nameof(this.Height), DefaultHeight), MinimumHeight, MaximumHeight);
-            this.DisplayName = data.GetString(nameof(this.DisplayName), null);
-            if (data.TryGetUInt(nameof(this.Colour), out uint colourU32))
-                this.Colour = new SKColor(colourU32);
-            this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
-            BaseEffect.ReadSerialisedWithIdList(this, data.GetList("Effects"));
-            foreach (RBEDictionary dictionary in data.GetList(nameof(this.Clips)).Cast<RBEDictionary>()) {
-                this.AddClip(Clip.ReadSerialisedWithId(dictionary));
             }
         }
 

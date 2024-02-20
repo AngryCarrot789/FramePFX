@@ -54,6 +54,22 @@ namespace FramePFX.Editors.ResourceManaging {
             this.DisplayName = displayName;
         }
 
+        static ResourceFolder() {
+            SerialisationRegistry.Register<ResourceFolder>(0, (resource, data, ctx) => {
+                ctx.DeserialiseBaseType(data);
+                RBEList list = data.GetList("Items");
+                foreach (RBEDictionary dictionary in list.Cast<RBEDictionary>()) {
+                    resource.AddItem(ReadSerialisedWithType(dictionary));
+                }
+            }, (resource, data, ctx) => {
+                ctx.SerialiseBaseType(data);
+                RBEList list = data.CreateList("Items");
+                foreach (BaseResource item in resource.items) {
+                    list.Add(WriteSerialisedWithType(item));
+                }
+            });
+        }
+
         public bool IsNameFree(string name) {
             foreach (BaseResource item in this.items) {
                 if (item.DisplayName == name) {
@@ -153,22 +169,6 @@ namespace FramePFX.Editors.ResourceManaging {
             }
 
             return false;
-        }
-
-        public override void WriteToRBE(RBEDictionary data) {
-            base.WriteToRBE(data);
-            RBEList list = data.CreateList("Items");
-            foreach (BaseResource item in this.items) {
-                list.Add(WriteSerialisedWithType(item));
-            }
-        }
-
-        public override void ReadFromRBE(RBEDictionary data) {
-            base.ReadFromRBE(data);
-            RBEList list = data.GetList("Items");
-            foreach (RBEDictionary dictionary in list.Cast<RBEDictionary>()) {
-                this.AddItem(ReadSerialisedWithType(dictionary));
-            }
         }
 
         protected override void LoadDataIntoClone(BaseResource clone) {

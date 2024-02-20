@@ -140,11 +140,11 @@ namespace FramePFX.Editors.Timelines.Clips {
 
         static VideoClip() {
             SerialisationRegistry.Register<VideoClip>(0, (clip, data, ctx) => {
-                ctx.DeserialiseBaseClass(clip, data);
+                ctx.DeserialiseBaseType(data);
                 clip.IsVisible = data.GetBool(nameof(clip.IsVisible));
                 clip.isMatrixDirty = true;
             }, (clip, data, ctx) => {
-                ctx.SerialiseBaseClass(clip, data);
+                ctx.SerialiseBaseType(data);
                 data.SetBool(nameof(clip.IsVisible), clip.IsVisible);
             });
 

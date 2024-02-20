@@ -182,21 +182,21 @@ namespace FramePFX.Editors.ResourceManaging {
             this.OnOnlineStateChanged();
         }
 
-        public override void WriteToRBE(RBEDictionary data) {
-            base.WriteToRBE(data);
-            if (this.UniqueId != EmptyId)
-                data.SetULong(nameof(this.UniqueId), this.UniqueId);
-            if (!this.IsOnline)
-                data.SetBool(nameof(this.IsOnline), false);
-        }
-
-        public override void ReadFromRBE(RBEDictionary data) {
-            base.ReadFromRBE(data);
-            this.UniqueId = data.GetULong(nameof(this.UniqueId), EmptyId);
-            if (data.TryGetBool(nameof(this.IsOnline), out bool isOnline) && !isOnline) {
-                this.IsOnline = false;
-                this.IsOfflineByUser = true;
-            }
+        static ResourceItem() {
+            SerialisationRegistry.Register<ResourceItem>(0, (resource, data, ctx) => {
+                ctx.DeserialiseBaseType(data);
+                resource.UniqueId = data.GetULong(nameof(resource.UniqueId), EmptyId);
+                if (data.TryGetBool(nameof(resource.IsOnline), out bool isOnline) && !isOnline) {
+                    resource.IsOnline = false;
+                    resource.IsOfflineByUser = true;
+                }
+            }, (resource, data, ctx) => {
+                ctx.SerialiseBaseType(data);
+                if (resource.UniqueId != EmptyId)
+                    data.SetULong(nameof(resource.UniqueId), resource.UniqueId);
+                if (!resource.IsOnline)
+                    data.SetBool(nameof(resource.IsOnline), false);
+            });
         }
 
         public virtual void OnOnlineStateChanged() {

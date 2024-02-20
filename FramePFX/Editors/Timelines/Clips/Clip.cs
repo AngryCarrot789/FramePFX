@@ -270,13 +270,13 @@ namespace FramePFX.Editors.Timelines.Clips {
             if (!(clip.FactoryId is string id))
                 throw new Exception("Unknown clip type: " + clip.GetType());
             dictionary.SetString(nameof(FactoryId), id);
-            SerialisationRegistry.Serialise(clip, dictionary.CreateDictionary("Data"), SerialisationContext.ForAppVersion);
+            SerialisationRegistry.Serialise(clip, dictionary.CreateDictionary("Data"));
         }
 
         public static Clip ReadSerialisedWithId(RBEDictionary dictionary) {
             string id = dictionary.GetString(nameof(FactoryId));
             Clip clip = ClipFactory.Instance.NewClip(id);
-            SerialisationRegistry.Deserialise(clip, dictionary.GetDictionary("Data"), SerialisationContext.ForAppVersion);
+            SerialisationRegistry.Deserialise(clip, dictionary.GetDictionary("Data"));
             return clip;
         }
 

@@ -48,10 +48,8 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
             this.ResourceAVMediaKey.ResourceChanged += this.OnResourceChanged;
         }
 
-        private bool TryGetResource(out ResourceAVMedia resource) => this.ResourceAVMediaKey.TryGetResource(out resource);
-
         public override Vector2? GetRenderSize() {
-            if (this.ResourceAVMediaKey.TryGetResource(out var resource) && resource.GetResolution() is Vec2i size) {
+            if (this.ResourceAVMediaKey.TryGetResource(out ResourceAVMedia resource) && resource.GetResolution() is Vec2i size) {
                 return new Vector2(size.X, size.Y);
             }
 
@@ -72,7 +70,7 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
         }
 
         public override bool PrepareRenderFrame(PreRenderContext rc, long frame) {
-            if (!this.TryGetResource(out ResourceAVMedia resource))
+            if (!this.ResourceAVMediaKey.TryGetResource(out ResourceAVMedia resource))
                 return false;
             if (resource.stream == null || resource.Demuxer == null)
                 return false;

@@ -84,14 +84,14 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             this.TryAutoEnable(null);
         }
 
-        public override void WriteToRBE(RBEDictionary data) {
-            base.WriteToRBE(data);
-            data.SetUInt(nameof(this.myColour), (uint) this.myColour);
-        }
-
-        public override void ReadFromRBE(RBEDictionary data) {
-            base.ReadFromRBE(data);
-            this.myColour = new SKColor(data.GetUInt(nameof(this.myColour)));
+        static ResourceColour() {
+            SerialisationRegistry.Register<ResourceColour>(0, (resource, data, ctx) => {
+                ctx.DeserialiseBaseType(data);
+                resource.myColour = new SKColor(data.GetUInt(nameof(resource.myColour)));
+            }, (resource, data, ctx) => {
+                ctx.SerialiseBaseType(data);
+                data.SetUInt(nameof(resource.myColour), (uint) resource.myColour);
+            });
         }
 
         protected override void LoadDataIntoClone(BaseResource clone) {

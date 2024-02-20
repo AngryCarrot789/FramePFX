@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using FramePFX.Editors.Actions;
 using FramePFX.RBC;
 
 namespace FramePFX.Editors.ResourceManaging.Resources {
@@ -29,6 +30,16 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
         public ResourceComposition() {
             this.Timeline = new CompositionTimeline();
             CompositionTimeline.InternalConstructCompositionTimeline(this);
+        }
+
+        static ResourceComposition() {
+            SerialisationRegistry.Register<ResourceComposition>(0, (resource, data, ctx) => {
+                ctx.DeserialiseBaseType(data);
+                resource.Timeline.ReadFromRBE(data.GetDictionary(nameof(resource.Timeline)));
+            }, (resource, data, ctx) => {
+                ctx.SerialiseBaseType(data);
+                resource.Timeline.WriteToRBE(data.CreateDictionary(nameof(resource.Timeline)));
+            });
         }
 
         protected internal override void OnAttachedToManager() {
@@ -47,16 +58,6 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
         public override void Destroy() {
             base.Destroy();
             this.Timeline.Destroy();
-        }
-
-        public override void ReadFromRBE(RBEDictionary data) {
-            base.ReadFromRBE(data);
-            this.Timeline.ReadFromRBE(data.GetDictionary(nameof(this.Timeline)));
-        }
-
-        public override void WriteToRBE(RBEDictionary data) {
-            base.WriteToRBE(data);
-            this.Timeline.WriteToRBE(data.CreateDictionary(nameof(this.Timeline)));
         }
 
         protected override void LoadDataIntoClone(BaseResource clone) {

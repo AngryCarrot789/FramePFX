@@ -102,6 +102,28 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             this.isAntiAliased = true;
         }
 
+        static ResourceTextStyle() {
+            SerialisationRegistry.Register<ResourceTextStyle>(0, (resource, data, ctx) => {
+                ctx.DeserialiseBaseType(data);
+                resource.fontSize = data.GetDouble(nameof(resource.FontSize));
+                resource.skewX = data.GetDouble(nameof(resource.SkewX));
+                resource.fontFamily = data.GetString(nameof(resource.FontFamily), null);
+                resource.foreground = data.GetUInt(nameof(resource.Foreground));
+                resource.border = data.GetUInt(nameof(resource.Border));
+                resource.borderThickness = data.GetDouble(nameof(resource.BorderThickness));
+                resource.isAntiAliased = data.GetBool(nameof(resource.IsAntiAliased));
+            }, (resource, data, ctx) => {
+                ctx.SerialiseBaseType(data);
+                data.SetDouble(nameof(resource.FontSize), resource.fontSize);
+                data.SetDouble(nameof(resource.SkewX), resource.skewX);
+                data.SetString(nameof(resource.FontFamily), resource.fontFamily);
+                data.SetUInt(nameof(resource.Foreground), (uint) resource.foreground);
+                data.SetUInt(nameof(resource.Border), (uint) resource.border);
+                data.SetDouble(nameof(resource.BorderThickness), resource.borderThickness);
+                data.SetBool(nameof(resource.IsAntiAliased), resource.isAntiAliased);
+            });
+        }
+
         /// <summary>
         /// Invalidates the cached font and paint information. This is called automatically when any of our properties change
         /// </summary>
@@ -131,28 +153,6 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
                     IsAntialias = this.IsAntiAliased
                 };
             }
-        }
-
-        public override void WriteToRBE(RBEDictionary data) {
-            base.WriteToRBE(data);
-            data.SetDouble(nameof(this.FontSize), this.fontSize);
-            data.SetDouble(nameof(this.SkewX), this.skewX);
-            data.SetString(nameof(this.FontFamily), this.fontFamily);
-            data.SetUInt(nameof(this.Foreground), (uint) this.foreground);
-            data.SetUInt(nameof(this.Border), (uint) this.border);
-            data.SetDouble(nameof(this.BorderThickness), this.borderThickness);
-            data.SetBool(nameof(this.IsAntiAliased), this.isAntiAliased);
-        }
-
-        public override void ReadFromRBE(RBEDictionary data) {
-            base.ReadFromRBE(data);
-            this.fontSize = data.GetDouble(nameof(this.FontSize));
-            this.skewX = data.GetDouble(nameof(this.SkewX));
-            this.fontFamily = data.GetString(nameof(this.FontFamily), null);
-            this.foreground = data.GetUInt(nameof(this.Foreground));
-            this.border = data.GetUInt(nameof(this.Border));
-            this.borderThickness = data.GetDouble(nameof(this.BorderThickness));
-            this.isAntiAliased = data.GetBool(nameof(this.IsAntiAliased));
         }
 
         public static SKTextBlob[] CreateTextBlobs(string input, SKPaint paint, SKFont font) {

@@ -199,9 +199,9 @@ namespace FramePFX.Editors.Timelines {
             foreach (Track track in this.tracks) {
                 if (!(track.FactoryId is string registryId))
                     throw new Exception("Unknown track type: " + track.GetType());
-                RBEDictionary dictionary = list.AddDictionary();
-                dictionary.SetString(nameof(Track.FactoryId), registryId);
-                track.WriteToRBE(dictionary.CreateDictionary("Data"));
+                RBEDictionary trackTag = list.AddDictionary();
+                trackTag.SetString(nameof(Track.FactoryId), registryId);
+                Track.SerialisationRegistry.Serialise(track, trackTag.CreateDictionary("Data"));
             }
         }
 
@@ -213,10 +213,10 @@ namespace FramePFX.Editors.Timelines {
             this.playHeadPosition = data.GetLong(nameof(this.PlayHeadPosition));
             this.stopHeadPosition = data.GetLong(nameof(this.StopHeadPosition));
             this.maxDuration = data.GetLong(nameof(this.MaxDuration));
-            foreach (RBEDictionary dictionary in data.GetList(nameof(this.Tracks)).Cast<RBEDictionary>()) {
-                string registryId = dictionary.GetString(nameof(Track.FactoryId));
+            foreach (RBEDictionary trackTag in data.GetList(nameof(this.Tracks)).Cast<RBEDictionary>()) {
+                string registryId = trackTag.GetString(nameof(Track.FactoryId));
                 Track track = TrackFactory.Instance.NewTrack(registryId);
-                track.ReadFromRBE(dictionary.GetDictionary("Data"));
+                Track.SerialisationRegistry.Deserialise(track, trackTag.GetDictionary("Data"));
                 this.AddTrack(track);
             }
 

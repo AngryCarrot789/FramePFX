@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using FramePFX.RBC;
 using SkiaSharp;
 
 namespace FramePFX.Editors.ResourceManaging.Resources {

@@ -18,14 +18,23 @@
 //
 
 using FramePFX.CommandSystem;
-using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Actions {
-    public class DeleteClipOwnerTrackCommand : Command {
+namespace FramePFX.Editors.Commands {
+    public class TogglePlayCommand : Command {
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            return e.ContextData.ContainsKey(DataKeys.VideoEditorKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+        }
+
         public override void Execute(CommandEventArgs e) {
-            if (DataKeys.ClipKey.TryGetContext(e.Context, out Clip clip)) {
-                clip.Timeline?.DeleteTrack(clip.Track);
+            if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor))
+                return;
+
+            if (editor.Playback.PlayState == PlayState.Play) {
+                editor.Playback.Pause();
+            }
+            else {
+                editor.Playback.Play();
             }
         }
     }

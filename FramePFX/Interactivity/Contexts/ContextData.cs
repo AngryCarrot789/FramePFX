@@ -28,32 +28,19 @@ namespace FramePFX.Interactivity.Contexts {
     public class ContextData : IContextData {
         private Dictionary<string, object> map;
 
-        public IEnumerable<KeyValuePair<string, object>> Entries => this.map ?? Enumerable.Empty<KeyValuePair<string, object>>();
-
         public int Count => this.map?.Count ?? 0;
 
         public ContextData() {
 
         }
 
-        public ContextData(IContextData ctx) {
-            if (ctx is ContextData cd) {
-                this.map = cd.map != null ? new Dictionary<string, object>(cd.map) : null;
-            }
-            else if (ctx != EmptyContext.Instance) {
-                using (IEnumerator<KeyValuePair<string, object>> enumerable = ctx.Entries.GetEnumerator()) {
-                    if (enumerable.MoveNext()) {
-                        this.map = new Dictionary<string, object>();
-                        do {
-                            KeyValuePair<string, object> entry = enumerable.Current;
-                            this.map[entry.Key] = entry.Value;
-                        } while (enumerable.MoveNext());
-                    }
-                }
-            }
+        public ContextData(ContextData ctx) {
+            if (ctx.map != null)
+                this.map = new Dictionary<string, object>(ctx.map);
         }
 
         public ContextData Set<T>(DataKey<T> key, T value) => this.SetRaw(key.Id, value);
+
         public ContextData Set(DataKey<bool> key, bool? value) => this.SetRaw(key.Id, value.BoxNullable());
 
         public ContextData SetRaw(string key, object value) {
@@ -90,22 +77,8 @@ namespace FramePFX.Interactivity.Contexts {
         }
 
         public void Merge(IContextData ctx) {
-            if (ctx is ContextData cd) {
-                if (cd.map != null) {
-                    using (Dictionary<string, object>.Enumerator enumerator = cd.map.GetEnumerator()) {
-                        if (enumerator.MoveNext()) {
-                            Dictionary<string, object> myMap = this.map ?? (this.map = new Dictionary<string, object>());
-                            do {
-                                KeyValuePair<string, object> entry = enumerator.Current;
-                                myMap[entry.Key] = entry.Value;
-                            } while (enumerator.MoveNext());
-                        }
-                    }
-                }
-            }
-            else if (ctx != null && !(ctx is EmptyContext)) {
-                using (IEnumerator<KeyValuePair<string, object>> enumerator = ctx.Entries.GetEnumerator()) {
-                    // try not to allocate map when there are no entries
+            if (ctx is ContextData cd && cd.map != null) {
+                using (Dictionary<string, object>.Enumerator enumerator = cd.map.GetEnumerator()) {
                     if (enumerator.MoveNext()) {
                         Dictionary<string, object> myMap = this.map ?? (this.map = new Dictionary<string, object>());
                         do {

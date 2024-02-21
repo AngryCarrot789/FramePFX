@@ -20,7 +20,6 @@
 using System;
 using FramePFX.Editors.ResourceManaging.Autoloading;
 using FramePFX.Editors.ResourceManaging.Events;
-using FramePFX.RBC;
 
 namespace FramePFX.Editors.ResourceManaging {
     /// <summary>

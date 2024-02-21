@@ -29,19 +29,27 @@ using FramePFX.Editors.Timelines.Clips.Core;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Actions {
+namespace FramePFX.Editors.Commands {
     public class CreateCompositionFromSelectionCommand : Command {
-        public override bool CanExecute(CommandEventArgs e) {
-            return e.Context.ContainsKey(DataKeys.TimelineKey);
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline timeline))
+                return ExecutabilityState.Invalid;
+            if (timeline.Project == null)
+                return ExecutabilityState.ValidButCannotExecute;
+            return ExecutabilityState.Executable;
         }
 
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.TimelineKey.TryGetContext(e.Context, out Timeline timeline) || !DataKeys.ProjectKey.TryGetContext(e.Context, out Project project) || (project = timeline.Project) == null) {
+            if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline timeline)) {
                 return;
             }
 
+            Project project = timeline.Project;
+            if (project == null)
+                return;
+
             int trackStart = int.MaxValue, trackEnd = int.MinValue;
-            List<Clip> selected = DataKeys.ClipKey.TryGetContext(e.Context, out Clip focusedClip) ? timeline.GetSelectedClipsWith(focusedClip).ToList() : timeline.SelectedClips.ToList();
+            List<Clip> selected = DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip focusedClip) ? timeline.GetSelectedClipsWith(focusedClip).ToList() : timeline.SelectedClips.ToList();
             if (selected.Count < 1) {
                 IoC.MessageService.ShowMessage("No selection", "No selected clips!");
                 return;

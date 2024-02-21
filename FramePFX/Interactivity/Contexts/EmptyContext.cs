@@ -17,17 +17,18 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System.Collections.Generic;
-using System.Linq;
-
 namespace FramePFX.Interactivity.Contexts {
     /// <summary>
     /// An implementation of <see cref="IContextData"/> that is completely empty
     /// </summary>
     public sealed class EmptyContext : IContextData {
+        /// <summary>
+        /// Returns a singleton instance of this empty context
+        /// </summary>
         public static IContextData Instance { get; } = new EmptyContext();
 
-        public IEnumerable<KeyValuePair<string, object>> Entries { get; } = Enumerable.Empty<KeyValuePair<string, object>>();
+        public EmptyContext() {
+        }
 
         public bool TryGetContext(string key, out object value) {
             value = default;

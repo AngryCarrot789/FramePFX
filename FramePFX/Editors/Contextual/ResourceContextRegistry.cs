@@ -99,6 +99,7 @@ namespace FramePFX.Editors.Contextual {
 
         public static bool GetSingleSelection(IContextData ctx, out BaseResource resource) {
             if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out resource) || resource.Parent == null || resource.Manager == null) {
+                resource = null;
                 return false;
             }
 

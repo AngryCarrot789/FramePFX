@@ -22,7 +22,7 @@ using FramePFX.Interactivity.Contexts;
 namespace FramePFX.CommandSystem {
     /// <summary>
     /// Represents some sort of action that can be executed. Commands use provided contextual
-    /// information (see <see cref="CommandEventArgs.Context"/>) to do work. Commands do
+    /// information (see <see cref="CommandEventArgs.ContextData"/>) to do work. Commands do
     /// their work in the <see cref="Execute"/> method, and can optionally specify their
     /// executability via the <see cref="CanExecute"/> method
     /// <para>
@@ -41,8 +41,12 @@ namespace FramePFX.CommandSystem {
         // Then fire ContextDataChanged for those command hooks or whatever, they can then disconnect
         // old event handlers and attach new ones
 
+        public virtual void UpdateUsage(CommandUsage usage, CommandEventArgs e) {
+
+        }
+
         /// <summary>
-        /// Checks if this command can actually be executed. This typically isn't checked before
+        /// Get the command context Checks if this command can actually be executed. This typically isn't checked before
         /// <see cref="Execute"/> is invoked; this is mainly used by the UI to determine if
         /// something like a button or menu item is actually clickable
         /// <para>
@@ -53,8 +57,8 @@ namespace FramePFX.CommandSystem {
         /// <returns>
         /// True if executing this command would most likely result in success, otherwise false
         /// </returns>
-        public virtual bool CanExecute(CommandEventArgs e) {
-            return true;
+        public virtual ExecutabilityState CanExecute(CommandEventArgs e) {
+            return ExecutabilityState.Executable;
         }
 
         /// <summary>
@@ -62,14 +66,5 @@ namespace FramePFX.CommandSystem {
         /// </summary>
         /// <param name="e">The command event args, containing info about the current context</param>
         public abstract void Execute(CommandEventArgs e);
-
-        /// <summary>
-        /// Updates the state of the given command usage context based on the event args and this command
-        /// </summary>
-        /// <param name="usage">The usage</param>
-        /// <param name="e">The args</param>
-        public virtual void Update(CommandUsageContext usage, CommandEventArgs e) {
-
-        }
     }
 }

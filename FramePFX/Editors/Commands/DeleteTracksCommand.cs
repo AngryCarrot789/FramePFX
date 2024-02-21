@@ -24,17 +24,17 @@ using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.PropertyEditing;
 
-namespace FramePFX.Editors.Actions {
+namespace FramePFX.Editors.Commands {
     public class DeleteTracksCommand : Command {
         public override void Execute(CommandEventArgs e) {
             int focusedIndex = -1;
             HashSet<Track> tracks = new HashSet<Track>();
-            if (DataKeys.TrackKey.TryGetContext(e.Context, out Track focusedTrack)) {
+            if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track focusedTrack)) {
                 focusedIndex = focusedTrack.IndexInTimeline;
             }
 
             Timeline timeline;
-            if ((timeline = focusedTrack?.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.Context, out timeline)) {
+            if ((timeline = focusedTrack?.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.ContextData, out timeline)) {
                 foreach (Track track in timeline.SelectedTracks) {
                     tracks.Add(track);
                 }

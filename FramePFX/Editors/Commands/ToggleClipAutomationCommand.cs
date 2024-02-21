@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2023-2024 REghZy
 //
 // This file is part of FramePFX.
@@ -20,18 +20,16 @@
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Actions {
-    public class TogglePlayCommand : Command {
-        public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.VideoEditorKey.TryGetContext(e.Context, out VideoEditor editor))
-                return;
+namespace FramePFX.Editors.Commands {
+    public class ToggleClipAutomationCommand : Command {
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            return e.ContextData.ContainsKey(DataKeys.VideoEditorKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+        }
 
-            if (editor.Playback.PlayState == PlayState.Play) {
-                editor.Playback.Pause();
-            }
-            else {
-                editor.Playback.Play();
-            }
+        public override void Execute(CommandEventArgs e) {
+            if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor))
+                return;
+            editor.ShowClipAutomation = !editor.ShowClipAutomation;
         }
     }
 }

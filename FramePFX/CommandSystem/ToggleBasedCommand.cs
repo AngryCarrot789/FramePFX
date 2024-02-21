@@ -29,7 +29,7 @@ namespace FramePFX.CommandSystem {
         /// <param name="e">The command event args, containing info about the current context</param>
         /// <returns>A nullable boolean that states the toggle state, or null if no toggle state is present</returns>
         public virtual bool? GetIsToggled(CommandEventArgs e) {
-            return IsToggledKey.TryGetContext(e.Context, out bool value) ? (bool?) value : null;
+            return IsToggledKey.TryGetContext(e.ContextData, out bool value) ? (bool?) value : null;
         }
 
         public override void Execute(CommandEventArgs e) {
@@ -58,16 +58,16 @@ namespace FramePFX.CommandSystem {
         /// <returns>Whether the command was executed successfully</returns>
         protected abstract void ExecuteNoToggle(CommandEventArgs e);
 
-        public override bool CanExecute(CommandEventArgs e) {
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
             bool? result = this.GetIsToggled(e);
             return result.HasValue ? this.CanExecute(e, result.Value) : this.CanExecuteNoToggle(e);
         }
 
-        protected virtual bool CanExecute(CommandEventArgs e, bool isToggled) {
-            return true;
+        protected virtual ExecutabilityState CanExecute(CommandEventArgs e, bool isToggled) {
+            return ExecutabilityState.Executable;
         }
 
-        protected virtual bool CanExecuteNoToggle(CommandEventArgs e) {
+        protected virtual ExecutabilityState CanExecuteNoToggle(CommandEventArgs e) {
             return this.CanExecute(e, false);
         }
     }

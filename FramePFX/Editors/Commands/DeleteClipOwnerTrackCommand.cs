@@ -17,25 +17,24 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System;
-using System.Windows;
-using FramePFX.AdvancedContextService.WPF;
+using FramePFX.CommandSystem;
+using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.CommandSystem {
-    public class UIContextMenuItemCommandUsageContext : CommandUsageContext {
-        public AdvancedContextMenuItem MenuItem { get; }
-
-        public bool CanExecute { get; private set; }
-
-        public UIContextMenuItemCommandUsageContext(AdvancedContextMenuItem menuItem) {
-            this.MenuItem = menuItem ?? throw new ArgumentNullException(nameof(menuItem));
-            this.CanExecute = true;
+namespace FramePFX.Editors.Commands {
+    public class DeleteClipOwnerTrackCommand : Command {
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            if (!DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip clip))
+                return ExecutabilityState.Invalid;
+            if (clip.Timeline == null)
+                return ExecutabilityState.ValidButCannotExecute;
+            return ExecutabilityState.Executable;
         }
 
-        public override void OnCanExecuteInvalidated(IContextData context) {
-            this.CanExecute = this.CommandId == null || CommandManager.Instance.CanExecute(this.CommandId, context, true);
-            this.MenuItem.CoerceValue(UIElement.IsEnabledProperty);
+        public override void Execute(CommandEventArgs e) {
+            if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip clip)) {
+                clip.Timeline?.DeleteTrack(clip.Track);
+            }
         }
     }
 }

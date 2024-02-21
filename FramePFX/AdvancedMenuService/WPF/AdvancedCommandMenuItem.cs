@@ -61,7 +61,8 @@ namespace FramePFX.AdvancedMenuService.WPF {
             if (string.IsNullOrWhiteSpace(id))
                 id = null;
 
-            this.CanExecute = id != null && CommandManager.Instance.CanExecute(id, this.loadedContextData);
+            ExecutabilityState state = id != null ? CommandManager.Instance.CanExecute(id, this.loadedContextData) : ExecutabilityState.Invalid;
+            this.CanExecute = state == ExecutabilityState.Executable;
             if (this.CanExecute) {
                 if (CommandIdToGestureConverter.CommandIdToGesture(id, null, out string value)) {
                     this.SetCurrentValue(InputGestureTextProperty, value);

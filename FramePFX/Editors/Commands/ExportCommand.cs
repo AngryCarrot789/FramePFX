@@ -25,7 +25,7 @@ using FramePFX.Editors.Exporting.Controls;
 using FramePFX.Editors.Timelines;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Actions {
+namespace FramePFX.Editors.Commands {
     public class ExportCommand : Command {
         public bool ExportActiveTimeline { get; }
 
@@ -33,25 +33,33 @@ namespace FramePFX.Editors.Actions {
             this.ExportActiveTimeline = exportActiveTimeline;
         }
 
-        public override bool CanExecute(CommandEventArgs e) {
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
             if (this.ExportActiveTimeline) {
-                return TryGetTimeline(e.Context, out Timeline timeline) && timeline.Project != null && !timeline.Project.IsExporting;
+                if (!TryGetTimeline(e.ContextData, out Timeline timeline))
+                    return ExecutabilityState.Invalid;
+                if (timeline.Project == null || timeline.Project.IsExporting)
+                    return ExecutabilityState.ValidButCannotExecute;
             }
             else {
-                return TryGetProject(e.Context, out Project project) && !project.IsExporting;
+                if (!TryGetProject(e.ContextData, out Project project))
+                    return ExecutabilityState.Invalid;
+                if (project.IsExporting)
+                    return ExecutabilityState.ValidButCannotExecute;
             }
+
+            return ExecutabilityState.Executable;
         }
 
         public override void Execute(CommandEventArgs e) {
             Project project;
             Timeline timeline;
             if (this.ExportActiveTimeline) {
-                if (!TryGetTimeline(e.Context, out timeline)) {
+                if (!TryGetTimeline(e.ContextData, out timeline) || timeline.Project == null || timeline.Project.IsExporting) {
                     return;
                 }
             }
             else {
-                if (!TryGetProject(e.Context, out project)) {
+                if (!TryGetProject(e.ContextData, out project) || project.IsExporting) {
                     return;
                 }
 
@@ -84,6 +92,7 @@ namespace FramePFX.Editors.Actions {
         public static bool TryGetTimeline(IContextData ctx, out Timeline timeline) {
             if (DataKeys.TimelineKey.TryGetContext(ctx, out timeline))
                 return true;
+
             if (DataKeys.ProjectKey.TryGetContext(ctx, out Project project)) {
                 timeline = project.ActiveTimeline;
                 return true;

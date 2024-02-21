@@ -34,6 +34,7 @@
                 <c:AdvancedCommandMenuItem Header="Open Project..."    CommandId="commands.editor.OpenProjectCommand"/>
                 <c:AdvancedCommandMenuItem Header="Save Project"       CommandId="commands.editor.SaveProjectCommand"/>
                 <c:AdvancedCommandMenuItem Header="Save Project As..." CommandId="commands.editor.SaveProjectAsCommand"/>
+                <c:AdvancedCommandMenuItem Header="Close Project"      CommandId="commands.editor.CloseProjectCommand"/>
                 <Separator/>
                 <c:AdvancedCommandMenuItem Header="Export" CommandId="commands.editor.ExportCommand"
                                            ToolTip="Export the current project"/>

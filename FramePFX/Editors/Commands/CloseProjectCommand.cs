@@ -10,7 +10,7 @@
 //
 // FramePFX is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 // Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
@@ -19,20 +19,29 @@
 
 using System.Windows;
 using FramePFX.CommandSystem;
-using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Actions {
-    public class NewProjectCommand : Command {
-        // true: project was already closed or is now closed
-        // false: close was cancelled; cancel entire operation
-        public static bool CloseProject(VideoEditor editor) {
+namespace FramePFX.Editors.Commands {
+    public class CloseProjectCommand : Command{
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor))
+                return ExecutabilityState.Invalid;
+            return editor.Project == null ? ExecutabilityState.ValidButCannotExecute : ExecutabilityState.Executable;
+        }
+
+        public override void Execute(CommandEventArgs e) {
+            if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor))
+                return;
+            CloseProject(editor);
+        }
+
+        public static bool CloseProject(VideoEditor editor, string msgTitle = "Project is open", string message = "A project is open. Do you want to save it?") {
             Project oldProject = editor.Project;
             if (oldProject == null) {
                 return true;
             }
 
-            MessageBoxResult result = IoC.MessageService.ShowMessage("Project already open", "A project is already open. Do you want to save it?", MessageBoxButton.YesNoCancel);
+            MessageBoxResult result = IoC.MessageService.ShowMessage(msgTitle, message, MessageBoxButton.YesNoCancel);
             switch (result) {
                 case MessageBoxResult.Cancel: return false;
                 case MessageBoxResult.Yes: {
@@ -51,24 +60,6 @@ namespace FramePFX.Editors.Actions {
             }
 
             return true;
-        }
-
-        public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.VideoEditorKey.TryGetContext(e.Context, out VideoEditor editor)) {
-                return;
-            }
-
-            if (!CloseProject(editor)) {
-                return;
-            }
-
-            Project project = new Project();
-            VideoTrack track = new VideoTrack() {
-                DisplayName = "Video Track 1"
-            };
-
-            project.MainTimeline.AddTrack(track);
-            editor.SetProject(project);
         }
     }
 }

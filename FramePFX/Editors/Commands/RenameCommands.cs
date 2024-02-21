@@ -23,10 +23,14 @@ using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Actions {
+namespace FramePFX.Editors.Commands {
     public class RenameResourceCommand : Command {
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            return e.ContextData.ContainsKey(DataKeys.ResourceObjectKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+        }
+
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.ResourceObjectKey.TryGetContext(e.Context, out BaseResource resource)) {
+            if (!DataKeys.ResourceObjectKey.TryGetContext(e.ContextData, out BaseResource resource)) {
                 return;
             }
 
@@ -37,8 +41,12 @@ namespace FramePFX.Editors.Actions {
     }
 
     public class RenameClipCommand : Command {
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            return e.ContextData.ContainsKey(DataKeys.ClipKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+        }
+
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.ClipKey.TryGetContext(e.Context, out Clip clip)) {
+            if (!DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip clip)) {
                 return;
             }
 
@@ -49,8 +57,12 @@ namespace FramePFX.Editors.Actions {
     }
 
     public class RenameTrackCommand : Command {
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            return e.ContextData.ContainsKey(DataKeys.TrackKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+        }
+
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.TrackKey.TryGetContext(e.Context, out Track track)) {
+            if (!DataKeys.TrackKey.TryGetContext(e.ContextData, out Track track)) {
                 return;
             }
 

@@ -24,13 +24,17 @@ using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Actions {
+namespace FramePFX.Editors.Commands {
     public class ToggleClipVisibilityCommand : Command {
         public ToggleClipVisibilityCommand() {
         }
 
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            return e.ContextData.ContainsKey(DataKeys.ClipKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+        }
+
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.ClipKey.TryGetContext(e.Context, out Clip keyedClip) || !(keyedClip is VideoClip focusedClip)) {
+            if (!DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip keyedClip) || !(keyedClip is VideoClip focusedClip)) {
                 return;
             }
 

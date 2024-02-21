@@ -30,7 +30,9 @@ namespace FramePFX.Interactivity.Contexts {
         public string Id { get; }
 
         protected DataKey(string id) {
-            this.Id = id ?? throw new ArgumentNullException(nameof(id));
+            if (string.IsNullOrWhiteSpace(id))
+                throw new ArgumentException("ID cannot be null, empty or consist of only whitespaces");
+            this.Id = id;
         }
 
         static DataKey() {
@@ -73,9 +75,7 @@ namespace FramePFX.Interactivity.Contexts {
 
         public override int GetHashCode() => this.Id.GetHashCode();
 
-        public override string ToString() {
-            return $"DataKey(\"{this.Id}\")";
-        }
+        public override string ToString() => $"DataKey(\"{this.Id}\")";
     }
 
     public class DataKey<T> : DataKey {

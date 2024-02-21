@@ -28,7 +28,7 @@ namespace FramePFX.Editors.DataTransfer {
     /// which is why it is important that the setter methods of the data properties are not called directly
     /// </summary>
     public class TransferableData {
-        private Dictionary<int, ParameterData> sequences;
+        private Dictionary<int, ParameterData> paramData;
 
         public ITransferableData Owner { get; }
 
@@ -77,7 +77,7 @@ namespace FramePFX.Editors.DataTransfer {
         private bool TryGetParameterData(DataParameter parameter, out ParameterData data) {
             if (parameter == null)
                 throw new ArgumentNullException(nameof(parameter), "Parameter cannot be null");
-            if (this.sequences != null && this.sequences.TryGetValue(parameter.GlobalIndex, out data))
+            if (this.paramData != null && this.paramData.TryGetValue(parameter.GlobalIndex, out data))
                 return true;
             this.ValidateParameter(parameter);
             data = null;
@@ -89,12 +89,12 @@ namespace FramePFX.Editors.DataTransfer {
                 throw new ArgumentNullException(nameof(parameter), "Parameter cannot be null");
             
             ParameterData data;
-            if (this.sequences == null)
-                this.sequences = new Dictionary<int, ParameterData>();
-            else if (this.sequences.TryGetValue(parameter.GlobalIndex, out data))
+            if (this.paramData == null)
+                this.paramData = new Dictionary<int, ParameterData>();
+            else if (this.paramData.TryGetValue(parameter.GlobalIndex, out data))
                 return data;
             this.ValidateParameter(parameter);
-            this.sequences[parameter.GlobalIndex] = data = new ParameterData();
+            this.paramData[parameter.GlobalIndex] = data = new ParameterData();
             return data;
 
         }

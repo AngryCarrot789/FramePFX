@@ -23,7 +23,7 @@ using System.IO;
 using System.Threading;
 using FramePFX.CommandSystem;
 using FramePFX.Editors;
-using FramePFX.Editors.Actions;
+using FramePFX.Editors.Commands;
 using FramePFX.Editors.ResourceManaging.Actions;
 using FramePFX.Logger;
 using FramePFX.Services.Files;
@@ -135,6 +135,7 @@ namespace FramePFX {
             manager.Register("commands.editor.OpenProjectCommand", new OpenProjectCommand());
             manager.Register("commands.editor.SaveProjectCommand", new SaveProjectCommand());
             manager.Register("commands.editor.SaveProjectAsCommand", new SaveProjectAsCommand());
+            manager.Register("commands.editor.CloseProjectCommand", new CloseProjectCommand());
             manager.Register("commands.editor.ExportCommand", new ExportCommand(false));
             manager.Register("commands.editor.ExportActiveTimelineCommand", new ExportCommand(true));
 

@@ -17,18 +17,11 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Collections.Generic;
-
 namespace FramePFX.Interactivity.Contexts {
     /// <summary>
     /// An immutable object that stores context information. Any entry will always have a non-null value (null values are not permitted)
     /// </summary>
     public interface IContextData {
-        /// <summary>
-        /// Returns all of the custom data. Will not return null, but may be empty
-        /// </summary>
-        IEnumerable<KeyValuePair<string, object>> Entries { get; }
-
         /// <summary>
         /// Tries to get a value from a data key
         /// </summary>

@@ -23,7 +23,7 @@ using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.PropertyEditing;
 
-namespace FramePFX.Editors.Actions {
+namespace FramePFX.Editors.Commands {
     public class SelectAllTracksCommand : Command {
         public static void SelectAll(Timeline timeline, Track focusedTrack, bool selectClipsToo = false) {
             foreach (Track t in timeline.Tracks) {
@@ -44,25 +44,27 @@ namespace FramePFX.Editors.Actions {
             VideoEditorPropertyEditor.Instance.UpdateTrackSelectionAsync(timeline);
         }
 
-        public override bool CanExecute(CommandEventArgs e) {
-            return e.Context.ContainsKey(DataKeys.TimelineKey) || e.Context.ContainsKey(DataKeys.TrackKey);
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track track) && track.Timeline != null)
+                return ExecutabilityState.Executable;
+            return e.ContextData.ContainsKey(DataKeys.TimelineKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
         public override void Execute(CommandEventArgs e) {
             Timeline timeline;
-            if (DataKeys.TrackKey.TryGetContext(e.Context, out Track track) && (timeline = track.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.Context, out timeline)) {
+            if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track track) && ((timeline = track.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.ContextData, out timeline))) {
                 SelectAll(timeline, track, false);
             }
         }
     }
 
     public class SelectAllClipsInTrackCommand : Command {
-        public override bool CanExecute(CommandEventArgs e) {
-            return e.Context.ContainsKey(DataKeys.TrackKey);
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            return e.ContextData.ContainsKey(DataKeys.TrackKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
         public override void Execute(CommandEventArgs e) {
-            if (DataKeys.TrackKey.TryGetContext(e.Context, out Track track)) {
+            if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track track)) {
                 track.SelectAll();
                 VideoEditorPropertyEditor.Instance.UpdateClipSelectionAsync(track.Timeline);
             }
@@ -70,13 +72,15 @@ namespace FramePFX.Editors.Actions {
     }
 
     public class SelectAllClipsInTimelineCommand : Command {
-        public override bool CanExecute(CommandEventArgs e) {
-            return e.Context.ContainsKey(DataKeys.TrackKey) || e.Context.ContainsKey(DataKeys.TimelineKey);
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track track) && track.Timeline != null)
+                return ExecutabilityState.Executable;
+            return e.ContextData.ContainsKey(DataKeys.TimelineKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
         public override void Execute(CommandEventArgs e) {
             Timeline timeline;
-            if (DataKeys.TrackKey.TryGetContext(e.Context, out Track track) && (timeline = track.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.Context, out timeline)) {
+            if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track track) && ((timeline = track.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.ContextData, out timeline))) {
                 SelectAllTracksCommand.SelectAll(timeline, track, true);
             }
         }

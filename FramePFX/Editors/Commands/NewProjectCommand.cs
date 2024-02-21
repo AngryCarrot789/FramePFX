@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) 2023-2024 REghZy
 //
 // This file is part of FramePFX.
@@ -17,15 +17,32 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Windows;
 using FramePFX.CommandSystem;
+using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Actions {
-    public class ToggleClipAutomationCommand : Command {
+namespace FramePFX.Editors.Commands {
+    public class NewProjectCommand : Command {
+        // true: project was already closed or is now closed
+        // false: close was cancelled; cancel entire operation
+
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.VideoEditorKey.TryGetContext(e.Context, out VideoEditor editor))
+            if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor)) {
                 return;
-            editor.ShowClipAutomation = !editor.ShowClipAutomation;
+            }
+
+            if (!CloseProjectCommand.CloseProject(editor)) {
+                return;
+            }
+
+            Project project = new Project();
+            VideoTrack track = new VideoTrack() {
+                DisplayName = "Video Track 1"
+            };
+
+            project.MainTimeline.AddTrack(track);
+            editor.SetProject(project);
         }
     }
 }

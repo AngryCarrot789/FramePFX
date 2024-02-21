@@ -17,20 +17,23 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System;
-using System.Windows;
+using FramePFX.CommandSystem;
+using FramePFX.Editors.Timelines;
+using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.CommandSystem {
-    public class UICommandUsageContext : CommandUsageContext {
-        public UIElement Element { get; }
+namespace FramePFX.Editors.Commands {
+    public class NewVideoTrackCommand : Command {
+        public override void Execute(CommandEventArgs e) {
+            if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline timeline)) {
+                return;
+            }
 
-        public UICommandUsageContext(UIElement element) {
-            this.Element = element ?? throw new ArgumentNullException(nameof(element));
-        }
+            VideoTrack track = new VideoTrack() {
+                DisplayName = "New Video Track"
+            };
 
-        public override void OnCanExecuteInvalidated(IContextData context) {
-            this.Element.IsEnabled = this.CommandId == null || CommandManager.Instance.CanExecute(this.CommandId, context, true);
+            timeline.AddTrack(track);
         }
     }
 }

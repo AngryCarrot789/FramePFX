@@ -22,16 +22,19 @@ using FramePFX.Editors.Contextual;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.Resources;
 
-namespace FramePFX.Editors.Actions {
+namespace FramePFX.Editors.Commands {
     public class OpenCompositionResourceTimelineCommand : Command {
-        public override bool CanExecute(CommandEventArgs e) {
-            if (!ResourceContextRegistry.GetSingleSelection(e.Context, out BaseResource resource))
-                return false;
-            return resource is ResourceComposition composition && composition.Manager.Project.ActiveTimeline != composition.Timeline;
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            if (!ResourceContextRegistry.GetSingleSelection(e.ContextData, out BaseResource resource))
+                return resource == null ? ExecutabilityState.Invalid : ExecutabilityState.ValidButCannotExecute;
+            // if the composition tl is already active, just say cannot execute
+            if (!(resource is ResourceComposition composition) || composition.Manager.Project.ActiveTimeline == composition.Timeline)
+                return ExecutabilityState.ValidButCannotExecute;
+            return ExecutabilityState.Executable;
         }
 
         public override void Execute(CommandEventArgs e) {
-            if (ResourceContextRegistry.GetSingleSelection(e.Context, out BaseResource resource) && resource is ResourceComposition composition) {
+            if (ResourceContextRegistry.GetSingleSelection(e.ContextData, out BaseResource resource) && resource is ResourceComposition composition) {
                 composition.Manager.Project.ActiveTimeline = composition.Timeline;
             }
         }

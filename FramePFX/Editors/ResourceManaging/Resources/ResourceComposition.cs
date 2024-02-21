@@ -17,9 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using FramePFX.Editors.Actions;
-using FramePFX.RBC;
-
 namespace FramePFX.Editors.ResourceManaging.Resources {
     /// <summary>
     /// A resource that represents a composition timeline/sequence

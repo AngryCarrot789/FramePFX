@@ -26,18 +26,18 @@ using FramePFX.Editors.ResourceManaging.Autoloading.Controls;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 
-namespace FramePFX.Editors.Actions {
+namespace FramePFX.Editors.Commands {
     public class OpenProjectCommand : Command {
-        public override bool CanExecute(CommandEventArgs e) {
-            return e.Context.ContainsKey(DataKeys.VideoEditorKey);
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            return e.ContextData.ContainsKey(DataKeys.VideoEditorKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.VideoEditorKey.TryGetContext(e.Context, out VideoEditor editor)) {
+            if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor)) {
                 return;
             }
 
-            if (!NewProjectCommand.CloseProject(editor)) {
+            if (!CloseProjectCommand.CloseProject(editor)) {
                 return;
             }
 

@@ -22,7 +22,7 @@ using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 
-namespace FramePFX.Editors.Actions {
+namespace FramePFX.Editors.Commands {
     public class SaveProjectCommand : Command {
         public static bool? SaveProject(Project project) {
             if (project.HasSavedOnce && !string.IsNullOrEmpty(project.ProjectFilePath)) {
@@ -56,22 +56,22 @@ namespace FramePFX.Editors.Actions {
             }
         }
 
-        public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.ProjectKey.TryGetContext(e.Context, out Project project)) {
-                return;
-            }
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            return e.ContextData.ContainsKey(DataKeys.ProjectKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+        }
 
-            SaveProject(project);
+        public override void Execute(CommandEventArgs e) {
+            if (DataKeys.ProjectKey.TryGetContext(e.ContextData, out Project project)) {
+                SaveProject(project);
+            }
         }
     }
 
-    public class SaveProjectAsCommand : Command {
+    public class SaveProjectAsCommand : SaveProjectCommand {
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.ProjectKey.TryGetContext(e.Context, out Project project)) {
-                return;
+            if (DataKeys.ProjectKey.TryGetContext(e.ContextData, out Project project)) {
+                SaveProjectAs(project);
             }
-
-            SaveProjectCommand.SaveProjectAs(project);
         }
     }
 }

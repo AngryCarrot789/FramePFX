@@ -23,7 +23,7 @@ using FramePFX.Editors.Contextual;
 namespace FramePFX.Editors.ResourceManaging.Actions {
     public class GroupResourcesCommand : Command {
         public override void Execute(CommandEventArgs e) {
-            if (!ResourceContextRegistry.GetSingleFolderSelectionContext(e.Context, out ResourceFolder currFolder, out BaseResource[] items)) {
+            if (!ResourceContextRegistry.GetSingleFolderSelectionContext(e.ContextData, out ResourceFolder currFolder, out BaseResource[] items)) {
                 return;
             }
 

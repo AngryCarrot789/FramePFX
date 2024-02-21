@@ -20,10 +20,14 @@
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Actions {
+namespace FramePFX.Editors.Commands {
     public class ToggleTrackAutomationCommand : Command {
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            return e.ContextData.ContainsKey(DataKeys.VideoEditorKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+        }
+
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.VideoEditorKey.TryGetContext(e.Context, out VideoEditor editor))
+            if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor))
                 return;
             editor.ShowTrackAutomation = !editor.ShowTrackAutomation;
         }

@@ -80,7 +80,8 @@ namespace FramePFX.AdvancedContextService.WPF {
             }
             else {
                 string cmdId = this.Entry.CommandId;
-                this.CanExecute = !string.IsNullOrWhiteSpace(cmdId) && CommandManager.Instance.CanExecute(cmdId, ctx, true);
+                ExecutabilityState state = !string.IsNullOrWhiteSpace(cmdId) ? CommandManager.Instance.CanExecute(cmdId, ctx, true) : ExecutabilityState.Invalid;
+                this.CanExecute = state == ExecutabilityState.Executable;
             }
         }
 

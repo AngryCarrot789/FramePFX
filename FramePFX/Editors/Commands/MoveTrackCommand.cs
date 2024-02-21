@@ -25,7 +25,7 @@ using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 
-namespace FramePFX.Editors.Actions {
+namespace FramePFX.Editors.Commands {
     public class MoveTrackCommand : Command {
         public int Offset { get; }
 
@@ -34,8 +34,8 @@ namespace FramePFX.Editors.Actions {
         }
 
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.TrackKey.TryGetContext(e.Context, out Track track)) {
-                if (DataKeys.TimelineKey.TryGetContext(e.Context, out Timeline timeline)) {
+            if (!DataKeys.TrackKey.TryGetContext(e.ContextData, out Track track)) {
+                if (DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline timeline)) {
                     if (timeline.SelectedTracks.Count < 1)
                         return;
                     track = timeline.SelectedTracks[timeline.SelectedTracks.Count - 1];

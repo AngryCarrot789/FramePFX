@@ -72,7 +72,7 @@ namespace FramePFX.AdvancedContextService.NCSP {
                 TypeRegistration reg = list[i];
                 foreach (IContextEntry entry in reg.actions) {
                     if (entry is CommandContextEntry ace) {
-                        if (string.IsNullOrWhiteSpace(ace.CommandId) || (checkCanExecute && !CommandManager.Instance.CanExecute(ace.CommandId, ctx, true))) {
+                        if (string.IsNullOrWhiteSpace(ace.CommandId) || (checkCanExecute && CommandManager.Instance.CanExecute(ace.CommandId, ctx, true) != ExecutabilityState.Executable)) {
                             continue;
                         }
                     }

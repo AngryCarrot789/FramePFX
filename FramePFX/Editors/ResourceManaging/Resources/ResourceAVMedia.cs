@@ -27,7 +27,6 @@ using FramePFX.FFmpegWrapper;
 using FramePFX.FFmpegWrapper.Codecs;
 using FramePFX.FFmpegWrapper.Containers;
 using FramePFX.Logger;
-using FramePFX.RBC;
 using FramePFX.Utils;
 
 namespace FramePFX.Editors.ResourceManaging.Resources {

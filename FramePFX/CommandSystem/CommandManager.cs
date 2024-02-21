@@ -24,7 +24,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
 using FramePFX.Interactivity.Contexts;
-using FramePFX.Logger;
 using FramePFX.Utils;
 
 namespace FramePFX.CommandSystem {
@@ -37,7 +36,6 @@ namespace FramePFX.CommandSystem {
         // using this just in case I soon add more data associated with commands
         private class CommandEntry {
             public readonly Command Command;
-            public HashSet<CommandUsageContext> usages;
 
             public CommandEntry(Command command) {
                 this.Command = command;
@@ -47,7 +45,6 @@ namespace FramePFX.CommandSystem {
         public static CommandManager Instance { get; } = new CommandManager();
 
         private readonly Dictionary<string, CommandEntry> commands;
-        private readonly Dictionary<string, HashSet<CommandUsageContext>> commandsWithUsages;
         private readonly HashSet<FocusChangedEventHandler> focusChangeHandlerSet;
 
         /// <summary>
@@ -76,7 +73,6 @@ namespace FramePFX.CommandSystem {
         public CommandManager() {
             this.commands = new Dictionary<string, CommandEntry>();
             this.focusChangeHandlerSet = new HashSet<FocusChangedEventHandler>();
-            this.commandsWithUsages = new Dictionary<string, HashSet<CommandUsageContext>>();
         }
 
         public Command Unregister(string id) {
@@ -109,49 +105,6 @@ namespace FramePFX.CommandSystem {
             }
 
             this.commands[id] = new CommandEntry(command);
-        }
-
-        public void RegisterUsage(string cmdId, CommandUsageContext usage) {
-            ValidateId(cmdId);
-            if (usage == null)
-                throw new ArgumentNullException(nameof(usage));
-            if (!this.commands.TryGetValue(cmdId, out CommandEntry entry))
-                throw new InvalidOperationException("Cannot add usage to non-existent command: " + cmdId);
-
-            HashSet<CommandUsageContext> list1 = entry.usages;
-            if (list1 == null)
-                entry.usages = list1 = new HashSet<CommandUsageContext>();
-            else if (list1.Contains(usage))
-                return;
-            list1.Add(usage);
-
-            if (!this.commandsWithUsages.TryGetValue(cmdId, out HashSet<CommandUsageContext> list2))
-                this.commandsWithUsages[cmdId] = list2 = new HashSet<CommandUsageContext>();
-            list2.Add(usage);
-
-            CommandUsageContext.OnRegisteredInternal(usage, cmdId);
-        }
-
-        public void UnregisterUsage(string cmdId, CommandUsageContext usage) {
-            ValidateId(cmdId);
-            if (usage == null)
-                throw new ArgumentNullException(nameof(usage));
-            if (!this.commands.TryGetValue(cmdId, out CommandEntry entry))
-                throw new InvalidOperationException("Cannot remove usage from non-existent command: " + cmdId);
-
-            HashSet<CommandUsageContext> list1 = entry.usages;
-            if (list1 != null && list1.Remove(usage)) {
-                HashSet<CommandUsageContext> list = this.commandsWithUsages[cmdId];
-                if (!list.Remove(usage)) {
-                    AppLogger.Instance.WriteLine("Error: failed to remove from commandsWithUsages");
-                    Debugger.Break();
-                }
-
-                if (list.Count < 1)
-                    this.commandsWithUsages.Remove(cmdId);
-
-                CommandUsageContext.OnUnregisteredInternal(usage);
-            }
         }
 
         /// <summary>
@@ -196,8 +149,10 @@ namespace FramePFX.CommandSystem {
                 return false;
 
             IContextData context = contextProvider();
-            ValidateContext(context);
-            this.ExecuteCore(command.Command, new CommandEventArgs(this, commandId, context, isUserInitiated));
+            if (context == null)
+                throw new ArgumentNullException(nameof(context), "Context cannot be null");
+
+            ExecuteCore(commandId, command.Command, new CommandEventArgs(this, context, isUserInitiated));
             return true;
         }
 
@@ -211,24 +166,24 @@ namespace FramePFX.CommandSystem {
         public void Execute(string cmdId, Command cmd, IContextData context, bool isUserInitiated = true) {
             ValidateId(cmdId);
             ValidateContext(context);
-            this.ExecuteCore(cmd, new CommandEventArgs(this, cmdId, context, isUserInitiated));
+            ExecuteCore(cmdId, cmd, new CommandEventArgs(this, context, isUserInitiated));
         }
 
-        protected virtual void ExecuteCore(Command command, CommandEventArgs e) {
+        protected static void ExecuteCore(string cmdId, Command command, CommandEventArgs e) {
             if (!e.IsUserInitiated || Debugger.IsAttached) { // allow debugger to catch exception
                 command.Execute(e);
             }
             else {
-                TryExecuteOrShowDialog(command, e);
+                TryExecuteOrShowDialog(cmdId, command, e);
             }
         }
 
-        private static void TryExecuteOrShowDialog(Command command, CommandEventArgs e) {
+        private static void TryExecuteOrShowDialog(string cmdId, Command command, CommandEventArgs e) {
             try {
                 command.Execute(e);
             }
             catch (Exception ex) {
-                IoC.MessageService.ShowMessage("Command execution exception", $"An exception occurred while executing '{e.CommandId ?? command.GetType().ToString()}'", ex.GetToString());
+                IoC.MessageService.ShowMessage("Command execution exception", $"An exception occurred while executing '{cmdId}'", ex.GetToString());
             }
         }
 
@@ -242,12 +197,12 @@ namespace FramePFX.CommandSystem {
         /// <exception cref="Exception">The context is null, or the assembly was compiled in debug mode and the GetPresentation function threw ane exception</exception>
         /// <exception cref="ArgumentException">ID is null, empty or consists of only whitespaces</exception>
         /// <exception cref="ArgumentNullException">Context is null</exception>
-        public virtual bool CanExecute(string id, IContextData context, bool isUserInitiated = true) {
+        public virtual ExecutabilityState CanExecute(string id, IContextData context, bool isUserInitiated = true) {
             ValidateId(id);
             ValidateContext(context);
             if (!this.commands.TryGetValue(id, out CommandEntry command))
-                return false;
-            return command.Command.CanExecute(new CommandEventArgs(this, id, context, isUserInitiated));
+                return ExecutabilityState.Invalid;
+            return command.Command.CanExecute(new CommandEventArgs(this, context, isUserInitiated));
         }
 
         /// <summary>
@@ -264,22 +219,13 @@ namespace FramePFX.CommandSystem {
 
         private void OnFocusChangeCore(Func<IContextData> newFocusProvider) {
             // only calls newFocusProvider if there are handlers
-            IContextData ctx = null;
             if (this.focusChangeHandlerSet.Count >= 1) {
-                ValidateContext(ctx = newFocusProvider());
+                IContextData ctx = newFocusProvider();
+                if (ctx == null)
+                    throw new Exception("New Focus Context provider gave a null context");
+
                 foreach (FocusChangedEventHandler handler in this.focusChangeHandlerSet) {
                     handler(this, ctx);
-                }
-            }
-
-            if (this.commandsWithUsages.Count > 0) {
-                if (ctx == null)
-                    ValidateContext(ctx = newFocusProvider());
-                // call ToList just in case the handlers registers/unregisters another usage
-                foreach (KeyValuePair<string, HashSet<CommandUsageContext>> commandsWithUsage in this.commandsWithUsages.ToList()) {
-                    foreach (CommandUsageContext usage in commandsWithUsage.Value) {
-                        usage.OnFocusChanged(ctx);
-                    }
                 }
             }
         }
@@ -294,10 +240,6 @@ namespace FramePFX.CommandSystem {
             if (context == null) {
                 throw new ArgumentNullException(nameof(context), "Context cannot be null");
             }
-        }
-
-        public void UpdateForFocusChange(CommandUsageContext usage, IContextData focus) {
-
         }
     }
 }

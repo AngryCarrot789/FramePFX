@@ -22,6 +22,15 @@ using System.Windows;
 using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.CommandSystem.Usages {
+    /// <summary>
+    /// A command usage is a ui-place-specific usage of a command, e.g. a push or toggle button, a menu or context item.
+    /// These accept a connected <see cref="DependencyObject"/>, in which events can be attached and detached in order to
+    /// things like execute the command.
+    /// <para>
+    /// This class automatically listens for contextual data changes, which triggers the
+    /// executability state to be re-queried from the command based on the new contextual data
+    /// </para>
+    /// </summary>
     public abstract class CommandUsage {
         public string CommandId { get; }
 
@@ -36,10 +45,10 @@ namespace FramePFX.CommandSystem.Usages {
         }
 
         /// <summary>
-        /// Evaluates the contextual data for our <see cref="Control"/>. Returns null if disconnected
+        /// Gets the current available context for our connected control. Returns null if disconnected
         /// </summary>
         /// <returns></returns>
-        public IContextData EvaluateContextData() {
+        public IContextData GetContextData() {
             return this.Control != null ? DataManager.GetFullContextData(this.Control) : null;
         }
 
@@ -56,11 +65,11 @@ namespace FramePFX.CommandSystem.Usages {
         }
 
         private void OnInheritedContextChanged(object sender, RoutedEventArgs e) {
-            this.UpdateForContext(this.EvaluateContextData());
+            this.UpdateForContext(this.GetContextData());
         }
 
         protected virtual void OnConnected() {
-            this.UpdateForContext(this.EvaluateContextData());
+            this.UpdateForContext(this.GetContextData());
         }
 
         protected virtual void OnDisconnected() {
@@ -72,7 +81,7 @@ namespace FramePFX.CommandSystem.Usages {
         }
 
         protected void UpdateCanExecute() {
-            this.UpdateCanExecute(this.EvaluateContextData());
+            this.UpdateCanExecute(this.GetContextData());
         }
 
         protected void UpdateCanExecute(IContextData context) {

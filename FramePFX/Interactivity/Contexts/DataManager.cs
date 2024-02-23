@@ -17,10 +17,16 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Media;
 using FramePFX.Utils;
+using Expression = System.Linq.Expressions.Expression;
 
 namespace FramePFX.Interactivity.Contexts {
     /// <summary>
@@ -38,36 +44,82 @@ namespace FramePFX.Interactivity.Contexts {
     /// </para>
     /// </summary>
     public static class DataManager {
-        private static readonly DependencyProperty InternalInheritedContextDataProperty = DependencyProperty.RegisterAttached("InternalInheritedContextData", typeof(ContextData), typeof(DataManager), new PropertyMetadata(null));
+        private static readonly EventInfo VisualAncestorChangedEventInfo = typeof(Visual).GetEvent("VisualAncestorChanged", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+        private static readonly Delegate AncestorChangedHandlerDelegate;
+        private static readonly object[] AncestorChangedHandlerDelegateArray;
 
         /// <summary>
         /// The context data property, used to store contextual information relative to a specific dependency object
         /// </summary>
-        public static readonly DependencyProperty ContextDataProperty = DependencyProperty.RegisterAttached("ContextData", typeof(ContextData), typeof(DataManager), new PropertyMetadata(null, OnDataContextChanged));
-
-        /// <summary>
-        /// A property used to block inheritance for an element in a visual tree. This can be used as
-        /// an optimisation when the context is going to change a lot in a single action
-        /// </summary>
-        public static readonly DependencyProperty IsContextInheritanceBlockedProperty = DependencyProperty.RegisterAttached("IsContextInheritanceBlocked", typeof(bool), typeof(DataManager), new PropertyMetadata(BoolBox.False));
+        public static readonly DependencyProperty ContextDataProperty =
+            DependencyProperty.RegisterAttached(
+                "ContextData",
+                typeof(ContextData),
+                typeof(DataManager),
+                new PropertyMetadata(null, OnDataContextChanged));
 
         /// <summary>
         /// An event that gets raised on every single visual child (similar to tunnelling)
         /// when the <see cref="ContextDataProperty"/> changes for any parent element
         /// </summary>
-        public static readonly RoutedEvent MergedContextInvalidatedEvent = EventManager.RegisterRoutedEvent("MergedContextInvalidated", RoutingStrategy.Direct, typeof(RoutedEventHandler), typeof(DataManager));
+        public static readonly RoutedEvent MergedContextInvalidatedEvent =
+            EventManager.RegisterRoutedEvent(
+                "MergedContextInvalidated",
+                RoutingStrategy.Direct,
+                typeof(RoutedEventHandler),
+                typeof(DataManager));
+
+        private static readonly DependencyProperty InternalInheritedContextDataProperty =
+            DependencyProperty.RegisterAttached(
+                "InternalInheritedContextData",
+                typeof(ContextData),
+                typeof(DataManager),
+                new PropertyMetadata(null));
+
+        static DataManager() {
+            Type ancestorHandlerType = VisualAncestorChangedEventInfo.EventHandlerType;
+            MethodInfo ancestorHandlerMd = ancestorHandlerType.GetMethod("Invoke", BindingFlags.Instance | BindingFlags.Public) ?? throw new Exception("Could not find Invoke for event handler");
+            Type acnestorChangedArgsType = ancestorHandlerMd.GetParameters()[1].ParameterType;
+            FieldInfo ancestorField = acnestorChangedArgsType.GetField("_subRoot", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly) ?? throw new Exception("Could not find _subRoot field");
+            FieldInfo oldParField = acnestorChangedArgsType.GetField("_oldParent", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly) ?? throw new Exception("Could not find _oldParent field");
+
+            ParameterExpression paramSend = Expression.Parameter(typeof(object), "sender");
+            ParameterExpression paramArgs = Expression.Parameter(acnestorChangedArgsType, "args");
+            MemberExpression accessAncestor = Expression.Field(paramArgs, ancestorField);
+            MemberExpression accessOldParent = Expression.Field(paramArgs, oldParField);
+
+            Action<DependencyObject, DependencyObject> action = OnAncestorChanged;
+            MethodInfo actionInvoke = action.GetType().GetMethod("Invoke") ?? throw new Exception("Could not find Invoke for action");
+            MethodCallExpression invoke = Expression.Call(Expression.Constant(action), actionInvoke, accessAncestor, accessOldParent);
+            AncestorChangedHandlerDelegate = Expression.Lambda(ancestorHandlerType, invoke, paramSend, paramArgs).Compile();
+            AncestorChangedHandlerDelegateArray = new object[] { AncestorChangedHandlerDelegate };
+        }
 
         public static void AddMergedContextInvalidatedHandler(DependencyObject target, RoutedEventHandler handler) {
-            if (target is UIElement ui)
-                ui.AddHandler(MergedContextInvalidatedEvent, handler);
+            if (target is IInputElement element)
+                element.AddHandler(MergedContextInvalidatedEvent, handler);
         }
 
         public static void RemoveMergedContextInvalidatedHandler(DependencyObject target, RoutedEventHandler handler) {
-            if (target is UIElement ui)
-                ui.RemoveHandler(MergedContextInvalidatedEvent, handler);
+            if (target is IInputElement element)
+                element.RemoveHandler(MergedContextInvalidatedEvent, handler);
+        }
+
+        private static void OnAncestorChanged(DependencyObject element, DependencyObject oldParent) {
+            InvalidateInheritedContext(element);
         }
 
         private static void OnDataContextChanged(DependencyObject element, DependencyPropertyChangedEventArgs e) {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+            if (e.NewValue != null) {
+                if (e.OldValue == null && element is Visual) {
+                    VisualAncestorChangedEventInfo.AddMethod.Invoke(element, flags, null, AncestorChangedHandlerDelegateArray, CultureInfo.CurrentCulture);
+                }
+            }
+            else if (e.OldValue != null && element is Visual) {
+                VisualAncestorChangedEventInfo.RemoveMethod.Invoke(element, flags, null, AncestorChangedHandlerDelegateArray, CultureInfo.CurrentCulture);
+            }
+
             InvalidateInheritedContext(element);
         }
 
@@ -78,23 +130,22 @@ namespace FramePFX.Interactivity.Contexts {
         /// </summary>
         /// <param name="element">The element to invalidate, along with its visual tree</param>
         public static void InvalidateInheritedContext(DependencyObject element) {
+            // This takes something like 2ms when element is EditorWindow and the default project is loaded.
+            // With a blank project, it's between 0.9 and 1.4ms. Oh... in debug mode ;)
+            // Even though we traverse the VT twice, it's still pretty fast
             InvalidateInheritedContextAndChildren(element);
             RaiseMergedContextChangedForVisualTree(element, new RoutedEventArgs(MergedContextInvalidatedEvent));
         }
 
         private static void InvalidateInheritedContextAndChildren(DependencyObject obj) {
             obj.SetValue(InternalInheritedContextDataProperty, null);
-            if (GetIsContextInheritanceBlocked(obj))
-                return;
             for (int i = 0, count = VisualTreeHelper.GetChildrenCount(obj); i < count; i++) {
                 InvalidateInheritedContextAndChildren(VisualTreeHelper.GetChild(obj, i));
             }
         }
 
         private static void RaiseMergedContextChangedForVisualTree(DependencyObject target, RoutedEventArgs args) {
-            (target as UIElement)?.RaiseEvent(args);
-            if (GetIsContextInheritanceBlocked(target))
-                return;
+            (target as IInputElement)?.RaiseEvent(args);
             for (int i = 0, count = VisualTreeHelper.GetChildrenCount(target); i < count; i++) {
                 RaiseMergedContextChangedForVisualTree(VisualTreeHelper.GetChild(target, i), args);
             }
@@ -122,8 +173,9 @@ namespace FramePFX.Interactivity.Contexts {
         }
 
         /// <summary>
-        /// Gets the full inherited data context, which is the merged results of. Although the returned value will always be an
-        /// instance of <see cref="ContextData"/>, it should NEVER be modified directly, as it may corrupt the inheritance tree
+        /// Gets the full inherited data context, which is the merged results of the entire visual tree starting from the given
+        /// element to the root. Although the returned value will always be an instance of <see cref="ContextData"/>, it should
+        /// NEVER be modified directly by casting. Use <see cref="ContextData.Clone"/> instead
         /// </summary>
         /// <param name="obj">The target object</param>
         /// <returns>The fully inherited and merged context data</returns>
@@ -134,14 +186,6 @@ namespace FramePFX.Interactivity.Contexts {
             }
 
             return value;
-        }
-
-        public static void SetIsContextInheritanceBlocked(DependencyObject element, bool value) {
-            element.SetValue(IsContextInheritanceBlockedProperty, value.Box());
-        }
-
-        public static bool GetIsContextInheritanceBlocked(DependencyObject element) {
-            return (bool) element.GetValue(IsContextInheritanceBlockedProperty);
         }
 
         // private static readonly PropertyInfo TreeLevelPropertyInfo = typeof(Visual).GetProperty("TreeLevel", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly) ?? throw new Exception("Could not find TreeLevel property");

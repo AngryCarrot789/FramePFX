@@ -25,23 +25,7 @@ namespace FramePFX.CommandSystem.Usages {
     public static class CommandUsageManager {
         public static readonly DependencyProperty UsageClassTypeProperty = DependencyProperty.RegisterAttached("UsageClassType", typeof(Type), typeof(CommandUsageManager), new PropertyMetadata(null, OnUsageClassTypeChanged), ValidateUsageType);
         private static readonly DependencyProperty InternalCommandContextProperty = DependencyProperty.RegisterAttached("InternalCommandContext", typeof(CommandUsage), typeof(CommandUsageManager), new PropertyMetadata(null));
-        public static readonly DependencyProperty DataKeyBindingsProperty = DependencyProperty.RegisterAttached("DataKeyBindings", typeof(DataKeyBindingCollection), typeof(CommandUsageManager), new PropertyMetadata(null, OnDataKeyBindingsChanged));
 
-        private static void OnDataKeyBindingsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            if (e.OldValue is DataKeyBindingCollection old)
-                old.OnDetatch();
-            if (e.NewValue is DataKeyBindingCollection newObj)
-                newObj.OnAttach(d);
-        }
-
-        public static void SetDataKeyBindings(DependencyObject element, DataKeyBindingCollection value) {
-            element.SetValue(DataKeyBindingsProperty, value);
-        }
-
-        public static DataKeyBindingCollection GetDataKeyBindings(DependencyObject element) {
-            return (DataKeyBindingCollection) element.GetValue(DataKeyBindingsProperty);
-        }
-        
         public static void SetUsageClassType(DependencyObject element, Type value) => element.SetValue(UsageClassTypeProperty, value);
 
         public static Type GetUsageClassType(DependencyObject element) => (Type) element.GetValue(UsageClassTypeProperty);

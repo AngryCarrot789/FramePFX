@@ -146,8 +146,6 @@
     <Compile Include="CommandSystem\ExecutabilityState.cs" />
     <Compile Include="CommandSystem\Usages\CommandUsage.cs" />
     <Compile Include="CommandSystem\Usages\CommandUsageManager.cs" />
-    <Compile Include="CommandSystem\Usages\DataKeyBinding.cs" />
-    <Compile Include="CommandSystem\Usages\DataKeyBindingCollection.cs" />
     <Compile Include="Converters\EmptyStringToVisibilityConverter.cs" />
     <Compile Include="Editors\Commands\CloseProjectCommand.cs" />
     <Compile Include="Editors\Commands\CreateCompositionFromSelectionCommand.cs" />

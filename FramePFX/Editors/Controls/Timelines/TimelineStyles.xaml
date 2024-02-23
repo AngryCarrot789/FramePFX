@@ -11,10 +11,10 @@
                     xmlns:clips="clr-namespace:FramePFX.Editors.Controls.Timelines.Tracks.Clips"
                     xmlns:p="clr-namespace:FramePFX.Editors.Controls.Timelines.Playheads"
                     xmlns:wpf="clr-namespace:FramePFX.Shortcuts.WPF"
-                    xmlns:wpf1="clr-namespace:FramePFX.AdvancedContextService.WPF"
                     xmlns:ctx="clr-namespace:FramePFX.Editors.Contextual"
                     xmlns:cc="clr-namespace:FramePFX.Editors.Controls.Timelines.CommandContexts"
-                    xmlns:u="clr-namespace:FramePFX.CommandSystem.Usages">
+                    xmlns:u="clr-namespace:FramePFX.CommandSystem.Usages"
+                    xmlns:controls="clr-namespace:FramePFX.AdvancedMenuService.ContextService.Controls">
     <!-- TimelineTrackListBox's     Background = track gap colour in ListBox -->
     <!-- TimelineTrackListBoxItem's Background = its background -->
 
@@ -219,7 +219,7 @@
                                       ap:ScrollBinder.VerticalBindGroup="TimelineVerticalScrollGroup"
                                       Style="{StaticResource ScrollViewerWithPanelBorderBars}"
                                       wpf:UIInputManager.FocusPath="Application/Editor/Timeline/ControlSurface"
-                                      wpf1:AdvancedContextMenu.ContextGenerator="{x:Static ctx:TrackContextRegistry.Instance}">
+                                      controls:AdvancedContextMenu.ContextGenerator="{x:Static ctx:TrackContextRegistry.Instance}">
                             <s:TrackControlSurfaceListBox x:Name="PART_TrackListBox"
                                                           Padding="0"
                                                           VerticalAlignment="Top"

@@ -18,12 +18,12 @@
 // 
 
 using System;
-using FramePFX.AdvancedContextService;
 using FramePFX.Editors.ResourceManaging;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
+using FramePFX.AdvancedMenuService.ContextService;
 using FramePFX.Editors.ResourceManaging.Autoloading.Controls;
 using FramePFX.Editors.ResourceManaging.Resources;
 using FramePFX.Interactivity.Contexts;

@@ -24,7 +24,7 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.AdvancedContextService.WPF {
+namespace FramePFX.AdvancedMenuService.ContextService.Controls {
     public class AdvancedContextMenu : ContextMenu, IAdvancedMenu {
         public static readonly DependencyProperty ContextGeneratorProperty =
             DependencyProperty.RegisterAttached(

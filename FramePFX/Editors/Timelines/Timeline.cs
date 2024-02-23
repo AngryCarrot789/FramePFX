@@ -527,10 +527,6 @@ namespace FramePFX.Editors.Timelines {
             RenderManager.InternalOnTimelineProjectChanged(timeline.RenderManager, oldProject, project);
         }
 
-        internal static void InternalOnTrackSelectionCleared(Track track) {
-
-        }
-
         public static void InternalOnActiveTimelineChanged(Timeline oldTimeline, Timeline newTimeline) {
             oldTimeline.IsActive = false;
             newTimeline.IsActive = true;

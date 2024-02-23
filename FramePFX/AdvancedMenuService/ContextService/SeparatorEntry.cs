@@ -17,19 +17,11 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System.Collections.Generic;
-using FramePFX.Interactivity.Contexts;
-
-namespace FramePFX.AdvancedContextService {
+namespace FramePFX.AdvancedMenuService.ContextService {
     /// <summary>
-    /// An interface that defines a function for generating context entries that are appropriate for the given context data
+    /// A separator element between menu items
     /// </summary>
-    public interface IContextGenerator {
-        /// <summary>
-        /// Generates context entries and adds them into the list parameter. Leading, repeated and trailing separators are automatically filtered out
-        /// </summary>
-        /// <param name="list">The list in which entries should be added to</param>
-        /// <param name="context">The context data available</param>
-        void Generate(List<IContextEntry> list, IContextData context);
+    public class SeparatorEntry : IContextEntry {
+        public static SeparatorEntry NewInstance => new SeparatorEntry();
     }
 }

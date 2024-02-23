@@ -27,6 +27,7 @@ using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Clips.Core;
 using FramePFX.Editors.Timelines.Tracks;
+using FramePFX.History;
 using FramePFX.PropertyEditing;
 
 namespace FramePFX.Editors {
@@ -43,6 +44,11 @@ namespace FramePFX.Editors {
     public class VideoEditor {
         private bool showClipAutomation;
         private bool showTrackAutomation;
+
+        /// <summary>
+        /// Gets this video editor's history manager, which manages all history actions
+        /// </summary>
+        public HistoryManager HistoryManager { get; }
 
         /// <summary>
         /// Gets the project that is currently loaded
@@ -76,6 +82,7 @@ namespace FramePFX.Editors {
         public event VideoEditorEventHandler ShowTrackAutomationChanged;
 
         public VideoEditor() {
+            this.HistoryManager = new HistoryManager();
             this.Playback = new PlaybackManager(this);
             this.Playback.SetFrameRate(new Rational(1, 1));
             this.Playback.StartTimer();
@@ -213,6 +220,7 @@ namespace FramePFX.Editors {
             this.ProjectChanged?.Invoke(this, oldProject, null);
             Project.OnClosed(this, oldProject);
             VideoEditorPropertyEditor.Instance.OnProjectChanged();
+            this.HistoryManager.Clear();
         }
 
         private void OnProjectFrameRateChanged(ProjectSettings settings) {

@@ -23,7 +23,7 @@ using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Shortcuts.WPF.Converters;
 
-namespace FramePFX.AdvancedMenuService.WPF {
+namespace FramePFX.AdvancedMenuService.Controls {
     public class AdvancedCommandMenuItem : MenuItem {
         public static readonly DependencyProperty CommandIdProperty = DependencyProperty.Register("CommandId", typeof(string), typeof(AdvancedCommandMenuItem), new PropertyMetadata(null));
 

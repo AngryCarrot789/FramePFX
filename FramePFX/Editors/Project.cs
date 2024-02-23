@@ -20,6 +20,7 @@
 using System;
 using System.IO;
 using FramePFX.Editors.ResourceManaging;
+using FramePFX.Editors.ResourceManaging.Resources;
 using FramePFX.Editors.Timelines;
 using FramePFX.RBC;
 using FramePFX.Utils.Destroying;
@@ -185,6 +186,12 @@ namespace FramePFX.Editors {
             // Just in case anything is listening
             this.HasSavedOnce = true;
             this.ProjectFilePathChanged?.Invoke(this);
+
+            if (data.TryGetULong("ActiveTimelineResourceId", out ulong resourceId)) {
+                if (this.ResourceManager.TryGetEntryItem(resourceId, out ResourceItem resource) && resource is ResourceComposition composition) {
+                    this.ActiveTimeline = composition.Timeline;
+                }
+            }
         }
 
         public void WriteToFile(string filePath) {
@@ -219,6 +226,10 @@ namespace FramePFX.Editors {
                 this.ResourceManager.WriteToRBE(data.CreateDictionary("ResourceManager"));
                 this.MainTimeline.WriteToRBE(data.CreateDictionary("Timeline"));
                 data.SetString(nameof(this.ProjectName), this.ProjectName);
+
+                if (this.ActiveTimeline is CompositionTimeline timeline) {
+                    data.SetULong("ActiveTimelineResourceId", timeline.Resource.UniqueId);
+                }
             }
             catch (Exception e) {
                 throw new Exception("Failed to serialise project data", e);

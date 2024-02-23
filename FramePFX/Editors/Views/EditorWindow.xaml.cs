@@ -217,7 +217,7 @@ namespace FramePFX.Editors.Views {
                 this.UpdatePlayBackButtons(editor.Playback);
         }
 
-        private void OnCompositionTimelineDisplayNameChanged(BaseResource resource) {
+        private void OnCompositionTimelineDisplayNameChanged(IDisplayName sender, string oldName, string newName) {
             this.UpdateTimelineName();
         }
 
@@ -281,24 +281,6 @@ namespace FramePFX.Editors.Views {
 
         private void OnFitToContentClicked(object sender, RoutedEventArgs e) {
             this.VPViewBox.FitContentToCenter();
-        }
-
-        private void PlayClick(object sender, RoutedEventArgs e) {
-            if (this.Editor is VideoEditor editor && editor.Project != null) {
-                editor.Playback.Play(editor.Playback.Timeline.PlayHeadPosition);
-            }
-        }
-
-        private void PauseClick(object sender, RoutedEventArgs e) {
-            if (this.Editor is VideoEditor editor && editor.Project != null) {
-                editor.Playback.Pause();
-            }
-        }
-
-        private void StopClick(object sender, RoutedEventArgs e) {
-            if (this.Editor is VideoEditor editor && editor.Project != null) {
-                editor.Playback.Stop();
-            }
         }
 
         private void SetThemeClick(object sender, RoutedEventArgs e) {

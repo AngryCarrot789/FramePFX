@@ -21,7 +21,7 @@ using System.Linq;
 using System.Windows.Controls;
 using FramePFX.Editors.Controls.Binders;
 
-namespace FramePFX.AdvancedContextService.WPF {
+namespace FramePFX.AdvancedMenuService.ContextService.Controls {
     /// <summary>
     /// A menu item entry in a <see cref="AdvancedContextMenu"/> or <see cref="AdvancedContextMenuItem"/>
     /// </summary>

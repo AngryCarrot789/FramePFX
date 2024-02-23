@@ -18,25 +18,21 @@
 // 
 
 using System;
-using System.Windows.Threading;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.AdvancedContextService.WPF {
-    public class AdvancedContextEventMenuItem : AdvancedContextMenuItem {
-        public new EventContextEntry Entry => (EventContextEntry) base.Entry;
+namespace FramePFX.AdvancedMenuService.ContextService {
+    /// <summary>
+    /// The class for action-based context entries. The header, tooltip, etc, are automatically fetched
+    /// </summary>
+    public class EventContextEntry : BaseContextEntry {
+        public Action<IContextData> Action { get; set; }
 
-        public AdvancedContextEventMenuItem() {
+        public EventContextEntry(string header, string description = null) : base(header, description) {
 
         }
 
-        protected override void OnClick() {
-            EventContextEntry entry = this.Entry;
-            IContextData context = this.Menu.ContextOnMenuOpen;
-            if (entry != null && context != null) {
-                this.Dispatcher.BeginInvoke((Action) (() => entry.Action?.Invoke(context)), DispatcherPriority.Render);
-            }
-
-            base.OnClick();
+        public EventContextEntry(Action<IContextData> action, string header, string description = null) : base(header, description) {
+            this.Action = action;
         }
     }
 }

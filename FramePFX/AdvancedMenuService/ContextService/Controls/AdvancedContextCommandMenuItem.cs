@@ -26,7 +26,7 @@ using FramePFX.Interactivity.Contexts;
 using FramePFX.Shortcuts.WPF.Converters;
 using FramePFX.Utils;
 
-namespace FramePFX.AdvancedContextService.WPF {
+namespace FramePFX.AdvancedMenuService.ContextService.Controls {
     public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem {
         public bool IsExecuting { get; private set; }
 

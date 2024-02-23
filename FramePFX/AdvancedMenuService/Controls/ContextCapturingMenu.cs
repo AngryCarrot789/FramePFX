@@ -27,7 +27,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.AdvancedMenuService.WPF {
+namespace FramePFX.AdvancedMenuService.Controls {
     /// <summary>
     /// A menu that captures the data context of the keyboard's focused element before this menu item shows
     /// its items, allowing menu items to be treated like context menu items. Child menu items can access

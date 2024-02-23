@@ -24,7 +24,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using FramePFX.AdvancedContextService.WPF;
+using FramePFX.AdvancedMenuService.ContextService.Controls;
 using FramePFX.Editors.Contextual;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.Events;

@@ -302,8 +302,6 @@ namespace FramePFX.Editors.Timelines.Tracks {
                 if (clip != except)
                     clip.IsSelected = false;
             }
-
-            Timeline.InternalOnTrackSelectionCleared(this);
         }
 
         public void SelectAll() {

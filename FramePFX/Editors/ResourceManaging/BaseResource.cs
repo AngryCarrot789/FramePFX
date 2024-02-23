@@ -21,6 +21,7 @@ using System;
 using FramePFX.Editors.Factories;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.Editors.Serialisation;
+using FramePFX.Editors.Timelines;
 using FramePFX.RBC;
 using FramePFX.Utils.Destroying;
 
@@ -28,7 +29,7 @@ namespace FramePFX.Editors.ResourceManaging {
     /// <summary>
     /// Base class for resource items and groups
     /// </summary>
-    public abstract class BaseResource : IDestroy {
+    public abstract class BaseResource : IDisplayName, IDestroy {
         public static readonly SerialisationRegistry SerialisationRegistry;
 
         private string displayName;
@@ -53,10 +54,11 @@ namespace FramePFX.Editors.ResourceManaging {
         public string DisplayName {
             get => this.displayName;
             set {
-                if (this.displayName == value)
+                string oldName = this.displayName;
+                if (oldName == value)
                     return;
                 this.displayName = value;
-                this.DisplayNameChanged?.Invoke(this);
+                this.DisplayNameChanged?.Invoke(this, oldName, value);
             }
         }
 
@@ -71,7 +73,7 @@ namespace FramePFX.Editors.ResourceManaging {
             }
         }
 
-        public event ResourceEventHandler DisplayNameChanged;
+        public event DisplayNameChangedEventHandler DisplayNameChanged;
         public event ResourceEventHandler IsSelectedChanged;
 
         protected BaseResource() {

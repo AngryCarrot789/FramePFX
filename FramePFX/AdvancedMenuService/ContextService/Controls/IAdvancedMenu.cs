@@ -20,7 +20,7 @@
 using System;
 using System.Windows;
 
-namespace FramePFX.AdvancedContextService.WPF {
+namespace FramePFX.AdvancedMenuService.ContextService.Controls {
     /// <summary>
     /// An interface for an advanced context menu or advanced menu
     /// </summary>

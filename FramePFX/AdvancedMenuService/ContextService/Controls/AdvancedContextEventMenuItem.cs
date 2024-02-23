@@ -17,19 +17,26 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Collections.Generic;
+using System;
+using System.Windows.Threading;
+using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.AdvancedContextService {
-    /// <summary>
-    /// An entry that simply acts as a grouping element (to group a collection of child entries)
-    /// </summary>
-    public class GroupContextEntry : BaseContextEntry {
-        public GroupContextEntry(string header, string description, IEnumerable<IContextEntry> children = null) : base(children) {
-            this.Header = header;
-            this.Description = description;
+namespace FramePFX.AdvancedMenuService.ContextService.Controls {
+    public class AdvancedContextEventMenuItem : AdvancedContextMenuItem {
+        public new EventContextEntry Entry => (EventContextEntry) base.Entry;
+
+        public AdvancedContextEventMenuItem() {
+
         }
 
-        public GroupContextEntry(string header, IEnumerable<IContextEntry> children = null) : this(header, null, children) {
+        protected override void OnClick() {
+            EventContextEntry entry = this.Entry;
+            IContextData context = this.Menu.ContextOnMenuOpen;
+            if (entry != null && context != null) {
+                this.Dispatcher.BeginInvoke((Action) (() => entry.Action?.Invoke(context)), DispatcherPriority.Render);
+            }
+
+            base.OnClick();
         }
     }
 }

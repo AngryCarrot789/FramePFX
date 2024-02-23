@@ -14,7 +14,7 @@
                 <!-- General styles that don't really rely on that many other styles -->
                 <ResourceDictionary Source="Editors/Controls/GeneralControlStyles.xaml"/>
                 <ResourceDictionary Source="Editors/Controls/Dragger/NumberDraggerStyles.xaml"/>
-                <ResourceDictionary Source="AdvancedContextService/WPF/ContextStyles.xaml"/>
+                <ResourceDictionary Source="AdvancedMenuService/ContextService/Controls/ContextStyles.xaml"/>
 
                 <!-- Multi-select tree -->
                 <ResourceDictionary Source="Editors/Controls/TreeViews/Themes/EditTextBox.xaml"/>

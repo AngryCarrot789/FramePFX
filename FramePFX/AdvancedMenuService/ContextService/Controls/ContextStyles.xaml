@@ -2,8 +2,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                    xmlns:acs="clr-namespace:FramePFX.AdvancedContextService.WPF"
-                    xmlns:wpf="clr-namespace:FramePFX.AdvancedMenuService.WPF"
+                    xmlns:acs="clr-namespace:FramePFX.AdvancedMenuService.ContextService.Controls"
+                    xmlns:wpf="clr-namespace:FramePFX.AdvancedMenuService.Controls"
                     mc:Ignorable="d">
     <Style TargetType="{x:Type wpf:ContextCapturingMenu}" BasedOn="{StaticResource {x:Type Menu}}"/>
     <Style TargetType="{x:Type wpf:AdvancedCommandMenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}"/>

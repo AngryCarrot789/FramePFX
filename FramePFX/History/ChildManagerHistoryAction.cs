@@ -10,27 +10,33 @@
 //
 // FramePFX is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 // Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using FramePFX.Editors.ResourceManaging.Events;
+namespace FramePFX.History {
+    public class ChildManagerHistoryAction : IHistoryAction {
+        private readonly HistoryManager manager;
 
-namespace FramePFX.Editors.Timelines {
-    public delegate void DisplayNameChangedEventHandler(IDisplayName sender, string oldName, string newName);
+        public ChildManagerHistoryAction(HistoryManager manager) {
+            this.manager = manager;
+        }
 
-    /// <summary>
-    /// An interface for an object that displays a readable and renamable name/tag
-    /// </summary>
-    public interface IDisplayName {
-        /// <summary>
-        /// Gets or sets the display name. Setting this fires an event
-        /// </summary>
-        string DisplayName { get; set; }
+        public bool Undo() {
+            if (!this.manager.CanUndo)
+                return false;
+            this.manager.Undo();
+            return true;
+        }
 
-        event DisplayNameChangedEventHandler DisplayNameChanged;
+        public bool Redo() {
+            if (!this.manager.CanRedo)
+                return false;
+            this.manager.Redo();
+            return true;
+        }
     }
 }

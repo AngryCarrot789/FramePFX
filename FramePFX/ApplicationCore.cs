@@ -142,6 +142,8 @@ namespace FramePFX {
             manager.Register("CloseProjectCommand", new CloseProjectCommand());
             manager.Register("ExportCommand", new ExportCommand(false));
             manager.Register("ExportActiveTimelineCommand", new ExportCommand(true));
+            manager.Register("UndoCommand", new UndoCommand());
+            manager.Register("RedoCommand", new RedoCommand());
 
             AppLogger.Instance.PushHeader($"Registered {CommandManager.Instance.Count} commands", false);
             foreach (KeyValuePair<string, Command> pair in CommandManager.Instance.Commands) {

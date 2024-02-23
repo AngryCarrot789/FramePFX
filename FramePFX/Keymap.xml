@@ -23,13 +23,13 @@
             </Shortcut>
 
             <!-- TODO: implement history -->
-            <Shortcut Name="UndoShortcut" CommandId="commands.project.history.UndoCommand">
+            <Shortcut Name="UndoShortcut" CommandId="UndoCommand">
                 <KeyStroke Mods="CTRL" Key="Z"/>
             </Shortcut>
-            <Shortcut Name="RedoShortcut1" CommandId="commands.project.history.RedoCommand">
+            <Shortcut Name="RedoShortcut1" CommandId="RedoCommand">
                 <KeyStroke Mods="CTRL+SHIFT" Key="Z"/>
             </Shortcut>
-            <Shortcut Name="RedoShortcut2" CommandId="commands.project.history.RedoCommand">
+            <Shortcut Name="RedoShortcut2" CommandId="RedoCommand">
                 <KeyStroke Mods="CTRL" Key="Y"/>
             </Shortcut>
 

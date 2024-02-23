@@ -20,7 +20,7 @@
 using System.Collections.Generic;
 using FramePFX.Utils;
 
-namespace FramePFX.AdvancedContextService {
+namespace FramePFX.AdvancedMenuService.ContextService {
     /// <summary>
     /// The class for command-based context entries. The header, tooltip, etc, are automatically fetched
     /// </summary>

@@ -134,14 +134,20 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AdvancedContextService\EventContextEntry.cs" />
-    <Compile Include="AdvancedContextService\WPF\AdvancedContextCommandMenuItem.cs" />
-    <Compile Include="AdvancedContextService\WPF\AdvancedContextMenu.cs" />
-    <Compile Include="AdvancedContextService\WPF\AdvancedContextEventMenuItem.cs" />
-    <Compile Include="AdvancedContextService\WPF\AdvancedContextMenuItem.cs" />
-    <Compile Include="AdvancedContextService\WPF\IAdvancedMenu.cs" />
-    <Compile Include="AdvancedMenuService\WPF\AdvancedCommandMenuItem.cs" />
-    <Compile Include="AdvancedMenuService\WPF\ContextCapturingMenu.cs" />
+    <Compile Include="AdvancedMenuService\ContextService\BaseContextEntry.cs" />
+    <Compile Include="AdvancedMenuService\ContextService\CommandContextEntry.cs" />
+    <Compile Include="AdvancedMenuService\ContextService\EventContextEntry.cs" />
+    <Compile Include="AdvancedMenuService\ContextService\GroupContextEntry.cs" />
+    <Compile Include="AdvancedMenuService\ContextService\IContextEntry.cs" />
+    <Compile Include="AdvancedMenuService\ContextService\IContextGenerator.cs" />
+    <Compile Include="AdvancedMenuService\ContextService\SeparatorEntry.cs" />
+    <Compile Include="AdvancedMenuService\ContextService\Controls\AdvancedContextCommandMenuItem.cs" />
+    <Compile Include="AdvancedMenuService\ContextService\Controls\AdvancedContextEventMenuItem.cs" />
+    <Compile Include="AdvancedMenuService\ContextService\Controls\AdvancedContextMenu.cs" />
+    <Compile Include="AdvancedMenuService\ContextService\Controls\AdvancedContextMenuItem.cs" />
+    <Compile Include="AdvancedMenuService\ContextService\Controls\IAdvancedMenu.cs" />
+    <Compile Include="AdvancedMenuService\Controls\AdvancedCommandMenuItem.cs" />
+    <Compile Include="AdvancedMenuService\Controls\ContextCapturingMenu.cs" />
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="CommandSystem\ExecutabilityState.cs" />
     <Compile Include="CommandSystem\Usages\CommandUsage.cs" />
@@ -169,6 +175,7 @@
     <Compile Include="Editors\Commands\ToggleClipVisibilityCommand.cs" />
     <Compile Include="Editors\Commands\TogglePlayCommand.cs" />
     <Compile Include="Editors\Commands\ToggleTrackAutomationCommand.cs" />
+    <Compile Include="Editors\Commands\UndoRedoCommand.cs" />
     <Compile Include="Editors\CompositionTimeline.cs" />
     <Compile Include="Editors\Contextual\ClipContextRegistry.cs" />
     <Compile Include="Editors\Contextual\ResourceContextRegistry.cs" />
@@ -297,6 +304,11 @@
     <Compile Include="FFmpeg\FrameQueue.cs" />
     <Compile Include="FFmpeg\StreamWrapper.cs" />
     <Compile Include="FFmpeg\VideoStream.cs" />
+    <Compile Include="History\ChildManagerHistoryAction.cs" />
+    <Compile Include="History\HistoryAction.cs" />
+    <Compile Include="History\HistoryManager.cs" />
+    <Compile Include="History\IHistoryAction.cs" />
+    <Compile Include="History\MergedHistoryAction.cs" />
     <Compile Include="IApplicationStartupProgress.cs" />
     <Compile Include="Interactivity\Contexts\ContextData.cs" />
     <Compile Include="Interactivity\Contexts\DataKey.cs" />
@@ -538,9 +550,8 @@
     <Compile Include="Views\Validators\NonEmptyStringValidationRule.cs" />
     <Compile Include="Views\WinDarkTheme.cs" />
     <Compile Include="Views\WindowEx.cs" />
-    <Page Include="AdvancedContextService\WPF\ContextStyles.xaml">
+    <Page Include="AdvancedMenuService\ContextService\Controls\ContextStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="Editors\Controls\Dragger\NumberDraggerStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -602,13 +613,6 @@
     <Compile Include="CommandSystem\Command.cs" />
     <Compile Include="CommandSystem\CommandEventArgs.cs" />
     <Compile Include="CommandSystem\ToggleBasedCommand.cs" />
-    <Compile Include="AdvancedContextService\CommandContextEntry.cs" />
-    <Compile Include="AdvancedContextService\BaseContextEntry.cs" />
-    <Compile Include="AdvancedContextService\GroupContextEntry.cs" />
-    <Compile Include="AdvancedContextService\IContextEntry.cs" />
-    <Compile Include="AdvancedContextService\IContextGenerator.cs" />
-    <Compile Include="AdvancedContextService\NCSP\ContextRegistry.cs" />
-    <Compile Include="AdvancedContextService\SeparatorEntry.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -903,9 +907,6 @@
     <Content Include="Keymap.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="CommandSystemV2" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\SkiaSharp.NativeAssets.macOS.2.88.7\build\net462\SkiaSharp.NativeAssets.macOS.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.macOS.2.88.7\build\net462\SkiaSharp.NativeAssets.macOS.targets')" />

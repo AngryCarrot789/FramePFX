@@ -19,7 +19,7 @@
 
 using System.Collections.Generic;
 
-namespace FramePFX.AdvancedContextService {
+namespace FramePFX.AdvancedMenuService.ContextService {
     public delegate void BaseContextEntryEventHandler(BaseContextEntry entry);
 
     /// <summary>

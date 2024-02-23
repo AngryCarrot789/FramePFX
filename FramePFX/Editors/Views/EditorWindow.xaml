@@ -8,10 +8,10 @@
             xmlns:cv="clr-namespace:FramePFX.Editors.Controls.Viewports"
             xmlns:resources="clr-namespace:FramePFX.Editors.Controls.Resources"
             xmlns:wpf="clr-namespace:FramePFX.Shortcuts.WPF" xmlns:controls="clr-namespace:FramePFX.PropertyEditing.Controls"
-            xmlns:c="clr-namespace:FramePFX.AdvancedMenuService.WPF"
             xmlns:fxsrc="clr-namespace:FramePFX.Editors.EffectSource"
             xmlns:effectProviding="clr-namespace:FramePFX.Editors.Controls.EffectProviding"
             xmlns:c1="clr-namespace:FramePFX.Editors.Controls"
+            xmlns:controls1="clr-namespace:FramePFX.AdvancedMenuService.Controls"
             mc:Ignorable="d"
             Style="{StaticResource CustomWindowStyleEx}"
             Background="{DynamicResource PanelBackground0}"
@@ -26,19 +26,19 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
-        <c:ContextCapturingMenu Grid.Row="0"
+        <controls1:ContextCapturingMenu Grid.Row="0"
                                 Background="{Binding TitlebarBrush, RelativeSource={RelativeSource AncestorType={x:Type v:WindowEx}, Mode=FindAncestor}}"
                                 BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1">
             <MenuItem Header="File">
-                <c:AdvancedCommandMenuItem Header="New Project"        CommandId="NewProjectCommand"/>
-                <c:AdvancedCommandMenuItem Header="Open Project..."    CommandId="OpenProjectCommand"/>
-                <c:AdvancedCommandMenuItem Header="Save Project"       CommandId="SaveProjectCommand"/>
-                <c:AdvancedCommandMenuItem Header="Save Project As..." CommandId="SaveProjectAsCommand"/>
-                <c:AdvancedCommandMenuItem Header="Close Project"      CommandId="CloseProjectCommand"/>
+                <controls1:AdvancedCommandMenuItem Header="New Project"        CommandId="NewProjectCommand"/>
+                <controls1:AdvancedCommandMenuItem Header="Open Project..."    CommandId="OpenProjectCommand"/>
+                <controls1:AdvancedCommandMenuItem Header="Save Project"       CommandId="SaveProjectCommand"/>
+                <controls1:AdvancedCommandMenuItem Header="Save Project As..." CommandId="SaveProjectAsCommand"/>
+                <controls1:AdvancedCommandMenuItem Header="Close Project"      CommandId="CloseProjectCommand"/>
                 <Separator/>
-                <c:AdvancedCommandMenuItem Header="Export" CommandId="ExportCommand"
+                <controls1:AdvancedCommandMenuItem Header="Export" CommandId="ExportCommand"
                                            ToolTip="Export the current project"/>
-                <c:AdvancedCommandMenuItem Header="Export Active Timeline" CommandId="ExportActiveTimelineCommand"
+                <controls1:AdvancedCommandMenuItem Header="Export Active Timeline" CommandId="ExportActiveTimelineCommand"
                                            ToolTip="Exports the currently active timeline only (not the project timeline)"/>
             </MenuItem>
             <MenuItem Header="Theme">
@@ -49,7 +49,7 @@
                 <MenuItem Header="Red and Black" Click="SetThemeClick" Uid="4"/>
                 <MenuItem Header="Light Theme" Click="SetThemeClick" Uid="5"/>
             </MenuItem>
-        </c:ContextCapturingMenu>
+        </controls1:ContextCapturingMenu>
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" MinHeight="100"/>

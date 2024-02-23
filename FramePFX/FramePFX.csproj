@@ -143,8 +143,11 @@
     <Compile Include="AdvancedMenuService\WPF\AdvancedCommandMenuItem.cs" />
     <Compile Include="AdvancedMenuService\WPF\ContextCapturingMenu.cs" />
     <Compile Include="ApplicationCore.cs" />
-    <Compile Include="CommandSystem\CommandUsage.cs" />
     <Compile Include="CommandSystem\ExecutabilityState.cs" />
+    <Compile Include="CommandSystem\Usages\CommandUsage.cs" />
+    <Compile Include="CommandSystem\Usages\CommandUsageManager.cs" />
+    <Compile Include="CommandSystem\Usages\DataKeyBinding.cs" />
+    <Compile Include="CommandSystem\Usages\DataKeyBindingCollection.cs" />
     <Compile Include="Converters\EmptyStringToVisibilityConverter.cs" />
     <Compile Include="Editors\Commands\CloseProjectCommand.cs" />
     <Compile Include="Editors\Commands\CreateCompositionFromSelectionCommand.cs" />
@@ -158,6 +161,7 @@
     <Compile Include="Editors\Commands\NewVideoTrackCommand.cs" />
     <Compile Include="Editors\Commands\OpenCompositionResourceTimelineCommand.cs" />
     <Compile Include="Editors\Commands\OpenProjectCommand.cs" />
+    <Compile Include="Editors\Commands\BasicPlayActionCommand.cs" />
     <Compile Include="Editors\Commands\RenameCommands.cs" />
     <Compile Include="Editors\Commands\SaveProjectCommand.cs" />
     <Compile Include="Editors\Commands\SelectAllTracksCommand.cs" />
@@ -175,6 +179,9 @@
     <Compile Include="Editors\Controls\EffectProviding\EffectProviderListBox.cs" />
     <Compile Include="Editors\Controls\EffectProviding\EffectProviderListBoxItem.cs" />
     <Compile Include="Editors\Controls\Timelines\ClipDropRegistry.cs" />
+    <Compile Include="Editors\Controls\Timelines\CommandContexts\BasicPlaybackCommandUsage.cs" />
+    <Compile Include="Editors\Controls\Timelines\CommandContexts\BasicButtonCommandUsage.cs" />
+    <Compile Include="Editors\Controls\Timelines\CommandContexts\NewVideoTrackCommandUsage.cs" />
     <Compile Include="Editors\Controls\Timelines\TimelineRuler.cs" />
     <Compile Include="Editors\Controls\Timelines\TrackDropRegistry.cs" />
     <Compile Include="Editors\Controls\Timelines\Tracks\Clips\ImageClipContent.cs" />
@@ -296,6 +303,7 @@
     <Compile Include="Interactivity\Contexts\DynamicContextData.cs" />
     <Compile Include="Interactivity\Contexts\EmptyContext.cs" />
     <Compile Include="Interactivity\Contexts\IContextData.cs" />
+    <Compile Include="Interactivity\Contexts\IContextDataProvider.cs" />
     <Compile Include="IoC.cs" />
     <Compile Include="IServiceManager.cs" />
     <Compile Include="Natives\PFXNative.cs" />
@@ -895,6 +903,9 @@
     <Content Include="Keymap.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="CommandSystemV2" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\SkiaSharp.NativeAssets.macOS.2.88.7\build\net462\SkiaSharp.NativeAssets.macOS.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.macOS.2.88.7\build\net462\SkiaSharp.NativeAssets.macOS.targets')" />

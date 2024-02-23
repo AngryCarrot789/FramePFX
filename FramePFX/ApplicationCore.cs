@@ -109,6 +109,9 @@ namespace FramePFX {
             manager.Register("commands.timeline.ToggleTrackAutomationCommand", new ToggleTrackAutomationCommand());
             manager.Register("commands.timeline.ToggleClipAutomationCommand", new ToggleClipAutomationCommand());
             manager.Register("commands.timeline.TogglePlayCommand", new TogglePlayCommand());
+            manager.Register("commands.timeline.PlayCommand", new PlayCommand());
+            manager.Register("commands.timeline.PauseCommand", new PauseCommand());
+            manager.Register("commands.timeline.StopCommand", new StopCommand());
             manager.Register("commands.timeline.SliceClipsCommand", new SliceClipsCommand());
             manager.Register("commands.timeline.DuplicateClipsCommand", new DuplicateClipCommand());
             manager.Register("commands.timeline.DeleteSelectedClips", new DeleteClipsCommand());

@@ -23,17 +23,27 @@ using FramePFX.Utils;
 
 namespace FramePFX.Interactivity.Contexts {
     /// <summary>
-    /// The main implementation of <see cref="IContextData"/>
+    /// An implementation of <see cref="IContextData"/> that stores static entries in an internal dictionary
     /// </summary>
     public class ContextData : IContextData {
         private Dictionary<string, object> map;
 
+        /// <summary>
+        /// The number of entries in our internal map
+        /// </summary>
         public int Count => this.map?.Count ?? 0;
 
+        /// <summary>
+        /// Creates a new empty instance
+        /// </summary>
         public ContextData() {
 
         }
 
+        /// <summary>
+        /// Copy constructor, effectively the same as <see cref="Clone"/>
+        /// </summary>
+        /// <param name="ctx">The context to copy, if non-null</param>
         public ContextData(ContextData ctx) {
             if (ctx.map != null)
                 this.map = new Dictionary<string, object>(ctx.map);
@@ -69,9 +79,13 @@ namespace FramePFX.Interactivity.Contexts {
             return this.map != null && this.map.ContainsKey(key);
         }
 
+        /// <summary>
+        /// Creates a new instance of <see cref="ContextData"/> containing all entries from this instance
+        /// </summary>
+        /// <returns>A new cloned instance</returns>
         public ContextData Clone() {
             ContextData ctx = new ContextData();
-            if (this.map != null)
+            if (this.map != null && this.map.Count > 0)
                 ctx.map = new Dictionary<string, object>(this.map);
             return ctx;
         }
@@ -97,6 +111,12 @@ namespace FramePFX.Interactivity.Contexts {
             }
 
             return "ContextData[" + details + "]";
+        }
+
+        public static ContextData Merge(ContextData dataA, ContextData dataB) {
+            ContextData data = new ContextData(dataA);
+            data.Merge(dataB);
+            return data;
         }
     }
 }

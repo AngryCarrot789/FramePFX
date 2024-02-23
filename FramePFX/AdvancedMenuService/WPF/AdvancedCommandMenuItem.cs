@@ -56,7 +56,7 @@ namespace FramePFX.AdvancedMenuService.WPF {
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e) {
-            this.loadedContextData = ContextCapturingMenu.GetCapturedContextData(this) ?? DataManager.EvaluateContextData(this);
+            this.loadedContextData = ContextCapturingMenu.GetCapturedContextData(this) ?? DataManager.GetFullContextData(this);
             string id = this.CommandId;
             if (string.IsNullOrWhiteSpace(id))
                 id = null;

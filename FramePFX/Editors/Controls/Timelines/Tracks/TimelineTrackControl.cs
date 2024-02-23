@@ -126,7 +126,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             this.UseLayoutRounding = true;
             this.AllowDrop = true;
             this.Focusable = true;
-            DataManager.SetContextData(this, this.contextData = new ContextData());
+            this.contextData = new ContextData();
             AdvancedContextMenu.SetContextGenerator(this, TrackContextRegistry.Instance);
         }
 
@@ -153,6 +153,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
                 // update context data, used by action system and context menu system
                 if (e.ChangedButton == MouseButton.Left || e.ChangedButton == MouseButton.Right) {
                     this.contextData.Set(DataKeys.TrackContextMouseFrameKey, this.GetFrameAtMousePoint(e.MouseDevice));
+                    DataManager.SetContextData(this, this.contextData.Clone());
                 }
 
                 if (timeline != null && timeline.HasAnySelectedTracks)
@@ -173,6 +174,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             base.OnDragOver(e);
             e.Handled = true;
             this.contextData.Set(DataKeys.TrackDropFrameKey, this.GetFrameAtMousePoint(e.GetPosition(this)));
+            DataManager.SetContextData(this, this.contextData.Clone());
             if (this.isProcessingAsyncDrop || this.Track == null) {
                 e.Effects = DragDropEffects.None;
                 return;
@@ -295,7 +297,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             track.HeightChanged += this.OnTrackHeightChanged;
             track.ColourChanged += this.OnTrackColourChanged;
             this.Track.IsSelectedChanged += this.TrackOnIsSelectedChanged;
-            this.contextData.Set(DataKeys.TrackKey, track);
+            DataManager.SetContextData(this, this.contextData.Set(DataKeys.TrackKey, track).Clone());
         }
 
         public void OnAdded() {
@@ -316,12 +318,12 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             this.Track.ColourChanged -= this.OnTrackColourChanged;
             this.Track.IsSelectedChanged -= this.TrackOnIsSelectedChanged;
             this.ClipStoragePanel.ClearClipsInternal();
-            this.contextData.Set(DataKeys.TrackKey, null);
         }
 
         public void OnRemoved() {
             this.OwnerPanel = null;
             this.Track = null;
+            DataManager.ClearContextData(this);
         }
 
         public void OnIndexMoving(int oldIndex, int newIndex) {

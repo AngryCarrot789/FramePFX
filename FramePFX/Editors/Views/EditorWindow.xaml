@@ -12,6 +12,8 @@
             xmlns:c="clr-namespace:FramePFX.AdvancedMenuService.WPF"
             xmlns:fxsrc="clr-namespace:FramePFX.Editors.EffectSource"
             xmlns:effectProviding="clr-namespace:FramePFX.Editors.Controls.EffectProviding"
+            xmlns:u="clr-namespace:FramePFX.CommandSystem.Usages"
+            xmlns:cc="clr-namespace:FramePFX.Editors.Controls.Timelines.CommandContexts"
             mc:Ignorable="d"
             Style="{StaticResource CustomWindowStyleEx}"
             Background="{DynamicResource PanelBackground0}"
@@ -103,6 +105,20 @@
                                 <!-- Center Panel -->
                                 <StackPanel Margin="0,4" Orientation="Horizontal" HorizontalAlignment="Center">
                                     <Button x:Name="PlayBackButton_PlayPause" Click="TogglePlayPauseClick" Focusable="False" Content="Play/Pause" HorizontalAlignment="Left" Padding="5,0"/>
+
+                                    <Button u:CommandUsageManager.UsageClassType="{x:Type cc:PlayCommandUsage}" Focusable="False" Width="24" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="5,0,0,0">
+                                        <Polygon Width="16" Height="16" Points="0,16 0,0 16,8" Fill="{DynamicResource ABrush.Glyph.Static}"/>
+                                    </Button>
+                                    <Button u:CommandUsageManager.UsageClassType="{x:Type cc:PauseCommandUsage}" Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0">
+                                        <Grid Width="14" Height="16">
+                                            <Rectangle Width="4" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}"/>
+                                            <Rectangle Width="4" HorizontalAlignment="Right" Fill="{DynamicResource ABrush.Glyph.Static}"/>
+                                        </Grid>                                    </Button>
+                                    <Button u:CommandUsageManager.UsageClassType="{x:Type cc:StopCommandUsage}" Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0">
+                                        <Rectangle Width="14" Height="14" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}"/>
+                                    </Button>
+
+                                    <!--
                                     <Button x:Name="PlayBackButton_Play" Click="PlayClick" Focusable="False" Width="24" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="5,0,0,0">
                                         <Polygon Width="16" Height="16" Points="0,16 0,0 16,8" Fill="{DynamicResource ABrush.Glyph.Static}"/>
                                     </Button>
@@ -115,6 +131,7 @@
                                     <Button x:Name="PlayBackButton_Stop" Click="StopClick" Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0">
                                         <Rectangle Width="14" Height="14" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}"/>
                                     </Button>
+                                    -->
                                 </StackPanel>
                             </DockPanel>
                         </Border>

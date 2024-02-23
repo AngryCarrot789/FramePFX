@@ -19,7 +19,7 @@ namespace FramePFX.Shortcuts.WPF {
         /// </summary>
         public DependencyObject CurrentSource { get; private set; }
 
-        private ContextData lazyCurrentContextData;
+        private IContextData lazyCurrentContextData;
 
         public WPFShortcutInputManager(WPFShortcutManager manager) : base(manager) {
         }
@@ -133,7 +133,7 @@ namespace FramePFX.Shortcuts.WPF {
             if (this.lazyCurrentContextData == null) {
                 if (this.CurrentSource == null)
                     return null;
-                this.lazyCurrentContextData = DataManager.EvaluateContextData(this.CurrentSource);
+                this.lazyCurrentContextData = DataManager.GetFullContextData(this.CurrentSource);
             }
 
             return this.lazyCurrentContextData;

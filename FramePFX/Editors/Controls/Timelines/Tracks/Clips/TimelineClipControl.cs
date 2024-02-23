@@ -216,8 +216,6 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                 clip.TransferableData.AddValueChangedHandler(VideoClip.IsVisibleParameter, this.OnVisibilityParameterChanged);
                 this.UpdateClipVisibleState();
             }
-
-            DataManager.SetContextData(this, new ContextData().Set(DataKeys.ClipKey, clip));
         }
 
         public void OnAdded() {
@@ -237,6 +235,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             }
 
             this.Model.AutomationData.ActiveParameter = VideoClip.OpacityParameter.Key;
+            DataManager.SetContextData(this, new ContextData().Set(DataKeys.ClipKey, this.Model));
         }
 
         public void OnRemoving() {

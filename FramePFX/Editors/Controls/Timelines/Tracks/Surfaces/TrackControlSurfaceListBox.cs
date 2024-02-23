@@ -76,8 +76,6 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
                 for (int i = this.Items.Count - 1; i >= 0; i--) {
                     this.RemoveTrackInternal(i);
                 }
-
-                DataManager.ClearContextData(this);
             }
 
             if (newTimeline != null) {
@@ -85,12 +83,15 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
                 newTimeline.TrackRemoved += this.OnTrackRemoved;
                 newTimeline.TrackMoved += this.OnTrackMoved;
 
+                DataManager.SetContextData(this, new ContextData().Set(DataKeys.TimelineKey, newTimeline));
+
                 int i = 0;
                 foreach (Track track in newTimeline.Tracks) {
                     this.InsertTrackInternal(track, i++);
                 }
-
-                DataManager.SetContextData(this, new ContextData().Set(DataKeys.TimelineKey, newTimeline));
+            }
+            else {
+                DataManager.ClearContextData(this);
             }
         }
 

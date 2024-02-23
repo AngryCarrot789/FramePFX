@@ -55,7 +55,6 @@ namespace FramePFX.Editors.Views {
             this.contextData = new ContextData();
             this.InitializeComponent();
             this.Loaded += this.EditorWindow_Loaded;
-            DataManager.SetContextData(this, this.contextData);
         }
 
         // static EditorWindow() {
@@ -126,9 +125,8 @@ namespace FramePFX.Editors.Views {
                 this.PART_ViewPort.VideoEditor = newEditor;
             }
 
-            this.contextData.Set(DataKeys.VideoEditorKey, newEditor);
             Project project = newEditor?.Project;
-            this.contextData.Set(DataKeys.ProjectKey, project);
+            DataManager.SetContextData(this, this.contextData.Set(DataKeys.VideoEditorKey, newEditor).Set(DataKeys.ProjectKey, project).Clone());
             if (project != null) {
                 this.OnProjectChanged(null, project);
             }
@@ -141,21 +139,21 @@ namespace FramePFX.Editors.Views {
         }
 
         private void UpdatePlayBackButtons(PlaybackManager manager) {
-            if (manager != null) {
-                this.PlayBackButton_Play.IsEnabled = manager.CanSetPlayStateTo(PlayState.Play);
-                this.PlayBackButton_Pause.IsEnabled = manager.CanSetPlayStateTo(PlayState.Pause);
-                this.PlayBackButton_Stop.IsEnabled = manager.CanSetPlayStateTo(PlayState.Stop);
-            }
-            else {
-                this.PlayBackButton_Play.IsEnabled = false;
-                this.PlayBackButton_Pause.IsEnabled = false;
-                this.PlayBackButton_Stop.IsEnabled = false;
-            }
+            // if (manager != null) {
+            //     this.PlayBackButton_Play.IsEnabled = manager.CanSetPlayStateTo(PlayState.Play);
+            //     this.PlayBackButton_Pause.IsEnabled = manager.CanSetPlayStateTo(PlayState.Pause);
+            //     this.PlayBackButton_Stop.IsEnabled = manager.CanSetPlayStateTo(PlayState.Stop);
+            // }
+            // else {
+            //     this.PlayBackButton_Play.IsEnabled = false;
+            //     this.PlayBackButton_Pause.IsEnabled = false;
+            //     this.PlayBackButton_Stop.IsEnabled = false;
+            // }
         }
 
         private void OnEditorProjectChanged(VideoEditor editor, Project oldProject, Project newProject) {
+            DataManager.SetContextData(this, this.contextData.Set(DataKeys.ProjectKey, newProject).Clone());
             this.OnProjectChanged(oldProject, newProject);
-            this.contextData.Set(DataKeys.ProjectKey, newProject);
         }
 
         private void OnProjectChanged(Project oldProject, Project newProject) {

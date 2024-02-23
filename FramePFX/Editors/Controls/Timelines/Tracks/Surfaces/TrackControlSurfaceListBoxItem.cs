@@ -76,13 +76,13 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             this.TrackList = ownerList;
             this.Track.HeightChanged += this.OnTrackHeightChanged;
             this.Content = ownerList.GetContentObject(track.GetType());
-            DataManager.SetContextData(this, new ContextData().Set(DataKeys.TrackKey, track));
         }
 
         public void OnAddedToList() {
             ((TrackControlSurface) this.Content).Connect(this);
             this.Height = this.Track.Height;
             this.isSelectedBinder.Attach(this, this.Track);
+            DataManager.SetContextData(this, new ContextData().Set(DataKeys.TrackKey, this.Track));
         }
 
         public void OnRemovingFromList() {

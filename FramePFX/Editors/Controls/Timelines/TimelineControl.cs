@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -211,7 +210,7 @@ namespace FramePFX.Editors.Controls.Timelines {
             this.GetTemplateChild("PART_ToggleClipAutomation", out ToggleButton toggleClipAutomationBtn);
 
             // action buttons. need a better system because this is really not that good
-            this.GetTemplateChild("PART_AddVideoTrackButton", out Button addVideoTrackButton);
+            // this.GetTemplateChild("PART_AddVideoTrackButton", out Button addVideoTrackButton);
 
             toggleTrackAutomationBtn.IsThreeState = false;
             toggleTrackAutomationBtn.IsChecked = true;
@@ -248,11 +247,11 @@ namespace FramePFX.Editors.Controls.Timelines {
 
             timeStampBoard.MouseLeftButtonDown += (s, e) => this.MovePlayHeadToMouseCursor(e.GetPosition((IInputElement) s).X, true, false);
 
-            this.CreateTimelineButtonAction(addVideoTrackButton, t => {
-                VideoTrack track = new VideoTrack {DisplayName = "Video Track " + (t.Tracks.Count(x => x is VideoTrack) + 1).ToString()};
-                t.AddTrack(track);
-                track.InvalidateRender();
-            });
+            // this.CreateTimelineButtonAction(addVideoTrackButton, t => {
+            //     VideoTrack track = new VideoTrack {DisplayName = "Video Track " + (t.Tracks.Count(x => x is VideoTrack) + 1).ToString()};
+            //     t.AddTrack(track);
+            //     track.InvalidateRender();
+            // });
 
             this.UpdateTrackAutomationVisibilityState();
             this.UpdateClipAutomationVisibilityState();

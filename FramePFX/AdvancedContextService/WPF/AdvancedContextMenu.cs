@@ -36,7 +36,7 @@ namespace FramePFX.AdvancedContextService.WPF {
         private static readonly ContextMenuEventHandler MenuOpenHandlerForGenerable = OnContextMenuOpeningForGenerable;
         private static readonly ContextMenuEventHandler MenuCloseHandlerForGenerable = OnContextMenuClosingForGenerable;
 
-        internal ContextData ContextOnMenuOpen;
+        internal IContextData ContextOnMenuOpen;
 
         private readonly Dictionary<Type, Stack<FrameworkElement>> itemCache;
 
@@ -155,7 +155,7 @@ namespace FramePFX.AdvancedContextService.WPF {
                 IContextGenerator generator = GetContextGenerator(sourceObject);
                 if (generator != null) {
                     List<IContextEntry> list = new List<IContextEntry>();
-                    ContextData context = DataManager.EvaluateContextData(targetObject);
+                    IContextData context = DataManager.GetFullContextData(sourceObject);
                     generator.Generate(list, context);
                     if (list.Count < 1) {
                         e.Handled = true;

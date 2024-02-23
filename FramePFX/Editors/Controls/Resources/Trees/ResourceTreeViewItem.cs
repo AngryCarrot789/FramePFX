@@ -127,13 +127,13 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
 
             this.displayNameBinder.Detatch();
             this.isSelectedBinder.Detatch();
-            DataManager.ClearContextData(this);
         }
 
         public void OnRemoved() {
             this.ResourceTree = null;
             this.ParentNode = null;
             this.Resource = null;
+            DataManager.ClearContextData(this);
         }
 
         private void OnResourceAdded(ResourceFolder parent, BaseResource item, int index) => this.InsertNode(item, index);
@@ -145,8 +145,8 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
         public static void HandleMoveEvent(IResourceTreeControl self, ResourceMovedEventArgs e) {
             if (e.OldFolder == self.Resource) {
                 // The item in our collection is being moved
-                IResourceTreeControl dstTrack = ResourceTreeView.FindNodeForResource(self, e.NewFolder);
-                if (dstTrack == null) {
+                IResourceTreeControl dstNode = ResourceTreeView.FindNodeForResource(self, e.NewFolder);
+                if (dstNode == null) {
                     // Instead of throwing, we could just remove the track or insert a new track, instead of
                     // trying to re-use existing controls, at the cost of performance.
                     // However, moving clips between tracks in different timelines is not directly supported
@@ -156,7 +156,7 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
 
                 ResourceTreeViewItem control = self.GetNodeAt(e.OldIndex);
                 self.RemoveNode(e.OldIndex, false);
-                dstTrack.MovedResource = new MovedResource(control, e.Item);
+                dstNode.MovedResource = new MovedResource(control, e.Item);
             }
             else if (e.NewFolder == self.Resource) {
                 if (!(self.MovedResource is MovedResource moved)) {

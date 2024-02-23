@@ -13,7 +13,10 @@
                     xmlns:wpf="clr-namespace:FramePFX.Shortcuts.WPF"
                     xmlns:wpf1="clr-namespace:FramePFX.AdvancedContextService.WPF"
                     xmlns:ctx="clr-namespace:FramePFX.Editors.Contextual"
-                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+                    xmlns:cc="clr-namespace:FramePFX.Editors.Controls.Timelines.CommandContexts"
+                    xmlns:cs="clr-namespace:FramePFX.CommandSystem"
+                    xmlns:u="clr-namespace:FramePFX.CommandSystem.Usages"
+                    xmlns:contexts="clr-namespace:FramePFX.Interactivity.Contexts">
     <!-- TimelineTrackListBox's     Background = track gap colour in ListBox -->
     <!-- TimelineTrackListBoxItem's Background = its background -->
 
@@ -279,10 +282,28 @@
                         <Border Grid.Row="3" Grid.Column="0" Height="26" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,1,0,0">
                             <Border HorizontalAlignment="Left" Background="{DynamicResource PanelBorderBrush}" BorderBrush="{Binding RelativeSource={RelativeSource Self}, Path=Background}" BorderThickness="0,0,1,0">
                                 <c:SpacedStackPanel Orientation="Horizontal">
-                                    <Button Content="+V" BorderThickness="0" FontSize="12"
+                                    <Button u:CommandUsageManager.UsageClassType="{x:Type cc:NewVideoTrackCommandUsage}"
+                                            Content="+V" BorderThickness="0" FontSize="12"
                                             Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}"
                                             Background="{DynamicResource ABrush.Tone6.Background.Static}"
                                             x:Name="PART_AddVideoTrackButton"/>
+                                    <Button u:CommandUsageManager.UsageClassType="{x:Type cc:PlayCommandUsage}" BorderThickness="0" FontSize="12"
+                                            Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}"
+                                            Background="{DynamicResource ABrush.Tone6.Background.Static}">
+                                        <Polygon Width="16" Height="16" Points="0,16 0,0 16,8" Fill="{DynamicResource ABrush.Glyph.Static}"/>
+                                    </Button>
+                                    <Button u:CommandUsageManager.UsageClassType="{x:Type cc:PauseCommandUsage}" BorderThickness="0" FontSize="12"
+                                            Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}"
+                                            Background="{DynamicResource ABrush.Tone6.Background.Static}">
+                                        <Grid Width="14" Height="16">
+                                            <Rectangle Width="4" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}"/>
+                                            <Rectangle Width="4" HorizontalAlignment="Right" Fill="{DynamicResource ABrush.Glyph.Static}"/>
+                                        </Grid>                                    </Button>
+                                    <Button u:CommandUsageManager.UsageClassType="{x:Type cc:StopCommandUsage}" BorderThickness="0" FontSize="12"
+                                            Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}"
+                                            Background="{DynamicResource ABrush.Tone6.Background.Static}">
+                                        <Rectangle Width="14" Height="14" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}"/>
+                                    </Button>
                                 </c:SpacedStackPanel>
                             </Border>
                         </Border>

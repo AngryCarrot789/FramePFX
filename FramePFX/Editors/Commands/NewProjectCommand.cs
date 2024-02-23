@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System.Windows;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
@@ -26,6 +25,10 @@ namespace FramePFX.Editors.Commands {
     public class NewProjectCommand : Command {
         // true: project was already closed or is now closed
         // false: close was cancelled; cancel entire operation
+
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            return e.ContextData.ContainsKey(DataKeys.VideoEditorKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+        }
 
         public override void Execute(CommandEventArgs e) {
             if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor)) {

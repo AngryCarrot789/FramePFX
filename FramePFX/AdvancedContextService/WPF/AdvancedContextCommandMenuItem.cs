@@ -107,13 +107,13 @@ namespace FramePFX.AdvancedContextService.WPF {
         }
 
         private void DispatchCommand(string cmdId) {
-            ContextData context = this.Menu?.ContextOnMenuOpen;
+            IContextData context = this.Menu?.ContextOnMenuOpen;
             if (context != null) {
                 this.Dispatcher.BeginInvoke((Action) (() => this.ExecuteCommand(cmdId, context)), DispatcherPriority.Render);
             }
         }
 
-        private void ExecuteCommand(string cmdId, ContextData context) {
+        private void ExecuteCommand(string cmdId, IContextData context) {
             try {
                 if (!string.IsNullOrWhiteSpace(cmdId) && context != null)
                     CommandManager.Instance.Execute(cmdId, context);

@@ -101,8 +101,14 @@ namespace FramePFX.AdvancedMenuService.WPF {
         // }
 
         private void CaptureContextFromObject(DependencyObject focused) {
-            ContextData ctx = DataManager.EvaluateContextData(focused);
-            Debug.WriteLine("Context captured with " + ctx.Count + " entries");
+            IContextData ctx = DataManager.GetFullContextData(focused);
+            if (ctx is ContextData data) {
+                Debug.WriteLine($"Captured context ({data.Count} entries) before menu focus switch");
+            }
+            else {
+                Debug.WriteLine("Captured context before menu focus switch");
+            }
+
             SetCapturedContextData(this, ctx);
         }
 

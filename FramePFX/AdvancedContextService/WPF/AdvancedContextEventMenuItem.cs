@@ -31,7 +31,7 @@ namespace FramePFX.AdvancedContextService.WPF {
 
         protected override void OnClick() {
             EventContextEntry entry = this.Entry;
-            ContextData context = this.Menu.ContextOnMenuOpen;
+            IContextData context = this.Menu.ContextOnMenuOpen;
             if (entry != null && context != null) {
                 this.Dispatcher.BeginInvoke((Action) (() => entry.Action?.Invoke(context)), DispatcherPriority.Render);
             }

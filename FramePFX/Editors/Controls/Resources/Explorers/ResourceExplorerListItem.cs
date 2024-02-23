@@ -299,12 +299,12 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
             content.Disconnect();
             this.Content = null;
             this.ResourceExplorerList.ReleaseContentObject(this.Model.GetType(), content);
-            DataManager.ClearContextData(this);
         }
 
         public void OnRemovedFromList() {
             this.ResourceExplorerList = null;
             this.Model = null;
+            DataManager.ClearContextData(this);
         }
 
         private void UpdateIsOnlineState(ResourceItem resource) {

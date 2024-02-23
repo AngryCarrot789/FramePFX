@@ -185,7 +185,7 @@ namespace FramePFX.Shortcuts.WPF {
                 ContextCapturingMenu.OnKeyboardFocusChanged(sender, e, args);
                 CommandManager.Instance.OnApplicationFocusChanged(() => {
                     if (Keyboard.FocusedElement is DependencyObject obj)
-                        return DataManager.EvaluateContextData(obj);
+                        return DataManager.GetFullContextData(obj);
                     return EmptyContext.Instance;
                 });
             }

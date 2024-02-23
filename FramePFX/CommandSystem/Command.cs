@@ -41,10 +41,6 @@ namespace FramePFX.CommandSystem {
         // Then fire ContextDataChanged for those command hooks or whatever, they can then disconnect
         // old event handlers and attach new ones
 
-        public virtual void UpdateUsage(CommandUsage usage, CommandEventArgs e) {
-
-        }
-
         /// <summary>
         /// Get the command context Checks if this command can actually be executed. This typically isn't checked before
         /// <see cref="Execute"/> is invoked; this is mainly used by the UI to determine if

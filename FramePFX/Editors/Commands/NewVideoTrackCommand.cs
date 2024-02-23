@@ -24,6 +24,10 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editors.Commands {
     public class NewVideoTrackCommand : Command {
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            return e.ContextData.ContainsKey(DataKeys.TimelineKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+        }
+
         public override void Execute(CommandEventArgs e) {
             if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline timeline)) {
                 return;

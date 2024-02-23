@@ -26,6 +26,10 @@ using FramePFX.PropertyEditing;
 
 namespace FramePFX.Editors.Commands {
     public class DuplicateClipCommand : Command {
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            return e.ContextData.ContainsKey(DataKeys.ClipKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+        }
+
         public override void Execute(CommandEventArgs e) {
             if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip clip) && clip.Track is Track track) {
                 if (clip.Track.TryGetSpanUntilClip(clip.FrameSpan.EndIndex, out FrameSpan span, clip.FrameSpan.Duration, clip.FrameSpan.Duration)) {

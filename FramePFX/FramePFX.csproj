@@ -151,7 +151,8 @@
     <Compile Include="Editors\Commands\CreateCompositionFromSelectionCommand.cs" />
     <Compile Include="Editors\Commands\DeleteClipOwnerTrackCommand.cs" />
     <Compile Include="Editors\Commands\DeleteClipsCommand.cs" />
-    <Compile Include="Editors\Commands\DeleteTracksCommand.cs" />
+    <Compile Include="Editors\Commands\DeleteSelectedTracksCommand.cs" />
+    <Compile Include="Editors\Commands\DeleteSpecificTrackCommand.cs" />
     <Compile Include="Editors\Commands\DuplicateClipCommand.cs" />
     <Compile Include="Editors\Commands\ExportCommand.cs" />
     <Compile Include="Editors\Commands\MoveTrackCommand.cs" />
@@ -176,9 +177,12 @@
     <Compile Include="Editors\Controls\Dragger\UnitToPercentFormatter.cs" />
     <Compile Include="Editors\Controls\EffectProviding\EffectProviderListBox.cs" />
     <Compile Include="Editors\Controls\EffectProviding\EffectProviderListBoxItem.cs" />
+    <Compile Include="Editors\Controls\PlayStateButton.cs" />
+    <Compile Include="Editors\Controls\TogglePlayStateButton.cs" />
     <Compile Include="Editors\Controls\Timelines\ClipDropRegistry.cs" />
     <Compile Include="Editors\Controls\Timelines\CommandContexts\BasicPlaybackCommandUsage.cs" />
     <Compile Include="Editors\Controls\Timelines\CommandContexts\BasicButtonCommandUsage.cs" />
+    <Compile Include="Editors\Controls\Timelines\CommandContexts\DeleteSpecificTrackCommandUsage.cs" />
     <Compile Include="Editors\Controls\Timelines\CommandContexts\NewVideoTrackCommandUsage.cs" />
     <Compile Include="Editors\Controls\Timelines\TimelineRuler.cs" />
     <Compile Include="Editors\Controls\Timelines\TrackDropRegistry.cs" />
@@ -298,10 +302,8 @@
     <Compile Include="Interactivity\Contexts\DataKey.cs" />
     <Compile Include="Interactivity\Contexts\DataKeys.cs" />
     <Compile Include="Interactivity\Contexts\DataManager.cs" />
-    <Compile Include="Interactivity\Contexts\DynamicContextData.cs" />
     <Compile Include="Interactivity\Contexts\EmptyContext.cs" />
     <Compile Include="Interactivity\Contexts\IContextData.cs" />
-    <Compile Include="Interactivity\Contexts\IContextDataProvider.cs" />
     <Compile Include="IoC.cs" />
     <Compile Include="IServiceManager.cs" />
     <Compile Include="Natives\PFXNative.cs" />

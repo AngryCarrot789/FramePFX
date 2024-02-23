@@ -1,5 +1,33 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:c="clr-namespace:FramePFX.Editors.Controls">
+    <DataTemplate x:Key="PlayStateButton_PlayContentTemplate">
+        <Polygon Width="16" Height="16" Points="0,16 0,0 16,8" Fill="{DynamicResource ABrush.Glyph.Static}"/>
+    </DataTemplate>
+    <DataTemplate x:Key="PlayStateButton_PauseContentTemplate">
+        <Grid Width="14" Height="16">
+            <Rectangle Width="4" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}"/>
+            <Rectangle Width="4" HorizontalAlignment="Right" Fill="{DynamicResource ABrush.Glyph.Static}"/>
+        </Grid>
+    </DataTemplate>
+    <DataTemplate x:Key="PlayStateButton_StopContentTemplate">
+        <Rectangle Width="14" Height="14" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}"/>
+    </DataTemplate>
+
     <Style TargetType="{x:Type c:CancellableThumb}" BasedOn="{StaticResource {x:Type Thumb}}"/>
+    <Style TargetType="{x:Type c:PlayStateButton}" BasedOn="{StaticResource {x:Type Button}}">
+        <Style.Triggers>
+            <Trigger Property="PlayState" Value="Play">
+                <Setter Property="ContentTemplate" Value="{StaticResource PlayStateButton_PlayContentTemplate}"/>
+            </Trigger>
+            <Trigger Property="PlayState" Value="Pause">
+                <Setter Property="ContentTemplate" Value="{StaticResource PlayStateButton_PauseContentTemplate}"/>
+            </Trigger>
+            <Trigger Property="PlayState" Value="Stop">
+                <Setter Property="ContentTemplate" Value="{StaticResource PlayStateButton_StopContentTemplate}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    <Style TargetType="{x:Type c:TogglePlayStateButton}" BasedOn="{StaticResource {x:Type c:PlayStateButton}}">
+    </Style>
 </ResourceDictionary>

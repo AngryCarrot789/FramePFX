@@ -54,29 +54,29 @@ namespace FramePFX.CommandSystem.Usages {
 
         public void Connect(DependencyObject control) {
             this.Control = control ?? throw new ArgumentNullException(nameof(control));
-            DataManager.AddMergedContextInvalidatedHandler(control, this.OnInheritedContextChanged);
+            DataManager.AddInheritedContextInvalidatedHandler(control, this.OnInheritedContextChanged);
             this.OnConnected();
         }
 
         public void Disconnect() {
-            DataManager.RemoveMergedContextInvalidatedHandler(this.Control, this.OnInheritedContextChanged);
+            DataManager.RemoveInheritedContextInvalidatedHandler(this.Control, this.OnInheritedContextChanged);
             this.OnDisconnected();
             this.Control = null;
         }
 
         private void OnInheritedContextChanged(object sender, RoutedEventArgs e) {
-            this.UpdateForContext(this.GetContextData());
+            this.OnContextChanged(this.GetContextData());
         }
 
         protected virtual void OnConnected() {
-            this.UpdateForContext(this.GetContextData());
+            this.OnContextChanged(this.GetContextData());
         }
 
         protected virtual void OnDisconnected() {
-            this.UpdateForContext(null);
+            this.OnContextChanged(null);
         }
 
-        protected virtual void UpdateForContext(IContextData context) {
+        protected virtual void OnContextChanged(IContextData context) {
             this.UpdateCanExecute(context);
         }
 

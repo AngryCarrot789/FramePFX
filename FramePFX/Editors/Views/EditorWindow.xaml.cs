@@ -283,17 +283,6 @@ namespace FramePFX.Editors.Views {
             this.VPViewBox.FitContentToCenter();
         }
 
-        private void TogglePlayPauseClick(object sender, RoutedEventArgs e) {
-            if (this.Editor is VideoEditor editor) {
-                if (editor.Playback.PlayState == PlayState.Play) {
-                    editor.Playback.Pause();
-                }
-                else if (editor.Project != null) {
-                    editor.Playback.Play(editor.Playback.Timeline.PlayHeadPosition);
-                }
-            }
-        }
-
         private void PlayClick(object sender, RoutedEventArgs e) {
             if (this.Editor is VideoEditor editor && editor.Project != null) {
                 editor.Playback.Play(editor.Playback.Timeline.PlayHeadPosition);

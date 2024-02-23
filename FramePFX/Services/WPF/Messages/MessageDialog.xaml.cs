@@ -31,6 +31,22 @@ namespace FramePFX.Services.WPF.Messages {
         public static readonly DependencyProperty HeaderProperty = DependencyProperty.Register("Header", typeof(string), typeof(MessageDialog), new PropertyMetadata(null, OnHeaderChanged));
         public static readonly DependencyProperty MessageProperty = DependencyProperty.Register("Message", typeof(string), typeof(MessageDialog), new PropertyMetadata(null, OnMessageChanged));
         public static readonly DependencyProperty ButtonsProperty = DependencyProperty.Register("Buttons", typeof(MessageBoxButton), typeof(MessageDialog), new PropertyMetadata(MessageBoxButton.OK, OnButtonsChanged));
+        public static readonly DependencyProperty DefaultButtonProperty = DependencyProperty.Register("DefaultButton", typeof(MessageBoxResult), typeof(MessageDialog), new PropertyMetadata(MessageBoxResult.OK, (d, e) => ((MessageDialog) d).FocusDefaultButton(), CoerceValueCallback));
+
+        private static object CoerceValueCallback(DependencyObject d, object value) {
+            MessageBoxResult btn = (MessageBoxResult) value;
+            switch (((MessageDialog) d).Buttons) {
+                case MessageBoxButton.OK:
+                    return btn == MessageBoxResult.OK ? value : MessageBoxResult.OK;
+                case MessageBoxButton.OKCancel:
+                    return btn == MessageBoxResult.OK || btn == MessageBoxResult.Cancel ? value : MessageBoxResult.OK;
+                case MessageBoxButton.YesNoCancel:
+                    return btn == MessageBoxResult.Yes || btn == MessageBoxResult.No || btn == MessageBoxResult.Cancel ? value : MessageBoxResult.Yes;
+                case MessageBoxButton.YesNo:
+                    return btn == MessageBoxResult.Yes || btn == MessageBoxResult.No ? value : MessageBoxResult.Yes;
+                default: throw new ArgumentOutOfRangeException();
+            }
+        }
 
         public string Header {
             get => (string) this.GetValue(HeaderProperty);
@@ -47,13 +63,18 @@ namespace FramePFX.Services.WPF.Messages {
             set => this.SetValue(ButtonsProperty, value);
         }
 
+        public MessageBoxResult DefaultButton {
+            get => (MessageBoxResult) this.GetValue(DefaultButtonProperty);
+            set => this.SetValue(DefaultButtonProperty, value);
+        }
+
         private MessageBoxResult clickedButton;
 
         public MessageDialog() {
             this.InitializeComponent();
             this.CalculateOwnerAndSetCentered();
             this.PART_HeaderTextBlock.Visibility = Visibility.Collapsed;
-            this.MaxWidth = 800;
+            this.MaxWidth = 900;
             this.MaxHeight = 800;
             this.SetButtonVisibilities((MessageBoxButton) ButtonsProperty.DefaultMetadata.DefaultValue);
 
@@ -81,6 +102,8 @@ namespace FramePFX.Services.WPF.Messages {
                     this.Width += diffW;
                     this.Height = Math.Min((this.Height - this.PART_ScrollViewer.ActualHeight) + this.PART_ScrollViewer.ExtentHeight + 8, this.MaxHeight);
                 }
+
+                this.FocusDefaultButton();
             };
         }
 
@@ -111,6 +134,7 @@ namespace FramePFX.Services.WPF.Messages {
 
         private static void OnButtonsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
             ((MessageDialog) d).SetButtonVisibilities((MessageBoxButton) e.NewValue);
+            d.CoerceValue(DefaultButtonProperty);
         }
 
         private void SetButtonVisibilities(MessageBoxButton buttons) {
@@ -144,6 +168,19 @@ namespace FramePFX.Services.WPF.Messages {
                     break;
                 }
                 default: throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private void FocusDefaultButton() {
+            if (!this.IsLoaded)
+                return;
+
+            switch (this.DefaultButton) {
+                case MessageBoxResult.OK: this.PART_ButtonOK.Focus(); break;
+                case MessageBoxResult.Cancel: this.PART_ButtonCancel.Focus(); break;
+                case MessageBoxResult.Yes: this.PART_ButtonYes.Focus(); break;
+                case MessageBoxResult.No: this.PART_ButtonNo.Focus(); break;
+                case MessageBoxResult.None: break;
             }
         }
 

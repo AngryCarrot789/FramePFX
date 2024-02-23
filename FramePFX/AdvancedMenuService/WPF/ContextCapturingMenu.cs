@@ -44,13 +44,7 @@ namespace FramePFX.AdvancedMenuService.WPF {
         private bool canProcessFocusChange;
 
         public ContextCapturingMenu() {
-            try {
-                MenuModeChangedEventInfo.AddMethod.Invoke(this, InternalInstanceFlags, null, new object[] {new EventHandler(this.OnMenuModeChanged)}, CultureInfo.CurrentCulture);
-            }
-            catch (Exception) {
-                Debugger.Break();
-                throw;
-            }
+            MenuModeChangedEventInfo.AddMethod.Invoke(this, InternalInstanceFlags, null, new object[] {new EventHandler(this.OnMenuModeChanged)}, CultureInfo.CurrentCulture);
         }
 
         internal static void OnKeyboardFocusChanged(object sender, KeyboardFocusChangedEventArgs e, ProcessInputEventArgs processInputArgs) {

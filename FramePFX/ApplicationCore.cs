@@ -101,46 +101,47 @@ namespace FramePFX {
 
         public void RegisterActions(CommandManager manager) {
             // timelines, tracks and clips
-            manager.Register("commands.timeline.NewVideoTrack", new NewVideoTrackCommand());
-            manager.Register("commands.timeline.MoveTrackUpCommand", new MoveTrackUpCommand());
-            manager.Register("commands.timeline.MoveTrackDownCommand", new MoveTrackDownCommand());
-            manager.Register("commands.timeline.MoveTrackToTopCommand", new MoveTrackToTopCommand());
-            manager.Register("commands.timeline.MoveTrackToBottomCommand", new MoveTrackToBottomCommand());
-            manager.Register("commands.timeline.ToggleTrackAutomationCommand", new ToggleTrackAutomationCommand());
-            manager.Register("commands.timeline.ToggleClipAutomationCommand", new ToggleClipAutomationCommand());
-            manager.Register("commands.timeline.TogglePlayCommand", new TogglePlayCommand());
-            manager.Register("commands.timeline.PlayCommand", new PlayCommand());
-            manager.Register("commands.timeline.PauseCommand", new PauseCommand());
-            manager.Register("commands.timeline.StopCommand", new StopCommand());
-            manager.Register("commands.timeline.SliceClipsCommand", new SliceClipsCommand());
-            manager.Register("commands.timeline.DuplicateClipsCommand", new DuplicateClipCommand());
-            manager.Register("commands.timeline.DeleteSelectedClips", new DeleteClipsCommand());
-            manager.Register("commands.timeline.DeleteSelectedTracks", new DeleteTracksCommand());
-            manager.Register("commands.timeline.DeleteClipOwnerTrack", new DeleteClipOwnerTrackCommand());
-            manager.Register("commands.timeline.SelectAllClipsInTimelineCommand", new SelectAllClipsInTimelineCommand());
-            manager.Register("commands.timeline.SelectAllClipsInTrackCommand", new SelectAllClipsInTrackCommand());
-            manager.Register("commands.timeline.SelectAllTracksCommand", new SelectAllTracksCommand());
-            manager.Register("commands.timeline.RenameClipCommand", new RenameClipCommand());
-            manager.Register("commands.timeline.RenameTrackCommand", new RenameTrackCommand());
-            manager.Register("commands.timeline.ToggleClipVisibilityCommand", new ToggleClipVisibilityCommand());
-            manager.Register("commands.timeline.CreateCompositionFromSelectionCommand", new CreateCompositionFromSelectionCommand());
+            manager.Register("NewVideoTrack", new NewVideoTrackCommand());
+            manager.Register("MoveTrackUpCommand", new MoveTrackUpCommand());
+            manager.Register("MoveTrackDownCommand", new MoveTrackDownCommand());
+            manager.Register("MoveTrackToTopCommand", new MoveTrackToTopCommand());
+            manager.Register("MoveTrackToBottomCommand", new MoveTrackToBottomCommand());
+            manager.Register("ToggleTrackAutomationCommand", new ToggleTrackAutomationCommand());
+            manager.Register("ToggleClipAutomationCommand", new ToggleClipAutomationCommand());
+            manager.Register("TogglePlayCommand", new TogglePlayCommand());
+            manager.Register("PlaybackPlayCommand", new PlayCommand());
+            manager.Register("PlaybackPauseCommand", new PauseCommand());
+            manager.Register("PlaybackStopCommand", new StopCommand());
+            manager.Register("SliceClipsCommand", new SliceClipsCommand());
+            manager.Register("DuplicateClipsCommand", new DuplicateClipCommand());
+            manager.Register("DeleteSelectedClips", new DeleteClipsCommand());
+            manager.Register("DeleteSelectedTracks", new DeleteSelectedTracksCommand());
+            manager.Register("DeleteSpecificTrack", new DeleteSpecificTrackCommand());
+            manager.Register("DeleteClipOwnerTrack", new DeleteClipOwnerTrackCommand());
+            manager.Register("SelectAllClipsInTimelineCommand", new SelectAllClipsInTimelineCommand());
+            manager.Register("SelectAllClipsInTrackCommand", new SelectAllClipsInTrackCommand());
+            manager.Register("SelectAllTracksCommand", new SelectAllTracksCommand());
+            manager.Register("RenameClipCommand", new RenameClipCommand());
+            manager.Register("RenameTrackCommand", new RenameTrackCommand());
+            manager.Register("ToggleClipVisibilityCommand", new ToggleClipVisibilityCommand());
+            manager.Register("CreateCompositionFromSelectionCommand", new CreateCompositionFromSelectionCommand());
 
             // resources
-            manager.Register("commands.resources.RenameResourceCommand", new RenameResourceCommand());
-            manager.Register("commands.resources.GroupResourcesCommand", new GroupResourcesCommand());
-            manager.Register("commands.resources.EnableResourcesCommand", new EnableResourcesCommand());
-            manager.Register("commands.resources.DisableResourcesCommand", new DisableResourcesCommand());
-            manager.Register("commands.resources.DeleteResourcesCommand", new DeleteResourcesCommand());
-            manager.Register("commands.resources.OpenCompositionResourceTimelineCommand", new OpenCompositionResourceTimelineCommand());
+            manager.Register("RenameResourceCommand", new RenameResourceCommand());
+            manager.Register("GroupResourcesCommand", new GroupResourcesCommand());
+            manager.Register("EnableResourcesCommand", new EnableResourcesCommand());
+            manager.Register("DisableResourcesCommand", new DisableResourcesCommand());
+            manager.Register("DeleteResourcesCommand", new DeleteResourcesCommand());
+            manager.Register("OpenCompositionResourceTimelineCommand", new OpenCompositionResourceTimelineCommand());
 
             // Editor
-            manager.Register("commands.editor.NewProjectCommand", new NewProjectCommand());
-            manager.Register("commands.editor.OpenProjectCommand", new OpenProjectCommand());
-            manager.Register("commands.editor.SaveProjectCommand", new SaveProjectCommand());
-            manager.Register("commands.editor.SaveProjectAsCommand", new SaveProjectAsCommand());
-            manager.Register("commands.editor.CloseProjectCommand", new CloseProjectCommand());
-            manager.Register("commands.editor.ExportCommand", new ExportCommand(false));
-            manager.Register("commands.editor.ExportActiveTimelineCommand", new ExportCommand(true));
+            manager.Register("NewProjectCommand", new NewProjectCommand());
+            manager.Register("OpenProjectCommand", new OpenProjectCommand());
+            manager.Register("SaveProjectCommand", new SaveProjectCommand());
+            manager.Register("SaveProjectAsCommand", new SaveProjectAsCommand());
+            manager.Register("CloseProjectCommand", new CloseProjectCommand());
+            manager.Register("ExportCommand", new ExportCommand(false));
+            manager.Register("ExportActiveTimelineCommand", new ExportCommand(true));
 
             AppLogger.Instance.PushHeader($"Registered {CommandManager.Instance.Count} commands", false);
             foreach (KeyValuePair<string, Command> pair in CommandManager.Instance.Commands) {

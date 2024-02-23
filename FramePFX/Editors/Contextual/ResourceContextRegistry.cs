@@ -143,22 +143,22 @@ namespace FramePFX.Editors.Contextual {
 
             if (selection.Length == 1) {
                 BaseResource resource = selection[0];
-                list.Add(new CommandContextEntry("commands.resources.RenameResourceCommand", "Rename"));
-                list.Add(new CommandContextEntry("commands.resources.GroupResourcesCommand", "Add to new folder", "Adds this item to a new folder"));
+                list.Add(new CommandContextEntry("RenameResourceCommand", "Rename"));
+                list.Add(new CommandContextEntry("GroupResourcesCommand", "Add to new folder", "Adds this item to a new folder"));
 
                 if (resource is ResourceItem item) {
                     list.Add(new SeparatorEntry());
                     if (item.IsOnline) {
-                        list.Add(new CommandContextEntry("commands.resources.DisableResourcesCommand", "Set Offline"));
+                        list.Add(new CommandContextEntry("DisableResourcesCommand", "Set Offline"));
                     }
                     else {
-                        list.Add(new CommandContextEntry("commands.resources.EnableResourcesCommand", "Set Online"));
+                        list.Add(new CommandContextEntry("EnableResourcesCommand", "Set Online"));
                     }
 
                     switch (resource) {
                         case ResourceComposition _:
                             list.Add(new SeparatorEntry());
-                            list.Add(new CommandContextEntry("commands.resources.OpenCompositionResourceTimelineCommand", "Open Timeline"));
+                            list.Add(new CommandContextEntry("OpenCompositionResourceTimelineCommand", "Open Timeline"));
                             break;
                         case ResourceImage _:
                             list.Add(new SeparatorEntry());
@@ -168,15 +168,15 @@ namespace FramePFX.Editors.Contextual {
                 }
 
                 list.Add(new SeparatorEntry());
-                list.Add(new CommandContextEntry("commands.resources.DeleteResourcesCommand", "Delete Resource"));
+                list.Add(new CommandContextEntry("DeleteResourcesCommand", "Delete Resource"));
             }
             else {
-                list.Add(new CommandContextEntry("commands.resources.GroupResourcesCommand", "Group items into folder", "Groups all selected items in the explorer into a folder. Grouping items in the tree is currently unsupported"));
+                list.Add(new CommandContextEntry("GroupResourcesCommand", "Group items into folder", "Groups all selected items in the explorer into a folder. Grouping items in the tree is currently unsupported"));
                 list.Add(new SeparatorEntry());
-                list.Add(new CommandContextEntry("commands.resources.EnableResourcesCommand", "Set All Online"));
-                list.Add(new CommandContextEntry("commands.resources.DisableResourcesCommand", "Set All Offline"));
+                list.Add(new CommandContextEntry("EnableResourcesCommand", "Set All Online"));
+                list.Add(new CommandContextEntry("DisableResourcesCommand", "Set All Offline"));
                 list.Add(new SeparatorEntry());
-                list.Add(new CommandContextEntry("commands.resources.DeleteResourcesCommand", "Delete Resources"));
+                list.Add(new CommandContextEntry("DeleteResourcesCommand", "Delete Resources"));
             }
         }
 

@@ -25,8 +25,8 @@ using FramePFX.CommandSystem.Usages;
 using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
-    public abstract class BasicButtonCommandUsage : CommandUsage {
-        protected BasicButtonCommandUsage(string commandId) : base(commandId) {
+    public class BasicButtonCommandUsage : CommandUsage {
+        public BasicButtonCommandUsage(string commandId) : base(commandId) {
         }
 
         protected override void OnConnected() {
@@ -41,7 +41,7 @@ namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
             ((Button) this.Control).Click -= this.OnButtonClick;
         }
 
-        private void OnButtonClick(object sender, RoutedEventArgs e) {
+        protected virtual void OnButtonClick(object sender, RoutedEventArgs e) {
             CommandManager.Instance.TryExecute(this.CommandId, () => DataManager.GetFullContextData(this.Control));
         }
 

@@ -8,12 +8,10 @@
             xmlns:cv="clr-namespace:FramePFX.Editors.Controls.Viewports"
             xmlns:resources="clr-namespace:FramePFX.Editors.Controls.Resources"
             xmlns:wpf="clr-namespace:FramePFX.Shortcuts.WPF" xmlns:controls="clr-namespace:FramePFX.PropertyEditing.Controls"
-            xmlns:wpf1="clr-namespace:FramePFX.AdvancedContextService.WPF"
             xmlns:c="clr-namespace:FramePFX.AdvancedMenuService.WPF"
             xmlns:fxsrc="clr-namespace:FramePFX.Editors.EffectSource"
             xmlns:effectProviding="clr-namespace:FramePFX.Editors.Controls.EffectProviding"
-            xmlns:u="clr-namespace:FramePFX.CommandSystem.Usages"
-            xmlns:cc="clr-namespace:FramePFX.Editors.Controls.Timelines.CommandContexts"
+            xmlns:c1="clr-namespace:FramePFX.Editors.Controls"
             mc:Ignorable="d"
             Style="{StaticResource CustomWindowStyleEx}"
             Background="{DynamicResource PanelBackground0}"
@@ -32,15 +30,15 @@
                                 Background="{Binding TitlebarBrush, RelativeSource={RelativeSource AncestorType={x:Type v:WindowEx}, Mode=FindAncestor}}"
                                 BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1">
             <MenuItem Header="File">
-                <c:AdvancedCommandMenuItem Header="New Project"        CommandId="commands.editor.NewProjectCommand"/>
-                <c:AdvancedCommandMenuItem Header="Open Project..."    CommandId="commands.editor.OpenProjectCommand"/>
-                <c:AdvancedCommandMenuItem Header="Save Project"       CommandId="commands.editor.SaveProjectCommand"/>
-                <c:AdvancedCommandMenuItem Header="Save Project As..." CommandId="commands.editor.SaveProjectAsCommand"/>
-                <c:AdvancedCommandMenuItem Header="Close Project"      CommandId="commands.editor.CloseProjectCommand"/>
+                <c:AdvancedCommandMenuItem Header="New Project"        CommandId="NewProjectCommand"/>
+                <c:AdvancedCommandMenuItem Header="Open Project..."    CommandId="OpenProjectCommand"/>
+                <c:AdvancedCommandMenuItem Header="Save Project"       CommandId="SaveProjectCommand"/>
+                <c:AdvancedCommandMenuItem Header="Save Project As..." CommandId="SaveProjectAsCommand"/>
+                <c:AdvancedCommandMenuItem Header="Close Project"      CommandId="CloseProjectCommand"/>
                 <Separator/>
-                <c:AdvancedCommandMenuItem Header="Export" CommandId="commands.editor.ExportCommand"
+                <c:AdvancedCommandMenuItem Header="Export" CommandId="ExportCommand"
                                            ToolTip="Export the current project"/>
-                <c:AdvancedCommandMenuItem Header="Export Active Timeline" CommandId="commands.editor.ExportActiveTimelineCommand"
+                <c:AdvancedCommandMenuItem Header="Export Active Timeline" CommandId="ExportActiveTimelineCommand"
                                            ToolTip="Exports the currently active timeline only (not the project timeline)"/>
             </MenuItem>
             <MenuItem Header="Theme">
@@ -93,45 +91,21 @@
                                 <!-- Right Panel -->
                                 <StackPanel Margin="0,0,5,0" DockPanel.Dock="Right" Orientation="Horizontal">
                                     <CheckBox Focusable="False"
-                                              Content="Use NN" Padding="1,0,0,0"
+                                              Content="NN" Margin="0,0,5,0"
                                               IsChecked="{Binding UseNearestNeighbourRendering, ElementName=PART_ViewPort, Mode=TwoWay}"
                                               ToolTip="Toggle between Nearest-Neighbour and Linear scaling for the VIEW PORT ONLY. Nearest-neighbour does not use smoothing between pixels, and is closer to what you will see in the final render. This is only really apparent when zoomed in or with low resolution frames"/>
                                     <CheckBox Focusable="False"
-                                              Content="Sel" Padding="1,0,0,0"
+                                              Content="Sel"
                                               IsChecked="{Binding DrawSelectedElements, ElementName=PART_ViewPort, Mode=TwoWay}"
                                               ToolTip="Toggles whether or not selected elements are outlined"/>
                                 </StackPanel>
 
                                 <!-- Center Panel -->
                                 <StackPanel Margin="0,4" Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <Button x:Name="PlayBackButton_PlayPause" Click="TogglePlayPauseClick" Focusable="False" Content="Play/Pause" HorizontalAlignment="Left" Padding="5,0"/>
-
-                                    <Button u:CommandUsageManager.UsageClassType="{x:Type cc:PlayCommandUsage}" Focusable="False" Width="24" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="5,0,0,0">
-                                        <Polygon Width="16" Height="16" Points="0,16 0,0 16,8" Fill="{DynamicResource ABrush.Glyph.Static}"/>
-                                    </Button>
-                                    <Button u:CommandUsageManager.UsageClassType="{x:Type cc:PauseCommandUsage}" Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0">
-                                        <Grid Width="14" Height="16">
-                                            <Rectangle Width="4" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}"/>
-                                            <Rectangle Width="4" HorizontalAlignment="Right" Fill="{DynamicResource ABrush.Glyph.Static}"/>
-                                        </Grid>                                    </Button>
-                                    <Button u:CommandUsageManager.UsageClassType="{x:Type cc:StopCommandUsage}" Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0">
-                                        <Rectangle Width="14" Height="14" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}"/>
-                                    </Button>
-
-                                    <!--
-                                    <Button x:Name="PlayBackButton_Play" Click="PlayClick" Focusable="False" Width="24" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="5,0,0,0">
-                                        <Polygon Width="16" Height="16" Points="0,16 0,0 16,8" Fill="{DynamicResource ABrush.Glyph.Static}"/>
-                                    </Button>
-                                    <Button x:Name="PlayBackButton_Pause" Click="PauseClick" Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0">
-                                        <Grid Width="14" Height="16">
-                                            <Rectangle Width="4" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}"/>
-                                            <Rectangle Width="4" HorizontalAlignment="Right" Fill="{DynamicResource ABrush.Glyph.Static}"/>
-                                        </Grid>
-                                    </Button>
-                                    <Button x:Name="PlayBackButton_Stop" Click="StopClick" Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0">
-                                        <Rectangle Width="14" Height="14" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}"/>
-                                    </Button>
-                                    -->
+                                    <c1:TogglePlayStateButton Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}"/>
+                                    <c1:PlayStateButton Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Play" CommandId="PlaybackPlayCommand"/>
+                                    <c1:PlayStateButton Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Pause" CommandId="PlaybackPauseCommand"/>
+                                    <c1:PlayStateButton Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Stop" CommandId="PlaybackStopCommand"/>
                                 </StackPanel>
                             </DockPanel>
                         </Border>

@@ -149,12 +149,12 @@ namespace FramePFX.Editors {
             this.PlayState = PlayState.Play;
             this.PlaybackStateChanged?.Invoke(this, this.PlayState, targetFrame);
             this.lastRenderTime = DateTime.Now;
-            this.waveOut.Play();
+            // this.waveOut.Play();
             this.thread_IsPlaying = true;
         }
 
         private void OnAboutToStopPlaying() {
-            this.waveOut.Stop();
+            // this.waveOut.Stop();
             this.thread_IsPlaying = false;
         }
 

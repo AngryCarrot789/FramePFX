@@ -26,7 +26,7 @@ using FramePFX.Interactivity.Contexts;
 namespace FramePFX.Editors.Commands {
     public class DeleteClipsCommand : Command {
         public override ExecutabilityState CanExecute(CommandEventArgs e) {
-            return e.ContextData.ContainsKey(DataKeys.ClipKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+            return e.ContextData.ContainsKey(DataKeys.ClipKey) || e.ContextData.ContainsKey(DataKeys.TimelineKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
         public override void Execute(CommandEventArgs e) {

@@ -19,7 +19,7 @@
 
 namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
     public class NewVideoTrackCommandUsage : BasicButtonCommandUsage {
-        public NewVideoTrackCommandUsage() : base("commands.timeline.NewVideoTrack") {
+        public NewVideoTrackCommandUsage() : base("NewVideoTrack") {
         }
     }
 }

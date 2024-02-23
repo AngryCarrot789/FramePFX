@@ -95,7 +95,6 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
 
         public override void OnApplyTemplate() {
             base.OnApplyTemplate();
-            this.GetTemplateChild("PART_DeleteTrackButton", out Button delTrackButton);
             this.GetTemplateChild("PART_ExpandTrackButton", out ToggleButton expandButton);
             this.GetTemplateChild("PART_InsertKeyFrameButton", out Button insertKeyFrameButton);
             this.GetTemplateChild("PART_OverrideButton", out Button toggleOverrideButton);
@@ -103,11 +102,6 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             this.GetTemplateChild("PART_AutomationPanel", out FrameworkElement automationPanel);
 
             this.AutomationPanel = automationPanel;
-
-            delTrackButton.Click += (sender, args) => {
-                Track track = this.Owner.Track;
-                track.Timeline.RemoveTrack(track);
-            };
 
             this.ToggleExpandTrackButton = expandButton;
             expandButton.IsThreeState = false;

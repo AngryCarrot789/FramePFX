@@ -25,7 +25,11 @@ using FramePFX.Interactivity.Contexts;
 using FramePFX.PropertyEditing;
 
 namespace FramePFX.Editors.Commands {
-    public class DeleteTracksCommand : Command {
+    public class DeleteSelectedTracksCommand : Command {
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            return e.ContextData.ContainsKey(DataKeys.TrackKey) || e.ContextData.ContainsKey(DataKeys.TimelineKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+        }
+
         public override void Execute(CommandEventArgs e) {
             int focusedIndex = -1;
             HashSet<Track> tracks = new HashSet<Track>();

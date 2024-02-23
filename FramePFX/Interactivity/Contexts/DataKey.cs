@@ -91,7 +91,7 @@ namespace FramePFX.Interactivity.Contexts {
 
         public bool TryGetContext(IContextData context, out T value) {
             if (context.TryGetContext(this.Id, out object obj)) {
-                value = (T) obj;
+                value = obj is T t ? t : throw new Exception($"Context contained an invalid value for this key: type mismatch ({typeof(T)} != {obj?.GetType()})");
                 return true;
             }
             else {

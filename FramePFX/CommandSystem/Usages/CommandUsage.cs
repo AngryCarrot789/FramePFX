@@ -19,7 +19,9 @@
 
 using System;
 using System.Windows;
+using System.Windows.Threading;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Utils;
 
 namespace FramePFX.CommandSystem.Usages {
     /// <summary>
@@ -36,12 +38,15 @@ namespace FramePFX.CommandSystem.Usages {
 
         public DependencyObject Control { get; private set; }
 
+        private readonly DispatcherMultiFireActionGuard delayedContextChangeUpdater;
+
         protected CommandUsage(string commandId) {
             if (commandId == null)
                 throw new Exception(nameof(commandId) + " cannot return null");
             if (string.IsNullOrWhiteSpace(commandId))
                 throw new Exception(nameof(commandId) + " cannot return an empty string or consist of only whitespaces");
             this.CommandId = commandId;
+            this.delayedContextChangeUpdater = new DispatcherMultiFireActionGuard(this.UpdateCanExecute, DispatcherPriority.Loaded, "UpdateCanExecute");
         }
 
         /// <summary>
@@ -77,7 +82,7 @@ namespace FramePFX.CommandSystem.Usages {
         }
 
         protected virtual void OnContextChanged(IContextData context) {
-            this.UpdateCanExecute(context);
+            this.delayedContextChangeUpdater.InvokeAsync();
         }
 
         protected void UpdateCanExecute() {
@@ -85,10 +90,10 @@ namespace FramePFX.CommandSystem.Usages {
         }
 
         protected void UpdateCanExecute(IContextData context) {
-            this.OnCanExecuteStateAvailable(context != null ? CommandManager.Instance.CanExecute(this.CommandId, context) : ExecutabilityState.Invalid);
+            this.OnUpdateForCanExecuteState(context != null ? CommandManager.Instance.CanExecute(this.CommandId, context) : ExecutabilityState.Invalid);
         }
 
-        protected virtual void OnCanExecuteStateAvailable(ExecutabilityState state) {
+        protected virtual void OnUpdateForCanExecuteState(ExecutabilityState state) {
 
         }
     }

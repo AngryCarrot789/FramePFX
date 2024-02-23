@@ -19,8 +19,10 @@
 
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Utils;
 
 namespace FramePFX.Editors.Controls {
     public class PlayStateButton : Button {
@@ -42,11 +44,13 @@ namespace FramePFX.Editors.Controls {
         }
 
         protected VideoEditor editor;
+        private readonly DispatcherMultiFireActionGuard delayedContextChangeUpdater;
 
         public PlayStateButton() {
             DataManager.AddInheritedContextInvalidatedHandler(this, this.OnInheritedContextChanged);
             this.Click += this.OnClick;
             this.Loaded += this.OnLoaded;
+            this.delayedContextChangeUpdater = new DispatcherMultiFireActionGuard(this.UpdateForContext, DispatcherPriority.Loaded, "UpdateCanExecute");
         }
 
         static PlayStateButton() {
@@ -62,7 +66,7 @@ namespace FramePFX.Editors.Controls {
         }
 
         private void OnInheritedContextChanged(object sender, RoutedEventArgs e) {
-            this.UpdateForContext();
+            this.delayedContextChangeUpdater.InvokeAsync();
         }
 
         private void UpdateForContext() {

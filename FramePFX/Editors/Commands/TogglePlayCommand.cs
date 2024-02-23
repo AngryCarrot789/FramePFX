@@ -23,12 +23,15 @@ using FramePFX.Interactivity.Contexts;
 namespace FramePFX.Editors.Commands {
     public class TogglePlayCommand : Command {
         public override ExecutabilityState CanExecute(CommandEventArgs e) {
-            return e.ContextData.ContainsKey(DataKeys.VideoEditorKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+            if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out var editor))
+                return ExecutabilityState.Invalid;
+            return editor.Playback.Timeline != null ? ExecutabilityState.Executable : ExecutabilityState.ValidButCannotExecute;
         }
 
         public override void Execute(CommandEventArgs e) {
-            if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor))
+            if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor) || editor.Playback.Timeline == null) {
                 return;
+            }
 
             if (editor.Playback.PlayState == PlayState.Play) {
                 editor.Playback.Pause();

@@ -31,7 +31,6 @@ using System.Windows.Threading;
 using FFmpeg.AutoGen;
 using FramePFX.CommandSystem;
 using FramePFX.Logger;
-using FramePFX.Shortcuts.WPF.Converters;
 using FramePFX.Utils;
 using FramePFX.Views;
 using FramePFX.Natives;
@@ -99,10 +98,6 @@ namespace FramePFX {
         public async Task InitWPFApp() {
             await this.splash.SetAction("Loading services...", null);
             ShortcutManager.Instance = new WPFShortcutManager();
-            ShortcutManager.Instance.ShortcutModified += (sender, value) => {
-                GlobalUpdateShortcutGestureConverter.BroadcastChange();
-            };
-
             RuntimeHelpers.RunClassConstructor(typeof(UIInputManager).TypeHandle);
 
             // This is where services are registered

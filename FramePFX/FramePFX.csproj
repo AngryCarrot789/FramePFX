@@ -435,7 +435,6 @@
     <Compile Include="Shortcuts\Usage\MouseShortcutUsage.cs" />
     <Compile Include="Shortcuts\WPF\ActivationHandlerReference.cs" />
     <Compile Include="Shortcuts\WPF\Converters\CommandIdToGestureConverter.cs" />
-    <Compile Include="Shortcuts\WPF\Converters\GlobalUpdateShortcutGestureConverter.cs" />
     <Compile Include="Shortcuts\WPF\Converters\KeyStrokeStringConverter.cs" />
     <Compile Include="Shortcuts\WPF\Converters\MouseStrokeStringConverter.cs" />
     <Compile Include="Shortcuts\WPF\Converters\ShortcutIdToGestureConverter.cs" />
@@ -516,7 +515,7 @@
     <Compile Include="Utils\Periodic.cs" />
     <Compile Include="Utils\PrecisionTimer.cs" />
     <Compile Include="Utils\RandomUtils.cs" />
-    <Compile Include="Utils\RapidDispatchCallback.cs" />
+    <Compile Include="Utils\DispatcherMultiFireActionGuard.cs" />
     <Compile Include="Utils\RateLimitedExecutor.cs" />
     <Compile Include="Utils\Rect2d.cs" />
     <Compile Include="Utils\Rect2i.cs" />

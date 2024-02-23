@@ -45,7 +45,7 @@ namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
             CommandManager.Instance.TryExecute(this.CommandId, () => DataManager.GetFullContextData(this.Control));
         }
 
-        protected override void OnCanExecuteStateAvailable(ExecutabilityState state) {
+        protected override void OnUpdateForCanExecuteState(ExecutabilityState state) {
             ((Button) this.Control).IsEnabled = state == ExecutabilityState.Executable;
         }
     }

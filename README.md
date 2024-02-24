@@ -116,6 +116,8 @@ Compiling the editor yourself requires some manual labour at the moment. It uses
   https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip 
 - PortAudio for audio playback. This can be downloaded and compiled at https://files.portaudio.com/download.html. 
 
+### FramePFX assumes everything is 64 bit: x86/32-bit/AnyCPU most likely won't work!
+
 Create a folder called `libraries` in the solution folder and then two sub-folders called `ffmpeg` and `portaudio`. 
 Copy the contents of both of the archive files you download into the respective folders. You should be able to navigate 
 to `\FramePFX\libraries\ffmpeg\lib`, and `\FramePFX\libraries\portaudio\` will contain `CMakeList.txt`
@@ -130,21 +132,19 @@ The lib folder is required for the NativeEngine project.
 Then back in that build/Debug (or Release) folder, copy `portaudio_x64.dll` and `portaudio_x64.exp` into the video editor's 
 respective Debug or Release folder (inside the FramePFX bin folder).
 
-Now, to make FFmpeg work, as long as the ffmpeg folder is in the libraries folder, it should compile perfectly fine (both the C++ and C# projects will
-target that libraries folder when it can, however, PortAudio is the only one that necessarily requires the DLLs be placed in the editor's bin folder).
+Now, to make FFmpeg work, if debugging only from VS/Rider or whatever IDE you use, it works fine as long as the ffmpeg folder is in the libraries folder.
+If you associated the `fpfx` file extension with FramePFX in the build folders, then you most likely will need to place all of the DLL files in ffmpeg's `bin`
+folder (noty the .exe files) in the same folder as `FramePFX.exe`. PortAudio's DLL must always be placed in the same folder as the app exe 
 
-If not, then just copy the FFmpeg's DLLs from the bin folder into the Debug and/or Release folder for FramePFX
-
-And then hopefully if I didn't miss anything out, you should be able to compile the NativeEngine project and then the FramePFX project, and the editor
-should run.
-
-*FramePFX assumes everything is 64 bit: x86/32-bit/AnyCPU most likely won't work*
+And then hopefully if I didn't miss anything out, you should be able to compile the NativeEngine project and then the FramePFX project, and the editor should run.
 
 The project uses .NET Framework 4.8, so you will need that installed too to compile the FramePFX project
 
 ### Possible build problems
-Sometimes, the SkiaSharp nuget library doesn't copy the skia library files to the bin folder when you clone this repo and built, 
-so you need to do that manually: It seems like you just copy `\packages\SkiaSharp.2.88.7\runtimes\win-x64\native\libSkiaSharp.dll` to the bin folder
+Sometimes, the SkiaSharp nuget library doesn't copy the skia library files to the bin folder when you clone this repo and built. There are 2 fixes I found:
+- Copy `\packages\SkiaSharp.2.88.7\runtimes\win-x64\native\libSkiaSharp.dll` into the editor's bin folder.
+- Or, delete the `packages` folder in the solution dir, then right click the solution in visual studio and click "Clean Solution", then rebuild all.
+If none of these work, try uninstalling SkiaSharp in the nuget manager and then reinstalling. If that still does not work, then I really don't know what's going on... 
 
 # Licence
 All source files in FramePFX are under the GNU General Public License version 3.0 or later (GPL v3.0+).

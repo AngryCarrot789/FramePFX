@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -69,8 +68,7 @@ namespace FramePFX.Editors.Rendering {
         /// </summary>
         public SKRect LastRenderRect;
 
-        public IntPtr channelL;
-        public IntPtr channelR;
+        public AudioRingBuffer audioRingBuffer;
 
         public double AverageVideoRenderTimeMillis => this.averageVideoRenderTimeMillis;
         public double AverageAudioRenderTimeMillis => this.averageAudioRenderTimeMillis;
@@ -94,16 +92,14 @@ namespace FramePFX.Editors.Rendering {
             if (oldProject != null) {
                 oldProject.Settings.ResolutionChanged -= manager.SettingsOnResolutionChanged;
                 manager.DisposeCanvas();
-                Marshal.FreeHGlobal(manager.channelL);
-                Marshal.FreeHGlobal(manager.channelR);
+                manager.audioRingBuffer?.Dispose();
             }
 
             if (newProject != null) {
                 newProject.Settings.ResolutionChanged += manager.SettingsOnResolutionChanged;
                 manager.SettingsOnResolutionChanged(newProject.Settings);
-                int count = newProject.Settings.BufferSize * sizeof(float);
-                manager.channelL = Marshal.AllocHGlobal(count);
-                manager.channelR = Marshal.AllocHGlobal(count);
+                manager.audioRingBuffer?.Dispose();
+                manager.audioRingBuffer = new AudioRingBuffer(2048);
             }
         }
 
@@ -253,9 +249,7 @@ namespace FramePFX.Editors.Rendering {
                 for (int i = 0; i < tasks.Length; i++) {
                     if (!tasks[i].IsCompleted)
                         await tasks[i];
-                    unsafe {
-                        audioTrackList[i].CopySamples((float*) this.channelL, (float*) this.channelR, samples);
-                    }
+                    audioTrackList[i].WriteSamples(this.audioRingBuffer, samples);
                 }
 
                 this.averageAudioRenderTimeMillis = (Time.GetSystemTicks() - beginRender) / Time.TICK_PER_MILLIS_D;

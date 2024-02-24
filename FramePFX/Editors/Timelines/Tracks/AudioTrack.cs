@@ -24,8 +24,7 @@ using FramePFX.Editors.Timelines.Clips;
 
 namespace FramePFX.Editors.Timelines.Tracks {
     public class AudioTrack : Track {
-        private IntPtr channelLeft; // float*
-        private IntPtr channelRight; // float*
+        private unsafe float* renderedSamples; // float*
 
         private AudioClip theClipToRender;
 
@@ -40,16 +39,14 @@ namespace FramePFX.Editors.Timelines.Tracks {
             return false;
         }
 
-        protected override void OnProjectChanged(Project oldProject, Project newProject) {
+        protected override unsafe void OnProjectChanged(Project oldProject, Project newProject) {
             base.OnProjectChanged(oldProject, newProject);
             if (newProject != null) {
-                int bytes = newProject.Settings.BufferSize * sizeof(float);
-                this.channelLeft = Marshal.AllocHGlobal(bytes);
-                this.channelRight = Marshal.AllocHGlobal(bytes);
+                int bytes = newProject.Settings.BufferSize * 2 * sizeof(float);
+                this.renderedSamples = (float*) Marshal.AllocHGlobal(bytes);
             }
             else {
-                Marshal.FreeHGlobal(this.channelLeft);
-                Marshal.FreeHGlobal(this.channelRight);
+                Marshal.FreeHGlobal((IntPtr) this.renderedSamples);
             }
         }
 
@@ -69,17 +66,12 @@ namespace FramePFX.Editors.Timelines.Tracks {
         /// <param name="samples"></param>
         /// <param name="quality"></param>
         public unsafe void RenderAudioFrame(long samples, EnumRenderQuality quality) {
-            this.theClipToRender.ProvideSamples((float*) this.channelLeft, (float*) this.channelRight, samples);
+            this.theClipToRender.ProvideSamples(this.renderedSamples, samples);
         }
 
-        public unsafe void CopySamples(float* pDstLeft, float* pDstRight, long samples) {
-            float* srcL = (float*) this.channelLeft;
-            float* srcR = (float*) this.channelRight;
-
-            for (int i = 0; i < samples; i++) {
-                *pDstLeft++ = *srcL++;
-                *pDstRight++ = *srcR++;
-            }
+        public unsafe void WriteSamples(AudioRingBuffer dstBuffer, long samples) {
+            float* srcSamples = this.renderedSamples;
+            dstBuffer.WriteToRingBuffer((byte*) srcSamples, (int) (samples * sizeof(float)));
         }
     }
 }

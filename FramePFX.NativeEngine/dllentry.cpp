@@ -20,7 +20,6 @@ BOOL __stdcall DllMain(HINSTANCE dllHandle, ULONG reason, CONTEXT * ctx) {
     case DLL_PROCESS_DETACH: {
         break;
     }
-
     }
 
     return(result);

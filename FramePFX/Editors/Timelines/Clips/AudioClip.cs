@@ -36,7 +36,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// </summary>
         /// <param name="outputs">An array of output channels</param>
         /// <param name="sampleFrames">The number of samples to generate</param>
-        public unsafe void ProvideSamples(float* outL, float* outR, long sampleFrames) {
+        public unsafe void ProvideSamples(float* outSamples, long sampleFrames) {
             int sampleRate = this.Project.Settings.SampleRate;
             const float amplitude = 0.5F;
             const float freq = 440F;
@@ -46,8 +46,8 @@ namespace FramePFX.Editors.Timelines.Clips {
             for (int i = 0; i < sampleFrames; ++i) {
                 float sample = (float) (Math.Sin(this.phase) * amplitude);
 
-                *outL++ = sample;
-                *outR++ = sample;
+                *outSamples++ = sample;
+                *outSamples++ = sample;
 
                 this.phase += deltaPhase;
                 if (this.phase >= PI2)

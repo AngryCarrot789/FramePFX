@@ -53,16 +53,6 @@ namespace FramePFX {
                 Directory.SetCurrentDirectory(dir);
             }
 
-            await this.splash.SetAction("Loading PFXCE native library...", null);
-            try {
-                PFXNative.InitialiseLibrary();
-            }
-            catch (Exception e) {
-                MessageBox.Show("Error loading native engine library. Be sure to built the C++ project\n" + e.GetToString(), "Native Library Failure");
-                this.Dispatcher.Invoke(() => this.Shutdown(0), DispatcherPriority.Background);
-                return;
-            }
-
             try {
                 AppLogger.Instance.PushHeader("FramePFX initialisation");
                 await this.InitWPFApp();
@@ -104,6 +94,20 @@ namespace FramePFX {
             ApplicationCore.InternalSetupNewInstance(this.splash);
             // Most if not all services are available below here
 
+            await this.splash.SetAction("Loading PFXCE native library...", null);
+            try {
+                PFXNative.InitialiseLibrary();
+            }
+            catch (Exception e) {
+                IoC.MessageService.ShowMessage(
+                    "Native Library Failure", 
+                    "Error loading native engine library. Be sure to built the C++ project. If it built correctly, then one of its" +
+                    "library DLL dependencies may be missing. Make sure the FFmpeg and PortAudio DLLs are available (e.g. in the bin folder)." +
+                    "\n\nError:\n" + e.GetToString());
+                this.Dispatcher.InvokeShutdown();
+                return;
+            }
+
             await AppLogger.Instance.FlushEntries();
             await this.splash.SetAction("Loading shortcuts and commands...", null);
 
@@ -131,13 +135,13 @@ namespace FramePFX {
 
             await this.splash.SetAction("Loading FFmpeg...", null);
 
-            string ffmpegFolderPath = Path.Combine(Path.GetFullPath("."), "ffmpeg\\bin");
+            string ffmpegFolderPath = Path.Combine(Path.GetFullPath("."), "\\libraries\\ffmpeg\\bin");
             if (!Directory.Exists(ffmpegFolderPath)) {
-                ffmpegFolderPath = Path.GetFullPath("..\\..\\..\\..\\ffmpeg\\bin\\");
+                ffmpegFolderPath = Path.GetFullPath("..\\..\\..\\..\\libraries\\ffmpeg\\bin\\");
             }
 
             if (!Directory.Exists(ffmpegFolderPath)) {
-                IoC.MessageService.ShowMessage("FFmpeg not found", "Could not find the FFmpeg folder. Make sure 'ffmpeg' (containing bin, include, lib, etc.) exists in either the solution directory or the same folder as the .exe");
+                IoC.MessageService.ShowMessage("FFmpeg not found", "Could not find the FFmpeg folder. Make sure 'ffmpeg' (containing bin, include, lib, etc.) exists in either the solution directory or the same folder as the .exe\n\nThe editor may crash now...");
             }
             else {
                 ffmpeg.RootPath = ffmpegFolderPath;

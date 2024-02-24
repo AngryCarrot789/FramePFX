@@ -17,8 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using FramePFX.Editors.ResourceManaging.Events;
-
 namespace FramePFX.Editors.Timelines {
     public delegate void DisplayNameChangedEventHandler(IDisplayName sender, string oldName, string newName);
 

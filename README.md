@@ -94,7 +94,7 @@ local context data is changed. The `ContextUsage` class depends on this feature 
 
 # TODO
 ### Audio
-I don't know how to implement audio playback yet, despite my best efforts to try and understand audio playback and how data is requested/delivered at the right times
+While audio play back exists, it doesn't work properly at all and is extremely glitchy. Trying to figure out how to improve it
 ### Automation Engine
 - Add support for smooth interpolation (e.g. a curve between 2 key frames). I tried doing this, but had a hard time figuring out the math to do the interpolation, and also doing the hit testing for the UI
 ### Clips
@@ -106,27 +106,45 @@ I don't know how to implement audio playback yet, despite my best efforts to try
   I've added many optimisations to improve performance (like render area feedback from clips so that the renderer only copies a known "effective" area of pixels instead of the whole frame), but it's still quite slow, especially when using composition clips
 ### History system
 - There's no undo functionality yet. I might try and implement this once I implement a few of the other features like audio and maybe hardware accelerated final-frame assembly in the renderer
+### Bugs to fix
+- Importing certain video files can cause the render to fail (some sort of "found invalid data while decoding" error)
 
-# Building
+# Downloading and Compiling/Building
 
-FFmpeg is used for exporting videos and also other things (such as AVRational). The app won't start without the libraries.
-You just need FFmpeg's shared x64 libraries, they can be found here: 
-https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip
+Compiling the editor yourself requires some manual labour at the moment. It uses 2 external libraries:
+- FFmpeg (for video decoding and exporting/encoding). The pre-compiled binaries and libraries can be downloaded at: 
+  https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip 
+- PortAudio for audio playback. This can be downloaded and compiled at https://files.portaudio.com/download.html. 
 
-Extract the zip and rename it to `ffmpeg` (it should contain bin, include, etc.). Place this folder in the solution directory (recommended) or in the 
-bin folder aka the same folder as the app .exe (might work, haven't tried)
+Create a folder called `libraries` in the solution folder and then two sub-folders called `ffmpeg` and `portaudio`. 
+Copy the contents of both of the archive files you download into the respective folders. You should be able to navigate 
+to `\FramePFX\libraries\ffmpeg\lib`, and `\FramePFX\libraries\portaudio\` will contain `CMakeList.txt`
 
-First build the C++ project (64 bit), which is the FramePFX native engine which will soon be used for audio processing and drawing using OpenGL or DirectX. 
-Then, build the C# project (64 bit always, debug or release, **Not 32/x86/AnyCPU**), and then you should be able to run the editor, and debug it if you want. 
+I'd recommend following PortAudio's official build instructions, but they basically consist of: open CMake GUI, set sources folder and build folder, 
+click configure then generate and then open the VS solution and click build solution
 
-The project uses .NET Framework 4.8, so you will need that installed
+Now that you build PortAudio, your build folder should contain Debug or Release depending on what you used. Now, go back into the `portaudio` folder, 
+create a folder called `lib` and copy, from build/Debug (or Release) folder, `portaudio_x64.lib` and `portaudio_x64.pdb`. 
+The lib folder is required for the NativeEngine project.
+
+Then back in that build/Debug (or Release) folder, copy `portaudio_x64.dll` and `portaudio_x64.exp` into the video editor's 
+respective Debug or Release folder (inside the FramePFX bin folder).
+
+Now, to make FFmpeg work, as long as the ffmpeg folder is in the libraries folder, it should compile perfectly fine (both the C++ and C# projects will
+target that libraries folder when it can, however, PortAudio is the only one that necessarily requires the DLLs be placed in the editor's bin folder).
+
+If not, then just copy the FFmpeg's DLLs from the bin folder into the Debug and/or Release folder for FramePFX
+
+And then hopefully if I didn't miss anything out, you should be able to compile the NativeEngine project and then the FramePFX project, and the editor
+should run.
+
+*FramePFX assumes everything is 64 bit: x86/32-bit/AnyCPU most likely won't work*
+
+The project uses .NET Framework 4.8, so you will need that installed too to compile the FramePFX project
 
 ### Possible build problems
 Sometimes, the SkiaSharp nuget library doesn't copy the skia library files to the bin folder when you clone this repo and built, 
 so you need to do that manually: It seems like you just copy `\packages\SkiaSharp.2.88.7\runtimes\win-x64\native\libSkiaSharp.dll` to the bin folder
-
-## BUGS
-- Importing certain video files can cause the render to fail (some sort of "found invalid data while decoding" error)
 
 # Licence
 All source files in FramePFX are under the GNU General Public License version 3.0 or later (GPL v3.0+).

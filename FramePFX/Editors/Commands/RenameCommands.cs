@@ -24,7 +24,6 @@ using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.History;
 using FramePFX.Interactivity.Contexts;
-using FramePFX.Utils;
 
 namespace FramePFX.Editors.Commands {
     public class RenameResourceCommand : Command {

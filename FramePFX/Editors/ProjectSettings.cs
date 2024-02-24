@@ -53,7 +53,7 @@ namespace FramePFX.Editors {
         }
 
         public int SampleRate = 44100;
-        public int BufferSize = 8192;
+        public int BufferSize = 2048;
 
         public event ProjectSettingsEventHandler ResolutionChanged;
         public event ProjectSettingsEventHandler FrameRateChanged;

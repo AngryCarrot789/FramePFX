@@ -109,5 +109,9 @@ namespace FramePFX.Editors {
         public static double Byte255ToDouble(byte value) {
             return Maths.Clamp(value / 255d, 0d, 1d);
         }
+
+        public static sbyte DoubleToSByte127(double value) {
+            return (sbyte) Maths.Clamp((int) Math.Round(value * 255d), sbyte.MinValue, sbyte.MaxValue);
+        }
     }
 }

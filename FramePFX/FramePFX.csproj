@@ -153,6 +153,7 @@
     <Compile Include="CommandSystem\Usages\CommandUsage.cs" />
     <Compile Include="CommandSystem\Usages\CommandUsageManager.cs" />
     <Compile Include="Converters\EmptyStringToVisibilityConverter.cs" />
+    <Compile Include="Editors\AudioRingBuffer.cs" />
     <Compile Include="Editors\Commands\CloseProjectCommand.cs" />
     <Compile Include="Editors\Commands\CreateCompositionFromSelectionCommand.cs" />
     <Compile Include="Editors\Commands\DeleteClipOwnerTrackCommand.cs" />
@@ -227,7 +228,6 @@
     <Compile Include="Editors\Exporting\FFMPEG\LavResult.cs" />
     <Compile Include="Editors\Exporting\IExportProgress.cs" />
     <Compile Include="Editors\MatrixUtils.cs" />
-    <Compile Include="Editors\PlaybackAudioSampleProvider.cs" />
     <Compile Include="Editors\ProjectProps\ProjectPropertiesDialog.xaml.cs">
       <DependentUpon>ProjectPropertiesDialog.xaml</DependentUpon>
     </Compile>

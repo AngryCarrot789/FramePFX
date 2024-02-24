@@ -18,14 +18,15 @@
 //
 
 using System;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines;
 using FramePFX.Logger;
+using FramePFX.Natives;
 using FramePFX.Utils;
-using NAudio.Wave;
 
 namespace FramePFX.Editors {
     /// <summary>
@@ -45,6 +46,7 @@ namespace FramePFX.Editors {
 
         // thread stuff
         private volatile bool thread_IsPlaying;
+        private bool isAudioPlaying;
         private volatile bool thread_IsTimerRunning;
         private long intervalTicks;
         private long nextTickTime;
@@ -74,12 +76,50 @@ namespace FramePFX.Editors {
         /// </summary>
         public event PlaybackStateEventHandler PlaybackStateChanged;
 
-        private WaveOut waveOut;
-        private readonly PlaybackAudioSampleProvider sampleProvider;
+        private PFXNative.NativeAudioEngineData streamData;
+
+        public unsafe delegate int ManagedAudioEngineCallback(void* output, ulong framesPerBuffer, IntPtr timeInfo, ulong statusFlags);
+
+        private readonly ManagedAudioEngineCallback engineCallbackDelgate;
+        private readonly IntPtr engineCallbackDelgatePtr;
+        private double phase;
 
         public PlaybackManager(VideoEditor editor) {
             this.Editor = editor;
-            this.sampleProvider = new PlaybackAudioSampleProvider(this);
+            unsafe {
+                this.engineCallbackDelgate = this.AudioEngineCallback;
+                this.engineCallbackDelgatePtr = Marshal.GetFunctionPointerForDelegate(this.engineCallbackDelgate);
+                this.streamData = new PFXNative.NativeAudioEngineData() {
+                    ManagedAudioEngineCallback = this.engineCallbackDelgatePtr
+                };
+            }
+        }
+
+        public unsafe int AudioEngineCallback(void* output, ulong framesPerBuffer, IntPtr timeInfo, ulong statusFlags) {
+            float* outputBytes = (float*) output;
+            AudioRingBuffer buffer = this.Timeline.RenderManager.audioRingBuffer;
+            int readCount = buffer.ReadFromRingBuffer((byte*) output, (int) (framesPerBuffer * sizeof(float)));
+            for (ulong i = (ulong) (readCount / sizeof(float)); i < framesPerBuffer; i++) {
+                *outputBytes++ = 0;
+            }
+
+            return 0;
+
+            // const int sampleRate = 44100;
+            // const float amplitude = 0.5F;
+            // const float freq = 440;
+            // const float deltaPhase = (float) (2.0 * Math.PI * freq / sampleRate);
+            // const float PI2 = (float) Math.PI * 2.0F;
+            // for (ulong i = 0; i < framesPerBuffer; ++i) {
+            //     float sample = (float) (Math.Sin(this.phase) * amplitude);
+            //     this.phase += deltaPhase;
+            //     if (this.phase >= PI2)
+            //         this.phase -= PI2;
+            //     *outputBytes++ = sample;
+            //     *outputBytes++ = sample;
+            // }
+            // // 0 means never finished
+            // return 0;
         }
 
         public bool CanSetPlayStateTo(PlayState newState) {
@@ -141,21 +181,31 @@ namespace FramePFX.Editors {
         }
 
         private void PlayInternal(long targetFrame) {
-            if (this.waveOut == null) {
-                this.waveOut = new WaveOut();
-                this.waveOut.Init(this.sampleProvider);
-            }
-
             this.PlayState = PlayState.Play;
             this.PlaybackStateChanged?.Invoke(this, this.PlayState, targetFrame);
             this.lastRenderTime = DateTime.Now;
             // this.waveOut.Play();
             this.thread_IsPlaying = true;
+
+            unsafe {
+                fixed (PFXNative.NativeAudioEngineData* engineData = &this.streamData) {
+                    this.isAudioPlaying = PFXNative.PFXAE_BeginAudioPlayback(engineData) == 0;
+                }
+            }
         }
 
         private void OnAboutToStopPlaying() {
             // this.waveOut.Stop();
             this.thread_IsPlaying = false;
+            if (this.isAudioPlaying) {
+                unsafe {
+                    fixed (PFXNative.NativeAudioEngineData* engineData = &this.streamData) {
+                        PFXNative.PFXAE_EndAudioPlayback(engineData);
+                    }
+                }
+
+                this.isAudioPlaying = false;
+            }
         }
 
         public void Pause() {
@@ -318,9 +368,6 @@ namespace FramePFX.Editors {
 
         internal static void InternalOnActiveTimelineChanged(PlaybackManager playback, Timeline oldTimeline, Timeline newTimeline) {
             playback.Stop();
-            playback.waveOut?.Dispose();
-            playback.waveOut = null;
-
             playback.Timeline = newTimeline;
         }
     }

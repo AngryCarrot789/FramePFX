@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System.Collections.Generic;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;

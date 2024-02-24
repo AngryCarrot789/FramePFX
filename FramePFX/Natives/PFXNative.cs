@@ -29,13 +29,13 @@ namespace FramePFX.Natives {
     internal class PFXNative {
         #region System Helpers
 
-        [DllImport("kernel32.dll")]
+        [DllImport("kernel32.dll", SetLastError = true)]
         private static extern IntPtr LoadLibrary(string dllToLoad);
 
-        [DllImport("kernel32.dll")]
+        [DllImport("kernel32.dll", SetLastError = true)]
         private static extern IntPtr GetProcAddress(IntPtr hModule, string procedureName);
 
-        [DllImport("kernel32.dll")]
+        [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool FreeLibrary(IntPtr hModule);
 
         #endregion
@@ -43,10 +43,21 @@ namespace FramePFX.Natives {
         // Prefix: PFXCEFUNC_
 
         private delegate int PFXCEFUNC_InitEngine();
+        private delegate int PFXCEFUNC_ShutdownEngine();
         public unsafe delegate int PFXCEFUNC_PixelateVfx(uint* pImg, int srcWidth, int srcHeight, int left, int top, int right, int bottom, int blockSize);
+        public unsafe delegate int PFXAEFUNC_BeginAudioPlayback(NativeAudioEngineData* lpEngineData);
+        public unsafe delegate int PFXAEFUNC_EndAudioPlayback(NativeAudioEngineData* lpEngineData);
+
+        public struct NativeAudioEngineData {
+            public IntPtr ManagedAudioEngineCallback;
+            public IntPtr AudioEngineStream;
+        }
 
         private static PFXCEFUNC_InitEngine InitEngine;
+        private static PFXCEFUNC_ShutdownEngine ShutdownEngine;
         public static PFXCEFUNC_PixelateVfx PFXCE_PixelateVfx;
+        public static PFXAEFUNC_BeginAudioPlayback PFXAE_BeginAudioPlayback;
+        public static PFXAEFUNC_EndAudioPlayback PFXAE_EndAudioPlayback;
 
         private static IntPtr LibraryAddress;
 
@@ -59,6 +70,8 @@ namespace FramePFX.Natives {
                 #else
                 dllPath = "..\\..\\..\\..\\x64\\Release\\" + DLL_NAME;
                 #endif
+
+                dllPath = Path.GetFullPath(dllPath);
             }
 
             if (!File.Exists(dllPath)) {
@@ -71,15 +84,20 @@ namespace FramePFX.Natives {
             }
 
             GetFunction("PFXCE_InitEngine", out InitEngine);
+            GetFunction("PFXCE_ShutdownEngine", out ShutdownEngine);
             if (InitEngine() != 1) {
                 throw new Exception("Engine initialisation failed");
             }
 
             GetFunction("PFXCE_PixelateVfx", out PFXCE_PixelateVfx);
+            GetFunction("PFXAE_BeginAudioPlayback", out PFXAE_BeginAudioPlayback);
+            GetFunction("PFXAE_EndAudioPlayback", out PFXAE_EndAudioPlayback);
         }
 
         public static void ShutdownLibrary() {
             if (LibraryAddress != IntPtr.Zero) {
+                ShutdownEngine();
+
                 try {
                     FreeLibrary(LibraryAddress);
                 }

@@ -34,6 +34,8 @@ namespace FramePFX.Editors.Factories {
             this.RegisterType("vc_avmedia", typeof(AVMediaVideoClip));
             this.RegisterType("vc_text", typeof(TextClip));
             this.RegisterType("vc_comp", typeof(CompositionVideoClip));
+
+            this.RegisterType("ac_dummytest", typeof(AudioClip));
         }
 
         public Clip NewClip(string id) {

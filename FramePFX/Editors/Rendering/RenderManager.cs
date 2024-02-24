@@ -99,7 +99,7 @@ namespace FramePFX.Editors.Rendering {
                 newProject.Settings.ResolutionChanged += manager.SettingsOnResolutionChanged;
                 manager.SettingsOnResolutionChanged(newProject.Settings);
                 manager.audioRingBuffer?.Dispose();
-                manager.audioRingBuffer = new AudioRingBuffer(2048);
+                manager.audioRingBuffer = new AudioRingBuffer(4096);
             }
         }
 
@@ -249,7 +249,9 @@ namespace FramePFX.Editors.Rendering {
                 for (int i = 0; i < tasks.Length; i++) {
                     if (!tasks[i].IsCompleted)
                         await tasks[i];
-                    audioTrackList[i].WriteSamples(this.audioRingBuffer, samples);
+                    lock (this.audioRingBuffer) {
+                        audioTrackList[i].WriteSamples(this.audioRingBuffer, samples);
+                    }
                 }
 
                 this.averageAudioRenderTimeMillis = (Time.GetSystemTicks() - beginRender) / Time.TICK_PER_MILLIS_D;

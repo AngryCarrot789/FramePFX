@@ -38,6 +38,7 @@ namespace FramePFX.Editors.ResourceManaging.Autoloading.Controls {
         }
 
         private readonly List<InvalidResourceEntryControl> controls;
+        private bool isRemovingAllEntries;
 
         public ResourceLoaderDialog() {
             this.InitializeComponent();
@@ -109,7 +110,7 @@ namespace FramePFX.Editors.ResourceManaging.Autoloading.Controls {
 
         private void OnEntryRemoved(ResourceLoader loader, InvalidResourceEntry entry, int index) {
             this.RemoveItemAt(index);
-            if (loader.Entries.Count < 1) {
+            if (loader.Entries.Count < 1 && !this.isRemovingAllEntries) {
                 this.DialogResult = true;
                 this.Close();
             }
@@ -150,6 +151,7 @@ namespace FramePFX.Editors.ResourceManaging.Autoloading.Controls {
         private void OfflineAll_Clicked(object sender, RoutedEventArgs e) {
             ResourceLoader loader = this.ResourceLoader;
             if (loader != null) {
+                this.isRemovingAllEntries = true;
                 for (int i = loader.Entries.Count - 1; i >= 0; i--) {
                     loader.RemoveEntryAt(i);
                 }

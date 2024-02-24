@@ -19,6 +19,7 @@
 
 using System;
 using FramePFX.Editors.ResourceManaging.Autoloading;
+using FramePFX.Utils;
 
 namespace FramePFX.Editors.ResourceManaging.Resources {
     public class InvalidMediaPathEntry : InvalidResourceEntry {
@@ -36,9 +37,13 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             }
         }
 
+        public string ExceptionMessage { get; }
+
         public event InvalidResourceEntryEventHandler FilePathChanged;
 
         public InvalidMediaPathEntry(ResourceAVMedia resource, Exception exception) : base(resource) {
+            this.DisplayName = resource.DisplayName ?? "Invalid media";
+            this.ExceptionMessage = exception?.GetToString() ?? "<no error available>";
         }
     }
 }

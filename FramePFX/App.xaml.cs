@@ -30,10 +30,12 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using FFmpeg.AutoGen;
 using FramePFX.CommandSystem;
+using FramePFX.Editors.Commands;
 using FramePFX.Logger;
 using FramePFX.Utils;
 using FramePFX.Views;
 using FramePFX.Natives;
+using FramePFX.Services.Messages;
 
 namespace FramePFX {
     public partial class App : Application {
@@ -153,6 +155,26 @@ namespace FramePFX {
                 catch (Exception e) {
                     IoC.MessageService.ShowMessage("FFmpeg registration failed", "Failed to register all FFmpeg devices", e.GetToString());
                 }
+            }
+        }
+
+        private void App_OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e) {
+            Project project = ApplicationCore.Instance.VideoEditor?.Project;
+            if (ApplicationCore.Instance.Services.TryGetService(out IMessageDialogService service)) {
+                service.ShowMessage("Error", "An unhandled error occurred in the application. It will now shutdown");
+                if (project != null)
+                    SaveProjectCommand.SaveProjectAs(project);
+            }
+            else {
+                if (project != null)
+                    SaveProjectCommand.SaveProjectAs(project);
+            }
+
+            try {
+                this.Dispatcher.BeginInvokeShutdown(DispatcherPriority.Normal);
+            }
+            finally {
+                PFXNative.ShutdownLibrary();
             }
         }
     }

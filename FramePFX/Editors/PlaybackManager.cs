@@ -98,9 +98,13 @@ namespace FramePFX.Editors {
         public unsafe int AudioEngineCallback(void* output, ulong framesPerBuffer, IntPtr timeInfo, ulong statusFlags) {
             float* outputBytes = (float*) output;
             AudioRingBuffer buffer = this.Timeline.RenderManager.audioRingBuffer;
-            int readCount = buffer.ReadFromRingBuffer((byte*) output, (int) (framesPerBuffer * sizeof(float)));
-            for (ulong i = (ulong) (readCount / sizeof(float)); i < framesPerBuffer; i++) {
-                *outputBytes++ = 0;
+            if (buffer != null) {
+                lock (buffer) {
+                    int readCount = buffer.ReadFromRingBuffer((byte*) output, (int) (framesPerBuffer * sizeof(float)));
+                    for (ulong i = readCount < 1 ? 0 : (ulong) (readCount / sizeof(float)); i < framesPerBuffer; i++) {
+                        *outputBytes++ = 0;
+                    }
+                }
             }
 
             return 0;

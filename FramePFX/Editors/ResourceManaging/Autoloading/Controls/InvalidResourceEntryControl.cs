@@ -33,7 +33,7 @@ namespace FramePFX.Editors.ResourceManaging.Autoloading.Controls {
 
         public InvalidResourceEntry Entry { get; private set; }
 
-        public InvalidResourceEntryControl() {
+        protected InvalidResourceEntryControl() {
             this.Loaded += (s, e) => ((InvalidResourceEntryControl) s).OnLoaded();
             this.Unloaded += (s, e) => ((InvalidResourceEntryControl) s).OnUnloaded();
         }

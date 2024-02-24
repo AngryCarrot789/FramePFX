@@ -74,9 +74,7 @@ namespace FramePFX {
         public void OnEditorLoaded(VideoEditor editor, string[] args) {
             this.VideoEditor = editor;
             if (args.Length > 0 && File.Exists(args[0]) && args[0].EndsWith(Filters.DotFramePFXExtension)) {
-                if (!OpenProjectCommand.OpenProjectAt(editor, args[0])) {
-                    this.LoadDefaultProjectHelper();
-                }
+                OpenProjectCommand.OpenProjectAt(editor, args[0]);
             }
             else {
                 this.LoadDefaultProjectHelper();

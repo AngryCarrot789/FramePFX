@@ -13,4 +13,19 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <Style TargetType="{x:Type controls:InvalidMediaPathEntryControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:InvalidMediaPathEntryControl}">
+                    <StackPanel>
+                        <TextBox x:Name="PART_TextBox"/>
+                        <Button x:Name="PART_Button" Content="Load"/>
+                        <Separator Margin="1,5"/>
+                        <TextBlock x:Name="PART_TextBlockErrMsg"/>
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 </ResourceDictionary>

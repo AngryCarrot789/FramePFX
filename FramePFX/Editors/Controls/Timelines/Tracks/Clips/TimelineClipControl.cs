@@ -142,8 +142,13 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             this.VerticalAlignment = VerticalAlignment.Stretch;
             this.GotFocus += this.OnGotFocus;
             this.LostFocus += this.OnLostFocus;
+            this.Loaded += OnLoaded;
             this.renderSizeRectGeometry = new RectangleGeometry();
             AdvancedContextMenu.SetContextGenerator(this, ClipContextRegistry.Instance);
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e) {
+            this.Dispatcher.InvokeAsync(() => this.isMovingBetweenTracks = false, DispatcherPriority.Send);
         }
 
         public override void OnApplyTemplate() {
@@ -501,25 +506,23 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                 return;
             }
 
-            if (this.isMovingBetweenTracks) {
-                this.isMovingBetweenTracks = false;
+            Point mPos = e.GetPosition(this);
+
+            // This is used to prevent "drag jumping" which occurs when a screen pixel is
+            // somewhere in between a frame in a sweet spot that results in the control
+            // jumping back and forth. To test, do CTRL+MouseWheelUp once to zoom in a bit,
+            // and then drag a clip 1 frame at a time and you might see it with the code below removed.
+            // This code is pretty much the exact same as what Thumb uses
+            Point mPosAbs = this.PointToScreen(mPos);
+            // don't care about the Y pos :P
+
+            bool hasMovedX = !DoubleUtils.AreClose(mPosAbs.X, this.clickPosAbs.X);
+            bool hasMovedY = !DoubleUtils.AreClose(mPosAbs.Y, this.clickPosAbs.Y);
+            if (!hasMovedX && !hasMovedY) {
                 return;
             }
 
-            Point mPos = e.GetPosition(this);
-
-            {
-                // This is used to prevent "drag jumping" which occurs when a screen pixel is
-                // somewhere in between a frame in a sweet spot that results in the control
-                // jumping back and forth. To test, do CTRL+MouseWheelUp once to zoom in a bit,
-                // and then drag a clip 1 frame at a time and you might see it with the code below removed.
-                // This code is pretty much the exact same as what Thumb uses
-                Point mPosAbs = this.PointToScreen(mPos);
-                // don't care about the Y pos :P
-                if (DoubleUtils.AreClose(mPosAbs.X, this.clickPosAbs.X))
-                    return;
-                this.clickPosAbs = mPosAbs;
-            }
+            this.clickPosAbs = mPosAbs;
 
             if (e.LeftButton != MouseButtonState.Pressed) {
                 this.SetDragState(DragState.None);
@@ -529,12 +532,12 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             }
 
             this.SetCursorForMousePoint(mPos);
-            TrackStoragePanel ctrl;
-            if (this.Track == null || (ctrl = this.Track.OwnerPanel) == null) {
+            TrackStoragePanel trackList;
+            if (this.Track == null || (trackList = this.Track.OwnerPanel) == null) {
                 return;
             }
 
-            if (this.dragState == DragState.Initiated) {
+            if (hasMovedX && this.dragState == DragState.Initiated) {
                 double minDragX = SystemParameters.MinimumHorizontalDragDistance;
                 double minDragY = SystemParameters.MinimumVerticalDragDistance;
                 if (Math.Abs(mPos.X - this.clickPos.X) < minDragX && Math.Abs(mPos.Y - this.clickPos.Y) < minDragY) {
@@ -569,100 +572,103 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             // Vector mPosDiff = absMpos - this.screenClickPos;
             FrameSpan oldSpan = this.Model.FrameSpan;
             if (this.dragState == DragState.DragBody) {
-                double frameOffsetDouble = (mPosDifRel.X / zoom);
-                long offset = (long) Math.Round(frameOffsetDouble);
-                if (offset != 0) {
-                    // If begin is 2 and offset is -5, this sets offset to -2
-                    // and since newBegin = begin+offset (2 + -2)
-                    // this ensures begin never drops below 0
-                    if ((oldSpan.Begin + offset) < 0) {
-                        offset = -oldSpan.Begin;
-                    }
-
+                if (hasMovedX) {
+                    double frameOffsetDouble = (mPosDifRel.X / zoom);
+                    long offset = (long) Math.Round(frameOffsetDouble);
                     if (offset != 0) {
-                        FrameSpan newSpan = new FrameSpan(oldSpan.Begin + offset, oldSpan.Duration);
-                        long newEndIndex = newSpan.EndIndex;
-                        if (newEndIndex > ctrl.Timeline.MaxDuration) {
-                            ctrl.Timeline.TryExpandForFrame(newEndIndex);
-                        }
-
-                        this.SetClipSpanForDrag(newSpan);
-                    }
-                }
-
-                if (Math.Abs(mPosDifRel.Y) >= 1.0d && ctrl.Timeline is Timeline timeline) {
-                    int trackIndex = timeline.Tracks.IndexOf(this.Model.Track);
-                    const double area = 0;
-                    if (mPos.Y < Math.Min(area, this.clickPos.Y)) {
-                        if (trackIndex < 1) {
-                            return;
-                        }
-
-                        this.isMovingBetweenTracks = true;
-                        this.Model.MoveToTrack(timeline.Tracks[trackIndex - 1]);
-                    }
-                    else if (mPos.Y > (this.ActualHeight - area)) {
-                        if (trackIndex >= (timeline.Tracks.Count - 1)) {
-                            return;
-                        }
-
-                        this.isMovingBetweenTracks = true;
-                        this.Model.MoveToTrack(timeline.Tracks[trackIndex + 1]);
-                    }
-                }
-            }
-            else if (this.dragState == DragState.DragLeftGrip || this.dragState == DragState.DragRightGrip) {
-                if (Math.Abs(mPosDifRel.X) >= 1.0d) {
-                    long offset = (long) Math.Round(mPosDifRel.X / zoom);
-                    if (offset == 0) {
-                        return;
-                    }
-
-                    if (this.dragState == DragState.DragLeftGrip) {
+                        // If begin is 2 and offset is -5, this sets offset to -2
+                        // and since newBegin = begin+offset (2 + -2)
+                        // this ensures begin never drops below 0
                         if ((oldSpan.Begin + offset) < 0) {
                             offset = -oldSpan.Begin;
                         }
 
                         if (offset != 0) {
-                            long newBegin = oldSpan.Begin + offset;
-                            // Clamps the offset to ensure we don't end up with a negative duration
-                            if (newBegin >= oldSpan.EndIndex) {
-                                // subtract 1 to ensure clip is always 1 frame long
-                                newBegin = oldSpan.EndIndex - 1;
+                            FrameSpan newSpan = new FrameSpan(oldSpan.Begin + offset, oldSpan.Duration);
+                            long newEndIndex = newSpan.EndIndex;
+                            if (newEndIndex > trackList.Timeline.MaxDuration) {
+                                trackList.Timeline.TryExpandForFrame(newEndIndex);
                             }
 
-                            FrameSpan newSpan = FrameSpan.FromIndex(newBegin, oldSpan.EndIndex);
-                            ctrl.Timeline.TryExpandForFrame(newSpan.EndIndex);
                             this.SetClipSpanForDrag(newSpan);
-                            if (this.Model.IsMediaFrameSensitive)
-                                this.Model.MediaFrameOffset += (oldSpan.Begin - newSpan.Begin);
                         }
                     }
-                    else {
+                }
+
+                if (hasMovedY && !this.isMovingBetweenTracks && Math.Abs(mPosDifRel.Y) >= 1.0d) {
+                    double totalHeight = 0.0;
+                    List<TimelineTrackControl> tracks = new List<TimelineTrackControl>(trackList.GetTracks());
+                    Point mPosTL = e.GetPosition(trackList);
+                    for (int i = 0, endIndex = tracks.Count - 1; i <= endIndex; i++) {
+                        TimelineTrackControl track = tracks[i];
+                        if (DoubleUtils.GreaterThanOrClose(mPosTL.Y, totalHeight) && DoubleUtils.LessThanOrClose(mPosTL.Y, totalHeight + track.ActualHeight)) {
+                            Track newTrack = track.Track;
+                            if (newTrack != null && !ReferenceEquals(this.Model.Track, newTrack) && newTrack.IsClipTypeAccepted(this.Model.GetType())) {
+                                this.isMovingBetweenTracks = true;
+                                this.Model.MoveToTrack(newTrack);
+                                break;
+                            }
+                        }
+
+                        // 1.0 includes the gap between tracks
+                        totalHeight += track.ActualHeight + 1.0;
+                    }
+                }
+            }
+            else if (this.dragState == DragState.DragLeftGrip || this.dragState == DragState.DragRightGrip) {
+                if (!hasMovedX || !(Math.Abs(mPosDifRel.X) >= 1.0d)) {
+                    return;
+                }
+
+                long offset = (long) Math.Round(mPosDifRel.X / zoom);
+                if (offset == 0) {
+                    return;
+                }
+
+                if (this.dragState == DragState.DragLeftGrip) {
+                    if ((oldSpan.Begin + offset) < 0) {
+                        offset = -oldSpan.Begin;
+                    }
+
+                    if (offset != 0) {
+                        long newBegin = oldSpan.Begin + offset;
                         // Clamps the offset to ensure we don't end up with a negative duration
-                        if ((oldSpan.EndIndex + offset) <= oldSpan.Begin) {
-                            // add 1 to ensure clip is always 1 frame long, just because ;)
-                            offset = -oldSpan.Duration + 1;
+                        if (newBegin >= oldSpan.EndIndex) {
+                            // subtract 1 to ensure clip is always 1 frame long
+                            newBegin = oldSpan.EndIndex - 1;
                         }
 
-                        if (offset != 0) {
-                            long newEndIndex = oldSpan.EndIndex + offset;
-                            // Clamp new frame span to 1 frame, in case user resizes too much to the right
-                            // if (newEndIndex >= oldSpan.EndIndex) {
-                            //     this.dragAccumulator -= (newEndIndex - oldSpan.EndIndex);
-                            //     newEndIndex = oldSpan.EndIndex - 1;
-                            // }
+                        FrameSpan newSpan = FrameSpan.FromIndex(newBegin, oldSpan.EndIndex);
+                        trackList.Timeline.TryExpandForFrame(newSpan.EndIndex);
+                        this.SetClipSpanForDrag(newSpan);
+                        if (this.Model.IsMediaFrameSensitive)
+                            this.Model.MediaFrameOffset += (oldSpan.Begin - newSpan.Begin);
+                    }
+                }
+                else {
+                    // Clamps the offset to ensure we don't end up with a negative duration
+                    if ((oldSpan.EndIndex + offset) <= oldSpan.Begin) {
+                        // add 1 to ensure clip is always 1 frame long, just because ;)
+                        offset = -oldSpan.Duration + 1;
+                    }
 
-                            FrameSpan newSpan = FrameSpan.FromIndex(oldSpan.Begin, newEndIndex);
-                            ctrl.Timeline.TryExpandForFrame(newEndIndex);
-                            this.SetClipSpanForDrag(newSpan);
+                    if (offset != 0) {
+                        long newEndIndex = oldSpan.EndIndex + offset;
+                        // Clamp new frame span to 1 frame, in case user resizes too much to the right
+                        // if (newEndIndex >= oldSpan.EndIndex) {
+                        //     this.dragAccumulator -= (newEndIndex - oldSpan.EndIndex);
+                        //     newEndIndex = oldSpan.EndIndex - 1;
+                        // }
 
-                            // account for there being no "grip" control aligned to the right side;
-                            // since the clip is resized, the origin point will not work correctly and
-                            // results in an exponential endIndex increase unless the below code is used.
-                            // This code is not needed for the left grip because it just naturally isn't
-                            this.clickPos.X += (newSpan.EndIndex - oldSpan.EndIndex) * zoom;
-                        }
+                        FrameSpan newSpan = FrameSpan.FromIndex(oldSpan.Begin, newEndIndex);
+                        trackList.Timeline.TryExpandForFrame(newEndIndex);
+                        this.SetClipSpanForDrag(newSpan);
+
+                        // account for there being no "grip" control aligned to the right side;
+                        // since the clip is resized, the origin point will not work correctly and
+                        // results in an exponential endIndex increase unless the below code is used.
+                        // This code is not needed for the left grip because it just naturally isn't
+                        this.clickPos.X += (newSpan.EndIndex - oldSpan.EndIndex) * zoom;
                     }
                 }
             }

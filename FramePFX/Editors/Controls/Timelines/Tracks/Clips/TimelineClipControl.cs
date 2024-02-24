@@ -272,6 +272,16 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
 
         #region Drag/Move implementation
 
+        public static long GetCursorFrame(TimelineClipControl clip, MouseDevice device, bool useRounding = true) {
+            TrackStoragePanel timeline = clip.Track?.OwnerPanel;
+            if (timeline == null) {
+                throw new Exception("Clip does not have a timeline sequence associated with it");
+            }
+
+            double cursor = device.GetPosition(timeline).X;
+            return TimelineUtils.PixelToFrame(cursor, timeline.Timeline?.Zoom ?? 1.0, useRounding);
+        }
+
         private ClipPart GetPartForPoint(Point mpos) {
             if (mpos.Y <= HeaderSize) {
                 if (mpos.X <= EdgeGripSize) {
@@ -345,7 +355,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                 return;
             }
 
-            long mouseFrame = TLCUtils.GetCursorFrame(this);
+            long mouseFrame = GetCursorFrame(this, e.MouseDevice);
             if (timeline.HasAnySelectedClips) {
                 if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0) {
                     TrackPoint anchor = timeline.RangedSelectionAnchor;
@@ -473,7 +483,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
                     }
                     else if (this.Model.IsSelected && (Keyboard.Modifiers & ModifierKeys.Shift) == 0) {
                         timeline.MakeSingleSelection(this.Model);
-                        timeline.RangedSelectionAnchor = new TrackPoint(this.Model, TLCUtils.GetCursorFrame(this));
+                        timeline.RangedSelectionAnchor = new TrackPoint(this.Model, GetCursorFrame(this, e.MouseDevice));
                     }
 
                     timelineControl.UpdatePropertyEditorClipSelection();

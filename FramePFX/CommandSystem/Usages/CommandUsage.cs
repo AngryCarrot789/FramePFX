@@ -34,11 +34,11 @@ namespace FramePFX.CommandSystem.Usages {
     /// </para>
     /// </summary>
     public abstract class CommandUsage {
+        private DispatcherMultiFireActionGuard delayedContextUpdate;
+
         public string CommandId { get; }
 
         public DependencyObject Control { get; private set; }
-
-        private readonly DispatcherMultiFireActionGuard delayedContextChangeUpdater;
 
         protected CommandUsage(string commandId) {
             if (commandId == null)
@@ -46,7 +46,7 @@ namespace FramePFX.CommandSystem.Usages {
             if (string.IsNullOrWhiteSpace(commandId))
                 throw new Exception(nameof(commandId) + " cannot return an empty string or consist of only whitespaces");
             this.CommandId = commandId;
-            this.delayedContextChangeUpdater = new DispatcherMultiFireActionGuard(this.UpdateCanExecute, DispatcherPriority.Loaded, "UpdateCanExecute");
+            ;
         }
 
         /// <summary>
@@ -70,26 +70,23 @@ namespace FramePFX.CommandSystem.Usages {
         }
 
         private void OnInheritedContextChanged(object sender, RoutedEventArgs e) {
-            this.OnContextChanged(this.GetContextData());
+            this.OnContextChanged();
         }
 
-        protected virtual void OnConnected() {
-            this.OnContextChanged(this.GetContextData());
+        protected virtual void OnConnected() => this.OnContextChanged();
+
+        protected virtual void OnDisconnected() => this.OnContextChanged();
+
+        protected virtual void OnContextChanged() {
+            DispatcherMultiFireActionGuard guard = this.delayedContextUpdate ?? (this.delayedContextUpdate = new DispatcherMultiFireActionGuard(this.UpdateCanExecute, DispatcherPriority.Loaded, "UpdateCanExecute"));
+            guard.InvokeAsync();
         }
 
-        protected virtual void OnDisconnected() {
-            this.OnContextChanged(null);
-        }
-
-        protected virtual void OnContextChanged(IContextData context) {
-            this.delayedContextChangeUpdater.InvokeAsync();
-        }
-
-        protected void UpdateCanExecute() {
+        protected virtual void UpdateCanExecute() {
             this.UpdateCanExecute(this.GetContextData());
         }
 
-        protected void UpdateCanExecute(IContextData context) {
+        protected virtual void UpdateCanExecute(IContextData context) {
             this.OnUpdateForCanExecuteState(context != null ? CommandManager.Instance.CanExecute(this.CommandId, context) : ExecutabilityState.Invalid);
         }
 

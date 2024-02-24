@@ -20,7 +20,7 @@
 using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
-    public class BasicPlaybackCommandUsage : BasicButtonCommandUsage {
+    public class BasicPlaybackCommandUsage : CommandSourceCommandUsage {
         public BasicPlaybackCommandUsage(string cmdId) : base(cmdId) {
         }
 
@@ -30,14 +30,14 @@ namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
             this.UpdateCanExecute();
         }
 
-        protected override void OnContextChanged(IContextData context) {
-            base.OnContextChanged(context);
+        protected override void OnContextChanged() {
+            base.OnContextChanged();
             if (this.editor != null) {
                 this.editor.Playback.PlaybackStateChanged -= this.OnEditorPlayStateChanged;
                 this.editor = null;
             }
 
-            if (context != null && DataKeys.VideoEditorKey.TryGetContext(context, out this.editor)) {
+            if (DataKeys.VideoEditorKey.TryGetContext(this.GetContextData(), out this.editor)) {
                 this.editor.Playback.PlaybackStateChanged += this.OnEditorPlayStateChanged;
             }
         }

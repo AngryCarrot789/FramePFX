@@ -27,7 +27,7 @@ namespace FramePFX.Editors.Controls {
     public class CancellableThumb : Thumb {
         public static readonly DependencyProperty CanCancelProperty = DependencyProperty.RegisterAttached("CanCancel", typeof(bool), typeof(CancellableThumb), new PropertyMetadata(BoolBox.False, OnCanCancelPropertyChanged));
 
-        public static void SetCanCancel(DependencyObject element, bool value) => element.SetValue(CanCancelProperty, value);
+        public static void SetCanCancel(DependencyObject element, bool value) => element.SetValue(CanCancelProperty, value.Box());
 
         public static bool GetCanCancel(DependencyObject element) => (bool) element.GetValue(CanCancelProperty);
 

@@ -20,6 +20,7 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using FramePFX.CommandSystem;
 using FramePFX.CommandSystem.Usages;
 using FramePFX.Interactivity.Contexts;
@@ -31,14 +32,14 @@ namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
 
         protected override void OnConnected() {
             base.OnConnected();
-            if (!(this.Control is Button))
+            if (!(this.Control is ButtonBase))
                 throw new InvalidOperationException("Cannot connect to non-button");
-            ((Button) this.Control).Click += this.OnButtonClick;
+            ((ButtonBase) this.Control).Click += this.OnButtonClick;
         }
 
         protected override void OnDisconnected() {
             base.OnDisconnected();
-            ((Button) this.Control).Click -= this.OnButtonClick;
+            ((ButtonBase) this.Control).Click -= this.OnButtonClick;
         }
 
         protected virtual void OnButtonClick(object sender, RoutedEventArgs e) {
@@ -46,7 +47,7 @@ namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
         }
 
         protected override void OnUpdateForCanExecuteState(ExecutabilityState state) {
-            ((Button) this.Control).IsEnabled = state == ExecutabilityState.Executable;
+            ((ButtonBase) this.Control).IsEnabled = state == ExecutabilityState.Executable;
         }
     }
 }

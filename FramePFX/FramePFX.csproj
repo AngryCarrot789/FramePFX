@@ -185,6 +185,7 @@
     <Compile Include="Editors\Controls\EffectProviding\EffectProviderListBox.cs" />
     <Compile Include="Editors\Controls\EffectProviding\EffectProviderListBoxItem.cs" />
     <Compile Include="Editors\Controls\PlayStateButton.cs" />
+    <Compile Include="Editors\Controls\Timelines\CommandContexts\CommandSourceCommandUsage.cs" />
     <Compile Include="Editors\Controls\TogglePlayStateButton.cs" />
     <Compile Include="Editors\Controls\Timelines\ClipDropRegistry.cs" />
     <Compile Include="Editors\Controls\Timelines\CommandContexts\BasicPlaybackCommandUsage.cs" />
@@ -709,7 +710,6 @@
     <Compile Include="Editors\Controls\Timelines\Tracks\Surfaces\TrackControlSurfaceListBoxPanel.cs" />
     <Compile Include="Editors\Controls\Timelines\Tracks\Surfaces\TrackControlSurfaceVideo.cs" />
     <Compile Include="Editors\Controls\Timelines\Tracks\TimelineTrackControl.cs" />
-    <Compile Include="Editors\Controls\TLCUtils.cs" />
     <Compile Include="Editors\Controls\TreeViews\Automation\Peers\MultiSelectTreeViewAutomationPeer.cs" />
     <Compile Include="Editors\Controls\TreeViews\Automation\Peers\MultiSelectTreeViewItemAutomationPeer.cs" />
     <Compile Include="Editors\Controls\TreeViews\Automation\Peers\MultiSelectTreeViewItemDataAutomationPeer.cs" />

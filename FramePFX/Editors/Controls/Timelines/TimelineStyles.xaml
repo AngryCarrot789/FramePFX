@@ -289,10 +289,17 @@
                                             Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}"
                                             Background="{DynamicResource ABrush.Tone6.Background.Static}"
                                             x:Name="PART_AddVideoTrackButton"/>
-                                    <c:TogglePlayStateButton Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}" BorderThickness="0"/>
-                                    <c:PlayStateButton Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}" BorderThickness="0" PlayState="Play" CommandId="PlaybackPlayCommand"/>
-                                    <c:PlayStateButton Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}" BorderThickness="0" PlayState="Pause" CommandId="PlaybackPauseCommand"/>
-                                    <c:PlayStateButton Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}" BorderThickness="0" PlayState="Stop" CommandId="PlaybackStopCommand"/>
+                                    <c:TogglePlayStateButton Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}"
+                                                             BorderThickness="0" Background="{DynamicResource ABrush.Tone6.Background.Static}" />
+                                    <c:PlayStateButton Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}"
+                                                       BorderThickness="0" Background="{DynamicResource ABrush.Tone6.Background.Static}"
+                                                       PlayState="Play" CommandId="PlaybackPlayCommand"/>
+                                    <c:PlayStateButton Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}"
+                                                       BorderThickness="0" Background="{DynamicResource ABrush.Tone6.Background.Static}"
+                                                       PlayState="Pause" CommandId="PlaybackPauseCommand"/>
+                                    <c:PlayStateButton Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}"
+                                                       BorderThickness="0" Background="{DynamicResource ABrush.Tone6.Background.Static}"
+                                                       PlayState="Stop" CommandId="PlaybackStopCommand"/>
                                     <!--
                                     <Button u:CommandUsageManager.UsageClassType="{x:Type cc:PlayCommandUsage}" BorderThickness="0" FontSize="12"
                                             Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}"

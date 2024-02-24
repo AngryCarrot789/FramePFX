@@ -143,7 +143,7 @@ The project uses .NET Framework 4.8, so you will need that installed too to comp
 ### Possible build problems
 Sometimes, the SkiaSharp nuget library doesn't copy the skia library files to the bin folder when you clone this repo and built. There are 2 fixes I found:
 - Copy `\packages\SkiaSharp.2.88.7\runtimes\win-x64\native\libSkiaSharp.dll` into the editor's bin folder.
-- Or, delete the `packages` folder in the solution dir, then right click the solution in visual studio and click "Clean Solution", then rebuild all.
+- Or, delete the `packages` folder in the solution dir, then right click the solution in visual studio and click "Clean Solution", then click Restore Nuget Packages, then rebuild all.
 If none of these work, try uninstalling SkiaSharp in the nuget manager and then reinstalling. If that still does not work, then I really don't know what's going on... 
 
 # Licence

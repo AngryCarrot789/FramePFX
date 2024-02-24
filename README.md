@@ -38,10 +38,10 @@ I previously made this using MVVM everywhere, but I had to basically create View
 which was frustrating and made adding new features really difficult, so I decided to rewrite the entire program to use a mostly non-view-model design, kind of like MVC except views are the controllers (at the moment...), 
 where the models are just the state and the views/controls add and remove event handlers to obverse the state of the models.
 
-This turns out to be a lot more performant (which is actually the main reason I switched), somewhat just as easy to add new features, and the  signals between ViewModel/View are not entirely commands anymore. 
+This turns out to be a lot more performant (which is actually the main reason I switched), somewhat just as easy to add new features, and the  signals between ViewModel/View are not entirely ICommands anymore. 
 But it does mean moving this to something like Avalonia (which I haven't thought of doing yet) would be a lot more difficult.
 
-The editor can run entirely without a front end though, as none of the models contain any UI specific code (except for basic things like a IsSelected property in clips, tracks, resources, etc.)
+The editor can run entirely without a front end though, as none of the models contain any UI specific code (except for basic things like a IsSelected property in clips, tracks, resources, etc.). It does need the WPF dispatcher though
 
 ## Rendering
 Rendering uses SkiaSharp (for simplicity) and multiple render threads for speed. The `RenderManager` class handles the render initialisation.
@@ -65,9 +65,9 @@ To drag videos, images, etc., into the editor: drag and drop the file to the top
 ## Command system, shortcut system and context menus
 ### Command System
 I created a system that is inspired from IntelliJ IDEA's action system, where you have a single command manager which contains all of the commands. You access commands
-via a string key (simplest type of key to use), and then execute the command by passing in contextual data (stored in a `IContextData`). The data context maps data keys
-to the actual object. These objects are set by UI components, and when a command is going to be executed, the visual tree is traversed from the target element to the root
-element, and then all available data keys are merged from top to bottom (allowing bottom-level elements to override top level ones... not that they'd want to but still)
+via a string key (simplest type of key to use), and then execute the command by passing in contextual data (stored in a `IContextData`). The context data gets a value from
+data keys, and the `ContextData` implementation stores entries in a map which is how UI components store their context data. 
+The `DataManager` class manages the context data for all UI components (scroll down for more info)
 
 This means that when you for example press F2 or CTRL+R while focused on a clip, there's a lot of data keys between the root window and the clip UI object, and so
 in the rename command, you have access to all of them; the editor, project, timeline, track and clip. Whereas if you just have the window focused and press a shortcut, you 
@@ -84,10 +84,13 @@ Context menus use the `AdvancedContextMenu` class. Context menu items are genera
 but it's pretty quick for now (much quicker now than before when I used binding and ItemsSource). I try to only use the `CommandContextEntry` (which maps to a `AdvancedCommandMenuItem`) 
 menu item which invokes a command but I sometimes use a `EventContextEntry` because it's much easier to use, but less portable as shortcuts can't activate/invoke them
 
+### Data Manager
+The data manager is used to store local context data in a control, and implement context data inheritance containing the merged context data for all of a control's visual parents and itself. 
 
-I'm not using WPF's InputBinding or Command system, as it's not flexible enough for this project's use case. ICommands are expected to be placed in the object that can run such 
-commands (e.g. Clip would contain a command that could rename or delete the clip), however I try to keep the models and the "user interaction" sides separate as much as possible,
-which is why I use my own Command+Shortcut systems. And the added benefit is you can change key maps, which you can't (at least not AFAIK) with WPF's InputBindings.
+It has two primary properties: `ContextData`, and `InheritedContextData`. Despite the name, the inherited version does not use WPF's built in property inheritance feature, but instead
+uses my own inheritance implementation by using `ContextDataProperty` changes and the `VisualAncestorChanged` event (which I add/remove reflectively when the `ContextDataProperty` changes,
+and it fires when an object's visual parent changes). By doing this, an event can be fired (`InheritedContextInvalidatedEvent`) for every single child of an element in its visual tree when its 
+local context data is changed. The `ContextUsage` class depends on this feature in order to do things like re-query the executability state of a command when a control's full inherited context changes
 
 # TODO
 ### Audio

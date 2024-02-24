@@ -24,6 +24,10 @@ using FramePFX.Editors.ResourceManaging.Autoloading.Controls;
 
 namespace FramePFX.Editors.ResourceManaging.Actions {
     public abstract class ChangeResourceOnlineStateCommand : Command {
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            return ResourceContextRegistry.CanGetTreeSelectionContext(e.ContextData);
+        }
+
         protected static void DisableHierarchy(IEnumerable<BaseResource> resources) {
             foreach (BaseResource obj in resources) {
                 if (obj is ResourceFolder folder) {
@@ -38,7 +42,7 @@ namespace FramePFX.Editors.ResourceManaging.Actions {
 
     public class EnableResourcesCommand : ChangeResourceOnlineStateCommand {
         public override void Execute(CommandEventArgs e) {
-            if (!ResourceContextRegistry.GetTreeContext(e.ContextData, out BaseResource[] items)) {
+            if (!ResourceContextRegistry.GetTreeSelectionContext(e.ContextData, out BaseResource[] items)) {
                 return;
             }
 
@@ -48,7 +52,7 @@ namespace FramePFX.Editors.ResourceManaging.Actions {
 
     public class DisableResourcesCommand : ChangeResourceOnlineStateCommand {
         public override void Execute(CommandEventArgs e) {
-            if (!ResourceContextRegistry.GetTreeContext(e.ContextData, out BaseResource[] items)) {
+            if (!ResourceContextRegistry.GetTreeSelectionContext(e.ContextData, out BaseResource[] items)) {
                 return;
             }
 

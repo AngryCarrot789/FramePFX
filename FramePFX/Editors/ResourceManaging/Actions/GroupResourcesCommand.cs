@@ -22,8 +22,12 @@ using FramePFX.Editors.Contextual;
 
 namespace FramePFX.Editors.ResourceManaging.Actions {
     public class GroupResourcesCommand : Command {
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            return ResourceContextRegistry.CanGetSingleFolderSelection(e.ContextData);
+        }
+
         public override void Execute(CommandEventArgs e) {
-            if (!ResourceContextRegistry.GetSingleFolderSelectionContext(e.ContextData, out ResourceFolder currFolder, out BaseResource[] items)) {
+            if (!ResourceContextRegistry.GetFolderSelectionContext(e.ContextData, out ResourceFolder currFolder, out BaseResource[] items)) {
                 return;
             }
 
@@ -31,11 +35,18 @@ namespace FramePFX.Editors.ResourceManaging.Actions {
                 resource.IsSelected = false;
             }
 
-            ResourceFolder folder = new ResourceFolder("Grouped Folder");
+            string displayName = "Grouped Folder";
+            if (e.IsUserInitiated) {
+                displayName = IoC.UserInputService.ShowSingleInputDialog("New Folder", "What do you want to call this folder?", displayName, (x) => !string.IsNullOrWhiteSpace(x)) ?? "Grouped Folder";
+            }
+
+            ResourceFolder folder = new ResourceFolder(displayName);
             currFolder.AddItem(folder);
             foreach (BaseResource resource in items) {
                 currFolder.MoveItemTo(folder, resource);
             }
+
+            // TODO: focus the folder in the UI, might have to add a AttemptFocus event in the BaseResource along side IsSelectedChanged
         }
     }
 }

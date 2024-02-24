@@ -289,10 +289,10 @@
                                             Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}"
                                             Background="{DynamicResource ABrush.Tone6.Background.Static}"
                                             x:Name="PART_AddVideoTrackButton"/>
-                                    <c:TogglePlayStateButton Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}"/>
-                                    <c:PlayStateButton Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}" PlayState="Play" CommandId="PlaybackPlayCommand"/>
-                                    <c:PlayStateButton Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}" PlayState="Pause" CommandId="PlaybackPauseCommand"/>
-                                    <c:PlayStateButton Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}" PlayState="Stop" CommandId="PlaybackStopCommand"/>
+                                    <c:TogglePlayStateButton Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}" BorderThickness="0"/>
+                                    <c:PlayStateButton Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}" BorderThickness="0" PlayState="Play" CommandId="PlaybackPlayCommand"/>
+                                    <c:PlayStateButton Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}" BorderThickness="0" PlayState="Pause" CommandId="PlaybackPauseCommand"/>
+                                    <c:PlayStateButton Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}" BorderThickness="0" PlayState="Stop" CommandId="PlaybackStopCommand"/>
                                     <!--
                                     <Button u:CommandUsageManager.UsageClassType="{x:Type cc:PlayCommandUsage}" BorderThickness="0" FontSize="12"
                                             Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}"
@@ -415,7 +415,7 @@
                                     <ToggleButton x:Name="PART_VisibilityButton"
                                                   VerticalAlignment="Top" Content="V" BorderBrush="Black"
                                                   Style="{StaticResource StaticBorderToggleButtonStyle}"
-                                                  BorderThickness="1" Height="16" Width="16"/>
+                                                  Height="16" Width="16"/>
                                     <d:NumberDragger Width="48" Height="16" BorderBrush="Black"
                                                      VerticalAlignment="Top"
                                                      Minimum="0" Maximum="1" Margin="2,0,0,0"
@@ -424,7 +424,7 @@
                                                      Style="{StaticResource AbletonNumberDraggerStyle}"
                                                      x:Name="PART_OpacitySlider" Padding="0,1,0,0"/>
                                 </StackPanel>
-                                <TextBlock Grid.Row="0" Grid.Column="2" DockPanel.Dock="Right" Margin="0,1,4,0"
+                                <TextBlock DockPanel.Dock="Right" Margin="0,1,4,0"
                                            Text="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=DisplayName}"/>
                             </DockPanel>
                             <Grid DockPanel.Dock="Bottom" Margin="2">

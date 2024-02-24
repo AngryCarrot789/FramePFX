@@ -22,8 +22,12 @@ using FramePFX.Editors.Contextual;
 
 namespace FramePFX.Editors.ResourceManaging.Actions {
     public class DeleteResourcesCommand : Command {
+        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+            return ResourceContextRegistry.CanGetTreeSelectionContext(e.ContextData);
+        }
+
         public override void Execute(CommandEventArgs e) {
-            if (!ResourceContextRegistry.GetTreeContext(e.ContextData, out BaseResource[] items)) {
+            if (!ResourceContextRegistry.GetTreeSelectionContext(e.ContextData, out BaseResource[] items)) {
                 return;
             }
 

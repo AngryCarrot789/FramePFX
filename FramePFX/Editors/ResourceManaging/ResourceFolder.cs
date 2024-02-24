@@ -42,7 +42,7 @@ namespace FramePFX.Editors.ResourceManaging {
         public IEnumerable<BaseResource> SelectedItems => this.items.Where(x => x.IsSelected);
 
         /// <summary>
-        /// Counts all items whose <see cref="BaseResource.IsSelected"/> property is true
+        /// Counts the numbers of items whose <see cref="BaseResource.IsSelected"/> property is true
         /// </summary>
         public int SelectedItemCount => this.items.Count(x => x.IsSelected);
 
@@ -122,7 +122,7 @@ namespace FramePFX.Editors.ResourceManaging {
         public bool Contains(BaseResource item) {
             // This assumes no maliciously corrupted resource items,
             // meaning this code should always work under proper conditions
-            return ReferenceEquals(item.Parent, this);
+            return item != null && ReferenceEquals(item.Parent, this);
         }
 
         public bool RemoveItem(BaseResource item) {

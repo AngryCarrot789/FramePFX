@@ -37,7 +37,10 @@ namespace FramePFX.Services.Messages {
         /// <param name="allowEmptyString">
         /// Allows this method to return an empty string if the text input is empty. Default is false
         /// </param>
-        /// <returns>The text in the input area, or null if the input was empty</returns>
+        /// <returns>
+        /// The text in the input area. Null if the input was empty, the user clicked cancel or force
+        /// closed the dialog or the dialog somehow mysteriously closed
+        /// </returns>
         string ShowSingleInputDialog(string caption, string message, string defaultInput = null, Predicate<string> validate = null, bool allowEmptyString = false);
     }
 }

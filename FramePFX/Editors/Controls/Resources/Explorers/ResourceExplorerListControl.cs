@@ -75,7 +75,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
                 return;
             }
 
-            this.UnselectAll();
+            this.ResourceManager?.ClearSelection();
         }
 
         protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {

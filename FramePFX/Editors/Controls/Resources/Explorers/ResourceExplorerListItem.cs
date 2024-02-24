@@ -170,7 +170,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
                 Point change = new Point(Math.Abs(posA.X - posB.X), Math.Abs(posA.X - posB.X));
                 ResourceFolder currFolder;
                 if ((change.X > 5 || change.Y > 5) && (currFolder = this.Model.Manager.CurrentFolder) == this.Model.Parent) {
-                    List<BaseResource> list = this.IsSelected ? currFolder.Items.Where(x => x.IsSelected).ToList() : new List<BaseResource>() {this.Model};
+                    List<BaseResource> list = this.IsSelected ? currFolder.SelectedItems.ToList() : new List<BaseResource>() {this.Model};
 
                     try {
                         this.isDragDropping = true;

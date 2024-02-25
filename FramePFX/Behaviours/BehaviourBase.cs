@@ -18,62 +18,78 @@
 //
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Reflection;
 using System.Windows;
-using System.Windows.Media;
-using FramePFX.Editors.Commands;
-using FramePFX.Utils.Visuals;
 
 namespace FramePFX.Behaviours {
     /// <summary>
-    /// The base class for behaviours. Provides functionality to be associated with a control
+    /// The base class for behaviours. Provides functionality to be associated with a control.
+    /// This class should not be inherited directly, instead, use <see cref="Behaviour{T}"/>
     /// </summary>
-    public class BehaviourBase : Freezable {
-        public static readonly DependencyProperty BehavioursProperty = DependencyProperty.RegisterAttached("Behaviours", typeof(BehaviourCollection), typeof(BehaviourBase), new PropertyMetadata(null, OnBehavioursChanged));
+    public abstract class BehaviourBase : Freezable, IBehaviour {
+        private static readonly Dictionary<Type, bool> HasVisualParentChangedOverridden;
+        private static readonly Type[] VPCArgs = new Type[] {typeof(DependencyObject)};
 
-        private static readonly Action<Visual> RemoveHandler;
-        private static readonly Action<Visual> AddHandler;
-        private readonly bool canProcessVisualParentChanged;
+        protected readonly bool CanProcessVisualParentChanged;
+        private DependencyObject element;
 
-        public UIElement Element { get; private set; }
+        public DependencyObject AttachedElement => this.element;
 
+        /// <summary>
+        /// Gets the behaviour collection that owns this behaviour, or null
+        /// </summary>
         public BehaviourCollection Collection { get; private set; }
 
-        public BehaviourBase(bool canProcessVisualParentChanged = false) {
-            this.canProcessVisualParentChanged = canProcessVisualParentChanged;
+        protected BehaviourBase() {
+            this.CanProcessVisualParentChanged = GetHasVisualParentChangedHandler(this.GetType());
         }
 
-        protected virtual void OnAttached() {
+        static BehaviourBase() {
+            HasVisualParentChangedOverridden = new Dictionary<Type, bool>();
         }
 
-        protected virtual void OnDetatched() {
-        }
+        /// <summary>
+        /// Called when this behaviour is attached to an applicable target element
+        /// </summary>
+        protected abstract void OnAttached();
 
-        public void Attach(BehaviourCollection collection, UIElement element) {
-            if (this.Element != null)
-                throw new InvalidOperationException("Already attached to another element: " + this.Element);
+        /// <summary>
+        /// Called when this behaviour is detached from its target element
+        /// </summary>
+        protected abstract void OnDetatched();
+
+        public void Attach(BehaviourCollection collection, DependencyObject newElement) {
+            if (this.element != null)
+                throw new InvalidOperationException("Already attached to another element: " + this.element);
+            if (newElement == null)
+                throw new ArgumentNullException(nameof(newElement));
+            if (!this.CanAttachToType(newElement))
+                throw new ArgumentException("Target element is incompatible");
 
             this.Collection = collection;
-            this.Element = element;
-            if (this.canProcessVisualParentChanged)
-                collection.RegisterVAC();
+            this.element = newElement;
+            if (this.CanProcessVisualParentChanged)
+                collection.RegisterVAC(this);
 
             try {
                 this.OnAttached();
             }
             catch (Exception e) {
-                if (this.canProcessVisualParentChanged)
+                if (this.CanProcessVisualParentChanged)
                     collection.UnregisterVAC();
-                this.Element = null;
+                this.element = null;
                 this.Collection = null;
                 throw new Exception("Failed to call " + nameof(this.OnAttached), e);
             }
         }
 
         public void Detatch() {
-            if (this.Element == null)
+            if (this.element == null)
                 throw new InvalidOperationException("Cannot detach from nothing; we are not attached");
 
-            if (this.canProcessVisualParentChanged)
+            if (this.CanProcessVisualParentChanged)
                 this.Collection.UnregisterVAC();
 
             try {
@@ -83,36 +99,54 @@ namespace FramePFX.Behaviours {
                 throw new Exception("Failed to call " + nameof(this.OnDetatched), e);
             }
             finally {
-                this.Element = null;
+                this.element = null;
             }
         }
 
-        protected internal virtual void OnVisualParentChanged() {
+        /// <summary>
+        /// Invoked when our attached element's visual parent changes. Overriding the method enables the
+        /// internal mechanisms for this method to be called, because processing parent changed adds a
+        /// tiny bit of UI overhead.
+        /// <para>
+        /// Only the old parent is provided. The new parent can be accessed via the visual tree utils class
+        /// </para>
+        /// </summary>
+        /// <param name="oldParent">Our element's previous parent</param>
+        protected virtual void OnVisualParentChanged(DependencyObject oldParent) {
+
         }
 
-        public static void SetBehaviours(UIElement element, BehaviourCollection value) {
-            element.SetValue(BehavioursProperty, value);
+        protected override Freezable CreateInstanceCore() {
+            return (Freezable) Activator.CreateInstance(this.GetType());
         }
 
-        public static BehaviourCollection GetBehaviours(UIElement element) {
-            return (BehaviourCollection) element.GetValue(BehavioursProperty);
+        bool IBehaviour.CanAttachTo(DependencyObject targetType) => this.CanAttachToType(targetType);
+
+        protected abstract bool CanAttachToType(DependencyObject target);
+
+        internal static void InternalProcessVisualParentChanged(BehaviourBase behaviour, DependencyObject oldParent) {
+            if (behaviour.CanProcessVisualParentChanged)
+                behaviour.OnVisualParentChanged(oldParent);
         }
 
-        private static void OnBehavioursChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            if (e.OldValue is BehaviourCollection oldCollection) {
-                oldCollection.Disconnect();
+        private static bool GetHasVisualParentChangedHandler(Type type) {
+            if (!HasVisualParentChangedOverridden.TryGetValue(type, out bool value)) {
+                HasVisualParentChangedOverridden[type] = value = GetRawHasVisualParentChangedHandler(type);
             }
 
-            if (e.NewValue is BehaviourCollection newCollection && d is UIElement element) {
-                newCollection.Connect(element);
-            }
+            return value;
         }
 
-        protected override Freezable CreateInstanceCore() => throw new InvalidOperationException("Cannot create clone");
+        private static bool GetRawHasVisualParentChangedHandler(Type type) {
+            MethodInfo method = type.GetMethod(nameof(OnVisualParentChanged), BindingFlags.Instance | BindingFlags.NonPublic, null, CallingConventions.HasThis, VPCArgs, null);
+            if (!ReferenceEquals(method, null)) {
+                MethodInfo baseMethod = method.GetBaseDefinition();
+                return baseMethod.DeclaringType != method.DeclaringType;
+            }
 
-        private void CheckIsAttached() {
-            if (this.Element == null)
-                throw new InvalidOperationException("Cannot perform operation while no element is attached");
+            Debug.WriteLine(nameof(OnVisualParentChanged) + " did not exist");
+            Debugger.Break();
+            return false;
         }
     }
 }

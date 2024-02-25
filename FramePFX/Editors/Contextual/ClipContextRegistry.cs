@@ -18,10 +18,15 @@
 //
 
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using FramePFX.AdvancedMenuService.ContextService;
+using FramePFX.CommandSystem;
 using FramePFX.Editors.ResourceManaging.Resources;
+using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Clips.Core;
+using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editors.Contextual {
@@ -29,19 +34,22 @@ namespace FramePFX.Editors.Contextual {
         public static ClipContextRegistry Instance { get; } = new ClipContextRegistry();
 
         public void Generate(List<IContextEntry> list, IContextData context) {
-            if (!DataKeys.ClipKey.TryGetContext(context, out Clip clip)) {
+            if (!GetClipSelection(context, out Clip[] clips)) {
                 return;
             }
 
-            int selectedCount = clip.Timeline.GetSelectedClipCountWith(clip);
-
-            // list.Add(new EventContextEntry(DeleteSelectedClips, selectedCount == 1 ? "Delete Clip" : "Delete Clips"));
-            list.Add(new CommandContextEntry("RenameClipCommand", "Rename clip"));
-            if (clip is ICompositionClip)
-                list.Add(new EventContextEntry(OpenClipTimeline, "Open Composition Timeline"));
-            list.Add(new SeparatorEntry());
-            list.Add(new CommandContextEntry("DeleteSelectedClips", selectedCount == 1 ? "Delete Clip" : "Delete Clips", "Delete all selected clips in this timeline"));
-            list.Add(new CommandContextEntry("DeleteClipOwnerTrack", "Delete Track", "Deletes the track that this clip resides in"));
+            if (clips.Length == 1) {
+                Clip clip = clips[0];
+                list.Add(new CommandContextEntry("RenameClipCommand", "Rename clip"));
+                if (clip is ICompositionClip)
+                    list.Add(new EventContextEntry(OpenClipTimeline, "Open Composition Timeline"));
+                list.Add(new SeparatorEntry());
+                list.Add(new CommandContextEntry("DeleteSelectedClips", "Delete Clip", "Deletes this clip from the timeline"));
+                list.Add(new CommandContextEntry("DeleteClipOwnerTrack", "Delete Track", "Deletes the track that this clip resides in"));
+            }
+            else {
+                list.Add(new CommandContextEntry("DeleteSelectedClips", "Delete Clips", "Deletes these selected clips"));
+            }
         }
 
         private static void OpenClipTimeline(IContextData ctx) {
@@ -50,6 +58,76 @@ namespace FramePFX.Editors.Contextual {
                     project.ActiveTimeline = resource.Timeline;
                 }
             }
+        }
+
+        public static ExecutabilityState CanGetClipSelection(IContextData ctx, bool doNotUseTimelineSelection = false) {
+            if (DataKeys.ClipKey.TryGetContext(ctx, out Clip clip)) {
+                Track track = clip.Track;
+                Timeline timeline;
+                if (track == null || (timeline = track.Timeline) == null) {
+                    return ExecutabilityState.ValidButCannotExecute;
+                }
+
+                int selectedClips = doNotUseTimelineSelection ? track.SelectedClipsCount : timeline.SelectedClipsCount;
+                if (!clip.IsSelected || selectedClips == 1) {
+                    return ExecutabilityState.Executable;
+                }
+                else {
+                    Debug.Assert(selectedClips > 1, "Selection corruption 1");
+                    return ExecutabilityState.Executable;
+                }
+            }
+            else if (doNotUseTimelineSelection) {
+                if (DataKeys.TrackKey.TryGetContext(ctx, out Track track)) {
+                    return track.SelectedClipsCount > 0 ? ExecutabilityState.Executable : ExecutabilityState.ValidButCannotExecute;
+                }
+                else {
+                    return ExecutabilityState.Invalid;
+                }
+            }
+            else if (DataKeys.TimelineKey.TryGetContext(ctx, out Timeline timeline)) {
+                return timeline.SelectedClipsCount > 0 ? ExecutabilityState.Executable : ExecutabilityState.ValidButCannotExecute;
+            }
+            else {
+                return ExecutabilityState.Invalid;
+            }
+        }
+
+        public static bool GetClipSelection(IContextData ctx, out Clip[] clips, bool doNotUseTimelineSelection = false) {
+            if (DataKeys.ClipKey.TryGetContext(ctx, out Clip clip)) {
+                Track track = clip.Track;
+                Timeline timeline;
+                if (track == null || (timeline = track.Timeline) == null) {
+                    clips = null;
+                    return false;
+                }
+
+                int selectedClips = doNotUseTimelineSelection ? track.SelectedClipsCount : timeline.SelectedClipsCount;
+                if (!clip.IsSelected || selectedClips == 1) {
+                    // Interacted with a non-selected or the only selected clip
+                    clips = new Clip[] {clip};
+                }
+                else {
+                    Debug.Assert(selectedClips > 1, "Selection corruption 1");
+                    clips = doNotUseTimelineSelection ? track.SelectedClips.ToArray() : timeline.SelectedClips.ToArray();
+                }
+
+                Debug.Assert(clips.Length > 0, "Selection corruption 2");
+                return clips.Length > 0;
+            }
+            else if (doNotUseTimelineSelection) {
+                if (DataKeys.TrackKey.TryGetContext(ctx, out Track track)) {
+                    clips = track.SelectedClips.ToArray();
+                    return clips.Length > 0;
+                }
+            }
+            else if (DataKeys.TimelineKey.TryGetContext(ctx, out Timeline timeline)) {
+                clips = timeline.SelectedClips.ToArray();
+                return clips.Length > 0;
+            }
+
+            clips = null;
+            return false;
         }
     }
 }

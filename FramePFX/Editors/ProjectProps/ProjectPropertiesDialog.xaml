@@ -15,53 +15,53 @@
             <TabItem Header="Video">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="5" />
-                        <ColumnDefinition Width="75" />
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="75"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="5"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="5" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="5" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="329.12" />
-                        <RowDefinition Height="45" />
+                        <RowDefinition Height="5"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="5"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="329.12"/>
+                        <RowDefinition Height="45"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Padding="5,3,5,5" VerticalAlignment="Center" Text="Resolution" Grid.Column="1" Grid.Row="1" />
+                    <TextBlock Padding="5,3,5,5" VerticalAlignment="Center" Text="Resolution" Grid.Column="1" Grid.Row="1"/>
                     <Grid Grid.Column="2" Grid.Row="1" Margin="0,0,0,5" Grid.RowSpan="2">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="5" />
-                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
                         <dr:NumberDragger Grid.Column="0" x:Name="PART_WidthDragger" Padding="0,1"
                                           Style="{StaticResource AbletonNumberDraggerStyle}"
                                           BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}"
-                                          Minimum="1" Maximum="65535" TinyChange="1" SmallChange="1" LargeChange="1" MassiveChange="5" />
+                                          Minimum="1" Maximum="65535" TinyChange="1" SmallChange="1" LargeChange="1" MassiveChange="5"/>
 
                         <dr:NumberDragger Grid.Column="2" x:Name="PART_HeightDragger" Padding="0,1"
                                           Style="{StaticResource AbletonNumberDraggerStyle}"
                                           BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}"
-                                          Minimum="1" Maximum="65535" TinyChange="1" SmallChange="1" LargeChange="1" MassiveChange="5" />
+                                          Minimum="1" Maximum="65535" TinyChange="1" SmallChange="1" LargeChange="1" MassiveChange="5"/>
                     </Grid>
 
-                    <TextBlock Padding="5,3,5,5" VerticalAlignment="Center" Text="Frame rate" Grid.Column="1" Grid.Row="3" />
+                    <TextBlock Padding="5,3,5,5" VerticalAlignment="Center" Text="Frame rate" Grid.Column="1" Grid.Row="3"/>
                     <dr:NumberDragger Grid.Column="2" Grid.Row="3" x:Name="PART_FrameRateDragger" Padding="0,1"
                                       Style="{StaticResource AbletonNumberDraggerStyle}"
                                       BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}"
                                       TinyChange="0.01" SmallChange="0.1" LargeChange="1" MassiveChange="2" Margin="0,0,0,329" Grid.RowSpan="2"
-                                      Minimum="1" Maximum="120" />
+                                      Minimum="1" Maximum="120"/>
                     <TextBlock Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="4" Padding="5" TextWrapping="Wrap">
-                        <Run Language="en-gb" Text="Make sure you use a standard resolution, otherwise you might have problems getting the export to start. Stick with the standard 16:9, 4:3, etc." />
+                        <Run Language="en-gb" Text="Make sure you use a standard resolution, otherwise you might have problems getting the export to start. Stick with the standard 16:9, 4:3, etc."/>
                     </TextBlock>
                 </Grid>
             </TabItem>
         </TabControl>
         <c:SpacedStackPanel Orientation="Horizontal" InterElementGap="5" VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="42">
-            <Button Content="Apply and Close" VerticalAlignment="Center" Padding="15,3" Click="ApplyAndCloseClick" />
-            <Button Content="Cancel" VerticalAlignment="Center" Padding="15,3" Click="CancelAndCloseClick" />
+            <Button Content="Apply and Close" VerticalAlignment="Center" Padding="15,3" Click="ApplyAndCloseClick"/>
+            <Button Content="Cancel" VerticalAlignment="Center" Padding="15,3" Click="CancelAndCloseClick"/>
         </c:SpacedStackPanel>
     </Grid>
 </views:WindowEx>

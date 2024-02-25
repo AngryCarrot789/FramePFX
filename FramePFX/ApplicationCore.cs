@@ -112,7 +112,7 @@ namespace FramePFX {
             manager.Register("PlaybackStopCommand", new StopCommand());
             manager.Register("SliceClipsCommand", new SliceClipsCommand());
             manager.Register("DuplicateClipsCommand", new DuplicateClipCommand());
-            manager.Register("DeleteSelectedClips", new DeleteClipsCommand());
+            manager.Register("DeleteSelectedClips", new DeleteSelectedClipsCommand());
             manager.Register("DeleteSelectedTracks", new DeleteSelectedTracksCommand());
             manager.Register("DeleteSpecificTrack", new DeleteSpecificTrackCommand());
             manager.Register("DeleteClipOwnerTrack", new DeleteClipOwnerTrackCommand());

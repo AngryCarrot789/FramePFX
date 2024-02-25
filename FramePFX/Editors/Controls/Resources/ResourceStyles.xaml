@@ -6,7 +6,7 @@
                     xmlns:mst="clr-namespace:FramePFX.Editors.Controls.TreeViews.Controls"
                     xmlns:vps="clr-namespace:FramePFX.Editors.Controls.Viewports">
     <ItemsPanelTemplate x:Key="HorizontalWrapPanelItemsPanelTemplate">
-        <WrapPanel Orientation="Horizontal" />
+        <WrapPanel Orientation="Horizontal"/>
     </ItemsPanelTemplate>
 
     <Style TargetType="{x:Type l:ResourcePanelControl}">
@@ -16,14 +16,14 @@
                     <Border Background="{TemplateBinding Background}">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="150" />
-                                <ColumnDefinition Width="1" />
-                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="1"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <t:ResourceTreeView x:Name="PART_ResourceTree" BorderThickness="0" Grid.Column="0" />
-                            <explorers:ResourceExplorerListControl x:Name="PART_ResourceList" Grid.Column="2" />
-                            <Border Focusable="False" UseLayoutRounding="True" Grid.Column="1" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
-                            <GridSplitter Focusable="False" Grid.Column="1" BorderThickness="0" Background="Transparent" Margin="-5,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+                            <t:ResourceTreeView x:Name="PART_ResourceTree" BorderThickness="0" Grid.Column="0"/>
+                            <explorers:ResourceExplorerListControl x:Name="PART_ResourceList" Grid.Column="2"/>
+                            <Border Focusable="False" UseLayoutRounding="True" Grid.Column="1" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                            <GridSplitter Focusable="False" Grid.Column="1" BorderThickness="0" Background="Transparent" Margin="-5,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                         </Grid>
                     </Border>
                 </ControlTemplate>
@@ -32,17 +32,17 @@
     </Style>
 
     <Style TargetType="{x:Type explorers:ResourceExplorerListControl}">
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="BorderBrush" Value="Transparent" />
-        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}" />
-        <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
-        <Setter Property="ScrollViewer.CanContentScroll" Value="true" />
-        <Setter Property="ScrollViewer.PanningMode" Value="Both" />
-        <Setter Property="Stylus.IsFlicksEnabled" Value="False" />
-        <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="ItemsPanel" Value="{StaticResource HorizontalWrapPanelItemsPanelTemplate}" />
-        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
+        <Setter Property="ScrollViewer.PanningMode" Value="Both"/>
+        <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="ItemsPanel" Value="{StaticResource HorizontalWrapPanelItemsPanelTemplate}"/>
+        <Setter Property="Focusable" Value="False"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type explorers:ResourceExplorerListControl}">
@@ -51,20 +51,20 @@
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
                         <ScrollViewer x:Name="PART_ScrollViewer" Focusable="False" Padding="{TemplateBinding Padding}">
-                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                         </ScrollViewer>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ListBox.Disabled.Background}" />
-                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource ListBox.Disabled.Border}" />
+                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ListBox.Disabled.Background}"/>
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource ListBox.Disabled.Border}"/>
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
-                                <Condition Property="IsGrouping" Value="true" />
-                                <Condition Property="VirtualizingPanel.IsVirtualizingWhenGrouping" Value="false" />
+                                <Condition Property="IsGrouping" Value="true"/>
+                                <Condition Property="VirtualizingPanel.IsVirtualizingWhenGrouping" Value="false"/>
                             </MultiTrigger.Conditions>
-                            <Setter Property="ScrollViewer.CanContentScroll" Value="false" />
+                            <Setter Property="ScrollViewer.CanContentScroll" Value="false"/>
                         </MultiTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -73,15 +73,15 @@
     </Style>
 
     <Style TargetType="{x:Type explorers:ResourceExplorerListItem}">
-        <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Background.Static}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone6.Border.Static}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Padding" Value="0" />
-        <Setter Property="Margin" Value="2" />
-        <Setter Property="HorizontalAlignment" Value="Stretch" />
-        <Setter Property="VerticalAlignment" Value="Stretch" />
-        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-        <Setter Property="VerticalContentAlignment" Value="Stretch" />
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Background.Static}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone6.Border.Static}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="2"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type explorers:ResourceExplorerListItem}">
@@ -102,59 +102,59 @@
                                 <TextBlock Padding="4,2"
                                            Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=DisplayName, Mode=OneWay}"
                                            VerticalAlignment="Center"
-                                           FontFamily="Segoe UI" FontWeight="Normal" />
+                                           FontFamily="Segoe UI" FontWeight="Normal"/>
                             </Border>
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
-                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                         </DockPanel>
                     </Border>
                     <ControlTemplate.Triggers>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
-                                <Condition Property="IsMouseOver" Value="True" />
-                                <Condition Property="IsResourceOnline" Value="True" />
+                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="IsResourceOnline" Value="True"/>
                             </MultiTrigger.Conditions>
-                            <Setter Property="Background" TargetName="PART_HeaderBorder" Value="{DynamicResource Item.MouseOver.Background}" />
-                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource Item.MouseOver.Border}" />
+                            <Setter Property="Background" TargetName="PART_HeaderBorder" Value="{DynamicResource Item.MouseOver.Background}"/>
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource Item.MouseOver.Border}"/>
                         </MultiTrigger>
 
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}" />
+                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
-                                <Condition Property="Selector.IsSelectionActive" Value="False" />
-                                <Condition Property="IsSelected" Value="True" />
+                                <Condition Property="Selector.IsSelectionActive" Value="False"/>
+                                <Condition Property="IsSelected" Value="True"/>
                             </MultiTrigger.Conditions>
-                            <Setter Property="Background" TargetName="PART_HeaderBorder" Value="{DynamicResource ABrush.AccentTone1.Background.Static}" />
-                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource ABrush.AccentTone1.Border.Static}" />
+                            <Setter Property="Background" TargetName="PART_HeaderBorder" Value="{DynamicResource ABrush.AccentTone1.Background.Static}"/>
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource ABrush.AccentTone1.Border.Static}"/>
                         </MultiTrigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
-                                <Condition Property="Selector.IsSelectionActive" Value="True" />
-                                <Condition Property="IsSelected" Value="True" />
+                                <Condition Property="Selector.IsSelectionActive" Value="True"/>
+                                <Condition Property="IsSelected" Value="True"/>
                             </MultiTrigger.Conditions>
-                            <Setter Property="Background" TargetName="PART_HeaderBorder" Value="{DynamicResource ABrush.AccentTone3.Background.Static}" />
-                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource ABrush.AccentTone3.Border.Static}" />
+                            <Setter Property="Background" TargetName="PART_HeaderBorder" Value="{DynamicResource ABrush.AccentTone3.Background.Static}"/>
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="{DynamicResource ABrush.AccentTone3.Border.Static}"/>
                         </MultiTrigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}" />
+                            <Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
                         </Trigger>
                         <Trigger Property="IsDroppableTargetOver" Value="True">
-                            <Setter Property="BorderBrush" TargetName="Bd" Value="OrangeRed" />
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="OrangeRed"/>
                         </Trigger>
                         <Trigger Property="IsResourceOnline" Value="False">
-                            <Setter Property="Background" TargetName="PART_HeaderBorder" Value="Red" />
-                            <Setter Property="BorderBrush" TargetName="Bd" Value="Red" />
+                            <Setter Property="Background" TargetName="PART_HeaderBorder" Value="Red"/>
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="Red"/>
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
-                                <Condition Property="IsMouseOver" Value="True" />
-                                <Condition Property="IsResourceOnline" Value="False" />
+                                <Condition Property="IsMouseOver" Value="True"/>
+                                <Condition Property="IsResourceOnline" Value="False"/>
                             </MultiTrigger.Conditions>
-                            <Setter Property="Background" TargetName="PART_HeaderBorder" Value="DarkRed" />
-                            <Setter Property="BorderBrush" TargetName="Bd" Value="DarkRed" />
+                            <Setter Property="Background" TargetName="PART_HeaderBorder" Value="DarkRed"/>
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="DarkRed"/>
                         </MultiTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -162,13 +162,13 @@
         </Setter>
     </Style>
 
-    <Style TargetType="{x:Type explorers:ResourceExplorerListItemContent}" />
+    <Style TargetType="{x:Type explorers:ResourceExplorerListItemContent}"/>
     <Style TargetType="{x:Type explorers:RELICFolder}" BasedOn="{StaticResource {x:Type explorers:ResourceExplorerListItemContent}}">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type explorers:RELICFolder}">
                     <TextBlock Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ItemCount, StringFormat='{}{0} Items'}"
-                               VerticalAlignment="Center" HorizontalAlignment="Center" />
+                               VerticalAlignment="Center" HorizontalAlignment="Center"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -177,7 +177,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type explorers:RELICColour}">
-                    <Border Background="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Colour}" />
+                    <Border Background="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Colour}"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -187,7 +187,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type explorers:RELICImage}">
-                    <Image x:Name="PART_Image" Stretch="Fill" />
+                    <Image x:Name="PART_Image" Stretch="Fill"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -197,7 +197,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type explorers:RELICComposition}">
-                    <vps:SKPreviewViewPortEx x:Name="PART_ViewPort" />
+                    <vps:SKPreviewViewPortEx x:Name="PART_ViewPort"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -206,17 +206,17 @@
     <Style TargetType="{x:Type t:ResourceTreeView}" BasedOn="{StaticResource {x:Type mst:MultiSelectTreeView}}">
         <Style.Triggers>
             <Trigger Property="IsDroppableTargetOver" Value="True">
-                <Setter Property="BorderBrush" Value="OrangeRed" />
+                <Setter Property="BorderBrush" Value="OrangeRed"/>
             </Trigger>
         </Style.Triggers>
     </Style>
 
     <Style TargetType="{x:Type t:ResourceTreeViewItem}" BasedOn="{StaticResource {x:Type mst:MultiSelectTreeViewItem}}">
-        <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="Padding" Value="1,2" />
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="1,2"/>
         <Style.Triggers>
             <Trigger Property="IsDroppableTargetOver" Value="True">
-                <Setter Property="Background" Value="OrangeRed" />
+                <Setter Property="Background" Value="OrangeRed"/>
             </Trigger>
         </Style.Triggers>
     </Style>

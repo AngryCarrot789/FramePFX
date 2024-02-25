@@ -149,8 +149,11 @@
     <Compile Include="AdvancedMenuService\Controls\AdvancedCommandMenuItem.cs" />
     <Compile Include="AdvancedMenuService\Controls\ContextCapturingMenu.cs" />
     <Compile Include="ApplicationCore.cs" />
+    <Compile Include="Behaviours\Behaviour.cs" />
     <Compile Include="Behaviours\BehaviourBase.cs" />
     <Compile Include="Behaviours\BehaviourCollection.cs" />
+    <Compile Include="Behaviours\IBehaviour.cs" />
+    <Compile Include="Behaviours\TestBlueBackgroundBehaviour.cs" />
     <Compile Include="CommandSystem\ExecutabilityState.cs" />
     <Compile Include="CommandSystem\Usages\CommandUsage.cs" />
     <Compile Include="CommandSystem\Usages\CommandUsageManager.cs" />
@@ -159,7 +162,7 @@
     <Compile Include="Editors\Commands\CloseProjectCommand.cs" />
     <Compile Include="Editors\Commands\CreateCompositionFromSelectionCommand.cs" />
     <Compile Include="Editors\Commands\DeleteClipOwnerTrackCommand.cs" />
-    <Compile Include="Editors\Commands\DeleteClipsCommand.cs" />
+    <Compile Include="Editors\Commands\DeleteSelectedClipsCommand.cs" />
     <Compile Include="Editors\Commands\DeleteSelectedTracksCommand.cs" />
     <Compile Include="Editors\Commands\DeleteSpecificTrackCommand.cs" />
     <Compile Include="Editors\Commands\DuplicateClipCommand.cs" />
@@ -325,6 +328,7 @@
     <Compile Include="Notifications\Notification.cs" />
     <Compile Include="Notifications\NotificationManager.cs" />
     <Compile Include="Profiling\Profiler.cs" />
+    <Compile Include="Progression\IProgressTracker.cs" />
     <Compile Include="PropertyEditing\Automation\ParameterBooleanPropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\Automation\ParameterLongPropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\Controls\Automation\KeyFrameToolsControl.cs" />

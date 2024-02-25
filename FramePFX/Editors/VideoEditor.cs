@@ -20,6 +20,8 @@
 using System;
 using System.Diagnostics;
 using System.Numerics;
+using System.Windows;
+using System.Windows.Threading;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.Resources;
@@ -201,11 +203,14 @@ namespace FramePFX.Editors {
 
             ProjectSettings settings = project.Settings;
             project.ActiveTimeline.RenderManager.UpdateFrameInfo(settings);
-            project.ActiveTimeline.RenderManager.InvalidateRender();
 
             this.Playback.SetFrameRate(settings.FrameRate);
             this.ProjectChanged?.Invoke(this, null, project);
             VideoEditorPropertyEditor.Instance.OnProjectChanged();
+
+            Application.Current.Dispatcher.InvokeAsync(() => {
+                this.Project?.ActiveTimeline.InvalidateRender();
+            }, DispatcherPriority.Background);
         }
 
         public void CloseProject() {

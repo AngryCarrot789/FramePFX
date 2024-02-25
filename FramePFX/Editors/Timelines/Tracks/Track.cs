@@ -94,7 +94,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
 
         public IEnumerable<Clip> SelectedClips => this.selectedClips;
 
-        public int SelectedClipCount => this.selectedClips.Count;
+        public int SelectedClipsCount => this.selectedClips.Count;
 
         /// <summary>
         /// Gets the index of this track within our owner timeline

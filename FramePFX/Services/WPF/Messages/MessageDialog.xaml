@@ -13,15 +13,15 @@
             Style="{StaticResource CustomWindowStyleEx}">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="42" />
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="42"/>
         </Grid.RowDefinitions>
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" x:Name="PART_ScrollViewer">
             <StackPanel Margin="10">
                 <TextBlock x:Name="PART_HeaderTextBlock" VerticalAlignment="Top" Padding="0,0,0,5"
-                           FontWeight="Bold" FontSize="20" Foreground="{DynamicResource ABrush.ColourfulGlyph.Static}" />
+                           FontWeight="Bold" FontSize="20" Foreground="{DynamicResource ABrush.ColourfulGlyph.Static}"/>
                 <TextBox x:Name="PART_ContentTextBox" Background="Transparent" BorderBrush="Transparent" BorderThickness="0"
-                         IsReadOnly="True" IsReadOnlyCaretVisible="False" TextWrapping="Wrap" VerticalAlignment="Top" Padding="0" />
+                         IsReadOnly="True" IsReadOnlyCaretVisible="False" TextWrapping="Wrap" VerticalAlignment="Top" Padding="0"/>
             </StackPanel>
         </ScrollViewer>
         <Border Grid.Row="1" Background="{DynamicResource ABrush.Tone4.Background.Static}"
@@ -29,10 +29,10 @@
                 BorderThickness="0,1,0,0"
                 x:Name="ButtonBarBorder">
             <c:SpacedStackPanel Orientation="Horizontal" InterElementGap="5" HorizontalAlignment="Right" Margin="10,0">
-                <Button Focusable="True" Content="OK" VerticalAlignment="Center" Padding="10,3" Width="70" ap:CornerRadiusHelper.Value="2" Click="OnButtonClicked" x:Name="PART_ButtonOK" />
-                <Button Focusable="True" Content="Yes" VerticalAlignment="Center" Padding="10,3" Width="70" ap:CornerRadiusHelper.Value="2" Click="OnButtonClicked" x:Name="PART_ButtonYes" />
-                <Button Focusable="True" Content="No" VerticalAlignment="Center" Padding="10,3" Width="70" ap:CornerRadiusHelper.Value="2" Click="OnButtonClicked" x:Name="PART_ButtonNo" />
-                <Button Focusable="True" Content="Cancel" VerticalAlignment="Center" Padding="10,3" Width="70" ap:CornerRadiusHelper.Value="2" Click="OnButtonClicked" x:Name="PART_ButtonCancel" />
+                <Button Focusable="True" Content="OK" VerticalAlignment="Center" Padding="10,3" Width="70" ap:CornerRadiusHelper.Value="2" Click="OnButtonClicked" x:Name="PART_ButtonOK"/>
+                <Button Focusable="True" Content="Yes" VerticalAlignment="Center" Padding="10,3" Width="70" ap:CornerRadiusHelper.Value="2" Click="OnButtonClicked" x:Name="PART_ButtonYes"/>
+                <Button Focusable="True" Content="No" VerticalAlignment="Center" Padding="10,3" Width="70" ap:CornerRadiusHelper.Value="2" Click="OnButtonClicked" x:Name="PART_ButtonNo"/>
+                <Button Focusable="True" Content="Cancel" VerticalAlignment="Center" Padding="10,3" Width="70" ap:CornerRadiusHelper.Value="2" Click="OnButtonClicked" x:Name="PART_ButtonCancel"/>
             </c:SpacedStackPanel>
         </Border>
     </Grid>

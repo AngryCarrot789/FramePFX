@@ -8,30 +8,30 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <!-- Control Styles -->
-                <ResourceDictionary Source="Themes/ColourDictionaries/SoftDark.xaml" />
-                <ResourceDictionary Source="Themes/ControlColours.xaml" />
-                <ResourceDictionary Source="Themes/Controls.xaml" />
+                <ResourceDictionary Source="Themes/ColourDictionaries/SoftDark.xaml"/>
+                <ResourceDictionary Source="Themes/ControlColours.xaml"/>
+                <ResourceDictionary Source="Themes/Controls.xaml"/>
 
                 <!-- General styles that don't really rely on that many other styles -->
-                <ResourceDictionary Source="Editors/Controls/GeneralControlStyles.xaml" />
-                <ResourceDictionary Source="Editors/Controls/Dragger/NumberDraggerStyles.xaml" />
-                <ResourceDictionary Source="AdvancedMenuService/ContextService/Controls/ContextStyles.xaml" />
+                <ResourceDictionary Source="Editors/Controls/GeneralControlStyles.xaml"/>
+                <ResourceDictionary Source="Editors/Controls/Dragger/NumberDraggerStyles.xaml"/>
+                <ResourceDictionary Source="AdvancedMenuService/ContextService/Controls/ContextStyles.xaml"/>
 
                 <!-- Multi-select tree -->
-                <ResourceDictionary Source="Editors/Controls/TreeViews/Themes/EditTextBox.xaml" />
-                <ResourceDictionary Source="Editors/Controls/TreeViews/Themes/MultiSelectTreeView.Aero2.xaml" />
-                <ResourceDictionary Source="Editors/Controls/TreeViews/Themes/MultiSelectTreeViewItem.Aero2.xaml" />
+                <ResourceDictionary Source="Editors/Controls/TreeViews/Themes/EditTextBox.xaml"/>
+                <ResourceDictionary Source="Editors/Controls/TreeViews/Themes/MultiSelectTreeView.Aero2.xaml"/>
+                <ResourceDictionary Source="Editors/Controls/TreeViews/Themes/MultiSelectTreeViewItem.Aero2.xaml"/>
 
                 <!-- Advanced styles, some of these should probably be user controls -->
-                <ResourceDictionary Source="Editors/Controls/Resources/ResourceStyles.xaml" />
-                <ResourceDictionary Source="Editors/Controls/Timelines/TimelineStyles.xaml" />
-                <ResourceDictionary Source="PropertyEditing/Controls/PropertyEditorStyles.xaml" />
-                <ResourceDictionary Source="PropertyEditing/Controls/PropertyEditorSlotContentStyles.xaml" />
-                <ResourceDictionary Source="Editors/ResourceManaging/Autoloading/Controls/InvalidResourceControlStyles.xaml" />
-                <ResourceDictionary Source="Editors/Exporting/ExporterStyles.xaml" />
+                <ResourceDictionary Source="Editors/Controls/Resources/ResourceStyles.xaml"/>
+                <ResourceDictionary Source="Editors/Controls/Timelines/TimelineStyles.xaml"/>
+                <ResourceDictionary Source="PropertyEditing/Controls/PropertyEditorStyles.xaml"/>
+                <ResourceDictionary Source="PropertyEditing/Controls/PropertyEditorSlotContentStyles.xaml"/>
+                <ResourceDictionary Source="Editors/ResourceManaging/Autoloading/Controls/InvalidResourceControlStyles.xaml"/>
+                <ResourceDictionary Source="Editors/Exporting/ExporterStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            <Style TargetType="{x:Type effectProviding:EffectProviderListBox}" BasedOn="{StaticResource {x:Type ListBox}}" />
-            <Style TargetType="{x:Type effectProviding:EffectProviderListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}" />
+            <Style TargetType="{x:Type effectProviding:EffectProviderListBox}" BasedOn="{StaticResource {x:Type ListBox}}"/>
+            <Style TargetType="{x:Type effectProviding:EffectProviderListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

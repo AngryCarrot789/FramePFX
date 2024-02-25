@@ -3,46 +3,46 @@
                     xmlns:c="clr-namespace:FramePFX.Editors.Controls">
     <DataTemplate x:Key="PlayStateButton_PlayContentTemplate">
         <Polygon Width="15" Height="15" Points="0,15 0,0 15,7.5" Fill="{DynamicResource ABrush.Glyph.Static}"
-                 UseLayoutRounding="True" SnapsToDevicePixels="True" />
+                 UseLayoutRounding="True" SnapsToDevicePixels="True"/>
     </DataTemplate>
     <DataTemplate x:Key="PlayStateButton_PauseContentTemplate">
         <Grid Width="15" Height="15" UseLayoutRounding="True">
-            <Rectangle Width="5" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}" />
-            <Rectangle Width="5" HorizontalAlignment="Right" Fill="{DynamicResource ABrush.Glyph.Static}" />
+            <Rectangle Width="5" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}"/>
+            <Rectangle Width="5" HorizontalAlignment="Right" Fill="{DynamicResource ABrush.Glyph.Static}"/>
         </Grid>
     </DataTemplate>
     <DataTemplate x:Key="PlayStateButton_StopContentTemplate">
         <Rectangle Width="13" Height="13" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}"
-                   UseLayoutRounding="True" SnapsToDevicePixels="True" />
+                   UseLayoutRounding="True" SnapsToDevicePixels="True"/>
     </DataTemplate>
     <DataTemplate x:Key="TogglePlayStateButton_PlayContentTemplate">
         <Grid Width="17" Height="10">
             <StackPanel Orientation="Horizontal">
-                <Polygon Width="8" Height="10" Points="0,10 0,0 8,5" Margin="0" Fill="{DynamicResource ABrush.Glyph.Static}" />
-                <Rectangle Width="3" Margin="1,0,0,0" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}" />
-                <Rectangle Width="3" Margin="2,0,0,0" HorizontalAlignment="Right" Fill="{DynamicResource ABrush.Glyph.Static}" />
+                <Polygon Width="8" Height="10" Points="0,10 0,0 8,5" Margin="0" Fill="{DynamicResource ABrush.Glyph.Static}"/>
+                <Rectangle Width="3" Margin="1,0,0,0" HorizontalAlignment="Left" Fill="{DynamicResource ABrush.Glyph.Static}"/>
+                <Rectangle Width="3" Margin="2,0,0,0" HorizontalAlignment="Right" Fill="{DynamicResource ABrush.Glyph.Static}"/>
             </StackPanel>
         </Grid>
     </DataTemplate>
 
-    <Style TargetType="{x:Type c:CancellableThumb}" BasedOn="{StaticResource {x:Type Thumb}}" />
+    <Style TargetType="{x:Type c:CancellableThumb}" BasedOn="{StaticResource {x:Type Thumb}}"/>
     <Style TargetType="{x:Type c:PlayStateButton}" BasedOn="{StaticResource {x:Type Button}}">
         <Style.Triggers>
             <Trigger Property="PlayState" Value="Play">
-                <Setter Property="ContentTemplate" Value="{StaticResource PlayStateButton_PlayContentTemplate}" />
+                <Setter Property="ContentTemplate" Value="{StaticResource PlayStateButton_PlayContentTemplate}"/>
             </Trigger>
             <Trigger Property="PlayState" Value="Pause">
-                <Setter Property="ContentTemplate" Value="{StaticResource PlayStateButton_PauseContentTemplate}" />
+                <Setter Property="ContentTemplate" Value="{StaticResource PlayStateButton_PauseContentTemplate}"/>
             </Trigger>
             <Trigger Property="PlayState" Value="Stop">
-                <Setter Property="ContentTemplate" Value="{StaticResource PlayStateButton_StopContentTemplate}" />
+                <Setter Property="ContentTemplate" Value="{StaticResource PlayStateButton_StopContentTemplate}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
     <Style TargetType="{x:Type c:TogglePlayStateButton}" BasedOn="{StaticResource {x:Type c:PlayStateButton}}">
         <Style.Triggers>
             <Trigger Property="PlayState" Value="Play">
-                <Setter Property="ContentTemplate" Value="{StaticResource TogglePlayStateButton_PlayContentTemplate}" />
+                <Setter Property="ContentTemplate" Value="{StaticResource TogglePlayStateButton_PlayContentTemplate}"/>
             </Trigger>
         </Style.Triggers>
     </Style>

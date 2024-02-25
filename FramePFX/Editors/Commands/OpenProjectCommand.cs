@@ -37,10 +37,6 @@ namespace FramePFX.Editors.Commands {
                 return;
             }
 
-            if (!CloseProjectCommand.CloseProject(editor)) {
-                return;
-            }
-
             string filePath = IoC.FilePickService.OpenFile("Open a project file (.fpfx)", Filters.ProjectType);
             if (filePath == null) {
                 return;
@@ -48,6 +44,11 @@ namespace FramePFX.Editors.Commands {
 
             if (!File.Exists(filePath)) {
                 IoC.MessageService.ShowMessage("No such file", "That project file does not exist");
+                return;
+            }
+
+            if (!CloseProjectCommand.CloseProject(editor)) {
+                return;
             }
 
             OpenProjectAt(editor, filePath);

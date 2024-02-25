@@ -122,6 +122,11 @@ namespace FramePFX.Editors.Timelines {
         public IEnumerable<Clip> SelectedClips => this.tracks.SelectMany(t => t.SelectedClips);
 
         /// <summary>
+        /// Returns the total number of clips selected in this timeline
+        /// </summary>
+        public int SelectedClipsCount => this.tracks.Sum(x => x.SelectedClipsCount);
+
+        /// <summary>
         /// Returns the track selection type based on how many tracks are selected.
         /// Does not require enumerating the tracks as track selection is cached
         /// </summary>
@@ -142,7 +147,7 @@ namespace FramePFX.Editors.Timelines {
             get {
                 int count = 0;
                 foreach (Track track in this.tracks) {
-                    count += track.SelectedClipCount;
+                    count += track.SelectedClipsCount;
                     if (count > 1) {
                         return SelectionType.Multi;
                     }
@@ -156,7 +161,7 @@ namespace FramePFX.Editors.Timelines {
         /// Returns true when there is at least one selected clips in any track. This may
         /// require enumerating all tracks, but not all clips (since selected clips are cached)
         /// </summary>
-        public bool HasAnySelectedClips => this.tracks.Any(track => track.SelectedClipCount > 0);
+        public bool HasAnySelectedClips => this.tracks.Any(track => track.SelectedClipsCount > 0);
 
         public bool HasAnySelectedTracks => this.selectedTracks.Count > 0;
 
@@ -455,7 +460,7 @@ namespace FramePFX.Editors.Timelines {
         public int GetSelectedClipCountWith(Clip clip) {
             int count = 0;
             foreach (Track track in this.tracks) {
-                count += track.SelectedClipCount;
+                count += track.SelectedClipsCount;
             }
 
             if (clip != null && !clip.IsSelected) {

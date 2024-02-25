@@ -17,29 +17,19 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Collections.Generic;
 using FramePFX.CommandSystem;
-using FramePFX.Editors.Timelines;
+using FramePFX.Editors.Contextual;
 using FramePFX.Editors.Timelines.Clips;
-using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editors.Commands {
-    public class DeleteClipsCommand : Command {
+    public class DeleteSelectedClipsCommand : Command {
         public override ExecutabilityState CanExecute(CommandEventArgs e) {
-            return e.ContextData.ContainsKey(DataKeys.ClipKey) || e.ContextData.ContainsKey(DataKeys.TimelineKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+            return ClipContextRegistry.CanGetClipSelection(e.ContextData);
         }
 
         public override void Execute(CommandEventArgs e) {
-            HashSet<Clip> clips = new HashSet<Clip>();
-            if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip focusedClip)) {
-                clips.Add(focusedClip);
-            }
-
-            Timeline timeline;
-            if ((timeline = focusedClip?.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.ContextData, out timeline)) {
-                foreach (Clip clip in timeline.SelectedClips) {
-                    clips.Add(clip);
-                }
+            if (!ClipContextRegistry.GetClipSelection(e.ContextData, out Clip[] clips)) {
+                return;
             }
 
             foreach (Clip clip in clips) {

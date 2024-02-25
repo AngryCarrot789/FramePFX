@@ -12,6 +12,7 @@
             xmlns:effectProviding="clr-namespace:FramePFX.Editors.Controls.EffectProviding"
             xmlns:c1="clr-namespace:FramePFX.Editors.Controls"
             xmlns:c2="clr-namespace:FramePFX.AdvancedMenuService.Controls"
+            xmlns:behaviours="clr-namespace:FramePFX.Behaviours"
             mc:Ignorable="d"
             Style="{StaticResource CustomWindowStyleEx}"
             Background="{DynamicResource PanelBackground0}"
@@ -22,9 +23,9 @@
             wpf:UIInputManager.FocusPath="Application/Editor">
     <Grid Margin="0" x:Name="PART_EditorWindowContent">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="20" />
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
         <!-- 
             Context capturing menu is used to capture the context data of the 
@@ -34,47 +35,54 @@
         <c2:ContextCapturingMenu Grid.Row="0" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1"
                                  Background="{Binding TitlebarBrush, RelativeSource={RelativeSource AncestorType={x:Type v:WindowEx}, Mode=FindAncestor}}">
             <MenuItem Header="File">
-                <c2:AdvancedCommandMenuItem Header="New Project" CommandId="NewProjectCommand" />
-                <c2:AdvancedCommandMenuItem Header="Open Project..." CommandId="OpenProjectCommand" />
-                <c2:AdvancedCommandMenuItem Header="Save Project" CommandId="SaveProjectCommand" />
-                <c2:AdvancedCommandMenuItem Header="Save Project As..." CommandId="SaveProjectAsCommand" />
-                <c2:AdvancedCommandMenuItem Header="Close Project" CommandId="CloseProjectCommand" />
-                <Separator />
+                <c2:AdvancedCommandMenuItem Header="New Project" CommandId="NewProjectCommand"/>
+                <c2:AdvancedCommandMenuItem Header="Open Project..." CommandId="OpenProjectCommand"/>
+                <c2:AdvancedCommandMenuItem Header="Save Project" CommandId="SaveProjectCommand"/>
+                <c2:AdvancedCommandMenuItem Header="Save Project As..." CommandId="SaveProjectAsCommand"/>
+                <c2:AdvancedCommandMenuItem Header="Close Project" CommandId="CloseProjectCommand"/>
+                <Separator/>
                 <c2:AdvancedCommandMenuItem Header="Export" CommandId="ExportCommand"
-                                            ToolTip="Export the current project" />
+                                            ToolTip="Export the current project"/>
                 <c2:AdvancedCommandMenuItem Header="Export Active Timeline" CommandId="ExportActiveTimelineCommand"
-                                            ToolTip="Exports the currently active timeline only (not the project timeline)" />
+                                            ToolTip="Exports the currently active timeline only (not the project timeline)"/>
             </MenuItem>
             <MenuItem Header="Theme">
-                <MenuItem Header="Deep Dark" Click="SetThemeClick" Uid="0" />
-                <MenuItem Header="Soft Dark (default)" Click="SetThemeClick" Uid="1" />
-                <MenuItem Header="Dark Grey" Click="SetThemeClick" Uid="2" />
-                <MenuItem Header="Grey" Click="SetThemeClick" Uid="3" />
-                <MenuItem Header="Red and Black" Click="SetThemeClick" Uid="4" />
-                <MenuItem Header="Light Theme" Click="SetThemeClick" Uid="5" />
-            </MenuItem>
+                <MenuItem Header="Deep Dark" Click="SetThemeClick" Uid="0"/>
+                <MenuItem Header="Soft Dark (default)" Click="SetThemeClick" Uid="1"/>
+                <MenuItem Header="Dark Grey" Click="SetThemeClick" Uid="2"/>
+                <MenuItem Header="Grey" Click="SetThemeClick" Uid="3"/>
+                <MenuItem Header="Red and Black" Click="SetThemeClick" Uid="4">
+                    <behaviours:BehaviourCollection.Behaviours>
+                        <behaviours:BehaviourCollection>
+                            <behaviours:TestRedBackgroundBehaviour1/>
+                            <behaviours:TestBlueBackgroundBehaviour2/>
+                        </behaviours:BehaviourCollection>
+                    </behaviours:BehaviourCollection.Behaviours>
+                </MenuItem>
+                <MenuItem Header="Light Theme" Click="SetThemeClick" Uid="5"/>
+                </MenuItem>
         </c2:ContextCapturingMenu>
         <Grid Grid.Row="1" x:Name="PART_MainVideoEditorContent">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*" MinHeight="100" />
-                <RowDefinition Height="1" />
-                <RowDefinition Height="*" MinHeight="100" />
+                <RowDefinition Height="*" MinHeight="100"/>
+                <RowDefinition Height="1"/>
+                <RowDefinition Height="*" MinHeight="100"/>
             </Grid.RowDefinitions>
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="44*" />
-                    <ColumnDefinition Width="1" />
-                    <ColumnDefinition Width="50*" />
-                    <ColumnDefinition Width="1" />
-                    <ColumnDefinition Width="27*" />
+                    <ColumnDefinition Width="44*"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="50*"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="27*"/>
                 </Grid.ColumnDefinitions>
                 <Border Background="{DynamicResource PanelBackground3}">
                     <TabControl Grid.Column="0" BorderBrush="{DynamicResource PanelBorderBrush}" Margin="0" Style="{StaticResource NoOffsetTabControl}">
                         <TabItem Header="Resources" wpf:UIInputManager.FocusPath="Application/Editor/ResourceManager">
-                            <resources:ResourcePanelControl x:Name="TheResourcePanel" Background="{DynamicResource PanelBackground3}" Focusable="True" />
+                            <resources:ResourcePanelControl x:Name="TheResourcePanel" Background="{DynamicResource PanelBackground3}" Focusable="True"/>
                         </TabItem>
                         <TabItem Header="Effects" wpf:UIInputManager.FocusPath="Application/Editor/EffectSourcePanel">
-                            <effectProviding:EffectProviderListBox EffectProviderManager="{x:Static fxsrc:EffectProviderManager.Instance}" />
+                            <effectProviding:EffectProviderListBox EffectProviderManager="{x:Static fxsrc:EffectProviderManager.Instance}"/>
                         </TabItem>
                     </TabControl>
                 </Border>
@@ -87,9 +95,9 @@
                                 <!-- Left Panel -->
                                 <Grid Margin="5,0,0,0" DockPanel.Dock="Left">
                                     <Button Focusable="False" Content="Fit to Scale" Width="75" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="0,4,0,4"
-                                            Click="OnFitToContentClicked" />
+                                            Click="OnFitToContentClicked"/>
                                     <CheckBox Focusable="False" Content="Zoom to cursor" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="85,5,0,5"
-                                              IsChecked="{Binding PanToCursorOnUserZoom, ElementName=VPViewBox}" />
+                                              IsChecked="{Binding PanToCursorOnUserZoom, ElementName=VPViewBox}"/>
                                 </Grid>
 
                                 <!-- Right Panel -->
@@ -97,19 +105,19 @@
                                     <CheckBox Focusable="False"
                                               Content="NN" Margin="0,0,5,0"
                                               IsChecked="{Binding UseNearestNeighbourRendering, ElementName=PART_ViewPort, Mode=TwoWay}"
-                                              ToolTip="Toggle between Nearest-Neighbour and Linear scaling for the VIEW PORT ONLY. Nearest-neighbour does not use smoothing between pixels, and is closer to what you will see in the final render. This is only really apparent when zoomed in or with low resolution frames" />
+                                              ToolTip="Toggle between Nearest-Neighbour and Linear scaling for the VIEW PORT ONLY. Nearest-neighbour does not use smoothing between pixels, and is closer to what you will see in the final render. This is only really apparent when zoomed in or with low resolution frames"/>
                                     <CheckBox Focusable="False"
                                               Content="Sel"
                                               IsChecked="{Binding DrawSelectedElements, ElementName=PART_ViewPort, Mode=TwoWay}"
-                                              ToolTip="Toggles whether or not selected elements are outlined" />
+                                              ToolTip="Toggles whether or not selected elements are outlined"/>
                                 </StackPanel>
 
                                 <!-- Center Panel -->
                                 <StackPanel Margin="0,4" Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <c1:TogglePlayStateButton Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}" />
-                                    <c1:PlayStateButton Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Play" CommandId="PlaybackPlayCommand" />
-                                    <c1:PlayStateButton Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Pause" CommandId="PlaybackPauseCommand" />
-                                    <c1:PlayStateButton Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Stop" CommandId="PlaybackStopCommand" />
+                                    <c1:TogglePlayStateButton Width="{Binding RelativeSource={RelativeSource Self}, Path=ActualHeight}"/>
+                                    <c1:PlayStateButton Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Play" CommandId="PlaybackPlayCommand"/>
+                                    <c1:PlayStateButton Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Pause" CommandId="PlaybackPauseCommand"/>
+                                    <c1:PlayStateButton Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Stop" CommandId="PlaybackStopCommand"/>
                                 </StackPanel>
                             </DockPanel>
                         </Border>
@@ -118,13 +126,13 @@
                                 BorderBrush="{DynamicResource PanelBorderBrush}"
                                 BorderThickness="0,1,0,0">
                             <Grid>
-                                <ComboBox HorizontalAlignment="Left" BorderThickness="0" ToolTip="Rendering quality" />
-                                <Button Content="Edit Project Settings" HorizontalAlignment="Right" Padding="15,0" BorderThickness="0" Click="EditProjectSettings_Click" />
+                                <ComboBox HorizontalAlignment="Left" BorderThickness="0" ToolTip="Rendering quality"/>
+                                <Button Content="Edit Project Settings" HorizontalAlignment="Right" Padding="15,0" BorderThickness="0" Click="EditProjectSettings_Click"/>
                             </Grid>
                         </Border>
                         <Grid Background="Transparent">
                             <cv:FreeMoveViewPort x:Name="VPViewBox" ClipToBounds="True" Background="{DynamicResource PanelBackground1}">
-                                <cv:VideoEditorViewPortPreview x:Name="PART_ViewPort" Width="1" Height="1" />
+                                <cv:VideoEditorViewPortPreview x:Name="PART_ViewPort" Width="1" Height="1"/>
                             </cv:FreeMoveViewPort>
                         </Grid>
                     </DockPanel>
@@ -134,13 +142,13 @@
                     <Border Background="{DynamicResource PanelBackground3}"
                             BorderBrush="{DynamicResource PanelBorderBrush}"
                             BorderThickness="0 1 0 0">
-                        <controls:PropertyEditorControl x:Name="ThePropertyEditor" Focusable="True" Background="Transparent" />
+                        <controls:PropertyEditorControl x:Name="ThePropertyEditor" Focusable="True" Background="Transparent"/>
                     </Border>
                 </GroupBox>
-                <Border Grid.Column="1" Focusable="False" UseLayoutRounding="True" SnapsToDevicePixels="True" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
-                <GridSplitter Grid.Column="1" Focusable="False" BorderThickness="0" Background="Transparent" Margin="-5,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
-                <Border Grid.Column="3" Focusable="False" UseLayoutRounding="True" SnapsToDevicePixels="True" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
-                <GridSplitter Grid.Column="3" Focusable="False" BorderThickness="0" Background="Transparent" Margin="-5,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+                <Border Grid.Column="1" Focusable="False" UseLayoutRounding="True" SnapsToDevicePixels="True" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                <GridSplitter Grid.Column="1" Focusable="False" BorderThickness="0" Background="Transparent" Margin="-5,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                <Border Grid.Column="3" Focusable="False" UseLayoutRounding="True" SnapsToDevicePixels="True" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                <GridSplitter Grid.Column="3" Focusable="False" BorderThickness="0" Background="Transparent" Margin="-5,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </Grid>
             <GroupBox Grid.Row="2"
                       Grid.ColumnSpan="3"
@@ -150,30 +158,30 @@
                       x:Name="PART_TimelinePresenterGroupBox">
                 <GroupBox.Header>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Timeline" x:Name="PART_TimelineName" VerticalAlignment="Center" />
-                        <Separator Style="{StaticResource VerticalSeparator}" Margin="5,0" />
-                        <Button x:Name="PART_CloseTimelineButton" Click="PART_CloseTimelineButton_OnClick" Content="Close Timeline" ToolTip="Closes the active composition timeline and opens the project timeline" Padding="5,2" />
+                        <TextBlock Text="Timeline" x:Name="PART_TimelineName" VerticalAlignment="Center"/>
+                        <Separator Style="{StaticResource VerticalSeparator}" Margin="5,0"/>
+                        <Button x:Name="PART_CloseTimelineButton" Click="PART_CloseTimelineButton_OnClick" Content="Close Timeline" ToolTip="Closes the active composition timeline and opens the project timeline" Padding="5,2"/>
                     </StackPanel>
                 </GroupBox.Header>
                 <Border BorderThickness="0,1,0,0" BorderBrush="{DynamicResource PanelBorderBrush}">
-                    <tl:TimelineControl VerticalAlignment="Stretch" x:Name="TheTimeline" />
+                    <tl:TimelineControl VerticalAlignment="Stretch" x:Name="TheTimeline"/>
                 </Border>
             </GroupBox>
-            <Border Grid.Row="1" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
-            <GridSplitter Grid.Row="1" BorderThickness="0" Background="Transparent" Margin="0,-3,0,-12" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            <Border Grid.Row="1" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <GridSplitter Grid.Row="1" BorderThickness="0" Background="Transparent" Margin="0,-3,0,-12" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
         </Grid>
         <Border Grid.Row="2" Background="{DynamicResource ABrush.Tone5.Background.Static}"
                 BorderThickness="0,1,0,0" BorderBrush="{DynamicResource PanelBorderBrush}"
                 x:Name="PART_ActivityBarBorder">
             <DockPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                    <Separator Style="{StaticResource VerticalSeparator}" Margin="5,0" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" />
+                    <Separator Style="{StaticResource VerticalSeparator}" Margin="5,0" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}"/>
                     <StackPanel Orientation="Horizontal" ToolTip="The amount of time it took to render a single frame. This is averaged over 5 frames" VerticalAlignment="Center">
-                        <TextBlock Text="Render: " VerticalAlignment="Center" />
-                        <TextBlock x:Name="PART_AvgRenderTimeBlock" Text="" FontFamily="Consolas" VerticalAlignment="Center" />
+                        <TextBlock Text="Render: " VerticalAlignment="Center"/>
+                        <TextBlock x:Name="PART_AvgRenderTimeBlock" Text="" FontFamily="Consolas" VerticalAlignment="Center"/>
                     </StackPanel>
                 </StackPanel>
-                <TextBlock Padding="4,0" VerticalAlignment="Center" x:Name="ActivityTextBlock" FontFamily="Segoe UI" />
+                <TextBlock Padding="4,0" VerticalAlignment="Center" x:Name="ActivityTextBlock" FontFamily="Segoe UI"/>
             </DockPanel>
         </Border>
     </Grid>

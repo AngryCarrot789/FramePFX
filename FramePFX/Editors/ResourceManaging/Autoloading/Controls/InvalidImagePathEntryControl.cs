@@ -30,7 +30,6 @@ namespace FramePFX.Editors.ResourceManaging.Autoloading.Controls {
         private readonly GetSetAutoEventPropertyBinder<InvalidImagePathEntry> filePathBinder = new GetSetAutoEventPropertyBinder<InvalidImagePathEntry>(TextBox.TextProperty, nameof(InvalidImagePathEntry.FilePathChanged), b => b.Model.FilePath, (b, v) => b.Model.FilePath = (string) v);
 
         public InvalidImagePathEntryControl() {
-
         }
 
         public override void OnApplyTemplate() {

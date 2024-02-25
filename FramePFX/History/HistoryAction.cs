@@ -27,7 +27,6 @@ namespace FramePFX.History {
         private int state; // 0 = default, 1 = last was undo, 2 = last was redo
 
         protected HistoryAction() {
-
         }
 
         public bool Undo() {

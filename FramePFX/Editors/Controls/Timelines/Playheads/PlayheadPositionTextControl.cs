@@ -24,7 +24,7 @@ using FramePFX.Editors.Timelines;
 
 namespace FramePFX.Editors.Controls.Timelines.Playheads {
     public class PlayheadPositionTextControl : Control {
-        public static readonly DependencyProperty TimelineProperty = DependencyProperty.Register("Timeline", typeof(Timeline), typeof(PlayheadPositionTextControl), new PropertyMetadata(null, (d, e) => ((PlayheadPositionTextControl) d).OnTimelineChanged((Timeline)e.OldValue, (Timeline)e.NewValue)));
+        public static readonly DependencyProperty TimelineProperty = DependencyProperty.Register("Timeline", typeof(Timeline), typeof(PlayheadPositionTextControl), new PropertyMetadata(null, (d, e) => ((PlayheadPositionTextControl) d).OnTimelineChanged((Timeline) e.OldValue, (Timeline) e.NewValue)));
         public static readonly DependencyProperty PlayHeadPositionProperty = DependencyProperty.Register("PlayHeadPosition", typeof(long), typeof(PlayheadPositionTextControl), new FrameworkPropertyMetadata(0L));
         public static readonly DependencyProperty TotalFrameDurationProperty = DependencyProperty.Register("TotalFrameDuration", typeof(long), typeof(PlayheadPositionTextControl), new FrameworkPropertyMetadata(0L));
         public static readonly DependencyProperty LargestFrameInUseProperty = DependencyProperty.Register("LargestFrameInUse", typeof(long), typeof(PlayheadPositionTextControl), new PropertyMetadata(0L));
@@ -71,6 +71,11 @@ namespace FramePFX.Editors.Controls.Timelines.Playheads {
                 this.totalFramesBinder.Attach(this, newTimeline);
                 this.playHeadBinder.Attach(this, newTimeline);
                 this.largestFrameInUseBinder.Attach(this, newTimeline);
+            }
+            else {
+                this.PlayHeadPosition = 0;
+                this.TotalFrameDuration = 0;
+                this.LargestFrameInUse = 0;
             }
         }
     }

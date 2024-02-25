@@ -29,7 +29,6 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
         public new ParameterBooleanPropertyEditorSlot SlotModel => (ParameterBooleanPropertyEditorSlot) base.SlotControl.Model;
 
         public ParameterBooleanPropertyEditorControl() {
-
         }
 
         static ParameterBooleanPropertyEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(ParameterBooleanPropertyEditorControl), new FrameworkPropertyMetadata(typeof(ParameterBooleanPropertyEditorControl)));

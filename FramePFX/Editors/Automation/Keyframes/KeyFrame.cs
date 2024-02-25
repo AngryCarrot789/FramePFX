@@ -26,12 +26,17 @@ using FramePFX.Utils;
 
 namespace FramePFX.Editors.Automation.Keyframes {
     public delegate void KeyFramePositionChangedEventHandler(KeyFrame keyFrame, long oldFrame, long newFrame);
+
     public delegate void KeyFrameEventHandler(KeyFrame keyFrame);
 
     public delegate void FloatKeyFrameValueChanged(KeyFrameFloat keyFrame, float oldValue, float newValue);
+
     public delegate void DoubleKeyFrameValueChanged(KeyFrameDouble keyFrame, double oldValue, double newValue);
+
     public delegate void LongKeyFrameValueChanged(KeyFrameLong keyFrame, long oldValue, long newValue);
+
     public delegate void BooleanKeyFrameValueChanged(KeyFrameBoolean keyFrame, bool oldValue, bool newValue);
+
     public delegate void Vector2KeyFrameValueChanged(KeyFrameVector2 keyFrame, Vector2 oldValue, Vector2 newValue);
 
     /// <summary>
@@ -143,9 +148,9 @@ namespace FramePFX.Editors.Automation.Keyframes {
         [SwitchAutomationDataType]
         public static KeyFrame CreateInstance(AutomationDataType type) {
             switch (type) {
-                case AutomationDataType.Float:   return new KeyFrameFloat();
-                case AutomationDataType.Double:  return new KeyFrameDouble();
-                case AutomationDataType.Long:    return new KeyFrameLong();
+                case AutomationDataType.Float: return new KeyFrameFloat();
+                case AutomationDataType.Double: return new KeyFrameDouble();
+                case AutomationDataType.Long: return new KeyFrameLong();
                 case AutomationDataType.Boolean: return new KeyFrameBoolean();
                 case AutomationDataType.Vector2: return new KeyFrameVector2();
                 default: throw new ArgumentOutOfRangeException(nameof(type), type, "Invalid automation data type enum");

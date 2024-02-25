@@ -31,7 +31,7 @@ namespace FramePFX.Editors.Controls.Timelines.Playheads {
         }
 
         static PlayHeadControl() {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof (PlayHeadControl), new FrameworkPropertyMetadata(typeof(PlayHeadControl)));
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(PlayHeadControl), new FrameworkPropertyMetadata(typeof(PlayHeadControl)));
         }
 
         public override long GetFrame(Timeline timeline) {

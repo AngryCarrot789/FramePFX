@@ -29,6 +29,7 @@ namespace FramePFX.History {
     public class HistoryManager {
         private readonly LinkedList<IHistoryAction> undoList;
         private readonly LinkedList<IHistoryAction> redoList;
+
         private readonly Stack<List<IHistoryAction>> actionStack;
         // private HistoryManager parent;
 

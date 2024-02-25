@@ -26,12 +26,12 @@ namespace FramePFX.Editors.Controls {
         public static readonly DependencyProperty SpacingProperty = DependencyProperty.Register("Spacing", typeof(double), typeof(SpacedUniformGrid), new PropertyMetadata(0.0d));
 
         public Orientation Orientation {
-            get => (Orientation)this.GetValue(OrientationProperty);
+            get => (Orientation) this.GetValue(OrientationProperty);
             set => this.SetValue(OrientationProperty, value);
         }
 
         public double Spacing {
-            get => (double)this.GetValue(SpacingProperty);
+            get => (double) this.GetValue(SpacingProperty);
             set => this.SetValue(SpacingProperty, value);
         }
 
@@ -41,9 +41,7 @@ namespace FramePFX.Editors.Controls {
         private static double GetTotalGap(int numElements, double spacing) => numElements < 2 ? 0d : ((numElements - 1) * spacing);
 
         private static Size GetSlotSizePerElement(Size constraint, Orientation orientation, int numVisible, double totalGap) {
-            return orientation == Orientation.Horizontal ?
-                new Size((constraint.Width - totalGap) / numVisible, constraint.Height) :
-                new Size(constraint.Width, (constraint.Height - totalGap) / numVisible);
+            return orientation == Orientation.Horizontal ? new Size((constraint.Width - totalGap) / numVisible, constraint.Height) : new Size(constraint.Width, (constraint.Height - totalGap) / numVisible);
         }
 
         protected override Size MeasureOverride(Size constraint) {

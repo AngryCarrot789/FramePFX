@@ -219,7 +219,7 @@ namespace FramePFX.Utils.Collections {
             private void RebakeSelfAndDerivedTypesInheritedItems() {
                 this.inheritedItems.Clear();
                 foreach (TypeEntry baseType in this.baseTypeList) {
-                    foreach (KeyValuePair<Type,T> entry in baseType.inheritedItems) {
+                    foreach (KeyValuePair<Type, T> entry in baseType.inheritedItems) {
                         this.inheritedItems[entry.Key] = entry.Value;
                     }
                 }

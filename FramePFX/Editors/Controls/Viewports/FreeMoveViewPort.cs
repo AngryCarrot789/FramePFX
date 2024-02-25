@@ -41,7 +41,7 @@ namespace FramePFX.Editors.Controls.Viewports {
                 new FrameworkPropertyMetadata(
                     0.05d,
                     FrameworkPropertyMetadataOptions.AffectsMeasure,
-                    (d, e) => OnMinimumZoomChanged((FreeMoveViewPort)d, (double)e.OldValue, (double)e.NewValue),
+                    (d, e) => OnMinimumZoomChanged((FreeMoveViewPort) d, (double) e.OldValue, (double) e.NewValue),
                     CoerceMinimumZoom));
 
         public static readonly DependencyProperty MaximumZoomScaleProperty =
@@ -52,7 +52,7 @@ namespace FramePFX.Editors.Controls.Viewports {
                 new FrameworkPropertyMetadata(
                     double.PositiveInfinity,
                     FrameworkPropertyMetadataOptions.AffectsMeasure,
-                    (d, e) => OnMaximumZoomChanged((FreeMoveViewPort)d, (double)e.OldValue, (double)e.NewValue),
+                    (d, e) => OnMaximumZoomChanged((FreeMoveViewPort) d, (double) e.OldValue, (double) e.NewValue),
                     CoerceMaximumZoom));
 
         public static readonly DependencyProperty ZoomScaleProperty =
@@ -63,7 +63,7 @@ namespace FramePFX.Editors.Controls.Viewports {
                 new FrameworkPropertyMetadata(
                     1d,
                     FrameworkPropertyMetadataOptions.AffectsMeasure,
-                    (d, e) => OnZoomChanged((FreeMoveViewPort)d, (double)e.OldValue, (double)e.NewValue),
+                    (d, e) => OnZoomChanged((FreeMoveViewPort) d, (double) e.OldValue, (double) e.NewValue),
                     CoerceZoom));
 
         public static readonly DependencyProperty HorizontalOffsetProperty =
@@ -74,7 +74,7 @@ namespace FramePFX.Editors.Controls.Viewports {
                 new FrameworkPropertyMetadata(
                     ZeroDoubleBoxed,
                     FrameworkPropertyMetadataOptions.AffectsMeasure,
-                    (d, e) => OnHorizontalOffsetChanged((FreeMoveViewPort)d, (double)e.OldValue, (double)e.NewValue),
+                    (d, e) => OnHorizontalOffsetChanged((FreeMoveViewPort) d, (double) e.OldValue, (double) e.NewValue),
                     CoerceHorizontalOffset));
 
         public static readonly DependencyProperty VerticalOffsetProperty =
@@ -85,7 +85,7 @@ namespace FramePFX.Editors.Controls.Viewports {
                 new FrameworkPropertyMetadata(
                     ZeroDoubleBoxed,
                     FrameworkPropertyMetadataOptions.AffectsMeasure,
-                    (d, e) => OnVerticalOffsetChanged((FreeMoveViewPort)d, (double)e.OldValue, (double)e.NewValue),
+                    (d, e) => OnVerticalOffsetChanged((FreeMoveViewPort) d, (double) e.OldValue, (double) e.NewValue),
                     CoerceVerticalOffset));
 
         public static readonly DependencyProperty PanToCursorOnUserZoomProperty =
@@ -98,27 +98,27 @@ namespace FramePFX.Editors.Controls.Viewports {
         #endregion
 
         public double MinimumZoomScale {
-            get => (double)this.GetValue(MinimumZoomScaleProperty);
+            get => (double) this.GetValue(MinimumZoomScaleProperty);
             set => this.SetValue(MinimumZoomScaleProperty, value);
         }
 
         public double MaximumZoomScale {
-            get => (double)this.GetValue(MaximumZoomScaleProperty);
+            get => (double) this.GetValue(MaximumZoomScaleProperty);
             set => this.SetValue(MaximumZoomScaleProperty, value);
         }
 
         public double ZoomScale {
-            get => (double)this.GetValue(ZoomScaleProperty);
+            get => (double) this.GetValue(ZoomScaleProperty);
             set => this.SetValue(ZoomScaleProperty, value);
         }
 
         public double HorizontalOffset {
-            get => (double)this.GetValue(HorizontalOffsetProperty);
+            get => (double) this.GetValue(HorizontalOffsetProperty);
             set => this.SetValue(HorizontalOffsetProperty, value);
         }
 
         public double VerticalOffset {
-            get => (double)this.GetValue(VerticalOffsetProperty);
+            get => (double) this.GetValue(VerticalOffsetProperty);
             set => this.SetValue(VerticalOffsetProperty, value);
         }
 
@@ -126,13 +126,13 @@ namespace FramePFX.Editors.Controls.Viewports {
         /// Gets or sets a value which indicates whether this control should try to pan towards the user's cursor when they zoom in or out
         /// </summary>
         public bool PanToCursorOnUserZoom {
-            get => (bool)this.GetValue(PanToCursorOnUserZoomProperty);
+            get => (bool) this.GetValue(PanToCursorOnUserZoomProperty);
             set => this.SetValue(PanToCursorOnUserZoomProperty, value.Box());
         }
 
         protected override int VisualChildrenCount => 1;
 
-        protected override IEnumerator LogicalChildren => (this.InternalChild == null ? new List<object>() : new List<object>() { this.InternalChild }).GetEnumerator();
+        protected override IEnumerator LogicalChildren => (this.InternalChild == null ? new List<object>() : new List<object>() {this.InternalChild}).GetEnumerator();
 
         private ContainerVisual InternalVisual {
             get {
@@ -363,15 +363,15 @@ namespace FramePFX.Editors.Controls.Viewports {
                 return ZeroDoubleBoxed;
             if (max < 0d)
                 return ZeroDoubleBoxed;
-            return max < (double)minimum ? minimum : value;
+            return max < (double) minimum ? minimum : value;
         }
 
         private static object CoerceZoom(DependencyObject port, object value) {
             object min = port.GetValue(MinimumZoomScaleProperty);
-            if (!(value is double scale) || scale < 0d || scale < (double)min)
+            if (!(value is double scale) || scale < 0d || scale < (double) min)
                 return min;
             object max = port.GetValue(MaximumZoomScaleProperty);
-            return scale > (double)max ? max : value;
+            return scale > (double) max ? max : value;
         }
 
         private static object CoerceHorizontalOffset(DependencyObject port, object value) {

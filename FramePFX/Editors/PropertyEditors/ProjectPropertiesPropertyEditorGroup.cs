@@ -35,13 +35,12 @@ namespace FramePFX.Editors.PropertyEditors {
         }
 
         public override HandlerCountMode HandlerCountMode => HandlerCountMode.Single;
-        
+
         public event BasePropertyEditorItemEventHandler ProjectChanged;
 
         public ProjectPropertiesPropertyEditorGroup() : base(typeof(Project)) {
-
         }
-        
+
         /// <summary>
         /// Recursively clears the state of all groups and editors
         /// </summary>
@@ -51,7 +50,6 @@ namespace FramePFX.Editors.PropertyEditors {
             }
 
             if (this.Project != null) {
-
             }
 
             foreach (BasePropertyEditorObject obj in this.PropertyObjects) {

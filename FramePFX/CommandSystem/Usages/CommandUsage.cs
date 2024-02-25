@@ -91,7 +91,6 @@ namespace FramePFX.CommandSystem.Usages {
         }
 
         protected virtual void OnUpdateForCanExecuteState(ExecutabilityState state) {
-
         }
     }
 }

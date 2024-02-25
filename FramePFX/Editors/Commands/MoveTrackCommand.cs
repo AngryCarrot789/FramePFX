@@ -65,18 +65,18 @@ namespace FramePFX.Editors.Commands {
     }
 
     public class MoveTrackUpCommand : MoveTrackCommand {
-        public MoveTrackUpCommand() : base(-1) {}
+        public MoveTrackUpCommand() : base(-1) { }
     }
 
     public class MoveTrackDownCommand : MoveTrackCommand {
-        public MoveTrackDownCommand() : base(1) {}
+        public MoveTrackDownCommand() : base(1) { }
     }
 
     public class MoveTrackToTopCommand : MoveTrackCommand {
-        public MoveTrackToTopCommand() : base(int.MinValue) {}
+        public MoveTrackToTopCommand() : base(int.MinValue) { }
     }
 
     public class MoveTrackToBottomCommand : MoveTrackCommand {
-        public MoveTrackToBottomCommand() : base(int.MaxValue) {}
+        public MoveTrackToBottomCommand() : base(int.MaxValue) { }
     }
 }

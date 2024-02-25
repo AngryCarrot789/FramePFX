@@ -27,7 +27,6 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
         public new ParameterLongPropertyEditorSlot SlotModel => (ParameterLongPropertyEditorSlot) base.SlotControl.Model;
 
         public ParameterLongPropertyEditorControl() {
-
         }
 
         static ParameterLongPropertyEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(ParameterLongPropertyEditorControl), new FrameworkPropertyMetadata(typeof(ParameterLongPropertyEditorControl)));

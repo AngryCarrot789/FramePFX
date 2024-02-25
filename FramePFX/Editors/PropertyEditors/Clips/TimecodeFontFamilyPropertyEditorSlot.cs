@@ -37,7 +37,6 @@ namespace FramePFX.Editors.PropertyEditors.Clips {
         private bool isProcessingValueChange;
 
         public TimecodeFontFamilyPropertyEditorSlot() : base(typeof(TimecodeClip)) {
-
         }
 
         public void SetValue(string value) {

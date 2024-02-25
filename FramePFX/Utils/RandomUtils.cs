@@ -116,6 +116,7 @@ namespace FramePFX.Utils {
                 random(chars, len, count);
                 str = new string(chars);
             } while (!canAccept(str));
+
             return str;
         }
     }

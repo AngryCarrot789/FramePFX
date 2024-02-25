@@ -26,7 +26,6 @@ namespace FramePFX.AdvancedMenuService.ContextService.Controls {
         public new EventContextEntry Entry => (EventContextEntry) base.Entry;
 
         public AdvancedContextEventMenuItem() {
-
         }
 
         protected override void OnClick() {

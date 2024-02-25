@@ -25,6 +25,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Media;
 using FramePFX.Utils;
+using FramePFX.Utils.Visuals;
 using Expression = System.Linq.Expressions.Expression;
 
 namespace FramePFX.Interactivity.Contexts {
@@ -39,6 +40,7 @@ namespace FramePFX.Interactivity.Contexts {
     /// </summary>
     public static class DataManager {
         private static readonly Action<Visual> AddVisualAncestorChangedHandler;
+
         private static readonly Action<Visual> RemoveVisualAncestorChangedHandler;
         // private static int suspendInvalidationCount;
 
@@ -78,42 +80,7 @@ namespace FramePFX.Interactivity.Contexts {
                 typeof(DataManager));
 
         static DataManager() {
-            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
-            EventInfo visualAncestorChangedEventInfo = typeof(Visual).GetEvent("VisualAncestorChanged", flags);
-            if (ReferenceEquals(visualAncestorChangedEventInfo, null))
-                throw new Exception("Could not find VisualAncestorChanged event in the Visual class");
-
-            Type ancestorHandlerType = visualAncestorChangedEventInfo.EventHandlerType;
-            MethodInfo ancestorHandlerInvokeMd = ancestorHandlerType.GetMethod("Invoke", BindingFlags.Instance | BindingFlags.Public);
-            Debug.Assert(ancestorHandlerInvokeMd != null, "Expected Invoke method to exist");
-
-            Type eventArgsType = ancestorHandlerInvokeMd.GetParameters()[1].ParameterType;
-            FieldInfo ancestorField = eventArgsType.GetField("_subRoot", flags) ?? throw new Exception("Could not find _subRoot field");
-            FieldInfo oldParField = eventArgsType.GetField("_oldParent", flags) ?? throw new Exception("Could not find _oldParent field");
-
-            // General access to VisualAncestorChangedEventHandler params and VisualAncestorChangedEventArgs fields
-            ParameterExpression paramEventSender = Expression.Parameter(typeof(object), "sender");
-            ParameterExpression paramEventArgs = Expression.Parameter(eventArgsType, "args");
-            MemberExpression accessAncestor = Expression.Field(paramEventArgs, ancestorField);
-            MemberExpression accessOldParent = Expression.Field(paramEventArgs, oldParField);
-
-            // Instead of invoking InvalidateInheritedContext directly, it instead goes through the
-            // OnAncestorChanged method just to make debugging a bit easier, in case there's a fault
-            Action<DependencyObject, DependencyObject> target = OnAncestorChanged;
-            MethodInfo targetInvokeMd = target.GetType().GetMethod("Invoke");
-            Debug.Assert(targetInvokeMd != null, "Expected Invoke method to exist");
-
-            MethodCallExpression invoke = Expression.Call(Expression.Constant(target), targetInvokeMd, accessAncestor, accessOldParent);
-            Delegate theEventHandler = Expression.Lambda(ancestorHandlerType, invoke, paramEventSender, paramEventArgs).Compile();
-            ConstantExpression constEventHandler = Expression.Constant(theEventHandler);
-
-            // Create the add and remove invoker methods for the VisualAncestorChanged event
-            ParameterExpression paramVisual = Expression.Parameter(typeof(Visual), "target");
-
-            // Instead of passing a delegate to the action, we instead store the constant handler in the compiled action
-            // so that we avoid the cast from Delegate to Visual.VisualAncestorChangedEventHandler
-            AddVisualAncestorChangedHandler = Expression.Lambda<Action<Visual>>(Expression.Call(paramVisual, visualAncestorChangedEventInfo.AddMethod, constEventHandler), paramVisual).Compile();
-            RemoveVisualAncestorChangedHandler = Expression.Lambda<Action<Visual>>(Expression.Call(paramVisual, visualAncestorChangedEventInfo.RemoveMethod, constEventHandler), paramVisual).Compile();
+            VisualAncestorChangedEventInterface.CreateInterface(OnAncestorChanged, out AddVisualAncestorChangedHandler, out RemoveVisualAncestorChangedHandler);
         }
 
         public static void AddInheritedContextInvalidatedHandler(DependencyObject target, RoutedEventHandler handler) {

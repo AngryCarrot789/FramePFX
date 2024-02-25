@@ -22,7 +22,7 @@ using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editors.Commands {
-    public class CloseProjectCommand : Command{
+    public class CloseProjectCommand : Command {
         public override ExecutabilityState CanExecute(CommandEventArgs e) {
             if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor))
                 return ExecutabilityState.Invalid;

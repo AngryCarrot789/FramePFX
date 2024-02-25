@@ -32,7 +32,6 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
         public new ParameterVector2PropertyEditorSlot SlotModel => (ParameterVector2PropertyEditorSlot) base.SlotControl.Model;
 
         public ParameterVector2PropertyEditorControl() {
-
         }
 
         static ParameterVector2PropertyEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(ParameterVector2PropertyEditorControl), new FrameworkPropertyMetadata(typeof(ParameterVector2PropertyEditorControl)));

@@ -34,7 +34,6 @@ namespace FramePFX.PropertyEditing {
         public BasePropertyEditor PropertyEditor { get; private set; }
 
         protected BasePropertyEditorObject() {
-
         }
 
         /// <summary>

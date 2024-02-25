@@ -45,7 +45,6 @@ namespace FramePFX.Editors.Rendering {
         }
 
         public void Prepare(long frame) {
-
         }
     }
 }

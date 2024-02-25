@@ -1,13 +1,13 @@
 ﻿<v:WindowEx x:Class="FramePFX.Editors.ResourceManaging.Autoloading.Controls.ResourceLoaderDialog"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:ap="clr-namespace:FramePFX.Themes.Attached"
-        xmlns:v="clr-namespace:FramePFX.Views"
-        mc:Ignorable="d"
-        Title="Fix Invalid Resources" Height="450" Width="800"
-        Style="{StaticResource CustomWindowStyleEx}">
+            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+            xmlns:ap="clr-namespace:FramePFX.Themes.Attached"
+            xmlns:v="clr-namespace:FramePFX.Views"
+            mc:Ignorable="d"
+            Title="Fix Invalid Resources" Height="450" Width="800"
+            Style="{StaticResource CustomWindowStyleEx}">
     <Grid>
         <Grid.RowDefinitions>
             <!-- make halo great again -->
@@ -33,14 +33,14 @@
                      x:Name="PART_ListBox">
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}">
-                        <Setter Property="BorderThickness" Value="0"/>
-                        <Setter Property="Padding" Value="4"/>
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="Padding" Value="4" />
                     </Style>
                 </ListBox.ItemContainerStyle>
             </ListBox>
         </Grid>
         <Border Grid.Column="1" Background="{DynamicResource PanelBackground1}" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}" BorderThickness="1,1,0,1">
-            <ContentPresenter x:Name="PART_ContentPresenter"/>
+            <ContentPresenter x:Name="PART_ContentPresenter" />
         </Border>
     </Grid>
 </v:WindowEx>

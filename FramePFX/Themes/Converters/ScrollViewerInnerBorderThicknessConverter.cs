@@ -44,9 +44,9 @@ namespace FramePFX.Themes.Converters {
                 throw new Exception("Right bar value is not a visibility: " + values[1]);
 
             return new Thickness(
-                this.Left, 
-                this.Top, 
-                rightBar == Visibility.Visible ? this.RightVisible : this.RightNotVisible, 
+                this.Left,
+                this.Top,
+                rightBar == Visibility.Visible ? this.RightVisible : this.RightNotVisible,
                 bottomBar == Visibility.Visible ? this.BottomVisible : this.BottomNotVisible);
         }
 

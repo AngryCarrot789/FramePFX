@@ -37,7 +37,6 @@ namespace FramePFX.Utils {
         }
 
         protected DispatcherMultiFireActionGuardBase(string debugId) : this(DispatcherPriority.Send, debugId) {
-
         }
 
         protected bool BeginInvoke() {
@@ -64,7 +63,6 @@ namespace FramePFX.Utils {
         }
 
         public DispatcherMultiFireActionGuard(Action action, string debugId) : this(action, DispatcherPriority.Send, debugId) {
-
         }
 
         /// <summary>

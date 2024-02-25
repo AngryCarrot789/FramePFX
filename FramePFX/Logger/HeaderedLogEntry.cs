@@ -22,6 +22,7 @@ using System.Collections.Generic;
 
 namespace FramePFX.Logger {
     public delegate void LogEntryAddedEventHandler(HeaderedLogEntry sender, LogEntry entry);
+
     public delegate void HeaderedLogEntryEventHandler(HeaderedLogEntry sender);
 
     public class HeaderedLogEntry : LogEntry {

@@ -41,7 +41,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
     public abstract class ResourceExplorerListItemContent : Control {
         private static readonly Dictionary<Type, Func<ResourceExplorerListItemContent>> Constructors;
 
-        public ResourceExplorerListItem ListItem { get; private set;}
+        public ResourceExplorerListItem ListItem { get; private set; }
 
         public BaseResource Resource => this.ListItem?.Model;
 
@@ -99,11 +99,9 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         }
 
         protected virtual void OnConnected() {
-
         }
 
         protected virtual void OnDisconnected() {
-
         }
 
         #region Template Utils
@@ -136,7 +134,6 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         public new ResourceFolder Resource => (ResourceFolder) base.Resource;
 
         public RELICFolder() {
-
         }
 
         protected override void OnConnected() {
@@ -205,7 +202,6 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         private WriteableBitmap bitmap;
 
         public RELICImage() {
-
         }
 
         public override void OnApplyTemplate() {
@@ -252,13 +248,11 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
 
     public class RELICTextStyle : ResourceExplorerListItemContent {
         public RELICTextStyle() {
-
         }
     }
 
     public class RELICAVMedia : ResourceExplorerListItemContent {
         public RELICAVMedia() {
-
         }
     }
 
@@ -296,7 +290,6 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         }
 
         private void OnFrameRendered() {
-
         }
 
         public override void OnApplyTemplate() {

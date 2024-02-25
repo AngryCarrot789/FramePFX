@@ -30,7 +30,6 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
         public new VideoClip Model => (VideoClip) base.Model;
 
         protected TimelineVideoClipContent() {
-
         }
 
         protected override void OnConnected() {
@@ -63,7 +62,6 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
         /// Called when our clip model's visibility changes
         /// </summary>
         protected virtual void OnClipVisibilityChanged() {
-
         }
     }
 }

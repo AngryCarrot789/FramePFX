@@ -87,7 +87,7 @@ namespace FramePFX.Editors.DataTransfer {
         private ParameterData GetParamData(DataParameter parameter) {
             if (parameter == null)
                 throw new ArgumentNullException(nameof(parameter), "Parameter cannot be null");
-            
+
             ParameterData data;
             if (this.paramData == null)
                 this.paramData = new Dictionary<int, ParameterData>();
@@ -96,7 +96,6 @@ namespace FramePFX.Editors.DataTransfer {
             this.ValidateParameter(parameter);
             this.paramData[parameter.GlobalIndex] = data = new ParameterData();
             return data;
-
         }
 
         private class ParameterData {
@@ -104,7 +103,7 @@ namespace FramePFX.Editors.DataTransfer {
             public event DataParameterValueChangedEventHandler ValueChanged;
 
             public void OnValueChanged(DataParameter param, ITransferableData owner) {
-                 this.ValueChanged?.Invoke(param, owner);
+                this.ValueChanged?.Invoke(param, owner);
             }
         }
 

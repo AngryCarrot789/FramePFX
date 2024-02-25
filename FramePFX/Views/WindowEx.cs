@@ -172,19 +172,19 @@ namespace FramePFX.Views {
         /*
             async void is required here
             OnClosing is fired, that sets isHandlingSyncClosing to true and invokes this method which awaits CloseAsync()
-
+    
             During the invocation of CloseAsync, If the call does not require
             real async (e.g. does not use Task.Delay() or whatever):
                 CloseAsync will return in the same execution context as OnClosing, meaning isHandlingSyncClosing
                 stays true, and OnClosing can access closeEventResult and set the e.Cancel accordingly
-
+    
             However, if the call chain in CloseAsync uses Task.Delay() or something which returns
             a task that is incomplete by the time the async state machine comes to actually "awaiting" it,
             then the behaviour changes:
                 OnClosing returns before CloseAsync is completed, setting isHandlingSyncClosing to false, meaning that
                 CloseAsync will manually close the window itself because the original OnClosing was cancelled
-
-
+    
+    
          */
         private async void OnClosingInternal(CancelEventArgs e) {
             bool result = await this.CloseAsync();

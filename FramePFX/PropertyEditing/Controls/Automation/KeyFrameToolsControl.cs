@@ -45,7 +45,7 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
         }
 
         private bool isUpdatingToggleOverride;
-        
+
         private ToggleButton PART_ToggleOverride;
         private Button PART_InsertKeyFrame;
         private Button PART_ResetValue;
@@ -53,7 +53,6 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
         private IStrictFrameRange strictFrameRange;
 
         public KeyFrameToolsControl() {
-
         }
 
         static KeyFrameToolsControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(KeyFrameToolsControl), new FrameworkPropertyMetadata(typeof(KeyFrameToolsControl)));
@@ -75,6 +74,7 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
             if (this.AutomationSequence is AutomationSequence sequence) {
                 sequence.IsOverrideEnabled = this.PART_ToggleOverride.IsChecked == true;
             }
+
             this.isUpdatingToggleOverride = false;
         }
 

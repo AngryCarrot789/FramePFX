@@ -43,9 +43,13 @@ namespace FramePFX.Natives {
         // Prefix: PFXCEFUNC_
 
         private delegate int PFXCEFUNC_InitEngine();
+
         private delegate int PFXCEFUNC_ShutdownEngine();
+
         public unsafe delegate int PFXCEFUNC_PixelateVfx(uint* pImg, int srcWidth, int srcHeight, int left, int top, int right, int bottom, int blockSize);
+
         public unsafe delegate int PFXAEFUNC_BeginAudioPlayback(NativeAudioEngineData* lpEngineData);
+
         public unsafe delegate int PFXAEFUNC_EndAudioPlayback(NativeAudioEngineData* lpEngineData);
 
         public struct NativeAudioEngineData {
@@ -65,11 +69,11 @@ namespace FramePFX.Natives {
             const string DLL_NAME = "FramePFX.NativeEngine.dll";
             string dllPath = Path.Combine(Path.GetFullPath("."), DLL_NAME);
             if (!File.Exists(dllPath)) {
-                #if DEBUG
+#if DEBUG
                 dllPath = "..\\..\\..\\..\\x64\\Debug\\" + DLL_NAME;
-                #else
+#else
                 dllPath = "..\\..\\..\\..\\x64\\Release\\" + DLL_NAME;
-                #endif
+#endif
 
                 dllPath = Path.GetFullPath(dllPath);
             }

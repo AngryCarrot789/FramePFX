@@ -183,7 +183,7 @@ namespace FramePFX.Editors.Timelines.Effects {
         public bool IsAutomated(Parameter parameter) {
             return this.AutomationData.IsAutomated(parameter);
         }
-        
+
         public static void OnAddedInternal(IHaveEffects owner, BaseEffect effect) {
             effect.Owner = owner;
             effect.OnAdded();
@@ -218,7 +218,6 @@ namespace FramePFX.Editors.Timelines.Effects {
         }
 
         public virtual void Destroy() {
-
         }
     }
 }

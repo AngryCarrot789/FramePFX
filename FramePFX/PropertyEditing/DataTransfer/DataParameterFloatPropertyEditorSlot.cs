@@ -43,7 +43,7 @@ namespace FramePFX.PropertyEditing.DataTransfer {
             }
         }
 
-        public new DataParameterFloat DataParameter => (DataParameterFloat)base.DataParameter;
+        public new DataParameterFloat DataParameter => (DataParameterFloat) base.DataParameter;
 
         public DragStepProfile StepProfile { get; }
 

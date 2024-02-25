@@ -39,11 +39,9 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
         }
 
         public override void OnConnected() {
-
         }
 
         public override void OnDisconnected() {
-
         }
     }
 }

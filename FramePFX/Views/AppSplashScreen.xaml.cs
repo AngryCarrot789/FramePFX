@@ -39,7 +39,8 @@ namespace FramePFX.Views {
         public async Task SetAction(string header, string description) {
             AppLogger.Instance.WriteLine(header);
             this.CurrentActivity = header;
-            await this.Dispatcher.InvokeAsync(() => { }, DispatcherPriority.Loaded);
+            await this.Dispatcher.InvokeAsync(() => {
+            }, DispatcherPriority.Loaded);
         }
     }
 }

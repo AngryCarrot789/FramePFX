@@ -21,10 +21,15 @@ using System;
 
 namespace FramePFX.Editors.ResourceManaging.Events {
     public delegate void ResourceEventHandler(BaseResource resource);
+
     public delegate void ResourceItemEventHandler(ResourceItem resource);
+
     public delegate void ResourceModifiedEventHandler(BaseResource item, string property);
+
     public delegate void ResourceAddedEventHandler(ResourceFolder parent, BaseResource item, int index);
+
     public delegate void ResourceRemovedEventHandler(ResourceFolder parent, BaseResource item, int index);
+
     public delegate void ResourceMovedEventHandler(ResourceFolder sender, ResourceMovedEventArgs e);
 
     /// <summary>

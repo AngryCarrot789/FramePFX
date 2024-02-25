@@ -62,7 +62,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
         }
 
         static TrackControlSurfaceListBoxItem() {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof (TrackControlSurfaceListBoxItem), new FrameworkPropertyMetadata(typeof(TrackControlSurfaceListBoxItem)));
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(TrackControlSurfaceListBoxItem), new FrameworkPropertyMetadata(typeof(TrackControlSurfaceListBoxItem)));
         }
 
         private void OnTrackHeightChanged(Track track) {

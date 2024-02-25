@@ -67,7 +67,6 @@ namespace FramePFX.Editors.Controls.Viewports {
         private Project activeProject;
 
         public VideoEditorViewPortPreview() {
-
         }
 
         private static void OnVideoEditorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {

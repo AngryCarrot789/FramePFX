@@ -59,7 +59,6 @@ namespace FramePFX.PropertyEditing.Controls {
         private readonly UpdaterAutoEventPropertyBinder<BasePropertyEditorGroup> isExpandedBinder = new UpdaterAutoEventPropertyBinder<BasePropertyEditorGroup>(nameof(BasePropertyEditorGroup.IsExpandedChanged), obj => ((PropertyEditorGroupControl) obj.Control).IsExpanded = obj.Model.IsExpanded, obj => obj.Model.IsExpanded = ((PropertyEditorGroupControl) obj.Control).IsExpanded);
 
         public PropertyEditorGroupControl() {
-
         }
 
         static PropertyEditorGroupControl() {
@@ -108,7 +107,6 @@ namespace FramePFX.PropertyEditing.Controls {
         }
 
         private void GroupOnIsCurrentlyApplicableChanged(BasePropertyEditorItem sender) {
-
         }
 
         public void DisconnectModel() {

@@ -37,6 +37,7 @@ using FramePFX.Interactivity.Contexts;
 using FramePFX.Logger;
 using FramePFX.PropertyEditing;
 using FramePFX.Utils;
+using FramePFX.Utils.Visuals;
 using SkiaSharp;
 using Track = FramePFX.Editors.Timelines.Tracks.Track;
 
@@ -456,6 +457,7 @@ namespace FramePFX.Editors.Controls.Timelines {
                         scroller.LineLeft();
                     }
                 }
+
                 e.Handled = true;
             }
         }

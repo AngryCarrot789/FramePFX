@@ -27,7 +27,6 @@ namespace FramePFX.PropertyEditing.Controls.DataTransfer {
         public new DataParameterFloatPropertyEditorSlot SlotModel => (DataParameterFloatPropertyEditorSlot) base.SlotControl.Model;
 
         public DataParameterFloatPropertyEditorControl() {
-
         }
 
         static DataParameterFloatPropertyEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(DataParameterFloatPropertyEditorControl), new FrameworkPropertyMetadata(typeof(DataParameterFloatPropertyEditorControl)));

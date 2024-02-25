@@ -33,7 +33,6 @@ namespace FramePFX.Editors.Controls.Binders {
         private readonly Delegate handlerInternal;
 
         public UpdaterAutoEventPropertyBinder(string eventName, Action<IBinder<TModel>> updateControl, Action<IBinder<TModel>> updateModel) : this(null, eventName, updateControl, updateModel) {
-
         }
 
         public UpdaterAutoEventPropertyBinder(DependencyProperty property, string eventName, Action<IBinder<TModel>> updateControl, Action<IBinder<TModel>> updateModel) : base(property, updateControl, updateModel) {

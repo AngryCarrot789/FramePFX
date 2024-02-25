@@ -73,10 +73,14 @@ namespace FramePFX.Editors.Utils {
         }
 
         public static SKRect ClampMinMax(this SKRect rect, SKRect max) {
-            if (rect.Left < max.Left)     rect.Left = max.Left;
-            if (rect.Top < max.Top)       rect.Top = max.Top;
-            if (rect.Right > max.Right)   rect.Right = max.Right;
-            if (rect.Bottom > max.Bottom) rect.Bottom = max.Bottom;
+            if (rect.Left < max.Left)
+                rect.Left = max.Left;
+            if (rect.Top < max.Top)
+                rect.Top = max.Top;
+            if (rect.Right > max.Right)
+                rect.Right = max.Right;
+            if (rect.Bottom > max.Bottom)
+                rect.Bottom = max.Bottom;
             return rect;
         }
     }

@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 

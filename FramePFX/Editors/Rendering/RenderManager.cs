@@ -54,7 +54,9 @@ namespace FramePFX.Editors.Rendering {
 
         private volatile bool isSkiaValid;
         private SKBitmap bitmap;
+
         private SKPixmap pixmap;
+
         // public but unsafe access to the underlying surface, used by view port. Must not be replaced externally
         public SKSurface surface;
 

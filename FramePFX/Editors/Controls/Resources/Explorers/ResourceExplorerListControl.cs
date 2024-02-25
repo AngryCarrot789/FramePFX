@@ -88,7 +88,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
             //     this.ResourceManager?.GoForward();
             // }
         }
-        
+
         public void MakeRangedSelection(ResourceExplorerListItem a, ResourceExplorerListItem b) {
             if (a == b) {
                 this.MakePrimarySelection(a);

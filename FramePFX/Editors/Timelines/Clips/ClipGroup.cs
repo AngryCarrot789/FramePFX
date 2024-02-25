@@ -82,11 +82,9 @@ namespace FramePFX.Editors.Timelines.Clips {
         }
 
         public static void AddClipToGroup(Clip clip) {
-
         }
 
         private class ClipData {
-
         }
     }
 }

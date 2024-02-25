@@ -144,7 +144,6 @@ namespace FramePFX.PropertyEditing.Controls {
         }
 
         private void OnSelectionChanged(bool oldValue, bool newValue) {
-
         }
 
         private void Model_IsCurrentlyApplicableChanged(BasePropertyEditorItem sender) {

@@ -37,10 +37,9 @@ namespace FramePFX.PropertyEditing.DataTransfer {
             }
         }
 
-        public new DataParameterBoolean DataParameter => (DataParameterBoolean)base.DataParameter;
+        public new DataParameterBoolean DataParameter => (DataParameterBoolean) base.DataParameter;
 
         public DataParameterBooleanPropertyEditorSlot(DataParameterBoolean parameter, Type applicableType, string displayName) : base(parameter, applicableType, displayName) {
-            
         }
 
         public override void QueryValueFromHandlers() {

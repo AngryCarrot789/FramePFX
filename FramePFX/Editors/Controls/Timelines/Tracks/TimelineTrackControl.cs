@@ -327,11 +327,9 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
         }
 
         public void OnIndexMoving(int oldIndex, int newIndex) {
-
         }
 
         public void OnIndexMoved(int oldIndex, int newIndex) {
-
         }
 
         private void OnIsSelectedChanged(bool selected) {

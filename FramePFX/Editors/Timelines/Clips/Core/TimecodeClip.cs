@@ -153,7 +153,7 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
 
             string text = this.GetCurrentTimeString();
             LockedFontData fd = this.fontData.Value;
-            using (SKPaint paint = new SKPaint() { IsAntialias = true, Color = SKColors.White.WithAlpha(this.RenderOpacityByte) }) {
+            using (SKPaint paint = new SKPaint() {IsAntialias = true, Color = SKColors.White.WithAlpha(this.RenderOpacityByte)}) {
                 using (SKTextBlob blob = SKTextBlob.Create(text, fd.cachedFont)) {
                     fd.cachedFont.GetFontMetrics(out SKFontMetrics metrics);
                     // we can get away with this since we just use numbers and not any 'special'

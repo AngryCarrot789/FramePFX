@@ -63,6 +63,7 @@ namespace FramePFX.Editors.Serialisation {
         /// </summary>
         /// <param name="obj">The object to serialise</param>
         /// <param name="data">The RBE dictionary, in which data is written into</param>
+        /// <param name="flags">Optional flags for the serialisation process</param>
         public void Serialise(object obj, RBEDictionary data) => this.Serialise(obj, data, ApplicationCore.Instance.CurrentBuild);
 
         /// <summary>
@@ -71,18 +72,9 @@ namespace FramePFX.Editors.Serialisation {
         /// <param name="obj">The object to serialise</param>
         /// <param name="data">The RBE dictionary, in which data is written into</param>
         /// <param name="version">The version of the serialiser to use</param>
+        /// <param name="flags">Optional flags for the serialisation process</param>
         public void Serialise(object obj, RBEDictionary data, int version) {
             this.RunSerialisersInternal(true, obj, obj.GetType(), data, version);
-        }
-
-        /// <summary>
-        /// Deserialises the object, using it's full type as a starting point for the deserialisers to target
-        /// </summary>
-        /// <param name="obj">The object to deserialise</param>
-        /// <param name="data">The RBE dictionary, in which data is read from</param>
-        /// <param name="version">The version of the deserialiser to use</param>
-        public void Deserialise(object obj, RBEDictionary data, int version) {
-            this.RunSerialisersInternal(false, obj, obj.GetType(), data, version);
         }
 
         /// <summary>
@@ -91,7 +83,19 @@ namespace FramePFX.Editors.Serialisation {
         /// </summary>
         /// <param name="obj">The object to serialise</param>
         /// <param name="data">The RBE dictionary, in which data is written into</param>
+        /// <param name="flags">Optional flags for the serialisation process</param>
         public void Deserialise(object obj, RBEDictionary data) => this.Deserialise(obj, data, ApplicationCore.Instance.CurrentBuild);
+
+        /// <summary>
+        /// Deserialises the object, using it's full type as a starting point for the deserialisers to target
+        /// </summary>
+        /// <param name="obj">The object to deserialise</param>
+        /// <param name="data">The RBE dictionary, in which data is read from</param>
+        /// <param name="version">The version of the deserialiser to use</param>
+        /// <param name="flags">Optional flags for the deserialisation process</param>
+        public void Deserialise(object obj, RBEDictionary data, int version) {
+            this.RunSerialisersInternal(false, obj, obj.GetType(), data, version);
+        }
 
         private void CleanDirtyStates(Type objType) {
             lock (this.locker) {
@@ -141,6 +145,7 @@ namespace FramePFX.Editors.Serialisation {
 
         private class TypeSerialiser {
             public delegate void NonGenericSerialiseHandler(object obj, RBEDictionary data, SerialisationContext context);
+
             public readonly SortedList<int, SerialiserList> versionInfo;
 
             public TypeSerialiser() {

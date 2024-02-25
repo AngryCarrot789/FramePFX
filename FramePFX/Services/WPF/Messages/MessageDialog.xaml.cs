@@ -36,14 +36,10 @@ namespace FramePFX.Services.WPF.Messages {
         private static object CoerceValueCallback(DependencyObject d, object value) {
             MessageBoxResult btn = (MessageBoxResult) value;
             switch (((MessageDialog) d).Buttons) {
-                case MessageBoxButton.OK:
-                    return btn == MessageBoxResult.OK ? value : MessageBoxResult.OK;
-                case MessageBoxButton.OKCancel:
-                    return btn == MessageBoxResult.OK || btn == MessageBoxResult.Cancel ? value : MessageBoxResult.OK;
-                case MessageBoxButton.YesNoCancel:
-                    return btn == MessageBoxResult.Yes || btn == MessageBoxResult.No || btn == MessageBoxResult.Cancel ? value : MessageBoxResult.Yes;
-                case MessageBoxButton.YesNo:
-                    return btn == MessageBoxResult.Yes || btn == MessageBoxResult.No ? value : MessageBoxResult.Yes;
+                case MessageBoxButton.OK: return btn == MessageBoxResult.OK ? value : MessageBoxResult.OK;
+                case MessageBoxButton.OKCancel: return btn == MessageBoxResult.OK || btn == MessageBoxResult.Cancel ? value : MessageBoxResult.OK;
+                case MessageBoxButton.YesNoCancel: return btn == MessageBoxResult.Yes || btn == MessageBoxResult.No || btn == MessageBoxResult.Cancel ? value : MessageBoxResult.Yes;
+                case MessageBoxButton.YesNo: return btn == MessageBoxResult.Yes || btn == MessageBoxResult.No ? value : MessageBoxResult.Yes;
                 default: throw new ArgumentOutOfRangeException();
             }
         }
@@ -176,10 +172,18 @@ namespace FramePFX.Services.WPF.Messages {
                 return;
 
             switch (this.DefaultButton) {
-                case MessageBoxResult.OK: this.PART_ButtonOK.Focus(); break;
-                case MessageBoxResult.Cancel: this.PART_ButtonCancel.Focus(); break;
-                case MessageBoxResult.Yes: this.PART_ButtonYes.Focus(); break;
-                case MessageBoxResult.No: this.PART_ButtonNo.Focus(); break;
+                case MessageBoxResult.OK:
+                    this.PART_ButtonOK.Focus();
+                    break;
+                case MessageBoxResult.Cancel:
+                    this.PART_ButtonCancel.Focus();
+                    break;
+                case MessageBoxResult.Yes:
+                    this.PART_ButtonYes.Focus();
+                    break;
+                case MessageBoxResult.No:
+                    this.PART_ButtonNo.Focus();
+                    break;
                 case MessageBoxResult.None: break;
             }
         }

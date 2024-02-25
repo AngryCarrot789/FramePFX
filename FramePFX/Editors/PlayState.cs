@@ -24,10 +24,12 @@ namespace FramePFX.Editors {
         /// another frame too without pausing and playing (the jumped frame is used by stop too)
         /// </summary>
         Play,
+
         /// <summary>
         /// Pauses playback, saving the current playhead position
         /// </summary>
         Pause,
+
         /// <summary>
         /// Playback stopped, and the playhead is moved back to when we began playing
         /// </summary>

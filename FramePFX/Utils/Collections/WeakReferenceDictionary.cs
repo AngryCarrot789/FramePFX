@@ -22,17 +22,14 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace FramePFX.Utils.Collections {
-    public class WeakReferenceDictionary<TValue> : Dictionary<object, TValue>{
+    public class WeakReferenceDictionary<TValue> : Dictionary<object, TValue> {
         public WeakReferenceDictionary() : base(ReferenceEqualityComparer.Instance) {
-
         }
 
         public WeakReferenceDictionary(int capacity) : base(capacity, ReferenceEqualityComparer.Instance) {
-
         }
 
         public WeakReferenceDictionary(IDictionary<object, TValue> dictionary) : base(dictionary, ReferenceEqualityComparer.Instance) {
-
         }
 
         private class ReferenceEqualityComparer : IEqualityComparer<object> {

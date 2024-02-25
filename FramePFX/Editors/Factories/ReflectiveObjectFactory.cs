@@ -25,7 +25,6 @@ namespace FramePFX.Editors.Factories {
     /// </summary>
     public class ReflectiveObjectFactory<T> : ObjectFactory where T : class {
         public ReflectiveObjectFactory() {
-
         }
 
         protected override bool IsTypeValid(Type type) {

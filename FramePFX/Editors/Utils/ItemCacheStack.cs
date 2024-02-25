@@ -25,7 +25,7 @@ namespace FramePFX.Editors.Utils {
     /// A class used to cache and reuse objects
     /// </summary>
     /// <typeparam name="T">The type of object to cache</typeparam>
-    public sealed class ItemCacheStack<T>{
+    public sealed class ItemCacheStack<T> {
         private readonly Stack<T> cache;
 
         public int Count => this.cache.Count;

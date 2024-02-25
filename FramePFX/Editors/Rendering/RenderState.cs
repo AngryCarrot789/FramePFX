@@ -22,6 +22,5 @@ namespace FramePFX.Editors.Rendering {
     /// Stores the state of a single render phase, including effects applied to clips
     /// </summary>
     public class RenderState {
-
     }
 }

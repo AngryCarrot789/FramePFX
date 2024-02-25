@@ -53,7 +53,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
         }
 
         static TrackControlSurfaceListBox() {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof (TrackControlSurfaceListBox), new FrameworkPropertyMetadata(typeof(TrackControlSurfaceListBox)));
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(TrackControlSurfaceListBox), new FrameworkPropertyMetadata(typeof(TrackControlSurfaceListBox)));
         }
 
         // I override the measuere/arrange functions to help with debugging sometimes

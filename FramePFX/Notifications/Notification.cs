@@ -22,6 +22,5 @@ namespace FramePFX.Notifications {
     /// The base class for all balloon notifications
     /// </summary>
     public abstract class Notification {
-
     }
 }

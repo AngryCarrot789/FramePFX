@@ -34,9 +34,13 @@ using FramePFX.Utils.Destroying;
 
 namespace FramePFX.Editors.Timelines.Clips {
     public delegate void ClipEventHandler(Clip clip);
+
     public delegate void ClipSpanChangedEventHandler(Clip clip, FrameSpan oldSpan, FrameSpan newSpan);
+
     public delegate void ClipMediaOffsetChangedEventHandler(Clip clip, long oldOffset, long newOffset);
+
     public delegate void ClipTrackChangedEventHandler(Clip clip, Track oldTrack, Track newTrack);
+
     public delegate void ClipActiveSequenceChangedEventHandler(Clip clip, AutomationSequence oldSequence, AutomationSequence newSequence);
 
     public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStrictFrameRange, IResourceHolder, IHaveEffects, IDestroy {
@@ -173,6 +177,7 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// An event fired when this clip's track changes. This may be called when:
         /// </summary>
         public event ClipTrackChangedEventHandler TrackChanged;
+
         public event TimelineChangedEventHandler TimelineChanged;
 
         /// <summary>
@@ -381,7 +386,6 @@ namespace FramePFX.Editors.Timelines.Clips {
         }
 
         public void Duplicate() {
-
         }
 
         public long ConvertRelativeToTimelineFrame(long relative) => this.span.Begin + relative;

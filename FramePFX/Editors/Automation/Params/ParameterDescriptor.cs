@@ -155,11 +155,9 @@ namespace FramePFX.Editors.Automation.Params {
         public Vector2 Maximum { get; }
 
         public ParameterDescriptorVector2() : this(default) {
-
         }
 
         public ParameterDescriptorVector2(Vector2 defaultValue) : this(defaultValue, Vectors.MinValue, Vectors.MaxValue) {
-
         }
 
         public ParameterDescriptorVector2(Vector2 defaultValue, Vector2 minimum, Vector2 maximum) : base(AutomationDataType.Vector2) {

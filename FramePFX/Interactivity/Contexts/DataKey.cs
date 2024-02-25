@@ -80,7 +80,6 @@ namespace FramePFX.Interactivity.Contexts {
 
     public class DataKey<T> : DataKey {
         private DataKey(string id) : base(id) {
-
         }
 
         public static DataKey<T> Create(string id) {

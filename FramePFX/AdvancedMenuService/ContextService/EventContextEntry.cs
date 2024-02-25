@@ -28,7 +28,6 @@ namespace FramePFX.AdvancedMenuService.ContextService {
         public Action<IContextData> Action { get; set; }
 
         public EventContextEntry(string header, string description = null) : base(header, description) {
-
         }
 
         public EventContextEntry(Action<IContextData> action, string header, string description = null) : base(header, description) {

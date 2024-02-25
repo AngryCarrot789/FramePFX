@@ -65,6 +65,7 @@ namespace FramePFX.Views {
             public uint MinorVersion;
             public uint BuildNumber;
             public uint PlatformId;
+
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
             public string CSDVersion;
         }

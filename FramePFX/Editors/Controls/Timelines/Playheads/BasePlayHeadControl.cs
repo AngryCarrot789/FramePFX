@@ -45,7 +45,11 @@ namespace FramePFX.Editors.Controls.Timelines.Playheads {
 
             if (newTimeline != null) {
                 newTimeline.ZoomTimeline += this.OnTimelineZoomed;
+                this.Visibility = Visibility.Visible;
                 this.SetPixelFromFrameAndZoom(this.GetFrame(newTimeline), newTimeline.Zoom);
+            }
+            else {
+                this.Visibility = Visibility.Collapsed;
             }
         }
 

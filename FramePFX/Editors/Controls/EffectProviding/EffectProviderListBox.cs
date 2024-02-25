@@ -34,7 +34,7 @@ namespace FramePFX.Editors.Controls.EffectProviding {
         /// The drag-drop identifier for an effect source drag-drop
         /// </summary>
         public const string EffectProviderDropType = "PFXEffectSource_DropType";
-        
+
         public EffectProviderListBox() {
         }
 
@@ -54,7 +54,7 @@ namespace FramePFX.Editors.Controls.EffectProviding {
                 }
             }
         }
-        
+
         private void InsertItemInternal(EffectProviderEntry entry, int index) {
             EffectProviderListBoxItem control = new EffectProviderListBoxItem();
             control.OnAdding(this, entry);

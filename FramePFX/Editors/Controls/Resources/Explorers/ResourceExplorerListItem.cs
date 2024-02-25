@@ -264,7 +264,6 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         }
 
         private void OnIsSelectedChanged(bool isSelected) {
-
         }
 
         public void OnAddingToList(ResourceExplorerListControl explorerList, BaseResource resource) {

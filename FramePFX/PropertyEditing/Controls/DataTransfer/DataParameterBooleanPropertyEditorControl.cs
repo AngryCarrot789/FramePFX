@@ -28,7 +28,6 @@ namespace FramePFX.PropertyEditing.Controls.DataTransfer {
         public new DataParameterBooleanPropertyEditorSlot SlotModel => (DataParameterBooleanPropertyEditorSlot) base.SlotControl.Model;
 
         public DataParameterBooleanPropertyEditorControl() {
-
         }
 
         static DataParameterBooleanPropertyEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(DataParameterBooleanPropertyEditorControl), new FrameworkPropertyMetadata(typeof(DataParameterBooleanPropertyEditorControl)));

@@ -22,7 +22,9 @@ using System.Collections.Generic;
 
 namespace FramePFX.Editors.ResourceManaging.Autoloading {
     public delegate void ResourceLoaderEventHandler(ResourceLoader loader);
+
     public delegate void ResourceLoaderEntryEventHandler(ResourceLoader loader, InvalidResourceEntry entry, int index);
+
     /// <summary>
     /// A class used to assist in auto-loading of resource objects, specifically <see cref="ResourceItem"/> objects
     /// </summary>

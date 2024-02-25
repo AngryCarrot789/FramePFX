@@ -10,6 +10,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{070E3833-D
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FramePFX", "FramePFX\FramePFX.csproj", "{82D8612A-A293-4B2C-9D9D-8BF7270157A2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{20257E2E-0F5E-46D6-9A66-85B0BD063571} = {20257E2E-0F5E-46D6-9A66-85B0BD063571}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FramePFX.NativeEngine", "FramePFX.NativeEngine\FramePFX.NativeEngine.vcxproj", "{20257E2E-0F5E-46D6-9A66-85B0BD063571}"
 EndProject

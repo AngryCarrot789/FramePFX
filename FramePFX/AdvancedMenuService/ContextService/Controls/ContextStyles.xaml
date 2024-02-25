@@ -5,14 +5,14 @@
                     xmlns:acs="clr-namespace:FramePFX.AdvancedMenuService.ContextService.Controls"
                     xmlns:wpf="clr-namespace:FramePFX.AdvancedMenuService.Controls"
                     mc:Ignorable="d">
-    <Style TargetType="{x:Type wpf:ContextCapturingMenu}" BasedOn="{StaticResource {x:Type Menu}}"/>
-    <Style TargetType="{x:Type wpf:AdvancedCommandMenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}"/>
-    <Style TargetType="{x:Type acs:AdvancedContextMenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}"/>
-    <Style TargetType="{x:Type acs:AdvancedContextCommandMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedContextMenuItem}}"/>
-    <Style TargetType="{x:Type acs:AdvancedContextEventMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedContextMenuItem}}"/>
+    <Style TargetType="{x:Type wpf:ContextCapturingMenu}" BasedOn="{StaticResource {x:Type Menu}}" />
+    <Style TargetType="{x:Type wpf:AdvancedCommandMenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}" />
+    <Style TargetType="{x:Type acs:AdvancedContextMenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}" />
+    <Style TargetType="{x:Type acs:AdvancedContextCommandMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedContextMenuItem}}" />
+    <Style TargetType="{x:Type acs:AdvancedContextEventMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedContextMenuItem}}" />
 
     <Style TargetType="{x:Type acs:AdvancedContextMenu}" BasedOn="{StaticResource {x:Type ContextMenu}}">
-        <Setter Property="UsesItemContainerTemplate" Value="False"/>
+        <Setter Property="UsesItemContainerTemplate" Value="False" />
         <!--
         can't remember why I added this setter...
         <Setter Property="ScrollViewer.IsDeferredScrollingEnabled" Value="True"/>

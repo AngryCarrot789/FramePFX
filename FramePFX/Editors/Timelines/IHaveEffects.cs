@@ -23,6 +23,7 @@ using FramePFX.Editors.Timelines.Effects;
 
 namespace FramePFX.Editors.Timelines {
     public delegate void EffectOwnerEventHandler(IHaveEffects effects, BaseEffect effect, int index);
+
     public delegate void EffectMovedEventHandler(IHaveEffects effects, BaseEffect effect, int oldIndex, int newIndex);
 
     /// <summary>

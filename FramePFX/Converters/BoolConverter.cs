@@ -144,9 +144,9 @@ namespace FramePFX.Converters {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
             if (value is Visibility v) {
                 switch (v) {
-                    case Visibility.Visible:    return this.VisibleValue;
-                    case Visibility.Hidden:     return this.HiddenValue;
-                    case Visibility.Collapsed:  return this.CollapsedValue;
+                    case Visibility.Visible: return this.VisibleValue;
+                    case Visibility.Hidden: return this.HiddenValue;
+                    case Visibility.Collapsed: return this.CollapsedValue;
                     default: throw new ArgumentOutOfRangeException();
                 }
             }

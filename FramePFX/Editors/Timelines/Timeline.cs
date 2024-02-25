@@ -34,9 +34,13 @@ using FramePFX.Utils.Destroying;
 
 namespace FramePFX.Editors.Timelines {
     public delegate void TimelineTrackIndexEventHandler(Timeline timeline, Track track, int index);
+
     public delegate void TimelineTrackMovedEventHandler(Timeline timeline, Track track, int oldIndex, int newIndex);
+
     public delegate void TimelineEventHandler(Timeline timeline);
+
     public delegate void PlayheadChangedEventHandler(Timeline timeline, long oldValue, long newValue);
+
     public delegate void ZoomEventHandler(Timeline timeline, double oldZoom, double newZoom, ZoomType zoomType);
 
     public class Timeline : ITransferableData, IDestroy {

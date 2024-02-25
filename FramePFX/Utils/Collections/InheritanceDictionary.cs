@@ -377,6 +377,7 @@ namespace FramePFX.Utils.Collections {
                 baseType = entry;
                 c++;
             } while (--i >= 0);
+
             this.totalEntries = c;
             this.version++;
             return entry;

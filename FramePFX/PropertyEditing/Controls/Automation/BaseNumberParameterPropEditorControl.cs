@@ -27,7 +27,6 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
         protected bool IsUpdatingControl;
 
         protected BaseNumberParameterPropEditorControl() {
-
         }
 
         static BaseNumberParameterPropEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(BaseNumberParameterPropEditorControl), new FrameworkPropertyMetadata(typeof(BaseNumberParameterPropEditorControl)));

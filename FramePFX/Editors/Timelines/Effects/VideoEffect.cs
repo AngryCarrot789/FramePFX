@@ -56,7 +56,6 @@ namespace FramePFX.Editors.Timelines.Effects {
         /// <param name="ctx">The pre-render setup context information</param>
         /// <param name="frame">The frame, relative to the clip, being rendered</param>
         public virtual void PrepareRender(PreRenderContext ctx, long frame) {
-
         }
 
         /// <summary>

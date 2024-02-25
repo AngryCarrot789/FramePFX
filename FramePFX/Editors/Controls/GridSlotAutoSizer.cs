@@ -45,7 +45,6 @@ namespace FramePFX.Editors.Controls {
         }
 
         public GridSlotAutoSizer() {
-
         }
 
         private static void OnColumnDefinitionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {

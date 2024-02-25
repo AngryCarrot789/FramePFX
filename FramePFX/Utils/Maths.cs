@@ -188,35 +188,51 @@ namespace FramePFX.Utils {
         }
 
         public static void Swap(ref float a, ref float b) {
-            float tmp = a; a = b; b = tmp;
+            float tmp = a;
+            a = b;
+            b = tmp;
         }
 
         public static void Swap(ref double a, ref double b) {
-            double tmp = a; a = b; b = tmp;
+            double tmp = a;
+            a = b;
+            b = tmp;
         }
 
         public static void Swap(ref long a, ref long b) {
-            long tmp = a; a = b; b = tmp;
+            long tmp = a;
+            a = b;
+            b = tmp;
         }
 
         public static void Swap(ref int a, ref int b) {
-            int tmp = a; a = b; b = tmp;
+            int tmp = a;
+            a = b;
+            b = tmp;
         }
 
         public static float Swap(ref float a, float b) {
-            float oA = a; a = b; return oA;
+            float oA = a;
+            a = b;
+            return oA;
         }
 
         public static double Swap(ref double a, double b) {
-            double oA = a; a = b; return oA;
+            double oA = a;
+            a = b;
+            return oA;
         }
 
         public static long Swap(ref long a, long b) {
-            long oA = a; a = b; return oA;
+            long oA = a;
+            a = b;
+            return oA;
         }
 
         public static int Swap(ref int a, int b) {
-            int oA = a; a = b; return oA;
+            int oA = a;
+            a = b;
+            return oA;
         }
 
         public static double GetRange(float min, float max) {
@@ -234,9 +250,10 @@ namespace FramePFX.Utils {
         public static int Round(float value, RoundingMode mode = RoundingMode.Cast) {
             switch (mode) {
                 case RoundingMode.None:
-                case RoundingMode.Cast:  return (int) value;
+                case RoundingMode.Cast:
+                    return (int) value;
                 case RoundingMode.Floor: return (int) Math.Floor(value);
-                case RoundingMode.Ceil:  return (int) Math.Ceiling(value);
+                case RoundingMode.Ceil: return (int) Math.Ceiling(value);
                 case RoundingMode.Round: return (int) Math.Round(value);
                 default: throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
             }
@@ -245,9 +262,10 @@ namespace FramePFX.Utils {
         public static int Round(double value, RoundingMode mode = RoundingMode.Cast) {
             switch (mode) {
                 case RoundingMode.None:
-                case RoundingMode.Cast:  return (int) value;
+                case RoundingMode.Cast:
+                    return (int) value;
                 case RoundingMode.Floor: return (int) Math.Floor(value);
-                case RoundingMode.Ceil:  return (int) Math.Ceiling(value);
+                case RoundingMode.Ceil: return (int) Math.Ceiling(value);
                 case RoundingMode.Round: return (int) Math.Round(value);
                 default: throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
             }
@@ -256,9 +274,10 @@ namespace FramePFX.Utils {
         public static long RoundLong(double value, RoundingMode mode = RoundingMode.Cast) {
             switch (mode) {
                 case RoundingMode.None:
-                case RoundingMode.Cast:  return (long) value;
+                case RoundingMode.Cast:
+                    return (long) value;
                 case RoundingMode.Floor: return (long) Math.Floor(value);
-                case RoundingMode.Ceil:  return (long) Math.Ceiling(value);
+                case RoundingMode.Ceil: return (long) Math.Ceiling(value);
                 case RoundingMode.Round: return (long) Math.Round(value);
                 default: throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
             }

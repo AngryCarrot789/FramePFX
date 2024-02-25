@@ -38,7 +38,6 @@ namespace FramePFX.AdvancedMenuService.ContextService.Controls {
         private readonly GetSetAutoEventPropertyBinder<BaseContextEntry> toolTipBinder = new GetSetAutoEventPropertyBinder<BaseContextEntry>(ToolTipProperty, nameof(BaseContextEntry.DescriptionChanged), b => b.Model.Description, (b, v) => b.Model.Description = v?.ToString());
 
         public AdvancedContextMenuItem() {
-
         }
 
         public virtual void OnAdding(AdvancedContextMenu menu, AdvancedContextMenuItem parent, BaseContextEntry entry) {

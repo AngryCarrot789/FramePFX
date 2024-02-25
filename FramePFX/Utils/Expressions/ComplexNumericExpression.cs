@@ -70,7 +70,8 @@ namespace FramePFX.Utils.Expressions {
             defState.SetFunction("mode", (list) => {
                 switch (list.Count) {
                     case 1:
-                    case 2: return list[0];
+                    case 2:
+                        return list[0];
                     default: return list.GroupBy(x => x).OrderByDescending(x => x.Count()).First().Key;
                 }
             });

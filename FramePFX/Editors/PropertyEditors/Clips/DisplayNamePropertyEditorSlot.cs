@@ -36,7 +36,6 @@ namespace FramePFX.Editors.PropertyEditors.Clips {
         private bool isProcessingValueChange;
 
         public DisplayNamePropertyEditorSlot() : base(typeof(IDisplayName)) {
-
         }
 
         public void SetValue(string value) {

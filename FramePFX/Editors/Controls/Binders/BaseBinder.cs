@@ -50,7 +50,6 @@ namespace FramePFX.Editors.Controls.Binders {
         public bool IsUpdatingControl { get; protected set; }
 
         protected BaseBinder() {
-
         }
 
         public void OnModelValueChanged() {
@@ -90,14 +89,12 @@ namespace FramePFX.Editors.Controls.Binders {
         /// Called when we become attached to a control and model (both are set to a valid value before this method call)
         /// </summary>
         protected virtual void OnAttached() {
-
         }
 
         /// <summary>
         /// Called when we become detached from our control and model (both will be set to null after this method call)
         /// </summary>
         protected virtual void OnDetatched() {
-
         }
 
         public void Attach(FrameworkElement control, TModel model, bool autoUpdateControlValue = true) {

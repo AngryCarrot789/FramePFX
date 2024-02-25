@@ -50,9 +50,15 @@ namespace FramePFX.Editors.PropertyEditors.Effects.TODO {
             }
 
             switch (handlerCount) {
-                case HandlerCountMode.Any:  registration.anyCountEffectGroupType = typeOfEffectGroup; break;
-                case HandlerCountMode.Single:  registration.singleEffectGroupType = typeOfEffectGroup; break;
-                case HandlerCountMode.Multi:  registration.multiEffectGroupType = typeOfEffectGroup; break;
+                case HandlerCountMode.Any:
+                    registration.anyCountEffectGroupType = typeOfEffectGroup;
+                    break;
+                case HandlerCountMode.Single:
+                    registration.singleEffectGroupType = typeOfEffectGroup;
+                    break;
+                case HandlerCountMode.Multi:
+                    registration.multiEffectGroupType = typeOfEffectGroup;
+                    break;
                 default: throw new ArgumentOutOfRangeException(nameof(handlerCount), handlerCount, null);
             }
         }

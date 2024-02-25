@@ -23,6 +23,7 @@ using SkiaSharp;
 namespace FramePFX.Editors.ResourceManaging.Resources {
     public class ResourceColour : ResourceItem {
         private SKColor myColour;
+
         public SKColor Colour {
             get => this.myColour;
             set {

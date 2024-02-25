@@ -22,7 +22,7 @@ using System.Windows;
 using System.Windows.Controls;
 
 namespace FramePFX.AttachedProperties {
-public static class ScrollBinder {
+    public static class ScrollBinder {
         public static readonly DependencyProperty VerticalBindGroupProperty =
             DependencyProperty.RegisterAttached(
                 "VerticalBindGroup",

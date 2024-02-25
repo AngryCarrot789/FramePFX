@@ -50,7 +50,7 @@ namespace FramePFX.Editors.Automation {
                 UpdateValues(compResource.Timeline, relativePlayHead);
             }
         }
-        
+
         public static void ConvertProjectFrameRate(Project project, double ratio) {
             ConvertResourceManagerFrameRateRecursive(project.ResourceManager.RootContainer, ratio);
             ConvertTimelineFrameRate(project.MainTimeline, ratio);

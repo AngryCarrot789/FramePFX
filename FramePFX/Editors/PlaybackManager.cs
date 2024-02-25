@@ -134,7 +134,8 @@ namespace FramePFX.Editors {
             switch (newState) {
                 case PlayState.Play: return this.PlayState != PlayState.Play;
                 case PlayState.Pause:
-                case PlayState.Stop: return this.PlayState == PlayState.Play;
+                case PlayState.Stop:
+                    return this.PlayState == PlayState.Play;
                 default: throw new ArgumentOutOfRangeException(nameof(newState), newState, null);
             }
         }
@@ -201,6 +202,9 @@ namespace FramePFX.Editors {
         private void OnAboutToStopPlaying() {
             // this.waveOut.Stop();
             this.thread_IsPlaying = false;
+        }
+
+        private void OnStoppedPlaying() {
             if (this.isAudioPlaying) {
                 unsafe {
                     fixed (PFXNative.NativeAudioEngineData* engineData = &this.streamData) {
@@ -218,9 +222,12 @@ namespace FramePFX.Editors {
             }
 
             this.OnAboutToStopPlaying();
-            this.Timeline.StopHeadPosition = this.Timeline.PlayHeadPosition;
+            long playHead = this.Timeline.PlayHeadPosition;
+
             this.PlayState = PlayState.Pause;
             this.PlaybackStateChanged?.Invoke(this, this.PlayState, this.Timeline.StopHeadPosition);
+            this.OnStoppedPlaying();
+            this.Timeline.StopHeadPosition = playHead;
         }
 
         public void Stop() {
@@ -231,6 +238,7 @@ namespace FramePFX.Editors {
             this.OnAboutToStopPlaying();
             this.PlayState = PlayState.Stop;
             this.PlaybackStateChanged?.Invoke(this, this.PlayState, this.Timeline.StopHeadPosition);
+            this.OnStoppedPlaying();
             this.Timeline.PlayHeadPosition = this.Timeline.StopHeadPosition;
         }
 

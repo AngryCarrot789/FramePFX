@@ -255,7 +255,8 @@ namespace FramePFX.Editors {
                     try {
                         project.Destroy();
                     }
-                    catch { /* ignored */ }
+                    catch { /* ignored */
+                    }
 
                     throw;
                 }

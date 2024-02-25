@@ -28,6 +28,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using FramePFX.Editors.Timelines;
 using FramePFX.Utils;
+using FramePFX.Utils.Visuals;
 using Rect = System.Windows.Rect;
 
 namespace FramePFX.Editors.Controls.Timelines {

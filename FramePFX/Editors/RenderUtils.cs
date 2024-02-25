@@ -24,6 +24,7 @@ using SkiaSharp;
 namespace FramePFX.Editors {
     public static class RenderUtils {
         private static readonly Random Rnd = new Random();
+
         private static readonly SKColor[] Colours = new SKColor[] {
             SKColors.Black,
             SKColors.Brown,

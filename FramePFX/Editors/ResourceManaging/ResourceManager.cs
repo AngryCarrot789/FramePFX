@@ -121,6 +121,7 @@ namespace FramePFX.Editors.ResourceManaging {
             do {
                 id++;
             } while (this.uuidToItem.ContainsKey(id));
+
             return this.currId = id;
         }
 
@@ -247,7 +248,6 @@ namespace FramePFX.Editors.ResourceManaging {
         }
 
         public void Destroy() {
-
         }
     }
 }

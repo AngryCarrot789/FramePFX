@@ -44,11 +44,13 @@ namespace FramePFX.CommandSystem {
         /// This might also be used if a targeted command does not exist
         /// </summary>
         Invalid,
+
         /// <summary>
         /// The context contains the correct information but the state of the context
         /// data is not appropriate for the command execution
         /// </summary>
         ValidButCannotExecute,
+
         /// <summary>
         /// The context contains the correct information and the command is fully executable.
         /// This is the default value returned by <see cref="Command.CanExecute"/>, just in case

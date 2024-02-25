@@ -36,6 +36,7 @@ namespace FramePFX.Editors.ResourceManaging {
     /// </summary>
     public abstract class ResourceItem : BaseResource {
         public const ulong EmptyId = ResourceManager.EmptyId;
+        protected bool doNotProcessUniqueIdForSerialisation;
 
         /// <summary>
         /// Gets if this resource is online (usable) or offline (not usable by clips)
@@ -184,14 +185,15 @@ namespace FramePFX.Editors.ResourceManaging {
         static ResourceItem() {
             SerialisationRegistry.Register<ResourceItem>(0, (resource, data, ctx) => {
                 ctx.DeserialiseBaseType(data);
-                resource.UniqueId = data.GetULong(nameof(resource.UniqueId), EmptyId);
+                if (!resource.doNotProcessUniqueIdForSerialisation)
+                    resource.UniqueId = data.GetULong(nameof(resource.UniqueId), EmptyId);
                 if (data.TryGetBool(nameof(resource.IsOnline), out bool isOnline) && !isOnline) {
                     resource.IsOnline = false;
                     resource.IsOfflineByUser = true;
                 }
             }, (resource, data, ctx) => {
                 ctx.SerialiseBaseType(data);
-                if (resource.UniqueId != EmptyId)
+                if (resource.UniqueId != EmptyId && !resource.doNotProcessUniqueIdForSerialisation)
                     data.SetULong(nameof(resource.UniqueId), resource.UniqueId);
                 if (!resource.IsOnline)
                     data.SetBool(nameof(resource.IsOnline), false);

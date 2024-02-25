@@ -28,8 +28,8 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
         public new ParameterDoublePropertyEditorSlot SlotModel => (ParameterDoublePropertyEditorSlot) base.SlotControl.Model;
 
         public ParameterDoublePropertyEditorControl() {
-
         }
+
         static ParameterDoublePropertyEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(ParameterDoublePropertyEditorControl), new FrameworkPropertyMetadata(typeof(ParameterDoublePropertyEditorControl)));
 
         protected override void UpdateControlValue() {

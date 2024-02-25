@@ -29,7 +29,6 @@ namespace FramePFX.PropertyEditing {
         public IReadOnlyList<object> Handlers { get; private set; }
 
         public SimplePropertyEditorGroup(Type applicableType, GroupType groupType = GroupType.PrimaryExpander) : base(applicableType, groupType) {
-
         }
 
         public override bool IsPropertyEditorObjectAcceptable(BasePropertyEditorObject obj) {

@@ -33,7 +33,6 @@ namespace FramePFX.Editors.PropertyEditors.Clips {
         public event PropertyEditorSlotEventHandler UpdateMediaFrameOffset;
 
         public VideoClipMediaFrameOffsetPropertyEditorSlot() : base(typeof(VideoClip)) {
-
         }
 
         protected override void OnHandlersLoaded() {

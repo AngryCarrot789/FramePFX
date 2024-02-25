@@ -26,7 +26,9 @@ using FramePFX.RBC;
 
 namespace FramePFX.Editors.Automation.Keyframes {
     public delegate void KeyFrameAddedEventHandler(AutomationSequence sequence, KeyFrame keyFrame, int index);
+
     public delegate void KeyFrameRemovedEventHandler(AutomationSequence sequence, KeyFrame keyFrame, int index);
+
     public delegate void AutomationSequenceEventHandler(AutomationSequence sequence);
 
     /// <summary>

@@ -37,7 +37,6 @@ namespace FramePFX.Interactivity.Contexts {
         /// Creates a new empty instance
         /// </summary>
         public ContextData() {
-
         }
 
         /// <summary>

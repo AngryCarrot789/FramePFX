@@ -117,7 +117,7 @@ namespace FramePFX.Shortcuts.WPF {
         }
 
         protected internal override void OnNoSuchShortcutForMouseStroke(ShortcutInputManager inputManager, string group, MouseStroke stroke) {
-            base.OnNoSuchShortcutForMouseStroke(inputManager,group, stroke);
+            base.OnNoSuchShortcutForMouseStroke(inputManager, group, stroke);
             BroadcastShortcutActivity("No such shortcut for mouse stroke: " + stroke + " in group: " + group);
         }
 

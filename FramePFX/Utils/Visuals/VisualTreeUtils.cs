@@ -23,7 +23,7 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 
-namespace FramePFX.Utils {
+namespace FramePFX.Utils.Visuals {
     public static class VisualTreeUtils {
         /// <summary>
         /// Returns the control which has the given inherited property defined

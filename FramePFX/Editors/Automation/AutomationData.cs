@@ -136,7 +136,7 @@ namespace FramePFX.Editors.Automation {
             foreach (RBEBase rbe in list.List) {
                 if (!(rbe is RBEDictionary dictionary))
                     throw new Exception("Expected a list of dictionaries");
-                
+
                 string fullId = dictionary.GetString("KeyId");
                 ParameterKey paramKey = ParameterKey.Parse(fullId);
                 if (!Parameter.TryGetParameterByKey(paramKey, out Parameter parameter))
@@ -150,7 +150,7 @@ namespace FramePFX.Editors.Automation {
 
         public void LoadDataIntoClone(AutomationData clone) {
             clone.ActiveParameter = this.ActiveParameter;
-            foreach (KeyValuePair<Parameter,AutomationSequence> seq in this.sequences) {
+            foreach (KeyValuePair<Parameter, AutomationSequence> seq in this.sequences) {
                 AutomationSequence.LoadDataIntoClone(seq.Value, clone[seq.Key]);
             }
 

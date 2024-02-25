@@ -25,11 +25,13 @@ using System.Windows.Input;
 using FramePFX.AdvancedMenuService.Controls;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
+using FramePFX.Utils.Visuals;
 using CommandManager = FramePFX.CommandSystem.CommandManager;
 
 namespace FramePFX.Shortcuts.WPF {
     public class UIInputManager : INotifyPropertyChanged {
         public delegate void FocusedPathChangedEventHandler(string oldPath, string newPath);
+
         public static UIInputManager Instance { get; } = new UIInputManager();
 
         public static readonly DependencyProperty FocusPathProperty = DependencyProperty.RegisterAttached("FocusPath", typeof(string), typeof(UIInputManager), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));

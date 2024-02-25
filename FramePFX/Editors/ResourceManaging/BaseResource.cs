@@ -175,7 +175,6 @@ namespace FramePFX.Editors.ResourceManaging {
         /// </para>
         /// </summary>
         public virtual void Destroy() {
-
         }
 
         /// <summary>

@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace FramePFX.Editors.Timelines {
-/// <summary>
+    /// <summary>
     /// Represents an immutable slice of time in frames (similar to <see cref="TimeSpan"/>) and some utility functions.
     /// <para>
     /// This structure is 16 bytes; <see cref="Begin"/> and <see cref="Duration"/> fields

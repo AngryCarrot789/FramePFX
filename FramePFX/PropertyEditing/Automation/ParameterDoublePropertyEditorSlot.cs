@@ -45,7 +45,7 @@ namespace FramePFX.PropertyEditing.Automation {
             }
         }
 
-        public new ParameterDouble Parameter => (ParameterDouble)base.Parameter;
+        public new ParameterDouble Parameter => (ParameterDouble) base.Parameter;
 
         public DragStepProfile StepProfile { get; }
 

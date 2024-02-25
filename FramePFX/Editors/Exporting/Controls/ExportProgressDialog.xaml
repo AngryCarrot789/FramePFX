@@ -10,13 +10,13 @@
             Style="{StaticResource CustomWindowStyleEx}">
     <Grid Margin="15">
         <StackPanel>
-            <TextBlock Text="Render Progress" Padding="0,5"/>
-            <ProgressBar Height="20" x:Name="PART_RenderProgressBar"/>
-            <Separator Margin="0,10"/>
-            <TextBlock Text="Encode Progress" Padding="0,5"/>
-            <ProgressBar Height="20" x:Name="PART_EncodeProgressBar"/>
-            <Separator Margin="0,5"/>
-            <TextBlock x:Name="PART_FrameProgressText"/>
+            <TextBlock Text="Render Progress" Padding="0,5" />
+            <ProgressBar Height="20" x:Name="PART_RenderProgressBar" />
+            <Separator Margin="0,10" />
+            <TextBlock Text="Encode Progress" Padding="0,5" />
+            <ProgressBar Height="20" x:Name="PART_EncodeProgressBar" />
+            <Separator Margin="0,5" />
+            <TextBlock x:Name="PART_FrameProgressText" />
         </StackPanel>
     </Grid>
 </v:WindowEx>

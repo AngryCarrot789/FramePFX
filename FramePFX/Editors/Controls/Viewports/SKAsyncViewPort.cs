@@ -4,7 +4,6 @@
 using System;
 using System.Runtime.CompilerServices;
 #endif
-
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media;
@@ -32,10 +31,10 @@ namespace FramePFX.Editors.Controls.Viewports {
                 new FrameworkPropertyMetadata(
                     BoolBox.False,
                     FrameworkPropertyMetadataOptions.AffectsRender,
-                    (d, e) => RenderOptions.SetBitmapScalingMode(d, (bool)e.NewValue ? BitmapScalingMode.NearestNeighbor : BitmapScalingMode.Unspecified)));
+                    (d, e) => RenderOptions.SetBitmapScalingMode(d, (bool) e.NewValue ? BitmapScalingMode.NearestNeighbor : BitmapScalingMode.Unspecified)));
 
         public bool UseNearestNeighbourRendering {
-            get => (bool)this.GetValue(UseNearestNeighbourRenderingProperty);
+            get => (bool) this.GetValue(UseNearestNeighbourRenderingProperty);
             set => this.SetValue(UseNearestNeighbourRenderingProperty, value.Box());
         }
 
@@ -222,11 +221,11 @@ namespace FramePFX.Editors.Controls.Viewports {
             scaleY = 1f;
             Size size = this.RenderSize;
             if (IsPositive(size.Width) && IsPositive(size.Height)) {
-                unscaledSize = new SKSizeI((int)size.Width, (int)size.Height);
+                unscaledSize = new SKSizeI((int) size.Width, (int) size.Height);
                 Matrix transformToDevice = source.CompositionTarget?.TransformToDevice ?? Matrix.Identity;
                 scaleX = transformToDevice.M11;
                 scaleY = transformToDevice.M22;
-                return new SKSizeI((int)(size.Width * scaleX), (int)(size.Height * scaleY));
+                return new SKSizeI((int) (size.Width * scaleX), (int) (size.Height * scaleY));
             }
 
             return SKSizeI.Empty;

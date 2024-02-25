@@ -28,7 +28,6 @@ namespace FramePFX.PropertyEditing.Controls.DataTransfer {
         public new DataParameterLongPropertyEditorSlot SlotModel => (DataParameterLongPropertyEditorSlot) base.SlotControl.Model;
 
         public DataParameterLongPropertyEditorControl() {
-
         }
 
         static DataParameterLongPropertyEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(DataParameterLongPropertyEditorControl), new FrameworkPropertyMetadata(typeof(DataParameterLongPropertyEditorControl)));

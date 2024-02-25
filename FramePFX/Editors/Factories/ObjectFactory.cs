@@ -63,11 +63,9 @@ namespace FramePFX.Editors.Factories {
         }
 
         protected virtual void OnRegistered(string id, Type type) {
-
         }
 
         protected virtual void OnUnregistered(string id, Type type) {
-
         }
 
         public bool IsIdRegistered(string id) {

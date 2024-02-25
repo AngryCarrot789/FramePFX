@@ -86,6 +86,8 @@ namespace FramePFX.Editors.Controls.Timelines {
         }
 
         protected override Size ArrangeOverride(Size arrangeSize) {
+            if (this.TimelineControl != null && this.TimelineControl.Timeline == null)
+                arrangeSize.Width = this.TimelineControl.ActualWidth;
             return base.ArrangeOverride(arrangeSize);
         }
     }

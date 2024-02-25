@@ -282,7 +282,6 @@ namespace FramePFX.Shortcuts.Managing {
         /// <param name="inputManager">The processor which caused the state to be activated</param>
         /// <param name="state">The state that was activated</param>
         protected internal virtual void OnInputStateActivated(ShortcutInputManager inputManager, GroupedInputState state) {
-
         }
 
         /// <summary>
@@ -291,7 +290,6 @@ namespace FramePFX.Shortcuts.Managing {
         /// <param name="inputManager">The processor which caused the state to be deactivated</param>
         /// <param name="state">The state that was activated</param>
         protected internal virtual void OnInputStateDeactivated(ShortcutInputManager inputManager, GroupedInputState state) {
-
         }
 
         /// <summary>

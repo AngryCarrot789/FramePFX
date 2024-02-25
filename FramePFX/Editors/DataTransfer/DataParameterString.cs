@@ -39,11 +39,9 @@ namespace FramePFX.Editors.DataTransfer {
         public int MaximumChars { get; }
 
         public DataParameterString(Type ownerType, string key, ValueAccessor<string> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, key, null, accessor, flags) {
-
         }
 
         public DataParameterString(Type ownerType, string key, string defValue, ValueAccessor<string> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, key, defValue, 0, int.MaxValue, accessor, flags) {
-
         }
 
         public DataParameterString(Type ownerType, string key, string defValue, int minChars, int maxChars, ValueAccessor<string> accessor, DataParameterFlags flags = DataParameterFlags.None) : base(ownerType, key, defValue, accessor, flags) {

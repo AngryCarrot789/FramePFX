@@ -3,7 +3,7 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
     <ProjectGuid>{82D8612A-A293-4B2C-9D9D-8BF7270157A2}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>FramePFX</RootNamespace>
@@ -149,6 +149,8 @@
     <Compile Include="AdvancedMenuService\Controls\AdvancedCommandMenuItem.cs" />
     <Compile Include="AdvancedMenuService\Controls\ContextCapturingMenu.cs" />
     <Compile Include="ApplicationCore.cs" />
+    <Compile Include="Behaviours\BehaviourBase.cs" />
+    <Compile Include="Behaviours\BehaviourCollection.cs" />
     <Compile Include="CommandSystem\ExecutabilityState.cs" />
     <Compile Include="CommandSystem\Usages\CommandUsage.cs" />
     <Compile Include="CommandSystem\Usages\CommandUsageManager.cs" />
@@ -541,7 +543,8 @@
     <Compile Include="Utils\UIUtils.cs" />
     <Compile Include="Utils\Vec2i.cs" />
     <Compile Include="Utils\Vectors.cs" />
-    <Compile Include="Utils\VisualTreeUtils.cs" />
+    <Compile Include="Utils\Visuals\VisualAncestorChangedEventInterface.cs" />
+    <Compile Include="Utils\Visuals\VisualTreeUtils.cs" />
     <Compile Include="Views\AppSplashScreen.xaml.cs">
       <DependentUpon>AppSplashScreen.xaml</DependentUpon>
     </Compile>

@@ -22,6 +22,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using FramePFX.Utils;
+using FramePFX.Utils.Visuals;
 
 namespace FramePFX.AttachedProperties {
     public static class HorizontalScrolling {

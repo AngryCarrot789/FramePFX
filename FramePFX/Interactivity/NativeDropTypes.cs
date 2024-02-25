@@ -38,7 +38,7 @@ namespace FramePFX.Interactivity {
         public static readonly string Html = "HTML Format";
         public static readonly string Rtf = "Rich Text Format";
         public static readonly string CommaSeparatedValue = "CSV";
-        public static readonly string StringFormat = typeof (string).FullName;
+        public static readonly string StringFormat = typeof(string).FullName;
         public static readonly string Serializable = "PersistentObject";
         public static readonly string Xaml = nameof(Xaml);
         public static readonly string XamlPackage = nameof(XamlPackage);

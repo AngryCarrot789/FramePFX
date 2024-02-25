@@ -36,11 +36,9 @@ namespace FramePFX.Editors.DataTransfer {
         private readonly bool hasRangeLimit;
 
         public DataParameterLong(Type ownerType, string key, ValueAccessor<long> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, key, 0L, accessor, flags) {
-
         }
 
         public DataParameterLong(Type ownerType, string key, long defValue, ValueAccessor<long> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, key, defValue, long.MinValue, long.MaxValue, accessor, flags) {
-
         }
 
         public DataParameterLong(Type ownerType, string key, long defValue, long minValue, long maxValue, ValueAccessor<long> accessor, DataParameterFlags flags = DataParameterFlags.None) : base(ownerType, key, defValue, accessor, flags) {

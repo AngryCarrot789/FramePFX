@@ -38,7 +38,6 @@ namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
         public ICommand Command => this.commandImpl ?? (this.commandImpl = new CommandImpl(this));
 
         public CommandSourceCommandUsage(string commandId) : base(commandId) {
-
         }
 
         private static void SetCommand(DependencyObject control, ICommand cmd) {

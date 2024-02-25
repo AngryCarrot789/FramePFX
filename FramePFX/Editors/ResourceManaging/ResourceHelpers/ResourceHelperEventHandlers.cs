@@ -19,7 +19,9 @@
 
 namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
     public delegate void EntryResourceChangedEventHandler(ResourceHelper sender, ResourceChangedEventArgs e);
+
     public delegate void EntryResourceModifiedEventHandler(ResourceHelper sender, ResourceModifiedEventArgs e);
+
     public delegate void EntryOnlineStateChangedEventHandler(ResourceHelper sender, IBaseResourcePathKey key);
 
     public readonly struct ResourceModifiedEventArgs {

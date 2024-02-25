@@ -48,7 +48,6 @@ namespace FramePFX.Editors.Controls.EffectProviding {
         }
 
         public void OnRemoving() {
-
         }
 
         public void OnRemoved() {

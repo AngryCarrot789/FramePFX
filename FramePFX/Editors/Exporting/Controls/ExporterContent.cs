@@ -34,7 +34,6 @@ namespace FramePFX.Editors.Exporting.Controls {
         public Exporter Exporter { get; private set; }
 
         protected ExporterContent() {
-
         }
 
         public void Connected(Exporter exporter) {

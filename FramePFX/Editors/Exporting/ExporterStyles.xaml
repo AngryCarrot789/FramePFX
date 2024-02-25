@@ -7,10 +7,10 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ffmpeg:FFmpegExporterContent}">
                     <StackPanel HorizontalAlignment="Left">
-                        <TextBlock Text="Bitrate (bits per second): 1Bit to 1000MBit" Padding="5,3"/>
+                        <TextBlock Text="Bitrate (bits per second): 1Bit to 1000MBit" Padding="5,3" />
                         <dragger:NumberDragger x:Name="PART_BitRateDragger" Style="{StaticResource AbletonNumberDraggerWithoutProgressStyle}"
                                                Height="30" Minimum="1" Maximum="1000000000" Value="25000000"
-                                               TinyChange="32" SmallChange="256" LargeChange="4096" MassiveChange="65535"/>
+                                               TinyChange="32" SmallChange="256" LargeChange="4096" MassiveChange="65535" />
                     </StackPanel>
                 </ControlTemplate>
             </Setter.Value>

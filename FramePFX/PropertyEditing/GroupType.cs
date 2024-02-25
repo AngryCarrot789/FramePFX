@@ -26,10 +26,12 @@ namespace FramePFX.PropertyEditing {
         /// This is a primary group; it has a big and bold expander
         /// </summary>
         PrimaryExpander,
+
         /// <summary>
         /// This is a secondary group; it has a small and less obvious expander,
         /// </summary>
         SecondaryExpander,
+
         /// <summary>
         /// This group has no expander and the contents are always showing (if they are applicable ofc)
         /// </summary>

@@ -195,7 +195,6 @@ namespace FramePFX.Editors.Timelines.Tracks {
         }
 
         protected virtual void OnProjectChanged(Project oldProject, Project newProject) {
-
         }
 
         public Track Clone() => this.Clone(TrackCloneOptions.Default);

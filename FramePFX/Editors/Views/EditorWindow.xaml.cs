@@ -39,7 +39,7 @@ namespace FramePFX.Editors.Views {
     /// Interaction logic for EditorWindow.xaml
     /// </summary>
     public partial class EditorWindow : WindowEx {
-        public static readonly DependencyProperty EditorProperty = DependencyProperty.Register("Editor", typeof(VideoEditor), typeof(EditorWindow), new PropertyMetadata(null, (o, e) => ((EditorWindow) o).OnEditorChanged((VideoEditor)e.OldValue, (VideoEditor)e.NewValue)));
+        public static readonly DependencyProperty EditorProperty = DependencyProperty.Register("Editor", typeof(VideoEditor), typeof(EditorWindow), new PropertyMetadata(null, (o, e) => ((EditorWindow) o).OnEditorChanged((VideoEditor) e.OldValue, (VideoEditor) e.NewValue)));
 
         public VideoEditor Editor {
             get => (VideoEditor) this.GetValue(EditorProperty);
@@ -285,13 +285,25 @@ namespace FramePFX.Editors.Views {
 
         private void SetThemeClick(object sender, RoutedEventArgs e) {
             ThemeType type;
-            switch (((MenuItem)sender).Uid) {
-                case "0": type = ThemeType.DeepDark;      break;
-                case "1": type = ThemeType.SoftDark;      break;
-                case "2": type = ThemeType.DarkGreyTheme; break;
-                case "3": type = ThemeType.GreyTheme;     break;
-                case "4": type = ThemeType.RedBlackTheme; break;
-                case "5": type = ThemeType.LightTheme;    break;
+            switch (((MenuItem) sender).Uid) {
+                case "0":
+                    type = ThemeType.DeepDark;
+                    break;
+                case "1":
+                    type = ThemeType.SoftDark;
+                    break;
+                case "2":
+                    type = ThemeType.DarkGreyTheme;
+                    break;
+                case "3":
+                    type = ThemeType.GreyTheme;
+                    break;
+                case "4":
+                    type = ThemeType.RedBlackTheme;
+                    break;
+                case "5":
+                    type = ThemeType.LightTheme;
+                    break;
                 default: return;
             }
 

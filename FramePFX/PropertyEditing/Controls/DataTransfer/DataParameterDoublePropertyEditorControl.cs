@@ -27,8 +27,8 @@ namespace FramePFX.PropertyEditing.Controls.DataTransfer {
         public new DataParameterDoublePropertyEditorSlot SlotModel => (DataParameterDoublePropertyEditorSlot) base.SlotControl.Model;
 
         public DataParameterDoublePropertyEditorControl() {
-
         }
+
         static DataParameterDoublePropertyEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(DataParameterDoublePropertyEditorControl), new FrameworkPropertyMetadata(typeof(DataParameterDoublePropertyEditorControl)));
 
         protected override void UpdateControlValue() {
@@ -53,5 +53,4 @@ namespace FramePFX.PropertyEditing.Controls.DataTransfer {
             this.dragger.MassiveChange = profile.LargeStep;
         }
     }
-
 }

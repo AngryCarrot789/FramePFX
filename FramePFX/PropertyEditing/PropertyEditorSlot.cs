@@ -109,7 +109,6 @@ namespace FramePFX.PropertyEditing {
         /// Called just before the handlers are cleared. When this is cleared, there is guaranteed to be 1 or more loaded handlers
         /// </summary>
         protected virtual void OnClearingHandlers() {
-
         }
 
         /// <summary>

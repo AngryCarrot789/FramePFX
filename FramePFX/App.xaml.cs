@@ -102,7 +102,7 @@ namespace FramePFX {
             }
             catch (Exception e) {
                 IoC.MessageService.ShowMessage(
-                    "Native Library Failure", 
+                    "Native Library Failure",
                     "Error loading native engine library. Be sure to built the C++ project. If it built correctly, then one of its" +
                     "library DLL dependencies may be missing. Make sure the FFmpeg and PortAudio DLLs are available (e.g. in the bin folder)." +
                     "\n\nError:\n" + e.GetToString());

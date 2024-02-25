@@ -26,14 +26,17 @@ namespace FramePFX.Editors.Automation.Keyframes {
         /// An automated 32-bit floating point number
         /// </summary>
         Float,
+
         /// <summary>
         /// An automated 64-bit double-precision floating point number
         /// </summary>
         Double,
+
         /// <summary>
         /// An automated 64-bit integer number
         /// </summary>
         Long,
+
         /// <summary>
         /// An automated boolean value
         /// </summary>

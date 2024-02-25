@@ -25,7 +25,6 @@ namespace FramePFX.PropertyEditing.Controls.DataTransfer {
         protected NumberDragger dragger;
 
         protected BaseNumberDataParamPropEditorControl() {
-
         }
 
         static BaseNumberDataParamPropEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(BaseNumberDataParamPropEditorControl), new FrameworkPropertyMetadata(typeof(BaseNumberDataParamPropEditorControl)));

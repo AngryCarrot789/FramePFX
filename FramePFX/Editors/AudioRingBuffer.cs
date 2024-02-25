@@ -34,7 +34,7 @@ namespace FramePFX.Editors {
         public unsafe AudioRingBuffer(int totalBytes) {
             this.count = totalBytes;
             this.data = (byte*) Marshal.AllocHGlobal(totalBytes);
-            MemSet((IntPtr)this.data, 0, (IntPtr)totalBytes);
+            MemSet((IntPtr) this.data, 0, (IntPtr) totalBytes);
         }
 
         public unsafe int WriteToRingBuffer(byte* srcSamples, int numBytes) {

@@ -24,7 +24,6 @@ using FramePFX.Utils;
 namespace FramePFX.Editors.DataTransfer {
     public sealed class DataParameterBoolean : DataParameterGeneric<bool> {
         public DataParameterBoolean(Type ownerType, string key, ValueAccessor<bool> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, key, false, accessor, flags) {
-
         }
 
         public DataParameterBoolean(Type ownerType, string key, bool defValue, ValueAccessor<bool> accessor, DataParameterFlags flags = DataParameterFlags.None) : base(ownerType, key, defValue, accessor, flags) {

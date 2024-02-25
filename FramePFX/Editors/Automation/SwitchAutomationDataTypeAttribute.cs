@@ -28,6 +28,5 @@ namespace FramePFX.Editors.Automation {
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor | AttributeTargets.Class)]
     public class SwitchAutomationDataTypeAttribute : Attribute {
-
     }
 }

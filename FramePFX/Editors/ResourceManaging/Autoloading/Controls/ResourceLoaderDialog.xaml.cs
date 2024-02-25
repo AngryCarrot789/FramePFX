@@ -53,7 +53,7 @@ namespace FramePFX.Editors.ResourceManaging.Autoloading.Controls {
                     LoadResources(folder.Items, loader);
                 }
                 else {
-                    ResourceItem item = (ResourceItem)obj;
+                    ResourceItem item = (ResourceItem) obj;
                     if (!item.IsOnline) {
                         item.TryAutoEnable(loader);
                     }

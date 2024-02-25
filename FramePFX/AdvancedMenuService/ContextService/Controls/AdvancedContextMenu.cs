@@ -76,10 +76,18 @@ namespace FramePFX.AdvancedMenuService.ContextService.Controls {
             FrameworkElement element = this.PopCachedItem(entry.GetType());
             if (element == null) {
                 switch (entry) {
-                    case CommandContextEntry _: element = new AdvancedContextCommandMenuItem(); break;
-                    case EventContextEntry _:  element = new AdvancedContextEventMenuItem(); break;
-                    case BaseContextEntry _:   element = new AdvancedContextMenuItem(); break;
-                    case SeparatorEntry _:     element = new Separator(); break;
+                    case CommandContextEntry _:
+                        element = new AdvancedContextCommandMenuItem();
+                        break;
+                    case EventContextEntry _:
+                        element = new AdvancedContextEventMenuItem();
+                        break;
+                    case BaseContextEntry _:
+                        element = new AdvancedContextMenuItem();
+                        break;
+                    case SeparatorEntry _:
+                        element = new Separator();
+                        break;
                     default: throw new Exception("Unknown item type: " + entry?.GetType());
                 }
             }
@@ -121,9 +129,15 @@ namespace FramePFX.AdvancedMenuService.ContextService.Controls {
             ItemCollection list = control.Items;
             AdvancedContextMenu menu;
             switch (control) {
-                case AdvancedContextMenu a: menu = a; break;
-                case AdvancedContextMenuItem b: menu = b.Menu; break;
-                default: menu = null; break;
+                case AdvancedContextMenu a:
+                    menu = a;
+                    break;
+                case AdvancedContextMenuItem b:
+                    menu = b.Menu;
+                    break;
+                default:
+                    menu = null;
+                    break;
             }
 
             for (int i = list.Count - 1; i >= 0; i--) {

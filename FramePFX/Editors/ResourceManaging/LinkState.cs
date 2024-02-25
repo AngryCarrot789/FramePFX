@@ -26,14 +26,17 @@ namespace FramePFX.Editors.ResourceManaging {
         /// Not linked; link not attempted, no reference count
         /// </summary>
         NotLinked,
+
         /// <summary>
         /// Link failed due to an incompatible resource object type, no reference count
         /// </summary>
         IncompatibleResource,
+
         /// <summary>
         /// Link failed because a resource did not exist with the specific ID, no reference count
         /// </summary>
         NoSuchResource,
+
         /// <summary>
         /// Successfully linked to a resource and a reference is counted
         /// </summary>

@@ -13,58 +13,58 @@
     <Grid>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="5"/>
-                <ColumnDefinition Width="75"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="5" />
+                <ColumnDefinition Width="75" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="5" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="5"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="5"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="5"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="5"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="45"/>
+                <RowDefinition Height="5" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="45" />
             </Grid.RowDefinitions>
-            <TextBlock Padding="5,3,5,5" VerticalAlignment="Center" Text="File Path" Grid.Column="1" Grid.Row="1"/>
-            <TextBox x:Name="PART_FilePathTextBox" Padding="0,2" VerticalAlignment="Center" Text="File Path" Grid.Column="2" Grid.Row="1"/>
+            <TextBlock Padding="5,3,5,5" VerticalAlignment="Center" Text="File Path" Grid.Column="1" Grid.Row="1" />
+            <TextBox x:Name="PART_FilePathTextBox" Padding="0,2" VerticalAlignment="Center" Text="File Path" Grid.Column="2" Grid.Row="1" />
 
-            <TextBlock Padding="5,3,5,5" VerticalAlignment="Center" Text="Duration"  Grid.Column="1" Grid.Row="3"/>
+            <TextBlock Padding="5,3,5,5" VerticalAlignment="Center" Text="Duration" Grid.Column="1" Grid.Row="3" />
             <Grid Grid.Column="2" Grid.Row="3">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Begin Frame" Padding="0,0,0,2" HorizontalAlignment="Center"/>
-                    <dr:NumberDragger x:Name="PART_BeginFrameDragger" TinyChange="1" SmallChange="1" LargeChange="1" MassiveChange="10" Padding="0,1" Style="{StaticResource AbletonNumberDraggerStyle}" BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}"/>
+                    <TextBlock Text="Begin Frame" Padding="0,0,0,2" HorizontalAlignment="Center" />
+                    <dr:NumberDragger x:Name="PART_BeginFrameDragger" TinyChange="1" SmallChange="1" LargeChange="1" MassiveChange="10" Padding="0,1" Style="{StaticResource AbletonNumberDraggerStyle}" BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}" />
                 </StackPanel>
                 <StackPanel Grid.Column="2">
-                    <TextBlock Text="End Frame" Padding="0,0,0,2" HorizontalAlignment="Center"/>
-                    <dr:NumberDragger x:Name="PART_EndFrameDragger" TinyChange="1" SmallChange="1" LargeChange="1" MassiveChange="10" Padding="0,1" Style="{StaticResource AbletonNumberDraggerStyle}" BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}"/>
+                    <TextBlock Text="End Frame" Padding="0,0,0,2" HorizontalAlignment="Center" />
+                    <dr:NumberDragger x:Name="PART_EndFrameDragger" TinyChange="1" SmallChange="1" LargeChange="1" MassiveChange="10" Padding="0,1" Style="{StaticResource AbletonNumberDraggerStyle}" BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}" />
                 </StackPanel>
                 <StackPanel Grid.Column="1">
-                    <TextBlock Text="Duration" Padding="0,0,0,2" HorizontalAlignment="Center"/>
-                    <TextBlock x:Name="PART_DurationTextBlock" Text="0" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Duration" Padding="0,0,0,2" HorizontalAlignment="Center" />
+                    <TextBlock x:Name="PART_DurationTextBlock" Text="0" HorizontalAlignment="Center" />
                 </StackPanel>
             </Grid>
 
-            <TextBlock Padding="5,3,5,5" VerticalAlignment="Center" Text="Exporter" Grid.Column="1" Grid.Row="5"/>
-            <ComboBox x:Name="PART_ComboBox" Grid.Column="2" Grid.Row="5" VerticalAlignment="Center"/>
+            <TextBlock Padding="5,3,5,5" VerticalAlignment="Center" Text="Exporter" Grid.Column="1" Grid.Row="5" />
+            <ComboBox x:Name="PART_ComboBox" Grid.Column="2" Grid.Row="5" VerticalAlignment="Center" />
 
             <Border Grid.ColumnSpan="4" Grid.Row="7" Background="{DynamicResource PanelBackground1}" BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}" BorderThickness="0,1">
-                <ContentPresenter x:Name="PART_ExportContentPresenter"/>
+                <ContentPresenter x:Name="PART_ExportContentPresenter" />
             </Border>
 
-            <c:SpacedStackPanel Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="2" 
-                                HorizontalAlignment="Right" Orientation="Horizontal" 
+            <c:SpacedStackPanel Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="2"
+                                HorizontalAlignment="Right" Orientation="Horizontal"
                                 InterElementGap="5">
-                <Button Content="Export" VerticalAlignment="Center" Padding="15,3" Click="Export_Click"/>
-                <Button Content="Cancel" VerticalAlignment="Center" Padding="15,3" Click="Cancel_Click"/>
+                <Button Content="Export" VerticalAlignment="Center" Padding="15,3" Click="Export_Click" />
+                <Button Content="Cancel" VerticalAlignment="Center" Padding="15,3" Click="Cancel_Click" />
             </c:SpacedStackPanel>
         </Grid>
     </Grid>

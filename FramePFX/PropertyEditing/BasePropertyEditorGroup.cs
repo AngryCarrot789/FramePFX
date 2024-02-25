@@ -24,6 +24,7 @@ using FramePFX.Utils;
 
 namespace FramePFX.PropertyEditing {
     public delegate void PropertyEditorGroupChildEventHandler(BasePropertyEditorGroup group, BasePropertyEditorObject item, int index);
+
     public delegate void PropertyEditorGroupChildMovedEventHandler(BasePropertyEditorGroup group, BasePropertyEditorObject item, int oldIndex, int newIndex);
 
     public abstract class BasePropertyEditorGroup : BasePropertyEditorItem {

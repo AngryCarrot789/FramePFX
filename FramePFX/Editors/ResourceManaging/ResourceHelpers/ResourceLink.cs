@@ -38,10 +38,10 @@ namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
         private readonly ResourceItemEventHandler onlineStateChangedHandler;
 
         private ResourceItem cached;
-        private bool isDisposing;           // are we currently disposing?
-        private bool isDisposed;            // are we disposed and cannot be used again?
-        private bool isManagerChanging;     // is the manager being changed? used for fail-fast exceptions
-        private bool isReferencedCounted;   // is this instance counted as a reference to our resource?
+        private bool isDisposing; // are we currently disposing?
+        private bool isDisposed; // are we disposed and cannot be used again?
+        private bool isManagerChanging; // is the manager being changed? used for fail-fast exceptions
+        private bool isReferencedCounted; // is this instance counted as a reference to our resource?
 
         public bool IsDisposing => this.isDisposing;
         public bool IsDisposed => this.isDisposed;
@@ -195,7 +195,7 @@ namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
 
         public bool TryGetResource(out ResourceItem resource, bool requireIsOnline = true) {
             bool success = this.LinkResource(requireIsOnline);
-            resource = success ?  this.cached : null;
+            resource = success ? this.cached : null;
             return success;
         }
 

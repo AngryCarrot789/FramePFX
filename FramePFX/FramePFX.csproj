@@ -328,6 +328,10 @@
     <Compile Include="Notifications\Notification.cs" />
     <Compile Include="Notifications\NotificationManager.cs" />
     <Compile Include="Profiling\Profiler.cs" />
+    <Compile Include="Progression\ActivityDialog.xaml.cs">
+      <DependentUpon>ActivityDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Progression\DefaultProgressTracker.cs" />
     <Compile Include="Progression\IProgressTracker.cs" />
     <Compile Include="PropertyEditing\Automation\ParameterBooleanPropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\Automation\ParameterLongPropertyEditorSlot.cs" />
@@ -807,6 +811,10 @@
     <Compile Include="Logger\AppLogger.cs" />
     <Compile Include="Logger\HeaderedLogEntry.cs" />
     <Compile Include="Logger\LogEntry.cs" />
+    <Page Include="Progression\ActivityDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="PropertyEditing\Controls\PropertyEditorSlotContentStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

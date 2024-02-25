@@ -18,6 +18,8 @@
 //
 
 namespace FramePFX.Progression {
+    public delegate void ProgressTrackerEventHandler(IProgressTracker tracker);
+
     /// <summary>
     /// An interface for an object used to track progression
     /// </summary>
@@ -40,6 +42,11 @@ namespace FramePFX.Progression {
         /// <summary>
         /// Gets or sets the description text (aka operation description, describing what's happening)
         /// </summary>
-        string DescriptionText { get; set; }
+        string Text { get; set; }
+
+        event ProgressTrackerEventHandler IsIndeterminateChanged;
+        event ProgressTrackerEventHandler CompletionValueChanged;
+        event ProgressTrackerEventHandler HeaderTextChanged;
+        event ProgressTrackerEventHandler TextChanged;
     }
 }

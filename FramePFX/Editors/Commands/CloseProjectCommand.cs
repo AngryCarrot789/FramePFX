@@ -20,6 +20,7 @@
 using System.Windows;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Progression;
 
 namespace FramePFX.Editors.Commands {
     public class CloseProjectCommand : Command {
@@ -32,20 +33,22 @@ namespace FramePFX.Editors.Commands {
         public override void Execute(CommandEventArgs e) {
             if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor))
                 return;
-            CloseProject(editor);
+            CloseProject(editor, null);
         }
 
-        public static bool CloseProject(VideoEditor editor, string msgTitle = "Project is open", string message = "A project is open. Do you want to save it?") {
+        public static bool CloseProject(VideoEditor editor, IProgressTracker progress, string msgTitle = "Project is open", string message = "A project is open. Do you want to save it?") {
             Project oldProject = editor.Project;
             if (oldProject == null) {
                 return true;
             }
 
+            if (progress != null)
+                progress.Text = "Closing active project";
             MessageBoxResult result = IoC.MessageService.ShowMessage(msgTitle, message, MessageBoxButton.YesNoCancel);
             switch (result) {
                 case MessageBoxResult.Cancel: return false;
                 case MessageBoxResult.Yes: {
-                    bool? saveResult = SaveProjectCommand.SaveProject(editor.Project);
+                    bool? saveResult = SaveProjectCommand.SaveProject(editor.Project, progress);
                     if (!saveResult.HasValue) {
                         return false;
                     }

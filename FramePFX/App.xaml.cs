@@ -163,11 +163,11 @@ namespace FramePFX {
             if (ApplicationCore.Instance.Services.TryGetService(out IMessageDialogService service)) {
                 service.ShowMessage("Error", "An unhandled error occurred in the application. It will now shutdown");
                 if (project != null)
-                    SaveProjectCommand.SaveProjectAs(project);
+                    SaveProjectCommand.SaveProjectAs(project, null);
             }
             else {
                 if (project != null)
-                    SaveProjectCommand.SaveProjectAs(project);
+                    SaveProjectCommand.SaveProjectAs(project, null);
             }
 
             try {

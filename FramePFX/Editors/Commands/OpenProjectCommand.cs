@@ -24,6 +24,7 @@ using FramePFX.CommandSystem;
 using FramePFX.Editors.Automation;
 using FramePFX.Editors.ResourceManaging.Autoloading.Controls;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Progression;
 using FramePFX.Utils;
 
 namespace FramePFX.Editors.Commands {
@@ -47,15 +48,29 @@ namespace FramePFX.Editors.Commands {
                 return;
             }
 
-            if (!CloseProjectCommand.CloseProject(editor)) {
-                return;
-            }
+            IProgressTracker tracker = new ModalProgressTracker() {
+                IsIndeterminate = false, HeaderText = "Opening project..."
+            };
 
-            OpenProjectAt(editor, filePath);
+            ActivityDialog dialog = ActivityDialog.ShowAsNonModal(tracker);
+            try {
+                tracker.CompletionValue = 0.2;
+                if (CloseProjectCommand.CloseProject(editor, tracker)) {
+                    tracker.CompletionValue = 0.7;
+                    OpenProjectAt(editor, filePath, tracker);
+                    tracker.CompletionValue = 1.0;
+                }
+            }
+            finally {
+                dialog.Close();
+            }
         }
 
-        public static bool OpenProjectAt(VideoEditor editor, string filePath) {
+        public static bool OpenProjectAt(VideoEditor editor, string filePath, IProgressTracker tracker) {
             Project project;
+            if (tracker != null)
+                tracker.Text = "Reading project data from file";
+
             try {
                 project = Project.ReadProjectAt(filePath);
             }
@@ -64,8 +79,12 @@ namespace FramePFX.Editors.Commands {
                 return false;
             }
 
+            if (tracker != null)
+                tracker.Text = "Loading project";
             editor.SetProject(project);
 
+            if (tracker != null)
+                tracker.Text = "Loading resources";
             if (!ResourceLoaderDialog.TryLoadResources(project.ResourceManager.RootContainer)) {
                 try {
                     editor.CloseProject();
@@ -76,6 +95,9 @@ namespace FramePFX.Editors.Commands {
 
                 return false;
             }
+
+            if (tracker != null)
+                tracker.Text = "Updating automation and rendering";
 
             project.SetUnModified();
             AutomationEngine.UpdateValues(project.MainTimeline);

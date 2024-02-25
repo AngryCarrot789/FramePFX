@@ -20,31 +20,35 @@
 using System;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Progression;
 using FramePFX.Utils;
 
 namespace FramePFX.Editors.Commands {
     public class SaveProjectCommand : Command {
-        public static bool? SaveProject(Project project) {
+        public static bool? SaveProject(Project project, IProgressTracker progress) {
             if (project.HasSavedOnce && !string.IsNullOrEmpty(project.ProjectFilePath)) {
-                return SaveProjectInternal(project, project.ProjectFilePath);
+                return SaveProjectInternal(project, project.ProjectFilePath, progress);
             }
             else {
-                return SaveProjectAs(project);
+                return SaveProjectAs(project, progress);
             }
         }
 
-        public static bool? SaveProjectAs(Project project) {
+        public static bool? SaveProjectAs(Project project, IProgressTracker progress) {
             const string message = "Specify a file path for the project file. Any project data will be stored in the same folder, so it's best to create a project-specific folder";
             string filePath = IoC.FilePickService.SaveFile(message, Filters.ProjectType, project.ProjectFilePath);
             if (filePath == null) {
                 return null;
             }
 
-            return SaveProjectInternal(project, filePath);
+            return SaveProjectInternal(project, filePath, progress);
         }
 
-        private static bool SaveProjectInternal(Project project, string filePath) {
+        private static bool SaveProjectInternal(Project project, string filePath, IProgressTracker progress) {
             project.Editor?.Playback.Pause();
+
+            if (progress != null)
+                progress.Text = "Serialising project...";
 
             try {
                 project.WriteToFile(filePath);
@@ -62,7 +66,7 @@ namespace FramePFX.Editors.Commands {
 
         public override void Execute(CommandEventArgs e) {
             if (DataKeys.ProjectKey.TryGetContext(e.ContextData, out Project project)) {
-                SaveProject(project);
+                SaveProject(project, null);
             }
         }
     }
@@ -70,7 +74,7 @@ namespace FramePFX.Editors.Commands {
     public class SaveProjectAsCommand : SaveProjectCommand {
         public override void Execute(CommandEventArgs e) {
             if (DataKeys.ProjectKey.TryGetContext(e.ContextData, out Project project)) {
-                SaveProjectAs(project);
+                SaveProjectAs(project, null);
             }
         }
     }

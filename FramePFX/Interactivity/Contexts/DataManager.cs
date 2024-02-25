@@ -19,14 +19,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq.Expressions;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Media;
-using FramePFX.Utils;
 using FramePFX.Utils.Visuals;
-using Expression = System.Linq.Expressions.Expression;
 
 namespace FramePFX.Interactivity.Contexts {
     /// <summary>

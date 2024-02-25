@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 
 namespace FramePFX.History {

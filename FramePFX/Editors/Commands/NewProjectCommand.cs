@@ -35,7 +35,7 @@ namespace FramePFX.Editors.Commands {
                 return;
             }
 
-            if (!CloseProjectCommand.CloseProject(editor)) {
+            if (!CloseProjectCommand.CloseProject(editor, null)) {
                 return;
             }
 

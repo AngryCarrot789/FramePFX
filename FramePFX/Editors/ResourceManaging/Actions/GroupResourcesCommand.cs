@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Contextual;
 
@@ -26,9 +27,9 @@ namespace FramePFX.Editors.ResourceManaging.Actions {
             return ResourceContextRegistry.CanGetSingleFolderSelection(e.ContextData);
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             if (!ResourceContextRegistry.GetFolderSelectionContext(e.ContextData, out ResourceFolder currFolder, out BaseResource[] items)) {
-                return;
+                return Task.CompletedTask;
             }
 
             foreach (BaseResource resource in items) {
@@ -46,7 +47,7 @@ namespace FramePFX.Editors.ResourceManaging.Actions {
                 currFolder.MoveItemTo(folder, resource);
             }
 
-            // TODO: focus the folder in the UI, might have to add a AttemptFocus event in the BaseResource along side IsSelectedChanged
+            return Task.CompletedTask;
         }
     }
 }

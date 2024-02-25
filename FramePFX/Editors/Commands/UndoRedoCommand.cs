@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 
@@ -69,13 +70,19 @@ namespace FramePFX.Editors.Commands {
         public UndoCommand() : base(true) {
         }
 
-        public override void Execute(CommandEventArgs e) => Undo(e.ContextData);
+        public override Task Execute(CommandEventArgs e) {
+            Undo(e.ContextData);
+            return Task.CompletedTask;
+        }
     }
 
     public class RedoCommand : UndoRedoCommand {
         public RedoCommand() : base(false) {
         }
 
-        public override void Execute(CommandEventArgs e) => Redo(e.ContextData);
+        public override Task Execute(CommandEventArgs e) {
+            Redo(e.ContextData);
+            return Task.CompletedTask;
+        }
     }
 }

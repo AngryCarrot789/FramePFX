@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Threading.Tasks;
 using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.CommandSystem {
@@ -34,6 +35,8 @@ namespace FramePFX.CommandSystem {
     /// </para>
     /// </summary>
     public abstract class Command {
+        private bool IsExecuting;
+
         protected Command() {
         }
 
@@ -58,9 +61,22 @@ namespace FramePFX.CommandSystem {
         }
 
         /// <summary>
-        /// Executes this specific command with the given command event args
+        /// Executes this specific command with the given command event args. This is called by <see cref="ExecuteAsync"/>
         /// </summary>
         /// <param name="e">The command event args, containing info about the current context</param>
-        public abstract void Execute(CommandEventArgs e);
+        public abstract Task Execute(CommandEventArgs e);
+
+        internal static bool InternalBeginExecution(Command command) {
+            if (command.IsExecuting) {
+                return false;
+            }
+
+            command.IsExecuting = true;
+            return true;
+        }
+
+        internal static void InternalEndExecution(Command command) {
+            command.IsExecuting = false;
+        }
     }
 }

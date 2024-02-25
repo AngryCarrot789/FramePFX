@@ -18,6 +18,7 @@
 //
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
@@ -34,7 +35,7 @@ namespace FramePFX.Editors.Commands {
             return ExecutabilityState.Invalid;
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip clip) && clip.Timeline is Timeline timeline) {
                 SliceClip(clip, timeline.PlayHeadPosition);
             }
@@ -48,6 +49,8 @@ namespace FramePFX.Editors.Commands {
                     SliceClip(clips[i], timeline.PlayHeadPosition);
                 }
             }
+
+            return Task.CompletedTask;
         }
 
         public static void SliceClip(Clip clip, long playHead) {

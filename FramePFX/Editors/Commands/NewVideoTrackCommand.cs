@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
@@ -28,9 +29,9 @@ namespace FramePFX.Editors.Commands {
             return e.ContextData.ContainsKey(DataKeys.TimelineKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline timeline)) {
-                return;
+                return Task.CompletedTask;
             }
 
             VideoTrack track = new VideoTrack() {
@@ -38,6 +39,7 @@ namespace FramePFX.Editors.Commands {
             };
 
             timeline.AddTrack(track);
+            return Task.CompletedTask;
         }
     }
 }

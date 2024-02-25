@@ -1,5 +1,6 @@
 // #define PRINT_DEBUG_KEYSTROKES
 
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
@@ -55,13 +56,43 @@ namespace FramePFX.Shortcuts.WPF {
             this.CurrentSource = null;
         }
 
-        public void OnInputSourceMouseButton(Window root, DependencyObject focused, MouseButtonEventArgs e, bool isRelease) {
+        public async void OnInputSourceKeyEvent(WPFShortcutInputManager processor, DependencyObject focused, KeyEventArgs e, Key key, bool isRelease, bool isPreviewEvent) {
+            if (!CanProcessEventType(focused, isPreviewEvent) || !CanProcessKeyEvent(focused, e)) {
+                return;
+            }
+
+            try {
+                this.isProcessingKey = true;
+                this.BeginInputProcessing(focused);
+                ModifierKeys mods = ShortcutUtils.IsModifierKey(key) ? ModifierKeys.None : e.KeyboardDevice.Modifiers;
+                KeyStroke stroke = new KeyStroke((int) key, (int) mods, isRelease);
+                Task<bool> task = processor.OnKeyStroke(UIInputManager.Instance.FocusedPath, stroke, e.IsRepeat);
+                if (task.IsCompleted) {
+                    e.Handled = await task;
+                }
+                else {
+                    e.Handled = true;
+                    await task;
+                }
+            }
+            finally {
+                this.isProcessingKey = false;
+                this.EndInputProcessing();
+            }
+        }
+
+        public async void OnInputSourceMouseButton(DependencyObject focused, MouseButtonEventArgs e, bool isRelease) {
             try {
                 this.isProcessingMouse = true;
                 this.BeginInputProcessing(focused);
                 MouseStroke stroke = new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, isRelease, e.ClickCount);
-                if (this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke)) {
+                Task<bool> task = this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke);
+                if (task.IsCompleted) {
+                    e.Handled = await task;
+                }
+                else {
                     e.Handled = true;
+                    await task;
                 }
             }
             finally {
@@ -70,7 +101,7 @@ namespace FramePFX.Shortcuts.WPF {
             }
         }
 
-        public void OnInputSourceMouseWheel(Window sender, DependencyObject focused, MouseWheelEventArgs e) {
+        public async void OnInputSourceMouseWheel(DependencyObject focused, MouseWheelEventArgs e) {
             int button;
             if (e.Delta < 0) {
                 button = WPFShortcutManager.BUTTON_WHEEL_DOWN;
@@ -86,45 +117,17 @@ namespace FramePFX.Shortcuts.WPF {
                 this.isProcessingMouse = true;
                 this.BeginInputProcessing(focused);
                 MouseStroke stroke = new MouseStroke(button, (int) Keyboard.Modifiers, false, 0, e.Delta);
-                if (this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke)) {
+                Task<bool> task = this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke);
+                if (task.IsCompleted) {
+                    e.Handled = await task;
+                }
+                else {
                     e.Handled = true;
+                    await task;
                 }
             }
             finally {
                 this.isProcessingMouse = false;
-                this.EndInputProcessing();
-            }
-        }
-
-        public static bool GetKeyCombo(KeyEventArgs e, out Key key, out ModifierKeys mods) {
-            Key input = e.Key == Key.System ? e.SystemKey : e.Key;
-            if (input != Key.DeadCharProcessed && input != Key.None) {
-                mods = ShortcutUtils.IsModifierKey(input) ? ModifierKeys.None : e.KeyboardDevice.Modifiers;
-                key = input;
-                return true;
-            }
-
-            key = default;
-            mods = default;
-            return false;
-        }
-
-        public void OnInputSourceKeyEvent(Window root, WPFShortcutInputManager processor, DependencyObject focused, KeyEventArgs e, Key key, bool isRelease, bool isPreviewEvent) {
-            if (!CanProcessEventType(focused, isPreviewEvent) || !CanProcessKeyEvent(focused, e)) {
-                return;
-            }
-
-            try {
-                this.isProcessingKey = true;
-                this.BeginInputProcessing(focused);
-                ModifierKeys mods = ShortcutUtils.IsModifierKey(key) ? ModifierKeys.None : e.KeyboardDevice.Modifiers;
-                KeyStroke stroke = new KeyStroke((int) key, (int) mods, isRelease);
-                if (processor.OnKeyStroke(UIInputManager.Instance.FocusedPath, stroke, e.IsRepeat)) {
-                    e.Handled = true;
-                }
-            }
-            finally {
-                this.isProcessingKey = false;
                 this.EndInputProcessing();
             }
         }

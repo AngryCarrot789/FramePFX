@@ -19,6 +19,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using FramePFX.CommandSystem;
@@ -39,20 +40,19 @@ namespace FramePFX.Editors.Commands {
             return ExecutabilityState.Executable;
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline timeline)) {
-                return;
+                return Task.CompletedTask;
             }
 
             Project project = timeline.Project;
             if (project == null)
-                return;
-
+                return Task.CompletedTask;
             int trackStart = int.MaxValue, trackEnd = int.MinValue;
             List<Clip> selected = DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip focusedClip) ? timeline.GetSelectedClipsWith(focusedClip).ToList() : timeline.SelectedClips.ToList();
             if (selected.Count < 1) {
                 IoC.MessageService.ShowMessage("No selection", "No selected clips!");
-                return;
+                return Task.CompletedTask;
             }
 
             timeline.ClearClipSelection();
@@ -63,7 +63,7 @@ namespace FramePFX.Editors.Commands {
                 int index = clip.Track.IndexInTimeline;
                 if (index == -1) {
                     IoC.MessageService.ShowMessage("Error", "One or more selected clips did not have a track associated... this is a very bad bug");
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 if (index < trackStart)
@@ -123,6 +123,7 @@ namespace FramePFX.Editors.Commands {
                     project.ActiveTimeline = composition.Timeline;
                 }
             }, DispatcherPriority.Background);
+            return Task.CompletedTask;
         }
     }
 }

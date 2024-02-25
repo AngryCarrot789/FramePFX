@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Threading.Tasks;
 using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.CommandSystem {
@@ -32,7 +33,7 @@ namespace FramePFX.CommandSystem {
             return IsToggledKey.TryGetContext(e.ContextData, out bool value) ? (bool?) value : null;
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             bool? result = this.GetIsToggled(e);
             if (result.HasValue) {
                 this.OnToggled(e, result.Value);
@@ -40,6 +41,8 @@ namespace FramePFX.CommandSystem {
             else {
                 this.ExecuteNoToggle(e);
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>

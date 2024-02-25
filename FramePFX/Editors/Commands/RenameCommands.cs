@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.Timelines;
@@ -31,9 +32,9 @@ namespace FramePFX.Editors.Commands {
             return e.ContextData.ContainsKey(DataKeys.ResourceObjectKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             if (!DataKeys.ResourceObjectKey.TryGetContext(e.ContextData, out BaseResource target)) {
-                return;
+                return Task.CompletedTask;
             }
 
             if (IoC.UserInputService.ShowSingleInputDialog("Rename resource item", "Input a new name for this resource", target.DisplayName) is string newDisplayName) {
@@ -43,6 +44,8 @@ namespace FramePFX.Editors.Commands {
                     editor.HistoryManager.AddAction(new HistoryActionDisplayName(target, oldName));
                 }
             }
+
+            return Task.CompletedTask;
         }
     }
 
@@ -51,9 +54,9 @@ namespace FramePFX.Editors.Commands {
             return e.ContextData.ContainsKey(DataKeys.ClipKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             if (!DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip target)) {
-                return;
+                return Task.CompletedTask;
             }
 
             if (IoC.UserInputService.ShowSingleInputDialog("Rename clip", "Input a new name for this clip", target.DisplayName) is string newDisplayName) {
@@ -63,6 +66,8 @@ namespace FramePFX.Editors.Commands {
                     editor.HistoryManager.AddAction(new HistoryActionDisplayName(target, oldName));
                 }
             }
+
+            return Task.CompletedTask;
         }
     }
 
@@ -71,9 +76,9 @@ namespace FramePFX.Editors.Commands {
             return e.ContextData.ContainsKey(DataKeys.TrackKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             if (!DataKeys.TrackKey.TryGetContext(e.ContextData, out Track target)) {
-                return;
+                return Task.CompletedTask;
             }
 
             if (IoC.UserInputService.ShowSingleInputDialog("Rename track", "Input a new name for this track", target.DisplayName) is string newDisplayName) {
@@ -83,6 +88,8 @@ namespace FramePFX.Editors.Commands {
                     editor.HistoryManager.AddAction(new HistoryActionDisplayName(target, oldName));
                 }
             }
+
+            return Task.CompletedTask;
         }
     }
 

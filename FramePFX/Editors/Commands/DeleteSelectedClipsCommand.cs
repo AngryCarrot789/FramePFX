@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Contextual;
 using FramePFX.Editors.Timelines.Clips;
@@ -27,15 +28,17 @@ namespace FramePFX.Editors.Commands {
             return ClipContextRegistry.CanGetClipSelection(e.ContextData);
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             if (!ClipContextRegistry.GetClipSelection(e.ContextData, out Clip[] clips)) {
-                return;
+                return Task.CompletedTask;
             }
 
             foreach (Clip clip in clips) {
                 clip.Destroy();
                 clip.Track.RemoveClip(clip);
             }
+
+            return Task.CompletedTask;
         }
     }
 }

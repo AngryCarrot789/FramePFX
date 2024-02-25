@@ -36,7 +36,6 @@ using FramePFX.Utils;
 using FramePFX.Views;
 using FramePFX.Natives;
 using FramePFX.Services.Messages;
-using FramePFX.Tasks;
 
 namespace FramePFX {
     public partial class App : Application {
@@ -170,11 +169,11 @@ namespace FramePFX {
             if (ApplicationCore.Instance.Services.TryGetService(out IMessageDialogService service)) {
                 service.ShowMessage("Error", "An unhandled error occurred in the application. It will now shutdown");
                 if (project != null)
-                    SaveProjectCommand.SaveProjectAs(project);
+                    Project.SaveProjectAs(project, null);
             }
             else {
                 if (project != null)
-                    SaveProjectCommand.SaveProjectAs(project);
+                    Project.SaveProjectAs(project, null);
             }
 
             try {

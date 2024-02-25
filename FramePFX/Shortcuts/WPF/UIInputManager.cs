@@ -253,7 +253,7 @@ namespace FramePFX.Shortcuts.WPF {
 
             if (focusedObject != null) {
                 bool isPreview = e.RoutedEvent == Keyboard.PreviewKeyDownEvent || e.RoutedEvent == Keyboard.PreviewKeyUpEvent;
-                processor.OnInputSourceKeyEvent(window, processor, focusedObject, e, key, e.IsUp, isPreview);
+                processor.OnInputSourceKeyEvent(processor, focusedObject, e, key, e.IsUp, isPreview);
                 if (processor.isProcessingKey)
                     e.Handled = true;
                 return e.Handled;
@@ -303,8 +303,7 @@ namespace FramePFX.Shortcuts.WPF {
                 return false;
             }
 
-            processor.OnInputSourceMouseButton(window, focused, e, !isDown);
-
+            processor.OnInputSourceMouseButton(focused, e, !isDown);
             if (processor.isProcessingMouse)
                 e.Handled = true;
             return e.Handled;
@@ -340,7 +339,7 @@ namespace FramePFX.Shortcuts.WPF {
                 return false;
             }
 
-            processor.OnInputSourceMouseWheel(window, focusedObject, e);
+            processor.OnInputSourceMouseWheel(focusedObject, e);
             if (processor.isProcessingMouse)
                 e.Handled = true;
             return e.Handled;

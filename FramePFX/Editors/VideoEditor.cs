@@ -20,7 +20,6 @@
 using System;
 using System.Diagnostics;
 using System.Numerics;
-using System.Windows;
 using System.Windows.Threading;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.ResourceManaging;

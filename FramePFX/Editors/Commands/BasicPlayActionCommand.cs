@@ -18,6 +18,7 @@
 //
 
 using System;
+using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 
@@ -31,9 +32,9 @@ namespace FramePFX.Editors.Commands {
             return editor.Playback.CanSetPlayStateTo(this.TargetState) ? ExecutabilityState.Executable : ExecutabilityState.ValidButCannotExecute;
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor) || !editor.Playback.CanSetPlayStateTo(this.TargetState))
-                return;
+                return Task.CompletedTask;
             switch (this.TargetState) {
                 case PlayState.Play:
                     editor.Playback.Play();
@@ -46,6 +47,8 @@ namespace FramePFX.Editors.Commands {
                     break;
                 default: throw new ArgumentOutOfRangeException();
             }
+
+            return Task.CompletedTask;
         }
     }
 

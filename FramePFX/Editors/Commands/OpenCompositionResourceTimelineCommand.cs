@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Contextual;
 using FramePFX.Editors.ResourceManaging;
@@ -33,10 +34,12 @@ namespace FramePFX.Editors.Commands {
             return ExecutabilityState.Executable;
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             if (ResourceContextRegistry.GetSingleSelection(e.ContextData, out BaseResource resource) && resource is ResourceComposition composition) {
                 composition.Manager.Project.ActiveTimeline = composition.Timeline;
             }
+
+            return Task.CompletedTask;
         }
     }
 }

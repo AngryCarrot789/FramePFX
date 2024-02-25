@@ -23,6 +23,8 @@ using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.Resources;
 using FramePFX.Editors.Timelines;
 using FramePFX.RBC;
+using FramePFX.Tasks;
+using FramePFX.Utils;
 using FramePFX.Utils.Destroying;
 
 namespace FramePFX.Editors {
@@ -33,6 +35,7 @@ namespace FramePFX.Editors {
     public class Project : IDestroy {
         private string projectName;
         private Timeline activeTimeline;
+        private volatile bool isSaving;
 
         /// <summary>
         /// Gets or sets the active timeline in the UI. This is the timeline that all timeline actions are applied
@@ -120,9 +123,20 @@ namespace FramePFX.Editors {
         /// </summary>
         public string DataFolderPath { get; private set; }
 
+        public bool IsSaving {
+            get => this.isSaving;
+            set {
+                if (this.isSaving == value)
+                    return;
+                this.isSaving = value;
+                this.IsSavingChanged?.Invoke(this);
+            }
+        }
+
         public event ProjectEventHandler ProjectNameChanged;
         public event ProjectEventHandler ProjectFilePathChanged;
         public event ProjectEventHandler IsModifiedChanged;
+        public event ProjectEventHandler IsSavingChanged;
 
         /// <summary>
         /// An event fired when our <see cref="ActiveTimeline"/> changes.
@@ -288,6 +302,55 @@ namespace FramePFX.Editors {
                 return;
             this.IsModified = false;
             this.IsModifiedChanged?.Invoke(this);
+        }
+
+        public static bool? SaveProject(Project project, IActivityProgress progress) {
+            if (project.HasSavedOnce && !string.IsNullOrEmpty(project.ProjectFilePath)) {
+                return SaveProjectInternal(project, project.ProjectFilePath, progress);
+            }
+            else {
+                return SaveProjectAs(project, progress);
+            }
+        }
+
+        public static bool? SaveProjectAs(Project project, IActivityProgress progress) {
+            const string message = "Specify a file path for the project file. Any project data will be stored in the same folder, so it's best to create a project-specific folder";
+            string filePath = IoC.FilePickService.SaveFile(message, Filters.ProjectType, project.ProjectFilePath);
+            if (filePath == null) {
+                return null;
+            }
+
+            return SaveProjectInternal(project, filePath, progress);
+        }
+
+        private static bool SaveProjectInternal(Project project, string filePath, IActivityProgress progress) {
+            if (project.IsSaving) {
+                throw new InvalidOperationException("Already saving!");
+            }
+
+            if (progress == null)
+                progress = EmptyActivityProgress.Instance;
+
+            project.IsSaving = true;
+            try {
+                project.Editor?.Playback.Pause();
+
+                progress.Text = "Serialising project...";
+                progress.OnProgress(0.5);
+                try {
+                    project.WriteToFile(filePath);
+                    progress.OnProgress(0.5);
+                    return true;
+                }
+                catch (Exception e) {
+                    IoC.MessageService.ShowMessage("Save Error", "An exception occurred while saving project", e.GetToString());
+                    progress.OnProgress(0.5);
+                    return false;
+                }
+            }
+            finally {
+                project.IsSaving = false;
+            }
         }
     }
 }

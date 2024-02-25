@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
@@ -30,7 +31,7 @@ namespace FramePFX.Editors.Commands {
             return e.ContextData.ContainsKey(DataKeys.ClipKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip clip) && clip.Track is Track track) {
                 if (clip.Track.TryGetSpanUntilClip(clip.FrameSpan.EndIndex, out FrameSpan span, clip.FrameSpan.Duration, clip.FrameSpan.Duration)) {
                     if (track.Timeline != null) {
@@ -47,6 +48,8 @@ namespace FramePFX.Editors.Commands {
                     }
                 }
             }
+
+            return Task.CompletedTask;
         }
     }
 }

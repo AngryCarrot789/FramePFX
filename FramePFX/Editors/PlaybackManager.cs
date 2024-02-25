@@ -21,7 +21,6 @@ using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines;
 using FramePFX.Logger;

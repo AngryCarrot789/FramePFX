@@ -21,9 +21,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Windows;
+using System.Threading.Tasks;
 using System.Windows.Threading;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Logger;
 using FramePFX.Utils;
 
 namespace FramePFX.CommandSystem {
@@ -127,10 +128,11 @@ namespace FramePFX.CommandSystem {
         /// <exception cref="Exception">The context is null, or the assembly was compiled in debug mode and the command threw ane exception</exception>
         /// <exception cref="ArgumentException">ID is null, empty or consists of only whitespaces</exception>
         /// <exception cref="ArgumentNullException">Context is null</exception>
-        public void Execute(string cmdId, IContextData context, bool isUserInitiated = true) {
+        public Task Execute(string cmdId, IContextData context, bool isUserInitiated = true) {
             ValidateId(cmdId);
             if (this.commands.TryGetValue(cmdId, out CommandEntry cmd))
-                this.Execute(cmdId, cmd.Command, context, isUserInitiated);
+                return this.Execute(cmdId, cmd.Command, context, isUserInitiated);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -141,7 +143,7 @@ namespace FramePFX.CommandSystem {
         /// <param name="commandId">The target command id</param>
         /// <param name="contextProvider">A function that provides the data context if required (if the command exists)</param>
         /// <param name="isUserInitiated">True when executed as a user, which is usually the default</param>
-        public bool TryExecute(string commandId, Func<IContextData> contextProvider, bool isUserInitiated = true) {
+        public async Task<bool> TryExecute(string commandId, Func<IContextData> contextProvider, bool isUserInitiated = true) {
             ValidateId(commandId);
             if (contextProvider == null)
                 throw new ArgumentNullException(nameof(contextProvider), "Data context provider cannot be null");
@@ -152,7 +154,7 @@ namespace FramePFX.CommandSystem {
             if (context == null)
                 throw new ArgumentNullException(nameof(context), "Context cannot be null");
 
-            ExecuteCore(commandId, command.Command, new CommandEventArgs(this, context, isUserInitiated));
+            await ExecuteCore(commandId, command.Command, new CommandEventArgs(this, context, isUserInitiated));
             return true;
         }
 
@@ -163,27 +165,32 @@ namespace FramePFX.CommandSystem {
         /// <param name="cmd"></param>
         /// <param name="context"></param>
         /// <param name="isUserInitiated"></param>
-        public void Execute(string cmdId, Command cmd, IContextData context, bool isUserInitiated = true) {
+        public Task Execute(string cmdId, Command cmd, IContextData context, bool isUserInitiated = true) {
             ValidateId(cmdId);
             ValidateContext(context);
-            ExecuteCore(cmdId, cmd, new CommandEventArgs(this, context, isUserInitiated));
+            return ExecuteCore(cmdId, cmd, new CommandEventArgs(this, context, isUserInitiated));
         }
 
-        protected static void ExecuteCore(string cmdId, Command command, CommandEventArgs e) {
-            if (!e.IsUserInitiated || Debugger.IsAttached) { // allow debugger to catch exception
-                command.Execute(e);
+        protected static async Task ExecuteCore(string cmdId, Command command, CommandEventArgs e) {
+            if (!Command.InternalBeginExecution(command)) {
+                IoC.MessageService.ShowMessage("Already running", "This command is already running");
+                return;
             }
-            else {
-                TryExecuteOrShowDialog(cmdId, command, e);
-            }
-        }
 
-        private static void TryExecuteOrShowDialog(string cmdId, Command command, CommandEventArgs e) {
             try {
-                command.Execute(e);
+                await command.Execute(e);
             }
-            catch (Exception ex) {
+            catch (TaskCanceledException) {
+                AppLogger.Instance.WriteLine($"Command execution was cancelled: {cmdId} ({command.GetType()})");
+            }
+            catch (OperationCanceledException) {
+                AppLogger.Instance.WriteLine($"Command (operation) execution was cancelled: {cmdId} ({command.GetType()})");
+            }
+            catch (Exception ex) when (e.IsUserInitiated && !Debugger.IsAttached) {
                 IoC.MessageService.ShowMessage("Command execution exception", $"An exception occurred while executing '{cmdId}'", ex.GetToString());
+            }
+            finally {
+                Command.InternalEndExecution(command);
             }
         }
 

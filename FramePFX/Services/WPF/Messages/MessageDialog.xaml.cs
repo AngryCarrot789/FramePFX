@@ -64,7 +64,7 @@ namespace FramePFX.Services.WPF.Messages {
             set => this.SetValue(DefaultButtonProperty, value);
         }
 
-        private MessageBoxResult clickedButton;
+        private MessageBoxResult? clickedButton;
 
         public MessageDialog() {
             this.InitializeComponent();
@@ -107,6 +107,25 @@ namespace FramePFX.Services.WPF.Messages {
             base.OnPreviewKeyDown(e);
             if (e.Key == Key.Escape || e.Key == Key.Enter) {
                 e.Handled = true;
+
+                if (e.Key == Key.Enter && !this.clickedButton.HasValue) {
+                    if (this.PART_ButtonOK.IsFocused) {
+                        this.clickedButton = MessageBoxResult.OK;
+                    }
+                    else if (this.PART_ButtonYes.IsFocused) {
+                        this.clickedButton = MessageBoxResult.Yes;
+                    }
+                    else if (this.PART_ButtonNo.IsFocused) {
+                        this.clickedButton = MessageBoxResult.No;
+                    }
+                    else if (this.PART_ButtonCancel.IsFocused) {
+                        this.clickedButton = MessageBoxResult.Cancel;
+                    }
+                    else {
+                        this.clickedButton = MessageBoxResult.None;
+                    }
+                }
+
                 this.Close();
             }
         }
@@ -208,6 +227,6 @@ namespace FramePFX.Services.WPF.Messages {
             this.Close();
         }
 
-        public MessageBoxResult GetClickedButton() => this.clickedButton;
+        public MessageBoxResult GetClickedButton() => this.clickedButton ?? MessageBoxResult.None;
     }
 }

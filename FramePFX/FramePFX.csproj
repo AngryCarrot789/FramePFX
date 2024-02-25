@@ -329,7 +329,6 @@
     <Compile Include="Natives\PFXNative.cs" />
     <Compile Include="Notifications\Notification.cs" />
     <Compile Include="Notifications\NotificationManager.cs" />
-    <Compile Include="Profiling\Profiler.cs" />
     <Compile Include="Tasks\ActivityDialog.xaml.cs">
       <DependentUpon>ActivityDialog.xaml</DependentUpon>
     </Compile>

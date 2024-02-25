@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Shortcuts.Events;
@@ -247,7 +248,7 @@ namespace FramePFX.Shortcuts.Managing {
         /// <param name="inputManager">The processor that caused this activation</param>
         /// <param name="shortcut">The shortcut that was activated</param>
         /// <returns>The outcome of the shortcut activation used by the processor's input manager</returns>
-        public bool OnShortcutActivated(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
+        public async Task<bool> OnShortcutActivated(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
             // Fire events first
             bool result = false;
             IContextData context = null;
@@ -262,7 +263,7 @@ namespace FramePFX.Shortcuts.Managing {
             }
 
             // this.OnShortcutActivatedOverride is called here due to | not ||
-            return result | this.OnShortcutActivatedOverride(inputManager, shortcut);
+            return result | await this.OnShortcutActivatedOverride(inputManager, shortcut);
         }
 
         /// <summary>
@@ -271,9 +272,9 @@ namespace FramePFX.Shortcuts.Managing {
         /// <param name="inputManager">The processor that caused this activation</param>
         /// <param name="shortcut">The shortcut that was activated</param>
         /// <returns>The result of the shortcut activation used by the processor's input manager</returns>
-        protected virtual bool OnShortcutActivatedOverride(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
+        protected virtual async Task<bool> OnShortcutActivatedOverride(ShortcutInputManager inputManager, GroupedShortcut shortcut) {
             // Fire command. This is the main way of activating shortcuts
-            return CommandManager.Instance.TryExecute(shortcut.CommandId, inputManager.ProvideCurrentContextInternal);
+            return await CommandManager.Instance.TryExecute(shortcut.CommandId, inputManager.ProvideCurrentContextInternal);
         }
 
         /// <summary>

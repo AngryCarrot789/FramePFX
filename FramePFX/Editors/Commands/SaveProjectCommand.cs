@@ -17,67 +17,47 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System;
+using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Tasks;
-using FramePFX.Utils;
 
 namespace FramePFX.Editors.Commands {
     public class SaveProjectCommand : Command {
-        public static bool? SaveProject(Project project) {
-            if (project.HasSavedOnce && !string.IsNullOrEmpty(project.ProjectFilePath)) {
-                return SaveProjectInternal(project, project.ProjectFilePath);
-            }
-            else {
-                return SaveProjectAs(project);
-            }
-        }
-
-        public static bool? SaveProjectAs(Project project) {
-            const string message = "Specify a file path for the project file. Any project data will be stored in the same folder, so it's best to create a project-specific folder";
-            string filePath = IoC.FilePickService.SaveFile(message, Filters.ProjectType, project.ProjectFilePath);
-            if (filePath == null) {
-                return null;
-            }
-
-            return SaveProjectInternal(project, filePath);
-        }
-
-        private static bool SaveProjectInternal(Project project, string filePath) {
-            project.Editor?.Playback.Pause();
-
-            IActivityProgress progress = TaskManager.Instance.GetCurrentProgressOrEmpty();
-            progress.Text = "Serialising project...";
-
-            progress.OnProgress(0.5);
-            try {
-                project.WriteToFile(filePath);
-                progress.OnProgress(0.5);
-                return true;
-            }
-            catch (Exception e) {
-                IoC.MessageService.ShowMessage("Save Error", "An exception occurred while saving project", e.GetToString());
-                progress.OnProgress(0.5);
-                return false;
-            }
-        }
-
         public override ExecutabilityState CanExecute(CommandEventArgs e) {
             return e.ContextData.ContainsKey(DataKeys.ProjectKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override async Task Execute(CommandEventArgs e) {
             if (DataKeys.ProjectKey.TryGetContext(e.ContextData, out Project project)) {
-                SaveProject(project);
+                if (project.IsSaving) {
+                    IoC.MessageService.ShowMessage("Already Saving", "Project is already saving!");
+                    return;
+                }
+
+                await TaskManager.Instance.RunTask(async () => {
+                    IActivityProgress progress = TaskManager.Instance.GetCurrentProgressOrEmpty();
+                    progress.Text = "Saving project...";
+
+                    await IoC.Dispatcher.InvokeAsync(() => {
+                        Project.SaveProject(project, progress);
+                    });
+                });
             }
         }
     }
 
     public class SaveProjectAsCommand : SaveProjectCommand {
-        public override void Execute(CommandEventArgs e) {
+        public override async Task Execute(CommandEventArgs e) {
             if (DataKeys.ProjectKey.TryGetContext(e.ContextData, out Project project)) {
-                SaveProjectAs(project);
+                await TaskManager.Instance.RunTask(async () => {
+                    IActivityProgress progress = TaskManager.Instance.GetCurrentProgressOrEmpty();
+                    progress.Text = "Saving project as...";
+
+                    await IoC.Dispatcher.InvokeAsync(() => {
+                        Project.SaveProjectAs(project, progress);
+                    });
+                });
             }
         }
     }

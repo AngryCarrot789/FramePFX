@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using System.Windows;
 using FramePFX.CommandSystem;
 using FramePFX.Editors;
@@ -33,7 +32,6 @@ using FramePFX.Services.WPF.Files;
 using FramePFX.Services.WPF.Messages;
 using FramePFX.Tasks;
 using FramePFX.Utils;
-using Profiler = FramePFX.Profiling.Profiler;
 
 namespace FramePFX {
     /// <summary>
@@ -45,10 +43,6 @@ namespace FramePFX {
         public IServiceManager Services => this.serviceManager;
 
         public static ApplicationCore Instance { get; private set; }
-
-        private readonly ThreadLocal<Profiler> profilers = new ThreadLocal<Profiler>(() => new Profiler());
-
-        public Profiler Profiler => this.profilers.Value;
 
         public VideoEditor VideoEditor { get; private set; }
 
@@ -76,7 +70,7 @@ namespace FramePFX {
         public void OnEditorLoaded(VideoEditor editor, string[] args) {
             this.VideoEditor = editor;
             if (args.Length > 0 && File.Exists(args[0]) && args[0].EndsWith(Filters.DotFramePFXExtension)) {
-                OpenProjectCommand.OpenProjectAt(editor, args[0], null);
+                OpenProjectCommand.RunOpenProjectTask(editor, args[0]);
             }
             else {
                 this.LoadDefaultProjectHelper();

@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Contextual;
 
@@ -26,9 +27,9 @@ namespace FramePFX.Editors.ResourceManaging.Actions {
             return ResourceContextRegistry.CanGetTreeSelectionContext(e.ContextData);
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             if (!ResourceContextRegistry.GetTreeSelectionContext(e.ContextData, out BaseResource[] items)) {
-                return;
+                return Task.CompletedTask;
             }
 
             foreach (BaseResource item in items) {
@@ -41,6 +42,8 @@ namespace FramePFX.Editors.ResourceManaging.Actions {
                 ResourceFolder.ClearHierarchy(item as ResourceFolder);
                 item.Parent.RemoveItem(item);
             }
+
+            return Task.CompletedTask;
         }
     }
 }

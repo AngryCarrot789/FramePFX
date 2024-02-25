@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Usage;
@@ -97,7 +98,7 @@ namespace FramePFX.Shortcuts.Managing {
 
         #region Input Processor
 
-        public bool OnKeyStroke(string focusedGroup, KeyStroke stroke, bool isRepeat) {
+        public async Task<bool> OnKeyStroke(string focusedGroup, KeyStroke stroke, bool isRepeat) {
             if (this.ActiveUsages.Count < 1) {
                 this.AccumulateShortcuts(stroke, focusedGroup, isRepeat ? RepeatedFilter : NotRepeatedFilter, !isRepeat);
                 this.ProcessInputStates();
@@ -109,7 +110,7 @@ namespace FramePFX.Shortcuts.Managing {
                 try {
                     this.AccumulateInstantActivationShortcuts();
                     foreach (GroupedShortcut s in this.cachedInstantActivationList) {
-                        if (this.Manager.OnShortcutActivated(this, s)) {
+                        if (await this.Manager.OnShortcutActivated(this, s)) {
                             result = true;
                             break;
                         }
@@ -149,7 +150,7 @@ namespace FramePFX.Shortcuts.Managing {
                 foreach (KeyValuePair<IShortcutUsage, GroupedShortcut> pair in this.ActiveUsages) {
                     // Just in case, check if it's already completed. By default, it never should be
                     if (pair.Key.IsCompleted) {
-                        return this.OnUnexpectedCompletedUsage(pair.Key, pair.Value);
+                        return await this.OnUnexpectedCompletedUsage(pair.Key, pair.Value);
                     }
 
                     bool strokeAccepted;
@@ -182,7 +183,7 @@ namespace FramePFX.Shortcuts.Managing {
                     if (strokeAccepted) {
                         if (usage.IsCompleted) {
                             try {
-                                return this.OnSecondShortcutUsageCompleted(pair.Key, pair.Value);
+                                return await this.OnSecondShortcutUsageCompleted(pair.Key, pair.Value);
                             }
                             finally {
                                 this.ActiveUsages.Clear();
@@ -211,7 +212,7 @@ namespace FramePFX.Shortcuts.Managing {
             }
         }
 
-        public bool OnMouseStroke(string focusedGroup, MouseStroke stroke) {
+        public async Task<bool> OnMouseStroke(string focusedGroup, MouseStroke stroke) {
             if (this.ActiveUsages.Count < 1) {
                 this.AccumulateShortcuts(stroke, focusedGroup);
                 this.ProcessInputStates();
@@ -223,7 +224,7 @@ namespace FramePFX.Shortcuts.Managing {
                 try {
                     this.AccumulateInstantActivationShortcuts();
                     foreach (GroupedShortcut s in this.cachedInstantActivationList) {
-                        if (this.Manager.OnShortcutActivated(this, s)) {
+                        if (await this.Manager.OnShortcutActivated(this, s)) {
                             result = true;
                             break;
                         }
@@ -258,7 +259,7 @@ namespace FramePFX.Shortcuts.Managing {
                 foreach (KeyValuePair<IShortcutUsage, GroupedShortcut> pair in this.ActiveUsages) {
                     // Just in case, check if it's already completed. By default, it never should be
                     if (pair.Key.IsCompleted) {
-                        return this.OnUnexpectedCompletedUsage(pair.Key, pair.Value);
+                        return await this.OnUnexpectedCompletedUsage(pair.Key, pair.Value);
                     }
 
                     bool strokeAccepted;
@@ -286,7 +287,7 @@ namespace FramePFX.Shortcuts.Managing {
                     if (strokeAccepted) {
                         if (usage.IsCompleted) {
                             try {
-                                return this.OnSecondShortcutUsageCompleted(pair.Key, pair.Value);
+                                return await this.OnSecondShortcutUsageCompleted(pair.Key, pair.Value);
                             }
                             finally {
                                 this.ActiveUsages.Clear();
@@ -458,13 +459,13 @@ namespace FramePFX.Shortcuts.Managing {
         /// <param name="usage">The usage that was completed</param>
         /// <param name="shortcut">The managed shortcut that created the usage</param>
         /// <returns>The mouse stroke event outcome. True = Handled/Cancelled, False = Ignored/Continue</returns>
-        protected virtual bool OnSecondShortcutUsageCompleted(IShortcutUsage usage, GroupedShortcut shortcut) {
+        protected virtual Task<bool> OnSecondShortcutUsageCompleted(IShortcutUsage usage, GroupedShortcut shortcut) {
             return this.Manager.OnShortcutActivated(this, shortcut);
         }
 
-        protected virtual bool OnUnexpectedCompletedUsage(IShortcutUsage usage, GroupedShortcut shortcut) {
+        protected virtual async Task<bool> OnUnexpectedCompletedUsage(IShortcutUsage usage, GroupedShortcut shortcut) {
             try {
-                return this.OnSecondShortcutUsageCompleted(usage, shortcut);
+                return await this.OnSecondShortcutUsageCompleted(usage, shortcut);
             }
             finally {
                 // The OnKeyStroke/OnMouseStroke functions immediately return the return of OnUnexpectedCompletedUsage,

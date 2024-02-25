@@ -18,6 +18,7 @@
 //
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Contextual;
 using FramePFX.Editors.ResourceManaging.Autoloading.Controls;
@@ -41,22 +42,24 @@ namespace FramePFX.Editors.ResourceManaging.Actions {
     }
 
     public class EnableResourcesCommand : ChangeResourceOnlineStateCommand {
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             if (!ResourceContextRegistry.GetTreeSelectionContext(e.ContextData, out BaseResource[] items)) {
-                return;
+                return Task.CompletedTask;
             }
 
             ResourceLoaderDialog.TryLoadResources(items);
+            return Task.CompletedTask;
         }
     }
 
     public class DisableResourcesCommand : ChangeResourceOnlineStateCommand {
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             if (!ResourceContextRegistry.GetTreeSelectionContext(e.ContextData, out BaseResource[] items)) {
-                return;
+                return Task.CompletedTask;
             }
 
             DisableHierarchy(items);
+            return Task.CompletedTask;
         }
     }
 }

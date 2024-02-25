@@ -18,6 +18,7 @@
 //
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
@@ -30,7 +31,7 @@ namespace FramePFX.Editors.Commands {
             return e.ContextData.ContainsKey(DataKeys.TrackKey) || e.ContextData.ContainsKey(DataKeys.TimelineKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             int focusedIndex = -1;
             HashSet<Track> tracks = new HashSet<Track>();
             if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track focusedTrack)) {
@@ -67,6 +68,8 @@ namespace FramePFX.Editors.Commands {
 
                 VideoEditorPropertyEditor.Instance.UpdateTrackSelectionAsync(timeline);
             }
+
+            return Task.CompletedTask;
         }
     }
 }

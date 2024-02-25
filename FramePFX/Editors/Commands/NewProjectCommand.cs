@@ -17,9 +17,11 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Tasks;
 
 namespace FramePFX.Editors.Commands {
     public class NewProjectCommand : Command {
@@ -30,22 +32,33 @@ namespace FramePFX.Editors.Commands {
             return e.ContextData.ContainsKey(DataKeys.VideoEditorKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override async Task Execute(CommandEventArgs e) {
             if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor)) {
                 return;
             }
 
-            if (!CloseProjectCommand.CloseProject(editor, null)) {
-                return;
-            }
+            await TaskManager.Instance.RunTask(async () => {
+                IActivityProgress progress = TaskManager.Instance.CurrentTask.Progress;
 
-            Project project = new Project();
-            VideoTrack track = new VideoTrack() {
-                DisplayName = "Video Track 1"
-            };
+                progress.OnProgress(0.25);
+                if (!await CloseProjectCommand.CloseProjectInternal(editor, null)) {
+                    return;
+                }
 
-            project.MainTimeline.AddTrack(track);
-            editor.SetProject(project);
+                progress.OnProgress(0.5);
+
+                await IoC.Dispatcher.InvokeAsync(() => {
+                    Project project = new Project();
+                    VideoTrack track = new VideoTrack() {
+                        DisplayName = "Video Track 1"
+                    };
+
+                    project.MainTimeline.AddTrack(track);
+                    editor.SetProject(project);
+                });
+
+                progress.OnProgress(0.25);
+            }, new DefaultProgressTracker());
         }
     }
 }

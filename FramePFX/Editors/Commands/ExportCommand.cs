@@ -19,6 +19,7 @@
 
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Exporting;
 using FramePFX.Editors.Exporting.Controls;
@@ -50,24 +51,24 @@ namespace FramePFX.Editors.Commands {
             return ExecutabilityState.Executable;
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             Project project;
             Timeline timeline;
             if (this.ExportActiveTimeline) {
                 if (!TryGetTimeline(e.ContextData, out timeline) || timeline.Project == null || timeline.Project.IsExporting) {
-                    return;
+                    return Task.CompletedTask;
                 }
             }
             else {
                 if (!TryGetProject(e.ContextData, out project) || project.IsExporting) {
-                    return;
+                    return Task.CompletedTask;
                 }
 
                 timeline = project.MainTimeline;
             }
 
             if ((project = timeline.Project) == null) {
-                return;
+                return Task.CompletedTask;
             }
 
             project.Editor.Playback.Pause();
@@ -81,6 +82,7 @@ namespace FramePFX.Editors.Commands {
             };
 
             dialog.ShowDialog();
+            return Task.CompletedTask;
         }
 
         public static bool TryGetProject(IContextData ctx, out Project project) {

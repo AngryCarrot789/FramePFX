@@ -180,13 +180,7 @@ namespace FramePFX.Editors.Controls.Timelines {
 
             this.UpdatePropertyEditorClipSelection();
 
-            this.Dispatcher.Invoke(async () => {
-                // await image.LoadResourceAsync();
-                // VideoEditor editor = track.Editor;
-                // if (editor?.SelectedTimeline != null) {
-                //     await track.Editor.DoDrawRenderFrame(editor.SelectedTimeline);
-                // }
-            });
+            this.Dispatcher.Invoke(() => { return System.Threading.Tasks.Task.CompletedTask; });
         }
 
         private void GetTemplateChild<T>(string name, out T value) where T : DependencyObject {

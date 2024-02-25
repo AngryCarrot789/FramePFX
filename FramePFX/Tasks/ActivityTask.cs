@@ -18,6 +18,7 @@
 //
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -28,7 +29,6 @@ namespace FramePFX.Tasks {
     public class ActivityTask {
         private readonly TaskManager taskManager;
         private readonly Func<Task> action;
-        private Task taskMain;
         private Exception exception;
 
         //  0 = waiting for activation
@@ -59,12 +59,23 @@ namespace FramePFX.Tasks {
 
         public CancellationToken CancellationToken { get; }
 
+        /// <summary>
+        /// Gets this activity's task, which can be used to await completion
+        /// </summary>
+        public Task Task { get; private set; }
+
         private ActivityTask(TaskManager taskManager, Func<Task> action, CancellationToken cancellationToken, IActivityProgress activityProgress) {
             this.taskManager = taskManager ?? throw new ArgumentNullException(nameof(taskManager));
             this.action = action ?? throw new ArgumentNullException(nameof(action));
             this.Progress = activityProgress ?? throw new ArgumentNullException(nameof(activityProgress));
             this.CancellationToken = cancellationToken;
         }
+
+        /// <summary>
+        /// Gets this activity's awaiter that can be used to await the activity
+        /// </summary>
+        /// <returns>The awaiter</returns>
+        public TaskAwaiter GetAwaiter() => this.Task.GetAwaiter();
 
         private async Task TaskMain() {
             try {
@@ -104,7 +115,7 @@ namespace FramePFX.Tasks {
 
         internal static ActivityTask InternalRun(TaskManager taskManager, Func<Task> action, IActivityProgress progress, CancellationToken cancellationToken) {
             ActivityTask task = new ActivityTask(taskManager, action, cancellationToken, progress ?? new DefaultProgressTracker());
-            task.taskMain = Task.Run(task.TaskMain);
+            task.Task = Task.Run(task.TaskMain);
             return task;
         }
 

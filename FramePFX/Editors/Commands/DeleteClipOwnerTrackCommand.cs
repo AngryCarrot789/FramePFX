@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Interactivity.Contexts;
@@ -31,10 +32,12 @@ namespace FramePFX.Editors.Commands {
             return ExecutabilityState.Executable;
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip clip)) {
                 clip.Timeline?.DeleteTrack(clip.Track);
             }
+
+            return Task.CompletedTask;
         }
     }
 }

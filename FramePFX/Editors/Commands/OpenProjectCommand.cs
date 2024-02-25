@@ -20,7 +20,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Windows;
+using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Automation;
 using FramePFX.Editors.ResourceManaging.Autoloading.Controls;
@@ -34,7 +34,7 @@ namespace FramePFX.Editors.Commands {
             return e.ContextData.ContainsKey(DataKeys.VideoEditorKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override async Task Execute(CommandEventArgs e) {
             if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor)) {
                 return;
             }
@@ -49,40 +49,28 @@ namespace FramePFX.Editors.Commands {
                 return;
             }
 
-            TaskManager.Instance.RunTask(async () => {
+            await RunOpenProjectTask(editor, filePath);
+        }
+
+        public static ActivityTask RunOpenProjectTask(VideoEditor editor, string filePath) {
+            return TaskManager.Instance.RunTask(async () => {
                 IActivityProgress progress = TaskManager.Instance.CurrentTask.Progress;
 
                 bool result;
                 using (progress.PushCompletionRange(0.0, 0.5)) {
-                    result = await IoC.Dispatcher.InvokeAsync(() => CloseProjectCommand.CloseProject(editor, progress));
+                    result = await CloseProjectCommand.CloseProjectInternal(editor, progress);
                 }
 
                 if (result) {
                     using (progress.PushCompletionRange(0.5, 1.0)) {
-                        await IoC.Dispatcher.InvokeAsync(() => OpenProjectAt(editor, filePath, progress));
+                        await OpenProjectAtInternal(editor, filePath, progress);
                     }
                 }
 
             }, new DefaultProgressTracker());
-
-            // IActivityProgress tracker = new ModalActivityProgress() {
-            //     IsIndeterminate = false, HeaderText = "Opening project..."
-            // };
-            // ActivityDialog dialog = ActivityDialog.ShowAsNonModal(tracker);
-            // try {
-            //     tracker.CompletionValue = 0.2;
-            //     if (CloseProjectCommand.CloseProject(editor, tracker)) {
-            //         tracker.CompletionValue = 0.7;
-            //         OpenProjectAt(editor, filePath, tracker);
-            //         tracker.CompletionValue = 1.0;
-            //     }
-            // }
-            // finally {
-            //     dialog.Close();
-            // }
         }
 
-        public static bool OpenProjectAt(VideoEditor editor, string filePath, IActivityProgress progress) {
+        public static async Task<bool> OpenProjectAtInternal(VideoEditor editor, string filePath, IActivityProgress progress) {
             Project project;
 
             if (progress == null)
@@ -104,7 +92,11 @@ namespace FramePFX.Editors.Commands {
             using (progress.PushCompletionRange(0.3, 0.6)) {
                 progress.Text = "Loading project";
                 progress.OnProgress(0.5);
-                editor.SetProject(project);
+                await IoC.Dispatcher.InvokeAsync(() => {
+                    if (editor.Project != null)
+                        editor.CloseProject();
+                    editor.SetProject(project);
+                });
                 progress.OnProgress(0.5);
             }
 
@@ -112,14 +104,22 @@ namespace FramePFX.Editors.Commands {
                 progress.Text = "Loading resources";
                 progress.OnProgress(0.5);
 
-                if (!ResourceLoaderDialog.TryLoadResources(project.ResourceManager.RootContainer)) {
-                    try {
-                        editor.CloseProject();
-                    }
-                    catch (Exception e) {
-                        IoC.MessageService.ShowMessage("Close Error", "An exception occurred while closing the project", e.GetToString());
+                bool reuslt = await IoC.Dispatcher.InvokeAsync(() => {
+                    if (!ResourceLoaderDialog.TryLoadResources(project.ResourceManager.RootContainer)) {
+                        try {
+                            editor.CloseProject();
+                        }
+                        catch (Exception e) {
+                            IoC.MessageService.ShowMessage("Close Error", "An exception occurred while closing the project", e.GetToString());
+                        }
+
+                        return false;
                     }
 
+                    return true;
+                });
+
+                if (!reuslt) {
                     return false;
                 }
 
@@ -129,10 +129,14 @@ namespace FramePFX.Editors.Commands {
             using (progress.PushCompletionRange(0.9, 1.0)) {
                 progress.Text = "Updating automation and rendering";
                 progress.OnProgress(0.5);
-                project.SetUnModified();
-                AutomationEngine.UpdateValues(project.MainTimeline);
-                project.MainTimeline.RenderManager.InvalidateRender();
-                Debug.Assert(project.IsModified == false, "Expected automation update and render invalidation to not mark project as modified");
+
+                await IoC.Dispatcher.InvokeAsync(() => {
+                    project.SetUnModified();
+                    AutomationEngine.UpdateValues(project.MainTimeline);
+                    project.MainTimeline.RenderManager.InvalidateRender();
+                    Debug.Assert(project.IsModified == false, "Expected automation update and render invalidation to not mark project as modified");
+
+                });
 
                 progress.OnProgress(0.5);
             }

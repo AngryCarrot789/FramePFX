@@ -19,6 +19,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
@@ -33,9 +34,9 @@ namespace FramePFX.Editors.Commands {
             return e.ContextData.ContainsKey(DataKeys.ClipKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             if (!DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip keyedClip) || !(keyedClip is VideoClip focusedClip)) {
-                return;
+                return Task.CompletedTask;
             }
 
             if (!(focusedClip.Timeline is Timeline timeline) || timeline.GetSelectedClipCountWith(focusedClip) == 1) {
@@ -58,6 +59,8 @@ namespace FramePFX.Editors.Commands {
                     VideoClip.IsVisibleParameter.SetValue(theClip, value);
                 }
             }
+
+            return Task.CompletedTask;
         }
     }
 }

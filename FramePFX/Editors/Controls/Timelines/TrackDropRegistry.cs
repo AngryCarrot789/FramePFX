@@ -37,46 +37,47 @@ namespace FramePFX.Editors.Controls.Timelines {
 
             DropRegistry.RegisterNative<Track>(NativeDropTypes.FileDrop, (handler, objekt, type, c) => {
                 return objekt.GetData(NativeDropTypes.FileDrop) is string[] files && files.Length > 0 ? EnumDropType.Copy : EnumDropType.None;
-            }, async (model, objekt, type, c) => {
-                string[] files = (string[]) objekt.GetData(NativeDropTypes.FileDrop);
+            }, (model, objekt, type, c) => {
+                string[] files = (string[])objekt.GetData(NativeDropTypes.FileDrop);
                 IoC.MessageService.ShowMessage("STILL TODO", $"Dropping files directly into the timeline is not implemented yet.\nYou dropped: {string.Join(", ", files)}");
+                return System.Threading.Tasks.Task.CompletedTask;
             });
 
             DropRegistry.Register<VideoTrack, ResourceItem>((track, resource, dt, ctx) => {
                 return resource is ResourceColour || resource is ResourceImage || resource is ResourceTextStyle || resource is ResourceAVMedia || resource is ResourceComposition
                     ? EnumDropType.Copy
                     : EnumDropType.None;
-            }, async (track, resource, dt, ctx) => {
+            }, (track, resource, dt, ctx) => {
                 if (!DataKeys.TrackDropFrameKey.TryGetContext(ctx, out long frame)) {
                     IoC.MessageService.ShowMessage("Drop err", "Drag drop error: no track frame location");
-                    return;
+                    return System.Threading.Tasks.Task.CompletedTask;
                 }
 
                 if (!resource.IsOnline) {
                     IoC.MessageService.ShowMessage("Resource Offline", "Cannot add an offline resource to the timeline");
-                    return;
+                    return System.Threading.Tasks.Task.CompletedTask;
                 }
 
                 if (resource.UniqueId == ResourceManager.EmptyId || !resource.IsRegistered()) {
                     IoC.MessageService.ShowMessage("Invalid resource", "This resource is not registered yet. This is a bug");
-                    return;
+                    return System.Threading.Tasks.Task.CompletedTask;
                 }
 
                 double fps = track.Project.Settings.FrameRate.AsDouble;
-                FrameSpan defaultSpan = track.GetSpanUntilClipOrLimitedDuration(frame, (long) (fps * 5));
+                FrameSpan defaultSpan = track.GetSpanUntilClipOrLimitedDuration(frame, (long)(fps * 5));
                 Clip theNewClip;
                 switch (resource) {
                     case ResourceAVMedia media: {
                         if (media.Demuxer == null) {
                             IoC.MessageService.ShowMessage("Resource demuxer offline", "The resource's demuxer is not available");
-                            return;
+                            return System.Threading.Tasks.Task.CompletedTask;
                         }
 
                         TimeSpan span = media.GetDuration();
-                        long dur = (long) Math.Floor(span.TotalSeconds * fps);
+                        long dur = (long)Math.Floor(span.TotalSeconds * fps);
                         if (dur < 1) {
                             IoC.MessageService.ShowMessage("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
-                            return;
+                            return System.Threading.Tasks.Task.CompletedTask;
                         }
 
                         // image files are 1
@@ -128,11 +129,13 @@ namespace FramePFX.Editors.Controls.Timelines {
                         theNewClip = clip;
                         break;
                     }
-                    default: return;
+                    default:
+                        return System.Threading.Tasks.Task.CompletedTask;
                 }
 
                 track.AddClip(theNewClip);
                 track.InvalidateRender();
+                return System.Threading.Tasks.Task.CompletedTask;
             });
         }
     }

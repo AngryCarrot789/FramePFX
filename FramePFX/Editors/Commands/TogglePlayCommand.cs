@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 
@@ -28,9 +29,9 @@ namespace FramePFX.Editors.Commands {
             return editor.Playback.Timeline != null ? ExecutabilityState.Executable : ExecutabilityState.ValidButCannotExecute;
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor) || editor.Playback.Timeline == null) {
-                return;
+                return Task.CompletedTask;
             }
 
             if (editor.Playback.PlayState == PlayState.Play) {
@@ -39,6 +40,8 @@ namespace FramePFX.Editors.Commands {
             else {
                 editor.Playback.Play();
             }
+
+            return Task.CompletedTask;
         }
     }
 }

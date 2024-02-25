@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
@@ -50,11 +51,13 @@ namespace FramePFX.Editors.Commands {
             return e.ContextData.ContainsKey(DataKeys.TimelineKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             Timeline timeline;
             if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track track) && ((timeline = track.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.ContextData, out timeline))) {
                 SelectAll(timeline, track, false);
             }
+
+            return Task.CompletedTask;
         }
     }
 
@@ -63,11 +66,13 @@ namespace FramePFX.Editors.Commands {
             return e.ContextData.ContainsKey(DataKeys.TrackKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track track)) {
                 track.SelectAll();
                 VideoEditorPropertyEditor.Instance.UpdateClipSelectionAsync(track.Timeline);
             }
+
+            return Task.CompletedTask;
         }
     }
 
@@ -78,11 +83,13 @@ namespace FramePFX.Editors.Commands {
             return e.ContextData.ContainsKey(DataKeys.TimelineKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override void Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e) {
             Timeline timeline;
             if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track track) && ((timeline = track.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.ContextData, out timeline))) {
                 SelectAllTracksCommand.SelectAll(timeline, track, true);
             }
+
+            return Task.CompletedTask;
         }
     }
 }

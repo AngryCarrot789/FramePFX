@@ -147,7 +147,7 @@ namespace FramePFX.Editors.Rendering {
         }
 
         private void BeginRender(long frame) {
-            if (!Application.Current.Dispatcher.CheckAccess())
+            if (!IoC.Dispatcher.IsOnOwnerThread)
                 throw new InvalidOperationException("Cannot start rendering while not on the main thread");
             if (frame < 0 || frame >= this.Timeline.MaxDuration)
                 throw new ArgumentOutOfRangeException(nameof(frame), "Frame is not within the bounds of the timeline");
@@ -310,7 +310,7 @@ namespace FramePFX.Editors.Rendering {
                 return;
             }
 
-            Application.Current.Dispatcher.InvokeAsync(() => {
+            IoC.Dispatcher.InvokeAsync(() => {
                 this.lastRenderTask = this.DoScheduledRender();
             }, DispatcherPriority.Send);
         }

@@ -158,6 +158,7 @@
     <Compile Include="CommandSystem\Usages\CommandUsage.cs" />
     <Compile Include="CommandSystem\Usages\CommandUsageManager.cs" />
     <Compile Include="Converters\EmptyStringToVisibilityConverter.cs" />
+    <Compile Include="DispatcherDelegate.cs" />
     <Compile Include="Editors\AudioRingBuffer.cs" />
     <Compile Include="Editors\Commands\CloseProjectCommand.cs" />
     <Compile Include="Editors\Commands\CreateCompositionFromSelectionCommand.cs" />
@@ -316,6 +317,7 @@
     <Compile Include="History\IHistoryAction.cs" />
     <Compile Include="History\MergedHistoryAction.cs" />
     <Compile Include="IApplicationStartupProgress.cs" />
+    <Compile Include="IDispatcher.cs" />
     <Compile Include="Interactivity\Contexts\ContextData.cs" />
     <Compile Include="Interactivity\Contexts\DataKey.cs" />
     <Compile Include="Interactivity\Contexts\DataKeys.cs" />
@@ -328,11 +330,15 @@
     <Compile Include="Notifications\Notification.cs" />
     <Compile Include="Notifications\NotificationManager.cs" />
     <Compile Include="Profiling\Profiler.cs" />
-    <Compile Include="Progression\ActivityDialog.xaml.cs">
+    <Compile Include="Tasks\ActivityDialog.xaml.cs">
       <DependentUpon>ActivityDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Progression\DefaultProgressTracker.cs" />
-    <Compile Include="Progression\IProgressTracker.cs" />
+    <Compile Include="Tasks\ActivityTask.cs" />
+    <Compile Include="Tasks\CompletionRange.cs" />
+    <Compile Include="Tasks\DefaultProgressTracker.cs" />
+    <Compile Include="Tasks\EmptyActivityProgress.cs" />
+    <Compile Include="Tasks\IActivityProgress.cs" />
+    <Compile Include="Tasks\StandardActivityControl.cs" />
     <Compile Include="PropertyEditing\Automation\ParameterBooleanPropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\Automation\ParameterLongPropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\Controls\Automation\KeyFrameToolsControl.cs" />
@@ -458,6 +464,7 @@
     <Compile Include="Shortcuts\WPF\WPFKeyMapSerialiser.cs" />
     <Compile Include="Shortcuts\WPF\WPFShortcutInputManager.cs" />
     <Compile Include="Shortcuts\WPF\WPFShortcutManager.cs" />
+    <Compile Include="Tasks\TaskManager.cs" />
     <Compile Include="Themes\Attached\CornerRadiusHelper.cs" />
     <Compile Include="Themes\Attached\MenuHelper.cs" />
     <Compile Include="Themes\Attached\PasswordBoxHelper.cs" />
@@ -811,7 +818,11 @@
     <Compile Include="Logger\AppLogger.cs" />
     <Compile Include="Logger\HeaderedLogEntry.cs" />
     <Compile Include="Logger\LogEntry.cs" />
-    <Page Include="Progression\ActivityDialog.xaml">
+    <Page Include="Tasks\ActivityDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Tasks\ActivityStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

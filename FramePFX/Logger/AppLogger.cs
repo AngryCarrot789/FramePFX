@@ -130,7 +130,7 @@ namespace FramePFX.Logger {
         }
 
         public Task FlushEntries() {
-            Dispatcher dispatcher = Application.Current.Dispatcher;
+            IDispatcher dispatcher = IoC.Dispatcher;
             return dispatcher.Invoke(async () => {
                 List<(HeaderedLogEntry, LogEntry)> list;
                 lock (this.PrintLock) {

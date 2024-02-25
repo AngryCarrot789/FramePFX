@@ -79,7 +79,7 @@ namespace FramePFX.Utils {
         public bool InvokeAsync(CancellationToken cancellationToken) {
             if (!this.BeginInvoke())
                 return false;
-            Application.Current.Dispatcher.InvokeAsync(this.executeAction, this.Priority, cancellationToken);
+            IoC.Dispatcher.InvokeAsync(this.executeAction, this.Priority, cancellationToken);
             return true;
         }
     }

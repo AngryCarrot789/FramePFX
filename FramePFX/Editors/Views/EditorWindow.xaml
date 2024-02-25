@@ -181,6 +181,13 @@
                         <TextBlock x:Name="PART_AvgRenderTimeBlock" Text="" FontFamily="Consolas" VerticalAlignment="Center"/>
                     </StackPanel>
                 </StackPanel>
+                <DockPanel x:Name="PART_ActiveBackgroundTaskGrid" DockPanel.Dock="Right">
+                    <TextBlock x:Name="PART_TaskCaption" Text="progname" DockPanel.Dock="Left" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                    <ProgressBar x:Name="PART_ActiveBgProgress" Width="150" DockPanel.Dock="Right"
+                                 Height="9" BorderThickness="0"
+                                 Background="{DynamicResource ABrush.Tone3.Background.Static}"
+                                 Minimum="0" Maximum="1" Value="0"/>
+                </DockPanel>
                 <TextBlock Padding="4,0" VerticalAlignment="Center" x:Name="ActivityTextBlock" FontFamily="Segoe UI"/>
             </DockPanel>
         </Border>

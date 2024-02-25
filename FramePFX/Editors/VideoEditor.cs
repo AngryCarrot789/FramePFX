@@ -208,7 +208,7 @@ namespace FramePFX.Editors {
             this.ProjectChanged?.Invoke(this, null, project);
             VideoEditorPropertyEditor.Instance.OnProjectChanged();
 
-            Application.Current.Dispatcher.InvokeAsync(() => {
+            IoC.Dispatcher.InvokeAsync(() => {
                 this.Project?.ActiveTimeline.InvalidateRender();
             }, DispatcherPriority.Background);
         }

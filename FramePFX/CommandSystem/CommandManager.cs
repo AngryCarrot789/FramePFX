@@ -212,7 +212,7 @@ namespace FramePFX.CommandSystem {
         public void OnApplicationFocusChanged(Func<IContextData> newFocusProvider) {
             if (newFocusProvider == null)
                 throw new ArgumentNullException(nameof(newFocusProvider));
-            Application.Current.Dispatcher.InvokeAsync(() => {
+            IoC.Dispatcher.InvokeAsync(() => {
                 this.OnFocusChangeCore(newFocusProvider);
             }, DispatcherPriority.Background);
         }

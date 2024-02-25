@@ -16,6 +16,7 @@
                 <ResourceDictionary Source="Editors/Controls/GeneralControlStyles.xaml"/>
                 <ResourceDictionary Source="Editors/Controls/Dragger/NumberDraggerStyles.xaml"/>
                 <ResourceDictionary Source="AdvancedMenuService/ContextService/Controls/ContextStyles.xaml"/>
+                <ResourceDictionary Source="Tasks/ActivityStyles.xaml"/>
 
                 <!-- Multi-select tree -->
                 <ResourceDictionary Source="Editors/Controls/TreeViews/Themes/EditTextBox.xaml"/>

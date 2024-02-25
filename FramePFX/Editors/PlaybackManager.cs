@@ -252,7 +252,7 @@ namespace FramePFX.Editors {
             }
 
             using (this.Timeline.RenderManager.SuspendRenderInvalidation()) {
-                Task renderTask = Application.Current.Dispatcher.Invoke(() => {
+                Task renderTask = IoC.Dispatcher.Invoke(() => {
                     Timeline timeline = this.Timeline;
                     Project project;
                     if (timeline == null || (project = timeline.Project) == null || !timeline.IsActive) {

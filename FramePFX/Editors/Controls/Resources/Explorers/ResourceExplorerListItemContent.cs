@@ -271,7 +271,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
             if (this.PART_ViewPort == null || this.ListItem == null)
                 return;
 
-            await Application.Current.Dispatcher.Invoke(async () => {
+            await IoC.Dispatcher.Invoke(async () => {
                 if (this.PART_ViewPort == null || this.ListItem == null) {
                     return;
                 }

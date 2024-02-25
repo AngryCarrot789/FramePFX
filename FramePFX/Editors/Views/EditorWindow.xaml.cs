@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using FramePFX.Editors.Automation;
 using FramePFX.Editors.ProjectProps;
 using FramePFX.Editors.Rendering;
@@ -30,6 +31,7 @@ using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.Timelines;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.PropertyEditing;
+using FramePFX.Tasks;
 using FramePFX.Themes;
 using FramePFX.Utils;
 using FramePFX.Views;
@@ -47,27 +49,73 @@ namespace FramePFX.Editors.Views {
         }
 
         private readonly ContextData contextData;
-
         private readonly NumberAverager renderTimeAverager;
+
+        private ActivityTask primaryActivity;
 
         public EditorWindow() {
             this.renderTimeAverager = new NumberAverager(5); // average 5 samples. Will take a second to catch up at 5 fps but meh
             this.contextData = new ContextData();
             this.InitializeComponent();
             this.Loaded += this.EditorWindow_Loaded;
+
+            TaskManager taskManager = IoC.TaskManager;
+            taskManager.TaskStarted += this.OnTaskStarted;
+            taskManager.TaskCompleted += this.OnTaskCompleted;
         }
 
-        // static EditorWindow() {
-        //     WindowStateProperty.OverrideMetadata(typeof(EditorWindow), new FrameworkPropertyMetadata(WindowStateProperty.DefaultMetadata.DefaultValue, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnWindowStateChanged));
-        // }
+        private void OnTaskStarted(TaskManager taskmanager, ActivityTask task, int index) {
+            if (this.primaryActivity == null || this.primaryActivity.IsCompleted) {
+                this.SetActivityTask(task);
+            }
+        }
 
-        // private static void OnWindowStateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-        //     EditorWindow wnd = (EditorWindow) d;
-        //     wnd.Dispatcher.InvokeAsync(() => {
-        //         wnd.WindowState = (WindowState) e.NewValue;
-        //         wnd.Width = wnd.ActualWidth;
-        //     }, DispatcherPriority.Background);
-        // }
+        private void OnTaskCompleted(TaskManager taskmanager, ActivityTask task, int index) {
+            if (task == this.primaryActivity) {
+                // try to access next task
+                task = taskmanager.ActiveTasks.Count > 0 ? taskmanager.ActiveTasks[0] : null;
+                this.SetActivityTask(task);
+            }
+        }
+
+        private void SetActivityTask(ActivityTask task) {
+            IActivityProgress prog = null;
+            if (this.primaryActivity != null) {
+                prog = this.primaryActivity.Progress;
+                prog.TextChanged -= this.OnPrimaryActivityTextChanged;
+                prog.CompletionValueChanged -= this.OnPrimaryActionCompletionValueChanged;
+                prog.IsIndeterminateChanged -= this.OnPrimaryActivityIndeterminateChanged;
+                prog = null;
+            }
+
+            this.primaryActivity = task;
+            if (task != null) {
+                prog = task.Progress;
+                prog.TextChanged += this.OnPrimaryActivityTextChanged;
+                prog.CompletionValueChanged += this.OnPrimaryActionCompletionValueChanged;
+                prog.IsIndeterminateChanged += this.OnPrimaryActivityIndeterminateChanged;
+                this.PART_ActiveBackgroundTaskGrid.Visibility = Visibility.Visible;
+            }
+            else {
+                this.PART_ActiveBackgroundTaskGrid.Visibility = Visibility.Collapsed;
+            }
+
+            this.OnPrimaryActivityTextChanged(prog);
+            this.OnPrimaryActionCompletionValueChanged(prog);
+            this.OnPrimaryActivityIndeterminateChanged(prog);
+        }
+
+        private void OnPrimaryActivityTextChanged(IActivityProgress tracker) {
+            this.Dispatcher.Invoke(() => this.PART_TaskCaption.Text = tracker?.Text ?? "", DispatcherPriority.Loaded);
+        }
+
+        private void OnPrimaryActionCompletionValueChanged(IActivityProgress tracker) {
+            this.Dispatcher.Invoke(() => this.PART_ActiveBgProgress.Value = tracker?.TotalCompletion ?? 0.0, DispatcherPriority.Loaded);
+        }
+
+        private void OnPrimaryActivityIndeterminateChanged(IActivityProgress tracker) {
+            this.Dispatcher.Invoke(() => this.PART_ActiveBgProgress.IsIndeterminate = tracker?.IsIndeterminate ?? false, DispatcherPriority.Loaded);
+        }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
             base.OnRenderSizeChanged(sizeInfo);
@@ -98,6 +146,7 @@ namespace FramePFX.Editors.Views {
         private void EditorWindow_Loaded(object sender, RoutedEventArgs e) {
             this.ThePropertyEditor.ApplyTemplate();
             this.ThePropertyEditor.PropertyEditor = VideoEditorPropertyEditor.Instance;
+            this.PART_ActiveBackgroundTaskGrid.Visibility = Visibility.Collapsed;
         }
 
         protected override void OnKeyDown(KeyEventArgs e) {

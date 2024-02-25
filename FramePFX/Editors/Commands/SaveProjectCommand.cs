@@ -20,42 +20,45 @@
 using System;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
-using FramePFX.Progression;
+using FramePFX.Tasks;
 using FramePFX.Utils;
 
 namespace FramePFX.Editors.Commands {
     public class SaveProjectCommand : Command {
-        public static bool? SaveProject(Project project, IProgressTracker progress) {
+        public static bool? SaveProject(Project project) {
             if (project.HasSavedOnce && !string.IsNullOrEmpty(project.ProjectFilePath)) {
-                return SaveProjectInternal(project, project.ProjectFilePath, progress);
+                return SaveProjectInternal(project, project.ProjectFilePath);
             }
             else {
-                return SaveProjectAs(project, progress);
+                return SaveProjectAs(project);
             }
         }
 
-        public static bool? SaveProjectAs(Project project, IProgressTracker progress) {
+        public static bool? SaveProjectAs(Project project) {
             const string message = "Specify a file path for the project file. Any project data will be stored in the same folder, so it's best to create a project-specific folder";
             string filePath = IoC.FilePickService.SaveFile(message, Filters.ProjectType, project.ProjectFilePath);
             if (filePath == null) {
                 return null;
             }
 
-            return SaveProjectInternal(project, filePath, progress);
+            return SaveProjectInternal(project, filePath);
         }
 
-        private static bool SaveProjectInternal(Project project, string filePath, IProgressTracker progress) {
+        private static bool SaveProjectInternal(Project project, string filePath) {
             project.Editor?.Playback.Pause();
 
-            if (progress != null)
-                progress.Text = "Serialising project...";
+            IActivityProgress progress = TaskManager.Instance.GetCurrentProgressOrEmpty();
+            progress.Text = "Serialising project...";
 
+            progress.OnProgress(0.5);
             try {
                 project.WriteToFile(filePath);
+                progress.OnProgress(0.5);
                 return true;
             }
             catch (Exception e) {
                 IoC.MessageService.ShowMessage("Save Error", "An exception occurred while saving project", e.GetToString());
+                progress.OnProgress(0.5);
                 return false;
             }
         }
@@ -66,7 +69,7 @@ namespace FramePFX.Editors.Commands {
 
         public override void Execute(CommandEventArgs e) {
             if (DataKeys.ProjectKey.TryGetContext(e.ContextData, out Project project)) {
-                SaveProject(project, null);
+                SaveProject(project);
             }
         }
     }
@@ -74,7 +77,7 @@ namespace FramePFX.Editors.Commands {
     public class SaveProjectAsCommand : SaveProjectCommand {
         public override void Execute(CommandEventArgs e) {
             if (DataKeys.ProjectKey.TryGetContext(e.ContextData, out Project project)) {
-                SaveProjectAs(project, null);
+                SaveProjectAs(project);
             }
         }
     }

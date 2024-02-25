@@ -36,12 +36,19 @@ using FramePFX.Utils;
 using FramePFX.Views;
 using FramePFX.Natives;
 using FramePFX.Services.Messages;
+using FramePFX.Tasks;
 
 namespace FramePFX {
     public partial class App : Application {
         private AppSplashScreen splash;
 
         private async void App_OnStartup(object sender, StartupEventArgs args) {
+            // if (true) {
+            //     DefaultProgressTracker.TestCompletionRangeFunctionality();
+            //     this.Dispatcher.InvokeShutdown();
+            //     return;
+            // }
+
             // Pre init stuff
             ToolTipService.ShowDurationProperty.OverrideMetadata(typeof(DependencyObject), new FrameworkPropertyMetadata(int.MaxValue));
             ToolTipService.InitialShowDelayProperty.OverrideMetadata(typeof(DependencyObject), new FrameworkPropertyMetadata(400));
@@ -163,11 +170,11 @@ namespace FramePFX {
             if (ApplicationCore.Instance.Services.TryGetService(out IMessageDialogService service)) {
                 service.ShowMessage("Error", "An unhandled error occurred in the application. It will now shutdown");
                 if (project != null)
-                    SaveProjectCommand.SaveProjectAs(project, null);
+                    SaveProjectCommand.SaveProjectAs(project);
             }
             else {
                 if (project != null)
-                    SaveProjectCommand.SaveProjectAs(project, null);
+                    SaveProjectCommand.SaveProjectAs(project);
             }
 
             try {

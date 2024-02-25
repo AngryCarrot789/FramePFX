@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Windows;
 using FramePFX.CommandSystem;
 using FramePFX.Editors;
 using FramePFX.Editors.Commands;
@@ -30,6 +31,7 @@ using FramePFX.Services.Files;
 using FramePFX.Services.Messages;
 using FramePFX.Services.WPF.Files;
 using FramePFX.Services.WPF.Messages;
+using FramePFX.Tasks;
 using FramePFX.Utils;
 using Profiler = FramePFX.Profiling.Profiler;
 
@@ -95,6 +97,8 @@ namespace FramePFX {
             this.serviceManager.Register<IMessageDialogService>(new WPFMessageDialogService());
             this.serviceManager.Register<IUserInputDialogService>(new WPFUserInputDialogService());
             this.serviceManager.Register<IFilePickDialogService>(new WPFFilePickDialogService());
+            this.serviceManager.Register<IDispatcher>(new DispatcherDelegate(Application.Current.Dispatcher));
+            this.serviceManager.Register<TaskManager>(new TaskManager());
         }
 
         public void RegisterActions(CommandManager manager) {

@@ -118,7 +118,7 @@ namespace FramePFX.Editors.Commands {
             oldTracks[0].AddClip(videoClip);
             // TODO: add audio track here
 
-            Application.Current.Dispatcher.InvokeAsync(() => {
+            IoC.Dispatcher.InvokeAsync(() => {
                 if (IoC.MessageService.ShowMessage("Open Timeline?", "Do you want to open the composition timeline?", MessageBoxButton.YesNo) == MessageBoxResult.Yes) {
                     project.ActiveTimeline = composition.Timeline;
                 }

@@ -19,6 +19,7 @@
 
 using FramePFX.Services.Files;
 using FramePFX.Services.Messages;
+using FramePFX.Tasks;
 
 namespace FramePFX {
     public static class IoC {
@@ -36,5 +37,15 @@ namespace FramePFX {
         /// Gets the application's file picking service, for picking files and directories to open/save
         /// </summary>
         public static IFilePickDialogService FilePickService => ApplicationCore.Instance.Services.GetService<IFilePickDialogService>();
+
+        /// <summary>
+        /// Gets the application main thread's dispatcher, used to dispatch work onto the application thread
+        /// </summary>
+        public static IDispatcher Dispatcher => ApplicationCore.Instance.Services.GetService<IDispatcher>();
+
+        /// <summary>
+        /// Gets the application's task manager
+        /// </summary>
+        public static TaskManager TaskManager => ApplicationCore.Instance.Services.GetService<TaskManager>();
     }
 }

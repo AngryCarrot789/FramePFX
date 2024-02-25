@@ -135,7 +135,6 @@ namespace FramePFX.Editors.Commands {
                     AutomationEngine.UpdateValues(project.MainTimeline);
                     project.MainTimeline.RenderManager.InvalidateRender();
                     Debug.Assert(project.IsModified == false, "Expected automation update and render invalidation to not mark project as modified");
-
                 });
 
                 progress.OnProgress(0.5);

@@ -172,6 +172,14 @@ namespace FramePFX.Editors.Views {
                 newEditor.ProjectChanged += this.OnEditorProjectChanged;
                 newEditor.Playback.PlaybackStateChanged += this.OnEditorPlaybackStateChanged;
                 this.PART_ViewPort.VideoEditor = newEditor;
+
+                // workaround because it's 11pm and I CBA to implement a new event (:
+                Task.Run(async () => {
+                    await Task.Delay(500);
+                    IoC.Dispatcher.InvokeAsync(() => {
+                        this.VPViewBox.FitContentToCenter();
+                    }, DispatcherPriority.Background);
+                });
             }
 
             Project project = newEditor?.Project;

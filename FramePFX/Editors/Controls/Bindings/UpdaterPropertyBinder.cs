@@ -21,7 +21,7 @@ using System;
 using System.ComponentModel;
 using System.Windows;
 
-namespace FramePFX.Editors.Controls.Binders {
+namespace FramePFX.Editors.Controls.Bindings {
     /// <summary>
     /// An object binder that contains UpdateControl and UpdateModel events. These are called by calling
     /// <see cref="BaseBinder{TModel}.OnModelValueChanged"/> and <see cref="BaseBinder{TModel}.OnControlValueChanged"/>

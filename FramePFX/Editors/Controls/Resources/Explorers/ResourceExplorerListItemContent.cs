@@ -25,7 +25,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using FramePFX.Editors.Controls.Binders;
+using FramePFX.Editors.Controls.Bindings;
 using FramePFX.Editors.Controls.Viewports;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.ResourceManaging;

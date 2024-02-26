@@ -7,7 +7,8 @@
             xmlns:tl="clr-namespace:FramePFX.Editors.Controls.Timelines"
             xmlns:cv="clr-namespace:FramePFX.Editors.Controls.Viewports"
             xmlns:resources="clr-namespace:FramePFX.Editors.Controls.Resources"
-            xmlns:wpf="clr-namespace:FramePFX.Shortcuts.WPF" xmlns:controls="clr-namespace:FramePFX.PropertyEditing.Controls"
+            xmlns:wpf="clr-namespace:FramePFX.Shortcuts.WPF" 
+            xmlns:controls="clr-namespace:FramePFX.PropertyEditing.Controls"
             xmlns:fxsrc="clr-namespace:FramePFX.Editors.EffectSource"
             xmlns:effectProviding="clr-namespace:FramePFX.Editors.Controls.EffectProviding"
             xmlns:c1="clr-namespace:FramePFX.Editors.Controls"
@@ -20,7 +21,8 @@
             TitlebarBrush="{DynamicResource ABrush.Tone7.Background.Static}"
             Height="840" Width="1348"
             FontFamily="{StaticResource FontOxanium}" FontWeight="Medium"
-            wpf:UIInputManager.FocusPath="Application/Editor">
+            wpf:UIInputManager.FocusPath="Application/Editor"
+            WindowStartupLocation="CenterScreen">
     <Grid Margin="0" x:Name="PART_EditorWindowContent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

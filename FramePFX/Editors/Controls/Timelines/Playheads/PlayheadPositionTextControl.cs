@@ -19,7 +19,7 @@
 
 using System.Windows;
 using System.Windows.Controls;
-using FramePFX.Editors.Controls.Binders;
+using FramePFX.Editors.Controls.Bindings;
 using FramePFX.Editors.Timelines;
 
 namespace FramePFX.Editors.Controls.Timelines.Playheads {

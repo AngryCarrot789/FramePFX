@@ -48,7 +48,7 @@ namespace FramePFX.PropertyEditing.DataTransfer {
                 if (this.isEditable == value)
                     return;
                 this.isEditable = value;
-                DataParameterGeneric<bool> p = this.IsEditableParameter;
+                DataParameter<bool> p = this.IsEditableParameter;
 
                 if (p != null) {
                     for (int i = 0, c = this.Handlers.Count; i < c; i++) {
@@ -66,7 +66,7 @@ namespace FramePFX.PropertyEditing.DataTransfer {
         /// Gets or sets the parameter which determines if the value can be modified in the UI. This should
         /// only be set during the construction phase of the object and not during its lifetime
         /// </summary>
-        public DataParameterGeneric<bool> IsEditableParameter { get; set; }
+        public DataParameter<bool> IsEditableParameter { get; set; }
 
         /// <summary>
         /// Gets or sets if the parameter's value is inverted between the parameter and checkbox in the UI.
@@ -88,7 +88,7 @@ namespace FramePFX.PropertyEditing.DataTransfer {
             if (this.IsSingleHandler)
                 this.SingleHandler.TransferableData.AddValueChangedHandler(this.DataParameter, this.OnValueForSingleHandlerChanged);
             this.QueryValueFromHandlers();
-            DataParameterGeneric<bool> p = this.IsEditableParameter;
+            DataParameter<bool> p = this.IsEditableParameter;
             this.IsEditable = p == null || (!GetEqualValue(this.Handlers, h => p.GetValue((ITransferableData) h), out bool v) || v);
             this.OnValueChanged();
         }

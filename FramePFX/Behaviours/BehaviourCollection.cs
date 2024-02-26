@@ -31,7 +31,7 @@ namespace FramePFX.Behaviours {
 
         private static readonly Action<Visual> RemoveHandler;
         private static readonly Action<Visual> AddHandler;
-        private bool OwnerSupportsVAC;
+        private bool IsOwnerVisual;
 
         /// <summary>
         /// Gets the element that owns this collection
@@ -53,7 +53,7 @@ namespace FramePFX.Behaviours {
             if (this.Owner == null)
                 throw new InvalidOperationException("No owner");
 
-            if (!this.OwnerSupportsVAC) {
+            if (!this.IsOwnerVisual) {
                 Debug.WriteLine(behaviour.GetType() + " tried to register the VisualAncestorChanged event, but our owner is not a visual: " + this.Owner);
                 return;
             }
@@ -68,7 +68,7 @@ namespace FramePFX.Behaviours {
         internal void UnregisterVAC() {
             if (this.Owner == null)
                 throw new InvalidOperationException("No owner");
-            if (!this.OwnerSupportsVAC)
+            if (!this.IsOwnerVisual)
                 return;
 
             if (--this.vacCount == 0) {
@@ -97,16 +97,16 @@ namespace FramePFX.Behaviours {
         }
 
         private void DetatchAndTryAttachAll(IEnumerable enumerable) {
-            foreach (IBehaviour behaviour in enumerable) {
+            foreach (BehaviourBase behaviour in enumerable) {
                 if (behaviour.AttachedElement != null)
                     behaviour.Detatch();
-                if (this.Owner != null && behaviour.CanAttachTo(this.Owner))
-                    behaviour.Attach(this, this.Owner);
+                if (this.Owner != null && ((IBehaviour) behaviour).CanAttachTo(this.Owner))
+                    behaviour.Attach(this);
             }
         }
 
         private static void DetatchAll(IEnumerable enumerable) {
-            foreach (IBehaviour behaviour in enumerable) {
+            foreach (BehaviourBase behaviour in enumerable) {
                 if (behaviour.AttachedElement != null)
                     behaviour.Detatch();
             }
@@ -118,7 +118,7 @@ namespace FramePFX.Behaviours {
             if (element == null)
                 throw new ArgumentNullException(nameof(element));
             this.Owner = element;
-            this.OwnerSupportsVAC = element is Visual;
+            this.IsOwnerVisual = element is Visual;
             this.DetatchAndTryAttachAll(this);
         }
 
@@ -127,7 +127,7 @@ namespace FramePFX.Behaviours {
                 throw new InvalidOperationException("Not attached: no owner");
 
             DetatchAll(this);
-            if (this.OwnerSupportsVAC && this.vacCount > 0) {
+            if (this.IsOwnerVisual && this.vacCount > 0) {
                 Debug.WriteLine("Expected VACCount to be zero when all items are detached");
                 Debugger.Break();
                 this.vacCount = 0;
@@ -135,7 +135,7 @@ namespace FramePFX.Behaviours {
             }
 
             this.Owner = null;
-            this.OwnerSupportsVAC = false;
+            this.IsOwnerVisual = false;
         }
 
         public static void SetBehaviours(UIElement element, BehaviourCollection value) {

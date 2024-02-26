@@ -18,7 +18,7 @@
 //
 
 namespace FramePFX.Tasks {
-    public class CompletionRange {
+    public readonly struct CompletionRange {
         public readonly double Range;
         public readonly double PreviousMultiplier;
 

@@ -72,12 +72,9 @@ namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
             this.commandImpl?.RaiseCanExecuteChanged();
         }
 
-        protected override void UpdateCanExecute(IContextData context) {
-            this.commandImpl?.RaiseCanExecuteChanged();
-        }
-
         private class CommandImpl : ICommand {
             private readonly CommandSourceCommandUsage usage;
+            private bool isExecuting;
 
             public event EventHandler CanExecuteChanged;
 
@@ -86,6 +83,10 @@ namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
             }
 
             public bool CanExecute(object parameter) {
+                if (this.isExecuting) {
+                    return false;
+                }
+
                 IContextData ctx = this.usage.GetContextData();
                 if (ctx == null)
                     return false;
@@ -93,8 +94,16 @@ namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
                 return state == ExecutabilityState.Executable;
             }
 
-            public void Execute(object parameter) {
-                CommandManager.Instance.TryExecute(this.usage.CommandId, () => this.usage.GetContextData() ?? EmptyContext.Instance);
+            public async void Execute(object parameter) {
+                if (!this.isExecuting) {
+                    this.isExecuting = true;
+                    try {
+                        await CommandManager.Instance.TryExecute(this.usage.CommandId, () => this.usage.GetContextData() ?? EmptyContext.Instance);
+                    }
+                    finally {
+                        this.isExecuting = false;
+                    }
+                }
             }
 
             public void RaiseCanExecuteChanged() {

@@ -145,8 +145,8 @@ namespace FramePFX.Editors {
             }
 
             this.thread = new Thread(this.TimerMain) {
-                IsBackground = true,
-                Name = "Timer Thread"
+                IsBackground = true, // thread auto-stops when app tries to exit :D
+                Name = "FramePFX Playback Thread"
             };
 
             this.thread_IsTimerRunning = true;
@@ -154,8 +154,9 @@ namespace FramePFX.Editors {
         }
 
         public void StopTimer() {
+            this.Stop();
             this.thread_IsTimerRunning = false;
-            this.thread?.Join();
+            // this.thread?.Join();
         }
 
         public void SetFrameRate(Rational frameRate) {
@@ -242,11 +243,11 @@ namespace FramePFX.Editors {
         }
 
         private void OnTimerFrame() {
-            if (!this.thread_IsPlaying) {
+            if (!this.thread_IsPlaying || !this.thread_IsTimerRunning) {
                 return;
             }
 
-            if (this.Timeline == null || this.Timeline.Project == null) {
+            if (this.Timeline?.Project == null) {
                 return;
             }
 
@@ -345,36 +346,8 @@ namespace FramePFX.Editors {
                 }
 
                 this.nextTickTime = Time.GetSystemTicks() + this.intervalTicks;
-                if (this.thread_IsPlaying) {
-                    this.OnTimerFrame();
-                }
+                this.OnTimerFrame();
             } while (this.thread_IsTimerRunning);
-
-            // long frameEndTicks = Time.GetSystemTicks();
-            // while (this.thread_IsTimerRunning) {
-            //     while (!this.thread_IsPlaying) {
-            //         Thread.Sleep(50);
-            //     }
-            //     do {
-            //         long ticksA = Time.GetSystemTicks();
-            //         long interval = ticksA - frameEndTicks;
-            //         if (interval >= this.intervalTicks)
-            //             break;
-            //         Thread.Sleep(1);
-            //     } while (true);
-            //     if (this.thread_IsPlaying) {
-            //         try {
-            //             this.OnTimerFrame();
-            //         }
-            //         catch (Exception e) {
-            //             // Don't crash the timer thread in release, just ignore it (or break in release)
-            //             #if DEBUG
-            //             System.Diagnostics.Debugger.Break();
-            //             #endif
-            //         }
-            //     }
-            //     frameEndTicks = Time.GetSystemTicks();
-            // }
         }
 
         internal static void InternalOnActiveTimelineChanged(PlaybackManager playback, Timeline oldTimeline, Timeline newTimeline) {

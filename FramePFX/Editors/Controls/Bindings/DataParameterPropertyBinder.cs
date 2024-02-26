@@ -22,7 +22,7 @@ using System.ComponentModel;
 using System.Windows;
 using FramePFX.Editors.DataTransfer;
 
-namespace FramePFX.Editors.Controls.Binders {
+namespace FramePFX.Editors.Controls.Bindings {
     /// <summary>
     /// A binder that binds between a data parameter and a dependency property, completely automated requiring no external signaling
     /// </summary>

@@ -20,8 +20,9 @@
 using System;
 using System.Reflection;
 using System.Windows;
+using FramePFX.Utils;
 
-namespace FramePFX.Editors.Controls.Binders {
+namespace FramePFX.Editors.Controls.Bindings {
     /// <summary>
     /// A binder that automatically handles a dependency property value change signal to update the model. A model value
     /// changed event handler will be auto-registered to tell the control value to update.
@@ -39,7 +40,7 @@ namespace FramePFX.Editors.Controls.Binders {
             this.eventInfo = typeof(TModel).GetEvent(eventName, BindingFlags.Public | BindingFlags.Instance);
             if (this.eventInfo == null)
                 throw new Exception("Could not find event by name: " + typeof(TModel).Name + "." + eventName);
-            this.handlerInternal = InternalBinderUtils.CreateDelegateToInvokeActionFromEvent(this.eventInfo.EventHandlerType, this.OnModelValueChanged);
+            this.handlerInternal = EventUtils.CreateDelegateToInvokeActionFromEvent(this.eventInfo.EventHandlerType, this.OnModelValueChanged);
         }
 
         protected override void OnAttached() {

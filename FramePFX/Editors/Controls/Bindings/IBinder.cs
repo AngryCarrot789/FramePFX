@@ -19,7 +19,7 @@
 
 using System.Windows;
 
-namespace FramePFX.Editors.Controls.Binders {
+namespace FramePFX.Editors.Controls.Bindings {
     /// <summary>
     /// A generic interface for a binder
     /// </summary>

@@ -25,6 +25,7 @@ using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Effects;
 using FramePFX.Editors.Utils;
+using FramePFX.Utils.Accessing;
 using FramePFX.Utils.Disposable;
 using SkiaSharp;
 

@@ -21,9 +21,9 @@ using System;
 using System.ComponentModel;
 using System.Reflection;
 using System.Windows;
-using FramePFX.Editors.Automation.Params;
+using FramePFX.Utils;
 
-namespace FramePFX.Editors.Controls.Binders {
+namespace FramePFX.Editors.Controls.Bindings {
     /// <summary>
     /// A standard basic binder that uses a getter and setter for the model value, adds and removes a dynamically generated event
     /// handler for the model value changed event, and registers a dependency property changed event handler for the control.
@@ -47,14 +47,10 @@ namespace FramePFX.Editors.Controls.Binders {
             if (this.eventInfo == null)
                 throw new Exception("Could not find event by name: " + typeof(TModel).Name + "." + eventName);
 
-            this.handlerInternal = InternalBinderUtils.CreateDelegateToInvokeActionFromEvent(this.eventInfo.EventHandlerType, this.OnEvent);
+            this.handlerInternal = EventUtils.CreateDelegateToInvokeActionFromEvent(this.eventInfo.EventHandlerType, this.OnEvent);
             this.getter = getModelValue;
             this.setter = setModelValue;
             this.Property = property;
-        }
-
-        public static GetSetAutoEventPropertyBinder<TModel> ForAccessor<TValue>(DependencyProperty property, string eventName, ValueAccessor<TValue> accessor) {
-            return new GetSetAutoEventPropertyBinder<TModel>(property, eventName, b => accessor.GetObjectValue(b.Model), (b, v) => accessor.SetObjectValue(b.Model, v));
         }
 
         private void OnEvent() => this.OnModelValueChanged();

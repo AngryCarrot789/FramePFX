@@ -20,7 +20,7 @@
 using System;
 using System.Windows;
 
-namespace FramePFX.Editors.Controls.Binders {
+namespace FramePFX.Editors.Controls.Bindings {
     /// <summary>
     /// The base class for general binders, which are used to create a "bind" between model and event.
     /// <para>

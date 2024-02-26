@@ -18,14 +18,14 @@
 //
 
 using System;
-using FramePFX.Editors.Automation.Params;
 using FramePFX.Utils;
+using FramePFX.Utils.Accessing;
 
 namespace FramePFX.Editors.DataTransfer {
     /// <summary>
-    /// A <see cref="DataParameterGeneric{T}"/> that manages a string value, and provides a character limit (both upper and lower limits)
+    /// A <see cref="DataParameter{T}"/> that manages a string value, and provides a character limit (both upper and lower limits)
     /// </summary>
-    public sealed class DataParameterString : DataParameterGeneric<string> {
+    public sealed class DataParameterString : DataParameter<string> {
         private readonly bool hasCharLimit;
 
         /// <summary>

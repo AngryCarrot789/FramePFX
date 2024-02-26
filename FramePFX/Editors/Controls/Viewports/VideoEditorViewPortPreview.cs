@@ -36,8 +36,6 @@ namespace FramePFX.Editors.Controls.Viewports {
     /// Extends <see cref="SKAsyncViewPort"/> to implement further timeline rendering things, like selected clips
     /// </summary>
     public class VideoEditorViewPortPreview : SKAsyncViewPort {
-        private const double thickness = 2.5d;
-        private const double half_thickness = thickness / 2d;
         public static readonly DependencyProperty VideoEditorProperty = DependencyProperty.Register("VideoEditor", typeof(VideoEditor), typeof(VideoEditorViewPortPreview), new PropertyMetadata(null, OnVideoEditorChanged));
         public static readonly DependencyProperty DrawSelectedElementsProperty = DependencyProperty.Register("DrawSelectedElements", typeof(bool), typeof(VideoEditorViewPortPreview), new FrameworkPropertyMetadata(BoolBox.True, FrameworkPropertyMetadataOptions.AffectsRender));
         public static readonly DependencyProperty SelectionOutlineBrushProperty = DependencyProperty.Register("SelectionOutlineBrush", typeof(Brush), typeof(VideoEditorViewPortPreview), new PropertyMetadata(Brushes.Orange, InvalidateSelectionPen));
@@ -108,12 +106,10 @@ namespace FramePFX.Editors.Controls.Viewports {
 
         private void UpdateTimelineChanged(Timeline oldTimeline, Timeline newTimeline) {
             if (oldTimeline != null) {
-                oldTimeline.PlayHeadChanged -= OnTimelineSeeked;
                 oldTimeline.RenderManager.FrameRendered -= this.OnFrameAvailable;
             }
 
             if (newTimeline != null) {
-                newTimeline.PlayHeadChanged += OnTimelineSeeked;
                 newTimeline.RenderManager.FrameRendered += this.OnFrameAvailable;
             }
         }
@@ -121,10 +117,6 @@ namespace FramePFX.Editors.Controls.Viewports {
         private void UpdateResolution(ProjectSettings settings) {
             this.Width = settings.Width;
             this.Height = settings.Height;
-        }
-
-        private static void OnTimelineSeeked(Timeline timeline, long oldFrame, long frame) {
-            timeline.RenderManager.InvalidateRender();
         }
 
         private void OnFrameAvailable(RenderManager manager) {
@@ -179,13 +171,7 @@ namespace FramePFX.Editors.Controls.Viewports {
 
         private static void DrawClipOutline(VideoClip clip, Vector2 renderSize, DrawingContext ctx, Pen pen) {
             SKRect rect = clip.ClipAndTrackTransformationMatrix.MapRect(renderSize.ToRectWH());
-            double realX = Math.Floor(rect.Left);
-            double realY = Math.Floor(rect.Top);
-            double realW = Math.Ceiling(rect.Width + (rect.Left - realX));
-            double realH = Math.Ceiling(rect.Height + (rect.Top - realY));
-            Point pos = new Point(realX - half_thickness, realY - half_thickness);
-            Size size = new Size(realW + thickness, realH + thickness);
-            ctx.DrawRectangle(null, pen, new Rect(pos, size));
+            DrawRectWithPen(ctx, pen, rect);
         }
 
         private static void DrawRectWithPen(DrawingContext ctx, Pen pen, SKRect rect) {
@@ -193,10 +179,10 @@ namespace FramePFX.Editors.Controls.Viewports {
             double realY = Math.Floor(rect.Top);
             double realW = Math.Ceiling(rect.Width + (rect.Left - realX));
             double realH = Math.Ceiling(rect.Height + (rect.Top - realY));
-            double thickA = pen.Thickness;
-            double thickB = thickA / 2.0;
-            Point pos = new Point(realX - thickB, realY - thickB);
-            Size size = new Size(realW + thickA, realH + thickA);
+            double thick = pen.Thickness;
+            double halfThick = thick / 2.0;
+            Point pos = new Point(realX - halfThick, realY - halfThick);
+            Size size = new Size(realW + thick, realH + thick);
             ctx.DrawRectangle(null, pen, new Rect(pos, size));
         }
     }

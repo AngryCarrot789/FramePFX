@@ -18,15 +18,15 @@
 //
 
 using System;
-using FramePFX.Editors.Automation.Params;
 using FramePFX.Utils;
+using FramePFX.Utils.Accessing;
 
 namespace FramePFX.Editors.DataTransfer {
     /// <summary>
-    /// A <see cref="DataParameterGeneric{T}"/> that manages a 64-bit double precision floating point
+    /// A <see cref="DataParameter{T}"/> that manages a 64-bit double precision floating point
     /// number (aka, a double). This also has an optional minimum and maximum value range
     /// </summary>
-    public sealed class DataParameterDouble : DataParameterGeneric<double> {
+    public sealed class DataParameterDouble : DataParameter<double> {
         /// <summary>
         /// The minimum value of the parameter. The final effective value may not drop below this
         /// </summary>

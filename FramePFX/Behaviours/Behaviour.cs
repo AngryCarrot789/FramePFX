@@ -21,7 +21,9 @@ using System.Windows;
 
 namespace FramePFX.Behaviours {
     /// <summary>
-    /// The main, generic, class for all behaviours
+    /// The main class for all behaviours. Behaviours can be used to add functionality to a class without having
+    /// to use behind-code or create a sub-class of an existing control (e.g. a behaviour that processes buttons
+    /// clicks, changes a control's background based on context data, or anything else really)
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public abstract class Behaviour<T> : BehaviourBase where T : DependencyObject {

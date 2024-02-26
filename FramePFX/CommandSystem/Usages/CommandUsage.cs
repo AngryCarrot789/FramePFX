@@ -46,7 +46,6 @@ namespace FramePFX.CommandSystem.Usages {
             if (string.IsNullOrWhiteSpace(commandId))
                 throw new Exception(nameof(commandId) + " cannot return an empty string or consist of only whitespaces");
             this.CommandId = commandId;
-            ;
         }
 
         /// <summary>
@@ -83,11 +82,8 @@ namespace FramePFX.CommandSystem.Usages {
         }
 
         protected virtual void UpdateCanExecute() {
-            this.UpdateCanExecute(this.GetContextData());
-        }
-
-        protected virtual void UpdateCanExecute(IContextData context) {
-            this.OnUpdateForCanExecuteState(context != null ? CommandManager.Instance.CanExecute(this.CommandId, context) : ExecutabilityState.Invalid);
+            IContextData ctx = this.GetContextData();
+            this.OnUpdateForCanExecuteState(ctx != null ? CommandManager.Instance.CanExecute(this.CommandId, ctx) : ExecutabilityState.Invalid);
         }
 
         protected virtual void OnUpdateForCanExecuteState(ExecutabilityState state) {

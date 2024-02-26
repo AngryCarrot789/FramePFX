@@ -25,6 +25,9 @@ using System.Windows.Threading;
 using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.AdvancedMenuService.ContextService.Controls {
+    /// <summary>
+    /// A context menu that uses dynamic item generation, based on available context
+    /// </summary>
     public class AdvancedContextMenu : ContextMenu, IAdvancedMenu {
         public static readonly DependencyProperty ContextGeneratorProperty =
             DependencyProperty.RegisterAttached(
@@ -204,7 +207,7 @@ namespace FramePFX.AdvancedMenuService.ContextService.Controls {
             ContextMenu menu = ContextMenuService.GetContextMenu(targetElement);
             if (!(menu is AdvancedContextMenu advancedMenu)) {
                 ContextMenuService.SetContextMenu(targetElement, advancedMenu = new AdvancedContextMenu());
-                advancedMenu.StaysOpen = true;
+                // advancedMenu.StaysOpen = true;
             }
 
             return advancedMenu;

@@ -30,6 +30,7 @@ using FramePFX.Editors.Timelines.Clips.Core;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.History;
 using FramePFX.PropertyEditing;
+using FramePFX.Utils.Destroying;
 
 namespace FramePFX.Editors {
     public delegate void ProjectChangedEventHandler(VideoEditor editor, Project oldProject, Project newProject);
@@ -42,7 +43,7 @@ namespace FramePFX.Editors {
     /// <summary>
     /// The class which stores all of the data for the video editor application
     /// </summary>
-    public class VideoEditor {
+    public class VideoEditor : IDestroy {
         private bool showClipAutomation;
         private bool showTrackAutomation;
 
@@ -233,6 +234,10 @@ namespace FramePFX.Editors {
 
         internal static void InternalOnActiveTimelineChanged(VideoEditor editor, Timeline oldTimeline, Timeline newTimeline) {
             PlaybackManager.InternalOnActiveTimelineChanged(editor.Playback, oldTimeline, newTimeline);
+        }
+
+        public void Destroy() {
+            this.Playback.StopTimer();
         }
     }
 }

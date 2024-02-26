@@ -1,13 +1,12 @@
 ﻿// #define USE_OPENGL
 
-#if !USE_OPENGL
 using System;
-using System.Runtime.CompilerServices;
-#endif
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using FramePFX.Logger;
 using FramePFX.Utils;
 using SkiaSharp;
 
@@ -134,7 +133,7 @@ namespace FramePFX.Editors.Controls.Viewports {
             WriteableBitmap bmp = this.bitmap;
             if (bmp == null || frameInfo.Width != bmp.PixelWidth || frameInfo.Height != bmp.PixelHeight) {
                 this.bitmap = new WriteableBitmap(
-                    frameInfo.Width, scaledSize.Height,
+                    frameInfo.Width, frameInfo.Height,
                     unscaledSize.Width == scaledSize.Width ? 96d : (96d * scaleX),
                     unscaledSize.Height == scaledSize.Height ? 96d : (96d * scaleY),
                     PixelFormats.Pbgra32, null);
@@ -151,21 +150,26 @@ namespace FramePFX.Editors.Controls.Viewports {
             this.targetSurface.Flush(true, true);
 
             this.bitmap.Lock();
+            this.OnPreEndRender();
 #if USE_OPENGL
             GL.ReadBuffer(ReadBufferMode.Back);
             GL.ReadPixels(0, 0, info.Width, info.Height, PixelFormat.Bgra, PixelType.UnsignedByte, this.bitmap.BackBuffer);
 #else
             SKImageInfo imgInfo = this.FrameInfo;
-            IntPtr srcPtr = this.targetSurface.PeekPixels().GetPixels();
-            IntPtr dstPtr = this.bitmap.BackBuffer;
-            if (srcPtr != IntPtr.Zero && dstPtr != IntPtr.Zero) {
-                unsafe {
-                    Unsafe.CopyBlock(dstPtr.ToPointer(), srcPtr.ToPointer(), (uint) imgInfo.BytesSize64);
+            if (imgInfo.Width == this.bitmap.PixelWidth && imgInfo.Height == this.bitmap.PixelHeight) {
+                IntPtr srcPtr = this.targetSurface.PeekPixels().GetPixels();
+                IntPtr dstPtr = this.bitmap.BackBuffer;
+                if (srcPtr != IntPtr.Zero && dstPtr != IntPtr.Zero) {
+                    unsafe {
+                        Unsafe.CopyBlock(dstPtr.ToPointer(), srcPtr.ToPointer(), (uint) imgInfo.BytesSize64);
+                    }
                 }
+            }
+            else {
+                AppLogger.Instance.WriteLine("FATAL ViewPort EndRender: internal bitmap and target frame sizes did not match. " + $"{info.Width},{info.Height} != {this.bitmap.PixelWidth},{this.bitmap.PixelHeight}");
             }
 #endif
 
-            this.OnPreEndRender();
             this.bitmap.AddDirtyRect(new Int32Rect(0, 0, info.Width, info.Height));
             this.bitmap.Unlock();
             this.OnPostEndRender();
@@ -180,16 +184,21 @@ namespace FramePFX.Editors.Controls.Viewports {
             SKImageInfo info = this.skImageInfo;
             surface.Flush(true, true);
             this.bitmap.Lock();
+            this.OnPreEndRender();
             SKImageInfo imgInfo = this.FrameInfo;
-            IntPtr srcPtr = surface.PeekPixels().GetPixels();
-            IntPtr dstPtr = this.bitmap.BackBuffer;
-            if (srcPtr != IntPtr.Zero && dstPtr != IntPtr.Zero) {
-                unsafe {
-                    Unsafe.CopyBlock(dstPtr.ToPointer(), srcPtr.ToPointer(), (uint) imgInfo.BytesSize64);
+            if (imgInfo.Width == this.bitmap.PixelWidth && imgInfo.Height == this.bitmap.PixelHeight) {
+                IntPtr srcPtr = surface.PeekPixels().GetPixels();
+                IntPtr dstPtr = this.bitmap.BackBuffer;
+                if (srcPtr != IntPtr.Zero && dstPtr != IntPtr.Zero) {
+                    unsafe {
+                        Unsafe.CopyBlock(dstPtr.ToPointer(), srcPtr.ToPointer(), (uint) imgInfo.BytesSize64);
+                    }
                 }
             }
+            else {
+                AppLogger.Instance.WriteLine("FATAL ViewPort EndRenderWithSurface: internal bitmap and target frame sizes did not match. " + $"{info.Width},{info.Height} != {this.bitmap.PixelWidth},{this.bitmap.PixelHeight}");
+            }
 
-            this.OnPreEndRender();
             this.bitmap.AddDirtyRect(new Int32Rect(0, 0, info.Width, info.Height));
             this.bitmap.Unlock();
             this.OnPostEndRender();

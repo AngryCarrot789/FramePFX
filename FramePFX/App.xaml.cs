@@ -30,7 +30,6 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using FFmpeg.AutoGen;
 using FramePFX.CommandSystem;
-using FramePFX.Editors.Commands;
 using FramePFX.Logger;
 using FramePFX.Utils;
 using FramePFX.Views;
@@ -62,16 +61,25 @@ namespace FramePFX {
             }
 
             try {
-                AppLogger.Instance.PushHeader("FramePFX initialisation");
-                await this.InitWPFApp();
+                // This is where services are registered
+                ApplicationCore.InternalSetupNewInstance(this.splash);
+                // Most if not all services are available below here
             }
             catch (Exception ex) {
-                MessageBox.Show("Failed to start FramePFX: " + ex.GetToString(), "Fatal App init failure");
-                this.Dispatcher.Invoke(() => this.Shutdown(0), DispatcherPriority.Background);
+                MessageBox.Show("Failed to initialise application: " + ex.GetToString(), "Fatal App init failure");
+                this.Dispatcher.InvokeShutdown();
                 return;
             }
-            finally {
+
+            try {
+                AppLogger.Instance.PushHeader("FramePFX initialisation");
+                await this.InitWPFApp();
                 AppLogger.Instance.PopHeader();
+            }
+            catch (Exception ex) {
+                MessageBox.Show("Failed to start FramePFX: " + ex.GetToString(), "Fatal App setup failure");
+                this.Dispatcher.InvokeShutdown();
+                return;
             }
 
             await this.splash.SetAction("Loading FramePFX main window...", null);
@@ -90,6 +98,7 @@ namespace FramePFX {
 
         protected override void OnExit(ExitEventArgs e) {
             base.OnExit(e);
+            ApplicationCore.Instance.OnApplicationExiting();
             PFXNative.ShutdownLibrary();
         }
 
@@ -97,10 +106,6 @@ namespace FramePFX {
             await this.splash.SetAction("Loading services...", null);
             ShortcutManager.Instance = new WPFShortcutManager();
             RuntimeHelpers.RunClassConstructor(typeof(UIInputManager).TypeHandle);
-
-            // This is where services are registered
-            ApplicationCore.InternalSetupNewInstance(this.splash);
-            // Most if not all services are available below here
 
             await this.splash.SetAction("Loading PFXCE native library...", null);
             try {

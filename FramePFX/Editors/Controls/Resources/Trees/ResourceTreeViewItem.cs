@@ -26,7 +26,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using FramePFX.AdvancedMenuService.ContextService.Controls;
 using FramePFX.Editors.Contextual;
-using FramePFX.Editors.Controls.Binders;
+using FramePFX.Editors.Controls.Bindings;
 using FramePFX.Editors.Controls.Resources.Explorers;
 using FramePFX.Editors.Controls.TreeViews.Controls;
 using FramePFX.Editors.ResourceManaging;

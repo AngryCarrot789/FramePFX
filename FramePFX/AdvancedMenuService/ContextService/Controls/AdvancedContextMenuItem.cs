@@ -19,7 +19,7 @@
 
 using System.Linq;
 using System.Windows.Controls;
-using FramePFX.Editors.Controls.Binders;
+using FramePFX.Editors.Controls.Bindings;
 
 namespace FramePFX.AdvancedMenuService.ContextService.Controls {
     /// <summary>

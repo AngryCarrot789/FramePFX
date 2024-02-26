@@ -69,8 +69,8 @@ namespace FramePFX.Utils.Visuals {
         /// <param name="addHandler">The action that adds the handler to a visual</param>
         /// <param name="removeHandler">The action that removes the handler from a visual</param>
         public static void CreateInterface(Action<DependencyObject, DependencyObject> handler, out Action<Visual> addHandler, out Action<Visual> removeHandler) {
-            MethodCallExpression invoke = Expression.Call(Expression.Constant(handler), InvokeCustomHandler, AccessAncestorExpression, AccessOldParentExpression);
-            Delegate theEventHandler = Expression.Lambda(VisualAncestorChangedEventHandlerType, invoke, ParamSenderObject, ParamVACEventArgs).Compile();
+            MethodCallExpression invokeHandler = Expression.Call(Expression.Constant(handler), InvokeCustomHandler, AccessAncestorExpression, AccessOldParentExpression);
+            Delegate theEventHandler = Expression.Lambda(VisualAncestorChangedEventHandlerType, invokeHandler, ParamSenderObject, ParamVACEventArgs).Compile();
             ConstantExpression constEventHandler = Expression.Constant(theEventHandler);
 
             // Create the add and remove invoker methods for the VisualAncestorChanged event

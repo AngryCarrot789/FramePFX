@@ -22,6 +22,7 @@ using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.ResourceManaging.ResourceHelpers;
 using FramePFX.Editors.ResourceManaging.Resources;
+using FramePFX.Utils.Accessing;
 using SkiaSharp;
 
 namespace FramePFX.Editors.Timelines.Clips.Core {

@@ -26,6 +26,8 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
     public class BasicButtonCommandUsage : CommandUsage {
+        private bool isExecuting;
+
         public BasicButtonCommandUsage(string commandId) : base(commandId) {
         }
 
@@ -42,11 +44,34 @@ namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
         }
 
         protected virtual void OnButtonClick(object sender, RoutedEventArgs e) {
-            CommandManager.Instance.TryExecute(this.CommandId, () => DataManager.GetFullContextData(this.Control));
+            if (!this.isExecuting) {
+                this.DoExecuteAsync();
+            }
+        }
+
+        private async void DoExecuteAsync() {
+            this.isExecuting = true;
+            this.UpdateCanExecute();
+            try {
+                await CommandManager.Instance.TryExecute(this.CommandId, () => DataManager.GetFullContextData(this.Control));
+            }
+            finally {
+                this.isExecuting = true;
+                this.UpdateCanExecute();
+            }
+        }
+
+        protected override void UpdateCanExecute() {
+            if (this.isExecuting) {
+                ((ButtonBase) this.Control).IsEnabled = false;
+            }
+            else {
+                base.UpdateCanExecute();
+            }
         }
 
         protected override void OnUpdateForCanExecuteState(ExecutabilityState state) {
-            ((ButtonBase) this.Control).IsEnabled = state == ExecutabilityState.Executable;
+            ((ButtonBase) this.Control).IsEnabled = !this.isExecuting && state == ExecutabilityState.Executable;
         }
     }
 }

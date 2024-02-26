@@ -23,16 +23,15 @@ using System.Numerics;
 using System.Threading;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Utils;
+using FramePFX.Utils.Accessing;
 
 namespace FramePFX.Editors.Automation.Params {
-    public delegate T AccessGetter<out T>(object a);
-
-    public delegate void AccessSetter<in T>(object a, T v);
-
     /// <summary>
     /// A class that stores information about a registered parameter for a specific type of automatable object.
-    /// Parameters are basically just an identifier for a specific channel of automatable data, such as the Opacity parameter
-    /// in video clips and video tracks
+    /// <para>
+    /// Parameters are basically just an identifier for a specific channel of automatable data,
+    /// such as the Opacity parameter in video clips and video tracks
+    /// </para>
     /// </summary>
     public abstract class Parameter : IEquatable<Parameter>, IComparable<Parameter> {
         private static readonly Dictionary<ParameterKey, Parameter> RegistryMap;
@@ -340,6 +339,9 @@ namespace FramePFX.Editors.Automation.Params {
         public override object EvaluateObjectValue(long frame, AutomationSequence sequence) => sequence.GetFloatValue(frame);
     }
 
+    /// <summary>
+    /// A <see cref="Parameter"/> that handles a <see cref="double"/> value
+    /// </summary>
     public sealed class ParameterDouble : Parameter {
         private readonly ValueAccessor<double> accessor;
 
@@ -369,6 +371,9 @@ namespace FramePFX.Editors.Automation.Params {
         public override object EvaluateObjectValue(long frame, AutomationSequence sequence) => sequence.GetDoubleValue(frame);
     }
 
+    /// <summary>
+    /// A <see cref="Parameter"/> that handles a <see cref="long"/> value
+    /// </summary>
     public sealed class ParameterLong : Parameter {
         private readonly ValueAccessor<long> accessor;
 
@@ -398,6 +403,9 @@ namespace FramePFX.Editors.Automation.Params {
         public override object EvaluateObjectValue(long frame, AutomationSequence sequence) => sequence.GetLongValue(frame);
     }
 
+    /// <summary>
+    /// A <see cref="Parameter"/> that handles a <see cref="bool"/> value
+    /// </summary>
     public sealed class ParameterBoolean : Parameter {
         private readonly ValueAccessor<bool> accessor;
 
@@ -434,6 +442,9 @@ namespace FramePFX.Editors.Automation.Params {
         public override object EvaluateObjectValue(long frame, AutomationSequence sequence) => sequence.GetBooleanValue(frame);
     }
 
+    /// <summary>
+    /// A <see cref="Parameter"/> that handles a <see cref="Vector2"/> value
+    /// </summary>
     public sealed class ParameterVector2 : Parameter {
         private readonly ValueAccessor<Vector2> accessor;
 

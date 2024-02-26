@@ -21,30 +21,25 @@ using System.Windows;
 
 namespace FramePFX.Behaviours {
     public interface IBehaviour {
-        // /// <summary>
-        // /// Returns true if this behaviour processes when its attached visual parent changes
-        // /// </summary>
-        // bool CanProcessVisualParentChanged { get; }
-
         /// <summary>
-        /// Gets our attached element, or null
+        /// Gets the element attached to this behaviour. When non-null, we are attached. When null, we are detached.
         /// </summary>
         DependencyObject AttachedElement { get; }
 
         /// <summary>
-        /// Gets the behaviour collection that owns this behaviour, or null
+        /// Gets the behaviour collection that owns this behaviour. When non-null, we are attached. When null, we are detached.
         /// </summary>
         BehaviourCollection Collection { get; }
 
         /// <summary>
-        /// Attempts to attach this behaviour to the element
+        /// Attempts to attach this behaviour to the element.
+        /// The given collection's <see cref="BehaviourCollection.Owner"/> property must not be null when this is called
         /// </summary>
         /// <param name="collection">The new collection owner</param>
-        /// <param name="newElement">The attached element</param>
         /// <exception cref="InvalidOperationException">We are already attached</exception>
-        /// <exception cref="ArgumentException">The element is not applicable (see <see cref="CanAttachTo"/>)</exception>
+        /// <exception cref="InvalidOperationException">The collection's owner element is not applicable to this behaviour (see <see cref="CanAttachTo"/>)</exception>
         /// <exception cref="Exception">An exception was thrown while processing the <see cref="BehaviourBase.OnAttached"/> method</exception>
-        void Attach(BehaviourCollection collection, DependencyObject newElement);
+        void Attach(BehaviourCollection collection);
 
         /// <summary>
         /// Detaches from our current element

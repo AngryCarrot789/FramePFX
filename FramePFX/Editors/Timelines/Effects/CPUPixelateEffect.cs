@@ -24,6 +24,7 @@ using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Utils;
 using FramePFX.Natives;
+using FramePFX.Utils.Accessing;
 using SkiaSharp;
 
 namespace FramePFX.Editors.Timelines.Effects {

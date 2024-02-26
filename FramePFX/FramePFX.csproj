@@ -53,34 +53,6 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
-    <Reference Include="NAudio, Version=2.2.1.0, Culture=neutral, PublicKeyToken=e279aa5131008a41">
-      <HintPath>..\packages\NAudio.2.2.1\lib\net472\NAudio.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NAudio.Asio, Version=2.2.1.0, Culture=neutral, PublicKeyToken=e279aa5131008a41">
-      <HintPath>..\packages\NAudio.Asio.2.2.1\lib\netstandard2.0\NAudio.Asio.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NAudio.Core, Version=2.2.1.0, Culture=neutral, PublicKeyToken=e279aa5131008a41">
-      <HintPath>..\packages\NAudio.Core.2.2.1\lib\netstandard2.0\NAudio.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NAudio.Midi, Version=2.2.1.0, Culture=neutral, PublicKeyToken=e279aa5131008a41">
-      <HintPath>..\packages\NAudio.Midi.2.2.1\lib\netstandard2.0\NAudio.Midi.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NAudio.Wasapi, Version=2.2.1.0, Culture=neutral, PublicKeyToken=e279aa5131008a41">
-      <HintPath>..\packages\NAudio.Wasapi.2.2.1\lib\netstandard2.0\NAudio.Wasapi.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NAudio.WinForms, Version=2.2.1.0, Culture=neutral, PublicKeyToken=e279aa5131008a41">
-      <HintPath>..\packages\NAudio.WinForms.2.2.1\lib\net472\NAudio.WinForms.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="NAudio.WinMM, Version=2.2.1.0, Culture=neutral, PublicKeyToken=e279aa5131008a41">
-      <HintPath>..\packages\NAudio.WinMM.2.2.1\lib\netstandard2.0\NAudio.WinMM.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="OpenTK, Version=3.3.3.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenTK.3.3.3\lib\net20\OpenTK.dll</HintPath>
     </Reference>
@@ -187,7 +159,8 @@
     <Compile Include="Editors\Contextual\ClipContextRegistry.cs" />
     <Compile Include="Editors\Contextual\ResourceContextRegistry.cs" />
     <Compile Include="Editors\Contextual\TrackContextRegistry.cs" />
-    <Compile Include="Editors\Controls\Binders\DataParameterPropertyBinder.cs" />
+    <Compile Include="Editors\Controls\Bindings\Binders.cs" />
+    <Compile Include="Editors\Controls\Bindings\DataParameterPropertyBinder.cs" />
     <Compile Include="Editors\Controls\Dragger\UnitToPercentFormatter.cs" />
     <Compile Include="Editors\Controls\EffectProviding\EffectProviderListBox.cs" />
     <Compile Include="Editors\Controls\EffectProviding\EffectProviderListBoxItem.cs" />
@@ -478,6 +451,8 @@
     <Compile Include="Themes\Generator\ThemeGenerator.cs" />
     <Compile Include="Themes\ThemeController.cs" />
     <Compile Include="Themes\ThemeType.cs" />
+    <Compile Include="Utils\Accessing\ValueAccessor.cs" />
+    <Compile Include="Utils\Accessing\ValueAccessors.cs" />
     <Compile Include="Utils\Arrays.cs" />
     <Compile Include="Utils\AsyncLock.cs" />
     <Compile Include="Utils\AudioUtils.cs" />
@@ -498,6 +473,12 @@
     <Compile Include="Utils\Collections\WeakReferenceDictionary.cs" />
     <Compile Include="Utils\CollectionUtils.cs" />
     <Compile Include="Utils\Colour.cs" />
+    <Compile Include="Utils\Commands\AsyncRelayCommand.cs" />
+    <Compile Include="Utils\Commands\BaseAsyncRelayCommand.cs" />
+    <Compile Include="Utils\Commands\BaseRelayCommand.cs" />
+    <Compile Include="Utils\Commands\IAsyncRelayCommand.cs" />
+    <Compile Include="Utils\Commands\IRelayCommand.cs" />
+    <Compile Include="Utils\Commands\RelayCommand.cs" />
     <Compile Include="Utils\CursorUtils.cs" />
     <Compile Include="Utils\Destroying\Destroyer.cs" />
     <Compile Include="Utils\Destroying\IDestroy.cs" />
@@ -519,6 +500,7 @@
     <Compile Include="Utils\HandlerList.cs" />
     <Compile Include="Utils\Helper.cs" />
     <Compile Include="Utils\InheritedProperty.cs" />
+    <Compile Include="Utils\EventUtils.cs" />
     <Compile Include="Utils\IntRect.cs" />
     <Compile Include="Utils\IRenameTarget.cs" />
     <Compile Include="Utils\KBUtils.cs" />
@@ -665,7 +647,6 @@
     <Compile Include="Editors\Automation\Params\ParameterDescriptor.cs" />
     <Compile Include="Editors\Automation\Params\ParameterFlags.cs" />
     <Compile Include="Editors\Automation\Params\ParameterKey.cs" />
-    <Compile Include="Editors\Automation\Params\ValueAccessor.cs" />
     <Compile Include="Editors\Automation\SwitchAutomationDataTypeAttribute.cs" />
     <Compile Include="Editors\Collections\SelectionList.cs" />
     <Compile Include="Editors\Controls\Automation\AutomatedUtils.cs" />
@@ -675,14 +656,13 @@
     <Compile Include="Editors\Controls\Automation\KeyFramePoint.cs" />
     <Compile Include="Editors\Controls\Automation\KeyPointUtils.cs" />
     <Compile Include="Editors\Controls\Automation\LineHitType.cs" />
-    <Compile Include="Editors\Controls\Binders\AutomationBinder.cs" />
-    <Compile Include="Editors\Controls\Binders\UpdaterAutoEventPropertyBinder.cs" />
-    <Compile Include="Editors\Controls\Binders\BaseBinder.cs" />
-    <Compile Include="Editors\Controls\Binders\InternalBinderUtils.cs" />
-    <Compile Include="Editors\Controls\Binders\GetSetAutoEventPropertyBinder.cs" />
-    <Compile Include="Editors\Controls\Binders\IBinder.cs" />
-    <Compile Include="Editors\Controls\Binders\UpdaterPropertyBinder.cs" />
-    <Compile Include="Editors\Controls\Binders\AutomationUpdaterPropertyBinder.cs" />
+    <Compile Include="Editors\Controls\Bindings\AutomationBinder.cs" />
+    <Compile Include="Editors\Controls\Bindings\UpdaterAutoEventPropertyBinder.cs" />
+    <Compile Include="Editors\Controls\Bindings\BaseBinder.cs" />
+    <Compile Include="Editors\Controls\Bindings\GetSetAutoEventPropertyBinder.cs" />
+    <Compile Include="Editors\Controls\Bindings\IBinder.cs" />
+    <Compile Include="Editors\Controls\Bindings\UpdaterPropertyBinder.cs" />
+    <Compile Include="Editors\Controls\Bindings\AutomationUpdaterPropertyBinder.cs" />
     <Compile Include="Editors\Controls\CancellableThumb.cs" />
     <Compile Include="Editors\Controls\Dragger\EditCompletedEventArgs.cs" />
     <Compile Include="Editors\Controls\Dragger\EditCompletedEventHandler.cs" />

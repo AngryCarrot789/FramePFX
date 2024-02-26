@@ -42,7 +42,7 @@ namespace FramePFX {
 
         public IServiceManager Services => this.serviceManager;
 
-        public static ApplicationCore Instance { get; private set; }
+        public static ApplicationCore Instance { get; } = new ApplicationCore();
 
         public VideoEditor VideoEditor { get; private set; }
 
@@ -63,7 +63,10 @@ namespace FramePFX {
         /// </summary>
         public int CurrentBuild => this.CurrentVersion.Build;
 
+        public IDispatcher Dispatcher { get; }
+
         private ApplicationCore() {
+            this.Dispatcher = new DispatcherDelegate(Application.Current.Dispatcher);
             this.serviceManager = new ServiceManager();
         }
 
@@ -73,8 +76,15 @@ namespace FramePFX {
                 OpenProjectCommand.RunOpenProjectTask(editor, args[0]);
             }
             else {
+                // Use to debug why something is causing a crash only in Release mode
+                // string path = ...;
+                // OpenProjectCommand.RunOpenProjectTask(editor, path);
                 this.LoadDefaultProjectHelper();
             }
+        }
+
+        public void OnApplicationExiting() {
+            this.VideoEditor.Destroy();
         }
 
         private void LoadDefaultProjectHelper() {
@@ -91,7 +101,6 @@ namespace FramePFX {
             this.serviceManager.Register<IMessageDialogService>(new WPFMessageDialogService());
             this.serviceManager.Register<IUserInputDialogService>(new WPFUserInputDialogService());
             this.serviceManager.Register<IFilePickDialogService>(new WPFFilePickDialogService());
-            this.serviceManager.Register<IDispatcher>(new DispatcherDelegate(Application.Current.Dispatcher));
             this.serviceManager.Register<TaskManager>(new TaskManager());
         }
 
@@ -150,9 +159,6 @@ namespace FramePFX {
         }
 
         internal static void InternalSetupNewInstance(IApplicationStartupProgress progress) {
-            if (Instance != null)
-                throw new InvalidOperationException("Cannot replace application instances with a new one");
-            Instance = new ApplicationCore();
             Instance.Setup(progress);
         }
 

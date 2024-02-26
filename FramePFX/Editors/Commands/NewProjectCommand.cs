@@ -41,7 +41,7 @@ namespace FramePFX.Editors.Commands {
                 IActivityProgress progress = TaskManager.Instance.CurrentTask.Progress;
 
                 progress.OnProgress(0.25);
-                if (!await CloseProjectCommand.CloseProjectInternal(editor, null)) {
+                if (!await CloseProjectCommand.CloseProjectBGT(editor, null)) {
                     return;
                 }
 

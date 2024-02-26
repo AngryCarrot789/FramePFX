@@ -18,11 +18,11 @@
 // 
 
 using System;
-using FramePFX.Editors.Automation.Params;
 using FramePFX.Utils;
+using FramePFX.Utils.Accessing;
 
 namespace FramePFX.Editors.DataTransfer {
-    public sealed class DataParameterBoolean : DataParameterGeneric<bool> {
+    public sealed class DataParameterBoolean : DataParameter<bool> {
         public DataParameterBoolean(Type ownerType, string key, ValueAccessor<bool> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, key, false, accessor, flags) {
         }
 

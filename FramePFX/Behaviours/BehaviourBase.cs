@@ -25,8 +25,8 @@ using System.Windows;
 
 namespace FramePFX.Behaviours {
     /// <summary>
-    /// The base class for behaviours. Provides functionality to be associated with a control.
-    /// This class should not be inherited directly, instead, use <see cref="Behaviour{T}"/>
+    /// The base class for behaviours, which handles all the standard functionality.
+    /// This class should typically not be inherited directly, instead, use <see cref="Behaviour{T}"/>
     /// </summary>
     public abstract class BehaviourBase : Freezable, IBehaviour {
         private static readonly Dictionary<Type, bool> HasVisualParentChangedOverridden;
@@ -60,16 +60,16 @@ namespace FramePFX.Behaviours {
         /// </summary>
         protected abstract void OnDetatched();
 
-        public void Attach(BehaviourCollection collection, DependencyObject newElement) {
+        public void Attach(BehaviourCollection collection) {
             if (this.element != null)
                 throw new InvalidOperationException("Already attached to another element: " + this.element);
-            if (newElement == null)
-                throw new ArgumentNullException(nameof(newElement));
-            if (!this.CanAttachToType(newElement))
-                throw new ArgumentException("Target element is incompatible");
+            if (collection.Owner == null)
+                throw new InvalidOperationException("The collection's owner property is null");
+            if (!this.CanAttachToType(collection.Owner))
+                throw new ArgumentException("The attaching element is incompatible with this behaviour");
 
             this.Collection = collection;
-            this.element = newElement;
+            this.element = collection.Owner;
             if (this.CanProcessVisualParentChanged)
                 collection.RegisterVAC(this);
 
@@ -131,13 +131,13 @@ namespace FramePFX.Behaviours {
 
         private static bool GetHasVisualParentChangedHandler(Type type) {
             if (!HasVisualParentChangedOverridden.TryGetValue(type, out bool value)) {
-                HasVisualParentChangedOverridden[type] = value = GetRawHasVisualParentChangedHandler(type);
+                HasVisualParentChangedOverridden[type] = value = CalculateHasVisualParentChangedHandler(type);
             }
 
             return value;
         }
 
-        private static bool GetRawHasVisualParentChangedHandler(Type type) {
+        private static bool CalculateHasVisualParentChangedHandler(Type type) {
             MethodInfo method = type.GetMethod(nameof(OnVisualParentChanged), BindingFlags.Instance | BindingFlags.NonPublic, null, CallingConventions.HasThis, VPCArgs, null);
             if (!ReferenceEquals(method, null)) {
                 MethodInfo baseMethod = method.GetBaseDefinition();

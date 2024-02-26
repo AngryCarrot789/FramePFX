@@ -172,14 +172,6 @@ namespace FramePFX.Editors.Views {
                 newEditor.ProjectChanged += this.OnEditorProjectChanged;
                 newEditor.Playback.PlaybackStateChanged += this.OnEditorPlaybackStateChanged;
                 this.PART_ViewPort.VideoEditor = newEditor;
-
-                // workaround because it's 11pm and I CBA to implement a new event (:
-                Task.Run(async () => {
-                    await Task.Delay(500);
-                    IoC.Dispatcher.InvokeAsync(() => {
-                        this.VPViewBox.FitContentToCenter();
-                    }, DispatcherPriority.Background);
-                });
             }
 
             Project project = newEditor?.Project;
@@ -228,11 +220,14 @@ namespace FramePFX.Editors.Views {
                 newProject.IsModifiedChanged += this.OnProjectModifiedChanged;
             }
 
-            this.UpdateRenderSettings(newProject?.Settings);
             this.UpdateResourceManager(newProject?.ResourceManager);
             this.OnActiveTimelineChanged(oldProject?.ActiveTimeline, newProject?.ActiveTimeline);
             this.UpdateWindowTitle(newProject);
             this.UpdatePlayBackButtons(newProject?.Editor.Playback);
+
+            IoC.Dispatcher.InvokeAsync(() => {
+                this.VPViewBox.FitContentToCenter();
+            }, DispatcherPriority.Background);
         }
 
         private void OnActiveTimelineChanged(Project project, Timeline oldTimeline, Timeline newTimeline) {
@@ -325,13 +320,6 @@ namespace FramePFX.Editors.Views {
             }
         }
 
-        private void UpdateRenderSettings(ProjectSettings settings) {
-            if (settings != null) {
-                this.PART_ViewPort.Width = settings.Width;
-                this.PART_ViewPort.Height = settings.Height;
-            }
-        }
-
         private void UpdateResourceManager(ResourceManager manager) {
             this.TheResourcePanel.ResourceManager = manager;
         }
@@ -383,16 +371,15 @@ namespace FramePFX.Editors.Views {
                 return;
             }
 
-            if (IoC.MessageService.ShowMessage("Convert Project", "Do you want to convert the project to suit the new frame rate? (resize clips and automation, etc.)", MessageBoxButton.YesNo) != MessageBoxResult.Yes) {
-                return;
+            MessageBoxResult convertFrameRateResult = IoC.MessageService.ShowMessage("Convert Project", "Do you want to convert the project to suit the new frame rate? (resize clips and automation, etc.)", MessageBoxButton.YesNo);
+            if (convertFrameRateResult == MessageBoxResult.Yes) {
+                double ratio = newFps.AsDouble / oldFps.AsDouble;
+                AutomationEngine.ConvertProjectFrameRate(project, ratio);
+
+                double amount = 1.0 / ratio;
+                project.ActiveTimeline.SetZoom(amount, ZoomType.Direct);
+                project.ActiveTimeline.PlayHeadPosition = (long) Math.Round(project.ActiveTimeline.PlayHeadPosition * ratio);
             }
-
-            double ratio = newFps.AsDouble / oldFps.AsDouble;
-            AutomationEngine.ConvertProjectFrameRate(project, ratio);
-
-            double amount = 1.0 / ratio;
-            project.ActiveTimeline.SetZoom(amount, ZoomType.Direct);
-            project.ActiveTimeline.PlayHeadPosition = (long) Math.Round(project.ActiveTimeline.PlayHeadPosition * ratio);
         }
     }
 }

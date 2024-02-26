@@ -37,11 +37,11 @@ namespace FramePFX.Editors.Commands {
             await TaskManager.Instance.RunTask(async () => {
                 IActivityProgress prog = TaskManager.Instance.CurrentTask.Progress;
                 prog.Text = "Closing project...";
-                await CloseProjectInternal(editor, prog);
+                await CloseProjectBGT(editor, prog);
             });
         }
 
-        public static async Task<bool> CloseProjectInternal(VideoEditor editor, IActivityProgress progress, string msgTitle = "Project is open", string message = "A project is open. Do you want to save it?") {
+        public static async Task<bool> CloseProjectBGT(VideoEditor editor, IActivityProgress progress, string msgTitle = "Project is open", string message = "A project is open. Do you want to save it?") {
             Project oldProject = editor.Project;
             if (oldProject == null)
                 return true;

@@ -58,19 +58,19 @@ namespace FramePFX.Editors.Commands {
 
                 bool result;
                 using (progress.PushCompletionRange(0.0, 0.5)) {
-                    result = await CloseProjectCommand.CloseProjectInternal(editor, progress);
+                    result = await CloseProjectCommand.CloseProjectBGT(editor, progress);
                 }
 
                 if (result) {
                     using (progress.PushCompletionRange(0.5, 1.0)) {
-                        await OpenProjectAtInternal(editor, filePath, progress);
+                        await OpenProjectAtBGT(editor, filePath, progress);
                     }
                 }
 
             }, new DefaultProgressTracker());
         }
 
-        public static async Task<bool> OpenProjectAtInternal(VideoEditor editor, string filePath, IActivityProgress progress) {
+        public static async Task<bool> OpenProjectAtBGT(VideoEditor editor, string filePath, IActivityProgress progress) {
             Project project;
 
             if (progress == null)

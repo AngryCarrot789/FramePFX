@@ -22,7 +22,7 @@ using System.Windows;
 using System.Windows.Controls;
 using FramePFX.AdvancedMenuService.ContextService.Controls;
 using FramePFX.Editors.Contextual;
-using FramePFX.Editors.Controls.Binders;
+using FramePFX.Editors.Controls.Bindings;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.PropertyEditing;

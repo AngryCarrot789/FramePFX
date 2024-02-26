@@ -38,10 +38,11 @@ namespace FramePFX {
         /// </summary>
         public static IFilePickDialogService FilePickService => ApplicationCore.Instance.Services.GetService<IFilePickDialogService>();
 
+        // The designer code might access this, so it cannot be null ever
         /// <summary>
         /// Gets the application main thread's dispatcher, used to dispatch work onto the application thread
         /// </summary>
-        public static IDispatcher Dispatcher => ApplicationCore.Instance.Services.GetService<IDispatcher>();
+        public static IDispatcher Dispatcher => ApplicationCore.Instance.Dispatcher;
 
         /// <summary>
         /// Gets the application's task manager

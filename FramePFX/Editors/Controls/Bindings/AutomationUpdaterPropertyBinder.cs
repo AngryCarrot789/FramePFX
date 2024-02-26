@@ -23,7 +23,7 @@ using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Automation.Params;
 
-namespace FramePFX.Editors.Controls.Binders {
+namespace FramePFX.Editors.Controls.Bindings {
     /// <summary>
     /// A <see cref="UpdaterPropertyBinder{TModel}"/> that also listens to automation value changed events.
     /// <see cref="UpdaterPropertyBinder{TModel}.UpdateModel"/> should be handled in order to actually update the automation

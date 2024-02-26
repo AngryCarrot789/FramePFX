@@ -28,7 +28,7 @@ using FramePFX.AdvancedMenuService.ContextService.Controls;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Contextual;
 using FramePFX.Editors.Controls.Automation;
-using FramePFX.Editors.Controls.Binders;
+using FramePFX.Editors.Controls.Bindings;
 using FramePFX.Editors.Controls.EffectProviding;
 using FramePFX.Editors.Controls.Resources;
 using FramePFX.Editors.DataTransfer;
@@ -134,8 +134,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips {
             control.DisplayName = b.Model.DisplayName;
         }, b => b.Model.DisplayName = ((TimelineClipControl) b.Control).DisplayName);
 
-        private readonly UpdaterAutoEventPropertyBinder<Clip> frameSpanBinder = new UpdaterAutoEventPropertyBinder<Clip>(nameof(VideoClip.FrameSpanChanged), obj => ((TimelineClipControl) obj.Control).SetSizeFromSpan(obj.Model.FrameSpan), null);
-        private readonly GetSetAutoEventPropertyBinder<Clip> isSelectedBinder = new GetSetAutoEventPropertyBinder<Clip>(IsSelectedProperty, nameof(VideoClip.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.IsSelected = (bool) v);
+        private readonly IBinder<Clip> frameSpanBinder = new UpdaterAutoEventPropertyBinder<Clip>(nameof(VideoClip.FrameSpanChanged), obj => ((TimelineClipControl) obj.Control).SetSizeFromSpan(obj.Model.FrameSpan), null);
+        private readonly IBinder<Clip> isSelectedBinder = Binders.AccessorAEDP<Clip, bool>(IsSelectedProperty, nameof(VideoClip.IsSelectedChanged), nameof(VideoClip.IsSelected));
 
         public TimelineClipControl() {
             this.AllowDrop = true;

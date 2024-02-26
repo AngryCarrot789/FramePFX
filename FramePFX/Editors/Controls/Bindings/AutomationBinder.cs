@@ -22,7 +22,7 @@ using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Automation.Params;
 
-namespace FramePFX.Editors.Controls.Binders {
+namespace FramePFX.Editors.Controls.Bindings {
     public sealed class AutomationBinder<TModel> : BaseBinder<TModel> where TModel : class, IHaveTimeline, IAutomatable {
         private readonly ParameterChangedEventHandler handler;
 

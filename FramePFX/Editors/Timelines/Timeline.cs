@@ -97,6 +97,7 @@ namespace FramePFX.Editors.Timelines {
                 long oldPlayHead = this.playHeadPosition;
                 this.playHeadPosition = value;
                 this.PlayHeadChanged?.Invoke(this, oldPlayHead, value);
+                this.InvalidateRender();
                 AutomationEngine.UpdateValues(this, value);
             }
         }

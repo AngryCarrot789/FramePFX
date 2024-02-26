@@ -51,7 +51,7 @@ namespace FramePFX.PropertyEditing.DataTransfer {
             this.StepProfile = stepProfile;
         }
 
-        public DataParameterLongPropertyEditorSlot(DataParameterLong parameter, DataParameterGeneric<bool> isEditableParameter, bool invertIsEditable, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName) {
+        public DataParameterLongPropertyEditorSlot(DataParameterLong parameter, DataParameter<bool> isEditableParameter, bool invertIsEditable, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName) {
             this.StepProfile = stepProfile;
             this.IsEditableParameter = isEditableParameter;
             this.InvertIsEditableForParameter = invertIsEditable;

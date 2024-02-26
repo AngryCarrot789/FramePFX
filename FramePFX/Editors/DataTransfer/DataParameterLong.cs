@@ -18,11 +18,11 @@
 //
 
 using System;
-using FramePFX.Editors.Automation.Params;
 using FramePFX.Utils;
+using FramePFX.Utils.Accessing;
 
 namespace FramePFX.Editors.DataTransfer {
-    public sealed class DataParameterLong : DataParameterGeneric<long> {
+    public sealed class DataParameterLong : DataParameter<long> {
         /// <summary>
         /// The minimum value of the parameter. The final effective value may not drop below this
         /// </summary>

@@ -29,7 +29,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Automation.Params;
-using FramePFX.Editors.Controls.Binders;
+using FramePFX.Editors.Controls.Bindings;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Utils;
 using SkiaSharp;

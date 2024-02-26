@@ -208,7 +208,7 @@ namespace FramePFX.Editors {
             }
         }
 
-        public void WriteToFile(string filePath) {
+        public void SaveToFileAndSetPath(string filePath) {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentException("Invalid file path", nameof(filePath));
 
@@ -320,7 +320,10 @@ namespace FramePFX.Editors {
                 return null;
             }
 
-            return SaveProjectInternal(project, filePath, progress);
+            progress.OnProgress(0.1);
+            using (progress.PushCompletionRange(0.1, 0.8)) {
+                return SaveProjectInternal(project, filePath, progress);
+            }
         }
 
         private static bool SaveProjectInternal(Project project, string filePath, IActivityProgress progress) {
@@ -338,7 +341,7 @@ namespace FramePFX.Editors {
                 progress.Text = "Serialising project...";
                 progress.OnProgress(0.5);
                 try {
-                    project.WriteToFile(filePath);
+                    project.SaveToFileAndSetPath(filePath);
                     progress.OnProgress(0.5);
                     return true;
                 }

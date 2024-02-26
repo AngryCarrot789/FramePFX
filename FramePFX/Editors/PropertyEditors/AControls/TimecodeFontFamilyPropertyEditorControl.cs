@@ -19,7 +19,7 @@
 
 using System.Windows;
 using System.Windows.Controls;
-using FramePFX.Editors.Controls.Binders;
+using FramePFX.Editors.Controls.Bindings;
 using FramePFX.Editors.PropertyEditors.Clips;
 using FramePFX.PropertyEditing.Controls;
 
@@ -29,7 +29,7 @@ namespace FramePFX.Editors.PropertyEditors.AControls {
 
         private TextBox fontFamilyTextBox;
 
-        private readonly GetSetAutoEventPropertyBinder<TimecodeFontFamilyPropertyEditorSlot> fontFamilyBinder = new GetSetAutoEventPropertyBinder<TimecodeFontFamilyPropertyEditorSlot>(TextBox.TextProperty, nameof(TimecodeFontFamilyPropertyEditorSlot.FontFamilyChanged), binder => binder.Model.FontFamily, (binder, v) => binder.Model.SetValue((string) v));
+        private readonly IBinder<TimecodeFontFamilyPropertyEditorSlot> fontFamilyBinder = new GetSetAutoEventPropertyBinder<TimecodeFontFamilyPropertyEditorSlot>(TextBox.TextProperty, nameof(TimecodeFontFamilyPropertyEditorSlot.FontFamilyChanged), binder => binder.Model.FontFamily, (binder, v) => binder.Model.SetValue((string) v));
 
         public TimecodeFontFamilyPropertyEditorControl() {
         }

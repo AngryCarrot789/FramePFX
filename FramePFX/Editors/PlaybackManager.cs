@@ -18,6 +18,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -259,7 +260,8 @@ namespace FramePFX.Editors {
                         return Task.CompletedTask;
                     }
 
-                    if (project.Editor == null || !this.thread_IsPlaying) {
+                    VideoEditor editor = project.Editor;
+                    if (editor == null || !this.thread_IsPlaying) {
                         return Task.CompletedTask;
                     }
 
@@ -293,7 +295,7 @@ namespace FramePFX.Editors {
                     long newPlayHead = Periodic.Add(timeline.PlayHeadPosition, incr, 0, timeline.MaxDuration - 1);
                     timeline.PlayHeadPosition = newPlayHead;
                     if ((timeline.RenderManager.LastRenderTask?.IsCompleted ?? true)) {
-                        return RenderTimeline(timeline.RenderManager, timeline.PlayHeadPosition, CancellationToken.None);
+                        return RenderTimeline(editor, timeline.RenderManager, timeline.PlayHeadPosition, CancellationToken.None);
                     }
 
                     return Task.CompletedTask;
@@ -318,11 +320,27 @@ namespace FramePFX.Editors {
             }
         }
 
-        private static async Task RenderTimeline(RenderManager renderManager, long frame, CancellationToken cancellationToken) {
+        private static async Task RenderTimeline(VideoEditor videoEditor, RenderManager renderManager, long frame, CancellationToken cancellationToken) {
             // await (renderManager.ScheduledRenderTask ?? Task.CompletedTask);
             if (cancellationToken.IsCancellationRequested)
                 throw new TaskCanceledException();
-            await (renderManager.LastRenderTask = renderManager.RenderTimelineAsync(frame, cancellationToken));
+            try {
+                await (renderManager.LastRenderTask = renderManager.RenderTimelineAsync(frame, cancellationToken));
+            }
+            catch (TaskCanceledException) {
+            }
+            catch (OperationCanceledException) {
+            }
+            catch (Exception e) {
+                if (videoEditor.Playback.PlayState == PlayState.Play) {
+                    videoEditor.Playback.Pause();
+                }
+
+                string msg = e.GetToString();
+                IoC.MessageService.ShowMessage("Render exception", "An exception occurred while rendering", msg);
+                Debug.WriteLine(msg);
+            }
+
             renderManager.OnFrameCompleted();
         }
 

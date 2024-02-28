@@ -62,6 +62,8 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
 
         public event ResourceEventHandler FilePathChanged;
 
+        public override int ResourceLinkLimit => 1;
+
         public ResourceAVMedia() {
         }
 

@@ -45,6 +45,8 @@ namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
         /// <param name="id">The new resource path ID</param>
         void SetTargetResourceId(ulong id);
 
+        void TryLoadLink();
+
         /// <summary>
         /// Clears the active resource link, if present
         /// </summary>

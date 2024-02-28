@@ -37,10 +37,10 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// <param name="outputs">An array of output channels</param>
         /// <param name="sampleFrames">The number of samples to generate</param>
         public unsafe void ProvideSamples(float* outSamples, long sampleFrames) {
-            int sampleRate = this.Project.Settings.SampleRate;
+            const int sampleRate = 44100;
             const float amplitude = 0.5F;
             const float freq = 440F;
-            float deltaPhase = (float) (2.0 * Math.PI * freq / sampleRate);
+            const float deltaPhase = (float) (2.0 * Math.PI * freq / sampleRate);
             const float PI2 = (float) Math.PI * 2.0F;
 
             for (int i = 0; i < sampleFrames; ++i) {

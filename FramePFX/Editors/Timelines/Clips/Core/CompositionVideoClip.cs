@@ -73,12 +73,16 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
 
         public override void RenderFrame(RenderContext rc, ref SKRect renderArea) {
             try {
-                this.renderTask.Wait();
+                this.renderTask.GetAwaiter().GetResult();
                 RenderManager render = this.renderResource.Timeline.RenderManager;
                 render.OnFrameCompleted();
                 using (SKPaint paint = new SKPaint {FilterQuality = rc.FilterQuality, ColorF = RenderUtils.BlendAlpha(SKColors.White, this.RenderOpacity)})
                     render.Draw(rc.Surface, paint);
                 renderArea = rc.TranslateRect(render.LastRenderRect);
+            }
+            catch (TaskCanceledException) {
+            }
+            catch (OperationCanceledException) {
             }
             catch (AggregateException e) {
                 if (e.InnerExceptions.FirstOrDefault(x => x is TaskCanceledException) != null) {

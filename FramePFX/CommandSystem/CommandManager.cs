@@ -171,6 +171,18 @@ namespace FramePFX.CommandSystem {
             return ExecuteCore(cmdId, cmd, new CommandEventArgs(this, context, isUserInitiated));
         }
 
+        /// <summary>
+        /// Executes the given command
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="context"></param>
+        /// <param name="isUserInitiated"></param>
+        /// <returns></returns>
+        public Task Execute(Command cmd, IContextData context, bool isUserInitiated = true) {
+            ValidateContext(context);
+            return ExecuteCore(null, cmd, new CommandEventArgs(this, context, isUserInitiated));
+        }
+
         protected static async Task ExecuteCore(string cmdId, Command command, CommandEventArgs e) {
             if (!Command.InternalBeginExecution(command)) {
                 IoC.MessageService.ShowMessage("Already running", "This command is already running");
@@ -181,16 +193,25 @@ namespace FramePFX.CommandSystem {
                 await command.Execute(e);
             }
             catch (TaskCanceledException) {
-                AppLogger.Instance.WriteLine($"Command execution was cancelled: {cmdId} ({command.GetType()})");
+                AppLogger.Instance.WriteLine($"Command execution was cancelled: {CmdToString(cmdId, command)}");
             }
             catch (OperationCanceledException) {
-                AppLogger.Instance.WriteLine($"Command (operation) execution was cancelled: {cmdId} ({command.GetType()})");
+                AppLogger.Instance.WriteLine($"Command (operation) execution was cancelled: {CmdToString(cmdId, command)}");
             }
             catch (Exception ex) when (e.IsUserInitiated && !Debugger.IsAttached) {
-                IoC.MessageService.ShowMessage("Command execution exception", $"An exception occurred while executing '{cmdId}'", ex.GetToString());
+                IoC.MessageService.ShowMessage("Command execution exception", $"An exception occurred while executing '{CmdToString(cmdId, command)}'", ex.GetToString());
             }
             finally {
                 Command.InternalEndExecution(command);
+            }
+        }
+
+        private static string CmdToString(string cmdId, Command cmd) {
+            if (cmdId != null && !string.IsNullOrWhiteSpace(cmdId)) {
+                return $"{cmdId} ({cmd.GetType()})";
+            }
+            else {
+                return cmd.GetType().ToString();
             }
         }
 
@@ -204,12 +225,19 @@ namespace FramePFX.CommandSystem {
         /// <exception cref="Exception">The context is null, or the assembly was compiled in debug mode and the GetPresentation function threw ane exception</exception>
         /// <exception cref="ArgumentException">ID is null, empty or consists of only whitespaces</exception>
         /// <exception cref="ArgumentNullException">Context is null</exception>
-        public virtual ExecutabilityState CanExecute(string id, IContextData context, bool isUserInitiated = true) {
+        public ExecutabilityState CanExecute(string id, IContextData context, bool isUserInitiated = true) {
             ValidateId(id);
             ValidateContext(context);
-            if (!this.commands.TryGetValue(id, out CommandEntry command))
-                return ExecutabilityState.Invalid;
-            return command.Command.CanExecute(new CommandEventArgs(this, context, isUserInitiated));
+            if (this.commands.TryGetValue(id, out CommandEntry command)) {
+                return this.CanExecute(command.Command, context, isUserInitiated);
+            }
+
+            return ExecutabilityState.Invalid;
+        }
+
+        public virtual ExecutabilityState CanExecute(Command command, IContextData context, bool isUserInitiated = true) {
+            ValidateContext(context);
+            return command.CanExecute(new CommandEventArgs(this, context, isUserInitiated));
         }
 
         /// <summary>
@@ -238,7 +266,7 @@ namespace FramePFX.CommandSystem {
         }
 
         public static void ValidateId(string id) {
-            if (string.IsNullOrWhiteSpace(id)) {
+            if (id != null && string.IsNullOrWhiteSpace(id)) {
                 throw new ArgumentException("Command ID cannot be null or empty", nameof(id));
             }
         }

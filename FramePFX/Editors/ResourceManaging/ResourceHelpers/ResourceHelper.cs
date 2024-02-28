@@ -246,6 +246,10 @@ namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
                 this.SetResourcePath(new ResourceLink(this, id));
             }
 
+            public void TryLoadLink() {
+                this.link?.LinkResource(false);
+            }
+
             public void ClearResourceLink() {
                 if (this.link != null)
                     this.SetResourcePath(null);

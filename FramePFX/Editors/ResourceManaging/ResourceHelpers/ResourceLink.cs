@@ -131,6 +131,7 @@ namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
                 if (ReferenceEquals(oldItem, newItem))
                     return;
                 this.cached = newItem;
+                this.State = LinkState.Linked;
             }
 
             this.OnResourceChanged(oldItem, newItem);
@@ -153,12 +154,12 @@ namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
         public void SetReferenceCount(ResourceItem item, bool isReferenced) {
             if (isReferenced) {
                 if (!this.isReferencedCounted) {
-                    // item.AddReference(this);
+                    ResourceItem.AddReference(item, this.Owner.ResourceHelper.Owner);
                     this.isReferencedCounted = true;
                 }
             }
             else if (this.isReferencedCounted) {
-                // item.RemoveReference(this);
+                ResourceItem.RemoveReference(item, this.Owner.ResourceHelper.Owner);
                 this.isReferencedCounted = false;
             }
         }

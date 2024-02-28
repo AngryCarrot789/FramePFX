@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
@@ -44,6 +45,7 @@ namespace FramePFX.Editors.Rendering {
 
         private double averageVideoRenderTimeMillis;
         private double averageAudioRenderTimeMillis;
+        private double accumulatedSamples;
         private volatile int isRendering;
         private volatile int isRenderScheduled;
         private volatile Task lastRenderTask;
@@ -100,7 +102,7 @@ namespace FramePFX.Editors.Rendering {
                 newProject.Settings.ResolutionChanged += manager.SettingsOnResolutionChanged;
                 manager.SettingsOnResolutionChanged(newProject.Settings);
                 manager.audioRingBuffer?.Dispose();
-                manager.audioRingBuffer = new AudioRingBuffer(4096);
+                manager.audioRingBuffer = new AudioRingBuffer(16384);
             }
         }
 
@@ -183,9 +185,12 @@ namespace FramePFX.Editors.Rendering {
                 imgInfo = this.ImageInfo;
                 beginRender = Time.GetSystemTicks();
 
-                // double fps = project.Settings.FrameRate.AsDouble;
-                // samples = (long) Math.Ceiling(44100.0 / fps) + 16384;
-                samples = project.Settings.BufferSize;
+                double fps = project.Settings.FrameRate.AsDouble;
+                double sampleDouble = Math.Ceiling(44100.0 / fps) + this.accumulatedSamples;
+                samples = (long) Math.Floor(sampleDouble);
+                this.accumulatedSamples = (sampleDouble - samples);
+
+                // samples = project.Settings.BufferSize;
 
                 // render bottom to top, as most video editors do
                 for (int i = this.Timeline.Tracks.Count - 1; i >= 0; i--) {
@@ -324,6 +329,19 @@ namespace FramePFX.Editors.Rendering {
             if (this.suspendRenderCount < 1) {
                 try {
                     await this.RenderTimelineAsync(this.Timeline.PlayHeadPosition, CancellationToken.None, EnumRenderQuality.Low);
+                }
+                catch (TaskCanceledException) {
+                }
+                catch (OperationCanceledException) {
+                }
+                catch (Exception e) {
+                    if (this.Timeline?.Project?.Editor is VideoEditor editor && editor.Playback.PlayState == PlayState.Play) {
+                        editor.Playback.Pause();
+                    }
+
+                    string msg = e.GetToString();
+                    IoC.MessageService.ShowMessage("Render exception", "An exception occurred while rendering", msg);
+                    Debug.WriteLine(msg);
                 }
                 finally {
                     this.isRenderScheduled = 0;

@@ -18,8 +18,12 @@
 //
 
 using System;
+using System.Collections.Generic;
 using FramePFX.Editors.ResourceManaging.Autoloading;
 using FramePFX.Editors.ResourceManaging.Events;
+using FramePFX.Editors.ResourceManaging.ResourceHelpers;
+using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Utils;
 
 namespace FramePFX.Editors.ResourceManaging {
     /// <summary>
@@ -37,6 +41,7 @@ namespace FramePFX.Editors.ResourceManaging {
     public abstract class ResourceItem : BaseResource {
         public const ulong EmptyId = ResourceManager.EmptyId;
         protected bool doNotProcessUniqueIdForSerialisation;
+        private readonly List<IResourceHolder> references;
 
         /// <summary>
         /// Gets if this resource is online (usable) or offline (not usable by clips)
@@ -56,11 +61,31 @@ namespace FramePFX.Editors.ResourceManaging {
         public ulong UniqueId { get; private set; }
 
         /// <summary>
+        /// Returns a read-only list of <see cref="IResourceHolder"/> objects that have referenced
+        /// this resource (active resource link in <see cref="ResourceLink"/>)
+        /// </summary>
+        public IReadOnlyList<IResourceHolder> References => this.references;
+
+        // TODO: this needs work, but it's a start. There needs to be a proper way of handling resource link limits,
+        // and I need to get rid of the ResourceLink crap, since it's just gonna lead to problems implementing this
+
+        /// <summary>
+        /// Returns a value which represents the maximum number of references this resource can be linked to. -1 means unlimited
+        /// </summary>
+        public virtual int ResourceLinkLimit => -1;
+
+        /// <summary>
         /// An event fired when our <see cref="IsOnline"/> property changes. <see cref="IsOfflineByUser"/> may have changed too
         /// </summary>
         public event ResourceItemEventHandler OnlineStateChanged;
 
         protected ResourceItem() {
+            this.references = new List<IResourceHolder>();
+        }
+
+        public bool HasReachedResourecLimit() {
+            int limit = this.ResourceLinkLimit;
+            return limit != -1 && this.references.Count >= limit;
         }
 
         protected internal override void OnAttachedToManager() {
@@ -216,5 +241,18 @@ namespace FramePFX.Editors.ResourceManaging {
         /// Internal method for setting a resource item's unique ID
         /// </summary>
         internal static void SetUniqueId(ResourceItem item, ulong id) => item.UniqueId = id;
+
+        internal static void AddReference(ResourceItem item, IResourceHolder owner) {
+            if (item.references.Contains(owner))
+                throw new InvalidOperationException("Object already referenced");
+            if (item.HasReachedResourecLimit())
+                throw new InvalidOperationException("Resource limit reached: cannot reference more than" + item.ResourceLinkLimit);
+            item.references.Add(owner);
+        }
+
+        internal static void RemoveReference(ResourceItem item, IResourceHolder owner) {
+            if (!item.references.Remove(owner))
+                throw new InvalidOperationException("Object was not referenced");
+        }
     }
 }

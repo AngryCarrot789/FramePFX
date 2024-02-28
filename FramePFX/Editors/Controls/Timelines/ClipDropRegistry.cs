@@ -64,6 +64,18 @@ namespace FramePFX.Editors.Controls.Timelines {
                 clip.ResourceImageKey.SetTargetResourceId(h.UniqueId);
                 return Task.CompletedTask;
             });
+
+            DropRegistry.Register<AVMediaVideoClip, ResourceAVMedia>((clip, h, dt, ctx) => EnumDropType.Link, (clip, h, dt, c) => {
+                if (h.HasReachedResourecLimit()) {
+                    int count = h.ResourceLinkLimit;
+                    IoC.MessageService.ShowMessage("Resource Limit", $"This resource cannot be used by more than {count} clip{Lang.S(count)}");
+                    return Task.CompletedTask;
+                }
+
+                clip.ResourceAVMediaKey.SetTargetResourceId(h.UniqueId);
+                clip.ResourceAVMediaKey.TryLoadLink();
+                return Task.CompletedTask;
+            });
         }
     }
 }

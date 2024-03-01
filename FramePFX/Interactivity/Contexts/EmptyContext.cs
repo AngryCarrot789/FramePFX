@@ -17,6 +17,9 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Collections.Generic;
+using System.Linq;
+
 namespace FramePFX.Interactivity.Contexts {
     /// <summary>
     /// An implementation of <see cref="IContextData"/> that is completely empty
@@ -30,6 +33,8 @@ namespace FramePFX.Interactivity.Contexts {
         public EmptyContext() {
         }
 
+        public IEnumerable<KeyValuePair<string, object>> Entries => Enumerable.Empty<KeyValuePair<string, object>>();
+
         public bool TryGetContext(string key, out object value) {
             value = default;
             return false;
@@ -37,5 +42,7 @@ namespace FramePFX.Interactivity.Contexts {
 
         public bool ContainsKey(DataKey key) => false;
         public bool ContainsKey(string key) => false;
+
+        public IContextData Clone() => new EmptyContext();
     }
 }

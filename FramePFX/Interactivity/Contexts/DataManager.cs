@@ -40,25 +40,35 @@ namespace FramePFX.Interactivity.Contexts {
         // private static int suspendInvalidationCount;
 
         /// <summary>
-        /// The context data property, used to store contextual information relative to a specific dependency object
+        /// The context data property, used to store contextual information relative to a specific dependency object.
+        /// <para>
+        /// The underlying context data object must not be modified (as in, it must stay immutable), because inherited
+        /// context does not reflect the changes made. Invoke <see cref="SetContextData"/> to publish inheritable changes,
+        /// or just call <see cref="InvalidateInheritedContext"/> when it is mutated
+        /// </para>
         /// </summary>
         public static readonly DependencyProperty ContextDataProperty =
             DependencyProperty.RegisterAttached(
                 "ContextData",
-                typeof(ContextData),
+                typeof(IContextData),
                 typeof(DataManager),
                 new PropertyMetadata(OnDataContextChanged));
 
         private static readonly DependencyPropertyKey InheritedContextDataPropertyKey =
             DependencyProperty.RegisterAttachedReadOnly(
                 "InheritedContextData",
-                typeof(ContextData),
+                typeof(IContextData),
                 typeof(DataManager),
                 new PropertyMetadata());
 
         /// <summary>
         /// The inherited context data property, which is used to store the actual inherited context data.
-        /// This is a read-only property; the inherited context data storage object cannot be set directly
+        /// This is a read-only property; the inherited context data storage object cannot be set directly,
+        /// because it is managed by the <see cref="DataManager"/> automatically.
+        /// <para>
+        /// As the docs for <see cref="ContextDataProperty"/> also mention, while the actual object may be
+        /// an instance of <see cref="ContextData"/>, it should not be modified directly
+        /// </para>
         /// </summary>
         public static readonly DependencyProperty InheritedContextDataProperty = InheritedContextDataPropertyKey.DependencyProperty;
 
@@ -119,23 +129,40 @@ namespace FramePFX.Interactivity.Contexts {
         /// <summary>
         /// Sets or replaces the context data for the specific dependency object
         /// </summary>
-        public static void SetContextData(DependencyObject element, ContextData value) {
+        public static void SetContextData(DependencyObject element, IContextData value) {
             element.SetValue(ContextDataProperty, value);
+        }
+
+        /// <summary>
+        /// Sets or merges (with the current context data) the context data for the specific dependency object
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="value"></param>
+        public static void MergeContextData(DependencyObject element, IContextData value) {
+            if (element.GetValue(ContextDataProperty) is ContextData currData) {
+                element.SetValue(ContextDataProperty, ContextData.Merge(currData, value as ContextData ?? new ContextData(value)));
+            }
+            else {
+                SetContextData(element, value);
+            }
         }
 
         /// <summary>
         /// Gets the context data for the specific dependency object
         /// </summary>
-        public static ContextData GetContextData(DependencyObject element) {
-            return (ContextData) element.GetValue(ContextDataProperty);
+        public static IContextData GetContextData(DependencyObject element) {
+            return (IContextData) element.GetValue(ContextDataProperty);
         }
 
         /// <summary>
         /// Gets the full inherited data context, which is the merged results of the entire visual tree
-        /// starting from the root to the given component. Although the returned value may be an instance
-        /// of <see cref="ContextData"/>, it should NEVER be modified directly
+        /// starting from the root to the given component.
         /// <para>
         /// See <see cref="EvaluateContextDataRaw"/> for more info on how this works
+        /// </para>
+        /// <para>
+        /// Although the returned value may be an instance of <see cref="ContextData"/>, it should NEVER be
+        /// modified directly (see docs for <see cref="ContextDataProperty"/> or <see cref="InheritedContextDataProperty"/>)
         /// </para>
         /// </summary>
         /// <param name="component">The target object</param>
@@ -198,12 +225,10 @@ namespace FramePFX.Interactivity.Contexts {
         private static void OnDataContextChanged(DependencyObject element, DependencyPropertyChangedEventArgs e) {
             if (e.NewValue != null) {
                 if (e.OldValue == null && element is Visual visual) {
-                    // VisualAncestorChangedEventInfo.AddMethod.Invoke(element, BindingFlagsInstPrivDeclared, null, AncestorChangedHandlerDelegateArrayForInvoke, CultureInfo.CurrentCulture);
                     AddVisualAncestorChangedHandler(visual);
                 }
             }
             else if (e.OldValue != null && element is Visual visual) {
-                // VisualAncestorChangedEventInfo.RemoveMethod.Invoke(element, BindingFlagsInstPrivDeclared, null, AncestorChangedHandlerDelegate, CultureInfo.CurrentCulture);
                 RemoveVisualAncestorChangedHandler(visual);
             }
 

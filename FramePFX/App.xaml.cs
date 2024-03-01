@@ -172,11 +172,12 @@ namespace FramePFX {
         private void App_OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e) {
             Project project = ApplicationCore.Instance.VideoEditor?.Project;
             if (ApplicationCore.Instance.Services.TryGetService(out IMessageDialogService service)) {
-                service.ShowMessage("Error", "An unhandled error occurred in the application. It will now shutdown");
+                service.ShowMessage("Error", "An unhandled error occurred in the application. It will now shutdown", e.Exception?.GetToString());
                 if (project != null)
                     Project.SaveProjectAs(project, null);
             }
             else {
+                MessageBox.Show("An unhandled error occurred in the application. It will now shutdown\n\n" + e.Exception?.GetToString(), "Error");
                 if (project != null)
                     Project.SaveProjectAs(project, null);
             }

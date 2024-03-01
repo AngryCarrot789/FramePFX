@@ -19,11 +19,10 @@
 
 using System;
 using System.Collections.Generic;
+using FramePFX.Editors.DataTransfer;
 using FramePFX.Editors.ResourceManaging.Autoloading;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.Editors.ResourceManaging.ResourceHelpers;
-using FramePFX.Editors.Timelines.Clips;
-using FramePFX.Utils;
 
 namespace FramePFX.Editors.ResourceManaging {
     /// <summary>
@@ -38,7 +37,7 @@ namespace FramePFX.Editors.ResourceManaging {
     /// a <see cref="ResourceLoader"/> which is used to present a collection of errors to the user
     /// </para>
     /// </summary>
-    public abstract class ResourceItem : BaseResource {
+    public abstract class ResourceItem : BaseResource, ITransferableData {
         public const ulong EmptyId = ResourceManager.EmptyId;
         protected bool doNotProcessUniqueIdForSerialisation;
         private readonly List<IResourceHolder> references;
@@ -74,6 +73,8 @@ namespace FramePFX.Editors.ResourceManaging {
         /// </summary>
         public virtual int ResourceLinkLimit => -1;
 
+        public TransferableData TransferableData { get; }
+
         /// <summary>
         /// An event fired when our <see cref="IsOnline"/> property changes. <see cref="IsOfflineByUser"/> may have changed too
         /// </summary>
@@ -81,6 +82,7 @@ namespace FramePFX.Editors.ResourceManaging {
 
         protected ResourceItem() {
             this.references = new List<IResourceHolder>();
+            this.TransferableData = new TransferableData(this);
         }
 
         public bool HasReachedResourecLimit() {

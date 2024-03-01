@@ -30,8 +30,8 @@ namespace FramePFX.Editors.Exporting.Controls {
         private readonly FrameSpan renderSpan;
         private long currentRenderFrame;
         private long currentEncodeFrame;
-        private readonly DispatcherMultiFireActionGuard rapidUpdateRender;
-        private readonly DispatcherMultiFireActionGuard rapidUpdateEncode;
+        private readonly RapidDispatchActionEx rapidUpdateRender;
+        private readonly RapidDispatchActionEx rapidUpdateEncode;
 
         public long BeginFrame => this.renderSpan.Begin;
 
@@ -54,9 +54,8 @@ namespace FramePFX.Editors.Exporting.Controls {
             this.currentRenderFrame = renderSpan.Begin;
             this.currentEncodeFrame = renderSpan.Begin;
             this.PART_FrameProgressText.Text = "0/" + (this.EndFrame - 1);
-            this.rapidUpdateRender = new DispatcherMultiFireActionGuard(this.UpdateRenderedFrame, "ExportUpdateRender");
-
-            this.rapidUpdateEncode = new DispatcherMultiFireActionGuard(() => {
+            this.rapidUpdateRender = new RapidDispatchActionEx(this.UpdateRenderedFrame, "ExportUpdateRender");
+            this.rapidUpdateEncode = new RapidDispatchActionEx(() => {
                 this.PART_EncodeProgressBar.Value = this.EncodeProgressPercentage;
             }, "ExportUpdateEncode");
         }

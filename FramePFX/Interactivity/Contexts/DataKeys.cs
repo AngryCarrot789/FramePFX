@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Windows;
 using FramePFX.Editors;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.Timelines;
@@ -26,6 +27,7 @@ using FramePFX.Editors.Timelines.Tracks;
 
 namespace FramePFX.Interactivity.Contexts {
     public static class DataKeys {
+        public static readonly DataKey<Window> HostWindowKey = DataKey<Window>.Create("HostWindow");
         public static readonly DataKey<VideoEditor> VideoEditorKey = DataKey<VideoEditor>.Create("VideoEditor");
         public static readonly DataKey<Project> ProjectKey = DataKey<Project>.Create("Project");
         public static readonly DataKey<Timeline> TimelineKey = DataKey<Timeline>.Create("Timeline");

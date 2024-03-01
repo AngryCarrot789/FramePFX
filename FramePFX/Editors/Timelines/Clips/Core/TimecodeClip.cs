@@ -30,8 +30,24 @@ using SkiaSharp;
 
 namespace FramePFX.Editors.Timelines.Clips.Core {
     public class TimecodeClip : VideoClip {
-        public static readonly ParameterDouble FontSizeParameter = Parameter.RegisterDouble(typeof(TimecodeClip), nameof(TimecodeClip), nameof(FontSize), 40, ValueAccessors.LinqExpression<double>(typeof(TimecodeClip), nameof(FontSize)), ParameterFlags.StandardProjectVisual);
-        public static readonly DataParameterBoolean UseClipStartTimeParameter = DataParameter.Register(new DataParameterBoolean(typeof(TimecodeClip), nameof(UseClipStartTime), true, ValueAccessors.Reflective<bool>(typeof(TimecodeClip), nameof(UseClipStartTime)), DataParameterFlags.StandardProjectVisual));
+        public static readonly ParameterDouble FontSizeParameter =
+            Parameter.RegisterDouble(
+                typeof(TimecodeClip),
+                nameof(TimecodeClip),
+                nameof(FontSize),
+                40,
+                ValueAccessors.LinqExpression<double>(typeof(TimecodeClip), nameof(FontSize)),
+                ParameterFlags.StandardProjectVisual);
+
+        public static readonly DataParameterBoolean UseClipStartTimeParameter =
+            DataParameter.Register(
+                new DataParameterBoolean(
+                    typeof(TimecodeClip),
+                    nameof(UseClipStartTime),
+                    true,
+                    ValueAccessors.Reflective<bool>(typeof(TimecodeClip), nameof(UseClipStartTime)),
+                    DataParameterFlags.StandardProjectVisual));
+
         public static readonly DataParameterBoolean UseClipEndTimeParameter = DataParameter.Register(new DataParameterBoolean(typeof(TimecodeClip), nameof(UseClipEndTime), true, ValueAccessors.Reflective<bool>(typeof(TimecodeClip), nameof(UseClipEndTime)), DataParameterFlags.StandardProjectVisual));
         public static readonly DataParameterDouble StartTimeParameter = DataParameter.Register(new DataParameterDouble(typeof(TimecodeClip), nameof(StartTime), 0.0, ValueAccessors.Reflective<double>(typeof(TimecodeClip), nameof(StartTime)), DataParameterFlags.StandardProjectVisual));
         public static readonly DataParameterDouble EndTimeParameter = DataParameter.Register(new DataParameterDouble(typeof(TimecodeClip), nameof(EndTime), 0.0, ValueAccessors.Reflective<double>(typeof(TimecodeClip), nameof(EndTime)), DataParameterFlags.StandardProjectVisual));
@@ -112,7 +128,7 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
                     data.SetString("FontFamily", clip.fontFamily);
             });
 
-            FontSizeParameter.ParameterValueChanged += sequence => {
+            FontSizeParameter.ValueChanged += sequence => {
                 TimecodeClip owner = (TimecodeClip) sequence.AutomationData.Owner;
                 owner.fontData.Dispose();
                 owner.InvalidateRender();

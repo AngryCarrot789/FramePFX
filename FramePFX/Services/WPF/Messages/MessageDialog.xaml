@@ -7,6 +7,7 @@
             xmlns:local="clr-namespace:FramePFX.Services.WPF.Messages"
             xmlns:c="clr-namespace:FramePFX.Editors.Controls"
             xmlns:ap="clr-namespace:FramePFX.Themes.Attached"
+            xmlns:ap2="clr-namespace:FramePFX.AttachedProperties"
             mc:Ignorable="d"
             Title="MessageDialog" MinHeight="140" Height="175" Width="400"
             Background="{DynamicResource PanelBackground2}"
@@ -16,7 +17,9 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="42"/>
         </Grid.RowDefinitions>
-        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" x:Name="PART_ScrollViewer">
+        <ScrollViewer x:Name="PART_ScrollViewer"
+                      VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                      ap2:HorizontalScrolling.UseHorizontalScrolling="True">
             <StackPanel Margin="10">
                 <TextBlock x:Name="PART_HeaderTextBlock" VerticalAlignment="Top" Padding="0,0,0,5"
                            FontWeight="Bold" FontSize="20" Foreground="{DynamicResource ABrush.ColourfulGlyph.Static}"/>

@@ -339,9 +339,7 @@ namespace FramePFX.Editors.Rendering {
                         editor.Playback.Pause();
                     }
 
-                    string msg = e.GetToString();
-                    IoC.MessageService.ShowMessage("Render exception", "An exception occurred while rendering", msg);
-                    Debug.WriteLine(msg);
+                    Debug.WriteLine(e.GetToString());
                 }
                 finally {
                     this.isRenderScheduled = 0;

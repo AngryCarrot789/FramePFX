@@ -19,6 +19,7 @@
 
 using System;
 using System.Windows;
+using System.Windows.Controls;
 using FramePFX.Utils;
 using FramePFX.Views;
 using System.Windows.Input;
@@ -100,6 +101,7 @@ namespace FramePFX.Services.WPF.Messages {
                 }
 
                 this.FocusDefaultButton();
+                this.PART_ScrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
             };
         }
 

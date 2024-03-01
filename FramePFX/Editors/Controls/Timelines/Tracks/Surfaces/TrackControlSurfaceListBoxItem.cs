@@ -48,7 +48,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
         /// </summary>
         public TrackControlSurfaceListBox TrackList { get; private set; }
 
-        private readonly GetSetAutoEventPropertyBinder<Track> isSelectedBinder = new GetSetAutoEventPropertyBinder<Track>(IsSelectedProperty, nameof(VideoTrack.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.SetIsSelected((bool) v, (bool) v));
+        private readonly IBinder<Track> isSelectedBinder = new GetSetAutoEventPropertyBinder<Track>(IsSelectedProperty, nameof(VideoTrack.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.SetIsSelected((bool) v, (bool) v));
         private bool wasFocusedBeforeMoving;
 
         public TrackControlSurfaceListBoxItem() {

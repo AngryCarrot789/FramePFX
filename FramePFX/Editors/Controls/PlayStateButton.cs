@@ -46,13 +46,13 @@ namespace FramePFX.Editors.Controls {
         }
 
         protected VideoEditor editor;
-        private readonly DispatcherMultiFireActionGuard delayedContextChangeUpdater;
+        private readonly RapidDispatchAction delayedContextChangeUpdater;
         private readonly AsyncRelayCommand command;
 
         public PlayStateButton() {
             DataManager.AddInheritedContextInvalidatedHandler(this, this.OnInheritedContextChanged);
             this.Loaded += this.OnLoaded;
-            this.delayedContextChangeUpdater = new DispatcherMultiFireActionGuard(this.UpdateForContext, DispatcherPriority.Loaded, "UpdateCanExecute");
+            this.delayedContextChangeUpdater = new RapidDispatchAction(this.UpdateForContext, DispatcherPriority.Loaded, "UpdateCanExecute");
             this.command = new AsyncRelayCommand(() => {
                 if (this.CommandId is string cmdId && !string.IsNullOrWhiteSpace(cmdId))
                     return CommandManager.Instance.TryExecute(cmdId, () => DataManager.GetFullContextData(this));

@@ -34,8 +34,8 @@ namespace FramePFX.AdvancedMenuService.ContextService.Controls {
 
         public ItemsControl ParentObject => (ItemsControl) this.ParentNode ?? this.Menu;
 
-        private readonly GetSetAutoEventPropertyBinder<BaseContextEntry> headerBinder = new GetSetAutoEventPropertyBinder<BaseContextEntry>(HeaderProperty, nameof(BaseContextEntry.HeaderChanged), b => b.Model.Header, (b, v) => b.Model.Header = v?.ToString());
-        private readonly GetSetAutoEventPropertyBinder<BaseContextEntry> toolTipBinder = new GetSetAutoEventPropertyBinder<BaseContextEntry>(ToolTipProperty, nameof(BaseContextEntry.DescriptionChanged), b => b.Model.Description, (b, v) => b.Model.Description = v?.ToString());
+        private readonly IBinder<BaseContextEntry> headerBinder = new GetSetAutoEventPropertyBinder<BaseContextEntry>(HeaderProperty, nameof(BaseContextEntry.HeaderChanged), b => b.Model.Header, (b, v) => b.Model.Header = v?.ToString());
+        private readonly IBinder<BaseContextEntry> toolTipBinder = new GetSetAutoEventPropertyBinder<BaseContextEntry>(ToolTipProperty, nameof(BaseContextEntry.DescriptionChanged), b => b.Model.Description, (b, v) => b.Model.Description = v?.ToString());
 
         public AdvancedContextMenuItem() {
         }

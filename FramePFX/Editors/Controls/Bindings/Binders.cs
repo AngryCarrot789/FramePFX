@@ -22,13 +22,13 @@ using FramePFX.Utils.Accessing;
 
 namespace FramePFX.Editors.Controls.Bindings {
     public static class Binders {
-        public static GetSetAutoEventPropertyBinder<TModel> AccessorAEDP<TModel, TValue>(DependencyProperty property, string eventName, string propertyOrFieldName) where TModel : class {
+        public static AccessorAutoEventPropertyBinder<TModel, TValue> AccessorAEDP<TModel, TValue>(DependencyProperty property, string eventName, string propertyOrFieldName) where TModel : class {
             // Uses cached accessor
             return AccessorAEDP<TModel, TValue>(property, eventName, ValueAccessors.LinqExpression<TValue>(typeof(TModel), propertyOrFieldName, true));
         }
 
-        public static GetSetAutoEventPropertyBinder<TModel> AccessorAEDP<TModel, TValue>(DependencyProperty property, string eventName, ValueAccessor<TValue> accessor) where TModel : class {
-            return new GetSetAutoEventPropertyBinder<TModel>(property, eventName, b => accessor.GetObjectValue(b.Model), (b, v) => accessor.SetObjectValue(b.Model, v));
+        public static AccessorAutoEventPropertyBinder<TModel, TValue> AccessorAEDP<TModel, TValue>(DependencyProperty property, string eventName, ValueAccessor<TValue> accessor) where TModel : class {
+            return new AccessorAutoEventPropertyBinder<TModel, TValue>(property, eventName, accessor);
         }
     }
 }

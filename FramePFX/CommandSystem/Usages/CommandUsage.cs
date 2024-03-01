@@ -34,7 +34,9 @@ namespace FramePFX.CommandSystem.Usages {
     /// </para>
     /// </summary>
     public abstract class CommandUsage {
-        private DispatcherMultiFireActionGuard delayedContextUpdate;
+        // Since its invoke method is only called from the main thread,
+        // there's no need for the extended version
+        private RapidDispatchAction delayedContextUpdate;
 
         public string CommandId { get; }
 
@@ -77,7 +79,7 @@ namespace FramePFX.CommandSystem.Usages {
         protected virtual void OnDisconnected() => this.OnContextChanged();
 
         protected virtual void OnContextChanged() {
-            DispatcherMultiFireActionGuard guard = this.delayedContextUpdate ?? (this.delayedContextUpdate = new DispatcherMultiFireActionGuard(this.UpdateCanExecute, DispatcherPriority.Loaded, "UpdateCanExecute"));
+            RapidDispatchAction guard = this.delayedContextUpdate ?? (this.delayedContextUpdate = new RapidDispatchAction(this.UpdateCanExecute, DispatcherPriority.Loaded, "UpdateCanExecute"));
             guard.InvokeAsync();
         }
 

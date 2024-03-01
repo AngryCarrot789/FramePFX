@@ -84,7 +84,7 @@ namespace FramePFX.Editors.Automation.Params {
         /// <summary>
         /// An event fired when this parameter's effective value changes for any <see cref="AutomationSequence"/> throughout the entire application
         /// </summary>
-        public event ParameterChangedEventHandler ParameterValueChanged;
+        public event ParameterChangedEventHandler ValueChanged;
 
         protected Parameter(Type ownerType, ParameterKey key, ParameterDescriptor descriptor, ParameterFlags flags) {
             if (descriptor == null)
@@ -110,7 +110,7 @@ namespace FramePFX.Editors.Automation.Params {
         /// <param name="parameters">The parameters to add an event handler for</param>
         public static void AddMultipleHandlers(ParameterChangedEventHandler handler, params Parameter[] parameters) {
             foreach (Parameter parameter in parameters) {
-                parameter.ParameterValueChanged += handler;
+                parameter.ValueChanged += handler;
             }
         }
 
@@ -297,7 +297,7 @@ namespace FramePFX.Editors.Automation.Params {
         }
 
         /// <summary>
-        /// Invokes the <see cref="ParameterValueChanged"/> event for the given sequence. This is only fired
+        /// Invokes the <see cref="ValueChanged"/> event for the given sequence. This is only fired
         /// when the underlying effective value actually changes for the sequence's owner
         /// </summary>
         /// <param name="parameter"></param>
@@ -306,7 +306,7 @@ namespace FramePFX.Editors.Automation.Params {
         internal static void InternalOnParameterValueChanged(Parameter parameter, AutomationSequence sequence) {
             if (sequence.Parameter.GlobalIndex != parameter.GlobalIndex)
                 throw new ArgumentException("Sequence's parameter does not match the current instance");
-            parameter.ParameterValueChanged?.Invoke(sequence);
+            parameter.ValueChanged?.Invoke(sequence);
         }
     }
 

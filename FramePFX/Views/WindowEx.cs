@@ -26,6 +26,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Shell;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 
 namespace FramePFX.Views {
@@ -77,6 +78,7 @@ namespace FramePFX.Views {
 
             this.ContentRendered += this.SingleContentRenderHandler;
             this.Loaded += this.SingleLoadedHandler;
+            DataManager.MergeContextData(this, new ContextData().Set(DataKeys.HostWindowKey, this));
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {

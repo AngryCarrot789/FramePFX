@@ -66,8 +66,8 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
 
         public ResourceExplorerListControl ResourceExplorerList { get; private set; }
 
-        private readonly GetSetAutoEventPropertyBinder<BaseResource> displayNameBinder = new GetSetAutoEventPropertyBinder<BaseResource>(DisplayNameProperty, nameof(BaseResource.DisplayNameChanged), b => b.Model.DisplayName, (b, v) => b.Model.DisplayName = (string) v);
-        private readonly GetSetAutoEventPropertyBinder<BaseResource> isSelectedBinder = new GetSetAutoEventPropertyBinder<BaseResource>(IsSelectedProperty, nameof(BaseResource.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.IsSelected = (bool) v);
+        private readonly IBinder<BaseResource> displayNameBinder = new GetSetAutoEventPropertyBinder<BaseResource>(DisplayNameProperty, nameof(BaseResource.DisplayNameChanged), b => b.Model.DisplayName, (b, v) => b.Model.DisplayName = (string) v);
+        private readonly IBinder<BaseResource> isSelectedBinder = new GetSetAutoEventPropertyBinder<BaseResource>(IsSelectedProperty, nameof(BaseResource.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.IsSelected = (bool) v);
 
         private Point originMousePoint;
         private bool isDragActive;

@@ -79,6 +79,17 @@ namespace FramePFX.Editors.DataTransfer {
             this.Flags = flags;
         }
 
+        /// <summary>
+        /// A convenience function that adds the given event handler to all of the given parameters
+        /// </summary>
+        /// <param name="handler">The handler to add</param>
+        /// <param name="parameters">The parameters to add an event handler for</param>
+        public static void AddMultipleHandlers(DataParameterValueChangedEventHandler handler, params DataParameter[] parameters) {
+            foreach (DataParameter parameter in parameters) {
+                parameter.ValueChanged += handler;
+            }
+        }
+
         #region Registering parameters
 
         /// <summary>
@@ -256,6 +267,16 @@ namespace FramePFX.Editors.DataTransfer {
             parameter.ValueChanged?.Invoke(parameter, owner);
         }
 
+        /// <summary>
+        /// A helper method that either calls <see cref="DataParameter{T}.SetValue"/> if the value is not currently
+        /// changing, or sets the given ref to the given value if the value is changing. This is to prevent the value
+        /// being set while it is already being set, which would result in a <see cref="StackOverflowException"/>
+        /// </summary>
+        /// <param name="owner">The owner of the data</param>
+        /// <param name="parameter">The parameter to update the value of</param>
+        /// <param name="field">A ref to the backing value field</param>
+        /// <param name="newValue">The new value to set the property or field to</param>
+        /// <typeparam name="T">The type of value</typeparam>
         public static void SetValueHelper<T>(ITransferableData owner, DataParameter<T> parameter, ref T field, T newValue) {
             if (parameter.IsValueChanging(owner)) {
                 field = newValue;

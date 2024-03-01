@@ -336,9 +336,7 @@ namespace FramePFX.Editors {
                     videoEditor.Playback.Pause();
                 }
 
-                string msg = e.GetToString();
-                IoC.MessageService.ShowMessage("Render exception", "An exception occurred while rendering", msg);
-                Debug.WriteLine(msg);
+                Debug.WriteLine(e.GetToString());
             }
 
             renderManager.OnFrameCompleted();

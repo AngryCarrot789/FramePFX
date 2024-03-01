@@ -22,46 +22,43 @@ using System.Threading;
 using System.Windows.Threading;
 
 namespace FramePFX.Utils {
-    public abstract class DispatcherMultiFireActionGuardBase {
+    /// <summary>
+    /// A class that is used to dispatch work onto the application dispatcher asynchronously, ensuring that the same action
+    /// cannot be enqueued more than once before it has completed. This class is thread safe, however, calling invoke from
+    /// other threads is not recommended, since this class does not track when invoke is called during the actual execute callback
+    /// <para>
+    /// This is a simpler version of <see cref="RapidDispatchActionEx"/>. While that version is designed
+    /// for multiple threads calling to invoke, this version is not, and using this class for multiple
+    /// threads may not yield the best results
+    /// </para>
+    /// </summary>
+    public class RapidDispatchAction {
+        protected const int STATE_INACTIVE = 0;
+        protected const int STATE_SCHEDULED = 1;
+
         protected readonly string debugId; // allows debugger breakpoint to match this
+        private readonly Action executeAction;
         private volatile int state;
 
         public string DebugId => this.debugId;
 
         public DispatcherPriority Priority { get; }
 
-        protected DispatcherMultiFireActionGuardBase(DispatcherPriority priority = DispatcherPriority.Send, string debugId = null) {
+        public RapidDispatchAction(Action action, DispatcherPriority priority = DispatcherPriority.Send, string debugId = null) {
             this.debugId = debugId;
             this.Priority = priority;
-        }
-
-        protected DispatcherMultiFireActionGuardBase(string debugId) : this(DispatcherPriority.Send, debugId) {
-        }
-
-        protected bool BeginInvoke() {
-            return Interlocked.CompareExchange(ref this.state, 1, 0) == 0;
-        }
-
-        protected void EndInvoke() {
-            this.state = 0;
-        }
-    }
-
-    /// <summary>
-    /// A class that is used to dispatch work onto the application dispatcher asynchronously,
-    /// ensuring that the same action cannot be enqueued more than once before it has completed
-    /// </summary>
-    public class DispatcherMultiFireActionGuard : DispatcherMultiFireActionGuardBase {
-        private readonly Action executeAction;
-
-        public DispatcherMultiFireActionGuard(Action action, DispatcherPriority priority = DispatcherPriority.Send, string debugId = null) : base(priority, debugId) {
             this.executeAction = () => {
-                action();
-                this.EndInvoke();
+                try {
+                    action();
+                }
+                finally {
+                    this.state = STATE_INACTIVE;
+                }
             };
         }
 
-        public DispatcherMultiFireActionGuard(Action action, string debugId) : this(action, DispatcherPriority.Send, debugId) {
+        public RapidDispatchAction(Action action, string debugId) : this(action, DispatcherPriority.Send, debugId) {
+
         }
 
         /// <summary>
@@ -76,7 +73,7 @@ namespace FramePFX.Utils {
         /// <param name="cancellationToken">A token used to signal the execution to be cancelled</param>
         /// <returns>True if the action was scheduled, otherwise false meaning it is already scheduled</returns>
         public bool InvokeAsync(CancellationToken cancellationToken) {
-            if (!this.BeginInvoke())
+            if (Interlocked.CompareExchange(ref this.state, STATE_SCHEDULED, STATE_INACTIVE) != STATE_INACTIVE)
                 return false;
             IoC.Dispatcher.InvokeAsync(this.executeAction, this.Priority, cancellationToken);
             return true;

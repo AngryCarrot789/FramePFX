@@ -146,6 +146,9 @@ Sometimes, the SkiaSharp nuget library doesn't copy the skia library files to th
 - Or, delete the `packages` folder in the solution dir, then right click the solution in visual studio and click "Clean Solution", then click Restore Nuget Packages, then rebuild all.
 If none of these work, try uninstalling SkiaSharp in the nuget manager and then reinstalling. If that still does not work, then I really don't know what's going on... 
 
+## Contributing
+Feel free to contribute whatever you want if you think it'll make the editor better!
+
 # Licence
 All source files in FramePFX are under the GNU General Public License version 3.0 or later (GPL v3.0+).
 FramePFX uses libraries that have other licences, such as MIT/LGPL licences.

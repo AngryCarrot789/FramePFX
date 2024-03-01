@@ -17,6 +17,9 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using FramePFX.Editors.DataTransfer;
+using FramePFX.Editors.ResourceManaging.Events;
+using FramePFX.Utils.Accessing;
 using SkiaSharp;
 
 namespace FramePFX.Editors.ResourceManaging.Resources {
@@ -24,113 +27,136 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
     /// A resource for storing styling information for a text clip
     /// </summary>
     public class ResourceTextStyle : ResourceItem {
-        private double fontSize;
-        private double skewX;
-        private string fontFamily;
+        // private double fontSize;
+        // private double skewX;
+        // private string fontFamily;
+        // private SKColor foreground;
+        // private SKColor border;
+        // private double borderThickness;
+        // private bool isAntiAliased;
+
+        // TODO: allow special automatable parameters in resources,
+
+        public static readonly DataParameterDouble FontSizeParameter =
+            DataParameter.Register(new DataParameterDouble(
+                typeof(ResourceTextStyle),
+                nameof(FontSize), 40.0,
+                ValueAccessors.Reflective<double>(typeof(ResourceTextStyle), nameof(fontSize)),
+                DataParameterFlags.StandardProjectVisual));
+
+        public static readonly DataParameterString FontFamilyParameter =
+            DataParameter.Register(
+                new DataParameterString(
+                    typeof(ResourceTextStyle),
+                    nameof(FontFamily), "Consolas",
+                    ValueAccessors.Reflective<string>(typeof(ResourceTextStyle), nameof(fontFamily)),
+                    DataParameterFlags.StandardProjectVisual));
+
+        public static readonly DataParameterDouble BorderThicknessParameter =
+            DataParameter.Register(new DataParameterDouble(
+                typeof(ResourceTextStyle),
+                nameof(BorderThickness), 1.0D,
+                ValueAccessors.Reflective<double>(typeof(ResourceTextStyle), nameof(borderThickness)),
+                DataParameterFlags.StandardProjectVisual));
+
+        public static readonly DataParameterFloat SkewXParameter =
+            DataParameter.Register(new DataParameterFloat(
+                typeof(ResourceTextStyle),
+                nameof(SkewX), 0.0F,
+                ValueAccessors.Reflective<float>(typeof(ResourceTextStyle), nameof(skewX)),
+                DataParameterFlags.StandardProjectVisual));
+
+        public static readonly DataParameterBoolean IsAntiAliasedParameter =
+            DataParameter.Register(
+                new DataParameterBoolean(
+                    typeof(ResourceTextStyle),
+                    nameof(IsAntiAliased), true,
+                    ValueAccessors.Reflective<bool>(typeof(ResourceTextStyle), nameof(isAntiAliased)),
+                    DataParameterFlags.StandardProjectVisual));
+
+        private double fontSize = FontSizeParameter.DefaultValue;
+        private string fontFamily = FontFamilyParameter.DefaultValue;
+        private double borderThickness = BorderThicknessParameter.DefaultValue;
+        private float skewX = SkewXParameter.DefaultValue;
+        private bool isAntiAliased = IsAntiAliasedParameter.DefaultValue;
+
+        // TODO: colours for automation and implement UI for colour data params
         private SKColor foreground;
         private SKColor border;
-        private double borderThickness;
-        private bool isAntiAliased;
 
         public double FontSize {
             get => this.fontSize;
-            set {
-                this.fontSize = value;
-                this.InvalidateFontData();
-            }
-        }
-
-        public double SkewX {
-            get => this.skewX;
-            set {
-                this.skewX = value;
-                this.InvalidateFontData();
-            }
+            set => DataParameter.SetValueHelper(this, FontSizeParameter, ref this.fontSize, value);
         }
 
         public string FontFamily {
             get => this.fontFamily;
-            set {
-                this.fontFamily = value;
-                this.InvalidateFontData();
-            }
-        }
-
-        public SKColor Foreground {
-            get => this.foreground;
-            set {
-                this.foreground = value;
-                this.InvalidateFontData();
-            }
-        }
-
-        public SKColor Border {
-            get => this.border;
-            set {
-                this.border = value;
-                this.InvalidateFontData();
-            }
+            set => DataParameter.SetValueHelper(this, FontFamilyParameter, ref this.fontFamily, value);
         }
 
         public double BorderThickness {
             get => this.borderThickness;
-            set {
-                this.borderThickness = value;
-                this.InvalidateFontData();
-            }
+            set => DataParameter.SetValueHelper(this, BorderThicknessParameter, ref this.borderThickness, value);
+        }
+
+        public float SkewX {
+            get => this.skewX;
+            set => DataParameter.SetValueHelper(this, SkewXParameter, ref this.skewX, value);
         }
 
         public bool IsAntiAliased {
             get => this.isAntiAliased;
-            set {
-                this.isAntiAliased = value;
-                this.InvalidateFontData();
-            }
+            set => DataParameter.SetValueHelper(this, IsAntiAliasedParameter, ref this.isAntiAliased, value);
         }
 
         public SKPaint GeneratedPaint { get; private set; }
 
         public SKFont GeneratedFont { get; private set; }
 
+        public event ResourceEventHandler RenderDataInvalidated;
+
         public ResourceTextStyle() {
-            this.fontSize = 40;
-            this.fontFamily = "Consolas";
             this.foreground = SKColors.White;
             this.border = SKColors.DarkGray;
-            this.borderThickness = 5d;
-            this.isAntiAliased = true;
         }
 
         static ResourceTextStyle() {
             SerialisationRegistry.Register<ResourceTextStyle>(0, (resource, data, ctx) => {
                 ctx.DeserialiseBaseType(data);
-                resource.fontSize = data.GetDouble(nameof(resource.FontSize));
-                resource.skewX = data.GetDouble(nameof(resource.SkewX));
-                resource.fontFamily = data.GetString(nameof(resource.FontFamily), null);
-                resource.foreground = data.GetUInt(nameof(resource.Foreground));
-                resource.border = data.GetUInt(nameof(resource.Border));
-                resource.borderThickness = data.GetDouble(nameof(resource.BorderThickness));
-                resource.isAntiAliased = data.GetBool(nameof(resource.IsAntiAliased));
+                resource.fontSize = data.GetDouble(nameof(FontSize));
+                resource.fontFamily = data.GetString(nameof(FontFamily), null);
+                resource.borderThickness = data.GetDouble(nameof(BorderThickness));
+                resource.skewX = data.GetFloat(nameof(SkewX));
+                resource.isAntiAliased = data.GetBool(nameof(IsAntiAliased));
+                resource.foreground = data.GetUInt("Foreground");
+                resource.border = data.GetUInt("Border");
             }, (resource, data, ctx) => {
                 ctx.SerialiseBaseType(data);
-                data.SetDouble(nameof(resource.FontSize), resource.fontSize);
-                data.SetDouble(nameof(resource.SkewX), resource.skewX);
-                data.SetString(nameof(resource.FontFamily), resource.fontFamily);
-                data.SetUInt(nameof(resource.Foreground), (uint) resource.foreground);
-                data.SetUInt(nameof(resource.Border), (uint) resource.border);
-                data.SetDouble(nameof(resource.BorderThickness), resource.borderThickness);
-                data.SetBool(nameof(resource.IsAntiAliased), resource.isAntiAliased);
+                data.SetDouble(nameof(FontSize), resource.fontSize);
+                data.SetString(nameof(FontFamily), resource.fontFamily);
+                data.SetDouble(nameof(BorderThickness), resource.borderThickness);
+                data.SetFloat(nameof(SkewX), resource.skewX);
+                data.SetBool(nameof(IsAntiAliased), resource.isAntiAliased);
+                data.SetUInt(nameof(resource.foreground), (uint) resource.foreground);
+                data.SetUInt(nameof(resource.border), (uint) resource.border);
             });
+
+            DataParameter.AddMultipleHandlers((parameter, owner) => ((ResourceTextStyle) owner).InvalidateFontData(), FontSizeParameter, FontFamilyParameter, BorderThicknessParameter, SkewXParameter, IsAntiAliasedParameter);
         }
 
         /// <summary>
         /// Invalidates the cached font and paint information. This is called automatically when any of our properties change
         /// </summary>
         public void InvalidateFontData() {
+            if (this.GeneratedFont == null && this.GeneratedPaint == null) {
+                return;
+            }
+
             this.GeneratedFont?.Dispose();
             this.GeneratedFont = null;
             this.GeneratedPaint?.Dispose();
             this.GeneratedPaint = null;
+            this.RenderDataInvalidated?.Invoke(this);
         }
 
         /// <summary>
@@ -140,14 +166,14 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             if (this.GeneratedFont == null) {
                 SKTypeface typeface = SKTypeface.FromFamilyName(string.IsNullOrEmpty(this.FontFamily) ? "Consolas" : this.FontFamily);
                 if (typeface != null) {
-                    this.GeneratedFont = new SKFont(typeface, (float) this.FontSize, 1f, (float) this.SkewX);
+                    this.GeneratedFont = new SKFont(typeface, (float) this.FontSize, 1f, this.SkewX);
                 }
             }
 
             if (this.GeneratedPaint == null && this.GeneratedFont != null) {
                 this.GeneratedPaint = new SKPaint(this.GeneratedFont) {
                     StrokeWidth = (float) this.BorderThickness,
-                    Color = this.Foreground,
+                    Color = this.foreground,
                     TextAlign = SKTextAlign.Left,
                     IsAntialias = this.IsAntiAliased
                 };

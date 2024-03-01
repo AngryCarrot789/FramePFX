@@ -51,6 +51,12 @@ namespace FramePFX.Utils {
         public RateLimitedExecutor(Func<Task> execute, TimeSpan minimumInterval) {
             this.Execute = execute;
             this.MinimumInterval = minimumInterval;
+
+            Progress<string> cum = new Progress<string>((s) => {
+
+            });
+
+            // cum.Report("sexxx");
         }
 
         /// <summary>

@@ -18,6 +18,7 @@
 //
 
 using System;
+using System.ComponentModel;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -55,7 +56,7 @@ namespace FramePFX.Editors.Views {
 
         public EditorWindow() {
             this.renderTimeAverager = new NumberAverager(5); // average 5 samples. Will take a second to catch up at 5 fps but meh
-            this.contextData = new ContextData();
+            DataManager.SetContextData(this, this.contextData = new ContextData().Set(DataKeys.HostWindowKey, this).Clone());
             this.InitializeComponent();
             this.Loaded += this.EditorWindow_Loaded;
 

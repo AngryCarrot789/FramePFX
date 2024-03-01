@@ -17,8 +17,10 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using FFmpeg.AutoGen;
 using FramePFX.Utils;
 
 namespace FramePFX.Interactivity.Contexts {
@@ -33,6 +35,8 @@ namespace FramePFX.Interactivity.Contexts {
         /// </summary>
         public int Count => this.map?.Count ?? 0;
 
+        public IEnumerable<KeyValuePair<string, object>> Entries => this.map ?? Enumerable.Empty<KeyValuePair<string, object>>();
+
         /// <summary>
         /// Creates a new empty instance
         /// </summary>
@@ -44,8 +48,30 @@ namespace FramePFX.Interactivity.Contexts {
         /// </summary>
         /// <param name="ctx">The context to copy, if non-null</param>
         public ContextData(ContextData ctx) {
-            if (ctx.map != null)
+            if (ctx.map != null && ctx.map.Count > 0)
                 this.map = new Dictionary<string, object>(ctx.map);
+        }
+
+        /// <summary>
+        /// Copy constructor, effectively the same as <see cref="Clone"/>
+        /// </summary>
+        /// <param name="ctx">The context to copy, if non-null</param>
+        public ContextData(IContextData context) {
+            if (context is ContextData ctx) {
+                if (ctx.map != null && ctx.map.Count > 0)
+                    this.map = new Dictionary<string, object>(ctx.map);
+            }
+            else if (!(context is EmptyContext)) {
+                using (IEnumerator<KeyValuePair<string, object>> enumerator = context.Entries.GetEnumerator()) {
+                    if (!enumerator.MoveNext())
+                        return;
+                    this.map = new Dictionary<string, object>();
+                    do {
+                        KeyValuePair<string, object> entry = enumerator.Current;
+                        this.map[entry.Key] = entry.Value;
+                    } while (enumerator.MoveNext());
+                }
+            }
         }
 
         public ContextData Set<T>(DataKey<T> key, T value) => this.SetRaw(key.Id, value);
@@ -77,6 +103,8 @@ namespace FramePFX.Interactivity.Contexts {
         public bool ContainsKey(string key) {
             return this.map != null && this.map.ContainsKey(key);
         }
+
+        IContextData IContextData.Clone() => this.Clone();
 
         /// <summary>
         /// Creates a new instance of <see cref="ContextData"/> containing all entries from this instance
@@ -112,6 +140,14 @@ namespace FramePFX.Interactivity.Contexts {
             return "ContextData[" + details + "]";
         }
 
+        /// <summary>
+        /// Creates a new context data instance containing the values of dataA, and then merges that with dataB,
+        /// ensuring any existing entries in dataA and replaced by the entries in dataB. Always returns a unique
+        /// instance and does not modify dataA or dataB
+        /// </summary>
+        /// <param name="dataA">Source</param>
+        /// <param name="dataB">Merge</param>
+        /// <returns>A new context data containing entries from dataA and dataB</returns>
         public static ContextData Merge(ContextData dataA, ContextData dataB) {
             ContextData data = new ContextData(dataA);
             data.Merge(dataB);

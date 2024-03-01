@@ -28,8 +28,12 @@ typedef struct
 ** It may called at interrupt level on some machines so don't do anything
 ** that could mess up the system like calling malloc() or free().
 */
-static int AudioEngineCallback(const void* inputBuffer, void* outputBuffer, unsigned long framesPerBuffer, const PaStreamCallbackTimeInfo* timeInfo, PaStreamCallbackFlags statusFlags, void* userData)
-{
+static int AudioEngineCallback(const void* inputBuffer, 
+                               void* outputBuffer,
+                               unsigned long framesPerBuffer,
+                               const PaStreamCallbackTimeInfo* timeInfo,
+                               PaStreamCallbackFlags statusFlags,
+                               void* userData) {
     AudioEngineClientData* data = (AudioEngineClientData*)userData;
     if (data->lpManagedAudioEngineCallBack) {
         return data->lpManagedAudioEngineCallBack(outputBuffer, framesPerBuffer, timeInfo, statusFlags);
@@ -71,16 +75,16 @@ extern "C" {
             goto error;
         }
 
-        outputParameters.channelCount = 2;                     /* Stereo output. */
+        outputParameters.channelCount = 2; /* Stereo output. */
         outputParameters.sampleFormat = paFloat32;
         outputParameters.suggestedLatency = Pa_GetDeviceInfo(outputParameters.device)->defaultLowOutputLatency;
         outputParameters.hostApiSpecificStreamInfo = NULL;
         err = Pa_OpenStream(&lpEngineData->stream,
-            NULL,      /* No input. */
+            NULL,       /* No input. */
             &outputParameters,
             SAMPLE_RATE,
-            0,       /* Frames per buffer. */
-            paClipOff, /* We won't output out of range samples so don't bother clipping them. */
+            0,          /* Frames per buffer. */
+            paClipOff,  /* We won't output out of range samples so don't bother clipping them. */
             AudioEngineCallback,
             lpEngineData);
 

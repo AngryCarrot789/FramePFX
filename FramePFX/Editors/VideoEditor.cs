@@ -180,7 +180,7 @@ namespace FramePFX.Editors {
                 AudioTrack audio = new AudioTrack() {
                     DisplayName = "Audio!!!"
                 };
-                audio.AddClip(new AudioClip() {FrameSpan = new FrameSpan(100, 200), DisplayName = "An audio clip"});
+                audio.AddClip(new AudioClip() {FrameSpan = new FrameSpan(0, 200), DisplayName = "An audio clip"});
                 project.MainTimeline.AddTrack(audio);
             }
 

@@ -26,6 +26,8 @@ namespace FramePFX.Editors.Timelines.Tracks {
     public class AudioTrack : Track {
         private unsafe float* renderedSamples; // float*
 
+        private unsafe Span<float> Samples => new Span<float>(this.renderedSamples, 4096);
+
         private AudioClip theClipToRender;
 
         public AudioTrack() {
@@ -70,8 +72,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
         }
 
         public unsafe void WriteSamples(AudioRingBuffer dstBuffer, long samples) {
-            float* srcSamples = this.renderedSamples;
-            dstBuffer.WriteToRingBuffer((byte*) srcSamples, (int) (samples * sizeof(float)));
+            dstBuffer.WriteToRingBuffer(this.renderedSamples, (int) samples);
         }
     }
 }

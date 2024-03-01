@@ -19,79 +19,93 @@
 
 using System;
 using System.Runtime.InteropServices;
+using OpenTK.Graphics.ES30;
+using Buffer = System.Buffer;
 
 namespace FramePFX.Editors {
     public class AudioRingBuffer : IDisposable {
-        private unsafe byte* data;
-        private int count;
-        private int readOffset;
-        private int writeOffset;
-        private int cap;
+        private unsafe float* data;
+        private readonly int capacity;
+        private readonly int capacity_bytes;
+        private int readOffset;  // the SAMPLE read offset
+        private int writeOffset; // the SAMPLE write offset
+        private int free; // number of samples free to be written
 
-        [DllImport("msvcrt.dll", EntryPoint = "memset", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
-        public static extern IntPtr MemSet(IntPtr dest, int c, IntPtr count);
+        public unsafe Span<float> Data => new Span<float>(this.data, this.capacity);
 
-        public unsafe AudioRingBuffer(int totalBytes) {
-            this.count = totalBytes;
-            this.data = (byte*) Marshal.AllocHGlobal(totalBytes);
-            MemSet((IntPtr) this.data, 0, (IntPtr) totalBytes);
+        public unsafe AudioRingBuffer(int capacitySamples) {
+            this.capacity = capacitySamples;
+            this.capacity_bytes = capacitySamples * sizeof(float);
+            this.data = (float*) Marshal.AllocHGlobal(this.capacity_bytes);
+            this.free = capacitySamples;
+            SetMemory(this.data, 0, this.capacity_bytes);
         }
 
-        public unsafe int WriteToRingBuffer(byte* srcSamples, int numBytes) {
-            if (srcSamples == null || numBytes <= 0 || this.cap == 0) {
+        public unsafe int WriteToRingBuffer(float* src, int numSamples) {
+            if (src == null || numSamples <= 0) {
                 return 0;
             }
 
-            if (numBytes > this.cap) {
-                numBytes = this.cap;
+            if (numSamples > this.free) {
+                numSamples = this.free;
             }
 
-            if (numBytes > this.count - this.writeOffset) {
-                int len = this.count - this.writeOffset;
-                Buffer.MemoryCopy(srcSamples, this.data + this.writeOffset, len, len);
-
-                ulong other = (ulong) (numBytes - len);
-                Buffer.MemoryCopy(srcSamples + len, this.data, other, other);
+            int availableSamplesToWrite = this.capacity - this.writeOffset;
+            if (numSamples > availableSamplesToWrite) {
+                CopyMemory(src, this.data + this.writeOffset, availableSamplesToWrite * sizeof(float));
+                CopyMemory(src + availableSamplesToWrite, this.data, (numSamples - availableSamplesToWrite) * sizeof(float));
             }
             else {
-                Buffer.MemoryCopy(srcSamples, this.data + this.writeOffset, numBytes, numBytes);
+                CopyMemory(src, this.data + this.writeOffset, numSamples * sizeof(float));
             }
 
-            this.writeOffset = (this.writeOffset + numBytes) % this.count;
-            this.cap -= numBytes;
-
-            return numBytes;
+            this.writeOffset = (this.writeOffset + numSamples) % this.capacity;
+            this.free -= numSamples;
+            return numSamples;
         }
 
-        public unsafe int ReadFromRingBuffer(byte* dstSamples, int numBytes) {
-            if (dstSamples == null || numBytes <= 0 || this.cap == this.count) {
+        public unsafe int ReadFromRingBuffer(float* dst, int numSamples) {
+            if (dst == null || numSamples <= 0) {
                 return 0;
             }
 
-            int readCap = this.count - this.cap;
-            if (numBytes > readCap) {
-                numBytes = readCap;
+            // the total number of written samples in this ring buffer
+            int numSamplesWritten = this.capacity - this.free;
+            if (numSamplesWritten < 1) {
+                return 0;
             }
 
-            if (numBytes > this.count - this.readOffset) {
-                int len = this.count - this.readOffset;
-                Buffer.MemoryCopy(this.data + this.readOffset, dstSamples, numBytes, numBytes);
+            if (numSamples > numSamplesWritten) {
+                numSamples = numSamplesWritten;
+            }
 
-                ulong other = (ulong) (numBytes - numBytes);
-                Buffer.MemoryCopy(this.data, dstSamples + len, other, other);
+            int availableSamplesToRead = this.capacity - this.readOffset;
+            if (numSamples > availableSamplesToRead) {
+                CopyMemory(this.data + this.readOffset, dst, availableSamplesToRead * sizeof(float));
+                CopyMemory(this.data, dst + availableSamplesToRead, (numSamples - availableSamplesToRead) * sizeof(float));
             }
             else {
-                Buffer.MemoryCopy(this.data + this.readOffset, dstSamples, numBytes, numBytes);
+                CopyMemory(this.data + this.readOffset, dst, numSamples * sizeof(float));
             }
 
-            this.readOffset = (this.readOffset + numBytes) % this.count;
-            this.cap += numBytes;
-            return numBytes;
+            this.readOffset = (this.readOffset + numSamples) % this.capacity;
+            this.free += numSamples;
+            return numSamples;
         }
 
         public unsafe void Dispose() {
             Marshal.FreeHGlobal((IntPtr) this.data);
             this.data = null;
         }
+
+        [DllImport("msvcrt.dll", EntryPoint = "memset", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
+        private static extern unsafe IntPtr _memset(void* dst, int val, IntPtr count);
+        [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
+        private static extern unsafe IntPtr _memcpy(void* dst, void* src, IntPtr n);
+
+        private static unsafe void SetMemory(void* buffer, int value, int count) => _memset(buffer, value, new IntPtr(count));
+        private static unsafe void SetMemory(void* buffer, int value, IntPtr count) => _memset(buffer, value, count);
+        private static unsafe void CopyMemory(void* src, void* dst, int count) => _memcpy(dst, src, new IntPtr(count));
+        private static unsafe void CopyMemory(void* src, void* dst, IntPtr count) => _memcpy(dst, src, count);
     }
 }

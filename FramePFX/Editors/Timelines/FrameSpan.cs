@@ -59,18 +59,42 @@ namespace FramePFX.Editors.Timelines {
             this.Duration = duration;
         }
 
+        /// <summary>
+        /// Creates a frame span with the given beginning frame and duration
+        /// </summary>
+        /// <param name="begin">The begin part</param>
+        /// <param name="duration">The duration</param>
+        /// <returns>A new frame span</returns>
         public static FrameSpan FromDuration(long begin, long duration) {
             return new FrameSpan(begin, duration);
         }
 
+        /// <summary>
+        /// Creates a frame span from the given begin (inclusive) and end (exclusive) indices
+        /// </summary>
+        /// <param name="begin">The begin part</param>
+        /// <param name="endIndex">The end index</param>
+        /// <returns>A new frame span</returns>
         public static FrameSpan FromIndex(long begin, long endIndex) {
             return new FrameSpan(begin, endIndex - begin);
         }
 
-        public FrameSpan Expand(long expand) {
-            return new FrameSpan(this.Begin - expand, this.Duration + expand + expand);
+        /// <summary>
+        /// Expands this span by the given number of frames. Does not clamp begin
+        /// to zero nor does it ensure duration does not overflow
+        /// </summary>
+        /// <param name="count">The number of frames to subtract from begin and to add to the end index</param>
+        /// <returns>A new expanded frame span</returns>
+        public FrameSpan Expand(long count) {
+            // adding twice is probably faster than multiplication by 2 :)
+            return new FrameSpan(this.Begin - count, this.Duration + count + count);
         }
 
+        /// <summary>
+        /// Contracts this span by the given number of frames. Does not ensure
+        /// </summary>
+        /// <param name="contract"></param>
+        /// <returns></returns>
         public FrameSpan Contract(long contract) {
             return new FrameSpan(this.Begin + contract, this.Duration - contract - contract);
         }
@@ -82,6 +106,10 @@ namespace FramePFX.Editors.Timelines {
             return new FrameSpan(this.Begin + frames, this.Duration);
         }
 
+        public FrameSpan Offset(long offsetBegin, long offsetDuration) {
+            return new FrameSpan(this.Begin + offsetBegin, this.Duration + offsetDuration);
+        }
+
         /// <summary>
         /// Returns a new span where the <see cref="Duration"/> property is offset by the given amount, and <see cref="Begin"/> is untouched
         /// </summary>
@@ -89,14 +117,20 @@ namespace FramePFX.Editors.Timelines {
             return new FrameSpan(this.Begin, this.Duration + frames);
         }
 
-        public FrameSpan Offset(long offsetBegin, long offsetDuration) {
-            return new FrameSpan(this.Begin + offsetBegin, this.Duration + offsetDuration);
-        }
-
+        /// <summary>
+        /// Returns a frame span with the given begin and this instance's duration
+        /// </summary>
+        /// <param name="newBegin">The begin value</param>
+        /// <returns>A new frame span</returns>
         public FrameSpan WithBegin(long newBegin) {
             return new FrameSpan(newBegin, this.Duration);
         }
 
+        /// <summary>
+        /// Returns a frame span with this instance's begin and the given duration
+        /// </summary>
+        /// <param name="newDuration">The duration value</param>
+        /// <returns>A new frame span</returns>
         public FrameSpan WithDuration(long newDuration) {
             return new FrameSpan(this.Begin, newDuration);
         }

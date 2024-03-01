@@ -102,7 +102,7 @@ namespace FramePFX.Editors.Rendering {
                 newProject.Settings.ResolutionChanged += manager.SettingsOnResolutionChanged;
                 manager.SettingsOnResolutionChanged(newProject.Settings);
                 manager.audioRingBuffer?.Dispose();
-                manager.audioRingBuffer = new AudioRingBuffer(16384);
+                manager.audioRingBuffer = new AudioRingBuffer(4096);
             }
         }
 
@@ -187,7 +187,11 @@ namespace FramePFX.Editors.Rendering {
 
                 double fps = project.Settings.FrameRate.AsDouble;
                 double sampleDouble = Math.Ceiling(44100.0 / fps) + this.accumulatedSamples;
-                samples = (long) Math.Floor(sampleDouble);
+                // ensure value is even.
+                // 44100/60fps == 735, meaning that last sample for the right channel
+                // wouldn't get generated, and the next render would write the first
+                // left sample into the previous render's right channel :P
+                samples = (long) Maths.Ceil(sampleDouble, 2);
                 this.accumulatedSamples = (sampleDouble - samples);
 
                 // samples = project.Settings.BufferSize;
@@ -256,7 +260,7 @@ namespace FramePFX.Editors.Rendering {
                     if (!tasks[i].IsCompleted)
                         await tasks[i];
                     lock (this.audioRingBuffer) {
-                        audioTrackList[i].WriteSamples(this.audioRingBuffer, samples);
+                        audioTrackList[i].WriteSamples(this.audioRingBuffer, samples * 2);
                     }
                 }
 

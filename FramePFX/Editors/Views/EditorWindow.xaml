@@ -178,9 +178,18 @@
             <DockPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
                     <Separator Style="{StaticResource VerticalSeparator}" Margin="5,0" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}"/>
-                    <StackPanel Orientation="Horizontal" ToolTip="The amount of time it took to render a single frame. This is averaged over 5 frames" VerticalAlignment="Center">
-                        <TextBlock Text="Render: " VerticalAlignment="Center"/>
-                        <TextBlock x:Name="PART_AvgRenderTimeBlock" Text="" FontFamily="Consolas" VerticalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Background="Transparent"
+                                    ToolTip="The amount of time it took to render a single frame, averaged over 5 ticks">
+                            <TextBlock Text="RT: " VerticalAlignment="Center" Margin="0,2,0,0"/>
+                            <TextBlock x:Name="PART_AvgRenderTimeBlock" Text="" FontFamily="Consolas" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <Separator Style="{StaticResource VerticalSeparator}" Margin="5,0" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}"/>
+                        <StackPanel Orientation="Horizontal" Background="Transparent"
+                                    ToolTip="The average playback FPS, averaged over 5 ticks. Ideally, this should sit exactly at the project FPS">
+                            <TextBlock Text="FPS: " VerticalAlignment="Center" Margin="0,2,0,0"/>
+                            <TextBlock x:Name="PART_AvgFPSBlock" Text="" FontFamily="Consolas" VerticalAlignment="Center"/>
+                        </StackPanel>
                     </StackPanel>
                 </StackPanel>
                 <DockPanel x:Name="PART_ActiveBackgroundTaskGrid" DockPanel.Dock="Right">

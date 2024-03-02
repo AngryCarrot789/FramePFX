@@ -19,8 +19,6 @@
 
 using System;
 using System.Runtime.InteropServices;
-using OpenTK.Graphics.ES30;
-using Buffer = System.Buffer;
 
 namespace FramePFX.Editors {
     public class AudioRingBuffer : IDisposable {
@@ -39,6 +37,23 @@ namespace FramePFX.Editors {
             this.data = (float*) Marshal.AllocHGlobal(this.capacity_bytes);
             this.free = capacitySamples;
             SetMemory(this.data, 0, this.capacity_bytes);
+        }
+
+        public void OffsetWrite(int numSamples) {
+            if (numSamples <= 0) {
+                return;
+            }
+
+            // the total number of written samples in this ring buffer
+            int numSamplesWritten = this.capacity - this.free;
+            if (numSamplesWritten > 0) {
+                if (numSamples > numSamplesWritten) {
+                    numSamples = numSamplesWritten;
+                }
+
+                this.writeOffset = (this.writeOffset - numSamples) % this.capacity;
+                this.free += numSamples;
+            }
         }
 
         public unsafe int WriteToRingBuffer(float* src, int numSamples) {

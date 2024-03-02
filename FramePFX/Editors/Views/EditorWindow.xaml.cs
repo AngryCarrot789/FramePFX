@@ -18,7 +18,6 @@
 //
 
 using System;
-using System.ComponentModel;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -55,7 +54,8 @@ namespace FramePFX.Editors.Views {
         private ActivityTask primaryActivity;
 
         public EditorWindow() {
-            this.renderTimeAverager = new NumberAverager(5); // average 5 samples. Will take a second to catch up at 5 fps but meh
+            // average 5 samples. Will take a second to catch up when playing at 5 fps but meh
+            this.renderTimeAverager = new NumberAverager(5);
             DataManager.SetContextData(this, this.contextData = new ContextData().Set(DataKeys.HostWindowKey, this).Clone());
             this.InitializeComponent();
             this.Loaded += this.EditorWindow_Loaded;
@@ -139,9 +139,13 @@ namespace FramePFX.Editors.Views {
 
         private void UpdateFrameRenderInterval(RenderManager manager) {
             this.renderTimeAverager.PushValue(manager.AverageVideoRenderTimeMillis);
+            if (manager.Timeline.Project?.Editor is VideoEditor editor) {
+                double avgPlaybackMillis = editor.Playback.AveragePlaybackIntervalMillis;
+                this.PART_AvgFPSBlock.Text = $"{Math.Round(avgPlaybackMillis, 2).ToString(),5} ms ({((int) Math.Round(1000.0 / avgPlaybackMillis)).ToString(),3} FPS)";
+            }
 
-            double averageMillis = this.renderTimeAverager.GetAverage();
-            this.PART_AvgRenderTimeBlock.Text = $"{Math.Round(averageMillis, 2).ToString(),5} ms ({((int) Math.Round(1000.0 / averageMillis)).ToString(),3} FPS)";
+            double avgRenderMillis = this.renderTimeAverager.GetAverage();
+            this.PART_AvgRenderTimeBlock.Text = $"{Math.Round(avgRenderMillis, 2).ToString(),5} ms ({((int) Math.Round(1000.0 / avgRenderMillis)).ToString(),3} FPS)";
         }
 
         private void EditorWindow_Loaded(object sender, RoutedEventArgs e) {

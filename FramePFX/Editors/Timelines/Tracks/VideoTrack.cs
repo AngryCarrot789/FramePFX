@@ -40,8 +40,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
                 ValueAccessors.LinqExpression<double>(typeof(VideoTrack), nameof(Opacity)),
                 ParameterFlags.StandardProjectVisual);
 
-        public static readonly ParameterBoolean VisibleParameter = Parameter.RegisterBoolean(typeof(VideoTrack), nameof(VideoTrack), nameof(Visible), true, ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(Visible)), ParameterFlags.StandardProjectVisual);
-
+        public static readonly ParameterBoolean VisibleParameter =                   Parameter.RegisterBoolean(typeof(VideoTrack), nameof(VideoTrack), nameof(Visible), true, ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(Visible)), ParameterFlags.StandardProjectVisual);
         public static readonly ParameterVector2 MediaPositionParameter =             Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaPosition),             ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaPosition)), ParameterFlags.StandardProjectVisual);
         public static readonly ParameterVector2 MediaScaleParameter =                Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaScale), Vector2.One,   ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaScale)), ParameterFlags.StandardProjectVisual);
         public static readonly ParameterVector2 MediaScaleOriginParameter =          Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaScaleOrigin),          ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaScaleOrigin)), ParameterFlags.StandardProjectVisual);

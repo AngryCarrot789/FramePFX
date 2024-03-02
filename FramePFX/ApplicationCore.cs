@@ -107,6 +107,7 @@ namespace FramePFX {
         public void RegisterActions(CommandManager manager) {
             // timelines, tracks and clips
             manager.Register("NewVideoTrack", new NewVideoTrackCommand());
+            manager.Register("NewAudioTrack", new NewAudioTrackCommand());
             manager.Register("MoveTrackUpCommand", new MoveTrackUpCommand());
             manager.Register("MoveTrackDownCommand", new MoveTrackDownCommand());
             manager.Register("MoveTrackToTopCommand", new MoveTrackToTopCommand());

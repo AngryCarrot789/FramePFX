@@ -143,8 +143,11 @@
                     </Shortcut>
                 </Group>
 
-                <Shortcut Name="NewVideoTrack" CommandId="NewVideoTrack" Description="Creates a new video clip">
+                <Shortcut Name="NewVideoTrack" CommandId="NewVideoTrack" Description="Creates a new video track">
                     <KeyStroke Mods="CTRL+SHIFT" Key="Q"/>
+                </Shortcut>
+                <Shortcut Name="NewAudioTrack" CommandId="NewAudioTrack" Description="Creates a new audio track">
+                    <KeyStroke Mods="CTRL" Key="Q"/>
                 </Shortcut>
 
                 <Shortcut Name="MoveSelectedTrackUp" CommandId="MoveTrackUpCommand">

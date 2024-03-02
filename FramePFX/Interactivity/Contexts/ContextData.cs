@@ -17,10 +17,8 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using FFmpeg.AutoGen;
 using FramePFX.Utils;
 
 namespace FramePFX.Interactivity.Contexts {

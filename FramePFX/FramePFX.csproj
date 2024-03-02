@@ -141,6 +141,7 @@
     <Compile Include="Editors\Commands\DuplicateClipCommand.cs" />
     <Compile Include="Editors\Commands\ExportCommand.cs" />
     <Compile Include="Editors\Commands\MoveTrackCommand.cs" />
+    <Compile Include="Editors\Commands\NewAudioTrackCommand.cs" />
     <Compile Include="Editors\Commands\NewProjectCommand.cs" />
     <Compile Include="Editors\Commands\NewVideoTrackCommand.cs" />
     <Compile Include="Editors\Commands\OpenCompositionResourceTimelineCommand.cs" />

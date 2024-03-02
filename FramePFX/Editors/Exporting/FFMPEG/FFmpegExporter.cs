@@ -67,7 +67,8 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
             AVFormatContext* oc = null; // output context
             AVCodec* codec; // idk codec i guess
             AVCodecContext* c = null; // idk
-            AVFrame* frame = null; // raw data
+            AVFrame* videoFrame = null; // raw data
+            AVFrame* audioFrame = null; // raw data
             AVPacket* pkt = null; // encoded data
             int ret;
 
@@ -143,15 +144,16 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
                 goto fail_or_end;
             }
 
-            frame = ffmpeg.av_frame_alloc();
-            if (frame == null) {
+            videoFrame = ffmpeg.av_frame_alloc();
+            if (videoFrame == null) {
                 exception = new Exception("Could not allocate video frame");
                 goto fail_or_end;
             }
 
-            frame->format = (int) c->pix_fmt;
-            frame->width = c->width;
-            frame->height = c->height;
+
+            videoFrame->format = (int) c->pix_fmt;
+            videoFrame->width = c->width;
+            videoFrame->height = c->height;
 
             byte_ptrArray4 frame_data_arrays = new byte_ptrArray4();
             int_array4 frame_line_sizes = new int_array4();
@@ -161,14 +163,22 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
                 goto fail_or_end;
             }
 
-            frame->data[0] = frame_data_arrays[0];
-            frame->data[1] = frame_data_arrays[1];
-            frame->data[2] = frame_data_arrays[2];
-            frame->data[3] = frame_data_arrays[3];
-            frame->linesize[0] = frame_line_sizes[0];
-            frame->linesize[1] = frame_line_sizes[1];
-            frame->linesize[2] = frame_line_sizes[2];
-            frame->linesize[3] = frame_line_sizes[3];
+            videoFrame->data[0] = frame_data_arrays[0];
+            videoFrame->data[1] = frame_data_arrays[1];
+            videoFrame->data[2] = frame_data_arrays[2];
+            videoFrame->data[3] = frame_data_arrays[3];
+            videoFrame->linesize[0] = frame_line_sizes[0];
+            videoFrame->linesize[1] = frame_line_sizes[1];
+            videoFrame->linesize[2] = frame_line_sizes[2];
+            videoFrame->linesize[3] = frame_line_sizes[3];
+
+            // audioFrame = ffmpeg.av_frame_alloc();
+            // if (audioFrame == null) {
+            //     exception = new Exception("Could not allocate audio frame");
+            //     goto fail_or_end;
+            // }
+            // audioFrame->format = (int) c->sample_fmt;
+            // audioFrame->nb_samples = (int) c->sample_fmt;
 
             ret = ffmpeg.avcodec_parameters_from_context(st->codecpar, c);
             if (ret < 0) {
@@ -286,10 +296,10 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
                         // ffmpeg.sws_freeContext(s);
                     }
 
-                    frame->pts = ptsFrame;
+                    videoFrame->pts = ptsFrame;
 
                     // Encode frame
-                    if ((ret = ffmpeg.avcodec_send_frame(c, frame)) == 0) {
+                    if ((ret = ffmpeg.avcodec_send_frame(c, videoFrame)) == 0) {
                         pkt = ffmpeg.av_packet_alloc();
                         // ffmpeg.av_init_packet(&pkt);
                         ret = ffmpeg.avcodec_receive_packet(c, pkt);
@@ -386,8 +396,13 @@ namespace FramePFX.Editors.Exporting.FFMPEG {
                 ffmpeg.av_free(c);
             }
 
-            if (frame != null) {
-                ffmpeg.av_frame_free(&frame);
+            if (videoFrame != null) {
+                ffmpeg.av_frame_free(&videoFrame);
+                // ffmpeg.av_frame_unref(frame);
+            }
+
+            if (audioFrame != null) {
+                ffmpeg.av_frame_free(&audioFrame);
                 // ffmpeg.av_frame_unref(frame);
             }
 

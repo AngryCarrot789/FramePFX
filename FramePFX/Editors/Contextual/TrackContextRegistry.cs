@@ -52,6 +52,7 @@ namespace FramePFX.Editors.Contextual {
                 }
 
                 list.Add(new EventContextEntry(AddVideoTrack, "New Video Track"));
+                list.Add(new EventContextEntry(AddAudioTrack, "New Audio Track"));
             }
         }
 
@@ -60,6 +61,15 @@ namespace FramePFX.Editors.Contextual {
             if (DataKeys.TrackKey.TryGetContext(context, out Track track) && (timeline = track.Timeline) != null || DataKeys.TimelineKey.TryGetContext(context, out timeline)) {
                 timeline.AddTrack(new VideoTrack() {
                     DisplayName = "New Video Track"
+                });
+            }
+        }
+
+        private static void AddAudioTrack(IContextData context) {
+            Timeline timeline;
+            if (DataKeys.TrackKey.TryGetContext(context, out Track track) && (timeline = track.Timeline) != null || DataKeys.TimelineKey.TryGetContext(context, out timeline)) {
+                timeline.AddTrack(new AudioTrack() {
+                    DisplayName = "New Audio Track"
                 });
             }
         }

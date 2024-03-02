@@ -71,6 +71,8 @@ namespace FramePFX.Editors {
         /// </summary>
         public Timeline Timeline { get; private set; }
 
+        public double AveragePlaybackIntervalMillis => this.averager.GetAverage() / Time.TICK_PER_MILLIS;
+
         /// <summary>
         /// An event fired when the play, pause or stop methods are called, if the current playback state does not match the matching function
         /// </summary>
@@ -83,6 +85,9 @@ namespace FramePFX.Editors {
         private readonly ManagedAudioEngineCallback engineCallbackDelgate;
         private readonly IntPtr engineCallbackDelgatePtr;
         private double phase;
+
+        private readonly NumberAverager averager = new NumberAverager(5);
+        private long lastTickTime;
 
         public PlaybackManager(VideoEditor editor) {
             this.Editor = editor;
@@ -114,9 +119,9 @@ namespace FramePFX.Editors {
 
             if (buffer != null) {
                 lock (buffer) {
-                    ulong totalsamples = framesPerBuffer * 2;
-                    int readCount = buffer.ReadFromRingBuffer(outputFloats, (int) totalsamples);
-                    for (ulong i = readCount < 1 ? 0 : (ulong) readCount; i < totalsamples; i++) {
+                    int totalsamples = (int) (framesPerBuffer * 2);
+                    int readCount = buffer.ReadFromRingBuffer(outputFloats, totalsamples);
+                    for (int i = readCount < 1 ? 0 : readCount; i < totalsamples; i++) {
                         *outputFloats++ = 0;
                     }
                 }
@@ -190,6 +195,7 @@ namespace FramePFX.Editors {
             this.PlayState = PlayState.Play;
             this.PlaybackStateChanged?.Invoke(this, this.PlayState, targetFrame);
             this.lastRenderTime = DateTime.Now;
+            this.lastTickTime = Time.GetSystemTicks();
             this.thread_IsPlaying = true;
 
             unsafe {
@@ -316,6 +322,11 @@ namespace FramePFX.Editors {
                     AppLogger.Instance.WriteLine(e.GetToString());
                 }
             }
+
+            long time = Time.GetSystemTicks();
+            long tickInterval = time - this.lastTickTime;
+            this.lastTickTime = time;
+            this.averager.PushValue(tickInterval);
         }
 
         private static async Task RenderTimeline(VideoEditor videoEditor, RenderManager renderManager, long frame, CancellationToken cancellationToken) {

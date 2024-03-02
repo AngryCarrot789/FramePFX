@@ -102,7 +102,7 @@ namespace FramePFX.Editors.Rendering {
                 newProject.Settings.ResolutionChanged += manager.SettingsOnResolutionChanged;
                 manager.SettingsOnResolutionChanged(newProject.Settings);
                 manager.audioRingBuffer?.Dispose();
-                manager.audioRingBuffer = new AudioRingBuffer(4096);
+                manager.audioRingBuffer = new AudioRingBuffer(8192);
             }
         }
 
@@ -174,7 +174,7 @@ namespace FramePFX.Editors.Rendering {
 
             this.BeginRender(frame);
             long beginRender;
-            long samples;
+            int samplesToProcess, effectiveSamples;
             List<VideoTrack> videoTrackList;
             List<AudioTrack> audioTrackList;
             SKImageInfo imgInfo;
@@ -187,12 +187,14 @@ namespace FramePFX.Editors.Rendering {
 
                 double fps = project.Settings.FrameRate.AsDouble;
                 double sampleDouble = Math.Ceiling(44100.0 / fps) + this.accumulatedSamples;
-                // ensure value is even.
-                // 44100/60fps == 735, meaning that last sample for the right channel
-                // wouldn't get generated, and the next render would write the first
+                // Ensure value is even. 44100/60fps == 735, meaning that last sample for the
+                // right channel wouldn't get generated, and the next render would write the first
                 // left sample into the previous render's right channel :P
-                samples = (long) Maths.Ceil(sampleDouble, 2);
-                this.accumulatedSamples = (sampleDouble - samples);
+                effectiveSamples = (int) Maths.Ceil(sampleDouble, 2);
+                this.accumulatedSamples = (sampleDouble - effectiveSamples);
+
+                // samplesToProcess = 1024;
+                samplesToProcess = effectiveSamples;
 
                 // samples = project.Settings.BufferSize;
 
@@ -205,8 +207,8 @@ namespace FramePFX.Editors.Rendering {
                         }
                     }
 
-                    if (track is AudioTrack audioTrack) {
-                        if (audioTrack.PrepareRenderFrame(frame, samples, quality)) {
+                    if (track is AudioTrack audioTrack && !AudioTrack.IsMutedParameter.GetCurrentValue(audioTrack)) {
+                        if (audioTrack.PrepareRenderFrame(frame, samplesToProcess, quality)) {
                             audioTrackList.Add(audioTrack);
                         }
                     }
@@ -245,13 +247,14 @@ namespace FramePFX.Editors.Rendering {
                 this.averageVideoRenderTimeMillis = (Time.GetSystemTicks() - beginRender) / Time.TICK_PER_MILLIS_D;
             }, token);
 
+            // probably not a good idea to render audio like this...?
             Task renderAudio = Task.Run(async () => {
                 this.CheckRenderCancelled();
 
                 Task[] tasks = new Task[audioTrackList.Count];
                 for (int i = 0; i < tasks.Length; i++) {
                     AudioTrack track = audioTrackList[i];
-                    tasks[i] = Task.Run(() => track.RenderAudioFrame(samples, quality), token);
+                    tasks[i] = Task.Run(() => track.RenderAudioFrame(samplesToProcess, quality), token);
                 }
 
                 this.CheckRenderCancelled();
@@ -259,11 +262,9 @@ namespace FramePFX.Editors.Rendering {
                 for (int i = 0; i < tasks.Length; i++) {
                     if (!tasks[i].IsCompleted)
                         await tasks[i];
-                    lock (this.audioRingBuffer) {
-                        audioTrackList[i].WriteSamples(this.audioRingBuffer, samples * 2);
-                    }
                 }
 
+                this.SumTrackSamples(audioTrackList, samplesToProcess, effectiveSamples);
                 this.averageAudioRenderTimeMillis = (Time.GetSystemTicks() - beginRender) / Time.TICK_PER_MILLIS_D;
             }, token);
 
@@ -271,6 +272,25 @@ namespace FramePFX.Editors.Rendering {
                 this.LastRenderRect = totalRenderArea;
                 this.isRendering = 0;
             }, TaskContinuationOptions.ExecuteSynchronously);
+        }
+
+        private unsafe void SumTrackSamples(List<AudioTrack> tracks, int sampleFrames, int effectiveSamples) {
+            lock (this.audioRingBuffer) {
+                int samples = sampleFrames * 2;
+                float* final = stackalloc float[samples];
+                foreach (AudioTrack track in tracks) {
+                    float* tsamples = track.renderedSamples;
+                    for (int i = 0; i < samples; i++) {
+                        *(final + i) = *(final + i) + tsamples[i];
+                    }
+                }
+
+                // if (effectiveSamples < sampleFrames) {
+                //     this.audioRingBuffer.OffsetWrite(-(sampleFrames - effectiveSamples));
+                // }
+
+                this.audioRingBuffer.WriteToRingBuffer(final, samples);
+            }
         }
 
         private void CheckRenderCancelled() {

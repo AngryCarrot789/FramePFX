@@ -478,8 +478,20 @@
                         </Border>
                         <DockPanel Margin="21,0,0,0">
                             <DockPanel Margin="2,2,0,0" LastChildFill="False" DockPanel.Dock="Top">
-                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left"/>
-                                <TextBlock Grid.Row="0" Grid.Column="2" DockPanel.Dock="Right" Margin="0,1,4,0"
+                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                    <ToggleButton x:Name="PART_MutedButton"
+                                                  VerticalAlignment="Top" Content="M" BorderBrush="Black"
+                                                  Style="{StaticResource StaticBorderToggleButtonStyle}"
+                                                  Height="16" Width="16"/>
+                                    <d:NumberDragger Width="48" Height="16" BorderBrush="Black"
+                                                     VerticalAlignment="Top"
+                                                     Minimum="0" Maximum="1" Margin="2,0,0,0"
+                                                     TinyChange="0.0001" SmallChange="0.001"
+                                                     LargeChange="0.002" MassiveChange="0.01"
+                                                     Style="{StaticResource AbletonNumberDraggerStyle}"
+                                                     x:Name="PART_VolumeSlider" Padding="0,1,0,0"/>
+                                </StackPanel>
+                                <TextBlock DockPanel.Dock="Right" Margin="0,1,4,0"
                                            Text="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=DisplayName}"/>
                             </DockPanel>
                             <Grid DockPanel.Dock="Bottom" Margin="2">

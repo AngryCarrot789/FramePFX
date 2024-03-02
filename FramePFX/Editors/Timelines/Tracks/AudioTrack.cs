@@ -19,16 +19,39 @@
 
 using System;
 using System.Runtime.InteropServices;
+using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Utils.Accessing;
 
 namespace FramePFX.Editors.Timelines.Tracks {
     public class AudioTrack : Track {
-        private unsafe float* renderedSamples; // float*
+        public static readonly ParameterBoolean IsMutedParameter =
+            Parameter.RegisterBoolean(
+                typeof(AudioTrack),
+                nameof(AudioTrack),
+                nameof(IsMuted), false,
+                ValueAccessors.Reflective<bool>(typeof(AudioTrack), nameof(IsMuted)),
+                ParameterFlags.StandardProjectVisual);
 
-        private unsafe Span<float> Samples => new Span<float>(this.renderedSamples, 4096);
+        public static readonly ParameterFloat VolumeParameter =
+            Parameter.RegisterFloat(
+                typeof(AudioTrack),
+                nameof(AudioTrack),
+                nameof(Volume), 1.0F, 0.0F, 1.0F,
+                ValueAccessors.Reflective<float>(typeof(AudioTrack), nameof(Volume)),
+                ParameterFlags.StandardProjectVisual);
+
+        private bool IsMuted = IsMutedParameter.Descriptor.DefaultValue;
+        private float Volume = VolumeParameter.Descriptor.DefaultValue;
+
+        public unsafe float* renderedSamples; // float*
+        public int renderedSamplesCount;
+
+        public unsafe Span<float> Samples => new Span<float>(this.renderedSamples, 4096);
 
         private AudioClip theClipToRender;
+        private float render_Amplitude;
 
         public AudioTrack() {
         }
@@ -44,8 +67,8 @@ namespace FramePFX.Editors.Timelines.Tracks {
         protected override unsafe void OnProjectChanged(Project oldProject, Project newProject) {
             base.OnProjectChanged(oldProject, newProject);
             if (newProject != null) {
-                int bytes = newProject.Settings.BufferSize * 2 * sizeof(float);
-                this.renderedSamples = (float*) Marshal.AllocHGlobal(bytes);
+                this.renderedSamplesCount = newProject.Settings.BufferSize * 2;
+                this.renderedSamples = (float*) Marshal.AllocHGlobal(this.renderedSamplesCount * sizeof(float));
             }
             else {
                 Marshal.FreeHGlobal((IntPtr) this.renderedSamples);
@@ -59,6 +82,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
             }
 
             this.theClipToRender = clip;
+            this.render_Amplitude = this.Volume;
             return true;
         }
 
@@ -68,11 +92,7 @@ namespace FramePFX.Editors.Timelines.Tracks {
         /// <param name="samples"></param>
         /// <param name="quality"></param>
         public unsafe void RenderAudioFrame(long samples, EnumRenderQuality quality) {
-            this.theClipToRender.ProvideSamples(this.renderedSamples, samples);
-        }
-
-        public unsafe void WriteSamples(AudioRingBuffer dstBuffer, long samples) {
-            dstBuffer.WriteToRingBuffer(this.renderedSamples, (int) samples);
+            this.theClipToRender.ProvideSamples(this.renderedSamples, samples, this.render_Amplitude);
         }
     }
 }

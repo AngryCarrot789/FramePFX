@@ -18,6 +18,8 @@
 //
 
 using System;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Threading;
 
 namespace FramePFX.Utils {
@@ -32,6 +34,7 @@ namespace FramePFX.Utils {
     /// </para>
     /// </summary>
     public sealed class RapidDispatchActionEx {
+        private static readonly object[] EMPTY_ARGS = new object[0];
         private const int STATE_NOT_SCHEDULED = 0;
         private const int STATE_RUNNING = 1;
         private const int STATE_SCHEDULED = 2;
@@ -58,56 +61,67 @@ namespace FramePFX.Utils {
         /// <param name="action">The callback action</param>
         /// <param name="priority">The dispatcher priority</param>
         /// <param name="debugId">A debugging ID</param>
-        public RapidDispatchActionEx(Action action, DispatcherPriority priority = DispatcherPriority.Normal, string debugId = null) {
-            this.dispatcher = Dispatcher.CurrentDispatcher;
+        private RapidDispatchActionEx(Dispatcher dispatcher, Func<Task> action, DispatcherPriority priority, string debugId) {
+            if (action == null)
+                throw new ArgumentNullException(nameof(action));
+            this.dispatcher = dispatcher;
             this.debugId = debugId;
             this.Priority = priority;
             this.stateLock = new object();
-            this.executeAction = () => {
+            this.executeAction = async () => {
                 int myState;
                 lock (this.stateLock) {
-                    switch (myState = this.state) {
-                        case STATE_SCHEDULED:
-                        case STATE_RESCHEDULED:
-                            this.state = STATE_RUNNING;
-                            break;
-                        default: throw new InvalidOperationException($"Invalid state: not scheduled ({myState})");
-                    }
+                    if ((myState = this.state) != STATE_SCHEDULED)
+                        throw new InvalidOperationException($"Invalid state: not scheduled ({myState})");
+                    this.state = STATE_RUNNING;
                 }
 
                 try {
-                    action();
+                    await action();
                 }
                 finally {
                     lock (this.stateLock) {
-                        if ((myState = this.state) == STATE_RUNNING) {
-                            this.state = STATE_NOT_SCHEDULED;
-                            myState = -1;
+                        switch (myState = this.state) {
+                            case STATE_RUNNING:
+                                this.state = STATE_NOT_SCHEDULED;
+                                break;
+                            case STATE_RESCHEDULED:
+                                this.state = STATE_SCHEDULED;
+                                break;
+                            // this not-so-good oopsie can't really be handled easily, so it must crash WPF,
+                            // or it can get handled in the DispatcherUnhandledException event
+                            default:
+                                this.dispatcher.BeginInvoke(new Action(() => throw new InvalidOperationException($"Invalid final state: not running or rescheduled ({myState})")));
+                                break;
                         }
                     }
                 }
 
-                // We process this outside finally just in case InvokeCore throws, or there's an invalid state.
-                // If the below is 'exceptional', then this not-so-good oopsie can't really be handled easily,
-                // so it must crash WPF, or it can get handled in the DispatcherUnhandledException event
-
-                switch (myState) {
-                    case -1:
-                        break;
-                    case STATE_RESCHEDULED:
-                        this.ScheduleExecute();
-                        break;
-                    default: throw new InvalidOperationException($"Invalid final state: not running or rescheduled ({myState})");
-                }
+                // Schedule outside of the lock, because BeginInvoke is slightly expensive,
+                // and we don't want to keep the lock acquired for a long time (clogging up
+                // and thread that calls InvokeAsync)
+                if (myState == STATE_RESCHEDULED)
+                    this.ScheduleExecute();
             };
         }
 
-        /// <summary>
-        /// Constructor for a RDA-Ex
-        /// </summary>
-        /// <param name="action">The callback action</param>
-        /// <param name="debugId">A debugging ID</param>
-        public RapidDispatchActionEx(Action action, string debugId) : this(action, DispatcherPriority.Loaded, debugId) {
+        public static RapidDispatchActionEx ForSync(Action action, DispatcherPriority priority = DispatcherPriority.Send, string debugId = null) {
+            return ForSync(action, Application.Current.Dispatcher, priority, debugId);
+        }
+
+        public static RapidDispatchActionEx ForSync(Action action, Dispatcher dispatcher, DispatcherPriority priority = DispatcherPriority.Send, string debugId = null) {
+            return new RapidDispatchActionEx(dispatcher, () => {
+                action();
+                return Task.CompletedTask;
+            }, priority, debugId);
+        }
+
+        public static RapidDispatchActionEx ForAsync(Func<Task> action, DispatcherPriority priority = DispatcherPriority.Send, string debugId = null) {
+            return ForAsync(action, Application.Current.Dispatcher, priority, debugId);
+        }
+
+        public static RapidDispatchActionEx ForAsync(Func<Task> action, Dispatcher dispatcher, DispatcherPriority priority = DispatcherPriority.Send, string debugId = null) {
+            return new RapidDispatchActionEx(dispatcher, action, priority, debugId);
         }
 
         /// <summary>
@@ -117,28 +131,37 @@ namespace FramePFX.Utils {
         public bool InvokeAsync() {
             lock (this.stateLock) {
                 switch (this.state) {
-                    // Default state of the object: not scheduled
-                    case STATE_NOT_SCHEDULED:
+                    case STATE_NOT_SCHEDULED: {
+                        // Default state of the RDA: not scheduled. We then schedule the action
                         this.state = STATE_SCHEDULED;
                         break;
-                    // The actual action passed to the constructor is currently in the middle of running,
-                    // so we mark ourself as re-scheduled so that the finally block dispatches our action.
-                    // There is a possibility that it HAS finished and the locker is being
-                    // acquired, meaning we end up re-scheduling, which is fine though
-                    case STATE_RUNNING:
+                    }
+
+                    case STATE_RUNNING: {
+                        // The action passed to the constructor is currently in the middle of running,
+                        // so we mark ourself as re-scheduled so that the finally block of the executor
+                        // can re-schedule the task to be run at a later time.
+
+                        // There is a possibility that it HAS finished but it is in the process of
+                        // acquiring the locker, meaning we end up re-scheduling, which is fine though
+                        // since that means that some sort of user state has changed that requires scheduling
+
                         this.state = STATE_RESCHEDULED;
-                        break;
-                    default:
-                        return false;
+                        return true;
+                    }
+
+                    default: return false;
                 }
             }
 
+            // Schedule outside of the lock, because BeginInvoke is slightly expensive,
+            // and we don't want to keep the lock acquired for a long time
             this.ScheduleExecute();
             return true;
         }
 
         private void ScheduleExecute() {
-            this.lastOperation = this.dispatcher.InvokeAsync(this.executeAction, this.Priority);
+            this.lastOperation = this.dispatcher.BeginInvoke(this.executeAction, this.Priority, EMPTY_ARGS);
         }
     }
 }

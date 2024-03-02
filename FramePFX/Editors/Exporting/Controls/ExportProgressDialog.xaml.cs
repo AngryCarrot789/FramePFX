@@ -18,6 +18,7 @@
 //
 
 using System.Threading;
+using System.Windows.Threading;
 using FramePFX.Editors.Timelines;
 using FramePFX.Utils;
 using FramePFX.Views;
@@ -54,10 +55,10 @@ namespace FramePFX.Editors.Exporting.Controls {
             this.currentRenderFrame = renderSpan.Begin;
             this.currentEncodeFrame = renderSpan.Begin;
             this.PART_FrameProgressText.Text = "0/" + (this.EndFrame - 1);
-            this.rapidUpdateRender = new RapidDispatchActionEx(this.UpdateRenderedFrame, "ExportUpdateRender");
-            this.rapidUpdateEncode = new RapidDispatchActionEx(() => {
+            this.rapidUpdateRender = RapidDispatchActionEx.ForSync(this.UpdateRenderedFrame, DispatcherPriority.Normal, "ExportUpdateRender");
+            this.rapidUpdateEncode = RapidDispatchActionEx.ForSync(() => {
                 this.PART_EncodeProgressBar.Value = this.EncodeProgressPercentage;
-            }, "ExportUpdateEncode");
+            }, DispatcherPriority.Normal, "ExportUpdateEncode");
         }
 
         private void UpdateRenderedFrame() {

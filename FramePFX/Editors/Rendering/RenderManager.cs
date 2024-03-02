@@ -47,11 +47,11 @@ namespace FramePFX.Editors.Rendering {
         private double averageAudioRenderTimeMillis;
         private double accumulatedSamples;
         private volatile int isRendering;
-        private volatile int isRenderScheduled;
         private volatile Task lastRenderTask;
         private bool isDisposed;
         internal volatile int suspendRenderCount;
         private volatile int isRenderCancelled;
+        private readonly RapidDispatchActionEx renderCallback;
 
         private volatile bool isSkiaValid;
         private SKBitmap bitmap;
@@ -80,6 +80,9 @@ namespace FramePFX.Editors.Rendering {
 
         public RenderManager(Timeline timeline) {
             this.Timeline = timeline;
+            this.renderCallback = RapidDispatchActionEx.ForAsync(() => {
+                return this.lastRenderTask = this.DoScheduledRender();
+            });
             // this.renderThread = new Thread(this.RenderThreadMain);
         }
 
@@ -334,13 +337,7 @@ namespace FramePFX.Editors.Rendering {
                 return;
             }
 
-            if (Interlocked.CompareExchange(ref this.isRenderScheduled, 1, 0) != 0) {
-                return;
-            }
-
-            IoC.Dispatcher.InvokeAsync(() => {
-                this.lastRenderTask = this.DoScheduledRender();
-            }, DispatcherPriority.Send);
+            this.renderCallback.InvokeAsync();
         }
 
 
@@ -350,7 +347,8 @@ namespace FramePFX.Editors.Rendering {
         public void OnFrameCompleted() => this.FrameRendered?.Invoke(this);
 
         private async Task DoScheduledRender() {
-            if (this.suspendRenderCount < 1) {
+            VideoEditor editor;
+            if (this.suspendRenderCount < 1 && (editor = this.Timeline?.Project?.Editor) != null) {
                 try {
                     await this.RenderTimelineAsync(this.Timeline.PlayHeadPosition, CancellationToken.None, EnumRenderQuality.Low);
                 }
@@ -359,20 +357,15 @@ namespace FramePFX.Editors.Rendering {
                 catch (OperationCanceledException) {
                 }
                 catch (Exception e) {
-                    if (this.Timeline?.Project?.Editor is VideoEditor editor && editor.Playback.PlayState == PlayState.Play) {
+                    if (editor.Playback.PlayState == PlayState.Play) {
                         editor.Playback.Pause();
                     }
 
+                    IoC.MessageService.ShowMessage("Render Error", "An exception occurred while rendering", e.GetToString());
                     Debug.WriteLine(e.GetToString());
-                }
-                finally {
-                    this.isRenderScheduled = 0;
                 }
 
                 this.OnFrameCompleted();
-            }
-            else {
-                this.isRenderScheduled = 0;
             }
         }
 

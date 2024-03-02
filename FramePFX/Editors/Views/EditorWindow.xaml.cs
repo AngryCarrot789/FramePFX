@@ -137,15 +137,17 @@ namespace FramePFX.Editors.Views {
             return Task.FromResult(true);
         }
 
-        private void UpdateFrameRenderInterval(RenderManager manager) {
-            this.renderTimeAverager.PushValue(manager.AverageVideoRenderTimeMillis);
-            if (manager.Timeline.Project?.Editor is VideoEditor editor) {
+        private void UpdateFrameRenderInterval(VideoEditor editor, Timeline timeline) {
+            if (editor != null) {
                 double avgPlaybackMillis = editor.Playback.AveragePlaybackIntervalMillis;
                 this.PART_AvgFPSBlock.Text = $"{Math.Round(avgPlaybackMillis, 2).ToString(),5} ms ({((int) Math.Round(1000.0 / avgPlaybackMillis)).ToString(),3} FPS)";
             }
 
-            double avgRenderMillis = this.renderTimeAverager.GetAverage();
-            this.PART_AvgRenderTimeBlock.Text = $"{Math.Round(avgRenderMillis, 2).ToString(),5} ms ({((int) Math.Round(1000.0 / avgRenderMillis)).ToString(),3} FPS)";
+            if (timeline != null) {
+                this.renderTimeAverager.PushValue(timeline.RenderManager.AverageVideoRenderTimeMillis);
+                double avgRenderMillis = this.renderTimeAverager.GetAverage();
+                this.PART_AvgRenderTimeBlock.Text = $"{Math.Round(avgRenderMillis, 2).ToString(),5} ms ({((int) Math.Round(1000.0 / avgRenderMillis)).ToString(),3} FPS)";
+            }
         }
 
         private void EditorWindow_Loaded(object sender, RoutedEventArgs e) {
@@ -272,6 +274,10 @@ namespace FramePFX.Editors.Views {
 
             if (this.Editor is VideoEditor editor)
                 this.UpdatePlayBackButtons(editor.Playback);
+        }
+
+        private void UpdateFrameRenderInterval(RenderManager manager) {
+            this.UpdateFrameRenderInterval(manager.Timeline.Project?.Editor, manager.Timeline);
         }
 
         private void OnCompositionTimelineDisplayNameChanged(IDisplayName sender, string oldName, string newName) {

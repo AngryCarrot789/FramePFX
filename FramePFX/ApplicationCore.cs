@@ -33,11 +33,13 @@ using FramePFX.Services.WPF.Messages;
 using FramePFX.Tasks;
 using FramePFX.Utils;
 
-namespace FramePFX {
+namespace FramePFX
+{
     /// <summary>
     /// An application instance for FramePFX
     /// </summary>
-    public class ApplicationCore {
+    public class ApplicationCore
+    {
         private readonly ServiceManager serviceManager;
 
         public IServiceManager Services => this.serviceManager;
@@ -65,17 +67,21 @@ namespace FramePFX {
 
         public IDispatcher Dispatcher { get; }
 
-        private ApplicationCore() {
+        private ApplicationCore()
+        {
             this.Dispatcher = new DispatcherDelegate(Application.Current.Dispatcher);
             this.serviceManager = new ServiceManager();
         }
 
-        public void OnEditorLoaded(VideoEditor editor, string[] args) {
+        public void OnEditorLoaded(VideoEditor editor, string[] args)
+        {
             this.VideoEditor = editor;
-            if (args.Length > 0 && File.Exists(args[0]) && args[0].EndsWith(Filters.DotFramePFXExtension)) {
+            if (args.Length > 0 && File.Exists(args[0]) && args[0].EndsWith(Filters.DotFramePFXExtension))
+            {
                 OpenProjectCommand.RunOpenProjectTask(editor, args[0]);
             }
-            else {
+            else
+            {
                 // Use to debug why something is causing a crash only in Release mode
                 // string path = ...;
                 // OpenProjectCommand.RunOpenProjectTask(editor, path);
@@ -83,28 +89,34 @@ namespace FramePFX {
             }
         }
 
-        public void OnApplicationExiting() {
+        public void OnApplicationExiting()
+        {
             this.VideoEditor.Destroy();
         }
 
-        private void LoadDefaultProjectHelper() {
-            try {
+        private void LoadDefaultProjectHelper()
+        {
+            try
+            {
                 this.VideoEditor.LoadDefaultProject();
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 IoC.MessageService.ShowMessage("Error loading project", "Error loading default project...", e.GetToString());
                 throw;
             }
         }
 
-        private void Setup(IApplicationStartupProgress progress) {
+        private void Setup(IApplicationStartupProgress progress)
+        {
             this.serviceManager.Register<IMessageDialogService>(new WPFMessageDialogService());
             this.serviceManager.Register<IUserInputDialogService>(new WPFUserInputDialogService());
             this.serviceManager.Register<IFilePickDialogService>(new WPFFilePickDialogService());
             this.serviceManager.Register<TaskManager>(new TaskManager());
         }
 
-        public void RegisterActions(CommandManager manager) {
+        public void RegisterActions(CommandManager manager)
+        {
             // timelines, tracks and clips
             manager.Register("NewVideoTrack", new NewVideoTrackCommand());
             manager.Register("NewAudioTrack", new NewAudioTrackCommand());
@@ -152,18 +164,21 @@ namespace FramePFX {
             manager.Register("RedoCommand", new RedoCommand());
 
             AppLogger.Instance.PushHeader($"Registered {CommandManager.Instance.Count} commands", false);
-            foreach (KeyValuePair<string, Command> pair in CommandManager.Instance.Commands) {
+            foreach (KeyValuePair<string, Command> pair in CommandManager.Instance.Commands)
+            {
                 AppLogger.Instance.WriteLine($"{pair.Key}: {pair.Value.GetType()}");
             }
 
             AppLogger.Instance.PopHeader();
         }
 
-        internal static void InternalSetupNewInstance(IApplicationStartupProgress progress) {
+        internal static void InternalSetupNewInstance(IApplicationStartupProgress progress)
+        {
             Instance.Setup(progress);
         }
 
-        public void Destroy() {
+        public void Destroy()
+        {
             this.VideoEditor = null;
         }
     }

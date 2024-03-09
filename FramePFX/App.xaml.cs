@@ -36,11 +36,14 @@ using FramePFX.Views;
 using FramePFX.Natives;
 using FramePFX.Services.Messages;
 
-namespace FramePFX {
-    public partial class App : Application {
+namespace FramePFX
+{
+    public partial class App : Application
+    {
         private AppSplashScreen splash;
 
-        private async void App_OnStartup(object sender, StartupEventArgs args) {
+        private async void App_OnStartup(object sender, StartupEventArgs args)
+        {
             // if (true) {
             //     DefaultProgressTracker.TestCompletionRangeFunctionality();
             //     this.Dispatcher.InvokeShutdown();
@@ -56,27 +59,32 @@ namespace FramePFX {
             this.splash.Show();
 
             string[] envArgs = Environment.GetCommandLineArgs();
-            if (envArgs.Length > 0 && Path.GetDirectoryName(envArgs[0]) is string dir && dir.Length > 0) {
+            if (envArgs.Length > 0 && Path.GetDirectoryName(envArgs[0]) is string dir && dir.Length > 0)
+            {
                 Directory.SetCurrentDirectory(dir);
             }
 
-            try {
+            try
+            {
                 // This is where services are registered
                 ApplicationCore.InternalSetupNewInstance(this.splash);
                 // Most if not all services are available below here
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 MessageBox.Show("Failed to initialise application: " + ex.GetToString(), "Fatal App init failure");
                 this.Dispatcher.InvokeShutdown();
                 return;
             }
 
-            try {
+            try
+            {
                 AppLogger.Instance.PushHeader("FramePFX initialisation");
                 await this.InitWPFApp();
                 AppLogger.Instance.PopHeader();
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 MessageBox.Show("Failed to start FramePFX: " + ex.GetToString(), "Fatal App setup failure");
                 this.Dispatcher.InvokeShutdown();
                 return;
@@ -96,22 +104,26 @@ namespace FramePFX {
             ApplicationCore.Instance.OnEditorLoaded(editor, args.Args);
         }
 
-        protected override void OnExit(ExitEventArgs e) {
+        protected override void OnExit(ExitEventArgs e)
+        {
             base.OnExit(e);
             ApplicationCore.Instance.OnApplicationExiting();
             PFXNative.ShutdownLibrary();
         }
 
-        public async Task InitWPFApp() {
+        public async Task InitWPFApp()
+        {
             await this.splash.SetAction("Loading services...", null);
             ShortcutManager.Instance = new WPFShortcutManager();
             RuntimeHelpers.RunClassConstructor(typeof(UIInputManager).TypeHandle);
 
             await this.splash.SetAction("Loading PFXCE native library...", null);
-            try {
+            try
+            {
                 PFXNative.InitialiseLibrary();
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 IoC.MessageService.ShowMessage(
                     "Native Library Failure",
                     "Error loading native engine library. Be sure to built the C++ project. If it built correctly, then one of its" +
@@ -132,60 +144,75 @@ namespace FramePFX {
 
             await this.splash.SetAction("Loading keymap...", null);
             string keymapFilePath = Path.GetFullPath(@"Keymap.xml");
-            if (File.Exists(keymapFilePath)) {
-                try {
-                    using (FileStream stream = File.OpenRead(keymapFilePath)) {
+            if (File.Exists(keymapFilePath))
+            {
+                try
+                {
+                    using (FileStream stream = File.OpenRead(keymapFilePath))
+                    {
                         WPFShortcutManager.WPFInstance.DeserialiseRoot(stream);
                     }
                 }
-                catch (Exception ex) {
+                catch (Exception ex)
+                {
                     IoC.MessageService.ShowMessage("Keymap", "Failed to read keymap file" + keymapFilePath + ":" + ex.GetToString());
                 }
             }
-            else {
+            else
+            {
                 IoC.MessageService.ShowMessage("Keymap", "Keymap file does not exist at " + keymapFilePath);
             }
 
             await this.splash.SetAction("Loading FFmpeg...", null);
 
             string ffmpegFolderPath = Path.Combine(Path.GetFullPath("."), "\\libraries\\ffmpeg\\bin");
-            if (!Directory.Exists(ffmpegFolderPath)) {
+            if (!Directory.Exists(ffmpegFolderPath))
+            {
                 ffmpegFolderPath = Path.GetFullPath("..\\..\\..\\..\\libraries\\ffmpeg\\bin\\");
             }
 
-            if (!Directory.Exists(ffmpegFolderPath)) {
+            if (!Directory.Exists(ffmpegFolderPath))
+            {
                 IoC.MessageService.ShowMessage("FFmpeg not found", "Could not find the FFmpeg folder. Make sure 'ffmpeg' (containing bin, include, lib, etc.) exists in either the solution directory or the same folder as the .exe\n\nThe editor may crash now...");
             }
-            else {
+            else
+            {
                 ffmpeg.RootPath = ffmpegFolderPath;
 
-                try {
+                try
+                {
                     // ffmpeg.RootPath = ""
                     ffmpeg.avdevice_register_all();
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     IoC.MessageService.ShowMessage("FFmpeg registration failed", "Failed to register all FFmpeg devices", e.GetToString());
                 }
             }
         }
 
-        private void App_OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e) {
+        private void App_OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
             Project project = ApplicationCore.Instance.VideoEditor?.Project;
-            if (ApplicationCore.Instance.Services.TryGetService(out IMessageDialogService service)) {
+            if (ApplicationCore.Instance.Services.TryGetService(out IMessageDialogService service))
+            {
                 service.ShowMessage("Error", "An unhandled error occurred in the application. It will now shutdown", e.Exception?.GetToString());
                 if (project != null)
                     Project.SaveProjectAs(project, null);
             }
-            else {
+            else
+            {
                 MessageBox.Show("An unhandled error occurred in the application. It will now shutdown\n\n" + e.Exception?.GetToString(), "Error");
                 if (project != null)
                     Project.SaveProjectAs(project, null);
             }
 
-            try {
+            try
+            {
                 this.Dispatcher.BeginInvokeShutdown(DispatcherPriority.Normal);
             }
-            finally {
+            finally
+            {
                 PFXNative.ShutdownLibrary();
             }
         }

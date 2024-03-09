@@ -27,12 +27,14 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using FramePFX.Utils;
 
-namespace FramePFX.AttachedProperties {
+namespace FramePFX.AttachedProperties
+{
     /// <summary>
     /// A helper class for binding a source collection (typically an observable collection) to a target's selected items, 
     /// with support for two-way selection change. The source list must implement <see cref="INotifyCollectionChanged"/>
     /// </summary>
-    public static class ObservableSelectionHelper {
+    public static class ObservableSelectionHelper
+    {
         private static readonly Dictionary<object, List<WeakReference>> SourceToTargetMap;
         private static readonly object SourceToTargetLock;
         private static readonly List<IList> ActiveUpdateList;
@@ -58,50 +60,61 @@ namespace FramePFX.AttachedProperties {
 
         private static readonly DependencyProperty IsProcessingSourceSelectionChangedProperty;
 
-        static ObservableSelectionHelper() {
+        static ObservableSelectionHelper()
+        {
             SourceToTargetMap = new Dictionary<object, List<WeakReference>>();
             SourceToTargetLock = new object();
             IsProcessingSourceSelectionChangedProperty = IsProcessingSourceSelectionChangedPropertyKey.DependencyProperty;
             ActiveUpdateList = new List<IList>();
         }
 
-        private static void OnSelectedItemsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            if (ReferenceEquals(e.OldValue, e.NewValue)) {
+        private static void OnSelectedItemsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (ReferenceEquals(e.OldValue, e.NewValue))
+            {
                 return;
             }
 
             Selector target;
             IList targetList;
-            if (d is ListBox lb) {
+            if (d is ListBox lb)
+            {
                 if (lb.SelectionMode == SelectionMode.Single)
                     throw new Exception("List box's SelectionMode is not set to multiple or extended");
                 targetList = lb.SelectedItems;
                 target = lb;
             }
-            else if (d is MultiSelector ms) {
+            else if (d is MultiSelector ms)
+            {
                 targetList = ms.SelectedItems;
                 target = ms;
             }
-            else {
+            else
+            {
                 throw new Exception("Unsupported target type: " + d.GetType());
             }
 
             IList sourceList = (IList) e.NewValue;
-            if (sourceList != null && !(sourceList is INotifyCollectionChanged)) {
+            if (sourceList != null && !(sourceList is INotifyCollectionChanged))
+            {
                 throw new Exception($"Source collection must implement " + nameof(INotifyCollectionChanged));
             }
 
             // Fun fact: Selector uses an observable collection for the internal SelectedItems property
 
-            if (e.OldValue != null) {
+            if (e.OldValue != null)
+            {
                 UpdateSourceEventHandler(target, e.OldValue, false);
                 UpdateTargetEventHandler(target, false);
             }
 
-            if (sourceList != null) {
-                if (!ListEquals(targetList, sourceList)) {
+            if (sourceList != null)
+            {
+                if (!ListEquals(targetList, sourceList))
+                {
                     targetList.Clear();
-                    foreach (object item in sourceList) {
+                    foreach (object item in sourceList)
+                    {
                         targetList.Add(item);
                     }
                 }
@@ -111,50 +124,66 @@ namespace FramePFX.AttachedProperties {
             }
         }
 
-        private static void UpdateTargetEventHandler(DependencyObject target, bool connect) {
-            if (connect) {
+        private static void UpdateTargetEventHandler(DependencyObject target, bool connect)
+        {
+            if (connect)
+            {
                 ((Selector) target).SelectionChanged += CachedTargetCollectionChanged;
             }
-            else {
+            else
+            {
                 ((Selector) target).SelectionChanged -= CachedTargetCollectionChanged;
             }
         }
 
-        private static void UpdateSourceEventHandler(DependencyObject target, object sourceList, bool connect) {
+        private static void UpdateSourceEventHandler(DependencyObject target, object sourceList, bool connect)
+        {
             if (target == null)
                 throw new ArgumentNullException(nameof(target));
 
-            lock (SourceToTargetLock) {
-                if (connect) {
+            lock (SourceToTargetLock)
+            {
+                if (connect)
+                {
                     ((INotifyCollectionChanged) sourceList).CollectionChanged += CachedSourceCollectionChanged;
                     AddTargetHandler(target, sourceList);
                 }
-                else {
+                else
+                {
                     ((INotifyCollectionChanged) sourceList).CollectionChanged -= CachedSourceCollectionChanged;
                     RemoveTargetHandler(target, sourceList);
                 }
             }
         }
 
-        private static void RemoveTargetHandler(DependencyObject target, object sourceList) {
-            if (SourceToTargetMap.TryGetValue(sourceList, out List<WeakReference> references)) {
-                for (int i = references.Count - 1; i >= 0; i--) {
+        private static void RemoveTargetHandler(DependencyObject target, object sourceList)
+        {
+            if (SourceToTargetMap.TryGetValue(sourceList, out List<WeakReference> references))
+            {
+                for (int i = references.Count - 1; i >= 0; i--)
+                {
                     object referenceTarget = references[i].Target;
-                    if (ReferenceEquals(referenceTarget, target)) {
+                    if (ReferenceEquals(referenceTarget, target))
+                    {
                         references.RemoveAt(i);
                     }
                 }
             }
         }
 
-        private static void AddTargetHandler(DependencyObject target, object sourceList) {
-            if (!SourceToTargetMap.TryGetValue(sourceList, out List<WeakReference> references)) {
+        private static void AddTargetHandler(DependencyObject target, object sourceList)
+        {
+            if (!SourceToTargetMap.TryGetValue(sourceList, out List<WeakReference> references))
+            {
                 SourceToTargetMap[sourceList] = references = new List<WeakReference>();
             }
-            else if (references.Count > 0) {
-                for (int i = references.Count - 1; i >= 0; i--) {
+            else if (references.Count > 0)
+            {
+                for (int i = references.Count - 1; i >= 0; i--)
+                {
                     object referenceTarget = references[i].Target;
-                    if (ReferenceEquals(referenceTarget, target)) {
+                    if (ReferenceEquals(referenceTarget, target))
+                    {
                         return;
                     }
                 }
@@ -167,62 +196,82 @@ namespace FramePFX.AttachedProperties {
         // TARGET: A dependency object (typically), e.g. ListBox
 
         // A view model's observable collection changed
-        private static void OnSourceCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+        private static void OnSourceCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
             // Here we need to get the binding target(s) from the source
-            if (!DispatcherUtils.IsOnMainThread()) {
+            if (!DispatcherUtils.IsOnMainThread())
+            {
                 // log just in case the exception gets eaten up by a black hole
                 throw new Exception("Cannot process observable collection changes while off the main thread");
             }
 
             IList sourceList = (IList) sender;
-            for (int i = ActiveUpdateList.Count - 1; i >= 0; i--) {
-                if (ReferenceEquals(ActiveUpdateList[i], sourceList)) {
+            for (int i = ActiveUpdateList.Count - 1; i >= 0; i--)
+            {
+                if (ReferenceEquals(ActiveUpdateList[i], sourceList))
+                {
                     return;
                 }
             }
 
             List<DependencyObject> targets;
-            lock (SourceToTargetLock) {
-                if (!SourceToTargetMap.TryGetValue(sender, out List<WeakReference> references) || references.Count < 1) {
+            lock (SourceToTargetLock)
+            {
+                if (!SourceToTargetMap.TryGetValue(sender, out List<WeakReference> references) || references.Count < 1)
+                {
                     return;
                 }
 
                 targets = null;
-                for (int i = 0; i < references.Count; i++) {
+                for (int i = 0; i < references.Count; i++)
+                {
                     DependencyObject target = (DependencyObject) references[i].Target;
-                    if (target != null) {
-                        if (!GetIsProcessingSourceSelectionChanged(target)) {
+                    if (target != null)
+                    {
+                        if (!GetIsProcessingSourceSelectionChanged(target))
+                        {
                             (targets ?? (targets = new List<DependencyObject>(1))).Add(target);
                         }
-                        else {
+                        else
+                        {
                             // ooops
                         }
                     }
-                    else {
+                    else
+                    {
                         references.RemoveAt(i--);
                     }
                 }
             }
 
-            if (targets == null) {
+            if (targets == null)
+            {
                 return;
             }
 
             // Here, we update the target's selection from the source list
             // This would require disconnecting selection changed events
-            using (ErrorList list = new ErrorList("Failed to handle observable collection changed event", false)) {
-                foreach (DependencyObject target in targets) {
+            using (ErrorList list = new ErrorList("Failed to handle observable collection changed event", false))
+            {
+                foreach (DependencyObject target in targets)
+                {
                     UpdateTargetEventHandler(target, false);
-                    try {
+                    try
+                    {
                         IList targetList;
-                        if (target is ListBox listBox) {
-                            if (listBox.SelectionMode == SelectionMode.Single) {
-                                if (sourceList.Count < 1) {
+                        if (target is ListBox listBox)
+                        {
+                            if (listBox.SelectionMode == SelectionMode.Single)
+                            {
+                                if (sourceList.Count < 1)
+                                {
                                     listBox.ClearValue(Selector.SelectedItemProperty);
                                 }
-                                else {
+                                else
+                                {
                                     object firstNonNull = null;
-                                    for (int i = 0; i < sourceList.Count; i++) {
+                                    for (int i = 0; i < sourceList.Count; i++)
+                                    {
                                         if ((firstNonNull = sourceList[i]) != null)
                                             break;
                                     }
@@ -232,14 +281,17 @@ namespace FramePFX.AttachedProperties {
 
                                 continue;
                             }
-                            else {
+                            else
+                            {
                                 targetList = listBox.SelectedItems;
                             }
                         }
-                        else if (target is MultiSelector ms) {
+                        else if (target is MultiSelector ms)
+                        {
                             targetList = ms.SelectedItems;
                         }
-                        else {
+                        else
+                        {
                             continue;
                         }
 
@@ -254,78 +306,101 @@ namespace FramePFX.AttachedProperties {
                         // So this code will just do some possible preconditional checks, and if they succeed,
                         // it lets WPF handle those cases where the items cannot be selected
                         int targetListCount = targetList.Count;
-                        switch (e.Action) {
-                            case NotifyCollectionChangedAction.Add: {
+                        switch (e.Action)
+                        {
+                            case NotifyCollectionChangedAction.Add:
+                            {
                                 int index = e.NewStartingIndex;
-                                if (index == -1) {
+                                if (index == -1)
+                                {
                                     index = targetListCount;
                                 }
 
-                                if (index > targetListCount) {
+                                if (index > targetListCount)
+                                {
                                     // weird selection setup; possibly bound a MultiSelectTreeView to a ListBox?
-                                    foreach (object item in e.NewItems) {
+                                    foreach (object item in e.NewItems)
+                                    {
                                         targetList.Add(item);
                                     }
                                 }
-                                else {
-                                    foreach (object item in e.NewItems) {
+                                else
+                                {
+                                    foreach (object item in e.NewItems)
+                                    {
                                         targetList.Insert(index++, item);
                                     }
                                 }
 
                                 break;
                             }
-                            case NotifyCollectionChangedAction.Remove: {
-                                if (targetListCount < 1) {
+                            case NotifyCollectionChangedAction.Remove:
+                            {
+                                if (targetListCount < 1)
+                                {
                                     break;
                                 }
 
                                 int index = e.OldStartingIndex;
-                                foreach (object item in e.OldItems) {
-                                    if (index != -1 && index < targetList.Count && ReferenceEquals(targetList[index], item)) {
+                                foreach (object item in e.OldItems)
+                                {
+                                    if (index != -1 && index < targetList.Count && ReferenceEquals(targetList[index], item))
+                                    {
                                         targetList.RemoveAt(index);
                                     }
-                                    else {
+                                    else
+                                    {
                                         targetList.Remove(item);
                                     }
                                 }
 
                                 break;
                             }
-                            case NotifyCollectionChangedAction.Replace: {
-                                if (targetListCount < 1) {
+                            case NotifyCollectionChangedAction.Replace:
+                            {
+                                if (targetListCount < 1)
+                                {
                                     break;
                                 }
 
                                 int rmvidx = e.OldStartingIndex;
-                                foreach (object item in e.OldItems) {
-                                    if (rmvidx != -1 && rmvidx < targetList.Count && ReferenceEquals(targetList[rmvidx], item)) {
+                                foreach (object item in e.OldItems)
+                                {
+                                    if (rmvidx != -1 && rmvidx < targetList.Count && ReferenceEquals(targetList[rmvidx], item))
+                                    {
                                         targetList.RemoveAt(rmvidx);
                                     }
-                                    else {
+                                    else
+                                    {
                                         targetList.Remove(item);
                                     }
                                 }
 
                                 int addidx = e.NewStartingIndex;
-                                foreach (object item in e.NewItems) {
-                                    if (addidx != -1 && addidx < targetList.Count) {
+                                foreach (object item in e.NewItems)
+                                {
+                                    if (addidx != -1 && addidx < targetList.Count)
+                                    {
                                         targetList.Insert(addidx++, item);
                                     }
-                                    else {
+                                    else
+                                    {
                                         targetList.Add(item);
                                     }
                                 }
 
                                 break;
                             }
-                            case NotifyCollectionChangedAction.Move: {
+                            case NotifyCollectionChangedAction.Move:
+                            {
                                 int i = e.OldStartingIndex, j = e.NewStartingIndex;
-                                if (i == -1 || j == -1 || i > targetListCount || j > targetListCount) {
+                                if (i == -1 || j == -1 || i > targetListCount || j > targetListCount)
+                                {
                                     break;
                                 }
 
-                                foreach (object item in e.NewItems) {
+                                foreach (object item in e.NewItems)
+                                {
                                     if (!ReferenceEquals(targetList[i], item))
                                         Debug.WriteLine("Possibly corrupt selected items for move operation: indices do not match");
                                     CollectionUtils.MoveItem(targetList, i++, j++);
@@ -340,15 +415,18 @@ namespace FramePFX.AttachedProperties {
                             default: throw new ArgumentOutOfRangeException();
                         }
                     }
-                    catch (Exception exception) {
+                    catch (Exception exception)
+                    {
                         list.Add(new Exception($"Failed to update target selection for '{target}' ({target.GetType()})", exception));
                     }
-                    finally {
+                    finally
+                    {
                         UpdateTargetEventHandler(target, true);
                     }
                 }
 
-                if (list.TryGetException(out Exception error)) {
+                if (list.TryGetException(out Exception error))
+                {
                     IoC.MessageService.ShowMessage("Error", "An exception occurred while processing selection change. " +
                                                             "This may have corrupted the application in some way, so please restart.\n\n" +
                                                             "See the app logs for more info");
@@ -357,26 +435,34 @@ namespace FramePFX.AttachedProperties {
         }
 
         // A list box's selection changed
-        private static void OnTargetCollectionChanged(object sender, SelectionChangedEventArgs e) {
-            if (!(sender is Selector selector)) {
+        private static void OnTargetCollectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!(sender is Selector selector))
+            {
                 throw new Exception("Unsupported sender object for SelectionChanged event");
             }
 
             IList dataSourceList = GetSelectedItems(selector);
-            if (dataSourceList == null) {
+            if (dataSourceList == null)
+            {
                 return;
             }
 
             IList selectorList;
-            if (selector is ListBox list) {
-                if (list.SelectionMode == SelectionMode.Single) {
+            if (selector is ListBox list)
+            {
+                if (list.SelectionMode == SelectionMode.Single)
+                {
                     object selection = list.SelectedItem;
-                    if (selection != null) {
-                        if (dataSourceList.Count == 1 && Equals(dataSourceList[0], selection)) {
+                    if (selection != null)
+                    {
+                        if (dataSourceList.Count == 1 && Equals(dataSourceList[0], selection))
+                        {
                             return;
                         }
                     }
-                    else if (dataSourceList.Count < 1) {
+                    else if (dataSourceList.Count < 1)
+                    {
                         return;
                     }
 
@@ -390,27 +476,33 @@ namespace FramePFX.AttachedProperties {
                     SetIsProcessingSourceSelectionChanged(selector, dataSourceList, false);
                     return;
                 }
-                else {
+                else
+                {
                     selectorList = list.SelectedItems;
                 }
             }
-            else if (selector is MultiSelector ms) {
+            else if (selector is MultiSelector ms)
+            {
                 selectorList = ms.SelectedItems;
             }
-            else {
+            else
+            {
                 selectorList = null;
             }
 
-            if (selectorList == null) {
+            if (selectorList == null)
+            {
                 SetIsProcessingSourceSelectionChanged(selector, dataSourceList, true);
                 // UpdateSourceEventHandler(selector, dataSourceList, false);
-                try {
+                try
+                {
                     foreach (object o in e.RemovedItems)
                         dataSourceList.Remove(o);
                     foreach (object o in e.AddedItems)
                         dataSourceList.Add(o);
                 }
-                finally {
+                finally
+                {
                     SetIsProcessingSourceSelectionChanged(selector, dataSourceList, false);
                     // UpdateSourceEventHandler(selector, dataSourceList, true);
                 }
@@ -419,29 +511,35 @@ namespace FramePFX.AttachedProperties {
             }
 
             // Can massively improve performance for property pages
-            if (ListEquals(dataSourceList, selectorList)) {
+            if (ListEquals(dataSourceList, selectorList))
+            {
                 return;
             }
 
             SetIsProcessingSourceSelectionChanged(selector, dataSourceList, true);
             // UpdateSourceEventHandler(selector, dataSourceList, false);
-            try {
-                if (selectorList.Count < 2) {
+            try
+            {
+                if (selectorList.Count < 2)
+                {
                     // most likely more efficient to clear and add a possible single selection
                     if (dataSourceList.Count > 0)
                         dataSourceList.Clear();
                     foreach (object item in selectorList)
                         dataSourceList.Add(item);
                 }
-                else {
+                else
+                {
                     int expected = dataSourceList.Count - e.RemovedItems.Count + e.AddedItems.Count;
-                    if (expected == selectorList.Count) {
+                    if (expected == selectorList.Count)
+                    {
                         foreach (object o in e.RemovedItems)
                             dataSourceList.Remove(o);
                         foreach (object o in e.AddedItems)
                             dataSourceList.Add(o);
                     }
-                    else {
+                    else
+                    {
                         Debug.WriteLine($"Selection discrepancy: Expected {expected} selected items in the source list, but got {selectorList.Count}");
                         dataSourceList.Clear();
                         foreach (object item in selectorList)
@@ -449,20 +547,25 @@ namespace FramePFX.AttachedProperties {
                     }
                 }
             }
-            finally {
+            finally
+            {
                 SetIsProcessingSourceSelectionChanged(selector, dataSourceList, false);
                 // UpdateSourceEventHandler(selector, dataSourceList, true);
             }
         }
 
-        private static bool ListEquals(IList a, IList b) {
+        private static bool ListEquals(IList a, IList b)
+        {
             int cA = a.Count, cB = b.Count;
-            if (cA != cB) {
+            if (cA != cB)
+            {
                 return false;
             }
 
-            for (int i = 0; i < cA; i++) {
-                if (!ReferenceEquals(a[i], b[i])) {
+            for (int i = 0; i < cA; i++)
+            {
+                if (!ReferenceEquals(a[i], b[i]))
+                {
                     return false;
                 }
             }
@@ -470,26 +573,33 @@ namespace FramePFX.AttachedProperties {
             return true;
         }
 
-        public static IList GetSelectedItems(DependencyObject obj) {
+        public static IList GetSelectedItems(DependencyObject obj)
+        {
             return (IList) obj.GetValue(SelectedItemsProperty);
         }
 
-        public static void SetSelectedItems(DependencyObject obj, IList value) {
+        public static void SetSelectedItems(DependencyObject obj, IList value)
+        {
             obj.SetValue(SelectedItemsProperty, value);
         }
 
-        private static void SetIsProcessingSourceSelectionChanged(DependencyObject element, IList sourceList, bool value) {
-            if (value) {
+        private static void SetIsProcessingSourceSelectionChanged(DependencyObject element, IList sourceList, bool value)
+        {
+            if (value)
+            {
                 element.SetValue(IsProcessingSourceSelectionChangedPropertyKey, BoolBox.True);
                 foreach (IList list in ActiveUpdateList)
                     if (ReferenceEquals(sourceList, list))
                         return;
                 ActiveUpdateList.Add(sourceList);
             }
-            else {
+            else
+            {
                 element.SetValue(IsProcessingSourceSelectionChangedPropertyKey, BoolBox.False);
-                for (int i = ActiveUpdateList.Count - 1; i >= 0; i--) {
-                    if (ReferenceEquals(sourceList, ActiveUpdateList[i])) {
+                for (int i = ActiveUpdateList.Count - 1; i >= 0; i--)
+                {
+                    if (ReferenceEquals(sourceList, ActiveUpdateList[i]))
+                    {
                         ActiveUpdateList.RemoveAt(i);
                         return;
                     }
@@ -497,7 +607,8 @@ namespace FramePFX.AttachedProperties {
             }
         }
 
-        private static bool GetIsProcessingSourceSelectionChanged(DependencyObject element) {
+        private static bool GetIsProcessingSourceSelectionChanged(DependencyObject element)
+        {
             return (bool) element.GetValue(IsProcessingSourceSelectionChangedProperty);
         }
     }

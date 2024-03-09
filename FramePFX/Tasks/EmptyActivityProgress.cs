@@ -19,11 +19,13 @@
 
 using System;
 
-namespace FramePFX.Tasks {
+namespace FramePFX.Tasks
+{
     /// <summary>
     /// An implementation of <see cref="EmptyActivityProgress"/> that does nothing (no events, get/set values return default values, etc.)
     /// </summary>
-    public class EmptyActivityProgress : IActivityProgress {
+    public class EmptyActivityProgress : IActivityProgress
+    {
         public static readonly IActivityProgress Instance = new EmptyActivityProgress();
 
         bool IActivityProgress.IsIndeterminate { get => default; set { } }
@@ -38,22 +40,25 @@ namespace FramePFX.Tasks {
 
         private int stackCount; // used to track possible bugs
 
-        public EmptyActivityProgress() {
+        public EmptyActivityProgress()
+        {
         }
 
-        PopDispose IActivityProgress.PushCompletionRange(double min, double max) {
+        PopDispose IActivityProgress.PushCompletionRange(double min, double max)
+        {
             ++this.stackCount;
             return new PopDispose(this);
         }
 
-        void IActivityProgress.PopCompletionRange() {
+        void IActivityProgress.PopCompletionRange()
+        {
             if (this.stackCount == 0)
                 throw new InvalidOperationException("Cannot pop completion range: stack was empty!");
             --this.stackCount;
         }
 
-        void IActivityProgress.OnProgress(double value) {
-
+        void IActivityProgress.OnProgress(double value)
+        {
         }
     }
 }

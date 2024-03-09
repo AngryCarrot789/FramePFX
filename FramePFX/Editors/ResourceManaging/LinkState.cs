@@ -17,11 +17,13 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Editors.ResourceManaging {
+namespace FramePFX.Editors.ResourceManaging
+{
     /// <summary>
     /// A state for a resource link
     /// </summary>
-    public enum LinkState {
+    public enum LinkState
+    {
         /// <summary>
         /// Not linked; link not attempted, no reference count
         /// </summary>

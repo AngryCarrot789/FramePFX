@@ -22,9 +22,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace FramePFX.Utils.Collections {
+namespace FramePFX.Utils.Collections
+{
     // UNUSED ATM... this is an almost-copy of SortedList which I hope to optimise for my own use cases
-    public class DictionaryList<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue> where TKey : class {
+    public class DictionaryList<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue> where TKey : class
+    {
         private const int DefaultCapacity = 4;
         private const int MaxArrayLength = 0X7FEFFFFF;
         private TKey[] keys;
@@ -59,16 +61,21 @@ namespace FramePFX.Utils.Collections {
 
         public int Capacity {
             get => this.keys.Length;
-            set {
-                if (value != this.keys.Length) {
-                    if (value < this.size) {
+            set
+            {
+                if (value != this.keys.Length)
+                {
+                    if (value < this.size)
+                    {
                         throw new ArgumentOutOfRangeException(nameof(value), "ArgumentOutOfRange_SmallCapacity");
                     }
 
-                    if (value > 0) {
+                    if (value > 0)
+                    {
                         TKey[] newKeys = new TKey[value];
                         TValue[] newValues = new TValue[value];
-                        if (this.size > 0) {
+                        if (this.size > 0)
+                        {
                             Array.Copy(this.keys, 0, newKeys, 0, this.size);
                             Array.Copy(this.values, 0, newValues, 0, this.size);
                         }
@@ -76,7 +83,8 @@ namespace FramePFX.Utils.Collections {
                         this.keys = newKeys;
                         this.values = newValues;
                     }
-                    else {
+                    else
+                    {
                         this.keys = EmptyKeys;
                         this.values = EmptyValues;
                     }
@@ -88,18 +96,21 @@ namespace FramePFX.Utils.Collections {
         // given key is not found, the returned value is null.
         //
         public TValue this[TKey key] {
-            get {
+            get
+            {
                 int i = this.IndexOfKey(key);
                 if (i >= 0)
                     return this.values[i];
 
                 throw new KeyNotFoundException();
             }
-            set {
+            set
+            {
                 if (key == null)
                     throw new ArgumentNullException(nameof(key));
                 int i = Array.BinarySearch(this.keys, 0, this.size, key, this.comparer);
-                if (i >= 0) {
+                if (i >= 0)
+                {
                     this.values[i] = value;
                     this.version++;
                     return;
@@ -110,35 +121,45 @@ namespace FramePFX.Utils.Collections {
         }
 
         Object IDictionary.this[Object key] {
-            get {
-                if (IsCompatibleKey(key)) {
+            get
+            {
+                if (IsCompatibleKey(key))
+                {
                     int i = this.IndexOfKey((TKey) key);
-                    if (i >= 0) {
+                    if (i >= 0)
+                    {
                         return this.values[i];
                     }
                 }
 
                 return null;
             }
-            set {
-                if (!IsCompatibleKey(key)) {
+            set
+            {
+                if (!IsCompatibleKey(key))
+                {
                     throw new ArgumentNullException(nameof(key));
                 }
 
-                if (value == null && default(TValue) != null) {
+                if (value == null && default(TValue) != null)
+                {
                     throw new ArgumentNullException(nameof(value));
                 }
 
-                try {
+                try
+                {
                     TKey tempKey = (TKey) key;
-                    try {
+                    try
+                    {
                         this[tempKey] = (TValue) value;
                     }
-                    catch (InvalidCastException) {
+                    catch (InvalidCastException)
+                    {
                         throw new ArgumentException("Argument is the wrong type", nameof(value));
                     }
                 }
-                catch (InvalidCastException) {
+                catch (InvalidCastException)
+                {
                     throw new ArgumentException("Argument is the wrong type", nameof(key));
                 }
             }
@@ -154,8 +175,10 @@ namespace FramePFX.Utils.Collections {
 
         // Synchronization root for this object.
         Object ICollection.SyncRoot {
-            get {
-                if (this._syncRoot == null) {
+            get
+            {
+                if (this._syncRoot == null)
+                {
                     System.Threading.Interlocked.CompareExchange(ref this._syncRoot, new Object(), null);
                 }
 
@@ -163,14 +186,16 @@ namespace FramePFX.Utils.Collections {
             }
         }
 
-        public DictionaryList() {
+        public DictionaryList()
+        {
             this.keys = EmptyKeys;
             this.values = EmptyValues;
             this.size = 0;
             this.comparer = Comparer<TKey>.Default;
         }
 
-        public void Add(TKey key, TValue value) {
+        public void Add(TKey key, TValue value)
+        {
             if (key == null)
                 throw new ArgumentNullException(nameof(key), "Key is null");
             int i = Array.BinarySearch(this.keys, 0, this.size, key, this.comparer);
@@ -179,18 +204,22 @@ namespace FramePFX.Utils.Collections {
             this.Insert(~i, key, value);
         }
 
-        void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> keyValuePair) {
+        void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> keyValuePair)
+        {
             this.Add(keyValuePair.Key, keyValuePair.Value);
         }
 
-        bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> keyValuePair) {
+        bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> keyValuePair)
+        {
             int index = this.IndexOfKey(keyValuePair.Key);
             return index >= 0 && EqualityComparer<TValue>.Default.Equals(this.values[index], keyValuePair.Value);
         }
 
-        bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> keyValuePair) {
+        bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> keyValuePair)
+        {
             int index = this.IndexOfKey(keyValuePair.Key);
-            if (index >= 0 && EqualityComparer<TValue>.Default.Equals(this.values[index], keyValuePair.Value)) {
+            if (index >= 0 && EqualityComparer<TValue>.Default.Equals(this.values[index], keyValuePair.Value))
+            {
                 this.RemoveAt(index);
                 return true;
             }
@@ -198,41 +227,51 @@ namespace FramePFX.Utils.Collections {
             return false;
         }
 
-        void IDictionary.Add(Object key, Object value) {
-            if (key == null) {
+        void IDictionary.Add(Object key, Object value)
+        {
+            if (key == null)
+            {
                 throw new ArgumentNullException(nameof(key));
             }
 
-            if (value == null && default(TValue) != null) {
+            if (value == null && default(TValue) != null)
+            {
                 throw new ArgumentNullException(nameof(value));
             }
 
-            try {
+            try
+            {
                 TKey tempKey = (TKey) key;
 
-                try {
+                try
+                {
                     this.Add(tempKey, (TValue) value);
                 }
-                catch (InvalidCastException) {
+                catch (InvalidCastException)
+                {
                     throw new ArgumentException("Argument is the wrong type", nameof(value));
                 }
             }
-            catch (InvalidCastException) {
+            catch (InvalidCastException)
+            {
                 throw new ArgumentException("Argument is the wrong type", nameof(key));
             }
         }
 
         public IList<TKey> Keys => this.GetKeyListHelper();
 
-        private KeyList GetKeyListHelper() {
+        private KeyList GetKeyListHelper()
+        {
             return this.keyList ?? (this.keyList = new KeyList(this));
         }
 
-        private ValueList GetValueListHelper() {
+        private ValueList GetValueListHelper()
+        {
             return this.valueList ?? (this.valueList = new ValueList(this));
         }
 
-        public void Clear() {
+        public void Clear()
+        {
             this.version++;
             // Don't need to doc this but we clear the elements so that the gc can reclaim the references.
             Array.Clear(this.keys, 0, this.size);
@@ -241,32 +280,38 @@ namespace FramePFX.Utils.Collections {
         }
 
 
-        bool IDictionary.Contains(Object key) {
+        bool IDictionary.Contains(Object key)
+        {
             return IsCompatibleKey(key) && this.ContainsKey((TKey) key);
         }
 
-        public bool ContainsKey(TKey key) {
+        public bool ContainsKey(TKey key)
+        {
             return this.IndexOfKey(key) >= 0;
         }
 
-        public bool ContainsValue(TValue value) {
+        public bool ContainsValue(TValue value)
+        {
             return this.IndexOfValue(value) >= 0;
         }
 
-        void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) {
+        void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
+        {
             if (array == null)
                 throw new ArgumentNullException(nameof(array));
             if (arrayIndex < 0 || arrayIndex > array.Length)
                 throw new ArgumentOutOfRangeException(nameof(arrayIndex), "ArgumentOutOfRange_NeedNonNegNum");
             if (array.Length - arrayIndex < this.Count)
                 throw new ArgumentException("Arg_ArrayPlusOffTooSmall");
-            for (int i = 0; i < this.Count; i++) {
+            for (int i = 0; i < this.Count; i++)
+            {
                 KeyValuePair<TKey, TValue> entry = new KeyValuePair<TKey, TValue>(this.keys[i], this.values[i]);
                 array[arrayIndex + i] = entry;
             }
         }
 
-        void ICollection.CopyTo(Array array, int arrayIndex) {
+        void ICollection.CopyTo(Array array, int arrayIndex)
+        {
             if (array == null)
                 throw new ArgumentNullException(nameof(array));
             if (array.Rank != 1)
@@ -278,27 +323,35 @@ namespace FramePFX.Utils.Collections {
             if (array.Length - arrayIndex < this.Count)
                 throw new ArgumentException("Arg_ArrayPlusOffTooSmall");
 
-            if (array is KeyValuePair<TKey, TValue>[] kvpArray) {
-                for (int i = 0; i < this.Count; i++) {
+            if (array is KeyValuePair<TKey, TValue>[] kvpArray)
+            {
+                for (int i = 0; i < this.Count; i++)
+                {
                     kvpArray[i + arrayIndex] = new KeyValuePair<TKey, TValue>(this.keys[i], this.values[i]);
                 }
             }
-            else if (array is object[] objects) {
-                try {
-                    for (int i = 0; i < this.Count; i++) {
+            else if (array is object[] objects)
+            {
+                try
+                {
+                    for (int i = 0; i < this.Count; i++)
+                    {
                         objects[i + arrayIndex] = new KeyValuePair<TKey, TValue>(this.keys[i], this.values[i]);
                     }
                 }
-                catch (ArrayTypeMismatchException) {
+                catch (ArrayTypeMismatchException)
+                {
                     throw new ArgumentException("Invalid array storage type");
                 }
             }
-            else {
+            else
+            {
                 throw new ArgumentException("Invalid array storage type");
             }
         }
 
-        private void EnsureCapacity(int min) {
+        private void EnsureCapacity(int min)
+        {
             int newCapacity = this.keys.Length == 0 ? DefaultCapacity : this.keys.Length * 2;
             // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
             // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
@@ -309,13 +362,15 @@ namespace FramePFX.Utils.Collections {
             this.Capacity = newCapacity;
         }
 
-        private TValue GetByIndex(int index) {
+        private TValue GetByIndex(int index)
+        {
             if (index < 0 || index >= this.size)
                 throw new ArgumentOutOfRangeException(nameof(index), "ArgumentOutOfRange_Index");
             return this.values[index];
         }
 
-        private TKey GetKey(int index) {
+        private TKey GetKey(int index)
+        {
             if (index < 0 || index >= this.size)
                 throw new ArgumentOutOfRangeException(nameof(index), "ArgumentOutOfRange_Index");
             return this.keys[index];
@@ -328,7 +383,8 @@ namespace FramePFX.Utils.Collections {
         // the given key does not occur in this sorted list. Null is an invalid
         // key value.
         //
-        public int IndexOfKey(TKey key) {
+        public int IndexOfKey(TKey key)
+        {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
             int ret = Array.BinarySearch(this.keys, 0, this.size, key, this.comparer);
@@ -341,15 +397,18 @@ namespace FramePFX.Utils.Collections {
         // size of this sorted list. The elements of the list are compared to the
         // given value using the Object.Equals method.
         //
-        public int IndexOfValue(TValue value) {
+        public int IndexOfValue(TValue value)
+        {
             return Array.IndexOf(this.values, value, 0, this.size);
         }
 
         // Inserts an entry with a given key and value at a given index.
-        private void Insert(int index, TKey key, TValue value) {
+        private void Insert(int index, TKey key, TValue value)
+        {
             if (this.size == this.keys.Length)
                 this.EnsureCapacity(this.size + 1);
-            if (index < this.size) {
+            if (index < this.size)
+            {
                 Array.Copy(this.keys, index, this.keys, index + 1, this.size - index);
                 Array.Copy(this.values, index, this.values, index + 1, this.size - index);
             }
@@ -360,9 +419,11 @@ namespace FramePFX.Utils.Collections {
             this.version++;
         }
 
-        public bool TryGetValue(TKey key, out TValue value) {
+        public bool TryGetValue(TKey key, out TValue value)
+        {
             int i = this.IndexOfKey(key);
-            if (i >= 0) {
+            if (i >= 0)
+            {
                 value = this.values[i];
                 return true;
             }
@@ -371,13 +432,16 @@ namespace FramePFX.Utils.Collections {
             return false;
         }
 
-        public void RemoveAt(int index) {
-            if (index < 0 || index >= this.size) {
+        public void RemoveAt(int index)
+        {
+            if (index < 0 || index >= this.size)
+            {
                 throw new ArgumentOutOfRangeException(nameof(index), "ArgumentOutOfRange_Index");
             }
 
             this.size--;
-            if (index < this.size) {
+            if (index < this.size)
+            {
                 Array.Copy(this.keys, index + 1, this.keys, index, this.size - index);
                 Array.Copy(this.values, index + 1, this.values, index, this.size - index);
             }
@@ -387,45 +451,55 @@ namespace FramePFX.Utils.Collections {
             this.version++;
         }
 
-        public bool Remove(TKey key) {
+        public bool Remove(TKey key)
+        {
             int i = this.IndexOfKey(key);
             if (i >= 0)
                 this.RemoveAt(i);
             return i >= 0;
         }
 
-        void IDictionary.Remove(Object key) {
-            if (IsCompatibleKey(key)) {
+        void IDictionary.Remove(Object key)
+        {
+            if (IsCompatibleKey(key))
+            {
                 this.Remove((TKey) key);
             }
         }
 
-        public void TrimExcess() {
+        public void TrimExcess()
+        {
             int threshold = (int) (this.keys.Length * 0.9);
-            if (this.size < threshold) {
+            if (this.size < threshold)
+            {
                 this.Capacity = this.size;
             }
         }
 
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() {
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+        {
             return new Enumerator(this, Enumerator.KeyValuePair);
         }
 
-        IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator() {
+        IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
+        {
             return new Enumerator(this, Enumerator.KeyValuePair);
         }
 
-        IDictionaryEnumerator IDictionary.GetEnumerator() {
+        IDictionaryEnumerator IDictionary.GetEnumerator()
+        {
             return new Enumerator(this, Enumerator.DictEntry);
         }
 
-        IEnumerator IEnumerable.GetEnumerator() {
+        IEnumerator IEnumerable.GetEnumerator()
+        {
             return new Enumerator(this, Enumerator.KeyValuePair);
         }
 
         private static bool IsCompatibleKey(object key) => key != null ? key is TKey : throw new ArgumentNullException(nameof(key));
 
-        private struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>, IDictionaryEnumerator {
+        private struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>, IDictionaryEnumerator
+        {
             private readonly DictionaryList<TKey, TValue> _sortedList;
             private TKey key;
             private TValue value;
@@ -437,7 +511,8 @@ namespace FramePFX.Utils.Collections {
             internal const int DictEntry = 2;
 
             DictionaryEntry IDictionaryEnumerator.Entry {
-                get {
+                get
+                {
                     if (this.index == 0 || (this.index == this._sortedList.Count + 1))
                         throw new InvalidOperationException("InvalidOperation_EnumOpCantHappen");
                     return new DictionaryEntry(this.key, this.value);
@@ -447,20 +522,24 @@ namespace FramePFX.Utils.Collections {
             public KeyValuePair<TKey, TValue> Current => new KeyValuePair<TKey, TValue>(this.key, this.value);
 
             Object IEnumerator.Current {
-                get {
+                get
+                {
                     if (this.index == 0 || (this.index == this._sortedList.Count + 1))
                         throw new InvalidOperationException("InvalidOperation_EnumOpCantHappen");
-                    if (this.getEnumeratorRetType == DictEntry) {
+                    if (this.getEnumeratorRetType == DictEntry)
+                    {
                         return new DictionaryEntry(this.key, this.value);
                     }
-                    else {
+                    else
+                    {
                         return new KeyValuePair<TKey, TValue>(this.key, this.value);
                     }
                 }
             }
 
             Object IDictionaryEnumerator.Value {
-                get {
+                get
+                {
                     if (this.index == 0 || (this.index == this._sortedList.Count + 1))
                         throw new InvalidOperationException("InvalidOperation_EnumOpCantHappen");
                     return this.value;
@@ -468,14 +547,16 @@ namespace FramePFX.Utils.Collections {
             }
 
             Object IDictionaryEnumerator.Key {
-                get {
+                get
+                {
                     if (this.index == 0 || (this.index == this._sortedList.Count + 1))
                         throw new InvalidOperationException("InvalidOperation_EnumOpCantHappen");
                     return this.key;
                 }
             }
 
-            internal Enumerator(DictionaryList<TKey, TValue> sortedList, int getEnumeratorRetType) {
+            internal Enumerator(DictionaryList<TKey, TValue> sortedList, int getEnumeratorRetType)
+            {
                 this._sortedList = sortedList;
                 this.index = 0;
                 this.version = this._sortedList.version;
@@ -484,17 +565,20 @@ namespace FramePFX.Utils.Collections {
                 this.value = default;
             }
 
-            public void Dispose() {
+            public void Dispose()
+            {
                 this.index = 0;
                 this.key = default;
                 this.value = default;
             }
 
-            public bool MoveNext() {
+            public bool MoveNext()
+            {
                 if (this.version != this._sortedList.version)
                     throw new InvalidOperationException("Concurrent modification");
 
-                if ((uint) this.index < (uint) this._sortedList.Count) {
+                if ((uint) this.index < (uint) this._sortedList.Count)
+                {
                     this.key = this._sortedList.keys[this.index];
                     this.value = this._sortedList.values[this.index];
                     this.index++;
@@ -507,8 +591,10 @@ namespace FramePFX.Utils.Collections {
                 return false;
             }
 
-            void IEnumerator.Reset() {
-                if (this.version != this._sortedList.version) {
+            void IEnumerator.Reset()
+            {
+                if (this.version != this._sortedList.version)
+                {
                     throw new InvalidOperationException("Concurrent modification");
                 }
 
@@ -518,7 +604,8 @@ namespace FramePFX.Utils.Collections {
             }
         }
 
-        private sealed class SortedListKeyEnumerator : IEnumerator<TKey>, IEnumerator {
+        private sealed class SortedListKeyEnumerator : IEnumerator<TKey>, IEnumerator
+        {
             private DictionaryList<TKey, TValue> _sortedList;
             private int index;
             private int version;
@@ -527,29 +614,35 @@ namespace FramePFX.Utils.Collections {
             public TKey Current => this.currentKey;
 
             Object IEnumerator.Current {
-                get {
+                get
+                {
                     if (this.index == 0 || (this.index == this._sortedList.Count + 1))
                         throw new InvalidOperationException("InvalidOperation_EnumOpCantHappen");
                     return this.currentKey;
                 }
             }
 
-            internal SortedListKeyEnumerator(DictionaryList<TKey, TValue> sortedList) {
+            internal SortedListKeyEnumerator(DictionaryList<TKey, TValue> sortedList)
+            {
                 this._sortedList = sortedList;
                 this.version = sortedList.version;
             }
 
-            public void Dispose() {
+            public void Dispose()
+            {
                 this.index = 0;
                 this.currentKey = default;
             }
 
-            public bool MoveNext() {
-                if (this.version != this._sortedList.version) {
+            public bool MoveNext()
+            {
+                if (this.version != this._sortedList.version)
+                {
                     throw new InvalidOperationException("Concurrent modification");
                 }
 
-                if ((uint) this.index < (uint) this._sortedList.Count) {
+                if ((uint) this.index < (uint) this._sortedList.Count)
+                {
                     this.currentKey = this._sortedList.keys[this.index];
                     this.index++;
                     return true;
@@ -560,8 +653,10 @@ namespace FramePFX.Utils.Collections {
                 return false;
             }
 
-            void IEnumerator.Reset() {
-                if (this.version != this._sortedList.version) {
+            void IEnumerator.Reset()
+            {
+                if (this.version != this._sortedList.version)
+                {
                     throw new InvalidOperationException("Concurrent modification");
                 }
 
@@ -570,7 +665,8 @@ namespace FramePFX.Utils.Collections {
             }
         }
 
-        private sealed class SortedListValueEnumerator : IEnumerator<TValue>, IEnumerator {
+        private sealed class SortedListValueEnumerator : IEnumerator<TValue>, IEnumerator
+        {
             private readonly DictionaryList<TKey, TValue> _sortedList;
             private int index;
             private readonly int version;
@@ -579,29 +675,35 @@ namespace FramePFX.Utils.Collections {
             public TValue Current => this.currentValue;
 
             Object IEnumerator.Current {
-                get {
+                get
+                {
                     if (this.index == 0 || (this.index == this._sortedList.Count + 1))
                         throw new InvalidOperationException("InvalidOperation_EnumOpCantHappen");
                     return this.currentValue;
                 }
             }
 
-            internal SortedListValueEnumerator(DictionaryList<TKey, TValue> sortedList) {
+            internal SortedListValueEnumerator(DictionaryList<TKey, TValue> sortedList)
+            {
                 this._sortedList = sortedList;
                 this.version = sortedList.version;
             }
 
-            public void Dispose() {
+            public void Dispose()
+            {
                 this.index = 0;
                 this.currentValue = default;
             }
 
-            public bool MoveNext() {
-                if (this.version != this._sortedList.version) {
+            public bool MoveNext()
+            {
+                if (this.version != this._sortedList.version)
+                {
                     throw new InvalidOperationException("Concurrent modification");
                 }
 
-                if ((uint) this.index < (uint) this._sortedList.Count) {
+                if ((uint) this.index < (uint) this._sortedList.Count)
+                {
                     this.currentValue = this._sortedList.values[this.index];
                     this.index++;
                     return true;
@@ -612,8 +714,10 @@ namespace FramePFX.Utils.Collections {
                 return false;
             }
 
-            void IEnumerator.Reset() {
-                if (this.version != this._sortedList.version) {
+            void IEnumerator.Reset()
+            {
+                if (this.version != this._sortedList.version)
+                {
                     throw new InvalidOperationException("Concurrent modification");
                 }
 
@@ -623,7 +727,8 @@ namespace FramePFX.Utils.Collections {
         }
 
         [DebuggerDisplay("Count = {Count}")]
-        private sealed class KeyList : IList<TKey>, ICollection {
+        private sealed class KeyList : IList<TKey>, ICollection
+        {
             private readonly DictionaryList<TKey, TValue> _dict;
 
             public int Count => this._dict.size;
@@ -634,7 +739,8 @@ namespace FramePFX.Utils.Collections {
 
             Object ICollection.SyncRoot => ((ICollection) this._dict).SyncRoot;
 
-            internal KeyList(DictionaryList<TKey, TValue> dictionary) {
+            internal KeyList(DictionaryList<TKey, TValue> dictionary)
+            {
                 this._dict = dictionary;
             }
 
@@ -642,37 +748,45 @@ namespace FramePFX.Utils.Collections {
 
             public void Clear() => throw new InvalidOperationException("Cannot write/modify a nested class");
 
-            public bool Contains(TKey key) {
+            public bool Contains(TKey key)
+            {
                 return this._dict.ContainsKey(key);
             }
 
-            public void CopyTo(TKey[] array, int arrayIndex) {
+            public void CopyTo(TKey[] array, int arrayIndex)
+            {
                 // defer error checking to Array.Copy
                 Array.Copy(this._dict.keys, 0, array, arrayIndex, this._dict.Count);
             }
 
-            void ICollection.CopyTo(Array array, int arrayIndex) {
+            void ICollection.CopyTo(Array array, int arrayIndex)
+            {
                 if (array != null && array.Rank != 1)
                     throw new ArgumentException("Arg_RankMultiDimNotSupported");
 
-                try {
+                try
+                {
                     // defer error checking to Array.Copy
                     Array.Copy(this._dict.keys, 0, array, arrayIndex, this._dict.Count);
                 }
-                catch (ArrayTypeMismatchException) {
+                catch (ArrayTypeMismatchException)
+                {
                     throw new ArgumentException("Invalid array storage type");
                 }
             }
 
-            public void Insert(int index, TKey value) {
+            public void Insert(int index, TKey value)
+            {
                 throw new InvalidOperationException("Cannot write/modify a nested class");
             }
 
             public TKey this[int index] {
-                get {
+                get
+                {
                     return this._dict.GetKey(index);
                 }
-                set {
+                set
+                {
                     throw new InvalidOperationException("NotSupported_KeyCollectionSet");
                 }
             }
@@ -681,7 +795,8 @@ namespace FramePFX.Utils.Collections {
 
             IEnumerator IEnumerable.GetEnumerator() => new SortedListKeyEnumerator(this._dict);
 
-            public int IndexOf(TKey key) {
+            public int IndexOf(TKey key)
+            {
                 if (key == null)
                     throw new ArgumentNullException(nameof(key));
                 int i = Array.BinarySearch(this._dict.keys, 0, this._dict.Count, key, this._dict.comparer);
@@ -694,7 +809,8 @@ namespace FramePFX.Utils.Collections {
         }
 
         [DebuggerDisplay("Count = {Count}")]
-        private sealed class ValueList : IList<TValue>, ICollection {
+        private sealed class ValueList : IList<TValue>, ICollection
+        {
             private readonly DictionaryList<TKey, TValue> dict;
 
             public int Count => this.dict.size;
@@ -710,49 +826,60 @@ namespace FramePFX.Utils.Collections {
                 set => throw new InvalidOperationException("Cannot write/modify a nested class");
             }
 
-            internal ValueList(DictionaryList<TKey, TValue> dictionary) {
+            internal ValueList(DictionaryList<TKey, TValue> dictionary)
+            {
                 this.dict = dictionary;
             }
 
-            public void Add(TValue key) {
+            public void Add(TValue key)
+            {
                 throw new InvalidOperationException("Cannot write/modify a nested class");
             }
 
-            public void Clear() {
+            public void Clear()
+            {
                 throw new InvalidOperationException("Cannot write/modify a nested class");
             }
 
-            public bool Contains(TValue value) {
+            public bool Contains(TValue value)
+            {
                 return this.dict.ContainsValue(value);
             }
 
-            public void CopyTo(TValue[] array, int arrayIndex) {
+            public void CopyTo(TValue[] array, int arrayIndex)
+            {
                 Array.Copy(this.dict.values, 0, array, arrayIndex, this.dict.Count);
             }
 
-            void ICollection.CopyTo(Array array, int arrayIndex) {
+            void ICollection.CopyTo(Array array, int arrayIndex)
+            {
                 if (array != null && array.Rank != 1)
                     throw new ArgumentException("Arg_RankMultiDimNotSupported");
 
-                try {
+                try
+                {
                     Array.Copy(this.dict.values, 0, array, arrayIndex, this.dict.Count);
                 }
-                catch (ArrayTypeMismatchException) {
+                catch (ArrayTypeMismatchException)
+                {
                     throw new ArgumentException("Invalid array storage type");
                 }
             }
 
             public void Insert(int index, TValue value) => throw new InvalidOperationException("Cannot write/modify a nested class");
 
-            public IEnumerator<TValue> GetEnumerator() {
+            public IEnumerator<TValue> GetEnumerator()
+            {
                 return new SortedListValueEnumerator(this.dict);
             }
 
-            IEnumerator IEnumerable.GetEnumerator() {
+            IEnumerator IEnumerable.GetEnumerator()
+            {
                 return new SortedListValueEnumerator(this.dict);
             }
 
-            public int IndexOf(TValue value) {
+            public int IndexOf(TValue value)
+            {
                 return Array.IndexOf(this.dict.values, value, 0, this.dict.Count);
             }
 

@@ -17,6 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Editors.DataTransfer {
-
+namespace FramePFX.Editors.DataTransfer
+{
 }

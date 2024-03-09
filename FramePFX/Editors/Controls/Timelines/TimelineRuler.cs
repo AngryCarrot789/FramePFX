@@ -31,8 +31,10 @@ using FramePFX.Utils;
 using FramePFX.Utils.Visuals;
 using Rect = System.Windows.Rect;
 
-namespace FramePFX.Editors.Controls.Timelines {
-    public class TimelineRuler : FrameworkElement {
+namespace FramePFX.Editors.Controls.Timelines
+{
+    public class TimelineRuler : FrameworkElement
+    {
         private static readonly int[] Steps = new[] {1, 2, 5, 10};
         private const double MinRender = 0.01D;
         private const double MajorLineThickness = 1.0;
@@ -78,32 +80,38 @@ namespace FramePFX.Editors.Controls.Timelines {
         private Pen majorLineStepColourPen;
         private Pen minorLineStepColourPen;
 
-        public TimelineRuler() {
+        public TimelineRuler()
+        {
             this.Loaded += this.OnRulerLoaded;
             this.ClipToBounds = true;
         }
 
-        private void OnTimelineChanged(Timeline oldTimeline, Timeline newTimeline) {
+        private void OnTimelineChanged(Timeline oldTimeline, Timeline newTimeline)
+        {
             if (oldTimeline != null)
                 oldTimeline.MaxDurationChanged -= this.OnTimelineMaxDurationChanged;
 
-            if (newTimeline != null) {
+            if (newTimeline != null)
+            {
                 newTimeline.MaxDurationChanged += this.OnTimelineMaxDurationChanged;
                 this.OnTimelineMaxDurationChanged(newTimeline);
             }
         }
 
-        private void OnTimelineMaxDurationChanged(Timeline timeline) {
+        private void OnTimelineMaxDurationChanged(Timeline timeline)
+        {
             this.timelineMaxDuration = timeline.MaxDuration;
             this.InvalidateVisual();
         }
 
-        private void OnRulerLoaded(object sender, RoutedEventArgs e) {
+        private void OnRulerLoaded(object sender, RoutedEventArgs e)
+        {
             this.Loaded -= this.OnRulerLoaded;
 
             // allows high performance rendering, so that we aren't rendering stuff that's offscreen
             this.scroller = VisualTreeUtils.GetParent<ScrollViewer>(this);
-            if (this.scroller != null) {
+            if (this.scroller != null)
+            {
                 this.scroller.SizeChanged += this.OnScrollerOnSizeChanged;
                 this.scroller.ScrollChanged += this.OnScrollerOnScrollChanged;
             }
@@ -113,27 +121,33 @@ namespace FramePFX.Editors.Controls.Timelines {
 
         private void OnScrollerOnSizeChanged(object o, SizeChangedEventArgs e) => this.InvalidateVisual();
 
-        private void OnScrollerOnScrollChanged(object o, ScrollChangedEventArgs e) {
-            if (e.HorizontalChange != 0 || e.VerticalChange != 0) {
+        private void OnScrollerOnScrollChanged(object o, ScrollChangedEventArgs e)
+        {
+            if (e.HorizontalChange != 0 || e.VerticalChange != 0)
+            {
                 this.InvalidateVisual();
             }
         }
 
-        protected override void OnRender(DrawingContext dc) {
+        protected override void OnRender(DrawingContext dc)
+        {
             base.OnRender(dc);
             Size size = this.RenderSize;
-            if (size.Width <= MinRender || size.Height <= MinRender || this.timelineMaxDuration < 1) {
+            if (size.Width <= MinRender || size.Height <= MinRender || this.timelineMaxDuration < 1)
+            {
                 return;
             }
 
             // When zooming, OnRender gets called 3 times... this is why zooming is laggy
             // Calculate visible pixel bounds
             Rect rect = UIUtils.GetVisibleRect(this.scroller, this);
-            if (rect.Width < MinRender && rect.Height < MinRender) {
+            if (rect.Width < MinRender && rect.Height < MinRender)
+            {
                 return;
             }
 
-            if (this.Background is Brush bg) {
+            if (this.Background is Brush bg)
+            {
                 dc.DrawRectangle(bg, null, rect);
             }
 
@@ -144,7 +158,8 @@ namespace FramePFX.Editors.Controls.Timelines {
             double minStepMagPow = Math.Pow(10, Math.Floor(Math.Log10(minStep)));
             double normMinStep = minStep / minStepMagPow;
             int finalStep = Steps.FirstOrDefault(step => step > normMinStep);
-            if (finalStep < 1) {
+            if (finalStep < 1)
+            {
                 return;
             }
 
@@ -158,20 +173,24 @@ namespace FramePFX.Editors.Controls.Timelines {
             // Flooring may result in us drawing things partially offscreen to the left, which is kinda required
             int i = (int) Math.Floor(rect.Left / pixelSize);
             int j = (int) Math.Ceiling((rect.Right + pixelSize) / pixelSize);
-            do {
+            do
+            {
                 double pixel = i * pixelSize;
-                if (i > j) {
+                if (i > j)
+                {
                     break;
                 }
 
                 // TODO: optimise smaller/minor lines, maybe using skia?
-                for (int y = 1; y < steps; ++y) {
+                for (int y = 1; y < steps; ++y)
+                {
                     double subpixel = pixel + y * subpixelSize;
                     this.DrawMinorLine(dc, subpixel, size.Height);
                 }
 
                 double text_value = i * valueStep;
-                if (Math.Abs(text_value - (int) text_value) < 0.00001d) {
+                if (Math.Abs(text_value - (int) text_value) < 0.00001d)
+                {
                     this.DrawMajorLine(dc, pixel, size.Height);
                     this.DrawText(dc, text_value, pixel);
                 }
@@ -180,28 +199,33 @@ namespace FramePFX.Editors.Controls.Timelines {
             } while (true);
         }
 
-        public void DrawMajorLine(DrawingContext dc, double offset, double height) {
+        public void DrawMajorLine(DrawingContext dc, double offset, double height)
+        {
             double size = Math.Min(height / 2d, height);
             dc.DrawLine(this.MajorStepColourPen, new Point(offset, height - size), new Point(offset, height));
         }
 
-        public void DrawMinorLine(DrawingContext dc, double offset, double height) {
+        public void DrawMinorLine(DrawingContext dc, double offset, double height)
+        {
             double majorSize = height / 2d;
             double size = majorSize * (1 - MinorStepRatio);
             dc.DrawLine(this.MinorStepColourPen, new Point(offset, height - size), new Point(offset, height));
         }
 
-        public void DrawText(DrawingContext dc, double value, double offset) {
+        public void DrawText(DrawingContext dc, double value, double offset)
+        {
             double height = this.ActualHeight;
             double majorSize = this.ActualHeight / 2d;
 
             Point point;
             FormattedText format = this.GetFormattedText(value);
             double gap = (height - majorSize);
-            if (gap >= (format.Height / 2d)) {
+            if (gap >= (format.Height / 2d))
+            {
                 point = new Point((offset + MajorLineThickness) - (format.Width / 2d), gap - format.Height);
             }
-            else {
+            else
+            {
                 // Draw above major if possible
                 point = new Point(offset + MajorLineThickness + 2d, (height / 2d) - (format.Height / 2d));
             }
@@ -209,9 +233,11 @@ namespace FramePFX.Editors.Controls.Timelines {
             dc.DrawText(format, point);
         }
 
-        protected FormattedText GetFormattedText(double value) {
+        protected FormattedText GetFormattedText(double value)
+        {
             Typeface typeface = this.CachedTypeFace;
-            if (typeface == null) {
+            if (typeface == null)
+            {
                 FontFamily font = this.FontFamily ?? (this.FontFamily = new FontFamily("Consolas"));
                 ICollection<Typeface> typefaces = font.GetTypefaces();
                 this.CachedTypeFace = typeface = typefaces.FirstOrDefault() ?? FallbackTypeFace;

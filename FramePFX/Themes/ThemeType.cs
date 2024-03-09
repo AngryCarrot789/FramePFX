@@ -19,8 +19,10 @@
 
 using System;
 
-namespace FramePFX.Themes {
-    public enum ThemeType {
+namespace FramePFX.Themes
+{
+    public enum ThemeType
+    {
         SoftDark,
         RedBlackTheme,
         DeepDark,
@@ -29,9 +31,12 @@ namespace FramePFX.Themes {
         LightTheme,
     }
 
-    public static class ThemeTypeExtension {
-        public static string GetName(this ThemeType type) {
-            switch (type) {
+    public static class ThemeTypeExtension
+    {
+        public static string GetName(this ThemeType type)
+        {
+            switch (type)
+            {
                 case ThemeType.SoftDark: return "SoftDark";
                 case ThemeType.RedBlackTheme: return "RedBlackTheme";
                 case ThemeType.DeepDark: return "DeepDark";

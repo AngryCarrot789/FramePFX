@@ -17,10 +17,12 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Notifications {
+namespace FramePFX.Notifications
+{
     /// <summary>
     /// A class which manages all notifications
     /// </summary>
-    public class NotificationManager {
+    public class NotificationManager
+    {
     }
 }

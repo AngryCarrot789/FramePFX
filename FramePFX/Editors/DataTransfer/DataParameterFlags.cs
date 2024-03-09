@@ -19,9 +19,11 @@
 
 using System;
 
-namespace FramePFX.Editors.DataTransfer {
+namespace FramePFX.Editors.DataTransfer
+{
     [Flags]
-    public enum DataParameterFlags {
+    public enum DataParameterFlags
+    {
         /// <summary>
         /// This data parameter does nothing special on its own
         /// </summary>

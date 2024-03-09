@@ -20,11 +20,13 @@
 using System;
 using SkiaSharp;
 
-namespace FramePFX.Editors.Rendering {
+namespace FramePFX.Editors.Rendering
+{
     /// <summary>
     /// A quality factor for when drawing
     /// </summary>
-    public enum EnumRenderQuality : byte {
+    public enum EnumRenderQuality : byte
+    {
         /// <summary>
         /// Unspecified quality settings; SkiaSharp default
         /// </summary>
@@ -46,9 +48,12 @@ namespace FramePFX.Editors.Rendering {
         High
     }
 
-    public static class EnumRenderQualityExtensions {
-        public static SKFilterQuality ToFilterQuality(this EnumRenderQuality quality) {
-            switch (quality) {
+    public static class EnumRenderQualityExtensions
+    {
+        public static SKFilterQuality ToFilterQuality(this EnumRenderQuality quality)
+        {
+            switch (quality)
+            {
                 case EnumRenderQuality.UnspecifiedQuality: return SKFilterQuality.None;
                 case EnumRenderQuality.Low: return SKFilterQuality.Low;
                 case EnumRenderQuality.Medium: return SKFilterQuality.Medium;

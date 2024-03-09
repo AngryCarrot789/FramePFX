@@ -26,13 +26,16 @@ using FramePFX.Logger;
 using FramePFX.Utils;
 using SkiaSharp;
 
-namespace FramePFX.Editors.ResourceManaging.Resources {
-    public class ResourceImage : ResourceItem {
+namespace FramePFX.Editors.ResourceManaging.Resources
+{
+    public class ResourceImage : ResourceItem
+    {
         private string filePath;
 
         public string FilePath {
             get => this.filePath;
-            set {
+            set
+            {
                 this.filePath = value;
             }
         }
@@ -47,50 +50,65 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
 
         public event ResourceEventHandler ImageChanged;
 
-        public ResourceImage() {
+        public ResourceImage()
+        {
         }
 
-        static ResourceImage() {
-            SerialisationRegistry.Register<ResourceImage>(0, (resource, data, ctx) => {
+        static ResourceImage()
+        {
+            SerialisationRegistry.Register<ResourceImage>(0, (resource, data, ctx) =>
+            {
                 ctx.DeserialiseBaseType(data);
                 resource.IsRawBitmapMode = data.GetBool(nameof(resource.IsRawBitmapMode), false);
-                if (resource.IsRawBitmapMode) {
+                if (resource.IsRawBitmapMode)
+                {
                     int hashCode = data.GetInt("BitmapImageFormatHashCode");
                     UnmanagedImageFormat format = data.GetStruct<UnmanagedImageFormat>("BitmapImageFormat");
-                    if (format.Width <= 0 || format.Height <= 0) {
+                    if (format.Width <= 0 || format.Height <= 0)
+                    {
                         return;
                     }
 
                     // !!!
-                    if (format.GetHashCode() != hashCode) {
+                    if (format.GetHashCode() != hashCode)
+                    {
                         return;
                     }
 
-                    unsafe {
-                        try {
+                    unsafe
+                    {
+                        try
+                        {
                             byte[] array = data.GetByteArray(nameof(resource.bitmap));
                             resource.bitmap = new SKBitmap();
-                            fixed (byte* ptr = array) {
+                            fixed (byte* ptr = array)
+                            {
                                 resource.bitmap.InstallPixels(format.ImageInfo, (IntPtr) ptr);
                             }
 
                             resource.image = resource.bitmap != null ? SKImage.FromBitmap(resource.bitmap) : null;
                         }
-                        catch (Exception e) {
+                        catch (Exception e)
+                        {
                             resource.bitmap?.Dispose();
                             resource.image?.Dispose();
                         }
                     }
                 }
-                else if (data.TryGetString(nameof(resource.FilePath), out string filePath)) {
+                else if (data.TryGetString(nameof(resource.FilePath), out string filePath))
+                {
                     resource.FilePath = filePath;
                 }
-            }, (resource, data, ctx) => {
+            }, (resource, data, ctx) =>
+            {
                 ctx.SerialiseBaseType(data);
-                if (resource.IsRawBitmapMode) {
-                    if (resource.bitmap != null) {
+                if (resource.IsRawBitmapMode)
+                {
+                    if (resource.bitmap != null)
+                    {
                         IntPtr pixels = resource.bitmap.GetPixels(out IntPtr length);
-                        if (pixels != IntPtr.Zero && length != IntPtr.Zero) {
+                        if (pixels != IntPtr.Zero && length != IntPtr.Zero)
+                        {
                             byte[] array = new byte[length.ToInt32()];
                             Marshal.Copy(pixels, array, 0, array.Length);
                             data.SetBool(nameof(resource.IsRawBitmapMode), true);
@@ -102,59 +120,74 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
                         }
                     }
                 }
-                else if (!string.IsNullOrEmpty(resource.FilePath)) {
+                else if (!string.IsNullOrEmpty(resource.FilePath))
+                {
                     data.SetString(nameof(resource.FilePath), resource.FilePath);
                 }
             });
         }
 
-        public void SetBitmapImage(SKBitmap skBitmap, bool enableResource = true) {
+        public void SetBitmapImage(SKBitmap skBitmap, bool enableResource = true)
+        {
             this.bitmap = skBitmap;
             this.image = SKImage.FromBitmap(skBitmap);
             this.IsRawBitmapMode = true;
-            if (enableResource) {
+            if (enableResource)
+            {
                 this.TryAutoEnable(null);
             }
 
             this.ImageChanged?.Invoke(this);
         }
 
-        protected override void LoadDataIntoClone(BaseResource clone) {
+        protected override void LoadDataIntoClone(BaseResource clone)
+        {
             base.LoadDataIntoClone(clone);
             ResourceImage cloned = (ResourceImage) clone;
-            if (this.IsRawBitmapMode) {
-                if (this.bitmap != null) {
+            if (this.IsRawBitmapMode)
+            {
+                if (this.bitmap != null)
+                {
                     cloned.bitmap = this.bitmap.Copy();
                     if (cloned.bitmap != null)
                         cloned.image = SKImage.FromBitmap(cloned.bitmap);
                 }
             }
-            else {
+            else
+            {
                 cloned.filePath = this.filePath;
             }
         }
 
-        protected override bool OnTryAutoEnable(ResourceLoader loader) {
-            if (string.IsNullOrEmpty(this.FilePath) || this.image != null) {
+        protected override bool OnTryAutoEnable(ResourceLoader loader)
+        {
+            if (string.IsNullOrEmpty(this.FilePath) || this.image != null)
+            {
                 return true;
             }
 
-            try {
+            try
+            {
                 this.LoadImageAsync(this.FilePath);
                 return true;
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 loader?.AddEntry(new InvalidImagePathEntry(this) {FilePath = this.FilePath});
                 return false;
             }
         }
 
-        public override bool TryEnableForLoaderEntry(InvalidResourceEntry entry) {
-            if (entry is InvalidImagePathEntry imgEntry) {
-                try {
+        public override bool TryEnableForLoaderEntry(InvalidResourceEntry entry)
+        {
+            if (entry is InvalidImagePathEntry imgEntry)
+            {
+                try
+                {
                     this.LoadImageAsync(imgEntry.FilePath);
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     AppLogger.Instance.WriteLine("Failed to autoload load image file: " + e.GetToString());
                     return false;
                 }
@@ -163,22 +196,27 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             return base.TryEnableForLoaderEntry(entry);
         }
 
-        public void LoadImageAsync(string file) {
+        public void LoadImageAsync(string file)
+        {
             SKBitmap bmp = null;
             SKImage img = null;
-            try {
-                using (BufferedStream stream = new BufferedStream(File.OpenRead(file), 32768)) {
+            try
+            {
+                using (BufferedStream stream = new BufferedStream(File.OpenRead(file), 32768))
+                {
                     bmp = SKBitmap.Decode(stream);
                     img = SKImage.FromBitmap(bmp);
                 }
             }
-            catch {
+            catch
+            {
                 bmp?.Dispose();
                 img?.Dispose();
                 throw;
             }
 
-            if (this.bitmap != null || this.image != null) {
+            if (this.bitmap != null || this.image != null)
+            {
                 this.bitmap?.Dispose();
                 this.bitmap = null;
                 this.image?.Dispose();
@@ -190,18 +228,22 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             this.ImageChanged?.Invoke(this);
         }
 
-        protected override void OnDisableCore(bool user) {
+        protected override void OnDisableCore(bool user)
+        {
             base.OnDisableCore(user);
             this.DisposeImage(false);
         }
 
-        public override void Destroy() {
+        public override void Destroy()
+        {
             base.Destroy();
             this.DisposeImage(true);
         }
 
-        private void DisposeImage(bool canDisposeRawBitmap) {
-            if ((this.bitmap != null || this.image != null) && (!this.IsRawBitmapMode || canDisposeRawBitmap)) {
+        private void DisposeImage(bool canDisposeRawBitmap)
+        {
+            if ((this.bitmap != null || this.image != null) && (!this.IsRawBitmapMode || canDisposeRawBitmap))
+            {
                 this.bitmap?.Dispose();
                 this.bitmap = null;
                 this.image?.Dispose();
@@ -211,15 +253,18 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             }
         }
 
-        public void ClearRawBitmapImage() {
-            if (!this.IsRawBitmapMode) {
+        public void ClearRawBitmapImage()
+        {
+            if (!this.IsRawBitmapMode)
+            {
                 throw new InvalidOperationException("Not using a raw bitmap");
             }
 
             this.DisposeImage(true);
         }
 
-        private readonly struct UnmanagedImageFormat {
+        private readonly struct UnmanagedImageFormat
+        {
             public readonly int Width;
             public readonly int Height;
             public readonly SKColorType ColorType;
@@ -227,30 +272,36 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
 
             public SKImageInfo ImageInfo => new SKImageInfo(this.Width, this.Height, this.ColorType, this.AlphaType);
 
-            public UnmanagedImageFormat(int width, int height, SKColorType colorType, SKAlphaType alphaType) {
+            public UnmanagedImageFormat(int width, int height, SKColorType colorType, SKAlphaType alphaType)
+            {
                 this.Width = width;
                 this.Height = height;
                 this.ColorType = colorType;
                 this.AlphaType = alphaType;
             }
 
-            public UnmanagedImageFormat(SKImageInfo info) {
+            public UnmanagedImageFormat(SKImageInfo info)
+            {
                 this.Width = info.Width;
                 this.Height = info.Height;
                 this.ColorType = info.ColorType;
                 this.AlphaType = info.AlphaType;
             }
 
-            public bool Equals(UnmanagedImageFormat other) {
+            public bool Equals(UnmanagedImageFormat other)
+            {
                 return this.Width == other.Width && this.Height == other.Height && this.ColorType == other.ColorType && this.AlphaType == other.AlphaType;
             }
 
-            public override bool Equals(object obj) {
+            public override bool Equals(object obj)
+            {
                 return obj is UnmanagedImageFormat other && this.Equals(other);
             }
 
-            public override int GetHashCode() {
-                unchecked {
+            public override int GetHashCode()
+            {
+                unchecked
+                {
                     int hash = this.Width;
                     hash = (hash * 397) ^ this.Height;
                     hash = (hash * 397) ^ (int) this.ColorType;

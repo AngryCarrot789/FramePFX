@@ -21,23 +21,30 @@ using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Commands {
-    public class TogglePlayCommand : Command {
-        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+namespace FramePFX.Editors.Commands
+{
+    public class TogglePlayCommand : Command
+    {
+        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        {
             if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out var editor))
                 return ExecutabilityState.Invalid;
             return editor.Playback.Timeline != null ? ExecutabilityState.Executable : ExecutabilityState.ValidButCannotExecute;
         }
 
-        public override Task Execute(CommandEventArgs e) {
-            if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor) || editor.Playback.Timeline == null) {
+        public override Task Execute(CommandEventArgs e)
+        {
+            if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor) || editor.Playback.Timeline == null)
+            {
                 return Task.CompletedTask;
             }
 
-            if (editor.Playback.PlayState == PlayState.Play) {
+            if (editor.Playback.PlayState == PlayState.Play)
+            {
                 editor.Playback.Pause();
             }
-            else {
+            else
+            {
                 editor.Playback.Play();
             }
 

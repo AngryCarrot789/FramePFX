@@ -23,11 +23,13 @@ using System.Linq;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.RBC;
 
-namespace FramePFX.Editors.ResourceManaging {
+namespace FramePFX.Editors.ResourceManaging
+{
     /// <summary>
     /// A group of resource items
     /// </summary>
-    public sealed class ResourceFolder : BaseResource {
+    public sealed class ResourceFolder : BaseResource
+    {
         private readonly List<BaseResource> items;
 
         public IReadOnlyList<BaseResource> Items => this.items;
@@ -46,33 +48,43 @@ namespace FramePFX.Editors.ResourceManaging {
         /// </summary>
         public int SelectedItemCount => this.items.Count(x => x.IsSelected);
 
-        public ResourceFolder() {
+        public ResourceFolder()
+        {
             this.items = new List<BaseResource>();
         }
 
-        public ResourceFolder(string displayName) : this() {
+        public ResourceFolder(string displayName) : this()
+        {
             this.DisplayName = displayName;
         }
 
-        static ResourceFolder() {
-            SerialisationRegistry.Register<ResourceFolder>(0, (resource, data, ctx) => {
+        static ResourceFolder()
+        {
+            SerialisationRegistry.Register<ResourceFolder>(0, (resource, data, ctx) =>
+            {
                 ctx.DeserialiseBaseType(data);
                 RBEList list = data.GetList("Items");
-                foreach (RBEDictionary dictionary in list.Cast<RBEDictionary>()) {
+                foreach (RBEDictionary dictionary in list.Cast<RBEDictionary>())
+                {
                     resource.AddItem(ReadSerialisedWithType(dictionary));
                 }
-            }, (resource, data, ctx) => {
+            }, (resource, data, ctx) =>
+            {
                 ctx.SerialiseBaseType(data);
                 RBEList list = data.CreateList("Items");
-                foreach (BaseResource item in resource.items) {
+                foreach (BaseResource item in resource.items)
+                {
                     list.Add(WriteSerialisedWithType(item));
                 }
             });
         }
 
-        public bool IsNameFree(string name) {
-            foreach (BaseResource item in this.items) {
-                if (item.DisplayName == name) {
+        public bool IsNameFree(string name)
+        {
+            foreach (BaseResource item in this.items)
+            {
+                if (item.DisplayName == name)
+                {
                     return false;
                 }
             }
@@ -80,16 +92,20 @@ namespace FramePFX.Editors.ResourceManaging {
             return true;
         }
 
-        protected internal override void OnAttachedToManager() {
+        protected internal override void OnAttachedToManager()
+        {
             base.OnAttachedToManager();
-            foreach (BaseResource resource in this.items) {
+            foreach (BaseResource resource in this.items)
+            {
                 InternalSetResourceManager(resource, this.Manager);
             }
         }
 
-        protected internal override void OnDetatchedFromManager() {
-            base.OnDetatchedFromManager();
-            foreach (BaseResource resource in this.items) {
+        protected internal override void OnDetachedFromManager()
+        {
+            base.OnDetachedFromManager();
+            foreach (BaseResource resource in this.items)
+            {
                 InternalSetResourceManager(resource, null);
             }
         }
@@ -98,11 +114,13 @@ namespace FramePFX.Editors.ResourceManaging {
         /// Adds the item to this resource folder
         /// </summary>
         /// <param name="item"></param>
-        public void AddItem(BaseResource item) {
+        public void AddItem(BaseResource item)
+        {
             this.InsertItem(this.items.Count, item);
         }
 
-        public void InsertItem(int index, BaseResource item) {
+        public void InsertItem(int index, BaseResource item)
+        {
             if (item.Parent != null)
                 throw new InvalidOperationException("Item already exists in another folder");
             if (index < 0 || index > this.items.Count)
@@ -119,13 +137,15 @@ namespace FramePFX.Editors.ResourceManaging {
         /// </summary>
         /// <param name="item">The item to check</param>
         /// <returns>True if this folder contains the item</returns>
-        public bool Contains(BaseResource item) {
+        public bool Contains(BaseResource item)
+        {
             // This assumes no maliciously corrupted resource items,
             // meaning this code should always work under proper conditions
             return item != null && ReferenceEquals(item.Parent, this);
         }
 
-        public bool RemoveItem(BaseResource item) {
+        public bool RemoveItem(BaseResource item)
+        {
             int index = this.items.IndexOf(item);
             if (index < 0)
                 return false;
@@ -133,14 +153,16 @@ namespace FramePFX.Editors.ResourceManaging {
             return true;
         }
 
-        public void RemoveItemAt(int index) {
+        public void RemoveItemAt(int index)
+        {
             BaseResource item = this.items[index];
             this.items.RemoveAt(index);
             InternalOnItemRemoved(item, this);
             this.ResourceRemoved?.Invoke(this, item, index);
         }
 
-        public void MoveItemTo(ResourceFolder target, BaseResource item) {
+        public void MoveItemTo(ResourceFolder target, BaseResource item)
+        {
             int index = this.items.IndexOf(item);
             if (index == -1)
                 throw new InvalidOperationException("Item is not stored in this folder");
@@ -149,7 +171,8 @@ namespace FramePFX.Editors.ResourceManaging {
 
         public void MoveItemTo(ResourceFolder target, int srcIndex) => this.MoveItemTo(target, srcIndex, target.items.Count);
 
-        public void MoveItemTo(ResourceFolder target, int srcIndex, int dstIndex) {
+        public void MoveItemTo(ResourceFolder target, int srcIndex, int dstIndex)
+        {
             BaseResource item = this.items[srcIndex];
             if (target.Manager != null && target.Manager != this.Manager)
                 throw new Exception("Target's manager is non-null and different from the current instance");
@@ -161,9 +184,12 @@ namespace FramePFX.Editors.ResourceManaging {
             target.ResourceMoved?.Invoke(target, args);
         }
 
-        public bool IsParentInHierarchy(ResourceFolder item, bool startAtThis = true) {
-            for (ResourceFolder parent = startAtThis ? this : this.Parent; item != null; item = item.Parent) {
-                if (ReferenceEquals(parent, item)) {
+        public bool IsParentInHierarchy(ResourceFolder item, bool startAtThis = true)
+        {
+            for (ResourceFolder parent = startAtThis ? this : this.Parent; item != null; item = item.Parent)
+            {
+                if (ReferenceEquals(parent, item))
+                {
                     return true;
                 }
             }
@@ -171,10 +197,12 @@ namespace FramePFX.Editors.ResourceManaging {
             return false;
         }
 
-        protected override void LoadDataIntoClone(BaseResource clone) {
+        protected override void LoadDataIntoClone(BaseResource clone)
+        {
             base.LoadDataIntoClone(clone);
             ResourceFolder folder = (ResourceFolder) clone;
-            foreach (BaseResource child in this.items) {
+            foreach (BaseResource child in this.items)
+            {
                 folder.AddItem(Clone(child));
             }
         }
@@ -184,8 +212,10 @@ namespace FramePFX.Editors.ResourceManaging {
         /// </summary>
         /// <param name="folder">The folder to clear recursively. Null accepted for convenience (e.g. resource as ResourceFolder)</param>
         /// <param name="destroy">True to destroy resources before removing</param>
-        public static void ClearHierarchy(ResourceFolder folder, bool destroy = true) {
-            if (folder == null) {
+        public static void ClearHierarchy(ResourceFolder folder, bool destroy = true)
+        {
+            if (folder == null)
+            {
                 return;
             }
 
@@ -193,7 +223,8 @@ namespace FramePFX.Editors.ResourceManaging {
             // in n-1 copies of all elements when removing from the front of the list.
             // Even if we made 'items' a LinkedList, WPF still uses array based collections
             // so the UI could stall this operation for large folders
-            for (int i = folder.items.Count - 1; i >= 0; i--) {
+            for (int i = folder.items.Count - 1; i >= 0; i--)
+            {
                 BaseResource item = folder.items[i];
                 if (destroy)
                     item.Destroy();

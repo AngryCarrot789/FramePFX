@@ -22,24 +22,30 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace FramePFX.RBC {
-    public class RBEByte : RBEBase {
+namespace FramePFX.RBC
+{
+    public class RBEByte : RBEBase
+    {
         public override RBEType Type => RBEType.Byte;
 
         public byte Value { get; set; }
 
-        public RBEByte() {
+        public RBEByte()
+        {
         }
 
-        public RBEByte(byte value) {
+        public RBEByte(byte value)
+        {
             this.Value = value;
         }
 
-        protected override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader)
+        {
             this.Value = reader.ReadByte();
         }
 
-        protected override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer)
+        {
             writer.Write(this.Value);
         }
 
@@ -47,23 +53,28 @@ namespace FramePFX.RBC {
         public RBEByte CloneCore() => new RBEByte(this.Value);
     }
 
-    public class RBEShort : RBEBase {
+    public class RBEShort : RBEBase
+    {
         public override RBEType Type => RBEType.Short;
 
         public short Value { get; set; }
 
-        public RBEShort() {
+        public RBEShort()
+        {
         }
 
-        public RBEShort(short value) {
+        public RBEShort(short value)
+        {
             this.Value = value;
         }
 
-        protected override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader)
+        {
             this.Value = reader.ReadInt16();
         }
 
-        protected override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer)
+        {
             writer.Write(this.Value);
         }
 
@@ -71,23 +82,28 @@ namespace FramePFX.RBC {
         public RBEShort CloneCore() => new RBEShort(this.Value);
     }
 
-    public class RBEInt : RBEBase {
+    public class RBEInt : RBEBase
+    {
         public override RBEType Type => RBEType.Int;
 
         public int Value { get; set; }
 
-        public RBEInt() {
+        public RBEInt()
+        {
         }
 
-        public RBEInt(int value) {
+        public RBEInt(int value)
+        {
             this.Value = value;
         }
 
-        protected override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader)
+        {
             this.Value = reader.ReadInt32();
         }
 
-        protected override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer)
+        {
             writer.Write(this.Value);
         }
 
@@ -95,23 +111,28 @@ namespace FramePFX.RBC {
         public RBEInt CloneCore() => new RBEInt(this.Value);
     }
 
-    public class RBELong : RBEBase {
+    public class RBELong : RBEBase
+    {
         public override RBEType Type => RBEType.Long;
 
         public long Value { get; set; }
 
-        public RBELong() {
+        public RBELong()
+        {
         }
 
-        public RBELong(long value) {
+        public RBELong(long value)
+        {
             this.Value = value;
         }
 
-        protected override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader)
+        {
             this.Value = reader.ReadInt64();
         }
 
-        protected override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer)
+        {
             writer.Write(this.Value);
         }
 
@@ -119,23 +140,28 @@ namespace FramePFX.RBC {
         public RBELong CloneCore() => new RBELong(this.Value);
     }
 
-    public class RBEFloat : RBEBase {
+    public class RBEFloat : RBEBase
+    {
         public override RBEType Type => RBEType.Float;
 
         public float Value { get; set; }
 
-        public RBEFloat() {
+        public RBEFloat()
+        {
         }
 
-        public RBEFloat(float value) {
+        public RBEFloat(float value)
+        {
             this.Value = value;
         }
 
-        protected override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader)
+        {
             this.Value = reader.ReadSingle();
         }
 
-        protected override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer)
+        {
             writer.Write(this.Value);
         }
 
@@ -143,23 +169,28 @@ namespace FramePFX.RBC {
         public RBEFloat CloneCore() => new RBEFloat(this.Value);
     }
 
-    public class RBEDouble : RBEBase {
+    public class RBEDouble : RBEBase
+    {
         public override RBEType Type => RBEType.Double;
 
         public double Value { get; set; }
 
-        public RBEDouble() {
+        public RBEDouble()
+        {
         }
 
-        public RBEDouble(double value) {
+        public RBEDouble(double value)
+        {
             this.Value = value;
         }
 
-        protected override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader)
+        {
             this.Value = reader.ReadDouble();
         }
 
-        protected override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer)
+        {
             writer.Write(this.Value);
         }
 
@@ -170,7 +201,8 @@ namespace FramePFX.RBC {
     /// <summary>
     /// An RBE element that stores a string. Max string length is an unsigned short (<see cref="ushort.MaxValue"/>)
     /// </summary>
-    public class RBEString : RBEBase {
+    public class RBEString : RBEBase
+    {
         public const int MaxValueLength = ushort.MaxValue;
         private string value;
 
@@ -178,8 +210,10 @@ namespace FramePFX.RBC {
 
         public string Value {
             get => this.value;
-            set {
-                if (value != null && value.Length > MaxValueLength) {
+            set
+            {
+                if (value != null && value.Length > MaxValueLength)
+                {
                     throw new Exception("Value length exceeds the maximum value of " + MaxValueLength);
                 }
 
@@ -187,32 +221,39 @@ namespace FramePFX.RBC {
             }
         }
 
-        public RBEString() {
+        public RBEString()
+        {
         }
 
-        public RBEString(string value) {
+        public RBEString(string value)
+        {
             this.Value = value;
         }
 
-        public static string ClampLength(string input) {
+        public static string ClampLength(string input)
+        {
             if (input != null && input.Length > MaxValueLength)
                 return input.Substring(0, MaxValueLength);
             return input;
         }
 
-        public static void CreateStringList(RBEList list, string input) {
-            for (int i = 0, length = input.Length; i < length; i += MaxValueLength) {
+        public static void CreateStringList(RBEList list, string input)
+        {
+            for (int i = 0, length = input.Length; i < length; i += MaxValueLength)
+            {
                 list.Add(new RBEString(input.Substring(i, Math.Min(MaxValueLength, length - i))));
             }
         }
 
-        public static RBEList CreateStringList(string input) {
+        public static RBEList CreateStringList(string input)
+        {
             RBEList list = new RBEList(new List<RBEBase>(input.Length / MaxValueLength + 1));
             CreateStringList(list, input);
             return list;
         }
 
-        public static string ReadFromStringList(RBEList list) {
+        public static string ReadFromStringList(RBEList list)
+        {
             IEnumerable<RBEString> enumerable = list.Cast<RBEString>();
             StringBuilder sb = new StringBuilder(list.List.Count * MaxValueLength);
             foreach (RBEString rbe in enumerable)
@@ -225,12 +266,15 @@ namespace FramePFX.RBC {
         /// </summary>
         /// <param name="reader"></param>
         /// <returns>A string with more than 0 character, or null. This function does not return an empty string</returns>
-        public static string ReadString(BinaryReader reader) {
+        public static string ReadString(BinaryReader reader)
+        {
             int length = reader.ReadUInt16();
-            if (length < 1) {
+            if (length < 1)
+            {
                 return null;
             }
-            else {
+            else
+            {
                 char[] chars = reader.ReadChars(length);
                 return new string(chars);
             }
@@ -239,21 +283,26 @@ namespace FramePFX.RBC {
         /// <summary>
         /// Writes a ushort (as a length prefix) and then the chars of the string. If the string is too long, the excess is not written
         /// </summary>
-        public static void WriteString(BinaryWriter writer, string text) {
-            if (string.IsNullOrEmpty(text)) {
+        public static void WriteString(BinaryWriter writer, string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
                 writer.Write((ushort) 0);
             }
-            else {
+            else
+            {
                 writer.Write((ushort) text.Length);
                 writer.Write(text.ToCharArray(0, Math.Min(text.Length, ushort.MaxValue)));
             }
         }
 
-        protected override void Read(BinaryReader reader) {
+        protected override void Read(BinaryReader reader)
+        {
             this.value = ReadString(reader);
         }
 
-        protected override void Write(BinaryWriter writer) {
+        protected override void Write(BinaryWriter writer)
+        {
             WriteString(writer, this.value);
         }
 

@@ -38,16 +38,20 @@ using FramePFX.PropertyEditing;
 using FramePFX.Utils;
 using SkiaSharp;
 
-namespace FramePFX.Editors.Controls.Timelines.Tracks {
+namespace FramePFX.Editors.Controls.Timelines.Tracks
+{
     /// <summary>
     /// A control which represents a track in a timeline sequence
     /// </summary>
-    public class TimelineTrackControl : Control {
-        private readonly struct MovedClip {
+    public class TimelineTrackControl : Control
+    {
+        private readonly struct MovedClip
+        {
             public readonly TimelineClipControl control;
             public readonly Clip clip;
 
-            public MovedClip(TimelineClipControl control, Clip clip) {
+            public MovedClip(TimelineClipControl control, Clip clip)
+            {
                 this.control = control;
                 this.clip = clip;
             }
@@ -93,16 +97,20 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
                 typeof(bool),
                 typeof(TimelineTrackControl), new FrameworkPropertyMetadata(BoolBox.True, PropertyChangedCallback, (d, e) => ((TimelineTrackControl) d).OnCoerceAutomationVisible(e)));
 
-        private static void PropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+        private static void PropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
             if (((TimelineTrackControl) d).AutomationEditor is AutomationSequenceEditor editor)
                 editor.Visibility = (bool) e.NewValue ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        private object OnCoerceAutomationVisible(object value) {
-            if (this.Track == null || DoubleUtils.AreClose(this.Track.Height, Track.MinimumHeight)) {
+        private object OnCoerceAutomationVisible(object value)
+        {
+            if (this.Track == null || DoubleUtils.AreClose(this.Track.Height, Track.MinimumHeight))
+            {
                 return BoolBox.False;
             }
-            else {
+            else
+            {
                 return (bool) value ? BoolBox.True : BoolBox.False;
             }
         }
@@ -119,7 +127,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
         private MovedClip? clipBeingMoved;
         private readonly ContextData contextData;
 
-        public TimelineTrackControl() {
+        public TimelineTrackControl()
+        {
             this.HorizontalAlignment = HorizontalAlignment.Stretch;
             this.VerticalAlignment = VerticalAlignment.Top;
             this.TrackColourBrush = new LinearGradientBrush();
@@ -130,28 +139,34 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             AdvancedContextMenu.SetContextGenerator(this, TrackContextRegistry.Instance);
         }
 
-        public long GetFrameAtMousePoint(MouseDevice device) {
+        public long GetFrameAtMousePoint(MouseDevice device)
+        {
             return this.GetFrameAtMousePoint(device.GetPosition(this));
         }
 
-        public long GetFrameAtMousePoint(Point pointRelativeToThis) {
+        public long GetFrameAtMousePoint(Point pointRelativeToThis)
+        {
             return TimelineUtils.PixelToFrame(pointRelativeToThis.X, this.TimelineControl?.Timeline?.Zoom ?? 1.0, true);
         }
 
-        public override void OnApplyTemplate() {
+        public override void OnApplyTemplate()
+        {
             base.OnApplyTemplate();
             this.ClipStoragePanel = (ClipStoragePanel) this.GetTemplateChild("PART_TrackClipPanel") ?? throw new Exception("Missing PART_TrackClipPanel");
             this.ClipStoragePanel.Track = this;
             this.AutomationEditor = (AutomationSequenceEditor) this.GetTemplateChild("PART_AutomationSequenceEditor") ?? throw new Exception("Missing PART_AutomationSequenceEditor");
         }
 
-        protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
+        protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
+        {
             base.OnPreviewMouseDown(e);
-            if (this.Track != null) {
+            if (this.Track != null)
+            {
                 Timeline timeline = this.Track.Timeline;
 
                 // update context data, used by action system and context menu system
-                if (e.ChangedButton == MouseButton.Left || e.ChangedButton == MouseButton.Right) {
+                if (e.ChangedButton == MouseButton.Left || e.ChangedButton == MouseButton.Right)
+                {
                     this.contextData.Set(DataKeys.TrackContextMouseFrameKey, this.GetFrameAtMousePoint(e.MouseDevice));
                     DataManager.SetContextData(this, this.contextData.Clone());
                 }
@@ -165,84 +180,105 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             }
         }
 
-        protected override void OnDragEnter(DragEventArgs e) {
+        protected override void OnDragEnter(DragEventArgs e)
+        {
             base.OnDragEnter(e);
             this.OnDragOver(e);
         }
 
-        protected override void OnDragOver(DragEventArgs e) {
+        protected override void OnDragOver(DragEventArgs e)
+        {
             base.OnDragOver(e);
             e.Handled = true;
             this.contextData.Set(DataKeys.TrackDropFrameKey, this.GetFrameAtMousePoint(e.GetPosition(this)));
             DataManager.SetContextData(this, this.contextData.Clone());
-            if (this.isProcessingAsyncDrop || this.Track == null) {
+            if (this.isProcessingAsyncDrop || this.Track == null)
+            {
                 e.Effects = DragDropEffects.None;
                 return;
             }
 
             EnumDropType inputEffects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
-            if (inputEffects == EnumDropType.None) {
+            if (inputEffects == EnumDropType.None)
+            {
                 e.Effects = DragDropEffects.None;
                 return;
             }
 
             EnumDropType outputEffects = EnumDropType.None;
-            if (e.Data.GetData(ResourceDropRegistry.ResourceDropType) is List<BaseResource> resources) {
-                if (resources.Count == 1 && resources[0] is ResourceItem) {
+            if (e.Data.GetData(ResourceDropRegistry.ResourceDropType) is List<BaseResource> resources)
+            {
+                if (resources.Count == 1 && resources[0] is ResourceItem)
+                {
                     outputEffects = TrackDropRegistry.DropRegistry.CanDrop(this.Track, resources[0], inputEffects, this.contextData);
                 }
             }
-            else {
+            else
+            {
                 outputEffects = TrackDropRegistry.DropRegistry.CanDropNative(this.Track, new DataObjectWrapper(e.Data), inputEffects, this.contextData);
             }
 
             e.Effects = (DragDropEffects) outputEffects;
         }
 
-        protected override async void OnDrop(DragEventArgs e) {
+        protected override async void OnDrop(DragEventArgs e)
+        {
             base.OnDrop(e);
             e.Handled = true;
-            if (this.isProcessingAsyncDrop || this.Track == null) {
+            if (this.isProcessingAsyncDrop || this.Track == null)
+            {
                 return;
             }
 
             EnumDropType effects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
-            if (e.Effects == DragDropEffects.None) {
+            if (e.Effects == DragDropEffects.None)
+            {
                 return;
             }
 
-            try {
+            try
+            {
                 this.isProcessingAsyncDrop = true;
-                if (e.Data.GetData(ResourceDropRegistry.ResourceDropType) is List<BaseResource> resources) {
-                    if (resources.Count == 1 && resources[0] is ResourceItem) {
+                if (e.Data.GetData(ResourceDropRegistry.ResourceDropType) is List<BaseResource> resources)
+                {
+                    if (resources.Count == 1 && resources[0] is ResourceItem)
+                    {
                         await TrackDropRegistry.DropRegistry.OnDropped(this.Track, resources[0], effects, this.contextData);
                     }
                 }
-                else {
+                else
+                {
                     await TrackDropRegistry.DropRegistry.OnDroppedNative(this.Track, new DataObjectWrapper(e.Data), effects, this.contextData);
                 }
             }
-            finally {
+            finally
+            {
                 this.isProcessingAsyncDrop = false;
             }
         }
 
-        static TimelineTrackControl() {
+        static TimelineTrackControl()
+        {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(TimelineTrackControl), new FrameworkPropertyMetadata(typeof(TimelineTrackControl)));
         }
 
-        private void OnClipAdded(Track track, Clip clip, int index) {
+        private void OnClipAdded(Track track, Clip clip, int index)
+        {
             this.ClipStoragePanel.InsertClip(clip, index);
         }
 
-        private void OnClipRemoved(Track track, Clip clip, int index) {
+        private void OnClipRemoved(Track track, Clip clip, int index)
+        {
             this.ClipStoragePanel.RemoveClipInternal(index);
         }
 
-        private void OnClipMovedTracks(Clip clip, Track oldTrack, int oldIndex, Track newTrack, int newIndex) {
-            if (oldTrack == this.Track) {
+        private void OnClipMovedTracks(Clip clip, Track oldTrack, int oldIndex, Track newTrack, int newIndex)
+        {
+            if (oldTrack == this.Track)
+            {
                 TimelineTrackControl dstTrack = this.OwnerPanel.GetTrackByModel(newTrack);
-                if (dstTrack == null) {
+                if (dstTrack == null)
+                {
                     // Instead of throwing, we could just remove the track or insert a new track, instead of
                     // trying to re-use existing controls, at the cost of performance.
                     // However, moving clips between tracks in different timelines is not directly supported
@@ -254,8 +290,10 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
                 this.ClipStoragePanel.RemoveClipInternal(oldIndex, false);
                 dstTrack.clipBeingMoved = new MovedClip(control, clip);
             }
-            else if (newTrack == this.Track) {
-                if (!(this.clipBeingMoved is MovedClip movedClip)) {
+            else if (newTrack == this.Track)
+            {
+                if (!(this.clipBeingMoved is MovedClip movedClip))
+                {
                     throw new Exception("Clip control being moved is null. Is the UI timeline corrupted or did the clip move between timelines?");
                 }
 
@@ -264,8 +302,10 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             }
         }
 
-        private void UpdateTrackColour() {
-            if (this.Track == null) {
+        private void UpdateTrackColour()
+        {
+            if (this.Track == null)
+            {
                 return;
             }
 
@@ -286,7 +326,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             brush.GradientStops.Add(new GradientStop(secondary, 1.0));
         }
 
-        public void OnAdding(TrackStoragePanel parent, Track track) {
+        public void OnAdding(TrackStoragePanel parent, Track track)
+        {
             this.TimelineControl = parent.TimelineControl ?? throw new Exception("Parent track panel has no timeline control associated with it");
             this.OwnerPanel = parent;
             this.Track = track;
@@ -300,17 +341,20 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             DataManager.SetContextData(this, this.contextData.Set(DataKeys.TrackKey, track).Clone());
         }
 
-        public void OnAdded() {
+        public void OnAdded()
+        {
             this.UpdateTrackColour();
             int i = 0;
-            foreach (Clip clip in this.Track.Clips) {
+            foreach (Clip clip in this.Track.Clips)
+            {
                 this.ClipStoragePanel.InsertClip(clip, i++);
             }
 
             this.IsSelected = this.Track?.IsSelected ?? false;
         }
 
-        public void OnRemoving() {
+        public void OnRemoving()
+        {
             this.Track.ClipAdded -= this.OnClipAdded;
             this.Track.ClipRemoved -= this.OnClipRemoved;
             this.Track.ClipMovedTracks -= this.OnClipMovedTracks;
@@ -320,66 +364,81 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks {
             this.ClipStoragePanel.ClearClipsInternal();
         }
 
-        public void OnRemoved() {
+        public void OnRemoved()
+        {
             this.OwnerPanel = null;
             this.Track = null;
             DataManager.ClearContextData(this);
         }
 
-        public void OnIndexMoving(int oldIndex, int newIndex) {
+        public void OnIndexMoving(int oldIndex, int newIndex)
+        {
         }
 
-        public void OnIndexMoved(int oldIndex, int newIndex) {
+        public void OnIndexMoved(int oldIndex, int newIndex)
+        {
         }
 
-        private void OnIsSelectedChanged(bool selected) {
+        private void OnIsSelectedChanged(bool selected)
+        {
             if (this.isUpdatingSelectedProperty)
                 return;
             this.Track.SetIsSelected(selected, false);
         }
 
-        private void TrackOnIsSelectedChanged(Track track, bool isPrimarySelection) {
-            try {
+        private void TrackOnIsSelectedChanged(Track track, bool isPrimarySelection)
+        {
+            try
+            {
                 this.isUpdatingSelectedProperty = true;
                 this.IsSelected = track.IsSelected;
-                if (track.IsSelected && isPrimarySelection) {
+                if (track.IsSelected && isPrimarySelection)
+                {
                     this.Focus();
                 }
             }
-            finally {
+            finally
+            {
                 this.isUpdatingSelectedProperty = false;
             }
         }
 
-        public void OnZoomChanged(double newZoom) {
+        public void OnZoomChanged(double newZoom)
+        {
             // this.InvalidateMeasure();
-            foreach (TimelineClipControl clip in this.ClipStoragePanel.MyInternalChildren) {
+            foreach (TimelineClipControl clip in this.ClipStoragePanel.MyInternalChildren)
+            {
                 clip.OnZoomChanged(newZoom);
             }
         }
 
-        private void OnTrackHeightChanged(Track track) {
+        private void OnTrackHeightChanged(Track track)
+        {
             this.CoerceValue(IsAutomationEditorVisibleProperty);
             this.InvalidateMeasure();
             this.ClipStoragePanel.InvalidateMeasure();
             this.OwnerPanel?.InvalidateVisual();
         }
 
-        private void OnTrackColourChanged(Track track) {
+        private void OnTrackColourChanged(Track track)
+        {
             this.UpdateTrackColour();
-            foreach (TimelineClipControl clip in this.ClipStoragePanel.MyInternalChildren) {
+            foreach (TimelineClipControl clip in this.ClipStoragePanel.MyInternalChildren)
+            {
                 clip.InvalidateVisual();
             }
         }
 
-        public void OnClipSpanChanged() {
+        public void OnClipSpanChanged()
+        {
             this.ClipStoragePanel.InvalidateArrange();
         }
 
         public IEnumerable<TimelineClipControl> GetClips() => this.ClipStoragePanel.GetClips();
         public TimelineClipControl GetClipAt(int index) => this.ClipStoragePanel.GetClipAt(index);
 
-        public void SetAutomationVisibility(bool visibility) {
+        public void SetAutomationVisibility(bool visibility)
+        {
             this.IsAutomationEditorVisible = visibility;
         }
     }

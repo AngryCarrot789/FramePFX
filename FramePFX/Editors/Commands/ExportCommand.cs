@@ -26,22 +26,28 @@ using FramePFX.Editors.Exporting.Controls;
 using FramePFX.Editors.Timelines;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Commands {
-    public class ExportCommand : Command {
+namespace FramePFX.Editors.Commands
+{
+    public class ExportCommand : Command
+    {
         public bool ExportActiveTimeline { get; }
 
-        public ExportCommand(bool exportActiveTimeline) {
+        public ExportCommand(bool exportActiveTimeline)
+        {
             this.ExportActiveTimeline = exportActiveTimeline;
         }
 
-        public override ExecutabilityState CanExecute(CommandEventArgs e) {
-            if (this.ExportActiveTimeline) {
+        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        {
+            if (this.ExportActiveTimeline)
+            {
                 if (!TryGetTimeline(e.ContextData, out Timeline timeline))
                     return ExecutabilityState.Invalid;
                 if (timeline.Project == null || timeline.Project.IsExporting)
                     return ExecutabilityState.ValidButCannotExecute;
             }
-            else {
+            else
+            {
                 if (!TryGetProject(e.ContextData, out Project project))
                     return ExecutabilityState.Invalid;
                 if (project.IsExporting)
@@ -51,30 +57,39 @@ namespace FramePFX.Editors.Commands {
             return ExecutabilityState.Executable;
         }
 
-        public override Task Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e)
+        {
             Project project;
             Timeline timeline;
-            if (this.ExportActiveTimeline) {
-                if (!TryGetTimeline(e.ContextData, out timeline) || timeline.Project == null || timeline.Project.IsExporting) {
+            if (this.ExportActiveTimeline)
+            {
+                if (!TryGetTimeline(e.ContextData, out timeline) || timeline.Project == null || timeline.Project.IsExporting)
+                {
                     return Task.CompletedTask;
                 }
             }
-            else {
-                if (!TryGetProject(e.ContextData, out project) || project.IsExporting) {
+            else
+            {
+                if (!TryGetProject(e.ContextData, out project) || project.IsExporting)
+                {
                     return Task.CompletedTask;
                 }
 
                 timeline = project.MainTimeline;
             }
 
-            if ((project = timeline.Project) == null) {
+            if ((project = timeline.Project) == null)
+            {
                 return Task.CompletedTask;
             }
 
             project.Editor.Playback.Pause();
-            ExportDialog dialog = new ExportDialog {
-                ExportSetup = new ExportSetup(project, timeline) {
-                    Properties = {
+            ExportDialog dialog = new ExportDialog
+            {
+                ExportSetup = new ExportSetup(project, timeline)
+                {
+                    Properties =
+                    {
                         Span = new FrameSpan(0, timeline.LargestFrameInUse),
                         FilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "OutputVideo.mp4")
                     }
@@ -85,22 +100,26 @@ namespace FramePFX.Editors.Commands {
             return Task.CompletedTask;
         }
 
-        public static bool TryGetProject(IContextData ctx, out Project project) {
+        public static bool TryGetProject(IContextData ctx, out Project project)
+        {
             if (DataKeys.ProjectKey.TryGetContext(ctx, out project))
                 return true;
             return DataKeys.VideoEditorKey.TryGetContext(ctx, out VideoEditor editor) && (project = editor.Project) != null;
         }
 
-        public static bool TryGetTimeline(IContextData ctx, out Timeline timeline) {
+        public static bool TryGetTimeline(IContextData ctx, out Timeline timeline)
+        {
             if (DataKeys.TimelineKey.TryGetContext(ctx, out timeline))
                 return true;
 
-            if (DataKeys.ProjectKey.TryGetContext(ctx, out Project project)) {
+            if (DataKeys.ProjectKey.TryGetContext(ctx, out Project project))
+            {
                 timeline = project.ActiveTimeline;
                 return true;
             }
 
-            if (DataKeys.VideoEditorKey.TryGetContext(ctx, out VideoEditor editor) && (project = editor.Project) != null) {
+            if (DataKeys.VideoEditorKey.TryGetContext(ctx, out VideoEditor editor) && (project = editor.Project) != null)
+            {
                 timeline = project.ActiveTimeline;
                 return true;
             }

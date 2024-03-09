@@ -25,29 +25,35 @@ using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.PropertyEditing.Automation;
 
-namespace FramePFX.PropertyEditing.Controls.Automation {
-    public abstract class BaseParameterPropertyEditorControl : BasePropEditControlContent {
+namespace FramePFX.PropertyEditing.Controls.Automation
+{
+    public abstract class BaseParameterPropertyEditorControl : BasePropEditControlContent
+    {
         protected IAutomatable singleHandler;
         protected AutomationSequence singleHandlerSequence;
         private TextBlock displayName;
         private KeyFrameToolsControl keyFrameTools;
         private Ellipse automationLed;
 
-        protected BaseParameterPropertyEditorControl() {
+        protected BaseParameterPropertyEditorControl()
+        {
         }
 
-        static BaseParameterPropertyEditorControl() {
+        static BaseParameterPropertyEditorControl()
+        {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(BaseParameterPropertyEditorControl), new FrameworkPropertyMetadata(typeof(BaseParameterPropertyEditorControl)));
         }
 
-        public override void OnApplyTemplate() {
+        public override void OnApplyTemplate()
+        {
             base.OnApplyTemplate();
             this.displayName = this.GetTemplateChild<TextBlock>("PART_DisplayName");
             this.automationLed = (Ellipse) this.GetTemplateChild("PART_AutomationLED");
             this.keyFrameTools = this.GetTemplateChild<KeyFrameToolsControl>("PART_KeyFrameTools");
         }
 
-        protected override void OnConnected() {
+        protected override void OnConnected()
+        {
             ParameterPropertyEditorSlot slot = (ParameterPropertyEditorSlot) this.SlotModel;
             slot.HandlersLoaded += this.OnHandlersChanged;
             slot.HandlersCleared += this.OnHandlersChanged;
@@ -56,7 +62,8 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
             this.OnHandlerListChanged(true);
         }
 
-        protected override void OnDisconnected() {
+        protected override void OnDisconnected()
+        {
             ParameterPropertyEditorSlot slot = (ParameterPropertyEditorSlot) this.SlotModel;
             slot.DisplayNameChanged -= this.OnSlotDisplayNameChanged;
             slot.HandlersLoaded -= this.OnHandlersChanged;
@@ -64,14 +71,17 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
             this.OnHandlerListChanged(false);
         }
 
-        private void OnSlotDisplayNameChanged(ParameterPropertyEditorSlot slot) {
+        private void OnSlotDisplayNameChanged(ParameterPropertyEditorSlot slot)
+        {
             if (this.displayName != null)
                 this.displayName.Text = slot.DisplayName;
         }
 
-        private void OnHandlerListChanged(bool connect) {
+        private void OnHandlerListChanged(bool connect)
+        {
             ParameterPropertyEditorSlot slot = (ParameterPropertyEditorSlot) this.SlotModel;
-            if (connect && slot != null && slot.Handlers.Count == 1) {
+            if (connect && slot != null && slot.Handlers.Count == 1)
+            {
                 this.singleHandler = (IAutomatable) slot.Handlers[0];
                 this.keyFrameTools.Visibility = Visibility.Visible;
                 this.singleHandlerSequence = this.singleHandler.AutomationData[slot.Parameter];
@@ -81,9 +91,11 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
                 this.singleHandlerSequence.KeyFrameRemoved += this.OnKeyFrameAddedOrRemoved;
                 this.UpdateLEDColour(this.singleHandlerSequence);
             }
-            else {
+            else
+            {
                 this.keyFrameTools.Visibility = Visibility.Collapsed;
-                if (this.singleHandlerSequence != null) {
+                if (this.singleHandlerSequence != null)
+                {
                     this.singleHandlerSequence.OverrideStateChanged -= this.OnOverrideStateChanged;
                     this.singleHandlerSequence.KeyFrameAdded -= this.OnKeyFrameAddedOrRemoved;
                     this.singleHandlerSequence.KeyFrameRemoved -= this.OnKeyFrameAddedOrRemoved;
@@ -94,20 +106,25 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
             }
         }
 
-        private void OnHandlersChanged(PropertyEditorSlot sender) {
+        private void OnHandlersChanged(PropertyEditorSlot sender)
+        {
             this.OnHandlerListChanged(true);
         }
 
-        private void OnKeyFrameAddedOrRemoved(AutomationSequence sequence, KeyFrame keyframe, int index) {
+        private void OnKeyFrameAddedOrRemoved(AutomationSequence sequence, KeyFrame keyframe, int index)
+        {
             this.UpdateLEDColour(sequence);
         }
 
-        private void OnOverrideStateChanged(AutomationSequence sequence) {
+        private void OnOverrideStateChanged(AutomationSequence sequence)
+        {
             this.UpdateLEDColour(sequence);
         }
 
-        private void UpdateLEDColour(AutomationSequence sequence) {
-            if (this.automationLed != null && sequence != null) {
+        private void UpdateLEDColour(AutomationSequence sequence)
+        {
+            if (this.automationLed != null && sequence != null)
+            {
                 this.automationLed.Visibility = sequence.IsEmpty ? Visibility.Collapsed : Visibility.Visible;
                 this.automationLed.Fill = sequence.IsOverrideEnabled ? Brushes.Gray : Brushes.OrangeRed;
             }

@@ -34,8 +34,10 @@ using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 
-namespace FramePFX.Editors.Controls.Resources.Explorers {
-    public class ResourceExplorerListItem : ContentControl {
+namespace FramePFX.Editors.Controls.Resources.Explorers
+{
+    public class ResourceExplorerListItem : ContentControl
+    {
         public static readonly DependencyProperty IsDroppableTargetOverProperty = DependencyProperty.Register("IsDroppableTargetOver", typeof(bool), typeof(ResourceExplorerListItem), new PropertyMetadata(BoolBox.False));
         public static readonly DependencyProperty IsSelectedProperty = Selector.IsSelectedProperty.AddOwner(typeof(ResourceExplorerListItem), new FrameworkPropertyMetadata(BoolBox.False, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, (d, e) => ((ResourceExplorerListItem) d).OnIsSelectedChanged((bool) e.NewValue)));
         public static readonly DependencyProperty DisplayNameProperty = DependencyProperty.Register("DisplayName", typeof(string), typeof(ResourceExplorerListItem), new PropertyMetadata(null));
@@ -74,36 +76,47 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         private bool isDragDropping;
         private bool isProcessingAsyncDrop;
 
-        public ResourceExplorerListItem() {
+        public ResourceExplorerListItem()
+        {
             AdvancedContextMenu.SetContextGenerator(this, ResourceContextRegistry.Instance);
         }
 
-        protected override void OnMouseDoubleClick(MouseButtonEventArgs e) {
+        protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
+        {
             base.OnMouseDoubleClick(e);
-            if (e.ChangedButton == MouseButton.Left && Keyboard.Modifiers == ModifierKeys.None) {
-                if (this.Model is ResourceFolder folder) {
-                    if (this.ResourceExplorerList != null) {
+            if (e.ChangedButton == MouseButton.Left && Keyboard.Modifiers == ModifierKeys.None)
+            {
+                if (this.Model is ResourceFolder folder)
+                {
+                    if (this.ResourceExplorerList != null)
+                    {
                         this.ResourceExplorerList.CurrentFolder = folder;
                     }
                 }
             }
         }
 
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e) {
+        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+        {
             ResourceExplorerListControl explorerList = this.ResourceExplorerList;
-            if (explorerList != null && !e.Handled && (this.IsFocused || this.Focus())) {
-                if (!this.isDragDropping) {
+            if (explorerList != null && !e.Handled && (this.IsFocused || this.Focus()))
+            {
+                if (!this.isDragDropping)
+                {
                     this.CaptureMouse();
                     this.originMousePoint = e.GetPosition(this);
                     this.isDragActive = true;
                 }
 
                 e.Handled = true;
-                if ((Keyboard.Modifiers & ModifierKeys.Control) == 0) {
-                    if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0 && explorerList.lastSelectedItem != null && explorerList.SelectedItems.Count > 0) {
+                if ((Keyboard.Modifiers & ModifierKeys.Control) == 0)
+                {
+                    if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0 && explorerList.lastSelectedItem != null && explorerList.SelectedItems.Count > 0)
+                    {
                         explorerList.MakeRangedSelection(explorerList.lastSelectedItem, this);
                     }
-                    else if (!this.IsSelected) {
+                    else if (!this.IsSelected)
+                    {
                         explorerList.MakePrimarySelection(this);
                     }
                 }
@@ -112,43 +125,57 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
             base.OnMouseLeftButtonDown(e);
         }
 
-        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e) {
+        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
+        {
             // weird... this method isn't called when the `DoDragDrop` method
             // returns, even if you release the left mouse button. This means,
             // isDragDropping is always false here
 
             ResourceExplorerListControl explorerList = this.ResourceExplorerList;
-            if (this.isDragActive) {
+            if (this.isDragActive)
+            {
                 this.isDragActive = false;
-                if (this.IsMouseCaptured) {
+                if (this.IsMouseCaptured)
+                {
                     this.ReleaseMouseCapture();
                 }
 
                 e.Handled = true;
             }
 
-            if (explorerList != null) {
-                if (this.IsSelected) {
-                    if ((Keyboard.Modifiers & ModifierKeys.Shift) == 0) {
-                        if ((Keyboard.Modifiers & ModifierKeys.Control) != 0) {
+            if (explorerList != null)
+            {
+                if (this.IsSelected)
+                {
+                    if ((Keyboard.Modifiers & ModifierKeys.Shift) == 0)
+                    {
+                        if ((Keyboard.Modifiers & ModifierKeys.Control) != 0)
+                        {
                             explorerList.SetItemSelectedProperty(this, false);
                         }
-                        else {
+                        else
+                        {
                             explorerList.MakePrimarySelection(this);
                         }
                     }
                 }
-                else {
-                    if (explorerList.SelectedItems.Count > 1) {
-                        if ((Keyboard.Modifiers & ModifierKeys.Control) != 0) {
+                else
+                {
+                    if (explorerList.SelectedItems.Count > 1)
+                    {
+                        if ((Keyboard.Modifiers & ModifierKeys.Control) != 0)
+                        {
                             explorerList.SetItemSelectedProperty(this, true);
                         }
-                        else {
+                        else
+                        {
                             explorerList.MakePrimarySelection(this);
                         }
                     }
-                    else {
-                        if ((Keyboard.Modifiers & ModifierKeys.Control) != 0) {
+                    else
+                    {
+                        if ((Keyboard.Modifiers & ModifierKeys.Control) != 0)
+                        {
                             explorerList.SetItemSelectedProperty(this, true);
                         }
                     }
@@ -158,35 +185,44 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
             base.OnMouseLeftButtonUp(e);
         }
 
-        protected override void OnMouseMove(MouseEventArgs e) {
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
             base.OnMouseMove(e);
-            if (!this.isDragActive || this.isDragDropping || this.Model?.Manager == null || this.ResourceExplorerList == null) {
+            if (!this.isDragActive || this.isDragDropping || this.Model?.Manager == null || this.ResourceExplorerList == null)
+            {
                 return;
             }
 
-            if (e.LeftButton == MouseButtonState.Pressed) {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
                 Point posA = e.GetPosition(this);
                 Point posB = this.originMousePoint;
                 Point change = new Point(Math.Abs(posA.X - posB.X), Math.Abs(posA.X - posB.X));
                 ResourceFolder currFolder;
-                if ((change.X > 5 || change.Y > 5) && (currFolder = this.Model.Manager.CurrentFolder) == this.Model.Parent) {
+                if ((change.X > 5 || change.Y > 5) && (currFolder = this.Model.Manager.CurrentFolder) == this.Model.Parent)
+                {
                     List<BaseResource> list = this.IsSelected ? currFolder.SelectedItems.ToList() : new List<BaseResource>() {this.Model};
 
-                    try {
+                    try
+                    {
                         this.isDragDropping = true;
                         DragDrop.DoDragDrop(this, new DataObject(ResourceDropRegistry.ResourceDropType, list), DragDropEffects.Copy | DragDropEffects.Move | DragDropEffects.Link);
                     }
-                    catch (Exception ex) {
+                    catch (Exception ex)
+                    {
                         Debugger.Break();
                         Debug.WriteLine("Exception while executing resource item drag drop: " + ex.GetToString());
                     }
-                    finally {
+                    finally
+                    {
                         this.isDragDropping = false;
                     }
                 }
             }
-            else {
-                if (ReferenceEquals(e.MouseDevice.Captured, this)) {
+            else
+            {
+                if (ReferenceEquals(e.MouseDevice.Captured, this))
+                {
                     this.ReleaseMouseCapture();
                 }
 
@@ -197,45 +233,58 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
 
         protected override void OnDragEnter(DragEventArgs e) => this.OnDragOver(e);
 
-        protected override void OnDragOver(DragEventArgs e) {
-            if (this.Model is ResourceFolder folder) {
+        protected override void OnDragOver(DragEventArgs e)
+        {
+            if (this.Model is ResourceFolder folder)
+            {
                 this.IsDroppableTargetOver = ProcessCanDragOver(folder, e);
             }
         }
 
-        protected override async void OnDrop(DragEventArgs e) {
+        protected override async void OnDrop(DragEventArgs e)
+        {
             e.Handled = true;
-            if (this.isProcessingAsyncDrop || !(this.Model is ResourceFolder folder)) {
+            if (this.isProcessingAsyncDrop || !(this.Model is ResourceFolder folder))
+            {
                 return;
             }
 
-            try {
+            try
+            {
                 this.isProcessingAsyncDrop = true;
-                if (GetDropResourceListForEvent(e, out List<BaseResource> list, out EnumDropType effects)) {
+                if (GetDropResourceListForEvent(e, out List<BaseResource> list, out EnumDropType effects))
+                {
                     await ResourceDropRegistry.DropRegistry.OnDropped(folder, list, effects);
                 }
-                else if (!await ResourceDropRegistry.DropRegistry.OnDroppedNative(folder, new DataObjectWrapper(e.Data), effects)) {
+                else if (!await ResourceDropRegistry.DropRegistry.OnDroppedNative(folder, new DataObjectWrapper(e.Data), effects))
+                {
                     IoC.MessageService.ShowMessage("Unknown Data", "Unknown dropped item. Drop files here");
                 }
             }
-            finally {
+            finally
+            {
                 this.IsDroppableTargetOver = false;
                 this.isProcessingAsyncDrop = false;
             }
         }
 
-        protected override void OnDragLeave(DragEventArgs e) {
-            if (this.IsDroppableTargetOver) {
+        protected override void OnDragLeave(DragEventArgs e)
+        {
+            if (this.IsDroppableTargetOver)
+            {
                 this.Dispatcher.Invoke(() => this.IsDroppableTargetOver = false, DispatcherPriority.Loaded);
             }
         }
 
-        public static bool ProcessCanDragOver(ResourceFolder folder, DragEventArgs e) {
+        public static bool ProcessCanDragOver(ResourceFolder folder, DragEventArgs e)
+        {
             e.Handled = true;
-            if (GetDropResourceListForEvent(e, out List<BaseResource> resources, out EnumDropType effects)) {
+            if (GetDropResourceListForEvent(e, out List<BaseResource> resources, out EnumDropType effects))
+            {
                 e.Effects = (DragDropEffects) ResourceDropRegistry.DropRegistry.CanDrop(folder, resources, effects);
             }
-            else {
+            else
+            {
                 e.Effects = (DragDropEffects) ResourceDropRegistry.DropRegistry.CanDropNative(folder, new DataObjectWrapper(e.Data), effects);
             }
 
@@ -250,11 +299,14 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
         /// <param name="resources">The resources in the drag event</param>
         /// <param name="effects">The effects applicable based on the event's effects and user's keys pressed</param>
         /// <returns>True if there were resources available, otherwise false, meaning no resources are being dragged</returns>
-        public static bool GetDropResourceListForEvent(DragEventArgs e, out List<BaseResource> resources, out EnumDropType effects) {
+        public static bool GetDropResourceListForEvent(DragEventArgs e, out List<BaseResource> resources, out EnumDropType effects)
+        {
             effects = DropUtils.GetDropAction((int) e.KeyStates, (EnumDropType) e.Effects);
-            if (e.Data.GetDataPresent(ResourceDropRegistry.ResourceDropType)) {
+            if (e.Data.GetDataPresent(ResourceDropRegistry.ResourceDropType))
+            {
                 object obj = e.Data.GetData(ResourceDropRegistry.ResourceDropType);
-                if ((resources = obj as List<BaseResource>) != null) {
+                if ((resources = obj as List<BaseResource>) != null)
+                {
                     return true;
                 }
             }
@@ -263,20 +315,24 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
             return false;
         }
 
-        private void OnIsSelectedChanged(bool isSelected) {
+        private void OnIsSelectedChanged(bool isSelected)
+        {
         }
 
-        public void OnAddingToList(ResourceExplorerListControl explorerList, BaseResource resource) {
+        public void OnAddingToList(ResourceExplorerListControl explorerList, BaseResource resource)
+        {
             this.ResourceExplorerList = explorerList;
             this.Model = resource;
             this.Content = explorerList.GetContentObject(resource.GetType());
             this.AllowDrop = resource is ResourceFolder;
         }
 
-        public void OnAddedToList() {
+        public void OnAddedToList()
+        {
             this.displayNameBinder.Attach(this, this.Model);
             this.isSelectedBinder.Attach(this, this.Model);
-            if (this.Model is ResourceItem item) {
+            if (this.Model is ResourceItem item)
+            {
                 item.OnlineStateChanged += this.UpdateIsOnlineState;
                 this.UpdateIsOnlineState(item);
             }
@@ -287,10 +343,12 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
             DataManager.SetContextData(this, new ContextData().Set(DataKeys.ResourceObjectKey, this.Model));
         }
 
-        public void OnRemovingFromList() {
-            this.displayNameBinder.Detatch();
-            this.isSelectedBinder.Detatch();
-            if (this.Model is ResourceItem item) {
+        public void OnRemovingFromList()
+        {
+            this.displayNameBinder.Detach();
+            this.isSelectedBinder.Detach();
+            if (this.Model is ResourceItem item)
+            {
                 item.OnlineStateChanged -= this.UpdateIsOnlineState;
             }
 
@@ -300,13 +358,15 @@ namespace FramePFX.Editors.Controls.Resources.Explorers {
             this.ResourceExplorerList.ReleaseContentObject(this.Model.GetType(), content);
         }
 
-        public void OnRemovedFromList() {
+        public void OnRemovedFromList()
+        {
             this.ResourceExplorerList = null;
             this.Model = null;
             DataManager.ClearContextData(this);
         }
 
-        private void UpdateIsOnlineState(ResourceItem resource) {
+        private void UpdateIsOnlineState(ResourceItem resource)
+        {
             this.IsResourceOnline = resource.IsOnline;
         }
     }

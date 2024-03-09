@@ -21,13 +21,17 @@ using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Commands {
-    public class ToggleTrackAutomationCommand : Command {
-        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+namespace FramePFX.Editors.Commands
+{
+    public class ToggleTrackAutomationCommand : Command
+    {
+        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        {
             return e.ContextData.ContainsKey(DataKeys.VideoEditorKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override Task Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e)
+        {
             if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor))
                 return Task.CompletedTask;
             editor.ShowTrackAutomation = !editor.ShowTrackAutomation;

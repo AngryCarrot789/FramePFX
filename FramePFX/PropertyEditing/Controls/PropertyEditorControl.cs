@@ -21,8 +21,10 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace FramePFX.PropertyEditing.Controls {
-    public class PropertyEditorControl : Control {
+namespace FramePFX.PropertyEditing.Controls
+{
+    public class PropertyEditorControl : Control
+    {
         private static readonly GridLength Star = new GridLength(1, GridUnitType.Star);
         public static readonly DependencyProperty PropertyEditorProperty = DependencyProperty.Register("PropertyEditor", typeof(BasePropertyEditor), typeof(PropertyEditorControl), new PropertyMetadata(null, (d, e) => ((PropertyEditorControl) d).OnPropertyEditorChanged((BasePropertyEditor) e.OldValue, (BasePropertyEditor) e.NewValue)));
         public static readonly DependencyProperty ColumnWidth0Property = DependencyProperty.Register("ColumnWidth0", typeof(GridLength), typeof(PropertyEditorControl), new PropertyMetadata(new GridLength(85d)));
@@ -44,10 +46,12 @@ namespace FramePFX.PropertyEditing.Controls {
 
         public PropertyEditorSlotControl TouchedSlot { get; set; }
 
-        public PropertyEditorControl() {
+        public PropertyEditorControl()
+        {
         }
 
-        static PropertyEditorControl() {
+        static PropertyEditorControl()
+        {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(PropertyEditorControl), new FrameworkPropertyMetadata(typeof(PropertyEditorControl)));
         }
 
@@ -64,19 +68,23 @@ namespace FramePFX.PropertyEditing.Controls {
         //     this.PropertyEditor?.ClearSelection();
         // }
 
-        public override void OnApplyTemplate() {
+        public override void OnApplyTemplate()
+        {
             base.OnApplyTemplate();
             this.RootGroupControl = (PropertyEditorGroupControl) this.GetTemplateChild("PART_RootGroupControl") ?? throw new Exception("Missing PART_RootGroupControl");
         }
 
-        private void OnPropertyEditorChanged(BasePropertyEditor oldEditor, BasePropertyEditor newEditor) {
-            if (oldEditor != null) {
+        private void OnPropertyEditorChanged(BasePropertyEditor oldEditor, BasePropertyEditor newEditor)
+        {
+            if (oldEditor != null)
+            {
                 this.RootGroupControl.DisconnectModel();
             }
 
             this.InvalidateMeasure();
             this.UpdateLayout();
-            if (newEditor != null) {
+            if (newEditor != null)
+            {
                 this.RootGroupControl.ConnectModel(this, newEditor.Root);
             }
         }

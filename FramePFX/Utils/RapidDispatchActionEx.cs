@@ -18,11 +18,14 @@
 //
 
 using System;
+using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 
-namespace FramePFX.Utils {
+namespace FramePFX.Utils
+{
     /// <summary>
     /// An extended version of <see cref="RapidDispatchAction"/> that tries to re-scheduled the action
     /// after it has completed if our invoke method was called during the execution of the execute callback action.
@@ -33,7 +36,8 @@ namespace FramePFX.Utils {
     /// asynchronous progress is made on another thread
     /// </para>
     /// </summary>
-    public sealed class RapidDispatchActionEx {
+    public sealed class RapidDispatchActionEx
+    {
         private static readonly object[] EMPTY_ARGS = new object[0];
         private const int STATE_NOT_SCHEDULED = 0;
         private const int STATE_RUNNING = 1;
@@ -44,10 +48,10 @@ namespace FramePFX.Utils {
         // there are no possible side effects (hopefully??? Am I thinking too hard?)
         private readonly string debugId;
 
-        private volatile int state;        // The current state
+        private volatile int state; // The current state
         private readonly object stateLock; // A guard when reading/writing the state
 
-        private readonly Action executeAction;  // user execute callback
+        private readonly Action executeAction; // user execute callback
         private readonly Dispatcher dispatcher; // the dispatcher that owns this RDA
 
         // just for debugging really
@@ -61,27 +65,34 @@ namespace FramePFX.Utils {
         /// <param name="action">The callback action</param>
         /// <param name="priority">The dispatcher priority</param>
         /// <param name="debugId">A debugging ID</param>
-        private RapidDispatchActionEx(Dispatcher dispatcher, Func<Task> action, DispatcherPriority priority, string debugId) {
+        private RapidDispatchActionEx(Dispatcher dispatcher, Func<Task> action, DispatcherPriority priority, string debugId)
+        {
             if (action == null)
                 throw new ArgumentNullException(nameof(action));
             this.dispatcher = dispatcher;
             this.debugId = debugId;
             this.Priority = priority;
             this.stateLock = new object();
-            this.executeAction = async () => {
+            this.executeAction = async () =>
+            {
                 int myState;
-                lock (this.stateLock) {
+                lock (this.stateLock)
+                {
                     if ((myState = this.state) != STATE_SCHEDULED)
                         throw new InvalidOperationException($"Invalid state: not scheduled ({myState})");
                     this.state = STATE_RUNNING;
                 }
 
-                try {
+                try
+                {
                     await action();
                 }
-                finally {
-                    lock (this.stateLock) {
-                        switch (myState = this.state) {
+                finally
+                {
+                    lock (this.stateLock)
+                    {
+                        switch (myState = this.state)
+                        {
                             case STATE_RUNNING:
                                 this.state = STATE_NOT_SCHEDULED;
                                 break;
@@ -91,7 +102,7 @@ namespace FramePFX.Utils {
                             // this not-so-good oopsie can't really be handled easily, so it must crash WPF,
                             // or it can get handled in the DispatcherUnhandledException event
                             default:
-                                this.dispatcher.BeginInvoke(new Action(() => throw new InvalidOperationException($"Invalid final state: not running or rescheduled ({myState})")));
+                                this.dispatcher.BeginInvoke(new Action(() => throw new InvalidOperationException($"Invalid final state: not running or rescheduled")));
                                 break;
                         }
                     }
@@ -105,22 +116,27 @@ namespace FramePFX.Utils {
             };
         }
 
-        public static RapidDispatchActionEx ForSync(Action action, DispatcherPriority priority = DispatcherPriority.Send, string debugId = null) {
+        public static RapidDispatchActionEx ForSync(Action action, DispatcherPriority priority = DispatcherPriority.Send, string debugId = null)
+        {
             return ForSync(action, Application.Current.Dispatcher, priority, debugId);
         }
 
-        public static RapidDispatchActionEx ForSync(Action action, Dispatcher dispatcher, DispatcherPriority priority = DispatcherPriority.Send, string debugId = null) {
-            return new RapidDispatchActionEx(dispatcher, () => {
+        public static RapidDispatchActionEx ForSync(Action action, Dispatcher dispatcher, DispatcherPriority priority = DispatcherPriority.Send, string debugId = null)
+        {
+            return new RapidDispatchActionEx(dispatcher, () =>
+            {
                 action();
                 return Task.CompletedTask;
             }, priority, debugId);
         }
 
-        public static RapidDispatchActionEx ForAsync(Func<Task> action, DispatcherPriority priority = DispatcherPriority.Send, string debugId = null) {
+        public static RapidDispatchActionEx ForAsync(Func<Task> action, DispatcherPriority priority = DispatcherPriority.Send, string debugId = null)
+        {
             return ForAsync(action, Application.Current.Dispatcher, priority, debugId);
         }
 
-        public static RapidDispatchActionEx ForAsync(Func<Task> action, Dispatcher dispatcher, DispatcherPriority priority = DispatcherPriority.Send, string debugId = null) {
+        public static RapidDispatchActionEx ForAsync(Func<Task> action, Dispatcher dispatcher, DispatcherPriority priority = DispatcherPriority.Send, string debugId = null)
+        {
             return new RapidDispatchActionEx(dispatcher, action, priority, debugId);
         }
 
@@ -128,16 +144,21 @@ namespace FramePFX.Utils {
         /// Tries to schedule our action to be invoked asynchronously
         /// </summary>
         /// <returns>True if the action was scheduled, otherwise false meaning it is already scheduled</returns>
-        public bool InvokeAsync() {
-            lock (this.stateLock) {
-                switch (this.state) {
-                    case STATE_NOT_SCHEDULED: {
+        public bool InvokeAsync()
+        {
+            lock (this.stateLock)
+            {
+                switch (this.state)
+                {
+                    case STATE_NOT_SCHEDULED:
+                    {
                         // Default state of the RDA: not scheduled. We then schedule the action
                         this.state = STATE_SCHEDULED;
                         break;
                     }
 
-                    case STATE_RUNNING: {
+                    case STATE_RUNNING:
+                    {
                         // The action passed to the constructor is currently in the middle of running,
                         // so we mark ourself as re-scheduled so that the finally block of the executor
                         // can re-schedule the task to be run at a later time.
@@ -160,7 +181,8 @@ namespace FramePFX.Utils {
             return true;
         }
 
-        private void ScheduleExecute() {
+        private void ScheduleExecute()
+        {
             this.lastOperation = this.dispatcher.BeginInvoke(this.executeAction, this.Priority, EMPTY_ARGS);
         }
     }

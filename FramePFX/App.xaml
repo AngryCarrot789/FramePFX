@@ -25,6 +25,7 @@
 
                 <!-- Advanced styles, some of these should probably be user controls -->
                 <ResourceDictionary Source="Editors/Controls/Resources/ResourceStyles.xaml"/>
+                <ResourceDictionary Source="FileBrowser/Controls/FileBrowsingStyles.xaml"/>
                 <ResourceDictionary Source="Editors/Controls/Timelines/TimelineStyles.xaml"/>
                 <ResourceDictionary Source="PropertyEditing/Controls/PropertyEditorStyles.xaml"/>
                 <ResourceDictionary Source="PropertyEditing/Controls/PropertyEditorSlotContentStyles.xaml"/>

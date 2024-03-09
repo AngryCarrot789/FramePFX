@@ -19,13 +19,15 @@
 
 using FramePFX.Editors.Timelines;
 
-namespace FramePFX.Editors {
+namespace FramePFX.Editors
+{
     public delegate void TimelineChangedEventHandler(IHaveTimeline sender, Timeline oldTimeline, Timeline newTimeline);
 
     /// <summary>
     /// An interface for an object that exists in a timeline, somewhere. This could be a track, clip or effect
     /// </summary>
-    public interface IHaveTimeline : IHaveProject {
+    public interface IHaveTimeline : IHaveProject
+    {
         /// <summary>
         /// Gets the timeline associated with this object. May return null
         /// </summary>

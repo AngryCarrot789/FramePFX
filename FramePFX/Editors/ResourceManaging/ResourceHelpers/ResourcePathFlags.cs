@@ -19,9 +19,11 @@
 
 using System;
 
-namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
+namespace FramePFX.Editors.ResourceManaging.ResourceHelpers
+{
     [Flags]
-    public enum ResourcePathFlags {
+    public enum ResourcePathFlags
+    {
         None,
     }
 }

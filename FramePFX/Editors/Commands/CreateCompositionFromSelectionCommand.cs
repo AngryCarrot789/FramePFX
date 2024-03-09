@@ -30,9 +30,12 @@ using FramePFX.Editors.Timelines.Clips.Core;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Commands {
-    public class CreateCompositionFromSelectionCommand : Command {
-        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+namespace FramePFX.Editors.Commands
+{
+    public class CreateCompositionFromSelectionCommand : Command
+    {
+        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        {
             if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline timeline))
                 return ExecutabilityState.Invalid;
             if (timeline.Project == null)
@@ -40,8 +43,10 @@ namespace FramePFX.Editors.Commands {
             return ExecutabilityState.Executable;
         }
 
-        public override Task Execute(CommandEventArgs e) {
-            if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline timeline)) {
+        public override Task Execute(CommandEventArgs e)
+        {
+            if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline timeline))
+            {
                 return Task.CompletedTask;
             }
 
@@ -50,7 +55,8 @@ namespace FramePFX.Editors.Commands {
                 return Task.CompletedTask;
             int trackStart = int.MaxValue, trackEnd = int.MinValue;
             List<Clip> selected = DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip focusedClip) ? timeline.GetSelectedClipsWith(focusedClip).ToList() : timeline.SelectedClips.ToList();
-            if (selected.Count < 1) {
+            if (selected.Count < 1)
+            {
                 IoC.MessageService.ShowMessage("No selection", "No selected clips!");
                 return Task.CompletedTask;
             }
@@ -59,9 +65,11 @@ namespace FramePFX.Editors.Commands {
             timeline.ClearTrackSelection();
 
             long minSpanBegin = long.MaxValue;
-            foreach (Clip clip in selected) {
+            foreach (Clip clip in selected)
+            {
                 int index = clip.Track.IndexInTimeline;
-                if (index == -1) {
+                if (index == -1)
+                {
                     IoC.MessageService.ShowMessage("Error", "One or more selected clips did not have a track associated... this is a very bad bug");
                     return Task.CompletedTask;
                 }
@@ -78,12 +86,14 @@ namespace FramePFX.Editors.Commands {
             Track[] oldTracks = new Track[trackEnd - trackStart + 1];
             Track[] tracks = new Track[trackEnd - trackStart + 1];
 
-            foreach (Clip clip in selected) {
+            foreach (Clip clip in selected)
+            {
                 Track srcTrack = clip.Track;
                 int srcTrackIndex = srcTrack.IndexInTimeline;
                 int dstTrackIndex = srcTrackIndex - trackStart;
                 Track dstTrack = tracks[dstTrackIndex];
-                if (dstTrack == null) {
+                if (dstTrack == null)
+                {
                     tracks[dstTrackIndex] = dstTrack = srcTrack.Clone(new TrackCloneOptions(null));
                 }
 
@@ -97,19 +107,23 @@ namespace FramePFX.Editors.Commands {
             project.ResourceManager.CurrentFolder.AddItem(composition);
             composition.TryAutoEnable(null);
 
-            foreach (Track track in tracks) {
+            foreach (Track track in tracks)
+            {
                 if (track != null)
                     composition.Timeline.AddTrack(track);
             }
 
-            for (int i = 1; i < oldTracks.Length; i++) {
+            for (int i = 1; i < oldTracks.Length; i++)
+            {
                 Track track = oldTracks[i];
-                if (track.Clips.Count < 1) {
+                if (track.Clips.Count < 1)
+                {
                     track.Timeline.RemoveTrack(track);
                 }
             }
 
-            CompositionVideoClip videoClip = new CompositionVideoClip {
+            CompositionVideoClip videoClip = new CompositionVideoClip
+            {
                 DisplayName = "Composition Video Clip",
                 FrameSpan = new FrameSpan(minSpanBegin, composition.Timeline.LargestFrameInUse)
             };
@@ -118,8 +132,10 @@ namespace FramePFX.Editors.Commands {
             oldTracks[0].AddClip(videoClip);
             // TODO: add audio track here
 
-            IoC.Dispatcher.InvokeAsync(() => {
-                if (IoC.MessageService.ShowMessage("Open Timeline?", "Do you want to open the composition timeline?", MessageBoxButton.YesNo) == MessageBoxResult.Yes) {
+            IoC.Dispatcher.InvokeAsync(() =>
+            {
+                if (IoC.MessageService.ShowMessage("Open Timeline?", "Do you want to open the composition timeline?", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
                     project.ActiveTimeline = composition.Timeline;
                 }
             }, DispatcherPriority.Background);

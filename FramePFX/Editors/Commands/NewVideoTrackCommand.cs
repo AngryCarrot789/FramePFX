@@ -23,18 +23,24 @@ using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Commands {
-    public class NewVideoTrackCommand : Command {
-        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+namespace FramePFX.Editors.Commands
+{
+    public class NewVideoTrackCommand : Command
+    {
+        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        {
             return e.ContextData.ContainsKey(DataKeys.TimelineKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override Task Execute(CommandEventArgs e) {
-            if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline timeline)) {
+        public override Task Execute(CommandEventArgs e)
+        {
+            if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline timeline))
+            {
                 return Task.CompletedTask;
             }
 
-            VideoTrack track = new VideoTrack() {
+            VideoTrack track = new VideoTrack()
+            {
                 DisplayName = "New Video Track"
             };
 

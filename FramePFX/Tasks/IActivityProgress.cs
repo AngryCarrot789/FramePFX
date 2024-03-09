@@ -19,13 +19,15 @@
 
 using System;
 
-namespace FramePFX.Tasks {
+namespace FramePFX.Tasks
+{
     public delegate void ActivityProgressEventHandler(IActivityProgress tracker);
 
     /// <summary>
     /// An interface for an object used to track progression
     /// </summary>
-    public interface IActivityProgress {
+    public interface IActivityProgress
+    {
         /// <summary>
         /// Gets or sets if this tracker's completions state is indeterminate
         /// </summary>
@@ -94,14 +96,17 @@ namespace FramePFX.Tasks {
     /// A struct used to automatically pop a completion range from a tracker, to make the code easier to
     /// #read. This can only pop once, then calling Dispose again does nothing
     /// </summary>
-    public struct PopDispose : IDisposable {
+    public struct PopDispose : IDisposable
+    {
         private IActivityProgress tracker;
 
-        public PopDispose(IActivityProgress tracker) {
+        public PopDispose(IActivityProgress tracker)
+        {
             this.tracker = tracker;
         }
 
-        public void Dispose() {
+        public void Dispose()
+        {
             IActivityProgress t = this.tracker;
             this.tracker = null;
             t?.PopCompletionRange();

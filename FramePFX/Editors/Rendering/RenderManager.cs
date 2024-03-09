@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Threading;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
@@ -30,13 +31,15 @@ using FramePFX.Editors.Utils;
 using FramePFX.Utils;
 using SkiaSharp;
 
-namespace FramePFX.Editors.Rendering {
+namespace FramePFX.Editors.Rendering
+{
     public delegate void FrameRenderedEventHandler(RenderManager manager);
 
     /// <summary>
     /// A class that manages the audio-visual rendering for a timeline
     /// </summary>
-    public class RenderManager {
+    public class RenderManager
+    {
         public Timeline Timeline { get; }
 
         public SKImageInfo ImageInfo { get; private set; }
@@ -78,15 +81,18 @@ namespace FramePFX.Editors.Rendering {
 
         public event FrameRenderedEventHandler FrameRendered;
 
-        public RenderManager(Timeline timeline) {
+        public RenderManager(Timeline timeline)
+        {
             this.Timeline = timeline;
-            this.renderCallback = RapidDispatchActionEx.ForAsync(() => {
+            this.renderCallback = RapidDispatchActionEx.ForAsync(() =>
+            {
                 return this.lastRenderTask = this.DoScheduledRender();
             });
             // this.renderThread = new Thread(this.RenderThreadMain);
         }
 
-        public SuspendRender CancelRenderAndWaitForCompletion() {
+        public SuspendRender CancelRenderAndWaitForCompletion()
+        {
             SuspendRender suspension = this.SuspendRenderInvalidation();
             this.isRenderCancelled = 1;
             while (this.isRendering != 0)
@@ -94,14 +100,17 @@ namespace FramePFX.Editors.Rendering {
             return suspension;
         }
 
-        public static void InternalOnTimelineProjectChanged(RenderManager manager, Project oldProject, Project newProject) {
-            if (oldProject != null) {
+        public static void InternalOnTimelineProjectChanged(RenderManager manager, Project oldProject, Project newProject)
+        {
+            if (oldProject != null)
+            {
                 oldProject.Settings.ResolutionChanged -= manager.SettingsOnResolutionChanged;
                 manager.DisposeCanvas();
                 manager.audioRingBuffer?.Dispose();
             }
 
-            if (newProject != null) {
+            if (newProject != null)
+            {
                 newProject.Settings.ResolutionChanged += manager.SettingsOnResolutionChanged;
                 manager.SettingsOnResolutionChanged(newProject.Settings);
                 manager.audioRingBuffer?.Dispose();
@@ -109,33 +118,41 @@ namespace FramePFX.Editors.Rendering {
             }
         }
 
-        private void SettingsOnResolutionChanged(ProjectSettings settings) {
+        private void SettingsOnResolutionChanged(ProjectSettings settings)
+        {
             this.UpdateFrameInfo(settings);
             this.InvalidateRender();
         }
 
-        public void Dispose() {
+        public void Dispose()
+        {
             this.DisposeCanvas();
             this.isDisposed = true;
         }
 
-        private void DisposeCanvas() {
-            using (this.CancelRenderAndWaitForCompletion()) {
+        private void DisposeCanvas()
+        {
+            using (this.CancelRenderAndWaitForCompletion())
+            {
                 this.DisposeSkiaObjects();
             }
         }
 
-        private void DisposeSkiaObjects() {
+        private void DisposeSkiaObjects()
+        {
             this.isSkiaValid = false;
             this.bitmap?.Dispose();
             this.pixmap?.Dispose();
             this.surface?.Dispose();
         }
 
-        public void UpdateFrameInfo(ProjectSettings settings) {
-            using (this.CancelRenderAndWaitForCompletion()) {
+        public void UpdateFrameInfo(ProjectSettings settings)
+        {
+            using (this.CancelRenderAndWaitForCompletion())
+            {
                 SKImageInfo info = new SKImageInfo(settings.Width, settings.Height, SKColorType.Bgra8888);
-                if (this.ImageInfo == info && this.isSkiaValid) {
+                if (this.ImageInfo == info && this.isSkiaValid)
+                {
                     return;
                 }
 
@@ -150,7 +167,8 @@ namespace FramePFX.Editors.Rendering {
             }
         }
 
-        private void BeginRender(long frame) {
+        private void BeginRender(long frame)
+        {
             if (!IoC.Dispatcher.IsOnOwnerThread)
                 throw new InvalidOperationException("Cannot start rendering while not on the main thread");
             if (frame < 0 || frame >= this.Timeline.MaxDuration)
@@ -169,9 +187,11 @@ namespace FramePFX.Editors.Rendering {
         /// completed when the render is completed
         /// </summary>
         /// <param name="frame">The frame to render</param>
-        public Task RenderTimelineAsync(long frame, CancellationToken token, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality) {
+        public Task RenderTimelineAsync(long frame, CancellationToken token, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality)
+        {
             Project project = this.Timeline.Project;
-            if (project == null) {
+            if (project == null)
+            {
                 return Task.CompletedTask;
             }
 
@@ -182,7 +202,8 @@ namespace FramePFX.Editors.Rendering {
             List<AudioTrack> audioTrackList;
             SKImageInfo imgInfo;
 
-            try {
+            try
+            {
                 videoTrackList = new List<VideoTrack>();
                 audioTrackList = new List<AudioTrack>();
                 imgInfo = this.ImageInfo;
@@ -202,47 +223,58 @@ namespace FramePFX.Editors.Rendering {
                 // samples = project.Settings.BufferSize;
 
                 // render bottom to top, as most video editors do
-                for (int i = this.Timeline.Tracks.Count - 1; i >= 0; i--) {
+                for (int i = this.Timeline.Tracks.Count - 1; i >= 0; i--)
+                {
                     Track track = this.Timeline.Tracks[i];
-                    if (track is VideoTrack videoTrack && VideoTrack.VisibleParameter.GetCurrentValue(videoTrack)) {
-                        if (videoTrack.PrepareRenderFrame(imgInfo, frame, quality)) {
+                    if (track is VideoTrack videoTrack && VideoTrack.VisibleParameter.GetCurrentValue(videoTrack))
+                    {
+                        if (videoTrack.PrepareRenderFrame(imgInfo, frame, quality))
+                        {
                             videoTrackList.Add(videoTrack);
                         }
                     }
 
-                    if (track is AudioTrack audioTrack && !AudioTrack.IsMutedParameter.GetCurrentValue(audioTrack)) {
-                        if (audioTrack.PrepareRenderFrame(frame, samplesToProcess, quality)) {
+                    if (track is AudioTrack audioTrack && !AudioTrack.IsMutedParameter.GetCurrentValue(audioTrack))
+                    {
+                        if (audioTrack.PrepareRenderFrame(frame, samplesToProcess, quality))
+                        {
                             audioTrackList.Add(audioTrack);
                         }
                     }
                 }
             }
-            catch {
+            catch
+            {
                 this.isRendering = 0;
                 throw;
             }
 
             bool isFirstRenderRect = true;
             SKRect totalRenderArea = default;
-            Task renderVideo = Task.Run(async () => {
+            Task renderVideo = Task.Run(async () =>
+            {
                 this.CheckRenderCancelled();
                 Task[] tasks = new Task[videoTrackList.Count];
-                for (int i = 0; i < tasks.Length; i++) {
+                for (int i = 0; i < tasks.Length; i++)
+                {
                     VideoTrack track = videoTrackList[i];
                     tasks[i] = Task.Run(() => track.RenderVideoFrame(imgInfo, quality), token);
                 }
 
                 this.CheckRenderCancelled();
                 this.surface.Canvas.Clear(SKColors.Black);
-                for (int i = 0; i < tasks.Length; i++) {
+                for (int i = 0; i < tasks.Length; i++)
+                {
                     if (!tasks[i].IsCompleted)
                         await tasks[i];
                     videoTrackList[i].DrawFrameIntoSurface(this.surface, out SKRect usedRenderingArea);
-                    if (isFirstRenderRect) {
+                    if (isFirstRenderRect)
+                    {
                         totalRenderArea = usedRenderingArea;
                         isFirstRenderRect = false;
                     }
-                    else {
+                    else
+                    {
                         totalRenderArea = SKRect.Union(totalRenderArea, usedRenderingArea);
                     }
                 }
@@ -251,18 +283,21 @@ namespace FramePFX.Editors.Rendering {
             }, token);
 
             // probably not a good idea to render audio like this...?
-            Task renderAudio = Task.Run(async () => {
+            Task renderAudio = Task.Run(async () =>
+            {
                 this.CheckRenderCancelled();
 
                 Task[] tasks = new Task[audioTrackList.Count];
-                for (int i = 0; i < tasks.Length; i++) {
+                for (int i = 0; i < tasks.Length; i++)
+                {
                     AudioTrack track = audioTrackList[i];
                     tasks[i] = Task.Run(() => track.RenderAudioFrame(samplesToProcess, quality), token);
                 }
 
                 this.CheckRenderCancelled();
 
-                for (int i = 0; i < tasks.Length; i++) {
+                for (int i = 0; i < tasks.Length; i++)
+                {
                     if (!tasks[i].IsCompleted)
                         await tasks[i];
                 }
@@ -271,19 +306,24 @@ namespace FramePFX.Editors.Rendering {
                 this.averageAudioRenderTimeMillis = (Time.GetSystemTicks() - beginRender) / Time.TICK_PER_MILLIS_D;
             }, token);
 
-            return Task.WhenAll(renderVideo, renderAudio).ContinueWith(t => {
+            return Task.WhenAll(renderVideo, renderAudio).ContinueWith(t =>
+            {
                 this.LastRenderRect = totalRenderArea;
                 this.isRendering = 0;
             }, TaskContinuationOptions.ExecuteSynchronously);
         }
 
-        private unsafe void SumTrackSamples(List<AudioTrack> tracks, int sampleFrames, int effectiveSamples) {
-            lock (this.audioRingBuffer) {
+        private unsafe void SumTrackSamples(List<AudioTrack> tracks, int sampleFrames, int effectiveSamples)
+        {
+            lock (this.audioRingBuffer)
+            {
                 int samples = sampleFrames * 2;
                 float* final = stackalloc float[samples];
-                foreach (AudioTrack track in tracks) {
+                foreach (AudioTrack track in tracks)
+                {
                     float* tsamples = track.renderedSamples;
-                    for (int i = 0; i < samples; i++) {
+                    for (int i = 0; i < samples; i++)
+                    {
                         *(final + i) = *(final + i) + tsamples[i];
                     }
                 }
@@ -296,7 +336,8 @@ namespace FramePFX.Editors.Rendering {
             }
         }
 
-        private void CheckRenderCancelled() {
+        private void CheckRenderCancelled()
+        {
             if (this.isRenderCancelled != 0 || !this.isSkiaValid)
                 throw new TaskCanceledException();
         }
@@ -304,20 +345,26 @@ namespace FramePFX.Editors.Rendering {
         // SaveLayer requires a temporary drawing bitmap, which can slightly
         // decrease performance, so only SaveLayer when absolutely necessary
 
-        public static int BeginClipOpacityLayer(SKCanvas canvas, VideoClip clip, ref SKPaint paint) {
-            if (clip.UsesCustomOpacityCalculation || clip.RenderOpacity >= 1.0) { // check greater than just in case...
+        public static int BeginClipOpacityLayer(SKCanvas canvas, VideoClip clip, ref SKPaint paint)
+        {
+            if (clip.UsesCustomOpacityCalculation || clip.RenderOpacity >= 1.0)
+            { // check greater than just in case...
                 return canvas.Save();
             }
-            else {
-                return canvas.SaveLayer(paint ?? (paint = new SKPaint {
+            else
+            {
+                return canvas.SaveLayer(paint ?? (paint = new SKPaint
+                {
                     Color = new SKColor(255, 255, 255, clip.RenderOpacityByte)
                 }));
             }
         }
 
-        public static void EndOpacityLayer(SKCanvas canvas, int count, ref SKPaint paint) {
+        public static void EndOpacityLayer(SKCanvas canvas, int count, ref SKPaint paint)
+        {
             canvas.RestoreToCount(count);
-            if (paint != null) {
+            if (paint != null)
+            {
                 paint.Dispose();
                 paint = null;
             }
@@ -326,14 +373,24 @@ namespace FramePFX.Editors.Rendering {
         /// <summary>
         /// Schedules the timeline to be re-drawn once the application is no longer busy
         /// </summary>
-        public void InvalidateRender() {
-            if (this.isDisposed || this.suspendRenderCount > 0) {
+        public void InvalidateRender()
+        {
+            if (this.isDisposed || this.suspendRenderCount > 0)
+            {
                 return;
             }
 
-            if (!this.Timeline.IsActive) {
+            if (!this.Timeline.IsActive)
+            {
                 // if (this.Timeline is CompositionTimeline composition)
                 //     composition.TryNotifyParentTimelineRenderInvalidated();
+                return;
+            }
+
+            // don't invalidate when not in an editor, or while playing video
+            VideoEditor editor = this.Timeline.Project?.Editor;
+            if (editor == null || editor.Playback.PlayState == PlayState.Play)
+            {
                 return;
             }
 
@@ -346,18 +403,25 @@ namespace FramePFX.Editors.Rendering {
         /// </summary>
         public void OnFrameCompleted() => this.FrameRendered?.Invoke(this);
 
-        private async Task DoScheduledRender() {
+        private async Task DoScheduledRender()
+        {
             VideoEditor editor;
-            if (this.suspendRenderCount < 1 && (editor = this.Timeline?.Project?.Editor) != null) {
-                try {
+            if (this.suspendRenderCount < 1 && (editor = this.Timeline?.Project?.Editor) != null)
+            {
+                try
+                {
                     await this.RenderTimelineAsync(this.Timeline.PlayHeadPosition, CancellationToken.None, EnumRenderQuality.Low);
                 }
-                catch (TaskCanceledException) {
+                catch (TaskCanceledException)
+                {
                 }
-                catch (OperationCanceledException) {
+                catch (OperationCanceledException)
+                {
                 }
-                catch (Exception e) {
-                    if (editor.Playback.PlayState == PlayState.Play) {
+                catch (Exception e)
+                {
+                    if (editor.Playback.PlayState == PlayState.Play)
+                    {
                         editor.Playback.Pause();
                     }
 
@@ -374,9 +438,11 @@ namespace FramePFX.Editors.Rendering {
         /// </summary>
         /// <param name="target">The surface in which our rendered frame is drawn into</param>
         /// <param name="paint">The paint used for drawing, e.g., for adding opacity</param>
-        public void Draw(SKSurface target, SKPaint paint = null) {
+        public void Draw(SKSurface target, SKPaint paint = null)
+        {
             SKRect usedArea = this.LastRenderRect;
-            if (!(usedArea.Width > 0) || !(usedArea.Height > 0)) {
+            if (!(usedArea.Width > 0) || !(usedArea.Height > 0))
+            {
                 return;
             }
 
@@ -384,30 +450,37 @@ namespace FramePFX.Editors.Rendering {
 
             // this is the same code that VideoTrack uses for efficient final frame assembly
             SKRect frameRect = this.ImageInfo.ToRect();
-            if (usedArea == frameRect) {
+            if (usedArea == frameRect)
+            {
                 this.surface.Draw(target.Canvas, 0, 0, paint);
             }
-            else {
-                using (SKImage img = SKImage.FromPixels(this.ImageInfo, this.bitmap.GetPixels())) {
+            else
+            {
+                using (SKImage img = SKImage.FromPixels(this.ImageInfo, this.bitmap.GetPixels()))
+                {
                     target.Canvas.DrawImage(img, usedArea, usedArea, paint);
                 }
             }
         }
 
-        public SuspendRender SuspendRenderInvalidation() {
+        public SuspendRender SuspendRenderInvalidation()
+        {
             Interlocked.Increment(ref this.suspendRenderCount);
             return new SuspendRender(this);
         }
     }
 
-    public struct SuspendRender : IDisposable {
+    public struct SuspendRender : IDisposable
+    {
         internal RenderManager manager;
 
-        internal SuspendRender(RenderManager manager) {
+        internal SuspendRender(RenderManager manager)
+        {
             this.manager = manager;
         }
 
-        public void Dispose() {
+        public void Dispose()
+        {
             if (this.manager != null)
                 Interlocked.Decrement(ref this.manager.suspendRenderCount);
             this.manager = null;

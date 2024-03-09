@@ -17,8 +17,10 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.History {
-    public interface IHistoryAction {
+namespace FramePFX.History
+{
+    public interface IHistoryAction
+    {
         /// <summary>
         /// Undoes this action
         /// </summary>

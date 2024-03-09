@@ -17,14 +17,17 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Utils {
+namespace FramePFX.Utils
+{
     /// <summary>
     /// A colour which stores a BGRA8888 colour
     /// </summary>
-    public readonly struct Colour {
+    public readonly struct Colour
+    {
         private readonly uint value;
 
-        public Colour(uint bgra) {
+        public Colour(uint bgra)
+        {
             this.value = bgra;
         }
 

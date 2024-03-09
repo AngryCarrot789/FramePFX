@@ -23,13 +23,15 @@ using System.Threading.Tasks;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils.Collections;
 
-namespace FramePFX.Interactivity {
+namespace FramePFX.Interactivity
+{
     /// <summary>
     /// A class that supports basic type-based drag-drop processing. This class contains a dictionary which
     /// maps a droppable object type to another dictionary which maps the handler/target type to the handler functions
     /// </summary>
     /// <typeparam name="THandler">The base handler type. This is only here to help reduce bugs</typeparam>
-    public class DragDropRegistry<THandler> where THandler : class {
+    public class DragDropRegistry<THandler> where THandler : class
+    {
         private delegate EnumDropType CustomCanDropDelegate(object target, object drop, EnumDropType dropType, IContextData context);
 
         private delegate Task CustomOnDroppedDelegate(object target, object drop, EnumDropType dropType, IContextData context);
@@ -42,7 +44,8 @@ namespace FramePFX.Interactivity {
         private readonly InheritanceDictionary<InheritanceDictionary<CustomHandlerPair>> registryCustom;
         private readonly Dictionary<string, InheritanceDictionary<NativeHandlerPair>> registryNative;
 
-        public DragDropRegistry() {
+        public DragDropRegistry()
+        {
             this.registryCustom = new InheritanceDictionary<InheritanceDictionary<CustomHandlerPair>>();
             this.registryNative = new Dictionary<string, InheritanceDictionary<NativeHandlerPair>>();
         }
@@ -50,14 +53,17 @@ namespace FramePFX.Interactivity {
         public void Register<T, TValue>(
             Func<T, TValue, EnumDropType, IContextData, EnumDropType> canDrop,
             Func<T, TValue, EnumDropType, IContextData, Task> onDropped)
-            where T : THandler {
+            where T : THandler
+        {
             Type dropType = typeof(TValue);
             Type handlerType = typeof(T);
 
-            if (!this.registryCustom.TryGetLocalValue(dropType, out InheritanceDictionary<CustomHandlerPair> handlerMap)) {
+            if (!this.registryCustom.TryGetLocalValue(dropType, out InheritanceDictionary<CustomHandlerPair> handlerMap))
+            {
                 this.registryCustom[dropType] = handlerMap = new InheritanceDictionary<CustomHandlerPair>();
             }
-            else if (handlerMap.HasLocalValue(handlerType)) {
+            else if (handlerMap.HasLocalValue(handlerType))
+            {
                 throw new Exception("Handler type already registered: " + handlerType.Name);
             }
 
@@ -68,12 +74,15 @@ namespace FramePFX.Interactivity {
             string dropType,
             Func<T, IDataObjekt, EnumDropType, IContextData, EnumDropType> canDrop,
             Func<T, IDataObjekt, EnumDropType, IContextData, Task> onDropped)
-            where T : THandler {
+            where T : THandler
+        {
             Type handlerType = typeof(T);
-            if (!this.registryNative.TryGetValue(dropType, out InheritanceDictionary<NativeHandlerPair> handlerMap)) {
+            if (!this.registryNative.TryGetValue(dropType, out InheritanceDictionary<NativeHandlerPair> handlerMap))
+            {
                 this.registryNative[dropType] = handlerMap = new InheritanceDictionary<NativeHandlerPair>();
             }
-            else if (handlerMap.HasLocalValue(handlerType)) {
+            else if (handlerMap.HasLocalValue(handlerType))
+            {
                 throw new Exception("Handler type already registered: " + handlerType.Name);
             }
 
@@ -90,12 +99,16 @@ namespace FramePFX.Interactivity {
         /// <param name="value">The value being dragged</param>
         /// <param name="dropType">The drag drop type</param>
         /// <returns>True if the drag can occur (and show the appropriate icon based on the dropType), otherwise false</returns>
-        public EnumDropType CanDrop(THandler target, object value, EnumDropType dropType, IContextData context = null) {
+        public EnumDropType CanDrop(THandler target, object value, EnumDropType dropType, IContextData context = null)
+        {
             Type targetType = target.GetType();
-            foreach (ITypeEntry<InheritanceDictionary<CustomHandlerPair>> handlerEntry in this.registryCustom.GetLocalValueEnumerable(value.GetType())) {
-                foreach (ITypeEntry<CustomHandlerPair> entry in handlerEntry.LocalValue.GetLocalValueEnumerable(targetType)) {
+            foreach (ITypeEntry<InheritanceDictionary<CustomHandlerPair>> handlerEntry in this.registryCustom.GetLocalValueEnumerable(value.GetType()))
+            {
+                foreach (ITypeEntry<CustomHandlerPair> entry in handlerEntry.LocalValue.GetLocalValueEnumerable(targetType))
+                {
                     EnumDropType dt = entry.LocalValue.CanDrop(target, value, dropType, context);
-                    if (dt != EnumDropType.None) {
+                    if (dt != EnumDropType.None)
+                    {
                         return dt;
                     }
                 }
@@ -111,16 +124,21 @@ namespace FramePFX.Interactivity {
         /// <param name="value">The data object that is being dragged</param>
         /// <param name="dropType">The drag drop type</param>
         /// <returns>True if the drag can occur (and show the appropriate icon based on the dropType), otherwise false</returns>
-        public EnumDropType CanDropNative(THandler target, IDataObjekt value, EnumDropType dropType, IContextData context = null) {
+        public EnumDropType CanDropNative(THandler target, IDataObjekt value, EnumDropType dropType, IContextData context = null)
+        {
             Type targetType = target.GetType();
-            foreach (KeyValuePair<string, InheritanceDictionary<NativeHandlerPair>> pair in this.registryNative) {
-                if (!value.GetDataPresent(pair.Key)) {
+            foreach (KeyValuePair<string, InheritanceDictionary<NativeHandlerPair>> pair in this.registryNative)
+            {
+                if (!value.GetDataPresent(pair.Key))
+                {
                     continue;
                 }
 
-                foreach (ITypeEntry<NativeHandlerPair> entry in pair.Value.GetLocalValueEnumerable(targetType)) {
+                foreach (ITypeEntry<NativeHandlerPair> entry in pair.Value.GetLocalValueEnumerable(targetType))
+                {
                     EnumDropType dt = entry.LocalValue.CanDrop(target, value, dropType, context);
-                    if (dt != EnumDropType.None) {
+                    if (dt != EnumDropType.None)
+                    {
                         return dt;
                     }
                 }
@@ -141,17 +159,22 @@ namespace FramePFX.Interactivity {
         /// handled by specific drop targets (e.g. the frame, based on the mouse position, when dropping on a track)
         /// </param>
         /// <returns>True if a drop handler was called, otherwise false</returns>
-        public async Task<bool> OnDropped(THandler target, object value, EnumDropType dropType, IContextData context = null) {
-            if (context == null) {
+        public async Task<bool> OnDropped(THandler target, object value, EnumDropType dropType, IContextData context = null)
+        {
+            if (context == null)
+            {
                 context = EmptyContext.Instance;
             }
 
             Type targetType = target.GetType();
-            foreach (ITypeEntry<InheritanceDictionary<CustomHandlerPair>> handlerEntry in this.registryCustom.GetLocalValueEnumerable(value.GetType())) {
-                foreach (ITypeEntry<CustomHandlerPair> entry in handlerEntry.LocalValue.GetLocalValueEnumerable(targetType)) {
+            foreach (ITypeEntry<InheritanceDictionary<CustomHandlerPair>> handlerEntry in this.registryCustom.GetLocalValueEnumerable(value.GetType()))
+            {
+                foreach (ITypeEntry<CustomHandlerPair> entry in handlerEntry.LocalValue.GetLocalValueEnumerable(targetType))
+                {
                     CustomHandlerPair pair = entry.LocalValue;
                     EnumDropType dt = pair.CanDrop(target, value, dropType, context);
-                    if (dt != EnumDropType.None) {
+                    if (dt != EnumDropType.None)
+                    {
                         await pair.OnDropped(target, value, dt, context);
                         return true;
                     }
@@ -169,17 +192,22 @@ namespace FramePFX.Interactivity {
         /// <param name="value">The dropped data object containing operating system data (or a CLR object(s))</param>
         /// <param name="dropType">The type of drop</param>
         /// <returns>True if a drop handler was called, otherwise false</returns>
-        public async Task<bool> OnDroppedNative(THandler target, IDataObjekt value, EnumDropType dropType, IContextData context = null) {
+        public async Task<bool> OnDroppedNative(THandler target, IDataObjekt value, EnumDropType dropType, IContextData context = null)
+        {
             Type targetType = target.GetType();
-            foreach (KeyValuePair<string, InheritanceDictionary<NativeHandlerPair>> registryPair in this.registryNative) {
-                if (!value.GetDataPresent(registryPair.Key)) {
+            foreach (KeyValuePair<string, InheritanceDictionary<NativeHandlerPair>> registryPair in this.registryNative)
+            {
+                if (!value.GetDataPresent(registryPair.Key))
+                {
                     continue;
                 }
 
-                foreach (ITypeEntry<NativeHandlerPair> entry in registryPair.Value.GetLocalValueEnumerable(targetType)) {
+                foreach (ITypeEntry<NativeHandlerPair> entry in registryPair.Value.GetLocalValueEnumerable(targetType))
+                {
                     NativeHandlerPair pair = entry.LocalValue;
                     EnumDropType dt = pair.CanDrop(target, value, dropType, context);
-                    if (dt != EnumDropType.None) {
+                    if (dt != EnumDropType.None)
+                    {
                         await pair.OnDropped(target, value, dt, context);
                         return true;
                     }
@@ -189,21 +217,25 @@ namespace FramePFX.Interactivity {
             return false;
         }
 
-        private readonly struct CustomHandlerPair {
+        private readonly struct CustomHandlerPair
+        {
             internal readonly CustomCanDropDelegate CanDrop;
             internal readonly CustomOnDroppedDelegate OnDropped;
 
-            public CustomHandlerPair(CustomCanDropDelegate a, CustomOnDroppedDelegate b) {
+            public CustomHandlerPair(CustomCanDropDelegate a, CustomOnDroppedDelegate b)
+            {
                 this.CanDrop = a;
                 this.OnDropped = b;
             }
         }
 
-        private readonly struct NativeHandlerPair {
+        private readonly struct NativeHandlerPair
+        {
             internal readonly NativeCanDropDelegate CanDrop;
             internal readonly NativeOnDroppedDelegate OnDropped;
 
-            public NativeHandlerPair(NativeCanDropDelegate a, NativeOnDroppedDelegate b) {
+            public NativeHandlerPair(NativeCanDropDelegate a, NativeOnDroppedDelegate b)
+            {
                 this.CanDrop = a;
                 this.OnDropped = b;
             }

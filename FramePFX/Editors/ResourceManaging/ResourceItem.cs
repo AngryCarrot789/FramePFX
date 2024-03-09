@@ -24,7 +24,8 @@ using FramePFX.Editors.ResourceManaging.Autoloading;
 using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.Editors.ResourceManaging.ResourceHelpers;
 
-namespace FramePFX.Editors.ResourceManaging {
+namespace FramePFX.Editors.ResourceManaging
+{
     /// <summary>
     /// The base class for all resource items that can be used by clip objects to store and access
     /// data shareable across multiple clips.
@@ -37,7 +38,8 @@ namespace FramePFX.Editors.ResourceManaging {
     /// a <see cref="ResourceLoader"/> which is used to present a collection of errors to the user
     /// </para>
     /// </summary>
-    public abstract class ResourceItem : BaseResource, ITransferableData {
+    public abstract class ResourceItem : BaseResource, ITransferableData
+    {
         public const ulong EmptyId = ResourceManager.EmptyId;
         protected bool doNotProcessUniqueIdForSerialisation;
         private readonly List<IResourceHolder> references;
@@ -80,27 +82,32 @@ namespace FramePFX.Editors.ResourceManaging {
         /// </summary>
         public event ResourceItemEventHandler OnlineStateChanged;
 
-        protected ResourceItem() {
+        protected ResourceItem()
+        {
             this.references = new List<IResourceHolder>();
             this.TransferableData = new TransferableData(this);
         }
 
-        public bool HasReachedResourecLimit() {
+        public bool HasReachedResourecLimit()
+        {
             int limit = this.ResourceLinkLimit;
             return limit != -1 && this.references.Count >= limit;
         }
 
-        protected internal override void OnAttachedToManager() {
+        protected internal override void OnAttachedToManager()
+        {
             base.OnAttachedToManager();
             ResourceManager.InternalOnResourceItemAttachedToManager(this);
         }
 
-        protected internal override void OnDetatchedFromManager() {
-            base.OnDetatchedFromManager();
-            ResourceManager.InternalOnResourceItemDetatchedFromManager(this);
+        protected internal override void OnDetachedFromManager()
+        {
+            base.OnDetachedFromManager();
+            ResourceManager.InternalOnResourceItemDetachedFromManager(this);
         }
 
-        public bool IsRegistered() {
+        public bool IsRegistered()
+        {
             return this.Manager != null && this.UniqueId != EmptyId;
         }
 
@@ -112,8 +119,10 @@ namespace FramePFX.Editors.ResourceManaging {
         /// the item. <see cref="IsOfflineByUser"/> is set to this parameter
         /// </param>
         /// <returns></returns>
-        public void Disable(bool user) {
-            if (!this.IsOnline) {
+        public void Disable(bool user)
+        {
+            if (!this.IsOnline)
+            {
                 return;
             }
 
@@ -134,7 +143,8 @@ namespace FramePFX.Editors.ResourceManaging {
         /// True if this was disabled forcefully by the user via the UI. False if it was disabled by something
         /// else, such as an error or this resource being deleted
         /// </param>
-        protected virtual void OnDisableCore(bool user) {
+        protected virtual void OnDisableCore(bool user)
+        {
         }
 
         /// <summary>
@@ -149,16 +159,20 @@ namespace FramePFX.Editors.ResourceManaging {
         /// <returns>
         /// True if the resource is already online or is now online, or false meaning the resource could not enable itself
         /// </returns>
-        public bool TryAutoEnable(ResourceLoader loader) {
-            if (this.IsOnline) {
+        public bool TryAutoEnable(ResourceLoader loader)
+        {
+            if (this.IsOnline)
+            {
                 return true;
             }
 
-            if (this.OnTryAutoEnable(loader)) {
+            if (this.OnTryAutoEnable(loader))
+            {
                 this.EnableCore();
                 return true;
             }
-            else {
+            else
+            {
                 return false;
             }
         }
@@ -173,7 +187,8 @@ namespace FramePFX.Editors.ResourceManaging {
         /// </para>
         /// </summary>
         /// <param name="loader">The loader to add error entries to. May be null if errors are not processed</param>
-        protected virtual bool OnTryAutoEnable(ResourceLoader loader) {
+        protected virtual bool OnTryAutoEnable(ResourceLoader loader)
+        {
             return true;
         }
 
@@ -189,7 +204,8 @@ namespace FramePFX.Editors.ResourceManaging {
         /// </summary>
         /// <param name="entry">The entry that we created</param>
         /// <returns>True if the resource was successfully enabled, otherwise false</returns>
-        public virtual bool TryEnableForLoaderEntry(InvalidResourceEntry entry) {
+        public virtual bool TryEnableForLoaderEntry(InvalidResourceEntry entry)
+        {
             this.EnableCore();
             return true;
         }
@@ -199,8 +215,10 @@ namespace FramePFX.Editors.ResourceManaging {
         /// e.g. because resources were loaded in a non-standard or direct way
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
-        protected void EnableCore() {
-            if (this.IsOnline) {
+        protected void EnableCore()
+        {
+            if (this.IsOnline)
+            {
                 throw new InvalidOperationException("Already enabled");
             }
 
@@ -209,16 +227,20 @@ namespace FramePFX.Editors.ResourceManaging {
             this.OnOnlineStateChanged();
         }
 
-        static ResourceItem() {
-            SerialisationRegistry.Register<ResourceItem>(0, (resource, data, ctx) => {
+        static ResourceItem()
+        {
+            SerialisationRegistry.Register<ResourceItem>(0, (resource, data, ctx) =>
+            {
                 ctx.DeserialiseBaseType(data);
                 if (!resource.doNotProcessUniqueIdForSerialisation)
                     resource.UniqueId = data.GetULong(nameof(resource.UniqueId), EmptyId);
-                if (data.TryGetBool(nameof(resource.IsOnline), out bool isOnline) && !isOnline) {
+                if (data.TryGetBool(nameof(resource.IsOnline), out bool isOnline) && !isOnline)
+                {
                     resource.IsOnline = false;
                     resource.IsOfflineByUser = true;
                 }
-            }, (resource, data, ctx) => {
+            }, (resource, data, ctx) =>
+            {
                 ctx.SerialiseBaseType(data);
                 if (resource.UniqueId != EmptyId && !resource.doNotProcessUniqueIdForSerialisation)
                     data.SetULong(nameof(resource.UniqueId), resource.UniqueId);
@@ -227,12 +249,15 @@ namespace FramePFX.Editors.ResourceManaging {
             });
         }
 
-        public virtual void OnOnlineStateChanged() {
+        public virtual void OnOnlineStateChanged()
+        {
             this.OnlineStateChanged?.Invoke(this);
         }
 
-        public override void Destroy() {
-            if (this.IsOnline) {
+        public override void Destroy()
+        {
+            if (this.IsOnline)
+            {
                 this.Disable(false);
             }
 
@@ -244,7 +269,8 @@ namespace FramePFX.Editors.ResourceManaging {
         /// </summary>
         internal static void SetUniqueId(ResourceItem item, ulong id) => item.UniqueId = id;
 
-        internal static void AddReference(ResourceItem item, IResourceHolder owner) {
+        internal static void AddReference(ResourceItem item, IResourceHolder owner)
+        {
             if (item.references.Contains(owner))
                 throw new InvalidOperationException("Object already referenced");
             if (item.HasReachedResourecLimit())
@@ -252,7 +278,8 @@ namespace FramePFX.Editors.ResourceManaging {
             item.references.Add(owner);
         }
 
-        internal static void RemoveReference(ResourceItem item, IResourceHolder owner) {
+        internal static void RemoveReference(ResourceItem item, IResourceHolder owner)
+        {
             if (!item.references.Remove(owner))
                 throw new InvalidOperationException("Object was not referenced");
         }

@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Editors.ResourceManaging {
+namespace FramePFX.Editors.ResourceManaging
+{
     public delegate void ResourceChangedEventHandler(ResourceItem oldItem, ResourceItem newItem);
 }

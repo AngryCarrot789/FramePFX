@@ -20,17 +20,21 @@
 using System;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.AdvancedMenuService.ContextService {
+namespace FramePFX.AdvancedMenuService.ContextService
+{
     /// <summary>
     /// The class for action-based context entries. The header, tooltip, etc, are automatically fetched
     /// </summary>
-    public class EventContextEntry : BaseContextEntry {
+    public class EventContextEntry : BaseContextEntry
+    {
         public Action<IContextData> Action { get; set; }
 
-        public EventContextEntry(string header, string description = null) : base(header, description) {
+        public EventContextEntry(string header, string description = null) : base(header, description)
+        {
         }
 
-        public EventContextEntry(Action<IContextData> action, string header, string description = null) : base(header, description) {
+        public EventContextEntry(Action<IContextData> action, string header, string description = null) : base(header, description)
+        {
             this.Action = action;
         }
     }

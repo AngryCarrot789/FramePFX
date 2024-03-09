@@ -66,6 +66,11 @@
     </Reference>
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.IO.Compression, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.IO.Compression.4.3.0\lib\net46\System.IO.Compression.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
     </Reference>
@@ -124,8 +129,10 @@
     <Compile Include="Behaviours\Behaviour.cs" />
     <Compile Include="Behaviours\BehaviourBase.cs" />
     <Compile Include="Behaviours\BehaviourCollection.cs" />
+    <Compile Include="Behaviours\BehaviourEx.cs" />
     <Compile Include="Behaviours\IBehaviour.cs" />
     <Compile Include="Behaviours\TestBlueBackgroundBehaviour.cs" />
+    <Compile Include="Behaviours\ThingyBehaviourEx.cs" />
     <Compile Include="CommandSystem\ExecutabilityState.cs" />
     <Compile Include="CommandSystem\Usages\CommandUsage.cs" />
     <Compile Include="CommandSystem\Usages\CommandUsageManager.cs" />
@@ -286,6 +293,35 @@
     <Compile Include="FFmpeg\FrameQueue.cs" />
     <Compile Include="FFmpeg\StreamWrapper.cs" />
     <Compile Include="FFmpeg\VideoStream.cs" />
+    <Compile Include="FileBrowser\Context\ExplorerContextGenerator.cs" />
+    <Compile Include="FileBrowser\Controls\Trees\IFileTreeControl.cs" />
+    <Compile Include="FileBrowser\Controls\Trees\FileTreeView.cs" />
+    <Compile Include="FileBrowser\Controls\Trees\FileTreeViewItem.cs" />
+    <Compile Include="FileBrowser\FileTree\EntrySorters.cs" />
+    <Compile Include="FileBrowser\FileTree\Events\NavigateToFileEventHandler.cs" />
+    <Compile Include="FileBrowser\FileTree\Events\OpenFileEventHandler.cs" />
+    <Compile Include="FileBrowser\FileTree\Interfaces\IFileName.cs" />
+    <Compile Include="FileBrowser\FileTree\Interfaces\IHaveFilePath.cs" />
+    <Compile Include="FileBrowser\FileTree\Physical\BasePhysicalVirtualFile.cs" />
+    <Compile Include="FileBrowser\FileTree\Physical\PhysicalVirtualFile.cs" />
+    <Compile Include="FileBrowser\FileTree\Physical\PhysicalVirtualFolder.cs" />
+    <Compile Include="FileBrowser\FileTree\Physical\Win32FileSystem.cs" />
+    <Compile Include="FileBrowser\FileTree\VFSFileEntry.cs" />
+    <Compile Include="FileBrowser\FileTree\TreeFileSystem.cs" />
+    <Compile Include="FileBrowser\FileTree\Zip\BaseZipVirtualFile.cs" />
+    <Compile Include="FileBrowser\FileTree\Zip\IZipRoot.cs" />
+    <Compile Include="FileBrowser\FileTree\Zip\NestedZipVirtualFile.cs" />
+    <Compile Include="FileBrowser\FileTree\Zip\PhysicalZipVirtualFile.cs" />
+    <Compile Include="FileBrowser\FileTree\Zip\ZipEntryVirtualFile.cs" />
+    <Compile Include="FileBrowser\FileTree\Zip\ZipEntryVirtualFolder.cs" />
+    <Compile Include="FileBrowser\FileTree\Zip\ZipFileSystem.cs" />
+    <Compile Include="FileSystems\Physical\PhysicalVirtualFileSystem.cs" />
+    <Compile Include="FileSystems\VirtualFile.cs" />
+    <Compile Include="FileSystems\VirtualFileManager.cs" />
+    <Compile Include="FileSystems\VirtualFileUrl.cs" />
+    <Compile Include="FileSystems\VirtualFileSystem.cs" />
+    <Compile Include="FileSystems\Zip\BaseZipVirtualFile.cs" />
+    <Compile Include="FileSystems\Zip\ZipVirtualFileSystem.cs" />
     <Compile Include="History\ChildManagerHistoryAction.cs" />
     <Compile Include="History\HistoryAction.cs" />
     <Compile Include="History\HistoryManager.cs" />
@@ -795,11 +831,14 @@
     <Compile Include="Interactivity\DropUtils.cs" />
     <Compile Include="Interactivity\EnumDropType.cs" />
     <Compile Include="Interactivity\IDataObjekt.cs" />
-    <Compile Include="Interactivity\IFileDropHandler.cs" />
     <Compile Include="Interactivity\NativeDropTypes.cs" />
     <Compile Include="Logger\AppLogger.cs" />
     <Compile Include="Logger\HeaderedLogEntry.cs" />
     <Compile Include="Logger\LogEntry.cs" />
+    <Page Include="FileBrowser\Controls\FileBrowsingStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Tasks\ActivityDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

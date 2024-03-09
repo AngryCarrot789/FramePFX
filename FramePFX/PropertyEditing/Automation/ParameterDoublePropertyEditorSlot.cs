@@ -22,20 +22,24 @@ using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Controls.Automation;
 
-namespace FramePFX.PropertyEditing.Automation {
-    public class ParameterDoublePropertyEditorSlot : ParameterPropertyEditorSlot {
+namespace FramePFX.PropertyEditing.Automation
+{
+    public class ParameterDoublePropertyEditorSlot : ParameterPropertyEditorSlot
+    {
         private double value;
 
         public double Value {
             get => this.value;
-            set {
+            set
+            {
                 double oldVal = this.value;
                 this.value = value;
                 bool useAddition = this.IsMultiHandler;
                 double change = value - oldVal;
                 ParameterDouble parameter = this.Parameter;
                 ParameterDescriptorDouble pdesc = parameter.Descriptor;
-                for (int i = 0, c = this.Handlers.Count; i < c; i++) {
+                for (int i = 0, c = this.Handlers.Count; i < c; i++)
+                {
                     IAutomatable obj = (IAutomatable) this.Handlers[i];
                     double newValue = pdesc.Clamp(useAddition ? (parameter.GetCurrentValue(obj) + change) : value);
                     AutomatedUtils.SetDefaultKeyFrameOrAddNew(obj, parameter, newValue);
@@ -54,12 +58,14 @@ namespace FramePFX.PropertyEditing.Automation {
         /// </summary>
         public bool CanUsePercentageForUnitRange { get; }
 
-        public ParameterDoublePropertyEditorSlot(ParameterDouble parameter, Type applicableType, string displayName, DragStepProfile stepProfile, bool canUsePercentageForUnitRange = true) : base(parameter, applicableType, displayName) {
+        public ParameterDoublePropertyEditorSlot(ParameterDouble parameter, Type applicableType, string displayName, DragStepProfile stepProfile, bool canUsePercentageForUnitRange = true) : base(parameter, applicableType, displayName)
+        {
             this.StepProfile = stepProfile;
             this.CanUsePercentageForUnitRange = canUsePercentageForUnitRange;
         }
 
-        protected override void QueryValueFromHandlers() {
+        protected override void QueryValueFromHandlers()
+        {
             this.value = GetEqualValue(this.Handlers, (x) => this.Parameter.GetCurrentValue((IAutomatable) x), out double d) ? d : default;
         }
     }

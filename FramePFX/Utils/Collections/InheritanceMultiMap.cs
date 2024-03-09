@@ -21,22 +21,26 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FramePFX.Utils.Collections {
+namespace FramePFX.Utils.Collections
+{
     /// <summary>
     /// A dictionary that maps a type to a collection of values, where the values are the accumulation of each base type's value
     /// </summary>
     [Obsolete("Mostly untested, not much use case at the moment, and this class also has a few things broken")]
-    public class InheritanceMultiMap<T> {
+    public class InheritanceMultiMap<T>
+    {
         private readonly Dictionary<Type, TypeEntry> items;
         private readonly int initialListCapacity;
         private readonly List<T> singletonList;
         private readonly TypeEntry rootEntry;
         public static readonly IReadOnlyList<T> EmptyList = new List<T>().AsReadOnly();
 
-        public InheritanceMultiMap() : this(int.MinValue, int.MinValue) {
+        public InheritanceMultiMap() : this(int.MinValue, int.MinValue)
+        {
         }
 
-        public InheritanceMultiMap(int initialMapCapacity, int initialListCapacity) {
+        public InheritanceMultiMap(int initialMapCapacity, int initialListCapacity)
+        {
             if (initialListCapacity != int.MinValue && initialListCapacity < 0)
                 throw new ArgumentOutOfRangeException(nameof(initialListCapacity), "Initial list capacity must either be int.MinValue (as in, undefined) or a non-negative number");
             this.items = initialMapCapacity == int.MinValue ? new Dictionary<Type, TypeEntry>() : new Dictionary<Type, TypeEntry>(initialMapCapacity);
@@ -48,17 +52,22 @@ namespace FramePFX.Utils.Collections {
 
         private void InsertRootEntry() => this.items.Add(typeof(object), this.rootEntry);
 
-        private TypeEntry GetOrCreateEntry(Type key) {
-            if (this.items.TryGetValue(key, out TypeEntry entry)) {
+        private TypeEntry GetOrCreateEntry(Type key)
+        {
+            if (this.items.TryGetValue(key, out TypeEntry entry))
+            {
                 return entry;
             }
 
             List<Type> types = new List<Type> {key};
-            for (Type type = key.BaseType; type != null; type = type.BaseType) {
-                if (this.items.TryGetValue(type, out entry)) {
+            for (Type type = key.BaseType; type != null; type = type.BaseType)
+            {
+                if (this.items.TryGetValue(type, out entry))
+                {
                     return this.BakeType(entry, types);
                 }
-                else {
+                else
+                {
                     types.Add(type);
                 }
             }
@@ -78,7 +87,8 @@ namespace FramePFX.Utils.Collections {
         /// </summary>
         /// <param name="key">The top-level type to get the values of</param>
         /// <returns>A list containing the values of the given key's entry, and all of its base types' values</returns>
-        public IReadOnlyList<T> GetValues(Type key) {
+        public IReadOnlyList<T> GetValues(Type key)
+        {
             return this.GetOrCreateEntry(key).inheritedItems;
         }
 
@@ -88,7 +98,8 @@ namespace FramePFX.Utils.Collections {
         /// </summary>
         /// <param name="key">The key to get the non-inherited values of</param>
         /// <returns>The list of values, or the EmptyList instance</returns>
-        public IReadOnlyList<T> GetLocalValues(Type key) {
+        public IReadOnlyList<T> GetLocalValues(Type key)
+        {
             return this.items.TryGetValue(key, out TypeEntry entry) ? entry.items : EmptyList;
         }
 
@@ -97,7 +108,8 @@ namespace FramePFX.Utils.Collections {
         /// </summary>
         /// <param name="key">The key to add the value to</param>
         /// <param name="value">The value to add</param>
-        public void Add(Type key, T value) {
+        public void Add(Type key, T value)
+        {
             this.singletonList[0] = value;
             this.GetOrCreateEntry(key).AddItemsAndBakeHierarchy(this.singletonList);
             this.singletonList[0] = default;
@@ -108,7 +120,8 @@ namespace FramePFX.Utils.Collections {
         /// </summary>
         /// <param name="key">The key to add the values to</param>
         /// <param name="value">The values to add</param>
-        public void AddRange(Type key, ICollection<T> value) {
+        public void AddRange(Type key, ICollection<T> value)
+        {
             this.GetOrCreateEntry(key).AddItemsAndBakeHierarchy(value);
         }
 
@@ -123,8 +136,10 @@ namespace FramePFX.Utils.Collections {
         /// <summary>
         /// Clears all values for all keys in this map
         /// </summary>
-        public void Clear() {
-            foreach (TypeEntry map in this.items.Values) {
+        public void Clear()
+        {
+            foreach (TypeEntry map in this.items.Values)
+            {
                 map.Dispose();
             }
 
@@ -136,20 +151,24 @@ namespace FramePFX.Utils.Collections {
         /// Clears all values for the given key and all derived types, if an entry exists for the given key
         /// </summary>
         /// <param name="key">The key</param>
-        public void Clear(Type key) {
-            if (this.items.TryGetValue(key, out TypeEntry entry)) {
+        public void Clear(Type key)
+        {
+            if (this.items.TryGetValue(key, out TypeEntry entry))
+            {
                 entry.Clear();
             }
         }
 
         // Baked a hierarchy of types starting from 1 above foundType to the given key (base to derived)
         // foundEntry is a non-null reference to the lowest entry that exists in the map
-        private TypeEntry BakeType(TypeEntry foundEntry, List<Type> types) {
+        private TypeEntry BakeType(TypeEntry foundEntry, List<Type> types)
+        {
             // types is an ordered list of the topType all the way down to before the foundEntry's type (exclusive)
             // the key being inserted will be types[0]
             TypeEntry entry;
             int i = types.Count - 1;
-            do {
+            do
+            {
                 entry = new TypeEntry(this, types[i]);
                 this.items[types[i]] = entry;
                 entry.OnExtendType(foundEntry);
@@ -158,7 +177,8 @@ namespace FramePFX.Utils.Collections {
             return entry;
         }
 
-        private class TypeEntry {
+        private class TypeEntry
+        {
             private readonly InheritanceMultiMap<T> map;
             public readonly Type type;
             public readonly List<T> items;
@@ -167,23 +187,27 @@ namespace FramePFX.Utils.Collections {
             public TypeEntry baseType;
             public readonly bool IsRoot;
 
-            public TypeEntry(InheritanceMultiMap<T> map, Type type) {
+            public TypeEntry(InheritanceMultiMap<T> map, Type type)
+            {
                 this.IsRoot = type == typeof(object);
                 this.map = map;
                 this.type = type;
                 this.derivedList = new List<TypeEntry>(1);
-                if (map.initialListCapacity != int.MinValue) {
+                if (map.initialListCapacity != int.MinValue)
+                {
                     this.items = new List<T>(map.initialListCapacity);
                     this.inheritedItems = new List<T>(map.initialListCapacity);
                 }
-                else {
+                else
+                {
                     this.items = new List<T>();
                     this.inheritedItems = new List<T>();
                 }
             }
 
             // we now derived from the base type
-            public void OnExtendType(TypeEntry baseType) {
+            public void OnExtendType(TypeEntry baseType)
+            {
                 if (baseType.derivedList.Contains(this))
                     throw new Exception("Base entry is already derived by this entry");
                 if (this.baseType != null)
@@ -196,14 +220,17 @@ namespace FramePFX.Utils.Collections {
                 this.inheritedItems.AddRange(baseType.inheritedItems);
             }
 
-            public void AddItemsAndBakeHierarchy(ICollection<T> collection) {
+            public void AddItemsAndBakeHierarchy(ICollection<T> collection)
+            {
                 this.items.AddRange(collection);
                 this.AddToOurBakedListAndDerivedTypes(collection);
             }
 
-            private void AddToOurBakedListAndDerivedTypes(ICollection<T> list) {
+            private void AddToOurBakedListAndDerivedTypes(ICollection<T> list)
+            {
                 this.inheritedItems.AddRange(list);
-                for (int i = this.derivedList.Count - 1; i >= 0; i--) {
+                for (int i = this.derivedList.Count - 1; i >= 0; i--)
+                {
                     this.derivedList[i].AddToOurBakedListAndDerivedTypes(list);
                 }
             }
@@ -212,24 +239,29 @@ namespace FramePFX.Utils.Collections {
             // This is most likely much faster than doing a remove-by-item for each derived types'
             // inherited items list as that would be `On2`, rather than `On` with a bit extra due to the recursion
 
-            public void Clear() {
+            public void Clear()
+            {
                 this.items.Clear();
                 this.RebakeSelfAndDerivedTypesInheritedItems();
             }
 
-            private void RebakeSelfAndDerivedTypesInheritedItems() {
+            private void RebakeSelfAndDerivedTypesInheritedItems()
+            {
                 this.inheritedItems.Clear();
-                if (this.baseType != null) {
+                if (this.baseType != null)
+                {
                     this.inheritedItems.AddRange(this.baseType.inheritedItems);
                 }
 
-                foreach (TypeEntry derivedType in this.derivedList) {
+                foreach (TypeEntry derivedType in this.derivedList)
+                {
                     derivedType.RebakeSelfAndDerivedTypesInheritedItems();
                 }
             }
 
             // remove all items to help the GC out a little bit due to the complex reference structure
-            public void Dispose() {
+            public void Dispose()
+            {
                 this.baseType = null;
                 this.derivedList.Clear();
                 this.items.Clear();

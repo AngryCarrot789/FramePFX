@@ -17,12 +17,14 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Utils {
+namespace FramePFX.Utils
+{
     /// <summary>
     /// A property that can inherit a value from a parent instance
     /// </summary>
     /// <typeparam name="T">The type of value to store</typeparam>
-    public class InheritedProperty<T> {
+    public class InheritedProperty<T>
+    {
         private readonly InheritedProperty<T> parent;
         private T internalValue;
 
@@ -31,7 +33,8 @@ namespace FramePFX.Utils {
         /// </summary>
         public T Value {
             get => this.HasLocalValue ? this.internalValue : (this.parent != null ? this.parent.Value : default);
-            set {
+            set
+            {
                 this.HasLocalValue = true;
                 this.internalValue = value;
             }
@@ -42,29 +45,36 @@ namespace FramePFX.Utils {
         /// </summary>
         public bool HasLocalValue { get; private set; }
 
-        public InheritedProperty() {
+        public InheritedProperty()
+        {
         }
 
-        public InheritedProperty(T value) {
+        public InheritedProperty(T value)
+        {
             this.Value = value;
         }
 
-        public InheritedProperty(InheritedProperty<T> parent) {
+        public InheritedProperty(InheritedProperty<T> parent)
+        {
             this.parent = parent;
         }
 
-        public InheritedProperty(InheritedProperty<T> parent, T value) {
+        public InheritedProperty(InheritedProperty<T> parent, T value)
+        {
             this.parent = parent;
             this.Value = value;
         }
 
-        public bool GetValue(out T value) {
-            if (this.HasLocalValue) {
+        public bool GetValue(out T value)
+        {
+            if (this.HasLocalValue)
+            {
                 value = this.internalValue;
                 return true;
             }
 
-            if (this.parent != null && this.parent.GetValue(out value)) {
+            if (this.parent != null && this.parent.GetValue(out value))
+            {
                 return true;
             }
 
@@ -72,7 +82,8 @@ namespace FramePFX.Utils {
             return false;
         }
 
-        public void Clear() {
+        public void Clear()
+        {
             this.HasLocalValue = false;
             this.internalValue = default;
         }

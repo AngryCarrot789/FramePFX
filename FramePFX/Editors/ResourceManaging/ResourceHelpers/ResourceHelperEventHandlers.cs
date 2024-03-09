@@ -17,14 +17,16 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
+namespace FramePFX.Editors.ResourceManaging.ResourceHelpers
+{
     public delegate void EntryResourceChangedEventHandler(ResourceHelper sender, ResourceChangedEventArgs e);
 
     public delegate void EntryResourceModifiedEventHandler(ResourceHelper sender, ResourceModifiedEventArgs e);
 
     public delegate void EntryOnlineStateChangedEventHandler(ResourceHelper sender, IBaseResourcePathKey key);
 
-    public readonly struct ResourceModifiedEventArgs {
+    public readonly struct ResourceModifiedEventArgs
+    {
         /// <summary>
         /// The entry linked to the resource which was modified
         /// </summary>
@@ -40,14 +42,16 @@ namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
         /// </summary>
         public string Property { get; }
 
-        public ResourceModifiedEventArgs(IBaseResourcePathKey key, ResourceItem item, string property) {
+        public ResourceModifiedEventArgs(IBaseResourcePathKey key, ResourceItem item, string property)
+        {
             this.Key = key;
             this.Item = item;
             this.Property = property;
         }
     }
 
-    public readonly struct ResourceChangedEventArgs {
+    public readonly struct ResourceChangedEventArgs
+    {
         /// <summary>
         /// The entry linked to the resource which was modified
         /// </summary>
@@ -63,7 +67,8 @@ namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
         /// </summary>
         public ResourceItem NewItem { get; }
 
-        public ResourceChangedEventArgs(IBaseResourcePathKey key, ResourceItem oldItem, ResourceItem newItem) {
+        public ResourceChangedEventArgs(IBaseResourcePathKey key, ResourceItem oldItem, ResourceItem newItem)
+        {
             this.Key = key;
             this.OldItem = oldItem;
             this.NewItem = newItem;

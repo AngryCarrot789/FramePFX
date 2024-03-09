@@ -22,18 +22,24 @@ using FramePFX.CommandSystem;
 using FramePFX.Editors.Contextual;
 using FramePFX.Editors.Timelines.Clips;
 
-namespace FramePFX.Editors.Commands {
-    public class DeleteSelectedClipsCommand : Command {
-        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+namespace FramePFX.Editors.Commands
+{
+    public class DeleteSelectedClipsCommand : Command
+    {
+        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        {
             return ClipContextRegistry.CanGetClipSelection(e.ContextData);
         }
 
-        public override Task Execute(CommandEventArgs e) {
-            if (!ClipContextRegistry.GetClipSelection(e.ContextData, out Clip[] clips)) {
+        public override Task Execute(CommandEventArgs e)
+        {
+            if (!ClipContextRegistry.GetClipSelection(e.ContextData, out Clip[] clips))
+            {
                 return Task.CompletedTask;
             }
 
-            foreach (Clip clip in clips) {
+            foreach (Clip clip in clips)
+            {
                 clip.Destroy();
                 clip.Track.RemoveClip(clip);
             }

@@ -1,7 +1,27 @@
+//
+// Copyright (c) 2023-2024 REghZy
+//
+// This file is part of FramePFX.
+//
+// FramePFX is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either
+// version 3.0 of the License, or (at your option) any later version.
+//
+// FramePFX is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
+//
+
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FramePFX.Utils.Commands {
+namespace FramePFX.Utils.Commands
+{
     /// <summary>
     /// <para>
     /// A base async relay command class which extends <see cref="BaseRelayCommand"/> and also implements a mechanism for
@@ -13,7 +33,8 @@ namespace FramePFX.Utils.Commands {
     /// be relied on due to the reality of multithreading; the command could finish just after another piece of code detects it's already running
     /// </para>
     /// </summary>
-    public abstract class BaseAsyncRelayCommand : BaseRelayCommand, IAsyncRelayCommand {
+    public abstract class BaseAsyncRelayCommand : BaseRelayCommand, IAsyncRelayCommand
+    {
         /// <summary>
         /// Because <see cref="Execute"/> is async void, it can be fired multiple
         /// times while the task that <see cref="execute"/> returns is still running. This
@@ -28,7 +49,8 @@ namespace FramePFX.Utils.Commands {
         /// </summary>
         public bool IsRunning => this.isRunningState == 1;
 
-        protected BaseAsyncRelayCommand() {
+        protected BaseAsyncRelayCommand()
+        {
         }
 
         /// <summary>
@@ -40,7 +62,8 @@ namespace FramePFX.Utils.Commands {
         /// </summary>
         /// <param name="parameter">The parameter passed to this command</param>
         /// <returns>Whether or not this command can be executed or not</returns>
-        public sealed override bool CanExecute(object parameter) {
+        public sealed override bool CanExecute(object parameter)
+        {
             return this.isRunningState == 0 && base.CanExecute(parameter) && this.CanExecuteCore(parameter);
         }
 
@@ -49,7 +72,8 @@ namespace FramePFX.Utils.Commands {
         /// </summary>
         /// <param name="parameter">The parameter passed to this command</param>
         /// <returns>Whether or not this command can be executed or not</returns>
-        protected virtual bool CanExecuteCore(object parameter) {
+        protected virtual bool CanExecuteCore(object parameter)
+        {
             return true;
         }
 
@@ -59,7 +83,8 @@ namespace FramePFX.Utils.Commands {
         /// because this function just calls that
         /// </summary>
         /// <param name="parameter">The parameter passed to this command</param>
-        public sealed override async void Execute(object parameter) {
+        public sealed override async void Execute(object parameter)
+        {
             await this.ExecuteAsync(parameter);
         }
 
@@ -75,13 +100,17 @@ namespace FramePFX.Utils.Commands {
         /// </summary>
         /// <param name="parameter">The parameter passed to this command</param>
         // Slight optimisation by not using async for ExecuteAsync, so that a state machine isn't needed
-        public async Task ExecuteAsync(object parameter) {
-            if (Interlocked.CompareExchange(ref this.isRunningState, 1, 0) == 0) {
-                try {
+        public async Task ExecuteAsync(object parameter)
+        {
+            if (Interlocked.CompareExchange(ref this.isRunningState, 1, 0) == 0)
+            {
+                try
+                {
                     this.RaiseCanExecuteChanged();
                     await this.ExecuteCoreAsync(parameter);
                 }
-                finally {
+                finally
+                {
                     this.isRunningState = 0;
                 }
 
@@ -97,13 +126,17 @@ namespace FramePFX.Utils.Commands {
         /// </para>
         /// </summary>
         /// <param name="parameter">The parameter passed to this command</param>
-        public async Task<bool> TryExecuteAsync(object parameter) {
-            if (this.CanExecute(parameter) && Interlocked.CompareExchange(ref this.isRunningState, 1, 0) == 0) {
-                try {
+        public async Task<bool> TryExecuteAsync(object parameter)
+        {
+            if (this.CanExecute(parameter) && Interlocked.CompareExchange(ref this.isRunningState, 1, 0) == 0)
+            {
+                try
+                {
                     this.RaiseCanExecuteChanged();
                     await this.ExecuteCoreAsync(parameter);
                 }
-                finally {
+                finally
+                {
                     this.isRunningState = 0;
                 }
 

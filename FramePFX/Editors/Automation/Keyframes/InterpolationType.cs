@@ -17,8 +17,10 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Editors.Automation.Keyframes {
-    public enum InterpolationType {
+namespace FramePFX.Editors.Automation.Keyframes
+{
+    public enum InterpolationType
+    {
         Linear,
         Curve
     }

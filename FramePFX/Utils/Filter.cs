@@ -21,40 +21,50 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace FramePFX.Utils {
-    public sealed class Filter {
+namespace FramePFX.Utils
+{
+    public sealed class Filter
+    {
         private readonly StringBuilder sb;
         private bool hasFirst;
 
-        public Filter() {
+        public Filter()
+        {
             this.sb = new StringBuilder(32);
         }
 
-        public Filter(string filter) {
+        public Filter(string filter)
+        {
             this.sb = new StringBuilder(filter ?? "");
             this.hasFirst = this.sb.Length > 0;
         }
 
-        public static Filter Of() {
+        public static Filter Of()
+        {
             return new Filter();
         }
 
-        private StringBuilder Prepare() {
-            if (this.hasFirst) {
+        private StringBuilder Prepare()
+        {
+            if (this.hasFirst)
+            {
                 return this.sb.Append('|');
             }
-            else {
+            else
+            {
                 this.hasFirst = true;
                 return this.sb;
             }
         }
 
-        public Filter AddAllFiles() {
+        public Filter AddAllFiles()
+        {
             this.Prepare().Append("All Files|*.*");
             return this;
         }
 
-        public Filter AddFilter(string readableName, params string[] extensions) {
+        public Filter AddFilter(string readableName, params string[] extensions)
+        {
             if (string.IsNullOrWhiteSpace(readableName))
                 throw new ArgumentException("Readable name cannot be null, empty, or consist of only whitespaces", nameof(readableName));
             if (extensions.Any(string.IsNullOrEmpty))
@@ -66,7 +76,8 @@ namespace FramePFX.Utils {
             return this;
         }
 
-        public Filter AddFilter(string readableName, string extension) {
+        public Filter AddFilter(string readableName, string extension)
+        {
             if (string.IsNullOrWhiteSpace(readableName))
                 throw new ArgumentException("Readable name cannot be null, empty, or consist of only whitespaces", nameof(readableName));
             if (string.IsNullOrEmpty(extension))
@@ -78,15 +89,18 @@ namespace FramePFX.Utils {
             return this;
         }
 
-        public override string ToString() {
+        public override string ToString()
+        {
             return this.sb.ToString();
         }
 
-        public override int GetHashCode() {
+        public override int GetHashCode()
+        {
             return this.sb.ToString().GetHashCode();
         }
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             return obj is Filter filter && this.sb.Equals(filter.sb);
         }
     }

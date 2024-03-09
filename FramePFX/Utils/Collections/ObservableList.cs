@@ -22,8 +22,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
-namespace FramePFX.Utils.Collections {
-    public enum ListChangeEventType {
+namespace FramePFX.Utils.Collections
+{
+    public enum ListChangeEventType
+    {
         /// <summary>
         /// Represents an insertion event. <see cref="ListChangedEventArgs.NewIndex"/> contains the insertion index
         /// </summary>
@@ -34,7 +36,8 @@ namespace FramePFX.Utils.Collections {
         Clear
     }
 
-    public readonly struct ListChangedEventArgs<T> {
+    public readonly struct ListChangedEventArgs<T>
+    {
         /// <summary>
         /// The event type
         /// </summary>
@@ -60,7 +63,8 @@ namespace FramePFX.Utils.Collections {
         /// </summary>
         public readonly T NewValue;
 
-        public ListChangedEventArgs(ListChangeEventType eventType, int oldIndex, int newIndex, T oldValue, T newValue) {
+        public ListChangedEventArgs(ListChangeEventType eventType, int oldIndex, int newIndex, T oldValue, T newValue)
+        {
             this.EventType = eventType;
             this.OldIndex = oldIndex;
             this.NewIndex = newIndex;
@@ -71,27 +75,33 @@ namespace FramePFX.Utils.Collections {
 
     public delegate void ListChangedEventHandler<T>(object sender, ListChangedEventArgs<T> args);
 
-    public interface INotifyCollectionChangedEx<T> {
+    public interface INotifyCollectionChangedEx<T>
+    {
         event ListChangedEventHandler<T> ListChanged;
     }
 
-    public class ObservableList<T> : Collection<T>, INotifyCollectionChangedEx<T> {
+    public class ObservableList<T> : Collection<T>, INotifyCollectionChangedEx<T>
+    {
         private int collectionChangeLoopCount;
 
         public event ListChangedEventHandler<T> ListChanged;
 
-        public ObservableList() {
+        public ObservableList()
+        {
         }
 
-        public ObservableList(List<T> list) : base(list != null ? new List<T>(list.Count) : throw new ArgumentNullException(nameof(list))) {
+        public ObservableList(List<T> list) : base(list != null ? new List<T>(list.Count) : throw new ArgumentNullException(nameof(list)))
+        {
             this.CopyFrom(list);
         }
 
-        public ObservableList(IEnumerable<T> collection) {
+        public ObservableList(IEnumerable<T> collection)
+        {
             this.CopyFrom(collection ?? throw new ArgumentNullException(nameof(collection)));
         }
 
-        private void CopyFrom(IEnumerable<T> collection) {
+        private void CopyFrom(IEnumerable<T> collection)
+        {
             if (collection == null)
                 return;
             IList<T> items = this.Items;
@@ -101,33 +111,38 @@ namespace FramePFX.Utils.Collections {
 
         public void Move(int oldIndex, int newIndex) => this.MoveItem(oldIndex, newIndex);
 
-        protected override void ClearItems() {
+        protected override void ClearItems()
+        {
             this.CheckReentrancy();
             base.ClearItems();
             this.OnCollectionChanged(new ListChangedEventArgs<T>(ListChangeEventType.Clear, -1, -1, default, default));
         }
 
-        protected override void RemoveItem(int index) {
+        protected override void RemoveItem(int index)
+        {
             this.CheckReentrancy();
             T obj = this[index];
             base.RemoveItem(index);
             this.OnCollectionChanged(new ListChangedEventArgs<T>(ListChangeEventType.Remove, index, -1, obj, default));
         }
 
-        protected override void InsertItem(int index, T item) {
+        protected override void InsertItem(int index, T item)
+        {
             this.CheckReentrancy();
             base.InsertItem(index, item);
             this.OnCollectionChanged(new ListChangedEventArgs<T>(ListChangeEventType.Insert, -1, index, default, item));
         }
 
-        protected override void SetItem(int index, T item) {
+        protected override void SetItem(int index, T item)
+        {
             this.CheckReentrancy();
             T obj = this[index];
             base.SetItem(index, item);
             this.OnCollectionChanged(new ListChangedEventArgs<T>(ListChangeEventType.Replace, -1, index, obj, item));
         }
 
-        protected virtual void MoveItem(int oldIndex, int newIndex) {
+        protected virtual void MoveItem(int oldIndex, int newIndex)
+        {
             this.CheckReentrancy();
             T obj = this[oldIndex];
             base.RemoveItem(oldIndex);
@@ -135,32 +150,39 @@ namespace FramePFX.Utils.Collections {
             this.OnCollectionChanged(new ListChangedEventArgs<T>(ListChangeEventType.Move, oldIndex, newIndex, default, default));
         }
 
-        protected virtual void OnCollectionChanged(ListChangedEventArgs<T> e) {
+        protected virtual void OnCollectionChanged(ListChangedEventArgs<T> e)
+        {
             if (this.ListChanged == null)
                 return;
-            try {
+            try
+            {
                 this.collectionChangeLoopCount++;
                 this.ListChanged?.Invoke(this, e);
             }
-            finally {
+            finally
+            {
                 this.collectionChangeLoopCount--;
             }
         }
 
-        protected void CheckReentrancy() {
+        protected void CheckReentrancy()
+        {
             if (this.collectionChangeLoopCount > 0 && this.ListChanged != null && this.ListChanged.GetInvocationList().Length > 1)
                 throw new InvalidOperationException("Cannot modify collection during a collection change event");
         }
     }
 
-    public class ReadOnlyObservableList<T> : ReadOnlyCollection<T>, INotifyCollectionChangedEx<T> {
+    public class ReadOnlyObservableList<T> : ReadOnlyCollection<T>, INotifyCollectionChangedEx<T>
+    {
         public event ListChangedEventHandler<T> ListChanged;
 
-        public ReadOnlyObservableList(ObservableList<T> list) : base(list) {
+        public ReadOnlyObservableList(ObservableList<T> list) : base(list)
+        {
             list.ListChanged += this.OnListCollectionChanged;
         }
 
-        private void OnListCollectionChanged(object sender, ListChangedEventArgs<T> args) {
+        private void OnListCollectionChanged(object sender, ListChangedEventArgs<T> args)
+        {
             this.ListChanged?.Invoke(this, args);
         }
     }

@@ -24,8 +24,10 @@ using System.Windows.Input;
 using FramePFX.Utils;
 using FramePFX.Utils.Visuals;
 
-namespace FramePFX.AttachedProperties {
-    public static class HorizontalScrolling {
+namespace FramePFX.AttachedProperties
+{
+    public static class HorizontalScrolling
+    {
         public static readonly DependencyProperty UseHorizontalScrollingProperty = DependencyProperty.RegisterAttached("UseHorizontalScrolling", typeof(bool), typeof(HorizontalScrolling), new PropertyMetadata(BoolBox.False, OnUseHorizontalScrollWheelPropertyChanged));
         public static readonly DependencyProperty IsRequireShiftForHorizontalScrollProperty = DependencyProperty.RegisterAttached("IsRequireShiftForHorizontalScroll", typeof(bool), typeof(HorizontalScrolling), new PropertyMetadata(BoolBox.True));
         public static readonly DependencyProperty ForceHorizontalScrollingProperty = DependencyProperty.RegisterAttached("ForceHorizontalScrolling", typeof(bool), typeof(HorizontalScrolling), new PropertyMetadata(BoolBox.False));
@@ -43,43 +45,57 @@ namespace FramePFX.AttachedProperties {
         public static int GetHorizontalScrollingAmountValue(DependencyObject d) => (int) d.GetValue(HorizontalScrollingAmountProperty);
         public static void SetHorizontalScrollingAmountValue(DependencyObject d, int value) => d.SetValue(HorizontalScrollingAmountProperty, value);
 
-        private static void OnUseHorizontalScrollWheelPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            if (d is UIElement element) {
+        private static void OnUseHorizontalScrollWheelPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is UIElement element)
+            {
                 element.PreviewMouseWheel -= OnPreviewMouseWheel;
-                if ((bool) e.NewValue) {
+                if ((bool) e.NewValue)
+                {
                     element.PreviewMouseWheel += OnPreviewMouseWheel;
                 }
             }
-            else {
+            else
+            {
                 throw new Exception("Attached property must be used with UIElement");
             }
         }
 
-        private static void OnPreviewMouseWheel(object sender, MouseWheelEventArgs e) {
-            if (sender is UIElement element && e.Delta != 0) {
+        private static void OnPreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if (sender is UIElement element && e.Delta != 0)
+            {
                 ScrollViewer scroller = VisualTreeUtils.FindVisualChild<ScrollViewer>(element);
-                if (scroller == null) {
+                if (scroller == null)
+                {
                     return;
                 }
 
-                if (GetIsRequireShiftForHorizontalScroll(element) && scroller.HorizontalScrollBarVisibility == ScrollBarVisibility.Disabled) {
+                if (GetIsRequireShiftForHorizontalScroll(element) && scroller.HorizontalScrollBarVisibility == ScrollBarVisibility.Disabled)
+                {
                     return;
                 }
 
                 int amount = GetHorizontalScrollingAmountValue(element);
-                if (amount < 1) {
+                if (amount < 1)
+                {
                     amount = 3;
                 }
 
-                if (Keyboard.Modifiers == ModifierKeys.Shift || Mouse.MiddleButton == MouseButtonState.Pressed || GetForceHorizontalScrollingValue(element)) {
+                if (Keyboard.Modifiers == ModifierKeys.Shift || Mouse.MiddleButton == MouseButtonState.Pressed || GetForceHorizontalScrollingValue(element))
+                {
                     int count = (e.Delta / 120) * amount;
-                    if (e.Delta < 0) {
-                        for (int i = -count; i > 0; i--) {
+                    if (e.Delta < 0)
+                    {
+                        for (int i = -count; i > 0; i--)
+                        {
                             scroller.LineRight();
                         }
                     }
-                    else {
-                        for (int i = 0; i < count; i++) {
+                    else
+                    {
+                        for (int i = 0; i < count; i++)
+                        {
                             scroller.LineLeft();
                         }
                     }

@@ -6,14 +6,15 @@
             xmlns:v="clr-namespace:FramePFX.Views"
             xmlns:tl="clr-namespace:FramePFX.Editors.Controls.Timelines"
             xmlns:cv="clr-namespace:FramePFX.Editors.Controls.Viewports"
-            xmlns:resources="clr-namespace:FramePFX.Editors.Controls.Resources"
-            xmlns:wpf="clr-namespace:FramePFX.Shortcuts.WPF" 
-            xmlns:controls="clr-namespace:FramePFX.PropertyEditing.Controls"
+            xmlns:rc="clr-namespace:FramePFX.Editors.Controls.Resources"
+            xmlns:wpf="clr-namespace:FramePFX.Shortcuts.WPF"
+            xmlns:pec="clr-namespace:FramePFX.PropertyEditing.Controls"
             xmlns:fxsrc="clr-namespace:FramePFX.Editors.EffectSource"
-            xmlns:effectProviding="clr-namespace:FramePFX.Editors.Controls.EffectProviding"
+            xmlns:ep="clr-namespace:FramePFX.Editors.Controls.EffectProviding"
             xmlns:c1="clr-namespace:FramePFX.Editors.Controls"
             xmlns:c2="clr-namespace:FramePFX.AdvancedMenuService.Controls"
-            xmlns:behaviours="clr-namespace:FramePFX.Behaviours"
+            xmlns:b="clr-namespace:FramePFX.Behaviours"
+            xmlns:tv="clr-namespace:FramePFX.FileBrowser.Controls.Trees"
             mc:Ignorable="d"
             Style="{StaticResource CustomWindowStyleEx}"
             Background="{DynamicResource PanelBackground0}"
@@ -54,15 +55,15 @@
                 <MenuItem Header="Dark Grey" Click="SetThemeClick" Uid="2"/>
                 <MenuItem Header="Grey" Click="SetThemeClick" Uid="3"/>
                 <MenuItem Header="Red and Black" Click="SetThemeClick" Uid="4">
-                    <behaviours:BehaviourCollection.Behaviours>
-                        <behaviours:BehaviourCollection>
-                            <behaviours:TestRedBackgroundBehaviour1/>
-                            <behaviours:TestBlueBackgroundBehaviour2/>
-                        </behaviours:BehaviourCollection>
-                    </behaviours:BehaviourCollection.Behaviours>
+                    <b:BehaviourCollection.Behaviours>
+                        <b:BehaviourCollection>
+                            <b:ThingyBehaviourEx/>
+                            <b:TestBlueBackgroundBehaviour2/>
+                        </b:BehaviourCollection>
+                    </b:BehaviourCollection.Behaviours>
                 </MenuItem>
                 <MenuItem Header="Light Theme" Click="SetThemeClick" Uid="5"/>
-                </MenuItem>
+            </MenuItem>
         </c2:ContextCapturingMenu>
         <Grid Grid.Row="1" x:Name="PART_MainVideoEditorContent">
             <Grid.RowDefinitions>
@@ -81,10 +82,13 @@
                 <Border Background="{DynamicResource PanelBackground3}">
                     <TabControl Grid.Column="0" BorderBrush="{DynamicResource PanelBorderBrush}" Margin="0" Style="{StaticResource NoOffsetTabControl}">
                         <TabItem Header="Resources" wpf:UIInputManager.FocusPath="Application/Editor/ResourceManager">
-                            <resources:ResourcePanelControl x:Name="TheResourcePanel" Background="{DynamicResource PanelBackground3}" Focusable="True"/>
+                            <rc:ResourcePanelControl x:Name="TheResourcePanel" Background="{DynamicResource PanelBackground3}" Focusable="True"/>
+                        </TabItem>
+                        <TabItem Header="File Browser">
+                            <tv:FileTreeView x:Name="PART_FileTree"/>
                         </TabItem>
                         <TabItem Header="Effects" wpf:UIInputManager.FocusPath="Application/Editor/EffectSourcePanel">
-                            <effectProviding:EffectProviderListBox EffectProviderManager="{x:Static fxsrc:EffectProviderManager.Instance}"/>
+                            <ep:EffectProviderListBox EffectProviderManager="{x:Static fxsrc:EffectProviderManager.Instance}"/>
                         </TabItem>
                     </TabControl>
                 </Border>
@@ -144,7 +148,7 @@
                     <Border Background="{DynamicResource PanelBackground3}"
                             BorderBrush="{DynamicResource PanelBorderBrush}"
                             BorderThickness="0 1 0 0">
-                        <controls:PropertyEditorControl x:Name="ThePropertyEditor" Focusable="True" Background="Transparent"/>
+                        <pec:PropertyEditorControl x:Name="ThePropertyEditor" Focusable="True" Background="Transparent"/>
                     </Border>
                 </GroupBox>
                 <Border Grid.Column="1" Focusable="False" UseLayoutRounding="True" SnapsToDevicePixels="True" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>

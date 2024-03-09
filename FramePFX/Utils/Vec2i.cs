@@ -19,17 +19,21 @@
 
 using System;
 
-namespace FramePFX.Utils {
-    public readonly struct Vec2i : IEquatable<Vec2i> {
+namespace FramePFX.Utils
+{
+    public readonly struct Vec2i : IEquatable<Vec2i>
+    {
         public readonly int X;
         public readonly int Y;
 
-        public Vec2i(int x, int y) {
+        public Vec2i(int x, int y)
+        {
             this.X = x;
             this.Y = y;
         }
 
-        public Vec2i(int value) {
+        public Vec2i(int value)
+        {
             this.X = this.Y = value;
         }
 
@@ -39,11 +43,13 @@ namespace FramePFX.Utils {
 
         public bool Equals(Vec2i other) => this == other;
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             return obj is Vec2i other && this != other;
         }
 
-        public override int GetHashCode() {
+        public override int GetHashCode()
+        {
             return unchecked((this.X * 397) ^ this.Y);
         }
 

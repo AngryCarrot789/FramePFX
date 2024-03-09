@@ -23,9 +23,12 @@ using FramePFX.Editors.Contextual;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.ResourceManaging.Resources;
 
-namespace FramePFX.Editors.Commands {
-    public class OpenCompositionResourceTimelineCommand : Command {
-        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+namespace FramePFX.Editors.Commands
+{
+    public class OpenCompositionResourceTimelineCommand : Command
+    {
+        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        {
             if (!ResourceContextRegistry.GetSingleSelection(e.ContextData, out BaseResource resource))
                 return resource == null ? ExecutabilityState.Invalid : ExecutabilityState.ValidButCannotExecute;
             // if the composition tl is already active, just say cannot execute
@@ -34,8 +37,10 @@ namespace FramePFX.Editors.Commands {
             return ExecutabilityState.Executable;
         }
 
-        public override Task Execute(CommandEventArgs e) {
-            if (ResourceContextRegistry.GetSingleSelection(e.ContextData, out BaseResource resource) && resource is ResourceComposition composition) {
+        public override Task Execute(CommandEventArgs e)
+        {
+            if (ResourceContextRegistry.GetSingleSelection(e.ContextData, out BaseResource resource) && resource is ResourceComposition composition)
+            {
                 composition.Manager.Project.ActiveTimeline = composition.Timeline;
             }
 

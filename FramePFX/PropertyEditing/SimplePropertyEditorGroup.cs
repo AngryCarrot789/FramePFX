@@ -20,31 +20,39 @@
 using System;
 using System.Collections.Generic;
 
-namespace FramePFX.PropertyEditing {
+namespace FramePFX.PropertyEditing
+{
     /// <summary>
     /// A general property editor group, which supports a single list of handler objects, and manages the
     /// applicability state of its child slots or <see cref="SimplePropertyEditorGroup"/> objects
     /// </summary>
-    public class SimplePropertyEditorGroup : BasePropertyEditorGroup {
+    public class SimplePropertyEditorGroup : BasePropertyEditorGroup
+    {
         public IReadOnlyList<object> Handlers { get; private set; }
 
-        public SimplePropertyEditorGroup(Type applicableType, GroupType groupType = GroupType.PrimaryExpander) : base(applicableType, groupType) {
+        public SimplePropertyEditorGroup(Type applicableType, GroupType groupType = GroupType.PrimaryExpander) : base(applicableType, groupType)
+        {
         }
 
-        public override bool IsPropertyEditorObjectAcceptable(BasePropertyEditorObject obj) {
+        public override bool IsPropertyEditorObjectAcceptable(BasePropertyEditorObject obj)
+        {
             return obj is PropertyEditorSlot || obj is BasePropertyEditorGroup;
         }
 
         /// <summary>
         /// Recursively clears the state of all groups and editors
         /// </summary>
-        public void ClearHierarchy() {
-            if (!this.IsCurrentlyApplicable && !this.IsRoot) {
+        public void ClearHierarchy()
+        {
+            if (!this.IsCurrentlyApplicable && !this.IsRoot)
+            {
                 return;
             }
 
-            foreach (BasePropertyEditorObject obj in this.PropertyObjects) {
-                switch (obj) {
+            foreach (BasePropertyEditorObject obj in this.PropertyObjects)
+            {
+                switch (obj)
+                {
                     case PropertyEditorSlot editor:
                         editor.ClearHandlers();
                         break;
@@ -65,13 +73,16 @@ namespace FramePFX.PropertyEditing {
         /// <see cref="BasePropertyObjectViewModel.IsCurrentlyApplicable"/> is set to true and the hierarchy is loaded
         /// </summary>
         /// <param name="input">Input list of objects</param>
-        public virtual void SetupHierarchyState(IReadOnlyList<object> input) {
+        public virtual void SetupHierarchyState(IReadOnlyList<object> input)
+        {
             this.ClearHierarchy();
-            if (!this.IsHandlerCountAcceptable(input.Count)) {
+            if (!this.IsHandlerCountAcceptable(input.Count))
+            {
                 return;
             }
 
-            if (!AreAnyApplicable(this, input)) {
+            if (!AreAnyApplicable(this, input))
+            {
                 return;
             }
 
@@ -82,13 +93,16 @@ namespace FramePFX.PropertyEditing {
 
             this.Handlers = input;
             bool isApplicable = false;
-            for (int i = 0, end = this.PropertyObjects.Count - 1; i <= end; i++) {
+            for (int i = 0, end = this.PropertyObjects.Count - 1; i <= end; i++)
+            {
                 BasePropertyEditorObject obj = this.PropertyObjects[i];
-                if (obj is SimplePropertyEditorGroup group) {
+                if (obj is SimplePropertyEditorGroup group)
+                {
                     group.SetupHierarchyState(input);
                     isApplicable |= group.IsCurrentlyApplicable;
                 }
-                else if (obj is PropertyEditorSlot editor) {
+                else if (obj is PropertyEditorSlot editor)
+                {
                     editor.SetHandlers(input);
                     isApplicable |= editor.IsCurrentlyApplicable;
                 }
@@ -97,7 +111,8 @@ namespace FramePFX.PropertyEditing {
             this.IsCurrentlyApplicable = isApplicable;
         }
 
-        protected static bool AreAnyApplicable(SimplePropertyEditorGroup group, IReadOnlyList<object> sources) {
+        protected static bool AreAnyApplicable(SimplePropertyEditorGroup group, IReadOnlyList<object> sources)
+        {
             // return sources.Any(x => group.IsApplicable(x));
             for (int i = 0, c = sources.Count; i < c; i++)
                 if (group.IsObjectApplicable(sources[i]))

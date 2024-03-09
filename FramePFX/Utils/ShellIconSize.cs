@@ -17,8 +17,10 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Utils {
-    public enum ShellIconSize {
+namespace FramePFX.Utils
+{
+    public enum ShellIconSize
+    {
         Small,
         Normal,
         Large

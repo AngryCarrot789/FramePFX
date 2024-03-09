@@ -23,24 +23,30 @@ using FramePFX.Editors.DataTransfer;
 using FramePFX.PropertyEditing.Automation;
 using FramePFX.PropertyEditing.DataTransfer;
 
-namespace FramePFX.PropertyEditing.Controls.DataTransfer {
-    public class DataParameterLongPropertyEditorControl : BaseNumberDataParamPropEditorControl {
+namespace FramePFX.PropertyEditing.Controls.DataTransfer
+{
+    public class DataParameterLongPropertyEditorControl : BaseNumberDataParamPropEditorControl
+    {
         public new DataParameterLongPropertyEditorSlot SlotModel => (DataParameterLongPropertyEditorSlot) base.SlotControl.Model;
 
-        public DataParameterLongPropertyEditorControl() {
+        public DataParameterLongPropertyEditorControl()
+        {
         }
 
         static DataParameterLongPropertyEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(DataParameterLongPropertyEditorControl), new FrameworkPropertyMetadata(typeof(DataParameterLongPropertyEditorControl)));
 
-        protected override void UpdateControlValue() {
+        protected override void UpdateControlValue()
+        {
             this.dragger.Value = this.SlotModel.Value;
         }
 
-        protected override void UpdateModelValue() {
+        protected override void UpdateModelValue()
+        {
             this.SlotModel.Value = (long) Math.Round(this.dragger.Value);
         }
 
-        protected override void OnConnected() {
+        protected override void OnConnected()
+        {
             base.OnConnected();
             DataParameterLongPropertyEditorSlot slot = this.SlotModel;
             DataParameterLong param = slot.DataParameter;

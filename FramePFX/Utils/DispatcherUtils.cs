@@ -22,52 +22,66 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 
-namespace FramePFX.Utils {
-    public static class DispatcherUtils {
-        public static Task WaitUntilRenderPhase(Dispatcher dispatcher) {
-            return dispatcher.InvokeAsync(() => {
+namespace FramePFX.Utils
+{
+    public static class DispatcherUtils
+    {
+        public static Task WaitUntilRenderPhase(Dispatcher dispatcher)
+        {
+            return dispatcher.InvokeAsync(() =>
+            {
             }, DispatcherPriority.Render).Task;
         }
 
-        public static Task WaitUntilBackgroundActivity(Dispatcher dispatcher) {
-            return dispatcher.InvokeAsync(() => {
+        public static Task WaitUntilBackgroundActivity(Dispatcher dispatcher)
+        {
+            return dispatcher.InvokeAsync(() =>
+            {
             }, DispatcherPriority.Background).Task;
         }
 
-        public static Task InvokeAsync(Action action) {
+        public static Task InvokeAsync(Action action)
+        {
             Application app = Application.Current;
             Dispatcher dispatcher;
-            if (app != null && (dispatcher = app.Dispatcher) != null) {
+            if (app != null && (dispatcher = app.Dispatcher) != null)
+            {
                 return InvokeAsync(dispatcher, action);
             }
 
             return Task.CompletedTask;
         }
 
-        public static Task<TResult> InvokeAsync<TResult>(Func<TResult> function) {
+        public static Task<TResult> InvokeAsync<TResult>(Func<TResult> function)
+        {
             Application app = Application.Current;
             Dispatcher dispatcher;
-            if (app != null && (dispatcher = app.Dispatcher) != null) {
+            if (app != null && (dispatcher = app.Dispatcher) != null)
+            {
                 return InvokeAsync(dispatcher, function);
             }
 
             return Task.FromResult<TResult>(default);
         }
 
-        public static void Invoke(Action action) {
+        public static void Invoke(Action action)
+        {
             Application app = Application.Current;
             Dispatcher dispatcher;
-            if (app != null && (dispatcher = app.Dispatcher) != null) {
+            if (app != null && (dispatcher = app.Dispatcher) != null)
+            {
                 Invoke(dispatcher, action);
             }
 
             throw new Exception("Application main thread is unavailable");
         }
 
-        public static TResult Invoke<TResult>(Func<TResult> function) {
+        public static TResult Invoke<TResult>(Func<TResult> function)
+        {
             Application app = Application.Current;
             Dispatcher dispatcher;
-            if (app != null && (dispatcher = app.Dispatcher) != null) {
+            if (app != null && (dispatcher = app.Dispatcher) != null)
+            {
                 return Invoke(dispatcher, function);
             }
 
@@ -84,8 +98,10 @@ namespace FramePFX.Utils {
         /// <param name="dispatcher">The target dispatcher to invoke on</param>
         /// <param name="action">The action to invoke</param>
         /// <returns>A task that can be awaited which will execute the given function on the dispatcher thread</returns>
-        public static Task InvokeAsync(Dispatcher dispatcher, Action action) {
-            if (dispatcher.CheckAccess()) {
+        public static Task InvokeAsync(Dispatcher dispatcher, Action action)
+        {
+            if (dispatcher.CheckAccess())
+            {
                 action();
                 return Task.CompletedTask;
             }
@@ -104,7 +120,8 @@ namespace FramePFX.Utils {
         /// <param name="dispatcher">The target dispatcher to invoke on</param>
         /// <param name="function">The function to invoke</param>
         /// <returns>A task that can be awaited which will execute the given function on the dispatcher thread</returns>
-        public static Task<TResult> InvokeAsync<TResult>(Dispatcher dispatcher, Func<TResult> function) {
+        public static Task<TResult> InvokeAsync<TResult>(Dispatcher dispatcher, Func<TResult> function)
+        {
             if (dispatcher.CheckAccess())
                 return Task.FromResult(function());
             return dispatcher.InvokeAsync(function).Task;
@@ -121,7 +138,8 @@ namespace FramePFX.Utils {
         /// <param name="dispatcher">The target dispatcher to invoke on</param>
         /// <param name="function">The function to invoke</param>
         /// <returns>The result value from the function</returns>
-        public static TResult Invoke<TResult>(Dispatcher dispatcher, Func<TResult> function) {
+        public static TResult Invoke<TResult>(Dispatcher dispatcher, Func<TResult> function)
+        {
             if (dispatcher.CheckAccess())
                 return function();
             return dispatcher.Invoke(function);
@@ -136,18 +154,23 @@ namespace FramePFX.Utils {
         /// </summary>
         /// <param name="dispatcher">The target dispatcher to invoke on</param>
         /// <param name="action">The function to invoke</param>
-        public static void Invoke(Dispatcher dispatcher, Action action) {
-            if (dispatcher.CheckAccess()) {
+        public static void Invoke(Dispatcher dispatcher, Action action)
+        {
+            if (dispatcher.CheckAccess())
+            {
                 action();
             }
-            else {
+            else
+            {
                 dispatcher.Invoke(action);
             }
         }
 
-        public static bool IsOnMainThread() {
+        public static bool IsOnMainThread()
+        {
             Dispatcher dispatcher;
-            if ((dispatcher = Application.Current?.Dispatcher) != null) {
+            if ((dispatcher = Application.Current?.Dispatcher) != null)
+            {
                 return dispatcher.CheckAccess();
             }
 

@@ -22,24 +22,30 @@ using System.Windows;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.PropertyEditing.Automation;
 
-namespace FramePFX.PropertyEditing.Controls.Automation {
-    public class ParameterLongPropertyEditorControl : BaseNumberParameterPropEditorControl {
+namespace FramePFX.PropertyEditing.Controls.Automation
+{
+    public class ParameterLongPropertyEditorControl : BaseNumberParameterPropEditorControl
+    {
         public new ParameterLongPropertyEditorSlot SlotModel => (ParameterLongPropertyEditorSlot) base.SlotControl.Model;
 
-        public ParameterLongPropertyEditorControl() {
+        public ParameterLongPropertyEditorControl()
+        {
         }
 
         static ParameterLongPropertyEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(ParameterLongPropertyEditorControl), new FrameworkPropertyMetadata(typeof(ParameterLongPropertyEditorControl)));
 
-        protected override void UpdateControlValue() {
+        protected override void UpdateControlValue()
+        {
             this.dragger.Value = this.SlotModel.Value;
         }
 
-        protected override void UpdateModelValue() {
+        protected override void UpdateModelValue()
+        {
             this.SlotModel.Value = (long) Math.Round(this.dragger.Value);
         }
 
-        protected override void OnConnected() {
+        protected override void OnConnected()
+        {
             base.OnConnected();
             ParameterLongPropertyEditorSlot slot = this.SlotModel;
             ParameterDescriptorLong desc = slot.Parameter.Descriptor;

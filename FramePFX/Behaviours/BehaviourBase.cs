@@ -23,16 +23,18 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Windows;
 
-namespace FramePFX.Behaviours {
+namespace FramePFX.Behaviours
+{
     /// <summary>
     /// The base class for behaviours, which handles all the standard functionality.
     /// This class should typically not be inherited directly, instead, use <see cref="Behaviour{T}"/>
     /// </summary>
-    public abstract class BehaviourBase : Freezable, IBehaviour {
+    public abstract class BehaviourBase : Freezable, IBehaviour
+    {
         private static readonly Dictionary<Type, bool> HasVisualParentChangedOverridden;
         private static readonly Type[] VPCArgs = new Type[] {typeof(DependencyObject)};
 
-        protected readonly bool CanProcessVisualParentChanged;
+        protected readonly bool CanProcessVAC;
         private DependencyObject element;
 
         public DependencyObject AttachedElement => this.element;
@@ -42,11 +44,13 @@ namespace FramePFX.Behaviours {
         /// </summary>
         public BehaviourCollection Collection { get; private set; }
 
-        protected BehaviourBase() {
-            this.CanProcessVisualParentChanged = GetHasVisualParentChangedHandler(this.GetType());
+        protected BehaviourBase()
+        {
+            this.CanProcessVAC = GetHasVisualParentChangedHandler(this.GetType());
         }
 
-        static BehaviourBase() {
+        static BehaviourBase()
+        {
             HasVisualParentChangedOverridden = new Dictionary<Type, bool>();
         }
 
@@ -58,9 +62,10 @@ namespace FramePFX.Behaviours {
         /// <summary>
         /// Called when this behaviour is detached from its target element
         /// </summary>
-        protected abstract void OnDetatched();
+        protected abstract void OnDetached();
 
-        public void Attach(BehaviourCollection collection) {
+        public void Attach(BehaviourCollection collection)
+        {
             if (this.element != null)
                 throw new InvalidOperationException("Already attached to another element: " + this.element);
             if (collection.Owner == null)
@@ -70,53 +75,64 @@ namespace FramePFX.Behaviours {
 
             this.Collection = collection;
             this.element = collection.Owner;
-            if (this.CanProcessVisualParentChanged)
+
+            if (this.CanProcessVAC)
                 collection.RegisterVAC(this);
 
-            try {
+            try
+            {
                 this.OnAttached();
             }
-            catch (Exception e) {
-                if (this.CanProcessVisualParentChanged)
+            catch (Exception e)
+            {
+                if (this.CanProcessVAC)
                     collection.UnregisterVAC();
+
                 this.element = null;
                 this.Collection = null;
                 throw new Exception("Failed to call " + nameof(this.OnAttached), e);
             }
         }
 
-        public void Detatch() {
+        public void Detach()
+        {
             if (this.element == null)
                 throw new InvalidOperationException("Cannot detach from nothing; we are not attached");
 
-            if (this.CanProcessVisualParentChanged)
+            if (this.CanProcessVAC)
                 this.Collection.UnregisterVAC();
 
-            try {
-                this.OnDetatched();
+            try
+            {
+                this.OnDetached();
             }
-            catch (Exception e) {
-                throw new Exception("Failed to call " + nameof(this.OnDetatched), e);
+            catch (Exception e)
+            {
+                throw new Exception("Failed to call " + nameof(this.OnDetached), e);
             }
-            finally {
+            finally
+            {
                 this.element = null;
             }
         }
 
         /// <summary>
-        /// Invoked when our attached element's visual parent changes. Overriding the method enables the
-        /// internal mechanisms for this method to be called, because processing parent changed adds a
-        /// tiny bit of UI overhead.
+        /// Invoked when our attached element's visual parent changes
         /// <para>
         /// Only the old parent is provided. The new parent can be accessed via the visual tree utils class
         /// </para>
+        /// <para>
+        /// Overriding this method activates the internal mechanisms for this method to be called,
+        /// because processing parent changed adds a tiny bit of UI overhead.
+        /// </para>
         /// </summary>
         /// <param name="oldParent">Our element's previous parent</param>
-        protected virtual void OnVisualParentChanged(DependencyObject oldParent) {
-
+        protected virtual void OnVisualParentChanged(DependencyObject oldParent)
+        {
         }
 
-        protected override Freezable CreateInstanceCore() {
+        protected override Freezable CreateInstanceCore()
+        {
             return (Freezable) Activator.CreateInstance(this.GetType());
         }
 
@@ -124,22 +140,25 @@ namespace FramePFX.Behaviours {
 
         protected abstract bool CanAttachToType(DependencyObject target);
 
-        internal static void InternalProcessVisualParentChanged(BehaviourBase behaviour, DependencyObject oldParent) {
-            if (behaviour.CanProcessVisualParentChanged)
+        internal static void InternalProcessVisualParentChanged(BehaviourBase behaviour, DependencyObject oldParent)
+        {
+            if (behaviour.CanProcessVAC)
                 behaviour.OnVisualParentChanged(oldParent);
         }
 
-        private static bool GetHasVisualParentChangedHandler(Type type) {
-            if (!HasVisualParentChangedOverridden.TryGetValue(type, out bool value)) {
+        private static bool GetHasVisualParentChangedHandler(Type type)
+        {
+            if (!HasVisualParentChangedOverridden.TryGetValue(type, out bool value))
                 HasVisualParentChangedOverridden[type] = value = CalculateHasVisualParentChangedHandler(type);
-            }
 
             return value;
         }
 
-        private static bool CalculateHasVisualParentChangedHandler(Type type) {
+        private static bool CalculateHasVisualParentChangedHandler(Type type)
+        {
             MethodInfo method = type.GetMethod(nameof(OnVisualParentChanged), BindingFlags.Instance | BindingFlags.NonPublic, null, CallingConventions.HasThis, VPCArgs, null);
-            if (!ReferenceEquals(method, null)) {
+            if (!ReferenceEquals(method, null))
+            {
                 MethodInfo baseMethod = method.GetBaseDefinition();
                 return baseMethod.DeclaringType != method.DeclaringType;
             }

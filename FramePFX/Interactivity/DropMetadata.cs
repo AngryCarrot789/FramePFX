@@ -17,11 +17,13 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Interactivity {
+namespace FramePFX.Interactivity
+{
     /// <summary>
     /// Additional registration data for an entry in a <see cref="DragDropRegistry"/>
     /// </summary>
-    public class DropMetadata {
+    public class DropMetadata
+    {
         /// <summary>
         /// Gets or sets if the droppable object(s) could be in the form of a collection,
         /// and if so, try to access the list for the objects
@@ -36,7 +38,8 @@ namespace FramePFX.Interactivity {
         public static DropMetadata SingleDrop() => new DropMetadata(true, true);
         public static DropMetadata MultiDrop() => new DropMetadata(true, false);
 
-        public DropMetadata(bool isCollectionBased, bool onlyUseSingleItem) {
+        public DropMetadata(bool isCollectionBased, bool onlyUseSingleItem)
+        {
             this.IsCollectionBased = isCollectionBased;
             this.OnlyUseSingleItem = onlyUseSingleItem;
         }

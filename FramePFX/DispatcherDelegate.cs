@@ -23,8 +23,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 
-namespace FramePFX {
-    public class DispatcherDelegate : IDispatcher {
+namespace FramePFX
+{
+    public class DispatcherDelegate : IDispatcher
+    {
         private static readonly FieldInfo DisableProcessingCountField;
         private readonly Dispatcher dispatcher;
 
@@ -34,19 +36,24 @@ namespace FramePFX {
             get => (int) DisableProcessingCountField.GetValue(this.dispatcher) > 0;
         }
 
-        public DispatcherDelegate(Dispatcher dispatcher) {
+        public DispatcherDelegate(Dispatcher dispatcher)
+        {
             this.dispatcher = dispatcher ?? throw new Exception("Application dispatcher detached");
         }
 
-        static DispatcherDelegate() {
+        static DispatcherDelegate()
+        {
             DisableProcessingCountField = typeof(Dispatcher).GetField("_disableProcessingCount", BindingFlags.Instance | BindingFlags.GetField | BindingFlags.NonPublic);
         }
 
-        public void Invoke(Action action, DispatcherPriority priority) {
-            if (priority == DispatcherPriority.Send && this.dispatcher.CheckAccess()) {
+        public void Invoke(Action action, DispatcherPriority priority)
+        {
+            if (priority == DispatcherPriority.Send && this.dispatcher.CheckAccess())
+            {
                 action();
             }
-            else {
+            else
+            {
                 this.dispatcher.Invoke(action, priority);
             }
         }
@@ -57,26 +64,32 @@ namespace FramePFX {
         // an instance of DispatcherOperationTaskSource which also creates a TaskCompletionSource and
         // DispatcherOperationTaskMapping AND an instance of CulturePreservingExecutionContext gets created too...
 
-        public void Invoke<T>(Action<T> action, T parameter, DispatcherPriority priority) {
-            if (priority == DispatcherPriority.Send && this.dispatcher.CheckAccess()) {
+        public void Invoke<T>(Action<T> action, T parameter, DispatcherPriority priority)
+        {
+            if (priority == DispatcherPriority.Send && this.dispatcher.CheckAccess())
+            {
                 action(parameter);
             }
-            else {
+            else
+            {
                 this.dispatcher.Invoke(priority, action, parameter);
             }
         }
 
-        public T Invoke<T>(Func<T> function, DispatcherPriority priority) {
+        public T Invoke<T>(Func<T> function, DispatcherPriority priority)
+        {
             if (priority == DispatcherPriority.Send && this.dispatcher.CheckAccess())
                 return function();
             return this.dispatcher.Invoke(function, priority);
         }
 
-        public Task InvokeAsync(Action action, DispatcherPriority priority, CancellationToken token = default) {
+        public Task InvokeAsync(Action action, DispatcherPriority priority, CancellationToken token = default)
+        {
             return this.dispatcher.InvokeAsync(action, priority, token).Task;
         }
 
-        public Task<T> InvokeAsync<T>(Func<T> function, DispatcherPriority priority, CancellationToken token = default) {
+        public Task<T> InvokeAsync<T>(Func<T> function, DispatcherPriority priority, CancellationToken token = default)
+        {
             return this.dispatcher.InvokeAsync(function, priority, token).Task;
         }
     }

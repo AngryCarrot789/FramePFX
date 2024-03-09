@@ -17,7 +17,9 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Editors.Controls {
-    public class ITrackControl {
+namespace FramePFX.Editors.Controls
+{
+    public class ITrackControl
+    {
     }
 }

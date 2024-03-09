@@ -21,44 +21,54 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace FramePFX.Utils.Collections {
+namespace FramePFX.Utils.Collections
+{
     public delegate void PropertyMapEventHandler();
 
     /// <summary>
     /// A class that helps with mapping model properties to view model properties for when models raise property changed notifications
     /// </summary>
-    public class PropertyMap {
+    public class PropertyMap
+    {
         private readonly InheritanceDictionary<TypeEntry> map;
         private volatile int lockState;
 
-        public PropertyMap() {
+        public PropertyMap()
+        {
             this.map = new InheritanceDictionary<TypeEntry>();
         }
 
-        private void AcquireLock() {
+        private void AcquireLock()
+        {
             Thread.BeginCriticalRegion();
-            while (Interlocked.CompareExchange(ref this.lockState, 1, 0) != 0) {
+            while (Interlocked.CompareExchange(ref this.lockState, 1, 0) != 0)
+            {
                 Thread.Sleep(1);
             }
         }
 
-        private void ReleaseLock() {
+        private void ReleaseLock()
+        {
             this.lockState = 0;
             Thread.EndCriticalRegion();
         }
 
-        private TypeEntry GetTypeEntry(Type modelType) {
+        private TypeEntry GetTypeEntry(Type modelType)
+        {
             if (!this.map.TryGetLocalValue(modelType, out TypeEntry entry))
                 this.map[modelType] = entry = new TypeEntry(modelType);
             return entry;
         }
 
-        public void AddTranslation(Type modelType, string modelProperty, string viewModelProperty) {
+        public void AddTranslation(Type modelType, string modelProperty, string viewModelProperty)
+        {
             this.AcquireLock();
-            try {
+            try
+            {
                 this.GetTypeEntry(modelType).AddTranslation(modelProperty, viewModelProperty);
             }
-            finally {
+            finally
+            {
                 this.ReleaseLock();
             }
         }
@@ -73,13 +83,17 @@ namespace FramePFX.Utils.Collections {
         //     }
         // }
 
-        public bool GetPropertyForModel(Type modelType, string modelProperty, out string viewModelProperty) {
+        public bool GetPropertyForModel(Type modelType, string modelProperty, out string viewModelProperty)
+        {
             this.AcquireLock();
-            try {
+            try
+            {
                 var enumerator = this.map.GetLocalValueEnumerator(modelType);
-                while (enumerator.MoveNext()) {
+                while (enumerator.MoveNext())
+                {
                     TypeEntry entry = enumerator.Current.LocalValue;
-                    if (entry.modelToViewModel.TryGetValue(modelProperty, out viewModelProperty)) {
+                    if (entry.modelToViewModel.TryGetValue(modelProperty, out viewModelProperty))
+                    {
                         return true;
                     }
                 }
@@ -87,34 +101,41 @@ namespace FramePFX.Utils.Collections {
                 viewModelProperty = null;
                 return false;
             }
-            finally {
+            finally
+            {
                 this.ReleaseLock();
             }
         }
 
-        private class TypeEntry {
+        private class TypeEntry
+        {
             public readonly Type modelType;
             public readonly Dictionary<string, string> modelToViewModel;
             public readonly Dictionary<string, PropertyMapEventHandler> handlers;
 
-            public TypeEntry(Type modelType) {
+            public TypeEntry(Type modelType)
+            {
                 this.modelType = modelType;
                 this.modelToViewModel = new Dictionary<string, string>();
                 this.handlers = new Dictionary<string, PropertyMapEventHandler>();
             }
 
-            public void AddTranslation(string modelProperty, string viewModelProperty) {
+            public void AddTranslation(string modelProperty, string viewModelProperty)
+            {
                 this.modelToViewModel.Add(modelProperty, viewModelProperty);
             }
 
-            public void AddHandler(string modelProperty, PropertyMapEventHandler handler) {
+            public void AddHandler(string modelProperty, PropertyMapEventHandler handler)
+            {
                 if (handler == null)
                     throw new ArgumentNullException(nameof(handler));
 
-                if (!this.handlers.TryGetValue(modelProperty, out PropertyMapEventHandler oldHandler)) {
+                if (!this.handlers.TryGetValue(modelProperty, out PropertyMapEventHandler oldHandler))
+                {
                     this.handlers[modelProperty] = handler;
                 }
-                else {
+                else
+                {
                     this.handlers[modelProperty] = (PropertyMapEventHandler) Delegate.Combine(oldHandler, handler);
                 }
             }

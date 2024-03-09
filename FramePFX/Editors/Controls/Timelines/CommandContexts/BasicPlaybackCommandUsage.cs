@@ -19,42 +19,55 @@
 
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
-    public class BasicPlaybackCommandUsage : CommandSourceCommandUsage {
-        public BasicPlaybackCommandUsage(string cmdId) : base(cmdId) {
+namespace FramePFX.Editors.Controls.Timelines.CommandContexts
+{
+    public class BasicPlaybackCommandUsage : CommandSourceCommandUsage
+    {
+        public BasicPlaybackCommandUsage(string cmdId) : base(cmdId)
+        {
         }
 
         private VideoEditor editor;
 
-        private void OnEditorPlayStateChanged(PlaybackManager sender, PlayState state, long frame) {
+        private void OnEditorPlayStateChanged(PlaybackManager sender, PlayState state, long frame)
+        {
             this.UpdateCanExecute();
         }
 
-        protected override void OnContextChanged() {
+        protected override void OnContextChanged()
+        {
             base.OnContextChanged();
-            if (this.editor != null) {
+            if (this.editor != null)
+            {
                 this.editor.Playback.PlaybackStateChanged -= this.OnEditorPlayStateChanged;
                 this.editor = null;
             }
 
-            if (DataKeys.VideoEditorKey.TryGetContext(this.GetContextData(), out this.editor)) {
+            if (DataKeys.VideoEditorKey.TryGetContext(this.GetContextData(), out this.editor))
+            {
                 this.editor.Playback.PlaybackStateChanged += this.OnEditorPlayStateChanged;
             }
         }
     }
 
-    public class PlayCommandUsage : BasicPlaybackCommandUsage {
-        public PlayCommandUsage() : base("PlaybackPlayCommand") {
+    public class PlayCommandUsage : BasicPlaybackCommandUsage
+    {
+        public PlayCommandUsage() : base("PlaybackPlayCommand")
+        {
         }
     }
 
-    public class PauseCommandUsage : BasicPlaybackCommandUsage {
-        public PauseCommandUsage() : base("PlaybackPauseCommand") {
+    public class PauseCommandUsage : BasicPlaybackCommandUsage
+    {
+        public PauseCommandUsage() : base("PlaybackPauseCommand")
+        {
         }
     }
 
-    public class StopCommandUsage : BasicPlaybackCommandUsage {
-        public StopCommandUsage() : base("PlaybackStopCommand") {
+    public class StopCommandUsage : BasicPlaybackCommandUsage
+    {
+        public StopCommandUsage() : base("PlaybackStopCommand")
+        {
         }
     }
 }

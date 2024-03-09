@@ -27,11 +27,13 @@ using FramePFX.Logger;
 using FramePFX.Utils;
 using FramePFX.Views;
 
-namespace FramePFX.Editors.Exporting.Controls {
+namespace FramePFX.Editors.Exporting.Controls
+{
     /// <summary>
     /// Interaction logic for ExportDialog.xaml
     /// </summary>
-    public partial class ExportDialog : WindowEx {
+    public partial class ExportDialog : WindowEx
+    {
         public static readonly DependencyProperty ExportSetupProperty = DependencyProperty.Register("ExportSetup", typeof(ExportSetup), typeof(ExportDialog), new PropertyMetadata(null, (d, e) => ((ExportDialog) d).OnSetupChanged((ExportSetup) e.OldValue, (ExportSetup) e.NewValue)));
         private bool isProcessingFrameSpanControls;
         private bool isProcessingFilePathControl;
@@ -42,7 +44,8 @@ namespace FramePFX.Editors.Exporting.Controls {
             set => this.SetValue(ExportSetupProperty, value);
         }
 
-        public ExportDialog() {
+        public ExportDialog()
+        {
             this.InitializeComponent();
             this.PART_BeginFrameDragger.ValueChanged += this.BeginFrameDraggerOnValueChanged;
             this.PART_EndFrameDragger.ValueChanged += this.EndFrameDraggerOnValueChanged;
@@ -50,8 +53,10 @@ namespace FramePFX.Editors.Exporting.Controls {
             this.PART_ComboBox.SelectionChanged += this.PART_ComboBoxOnSelectionChanged;
         }
 
-        private void PART_ComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e) {
-            if (this.isUpdatingComboBox || !(this.ExportSetup is ExportSetup setup)) {
+        private void PART_ComboBoxOnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (this.isUpdatingComboBox || !(this.ExportSetup is ExportSetup setup))
+            {
                 return;
             }
 
@@ -60,7 +65,8 @@ namespace FramePFX.Editors.Exporting.Controls {
             this.isUpdatingComboBox = false;
         }
 
-        private void BeginFrameDraggerOnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
+        private void BeginFrameDraggerOnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
             if (this.isProcessingFrameSpanControls)
                 return;
 
@@ -70,7 +76,8 @@ namespace FramePFX.Editors.Exporting.Controls {
             this.isProcessingFrameSpanControls = false;
         }
 
-        private void EndFrameDraggerOnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) {
+        private void EndFrameDraggerOnValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
             if (this.isProcessingFrameSpanControls)
                 return;
 
@@ -80,7 +87,8 @@ namespace FramePFX.Editors.Exporting.Controls {
             this.isProcessingFrameSpanControls = false;
         }
 
-        private void FilePathTextBoxOnTextChanged(object sender, TextChangedEventArgs e) {
+        private void FilePathTextBoxOnTextChanged(object sender, TextChangedEventArgs e)
+        {
             if (this.isProcessingFilePathControl)
                 return;
 
@@ -90,7 +98,8 @@ namespace FramePFX.Editors.Exporting.Controls {
             this.isProcessingFilePathControl = false;
         }
 
-        private void UpdateBeginFrameDragger() {
+        private void UpdateBeginFrameDragger()
+        {
             ExportSetup setup = this.ExportSetup;
             ExportProperties props = setup.Properties;
             this.PART_EndFrameDragger.Maximum = setup.Timeline.MaxDuration;
@@ -99,7 +108,8 @@ namespace FramePFX.Editors.Exporting.Controls {
             this.PART_DurationTextBlock.Text = props.Span.Duration.ToString();
         }
 
-        private void UpdateEndFrameDragger() {
+        private void UpdateEndFrameDragger()
+        {
             ExportProperties props = this.ExportSetup.Properties;
             this.PART_BeginFrameDragger.Maximum = props.Span.EndIndex;
             this.PART_BeginFrameDragger.Minimum = 0;
@@ -107,8 +117,10 @@ namespace FramePFX.Editors.Exporting.Controls {
             this.PART_DurationTextBlock.Text = props.Span.Duration.ToString();
         }
 
-        private void OnSetupChanged(ExportSetup oldSetup, ExportSetup newSetup) {
-            if (oldSetup != null) {
+        private void OnSetupChanged(ExportSetup oldSetup, ExportSetup newSetup)
+        {
+            if (oldSetup != null)
+            {
                 oldSetup.Properties.SpanChanged -= this.PropertiesOnSpanChanged;
                 oldSetup.Properties.FilePathChanged -= this.PropertiesOnFilePathChanged;
                 oldSetup.SelectedExporterIndexChanged -= this.OnSelectedExporterChanged;
@@ -116,11 +128,13 @@ namespace FramePFX.Editors.Exporting.Controls {
                 this.PART_ComboBox.Items.Clear();
             }
 
-            if (newSetup != null) {
+            if (newSetup != null)
+            {
                 newSetup.Properties.SpanChanged += this.PropertiesOnSpanChanged;
                 newSetup.Properties.FilePathChanged += this.PropertiesOnFilePathChanged;
                 newSetup.SelectedExporterIndexChanged += this.OnSelectedExporterChanged;
-                foreach (Exporter exporter in newSetup.Exporters) {
+                foreach (Exporter exporter in newSetup.Exporters)
+                {
                     this.PART_ComboBox.Items.Add(exporter.DisplayName);
                 }
 
@@ -129,30 +143,36 @@ namespace FramePFX.Editors.Exporting.Controls {
                 this.UpdateBeginFrameDragger();
                 this.UpdateEndFrameDragger();
                 this.SetCurrentExporterContent(newSetup.SelectedExporter);
-                if (newSetup.Timeline == newSetup.Project.MainTimeline || !(newSetup.Timeline is CompositionTimeline composition)) {
+                if (newSetup.Timeline == newSetup.Project.MainTimeline || !(newSetup.Timeline is CompositionTimeline composition))
+                {
                     this.Title = "Export Project";
                 }
-                else {
+                else
+                {
                     string title = composition.Resource.DisplayName;
                     this.Title = string.IsNullOrWhiteSpace(title) ? "Export Composition Timeline" : $"Export '{title}' timeline";
                 }
             }
         }
 
-        private void OnSelectedExporterChanged(ExportSetup sender) {
+        private void OnSelectedExporterChanged(ExportSetup sender)
+        {
             this.SetCurrentExporterContent(sender.SelectedExporter);
             this.isUpdatingComboBox = true;
             this.PART_ComboBox.SelectedIndex = sender.SelectedExporterIndex;
             this.isUpdatingComboBox = false;
         }
 
-        private void SetCurrentExporterContent(Exporter newExporter) {
-            if (this.Content is ExporterContent oldContent) {
+        private void SetCurrentExporterContent(Exporter newExporter)
+        {
+            if (this.Content is ExporterContent oldContent)
+            {
                 oldContent.Disconnected();
                 this.PART_ExportContentPresenter.Content = null;
             }
 
-            if (newExporter != null) {
+            if (newExporter != null)
+            {
                 ExporterContent content = ExporterContent.NewInstance(newExporter.GetType());
                 this.PART_ExportContentPresenter.Content = content;
                 content.Measure(this.DesiredSize);
@@ -161,25 +181,30 @@ namespace FramePFX.Editors.Exporting.Controls {
             }
         }
 
-        private void PropertiesOnSpanChanged(ExportProperties sender) {
+        private void PropertiesOnSpanChanged(ExportProperties sender)
+        {
             this.UpdateBeginFrameDragger();
             this.UpdateEndFrameDragger();
         }
 
-        private void PropertiesOnFilePathChanged(ExportProperties sender) {
+        private void PropertiesOnFilePathChanged(ExportProperties sender)
+        {
             this.PART_FilePathTextBox.Text = sender.FilePath;
         }
 
         private bool isRendering;
         private CancellationTokenSource exportToken;
 
-        private async void Export_Click(object sender, RoutedEventArgs e) {
-            if (this.isRendering) {
+        private async void Export_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.isRendering)
+            {
                 return;
             }
 
             int index = this.PART_ComboBox.SelectedIndex;
-            if (index == -1) {
+            if (index == -1)
+            {
                 return;
             }
 
@@ -195,33 +220,42 @@ namespace FramePFX.Editors.Exporting.Controls {
             ExportProgressDialog progressDialog = new ExportProgressDialog(setup.Properties.Span, this.exportToken);
             progressDialog.Show();
 
-            try {
+            try
+            {
                 setup.Project.IsExporting = true;
                 // Export will most likely be using unsafe code, meaning async won't work
-                await Task.Factory.StartNew(() => {
+                await Task.Factory.StartNew(() =>
+                {
                     exporter.Export(setup, progressDialog, setup.Properties, this.exportToken.Token);
                 }, TaskCreationOptions.LongRunning);
             }
-            catch (TaskCanceledException) {
+            catch (TaskCanceledException)
+            {
                 isCancelled = true;
             }
-            catch (OperationCanceledException) {
+            catch (OperationCanceledException)
+            {
                 isCancelled = true;
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 string err = ex.GetToString();
                 AppLogger.Instance.WriteLine("Error exporting: " + err);
                 IoC.MessageService.ShowMessage("Export failure", "An exception occurred while exporting video", err);
             }
-            finally {
+            finally
+            {
                 setup.Project.IsExporting = false;
             }
 
-            if (isCancelled && File.Exists(setup.Properties.FilePath)) {
-                try {
+            if (isCancelled && File.Exists(setup.Properties.FilePath))
+            {
+                try
+                {
                     File.Delete(setup.Properties.FilePath);
                 }
-                catch (Exception ex) {
+                catch (Exception ex)
+                {
                     AppLogger.Instance.WriteLine("Failed to delete cancelled export's file: " + ex.GetToString());
                 }
             }
@@ -233,12 +267,14 @@ namespace FramePFX.Editors.Exporting.Controls {
             this.Close();
         }
 
-        private void Cancel_Click(object sender, RoutedEventArgs e) {
+        private void Cancel_Click(object sender, RoutedEventArgs e)
+        {
             this.exportToken?.Cancel();
             this.Close();
         }
 
-        protected override void OnClosed(EventArgs e) {
+        protected override void OnClosed(EventArgs e)
+        {
             base.OnClosed(e);
             this.ExportSetup = null;
             this.exportToken?.Dispose();

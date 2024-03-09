@@ -22,18 +22,22 @@ using System.Windows.Controls;
 using FramePFX.Editors.Controls.Bindings;
 using FramePFX.Editors.ResourceManaging.Resources;
 
-namespace FramePFX.Editors.ResourceManaging.Autoloading.Controls {
-    public class InvalidMediaPathEntryControl : InvalidResourceEntryControl {
+namespace FramePFX.Editors.ResourceManaging.Autoloading.Controls
+{
+    public class InvalidMediaPathEntryControl : InvalidResourceEntryControl
+    {
         private TextBox filePathBox;
         private TextBlock errorMessageBlock;
         private Button confirmButton;
 
         private readonly GetSetAutoEventPropertyBinder<InvalidMediaPathEntry> filePathBinder = new GetSetAutoEventPropertyBinder<InvalidMediaPathEntry>(TextBox.TextProperty, nameof(InvalidMediaPathEntry.FilePathChanged), b => b.Model.FilePath, (b, v) => b.Model.FilePath = (string) v);
 
-        public InvalidMediaPathEntryControl() {
+        public InvalidMediaPathEntryControl()
+        {
         }
 
-        public override void OnApplyTemplate() {
+        public override void OnApplyTemplate()
+        {
             base.OnApplyTemplate();
             this.filePathBox = this.GetTemplateChild<TextBox>("PART_TextBox");
             this.confirmButton = this.GetTemplateChild<Button>("PART_Button");
@@ -41,19 +45,23 @@ namespace FramePFX.Editors.ResourceManaging.Autoloading.Controls {
             this.confirmButton.Click += this.ConfirmClick;
         }
 
-        private void ConfirmClick(object sender, RoutedEventArgs e) {
-            if (!this.Entry.TryLoad()) {
+        private void ConfirmClick(object sender, RoutedEventArgs e)
+        {
+            if (!this.Entry.TryLoad())
+            {
                 IoC.MessageService.ShowMessage("No such file", "Media file path is still invalid");
             }
         }
 
-        protected override void OnLoaded() {
+        protected override void OnLoaded()
+        {
             this.filePathBinder.Attach(this.filePathBox, (InvalidMediaPathEntry) this.Entry);
             this.errorMessageBlock.Text = ((InvalidMediaPathEntry) this.Entry).ExceptionMessage;
         }
 
-        protected override void OnUnloaded() {
-            this.filePathBinder.Detatch();
+        protected override void OnUnloaded()
+        {
+            this.filePathBinder.Detach();
         }
     }
 }

@@ -19,8 +19,10 @@
 
 using System;
 
-namespace FramePFX {
-    public interface IServiceManager {
+namespace FramePFX
+{
+    public interface IServiceManager
+    {
         bool HasService<T>();
         bool HasService(Type serviceType);
 

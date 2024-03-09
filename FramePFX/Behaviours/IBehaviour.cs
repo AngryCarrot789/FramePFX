@@ -19,8 +19,10 @@
 
 using System.Windows;
 
-namespace FramePFX.Behaviours {
-    public interface IBehaviour {
+namespace FramePFX.Behaviours
+{
+    public interface IBehaviour
+    {
         /// <summary>
         /// Gets the element attached to this behaviour. When non-null, we are attached. When null, we are detached.
         /// </summary>
@@ -46,7 +48,7 @@ namespace FramePFX.Behaviours {
         /// </summary>
         /// <exception cref="InvalidOperationException">We are already attached</exception>
         /// <exception cref="Exception">An exception was thrown while processing the <see cref="BehaviourBase.OnAttached"/> method</exception>
-        void Detatch();
+        void Detach();
 
         /// <summary>
         /// Checks if the given targetType is applicable to be attached

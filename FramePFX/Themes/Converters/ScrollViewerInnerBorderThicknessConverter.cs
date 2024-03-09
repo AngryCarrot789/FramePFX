@@ -22,8 +22,10 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace FramePFX.Themes.Converters {
-    public class ScrollViewerInnerBorderThicknessConverter : IMultiValueConverter {
+namespace FramePFX.Themes.Converters
+{
+    public class ScrollViewerInnerBorderThicknessConverter : IMultiValueConverter
+    {
         public static ScrollViewerInnerBorderThicknessConverter Instance { get; } = new ScrollViewerInnerBorderThicknessConverter();
 
         public double Left { get; } = 0.0;
@@ -33,8 +35,10 @@ namespace FramePFX.Themes.Converters {
         public double BottomVisible { get; } = 1.0;
         public double BottomNotVisible { get; } = 0.0;
 
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
-            if (values == null || values.Length != 2) {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values == null || values.Length != 2)
+            {
                 throw new Exception("Need 2 values for this converter: bottom and right scroll bar visibility values");
             }
 
@@ -50,7 +54,8 @@ namespace FramePFX.Themes.Converters {
                 bottomBar == Visibility.Visible ? this.BottomVisible : this.BottomNotVisible);
         }
 
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
             throw new NotImplementedException();
         }
     }

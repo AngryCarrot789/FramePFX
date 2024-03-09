@@ -19,19 +19,22 @@
 
 using System.Collections.Generic;
 
-namespace FramePFX.AdvancedMenuService.ContextService {
+namespace FramePFX.AdvancedMenuService.ContextService
+{
     public delegate void BaseContextEntryEventHandler(BaseContextEntry entry);
 
     /// <summary>
     /// Base class for context entries, supporting custom data context
     /// </summary>
-    public abstract class BaseContextEntry : IContextEntry {
+    public abstract class BaseContextEntry : IContextEntry
+    {
         private string header;
         private string description;
 
         public string Header {
             get => this.header;
-            set {
+            set
+            {
                 if (this.header == value)
                     return;
                 this.header = value;
@@ -41,7 +44,8 @@ namespace FramePFX.AdvancedMenuService.ContextService {
 
         public string Description {
             get => this.description;
-            set {
+            set
+            {
                 if (this.description == value)
                     return;
                 this.description = value;
@@ -54,13 +58,15 @@ namespace FramePFX.AdvancedMenuService.ContextService {
         public event BaseContextEntryEventHandler DescriptionChanged;
         public event BaseContextEntryEventHandler HeaderChanged;
 
-        protected BaseContextEntry(string header, string description, IEnumerable<IContextEntry> children = null) {
+        protected BaseContextEntry(string header, string description, IEnumerable<IContextEntry> children = null)
+        {
             this.Children = children;
             this.header = header;
             this.description = description;
         }
 
-        protected BaseContextEntry(IEnumerable<IContextEntry> children = null) : this(null, null, children) {
+        protected BaseContextEntry(IEnumerable<IContextEntry> children = null) : this(null, null, children)
+        {
         }
     }
 }

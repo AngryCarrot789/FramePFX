@@ -21,7 +21,8 @@ using System;
 using System.Collections.Generic;
 using FramePFX.Editors.Timelines.Effects;
 
-namespace FramePFX.Editors.Timelines {
+namespace FramePFX.Editors.Timelines
+{
     public delegate void EffectOwnerEventHandler(IHaveEffects effects, BaseEffect effect, int index);
 
     public delegate void EffectMovedEventHandler(IHaveEffects effects, BaseEffect effect, int oldIndex, int newIndex);
@@ -29,7 +30,8 @@ namespace FramePFX.Editors.Timelines {
     /// <summary>
     /// An interface for an object that has effects associated with it. This is either a clip or track
     /// </summary>
-    public interface IHaveEffects : IHaveTimeline {
+    public interface IHaveEffects : IHaveTimeline
+    {
         /// <summary>
         /// Returns a list of effects. This collection is read-only so it cannot and also must not be modified directly
         /// </summary>

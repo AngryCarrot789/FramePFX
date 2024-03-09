@@ -31,16 +31,19 @@ using FramePFX.Utils;
 using SkiaSharp;
 using Vector2 = System.Numerics.Vector2;
 
-namespace FramePFX.Editors.Controls.Viewports {
+namespace FramePFX.Editors.Controls.Viewports
+{
     /// <summary>
     /// Extends <see cref="SKAsyncViewPort"/> to implement further timeline rendering things, like selected clips
     /// </summary>
-    public class VideoEditorViewPortPreview : SKAsyncViewPort {
+    public class VideoEditorViewPortPreview : SKAsyncViewPort
+    {
         public static readonly DependencyProperty VideoEditorProperty = DependencyProperty.Register("VideoEditor", typeof(VideoEditor), typeof(VideoEditorViewPortPreview), new PropertyMetadata(null, OnVideoEditorChanged));
         public static readonly DependencyProperty DrawSelectedElementsProperty = DependencyProperty.Register("DrawSelectedElements", typeof(bool), typeof(VideoEditorViewPortPreview), new FrameworkPropertyMetadata(BoolBox.True, FrameworkPropertyMetadataOptions.AffectsRender));
         public static readonly DependencyProperty SelectionOutlineBrushProperty = DependencyProperty.Register("SelectionOutlineBrush", typeof(Brush), typeof(VideoEditorViewPortPreview), new PropertyMetadata(Brushes.Orange, InvalidateSelectionPen));
 
-        private static void InvalidateSelectionPen(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+        private static void InvalidateSelectionPen(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
             ((VideoEditorViewPortPreview) d).OutlinePen = null;
         }
 
@@ -64,35 +67,43 @@ namespace FramePFX.Editors.Controls.Viewports {
 
         private Project activeProject;
 
-        public VideoEditorViewPortPreview() {
+        public VideoEditorViewPortPreview()
+        {
         }
 
-        private static void OnVideoEditorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+        private static void OnVideoEditorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
             VideoEditorViewPortPreview control = (VideoEditorViewPortPreview) d;
-            if (e.OldValue is VideoEditor oldEditor) {
+            if (e.OldValue is VideoEditor oldEditor)
+            {
                 oldEditor.ProjectChanged -= control.OnProjectChanged;
             }
 
-            if (e.NewValue is VideoEditor newEditor) {
+            if (e.NewValue is VideoEditor newEditor)
+            {
                 newEditor.ProjectChanged += control.OnProjectChanged;
                 control.SetProject(newEditor.Project);
             }
         }
 
-        private void OnProjectChanged(VideoEditor editor, Project oldproject, Project newproject) {
+        private void OnProjectChanged(VideoEditor editor, Project oldproject, Project newproject)
+        {
             this.SetProject(newproject);
         }
 
-        private void SetProject(Project project) {
+        private void SetProject(Project project)
+        {
             Project oldProject = this.activeProject;
-            if (oldProject != null) {
+            if (oldProject != null)
+            {
                 oldProject.Settings.ResolutionChanged -= this.UpdateResolution;
                 oldProject.ActiveTimelineChanged -= this.OnProjectActiveTimelineChanged;
                 this.UpdateTimelineChanged(oldProject.ActiveTimeline, null);
             }
 
             this.activeProject = project;
-            if (project != null) {
+            if (project != null)
+            {
                 project.Settings.ResolutionChanged += this.UpdateResolution;
                 project.ActiveTimelineChanged += this.OnProjectActiveTimelineChanged;
                 this.UpdateTimelineChanged(null, project.ActiveTimeline);
@@ -100,31 +111,39 @@ namespace FramePFX.Editors.Controls.Viewports {
             }
         }
 
-        private void OnProjectActiveTimelineChanged(Project project, Timeline oldTimeline, Timeline newTimeline) {
+        private void OnProjectActiveTimelineChanged(Project project, Timeline oldTimeline, Timeline newTimeline)
+        {
             this.UpdateTimelineChanged(oldTimeline, newTimeline);
         }
 
-        private void UpdateTimelineChanged(Timeline oldTimeline, Timeline newTimeline) {
-            if (oldTimeline != null) {
+        private void UpdateTimelineChanged(Timeline oldTimeline, Timeline newTimeline)
+        {
+            if (oldTimeline != null)
+            {
                 oldTimeline.RenderManager.FrameRendered -= this.OnFrameAvailable;
             }
 
-            if (newTimeline != null) {
+            if (newTimeline != null)
+            {
                 newTimeline.RenderManager.FrameRendered += this.OnFrameAvailable;
             }
         }
 
-        private void UpdateResolution(ProjectSettings settings) {
+        private void UpdateResolution(ProjectSettings settings)
+        {
             this.Width = settings.Width;
             this.Height = settings.Height;
         }
 
-        private void OnFrameAvailable(RenderManager manager) {
-            if (manager.Timeline.Project?.IsExporting ?? false) {
+        private void OnFrameAvailable(RenderManager manager)
+        {
+            if (manager.Timeline.Project?.IsExporting ?? false)
+            {
                 return;
             }
 
-            if (this.BeginRenderWithSurface(manager.ImageInfo)) {
+            if (this.BeginRenderWithSurface(manager.ImageInfo))
+            {
                 this.EndRenderWithSurface(manager.surface);
             }
 
@@ -143,18 +162,24 @@ namespace FramePFX.Editors.Controls.Viewports {
             // }
         }
 
-        protected override void OnRender(DrawingContext dc) {
+        protected override void OnRender(DrawingContext dc)
+        {
             base.OnRender(dc);
-            if (this.DrawSelectedElements && this.VideoEditor?.Project?.ActiveTimeline is Timeline timeline) {
-                foreach (Track track in timeline.Tracks) {
-                    if (!(track is VideoTrack)) {
+            if (this.DrawSelectedElements && this.VideoEditor?.Project?.ActiveTimeline is Timeline timeline)
+            {
+                foreach (Track track in timeline.Tracks)
+                {
+                    if (!(track is VideoTrack))
+                    {
                         continue;
                     }
 
                     // potentially faster than scanning SelectedClips due to track clip chunking
                     IEnumerable<Clip> clips = track.GetClipsAtFrame(timeline.PlayHeadPosition).Where(x => x.IsSelected);
-                    foreach (Clip clip in clips) {
-                        if (clip is VideoClip videoClip && videoClip.GetRenderSize() is Vector2 frameSize) {
+                    foreach (Clip clip in clips)
+                    {
+                        if (clip is VideoClip videoClip && videoClip.GetRenderSize() is Vector2 frameSize)
+                        {
                             Pen pen = this.OutlinePen ?? (this.OutlinePen = new Pen(this.SelectionOutlineBrush ?? Brushes.Transparent, 2.5));
                             DrawClipOutline(videoClip, frameSize, dc, pen);
                         }
@@ -169,12 +194,14 @@ namespace FramePFX.Editors.Controls.Viewports {
             }
         }
 
-        private static void DrawClipOutline(VideoClip clip, Vector2 renderSize, DrawingContext ctx, Pen pen) {
+        private static void DrawClipOutline(VideoClip clip, Vector2 renderSize, DrawingContext ctx, Pen pen)
+        {
             SKRect rect = clip.ClipAndTrackTransformationMatrix.MapRect(renderSize.ToRectWH());
             DrawRectWithPen(ctx, pen, rect);
         }
 
-        private static void DrawRectWithPen(DrawingContext ctx, Pen pen, SKRect rect) {
+        private static void DrawRectWithPen(DrawingContext ctx, Pen pen, SKRect rect)
+        {
             double realX = Math.Floor(rect.Left);
             double realY = Math.Floor(rect.Top);
             double realW = Math.Ceiling(rect.Width + (rect.Left - realX));

@@ -28,7 +28,8 @@ using FramePFX.Interactivity.Contexts;
 using FramePFX.PropertyEditing;
 using FramePFX.Utils;
 
-namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
+namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces
+{
     /// <summary>
     /// A track item for the track list box. This control represents the track control surface,
     /// which lets you modify things like volume, opacity, selected automation parameter, etc.
@@ -37,7 +38,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
     /// is created dynamically based on the type of track that is connected (via <see cref="OnAddingToList"/>)
     /// </para>
     /// </summary>
-    public class TrackControlSurfaceListBoxItem : ListBoxItem {
+    public class TrackControlSurfaceListBoxItem : ListBoxItem
+    {
         /// <summary>
         /// Gets this track item's associated track model
         /// </summary>
@@ -51,43 +53,50 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
         private readonly IBinder<Track> isSelectedBinder = new GetSetAutoEventPropertyBinder<Track>(IsSelectedProperty, nameof(VideoTrack.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.SetIsSelected((bool) v, (bool) v));
         private bool wasFocusedBeforeMoving;
 
-        public TrackControlSurfaceListBoxItem() {
+        public TrackControlSurfaceListBoxItem()
+        {
             AdvancedContextMenu.SetContextGenerator(this, TrackContextRegistry.Instance);
             this.Selected += this.OnSelectionChanged;
             this.Unselected += this.OnSelectionChanged;
         }
 
-        private void OnSelectionChanged(object sender, RoutedEventArgs e) {
+        private void OnSelectionChanged(object sender, RoutedEventArgs e)
+        {
             VideoEditorPropertyEditor.Instance.UpdateTrackSelectionAsync(this.TrackList.Timeline);
         }
 
-        static TrackControlSurfaceListBoxItem() {
+        static TrackControlSurfaceListBoxItem()
+        {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(TrackControlSurfaceListBoxItem), new FrameworkPropertyMetadata(typeof(TrackControlSurfaceListBoxItem)));
         }
 
-        private void OnTrackHeightChanged(Track track) {
+        private void OnTrackHeightChanged(Track track)
+        {
             this.Height = track.Height;
         }
 
-        #region Model Linkage
+#region Model Linkage
 
-        public void OnAddingToList(TrackControlSurfaceListBox ownerList, Track track) {
+        public void OnAddingToList(TrackControlSurfaceListBox ownerList, Track track)
+        {
             this.Track = track ?? throw new ArgumentNullException(nameof(track));
             this.TrackList = ownerList;
             this.Track.HeightChanged += this.OnTrackHeightChanged;
             this.Content = ownerList.GetContentObject(track.GetType());
         }
 
-        public void OnAddedToList() {
+        public void OnAddedToList()
+        {
             ((TrackControlSurface) this.Content).Connect(this);
             this.Height = this.Track.Height;
             this.isSelectedBinder.Attach(this, this.Track);
             DataManager.SetContextData(this, new ContextData().Set(DataKeys.TrackKey, this.Track));
         }
 
-        public void OnRemovingFromList() {
+        public void OnRemovingFromList()
+        {
             this.Track.HeightChanged -= this.OnTrackHeightChanged;
-            this.isSelectedBinder.Detatch();
+            this.isSelectedBinder.Detach();
             TrackControlSurface content = (TrackControlSurface) this.Content;
             content.Disconnect();
             this.Content = null;
@@ -95,25 +104,29 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             DataManager.ClearContextData(this);
         }
 
-        public void OnRemovedFromList() {
+        public void OnRemovedFromList()
+        {
             this.TrackList = null;
             this.Track = null;
         }
 
-        public void OnIndexMoving(int oldIndex, int newIndex) {
-            this.isSelectedBinder.Detatch();
+        public void OnIndexMoving(int oldIndex, int newIndex)
+        {
+            this.isSelectedBinder.Detach();
             this.wasFocusedBeforeMoving = this.IsFocused;
         }
 
-        public void OnIndexMoved(int oldIndex, int newIndex) {
+        public void OnIndexMoved(int oldIndex, int newIndex)
+        {
             this.isSelectedBinder.Attach(this, this.Track);
             this.Height = this.Track.Height;
-            if (this.wasFocusedBeforeMoving) {
+            if (this.wasFocusedBeforeMoving)
+            {
                 this.wasFocusedBeforeMoving = false;
                 this.Focus();
             }
         }
 
-        #endregion
+#endregion
     }
 }

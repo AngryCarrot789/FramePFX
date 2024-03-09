@@ -29,8 +29,10 @@ using FramePFX.Utils.Accessing;
 using FramePFX.Utils.Disposable;
 using SkiaSharp;
 
-namespace FramePFX.Editors.Timelines.Tracks {
-    public class VideoTrack : Track {
+namespace FramePFX.Editors.Timelines.Tracks
+{
+    public class VideoTrack : Track
+    {
         public static readonly ParameterDouble OpacityParameter =
             Parameter.RegisterDouble(
                 typeof(VideoTrack),
@@ -40,13 +42,13 @@ namespace FramePFX.Editors.Timelines.Tracks {
                 ValueAccessors.LinqExpression<double>(typeof(VideoTrack), nameof(Opacity)),
                 ParameterFlags.StandardProjectVisual);
 
-        public static readonly ParameterBoolean VisibleParameter =                   Parameter.RegisterBoolean(typeof(VideoTrack), nameof(VideoTrack), nameof(Visible), true, ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(Visible)), ParameterFlags.StandardProjectVisual);
-        public static readonly ParameterVector2 MediaPositionParameter =             Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaPosition),             ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaPosition)), ParameterFlags.StandardProjectVisual);
-        public static readonly ParameterVector2 MediaScaleParameter =                Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaScale), Vector2.One,   ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaScale)), ParameterFlags.StandardProjectVisual);
-        public static readonly ParameterVector2 MediaScaleOriginParameter =          Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaScaleOrigin),          ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaScaleOrigin)), ParameterFlags.StandardProjectVisual);
-        public static readonly ParameterBoolean UseAbsoluteScaleOriginParameter =    Parameter.RegisterBoolean(typeof(VideoTrack), nameof(VideoTrack), nameof(UseAbsoluteScaleOrigin),    ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(UseAbsoluteScaleOrigin)), ParameterFlags.StandardProjectVisual);
-        public static readonly ParameterDouble MediaRotationParameter =              Parameter.RegisterDouble(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaRotation),              ValueAccessors.LinqExpression<double>(typeof(VideoTrack), nameof(MediaRotation)), ParameterFlags.StandardProjectVisual);
-        public static readonly ParameterVector2 MediaRotationOriginParameter =       Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaRotationOrigin),       ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaRotationOrigin)), ParameterFlags.StandardProjectVisual);
+        public static readonly ParameterBoolean VisibleParameter = Parameter.RegisterBoolean(typeof(VideoTrack), nameof(VideoTrack), nameof(Visible), true, ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(Visible)), ParameterFlags.StandardProjectVisual);
+        public static readonly ParameterVector2 MediaPositionParameter = Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaPosition), ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaPosition)), ParameterFlags.StandardProjectVisual);
+        public static readonly ParameterVector2 MediaScaleParameter = Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaScale), Vector2.One, ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaScale)), ParameterFlags.StandardProjectVisual);
+        public static readonly ParameterVector2 MediaScaleOriginParameter = Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaScaleOrigin), ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaScaleOrigin)), ParameterFlags.StandardProjectVisual);
+        public static readonly ParameterBoolean UseAbsoluteScaleOriginParameter = Parameter.RegisterBoolean(typeof(VideoTrack), nameof(VideoTrack), nameof(UseAbsoluteScaleOrigin), ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(UseAbsoluteScaleOrigin)), ParameterFlags.StandardProjectVisual);
+        public static readonly ParameterDouble MediaRotationParameter = Parameter.RegisterDouble(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaRotation), ValueAccessors.LinqExpression<double>(typeof(VideoTrack), nameof(MediaRotation)), ParameterFlags.StandardProjectVisual);
+        public static readonly ParameterVector2 MediaRotationOriginParameter = Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaRotationOrigin), ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaRotationOrigin)), ParameterFlags.StandardProjectVisual);
         public static readonly ParameterBoolean UseAbsoluteRotationOriginParameter = Parameter.RegisterBoolean(typeof(VideoTrack), nameof(VideoTrack), nameof(UseAbsoluteRotationOrigin), ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(UseAbsoluteRotationOrigin)), ParameterFlags.StandardProjectVisual);
 
         // Transformation data
@@ -67,8 +69,10 @@ namespace FramePFX.Editors.Timelines.Tracks {
         /// Gets (or calculates, if dirty) this track's transformation matrix which is based on our transformation properties
         /// </summary>
         public SKMatrix TransformationMatrix {
-            get {
-                if (this.isMatrixDirty) {
+            get
+            {
+                if (this.isMatrixDirty)
+                {
                     this.transformationMatrix = MatrixUtils.CreateTransformationMatrix(this.MediaPosition, this.MediaScale, this.MediaRotation, this.MediaScaleOrigin, this.MediaRotationOrigin);
                     this.isMatrixDirty = false;
                 }
@@ -77,7 +81,8 @@ namespace FramePFX.Editors.Timelines.Tracks {
             }
         }
 
-        private class TrackRenderData : IDisposable {
+        private class TrackRenderData : IDisposable
+        {
             public SKBitmap bitmap;
             public SKPixmap pixmap;
             public SKSurface surface;
@@ -87,7 +92,8 @@ namespace FramePFX.Editors.Timelines.Tracks {
             // which is what contains the area of actual pixels drawn
             public SKRect renderArea;
 
-            public void Dispose() {
+            public void Dispose()
+            {
                 this.bitmap?.Dispose();
                 this.bitmap = null;
                 this.pixmap?.Dispose();
@@ -104,7 +110,8 @@ namespace FramePFX.Editors.Timelines.Tracks {
         private List<VideoEffect> theEffectsToApplyToTrack;
         private double renderOpacity;
 
-        public VideoTrack() {
+        public VideoTrack()
+        {
             this.myRenderDataLock = new DisposableRef<TrackRenderData>(new TrackRenderData(), true);
             this.Opacity = OpacityParameter.Descriptor.DefaultValue;
             this.Visible = VisibleParameter.Descriptor.DefaultValue;
@@ -117,32 +124,39 @@ namespace FramePFX.Editors.Timelines.Tracks {
             this.UseAbsoluteRotationOrigin = UseAbsoluteRotationOriginParameter.Descriptor.DefaultValue;
         }
 
-        static VideoTrack() {
+        static VideoTrack()
+        {
             Parameter.AddMultipleHandlers(s => ((VideoTrack) s.AutomationData.Owner).InvalidateTransformationMatrix(), MediaPositionParameter, MediaScaleParameter, MediaScaleOriginParameter, UseAbsoluteScaleOriginParameter, MediaRotationParameter, MediaRotationOriginParameter, UseAbsoluteRotationOriginParameter);
         }
 
-        public override void Destroy() {
+        public override void Destroy()
+        {
             base.Destroy();
             this.myRenderDataLock.Dispose();
         }
 
-        public bool PrepareRenderFrame(SKImageInfo imgInfo, long frame, EnumRenderQuality quality) {
+        public bool PrepareRenderFrame(SKImageInfo imgInfo, long frame, EnumRenderQuality quality)
+        {
             VideoClip clip = (VideoClip) this.GetClipAtFrame(frame);
-            if (clip != null && VideoClip.IsVisibleParameter.GetValue(clip)) {
+            if (clip != null && VideoClip.IsVisibleParameter.GetValue(clip))
+            {
                 PreRenderContext ctx = new PreRenderContext(imgInfo, quality);
-                if (!clip.PrepareRenderFrame(ctx, frame - clip.FrameSpan.Begin)) {
+                if (!clip.PrepareRenderFrame(ctx, frame - clip.FrameSpan.Begin))
+                {
                     return false;
                 }
 
                 clip.RenderOpacity = VideoClip.OpacityParameter.GetCurrentValue(clip);
                 List<VideoEffect> trackEffects = new List<VideoEffect>();
-                foreach (VideoEffect videoFx in InternalGetEffectListUnsafe(this)) {
+                foreach (VideoEffect videoFx in InternalGetEffectListUnsafe(this))
+                {
                     videoFx.PrepareRender(ctx, frame);
                     trackEffects.Add(videoFx);
                 }
 
                 List<VideoEffect> clipEffects = new List<VideoEffect>();
-                foreach (VideoEffect videoFx in Clip.InternalGetEffectListUnsafe(clip)) {
+                foreach (VideoEffect videoFx in Clip.InternalGetEffectListUnsafe(clip))
+                {
                     videoFx.PrepareRender(ctx, frame);
                     clipEffects.Add(videoFx);
                 }
@@ -158,11 +172,14 @@ namespace FramePFX.Editors.Timelines.Tracks {
         }
 
         // CALLED ON A RENDER THREAD
-        public void RenderVideoFrame(SKImageInfo imgInfo, EnumRenderQuality quality) {
+        public void RenderVideoFrame(SKImageInfo imgInfo, EnumRenderQuality quality)
+        {
             DisposableRef<TrackRenderData> locker = this.myRenderDataLock;
             TrackRenderData rd = locker.Value;
-            lock (locker) {
-                if (!locker.TryBeginUsage() || rd.surfaceInfo != imgInfo) {
+            lock (locker)
+            {
+                if (!locker.TryBeginUsage() || rd.surfaceInfo != imgInfo)
+                {
                     rd.Dispose();
                     rd.surface?.Dispose();
                     rd.bitmap?.Dispose();
@@ -178,7 +195,8 @@ namespace FramePFX.Editors.Timelines.Tracks {
                 }
             }
 
-            if (this.theClipToRender != null) {
+            if (this.theClipToRender != null)
+            {
                 rd.surface.Canvas.Clear(SKColors.Transparent);
                 Exception renderException = null;
                 SKPaint transparency = null;
@@ -186,32 +204,38 @@ namespace FramePFX.Editors.Timelines.Tracks {
                 RenderContext ctx = new RenderContext(imgInfo, rd.surface, rd.bitmap, rd.pixmap, quality);
                 int trackSaveCount = ctx.Canvas.Save();
                 ctx.Canvas.SetMatrix(ctx.Canvas.TotalMatrix.PreConcat(this.TransformationMatrix));
-                foreach (VideoEffect fx in this.theEffectsToApplyToTrack) {
+                foreach (VideoEffect fx in this.theEffectsToApplyToTrack)
+                {
                     fx.PreProcessFrame(ctx);
                 }
 
                 int clipSaveCount = RenderManager.BeginClipOpacityLayer(ctx.Canvas, this.theClipToRender, ref transparency);
                 ctx.Canvas.SetMatrix(ctx.Canvas.TotalMatrix.PreConcat(this.theClipToRender.ClipTransformationMatrix));
-                foreach (VideoEffect fx in this.theEffectsToApplyToClip) {
+                foreach (VideoEffect fx in this.theEffectsToApplyToClip)
+                {
                     fx.PreProcessFrame(ctx);
                 }
 
                 SKRect frameArea = new SKRect(0, 0, imgInfo.Width, imgInfo.Height);
                 SKRect renderArea = frameArea;
-                try {
+                try
+                {
                     this.theClipToRender.RenderFrame(ctx, ref renderArea);
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     renderException = e;
                 }
 
                 renderArea = renderArea.ClampMinMax(frameArea);
 
-                foreach (VideoEffect fx in this.theEffectsToApplyToClip) {
+                foreach (VideoEffect fx in this.theEffectsToApplyToClip)
+                {
                     fx.PostProcessFrame(ctx, ref renderArea);
                 }
 
-                foreach (VideoEffect fx in this.theEffectsToApplyToTrack) {
+                foreach (VideoEffect fx in this.theEffectsToApplyToTrack)
+                {
                     fx.PostProcessFrame(ctx, ref renderArea);
                 }
 
@@ -221,7 +245,8 @@ namespace FramePFX.Editors.Timelines.Tracks {
                 this.theClipToRender = null;
                 this.theEffectsToApplyToClip = null;
                 this.theEffectsToApplyToTrack = null;
-                if (renderException != null) {
+                if (renderException != null)
+                {
                     throw renderException;
                 }
 
@@ -236,11 +261,14 @@ namespace FramePFX.Editors.Timelines.Tracks {
             locker.CompleteUsage();
         }
 
-        public void DrawFrameIntoSurface(SKSurface dstSurface, out SKRect usedRenderingArea) {
+        public void DrawFrameIntoSurface(SKSurface dstSurface, out SKRect usedRenderingArea)
+        {
             DisposableRef<TrackRenderData> rdw = this.myRenderDataLock;
             TrackRenderData rd = rdw.Value;
-            lock (rdw) {
-                if (!rdw.TryBeginUsage()) {
+            lock (rdw)
+            {
+                if (!rdw.TryBeginUsage())
+                {
                     usedRenderingArea = default;
                     return;
                 }
@@ -248,14 +276,18 @@ namespace FramePFX.Editors.Timelines.Tracks {
 
             SKRect frameRect = rd.surfaceInfo.ToRect();
             SKRect usedArea = rd.renderArea.ClampMinMax(frameRect);
-            if (usedArea.Width > 0 && usedArea.Height > 0) {
-                using (SKPaint paint = new SKPaint {Color = new SKColor(255, 255, 255, RenderUtils.DoubleToByte255(this.renderOpacity))}) {
-                    if (usedArea == frameRect) {
+            if (usedArea.Width > 0 && usedArea.Height > 0)
+            {
+                using (SKPaint paint = new SKPaint {Color = new SKColor(255, 255, 255, RenderUtils.DoubleToByte255(this.renderOpacity))})
+                {
+                    if (usedArea == frameRect)
+                    {
                         // clip rendered to the whole frame or did not use optimisations, therefore
                         // skia's surface draw might be generally faster... maybe?
                         rd.surface.Draw(dstSurface.Canvas, 0, 0, paint);
                     }
-                    else {
+                    else
+                    {
                         // clip only drew to a part of the screen, so only draw that part
 
                         // While this works, having to create an image to wrap it isn't great...
@@ -267,7 +299,8 @@ namespace FramePFX.Editors.Timelines.Tracks {
                         // dstSurface.Canvas.DrawBitmap(rd.bitmap, usedArea, usedArea, paint);
 
                         // Now this fucking works beautufilly!!!!!!!!!!!!!!!!
-                        using (SKImage img = SKImage.FromPixels(rd.surfaceInfo, rd.bitmap.GetPixels())) {
+                        using (SKImage img = SKImage.FromPixels(rd.surfaceInfo, rd.bitmap.GetPixels()))
+                        {
                             dstSurface.Canvas.DrawImage(img, usedArea, usedArea, paint);
                         }
 
@@ -278,7 +311,8 @@ namespace FramePFX.Editors.Timelines.Tracks {
                     usedRenderingArea = usedArea;
                 }
             }
-            else {
+            else
+            {
                 usedRenderingArea = default;
             }
 
@@ -289,9 +323,11 @@ namespace FramePFX.Editors.Timelines.Tracks {
 
         public override bool IsEffectTypeAccepted(Type effectType) => typeof(VideoEffect).IsAssignableFrom(effectType);
 
-        public void InvalidateTransformationMatrix() {
+        public void InvalidateTransformationMatrix()
+        {
             this.isMatrixDirty = true;
-            foreach (Clip clip in this.Clips) {
+            foreach (Clip clip in this.Clips)
+            {
                 ((VideoClip) clip).InvalidateTransformationMatrix();
             }
 

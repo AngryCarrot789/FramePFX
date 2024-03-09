@@ -17,7 +17,8 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
+namespace FramePFX.Editors.ResourceManaging.ResourceHelpers
+{
     // public delegate void EntryResourceChangedEventHandler(IBaseResourcePathKey key, ResourceItem oldItem, ResourceItem newItem);
     // public delegate void EntryResourceModifiedEventHandler(IBaseResourcePathKey key, ResourceItem resource, string property);
     // public delegate void EntryOnlineStateChangedEventHandler(IBaseResourcePathKey key);

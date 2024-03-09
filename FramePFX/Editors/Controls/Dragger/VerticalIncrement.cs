@@ -17,8 +17,10 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Editors.Controls.Dragger {
-    public enum VerticalIncrement {
+namespace FramePFX.Editors.Controls.Dragger
+{
+    public enum VerticalIncrement
+    {
         /// <summary>
         /// Decrement the value when dragged up, and increment when dragged down (default)
         /// </summary>

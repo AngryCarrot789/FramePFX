@@ -32,7 +32,8 @@ using FramePFX.History;
 using FramePFX.PropertyEditing;
 using FramePFX.Utils.Destroying;
 
-namespace FramePFX.Editors {
+namespace FramePFX.Editors
+{
     public delegate void ProjectChangedEventHandler(VideoEditor editor, Project oldProject, Project newProject);
 
     /// <summary>
@@ -43,7 +44,8 @@ namespace FramePFX.Editors {
     /// <summary>
     /// The class which stores all of the data for the video editor application
     /// </summary>
-    public class VideoEditor : IDestroy {
+    public class VideoEditor : IDestroy
+    {
         private bool showClipAutomation;
         private bool showTrackAutomation;
 
@@ -61,7 +63,8 @@ namespace FramePFX.Editors {
 
         public bool ShowClipAutomation {
             get => this.showClipAutomation;
-            set {
+            set
+            {
                 if (this.showClipAutomation == value)
                     return;
                 this.showClipAutomation = value;
@@ -71,7 +74,8 @@ namespace FramePFX.Editors {
 
         public bool ShowTrackAutomation {
             get => this.showTrackAutomation;
-            set {
+            set
+            {
                 if (this.showTrackAutomation == value)
                     return;
                 this.showTrackAutomation = value;
@@ -83,7 +87,8 @@ namespace FramePFX.Editors {
         public event VideoEditorEventHandler ShowClipAutomationChanged;
         public event VideoEditorEventHandler ShowTrackAutomationChanged;
 
-        public VideoEditor() {
+        public VideoEditor()
+        {
             this.HistoryManager = new HistoryManager();
             this.Playback = new PlaybackManager(this);
             this.Playback.SetFrameRate(new Rational(1, 1));
@@ -91,8 +96,10 @@ namespace FramePFX.Editors {
             this.showClipAutomation = true;
         }
 
-        public void LoadDefaultProject() {
-            if (this.Project != null) {
+        public void LoadDefaultProject()
+        {
+            if (this.Project != null)
+            {
                 throw new Exception("A project is already loaded");
             }
 
@@ -109,7 +116,8 @@ namespace FramePFX.Editors {
             ResourceColour id_d = folder.AddItemAndRet(new ResourceColour(50, 100, 220) {DisplayName = "idek"});
 
             {
-                VideoTrack track = new VideoTrack() {
+                VideoTrack track = new VideoTrack()
+                {
                     DisplayName = "Track 1 with stuff"
                 };
                 project.MainTimeline.AddTrack(track);
@@ -118,7 +126,8 @@ namespace FramePFX.Editors {
                 track.AutomationData[VideoTrack.OpacityParameter].AddKeyFrame(new KeyFrameDouble(100, 1d));
                 track.AutomationData.ActiveParameter = VideoTrack.OpacityParameter.Key;
 
-                VideoClipShape clip1 = new VideoClipShape {
+                VideoClipShape clip1 = new VideoClipShape
+                {
                     FrameSpan = new FrameSpan(0, 120),
                     DisplayName = "Clip colour_red"
                 };
@@ -129,7 +138,8 @@ namespace FramePFX.Editors {
                 clip1.AutomationData.UpdateBackingStorage();
                 track.AddClip(clip1);
 
-                VideoClipShape clip2 = new VideoClipShape {
+                VideoClipShape clip2 = new VideoClipShape
+                {
                     FrameSpan = new FrameSpan(150, 30),
                     DisplayName = "Clip colour_green"
                 };
@@ -145,7 +155,8 @@ namespace FramePFX.Editors {
                 VideoTrack track = new VideoTrack() {DisplayName = "Track 2"};
                 project.MainTimeline.AddTrack(track);
 
-                VideoClipShape clip1 = new VideoClipShape {
+                VideoClipShape clip1 = new VideoClipShape
+                {
                     FrameSpan = new FrameSpan(300, 90),
                     DisplayName = "Clip colour_blue"
                 };
@@ -155,7 +166,8 @@ namespace FramePFX.Editors {
                 clip1.ColourKey.SetTargetResourceId(id_b.UniqueId);
                 clip1.AutomationData.UpdateBackingStorage();
                 track.AddClip(clip1);
-                VideoClipShape clip2 = new VideoClipShape {
+                VideoClipShape clip2 = new VideoClipShape
+                {
                     FrameSpan = new FrameSpan(15, 130),
                     DisplayName = "Clip blueish"
                 };
@@ -172,12 +184,14 @@ namespace FramePFX.Editors {
             }
 
             {
-                VideoTrack empty = new VideoTrack() {
+                VideoTrack empty = new VideoTrack()
+                {
                     DisplayName = "Empty Track"
                 };
                 project.MainTimeline.AddTrack(empty);
 
-                AudioTrack audio = new AudioTrack() {
+                AudioTrack audio = new AudioTrack()
+                {
                     DisplayName = "Audio!!!"
                 };
                 audio.AddClip(new AudioClip() {FrameSpan = new FrameSpan(0, 200), DisplayName = "An audio clip"});
@@ -189,7 +203,8 @@ namespace FramePFX.Editors {
             Debug.Assert(project.IsModified == false, "Expected editor not to modify project while setting it as the active project");
         }
 
-        public void SetProject(Project project) {
+        public void SetProject(Project project)
+        {
             if (this.Project != null)
                 throw new Exception("A project is already loaded; it must be unloaded first (CloseProject)");
             if (project == null)
@@ -208,14 +223,17 @@ namespace FramePFX.Editors {
             this.ProjectChanged?.Invoke(this, null, project);
             VideoEditorPropertyEditor.Instance.OnProjectChanged();
 
-            IoC.Dispatcher.InvokeAsync(() => {
+            IoC.Dispatcher.InvokeAsync(() =>
+            {
                 this.Project?.ActiveTimeline.InvalidateRender();
             }, DispatcherPriority.Background);
         }
 
-        public void CloseProject() {
+        public void CloseProject()
+        {
             Project oldProject = this.Project;
-            if (oldProject == null) {
+            if (oldProject == null)
+            {
                 throw new Exception("There is no project opened");
             }
 
@@ -228,15 +246,18 @@ namespace FramePFX.Editors {
             this.HistoryManager.Clear();
         }
 
-        private void OnProjectFrameRateChanged(ProjectSettings settings) {
+        private void OnProjectFrameRateChanged(ProjectSettings settings)
+        {
             this.Playback.SetFrameRate(settings.FrameRate);
         }
 
-        internal static void InternalOnActiveTimelineChanged(VideoEditor editor, Timeline oldTimeline, Timeline newTimeline) {
+        internal static void InternalOnActiveTimelineChanged(VideoEditor editor, Timeline oldTimeline, Timeline newTimeline)
+        {
             PlaybackManager.InternalOnActiveTimelineChanged(editor.Playback, oldTimeline, newTimeline);
         }
 
-        public void Destroy() {
+        public void Destroy()
+        {
             this.Playback.StopTimer();
         }
     }

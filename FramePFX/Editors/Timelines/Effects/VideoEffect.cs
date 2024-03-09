@@ -22,8 +22,10 @@ using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
 using SkiaSharp;
 
-namespace FramePFX.Editors.Timelines.Effects {
-    public abstract class VideoEffect : BaseEffect {
+namespace FramePFX.Editors.Timelines.Effects
+{
+    public abstract class VideoEffect : BaseEffect
+    {
         /// <summary>
         /// Casts <see cref="Owner"/> to a <see cref="VideoClip"/>
         /// </summary>
@@ -42,7 +44,8 @@ namespace FramePFX.Editors.Timelines.Effects {
         /// </summary>
         public SKRect ClipRenderArea { get; set; }
 
-        protected VideoEffect() {
+        protected VideoEffect()
+        {
         }
 
         public override bool IsObjectValidForOwner(IHaveEffects owner) => owner is VideoClip || owner is VideoTrack;
@@ -55,7 +58,8 @@ namespace FramePFX.Editors.Timelines.Effects {
         /// </summary>
         /// <param name="ctx">The pre-render setup context information</param>
         /// <param name="frame">The frame, relative to the clip, being rendered</param>
-        public virtual void PrepareRender(PreRenderContext ctx, long frame) {
+        public virtual void PrepareRender(PreRenderContext ctx, long frame)
+        {
         }
 
         /// <summary>
@@ -66,7 +70,8 @@ namespace FramePFX.Editors.Timelines.Effects {
         /// </para>
         /// </summary>
         /// <param name="rc">The rendering context</param>
-        public virtual void PreProcessFrame(RenderContext rc) {
+        public virtual void PreProcessFrame(RenderContext rc)
+        {
         }
 
         /// <summary>
@@ -90,7 +95,8 @@ namespace FramePFX.Editors.Timelines.Effects {
         /// effects extending <see cref="ITransformationEffect"/> shouldn't really need to modify this
         /// </para>
         /// </param>
-        public virtual void PostProcessFrame(RenderContext rc, ref SKRect renderArea) {
+        public virtual void PostProcessFrame(RenderContext rc, ref SKRect renderArea)
+        {
         }
     }
 }

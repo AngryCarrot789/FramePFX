@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Editors.Controls.Dragger {
+namespace FramePFX.Editors.Controls.Dragger
+{
     public delegate void EditStartEventHandler(object sender, EditStartEventArgs e);
 }

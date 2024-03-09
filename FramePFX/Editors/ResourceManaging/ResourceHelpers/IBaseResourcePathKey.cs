@@ -17,11 +17,13 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
+namespace FramePFX.Editors.ResourceManaging.ResourceHelpers
+{
     /// <summary>
     /// The base interface for <see cref="IResourcePathKey{T}"/>, so that it can be used in a non-generic context
     /// </summary>
-    public interface IBaseResourcePathKey : IResourceHolder {
+    public interface IBaseResourcePathKey : IResourceHolder
+    {
         /// <summary>
         /// Gets the active resource link for this resource path entry. This returns null when the resource has not yet or could not
         /// be linked (empty ID, resource does not exist, or the resource does not pass the <see cref="IsItemTypeApplicable"/> test)

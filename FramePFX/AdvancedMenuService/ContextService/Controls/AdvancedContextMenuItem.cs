@@ -21,11 +21,13 @@ using System.Linq;
 using System.Windows.Controls;
 using FramePFX.Editors.Controls.Bindings;
 
-namespace FramePFX.AdvancedMenuService.ContextService.Controls {
+namespace FramePFX.AdvancedMenuService.ContextService.Controls
+{
     /// <summary>
     /// A menu item entry in a <see cref="AdvancedContextMenu"/> or <see cref="AdvancedContextMenuItem"/>
     /// </summary>
-    public class AdvancedContextMenuItem : MenuItem {
+    public class AdvancedContextMenuItem : MenuItem
+    {
         public AdvancedContextMenu Menu { get; private set; }
 
         public AdvancedContextMenuItem ParentNode { get; private set; }
@@ -37,30 +39,36 @@ namespace FramePFX.AdvancedMenuService.ContextService.Controls {
         private readonly IBinder<BaseContextEntry> headerBinder = new GetSetAutoEventPropertyBinder<BaseContextEntry>(HeaderProperty, nameof(BaseContextEntry.HeaderChanged), b => b.Model.Header, (b, v) => b.Model.Header = v?.ToString());
         private readonly IBinder<BaseContextEntry> toolTipBinder = new GetSetAutoEventPropertyBinder<BaseContextEntry>(ToolTipProperty, nameof(BaseContextEntry.DescriptionChanged), b => b.Model.Description, (b, v) => b.Model.Description = v?.ToString());
 
-        public AdvancedContextMenuItem() {
+        public AdvancedContextMenuItem()
+        {
         }
 
-        public virtual void OnAdding(AdvancedContextMenu menu, AdvancedContextMenuItem parent, BaseContextEntry entry) {
+        public virtual void OnAdding(AdvancedContextMenu menu, AdvancedContextMenuItem parent, BaseContextEntry entry)
+        {
             this.Menu = menu;
             this.ParentNode = parent;
             this.Entry = entry;
         }
 
-        public virtual void OnAdded() {
+        public virtual void OnAdded()
+        {
             this.headerBinder.Attach(this, this.Entry);
             this.toolTipBinder.Attach(this, this.Entry);
-            if (this.Entry.Children != null) {
+            if (this.Entry.Children != null)
+            {
                 AdvancedContextMenu.InsertItemNodes(this.Menu, this, this.Entry.Children.ToList());
             }
         }
 
-        public virtual void OnRemoving() {
-            this.headerBinder.Detatch();
-            this.toolTipBinder.Detatch();
+        public virtual void OnRemoving()
+        {
+            this.headerBinder.Detach();
+            this.toolTipBinder.Detach();
             AdvancedContextMenu.ClearItemNodes(this);
         }
 
-        public virtual void OnRemoved() {
+        public virtual void OnRemoved()
+        {
             this.Menu = null;
             this.ParentNode = null;
             this.Entry = null;

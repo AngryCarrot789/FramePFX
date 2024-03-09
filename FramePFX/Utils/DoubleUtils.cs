@@ -21,12 +21,15 @@ using System;
 using System.Runtime.InteropServices;
 using System.Windows;
 
-namespace FramePFX.Utils {
-    public class DoubleUtils {
+namespace FramePFX.Utils
+{
+    public class DoubleUtils
+    {
         internal const double DBL_EPSILON = 2.22044604925031E-16;
         internal const float FLT_MIN = 1.175494E-38f;
 
-        public static bool AreClose(double a, double b) {
+        public static bool AreClose(double a, double b)
+        {
             if (a == b)
                 return true;
             double x = (Math.Abs(a) + Math.Abs(b) + 10.0) * 2.22044604925031E-16;
@@ -52,7 +55,8 @@ namespace FramePFX.Utils {
 
         public static bool AreClose(Vector vector1, Vector vector2) => DoubleUtils.AreClose(vector1.X, vector2.X) && DoubleUtils.AreClose(vector1.Y, vector2.Y);
 
-        public static bool AreClose(Rect rect1, Rect rect2) {
+        public static bool AreClose(Rect rect1, Rect rect2)
+        {
             if (rect1.IsEmpty)
                 return rect2.IsEmpty;
             return !rect2.IsEmpty && DoubleUtils.AreClose(rect1.X, rect2.X) && (DoubleUtils.AreClose(rect1.Y, rect2.Y) && AreClose(rect1.Height, rect2.Height)) && AreClose(rect1.Width, rect2.Width);
@@ -64,7 +68,8 @@ namespace FramePFX.Utils {
 
         public static bool RectHasNaN(Rect r) => IsNaN(r.X) || IsNaN(r.Y) || (IsNaN(r.Height) || IsNaN(r.Width));
 
-        public static bool IsNaN(double value) {
+        public static bool IsNaN(double value)
+        {
             NanUnion nanUnion = new NanUnion {DoubleValue = value};
             ulong num1 = nanUnion.UintValue & 18442240474082181120UL;
             ulong num2 = nanUnion.UintValue & 4503599627370495UL;
@@ -72,7 +77,8 @@ namespace FramePFX.Utils {
         }
 
         [StructLayout(LayoutKind.Explicit)]
-        private struct NanUnion {
+        private struct NanUnion
+        {
             [FieldOffset(0)] internal double DoubleValue;
             [FieldOffset(0)] internal ulong UintValue;
         }

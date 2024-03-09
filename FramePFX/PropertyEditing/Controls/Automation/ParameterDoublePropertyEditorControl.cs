@@ -23,24 +23,30 @@ using FramePFX.Editors.Controls.Dragger;
 using FramePFX.PropertyEditing.Automation;
 using FramePFX.Utils;
 
-namespace FramePFX.PropertyEditing.Controls.Automation {
-    public class ParameterDoublePropertyEditorControl : BaseNumberParameterPropEditorControl {
+namespace FramePFX.PropertyEditing.Controls.Automation
+{
+    public class ParameterDoublePropertyEditorControl : BaseNumberParameterPropEditorControl
+    {
         public new ParameterDoublePropertyEditorSlot SlotModel => (ParameterDoublePropertyEditorSlot) base.SlotControl.Model;
 
-        public ParameterDoublePropertyEditorControl() {
+        public ParameterDoublePropertyEditorControl()
+        {
         }
 
         static ParameterDoublePropertyEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(ParameterDoublePropertyEditorControl), new FrameworkPropertyMetadata(typeof(ParameterDoublePropertyEditorControl)));
 
-        protected override void UpdateControlValue() {
+        protected override void UpdateControlValue()
+        {
             this.dragger.Value = this.SlotModel.Value;
         }
 
-        protected override void UpdateModelValue() {
+        protected override void UpdateModelValue()
+        {
             this.SlotModel.Value = this.dragger.Value;
         }
 
-        protected override void OnConnected() {
+        protected override void OnConnected()
+        {
             base.OnConnected();
             ParameterDoublePropertyEditorSlot slot = this.SlotModel;
             ParameterDescriptorDouble desc = slot.Parameter.Descriptor;
@@ -53,7 +59,8 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
             this.dragger.LargeChange = profile.NormalStep;
             this.dragger.MassiveChange = profile.LargeStep;
 
-            if (slot.CanUsePercentageForUnitRange && DoubleUtils.AreClose(desc.Maximum - desc.Minimum, 1.0)) {
+            if (slot.CanUsePercentageForUnitRange && DoubleUtils.AreClose(desc.Maximum - desc.Minimum, 1.0))
+            {
                 this.dragger.PreviewValueFormatter = new UnitToPercentFormatter();
             }
         }

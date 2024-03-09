@@ -21,8 +21,10 @@ using System.Windows;
 using System.Windows.Controls;
 using FramePFX.Editors.EffectSource;
 
-namespace FramePFX.Editors.Controls.EffectProviding {
-    public class EffectProviderListBox : ListBox {
+namespace FramePFX.Editors.Controls.EffectProviding
+{
+    public class EffectProviderListBox : ListBox
+    {
         public static readonly DependencyProperty EffectProviderManagerProperty = DependencyProperty.Register("EffectProviderManager", typeof(EffectProviderManager), typeof(EffectProviderListBox), new PropertyMetadata(null, (d, e) => ((EffectProviderListBox) d).OnProviderManagerChanged((EffectProviderManager) e.OldValue, (EffectProviderManager) e.NewValue)));
 
         public EffectProviderManager EffectProviderManager {
@@ -35,27 +37,34 @@ namespace FramePFX.Editors.Controls.EffectProviding {
         /// </summary>
         public const string EffectProviderDropType = "PFXEffectSource_DropType";
 
-        public EffectProviderListBox() {
+        public EffectProviderListBox()
+        {
         }
 
-        private void OnProviderManagerChanged(EffectProviderManager oldManager, EffectProviderManager newManager) {
+        private void OnProviderManagerChanged(EffectProviderManager oldManager, EffectProviderManager newManager)
+        {
             if (oldManager == newManager)
                 return;
-            if (oldManager != null) {
-                for (int i = this.Items.Count - 1; i >= 0; i--) {
+            if (oldManager != null)
+            {
+                for (int i = this.Items.Count - 1; i >= 0; i--)
+                {
                     this.RemoveItemInternal(i);
                 }
             }
 
-            if (newManager != null) {
+            if (newManager != null)
+            {
                 int i = 0;
-                foreach (EffectProviderEntry entry in newManager.Entries) {
+                foreach (EffectProviderEntry entry in newManager.Entries)
+                {
                     this.InsertItemInternal(entry, i++);
                 }
             }
         }
 
-        private void InsertItemInternal(EffectProviderEntry entry, int index) {
+        private void InsertItemInternal(EffectProviderEntry entry, int index)
+        {
             EffectProviderListBoxItem control = new EffectProviderListBoxItem();
             control.OnAdding(this, entry);
             this.Items.Insert(index, control);
@@ -66,7 +75,8 @@ namespace FramePFX.Editors.Controls.EffectProviding {
             control.OnAdded();
         }
 
-        private void RemoveItemInternal(int index) {
+        private void RemoveItemInternal(int index)
+        {
             EffectProviderListBoxItem control = (EffectProviderListBoxItem) this.Items[index];
             control.OnRemoving();
             this.Items.RemoveAt(index);

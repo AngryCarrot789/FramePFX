@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Shortcuts.Events {
+namespace FramePFX.Shortcuts.Events
+{
     public delegate void ShortcutModifiedEventHandler<in T>(T sender, IShortcut oldValue);
 }

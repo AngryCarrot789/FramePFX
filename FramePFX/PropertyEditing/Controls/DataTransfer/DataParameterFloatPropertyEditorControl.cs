@@ -22,24 +22,30 @@ using FramePFX.Editors.DataTransfer;
 using FramePFX.PropertyEditing.Automation;
 using FramePFX.PropertyEditing.DataTransfer;
 
-namespace FramePFX.PropertyEditing.Controls.DataTransfer {
-    public class DataParameterFloatPropertyEditorControl : BaseNumberDataParamPropEditorControl {
+namespace FramePFX.PropertyEditing.Controls.DataTransfer
+{
+    public class DataParameterFloatPropertyEditorControl : BaseNumberDataParamPropEditorControl
+    {
         public new DataParameterFloatPropertyEditorSlot SlotModel => (DataParameterFloatPropertyEditorSlot) base.SlotControl.Model;
 
-        public DataParameterFloatPropertyEditorControl() {
+        public DataParameterFloatPropertyEditorControl()
+        {
         }
 
         static DataParameterFloatPropertyEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(DataParameterFloatPropertyEditorControl), new FrameworkPropertyMetadata(typeof(DataParameterFloatPropertyEditorControl)));
 
-        protected override void UpdateControlValue() {
+        protected override void UpdateControlValue()
+        {
             this.dragger.Value = this.SlotModel.Value;
         }
 
-        protected override void UpdateModelValue() {
+        protected override void UpdateModelValue()
+        {
             this.SlotModel.Value = (float) this.dragger.Value;
         }
 
-        protected override void OnConnected() {
+        protected override void OnConnected()
+        {
             base.OnConnected();
             DataParameterFloatPropertyEditorSlot slot = this.SlotModel;
             DataParameterFloat param = slot.DataParameter;

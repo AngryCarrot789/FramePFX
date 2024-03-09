@@ -23,7 +23,8 @@ using System.Threading;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Utils.Accessing;
 
-namespace FramePFX.Editors.DataTransfer {
+namespace FramePFX.Editors.DataTransfer
+{
     public delegate void DataParameterValueChangedEventHandler(DataParameter parameter, ITransferableData owner);
 
     /// <summary>
@@ -35,7 +36,8 @@ namespace FramePFX.Editors.DataTransfer {
     /// which provides mechanisms to Get/Set the value
     /// </para>
     /// </summary>
-    public abstract class DataParameter : IEquatable<DataParameter>, IComparable<DataParameter> {
+    public abstract class DataParameter : IEquatable<DataParameter>, IComparable<DataParameter>
+    {
         private static readonly Dictionary<string, DataParameter> RegistryMap;
         private static readonly Dictionary<Type, List<DataParameter>> TypeToParametersMap;
 
@@ -69,7 +71,8 @@ namespace FramePFX.Editors.DataTransfer {
 
         public event DataParameterValueChangedEventHandler ValueChanged;
 
-        protected DataParameter(Type ownerType, string key, DataParameterFlags flags) {
+        protected DataParameter(Type ownerType, string key, DataParameterFlags flags)
+        {
             if (ownerType == null)
                 throw new ArgumentNullException(nameof(ownerType));
             if (string.IsNullOrWhiteSpace(key))
@@ -84,13 +87,15 @@ namespace FramePFX.Editors.DataTransfer {
         /// </summary>
         /// <param name="handler">The handler to add</param>
         /// <param name="parameters">The parameters to add an event handler for</param>
-        public static void AddMultipleHandlers(DataParameterValueChangedEventHandler handler, params DataParameter[] parameters) {
-            foreach (DataParameter parameter in parameters) {
+        public static void AddMultipleHandlers(DataParameterValueChangedEventHandler handler, params DataParameter[] parameters)
+        {
+            foreach (DataParameter parameter in parameters)
+            {
                 parameter.ValueChanged += handler;
             }
         }
 
-        #region Registering parameters
+#region Registering parameters
 
         /// <summary>
         /// Registers the given parameter
@@ -99,13 +104,16 @@ namespace FramePFX.Editors.DataTransfer {
         /// <returns></returns>
         /// <exception cref="InvalidOperationException">The parameter was already registered</exception>
         /// <exception cref="Exception">The parameter's key is already in use</exception>
-        public static T Register<T>(T parameter) where T : DataParameter {
+        public static T Register<T>(T parameter) where T : DataParameter
+        {
             RegisterCore(parameter);
             return parameter;
         }
 
-        private static void RegisterCore(DataParameter parameter) {
-            if (parameter.GlobalIndex != 0) {
+        private static void RegisterCore(DataParameter parameter)
+        {
+            if (parameter.GlobalIndex != 0)
+            {
                 throw new InvalidOperationException("Data parameter was already registered with a global index of " + parameter.GlobalIndex);
             }
 
@@ -113,8 +121,10 @@ namespace FramePFX.Editors.DataTransfer {
             while (Interlocked.CompareExchange(ref RegistrationFlag, 1, 0) != 0)
                 Thread.SpinWait(32);
 
-            try {
-                if (RegistryMap.TryGetValue(path, out DataParameter existingParameter)) {
+            try
+            {
+                if (RegistryMap.TryGetValue(path, out DataParameter existingParameter))
+                {
                     throw new Exception($"Key already exists with the ID '{path}': {existingParameter}");
                 }
 
@@ -124,27 +134,32 @@ namespace FramePFX.Editors.DataTransfer {
                 list.Add(parameter);
                 parameter.GlobalIndex = NextGlobalIndex++;
             }
-            finally {
+            finally
+            {
                 RegistrationFlag = 0;
             }
         }
 
-        #endregion
+#endregion
 
-        static DataParameter() {
+        static DataParameter()
+        {
             RegistryMap = new Dictionary<string, DataParameter>();
             TypeToParametersMap = new Dictionary<Type, List<DataParameter>>();
         }
 
-        public bool IsValueChanging(ITransferableData owner) {
+        public bool IsValueChanging(ITransferableData owner)
+        {
             return owner.TransferableData.IsValueChanging(this);
         }
 
-        public void AddValueChangedHandler(ITransferableData owner, DataParameterValueChangedEventHandler handler) {
+        public void AddValueChangedHandler(ITransferableData owner, DataParameterValueChangedEventHandler handler)
+        {
             owner.TransferableData.AddValueChangedHandler(this, handler);
         }
 
-        public void RemoveValueChangedHandler(ITransferableData owner, DataParameterValueChangedEventHandler handler) {
+        public void RemoveValueChangedHandler(ITransferableData owner, DataParameterValueChangedEventHandler handler)
+        {
             owner.TransferableData.RemoveValueChangedHandler(this, handler);
         }
 
@@ -167,7 +182,8 @@ namespace FramePFX.Editors.DataTransfer {
         /// data corruption due to value change events not being fired
         /// </summary>
         /// <param name="owner">The owner whose value is going to be changed</param>
-        protected virtual void OnBeginValueChange(ITransferableData owner) {
+        protected virtual void OnBeginValueChange(ITransferableData owner)
+        {
             TransferableData.InternalBeginValueChange(this, owner);
         }
 
@@ -176,33 +192,41 @@ namespace FramePFX.Editors.DataTransfer {
         /// in <see cref="OnBeginValueChange"/>, except now we need to finalize the states
         /// </summary>
         /// <param name="owner">The owner whose value has now changed</param>
-        protected virtual void OnEndValueChange(ITransferableData owner) {
+        protected virtual void OnEndValueChange(ITransferableData owner)
+        {
             TransferableData.InternalEndValueChange(this, owner);
         }
 
-        protected void OnEndValueChangeHelper(ITransferableData owner, ref Exception e) {
-            try {
+        protected void OnEndValueChangeHelper(ITransferableData owner, ref Exception e)
+        {
+            try
+            {
                 this.OnEndValueChange(owner);
             }
-            catch (Exception exception) {
+            catch (Exception exception)
+            {
                 e = e != null
                     ? new AggregateException("An exception occurred while updating the value and finalizing the transaction", e, exception)
                     : new Exception("An exception occurred while processing the end of a value change transaction", exception);
             }
         }
 
-        public static DataParameter GetParameterByKey(string key) {
+        public static DataParameter GetParameterByKey(string key)
+        {
             if (!TryGetParameterByKey(key, out DataParameter parameter))
                 throw new Exception("No such parameter with the key: " + key);
             return parameter;
         }
 
-        public static DataParameter GetParameterByKey(string key, DataParameter def) {
+        public static DataParameter GetParameterByKey(string key, DataParameter def)
+        {
             return TryGetParameterByKey(key, out DataParameter parameter) ? parameter : def;
         }
 
-        public static bool TryGetParameterByKey(string key, out DataParameter parameter) {
-            if (key == null) {
+        public static bool TryGetParameterByKey(string key, out DataParameter parameter)
+        {
+            if (key == null)
+            {
                 parameter = null;
                 return false;
             }
@@ -210,19 +234,23 @@ namespace FramePFX.Editors.DataTransfer {
             while (Interlocked.CompareExchange(ref RegistrationFlag, 2, 0) != 0)
                 Thread.Sleep(1);
 
-            try {
+            try
+            {
                 return RegistryMap.TryGetValue(key, out parameter);
             }
-            finally {
+            finally
+            {
                 RegistrationFlag = 0;
             }
         }
 
-        public bool Equals(DataParameter other) {
+        public bool Equals(DataParameter other)
+        {
             return !ReferenceEquals(other, null) && this.GlobalIndex == other.GlobalIndex;
         }
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             return obj is DataParameter parameter && this.GlobalIndex == parameter.GlobalIndex;
         }
 
@@ -230,7 +258,8 @@ namespace FramePFX.Editors.DataTransfer {
         // ReSharper disable once NonReadonlyMemberInGetHashCode
         public override int GetHashCode() => this.GlobalIndex;
 
-        public int CompareTo(DataParameter other) {
+        public int CompareTo(DataParameter other)
+        {
             if (ReferenceEquals(this, other))
                 return 0;
             if (ReferenceEquals(null, other))
@@ -246,15 +275,20 @@ namespace FramePFX.Editors.DataTransfer {
         /// When true, it will also accumulate the parameters of every base type. When false,
         /// it just gets the parameters for the exact given type (parameters whose owner types match)</param>
         /// <returns>An enumerable of parameters</returns>
-        public static List<DataParameter> GetApplicableParameters(Type targetType, bool inHierarchy = true) {
+        public static List<DataParameter> GetApplicableParameters(Type targetType, bool inHierarchy = true)
+        {
             List<DataParameter> parameters = new List<DataParameter>();
-            if (TypeToParametersMap.TryGetValue(targetType, out List<DataParameter> list)) {
+            if (TypeToParametersMap.TryGetValue(targetType, out List<DataParameter> list))
+            {
                 parameters.AddRange(list);
             }
 
-            if (inHierarchy) {
-                for (Type bType = targetType.BaseType; bType != null; bType = bType.BaseType) {
-                    if (TypeToParametersMap.TryGetValue(bType, out list)) {
+            if (inHierarchy)
+            {
+                for (Type bType = targetType.BaseType; bType != null; bType = bType.BaseType)
+                {
+                    if (TypeToParametersMap.TryGetValue(bType, out list))
+                    {
                         parameters.AddRange(list);
                     }
                 }
@@ -263,7 +297,8 @@ namespace FramePFX.Editors.DataTransfer {
             return parameters;
         }
 
-        internal static void InternalOnParameterValueChanged(DataParameter parameter, ITransferableData owner) {
+        internal static void InternalOnParameterValueChanged(DataParameter parameter, ITransferableData owner)
+        {
             parameter.ValueChanged?.Invoke(parameter, owner);
         }
 
@@ -277,11 +312,14 @@ namespace FramePFX.Editors.DataTransfer {
         /// <param name="field">A ref to the backing value field</param>
         /// <param name="newValue">The new value to set the property or field to</param>
         /// <typeparam name="T">The type of value</typeparam>
-        public static void SetValueHelper<T>(ITransferableData owner, DataParameter<T> parameter, ref T field, T newValue) {
-            if (parameter.IsValueChanging(owner)) {
+        public static void SetValueHelper<T>(ITransferableData owner, DataParameter<T> parameter, ref T field, T newValue)
+        {
+            if (parameter.IsValueChanging(owner))
+            {
                 field = newValue;
             }
-            else {
+            else
+            {
                 parameter.SetValue(owner, newValue);
             }
         }
@@ -294,20 +332,23 @@ namespace FramePFX.Editors.DataTransfer {
     /// </para>
     /// </summary>
     /// <typeparam name="T">The type of value this data parameter deals with</typeparam>
-    public class DataParameter<T> : DataParameter {
+    public class DataParameter<T> : DataParameter
+    {
         private readonly ValueAccessor<T> accessor;
         protected readonly bool isObjectAccessPreferred;
 
         public T DefaultValue { get; }
 
-        public DataParameter(Type ownerType, string key, ValueAccessor<T> accessor, DataParameterFlags flags = DataParameterFlags.None) : base(ownerType, key, flags) {
+        public DataParameter(Type ownerType, string key, ValueAccessor<T> accessor, DataParameterFlags flags = DataParameterFlags.None) : base(ownerType, key, flags)
+        {
             if (accessor == null)
                 throw new ArgumentNullException(nameof(accessor));
             this.accessor = accessor;
             this.isObjectAccessPreferred = accessor.IsObjectPreferred;
         }
 
-        public DataParameter(Type ownerType, string key, T defaultValue, ValueAccessor<T> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, key, accessor, flags) {
+        public DataParameter(Type ownerType, string key, T defaultValue, ValueAccessor<T> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, key, accessor, flags)
+        {
             this.DefaultValue = defaultValue;
         }
 
@@ -316,7 +357,8 @@ namespace FramePFX.Editors.DataTransfer {
         /// </summary>
         /// <param name="owner">The owner instance</param>
         /// <returns>The generic value</returns>
-        public virtual T GetValue(ITransferableData owner) {
+        public virtual T GetValue(ITransferableData owner)
+        {
             return this.accessor.GetValue(owner);
         }
 
@@ -325,34 +367,43 @@ namespace FramePFX.Editors.DataTransfer {
         /// </summary>
         /// <param name="owner">The owner instance</param>
         /// <param name="value">The new value</param>
-        public virtual void SetValue(ITransferableData owner, T value) {
+        public virtual void SetValue(ITransferableData owner, T value)
+        {
             this.OnBeginValueChange(owner);
             Exception error = null;
-            try {
+            try
+            {
                 this.accessor.SetValue(owner, value);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 error = e;
             }
-            finally {
+            finally
+            {
                 this.OnEndValueChangeHelper(owner, ref error);
             }
         }
 
-        public override object GetObjectValue(ITransferableData owner) {
+        public override object GetObjectValue(ITransferableData owner)
+        {
             return this.accessor.GetObjectValue(owner);
         }
 
-        public override void SetObjectValue(ITransferableData owner, object value) {
+        public override void SetObjectValue(ITransferableData owner, object value)
+        {
             this.OnBeginValueChange(owner);
             Exception error = null;
-            try {
+            try
+            {
                 this.accessor.SetObjectValue(owner, value);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 error = e;
             }
-            finally {
+            finally
+            {
                 this.OnEndValueChangeHelper(owner, ref error);
             }
         }

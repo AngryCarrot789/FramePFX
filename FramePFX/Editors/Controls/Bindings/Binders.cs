@@ -20,14 +20,18 @@
 using System.Windows;
 using FramePFX.Utils.Accessing;
 
-namespace FramePFX.Editors.Controls.Bindings {
-    public static class Binders {
-        public static AccessorAutoEventPropertyBinder<TModel, TValue> AccessorAEDP<TModel, TValue>(DependencyProperty property, string eventName, string propertyOrFieldName) where TModel : class {
+namespace FramePFX.Editors.Controls.Bindings
+{
+    public static class Binders
+    {
+        public static AccessorAutoEventPropertyBinder<TModel, TValue> AccessorAEDP<TModel, TValue>(DependencyProperty property, string eventName, string propertyOrFieldName) where TModel : class
+        {
             // Uses cached accessor
             return AccessorAEDP<TModel, TValue>(property, eventName, ValueAccessors.LinqExpression<TValue>(typeof(TModel), propertyOrFieldName, true));
         }
 
-        public static AccessorAutoEventPropertyBinder<TModel, TValue> AccessorAEDP<TModel, TValue>(DependencyProperty property, string eventName, ValueAccessor<TValue> accessor) where TModel : class {
+        public static AccessorAutoEventPropertyBinder<TModel, TValue> AccessorAEDP<TModel, TValue>(DependencyProperty property, string eventName, ValueAccessor<TValue> accessor) where TModel : class
+        {
             return new AccessorAutoEventPropertyBinder<TModel, TValue>(property, eventName, accessor);
         }
     }

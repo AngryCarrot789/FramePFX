@@ -26,8 +26,10 @@ using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 using FramePFX.Utils.Commands;
 
-namespace FramePFX.Editors.Controls {
-    public class PlayStateButton : Button {
+namespace FramePFX.Editors.Controls
+{
+    public class PlayStateButton : Button
+    {
         public static readonly DependencyProperty PlayStateProperty = DependencyProperty.Register("PlayState", typeof(PlayState), typeof(PlayStateButton), new PropertyMetadata(PlayState.Play));
         public static readonly DependencyProperty CommandIdProperty = DependencyProperty.Register("CommandId", typeof(string), typeof(PlayStateButton), new PropertyMetadata(null, OnCommandIdChanged));
 
@@ -49,15 +51,18 @@ namespace FramePFX.Editors.Controls {
         private readonly RapidDispatchAction delayedContextChangeUpdater;
         private readonly AsyncRelayCommand command;
 
-        public PlayStateButton() {
+        public PlayStateButton()
+        {
             DataManager.AddInheritedContextInvalidatedHandler(this, this.OnInheritedContextChanged);
             this.Loaded += this.OnLoaded;
             this.delayedContextChangeUpdater = new RapidDispatchAction(this.UpdateForContext, DispatcherPriority.Loaded, "UpdateCanExecute");
-            this.command = new AsyncRelayCommand(() => {
+            this.command = new AsyncRelayCommand(() =>
+            {
                 if (this.CommandId is string cmdId && !string.IsNullOrWhiteSpace(cmdId))
                     return CommandManager.Instance.TryExecute(cmdId, () => DataManager.GetFullContextData(this));
                 return Task.CompletedTask;
-            }, () => {
+            }, () =>
+            {
                 if (this.editor == null || !(this.CommandId is string cmdId) || string.IsNullOrWhiteSpace(cmdId))
                     return false;
                 return CommandManager.Instance.CanExecute(cmdId, DataManager.GetFullContextData(this)) == ExecutabilityState.Executable;
@@ -66,37 +71,45 @@ namespace FramePFX.Editors.Controls {
             this.Command = this.command;
         }
 
-        static PlayStateButton() {
+        static PlayStateButton()
+        {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(PlayStateButton), new FrameworkPropertyMetadata(typeof(PlayStateButton)));
         }
 
-        private static void OnCommandIdChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+        private static void OnCommandIdChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
             ((PlayStateButton) d).UpdateButtonUI();
         }
 
-        private void OnLoaded(object sender, RoutedEventArgs e) {
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
             this.UpdateForContext();
         }
 
-        private void OnInheritedContextChanged(object sender, RoutedEventArgs e) {
+        private void OnInheritedContextChanged(object sender, RoutedEventArgs e)
+        {
             this.delayedContextChangeUpdater.InvokeAsync();
         }
 
-        private void UpdateForContext() {
-            if (this.editor != null) {
+        private void UpdateForContext()
+        {
+            if (this.editor != null)
+            {
                 this.editor.Playback.PlaybackStateChanged -= this.OnEditorPlayStateChanged;
                 this.editor = null;
             }
 
             IContextData context = DataManager.GetFullContextData(this);
-            if (DataKeys.VideoEditorKey.TryGetContext(context, out this.editor)) {
+            if (DataKeys.VideoEditorKey.TryGetContext(context, out this.editor))
+            {
                 this.editor.Playback.PlaybackStateChanged += this.OnEditorPlayStateChanged;
             }
 
             this.UpdateButtonUI();
         }
 
-        protected virtual void OnEditorPlayStateChanged(PlaybackManager sender, PlayState state, long frame) {
+        protected virtual void OnEditorPlayStateChanged(PlaybackManager sender, PlayState state, long frame)
+        {
             this.UpdateButtonUI();
         }
 

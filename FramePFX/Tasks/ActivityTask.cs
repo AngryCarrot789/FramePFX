@@ -22,11 +22,13 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FramePFX.Tasks {
+namespace FramePFX.Tasks
+{
     /// <summary>
     /// Represents a task that can be run by a <see cref="TaskManager"/> on a background thread
     /// </summary>
-    public class ActivityTask {
+    public class ActivityTask
+    {
         private readonly TaskManager taskManager;
         private readonly Func<Task> action;
         private Exception exception;
@@ -64,7 +66,8 @@ namespace FramePFX.Tasks {
         /// </summary>
         public Task Task { get; private set; }
 
-        private ActivityTask(TaskManager taskManager, Func<Task> action, CancellationToken cancellationToken, IActivityProgress activityProgress) {
+        private ActivityTask(TaskManager taskManager, Func<Task> action, CancellationToken cancellationToken, IActivityProgress activityProgress)
+        {
             this.taskManager = taskManager ?? throw new ArgumentNullException(nameof(taskManager));
             this.action = action ?? throw new ArgumentNullException(nameof(action));
             this.Progress = activityProgress ?? throw new ArgumentNullException(nameof(activityProgress));
@@ -77,10 +80,13 @@ namespace FramePFX.Tasks {
         /// <returns>The awaiter</returns>
         public TaskAwaiter GetAwaiter() => this.Task.GetAwaiter();
 
-        private async Task TaskMain() {
-            try {
+        private async Task TaskMain()
+        {
+            try
+            {
                 TaskManager.InternalBeginActivateTask_BGTHREAD(this.taskManager, this);
-                while (this.state != 1) {
+                while (this.state != 1)
+                {
                     await Task.Delay(1, this.CancellationToken);
                 }
 
@@ -88,42 +94,51 @@ namespace FramePFX.Tasks {
                 await (this.action() ?? Task.CompletedTask);
                 this.OnCompleted(null);
             }
-            catch (TaskCanceledException) {
+            catch (TaskCanceledException)
+            {
                 this.OnCancelled();
             }
-            catch (OperationCanceledException) {
+            catch (OperationCanceledException)
+            {
                 this.OnCancelled();
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 this.OnCompleted(e);
             }
         }
 
-        public void CheckCancelled() {
+        public void CheckCancelled()
+        {
             if (this.CancellationToken.IsCancellationRequested)
                 throw new TaskCanceledException();
         }
 
-        private void OnCancelled() {
+        private void OnCancelled()
+        {
             TaskManager.InternalOnTaskCompleted_BGTHREAD(this.taskManager, this, 3);
         }
 
-        private void OnCompleted(Exception e) {
+        private void OnCompleted(Exception e)
+        {
             this.exception = e;
             TaskManager.InternalOnTaskCompleted_BGTHREAD(this.taskManager, this, 2);
         }
 
-        internal static ActivityTask InternalRun(TaskManager taskManager, Func<Task> action, IActivityProgress progress, CancellationToken cancellationToken) {
+        internal static ActivityTask InternalRun(TaskManager taskManager, Func<Task> action, IActivityProgress progress, CancellationToken cancellationToken)
+        {
             ActivityTask task = new ActivityTask(taskManager, action, cancellationToken, progress ?? new DefaultProgressTracker());
             task.Task = Task.Run(task.TaskMain);
             return task;
         }
 
-        public static void InternalActivate(ActivityTask task) {
+        public static void InternalActivate(ActivityTask task)
+        {
             task.state = 1;
         }
 
-        public static void InternalComplete(ActivityTask task, int state) {
+        public static void InternalComplete(ActivityTask task, int state)
+        {
             task.state = state;
         }
     }

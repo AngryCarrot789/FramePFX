@@ -20,18 +20,21 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace FramePFX.Editors {
-    public class AudioRingBuffer : IDisposable {
+namespace FramePFX.Editors
+{
+    public class AudioRingBuffer : IDisposable
+    {
         private unsafe float* data;
         private readonly int capacity;
         private readonly int capacity_bytes;
-        private int readOffset;  // the SAMPLE read offset
+        private int readOffset; // the SAMPLE read offset
         private int writeOffset; // the SAMPLE write offset
         private int free; // number of samples free to be written
 
         public unsafe Span<float> Data => new Span<float>(this.data, this.capacity);
 
-        public unsafe AudioRingBuffer(int capacitySamples) {
+        public unsafe AudioRingBuffer(int capacitySamples)
+        {
             this.capacity = capacitySamples;
             this.capacity_bytes = capacitySamples * sizeof(float);
             this.data = (float*) Marshal.AllocHGlobal(this.capacity_bytes);
@@ -39,15 +42,19 @@ namespace FramePFX.Editors {
             SetMemory(this.data, 0, this.capacity_bytes);
         }
 
-        public void OffsetWrite(int numSamples) {
-            if (numSamples <= 0) {
+        public void OffsetWrite(int numSamples)
+        {
+            if (numSamples <= 0)
+            {
                 return;
             }
 
             // the total number of written samples in this ring buffer
             int numSamplesWritten = this.capacity - this.free;
-            if (numSamplesWritten > 0) {
-                if (numSamples > numSamplesWritten) {
+            if (numSamplesWritten > 0)
+            {
+                if (numSamples > numSamplesWritten)
+                {
                     numSamples = numSamplesWritten;
                 }
 
@@ -56,21 +63,26 @@ namespace FramePFX.Editors {
             }
         }
 
-        public unsafe int WriteToRingBuffer(float* src, int numSamples) {
-            if (src == null || numSamples <= 0) {
+        public unsafe int WriteToRingBuffer(float* src, int numSamples)
+        {
+            if (src == null || numSamples <= 0)
+            {
                 return 0;
             }
 
-            if (numSamples > this.free) {
+            if (numSamples > this.free)
+            {
                 numSamples = this.free;
             }
 
             int availableSamplesToWrite = this.capacity - this.writeOffset;
-            if (numSamples > availableSamplesToWrite) {
+            if (numSamples > availableSamplesToWrite)
+            {
                 CopyMemory(src, this.data + this.writeOffset, availableSamplesToWrite * sizeof(float));
                 CopyMemory(src + availableSamplesToWrite, this.data, (numSamples - availableSamplesToWrite) * sizeof(float));
             }
-            else {
+            else
+            {
                 CopyMemory(src, this.data + this.writeOffset, numSamples * sizeof(float));
             }
 
@@ -79,27 +91,33 @@ namespace FramePFX.Editors {
             return numSamples;
         }
 
-        public unsafe int ReadFromRingBuffer(float* dst, int numSamples) {
-            if (dst == null || numSamples <= 0) {
+        public unsafe int ReadFromRingBuffer(float* dst, int numSamples)
+        {
+            if (dst == null || numSamples <= 0)
+            {
                 return 0;
             }
 
             // the total number of written samples in this ring buffer
             int numSamplesWritten = this.capacity - this.free;
-            if (numSamplesWritten < 1) {
+            if (numSamplesWritten < 1)
+            {
                 return 0;
             }
 
-            if (numSamples > numSamplesWritten) {
+            if (numSamples > numSamplesWritten)
+            {
                 numSamples = numSamplesWritten;
             }
 
             int availableSamplesToRead = this.capacity - this.readOffset;
-            if (numSamples > availableSamplesToRead) {
+            if (numSamples > availableSamplesToRead)
+            {
                 CopyMemory(this.data + this.readOffset, dst, availableSamplesToRead * sizeof(float));
                 CopyMemory(this.data, dst + availableSamplesToRead, (numSamples - availableSamplesToRead) * sizeof(float));
             }
-            else {
+            else
+            {
                 CopyMemory(this.data + this.readOffset, dst, numSamples * sizeof(float));
             }
 
@@ -108,13 +126,15 @@ namespace FramePFX.Editors {
             return numSamples;
         }
 
-        public unsafe void Dispose() {
+        public unsafe void Dispose()
+        {
             Marshal.FreeHGlobal((IntPtr) this.data);
             this.data = null;
         }
 
         [DllImport("msvcrt.dll", EntryPoint = "memset", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
         private static extern unsafe IntPtr _memset(void* dst, int val, IntPtr count);
+
         [DllImport("msvcrt.dll", EntryPoint = "memcpy", CallingConvention = CallingConvention.Cdecl, SetLastError = false)]
         private static extern unsafe IntPtr _memcpy(void* dst, void* src, IntPtr n);
 

@@ -24,8 +24,10 @@ using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Utils.Accessing;
 
-namespace FramePFX.Editors.Timelines.Tracks {
-    public class AudioTrack : Track {
+namespace FramePFX.Editors.Timelines.Tracks
+{
+    public class AudioTrack : Track
+    {
         public static readonly ParameterBoolean IsMutedParameter =
             Parameter.RegisterBoolean(
                 typeof(AudioTrack),
@@ -53,31 +55,39 @@ namespace FramePFX.Editors.Timelines.Tracks {
         private AudioClip theClipToRender;
         private float render_Amplitude;
 
-        public AudioTrack() {
+        public AudioTrack()
+        {
         }
 
-        public override bool IsClipTypeAccepted(Type type) {
+        public override bool IsClipTypeAccepted(Type type)
+        {
             return typeof(AudioClip).IsAssignableFrom(type);
         }
 
-        public override bool IsEffectTypeAccepted(Type effectType) {
+        public override bool IsEffectTypeAccepted(Type effectType)
+        {
             return false;
         }
 
-        protected override unsafe void OnProjectChanged(Project oldProject, Project newProject) {
+        protected override unsafe void OnProjectChanged(Project oldProject, Project newProject)
+        {
             base.OnProjectChanged(oldProject, newProject);
-            if (newProject != null) {
+            if (newProject != null)
+            {
                 this.renderedSamplesCount = newProject.Settings.BufferSize * 2;
                 this.renderedSamples = (float*) Marshal.AllocHGlobal(this.renderedSamplesCount * sizeof(float));
             }
-            else {
+            else
+            {
                 Marshal.FreeHGlobal((IntPtr) this.renderedSamples);
             }
         }
 
-        public bool PrepareRenderFrame(long frame, long samples, EnumRenderQuality quality) {
+        public bool PrepareRenderFrame(long frame, long samples, EnumRenderQuality quality)
+        {
             AudioClip clip = (AudioClip) this.GetClipAtFrame(frame);
-            if (clip == null || !clip.BeginRenderAudio(frame, samples)) {
+            if (clip == null || !clip.BeginRenderAudio(frame, samples))
+            {
                 return false;
             }
 
@@ -91,7 +101,8 @@ namespace FramePFX.Editors.Timelines.Tracks {
         /// </summary>
         /// <param name="samples"></param>
         /// <param name="quality"></param>
-        public unsafe void RenderAudioFrame(long samples, EnumRenderQuality quality) {
+        public unsafe void RenderAudioFrame(long samples, EnumRenderQuality quality)
+        {
             this.theClipToRender.ProvideSamples(this.renderedSamples, samples, this.render_Amplitude);
         }
     }

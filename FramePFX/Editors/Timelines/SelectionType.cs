@@ -17,11 +17,13 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Editors.Timelines {
+namespace FramePFX.Editors.Timelines
+{
     /// <summary>
     /// A state to represent a selection. Zero selected items, one selected item or many selected items
     /// </summary>
-    public enum SelectionType {
+    public enum SelectionType
+    {
         None,
         Single,
         Multi

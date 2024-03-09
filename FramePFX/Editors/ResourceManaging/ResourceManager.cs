@@ -26,13 +26,15 @@ using FramePFX.RBC;
 using FramePFX.Utils;
 using FramePFX.Utils.Destroying;
 
-namespace FramePFX.Editors.ResourceManaging {
+namespace FramePFX.Editors.ResourceManaging
+{
     public delegate void CurrentFolderChangedEventHandler(ResourceManager manager, ResourceFolder oldFolder, ResourceFolder newFolder);
 
     /// <summary>
     /// Stores registered <see cref="ResourceItem"/> entries and maps <see cref="ResourceItem.UniqueId"/> to a <see cref="ResourceItem"/>
     /// </summary>
-    public class ResourceManager : IDestroy {
+    public class ResourceManager : IDestroy
+    {
         private ulong currId; // starts at 0, incremented by GetNextId()
         public const ulong EmptyId = 0UL;
         private const string EmptyIdErrorMessage = "ID cannot be zero (null)";
@@ -76,7 +78,8 @@ namespace FramePFX.Editors.ResourceManaging {
         /// </summary>
         public ResourceFolder CurrentFolder {
             get => this.currentFolder;
-            set {
+            set
+            {
                 if (value == null)
                     value = this.RootContainer;
                 ResourceFolder oldFolder = this.currentFolder;
@@ -101,7 +104,8 @@ namespace FramePFX.Editors.ResourceManaging {
 
         public event CurrentFolderChangedEventHandler CurrentFolderChanged;
 
-        public ResourceManager(Project project) {
+        public ResourceManager(Project project)
+        {
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
             this.uuidToItem = new Dictionary<ulong, ResourceItem>();
             this.selectedItems = new HashSet<BaseResource>(64, new ReferenceEqualityComparer<BaseResource>());
@@ -112,25 +116,29 @@ namespace FramePFX.Editors.ResourceManaging {
             this.IsResourceInUsePredicate = this.EntryExists;
         }
 
-        public ulong GetNextId() {
+        public ulong GetNextId()
+        {
             // assuming a CPU can somehow call GetNextId() 3 billion times in 1 second, it
             // would take roughly 97 years to reach ulong.MaxValue. LOL
             // That is unless it gets set maliciously either via modifying the
             // saved config's data or through cheat engine or something
             ulong id = this.currId;
-            do {
+            do
+            {
                 id++;
             } while (this.uuidToItem.ContainsKey(id));
 
             return this.currId = id;
         }
 
-        public void WriteToRBE(RBEDictionary data) {
+        public void WriteToRBE(RBEDictionary data)
+        {
             BaseResource.SerialisationRegistry.Serialise(this.RootContainer, data.CreateDictionary(nameof(this.RootContainer)));
             data.SetULong("CurrId", this.currId);
         }
 
-        public void ReadFromRBE(RBEDictionary data) {
+        public void ReadFromRBE(RBEDictionary data)
+        {
             if (this.uuidToItem.Count > 0)
                 throw new Exception("Cannot read data while resources are still registered");
 
@@ -138,20 +146,23 @@ namespace FramePFX.Editors.ResourceManaging {
             BaseResource.SerialisationRegistry.Deserialise(this.RootContainer, data.GetDictionary(nameof(this.RootContainer)));
         }
 
-        private void RegisterEntryInternal(ulong id, ResourceItem item) {
+        private void RegisterEntryInternal(ulong id, ResourceItem item)
+        {
             this.uuidToItem[id] = item;
             ResourceItem.SetUniqueId(item, id);
             this.ResourceAdded?.Invoke(this, item);
         }
 
-        private bool UnregisterItem(ResourceItem item) {
+        private bool UnregisterItem(ResourceItem item)
+        {
             if (item == null)
                 throw new ArgumentNullException(nameof(item), "Item cannot be null");
             if (item.UniqueId == EmptyId)
                 return false;
             if (!ReferenceEquals(item.Manager, this))
                 return false;
-            if (!this.uuidToItem.Remove(item.UniqueId)) {
+            if (!this.uuidToItem.Remove(item.UniqueId))
+            {
                 System.Diagnostics.Debugger.Break();
                 throw new Exception("Corrupted application data");
             }
@@ -161,7 +172,8 @@ namespace FramePFX.Editors.ResourceManaging {
             return true;
         }
 
-        public bool TryGetEntryItem(ulong id, out ResourceItem resource) {
+        public bool TryGetEntryItem(ulong id, out ResourceItem resource)
+        {
             if (id == EmptyId)
                 throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
             return this.uuidToItem.TryGetValue(id, out resource);
@@ -173,7 +185,8 @@ namespace FramePFX.Editors.ResourceManaging {
         /// <param name="id">The Id to check</param>
         /// <returns>Whether or not the id is registered in the manager</returns>
         /// <exception cref="ArgumentException">The ID is null, empty or only whitespaces</exception>
-        public bool EntryExists(ulong id) {
+        public bool EntryExists(ulong id)
+        {
             if (id == EmptyId)
                 throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
             return this.uuidToItem.ContainsKey(id);
@@ -182,17 +195,20 @@ namespace FramePFX.Editors.ResourceManaging {
         /// <summary>
         /// Destroys and clears our <see cref="RootContainer"/>
         /// </summary>
-        public void Clear() {
+        public void Clear()
+        {
             ResourceFolder.ClearHierarchy(this.RootContainer, true);
         }
 
-        #region Static Helper Functions
+#region Static Helper Functions
 
         // For the most part, these functions below should never return false due the the fact that a user would
         // need millions of added resources. Their system would run out of RAM before these functions fail
 
-        public static bool GetDisplayNameForMediaStream(Predicate<string> accept, out string output, string filePath, string streamName) {
-            if (!TextIncrement.GenerateFileString(accept, filePath, out string file)) {
+        public static bool GetDisplayNameForMediaStream(Predicate<string> accept, out string output, string filePath, string streamName)
+        {
+            if (!TextIncrement.GenerateFileString(accept, filePath, out string file))
+            {
                 output = null;
                 return true;
             }
@@ -200,54 +216,65 @@ namespace FramePFX.Editors.ResourceManaging {
             return TextIncrement.GetIncrementableString(accept, $"{file}::{streamName}", out output, 10000);
         }
 
-        #endregion
+#endregion
 
-        internal static void InternalProcessResourceSelectionChanged(BaseResource resource) {
+        internal static void InternalProcessResourceSelectionChanged(BaseResource resource)
+        {
             ResourceManager manager = resource.Manager;
-            if (manager != null) {
-                if (resource.IsSelected) {
+            if (manager != null)
+            {
+                if (resource.IsSelected)
+                {
                     manager.selectedItems.Add(resource);
                 }
-                else {
+                else
+                {
                     manager.selectedItems.Remove(resource);
                 }
             }
         }
 
-        internal static void InternalProcessResourceOnAttached(BaseResource resource, ResourceManager manager) {
+        internal static void InternalProcessResourceOnAttached(BaseResource resource, ResourceManager manager)
+        {
             if (resource.IsSelected)
                 manager.selectedItems.Add(resource);
             manager.Project.MarkModified();
         }
 
-        internal static void InternalProcessResourceOnDetatched(BaseResource resource) {
+        internal static void InternalProcessResourceOnDetached(BaseResource resource)
+        {
             ResourceManager manager = resource.Manager;
             if (manager == null)
-                throw new InvalidOperationException("Expected resource item to have a manager associated with it when it was being detatched...");
+                throw new InvalidOperationException("Expected resource item to have a manager associated with it when it was being detached...");
             if (resource.IsSelected)
                 manager.selectedItems.Remove(resource);
             manager.Project.MarkModified();
         }
 
-        internal static void InternalOnResourceItemAttachedToManager(ResourceItem item) {
+        internal static void InternalOnResourceItemAttachedToManager(ResourceItem item)
+        {
             ResourceManager manager = item.Manager;
             if (manager == null)
                 throw new InvalidOperationException("Expected resource item to have a manager associated with it when it was being attached...");
             manager.RegisterEntryInternal(item.UniqueId == EmptyId ? manager.GetNextId() : item.UniqueId, item);
         }
 
-        internal static void InternalOnResourceItemDetatchedFromManager(ResourceItem item) {
+        internal static void InternalOnResourceItemDetachedFromManager(ResourceItem item)
+        {
             item.Manager.UnregisterItem(item);
         }
 
-        public void ClearSelection() {
-            foreach (BaseResource selected in this.selectedItems.ToList()) {
+        public void ClearSelection()
+        {
+            foreach (BaseResource selected in this.selectedItems.ToList())
+            {
                 Debug.Assert(selected.IsSelected, "Expected item in selectedItems set to be selected!!!");
                 selected.IsSelected = false;
             }
         }
 
-        public void Destroy() {
+        public void Destroy()
+        {
         }
     }
 }

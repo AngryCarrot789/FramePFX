@@ -17,12 +17,14 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Editors.ResourceManaging.ResourceHelpers {
+namespace FramePFX.Editors.ResourceManaging.ResourceHelpers
+{
     /// <summary>
     /// An interface for entries in a <see cref="ResourceHelper"/>
     /// </summary>
     /// <typeparam name="T">The type of resource</typeparam>
-    public interface IResourcePathKey<T> : IBaseResourcePathKey where T : ResourceItem {
+    public interface IResourcePathKey<T> : IBaseResourcePathKey where T : ResourceItem
+    {
         /// <summary>
         /// An event fired when the underlying resource being used has changed. If the new resource isn't applicable to
         /// type <see cref="T"/>, then the newItem parameter is set to null

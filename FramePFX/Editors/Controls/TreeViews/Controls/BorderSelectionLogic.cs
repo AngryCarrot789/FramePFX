@@ -29,9 +29,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace FramePFX.Editors.Controls.TreeViews.Controls {
-    internal class BorderSelectionLogic : IDisposable {
-        #region Private fields
+namespace FramePFX.Editors.Controls.TreeViews.Controls
+{
+    internal class BorderSelectionLogic : IDisposable
+    {
+#region Private fields
 
         private MultiSelectTreeView treeView;
         private readonly Border border;
@@ -46,11 +48,12 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
 
         public static (int millis, int lines) AutoScrollData = (25, 2);
 
-        #endregion Private fields
+#endregion Private fields
 
-        #region Constructor
+#region Constructor
 
-        public BorderSelectionLogic(MultiSelectTreeView treeView, Border selectionBorder, ScrollViewer scrollViewer, ItemsPresenter content) {
+        public BorderSelectionLogic(MultiSelectTreeView treeView, Border selectionBorder, ScrollViewer scrollViewer, ItemsPresenter content)
+        {
             this.treeView = treeView ?? throw new ArgumentNullException(nameof(treeView));
             this.border = selectionBorder ?? throw new ArgumentNullException(nameof(selectionBorder));
             this.scrollViewer = scrollViewer ?? throw new ArgumentNullException(nameof(scrollViewer));
@@ -63,12 +66,14 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
             treeView.KeyUp += this.OnKeyUp;
         }
 
-        #endregion Constructor
+#endregion Constructor
 
-        #region Public methods
+#region Public methods
 
-        public void Dispose() {
-            if (this.treeView != null) {
+        public void Dispose()
+        {
+            if (this.treeView != null)
+            {
                 this.treeView.MouseDown -= this.OnMouseDown;
                 this.treeView.MouseMove -= this.OnMouseMove;
                 this.treeView.MouseUp -= this.OnMouseUp;
@@ -80,11 +85,12 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
             GC.SuppressFinalize(this);
         }
 
-        #endregion Public methods
+#endregion Public methods
 
-        #region Methods
+#region Methods
 
-        private void OnMouseDown(object sender, MouseButtonEventArgs e) {
+        private void OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
             this.mouseDown = true;
             this.startPoint = Mouse.GetPosition(this.content);
 
@@ -97,18 +103,23 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
             this.initialSelection = selection == null ? new HashSet<object>() : new HashSet<object>(selection.Cast<object>());
         }
 
-        private void OnMouseMove(object sender, MouseEventArgs e) {
-            if (this.mouseDown) {
-                if (DateTime.UtcNow > this.lastScrollTime.AddMilliseconds(AutoScrollData.millis)) {
+        private void OnMouseMove(object sender, MouseEventArgs e)
+        {
+            if (this.mouseDown)
+            {
+                if (DateTime.UtcNow > this.lastScrollTime.AddMilliseconds(AutoScrollData.millis))
+                {
                     Point currentPointWin = Mouse.GetPosition(this.scrollViewer);
-                    if (currentPointWin.Y < 16) {
+                    if (currentPointWin.Y < 16)
+                    {
                         for (int i = AutoScrollData.lines; i > 0; i--)
                             this.scrollViewer.LineUp();
                         this.scrollViewer.UpdateLayout();
                         this.lastScrollTime = DateTime.UtcNow;
                     }
 
-                    if (currentPointWin.Y > this.scrollViewer.ActualHeight - 16) {
+                    if (currentPointWin.Y > this.scrollViewer.ActualHeight - 16)
+                    {
                         for (int i = AutoScrollData.lines; i > 0; i--)
                             this.scrollViewer.LineDown();
                         this.scrollViewer.UpdateLayout();
@@ -122,14 +133,18 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
                 double left = this.startPoint.X;
                 double top = this.startPoint.Y;
 
-                if (this.isFirstMove) {
-                    if (Math.Abs(width) <= SystemParameters.MinimumHorizontalDragDistance && Math.Abs(height) <= SystemParameters.MinimumVerticalDragDistance) {
+                if (this.isFirstMove)
+                {
+                    if (Math.Abs(width) <= SystemParameters.MinimumHorizontalDragDistance && Math.Abs(height) <= SystemParameters.MinimumVerticalDragDistance)
+                    {
                         return;
                     }
 
                     this.isFirstMove = false;
-                    if (!SelectionMultiple.IsControlKeyDown) {
-                        if (!this.treeView.ClearSelectionByRectangle()) {
+                    if (!SelectionMultiple.IsControlKeyDown)
+                    {
+                        if (!this.treeView.ClearSelectionByRectangle())
+                        {
                             this.EndAction();
                             return;
                         }
@@ -137,12 +152,14 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
                 }
 
                 // Debug.WriteLine(string.Format("Drawing: {0};{1};{2};{3}",startPoint.X,startPoint.Y,width,height));
-                if (width < 1) {
+                if (width < 1)
+                {
                     width = Math.Abs(width - 1) + 1;
                     left = this.startPoint.X - width + 1;
                 }
 
-                if (height < 1) {
+                if (height < 1)
+                {
                     height = Math.Abs(height - 1) + 1;
                     top = this.startPoint.Y - height + 1;
                 }
@@ -162,7 +179,8 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
                 bool foundFocusItem = false;
 
                 IList selectedItems = this.treeView.SelectedItems;
-                foreach (MultiSelectTreeViewItem item in MultiSelectTreeView.GetEntireTreeRecursive(this.treeView, false, false)) {
+                foreach (MultiSelectTreeViewItem item in MultiSelectTreeView.GetEntireTreeRecursive(this.treeView, false, false))
+                {
                     FrameworkElement itemContent = (FrameworkElement) item.Template.FindName("headerBorder", item);
                     Point p = itemContent.TransformToAncestor(this.content).Transform(new Point());
                     double itemLeft = p.X;
@@ -196,24 +214,32 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
                     bool newSelected = intersect ^ (initialSelected && ctrl);
 
                     // The new selection state for this item has been determined. Apply it.
-                    if (newSelected) {
+                    if (newSelected)
+                    {
                         // The item shall be selected
-                        if (selectedItems == null || !selectedItems.Contains(item)) {
+                        if (selectedItems == null || !selectedItems.Contains(item))
+                        {
                             // The item is not currently selected. Try to select it.
-                            if (!selection.SelectByRectangle(item)) {
-                                if (selection.LastCancelAll) {
+                            if (!selection.SelectByRectangle(item))
+                            {
+                                if (selection.LastCancelAll)
+                                {
                                     this.EndAction();
                                     return;
                                 }
                             }
                         }
                     }
-                    else {
+                    else
+                    {
                         // The item shall be deselected
-                        if (selectedItems != null && selectedItems.Contains(item)) {
+                        if (selectedItems != null && selectedItems.Contains(item))
+                        {
                             // The item is currently selected. Try to deselect it.
-                            if (!selection.DeselectByRectangle(item)) {
-                                if (selection.LastCancelAll) {
+                            if (!selection.DeselectByRectangle(item))
+                            {
+                                if (selection.LastCancelAll)
+                                {
                                     this.EndAction();
                                     return;
                                 }
@@ -224,20 +250,23 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
                     // Always focus and bring into view the item under the mouse cursor
                     if (!foundFocusItem &&
                         currentPoint.X >= itemLeft && currentPoint.X <= itemRight &&
-                        currentPoint.Y >= itemTop && currentPoint.Y <= itemBottom) {
+                        currentPoint.Y >= itemTop && currentPoint.Y <= itemBottom)
+                    {
                         FocusHelper.Focus(item, true);
                         this.scrollViewer.UpdateLayout();
                         foundFocusItem = true;
                     }
                 }
 
-                if (e != null) {
+                if (e != null)
+                {
                     e.Handled = true;
                 }
             }
         }
 
-        private void OnMouseUp(object sender, MouseButtonEventArgs e) {
+        private void OnMouseUp(object sender, MouseButtonEventArgs e)
+        {
             this.EndAction();
 
             // Clear selection if this was a non-ctrl click outside of any item (i.e. in the background)
@@ -246,24 +275,28 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
             double height = currentPoint.Y - this.startPoint.Y + 1;
             if (Math.Abs(width) <= SystemParameters.MinimumHorizontalDragDistance &&
                 Math.Abs(height) <= SystemParameters.MinimumVerticalDragDistance &&
-                !SelectionMultiple.IsControlKeyDown) {
+                !SelectionMultiple.IsControlKeyDown)
+            {
                 this.treeView.ClearSelection();
             }
         }
 
-        private void OnKeyDown(object sender, KeyEventArgs e) {
+        private void OnKeyDown(object sender, KeyEventArgs e)
+        {
             // The mouse move handler reads the Ctrl key so is dependent on it.
             // If the key state has changed, the selection needs to be updated.
             this.OnMouseMove(null, null);
         }
 
-        private void OnKeyUp(object sender, KeyEventArgs e) {
+        private void OnKeyUp(object sender, KeyEventArgs e)
+        {
             // The mouse move handler reads the Ctrl key so is dependent on it.
             // If the key state has changed, the selection needs to be updated.
             this.OnMouseMove(null, null);
         }
 
-        private void EndAction() {
+        private void EndAction()
+        {
             Mouse.Capture(null);
             this.mouseDown = false;
             this.border.Visibility = Visibility.Collapsed;
@@ -272,6 +305,6 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
             // Debug.WriteLine("End drawing");
         }
 
-        #endregion Methods
+#endregion Methods
     }
 }

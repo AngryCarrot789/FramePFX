@@ -21,13 +21,15 @@ using System;
 using System.Collections.Generic;
 using FramePFX.Editors.Timelines;
 
-namespace FramePFX.Editors.DataTransfer {
+namespace FramePFX.Editors.DataTransfer
+{
     /// <summary>
     /// A class which helps manage data properties relative to a specific instance of an owner
     /// object. This class manages firing value changed events and processing data property flags,
     /// which is why it is important that the setter methods of the data properties are not called directly
     /// </summary>
-    public class TransferableData {
+    public class TransferableData
+    {
         private Dictionary<int, ParameterData> paramData;
 
         public ITransferableData Owner { get; }
@@ -37,7 +39,8 @@ namespace FramePFX.Editors.DataTransfer {
         /// </summary>
         public event DataParameterValueChangedEventHandler ValueChanged;
 
-        public TransferableData(ITransferableData owner) {
+        public TransferableData(ITransferableData owner)
+        {
             this.Owner = owner ?? throw new ArgumentNullException(nameof(owner));
         }
 
@@ -46,7 +49,8 @@ namespace FramePFX.Editors.DataTransfer {
         /// </summary>
         /// <param name="parameter"></param>
         /// <param name="handler"></param>
-        public void AddValueChangedHandler(DataParameter parameter, DataParameterValueChangedEventHandler handler) {
+        public void AddValueChangedHandler(DataParameter parameter, DataParameterValueChangedEventHandler handler)
+        {
             this.GetParamData(parameter).ValueChanged += handler;
         }
 
@@ -55,26 +59,32 @@ namespace FramePFX.Editors.DataTransfer {
         /// </summary>
         /// <param name="parameter"></param>
         /// <param name="handler"></param>
-        public void RemoveValueChangedHandler(DataParameter parameter, DataParameterValueChangedEventHandler handler) {
-            if (this.TryGetParameterData(parameter, out ParameterData data)) {
+        public void RemoveValueChangedHandler(DataParameter parameter, DataParameterValueChangedEventHandler handler)
+        {
+            if (this.TryGetParameterData(parameter, out ParameterData data))
+            {
                 data.ValueChanged -= handler;
             }
         }
 
-        public bool IsValueChanging(DataParameter parameter) {
+        public bool IsValueChanging(DataParameter parameter)
+        {
             return this.TryGetParameterData(parameter, out ParameterData data) && data.isValueChanging;
         }
 
-        public bool IsParameterValid(DataParameter parameter) {
+        public bool IsParameterValid(DataParameter parameter)
+        {
             return parameter.OwnerType.IsInstanceOfType(this.Owner);
         }
 
-        public void ValidateParameter(DataParameter parameter) {
+        public void ValidateParameter(DataParameter parameter)
+        {
             if (!this.IsParameterValid(parameter))
                 throw new ArgumentException("Invalid parameter key for this automation data: " + parameter.Key + ". The owner types are incompatible");
         }
 
-        private bool TryGetParameterData(DataParameter parameter, out ParameterData data) {
+        private bool TryGetParameterData(DataParameter parameter, out ParameterData data)
+        {
             if (parameter == null)
                 throw new ArgumentNullException(nameof(parameter), "Parameter cannot be null");
             if (this.paramData != null && this.paramData.TryGetValue(parameter.GlobalIndex, out data))
@@ -84,7 +94,8 @@ namespace FramePFX.Editors.DataTransfer {
             return false;
         }
 
-        private ParameterData GetParamData(DataParameter parameter) {
+        private ParameterData GetParamData(DataParameter parameter)
+        {
             if (parameter == null)
                 throw new ArgumentNullException(nameof(parameter), "Parameter cannot be null");
 
@@ -98,39 +109,47 @@ namespace FramePFX.Editors.DataTransfer {
             return data;
         }
 
-        private class ParameterData {
+        private class ParameterData
+        {
             public bool isValueChanging;
             public event DataParameterValueChangedEventHandler ValueChanged;
 
-            public void OnValueChanged(DataParameter param, ITransferableData owner) {
+            public void OnValueChanged(DataParameter param, ITransferableData owner)
+            {
                 this.ValueChanged?.Invoke(param, owner);
             }
         }
 
-        public static void InternalBeginValueChange(DataParameter parameter, ITransferableData owner) {
+        public static void InternalBeginValueChange(DataParameter parameter, ITransferableData owner)
+        {
             ParameterData internalData = owner.TransferableData.GetParamData(parameter);
-            if (internalData.isValueChanging) {
+            if (internalData.isValueChanging)
+            {
                 throw new InvalidOperationException("Value is already changing. This exception is thrown as the alternative is most likely a stack overflow exception");
             }
 
             internalData.isValueChanging = true;
         }
 
-        public static void InternalEndValueChange(DataParameter parameter, ITransferableData owner) {
+        public static void InternalEndValueChange(DataParameter parameter, ITransferableData owner)
+        {
             TransferableData data = owner.TransferableData;
             ParameterData internalData = data.GetParamData(parameter);
-            try {
+            try
+            {
                 internalData.OnValueChanged(parameter, owner);
                 data.ValueChanged?.Invoke(parameter, owner);
                 DataParameter.InternalOnParameterValueChanged(parameter, owner);
-                if (parameter.Flags != DataParameterFlags.None) {
+                if (parameter.Flags != DataParameterFlags.None)
+                {
                     if ((parameter.Flags & DataParameterFlags.ModifiesProject) != 0 && owner is IHaveProject projHolder && projHolder.Project is Project project)
                         project.MarkModified();
                     if ((parameter.Flags & DataParameterFlags.AffectsRender) != 0 && owner is IHaveTimeline timelineHolder && timelineHolder.Timeline is Timeline timeline)
                         timeline.RenderManager.InvalidateRender();
                 }
             }
-            finally {
+            finally
+            {
                 internalData.isValueChanging = false;
             }
         }

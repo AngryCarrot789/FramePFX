@@ -20,11 +20,13 @@
 using System;
 using System.Windows;
 
-namespace FramePFX.AdvancedMenuService.ContextService.Controls {
+namespace FramePFX.AdvancedMenuService.ContextService.Controls
+{
     /// <summary>
     /// An interface for an advanced context menu or advanced menu
     /// </summary>
-    public interface IAdvancedMenu {
+    public interface IAdvancedMenu
+    {
         bool PushCachedItem(Type entryType, FrameworkElement element);
 
         FrameworkElement PopCachedItem(Type entryType);

@@ -22,12 +22,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using FramePFX.Utils;
 
-namespace FramePFX.PropertyEditing {
+namespace FramePFX.PropertyEditing
+{
     public delegate void PropertyEditorGroupChildEventHandler(BasePropertyEditorGroup group, BasePropertyEditorObject item, int index);
 
     public delegate void PropertyEditorGroupChildMovedEventHandler(BasePropertyEditorGroup group, BasePropertyEditorObject item, int oldIndex, int newIndex);
 
-    public abstract class BasePropertyEditorGroup : BasePropertyEditorItem {
+    public abstract class BasePropertyEditorGroup : BasePropertyEditorItem
+    {
         private readonly List<BasePropertyEditorObject> propObjs;
         private string displayName;
         private bool isExpanded = true; // expand by default
@@ -42,7 +44,8 @@ namespace FramePFX.PropertyEditing {
         /// </summary>
         public string DisplayName {
             get => this.displayName;
-            set {
+            set
+            {
                 if (this.displayName == value)
                     return;
                 this.displayName = value;
@@ -55,7 +58,8 @@ namespace FramePFX.PropertyEditing {
         /// </summary>
         public bool IsExpanded {
             get => this.isExpanded;
-            set {
+            set
+            {
                 if (this.isExpanded == value)
                     return;
                 this.isExpanded = value;
@@ -76,33 +80,42 @@ namespace FramePFX.PropertyEditing {
         public event BasePropertyEditorItemEventHandler DisplayNameChanged;
         public event BasePropertyEditorItemEventHandler IsExpandedChanged;
 
-        public BasePropertyEditorGroup(Type applicableType, GroupType groupType = GroupType.PrimaryExpander) : base(applicableType) {
+        public BasePropertyEditorGroup(Type applicableType, GroupType groupType = GroupType.PrimaryExpander) : base(applicableType)
+        {
             this.propObjs = new List<BasePropertyEditorObject>();
             this.PropertyObjects = this.propObjs.AsReadOnly();
             this.GroupType = groupType;
         }
 
-        protected override void OnPropertyEditorChanged(BasePropertyEditor oldEditor, BasePropertyEditor newEditor) {
+        protected override void OnPropertyEditorChanged(BasePropertyEditor oldEditor, BasePropertyEditor newEditor)
+        {
             base.OnPropertyEditorChanged(oldEditor, newEditor);
-            foreach (BasePropertyEditorObject obj in this.propObjs) {
+            foreach (BasePropertyEditorObject obj in this.propObjs)
+            {
                 SetPropertyEditor(obj, newEditor);
             }
         }
 
-        public void ExpandHierarchy() {
+        public void ExpandHierarchy()
+        {
             this.IsExpanded = true;
-            foreach (BasePropertyEditorObject obj in this.propObjs) {
-                if (obj is BasePropertyEditorGroup group) {
+            foreach (BasePropertyEditorObject obj in this.propObjs)
+            {
+                if (obj is BasePropertyEditorGroup group)
+                {
                     group.ExpandHierarchy();
                 }
             }
         }
 
-        public void CollapseHierarchy() {
+        public void CollapseHierarchy()
+        {
             // probably more performant to expand the top first, so that closing child ones won't cause rendering
             this.IsExpanded = false;
-            foreach (BasePropertyEditorObject obj in this.propObjs) {
-                if (obj is BasePropertyEditorGroup group) {
+            foreach (BasePropertyEditorObject obj in this.propObjs)
+            {
+                if (obj is BasePropertyEditorGroup group)
+                {
                     group.CollapseHierarchy();
                 }
             }
@@ -110,7 +123,8 @@ namespace FramePFX.PropertyEditing {
 
         public void AddItem(BasePropertyEditorObject propObj) => this.InsertItem(this.propObjs.Count, propObj);
 
-        public void InsertItem(int index, BasePropertyEditorObject propObj) {
+        public void InsertItem(int index, BasePropertyEditorObject propObj)
+        {
             if (propObj == null)
                 throw new ArgumentNullException(nameof(propObj));
             if (!this.IsPropertyEditorObjectAcceptable(propObj))
@@ -120,7 +134,8 @@ namespace FramePFX.PropertyEditing {
             this.ItemAdded?.Invoke(this, propObj, index);
         }
 
-        public bool RemoveItem(BasePropertyEditorObject propObj) {
+        public bool RemoveItem(BasePropertyEditorObject propObj)
+        {
             int index = this.propObjs.IndexOf(propObj);
             if (index == -1)
                 return false;
@@ -128,14 +143,16 @@ namespace FramePFX.PropertyEditing {
             return true;
         }
 
-        public void RemoveItemAt(int index) {
+        public void RemoveItemAt(int index)
+        {
             BasePropertyEditorObject propObj = this.propObjs[index];
             this.propObjs.RemoveAt(index);
             OnRemovedFromGroup(propObj, this);
             this.ItemRemoved?.Invoke(this, propObj, index);
         }
 
-        public void MoveItem(int oldIndex, int newIndex) {
+        public void MoveItem(int oldIndex, int newIndex)
+        {
             BasePropertyEditorObject propObj = this.propObjs[oldIndex];
             this.propObjs.MoveItem(oldIndex, newIndex);
             this.ItemMoved?.Invoke(this, propObj, oldIndex, newIndex);

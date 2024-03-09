@@ -19,8 +19,10 @@
 
 using FramePFX.Shortcuts.Inputs;
 
-namespace FramePFX.Shortcuts.Usage {
-    public interface IKeyboardShortcutUsage : IShortcutUsage {
+namespace FramePFX.Shortcuts.Usage
+{
+    public interface IKeyboardShortcutUsage : IShortcutUsage
+    {
         /// <summary>
         /// A reference to the shortcut that created this instance
         /// </summary>

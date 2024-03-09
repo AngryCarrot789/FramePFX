@@ -10,8 +10,10 @@
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-namespace FramePFX.FFmpegWrapper {
-    public enum LavResult {
+namespace FramePFX.FFmpegWrapper
+{
+    public enum LavResult
+    {
         Success = 0,
 
         /// <summary>AVERROR(EAGAIN)</summary>
@@ -105,13 +107,17 @@ namespace FramePFX.FFmpegWrapper {
         OutputChanged = -1668179714
     }
 
-    public static class LavResultEx {
-        public static bool IsSuccess(this LavResult result) {
+    public static class LavResultEx
+    {
+        public static bool IsSuccess(this LavResult result)
+        {
             return result >= LavResult.Success;
         }
 
-        public static void ThrowIfError(this LavResult result, string msg = null) {
-            if (result < LavResult.Success) {
+        public static void ThrowIfError(this LavResult result, string msg = null)
+        {
+            if (result < LavResult.Success)
+            {
                 throw FFUtils.GetException((int) result, msg);
             }
         }

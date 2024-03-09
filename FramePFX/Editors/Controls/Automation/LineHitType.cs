@@ -17,8 +17,10 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Editors.Controls.Automation {
-    public enum LineHitType {
+namespace FramePFX.Editors.Controls.Automation
+{
+    public enum LineHitType
+    {
         None,
         Normal,
         Head,

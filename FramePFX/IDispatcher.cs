@@ -22,11 +22,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 
-namespace FramePFX {
+namespace FramePFX
+{
     /// <summary>
     /// Provides a way of queueing work on a thread, synchronously (blocking waiting for completion) or asynchronously (task representing the completion)
     /// </summary>
-    public interface IDispatcher {
+    public interface IDispatcher
+    {
         /// <summary>
         /// Whether or not the caller is on the application thread or not. When true, using any of the dispatcher functions is typically unnecessary
         /// </summary>

@@ -25,7 +25,8 @@ using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Utils;
 using FramePFX.Utils.Accessing;
 
-namespace FramePFX.Editors.Automation.Params {
+namespace FramePFX.Editors.Automation.Params
+{
     /// <summary>
     /// A class that stores information about a registered parameter for a specific type of automatable object.
     /// <para>
@@ -33,7 +34,8 @@ namespace FramePFX.Editors.Automation.Params {
     /// such as the Opacity parameter in video clips and video tracks
     /// </para>
     /// </summary>
-    public abstract class Parameter : IEquatable<Parameter>, IComparable<Parameter> {
+    public abstract class Parameter : IEquatable<Parameter>, IComparable<Parameter>
+    {
         private static readonly Dictionary<ParameterKey, Parameter> RegistryMap;
         private static readonly Dictionary<Type, List<Parameter>> TypeToParametersMap;
 
@@ -86,7 +88,8 @@ namespace FramePFX.Editors.Automation.Params {
         /// </summary>
         public event ParameterChangedEventHandler ValueChanged;
 
-        protected Parameter(Type ownerType, ParameterKey key, ParameterDescriptor descriptor, ParameterFlags flags) {
+        protected Parameter(Type ownerType, ParameterKey key, ParameterDescriptor descriptor, ParameterFlags flags)
+        {
             if (descriptor == null)
                 throw new ArgumentNullException(nameof(descriptor));
             if (ReferenceEquals(ownerType, null))
@@ -98,7 +101,8 @@ namespace FramePFX.Editors.Automation.Params {
             this.Flags = flags;
         }
 
-        static Parameter() {
+        static Parameter()
+        {
             RegistryMap = new Dictionary<ParameterKey, Parameter>();
             TypeToParametersMap = new Dictionary<Type, List<Parameter>>();
         }
@@ -108,8 +112,10 @@ namespace FramePFX.Editors.Automation.Params {
         /// </summary>
         /// <param name="handler">The handler to add</param>
         /// <param name="parameters">The parameters to add an event handler for</param>
-        public static void AddMultipleHandlers(ParameterChangedEventHandler handler, params Parameter[] parameters) {
-            foreach (Parameter parameter in parameters) {
+        public static void AddMultipleHandlers(ParameterChangedEventHandler handler, params Parameter[] parameters)
+        {
+            foreach (Parameter parameter in parameters)
+            {
                 parameter.ValueChanged += handler;
             }
         }
@@ -147,13 +153,14 @@ namespace FramePFX.Editors.Automation.Params {
 
         public KeyFrame CreateKeyFrame(long frame = 0L) => KeyFrame.CreateDefault(this, frame);
 
-        #region Registering parameters
+#region Registering parameters
 
         public static ParameterFloat RegisterFloat(Type ownerType, string domain, string name, ValueAccessor<float> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterFloat(ownerType, domain, name, new ParameterDescriptorFloat(), accessor, flags);
         public static ParameterFloat RegisterFloat(Type ownerType, string domain, string name, float defaultValue, ValueAccessor<float> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterFloat(ownerType, domain, name, new ParameterDescriptorFloat(defaultValue), accessor, flags);
         public static ParameterFloat RegisterFloat(Type ownerType, string domain, string name, float defaultValue, float minValue, float maxValue, ValueAccessor<float> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterFloat(ownerType, domain, name, new ParameterDescriptorFloat(defaultValue, minValue, maxValue), accessor, flags);
 
-        public static ParameterFloat RegisterFloat(Type ownerType, string domain, string name, ParameterDescriptorFloat desc, ValueAccessor<float> accessor, ParameterFlags flags = ParameterFlags.None) {
+        public static ParameterFloat RegisterFloat(Type ownerType, string domain, string name, ParameterDescriptorFloat desc, ValueAccessor<float> accessor, ParameterFlags flags = ParameterFlags.None)
+        {
             return (ParameterFloat) Register(new ParameterFloat(ownerType, new ParameterKey(domain, name), desc, accessor, flags));
         }
 
@@ -161,7 +168,8 @@ namespace FramePFX.Editors.Automation.Params {
         public static ParameterDouble RegisterDouble(Type ownerType, string domain, string name, double defaultValue, ValueAccessor<double> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterDouble(ownerType, domain, name, new ParameterDescriptorDouble(defaultValue), accessor, flags);
         public static ParameterDouble RegisterDouble(Type ownerType, string domain, string name, double defaultValue, double minValue, double maxValue, ValueAccessor<double> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterDouble(ownerType, domain, name, new ParameterDescriptorDouble(defaultValue, minValue, maxValue), accessor, flags);
 
-        public static ParameterDouble RegisterDouble(Type ownerType, string domain, string name, ParameterDescriptorDouble desc, ValueAccessor<double> accessor, ParameterFlags flags = ParameterFlags.None) {
+        public static ParameterDouble RegisterDouble(Type ownerType, string domain, string name, ParameterDescriptorDouble desc, ValueAccessor<double> accessor, ParameterFlags flags = ParameterFlags.None)
+        {
             return (ParameterDouble) Register(new ParameterDouble(ownerType, new ParameterKey(domain, name), desc, accessor, flags));
         }
 
@@ -169,14 +177,16 @@ namespace FramePFX.Editors.Automation.Params {
         public static ParameterLong RegisterLong(Type ownerType, string domain, string name, long defaultValue, ValueAccessor<long> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterLong(ownerType, domain, name, new ParameterDescriptorLong(defaultValue), accessor, flags);
         public static ParameterLong RegisterLong(Type ownerType, string domain, string name, long defaultValue, long minValue, long maxValue, ValueAccessor<long> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterLong(ownerType, domain, name, new ParameterDescriptorLong(defaultValue, minValue, maxValue), accessor, flags);
 
-        public static ParameterLong RegisterLong(Type ownerType, string domain, string name, ParameterDescriptorLong desc, ValueAccessor<long> accessor, ParameterFlags flags = ParameterFlags.None) {
+        public static ParameterLong RegisterLong(Type ownerType, string domain, string name, ParameterDescriptorLong desc, ValueAccessor<long> accessor, ParameterFlags flags = ParameterFlags.None)
+        {
             return (ParameterLong) Register(new ParameterLong(ownerType, new ParameterKey(domain, name), desc, accessor, flags));
         }
 
         public static ParameterBoolean RegisterBoolean(Type ownerType, string domain, string name, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterBoolean(ownerType, domain, name, new ParameterDescriptorBoolean(), accessor, flags);
         public static ParameterBoolean RegisterBoolean(Type ownerType, string domain, string name, bool defaultValue, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterBoolean(ownerType, domain, name, new ParameterDescriptorBoolean(defaultValue), accessor, flags);
 
-        public static ParameterBoolean RegisterBoolean(Type ownerType, string domain, string name, ParameterDescriptorBoolean desc, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None) {
+        public static ParameterBoolean RegisterBoolean(Type ownerType, string domain, string name, ParameterDescriptorBoolean desc, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None)
+        {
             return (ParameterBoolean) Register(new ParameterBoolean(ownerType, new ParameterKey(domain, name), desc, accessor, flags));
         }
 
@@ -184,7 +194,8 @@ namespace FramePFX.Editors.Automation.Params {
         public static ParameterVector2 RegisterVector2(Type ownerType, string domain, string name, Vector2 defaultValue, ValueAccessor<Vector2> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterVector2(ownerType, domain, name, new ParameterDescriptorVector2(defaultValue), accessor, flags);
         public static ParameterVector2 RegisterVector2(Type ownerType, string domain, string name, Vector2 defaultValue, Vector2 minValue, Vector2 maxValue, ValueAccessor<Vector2> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterVector2(ownerType, domain, name, new ParameterDescriptorVector2(defaultValue, minValue, maxValue), accessor, flags);
 
-        public static ParameterVector2 RegisterVector2(Type ownerType, string domain, string name, ParameterDescriptorVector2 desc, ValueAccessor<Vector2> accessor, ParameterFlags flags = ParameterFlags.None) {
+        public static ParameterVector2 RegisterVector2(Type ownerType, string domain, string name, ParameterDescriptorVector2 desc, ValueAccessor<Vector2> accessor, ParameterFlags flags = ParameterFlags.None)
+        {
             return (ParameterVector2) Register(new ParameterVector2(ownerType, new ParameterKey(domain, name), desc, accessor, flags));
         }
 
@@ -195,8 +206,10 @@ namespace FramePFX.Editors.Automation.Params {
         /// <returns>The parameter passed in as an arg</returns>
         /// <exception cref="InvalidOperationException">The parameter was already registered</exception>
         /// <exception cref="Exception">The parameter's key is already in use</exception>
-        public static Parameter Register(Parameter parameter) {
-            if (parameter.GlobalIndex != 0) {
+        public static Parameter Register(Parameter parameter)
+        {
+            if (parameter.GlobalIndex != 0)
+            {
                 throw new InvalidOperationException("Parameter was already registered with a global index of " + parameter.GlobalIndex);
             }
 
@@ -204,8 +217,10 @@ namespace FramePFX.Editors.Automation.Params {
             while (Interlocked.CompareExchange(ref RegistrationFlag, 1, 0) != 0)
                 Thread.SpinWait(32);
 
-            try {
-                if (RegistryMap.TryGetValue(path, out Parameter existingParameter)) {
+            try
+            {
+                if (RegistryMap.TryGetValue(path, out Parameter existingParameter))
+                {
                     throw new Exception($"Key already exists with the ID '{path}': {existingParameter}");
                 }
 
@@ -215,27 +230,32 @@ namespace FramePFX.Editors.Automation.Params {
                 list.Add(parameter);
                 parameter.GlobalIndex = NextGlobalIndex++;
             }
-            finally {
+            finally
+            {
                 RegistrationFlag = 0;
             }
 
             return parameter;
         }
 
-        #endregion
+#endregion
 
-        public static Parameter GetParameterByKey(ParameterKey key) {
+        public static Parameter GetParameterByKey(ParameterKey key)
+        {
             if (!TryGetParameterByKey(key, out Parameter parameter))
                 throw new Exception("No such parameter with the key: " + key);
             return parameter;
         }
 
-        public static Parameter GetParameterByKey(ParameterKey key, Parameter def) {
+        public static Parameter GetParameterByKey(ParameterKey key, Parameter def)
+        {
             return TryGetParameterByKey(key, out Parameter parameter) ? parameter : def;
         }
 
-        public static bool TryGetParameterByKey(ParameterKey key, out Parameter parameter) {
-            if (key.IsEmpty) {
+        public static bool TryGetParameterByKey(ParameterKey key, out Parameter parameter)
+        {
+            if (key.IsEmpty)
+            {
                 parameter = null;
                 return false;
             }
@@ -243,19 +263,23 @@ namespace FramePFX.Editors.Automation.Params {
             while (Interlocked.CompareExchange(ref RegistrationFlag, 2, 0) != 0)
                 Thread.Sleep(1);
 
-            try {
+            try
+            {
                 return RegistryMap.TryGetValue(key, out parameter);
             }
-            finally {
+            finally
+            {
                 RegistrationFlag = 0;
             }
         }
 
-        public bool Equals(Parameter other) {
+        public bool Equals(Parameter other)
+        {
             return !ReferenceEquals(other, null) && this.GlobalIndex == other.GlobalIndex;
         }
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             return obj is Parameter parameter && this.GlobalIndex == parameter.GlobalIndex;
         }
 
@@ -263,7 +287,8 @@ namespace FramePFX.Editors.Automation.Params {
         // ReSharper disable once NonReadonlyMemberInGetHashCode
         public override int GetHashCode() => this.GlobalIndex;
 
-        public int CompareTo(Parameter other) {
+        public int CompareTo(Parameter other)
+        {
             if (ReferenceEquals(this, other))
                 return 0;
             if (ReferenceEquals(null, other))
@@ -279,15 +304,20 @@ namespace FramePFX.Editors.Automation.Params {
         /// When true, it will also accumulate the parameters of every base type. When false,
         /// it just gets the parameters for the exact given type (parameters whose owner types match)</param>
         /// <returns>An enumerable of parameters</returns>
-        public static List<Parameter> GetApplicableParameters(Type targetType, bool inHierarchy = true) {
+        public static List<Parameter> GetApplicableParameters(Type targetType, bool inHierarchy = true)
+        {
             List<Parameter> parameters = new List<Parameter>();
-            if (TypeToParametersMap.TryGetValue(targetType, out List<Parameter> list)) {
+            if (TypeToParametersMap.TryGetValue(targetType, out List<Parameter> list))
+            {
                 parameters.AddRange(list);
             }
 
-            if (inHierarchy) {
-                for (Type bType = targetType.BaseType; bType != null; bType = bType.BaseType) {
-                    if (TypeToParametersMap.TryGetValue(bType, out list)) {
+            if (inHierarchy)
+            {
+                for (Type bType = targetType.BaseType; bType != null; bType = bType.BaseType)
+                {
+                    if (TypeToParametersMap.TryGetValue(bType, out list))
+                    {
                         parameters.AddRange(list);
                     }
                 }
@@ -303,14 +333,16 @@ namespace FramePFX.Editors.Automation.Params {
         /// <param name="parameter"></param>
         /// <param name="sequence"></param>
         /// <exception cref="ArgumentException"></exception>
-        internal static void InternalOnParameterValueChanged(Parameter parameter, AutomationSequence sequence) {
+        internal static void InternalOnParameterValueChanged(Parameter parameter, AutomationSequence sequence)
+        {
             if (sequence.Parameter.GlobalIndex != parameter.GlobalIndex)
                 throw new ArgumentException("Sequence's parameter does not match the current instance");
             parameter.ValueChanged?.Invoke(sequence);
         }
     }
 
-    public sealed class ParameterFloat : Parameter {
+    public sealed class ParameterFloat : Parameter
+    {
         private readonly ValueAccessor<float> accessor;
 
         /// <summary>
@@ -318,11 +350,13 @@ namespace FramePFX.Editors.Automation.Params {
         /// </summary>
         public new ParameterDescriptorFloat Descriptor => (ParameterDescriptorFloat) base.Descriptor;
 
-        public ParameterFloat(Type ownerType, ParameterKey key, ParameterDescriptorFloat descriptor, ValueAccessor<float> accessor, ParameterFlags flags = ParameterFlags.None) : base(ownerType, key, descriptor, flags) {
+        public ParameterFloat(Type ownerType, ParameterKey key, ParameterDescriptorFloat descriptor, ValueAccessor<float> accessor, ParameterFlags flags = ParameterFlags.None) : base(ownerType, key, descriptor, flags)
+        {
             this.accessor = accessor;
         }
 
-        public override void EvaluateAndUpdateValue(AutomationSequence sequence, long frame) {
+        public override void EvaluateAndUpdateValue(AutomationSequence sequence, long frame)
+        {
             this.accessor.SetValue(sequence.AutomationData.Owner, sequence.GetFloatValue(frame));
         }
 
@@ -342,7 +376,8 @@ namespace FramePFX.Editors.Automation.Params {
     /// <summary>
     /// A <see cref="Parameter"/> that handles a <see cref="double"/> value
     /// </summary>
-    public sealed class ParameterDouble : Parameter {
+    public sealed class ParameterDouble : Parameter
+    {
         private readonly ValueAccessor<double> accessor;
 
         /// <summary>
@@ -350,11 +385,13 @@ namespace FramePFX.Editors.Automation.Params {
         /// </summary>
         public new ParameterDescriptorDouble Descriptor => (ParameterDescriptorDouble) base.Descriptor;
 
-        public ParameterDouble(Type ownerType, ParameterKey key, ParameterDescriptorDouble descriptor, ValueAccessor<double> accessor, ParameterFlags flags = ParameterFlags.None) : base(ownerType, key, descriptor, flags) {
+        public ParameterDouble(Type ownerType, ParameterKey key, ParameterDescriptorDouble descriptor, ValueAccessor<double> accessor, ParameterFlags flags = ParameterFlags.None) : base(ownerType, key, descriptor, flags)
+        {
             this.accessor = accessor;
         }
 
-        public override void EvaluateAndUpdateValue(AutomationSequence sequence, long frame) {
+        public override void EvaluateAndUpdateValue(AutomationSequence sequence, long frame)
+        {
             this.accessor.SetValue(sequence.AutomationData.Owner, sequence.GetDoubleValue(frame));
         }
 
@@ -374,7 +411,8 @@ namespace FramePFX.Editors.Automation.Params {
     /// <summary>
     /// A <see cref="Parameter"/> that handles a <see cref="long"/> value
     /// </summary>
-    public sealed class ParameterLong : Parameter {
+    public sealed class ParameterLong : Parameter
+    {
         private readonly ValueAccessor<long> accessor;
 
         /// <summary>
@@ -382,11 +420,13 @@ namespace FramePFX.Editors.Automation.Params {
         /// </summary>
         public new ParameterDescriptorLong Descriptor => (ParameterDescriptorLong) base.Descriptor;
 
-        public ParameterLong(Type ownerType, ParameterKey key, ParameterDescriptorLong descriptor, ValueAccessor<long> accessor, ParameterFlags flags = ParameterFlags.None) : base(ownerType, key, descriptor, flags) {
+        public ParameterLong(Type ownerType, ParameterKey key, ParameterDescriptorLong descriptor, ValueAccessor<long> accessor, ParameterFlags flags = ParameterFlags.None) : base(ownerType, key, descriptor, flags)
+        {
             this.accessor = accessor;
         }
 
-        public override void EvaluateAndUpdateValue(AutomationSequence sequence, long frame) {
+        public override void EvaluateAndUpdateValue(AutomationSequence sequence, long frame)
+        {
             this.accessor.SetValue(sequence.AutomationData.Owner, sequence.GetLongValue(frame));
         }
 
@@ -406,7 +446,8 @@ namespace FramePFX.Editors.Automation.Params {
     /// <summary>
     /// A <see cref="Parameter"/> that handles a <see cref="bool"/> value
     /// </summary>
-    public sealed class ParameterBoolean : Parameter {
+    public sealed class ParameterBoolean : Parameter
+    {
         private readonly ValueAccessor<bool> accessor;
 
         /// <summary>
@@ -414,17 +455,21 @@ namespace FramePFX.Editors.Automation.Params {
         /// </summary>
         public new ParameterDescriptorBoolean Descriptor => (ParameterDescriptorBoolean) base.Descriptor;
 
-        public ParameterBoolean(Type ownerType, ParameterKey key, ParameterDescriptorBoolean descriptor, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None) : base(ownerType, key, descriptor, flags) {
+        public ParameterBoolean(Type ownerType, ParameterKey key, ParameterDescriptorBoolean descriptor, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None) : base(ownerType, key, descriptor, flags)
+        {
             this.accessor = accessor;
         }
 
-        public override void EvaluateAndUpdateValue(AutomationSequence sequence, long frame) {
+        public override void EvaluateAndUpdateValue(AutomationSequence sequence, long frame)
+        {
             // Allow optimised boxing of boolean
             bool value = sequence.GetBooleanValue(frame);
-            if (this.accessor.IsObjectPreferred) {
+            if (this.accessor.IsObjectPreferred)
+            {
                 this.accessor.SetObjectValue(sequence.AutomationData.Owner, value.Box());
             }
-            else {
+            else
+            {
                 this.accessor.SetValue(sequence.AutomationData.Owner, value);
             }
         }
@@ -445,7 +490,8 @@ namespace FramePFX.Editors.Automation.Params {
     /// <summary>
     /// A <see cref="Parameter"/> that handles a <see cref="Vector2"/> value
     /// </summary>
-    public sealed class ParameterVector2 : Parameter {
+    public sealed class ParameterVector2 : Parameter
+    {
         private readonly ValueAccessor<Vector2> accessor;
 
         /// <summary>
@@ -453,11 +499,13 @@ namespace FramePFX.Editors.Automation.Params {
         /// </summary>
         public new ParameterDescriptorVector2 Descriptor => (ParameterDescriptorVector2) base.Descriptor;
 
-        public ParameterVector2(Type ownerType, ParameterKey key, ParameterDescriptorVector2 descriptor, ValueAccessor<Vector2> accessor, ParameterFlags flags = ParameterFlags.None) : base(ownerType, key, descriptor, flags) {
+        public ParameterVector2(Type ownerType, ParameterKey key, ParameterDescriptorVector2 descriptor, ValueAccessor<Vector2> accessor, ParameterFlags flags = ParameterFlags.None) : base(ownerType, key, descriptor, flags)
+        {
             this.accessor = accessor;
         }
 
-        public override void EvaluateAndUpdateValue(AutomationSequence sequence, long frame) {
+        public override void EvaluateAndUpdateValue(AutomationSequence sequence, long frame)
+        {
             this.accessor.SetValue(sequence.AutomationData.Owner, sequence.GetVector2Value(frame));
         }
 

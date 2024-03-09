@@ -24,8 +24,10 @@ using System.Windows.Data;
 using System.Windows.Media;
 using FramePFX.Utils;
 
-namespace FramePFX.Converters {
-    public class BoolConverter : IValueConverter {
+namespace FramePFX.Converters
+{
+    public class BoolConverter : IValueConverter
+    {
         public object TrueValue { get; set; }
 
         public object FalseValue { get; set; }
@@ -38,55 +40,70 @@ namespace FramePFX.Converters {
 
         public bool ThrowForNonBool { get; set; }
 
-        public BoolConverter() {
+        public BoolConverter()
+        {
             this.UnsetValue = DependencyProperty.UnsetValue;
             this.NonBoolValue = DependencyProperty.UnsetValue;
         }
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-            if (value is bool boolean) {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool boolean)
+            {
                 return boolean ? this.TrueValue : this.FalseValue;
             }
-            else if (value == DependencyProperty.UnsetValue) {
+            else if (value == DependencyProperty.UnsetValue)
+            {
                 return this.ThrowForUnset ? throw new Exception("Unset value not allowed") : this.UnsetValue;
             }
-            else if (this.ThrowForNonBool) {
+            else if (this.ThrowForNonBool)
+            {
                 throw new Exception("Expected boolean, got " + value);
             }
-            else {
+            else
+            {
                 return this.NonBoolValue;
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
-            if (Equals(value, this.TrueValue)) {
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (Equals(value, this.TrueValue))
+            {
                 return true;
             }
-            else if (Equals(value, this.FalseValue)) {
+            else if (Equals(value, this.FalseValue))
+            {
                 return false;
             }
-            else if (Equals(value, this.UnsetValue)) {
+            else if (Equals(value, this.UnsetValue))
+            {
                 return this.ThrowForUnset ? throw new Exception("Unset value not allowed") : DependencyProperty.UnsetValue;
             }
-            else if (this.ThrowForNonBool) {
+            else if (this.ThrowForNonBool)
+            {
                 throw new Exception("Expected boolean, got " + value);
             }
-            else {
+            else
+            {
                 throw new Exception("Cannot convert back from " + value);
             }
         }
     }
 
-    public class InvertBoolConverter : BoolConverter {
+    public class InvertBoolConverter : BoolConverter
+    {
         public static InvertBoolConverter Instance { get; } = new InvertBoolConverter();
 
-        public InvertBoolConverter() {
+        public InvertBoolConverter()
+        {
             this.TrueValue = BoolBox.False;
             this.FalseValue = BoolBox.True;
         }
     }
 
-    public class BoolToVisibilityConverter : BoolConverter {
+    public class BoolToVisibilityConverter : BoolConverter
+    {
         public static BoolToVisibilityConverter BoolToVisibleOrCollapsed { get; } = new BoolToVisibilityConverter();
         public static BoolToVisibilityConverter BoolToVisibleOrHidden { get; } = new BoolToVisibilityConverter() {FalseValue = Visibility.Hidden};
 
@@ -112,13 +129,15 @@ namespace FramePFX.Converters {
             set => base.NonBoolValue = NullToVisibilityConverter.Box(value);
         }
 
-        public BoolToVisibilityConverter() {
+        public BoolToVisibilityConverter()
+        {
             this.TrueValue = Visibility.Visible;
             this.FalseValue = Visibility.Collapsed;
         }
     }
 
-    public class VisibilityToBoolConverter : IValueConverter {
+    public class VisibilityToBoolConverter : IValueConverter
+    {
         public static VisibilityToBoolConverter VisibleOrCollapsed { get; } = new VisibilityToBoolConverter() {VisibleValue = BoolBox.True, HiddenValue = null, CollapsedValue = BoolBox.False};
         public static VisibilityToBoolConverter VisibleOrHidden { get; } = new VisibilityToBoolConverter() {VisibleValue = BoolBox.False, HiddenValue = BoolBox.True, CollapsedValue = null};
 
@@ -136,54 +155,69 @@ namespace FramePFX.Converters {
 
         public bool ThrowForNonVisibility { get; set; }
 
-        public VisibilityToBoolConverter() {
+        public VisibilityToBoolConverter()
+        {
             this.UnsetValue = DependencyProperty.UnsetValue;
             this.NonVisibilityValue = DependencyProperty.UnsetValue;
         }
 
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-            if (value is Visibility v) {
-                switch (v) {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is Visibility v)
+            {
+                switch (v)
+                {
                     case Visibility.Visible: return this.VisibleValue;
                     case Visibility.Hidden: return this.HiddenValue;
                     case Visibility.Collapsed: return this.CollapsedValue;
                     default: throw new ArgumentOutOfRangeException();
                 }
             }
-            else if (value == DependencyProperty.UnsetValue) {
+            else if (value == DependencyProperty.UnsetValue)
+            {
                 return this.ThrowForUnset ? throw new Exception("Unset value not allowed") : this.UnsetValue;
             }
-            else if (this.ThrowForNonVisibility) {
+            else if (this.ThrowForNonVisibility)
+            {
                 throw new Exception("Expected visibility, got " + value);
             }
-            else {
+            else
+            {
                 return this.NonVisibilityValue;
             }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
-            if (Equals(value, this.VisibleValue)) {
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (Equals(value, this.VisibleValue))
+            {
                 return Visibility.Visible;
             }
-            else if (Equals(value, this.HiddenValue)) {
+            else if (Equals(value, this.HiddenValue))
+            {
                 return Visibility.Hidden;
             }
-            else if (Equals(value, this.CollapsedValue)) {
+            else if (Equals(value, this.CollapsedValue))
+            {
                 return Visibility.Collapsed;
             }
-            else if (Equals(value, this.UnsetValue)) {
+            else if (Equals(value, this.UnsetValue))
+            {
                 return this.ThrowForUnset ? throw new Exception("Unset value not allowed") : DependencyProperty.UnsetValue;
             }
-            else if (this.ThrowForNonVisibility) {
+            else if (this.ThrowForNonVisibility)
+            {
                 throw new Exception("Expected boolean, got " + value);
             }
-            else {
+            else
+            {
                 throw new Exception("Cannot convert back from " + value);
             }
         }
     }
 
-    public class BoolToBrushConverter : BoolConverter {
+    public class BoolToBrushConverter : BoolConverter
+    {
         public new Brush TrueValue {
             get => (Brush) base.TrueValue;
             set => base.TrueValue = value;
@@ -194,13 +228,15 @@ namespace FramePFX.Converters {
             set => base.FalseValue = value;
         }
 
-        public BoolToBrushConverter() {
+        public BoolToBrushConverter()
+        {
             this.TrueValue = null;
             this.FalseValue = null;
         }
     }
 
-    public class BoolToColourConverter : BoolConverter {
+    public class BoolToColourConverter : BoolConverter
+    {
         public new Color TrueValue {
             get => (Color) base.TrueValue;
             set => base.TrueValue = value;
@@ -211,13 +247,15 @@ namespace FramePFX.Converters {
             set => base.FalseValue = value;
         }
 
-        public BoolToColourConverter() {
+        public BoolToColourConverter()
+        {
             this.TrueValue = Colors.Black;
             this.FalseValue = Colors.Black;
         }
     }
 
-    public class BoolToDoubleConverter : BoolConverter {
+    public class BoolToDoubleConverter : BoolConverter
+    {
         public new double TrueValue {
             get => (double) base.TrueValue;
             set => base.TrueValue = value;
@@ -228,7 +266,8 @@ namespace FramePFX.Converters {
             set => base.FalseValue = value;
         }
 
-        public BoolToDoubleConverter() {
+        public BoolToDoubleConverter()
+        {
             this.TrueValue = 1.0d;
             this.FalseValue = 0.0d;
         }

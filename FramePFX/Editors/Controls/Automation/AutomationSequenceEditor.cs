@@ -34,8 +34,10 @@ using FramePFX.Utils;
 using FramePFX.Utils.Visuals;
 using SkiaSharp;
 
-namespace FramePFX.Editors.Controls.Automation {
-    public class AutomationSequenceEditor : FrameworkElement {
+namespace FramePFX.Editors.Controls.Automation
+{
+    public class AutomationSequenceEditor : FrameworkElement
+    {
         public const double EllipseRadius = 2.5d;
         public const double EllipseThickness = 1d;
         public const double EllipseHitRadius = 12d;
@@ -198,29 +200,35 @@ namespace FramePFX.Editors.Controls.Automation {
         internal Pen OverrideModeValueLinePen => this.overrideModeValueLinePen ?? (this.overrideModeValueLinePen = new Pen(this.CurveBrush ?? Brushes.DarkGray, LineThickness) {DashStyle = new DashStyle(new List<double>() {2d, 2d}, 0d)});
         internal Pen EmpyListLinePen => this.empyListLinePen ?? (this.empyListLinePen = new Pen(this.CurveBrush ?? Brushes.OrangeRed, LineThickness) {DashStyle = new DashStyle(new List<double>() {2d, 2d}, 0d)});
 
-        public AutomationSequenceEditor() {
+        public AutomationSequenceEditor()
+        {
             this.backingList = new List<KeyFramePoint>();
             this.vmToPoint = new Dictionary<KeyFrame, KeyFramePoint>();
             this.Loaded += this.OnLoaded;
             this.IsHitTestVisible = true;
         }
 
-        public int GetPointIndexByKeyFrame(KeyFrame keyFrame) {
+        public int GetPointIndexByKeyFrame(KeyFrame keyFrame)
+        {
             return this.vmToPoint.TryGetValue(keyFrame, out KeyFramePoint point) ? point.Index : -1;
         }
 
-        public KeyFramePoint GetPointByKeyFrame(KeyFrame keyFrame) {
+        public KeyFramePoint GetPointByKeyFrame(KeyFrame keyFrame)
+        {
             int index = this.GetPointIndexByKeyFrame(keyFrame);
             return index != -1 ? this.backingList[index] : null;
         }
 
-        public bool TryGetPointByKeyFrame(KeyFrame keyFrame, out KeyFramePoint point) {
+        public bool TryGetPointByKeyFrame(KeyFrame keyFrame, out KeyFramePoint point)
+        {
             return (point = this.GetPointByKeyFrame(keyFrame)) != null;
         }
 
-        private void OnLoaded(object sender, RoutedEventArgs e) {
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
             this.scroller = VisualTreeUtils.GetParent<ScrollViewer>(this);
-            if (this.scroller == null) {
+            if (this.scroller == null)
+            {
                 return;
             }
 
@@ -228,27 +236,33 @@ namespace FramePFX.Editors.Controls.Automation {
             this.scroller.ScrollChanged += this.OnScrollerOnScrollChanged;
         }
 
-        #region Key Frame Creation/Deletion
+#region Key Frame Creation/Deletion
 
-        public KeyFrame CreateKeyFrameAt(AutomationSequence sequence, Point point, bool capturePoint) {
+        public KeyFrame CreateKeyFrameAt(AutomationSequence sequence, Point point, bool capturePoint)
+        {
             return this.CreateKeyFrameAt(sequence, point, ref capturePoint);
         }
 
-        public KeyFrame CreateKeyFrameAt(AutomationSequence sequence, Point point, ref bool capturePoint) {
+        public KeyFrame CreateKeyFrameAt(AutomationSequence sequence, Point point, ref bool capturePoint)
+        {
             long timestamp = (long) Math.Round(point.X / this.UnitZoom);
             KeyFrame keyFrame = KeyFrame.CreateInstance(sequence, timestamp);
             sequence.AddKeyFrame(keyFrame);
-            if (this.TryGetPointByKeyFrame(keyFrame, out KeyFramePoint keyFramePoint)) {
-                if (!this.IsValueRangeHuge) {
+            if (this.TryGetPointByKeyFrame(keyFrame, out KeyFramePoint keyFramePoint))
+            {
+                if (!this.IsValueRangeHuge)
+                {
                     keyFramePoint.SetValueForMousePoint(point);
                 }
 
-                if (capturePoint) {
+                if (capturePoint)
+                {
                     this.SetPointCaptured(keyFramePoint, true, LineHitType.None);
                     this.isCaptureInitialised = false;
                 }
             }
-            else {
+            else
+            {
                 // this shouldn't really happen, because when a new key frame is created and added to the sequence, the
                 // collection change events should result in a new KeyFramePoint being created at some point
                 Debug.WriteLine($"Failed to get point by key frame: {keyFrame}");
@@ -258,19 +272,23 @@ namespace FramePFX.Editors.Controls.Automation {
             return keyFrame;
         }
 
-        #endregion
+#endregion
 
-        #region Key point creation/deletion
+#region Key point creation/deletion
 
-        private void CreatePoints(int index, List<KeyFrame> keyFrames) {
+        private void CreatePoints(int index, List<KeyFrame> keyFrames)
+        {
             int i, lc = this.backingList.Count, kc = keyFrames.Count;
-            for (i = index; i < lc; i++) {
+            for (i = index; i < lc; i++)
+            {
                 this.backingList[i].Index += kc;
             }
 
-            for (i = 0; i < kc; i++) {
+            for (i = 0; i < kc; i++)
+            {
                 KeyFrame keyFrame = keyFrames[i];
-                if (this.vmToPoint.ContainsKey(keyFrame)) {
+                if (this.vmToPoint.ContainsKey(keyFrame))
+                {
                     throw new Exception("Point was already added");
                 }
 
@@ -283,69 +301,87 @@ namespace FramePFX.Editors.Controls.Automation {
             }
         }
 
-        private void OnKeyFrameValueChanged(KeyFrame keyframe) {
+        private void OnKeyFrameValueChanged(KeyFrame keyframe)
+        {
             this.InvalidateRenderForKeyFrame(keyframe);
         }
 
-        private void OnKeyFramePositionChanged(KeyFrame keyframe, long oldframe, long newframe) {
+        private void OnKeyFramePositionChanged(KeyFrame keyframe, long oldframe, long newframe)
+        {
             this.InvalidateRenderForKeyFrame(keyframe);
         }
 
         // Do not call unless the view model has been updated accordingly!
         // This is only invoked via the collection changed handlers
-        private void RemovePointAt(int index) {
+        private void RemovePointAt(int index)
+        {
             KeyFramePoint point = this.backingList[index];
-            if (point == this.captured) {
+            if (point == this.captured)
+            {
                 this.ClearCapture();
             }
 
-            for (int i = index + 1, c = this.backingList.Count; i < c; i++) {
+            for (int i = index + 1, c = this.backingList.Count; i < c; i++)
+            {
                 this.backingList[i].Index--;
             }
 
             point.keyFrame.FrameChanged -= this.OnKeyFramePositionChanged;
             point.keyFrame.ValueChanged -= this.OnKeyFrameValueChanged;
             this.backingList.RemoveAt(index);
-            if (!this.vmToPoint.Remove(point.keyFrame)) {
+            if (!this.vmToPoint.Remove(point.keyFrame))
+            {
                 throw new Exception("Point was not stored in the backing map");
             }
         }
 
-        private void RemovePoints(int index, List<KeyFrame> keyFrames, bool detatchPropertyChangedEvent = true) {
+        private void RemovePoints(int index, List<KeyFrame> keyFrames, bool detachPropertyChangedEvent = true)
+        {
             int count = keyFrames.Count;
-            if (keyFrames.Count > 1) {
-                if (index == -1) {
+            if (keyFrames.Count > 1)
+            {
+                if (index == -1)
+                {
                     // slow double loop
-                    foreach (KeyFrame toRemove in keyFrames) {
+                    foreach (KeyFrame toRemove in keyFrames)
+                    {
                         int j = this.GetPointIndexByKeyFrame(toRemove);
-                        if (j == -1) {
+                        if (j == -1)
+                        {
                             throw new Exception("Item was never added");
                         }
 
                         this.RemovePointAt(j);
                     }
                 }
-                else {
-                    for (int i = 0; i < count; i++) {
+                else
+                {
+                    for (int i = 0; i < count; i++)
+                    {
                         KeyFramePoint point = this.backingList[index + i];
-                        if (!ReferenceEquals(point.keyFrame, keyFrames[i])) {
+                        if (!ReferenceEquals(point.keyFrame, keyFrames[i]))
+                        {
                             throw new Exception("Invalid removal index");
                         }
                     }
 
-                    for (int i = index + count; i < this.backingList.Count; i++) {
+                    for (int i = index + count; i < this.backingList.Count; i++)
+                    {
                         KeyFramePoint point = this.backingList[i];
-                        if (detatchPropertyChangedEvent) {
+                        if (detachPropertyChangedEvent)
+                        {
                             point.keyFrame.FrameChanged -= this.OnKeyFramePositionChanged;
                             point.keyFrame.ValueChanged -= this.OnKeyFrameValueChanged;
                         }
 
-                        if (ReferenceEquals(point, this.captured)) {
+                        if (ReferenceEquals(point, this.captured))
+                        {
                             this.ClearCapture();
                         }
 
                         point.Index -= count;
-                        if (!this.vmToPoint.Remove(point.keyFrame)) {
+                        if (!this.vmToPoint.Remove(point.keyFrame))
+                        {
                             // will corrupt entire sequence editor but that's my fault if it happens
                             throw new Exception("Point was not stored in the backing map");
                         }
@@ -354,27 +390,34 @@ namespace FramePFX.Editors.Controls.Automation {
                     this.backingList.RemoveRange(index, count);
                 }
             }
-            else if (keyFrames.Count == 1) {
+            else if (keyFrames.Count == 1)
+            {
                 KeyFrame toRemove = keyFrames[0];
-                if (index == -1 && (index = this.GetPointIndexByKeyFrame(toRemove)) == -1) {
+                if (index == -1 && (index = this.GetPointIndexByKeyFrame(toRemove)) == -1)
+                {
                     throw new Exception("Item was never added");
                 }
 
                 KeyFramePoint removedPoint = this.backingList[index];
-                if (!ReferenceEquals(removedPoint.keyFrame, toRemove)) {
+                if (!ReferenceEquals(removedPoint.keyFrame, toRemove))
+                {
                     throw new Exception("Invalid removal index: key point reference mis-match");
                 }
 
                 this.RemovePointAt(index);
-                if (ReferenceEquals(removedPoint, this.captured)) {
+                if (ReferenceEquals(removedPoint, this.captured))
+                {
                     this.ClearCapture();
                 }
             }
         }
 
-        private void ClearKeyFrameList(bool detatchPropertyChangedEvent = true) {
-            if (detatchPropertyChangedEvent) {
-                foreach (KeyFramePoint keyFrame in this.backingList) {
+        private void ClearKeyFrameList(bool detachPropertyChangedEvent = true)
+        {
+            if (detachPropertyChangedEvent)
+            {
+                foreach (KeyFramePoint keyFrame in this.backingList)
+                {
                     keyFrame.keyFrame.FrameChanged -= this.OnKeyFramePositionChanged;
                     keyFrame.keyFrame.ValueChanged -= this.OnKeyFrameValueChanged;
                 }
@@ -382,16 +425,19 @@ namespace FramePFX.Editors.Controls.Automation {
 
             this.backingList.Clear();
             this.vmToPoint.Clear();
-            if (this.captured != null) {
+            if (this.captured != null)
+            {
                 this.ClearCapture();
             }
         }
 
-        private void GenerateBackingList(AutomationSequence sequence) {
+        private void GenerateBackingList(AutomationSequence sequence)
+        {
             this.ClearKeyFrameList();
 
             IList<KeyFrame> list = sequence.KeyFrames;
-            for (int i = 0, c = list.Count; i < c; i++) {
+            for (int i = 0, c = list.Count; i < c; i++)
+            {
                 KeyFrame keyFrame = sequence.KeyFrames[i];
                 keyFrame.FrameChanged += this.OnKeyFramePositionChanged;
                 keyFrame.ValueChanged += this.OnKeyFrameValueChanged;
@@ -402,12 +448,14 @@ namespace FramePFX.Editors.Controls.Automation {
             }
         }
 
-        #endregion
+#endregion
 
-        #region Key point capture
+#region Key point capture
 
-        private void ClearCapture(bool releaseMouseCapture = true) {
-            if (this.captured == null) {
+        private void ClearCapture(bool releaseMouseCapture = true)
+        {
+            if (this.captured == null)
+            {
                 return;
             }
 
@@ -416,7 +464,8 @@ namespace FramePFX.Editors.Controls.Automation {
             this.captured = null;
             this.isCaptureInitialised = false;
             this.dragMode = null;
-            if (releaseMouseCapture && this.IsMouseCaptured) {
+            if (releaseMouseCapture && this.IsMouseCaptured)
+            {
                 this.ReleaseMouseCapture();
             }
         }
@@ -424,26 +473,30 @@ namespace FramePFX.Editors.Controls.Automation {
         private bool ignoreMouseMove;
         public bool isOverrideEnabled;
 
-        private void SetPointCaptured(KeyFramePoint point, bool captureMouse, LineHitType lineHit) {
+        private void SetPointCaptured(KeyFramePoint point, bool captureMouse, LineHitType lineHit)
+        {
             this.captured = point;
             point.IsMovingPoint = true;
             point.IsPointSelected = true;
             this.isCaptureInitialised = true;
             this.captureLineHit = lineHit;
             this.dragMode = null;
-            if (captureMouse && !this.IsMouseCaptured) {
+            if (captureMouse && !this.IsMouseCaptured)
+            {
                 this.ignoreMouseMove = true;
                 this.CaptureMouse();
                 this.ignoreMouseMove = false;
             }
         }
 
-        #endregion
+#endregion
 
-        #region Event handlers
+#region Event handlers
 
-        protected virtual void OnSequencePropertyChanged(AutomationSequence oldValue, AutomationSequence newValue) {
-            if (oldValue != null) {
+        protected virtual void OnSequencePropertyChanged(AutomationSequence oldValue, AutomationSequence newValue)
+        {
+            if (oldValue != null)
+            {
                 oldValue.OverrideStateChanged -= this.OnIsOverridedEnabledChanged;
                 oldValue.DefaultKeyFrame.FrameChanged -= this.OnKeyFramePositionChanged;
                 oldValue.DefaultKeyFrame.ValueChanged -= this.OnKeyFrameValueChanged;
@@ -454,7 +507,8 @@ namespace FramePFX.Editors.Controls.Automation {
             }
 
             this.ClearKeyFrameList();
-            if (newValue != null) {
+            if (newValue != null)
+            {
                 newValue.OverrideStateChanged += this.OnIsOverridedEnabledChanged;
                 newValue.DefaultKeyFrame.FrameChanged += this.OnKeyFramePositionChanged;
                 newValue.DefaultKeyFrame.ValueChanged += this.OnKeyFrameValueChanged;
@@ -465,55 +519,67 @@ namespace FramePFX.Editors.Controls.Automation {
                 this.GenerateBackingList(newValue);
                 this.isOverrideEnabled = newValue.IsOverrideEnabled;
             }
-            else {
+            else
+            {
                 this.isOverrideEnabled = false;
             }
         }
 
-        private void OnKeyFrameAdded(AutomationSequence sequence, KeyFrame keyframe, int index) {
+        private void OnKeyFrameAdded(AutomationSequence sequence, KeyFrame keyframe, int index)
+        {
             this.CreatePoints(index, new List<KeyFrame>() {keyframe});
             this.InvalidKeyFrameDataAndRender();
         }
 
-        private void OnKeyFrameRemoved(AutomationSequence sequence, KeyFrame keyframe, int index) {
+        private void OnKeyFrameRemoved(AutomationSequence sequence, KeyFrame keyframe, int index)
+        {
             this.RemovePointAt(index);
             this.InvalidKeyFrameDataAndRender();
         }
 
         // this.GenerateBackingList((AutomationSequence) sender);
 
-        private void OnIsOverridedEnabledChanged(AutomationSequence sequence) {
+        private void OnIsOverridedEnabledChanged(AutomationSequence sequence)
+        {
             this.isOverrideEnabled = sequence.IsOverrideEnabled;
             this.InvalidateVisual();
         }
 
-        private static bool IsValueTooLarge(float min, float max) {
+        private static bool IsValueTooLarge(float min, float max)
+        {
             return float.IsInfinity(min) || float.IsInfinity(max) || Maths.GetRange(min, max) > MaximumFloatingPointRange;
         }
 
-        private static bool IsValueTooLarge(double min, double max) {
+        private static bool IsValueTooLarge(double min, double max)
+        {
             return double.IsInfinity(min) || double.IsInfinity(max) || Maths.GetRange(min, max) > MaximumFloatingPointRange;
         }
 
-        private static bool IsValueTooLarge(long min, long max) {
+        private static bool IsValueTooLarge(long min, long max)
+        {
             return Maths.GetRange(min, max) > MaximumFloatingPointRange;
         }
 
         [SwitchAutomationDataType]
-        private void SetupRenderingInfo(AutomationSequence sequence) {
+        private void SetupRenderingInfo(AutomationSequence sequence)
+        {
             this.IsValueRangeHuge = false;
-            switch (sequence.Parameter.DataType) {
-                case AutomationDataType.Float: {
+            switch (sequence.Parameter.DataType)
+            {
+                case AutomationDataType.Float:
+                {
                     ParameterDescriptorFloat desc = (ParameterDescriptorFloat) sequence.Parameter.Descriptor;
                     this.IsValueRangeHuge = IsValueTooLarge(desc.Minimum, desc.Maximum);
                     break;
                 }
-                case AutomationDataType.Double: {
+                case AutomationDataType.Double:
+                {
                     ParameterDescriptorDouble desc = (ParameterDescriptorDouble) sequence.Parameter.Descriptor;
                     this.IsValueRangeHuge = IsValueTooLarge(desc.Minimum, desc.Maximum);
                     break;
                 }
-                case AutomationDataType.Long: {
+                case AutomationDataType.Long:
+                {
                     ParameterDescriptorLong desc = (ParameterDescriptorLong) sequence.Parameter.Descriptor;
                     this.IsValueRangeHuge = IsValueTooLarge(desc.Minimum, desc.Maximum);
                     break;
@@ -525,9 +591,11 @@ namespace FramePFX.Editors.Controls.Automation {
         }
 
 
-        private void InvalidateRenderForKeyFrame(KeyFrame keyFrame) {
+        private void InvalidateRenderForKeyFrame(KeyFrame keyFrame)
+        {
             AutomationSequence seq = this.Sequence;
-            if (seq != null && !ReferenceEquals(keyFrame, seq.DefaultKeyFrame)) {
+            if (seq != null && !ReferenceEquals(keyFrame, seq.DefaultKeyFrame))
+            {
                 KeyFramePoint point = this.backingList.First(x => x.keyFrame == keyFrame);
                 point.InvalidateRenderData();
                 point.Prev?.InvalidateRenderData();
@@ -536,28 +604,34 @@ namespace FramePFX.Editors.Controls.Automation {
             this.InvalidateVisual();
         }
 
-        private void OnScrollerOnScrollChanged(object sender, ScrollChangedEventArgs e) {
+        private void OnScrollerOnScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
             this.InvalidKeyFrameDataAndRender();
         }
 
-        private void OnScrollerOnSizeChanged(object sender, SizeChangedEventArgs e) {
+        private void OnScrollerOnSizeChanged(object sender, SizeChangedEventArgs e)
+        {
             this.InvalidKeyFrameDataAndRender();
         }
 
-        #endregion
+#endregion
 
-        #region User Input Handling
+#region User Input Handling
 
-        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e) {
+        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
+        {
             base.OnPreviewMouseLeftButtonDown(e);
-            if (!(this.Sequence is AutomationSequence sequence)) {
+            if (!(this.Sequence is AutomationSequence sequence))
+            {
                 return;
             }
 
             Point mPos = e.GetPosition(this);
             this.lastMousePoint = mPos;
-            if (this.backingList.Count < 1) {
-                if (this.isCaptureInitialised) {
+            if (this.backingList.Count < 1)
+            {
+                if (this.isCaptureInitialised)
+                {
                     this.isCaptureInitialised = false;
                 }
 
@@ -566,22 +640,29 @@ namespace FramePFX.Editors.Controls.Automation {
                 kfp.InitialPreventRemoveOnMouseUp = true;
                 this.SetPointCaptured(kfp, true, LineHitType.None);
             }
-            else {
-                if (this.GetIntersection(ref mPos, out KeyFramePoint hitKey, out LineHitType lineHit)) {
-                    if (this.captured != null) {
+            else
+            {
+                if (this.GetIntersection(ref mPos, out KeyFramePoint hitKey, out LineHitType lineHit))
+                {
+                    if (this.captured != null)
+                    {
                         this.ClearCapture(lineHit != LineHitType.None);
                     }
 
-                    if (lineHit != LineHitType.None) {
-                        if (this.isCaptureInitialised) {
+                    if (lineHit != LineHitType.None)
+                    {
+                        if (this.isCaptureInitialised)
+                        {
                             this.isCaptureInitialised = false;
                         }
 
                         this.CreateKeyFrameAt(sequence, mPos, true);
                     }
-                    else {
+                    else
+                    {
                         this.SetPointCaptured(hitKey, true, lineHit);
-                        if (hitKey.InitialPreventRemoveOnMouseUp) {
+                        if (hitKey.InitialPreventRemoveOnMouseUp)
+                        {
                             hitKey.InitialPreventRemoveOnMouseUp = false;
                             this.isCaptureInitialised = false;
                         }
@@ -590,8 +671,10 @@ namespace FramePFX.Editors.Controls.Automation {
                     this.InvalidateVisual();
                     e.Handled = true;
                 }
-                else {
-                    if (this.isCaptureInitialised) {
+                else
+                {
+                    if (this.isCaptureInitialised)
+                    {
                         this.isCaptureInitialised = false;
                     }
 
@@ -600,26 +683,34 @@ namespace FramePFX.Editors.Controls.Automation {
             }
         }
 
-        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e) {
+        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
+        {
             base.OnMouseLeftButtonUp(e);
-            if (this.captured != null) {
-                if (this.isCaptureInitialised && this.captureLineHit == LineHitType.None && this.Sequence is AutomationSequence sequence) {
+            if (this.captured != null)
+            {
+                if (this.isCaptureInitialised && this.captureLineHit == LineHitType.None && this.Sequence is AutomationSequence sequence)
+                {
                     KeyFrame kf = this.vmToPoint.TryGetValue(this.captured.keyFrame, out KeyFramePoint p) ? p.keyFrame : null;
-                    if (kf == null) {
+                    if (kf == null)
+                    {
                         throw new Exception("Captured key frame not found in the backing list?");
                     }
-                    else if (p.InitialPreventRemoveOnMouseUp) {
+                    else if (p.InitialPreventRemoveOnMouseUp)
+                    {
                         p.InitialPreventRemoveOnMouseUp = false;
                     }
-                    else {
+                    else
+                    {
                         sequence.RemoveKeyFrame(kf, out _);
                         this.ClearCapture();
                     }
                 }
             }
-            else {
+            else
+            {
                 Point pos = e.GetPosition(this);
-                if (this.GetIntersection(ref pos, out KeyFramePoint kf, out LineHitType hitType) && hitType == LineHitType.None) {
+                if (this.GetIntersection(ref pos, out KeyFramePoint kf, out LineHitType hitType) && hitType == LineHitType.None)
+                {
                     kf.keyFrame.sequence.RemoveKeyFrame(kf.keyFrame, out _);
                 }
             }
@@ -627,33 +718,40 @@ namespace FramePFX.Editors.Controls.Automation {
             this.InvalidateVisual();
         }
 
-        private void UpdateMouseOver(Point point, bool invalidateRender = true) {
-            if (this.lastMouseOver != null) {
+        private void UpdateMouseOver(Point point, bool invalidateRender = true)
+        {
+            if (this.lastMouseOver != null)
+            {
                 this.lastMouseOver.LastLineHitType = LineHitType.None;
                 this.lastMouseOver.IsMouseOverPoint = false;
                 this.lastMouseOver = null;
             }
 
-            if (!this.GetIntersection(ref point, out KeyFramePoint keyFrame, out LineHitType lineHit)) {
+            if (!this.GetIntersection(ref point, out KeyFramePoint keyFrame, out LineHitType lineHit))
+            {
                 return;
             }
 
             this.lastMouseOver = keyFrame;
             this.lastMouseOver.IsMouseOverPoint = lineHit == LineHitType.None;
             this.lastMouseOver.LastLineHitType = lineHit;
-            if (invalidateRender) {
+            if (invalidateRender)
+            {
                 this.InvalidateVisual();
             }
         }
 
-        protected override void OnMouseEnter(MouseEventArgs e) {
+        protected override void OnMouseEnter(MouseEventArgs e)
+        {
             base.OnMouseEnter(e);
             this.UpdateMouseOver(e.GetPosition(this));
         }
 
-        protected override void OnMouseLeave(MouseEventArgs e) {
+        protected override void OnMouseLeave(MouseEventArgs e)
+        {
             base.OnMouseLeave(e);
-            if (this.lastMouseOver != null) {
+            if (this.lastMouseOver != null)
+            {
                 this.lastMouseOver.LastLineHitType = LineHitType.None;
                 this.lastMouseOver.IsMouseOverPoint = false;
                 this.lastMouseOver = null;
@@ -662,17 +760,21 @@ namespace FramePFX.Editors.Controls.Automation {
             this.InvalidateVisual();
         }
 
-        protected override void OnMouseMove(MouseEventArgs e) {
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
             base.OnMouseMove(e);
-            if (this.ignoreMouseMove) {
+            if (this.ignoreMouseMove)
+            {
                 return;
             }
 
             Point mPos = e.GetPosition(this);
             this.UpdateMouseOver(mPos, false);
 
-            if (e.LeftButton != MouseButtonState.Pressed) {
-                if (this.captured != null) {
+            if (e.LeftButton != MouseButtonState.Pressed)
+            {
+                if (this.captured != null)
+                {
                     this.ClearCapture();
                 }
 
@@ -680,7 +782,8 @@ namespace FramePFX.Editors.Controls.Automation {
                 return;
             }
 
-            if (this.captured == null) {
+            if (this.captured == null)
+            {
                 return;
             }
 
@@ -691,7 +794,8 @@ namespace FramePFX.Editors.Controls.Automation {
             long min = prev?.keyFrame.Frame ?? 0;
             long max = next?.keyFrame.Frame ?? this.FrameDuration;
 
-            if (this.isCaptureInitialised) {
+            if (this.isCaptureInitialised)
+            {
                 this.lastMousePoint = mPos;
                 this.originMousePoint = mPos;
                 this.curveMousePoint = mPos;
@@ -702,52 +806,66 @@ namespace FramePFX.Editors.Controls.Automation {
             Vector mPosDiff = mPos - this.lastMousePoint;
             bool isShiftPressed = (Keyboard.Modifiers & ModifierKeys.Shift) != 0;
             bool isAltPressed = (Keyboard.Modifiers & ModifierKeys.Alt) != 0;
-            if (!(this.dragMode is DragMode mode)) {
-                if (this.captureLineHit == LineHitType.None) {
-                    if (isShiftPressed) {
-                        if (!Maths.Equals(Math.Abs(mPosDiff.Y), 0d)) {
+            if (!(this.dragMode is DragMode mode))
+            {
+                if (this.captureLineHit == LineHitType.None)
+                {
+                    if (isShiftPressed)
+                    {
+                        if (!Maths.Equals(Math.Abs(mPosDiff.Y), 0d))
+                        {
                             this.dragMode = mode = DragMode.VerticalKeyFrame;
                         }
-                        else if (!Maths.Equals(Math.Abs(mPosDiff.X), 0d)) {
+                        else if (!Maths.Equals(Math.Abs(mPosDiff.X), 0d))
+                        {
                             this.dragMode = mode = DragMode.HorizontalKeyFrame;
                         }
-                        else {
+                        else
+                        {
                             // return; // no mouse movement???
                             this.dragMode = mode = DragMode.FullKeyFrame;
                         }
                     }
-                    else {
+                    else
+                    {
                         this.dragMode = mode = DragMode.FullKeyFrame;
                     }
                 }
-                else if (isAltPressed) {
+                else if (isAltPressed)
+                {
                     this.dragMode = mode = DragMode.LineCurveAmount;
                 }
-                else {
+                else
+                {
                     mode = DragMode.None;
                     this.dragMode = null;
                 }
             }
 
-            if (mode == DragMode.LineCurveAmount) {
+            if (mode == DragMode.LineCurveAmount)
+            {
                 // double diff = mPos.Y - this.curveMousePoint.Y;
                 // double mapped = Maths.Map(60d - diff, -60d, 60d, -1d, 1d);
                 // double curve = Maths.Clamp(mapped, -1d, 1d);
                 // this.captured.keyFrame.CurveBendAmount = curve;
                 // this.captured.InvalidateRenderData();
             }
-            else {
-                if (mode == DragMode.FullKeyFrame || mode == DragMode.HorizontalKeyFrame) {
+            else
+            {
+                if (mode == DragMode.FullKeyFrame || mode == DragMode.HorizontalKeyFrame)
+                {
                     long newTime = Math.Max(0, (long) Math.Round(mPos.X / this.UnitZoom));
                     long oldTime = this.captured.keyFrame.Frame;
-                    if ((oldTime + newTime) < 0) {
+                    if ((oldTime + newTime) < 0)
+                    {
                         newTime = -oldTime;
                     }
 
                     this.captured.keyFrame.Frame = Maths.Clamp(newTime, min, max);
                 }
 
-                if (!this.IsValueRangeHuge && (mode == DragMode.FullKeyFrame || mode == DragMode.VerticalKeyFrame)) {
+                if (!this.IsValueRangeHuge && (mode == DragMode.FullKeyFrame || mode == DragMode.VerticalKeyFrame))
+                {
                     this.captured.SetValueForMousePoint(mPos);
                 }
             }
@@ -756,15 +874,17 @@ namespace FramePFX.Editors.Controls.Automation {
             this.lastMousePoint = mPos;
         }
 
-        #endregion
+#endregion
 
-        #region Rendering
+#region Rendering
 
         private WriteableBitmap bitmapImg;
 
-        protected override void OnRender(DrawingContext dc) {
+        protected override void OnRender(DrawingContext dc)
+        {
             Rect visible = UIUtils.GetVisibleRect(this.scroller, this);
-            if (visible.Width < 1.0 || visible.Height < 1.0) {
+            if (visible.Width < 1.0 || visible.Height < 1.0)
+            {
                 return;
             }
 
@@ -838,37 +958,46 @@ namespace FramePFX.Editors.Controls.Automation {
             // }
 
             int end = list.Count - 1;
-            if (end < 0) {
+            if (end < 0)
+            {
                 AutomationSequence seq = this.Sequence;
-                if (seq != null) {
+                if (seq != null)
+                {
                     double y = this.ActualHeight / 2.0;
                     dc.DrawLine(this.LineTransparentPen, new Point(0, y), new Point(visible.Right, y));
-                    if (this.IsMouseOver) {
+                    if (this.IsMouseOver)
+                    {
                         Point mPos = new Point(Mouse.GetPosition(this).X, y);
                         dc.DrawLine(this.EmpyListLinePen, new Point(0, y), new Point(visible.Right, y));
                         dc.DrawEllipse(this.MouseOverBrush, this.KeyFrameMouseOverPen, mPos, EllipseRadius, EllipseRadius);
                     }
-                    else {
+                    else
+                    {
                         dc.PushOpacity(0.5d);
                         dc.DrawLine(this.EmpyListLinePen, new Point(0, y), new Point(visible.Right, y));
                         dc.Pop();
                     }
                 }
             }
-            else {
+            else
+            {
                 dc.PushClip(new RectangleGeometry(visible));
-                if (this.isOverrideEnabled) {
+                if (this.isOverrideEnabled)
+                {
                     dc.PushOpacity(0.5d);
                 }
 
                 KeyFramePoint first = list[0], prev = first;
                 this.DrawFirstKeyFrameLine(dc, first, ref visible);
-                if (end == 0) {
+                if (end == 0)
+                {
                     this.DrawLastKeyFrameLine(dc, first, ref visible);
                     first.RenderEllipse(dc, ref visible);
                 }
-                else {
-                    for (int i = 1; i < end; i++) {
+                else
+                {
+                    for (int i = 1; i < end; i++)
+                    {
                         KeyFramePoint keyFrame = list[i];
                         DrawKeyFramesAndLine(dc, prev, keyFrame, ref visible);
                         prev = keyFrame;
@@ -878,9 +1007,11 @@ namespace FramePFX.Editors.Controls.Automation {
                     DrawKeyFramesAndLine(dc, prev, list[end], ref visible);
                 }
 
-                if (this.isOverrideEnabled) {
+                if (this.isOverrideEnabled)
+                {
                     AutomationSequence seq = this.Sequence;
-                    if (seq != null) {
+                    if (seq != null)
+                    {
                         double y = this.ActualHeight - KeyPointUtils.GetYHelper(this, seq.DefaultKeyFrame, this.ActualHeight);
                         dc.DrawLine(this.OverrideModeValueLinePen, new Point(0, y), new Point(visible.Right, y));
                     }
@@ -892,13 +1023,16 @@ namespace FramePFX.Editors.Controls.Automation {
             }
         }
 
-        public static Rect GetVisibleRect(ScrollViewer scroller, UIElement element) {
+        public static Rect GetVisibleRect(ScrollViewer scroller, UIElement element)
+        {
             Rect rect;
             Size size = element.RenderSize;
-            if (scroller == null) {
+            if (scroller == null)
+            {
                 rect = new Rect(0, 0, size.Width, size.Height);
             }
-            else {
+            else
+            {
                 Point position = element.TranslatePoint(new Point(), scroller);
                 double r1L = scroller.HorizontalOffset;
                 double r1T = scroller.VerticalOffset;
@@ -908,10 +1042,12 @@ namespace FramePFX.Editors.Controls.Automation {
                 double r2T = r1T + position.Y;
                 double r2R = r2L + size.Width;
                 double r2B = r2T + size.Height;
-                if (r1L > r2R || r1R < r2L || r1T > r2B || r1B < r2T) {
+                if (r1L > r2R || r1R < r2L || r1T > r2B || r1B < r2T)
+                {
                     rect = new Rect();
                 }
-                else {
+                else
+                {
                     double x1 = Math.Max(r1L, r2L);
                     double y1 = Math.Max(r1T, r2T);
                     double x2 = Math.Min(r1R, r2R);
@@ -923,9 +1059,12 @@ namespace FramePFX.Editors.Controls.Automation {
             return rect;
         }
 
-        private void InvalidKeyFrameDataAndRender() {
-            if (this.backingList != null) {
-                foreach (KeyFramePoint keyFrame in this.backingList) {
+        private void InvalidKeyFrameDataAndRender()
+        {
+            if (this.backingList != null)
+            {
+                foreach (KeyFramePoint keyFrame in this.backingList)
+                {
                     keyFrame.InvalidateRenderData();
                 }
             }
@@ -934,25 +1073,29 @@ namespace FramePFX.Editors.Controls.Automation {
         }
 
         // draw a line from a and b (using a's line type, e.g. linear, bezier), then draw a and b
-        private static void DrawKeyFramesAndLine(DrawingContext dc, KeyFramePoint a, KeyFramePoint b, ref Rect rect) {
+        private static void DrawKeyFramesAndLine(DrawingContext dc, KeyFramePoint a, KeyFramePoint b, ref Rect rect)
+        {
             a.RenderLine(dc, b, ref rect);
             a.RenderEllipse(dc, ref rect);
             b.RenderEllipse(dc, ref rect);
         }
 
-        private static void DrawKeyFramesAndLine(SKSurface surface, KeyFramePoint a, KeyFramePoint b, ref Rect rect, byte opacity) {
+        private static void DrawKeyFramesAndLine(SKSurface surface, KeyFramePoint a, KeyFramePoint b, ref Rect rect, byte opacity)
+        {
             a.RenderLine(surface, b, ref rect, opacity);
             a.RenderEllipse(surface, ref rect, opacity);
             b.RenderEllipse(surface, ref rect, opacity);
         }
 
-        public static bool IsLineVisibleInRect(ref Rect visibleArea, ref Point p1, ref Point p2, double thickness) {
+        public static bool IsLineVisibleInRect(ref Rect visibleArea, ref Point p1, ref Point p2, double thickness)
+        {
             double angle = Math.Atan2(p2.Y - p1.Y, p2.X - p1.X);
             double length = (p2 - p1).Length;
 
             Vector offset = new Vector(thickness / 2.0 * Math.Sin(angle), thickness / 2.0 * Math.Cos(angle));
 
-            Point[] linePoints = new Point[] {
+            Point[] linePoints = new Point[]
+            {
                 new Point(p1.X - offset.X, p1.Y + offset.Y),
                 new Point(p2.X - offset.X, p2.Y + offset.Y),
                 new Point(p2.X + offset.X, p2.Y - offset.Y),
@@ -967,63 +1110,76 @@ namespace FramePFX.Editors.Controls.Automation {
         }
 
         // draw a horizontal line at the key's Y pos
-        private void DrawFirstKeyFrameLine(DrawingContext dc, KeyFramePoint key, ref Rect rect) {
+        private void DrawFirstKeyFrameLine(DrawingContext dc, KeyFramePoint key, ref Rect rect)
+        {
             Point p2 = key.GetLocation();
             Point p1 = new Point(0, p2.Y);
-            if (IsLineVisibleInRect(ref rect, ref p1, ref p2, LineThickness)) {
+            if (IsLineVisibleInRect(ref rect, ref p1, ref p2, LineThickness))
+            {
                 dc.DrawLine(this.LineTransparentPen, p1, p2);
                 dc.DrawLine(this.isOverrideEnabled ? this.LineOverridePen : (key.LastLineHitType == LineHitType.Head ? this.LineMouseOverPen : this.LinePen), p1, p2);
             }
         }
 
         // draw a horizontal line at the key's Y pos
-        private void DrawLastKeyFrameLine(DrawingContext dc, KeyFramePoint key, ref Rect rect) {
+        private void DrawLastKeyFrameLine(DrawingContext dc, KeyFramePoint key, ref Rect rect)
+        {
             Point a = key.GetLocation();
             Point b = new Point(rect.Right, a.Y);
-            if (RectContains(ref rect, ref a) || RectContains(ref rect, ref b)) {
+            if (RectContains(ref rect, ref a) || RectContains(ref rect, ref b))
+            {
                 dc.DrawLine(this.LineTransparentPen, a, b);
                 dc.DrawLine(this.isOverrideEnabled ? this.LineOverridePen : (key.LastLineHitType == LineHitType.Tail ? this.LineMouseOverPen : this.LinePen), a, b);
             }
         }
 
-        private void DrawFirstKeyFrameLine(SKSurface surface, KeyFramePoint key, ref Rect rect, byte opacity) {
+        private void DrawFirstKeyFrameLine(SKSurface surface, KeyFramePoint key, ref Rect rect, byte opacity)
+        {
             Point p2 = key.GetLocation();
             Point p1 = new Point(0, p2.Y);
-            if (IsLineVisibleInRect(ref rect, ref p1, ref p2, LineThickness)) {
+            if (IsLineVisibleInRect(ref rect, ref p1, ref p2, LineThickness))
+            {
                 SKColor colour = this.isOverrideEnabled ? SKColors.DarkGray : (key.LastLineHitType == LineHitType.Head ? SKColors.White : SKColors.OrangeRed);
-                using (SKPaint paint = new SKPaint() {Color = colour.WithAlpha(opacity)}) {
+                using (SKPaint paint = new SKPaint() {Color = colour.WithAlpha(opacity)})
+                {
                     surface.Canvas.DrawLine(p1.AsSkia(), p2.AsSkia(), paint);
                 }
             }
         }
 
-        private void DrawLastKeyFrameLine(SKSurface surface, KeyFramePoint key, ref Rect rect, byte opacity) {
+        private void DrawLastKeyFrameLine(SKSurface surface, KeyFramePoint key, ref Rect rect, byte opacity)
+        {
             Point a = key.GetLocation();
             Point b = new Point(rect.Right, a.Y);
-            if (RectContains(ref rect, ref a) || RectContains(ref rect, ref b)) {
+            if (RectContains(ref rect, ref a) || RectContains(ref rect, ref b))
+            {
                 SKColor colour = this.isOverrideEnabled ? SKColors.DarkGray : (key.LastLineHitType == LineHitType.Tail ? SKColors.White : SKColors.OrangeRed);
-                using (SKPaint paint = new SKPaint() {Color = colour.WithAlpha(opacity)}) {
+                using (SKPaint paint = new SKPaint() {Color = colour.WithAlpha(opacity)})
+                {
                     surface.Canvas.DrawLine(a.AsSkia(), b.AsSkia(), paint);
                 }
             }
         }
 
-        #endregion
+#endregion
 
-        #region Hit/collision testing
+#region Hit/collision testing
 
         // using `ref` instead of `in`, because mutable struct and `in` are a recipe for horrible performance
 
-        public static bool RectContains(ref Rect rect, ref Point p) {
+        public static bool RectContains(ref Rect rect, ref Point p)
+        {
             return p.X >= rect.Left && p.X <= rect.Right && p.Y >= rect.Top && p.Y <= rect.Bottom;
         }
 
-        public static bool RectContains(ref Rect rect, ref Rect r) {
+        public static bool RectContains(ref Rect rect, ref Rect r)
+        {
             return r.Right > rect.Left && r.Left < rect.Right && r.Bottom > rect.Top && r.Top < rect.Bottom;
         }
 
         // Function to calculate the Euclidean distance between two points
-        private static double Distance(Point p1, Point p2) {
+        private static double Distance(Point p1, Point p2)
+        {
             double dx = p2.X - p1.X;
             double dy = p2.Y - p1.Y;
             return Math.Sqrt(dx * dx + dy * dy);
@@ -1034,19 +1190,23 @@ namespace FramePFX.Editors.Controls.Automation {
         /// <param name="rect">[in]</param>
         /// <param name="point">[out]</param>
         /// <returns></returns>
-        public static Point ClampBounds(ref Rect rect, Point point) {
+        public static Point ClampBounds(ref Rect rect, Point point)
+        {
             return new Point(Maths.Clamp(point.X, rect.Left, rect.Right), Maths.Clamp(point.Y, rect.Top, rect.Bottom));
         }
 
-        public static Point ClampRightSide(ref Rect rect, Point point) {
+        public static Point ClampRightSide(ref Rect rect, Point point)
+        {
             return new Point(Math.Min(point.X, rect.Right), point.Y);
         }
 
         // using ref here halves the stack size (on 64 bit)
-        public static bool IsMouseOverLine(ref Point p, ref Point a, ref Point b, double thickness) {
+        public static bool IsMouseOverLine(ref Point p, ref Point a, ref Point b, double thickness)
+        {
             double c1 = Math.Abs((b.X - a.X) * (a.Y - p.Y) - (a.X - p.X) * (b.Y - a.Y));
             double c2 = Math.Sqrt(Math.Pow(b.X - a.X, 2) + Math.Pow(b.Y - a.Y, 2));
-            if ((c1 / c2) > (thickness / 2)) {
+            if ((c1 / c2) > (thickness / 2))
+            {
                 return false;
             }
 
@@ -1058,10 +1218,12 @@ namespace FramePFX.Editors.Controls.Automation {
             return p.X >= minX && p.X <= maxX && p.Y >= minY && p.Y <= maxY;
         }
 
-        public bool GetIntersection(ref Point p, out KeyFramePoint keyFrame, out LineHitType lineHit) {
+        public bool GetIntersection(ref Point p, out KeyFramePoint keyFrame, out LineHitType lineHit)
+        {
             List<KeyFramePoint> list = this.backingList;
             int count = list.Count, i = 0;
-            if (count < 1) {
+            if (count < 1)
+            {
                 goto fail;
             }
 
@@ -1071,29 +1233,36 @@ namespace FramePFX.Editors.Controls.Automation {
             keyFrame = this.backingList[i];
             Point point = keyFrame.GetLocation();
             Rect aabb = new Rect(point.X - R1, point.Y - R1, R2, R2);
-            if (RectContains(ref aabb, ref p)) {
+            if (RectContains(ref aabb, ref p))
+            {
                 lineHit = LineHitType.None;
                 return true;
             }
-            else if (IsMouseOverLine(ref p, ref lastPoint, ref point, LineHitThickness)) {
-                if (i != 0) {
+            else if (IsMouseOverLine(ref p, ref lastPoint, ref point, LineHitThickness))
+            {
+                if (i != 0)
+                {
                     lineHit = LineHitType.Normal;
                     keyFrame = list[i - 1];
                 }
-                else {
+                else
+                {
                     lineHit = LineHitType.Head;
                 }
 
                 return true;
             }
-            else {
+            else
+            {
                 lastPoint = point;
                 point = new Point(this.ActualWidth, point.Y);
-                if (++i < count) {
+                if (++i < count)
+                {
                     goto loop;
                 }
 
-                if (IsMouseOverLine(ref p, ref lastPoint, ref point, LineHitThickness)) {
+                if (IsMouseOverLine(ref p, ref lastPoint, ref point, LineHitThickness))
+                {
                     keyFrame = this.backingList[count - 1];
                     lineHit = LineHitType.Tail;
                     return true;
@@ -1108,15 +1277,15 @@ namespace FramePFX.Editors.Controls.Automation {
 
         private const double R1 = EllipseHitRadius, R2 = R1 * 2d;
 
-        #endregion
+#endregion
 
-        #region standard property change handlers
+#region standard property change handlers
 
         protected virtual void OnOverrideBrushPropertyChanged(Brush oldValue, Brush newValue) => this.keyOverridePen = null;
         protected virtual void OnKeyFrameBrushPropertyChanged(Brush oldValue, Brush newValue) => this.keyFramePen = null;
         protected virtual void OnCurveBrushPropertyChanged(Brush oldValue, Brush newValue) => this.curvePen = null;
         protected virtual void OnMouseOverBrushPropertyChanged(Brush oldValue, Brush newValue) => this.mouseOverPen = null;
 
-        #endregion
+#endregion
     }
 }

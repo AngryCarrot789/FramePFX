@@ -13,13 +13,16 @@
 using System;
 using FFmpeg.AutoGen;
 
-namespace FramePFX.FFmpegWrapper {
-    public abstract unsafe class MediaFrame : FFObject {
+namespace FramePFX.FFmpegWrapper
+{
+    public abstract unsafe class MediaFrame : FFObject
+    {
         internal AVFrame* frame;
         protected bool _ownsFrame = true;
 
         public AVFrame* Handle {
-            get {
+            get
+            {
                 this.ValidateNotDisposed();
                 return this.frame;
             }
@@ -32,9 +35,12 @@ namespace FramePFX.FFmpegWrapper {
             set => FFUtils.SetPTS(ref this.frame->pts, value);
         }
 
-        protected override void Free() {
-            if (this.frame != null && this._ownsFrame) {
-                fixed (AVFrame** ppFrame = &this.frame) {
+        protected override void Free()
+        {
+            if (this.frame != null && this._ownsFrame)
+            {
+                fixed (AVFrame** ppFrame = &this.frame)
+                {
                     ffmpeg.av_frame_free(ppFrame);
                 }
             }
@@ -42,8 +48,10 @@ namespace FramePFX.FFmpegWrapper {
             this.frame = null;
         }
 
-        protected void ValidateNotDisposed() {
-            if (this.frame == null) {
+        protected void ValidateNotDisposed()
+        {
+            if (this.frame == null)
+            {
                 throw new ObjectDisposedException(nameof(MediaFrame));
             }
         }

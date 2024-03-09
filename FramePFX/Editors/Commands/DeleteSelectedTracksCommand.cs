@@ -25,43 +25,57 @@ using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.PropertyEditing;
 
-namespace FramePFX.Editors.Commands {
-    public class DeleteSelectedTracksCommand : Command {
-        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+namespace FramePFX.Editors.Commands
+{
+    public class DeleteSelectedTracksCommand : Command
+    {
+        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        {
             return e.ContextData.ContainsKey(DataKeys.TrackKey) || e.ContextData.ContainsKey(DataKeys.TimelineKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override Task Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e)
+        {
             int focusedIndex = -1;
             HashSet<Track> tracks = new HashSet<Track>();
-            if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track focusedTrack)) {
+            if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track focusedTrack))
+            {
                 focusedIndex = focusedTrack.IndexInTimeline;
             }
 
             Timeline timeline;
-            if ((timeline = focusedTrack?.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.ContextData, out timeline)) {
-                foreach (Track track in timeline.SelectedTracks) {
+            if ((timeline = focusedTrack?.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.ContextData, out timeline))
+            {
+                foreach (Track track in timeline.SelectedTracks)
+                {
                     tracks.Add(track);
                 }
             }
 
-            foreach (Track track in tracks) {
+            foreach (Track track in tracks)
+            {
                 track.Timeline.DeleteTrack(track);
             }
 
             focusedTrack?.Timeline?.DeleteTrack(focusedTrack);
 
-            if (timeline != null) {
-                if (timeline.Tracks.Count > 0) {
-                    if (focusedIndex >= 0) {
-                        if (focusedIndex >= timeline.Tracks.Count) {
+            if (timeline != null)
+            {
+                if (timeline.Tracks.Count > 0)
+                {
+                    if (focusedIndex >= 0)
+                    {
+                        if (focusedIndex >= timeline.Tracks.Count)
+                        {
                             timeline.Tracks[timeline.Tracks.Count - 1].SetIsSelected(true, true);
                         }
-                        else {
+                        else
+                        {
                             timeline.Tracks[focusedIndex].SetIsSelected(true, true);
                         }
                     }
-                    else {
+                    else
+                    {
                         timeline.Tracks[0].SetIsSelected(true, true);
                     }
                 }

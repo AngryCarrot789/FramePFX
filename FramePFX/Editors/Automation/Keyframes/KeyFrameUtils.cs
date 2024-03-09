@@ -21,17 +21,19 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using FramePFX.Editors.Automation.Params;
 
-namespace FramePFX.Editors.Automation.Keyframes {
+namespace FramePFX.Editors.Automation.Keyframes
+{
     [SwitchAutomationDataType]
-    public static class KeyFrameUtils {
-        #region Unsafe/Raw Setters
+    public static class KeyFrameUtils
+    {
+#region Unsafe/Raw Setters
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetBooleanValue(this KeyFrame kf, bool value) => ((KeyFrameBoolean) kf).Value = value;
 
-        #endregion
+#endregion
 
-        #region Clamped Setters
+#region Clamped Setters
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetFloatValue(this KeyFrame kf, float value, ParameterDescriptor desc) => ((KeyFrameFloat) kf).Value = ((ParameterDescriptorFloat) desc).Clamp(value);
@@ -50,13 +52,15 @@ namespace FramePFX.Editors.Automation.Keyframes {
 
         public static void SetVector2Value(this KeyFrame kf, float x, float y, ParameterDescriptor desc) => ((KeyFrameVector2) kf).Value = ((ParameterDescriptorVector2) desc).Clamp(new Vector2(x, y));
 
-        #endregion
+#endregion
 
-        public static KeyFrame GetDefaultKeyFrame(this IAutomatable automatable, Parameter parameter) {
+        public static KeyFrame GetDefaultKeyFrame(this IAutomatable automatable, Parameter parameter)
+        {
             return automatable.AutomationData[parameter].DefaultKeyFrame;
         }
 
-        public static void SetDefaultValue(this IAutomatable automatable, ParameterFloat parameter, float value, bool enableOverride = false) {
+        public static void SetDefaultValue(this IAutomatable automatable, ParameterFloat parameter, float value, bool enableOverride = false)
+        {
             AutomationSequence seq = automatable.AutomationData[parameter];
             if (enableOverride)
                 seq.IsOverrideEnabled = true;
@@ -65,7 +69,8 @@ namespace FramePFX.Editors.Automation.Keyframes {
                 seq.UpdateValue();
         }
 
-        public static void SetDefaultValue(this IAutomatable automatable, ParameterDouble parameter, double value, bool enableOverride = false) {
+        public static void SetDefaultValue(this IAutomatable automatable, ParameterDouble parameter, double value, bool enableOverride = false)
+        {
             AutomationSequence seq = automatable.AutomationData[parameter];
             if (enableOverride)
                 seq.IsOverrideEnabled = true;
@@ -74,7 +79,8 @@ namespace FramePFX.Editors.Automation.Keyframes {
                 seq.UpdateValue();
         }
 
-        public static void SetDefaultValue(this IAutomatable automatable, ParameterLong parameter, long value, bool enableOverride = false) {
+        public static void SetDefaultValue(this IAutomatable automatable, ParameterLong parameter, long value, bool enableOverride = false)
+        {
             AutomationSequence seq = automatable.AutomationData[parameter];
             if (enableOverride)
                 seq.IsOverrideEnabled = true;
@@ -83,7 +89,8 @@ namespace FramePFX.Editors.Automation.Keyframes {
                 seq.UpdateValue();
         }
 
-        public static void SetDefaultValue(this IAutomatable automatable, ParameterBoolean parameter, bool value, bool enableOverride = false) {
+        public static void SetDefaultValue(this IAutomatable automatable, ParameterBoolean parameter, bool value, bool enableOverride = false)
+        {
             AutomationSequence seq = automatable.AutomationData[parameter];
             if (enableOverride)
                 seq.IsOverrideEnabled = true;
@@ -92,7 +99,8 @@ namespace FramePFX.Editors.Automation.Keyframes {
                 seq.UpdateValue();
         }
 
-        public static void SetDefaultValue(this IAutomatable automatable, ParameterVector2 parameter, Vector2 value, bool enableOverride = false) {
+        public static void SetDefaultValue(this IAutomatable automatable, ParameterVector2 parameter, Vector2 value, bool enableOverride = false)
+        {
             AutomationSequence seq = automatable.AutomationData[parameter];
             if (enableOverride)
                 seq.IsOverrideEnabled = true;

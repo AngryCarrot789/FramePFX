@@ -23,8 +23,10 @@ using System.Windows.Input;
 using FramePFX.AttachedProperties;
 using FramePFX.Editors.Timelines;
 
-namespace FramePFX.Editors.Controls.Timelines {
-    public class TimelineScrollableContentGrid : Grid {
+namespace FramePFX.Editors.Controls.Timelines
+{
+    public class TimelineScrollableContentGrid : Grid
+    {
         public static readonly DependencyProperty TimelineProperty = DependencyProperty.Register("Timeline", typeof(Timeline), typeof(TimelineScrollableContentGrid), new PropertyMetadata(null, OnTimelineChanged));
 
         public Timeline Timeline {
@@ -39,53 +41,65 @@ namespace FramePFX.Editors.Controls.Timelines {
             set => HandleRequestBringIntoView.SetIsEnabled(this, value);
         }
 
-        public TimelineScrollableContentGrid() {
+        public TimelineScrollableContentGrid()
+        {
             this.HandleBringIntoView = true;
         }
 
-        protected override void OnMouseDown(MouseButtonEventArgs e) {
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
             base.OnMouseDown(e);
-            if (!e.Handled && e.LeftButton == MouseButtonState.Pressed && this.TimelineControl != null) {
+            if (!e.Handled && e.LeftButton == MouseButtonState.Pressed && this.TimelineControl != null)
+            {
                 Point point = e.GetPosition(this);
                 bool isClickSequence = point.Y > this.TimelineControl.TimelineRuler.ActualHeight;
                 this.TimelineControl.SetPlayHeadToMouseCursor(point.X, isClickSequence);
-                if (isClickSequence) {
+                if (isClickSequence)
+                {
                     this.TimelineControl.Timeline?.ClearClipSelection();
                     this.TimelineControl.UpdatePropertyEditorClipSelection();
                 }
             }
         }
 
-        private static void OnTimelineChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+        private static void OnTimelineChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
             TimelineScrollableContentGrid grid = (TimelineScrollableContentGrid) d;
-            if (e.OldValue is Timeline oldTimeline) {
+            if (e.OldValue is Timeline oldTimeline)
+            {
                 oldTimeline.PlayHeadChanged -= grid.OnPlayHeadChanged;
                 oldTimeline.ZoomTimeline -= grid.OnTimelineZoomed;
             }
 
-            if (e.NewValue is Timeline newTimeline) {
+            if (e.NewValue is Timeline newTimeline)
+            {
                 newTimeline.PlayHeadChanged += grid.OnPlayHeadChanged;
                 newTimeline.ZoomTimeline += grid.OnTimelineZoomed;
             }
         }
 
-        private void OnPlayHeadChanged(Timeline timeline, long oldvalue, long newvalue) {
+        private void OnPlayHeadChanged(Timeline timeline, long oldvalue, long newvalue)
+        {
             this.InvalidateMeasure();
         }
 
-        private void OnTimelineZoomed(Timeline timeline, double oldzoom, double newzoom, ZoomType zoomtype) {
+        private void OnTimelineZoomed(Timeline timeline, double oldzoom, double newzoom, ZoomType zoomtype)
+        {
             this.InvalidateMeasure();
         }
 
-        protected override void OnChildDesiredSizeChanged(UIElement child) {
+        protected override void OnChildDesiredSizeChanged(UIElement child)
+        {
             base.OnChildDesiredSizeChanged(child);
         }
 
-        protected override Size MeasureOverride(Size constraint) {
+        protected override Size MeasureOverride(Size constraint)
+        {
             return base.MeasureOverride(constraint);
         }
 
-        protected override Size ArrangeOverride(Size arrangeSize) {
+        protected override Size ArrangeOverride(Size arrangeSize)
+        {
             if (this.TimelineControl != null && this.TimelineControl.Timeline == null)
                 arrangeSize.Width = this.TimelineControl.ActualWidth;
             return base.ArrangeOverride(arrangeSize);

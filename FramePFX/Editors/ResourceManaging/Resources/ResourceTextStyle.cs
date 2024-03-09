@@ -22,11 +22,13 @@ using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.Utils.Accessing;
 using SkiaSharp;
 
-namespace FramePFX.Editors.ResourceManaging.Resources {
+namespace FramePFX.Editors.ResourceManaging.Resources
+{
     /// <summary>
     /// A resource for storing styling information for a text clip
     /// </summary>
-    public class ResourceTextStyle : ResourceItem {
+    public class ResourceTextStyle : ResourceItem
+    {
         // private double fontSize;
         // private double skewX;
         // private string fontFamily;
@@ -115,13 +117,16 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
 
         public event ResourceEventHandler RenderDataInvalidated;
 
-        public ResourceTextStyle() {
+        public ResourceTextStyle()
+        {
             this.foreground = SKColors.White;
             this.border = SKColors.DarkGray;
         }
 
-        static ResourceTextStyle() {
-            SerialisationRegistry.Register<ResourceTextStyle>(0, (resource, data, ctx) => {
+        static ResourceTextStyle()
+        {
+            SerialisationRegistry.Register<ResourceTextStyle>(0, (resource, data, ctx) =>
+            {
                 ctx.DeserialiseBaseType(data);
                 resource.fontSize = data.GetDouble(nameof(FontSize));
                 resource.fontFamily = data.GetString(nameof(FontFamily), null);
@@ -130,7 +135,8 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
                 resource.isAntiAliased = data.GetBool(nameof(IsAntiAliased));
                 resource.foreground = data.GetUInt("Foreground");
                 resource.border = data.GetUInt("Border");
-            }, (resource, data, ctx) => {
+            }, (resource, data, ctx) =>
+            {
                 ctx.SerialiseBaseType(data);
                 data.SetDouble(nameof(FontSize), resource.fontSize);
                 data.SetString(nameof(FontFamily), resource.fontFamily);
@@ -147,8 +153,10 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
         /// <summary>
         /// Invalidates the cached font and paint information. This is called automatically when any of our properties change
         /// </summary>
-        public void InvalidateFontData() {
-            if (this.GeneratedFont == null && this.GeneratedPaint == null) {
+        public void InvalidateFontData()
+        {
+            if (this.GeneratedFont == null && this.GeneratedPaint == null)
+            {
                 return;
             }
 
@@ -162,16 +170,21 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
         /// <summary>
         /// Generates our cached font and paint data. This must be called manually after invalidating font data
         /// </summary>
-        public void GenerateCachedData() {
-            if (this.GeneratedFont == null) {
+        public void GenerateCachedData()
+        {
+            if (this.GeneratedFont == null)
+            {
                 SKTypeface typeface = SKTypeface.FromFamilyName(string.IsNullOrEmpty(this.FontFamily) ? "Consolas" : this.FontFamily);
-                if (typeface != null) {
+                if (typeface != null)
+                {
                     this.GeneratedFont = new SKFont(typeface, (float) this.FontSize, 1f, this.SkewX);
                 }
             }
 
-            if (this.GeneratedPaint == null && this.GeneratedFont != null) {
-                this.GeneratedPaint = new SKPaint(this.GeneratedFont) {
+            if (this.GeneratedPaint == null && this.GeneratedFont != null)
+            {
+                this.GeneratedPaint = new SKPaint(this.GeneratedFont)
+                {
                     StrokeWidth = (float) this.BorderThickness,
                     Color = this.foreground,
                     TextAlign = SKTextAlign.Left,
@@ -180,18 +193,22 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             }
         }
 
-        public static SKTextBlob[] CreateTextBlobs(string input, SKPaint paint, SKFont font) {
+        public static SKTextBlob[] CreateTextBlobs(string input, SKPaint paint, SKFont font)
+        {
             return CreateTextBlobs(input, font, paint.TextSize); // * 1.2f
         }
 
-        public static SKTextBlob[] CreateTextBlobs(string input, SKFont font, float lineHeight) {
-            if (string.IsNullOrEmpty(input)) {
+        public static SKTextBlob[] CreateTextBlobs(string input, SKFont font, float lineHeight)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
                 return null;
             }
 
             string[] lines = input.Split('\n');
             SKTextBlob[] blobs = new SKTextBlob[lines.Length];
-            for (int i = 0; i < lines.Length; i++) {
+            for (int i = 0; i < lines.Length; i++)
+            {
                 float y = i * lineHeight;
                 blobs[i] = SKTextBlob.Create(lines[i], font, new SKPoint(0, y));
             }
@@ -199,7 +216,8 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
             return blobs;
         }
 
-        public static void DisposeTextBlobs(ref SKTextBlob[] blobs) {
+        public static void DisposeTextBlobs(ref SKTextBlob[] blobs)
+        {
             if (blobs == null)
                 return;
             foreach (SKTextBlob blob in blobs)

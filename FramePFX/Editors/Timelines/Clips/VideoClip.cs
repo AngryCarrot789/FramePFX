@@ -27,7 +27,8 @@ using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Utils.Accessing;
 using SkiaSharp;
 
-namespace FramePFX.Editors.Timelines.Clips {
+namespace FramePFX.Editors.Timelines.Clips
+{
     /// <summary>
     /// The base class for all clips that produce video data, whether that be an image, a video frame at some time, text, particles, etc.
     /// <para>
@@ -50,7 +51,8 @@ namespace FramePFX.Editors.Timelines.Clips {
     /// port then presents the fully rendered frame to the user
     /// </para>
     /// </summary>
-    public abstract class VideoClip : Clip {
+    public abstract class VideoClip : Clip
+    {
         public static readonly ParameterDouble OpacityParameter =
             Parameter.RegisterDouble(
                 typeof(VideoClip),
@@ -107,7 +109,8 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// our <see cref="ClipTransformationMatrix"/> and our parent track's transformation matrix (or identity, if not in a track yet)
         /// </summary>
         public SKMatrix ClipAndTrackTransformationMatrix {
-            get {
+            get
+            {
                 if (this.isMatrixDirty)
                     this.GenerateMatrices();
                 return this.finalTransformationMatrix;
@@ -118,14 +121,16 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// Gets (or calculates, if dirty) this clip's transformation matrix entirely based on our transformation properties (therefore does not contain our track's matrix)
         /// </summary>
         public SKMatrix ClipTransformationMatrix {
-            get {
+            get
+            {
                 if (this.isMatrixDirty)
                     this.GenerateMatrices();
                 return this.clipTransformationMatrix;
             }
         }
 
-        protected VideoClip() {
+        protected VideoClip()
+        {
             this.isMatrixDirty = true;
             this.Opacity = OpacityParameter.Descriptor.DefaultValue;
             this.IsVisible = IsVisibleParameter.DefaultValue;
@@ -138,12 +143,15 @@ namespace FramePFX.Editors.Timelines.Clips {
             this.UseAbsoluteRotationOrigin = UseAbsoluteRotationOriginParameter.Descriptor.DefaultValue;
         }
 
-        static VideoClip() {
-            SerialisationRegistry.Register<VideoClip>(0, (clip, data, ctx) => {
+        static VideoClip()
+        {
+            SerialisationRegistry.Register<VideoClip>(0, (clip, data, ctx) =>
+            {
                 ctx.DeserialiseBaseType(data);
                 clip.IsVisible = data.GetBool(nameof(clip.IsVisible));
                 clip.isMatrixDirty = true;
-            }, (clip, data, ctx) => {
+            }, (clip, data, ctx) =>
+            {
                 ctx.SerialiseBaseType(data);
                 data.SetBool(nameof(clip.IsVisible), clip.IsVisible);
             });
@@ -151,13 +159,15 @@ namespace FramePFX.Editors.Timelines.Clips {
             Parameter.AddMultipleHandlers(s => ((VideoClip) s.AutomationData.Owner).InvalidateTransformationMatrix(), MediaPositionParameter, MediaScaleParameter, MediaScaleOriginParameter, UseAbsoluteScaleOriginParameter, MediaRotationParameter, MediaRotationOriginParameter, UseAbsoluteRotationOriginParameter);
         }
 
-        private void GenerateMatrices() {
+        private void GenerateMatrices()
+        {
             this.clipTransformationMatrix = MatrixUtils.CreateTransformationMatrix(this.MediaPosition, this.MediaScale, this.MediaRotation, this.MediaScaleOrigin, this.MediaRotationOrigin);
             this.finalTransformationMatrix = this.Track is VideoTrack vidTrack ? vidTrack.TransformationMatrix.PreConcat(this.clipTransformationMatrix) : this.clipTransformationMatrix;
             this.isMatrixDirty = false;
         }
 
-        protected override void OnTrackChanged(Track oldTrack, Track newTrack) {
+        protected override void OnTrackChanged(Track oldTrack, Track newTrack)
+        {
             base.OnTrackChanged(oldTrack, newTrack);
             this.InvalidateTransformationMatrix();
         }
@@ -179,11 +189,13 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// <summary>
         /// Propagates the render invalidated state to our project's <see cref="RenderManager"/>
         /// </summary>
-        public void InvalidateRender() {
+        public void InvalidateRender()
+        {
             this.Timeline?.RenderManager.InvalidateRender();
         }
 
-        protected override void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan) {
+        protected override void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan)
+        {
             base.OnFrameSpanChanged(oldSpan, newSpan);
             this.InvalidateRender();
         }
@@ -209,7 +221,8 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// </param>
         public abstract void RenderFrame(RenderContext rc, ref SKRect renderArea);
 
-        public void InvalidateTransformationMatrix() {
+        public void InvalidateTransformationMatrix()
+        {
             this.isMatrixDirty = true;
             this.InvalidateRender();
         }

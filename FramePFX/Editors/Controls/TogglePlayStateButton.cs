@@ -19,23 +19,30 @@
 
 using System.Windows;
 
-namespace FramePFX.Editors.Controls {
+namespace FramePFX.Editors.Controls
+{
     /// <summary>
     /// A button that handles automatically playing and pausing/stopping the playback
     /// </summary>
-    public class TogglePlayStateButton : PlayStateButton {
-        public TogglePlayStateButton() {
+    public class TogglePlayStateButton : PlayStateButton
+    {
+        public TogglePlayStateButton()
+        {
             this.CommandId = "TogglePlayCommand";
         }
 
-        static TogglePlayStateButton() {
+        static TogglePlayStateButton()
+        {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(TogglePlayStateButton), new FrameworkPropertyMetadata(typeof(TogglePlayStateButton)));
         }
 
-        protected override void UpdateButtonUI() {
+        protected override void UpdateButtonUI()
+        {
             base.UpdateButtonUI();
-            if (this.editor != null) {
-                switch (this.editor.Playback.PlayState) {
+            if (this.editor != null)
+            {
+                switch (this.editor.Playback.PlayState)
+                {
                     case PlayState.Play:
                         // TODO: when editor settings are added and there's an option to allow the toggle action to either pause or stop,
                         this.PlayState = PlayState.Pause;
@@ -46,7 +53,8 @@ namespace FramePFX.Editors.Controls {
                         break;
                 }
             }
-            else {
+            else
+            {
                 this.PlayState = PlayState.Play;
             }
         }

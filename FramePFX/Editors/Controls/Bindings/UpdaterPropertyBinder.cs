@@ -21,7 +21,8 @@ using System;
 using System.ComponentModel;
 using System.Windows;
 
-namespace FramePFX.Editors.Controls.Bindings {
+namespace FramePFX.Editors.Controls.Bindings
+{
     /// <summary>
     /// An object binder that contains UpdateControl and UpdateModel events. These are called by calling
     /// <see cref="BaseBinder{TModel}.OnModelValueChanged"/> and <see cref="BaseBinder{TModel}.OnControlValueChanged"/>
@@ -32,7 +33,8 @@ namespace FramePFX.Editors.Controls.Bindings {
     /// </para>
     /// </summary>
     /// <typeparam name="TModel">The type of model</typeparam>
-    public class UpdaterPropertyBinder<TModel> : BaseBinder<TModel> where TModel : class {
+    public class UpdaterPropertyBinder<TModel> : BaseBinder<TModel> where TModel : class
+    {
         public event Action<IBinder<TModel>> UpdateControl;
         public event Action<IBinder<TModel>> UpdateModel;
 
@@ -47,23 +49,28 @@ namespace FramePFX.Editors.Controls.Bindings {
 
         private DependencyPropertyDescriptor descriptor;
 
-        public UpdaterPropertyBinder(DependencyProperty property, Action<IBinder<TModel>> updateControl, Action<IBinder<TModel>> updateModel) {
+        public UpdaterPropertyBinder(DependencyProperty property, Action<IBinder<TModel>> updateControl, Action<IBinder<TModel>> updateModel)
+        {
             this.Property = property;
             this.UpdateControl = updateControl;
             this.UpdateModel = updateModel;
         }
 
-        protected override void OnAttached() {
+        protected override void OnAttached()
+        {
             base.OnAttached();
-            if (this.Property != null) {
+            if (this.Property != null)
+            {
                 this.descriptor = DependencyPropertyDescriptor.FromProperty(this.Property, this.Control.GetType());
                 this.descriptor.AddValueChanged(this.Control, this.OnPropertyValueChanged);
             }
         }
 
-        protected override void OnDetatched() {
-            base.OnDetatched();
-            if (this.descriptor != null) {
+        protected override void OnDetached()
+        {
+            base.OnDetached();
+            if (this.descriptor != null)
+            {
                 this.descriptor.RemoveValueChanged(this.Control, this.OnPropertyValueChanged);
                 this.descriptor = null;
             }
@@ -71,11 +78,13 @@ namespace FramePFX.Editors.Controls.Bindings {
 
         private void OnPropertyValueChanged(object sender, EventArgs e) => this.OnControlValueChanged();
 
-        protected override void UpdateModelCore() {
+        protected override void UpdateModelCore()
+        {
             this.UpdateModel?.Invoke(this);
         }
 
-        protected override void UpdateControlCore() {
+        protected override void UpdateControlCore()
+        {
             this.UpdateControl?.Invoke(this);
         }
     }

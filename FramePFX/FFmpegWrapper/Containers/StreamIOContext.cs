@@ -14,14 +14,17 @@ using System;
 using System.IO;
 using FFmpeg.AutoGen;
 
-namespace FramePFX.FFmpegWrapper.Containers {
+namespace FramePFX.FFmpegWrapper.Containers
+{
     /// <summary> Wraps a <see cref="Stream"/> into a <see cref="AVIOContext"/>. </summary>
-    public class StreamIOContext : IOContext {
+    public class StreamIOContext : IOContext
+    {
         public Stream BaseStream { get; }
 
         private bool _leaveOpen;
 
-        public StreamIOContext(Stream stream, bool leaveOpen = false, int bufferSize = 4096) : base(bufferSize, stream.CanRead, stream.CanWrite, stream.CanSeek) {
+        public StreamIOContext(Stream stream, bool leaveOpen = false, int bufferSize = 4096) : base(bufferSize, stream.CanRead, stream.CanWrite, stream.CanSeek)
+        {
             this.BaseStream = stream;
             this._leaveOpen = leaveOpen;
         }
@@ -32,15 +35,18 @@ namespace FramePFX.FFmpegWrapper.Containers {
 #else
         private readonly byte[] _scratchBuffer = new byte[4096 * 4];
 
-        protected override int Read(Span<byte> buffer) {
+        protected override int Read(Span<byte> buffer)
+        {
             int bytesRead = this.BaseStream.Read(this._scratchBuffer, 0, Math.Min(buffer.Length, this._scratchBuffer.Length));
             this._scratchBuffer.AsSpan(0, bytesRead).CopyTo(buffer);
             return bytesRead;
         }
 
-        protected override void Write(ReadOnlySpan<byte> buffer) {
+        protected override void Write(ReadOnlySpan<byte> buffer)
+        {
             int pos = 0;
-            while (pos < buffer.Length) {
+            while (pos < buffer.Length)
+            {
                 int count = Math.Min(this._scratchBuffer.Length, buffer.Length - pos);
                 buffer.Slice(pos, count).CopyTo(this._scratchBuffer);
                 this.BaseStream.Write(this._scratchBuffer, 0, count);
@@ -51,19 +57,24 @@ namespace FramePFX.FFmpegWrapper.Containers {
 
         protected override long Seek(long offset, SeekOrigin origin) => this.BaseStream.Seek(offset, origin);
 
-        protected override long? GetLength() {
-            try {
+        protected override long? GetLength()
+        {
+            try
+            {
                 return this.BaseStream.Length;
             }
-            catch (NotSupportedException) {
+            catch (NotSupportedException)
+            {
                 return null;
             }
         }
 
-        protected override void Free() {
+        protected override void Free()
+        {
             base.Free();
 
-            if (!this._leaveOpen) {
+            if (!this._leaveOpen)
+            {
                 this.BaseStream.Dispose();
             }
         }

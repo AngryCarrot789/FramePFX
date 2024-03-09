@@ -22,24 +22,32 @@ using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Tasks;
 
-namespace FramePFX.Editors.Commands {
-    public class SaveProjectCommand : Command {
-        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+namespace FramePFX.Editors.Commands
+{
+    public class SaveProjectCommand : Command
+    {
+        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        {
             return e.ContextData.ContainsKey(DataKeys.ProjectKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override async Task Execute(CommandEventArgs e) {
-            if (DataKeys.ProjectKey.TryGetContext(e.ContextData, out Project project)) {
-                if (project.IsSaving) {
+        public override async Task Execute(CommandEventArgs e)
+        {
+            if (DataKeys.ProjectKey.TryGetContext(e.ContextData, out Project project))
+            {
+                if (project.IsSaving)
+                {
                     IoC.MessageService.ShowMessage("Already Saving", "Project is already saving!");
                     return;
                 }
 
-                await TaskManager.Instance.RunTask(async () => {
+                await TaskManager.Instance.RunTask(async () =>
+                {
                     IActivityProgress progress = TaskManager.Instance.GetCurrentProgressOrEmpty();
                     progress.Text = "Saving project...";
 
-                    await IoC.Dispatcher.InvokeAsync(() => {
+                    await IoC.Dispatcher.InvokeAsync(() =>
+                    {
                         Project.SaveProject(project, progress);
                     });
                 });
@@ -47,14 +55,19 @@ namespace FramePFX.Editors.Commands {
         }
     }
 
-    public class SaveProjectAsCommand : SaveProjectCommand {
-        public override async Task Execute(CommandEventArgs e) {
-            if (DataKeys.ProjectKey.TryGetContext(e.ContextData, out Project project)) {
-                await TaskManager.Instance.RunTask(async () => {
+    public class SaveProjectAsCommand : SaveProjectCommand
+    {
+        public override async Task Execute(CommandEventArgs e)
+        {
+            if (DataKeys.ProjectKey.TryGetContext(e.ContextData, out Project project))
+            {
+                await TaskManager.Instance.RunTask(async () =>
+                {
                     IActivityProgress progress = TaskManager.Instance.GetCurrentProgressOrEmpty();
                     progress.Text = "Saving project as...";
 
-                    await IoC.Dispatcher.InvokeAsync(() => {
+                    await IoC.Dispatcher.InvokeAsync(() =>
+                    {
                         Project.SaveProjectAs(project, progress);
                     });
                 });

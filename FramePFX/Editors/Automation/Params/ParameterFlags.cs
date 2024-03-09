@@ -19,9 +19,11 @@
 
 using System;
 
-namespace FramePFX.Editors.Automation.Params {
+namespace FramePFX.Editors.Automation.Params
+{
     [Flags]
-    public enum ParameterFlags {
+    public enum ParameterFlags
+    {
         /// <summary>
         /// No automatic functionality is done for this parameter
         /// </summary>

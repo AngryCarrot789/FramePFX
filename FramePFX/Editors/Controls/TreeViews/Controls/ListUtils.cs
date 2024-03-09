@@ -23,28 +23,36 @@
 
 using System.Collections;
 
-namespace FramePFX.Editors.Controls.TreeViews.Controls {
-    internal static class ListUtils {
-        internal static object Last(this IList list) {
-            if (list.Count < 1) {
+namespace FramePFX.Editors.Controls.TreeViews.Controls
+{
+    internal static class ListUtils
+    {
+        internal static object Last(this IList list)
+        {
+            if (list.Count < 1)
+            {
                 return null;
             }
 
             return list[list.Count - 1];
         }
 
-        internal static object First(this IList list) {
-            if (list.Count < 1) {
+        internal static object First(this IList list)
+        {
+            if (list.Count < 1)
+            {
                 return null;
             }
 
             return list[0];
         }
 
-        internal static object FirstNonNull(this IList list) {
+        internal static object FirstNonNull(this IList list)
+        {
             if (list == null)
                 return null;
-            foreach (object value in list) {
+            foreach (object value in list)
+            {
                 if (value != null)
                     return value;
             }

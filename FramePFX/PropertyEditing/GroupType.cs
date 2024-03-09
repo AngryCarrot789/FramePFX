@@ -17,11 +17,13 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.PropertyEditing {
+namespace FramePFX.PropertyEditing
+{
     /// <summary>
     /// An enum that represents the visual group type
     /// </summary>
-    public enum GroupType {
+    public enum GroupType
+    {
         /// <summary>
         /// This is a primary group; it has a big and bold expander
         /// </summary>

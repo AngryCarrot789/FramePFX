@@ -21,27 +21,33 @@ using System.Windows;
 using System.Windows.Controls;
 using FramePFX.PropertyEditing.Automation;
 
-namespace FramePFX.PropertyEditing.Controls.Automation {
-    public class ParameterBooleanPropertyEditorControl : BaseParameterPropertyEditorControl {
+namespace FramePFX.PropertyEditing.Controls.Automation
+{
+    public class ParameterBooleanPropertyEditorControl : BaseParameterPropertyEditorControl
+    {
         private CheckBox valueCheckBox;
         protected bool IsUpdatingControl;
 
         public new ParameterBooleanPropertyEditorSlot SlotModel => (ParameterBooleanPropertyEditorSlot) base.SlotControl.Model;
 
-        public ParameterBooleanPropertyEditorControl() {
+        public ParameterBooleanPropertyEditorControl()
+        {
         }
 
         static ParameterBooleanPropertyEditorControl() => DefaultStyleKeyProperty.OverrideMetadata(typeof(ParameterBooleanPropertyEditorControl), new FrameworkPropertyMetadata(typeof(ParameterBooleanPropertyEditorControl)));
 
-        protected void UpdateControlValue() {
+        protected void UpdateControlValue()
+        {
             this.valueCheckBox.IsChecked = this.SlotModel.Value;
         }
 
-        protected void UpdateModelValue() {
+        protected void UpdateModelValue()
+        {
             this.SlotModel.Value = this.valueCheckBox.IsChecked ?? false;
         }
 
-        public override void OnApplyTemplate() {
+        public override void OnApplyTemplate()
+        {
             base.OnApplyTemplate();
             this.valueCheckBox = this.GetTemplateChild<CheckBox>("PART_ValueCheckBox");
 
@@ -50,35 +56,44 @@ namespace FramePFX.PropertyEditing.Controls.Automation {
             this.valueCheckBox.Unchecked += checkChanged;
         }
 
-        private void OnModelValueChanged() {
-            if (this.SlotModel != null) {
+        private void OnModelValueChanged()
+        {
+            if (this.SlotModel != null)
+            {
                 this.IsUpdatingControl = true;
-                try {
+                try
+                {
                     this.UpdateControlValue();
                 }
-                finally {
+                finally
+                {
                     this.IsUpdatingControl = false;
                 }
             }
         }
 
-        private void OnControlValueChanged() {
-            if (!this.IsUpdatingControl && this.SlotModel != null) {
+        private void OnControlValueChanged()
+        {
+            if (!this.IsUpdatingControl && this.SlotModel != null)
+            {
                 this.UpdateModelValue();
             }
         }
 
-        protected override void OnConnected() {
+        protected override void OnConnected()
+        {
             base.OnConnected();
             this.SlotModel.ValueChanged += this.SlotOnValueChanged;
         }
 
-        protected override void OnDisconnected() {
+        protected override void OnDisconnected()
+        {
             base.OnDisconnected();
             this.SlotModel.ValueChanged += this.SlotOnValueChanged;
         }
 
-        private void SlotOnValueChanged(ParameterPropertyEditorSlot slot) {
+        private void SlotOnValueChanged(ParameterPropertyEditorSlot slot)
+        {
             this.OnModelValueChanged();
         }
     }

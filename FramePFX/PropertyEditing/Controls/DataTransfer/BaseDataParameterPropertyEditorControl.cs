@@ -23,8 +23,10 @@ using FramePFX.Editors.DataTransfer;
 using FramePFX.PropertyEditing.DataTransfer;
 using FramePFX.Utils;
 
-namespace FramePFX.PropertyEditing.Controls.DataTransfer {
-    public abstract class BaseDataParameterPropertyEditorControl : BasePropEditControlContent {
+namespace FramePFX.PropertyEditing.Controls.DataTransfer
+{
+    public abstract class BaseDataParameterPropertyEditorControl : BasePropEditControlContent
+    {
         public static readonly DependencyProperty IsCheckBoxToggleableProperty = DependencyProperty.Register("IsCheckBoxToggleable", typeof(bool), typeof(BaseDataParameterPropertyEditorControl), new PropertyMetadata(BoolBox.False));
 
         protected ITransferableData singleHandler;
@@ -39,22 +41,27 @@ namespace FramePFX.PropertyEditing.Controls.DataTransfer {
 
         public new DataParameterPropertyEditorSlot SlotModel => (DataParameterPropertyEditorSlot) base.SlotModel;
 
-        protected BaseDataParameterPropertyEditorControl() {
+        protected BaseDataParameterPropertyEditorControl()
+        {
         }
 
-        static BaseDataParameterPropertyEditorControl() {
+        static BaseDataParameterPropertyEditorControl()
+        {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(BaseDataParameterPropertyEditorControl), new FrameworkPropertyMetadata(typeof(BaseDataParameterPropertyEditorControl)));
         }
 
-        public override void OnApplyTemplate() {
+        public override void OnApplyTemplate()
+        {
             base.OnApplyTemplate();
             this.displayNameCheckBox = this.GetTemplateChild<CheckBox>("PART_DisplayNameCheckBox");
             this.displayNameCheckBox.Checked += this.OnDisplayNameCheckChanged;
             this.displayNameCheckBox.Unchecked += this.OnDisplayNameCheckChanged;
         }
 
-        protected virtual void OnDisplayNameCheckChanged(object sender, RoutedEventArgs e) {
-            if (!this.isUpdatingCheckBoxControl && this.SlotModel != null) {
+        protected virtual void OnDisplayNameCheckChanged(object sender, RoutedEventArgs e)
+        {
+            if (!this.isUpdatingCheckBoxControl && this.SlotModel != null)
+            {
                 bool value = this.displayNameCheckBox.IsChecked ?? false;
                 this.SlotModel.IsEditable = this.SlotModel.InvertIsEditableForParameter ? !value : value;
             }
@@ -64,25 +71,32 @@ namespace FramePFX.PropertyEditing.Controls.DataTransfer {
 
         protected abstract void UpdateModelValue();
 
-        protected void OnModelValueChanged() {
-            if (this.SlotModel != null) {
+        protected void OnModelValueChanged()
+        {
+            if (this.SlotModel != null)
+            {
                 this.IsUpdatingPrimaryControl = true;
-                try {
+                try
+                {
                     this.UpdateControlValue();
                 }
-                finally {
+                finally
+                {
                     this.IsUpdatingPrimaryControl = false;
                 }
             }
         }
 
-        protected void OnControlValueChanged() {
-            if (!this.IsUpdatingPrimaryControl && this.SlotModel != null) {
+        protected void OnControlValueChanged()
+        {
+            if (!this.IsUpdatingPrimaryControl && this.SlotModel != null)
+            {
                 this.UpdateModelValue();
             }
         }
 
-        protected override void OnConnected() {
+        protected override void OnConnected()
+        {
             DataParameterPropertyEditorSlot slot = this.SlotModel;
             slot.HandlersLoaded += this.OnHandlersChanged;
             slot.HandlersCleared += this.OnHandlersChanged;
@@ -94,7 +108,8 @@ namespace FramePFX.PropertyEditing.Controls.DataTransfer {
             this.OnHandlerListChanged(true);
         }
 
-        protected override void OnDisconnected() {
+        protected override void OnDisconnected()
+        {
             DataParameterPropertyEditorSlot slot = this.SlotModel;
             slot.DisplayNameChanged -= this.OnSlotDisplayNameChanged;
             slot.HandlersLoaded -= this.OnHandlersChanged;
@@ -104,11 +119,13 @@ namespace FramePFX.PropertyEditing.Controls.DataTransfer {
             this.OnHandlerListChanged(false);
         }
 
-        private void SlotOnIsEditableChanged(DataParameterPropertyEditorSlot slot) {
+        private void SlotOnIsEditableChanged(DataParameterPropertyEditorSlot slot)
+        {
             this.UpdateCanEdit();
         }
 
-        private void UpdateCanEdit() {
+        private void UpdateCanEdit()
+        {
             this.isUpdatingCheckBoxControl = true;
             DataParameterPropertyEditorSlot slot = this.SlotModel;
             bool value = this.SlotModel.IsEditable;
@@ -120,35 +137,43 @@ namespace FramePFX.PropertyEditing.Controls.DataTransfer {
 
         protected abstract void OnCanEditValueChanged(bool canEdit);
 
-        private void OnSlotValueChanged(DataParameterPropertyEditorSlot slot) {
+        private void OnSlotValueChanged(DataParameterPropertyEditorSlot slot)
+        {
             this.OnModelValueChanged();
         }
 
-        private void OnSlotDisplayNameChanged(DataParameterPropertyEditorSlot slot) {
+        private void OnSlotDisplayNameChanged(DataParameterPropertyEditorSlot slot)
+        {
             if (this.displayNameCheckBox != null)
                 this.displayNameCheckBox.Content = slot.DisplayName;
         }
 
-        private void OnHandlerListChanged(bool connect) {
+        private void OnHandlerListChanged(bool connect)
+        {
             DataParameterPropertyEditorSlot slot = this.SlotModel;
-            if (connect) {
-                if (slot != null && slot.Handlers.Count == 1) {
+            if (connect)
+            {
+                if (slot != null && slot.Handlers.Count == 1)
+                {
                     this.singleHandler = (ITransferableData) slot.Handlers[0];
                 }
 
                 this.OnHandlersLoadedOverride(true);
             }
-            else {
+            else
+            {
                 this.OnHandlersLoadedOverride(false);
                 this.singleHandler = null;
             }
         }
 
-        protected virtual void OnHandlersLoadedOverride(bool isLoaded) {
+        protected virtual void OnHandlersLoadedOverride(bool isLoaded)
+        {
             this.UpdateCanEdit();
         }
 
-        private void OnHandlersChanged(PropertyEditorSlot sender) {
+        private void OnHandlersChanged(PropertyEditorSlot sender)
+        {
             this.OnHandlerListChanged(sender.IsCurrentlyApplicable);
         }
     }

@@ -23,7 +23,8 @@ using System.Windows.Threading;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 
-namespace FramePFX.CommandSystem.Usages {
+namespace FramePFX.CommandSystem.Usages
+{
     /// <summary>
     /// A command usage is a ui-place-specific usage of a command, e.g. a push or toggle button, a menu or context item.
     /// These accept a connected <see cref="DependencyObject"/>, in which events can be attached and detached in order to
@@ -33,7 +34,8 @@ namespace FramePFX.CommandSystem.Usages {
     /// executability state to be re-queried from the command based on the new contextual data
     /// </para>
     /// </summary>
-    public abstract class CommandUsage {
+    public abstract class CommandUsage
+    {
         // Since its invoke method is only called from the main thread,
         // there's no need for the extended version
         private RapidDispatchAction delayedContextUpdate;
@@ -42,7 +44,8 @@ namespace FramePFX.CommandSystem.Usages {
 
         public DependencyObject Control { get; private set; }
 
-        protected CommandUsage(string commandId) {
+        protected CommandUsage(string commandId)
+        {
             if (commandId == null)
                 throw new Exception(nameof(commandId) + " cannot return null");
             if (string.IsNullOrWhiteSpace(commandId))
@@ -54,23 +57,27 @@ namespace FramePFX.CommandSystem.Usages {
         /// Gets the current available context for our connected control. Returns null if disconnected
         /// </summary>
         /// <returns></returns>
-        public IContextData GetContextData() {
+        public IContextData GetContextData()
+        {
             return this.Control != null ? DataManager.GetFullContextData(this.Control) : null;
         }
 
-        public void Connect(DependencyObject control) {
+        public void Connect(DependencyObject control)
+        {
             this.Control = control ?? throw new ArgumentNullException(nameof(control));
             DataManager.AddInheritedContextInvalidatedHandler(control, this.OnInheritedContextChanged);
             this.OnConnected();
         }
 
-        public void Disconnect() {
+        public void Disconnect()
+        {
             DataManager.RemoveInheritedContextInvalidatedHandler(this.Control, this.OnInheritedContextChanged);
             this.OnDisconnected();
             this.Control = null;
         }
 
-        private void OnInheritedContextChanged(object sender, RoutedEventArgs e) {
+        private void OnInheritedContextChanged(object sender, RoutedEventArgs e)
+        {
             this.OnContextChanged();
         }
 
@@ -78,17 +85,20 @@ namespace FramePFX.CommandSystem.Usages {
 
         protected virtual void OnDisconnected() => this.OnContextChanged();
 
-        protected virtual void OnContextChanged() {
+        protected virtual void OnContextChanged()
+        {
             RapidDispatchAction guard = this.delayedContextUpdate ?? (this.delayedContextUpdate = new RapidDispatchAction(this.UpdateCanExecute, DispatcherPriority.Loaded, "UpdateCanExecute"));
             guard.InvokeAsync();
         }
 
-        protected virtual void UpdateCanExecute() {
+        protected virtual void UpdateCanExecute()
+        {
             IContextData ctx = this.GetContextData();
             this.OnUpdateForCanExecuteState(ctx != null ? CommandManager.Instance.CanExecute(this.CommandId, ctx) : ExecutabilityState.Invalid);
         }
 
-        protected virtual void OnUpdateForCanExecuteState(ExecutabilityState state) {
+        protected virtual void OnUpdateForCanExecuteState(ExecutabilityState state)
+        {
         }
     }
 }

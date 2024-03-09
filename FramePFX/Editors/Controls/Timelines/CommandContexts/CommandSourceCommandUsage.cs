@@ -28,20 +28,25 @@ using FramePFX.CommandSystem.Usages;
 using FramePFX.Interactivity.Contexts;
 using CommandManager = FramePFX.CommandSystem.CommandManager;
 
-namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
+namespace FramePFX.Editors.Controls.Timelines.CommandContexts
+{
     /// <summary>
     /// A command usage for a <see cref="ICommandSource"/> control and that uses an <see cref="ICommand"/> to execute the underlying command
     /// </summary>
-    public class CommandSourceCommandUsage : CommandUsage {
+    public class CommandSourceCommandUsage : CommandUsage
+    {
         private CommandImpl commandImpl;
 
         public ICommand Command => this.commandImpl ?? (this.commandImpl = new CommandImpl(this));
 
-        public CommandSourceCommandUsage(string commandId) : base(commandId) {
+        public CommandSourceCommandUsage(string commandId) : base(commandId)
+        {
         }
 
-        private static void SetCommand(DependencyObject control, ICommand cmd) {
-            switch (control) {
+        private static void SetCommand(DependencyObject control, ICommand cmd)
+        {
+            switch (control)
+            {
                 case ButtonBase btnBase:
                     btnBase.Command = cmd;
                     break;
@@ -55,7 +60,8 @@ namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
             }
         }
 
-        protected override void OnConnected() {
+        protected override void OnConnected()
+        {
             base.OnConnected();
             if (!(this.Control is ICommandSource))
                 throw new InvalidOperationException("Cannot connect to non-ICommandSource");
@@ -63,27 +69,33 @@ namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
             SetCommand(this.Control, this.Command);
         }
 
-        protected override void OnDisconnected() {
+        protected override void OnDisconnected()
+        {
             base.OnDisconnected();
             SetCommand(this.Control, null);
         }
 
-        protected override void UpdateCanExecute() {
+        protected override void UpdateCanExecute()
+        {
             this.commandImpl?.RaiseCanExecuteChanged();
         }
 
-        private class CommandImpl : ICommand {
+        private class CommandImpl : ICommand
+        {
             private readonly CommandSourceCommandUsage usage;
             private bool isExecuting;
 
             public event EventHandler CanExecuteChanged;
 
-            public CommandImpl(CommandSourceCommandUsage usage) {
+            public CommandImpl(CommandSourceCommandUsage usage)
+            {
                 this.usage = usage;
             }
 
-            public bool CanExecute(object parameter) {
-                if (this.isExecuting) {
+            public bool CanExecute(object parameter)
+            {
+                if (this.isExecuting)
+                {
                     return false;
                 }
 
@@ -94,19 +106,24 @@ namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
                 return state == ExecutabilityState.Executable;
             }
 
-            public async void Execute(object parameter) {
-                if (!this.isExecuting) {
+            public async void Execute(object parameter)
+            {
+                if (!this.isExecuting)
+                {
                     this.isExecuting = true;
-                    try {
+                    try
+                    {
                         await CommandManager.Instance.TryExecute(this.usage.CommandId, () => this.usage.GetContextData() ?? EmptyContext.Instance);
                     }
-                    finally {
+                    finally
+                    {
                         this.isExecuting = false;
                     }
                 }
             }
 
-            public void RaiseCanExecuteChanged() {
+            public void RaiseCanExecuteChanged()
+            {
                 this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
             }
         }

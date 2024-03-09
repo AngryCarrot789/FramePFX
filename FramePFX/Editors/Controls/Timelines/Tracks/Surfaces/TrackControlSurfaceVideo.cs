@@ -24,8 +24,10 @@ using FramePFX.Editors.Controls.Bindings;
 using FramePFX.Editors.Controls.Dragger;
 using FramePFX.Editors.Timelines.Tracks;
 
-namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
-    public class TrackControlSurfaceVideo : TrackControlSurface {
+namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces
+{
+    public class TrackControlSurfaceVideo : TrackControlSurface
+    {
         public NumberDragger OpacityDragger { get; private set; }
 
         public ToggleButton VisibilityButton { get; private set; }
@@ -35,14 +37,16 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
         private readonly AutomationBinder<VideoTrack> opacityBinder = new AutomationBinder<VideoTrack>(VideoTrack.OpacityParameter);
         private readonly AutomationBinder<VideoTrack> visibilityBinder = new AutomationBinder<VideoTrack>(VideoTrack.VisibleParameter);
 
-        public TrackControlSurfaceVideo() {
+        public TrackControlSurfaceVideo()
+        {
             this.opacityBinder.UpdateModel += UpdateOpacityForModel;
             this.opacityBinder.UpdateControl += UpdateOpacityForControl;
             this.visibilityBinder.UpdateModel += UpdateVisibilityForModel;
             this.visibilityBinder.UpdateControl += UpdateVisibilityForControl;
         }
 
-        public override void OnApplyTemplate() {
+        public override void OnApplyTemplate()
+        {
             base.OnApplyTemplate();
             this.GetTemplateChild("PART_OpacitySlider", out NumberDragger dragger);
             this.GetTemplateChild("PART_VisibilityButton", out ToggleButton visibilityButton);
@@ -55,42 +59,49 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             this.VisibilityButton.Unchecked += this.VisibilityCheckedChanged;
         }
 
-        private void VisibilityCheckedChanged(object sender, RoutedEventArgs e) {
+        private void VisibilityCheckedChanged(object sender, RoutedEventArgs e)
+        {
             this.visibilityBinder.OnControlValueChanged();
         }
 
-        private static void UpdateOpacityForModel(AutomationBinder<VideoTrack> binder) {
+        private static void UpdateOpacityForModel(AutomationBinder<VideoTrack> binder)
+        {
             AutomatedUtils.SetDefaultKeyFrameOrAddNew(binder.Model, ((TrackControlSurfaceVideo) binder.Control).OpacityDragger, binder.Parameter, RangeBase.ValueProperty);
             binder.Model.InvalidateRender();
         }
 
-        private static void UpdateOpacityForControl(AutomationBinder<VideoTrack> binder) {
+        private static void UpdateOpacityForControl(AutomationBinder<VideoTrack> binder)
+        {
             TrackControlSurfaceVideo control = (TrackControlSurfaceVideo) binder.Control;
             control.OpacityDragger.Value = VideoTrack.OpacityParameter.GetCurrentValue(binder.Model);
         }
 
-        private static void UpdateVisibilityForModel(AutomationBinder<VideoTrack> binder) {
+        private static void UpdateVisibilityForModel(AutomationBinder<VideoTrack> binder)
+        {
             AutomatedUtils.SetDefaultKeyFrameOrAddNew(binder.Model, ((TrackControlSurfaceVideo) binder.Control).VisibilityButton, binder.Parameter, ToggleButton.IsCheckedProperty);
             binder.Model.InvalidateRender();
         }
 
-        private static void UpdateVisibilityForControl(AutomationBinder<VideoTrack> binder) {
+        private static void UpdateVisibilityForControl(AutomationBinder<VideoTrack> binder)
+        {
             TrackControlSurfaceVideo control = (TrackControlSurfaceVideo) binder.Control;
             control.VisibilityButton.IsChecked = VideoTrack.VisibleParameter.GetCurrentValue(binder.Model);
         }
 
-        protected override void OnConnected() {
+        protected override void OnConnected()
+        {
             base.OnConnected();
             this.MyTrack = (VideoTrack) this.Owner.Track;
             this.opacityBinder.Attach(this, this.MyTrack);
             this.visibilityBinder.Attach(this, this.MyTrack);
         }
 
-        protected override void OnDisconnected() {
+        protected override void OnDisconnected()
+        {
             base.OnDisconnected();
             this.MyTrack = null;
-            this.opacityBinder.Detatch();
-            this.visibilityBinder.Detatch();
+            this.opacityBinder.Detach();
+            this.visibilityBinder.Detach();
         }
     }
 }

@@ -22,19 +22,22 @@ using System.Collections.Generic;
 using FramePFX.RBC;
 using FramePFX.Utils.Collections;
 
-namespace FramePFX.Editors.Serialisation {
+namespace FramePFX.Editors.Serialisation
+{
     public delegate void SerialiseHandler<in T>(T obj, RBEDictionary data, SerialisationContext ctx);
 
     /// <summary>
     /// A class which helps version-based serialisation, for serialising objects of typically the current-version into binary
     /// data (RBE system) and deserialising the current-version objects based on similar version or lower version binary data
     /// </summary>
-    public class SerialisationRegistry {
+    public class SerialisationRegistry
+    {
         private readonly InheritanceDictionary<TypeSerialiser> map;
         private readonly object locker; // used just in case Register is called off main thread
         private volatile bool isDirty;
 
-        public SerialisationRegistry() {
+        public SerialisationRegistry()
+        {
             this.map = new InheritanceDictionary<TypeSerialiser>();
             this.locker = new object();
         }
@@ -47,9 +50,11 @@ namespace FramePFX.Editors.Serialisation {
         /// <param name="deserialise">Read: the deserialiser method</param>
         /// <param name="serialise">Write: the serialiser method</param>
         /// <typeparam name="T">The type of object passed to the serialiser/deserialiser</typeparam>
-        public void Register<T>(int buildVersion, SerialiseHandler<T> deserialise, SerialiseHandler<T> serialise) {
+        public void Register<T>(int buildVersion, SerialiseHandler<T> deserialise, SerialiseHandler<T> serialise)
+        {
             Type type = typeof(T);
-            lock (this.locker) {
+            lock (this.locker)
+            {
                 this.isDirty = true;
                 if (!this.map.TryGetLocalValue(type, out TypeSerialiser entry))
                     this.map[type] = entry = new TypeSerialiser();
@@ -73,7 +78,8 @@ namespace FramePFX.Editors.Serialisation {
         /// <param name="data">The RBE dictionary, in which data is written into</param>
         /// <param name="version">The version of the serialiser to use</param>
         /// <param name="flags">Optional flags for the serialisation process</param>
-        public void Serialise(object obj, RBEDictionary data, int version) {
+        public void Serialise(object obj, RBEDictionary data, int version)
+        {
             this.RunSerialisersInternal(true, obj, obj.GetType(), data, version);
         }
 
@@ -93,13 +99,17 @@ namespace FramePFX.Editors.Serialisation {
         /// <param name="data">The RBE dictionary, in which data is read from</param>
         /// <param name="version">The version of the deserialiser to use</param>
         /// <param name="flags">Optional flags for the deserialisation process</param>
-        public void Deserialise(object obj, RBEDictionary data, int version) {
+        public void Deserialise(object obj, RBEDictionary data, int version)
+        {
             this.RunSerialisersInternal(false, obj, obj.GetType(), data, version);
         }
 
-        private void CleanDirtyStates(Type objType) {
-            lock (this.locker) {
-                if (this.isDirty) {
+        private void CleanDirtyStates(Type objType)
+        {
+            lock (this.locker)
+            {
+                if (this.isDirty)
+                {
                     this.isDirty = false;
 
                     // fully generate type hierarchy
@@ -108,20 +118,25 @@ namespace FramePFX.Editors.Serialisation {
             }
         }
 
-        internal void RunSerialisersInternal(bool serialise, object obj, Type objType, RBEDictionary data, int version) {
-            while (this.isDirty) {
+        internal void RunSerialisersInternal(bool serialise, object obj, Type objType, RBEDictionary data, int version)
+        {
+            while (this.isDirty)
+            {
                 this.CleanDirtyStates(objType);
             }
 
-            lock (this.locker) {
+            lock (this.locker)
+            {
                 // CleanDirtyStates hopefully ensures that all the hierarchy of
                 // objects are registered so this should be fast not slow...
                 ITypeEntry<TypeSerialiser> typeEntry = this.map.GetEntrySlowlyOrNull(objType);
-                if (typeEntry == null) {
+                if (typeEntry == null)
+                {
                     return;
                 }
 
-                if (!typeEntry.HasLocalValue && (typeEntry = typeEntry.NearestBaseTypeWithLocalValue) == null) {
+                if (!typeEntry.HasLocalValue && (typeEntry = typeEntry.NearestBaseTypeWithLocalValue) == null)
+                {
                     return;
                 }
 
@@ -134,25 +149,30 @@ namespace FramePFX.Editors.Serialisation {
 
                 TypeSerialiser.SerialiserList info = versions.Values[index];
                 List<TypeSerialiser.NonGenericSerialiseHandler> list = serialise ? info.serialisers : info.deserialisers;
-                if (list != null) {
+                if (list != null)
+                {
                     SerialisationContext context = new SerialisationContext(version, versions.Keys[index], obj, objType, this);
-                    for (int i = 0, count = list.Count; i < count; i++) {
+                    for (int i = 0, count = list.Count; i < count; i++)
+                    {
                         list[i](obj, data, context);
                     }
                 }
             }
         }
 
-        private class TypeSerialiser {
+        private class TypeSerialiser
+        {
             public delegate void NonGenericSerialiseHandler(object obj, RBEDictionary data, SerialisationContext context);
 
             public readonly SortedList<int, SerialiserList> versionInfo;
 
-            public TypeSerialiser() {
+            public TypeSerialiser()
+            {
                 this.versionInfo = new SortedList<int, SerialiserList>();
             }
 
-            public void RegisterSerialiser<T>(int buildVersion, SerialiseHandler<T> serialise, SerialiseHandler<T> deserialise) {
+            public void RegisterSerialiser<T>(int buildVersion, SerialiseHandler<T> serialise, SerialiseHandler<T> deserialise)
+            {
                 if (serialise == null)
                     throw new ArgumentNullException(nameof(serialise));
                 if (deserialise == null)
@@ -163,9 +183,11 @@ namespace FramePFX.Editors.Serialisation {
                 info.AddDeserialiser((o, data, context) => deserialise((T) o, data, context));
             }
 
-            public static int BinarySearchIndexOf(IList<int> list, int value) {
+            public static int BinarySearchIndexOf(IList<int> list, int value)
+            {
                 int min = 0, max = list.Count - 1;
-                while (min <= max) {
+                while (min <= max)
+                {
                     int mid = min + (max - min) / 2;
                     int cmp = value.CompareTo(list[mid]);
                     if (cmp == 0)
@@ -179,15 +201,18 @@ namespace FramePFX.Editors.Serialisation {
                 return ~min;
             }
 
-            public class SerialiserList {
+            public class SerialiserList
+            {
                 public List<NonGenericSerialiseHandler> serialisers;
                 public List<NonGenericSerialiseHandler> deserialisers;
 
-                public void AddSerialiser(NonGenericSerialiseHandler handler) {
+                public void AddSerialiser(NonGenericSerialiseHandler handler)
+                {
                     (this.serialisers ?? (this.serialisers = new List<NonGenericSerialiseHandler>())).Add(handler);
                 }
 
-                public void AddDeserialiser(NonGenericSerialiseHandler handler) {
+                public void AddDeserialiser(NonGenericSerialiseHandler handler)
+                {
                     (this.deserialisers ?? (this.deserialisers = new List<NonGenericSerialiseHandler>())).Add(handler);
                 }
             }
@@ -198,7 +223,8 @@ namespace FramePFX.Editors.Serialisation {
     /// Stores information about the current serialisation or deserialisation operation. This is a mutable
     /// class whose state is modified during each serialisation frame (old values restored during end of serialisation)
     /// </summary>
-    public readonly struct SerialisationContext {
+    public readonly struct SerialisationContext
+    {
         /// <summary>
         /// Gets the target serialisation version. This is typically the version of the application.
         /// This is used to determine what type of serialisers to target. Serialisation implementation
@@ -235,7 +261,8 @@ namespace FramePFX.Editors.Serialisation {
         /// </summary>
         public readonly SerialisationRegistry Registry;
 
-        public SerialisationContext(int targetVersion, int actualVersion, object currentObject, Type currentType, SerialisationRegistry registry) {
+        public SerialisationContext(int targetVersion, int actualVersion, object currentObject, Type currentType, SerialisationRegistry registry)
+        {
             if (targetVersion < 0)
                 throw new InvalidOperationException("Target version cannot be negative");
             if (actualVersion < 0)
@@ -258,9 +285,11 @@ namespace FramePFX.Editors.Serialisation {
         /// </summary>
         /// <param name="data">The RBE dictionary, which should be written into</param>
         /// <param name="version">The version of our current type's base type's serialiser to use</param>
-        public void SerialiseBaseType(RBEDictionary data, int version) {
+        public void SerialiseBaseType(RBEDictionary data, int version)
+        {
             Type baseType = this.CurrentType.BaseType;
-            if (baseType != null) {
+            if (baseType != null)
+            {
                 this.Registry.RunSerialisersInternal(true, this.CurrentObject, baseType, data, version);
             }
         }
@@ -270,7 +299,8 @@ namespace FramePFX.Editors.Serialisation {
         /// certain the previous serialiser version will work properly
         /// </summary>
         /// <param name="data">The RBE dictionary, which should be written into</param>
-        public void SerialiseLastVersion(RBEDictionary data) {
+        public void SerialiseLastVersion(RBEDictionary data)
+        {
             if (this.ActualVersion <= 0)
                 throw new InvalidOperationException("Cannot serialise the previous version of our object when we are the first version");
             this.Registry.RunSerialisersInternal(true, this.CurrentObject, this.CurrentType, data, this.ActualVersion - 1);
@@ -287,9 +317,11 @@ namespace FramePFX.Editors.Serialisation {
         /// </summary>
         /// <param name="data">The RBE dictionary, which should be read from</param>
         /// <param name="version">The version of our current type's base type's serialiser to use</param>
-        public void DeserialiseBaseType(RBEDictionary data, int version) {
+        public void DeserialiseBaseType(RBEDictionary data, int version)
+        {
             Type baseType = this.CurrentType.BaseType;
-            if (baseType != null) {
+            if (baseType != null)
+            {
                 this.Registry.RunSerialisersInternal(false, this.CurrentObject, baseType, data, version);
             }
         }
@@ -298,7 +330,8 @@ namespace FramePFX.Editors.Serialisation {
         /// Same as <see cref="SerialiseLastVersion{T}"/>, except for deserialisation
         /// </summary>
         /// <param name="data">The RBE dictionary, which should be read from</param>
-        public void DeserialiseLastVersion(RBEDictionary data) {
+        public void DeserialiseLastVersion(RBEDictionary data)
+        {
             if (this.ActualVersion <= 0)
                 throw new InvalidOperationException("Cannot deserialise the previous version of our object when we are the first version");
             this.Registry.RunSerialisersInternal(false, this.CurrentObject, this.CurrentType, data, this.ActualVersion - 1);

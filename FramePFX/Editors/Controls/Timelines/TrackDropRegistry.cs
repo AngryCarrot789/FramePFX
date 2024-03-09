@@ -31,76 +31,94 @@ using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 
-namespace FramePFX.Editors.Controls.Timelines {
-    public static class TrackDropRegistry {
+namespace FramePFX.Editors.Controls.Timelines
+{
+    public static class TrackDropRegistry
+    {
         public static DragDropRegistry<Track> DropRegistry { get; }
 
-        static TrackDropRegistry() {
+        static TrackDropRegistry()
+        {
             DropRegistry = new DragDropRegistry<Track>();
 
-            DropRegistry.RegisterNative<Track>(NativeDropTypes.FileDrop, (handler, objekt, type, c) => {
+            DropRegistry.RegisterNative<Track>(NativeDropTypes.FileDrop, (handler, objekt, type, c) =>
+            {
                 return objekt.GetData(NativeDropTypes.FileDrop) is string[] files && files.Length > 0 ? EnumDropType.Copy : EnumDropType.None;
-            }, (model, objekt, type, c) => {
-                string[] files = (string[])objekt.GetData(NativeDropTypes.FileDrop);
+            }, (model, objekt, type, c) =>
+            {
+                string[] files = (string[]) objekt.GetData(NativeDropTypes.FileDrop);
                 IoC.MessageService.ShowMessage("STILL TODO", $"Dropping files directly into the timeline is not implemented yet.\nYou dropped: {string.Join(", ", files)}");
                 return Task.CompletedTask;
             });
 
-            DropRegistry.Register<VideoTrack, ResourceItem>((track, resource, dt, ctx) => {
+            DropRegistry.Register<VideoTrack, ResourceItem>((track, resource, dt, ctx) =>
+            {
                 return resource is ResourceColour || resource is ResourceImage || resource is ResourceTextStyle || resource is ResourceAVMedia || resource is ResourceComposition
                     ? EnumDropType.Copy
                     : EnumDropType.None;
-            }, (track, resource, dt, ctx) => {
-                if (!DataKeys.TrackDropFrameKey.TryGetContext(ctx, out long frame)) {
+            }, (track, resource, dt, ctx) =>
+            {
+                if (!DataKeys.TrackDropFrameKey.TryGetContext(ctx, out long frame))
+                {
                     IoC.MessageService.ShowMessage("Drop err", "Drag drop error: no track frame location");
                     return Task.CompletedTask;
                 }
 
-                if (!resource.IsOnline) {
+                if (!resource.IsOnline)
+                {
                     IoC.MessageService.ShowMessage("Resource Offline", "Cannot add an offline resource to the timeline");
                     return Task.CompletedTask;
                 }
 
-                if (resource.UniqueId == ResourceManager.EmptyId || !resource.IsRegistered()) {
+                if (resource.UniqueId == ResourceManager.EmptyId || !resource.IsRegistered())
+                {
                     IoC.MessageService.ShowMessage("Invalid resource", "This resource is not registered yet. This is a bug");
                     return Task.CompletedTask;
                 }
 
                 IBaseResourcePathKey autoLoadKey = null;
                 double fps = track.Project.Settings.FrameRate.AsDouble;
-                FrameSpan defaultSpan = track.GetSpanUntilClipOrLimitedDuration(frame, (long)(fps * 5));
+                FrameSpan defaultSpan = track.GetSpanUntilClipOrLimitedDuration(frame, (long) (fps * 5));
                 Clip theNewClip;
-                switch (resource) {
-                    case ResourceAVMedia media: {
-                        if (media.HasReachedResourecLimit()) {
+                switch (resource)
+                {
+                    case ResourceAVMedia media:
+                    {
+                        if (media.HasReachedResourecLimit())
+                        {
                             int count = media.ResourceLinkLimit;
                             IoC.MessageService.ShowMessage("Resource Limit", $"This resource cannot be used by more than {count} clip{Lang.S(count)}");
                             return Task.CompletedTask;
                         }
 
-                        if (media.Demuxer == null) {
+                        if (media.Demuxer == null)
+                        {
                             IoC.MessageService.ShowMessage("Resource demuxer offline", "The resource's demuxer is not available");
                             return Task.CompletedTask;
                         }
 
                         TimeSpan span = media.GetDuration();
-                        long dur = (long)Math.Floor(span.TotalSeconds * fps);
-                        if (dur < 1) {
+                        long dur = (long) Math.Floor(span.TotalSeconds * fps);
+                        if (dur < 1)
+                        {
                             IoC.MessageService.ShowMessage("Invalid media", "This media has a duration of 0 and cannot be added to the timeline");
                             return Task.CompletedTask;
                         }
 
                         // image files are 1
-                        if (dur == 1) {
+                        if (dur == 1)
+                        {
                             dur = defaultSpan.Duration;
                         }
 
                         long newProjectDuration = frame + dur + 600;
-                        if (newProjectDuration > track.Timeline.MaxDuration) {
+                        if (newProjectDuration > track.Timeline.MaxDuration)
+                        {
                             track.Timeline.MaxDuration = newProjectDuration;
                         }
 
-                        AVMediaVideoClip clip = new AVMediaVideoClip() {
+                        AVMediaVideoClip clip = new AVMediaVideoClip()
+                        {
                             FrameSpan = new FrameSpan(frame, dur),
                             DisplayName = "Media Clip"
                         };
@@ -111,8 +129,10 @@ namespace FramePFX.Editors.Controls.Timelines {
 
                         break;
                     }
-                    case ResourceColour argb: {
-                        VideoClipShape clip = new VideoClipShape {
+                    case ResourceColour argb:
+                    {
+                        VideoClipShape clip = new VideoClipShape
+                        {
                             FrameSpan = defaultSpan,
                             DisplayName = "Shape Clip",
                             Size = new Vector2(200, 200)
@@ -123,8 +143,10 @@ namespace FramePFX.Editors.Controls.Timelines {
                         theNewClip = clip;
                         break;
                     }
-                    case ResourceImage img: {
-                        ImageVideoClip clip = new ImageVideoClip() {
+                    case ResourceImage img:
+                    {
+                        ImageVideoClip clip = new ImageVideoClip()
+                        {
                             FrameSpan = defaultSpan,
                             DisplayName = "Image Clip"
                         };
@@ -134,8 +156,10 @@ namespace FramePFX.Editors.Controls.Timelines {
                         theNewClip = clip;
                         break;
                     }
-                    case ResourceComposition comp: {
-                        CompositionVideoClip clip = new CompositionVideoClip() {
+                    case ResourceComposition comp:
+                    {
+                        CompositionVideoClip clip = new CompositionVideoClip()
+                        {
                             FrameSpan = defaultSpan,
                         };
                         clip.ResourceCompositionKey.SetTargetResourceId(comp.UniqueId);
@@ -143,8 +167,7 @@ namespace FramePFX.Editors.Controls.Timelines {
                         theNewClip = clip;
                         break;
                     }
-                    default:
-                        return Task.CompletedTask;
+                    default: return Task.CompletedTask;
                 }
 
                 track.AddClip(theNewClip);

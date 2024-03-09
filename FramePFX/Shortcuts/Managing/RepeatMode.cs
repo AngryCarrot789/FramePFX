@@ -17,8 +17,10 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Shortcuts.Managing {
-    public enum RepeatMode {
+namespace FramePFX.Shortcuts.Managing
+{
+    public enum RepeatMode
+    {
         /// <summary>
         /// Repeated input strokes are ignored
         /// </summary>

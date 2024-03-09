@@ -25,8 +25,10 @@ using System.Windows.Input;
 using FramePFX.Editors.Controls.Bindings;
 using FramePFX.Utils;
 
-namespace FramePFX.PropertyEditing.Controls {
-    public class PropertyEditorSlotControl : ContentControl {
+namespace FramePFX.PropertyEditing.Controls
+{
+    public class PropertyEditorSlotControl : ContentControl
+    {
         public static readonly DependencyProperty IsSelectedProperty =
             Selector.IsSelectedProperty.AddOwner(
                 typeof(PropertyEditorSlotControl),
@@ -65,28 +67,36 @@ namespace FramePFX.PropertyEditing.Controls {
 
         private readonly GetSetAutoEventPropertyBinder<PropertyEditorSlot> isSelectedBinder = new GetSetAutoEventPropertyBinder<PropertyEditorSlot>(IsSelectedProperty, nameof(PropertyEditorSlot.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.IsSelected = (bool) v);
 
-        public PropertyEditorSlotControl() {
+        public PropertyEditorSlotControl()
+        {
         }
 
-        static PropertyEditorSlotControl() {
+        static PropertyEditorSlotControl()
+        {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(PropertyEditorSlotControl), new FrameworkPropertyMetadata(typeof(PropertyEditorSlotControl)));
         }
 
-        protected override void OnPreviewMouseDown(MouseButtonEventArgs e) {
+        protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
+        {
             base.OnPreviewMouseDown(e);
-            if (!e.Handled && this.IsSelectable) {
-                if ((Keyboard.Modifiers & ModifierKeys.Control) != 0) {
+            if (!e.Handled && this.IsSelectable)
+            {
+                if ((Keyboard.Modifiers & ModifierKeys.Control) != 0)
+                {
                     this.IsSelected = !this.IsSelected;
                 }
-                else if (this.Model.PropertyEditor is BasePropertyEditor editor) {
+                else if (this.Model.PropertyEditor is BasePropertyEditor editor)
+                {
                     editor.ClearSelection();
                     this.IsSelected = true;
                 }
-                else {
+                else
+                {
                     return;
                 }
 
-                if (this.OwnerGroup?.PropertyEditor is PropertyEditorControl editorControl) {
+                if (this.OwnerGroup?.PropertyEditor is PropertyEditorControl editorControl)
+                {
                     editorControl.TouchedSlot = this;
                 }
 
@@ -101,26 +111,31 @@ namespace FramePFX.PropertyEditing.Controls {
             }
         }
 
-        private static bool CanHandleClick(UIElement originalSource, Control templatedParent) {
-            if (originalSource.Focusable || templatedParent != null && templatedParent.Focusable) {
+        private static bool CanHandleClick(UIElement originalSource, Control templatedParent)
+        {
+            if (originalSource.Focusable || templatedParent != null && templatedParent.Focusable)
+            {
                 return false;
             }
 
-            if (originalSource is TextBoxBase || originalSource.GetType().Name == "TextBoxView") {
+            if (originalSource is TextBoxBase || originalSource.GetType().Name == "TextBoxView")
+            {
                 return false;
             }
 
             return true;
         }
 
-        public void OnAdding(PropertyEditorGroupControl ownerGroup, PropertyEditorSlot item) {
+        public void OnAdding(PropertyEditorGroupControl ownerGroup, PropertyEditorSlot item)
+        {
             BasePropEditControlContent content = BasePropEditControlContent.NewContentInstance(item.GetType());
             this.Model = item;
             this.OwnerGroup = ownerGroup;
             this.Content = content;
         }
 
-        public void ConnectModel() {
+        public void ConnectModel()
+        {
             this.IsSelectable = this.Model.IsSelectable;
             this.isSelectedBinder.Attach(this, this.Model);
             this.Model.IsCurrentlyApplicableChanged += this.Model_IsCurrentlyApplicableChanged;
@@ -135,28 +150,35 @@ namespace FramePFX.PropertyEditing.Controls {
             // content.UpdateLayout();
         }
 
-        public void DisconnectModel() {
+        public void DisconnectModel()
+        {
             ((BasePropEditControlContent) this.Content).Disconnect();
-            this.isSelectedBinder.Detatch();
+            this.isSelectedBinder.Detach();
             this.UpdateVisibility();
             this.Model = null;
             this.OwnerGroup = null;
         }
 
-        private void OnSelectionChanged(bool oldValue, bool newValue) {
+        private void OnSelectionChanged(bool oldValue, bool newValue)
+        {
         }
 
-        private void Model_IsCurrentlyApplicableChanged(BasePropertyEditorItem sender) {
+        private void Model_IsCurrentlyApplicableChanged(BasePropertyEditorItem sender)
+        {
             this.UpdateVisibility();
         }
 
-        protected virtual void UpdateVisibility() {
-            if (this.Model.IsVisible) {
-                if (this.Visibility != Visibility.Visible) {
+        protected virtual void UpdateVisibility()
+        {
+            if (this.Model.IsVisible)
+            {
+                if (this.Visibility != Visibility.Visible)
+                {
                     this.Visibility = Visibility.Visible;
                 }
             }
-            else if (this.Visibility != Visibility.Collapsed) {
+            else if (this.Visibility != Visibility.Collapsed)
+            {
                 this.Visibility = Visibility.Collapsed;
             }
         }

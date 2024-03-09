@@ -25,12 +25,14 @@ using FramePFX.Editors.Controls.Resources.Trees;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Controls.Resources {
+namespace FramePFX.Editors.Controls.Resources
+{
     /// <summary>
     /// The main control which manages the UI for the resource manager and all
     /// of the resources inside of it, such as a resource tree, 'current folder' list, selection, etc.
     /// </summary>
-    public class ResourcePanelControl : Control {
+    public class ResourcePanelControl : Control
+    {
         public static readonly DependencyProperty ResourceManagerProperty =
             DependencyProperty.Register(
                 "ResourceManager",
@@ -47,10 +49,12 @@ namespace FramePFX.Editors.Controls.Resources {
 
         public ResourceTreeView ResourceTreeView { get; private set; }
 
-        public ResourcePanelControl() {
+        public ResourcePanelControl()
+        {
         }
 
-        public override void OnApplyTemplate() {
+        public override void OnApplyTemplate()
+        {
             base.OnApplyTemplate();
             if (!(this.GetTemplateChild("PART_ResourceList") is ResourceExplorerListControl listBox))
                 throw new Exception("Missing PART_ResourceList");
@@ -61,13 +65,16 @@ namespace FramePFX.Editors.Controls.Resources {
         }
 
         // Assuming OnApplyTemplate is called before this method, which appears the be every time
-        private void OnResourceManagerChanged(ResourceManager oldManager, ResourceManager newManager) {
+        private void OnResourceManagerChanged(ResourceManager oldManager, ResourceManager newManager)
+        {
             this.ResourceExplorerList.ResourceManager = newManager;
             this.ResourceTreeView.ResourceManager = newManager;
-            if (newManager != null) {
+            if (newManager != null)
+            {
                 DataManager.SetContextData(this, new ContextData().Set(DataKeys.ResourceManagerKey, newManager));
             }
-            else {
+            else
+            {
                 DataManager.ClearContextData(this);
             }
         }

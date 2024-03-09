@@ -35,11 +35,13 @@ using FramePFX.Utils;
 using SkiaSharp;
 using Track = FramePFX.Editors.Timelines.Tracks.Track;
 
-namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
+namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces
+{
     /// <summary>
     /// A control which represents the contents of a <see cref="TrackControlSurfaceListBox"/>
     /// </summary>
-    public class TrackControlSurface : Control {
+    public class TrackControlSurface : Control
+    {
         private static readonly Dictionary<Type, Func<TrackControlSurface>> Constructors = new Dictionary<Type, Func<TrackControlSurface>>();
         private static readonly DependencyPropertyKey TrackColourBrushPropertyKey = DependencyProperty.RegisterReadOnly("TrackColourBrush", typeof(Brush), typeof(TrackControlSurface), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
         public static readonly DependencyProperty TrackColourBrushProperty = TrackColourBrushPropertyKey.DependencyProperty;
@@ -59,11 +61,13 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
 
         private readonly GetSetAutoEventPropertyBinder<Track> displayNameBinder = new GetSetAutoEventPropertyBinder<Track>(DisplayNameProperty, nameof(Track.DisplayNameChanged), b => b.Model.DisplayName, (b, v) => b.Model.DisplayName = (string) v);
 
-        private readonly UpdaterAutoEventPropertyBinder<Track> trackColourBinder = new UpdaterAutoEventPropertyBinder<Track>(TrackColourBrushProperty, nameof(Track.ColourChanged), binder => {
+        private readonly UpdaterAutoEventPropertyBinder<Track> trackColourBinder = new UpdaterAutoEventPropertyBinder<Track>(TrackColourBrushProperty, nameof(Track.ColourChanged), binder =>
+        {
             TrackControlSurface element = (TrackControlSurface) binder.Control;
             SKColor c = element.Owner.Track?.Colour ?? SKColors.Black;
             ((SolidColorBrush) element.TrackColourBrush).Color = Color.FromArgb(c.Alpha, c.Red, c.Green, c.Blue);
-        }, binder => {
+        }, binder =>
+        {
             TrackControlSurface element = (TrackControlSurface) binder.Control;
             Color c = ((SolidColorBrush) element.TrackColourBrush).Color;
             element.Owner.Track.Colour = new SKColor(c.R, c.G, c.B, c.A);
@@ -87,13 +91,15 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
         private readonly ObservableCollection<TrackListItemParameterViewModel> parameterList;
         private TrackListItemParameterViewModel selectedParameter;
 
-        public TrackControlSurface() {
+        public TrackControlSurface()
+        {
             this.TrackColourBrush = new SolidColorBrush(Colors.Black);
             this.actionButtons = new List<Button>();
             this.parameterList = new ObservableCollection<TrackListItemParameterViewModel>();
         }
 
-        public override void OnApplyTemplate() {
+        public override void OnApplyTemplate()
+        {
             base.OnApplyTemplate();
             this.GetTemplateChild("PART_ExpandTrackButton", out ToggleButton expandButton);
             this.GetTemplateChild("PART_InsertKeyFrameButton", out Button insertKeyFrameButton);
@@ -109,11 +115,14 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             expandButton.Unchecked += this.ExpandTrackCheckedChanged;
 
             this.InsertKeyFrameButton = insertKeyFrameButton;
-            this.CreateBasicButtonAction(insertKeyFrameButton, () => {
+            this.CreateBasicButtonAction(insertKeyFrameButton, () =>
+            {
                 Parameter parameter = this.selectedParameter?.Parameter;
-                if (parameter != null) {
+                if (parameter != null)
+                {
                     Track track = this.Owner.Track;
-                    if (track.GetRelativePlayHead(out long playHead)) {
+                    if (track.GetRelativePlayHead(out long playHead))
+                    {
                         AutomationSequence seq = track.AutomationData[parameter];
                         object value = parameter.GetCurrentObjectValue(track);
                         seq.AddNewKeyFrame(playHead, out KeyFrame keyFrame);
@@ -124,8 +133,10 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             });
 
             this.ToggleOverrideButton = insertKeyFrameButton;
-            this.CreateBasicButtonAction(toggleOverrideButton, () => {
-                if (this.selectedParameter != null) {
+            this.CreateBasicButtonAction(toggleOverrideButton, () =>
+            {
+                if (this.selectedParameter != null)
+                {
                     AutomationSequence seq = this.Owner.Track.AutomationData[this.selectedParameter.Parameter];
                     seq.IsOverrideEnabled = !seq.IsOverrideEnabled;
                 }
@@ -137,33 +148,41 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             this.UpdateForSelectedParameter(this.selectedParameter);
         }
 
-        protected void GetTemplateChild<T>(string name, out T value) where T : DependencyObject {
+        protected void GetTemplateChild<T>(string name, out T value) where T : DependencyObject
+        {
             if ((value = this.GetTemplateChild(name) as T) == null)
                 throw new Exception("Missing part: " + name);
         }
 
-        public static void RegisterType<T>(Type trackType, Func<T> func) where T : TrackControlSurface {
+        public static void RegisterType<T>(Type trackType, Func<T> func) where T : TrackControlSurface
+        {
             Constructors[trackType] = func;
         }
 
-        static TrackControlSurface() {
+        static TrackControlSurface()
+        {
             RegisterType(typeof(VideoTrack), () => new TrackControlSurfaceVideo());
             RegisterType(typeof(AudioTrack), () => new TrackControlSurfaceAudio());
         }
 
-        public static TrackControlSurface NewInstance(Type trackType) {
-            if (trackType == null) {
+        public static TrackControlSurface NewInstance(Type trackType)
+        {
+            if (trackType == null)
+            {
                 throw new ArgumentNullException(nameof(trackType));
             }
 
             // Just try to find a base control type. It should be found first try unless I forgot to register a new control type
             bool hasLogged = false;
-            for (Type type = trackType; type != null; type = type.BaseType) {
-                if (Constructors.TryGetValue(type, out Func<TrackControlSurface> func)) {
+            for (Type type = trackType; type != null; type = type.BaseType)
+            {
+                if (Constructors.TryGetValue(type, out Func<TrackControlSurface> func))
+                {
                     return func();
                 }
 
-                if (!hasLogged) {
+                if (!hasLogged)
+                {
                     hasLogged = true;
                     Debugger.Break();
                     Debug.WriteLine("Could not find control for track type on first try. Scanning base types");
@@ -173,26 +192,31 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             throw new Exception("No such content control for track type: " + trackType.Name);
         }
 
-        private void OnParameterSelectionChanged(object sender, SelectionChangedEventArgs e) {
+        private void OnParameterSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
             this.isProcessingParameterSelectionChanged = true;
             this.selectedParameter = this.ParameterComboBox.SelectedItem as TrackListItemParameterViewModel;
             this.UpdateForSelectedParameter(this.selectedParameter);
             this.isProcessingParameterSelectionChanged = false;
         }
 
-        private void UpdateForSelectedParameter(TrackListItemParameterViewModel selected) {
+        private void UpdateForSelectedParameter(TrackListItemParameterViewModel selected)
+        {
             this.InsertKeyFrameButton.IsEnabled = selected != null;
             this.ToggleOverrideButton.IsEnabled = selected != null;
-            if (this.Owner?.TrackList?.TimelineControl is TimelineControl control) {
+            if (this.Owner?.TrackList?.TimelineControl is TimelineControl control)
+            {
                 Track trackModel = this.Owner.Track;
                 TimelineTrackControl track = control.GetTimelineControlFromTrack(trackModel);
-                if (track?.AutomationEditor != null) {
+                if (track?.AutomationEditor != null)
+                {
                     track.AutomationEditor.Sequence = selected != null ? trackModel.AutomationData[selected.Parameter] : null;
                 }
             }
         }
 
-        private void ExpandTrackCheckedChanged(object sender, RoutedEventArgs e) {
+        private void ExpandTrackCheckedChanged(object sender, RoutedEventArgs e)
+        {
             if (this.ignoreExpandTrackEvent)
                 return;
 
@@ -200,14 +224,17 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             Track track = this.Owner.Track;
             this.ignoreTrackHeightChanged = true;
 
-            if (isExpanded) {
-                if (DoubleUtils.AreClose(this.trackHeightBeforeCollapse, Track.MinimumHeight)) {
+            if (isExpanded)
+            {
+                if (DoubleUtils.AreClose(this.trackHeightBeforeCollapse, Track.MinimumHeight))
+                {
                     this.trackHeightBeforeCollapse = Track.DefaultHeight;
                 }
 
                 track.Height = this.trackHeightBeforeCollapse;
             }
-            else {
+            else
+            {
                 this.trackHeightBeforeCollapse = track.Height;
                 track.Height = Track.MinimumHeight;
             }
@@ -215,68 +242,81 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             this.ignoreTrackHeightChanged = false;
         }
 
-        private void OnTrackHeightChanged(Track track) {
+        private void OnTrackHeightChanged(Track track)
+        {
             if (this.ignoreTrackHeightChanged)
                 return;
             this.UpdateTrackHeightExpander();
         }
 
-        private void UpdateTrackHeightExpander() {
+        private void UpdateTrackHeightExpander()
+        {
             this.ignoreExpandTrackEvent = true;
-            if (Maths.Equals(this.Owner.Track.Height, Track.MinimumHeight)) {
+            if (Maths.Equals(this.Owner.Track.Height, Track.MinimumHeight))
+            {
                 this.trackHeightBeforeCollapse = Track.DefaultHeight;
                 this.ToggleExpandTrackButton.IsChecked = false;
             }
-            else {
+            else
+            {
                 this.ToggleExpandTrackButton.IsChecked = true;
             }
 
             this.ignoreExpandTrackEvent = false;
         }
 
-        public void Connect(TrackControlSurfaceListBoxItem owner) {
+        public void Connect(TrackControlSurfaceListBoxItem owner)
+        {
             this.Owner = owner;
             this.OnConnected();
         }
 
-        public void Disconnect() {
+        public void Disconnect()
+        {
             this.OnDisconnected();
             this.Owner = null;
         }
 
-        protected virtual void OnConnected() {
+        protected virtual void OnConnected()
+        {
             Track track = this.Owner.Track;
             this.displayNameBinder.Attach(this, track);
             this.trackColourBinder.Attach(this, track);
             track.HeightChanged += this.OnTrackHeightChanged;
             this.UpdateTrackHeightExpander();
 
-            foreach (Parameter parameter in Parameter.GetApplicableParameters(track.GetType())) {
+            foreach (Parameter parameter in Parameter.GetApplicableParameters(track.GetType()))
+            {
                 this.parameterList.Add(new TrackListItemParameterViewModel(this, parameter));
             }
 
-            foreach (Button actionButton in this.actionButtons) {
+            foreach (Button actionButton in this.actionButtons)
+            {
                 actionButton.IsEnabled = true;
             }
         }
 
-        protected virtual void OnDisconnected() {
-            this.displayNameBinder.Detatch();
-            this.trackColourBinder.Detatch();
+        protected virtual void OnDisconnected()
+        {
+            this.displayNameBinder.Detach();
+            this.trackColourBinder.Detach();
             this.Owner.Track.HeightChanged -= this.OnTrackHeightChanged;
 
             foreach (TrackListItemParameterViewModel item in this.parameterList)
                 item.Disconnect();
             this.parameterList.Clear();
 
-            foreach (Button actionButton in this.actionButtons) {
+            foreach (Button actionButton in this.actionButtons)
+            {
                 actionButton.IsEnabled = false;
             }
         }
 
-        protected Button CreateBasicButtonAction(Button button, Action action) {
+        protected Button CreateBasicButtonAction(Button button, Action action)
+        {
             this.actionButtons.Add(button);
-            button.Click += (sender, args) => {
+            button.Click += (sender, args) =>
+            {
                 if (this.Owner != null)
                     action();
             };
@@ -284,13 +324,15 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             return button;
         }
 
-        public void SetAutomationVisibility(bool visibility) {
+        public void SetAutomationVisibility(bool visibility)
+        {
             if (this.AutomationPanel != null)
                 this.AutomationPanel.Visibility = visibility ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 
-    public class TrackListItemParameterViewModel : INotifyPropertyChanged {
+    public class TrackListItemParameterViewModel : INotifyPropertyChanged
+    {
         public Parameter Parameter { get; }
 
         public AutomationSequence Sequence { get; }
@@ -305,10 +347,12 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public TrackListItemParameterViewModel() {
+        public TrackListItemParameterViewModel()
+        {
         }
 
-        public TrackListItemParameterViewModel(TrackControlSurface owner, Parameter parameter) {
+        public TrackListItemParameterViewModel(TrackControlSurface owner, Parameter parameter)
+        {
             this.Parameter = parameter;
             this.Sequence = owner.Owner.Track.AutomationData[parameter];
             this.Sequence.OverrideStateChanged += this.SequenceOverrideStateChanged;
@@ -316,30 +360,36 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             this.Sequence.KeyFrameRemoved += this.SequenceKeyFrameCollectionChanged;
         }
 
-        private void SequenceOverrideStateChanged(AutomationSequence sequence) {
+        private void SequenceOverrideStateChanged(AutomationSequence sequence)
+        {
             this.IsOverrideEnabled = sequence.IsOverrideEnabled;
             this.OnPropertyChanged(nameof(this.IsOverrideEnabled));
         }
 
-        private void SequenceKeyFrameCollectionChanged(AutomationSequence sequence, KeyFrame keyframe, int index) {
+        private void SequenceKeyFrameCollectionChanged(AutomationSequence sequence, KeyFrame keyframe, int index)
+        {
             bool isAutomated = !sequence.IsEmpty;
-            if (this.IsAutomated != isAutomated) {
+            if (this.IsAutomated != isAutomated)
+            {
                 this.IsAutomated = isAutomated;
                 this.OnPropertyChanged(nameof(this.IsAutomated));
             }
         }
 
-        public void Disconnect() {
+        public void Disconnect()
+        {
             this.Sequence.OverrideStateChanged -= this.SequenceOverrideStateChanged;
             this.Sequence.KeyFrameAdded -= this.SequenceKeyFrameCollectionChanged;
             this.Sequence.KeyFrameRemoved -= this.SequenceKeyFrameCollectionChanged;
         }
 
-        public override string ToString() {
+        public override string ToString()
+        {
             return this.Name;
         }
 
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null) {
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }

@@ -21,7 +21,8 @@ using System;
 using System.Threading;
 using System.Windows.Threading;
 
-namespace FramePFX.Utils {
+namespace FramePFX.Utils
+{
     /// <summary>
     /// A class that is used to dispatch work onto the application dispatcher asynchronously, ensuring that the same action
     /// cannot be enqueued more than once before it has completed. This class is thread safe, however, calling invoke from
@@ -32,7 +33,8 @@ namespace FramePFX.Utils {
     /// threads may not yield the best results
     /// </para>
     /// </summary>
-    public class RapidDispatchAction {
+    public class RapidDispatchAction
+    {
         protected const int STATE_INACTIVE = 0;
         protected const int STATE_SCHEDULED = 1;
 
@@ -44,21 +46,25 @@ namespace FramePFX.Utils {
 
         public DispatcherPriority Priority { get; }
 
-        public RapidDispatchAction(Action action, DispatcherPriority priority = DispatcherPriority.Send, string debugId = null) {
+        public RapidDispatchAction(Action action, DispatcherPriority priority = DispatcherPriority.Send, string debugId = null)
+        {
             this.debugId = debugId;
             this.Priority = priority;
-            this.executeAction = () => {
-                try {
+            this.executeAction = () =>
+            {
+                try
+                {
                     action();
                 }
-                finally {
+                finally
+                {
                     this.state = STATE_INACTIVE;
                 }
             };
         }
 
-        public RapidDispatchAction(Action action, string debugId) : this(action, DispatcherPriority.Send, debugId) {
-
+        public RapidDispatchAction(Action action, string debugId) : this(action, DispatcherPriority.Send, debugId)
+        {
         }
 
         /// <summary>
@@ -72,7 +78,8 @@ namespace FramePFX.Utils {
         /// </summary>
         /// <param name="cancellationToken">A token used to signal the execution to be cancelled</param>
         /// <returns>True if the action was scheduled, otherwise false meaning it is already scheduled</returns>
-        public bool InvokeAsync(CancellationToken cancellationToken) {
+        public bool InvokeAsync(CancellationToken cancellationToken)
+        {
             if (Interlocked.CompareExchange(ref this.state, STATE_SCHEDULED, STATE_INACTIVE) != STATE_INACTIVE)
                 return false;
             IoC.Dispatcher.InvokeAsync(this.executeAction, this.Priority, cancellationToken);

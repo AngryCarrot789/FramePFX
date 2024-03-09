@@ -19,12 +19,14 @@
 
 using System.Windows;
 
-namespace FramePFX.Editors.Controls.Bindings {
+namespace FramePFX.Editors.Controls.Bindings
+{
     /// <summary>
     /// A generic interface for a binder
     /// </summary>
     /// <typeparam name="TModel">The type of model this binder attaches to</typeparam>
-    public interface IBinder<TModel> : IBinder where TModel : class {
+    public interface IBinder<TModel> : IBinder where TModel : class
+    {
         /// <summary>
         /// The currently attached element that owns this binder
         /// </summary>
@@ -46,13 +48,14 @@ namespace FramePFX.Editors.Controls.Bindings {
         /// <summary>
         /// Detaches this binder
         /// </summary>
-        void Detatch();
+        void Detach();
     }
 
     /// <summary>
     /// A non-generic interface for a binder
     /// </summary>
-    public interface IBinder {
+    public interface IBinder
+    {
         /// <summary>
         /// Gets whether this binder is attached, meaning <see cref="Control"/> and <see cref="Model"/> are non-null
         /// </summary>

@@ -19,11 +19,13 @@
 
 using System.Collections.Generic;
 
-namespace FramePFX.Interactivity.Contexts {
+namespace FramePFX.Interactivity.Contexts
+{
     /// <summary>
     /// An immutable object that stores context information. Any entry will always have a non-null value (null values are not permitted)
     /// </summary>
-    public interface IContextData {
+    public interface IContextData
+    {
         /// <summary>
         /// Returns an enumerable that allows iteration of all entries in this object
         /// </summary>
@@ -33,6 +35,11 @@ namespace FramePFX.Interactivity.Contexts {
         /// Tries to get a value from a data key
         /// </summary>
         bool TryGetContext(string key, out object value);
+
+        /// <summary>
+        /// Tries to get a value from a data key
+        /// </summary>
+        bool TryGetContext<T>(DataKey<T> key, out T value);
 
         /// <summary>
         /// Checks if the given data key is contained in this context

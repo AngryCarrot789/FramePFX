@@ -28,8 +28,10 @@ using FramePFX.Utils;
 using FramePFX.Utils.Visuals;
 using CommandManager = FramePFX.CommandSystem.CommandManager;
 
-namespace FramePFX.Shortcuts.WPF {
-    public class UIInputManager : INotifyPropertyChanged {
+namespace FramePFX.Shortcuts.WPF
+{
+    public class UIInputManager : INotifyPropertyChanged
+    {
         public delegate void FocusedPathChangedEventHandler(string oldPath, string newPath);
 
         public static UIInputManager Instance { get; } = new UIInputManager();
@@ -51,7 +53,8 @@ namespace FramePFX.Shortcuts.WPF {
 
         public string FocusedPath {
             get => this.focusedPath;
-            private set {
+            private set
+            {
                 this.focusedPath = value;
                 this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.FocusedPath)));
             }
@@ -59,12 +62,14 @@ namespace FramePFX.Shortcuts.WPF {
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private UIInputManager() {
+        private UIInputManager()
+        {
             if (Instance != null)
                 throw new InvalidOperationException();
         }
 
-        static UIInputManager() {
+        static UIInputManager()
+        {
             InputManager.Current.PreProcessInput += OnPreProcessInput;
             InputManager.Current.PostProcessInput += OnPostProcessInput;
         }
@@ -111,14 +116,17 @@ namespace FramePFX.Shortcuts.WPF {
         public static void SetCanProcessTextBoxMouseStroke(DependencyObject element, bool value) => element.SetValue(CanProcessTextBoxMouseStrokeProperty, value.Box());
         public static bool GetCanProcessTextBoxMouseStroke(DependencyObject element) => (bool) element.GetValue(CanProcessTextBoxMouseStrokeProperty);
 
-        public static void RaiseFocusGroupPathChanged(string oldGroup, string newGroup) {
+        public static void RaiseFocusGroupPathChanged(string oldGroup, string newGroup)
+        {
             OnFocusedPathChanged?.Invoke(oldGroup, newGroup);
         }
 
-        public static void ProcessFocusGroupChange(DependencyObject obj) {
+        public static void ProcessFocusGroupChange(DependencyObject obj)
+        {
             string oldPath = Instance.FocusedPath;
             string newPath = GetFocusPath(obj);
-            if (oldPath != newPath) {
+            if (oldPath != newPath)
+            {
                 Instance.FocusedPath = newPath;
                 RaiseFocusGroupPathChanged(oldPath, newPath);
                 UpdateFocusGroup(obj, newPath);
@@ -132,13 +140,16 @@ namespace FramePFX.Shortcuts.WPF {
         /// </summary>
         /// <param name="target">Target/focused element which now has focus</param>
         /// <param name="newPath"></param>
-        public static void UpdateFocusGroup(DependencyObject target, string newPath) {
-            if (CurrentlyFocusedObject.TryGetTarget(out DependencyObject lastFocused)) {
+        public static void UpdateFocusGroup(DependencyObject target, string newPath)
+        {
+            if (CurrentlyFocusedObject.TryGetTarget(out DependencyObject lastFocused))
+            {
                 CurrentlyFocusedObject.SetTarget(null);
                 SetIsPathFocused(lastFocused, false);
             }
 
-            if (string.IsNullOrEmpty(newPath)) {
+            if (string.IsNullOrEmpty(newPath))
+            {
                 return;
             }
 
@@ -147,23 +158,28 @@ namespace FramePFX.Shortcuts.WPF {
             //     root = VisualTreeUtils.FindInheritedPropertyDefinition(FocusGroupPathProperty, root);
             // } while (root != null && !GetHasAdvancedFocusVisual(root) && (root = VisualTreeHelper.GetParent(root)) != null);
 
-            if (root != null) {
+            if (root != null)
+            {
                 CurrentlyFocusedObject.SetTarget(root);
                 SetIsPathFocused(root, true);
                 // if (root is UIElement element && element.Focusable && !element.IsFocused) {
                 //     element.Focus();
                 // }
             }
-            else {
+            else
+            {
                 Debug.WriteLine("Failed to find root control that owns the FocusPathProperty of '" + GetFocusPath(target) + "'");
             }
         }
 
-        #region Input Event Handlers
+#region Input Event Handlers
 
-        private static void OnPreProcessInput(object sender, PreProcessInputEventArgs args) {
-            switch (args.StagingItem.Input) {
-                case KeyboardFocusChangedEventArgs e: {
+        private static void OnPreProcessInput(object sender, PreProcessInputEventArgs args)
+        {
+            switch (args.StagingItem.Input)
+            {
+                case KeyboardFocusChangedEventArgs e:
+                {
                     OnApplicationKeyboardFocusChanged(e, args);
                     break;
                 }
@@ -182,10 +198,13 @@ namespace FramePFX.Shortcuts.WPF {
             }
         }
 
-        private static void OnPostProcessInput(object sender, ProcessInputEventArgs args) {
-            if (args.StagingItem.Input is KeyboardFocusChangedEventArgs e) {
+        private static void OnPostProcessInput(object sender, ProcessInputEventArgs args)
+        {
+            if (args.StagingItem.Input is KeyboardFocusChangedEventArgs e)
+            {
                 ContextCapturingMenu.OnKeyboardFocusChanged(sender, e, args);
-                CommandManager.Instance.OnApplicationFocusChanged(() => {
+                CommandManager.Instance.OnApplicationFocusChanged(() =>
+                {
                     if (Keyboard.FocusedElement is DependencyObject obj)
                         return DataManager.GetFullContextData(obj);
                     return EmptyContext.Instance;
@@ -201,57 +220,73 @@ namespace FramePFX.Shortcuts.WPF {
              */
         }
 
-        private static void OnApplicationKeyboardFocusChanged(KeyboardFocusChangedEventArgs e, PreProcessInputEventArgs args) {
-            if (e.Device is KeyboardDevice keyboard && keyboard.Target is DependencyObject focused) {
+        private static void OnApplicationKeyboardFocusChanged(KeyboardFocusChangedEventArgs e, PreProcessInputEventArgs args)
+        {
+            if (e.Device is KeyboardDevice keyboard && keyboard.Target is DependencyObject focused)
+            {
                 ProcessFocusGroupChange(focused);
             }
         }
 
-        private static bool OnApplicationKeyEvent(KeyEventArgs e, PreProcessInputEventArgs inputArgs) {
+        private static bool OnApplicationKeyEvent(KeyEventArgs e, PreProcessInputEventArgs inputArgs)
+        {
             Key key = e.Key == Key.System ? e.SystemKey : e.Key;
-            if (key == Key.DeadCharProcessed || key == Key.None) {
+            if (key == Key.DeadCharProcessed || key == Key.None)
+            {
                 return false;
             }
 
-            if (ShortcutUtils.IsModifierKey(key) && e.IsRepeat) {
+            if (ShortcutUtils.IsModifierKey(key) && e.IsRepeat)
+            {
                 return false;
             }
 
-            if (!(e.InputSource.RootVisual is Window window)) {
+            if (!(e.InputSource.RootVisual is Window window))
+            {
                 return false;
             }
 
             WPFShortcutInputManager processor = (WPFShortcutInputManager) window.GetValue(ShortcutProcessorProperty);
-            if (processor == null) {
+            if (processor == null)
+            {
                 window.SetValue(ShortcutProcessorPropertyKey, processor = new WPFShortcutInputManager(WPFShortcutManager.WPFInstance));
             }
-            else if (processor.isProcessingKey) {
+            else if (processor.isProcessingKey)
+            {
                 return false;
             }
 
             InputDevice recentInput = inputArgs.InputManager.MostRecentInputDevice;
             DependencyObject focusedObject = null;
-            if (recentInput is KeyboardDevice keyboard) {
-                if (keyboard.FocusedElement is DependencyObject obj && obj != window) {
+            if (recentInput is KeyboardDevice keyboard)
+            {
+                if (keyboard.FocusedElement is DependencyObject obj && obj != window)
+                {
                     focusedObject = obj;
                 }
             }
 
-            if (focusedObject == null) {
-                if (recentInput is MouseDevice mouse) {
-                    if (mouse.Target is DependencyObject obj && obj != window) {
+            if (focusedObject == null)
+            {
+                if (recentInput is MouseDevice mouse)
+                {
+                    if (mouse.Target is DependencyObject obj && obj != window)
+                    {
                         focusedObject = obj;
                     }
                 }
-                else {
+                else
+                {
                     mouse = inputArgs.InputManager.PrimaryMouseDevice;
-                    if (mouse.Target is DependencyObject obj && obj != window) {
+                    if (mouse.Target is DependencyObject obj && obj != window)
+                    {
                         focusedObject = obj;
                     }
                 }
             }
 
-            if (focusedObject != null) {
+            if (focusedObject != null)
+            {
                 bool isPreview = e.RoutedEvent == Keyboard.PreviewKeyDownEvent || e.RoutedEvent == Keyboard.PreviewKeyUpEvent;
                 processor.OnInputSourceKeyEvent(processor, focusedObject, e, key, e.IsUp, isPreview);
                 if (processor.isProcessingKey)
@@ -262,44 +297,54 @@ namespace FramePFX.Shortcuts.WPF {
             return false;
         }
 
-        private static bool OnApplicationMouseButtonEvent(MouseButtonEventArgs e) {
+        private static bool OnApplicationMouseButtonEvent(MouseButtonEventArgs e)
+        {
             if (!(e.Device is MouseDevice mouse) || !(mouse.Target is DependencyObject focused))
                 return false;
             if (!(Window.GetWindow(focused) is Window window) || focused == window)
                 return false;
 
             bool isPreview, isDown;
-            if (e.RoutedEvent == Mouse.PreviewMouseDownEvent) {
+            if (e.RoutedEvent == Mouse.PreviewMouseDownEvent)
+            {
                 isPreview = isDown = true;
             }
-            else if (e.RoutedEvent == Mouse.PreviewMouseUpEvent) {
+            else if (e.RoutedEvent == Mouse.PreviewMouseUpEvent)
+            {
                 isPreview = true;
                 isDown = false;
             }
-            else if (e.RoutedEvent == Mouse.MouseDownEvent) {
+            else if (e.RoutedEvent == Mouse.MouseDownEvent)
+            {
                 isPreview = false;
                 isDown = true;
             }
-            else if (e.RoutedEvent == Mouse.MouseUpEvent) {
+            else if (e.RoutedEvent == Mouse.MouseUpEvent)
+            {
                 isPreview = isDown = false;
             }
-            else {
+            else
+            {
                 return false;
             }
 
-            if (isPreview) {
+            if (isPreview)
+            {
                 ProcessFocusGroupChange(focused);
             }
 
-            if (!WPFShortcutInputManager.CanProcessEventType(focused, isPreview) || !WPFShortcutInputManager.CanProcessMouseEvent(focused, e)) {
+            if (!WPFShortcutInputManager.CanProcessEventType(focused, isPreview) || !WPFShortcutInputManager.CanProcessMouseEvent(focused, e))
+            {
                 return false;
             }
 
             WPFShortcutInputManager processor = (WPFShortcutInputManager) window.GetValue(ShortcutProcessorProperty);
-            if (processor == null) {
+            if (processor == null)
+            {
                 window.SetValue(ShortcutProcessorPropertyKey, processor = new WPFShortcutInputManager(WPFShortcutManager.WPFInstance));
             }
-            else if (processor.isProcessingMouse) {
+            else if (processor.isProcessingMouse)
+            {
                 return false;
             }
 
@@ -309,33 +354,40 @@ namespace FramePFX.Shortcuts.WPF {
             return e.Handled;
         }
 
-        private static bool OnApplicationMouseWheelEvent(MouseWheelEventArgs e) {
+        private static bool OnApplicationMouseWheelEvent(MouseWheelEventArgs e)
+        {
             if (e.Delta == 0 || !(e.Device is MouseDevice mouse) || !(mouse.Target is DependencyObject focusedObject))
                 return false;
             if (!(Window.GetWindow(focusedObject) is Window window) || focusedObject == window)
                 return false;
 
             bool isPreview;
-            if (e.RoutedEvent == Mouse.PreviewMouseWheelEvent) {
+            if (e.RoutedEvent == Mouse.PreviewMouseWheelEvent)
+            {
                 isPreview = true;
                 ProcessFocusGroupChange(focusedObject);
             }
-            else if (e.RoutedEvent == Mouse.MouseWheelEvent) {
+            else if (e.RoutedEvent == Mouse.MouseWheelEvent)
+            {
                 isPreview = false;
             }
-            else {
+            else
+            {
                 return false;
             }
 
-            if (!WPFShortcutInputManager.CanProcessEventType(focusedObject, isPreview) || !WPFShortcutInputManager.CanProcessMouseEvent(focusedObject, e)) {
+            if (!WPFShortcutInputManager.CanProcessEventType(focusedObject, isPreview) || !WPFShortcutInputManager.CanProcessMouseEvent(focusedObject, e))
+            {
                 return false;
             }
 
             WPFShortcutInputManager processor = (WPFShortcutInputManager) window.GetValue(ShortcutProcessorProperty);
-            if (processor == null) {
+            if (processor == null)
+            {
                 window.SetValue(ShortcutProcessorPropertyKey, processor = new WPFShortcutInputManager(WPFShortcutManager.WPFInstance));
             }
-            else if (processor.isProcessingMouse) {
+            else if (processor.isProcessingMouse)
+            {
                 return false;
             }
 
@@ -345,6 +397,6 @@ namespace FramePFX.Shortcuts.WPF {
             return e.Handled;
         }
 
-        #endregion
+#endregion
     }
 }

@@ -23,33 +23,42 @@ using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Tasks;
 
-namespace FramePFX.Editors.Commands {
-    public class NewProjectCommand : Command {
+namespace FramePFX.Editors.Commands
+{
+    public class NewProjectCommand : Command
+    {
         // true: project was already closed or is now closed
         // false: close was cancelled; cancel entire operation
 
-        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        {
             return e.ContextData.ContainsKey(DataKeys.VideoEditorKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override async Task Execute(CommandEventArgs e) {
-            if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor)) {
+        public override async Task Execute(CommandEventArgs e)
+        {
+            if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor))
+            {
                 return;
             }
 
-            await TaskManager.Instance.RunTask(async () => {
+            await TaskManager.Instance.RunTask(async () =>
+            {
                 IActivityProgress progress = TaskManager.Instance.CurrentTask.Progress;
 
                 progress.OnProgress(0.25);
-                if (!await CloseProjectCommand.CloseProjectBGT(editor, null)) {
+                if (!await CloseProjectCommand.CloseProjectBGT(editor, null))
+                {
                     return;
                 }
 
                 progress.OnProgress(0.5);
 
-                await IoC.Dispatcher.InvokeAsync(() => {
+                await IoC.Dispatcher.InvokeAsync(() =>
+                {
                     Project project = new Project();
-                    VideoTrack track = new VideoTrack() {
+                    VideoTrack track = new VideoTrack()
+                    {
                         DisplayName = "Video Track 1"
                     };
 

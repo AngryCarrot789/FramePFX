@@ -19,15 +19,19 @@
 
 using System;
 
-namespace FramePFX.Editors.Timelines.Clips {
-    public class AudioClip : Clip {
+namespace FramePFX.Editors.Timelines.Clips
+{
+    public class AudioClip : Clip
+    {
         private float phase;
 
-        public override bool IsEffectTypeAccepted(Type effectType) {
+        public override bool IsEffectTypeAccepted(Type effectType)
+        {
             return false;
         }
 
-        public bool BeginRenderAudio(long frame, long sampleFrames) {
+        public bool BeginRenderAudio(long frame, long sampleFrames)
+        {
             return true;
         }
 
@@ -36,14 +40,16 @@ namespace FramePFX.Editors.Timelines.Clips {
         /// </summary>
         /// <param name="outputs">An array of output channels</param>
         /// <param name="sampleFrames">The number of samples to generate</param>
-        public unsafe void ProvideSamples(float* outSamples, long sampleFrames, float trackAmplitude) {
+        public unsafe void ProvideSamples(float* outSamples, long sampleFrames, float trackAmplitude)
+        {
             const int sampleRate = 44100;
             float amplitude = 0.5F * trackAmplitude;
             const float freq = 440F;
             const float deltaPhase = (float) (2.0 * Math.PI * freq / sampleRate);
             const float PI2 = (float) Math.PI * 2.0F;
 
-            for (int i = 0; i < sampleFrames; ++i) {
+            for (int i = 0; i < sampleFrames; ++i)
+            {
                 float sample = (float) (Math.Sin(this.phase) * amplitude);
 
                 *outSamples++ = sample;

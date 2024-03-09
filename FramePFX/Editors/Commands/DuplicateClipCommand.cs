@@ -25,16 +25,23 @@ using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.PropertyEditing;
 
-namespace FramePFX.Editors.Commands {
-    public class DuplicateClipCommand : Command {
-        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+namespace FramePFX.Editors.Commands
+{
+    public class DuplicateClipCommand : Command
+    {
+        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        {
             return e.ContextData.ContainsKey(DataKeys.ClipKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override Task Execute(CommandEventArgs e) {
-            if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip clip) && clip.Track is Track track) {
-                if (clip.Track.TryGetSpanUntilClip(clip.FrameSpan.EndIndex, out FrameSpan span, clip.FrameSpan.Duration, clip.FrameSpan.Duration)) {
-                    if (track.Timeline != null) {
+        public override Task Execute(CommandEventArgs e)
+        {
+            if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip clip) && clip.Track is Track track)
+            {
+                if (clip.Track.TryGetSpanUntilClip(clip.FrameSpan.EndIndex, out FrameSpan span, clip.FrameSpan.Duration, clip.FrameSpan.Duration))
+                {
+                    if (track.Timeline != null)
+                    {
                         track.Timeline.TryExpandForFrame(span.EndIndex);
                     }
 
@@ -43,7 +50,8 @@ namespace FramePFX.Editors.Commands {
                     track.AddClip(clone);
                     clip.IsSelected = false;
                     clone.IsSelected = true;
-                    if (track.Timeline != null) {
+                    if (track.Timeline != null)
+                    {
                         VideoEditorPropertyEditor.Instance.UpdateClipSelectionAsync(track.Timeline);
                     }
                 }

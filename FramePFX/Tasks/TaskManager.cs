@@ -26,10 +26,12 @@ using System.Windows;
 using System.Windows.Threading;
 using FramePFX.Utils;
 
-namespace FramePFX.Tasks {
+namespace FramePFX.Tasks
+{
     public delegate void TaskManagerTaskEventHandler(TaskManager taskManager, ActivityTask task, int index);
 
-    public class TaskManager : IDisposable {
+    public class TaskManager : IDisposable
+    {
         public static TaskManager Instance => IoC.TaskManager;
 
         private readonly ThreadLocal<ActivityTask> threadToTask;
@@ -41,17 +43,20 @@ namespace FramePFX.Tasks {
 
         public IReadOnlyList<ActivityTask> ActiveTasks => this.tasks;
 
-        public TaskManager() {
+        public TaskManager()
+        {
             this.threadToTask = new ThreadLocal<ActivityTask>();
             this.tasks = new List<ActivityTask>();
             this.locker = new object();
         }
 
-        public ActivityTask RunTask(Func<Task> action) {
+        public ActivityTask RunTask(Func<Task> action)
+        {
             return ActivityTask.InternalRun(this, action, null, CancellationToken.None);
         }
 
-        public ActivityTask RunTask(Func<Task> action, IActivityProgress progress) {
+        public ActivityTask RunTask(Func<Task> action, IActivityProgress progress)
+        {
             return ActivityTask.InternalRun(this, action, progress, CancellationToken.None);
         }
 
@@ -62,7 +67,8 @@ namespace FramePFX.Tasks {
         /// <param name="progress">The task progress used to represent the task's completion</param>
         /// <param name="cancellationToken">A token used to signal task cancellation</param>
         /// <returns>The task</returns>
-        public ActivityTask RunTask(Func<Task> action, IActivityProgress progress, CancellationToken cancellationToken) {
+        public ActivityTask RunTask(Func<Task> action, IActivityProgress progress, CancellationToken cancellationToken)
+        {
             return ActivityTask.InternalRun(this, action, progress, cancellationToken);
         }
 
@@ -71,8 +77,10 @@ namespace FramePFX.Tasks {
         /// </summary>
         /// <param name="task">The task associated with the current thread</param>
         /// <returns>True if this thread is running a task</returns>
-        public bool TryGetCurrentTask(out ActivityTask task) {
-            if (this.threadToTask.IsValueCreated && (task = this.threadToTask.Value) != null) {
+        public bool TryGetCurrentTask(out ActivityTask task)
+        {
+            if (this.threadToTask.IsValueCreated && (task = this.threadToTask.Value) != null)
+            {
                 return true;
             }
 
@@ -86,53 +94,67 @@ namespace FramePFX.Tasks {
         /// Gets either the current task's activity progress tracker, or the <see cref="EmptyActivityProgress"/> instance (for convenience over null-checks)
         /// </summary>
         /// <returns></returns>
-        public IActivityProgress GetCurrentProgressOrEmpty() {
-            if (this.TryGetCurrentTask(out ActivityTask task)) {
+        public IActivityProgress GetCurrentProgressOrEmpty()
+        {
+            if (this.TryGetCurrentTask(out ActivityTask task))
+            {
                 return task.Progress;
             }
 
             return EmptyActivityProgress.Instance;
         }
 
-        public void Dispose() {
+        public void Dispose()
+        {
             this.threadToTask.Dispose();
         }
 
-        internal static void InternalBeginActivateTask_BGTHREAD(TaskManager taskManager, ActivityTask task) {
+        internal static void InternalBeginActivateTask_BGTHREAD(TaskManager taskManager, ActivityTask task)
+        {
             taskManager.threadToTask.Value = task;
-            IoC.Dispatcher.Invoke(() => {
+            IoC.Dispatcher.Invoke(() =>
+            {
                 InternalOnTaskStartedSafe(taskManager, task);
                 ActivityTask.InternalActivate(task);
             });
         }
 
-        internal static void InternalOnTaskCompleted_BGTHREAD(TaskManager taskManager, ActivityTask task, int state) {
+        internal static void InternalOnTaskCompleted_BGTHREAD(TaskManager taskManager, ActivityTask task, int state)
+        {
             taskManager.threadToTask.Value = null;
-            Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
                 ActivityTask.InternalComplete(task, state);
                 InternalOnTaskCompletedSafe(taskManager, task);
-                if (task.Exception is Exception e) {
+                if (task.Exception is Exception e)
+                {
                     const string msg = "An exception occurred while running a task";
-                    if (Debugger.IsAttached) {
+                    if (Debugger.IsAttached)
+                    {
                         throw new Exception(msg, e);
                     }
-                    else {
+                    else
+                    {
                         IoC.MessageService.ShowMessage("Task Error", msg, e.GetToString());
                     }
                 }
             }), DispatcherPriority.Send);
         }
 
-        internal static void InternalOnTaskStartedSafe(TaskManager taskManager, ActivityTask task) {
-            lock (taskManager.locker) {
+        internal static void InternalOnTaskStartedSafe(TaskManager taskManager, ActivityTask task)
+        {
+            lock (taskManager.locker)
+            {
                 int index = taskManager.tasks.Count;
                 taskManager.tasks.Insert(index, task);
                 taskManager.TaskStarted?.Invoke(taskManager, task, index);
             }
         }
 
-        internal static void InternalOnTaskCompletedSafe(TaskManager taskManager, ActivityTask task) {
-            lock (taskManager.locker) {
+        internal static void InternalOnTaskCompletedSafe(TaskManager taskManager, ActivityTask task)
+        {
+            lock (taskManager.locker)
+            {
                 int index = taskManager.tasks.IndexOf(task);
                 taskManager.tasks.RemoveAt(index);
                 taskManager.TaskCompleted?.Invoke(taskManager, task, index);

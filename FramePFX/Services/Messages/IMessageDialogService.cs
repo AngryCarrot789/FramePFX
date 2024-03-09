@@ -19,8 +19,10 @@
 
 using System.Windows;
 
-namespace FramePFX.Services.Messages {
-    public interface IMessageDialogService {
+namespace FramePFX.Services.Messages
+{
+    public interface IMessageDialogService
+    {
         /// <summary>
         /// Shows a dialog message, blocking until it closes. This must be called on the application main thread
         /// </summary>

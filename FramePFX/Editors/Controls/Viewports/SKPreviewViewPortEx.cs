@@ -26,8 +26,10 @@ using System.Windows.Media.Imaging;
 using FramePFX.Utils;
 using SkiaSharp;
 
-namespace FramePFX.Editors.Controls.Viewports {
-    public class SKPreviewViewPortEx : FrameworkElement {
+namespace FramePFX.Editors.Controls.Viewports
+{
+    public class SKPreviewViewPortEx : FrameworkElement
+    {
         public static readonly DependencyProperty UseNearestNeighbourRenderingProperty =
             DependencyProperty.Register(
                 "UseNearestNeighbourRendering",
@@ -52,26 +54,31 @@ namespace FramePFX.Editors.Controls.Viewports {
         private WriteableBitmap bitmap;
         private bool isRendering;
 
-        public SKPreviewViewPortEx() {
+        public SKPreviewViewPortEx()
+        {
             this.designMode = DesignerProperties.GetIsInDesignMode(this);
             this.UseNearestNeighbourRendering = !this.designMode; // true by default
         }
 
-        public bool BeginRenderWithSurface(SKImageInfo frameInfo) {
+        public bool BeginRenderWithSurface(SKImageInfo frameInfo)
+        {
             PresentationSource source;
-            if (this.isRendering || this.designMode || (source = PresentationSource.FromVisual(this)) == null) {
+            if (this.isRendering || this.designMode || (source = PresentationSource.FromVisual(this)) == null)
+            {
                 return false;
             }
 
             SKSizeI scaledSize = this.CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, source);
             this.CanvasSize = scaledSize;
-            if (scaledSize.Width <= 0 || scaledSize.Height <= 0) {
+            if (scaledSize.Width <= 0 || scaledSize.Height <= 0)
+            {
                 return false;
             }
 
             this.skImageInfo = frameInfo;
             WriteableBitmap bmp = this.bitmap;
-            if (bmp == null || frameInfo.Width != bmp.PixelWidth || frameInfo.Height != bmp.PixelHeight) {
+            if (bmp == null || frameInfo.Width != bmp.PixelWidth || frameInfo.Height != bmp.PixelHeight)
+            {
                 this.bitmap = new WriteableBitmap(
                     frameInfo.Width, scaledSize.Height,
                     unscaledSize.Width == scaledSize.Width ? 96d : (96d * scaleX),
@@ -84,7 +91,8 @@ namespace FramePFX.Editors.Controls.Viewports {
             return true;
         }
 
-        public void EndRenderWithSurface(SKSurface srcSurface) {
+        public void EndRenderWithSurface(SKSurface srcSurface)
+        {
             SKImageInfo imgInfo = this.skImageInfo;
             srcSurface.Flush(true, true);
             this.bitmap.Lock();
@@ -93,13 +101,17 @@ namespace FramePFX.Editors.Controls.Viewports {
             int dstPxH = this.bitmap.PixelHeight;
             IntPtr srcPtr = srcSurface.PeekPixels().GetPixels();
             IntPtr dstPtr = this.bitmap.BackBuffer;
-            if (imgInfo.Width == dstPxW && imgInfo.Height == dstPxH) {
+            if (imgInfo.Width == dstPxW && imgInfo.Height == dstPxH)
+            {
                 BitBltSkia(srcPtr, dstPtr, imgInfo);
             }
-            else {
-                using (SKPixmap srcPixmal = new SKPixmap(imgInfo, srcPtr)) {
+            else
+            {
+                using (SKPixmap srcPixmal = new SKPixmap(imgInfo, srcPtr))
+                {
                     SKImageInfo dstInfo = new SKImageInfo(dstPxW, dstPxH, imgInfo.ColorType, imgInfo.AlphaType, imgInfo.ColorSpace);
-                    using (SKPixmap dstPixmap = new SKPixmap(dstInfo, dstPtr)) {
+                    using (SKPixmap dstPixmap = new SKPixmap(dstInfo, dstPtr))
+                    {
                         srcPixmal.ScalePixels(dstPixmap, SKFilterQuality.High);
                     }
                 }
@@ -121,9 +133,12 @@ namespace FramePFX.Editors.Controls.Viewports {
             this.InvalidateVisual();
         }
 
-        private static void BitBltSkia(IntPtr srcPtr, IntPtr dstPtr, SKImageInfo imgInfo) {
-            if (srcPtr != IntPtr.Zero && dstPtr != IntPtr.Zero) {
-                unsafe {
+        private static void BitBltSkia(IntPtr srcPtr, IntPtr dstPtr, SKImageInfo imgInfo)
+        {
+            if (srcPtr != IntPtr.Zero && dstPtr != IntPtr.Zero)
+            {
+                unsafe
+                {
                     Unsafe.CopyBlock(dstPtr.ToPointer(), srcPtr.ToPointer(), (uint) imgInfo.BytesSize64);
                 }
             }
@@ -135,24 +150,29 @@ namespace FramePFX.Editors.Controls.Viewports {
 
         protected virtual void OnPostEndRender() { }
 
-        protected override void OnRender(DrawingContext dc) {
+        protected override void OnRender(DrawingContext dc)
+        {
             WriteableBitmap bmp = this.bitmap;
-            if (bmp != null) {
+            if (bmp != null)
+            {
                 dc.DrawImage(bmp, new Rect(0d, 0d, this.ActualWidth, this.ActualHeight));
             }
         }
 
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
             base.OnRenderSizeChanged(sizeInfo);
             this.InvalidateVisual();
         }
 
-        private SKSizeI CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, PresentationSource source) {
+        private SKSizeI CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, PresentationSource source)
+        {
             unscaledSize = SKSizeI.Empty;
             scaleX = 1f;
             scaleY = 1f;
             Size size = this.RenderSize;
-            if (IsPositive(size.Width) && IsPositive(size.Height)) {
+            if (IsPositive(size.Width) && IsPositive(size.Height))
+            {
                 unscaledSize = new SKSizeI((int) size.Width, (int) size.Height);
                 Matrix transformToDevice = source.CompositionTarget?.TransformToDevice ?? Matrix.Identity;
                 scaleX = transformToDevice.M11;

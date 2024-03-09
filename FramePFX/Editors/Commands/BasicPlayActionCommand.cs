@@ -22,20 +22,25 @@ using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Commands {
-    public abstract class BasicPlayActionCommand : Command {
+namespace FramePFX.Editors.Commands
+{
+    public abstract class BasicPlayActionCommand : Command
+    {
         public abstract PlayState TargetState { get; }
 
-        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        {
             if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor))
                 return ExecutabilityState.Invalid;
             return editor.Playback.CanSetPlayStateTo(this.TargetState) ? ExecutabilityState.Executable : ExecutabilityState.ValidButCannotExecute;
         }
 
-        public override Task Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e)
+        {
             if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor) || !editor.Playback.CanSetPlayStateTo(this.TargetState))
                 return Task.CompletedTask;
-            switch (this.TargetState) {
+            switch (this.TargetState)
+            {
                 case PlayState.Play:
                     editor.Playback.Play();
                     break;
@@ -52,15 +57,18 @@ namespace FramePFX.Editors.Commands {
         }
     }
 
-    public class PlayCommand : BasicPlayActionCommand {
+    public class PlayCommand : BasicPlayActionCommand
+    {
         public override PlayState TargetState => PlayState.Play;
     }
 
-    public class PauseCommand : BasicPlayActionCommand {
+    public class PauseCommand : BasicPlayActionCommand
+    {
         public override PlayState TargetState => PlayState.Pause;
     }
 
-    public class StopCommand : BasicPlayActionCommand {
+    public class StopCommand : BasicPlayActionCommand
+    {
         public override PlayState TargetState => PlayState.Stop;
     }
 }

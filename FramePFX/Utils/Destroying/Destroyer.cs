@@ -20,25 +20,30 @@
 using System;
 using System.Collections.Generic;
 
-namespace FramePFX.Utils.Destroying {
-    public static class Destroyer {
+namespace FramePFX.Utils.Destroying
+{
+    public static class Destroyer
+    {
         private static readonly HashSet<IDestroy> rootNodes;
         private static readonly Dictionary<IDestroy, Node> map;
         private static readonly object locker;
 
-        static Destroyer() {
+        static Destroyer()
+        {
             ReferenceEqualityComparer<IDestroy> refEquality = new ReferenceEqualityComparer<IDestroy>();
             rootNodes = new HashSet<IDestroy>(refEquality);
             map = new Dictionary<IDestroy, Node>(refEquality);
             locker = new object();
         }
 
-        private class destroyableDummy : IDestroy {
+        private class destroyableDummy : IDestroy
+        {
             private readonly string debugName;
 
             public destroyableDummy(string debugName) => this.debugName = debugName ?? "destroyableDummy";
 
-            public void Destroy() {
+            public void Destroy()
+            {
             }
 
             public override string ToString() => this.debugName;
@@ -46,7 +51,8 @@ namespace FramePFX.Utils.Destroying {
 
         public static IDestroy CreateDummy(string debugName = "destroyableDummy") => new destroyableDummy(debugName);
 
-        public static IDestroy CreateDummy(IDestroy parent, string debugName = null) {
+        public static IDestroy CreateDummy(IDestroy parent, string debugName = null)
+        {
             IDestroy dummy = CreateDummy(debugName);
             Register(parent, dummy);
             return dummy;
@@ -59,18 +65,22 @@ namespace FramePFX.Utils.Destroying {
         /// <param name="child">The child object which will be added to the parent</param>
         /// <exception cref="ArgumentNullException">Parent or child were null</exception>
         /// <exception cref="InvalidOperationException">Parent was a descendent of child</exception>
-        public static void Register(IDestroy parent, IDestroy child) {
+        public static void Register(IDestroy parent, IDestroy child)
+        {
             if (parent == null)
                 throw new ArgumentNullException(nameof(parent));
             if (child == null)
                 throw new ArgumentNullException(nameof(child));
 
-            lock (locker) {
+            lock (locker)
+            {
                 Node parentNode = GetNodeOrCreate(parent, null);
                 Node childNode = GetNodeOrCreate(child, parentNode);
 
-                for (Node node = parentNode; node != null; node = node.parent) {
-                    if (node == childNode) {
+                for (Node node = parentNode; node != null; node = node.parent)
+                {
+                    if (node == childNode)
+                    {
                         throw new InvalidOperationException("Parent was a descendent of Child (basically, tried to add child as its own child). This is not allowed");
                     }
                 }
@@ -87,12 +97,14 @@ namespace FramePFX.Utils.Destroying {
         /// <param name="child">The child to remove</param>
         /// <returns>True if removed, otherwise false</returns>
         /// <exception cref="ArgumentNullException">Parent or child were null</exception>
-        public static bool Unregister(IDestroy parent, IDestroy child) {
+        public static bool Unregister(IDestroy parent, IDestroy child)
+        {
             if (parent == null)
                 throw new ArgumentNullException(nameof(parent));
             if (child == null)
                 throw new ArgumentNullException(nameof(child));
-            lock (locker) {
+            lock (locker)
+            {
                 if (!map.TryGetValue(parent, out Node parentNode))
                     return false;
                 if (!map.TryGetValue(child, out Node childNode))
@@ -110,29 +122,37 @@ namespace FramePFX.Utils.Destroying {
         /// <param name="destroyable">The object to destroy along with its hierarchy</param>
         /// <param name="canProcessUnregistered">True to destroy the object if it is not registered, false to only destroy if registered</param>
         /// <exception cref="ArgumentNullException">Destroyable object is null</exception>
-        public static void Destroy(IDestroy destroyable, bool canProcessUnregistered = true) {
+        public static void Destroy(IDestroy destroyable, bool canProcessUnregistered = true)
+        {
             if (destroyable == null)
                 throw new ArgumentNullException(nameof(destroyable));
 
-            lock (locker) {
-                if (!map.TryGetValue(destroyable, out Node node) && !canProcessUnregistered) {
+            lock (locker)
+            {
+                if (!map.TryGetValue(destroyable, out Node node) && !canProcessUnregistered)
+                {
                     return;
                 }
 
                 List<IDestroy> objs = new List<IDestroy>();
-                if (node == null) {
+                if (node == null)
+                {
                     objs.Add(destroyable);
                 }
-                else {
+                else
+                {
                     node.PrepareDisposal(objs);
                 }
 
                 ErrorList errors = null;
-                foreach (IDestroy item in objs) {
-                    try {
+                foreach (IDestroy item in objs)
+                {
+                    try
+                    {
                         item.Destroy();
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         (errors ?? (errors = new ErrorList("Exception while disposing one or more objects"))).Add(e);
                     }
                 }
@@ -141,38 +161,47 @@ namespace FramePFX.Utils.Destroying {
             }
         }
 
-        private static Node GetNodeOrCreate(IDestroy destroyable, Node newParent) {
+        private static Node GetNodeOrCreate(IDestroy destroyable, Node newParent)
+        {
             Node node = GetNode(destroyable);
-            if (node == null) {
+            if (node == null)
+            {
                 map[destroyable] = node = new Node(destroyable);
-                if (newParent == null) {
+                if (newParent == null)
+                {
                     rootNodes.Add(destroyable);
                 }
             }
-            else if (node.parent != null) {
+            else if (node.parent != null)
+            {
                 node.parent.Remove(node);
             }
-            else {
+            else
+            {
                 rootNodes.Remove(destroyable);
             }
 
             return node;
         }
 
-        private static Node GetNode(IDestroy destroyable) {
+        private static Node GetNode(IDestroy destroyable)
+        {
             return map.TryGetValue(destroyable, out Node node) ? node : null;
         }
 
-        private class Node {
+        private class Node
+        {
             public readonly IDestroy destroyable;
             public Node parent;
             public List<Node> children;
 
-            public Node(IDestroy destroyable) {
+            public Node(IDestroy destroyable)
+            {
                 this.destroyable = destroyable;
             }
 
-            public void Add(Node node) {
+            public void Add(Node node)
+            {
                 List<Node> list = this.children;
                 if (list == null)
                     this.children = list = new List<Node>();
@@ -180,11 +209,14 @@ namespace FramePFX.Utils.Destroying {
                 node.parent = this;
             }
 
-            public void Remove(Node node) {
+            public void Remove(Node node)
+            {
                 List<Node> list = this.children;
-                if (list != null && list.Count > 0) {
+                if (list != null && list.Count > 0)
+                {
                     int index = list.LastIndexOf(node);
-                    if (index == -1) {
+                    if (index == -1)
+                    {
                         throw new InvalidOperationException("Child node did not exist in this node");
                     }
 
@@ -193,11 +225,14 @@ namespace FramePFX.Utils.Destroying {
                 }
             }
 
-            public void PrepareDisposal(List<IDestroy> list) {
+            public void PrepareDisposal(List<IDestroy> list)
+            {
                 // generate tree
                 List<Node> nodes = this.children;
-                if (nodes != null) {
-                    for (int i = nodes.Count - 1; i >= 0; i--) {
+                if (nodes != null)
+                {
+                    for (int i = nodes.Count - 1; i >= 0; i--)
+                    {
                         nodes[i].PrepareDisposal(list);
                     }
                 }
@@ -205,10 +240,12 @@ namespace FramePFX.Utils.Destroying {
                 // remove entry from disposer tree
                 IDestroy obj = this.destroyable;
                 map.Remove(obj);
-                if (this.parent != null) {
+                if (this.parent != null)
+                {
                     this.parent.Remove(this);
                 }
-                else {
+                else
+                {
                     rootNodes.Remove(obj);
                 }
 

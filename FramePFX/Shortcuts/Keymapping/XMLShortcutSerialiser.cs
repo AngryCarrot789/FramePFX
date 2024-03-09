@@ -26,11 +26,14 @@ using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Managing;
 using FramePFX.Utils;
 
-namespace FramePFX.Shortcuts.Keymapping {
-    public abstract class XMLShortcutSerialiser : IKeymapSerialiser {
-        #region Serialisation
+namespace FramePFX.Shortcuts.Keymapping
+{
+    public abstract class XMLShortcutSerialiser : IKeymapSerialiser
+    {
+#region Serialisation
 
-        public void Serialise(Keymap keymap, Stream stream) {
+        public void Serialise(Keymap keymap, Stream stream)
+        {
             if (keymap.Root == null)
                 throw new Exception("Missing keymap group");
 
@@ -42,8 +45,10 @@ namespace FramePFX.Shortcuts.Keymapping {
             document.Save(stream);
         }
 
-        private void SerialiseGroupData(XmlDocument doc, XmlElement groupElement, ShortcutGroup group) {
-            foreach (ShortcutGroup innerGroup in group.Groups) {
+        private void SerialiseGroupData(XmlDocument doc, XmlElement groupElement, ShortcutGroup group)
+        {
+            foreach (ShortcutGroup innerGroup in group.Groups)
+            {
                 XmlElement childGroupElement = doc.CreateElement("Group");
                 if (innerGroup.Name != null) // guaranteed not to be empty or only whitespaces
                     childGroupElement.SetAttribute("Name", innerGroup.Name);
@@ -59,7 +64,8 @@ namespace FramePFX.Shortcuts.Keymapping {
                 groupElement.AppendChild(childGroupElement);
             }
 
-            foreach (GroupedShortcut shortcut in group.Shortcuts) {
+            foreach (GroupedShortcut shortcut in group.Shortcuts)
+            {
                 XmlElement shortcutElement = doc.CreateElement("Shortcut");
                 shortcutElement.SetAttribute("Name", shortcut.Name); // guaranteed non-null, not empty and not whitespaces
                 if (!string.IsNullOrWhiteSpace(shortcut.DisplayName))
@@ -68,7 +74,8 @@ namespace FramePFX.Shortcuts.Keymapping {
                     shortcutElement.SetAttribute("IsGlobal", "true");
                 if (!shortcut.IsInherited) // inherit is true by default, so only serialise if explicitly false
                     shortcutElement.SetAttribute("Inherit", "false");
-                switch (shortcut.RepeatMode) {
+                switch (shortcut.RepeatMode)
+                {
                     case RepeatMode.NonRepeat:
                         shortcutElement.SetAttribute("RepeatMode", "NonRepeat");
                         break;
@@ -82,16 +89,21 @@ namespace FramePFX.Shortcuts.Keymapping {
                 if (!string.IsNullOrWhiteSpace(shortcut.Description))
                     shortcutElement.SetAttribute("Description", shortcut.Description);
 
-                if (!shortcut.Shortcut.IsEmpty) {
+                if (!shortcut.Shortcut.IsEmpty)
+                {
                     // trust that IsEmpty is correct
-                    foreach (IInputStroke stroke in shortcut.Shortcut.InputStrokes) {
-                        if (stroke is MouseStroke ms) {
+                    foreach (IInputStroke stroke in shortcut.Shortcut.InputStrokes)
+                    {
+                        if (stroke is MouseStroke ms)
+                        {
                             this.SerialiseMousestroke(doc, shortcutElement, ms);
                         }
-                        else if (stroke is KeyStroke ks) {
+                        else if (stroke is KeyStroke ks)
+                        {
                             this.SerialiseKeystroke(doc, shortcutElement, ks);
                         }
-                        else {
+                        else
+                        {
                             throw new Exception($"Unknown input stroke: {stroke} ({stroke?.GetType()})");
                         }
                     }
@@ -100,61 +112,78 @@ namespace FramePFX.Shortcuts.Keymapping {
                 groupElement.AppendChild(shortcutElement);
             }
 
-            foreach (GroupedInputState state in group.InputStates) {
+            foreach (GroupedInputState state in group.InputStates)
+            {
                 bool isEqualAbsolutely;
                 XmlElement elem = doc.CreateElement("InputState");
                 elem.SetAttribute("Name", state.Name);
-                if (state.ActivationStroke is KeyStroke ka) {
-                    if (state.DeactivationStroke is KeyStroke kd) {
-                        if ((isEqualAbsolutely = ka.Equals(kd)) || ka.EqualsExceptRelease(kd)) {
+                if (state.ActivationStroke is KeyStroke ka)
+                {
+                    if (state.DeactivationStroke is KeyStroke kd)
+                    {
+                        if ((isEqualAbsolutely = ka.Equals(kd)) || ka.EqualsExceptRelease(kd))
+                        {
                             if (isEqualAbsolutely)
                                 elem.SetAttribute("CanToggle", "true");
                             KeyStroke stroke = new KeyStroke(ka.KeyCode, ka.Modifiers, false);
                             this.SerialiseKeystroke(doc, elem, stroke, "InputState.ActivationKeyStroke");
                         }
-                        else {
+                        else
+                        {
                             this.SerialiseKeystroke(doc, elem, in ka, "InputState.ActivationKeyStroke");
                             this.SerialiseKeystroke(doc, elem, in kd, "InputState.DeactivationKeyStroke");
                         }
                     }
-                    else if (state.DeactivationStroke is MouseStroke md) {
+                    else if (state.DeactivationStroke is MouseStroke md)
+                    {
                         this.SerialiseKeystroke(doc, elem, in ka, "InputState.ActivationKeyStroke");
                         this.SerialiseMousestroke(doc, elem, in md, "InputState.DeactivationMouseStroke");
                     }
-                    else {
+                    else
+                    {
                         throw new Exception($"Unknown deactivation stroke: {state.DeactivationStroke}");
                     }
                 }
-                else if (state.ActivationStroke is MouseStroke ma) {
-                    if (state.DeactivationStroke is MouseStroke md) {
-                        if ((isEqualAbsolutely = ma.Equals(md)) || ma.EqualsExceptRelease(md)) {
+                else if (state.ActivationStroke is MouseStroke ma)
+                {
+                    if (state.DeactivationStroke is MouseStroke md)
+                    {
+                        if ((isEqualAbsolutely = ma.Equals(md)) || ma.EqualsExceptRelease(md))
+                        {
                             if (isEqualAbsolutely)
                                 elem.SetAttribute("CanToggle", "true");
                             MouseStroke stroke = new MouseStroke(ma.MouseButton, ma.Modifiers, false, ma.ClickCount, ma.WheelDelta);
                             this.SerialiseMousestroke(doc, elem, in stroke, "InputState.ActivationMouseStroke");
                         }
-                        else {
+                        else
+                        {
                             this.SerialiseMousestroke(doc, elem, in ma, "InputState.ActivationMouseStroke");
                             this.SerialiseMousestroke(doc, elem, in md, "InputState.DeactivationMouseStroke");
                         }
                     }
-                    else if (state.DeactivationStroke is KeyStroke kd) {
+                    else if (state.DeactivationStroke is KeyStroke kd)
+                    {
                         this.SerialiseMousestroke(doc, elem, in ma, "InputState.ActivationMouseStroke");
                         this.SerialiseKeystroke(doc, elem, in kd, "InputState.DeactivationKeyStroke");
                     }
-                    else {
+                    else
+                    {
                         throw new Exception($"Unknown deactivation stroke: {state.DeactivationStroke}");
                     }
                 }
-                else {
+                else
+                {
                     throw new Exception($"Unknown activation stroke: {state.ActivationStroke}");
                 }
 
-                if (state.StateManager != null) {
-                    if (state.StateManager.Id.Equals(state.Parent.FullPath)) {
+                if (state.StateManager != null)
+                {
+                    if (state.StateManager.Id.Equals(state.Parent.FullPath))
+                    {
                         elem.SetAttribute("UseGroupAsManager", "true");
                     }
-                    else {
+                    else
+                    {
                         elem.SetAttribute("StateManager", state.StateManager.Id);
                     }
                 }
@@ -163,14 +192,16 @@ namespace FramePFX.Shortcuts.Keymapping {
             }
         }
 
-        #endregion
+#endregion
 
-        #region Deserialisation
+#region Deserialisation
 
-        public Keymap Deserialise(ShortcutManager manager, Stream stream) {
+        public Keymap Deserialise(ShortcutManager manager, Stream stream)
+        {
             XmlDocument document = new XmlDocument();
             document.Load(stream);
-            if (!(document.SelectSingleNode("/KeyMap") is XmlElement rootElement)) {
+            if (!(document.SelectSingleNode("/KeyMap") is XmlElement rootElement))
+            {
                 throw new Exception("Expected element of type 'KeyMap' to be the root element for the XML document");
             }
 
@@ -179,92 +210,115 @@ namespace FramePFX.Shortcuts.Keymapping {
 
             ShortcutGroup root = ShortcutGroup.CreateRoot(manager);
             this.DeserialiseGroupData(rootElement, root);
-            return new Keymap() {
+            return new Keymap()
+            {
                 Version = keymapVersion,
                 Root = root
             };
         }
 
-        private void DeserialiseGroupData(XmlElement src, ShortcutGroup dst) {
-            foreach (XmlElement child in src.ChildNodes.OfType<XmlElement>()) {
-                switch (child.Name) {
-                    case "Group": {
+        private void DeserialiseGroupData(XmlElement src, ShortcutGroup dst)
+        {
+            foreach (XmlElement child in src.ChildNodes.OfType<XmlElement>())
+            {
+                switch (child.Name)
+                {
+                    case "Group":
+                    {
                         ShortcutGroup innerGroup = dst.CreateGroupByName(GetElementName(dst, child), GetIsGlobal(child), GetIsInherit(child));
                         innerGroup.Description = GetDescription(child);
                         innerGroup.DisplayName = GetDisplayName(child);
                         this.DeserialiseGroupData(child, innerGroup);
                         break;
                     }
-                    case "InputState": {
+                    case "InputState":
+                    {
                         string name = GetElementName(dst, child);
                         Dictionary<string, XmlElement> elements = new Dictionary<string, XmlElement>();
-                        foreach (XmlElement element in child.ChildNodes.OfType<XmlElement>()) {
+                        foreach (XmlElement element in child.ChildNodes.OfType<XmlElement>())
+                        {
                             elements[element.Name] = element;
                         }
 
                         bool? canToggle = GetBool(child, "CanToggle");
                         IInputStroke activator, deactivator;
-                        if (elements.TryGetValue("InputState.ActivationKeyStroke", out XmlElement activationKeyStroke)) {
+                        if (elements.TryGetValue("InputState.ActivationKeyStroke", out XmlElement activationKeyStroke))
+                        {
                             KeyStroke activationStroke = this.DeserialiseKeyStroke(activationKeyStroke);
                             KeyStroke deativationStroke;
-                            if (elements.TryGetValue("InputState.DeactivationKeyStroke", out XmlElement deativationKeyStroke)) {
+                            if (elements.TryGetValue("InputState.DeactivationKeyStroke", out XmlElement deativationKeyStroke))
+                            {
                                 deativationStroke = this.DeserialiseKeyStroke(deativationKeyStroke);
                             }
-                            else if (canToggle == true) {
+                            else if (canToggle == true)
+                            {
                                 deativationStroke = activationStroke;
                             }
-                            else if (activationStroke.IsRelease) {
+                            else if (activationStroke.IsRelease)
+                            {
                                 deativationStroke = activationStroke;
                                 activationStroke = new KeyStroke(activationStroke.KeyCode, activationStroke.Modifiers, false);
                             }
-                            else {
+                            else
+                            {
                                 deativationStroke = new KeyStroke(activationStroke.KeyCode, activationStroke.Modifiers, true);
                             }
 
                             activator = activationStroke;
                             deactivator = deativationStroke;
                         }
-                        else if (elements.TryGetValue("InputState.ActivationMouseStroke", out XmlElement activationMouseStroke)) {
+                        else if (elements.TryGetValue("InputState.ActivationMouseStroke", out XmlElement activationMouseStroke))
+                        {
                             MouseStroke activationStroke = this.DeserialiseMouseStroke(activationMouseStroke);
                             MouseStroke deativationStroke;
-                            if (elements.TryGetValue("InputState.DeactivationMouseStroke", out XmlElement deativationMouseStroke)) {
+                            if (elements.TryGetValue("InputState.DeactivationMouseStroke", out XmlElement deativationMouseStroke))
+                            {
                                 deativationStroke = this.DeserialiseMouseStroke(deativationMouseStroke);
                             }
-                            else if (canToggle == true) {
+                            else if (canToggle == true)
+                            {
                                 deativationStroke = activationStroke;
                             }
-                            else if (activationStroke.IsRelease) {
+                            else if (activationStroke.IsRelease)
+                            {
                                 deativationStroke = activationStroke;
                                 activationStroke = new MouseStroke(activationStroke.MouseButton, activationStroke.Modifiers, false, activationStroke.ClickCount);
                             }
-                            else {
+                            else
+                            {
                                 deativationStroke = new MouseStroke(activationStroke.MouseButton, activationStroke.Modifiers, true, activationStroke.ClickCount);
                             }
 
                             activator = activationStroke;
                             deactivator = deativationStroke;
                         }
-                        else {
+                        else
+                        {
                             throw new Exception("Missing 'ActivationKeyStroke' or 'ActivationMouseStroke' for a key state");
                         }
 
                         string id;
                         GroupedInputState state = dst.AddInputState(name, activator, deactivator);
-                        if (GetBool(child, "UseGroupAsManager") == true) {
+                        if (GetBool(child, "UseGroupAsManager") == true)
+                        {
                             dst.GetInputStateManager().Add(state);
                         }
-                        else if ((id = GetAttributeNullable(child, "StateManager")) != null) {
+                        else if ((id = GetAttributeNullable(child, "StateManager")) != null)
+                        {
                             dst.Manager.GetInputStateManager(id).Add(state);
                         }
 
                         break;
                     }
-                    case "Shortcut": {
+                    case "Shortcut":
+                    {
                         string name = GetElementName(dst, child);
                         List<IInputStroke> inputs = new List<IInputStroke>();
-                        foreach (XmlElement innerElement in child.ChildNodes.OfType<XmlElement>()) {
+                        foreach (XmlElement innerElement in child.ChildNodes.OfType<XmlElement>())
+                        {
                             // XML should have strict name cases, buuuut... why not be nice
-                            switch (innerElement.Name) {
+                            switch (innerElement.Name)
+                            {
                                 case "KeyStroke":
                                 case "Keystroke":
                                 case "keystroke":
@@ -281,16 +335,20 @@ namespace FramePFX.Shortcuts.Keymapping {
                         List<KeyStroke> keyStrokes = inputs.OfType<KeyStroke>().ToList();
                         List<MouseStroke> mouseStrokes = inputs.OfType<MouseStroke>().ToList();
                         IShortcut shortcut;
-                        if (mouseStrokes.Count > 0 && keyStrokes.Count > 0) {
+                        if (mouseStrokes.Count > 0 && keyStrokes.Count > 0)
+                        {
                             shortcut = new MouseKeyboardShortcut(inputs);
                         }
-                        else if (keyStrokes.Count > 0) {
+                        else if (keyStrokes.Count > 0)
+                        {
                             shortcut = new KeyboardShortcut(keyStrokes);
                         }
-                        else if (mouseStrokes.Count > 0) {
+                        else if (mouseStrokes.Count > 0)
+                        {
                             shortcut = new MouseShortcut(mouseStrokes);
                         }
-                        else {
+                        else
+                        {
                             continue;
                         }
 
@@ -306,11 +364,12 @@ namespace FramePFX.Shortcuts.Keymapping {
             }
         }
 
-        #endregion
+#endregion
 
-        #region Util functions
+#region Util functions
 
-        protected static bool GetIsGlobal(XmlElement element) {
+        protected static bool GetIsGlobal(XmlElement element)
+        {
             // false by default
             string attrib = element.GetAttribute("IsGlobal");
             if (attrib.Length == 0)
@@ -318,7 +377,8 @@ namespace FramePFX.Shortcuts.Keymapping {
             return !string.IsNullOrWhiteSpace(attrib) && attrib.Equals("True", StringComparison.OrdinalIgnoreCase);
         }
 
-        protected static bool GetIsInherit(XmlElement element) {
+        protected static bool GetIsInherit(XmlElement element)
+        {
             // true by default
             string attrib = element.GetAttribute("IsInherit");
             if (attrib.Length == 0)
@@ -326,19 +386,24 @@ namespace FramePFX.Shortcuts.Keymapping {
             return string.IsNullOrWhiteSpace(attrib) || attrib.Equals("True", StringComparison.OrdinalIgnoreCase);
         }
 
-        protected static RepeatMode GetRepeatMode(XmlElement element) {
+        protected static RepeatMode GetRepeatMode(XmlElement element)
+        {
             // true by default
             string attrib = element.GetAttribute("RepeatMode");
-            if (string.IsNullOrWhiteSpace(attrib)) {
+            if (string.IsNullOrWhiteSpace(attrib))
+            {
                 return RepeatMode.Ignored;
             }
-            else if (attrib.EqualsIgnoreCase("nonrepeat") || attrib.EqualsIgnoreCase("norepeat") || attrib.EqualsIgnoreCase("nonrepeated")) {
+            else if (attrib.EqualsIgnoreCase("nonrepeat") || attrib.EqualsIgnoreCase("norepeat") || attrib.EqualsIgnoreCase("nonrepeated"))
+            {
                 return RepeatMode.NonRepeat;
             }
-            else if (attrib.EqualsIgnoreCase("repeatonly") || attrib.EqualsIgnoreCase("repeat") || attrib.EqualsIgnoreCase("onlyrepeat")) {
+            else if (attrib.EqualsIgnoreCase("repeatonly") || attrib.EqualsIgnoreCase("repeat") || attrib.EqualsIgnoreCase("onlyrepeat"))
+            {
                 return RepeatMode.RepeatOnly;
             }
-            else {
+            else
+            {
                 return RepeatMode.NonRepeat;
             }
         }
@@ -347,7 +412,8 @@ namespace FramePFX.Shortcuts.Keymapping {
 
         protected static string GetDisplayName(XmlElement element) => GetAttributeNullable(element, "DisplayName");
 
-        protected static string GetAttributeNullable(XmlElement element, string key, bool whitespacesToNull = true) {
+        protected static string GetAttributeNullable(XmlElement element, string key, bool whitespacesToNull = true)
+        {
             string attribute = element.GetAttribute(key);
             if (whitespacesToNull ? string.IsNullOrWhiteSpace(attribute) : string.IsNullOrEmpty(attribute))
                 return null;
@@ -356,34 +422,41 @@ namespace FramePFX.Shortcuts.Keymapping {
 
         protected static string GetElementName(IGroupedObject owner, XmlElement child) => GetAttributeNonNull(owner, child, "Name");
 
-        protected static string GetAttributeNonNull(IGroupedObject owner, XmlElement element, string key, bool requireNonWhitespaces = true) {
-            if (!element.HasAttribute(key)) {
+        protected static string GetAttributeNonNull(IGroupedObject owner, XmlElement element, string key, bool requireNonWhitespaces = true)
+        {
+            if (!element.HasAttribute(key))
+            {
                 throw new Exception($"'{key}' attribute must be provided, for object at path '{owner.FullPath ?? "<root>"}'");
             }
 
             string attribute = element.GetAttribute(key);
-            if (requireNonWhitespaces) {
-                if (string.IsNullOrWhiteSpace(attribute)) {
+            if (requireNonWhitespaces)
+            {
+                if (string.IsNullOrWhiteSpace(attribute))
+                {
                     throw new Exception($"'{key}' attribute cannot be an empty string or consist of only whitespaces, for object at path '{owner.FullPath ?? "<root>"}'");
                 }
             }
-            else if (attribute.Length < 1) {
+            else if (attribute.Length < 1)
+            {
                 throw new Exception($"'{key}' attribute cannot be an empty string, for object at path '{owner.FullPath ?? "<root>"}'");
             }
 
             return attribute;
         }
 
-        protected static bool? GetBool(XmlElement element, string key) {
+        protected static bool? GetBool(XmlElement element, string key)
+        {
             string value = GetAttributeNullable(element, key);
-            if (value == null) {
+            if (value == null)
+            {
                 return null;
             }
 
             return "true".EqualsIgnoreCase(value);
         }
 
-        #endregion
+#endregion
 
         protected abstract KeyStroke DeserialiseKeyStroke(XmlElement element);
         protected abstract MouseStroke DeserialiseMouseStroke(XmlElement element);

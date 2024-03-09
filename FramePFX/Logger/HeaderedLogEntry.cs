@@ -20,12 +20,14 @@
 using System;
 using System.Collections.Generic;
 
-namespace FramePFX.Logger {
+namespace FramePFX.Logger
+{
     public delegate void LogEntryAddedEventHandler(HeaderedLogEntry sender, LogEntry entry);
 
     public delegate void HeaderedLogEntryEventHandler(HeaderedLogEntry sender);
 
-    public class HeaderedLogEntry : LogEntry {
+    public class HeaderedLogEntry : LogEntry
+    {
         private readonly List<LogEntry> entries;
         private bool isExpanded;
 
@@ -33,7 +35,8 @@ namespace FramePFX.Logger {
 
         public bool IsExpanded {
             get => this.isExpanded;
-            set {
+            set
+            {
                 if (this.isExpanded == value)
                     return;
                 this.isExpanded = value;
@@ -44,13 +47,15 @@ namespace FramePFX.Logger {
         public event LogEntryAddedEventHandler EntryAdded;
         public event HeaderedLogEntryEventHandler IsExpandedChanged;
 
-        public HeaderedLogEntry(DateTime logTime, int index, string stackTrace, string content) : base(logTime, index, stackTrace, content) {
+        public HeaderedLogEntry(DateTime logTime, int index, string stackTrace, string content) : base(logTime, index, stackTrace, content)
+        {
             this.entries = new List<LogEntry>();
             this.Entries = this.entries;
             this.IsExpanded = true;
         }
 
-        public void AddEntry(LogEntry entry) {
+        public void AddEntry(LogEntry entry)
+        {
             this.entries.Add(entry);
             this.EntryAdded?.Invoke(this, entry);
         }

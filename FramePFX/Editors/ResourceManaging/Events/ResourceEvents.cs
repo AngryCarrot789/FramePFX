@@ -19,7 +19,8 @@
 
 using System;
 
-namespace FramePFX.Editors.ResourceManaging.Events {
+namespace FramePFX.Editors.ResourceManaging.Events
+{
     public delegate void ResourceEventHandler(BaseResource resource);
 
     public delegate void ResourceItemEventHandler(ResourceItem resource);
@@ -35,7 +36,8 @@ namespace FramePFX.Editors.ResourceManaging.Events {
     /// <summary>
     /// Event args for when a resource is moved from one folder to another
     /// </summary>
-    public class ResourceMovedEventArgs : EventArgs {
+    public class ResourceMovedEventArgs : EventArgs
+    {
         /// <summary>
         /// The source/original folder
         /// </summary>
@@ -66,7 +68,8 @@ namespace FramePFX.Editors.ResourceManaging.Events {
         /// </summary>
         public bool IsSameFolder => this.OldFolder == this.NewFolder;
 
-        public ResourceMovedEventArgs(ResourceFolder oldFolder, ResourceFolder newFolder, BaseResource item, int oldIndex, int newIndex) {
+        public ResourceMovedEventArgs(ResourceFolder oldFolder, ResourceFolder newFolder, BaseResource item, int oldIndex, int newIndex)
+        {
             this.OldFolder = oldFolder;
             this.NewFolder = newFolder;
             this.Item = item;

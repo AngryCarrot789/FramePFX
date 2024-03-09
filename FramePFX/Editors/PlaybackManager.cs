@@ -28,7 +28,8 @@ using FramePFX.Logger;
 using FramePFX.Natives;
 using FramePFX.Utils;
 
-namespace FramePFX.Editors {
+namespace FramePFX.Editors
+{
     /// <summary>
     /// An event sent by a <see cref="PlaybackManager"/>
     /// <param name="sender">The playback manager</param>
@@ -40,7 +41,8 @@ namespace FramePFX.Editors {
     /// <summary>
     /// A class that manages the playback functionality of the editor, which manages the timer and play/pause/stop states
     /// </summary>
-    public class PlaybackManager {
+    public class PlaybackManager
+    {
         private static readonly long THREAD_SPLICE_IN_TICKS = (long) (16.4d * Time.TICK_PER_MILLIS);
         private static readonly long YIELD_MILLIS_IN_TICKS = Time.TICK_PER_MILLIS / 10;
 
@@ -89,18 +91,22 @@ namespace FramePFX.Editors {
         private readonly NumberAverager averager = new NumberAverager(5);
         private long lastTickTime;
 
-        public PlaybackManager(VideoEditor editor) {
+        public PlaybackManager(VideoEditor editor)
+        {
             this.Editor = editor;
-            unsafe {
+            unsafe
+            {
                 this.engineCallbackDelgate = this.AudioEngineCallback;
                 this.engineCallbackDelgatePtr = Marshal.GetFunctionPointerForDelegate(this.engineCallbackDelgate);
-                this.audioEngineData = new PFXNative.NativeAudioEngineData() {
+                this.audioEngineData = new PFXNative.NativeAudioEngineData()
+                {
                     ManagedAudioEngineCallback = this.engineCallbackDelgatePtr
                 };
             }
         }
 
-        public unsafe int AudioEngineCallback(void* output, ulong framesPerBuffer, IntPtr timeInfo, ulong statusFlags) {
+        public unsafe int AudioEngineCallback(void* output, ulong framesPerBuffer, IntPtr timeInfo, ulong statusFlags)
+        {
             float* outputFloats = (float*) output;
             AudioRingBuffer buffer = this.Timeline.RenderManager.audioRingBuffer;
             // const int sampleRate = 44100;
@@ -117,11 +123,14 @@ namespace FramePFX.Editors {
             //     *outputFloats++ = sample;
             // }
 
-            if (buffer != null) {
-                lock (buffer) {
+            if (buffer != null)
+            {
+                lock (buffer)
+                {
                     int totalsamples = (int) (framesPerBuffer * 2);
                     int readCount = buffer.ReadFromRingBuffer(outputFloats, totalsamples);
-                    for (int i = readCount < 1 ? 0 : readCount; i < totalsamples; i++) {
+                    for (int i = readCount < 1 ? 0 : readCount; i < totalsamples; i++)
+                    {
                         *outputFloats++ = 0;
                     }
                 }
@@ -131,12 +140,15 @@ namespace FramePFX.Editors {
             return 0;
         }
 
-        public bool CanSetPlayStateTo(PlayState newState) {
-            if (this.Timeline == null) {
+        public bool CanSetPlayStateTo(PlayState newState)
+        {
+            if (this.Timeline == null)
+            {
                 return false;
             }
 
-            switch (newState) {
+            switch (newState)
+            {
                 case PlayState.Play: return this.PlayState != PlayState.Play;
                 case PlayState.Pause:
                 case PlayState.Stop:
@@ -145,12 +157,15 @@ namespace FramePFX.Editors {
             }
         }
 
-        public void StartTimer() {
-            if (this.thread != null && this.thread.IsAlive) {
+        public void StartTimer()
+        {
+            if (this.thread != null && this.thread.IsAlive)
+            {
                 throw new InvalidOperationException("Timer thread already running");
             }
 
-            this.thread = new Thread(this.TimerMain) {
+            this.thread = new Thread(this.TimerMain)
+            {
                 IsBackground = true, // thread auto-stops when app tries to exit :D
                 Name = "FramePFX Playback Thread"
             };
@@ -159,60 +174,75 @@ namespace FramePFX.Editors {
             this.thread.Start();
         }
 
-        public void StopTimer() {
+        public void StopTimer()
+        {
             this.Stop();
             this.thread_IsTimerRunning = false;
             // this.thread?.Join();
         }
 
-        public void SetFrameRate(Rational frameRate) {
+        public void SetFrameRate(Rational frameRate)
+        {
             double fps = frameRate.AsDouble;
             this.intervalTicks = (long) Math.Round(Time.TICK_PER_SECOND_D / fps);
             this.audioSamplesPerFrame = (int) Math.Ceiling(44100.0 / fps);
         }
 
-        public void Play() {
-            if (this.Timeline == null || this.PlayState == PlayState.Play) {
+        public void Play()
+        {
+            if (this.Timeline == null || this.PlayState == PlayState.Play)
+            {
                 return;
             }
 
             this.PlayInternal(this.Timeline.PlayHeadPosition);
         }
 
-        public void Play(long frame) {
-            if (this.Timeline == null) {
+        public void Play(long frame)
+        {
+            if (this.Timeline == null)
+            {
                 return;
             }
 
-            if (this.PlayState == PlayState.Play && this.Timeline.PlayHeadPosition == frame) {
+            if (this.PlayState == PlayState.Play && this.Timeline.PlayHeadPosition == frame)
+            {
                 return;
             }
 
             this.PlayInternal(frame);
         }
 
-        private void PlayInternal(long targetFrame) {
+        private void PlayInternal(long targetFrame)
+        {
             this.PlayState = PlayState.Play;
             this.PlaybackStateChanged?.Invoke(this, this.PlayState, targetFrame);
             this.lastRenderTime = DateTime.Now;
             this.lastTickTime = Time.GetSystemTicks();
             this.thread_IsPlaying = true;
 
-            unsafe {
-                fixed (PFXNative.NativeAudioEngineData* engineData = &this.audioEngineData) {
+            unsafe
+            {
+                fixed (PFXNative.NativeAudioEngineData* engineData = &this.audioEngineData)
+                {
                     this.isAudioPlaying = PFXNative.PFXAE_BeginAudioPlayback(engineData) == 0;
                 }
             }
         }
 
-        private void OnAboutToStopPlaying() {
+        private void OnAboutToStopPlaying()
+        {
             this.thread_IsPlaying = false;
         }
 
-        private void OnStoppedPlaying() {
-            if (this.isAudioPlaying) {
-                unsafe {
-                    fixed (PFXNative.NativeAudioEngineData* engineData = &this.audioEngineData) {
+        private void OnStoppedPlaying()
+        {
+            if (this.isAudioPlaying)
+            {
+                unsafe
+                {
+                    fixed (PFXNative.NativeAudioEngineData* engineData = &this.audioEngineData)
+                    {
                         PFXNative.PFXAE_EndAudioPlayback(engineData);
                     }
                 }
@@ -221,8 +251,10 @@ namespace FramePFX.Editors {
             }
         }
 
-        public void Pause() {
-            if (this.PlayState != PlayState.Play || this.Timeline == null) {
+        public void Pause()
+        {
+            if (this.PlayState != PlayState.Play || this.Timeline == null)
+            {
                 return;
             }
 
@@ -235,8 +267,10 @@ namespace FramePFX.Editors {
             this.Timeline.StopHeadPosition = playHead;
         }
 
-        public void Stop() {
-            if (this.PlayState != PlayState.Play || this.Timeline == null) {
+        public void Stop()
+        {
+            if (this.PlayState != PlayState.Play || this.Timeline == null)
+            {
                 return;
             }
 
@@ -247,25 +281,32 @@ namespace FramePFX.Editors {
             this.Timeline.PlayHeadPosition = this.Timeline.StopHeadPosition;
         }
 
-        private void OnTimerFrame() {
-            if (!this.thread_IsPlaying || !this.thread_IsTimerRunning) {
+        private void OnTimerFrame()
+        {
+            if (!this.thread_IsPlaying || !this.thread_IsTimerRunning)
+            {
                 return;
             }
 
-            if (this.Timeline?.Project == null) {
+            if (this.Timeline?.Project == null)
+            {
                 return;
             }
 
-            using (this.Timeline.RenderManager.SuspendRenderInvalidation()) {
-                Task renderTask = IoC.Dispatcher.Invoke(() => {
+            using (this.Timeline.RenderManager.SuspendRenderInvalidation())
+            {
+                Task renderTask = IoC.Dispatcher.Invoke(() =>
+                {
                     Timeline timeline = this.Timeline;
                     Project project;
-                    if (timeline == null || (project = timeline.Project) == null || !timeline.IsActive) {
+                    if (timeline == null || (project = timeline.Project) == null || !timeline.IsActive)
+                    {
                         return Task.CompletedTask;
                     }
 
                     VideoEditor editor = project.Editor;
-                    if (editor == null || !this.thread_IsPlaying) {
+                    if (editor == null || !this.thread_IsPlaying)
+                    {
                         return Task.CompletedTask;
                     }
 
@@ -285,7 +326,8 @@ namespace FramePFX.Editors {
                     this.lastRenderTime = DateTime.Now;
 
                     long incr = 1;
-                    if (actualInterval > expectedInterval) {
+                    if (actualInterval > expectedInterval)
+                    {
                         double diffMillis = (actualInterval - expectedInterval) / Time.TICK_PER_MILLIS_D;
                         double incrDouble = (diffMillis / (1000.0 / fps)) + this.accumulatedVideoSubFrames;
                         long extra = (long) Math.Floor(incrDouble);
@@ -296,27 +338,33 @@ namespace FramePFX.Editors {
                     // Don't allow jumps of more than 3 frames, otherwise that runaway thing might occur
                     incr = Math.Min(incr, 3);
 
-                    long newPlayHead = Periodic.Add(timeline.PlayHeadPosition, incr, 0, timeline.MaxDuration - 1);
+                    long newPlayHead = Periodic.MethodNameHere(timeline.PlayHeadPosition + incr, 0, timeline.MaxDuration - 1);
                     timeline.PlayHeadPosition = newPlayHead;
-                    if ((timeline.RenderManager.LastRenderTask?.IsCompleted ?? true)) {
+                    if ((timeline.RenderManager.LastRenderTask?.IsCompleted ?? true))
+                    {
                         return RenderTimeline(editor, timeline.RenderManager, timeline.PlayHeadPosition, CancellationToken.None);
                     }
 
                     return Task.CompletedTask;
                 });
 
-                try {
+                try
+                {
                     renderTask.Wait();
                 }
-                catch (AggregateException) {
+                catch (AggregateException)
+                {
                     if (!renderTask.IsCanceled)
                         throw;
                 }
-                catch (TaskCanceledException) {
+                catch (TaskCanceledException)
+                {
                 }
-                catch (OperationCanceledException) {
+                catch (OperationCanceledException)
+                {
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     this.thread_IsPlaying = false;
                     AppLogger.Instance.WriteLine("Render exception on playback thread");
                     AppLogger.Instance.WriteLine(e.GetToString());
@@ -329,19 +377,25 @@ namespace FramePFX.Editors {
             this.averager.PushValue(tickInterval);
         }
 
-        private static async Task RenderTimeline(VideoEditor videoEditor, RenderManager renderManager, long frame, CancellationToken cancellationToken) {
+        private static async Task RenderTimeline(VideoEditor videoEditor, RenderManager renderManager, long frame, CancellationToken cancellationToken)
+        {
             // await (renderManager.ScheduledRenderTask ?? Task.CompletedTask);
             if (cancellationToken.IsCancellationRequested)
                 throw new TaskCanceledException();
-            try {
+            try
+            {
                 await (renderManager.LastRenderTask = renderManager.RenderTimelineAsync(frame, cancellationToken));
             }
-            catch (TaskCanceledException) {
+            catch (TaskCanceledException)
+            {
             }
-            catch (OperationCanceledException) {
+            catch (OperationCanceledException)
+            {
             }
-            catch (Exception e) {
-                if (videoEditor.Playback.PlayState == PlayState.Play) {
+            catch (Exception e)
+            {
+                if (videoEditor.Playback.PlayState == PlayState.Play)
+                {
                     videoEditor.Playback.Pause();
                 }
 
@@ -351,9 +405,12 @@ namespace FramePFX.Editors {
             renderManager.OnFrameCompleted();
         }
 
-        private void TimerMain() {
-            do {
-                while (!this.thread_IsPlaying) {
+        private void TimerMain()
+        {
+            do
+            {
+                while (!this.thread_IsPlaying)
+                {
                     Thread.Sleep(50);
                 }
 
@@ -365,7 +422,8 @@ namespace FramePFX.Editors {
 
                 // CPU intensive wait
                 long time = Time.GetSystemTicks();
-                while (time < target) {
+                while (time < target)
+                {
                     Thread.SpinWait(8);
                     time = Time.GetSystemTicks();
                 }
@@ -375,7 +433,8 @@ namespace FramePFX.Editors {
             } while (this.thread_IsTimerRunning);
         }
 
-        internal static void InternalOnActiveTimelineChanged(PlaybackManager playback, Timeline oldTimeline, Timeline newTimeline) {
+        internal static void InternalOnActiveTimelineChanged(PlaybackManager playback, Timeline oldTimeline, Timeline newTimeline)
+        {
             playback.Stop();
             playback.Timeline = newTimeline;
         }

@@ -26,11 +26,13 @@ using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
+namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces
+{
     /// <summary>
     /// A list box which stores the <see cref="TrackControlSurfaceListBoxItem"/> items
     /// </summary>
-    public class TrackControlSurfaceListBox : ListBox {
+    public class TrackControlSurfaceListBox : ListBox
+    {
         public static readonly DependencyProperty TimelineProperty = DependencyProperty.Register("Timeline", typeof(Timeline), typeof(TrackControlSurfaceListBox), new PropertyMetadata(null, (d, e) => ((TrackControlSurfaceListBox) d).OnTimelineChanged((Timeline) e.OldValue, (Timeline) e.NewValue)));
 
         public Timeline Timeline {
@@ -43,7 +45,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
         private readonly Stack<TrackControlSurfaceListBoxItem> cachedItems;
         private readonly Dictionary<Type, Stack<TrackControlSurface>> itemContentCacheMap;
 
-        public TrackControlSurfaceListBox() {
+        public TrackControlSurfaceListBox()
+        {
             this.cachedItems = new Stack<TrackControlSurfaceListBoxItem>();
             this.itemContentCacheMap = new Dictionary<Type, Stack<TrackControlSurface>>();
             this.ItemsPanel = new ItemsPanelTemplate(new FrameworkElementFactory(typeof(TrackControlSurfaceListBoxPanel)));
@@ -52,33 +55,40 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             // AdvancedContextMenu.SetContextGenerator(this, TrackContextRegistry.Instance);
         }
 
-        static TrackControlSurfaceListBox() {
+        static TrackControlSurfaceListBox()
+        {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(TrackControlSurfaceListBox), new FrameworkPropertyMetadata(typeof(TrackControlSurfaceListBox)));
         }
 
         // I override the measuere/arrange functions to help with debugging sometimes
 
-        protected override Size MeasureOverride(Size constraint) {
+        protected override Size MeasureOverride(Size constraint)
+        {
             return base.MeasureOverride(constraint);
         }
 
-        protected override Size ArrangeOverride(Size arrangeBounds) {
+        protected override Size ArrangeOverride(Size arrangeBounds)
+        {
             return base.ArrangeOverride(arrangeBounds);
         }
 
-        private void OnTimelineChanged(Timeline oldTimeline, Timeline newTimeline) {
+        private void OnTimelineChanged(Timeline oldTimeline, Timeline newTimeline)
+        {
             if (oldTimeline == newTimeline)
                 return;
-            if (oldTimeline != null) {
+            if (oldTimeline != null)
+            {
                 oldTimeline.TrackAdded -= this.OnTrackAdded;
                 oldTimeline.TrackRemoved -= this.OnTrackRemoved;
                 oldTimeline.TrackMoved -= this.OnTrackMoved;
-                for (int i = this.Items.Count - 1; i >= 0; i--) {
+                for (int i = this.Items.Count - 1; i >= 0; i--)
+                {
                     this.RemoveTrackInternal(i);
                 }
             }
 
-            if (newTimeline != null) {
+            if (newTimeline != null)
+            {
                 newTimeline.TrackAdded += this.OnTrackAdded;
                 newTimeline.TrackRemoved += this.OnTrackRemoved;
                 newTimeline.TrackMoved += this.OnTrackMoved;
@@ -86,24 +96,29 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
                 DataManager.SetContextData(this, new ContextData().Set(DataKeys.TimelineKey, newTimeline));
 
                 int i = 0;
-                foreach (Track track in newTimeline.Tracks) {
+                foreach (Track track in newTimeline.Tracks)
+                {
                     this.InsertTrackInternal(track, i++);
                 }
             }
-            else {
+            else
+            {
                 DataManager.ClearContextData(this);
             }
         }
 
-        private void OnTrackAdded(Timeline timeline, Track track, int index) {
+        private void OnTrackAdded(Timeline timeline, Track track, int index)
+        {
             this.InsertTrackInternal(track, index);
         }
 
-        private void OnTrackRemoved(Timeline timeline, Track track, int index) {
+        private void OnTrackRemoved(Timeline timeline, Track track, int index)
+        {
             this.RemoveTrackInternal(index);
         }
 
-        private void InsertTrackInternal(Track track, int index) {
+        private void InsertTrackInternal(Track track, int index)
+        {
             TrackControlSurfaceListBoxItem control = this.cachedItems.Count > 0 ? this.cachedItems.Pop() : new TrackControlSurfaceListBoxItem();
             control.OnAddingToList(this, track);
             this.Items.Insert(index, control);
@@ -115,7 +130,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             this.TimelineControl.UpdateTrackAutomationVisibility(control);
         }
 
-        private void RemoveTrackInternal(int index) {
+        private void RemoveTrackInternal(int index)
+        {
             TrackControlSurfaceListBoxItem control = (TrackControlSurfaceListBoxItem) this.Items[index];
             control.OnRemovingFromList();
             this.Items.RemoveAt(index);
@@ -124,7 +140,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
                 this.cachedItems.Push(control);
         }
 
-        private void OnTrackMoved(Timeline timeline, Track track, int oldIndex, int newIndex) {
+        private void OnTrackMoved(Timeline timeline, Track track, int oldIndex, int newIndex)
+        {
             TrackControlSurfaceListBoxItem control = (TrackControlSurfaceListBoxItem) this.Items[oldIndex];
             control.OnIndexMoving(oldIndex, newIndex);
             this.Items.RemoveAt(oldIndex);
@@ -133,23 +150,29 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces {
             this.InvalidateMeasure();
         }
 
-        public TrackControlSurface GetContentObject(Type trackType) {
+        public TrackControlSurface GetContentObject(Type trackType)
+        {
             TrackControlSurface content;
-            if (this.itemContentCacheMap.TryGetValue(trackType, out Stack<TrackControlSurface> stack) && stack.Count > 0) {
+            if (this.itemContentCacheMap.TryGetValue(trackType, out Stack<TrackControlSurface> stack) && stack.Count > 0)
+            {
                 content = stack.Pop();
             }
-            else {
+            else
+            {
                 content = TrackControlSurface.NewInstance(trackType);
             }
 
             return content;
         }
 
-        public bool ReleaseContentObject(Type trackType, TrackControlSurface contentControl) {
-            if (!this.itemContentCacheMap.TryGetValue(trackType, out Stack<TrackControlSurface> stack)) {
+        public bool ReleaseContentObject(Type trackType, TrackControlSurface contentControl)
+        {
+            if (!this.itemContentCacheMap.TryGetValue(trackType, out Stack<TrackControlSurface> stack))
+            {
                 this.itemContentCacheMap[trackType] = stack = new Stack<TrackControlSurface>();
             }
-            else if (stack.Count == 4) {
+            else if (stack.Count == 4)
+            {
                 return false;
             }
 

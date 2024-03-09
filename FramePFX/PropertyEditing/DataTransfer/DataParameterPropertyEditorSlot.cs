@@ -20,10 +20,12 @@
 using System;
 using FramePFX.Editors.DataTransfer;
 
-namespace FramePFX.PropertyEditing.DataTransfer {
+namespace FramePFX.PropertyEditing.DataTransfer
+{
     public delegate void DataParameterPropertyEditorSlotEventHandler(DataParameterPropertyEditorSlot slot);
 
-    public abstract class DataParameterPropertyEditorSlot : PropertyEditorSlot {
+    public abstract class DataParameterPropertyEditorSlot : PropertyEditorSlot
+    {
         private string displayName;
 
         protected ITransferableData SingleHandler => (ITransferableData) this.Handlers[0];
@@ -32,7 +34,8 @@ namespace FramePFX.PropertyEditing.DataTransfer {
 
         public string DisplayName {
             get => this.displayName;
-            set {
+            set
+            {
                 if (this.displayName == value)
                     return;
                 this.displayName = value;
@@ -44,14 +47,17 @@ namespace FramePFX.PropertyEditing.DataTransfer {
 
         public bool IsEditable {
             get => this.isEditable;
-            set {
+            set
+            {
                 if (this.isEditable == value)
                     return;
                 this.isEditable = value;
                 DataParameter<bool> p = this.IsEditableParameter;
 
-                if (p != null) {
-                    for (int i = 0, c = this.Handlers.Count; i < c; i++) {
+                if (p != null)
+                {
+                    for (int i = 0, c = this.Handlers.Count; i < c; i++)
+                    {
                         p.SetValue((ITransferableData) this.Handlers[i], value);
                     }
                 }
@@ -78,12 +84,14 @@ namespace FramePFX.PropertyEditing.DataTransfer {
         public event DataParameterPropertyEditorSlotEventHandler DisplayNameChanged;
         public event DataParameterPropertyEditorSlotEventHandler ValueChanged;
 
-        protected DataParameterPropertyEditorSlot(DataParameter parameter, Type applicableType, string displayName = null) : base(applicableType) {
+        protected DataParameterPropertyEditorSlot(DataParameter parameter, Type applicableType, string displayName = null) : base(applicableType)
+        {
             this.DataParameter = parameter ?? throw new ArgumentNullException(nameof(parameter));
             this.displayName = displayName ?? parameter.Key;
         }
 
-        protected override void OnHandlersLoaded() {
+        protected override void OnHandlersLoaded()
+        {
             base.OnHandlersLoaded();
             if (this.IsSingleHandler)
                 this.SingleHandler.TransferableData.AddValueChangedHandler(this.DataParameter, this.OnValueForSingleHandlerChanged);
@@ -93,20 +101,23 @@ namespace FramePFX.PropertyEditing.DataTransfer {
             this.OnValueChanged();
         }
 
-        protected override void OnClearingHandlers() {
+        protected override void OnClearingHandlers()
+        {
             base.OnClearingHandlers();
             if (this.IsSingleHandler)
                 this.SingleHandler.TransferableData.RemoveValueChangedHandler(this.DataParameter, this.OnValueForSingleHandlerChanged);
         }
 
-        private void OnValueForSingleHandlerChanged(DataParameter parameter, ITransferableData owner) {
+        private void OnValueForSingleHandlerChanged(DataParameter parameter, ITransferableData owner)
+        {
             this.QueryValueFromHandlers();
             this.OnValueChanged();
         }
 
         public abstract void QueryValueFromHandlers();
 
-        protected void OnValueChanged() {
+        protected void OnValueChanged()
+        {
             this.ValueChanged?.Invoke(this);
         }
     }

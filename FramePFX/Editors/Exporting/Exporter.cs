@@ -19,11 +19,14 @@
 
 using System.Threading;
 
-namespace FramePFX.Editors.Exporting {
-    public abstract class Exporter {
+namespace FramePFX.Editors.Exporting
+{
+    public abstract class Exporter
+    {
         public string DisplayName { get; }
 
-        protected Exporter(string displayName) {
+        protected Exporter(string displayName)
+        {
             this.DisplayName = displayName ?? this.GetType().Name;
         }
 

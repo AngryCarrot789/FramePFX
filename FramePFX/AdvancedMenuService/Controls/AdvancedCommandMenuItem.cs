@@ -23,8 +23,10 @@ using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Shortcuts.WPF.Converters;
 
-namespace FramePFX.AdvancedMenuService.Controls {
-    public class AdvancedCommandMenuItem : MenuItem {
+namespace FramePFX.AdvancedMenuService.Controls
+{
+    public class AdvancedCommandMenuItem : MenuItem
+    {
         public static readonly DependencyProperty CommandIdProperty = DependencyProperty.Register("CommandId", typeof(string), typeof(AdvancedCommandMenuItem), new PropertyMetadata(null));
 
         public string CommandId {
@@ -36,7 +38,8 @@ namespace FramePFX.AdvancedMenuService.Controls {
 
         protected bool CanExecute {
             get => this.canExecute;
-            set {
+            set
+            {
                 this.canExecute = value;
 
                 // Causes IsEnableCore to be fetched, which returns false if we are executing something or
@@ -49,13 +52,15 @@ namespace FramePFX.AdvancedMenuService.Controls {
 
         private IContextData loadedContextData;
 
-        public AdvancedCommandMenuItem() {
+        public AdvancedCommandMenuItem()
+        {
             this.Click += this.OnClick;
             this.Loaded += this.OnLoaded;
             this.Unloaded += this.OnUnloaded;
         }
 
-        private void OnLoaded(object sender, RoutedEventArgs e) {
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
             this.loadedContextData = ContextCapturingMenu.GetCapturedContextData(this) ?? DataManager.GetFullContextData(this);
             string id = this.CommandId;
             if (string.IsNullOrWhiteSpace(id))
@@ -63,19 +68,24 @@ namespace FramePFX.AdvancedMenuService.Controls {
 
             ExecutabilityState state = id != null ? CommandManager.Instance.CanExecute(id, this.loadedContextData) : ExecutabilityState.Invalid;
             this.CanExecute = state == ExecutabilityState.Executable;
-            if (this.CanExecute) {
-                if (CommandIdToGestureConverter.CommandIdToGesture(id, null, out string value)) {
+            if (this.CanExecute)
+            {
+                if (CommandIdToGestureConverter.CommandIdToGesture(id, null, out string value))
+                {
                     this.SetCurrentValue(InputGestureTextProperty, value);
                 }
             }
         }
 
-        private void OnUnloaded(object sender, RoutedEventArgs e) {
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
             this.loadedContextData = null;
         }
 
-        private void OnClick(object sender, RoutedEventArgs e) {
-            if (this.loadedContextData != null && this.CommandId is string commandId) {
+        private void OnClick(object sender, RoutedEventArgs e)
+        {
+            if (this.loadedContextData != null && this.CommandId is string commandId)
+            {
                 CommandManager.Instance.Execute(commandId, this.loadedContextData);
             }
         }

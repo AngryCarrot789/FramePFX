@@ -17,8 +17,10 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Utils {
-    public static class Filters {
+namespace FramePFX.Utils
+{
+    public static class Filters
+    {
         public const string FramePFXExtension = "fpfx";
         public const string DotFramePFXExtension = "." + FramePFXExtension;
 

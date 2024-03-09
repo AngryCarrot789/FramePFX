@@ -20,7 +20,8 @@
 using System;
 using System.Windows;
 
-namespace FramePFX.Editors.Controls.Bindings {
+namespace FramePFX.Editors.Controls.Bindings
+{
     /// <summary>
     /// The base class for general binders, which are used to create a "bind" between model and event.
     /// <para>
@@ -36,7 +37,8 @@ namespace FramePFX.Editors.Controls.Bindings {
     /// </para>
     /// </summary>
     /// <typeparam name="TModel">The type of model</typeparam>
-    public abstract class BaseBinder<TModel> : IBinder<TModel> where TModel : class {
+    public abstract class BaseBinder<TModel> : IBinder<TModel> where TModel : class
+    {
         public FrameworkElement Control { get; private set; }
 
         public TModel Model { get; private set; }
@@ -49,28 +51,35 @@ namespace FramePFX.Editors.Controls.Bindings {
         /// </summary>
         public bool IsUpdatingControl { get; protected set; }
 
-        protected BaseBinder() {
+        protected BaseBinder()
+        {
         }
 
-        public void OnModelValueChanged() {
-            if (!this.IsAttached) {
+        public void OnModelValueChanged()
+        {
+            if (!this.IsAttached)
+            {
                 return;
             }
 
             // We don't check if we are updating the control, just in case the model
             // decided to coerce its own value which is different from the UI control
 
-            try {
+            try
+            {
                 this.IsUpdatingControl = true;
                 this.UpdateControlCore();
             }
-            finally {
+            finally
+            {
                 this.IsUpdatingControl = false;
             }
         }
 
-        public void OnControlValueChanged() {
-            if (!this.IsUpdatingControl && this.IsAttached) {
+        public void OnControlValueChanged()
+        {
+            if (!this.IsUpdatingControl && this.IsAttached)
+            {
                 this.UpdateModelCore();
             }
         }
@@ -88,16 +97,19 @@ namespace FramePFX.Editors.Controls.Bindings {
         /// <summary>
         /// Called when we become attached to a control and model (both are set to a valid value before this method call)
         /// </summary>
-        protected virtual void OnAttached() {
+        protected virtual void OnAttached()
+        {
         }
 
         /// <summary>
         /// Called when we become detached from our control and model (both will be set to null after this method call)
         /// </summary>
-        protected virtual void OnDetatched() {
+        protected virtual void OnDetached()
+        {
         }
 
-        public void Attach(FrameworkElement control, TModel model, bool autoUpdateControlValue = true) {
+        public void Attach(FrameworkElement control, TModel model, bool autoUpdateControlValue = true)
+        {
             if (this.IsAttached)
                 throw new Exception("Already attached");
             if (model == null)
@@ -109,16 +121,18 @@ namespace FramePFX.Editors.Controls.Bindings {
             this.Control = control;
             this.IsAttached = true;
             this.OnAttached();
-            if (autoUpdateControlValue) {
+            if (autoUpdateControlValue)
+            {
                 this.OnModelValueChanged();
             }
         }
 
-        public void Detatch() {
+        public void Detach()
+        {
             if (!this.IsAttached)
                 throw new Exception("Not attached");
             this.IsAttached = false;
-            this.OnDetatched();
+            this.OnDetached();
             this.Model = null;
             this.Control = null;
         }

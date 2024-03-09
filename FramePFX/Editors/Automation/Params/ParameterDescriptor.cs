@@ -22,19 +22,23 @@ using System.Numerics;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Utils;
 
-namespace FramePFX.Editors.Automation.Params {
+namespace FramePFX.Editors.Automation.Params
+{
     /// <summary>
     /// Used to describe information about a specific instance of an automation parameter. Inheritors should be immutable
     /// </summary>
-    public abstract class ParameterDescriptor {
+    public abstract class ParameterDescriptor
+    {
         public AutomationDataType DataType { get; }
 
-        protected ParameterDescriptor(AutomationDataType dataType) {
+        protected ParameterDescriptor(AutomationDataType dataType)
+        {
             this.DataType = dataType;
         }
     }
 
-    public sealed class ParameterDescriptorFloat : ParameterDescriptor {
+    public sealed class ParameterDescriptorFloat : ParameterDescriptor
+    {
         /// <summary>
         /// The default value of the parameter
         /// </summary>
@@ -50,7 +54,8 @@ namespace FramePFX.Editors.Automation.Params {
         /// </summary>
         public float Maximum { get; }
 
-        public ParameterDescriptorFloat(float defaultValue = default, float minimum = float.MinValue, float maximum = float.MaxValue) : base(AutomationDataType.Float) {
+        public ParameterDescriptorFloat(float defaultValue = default, float minimum = float.MinValue, float maximum = float.MaxValue) : base(AutomationDataType.Float)
+        {
             if (minimum > maximum)
                 throw new ArgumentException($"Minimum value exceeds the maximum value: {minimum} > {maximum}", nameof(minimum));
             if (defaultValue < minimum || defaultValue > maximum)
@@ -65,7 +70,8 @@ namespace FramePFX.Editors.Automation.Params {
         public bool IsValueOutOfRange(float value) => value < this.Minimum || value > this.Maximum;
     }
 
-    public sealed class ParameterDescriptorDouble : ParameterDescriptor {
+    public sealed class ParameterDescriptorDouble : ParameterDescriptor
+    {
         /// <summary>
         /// The default value of the parameter
         /// </summary>
@@ -81,7 +87,8 @@ namespace FramePFX.Editors.Automation.Params {
         /// </summary>
         public double Maximum { get; }
 
-        public ParameterDescriptorDouble(double defaultValue = default, double minimum = double.MinValue, double maximum = double.MaxValue) : base(AutomationDataType.Double) {
+        public ParameterDescriptorDouble(double defaultValue = default, double minimum = double.MinValue, double maximum = double.MaxValue) : base(AutomationDataType.Double)
+        {
             if (minimum > maximum)
                 throw new ArgumentException($"Minimum value exceeds the maximum value: {minimum} > {maximum}", nameof(minimum));
             if (defaultValue < minimum || defaultValue > maximum)
@@ -96,7 +103,8 @@ namespace FramePFX.Editors.Automation.Params {
         public bool IsValueOutOfRange(double value) => value < this.Minimum || value > this.Maximum;
     }
 
-    public sealed class ParameterDescriptorLong : ParameterDescriptor {
+    public sealed class ParameterDescriptorLong : ParameterDescriptor
+    {
         /// <summary>
         /// The default value of the parameter
         /// </summary>
@@ -112,7 +120,8 @@ namespace FramePFX.Editors.Automation.Params {
         /// </summary>
         public long Maximum { get; }
 
-        public ParameterDescriptorLong(long defaultValue = default, long minimum = long.MinValue, long maximum = long.MaxValue) : base(AutomationDataType.Long) {
+        public ParameterDescriptorLong(long defaultValue = default, long minimum = long.MinValue, long maximum = long.MaxValue) : base(AutomationDataType.Long)
+        {
             if (minimum > maximum)
                 throw new ArgumentException($"Minimum value exceeds the maximum value: {minimum} > {maximum}", nameof(minimum));
             if (defaultValue < minimum || defaultValue > maximum)
@@ -127,18 +136,21 @@ namespace FramePFX.Editors.Automation.Params {
         public bool IsValueOutOfRange(long value) => value < this.Minimum || value > this.Maximum;
     }
 
-    public sealed class ParameterDescriptorBoolean : ParameterDescriptor {
+    public sealed class ParameterDescriptorBoolean : ParameterDescriptor
+    {
         /// <summary>
         /// The default value of the parameter
         /// </summary>
         public bool DefaultValue { get; }
 
-        public ParameterDescriptorBoolean(bool defaultValue = false) : base(AutomationDataType.Boolean) {
+        public ParameterDescriptorBoolean(bool defaultValue = false) : base(AutomationDataType.Boolean)
+        {
             this.DefaultValue = defaultValue;
         }
     }
 
-    public sealed class ParameterDescriptorVector2 : ParameterDescriptor {
+    public sealed class ParameterDescriptorVector2 : ParameterDescriptor
+    {
         /// <summary>
         /// The default value of the parameter
         /// </summary>
@@ -154,13 +166,16 @@ namespace FramePFX.Editors.Automation.Params {
         /// </summary>
         public Vector2 Maximum { get; }
 
-        public ParameterDescriptorVector2() : this(default) {
+        public ParameterDescriptorVector2() : this(default)
+        {
         }
 
-        public ParameterDescriptorVector2(Vector2 defaultValue) : this(defaultValue, Vectors.MinValue, Vectors.MaxValue) {
+        public ParameterDescriptorVector2(Vector2 defaultValue) : this(defaultValue, Vectors.MinValue, Vectors.MaxValue)
+        {
         }
 
-        public ParameterDescriptorVector2(Vector2 defaultValue, Vector2 minimum, Vector2 maximum) : base(AutomationDataType.Vector2) {
+        public ParameterDescriptorVector2(Vector2 defaultValue, Vector2 minimum, Vector2 maximum) : base(AutomationDataType.Vector2)
+        {
             if (minimum.X > maximum.X || minimum.Y > maximum.Y)
                 throw new ArgumentException($"Minimum value exceeds the maximum value: {minimum} > {maximum}", nameof(minimum));
             if (defaultValue.X < minimum.X || defaultValue.X > maximum.X || defaultValue.Y < minimum.Y || defaultValue.Y > maximum.Y)
@@ -172,7 +187,8 @@ namespace FramePFX.Editors.Automation.Params {
 
         public Vector2 Clamp(Vector2 value) => Vector2.Clamp(value, this.Minimum, this.Maximum);
 
-        public bool IsValueOutOfRange(Vector2 value) {
+        public bool IsValueOutOfRange(Vector2 value)
+        {
             return value.IsLessThan(this.Minimum) || value.IsGreaterThan(this.Maximum);
         }
     }

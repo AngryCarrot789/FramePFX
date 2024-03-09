@@ -24,53 +24,67 @@ using FramePFX.CommandSystem;
 using FramePFX.CommandSystem.Usages;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
-    public class BasicButtonCommandUsage : CommandUsage {
+namespace FramePFX.Editors.Controls.Timelines.CommandContexts
+{
+    public class BasicButtonCommandUsage : CommandUsage
+    {
         private bool isExecuting;
 
-        public BasicButtonCommandUsage(string commandId) : base(commandId) {
+        public BasicButtonCommandUsage(string commandId) : base(commandId)
+        {
         }
 
-        protected override void OnConnected() {
+        protected override void OnConnected()
+        {
             base.OnConnected();
             if (!(this.Control is ButtonBase))
                 throw new InvalidOperationException("Cannot connect to non-button");
             ((ButtonBase) this.Control).Click += this.OnButtonClick;
         }
 
-        protected override void OnDisconnected() {
+        protected override void OnDisconnected()
+        {
             base.OnDisconnected();
             ((ButtonBase) this.Control).Click -= this.OnButtonClick;
         }
 
-        protected virtual void OnButtonClick(object sender, RoutedEventArgs e) {
-            if (!this.isExecuting) {
+        protected virtual void OnButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (!this.isExecuting)
+            {
                 this.DoExecuteAsync();
             }
         }
 
-        private async void DoExecuteAsync() {
+        private async void DoExecuteAsync()
+        {
             this.isExecuting = true;
             this.UpdateCanExecute();
-            try {
+            try
+            {
                 await CommandManager.Instance.TryExecute(this.CommandId, () => DataManager.GetFullContextData(this.Control));
             }
-            finally {
+            finally
+            {
                 this.isExecuting = true;
                 this.UpdateCanExecute();
             }
         }
 
-        protected override void UpdateCanExecute() {
-            if (this.isExecuting) {
+        protected override void UpdateCanExecute()
+        {
+            if (this.isExecuting)
+            {
                 ((ButtonBase) this.Control).IsEnabled = false;
             }
-            else {
+            else
+            {
                 base.UpdateCanExecute();
             }
         }
 
-        protected override void OnUpdateForCanExecuteState(ExecutabilityState state) {
+        protected override void OnUpdateForCanExecuteState(ExecutabilityState state)
+        {
             ((ButtonBase) this.Control).IsEnabled = !this.isExecuting && state == ExecutabilityState.Executable;
         }
     }

@@ -17,11 +17,13 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Editors.Timelines {
+namespace FramePFX.Editors.Timelines
+{
     /// <summary>
     /// Used by the UI to post process zooming, e.g., automatically scroll to the cursor based on the zoom change
     /// </summary>
-    public enum ZoomType {
+    public enum ZoomType
+    {
         /// <summary>
         /// No additional processing of the new zoom value should be done, e.g., don't scroll the timeline
         /// </summary>

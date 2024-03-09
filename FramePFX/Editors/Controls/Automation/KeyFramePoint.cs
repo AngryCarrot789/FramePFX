@@ -30,8 +30,10 @@ using FramePFX.Utils;
 using SkiaSharp;
 using Rect = System.Windows.Rect;
 
-namespace FramePFX.Editors.Controls.Automation {
-    public class KeyFramePoint {
+namespace FramePFX.Editors.Controls.Automation
+{
+    public class KeyFramePoint
+    {
         private readonly AutomationSequenceEditor editor;
         public readonly KeyFrame keyFrame;
         private Point? renderPoint;
@@ -50,7 +52,8 @@ namespace FramePFX.Editors.Controls.Automation {
         internal bool InitialPreventRemoveOnMouseUp;
 
         public KeyFramePoint Next {
-            get {
+            get
+            {
                 int index = this.Index + 1;
                 List<KeyFramePoint> list = this.editor.backingList;
                 return index > 0 && index < list.Count ? list[index] : null;
@@ -58,35 +61,42 @@ namespace FramePFX.Editors.Controls.Automation {
         }
 
         public KeyFramePoint Prev {
-            get {
+            get
+            {
                 int index = this.Index - 1;
                 List<KeyFramePoint> list = this.editor.backingList;
                 return index < list.Count && index >= 0 ? list[index] : null;
             }
         }
 
-        protected KeyFramePoint(AutomationSequenceEditor editor, KeyFrame keyFrame) {
+        protected KeyFramePoint(AutomationSequenceEditor editor, KeyFrame keyFrame)
+        {
             this.editor = editor;
             this.keyFrame = keyFrame;
         }
 
-        public static KeyFramePoint ForKeyFrame(AutomationSequenceEditor editor, KeyFrame keyFrame) {
+        public static KeyFramePoint ForKeyFrame(AutomationSequenceEditor editor, KeyFrame keyFrame)
+        {
             return new KeyFramePoint(editor, keyFrame);
         }
 
-        public void InvalidateRenderData() {
+        public void InvalidateRenderData()
+        {
             this.renderPoint = null;
         }
 
-        public Point GetLocation() {
-            if (this.renderPoint is Point point) {
+        public Point GetLocation()
+        {
+            if (this.renderPoint is Point point)
+            {
                 return point;
             }
 
             double height = this.editor.ActualHeight;
             double px = this.keyFrame.Frame * this.editor.UnitZoom;
             double offset_y = KeyPointUtils.GetYHelper(this.editor, this.keyFrame, height);
-            if (double.IsNaN(offset_y) && !HasLoggedNaN) {
+            if (double.IsNaN(offset_y) && !HasLoggedNaN)
+            {
                 HasLoggedNaN = true;
                 Debugger.Break();
                 // AppLogger.WriteLine("KeyFramePoint calculated a Y offset of NaN. This typically means the min/max range was negative or positive infinity, which isn't a great idea");
@@ -96,21 +106,26 @@ namespace FramePFX.Editors.Controls.Automation {
             return point;
         }
 
-        public virtual void RenderEllipse(DrawingContext dc, ref Rect drawing_area) {
+        public virtual void RenderEllipse(DrawingContext dc, ref Rect drawing_area)
+        {
             Point point = this.GetLocation();
             const double r = AutomationSequenceEditor.EllipseRadius;
             const double rH = AutomationSequenceEditor.EllipseHitRadius, rH2 = rH * 2d;
             Rect area = new Rect(point.X - rH, point.Y - rH, rH2, rH2);
-            if (AutomationSequenceEditor.RectContains(ref drawing_area, ref area)) {
+            if (AutomationSequenceEditor.RectContains(ref drawing_area, ref area))
+            {
                 dc.DrawEllipse(Brushes.Transparent, this.editor.KeyFrameTransparentPen, point, rH, rH);
                 Pen pen;
-                if (this.editor.isOverrideEnabled) {
+                if (this.editor.isOverrideEnabled)
+                {
                     pen = this.editor.KeyOverridePen;
                 }
-                else if (this.IsMovingPoint || this.IsMouseOverPoint) {
+                else if (this.IsMovingPoint || this.IsMouseOverPoint)
+                {
                     pen = this.editor.KeyFrameMouseOverPen;
                 }
-                else {
+                else
+                {
                     pen = this.editor.KeyFramePen;
                 }
 
@@ -118,42 +133,51 @@ namespace FramePFX.Editors.Controls.Automation {
             }
         }
 
-        public virtual void RenderEllipse(SKSurface surface, ref Rect drawing_area, byte opacity = 255) {
+        public virtual void RenderEllipse(SKSurface surface, ref Rect drawing_area, byte opacity = 255)
+        {
             Point point = this.GetLocation();
             const double r = AutomationSequenceEditor.EllipseRadius;
             const double rH = AutomationSequenceEditor.EllipseHitRadius, rH2 = rH * 2d;
             Rect area = new Rect(point.X - rH, point.Y - rH, rH2, rH2);
-            if (AutomationSequenceEditor.RectContains(ref drawing_area, ref area)) {
+            if (AutomationSequenceEditor.RectContains(ref drawing_area, ref area))
+            {
                 SKColor colour;
-                if (this.editor.isOverrideEnabled) {
+                if (this.editor.isOverrideEnabled)
+                {
                     colour = SKColors.DarkGray;
                 }
-                else if (this.IsMovingPoint || this.IsMouseOverPoint) {
+                else if (this.IsMovingPoint || this.IsMouseOverPoint)
+                {
                     colour = SKColors.White;
                 }
-                else {
+                else
+                {
                     colour = SKColors.OrangeRed;
                 }
 
-                using (SKPaint paint = new SKPaint() {Color = colour.WithAlpha(opacity)}) {
+                using (SKPaint paint = new SKPaint() {Color = colour.WithAlpha(opacity)})
+                {
                     surface.Canvas.DrawCircle(point.AsSkia(), (float) r, paint);
                 }
             }
         }
 
-        public static bool IsLineVisible(ref Rect rect, ref Point p1, ref Point p2) {
+        public static bool IsLineVisible(ref Rect rect, ref Point p1, ref Point p2)
+        {
             double leftmost = Math.Min(p1.X, p2.X);
             double rightmost = Math.Max(p1.X, p2.X);
             double topmost = Math.Min(p1.Y, p2.Y);
             double bottommost = Math.Max(p1.Y, p2.Y);
-            if (rightmost < rect.Left || leftmost > rect.Right || bottommost < rect.Top || topmost > rect.Bottom) {
+            if (rightmost < rect.Left || leftmost > rect.Right || bottommost < rect.Top || topmost > rect.Bottom)
+            {
                 return false;
             }
 
             return true;
         }
 
-        public virtual void RenderLine(DrawingContext dc, KeyFramePoint target, ref Rect drawing_area) {
+        public virtual void RenderLine(DrawingContext dc, KeyFramePoint target, ref Rect drawing_area)
+        {
             Point p1 = this.GetLocation();
             Point p2 = target.GetLocation();
             // long timeA = this.keyFrame.Timestamp;
@@ -174,12 +198,15 @@ namespace FramePFX.Editors.Controls.Automation {
             //     }
             // }
 
-            if (IsLineVisible(ref drawing_area, ref p1, ref p2)) {
+            if (IsLineVisible(ref drawing_area, ref p1, ref p2))
+            {
                 Pen pen;
-                if (this.LastLineHitType != LineHitType.Head && this.LastLineHitType != LineHitType.Tail) {
+                if (this.LastLineHitType != LineHitType.Head && this.LastLineHitType != LineHitType.Tail)
+                {
                     pen = this.editor.isOverrideEnabled ? this.editor.LineOverridePen : (this.LastLineHitType != LineHitType.None ? this.editor.LineMouseOverPen : this.editor.LinePen);
                 }
-                else {
+                else
+                {
                     pen = this.editor.isOverrideEnabled ? this.editor.LineOverridePen : this.editor.LinePen;
                 }
 
@@ -203,33 +230,41 @@ namespace FramePFX.Editors.Controls.Automation {
             }
         }
 
-        public virtual void RenderLine(SKSurface suface, KeyFramePoint target, ref Rect drawing_area, byte opacity = 255) {
+        public virtual void RenderLine(SKSurface suface, KeyFramePoint target, ref Rect drawing_area, byte opacity = 255)
+        {
             Point p1 = this.GetLocation();
             Point p2 = target.GetLocation();
-            if (IsLineVisible(ref drawing_area, ref p1, ref p2)) {
+            if (IsLineVisible(ref drawing_area, ref p1, ref p2))
+            {
                 SKColor colour;
-                if (this.LastLineHitType != LineHitType.Head && this.LastLineHitType != LineHitType.Tail) {
+                if (this.LastLineHitType != LineHitType.Head && this.LastLineHitType != LineHitType.Tail)
+                {
                     colour = this.editor.isOverrideEnabled ? SKColors.DarkGray : (this.LastLineHitType != LineHitType.None ? SKColors.White : SKColors.OrangeRed);
                 }
-                else {
+                else
+                {
                     colour = this.editor.isOverrideEnabled ? SKColors.White : SKColors.OrangeRed;
                 }
 
-                using (SKPaint paint = new SKPaint() {Color = colour.WithAlpha(opacity)}) {
+                using (SKPaint paint = new SKPaint() {Color = colour.WithAlpha(opacity)})
+                {
                     suface.Canvas.DrawLine(p1.AsSkia(), p2.AsSkia(), paint);
                 }
             }
         }
 
         [SwitchAutomationDataType]
-        public bool SetValueForMousePoint(Point point) {
+        public bool SetValueForMousePoint(Point point)
+        {
             double height = this.editor.ActualHeight;
-            if (double.IsNaN(height) || height <= 0d) {
+            if (double.IsNaN(height) || height <= 0d)
+            {
                 return false;
             }
 
             Parameter key = this.keyFrame.sequence.Parameter;
-            switch (this.keyFrame) {
+            switch (this.keyFrame)
+            {
                 case KeyFrameFloat frame when key.Descriptor is ParameterDescriptorFloat fd:
                     frame.SetFloatValue((float) Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum), fd);
                     break;
@@ -242,13 +277,16 @@ namespace FramePFX.Editors.Controls.Automation {
                 case KeyFrameBoolean frame:
                     double offset = (height / 100) * 30;
                     double bound_b = height - offset;
-                    if (point.Y >= bound_b) {
+                    if (point.Y >= bound_b)
+                    {
                         frame.SetBooleanValue(false);
                     }
-                    else if (point.Y < offset) {
+                    else if (point.Y < offset)
+                    {
                         frame.SetBooleanValue(true);
                     }
-                    else {
+                    else
+                    {
                         return false;
                     }
 
@@ -264,7 +302,8 @@ namespace FramePFX.Editors.Controls.Automation {
             return true;
         }
 
-        public bool IsMouseOverLine(ref Point p, ref Point a, ref Point b, double thickness) {
+        public bool IsMouseOverLine(ref Point p, ref Point a, ref Point b, double thickness)
+        {
             double bend = this.keyFrame.curveBend;
             double val = (b.Y - a.Y) / (b.X - a.X);
             double lineY = val * (p.X - a.X) + a.Y;

@@ -21,17 +21,22 @@ using System;
 using System.Windows.Threading;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.AdvancedMenuService.ContextService.Controls {
-    public class AdvancedContextEventMenuItem : AdvancedContextMenuItem {
+namespace FramePFX.AdvancedMenuService.ContextService.Controls
+{
+    public class AdvancedContextEventMenuItem : AdvancedContextMenuItem
+    {
         public new EventContextEntry Entry => (EventContextEntry) base.Entry;
 
-        public AdvancedContextEventMenuItem() {
+        public AdvancedContextEventMenuItem()
+        {
         }
 
-        protected override void OnClick() {
+        protected override void OnClick()
+        {
             EventContextEntry entry = this.Entry;
             IContextData context = this.Menu.ContextOnMenuOpen;
-            if (entry != null && context != null) {
+            if (entry != null && context != null)
+            {
                 this.Dispatcher.BeginInvoke((Action) (() => entry.Action?.Invoke(context)), DispatcherPriority.Render);
             }
 

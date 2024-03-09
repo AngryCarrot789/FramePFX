@@ -19,9 +19,11 @@
 
 using System;
 
-namespace FramePFX.Interactivity {
+namespace FramePFX.Interactivity
+{
     [Flags]
-    public enum EnumDropType {
+    public enum EnumDropType
+    {
         /// <summary>
         /// No drop (default state)
         /// </summary>

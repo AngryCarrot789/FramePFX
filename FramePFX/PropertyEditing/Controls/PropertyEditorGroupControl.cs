@@ -24,11 +24,13 @@ using System.Windows.Input;
 using FramePFX.Editors.Controls.Bindings;
 using FramePFX.Utils;
 
-namespace FramePFX.PropertyEditing.Controls {
+namespace FramePFX.PropertyEditing.Controls
+{
     /// <summary>
     /// A control that contains a collection of property editor objects, such as slots, groups and separators
     /// </summary>
-    public class PropertyEditorGroupControl : Control {
+    public class PropertyEditorGroupControl : Control
+    {
         public static readonly DependencyProperty IsExpandedProperty = DependencyProperty.Register("IsExpanded", typeof(bool), typeof(PropertyEditorGroupControl), new PropertyMetadata(BoolBox.False));
         public static readonly DependencyProperty GroupTypeProperty = DependencyProperty.Register("GroupType", typeof(GroupType), typeof(PropertyEditorGroupControl), new PropertyMetadata(GroupType.PrimaryExpander));
         public static readonly DependencyProperty PropertyEditorProperty = DependencyProperty.Register("PropertyEditor", typeof(PropertyEditorControl), typeof(PropertyEditorGroupControl), new PropertyMetadata(null));
@@ -58,35 +60,42 @@ namespace FramePFX.PropertyEditing.Controls {
         private readonly UpdaterAutoEventPropertyBinder<BasePropertyEditorGroup> isVisibleBinder = new UpdaterAutoEventPropertyBinder<BasePropertyEditorGroup>(nameof(BasePropertyEditorGroup.IsCurrentlyApplicableChanged), obj => ((PropertyEditorGroupControl) obj.Control).Visibility = (obj.Model.IsRoot || obj.Model.IsVisible) ? Visibility.Visible : Visibility.Collapsed, null);
         private readonly UpdaterAutoEventPropertyBinder<BasePropertyEditorGroup> isExpandedBinder = new UpdaterAutoEventPropertyBinder<BasePropertyEditorGroup>(nameof(BasePropertyEditorGroup.IsExpandedChanged), obj => ((PropertyEditorGroupControl) obj.Control).IsExpanded = obj.Model.IsExpanded, obj => obj.Model.IsExpanded = ((PropertyEditorGroupControl) obj.Control).IsExpanded);
 
-        public PropertyEditorGroupControl() {
+        public PropertyEditorGroupControl()
+        {
         }
 
-        static PropertyEditorGroupControl() {
+        static PropertyEditorGroupControl()
+        {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(PropertyEditorGroupControl), new FrameworkPropertyMetadata(typeof(PropertyEditorGroupControl)));
         }
 
-        protected override void OnMouseDown(MouseButtonEventArgs e) {
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
             base.OnMouseDown(e);
 
-            if (!e.Handled && e.OriginalSource is PropertyEditorItemsPanel) {
+            if (!e.Handled && e.OriginalSource is PropertyEditorItemsPanel)
+            {
                 e.Handled = true;
                 this.PropertyEditor?.PropertyEditor?.ClearSelection();
                 this.Focus();
             }
         }
 
-        public override void OnApplyTemplate() {
+        public override void OnApplyTemplate()
+        {
             base.OnApplyTemplate();
             this.GetTemplateChild("PART_Panel", out PropertyEditorItemsPanel panel);
             this.Panel = panel;
             this.Panel.OwnerGroup = this;
 
-            if (this.GetTemplateChild("PART_Expander") is Expander expander) {
+            if (this.GetTemplateChild("PART_Expander") is Expander expander)
+            {
                 this.TheExpander = expander;
             }
         }
 
-        public void ConnectModel(PropertyEditorControl propertyEditor, BasePropertyEditorGroup group) {
+        public void ConnectModel(PropertyEditorControl propertyEditor, BasePropertyEditorGroup group)
+        {
             if (propertyEditor == null)
                 throw new ArgumentNullException(nameof(propertyEditor));
             this.PropertyEditor = propertyEditor;
@@ -101,22 +110,26 @@ namespace FramePFX.PropertyEditing.Controls {
             this.isExpandedBinder.Attach(this, group);
 
             int i = 0;
-            foreach (BasePropertyEditorObject obj in group.PropertyObjects) {
+            foreach (BasePropertyEditorObject obj in group.PropertyObjects)
+            {
                 this.Panel.InsertItem(obj, i++);
             }
         }
 
-        private void GroupOnIsCurrentlyApplicableChanged(BasePropertyEditorItem sender) {
+        private void GroupOnIsCurrentlyApplicableChanged(BasePropertyEditorItem sender)
+        {
         }
 
-        public void DisconnectModel() {
-            for (int i = this.Panel.Count - 1; i >= 0; i--) {
+        public void DisconnectModel()
+        {
+            for (int i = this.Panel.Count - 1; i >= 0; i--)
+            {
                 this.Panel.RemoveItem(i);
             }
 
-            this.displayNameBinder.Detatch();
-            this.isVisibleBinder.Detatch();
-            this.isExpandedBinder.Detatch();
+            this.displayNameBinder.Detach();
+            this.isVisibleBinder.Detach();
+            this.isExpandedBinder.Detach();
             this.Model.ItemAdded -= this.ModelOnItemAdded;
             this.Model.ItemRemoved -= this.ModelOnItemRemoved;
             this.Model.ItemMoved -= this.ModelOnItemMoved;
@@ -124,25 +137,30 @@ namespace FramePFX.PropertyEditing.Controls {
             this.Model = null;
         }
 
-        private void ModelOnItemAdded(BasePropertyEditorGroup group, BasePropertyEditorObject item, int index) {
+        private void ModelOnItemAdded(BasePropertyEditorGroup group, BasePropertyEditorObject item, int index)
+        {
             this.Panel.InsertItem(item, index);
             this.Panel.UpdateLayout();
         }
 
-        private void ModelOnItemRemoved(BasePropertyEditorGroup group, BasePropertyEditorObject item, int index) {
+        private void ModelOnItemRemoved(BasePropertyEditorGroup group, BasePropertyEditorObject item, int index)
+        {
             this.Panel.RemoveItem(index);
         }
 
-        private void ModelOnItemMoved(BasePropertyEditorGroup group, BasePropertyEditorObject item, int oldindex, int newindex) {
+        private void ModelOnItemMoved(BasePropertyEditorGroup group, BasePropertyEditorObject item, int oldindex, int newindex)
+        {
             this.Panel.MoveItem(oldindex, newindex);
         }
 
-        private void GetTemplateChild<T>(string name, out T value) where T : DependencyObject {
+        private void GetTemplateChild<T>(string name, out T value) where T : DependencyObject
+        {
             if ((value = this.GetTemplateChild(name) as T) == null)
                 throw new Exception("Missing part: " + name);
         }
 
-        private static void UpdateControlDisplayName(IBinder<BasePropertyEditorGroup> obj) {
+        private static void UpdateControlDisplayName(IBinder<BasePropertyEditorGroup> obj)
+        {
             PropertyEditorGroupControl ctrl = (PropertyEditorGroupControl) obj.Control;
             if (ctrl.TheExpander != null)
                 ctrl.TheExpander.Header = obj.Model.DisplayName;

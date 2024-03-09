@@ -21,8 +21,10 @@ using FramePFX.Services.Files;
 using FramePFX.Services.Messages;
 using FramePFX.Tasks;
 
-namespace FramePFX {
-    public static class IoC {
+namespace FramePFX
+{
+    public static class IoC
+    {
         /// <summary>
         /// Gets the application's message dialog service, for showing messages to the user
         /// </summary>

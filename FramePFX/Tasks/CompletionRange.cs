@@ -17,12 +17,15 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Tasks {
-    public readonly struct CompletionRange {
+namespace FramePFX.Tasks
+{
+    public readonly struct CompletionRange
+    {
         public readonly double Range;
         public readonly double PreviousMultiplier;
 
-        public CompletionRange(double range, double previousMultiplier) {
+        public CompletionRange(double range, double previousMultiplier)
+        {
             this.Range = range;
             this.PreviousMultiplier = previousMultiplier;
         }

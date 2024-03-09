@@ -25,11 +25,13 @@ using FramePFX.Editors.ResourceManaging.Resources;
 using FramePFX.Utils.Accessing;
 using SkiaSharp;
 
-namespace FramePFX.Editors.Timelines.Clips.Core {
+namespace FramePFX.Editors.Timelines.Clips.Core
+{
     /// <summary>
     /// A video clip that draws a basic square, used as a debug video clip mostly
     /// </summary>
-    public class VideoClipShape : VideoClip {
+    public class VideoClipShape : VideoClip
+    {
         public static readonly ParameterVector2 SizeParameter =
             Parameter.RegisterVector2(
                 typeof(VideoClipShape),
@@ -45,21 +47,26 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
 
         public IResourcePathKey<ResourceColour> ColourKey { get; }
 
-        public VideoClipShape() {
+        public VideoClipShape()
+        {
             this.UsesCustomOpacityCalculation = true;
             this.Size = SizeParameter.Descriptor.DefaultValue;
             this.ColourKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceColour>();
-            this.ColourKey.ResourceChanged += (key, item, newItem) => {
+            this.ColourKey.ResourceChanged += (key, item, newItem) =>
+            {
                 this.InvalidateRender();
             };
         }
 
-        public override Vector2? GetRenderSize() {
+        public override Vector2? GetRenderSize()
+        {
             return new Vector2(this.Size.X, this.Size.Y);
         }
 
-        public override bool PrepareRenderFrame(PreRenderContext rc, long frame) {
-            this.renderData = new RenderData() {
+        public override bool PrepareRenderFrame(PreRenderContext rc, long frame)
+        {
+            this.renderData = new RenderData()
+            {
                 size = this.Size,
                 colour = this.ColourKey.TryGetResource(out ResourceColour resource) ? resource.Colour : (this.Track?.Colour ?? SKColors.White)
             };
@@ -67,10 +74,12 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
             return true;
         }
 
-        public override void RenderFrame(RenderContext rc, ref SKRect renderArea) {
+        public override void RenderFrame(RenderContext rc, ref SKRect renderArea)
+        {
             RenderData d = this.renderData;
             SKColor colour = RenderUtils.BlendAlpha(d.colour, this.RenderOpacity);
-            using (SKPaint paint = new SKPaint() {Color = colour, IsAntialias = true}) {
+            using (SKPaint paint = new SKPaint() {Color = colour, IsAntialias = true})
+            {
                 rc.Canvas.DrawRect(0, 0, d.size.X, d.size.Y, paint);
             }
 
@@ -78,7 +87,8 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
             // renderArea = new SKRect(0, 0, d.size.X, d.size.Y);
         }
 
-        private struct RenderData {
+        private struct RenderData
+        {
             public Vector2 size;
             public SKColor colour;
         }

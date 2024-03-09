@@ -41,11 +41,13 @@ using FramePFX.Utils.Visuals;
 using SkiaSharp;
 using Track = FramePFX.Editors.Timelines.Tracks.Track;
 
-namespace FramePFX.Editors.Controls.Timelines {
+namespace FramePFX.Editors.Controls.Timelines
+{
     /// <summary>
     /// A control that represents the entire state of a timeline, with a timeline sequence editor, track list state editor, etc.
     /// </summary>
-    public class TimelineControl : Control {
+    public class TimelineControl : Control
+    {
         public static readonly DependencyProperty TimelineProperty = DependencyProperty.Register("Timeline", typeof(Timeline), typeof(TimelineControl), new PropertyMetadata(null, (d, e) => ((TimelineControl) d).OnTimelineChanged((Timeline) e.OldValue, (Timeline) e.NewValue)));
 
         public Timeline Timeline {
@@ -88,7 +90,8 @@ namespace FramePFX.Editors.Controls.Timelines {
         private bool isUpdatingTrackAutomationButton;
         private bool isUpdatingClipAutomationButton;
 
-        public TimelineControl() {
+        public TimelineControl()
+        {
             this.timelineActionButtons = new List<Button>();
             this.itemContentCacheMap = new Dictionary<Type, Stack<TimelineClipContent>>();
         }
@@ -97,70 +100,87 @@ namespace FramePFX.Editors.Controls.Timelines {
         /// Updates the property editor's clip view, based on our timeline's selected items
         /// </summary>
         /// <param name="timeline"></param>
-        public void UpdatePropertyEditorClipSelection() {
+        public void UpdatePropertyEditorClipSelection()
+        {
             VideoEditorPropertyEditor.Instance.UpdateClipSelectionAsync(this.Timeline);
         }
 
-        public Point GetTimelinePointFromClip(Point pointInClip) {
+        public Point GetTimelinePointFromClip(Point pointInClip)
+        {
             return new Point(pointInClip.X + (this.TimelineScrollViewer?.HorizontalOffset ?? 0d), pointInClip.Y);
         }
 
-        private void MovePlayHeadToMouseCursor(double x, bool enableThumbDragging = true, bool updateStopHead = true) {
-            if (!(this.Timeline is Timeline timeline)) {
+        private void MovePlayHeadToMouseCursor(double x, bool enableThumbDragging = true, bool updateStopHead = true)
+        {
+            if (!(this.Timeline is Timeline timeline))
+            {
                 return;
             }
 
-            if (x >= 0d) {
+            if (x >= 0d)
+            {
                 long frameX = TimelineUtils.PixelToFrame(x, timeline.Zoom, true);
-                if (frameX == timeline.PlayHeadPosition) {
+                if (frameX == timeline.PlayHeadPosition)
+                {
                     return;
                 }
 
-                if (frameX >= 0 && frameX < timeline.MaxDuration) {
+                if (frameX >= 0 && frameX < timeline.MaxDuration)
+                {
                     timeline.PlayHeadPosition = frameX;
-                    if (updateStopHead) {
+                    if (updateStopHead)
+                    {
                         timeline.StopHeadPosition = frameX;
                     }
                 }
 
-                if (enableThumbDragging) {
+                if (enableThumbDragging)
+                {
                     this.PlayHead.EnableDragging(new Point(x, 0));
                 }
             }
         }
 
-        public void SetPlayHeadToMouseCursor(double sequencePixelX, bool setStopHeadPosition = true) {
+        public void SetPlayHeadToMouseCursor(double sequencePixelX, bool setStopHeadPosition = true)
+        {
             // no need to add scrollviewer offset, since the sequencePixelX
             // will naturally include the horizontal offset kinda
             this.MovePlayHeadToMouseCursor(sequencePixelX, false, setStopHeadPosition);
         }
 
-        static TimelineControl() {
+        static TimelineControl()
+        {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(TimelineControl), new FrameworkPropertyMetadata(typeof(TimelineControl)));
         }
 
-        protected override void OnKeyDown(KeyEventArgs e) {
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
             base.OnKeyDown(e);
-            if ((Keyboard.Modifiers & ModifierKeys.Control) == 0 || e.Key != Key.V) {
+            if ((Keyboard.Modifiers & ModifierKeys.Control) == 0 || e.Key != Key.V)
+            {
                 return;
             }
 
             ResourceManager manager;
-            if (!(this.Timeline is Timeline timeline) || (manager = timeline.Project?.ResourceManager) == null) {
+            if (!(this.Timeline is Timeline timeline) || (manager = timeline.Project?.ResourceManager) == null)
+            {
                 return;
             }
 
-            if (!timeline.HasAnySelectedTracks || !(timeline.SelectedTracks[timeline.SelectedTracks.Count - 1] is VideoTrack track)) {
+            if (!timeline.HasAnySelectedTracks || !(timeline.SelectedTracks[timeline.SelectedTracks.Count - 1] is VideoTrack track))
+            {
                 return;
             }
 
             IDataObject dataObject = Clipboard.GetDataObject();
-            if (dataObject == null || !dataObject.GetDataPresent(NativeDropTypes.Bitmap)) {
+            if (dataObject == null || !dataObject.GetDataPresent(NativeDropTypes.Bitmap))
+            {
                 return;
             }
 
             IDataObjekt objekt = new DataObjectWrapper(dataObject);
-            if (!objekt.GetBitmap(out SKBitmap bitmap, out int error)) {
+            if (!objekt.GetBitmap(out SKBitmap bitmap, out int error))
+            {
                 AppLogger.Instance.WriteLine($"Failed to get bitmap from clipboard: {(error == 2 ? "invalid image format" : "invalid object")}");
                 return;
             }
@@ -180,15 +200,20 @@ namespace FramePFX.Editors.Controls.Timelines {
 
             this.UpdatePropertyEditorClipSelection();
 
-            this.Dispatcher.Invoke(() => { return System.Threading.Tasks.Task.CompletedTask; });
+            this.Dispatcher.Invoke(() =>
+            {
+                return System.Threading.Tasks.Task.CompletedTask;
+            });
         }
 
-        private void GetTemplateChild<T>(string name, out T value) where T : DependencyObject {
+        private void GetTemplateChild<T>(string name, out T value) where T : DependencyObject
+        {
             if ((value = this.GetTemplateChild(name) as T) == null)
                 throw new Exception("Missing part: " + name);
         }
 
-        public override void OnApplyTemplate() {
+        public override void OnApplyTemplate()
+        {
             base.OnApplyTemplate();
             this.GetTemplateChild("PART_TrackListBox", out TrackControlSurfaceListBox trackListBox);
             this.GetTemplateChild("PART_Timeline", out TrackStoragePanel timeline);
@@ -252,13 +277,15 @@ namespace FramePFX.Editors.Controls.Timelines {
             this.UpdateClipAutomationVisibilityState();
         }
 
-        private void OnClipAutomationToggleChanged(object sender, RoutedEventArgs e) {
+        private void OnClipAutomationToggleChanged(object sender, RoutedEventArgs e)
+        {
             if (this.isUpdatingClipAutomationButton)
                 return;
             this.Timeline.Project.Editor.ShowClipAutomation = this.ToggleClipAutomationButton.IsChecked == true;
         }
 
-        private void OnTrackAutomationToggleChanged(object sender, RoutedEventArgs e) {
+        private void OnTrackAutomationToggleChanged(object sender, RoutedEventArgs e)
+        {
             if (this.isUpdatingTrackAutomationButton)
                 return;
             this.Timeline.Project.Editor.ShowTrackAutomation = this.ToggleTrackAutomationButton.IsChecked == true;
@@ -268,77 +295,96 @@ namespace FramePFX.Editors.Controls.Timelines {
 
         private void OnShowClipAutomationChanged(VideoEditor editor) => this.UpdateClipAutomationVisibilityState();
 
-        private void UpdateClipAutomationVisibilityState() {
+        private void UpdateClipAutomationVisibilityState()
+        {
             Timeline timeline = this.Timeline;
             if (timeline == null)
                 return;
             bool state = timeline.Project.Editor.ShowClipAutomation;
-            try {
+            try
+            {
                 this.isUpdatingClipAutomationButton = true;
                 this.ToggleClipAutomationButton.IsChecked = state;
             }
-            finally {
+            finally
+            {
                 this.isUpdatingClipAutomationButton = false;
             }
 
             this.IsClipAutomationVisibility = state;
-            foreach (TimelineTrackControl track in this.TrackStorage.GetTracks()) {
-                foreach (TimelineClipControl clip in track.GetClips()) {
+            foreach (TimelineTrackControl track in this.TrackStorage.GetTracks())
+            {
+                foreach (TimelineClipControl clip in track.GetClips())
+                {
                     this.UpdateClipAutomationVisibility(clip);
                 }
             }
         }
 
-        private void UpdateTrackAutomationVisibilityState() {
+        private void UpdateTrackAutomationVisibilityState()
+        {
             Timeline timeline = this.Timeline;
             if (timeline == null)
                 return;
             bool state = timeline.Project.Editor.ShowTrackAutomation;
-            try {
+            try
+            {
                 this.isUpdatingTrackAutomationButton = true;
                 this.ToggleTrackAutomationButton.IsChecked = state;
             }
-            finally {
+            finally
+            {
                 this.isUpdatingTrackAutomationButton = false;
             }
 
             this.IsTrackAutomationVisibility = state;
-            foreach (TimelineTrackControl track in this.TrackStorage.GetTracks()) {
+            foreach (TimelineTrackControl track in this.TrackStorage.GetTracks())
+            {
                 this.UpdateTrackAutomationVisibility(track);
             }
 
-            foreach (TrackControlSurfaceListBoxItem track in this.TrackList.GetTracks()) {
+            foreach (TrackControlSurfaceListBoxItem track in this.TrackList.GetTracks())
+            {
                 this.UpdateTrackAutomationVisibility(track);
             }
         }
 
-        public void UpdateTrackAutomationVisibility(TimelineTrackControl control) {
+        public void UpdateTrackAutomationVisibility(TimelineTrackControl control)
+        {
             control.SetAutomationVisibility(this.IsTrackAutomationVisibility);
         }
 
-        public void UpdateTrackAutomationVisibility(TrackControlSurfaceListBoxItem control) {
-            if (control.Content is TrackControlSurface surface) {
+        public void UpdateTrackAutomationVisibility(TrackControlSurfaceListBoxItem control)
+        {
+            if (control.Content is TrackControlSurface surface)
+            {
                 surface.SetAutomationVisibility(this.IsTrackAutomationVisibility);
             }
         }
 
-        public void UpdateClipAutomationVisibility(TimelineClipControl control) {
-            if (control.AutomationEditor != null) {
+        public void UpdateClipAutomationVisibility(TimelineClipControl control)
+        {
+            if (control.AutomationEditor != null)
+            {
                 control.AutomationEditor.Visibility = this.IsClipAutomationVisibility ? Visibility.Visible : Visibility.Collapsed;
             }
         }
 
-        private void CreateTimelineButtonAction(Button button, Action<Timeline> action) {
+        private void CreateTimelineButtonAction(Button button, Action<Timeline> action)
+        {
             this.timelineActionButtons.Add(button);
-            button.Click += (sender, args) => {
+            button.Click += (sender, args) =>
+            {
                 Timeline timeline = this.Timeline;
                 if (timeline != null)
                     action(timeline);
             };
         }
 
-        private void OnTimelineChanged(Timeline oldTimeline, Timeline newTimeline) {
-            if (oldTimeline != null) {
+        private void OnTimelineChanged(Timeline oldTimeline, Timeline newTimeline)
+        {
+            if (oldTimeline != null)
+            {
                 oldTimeline.MaxDurationChanged -= this.OnTimelineMaxDurationChanged;
                 oldTimeline.ZoomTimeline -= this.OnTimelineZoomed;
                 oldTimeline.TrackAdded -= this.OnTimelineTrackEvent;
@@ -354,7 +400,8 @@ namespace FramePFX.Editors.Controls.Timelines {
             this.PlayHead.Timeline = newTimeline;
             this.StopHead.Timeline = newTimeline;
             this.TimelineRuler.Timeline = newTimeline;
-            if (newTimeline != null) {
+            if (newTimeline != null)
+            {
                 newTimeline.MaxDurationChanged += this.OnTimelineMaxDurationChanged;
                 newTimeline.ZoomTimeline += this.OnTimelineZoomed;
                 newTimeline.TrackAdded += this.OnTimelineTrackEvent;
@@ -366,7 +413,8 @@ namespace FramePFX.Editors.Controls.Timelines {
             }
 
             bool canExecute = newTimeline != null;
-            foreach (Button button in this.timelineActionButtons) {
+            foreach (Button button in this.timelineActionButtons)
+            {
                 button.IsEnabled = canExecute;
             }
 
@@ -374,54 +422,66 @@ namespace FramePFX.Editors.Controls.Timelines {
             this.UpdateClipAutomationVisibilityState();
         }
 
-        private void OnTimelineTrackEvent(Timeline timeline, Track track, int index) {
+        private void OnTimelineTrackEvent(Timeline timeline, Track track, int index)
+        {
             this.UpdateBorderThicknesses(timeline);
         }
 
-        private void UpdateBorderThicknesses(Timeline timeline) {
+        private void UpdateBorderThicknesses(Timeline timeline)
+        {
             // Just a cool feature to hide the border when there's no tracks, not necessary but meh
             Thickness thickness = new Thickness(0, 0, 0, (timeline.Tracks.Count < 1) ? 0 : 1);
             this.TimelineBorder.BorderThickness = thickness;
             this.TrackList.BorderThickness = thickness;
         }
 
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
             base.OnRenderSizeChanged(sizeInfo);
             this.TimelineRuler?.InvalidateMeasure();
         }
 
-        protected override void OnPreviewMouseWheel(MouseWheelEventArgs e) {
+        protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)
+        {
             base.OnPreviewMouseWheel(e);
-            if (e.Handled) {
+            if (e.Handled)
+            {
                 return;
             }
 
             ScrollViewer scroller = this.TimelineScrollViewer;
-            if (scroller == null) {
+            if (scroller == null)
+            {
                 return;
             }
 
             Timeline timeline = this.Timeline;
-            if (timeline == null) {
+            if (timeline == null)
+            {
                 return;
             }
 
             ModifierKeys mods = Keyboard.Modifiers;
-            if ((mods & ModifierKeys.Alt) != 0) {
-                if (VisualTreeUtils.GetParent<TimelineTrackControl>(e.OriginalSource as DependencyObject) is TimelineTrackControl track) {
+            if ((mods & ModifierKeys.Alt) != 0)
+            {
+                if (VisualTreeUtils.GetParent<TimelineTrackControl>(e.OriginalSource as DependencyObject) is TimelineTrackControl track)
+                {
                     track.Track.Height = Maths.Clamp(track.Track.Height + (e.Delta / 120d * 8), TimelineClipControl.HeaderSize, 200d);
                 }
 
                 e.Handled = true;
             }
-            else if ((mods & ModifierKeys.Control) != 0) {
+            else if ((mods & ModifierKeys.Control) != 0)
+            {
                 e.Handled = true;
                 bool shift = (mods & ModifierKeys.Shift) != 0;
                 double multiplier = (shift ? 0.2 : 0.4);
-                if (e.Delta > 0) {
+                if (e.Delta > 0)
+                {
                     multiplier = 1d + multiplier;
                 }
-                else {
+                else
+                {
                     multiplier = 1d - multiplier;
                 }
 
@@ -440,14 +500,19 @@ namespace FramePFX.Editors.Controls.Timelines {
                 scroller.ScrollToHorizontalOffset(new_offset);
                 // this.InvalidateMeasure();
             }
-            else if ((mods & ModifierKeys.Shift) != 0) {
-                if (e.Delta < 0) {
-                    for (int i = 0; i < 6; i++) {
+            else if ((mods & ModifierKeys.Shift) != 0)
+            {
+                if (e.Delta < 0)
+                {
+                    for (int i = 0; i < 6; i++)
+                    {
                         scroller.LineRight();
                     }
                 }
-                else {
-                    for (int i = 0; i < 6; i++) {
+                else
+                {
+                    for (int i = 0; i < 6; i++)
+                    {
                         scroller.LineLeft();
                     }
                 }
@@ -456,33 +521,42 @@ namespace FramePFX.Editors.Controls.Timelines {
             }
         }
 
-        private void OnTimelineMaxDurationChanged(Timeline timeline) {
+        private void OnTimelineMaxDurationChanged(Timeline timeline)
+        {
             if (this.TimelineContentGrid != null)
                 this.TimelineContentGrid.Width = TimelineUtils.FrameToPixel(timeline.MaxDuration, timeline.Zoom);
         }
 
-        private void OnTimelineZoomed(Timeline timeline, double oldzoom, double newzoom, ZoomType zoomtype) {
+        private void OnTimelineZoomed(Timeline timeline, double oldzoom, double newzoom, ZoomType zoomtype)
+        {
             this.TrackStorage?.OnZoomChanged(newzoom);
             if (this.TimelineContentGrid != null)
                 this.TimelineContentGrid.Width = TimelineUtils.FrameToPixel(timeline.MaxDuration, timeline.Zoom);
 
             ScrollViewer scroller = this.TimelineScrollViewer;
-            if (scroller != null) {
-                switch (zoomtype) {
+            if (scroller != null)
+            {
+                switch (zoomtype)
+                {
                     case ZoomType.Direct: break;
-                    case ZoomType.ViewPortBegin: {
+                    case ZoomType.ViewPortBegin:
+                    {
                         break;
                     }
-                    case ZoomType.ViewPortMiddle: {
+                    case ZoomType.ViewPortMiddle:
+                    {
                         break;
                     }
-                    case ZoomType.ViewPortEnd: {
+                    case ZoomType.ViewPortEnd:
+                    {
                         break;
                     }
-                    case ZoomType.PlayHead: {
+                    case ZoomType.PlayHead:
+                    {
                         break;
                     }
-                    case ZoomType.MouseCursor: {
+                    case ZoomType.MouseCursor:
+                    {
                         double mouse_x = Mouse.GetPosition(scroller).X;
                         double target_offset = (scroller.HorizontalOffset + mouse_x) / oldzoom;
                         double scaled_target_offset = target_offset * newzoom;
@@ -495,27 +569,34 @@ namespace FramePFX.Editors.Controls.Timelines {
             }
         }
 
-        public TimelineTrackControl GetTimelineControlFromTrack(Track track) {
+        public TimelineTrackControl GetTimelineControlFromTrack(Track track)
+        {
             return this.TrackStorage.GetTrackByModel(track);
         }
 
-        public TimelineClipContent GetClipContentObject(Type clipType) {
+        public TimelineClipContent GetClipContentObject(Type clipType)
+        {
             TimelineClipContent content;
-            if (this.itemContentCacheMap.TryGetValue(clipType, out Stack<TimelineClipContent> stack) && stack.Count > 0) {
+            if (this.itemContentCacheMap.TryGetValue(clipType, out Stack<TimelineClipContent> stack) && stack.Count > 0)
+            {
                 content = stack.Pop();
             }
-            else {
+            else
+            {
                 content = TimelineClipContent.NewInstance(clipType);
             }
 
             return content;
         }
 
-        public bool ReleaseContentObject(Type trackType, TimelineClipContent contentControl) {
-            if (!this.itemContentCacheMap.TryGetValue(trackType, out Stack<TimelineClipContent> stack)) {
+        public bool ReleaseContentObject(Type trackType, TimelineClipContent contentControl)
+        {
+            if (!this.itemContentCacheMap.TryGetValue(trackType, out Stack<TimelineClipContent> stack))
+            {
                 this.itemContentCacheMap[trackType] = stack = new Stack<TimelineClipContent>();
             }
-            else if (stack.Count == 4) {
+            else if (stack.Count == 4)
+            {
                 return false;
             }
 

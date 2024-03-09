@@ -22,8 +22,10 @@ using FramePFX.Editors.Automation;
 using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Automation.Params;
 
-namespace FramePFX.Editors.Controls.Bindings {
-    public sealed class AutomationBinder<TModel> : BaseBinder<TModel> where TModel : class, IHaveTimeline, IAutomatable {
+namespace FramePFX.Editors.Controls.Bindings
+{
+    public sealed class AutomationBinder<TModel> : BaseBinder<TModel> where TModel : class, IHaveTimeline, IAutomatable
+    {
         private readonly ParameterChangedEventHandler handler;
 
         public Parameter Parameter { get; }
@@ -31,28 +33,33 @@ namespace FramePFX.Editors.Controls.Bindings {
         public event Action<AutomationBinder<TModel>> UpdateModel;
         public event Action<AutomationBinder<TModel>> UpdateControl;
 
-        public AutomationBinder(Parameter parameter) {
+        public AutomationBinder(Parameter parameter)
+        {
             this.handler = this.OnParameterValueChanged;
             this.Parameter = parameter;
         }
 
         private void OnParameterValueChanged(AutomationSequence sequence) => this.OnModelValueChanged();
 
-        protected override void OnAttached() {
+        protected override void OnAttached()
+        {
             base.OnAttached();
             this.Model.AutomationData.AddParameterChangedHandler(this.Parameter, this.handler);
         }
 
-        protected override void OnDetatched() {
-            base.OnDetatched();
+        protected override void OnDetached()
+        {
+            base.OnDetached();
             this.Model.AutomationData.RemoveParameterChangedHandler(this.Parameter, this.handler);
         }
 
-        protected override void UpdateModelCore() {
+        protected override void UpdateModelCore()
+        {
             this.UpdateModel?.Invoke(this);
         }
 
-        protected override void UpdateControlCore() {
+        protected override void UpdateControlCore()
+        {
             this.UpdateControl?.Invoke(this);
         }
     }

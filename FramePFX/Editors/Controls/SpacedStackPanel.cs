@@ -21,15 +21,18 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace FramePFX.Editors.Controls {
-    public class SpacedStackPanel : Panel {
+namespace FramePFX.Editors.Controls
+{
+    public class SpacedStackPanel : Panel
+    {
         public static readonly DependencyProperty OrientationProperty =
             DependencyProperty.Register(
                 nameof(Orientation),
                 typeof(Orientation),
                 typeof(SpacedStackPanel),
                 new FrameworkPropertyMetadata(Orientation.Vertical, FrameworkPropertyMetadataOptions.AffectsMeasure, OnOrientationChanged),
-                o => {
+                o =>
+                {
                     Orientation orientation = (Orientation) o;
                     return orientation == Orientation.Horizontal || orientation == Orientation.Vertical;
                 });
@@ -50,40 +53,49 @@ namespace FramePFX.Editors.Controls {
 
         protected override Orientation LogicalOrientation => this.Orientation;
 
-        public SpacedStackPanel() {
+        public SpacedStackPanel()
+        {
         }
 
-        protected override Size MeasureOverride(Size constraint) {
+        protected override Size MeasureOverride(Size constraint)
+        {
             Size totalSize = new Size();
             UIElementCollection items = this.InternalChildren;
             int itemCount = items.Count;
-            if (itemCount < 1) {
+            if (itemCount < 1)
+            {
                 return totalSize;
             }
 
             Size availableSize = constraint;
             bool isHorizontal = this.Orientation == Orientation.Horizontal;
-            if (isHorizontal) {
+            if (isHorizontal)
+            {
                 availableSize.Width = double.PositiveInfinity;
             }
-            else {
+            else
+            {
                 availableSize.Height = double.PositiveInfinity;
             }
 
             double offset = 0.0, theGap = this.InterElementGap;
-            for (int i = 0; i < itemCount; ++i) {
+            for (int i = 0; i < itemCount; ++i)
+            {
                 UIElement element = items[i];
-                if (element == null || element.Visibility == Visibility.Collapsed) {
+                if (element == null || element.Visibility == Visibility.Collapsed)
+                {
                     continue;
                 }
 
                 element.Measure(availableSize);
                 Size desiredSize = element.DesiredSize;
-                if (isHorizontal) {
+                if (isHorizontal)
+                {
                     totalSize.Width += desiredSize.Width + offset;
                     totalSize.Height = Math.Max(totalSize.Height, desiredSize.Height);
                 }
-                else {
+                else
+                {
                     totalSize.Width = Math.Max(totalSize.Width, desiredSize.Width);
                     totalSize.Height += desiredSize.Height + offset;
                 }
@@ -94,26 +106,31 @@ namespace FramePFX.Editors.Controls {
             return totalSize;
         }
 
-        protected override Size ArrangeOverride(Size arrangeSize) {
+        protected override Size ArrangeOverride(Size arrangeSize)
+        {
             UIElementCollection items = this.InternalChildren;
             int count = items.Count;
             bool isHorizontal = this.Orientation == Orientation.Horizontal;
             Rect finalRect = new Rect(arrangeSize);
             double number = 0.0;
             double offset = 0.0, theGap = this.InterElementGap;
-            for (int i = 0; i < count; ++i) {
+            for (int i = 0; i < count; ++i)
+            {
                 UIElement element = items[i];
-                if (element == null || element.Visibility == Visibility.Collapsed) {
+                if (element == null || element.Visibility == Visibility.Collapsed)
+                {
                     continue;
                 }
 
-                if (isHorizontal) {
+                if (isHorizontal)
+                {
                     finalRect.X += number + offset;
                     number = element.DesiredSize.Width;
                     finalRect.Width = number;
                     finalRect.Height = Math.Max(arrangeSize.Height, element.DesiredSize.Height);
                 }
-                else {
+                else
+                {
                     finalRect.Y += number + offset;
                     number = element.DesiredSize.Height;
                     finalRect.Height = number;

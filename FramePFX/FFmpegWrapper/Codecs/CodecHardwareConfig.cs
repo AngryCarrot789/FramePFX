@@ -13,8 +13,10 @@
 using System;
 using FFmpeg.AutoGen;
 
-namespace FramePFX.FFmpegWrapper.Codecs {
-    public unsafe readonly struct CodecHardwareConfig {
+namespace FramePFX.FFmpegWrapper.Codecs
+{
+    public unsafe readonly struct CodecHardwareConfig
+    {
         public AVCodec* Codec { get; }
         public AVCodecHWConfig* Config { get; }
 
@@ -22,7 +24,8 @@ namespace FramePFX.FFmpegWrapper.Codecs {
         public AVPixelFormat PixelFormat => this.Config->pix_fmt;
         public CodecHardwareMethods Methods => (CodecHardwareMethods) this.Config->methods;
 
-        public CodecHardwareConfig(AVCodec* codec, AVCodecHWConfig* config) {
+        public CodecHardwareConfig(AVCodec* codec, AVCodecHWConfig* config)
+        {
             this.Codec = codec;
             this.Config = config;
         }
@@ -31,7 +34,8 @@ namespace FramePFX.FFmpegWrapper.Codecs {
     }
 
     [Flags]
-    public enum CodecHardwareMethods {
+    public enum CodecHardwareMethods
+    {
         DeviceContext = 0x01,
         FramesContext = 0x02
     }

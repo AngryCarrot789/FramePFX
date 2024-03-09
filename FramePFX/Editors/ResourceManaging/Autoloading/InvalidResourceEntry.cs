@@ -20,10 +20,12 @@
 using System;
 using FramePFX.Utils;
 
-namespace FramePFX.Editors.ResourceManaging.Autoloading {
+namespace FramePFX.Editors.ResourceManaging.Autoloading
+{
     public delegate void InvalidResourceEntryEventHandler(InvalidResourceEntry entry);
 
-    public abstract class InvalidResourceEntry {
+    public abstract class InvalidResourceEntry
+    {
         private string displayName;
 
         public ResourceItem Resource { get; }
@@ -32,7 +34,8 @@ namespace FramePFX.Editors.ResourceManaging.Autoloading {
 
         public string DisplayName {
             get => this.displayName;
-            set {
+            set
+            {
                 if (this.displayName == value)
                     return;
                 this.displayName = value;
@@ -42,19 +45,23 @@ namespace FramePFX.Editors.ResourceManaging.Autoloading {
 
         public event InvalidResourceEntryEventHandler DisplayNameChanged;
 
-        protected InvalidResourceEntry(ResourceItem resource) {
+        protected InvalidResourceEntry(ResourceItem resource)
+        {
             this.Resource = resource;
         }
 
-        public bool TryLoad() {
-            if (this.ResourceLoader == null) {
+        public bool TryLoad()
+        {
+            if (this.ResourceLoader == null)
+            {
                 throw new InvalidOperationException("No loader");
             }
 
             return this.ResourceLoader.TryLoadEntry(this.ResourceLoader.Entries.IndexOf(this));
         }
 
-        internal static void InternalSetLoader(InvalidResourceEntry resource, ResourceLoader loader) {
+        internal static void InternalSetLoader(InvalidResourceEntry resource, ResourceLoader loader)
+        {
             resource.ResourceLoader = loader;
         }
     }

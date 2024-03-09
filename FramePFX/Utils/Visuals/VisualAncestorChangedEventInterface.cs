@@ -25,12 +25,14 @@ using System.Windows;
 using System.Windows.Media;
 using Expression = System.Linq.Expressions.Expression;
 
-namespace FramePFX.Utils.Visuals {
+namespace FramePFX.Utils.Visuals
+{
     /// <summary>
     /// A class that provides a way to 'interface' with the VisualAncestorChanged event.
     /// The event is internal to WPF core, so accessing it must be done reflectively or via this class
     /// </summary>
-    public static class VisualAncestorChangedEventInterface {
+    public static class VisualAncestorChangedEventInterface
+    {
         private static readonly MethodInfo InvokeCustomHandler = typeof(Action<DependencyObject, DependencyObject>).GetMethod("Invoke");
         private static readonly EventInfo VisualAncestorChangedEventInfo;
         private static readonly Type VisualAncestorChangedEventHandlerType;
@@ -39,7 +41,8 @@ namespace FramePFX.Utils.Visuals {
         private static readonly MemberExpression AccessAncestorExpression;
         private static readonly MemberExpression AccessOldParentExpression;
 
-        static VisualAncestorChangedEventInterface() {
+        static VisualAncestorChangedEventInterface()
+        {
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
             VisualAncestorChangedEventInfo = typeof(Visual).GetEvent("VisualAncestorChanged", flags);
             if (ReferenceEquals(VisualAncestorChangedEventInfo, null))
@@ -68,7 +71,8 @@ namespace FramePFX.Utils.Visuals {
         /// <param name="handler">The handler that gets called when VisualAncestorChanged is raised</param>
         /// <param name="addHandler">The action that adds the handler to a visual</param>
         /// <param name="removeHandler">The action that removes the handler from a visual</param>
-        public static void CreateInterface(Action<DependencyObject, DependencyObject> handler, out Action<Visual> addHandler, out Action<Visual> removeHandler) {
+        public static void CreateInterface(Action<DependencyObject, DependencyObject> handler, out Action<Visual> addHandler, out Action<Visual> removeHandler)
+        {
             MethodCallExpression invokeHandler = Expression.Call(Expression.Constant(handler), InvokeCustomHandler, AccessAncestorExpression, AccessOldParentExpression);
             Delegate theEventHandler = Expression.Lambda(VisualAncestorChangedEventHandlerType, invokeHandler, ParamSenderObject, ParamVACEventArgs).Compile();
             ConstantExpression constEventHandler = Expression.Constant(theEventHandler);

@@ -17,7 +17,8 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.AdvancedMenuService.ContextService {
+namespace FramePFX.AdvancedMenuService.ContextService
+{
     /// <summary>
     /// The base interface for all context entries. Currently, this is only used for menu items and separators
     /// <para>
@@ -27,6 +28,7 @@ namespace FramePFX.AdvancedMenuService.ContextService {
     /// update the state of the entry). And then, a generator can be used to generate the items
     /// </para>
     /// </summary>
-    public interface IContextEntry {
+    public interface IContextEntry
+    {
     }
 }

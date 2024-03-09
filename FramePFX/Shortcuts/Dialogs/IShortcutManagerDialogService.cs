@@ -17,8 +17,10 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Shortcuts.Dialogs {
-    public interface IShortcutManagerDialogService {
+namespace FramePFX.Shortcuts.Dialogs
+{
+    public interface IShortcutManagerDialogService
+    {
         bool IsOpen { get; }
 
         void ShowEditorDialog();

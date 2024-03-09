@@ -21,15 +21,19 @@ using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Commands {
-    public abstract class UndoRedoCommand : Command {
+namespace FramePFX.Editors.Commands
+{
+    public abstract class UndoRedoCommand : Command
+    {
         public bool IsUndo { get; }
 
-        protected UndoRedoCommand(bool isUndo) {
+        protected UndoRedoCommand(bool isUndo)
+        {
             this.IsUndo = isUndo;
         }
 
-        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        {
             if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out var editor))
                 return ExecutabilityState.Invalid;
 
@@ -37,50 +41,64 @@ namespace FramePFX.Editors.Commands {
             return canExecute ? ExecutabilityState.Executable : ExecutabilityState.ValidButCannotExecute;
         }
 
-        public static void Undo(IContextData context) {
+        public static void Undo(IContextData context)
+        {
             if (!DataKeys.VideoEditorKey.TryGetContext(context, out VideoEditor editor))
                 return;
-            if (!editor.HistoryManager.HasUndoableActions) {
+            if (!editor.HistoryManager.HasUndoableActions)
+            {
                 IoC.MessageService.ShowMessage("Undo attempt", "Nothing to undo!");
             }
-            else if (editor.HistoryManager.IsUndoInProgress) {
+            else if (editor.HistoryManager.IsUndoInProgress)
+            {
                 IoC.MessageService.ShowMessage("Cannot Undo", "An undo action is already in progress... somehow");
             }
-            else {
+            else
+            {
                 editor.HistoryManager.Undo();
             }
         }
 
-        public static void Redo(IContextData context) {
+        public static void Redo(IContextData context)
+        {
             if (!DataKeys.VideoEditorKey.TryGetContext(context, out VideoEditor editor))
                 return;
-            if (!editor.HistoryManager.HasRedoableActions) {
+            if (!editor.HistoryManager.HasRedoableActions)
+            {
                 IoC.MessageService.ShowMessage("Redo attempt", "Nothing to redo!");
             }
-            else if (editor.HistoryManager.IsRedoInProgress) {
+            else if (editor.HistoryManager.IsRedoInProgress)
+            {
                 IoC.MessageService.ShowMessage("Cannot Redo", "A redo action is already in progress... somehow");
             }
-            else {
+            else
+            {
                 editor.HistoryManager.Redo();
             }
         }
     }
 
-    public class UndoCommand : UndoRedoCommand {
-        public UndoCommand() : base(true) {
+    public class UndoCommand : UndoRedoCommand
+    {
+        public UndoCommand() : base(true)
+        {
         }
 
-        public override Task Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e)
+        {
             Undo(e.ContextData);
             return Task.CompletedTask;
         }
     }
 
-    public class RedoCommand : UndoRedoCommand {
-        public RedoCommand() : base(false) {
+    public class RedoCommand : UndoRedoCommand
+    {
+        public RedoCommand() : base(false)
+        {
         }
 
-        public override Task Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e)
+        {
             Redo(e.ContextData);
             return Task.CompletedTask;
         }

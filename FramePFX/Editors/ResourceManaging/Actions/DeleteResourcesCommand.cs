@@ -21,21 +21,28 @@ using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Contextual;
 
-namespace FramePFX.Editors.ResourceManaging.Actions {
-    public class DeleteResourcesCommand : Command {
-        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+namespace FramePFX.Editors.ResourceManaging.Actions
+{
+    public class DeleteResourcesCommand : Command
+    {
+        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        {
             return ResourceContextRegistry.CanGetTreeSelectionContext(e.ContextData);
         }
 
-        public override Task Execute(CommandEventArgs e) {
-            if (!ResourceContextRegistry.GetTreeSelectionContext(e.ContextData, out BaseResource[] items)) {
+        public override Task Execute(CommandEventArgs e)
+        {
+            if (!ResourceContextRegistry.GetTreeSelectionContext(e.ContextData, out BaseResource[] items))
+            {
                 return Task.CompletedTask;
             }
 
-            foreach (BaseResource item in items) {
+            foreach (BaseResource item in items)
+            {
                 // Since the tree's selected items will be unordered (hash set), we might end up removing
                 // a folder containing some selected items, so parent will be null since it deletes the hierarchy
-                if (item.Parent == null) {
+                if (item.Parent == null)
+                {
                     continue;
                 }
 

@@ -21,11 +21,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FramePFX.Utils.Expressions {
+namespace FramePFX.Utils.Expressions
+{
     /// <summary>
     /// A recursive descent parser for numeric expressions, with support for variables and functions that take a single parameter
     /// </summary>
-    public class ComplexNumericExpression {
+    public class ComplexNumericExpression
+    {
         /// <summary>
         /// The default expression parser
         /// </summary>
@@ -35,7 +37,8 @@ namespace FramePFX.Utils.Expressions {
         private ExpressionState state;
         private readonly bool isReadOnly;
 
-        public ComplexNumericExpression(bool isReadOnly = false) {
+        public ComplexNumericExpression(bool isReadOnly = false)
+        {
             this.states = new Stack<ExpressionState>();
             ExpressionState defState = new ExpressionState(this, -1);
 
@@ -52,11 +55,13 @@ namespace FramePFX.Utils.Expressions {
             defState.SetFunction("mean", avg);
             defState.SetFunction("avg", avg);
 
-            defState.SetFunction("range", list => {
+            defState.SetFunction("range", list =>
+            {
                 if (list.Count == 1)
                     return list[0];
                 double min = list[0], max = min;
-                for (int i = 1; i < list.Count; i++) {
+                for (int i = 1; i < list.Count; i++)
+                {
                     double val = list[i];
                     if (val < min)
                         min = list[i];
@@ -67,8 +72,10 @@ namespace FramePFX.Utils.Expressions {
                 return max - min;
             });
 
-            defState.SetFunction("mode", (list) => {
-                switch (list.Count) {
+            defState.SetFunction("mode", (list) =>
+            {
+                switch (list.Count)
+                {
                     case 1:
                     case 2:
                         return list[0];
@@ -80,29 +87,36 @@ namespace FramePFX.Utils.Expressions {
             this.isReadOnly = isReadOnly;
         }
 
-        static ComplexNumericExpression() {
+        static ComplexNumericExpression()
+        {
             DefaultParser = new ComplexNumericExpression(true);
         }
 
-        public double Parse(string input) {
+        public double Parse(string input)
+        {
             int index = 0;
             return this.ParseExpression(input, ref index);
         }
 
-        private double ParseExpression(string input, ref int index) {
+        private double ParseExpression(string input, ref int index)
+        {
             double left = this.ParseTerm(input, ref index);
-            while (index < input.Length) {
+            while (index < input.Length)
+            {
                 char op = input[index];
-                if (op != '+' && op != '-') {
+                if (op != '+' && op != '-')
+                {
                     break;
                 }
 
                 index++;
                 double right = this.ParseTerm(input, ref index);
-                if (op == '+') {
+                if (op == '+')
+                {
                     left += right;
                 }
-                else {
+                else
+                {
                     left -= right;
                 }
             }
@@ -110,20 +124,25 @@ namespace FramePFX.Utils.Expressions {
             return left;
         }
 
-        private double ParseTerm(string input, ref int index) {
+        private double ParseTerm(string input, ref int index)
+        {
             double left = this.ParseNextValue(input, ref index);
-            while (index < input.Length) {
+            while (index < input.Length)
+            {
                 char op = input[index];
-                if (op != '*' && op != '/') {
+                if (op != '*' && op != '/')
+                {
                     break;
                 }
 
                 index++;
                 double right = this.ParseNextValue(input, ref index);
-                if (op == '*') {
+                if (op == '*')
+                {
                     left *= right;
                 }
-                else {
+                else
+                {
                     left /= right;
                 }
             }
@@ -131,64 +150,82 @@ namespace FramePFX.Utils.Expressions {
             return left;
         }
 
-        private double ParseNextValue(string input, ref int index) {
-            if (index >= input.Length) {
+        private double ParseNextValue(string input, ref int index)
+        {
+            if (index >= input.Length)
+            {
                 throw new Exception("End of expression string before it could be fully parsed");
             }
 
             char ch = input[index];
-            if (char.IsDigit(ch) || ch == '.') {
+            if (char.IsDigit(ch) || ch == '.')
+            {
                 return ParseNumber(input, ref index);
             }
-            else if (ch == '(') {
+            else if (ch == '(')
+            {
                 index++;
                 double result = this.ParseExpression(input, ref index);
-                if (index < input.Length && input[index] == ')') {
+                if (index < input.Length && input[index] == ')')
+                {
                     index++;
                     return result;
                 }
-                else {
+                else
+                {
                     throw new Exception("Mismatched parentheses");
                 }
             }
-            else if (char.IsLetter(ch)) {
+            else if (char.IsLetter(ch))
+            {
                 string symbolName = ParseSymbolName(input, ref index);
-                if (index >= input.Length) {
+                if (index >= input.Length)
+                {
                     throw new Exception("End of expression string before it could be fully parsed");
                 }
-                else if (input[index] == '(') {
-                    if (!this.state.ContainsFunction(symbolName)) {
+                else if (input[index] == '(')
+                {
+                    if (!this.state.ContainsFunction(symbolName))
+                    {
                         throw new Exception($"Unknown function: {symbolName}");
                     }
 
                     index++;
                     double argument = this.ParseExpression(input, ref index);
-                    if (index >= input.Length) {
+                    if (index >= input.Length)
+                    {
                         throw new Exception("End of expression string before it could be fully parsed");
                     }
 
-                    if (input[index] == ')') {
+                    if (input[index] == ')')
+                    {
                         index++;
                         return this.state.Invoke(symbolName, argument);
                     }
-                    else if (input[index] == ',') {
-                        if (!this.state.ContainsMultiParamFunction(symbolName)) {
+                    else if (input[index] == ',')
+                    {
+                        if (!this.state.ContainsMultiParamFunction(symbolName))
+                        {
                             throw new Exception($"Unknown multi-parameter function: {symbolName}");
                         }
 
                         index++;
                         List<double> parameters = new List<double>() {argument};
-                        while (true) {
+                        while (true)
+                        {
                             argument = this.ParseExpression(input, ref index);
                             parameters.Add(argument);
-                            if (index >= input.Length) {
+                            if (index >= input.Length)
+                            {
                                 throw new Exception("End of expression string before it could be fully parsed");
                             }
-                            else if (input[index] == ')') {
+                            else if (input[index] == ')')
+                            {
                                 index++;
                                 break;
                             }
-                            else if (input[index] != ',') {
+                            else if (input[index] != ',')
+                            {
                                 throw new Exception("Missing a comma when invoking a function");
                             }
 
@@ -197,34 +234,42 @@ namespace FramePFX.Utils.Expressions {
 
                         return this.state.Invoke(symbolName, parameters);
                     }
-                    else {
+                    else
+                    {
                         throw new Exception("Mismatched parentheses");
                     }
                 }
-                else if (this.state.TryGetVariable(symbolName, out double value)) {
+                else if (this.state.TryGetVariable(symbolName, out double value))
+                {
                     return value;
                 }
-                else {
+                else
+                {
                     throw new Exception($"Undefined or invalid field variable: {symbolName}");
                 }
             }
-            else {
+            else
+            {
                 throw new Exception("Invalid expression");
             }
         }
 
-        private static string ParseSymbolName(string input, ref int index) {
+        private static string ParseSymbolName(string input, ref int index)
+        {
             int startIndex = index;
-            while (index < input.Length && IsLexerChar(input[index])) {
+            while (index < input.Length && IsLexerChar(input[index]))
+            {
                 index++;
             }
 
             return input.Substring(startIndex, index - startIndex);
         }
 
-        private static double ParseNumber(string input, ref int index) {
+        private static double ParseNumber(string input, ref int index)
+        {
             int startIndex = index;
-            while (index < input.Length && (char.IsDigit(input[index]) || input[index] == '.')) {
+            while (index < input.Length && (char.IsDigit(input[index]) || input[index] == '.'))
+            {
                 index++;
             }
 
@@ -235,18 +280,21 @@ namespace FramePFX.Utils.Expressions {
                 throw new Exception("Invalid number format");
         }
 
-        private static bool IsLexerChar(char ch) {
+        private static bool IsLexerChar(char ch)
+        {
             return ch == '_' || char.IsLetter(ch) || char.IsNumber(ch);
         }
 
-        public ExpressionState PushState() {
+        public ExpressionState PushState()
+        {
             ExpressionState newState = new ExpressionState(this, this.states.Count);
             this.states.Push(this.state);
             this.state = newState;
             return newState;
         }
 
-        public class ExpressionState : IDisposable {
+        public class ExpressionState : IDisposable
+        {
             private Dictionary<string, Func<double, double>> spfunctions;
             private Dictionary<string, Func<IReadOnlyList<double>, double>> mpfunctions;
             private Dictionary<string, Func<double>> variables;
@@ -258,75 +306,96 @@ namespace FramePFX.Utils.Expressions {
 
             public ComplexNumericExpression Expression => this.expression;
 
-            internal ExpressionState(ComplexNumericExpression expression, int index) {
+            internal ExpressionState(ComplexNumericExpression expression, int index)
+            {
                 this.expression = expression;
                 this.index = index;
                 this.parent = expression.state;
             }
 
-            public bool ContainsFunction(string name) {
+            public bool ContainsFunction(string name)
+            {
                 if (this.spfunctions != null && this.spfunctions.ContainsKey(name) || this.mpfunctions != null && this.mpfunctions.ContainsKey(name))
                     return true;
                 return this.parent != null && this.parent.ContainsFunction(name);
             }
 
-            public bool ContainsMultiParamFunction(string name) {
+            public bool ContainsMultiParamFunction(string name)
+            {
                 if (this.mpfunctions != null && this.mpfunctions.ContainsKey(name))
                     return true;
                 return this.parent != null && this.parent.ContainsMultiParamFunction(name);
             }
 
-            public bool ContainsVariable(string name) {
+            public bool ContainsVariable(string name)
+            {
                 return this.variables != null && this.variables.ContainsKey(name) || this.parent.ContainsVariable(name);
             }
 
-            public double Invoke(string name, double parameter) {
-                if (this.spfunctions != null && this.spfunctions.TryGetValue(name, out Func<double, double> a)) {
+            public double Invoke(string name, double parameter)
+            {
+                if (this.spfunctions != null && this.spfunctions.TryGetValue(name, out Func<double, double> a))
+                {
                     return a(parameter);
                 }
-                else if (this.mpfunctions != null && this.mpfunctions.TryGetValue(name, out Func<IReadOnlyList<double>, double> b)) {
+                else if (this.mpfunctions != null && this.mpfunctions.TryGetValue(name, out Func<IReadOnlyList<double>, double> b))
+                {
                     return b(new SingletonList<double>(parameter));
                 }
-                else if (this.parent != null) {
+                else if (this.parent != null)
+                {
                     return this.parent.Invoke(name, parameter);
                 }
-                else {
+                else
+                {
                     throw new Exception("No such method: " + name);
                 }
             }
 
-            public double Invoke(string name, IReadOnlyList<double> parameters) {
-                if (this.mpfunctions != null && this.mpfunctions.TryGetValue(name, out Func<IReadOnlyList<double>, double> a)) {
+            public double Invoke(string name, IReadOnlyList<double> parameters)
+            {
+                if (this.mpfunctions != null && this.mpfunctions.TryGetValue(name, out Func<IReadOnlyList<double>, double> a))
+                {
                     return a(parameters);
                 }
-                else if (parameters.Count == 1) {
-                    if (this.spfunctions != null && this.spfunctions.TryGetValue(name, out Func<double, double> b)) {
+                else if (parameters.Count == 1)
+                {
+                    if (this.spfunctions != null && this.spfunctions.TryGetValue(name, out Func<double, double> b))
+                    {
                         return b(parameters[0]);
                     }
-                    else if (this.parent != null) {
+                    else if (this.parent != null)
+                    {
                         return this.parent.Invoke(name, parameters);
                     }
-                    else {
+                    else
+                    {
                         throw new Exception("No such single or multi parameter method: " + name);
                     }
                 }
-                else if (this.parent != null) {
+                else if (this.parent != null)
+                {
                     return this.parent.Invoke(name, parameters);
                 }
-                else {
+                else
+                {
                     throw new Exception("No such method: " + name);
                 }
             }
 
-            public bool TryGetVariable(string name, out double value) {
-                if (this.variables != null && this.variables.TryGetValue(name, out Func<double> provider)) {
+            public bool TryGetVariable(string name, out double value)
+            {
+                if (this.variables != null && this.variables.TryGetValue(name, out Func<double> provider))
+                {
                     value = provider();
                     return true;
                 }
-                else if (this.parent != null) {
+                else if (this.parent != null)
+                {
                     return this.parent.TryGetVariable(name, out value);
                 }
-                else {
+                else
+                {
                     value = default;
                     return false;
                 }
@@ -340,7 +409,8 @@ namespace FramePFX.Utils.Expressions {
             /// <exception cref="InvalidOperationException">The current instance is read only</exception>
             /// <exception cref="ArgumentNullException">The variable provider is null</exception>
             /// <exception cref="ArgumentException">The name is null, empty or whitespaces</exception>
-            public void SetVariable(string name, Func<double> provider) {
+            public void SetVariable(string name, Func<double> provider)
+            {
                 this.ValidateNotReadOnly();
                 if (provider == null)
                     throw new ArgumentNullException(nameof(provider));
@@ -356,7 +426,8 @@ namespace FramePFX.Utils.Expressions {
             /// <param name="provider">A func which gets the variable's name</param>
             /// <exception cref="InvalidOperationException">The current instance is read only</exception>
             /// <exception cref="ArgumentException">The name is null, empty or whitespaces</exception>
-            public void SetVariable(string name, double value) {
+            public void SetVariable(string name, double value)
+            {
                 this.ValidateNotReadOnly();
                 if (string.IsNullOrWhiteSpace(name))
                     throw new ArgumentException("Name cannot be null, empty or whitespaces");
@@ -371,7 +442,8 @@ namespace FramePFX.Utils.Expressions {
             /// <exception cref="InvalidOperationException">The current instance is read only</exception>
             /// <exception cref="ArgumentNullException">The function (provider) is null</exception>
             /// <exception cref="ArgumentException">The name is null, empty or whitespaces</exception>
-            public void SetFunction(string name, Func<double, double> provider) {
+            public void SetFunction(string name, Func<double, double> provider)
+            {
                 this.ValidateNotReadOnly();
                 if (provider == null)
                     throw new ArgumentNullException(nameof(provider));
@@ -389,7 +461,8 @@ namespace FramePFX.Utils.Expressions {
             /// <exception cref="ArgumentNullException">The function (provider) is null</exception>
             /// <exception cref="ArgumentException">The name is null, empty or whitespaces</exception>
             /// <exception cref="Exception">The function name is reserved</exception>
-            public void SetFunction(string name, Func<IReadOnlyList<double>, double> provider) {
+            public void SetFunction(string name, Func<IReadOnlyList<double>, double> provider)
+            {
                 this.ValidateNotReadOnly();
                 if (provider == null)
                     throw new ArgumentNullException(nameof(provider));
@@ -398,13 +471,16 @@ namespace FramePFX.Utils.Expressions {
                 (this.mpfunctions ?? (this.mpfunctions = new Dictionary<string, Func<IReadOnlyList<double>, double>>()))[name] = provider;
             }
 
-            private void ValidateNotReadOnly() {
-                if (this.IsReadOnly) {
+            private void ValidateNotReadOnly()
+            {
+                if (this.IsReadOnly)
+                {
                     throw new InvalidOperationException("The default state of the expression parser is read-only");
                 }
             }
 
-            public void Dispose() {
+            public void Dispose()
+            {
                 if (this.expression.states.Count - 1 != this.index)
                     throw new Exception("States popped in an invalid order");
                 if (this.expression.states.Count < 1)

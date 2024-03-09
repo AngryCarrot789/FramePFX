@@ -20,13 +20,16 @@
 using System.Collections.Generic;
 using FramePFX.PropertyEditing;
 
-namespace FramePFX.Editors.PropertyEditors {
-    public class ProjectPropertiesPropertyEditorGroup : BasePropertyEditorGroup {
+namespace FramePFX.Editors.PropertyEditors
+{
+    public class ProjectPropertiesPropertyEditorGroup : BasePropertyEditorGroup
+    {
         private Project project;
 
         public Project Project {
             get => this.project;
-            set {
+            set
+            {
                 if (this.project == value)
                     return;
                 this.project = value;
@@ -38,22 +41,28 @@ namespace FramePFX.Editors.PropertyEditors {
 
         public event BasePropertyEditorItemEventHandler ProjectChanged;
 
-        public ProjectPropertiesPropertyEditorGroup() : base(typeof(Project)) {
+        public ProjectPropertiesPropertyEditorGroup() : base(typeof(Project))
+        {
         }
 
         /// <summary>
         /// Recursively clears the state of all groups and editors
         /// </summary>
-        public void ClearHierarchy() {
-            if (!this.IsCurrentlyApplicable) {
+        public void ClearHierarchy()
+        {
+            if (!this.IsCurrentlyApplicable)
+            {
                 return;
             }
 
-            if (this.Project != null) {
+            if (this.Project != null)
+            {
             }
 
-            foreach (BasePropertyEditorObject obj in this.PropertyObjects) {
-                switch (obj) {
+            foreach (BasePropertyEditorObject obj in this.PropertyObjects)
+            {
+                switch (obj)
+                {
                     case PropertyEditorSlot editor:
                         editor.ClearHandlers();
                         break;
@@ -67,13 +76,16 @@ namespace FramePFX.Editors.PropertyEditors {
             this.Project = null;
         }
 
-        public virtual void SetupHierarchyState(Project newProject) {
-            if (ReferenceEquals(this.project, newProject)) {
+        public virtual void SetupHierarchyState(Project newProject)
+        {
+            if (ReferenceEquals(this.project, newProject))
+            {
                 return;
             }
 
             this.ClearHierarchy();
-            if (newProject == null) {
+            if (newProject == null)
+            {
                 return;
             }
 
@@ -84,13 +96,16 @@ namespace FramePFX.Editors.PropertyEditors {
 
             List<Project> projectList = new List<Project>() {newProject};
             bool isApplicable = false;
-            for (int i = 0, end = this.PropertyObjects.Count - 1; i <= end; i++) {
+            for (int i = 0, end = this.PropertyObjects.Count - 1; i <= end; i++)
+            {
                 BasePropertyEditorObject obj = this.PropertyObjects[i];
-                if (obj is SimplePropertyEditorGroup group) {
+                if (obj is SimplePropertyEditorGroup group)
+                {
                     group.SetupHierarchyState(projectList);
                     isApplicable |= group.IsCurrentlyApplicable;
                 }
-                else if (obj is PropertyEditorSlot editor) {
+                else if (obj is PropertyEditorSlot editor)
+                {
                     editor.SetHandlers(projectList);
                     isApplicable |= editor.IsCurrentlyApplicable;
                 }
@@ -99,7 +114,8 @@ namespace FramePFX.Editors.PropertyEditors {
             this.IsCurrentlyApplicable = isApplicable;
         }
 
-        public override bool IsPropertyEditorObjectAcceptable(BasePropertyEditorObject obj) {
+        public override bool IsPropertyEditorObjectAcceptable(BasePropertyEditorObject obj)
+        {
             return obj is PropertyEditorSlot || obj is BasePropertyEditorGroup;
         }
     }

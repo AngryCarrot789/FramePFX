@@ -17,11 +17,13 @@ using OpenTK.Graphics.OpenGL;
 using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 #endif
 
-namespace FramePFX.Editors.Controls.Viewports {
+namespace FramePFX.Editors.Controls.Viewports
+{
     /// <summary>
     /// A control that allows the use of SkiaSharp to draw into a <see cref="BitmapImage"/> which gets rendered as this control's content
     /// </summary>
-    public class SKAsyncViewPort : FrameworkElement {
+    public class SKAsyncViewPort : FrameworkElement
+    {
         public static readonly DependencyProperty UseNearestNeighbourRenderingProperty =
             DependencyProperty.Register(
                 "UseNearestNeighbourRendering",
@@ -54,7 +56,8 @@ namespace FramePFX.Editors.Controls.Viewports {
         private readonly GRContext grContext;
 #endif
 
-        public SKAsyncViewPort() {
+        public SKAsyncViewPort()
+        {
             this.designMode = DesignerProperties.GetIsInDesignMode(this);
             this.UseNearestNeighbourRendering = !this.designMode; // true by default
 #if USE_OPENGL
@@ -75,16 +78,19 @@ namespace FramePFX.Editors.Controls.Viewports {
 #endif
         }
 
-        public bool BeginRender(out SKSurface surface) {
+        public bool BeginRender(out SKSurface surface)
+        {
             PresentationSource source;
-            if (this.isRendering || this.designMode || (source = PresentationSource.FromVisual(this)) == null) {
+            if (this.isRendering || this.designMode || (source = PresentationSource.FromVisual(this)) == null)
+            {
                 surface = null;
                 return false;
             }
 
             SKSizeI scaledSize = this.CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, source);
             this.CanvasSize = scaledSize;
-            if (scaledSize.Width <= 0 || scaledSize.Height <= 0) {
+            if (scaledSize.Width <= 0 || scaledSize.Height <= 0)
+            {
                 surface = null;
                 return false;
             }
@@ -92,7 +98,8 @@ namespace FramePFX.Editors.Controls.Viewports {
             SKImageInfo frameInfo = new SKImageInfo(scaledSize.Width, scaledSize.Height, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
             this.skImageInfo = frameInfo;
             WriteableBitmap bmp = this.bitmap;
-            if (this.targetSurface == null || bmp == null || frameInfo.Width != bmp.PixelWidth || frameInfo.Height != bmp.PixelHeight) {
+            if (this.targetSurface == null || bmp == null || frameInfo.Width != bmp.PixelWidth || frameInfo.Height != bmp.PixelHeight)
+            {
                 this.bitmap = new WriteableBitmap(
                     frameInfo.Width, scaledSize.Height,
                     unscaledSize.Width == scaledSize.Width ? 96d : (96d * scaleX),
@@ -108,7 +115,8 @@ namespace FramePFX.Editors.Controls.Viewports {
                 this.targetSurface = surface = SKSurface.Create(frameInfo);
 #endif
             }
-            else {
+            else
+            {
                 surface = this.targetSurface;
             }
 
@@ -117,21 +125,25 @@ namespace FramePFX.Editors.Controls.Viewports {
             return true;
         }
 
-        public bool BeginRenderWithSurface(SKImageInfo frameInfo) {
+        public bool BeginRenderWithSurface(SKImageInfo frameInfo)
+        {
             PresentationSource source;
-            if (this.isRendering || this.designMode || (source = PresentationSource.FromVisual(this)) == null) {
+            if (this.isRendering || this.designMode || (source = PresentationSource.FromVisual(this)) == null)
+            {
                 return false;
             }
 
             SKSizeI scaledSize = this.CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, source);
             this.CanvasSize = scaledSize;
-            if (scaledSize.Width <= 0 || scaledSize.Height <= 0) {
+            if (scaledSize.Width <= 0 || scaledSize.Height <= 0)
+            {
                 return false;
             }
 
             this.skImageInfo = frameInfo;
             WriteableBitmap bmp = this.bitmap;
-            if (bmp == null || frameInfo.Width != bmp.PixelWidth || frameInfo.Height != bmp.PixelHeight) {
+            if (bmp == null || frameInfo.Width != bmp.PixelWidth || frameInfo.Height != bmp.PixelHeight)
+            {
                 this.bitmap = new WriteableBitmap(
                     frameInfo.Width, frameInfo.Height,
                     unscaledSize.Width == scaledSize.Width ? 96d : (96d * scaleX),
@@ -144,7 +156,8 @@ namespace FramePFX.Editors.Controls.Viewports {
             return true;
         }
 
-        public void EndRender() {
+        public void EndRender()
+        {
             // long start = Time.GetSystemTicks();
             SKImageInfo info = this.skImageInfo;
             this.targetSurface.Flush(true, true);
@@ -156,16 +169,20 @@ namespace FramePFX.Editors.Controls.Viewports {
             GL.ReadPixels(0, 0, info.Width, info.Height, PixelFormat.Bgra, PixelType.UnsignedByte, this.bitmap.BackBuffer);
 #else
             SKImageInfo imgInfo = this.FrameInfo;
-            if (imgInfo.Width == this.bitmap.PixelWidth && imgInfo.Height == this.bitmap.PixelHeight) {
+            if (imgInfo.Width == this.bitmap.PixelWidth && imgInfo.Height == this.bitmap.PixelHeight)
+            {
                 IntPtr srcPtr = this.targetSurface.PeekPixels().GetPixels();
                 IntPtr dstPtr = this.bitmap.BackBuffer;
-                if (srcPtr != IntPtr.Zero && dstPtr != IntPtr.Zero) {
-                    unsafe {
+                if (srcPtr != IntPtr.Zero && dstPtr != IntPtr.Zero)
+                {
+                    unsafe
+                    {
                         Unsafe.CopyBlock(dstPtr.ToPointer(), srcPtr.ToPointer(), (uint) imgInfo.BytesSize64);
                     }
                 }
             }
-            else {
+            else
+            {
                 AppLogger.Instance.WriteLine("FATAL ViewPort EndRender: internal bitmap and target frame sizes did not match. " + $"{info.Width},{info.Height} != {this.bitmap.PixelWidth},{this.bitmap.PixelHeight}");
             }
 #endif
@@ -180,22 +197,27 @@ namespace FramePFX.Editors.Controls.Viewports {
             // Debug.WriteLine((duration / Time.TICK_PER_MILLIS_D).ToString());
         }
 
-        public void EndRenderWithSurface(SKSurface surface) {
+        public void EndRenderWithSurface(SKSurface surface)
+        {
             SKImageInfo info = this.skImageInfo;
             surface.Flush(true, true);
             this.bitmap.Lock();
             this.OnPreEndRender();
             SKImageInfo imgInfo = this.FrameInfo;
-            if (imgInfo.Width == this.bitmap.PixelWidth && imgInfo.Height == this.bitmap.PixelHeight) {
+            if (imgInfo.Width == this.bitmap.PixelWidth && imgInfo.Height == this.bitmap.PixelHeight)
+            {
                 IntPtr srcPtr = surface.PeekPixels().GetPixels();
                 IntPtr dstPtr = this.bitmap.BackBuffer;
-                if (srcPtr != IntPtr.Zero && dstPtr != IntPtr.Zero) {
-                    unsafe {
+                if (srcPtr != IntPtr.Zero && dstPtr != IntPtr.Zero)
+                {
+                    unsafe
+                    {
                         Unsafe.CopyBlock(dstPtr.ToPointer(), srcPtr.ToPointer(), (uint) imgInfo.BytesSize64);
                     }
                 }
             }
-            else {
+            else
+            {
                 AppLogger.Instance.WriteLine("FATAL ViewPort EndRenderWithSurface: internal bitmap and target frame sizes did not match. " + $"{info.Width},{info.Height} != {this.bitmap.PixelWidth},{this.bitmap.PixelHeight}");
             }
 
@@ -212,24 +234,29 @@ namespace FramePFX.Editors.Controls.Viewports {
 
         protected virtual void OnPostEndRender() { }
 
-        protected override void OnRender(DrawingContext dc) {
+        protected override void OnRender(DrawingContext dc)
+        {
             WriteableBitmap bmp = this.bitmap;
-            if (bmp != null) {
+            if (bmp != null)
+            {
                 dc.DrawImage(bmp, new Rect(0d, 0d, this.ActualWidth, this.ActualHeight));
             }
         }
 
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo) {
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
             base.OnRenderSizeChanged(sizeInfo);
             this.InvalidateVisual();
         }
 
-        private SKSizeI CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, PresentationSource source) {
+        private SKSizeI CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, PresentationSource source)
+        {
             unscaledSize = SKSizeI.Empty;
             scaleX = 1f;
             scaleY = 1f;
             Size size = this.RenderSize;
-            if (IsPositive(size.Width) && IsPositive(size.Height)) {
+            if (IsPositive(size.Width) && IsPositive(size.Height))
+            {
                 unscaledSize = new SKSizeI((int) size.Width, (int) size.Height);
                 Matrix transformToDevice = source.CompositionTarget?.TransformToDevice ?? Matrix.Identity;
                 scaleX = transformToDevice.M11;

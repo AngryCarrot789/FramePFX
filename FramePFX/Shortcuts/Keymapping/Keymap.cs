@@ -20,11 +20,13 @@
 using System;
 using FramePFX.Shortcuts.Managing;
 
-namespace FramePFX.Shortcuts.Keymapping {
+namespace FramePFX.Shortcuts.Keymapping
+{
     /// <summary>
     /// Stores information about a keymap
     /// </summary>
-    public class Keymap {
+    public class Keymap
+    {
         /// <summary>
         /// The keymap version
         /// </summary>
@@ -35,7 +37,8 @@ namespace FramePFX.Shortcuts.Keymapping {
         /// </summary>
         public ShortcutGroup Root { get; set; }
 
-        public Keymap() {
+        public Keymap()
+        {
         }
     }
 }

@@ -25,22 +25,27 @@ using System.Windows.Automation.Peers;
 using System.Windows.Automation.Provider;
 using FramePFX.Editors.Controls.TreeViews.Controls;
 
-namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers {
+namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
+{
     /// <summary>
     /// Powers UI-Automation for <see cref="MultiSelectTreeView"/> types
     /// </summary>
-    public class MultiSelectTreeViewAutomationPeer : ItemsControlAutomationPeer, ISelectionProvider {
-        #region Constructor
+    public class MultiSelectTreeViewAutomationPeer : ItemsControlAutomationPeer, ISelectionProvider
+    {
+#region Constructor
 
-        public MultiSelectTreeViewAutomationPeer(MultiSelectTreeView owner) : base(owner) {
+        public MultiSelectTreeViewAutomationPeer(MultiSelectTreeView owner) : base(owner)
+        {
         }
 
-        #endregion Constructor
+#endregion Constructor
 
-        #region Public methods
+#region Public methods
 
-        public override object GetPattern(PatternInterface patternInterface) {
-            if (patternInterface == PatternInterface.Selection) {
+        public override object GetPattern(PatternInterface patternInterface)
+        {
+            if (patternInterface == PatternInterface.Selection)
+            {
                 return this;
             }
 
@@ -60,11 +65,12 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers {
             return base.GetPattern(patternInterface);
         }
 
-        #endregion Public methods
+#endregion Public methods
 
-        #region Explicit interface methods
+#region Explicit interface methods
 
-        IRawElementProviderSimple[] ISelectionProvider.GetSelection() {
+        IRawElementProviderSimple[] ISelectionProvider.GetSelection()
+        {
             IRawElementProviderSimple[] array = null;
 
             // MultiSelectTreeViewItem selectedContainer = ((MultiSelectTreeView) base.Owner).SelectedContainer;
@@ -89,25 +95,27 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers {
             return array;
         }
 
-        #endregion Explicit interface methods
+#endregion Explicit interface methods
 
-        #region Public properties
+#region Public properties
 
         public bool CanSelectMultiple {
-            get {
+            get
+            {
                 return false;
             }
         }
 
         public bool IsSelectionRequired {
-            get {
+            get
+            {
                 return false;
             }
         }
 
-        #endregion Public properties
+#endregion Public properties
 
-        #region Methods
+#region Methods
 
         /// <summary>
         /// When overridden in a derived class, creates a new instance of the
@@ -121,18 +129,21 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers {
         /// <returns>
         /// The new <see cref="T:System.Windows.Automation.Peers.ItemAutomationPeer"/> created.
         /// </returns>
-        protected override ItemAutomationPeer CreateItemAutomationPeer(object item) {
+        protected override ItemAutomationPeer CreateItemAutomationPeer(object item)
+        {
             return new MultiSelectTreeViewItemDataAutomationPeer(item, this);
         }
 
-        protected override AutomationControlType GetAutomationControlTypeCore() {
+        protected override AutomationControlType GetAutomationControlTypeCore()
+        {
             return AutomationControlType.Tree;
         }
 
-        protected override string GetClassNameCore() {
+        protected override string GetClassNameCore()
+        {
             return "MultiSelectTreeView";
         }
 
-        #endregion Methods
+#endregion Methods
     }
 }

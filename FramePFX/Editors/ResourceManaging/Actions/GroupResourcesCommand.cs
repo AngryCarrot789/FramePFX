@@ -21,29 +21,37 @@ using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Contextual;
 
-namespace FramePFX.Editors.ResourceManaging.Actions {
-    public class GroupResourcesCommand : Command {
-        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+namespace FramePFX.Editors.ResourceManaging.Actions
+{
+    public class GroupResourcesCommand : Command
+    {
+        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        {
             return ResourceContextRegistry.CanGetSingleFolderSelection(e.ContextData);
         }
 
-        public override Task Execute(CommandEventArgs e) {
-            if (!ResourceContextRegistry.GetFolderSelectionContext(e.ContextData, out ResourceFolder currFolder, out BaseResource[] items)) {
+        public override Task Execute(CommandEventArgs e)
+        {
+            if (!ResourceContextRegistry.GetFolderSelectionContext(e.ContextData, out ResourceFolder currFolder, out BaseResource[] items))
+            {
                 return Task.CompletedTask;
             }
 
-            foreach (BaseResource resource in items) {
+            foreach (BaseResource resource in items)
+            {
                 resource.IsSelected = false;
             }
 
             string displayName = "Grouped Folder";
-            if (e.IsUserInitiated) {
+            if (e.IsUserInitiated)
+            {
                 displayName = IoC.UserInputService.ShowSingleInputDialog("New Folder", "What do you want to call this folder?", displayName, (x) => !string.IsNullOrWhiteSpace(x)) ?? "Grouped Folder";
             }
 
             ResourceFolder folder = new ResourceFolder(displayName);
             currFolder.AddItem(folder);
-            foreach (BaseResource resource in items) {
+            foreach (BaseResource resource in items)
+            {
                 currFolder.MoveItemTo(folder, resource);
             }
 

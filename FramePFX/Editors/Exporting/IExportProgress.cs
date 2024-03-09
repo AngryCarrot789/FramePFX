@@ -17,8 +17,10 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Editors.Exporting {
-    public interface IExportProgress {
+namespace FramePFX.Editors.Exporting
+{
+    public interface IExportProgress
+    {
         void OnFrameRendered(long frame);
 
         void OnFrameEncoded(long frame);

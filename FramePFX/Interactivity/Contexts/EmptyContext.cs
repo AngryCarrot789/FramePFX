@@ -20,22 +20,32 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FramePFX.Interactivity.Contexts {
+namespace FramePFX.Interactivity.Contexts
+{
     /// <summary>
     /// An implementation of <see cref="IContextData"/> that is completely empty
     /// </summary>
-    public sealed class EmptyContext : IContextData {
+    public sealed class EmptyContext : IContextData
+    {
         /// <summary>
         /// Returns a singleton instance of this empty context
         /// </summary>
         public static IContextData Instance { get; } = new EmptyContext();
 
-        public EmptyContext() {
+        public EmptyContext()
+        {
         }
 
         public IEnumerable<KeyValuePair<string, object>> Entries => Enumerable.Empty<KeyValuePair<string, object>>();
 
-        public bool TryGetContext(string key, out object value) {
+        public bool TryGetContext(string key, out object value)
+        {
+            value = default;
+            return false;
+        }
+
+        public bool TryGetContext<T>(DataKey<T> key, out T value)
+        {
             value = default;
             return false;
         }

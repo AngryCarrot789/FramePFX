@@ -27,12 +27,14 @@ using FramePFX.Tasks;
 using FramePFX.Utils;
 using FramePFX.Utils.Destroying;
 
-namespace FramePFX.Editors {
+namespace FramePFX.Editors
+{
     public delegate void ProjectEventHandler(Project project);
 
     public delegate void ActiveTimelineChangedEventHandler(Project project, Timeline oldTimeline, Timeline newTimeline);
 
-    public class Project : IDestroy {
+    public class Project : IDestroy
+    {
         private string projectName;
         private Timeline activeTimeline;
         private volatile bool isSaving;
@@ -44,7 +46,8 @@ namespace FramePFX.Editors {
         /// <exception cref="InvalidOperationException"></exception>
         public Timeline ActiveTimeline {
             get => this.activeTimeline;
-            set {
+            set
+            {
                 if (value == null)
                     value = this.MainTimeline;
                 Timeline oldTimeline = this.activeTimeline;
@@ -93,7 +96,8 @@ namespace FramePFX.Editors {
         /// </summary>
         public string ProjectName {
             get => this.projectName;
-            set {
+            set
+            {
                 if (this.projectName == value)
                     return;
                 this.projectName = value;
@@ -125,7 +129,8 @@ namespace FramePFX.Editors {
 
         public bool IsSaving {
             get => this.isSaving;
-            set {
+            set
+            {
                 if (this.isSaving == value)
                     return;
                 this.isSaving = value;
@@ -144,7 +149,8 @@ namespace FramePFX.Editors {
         /// </summary>
         public event ActiveTimelineChangedEventHandler ActiveTimelineChanged;
 
-        public Project() {
+        public Project()
+        {
             this.projectName = "Unnamed Project";
             this.Settings = ProjectSettings.CreateDefault(this);
             this.ResourceManager = new ResourceManager(this);
@@ -153,7 +159,8 @@ namespace FramePFX.Editors {
             Timeline.InternalSetMainTimelineProjectReference(this.MainTimeline, this);
         }
 
-        public void ReadFromFile(string filePath) {
+        public void ReadFromFile(string filePath)
+        {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentException("Invalid file path", nameof(filePath));
 
@@ -161,26 +168,31 @@ namespace FramePFX.Editors {
                 throw new InvalidOperationException("Cannot read RBE data on a project that already has data");
 
             RBEBase root;
-            try {
+            try
+            {
                 root = RBEUtils.ReadFromFilePacked(filePath);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 throw new Exception("File contained invalid data", e);
             }
 
-            if (!(root is RBEDictionary dictionary)) {
+            if (!(root is RBEDictionary dictionary))
+            {
                 throw new Exception("File contained invalid data: root object was not an RBE Dictionary");
             }
 
             this.ReadProjectData(dictionary, filePath);
         }
 
-        private void ReadProjectData(RBEDictionary data, string filePath) {
+        private void ReadProjectData(RBEDictionary data, string filePath)
+        {
             // just in case the deserialise methods access these, which they shouldn't anyway
             this.ProjectFilePath = filePath;
             this.DataFolderPath = Path.GetDirectoryName(filePath);
 
-            try {
+            try
+            {
                 RBEDictionary manager = data.GetDictionary("ResourceManager");
                 RBEDictionary timeline = data.GetDictionary("Timeline");
                 RBEDictionary settings = data.GetDictionary("Settings");
@@ -193,7 +205,8 @@ namespace FramePFX.Editors {
                 this.ResourceManager.ReadFromRBE(manager);
                 this.MainTimeline.ReadFromRBE(timeline);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 throw new Exception("Failed to deserialise project data", e);
             }
 
@@ -201,51 +214,62 @@ namespace FramePFX.Editors {
             this.HasSavedOnce = true;
             this.ProjectFilePathChanged?.Invoke(this);
 
-            if (data.TryGetULong("ActiveTimelineResourceId", out ulong resourceId)) {
-                if (this.ResourceManager.TryGetEntryItem(resourceId, out ResourceItem resource) && resource is ResourceComposition composition) {
+            if (data.TryGetULong("ActiveTimelineResourceId", out ulong resourceId))
+            {
+                if (this.ResourceManager.TryGetEntryItem(resourceId, out ResourceItem resource) && resource is ResourceComposition composition)
+                {
                     this.ActiveTimeline = composition.Timeline;
                 }
             }
         }
 
-        public void SaveToFileAndSetPath(string filePath) {
+        public void SaveToFileAndSetPath(string filePath)
+        {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentException("Invalid file path", nameof(filePath));
 
             string newDataFolder = null;
-            if (this.ProjectFilePath != filePath) {
+            if (this.ProjectFilePath != filePath)
+            {
                 newDataFolder = Path.GetDirectoryName(filePath) ?? throw new Exception("Invalid file path: could not get directory path");
             }
 
             RBEDictionary dictionary = new RBEDictionary();
             this.WriteProjectData(dictionary);
 
-            try {
+            try
+            {
                 RBEUtils.WriteToFilePacked(dictionary, filePath);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 throw new IOException("Failed to write RBE data to file", e);
             }
 
             this.HasSavedOnce = true;
-            if (newDataFolder != null) {
+            if (newDataFolder != null)
+            {
                 this.DataFolderPath = newDataFolder;
                 this.ProjectFilePath = filePath;
             }
         }
 
-        private void WriteProjectData(RBEDictionary data) {
-            try {
+        private void WriteProjectData(RBEDictionary data)
+        {
+            try
+            {
                 this.Settings.WriteToRBE(data.CreateDictionary("Settings"));
                 this.ResourceManager.WriteToRBE(data.CreateDictionary("ResourceManager"));
                 this.MainTimeline.WriteToRBE(data.CreateDictionary("Timeline"));
                 data.SetString(nameof(this.ProjectName), this.ProjectName);
 
-                if (this.ActiveTimeline is CompositionTimeline timeline) {
+                if (this.ActiveTimeline is CompositionTimeline timeline)
+                {
                     data.SetULong("ActiveTimelineResourceId", timeline.Resource.UniqueId);
                 }
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 throw new Exception("Failed to serialise project data", e);
             }
         }
@@ -254,22 +278,29 @@ namespace FramePFX.Editors {
         /// Destroys all of this project's resources, timeline, tracks, clips, etc., allowing for it to be safely garbage collected.
         /// This is called when closing a project, or loading a new project (old project destroyed, new one is loaded)
         /// </summary>
-        public void Destroy() {
+        public void Destroy()
+        {
             this.MainTimeline.Destroy();
             this.ResourceManager.Clear();
         }
 
-        public static Project ReadProjectAt(string filePath) {
+        public static Project ReadProjectAt(string filePath)
+        {
             Project project = new Project();
-            using (project.MainTimeline.RenderManager.SuspendRenderInvalidation()) {
-                try {
+            using (project.MainTimeline.RenderManager.SuspendRenderInvalidation())
+            {
+                try
+                {
                     project.ReadFromFile(filePath);
                 }
-                catch {
-                    try {
+                catch
+                {
+                    try
+                    {
                         project.Destroy();
                     }
-                    catch { /* ignored */
+                    catch
+                    { /* ignored */
                     }
 
                     throw;
@@ -279,55 +310,67 @@ namespace FramePFX.Editors {
             return project;
         }
 
-        internal static void OnOpened(VideoEditor editor, Project project) {
+        internal static void OnOpened(VideoEditor editor, Project project)
+        {
             project.Editor = editor;
         }
 
-        internal static void OnClosed(VideoEditor editor, Project project) {
+        internal static void OnClosed(VideoEditor editor, Project project)
+        {
             project.Editor = null;
         }
 
         /// <summary>
         /// Notifies the project that it has unsaved data
         /// </summary>
-        public void MarkModified() {
+        public void MarkModified()
+        {
             if (this.IsModified)
                 return;
             this.IsModified = true;
             this.IsModifiedChanged?.Invoke(this);
         }
 
-        public void SetUnModified() {
+        public void SetUnModified()
+        {
             if (!this.IsModified)
                 return;
             this.IsModified = false;
             this.IsModifiedChanged?.Invoke(this);
         }
 
-        public static bool? SaveProject(Project project, IActivityProgress progress) {
-            if (project.HasSavedOnce && !string.IsNullOrEmpty(project.ProjectFilePath)) {
+        public static bool? SaveProject(Project project, IActivityProgress progress)
+        {
+            if (project.HasSavedOnce && !string.IsNullOrEmpty(project.ProjectFilePath))
+            {
                 return SaveProjectInternal(project, project.ProjectFilePath, progress);
             }
-            else {
+            else
+            {
                 return SaveProjectAs(project, progress);
             }
         }
 
-        public static bool? SaveProjectAs(Project project, IActivityProgress progress) {
+        public static bool? SaveProjectAs(Project project, IActivityProgress progress)
+        {
             const string message = "Specify a file path for the project file. Any project data will be stored in the same folder, so it's best to create a project-specific folder";
             string filePath = IoC.FilePickService.SaveFile(message, Filters.ProjectType, project.ProjectFilePath);
-            if (filePath == null) {
+            if (filePath == null)
+            {
                 return null;
             }
 
             progress.OnProgress(0.1);
-            using (progress.PushCompletionRange(0.1, 0.8)) {
+            using (progress.PushCompletionRange(0.1, 0.8))
+            {
                 return SaveProjectInternal(project, filePath, progress);
             }
         }
 
-        private static bool SaveProjectInternal(Project project, string filePath, IActivityProgress progress) {
-            if (project.IsSaving) {
+        private static bool SaveProjectInternal(Project project, string filePath, IActivityProgress progress)
+        {
+            if (project.IsSaving)
+            {
                 throw new InvalidOperationException("Already saving!");
             }
 
@@ -335,23 +378,27 @@ namespace FramePFX.Editors {
                 progress = EmptyActivityProgress.Instance;
 
             project.IsSaving = true;
-            try {
+            try
+            {
                 project.Editor?.Playback.Pause();
 
                 progress.Text = "Serialising project...";
                 progress.OnProgress(0.5);
-                try {
+                try
+                {
                     project.SaveToFileAndSetPath(filePath);
                     progress.OnProgress(0.5);
                     return true;
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     IoC.MessageService.ShowMessage("Save Error", "An exception occurred while saving project", e.GetToString());
                     progress.OnProgress(0.5);
                     return false;
                 }
             }
-            finally {
+            finally
+            {
                 project.IsSaving = false;
             }
         }

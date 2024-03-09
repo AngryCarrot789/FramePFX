@@ -25,19 +25,24 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 
-namespace FramePFX.Shortcuts.WPF.Converters {
-    public class MouseStrokeStringConverter : IMultiValueConverter {
+namespace FramePFX.Shortcuts.WPF.Converters
+{
+    public class MouseStrokeStringConverter : IMultiValueConverter
+    {
         public static MouseStrokeStringConverter Instance { get; } = new MouseStrokeStringConverter();
 
-        public static string ToStringFunction(int mouseButton, int modifiers, int clickCount) {
+        public static string ToStringFunction(int mouseButton, int modifiers, int clickCount)
+        {
             StringBuilder sb = new StringBuilder();
             string mods = KeyStrokeStringConverter.ModsToString((ModifierKeys) modifiers);
-            if (mods.Length > 0) {
+            if (mods.Length > 0)
+            {
                 sb.Append(mods).Append('+');
             }
 
             string name;
-            switch (mouseButton) {
+            switch (mouseButton)
+            {
                 case 0:
                     name = "Left Click";
                     break;
@@ -62,7 +67,8 @@ namespace FramePFX.Shortcuts.WPF.Converters {
                 default: throw new Exception("Invalid mouse button: " + mouseButton);
             }
 
-            switch (clickCount) {
+            switch (clickCount)
+            {
                 case 2:
                     sb.Append("Double ").Append(name);
                     break;
@@ -72,11 +78,14 @@ namespace FramePFX.Shortcuts.WPF.Converters {
                 case 4:
                     sb.Append("Quad ").Append(name);
                     break;
-                default: {
-                    if (clickCount > 0) {
+                default:
+                {
+                    if (clickCount > 0)
+                    {
                         sb.Append(name).Append(" (x").Append(clickCount).Append(")");
                     }
-                    else {
+                    else
+                    {
                         sb.Append(name);
                     }
 
@@ -87,8 +96,10 @@ namespace FramePFX.Shortcuts.WPF.Converters {
             return sb.ToString();
         }
 
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) {
-            if (values == null || values.Length != 3 || values.Length != 4) {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (values == null || values.Length != 3 || values.Length != 4)
+            {
                 Debug.WriteLine($"This converter requires 4 elements; mouseButton, modifiers, clickCount, wheelDelta. Got: {values}");
                 return DependencyProperty.UnsetValue;
             }
@@ -103,7 +114,8 @@ namespace FramePFX.Shortcuts.WPF.Converters {
             return ToStringFunction(mouseButton, modifiers, clickCount);
         }
 
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
             throw new NotImplementedException();
         }
     }

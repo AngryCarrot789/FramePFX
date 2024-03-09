@@ -17,11 +17,14 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Editors.Controls.Dragger {
-    public class ValueStringFormatter : IValueFormatter {
+namespace FramePFX.Editors.Controls.Dragger
+{
+    public class ValueStringFormatter : IValueFormatter
+    {
         public string Format { get; set; }
 
-        public string ToString(double value, int? places) {
+        public string ToString(double value, int? places)
+        {
             return string.Format(this.Format ?? "{0}", value.ToString());
         }
     }

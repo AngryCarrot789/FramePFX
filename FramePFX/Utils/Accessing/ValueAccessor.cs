@@ -17,7 +17,8 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Utils.Accessing {
+namespace FramePFX.Utils.Accessing
+{
     /// <summary>
     /// A delegate for a method that gets a value from a target object
     /// </summary>
@@ -34,7 +35,8 @@ namespace FramePFX.Utils.Accessing {
     /// A class used by parameters (and data parameters) to get and set the effective value of a specific parameter for an object
     /// </summary>
     /// <typeparam name="TValue">The type of value this accessor accesses</typeparam>
-    public abstract class ValueAccessor<TValue> {
+    public abstract class ValueAccessor<TValue>
+    {
         /// <summary>
         /// Returns true when the boxed getter and setters are preferred, e.g. this instance is reflection-based which always uses boxed values
         /// </summary>

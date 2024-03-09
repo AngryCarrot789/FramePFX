@@ -22,8 +22,10 @@ using System.Windows.Controls;
 using System.Windows.Threading;
 using FramePFX.Utils;
 
-namespace FramePFX.Tasks {
-    public class StandardActivityControl : Control {
+namespace FramePFX.Tasks
+{
+    public class StandardActivityControl : Control
+    {
         public static readonly DependencyProperty CaptionProperty = DependencyProperty.Register("Caption", typeof(string), typeof(StandardActivityControl), new PropertyMetadata(null));
         public static readonly DependencyProperty TextProperty = DependencyProperty.Register("Text", typeof(string), typeof(StandardActivityControl), new PropertyMetadata(null));
         public static readonly DependencyProperty IsProgressIndeterminateProperty = DependencyProperty.Register("IsProgressIndeterminate", typeof(bool), typeof(StandardActivityControl), new PropertyMetadata(BoolBox.False));
@@ -68,22 +70,27 @@ namespace FramePFX.Tasks {
             set => this.SetValue(IsModalProperty, value);
         }
 
-        public StandardActivityControl() {
+        public StandardActivityControl()
+        {
         }
 
-        static StandardActivityControl() {
+        static StandardActivityControl()
+        {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(StandardActivityControl), new FrameworkPropertyMetadata(typeof(StandardActivityControl)));
         }
 
-        private void OnProgressTrackerChanged(IActivityProgress oldProgress, IActivityProgress newProgress) {
-            if (oldProgress != null) {
+        private void OnProgressTrackerChanged(IActivityProgress oldProgress, IActivityProgress newProgress)
+        {
+            if (oldProgress != null)
+            {
                 oldProgress.IsIndeterminateChanged -= this.OnIsIndeterminateChanged;
                 oldProgress.CompletionValueChanged -= this.OnCompletionValueChanged;
                 oldProgress.HeaderTextChanged -= this.OnHeaderTextChanged;
                 oldProgress.TextChanged -= this.OnTextChanged;
             }
 
-            if (newProgress != null) {
+            if (newProgress != null)
+            {
                 newProgress.IsIndeterminateChanged += this.OnIsIndeterminateChanged;
                 newProgress.CompletionValueChanged += this.OnCompletionValueChanged;
                 newProgress.HeaderTextChanged += this.OnHeaderTextChanged;
@@ -96,7 +103,8 @@ namespace FramePFX.Tasks {
             this.SetDescriptionText();
         }
 
-        private void OnIsIndeterminateChanged(IActivityProgress tracker) {
+        private void OnIsIndeterminateChanged(IActivityProgress tracker)
+        {
             if (this.IsModal)
                 this.Dispatcher.Invoke(this.SetIsIndeterminate, this.Dispatcher.CheckAccess() ? DispatcherPriority.Render : DispatcherPriority.Send);
             else if (this.Dispatcher.CheckAccess())
@@ -105,7 +113,8 @@ namespace FramePFX.Tasks {
                 this.Dispatcher.InvokeAsync(this.SetIsIndeterminate);
         }
 
-        private void OnCompletionValueChanged(IActivityProgress tracker) {
+        private void OnCompletionValueChanged(IActivityProgress tracker)
+        {
             if (this.IsModal)
                 this.Dispatcher.Invoke(this.SetCompletionValue, this.Dispatcher.CheckAccess() ? DispatcherPriority.Render : DispatcherPriority.Send);
             else if (this.Dispatcher.CheckAccess())
@@ -114,7 +123,8 @@ namespace FramePFX.Tasks {
                 this.Dispatcher.InvokeAsync(this.SetCompletionValue);
         }
 
-        private void OnHeaderTextChanged(IActivityProgress tracker) {
+        private void OnHeaderTextChanged(IActivityProgress tracker)
+        {
             if (this.IsModal)
                 this.Dispatcher.Invoke(this.SetHeaderText, this.Dispatcher.CheckAccess() ? DispatcherPriority.Render : DispatcherPriority.Send);
             else if (this.Dispatcher.CheckAccess())
@@ -123,7 +133,8 @@ namespace FramePFX.Tasks {
                 this.Dispatcher.InvokeAsync(this.SetHeaderText);
         }
 
-        private void OnTextChanged(IActivityProgress tracker) {
+        private void OnTextChanged(IActivityProgress tracker)
+        {
             if (this.IsModal)
                 this.Dispatcher.Invoke(this.SetDescriptionText, this.Dispatcher.CheckAccess() ? DispatcherPriority.Render : DispatcherPriority.Send);
             else if (this.Dispatcher.CheckAccess())
@@ -132,19 +143,23 @@ namespace FramePFX.Tasks {
                 this.Dispatcher.InvokeAsync(this.SetDescriptionText);
         }
 
-        private void SetIsIndeterminate() {
+        private void SetIsIndeterminate()
+        {
             this.IsProgressIndeterminate = this.ActivityProgress?.IsIndeterminate ?? false;
         }
 
-        private void SetCompletionValue() {
+        private void SetCompletionValue()
+        {
             this.CompletionValue = Maths.Clamp(this.ActivityProgress?.TotalCompletion ?? 0.0, 0.0, 1.0);
         }
 
-        private void SetHeaderText() {
+        private void SetHeaderText()
+        {
             this.Caption = this.ActivityProgress?.HeaderText ?? "";
         }
 
-        private void SetDescriptionText() {
+        private void SetDescriptionText()
+        {
             this.Text = this.ActivityProgress?.Text ?? "";
         }
     }

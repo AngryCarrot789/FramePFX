@@ -17,11 +17,13 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Utils {
+namespace FramePFX.Utils
+{
     /// <summary>
     /// A mode for how to treat a decimal number whose decimal part is non-zero
     /// </summary>
-    public enum RoundingMode {
+    public enum RoundingMode
+    {
         /// <summary>
         /// Does nothing. This may not be valid in all cases, meaning this value may default to <see cref="Cast"/>
         /// </summary>

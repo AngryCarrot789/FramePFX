@@ -20,6 +20,7 @@
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Shortcuts.Managing;
 
-namespace FramePFX.Shortcuts.Events {
+namespace FramePFX.Shortcuts.Events
+{
     public delegate bool ShortcutActivatedEventHandler(ShortcutInputManager inputManager, GroupedShortcut shortcut, IContextData context);
 }

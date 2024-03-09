@@ -20,14 +20,18 @@
 using FramePFX.Utils;
 using SkiaSharp;
 
-namespace FramePFX.Editors.ResourceManaging.Resources {
-    public class ResourceColour : ResourceItem {
+namespace FramePFX.Editors.ResourceManaging.Resources
+{
+    public class ResourceColour : ResourceItem
+    {
         private SKColor myColour;
 
         public SKColor Colour {
             get => this.myColour;
-            set {
-                if (this.myColour != value) {
+            set
+            {
+                if (this.myColour != value)
+                {
                     this.myColour = value;
                     this.ColourChanged?.Invoke(this);
                 }
@@ -76,25 +80,31 @@ namespace FramePFX.Editors.ResourceManaging.Resources {
 
         public event Events.ResourceEventHandler ColourChanged;
 
-        public ResourceColour() : this(0, 0, 0) {
+        public ResourceColour() : this(0, 0, 0)
+        {
         }
 
-        public ResourceColour(byte r, byte g, byte b, byte a = 255) {
+        public ResourceColour(byte r, byte g, byte b, byte a = 255)
+        {
             this.myColour = new SKColor(r, g, b, a);
             this.TryAutoEnable(null);
         }
 
-        static ResourceColour() {
-            SerialisationRegistry.Register<ResourceColour>(0, (resource, data, ctx) => {
+        static ResourceColour()
+        {
+            SerialisationRegistry.Register<ResourceColour>(0, (resource, data, ctx) =>
+            {
                 ctx.DeserialiseBaseType(data);
                 resource.myColour = new SKColor(data.GetUInt(nameof(resource.myColour)));
-            }, (resource, data, ctx) => {
+            }, (resource, data, ctx) =>
+            {
                 ctx.SerialiseBaseType(data);
                 data.SetUInt(nameof(resource.myColour), (uint) resource.myColour);
             });
         }
 
-        protected override void LoadDataIntoClone(BaseResource clone) {
+        protected override void LoadDataIntoClone(BaseResource clone)
+        {
             base.LoadDataIntoClone(clone);
             ((ResourceColour) clone).myColour = this.myColour;
         }

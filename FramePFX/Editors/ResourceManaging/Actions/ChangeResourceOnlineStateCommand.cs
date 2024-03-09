@@ -23,27 +23,37 @@ using FramePFX.CommandSystem;
 using FramePFX.Editors.Contextual;
 using FramePFX.Editors.ResourceManaging.Autoloading.Controls;
 
-namespace FramePFX.Editors.ResourceManaging.Actions {
-    public abstract class ChangeResourceOnlineStateCommand : Command {
-        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+namespace FramePFX.Editors.ResourceManaging.Actions
+{
+    public abstract class ChangeResourceOnlineStateCommand : Command
+    {
+        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        {
             return ResourceContextRegistry.CanGetTreeSelectionContext(e.ContextData);
         }
 
-        protected static void DisableHierarchy(IEnumerable<BaseResource> resources) {
-            foreach (BaseResource obj in resources) {
-                if (obj is ResourceFolder folder) {
+        protected static void DisableHierarchy(IEnumerable<BaseResource> resources)
+        {
+            foreach (BaseResource obj in resources)
+            {
+                if (obj is ResourceFolder folder)
+                {
                     DisableHierarchy(folder.Items);
                 }
-                else if (obj is ResourceItem item && item.IsOnline) {
+                else if (obj is ResourceItem item && item.IsOnline)
+                {
                     item.Disable(true);
                 }
             }
         }
     }
 
-    public class EnableResourcesCommand : ChangeResourceOnlineStateCommand {
-        public override Task Execute(CommandEventArgs e) {
-            if (!ResourceContextRegistry.GetTreeSelectionContext(e.ContextData, out BaseResource[] items)) {
+    public class EnableResourcesCommand : ChangeResourceOnlineStateCommand
+    {
+        public override Task Execute(CommandEventArgs e)
+        {
+            if (!ResourceContextRegistry.GetTreeSelectionContext(e.ContextData, out BaseResource[] items))
+            {
                 return Task.CompletedTask;
             }
 
@@ -52,9 +62,12 @@ namespace FramePFX.Editors.ResourceManaging.Actions {
         }
     }
 
-    public class DisableResourcesCommand : ChangeResourceOnlineStateCommand {
-        public override Task Execute(CommandEventArgs e) {
-            if (!ResourceContextRegistry.GetTreeSelectionContext(e.ContextData, out BaseResource[] items)) {
+    public class DisableResourcesCommand : ChangeResourceOnlineStateCommand
+    {
+        public override Task Execute(CommandEventArgs e)
+        {
+            if (!ResourceContextRegistry.GetTreeSelectionContext(e.ContextData, out BaseResource[] items))
+            {
                 return Task.CompletedTask;
             }
 

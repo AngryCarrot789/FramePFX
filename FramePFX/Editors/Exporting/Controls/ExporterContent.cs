@@ -24,24 +24,29 @@ using System.Windows;
 using System.Windows.Controls;
 using FramePFX.Editors.Exporting.FFMPEG;
 
-namespace FramePFX.Editors.Exporting.Controls {
+namespace FramePFX.Editors.Exporting.Controls
+{
     /// <summary>
     /// The content for a specific exporter config
     /// </summary>
-    public abstract class ExporterContent : Control {
+    public abstract class ExporterContent : Control
+    {
         private static readonly Dictionary<Type, Func<ExporterContent>> Constructors = new Dictionary<Type, Func<ExporterContent>>();
 
         public Exporter Exporter { get; private set; }
 
-        protected ExporterContent() {
+        protected ExporterContent()
+        {
         }
 
-        public void Connected(Exporter exporter) {
+        public void Connected(Exporter exporter)
+        {
             this.Exporter = exporter;
             this.OnConnected();
         }
 
-        public void Disconnected() {
+        public void Disconnected()
+        {
             this.OnDisconnected();
             this.Exporter = null;
         }
@@ -50,21 +55,26 @@ namespace FramePFX.Editors.Exporting.Controls {
 
         public abstract void OnDisconnected();
 
-        static ExporterContent() {
+        static ExporterContent()
+        {
             RegisterType(typeof(FFmpegExporter), () => new FFmpegExporterContent());
         }
 
-        public static void RegisterType<T>(Type trackType, Func<T> func) where T : ExporterContent {
+        public static void RegisterType<T>(Type trackType, Func<T> func) where T : ExporterContent
+        {
             Constructors[trackType] = func;
         }
 
-        public static ExporterContent NewInstance(Type exporterType) {
-            if (exporterType == null) {
+        public static ExporterContent NewInstance(Type exporterType)
+        {
+            if (exporterType == null)
+            {
                 throw new ArgumentNullException(nameof(exporterType));
             }
 
             // Just try to find a base control type. It should be found first try unless I forgot to register a new control type
-            if (Constructors.TryGetValue(exporterType, out Func<ExporterContent> func)) {
+            if (Constructors.TryGetValue(exporterType, out Func<ExporterContent> func))
+            {
                 return func();
             }
 
@@ -72,17 +82,20 @@ namespace FramePFX.Editors.Exporting.Controls {
             throw new Exception("No such content control for export type: " + exporterType.Name);
         }
 
-        protected void GetTemplateChild<T>(string name, out T value) where T : DependencyObject {
+        protected void GetTemplateChild<T>(string name, out T value) where T : DependencyObject
+        {
             if ((value = this.GetTemplateChild(name) as T) == null)
                 throw new Exception("Missing part: " + name + " of type " + typeof(T));
         }
 
-        protected T GetTemplateChild<T>(string name) where T : DependencyObject {
+        protected T GetTemplateChild<T>(string name) where T : DependencyObject
+        {
             this.GetTemplateChild(name, out T value);
             return value;
         }
 
-        protected bool TryGetTemplateChild<T>(string name, out T value) where T : DependencyObject {
+        protected bool TryGetTemplateChild<T>(string name, out T value) where T : DependencyObject
+        {
             return (value = this.GetTemplateChild(name) as T) != null;
         }
     }

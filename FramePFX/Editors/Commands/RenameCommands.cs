@@ -26,21 +26,28 @@ using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.History;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Commands {
-    public class RenameResourceCommand : Command {
-        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+namespace FramePFX.Editors.Commands
+{
+    public class RenameResourceCommand : Command
+    {
+        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        {
             return e.ContextData.ContainsKey(DataKeys.ResourceObjectKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override Task Execute(CommandEventArgs e) {
-            if (!DataKeys.ResourceObjectKey.TryGetContext(e.ContextData, out BaseResource target)) {
+        public override Task Execute(CommandEventArgs e)
+        {
+            if (!DataKeys.ResourceObjectKey.TryGetContext(e.ContextData, out BaseResource target))
+            {
                 return Task.CompletedTask;
             }
 
-            if (IoC.UserInputService.ShowSingleInputDialog("Rename resource item", "Input a new name for this resource", target.DisplayName) is string newDisplayName) {
+            if (IoC.UserInputService.ShowSingleInputDialog("Rename resource item", "Input a new name for this resource", target.DisplayName) is string newDisplayName)
+            {
                 string oldName = target.DisplayName;
                 target.DisplayName = newDisplayName;
-                if (DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor)) {
+                if (DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor))
+                {
                     editor.HistoryManager.AddAction(new HistoryActionDisplayName(target, oldName));
                 }
             }
@@ -49,20 +56,26 @@ namespace FramePFX.Editors.Commands {
         }
     }
 
-    public class RenameClipCommand : Command {
-        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+    public class RenameClipCommand : Command
+    {
+        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        {
             return e.ContextData.ContainsKey(DataKeys.ClipKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override Task Execute(CommandEventArgs e) {
-            if (!DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip target)) {
+        public override Task Execute(CommandEventArgs e)
+        {
+            if (!DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip target))
+            {
                 return Task.CompletedTask;
             }
 
-            if (IoC.UserInputService.ShowSingleInputDialog("Rename clip", "Input a new name for this clip", target.DisplayName) is string newDisplayName) {
+            if (IoC.UserInputService.ShowSingleInputDialog("Rename clip", "Input a new name for this clip", target.DisplayName) is string newDisplayName)
+            {
                 string oldName = target.DisplayName;
                 target.DisplayName = newDisplayName;
-                if (DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor)) {
+                if (DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor))
+                {
                     editor.HistoryManager.AddAction(new HistoryActionDisplayName(target, oldName));
                 }
             }
@@ -71,20 +84,26 @@ namespace FramePFX.Editors.Commands {
         }
     }
 
-    public class RenameTrackCommand : Command {
-        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+    public class RenameTrackCommand : Command
+    {
+        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        {
             return e.ContextData.ContainsKey(DataKeys.TrackKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
         }
 
-        public override Task Execute(CommandEventArgs e) {
-            if (!DataKeys.TrackKey.TryGetContext(e.ContextData, out Track target)) {
+        public override Task Execute(CommandEventArgs e)
+        {
+            if (!DataKeys.TrackKey.TryGetContext(e.ContextData, out Track target))
+            {
                 return Task.CompletedTask;
             }
 
-            if (IoC.UserInputService.ShowSingleInputDialog("Rename track", "Input a new name for this track", target.DisplayName) is string newDisplayName) {
+            if (IoC.UserInputService.ShowSingleInputDialog("Rename track", "Input a new name for this track", target.DisplayName) is string newDisplayName)
+            {
                 string oldName = target.DisplayName;
                 target.DisplayName = newDisplayName;
-                if (DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor)) {
+                if (DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor))
+                {
                     editor.HistoryManager.AddAction(new HistoryActionDisplayName(target, oldName));
                 }
             }
@@ -93,26 +112,31 @@ namespace FramePFX.Editors.Commands {
         }
     }
 
-    public class HistoryActionDisplayName : HistoryAction {
+    public class HistoryActionDisplayName : HistoryAction
+    {
         private readonly IDisplayName target;
         private string swapName;
 
-        public HistoryActionDisplayName(IDisplayName target, string previousName) {
+        public HistoryActionDisplayName(IDisplayName target, string previousName)
+        {
             this.target = target;
             this.swapName = previousName;
         }
 
-        protected override bool OnUndo() {
+        protected override bool OnUndo()
+        {
             this.SwapNames();
             return true;
         }
 
-        protected override bool OnRedo() {
+        protected override bool OnRedo()
+        {
             this.SwapNames();
             return true;
         }
 
-        private void SwapNames() {
+        private void SwapNames()
+        {
             string newName = this.swapName;
             this.swapName = this.target.DisplayName;
             this.target.DisplayName = newName;

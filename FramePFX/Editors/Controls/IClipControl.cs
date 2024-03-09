@@ -19,8 +19,10 @@
 
 using FramePFX.Editors.Timelines.Clips;
 
-namespace FramePFX.Editors.Controls {
-    public interface IClipControl {
+namespace FramePFX.Editors.Controls
+{
+    public interface IClipControl
+    {
         ITrackControl Track { get; }
 
         Clip Model { get; }

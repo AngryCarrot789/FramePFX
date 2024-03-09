@@ -20,11 +20,13 @@
 using System.Collections.Generic;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.AdvancedMenuService.ContextService {
+namespace FramePFX.AdvancedMenuService.ContextService
+{
     /// <summary>
     /// An interface that defines a function for generating context entries that are appropriate for the given context data
     /// </summary>
-    public interface IContextGenerator {
+    public interface IContextGenerator
+    {
         /// <summary>
         /// Generates context entries and adds them into the list parameter. Leading, repeated and trailing separators are automatically filtered out
         /// </summary>

@@ -24,9 +24,12 @@ using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Effects;
 using FramePFX.Editors.Timelines.Tracks;
+using FramePFX.FileBrowser.FileTree;
 
-namespace FramePFX.Interactivity.Contexts {
-    public static class DataKeys {
+namespace FramePFX.Interactivity.Contexts
+{
+    public static class DataKeys
+    {
         public static readonly DataKey<Window> HostWindowKey = DataKey<Window>.Create("HostWindow");
         public static readonly DataKey<VideoEditor> VideoEditorKey = DataKey<VideoEditor>.Create("VideoEditor");
         public static readonly DataKey<Project> ProjectKey = DataKey<Project>.Create("Project");
@@ -49,5 +52,7 @@ namespace FramePFX.Interactivity.Contexts {
 
         public static readonly DataKey<ResourceManager> ResourceManagerKey = DataKey<ResourceManager>.Create("ResourceManager");
         public static readonly DataKey<BaseResource> ResourceObjectKey = DataKey<BaseResource>.Create("ResourceObject");
+
+        public static readonly DataKey<VFSFileEntry> FileTreeEntryKey = DataKey<VFSFileEntry>.Create("FileTreeEntry");
     }
 }

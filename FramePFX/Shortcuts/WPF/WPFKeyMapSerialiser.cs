@@ -24,42 +24,53 @@ using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Keymapping;
 using FramePFX.Utils;
 
-namespace FramePFX.Shortcuts.WPF {
-    public class WPFKeyMapSerialiser : XMLShortcutSerialiser {
+namespace FramePFX.Shortcuts.WPF
+{
+    public class WPFKeyMapSerialiser : XMLShortcutSerialiser
+    {
         public static readonly WPFKeyMapSerialiser Instance = new WPFKeyMapSerialiser();
 
-        public WPFKeyMapSerialiser() {
+        public WPFKeyMapSerialiser()
+        {
         }
 
-        protected override void SerialiseKeystroke(XmlDocument doc, XmlElement elem, in KeyStroke stroke, string childElementName = "KeyStroke") {
+        protected override void SerialiseKeystroke(XmlDocument doc, XmlElement elem, in KeyStroke stroke, string childElementName = "KeyStroke")
+        {
             XmlElement element = doc.CreateElement(childElementName);
-            if (stroke.Modifiers != 0) {
+            if (stroke.Modifiers != 0)
+            {
                 element.SetAttribute("Mods", ModsToString((ModifierKeys) stroke.Modifiers));
             }
 
             Key key = (Key) stroke.KeyCode;
-            if (Enum.IsDefined(typeof(Key), key)) {
+            if (Enum.IsDefined(typeof(Key), key))
+            {
                 element.SetAttribute("Key", KeyUtils.KeyToString(key));
             }
-            else {
+            else
+            {
                 element.SetAttribute("KeyCode", stroke.KeyCode.ToString());
             }
 
-            if (stroke.IsRelease) {
+            if (stroke.IsRelease)
+            {
                 element.SetAttribute("IsRelease", "true");
             }
 
             elem.AppendChild(element);
         }
 
-        protected override void SerialiseMousestroke(XmlDocument doc, XmlElement elem, in MouseStroke stroke, string childElementName = "MouseStroke") {
+        protected override void SerialiseMousestroke(XmlDocument doc, XmlElement elem, in MouseStroke stroke, string childElementName = "MouseStroke")
+        {
             XmlElement element = doc.CreateElement(childElementName);
-            if (stroke.Modifiers != 0) {
+            if (stroke.Modifiers != 0)
+            {
                 element.SetAttribute("Mods", ModsToString((ModifierKeys) stroke.Modifiers));
             }
 
             string btn;
-            switch (stroke.MouseButton) {
+            switch (stroke.MouseButton)
+            {
                 case 0:
                     btn = "Left";
                     break;
@@ -94,7 +105,8 @@ namespace FramePFX.Shortcuts.WPF {
             elem.AppendChild(element);
         }
 
-        protected override KeyStroke DeserialiseKeyStroke(XmlElement element) {
+        protected override KeyStroke DeserialiseKeyStroke(XmlElement element)
+        {
             string keyText = GetAttributeNullable(element, "Key");
             string keyCodeText = GetAttributeNullable(element, "KeyCode");
             string modsText = GetAttributeNullable(element, "Mods");
@@ -102,15 +114,19 @@ namespace FramePFX.Shortcuts.WPF {
 
             int keyCode;
             Key key = KeyUtils.ParseKey(keyText);
-            if (key != Key.None) {
+            if (key != Key.None)
+            {
                 keyCode = (int) key;
             }
-            else if (!int.TryParse(keyCodeText, out keyCode)) {
-                if (keyText != null) {
+            else if (!int.TryParse(keyCodeText, out keyCode))
+            {
+                if (keyText != null)
+                {
                     throw new Exception($"Unknown key: {keyText}");
                 }
 
-                if (keyCodeText != null) {
+                if (keyCodeText != null)
+                {
                     throw new Exception($"Unknown key code point: '{keyCodeText}'");
                 }
 
@@ -122,18 +138,21 @@ namespace FramePFX.Shortcuts.WPF {
             return new KeyStroke(keyCode, mods, isRelease);
         }
 
-        protected override MouseStroke DeserialiseMouseStroke(XmlElement element) {
+        protected override MouseStroke DeserialiseMouseStroke(XmlElement element)
+        {
             string modsText = GetAttributeNullable(element, "Mods");
             string buttonText = GetAttributeNullable(element, "Button");
             string isReleaseText = GetAttributeNullable(element, "IsRelease");
             string clickCountText = GetAttributeNullable(element, "ClickCount");
             string wheelDeltaText = GetAttributeNullable(element, "WheelDelta");
-            if (string.IsNullOrWhiteSpace(buttonText)) {
+            if (string.IsNullOrWhiteSpace(buttonText))
+            {
                 throw new Exception("Missing mouse button");
             }
 
             int mouseButton;
-            switch (buttonText.ToLower()) {
+            switch (buttonText.ToLower())
+            {
                 case "lmb":
                 case "left":
                     mouseButton = 0;
@@ -161,8 +180,10 @@ namespace FramePFX.Shortcuts.WPF {
                 case "wheeldown":
                     mouseButton = WPFShortcutManager.BUTTON_WHEEL_DOWN;
                     break;
-                default: {
-                    if (!int.TryParse(buttonText, out mouseButton)) {
+                default:
+                {
+                    if (!int.TryParse(buttonText, out mouseButton))
+                    {
                         throw new Exception("Invalid mouse button: " + buttonText);
                     }
 
@@ -171,11 +192,13 @@ namespace FramePFX.Shortcuts.WPF {
             }
 
             int mods = (int) StringToMods(modsText);
-            if (string.IsNullOrWhiteSpace(clickCountText) || !int.TryParse(clickCountText, out int clickCout)) {
+            if (string.IsNullOrWhiteSpace(clickCountText) || !int.TryParse(clickCountText, out int clickCout))
+            {
                 clickCout = -1;
             }
 
-            if (string.IsNullOrWhiteSpace(wheelDeltaText) || !int.TryParse(wheelDeltaText, out int wheelDelta)) {
+            if (string.IsNullOrWhiteSpace(wheelDeltaText) || !int.TryParse(wheelDeltaText, out int wheelDelta))
+            {
                 wheelDelta = 0;
             }
 
@@ -183,7 +206,8 @@ namespace FramePFX.Shortcuts.WPF {
             return new MouseStroke(mouseButton, mods, isRelease, clickCout, wheelDelta);
         }
 
-        public static string ModsToString(ModifierKeys keys) {
+        public static string ModsToString(ModifierKeys keys)
+        {
             StringJoiner joiner = new StringJoiner("+");
             if ((keys & ModifierKeys.Control) != 0)
                 joiner.Append("CTRL");
@@ -196,20 +220,25 @@ namespace FramePFX.Shortcuts.WPF {
             return joiner.ToString();
         }
 
-        public static ModifierKeys StringToMods(string mods) {
+        public static ModifierKeys StringToMods(string mods)
+        {
             ModifierKeys keys = ModifierKeys.None;
-            if (string.IsNullOrWhiteSpace(mods)) {
+            if (string.IsNullOrWhiteSpace(mods))
+            {
                 return keys;
             }
 
             string[] parts = mods.Split('+');
-            if (parts.Length <= 0) {
+            if (parts.Length <= 0)
+            {
                 return keys;
             }
 
-            foreach (string part in parts) {
+            foreach (string part in parts)
+            {
                 ModifierKeys mod;
-                switch (part.Trim().ToLower()) {
+                switch (part.Trim().ToLower())
+                {
                     case "ctrl":
                         mod = ModifierKeys.Control;
                         break;

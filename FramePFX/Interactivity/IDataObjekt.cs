@@ -19,11 +19,13 @@
 
 using SkiaSharp;
 
-namespace FramePFX.Interactivity {
+namespace FramePFX.Interactivity
+{
     /// <summary>
     /// An interface for a native data object
     /// </summary>
-    public interface IDataObjekt {
+    public interface IDataObjekt
+    {
         object GetData(string format);
 
         object GetData(string format, bool autoConvert);

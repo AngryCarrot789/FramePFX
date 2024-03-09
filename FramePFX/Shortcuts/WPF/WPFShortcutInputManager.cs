@@ -8,8 +8,10 @@ using FramePFX.Interactivity.Contexts;
 using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Managing;
 
-namespace FramePFX.Shortcuts.WPF {
-    public class WPFShortcutInputManager : ShortcutInputManager {
+namespace FramePFX.Shortcuts.WPF
+{
+    public class WPFShortcutInputManager : ShortcutInputManager
+    {
         internal bool isProcessingKey;
         internal bool isProcessingMouse;
 
@@ -22,118 +24,149 @@ namespace FramePFX.Shortcuts.WPF {
 
         private IContextData lazyCurrentContextData;
 
-        public WPFShortcutInputManager(WPFShortcutManager manager) : base(manager) {
+        public WPFShortcutInputManager(WPFShortcutManager manager) : base(manager)
+        {
         }
 
-        public static bool CanProcessEventType(DependencyObject obj, bool isPreviewEvent) {
+        public static bool CanProcessEventType(DependencyObject obj, bool isPreviewEvent)
+        {
             return UIInputManager.GetUsePreviewEvents(obj) == isPreviewEvent;
         }
 
-        public static bool CanProcessMouseEvent(DependencyObject focused, MouseEventArgs e) {
+        public static bool CanProcessMouseEvent(DependencyObject focused, MouseEventArgs e)
+        {
             return !(focused is TextBoxBase) || UIInputManager.GetCanProcessTextBoxMouseStroke(focused);
         }
 
-        public static bool CanProcessKeyEvent(DependencyObject focused, KeyEventArgs e) {
-            if (focused is TextBoxBase) {
-                if (e.KeyboardDevice.Modifiers == ModifierKeys.None) {
+        public static bool CanProcessKeyEvent(DependencyObject focused, KeyEventArgs e)
+        {
+            if (focused is TextBoxBase)
+            {
+                if (e.KeyboardDevice.Modifiers == ModifierKeys.None)
+                {
                     return UIInputManager.GetCanProcessTextBoxKeyStroke(focused);
                 }
-                else {
+                else
+                {
                     return UIInputManager.GetCanProcessTextBoxKeyStrokeWithModifiers(focused);
                 }
             }
-            else {
+            else
+            {
                 return true;
             }
         }
 
-        public void BeginInputProcessing(DependencyObject obj) {
+        public void BeginInputProcessing(DependencyObject obj)
+        {
             this.CurrentSource = obj;
         }
 
-        private void EndInputProcessing() {
+        private void EndInputProcessing()
+        {
             this.lazyCurrentContextData = null;
             this.CurrentSource = null;
         }
 
-        public async void OnInputSourceKeyEvent(WPFShortcutInputManager processor, DependencyObject focused, KeyEventArgs e, Key key, bool isRelease, bool isPreviewEvent) {
-            if (!CanProcessEventType(focused, isPreviewEvent) || !CanProcessKeyEvent(focused, e)) {
+        public async void OnInputSourceKeyEvent(WPFShortcutInputManager processor, DependencyObject focused, KeyEventArgs e, Key key, bool isRelease, bool isPreviewEvent)
+        {
+            if (!CanProcessEventType(focused, isPreviewEvent) || !CanProcessKeyEvent(focused, e))
+            {
                 return;
             }
 
-            try {
+            try
+            {
                 this.isProcessingKey = true;
                 this.BeginInputProcessing(focused);
                 ModifierKeys mods = ShortcutUtils.IsModifierKey(key) ? ModifierKeys.None : e.KeyboardDevice.Modifiers;
                 KeyStroke stroke = new KeyStroke((int) key, (int) mods, isRelease);
                 Task<bool> task = processor.OnKeyStroke(UIInputManager.Instance.FocusedPath, stroke, e.IsRepeat);
-                if (task.IsCompleted) {
+                if (task.IsCompleted)
+                {
                     e.Handled = await task;
                 }
-                else {
+                else
+                {
                     e.Handled = true;
                     await task;
                 }
             }
-            finally {
+            finally
+            {
                 this.isProcessingKey = false;
                 this.EndInputProcessing();
             }
         }
 
-        public async void OnInputSourceMouseButton(DependencyObject focused, MouseButtonEventArgs e, bool isRelease) {
-            try {
+        public async void OnInputSourceMouseButton(DependencyObject focused, MouseButtonEventArgs e, bool isRelease)
+        {
+            try
+            {
                 this.isProcessingMouse = true;
                 this.BeginInputProcessing(focused);
                 MouseStroke stroke = new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, isRelease, e.ClickCount);
                 Task<bool> task = this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke);
-                if (task.IsCompleted) {
+                if (task.IsCompleted)
+                {
                     e.Handled = await task;
                 }
-                else {
+                else
+                {
                     e.Handled = true;
                     await task;
                 }
             }
-            finally {
+            finally
+            {
                 this.isProcessingMouse = false;
                 this.EndInputProcessing();
             }
         }
 
-        public async void OnInputSourceMouseWheel(DependencyObject focused, MouseWheelEventArgs e) {
+        public async void OnInputSourceMouseWheel(DependencyObject focused, MouseWheelEventArgs e)
+        {
             int button;
-            if (e.Delta < 0) {
+            if (e.Delta < 0)
+            {
                 button = WPFShortcutManager.BUTTON_WHEEL_DOWN;
             }
-            else if (e.Delta > 0) {
+            else if (e.Delta > 0)
+            {
                 button = WPFShortcutManager.BUTTON_WHEEL_UP;
             }
-            else {
+            else
+            {
                 return;
             }
 
-            try {
+            try
+            {
                 this.isProcessingMouse = true;
                 this.BeginInputProcessing(focused);
                 MouseStroke stroke = new MouseStroke(button, (int) Keyboard.Modifiers, false, 0, e.Delta);
                 Task<bool> task = this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke);
-                if (task.IsCompleted) {
+                if (task.IsCompleted)
+                {
                     e.Handled = await task;
                 }
-                else {
+                else
+                {
                     e.Handled = true;
                     await task;
                 }
             }
-            finally {
+            finally
+            {
                 this.isProcessingMouse = false;
                 this.EndInputProcessing();
             }
         }
 
-        public override IContextData GetCurrentContext() {
-            if (this.lazyCurrentContextData == null) {
+        public override IContextData GetCurrentContext()
+        {
+            if (this.lazyCurrentContextData == null)
+            {
                 if (this.CurrentSource == null)
                     return null;
                 this.lazyCurrentContextData = DataManager.GetFullContextData(this.CurrentSource);

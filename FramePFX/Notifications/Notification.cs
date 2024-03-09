@@ -17,10 +17,12 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Notifications {
+namespace FramePFX.Notifications
+{
     /// <summary>
     /// The base class for all balloon notifications
     /// </summary>
-    public abstract class Notification {
+    public abstract class Notification
+    {
     }
 }

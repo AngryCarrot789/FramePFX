@@ -24,15 +24,19 @@ using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.PropertyEditing;
 
-namespace FramePFX.Editors.Commands {
-    public class DeleteSpecificTrackCommand : Command {
-        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+namespace FramePFX.Editors.Commands
+{
+    public class DeleteSpecificTrackCommand : Command
+    {
+        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        {
             if (!DataKeys.TrackKey.TryGetContext(e.ContextData, out Track track))
                 return ExecutabilityState.Invalid;
             return track.Timeline != null ? ExecutabilityState.Executable : ExecutabilityState.ValidButCannotExecute;
         }
 
-        public override Task Execute(CommandEventArgs e) {
+        public override Task Execute(CommandEventArgs e)
+        {
             if (!DataKeys.TrackKey.TryGetContext(e.ContextData, out Track track))
                 return Task.CompletedTask;
             Timeline timeline = track.Timeline;
@@ -41,16 +45,21 @@ namespace FramePFX.Editors.Commands {
             int index = track.IndexInTimeline;
             timeline.DeleteTrack(track);
 
-            if (timeline.Tracks.Count > 0) {
-                if (index >= 0) {
-                    if (index >= timeline.Tracks.Count) {
+            if (timeline.Tracks.Count > 0)
+            {
+                if (index >= 0)
+                {
+                    if (index >= timeline.Tracks.Count)
+                    {
                         timeline.Tracks[timeline.Tracks.Count - 1].SetIsSelected(true, true);
                     }
-                    else {
+                    else
+                    {
                         timeline.Tracks[index].SetIsSelected(true, true);
                     }
                 }
-                else {
+                else
+                {
                     timeline.Tracks[0].SetIsSelected(true, true);
                 }
             }

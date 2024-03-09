@@ -26,13 +26,17 @@ using FramePFX.Editors.Timelines.Clips.Core;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Contextual {
-    public class TrackContextRegistry : IContextGenerator {
+namespace FramePFX.Editors.Contextual
+{
+    public class TrackContextRegistry : IContextGenerator
+    {
         public static TrackContextRegistry Instance { get; } = new TrackContextRegistry();
 
-        public void Generate(List<IContextEntry> list, IContextData context) {
+        public void Generate(List<IContextEntry> list, IContextData context)
+        {
             Timeline timeline = null;
-            if (DataKeys.TrackKey.TryGetContext(context, out Track track) && track.Timeline != null) {
+            if (DataKeys.TrackKey.TryGetContext(context, out Track track) && track.Timeline != null)
+            {
                 int selectedCount = track.Timeline.SelectedTracks.Count;
                 if (!track.IsSelected)
                     selectedCount++;
@@ -46,8 +50,10 @@ namespace FramePFX.Editors.Contextual {
                 list.Add(new CommandContextEntry("DeleteSelectedTracks", selectedCount == 1 ? "Delete Track" : "Delete Tracks", "Delete selected tracks in this timeline"));
             }
 
-            if (timeline != null || DataKeys.TimelineKey.TryGetContext(context, out timeline)) {
-                if (list.Count > 0) {
+            if (timeline != null || DataKeys.TimelineKey.TryGetContext(context, out timeline))
+            {
+                if (list.Count > 0)
+                {
                     list.Add(SeparatorEntry.NewInstance);
                 }
 
@@ -56,31 +62,40 @@ namespace FramePFX.Editors.Contextual {
             }
         }
 
-        private static void AddVideoTrack(IContextData context) {
+        private static void AddVideoTrack(IContextData context)
+        {
             Timeline timeline;
-            if (DataKeys.TrackKey.TryGetContext(context, out Track track) && (timeline = track.Timeline) != null || DataKeys.TimelineKey.TryGetContext(context, out timeline)) {
-                timeline.AddTrack(new VideoTrack() {
+            if (DataKeys.TrackKey.TryGetContext(context, out Track track) && (timeline = track.Timeline) != null || DataKeys.TimelineKey.TryGetContext(context, out timeline))
+            {
+                timeline.AddTrack(new VideoTrack()
+                {
                     DisplayName = "New Video Track"
                 });
             }
         }
 
-        private static void AddAudioTrack(IContextData context) {
+        private static void AddAudioTrack(IContextData context)
+        {
             Timeline timeline;
-            if (DataKeys.TrackKey.TryGetContext(context, out Track track) && (timeline = track.Timeline) != null || DataKeys.TimelineKey.TryGetContext(context, out timeline)) {
-                timeline.AddTrack(new AudioTrack() {
+            if (DataKeys.TrackKey.TryGetContext(context, out Track track) && (timeline = track.Timeline) != null || DataKeys.TimelineKey.TryGetContext(context, out timeline))
+            {
+                timeline.AddTrack(new AudioTrack()
+                {
                     DisplayName = "New Audio Track"
                 });
             }
         }
 
-        private static void AddClipByType(IContextData context, string id) {
-            if (!DataKeys.TrackKey.TryGetContext(context, out Track track)) {
+        private static void AddClipByType(IContextData context, string id)
+        {
+            if (!DataKeys.TrackKey.TryGetContext(context, out Track track))
+            {
                 return;
             }
 
             FrameSpan span = new FrameSpan(0, 300);
-            if (DataKeys.TrackContextMouseFrameKey.TryGetContext(context, out long frame)) {
+            if (DataKeys.TrackContextMouseFrameKey.TryGetContext(context, out long frame))
+            {
                 span = span.WithBegin(frame);
             }
 

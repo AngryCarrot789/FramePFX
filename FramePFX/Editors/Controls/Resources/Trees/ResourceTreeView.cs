@@ -30,8 +30,10 @@ using FramePFX.Editors.ResourceManaging.Events;
 using FramePFX.Interactivity;
 using FramePFX.Utils;
 
-namespace FramePFX.Editors.Controls.Resources.Trees {
-    public class ResourceTreeView : MultiSelectTreeView, IResourceTreeControl {
+namespace FramePFX.Editors.Controls.Resources.Trees
+{
+    public class ResourceTreeView : MultiSelectTreeView, IResourceTreeControl
+    {
         public static readonly DependencyProperty IsDroppableTargetOverProperty = DependencyProperty.Register("IsDroppableTargetOver", typeof(bool), typeof(ResourceTreeView), new PropertyMetadata(BoolBox.False));
         public static readonly DependencyProperty ResourceManagerProperty = DependencyProperty.Register("ResourceManager", typeof(ResourceManager), typeof(ResourceTreeView), new PropertyMetadata(null, (d, e) => ((ResourceTreeView) d).OnResourceManagerChanged((ResourceManager) e.OldValue, (ResourceManager) e.NewValue)));
 
@@ -61,35 +63,43 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
         private BaseResource targetDropResourceFolder; // the drop target for DragDrop
         private IResourceTreeControl targetDropNodeFolder; // the control associated with the drop resource
 
-        public ResourceTreeView() {
+        public ResourceTreeView()
+        {
             this.itemCache = new Stack<ResourceTreeViewItem>();
             this.controlToModel = new Dictionary<ResourceTreeViewItem, BaseResource>();
             this.modelToControl = new Dictionary<BaseResource, ResourceTreeViewItem>();
             this.AllowDrop = true;
         }
 
-        static ResourceTreeView() {
+        static ResourceTreeView()
+        {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(ResourceTreeView), new FrameworkPropertyMetadata(typeof(ResourceTreeView)));
         }
 
-        public ResourceTreeViewItem GetCachedItemOrNew() {
+        public ResourceTreeViewItem GetCachedItemOrNew()
+        {
             return this.itemCache.Count > 0 ? this.itemCache.Pop() : new ResourceTreeViewItem();
         }
 
-        public void PushCachedItem(ResourceTreeViewItem item) {
-            if (this.itemCache.Count < 128) {
+        public void PushCachedItem(ResourceTreeViewItem item)
+        {
+            if (this.itemCache.Count < 128)
+            {
                 this.itemCache.Push(item);
             }
         }
 
-        public override void OnApplyTemplate() {
+        public override void OnApplyTemplate()
+        {
             base.OnApplyTemplate();
-            if (this.GetTemplateChild("PART_ScrollViewerContent") is FrameworkElement element) {
+            if (this.GetTemplateChild("PART_ScrollViewerContent") is FrameworkElement element)
+            {
                 HandleRequestBringIntoView.SetIsEnabled(element, true);
             }
         }
 
-        public void AddResourceMapping(ResourceTreeViewItem control, BaseResource resource) {
+        public void AddResourceMapping(ResourceTreeViewItem control, BaseResource resource)
+        {
             // use add so that it throws for an actual error where one or
             // more resources are associated with a control, and vice versa
             // Should probably use debug condition here
@@ -101,31 +111,37 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
             this.modelToControl.Add(resource, control);
         }
 
-        public void RemoveResourceMapping(ResourceTreeViewItem control, BaseResource resource) {
+        public void RemoveResourceMapping(ResourceTreeViewItem control, BaseResource resource)
+        {
             if (!this.controlToModel.Remove(control))
                 throw new Exception("Control did not exist in the map: " + control);
             if (!this.modelToControl.Remove(resource))
                 throw new Exception("Resource did not exist in the map: " + resource);
         }
 
-        private void OnResourceManagerChanged(ResourceManager oldManager, ResourceManager newManager) {
-            if (oldManager != null) {
+        private void OnResourceManagerChanged(ResourceManager oldManager, ResourceManager newManager)
+        {
+            if (oldManager != null)
+            {
                 this.rootFolder = oldManager.RootContainer;
                 this.rootFolder.ResourceAdded -= this.OnResourceAdded;
                 this.rootFolder.ResourceRemoved -= this.OnResourceRemoved;
                 this.rootFolder.ResourceMoved -= this.OnResourceMoved;
-                for (int i = this.Items.Count - 1; i >= 0; i--) {
+                for (int i = this.Items.Count - 1; i >= 0; i--)
+                {
                     this.RemoveNode(i);
                 }
             }
 
-            if (newManager != null) {
+            if (newManager != null)
+            {
                 this.rootFolder = newManager.RootContainer;
                 this.rootFolder.ResourceAdded += this.OnResourceAdded;
                 this.rootFolder.ResourceRemoved += this.OnResourceRemoved;
                 this.rootFolder.ResourceMoved += this.OnResourceMoved;
                 int i = 0;
-                foreach (BaseResource resource in this.rootFolder.Items) {
+                foreach (BaseResource resource in this.rootFolder.Items)
+                {
                     this.InsertNode(resource, i++);
                 }
             }
@@ -137,15 +153,18 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
 
         private void OnResourceMoved(ResourceFolder sender, ResourceMovedEventArgs e) => ResourceTreeViewItem.HandleMoveEvent(this, e);
 
-        public ResourceTreeViewItem GetNodeAt(int index) {
+        public ResourceTreeViewItem GetNodeAt(int index)
+        {
             return (ResourceTreeViewItem) this.Items[index];
         }
 
-        public void InsertNode(BaseResource item, int index) {
+        public void InsertNode(BaseResource item, int index)
+        {
             this.InsertNode(this.GetCachedItemOrNew(), item, index);
         }
 
-        public void InsertNode(ResourceTreeViewItem control, BaseResource resource, int index) {
+        public void InsertNode(ResourceTreeViewItem control, BaseResource resource, int index)
+        {
             control.OnAdding(this, null, resource);
             this.Items.Insert(index, control);
             this.AddResourceMapping(control, resource);
@@ -153,7 +172,8 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
             control.OnAdded();
         }
 
-        public void RemoveNode(int index, bool canCache = true) {
+        public void RemoveNode(int index, bool canCache = true)
+        {
             ResourceTreeViewItem control = (ResourceTreeViewItem) this.Items[index];
             BaseResource model = control.Resource ?? throw new Exception("Expected node to have a resource");
             control.OnRemoving();
@@ -166,42 +186,53 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
 
         protected override void OnDragEnter(DragEventArgs e) => this.OnDragOver(e);
 
-        protected override void OnDragOver(DragEventArgs e) {
-            if (this.ResourceManager is ResourceManager manager) {
+        protected override void OnDragOver(DragEventArgs e)
+        {
+            if (this.ResourceManager is ResourceManager manager)
+            {
                 this.IsDroppableTargetOver = ResourceExplorerListItem.ProcessCanDragOver(manager.RootContainer, e);
             }
         }
 
-        protected override async void OnDrop(DragEventArgs e) {
+        protected override async void OnDrop(DragEventArgs e)
+        {
             e.Handled = true;
-            if (this.isProcessingAsyncDrop || !(this.ResourceManager is ResourceManager manager)) {
+            if (this.isProcessingAsyncDrop || !(this.ResourceManager is ResourceManager manager))
+            {
                 return;
             }
 
-            try {
+            try
+            {
                 this.isProcessingAsyncDrop = true;
-                if (ResourceExplorerListItem.GetDropResourceListForEvent(e, out List<BaseResource> list, out EnumDropType effects)) {
+                if (ResourceExplorerListItem.GetDropResourceListForEvent(e, out List<BaseResource> list, out EnumDropType effects))
+                {
                     await ResourceDropRegistry.DropRegistry.OnDropped(manager.RootContainer, list, effects);
                 }
-                else if (!await ResourceDropRegistry.DropRegistry.OnDroppedNative(manager.RootContainer, new DataObjectWrapper(e.Data), effects)) {
+                else if (!await ResourceDropRegistry.DropRegistry.OnDroppedNative(manager.RootContainer, new DataObjectWrapper(e.Data), effects))
+                {
                     IoC.MessageService.ShowMessage("Unknown Data", "Unknown dropped item. Drop files here");
                 }
             }
-            finally {
+            finally
+            {
                 this.IsDroppableTargetOver = false;
                 this.isProcessingAsyncDrop = false;
             }
         }
 
-        protected override void OnDragLeave(DragEventArgs e) {
+        protected override void OnDragLeave(DragEventArgs e)
+        {
             this.Dispatcher.Invoke(() => this.IsDroppableTargetOver = false, DispatcherPriority.Loaded);
         }
 
-        protected override bool IsItemItsOwnContainerOverride(object item) {
+        protected override bool IsItemItsOwnContainerOverride(object item)
+        {
             return item is ResourceTreeViewItem;
         }
 
-        protected override DependencyObject GetContainerForItemOverride() {
+        protected override DependencyObject GetContainerForItemOverride()
+        {
             return new ResourceTreeViewItem();
         }
 
@@ -214,13 +245,17 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
         /// <param name="self">The current instance, aka 'this'</param>
         /// <param name="resource">The resource to match</param>
         /// <returns>The found model</returns>
-        public static IResourceTreeControl FindNodeForResource(IResourceTreeControl self, BaseResource resource) {
+        public static IResourceTreeControl FindNodeForResource(IResourceTreeControl self, BaseResource resource)
+        {
             ResourceTreeView root = self.ResourceTree;
-            if (root != null) {
-                if (root.rootFolder == resource) {
+            if (root != null)
+            {
+                if (root.rootFolder == resource)
+                {
                     return root;
                 }
-                else if (root.targetDropResourceFolder == resource) {
+                else if (root.targetDropResourceFolder == resource)
+                {
                     return root.targetDropNodeFolder;
                 }
 
@@ -228,9 +263,11 @@ namespace FramePFX.Editors.Controls.Resources.Trees {
             }
 
             ItemCollection list = ((ItemsControl) self).Items;
-            for (int i = 0, count = list.Count; i < count; i++) {
+            for (int i = 0, count = list.Count; i < count; i++)
+            {
                 ResourceTreeViewItem control = (ResourceTreeViewItem) list[i];
-                if (control.Resource == resource) {
+                if (control.Resource == resource)
+                {
                     return control;
                 }
             }

@@ -19,9 +19,12 @@
 
 using FramePFX.Utils;
 
-namespace FramePFX.Editors.Controls.Dragger {
-    public class UnitToPercentFormatter : IValueFormatter {
-        public string ToString(double value, int? places) {
+namespace FramePFX.Editors.Controls.Dragger
+{
+    public class UnitToPercentFormatter : IValueFormatter
+    {
+        public string ToString(double value, int? places)
+        {
             double clamped = Maths.Clamp(value * 100.0, 0, 100);
             return clamped.ToString("F2") + " %";
         }

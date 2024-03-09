@@ -23,11 +23,13 @@ using FramePFX.Editors.Timelines;
 using FramePFX.Utils;
 using FramePFX.Views;
 
-namespace FramePFX.Editors.Exporting.Controls {
+namespace FramePFX.Editors.Exporting.Controls
+{
     /// <summary>
     /// Interaction logic for ExportProgressDialog.xaml
     /// </summary>
-    public partial class ExportProgressDialog : WindowEx, IExportProgress {
+    public partial class ExportProgressDialog : WindowEx, IExportProgress
+    {
         private readonly FrameSpan renderSpan;
         private long currentRenderFrame;
         private long currentEncodeFrame;
@@ -47,7 +49,8 @@ namespace FramePFX.Editors.Exporting.Controls {
 
         public CancellationTokenSource Cancellation { get; }
 
-        public ExportProgressDialog(FrameSpan renderSpan, CancellationTokenSource cancellation) {
+        public ExportProgressDialog(FrameSpan renderSpan, CancellationTokenSource cancellation)
+        {
             this.renderSpan = renderSpan;
             this.InitializeComponent();
 
@@ -56,22 +59,26 @@ namespace FramePFX.Editors.Exporting.Controls {
             this.currentEncodeFrame = renderSpan.Begin;
             this.PART_FrameProgressText.Text = "0/" + (this.EndFrame - 1);
             this.rapidUpdateRender = RapidDispatchActionEx.ForSync(this.UpdateRenderedFrame, DispatcherPriority.Normal, "ExportUpdateRender");
-            this.rapidUpdateEncode = RapidDispatchActionEx.ForSync(() => {
+            this.rapidUpdateEncode = RapidDispatchActionEx.ForSync(() =>
+            {
                 this.PART_EncodeProgressBar.Value = this.EncodeProgressPercentage;
             }, DispatcherPriority.Normal, "ExportUpdateEncode");
         }
 
-        private void UpdateRenderedFrame() {
+        private void UpdateRenderedFrame()
+        {
             this.PART_RenderProgressBar.Value = this.RenderProgressPercentage;
             this.PART_FrameProgressText.Text = $"{this.currentRenderFrame}/{this.EndFrame - 1}";
         }
 
-        public void OnFrameRendered(long frame) {
+        public void OnFrameRendered(long frame)
+        {
             Interlocked.Increment(ref this.currentRenderFrame);
             this.rapidUpdateRender.InvokeAsync();
         }
 
-        public void OnFrameEncoded(long frame) {
+        public void OnFrameEncoded(long frame)
+        {
             Interlocked.Increment(ref this.currentEncodeFrame);
             this.rapidUpdateEncode.InvokeAsync();
         }

@@ -23,8 +23,10 @@
 
 using System;
 
-namespace FramePFX.Editors.Controls.TreeViews.Controls {
-    internal interface ISelectionStrategy : IDisposable {
+namespace FramePFX.Editors.Controls.TreeViews.Controls
+{
+    internal interface ISelectionStrategy : IDisposable
+    {
         event EventHandler<PreviewSelectionChangedEventArgs> PreviewSelectionChanged;
 
         void ApplyTemplate();
@@ -42,7 +44,8 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
         bool Select(MultiSelectTreeViewItem treeViewItem);
     }
 
-    public class PreviewSelectionChangedEventArgs : EventArgs {
+    public class PreviewSelectionChangedEventArgs : EventArgs
+    {
         /// <summary>
         /// Gets a value indicating whether the item was selected or deselected.
         /// </summary>
@@ -70,7 +73,8 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls {
         /// </summary>
         public bool CancelAny { get { return this.CancelThis || this.CancelAll; } }
 
-        public PreviewSelectionChangedEventArgs(bool selecting, object item) {
+        public PreviewSelectionChangedEventArgs(bool selecting, object item)
+        {
             this.Selecting = selecting;
             this.Item = item;
         }

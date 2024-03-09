@@ -32,11 +32,13 @@ using FramePFX.PropertyEditing.Automation;
 using FramePFX.PropertyEditing.DataTransfer;
 using FramePFX.Utils;
 
-namespace FramePFX.PropertyEditing {
+namespace FramePFX.PropertyEditing
+{
     /// <summary>
     /// A class which stores the video editor's general property editor information
     /// </summary>
-    public class VideoEditorPropertyEditor : BasePropertyEditor {
+    public class VideoEditorPropertyEditor : BasePropertyEditor
+    {
         public static VideoEditorPropertyEditor Instance { get; } = new VideoEditorPropertyEditor();
 
         private volatile int isUpdateClipSelectionScheduled;
@@ -50,9 +52,11 @@ namespace FramePFX.PropertyEditing {
 
         public EffectListPropertyEditorGroup TrackEffectListGroup { get; }
 
-        private VideoEditorPropertyEditor() {
+        private VideoEditorPropertyEditor()
+        {
             {
-                this.ClipGroup = new SimplePropertyEditorGroup(typeof(Clip)) {
+                this.ClipGroup = new SimplePropertyEditorGroup(typeof(Clip))
+                {
                     DisplayName = "Clip", IsExpanded = true
                 };
 
@@ -92,7 +96,8 @@ namespace FramePFX.PropertyEditing {
             this.Root.AddItem(this.ClipGroup);
 
             {
-                this.TrackGroup = new SimplePropertyEditorGroup(typeof(Track)) {
+                this.TrackGroup = new SimplePropertyEditorGroup(typeof(Track))
+                {
                     DisplayName = "Track", IsExpanded = false
                 };
 
@@ -116,67 +121,86 @@ namespace FramePFX.PropertyEditing {
             this.Root.AddItem(this.TrackGroup);
         }
 
-        public void UpdateClipSelectionAsync(Timeline timeline) {
-            if (timeline == null || Interlocked.CompareExchange(ref this.isUpdateClipSelectionScheduled, 1, 0) != 0) {
+        public void UpdateClipSelectionAsync(Timeline timeline)
+        {
+            if (timeline == null || Interlocked.CompareExchange(ref this.isUpdateClipSelectionScheduled, 1, 0) != 0)
+            {
                 return;
             }
 
-            Application.Current?.Dispatcher?.InvokeAsync(() => {
-                try {
+            Application.Current?.Dispatcher?.InvokeAsync(() =>
+            {
+                try
+                {
                     this.UpdateClipSelection(timeline);
                 }
-                finally {
+                finally
+                {
                     this.isUpdateClipSelectionScheduled = 0;
                 }
             }, DispatcherPriority.Background);
         }
 
-        public void UpdateTrackSelectionAsync(Timeline timeline) {
-            if (timeline == null || Interlocked.CompareExchange(ref this.isUpdateTrackSelectionScheduled, 1, 0) != 0) {
+        public void UpdateTrackSelectionAsync(Timeline timeline)
+        {
+            if (timeline == null || Interlocked.CompareExchange(ref this.isUpdateTrackSelectionScheduled, 1, 0) != 0)
+            {
                 return;
             }
 
-            Application.Current?.Dispatcher?.InvokeAsync(() => {
-                try {
+            Application.Current?.Dispatcher?.InvokeAsync(() =>
+            {
+                try
+                {
                     this.UpdateTrackSelection(timeline);
                 }
-                finally {
+                finally
+                {
                     this.isUpdateTrackSelectionScheduled = 0;
                 }
             }, DispatcherPriority.Background);
         }
 
-        private void UpdateClipSelection(Timeline timeline) {
+        private void UpdateClipSelection(Timeline timeline)
+        {
             List<Clip> selection = timeline.SelectedClips.ToList();
-            if (selection.CollectionEquals(this.ClipGroup.Handlers)) {
+            if (selection.CollectionEquals(this.ClipGroup.Handlers))
+            {
                 return;
             }
 
             this.ClipGroup.SetupHierarchyState(selection);
-            if (selection.Count == 1) {
+            if (selection.Count == 1)
+            {
                 this.ClipEffectListGroup.SetupHierarchyState(selection[0]);
             }
-            else {
+            else
+            {
                 this.ClipEffectListGroup.ClearHierarchy();
             }
         }
 
-        private void UpdateTrackSelection(Timeline timeline) {
+        private void UpdateTrackSelection(Timeline timeline)
+        {
             List<Track> selection = timeline.SelectedTracks.ToList();
-            if (selection.CollectionEquals(this.TrackGroup.Handlers)) {
+            if (selection.CollectionEquals(this.TrackGroup.Handlers))
+            {
                 return;
             }
 
             this.TrackGroup.SetupHierarchyState(selection);
-            if (selection.Count == 1) {
+            if (selection.Count == 1)
+            {
                 this.TrackEffectListGroup.SetupHierarchyState(selection[0]);
             }
-            else {
+            else
+            {
                 this.TrackEffectListGroup.ClearHierarchy();
             }
         }
 
-        public void OnProjectChanged() {
+        public void OnProjectChanged()
+        {
             this.ClipEffectListGroup.ClearHierarchy();
             this.TrackEffectListGroup.ClearHierarchy();
             this.ClipGroup.ClearHierarchy();

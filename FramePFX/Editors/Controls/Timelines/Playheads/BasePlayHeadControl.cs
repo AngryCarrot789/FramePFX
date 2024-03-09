@@ -23,8 +23,10 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using FramePFX.Editors.Timelines;
 
-namespace FramePFX.Editors.Controls.Timelines.Playheads {
-    public abstract class BasePlayHeadControl : Control {
+namespace FramePFX.Editors.Controls.Timelines.Playheads
+{
+    public abstract class BasePlayHeadControl : Control
+    {
         protected static readonly FieldInfo IsDraggingPropertyKeyField = typeof(Thumb).GetField("IsDraggingPropertyKey", BindingFlags.NonPublic | BindingFlags.Static);
         public static readonly DependencyProperty TimelineProperty = DependencyProperty.Register("Timeline", typeof(Timeline), typeof(BasePlayHeadControl), new PropertyMetadata(null, (d, e) => ((BasePlayHeadControl) d).OnTimelineChanged((Timeline) e.OldValue, (Timeline) e.NewValue)));
 
@@ -33,35 +35,43 @@ namespace FramePFX.Editors.Controls.Timelines.Playheads {
             set => this.SetValue(TimelineProperty, value);
         }
 
-        protected BasePlayHeadControl() {
+        protected BasePlayHeadControl()
+        {
         }
 
         public abstract long GetFrame(Timeline timeline);
 
-        protected virtual void OnTimelineChanged(Timeline oldTimeline, Timeline newTimeline) {
-            if (oldTimeline != null) {
+        protected virtual void OnTimelineChanged(Timeline oldTimeline, Timeline newTimeline)
+        {
+            if (oldTimeline != null)
+            {
                 oldTimeline.ZoomTimeline -= this.OnTimelineZoomed;
             }
 
-            if (newTimeline != null) {
+            if (newTimeline != null)
+            {
                 newTimeline.ZoomTimeline += this.OnTimelineZoomed;
                 this.Visibility = Visibility.Visible;
                 this.SetPixelFromFrameAndZoom(this.GetFrame(newTimeline), newTimeline.Zoom);
             }
-            else {
+            else
+            {
                 this.Visibility = Visibility.Collapsed;
             }
         }
 
-        private void OnTimelineZoomed(Timeline timeline, double oldzoom, double newzoom, ZoomType zoomtype) {
+        private void OnTimelineZoomed(Timeline timeline, double oldzoom, double newzoom, ZoomType zoomtype)
+        {
             this.SetPixelFromFrameAndZoom(this.GetFrame(timeline), newzoom);
         }
 
-        protected void SetPixelFromFrame(long frame) {
+        protected void SetPixelFromFrame(long frame)
+        {
             this.SetPixelFromFrameAndZoom(frame, this.Timeline?.Zoom ?? 1.0d);
         }
 
-        protected void SetPixelFromFrameAndZoom(long frame, double zoom) {
+        protected void SetPixelFromFrameAndZoom(long frame, double zoom)
+        {
             Thickness m = this.Margin;
             this.Margin = new Thickness(frame * zoom, m.Top, m.Right, m.Bottom);
         }

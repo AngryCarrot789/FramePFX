@@ -21,13 +21,17 @@ using System;
 using System.Windows;
 using System.Windows.Media;
 
-namespace FramePFX.Themes {
-    public class ThemeController {
+namespace FramePFX.Themes
+{
+    public class ThemeController
+    {
         public static ThemeController Instance { get; } = new ThemeController();
 
-        public static void SetTheme(ThemeType theme) {
+        public static void SetTheme(ThemeType theme)
+        {
             string themeName = theme.GetName();
-            if (string.IsNullOrEmpty(themeName)) {
+            if (string.IsNullOrEmpty(themeName))
+            {
                 return;
             }
 
@@ -38,7 +42,8 @@ namespace FramePFX.Themes {
             RefreshControlsDictionary();
         }
 
-        public static void RefreshControlsDictionary() {
+        public static void RefreshControlsDictionary()
+        {
             ResourceDictionary resources = Application.Current.Resources;
             ResourceDictionary resource = resources.MergedDictionaries[2];
             resources.MergedDictionaries.RemoveAt(2);

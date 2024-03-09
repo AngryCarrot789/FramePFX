@@ -19,10 +19,12 @@
 
 using FramePFX.Editors.Timelines;
 
-namespace FramePFX.Editors.Exporting {
+namespace FramePFX.Editors.Exporting
+{
     public delegate void ExportPropertiesEventHandler(ExportProperties sender);
 
-    public class ExportProperties {
+    public class ExportProperties
+    {
         private FrameSpan span;
         private string filePath;
 
@@ -31,7 +33,8 @@ namespace FramePFX.Editors.Exporting {
         /// </summary>
         public FrameSpan Span {
             get => this.span;
-            set {
+            set
+            {
                 if (this.span == value)
                     return;
                 this.span = value;
@@ -44,7 +47,8 @@ namespace FramePFX.Editors.Exporting {
         /// </summary>
         public string FilePath {
             get => this.filePath;
-            set {
+            set
+            {
                 if (this.filePath == value)
                     return;
                 this.filePath = value;
@@ -55,7 +59,8 @@ namespace FramePFX.Editors.Exporting {
         public event ExportPropertiesEventHandler SpanChanged;
         public event ExportPropertiesEventHandler FilePathChanged;
 
-        public ExportProperties() {
+        public ExportProperties()
+        {
         }
     }
 }

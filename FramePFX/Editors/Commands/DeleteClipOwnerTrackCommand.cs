@@ -22,9 +22,12 @@ using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Commands {
-    public class DeleteClipOwnerTrackCommand : Command {
-        public override ExecutabilityState CanExecute(CommandEventArgs e) {
+namespace FramePFX.Editors.Commands
+{
+    public class DeleteClipOwnerTrackCommand : Command
+    {
+        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        {
             if (!DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip clip))
                 return ExecutabilityState.Invalid;
             if (clip.Timeline == null)
@@ -32,8 +35,10 @@ namespace FramePFX.Editors.Commands {
             return ExecutabilityState.Executable;
         }
 
-        public override Task Execute(CommandEventArgs e) {
-            if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip clip)) {
+        public override Task Execute(CommandEventArgs e)
+        {
+            if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip clip))
+            {
                 clip.Timeline?.DeleteTrack(clip.Track);
             }
 

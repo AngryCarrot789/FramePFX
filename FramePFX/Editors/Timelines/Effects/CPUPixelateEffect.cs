@@ -27,8 +27,10 @@ using FramePFX.Natives;
 using FramePFX.Utils.Accessing;
 using SkiaSharp;
 
-namespace FramePFX.Editors.Timelines.Effects {
-    public class CPUPixelateEffect : VideoEffect {
+namespace FramePFX.Editors.Timelines.Effects
+{
+    public class CPUPixelateEffect : VideoEffect
+    {
         public static readonly ParameterLong BlockSizeParameter =
             Parameter.RegisterLong(
                 typeof(CPUPixelateEffect),
@@ -42,25 +44,31 @@ namespace FramePFX.Editors.Timelines.Effects {
 
         private Vector2 renderSize;
 
-        public override void PrepareRender(PreRenderContext ctx, long frame) {
+        public override void PrepareRender(PreRenderContext ctx, long frame)
+        {
             base.PrepareRender(ctx, frame);
-            if (this.Owner is VideoClip) {
+            if (this.Owner is VideoClip)
+            {
                 this.renderSize = this.OwnerClip.GetRenderSize() ?? new Vector2();
             }
-            else {
+            else
+            {
                 this.renderSize = ctx.FrameSize;
             }
         }
 
-        public override void PostProcessFrame(RenderContext rc, ref SKRect renderArea) {
+        public override void PostProcessFrame(RenderContext rc, ref SKRect renderArea)
+        {
             base.PostProcessFrame(rc, ref renderArea);
 
             // It should never be negative as it's guarded by the parameter system.... buuuuut just in case ;)
-            if (this.BlockSize <= 0) {
+            if (this.BlockSize <= 0)
+            {
                 return;
             }
 
-            unsafe {
+            unsafe
+            {
                 uint* pImg = (uint*) rc.Bitmap.GetPixels().ToPointer();
                 SKRectI visibleI = renderArea.CeilAndFloorI();
                 int left = Math.Max(0, visibleI.Left);

@@ -20,30 +20,35 @@
 using System;
 using System.Collections.Generic;
 
-namespace FramePFX.Editors.Collections {
+namespace FramePFX.Editors.Collections
+{
     /// <summary>
     /// A list class that stores a selection of object, with support for lazy collection of selected items
     /// </summary>
-    public class SelectionList<T> where T : class {
+    public class SelectionList<T> where T : class
+    {
         private readonly List<T> items;
         private readonly Func<IEnumerable<T>> sourceFunc;
         private bool isListInvalid;
 
         public IEnumerable<T> Items {
-            get {
+            get
+            {
                 this.EnsureUpdated();
                 return this.items;
             }
         }
 
         public int Count {
-            get {
+            get
+            {
                 this.EnsureUpdated();
                 return this.items.Count;
             }
         }
 
-        public SelectionList(Func<IEnumerable<T>> sourceFunc) {
+        public SelectionList(Func<IEnumerable<T>> sourceFunc)
+        {
             this.sourceFunc = sourceFunc ?? throw new ArgumentNullException(nameof(sourceFunc));
             this.items = new List<T>();
         }
@@ -51,11 +56,13 @@ namespace FramePFX.Editors.Collections {
         /// <summary>
         /// Clears the internal collection, leaving the invalid state unmodified
         /// </summary>
-        public void Clear() {
+        public void Clear()
+        {
             this.items.Clear();
         }
 
-        public void Add(T item) {
+        public void Add(T item)
+        {
             this.items.Add(item);
         }
 
@@ -64,11 +71,13 @@ namespace FramePFX.Editors.Collections {
         /// </summary>
         /// <param name="item">The item</param>
         /// <returns>The index, or -1 if no such item exists</returns>
-        public int IndexOf(T item) {
+        public int IndexOf(T item)
+        {
             return this.items.IndexOf(item);
         }
 
-        public bool Remove(T item) {
+        public bool Remove(T item)
+        {
             int index = this.IndexOf(item);
             if (index == -1)
                 return false;
@@ -80,7 +89,8 @@ namespace FramePFX.Editors.Collections {
         /// Removes the item at the specified index, leaving the invalid state unmodified
         /// </summary>
         /// <param name="index">The index of the item to remove</param>
-        public void RemoveAt(int index) {
+        public void RemoveAt(int index)
+        {
             this.items.RemoveAt(index);
         }
 
@@ -98,7 +108,8 @@ namespace FramePFX.Editors.Collections {
         /// Sets the invalid state to true, meaning the internal collection cannot be relied
         /// upon to be accurate, meaning the items will be required when requested
         /// </summary>
-        public void Invalidate() {
+        public void Invalidate()
+        {
             this.isListInvalid = true;
         }
 
@@ -109,8 +120,10 @@ namespace FramePFX.Editors.Collections {
         /// The 'is now updated' state. False means it the list was already valid,
         /// true means it was invalid and is now valid
         /// </returns>
-        public bool EnsureUpdated() {
-            if (!this.isListInvalid) {
+        public bool EnsureUpdated()
+        {
+            if (!this.isListInvalid)
+            {
                 return false;
             }
 
@@ -118,7 +131,8 @@ namespace FramePFX.Editors.Collections {
             return true;
         }
 
-        private void UpdateList() {
+        private void UpdateList()
+        {
             this.items.Clear();
             this.items.AddRange(this.sourceFunc());
             this.isListInvalid = false;

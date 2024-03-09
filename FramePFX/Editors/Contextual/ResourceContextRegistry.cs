@@ -30,8 +30,10 @@ using FramePFX.Editors.ResourceManaging.Resources;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 
-namespace FramePFX.Editors.Contextual {
-    public class ResourceContextRegistry : IContextGenerator {
+namespace FramePFX.Editors.Contextual
+{
+    public class ResourceContextRegistry : IContextGenerator
+    {
         public static ResourceContextRegistry Instance { get; } = new ResourceContextRegistry();
 
         /// <summary>
@@ -40,28 +42,35 @@ namespace FramePFX.Editors.Contextual {
         /// <param name="ctx"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static ExecutabilityState CanGetSingleFolderSelection(IContextData ctx) {
-            if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource resource)) {
+        public static ExecutabilityState CanGetSingleFolderSelection(IContextData ctx)
+        {
+            if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource resource))
+            {
                 return ExecutabilityState.Invalid;
             }
 
-            if (resource.Parent == null || resource.Manager == null) {
+            if (resource.Parent == null || resource.Manager == null)
+            {
                 return ExecutabilityState.ValidButCannotExecute;
             }
 
             ResourceFolder folder = resource.Manager.CurrentFolder;
-            if (!folder.Contains(resource)) {
+            if (!folder.Contains(resource))
+            {
                 folder = resource.Parent;
             }
 
             int selected = folder.SelectedItemCount;
-            if (!resource.IsSelected || selected == 1) {
+            if (!resource.IsSelected || selected == 1)
+            {
                 return ExecutabilityState.Executable;
             }
-            else if (selected > 0) {
+            else if (selected > 0)
+            {
                 return ExecutabilityState.Executable;
             }
-            else {
+            else
+            {
                 Debugger.Break();
                 throw new Exception("Selection corruption: zero selected items in folder while resource in folder was selected");
             }
@@ -77,35 +86,42 @@ namespace FramePFX.Editors.Contextual {
         /// items in the folder. Always contains at least 1 item when this method returns true
         /// </param>
         /// <returns>True if the context contained a resource</returns>
-        public static bool GetFolderSelectionContext(IContextData ctx, out ResourceFolder folder, out BaseResource[] selection) {
-            if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource resource) || resource.Parent == null || resource.Manager == null) {
+        public static bool GetFolderSelectionContext(IContextData ctx, out ResourceFolder folder, out BaseResource[] selection)
+        {
+            if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource resource) || resource.Parent == null || resource.Manager == null)
+            {
                 folder = null;
                 selection = null;
                 return false;
             }
 
             folder = resource.Manager.CurrentFolder;
-            if (!folder.Contains(resource)) {
+            if (!folder.Contains(resource))
+            {
                 folder = resource.Parent;
             }
 
             int selected = folder.SelectedItemCount;
-            if (!resource.IsSelected || selected == 1) { // use context item if unselected or only selection
+            if (!resource.IsSelected || selected == 1)
+            { // use context item if unselected or only selection
                 selection = new BaseResource[] {resource};
                 return true;
             }
-            else if (selected > 0) {
+            else if (selected > 0)
+            {
                 selection = folder.SelectedItems.ToArray();
                 Debug.Assert(selection.Length > 0, "selection.Length > 0");
                 return true;
             }
-            else {
+            else
+            {
                 Debugger.Break();
                 throw new Exception("Selection corruption: zero selected items in folder while resource in folder was selected");
             }
         }
 
-        public static ExecutabilityState CanGetTreeSelectionContext(IContextData ctx) {
+        public static ExecutabilityState CanGetTreeSelectionContext(IContextData ctx)
+        {
             if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource resource))
                 return ExecutabilityState.Invalid;
             if (resource.Parent == null || resource.Manager == null)
@@ -113,54 +129,65 @@ namespace FramePFX.Editors.Contextual {
             return ExecutabilityState.Executable;
         }
 
-        public static bool GetTreeSelectionContext(IContextData ctx, out BaseResource[] selection) {
-            if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource resource) || resource.Parent == null || resource.Manager == null) {
+        public static bool GetTreeSelectionContext(IContextData ctx, out BaseResource[] selection)
+        {
+            if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource resource) || resource.Parent == null || resource.Manager == null)
+            {
                 selection = null;
                 return false;
             }
 
             int selected = resource.Manager.SelectedItems.Count;
-            if (!resource.IsSelected || selected == 1) { // use context item if unselected or only selection
+            if (!resource.IsSelected || selected == 1)
+            { // use context item if unselected or only selection
                 selection = new BaseResource[] {resource};
                 return true;
             }
-            else if (selected > 0) {
+            else if (selected > 0)
+            {
                 selection = resource.Manager.SelectedItems.ToArray();
                 Debug.Assert(selection.Length > 0, "selection.Length > 0");
                 return true;
             }
-            else {
+            else
+            {
                 Debugger.Break();
                 throw new Exception("Selection corruption: zero selected items in folder while resource in folder was selected");
             }
         }
 
-        public static ExecutabilityState CanGetSingleSelection(IContextData ctx) {
+        public static ExecutabilityState CanGetSingleSelection(IContextData ctx)
+        {
             if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource resource))
                 return ExecutabilityState.Invalid;
             if (resource.Parent == null || resource.Manager == null)
                 return ExecutabilityState.ValidButCannotExecute;
 
             ResourceFolder folder = resource.Manager.CurrentFolder;
-            if (!folder.Contains(resource)) {
+            if (!folder.Contains(resource))
+            {
                 folder = resource.Parent;
             }
 
-            if (!resource.IsSelected || folder.SelectedItemCount == 1) {
+            if (!resource.IsSelected || folder.SelectedItemCount == 1)
+            {
                 return ExecutabilityState.Executable;
             }
 
             return ExecutabilityState.ValidButCannotExecute;
         }
 
-        public static bool GetSingleSelection(IContextData ctx, out BaseResource resource) {
-            if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out resource) || resource.Parent == null || resource.Manager == null) {
+        public static bool GetSingleSelection(IContextData ctx, out BaseResource resource)
+        {
+            if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out resource) || resource.Parent == null || resource.Manager == null)
+            {
                 resource = null;
                 return false;
             }
 
             ResourceFolder folder = resource.Manager.CurrentFolder;
-            if (!folder.Contains(resource)) {
+            if (!folder.Contains(resource))
+            {
                 folder = resource.Parent;
             }
 
@@ -174,44 +201,56 @@ namespace FramePFX.Editors.Contextual {
         /// <param name="ctx">Data Context</param>
         /// <param name="folder">The folder</param>
         /// <returns>True if the data contains contained a folder or a resource manager</returns>
-        public static bool GetTargetFolder(IContextData ctx, out ResourceFolder folder) {
-            if (DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource resource) && (folder = resource as ResourceFolder) != null) {
+        public static bool GetTargetFolder(IContextData ctx, out ResourceFolder folder)
+        {
+            if (DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource resource) && (folder = resource as ResourceFolder) != null)
+            {
                 return true;
             }
-            else if (DataKeys.ResourceManagerKey.TryGetContext(ctx, out ResourceManager manager)) {
+            else if (DataKeys.ResourceManagerKey.TryGetContext(ctx, out ResourceManager manager))
+            {
                 folder = manager.CurrentFolder;
                 return true;
             }
-            else {
+            else
+            {
                 folder = null;
                 return false;
             }
         }
 
-        public void Generate(List<IContextEntry> list, IContextData context) {
-            if (!GetFolderSelectionContext(context, out ResourceFolder folder, out BaseResource[] selection)) {
-                if (context.ContainsKey(DataKeys.ResourceManagerKey)) {
+        public void Generate(List<IContextEntry> list, IContextData context)
+        {
+            if (!GetFolderSelectionContext(context, out ResourceFolder folder, out BaseResource[] selection))
+            {
+                if (context.ContainsKey(DataKeys.ResourceManagerKey))
+                {
                     GenerateNewResourceEntries(list);
                 }
 
                 return;
             }
 
-            if (selection.Length == 1) {
+            if (selection.Length == 1)
+            {
                 BaseResource resource = selection[0];
                 list.Add(new CommandContextEntry("RenameResourceCommand", "Rename"));
                 list.Add(new CommandContextEntry("GroupResourcesCommand", "Add to new folder", "Adds this item to a new folder"));
 
-                if (resource is ResourceItem item) {
+                if (resource is ResourceItem item)
+                {
                     list.Add(new SeparatorEntry());
-                    if (item.IsOnline) {
+                    if (item.IsOnline)
+                    {
                         list.Add(new CommandContextEntry("DisableResourcesCommand", "Set Offline"));
                     }
-                    else {
+                    else
+                    {
                         list.Add(new CommandContextEntry("EnableResourcesCommand", "Set Online"));
                     }
 
-                    switch (resource) {
+                    switch (resource)
+                    {
                         case ResourceComposition _:
                             list.Add(new SeparatorEntry());
                             list.Add(new CommandContextEntry("OpenCompositionResourceTimelineCommand", "Open Timeline"));
@@ -226,7 +265,8 @@ namespace FramePFX.Editors.Contextual {
                 list.Add(new SeparatorEntry());
                 list.Add(new CommandContextEntry("DeleteResourcesCommand", "Delete Resource"));
             }
-            else {
+            else
+            {
                 list.Add(new CommandContextEntry("GroupResourcesCommand", $"Group {selection.Length} items into folder", "Groups all selected items (only in the explorer) into a folder. Grouping items in the tree is currently unsupported"));
                 list.Add(new SeparatorEntry());
                 list.Add(new CommandContextEntry("EnableResourcesCommand", "Set All Online"));
@@ -236,15 +276,20 @@ namespace FramePFX.Editors.Contextual {
             }
         }
 
-        private static void ChangeResourceImagePath(IContextData ctx) {
-            if (GetSingleSelection(ctx, out BaseResource resource) && resource is ResourceImage image) {
+        private static void ChangeResourceImagePath(IContextData ctx)
+        {
+            if (GetSingleSelection(ctx, out BaseResource resource) && resource is ResourceImage image)
+            {
                 string filePath = IoC.FilePickService.OpenFile("Select a new image file for this resource", Filters.ImageTypesAndAll);
-                if (filePath == null) {
+                if (filePath == null)
+                {
                     return;
                 }
 
-                if (image.IsRawBitmapMode) {
-                    if (IoC.MessageService.ShowMessage("Clear Raw Bitmap", "This image stores a pure bitmap instead of being file-based. Do you want to clear the bitmap?", MessageBoxButton.OKCancel) != MessageBoxResult.OK) {
+                if (image.IsRawBitmapMode)
+                {
+                    if (IoC.MessageService.ShowMessage("Clear Raw Bitmap", "This image stores a pure bitmap instead of being file-based. Do you want to clear the bitmap?", MessageBoxButton.OKCancel) != MessageBoxResult.OK)
+                    {
                         return;
                     }
 
@@ -257,7 +302,8 @@ namespace FramePFX.Editors.Contextual {
             }
         }
 
-        public static void GenerateNewResourceEntries(List<IContextEntry> list) {
+        public static void GenerateNewResourceEntries(List<IContextEntry> list)
+        {
             List<IContextEntry> toAdd = new List<IContextEntry>();
             toAdd.Add(new EventContextEntry(AddColourResource, "Colour"));
             toAdd.Add(new EventContextEntry(AddCompositionResource, "Composition Timeline"));
@@ -265,19 +311,24 @@ namespace FramePFX.Editors.Contextual {
             list.Add(new GroupContextEntry("Add new...", toAdd));
         }
 
-        private static void AddColourResource(IContextData ctx) {
-            if (GetTargetFolder(ctx, out ResourceFolder folder)) {
+        private static void AddColourResource(IContextData ctx)
+        {
+            if (GetTargetFolder(ctx, out ResourceFolder folder))
+            {
                 AddNewResource(folder, new ResourceColour() {Colour = RenderUtils.RandomColour(), DisplayName = "New Colour"});
             }
         }
 
-        private static void AddCompositionResource(IContextData ctx) {
-            if (GetTargetFolder(ctx, out ResourceFolder folder)) {
+        private static void AddCompositionResource(IContextData ctx)
+        {
+            if (GetTargetFolder(ctx, out ResourceFolder folder))
+            {
                 AddNewResource(folder, new ResourceComposition() {DisplayName = "New Composition"});
             }
         }
 
-        private static void AddNewResource(ResourceFolder folder, BaseResource resource) {
+        private static void AddNewResource(ResourceFolder folder, BaseResource resource)
+        {
             folder.AddItem(resource);
             ResourceLoaderDialog.TryLoadResources(resource);
         }

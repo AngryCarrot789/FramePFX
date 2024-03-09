@@ -21,16 +21,19 @@ using System;
 using FramePFX.RBC;
 using FramePFX.Utils;
 
-namespace FramePFX.Editors {
+namespace FramePFX.Editors
+{
     public delegate void ProjectSettingsEventHandler(ProjectSettings settings);
 
-    public class ProjectSettings {
+    public class ProjectSettings
+    {
         private Vec2i resolution;
         private Rational frameRate;
 
         public Vec2i Resolution {
             get => this.resolution;
-            set {
+            set
+            {
                 if (this.resolution == value)
                     return;
                 this.resolution = value;
@@ -44,7 +47,8 @@ namespace FramePFX.Editors {
 
         public Rational FrameRate {
             get => this.frameRate;
-            set {
+            set
+            {
                 if (this.frameRate == value)
                     return;
                 this.frameRate = value;
@@ -63,20 +67,24 @@ namespace FramePFX.Editors {
         /// </summary>
         public Project Project { get; }
 
-        public ProjectSettings(Project project, int width, int height, Rational frameRate) : this(project) {
+        public ProjectSettings(Project project, int width, int height, Rational frameRate) : this(project)
+        {
             this.resolution = new Vec2i(width, height);
             this.frameRate = frameRate;
         }
 
-        public ProjectSettings(Project project) {
+        public ProjectSettings(Project project)
+        {
             this.Project = project ?? throw new ArgumentNullException(nameof(project));
         }
 
-        public static ProjectSettings CreateDefault(Project project) {
+        public static ProjectSettings CreateDefault(Project project)
+        {
             return new ProjectSettings(project, 1920, 1080, new Rational(60, 1));
         }
 
-        public ProjectSettings Clone(Project project = null) {
+        public ProjectSettings Clone(Project project = null)
+        {
             ProjectSettings settings = new ProjectSettings(project ?? this.Project);
             RBEDictionary dictionary = new RBEDictionary();
             this.WriteToRBE(dictionary);
@@ -84,17 +92,20 @@ namespace FramePFX.Editors {
             return settings;
         }
 
-        public void WriteToRBE(RBEDictionary dictionary) {
+        public void WriteToRBE(RBEDictionary dictionary)
+        {
             dictionary.SetULong(nameof(this.FrameRate), (ulong) this.frameRate);
             dictionary.SetULong(nameof(this.Resolution), (ulong) this.resolution);
         }
 
-        public void ReadFromRBE(RBEDictionary dictionary) {
+        public void ReadFromRBE(RBEDictionary dictionary)
+        {
             this.frameRate = (Rational) dictionary.GetULong(nameof(this.FrameRate));
             this.resolution = (Vec2i) dictionary.GetULong(nameof(this.Resolution));
         }
 
-        public void WriteInto(ProjectSettings settings) {
+        public void WriteInto(ProjectSettings settings)
+        {
             settings.Resolution = this.Resolution;
             settings.FrameRate = this.FrameRate;
         }

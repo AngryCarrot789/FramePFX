@@ -19,8 +19,10 @@
 
 using System.Collections.Generic;
 
-namespace FramePFX.Utils {
-    public class ReferenceEqualityComparer<T> : IEqualityComparer<T> where T : class {
+namespace FramePFX.Utils
+{
+    public class ReferenceEqualityComparer<T> : IEqualityComparer<T> where T : class
+    {
         private static ReferenceEqualityComparer<T> instance;
 
         public static ReferenceEqualityComparer<T> Default {

@@ -29,16 +29,21 @@ using FramePFX.Editors.Timelines.Clips.Core;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editors.Contextual {
-    public class ClipContextRegistry : IContextGenerator {
+namespace FramePFX.Editors.Contextual
+{
+    public class ClipContextRegistry : IContextGenerator
+    {
         public static ClipContextRegistry Instance { get; } = new ClipContextRegistry();
 
-        public void Generate(List<IContextEntry> list, IContextData context) {
-            if (!GetClipSelection(context, out Clip[] clips)) {
+        public void Generate(List<IContextEntry> list, IContextData context)
+        {
+            if (!GetClipSelection(context, out Clip[] clips))
+            {
                 return;
             }
 
-            if (clips.Length == 1) {
+            if (clips.Length == 1)
+            {
                 Clip clip = clips[0];
                 list.Add(new CommandContextEntry("RenameClipCommand", "Rename clip"));
                 if (clip is ICompositionClip)
@@ -47,67 +52,86 @@ namespace FramePFX.Editors.Contextual {
                 list.Add(new CommandContextEntry("DeleteSelectedClips", "Delete Clip", "Deletes this clip from the timeline"));
                 list.Add(new CommandContextEntry("DeleteClipOwnerTrack", "Delete Track", "Deletes the track that this clip resides in"));
             }
-            else {
+            else
+            {
                 list.Add(new CommandContextEntry("DeleteSelectedClips", "Delete Clips", "Deletes these selected clips"));
             }
         }
 
-        private static void OpenClipTimeline(IContextData ctx) {
-            if (DataKeys.ClipKey.TryGetContext(ctx, out Clip clip) && clip is ICompositionClip compositionClip) {
-                if (clip.Project is Project project && compositionClip.ResourceCompositionKey.TryGetResource(out ResourceComposition resource)) {
+        private static void OpenClipTimeline(IContextData ctx)
+        {
+            if (DataKeys.ClipKey.TryGetContext(ctx, out Clip clip) && clip is ICompositionClip compositionClip)
+            {
+                if (clip.Project is Project project && compositionClip.ResourceCompositionKey.TryGetResource(out ResourceComposition resource))
+                {
                     project.ActiveTimeline = resource.Timeline;
                 }
             }
         }
 
-        public static ExecutabilityState CanGetClipSelection(IContextData ctx, bool doNotUseTimelineSelection = false) {
-            if (DataKeys.ClipKey.TryGetContext(ctx, out Clip clip)) {
+        public static ExecutabilityState CanGetClipSelection(IContextData ctx, bool doNotUseTimelineSelection = false)
+        {
+            if (DataKeys.ClipKey.TryGetContext(ctx, out Clip clip))
+            {
                 Track track = clip.Track;
                 Timeline timeline;
-                if (track == null || (timeline = track.Timeline) == null) {
+                if (track == null || (timeline = track.Timeline) == null)
+                {
                     return ExecutabilityState.ValidButCannotExecute;
                 }
 
                 int selectedClips = doNotUseTimelineSelection ? track.SelectedClipsCount : timeline.SelectedClipsCount;
-                if (!clip.IsSelected || selectedClips == 1) {
+                if (!clip.IsSelected || selectedClips == 1)
+                {
                     return ExecutabilityState.Executable;
                 }
-                else {
+                else
+                {
                     Debug.Assert(selectedClips > 1, "Selection corruption 1");
                     return ExecutabilityState.Executable;
                 }
             }
-            else if (doNotUseTimelineSelection) {
-                if (DataKeys.TrackKey.TryGetContext(ctx, out Track track)) {
+            else if (doNotUseTimelineSelection)
+            {
+                if (DataKeys.TrackKey.TryGetContext(ctx, out Track track))
+                {
                     return track.SelectedClipsCount > 0 ? ExecutabilityState.Executable : ExecutabilityState.ValidButCannotExecute;
                 }
-                else {
+                else
+                {
                     return ExecutabilityState.Invalid;
                 }
             }
-            else if (DataKeys.TimelineKey.TryGetContext(ctx, out Timeline timeline)) {
+            else if (DataKeys.TimelineKey.TryGetContext(ctx, out Timeline timeline))
+            {
                 return timeline.SelectedClipsCount > 0 ? ExecutabilityState.Executable : ExecutabilityState.ValidButCannotExecute;
             }
-            else {
+            else
+            {
                 return ExecutabilityState.Invalid;
             }
         }
 
-        public static bool GetClipSelection(IContextData ctx, out Clip[] clips, bool doNotUseTimelineSelection = false) {
-            if (DataKeys.ClipKey.TryGetContext(ctx, out Clip clip)) {
+        public static bool GetClipSelection(IContextData ctx, out Clip[] clips, bool doNotUseTimelineSelection = false)
+        {
+            if (DataKeys.ClipKey.TryGetContext(ctx, out Clip clip))
+            {
                 Track track = clip.Track;
                 Timeline timeline;
-                if (track == null || (timeline = track.Timeline) == null) {
+                if (track == null || (timeline = track.Timeline) == null)
+                {
                     clips = null;
                     return false;
                 }
 
                 int selectedClips = doNotUseTimelineSelection ? track.SelectedClipsCount : timeline.SelectedClipsCount;
-                if (!clip.IsSelected || selectedClips == 1) {
+                if (!clip.IsSelected || selectedClips == 1)
+                {
                     // Interacted with a non-selected or the only selected clip
                     clips = new Clip[] {clip};
                 }
-                else {
+                else
+                {
                     Debug.Assert(selectedClips > 1, "Selection corruption 1");
                     clips = doNotUseTimelineSelection ? track.SelectedClips.ToArray() : timeline.SelectedClips.ToArray();
                 }
@@ -115,13 +139,16 @@ namespace FramePFX.Editors.Contextual {
                 Debug.Assert(clips.Length > 0, "Selection corruption 2");
                 return clips.Length > 0;
             }
-            else if (doNotUseTimelineSelection) {
-                if (DataKeys.TrackKey.TryGetContext(ctx, out Track track)) {
+            else if (doNotUseTimelineSelection)
+            {
+                if (DataKeys.TrackKey.TryGetContext(ctx, out Track track))
+                {
                     clips = track.SelectedClips.ToArray();
                     return clips.Length > 0;
                 }
             }
-            else if (DataKeys.TimelineKey.TryGetContext(ctx, out Timeline timeline)) {
+            else if (DataKeys.TimelineKey.TryGetContext(ctx, out Timeline timeline))
+            {
                 clips = timeline.SelectedClips.ToArray();
                 return clips.Length > 0;
             }

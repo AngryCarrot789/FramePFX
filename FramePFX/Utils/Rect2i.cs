@@ -21,11 +21,13 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace FramePFX.Utils {
+namespace FramePFX.Utils
+{
     /// <summary>
     /// A struct that stores a width and height property, as ints
     /// </summary>
-    public readonly struct Rect2i : IEqualityComparer<Rect2i>, IEquatable<Rect2i>, IComparable<Rect2i> {
+    public readonly struct Rect2i : IEqualityComparer<Rect2i>, IEquatable<Rect2i>, IComparable<Rect2i>
+    {
         /// <summary>
         /// A resolution whose width and height is zero
         /// </summary>
@@ -46,16 +48,19 @@ namespace FramePFX.Utils {
         /// </summary>
         public bool IsEmpty => this.Width == 0 && this.Height == 0;
 
-        public Rect2i(int width, int height) {
+        public Rect2i(int width, int height)
+        {
             this.Width = width;
             this.Height = height;
         }
 
-        public Rect2i WithWidth(int width) {
+        public Rect2i WithWidth(int width)
+        {
             return new Rect2i(width, this.Height);
         }
 
-        public Rect2i WithHeight(int height) {
+        public Rect2i WithHeight(int height)
+        {
             return new Rect2i(this.Width, height);
         }
 
@@ -64,7 +69,8 @@ namespace FramePFX.Utils {
         /// </summary>
         /// <param name="height">The resolution height</param>
         /// <returns>A new resolution</returns>
-        public Rect2i ResizeToHeight(int height) {
+        public Rect2i ResizeToHeight(int height)
+        {
             return new Rect2i((int) ((double) height / this.Height * this.Width), height);
         }
 
@@ -73,19 +79,23 @@ namespace FramePFX.Utils {
         /// </summary>
         /// <param name="width">The width of this resolution</param>
         /// <returns>A new resolution</returns>
-        public Rect2i ResizeToWidth(int width) {
+        public Rect2i ResizeToWidth(int width)
+        {
             return new Rect2i(width, (int) ((double) width / this.Width * this.Height));
         }
 
-        public static Rect2i Floor(double width, double height) {
+        public static Rect2i Floor(double width, double height)
+        {
             return new Rect2i((int) Math.Floor(width), (int) Math.Floor(height));
         }
 
-        public static Rect2i Ceiling(double width, double height) {
+        public static Rect2i Ceiling(double width, double height)
+        {
             return new Rect2i((int) Math.Ceiling(width), (int) Math.Ceiling(height));
         }
 
-        public static Rect2i Round(double width, double height) {
+        public static Rect2i Round(double width, double height)
+        {
             return new Rect2i((int) Math.Round(width), (int) Math.Round(height));
         }
 
@@ -106,7 +116,8 @@ namespace FramePFX.Utils {
 
         public override int GetHashCode() => unchecked((this.Width * 397) ^ this.Height);
 
-        public int CompareTo(Rect2i other) {
+        public int CompareTo(Rect2i other)
+        {
             int cmp = this.Width.CompareTo(other.Width);
             if (cmp == 0)
                 cmp = this.Height.CompareTo(other.Height);
@@ -117,7 +128,8 @@ namespace FramePFX.Utils {
 
         public int GetHashCode(Rect2i obj) => obj.GetHashCode();
 
-        public override string ToString() {
+        public override string ToString()
+        {
             return $"{this.Width}x{this.Height}";
         }
     }

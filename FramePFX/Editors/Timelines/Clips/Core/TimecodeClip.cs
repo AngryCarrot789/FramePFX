@@ -28,8 +28,10 @@ using FramePFX.Utils.Accessing;
 using FramePFX.Utils.Disposable;
 using SkiaSharp;
 
-namespace FramePFX.Editors.Timelines.Clips.Core {
-    public class TimecodeClip : VideoClip {
+namespace FramePFX.Editors.Timelines.Clips.Core
+{
+    public class TimecodeClip : VideoClip
+    {
         public static readonly ParameterDouble FontSizeParameter =
             Parameter.RegisterDouble(
                 typeof(TimecodeClip),
@@ -59,11 +61,13 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
         private double EndTime;
         private string fontFamily = "Consolas";
 
-        private class LockedFontData : IDisposable {
+        private class LockedFontData : IDisposable
+        {
             public SKFont cachedFont;
             public SKTypeface cachedTypeFace;
 
-            public void Dispose() {
+            public void Dispose()
+            {
                 this.cachedFont?.Dispose();
                 this.cachedFont = null;
                 this.cachedTypeFace?.Dispose();
@@ -82,7 +86,8 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
 
         public string FontFamily {
             get => this.fontFamily;
-            set {
+            set
+            {
                 if (this.fontFamily == value)
                     return;
                 this.fontFamily = value;
@@ -94,7 +99,8 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
 
         public event ClipEventHandler FontFamilyChanged;
 
-        public TimecodeClip() {
+        public TimecodeClip()
+        {
             this.UsesCustomOpacityCalculation = true;
             this.fontData = new DisposableRef<LockedFontData>(new LockedFontData(), true);
             this.FontSize = FontSizeParameter.Descriptor.DefaultValue;
@@ -104,21 +110,25 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
             this.EndTime = EndTimeParameter.DefaultValue;
         }
 
-        private string GetCurrentTimeString() {
+        private string GetCurrentTimeString()
+        {
             double percent = Maths.InverseLerp(this.render_Span.Begin, this.render_Span.EndIndex, this.render_Frame);
             TimeSpan time = TimeSpan.FromSeconds(Maths.Lerp(this.render_StartTime.TotalSeconds, this.render_EndTime.TotalSeconds, percent));
             return string.Format("{0:00}:{1:00}:{2:00}.{3:00}", (int) time.TotalHours, time.Minutes, time.Seconds, time.Milliseconds / 10.0);
         }
 
-        static TimecodeClip() {
-            SerialisationRegistry.Register<TimecodeClip>(0, (clip, data, ctx) => {
+        static TimecodeClip()
+        {
+            SerialisationRegistry.Register<TimecodeClip>(0, (clip, data, ctx) =>
+            {
                 ctx.DeserialiseBaseType(data);
                 clip.UseClipStartTime = data.GetBool("UseClipStart");
                 clip.UseClipEndTime = data.GetBool("UseClipEnd");
                 clip.StartTime = data.GetDouble("StartTime");
                 clip.EndTime = data.GetDouble("EndTime");
                 clip.fontFamily = data.GetString("FontFamily", null);
-            }, (clip, data, ctx) => {
+            }, (clip, data, ctx) =>
+            {
                 ctx.SerialiseBaseType(data);
                 data.SetBool("UseClipStart", clip.UseClipStartTime);
                 data.SetBool("UseClipEnd", clip.UseClipEndTime);
@@ -128,14 +138,16 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
                     data.SetString("FontFamily", clip.fontFamily);
             });
 
-            FontSizeParameter.ValueChanged += sequence => {
+            FontSizeParameter.ValueChanged += sequence =>
+            {
                 TimecodeClip owner = (TimecodeClip) sequence.AutomationData.Owner;
                 owner.fontData.Dispose();
                 owner.InvalidateRender();
             };
         }
 
-        protected override void LoadDataIntoClone(Clip clone, ClipCloneOptions options) {
+        protected override void LoadDataIntoClone(Clip clone, ClipCloneOptions options)
+        {
             base.LoadDataIntoClone(clone, options);
             TimecodeClip timer = (TimecodeClip) clone;
             timer.UseClipStartTime = this.UseClipStartTime;
@@ -144,11 +156,13 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
             timer.EndTime = this.EndTime;
         }
 
-        public override Vector2? GetRenderSize() {
+        public override Vector2? GetRenderSize()
+        {
             return new Vector2(this.lastRenderRect.Width, this.lastRenderRect.Height);
         }
 
-        public override bool PrepareRenderFrame(PreRenderContext rc, long frame) {
+        public override bool PrepareRenderFrame(PreRenderContext rc, long frame)
+        {
             double fps = this.Project.Settings.FrameRate.AsDouble;
 
             long playHead = this.FrameSpan.Begin + frame;
@@ -162,16 +176,20 @@ namespace FramePFX.Editors.Timelines.Clips.Core {
             return true;
         }
 
-        public override void RenderFrame(RenderContext rc, ref SKRect renderArea) {
-            this.fontData.BeginUsage(this, (clip, data) => {
+        public override void RenderFrame(RenderContext rc, ref SKRect renderArea)
+        {
+            this.fontData.BeginUsage(this, (clip, data) =>
+            {
                 data.cachedTypeFace = clip.fontFamily != null ? SKTypeface.FromFamilyName(clip.fontFamily) : SKTypeface.CreateDefault();
                 data.cachedFont = new SKFont(data.cachedTypeFace, (float) clip.renderFontSize);
             });
 
             string text = this.GetCurrentTimeString();
             LockedFontData fd = this.fontData.Value;
-            using (SKPaint paint = new SKPaint() {IsAntialias = true, Color = SKColors.White.WithAlpha(this.RenderOpacityByte)}) {
-                using (SKTextBlob blob = SKTextBlob.Create(text, fd.cachedFont)) {
+            using (SKPaint paint = new SKPaint() {IsAntialias = true, Color = SKColors.White.WithAlpha(this.RenderOpacityByte)})
+            {
+                using (SKTextBlob blob = SKTextBlob.Create(text, fd.cachedFont))
+                {
                     fd.cachedFont.GetFontMetrics(out SKFontMetrics metrics);
                     // we can get away with this since we just use numbers and not any 'special'
                     // characters with bits below the baseline and whatnot

@@ -17,15 +17,19 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Editors.Timelines.Tracks {
-    public struct TrackCloneOptions {
-        public static readonly TrackCloneOptions Default = new TrackCloneOptions() {
+namespace FramePFX.Editors.Timelines.Tracks
+{
+    public struct TrackCloneOptions
+    {
+        public static readonly TrackCloneOptions Default = new TrackCloneOptions()
+        {
             ClipCloneOptions = Tracks.ClipCloneOptions.Default,
         };
 
         public ClipCloneOptions? ClipCloneOptions;
 
-        public TrackCloneOptions(ClipCloneOptions? clipCloneOptions) {
+        public TrackCloneOptions(ClipCloneOptions? clipCloneOptions)
+        {
             this.ClipCloneOptions = clipCloneOptions;
         }
     }

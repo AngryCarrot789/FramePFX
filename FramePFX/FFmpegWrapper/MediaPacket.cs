@@ -14,12 +14,15 @@ using System;
 using FFmpeg.AutoGen;
 using FramePFX.FFmpegWrapper.Containers;
 
-namespace FramePFX.FFmpegWrapper {
-    public unsafe class MediaPacket : FFObject {
+namespace FramePFX.FFmpegWrapper
+{
+    public unsafe class MediaPacket : FFObject
+    {
         internal AVPacket* packet;
 
         public AVPacket* Handle {
-            get {
+            get
+            {
                 this.ValidateNotDisposed();
                 return this.packet;
             }
@@ -59,30 +62,37 @@ namespace FramePFX.FFmpegWrapper {
 
         public Span<byte> Data => new Span<byte>(this.packet->data, this.packet->size);
 
-        public MediaPacket() {
+        public MediaPacket()
+        {
             this.packet = ffmpeg.av_packet_alloc();
         }
 
         /// <inheritdoc cref="ffmpeg.av_packet_rescale_ts(AVPacket*, AVRational, AVRational)"/>
-        public void RescaleTS(AVRational sourceBase, AVRational destBase) {
+        public void RescaleTS(AVRational sourceBase, AVRational destBase)
+        {
             ffmpeg.av_packet_rescale_ts(this.Handle, sourceBase, destBase);
         }
 
         /// <summary> Returns the underlying packet pointer after calling av_packet_unref() on it. </summary>
-        public AVPacket* UnrefAndGetHandle() {
+        public AVPacket* UnrefAndGetHandle()
+        {
             this.ValidateNotDisposed();
             ffmpeg.av_packet_unref(this.packet);
             return this.packet;
         }
 
-        protected override void Free() {
-            fixed (AVPacket** pkt = &this.packet) {
+        protected override void Free()
+        {
+            fixed (AVPacket** pkt = &this.packet)
+            {
                 ffmpeg.av_packet_free(pkt);
             }
         }
 
-        private void ValidateNotDisposed() {
-            if (this.packet == null) {
+        private void ValidateNotDisposed()
+        {
+            if (this.packet == null)
+            {
                 throw new ObjectDisposedException(nameof(MediaPacket));
             }
         }

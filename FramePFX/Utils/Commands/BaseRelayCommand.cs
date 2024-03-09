@@ -1,16 +1,38 @@
+//
+// Copyright (c) 2023-2024 REghZy
+//
+// This file is part of FramePFX.
+//
+// FramePFX is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either
+// version 3.0 of the License, or (at your option) any later version.
+//
+// FramePFX is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
+//
+
 using System;
 
-namespace FramePFX.Utils.Commands {
+namespace FramePFX.Utils.Commands
+{
     /// <summary>
     /// A base relay command class, that implements ICommand, and also has a simple implementation for dealing with
     /// the <see cref="CanExecuteChanged"/> event handler (via <see cref="RaiseCanExecuteChanged"/>)
     /// </summary>
-    public abstract class BaseRelayCommand : IRelayCommand {
+    public abstract class BaseRelayCommand : IRelayCommand
+    {
         private bool isEnabled;
 
         public bool IsEnabled {
             get => this.isEnabled;
-            set {
+            set
+            {
                 this.isEnabled = value;
                 this.RaiseCanExecuteChanged();
             }
@@ -25,7 +47,8 @@ namespace FramePFX.Utils.Commands {
         /// Initializes a new instance of <see cref="BaseRelayCommand"/>
         /// </summary>
         /// <param name="canExecute">The execution status logic</param>
-        protected BaseRelayCommand() {
+        protected BaseRelayCommand()
+        {
             this.isEnabled = true;
         }
 
@@ -40,7 +63,8 @@ namespace FramePFX.Utils.Commands {
         /// <returns>
         /// True if the command can be executed, otherwise false if it cannot be executed
         /// </returns>
-        public virtual bool CanExecute(object parameter) {
+        public virtual bool CanExecute(object parameter)
+        {
             return this.IsEnabled;
         }
 
@@ -52,12 +76,16 @@ namespace FramePFX.Utils.Commands {
         /// button to become greyed out (disabled) if <see cref="CanExecute"/> returns false
         /// </para>
         /// </summary>
-        public virtual void RaiseCanExecuteChanged() {
-            if (this.CanExecuteChanged != null) {
-                if (IoC.Dispatcher?.IsOnOwnerThread ?? true) {
+        public virtual void RaiseCanExecuteChanged()
+        {
+            if (this.CanExecuteChanged != null)
+            {
+                if (IoC.Dispatcher?.IsOnOwnerThread ?? true)
+                {
                     this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
                 }
-                else {
+                else
+                {
                     IoC.Dispatcher.Invoke(() => this.CanExecuteChanged?.Invoke(this, EventArgs.Empty));
                 }
             }
@@ -70,8 +98,10 @@ namespace FramePFX.Utils.Commands {
         /// <typeparam name="T">The type to convert the value to</typeparam>
         /// <returns>An object which is an instance of T</returns>
         /// <exception cref="Exception">The value is not null and could not be converted to T</exception>
-        protected static object GetConvertedParameter<T>(object value) {
-            switch (value) {
+        protected static object GetConvertedParameter<T>(object value)
+        {
+            switch (value)
+            {
                 case null: return null;
                 case T _: return value;
                 case IConvertible c: return c.ToType(typeof(T), null);

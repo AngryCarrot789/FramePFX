@@ -17,9 +17,12 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
-    public class DeleteSpecificTrackCommandUsage : BasicButtonCommandUsage {
-        public DeleteSpecificTrackCommandUsage() : base("DeleteSpecificTrack") {
+namespace FramePFX.Editors.Controls.Timelines.CommandContexts
+{
+    public class DeleteSpecificTrackCommandUsage : BasicButtonCommandUsage
+    {
+        public DeleteSpecificTrackCommandUsage() : base("DeleteSpecificTrack")
+        {
         }
     }
 }

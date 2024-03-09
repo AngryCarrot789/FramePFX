@@ -21,10 +21,12 @@ using System.Collections.Generic;
 using FramePFX.Editors.Exporting.FFMPEG;
 using FramePFX.Editors.Timelines;
 
-namespace FramePFX.Editors.Exporting {
+namespace FramePFX.Editors.Exporting
+{
     public delegate void ExportSetupEventHandler(ExportSetup sender);
 
-    public class ExportSetup {
+    public class ExportSetup
+    {
         private readonly List<Exporter> exporters;
 
         public IReadOnlyList<Exporter> Exporters => this.exporters;
@@ -42,7 +44,8 @@ namespace FramePFX.Editors.Exporting {
 
         public int SelectedExporterIndex {
             get => this.selectedExporterIndex;
-            set {
+            set
+            {
                 if (this.selectedExporterIndex == value)
                     return;
                 this.selectedExporterIndex = value;
@@ -51,7 +54,8 @@ namespace FramePFX.Editors.Exporting {
         }
 
         public Exporter SelectedExporter {
-            get {
+            get
+            {
                 if (this.exporters.Count < 1)
                     return null;
                 if (this.selectedExporterIndex < 0)
@@ -64,16 +68,19 @@ namespace FramePFX.Editors.Exporting {
 
         public event ExportSetupEventHandler SelectedExporterIndexChanged;
 
-        public ExportSetup(Project project, Timeline timeline) {
+        public ExportSetup(Project project, Timeline timeline)
+        {
             this.Project = project;
             this.Timeline = timeline;
-            this.exporters = new List<Exporter> {
+            this.exporters = new List<Exporter>
+            {
                 new FFmpegExporter()
             };
 
             this.Properties = new ExportProperties();
 
-            foreach (Exporter exporter in this.exporters) {
+            foreach (Exporter exporter in this.exporters)
+            {
                 exporter.LoadProjectDefaults(project);
             }
         }

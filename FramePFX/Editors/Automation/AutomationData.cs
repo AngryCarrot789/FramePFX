@@ -23,13 +23,15 @@ using FramePFX.Editors.Automation.Keyframes;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.RBC;
 
-namespace FramePFX.Editors.Automation {
+namespace FramePFX.Editors.Automation
+{
     /// <summary>
     /// Contains a collection of <see cref="AutomationSequence"/> objects mapped by an <see cref="Parameter"/>. This
     /// class is designed to be immutable; it is typically created in the constructor of an <see cref="IAutomatable"/>
     /// object, where sequences are assigned via <see cref="AssignKey"/>
     /// </summary>
-    public class AutomationData {
+    public class AutomationData
+    {
         private static readonly Comparer<Parameter> AutomationParameterComparer = Comparer<Parameter>.Create((a, b) => a.GlobalIndex.CompareTo(b.GlobalIndex));
         private readonly SortedList<Parameter, AutomationSequence> sequences;
 
@@ -48,12 +50,15 @@ namespace FramePFX.Editors.Automation {
         /// </summary>
         /// <param name="parameter"></param>
         public AutomationSequence this[Parameter parameter] {
-            get {
-                if (parameter == null) {
+            get
+            {
+                if (parameter == null)
+                {
                     throw new ArgumentNullException(nameof(parameter), "Parameter cannot be null");
                 }
 
-                if (this.sequences.TryGetValue(parameter, out AutomationSequence sequence)) {
+                if (this.sequences.TryGetValue(parameter, out AutomationSequence sequence))
+                {
                     return sequence;
                 }
 
@@ -80,7 +85,8 @@ namespace FramePFX.Editors.Automation {
         /// </summary>
         public event ParameterChangedEventHandler ParameterValueChanged;
 
-        public AutomationData(IAutomatable owner) {
+        public AutomationData(IAutomatable owner)
+        {
             this.Owner = owner ?? throw new ArgumentNullException(nameof(owner));
             this.sequences = new SortedList<Parameter, AutomationSequence>(4, AutomationParameterComparer);
         }
@@ -90,7 +96,8 @@ namespace FramePFX.Editors.Automation {
         /// </summary>
         /// <param name="parameter">The target parameter</param>
         /// <param name="handler">The event handler</param>
-        public void AddParameterChangedHandler(Parameter parameter, ParameterChangedEventHandler handler) {
+        public void AddParameterChangedHandler(Parameter parameter, ParameterChangedEventHandler handler)
+        {
             this[parameter].ParameterChanged += handler;
         }
 
@@ -99,7 +106,8 @@ namespace FramePFX.Editors.Automation {
         /// </summary>
         /// <param name="parameter">The target parameter</param>
         /// <param name="handler">The event handler</param>
-        public void RemoveParameterChangedHandler(Parameter parameter, ParameterChangedEventHandler handler) {
+        public void RemoveParameterChangedHandler(Parameter parameter, ParameterChangedEventHandler handler)
+        {
             this[parameter].ParameterChanged -= handler;
         }
 
@@ -109,8 +117,10 @@ namespace FramePFX.Editors.Automation {
         /// <param name="parameter"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public bool TryGetSequence(Parameter parameter, out AutomationSequence value) {
-            if (this.sequences.TryGetValue(parameter, out value)) {
+        public bool TryGetSequence(Parameter parameter, out AutomationSequence value)
+        {
+            if (this.sequences.TryGetValue(parameter, out value))
+            {
                 return true;
             }
 
@@ -118,22 +128,26 @@ namespace FramePFX.Editors.Automation {
             return false;
         }
 
-        public void WriteToRBE(RBEDictionary data) {
+        public void WriteToRBE(RBEDictionary data)
+        {
             if (!this.ActiveParameter.IsEmpty)
                 data.SetString(nameof(this.ActiveParameter), this.ActiveParameter.ToString());
 
             RBEList list = data.CreateList(nameof(this.Sequences));
-            foreach (AutomationSequence sequence in this.sequences.Values) {
+            foreach (AutomationSequence sequence in this.sequences.Values)
+            {
                 RBEDictionary dictionary = list.AddDictionary();
                 dictionary.SetString("KeyId", sequence.Parameter.Key.ToString());
                 sequence.WriteToRBE(dictionary);
             }
         }
 
-        public void ReadFromRBE(RBEDictionary data) {
+        public void ReadFromRBE(RBEDictionary data)
+        {
             this.ActiveParameter = ParameterKey.Parse(data.GetString(nameof(this.ActiveParameter), null), default);
             RBEList list = data.GetList(nameof(this.Sequences));
-            foreach (RBEBase rbe in list.List) {
+            foreach (RBEBase rbe in list.List)
+            {
                 if (!(rbe is RBEDictionary dictionary))
                     throw new Exception("Expected a list of dictionaries");
 
@@ -148,9 +162,11 @@ namespace FramePFX.Editors.Automation {
             this.UpdateBackingStorage();
         }
 
-        public void LoadDataIntoClone(AutomationData clone) {
+        public void LoadDataIntoClone(AutomationData clone)
+        {
             clone.ActiveParameter = this.ActiveParameter;
-            foreach (KeyValuePair<Parameter, AutomationSequence> seq in this.sequences) {
+            foreach (KeyValuePair<Parameter, AutomationSequence> seq in this.sequences)
+            {
                 AutomationSequence.LoadDataIntoClone(seq.Value, clone[seq.Key]);
             }
 
@@ -167,15 +183,19 @@ namespace FramePFX.Editors.Automation {
         /// Updates all sequences' effective values
         /// </summary>
         /// <param name="frame">The frame used to calculate the effective value</param>
-        public void UpdateAll(long frame) {
+        public void UpdateAll(long frame)
+        {
             IList<AutomationSequence> list = this.sequences.Values;
-            for (int i = 0, count = list.Count; i < count; i++) {
+            for (int i = 0, count = list.Count; i < count; i++)
+            {
                 list[i].UpdateValue(frame);
             }
         }
 
-        public void UpdateAll() {
-            if (this.Owner.GetRelativePlayHead(out long playHead)) {
+        public void UpdateAll()
+        {
+            if (this.Owner.GetRelativePlayHead(out long playHead))
+            {
                 this.UpdateAll(playHead);
             }
         }
@@ -184,31 +204,37 @@ namespace FramePFX.Editors.Automation {
         /// Updates all sequences' effective values, if there are key frames available and override is not enabled
         /// </summary>
         /// <param name="frame"></param>
-        public void UpdateAllAutomated(long frame) {
+        public void UpdateAllAutomated(long frame)
+        {
             IList<AutomationSequence> list = this.sequences.Values;
-            for (int i = 0, count = list.Count; i < count; i++) {
+            for (int i = 0, count = list.Count; i < count; i++)
+            {
                 AutomationSequence x = list[i];
                 if (x.CanAutomate)
                     x.UpdateValue(frame);
             }
         }
 
-        public bool IsParameterValid(Parameter parameter) {
+        public bool IsParameterValid(Parameter parameter)
+        {
             return parameter.OwnerType.IsInstanceOfType(this.Owner);
         }
 
-        public void ValidateParameter(Parameter parameter) {
+        public void ValidateParameter(Parameter parameter)
+        {
             if (!this.IsParameterValid(parameter))
                 throw new ArgumentException("Invalid parameter key for this automation data: " + parameter.Key + ". The owner types are incompatible");
         }
 
-        public bool IsAutomated(Parameter parameter) {
+        public bool IsAutomated(Parameter parameter)
+        {
             return this.TryGetSequence(parameter, out AutomationSequence sequence) && sequence.HasKeyFrames;
         }
 
         public void InvalidateTimelineRender() => this.Owner.Timeline?.RenderManager.InvalidateRender();
 
-        internal static void InternalOnParameterValueChanged(AutomationSequence sequence) {
+        internal static void InternalOnParameterValueChanged(AutomationSequence sequence)
+        {
             sequence.AutomationData.ParameterValueChanged?.Invoke(sequence);
             Parameter.InternalOnParameterValueChanged(sequence.Parameter, sequence);
         }

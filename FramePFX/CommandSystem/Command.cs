@@ -20,7 +20,8 @@
 using System.Threading.Tasks;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.CommandSystem {
+namespace FramePFX.CommandSystem
+{
     /// <summary>
     /// Represents some sort of action that can be executed. Commands use provided contextual
     /// information (see <see cref="CommandEventArgs.ContextData"/>) to do work. Commands do
@@ -34,10 +35,12 @@ namespace FramePFX.CommandSystem {
     /// These commands can be executed through the <see cref="CommandManager.Execute(string, Command, IContextData, bool)"/> function
     /// </para>
     /// </summary>
-    public abstract class Command {
+    public abstract class Command
+    {
         private bool IsExecuting;
 
-        protected Command() {
+        protected Command()
+        {
         }
 
         // When focus changes, raise notification to update commands
@@ -56,7 +59,8 @@ namespace FramePFX.CommandSystem {
         /// <returns>
         /// True if executing this command would most likely result in success, otherwise false
         /// </returns>
-        public virtual ExecutabilityState CanExecute(CommandEventArgs e) {
+        public virtual ExecutabilityState CanExecute(CommandEventArgs e)
+        {
             return ExecutabilityState.Executable;
         }
 
@@ -66,8 +70,10 @@ namespace FramePFX.CommandSystem {
         /// <param name="e">The command event args, containing info about the current context</param>
         public abstract Task Execute(CommandEventArgs e);
 
-        internal static bool InternalBeginExecution(Command command) {
-            if (command.IsExecuting) {
+        internal static bool InternalBeginExecution(Command command)
+        {
+            if (command.IsExecuting)
+            {
                 return false;
             }
 
@@ -75,7 +81,8 @@ namespace FramePFX.CommandSystem {
             return true;
         }
 
-        internal static void InternalEndExecution(Command command) {
+        internal static void InternalEndExecution(Command command)
+        {
             command.IsExecuting = false;
         }
     }

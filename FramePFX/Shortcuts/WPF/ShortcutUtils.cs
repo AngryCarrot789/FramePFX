@@ -21,36 +21,46 @@ using System;
 using System.Windows.Input;
 using FramePFX.Shortcuts.Inputs;
 
-namespace FramePFX.Shortcuts.WPF {
-    public static class ShortcutUtils {
-        public static void SplitValue(string input, out string shortcutId, out string usageId) {
-            if (string.IsNullOrWhiteSpace(input)) {
+namespace FramePFX.Shortcuts.WPF
+{
+    public static class ShortcutUtils
+    {
+        public static void SplitValue(string input, out string shortcutId, out string usageId)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+            {
                 shortcutId = null;
                 usageId = WPFShortcutManager.DEFAULT_USAGE_ID;
                 return;
             }
 
             int split = input.LastIndexOf(':');
-            if (split == -1) {
+            if (split == -1)
+            {
                 shortcutId = input;
                 usageId = WPFShortcutManager.DEFAULT_USAGE_ID;
             }
-            else {
+            else
+            {
                 shortcutId = input.Substring(0, split);
-                if (string.IsNullOrWhiteSpace(shortcutId)) {
+                if (string.IsNullOrWhiteSpace(shortcutId))
+                {
                     shortcutId = null;
                 }
 
                 usageId = input.Substring(split + 1);
-                if (string.IsNullOrWhiteSpace(usageId)) {
+                if (string.IsNullOrWhiteSpace(usageId))
+                {
                     usageId = WPFShortcutManager.DEFAULT_USAGE_ID;
                 }
             }
         }
 
-        public static bool GetKeyStrokeForEvent(KeyEventArgs e, out KeyStroke stroke, bool isRelease) {
+        public static bool GetKeyStrokeForEvent(KeyEventArgs e, out KeyStroke stroke, bool isRelease)
+        {
             Key key = e.Key == Key.System ? e.SystemKey : e.Key;
-            if (IsModifierKey(key) || key == Key.DeadCharProcessed) {
+            if (IsModifierKey(key) || key == Key.DeadCharProcessed)
+            {
                 stroke = default;
                 return false;
             }
@@ -59,19 +69,24 @@ namespace FramePFX.Shortcuts.WPF {
             return true;
         }
 
-        public static MouseStroke GetMouseStrokeForEvent(MouseButtonEventArgs e) {
+        public static MouseStroke GetMouseStrokeForEvent(MouseButtonEventArgs e)
+        {
             return new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, e.ButtonState == MouseButtonState.Released, e.ClickCount);
         }
 
-        public static bool GetMouseStrokeForEvent(MouseWheelEventArgs e, out MouseStroke stroke) {
+        public static bool GetMouseStrokeForEvent(MouseWheelEventArgs e, out MouseStroke stroke)
+        {
             int button;
-            if (e.Delta < 0) {
+            if (e.Delta < 0)
+            {
                 button = WPFShortcutManager.BUTTON_WHEEL_DOWN;
             }
-            else if (e.Delta > 0) {
+            else if (e.Delta > 0)
+            {
                 button = WPFShortcutManager.BUTTON_WHEEL_UP;
             }
-            else {
+            else
+            {
                 stroke = default;
                 return false;
             }
@@ -80,14 +95,18 @@ namespace FramePFX.Shortcuts.WPF {
             return true;
         }
 
-        public static void EnforceIdFormat(string id, string paramName) {
-            if (string.IsNullOrWhiteSpace(id)) {
+        public static void EnforceIdFormat(string id, string paramName)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+            {
                 throw new Exception($"{paramName} cannot be null/empty or consist of whitespaces only");
             }
         }
 
-        public static bool IsModifierKey(Key key) {
-            switch (key) {
+        public static bool IsModifierKey(Key key)
+        {
+            switch (key)
+            {
                 case Key.LeftCtrl:
                 case Key.RightCtrl:
                 case Key.LeftAlt:

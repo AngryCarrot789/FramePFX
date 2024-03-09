@@ -17,9 +17,12 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Editors.Controls.Timelines.CommandContexts {
-    public class NewVideoTrackCommandUsage : BasicButtonCommandUsage {
-        public NewVideoTrackCommandUsage() : base("NewVideoTrack") {
+namespace FramePFX.Editors.Controls.Timelines.CommandContexts
+{
+    public class NewVideoTrackCommandUsage : BasicButtonCommandUsage
+    {
+        public NewVideoTrackCommandUsage() : base("NewVideoTrack")
+        {
         }
     }
 }

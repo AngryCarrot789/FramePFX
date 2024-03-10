@@ -51,7 +51,8 @@ namespace FramePFX.Editors.Controls.Automation
         public LineHitType LastLineHitType;
         internal bool InitialPreventRemoveOnMouseUp;
 
-        public KeyFramePoint Next {
+        public KeyFramePoint Next
+        {
             get
             {
                 int index = this.Index + 1;
@@ -60,7 +61,8 @@ namespace FramePFX.Editors.Controls.Automation
             }
         }
 
-        public KeyFramePoint Prev {
+        public KeyFramePoint Prev
+        {
             get
             {
                 int index = this.Index - 1;

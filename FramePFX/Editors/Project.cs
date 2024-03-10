@@ -44,7 +44,8 @@ namespace FramePFX.Editors
         /// on (e.g. cutting clips) and is also the timeline that is rendered to the UI
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
-        public Timeline ActiveTimeline {
+        public Timeline ActiveTimeline
+        {
             get => this.activeTimeline;
             set
             {
@@ -94,7 +95,8 @@ namespace FramePFX.Editors
         /// Gets or sets the readable name of this project. This may be differently named from the saved file path.
         /// This can be changed at any time and fires the <see cref="ProjectNameChanged"/>
         /// </summary>
-        public string ProjectName {
+        public string ProjectName
+        {
             get => this.projectName;
             set
             {
@@ -127,7 +129,8 @@ namespace FramePFX.Editors
         /// </summary>
         public string DataFolderPath { get; private set; }
 
-        public bool IsSaving {
+        public bool IsSaving
+        {
             get => this.isSaving;
             set
             {
@@ -300,7 +303,8 @@ namespace FramePFX.Editors
                         project.Destroy();
                     }
                     catch
-                    { /* ignored */
+                    {
+                        /* ignored */
                     }
 
                     throw;

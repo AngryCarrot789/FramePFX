@@ -39,22 +39,26 @@ namespace FramePFX.Services.WPF.Messages
         public static readonly DependencyProperty IsValueValidProperty = IsValueValidPropertyKey.DependencyProperty;
         public static readonly DependencyProperty ValidatorProperty = DependencyProperty.Register("Validator", typeof(Predicate<string>), typeof(SingleInputDialog), new PropertyMetadata(null, OnValidatorChanged));
 
-        public string Message {
+        public string Message
+        {
             get => (string) this.GetValue(MessageProperty);
             set => this.SetValue(MessageProperty, value);
         }
 
-        public string InputValue {
+        public string InputValue
+        {
             get => (string) this.GetValue(InputValueProperty);
             set => this.SetValue(InputValueProperty, value);
         }
 
-        public bool IsEmptyStringAllowed {
+        public bool IsEmptyStringAllowed
+        {
             get => (bool) this.GetValue(IsEmptyStringAllowedProperty);
             set => this.SetValue(IsEmptyStringAllowedProperty, value.Box());
         }
 
-        public bool IsValueValid {
+        public bool IsValueValid
+        {
             get => (bool) this.GetValue(IsValueValidProperty);
             private set => this.SetValue(IsValueValidPropertyKey, value.Box());
         }
@@ -62,7 +66,8 @@ namespace FramePFX.Services.WPF.Messages
         /// <summary>
         /// A predicate that validates the text input value
         /// </summary>
-        public Predicate<string> Validator {
+        public Predicate<string> Validator
+        {
             get => (Predicate<string>) this.GetValue(ValidatorProperty);
             set => this.SetValue(ValidatorProperty, value);
         }
@@ -114,7 +119,8 @@ namespace FramePFX.Services.WPF.Messages
             if (this.explicitDialogResult.HasValue)
             {
                 if (this.explicitDialogResult.Value && this.IsValueValid)
-                { // check is valid again just in case
+                {
+                    // check is valid again just in case
                     message = this.InputValue;
                     return true;
                 }

@@ -46,7 +46,8 @@ namespace FramePFX.RBC
     {
         public byte[] Array { get; set; }
 
-        public bool IsEmpty {
+        public bool IsEmpty
+        {
             get => this.Array == null || this.Array.Length == 0;
         }
 
@@ -92,7 +93,8 @@ namespace FramePFX.RBC
     {
         public short[] Array { get; set; }
 
-        public bool IsEmpty {
+        public bool IsEmpty
+        {
             get => this.Array == null || this.Array.Length == 0;
         }
 
@@ -148,7 +150,8 @@ namespace FramePFX.RBC
     {
         public int[] Array { get; set; }
 
-        public bool IsEmpty {
+        public bool IsEmpty
+        {
             get => this.Array == null || this.Array.Length == 0;
         }
 
@@ -204,7 +207,8 @@ namespace FramePFX.RBC
     {
         public long[] Array { get; set; }
 
-        public bool IsEmpty {
+        public bool IsEmpty
+        {
             get => this.Array == null || this.Array.Length == 0;
         }
 
@@ -260,7 +264,8 @@ namespace FramePFX.RBC
     {
         public float[] Array { get; set; }
 
-        public bool IsEmpty {
+        public bool IsEmpty
+        {
             get => this.Array == null || this.Array.Length == 0;
         }
 
@@ -313,7 +318,8 @@ namespace FramePFX.RBC
     {
         public double[] Array { get; set; }
 
-        public bool IsEmpty {
+        public bool IsEmpty
+        {
             get => this.Array == null || this.Array.Length == 0;
         }
 

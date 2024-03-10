@@ -46,9 +46,10 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
         IValueProvider,
         IInvokeProvider
     {
-#region Public properties
+        #region Public properties
 
-        public ExpandCollapseState ExpandCollapseState {
+        public ExpandCollapseState ExpandCollapseState
+        {
             get
             {
                 MultiSelectTreeViewItem treeViewItem = (MultiSelectTreeViewItem) this.Owner;
@@ -66,9 +67,9 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
             }
         }
 
-#endregion Public properties
+        #endregion Public properties
 
-#region Constructor
+        #region Constructor
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MultiSelectTreeViewItemAutomationPeer"/>
@@ -83,16 +84,16 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
         {
         }
 
-#endregion Constructor
+        #endregion Constructor
 
-#region IInvokeProvider members
+        #region IInvokeProvider members
 
         public void Invoke()
         {
             ((MultiSelectTreeViewItem) this.Owner).InvokeMouseDown();
         }
 
-#endregion IInvokeProvider members
+        #endregion IInvokeProvider members
 
         protected override Rect GetBoundingRectangleCore()
         {
@@ -202,16 +203,18 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
             }
         }
 
-#region Explicit interface properties
+        #region Explicit interface properties
 
-        bool ISelectionItemProvider.IsSelected {
+        bool ISelectionItemProvider.IsSelected
+        {
             get
             {
                 return ((MultiSelectTreeViewItem) this.Owner).IsSelected;
             }
         }
 
-        IRawElementProviderSimple ISelectionItemProvider.SelectionContainer {
+        IRawElementProviderSimple ISelectionItemProvider.SelectionContainer
+        {
             get
             {
                 ItemsControl parentItemsControl = ((MultiSelectTreeViewItem) this.Owner).ParentTreeView;
@@ -228,9 +231,9 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
             }
         }
 
-#endregion Explicit interface properties
+        #endregion Explicit interface properties
 
-#region Public methods
+        #region Public methods
 
         public void Collapse()
         {
@@ -289,9 +292,9 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
             return base.GetPattern(patternInterface);
         }
 
-#endregion Public methods
+        #endregion Public methods
 
-#region Explicit interface methods
+        #region Explicit interface methods
 
         void IScrollItemProvider.ScrollIntoView()
         {
@@ -313,9 +316,9 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
             ((MultiSelectTreeViewItem) this.Owner).ParentTreeView.Selection.SelectCore((MultiSelectTreeViewItem) this.Owner);
         }
 
-#endregion Explicit interface methods
+        #endregion Explicit interface methods
 
-#region Methods
+        #region Methods
 
         protected override ItemAutomationPeer CreateItemAutomationPeer(object item)
         {
@@ -332,11 +335,12 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
             return "MultiSelectTreeViewItem";
         }
 
-#endregion Methods
+        #endregion Methods
 
-#region IValueProvider members
+        #region IValueProvider members
 
-        public bool IsReadOnly {
+        public bool IsReadOnly
+        {
             get { return false; }
         }
 
@@ -379,7 +383,8 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
             }
         }
 
-        public string Value {
+        public string Value
+        {
             get
             {
                 if (this.requestedValue == null)
@@ -392,6 +397,6 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
             }
         }
 
-#endregion IValueProvider members
+        #endregion IValueProvider members
     }
 }

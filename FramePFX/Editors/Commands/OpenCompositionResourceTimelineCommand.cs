@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Contextual;
 using FramePFX.Editors.ResourceManaging;
@@ -27,24 +26,22 @@ namespace FramePFX.Editors.Commands
 {
     public class OpenCompositionResourceTimelineCommand : Command
     {
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        public override Executability CanExecute(CommandEventArgs e)
         {
             if (!ResourceContextRegistry.GetSingleSelection(e.ContextData, out BaseResource resource))
-                return resource == null ? ExecutabilityState.Invalid : ExecutabilityState.ValidButCannotExecute;
+                return resource == null ? Executability.Invalid : Executability.ValidButCannotExecute;
             // if the composition tl is already active, just say cannot execute
             if (!(resource is ResourceComposition composition) || composition.Manager.Project.ActiveTimeline == composition.Timeline)
-                return ExecutabilityState.ValidButCannotExecute;
-            return ExecutabilityState.Executable;
+                return Executability.ValidButCannotExecute;
+            return Executability.Valid;
         }
 
-        public override Task Execute(CommandEventArgs e)
+        protected override void Execute(CommandEventArgs e)
         {
             if (ResourceContextRegistry.GetSingleSelection(e.ContextData, out BaseResource resource) && resource is ResourceComposition composition)
             {
                 composition.Manager.Project.ActiveTimeline = composition.Timeline;
             }
-
-            return Task.CompletedTask;
         }
     }
 }

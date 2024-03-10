@@ -1,6 +1,5 @@
 // #define PRINT_DEBUG_KEYSTROKES
 
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
@@ -18,15 +17,14 @@ namespace FramePFX.Shortcuts.WPF
         public new WPFShortcutManager Manager => (WPFShortcutManager) base.Manager;
 
         /// <summary>
-        /// The dependency object that was focused at the time of the input stroke
+        /// The dependency object that was involved during the input event. This is usually the focused element
+        /// during a key event, or the element the mouse was over during a mouse event (via hit testing)
         /// </summary>
-        public DependencyObject CurrentSource { get; private set; }
+        public DependencyObject CurrentTargetObject { get; private set; }
 
         private IContextData lazyCurrentContextData;
 
-        public WPFShortcutInputManager(WPFShortcutManager manager) : base(manager)
-        {
-        }
+        public WPFShortcutInputManager(WPFShortcutManager manager) : base(manager) { }
 
         public static bool CanProcessEventType(DependencyObject obj, bool isPreviewEvent)
         {
@@ -57,23 +55,21 @@ namespace FramePFX.Shortcuts.WPF
             }
         }
 
-        public void BeginInputProcessing(DependencyObject obj)
+        public void BeginInputProcessing(DependencyObject target)
         {
-            this.CurrentSource = obj;
+            this.CurrentTargetObject = target;
         }
 
         private void EndInputProcessing()
         {
             this.lazyCurrentContextData = null;
-            this.CurrentSource = null;
+            this.CurrentTargetObject = null;
         }
 
-        public async void OnInputSourceKeyEvent(WPFShortcutInputManager processor, DependencyObject focused, KeyEventArgs e, Key key, bool isRelease, bool isPreviewEvent)
+        public void OnInputSourceKeyEvent(WPFShortcutInputManager processor, DependencyObject focused, KeyEventArgs e, Key key, bool isRelease, bool isPreviewEvent)
         {
             if (!CanProcessEventType(focused, isPreviewEvent) || !CanProcessKeyEvent(focused, e))
-            {
                 return;
-            }
 
             try
             {
@@ -81,16 +77,7 @@ namespace FramePFX.Shortcuts.WPF
                 this.BeginInputProcessing(focused);
                 ModifierKeys mods = ShortcutUtils.IsModifierKey(key) ? ModifierKeys.None : e.KeyboardDevice.Modifiers;
                 KeyStroke stroke = new KeyStroke((int) key, (int) mods, isRelease);
-                Task<bool> task = processor.OnKeyStroke(UIInputManager.Instance.FocusedPath, stroke, e.IsRepeat);
-                if (task.IsCompleted)
-                {
-                    e.Handled = await task;
-                }
-                else
-                {
-                    e.Handled = true;
-                    await task;
-                }
+                e.Handled = processor.OnKeyStroke(UIInputManager.Instance.FocusedPath, stroke, e.IsRepeat);
             }
             finally
             {
@@ -99,23 +86,14 @@ namespace FramePFX.Shortcuts.WPF
             }
         }
 
-        public async void OnInputSourceMouseButton(DependencyObject focused, MouseButtonEventArgs e, bool isRelease)
+        public void OnInputSourceMouseButton(DependencyObject target, MouseButtonEventArgs e, bool isRelease)
         {
             try
             {
                 this.isProcessingMouse = true;
-                this.BeginInputProcessing(focused);
+                this.BeginInputProcessing(target);
                 MouseStroke stroke = new MouseStroke((int) e.ChangedButton, (int) Keyboard.Modifiers, isRelease, e.ClickCount);
-                Task<bool> task = this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke);
-                if (task.IsCompleted)
-                {
-                    e.Handled = await task;
-                }
-                else
-                {
-                    e.Handled = true;
-                    await task;
-                }
+                e.Handled = this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke);
             }
             finally
             {
@@ -124,37 +102,19 @@ namespace FramePFX.Shortcuts.WPF
             }
         }
 
-        public async void OnInputSourceMouseWheel(DependencyObject focused, MouseWheelEventArgs e)
+        public void OnInputSourceMouseWheel(DependencyObject target, MouseWheelEventArgs e)
         {
-            int button;
-            if (e.Delta < 0)
-            {
-                button = WPFShortcutManager.BUTTON_WHEEL_DOWN;
-            }
-            else if (e.Delta > 0)
-            {
-                button = WPFShortcutManager.BUTTON_WHEEL_UP;
-            }
-            else
-            {
+            if (e.Delta == 0)
                 return;
-            }
+
+            int button = e.Delta < 0 ? WPFShortcutManager.BUTTON_WHEEL_DOWN : WPFShortcutManager.BUTTON_WHEEL_UP;
 
             try
             {
                 this.isProcessingMouse = true;
-                this.BeginInputProcessing(focused);
+                this.BeginInputProcessing(target);
                 MouseStroke stroke = new MouseStroke(button, (int) Keyboard.Modifiers, false, 0, e.Delta);
-                Task<bool> task = this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke);
-                if (task.IsCompleted)
-                {
-                    e.Handled = await task;
-                }
-                else
-                {
-                    e.Handled = true;
-                    await task;
-                }
+                e.Handled = this.OnMouseStroke(UIInputManager.Instance.FocusedPath, stroke);
             }
             finally
             {
@@ -167,9 +127,9 @@ namespace FramePFX.Shortcuts.WPF
         {
             if (this.lazyCurrentContextData == null)
             {
-                if (this.CurrentSource == null)
+                if (this.CurrentTargetObject == null)
                     return null;
-                this.lazyCurrentContextData = DataManager.GetFullContextData(this.CurrentSource);
+                this.lazyCurrentContextData = DataManager.GetFullContextData(this.CurrentTargetObject);
             }
 
             return this.lazyCurrentContextData;

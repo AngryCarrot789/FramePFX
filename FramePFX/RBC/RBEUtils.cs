@@ -28,7 +28,8 @@ namespace FramePFX.RBC
     {
         private static Encoding defaultEncoding = Encoding.UTF8;
 
-        public static Encoding DefaultEncoding {
+        public static Encoding DefaultEncoding
+        {
             get => defaultEncoding;
             set => defaultEncoding = value ?? throw new ArgumentNullException(nameof(value), "Default encoding value cannot be null");
         }

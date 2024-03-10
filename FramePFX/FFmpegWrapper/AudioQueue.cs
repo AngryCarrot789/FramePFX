@@ -19,7 +19,8 @@ namespace FramePFX.FFmpegWrapper
     {
         private AVAudioFifo* _fifo;
 
-        public AVAudioFifo* Handle {
+        public AVAudioFifo* Handle
+        {
             get
             {
                 this.ValidateNotDisposed();

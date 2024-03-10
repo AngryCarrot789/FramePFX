@@ -54,7 +54,8 @@ namespace FramePFX.Shortcuts.Managing
         /// The input stroke that activates this key state (as in, sets <see cref="IsActive"/> to true)
         /// </summary>
         /// <exception cref="ArgumentNullException">Value cannot be null</exception>
-        public IInputStroke ActivationStroke {
+        public IInputStroke ActivationStroke
+        {
             get => this.activationStroke;
             set
             {
@@ -67,7 +68,8 @@ namespace FramePFX.Shortcuts.Managing
         /// The input stroke that deactivates this key state (as in, sets <see cref="IsActive"/> to false)
         /// </summary>
         /// <exception cref="ArgumentNullException">Value cannot be null</exception>
-        public IInputStroke DeactivationStroke {
+        public IInputStroke DeactivationStroke
+        {
             get => this.deactivationStroke;
             set
             {
@@ -81,7 +83,8 @@ namespace FramePFX.Shortcuts.Managing
         /// pressed then released. This is a special case used by the <see cref="InputStateManager"/>
         /// </summary>
         /// <value>See above</value>
-        public bool IsInputPressAndRelease {
+        public bool IsInputPressAndRelease
+        {
             get
             {
                 if (!this.isPressAndRelease.HasValue)
@@ -103,7 +106,8 @@ namespace FramePFX.Shortcuts.Managing
         /// <summary>
         /// Whether this input state's activation and deactivation stroke are equal, meaning it behaves like a toggle state
         /// </summary>
-        public bool IsUsingToggleBehaviour {
+        public bool IsUsingToggleBehaviour
+        {
             get
             {
                 if (!this.isToggleBehaviour.HasValue)

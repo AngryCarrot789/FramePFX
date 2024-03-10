@@ -27,7 +27,8 @@ namespace FramePFX.Editors.Controls.EffectProviding
     {
         public static readonly DependencyProperty EffectProviderManagerProperty = DependencyProperty.Register("EffectProviderManager", typeof(EffectProviderManager), typeof(EffectProviderListBox), new PropertyMetadata(null, (d, e) => ((EffectProviderListBox) d).OnProviderManagerChanged((EffectProviderManager) e.OldValue, (EffectProviderManager) e.NewValue)));
 
-        public EffectProviderManager EffectProviderManager {
+        public EffectProviderManager EffectProviderManager
+        {
             get => (EffectProviderManager) this.GetValue(EffectProviderManagerProperty);
             set => this.SetValue(EffectProviderManagerProperty, value);
         }

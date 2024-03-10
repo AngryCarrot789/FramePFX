@@ -76,7 +76,8 @@ namespace FramePFX.Editors.ResourceManaging
         /// Gets or sets the current folder that is being displayed to the user. This value will never be null,
         /// and assigning it to null will result in <see cref="RootContainer"/> being used instead
         /// </summary>
-        public ResourceFolder CurrentFolder {
+        public ResourceFolder CurrentFolder
+        {
             get => this.currentFolder;
             set
             {
@@ -200,7 +201,7 @@ namespace FramePFX.Editors.ResourceManaging
             ResourceFolder.ClearHierarchy(this.RootContainer, true);
         }
 
-#region Static Helper Functions
+        #region Static Helper Functions
 
         // For the most part, these functions below should never return false due the the fact that a user would
         // need millions of added resources. Their system would run out of RAM before these functions fail
@@ -216,7 +217,7 @@ namespace FramePFX.Editors.ResourceManaging
             return TextIncrement.GetIncrementableString(accept, $"{file}::{streamName}", out output, 10000);
         }
 
-#endregion
+        #endregion
 
         internal static void InternalProcessResourceSelectionChanged(BaseResource resource)
         {

@@ -111,20 +111,23 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AdvancedMenuService\ContextCapturingMenu.cs" />
     <Compile Include="AdvancedMenuService\ContextService\BaseContextEntry.cs" />
     <Compile Include="AdvancedMenuService\ContextService\CommandContextEntry.cs" />
+    <Compile Include="AdvancedMenuService\ContextService\Controls\AdvancedContextCommandMenuItem.cs" />
+    <Compile Include="AdvancedMenuService\ContextService\Controls\AdvancedContextEventMenuItem.cs" />
+    <Compile Include="AdvancedMenuService\ContextService\Controls\AdvancedContextMenu.cs" />
+    <Compile Include="AdvancedMenuService\ContextService\Controls\AdvancedContextMenuItem.cs" />
     <Compile Include="AdvancedMenuService\ContextService\EventContextEntry.cs" />
     <Compile Include="AdvancedMenuService\ContextService\GroupContextEntry.cs" />
     <Compile Include="AdvancedMenuService\ContextService\IContextEntry.cs" />
     <Compile Include="AdvancedMenuService\ContextService\IContextGenerator.cs" />
     <Compile Include="AdvancedMenuService\ContextService\SeparatorEntry.cs" />
-    <Compile Include="AdvancedMenuService\ContextService\Controls\AdvancedContextCommandMenuItem.cs" />
-    <Compile Include="AdvancedMenuService\ContextService\Controls\AdvancedContextEventMenuItem.cs" />
-    <Compile Include="AdvancedMenuService\ContextService\Controls\AdvancedContextMenu.cs" />
-    <Compile Include="AdvancedMenuService\ContextService\Controls\AdvancedContextMenuItem.cs" />
-    <Compile Include="AdvancedMenuService\ContextService\Controls\IAdvancedMenu.cs" />
-    <Compile Include="AdvancedMenuService\Controls\AdvancedCommandMenuItem.cs" />
-    <Compile Include="AdvancedMenuService\Controls\ContextCapturingMenu.cs" />
+    <Compile Include="AdvancedMenuService\IAdvancedContainer.cs" />
+    <Compile Include="AdvancedMenuService\MenuService.cs" />
+    <Compile Include="AdvancedMenuService\RegularMenuService\AdvancedMenuItem.cs" />
+    <Compile Include="AdvancedMenuService\RegularMenuService\AdvancedRegularMenu.cs" />
+    <Compile Include="AdvancedMenuService\StandAlone\CommandMenuItem.cs" />
     <Compile Include="ApplicationCore.cs" />
     <Compile Include="Behaviours\Behaviour.cs" />
     <Compile Include="Behaviours\BehaviourBase.cs" />
@@ -133,7 +136,16 @@
     <Compile Include="Behaviours\IBehaviour.cs" />
     <Compile Include="Behaviours\TestBlueBackgroundBehaviour.cs" />
     <Compile Include="Behaviours\ThingyBehaviourEx.cs" />
-    <Compile Include="CommandSystem\ExecutabilityState.cs" />
+    <Compile Include="CommandSystem\AsyncCommand.cs" />
+    <Compile Include="CommandSystem\Command.cs" />
+    <Compile Include="CommandSystem\CommandEventArgs.cs" />
+    <Compile Include="CommandSystem\CommandGroup.cs" />
+    <Compile Include="CommandSystem\CommandManager.cs" />
+    <Compile Include="CommandSystem\Executability.cs" />
+    <Compile Include="CommandSystem\SimpleCommandGroup.cs" />
+    <Compile Include="CommandSystem\ToggleBasedCommand.cs" />
+    <Compile Include="CommandSystem\Usages\BasicButtonCommandUsage.cs" />
+    <Compile Include="CommandSystem\Usages\CommandSourceCommandUsage.cs" />
     <Compile Include="CommandSystem\Usages\CommandUsage.cs" />
     <Compile Include="CommandSystem\Usages\CommandUsageManager.cs" />
     <Compile Include="Converters\EmptyStringToVisibilityConverter.cs" />
@@ -229,9 +241,9 @@
     <Compile Include="Editors\Rational.cs" />
     <Compile Include="Editors\Rendering\EnumRenderQuality.cs" />
     <Compile Include="Editors\RenderLockedData.cs" />
-    <Compile Include="Editors\ResourceManaging\Actions\ChangeResourceOnlineStateCommand.cs" />
-    <Compile Include="Editors\ResourceManaging\Actions\DeleteResourcesCommand.cs" />
-    <Compile Include="Editors\ResourceManaging\Actions\GroupResourcesCommand.cs" />
+    <Compile Include="Editors\ResourceManaging\Commands\ChangeResourceOnlineStateCommand.cs" />
+    <Compile Include="Editors\ResourceManaging\Commands\DeleteResourcesCommand.cs" />
+    <Compile Include="Editors\ResourceManaging\Commands\GroupResourcesCommand.cs" />
     <Compile Include="Editors\ResourceManaging\Autoloading\Controls\InvalidImagePathEntryControl.cs" />
     <Compile Include="Editors\ResourceManaging\Autoloading\Controls\InvalidMediaPathEntryControl.cs" />
     <Compile Include="Editors\ResourceManaging\Autoloading\Controls\InvalidResourceEntryControl.cs" />
@@ -340,15 +352,26 @@
     <Compile Include="Natives\PFXNative.cs" />
     <Compile Include="Notifications\Notification.cs" />
     <Compile Include="Notifications\NotificationManager.cs" />
+    <Compile Include="Shortcuts\Managing\GroupedInputState.cs" />
+    <Compile Include="Shortcuts\Managing\GroupedShortcut.cs" />
+    <Compile Include="Shortcuts\Managing\GroupEvaulationArgs.cs" />
+    <Compile Include="Shortcuts\Managing\IGroupedObject.cs" />
+    <Compile Include="Shortcuts\Managing\InputStateManager.cs" />
+    <Compile Include="Shortcuts\Managing\RepeatMode.cs" />
+    <Compile Include="Shortcuts\Managing\ShortcutCollectorArgs.cs" />
+    <Compile Include="Shortcuts\Managing\ShortcutGroup.cs" />
+    <Compile Include="Shortcuts\Managing\ShortcutInputManager.cs" />
+    <Compile Include="Shortcuts\Managing\ShortcutManager.cs" />
+    <Compile Include="Shortcuts\WPF\ActivationHandlerReference.cs" />
+    <Compile Include="Shortcuts\WPF\ShortcutActivateHandler.cs" />
+    <Compile Include="Shortcuts\WPF\ShortcutUtils.cs" />
+    <Compile Include="Shortcuts\WPF\UIInputManager.cs" />
+    <Compile Include="Shortcuts\WPF\WPFKeyMapSerialiser.cs" />
+    <Compile Include="Shortcuts\WPF\WPFShortcutInputManager.cs" />
+    <Compile Include="Shortcuts\WPF\WPFShortcutManager.cs" />
     <Compile Include="Tasks\ActivityDialog.xaml.cs">
       <DependentUpon>ActivityDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Tasks\ActivityTask.cs" />
-    <Compile Include="Tasks\CompletionRange.cs" />
-    <Compile Include="Tasks\DefaultProgressTracker.cs" />
-    <Compile Include="Tasks\EmptyActivityProgress.cs" />
-    <Compile Include="Tasks\IActivityProgress.cs" />
-    <Compile Include="Tasks\StandardActivityControl.cs" />
     <Compile Include="PropertyEditing\Automation\ParameterBooleanPropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\Automation\ParameterLongPropertyEditorSlot.cs" />
     <Compile Include="PropertyEditing\Controls\Automation\KeyFrameToolsControl.cs" />
@@ -441,16 +464,6 @@
     <Compile Include="Shortcuts\Keymapping\IKeymapSerialiser.cs" />
     <Compile Include="Shortcuts\Keymapping\Keymap.cs" />
     <Compile Include="Shortcuts\Keymapping\XMLShortcutSerialiser.cs" />
-    <Compile Include="Shortcuts\Managing\GroupedInputState.cs" />
-    <Compile Include="Shortcuts\Managing\GroupedShortcut.cs" />
-    <Compile Include="Shortcuts\Managing\GroupEvaulationArgs.cs" />
-    <Compile Include="Shortcuts\Managing\IGroupedObject.cs" />
-    <Compile Include="Shortcuts\Managing\InputStateManager.cs" />
-    <Compile Include="Shortcuts\Managing\RepeatMode.cs" />
-    <Compile Include="Shortcuts\Managing\ShortcutCollectorArgs.cs" />
-    <Compile Include="Shortcuts\Managing\ShortcutGroup.cs" />
-    <Compile Include="Shortcuts\Managing\ShortcutInputManager.cs" />
-    <Compile Include="Shortcuts\Managing\ShortcutManager.cs" />
     <Compile Include="Shortcuts\MouseKeyboardShortcut.cs" />
     <Compile Include="Shortcuts\MouseShortcut.cs" />
     <Compile Include="Shortcuts\ShortcutUtils.cs" />
@@ -460,7 +473,6 @@
     <Compile Include="Shortcuts\Usage\KeyboardShortcutUsage.cs" />
     <Compile Include="Shortcuts\Usage\MouseKeyboardShortcutUsage.cs" />
     <Compile Include="Shortcuts\Usage\MouseShortcutUsage.cs" />
-    <Compile Include="Shortcuts\WPF\ActivationHandlerReference.cs" />
     <Compile Include="Shortcuts\WPF\Converters\CommandIdToGestureConverter.cs" />
     <Compile Include="Shortcuts\WPF\Converters\KeyStrokeStringConverter.cs" />
     <Compile Include="Shortcuts\WPF\Converters\MouseStrokeStringConverter.cs" />
@@ -468,12 +480,12 @@
     <Compile Include="Shortcuts\WPF\Converters\ShortcutIdToHeaderConverter.cs" />
     <Compile Include="Shortcuts\WPF\Converters\ShortcutIdToToolTipConverter.cs" />
     <Compile Include="Shortcuts\WPF\Converters\ShortcutPathToInputGestureTextConverter.cs" />
-    <Compile Include="Shortcuts\WPF\ShortcutActivateHandler.cs" />
-    <Compile Include="Shortcuts\WPF\ShortcutUtils.cs" />
-    <Compile Include="Shortcuts\WPF\UIInputManager.cs" />
-    <Compile Include="Shortcuts\WPF\WPFKeyMapSerialiser.cs" />
-    <Compile Include="Shortcuts\WPF\WPFShortcutInputManager.cs" />
-    <Compile Include="Shortcuts\WPF\WPFShortcutManager.cs" />
+    <Compile Include="Tasks\ActivityTask.cs" />
+    <Compile Include="Tasks\CompletionRange.cs" />
+    <Compile Include="Tasks\DefaultProgressTracker.cs" />
+    <Compile Include="Tasks\EmptyActivityProgress.cs" />
+    <Compile Include="Tasks\IActivityProgress.cs" />
+    <Compile Include="Tasks\StandardActivityControl.cs" />
     <Compile Include="Tasks\TaskManager.cs" />
     <Compile Include="Themes\Attached\CornerRadiusHelper.cs" />
     <Compile Include="Themes\Attached\MenuHelper.cs" />
@@ -527,6 +539,7 @@
     <Compile Include="Utils\DynamicCodeConverter.cs" />
     <Compile Include="Utils\ErrorList.cs" />
     <Compile Include="Utils\EventArgsCache.cs" />
+    <Compile Include="Utils\ExceptionEventHandler.cs" />
     <Compile Include="Utils\ExceptionUtils.cs" />
     <Compile Include="Utils\Expressions\BasicNumericExpression.cs" />
     <Compile Include="Utils\Expressions\ComplexNumericExpression.cs" />
@@ -552,9 +565,11 @@
     <Compile Include="Utils\Periodic.cs" />
     <Compile Include="Utils\PrecisionTimer.cs" />
     <Compile Include="Utils\RandomUtils.cs" />
-    <Compile Include="Utils\RapidDispatchAction.cs" />
     <Compile Include="Utils\LimitedRapidDispatchAction.cs" />
-    <Compile Include="Utils\RapidDispatchActionEx.cs" />
+    <Compile Include="Utils\RDA\IRapidDispatchAction.cs" />
+    <Compile Include="Utils\RDA\RapidDispatchAction.cs" />
+    <Compile Include="Utils\RDA\RapidDispatchActionEx.cs" />
+    <Compile Include="Utils\RDA\TestRDA.cs" />
     <Compile Include="Utils\Rect2d.cs" />
     <Compile Include="Utils\Rect2i.cs" />
     <Compile Include="Utils\Reference.cs" />
@@ -576,6 +591,7 @@
     <Compile Include="Utils\Time.cs" />
     <Compile Include="Utils\TypeUtils.cs" />
     <Compile Include="Utils\UIUtils.cs" />
+    <Compile Include="Utils\Validate.cs" />
     <Compile Include="Utils\Vec2i.cs" />
     <Compile Include="Utils\Vectors.cs" />
     <Compile Include="Utils\Visuals\VisualAncestorChangedEventInterface.cs" />
@@ -647,10 +663,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="CommandSystem\CommandManager.cs" />
-    <Compile Include="CommandSystem\Command.cs" />
-    <Compile Include="CommandSystem\CommandEventArgs.cs" />
-    <Compile Include="CommandSystem\ToggleBasedCommand.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>

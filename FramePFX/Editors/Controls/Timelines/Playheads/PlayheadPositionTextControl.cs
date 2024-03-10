@@ -31,22 +31,26 @@ namespace FramePFX.Editors.Controls.Timelines.Playheads
         public static readonly DependencyProperty TotalFrameDurationProperty = DependencyProperty.Register("TotalFrameDuration", typeof(long), typeof(PlayheadPositionTextControl), new FrameworkPropertyMetadata(0L));
         public static readonly DependencyProperty LargestFrameInUseProperty = DependencyProperty.Register("LargestFrameInUse", typeof(long), typeof(PlayheadPositionTextControl), new PropertyMetadata(0L));
 
-        public Timeline Timeline {
+        public Timeline Timeline
+        {
             get => (Timeline) this.GetValue(TimelineProperty);
             set => this.SetValue(TimelineProperty, value);
         }
 
-        public long PlayHeadPosition {
+        public long PlayHeadPosition
+        {
             get => (long) this.GetValue(PlayHeadPositionProperty);
             set => this.SetValue(PlayHeadPositionProperty, value);
         }
 
-        public long TotalFrameDuration {
+        public long TotalFrameDuration
+        {
             get => (long) this.GetValue(TotalFrameDurationProperty);
             set => this.SetValue(TotalFrameDurationProperty, value);
         }
 
-        public long LargestFrameInUse {
+        public long LargestFrameInUse
+        {
             get => (long) this.GetValue(LargestFrameInUseProperty);
             set => this.SetValue(LargestFrameInUseProperty, value);
         }

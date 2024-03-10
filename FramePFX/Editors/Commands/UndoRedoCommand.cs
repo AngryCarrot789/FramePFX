@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 
@@ -32,13 +31,13 @@ namespace FramePFX.Editors.Commands
             this.IsUndo = isUndo;
         }
 
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        public override Executability CanExecute(CommandEventArgs e)
         {
             if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out var editor))
-                return ExecutabilityState.Invalid;
+                return Executability.Invalid;
 
             bool canExecute = this.IsUndo ? editor.HistoryManager.CanUndo : editor.HistoryManager.CanRedo;
-            return canExecute ? ExecutabilityState.Executable : ExecutabilityState.ValidButCannotExecute;
+            return canExecute ? Executability.Valid : Executability.ValidButCannotExecute;
         }
 
         public static void Undo(IContextData context)
@@ -84,10 +83,9 @@ namespace FramePFX.Editors.Commands
         {
         }
 
-        public override Task Execute(CommandEventArgs e)
+        protected override void Execute(CommandEventArgs e)
         {
             Undo(e.ContextData);
-            return Task.CompletedTask;
         }
     }
 
@@ -97,10 +95,9 @@ namespace FramePFX.Editors.Commands
         {
         }
 
-        public override Task Execute(CommandEventArgs e)
+        protected override void Execute(CommandEventArgs e)
         {
             Redo(e.ContextData);
-            return Task.CompletedTask;
         }
     }
 }

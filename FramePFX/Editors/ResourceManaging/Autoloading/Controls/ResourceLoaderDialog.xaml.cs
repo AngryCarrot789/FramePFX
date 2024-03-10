@@ -34,7 +34,8 @@ namespace FramePFX.Editors.ResourceManaging.Autoloading.Controls
     {
         public static readonly DependencyProperty ResourceLoaderProperty = DependencyProperty.Register("ResourceLoader", typeof(ResourceLoader), typeof(ResourceLoaderDialog), new PropertyMetadata(null, (d, e) => ((ResourceLoaderDialog) d).OnResourceLoaderChanged((ResourceLoader) e.OldValue, (ResourceLoader) e.NewValue)));
 
-        public ResourceLoader ResourceLoader {
+        public ResourceLoader ResourceLoader
+        {
             get => (ResourceLoader) this.GetValue(ResourceLoaderProperty);
             set => this.SetValue(ResourceLoaderProperty, value);
         }

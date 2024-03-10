@@ -24,14 +24,14 @@ using FramePFX.Tasks;
 
 namespace FramePFX.Editors.Commands
 {
-    public class SaveProjectCommand : Command
+    public class SaveProjectCommand : AsyncCommand
     {
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        protected override Executability CanExecuteCore(CommandEventArgs e)
         {
-            return e.ContextData.ContainsKey(DataKeys.ProjectKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+            return e.ContextData.ContainsKey(DataKeys.ProjectKey) ? Executability.Valid : Executability.Invalid;
         }
 
-        public override async Task Execute(CommandEventArgs e)
+        protected override async Task ExecuteAsync(CommandEventArgs e)
         {
             if (DataKeys.ProjectKey.TryGetContext(e.ContextData, out Project project))
             {
@@ -57,7 +57,7 @@ namespace FramePFX.Editors.Commands
 
     public class SaveProjectAsCommand : SaveProjectCommand
     {
-        public override async Task Execute(CommandEventArgs e)
+        protected override async Task ExecuteAsync(CommandEventArgs e)
         {
             if (DataKeys.ProjectKey.TryGetContext(e.ContextData, out Project project))
             {

@@ -184,7 +184,8 @@ namespace FramePFX.Behaviours
         private static void OnVisualAncestorChanged(DependencyObject element, DependencyObject oldParent)
         {
             if (element.GetValue(BehavioursProperty) is BehaviourCollection collection)
-            { // this should be non-null realistically
+            {
+                // this should be non-null realistically
                 if (collection.Owner != element)
                 {
                     Debug.WriteLine("Fatal error: received VAC event for unrelated visual");

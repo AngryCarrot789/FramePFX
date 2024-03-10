@@ -40,7 +40,7 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
     [StyleTypedProperty(Property = "ItemContainerStyle", StyleTargetType = typeof(MultiSelectTreeViewItem))]
     public class MultiSelectTreeView : ItemsControl
     {
-#region Constants and Fields
+        #region Constants and Fields
 
         public event EventHandler<PreviewSelectionChangedEventArgs> PreviewSelectionChanged;
         public event EventHandler SelectionChanged;
@@ -54,42 +54,49 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
         public static readonly DependencyProperty AllowEditItemsProperty = DependencyProperty.Register("AllowEditItems", typeof(bool), typeof(MultiSelectTreeView), new PropertyMetadata(BoolBox.False));
         private static readonly DependencyPropertyKey LastSelectedItemPropertyKey = DependencyProperty.RegisterReadOnly("LastSelectedItem", typeof(object), typeof(MultiSelectTreeView), new PropertyMetadata(null));
 
-#endregion
+        #endregion
 
-#region Public Properties
+        #region Public Properties
 
-        public Brush BackgroundSelectionRectangle {
+        public Brush BackgroundSelectionRectangle
+        {
             get => (Brush) this.GetValue(BackgroundSelectionRectangleProperty);
             set => this.SetValue(BackgroundSelectionRectangleProperty, value);
         }
 
-        public Brush BorderBrushSelectionRectangle {
+        public Brush BorderBrushSelectionRectangle
+        {
             get => (Brush) this.GetValue(BorderBrushSelectionRectangleProperty);
             set => this.SetValue(BorderBrushSelectionRectangleProperty, value);
         }
 
-        public bool HoverHighlighting {
+        public bool HoverHighlighting
+        {
             get => (bool) this.GetValue(HoverHighlightingProperty);
             set => this.SetValue(HoverHighlightingProperty, value.Box());
         }
 
-        public bool VerticalRulers {
+        public bool VerticalRulers
+        {
             get => (bool) this.GetValue(VerticalRulersProperty);
             set => this.SetValue(VerticalRulersProperty, value.Box());
         }
 
-        public int ItemIndent {
+        public int ItemIndent
+        {
             get => (int) this.GetValue(ItemIndentProperty);
             set => this.SetValue(ItemIndentProperty, value);
         }
 
         [Browsable(false)]
-        public bool IsKeyboardMode {
+        public bool IsKeyboardMode
+        {
             get => (bool) this.GetValue(IsKeyboardModeProperty);
             set => this.SetValue(IsKeyboardModeProperty, value.Box());
         }
 
-        public bool AllowEditItems {
+        public bool AllowEditItems
+        {
             get => (bool) this.GetValue(AllowEditItemsProperty);
             set => this.SetValue(AllowEditItemsProperty, value.Box());
         }
@@ -97,7 +104,8 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
         /// <summary>
         ///    Gets the last selected item.
         /// </summary>
-        public object LastSelectedItem {
+        public object LastSelectedItem
+        {
             get => this.GetValue(LastSelectedItemPropertyKey.DependencyProperty);
             private set => this.SetValue(LastSelectedItemPropertyKey, value);
         }
@@ -107,7 +115,8 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
         /// <summary>
         /// Gets the last focused item.
         /// </summary>
-        internal MultiSelectTreeViewItem LastFocusedItem {
+        internal MultiSelectTreeViewItem LastFocusedItem
+        {
             get => this.lastFocusedItem;
             set
             {
@@ -133,16 +142,17 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
         /// Gets or sets a list of selected items and can be bound to another list. If the source list
         /// implements <see cref="INotifyPropertyChanged"/> the changes are automatically taken over.
         /// </summary>
-        public IList SelectedItems {
+        public IList SelectedItems
+        {
             get => (IList) this.GetValue(SelectedItemsProperty);
             set => this.SetValue(SelectedItemsProperty, value);
         }
 
         internal ISelectionStrategy Selection { get; private set; }
 
-#endregion
+        #endregion
 
-#region Constructors and Destructors
+        #region Constructors and Destructors
 
         static MultiSelectTreeView()
         {
@@ -159,9 +169,9 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
             };
         }
 
-#endregion
+        #endregion
 
-#region Public Methods and Operators
+        #region Public Methods and Operators
 
         public override void OnApplyTemplate()
         {
@@ -221,9 +231,9 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
             return this.Selection.SelectParentFromKey();
         }
 
-#endregion
+        #endregion
 
-#region Methods
+        #region Methods
 
         internal bool DeselectRecursive(MultiSelectTreeViewItem item, bool includeSelf)
         {
@@ -668,6 +678,6 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
             this.SelectionChanged?.Invoke(this, EventArgs.Empty);
         }
 
-#endregion
+        #endregion
     }
 }

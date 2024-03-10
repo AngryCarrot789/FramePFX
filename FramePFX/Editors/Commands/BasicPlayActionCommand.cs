@@ -18,7 +18,6 @@
 //
 
 using System;
-using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 
@@ -28,17 +27,17 @@ namespace FramePFX.Editors.Commands
     {
         public abstract PlayState TargetState { get; }
 
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        public override Executability CanExecute(CommandEventArgs e)
         {
             if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor))
-                return ExecutabilityState.Invalid;
-            return editor.Playback.CanSetPlayStateTo(this.TargetState) ? ExecutabilityState.Executable : ExecutabilityState.ValidButCannotExecute;
+                return Executability.Invalid;
+            return editor.Playback.CanSetPlayStateTo(this.TargetState) ? Executability.Valid : Executability.ValidButCannotExecute;
         }
 
-        public override Task Execute(CommandEventArgs e)
+        protected override void Execute(CommandEventArgs e)
         {
             if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor) || !editor.Playback.CanSetPlayStateTo(this.TargetState))
-                return Task.CompletedTask;
+                return;
             switch (this.TargetState)
             {
                 case PlayState.Play:
@@ -52,8 +51,6 @@ namespace FramePFX.Editors.Commands
                     break;
                 default: throw new ArgumentOutOfRangeException();
             }
-
-            return Task.CompletedTask;
         }
     }
 

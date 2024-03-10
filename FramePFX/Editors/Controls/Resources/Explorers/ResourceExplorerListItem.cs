@@ -44,22 +44,26 @@ namespace FramePFX.Editors.Controls.Resources.Explorers
         private static readonly DependencyPropertyKey IsResourceOnlinePropertyKey = DependencyProperty.RegisterReadOnly("IsResourceOnline", typeof(bool), typeof(ResourceExplorerListItem), new PropertyMetadata(BoolBox.True));
         public static readonly DependencyProperty IsResourceOnlineProperty = IsResourceOnlinePropertyKey.DependencyProperty;
 
-        public bool IsDroppableTargetOver {
+        public bool IsDroppableTargetOver
+        {
             get => (bool) this.GetValue(IsDroppableTargetOverProperty);
             set => this.SetValue(IsDroppableTargetOverProperty, value.Box());
         }
 
-        public bool IsSelected {
+        public bool IsSelected
+        {
             get => (bool) this.GetValue(IsSelectedProperty);
             set => this.SetValue(IsSelectedProperty, value.Box());
         }
 
-        public string DisplayName {
+        public string DisplayName
+        {
             get => (string) this.GetValue(DisplayNameProperty);
             set => this.SetValue(DisplayNameProperty, value);
         }
 
-        public bool IsResourceOnline {
+        public bool IsResourceOnline
+        {
             get => (bool) this.GetValue(IsResourceOnlineProperty);
             private set => this.SetValue(IsResourceOnlinePropertyKey, value.Box());
         }

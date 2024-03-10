@@ -35,7 +35,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces
     {
         public static readonly DependencyProperty TimelineProperty = DependencyProperty.Register("Timeline", typeof(Timeline), typeof(TrackControlSurfaceListBox), new PropertyMetadata(null, (d, e) => ((TrackControlSurfaceListBox) d).OnTimelineChanged((Timeline) e.OldValue, (Timeline) e.NewValue)));
 
-        public Timeline Timeline {
+        public Timeline Timeline
+        {
             get => (Timeline) this.GetValue(TimelineProperty);
             set => this.SetValue(TimelineProperty, value);
         }

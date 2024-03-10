@@ -22,6 +22,7 @@ using System.Windows;
 using System.Windows.Threading;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
+using FramePFX.Utils.RDA;
 
 namespace FramePFX.CommandSystem.Usages
 {
@@ -40,28 +41,30 @@ namespace FramePFX.CommandSystem.Usages
         // there's no need for the extended version
         private RapidDispatchAction delayedContextUpdate;
 
+        /// <summary>
+        /// Gets the target command ID for this usage instance. This is not null, not empty and does not consist of whitespaces only
+        /// </summary>
         public string CommandId { get; }
 
         public DependencyObject Control { get; private set; }
 
         protected CommandUsage(string commandId)
         {
-            if (commandId == null)
-                throw new Exception(nameof(commandId) + " cannot return null");
-            if (string.IsNullOrWhiteSpace(commandId))
-                throw new Exception(nameof(commandId) + " cannot return an empty string or consist of only whitespaces");
+            Validate.NotNullOrWhiteSpaces(commandId, nameof(commandId));
             this.CommandId = commandId;
         }
 
         /// <summary>
         /// Gets the current available context for our connected control. Returns null if disconnected
         /// </summary>
-        /// <returns></returns>
-        public IContextData GetContextData()
-        {
-            return this.Control != null ? DataManager.GetFullContextData(this.Control) : null;
-        }
+        /// <returns>The context data</returns>
+        public IContextData GetContextData() => this.Control != null ? DataManager.GetFullContextData(this.Control) : null;
 
+        /// <summary>
+        /// Connects to the given object control
+        /// </summary>
+        /// <param name="control">Control to connect to</param>
+        /// <exception cref="ArgumentNullException">Control is null</exception>
         public void Connect(DependencyObject control)
         {
             this.Control = control ?? throw new ArgumentNullException(nameof(control));
@@ -69,8 +72,15 @@ namespace FramePFX.CommandSystem.Usages
             this.OnConnected();
         }
 
+        /// <summary>
+        /// Disconnects from this control
+        /// </summary>
+        /// <exception cref="InvalidCastException">Not connected</exception>
         public void Disconnect()
         {
+            if (this.Control == null)
+                throw new InvalidCastException("Not connected");
+
             DataManager.RemoveInheritedContextInvalidatedHandler(this.Control, this.OnInheritedContextChanged);
             this.OnDisconnected();
             this.Control = null;
@@ -94,11 +104,9 @@ namespace FramePFX.CommandSystem.Usages
         protected virtual void UpdateCanExecute()
         {
             IContextData ctx = this.GetContextData();
-            this.OnUpdateForCanExecuteState(ctx != null ? CommandManager.Instance.CanExecute(this.CommandId, ctx) : ExecutabilityState.Invalid);
+            this.OnUpdateForCanExecuteState(ctx != null ? CommandManager.Instance.CanExecute(this.CommandId, ctx) : Executability.Invalid);
         }
 
-        protected virtual void OnUpdateForCanExecuteState(ExecutabilityState state)
-        {
-        }
+        protected virtual void OnUpdateForCanExecuteState(Executability state) { }
     }
 }

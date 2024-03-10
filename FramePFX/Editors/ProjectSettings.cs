@@ -30,7 +30,8 @@ namespace FramePFX.Editors
         private Vec2i resolution;
         private Rational frameRate;
 
-        public Vec2i Resolution {
+        public Vec2i Resolution
+        {
             get => this.resolution;
             set
             {
@@ -45,7 +46,8 @@ namespace FramePFX.Editors
 
         public int Height => this.resolution.Y;
 
-        public Rational FrameRate {
+        public Rational FrameRate
+        {
             get => this.frameRate;
             set
             {

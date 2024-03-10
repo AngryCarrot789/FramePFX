@@ -35,17 +35,20 @@ namespace FramePFX.PropertyEditing.Controls
         public static readonly DependencyProperty GroupTypeProperty = DependencyProperty.Register("GroupType", typeof(GroupType), typeof(PropertyEditorGroupControl), new PropertyMetadata(GroupType.PrimaryExpander));
         public static readonly DependencyProperty PropertyEditorProperty = DependencyProperty.Register("PropertyEditor", typeof(PropertyEditorControl), typeof(PropertyEditorGroupControl), new PropertyMetadata(null));
 
-        public bool IsExpanded {
+        public bool IsExpanded
+        {
             get => (bool) this.GetValue(IsExpandedProperty);
             set => this.SetValue(IsExpandedProperty, value.Box());
         }
 
-        public GroupType GroupType {
+        public GroupType GroupType
+        {
             get => (GroupType) this.GetValue(GroupTypeProperty);
             set => this.SetValue(GroupTypeProperty, value);
         }
 
-        public PropertyEditorControl PropertyEditor {
+        public PropertyEditorControl PropertyEditor
+        {
             get => (PropertyEditorControl) this.GetValue(PropertyEditorProperty);
             set => this.SetValue(PropertyEditorProperty, value);
         }

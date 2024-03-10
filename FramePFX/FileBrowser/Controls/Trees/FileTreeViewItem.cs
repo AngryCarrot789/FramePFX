@@ -46,7 +46,8 @@ namespace FramePFX.FileBrowser.Controls.Trees
         /// <summary>
         /// Gets either our <see cref="ParentNode"/> or <see cref="FileTree"/>
         /// </summary>
-        public ItemsControl ParentObject {
+        public ItemsControl ParentObject
+        {
             get
             {
                 if (this.ParentNode != null)

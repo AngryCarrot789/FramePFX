@@ -84,7 +84,8 @@ namespace FramePFX.Editors.Timelines.Clips.Core
         private double renderFontSize;
         private SKRect lastRenderRect;
 
-        public string FontFamily {
+        public string FontFamily
+        {
             get => this.fontFamily;
             set
             {

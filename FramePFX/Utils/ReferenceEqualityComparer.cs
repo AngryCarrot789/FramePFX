@@ -25,7 +25,8 @@ namespace FramePFX.Utils
     {
         private static ReferenceEqualityComparer<T> instance;
 
-        public static ReferenceEqualityComparer<T> Default {
+        public static ReferenceEqualityComparer<T> Default
+        {
             get => instance ?? (instance = new ReferenceEqualityComparer<T>());
         }
 

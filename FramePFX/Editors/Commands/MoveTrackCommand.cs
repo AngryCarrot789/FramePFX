@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
@@ -37,24 +36,23 @@ namespace FramePFX.Editors.Commands
             this.Offset = offset;
         }
 
-        public override Task Execute(CommandEventArgs e)
+        protected override void Execute(CommandEventArgs e)
         {
             if (!DataKeys.TrackKey.TryGetContext(e.ContextData, out Track track))
             {
                 if (DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline timeline))
                 {
                     if (timeline.SelectedTracks.Count < 1)
-                        return Task.CompletedTask;
+                        return;
                     track = timeline.SelectedTracks[timeline.SelectedTracks.Count - 1];
                 }
                 else
                 {
-                    return Task.CompletedTask;
+                    return;
                 }
             }
 
             MoveTrack(track, this.Offset);
-            return Task.CompletedTask;
         }
 
         public static void MoveTrack(Track track, int offset)

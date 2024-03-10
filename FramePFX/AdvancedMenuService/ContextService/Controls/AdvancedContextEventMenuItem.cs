@@ -27,18 +27,14 @@ namespace FramePFX.AdvancedMenuService.ContextService.Controls
     {
         public new EventContextEntry Entry => (EventContextEntry) base.Entry;
 
-        public AdvancedContextEventMenuItem()
-        {
-        }
+        public AdvancedContextEventMenuItem() { }
 
         protected override void OnClick()
         {
             EventContextEntry entry = this.Entry;
-            IContextData context = this.Menu.ContextOnMenuOpen;
+            IContextData context = this.Container.Context;
             if (entry != null && context != null)
-            {
                 this.Dispatcher.BeginInvoke((Action) (() => entry.Action?.Invoke(context)), DispatcherPriority.Render);
-            }
 
             base.OnClick();
         }

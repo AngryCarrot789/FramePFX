@@ -61,7 +61,8 @@ namespace FramePFX.Editors.Timelines.Tracks
 
         public IReadOnlyList<BaseEffect> Effects => this.internalEffectList;
 
-        public double Height {
+        public double Height
+        {
             get => this.height;
             set
             {
@@ -73,7 +74,8 @@ namespace FramePFX.Editors.Timelines.Tracks
             }
         }
 
-        public string DisplayName {
+        public string DisplayName
+        {
             get => this.displayName;
             set
             {
@@ -85,7 +87,8 @@ namespace FramePFX.Editors.Timelines.Tracks
             }
         }
 
-        public SKColor Colour {
+        public SKColor Colour
+        {
             get => this.colour;
             set
             {
@@ -419,7 +422,8 @@ namespace FramePFX.Editors.Timelines.Tracks
 
             int index = this.internalEffectList.IndexOf(effect);
             if (index == -1)
-            { // what to do here?????
+            {
+                // what to do here?????
                 Debug.WriteLine("EFFECT OWNER MATCHES THIS CLIP BUT IT IS NOT PLACED IN THE COLLECTION");
                 Debugger.Break();
                 return false;
@@ -524,7 +528,7 @@ namespace FramePFX.Editors.Timelines.Tracks
             return true;
         }
 
-#region Internal Access Helpers -- Used internally only
+        #region Internal Access Helpers -- Used internally only
 
         internal static void InternalOnAddedToTimeline(Track track, Timeline timeline)
         {
@@ -576,11 +580,13 @@ namespace FramePFX.Editors.Timelines.Tracks
             else if (list.Count > 0)
             {
                 if (list[0] == clip)
-                { // check front to back removal
+                {
+                    // check front to back removal
                     list.RemoveAt(0);
                 }
                 else
-                { // assume back to front removal
+                {
+                    // assume back to front removal
                     int index = list.LastIndexOf(clip);
                     if (index == -1)
                     {
@@ -615,6 +621,6 @@ namespace FramePFX.Editors.Timelines.Tracks
         // Only used for faster code
         internal static List<BaseEffect> InternalGetEffectListUnsafe(Track track) => track.internalEffectList;
 
-#endregion
+        #endregion
     }
 }

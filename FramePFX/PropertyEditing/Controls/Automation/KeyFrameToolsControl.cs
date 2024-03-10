@@ -41,7 +41,8 @@ namespace FramePFX.PropertyEditing.Controls.Automation
     {
         public static readonly DependencyProperty AutomationSequenceProperty = DependencyProperty.Register("AutomationSequence", typeof(AutomationSequence), typeof(KeyFrameToolsControl), new PropertyMetadata(null, OnAutomationSequenceChanged));
 
-        public AutomationSequence AutomationSequence {
+        public AutomationSequence AutomationSequence
+        {
             get => (AutomationSequence) this.GetValue(AutomationSequenceProperty);
             set => this.SetValue(AutomationSequenceProperty, value);
         }

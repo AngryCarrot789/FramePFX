@@ -29,7 +29,8 @@ namespace FramePFX.Utils.Commands
     {
         private bool isEnabled;
 
-        public bool IsEnabled {
+        public bool IsEnabled
+        {
             get => this.isEnabled;
             set
             {

@@ -3,10 +3,11 @@
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     xmlns:acs="clr-namespace:FramePFX.AdvancedMenuService.ContextService.Controls"
-                    xmlns:wpf="clr-namespace:FramePFX.AdvancedMenuService.Controls"
+                    xmlns:ams="clr-namespace:FramePFX.AdvancedMenuService"
+                    xmlns:sa="clr-namespace:FramePFX.AdvancedMenuService.StandAlone"
                     mc:Ignorable="d">
-    <Style TargetType="{x:Type wpf:ContextCapturingMenu}" BasedOn="{StaticResource {x:Type Menu}}"/>
-    <Style TargetType="{x:Type wpf:AdvancedCommandMenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}"/>
+    <Style TargetType="{x:Type ams:ContextCapturingMenu}" BasedOn="{StaticResource {x:Type Menu}}"/>
+    <Style TargetType="{x:Type sa:CommandMenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}"/>
     <Style TargetType="{x:Type acs:AdvancedContextMenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}"/>
     <Style TargetType="{x:Type acs:AdvancedContextCommandMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedContextMenuItem}}"/>
     <Style TargetType="{x:Type acs:AdvancedContextEventMenuItem}" BasedOn="{StaticResource {x:Type acs:AdvancedContextMenuItem}}"/>

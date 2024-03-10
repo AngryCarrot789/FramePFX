@@ -17,24 +17,28 @@ namespace FramePFX.FFmpegWrapper.Codecs
 {
     public unsafe class AudioEncoder : MediaEncoder
     {
-        public AVSampleFormat SampleFormat {
+        public AVSampleFormat SampleFormat
+        {
             get => this.ctx->sample_fmt;
             set => this.SetOrThrowIfOpen(ref this.ctx->sample_fmt, value);
         }
 
-        public int SampleRate {
+        public int SampleRate
+        {
             get => this.ctx->sample_rate;
             set => this.SetOrThrowIfOpen(ref this.ctx->sample_rate, value);
         }
 
         public int NumChannels => this.ctx->ch_layout.nb_channels;
 
-        public AVChannelLayout ChannelLayout {
+        public AVChannelLayout ChannelLayout
+        {
             get => this.ctx->ch_layout;
             set => this.SetOrThrowIfOpen(ref this.ctx->ch_layout, value);
         }
 
-        public AudioFormat Format {
+        public AudioFormat Format
+        {
             get => new AudioFormat(this.ctx);
             set
             {

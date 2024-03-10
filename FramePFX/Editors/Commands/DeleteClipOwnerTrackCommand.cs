@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Interactivity.Contexts;
@@ -26,23 +25,21 @@ namespace FramePFX.Editors.Commands
 {
     public class DeleteClipOwnerTrackCommand : Command
     {
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        public override Executability CanExecute(CommandEventArgs e)
         {
             if (!DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip clip))
-                return ExecutabilityState.Invalid;
+                return Executability.Invalid;
             if (clip.Timeline == null)
-                return ExecutabilityState.ValidButCannotExecute;
-            return ExecutabilityState.Executable;
+                return Executability.ValidButCannotExecute;
+            return Executability.Valid;
         }
 
-        public override Task Execute(CommandEventArgs e)
+        protected override void Execute(CommandEventArgs e)
         {
             if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip clip))
             {
                 clip.Timeline?.DeleteTrack(clip.Track);
             }
-
-            return Task.CompletedTask;
         }
     }
 }

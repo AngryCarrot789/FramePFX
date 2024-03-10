@@ -12,9 +12,9 @@
             xmlns:fxsrc="clr-namespace:FramePFX.Editors.EffectSource"
             xmlns:ep="clr-namespace:FramePFX.Editors.Controls.EffectProviding"
             xmlns:c1="clr-namespace:FramePFX.Editors.Controls"
-            xmlns:c2="clr-namespace:FramePFX.AdvancedMenuService.Controls"
             xmlns:b="clr-namespace:FramePFX.Behaviours"
-            xmlns:tv="clr-namespace:FramePFX.FileBrowser.Controls.Trees"
+            xmlns:ams="clr-namespace:FramePFX.AdvancedMenuService"
+            xmlns:sa="clr-namespace:FramePFX.AdvancedMenuService.StandAlone"
             mc:Ignorable="d"
             Style="{StaticResource CustomWindowStyleEx}"
             Background="{DynamicResource PanelBackground0}"
@@ -35,19 +35,19 @@
             currently focused item before focus is switched to a menu item.
             This is used to implement a kind of "contextual" non-context menu item
         -->
-        <c2:ContextCapturingMenu Grid.Row="0" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1"
-                                 Background="{Binding TitlebarBrush, RelativeSource={RelativeSource AncestorType={x:Type v:WindowEx}, Mode=FindAncestor}}">
+        <ams:ContextCapturingMenu Grid.Row="0" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1"
+                                  Background="{Binding TitlebarBrush, RelativeSource={RelativeSource AncestorType={x:Type v:WindowEx}, Mode=FindAncestor}}">
             <MenuItem Header="File">
-                <c2:AdvancedCommandMenuItem Header="New Project" CommandId="NewProjectCommand"/>
-                <c2:AdvancedCommandMenuItem Header="Open Project..." CommandId="OpenProjectCommand"/>
-                <c2:AdvancedCommandMenuItem Header="Save Project" CommandId="SaveProjectCommand"/>
-                <c2:AdvancedCommandMenuItem Header="Save Project As..." CommandId="SaveProjectAsCommand"/>
-                <c2:AdvancedCommandMenuItem Header="Close Project" CommandId="CloseProjectCommand"/>
+                <sa:CommandMenuItem Header="New Project" CommandId="NewProjectCommand"/>
+                <sa:CommandMenuItem Header="Open Project..." CommandId="OpenProjectCommand"/>
+                <sa:CommandMenuItem Header="Save Project" CommandId="SaveProjectCommand"/>
+                <sa:CommandMenuItem Header="Save Project As..." CommandId="SaveProjectAsCommand"/>
+                <sa:CommandMenuItem Header="Close Project" CommandId="CloseProjectCommand"/>
                 <Separator/>
-                <c2:AdvancedCommandMenuItem Header="Export" CommandId="ExportCommand"
-                                            ToolTip="Export the current project"/>
-                <c2:AdvancedCommandMenuItem Header="Export Active Timeline" CommandId="ExportActiveTimelineCommand"
-                                            ToolTip="Exports the currently active timeline only (not the project timeline)"/>
+                <sa:CommandMenuItem Header="Export" CommandId="ExportCommand"
+                                    ToolTip="Export the current project"/>
+                <sa:CommandMenuItem Header="Export Active Timeline" CommandId="ExportActiveTimelineCommand"
+                                    ToolTip="Exports the currently active timeline only (not the project timeline)"/>
             </MenuItem>
             <MenuItem Header="Theme">
                 <MenuItem Header="Deep Dark" Click="SetThemeClick" Uid="0"/>
@@ -64,7 +64,7 @@
                 </MenuItem>
                 <MenuItem Header="Light Theme" Click="SetThemeClick" Uid="5"/>
             </MenuItem>
-        </c2:ContextCapturingMenu>
+        </ams:ContextCapturingMenu>
         <Grid Grid.Row="1" x:Name="PART_MainVideoEditorContent">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" MinHeight="100"/>
@@ -84,9 +84,12 @@
                         <TabItem Header="Resources" wpf:UIInputManager.FocusPath="Application/Editor/ResourceManager">
                             <rc:ResourcePanelControl x:Name="TheResourcePanel" Background="{DynamicResource PanelBackground3}" Focusable="True"/>
                         </TabItem>
+                        <!--
+                        This is too laggy at the moment
                         <TabItem Header="File Browser">
                             <tv:FileTreeView x:Name="PART_FileTree"/>
                         </TabItem>
+                        -->
                         <TabItem Header="Effects" wpf:UIInputManager.FocusPath="Application/Editor/EffectSourcePanel">
                             <ep:EffectProviderListBox EffectProviderManager="{x:Static fxsrc:EffectProviderManager.Instance}"/>
                         </TabItem>

@@ -34,16 +34,10 @@ namespace FramePFX.AdvancedMenuService.ContextService
             this.CommandId = commandId;
         }
 
-        public CommandContextEntry(string commandId, string header, IEnumerable<IContextEntry> children = null) : this(commandId, header, null, children)
-        {
-        }
+        public CommandContextEntry(string commandId, string header, IEnumerable<IContextEntry> children = null) : this(commandId, header, null, children) { }
 
-        public CommandContextEntry(string commandId, IEnumerable<IContextEntry> children = null) : this(commandId, StringUtils.SplitLast(commandId, '.'), null, children)
-        {
-        }
+        public CommandContextEntry(string commandId, IEnumerable<IContextEntry> children = null) : this(commandId, StringUtils.SplitLast(commandId, '.'), null, children) { }
 
-        public CommandContextEntry(IEnumerable<IContextEntry> children = null) : this(null, null, null, children)
-        {
-        }
+        public CommandContextEntry(IEnumerable<IContextEntry> children = null) : this(null, null, null, children) { }
     }
 }

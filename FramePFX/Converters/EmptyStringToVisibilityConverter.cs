@@ -78,27 +78,32 @@ namespace FramePFX.Converters
     {
         public static EmptyStringToVisibilityConverter Instance { get; } = new EmptyStringToVisibilityConverter();
 
-        public new Visibility NullValue {
+        public new Visibility NullValue
+        {
             get => (Visibility) base.NullValue;
             set => base.NullValue = NullToVisibilityConverter.Box(value);
         }
 
-        public new Visibility EmptyValue {
+        public new Visibility EmptyValue
+        {
             get => (Visibility) base.EmptyValue;
             set => base.EmptyValue = NullToVisibilityConverter.Box(value);
         }
 
-        public new Visibility NonEmptyValue {
+        public new Visibility NonEmptyValue
+        {
             get => (Visibility) base.NonEmptyValue;
             set => base.NonEmptyValue = NullToVisibilityConverter.Box(value);
         }
 
-        public new Visibility NonStringValue {
+        public new Visibility NonStringValue
+        {
             get => (Visibility) base.NonStringValue;
             set => base.NonStringValue = NullToVisibilityConverter.Box(value);
         }
 
-        public new Visibility UnsetValue {
+        public new Visibility UnsetValue
+        {
             get => (Visibility) base.UnsetValue;
             set => base.UnsetValue = NullToVisibilityConverter.Box(value);
         }

@@ -29,7 +29,8 @@ namespace FramePFX.Views
     /// </summary>
     public partial class AppSplashScreen : Window, IApplicationStartupProgress
     {
-        public string CurrentActivity {
+        public string CurrentActivity
+        {
             get => this.CurrentActivityTextBlock.Text;
             set => this.CurrentActivityTextBlock.Text = value;
         }

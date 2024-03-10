@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using FramePFX.FileSystems.Physical;
 using FramePFX.FileSystems.Zip;
 
 namespace FramePFX.FileSystems

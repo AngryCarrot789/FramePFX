@@ -41,12 +41,14 @@ namespace FramePFX.Utils
 
         public bool IsRunning => this.isRunning;
 
-        public bool IsMarkedForSlowSleep {
+        public bool IsMarkedForSlowSleep
+        {
             get => this.isMarkedForSlowSleep;
             set => this.isMarkedForSlowSleep = value;
         }
 
-        public TimeSpan Interval {
+        public TimeSpan Interval
+        {
             get => this.interval;
             set
             {
@@ -55,7 +57,8 @@ namespace FramePFX.Utils
             }
         }
 
-        public string ThreadName {
+        public string ThreadName
+        {
             get => this.threadName;
             set
             {
@@ -64,7 +67,8 @@ namespace FramePFX.Utils
             }
         }
 
-        public ThreadPriority Priority {
+        public ThreadPriority Priority
+        {
             get => this.priority;
             set
             {
@@ -73,7 +77,8 @@ namespace FramePFX.Utils
             }
         }
 
-        public Action TickAction {
+        public Action TickAction
+        {
             get => this.tickAction;
             set
             {
@@ -82,7 +87,8 @@ namespace FramePFX.Utils
             }
         }
 
-        public Action StartedAction {
+        public Action StartedAction
+        {
             get => this.startedAction;
             set
             {
@@ -91,7 +97,8 @@ namespace FramePFX.Utils
             }
         }
 
-        public Action StoppedAction {
+        public Action StoppedAction
+        {
             get => this.stoppedAction;
             set
             {

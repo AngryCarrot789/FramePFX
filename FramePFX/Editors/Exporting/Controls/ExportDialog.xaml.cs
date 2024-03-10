@@ -39,7 +39,8 @@ namespace FramePFX.Editors.Exporting.Controls
         private bool isProcessingFilePathControl;
         private bool isUpdatingComboBox;
 
-        public ExportSetup ExportSetup {
+        public ExportSetup ExportSetup
+        {
             get => (ExportSetup) this.GetValue(ExportSetupProperty);
             set => this.SetValue(ExportSetupProperty, value);
         }

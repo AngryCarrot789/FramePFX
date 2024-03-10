@@ -42,16 +42,16 @@ namespace FramePFX.Editors.Contextual
         /// <param name="ctx"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static ExecutabilityState CanGetSingleFolderSelection(IContextData ctx)
+        public static Executability CanGetSingleFolderSelection(IContextData ctx)
         {
             if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource resource))
             {
-                return ExecutabilityState.Invalid;
+                return Executability.Invalid;
             }
 
             if (resource.Parent == null || resource.Manager == null)
             {
-                return ExecutabilityState.ValidButCannotExecute;
+                return Executability.ValidButCannotExecute;
             }
 
             ResourceFolder folder = resource.Manager.CurrentFolder;
@@ -63,11 +63,11 @@ namespace FramePFX.Editors.Contextual
             int selected = folder.SelectedItemCount;
             if (!resource.IsSelected || selected == 1)
             {
-                return ExecutabilityState.Executable;
+                return Executability.Valid;
             }
             else if (selected > 0)
             {
-                return ExecutabilityState.Executable;
+                return Executability.Valid;
             }
             else
             {
@@ -103,7 +103,8 @@ namespace FramePFX.Editors.Contextual
 
             int selected = folder.SelectedItemCount;
             if (!resource.IsSelected || selected == 1)
-            { // use context item if unselected or only selection
+            {
+                // use context item if unselected or only selection
                 selection = new BaseResource[] {resource};
                 return true;
             }
@@ -120,13 +121,13 @@ namespace FramePFX.Editors.Contextual
             }
         }
 
-        public static ExecutabilityState CanGetTreeSelectionContext(IContextData ctx)
+        public static Executability CanGetTreeSelectionContext(IContextData ctx)
         {
             if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource resource))
-                return ExecutabilityState.Invalid;
+                return Executability.Invalid;
             if (resource.Parent == null || resource.Manager == null)
-                return ExecutabilityState.ValidButCannotExecute;
-            return ExecutabilityState.Executable;
+                return Executability.ValidButCannotExecute;
+            return Executability.Valid;
         }
 
         public static bool GetTreeSelectionContext(IContextData ctx, out BaseResource[] selection)
@@ -139,7 +140,8 @@ namespace FramePFX.Editors.Contextual
 
             int selected = resource.Manager.SelectedItems.Count;
             if (!resource.IsSelected || selected == 1)
-            { // use context item if unselected or only selection
+            {
+                // use context item if unselected or only selection
                 selection = new BaseResource[] {resource};
                 return true;
             }
@@ -156,12 +158,12 @@ namespace FramePFX.Editors.Contextual
             }
         }
 
-        public static ExecutabilityState CanGetSingleSelection(IContextData ctx)
+        public static Executability CanGetSingleSelection(IContextData ctx)
         {
             if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource resource))
-                return ExecutabilityState.Invalid;
+                return Executability.Invalid;
             if (resource.Parent == null || resource.Manager == null)
-                return ExecutabilityState.ValidButCannotExecute;
+                return Executability.ValidButCannotExecute;
 
             ResourceFolder folder = resource.Manager.CurrentFolder;
             if (!folder.Contains(resource))
@@ -171,10 +173,10 @@ namespace FramePFX.Editors.Contextual
 
             if (!resource.IsSelected || folder.SelectedItemCount == 1)
             {
-                return ExecutabilityState.Executable;
+                return Executability.Valid;
             }
 
-            return ExecutabilityState.ValidButCannotExecute;
+            return Executability.ValidButCannotExecute;
         }
 
         public static bool GetSingleSelection(IContextData ctx, out BaseResource resource)

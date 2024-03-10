@@ -19,7 +19,8 @@ namespace FramePFX.FFmpegWrapper
     {
         private SwsContext* _ctx;
 
-        public SwsContext* Handle {
+        public SwsContext* Handle
+        {
             get
             {
                 this.ValidateNotDisposed();

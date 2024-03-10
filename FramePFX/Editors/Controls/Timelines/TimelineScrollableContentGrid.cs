@@ -29,14 +29,16 @@ namespace FramePFX.Editors.Controls.Timelines
     {
         public static readonly DependencyProperty TimelineProperty = DependencyProperty.Register("Timeline", typeof(Timeline), typeof(TimelineScrollableContentGrid), new PropertyMetadata(null, OnTimelineChanged));
 
-        public Timeline Timeline {
+        public Timeline Timeline
+        {
             get => (Timeline) this.GetValue(TimelineProperty);
             set => this.SetValue(TimelineProperty, value);
         }
 
         public TimelineControl TimelineControl { get; set; }
 
-        public bool HandleBringIntoView {
+        public bool HandleBringIntoView
+        {
             get => HandleRequestBringIntoView.GetIsEnabled(this);
             set => HandleRequestBringIntoView.SetIsEnabled(this, value);
         }

@@ -47,7 +47,8 @@ namespace FramePFX.Editors.Timelines.Clips.Core
         private Vector2 TextBlobBoundingBox;
         private string text = TextParameter.DefaultValue;
 
-        public string Text {
+        public string Text
+        {
             get => this.text;
             set => DataParameter.SetValueHelper(this, TextParameter, ref this.text, value);
         }

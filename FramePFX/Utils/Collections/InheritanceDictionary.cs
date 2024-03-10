@@ -34,7 +34,8 @@ namespace FramePFX.Utils.Collections
 
         public bool IsEmpty => this.totalEntries <= 1;
 
-        public T this[Type key] {
+        public T this[Type key]
+        {
             get => this.GetEffectiveValue(key);
             set => this.SetValue(key, value);
         }
@@ -262,7 +263,8 @@ namespace FramePFX.Utils.Collections
         /// a specific top-level type and navigating through the base types in an efficient manner
         /// </summary>
         public struct LocalValueEntryEnumerator
-        { // : IEnumerator<ITypeEntry<T>>
+        {
+            // : IEnumerator<ITypeEntry<T>>
             /// <summary>
             /// Gets the current entry
             /// </summary>
@@ -387,7 +389,8 @@ namespace FramePFX.Utils.Collections
         /// A struct that has a <see cref="GetEnumerator"/> function, which returns a <see cref="LocalValueEntryEnumerator"/>
         /// </summary>
         public readonly struct LocalValueEntryEnumerable
-        { //  : IEnumerable<ITypeEntry<T>>
+        {
+            //  : IEnumerable<ITypeEntry<T>>
             private readonly InheritanceDictionary<T> dictionary;
             private readonly Type startingKey;
             private readonly bool canMutate;

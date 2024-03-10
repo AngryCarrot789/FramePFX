@@ -113,7 +113,7 @@ namespace FramePFX.AttachedProperties
                 typeof(GridLatchSplitter),
                 new FrameworkPropertyMetadata(BoolBox.True));
 
-#region Getters and Setters
+        #region Getters and Setters
 
         /// <summary>
         /// Sets the minimum size of the column. Default value is 100 (pixels). Once the target width/height goes below this, the column/row is in a "closable" state
@@ -273,7 +273,7 @@ namespace FramePFX.AttachedProperties
             return (bool) element.GetValue(IsVerticalCloseDirectionDownProperty);
         }
 
-#endregion
+        #endregion
 
         public static void SetIsOpen(DependencyObject element, bool value)
         {
@@ -309,7 +309,7 @@ namespace FramePFX.AttachedProperties
             return false;
         }
 
-#region Property changed handlers
+        #region Property changed handlers
 
         private static void OnIsEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
@@ -577,6 +577,6 @@ namespace FramePFX.AttachedProperties
             }
         }
 
-#endregion
+        #endregion
     }
 }

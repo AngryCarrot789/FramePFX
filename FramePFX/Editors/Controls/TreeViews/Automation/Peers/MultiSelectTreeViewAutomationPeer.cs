@@ -32,15 +32,15 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
     /// </summary>
     public class MultiSelectTreeViewAutomationPeer : ItemsControlAutomationPeer, ISelectionProvider
     {
-#region Constructor
+        #region Constructor
 
         public MultiSelectTreeViewAutomationPeer(MultiSelectTreeView owner) : base(owner)
         {
         }
 
-#endregion Constructor
+        #endregion Constructor
 
-#region Public methods
+        #region Public methods
 
         public override object GetPattern(PatternInterface patternInterface)
         {
@@ -65,9 +65,9 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
             return base.GetPattern(patternInterface);
         }
 
-#endregion Public methods
+        #endregion Public methods
 
-#region Explicit interface methods
+        #region Explicit interface methods
 
         IRawElementProviderSimple[] ISelectionProvider.GetSelection()
         {
@@ -95,27 +95,29 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
             return array;
         }
 
-#endregion Explicit interface methods
+        #endregion Explicit interface methods
 
-#region Public properties
+        #region Public properties
 
-        public bool CanSelectMultiple {
+        public bool CanSelectMultiple
+        {
             get
             {
                 return false;
             }
         }
 
-        public bool IsSelectionRequired {
+        public bool IsSelectionRequired
+        {
             get
             {
                 return false;
             }
         }
 
-#endregion Public properties
+        #endregion Public properties
 
-#region Methods
+        #region Methods
 
         /// <summary>
         /// When overridden in a derived class, creates a new instance of the
@@ -144,6 +146,6 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
             return "MultiSelectTreeView";
         }
 
-#endregion Methods
+        #endregion Methods
     }
 }

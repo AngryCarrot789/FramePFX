@@ -40,7 +40,8 @@ namespace FramePFX.Editors.Controls.Viewports
                     FrameworkPropertyMetadataOptions.AffectsRender,
                     (d, e) => RenderOptions.SetBitmapScalingMode(d, (bool) e.NewValue ? BitmapScalingMode.NearestNeighbor : BitmapScalingMode.Unspecified)));
 
-        public bool UseNearestNeighbourRendering {
+        public bool UseNearestNeighbourRendering
+        {
             get => (bool) this.GetValue(UseNearestNeighbourRenderingProperty);
             set => this.SetValue(UseNearestNeighbourRenderingProperty, value.Box());
         }

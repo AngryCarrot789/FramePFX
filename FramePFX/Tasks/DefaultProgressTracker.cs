@@ -20,7 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Windows.Threading;
 using FramePFX.Utils;
+using FramePFX.Utils.RDA;
 
 namespace FramePFX.Tasks
 {
@@ -31,47 +33,51 @@ namespace FramePFX.Tasks
         private string headerText;
         private string descriptionText;
 
-        public bool IsIndeterminate {
+        public bool IsIndeterminate
+        {
             get => this.isIndeterminate;
             set
             {
                 if (this.isIndeterminate == value)
                     return;
                 this.isIndeterminate = value;
-                this.IsIndeterminateChanged?.Invoke(this);
+                this.updateIsIndeterminate.InvokeAsync();
             }
         }
 
-        public double TotalCompletion {
+        public double TotalCompletion
+        {
             get => this.completionValue;
             set
             {
                 if (DoubleUtils.AreClose(this.completionValue, value))
                     return;
                 this.completionValue = value;
-                this.CompletionValueChanged?.Invoke(this);
+                this.updateCompletionValue.InvokeAsync();
             }
         }
 
-        public string HeaderText {
+        public string HeaderText
+        {
             get => this.headerText;
             set
             {
                 if (this.headerText == value)
                     return;
                 this.headerText = value;
-                this.HeaderTextChanged?.Invoke(this);
+                this.updateHeaderText.InvokeAsync();
             }
         }
 
-        public string Text {
+        public string Text
+        {
             get => this.descriptionText;
             set
             {
                 if (this.descriptionText == value)
                     return;
                 this.descriptionText = value;
-                this.TextChanged?.Invoke(this);
+                this.updateText.InvokeAsync();
             }
         }
 
@@ -83,9 +89,20 @@ namespace FramePFX.Tasks
         private readonly Stack<CompletionRange> ranges = new Stack<CompletionRange>();
         private double totalMultiplier;
 
-        public DefaultProgressTracker()
+        private readonly RapidDispatchActionEx updateIsIndeterminate;
+        private readonly RapidDispatchActionEx updateCompletionValue;
+        private readonly RapidDispatchActionEx updateHeaderText;
+        private readonly RapidDispatchActionEx updateText;
+        private readonly DispatcherPriority eventDispatchPriority;
+
+        public DefaultProgressTracker(DispatcherPriority eventDispatchPriority = DispatcherPriority.Render)
         {
             this.totalMultiplier = 1.0;
+            this.eventDispatchPriority = eventDispatchPriority;
+            this.updateIsIndeterminate = RapidDispatchActionEx.ForSync(() => this.IsIndeterminateChanged?.Invoke(this), eventDispatchPriority);
+            this.updateCompletionValue = RapidDispatchActionEx.ForSync(() => this.CompletionValueChanged?.Invoke(this), eventDispatchPriority);
+            this.updateHeaderText = RapidDispatchActionEx.ForSync(() => this.HeaderTextChanged?.Invoke(this), eventDispatchPriority);
+            this.updateText = RapidDispatchActionEx.ForSync(() => this.TextChanged?.Invoke(this), eventDispatchPriority);
         }
 
         public PopDispose PushCompletionRange(double min, double max)

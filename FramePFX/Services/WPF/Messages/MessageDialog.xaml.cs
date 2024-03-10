@@ -49,22 +49,26 @@ namespace FramePFX.Services.WPF.Messages
             }
         }
 
-        public string Header {
+        public string Header
+        {
             get => (string) this.GetValue(HeaderProperty);
             set => this.SetValue(HeaderProperty, value);
         }
 
-        public string Message {
+        public string Message
+        {
             get => (string) this.GetValue(MessageProperty);
             set => this.SetValue(MessageProperty, value);
         }
 
-        public MessageBoxButton Buttons {
+        public MessageBoxButton Buttons
+        {
             get => (MessageBoxButton) this.GetValue(ButtonsProperty);
             set => this.SetValue(ButtonsProperty, value);
         }
 
-        public MessageBoxResult DefaultButton {
+        public MessageBoxResult DefaultButton
+        {
             get => (MessageBoxResult) this.GetValue(DefaultButtonProperty);
             set => this.SetValue(DefaultButtonProperty, value);
         }

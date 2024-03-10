@@ -29,7 +29,8 @@ namespace FramePFX.PropertyEditing.Automation
     {
         private Vector2 value;
 
-        public Vector2 Value {
+        public Vector2 Value
+        {
             get => this.value;
             set
             {

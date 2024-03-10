@@ -119,7 +119,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers
         {
         }
 
-#region Template Utils
+        #region Template Utils
 
         protected void GetTemplateChild<T>(string name, out T value) where T : DependencyObject
         {
@@ -138,14 +138,15 @@ namespace FramePFX.Editors.Controls.Resources.Explorers
             return (value = this.GetTemplateChild(name) as T) != null;
         }
 
-#endregion
+        #endregion
     }
 
     public class RELICFolder : ResourceExplorerListItemContent
     {
         public static readonly DependencyProperty ItemCountProperty = DependencyProperty.Register("ItemCount", typeof(int), typeof(RELICFolder), new PropertyMetadata(0));
 
-        public int ItemCount {
+        public int ItemCount
+        {
             get => (int) this.GetValue(ItemCountProperty);
             private set => this.SetValue(ItemCountProperty, value);
         }
@@ -187,7 +188,8 @@ namespace FramePFX.Editors.Controls.Resources.Explorers
     {
         public static readonly DependencyProperty ColourProperty = DependencyProperty.Register("Colour", typeof(Brush), typeof(RELICColour), new PropertyMetadata(null));
 
-        public Brush Colour {
+        public Brush Colour
+        {
             get => (Brush) this.GetValue(ColourProperty);
             set => this.SetValue(ColourProperty, value);
         }

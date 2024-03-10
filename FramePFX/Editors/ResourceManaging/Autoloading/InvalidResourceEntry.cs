@@ -32,7 +32,8 @@ namespace FramePFX.Editors.ResourceManaging.Autoloading
 
         public ResourceLoader ResourceLoader { get; private set; }
 
-        public string DisplayName {
+        public string DisplayName
+        {
             get => this.displayName;
             set
             {

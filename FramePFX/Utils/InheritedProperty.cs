@@ -31,7 +31,8 @@ namespace FramePFX.Utils
         /// <summary>
         /// Gets the current value (if <see cref="HasLocalValue"/> is true) or the parent's value, or sets the current value and marks <see cref="HasLocalValue"/> as true
         /// </summary>
-        public T Value {
+        public T Value
+        {
             get => this.HasLocalValue ? this.internalValue : (this.parent != null ? this.parent.Value : default);
             set
             {

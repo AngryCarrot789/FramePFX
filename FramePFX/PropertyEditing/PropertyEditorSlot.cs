@@ -37,7 +37,8 @@ namespace FramePFX.PropertyEditing
 
         public abstract bool IsSelectable { get; }
 
-        public bool IsSelected {
+        public bool IsSelected
+        {
             get => this.isSelected && this.IsSelectable;
             set
             {

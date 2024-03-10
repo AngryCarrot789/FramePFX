@@ -72,7 +72,7 @@ namespace FramePFX.FFmpeg
             this.getFrameMutex = new object();
         }
 
-#region Opening and close
+        #region Opening and close
 
         /// <summary>
         /// Opens the reader using the given file path. Does not open any decoders
@@ -219,7 +219,7 @@ namespace FramePFX.FFmpeg
             }
         }
 
-#endregion
+        #endregion
 
         public static Rational GetAspectRatio(MediaStream stream, int width, int height)
         {
@@ -240,7 +240,7 @@ namespace FramePFX.FFmpeg
             return size.Reduced;
         }
 
-#region Helper Stream Functions
+        #region Helper Stream Functions
 
         public MediaStream GetStream(int index) => this.streams[index];
         public VideoStream GetVideoStream(int index) => this.videoStreams[index];
@@ -268,6 +268,6 @@ namespace FramePFX.FFmpeg
                 yield return this.streams[index];
         }
 
-#endregion
+        #endregion
     }
 }

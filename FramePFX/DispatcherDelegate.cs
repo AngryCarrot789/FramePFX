@@ -32,7 +32,8 @@ namespace FramePFX
 
         public bool IsOnOwnerThread => this.dispatcher.CheckAccess();
 
-        public bool IsSuspended {
+        public bool IsSuspended
+        {
             get => (int) DisableProcessingCountField.GetValue(this.dispatcher) > 0;
         }
 
@@ -59,7 +60,7 @@ namespace FramePFX
         }
 
         // Unless we are on the main thread and priority is Send, Invoke with the parameter provides
-        // practically no additional performance benifits for valuetype objects, because the parameter
+        // practically no additional performance benefits for ValueType objects, because the parameter
         // has to get boxed anyway, and not to mention the fact that WPF dispatcher operations create
         // an instance of DispatcherOperationTaskSource which also creates a TaskCompletionSource and
         // DispatcherOperationTaskMapping AND an instance of CulturePreservingExecutionContext gets created too...
@@ -92,5 +93,7 @@ namespace FramePFX
         {
             return this.dispatcher.InvokeAsync(function, priority, token).Task;
         }
+
+        public void VerifyAccess() => this.dispatcher.VerifyAccess();
     }
 }

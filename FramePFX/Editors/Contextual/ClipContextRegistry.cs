@@ -69,7 +69,7 @@ namespace FramePFX.Editors.Contextual
             }
         }
 
-        public static ExecutabilityState CanGetClipSelection(IContextData ctx, bool doNotUseTimelineSelection = false)
+        public static Executability CanGetClipSelection(IContextData ctx, bool doNotUseTimelineSelection = false)
         {
             if (DataKeys.ClipKey.TryGetContext(ctx, out Clip clip))
             {
@@ -77,38 +77,38 @@ namespace FramePFX.Editors.Contextual
                 Timeline timeline;
                 if (track == null || (timeline = track.Timeline) == null)
                 {
-                    return ExecutabilityState.ValidButCannotExecute;
+                    return Executability.ValidButCannotExecute;
                 }
 
                 int selectedClips = doNotUseTimelineSelection ? track.SelectedClipsCount : timeline.SelectedClipsCount;
                 if (!clip.IsSelected || selectedClips == 1)
                 {
-                    return ExecutabilityState.Executable;
+                    return Executability.Valid;
                 }
                 else
                 {
                     Debug.Assert(selectedClips > 1, "Selection corruption 1");
-                    return ExecutabilityState.Executable;
+                    return Executability.Valid;
                 }
             }
             else if (doNotUseTimelineSelection)
             {
                 if (DataKeys.TrackKey.TryGetContext(ctx, out Track track))
                 {
-                    return track.SelectedClipsCount > 0 ? ExecutabilityState.Executable : ExecutabilityState.ValidButCannotExecute;
+                    return track.SelectedClipsCount > 0 ? Executability.Valid : Executability.ValidButCannotExecute;
                 }
                 else
                 {
-                    return ExecutabilityState.Invalid;
+                    return Executability.Invalid;
                 }
             }
             else if (DataKeys.TimelineKey.TryGetContext(ctx, out Timeline timeline))
             {
-                return timeline.SelectedClipsCount > 0 ? ExecutabilityState.Executable : ExecutabilityState.ValidButCannotExecute;
+                return timeline.SelectedClipsCount > 0 ? Executability.Valid : Executability.ValidButCannotExecute;
             }
             else
             {
-                return ExecutabilityState.Invalid;
+                return Executability.Invalid;
             }
         }
 

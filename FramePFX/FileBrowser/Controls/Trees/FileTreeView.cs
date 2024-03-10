@@ -20,11 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Controls;
 using FramePFX.AttachedProperties;
 using FramePFX.Editors.Controls.TreeViews.Controls;
 using FramePFX.FileBrowser.FileTree;
-using FramePFX.Utils;
 
 namespace FramePFX.FileBrowser.Controls.Trees
 {
@@ -32,7 +30,8 @@ namespace FramePFX.FileBrowser.Controls.Trees
     {
         public static readonly DependencyProperty FileTreeProperty = DependencyProperty.Register("FileTree", typeof(VFSFileEntry), typeof(FileTreeView), new PropertyMetadata(null, (d, e) => ((FileTreeView) d).OnFileTreeChanged((VFSFileEntry) e.OldValue, (VFSFileEntry) e.NewValue)));
 
-        public VFSFileEntry FileTree {
+        public VFSFileEntry FileTree
+        {
             get => (VFSFileEntry) this.GetValue(FileTreeProperty);
             set => this.SetValue(FileTreeProperty, value);
         }

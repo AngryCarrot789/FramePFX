@@ -24,7 +24,7 @@ using System.Windows;
 using FramePFX.CommandSystem;
 using FramePFX.Editors;
 using FramePFX.Editors.Commands;
-using FramePFX.Editors.ResourceManaging.Actions;
+using FramePFX.Editors.ResourceManaging.Commands;
 using FramePFX.Logger;
 using FramePFX.Services.Files;
 using FramePFX.Services.Messages;

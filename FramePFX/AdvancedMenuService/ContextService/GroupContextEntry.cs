@@ -32,8 +32,6 @@ namespace FramePFX.AdvancedMenuService.ContextService
             this.Description = description;
         }
 
-        public GroupContextEntry(string header, IEnumerable<IContextEntry> children = null) : this(header, null, children)
-        {
-        }
+        public GroupContextEntry(string header, IEnumerable<IContextEntry> children = null) : this(header, null, children) { }
     }
 }

@@ -31,7 +31,8 @@ namespace FramePFX.Editors.Collections
         private readonly Func<IEnumerable<T>> sourceFunc;
         private bool isListInvalid;
 
-        public IEnumerable<T> Items {
+        public IEnumerable<T> Items
+        {
             get
             {
                 this.EnsureUpdated();
@@ -39,7 +40,8 @@ namespace FramePFX.Editors.Collections
             }
         }
 
-        public int Count {
+        public int Count
+        {
             get
             {
                 this.EnsureUpdated();

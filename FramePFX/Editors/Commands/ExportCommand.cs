@@ -19,7 +19,6 @@
 
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Exporting;
 using FramePFX.Editors.Exporting.Controls;
@@ -37,51 +36,45 @@ namespace FramePFX.Editors.Commands
             this.ExportActiveTimeline = exportActiveTimeline;
         }
 
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        public override Executability CanExecute(CommandEventArgs e)
         {
             if (this.ExportActiveTimeline)
             {
                 if (!TryGetTimeline(e.ContextData, out Timeline timeline))
-                    return ExecutabilityState.Invalid;
+                    return Executability.Invalid;
                 if (timeline.Project == null || timeline.Project.IsExporting)
-                    return ExecutabilityState.ValidButCannotExecute;
+                    return Executability.ValidButCannotExecute;
             }
             else
             {
                 if (!TryGetProject(e.ContextData, out Project project))
-                    return ExecutabilityState.Invalid;
+                    return Executability.Invalid;
                 if (project.IsExporting)
-                    return ExecutabilityState.ValidButCannotExecute;
+                    return Executability.ValidButCannotExecute;
             }
 
-            return ExecutabilityState.Executable;
+            return Executability.Valid;
         }
 
-        public override Task Execute(CommandEventArgs e)
+        protected override void Execute(CommandEventArgs e)
         {
             Project project;
             Timeline timeline;
             if (this.ExportActiveTimeline)
             {
                 if (!TryGetTimeline(e.ContextData, out timeline) || timeline.Project == null || timeline.Project.IsExporting)
-                {
-                    return Task.CompletedTask;
-                }
+                    return;
             }
             else
             {
                 if (!TryGetProject(e.ContextData, out project) || project.IsExporting)
-                {
-                    return Task.CompletedTask;
-                }
+                    return;
 
                 timeline = project.MainTimeline;
             }
 
             if ((project = timeline.Project) == null)
-            {
-                return Task.CompletedTask;
-            }
+                return;
 
             project.Editor.Playback.Pause();
             ExportDialog dialog = new ExportDialog
@@ -97,7 +90,6 @@ namespace FramePFX.Editors.Commands
             };
 
             dialog.ShowDialog();
-            return Task.CompletedTask;
         }
 
         public static bool TryGetProject(IContextData ctx, out Project project)

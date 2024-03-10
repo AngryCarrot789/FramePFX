@@ -33,7 +33,8 @@ namespace FramePFX.Shortcuts.Usage
 
         public KeyStroke CurrentKeyStroke => this.currentStroke?.Value ?? default;
 
-        public IShortcut Shortcut {
+        public IShortcut Shortcut
+        {
             get => this.KeyboardShortcut;
         }
 
@@ -43,7 +44,8 @@ namespace FramePFX.Shortcuts.Usage
 
         public IInputStroke CurrentStroke => this.currentStroke?.Value;
 
-        public IEnumerable<IInputStroke> RemainingStrokes {
+        public IEnumerable<IInputStroke> RemainingStrokes
+        {
             get
             {
                 LinkedListNode<KeyStroke> stroke = this.currentStroke;

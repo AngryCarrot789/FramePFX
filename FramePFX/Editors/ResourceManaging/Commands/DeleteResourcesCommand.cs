@@ -17,40 +17,33 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Contextual;
 
-namespace FramePFX.Editors.ResourceManaging.Actions
+namespace FramePFX.Editors.ResourceManaging.Commands
 {
     public class DeleteResourcesCommand : Command
     {
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        public override Executability CanExecute(CommandEventArgs e)
         {
             return ResourceContextRegistry.CanGetTreeSelectionContext(e.ContextData);
         }
 
-        public override Task Execute(CommandEventArgs e)
+        protected override void Execute(CommandEventArgs e)
         {
             if (!ResourceContextRegistry.GetTreeSelectionContext(e.ContextData, out BaseResource[] items))
-            {
-                return Task.CompletedTask;
-            }
+                return;
 
             foreach (BaseResource item in items)
             {
                 // Since the tree's selected items will be unordered (hash set), we might end up removing
                 // a folder containing some selected items, so parent will be null since it deletes the hierarchy
                 if (item.Parent == null)
-                {
                     continue;
-                }
 
                 ResourceFolder.ClearHierarchy(item as ResourceFolder);
                 item.Parent.RemoveItem(item);
             }
-
-            return Task.CompletedTask;
         }
     }
 }

@@ -93,5 +93,10 @@ namespace FramePFX
         /// <typeparam name="TResult">The return value for the function</typeparam>
         /// <returns>A task that can be awaited, which is completed once the function returns on the UI thread</returns>
         Task<T> InvokeAsync<T>(Func<T> function, DispatcherPriority priority = DispatcherPriority.Normal, CancellationToken token = default);
+
+        /// <summary>
+        /// Ensures that this dispatcher is associated with the current thread
+        /// </summary>
+        void VerifyAccess();
     }
 }

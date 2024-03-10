@@ -435,24 +435,26 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
             }
         }
 
-#region Properties
+        #region Properties
 
         public bool LastCancelAll { get; private set; }
 
-        internal static bool IsControlKeyDown {
+        internal static bool IsControlKeyDown
+        {
             get
             {
                 return (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
             }
         }
 
-        private static bool IsShiftKeyDown {
+        private static bool IsShiftKeyDown
+        {
             get
             {
                 return (Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift;
             }
         }
 
-#endregion
+        #endregion
     }
 }

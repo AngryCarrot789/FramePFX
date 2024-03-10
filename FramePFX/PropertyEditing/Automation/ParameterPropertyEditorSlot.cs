@@ -36,7 +36,8 @@ namespace FramePFX.PropertyEditing.Automation
 
         public Parameter Parameter { get; }
 
-        public string DisplayName {
+        public string DisplayName
+        {
             get => this.displayName;
             set
             {

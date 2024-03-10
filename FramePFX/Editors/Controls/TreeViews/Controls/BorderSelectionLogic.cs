@@ -33,7 +33,7 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
 {
     internal class BorderSelectionLogic : IDisposable
     {
-#region Private fields
+        #region Private fields
 
         private MultiSelectTreeView treeView;
         private readonly Border border;
@@ -48,9 +48,9 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
 
         public static (int millis, int lines) AutoScrollData = (25, 2);
 
-#endregion Private fields
+        #endregion Private fields
 
-#region Constructor
+        #region Constructor
 
         public BorderSelectionLogic(MultiSelectTreeView treeView, Border selectionBorder, ScrollViewer scrollViewer, ItemsPresenter content)
         {
@@ -66,9 +66,9 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
             treeView.KeyUp += this.OnKeyUp;
         }
 
-#endregion Constructor
+        #endregion Constructor
 
-#region Public methods
+        #region Public methods
 
         public void Dispose()
         {
@@ -85,9 +85,9 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
             GC.SuppressFinalize(this);
         }
 
-#endregion Public methods
+        #endregion Public methods
 
-#region Methods
+        #region Methods
 
         private void OnMouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -305,6 +305,6 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
             // Debug.WriteLine("End drawing");
         }
 
-#endregion Methods
+        #endregion Methods
     }
 }

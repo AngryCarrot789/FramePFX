@@ -107,23 +107,27 @@ namespace FramePFX.Converters
         public static BoolToVisibilityConverter BoolToVisibleOrCollapsed { get; } = new BoolToVisibilityConverter();
         public static BoolToVisibilityConverter BoolToVisibleOrHidden { get; } = new BoolToVisibilityConverter() {FalseValue = Visibility.Hidden};
 
-        public new Visibility TrueValue {
+        public new Visibility TrueValue
+        {
             get => (Visibility) base.TrueValue;
             set => base.TrueValue = NullToVisibilityConverter.Box(value);
         }
 
-        public new Visibility FalseValue {
+        public new Visibility FalseValue
+        {
             get => (Visibility) base.FalseValue;
             set => base.FalseValue = NullToVisibilityConverter.Box(value);
         }
 
-        public new Visibility UnsetValue {
+        public new Visibility UnsetValue
+        {
             // get will throw by default... cast to base type to set
             get => base.UnsetValue is Visibility v ? v : Visibility.Collapsed;
             set => base.UnsetValue = NullToVisibilityConverter.Box(value);
         }
 
-        public new Visibility NonBoolValue {
+        public new Visibility NonBoolValue
+        {
             // get will throw by default... cast to base type to set
             get => base.NonBoolValue is Visibility v ? v : Visibility.Collapsed;
             set => base.NonBoolValue = NullToVisibilityConverter.Box(value);
@@ -218,12 +222,14 @@ namespace FramePFX.Converters
 
     public class BoolToBrushConverter : BoolConverter
     {
-        public new Brush TrueValue {
+        public new Brush TrueValue
+        {
             get => (Brush) base.TrueValue;
             set => base.TrueValue = value;
         }
 
-        public new Brush FalseValue {
+        public new Brush FalseValue
+        {
             get => (Brush) base.FalseValue;
             set => base.FalseValue = value;
         }
@@ -237,12 +243,14 @@ namespace FramePFX.Converters
 
     public class BoolToColourConverter : BoolConverter
     {
-        public new Color TrueValue {
+        public new Color TrueValue
+        {
             get => (Color) base.TrueValue;
             set => base.TrueValue = value;
         }
 
-        public new Color FalseValue {
+        public new Color FalseValue
+        {
             get => (Color) base.FalseValue;
             set => base.FalseValue = value;
         }
@@ -256,12 +264,14 @@ namespace FramePFX.Converters
 
     public class BoolToDoubleConverter : BoolConverter
     {
-        public new double TrueValue {
+        public new double TrueValue
+        {
             get => (double) base.TrueValue;
             set => base.TrueValue = value;
         }
 
-        public new double FalseValue {
+        public new double FalseValue
+        {
             get => (double) base.FalseValue;
             set => base.FalseValue = value;
         }

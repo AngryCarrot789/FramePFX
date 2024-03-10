@@ -46,27 +46,32 @@ namespace FramePFX.Editors.Controls.Timelines
         public static readonly DependencyProperty ForegroundProperty = TextElement.ForegroundProperty.AddOwner(typeof(TimelineRuler), new FrameworkPropertyMetadata(SystemColors.ControlTextBrush));
         public static readonly DependencyProperty StepColorProperty = DependencyProperty.Register(nameof(StepColor), typeof(Brush), typeof(TimelineRuler), new FrameworkPropertyMetadata(Brushes.DimGray, FrameworkPropertyMetadataOptions.AffectsRender, (d, e) => ((TimelineRuler) d).majorLineStepColourPen = null));
 
-        public Timeline Timeline {
+        public Timeline Timeline
+        {
             get => (Timeline) this.GetValue(TimelineProperty);
             set => this.SetValue(TimelineProperty, value);
         }
 
-        public Brush Background {
+        public Brush Background
+        {
             get => (Brush) this.GetValue(BackgroundProperty);
             set => this.SetValue(BackgroundProperty, value);
         }
 
-        public FontFamily FontFamily {
+        public FontFamily FontFamily
+        {
             get => (FontFamily) this.GetValue(FontFamilyProperty);
             set => this.SetValue(FontFamilyProperty, value);
         }
 
-        public Brush Foreground {
+        public Brush Foreground
+        {
             get => (Brush) this.GetValue(ForegroundProperty);
             set => this.SetValue(ForegroundProperty, value);
         }
 
-        public Brush StepColor {
+        public Brush StepColor
+        {
             get => (Brush) this.GetValue(StepColorProperty);
             set => this.SetValue(StepColorProperty, value);
         }

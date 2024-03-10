@@ -32,7 +32,8 @@ namespace FramePFX.PropertyEditing.DataTransfer
 
         public DataParameter DataParameter { get; }
 
-        public string DisplayName {
+        public string DisplayName
+        {
             get => this.displayName;
             set
             {
@@ -45,7 +46,8 @@ namespace FramePFX.PropertyEditing.DataTransfer
 
         private bool isEditable;
 
-        public bool IsEditable {
+        public bool IsEditable
+        {
             get => this.isEditable;
             set
             {

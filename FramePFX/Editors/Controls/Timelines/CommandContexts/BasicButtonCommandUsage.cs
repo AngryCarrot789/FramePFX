@@ -28,11 +28,7 @@ namespace FramePFX.Editors.Controls.Timelines.CommandContexts
 {
     public class BasicButtonCommandUsage : CommandUsage
     {
-        private bool isExecuting;
-
-        public BasicButtonCommandUsage(string commandId) : base(commandId)
-        {
-        }
+        public BasicButtonCommandUsage(string commandId) : base(commandId) { }
 
         protected override void OnConnected()
         {
@@ -50,42 +46,17 @@ namespace FramePFX.Editors.Controls.Timelines.CommandContexts
 
         protected virtual void OnButtonClick(object sender, RoutedEventArgs e)
         {
-            if (!this.isExecuting)
-            {
-                this.DoExecuteAsync();
-            }
-        }
-
-        private async void DoExecuteAsync()
-        {
-            this.isExecuting = true;
             this.UpdateCanExecute();
-            try
-            {
-                await CommandManager.Instance.TryExecute(this.CommandId, () => DataManager.GetFullContextData(this.Control));
-            }
-            finally
-            {
-                this.isExecuting = true;
-                this.UpdateCanExecute();
-            }
+            CommandManager.Instance.TryExecute(this.CommandId, () => DataManager.GetFullContextData(this.Control));
+
+            // If the command does things in the background (e.g. async command),
+            // then it may not be executable anymore, so update the UI
+            this.UpdateCanExecute();
         }
 
-        protected override void UpdateCanExecute()
+        protected override void OnUpdateForCanExecuteState(Executability state)
         {
-            if (this.isExecuting)
-            {
-                ((ButtonBase) this.Control).IsEnabled = false;
-            }
-            else
-            {
-                base.UpdateCanExecute();
-            }
-        }
-
-        protected override void OnUpdateForCanExecuteState(ExecutabilityState state)
-        {
-            ((ButtonBase) this.Control).IsEnabled = !this.isExecuting && state == ExecutabilityState.Executable;
+            ((ButtonBase) this.Control).IsEnabled = state == Executability.Valid;
         }
     }
 }

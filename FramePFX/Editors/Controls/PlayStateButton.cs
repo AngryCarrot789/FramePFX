@@ -17,14 +17,13 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
-using FramePFX.Utils;
 using FramePFX.Utils.Commands;
+using FramePFX.Utils.RDA;
 
 namespace FramePFX.Editors.Controls
 {
@@ -37,35 +36,36 @@ namespace FramePFX.Editors.Controls
         /// Gets or sets the play state that is shown in the UI, e.g. if this value is <see cref="Play"/> then it shows a play arrow.
         /// This is not the play state of the video editor, that would effectively be the opposite of this property
         /// </summary>
-        public PlayState PlayState {
+        public PlayState PlayState
+        {
             get => (PlayState) this.GetValue(PlayStateProperty);
             set => this.SetValue(PlayStateProperty, value);
         }
 
-        public string CommandId {
+        public string CommandId
+        {
             get => (string) this.GetValue(CommandIdProperty);
             set => this.SetValue(CommandIdProperty, value);
         }
 
         protected VideoEditor editor;
         private readonly RapidDispatchAction delayedContextChangeUpdater;
-        private readonly AsyncRelayCommand command;
+        private readonly RelayCommand command;
 
         public PlayStateButton()
         {
             DataManager.AddInheritedContextInvalidatedHandler(this, this.OnInheritedContextChanged);
             this.Loaded += this.OnLoaded;
             this.delayedContextChangeUpdater = new RapidDispatchAction(this.UpdateForContext, DispatcherPriority.Loaded, "UpdateCanExecute");
-            this.command = new AsyncRelayCommand(() =>
+            this.command = new RelayCommand(() =>
             {
                 if (this.CommandId is string cmdId && !string.IsNullOrWhiteSpace(cmdId))
-                    return CommandManager.Instance.TryExecute(cmdId, () => DataManager.GetFullContextData(this));
-                return Task.CompletedTask;
+                    CommandManager.Instance.TryExecute(cmdId, () => DataManager.GetFullContextData(this));
             }, () =>
             {
                 if (this.editor == null || !(this.CommandId is string cmdId) || string.IsNullOrWhiteSpace(cmdId))
                     return false;
-                return CommandManager.Instance.CanExecute(cmdId, DataManager.GetFullContextData(this)) == ExecutabilityState.Executable;
+                return CommandManager.Instance.CanExecute(cmdId, DataManager.GetFullContextData(this)) == Executability.Valid;
             });
 
             this.Command = this.command;

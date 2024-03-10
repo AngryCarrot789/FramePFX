@@ -19,7 +19,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using FramePFX.CommandSystem;
@@ -34,31 +33,31 @@ namespace FramePFX.Editors.Commands
 {
     public class CreateCompositionFromSelectionCommand : Command
     {
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        public override Executability CanExecute(CommandEventArgs e)
         {
             if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline timeline))
-                return ExecutabilityState.Invalid;
+                return Executability.Invalid;
             if (timeline.Project == null)
-                return ExecutabilityState.ValidButCannotExecute;
-            return ExecutabilityState.Executable;
+                return Executability.ValidButCannotExecute;
+            return Executability.Valid;
         }
 
-        public override Task Execute(CommandEventArgs e)
+        protected override void Execute(CommandEventArgs e)
         {
             if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline timeline))
             {
-                return Task.CompletedTask;
+                return;
             }
 
             Project project = timeline.Project;
             if (project == null)
-                return Task.CompletedTask;
+                return;
             int trackStart = int.MaxValue, trackEnd = int.MinValue;
             List<Clip> selected = DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip focusedClip) ? timeline.GetSelectedClipsWith(focusedClip).ToList() : timeline.SelectedClips.ToList();
             if (selected.Count < 1)
             {
                 IoC.MessageService.ShowMessage("No selection", "No selected clips!");
-                return Task.CompletedTask;
+                return;
             }
 
             timeline.ClearClipSelection();
@@ -71,7 +70,7 @@ namespace FramePFX.Editors.Commands
                 if (index == -1)
                 {
                     IoC.MessageService.ShowMessage("Error", "One or more selected clips did not have a track associated... this is a very bad bug");
-                    return Task.CompletedTask;
+                    return;
                 }
 
                 if (index < trackStart)
@@ -139,7 +138,6 @@ namespace FramePFX.Editors.Commands
                     project.ActiveTimeline = composition.Timeline;
                 }
             }, DispatcherPriority.Background);
-            return Task.CompletedTask;
         }
     }
 }

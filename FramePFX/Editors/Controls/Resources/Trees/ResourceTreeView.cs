@@ -37,12 +37,14 @@ namespace FramePFX.Editors.Controls.Resources.Trees
         public static readonly DependencyProperty IsDroppableTargetOverProperty = DependencyProperty.Register("IsDroppableTargetOver", typeof(bool), typeof(ResourceTreeView), new PropertyMetadata(BoolBox.False));
         public static readonly DependencyProperty ResourceManagerProperty = DependencyProperty.Register("ResourceManager", typeof(ResourceManager), typeof(ResourceTreeView), new PropertyMetadata(null, (d, e) => ((ResourceTreeView) d).OnResourceManagerChanged((ResourceManager) e.OldValue, (ResourceManager) e.NewValue)));
 
-        public ResourceManager ResourceManager {
+        public ResourceManager ResourceManager
+        {
             get => (ResourceManager) this.GetValue(ResourceManagerProperty);
             set => this.SetValue(ResourceManagerProperty, value);
         }
 
-        public bool IsDroppableTargetOver {
+        public bool IsDroppableTargetOver
+        {
             get => (bool) this.GetValue(IsDroppableTargetOverProperty);
             set => this.SetValue(IsDroppableTargetOverProperty, value.Box());
         }

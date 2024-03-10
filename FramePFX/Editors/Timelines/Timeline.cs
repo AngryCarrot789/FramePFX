@@ -55,7 +55,8 @@ namespace FramePFX.Editors.Timelines
         /// <summary>
         /// Gets or sets the total length of all tracks, in frames. This is incremented on demand when necessary, and is used for UI calculations
         /// </summary>
-        public long MaxDuration {
+        public long MaxDuration
+        {
             get => this.maxDuration;
             set
             {
@@ -66,7 +67,8 @@ namespace FramePFX.Editors.Timelines
             }
         }
 
-        public long StopHeadPosition {
+        public long StopHeadPosition
+        {
             get => this.stopHeadPosition;
             set
             {
@@ -87,7 +89,8 @@ namespace FramePFX.Editors.Timelines
         /// <summary>
         /// The position of the play head, in frames
         /// </summary>
-        public long PlayHeadPosition {
+        public long PlayHeadPosition
+        {
             get => this.playHeadPosition;
             set
             {
@@ -107,7 +110,8 @@ namespace FramePFX.Editors.Timelines
             }
         }
 
-        public long LargestFrameInUse {
+        public long LargestFrameInUse
+        {
             get => this.largestFrameInUse;
             private set
             {
@@ -137,7 +141,8 @@ namespace FramePFX.Editors.Timelines
         /// Returns the track selection type based on how many tracks are selected.
         /// Does not require enumerating the tracks as track selection is cached
         /// </summary>
-        public SelectionType TrackSelectionType {
+        public SelectionType TrackSelectionType
+        {
             get
             {
                 int count = this.selectedTracks.Count;
@@ -151,7 +156,8 @@ namespace FramePFX.Editors.Timelines
         /// Returns the clip selection type based on how many clips are selected in all tracks combined.
         /// This may require enumerating all tracks, but not all clips (since selected clips are cached)
         /// </summary>
-        public SelectionType ClipSelectionType {
+        public SelectionType ClipSelectionType
+        {
             get
             {
                 int count = 0;
@@ -575,7 +581,8 @@ namespace FramePFX.Editors.Timelines
                     selected.RemoveAt(0);
                 }
                 else
-                { // assume back to front removal
+                {
+                    // assume back to front removal
                     int index = selected.LastIndexOf(track);
                     if (index == -1)
                     {

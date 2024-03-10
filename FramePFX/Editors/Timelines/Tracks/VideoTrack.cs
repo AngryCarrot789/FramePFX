@@ -68,7 +68,8 @@ namespace FramePFX.Editors.Timelines.Tracks
         /// <summary>
         /// Gets (or calculates, if dirty) this track's transformation matrix which is based on our transformation properties
         /// </summary>
-        public SKMatrix TransformationMatrix {
+        public SKMatrix TransformationMatrix
+        {
             get
             {
                 if (this.isMatrixDirty)

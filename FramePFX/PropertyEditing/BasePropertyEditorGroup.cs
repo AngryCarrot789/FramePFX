@@ -42,7 +42,8 @@ namespace FramePFX.PropertyEditing
         /// <summary>
         /// Gets or sets this group's display name
         /// </summary>
-        public string DisplayName {
+        public string DisplayName
+        {
             get => this.displayName;
             set
             {
@@ -56,7 +57,8 @@ namespace FramePFX.PropertyEditing
         /// <summary>
         /// Gets or sets if this group is expanded or not
         /// </summary>
-        public bool IsExpanded {
+        public bool IsExpanded
+        {
             get => this.isExpanded;
             set
             {

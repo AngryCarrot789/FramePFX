@@ -49,7 +49,8 @@ namespace FramePFX.Editors.Automation
         /// Gets the automation sequence (aka timeline) for the specific automation key. If one does not exist, it is created
         /// </summary>
         /// <param name="parameter"></param>
-        public AutomationSequence this[Parameter parameter] {
+        public AutomationSequence this[Parameter parameter]
+        {
             get
             {
                 if (parameter == null)

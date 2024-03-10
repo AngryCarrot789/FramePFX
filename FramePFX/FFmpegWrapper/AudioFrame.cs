@@ -28,7 +28,8 @@ namespace FramePFX.FFmpegWrapper
 
         public bool IsPlanar => ffmpeg.av_sample_fmt_is_planar(this.SampleFormat) != 0;
 
-        public int Count {
+        public int Count
+        {
             get => this.frame->nb_samples;
             set
             {

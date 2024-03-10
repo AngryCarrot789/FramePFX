@@ -19,7 +19,8 @@ namespace FramePFX.FFmpegWrapper
     {
         private AVBufferRef* _ctx;
 
-        public AVBufferRef* Handle {
+        public AVBufferRef* Handle
+        {
             get
             {
                 this.ValidateNotDisposed();
@@ -27,7 +28,8 @@ namespace FramePFX.FFmpegWrapper
             }
         }
 
-        public AVHWDeviceContext* RawHandle {
+        public AVHWDeviceContext* RawHandle
+        {
             get
             {
                 this.ValidateNotDisposed();

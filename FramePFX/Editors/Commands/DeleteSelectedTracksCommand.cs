@@ -18,7 +18,6 @@
 //
 
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
@@ -29,12 +28,12 @@ namespace FramePFX.Editors.Commands
 {
     public class DeleteSelectedTracksCommand : Command
     {
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        public override Executability CanExecute(CommandEventArgs e)
         {
-            return e.ContextData.ContainsKey(DataKeys.TrackKey) || e.ContextData.ContainsKey(DataKeys.TimelineKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+            return e.ContextData.ContainsKey(DataKeys.TrackKey) || e.ContextData.ContainsKey(DataKeys.TimelineKey) ? Executability.Valid : Executability.Invalid;
         }
 
-        public override Task Execute(CommandEventArgs e)
+        protected override void Execute(CommandEventArgs e)
         {
             int focusedIndex = -1;
             HashSet<Track> tracks = new HashSet<Track>();
@@ -82,8 +81,6 @@ namespace FramePFX.Editors.Commands
 
                 VideoEditorPropertyEditor.Instance.UpdateTrackSelectionAsync(timeline);
             }
-
-            return Task.CompletedTask;
         }
     }
 }

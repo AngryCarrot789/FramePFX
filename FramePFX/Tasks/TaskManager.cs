@@ -24,6 +24,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using FramePFX.Logger;
 using FramePFX.Utils;
 
 namespace FramePFX.Tasks
@@ -80,9 +81,7 @@ namespace FramePFX.Tasks
         public bool TryGetCurrentTask(out ActivityTask task)
         {
             if (this.threadToTask.IsValueCreated && (task = this.threadToTask.Value) != null)
-            {
                 return true;
-            }
 
             task = null;
             return false;
@@ -109,39 +108,37 @@ namespace FramePFX.Tasks
             this.threadToTask.Dispose();
         }
 
-        internal static void InternalBeginActivateTask_BGTHREAD(TaskManager taskManager, ActivityTask task)
+        internal static void InternalActivateTask(TaskManager taskManager, ActivityTask task)
         {
             taskManager.threadToTask.Value = task;
-            IoC.Dispatcher.Invoke(() =>
+            Application.Current.Dispatcher.Invoke(() =>
             {
-                InternalOnTaskStartedSafe(taskManager, task);
+                OnTaskStarted_AMT(taskManager, task);
                 ActivityTask.InternalActivate(task);
-            });
+            }, DispatcherPriority.Loaded);
         }
 
-        internal static void InternalOnTaskCompleted_BGTHREAD(TaskManager taskManager, ActivityTask task, int state)
+        internal static void InternalOnTaskCompleted(TaskManager taskManager, ActivityTask task, int state)
         {
             taskManager.threadToTask.Value = null;
             Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
                 ActivityTask.InternalComplete(task, state);
-                InternalOnTaskCompletedSafe(taskManager, task);
+                OnTaskCompleted_AMT(taskManager, task);
                 if (task.Exception is Exception e)
                 {
                     const string msg = "An exception occurred while running a task";
                     if (Debugger.IsAttached)
-                    {
-                        throw new Exception(msg, e);
-                    }
-                    else
-                    {
-                        IoC.MessageService.ShowMessage("Task Error", msg, e.GetToString());
-                    }
+                        Debugger.Break();
+
+                    IoC.MessageService.ShowMessage("Task Error", msg, e.GetToString());
                 }
-            }), DispatcherPriority.Send);
+
+                task.Dispose();
+            }), DispatcherPriority.Loaded);
         }
 
-        internal static void InternalOnTaskStartedSafe(TaskManager taskManager, ActivityTask task)
+        internal static void OnTaskStarted_AMT(TaskManager taskManager, ActivityTask task)
         {
             lock (taskManager.locker)
             {
@@ -151,11 +148,21 @@ namespace FramePFX.Tasks
             }
         }
 
-        internal static void InternalOnTaskCompletedSafe(TaskManager taskManager, ActivityTask task)
+        internal static void OnTaskCompleted_AMT(TaskManager taskManager, ActivityTask task)
         {
             lock (taskManager.locker)
             {
                 int index = taskManager.tasks.IndexOf(task);
+                if (index == -1)
+                {
+                    const string msg = "Completed activity task did not exist in this task manager's internal task list";
+                    AppLogger.Instance.WriteLine("[FATAL] " + msg);
+                    if (Debugger.IsAttached)
+                        throw new Exception(msg);
+
+                    return;
+                }
+
                 taskManager.tasks.RemoveAt(index);
                 taskManager.TaskCompleted?.Invoke(taskManager, task, index);
             }

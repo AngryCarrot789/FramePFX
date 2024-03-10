@@ -353,7 +353,7 @@ namespace FramePFX.Editors.ResourceManaging.ResourceHelpers
                 throw new InvalidOperationException(message);
         }
 
-#region Serialisation
+        #region Serialisation
 
         public static void WriteToRBE(ResourceLink resource, RBEDictionary data)
         {
@@ -368,6 +368,6 @@ namespace FramePFX.Editors.ResourceManaging.ResourceHelpers
             return new ResourceLink(owner, id);
         }
 
-#endregion
+        #endregion
     }
 }

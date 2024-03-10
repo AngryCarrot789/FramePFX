@@ -43,7 +43,8 @@ namespace FramePFX.Editors.Controls
             return (List<GridSlotAutoSizer>) element.GetValue(AutoSizerListProperty);
         }
 
-        public ColumnDefinition ColumnDefinition {
+        public ColumnDefinition ColumnDefinition
+        {
             get => (ColumnDefinition) this.GetValue(ColumnDefinitionProperty);
             set => this.SetValue(ColumnDefinitionProperty, value);
         }

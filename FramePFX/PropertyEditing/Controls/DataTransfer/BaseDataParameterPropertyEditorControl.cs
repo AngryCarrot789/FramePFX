@@ -34,7 +34,8 @@ namespace FramePFX.PropertyEditing.Controls.DataTransfer
         protected bool IsUpdatingPrimaryControl;
         protected bool isUpdatingCheckBoxControl;
 
-        public bool IsCheckBoxToggleable {
+        public bool IsCheckBoxToggleable
+        {
             get => (bool) this.GetValue(IsCheckBoxToggleableProperty);
             set => this.SetValue(IsCheckBoxToggleableProperty, value.Box());
         }

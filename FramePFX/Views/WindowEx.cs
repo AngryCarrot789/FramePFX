@@ -40,12 +40,14 @@ namespace FramePFX.Views
         public static readonly DependencyProperty CanCloseWithEscapeKeyProperty = DependencyProperty.Register("CanCloseWithEscapeKey", typeof(bool), typeof(WindowEx), new PropertyMetadata(false));
 
         [Category("Brush")]
-        public Brush TitlebarBrush {
+        public Brush TitlebarBrush
+        {
             get => (Brush) this.GetValue(TitlebarBrushProperty);
             set => this.SetValue(TitlebarBrushProperty, value);
         }
 
-        public bool CanCloseWithEscapeKey {
+        public bool CanCloseWithEscapeKey
+        {
             get => (bool) this.GetValue(CanCloseWithEscapeKeyProperty);
             set => this.SetValue(CanCloseWithEscapeKeyProperty, value);
         }

@@ -17,30 +17,25 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Contextual;
 
-namespace FramePFX.Editors.ResourceManaging.Actions
+namespace FramePFX.Editors.ResourceManaging.Commands
 {
     public class GroupResourcesCommand : Command
     {
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        public override Executability CanExecute(CommandEventArgs e)
         {
             return ResourceContextRegistry.CanGetSingleFolderSelection(e.ContextData);
         }
 
-        public override Task Execute(CommandEventArgs e)
+        protected override void Execute(CommandEventArgs e)
         {
             if (!ResourceContextRegistry.GetFolderSelectionContext(e.ContextData, out ResourceFolder currFolder, out BaseResource[] items))
-            {
-                return Task.CompletedTask;
-            }
+                return;
 
             foreach (BaseResource resource in items)
-            {
                 resource.IsSelected = false;
-            }
 
             string displayName = "Grouped Folder";
             if (e.IsUserInitiated)
@@ -54,8 +49,6 @@ namespace FramePFX.Editors.ResourceManaging.Actions
             {
                 currFolder.MoveItemTo(folder, resource);
             }
-
-            return Task.CompletedTask;
         }
     }
 }

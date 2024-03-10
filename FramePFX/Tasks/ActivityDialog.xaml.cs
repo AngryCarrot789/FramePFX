@@ -37,7 +37,8 @@ namespace FramePFX.Tasks
                 typeof(ActivityDialog),
                 new PropertyMetadata(null, (d, e) => ((ActivityDialog) d).OnProgressTrackerChanged((IActivityProgress) e.OldValue, (IActivityProgress) e.NewValue)));
 
-        public IActivityProgress ActivityProgress {
+        public IActivityProgress ActivityProgress
+        {
             get => (IActivityProgress) this.GetValue(ActivityProgressProperty);
             set => this.SetValue(ActivityProgressProperty, value);
         }
@@ -89,25 +90,13 @@ namespace FramePFX.Tasks
             this.SetDescriptionText();
         }
 
-        private void OnIsIndeterminateChanged(IActivityProgress tracker)
-        {
-            this.Dispatcher.Invoke(this.SetIsIndeterminate, this.Dispatcher.CheckAccess() ? DispatcherPriority.Render : DispatcherPriority.Send);
-        }
+        private void OnIsIndeterminateChanged(IActivityProgress tracker) => this.Dispatcher.Invoke(this.SetIsIndeterminate, DispatcherPriority.Render);
 
-        private void OnCompletionValueChanged(IActivityProgress tracker)
-        {
-            this.Dispatcher.Invoke(this.SetCompletionValue, this.Dispatcher.CheckAccess() ? DispatcherPriority.Render : DispatcherPriority.Send);
-        }
+        private void OnCompletionValueChanged(IActivityProgress tracker) => this.Dispatcher.Invoke(this.SetCompletionValue, DispatcherPriority.Render);
 
-        private void OnHeaderTextChanged(IActivityProgress tracker)
-        {
-            this.Dispatcher.Invoke(this.SetHeaderText, this.Dispatcher.CheckAccess() ? DispatcherPriority.Render : DispatcherPriority.Send);
-        }
+        private void OnHeaderTextChanged(IActivityProgress tracker) => this.Dispatcher.Invoke(this.SetHeaderText, DispatcherPriority.Render);
 
-        private void OnTextChanged(IActivityProgress tracker)
-        {
-            this.Dispatcher.Invoke(this.SetDescriptionText, this.Dispatcher.CheckAccess() ? DispatcherPriority.Render : DispatcherPriority.Send);
-        }
+        private void OnTextChanged(IActivityProgress tracker) => this.Dispatcher.Invoke(this.SetDescriptionText, DispatcherPriority.Render);
 
         private void SetIsIndeterminate()
         {

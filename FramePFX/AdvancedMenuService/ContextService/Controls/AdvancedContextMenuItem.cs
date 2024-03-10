@@ -24,28 +24,31 @@ using FramePFX.Editors.Controls.Bindings;
 namespace FramePFX.AdvancedMenuService.ContextService.Controls
 {
     /// <summary>
-    /// A menu item entry in a <see cref="AdvancedContextMenu"/> or <see cref="AdvancedContextMenuItem"/>
+    /// A menu item that represents a <see cref="BaseContextEntry"/>. This could be stored in anything
+    /// such as a <see cref="AdvancedContextMenu"/>, <see cref="AdvancedContextMenuItem"/>, etc.
     /// </summary>
     public class AdvancedContextMenuItem : MenuItem
     {
-        public AdvancedContextMenu Menu { get; private set; }
+        /// <summary>
+        /// Gets the container object, that being, the root object that stores the menu item tree that this instance is in
+        /// </summary>
+        public IAdvancedContainer Container { get; private set; }
 
-        public AdvancedContextMenuItem ParentNode { get; private set; }
+        /// <summary>
+        /// Gets the parent context menu item node. This MAY be different from the logical parent menu item
+        /// </summary>
+        public ItemsControl ParentNode { get; private set; }
 
         public BaseContextEntry Entry { get; private set; }
-
-        public ItemsControl ParentObject => (ItemsControl) this.ParentNode ?? this.Menu;
 
         private readonly IBinder<BaseContextEntry> headerBinder = new GetSetAutoEventPropertyBinder<BaseContextEntry>(HeaderProperty, nameof(BaseContextEntry.HeaderChanged), b => b.Model.Header, (b, v) => b.Model.Header = v?.ToString());
         private readonly IBinder<BaseContextEntry> toolTipBinder = new GetSetAutoEventPropertyBinder<BaseContextEntry>(ToolTipProperty, nameof(BaseContextEntry.DescriptionChanged), b => b.Model.Description, (b, v) => b.Model.Description = v?.ToString());
 
-        public AdvancedContextMenuItem()
-        {
-        }
+        public AdvancedContextMenuItem() { }
 
-        public virtual void OnAdding(AdvancedContextMenu menu, AdvancedContextMenuItem parent, BaseContextEntry entry)
+        public virtual void OnAdding(IAdvancedContainer container, ItemsControl parent, BaseContextEntry entry)
         {
-            this.Menu = menu;
+            this.Container = container;
             this.ParentNode = parent;
             this.Entry = entry;
         }
@@ -56,7 +59,7 @@ namespace FramePFX.AdvancedMenuService.ContextService.Controls
             this.toolTipBinder.Attach(this, this.Entry);
             if (this.Entry.Children != null)
             {
-                AdvancedContextMenu.InsertItemNodes(this.Menu, this, this.Entry.Children.ToList());
+                MenuService.InsertItemNodes(this.Container, this, this.Entry.Children.ToList());
             }
         }
 
@@ -64,14 +67,18 @@ namespace FramePFX.AdvancedMenuService.ContextService.Controls
         {
             this.headerBinder.Detach();
             this.toolTipBinder.Detach();
-            AdvancedContextMenu.ClearItemNodes(this);
+            MenuService.ClearItemNodes(this);
         }
 
         public virtual void OnRemoved()
         {
-            this.Menu = null;
+            this.Container = null;
             this.ParentNode = null;
             this.Entry = null;
+        }
+
+        public virtual void UpdateCanExecute()
+        {
         }
     }
 }

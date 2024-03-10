@@ -40,39 +40,43 @@ namespace FramePFX.Tasks
                 new PropertyMetadata(null, (d, e) => ((StandardActivityControl) d).OnProgressTrackerChanged((IActivityProgress) e.OldValue, (IActivityProgress) e.NewValue)));
 
 
-        public string Caption {
+        public string Caption
+        {
             get => (string) this.GetValue(CaptionProperty);
             set => this.SetValue(CaptionProperty, value);
         }
 
-        public string Text {
+        public string Text
+        {
             get => (string) this.GetValue(TextProperty);
             set => this.SetValue(TextProperty, value);
         }
 
-        public bool IsProgressIndeterminate {
+        public bool IsProgressIndeterminate
+        {
             get => (bool) this.GetValue(IsProgressIndeterminateProperty);
             set => this.SetValue(IsProgressIndeterminateProperty, value.Box());
         }
 
-        public double CompletionValue {
+        public double CompletionValue
+        {
             get => (double) this.GetValue(CompletionValueProperty);
             set => this.SetValue(CompletionValueProperty, value);
         }
 
-        public IActivityProgress ActivityProgress {
+        public IActivityProgress ActivityProgress
+        {
             get => (IActivityProgress) this.GetValue(ActivityProgressProperty);
             set => this.SetValue(ActivityProgressProperty, value);
         }
 
-        public bool IsModal {
+        public bool IsModal
+        {
             get => (bool) this.GetValue(IsModalProperty);
             set => this.SetValue(IsModalProperty, value);
         }
 
-        public StandardActivityControl()
-        {
-        }
+        public StandardActivityControl() { }
 
         static StandardActivityControl()
         {

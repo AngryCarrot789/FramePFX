@@ -82,7 +82,8 @@ namespace FramePFX.Editors.Timelines.Clips
         /// single struct that represents the location and duration of a clip within a track
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Begin or duration were negative</exception>
-        public FrameSpan FrameSpan {
+        public FrameSpan FrameSpan
+        {
             get => this.span;
             set
             {
@@ -108,7 +109,8 @@ namespace FramePFX.Editors.Timelines.Clips
         /// When dragging the left grip, it is calculated as: <code>MediaFrameOffset += (oldSpan.Begin - newSpan.Begin)</code>
         /// </para>
         /// </summary>
-        public long MediaFrameOffset {
+        public long MediaFrameOffset
+        {
             get => this.mediaFrameOffset;
             set
             {
@@ -121,7 +123,8 @@ namespace FramePFX.Editors.Timelines.Clips
             }
         }
 
-        public string DisplayName {
+        public string DisplayName
+        {
             get => this.displayName;
             set
             {
@@ -135,7 +138,8 @@ namespace FramePFX.Editors.Timelines.Clips
         }
 
 
-        public bool IsSelected {
+        public bool IsSelected
+        {
             get => this.isSelected;
             set
             {
@@ -156,7 +160,8 @@ namespace FramePFX.Editors.Timelines.Clips
         /// <summary>
         /// Stores the sequence that this clip's automation sequence editor is using. This is only really used for the UI
         /// </summary>
-        public AutomationSequence ActiveSequence {
+        public AutomationSequence ActiveSequence
+        {
             get => this.activeSequence;
             set
             {

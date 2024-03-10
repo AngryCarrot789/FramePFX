@@ -147,7 +147,7 @@ namespace FramePFX.Editors.Timelines.Tracks
             this.ProcessSmallestAndLargestFrame();
         }
 
-#region Processor functions
+        #region Processor functions
 
         private void AddClipInRange(Clip clip, long min, long max)
         {
@@ -219,7 +219,7 @@ namespace FramePFX.Editors.Timelines.Tracks
             this.ProcessSmallestAndLargestFrame();
         }
 
-#endregion
+        #endregion
 
         private void ProcessSmallestAndLargestFrame()
         {
@@ -252,7 +252,7 @@ namespace FramePFX.Editors.Timelines.Tracks
             this.FrameDataChanged?.Invoke(this);
         }
 
-#region Util functions
+        #region Util functions
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void GetRange(FrameSpan span, out long a, out long b)
@@ -264,7 +264,7 @@ namespace FramePFX.Editors.Timelines.Tracks
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static long GetIndex(long frame) => frame >> 7;
 
-#endregion
+        #endregion
 
         public bool IsRegionEmpty(FrameSpan span)
         {

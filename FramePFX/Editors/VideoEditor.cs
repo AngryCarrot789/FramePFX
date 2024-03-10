@@ -61,7 +61,8 @@ namespace FramePFX.Editors
 
         public PlaybackManager Playback { get; }
 
-        public bool ShowClipAutomation {
+        public bool ShowClipAutomation
+        {
             get => this.showClipAutomation;
             set
             {
@@ -72,7 +73,8 @@ namespace FramePFX.Editors
             }
         }
 
-        public bool ShowTrackAutomation {
+        public bool ShowTrackAutomation
+        {
             get => this.showTrackAutomation;
             set
             {

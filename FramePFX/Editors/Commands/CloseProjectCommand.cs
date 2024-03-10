@@ -25,19 +25,20 @@ using FramePFX.Tasks;
 
 namespace FramePFX.Editors.Commands
 {
-    public class CloseProjectCommand : Command
+    public class CloseProjectCommand : AsyncCommand
     {
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        protected override Executability CanExecuteCore(CommandEventArgs e)
         {
             if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor))
-                return ExecutabilityState.Invalid;
-            return editor.Project == null ? ExecutabilityState.ValidButCannotExecute : ExecutabilityState.Executable;
+                return Executability.Invalid;
+            return editor.Project == null ? Executability.ValidButCannotExecute : Executability.Valid;
         }
 
-        public override async Task Execute(CommandEventArgs e)
+        protected override async Task ExecuteAsync(CommandEventArgs e)
         {
             if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor))
                 return;
+
             await TaskManager.Instance.RunTask(async () =>
             {
                 IActivityProgress prog = TaskManager.Instance.CurrentTask.Progress;

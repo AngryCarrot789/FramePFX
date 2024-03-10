@@ -18,22 +18,26 @@ namespace FramePFX.FFmpegWrapper.Codecs
 {
     public unsafe class VideoEncoder : MediaEncoder
     {
-        public int Width {
+        public int Width
+        {
             get => this.ctx->width;
             set => this.SetOrThrowIfOpen(ref this.ctx->width, value);
         }
 
-        public int Height {
+        public int Height
+        {
             get => this.ctx->height;
             set => this.SetOrThrowIfOpen(ref this.ctx->height, value);
         }
 
-        public AVPixelFormat PixelFormat {
+        public AVPixelFormat PixelFormat
+        {
             get => this.ctx->pix_fmt;
             set => this.SetOrThrowIfOpen(ref this.ctx->pix_fmt, value);
         }
 
-        public PictureFormat FrameFormat {
+        public PictureFormat FrameFormat
+        {
             get => new PictureFormat(this.Width, this.Height, this.PixelFormat);
             set
             {
@@ -43,27 +47,32 @@ namespace FramePFX.FFmpegWrapper.Codecs
             }
         }
 
-        public int GopSize {
+        public int GopSize
+        {
             get => this.ctx->gop_size;
             set => this.SetOrThrowIfOpen(ref this.ctx->gop_size, value);
         }
 
-        public int MaxBFrames {
+        public int MaxBFrames
+        {
             get => this.ctx->max_b_frames;
             set => this.SetOrThrowIfOpen(ref this.ctx->max_b_frames, value);
         }
 
-        public int MinQuantizer {
+        public int MinQuantizer
+        {
             get => this.ctx->qmin;
             set => this.SetOrThrowIfOpen(ref this.ctx->qmin, value);
         }
 
-        public int MaxQuantizer {
+        public int MaxQuantizer
+        {
             get => this.ctx->qmax;
             set => this.SetOrThrowIfOpen(ref this.ctx->qmax, value);
         }
 
-        public int CompressionLevel {
+        public int CompressionLevel
+        {
             get => this.ctx->compression_level;
             set => this.SetOrThrowIfOpen(ref this.ctx->compression_level, value);
         }

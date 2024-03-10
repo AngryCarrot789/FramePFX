@@ -20,7 +20,8 @@ namespace FramePFX.FFmpegWrapper.Containers
     {
         private AVIOContext* _ctx;
 
-        public AVIOContext* Handle {
+        public AVIOContext* Handle
+        {
             get
             {
                 this.ValidateNotDisposed();

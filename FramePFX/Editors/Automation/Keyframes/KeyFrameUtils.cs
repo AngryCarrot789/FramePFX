@@ -26,14 +26,14 @@ namespace FramePFX.Editors.Automation.Keyframes
     [SwitchAutomationDataType]
     public static class KeyFrameUtils
     {
-#region Unsafe/Raw Setters
+        #region Unsafe/Raw Setters
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetBooleanValue(this KeyFrame kf, bool value) => ((KeyFrameBoolean) kf).Value = value;
 
-#endregion
+        #endregion
 
-#region Clamped Setters
+        #region Clamped Setters
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetFloatValue(this KeyFrame kf, float value, ParameterDescriptor desc) => ((KeyFrameFloat) kf).Value = ((ParameterDescriptorFloat) desc).Clamp(value);
@@ -52,7 +52,7 @@ namespace FramePFX.Editors.Automation.Keyframes
 
         public static void SetVector2Value(this KeyFrame kf, float x, float y, ParameterDescriptor desc) => ((KeyFrameVector2) kf).Value = ((ParameterDescriptorVector2) desc).Clamp(new Vector2(x, y));
 
-#endregion
+        #endregion
 
         public static KeyFrame GetDefaultKeyFrame(this IAutomatable automatable, Parameter parameter)
         {

@@ -29,7 +29,7 @@ namespace FramePFX.Natives
     /// </summary>
     internal class PFXNative
     {
-#region System Helpers
+        #region System Helpers
 
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern IntPtr LoadLibrary(string dllToLoad);
@@ -40,7 +40,7 @@ namespace FramePFX.Natives
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern bool FreeLibrary(IntPtr hModule);
 
-#endregion
+        #endregion
 
         // Prefix: PFXCEFUNC_
 

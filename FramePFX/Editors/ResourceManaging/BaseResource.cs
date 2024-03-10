@@ -53,7 +53,8 @@ namespace FramePFX.Editors.ResourceManaging
         /// </summary>
         public string FactoryId => ResourceTypeFactory.Instance.GetId(this.GetType());
 
-        public string DisplayName {
+        public string DisplayName
+        {
             get => this.displayName;
             set
             {
@@ -65,7 +66,8 @@ namespace FramePFX.Editors.ResourceManaging
             }
         }
 
-        public bool IsSelected {
+        public bool IsSelected
+        {
             get => this.isSelected;
             set
             {

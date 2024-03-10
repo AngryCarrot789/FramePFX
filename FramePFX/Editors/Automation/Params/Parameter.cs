@@ -153,7 +153,7 @@ namespace FramePFX.Editors.Automation.Params
 
         public KeyFrame CreateKeyFrame(long frame = 0L) => KeyFrame.CreateDefault(this, frame);
 
-#region Registering parameters
+        #region Registering parameters
 
         public static ParameterFloat RegisterFloat(Type ownerType, string domain, string name, ValueAccessor<float> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterFloat(ownerType, domain, name, new ParameterDescriptorFloat(), accessor, flags);
         public static ParameterFloat RegisterFloat(Type ownerType, string domain, string name, float defaultValue, ValueAccessor<float> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterFloat(ownerType, domain, name, new ParameterDescriptorFloat(defaultValue), accessor, flags);
@@ -238,7 +238,7 @@ namespace FramePFX.Editors.Automation.Params
             return parameter;
         }
 
-#endregion
+        #endregion
 
         public static Parameter GetParameterByKey(ParameterKey key)
         {

@@ -48,9 +48,28 @@ namespace FramePFX.Tasks
         /// </summary>
         string Text { get; set; }
 
+        /// <summary>
+        /// An event fired when the <see cref="IsIndeterminate"/> property changes.
+        /// This event is fired on the main thread, even if <see cref="IsIndeterminate"/> is changed on a task thread
+        /// </summary>
         event ActivityProgressEventHandler IsIndeterminateChanged;
+
+        /// <summary>
+        /// An event fired when the <see cref="TotalCompletion"/> property changes.
+        /// This event is fired on the main thread, even if <see cref="TotalCompletion"/> is changed on a task thread
+        /// </summary>
         event ActivityProgressEventHandler CompletionValueChanged;
+
+        /// <summary>
+        /// An event fired when the <see cref="HeaderText"/> property changes.
+        /// This event is fired on the main thread, even if <see cref="HeaderText"/> is changed on a task thread
+        /// </summary>
         event ActivityProgressEventHandler HeaderTextChanged;
+
+        /// <summary>
+        /// An event fired when the <see cref="Text"/> property changes.
+        /// This event is fired on the main thread, even if <see cref="Text"/> is changed on a task thread
+        /// </summary>
         event ActivityProgressEventHandler TextChanged;
 
         /// <summary>
@@ -58,12 +77,12 @@ namespace FramePFX.Tasks
         /// value that will be added to the parent range's completion value.
         /// <para>
         /// A completion range should be pushed when you're about to begin an 'operation phase', that is,
-        /// something that can have a completion percentage. The operation itself can push its own completion
-        /// ranges, but it is your job to push a range which represents how much actual work the operation
+        /// something that can have a completion percentage. That operation itself can push its own completion
+        /// ranges, but it is your job to push a range which represents how much actual work that operation
         /// does relative to the current operation
         /// </para>
         /// <para>
-        /// The reason for a min and max is so that you can identify possible mis-uses and bugs.
+        /// The reason for a min and max is mainly for clarity so that you can identify possible mis-uses and bugs.
         /// In a code block, the total amount of range pushed should equal 1.0. For example, you
         /// push 0.0->0.2, 0.2->0.7, 0.7->1.0, where the differences between max and min for those
         /// cases sum to 1.0. If they don't, then it probably means this method was used incorrectly

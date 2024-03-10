@@ -19,14 +19,21 @@
 
 using System;
 using System.Windows;
+using FramePFX.AdvancedMenuService.ContextService;
+using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.AdvancedMenuService.ContextService.Controls
+namespace FramePFX.AdvancedMenuService
 {
     /// <summary>
-    /// An interface for an advanced context menu or advanced menu
+    /// An interface for an object that stores menu item entries. This could be a menu, context menu or a menu item
     /// </summary>
-    public interface IAdvancedMenu
+    public interface IAdvancedContainer
     {
+        /// <summary>
+        /// Gets the context for the container menu or root container menu item
+        /// </summary>
+        IContextData Context { get; }
+
         bool PushCachedItem(Type entryType, FrameworkElement element);
 
         FrameworkElement PopCachedItem(Type entryType);

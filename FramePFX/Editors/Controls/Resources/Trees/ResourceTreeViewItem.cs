@@ -42,7 +42,8 @@ namespace FramePFX.Editors.Controls.Resources.Trees
     {
         public static readonly DependencyProperty IsDroppableTargetOverProperty = DependencyProperty.Register("IsDroppableTargetOver", typeof(bool), typeof(ResourceTreeViewItem), new PropertyMetadata(BoolBox.False));
 
-        public bool IsDroppableTargetOver {
+        public bool IsDroppableTargetOver
+        {
             get => (bool) this.GetValue(IsDroppableTargetOverProperty);
             set => this.SetValue(IsDroppableTargetOverProperty, value.Box());
         }
@@ -60,7 +61,8 @@ namespace FramePFX.Editors.Controls.Resources.Trees
         /// <summary>
         /// Gets either our <see cref="ParentNode"/> or <see cref="ResourceTree"/>
         /// </summary>
-        public ItemsControl ParentObject {
+        public ItemsControl ParentObject
+        {
             get
             {
                 if (this.ParentNode != null)

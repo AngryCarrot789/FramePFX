@@ -28,7 +28,8 @@ namespace FramePFX.PropertyEditing.Automation
     {
         private float value;
 
-        public float Value {
+        public float Value
+        {
             get => this.value;
             set
             {

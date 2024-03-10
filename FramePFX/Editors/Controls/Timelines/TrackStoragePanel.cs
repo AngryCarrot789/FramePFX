@@ -45,7 +45,8 @@ namespace FramePFX.Editors.Controls.Timelines
         /// <summary>
         /// The model used to present the tracks, clips, etc. Event handlers will be added and removed when necessary
         /// </summary>
-        public Timeline Timeline {
+        public Timeline Timeline
+        {
             get => (Timeline) this.GetValue(TimelineProperty);
             set => this.SetValue(TimelineProperty, value);
         }

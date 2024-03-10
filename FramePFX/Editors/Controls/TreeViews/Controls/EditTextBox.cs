@@ -33,13 +33,13 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
     /// </summary>
     public class EditTextBox : TextBox
     {
-#region Private fields
+        #region Private fields
 
         private string startText;
 
-#endregion Private fields
+        #endregion Private fields
 
-#region Constructor
+        #region Constructor
 
         static EditTextBox()
         {
@@ -51,9 +51,9 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
             this.Loaded += this.OnTreeViewEditTextBoxLoaded;
         }
 
-#endregion Constructor
+        #endregion Constructor
 
-#region Methods
+        #region Methods
 
         protected override void OnGotKeyboardFocus(KeyboardFocusChangedEventArgs e)
         {
@@ -85,6 +85,6 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
             FocusHelper.Focus(this);
         }
 
-#endregion
+        #endregion
     }
 }

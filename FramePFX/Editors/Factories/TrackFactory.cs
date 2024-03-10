@@ -28,6 +28,7 @@ namespace FramePFX.Editors.Factories
         private TrackFactory()
         {
             this.RegisterType("track_vid", typeof(VideoTrack));
+            this.RegisterType("track_aud", typeof(AudioTrack));
         }
 
         public Track NewTrack(string id)

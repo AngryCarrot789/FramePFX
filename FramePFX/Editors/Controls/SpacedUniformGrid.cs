@@ -27,12 +27,14 @@ namespace FramePFX.Editors.Controls
         public static readonly DependencyProperty OrientationProperty = DependencyProperty.Register("Orientation", typeof(Orientation), typeof(SpacedUniformGrid), new PropertyMetadata(Orientation.Horizontal));
         public static readonly DependencyProperty SpacingProperty = DependencyProperty.Register("Spacing", typeof(double), typeof(SpacedUniformGrid), new PropertyMetadata(0.0d));
 
-        public Orientation Orientation {
+        public Orientation Orientation
+        {
             get => (Orientation) this.GetValue(OrientationProperty);
             set => this.SetValue(OrientationProperty, value);
         }
 
-        public double Spacing {
+        public double Spacing
+        {
             get => (double) this.GetValue(SpacingProperty);
             set => this.SetValue(SpacingProperty, value);
         }

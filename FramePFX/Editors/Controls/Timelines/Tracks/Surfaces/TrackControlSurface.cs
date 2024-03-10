@@ -49,12 +49,14 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces
 
         public TrackControlSurfaceListBoxItem Owner { get; private set; }
 
-        public Brush TrackColourBrush {
+        public Brush TrackColourBrush
+        {
             get => (Brush) this.GetValue(TrackColourBrushProperty);
             private set => this.SetValue(TrackColourBrushPropertyKey, value);
         }
 
-        public string DisplayName {
+        public string DisplayName
+        {
             get => (string) this.GetValue(DisplayNameProperty);
             set => this.SetValue(DisplayNameProperty, value);
         }

@@ -22,13 +22,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Threading;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Editors.Utils;
 using FramePFX.Utils;
+using FramePFX.Utils.RDA;
 using SkiaSharp;
 
 namespace FramePFX.Editors.Rendering
@@ -64,7 +63,8 @@ namespace FramePFX.Editors.Rendering
         // public but unsafe access to the underlying surface, used by view port. Must not be replaced externally
         public SKSurface surface;
 
-        public Task LastRenderTask {
+        public Task LastRenderTask
+        {
             get => this.lastRenderTask;
             set => this.lastRenderTask = value;
         }
@@ -84,10 +84,7 @@ namespace FramePFX.Editors.Rendering
         public RenderManager(Timeline timeline)
         {
             this.Timeline = timeline;
-            this.renderCallback = RapidDispatchActionEx.ForAsync(() =>
-            {
-                return this.lastRenderTask = this.DoScheduledRender();
-            });
+            this.renderCallback = RapidDispatchActionEx.ForAsync(() => this.lastRenderTask = this.DoScheduledRender());
             // this.renderThread = new Thread(this.RenderThreadMain);
         }
 
@@ -348,7 +345,8 @@ namespace FramePFX.Editors.Rendering
         public static int BeginClipOpacityLayer(SKCanvas canvas, VideoClip clip, ref SKPaint paint)
         {
             if (clip.UsesCustomOpacityCalculation || clip.RenderOpacity >= 1.0)
-            { // check greater than just in case...
+            {
+                // check greater than just in case...
                 return canvas.Save();
             }
             else

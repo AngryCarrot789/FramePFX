@@ -59,7 +59,8 @@ namespace FramePFX.Utils.Collections
 
         IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => this.GetValueListHelper();
 
-        public int Capacity {
+        public int Capacity
+        {
             get => this.keys.Length;
             set
             {
@@ -95,7 +96,8 @@ namespace FramePFX.Utils.Collections
         // Returns the value associated with the given key. If an entry with the
         // given key is not found, the returned value is null.
         //
-        public TValue this[TKey key] {
+        public TValue this[TKey key]
+        {
             get
             {
                 int i = this.IndexOfKey(key);
@@ -120,7 +122,8 @@ namespace FramePFX.Utils.Collections
             }
         }
 
-        Object IDictionary.this[Object key] {
+        Object IDictionary.this[Object key]
+        {
             get
             {
                 if (IsCompatibleKey(key))
@@ -174,7 +177,8 @@ namespace FramePFX.Utils.Collections
         bool ICollection.IsSynchronized => false;
 
         // Synchronization root for this object.
-        Object ICollection.SyncRoot {
+        Object ICollection.SyncRoot
+        {
             get
             {
                 if (this._syncRoot == null)
@@ -510,7 +514,8 @@ namespace FramePFX.Utils.Collections
             internal const int KeyValuePair = 1;
             internal const int DictEntry = 2;
 
-            DictionaryEntry IDictionaryEnumerator.Entry {
+            DictionaryEntry IDictionaryEnumerator.Entry
+            {
                 get
                 {
                     if (this.index == 0 || (this.index == this._sortedList.Count + 1))
@@ -521,7 +526,8 @@ namespace FramePFX.Utils.Collections
 
             public KeyValuePair<TKey, TValue> Current => new KeyValuePair<TKey, TValue>(this.key, this.value);
 
-            Object IEnumerator.Current {
+            Object IEnumerator.Current
+            {
                 get
                 {
                     if (this.index == 0 || (this.index == this._sortedList.Count + 1))
@@ -537,7 +543,8 @@ namespace FramePFX.Utils.Collections
                 }
             }
 
-            Object IDictionaryEnumerator.Value {
+            Object IDictionaryEnumerator.Value
+            {
                 get
                 {
                     if (this.index == 0 || (this.index == this._sortedList.Count + 1))
@@ -546,7 +553,8 @@ namespace FramePFX.Utils.Collections
                 }
             }
 
-            Object IDictionaryEnumerator.Key {
+            Object IDictionaryEnumerator.Key
+            {
                 get
                 {
                     if (this.index == 0 || (this.index == this._sortedList.Count + 1))
@@ -613,7 +621,8 @@ namespace FramePFX.Utils.Collections
 
             public TKey Current => this.currentKey;
 
-            Object IEnumerator.Current {
+            Object IEnumerator.Current
+            {
                 get
                 {
                     if (this.index == 0 || (this.index == this._sortedList.Count + 1))
@@ -674,7 +683,8 @@ namespace FramePFX.Utils.Collections
 
             public TValue Current => this.currentValue;
 
-            Object IEnumerator.Current {
+            Object IEnumerator.Current
+            {
                 get
                 {
                     if (this.index == 0 || (this.index == this._sortedList.Count + 1))
@@ -780,7 +790,8 @@ namespace FramePFX.Utils.Collections
                 throw new InvalidOperationException("Cannot write/modify a nested class");
             }
 
-            public TKey this[int index] {
+            public TKey this[int index]
+            {
                 get
                 {
                     return this._dict.GetKey(index);
@@ -821,7 +832,8 @@ namespace FramePFX.Utils.Collections
 
             Object ICollection.SyncRoot => ((ICollection) this.dict).SyncRoot;
 
-            public TValue this[int index] {
+            public TValue this[int index]
+            {
                 get => this.dict.GetByIndex(index);
                 set => throw new InvalidOperationException("Cannot write/modify a nested class");
             }

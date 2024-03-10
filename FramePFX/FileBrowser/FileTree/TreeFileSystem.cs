@@ -17,8 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System.Threading.Tasks;
-
 namespace FramePFX.FileBrowser.FileTree
 {
     /// <summary>

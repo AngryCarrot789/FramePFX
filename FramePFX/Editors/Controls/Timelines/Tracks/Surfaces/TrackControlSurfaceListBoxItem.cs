@@ -75,7 +75,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces
             this.Height = track.Height;
         }
 
-#region Model Linkage
+        #region Model Linkage
 
         public void OnAddingToList(TrackControlSurfaceListBox ownerList, Track track)
         {
@@ -127,6 +127,6 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Surfaces
             }
         }
 
-#endregion
+        #endregion
     }
 }

@@ -56,12 +56,13 @@ namespace FramePFX.Editors.Controls.Dragger
         public static readonly DependencyProperty ForcedReadOnlyStateProperty = DependencyProperty.Register("ForcedReadOnlyState", typeof(bool?), typeof(NumberDragger), new PropertyMetadata(null));
         public static readonly DependencyProperty PreviewValueFormatterProperty = DependencyProperty.Register("PreviewValueFormatter", typeof(IValueFormatter), typeof(NumberDragger), new PropertyMetadata(null));
 
-#region Properties
+        #region Properties
 
         /// <summary>
         /// Gets or sets the tiny-change value. This is added or subtracted when CTRL + SHIFT is pressed
         /// </summary>
-        public double TinyChange {
+        public double TinyChange
+        {
             get => (double) this.GetValue(TinyChangeProperty);
             set => this.SetValue(TinyChangeProperty, value);
         }
@@ -69,37 +70,44 @@ namespace FramePFX.Editors.Controls.Dragger
         /// <summary>
         /// Gets or sets the massive change value. This is added or subtracted when CTRL is pressed
         /// </summary>
-        public double MassiveChange {
+        public double MassiveChange
+        {
             get => (double) this.GetValue(MassiveChangeProperty);
             set => this.SetValue(MassiveChangeProperty, value);
         }
 
-        public bool IsDragging {
+        public bool IsDragging
+        {
             get => (bool) this.GetValue(IsDraggingProperty);
             protected set => this.SetValue(IsDraggingPropertyKey, value.Box());
         }
 
-        public bool? CompleteEditOnTextBoxLostFocus {
+        public bool? CompleteEditOnTextBoxLostFocus
+        {
             get => (bool?) this.GetValue(CompleteEditOnTextBoxLostFocusProperty);
             set => this.SetValue(CompleteEditOnTextBoxLostFocusProperty, value.BoxNullable());
         }
 
-        public Orientation Orientation {
+        public Orientation Orientation
+        {
             get => (Orientation) this.GetValue(OrientationProperty);
             set => this.SetValue(OrientationProperty, value);
         }
 
-        public HorizontalIncrement HorizontalIncrement {
+        public HorizontalIncrement HorizontalIncrement
+        {
             get => (HorizontalIncrement) this.GetValue(HorizontalIncrementProperty);
             set => this.SetValue(HorizontalIncrementProperty, value);
         }
 
-        public VerticalIncrement VerticalIncrement {
+        public VerticalIncrement VerticalIncrement
+        {
             get => (VerticalIncrement) this.GetValue(VerticalIncrementProperty);
             set => this.SetValue(VerticalIncrementProperty, value);
         }
 
-        public bool IsEditingTextBox {
+        public bool IsEditingTextBox
+        {
             get => (bool) this.GetValue(IsEditingTextBoxProperty);
             protected set => this.SetValue(IsEditingTextBoxPropertyKey, value.Box());
         }
@@ -114,7 +122,8 @@ namespace FramePFX.Editors.Controls.Dragger
         /// this should be 14 or 15. This is to combat floating point rounding issues, causing the the
         /// </para>
         /// </summary>
-        public int? RoundedPlaces {
+        public int? RoundedPlaces
+        {
             get => (int?) this.GetValue(RoundedPlacesProperty);
             set => this.SetValue(RoundedPlacesProperty, value);
         }
@@ -129,7 +138,8 @@ namespace FramePFX.Editors.Controls.Dragger
         /// this should be 14 or 15. This is to combat floating point rounding issues, causing the the
         /// </para>
         /// </summary>
-        public int? PreviewRoundedPlaces {
+        public int? PreviewRoundedPlaces
+        {
             get => (int?) this.GetValue(PreviewRoundedPlacesProperty);
             set => this.SetValue(PreviewRoundedPlacesProperty, value);
         }
@@ -141,7 +151,8 @@ namespace FramePFX.Editors.Controls.Dragger
         /// This is only displayed when the value is non-null and not an empty string
         /// </para>
         /// </summary>
-        public string PreviewDisplayTextOverride {
+        public string PreviewDisplayTextOverride
+        {
             get => (string) this.GetValue(PreviewDisplayTextOverrideProperty);
             set => this.SetValue(PreviewDisplayTextOverrideProperty, value);
         }
@@ -150,7 +161,8 @@ namespace FramePFX.Editors.Controls.Dragger
         /// A piece of text to display overtop of the editor text box when manually editing
         /// the value, and there is no text in the text box
         /// </summary>
-        public string EditingHint {
+        public string EditingHint
+        {
             get => (string) this.GetValue(EditingHintProperty);
             set => this.SetValue(EditingHintProperty, value);
         }
@@ -158,37 +170,44 @@ namespace FramePFX.Editors.Controls.Dragger
         /// <summary>
         /// Whether or not to restore the value property when the drag is cancelled. Default is true
         /// </summary>
-        public bool RestoreValueOnCancel {
+        public bool RestoreValueOnCancel
+        {
             get => (bool) this.GetValue(RestoreValueOnCancelProperty);
             set => this.SetValue(RestoreValueOnCancelProperty, value.Box());
         }
 
-        public IChangeMapper ChangeMapper {
+        public IChangeMapper ChangeMapper
+        {
             get => (IChangeMapper) this.GetValue(ChangeMapperProperty);
             set => this.SetValue(ChangeMapperProperty, value);
         }
 
-        public IValuePreProcessor ValuePreProcessor {
+        public IValuePreProcessor ValuePreProcessor
+        {
             get => (IValuePreProcessor) this.GetValue(ValuePreProcessorProperty);
             set => this.SetValue(ValuePreProcessorProperty, value);
         }
 
-        public bool IsDoubleClickToEdit {
+        public bool IsDoubleClickToEdit
+        {
             get => (bool) this.GetValue(IsDoubleClickToEditProperty);
             set => this.SetValue(IsDoubleClickToEditProperty, value.Box());
         }
 
-        public IValueFormatter PreviewValueFormatter {
+        public IValueFormatter PreviewValueFormatter
+        {
             get => (IValueFormatter) this.GetValue(PreviewValueFormatterProperty);
             set => this.SetValue(PreviewValueFormatterProperty, value);
         }
 
-        public bool? ForcedReadOnlyState {
+        public bool? ForcedReadOnlyState
+        {
             get => (bool?) this.GetValue(ForcedReadOnlyStateProperty);
             set => this.SetValue(ForcedReadOnlyStateProperty, value.BoxNullable());
         }
 
-        public bool IsValueReadOnly {
+        public bool IsValueReadOnly
+        {
             get
             {
                 if (this.GetValue(ForcedReadOnlyStateProperty) is bool forced)
@@ -209,19 +228,21 @@ namespace FramePFX.Editors.Controls.Dragger
             }
         }
 
-#endregion
+        #endregion
 
         public static readonly RoutedEvent EditStartedEvent = EventManager.RegisterRoutedEvent(nameof(EditStarted), RoutingStrategy.Bubble, typeof(EditStartEventHandler), typeof(NumberDragger));
         public static readonly RoutedEvent EditCompletedEvent = EventManager.RegisterRoutedEvent(nameof(EditCompleted), RoutingStrategy.Bubble, typeof(EditCompletedEventHandler), typeof(NumberDragger));
 
         [Category("Behavior")]
-        public event EditStartEventHandler EditStarted {
+        public event EditStartEventHandler EditStarted
+        {
             add => this.AddHandler(EditStartedEvent, value);
             remove => this.RemoveHandler(EditStartedEvent, value);
         }
 
         [Category("Behavior")]
-        public event EditCompletedEventHandler EditCompleted {
+        public event EditCompletedEventHandler EditCompleted
+        {
             add => this.AddHandler(EditCompletedEvent, value);
             remove => this.RemoveHandler(EditCompletedEvent, value);
         }

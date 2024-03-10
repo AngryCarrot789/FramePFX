@@ -31,7 +31,8 @@ namespace FramePFX.Editors.Exporting
         /// <summary>
         /// Gets the timeline-relative span that will be exported. Usually spans from 0 to <see cref="Timeline.LargestFrameInUse"/>
         /// </summary>
-        public FrameSpan Span {
+        public FrameSpan Span
+        {
             get => this.span;
             set
             {
@@ -45,7 +46,8 @@ namespace FramePFX.Editors.Exporting
         /// <summary>
         /// Gets the file path that the user wants to export the file to
         /// </summary>
-        public string FilePath {
+        public string FilePath
+        {
             get => this.filePath;
             set
             {

@@ -22,7 +22,8 @@ namespace FramePFX.FFmpegWrapper.Containers
     {
         private AVFormatContext* _ctx;
 
-        public AVFormatContext* Handle {
+        public AVFormatContext* Handle
+        {
             get
             {
                 this.ValidateNotDisposed();

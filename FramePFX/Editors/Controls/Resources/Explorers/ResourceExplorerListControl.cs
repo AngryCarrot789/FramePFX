@@ -40,7 +40,8 @@ namespace FramePFX.Editors.Controls.Resources.Explorers
         public static readonly DependencyProperty ResourceManagerProperty = DependencyProperty.Register("ResourceManager", typeof(ResourceManager), typeof(ResourceExplorerListControl), new PropertyMetadata(null, (d, e) => ((ResourceExplorerListControl) d).OnResourceManagerChanged((ResourceManager) e.OldValue, (ResourceManager) e.NewValue)));
         public static readonly DependencyProperty CurrentFolderProperty = DependencyProperty.Register("CurrentFolder", typeof(ResourceFolder), typeof(ResourceExplorerListControl), new PropertyMetadata(null, (d, e) => ((ResourceExplorerListControl) d).OnCurrentFolderChanged((ResourceFolder) e.OldValue, (ResourceFolder) e.NewValue)));
 
-        public ResourceManager ResourceManager {
+        public ResourceManager ResourceManager
+        {
             get => (ResourceManager) this.GetValue(ResourceManagerProperty);
             set => this.SetValue(ResourceManagerProperty, value);
         }
@@ -49,7 +50,8 @@ namespace FramePFX.Editors.Controls.Resources.Explorers
         /// Gets or sets the folder that this control is currently displaying the contents of.
         /// This may affect the <see cref="ItemsControl.Items"/> collection
         /// </summary>
-        public ResourceFolder CurrentFolder {
+        public ResourceFolder CurrentFolder
+        {
             get => (ResourceFolder) this.GetValue(CurrentFolderProperty);
             set => this.SetValue(CurrentFolderProperty, value);
         }
@@ -268,15 +270,18 @@ namespace FramePFX.Editors.Controls.Resources.Explorers
         private void CurrentFolder_OnResourceMoved(ResourceFolder sender, ResourceMovedEventArgs e)
         {
             if (e.IsSameFolder)
-            { // Item was moved within the current folder itself
+            {
+                // Item was moved within the current folder itself
                 this.MoveResourceInternal(e.OldIndex, e.NewIndex);
             }
             else if (e.NewFolder == sender)
-            { // It was effectively added
+            {
+                // It was effectively added
                 this.InsertResourceInternal(e.Item, e.NewIndex);
             }
             else
-            { // It was effectively removed
+            {
+                // It was effectively removed
                 this.RemoveResourceInternal(e.OldIndex);
             }
         }

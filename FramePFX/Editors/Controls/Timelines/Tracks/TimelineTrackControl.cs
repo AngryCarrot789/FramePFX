@@ -61,12 +61,14 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks
         public static readonly DependencyProperty TrackColourBrushProperty = TrackColourBrushPropertyKey.DependencyProperty;
         public static readonly DependencyProperty IsSelectedProperty = DependencyProperty.Register("IsSelected", typeof(bool), typeof(TimelineTrackControl), new PropertyMetadata(BoolBox.False, (d, e) => ((TimelineTrackControl) d).OnIsSelectedChanged((bool) e.NewValue)));
 
-        public Brush TrackColourBrush {
+        public Brush TrackColourBrush
+        {
             get => (Brush) this.GetValue(TrackColourBrushProperty);
             private set => this.SetValue(TrackColourBrushPropertyKey, value);
         }
 
-        public bool IsSelected {
+        public bool IsSelected
+        {
             get => (bool) this.GetValue(IsSelectedProperty);
             set => this.SetValue(IsSelectedProperty, value.Box());
         }
@@ -115,7 +117,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks
             }
         }
 
-        public bool IsAutomationEditorVisible {
+        public bool IsAutomationEditorVisible
+        {
             get => (bool) this.GetValue(IsAutomationEditorVisibleProperty);
             set => this.SetValue(IsAutomationEditorVisibleProperty, value.Box());
         }

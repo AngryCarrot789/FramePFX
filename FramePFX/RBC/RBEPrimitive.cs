@@ -208,7 +208,8 @@ namespace FramePFX.RBC
 
         public override RBEType Type => RBEType.String;
 
-        public string Value {
+        public string Value
+        {
             get => this.value;
             set
             {

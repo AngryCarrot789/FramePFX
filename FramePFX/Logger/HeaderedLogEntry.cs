@@ -33,7 +33,8 @@ namespace FramePFX.Logger
 
         public IReadOnlyList<LogEntry> Entries { get; }
 
-        public bool IsExpanded {
+        public bool IsExpanded
+        {
             get => this.isExpanded;
             set
             {

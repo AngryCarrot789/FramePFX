@@ -17,40 +17,38 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System.Threading.Tasks;
+using System;
+using System.Diagnostics;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Utils;
 
 namespace FramePFX.CommandSystem
 {
     /// <summary>
-    /// Represents some sort of action that can be executed. Commands use provided contextual
-    /// information (see <see cref="CommandEventArgs.ContextData"/>) to do work. Commands do
-    /// their work in the <see cref="Execute"/> method, and can optionally specify their
-    /// executability via the <see cref="CanExecute"/> method
+    /// A class that represents something that can be executed. Commands are given contextual
+    /// information (see <see cref="CommandEventArgs.ContextData"/>) to do work.
+    /// Commands do their work in the <see cref="Execute"/> method, and can optionally specify
+    /// their executability via the <see cref="CanExecute"/> method
     /// <para>
-    /// Commands are the primary things used by the shortcut system to do some work. They
-    /// can also be used by things like context menus
+    /// Commands are used primarily by the shortcut and advanced menu service to do
+    /// work, but they can also be used by things like buttons
     /// </para>
     /// <para>
-    /// These commands can be executed through the <see cref="CommandManager.Execute(string, Command, IContextData, bool)"/> function
+    /// These commands can be executed through the <see cref="CommandManager.Execute(string,Command,IContextData,bool)"/> function
     /// </para>
     /// </summary>
     public abstract class Command
     {
-        private bool IsExecuting;
-
-        protected Command()
-        {
-        }
+        protected Command() { }
 
         // When focus changes, raise notification to update commands
         // Then fire ContextDataChanged for those command hooks or whatever, they can then disconnect
         // old event handlers and attach new ones
 
         /// <summary>
-        /// Get the command context Checks if this command can actually be executed. This typically isn't checked before
-        /// <see cref="Execute"/> is invoked; this is mainly used by the UI to determine if
-        /// something like a button or menu item is actually clickable
+        /// Gets this command's executability state based on the given command event args context.
+        /// This typically isn't checked before <see cref="Execute"/> is invoked, but instead is
+        /// mainly used by the UI to determine if something like a button or menu item is actually clickable
         /// <para>
         /// This method should be quick to execute, as it may be called quite often
         /// </para>
@@ -59,31 +57,44 @@ namespace FramePFX.CommandSystem
         /// <returns>
         /// True if executing this command would most likely result in success, otherwise false
         /// </returns>
-        public virtual ExecutabilityState CanExecute(CommandEventArgs e)
-        {
-            return ExecutabilityState.Executable;
-        }
+        public virtual Executability CanExecute(CommandEventArgs e) => Executability.Valid;
 
         /// <summary>
-        /// Executes this specific command with the given command event args. This is called by <see cref="ExecuteAsync"/>
+        /// Executes this command with the given command event args. This is always called on the application main thread (AMT)
         /// </summary>
         /// <param name="e">The command event args, containing info about the current context</param>
-        public abstract Task Execute(CommandEventArgs e);
+        protected abstract void Execute(CommandEventArgs e);
 
-        internal static bool InternalBeginExecution(Command command)
+        internal static void InternalExecute(string cmdId, Command command, CommandEventArgs e)
         {
-            if (command.IsExecuting)
+            IoC.Dispatcher.VerifyAccess();
+            if (e.IsUserInitiated)
             {
-                return false;
+                try
+                {
+                    command.Execute(e);
+                }
+                catch (Exception ex) when (!Debugger.IsAttached)
+                {
+                    IoC.MessageService.ShowMessage("Command execution exception", $"An exception occurred while executing '{CmdToString(cmdId, command)}'", ex.GetToString());
+                }
             }
-
-            command.IsExecuting = true;
-            return true;
+            else
+            {
+                command.Execute(e);
+            }
         }
 
-        internal static void InternalEndExecution(Command command)
+        private static string CmdToString(string cmdId, Command cmd)
         {
-            command.IsExecuting = false;
+            if (cmdId != null && !string.IsNullOrWhiteSpace(cmdId))
+            {
+                return $"{cmdId} ({cmd.GetType()})";
+            }
+            else
+            {
+                return cmd.GetType().ToString();
+            }
         }
     }
 }

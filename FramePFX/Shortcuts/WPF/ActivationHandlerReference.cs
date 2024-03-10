@@ -26,7 +26,8 @@ namespace FramePFX.Shortcuts.WPF
         private readonly WeakReference<ShortcutActivateHandler> weakReference;
         private readonly ShortcutActivateHandler strongReference;
 
-        public ShortcutActivateHandler Value {
+        public ShortcutActivateHandler Value
+        {
             get
             {
                 if (this.weakReference != null)

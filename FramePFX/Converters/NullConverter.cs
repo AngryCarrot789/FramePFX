@@ -47,12 +47,14 @@ namespace FramePFX.Converters
         public static readonly object HiddenBox = Visibility.Hidden;
         public static readonly object CollapsedBox = Visibility.Collapsed;
 
-        public new Visibility NullValue {
+        public new Visibility NullValue
+        {
             get => (Visibility) base.NullValue;
             set => base.NullValue = Box(value);
         }
 
-        public new Visibility NonNullValue {
+        public new Visibility NonNullValue
+        {
             get => (Visibility) base.NonNullValue;
             set => base.NonNullValue = Box(value);
         }
@@ -80,12 +82,14 @@ namespace FramePFX.Converters
         public static NullToBoolConverter NullToFalse { get; } = new NullToBoolConverter();
         public static NullToBoolConverter NullToTrue { get; } = new NullToBoolConverter() {NullValue = true, NonNullValue = false};
 
-        public new bool NullValue {
+        public new bool NullValue
+        {
             get => (bool) base.NullValue;
             set => base.NullValue = value.Box();
         }
 
-        public new bool NonNullValue {
+        public new bool NonNullValue
+        {
             get => (bool) base.NonNullValue;
             set => base.NonNullValue = value.Box();
         }

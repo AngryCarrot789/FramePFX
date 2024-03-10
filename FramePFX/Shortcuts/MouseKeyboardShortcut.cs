@@ -40,7 +40,8 @@ namespace FramePFX.Shortcuts
 
         public IInputStroke PrimaryStroke => this.inputStrokes[0];
 
-        public IEnumerable<IInputStroke> InputStrokes {
+        public IEnumerable<IInputStroke> InputStrokes
+        {
             get => this.inputStrokes;
         }
 

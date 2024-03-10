@@ -33,7 +33,8 @@ namespace FramePFX.Shortcuts
 
         public IInputStroke PrimaryStroke => this.mouseStrokes[0];
 
-        public IEnumerable<IInputStroke> InputStrokes {
+        public IEnumerable<IInputStroke> InputStrokes
+        {
             get => this.mouseStrokes.Cast<IInputStroke>();
         }
 

@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.Timelines;
@@ -30,16 +29,16 @@ namespace FramePFX.Editors.Commands
 {
     public class RenameResourceCommand : Command
     {
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        public override Executability CanExecute(CommandEventArgs e)
         {
-            return e.ContextData.ContainsKey(DataKeys.ResourceObjectKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+            return e.ContextData.ContainsKey(DataKeys.ResourceObjectKey) ? Executability.Valid : Executability.Invalid;
         }
 
-        public override Task Execute(CommandEventArgs e)
+        protected override void Execute(CommandEventArgs e)
         {
             if (!DataKeys.ResourceObjectKey.TryGetContext(e.ContextData, out BaseResource target))
             {
-                return Task.CompletedTask;
+                return;
             }
 
             if (IoC.UserInputService.ShowSingleInputDialog("Rename resource item", "Input a new name for this resource", target.DisplayName) is string newDisplayName)
@@ -51,23 +50,21 @@ namespace FramePFX.Editors.Commands
                     editor.HistoryManager.AddAction(new HistoryActionDisplayName(target, oldName));
                 }
             }
-
-            return Task.CompletedTask;
         }
     }
 
     public class RenameClipCommand : Command
     {
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        public override Executability CanExecute(CommandEventArgs e)
         {
-            return e.ContextData.ContainsKey(DataKeys.ClipKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+            return e.ContextData.ContainsKey(DataKeys.ClipKey) ? Executability.Valid : Executability.Invalid;
         }
 
-        public override Task Execute(CommandEventArgs e)
+        protected override void Execute(CommandEventArgs e)
         {
             if (!DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip target))
             {
-                return Task.CompletedTask;
+                return;
             }
 
             if (IoC.UserInputService.ShowSingleInputDialog("Rename clip", "Input a new name for this clip", target.DisplayName) is string newDisplayName)
@@ -79,23 +76,21 @@ namespace FramePFX.Editors.Commands
                     editor.HistoryManager.AddAction(new HistoryActionDisplayName(target, oldName));
                 }
             }
-
-            return Task.CompletedTask;
         }
     }
 
     public class RenameTrackCommand : Command
     {
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        public override Executability CanExecute(CommandEventArgs e)
         {
-            return e.ContextData.ContainsKey(DataKeys.TrackKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+            return e.ContextData.ContainsKey(DataKeys.TrackKey) ? Executability.Valid : Executability.Invalid;
         }
 
-        public override Task Execute(CommandEventArgs e)
+        protected override void Execute(CommandEventArgs e)
         {
             if (!DataKeys.TrackKey.TryGetContext(e.ContextData, out Track target))
             {
-                return Task.CompletedTask;
+                return;
             }
 
             if (IoC.UserInputService.ShowSingleInputDialog("Rename track", "Input a new name for this track", target.DisplayName) is string newDisplayName)
@@ -107,8 +102,6 @@ namespace FramePFX.Editors.Commands
                     editor.HistoryManager.AddAction(new HistoryActionDisplayName(target, oldName));
                 }
             }
-
-            return Task.CompletedTask;
         }
     }
 

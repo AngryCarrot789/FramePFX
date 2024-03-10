@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System.Threading.Tasks;
 using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.CommandSystem
@@ -36,7 +35,7 @@ namespace FramePFX.CommandSystem
             return IsToggledKey.TryGetContext(e.ContextData, out bool value) ? (bool?) value : null;
         }
 
-        public override Task Execute(CommandEventArgs e)
+        protected override void Execute(CommandEventArgs e)
         {
             bool? result = this.GetIsToggled(e);
             if (result.HasValue)
@@ -47,8 +46,6 @@ namespace FramePFX.CommandSystem
             {
                 this.ExecuteNoToggle(e);
             }
-
-            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -67,18 +64,18 @@ namespace FramePFX.CommandSystem
         /// <returns>Whether the command was executed successfully</returns>
         protected abstract void ExecuteNoToggle(CommandEventArgs e);
 
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        public override Executability CanExecute(CommandEventArgs e)
         {
             bool? result = this.GetIsToggled(e);
             return result.HasValue ? this.CanExecute(e, result.Value) : this.CanExecuteNoToggle(e);
         }
 
-        protected virtual ExecutabilityState CanExecute(CommandEventArgs e, bool isToggled)
+        protected virtual Executability CanExecute(CommandEventArgs e, bool isToggled)
         {
-            return ExecutabilityState.Executable;
+            return Executability.Valid;
         }
 
-        protected virtual ExecutabilityState CanExecuteNoToggle(CommandEventArgs e)
+        protected virtual Executability CanExecuteNoToggle(CommandEventArgs e)
         {
             return this.CanExecute(e, false);
         }

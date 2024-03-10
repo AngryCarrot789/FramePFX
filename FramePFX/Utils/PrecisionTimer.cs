@@ -35,7 +35,8 @@ namespace FramePFX.Utils
 
         public Action TickCallback { get; set; }
 
-        public long Interval {
+        public long Interval
+        {
             get => this.intervalMillis;
             set
             {

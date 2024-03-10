@@ -24,7 +24,7 @@ namespace FramePFX.Utils
 {
     public static class ShellUtils
     {
-#region Structs
+        #region Structs
 
         private struct SHFILEINFO
         {
@@ -39,9 +39,9 @@ namespace FramePFX.Utils
             public string szTypeName; // File type
         }
 
-#endregion
+        #endregion
 
-#region DLLs
+        #region DLLs
 
         [DllImport("gdi32.dll", SetLastError = true)]
         private static extern bool DeleteObject(IntPtr hObjetc);
@@ -49,7 +49,7 @@ namespace FramePFX.Utils
         [DllImport("shell32")]
         private static extern IntPtr SHGetFileInfo(string pszPath, uint dwFileAttributes, out SHFILEINFO psfi, uint cbFileInfo, uint flags);
 
-#endregion
+        #endregion
 
         [DllImport("shell32.dll", SetLastError = true)]
         static extern int SHGetSpecialFolderLocation(IntPtr hwndOwner, int nFolder, ref IntPtr ppidl);
@@ -57,7 +57,7 @@ namespace FramePFX.Utils
         [DllImport("user32")]
         public static extern int DestroyIcon(IntPtr hIcon);
 
-#region Flags
+        #region Flags
 
         private const uint FILE_ATTRIBUTE_READONLY = 0x1;
         private const uint FILE_ATTRIBUTE_HIDDEN = 0x2;
@@ -95,7 +95,7 @@ namespace FramePFX.Utils
         private const int SHIL_JUMBO = 0x4;
         private const int SHIL_EXTRALARGE = 0x2;
 
-#endregion
+        #endregion
 
         public static string GetFileTypeDescription(string fileNameOrExtension)
         {

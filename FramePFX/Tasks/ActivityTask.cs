@@ -18,6 +18,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,7 +28,7 @@ namespace FramePFX.Tasks
     /// <summary>
     /// Represents a task that can be run by a <see cref="TaskManager"/> on a background thread
     /// </summary>
-    public class ActivityTask
+    public class ActivityTask : IDisposable
     {
         private readonly TaskManager taskManager;
         private readonly Func<Task> action;
@@ -66,12 +67,15 @@ namespace FramePFX.Tasks
         /// </summary>
         public Task Task { get; private set; }
 
+        private readonly AutoResetEvent Event;
+
         private ActivityTask(TaskManager taskManager, Func<Task> action, CancellationToken cancellationToken, IActivityProgress activityProgress)
         {
             this.taskManager = taskManager ?? throw new ArgumentNullException(nameof(taskManager));
             this.action = action ?? throw new ArgumentNullException(nameof(action));
             this.Progress = activityProgress ?? throw new ArgumentNullException(nameof(activityProgress));
             this.CancellationToken = cancellationToken;
+            this.Event = new AutoResetEvent(false);
         }
 
         /// <summary>
@@ -84,10 +88,24 @@ namespace FramePFX.Tasks
         {
             try
             {
-                TaskManager.InternalBeginActivateTask_BGTHREAD(this.taskManager, this);
-                while (this.state != 1)
+                TaskManager.InternalActivateTask(this.taskManager, this);
+                bool eventState;
+                try
                 {
-                    await Task.Delay(1, this.CancellationToken);
+                    eventState = this.Event.WaitOne(5000);
+                }
+                catch (Exception e)
+                {
+                    Debugger.Break();
+                    this.OnCompleted(new TimeoutException("Exception while waiting for activity task activation", e));
+                    return;
+                }
+
+                if (!eventState)
+                {
+                    Debugger.Break();
+                    this.OnCompleted(new TimeoutException("Activity task was not activated in a timely manner"));
+                    return;
                 }
 
                 this.CheckCancelled();
@@ -116,13 +134,16 @@ namespace FramePFX.Tasks
 
         private void OnCancelled()
         {
-            TaskManager.InternalOnTaskCompleted_BGTHREAD(this.taskManager, this, 3);
+            TaskManager.InternalOnTaskCompleted(this.taskManager, this, 3);
         }
 
         private void OnCompleted(Exception e)
         {
             this.exception = e;
-            TaskManager.InternalOnTaskCompleted_BGTHREAD(this.taskManager, this, 2);
+            if (e != null)
+                Debugger.Break();
+
+            TaskManager.InternalOnTaskCompleted(this.taskManager, this, 2);
         }
 
         internal static ActivityTask InternalRun(TaskManager taskManager, Func<Task> action, IActivityProgress progress, CancellationToken cancellationToken)
@@ -132,9 +153,13 @@ namespace FramePFX.Tasks
             return task;
         }
 
+        public void Dispose() => this.Event.Dispose();
+
+        // Both methods are called on the main thread
         public static void InternalActivate(ActivityTask task)
         {
             task.state = 1;
+            task.Event.Set();
         }
 
         public static void InternalComplete(ActivityTask task, int state)

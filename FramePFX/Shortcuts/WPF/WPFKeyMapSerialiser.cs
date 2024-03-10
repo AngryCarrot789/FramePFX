@@ -30,9 +30,7 @@ namespace FramePFX.Shortcuts.WPF
     {
         public static readonly WPFKeyMapSerialiser Instance = new WPFKeyMapSerialiser();
 
-        public WPFKeyMapSerialiser()
-        {
-        }
+        public WPFKeyMapSerialiser() { }
 
         protected override void SerialiseKeystroke(XmlDocument doc, XmlElement elem, in KeyStroke stroke, string childElementName = "KeyStroke")
         {

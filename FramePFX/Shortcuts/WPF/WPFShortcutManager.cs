@@ -20,9 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using FramePFX.Editors.Views;
 using FramePFX.Shortcuts.Inputs;
 using FramePFX.Shortcuts.Keymapping;
@@ -74,9 +74,7 @@ namespace FramePFX.Shortcuts.WPF
             };
         }
 
-        public WPFShortcutManager()
-        {
-        }
+        public WPFShortcutManager() { }
 
         public override ShortcutInputManager NewProcessor() => new WPFShortcutInputManager(this);
 
@@ -148,10 +146,10 @@ namespace FramePFX.Shortcuts.WPF
             }
         }
 
-        protected override async Task<bool> OnShortcutActivatedOverride(ShortcutInputManager inputManager, GroupedShortcut shortcut)
+        protected override bool OnShortcutActivatedOverride(ShortcutInputManager inputManager, GroupedShortcut shortcut)
         {
             BroadcastShortcutActivity($"Activating shortcut command: {shortcut} -> {shortcut.CommandId}...");
-            bool result = await base.OnShortcutActivatedOverride(inputManager, shortcut);
+            bool result = Application.Current.Dispatcher.Invoke(() => base.OnShortcutActivatedOverride(inputManager, shortcut), DispatcherPriority.Render);
             BroadcastShortcutActivity($"Activated shortcut command: {shortcut} -> {shortcut.CommandId}!");
             return result;
         }

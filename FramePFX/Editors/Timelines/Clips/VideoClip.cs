@@ -108,7 +108,8 @@ namespace FramePFX.Editors.Timelines.Clips
         /// Gets (or calculates, if dirty) this clip's final transformation matrix, which is a concatenation of
         /// our <see cref="ClipTransformationMatrix"/> and our parent track's transformation matrix (or identity, if not in a track yet)
         /// </summary>
-        public SKMatrix ClipAndTrackTransformationMatrix {
+        public SKMatrix ClipAndTrackTransformationMatrix
+        {
             get
             {
                 if (this.isMatrixDirty)
@@ -120,7 +121,8 @@ namespace FramePFX.Editors.Timelines.Clips
         /// <summary>
         /// Gets (or calculates, if dirty) this clip's transformation matrix entirely based on our transformation properties (therefore does not contain our track's matrix)
         /// </summary>
-        public SKMatrix ClipTransformationMatrix {
+        public SKMatrix ClipTransformationMatrix
+        {
             get
             {
                 if (this.isMatrixDirty)

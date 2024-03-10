@@ -40,7 +40,8 @@ namespace FramePFX.Editors.Controls.Resources
                 typeof(ResourcePanelControl),
                 new PropertyMetadata(null, (d, e) => ((ResourcePanelControl) d).OnResourceManagerChanged((ResourceManager) e.OldValue, (ResourceManager) e.NewValue)));
 
-        public ResourceManager ResourceManager {
+        public ResourceManager ResourceManager
+        {
             get => (ResourceManager) this.GetValue(ResourceManagerProperty);
             set => this.SetValue(ResourceManagerProperty, value);
         }

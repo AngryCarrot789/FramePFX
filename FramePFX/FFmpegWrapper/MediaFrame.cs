@@ -20,7 +20,8 @@ namespace FramePFX.FFmpegWrapper
         internal AVFrame* frame;
         protected bool _ownsFrame = true;
 
-        public AVFrame* Handle {
+        public AVFrame* Handle
+        {
             get
             {
                 this.ValidateNotDisposed();
@@ -30,7 +31,8 @@ namespace FramePFX.FFmpegWrapper
 
         public long? BestEffortTimestamp => FFUtils.GetPTS(this.frame->best_effort_timestamp);
 
-        public long? PresentationTimestamp {
+        public long? PresentationTimestamp
+        {
             get => FFUtils.GetPTS(this.frame->pts);
             set => FFUtils.SetPTS(ref this.frame->pts, value);
         }

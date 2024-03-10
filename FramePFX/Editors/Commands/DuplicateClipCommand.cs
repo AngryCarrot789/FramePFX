@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
@@ -29,12 +28,12 @@ namespace FramePFX.Editors.Commands
 {
     public class DuplicateClipCommand : Command
     {
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        public override Executability CanExecute(CommandEventArgs e)
         {
-            return e.ContextData.ContainsKey(DataKeys.ClipKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+            return e.ContextData.ContainsKey(DataKeys.ClipKey) ? Executability.Valid : Executability.Invalid;
         }
 
-        public override Task Execute(CommandEventArgs e)
+        protected override void Execute(CommandEventArgs e)
         {
             if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip clip) && clip.Track is Track track)
             {
@@ -56,8 +55,6 @@ namespace FramePFX.Editors.Commands
                     }
                 }
             }
-
-            return Task.CompletedTask;
         }
     }
 }

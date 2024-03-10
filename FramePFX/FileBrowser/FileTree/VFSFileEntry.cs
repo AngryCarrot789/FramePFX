@@ -20,8 +20,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Threading.Tasks;
 
 namespace FramePFX.FileBrowser.FileTree
 {
@@ -88,7 +86,8 @@ namespace FramePFX.FileBrowser.FileTree
         /// </summary>
         public bool IsTopLevelFile => this.Parent?.IsRootContainer ?? false;
 
-        public string FileName {
+        public string FileName
+        {
             get => this.fileName;
             protected set
             {

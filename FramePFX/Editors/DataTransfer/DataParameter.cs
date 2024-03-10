@@ -95,7 +95,7 @@ namespace FramePFX.Editors.DataTransfer
             }
         }
 
-#region Registering parameters
+        #region Registering parameters
 
         /// <summary>
         /// Registers the given parameter
@@ -140,7 +140,7 @@ namespace FramePFX.Editors.DataTransfer
             }
         }
 
-#endregion
+        #endregion
 
         static DataParameter()
         {

@@ -46,7 +46,8 @@ namespace FramePFX.Editors.Timelines
         /// <summary>
         /// A calculated end-index (exclusive) for this span. This value may be negative (which isn't a valid span value, but is allowed anyway)
         /// </summary>
-        public long EndIndex {
+        public long EndIndex
+        {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => this.Begin + this.Duration;
         }

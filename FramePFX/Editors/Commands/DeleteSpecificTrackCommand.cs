@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
@@ -28,20 +27,20 @@ namespace FramePFX.Editors.Commands
 {
     public class DeleteSpecificTrackCommand : Command
     {
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        public override Executability CanExecute(CommandEventArgs e)
         {
             if (!DataKeys.TrackKey.TryGetContext(e.ContextData, out Track track))
-                return ExecutabilityState.Invalid;
-            return track.Timeline != null ? ExecutabilityState.Executable : ExecutabilityState.ValidButCannotExecute;
+                return Executability.Invalid;
+            return track.Timeline != null ? Executability.Valid : Executability.ValidButCannotExecute;
         }
 
-        public override Task Execute(CommandEventArgs e)
+        protected override void Execute(CommandEventArgs e)
         {
             if (!DataKeys.TrackKey.TryGetContext(e.ContextData, out Track track))
-                return Task.CompletedTask;
+                return;
             Timeline timeline = track.Timeline;
             if (timeline == null)
-                return Task.CompletedTask;
+                return;
             int index = track.IndexInTimeline;
             timeline.DeleteTrack(track);
 
@@ -65,7 +64,6 @@ namespace FramePFX.Editors.Commands
             }
 
             VideoEditorPropertyEditor.Instance.UpdateTrackSelectionAsync(timeline);
-            return Task.CompletedTask;
         }
     }
 }

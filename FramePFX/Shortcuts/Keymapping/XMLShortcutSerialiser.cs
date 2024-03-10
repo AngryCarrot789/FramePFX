@@ -30,7 +30,7 @@ namespace FramePFX.Shortcuts.Keymapping
 {
     public abstract class XMLShortcutSerialiser : IKeymapSerialiser
     {
-#region Serialisation
+        #region Serialisation
 
         public void Serialise(Keymap keymap, Stream stream)
         {
@@ -192,9 +192,9 @@ namespace FramePFX.Shortcuts.Keymapping
             }
         }
 
-#endregion
+        #endregion
 
-#region Deserialisation
+        #region Deserialisation
 
         public Keymap Deserialise(ShortcutManager manager, Stream stream)
         {
@@ -364,9 +364,9 @@ namespace FramePFX.Shortcuts.Keymapping
             }
         }
 
-#endregion
+        #endregion
 
-#region Util functions
+        #region Util functions
 
         protected static bool GetIsGlobal(XmlElement element)
         {
@@ -456,7 +456,7 @@ namespace FramePFX.Shortcuts.Keymapping
             return "true".EqualsIgnoreCase(value);
         }
 
-#endregion
+        #endregion
 
         protected abstract KeyStroke DeserialiseKeyStroke(XmlElement element);
         protected abstract MouseStroke DeserialiseMouseStroke(XmlElement element);

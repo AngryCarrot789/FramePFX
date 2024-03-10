@@ -223,7 +223,8 @@ namespace FramePFX.Editors.Timelines.Effects
                 effect.OnRemoved();
             }
             finally
-            { // just in case it throws... not that it wouldn't crash the app anyway but still
+            {
+                // just in case it throws... not that it wouldn't crash the app anyway but still
                 effect.Owner = null;
             }
         }

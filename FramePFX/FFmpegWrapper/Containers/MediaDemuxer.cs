@@ -21,7 +21,8 @@ namespace FramePFX.FFmpegWrapper.Containers
         private AVFormatContext* _ctx;
         private readonly bool _iocLeaveOpen;
 
-        public AVFormatContext* Handle {
+        public AVFormatContext* Handle
+        {
             get
             {
                 this.ValidateNotDisposed();

@@ -31,7 +31,8 @@ namespace FramePFX.AdvancedMenuService.ContextService
         private string header;
         private string description;
 
-        public string Header {
+        public string Header
+        {
             get => this.header;
             set
             {
@@ -42,7 +43,8 @@ namespace FramePFX.AdvancedMenuService.ContextService
             }
         }
 
-        public string Description {
+        public string Description
+        {
             get => this.description;
             set
             {
@@ -65,8 +67,6 @@ namespace FramePFX.AdvancedMenuService.ContextService
             this.description = description;
         }
 
-        protected BaseContextEntry(IEnumerable<IContextEntry> children = null) : this(null, null, children)
-        {
-        }
+        protected BaseContextEntry(IEnumerable<IContextEntry> children = null) : this(null, null, children) { }
     }
 }

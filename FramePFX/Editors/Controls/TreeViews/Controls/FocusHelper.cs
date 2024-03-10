@@ -32,7 +32,7 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
     /// </summary>
     public static class FocusHelper
     {
-#region Public methods
+        #region Public methods
 
         public static void Focus(EditTextBox element)
         {
@@ -88,6 +88,6 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
 #endif
         }
 
-#endregion Public methods
+        #endregion Public methods
     }
 }

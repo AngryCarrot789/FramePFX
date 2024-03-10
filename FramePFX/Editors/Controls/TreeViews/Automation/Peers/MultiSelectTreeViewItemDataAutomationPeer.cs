@@ -37,9 +37,10 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
         IExpandCollapseProvider,
         IValueProvider
     {
-#region Properties
+        #region Properties
 
-        private MultiSelectTreeViewItemAutomationPeer ItemPeer {
+        private MultiSelectTreeViewItemAutomationPeer ItemPeer
+        {
             get
             {
                 AutomationPeer automationPeer = null;
@@ -71,17 +72,17 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
             }
         }
 
-#endregion Properties
+        #endregion Properties
 
-#region Constructor
+        #region Constructor
 
         public MultiSelectTreeViewItemDataAutomationPeer(object item, ItemsControlAutomationPeer itemsControlAutomationPeer) : base(item, itemsControlAutomationPeer)
         {
         }
 
-#endregion Constructor
+        #endregion Constructor
 
-#region Public methods
+        #region Public methods
 
         public override object GetPattern(PatternInterface patternInterface)
         {
@@ -114,25 +115,28 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
             return base.GetPattern(patternInterface);
         }
 
-#endregion Public methods
+        #endregion Public methods
 
-#region Explicit interface properties
+        #region Explicit interface properties
 
-        ExpandCollapseState IExpandCollapseProvider.ExpandCollapseState {
+        ExpandCollapseState IExpandCollapseProvider.ExpandCollapseState
+        {
             get
             {
                 return this.ItemPeer.ExpandCollapseState;
             }
         }
 
-        bool ISelectionItemProvider.IsSelected {
+        bool ISelectionItemProvider.IsSelected
+        {
             get
             {
                 return ((ISelectionItemProvider) this.ItemPeer).IsSelected;
             }
         }
 
-        IRawElementProviderSimple ISelectionItemProvider.SelectionContainer {
+        IRawElementProviderSimple ISelectionItemProvider.SelectionContainer
+        {
             get
             {
                 // TreeViewItemAutomationPeer treeViewItemAutomationPeer = GetWrapperPeer() as TreeViewItemAutomationPeer;
@@ -147,9 +151,9 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
             }
         }
 
-#endregion Explicit interface properties
+        #endregion Explicit interface properties
 
-#region Explicit interface methods
+        #region Explicit interface methods
 
         void IExpandCollapseProvider.Collapse()
         {
@@ -181,9 +185,9 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
             ((ISelectionItemProvider) this.ItemPeer).Select();
         }
 
-#endregion Explicit interface methods
+        #endregion Explicit interface methods
 
-#region Methods
+        #region Methods
 
         protected override AutomationControlType GetAutomationControlTypeCore()
         {
@@ -211,11 +215,12 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
             return result;
         }
 
-#endregion Methods
+        #endregion Methods
 
-#region IValueProvider members
+        #region IValueProvider members
 
-        bool IValueProvider.IsReadOnly {
+        bool IValueProvider.IsReadOnly
+        {
             get { return ((IValueProvider) this.ItemPeer).IsReadOnly; }
         }
 
@@ -224,10 +229,11 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
             ((IValueProvider) this.ItemPeer).SetValue(value);
         }
 
-        string IValueProvider.Value {
+        string IValueProvider.Value
+        {
             get { return ((IValueProvider) this.ItemPeer).Value; }
         }
 
-#endregion IValueProvider members
+        #endregion IValueProvider members
     }
 }

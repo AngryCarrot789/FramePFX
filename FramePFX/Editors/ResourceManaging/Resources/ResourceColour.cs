@@ -26,7 +26,8 @@ namespace FramePFX.Editors.ResourceManaging.Resources
     {
         private SKColor myColour;
 
-        public SKColor Colour {
+        public SKColor Colour
+        {
             get => this.myColour;
             set
             {
@@ -38,42 +39,50 @@ namespace FramePFX.Editors.ResourceManaging.Resources
             }
         }
 
-        public float ScR {
+        public float ScR
+        {
             get => Maths.Clamp(this.myColour.Red / 255F, 0F, 1F);
             set => this.myColour = this.myColour.WithRed((byte) Maths.Clamp((int) (value * 255F), 0, 255));
         }
 
-        public float ScG {
+        public float ScG
+        {
             get => Maths.Clamp(this.myColour.Green / 255F, 0F, 1F);
             set => this.myColour = this.myColour.WithGreen((byte) Maths.Clamp((int) (value * 255F), 0, 255));
         }
 
-        public float ScB {
+        public float ScB
+        {
             get => Maths.Clamp(this.myColour.Blue / 255F, 0F, 1F);
             set => this.myColour = this.myColour.WithBlue((byte) Maths.Clamp((int) (value * 255F), 0, 255));
         }
 
-        public float ScA {
+        public float ScA
+        {
             get => Maths.Clamp(this.myColour.Alpha / 255F, 0F, 1F);
             set => this.myColour = this.myColour.WithAlpha((byte) Maths.Clamp((int) (value * 255F), 0, 255));
         }
 
-        public byte ByteR {
+        public byte ByteR
+        {
             get => this.myColour.Red;
             set => this.myColour = this.myColour.WithRed(value);
         }
 
-        public byte ByteG {
+        public byte ByteG
+        {
             get => this.myColour.Green;
             set => this.myColour = this.myColour.WithGreen(value);
         }
 
-        public byte ByteB {
+        public byte ByteB
+        {
             get => this.myColour.Blue;
             set => this.myColour = this.myColour.WithBlue(value);
         }
 
-        public byte ByteA {
+        public byte ByteA
+        {
             get => this.myColour.Alpha;
             set => this.myColour = this.myColour.WithAlpha(value);
         }

@@ -18,7 +18,6 @@
 //
 
 using System;
-using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -30,8 +29,6 @@ using FramePFX.Editors.ProjectProps;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.ResourceManaging;
 using FramePFX.Editors.Timelines;
-using FramePFX.FileBrowser.FileTree;
-using FramePFX.FileBrowser.FileTree.Physical;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.PropertyEditing;
 using FramePFX.Tasks;
@@ -48,7 +45,8 @@ namespace FramePFX.Editors.Views
     {
         public static readonly DependencyProperty EditorProperty = DependencyProperty.Register("Editor", typeof(VideoEditor), typeof(EditorWindow), new PropertyMetadata(null, (o, e) => ((EditorWindow) o).OnEditorChanged((VideoEditor) e.OldValue, (VideoEditor) e.NewValue)));
 
-        public VideoEditor Editor {
+        public VideoEditor Editor
+        {
             get => (VideoEditor) this.GetValue(EditorProperty);
             set => this.SetValue(EditorProperty, value);
         }
@@ -180,7 +178,8 @@ namespace FramePFX.Editors.Views
             this.ThePropertyEditor.PropertyEditor = VideoEditorPropertyEditor.Instance;
             this.PART_ActiveBackgroundTaskGrid.Visibility = Visibility.Collapsed;
 
-            this.PART_FileTree.FileTree = Win32FileSystem.Instance.ForFilePath(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
+            // TODO: File browser
+            // this.PART_FileTree.FileTree = Win32FileSystem.Instance.ForFilePath(Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
         }
 
         protected override void OnKeyDown(KeyEventArgs e)
@@ -197,7 +196,6 @@ namespace FramePFX.Editors.Views
             if (oldEditor != null)
             {
                 oldEditor.ProjectChanged -= this.OnEditorProjectChanged;
-                oldEditor.Playback.PlaybackStateChanged -= this.OnEditorPlaybackStateChanged;
                 Project oldProject = oldEditor.Project;
                 if (oldProject != null)
                 {
@@ -210,7 +208,6 @@ namespace FramePFX.Editors.Views
             if (newEditor != null)
             {
                 newEditor.ProjectChanged += this.OnEditorProjectChanged;
-                newEditor.Playback.PlaybackStateChanged += this.OnEditorPlaybackStateChanged;
                 this.PART_ViewPort.VideoEditor = newEditor;
             }
 
@@ -220,27 +217,6 @@ namespace FramePFX.Editors.Views
             {
                 this.OnProjectChanged(null, project);
             }
-
-            this.UpdatePlayBackButtons(newEditor?.Playback);
-        }
-
-        private void OnEditorPlaybackStateChanged(PlaybackManager sender, PlayState state, long frame)
-        {
-            this.UpdatePlayBackButtons(sender);
-        }
-
-        private void UpdatePlayBackButtons(PlaybackManager manager)
-        {
-            // if (manager != null) {
-            //     this.PlayBackButton_Play.IsEnabled = manager.CanSetPlayStateTo(PlayState.Play);
-            //     this.PlayBackButton_Pause.IsEnabled = manager.CanSetPlayStateTo(PlayState.Pause);
-            //     this.PlayBackButton_Stop.IsEnabled = manager.CanSetPlayStateTo(PlayState.Stop);
-            // }
-            // else {
-            //     this.PlayBackButton_Play.IsEnabled = false;
-            //     this.PlayBackButton_Pause.IsEnabled = false;
-            //     this.PlayBackButton_Stop.IsEnabled = false;
-            // }
         }
 
         private void OnEditorProjectChanged(VideoEditor editor, Project oldProject, Project newProject)
@@ -270,7 +246,6 @@ namespace FramePFX.Editors.Views
             this.UpdateResourceManager(newProject?.ResourceManager);
             this.OnActiveTimelineChanged(oldProject?.ActiveTimeline, newProject?.ActiveTimeline);
             this.UpdateWindowTitle(newProject);
-            this.UpdatePlayBackButtons(newProject?.Editor.Playback);
 
             IoC.Dispatcher.InvokeAsync(() =>
             {
@@ -314,17 +289,7 @@ namespace FramePFX.Editors.Views
             this.TheTimeline.Timeline = newTimeline;
             this.UpdateTimelineName();
 
-            if (newTimeline is Timeline timeline)
-            {
-                this.PART_CloseTimelineButton.IsEnabled = timeline is CompositionTimeline;
-            }
-            else
-            {
-                this.PART_CloseTimelineButton.IsEnabled = false;
-            }
-
-            if (this.Editor is VideoEditor editor)
-                this.UpdatePlayBackButtons(editor.Playback);
+            this.PART_CloseTimelineButton.IsEnabled = newTimeline is Timeline timeline && timeline is CompositionTimeline;
         }
 
         private void UpdateFrameRenderInterval(RenderManager manager)
@@ -380,14 +345,10 @@ namespace FramePFX.Editors.Views
             {
                 StringBuilder sb = new StringBuilder().Append(DefaultTitle);
                 if (!string.IsNullOrEmpty(project.ProjectFilePath))
-                {
                     sb.Append(" - ").Append(project.ProjectFilePath);
-                }
 
                 if (!string.IsNullOrWhiteSpace(project.ProjectName))
-                {
                     sb.Append(" [").Append(project.ProjectName).Append("]");
-                }
 
                 if (project.IsModified)
                     sb.Append("*");

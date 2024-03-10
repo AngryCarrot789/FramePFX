@@ -55,17 +55,20 @@ namespace FramePFX.Themes
         public static SolidColorBrush GetBrush(string name) => GetResource(name) is SolidColorBrush brush ? brush : new SolidColorBrush(Colors.White);
         public static ThemeType CurrentTheme { get; set; }
 
-        public static ResourceDictionary ThemeDictionary {
+        public static ResourceDictionary ThemeDictionary
+        {
             get => Application.Current.Resources.MergedDictionaries[0];
             set => Application.Current.Resources.MergedDictionaries[0] = value;
         }
 
-        public static ResourceDictionary ControlColours {
+        public static ResourceDictionary ControlColours
+        {
             get => Application.Current.Resources.MergedDictionaries[1];
             set => Application.Current.Resources.MergedDictionaries[1] = value;
         }
 
-        public static ResourceDictionary I18NText {
+        public static ResourceDictionary I18NText
+        {
             get => Application.Current.Resources.MergedDictionaries[3];
             set => Application.Current.Resources.MergedDictionaries[3] = value;
         }

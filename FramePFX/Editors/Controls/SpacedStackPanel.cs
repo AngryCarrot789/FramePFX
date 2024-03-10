@@ -39,12 +39,14 @@ namespace FramePFX.Editors.Controls
 
         public static readonly DependencyProperty InterElementGapProperty = DependencyProperty.Register("InterElementGap", typeof(double), typeof(SpacedStackPanel), new FrameworkPropertyMetadata(1.0, FrameworkPropertyMetadataOptions.AffectsMeasure));
 
-        public Orientation Orientation {
+        public Orientation Orientation
+        {
             get => (Orientation) this.GetValue(OrientationProperty);
             set => this.SetValue(OrientationProperty, value);
         }
 
-        public double InterElementGap {
+        public double InterElementGap
+        {
             get => (double) this.GetValue(InterElementGapProperty);
             set => this.SetValue(InterElementGapProperty, value);
         }

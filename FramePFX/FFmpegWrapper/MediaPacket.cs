@@ -20,7 +20,8 @@ namespace FramePFX.FFmpegWrapper
     {
         internal AVPacket* packet;
 
-        public AVPacket* Handle {
+        public AVPacket* Handle
+        {
             get
             {
                 this.ValidateNotDisposed();
@@ -39,23 +40,27 @@ namespace FramePFX.FFmpegWrapper
         /// Some formats misuse the terms dts and pts/cts to mean something different.
         /// Such timestamps must be converted to true pts/dts before they are stored in AVPacket.
         /// </summary>
-        public long? PresentationTimestamp {
+        public long? PresentationTimestamp
+        {
             get => FFUtils.GetPTS(this.packet->pts);
             set => FFUtils.SetPTS(ref this.packet->pts, value);
         }
 
-        public long? DecompressionTimestamp {
+        public long? DecompressionTimestamp
+        {
             get => FFUtils.GetPTS(this.packet->dts);
             set => FFUtils.SetPTS(ref this.packet->dts, value);
         }
 
         /// <summary> Duration of this packet in <see cref="MediaStream.TimeBase"/> units, 0 if unknown. Equals next_pts - this_pts in presentation order.  </summary>
-        public long Duration {
+        public long Duration
+        {
             get => this.packet->duration;
             set => this.packet->duration = value;
         }
 
-        public int StreamIndex {
+        public int StreamIndex
+        {
             get => this.packet->stream_index;
             set => this.packet->stream_index = value;
         }

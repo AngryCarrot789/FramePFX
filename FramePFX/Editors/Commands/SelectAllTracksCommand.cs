@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Tracks;
@@ -52,62 +51,56 @@ namespace FramePFX.Editors.Commands
             VideoEditorPropertyEditor.Instance.UpdateTrackSelectionAsync(timeline);
         }
 
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        public override Executability CanExecute(CommandEventArgs e)
         {
             if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track track) && track.Timeline != null)
-                return ExecutabilityState.Executable;
-            return e.ContextData.ContainsKey(DataKeys.TimelineKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+                return Executability.Valid;
+            return e.ContextData.ContainsKey(DataKeys.TimelineKey) ? Executability.Valid : Executability.Invalid;
         }
 
-        public override Task Execute(CommandEventArgs e)
+        protected override void Execute(CommandEventArgs e)
         {
             Timeline timeline;
             if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track track) && ((timeline = track.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.ContextData, out timeline)))
             {
                 SelectAll(timeline, track, false);
             }
-
-            return Task.CompletedTask;
         }
     }
 
     public class SelectAllClipsInTrackCommand : Command
     {
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        public override Executability CanExecute(CommandEventArgs e)
         {
-            return e.ContextData.ContainsKey(DataKeys.TrackKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+            return e.ContextData.ContainsKey(DataKeys.TrackKey) ? Executability.Valid : Executability.Invalid;
         }
 
-        public override Task Execute(CommandEventArgs e)
+        protected override void Execute(CommandEventArgs e)
         {
             if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track track))
             {
                 track.SelectAll();
                 VideoEditorPropertyEditor.Instance.UpdateClipSelectionAsync(track.Timeline);
             }
-
-            return Task.CompletedTask;
         }
     }
 
     public class SelectAllClipsInTimelineCommand : Command
     {
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        public override Executability CanExecute(CommandEventArgs e)
         {
             if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track track) && track.Timeline != null)
-                return ExecutabilityState.Executable;
-            return e.ContextData.ContainsKey(DataKeys.TimelineKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+                return Executability.Valid;
+            return e.ContextData.ContainsKey(DataKeys.TimelineKey) ? Executability.Valid : Executability.Invalid;
         }
 
-        public override Task Execute(CommandEventArgs e)
+        protected override void Execute(CommandEventArgs e)
         {
             Timeline timeline;
             if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track track) && ((timeline = track.Timeline) != null || DataKeys.TimelineKey.TryGetContext(e.ContextData, out timeline)))
             {
                 SelectAllTracksCommand.SelectAll(timeline, track, true);
             }
-
-            return Task.CompletedTask;
         }
     }
 }

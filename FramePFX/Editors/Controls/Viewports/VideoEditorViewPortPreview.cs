@@ -47,17 +47,20 @@ namespace FramePFX.Editors.Controls.Viewports
             ((VideoEditorViewPortPreview) d).OutlinePen = null;
         }
 
-        public Brush SelectionOutlineBrush {
+        public Brush SelectionOutlineBrush
+        {
             get => (Brush) this.GetValue(SelectionOutlineBrushProperty);
             set => this.SetValue(SelectionOutlineBrushProperty, value);
         }
 
-        public VideoEditor VideoEditor {
+        public VideoEditor VideoEditor
+        {
             get => (VideoEditor) this.GetValue(VideoEditorProperty);
             set => this.SetValue(VideoEditorProperty, value);
         }
 
-        public bool DrawSelectedElements {
+        public bool DrawSelectedElements
+        {
             get => (bool) this.GetValue(DrawSelectedElementsProperty);
             set => this.SetValue(DrawSelectedElementsProperty, value.Box());
         }

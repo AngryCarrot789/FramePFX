@@ -65,117 +65,140 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
         private static readonly DependencyPropertyKey IsLeftMousePressedPropertyKey = DependencyProperty.RegisterReadOnly("IsLeftMousePressed", typeof(bool), typeof(MultiSelectTreeViewItem), new PropertyMetadata(BoolBox.False));
         public static readonly DependencyProperty IsLeftMousePressedProperty = IsLeftMousePressedPropertyKey.DependencyProperty;
 
-        public Brush BackgroundFocused {
+        public Brush BackgroundFocused
+        {
             get => (Brush) this.GetValue(BackgroundFocusedProperty);
             set => this.SetValue(BackgroundFocusedProperty, value);
         }
 
-        public Brush BackgroundSelected {
+        public Brush BackgroundSelected
+        {
             get => (Brush) this.GetValue(BackgroundSelectedProperty);
             set => this.SetValue(BackgroundSelectedProperty, value);
         }
 
-        public Brush ForegroundSelected {
+        public Brush ForegroundSelected
+        {
             get => (Brush) this.GetValue(ForegroundSelectedProperty);
             set => this.SetValue(ForegroundSelectedProperty, value);
         }
 
-        public Brush BackgroundSelectedHovered {
+        public Brush BackgroundSelectedHovered
+        {
             get => (Brush) this.GetValue(BackgroundSelectedHoveredProperty);
             set => this.SetValue(BackgroundSelectedHoveredProperty, value);
         }
 
-        public Brush BackgroundHovered {
+        public Brush BackgroundHovered
+        {
             get => (Brush) this.GetValue(BackgroundHoveredProperty);
             set => this.SetValue(BackgroundHoveredProperty, value);
         }
 
-        public Brush BackgroundInactive {
+        public Brush BackgroundInactive
+        {
             get => (Brush) this.GetValue(BackgroundInactiveProperty);
             set => this.SetValue(BackgroundInactiveProperty, value);
         }
 
-        public Brush ForegroundInactive {
+        public Brush ForegroundInactive
+        {
             get => (Brush) this.GetValue(ForegroundInactiveProperty);
             set => this.SetValue(ForegroundInactiveProperty, value);
         }
 
-        public Brush BorderBrushInactive {
+        public Brush BorderBrushInactive
+        {
             get => (Brush) this.GetValue(BorderBrushInactiveProperty);
             set => this.SetValue(BorderBrushInactiveProperty, value);
         }
 
-        public Brush BorderBrushHovered {
+        public Brush BorderBrushHovered
+        {
             get => (Brush) this.GetValue(BorderBrushHoveredProperty);
             set => this.SetValue(BorderBrushHoveredProperty, value);
         }
 
-        public Brush BorderBrushFocused {
+        public Brush BorderBrushFocused
+        {
             get => (Brush) this.GetValue(BorderBrushFocusedProperty);
             set => this.SetValue(BorderBrushFocusedProperty, value);
         }
 
-        public Brush BorderBrushSelected {
+        public Brush BorderBrushSelected
+        {
             get => (Brush) this.GetValue(BorderBrushSelectedProperty);
             set => this.SetValue(BorderBrushSelectedProperty, value);
         }
 
-        public DataTemplate ContentTemplateEdit {
+        public DataTemplate ContentTemplateEdit
+        {
             get => (DataTemplate) this.GetValue(ContentTemplateEditProperty);
             set => this.SetValue(ContentTemplateEditProperty, value);
         }
 
-        public bool IsExpanded {
+        public bool IsExpanded
+        {
             get => (bool) this.GetValue(IsExpandedProperty);
             set => this.SetValue(IsExpandedProperty, value.Box());
         }
 
-        public bool IsEditable {
+        public bool IsEditable
+        {
             get => (bool) this.GetValue(IsEditableProperty);
             set => this.SetValue(IsEditableProperty, value.Box());
         }
 
-        public new bool IsVisible {
+        public new bool IsVisible
+        {
             get => (bool) this.GetValue(IsVisibleProperty);
             set => this.SetValue(IsVisibleProperty, value.Box());
         }
 
-        public bool IsEditing {
+        public bool IsEditing
+        {
             get => (bool) this.GetValue(IsEditingProperty);
             set => this.SetValue(IsEditingProperty, value.Box());
         }
 
-        public bool IsSelected {
+        public bool IsSelected
+        {
             get => (bool) this.GetValue(IsSelectedProperty);
             set => this.SetValue(IsSelectedProperty, value.Box());
         }
 
-        public string DisplayName {
+        public string DisplayName
+        {
             get => (string) this.GetValue(DisplayNameProperty);
             set => this.SetValue(DisplayNameProperty, value);
         }
 
-        public bool HoverHighlighting {
+        public bool HoverHighlighting
+        {
             get => (bool) this.GetValue(HoverHighlightingProperty);
             set => this.SetValue(HoverHighlightingProperty, value.Box());
         }
 
-        public int ItemIndent {
+        public int ItemIndent
+        {
             get => (int) this.GetValue(ItemIndentProperty);
             set => this.SetValue(ItemIndentProperty, value);
         }
 
-        public bool IsKeyboardMode {
+        public bool IsKeyboardMode
+        {
             get => (bool) this.GetValue(IsKeyboardModeProperty);
             set => this.SetValue(IsKeyboardModeProperty, value.Box());
         }
 
-        public string Remarks {
+        public string Remarks
+        {
             get => (string) this.GetValue(RemarksProperty);
             set => this.SetValue(RemarksProperty, value);
         }
 
-        public DataTemplate RemarksTemplate {
+        public DataTemplate RemarksTemplate
+        {
             get => (DataTemplate) this.GetValue(RemarksTemplateProperty);
             set => this.SetValue(RemarksTemplateProperty, value);
         }
@@ -184,7 +207,8 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
 
         private MultiSelectTreeView lastParentTreeView;
 
-        internal MultiSelectTreeView ParentTreeView {
+        internal MultiSelectTreeView ParentTreeView
+        {
             get
             {
                 for (ItemsControl ic = this.ParentItemsControl; ic != null; ic = ItemsControlFromItemContainer(ic))

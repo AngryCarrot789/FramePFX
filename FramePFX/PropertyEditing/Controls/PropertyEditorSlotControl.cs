@@ -50,13 +50,15 @@ namespace FramePFX.PropertyEditing.Controls
         /// our <see cref="PropertyEditing.PropertyEditor"/>'s selected items
         /// </summary>
         [Category("Appearance")]
-        public bool IsSelected {
+        public bool IsSelected
+        {
             get => (bool) this.GetValue(IsSelectedProperty);
             set => this.SetValue(IsSelectedProperty, value.Box());
         }
 
         [Category("Appearance")]
-        public bool IsSelectable {
+        public bool IsSelectable
+        {
             get => (bool) this.GetValue(IsSelectableProperty);
             set => this.SetValue(IsSelectableProperty, value.Box());
         }

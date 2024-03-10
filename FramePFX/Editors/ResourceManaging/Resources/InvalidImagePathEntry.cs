@@ -30,7 +30,8 @@ namespace FramePFX.Editors.ResourceManaging.Resources
 
         private string filePath;
 
-        public string FilePath {
+        public string FilePath
+        {
             get => this.filePath;
             set
             {

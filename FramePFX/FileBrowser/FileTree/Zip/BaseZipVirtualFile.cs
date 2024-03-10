@@ -29,7 +29,8 @@ namespace FramePFX.FileBrowser.FileTree.Zip
         private string fullPath;
         private string fileName;
 
-        public string FullPath {
+        public string FullPath
+        {
             get => this.fullPath;
             set
             {

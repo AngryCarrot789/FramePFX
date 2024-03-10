@@ -117,42 +117,50 @@ namespace FramePFX.Editors.Controls.Automation
                 typeof(AutomationSequenceEditor),
                 new PropertyMetadata(10000L));
 
-        public Brush OverrideModeBrush {
+        public Brush OverrideModeBrush
+        {
             get => (Brush) this.GetValue(OverrideModeBrushProperty);
             set => this.SetValue(OverrideModeBrushProperty, value);
         }
 
-        public Brush KeyFrameBrush {
+        public Brush KeyFrameBrush
+        {
             get => (Brush) this.GetValue(KeyFrameBrushProperty);
             set => this.SetValue(KeyFrameBrushProperty, value);
         }
 
-        public Brush CurveBrush {
+        public Brush CurveBrush
+        {
             get => (Brush) this.GetValue(CurveBrushProperty);
             set => this.SetValue(CurveBrushProperty, value);
         }
 
-        public Brush MouseOverBrush {
+        public Brush MouseOverBrush
+        {
             get => (Brush) this.GetValue(MouseOverBrushProperty);
             set => this.SetValue(MouseOverBrushProperty, value);
         }
 
-        public Brush PlacementPlaneBrush {
+        public Brush PlacementPlaneBrush
+        {
             get => (Brush) this.GetValue(PlacementPlaneBrushProperty);
             set => this.SetValue(PlacementPlaneBrushProperty, value);
         }
 
-        public AutomationSequence Sequence {
+        public AutomationSequence Sequence
+        {
             get => (AutomationSequence) this.GetValue(SequenceProperty);
             set => this.SetValue(SequenceProperty, value);
         }
 
-        public double UnitZoom {
+        public double UnitZoom
+        {
             get => (double) this.GetValue(UnitZoomProperty);
             set => this.SetValue(UnitZoomProperty, value);
         }
 
-        public long FrameDuration {
+        public long FrameDuration
+        {
             get => (long) this.GetValue(FrameDurationProperty);
             set => this.SetValue(FrameDurationProperty, value);
         }
@@ -236,7 +244,7 @@ namespace FramePFX.Editors.Controls.Automation
             this.scroller.ScrollChanged += this.OnScrollerOnScrollChanged;
         }
 
-#region Key Frame Creation/Deletion
+        #region Key Frame Creation/Deletion
 
         public KeyFrame CreateKeyFrameAt(AutomationSequence sequence, Point point, bool capturePoint)
         {
@@ -272,9 +280,9 @@ namespace FramePFX.Editors.Controls.Automation
             return keyFrame;
         }
 
-#endregion
+        #endregion
 
-#region Key point creation/deletion
+        #region Key point creation/deletion
 
         private void CreatePoints(int index, List<KeyFrame> keyFrames)
         {
@@ -448,9 +456,9 @@ namespace FramePFX.Editors.Controls.Automation
             }
         }
 
-#endregion
+        #endregion
 
-#region Key point capture
+        #region Key point capture
 
         private void ClearCapture(bool releaseMouseCapture = true)
         {
@@ -489,9 +497,9 @@ namespace FramePFX.Editors.Controls.Automation
             }
         }
 
-#endregion
+        #endregion
 
-#region Event handlers
+        #region Event handlers
 
         protected virtual void OnSequencePropertyChanged(AutomationSequence oldValue, AutomationSequence newValue)
         {
@@ -614,9 +622,9 @@ namespace FramePFX.Editors.Controls.Automation
             this.InvalidKeyFrameDataAndRender();
         }
 
-#endregion
+        #endregion
 
-#region User Input Handling
+        #region User Input Handling
 
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
         {
@@ -874,9 +882,9 @@ namespace FramePFX.Editors.Controls.Automation
             this.lastMousePoint = mPos;
         }
 
-#endregion
+        #endregion
 
-#region Rendering
+        #region Rendering
 
         private WriteableBitmap bitmapImg;
 
@@ -1161,9 +1169,9 @@ namespace FramePFX.Editors.Controls.Automation
             }
         }
 
-#endregion
+        #endregion
 
-#region Hit/collision testing
+        #region Hit/collision testing
 
         // using `ref` instead of `in`, because mutable struct and `in` are a recipe for horrible performance
 
@@ -1277,15 +1285,15 @@ namespace FramePFX.Editors.Controls.Automation
 
         private const double R1 = EllipseHitRadius, R2 = R1 * 2d;
 
-#endregion
+        #endregion
 
-#region standard property change handlers
+        #region standard property change handlers
 
         protected virtual void OnOverrideBrushPropertyChanged(Brush oldValue, Brush newValue) => this.keyOverridePen = null;
         protected virtual void OnKeyFrameBrushPropertyChanged(Brush oldValue, Brush newValue) => this.keyFramePen = null;
         protected virtual void OnCurveBrushPropertyChanged(Brush oldValue, Brush newValue) => this.curvePen = null;
         protected virtual void OnMouseOverBrushPropertyChanged(Brush oldValue, Brush newValue) => this.mouseOverPen = null;
 
-#endregion
+        #endregion
     }
 }

@@ -21,6 +21,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Automation;
 using FramePFX.Editors.ResourceManaging.Autoloading.Controls;
@@ -30,14 +31,14 @@ using FramePFX.Utils;
 
 namespace FramePFX.Editors.Commands
 {
-    public class OpenProjectCommand : Command
+    public class OpenProjectCommand : AsyncCommand
     {
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        protected override Executability CanExecuteCore(CommandEventArgs e)
         {
-            return e.ContextData.ContainsKey(DataKeys.VideoEditorKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+            return e.ContextData.ContainsKey(DataKeys.VideoEditorKey) ? Executability.Valid : Executability.Invalid;
         }
 
-        public override async Task Execute(CommandEventArgs e)
+        protected override async Task ExecuteAsync(CommandEventArgs e)
         {
             if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor))
             {
@@ -88,10 +89,11 @@ namespace FramePFX.Editors.Commands
             if (progress == null)
                 progress = EmptyActivityProgress.Instance;
 
-            using (progress.PushCompletionRange(0.0, 0.3))
+            using (progress.PushCompletionRange(0.0, 0.4))
             {
                 progress.Text = "Reading project data from file";
                 progress.OnProgress(0.5);
+
                 try
                 {
                     project = Project.ReadProjectAt(filePath);
@@ -105,7 +107,7 @@ namespace FramePFX.Editors.Commands
                 progress.OnProgress(0.5);
             }
 
-            using (progress.PushCompletionRange(0.3, 0.6))
+            using (progress.PushCompletionRange(0.4, 0.6))
             {
                 progress.Text = "Loading project";
                 progress.OnProgress(0.5);
@@ -140,12 +142,10 @@ namespace FramePFX.Editors.Commands
                     }
 
                     return true;
-                });
+                }, DispatcherPriority.Input);
 
                 if (!reuslt)
-                {
                     return false;
-                }
 
                 progress.OnProgress(0.5);
             }
@@ -158,13 +158,15 @@ namespace FramePFX.Editors.Commands
                 await IoC.Dispatcher.InvokeAsync(() =>
                 {
                     project.SetUnModified();
-                    AutomationEngine.UpdateValues(project.MainTimeline);
+                    AutomationEngine.UpdateValues(project.ActiveTimeline);
                     project.MainTimeline.RenderManager.InvalidateRender();
                     Debug.Assert(project.IsModified == false, "Expected automation update and render invalidation to not mark project as modified");
-                });
+                }, DispatcherPriority.Input);
 
                 progress.OnProgress(0.5);
             }
+
+            await Task.Delay(100);
 
             return true;
         }

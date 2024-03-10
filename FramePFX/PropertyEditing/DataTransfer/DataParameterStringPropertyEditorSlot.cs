@@ -26,7 +26,8 @@ namespace FramePFX.PropertyEditing.DataTransfer
     {
         private string value;
 
-        public string Value {
+        public string Value
+        {
             get => this.value;
             set
             {

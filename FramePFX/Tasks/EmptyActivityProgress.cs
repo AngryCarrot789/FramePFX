@@ -40,9 +40,7 @@ namespace FramePFX.Tasks
 
         private int stackCount; // used to track possible bugs
 
-        public EmptyActivityProgress()
-        {
-        }
+        public EmptyActivityProgress() { }
 
         PopDispose IActivityProgress.PushCompletionRange(double min, double max)
         {
@@ -57,8 +55,6 @@ namespace FramePFX.Tasks
             --this.stackCount;
         }
 
-        void IActivityProgress.OnProgress(double value)
-        {
-        }
+        void IActivityProgress.OnProgress(double value) { }
     }
 }

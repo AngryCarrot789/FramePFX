@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System.Threading.Tasks;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 
@@ -25,18 +24,18 @@ namespace FramePFX.Editors.Commands
 {
     public class TogglePlayCommand : Command
     {
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        public override Executability CanExecute(CommandEventArgs e)
         {
             if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out var editor))
-                return ExecutabilityState.Invalid;
-            return editor.Playback.Timeline != null ? ExecutabilityState.Executable : ExecutabilityState.ValidButCannotExecute;
+                return Executability.Invalid;
+            return editor.Playback.Timeline != null ? Executability.Valid : Executability.ValidButCannotExecute;
         }
 
-        public override Task Execute(CommandEventArgs e)
+        protected override void Execute(CommandEventArgs e)
         {
             if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor) || editor.Playback.Timeline == null)
             {
-                return Task.CompletedTask;
+                return;
             }
 
             if (editor.Playback.PlayState == PlayState.Play)
@@ -47,8 +46,6 @@ namespace FramePFX.Editors.Commands
             {
                 editor.Playback.Play();
             }
-
-            return Task.CompletedTask;
         }
     }
 }

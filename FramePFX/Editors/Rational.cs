@@ -60,7 +60,8 @@ namespace FramePFX.Editors
         /// </summary>
         public Rational Inverse => new Rational(this.den, this.num);
 
-        public Rational Reduced {
+        public Rational Reduced
+        {
             get
             {
                 Reduce(out Rational r, this.num, this.den);

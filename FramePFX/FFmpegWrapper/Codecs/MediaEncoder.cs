@@ -17,7 +17,8 @@ namespace FramePFX.FFmpegWrapper.Codecs
 {
     public abstract unsafe class MediaEncoder : CodecBase
     {
-        public int BitRate {
+        public int BitRate
+        {
             get => (int) this.ctx->bit_rate;
             set => this.SetOrThrowIfOpen(ref this.ctx->bit_rate, value);
         }

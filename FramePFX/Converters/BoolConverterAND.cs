@@ -29,7 +29,8 @@ namespace FramePFX.Converters
     {
         public bool EmptyArrayBool { get; set; } = false;
 
-        public bool NonBoolBool {
+        public bool NonBoolBool
+        {
             get => this.NonBoolValue is bool b && b;
             set => this.NonBoolValue = value.Box();
         }

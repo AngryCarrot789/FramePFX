@@ -33,7 +33,7 @@ namespace FramePFX.Editors.Controls.Viewports
     {
         private static readonly object ZeroDoubleBoxed = 0d;
 
-#region Dependency Properties
+        #region Dependency Properties
 
         public static readonly DependencyProperty MinimumZoomScaleProperty =
             DependencyProperty.Register(
@@ -97,29 +97,34 @@ namespace FramePFX.Editors.Controls.Viewports
                 typeof(FreeMoveViewPort),
                 new PropertyMetadata(BoolBox.True));
 
-#endregion
+        #endregion
 
-        public double MinimumZoomScale {
+        public double MinimumZoomScale
+        {
             get => (double) this.GetValue(MinimumZoomScaleProperty);
             set => this.SetValue(MinimumZoomScaleProperty, value);
         }
 
-        public double MaximumZoomScale {
+        public double MaximumZoomScale
+        {
             get => (double) this.GetValue(MaximumZoomScaleProperty);
             set => this.SetValue(MaximumZoomScaleProperty, value);
         }
 
-        public double ZoomScale {
+        public double ZoomScale
+        {
             get => (double) this.GetValue(ZoomScaleProperty);
             set => this.SetValue(ZoomScaleProperty, value);
         }
 
-        public double HorizontalOffset {
+        public double HorizontalOffset
+        {
             get => (double) this.GetValue(HorizontalOffsetProperty);
             set => this.SetValue(HorizontalOffsetProperty, value);
         }
 
-        public double VerticalOffset {
+        public double VerticalOffset
+        {
             get => (double) this.GetValue(VerticalOffsetProperty);
             set => this.SetValue(VerticalOffsetProperty, value);
         }
@@ -127,7 +132,8 @@ namespace FramePFX.Editors.Controls.Viewports
         /// <summary>
         /// Gets or sets a value which indicates whether this control should try to pan towards the user's cursor when they zoom in or out
         /// </summary>
-        public bool PanToCursorOnUserZoom {
+        public bool PanToCursorOnUserZoom
+        {
             get => (bool) this.GetValue(PanToCursorOnUserZoomProperty);
             set => this.SetValue(PanToCursorOnUserZoomProperty, value.Box());
         }
@@ -136,7 +142,8 @@ namespace FramePFX.Editors.Controls.Viewports
 
         protected override IEnumerator LogicalChildren => (this.InternalChild == null ? new List<object>() : new List<object>() {this.InternalChild}).GetEnumerator();
 
-        private ContainerVisual InternalVisual {
+        private ContainerVisual InternalVisual
+        {
             get
             {
                 if (this._internalVisual == null)
@@ -149,7 +156,8 @@ namespace FramePFX.Editors.Controls.Viewports
             }
         }
 
-        private UIElement InternalChild {
+        private UIElement InternalChild
+        {
             get
             {
                 VisualCollection children = this.InternalVisual.Children;
@@ -164,12 +172,14 @@ namespace FramePFX.Editors.Controls.Viewports
             }
         }
 
-        private Transform InternalTransform {
+        private Transform InternalTransform
+        {
             get => this.InternalVisual.Transform;
             set => this.InternalVisual.Transform = value;
         }
 
-        public override UIElement Child {
+        public override UIElement Child
+        {
             get => this.InternalChild;
             set
             {
@@ -329,7 +339,7 @@ namespace FramePFX.Editors.Controls.Viewports
             this.lastMousePoint = mousePoint;
         }
 
-#region Measure and Arrangement
+        #region Measure and Arrangement
 
         protected override Size MeasureOverride(Size constraint)
         {
@@ -374,9 +384,9 @@ namespace FramePFX.Editors.Controls.Viewports
             return arrangeSize;
         }
 
-#endregion
+        #endregion
 
-#region Visual children and stuff
+        #region Visual children and stuff
 
         protected override Visual GetVisualChild(int index)
         {
@@ -385,9 +395,9 @@ namespace FramePFX.Editors.Controls.Viewports
             return this.InternalVisual;
         }
 
-#endregion
+        #endregion
 
-#region Dependency property handlers
+        #region Dependency property handlers
 
         private static object CoerceMinimumZoom(DependencyObject port, object value)
         {
@@ -451,6 +461,6 @@ namespace FramePFX.Editors.Controls.Viewports
             port.OnVerticalOffsetChanged(oldValue, newValue);
         }
 
-#endregion
+        #endregion
     }
 }

@@ -57,22 +57,26 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips
 
         public static readonly DependencyProperty IsDroppableTargetOverProperty = DependencyProperty.Register("IsDroppableTargetOver", typeof(bool), typeof(TimelineClipControl), new PropertyMetadata(BoolBox.False));
 
-        public string DisplayName {
+        public string DisplayName
+        {
             get => (string) this.GetValue(DisplayNameProperty);
             set => this.SetValue(DisplayNameProperty, value);
         }
 
-        public bool IsSelected {
+        public bool IsSelected
+        {
             get => (bool) this.GetValue(IsSelectedProperty);
             set => this.SetValue(IsSelectedProperty, value.Box());
         }
 
-        public bool IsDroppableTargetOver {
+        public bool IsDroppableTargetOver
+        {
             get => (bool) this.GetValue(IsDroppableTargetOverProperty);
             set => this.SetValue(IsDroppableTargetOverProperty, value.Box());
         }
 
-        public long FrameBegin {
+        public long FrameBegin
+        {
             get => this.frameBegin;
             private set
             {
@@ -82,7 +86,8 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips
             }
         }
 
-        public long FrameDuration {
+        public long FrameDuration
+        {
             get => this.frameDuration;
             private set
             {
@@ -207,7 +212,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips
 
         private void OnLostFocus(object sender, RoutedEventArgs e) => Panel.SetZIndex(this, 0);
 
-#region Model Binding
+        #region Model Binding
 
         private void SetSizeFromSpan(FrameSpan span)
         {
@@ -300,9 +305,9 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips
             }
         }
 
-#endregion
+        #endregion
 
-#region Drag/Move implementation
+        #region Drag/Move implementation
 
         public static long GetCursorFrame(TimelineClipControl clip, MouseDevice device, bool useRounding = true)
         {
@@ -815,9 +820,9 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips
             }
         }
 
-#endregion
+        #endregion
 
-#region Phantom Clip / Drag Copy Clip
+        #region Phantom Clip / Drag Copy Clip
 
         private void BeginDragCopyWithPhantomClip()
         {
@@ -914,9 +919,9 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips
             newSelf.Focus();
         }
 
-#endregion
+        #endregion
 
-#region Measure, Arrange and Render
+        #region Measure, Arrange and Render
 
         protected override Size MeasureOverride(Size availableSize)
         {
@@ -990,9 +995,9 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips
 
         public bool IsClipVisible { get; private set; }
 
-#endregion
+        #endregion
 
-#region Drag dropping items into this clip
+        #region Drag dropping items into this clip
 
         protected override void OnDragEnter(DragEventArgs e)
         {
@@ -1094,7 +1099,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips
             }
         }
 
-#endregion
+        #endregion
 
         public void OnZoomChanged(double newZoom)
         {

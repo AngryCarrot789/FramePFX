@@ -22,7 +22,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
-using FramePFX.AdvancedMenuService.Controls;
+using FramePFX.AdvancedMenuService;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 using FramePFX.Utils.Visuals;
@@ -30,6 +30,9 @@ using CommandManager = FramePFX.CommandSystem.CommandManager;
 
 namespace FramePFX.Shortcuts.WPF
 {
+    /// <summary>
+    /// A class which manages the WPF inputs and global focus scopes. This class also dispatches input events to the shortcut system
+    /// </summary>
     public class UIInputManager : INotifyPropertyChanged
     {
         public delegate void FocusedPathChangedEventHandler(string oldPath, string newPath);
@@ -47,11 +50,12 @@ namespace FramePFX.Shortcuts.WPF
 
         public static event FocusedPathChangedEventHandler OnFocusedPathChanged;
 
-        public static WeakReference<DependencyObject> CurrentlyFocusedObject { get; } = new WeakReference<DependencyObject>(null);
+        public static WeakReference CurrentlyFocusedObject { get; } = new WeakReference(null);
 
         private string focusedPath;
 
-        public string FocusedPath {
+        public string FocusedPath
+        {
             get => this.focusedPath;
             private set
             {
@@ -70,6 +74,9 @@ namespace FramePFX.Shortcuts.WPF
 
         static UIInputManager()
         {
+            // !!!
+            Application.Current.Dispatcher.VerifyAccess();
+
             InputManager.Current.PreProcessInput += OnPreProcessInput;
             InputManager.Current.PostProcessInput += OnPostProcessInput;
         }
@@ -142,16 +149,15 @@ namespace FramePFX.Shortcuts.WPF
         /// <param name="newPath"></param>
         public static void UpdateFocusGroup(DependencyObject target, string newPath)
         {
-            if (CurrentlyFocusedObject.TryGetTarget(out DependencyObject lastFocused))
+            object lastFocused = CurrentlyFocusedObject.Target;
+            if (lastFocused != null)
             {
-                CurrentlyFocusedObject.SetTarget(null);
-                SetIsPathFocused(lastFocused, false);
+                CurrentlyFocusedObject.Target = null;
+                SetIsPathFocused((DependencyObject) lastFocused, false);
             }
 
             if (string.IsNullOrEmpty(newPath))
-            {
                 return;
-            }
 
             DependencyObject root = VisualTreeUtils.FindNearestInheritedPropertyDefinition(FocusPathProperty, target);
             // do {
@@ -160,7 +166,7 @@ namespace FramePFX.Shortcuts.WPF
 
             if (root != null)
             {
-                CurrentlyFocusedObject.SetTarget(root);
+                CurrentlyFocusedObject.Target = root;
                 SetIsPathFocused(root, true);
                 // if (root is UIElement element && element.Focusable && !element.IsFocused) {
                 //     element.Focus();
@@ -172,28 +178,29 @@ namespace FramePFX.Shortcuts.WPF
             }
         }
 
-#region Input Event Handlers
+        #region Input Event Handlers
 
         private static void OnPreProcessInput(object sender, PreProcessInputEventArgs args)
         {
+            // Don't use args.Cancel(), because there is a problem with KeyEventArgs where WM_CHAR
+            // gets sent to the window anyway. Handling the input event stops this happening.
+            // Not sure if Cancel() is okay for mouse btn/wheel events
             switch (args.StagingItem.Input)
             {
                 case KeyboardFocusChangedEventArgs e:
-                {
-                    OnApplicationKeyboardFocusChanged(e, args);
+                    OnApplicationPreKeyboardPreFocusChanged(e, args);
                     break;
-                }
                 case KeyEventArgs e:
                     if (OnApplicationKeyEvent(e, args))
-                        args.Cancel();
+                        e.Handled = true;
                     break;
                 case MouseButtonEventArgs e:
                     if (OnApplicationMouseButtonEvent(e))
-                        args.Cancel();
+                        e.Handled = true;
                     break;
                 case MouseWheelEventArgs e:
                     if (OnApplicationMouseWheelEvent(e))
-                        args.Cancel();
+                        e.Handled = true;
                     break;
             }
         }
@@ -220,7 +227,7 @@ namespace FramePFX.Shortcuts.WPF
              */
         }
 
-        private static void OnApplicationKeyboardFocusChanged(KeyboardFocusChangedEventArgs e, PreProcessInputEventArgs args)
+        private static void OnApplicationPreKeyboardPreFocusChanged(KeyboardFocusChangedEventArgs e, PreProcessInputEventArgs args)
         {
             if (e.Device is KeyboardDevice keyboard && keyboard.Target is DependencyObject focused)
             {
@@ -237,14 +244,10 @@ namespace FramePFX.Shortcuts.WPF
             }
 
             if (ShortcutUtils.IsModifierKey(key) && e.IsRepeat)
-            {
                 return false;
-            }
 
             if (!(e.InputSource.RootVisual is Window window))
-            {
                 return false;
-            }
 
             WPFShortcutInputManager processor = (WPFShortcutInputManager) window.GetValue(ShortcutProcessorProperty);
             if (processor == null)
@@ -299,9 +302,11 @@ namespace FramePFX.Shortcuts.WPF
 
         private static bool OnApplicationMouseButtonEvent(MouseButtonEventArgs e)
         {
-            if (!(e.Device is MouseDevice mouse) || !(mouse.Target is DependencyObject focused))
+            if (!(e.Device is MouseDevice mouse) || !(mouse.Target is DependencyObject target))
                 return false;
-            if (!(Window.GetWindow(focused) is Window window) || focused == window)
+
+            // not even sure why I added this line...
+            if (!(Window.GetWindow(target) is Window window) || target == window)
                 return false;
 
             bool isPreview, isDown;
@@ -330,13 +335,11 @@ namespace FramePFX.Shortcuts.WPF
 
             if (isPreview)
             {
-                ProcessFocusGroupChange(focused);
+                ProcessFocusGroupChange(target);
             }
 
-            if (!WPFShortcutInputManager.CanProcessEventType(focused, isPreview) || !WPFShortcutInputManager.CanProcessMouseEvent(focused, e))
-            {
+            if (!WPFShortcutInputManager.CanProcessEventType(target, isPreview) || !WPFShortcutInputManager.CanProcessMouseEvent(target, e))
                 return false;
-            }
 
             WPFShortcutInputManager processor = (WPFShortcutInputManager) window.GetValue(ShortcutProcessorProperty);
             if (processor == null)
@@ -348,24 +351,27 @@ namespace FramePFX.Shortcuts.WPF
                 return false;
             }
 
-            processor.OnInputSourceMouseButton(focused, e, !isDown);
+            processor.OnInputSourceMouseButton(target, e, !isDown);
             if (processor.isProcessingMouse)
                 e.Handled = true;
+
             return e.Handled;
         }
 
         private static bool OnApplicationMouseWheelEvent(MouseWheelEventArgs e)
         {
-            if (e.Delta == 0 || !(e.Device is MouseDevice mouse) || !(mouse.Target is DependencyObject focusedObject))
+            if (e.Delta == 0 || !(e.Device is MouseDevice mouse) || !(mouse.Target is DependencyObject target))
                 return false;
-            if (!(Window.GetWindow(focusedObject) is Window window) || focusedObject == window)
+
+            // not even sure why I added this line...
+            if (!(Window.GetWindow(target) is Window window) || target == window)
                 return false;
 
             bool isPreview;
             if (e.RoutedEvent == Mouse.PreviewMouseWheelEvent)
             {
                 isPreview = true;
-                ProcessFocusGroupChange(focusedObject);
+                ProcessFocusGroupChange(target);
             }
             else if (e.RoutedEvent == Mouse.MouseWheelEvent)
             {
@@ -376,7 +382,7 @@ namespace FramePFX.Shortcuts.WPF
                 return false;
             }
 
-            if (!WPFShortcutInputManager.CanProcessEventType(focusedObject, isPreview) || !WPFShortcutInputManager.CanProcessMouseEvent(focusedObject, e))
+            if (!WPFShortcutInputManager.CanProcessEventType(target, isPreview) || !WPFShortcutInputManager.CanProcessMouseEvent(target, e))
             {
                 return false;
             }
@@ -391,12 +397,12 @@ namespace FramePFX.Shortcuts.WPF
                 return false;
             }
 
-            processor.OnInputSourceMouseWheel(focusedObject, e);
+            processor.OnInputSourceMouseWheel(target, e);
             if (processor.isProcessingMouse)
                 e.Handled = true;
             return e.Handled;
         }
 
-#endregion
+        #endregion
     }
 }

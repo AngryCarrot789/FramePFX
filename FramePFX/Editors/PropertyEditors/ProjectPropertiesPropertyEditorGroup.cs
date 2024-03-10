@@ -26,7 +26,8 @@ namespace FramePFX.Editors.PropertyEditors
     {
         private Project project;
 
-        public Project Project {
+        public Project Project
+        {
             get => this.project;
             set
             {

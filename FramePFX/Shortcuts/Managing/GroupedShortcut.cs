@@ -87,7 +87,8 @@ namespace FramePFX.Shortcuts.Managing
         /// <summary>
         /// The shortcut itself. Will not be null
         /// </summary>
-        public IShortcut Shortcut {
+        public IShortcut Shortcut
+        {
             get => this.shortcut;
             set => this.shortcut = value ?? throw new ArgumentNullException(nameof(value), "Shortcut cannot be null");
         }

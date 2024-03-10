@@ -86,27 +86,32 @@ namespace FramePFX.Editors.ResourceManaging.Resources
         private SKColor foreground;
         private SKColor border;
 
-        public double FontSize {
+        public double FontSize
+        {
             get => this.fontSize;
             set => DataParameter.SetValueHelper(this, FontSizeParameter, ref this.fontSize, value);
         }
 
-        public string FontFamily {
+        public string FontFamily
+        {
             get => this.fontFamily;
             set => DataParameter.SetValueHelper(this, FontFamilyParameter, ref this.fontFamily, value);
         }
 
-        public double BorderThickness {
+        public double BorderThickness
+        {
             get => this.borderThickness;
             set => DataParameter.SetValueHelper(this, BorderThicknessParameter, ref this.borderThickness, value);
         }
 
-        public float SkewX {
+        public float SkewX
+        {
             get => this.skewX;
             set => DataParameter.SetValueHelper(this, SkewXParameter, ref this.skewX, value);
         }
 
-        public bool IsAntiAliased {
+        public bool IsAntiAliased
+        {
             get => this.isAntiAliased;
             set => DataParameter.SetValueHelper(this, IsAntiAliasedParameter, ref this.isAntiAliased, value);
         }

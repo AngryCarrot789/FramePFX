@@ -31,7 +31,8 @@ namespace FramePFX.PropertyEditing.Controls
         public static readonly DependencyProperty ColumnWidth1Property = DependencyProperty.Register("ColumnWidth1", typeof(GridLength), typeof(PropertyEditorControl), new PropertyMetadata(new GridLength(5)));
         public static readonly DependencyProperty ColumnWidth2Property = DependencyProperty.Register("ColumnWidth2", typeof(GridLength), typeof(PropertyEditorControl), new PropertyMetadata(Star));
 
-        public BasePropertyEditor PropertyEditor {
+        public BasePropertyEditor PropertyEditor
+        {
             get => (BasePropertyEditor) this.GetValue(PropertyEditorProperty);
             set => this.SetValue(PropertyEditorProperty, value);
         }

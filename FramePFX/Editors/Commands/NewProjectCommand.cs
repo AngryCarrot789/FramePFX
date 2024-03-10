@@ -25,17 +25,17 @@ using FramePFX.Tasks;
 
 namespace FramePFX.Editors.Commands
 {
-    public class NewProjectCommand : Command
+    public class NewProjectCommand : AsyncCommand
     {
         // true: project was already closed or is now closed
         // false: close was cancelled; cancel entire operation
 
-        public override ExecutabilityState CanExecute(CommandEventArgs e)
+        protected override Executability CanExecuteCore(CommandEventArgs e)
         {
-            return e.ContextData.ContainsKey(DataKeys.VideoEditorKey) ? ExecutabilityState.Executable : ExecutabilityState.Invalid;
+            return e.ContextData.ContainsKey(DataKeys.VideoEditorKey) ? Executability.Valid : Executability.Invalid;
         }
 
-        public override async Task Execute(CommandEventArgs e)
+        protected override async Task ExecuteAsync(CommandEventArgs e)
         {
             if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor))
             {

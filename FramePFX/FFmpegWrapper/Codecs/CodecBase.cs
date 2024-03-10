@@ -21,7 +21,8 @@ namespace FramePFX.FFmpegWrapper.Codecs
         protected readonly bool contextOwner;
         private bool hasUserExtraData;
 
-        public AVCodecContext* Handle {
+        public AVCodecContext* Handle
+        {
             get
             {
                 this.ValidateNotDisposed();
@@ -34,17 +35,20 @@ namespace FramePFX.FFmpegWrapper.Codecs
         public string CodecName => new string((sbyte*) this.ctx->codec->name);
         public string CodecLongName => new string((sbyte*) this.ctx->codec->long_name);
 
-        public AVRational TimeBase {
+        public AVRational TimeBase
+        {
             get => this.ctx->time_base;
             set => this.SetOrThrowIfOpen(ref this.ctx->time_base, value);
         }
 
-        public AVRational FrameRate {
+        public AVRational FrameRate
+        {
             get => this.ctx->framerate;
             set => this.SetOrThrowIfOpen(ref this.ctx->framerate, value);
         }
 
-        public Span<byte> ExtraData {
+        public Span<byte> ExtraData
+        {
             get => this.GetExtraData();
             set => this.SetExtraData(value);
         }

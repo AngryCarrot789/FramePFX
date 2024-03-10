@@ -53,7 +53,8 @@ namespace FramePFX.Utils
 
             public T Current => this.current;
 
-            object IEnumerator.Current {
+            object IEnumerator.Current
+            {
                 get
                 {
                     if (this.index > 0)

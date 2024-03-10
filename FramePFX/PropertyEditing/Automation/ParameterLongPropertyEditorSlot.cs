@@ -28,7 +28,8 @@ namespace FramePFX.PropertyEditing.Automation
     {
         private long value;
 
-        public long Value {
+        public long Value
+        {
             get => this.value;
             set
             {

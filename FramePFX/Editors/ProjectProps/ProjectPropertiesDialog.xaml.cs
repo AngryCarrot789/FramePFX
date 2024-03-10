@@ -31,7 +31,8 @@ namespace FramePFX.Editors.ProjectProps
     {
         public static readonly DependencyProperty SettingsProperty = DependencyProperty.Register("Settings", typeof(ProjectSettings), typeof(ProjectPropertiesDialog), new PropertyMetadata(null, (d, e) => ((ProjectPropertiesDialog) d).OnSettingsPropertyChanged((ProjectSettings) e.OldValue, (ProjectSettings) e.NewValue)));
 
-        public ProjectSettings Settings {
+        public ProjectSettings Settings
+        {
             get => (ProjectSettings) this.GetValue(SettingsProperty);
             set => this.SetValue(SettingsProperty, value);
         }

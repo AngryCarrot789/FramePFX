@@ -33,7 +33,8 @@ namespace FramePFX.PropertyEditing
         /// <summary>
         /// Gets or sets if this item is applicable
         /// </summary>
-        public bool IsCurrentlyApplicable {
+        public bool IsCurrentlyApplicable
+        {
             get => this.isCurrentlyApplicable;
             protected set
             {

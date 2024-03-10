@@ -42,7 +42,8 @@ namespace FramePFX.Editors.Exporting
 
         private int selectedExporterIndex;
 
-        public int SelectedExporterIndex {
+        public int SelectedExporterIndex
+        {
             get => this.selectedExporterIndex;
             set
             {
@@ -53,7 +54,8 @@ namespace FramePFX.Editors.Exporting
             }
         }
 
-        public Exporter SelectedExporter {
+        public Exporter SelectedExporter
+        {
             get
             {
                 if (this.exporters.Count < 1)

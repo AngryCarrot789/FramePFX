@@ -61,7 +61,7 @@ namespace FramePFX.Editors.Controls.EffectProviding
             this.Model = null;
         }
 
-#region Drag Dropping
+        #region Drag Dropping
 
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
@@ -138,6 +138,6 @@ namespace FramePFX.Editors.Controls.EffectProviding
             }
         }
 
-#endregion
+        #endregion
     }
 }

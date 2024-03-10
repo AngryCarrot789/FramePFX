@@ -82,7 +82,8 @@ namespace FramePFX.Utils.Collections
             this.list.RemoveAt(index);
         }
 
-        public T this[int index] {
+        public T this[int index]
+        {
             get => this.list[index];
             set => this.list[index] = value;
         }

@@ -35,13 +35,11 @@ namespace FramePFX.Editors.Controls.Timelines.CommandContexts
     /// </summary>
     public class CommandSourceCommandUsage : CommandUsage
     {
-        private CommandImpl commandImpl;
+        private CoreCommandICommand command;
 
-        public ICommand Command => this.commandImpl ?? (this.commandImpl = new CommandImpl(this));
+        public ICommand Command => this.command ?? (this.command = new CoreCommandICommand(this));
 
-        public CommandSourceCommandUsage(string commandId) : base(commandId)
-        {
-        }
+        public CommandSourceCommandUsage(string commandId) : base(commandId) { }
 
         private static void SetCommand(DependencyObject control, ICommand cmd)
         {
@@ -75,51 +73,31 @@ namespace FramePFX.Editors.Controls.Timelines.CommandContexts
             SetCommand(this.Control, null);
         }
 
-        protected override void UpdateCanExecute()
-        {
-            this.commandImpl?.RaiseCanExecuteChanged();
-        }
+        protected override void UpdateCanExecute() => this.command?.RaiseCanExecuteChanged();
 
-        private class CommandImpl : ICommand
+        private class CoreCommandICommand : ICommand
         {
             private readonly CommandSourceCommandUsage usage;
-            private bool isExecuting;
 
             public event EventHandler CanExecuteChanged;
 
-            public CommandImpl(CommandSourceCommandUsage usage)
+            public CoreCommandICommand(CommandSourceCommandUsage usage)
             {
                 this.usage = usage;
             }
 
             public bool CanExecute(object parameter)
             {
-                if (this.isExecuting)
-                {
-                    return false;
-                }
-
                 IContextData ctx = this.usage.GetContextData();
                 if (ctx == null)
                     return false;
-                ExecutabilityState state = CommandManager.Instance.CanExecute(this.usage.CommandId, ctx);
-                return state == ExecutabilityState.Executable;
+
+                return CommandManager.Instance.CanExecute(this.usage.CommandId, ctx) == Executability.Valid;
             }
 
-            public async void Execute(object parameter)
+            public void Execute(object parameter)
             {
-                if (!this.isExecuting)
-                {
-                    this.isExecuting = true;
-                    try
-                    {
-                        await CommandManager.Instance.TryExecute(this.usage.CommandId, () => this.usage.GetContextData() ?? EmptyContext.Instance);
-                    }
-                    finally
-                    {
-                        this.isExecuting = false;
-                    }
-                }
+                CommandManager.Instance.TryExecute(this.usage.CommandId, () => this.usage.GetContextData() ?? EmptyContext.Instance);
             }
 
             public void RaiseCanExecuteChanged()

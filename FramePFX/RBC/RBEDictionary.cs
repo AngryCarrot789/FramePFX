@@ -32,7 +32,8 @@ namespace FramePFX.RBC
 
         public override RBEType Type => RBEType.Dictionary;
 
-        public RBEBase this[string key] {
+        public RBEBase this[string key]
+        {
             get => this.Map.TryGetValue(ValidateKey(key), out RBEBase value) ? value : null;
             set
             {
@@ -58,7 +59,7 @@ namespace FramePFX.RBC
             this.Map = map ?? throw new ArgumentNullException(nameof(map), "Map cannot be null");
         }
 
-#region Getters And Setters (and similar util functions)
+        #region Getters And Setters (and similar util functions)
 
         public bool ContainsKey(string key) => this.Map.ContainsKey(ValidateKey(key));
 
@@ -302,7 +303,7 @@ namespace FramePFX.RBC
         public void SetStructArray<T>(string key, T[] array) where T : unmanaged => this[key] = RBEStructArray.ForValues(array);
         public void SetGuid(string key, Guid value) => this[key] = new RBEGuid(value);
 
-#endregion
+        #endregion
 
         protected override void Read(BinaryReader reader)
         {

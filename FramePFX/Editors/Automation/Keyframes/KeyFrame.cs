@@ -49,7 +49,8 @@ namespace FramePFX.Editors.Automation.Keyframes
         public AutomationSequence sequence;
         public double curveBend = 0D; // -1d to +1d. // A 'bend' in the interpolation. could add something more complicated?
 
-        public long Frame {
+        public long Frame
+        {
             get => this.myFrame;
             set
             {
@@ -104,9 +105,9 @@ namespace FramePFX.Editors.Automation.Keyframes
             frame.sequence = sequence;
         }
 
-#region Getter functions
+        #region Getter functions
 
-#endregion
+        #endregion
 
         /// <summary>
         /// Assigns this key frame's value to the given key descriptor's default value
@@ -146,7 +147,7 @@ namespace FramePFX.Editors.Automation.Keyframes
             this.myFrame = (long) data.GetULong("Time");
         }
 
-#region Factory Methods
+        #region Factory Methods
 
         /// <summary>
         /// Factory method for creating an instance of a key frame from the enum data type
@@ -195,9 +196,9 @@ namespace FramePFX.Editors.Automation.Keyframes
             return keyFrame;
         }
 
-#endregion
+        #endregion
 
-#region Interpolation helper functions
+        #region Interpolation helper functions
 
         /// <summary>
         /// A helper function for generating a lerp multiplier for a given time (between the range timeA and timeB),
@@ -277,9 +278,9 @@ namespace FramePFX.Editors.Automation.Keyframes
             return this.GetInterpolationMultiplier(frame, nextFrame.myFrame);
         }
 
-#endregion
+        #endregion
 
-#region Other helpers
+        #region Other helpers
 
         [Conditional("DEBUG")]
         protected void ValidateTime(long t, KeyFrame frame)
@@ -291,14 +292,15 @@ namespace FramePFX.Editors.Automation.Keyframes
             }
         }
 
-#endregion
+        #endregion
     }
 
     public class KeyFrameFloat : KeyFrame
     {
         private float myValue;
 
-        public float Value {
+        public float Value
+        {
             get => this.myValue;
             set
             {
@@ -362,7 +364,8 @@ namespace FramePFX.Editors.Automation.Keyframes
     {
         private double myValue;
 
-        public double Value {
+        public double Value
+        {
             get => this.myValue;
             set
             {
@@ -426,7 +429,8 @@ namespace FramePFX.Editors.Automation.Keyframes
     {
         private long myValue;
 
-        public long Value {
+        public long Value
+        {
             get => this.myValue;
             set
             {
@@ -495,7 +499,8 @@ namespace FramePFX.Editors.Automation.Keyframes
     {
         private bool myValue;
 
-        public bool Value {
+        public bool Value
+        {
             get => this.myValue;
             set
             {
@@ -570,7 +575,8 @@ namespace FramePFX.Editors.Automation.Keyframes
     {
         private Vector2 myValue;
 
-        public Vector2 Value {
+        public Vector2 Value
+        {
             get => this.myValue;
             set
             {

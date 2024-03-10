@@ -69,7 +69,8 @@ namespace FramePFX.Editors.Automation.Keyframes
         /// the parameter, even if it has key frames, and instead uses <see cref="DefaultKeyFrame"/>
         /// to get/set the underlying value
         /// </summary>
-        public bool IsOverrideEnabled {
+        public bool IsOverrideEnabled
+        {
             get => this.isOverrideEnabled;
             set
             {
@@ -200,7 +201,7 @@ namespace FramePFX.Editors.Automation.Keyframes
             }
         }
 
-#region Helper Getter Functions
+        #region Helper Getter Functions
 
         public float GetFloatValue(long frame, bool ignoreOverrideState = false)
         {
@@ -244,7 +245,7 @@ namespace FramePFX.Editors.Automation.Keyframes
             }
         }
 
-#endregion
+        #endregion
 
         /// <summary>
         /// Gets the indices of the key frames, a single key frame if that's all that is possible or
@@ -349,7 +350,8 @@ namespace FramePFX.Editors.Automation.Keyframes
                     return mid;
                 }
                 else
-                { // frame matches; scan until reference found
+                {
+                    // frame matches; scan until reference found
                     int j = mid + 1;
                     while (j < count && (value = list[j]).Frame == frame && value != keyFrame)
                         j++;

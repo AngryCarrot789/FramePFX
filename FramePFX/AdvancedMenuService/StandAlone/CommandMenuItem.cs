@@ -130,7 +130,7 @@ namespace FramePFX.AdvancedMenuService.StandAlone
             list.Clear();
             foreach (string childCmdId in group.Commands)
             {
-                list.Add(new CommandMenuItem() {CommandId = childCmdId});
+                list.Add(new CommandMenuItem() { CommandId = childCmdId });
             }
         }
     }

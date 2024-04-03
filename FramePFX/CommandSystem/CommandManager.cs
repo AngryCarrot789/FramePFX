@@ -243,7 +243,7 @@ namespace FramePFX.CommandSystem
         private void OnFocusChangeCore(Func<IContextData> newFocusProvider)
         {
             // only calls newFocusProvider if there are handlers
-            if (this.focusChangeHandlerSet.Count >= 1)
+            if (this.focusChangeHandlerSet.Count > 0)
             {
                 IContextData ctx = newFocusProvider();
                 if (ctx == null)

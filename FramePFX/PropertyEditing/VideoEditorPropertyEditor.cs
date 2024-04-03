@@ -65,7 +65,7 @@ namespace FramePFX.PropertyEditing
                 this.ClipGroup.AddItem(new VideoClipMediaFrameOffsetPropertyEditorSlot());
 
                 {
-                    SimplePropertyEditorGroup group = new SimplePropertyEditorGroup(typeof(VideoClip), GroupType.SecondaryExpander) {DisplayName = "Motion/Transformation"};
+                    SimplePropertyEditorGroup group = new SimplePropertyEditorGroup(typeof(VideoClip), GroupType.SecondaryExpander) { DisplayName = "Motion/Transformation" };
                     group.AddItem(new ParameterVector2PropertyEditorSlot(VideoClip.MediaPositionParameter, typeof(VideoClip), "Pos", DragStepProfile.InfPixelRange));
                     group.AddItem(new ParameterVector2PropertyEditorSlot(VideoClip.MediaScaleParameter, typeof(VideoClip), "Scale", DragStepProfile.UnitOne));
                     group.AddItem(new ParameterVector2PropertyEditorSlot(VideoClip.MediaScaleOriginParameter, typeof(VideoClip), "Scale Origin", DragStepProfile.InfPixelRange));
@@ -75,13 +75,13 @@ namespace FramePFX.PropertyEditing
                 }
 
                 {
-                    SimplePropertyEditorGroup group = new SimplePropertyEditorGroup(typeof(VideoClipShape), GroupType.SecondaryExpander) {DisplayName = "Shape Info"};
+                    SimplePropertyEditorGroup group = new SimplePropertyEditorGroup(typeof(VideoClipShape), GroupType.SecondaryExpander) { DisplayName = "Shape Info" };
                     group.AddItem(new ParameterVector2PropertyEditorSlot(VideoClipShape.SizeParameter, typeof(VideoClipShape), "Size", DragStepProfile.InfPixelRange));
                     this.ClipGroup.AddItem(group);
                 }
 
                 {
-                    SimplePropertyEditorGroup group = new SimplePropertyEditorGroup(typeof(TimecodeClip), GroupType.SecondaryExpander) {DisplayName = "Timecode Info"};
+                    SimplePropertyEditorGroup group = new SimplePropertyEditorGroup(typeof(TimecodeClip), GroupType.SecondaryExpander) { DisplayName = "Timecode Info" };
                     group.AddItem(new TimecodeFontFamilyPropertyEditorSlot());
                     group.AddItem(new ParameterDoublePropertyEditorSlot(TimecodeClip.FontSizeParameter, typeof(TimecodeClip), "Font Size", DragStepProfile.Percentage));
                     group.AddItem(new DataParameterDoublePropertyEditorSlot(TimecodeClip.StartTimeParameter, TimecodeClip.UseClipStartTimeParameter, true, typeof(TimecodeClip), "Start secs", DragStepProfile.Percentage));
@@ -105,7 +105,7 @@ namespace FramePFX.PropertyEditing
                 this.TrackGroup.AddItem(new ParameterDoublePropertyEditorSlot(VideoTrack.OpacityParameter, typeof(VideoTrack), "Opacity", DragStepProfile.UnitOne));
 
                 {
-                    SimplePropertyEditorGroup group = new SimplePropertyEditorGroup(typeof(VideoTrack), GroupType.SecondaryExpander) {DisplayName = "Motion/Transformation"};
+                    SimplePropertyEditorGroup group = new SimplePropertyEditorGroup(typeof(VideoTrack), GroupType.SecondaryExpander) { DisplayName = "Motion/Transformation" };
                     group.AddItem(new ParameterVector2PropertyEditorSlot(VideoTrack.MediaPositionParameter, typeof(VideoTrack), "Pos", DragStepProfile.InfPixelRange));
                     group.AddItem(new ParameterVector2PropertyEditorSlot(VideoTrack.MediaScaleParameter, typeof(VideoTrack), "Scale", DragStepProfile.UnitOne));
                     group.AddItem(new ParameterVector2PropertyEditorSlot(VideoTrack.MediaScaleOriginParameter, typeof(VideoTrack), "Scale Origin", DragStepProfile.InfPixelRange));

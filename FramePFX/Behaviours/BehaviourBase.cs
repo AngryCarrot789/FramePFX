@@ -32,7 +32,7 @@ namespace FramePFX.Behaviours
     public abstract class BehaviourBase : Freezable, IBehaviour
     {
         private static readonly Dictionary<Type, bool> HasVisualParentChangedOverridden;
-        private static readonly Type[] VPCArgs = new Type[] {typeof(DependencyObject)};
+        private static readonly Type[] VPCArgs = new Type[] { typeof(DependencyObject) };
 
         protected readonly bool CanProcessVAC;
         private DependencyObject element;

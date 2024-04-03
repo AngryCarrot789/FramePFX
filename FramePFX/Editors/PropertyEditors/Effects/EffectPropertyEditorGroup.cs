@@ -66,7 +66,7 @@ namespace FramePFX.Editors.PropertyEditors.Effects
 
             this.ClearHierarchy();
 
-            IReadOnlyList<object> handlers = new List<object>() {effect};
+            IReadOnlyList<object> handlers = new List<object>() { effect };
 
             bool isApplicable = false;
             for (int i = 0, end = this.PropertyObjects.Count - 1; i <= end; i++)

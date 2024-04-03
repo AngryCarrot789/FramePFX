@@ -144,7 +144,7 @@ namespace FramePFX.FFmpegWrapper
             if (ffmpeg.av_get_bytes_per_sample(this.Format) != sampleSize ||
                 ffmpeg.av_sample_fmt_is_planar(this.Format) != 0 ||
                 length % this.NumChannels != 0
-            )
+               )
             {
                 throw new InvalidOperationException("Incompatible buffer format.");
             }

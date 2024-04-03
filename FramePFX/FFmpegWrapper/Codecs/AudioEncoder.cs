@@ -69,7 +69,7 @@ namespace FramePFX.FFmpegWrapper.Codecs
         {
             this.Format = format;
             this.BitRate = bitrate;
-            this.TimeBase = new AVRational() {den = format.SampleRate, num = 1};
+            this.TimeBase = new AVRational() { den = format.SampleRate, num = 1 };
         }
 
         public AudioEncoder(AVCodecContext* ctx, bool takeOwnership = true) : base(ctx, MediaTypes.Audio, takeOwnership)

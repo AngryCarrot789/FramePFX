@@ -174,7 +174,7 @@ namespace FramePFX.Editors.ResourceManaging.Resources
             }
             catch (Exception e)
             {
-                loader?.AddEntry(new InvalidImagePathEntry(this) {FilePath = this.FilePath});
+                loader?.AddEntry(new InvalidImagePathEntry(this) { FilePath = this.FilePath });
                 return false;
             }
         }

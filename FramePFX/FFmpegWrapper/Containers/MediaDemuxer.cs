@@ -32,7 +32,7 @@ namespace FramePFX.FFmpegWrapper.Containers
 
         public IOContext IOC { get; }
 
-        public TimeSpan? Duration => FFUtils.GetTimeSpan(this._ctx->duration, new AVRational() {num = 1, den = ffmpeg.AV_TIME_BASE});
+        public TimeSpan? Duration => FFUtils.GetTimeSpan(this._ctx->duration, new AVRational() { num = 1, den = ffmpeg.AV_TIME_BASE });
 
         public MediaStream[] Streams { get; }
 

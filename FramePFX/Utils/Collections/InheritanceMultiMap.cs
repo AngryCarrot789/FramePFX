@@ -45,7 +45,7 @@ namespace FramePFX.Utils.Collections
                 throw new ArgumentOutOfRangeException(nameof(initialListCapacity), "Initial list capacity must either be int.MinValue (as in, undefined) or a non-negative number");
             this.items = initialMapCapacity == int.MinValue ? new Dictionary<Type, TypeEntry>() : new Dictionary<Type, TypeEntry>(initialMapCapacity);
             this.initialListCapacity = initialListCapacity;
-            this.singletonList = new List<T>() {default};
+            this.singletonList = new List<T>() { default };
             this.rootEntry = new TypeEntry(this, typeof(object));
             this.InsertRootEntry();
         }
@@ -59,7 +59,7 @@ namespace FramePFX.Utils.Collections
                 return entry;
             }
 
-            List<Type> types = new List<Type> {key};
+            List<Type> types = new List<Type> { key };
             for (Type type = key.BaseType; type != null; type = type.BaseType)
             {
                 if (this.items.TryGetValue(type, out entry))

@@ -157,7 +157,7 @@ namespace FramePFX.Editors.Controls.Resources
                             case ".jpg":
                             case ".jpeg":
                             {
-                                ResourceImage image = new ResourceImage() {FilePath = path, DisplayName = Path.GetFileName(path)};
+                                ResourceImage image = new ResourceImage() { FilePath = path, DisplayName = Path.GetFileName(path) };
                                 if (!ResourceLoaderDialog.TryLoadResources(image))
                                 {
                                     return Task.CompletedTask;

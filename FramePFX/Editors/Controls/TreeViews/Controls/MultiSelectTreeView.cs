@@ -532,7 +532,7 @@ namespace FramePFX.Editors.Controls.TreeViews.Controls
 
             if (lastIndex == firstIndex)
             {
-                return new List<MultiSelectTreeViewItem> {firstNode};
+                return new List<MultiSelectTreeViewItem> { firstNode };
             }
 
             if (lastIndex > firstIndex)

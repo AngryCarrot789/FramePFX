@@ -205,8 +205,8 @@ namespace FramePFX.Editors.Controls.Automation
         internal Pen LinePen => this.curvePen ?? (this.curvePen = new Pen(this.CurveBrush ?? Brushes.OrangeRed, LineThickness));
         internal Pen LineMouseOverPen => this.lineMouseOverPen ?? (this.lineMouseOverPen = new Pen(this.MouseOverBrush ?? Brushes.White, LineThickness));
         internal Pen LineTransparentPen => this.transparentPenLine ?? (this.transparentPenLine = new Pen(TransparentBrush, LineHitThickness));
-        internal Pen OverrideModeValueLinePen => this.overrideModeValueLinePen ?? (this.overrideModeValueLinePen = new Pen(this.CurveBrush ?? Brushes.DarkGray, LineThickness) {DashStyle = new DashStyle(new List<double>() {2d, 2d}, 0d)});
-        internal Pen EmpyListLinePen => this.empyListLinePen ?? (this.empyListLinePen = new Pen(this.CurveBrush ?? Brushes.OrangeRed, LineThickness) {DashStyle = new DashStyle(new List<double>() {2d, 2d}, 0d)});
+        internal Pen OverrideModeValueLinePen => this.overrideModeValueLinePen ?? (this.overrideModeValueLinePen = new Pen(this.CurveBrush ?? Brushes.DarkGray, LineThickness) { DashStyle = new DashStyle(new List<double>() { 2d, 2d }, 0d) });
+        internal Pen EmpyListLinePen => this.empyListLinePen ?? (this.empyListLinePen = new Pen(this.CurveBrush ?? Brushes.OrangeRed, LineThickness) { DashStyle = new DashStyle(new List<double>() { 2d, 2d }, 0d) });
 
         public AutomationSequenceEditor()
         {
@@ -535,7 +535,7 @@ namespace FramePFX.Editors.Controls.Automation
 
         private void OnKeyFrameAdded(AutomationSequence sequence, KeyFrame keyframe, int index)
         {
-            this.CreatePoints(index, new List<KeyFrame>() {keyframe});
+            this.CreatePoints(index, new List<KeyFrame>() { keyframe });
             this.InvalidKeyFrameDataAndRender();
         }
 
@@ -1148,7 +1148,7 @@ namespace FramePFX.Editors.Controls.Automation
             if (IsLineVisibleInRect(ref rect, ref p1, ref p2, LineThickness))
             {
                 SKColor colour = this.isOverrideEnabled ? SKColors.DarkGray : (key.LastLineHitType == LineHitType.Head ? SKColors.White : SKColors.OrangeRed);
-                using (SKPaint paint = new SKPaint() {Color = colour.WithAlpha(opacity)})
+                using (SKPaint paint = new SKPaint() { Color = colour.WithAlpha(opacity) })
                 {
                     surface.Canvas.DrawLine(p1.AsSkia(), p2.AsSkia(), paint);
                 }
@@ -1162,7 +1162,7 @@ namespace FramePFX.Editors.Controls.Automation
             if (RectContains(ref rect, ref a) || RectContains(ref rect, ref b))
             {
                 SKColor colour = this.isOverrideEnabled ? SKColors.DarkGray : (key.LastLineHitType == LineHitType.Tail ? SKColors.White : SKColors.OrangeRed);
-                using (SKPaint paint = new SKPaint() {Color = colour.WithAlpha(opacity)})
+                using (SKPaint paint = new SKPaint() { Color = colour.WithAlpha(opacity) })
                 {
                     surface.Canvas.DrawLine(a.AsSkia(), b.AsSkia(), paint);
                 }

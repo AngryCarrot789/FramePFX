@@ -65,7 +65,7 @@ namespace FramePFX.Editors
                 value.RenderManager.UpdateFrameInfo(this.Settings);
                 value.RenderManager.InvalidateRender();
 
-                this.ActiveTimelineChanged?.Invoke(this, oldTimeline, value);
+                ActiveTimelineChanged?.Invoke(this, oldTimeline, value);
             }
         }
 

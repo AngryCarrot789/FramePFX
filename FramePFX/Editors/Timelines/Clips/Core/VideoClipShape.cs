@@ -78,7 +78,7 @@ namespace FramePFX.Editors.Timelines.Clips.Core
         {
             RenderData d = this.renderData;
             SKColor colour = RenderUtils.BlendAlpha(d.colour, this.RenderOpacity);
-            using (SKPaint paint = new SKPaint() {Color = colour, IsAntialias = true})
+            using (SKPaint paint = new SKPaint() { Color = colour, IsAntialias = true })
             {
                 rc.Canvas.DrawRect(0, 0, d.size.X, d.size.Y, paint);
             }

@@ -47,25 +47,25 @@ namespace FramePFX.RBC
         {
             TypeToIdTable = new Dictionary<Type, RBEType>
             {
-                {typeof(RBEDictionary), RBEType.Dictionary},
-                {typeof(RBEList), RBEType.List},
-                {typeof(RBEByte), RBEType.Byte},
-                {typeof(RBEShort), RBEType.Short},
-                {typeof(RBEInt), RBEType.Int},
-                {typeof(RBELong), RBEType.Long},
-                {typeof(RBEFloat), RBEType.Float},
-                {typeof(RBEDouble), RBEType.Double},
-                {typeof(RBEString), RBEType.String},
-                {typeof(RBEStruct), RBEType.Struct},
-                {typeof(RBEByteArray), RBEType.ByteArray},
-                {typeof(RBEShortArray), RBEType.ShortArray},
-                {typeof(RBEIntArray), RBEType.IntArray},
-                {typeof(RBELongArray), RBEType.LongArray},
-                {typeof(RBEFloatArray), RBEType.FloatArray},
-                {typeof(RBEDoubleArray), RBEType.DoubleArray},
-                {typeof(RBEStringArray), RBEType.StringArray},
-                {typeof(RBEStructArray), RBEType.StructArray},
-                {typeof(RBEGuid), RBEType.Guid}
+                { typeof(RBEDictionary), RBEType.Dictionary },
+                { typeof(RBEList), RBEType.List },
+                { typeof(RBEByte), RBEType.Byte },
+                { typeof(RBEShort), RBEType.Short },
+                { typeof(RBEInt), RBEType.Int },
+                { typeof(RBELong), RBEType.Long },
+                { typeof(RBEFloat), RBEType.Float },
+                { typeof(RBEDouble), RBEType.Double },
+                { typeof(RBEString), RBEType.String },
+                { typeof(RBEStruct), RBEType.Struct },
+                { typeof(RBEByteArray), RBEType.ByteArray },
+                { typeof(RBEShortArray), RBEType.ShortArray },
+                { typeof(RBEIntArray), RBEType.IntArray },
+                { typeof(RBELongArray), RBEType.LongArray },
+                { typeof(RBEFloatArray), RBEType.FloatArray },
+                { typeof(RBEDoubleArray), RBEType.DoubleArray },
+                { typeof(RBEStringArray), RBEType.StringArray },
+                { typeof(RBEStructArray), RBEType.StructArray },
+                { typeof(RBEGuid), RBEType.Guid }
             };
         }
 

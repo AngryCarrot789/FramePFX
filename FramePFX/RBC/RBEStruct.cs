@@ -122,7 +122,7 @@ namespace FramePFX.RBC
                 Unsafe.CopyBlock(ref dest[0], ref src[0], (uint) dest.Length);
             }
 
-            return new RBEStruct {data = dest};
+            return new RBEStruct { data = dest };
         }
     }
 }

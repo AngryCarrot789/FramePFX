@@ -80,7 +80,7 @@ namespace FramePFX.Converters
     public class NullToBoolConverter : NullConverter
     {
         public static NullToBoolConverter NullToFalse { get; } = new NullToBoolConverter();
-        public static NullToBoolConverter NullToTrue { get; } = new NullToBoolConverter() {NullValue = true, NonNullValue = false};
+        public static NullToBoolConverter NullToTrue { get; } = new NullToBoolConverter() { NullValue = true, NonNullValue = false };
 
         public new bool NullValue
         {

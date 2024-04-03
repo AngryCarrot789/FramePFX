@@ -48,7 +48,7 @@ namespace FramePFX.AdvancedMenuService
 
         public ContextCapturingMenu()
         {
-            MenuModeChangedEventInfo.AddMethod.Invoke(this, InternalInstanceFlags, null, new object[] {new EventHandler(this.OnMenuModeChanged)}, CultureInfo.CurrentCulture);
+            MenuModeChangedEventInfo.AddMethod.Invoke(this, InternalInstanceFlags, null, new object[] { new EventHandler(this.OnMenuModeChanged) }, CultureInfo.CurrentCulture);
         }
 
         // Called by UIInputManager

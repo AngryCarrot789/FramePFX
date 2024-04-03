@@ -279,7 +279,7 @@ namespace FramePFX.Editors.Timelines.Tracks
             SKRect usedArea = rd.renderArea.ClampMinMax(frameRect);
             if (usedArea.Width > 0 && usedArea.Height > 0)
             {
-                using (SKPaint paint = new SKPaint {Color = new SKColor(255, 255, 255, RenderUtils.DoubleToByte255(this.renderOpacity))})
+                using (SKPaint paint = new SKPaint { Color = new SKColor(255, 255, 255, RenderUtils.DoubleToByte255(this.renderOpacity)) })
                 {
                     if (usedArea == frameRect)
                     {

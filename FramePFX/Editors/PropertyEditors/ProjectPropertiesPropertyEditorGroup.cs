@@ -95,7 +95,7 @@ namespace FramePFX.Editors.PropertyEditors
             // It would probably be slower for single selections, which is most likely what will be used...
             // but the performance difference for multi select would make it worth it tbh
 
-            List<Project> projectList = new List<Project>() {newProject};
+            List<Project> projectList = new List<Project>() { newProject };
             bool isApplicable = false;
             for (int i = 0, end = this.PropertyObjects.Count - 1; i <= end; i++)
             {

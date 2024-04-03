@@ -105,7 +105,7 @@ namespace FramePFX.Converters
     public class BoolToVisibilityConverter : BoolConverter
     {
         public static BoolToVisibilityConverter BoolToVisibleOrCollapsed { get; } = new BoolToVisibilityConverter();
-        public static BoolToVisibilityConverter BoolToVisibleOrHidden { get; } = new BoolToVisibilityConverter() {FalseValue = Visibility.Hidden};
+        public static BoolToVisibilityConverter BoolToVisibleOrHidden { get; } = new BoolToVisibilityConverter() { FalseValue = Visibility.Hidden };
 
         public new Visibility TrueValue
         {
@@ -142,8 +142,8 @@ namespace FramePFX.Converters
 
     public class VisibilityToBoolConverter : IValueConverter
     {
-        public static VisibilityToBoolConverter VisibleOrCollapsed { get; } = new VisibilityToBoolConverter() {VisibleValue = BoolBox.True, HiddenValue = null, CollapsedValue = BoolBox.False};
-        public static VisibilityToBoolConverter VisibleOrHidden { get; } = new VisibilityToBoolConverter() {VisibleValue = BoolBox.False, HiddenValue = BoolBox.True, CollapsedValue = null};
+        public static VisibilityToBoolConverter VisibleOrCollapsed { get; } = new VisibilityToBoolConverter() { VisibleValue = BoolBox.True, HiddenValue = null, CollapsedValue = BoolBox.False };
+        public static VisibilityToBoolConverter VisibleOrHidden { get; } = new VisibilityToBoolConverter() { VisibleValue = BoolBox.False, HiddenValue = BoolBox.True, CollapsedValue = null };
 
         public object VisibleValue { get; set; }
 

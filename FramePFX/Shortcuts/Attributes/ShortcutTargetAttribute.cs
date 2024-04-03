@@ -29,7 +29,7 @@ namespace FramePFX.Shortcuts.Attributes
 
         public ShortcutTargetAttribute(string shortcutPath)
         {
-            this.ShortcutPaths = string.IsNullOrWhiteSpace(shortcutPath) ? null : new string[] {shortcutPath};
+            this.ShortcutPaths = string.IsNullOrWhiteSpace(shortcutPath) ? null : new string[] { shortcutPath };
         }
 
         public ShortcutTargetAttribute(params string[] shortcutPaths)

@@ -70,7 +70,7 @@ namespace FramePFX.Utils
 
         public static bool IsNaN(double value)
         {
-            NanUnion nanUnion = new NanUnion {DoubleValue = value};
+            NanUnion nanUnion = new NanUnion { DoubleValue = value };
             ulong num1 = nanUnion.UintValue & 18442240474082181120UL;
             ulong num2 = nanUnion.UintValue & 4503599627370495UL;
             return (num1 == 9218868437227405312UL || num1 == 18442240474082181120UL) && num2 > 0UL;

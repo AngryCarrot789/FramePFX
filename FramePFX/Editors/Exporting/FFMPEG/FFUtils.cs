@@ -26,7 +26,7 @@ namespace FramePFX.Editors.Exporting.FFMPEG
 {
     public static class FFUtils
     {
-        public static readonly AVRational TimeSpanRational = new AVRational {num = 1, den = (int) TimeSpan.TicksPerSecond};
+        public static readonly AVRational TimeSpanRational = new AVRational { num = 1, den = (int) TimeSpan.TicksPerSecond };
 
         public static unsafe string GetErrorString(int error)
         {
@@ -186,7 +186,7 @@ namespace FramePFX.Editors.Exporting.FFMPEG
             c->width = 352;
             c->height = 288;
             /* frames per second */
-            c->time_base = new AVRational() {num = 25, den = 1};
+            c->time_base = new AVRational() { num = 25, den = 1 };
             c->gop_size = 10; /* emit one intra frame every ten frames */
             c->max_b_frames = 1;
             c->pix_fmt = AVPixelFormat.AV_PIX_FMT_YUV420P;
@@ -216,8 +216,8 @@ namespace FramePFX.Editors.Exporting.FFMPEG
 
             /* the image can be allocated by any means and av_image_alloc() is
              * just the most convenient way if av_malloc() is to be used */
-            byte_ptrArray4 pointers = new byte_ptrArray4 {[0] = frame->data[0], [1] = frame->data[1], [2] = frame->data[2], [3] = frame->data[3]};
-            int_array4 linesizes = new int_array4 {[0] = frame->linesize[0], [1] = frame->linesize[1], [2] = frame->linesize[2], [3] = frame->linesize[3]};
+            byte_ptrArray4 pointers = new byte_ptrArray4 { [0] = frame->data[0], [1] = frame->data[1], [2] = frame->data[2], [3] = frame->data[3] };
+            int_array4 linesizes = new int_array4 { [0] = frame->linesize[0], [1] = frame->linesize[1], [2] = frame->linesize[2], [3] = frame->linesize[3] };
             ret = ffmpeg.av_image_alloc(ref pointers, ref linesizes, c->width, c->height, c->pix_fmt, 32);
             if (ret < 0)
             {

@@ -537,7 +537,7 @@ namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips
             }
 
             DragState lastDragState = this.dragState;
-            if (this.dragState != DragState.Initiated && !this.hasMadeExceptionalSelectionInMouseDown)
+            if (this.dragState <= DragState.Initiated && !this.hasMadeExceptionalSelectionInMouseDown)
             {
                 this.Track.OwnerPanel.SetPlayHeadToMouseCursor(e.MouseDevice);
             }

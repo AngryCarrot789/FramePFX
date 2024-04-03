@@ -187,7 +187,7 @@ namespace FramePFX.Editors.Timelines.Clips.Core
 
             string text = this.GetCurrentTimeString();
             LockedFontData fd = this.fontData.Value;
-            using (SKPaint paint = new SKPaint() {IsAntialias = true, Color = SKColors.White.WithAlpha(this.RenderOpacityByte)})
+            using (SKPaint paint = new SKPaint() { IsAntialias = true, Color = SKColors.White.WithAlpha(this.RenderOpacityByte) })
             {
                 using (SKTextBlob blob = SKTextBlob.Create(text, fd.cachedFont))
                 {

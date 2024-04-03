@@ -108,14 +108,14 @@ namespace FramePFX.Editors
             Project project = new Project();
 
             ResourceManager manager = project.ResourceManager;
-            ResourceColour id_r = manager.RootContainer.AddItemAndRet(new ResourceColour(220, 25, 25) {DisplayName = "colour_red"});
-            ResourceColour id_g = manager.RootContainer.AddItemAndRet(new ResourceColour(25, 220, 25) {DisplayName = "colour_green"});
-            ResourceColour id_b = manager.RootContainer.AddItemAndRet(new ResourceColour(25, 25, 220) {DisplayName = "colour_blue"});
+            ResourceColour id_r = manager.RootContainer.AddItemAndRet(new ResourceColour(220, 25, 25) { DisplayName = "colour_red" });
+            ResourceColour id_g = manager.RootContainer.AddItemAndRet(new ResourceColour(25, 220, 25) { DisplayName = "colour_green" });
+            ResourceColour id_b = manager.RootContainer.AddItemAndRet(new ResourceColour(25, 25, 220) { DisplayName = "colour_blue" });
 
             ResourceFolder folder = new ResourceFolder("Extra Colours");
             manager.RootContainer.AddItem(folder);
-            ResourceColour id_w = folder.AddItemAndRet(new ResourceColour(220, 220, 220) {DisplayName = "white colour"});
-            ResourceColour id_d = folder.AddItemAndRet(new ResourceColour(50, 100, 220) {DisplayName = "idek"});
+            ResourceColour id_w = folder.AddItemAndRet(new ResourceColour(220, 220, 220) { DisplayName = "white colour" });
+            ResourceColour id_d = folder.AddItemAndRet(new ResourceColour(50, 100, 220) { DisplayName = "idek" });
 
             {
                 VideoTrack track = new VideoTrack()
@@ -154,7 +154,7 @@ namespace FramePFX.Editors
                 track.AddClip(clip2);
             }
             {
-                VideoTrack track = new VideoTrack() {DisplayName = "Track 2"};
+                VideoTrack track = new VideoTrack() { DisplayName = "Track 2" };
                 project.MainTimeline.AddTrack(track);
 
                 VideoClipShape clip1 = new VideoClipShape
@@ -196,7 +196,7 @@ namespace FramePFX.Editors
                 {
                     DisplayName = "Audio!!!"
                 };
-                audio.AddClip(new AudioClip() {FrameSpan = new FrameSpan(0, 200), DisplayName = "An audio clip"});
+                audio.AddClip(new AudioClip() { FrameSpan = new FrameSpan(0, 200), DisplayName = "An audio clip" });
                 project.MainTimeline.AddTrack(audio);
             }
 

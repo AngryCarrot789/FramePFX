@@ -323,7 +323,7 @@ namespace FramePFX.Editors.Exporting.FFMPEG
                         //     width, height, AVPixelFormat.AV_PIX_FMT_YUV420P,
                         //     ffmpeg.SWS_BILINEAR, null, null, null);
 
-                        ffmpeg.sws_scale(s, new[] {data}, new[] {stride}, 0, c->height, frame_data_arrays, frame_line_sizes);
+                        ffmpeg.sws_scale(s, new[] { data }, new[] { stride }, 0, c->height, frame_data_arrays, frame_line_sizes);
                         // ffmpeg.sws_freeContext(s);
                     }
 

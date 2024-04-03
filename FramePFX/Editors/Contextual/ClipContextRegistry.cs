@@ -128,7 +128,7 @@ namespace FramePFX.Editors.Contextual
                 if (!clip.IsSelected || selectedClips == 1)
                 {
                     // Interacted with a non-selected or the only selected clip
-                    clips = new Clip[] {clip};
+                    clips = new Clip[] { clip };
                 }
                 else
                 {

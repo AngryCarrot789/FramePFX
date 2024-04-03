@@ -100,7 +100,7 @@ namespace FramePFX.FileBrowser.FileTree.Physical
         /// <returns>A virtual folder</returns>
         public PhysicalVirtualFolder ForDirectory(string path)
         {
-            return new PhysicalVirtualFolder {FileSystem = this, FilePath = path};
+            return new PhysicalVirtualFolder { FileSystem = this, FilePath = path };
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace FramePFX.FileBrowser.FileTree.Physical
             }
             else
             {
-                entry = new PhysicalVirtualFile(false) {FileSystem = this};
+                entry = new PhysicalVirtualFile(false) { FileSystem = this };
             }
 
             entry.FilePath = path;

@@ -105,7 +105,7 @@ namespace FramePFX.Editors.Contextual
             if (!resource.IsSelected || selected == 1)
             {
                 // use context item if unselected or only selection
-                selection = new BaseResource[] {resource};
+                selection = new BaseResource[] { resource };
                 return true;
             }
             else if (selected > 0)
@@ -142,7 +142,7 @@ namespace FramePFX.Editors.Contextual
             if (!resource.IsSelected || selected == 1)
             {
                 // use context item if unselected or only selection
-                selection = new BaseResource[] {resource};
+                selection = new BaseResource[] { resource };
                 return true;
             }
             else if (selected > 0)
@@ -317,7 +317,7 @@ namespace FramePFX.Editors.Contextual
         {
             if (GetTargetFolder(ctx, out ResourceFolder folder))
             {
-                AddNewResource(folder, new ResourceColour() {Colour = RenderUtils.RandomColour(), DisplayName = "New Colour"});
+                AddNewResource(folder, new ResourceColour() { Colour = RenderUtils.RandomColour(), DisplayName = "New Colour" });
             }
         }
 
@@ -325,7 +325,7 @@ namespace FramePFX.Editors.Contextual
         {
             if (GetTargetFolder(ctx, out ResourceFolder folder))
             {
-                AddNewResource(folder, new ResourceComposition() {DisplayName = "New Composition"});
+                AddNewResource(folder, new ResourceComposition() { DisplayName = "New Composition" });
             }
         }
 

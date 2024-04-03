@@ -353,7 +353,7 @@ namespace FramePFX.Editors.Controls.TreeViews.Automation.Peers
                 if (String.IsNullOrWhiteSpace(value))
                     return;
 
-                string[] ids = value.Split(new[] {';'});
+                string[] ids = value.Split(new[] { ';' });
 
                 object obj;
                 if (ids.Length > 0 && ids[0] == "Context")

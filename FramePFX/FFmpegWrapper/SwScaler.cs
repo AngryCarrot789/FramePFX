@@ -53,7 +53,7 @@ namespace FramePFX.FFmpegWrapper
 
             if ((src->format != (int) srcFmt.PixelFormat || src->width != srcFmt.Width || src->height != srcFmt.Height) ||
                 (dst->format != (int) dstFmt.PixelFormat || dst->width != dstFmt.Width || dst->height != dstFmt.Height)
-            )
+               )
             {
                 throw new ArgumentException("Frame must match rescaler formats");
             }
@@ -69,14 +69,14 @@ namespace FramePFX.FFmpegWrapper
 
             if ((srcFmt.IsPlanar || src.Length < srcFmt.Height * stride) ||
                 (dst.PixelFormat != dstFmt.PixelFormat || dst.Width != dstFmt.Width || dst.Height != dstFmt.Height)
-            )
+               )
             {
                 throw new ArgumentException("Frame must match rescaler formats");
             }
 
             fixed (byte* pSrc = src)
             {
-                ffmpeg.sws_scale(this.Handle, new[] {pSrc}, new[] {stride}, 0, dst.Height, dst.Handle->data, dst.Handle->linesize);
+                ffmpeg.sws_scale(this.Handle, new[] { pSrc }, new[] { stride }, 0, dst.Height, dst.Handle->data, dst.Handle->linesize);
             }
         }
 

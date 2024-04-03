@@ -111,7 +111,7 @@ namespace FramePFX.FFmpegWrapper
 
             fixed (T* ptr = samples)
             {
-                byte** temp = stackalloc byte*[1] {(byte*) ptr};
+                byte** temp = stackalloc byte*[1] { (byte*) ptr };
                 ffmpeg.av_samples_copy(this.frame->extended_data, temp, 0, 0, count, fmt.NumChannels, fmt.SampleFormat);
             }
 

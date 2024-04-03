@@ -81,7 +81,7 @@ namespace FramePFX.Utils.Collections
                 throw new Exception("Interfaces are not allowed in an InheritanceDictionary");
             }
 
-            List<Type> types = new List<Type> {key};
+            List<Type> types = new List<Type> { key };
             for (Type type = key.BaseType; type != null; type = type.BaseType)
             {
                 if (this.items.TryGetValue(type, out entry))

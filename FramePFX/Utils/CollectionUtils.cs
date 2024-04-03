@@ -271,7 +271,7 @@ namespace FramePFX.Utils
 
         public static List<T> SingleItem<T>(in T value)
         {
-            return new List<T>() {value};
+            return new List<T>() { value };
         }
 
         public static int CountAll<T>(this IEnumerable<T> source, Func<T, int> func)

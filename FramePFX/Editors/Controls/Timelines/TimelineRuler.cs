@@ -35,7 +35,7 @@ namespace FramePFX.Editors.Controls.Timelines
 {
     public class TimelineRuler : FrameworkElement
     {
-        private static readonly int[] Steps = new[] {1, 2, 5, 10};
+        private static readonly int[] Steps = new[] { 1, 2, 5, 10 };
         private const double MinRender = 0.01D;
         private const double MajorLineThickness = 1.0;
         private const double MinorStepRatio = 0.5;

@@ -132,9 +132,9 @@
                     <Shortcut Name="SelectAllTracks" CommandId="SelectAllTracksCommand">
                         <KeyStroke Mods="CTRL" Key="A"/>
                     </Shortcut>
-					<Shortcut Name="DeleteSelectedTracks" CommandId="DeleteSelectedTracks" Description="Deletes all of the selected tracks">
-						<KeyStroke Key="Delete"/>
-					</Shortcut>
+                    <Shortcut Name="DeleteSelectedTracks" CommandId="DeleteSelectedTracks" Description="Deletes all of the selected tracks">
+                        <KeyStroke Key="Delete"/>
+                    </Shortcut>
                     <Shortcut Name="RenameTrack1" CommandId="RenameTrackCommand">
                         <KeyStroke Key="F2"/>
                     </Shortcut>

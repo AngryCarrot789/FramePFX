@@ -205,7 +205,7 @@ namespace FramePFX.Editors.Controls.Resources.Explorers
                 ResourceFolder currFolder;
                 if ((change.X > 5 || change.Y > 5) && (currFolder = this.Model.Manager.CurrentFolder) == this.Model.Parent)
                 {
-                    List<BaseResource> list = this.IsSelected ? currFolder.SelectedItems.ToList() : new List<BaseResource>() {this.Model};
+                    List<BaseResource> list = this.IsSelected ? currFolder.SelectedItems.ToList() : new List<BaseResource>() { this.Model };
 
                     try
                     {

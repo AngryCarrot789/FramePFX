@@ -50,9 +50,9 @@ namespace FramePFX.Natives
 
         public unsafe delegate int PFXCEFUNC_PixelateVfx(uint* pImg, int srcWidth, int srcHeight, int left, int top, int right, int bottom, int blockSize);
 
-        public unsafe delegate int PFXAEFUNC_BeginAudioPlayback(NativeAudioEngineData* lpEngineData);
+        public unsafe delegate int PFXAEFUNC_BeginAudioPlayback(NativeAudioEngineData* pEngineData);
 
-        public unsafe delegate int PFXAEFUNC_EndAudioPlayback(NativeAudioEngineData* lpEngineData);
+        public unsafe delegate int PFXAEFUNC_EndAudioPlayback(NativeAudioEngineData* pEngineData);
 
         public struct NativeAudioEngineData
         {
@@ -91,7 +91,7 @@ namespace FramePFX.Natives
             LibraryAddress = LoadLibrary(dllPath);
             if (LibraryAddress == IntPtr.Zero)
             {
-                throw new Exception("Failed to load library", new Win32Exception());
+                throw new Exception("Failed to load library. Check the project is compiled in x64, and ensure there are no missing DLL references in something like depends", new Win32Exception());
             }
 
             GetFunction("PFXCE_InitEngine", out InitEngine);
@@ -101,9 +101,9 @@ namespace FramePFX.Natives
                 throw new Exception("Engine initialisation failed");
             }
 
-            GetFunction("PFXCE_PixelateVfx", out PFXCE_PixelateVfx);
-            GetFunction("PFXAE_BeginAudioPlayback", out PFXAE_BeginAudioPlayback);
-            GetFunction("PFXAE_EndAudioPlayback", out PFXAE_EndAudioPlayback);
+            GetFunction(nameof(PFXCE_PixelateVfx), out PFXCE_PixelateVfx);
+            GetFunction(nameof(PFXAE_BeginAudioPlayback), out PFXAE_BeginAudioPlayback);
+            GetFunction(nameof(PFXAE_EndAudioPlayback), out PFXAE_EndAudioPlayback);
         }
 
         public static void ShutdownLibrary()

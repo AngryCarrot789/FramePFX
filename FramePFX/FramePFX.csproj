@@ -1,979 +1,985 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
-    <ProjectGuid>{82D8612A-A293-4B2C-9D9D-8BF7270157A2}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
-    <RootNamespace>FramePFX</RootNamespace>
-    <AssemblyName>FramePFX</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <WarningLevel>4</WarningLevel>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Deterministic>true</Deterministic>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <Prefer32Bit>true</Prefer32Bit>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <ErrorReport>prompt</ErrorReport>
-    <Prefer32Bit>true</Prefer32Bit>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugSymbols>true</DebugSymbols>
-  </PropertyGroup>
-  <PropertyGroup>
-    <ApplicationIcon>FramePFX-256.ico</ApplicationIcon>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="FFmpeg.AutoGen, Version=6.1.0.0, Culture=neutral, PublicKeyToken=9b7632533a381715">
-      <HintPath>..\packages\FFmpeg.AutoGen.6.1.0\lib\netstandard2.0\FFmpeg.AutoGen.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.Win32.Registry, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <HintPath>..\packages\Microsoft.Win32.Registry.4.7.0\lib\net461\Microsoft.Win32.Registry.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="mscorlib" />
-    <Reference Include="OpenTK, Version=3.3.3.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <HintPath>..\packages\OpenTK.3.3.3\lib\net20\OpenTK.dll</HintPath>
-    </Reference>
-    <Reference Include="PresentationFramework.Aero2" />
-    <Reference Include="SkiaSharp, Version=2.88.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\SkiaSharp.2.88.7\lib\net462\SkiaSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.IO.Compression, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.IO.Compression.4.3.0\lib\net46\System.IO.Compression.dll</HintPath>
-      <Private>True</Private>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Security.AccessControl, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <HintPath>..\packages\System.Security.AccessControl.4.7.0\lib\net461\System.Security.AccessControl.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Security.Principal.Windows, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <HintPath>..\packages\System.Security.Principal.Windows.4.7.0\lib\net461\System.Security.Principal.Windows.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System.Xml" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xaml">
-      <RequiredTargetFramework>4.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="UIAutomationProvider" />
-    <Reference Include="UIAutomationTypes" />
-    <Reference Include="WindowsBase" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-  </ItemGroup>
-  <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
-    <Compile Include="AdvancedMenuService\ContextCapturingMenu.cs" />
-    <Compile Include="AdvancedMenuService\ContextService\BaseContextEntry.cs" />
-    <Compile Include="AdvancedMenuService\ContextService\CommandContextEntry.cs" />
-    <Compile Include="AdvancedMenuService\ContextService\Controls\AdvancedContextCommandMenuItem.cs" />
-    <Compile Include="AdvancedMenuService\ContextService\Controls\AdvancedContextEventMenuItem.cs" />
-    <Compile Include="AdvancedMenuService\ContextService\Controls\AdvancedContextMenu.cs" />
-    <Compile Include="AdvancedMenuService\ContextService\Controls\AdvancedContextMenuItem.cs" />
-    <Compile Include="AdvancedMenuService\ContextService\EventContextEntry.cs" />
-    <Compile Include="AdvancedMenuService\ContextService\GroupContextEntry.cs" />
-    <Compile Include="AdvancedMenuService\ContextService\IContextEntry.cs" />
-    <Compile Include="AdvancedMenuService\ContextService\IContextGenerator.cs" />
-    <Compile Include="AdvancedMenuService\ContextService\SeparatorEntry.cs" />
-    <Compile Include="AdvancedMenuService\IAdvancedContainer.cs" />
-    <Compile Include="AdvancedMenuService\MenuService.cs" />
-    <Compile Include="AdvancedMenuService\RegularMenuService\AdvancedMenuItem.cs" />
-    <Compile Include="AdvancedMenuService\RegularMenuService\AdvancedRegularMenu.cs" />
-    <Compile Include="AdvancedMenuService\StandAlone\CommandMenuItem.cs" />
-    <Compile Include="ApplicationCore.cs" />
-    <Compile Include="Behaviours\Behaviour.cs" />
-    <Compile Include="Behaviours\BehaviourBase.cs" />
-    <Compile Include="Behaviours\BehaviourCollection.cs" />
-    <Compile Include="Behaviours\BehaviourEx.cs" />
-    <Compile Include="Behaviours\IBehaviour.cs" />
-    <Compile Include="Behaviours\TestBlueBackgroundBehaviour.cs" />
-    <Compile Include="Behaviours\ThingyBehaviourEx.cs" />
-    <Compile Include="CommandSystem\AsyncCommand.cs" />
-    <Compile Include="CommandSystem\Command.cs" />
-    <Compile Include="CommandSystem\CommandEventArgs.cs" />
-    <Compile Include="CommandSystem\CommandGroup.cs" />
-    <Compile Include="CommandSystem\CommandManager.cs" />
-    <Compile Include="CommandSystem\Executability.cs" />
-    <Compile Include="CommandSystem\SimpleCommandGroup.cs" />
-    <Compile Include="CommandSystem\ToggleBasedCommand.cs" />
-    <Compile Include="CommandSystem\Usages\BasicButtonCommandUsage.cs" />
-    <Compile Include="CommandSystem\Usages\CommandSourceCommandUsage.cs" />
-    <Compile Include="CommandSystem\Usages\CommandUsage.cs" />
-    <Compile Include="CommandSystem\Usages\CommandUsageManager.cs" />
-    <Compile Include="Converters\EmptyStringToVisibilityConverter.cs" />
-    <Compile Include="DispatcherDelegate.cs" />
-    <Compile Include="Editors\AudioRingBuffer.cs" />
-    <Compile Include="Editors\Commands\CloseProjectCommand.cs" />
-    <Compile Include="Editors\Commands\CreateCompositionFromSelectionCommand.cs" />
-    <Compile Include="Editors\Commands\DeleteClipOwnerTrackCommand.cs" />
-    <Compile Include="Editors\Commands\DeleteSelectedClipsCommand.cs" />
-    <Compile Include="Editors\Commands\DeleteSelectedTracksCommand.cs" />
-    <Compile Include="Editors\Commands\DeleteSpecificTrackCommand.cs" />
-    <Compile Include="Editors\Commands\DuplicateClipCommand.cs" />
-    <Compile Include="Editors\Commands\ExportCommand.cs" />
-    <Compile Include="Editors\Commands\MoveTrackCommand.cs" />
-    <Compile Include="Editors\Commands\NewAudioTrackCommand.cs" />
-    <Compile Include="Editors\Commands\NewProjectCommand.cs" />
-    <Compile Include="Editors\Commands\NewVideoTrackCommand.cs" />
-    <Compile Include="Editors\Commands\OpenCompositionResourceTimelineCommand.cs" />
-    <Compile Include="Editors\Commands\OpenProjectCommand.cs" />
-    <Compile Include="Editors\Commands\BasicPlayActionCommand.cs" />
-    <Compile Include="Editors\Commands\RenameCommands.cs" />
-    <Compile Include="Editors\Commands\SaveProjectCommand.cs" />
-    <Compile Include="Editors\Commands\SelectAllTracksCommand.cs" />
-    <Compile Include="Editors\Commands\SliceClipsCommand.cs" />
-    <Compile Include="Editors\Commands\ToggleClipAutomationCommand.cs" />
-    <Compile Include="Editors\Commands\ToggleClipVisibilityCommand.cs" />
-    <Compile Include="Editors\Commands\TogglePlayCommand.cs" />
-    <Compile Include="Editors\Commands\ToggleTrackAutomationCommand.cs" />
-    <Compile Include="Editors\Commands\UndoRedoCommand.cs" />
-    <Compile Include="Editors\CompositionTimeline.cs" />
-    <Compile Include="Editors\Contextual\ClipContextRegistry.cs" />
-    <Compile Include="Editors\Contextual\ResourceContextRegistry.cs" />
-    <Compile Include="Editors\Contextual\TrackContextRegistry.cs" />
-    <Compile Include="Editors\Controls\Bindings\AccessorAutoEventPropertyBinder.cs" />
-    <Compile Include="Editors\Controls\Bindings\Binders.cs" />
-    <Compile Include="Editors\Controls\Bindings\DataParameterPropertyBinder.cs" />
-    <Compile Include="Editors\Controls\Dragger\UnitToPercentFormatter.cs" />
-    <Compile Include="Editors\Controls\EffectProviding\EffectProviderListBox.cs" />
-    <Compile Include="Editors\Controls\EffectProviding\EffectProviderListBoxItem.cs" />
-    <Compile Include="Editors\Controls\PlayStateButton.cs" />
-    <Compile Include="Editors\Controls\Timelines\CommandContexts\CommandSourceCommandUsage.cs" />
-    <Compile Include="Editors\Controls\TogglePlayStateButton.cs" />
-    <Compile Include="Editors\Controls\Timelines\ClipDropRegistry.cs" />
-    <Compile Include="Editors\Controls\Timelines\CommandContexts\BasicPlaybackCommandUsage.cs" />
-    <Compile Include="Editors\Controls\Timelines\CommandContexts\BasicButtonCommandUsage.cs" />
-    <Compile Include="Editors\Controls\Timelines\CommandContexts\DeleteSpecificTrackCommandUsage.cs" />
-    <Compile Include="Editors\Controls\Timelines\CommandContexts\NewVideoTrackCommandUsage.cs" />
-    <Compile Include="Editors\Controls\Timelines\TimelineRuler.cs" />
-    <Compile Include="Editors\Controls\Timelines\TrackDropRegistry.cs" />
-    <Compile Include="Editors\Controls\Timelines\Tracks\Clips\ImageClipContent.cs" />
-    <Compile Include="Editors\Controls\Timelines\Tracks\Clips\TimelineClipContent.cs" />
-    <Compile Include="Editors\Controls\Timelines\Tracks\Clips\TimelineVideoClipContent.cs" />
-    <Compile Include="Editors\Controls\Timelines\Tracks\Surfaces\TrackControlSurfaceAudio.cs" />
-    <Compile Include="Editors\Controls\Viewports\SKPreviewViewPortEx.cs" />
-    <Compile Include="Editors\DataTransfer\DataParameter.cs" />
-    <Compile Include="Editors\DataTransfer\DataParameterGeneric.cs" />
-    <Compile Include="Editors\DataTransfer\DataParameterBoolean.cs" />
-    <Compile Include="Editors\DataTransfer\DataParameterDouble.cs" />
-    <Compile Include="Editors\DataTransfer\DataParameterFlags.cs" />
-    <Compile Include="Editors\DataTransfer\DataParameterFloat.cs" />
-    <Compile Include="Editors\DataTransfer\DataParameterLong.cs" />
-    <Compile Include="Editors\DataTransfer\DataParameterString.cs" />
-    <Compile Include="Editors\DataTransfer\TransferableData.cs" />
-    <Compile Include="Editors\DataTransfer\ITransferableData.cs" />
-    <Compile Include="Editors\EffectSource\EffectProviderEntry.cs" />
-    <Compile Include="Editors\EffectSource\EffectProviderManager.cs" />
-    <Compile Include="Editors\Exporting\Controls\ExportDialog.xaml.cs">
-      <DependentUpon>ExportDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Editors\Exporting\Controls\ExporterContent.cs" />
-    <Compile Include="Editors\Exporting\Controls\ExportProgressDialog.xaml.cs">
-      <DependentUpon>ExportProgressDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Editors\Exporting\Exporter.cs" />
-    <Compile Include="Editors\Exporting\ExportProperties.cs" />
-    <Compile Include="Editors\Exporting\ExportSetup.cs" />
-    <Compile Include="Editors\Exporting\FFMPEG\FFmpegExporter.cs" />
-    <Compile Include="Editors\Exporting\FFMPEG\FFmpegExporterContent.cs" />
-    <Compile Include="Editors\Exporting\FFMPEG\FFUtils.cs" />
-    <Compile Include="Editors\Exporting\FFMPEG\LavResult.cs" />
-    <Compile Include="Editors\Exporting\IExportProgress.cs" />
-    <Compile Include="Editors\MatrixUtils.cs" />
-    <Compile Include="Editors\ProjectProps\ProjectPropertiesDialog.xaml.cs">
-      <DependentUpon>ProjectPropertiesDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Editors\PropertyEditors\AControls\DisplayNamePropertyEditorControl.cs" />
-    <Compile Include="Editors\PropertyEditors\AControls\TimecodeFontFamilyPropertyEditorControl.cs" />
-    <Compile Include="Editors\PropertyEditors\AControls\VideoClipMediaFrameOffsetPropertyEditorControl.cs" />
-    <Compile Include="Editors\PropertyEditors\Clips\TimecodeFontFamilyPropertyEditorSlot.cs" />
-    <Compile Include="Editors\PropertyEditors\Clips\VideoClipMediaFrameOffsetPropertyEditorSlot.cs" />
-    <Compile Include="Editors\PropertyEditors\Effects\Pixelate\CPUPixelateEffectPropertyEditorGroup.cs" />
-    <Compile Include="Editors\PropertyEditors\ProjectPropertiesPropertyEditorGroup.cs" />
-    <Compile Include="Editors\Rational.cs" />
-    <Compile Include="Editors\Rendering\EnumRenderQuality.cs" />
-    <Compile Include="Editors\RenderLockedData.cs" />
-    <Compile Include="Editors\ResourceManaging\Commands\ChangeResourceOnlineStateCommand.cs" />
-    <Compile Include="Editors\ResourceManaging\Commands\DeleteResourcesCommand.cs" />
-    <Compile Include="Editors\ResourceManaging\Commands\GroupResourcesCommand.cs" />
-    <Compile Include="Editors\ResourceManaging\Autoloading\Controls\InvalidImagePathEntryControl.cs" />
-    <Compile Include="Editors\ResourceManaging\Autoloading\Controls\InvalidMediaPathEntryControl.cs" />
-    <Compile Include="Editors\ResourceManaging\Autoloading\Controls\InvalidResourceEntryControl.cs" />
-    <Compile Include="Editors\ResourceManaging\Autoloading\Controls\ResourceLoaderDialog.xaml.cs">
-      <DependentUpon>ResourceLoaderDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Editors\ResourceManaging\Autoloading\InvalidResourceEntry.cs" />
-    <Compile Include="Editors\ResourceManaging\Autoloading\ResourceLoader.cs" />
-    <Compile Include="Editors\ResourceManaging\Resources\InvalidImagePathEntry.cs" />
-    <Compile Include="Editors\ResourceManaging\Resources\InvalidMediaPathEntry.cs" />
-    <Compile Include="Editors\ResourceManaging\Resources\ResourceAVMedia.cs" />
-    <Compile Include="Editors\ResourceManaging\Resources\ResourceComposition.cs" />
-    <Compile Include="Editors\Serialisation\SerialisationRegistry.cs" />
-    <Compile Include="Editors\Timelines\Clips\AudioClip.cs" />
-    <Compile Include="Editors\Timelines\Clips\ClipGroup.cs" />
-    <Compile Include="Editors\Timelines\Clips\Core\AVMediaVideoClip.cs" />
-    <Compile Include="Editors\Timelines\Clips\Core\CompositionVideoClip.cs" />
-    <Compile Include="Editors\Timelines\Clips\Core\ICompositionClip.cs" />
-    <Compile Include="Editors\Timelines\Clips\Core\ImageVideoClip.cs" />
-    <Compile Include="Editors\Timelines\Clips\Core\TextVideoClip.cs" />
-    <Compile Include="Editors\Timelines\Clips\Core\TimecodeClip.cs" />
-    <Compile Include="Editors\Timelines\Clips\Core\VideoClipShape.cs" />
-    <Compile Include="Editors\Timelines\IDisplayName.cs" />
-    <Compile Include="Editors\Timelines\IStrictFrameRange.cs" />
-    <Compile Include="Editors\Timelines\Tracks\AudioTrack.cs" />
-    <Compile Include="FFmpegWrapper\AudioFormat.cs" />
-    <Compile Include="FFmpegWrapper\AudioFrame.cs" />
-    <Compile Include="FFmpegWrapper\AudioQueue.cs" />
-    <Compile Include="FFmpegWrapper\Codecs\AudioDecoder.cs" />
-    <Compile Include="FFmpegWrapper\Codecs\AudioEncoder.cs" />
-    <Compile Include="FFmpegWrapper\Codecs\CodecBase.cs" />
-    <Compile Include="FFmpegWrapper\Codecs\CodecHardwareConfig.cs" />
-    <Compile Include="FFmpegWrapper\Codecs\MediaDecoder.cs" />
-    <Compile Include="FFmpegWrapper\Codecs\MediaEncoder.cs" />
-    <Compile Include="FFmpegWrapper\Codecs\VideoDecoder.cs" />
-    <Compile Include="FFmpegWrapper\Codecs\VideoEncoder.cs" />
-    <Compile Include="FFmpegWrapper\Containers\ContainerTypes.cs" />
-    <Compile Include="FFmpegWrapper\Containers\IOContext.cs" />
-    <Compile Include="FFmpegWrapper\Containers\MediaDemuxer.cs" />
-    <Compile Include="FFmpegWrapper\Containers\MediaMuxer.cs" />
-    <Compile Include="FFmpegWrapper\Containers\MediaStream.cs" />
-    <Compile Include="FFmpegWrapper\Containers\StreamIOContext.cs" />
-    <Compile Include="FFmpegWrapper\EnumAliases.cs" />
-    <Compile Include="FFmpegWrapper\FFObject.cs" />
-    <Compile Include="FFmpegWrapper\FFUtils.cs" />
-    <Compile Include="FFmpegWrapper\HardwareDevice.cs" />
-    <Compile Include="FFmpegWrapper\HardwareFrameConstraints.cs" />
-    <Compile Include="FFmpegWrapper\HardwareFramePool.cs" />
-    <Compile Include="FFmpegWrapper\LavResult.cs" />
-    <Compile Include="FFmpegWrapper\MediaFrame.cs" />
-    <Compile Include="FFmpegWrapper\MediaPacket.cs" />
-    <Compile Include="FFmpegWrapper\PictureFormat.cs" />
-    <Compile Include="FFmpegWrapper\SwResampler.cs" />
-    <Compile Include="FFmpegWrapper\SwScaler.cs" />
-    <Compile Include="FFmpegWrapper\VideoFrame.cs" />
-    <Compile Include="FFmpeg\AudioStream.cs" />
-    <Compile Include="FFmpeg\FFmpegDecodeThread.cs" />
-    <Compile Include="FFmpeg\FFmpegReader.cs" />
-    <Compile Include="FFmpeg\FrameQueue.cs" />
-    <Compile Include="FFmpeg\StreamWrapper.cs" />
-    <Compile Include="FFmpeg\VideoStream.cs" />
-    <Compile Include="FileBrowser\Context\ExplorerContextGenerator.cs" />
-    <Compile Include="FileBrowser\Controls\Trees\IFileTreeControl.cs" />
-    <Compile Include="FileBrowser\Controls\Trees\FileTreeView.cs" />
-    <Compile Include="FileBrowser\Controls\Trees\FileTreeViewItem.cs" />
-    <Compile Include="FileBrowser\FileTree\EntrySorters.cs" />
-    <Compile Include="FileBrowser\FileTree\Events\NavigateToFileEventHandler.cs" />
-    <Compile Include="FileBrowser\FileTree\Events\OpenFileEventHandler.cs" />
-    <Compile Include="FileBrowser\FileTree\Interfaces\IFileName.cs" />
-    <Compile Include="FileBrowser\FileTree\Interfaces\IHaveFilePath.cs" />
-    <Compile Include="FileBrowser\FileTree\Physical\BasePhysicalVirtualFile.cs" />
-    <Compile Include="FileBrowser\FileTree\Physical\PhysicalVirtualFile.cs" />
-    <Compile Include="FileBrowser\FileTree\Physical\PhysicalVirtualFolder.cs" />
-    <Compile Include="FileBrowser\FileTree\Physical\Win32FileSystem.cs" />
-    <Compile Include="FileBrowser\FileTree\VFSFileEntry.cs" />
-    <Compile Include="FileBrowser\FileTree\TreeFileSystem.cs" />
-    <Compile Include="FileBrowser\FileTree\Zip\BaseZipVirtualFile.cs" />
-    <Compile Include="FileBrowser\FileTree\Zip\IZipRoot.cs" />
-    <Compile Include="FileBrowser\FileTree\Zip\NestedZipVirtualFile.cs" />
-    <Compile Include="FileBrowser\FileTree\Zip\PhysicalZipVirtualFile.cs" />
-    <Compile Include="FileBrowser\FileTree\Zip\ZipEntryVirtualFile.cs" />
-    <Compile Include="FileBrowser\FileTree\Zip\ZipEntryVirtualFolder.cs" />
-    <Compile Include="FileBrowser\FileTree\Zip\ZipFileSystem.cs" />
-    <Compile Include="FileSystems\Physical\PhysicalVirtualFileSystem.cs" />
-    <Compile Include="FileSystems\VirtualFile.cs" />
-    <Compile Include="FileSystems\VirtualFileManager.cs" />
-    <Compile Include="FileSystems\VirtualFileUrl.cs" />
-    <Compile Include="FileSystems\VirtualFileSystem.cs" />
-    <Compile Include="FileSystems\Zip\BaseZipVirtualFile.cs" />
-    <Compile Include="FileSystems\Zip\ZipVirtualFileSystem.cs" />
-    <Compile Include="History\ChildManagerHistoryAction.cs" />
-    <Compile Include="History\HistoryAction.cs" />
-    <Compile Include="History\HistoryManager.cs" />
-    <Compile Include="History\IHistoryAction.cs" />
-    <Compile Include="History\MergedHistoryAction.cs" />
-    <Compile Include="IApplicationStartupProgress.cs" />
-    <Compile Include="IDispatcher.cs" />
-    <Compile Include="Interactivity\Contexts\ContextData.cs" />
-    <Compile Include="Interactivity\Contexts\DataKey.cs" />
-    <Compile Include="Interactivity\Contexts\DataKeys.cs" />
-    <Compile Include="Interactivity\Contexts\DataManager.cs" />
-    <Compile Include="Interactivity\Contexts\EmptyContext.cs" />
-    <Compile Include="Interactivity\Contexts\IContextData.cs" />
-    <Compile Include="IoC.cs" />
-    <Compile Include="IServiceManager.cs" />
-    <Compile Include="Natives\PFXNative.cs" />
-    <Compile Include="Notifications\Notification.cs" />
-    <Compile Include="Notifications\NotificationManager.cs" />
-    <Compile Include="Shortcuts\Managing\GroupedInputState.cs" />
-    <Compile Include="Shortcuts\Managing\GroupedShortcut.cs" />
-    <Compile Include="Shortcuts\Managing\GroupEvaulationArgs.cs" />
-    <Compile Include="Shortcuts\Managing\IGroupedObject.cs" />
-    <Compile Include="Shortcuts\Managing\InputStateManager.cs" />
-    <Compile Include="Shortcuts\Managing\RepeatMode.cs" />
-    <Compile Include="Shortcuts\Managing\ShortcutCollectorArgs.cs" />
-    <Compile Include="Shortcuts\Managing\ShortcutGroup.cs" />
-    <Compile Include="Shortcuts\Managing\ShortcutInputManager.cs" />
-    <Compile Include="Shortcuts\Managing\ShortcutManager.cs" />
-    <Compile Include="Shortcuts\WPF\ActivationHandlerReference.cs" />
-    <Compile Include="Shortcuts\WPF\ShortcutActivateHandler.cs" />
-    <Compile Include="Shortcuts\WPF\ShortcutUtils.cs" />
-    <Compile Include="Shortcuts\WPF\UIInputManager.cs" />
-    <Compile Include="Shortcuts\WPF\WPFKeyMapSerialiser.cs" />
-    <Compile Include="Shortcuts\WPF\WPFShortcutInputManager.cs" />
-    <Compile Include="Shortcuts\WPF\WPFShortcutManager.cs" />
-    <Compile Include="Tasks\ActivityDialog.xaml.cs">
-      <DependentUpon>ActivityDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="PropertyEditing\Automation\ParameterBooleanPropertyEditorSlot.cs" />
-    <Compile Include="PropertyEditing\Automation\ParameterLongPropertyEditorSlot.cs" />
-    <Compile Include="PropertyEditing\Controls\Automation\KeyFrameToolsControl.cs" />
-    <Compile Include="PropertyEditing\Controls\Automation\ParameterBooleanPropertyEditorControl.cs" />
-    <Compile Include="PropertyEditing\Controls\Automation\ParameterLongPropertyEditorControl.cs" />
-    <Compile Include="PropertyEditing\Controls\Converters\GroupTypeToStyleConverter.cs" />
-    <Compile Include="PropertyEditing\Controls\Converters\GroupTypeToTemplateConverter.cs" />
-    <Compile Include="PropertyEditing\Controls\DataTransfer\BaseDataParameterPropertyEditorControl.cs" />
-    <Compile Include="PropertyEditing\Controls\DataTransfer\BaseNumberDataParamPropEditorControl.cs" />
-    <Compile Include="PropertyEditing\Controls\DataTransfer\DataParameterBooleanPropertyEditorControl.cs" />
-    <Compile Include="PropertyEditing\Controls\DataTransfer\DataParameterDoublePropertyEditorControl.cs" />
-    <Compile Include="PropertyEditing\Controls\DataTransfer\DataParameterFloatPropertyEditorControl.cs" />
-    <Compile Include="PropertyEditing\Controls\DataTransfer\DataParameterLongPropertyEditorControl.cs" />
-    <Compile Include="PropertyEditing\Controls\DataTransfer\DataParameterStringPropertyEditorControl.cs" />
-    <Compile Include="PropertyEditing\Controls\PropertyEditorGroupNonExpanderControl.cs" />
-    <Compile Include="PropertyEditing\Controls\Automation\BaseParameterPropertyEditorControl.cs" />
-    <Compile Include="PropertyEditing\Controls\Automation\ParameterDoublePropertyEditorControl.cs" />
-    <Compile Include="PropertyEditing\Controls\Automation\ParameterFloatPropertyEditorControl.cs" />
-    <Compile Include="Editors\PropertyEditors\Effects\EffectListPropertyEditorGroup.cs" />
-    <Compile Include="Editors\PropertyEditors\Effects\EffectPropertyEditorGroup.cs" />
-    <Compile Include="Editors\PropertyEditors\Effects\TODO\EffectListPropertyEditorGroup.cs" />
-    <Compile Include="Editors\PropertyEditors\Effects\TODO\EffectPropertyEditorGroup.cs" />
-    <Compile Include="PropertyEditing\Controls\Automation\BaseNumberParameterPropEditorControl.cs" />
-    <Compile Include="PropertyEditing\Controls\Automation\ParameterVector2PropertyEditorControl.cs" />
-    <Compile Include="PropertyEditing\DataTransfer\DataParameterBooleanPropertyEditorSlot.cs" />
-    <Compile Include="PropertyEditing\DataTransfer\DataParameterDoublePropertyEditorSlot.cs" />
-    <Compile Include="PropertyEditing\DataTransfer\DataParameterFloatPropertyEditorSlot.cs" />
-    <Compile Include="PropertyEditing\DataTransfer\DataParameterLongPropertyEditorSlot.cs" />
-    <Compile Include="PropertyEditing\DataTransfer\DataParameterPropertyEditorSlot.cs" />
-    <Compile Include="PropertyEditing\DataTransfer\DataParameterStringPropertyEditorSlot.cs" />
-    <Compile Include="PropertyEditing\GroupType.cs" />
-    <Compile Include="PropertyEditing\Automation\ParameterDoublePropertyEditorSlot.cs" />
-    <Compile Include="PropertyEditing\Automation\ParameterFloatPropertyEditorSlot.cs" />
-    <Compile Include="PropertyEditing\Automation\ParameterPropertyEditorSlot.cs" />
-    <Compile Include="PropertyEditing\Automation\DragStepProfile.cs" />
-    <Compile Include="PropertyEditing\ApplicabilityMode.cs" />
-    <Compile Include="PropertyEditing\BasePropertyEditor.cs" />
-    <Compile Include="PropertyEditing\BasePropertyEditorGroup.cs" />
-    <Compile Include="PropertyEditing\BasePropertyEditorItem.cs" />
-    <Compile Include="PropertyEditing\BasePropertyEditorObject.cs" />
-    <Compile Include="PropertyEditing\Controls\BasePropEditControlContent.cs" />
-    <Compile Include="PropertyEditing\Controls\PropertyEditorControl.cs" />
-    <Compile Include="PropertyEditing\Controls\PropertyEditorItemsPanel.cs" />
-    <Compile Include="PropertyEditing\Controls\PropertyEditorGroupControl.cs" />
-    <Compile Include="PropertyEditing\Controls\PropertyEditorSlotControl.cs" />
-    <Compile Include="PropertyEditing\SimplePropertyEditorGroup.cs" />
-    <Compile Include="PropertyEditing\HandlerCountMode.cs" />
-    <Compile Include="PropertyEditing\PropertyEditorSlot.cs" />
-    <Compile Include="PropertyEditing\Automation\ParameterVector2PropertyEditorSlot.cs" />
-    <Compile Include="PropertyEditing\VideoEditorPropertyEditor.cs" />
-    <Compile Include="RBC\BinaryUtils.cs" />
-    <Compile Include="RBC\Events\ReadFromRBEEventHandler.cs" />
-    <Compile Include="RBC\Events\WriteToRBEEventHandler.cs" />
-    <Compile Include="RBC\RBEArray.cs" />
-    <Compile Include="RBC\RBEBase.cs" />
-    <Compile Include="RBC\RBEDictionary.cs" />
-    <Compile Include="RBC\RBEGuid.cs" />
-    <Compile Include="RBC\RBEList.cs" />
-    <Compile Include="RBC\RBEPrimitive.cs" />
-    <Compile Include="RBC\RBEStruct.cs" />
-    <Compile Include="RBC\RBEType.cs" />
-    <Compile Include="RBC\RBEUtils.cs" />
-    <Compile Include="ServiceManager.cs" />
-    <Compile Include="Services\Files\IFilePickDialogService.cs" />
-    <Compile Include="Services\Messages\IMessageDialogService.cs" />
-    <Compile Include="Services\Messages\IUserInputDialogService.cs" />
-    <Compile Include="Services\WPF\Files\WPFFilePickDialogService.cs" />
-    <Compile Include="Services\WPF\Messages\MessageDialog.xaml.cs">
-      <DependentUpon>MessageDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Services\WPF\Messages\SingleInputDialog.xaml.cs">
-      <DependentUpon>SingleInputDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Services\WPF\Messages\WPFMessageDialogService.cs" />
-    <Compile Include="Services\WPF\Messages\WPFUserInputDialogService.cs" />
-    <Compile Include="Shortcuts\Attributes\ShortcutTargetAttribute.cs" />
-    <Compile Include="Shortcuts\Dialogs\IKeyboardDialogService.cs" />
-    <Compile Include="Shortcuts\Dialogs\IMouseDialogService.cs" />
-    <Compile Include="Shortcuts\Dialogs\IShortcutManagerDialogService.cs" />
-    <Compile Include="Shortcuts\Events\ShortcutActivatedEventHandler.cs" />
-    <Compile Include="Shortcuts\Events\ShortcutModifiedEventHandler.cs" />
-    <Compile Include="Shortcuts\IKeyboardShortcut.cs" />
-    <Compile Include="Shortcuts\IMouseShortcut.cs" />
-    <Compile Include="Shortcuts\Inputs\IInputStroke.cs" />
-    <Compile Include="Shortcuts\Inputs\InputStrokeSet.cs" />
-    <Compile Include="Shortcuts\Inputs\KeyStroke.cs" />
-    <Compile Include="Shortcuts\Inputs\MouseStroke.cs" />
-    <Compile Include="Shortcuts\IShortcut.cs" />
-    <Compile Include="Shortcuts\KeyboardShortcut.cs" />
-    <Compile Include="Shortcuts\Keymapping\IKeymapSerialiser.cs" />
-    <Compile Include="Shortcuts\Keymapping\Keymap.cs" />
-    <Compile Include="Shortcuts\Keymapping\XMLShortcutSerialiser.cs" />
-    <Compile Include="Shortcuts\MouseKeyboardShortcut.cs" />
-    <Compile Include="Shortcuts\MouseShortcut.cs" />
-    <Compile Include="Shortcuts\ShortcutUtils.cs" />
-    <Compile Include="Shortcuts\Usage\IKeyboardShortcutUsage.cs" />
-    <Compile Include="Shortcuts\Usage\IMouseShortcutUsage.cs" />
-    <Compile Include="Shortcuts\Usage\IShortcutUsage.cs" />
-    <Compile Include="Shortcuts\Usage\KeyboardShortcutUsage.cs" />
-    <Compile Include="Shortcuts\Usage\MouseKeyboardShortcutUsage.cs" />
-    <Compile Include="Shortcuts\Usage\MouseShortcutUsage.cs" />
-    <Compile Include="Shortcuts\WPF\Converters\CommandIdToGestureConverter.cs" />
-    <Compile Include="Shortcuts\WPF\Converters\KeyStrokeStringConverter.cs" />
-    <Compile Include="Shortcuts\WPF\Converters\MouseStrokeStringConverter.cs" />
-    <Compile Include="Shortcuts\WPF\Converters\ShortcutIdToGestureConverter.cs" />
-    <Compile Include="Shortcuts\WPF\Converters\ShortcutIdToHeaderConverter.cs" />
-    <Compile Include="Shortcuts\WPF\Converters\ShortcutIdToToolTipConverter.cs" />
-    <Compile Include="Shortcuts\WPF\Converters\ShortcutPathToInputGestureTextConverter.cs" />
-    <Compile Include="Tasks\ActivityTask.cs" />
-    <Compile Include="Tasks\CompletionRange.cs" />
-    <Compile Include="Tasks\DefaultProgressTracker.cs" />
-    <Compile Include="Tasks\EmptyActivityProgress.cs" />
-    <Compile Include="Tasks\IActivityProgress.cs" />
-    <Compile Include="Tasks\StandardActivityControl.cs" />
-    <Compile Include="Tasks\TaskManager.cs" />
-    <Compile Include="Themes\Attached\CornerRadiusHelper.cs" />
-    <Compile Include="Themes\Attached\MenuHelper.cs" />
-    <Compile Include="Themes\Attached\PasswordBoxHelper.cs" />
-    <Compile Include="Themes\Attached\TextBoxAutoSelect.cs" />
-    <Compile Include="Themes\Attached\TextHinting.cs" />
-    <Compile Include="Themes\ColourKeys.cs" />
-    <Compile Include="Themes\Controls.xaml.cs">
-      <DependentUpon>Controls.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Themes\Converters\ScrollViewerInnerBorderThicknessConverter.cs" />
-    <Compile Include="Themes\Converters\TreeViewLineConverter.cs" />
-    <Compile Include="Themes\Generator\ThemeGenerator.cs" />
-    <Compile Include="Themes\ThemeController.cs" />
-    <Compile Include="Themes\ThemeType.cs" />
-    <Compile Include="Utils\Accessing\ValueAccessor.cs" />
-    <Compile Include="Utils\Accessing\ValueAccessors.cs" />
-    <Compile Include="Utils\Arrays.cs" />
-    <Compile Include="Utils\AsyncLock.cs" />
-    <Compile Include="Utils\AudioUtils.cs" />
-    <Compile Include="Utils\Bits.cs" />
-    <Compile Include="Utils\BoolBox.cs" />
-    <Compile Include="Utils\CASLock.cs" />
-    <Compile Include="Utils\CastingList.cs" />
-    <Compile Include="Utils\Collections\AdvancedReadOnlyObservableCollection.cs" />
-    <Compile Include="Utils\Collections\DictionaryList.cs" />
-    <Compile Include="Utils\Collections\InheritanceDictionary.cs" />
-    <Compile Include="Utils\Collections\InheritanceMultiMap.cs" />
-    <Compile Include="Utils\Collections\ITypeEntry.cs" />
-    <Compile Include="Utils\Collections\ObservableList.cs" />
-    <Compile Include="Utils\Collections\OrderedList.cs" />
-    <Compile Include="Utils\Collections\PropertyMap.cs" />
-    <Compile Include="Utils\Collections\ReferenceDictionary.cs" />
-    <Compile Include="Utils\Collections\TypeMultiTable.cs" />
-    <Compile Include="Utils\Collections\WeakReferenceDictionary.cs" />
-    <Compile Include="Utils\CollectionUtils.cs" />
-    <Compile Include="Utils\Colour.cs" />
-    <Compile Include="Utils\Commands\AsyncRelayCommand.cs" />
-    <Compile Include="Utils\Commands\BaseAsyncRelayCommand.cs" />
-    <Compile Include="Utils\Commands\BaseRelayCommand.cs" />
-    <Compile Include="Utils\Commands\IAsyncRelayCommand.cs" />
-    <Compile Include="Utils\Commands\IRelayCommand.cs" />
-    <Compile Include="Utils\Commands\RelayCommand.cs" />
-    <Compile Include="Utils\CursorUtils.cs" />
-    <Compile Include="Utils\Destroying\Destroyer.cs" />
-    <Compile Include="Utils\Destroying\IDestroy.cs" />
-    <Compile Include="Utils\DispatcherCallback.cs" />
-    <Compile Include="Utils\DispatcherUtils.cs" />
-    <Compile Include="Utils\Disposable\DisposableRef.cs" />
-    <Compile Include="Utils\DoubleUtils.cs" />
-    <Compile Include="Utils\DynamicCodeConverter.cs" />
-    <Compile Include="Utils\ErrorList.cs" />
-    <Compile Include="Utils\EventArgsCache.cs" />
-    <Compile Include="Utils\ExceptionEventHandler.cs" />
-    <Compile Include="Utils\ExceptionUtils.cs" />
-    <Compile Include="Utils\Expressions\BasicNumericExpression.cs" />
-    <Compile Include="Utils\Expressions\ComplexNumericExpression.cs" />
-    <Compile Include="Utils\FastStringBuf.cs" />
-    <Compile Include="Utils\FFmpegError.cs" />
-    <Compile Include="Utils\FileUtils.cs" />
-    <Compile Include="Utils\Filter.cs" />
-    <Compile Include="Utils\Filters.cs" />
-    <Compile Include="Utils\HandlerList.cs" />
-    <Compile Include="Utils\Helper.cs" />
-    <Compile Include="Utils\InheritedProperty.cs" />
-    <Compile Include="Utils\EventUtils.cs" />
-    <Compile Include="Utils\IntRect.cs" />
-    <Compile Include="Utils\IRenameTarget.cs" />
-    <Compile Include="Utils\KBUtils.cs" />
-    <Compile Include="Utils\KeyboardUtils.cs" />
-    <Compile Include="Utils\KeyUtils.cs" />
-    <Compile Include="Utils\Lang.cs" />
-    <Compile Include="Utils\Maths.cs" />
-    <Compile Include="Utils\NumberAverager.cs" />
-    <Compile Include="Utils\Numerics\SizeI.cs" />
-    <Compile Include="Utils\Numerics\Vector2i.cs" />
-    <Compile Include="Utils\Periodic.cs" />
-    <Compile Include="Utils\PrecisionTimer.cs" />
-    <Compile Include="Utils\RandomUtils.cs" />
-    <Compile Include="Utils\LimitedRapidDispatchAction.cs" />
-    <Compile Include="Utils\RDA\IRapidDispatchAction.cs" />
-    <Compile Include="Utils\RDA\RapidDispatchAction.cs" />
-    <Compile Include="Utils\RDA\RapidDispatchActionEx.cs" />
-    <Compile Include="Utils\RDA\TestRDA.cs" />
-    <Compile Include="Utils\Rect2d.cs" />
-    <Compile Include="Utils\Rect2i.cs" />
-    <Compile Include="Utils\Reference.cs" />
-    <Compile Include="Utils\ReferenceEqualityComparer.cs" />
-    <Compile Include="Utils\ResourceDictionaryDataTemplateSelector.cs" />
-    <Compile Include="Utils\RoundingMode.cs" />
-    <Compile Include="Utils\ScrollerUtils.cs" />
-    <Compile Include="Utils\ShellIconSize.cs" />
-    <Compile Include="Utils\ShellUtils.cs" />
-    <Compile Include="Utils\SingletonEnumerator.cs" />
-    <Compile Include="Utils\SingletonList.cs" />
-    <Compile Include="Utils\StringJoiner.cs" />
-    <Compile Include="Utils\StringUtils.cs" />
-    <Compile Include="Utils\TextIncrement.cs" />
-    <Compile Include="Utils\TextPointerUtils.cs" />
-    <Compile Include="Utils\TextRange.cs" />
-    <Compile Include="Utils\TextUtils.cs" />
-    <Compile Include="Utils\ThreadTimer.cs" />
-    <Compile Include="Utils\Time.cs" />
-    <Compile Include="Utils\TypeUtils.cs" />
-    <Compile Include="Utils\UIUtils.cs" />
-    <Compile Include="Utils\Validate.cs" />
-    <Compile Include="Utils\Vec2i.cs" />
-    <Compile Include="Utils\Vectors.cs" />
-    <Compile Include="Utils\Visuals\VisualAncestorChangedEventInterface.cs" />
-    <Compile Include="Utils\Visuals\VisualTreeUtils.cs" />
-    <Compile Include="Views\AppSplashScreen.xaml.cs">
-      <DependentUpon>AppSplashScreen.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Validators\DoubleRangeValidationRule.cs" />
-    <Compile Include="Views\Validators\IntRangeValidationRule.cs" />
-    <Compile Include="Views\Validators\NonEmptyStringValidationRule.cs" />
-    <Compile Include="Views\WinDarkTheme.cs" />
-    <Compile Include="Views\WindowEx.cs" />
-    <Page Include="AdvancedMenuService\ContextService\Controls\ContextStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Editors\Controls\Dragger\NumberDraggerStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editors\Controls\GeneralControlStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editors\Controls\Resources\ResourceStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editors\Controls\Timelines\TimelineStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editors\Controls\TreeViews\Themes\EditTextBox.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editors\Controls\TreeViews\Themes\MultiSelectTreeView.Aero2.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editors\Controls\TreeViews\Themes\MultiSelectTreeViewItem.Aero2.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Editors\Exporting\Controls\ExportDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Editors\Exporting\Controls\ExportProgressDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Editors\Exporting\ExporterStyles.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Editors\ProjectProps\ProjectPropertiesDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Editors\ResourceManaging\Autoloading\Controls\InvalidResourceControlStyles.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Editors\ResourceManaging\Autoloading\Controls\ResourceLoaderDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Editors\Views\EditorWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AttachedProperties\AttachedInteractivity.cs" />
-    <Compile Include="AttachedProperties\GridLatchSplitter.cs" />
-    <Compile Include="AttachedProperties\HandleRequestBringIntoView.cs" />
-    <Compile Include="AttachedProperties\HorizontalScrolling.cs" />
-    <Compile Include="AttachedProperties\MultiSelectorHelper.cs" />
-    <Compile Include="AttachedProperties\ObservableSelectionHelper.cs" />
-    <Compile Include="AttachedProperties\ScrollBinder.cs" />
-    <Compile Include="AttachedProperties\TextBlockHelper.cs" />
-    <Compile Include="AttachedProperties\TextBoxHelper.cs" />
-    <Compile Include="AttachedProperties\ToggleButtonHelper.cs" />
-    <Compile Include="AttachedProperties\TopmostFocus.cs" />
-    <Compile Include="Converters\BoolConverter.cs" />
-    <Compile Include="Converters\BoolConverterAND.cs" />
-    <Compile Include="Converters\DbToVolumeConverter.cs" />
-    <Compile Include="Converters\EnumConverter.cs" />
-    <Compile Include="Converters\FloatToDoubleConverter.cs" />
-    <Compile Include="Converters\NullConverter.cs" />
-    <Compile Include="Converters\VolumeToDbConverter.cs" />
-    <Compile Include="Editors\Automation\AutomationData.cs" />
-    <Compile Include="Editors\Automation\AutomationEngine.cs" />
-    <Compile Include="Editors\Automation\IAutomatable.cs" />
-    <Compile Include="Editors\Automation\Keyframes\AutomationDataType.cs" />
-    <Compile Include="Editors\Automation\Keyframes\AutomationSequence.cs" />
-    <Compile Include="Editors\Automation\Keyframes\InterpolationType.cs" />
-    <Compile Include="Editors\Automation\Keyframes\KeyFrame.cs" />
-    <Compile Include="Editors\Automation\Keyframes\KeyFrameUtils.cs" />
-    <Compile Include="Editors\Automation\Params\Parameter.cs" />
-    <Compile Include="Editors\Automation\Params\ParameterChangedEventHandler.cs" />
-    <Compile Include="Editors\Automation\Params\ParameterDescriptor.cs" />
-    <Compile Include="Editors\Automation\Params\ParameterFlags.cs" />
-    <Compile Include="Editors\Automation\Params\ParameterKey.cs" />
-    <Compile Include="Editors\Automation\SwitchAutomationDataTypeAttribute.cs" />
-    <Compile Include="Editors\Collections\SelectionList.cs" />
-    <Compile Include="Editors\Controls\Automation\AutomatedUtils.cs" />
-    <Compile Include="Editors\Controls\Automation\AutomationActivityBrushConverter.cs" />
-    <Compile Include="Editors\Controls\Automation\AutomationSequenceEditor.cs" />
-    <Compile Include="Editors\Controls\Automation\DragMode.cs" />
-    <Compile Include="Editors\Controls\Automation\KeyFramePoint.cs" />
-    <Compile Include="Editors\Controls\Automation\KeyPointUtils.cs" />
-    <Compile Include="Editors\Controls\Automation\LineHitType.cs" />
-    <Compile Include="Editors\Controls\Bindings\AutomationBinder.cs" />
-    <Compile Include="Editors\Controls\Bindings\UpdaterAutoEventPropertyBinder.cs" />
-    <Compile Include="Editors\Controls\Bindings\BaseBinder.cs" />
-    <Compile Include="Editors\Controls\Bindings\GetSetAutoEventPropertyBinder.cs" />
-    <Compile Include="Editors\Controls\Bindings\IBinder.cs" />
-    <Compile Include="Editors\Controls\Bindings\UpdaterPropertyBinder.cs" />
-    <Compile Include="Editors\Controls\Bindings\AutomationUpdaterPropertyBinder.cs" />
-    <Compile Include="Editors\Controls\CancellableThumb.cs" />
-    <Compile Include="Editors\Controls\Dragger\EditCompletedEventArgs.cs" />
-    <Compile Include="Editors\Controls\Dragger\EditCompletedEventHandler.cs" />
-    <Compile Include="Editors\Controls\Dragger\EditStartEventArgs.cs" />
-    <Compile Include="Editors\Controls\Dragger\EditStartEventHandler.cs" />
-    <Compile Include="Editors\Controls\Dragger\HorizontalIncrement.cs" />
-    <Compile Include="Editors\Controls\Dragger\IChangeMapper.cs" />
-    <Compile Include="Editors\Controls\Dragger\IValueFormatter.cs" />
-    <Compile Include="Editors\Controls\Dragger\IValuePreProcessor.cs" />
-    <Compile Include="Editors\Controls\Dragger\NumberDragger.cs" />
-    <Compile Include="Editors\Controls\Dragger\ValueStringFormatter.cs" />
-    <Compile Include="Editors\Controls\Dragger\VerticalIncrement.cs" />
-    <Compile Include="Editors\Controls\GlyphGenerator.cs" />
-    <Compile Include="Editors\Controls\GridSlotAutoSizer.cs" />
-    <Compile Include="Editors\Controls\IClipControl.cs" />
-    <Compile Include="Editors\Controls\ITrackControl.cs" />
-    <Compile Include="Editors\Controls\IUIConnection.cs" />
-    <Compile Include="Editors\Controls\Resources\Explorers\ResourceExplorerListControl.cs" />
-    <Compile Include="Editors\Controls\Resources\Explorers\ResourceExplorerListItem.cs" />
-    <Compile Include="Editors\Controls\Resources\Explorers\ResourceExplorerListItemContent.cs" />
-    <Compile Include="Editors\Controls\Resources\ResourceDropRegistry.cs" />
-    <Compile Include="Editors\Controls\Resources\ResourcePanelControl.cs" />
-    <Compile Include="Editors\Controls\Resources\Trees\IResourceTreeControl.cs" />
-    <Compile Include="Editors\Controls\Resources\Trees\MovedResource.cs" />
-    <Compile Include="Editors\Controls\Resources\Trees\ResourceTreeView.cs" />
-    <Compile Include="Editors\Controls\Resources\Trees\ResourceTreeViewItem.cs" />
-    <Compile Include="Editors\Controls\SpacedStackPanel.cs" />
-    <Compile Include="Editors\Controls\SpacedUniformGrid.cs" />
-    <Compile Include="Editors\Controls\Timelines\AutomationBrushConverter.cs" />
-    <Compile Include="Editors\Controls\Timelines\Playheads\BasePlayHeadControl.cs" />
-    <Compile Include="Editors\Controls\Timelines\Playheads\PlayHeadControl.cs" />
-    <Compile Include="Editors\Controls\Timelines\Playheads\PlayheadPositionTextControl.cs" />
-    <Compile Include="Editors\Controls\Timelines\Playheads\StopHeadControl.cs" />
-    <Compile Include="Editors\Controls\Timelines\TimelineControl.cs" />
-    <Compile Include="Editors\Controls\Timelines\TimelineScrollableContentGrid.cs" />
-    <Compile Include="Editors\Controls\Timelines\TrackStoragePanel.cs" />
-    <Compile Include="Editors\Controls\Timelines\Tracks\ClipStoragePanel.cs" />
-    <Compile Include="Editors\Controls\Timelines\Tracks\Clips\TimelineClipControl.cs" />
-    <Compile Include="Editors\Controls\Timelines\Tracks\Surfaces\TrackControlSurface.cs" />
-    <Compile Include="Editors\Controls\Timelines\Tracks\Surfaces\TrackControlSurfaceListBox.cs" />
-    <Compile Include="Editors\Controls\Timelines\Tracks\Surfaces\TrackControlSurfaceListBoxItem.cs" />
-    <Compile Include="Editors\Controls\Timelines\Tracks\Surfaces\TrackControlSurfaceListBoxPanel.cs" />
-    <Compile Include="Editors\Controls\Timelines\Tracks\Surfaces\TrackControlSurfaceVideo.cs" />
-    <Compile Include="Editors\Controls\Timelines\Tracks\TimelineTrackControl.cs" />
-    <Compile Include="Editors\Controls\TreeViews\Automation\Peers\MultiSelectTreeViewAutomationPeer.cs" />
-    <Compile Include="Editors\Controls\TreeViews\Automation\Peers\MultiSelectTreeViewItemAutomationPeer.cs" />
-    <Compile Include="Editors\Controls\TreeViews\Automation\Peers\MultiSelectTreeViewItemDataAutomationPeer.cs" />
-    <Compile Include="Editors\Controls\TreeViews\Controls\BorderSelectionLogic.cs" />
-    <Compile Include="Editors\Controls\TreeViews\Controls\EditTextBox.cs" />
-    <Compile Include="Editors\Controls\TreeViews\Controls\FocusHelper.cs" />
-    <Compile Include="Editors\Controls\TreeViews\Controls\ISelectionStrategy.cs" />
-    <Compile Include="Editors\Controls\TreeViews\Controls\ListUtils.cs" />
-    <Compile Include="Editors\Controls\TreeViews\Controls\MultiSelectTreeView.cs" />
-    <Compile Include="Editors\Controls\TreeViews\Controls\MultiSelectTreeViewItem.cs" />
-    <Compile Include="Editors\Controls\TreeViews\Controls\SelectionMultiple.cs" />
-    <Compile Include="Editors\Controls\Viewports\FreeMoveViewPort.cs" />
-    <Compile Include="Editors\Controls\Viewports\SKAsyncViewPort.cs" />
-    <Compile Include="Editors\Controls\Viewports\VideoEditorViewPortPreview.cs" />
-    <Compile Include="Editors\Factories\ClipFactory.cs" />
-    <Compile Include="Editors\Factories\EffectFactory.cs" />
-    <Compile Include="Editors\Factories\ObjectFactory.cs" />
-    <Compile Include="Editors\Factories\ReflectiveObjectFactory.cs" />
-    <Compile Include="Editors\Factories\ResourceTypeFactory.cs" />
-    <Compile Include="Editors\Factories\TrackFactory.cs" />
-    <Compile Include="Editors\IHaveProject.cs" />
-    <Compile Include="Editors\IHaveTimeline.cs" />
-    <Compile Include="Editors\PlaybackManager.cs" />
-    <Compile Include="Editors\PlayState.cs" />
-    <Compile Include="Editors\Project.cs" />
-    <Compile Include="Editors\ProjectSettings.cs" />
-    <Compile Include="Editors\PropertyEditors\Clips\DisplayNamePropertyEditorSlot.cs" />
-    <Compile Include="Editors\Rendering\PreRenderContext.cs" />
-    <Compile Include="Editors\Rendering\RenderContext.cs" />
-    <Compile Include="Editors\Rendering\RenderFrameInfo.cs" />
-    <Compile Include="Editors\Rendering\RenderManager.cs" />
-    <Compile Include="Editors\Rendering\RenderState.cs" />
-    <Compile Include="Editors\Rendering\TrackRenderState.cs" />
-    <Compile Include="Editors\RenderUtils.cs" />
-    <Compile Include="Editors\ResourceManaging\BaseResource.cs" />
-    <Compile Include="Editors\ResourceManaging\Events\ResourceEvents.cs" />
-    <Compile Include="Editors\ResourceManaging\Events\ResourceManagerEvents.cs" />
-    <Compile Include="Editors\ResourceManaging\LinkState.cs" />
-    <Compile Include="Editors\ResourceManaging\ResourceChangedEventHandler.cs" />
-    <Compile Include="Editors\ResourceManaging\ResourceFolder.cs" />
-    <Compile Include="Editors\ResourceManaging\ResourceHelpers\EntryEventHandlers.cs" />
-    <Compile Include="Editors\ResourceManaging\ResourceHelpers\IBaseResourcePathKey.cs" />
-    <Compile Include="Editors\ResourceManaging\ResourceHelpers\IResourceHolder.cs" />
-    <Compile Include="Editors\ResourceManaging\ResourceHelpers\IResourcePathKey.cs" />
-    <Compile Include="Editors\ResourceManaging\ResourceHelpers\ResourceHelper.cs" />
-    <Compile Include="Editors\ResourceManaging\ResourceHelpers\ResourceHelperEventHandlers.cs" />
-    <Compile Include="Editors\ResourceManaging\ResourceHelpers\ResourceLink.cs" />
-    <Compile Include="Editors\ResourceManaging\ResourceHelpers\ResourcePathFlags.cs" />
-    <Compile Include="Editors\ResourceManaging\ResourceItem.cs" />
-    <Compile Include="Editors\ResourceManaging\ResourceManager.cs" />
-    <Compile Include="Editors\ResourceManaging\ResourceObjectUtils.cs" />
-    <Compile Include="Editors\ResourceManaging\ResourceRemoveFlags.cs" />
-    <Compile Include="Editors\ResourceManaging\Resources\ResourceColour.cs" />
-    <Compile Include="Editors\ResourceManaging\Resources\ResourceImage.cs" />
-    <Compile Include="Editors\ResourceManaging\Resources\ResourceTextStyle.cs" />
-    <Compile Include="Editors\Timelines\Clips\Clip.cs" />
-    <Compile Include="Editors\Timelines\Clips\VideoClip.cs" />
-    <Compile Include="Editors\Timelines\Effects\BaseEffect.cs" />
-    <Compile Include="Editors\Timelines\Effects\CPUPixelateEffect.cs" />
-    <Compile Include="Editors\Timelines\Effects\VideoEffect.cs" />
-    <Compile Include="Editors\Timelines\FrameSpan.cs" />
-    <Compile Include="Editors\Timelines\IHaveEffects.cs" />
-    <Compile Include="Editors\Timelines\SelectionType.cs" />
-    <Compile Include="Editors\Timelines\Timeline.cs" />
-    <Compile Include="Editors\Timelines\TrackFrameSpan.cs" />
-    <Compile Include="Editors\Timelines\TrackPoint.cs" />
-    <Compile Include="Editors\Timelines\Tracks\ClipCloneOptions.cs" />
-    <Compile Include="Editors\Timelines\Tracks\ClipRangeCache.cs" />
-    <Compile Include="Editors\Timelines\Tracks\Track.cs" />
-    <Compile Include="Editors\Timelines\Tracks\TrackCloneOptions.cs" />
-    <Compile Include="Editors\Timelines\Tracks\VideoTrack.cs" />
-    <Compile Include="Editors\Timelines\ZoomType.cs" />
-    <Compile Include="Editors\TimelineUtils.cs" />
-    <Compile Include="Editors\Utils\ItemCacheStack.cs" />
-    <Compile Include="Editors\Utils\SKUtils.cs" />
-    <Compile Include="Editors\VideoEditor.cs" />
-    <Compile Include="Editors\Views\EditorWindow.xaml.cs">
-      <DependentUpon>EditorWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Interactivity\DataObjectWrapper.cs" />
-    <Compile Include="Interactivity\DragDropRegistry.cs" />
-    <Compile Include="Interactivity\DropMetadata.cs" />
-    <Compile Include="Interactivity\DropUtils.cs" />
-    <Compile Include="Interactivity\EnumDropType.cs" />
-    <Compile Include="Interactivity\IDataObjekt.cs" />
-    <Compile Include="Interactivity\NativeDropTypes.cs" />
-    <Compile Include="Logger\AppLogger.cs" />
-    <Compile Include="Logger\HeaderedLogEntry.cs" />
-    <Compile Include="Logger\LogEntry.cs" />
-    <Page Include="FileBrowser\Controls\FileBrowsingStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Tasks\ActivityDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Tasks\ActivityStyles.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="PropertyEditing\Controls\PropertyEditorSlotContentStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="PropertyEditing\Controls\PropertyEditorStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Services\WPF\Messages\MessageDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Services\WPF\Messages\SingleInputDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Themes\ColourDictionaries\DarkGreyTheme.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Themes\ColourDictionaries\DeepDark.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Themes\ColourDictionaries\GreyTheme.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Themes\ColourDictionaries\LightTheme.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Themes\ColourDictionaries\RedBlackTheme.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Themes\ColourDictionaries\SoftDark.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Themes\ControlColours.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Themes\ControlColoursSoftDarkBlue.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Themes\Controls.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\AppSplashScreen.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <None Include="Keymap.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="OpenTK.dll.config" />
-    <None Include="packages.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Resource Include="Resources\Fonts\Oxanium\Oxanium-Bold.ttf" />
-    <Resource Include="Resources\Fonts\Oxanium\Oxanium-ExtraBold.ttf" />
-    <Resource Include="Resources\Fonts\Oxanium\Oxanium-ExtraLight.ttf" />
-    <Resource Include="Resources\Fonts\Oxanium\Oxanium-Light.ttf" />
-    <Resource Include="Resources\Fonts\Oxanium\Oxanium-Medium.ttf" />
-    <Resource Include="Resources\Fonts\Oxanium\Oxanium-Regular.ttf" />
-    <Resource Include="Resources\Fonts\Oxanium\Oxanium-SemiBold.ttf" />
-    <Resource Include="Resources\Fonts\Oxanium\Oxanium-VariableFont_wght.ttf" />
-    <None Include="Shortcuts\ReadMe.md" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\Fonts\Oxanium\OFL.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="FramePFX-256.ico" />
-    <Content Include="Editors\Controls\TreeViews\SOURCECODE.txt" />
-    <Content Include="Keymap.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\packages\SkiaSharp.NativeAssets.macOS.2.88.7\build\net462\SkiaSharp.NativeAssets.macOS.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.macOS.2.88.7\build\net462\SkiaSharp.NativeAssets.macOS.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
     <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+        <ProjectGuid>{82D8612A-A293-4B2C-9D9D-8BF7270157A2}</ProjectGuid>
+        <OutputType>WinExe</OutputType>
+        <RootNamespace>FramePFX</RootNamespace>
+        <AssemblyName>FramePFX</AssemblyName>
+        <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+        <FileAlignment>512</FileAlignment>
+        <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+        <WarningLevel>4</WarningLevel>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        <Deterministic>true</Deterministic>
+        <NuGetPackageImportStamp>
+        </NuGetPackageImportStamp>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\SkiaSharp.NativeAssets.macOS.2.88.7\build\net462\SkiaSharp.NativeAssets.macOS.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SkiaSharp.NativeAssets.macOS.2.88.7\build\net462\SkiaSharp.NativeAssets.macOS.targets'))" />
-    <Error Condition="!Exists('..\packages\SkiaSharp.NativeAssets.Win32.2.88.7\build\net462\SkiaSharp.NativeAssets.Win32.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SkiaSharp.NativeAssets.Win32.2.88.7\build\net462\SkiaSharp.NativeAssets.Win32.targets'))" />
-  </Target>
-  <Import Project="..\packages\SkiaSharp.NativeAssets.Win32.2.88.7\build\net462\SkiaSharp.NativeAssets.Win32.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.Win32.2.88.7\build\net462\SkiaSharp.NativeAssets.Win32.targets')" />
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+        <DebugSymbols>true</DebugSymbols>
+        <OutputPath>bin\x64\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <DebugType>full</DebugType>
+        <PlatformTarget>x64</PlatformTarget>
+        <LangVersion>7.3</LangVersion>
+        <ErrorReport>prompt</ErrorReport>
+        <Prefer32Bit>false</Prefer32Bit>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+        <OutputPath>bin\x64\Release\</OutputPath>
+        <DefineConstants>TRACE</DefineConstants>
+        <Optimize>true</Optimize>
+        <DebugType>full</DebugType>
+        <PlatformTarget>x64</PlatformTarget>
+        <LangVersion>7.3</LangVersion>
+        <ErrorReport>prompt</ErrorReport>
+        <Prefer32Bit>false</Prefer32Bit>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <DebugSymbols>true</DebugSymbols>
+    </PropertyGroup>
+    <PropertyGroup>
+        <ApplicationIcon>FramePFX-256.ico</ApplicationIcon>
+    </PropertyGroup>
+    <ItemGroup>
+        <Reference Include="FFmpeg.AutoGen, Version=6.1.0.0, Culture=neutral, PublicKeyToken=9b7632533a381715">
+            <HintPath>..\packages\FFmpeg.AutoGen.6.1.0\lib\netstandard2.0\FFmpeg.AutoGen.dll</HintPath>
+            <Private>True</Private>
+        </Reference>
+        <Reference Include="Microsoft.Win32.Registry, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+            <HintPath>..\packages\Microsoft.Win32.Registry.4.7.0\lib\net461\Microsoft.Win32.Registry.dll</HintPath>
+            <Private>True</Private>
+        </Reference>
+        <Reference Include="mscorlib"/>
+        <Reference Include="OpenTK, Version=3.3.3.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+            <HintPath>..\packages\OpenTK.3.3.3\lib\net20\OpenTK.dll</HintPath>
+        </Reference>
+        <Reference Include="PresentationFramework.Aero2"/>
+        <Reference Include="SkiaSharp, Version=2.88.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+            <HintPath>..\packages\SkiaSharp.2.88.7\lib\net462\SkiaSharp.dll</HintPath>
+        </Reference>
+        <Reference Include="System"/>
+        <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+            <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Configuration"/>
+        <Reference Include="System.Data"/>
+        <Reference Include="System.IO.Compression, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+            <HintPath>..\packages\System.IO.Compression.4.3.0\lib\net46\System.IO.Compression.dll</HintPath>
+            <Private>True</Private>
+            <Private>True</Private>
+        </Reference>
+        <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+            <HintPath>..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Numerics"/>
+        <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+            <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+        </Reference>
+        <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+            <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.0.0\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+            <Private>True</Private>
+        </Reference>
+        <Reference Include="System.Runtime.Serialization"/>
+        <Reference Include="System.Security.AccessControl, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+            <HintPath>..\packages\System.Security.AccessControl.4.7.0\lib\net461\System.Security.AccessControl.dll</HintPath>
+            <Private>True</Private>
+        </Reference>
+        <Reference Include="System.Security.Principal.Windows, Version=4.1.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+            <HintPath>..\packages\System.Security.Principal.Windows.4.7.0\lib\net461\System.Security.Principal.Windows.dll</HintPath>
+            <Private>True</Private>
+        </Reference>
+        <Reference Include="System.Xml"/>
+        <Reference Include="Microsoft.CSharp"/>
+        <Reference Include="System.Core"/>
+        <Reference Include="System.Xml.Linq"/>
+        <Reference Include="System.Data.DataSetExtensions"/>
+        <Reference Include="System.Net.Http"/>
+        <Reference Include="System.Xaml">
+            <RequiredTargetFramework>4.0</RequiredTargetFramework>
+        </Reference>
+        <Reference Include="UIAutomationProvider"/>
+        <Reference Include="UIAutomationTypes"/>
+        <Reference Include="WindowsBase"/>
+        <Reference Include="PresentationCore"/>
+        <Reference Include="PresentationFramework"/>
+    </ItemGroup>
+    <ItemGroup>
+        <ApplicationDefinition Include="App.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </ApplicationDefinition>
+        <Compile Include="AdvancedMenuService\ContextCapturingMenu.cs"/>
+        <Compile Include="AdvancedMenuService\ContextService\BaseContextEntry.cs"/>
+        <Compile Include="AdvancedMenuService\ContextService\CommandContextEntry.cs"/>
+        <Compile Include="AdvancedMenuService\ContextService\Controls\AdvancedContextCommandMenuItem.cs"/>
+        <Compile Include="AdvancedMenuService\ContextService\Controls\AdvancedContextEventMenuItem.cs"/>
+        <Compile Include="AdvancedMenuService\ContextService\Controls\AdvancedContextMenu.cs"/>
+        <Compile Include="AdvancedMenuService\ContextService\Controls\AdvancedContextMenuItem.cs"/>
+        <Compile Include="AdvancedMenuService\ContextService\EventContextEntry.cs"/>
+        <Compile Include="AdvancedMenuService\ContextService\GroupContextEntry.cs"/>
+        <Compile Include="AdvancedMenuService\ContextService\IContextEntry.cs"/>
+        <Compile Include="AdvancedMenuService\ContextService\IContextGenerator.cs"/>
+        <Compile Include="AdvancedMenuService\ContextService\SeparatorEntry.cs"/>
+        <Compile Include="AdvancedMenuService\IAdvancedContainer.cs"/>
+        <Compile Include="AdvancedMenuService\MenuService.cs"/>
+        <Compile Include="AdvancedMenuService\RegularMenuService\AdvancedMenuItem.cs"/>
+        <Compile Include="AdvancedMenuService\RegularMenuService\AdvancedRegularMenu.cs"/>
+        <Compile Include="AdvancedMenuService\StandAlone\CommandMenuItem.cs"/>
+        <Compile Include="ApplicationCore.cs"/>
+        <Compile Include="Behaviours\Behaviour.cs"/>
+        <Compile Include="Behaviours\BehaviourBase.cs"/>
+        <Compile Include="Behaviours\BehaviourCollection.cs"/>
+        <Compile Include="Behaviours\BehaviourEx.cs"/>
+        <Compile Include="Behaviours\IBehaviour.cs"/>
+        <Compile Include="Behaviours\TestBlueBackgroundBehaviour.cs"/>
+        <Compile Include="Behaviours\ThingyBehaviourEx.cs"/>
+        <Compile Include="CommandSystem\AsyncCommand.cs"/>
+        <Compile Include="CommandSystem\Command.cs"/>
+        <Compile Include="CommandSystem\CommandEventArgs.cs"/>
+        <Compile Include="CommandSystem\CommandGroup.cs"/>
+        <Compile Include="CommandSystem\CommandManager.cs"/>
+        <Compile Include="CommandSystem\Executability.cs"/>
+        <Compile Include="CommandSystem\SimpleCommandGroup.cs"/>
+        <Compile Include="CommandSystem\ToggleBasedCommand.cs"/>
+        <Compile Include="CommandSystem\Usages\BasicButtonCommandUsage.cs"/>
+        <Compile Include="CommandSystem\Usages\CommandSourceCommandUsage.cs"/>
+        <Compile Include="CommandSystem\Usages\CommandUsage.cs"/>
+        <Compile Include="CommandSystem\Usages\CommandUsageManager.cs"/>
+        <Compile Include="Converters\EmptyStringToVisibilityConverter.cs"/>
+        <Compile Include="DispatcherDelegate.cs"/>
+        <Compile Include="Editors\AudioRingBuffer.cs"/>
+        <Compile Include="Editors\Commands\CloseProjectCommand.cs"/>
+        <Compile Include="Editors\Commands\CreateCompositionFromSelectionCommand.cs"/>
+        <Compile Include="Editors\Commands\DeleteClipOwnerTrackCommand.cs"/>
+        <Compile Include="Editors\Commands\DeleteSelectedClipsCommand.cs"/>
+        <Compile Include="Editors\Commands\DeleteSelectedTracksCommand.cs"/>
+        <Compile Include="Editors\Commands\DeleteSpecificTrackCommand.cs"/>
+        <Compile Include="Editors\Commands\DuplicateClipCommand.cs"/>
+        <Compile Include="Editors\Commands\ExportCommand.cs"/>
+        <Compile Include="Editors\Commands\MoveTrackCommand.cs"/>
+        <Compile Include="Editors\Commands\NewAudioTrackCommand.cs"/>
+        <Compile Include="Editors\Commands\NewProjectCommand.cs"/>
+        <Compile Include="Editors\Commands\NewVideoTrackCommand.cs"/>
+        <Compile Include="Editors\Commands\OpenCompositionResourceTimelineCommand.cs"/>
+        <Compile Include="Editors\Commands\OpenProjectCommand.cs"/>
+        <Compile Include="Editors\Commands\BasicPlayActionCommand.cs"/>
+        <Compile Include="Editors\Commands\RenameCommands.cs"/>
+        <Compile Include="Editors\Commands\SaveProjectCommand.cs"/>
+        <Compile Include="Editors\Commands\SelectAllTracksCommand.cs"/>
+        <Compile Include="Editors\Commands\SliceClipsCommand.cs"/>
+        <Compile Include="Editors\Commands\ToggleClipAutomationCommand.cs"/>
+        <Compile Include="Editors\Commands\ToggleClipVisibilityCommand.cs"/>
+        <Compile Include="Editors\Commands\TogglePlayCommand.cs"/>
+        <Compile Include="Editors\Commands\ToggleTrackAutomationCommand.cs"/>
+        <Compile Include="Editors\Commands\UndoRedoCommand.cs"/>
+        <Compile Include="Editors\CompositionTimeline.cs"/>
+        <Compile Include="Editors\Contextual\ClipContextRegistry.cs"/>
+        <Compile Include="Editors\Contextual\ResourceContextRegistry.cs"/>
+        <Compile Include="Editors\Contextual\TrackContextRegistry.cs"/>
+        <Compile Include="Editors\Controls\Bindings\AccessorAutoEventPropertyBinder.cs"/>
+        <Compile Include="Editors\Controls\Bindings\Binders.cs"/>
+        <Compile Include="Editors\Controls\Bindings\DataParameterPropertyBinder.cs"/>
+        <Compile Include="Editors\Controls\Dragger\UnitToPercentFormatter.cs"/>
+        <Compile Include="Editors\Controls\EffectProviding\EffectProviderListBox.cs"/>
+        <Compile Include="Editors\Controls\EffectProviding\EffectProviderListBoxItem.cs"/>
+        <Compile Include="Editors\Controls\PlayStateButton.cs"/>
+        <Compile Include="Editors\Controls\Timelines\CommandContexts\CommandSourceCommandUsage.cs"/>
+        <Compile Include="Editors\Controls\TogglePlayStateButton.cs"/>
+        <Compile Include="Editors\Controls\Timelines\ClipDropRegistry.cs"/>
+        <Compile Include="Editors\Controls\Timelines\CommandContexts\BasicPlaybackCommandUsage.cs"/>
+        <Compile Include="Editors\Controls\Timelines\CommandContexts\BasicButtonCommandUsage.cs"/>
+        <Compile Include="Editors\Controls\Timelines\CommandContexts\DeleteSpecificTrackCommandUsage.cs"/>
+        <Compile Include="Editors\Controls\Timelines\CommandContexts\NewVideoTrackCommandUsage.cs"/>
+        <Compile Include="Editors\Controls\Timelines\TimelineRuler.cs"/>
+        <Compile Include="Editors\Controls\Timelines\TrackDropRegistry.cs"/>
+        <Compile Include="Editors\Controls\Timelines\Tracks\Clips\ImageClipContent.cs"/>
+        <Compile Include="Editors\Controls\Timelines\Tracks\Clips\TimelineClipContent.cs"/>
+        <Compile Include="Editors\Controls\Timelines\Tracks\Clips\TimelineVideoClipContent.cs"/>
+        <Compile Include="Editors\Controls\Timelines\Tracks\Surfaces\TrackControlSurfaceAudio.cs"/>
+        <Compile Include="Editors\Controls\Viewports\SKPreviewViewPortEx.cs"/>
+        <Compile Include="Editors\DataTransfer\DataParameter.cs"/>
+        <Compile Include="Editors\DataTransfer\DataParameterGeneric.cs"/>
+        <Compile Include="Editors\DataTransfer\DataParameterBoolean.cs"/>
+        <Compile Include="Editors\DataTransfer\DataParameterDouble.cs"/>
+        <Compile Include="Editors\DataTransfer\DataParameterFlags.cs"/>
+        <Compile Include="Editors\DataTransfer\DataParameterFloat.cs"/>
+        <Compile Include="Editors\DataTransfer\DataParameterLong.cs"/>
+        <Compile Include="Editors\DataTransfer\DataParameterString.cs"/>
+        <Compile Include="Editors\DataTransfer\TransferableData.cs"/>
+        <Compile Include="Editors\DataTransfer\ITransferableData.cs"/>
+        <Compile Include="Editors\EffectSource\EffectProviderEntry.cs"/>
+        <Compile Include="Editors\EffectSource\EffectProviderManager.cs"/>
+        <Compile Include="Editors\Exporting\Controls\ExportDialog.xaml.cs">
+            <DependentUpon>ExportDialog.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="Editors\Exporting\Controls\ExporterContent.cs"/>
+        <Compile Include="Editors\Exporting\Controls\ExportProgressDialog.xaml.cs">
+            <DependentUpon>ExportProgressDialog.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="Editors\Exporting\Exporter.cs"/>
+        <Compile Include="Editors\Exporting\ExportProperties.cs"/>
+        <Compile Include="Editors\Exporting\ExportSetup.cs"/>
+        <Compile Include="Editors\Exporting\FFMPEG\FFmpegExporter.cs"/>
+        <Compile Include="Editors\Exporting\FFMPEG\FFmpegExporterContent.cs"/>
+        <Compile Include="Editors\Exporting\FFMPEG\FFUtils.cs"/>
+        <Compile Include="Editors\Exporting\FFMPEG\LavResult.cs"/>
+        <Compile Include="Editors\Exporting\IExportProgress.cs"/>
+        <Compile Include="Editors\MatrixUtils.cs"/>
+        <Compile Include="Editors\ProjectProps\ProjectPropertiesDialog.xaml.cs">
+            <DependentUpon>ProjectPropertiesDialog.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="Editors\PropertyEditors\AControls\DisplayNamePropertyEditorControl.cs"/>
+        <Compile Include="Editors\PropertyEditors\AControls\TimecodeFontFamilyPropertyEditorControl.cs"/>
+        <Compile Include="Editors\PropertyEditors\AControls\VideoClipMediaFrameOffsetPropertyEditorControl.cs"/>
+        <Compile Include="Editors\PropertyEditors\Clips\TimecodeFontFamilyPropertyEditorSlot.cs"/>
+        <Compile Include="Editors\PropertyEditors\Clips\VideoClipMediaFrameOffsetPropertyEditorSlot.cs"/>
+        <Compile Include="Editors\PropertyEditors\Effects\Pixelate\CPUPixelateEffectPropertyEditorGroup.cs"/>
+        <Compile Include="Editors\PropertyEditors\ProjectPropertiesPropertyEditorGroup.cs"/>
+        <Compile Include="Editors\Rational.cs"/>
+        <Compile Include="Editors\Rendering\EnumRenderQuality.cs"/>
+        <Compile Include="Editors\RenderLockedData.cs"/>
+        <Compile Include="Editors\ResourceManaging\Commands\ChangeResourceOnlineStateCommand.cs"/>
+        <Compile Include="Editors\ResourceManaging\Commands\DeleteResourcesCommand.cs"/>
+        <Compile Include="Editors\ResourceManaging\Commands\GroupResourcesCommand.cs"/>
+        <Compile Include="Editors\ResourceManaging\Autoloading\Controls\InvalidImagePathEntryControl.cs"/>
+        <Compile Include="Editors\ResourceManaging\Autoloading\Controls\InvalidMediaPathEntryControl.cs"/>
+        <Compile Include="Editors\ResourceManaging\Autoloading\Controls\InvalidResourceEntryControl.cs"/>
+        <Compile Include="Editors\ResourceManaging\Autoloading\Controls\ResourceLoaderDialog.xaml.cs">
+            <DependentUpon>ResourceLoaderDialog.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="Editors\ResourceManaging\Autoloading\InvalidResourceEntry.cs"/>
+        <Compile Include="Editors\ResourceManaging\Autoloading\ResourceLoader.cs"/>
+        <Compile Include="Editors\ResourceManaging\Resources\InvalidImagePathEntry.cs"/>
+        <Compile Include="Editors\ResourceManaging\Resources\InvalidMediaPathEntry.cs"/>
+        <Compile Include="Editors\ResourceManaging\Resources\ResourceAVMedia.cs"/>
+        <Compile Include="Editors\ResourceManaging\Resources\ResourceComposition.cs"/>
+        <Compile Include="Editors\Serialisation\SerialisationRegistry.cs"/>
+        <Compile Include="Editors\Timelines\Clips\AudioClip.cs"/>
+        <Compile Include="Editors\Timelines\Clips\ClipGroup.cs"/>
+        <Compile Include="Editors\Timelines\Clips\Core\AVMediaVideoClip.cs"/>
+        <Compile Include="Editors\Timelines\Clips\Core\CompositionVideoClip.cs"/>
+        <Compile Include="Editors\Timelines\Clips\Core\ICompositionClip.cs"/>
+        <Compile Include="Editors\Timelines\Clips\Core\ImageVideoClip.cs"/>
+        <Compile Include="Editors\Timelines\Clips\Core\TextVideoClip.cs"/>
+        <Compile Include="Editors\Timelines\Clips\Core\TimecodeClip.cs"/>
+        <Compile Include="Editors\Timelines\Clips\Core\VideoClipShape.cs"/>
+        <Compile Include="Editors\Timelines\IDisplayName.cs"/>
+        <Compile Include="Editors\Timelines\IStrictFrameRange.cs"/>
+        <Compile Include="Editors\Timelines\Tracks\AudioTrack.cs"/>
+        <Compile Include="FFmpegWrapper\AudioFormat.cs"/>
+        <Compile Include="FFmpegWrapper\AudioFrame.cs"/>
+        <Compile Include="FFmpegWrapper\AudioQueue.cs"/>
+        <Compile Include="FFmpegWrapper\Codecs\AudioDecoder.cs"/>
+        <Compile Include="FFmpegWrapper\Codecs\AudioEncoder.cs"/>
+        <Compile Include="FFmpegWrapper\Codecs\CodecBase.cs"/>
+        <Compile Include="FFmpegWrapper\Codecs\CodecHardwareConfig.cs"/>
+        <Compile Include="FFmpegWrapper\Codecs\MediaDecoder.cs"/>
+        <Compile Include="FFmpegWrapper\Codecs\MediaEncoder.cs"/>
+        <Compile Include="FFmpegWrapper\Codecs\VideoDecoder.cs"/>
+        <Compile Include="FFmpegWrapper\Codecs\VideoEncoder.cs"/>
+        <Compile Include="FFmpegWrapper\Containers\ContainerTypes.cs"/>
+        <Compile Include="FFmpegWrapper\Containers\IOContext.cs"/>
+        <Compile Include="FFmpegWrapper\Containers\MediaDemuxer.cs"/>
+        <Compile Include="FFmpegWrapper\Containers\MediaMuxer.cs"/>
+        <Compile Include="FFmpegWrapper\Containers\MediaStream.cs"/>
+        <Compile Include="FFmpegWrapper\Containers\StreamIOContext.cs"/>
+        <Compile Include="FFmpegWrapper\EnumAliases.cs"/>
+        <Compile Include="FFmpegWrapper\FFObject.cs"/>
+        <Compile Include="FFmpegWrapper\FFUtils.cs"/>
+        <Compile Include="FFmpegWrapper\HardwareDevice.cs"/>
+        <Compile Include="FFmpegWrapper\HardwareFrameConstraints.cs"/>
+        <Compile Include="FFmpegWrapper\HardwareFramePool.cs"/>
+        <Compile Include="FFmpegWrapper\LavResult.cs"/>
+        <Compile Include="FFmpegWrapper\MediaFrame.cs"/>
+        <Compile Include="FFmpegWrapper\MediaPacket.cs"/>
+        <Compile Include="FFmpegWrapper\PictureFormat.cs"/>
+        <Compile Include="FFmpegWrapper\SwResampler.cs"/>
+        <Compile Include="FFmpegWrapper\SwScaler.cs"/>
+        <Compile Include="FFmpegWrapper\VideoFrame.cs"/>
+        <Compile Include="FFmpeg\AudioStream.cs"/>
+        <Compile Include="FFmpeg\FFmpegDecodeThread.cs"/>
+        <Compile Include="FFmpeg\FFmpegReader.cs"/>
+        <Compile Include="FFmpeg\FrameQueue.cs"/>
+        <Compile Include="FFmpeg\StreamWrapper.cs"/>
+        <Compile Include="FFmpeg\VideoStream.cs"/>
+        <Compile Include="FileBrowser\Context\ExplorerContextGenerator.cs"/>
+        <Compile Include="FileBrowser\Controls\Trees\IFileTreeControl.cs"/>
+        <Compile Include="FileBrowser\Controls\Trees\FileTreeView.cs"/>
+        <Compile Include="FileBrowser\Controls\Trees\FileTreeViewItem.cs"/>
+        <Compile Include="FileBrowser\FileTree\EntrySorters.cs"/>
+        <Compile Include="FileBrowser\FileTree\Events\NavigateToFileEventHandler.cs"/>
+        <Compile Include="FileBrowser\FileTree\Events\OpenFileEventHandler.cs"/>
+        <Compile Include="FileBrowser\FileTree\Interfaces\IFileName.cs"/>
+        <Compile Include="FileBrowser\FileTree\Interfaces\IHaveFilePath.cs"/>
+        <Compile Include="FileBrowser\FileTree\Physical\BasePhysicalVirtualFile.cs"/>
+        <Compile Include="FileBrowser\FileTree\Physical\PhysicalVirtualFile.cs"/>
+        <Compile Include="FileBrowser\FileTree\Physical\PhysicalVirtualFolder.cs"/>
+        <Compile Include="FileBrowser\FileTree\Physical\Win32FileSystem.cs"/>
+        <Compile Include="FileBrowser\FileTree\VFSFileEntry.cs"/>
+        <Compile Include="FileBrowser\FileTree\TreeFileSystem.cs"/>
+        <Compile Include="FileBrowser\FileTree\Zip\BaseZipVirtualFile.cs"/>
+        <Compile Include="FileBrowser\FileTree\Zip\IZipRoot.cs"/>
+        <Compile Include="FileBrowser\FileTree\Zip\NestedZipVirtualFile.cs"/>
+        <Compile Include="FileBrowser\FileTree\Zip\PhysicalZipVirtualFile.cs"/>
+        <Compile Include="FileBrowser\FileTree\Zip\ZipEntryVirtualFile.cs"/>
+        <Compile Include="FileBrowser\FileTree\Zip\ZipEntryVirtualFolder.cs"/>
+        <Compile Include="FileBrowser\FileTree\Zip\ZipFileSystem.cs"/>
+        <Compile Include="FileSystems\Physical\PhysicalVirtualFileSystem.cs"/>
+        <Compile Include="FileSystems\VirtualFile.cs"/>
+        <Compile Include="FileSystems\VirtualFileManager.cs"/>
+        <Compile Include="FileSystems\VirtualFileUrl.cs"/>
+        <Compile Include="FileSystems\VirtualFileSystem.cs"/>
+        <Compile Include="FileSystems\Zip\BaseZipVirtualFile.cs"/>
+        <Compile Include="FileSystems\Zip\ZipVirtualFileSystem.cs"/>
+        <Compile Include="History\ChildManagerHistoryAction.cs"/>
+        <Compile Include="History\HistoryAction.cs"/>
+        <Compile Include="History\HistoryManager.cs"/>
+        <Compile Include="History\IHistoryAction.cs"/>
+        <Compile Include="History\MergedHistoryAction.cs"/>
+        <Compile Include="IApplicationStartupProgress.cs"/>
+        <Compile Include="IDispatcher.cs"/>
+        <Compile Include="Interactivity\Contexts\ContextData.cs"/>
+        <Compile Include="Interactivity\Contexts\DataKey.cs"/>
+        <Compile Include="Interactivity\Contexts\DataKeys.cs"/>
+        <Compile Include="Interactivity\Contexts\DataManager.cs"/>
+        <Compile Include="Interactivity\Contexts\EmptyContext.cs"/>
+        <Compile Include="Interactivity\Contexts\IContextData.cs"/>
+        <Compile Include="IoC.cs"/>
+        <Compile Include="IServiceManager.cs"/>
+        <Compile Include="Natives\PFXNative.cs"/>
+        <Compile Include="Notifications\Notification.cs"/>
+        <Compile Include="Notifications\NotificationManager.cs"/>
+        <Compile Include="Shortcuts\Managing\GroupedInputState.cs"/>
+        <Compile Include="Shortcuts\Managing\GroupedShortcut.cs"/>
+        <Compile Include="Shortcuts\Managing\GroupEvaulationArgs.cs"/>
+        <Compile Include="Shortcuts\Managing\IGroupedObject.cs"/>
+        <Compile Include="Shortcuts\Managing\InputStateManager.cs"/>
+        <Compile Include="Shortcuts\Managing\RepeatMode.cs"/>
+        <Compile Include="Shortcuts\Managing\ShortcutCollectorArgs.cs"/>
+        <Compile Include="Shortcuts\Managing\ShortcutGroup.cs"/>
+        <Compile Include="Shortcuts\Managing\ShortcutInputManager.cs"/>
+        <Compile Include="Shortcuts\Managing\ShortcutManager.cs"/>
+        <Compile Include="Shortcuts\WPF\ActivationHandlerReference.cs"/>
+        <Compile Include="Shortcuts\WPF\ShortcutActivateHandler.cs"/>
+        <Compile Include="Shortcuts\WPF\ShortcutUtils.cs"/>
+        <Compile Include="Shortcuts\WPF\UIInputManager.cs"/>
+        <Compile Include="Shortcuts\WPF\WPFKeyMapSerialiser.cs"/>
+        <Compile Include="Shortcuts\WPF\WPFShortcutInputManager.cs"/>
+        <Compile Include="Shortcuts\WPF\WPFShortcutManager.cs"/>
+        <Compile Include="Tasks\ActivityDialog.xaml.cs">
+            <DependentUpon>ActivityDialog.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="PropertyEditing\Automation\ParameterBooleanPropertyEditorSlot.cs"/>
+        <Compile Include="PropertyEditing\Automation\ParameterLongPropertyEditorSlot.cs"/>
+        <Compile Include="PropertyEditing\Controls\Automation\KeyFrameToolsControl.cs"/>
+        <Compile Include="PropertyEditing\Controls\Automation\ParameterBooleanPropertyEditorControl.cs"/>
+        <Compile Include="PropertyEditing\Controls\Automation\ParameterLongPropertyEditorControl.cs"/>
+        <Compile Include="PropertyEditing\Controls\Converters\GroupTypeToStyleConverter.cs"/>
+        <Compile Include="PropertyEditing\Controls\Converters\GroupTypeToTemplateConverter.cs"/>
+        <Compile Include="PropertyEditing\Controls\DataTransfer\BaseDataParameterPropertyEditorControl.cs"/>
+        <Compile Include="PropertyEditing\Controls\DataTransfer\BaseNumberDataParamPropEditorControl.cs"/>
+        <Compile Include="PropertyEditing\Controls\DataTransfer\DataParameterBooleanPropertyEditorControl.cs"/>
+        <Compile Include="PropertyEditing\Controls\DataTransfer\DataParameterDoublePropertyEditorControl.cs"/>
+        <Compile Include="PropertyEditing\Controls\DataTransfer\DataParameterFloatPropertyEditorControl.cs"/>
+        <Compile Include="PropertyEditing\Controls\DataTransfer\DataParameterLongPropertyEditorControl.cs"/>
+        <Compile Include="PropertyEditing\Controls\DataTransfer\DataParameterStringPropertyEditorControl.cs"/>
+        <Compile Include="PropertyEditing\Controls\PropertyEditorGroupNonExpanderControl.cs"/>
+        <Compile Include="PropertyEditing\Controls\Automation\BaseParameterPropertyEditorControl.cs"/>
+        <Compile Include="PropertyEditing\Controls\Automation\ParameterDoublePropertyEditorControl.cs"/>
+        <Compile Include="PropertyEditing\Controls\Automation\ParameterFloatPropertyEditorControl.cs"/>
+        <Compile Include="Editors\PropertyEditors\Effects\EffectListPropertyEditorGroup.cs"/>
+        <Compile Include="Editors\PropertyEditors\Effects\EffectPropertyEditorGroup.cs"/>
+        <Compile Include="Editors\PropertyEditors\Effects\TODO\EffectListPropertyEditorGroup.cs"/>
+        <Compile Include="Editors\PropertyEditors\Effects\TODO\EffectPropertyEditorGroup.cs"/>
+        <Compile Include="PropertyEditing\Controls\Automation\BaseNumberParameterPropEditorControl.cs"/>
+        <Compile Include="PropertyEditing\Controls\Automation\ParameterVector2PropertyEditorControl.cs"/>
+        <Compile Include="PropertyEditing\DataTransfer\DataParameterBooleanPropertyEditorSlot.cs"/>
+        <Compile Include="PropertyEditing\DataTransfer\DataParameterDoublePropertyEditorSlot.cs"/>
+        <Compile Include="PropertyEditing\DataTransfer\DataParameterFloatPropertyEditorSlot.cs"/>
+        <Compile Include="PropertyEditing\DataTransfer\DataParameterLongPropertyEditorSlot.cs"/>
+        <Compile Include="PropertyEditing\DataTransfer\DataParameterPropertyEditorSlot.cs"/>
+        <Compile Include="PropertyEditing\DataTransfer\DataParameterStringPropertyEditorSlot.cs"/>
+        <Compile Include="PropertyEditing\GroupType.cs"/>
+        <Compile Include="PropertyEditing\Automation\ParameterDoublePropertyEditorSlot.cs"/>
+        <Compile Include="PropertyEditing\Automation\ParameterFloatPropertyEditorSlot.cs"/>
+        <Compile Include="PropertyEditing\Automation\ParameterPropertyEditorSlot.cs"/>
+        <Compile Include="PropertyEditing\Automation\DragStepProfile.cs"/>
+        <Compile Include="PropertyEditing\ApplicabilityMode.cs"/>
+        <Compile Include="PropertyEditing\BasePropertyEditor.cs"/>
+        <Compile Include="PropertyEditing\BasePropertyEditorGroup.cs"/>
+        <Compile Include="PropertyEditing\BasePropertyEditorItem.cs"/>
+        <Compile Include="PropertyEditing\BasePropertyEditorObject.cs"/>
+        <Compile Include="PropertyEditing\Controls\BasePropEditControlContent.cs"/>
+        <Compile Include="PropertyEditing\Controls\PropertyEditorControl.cs"/>
+        <Compile Include="PropertyEditing\Controls\PropertyEditorItemsPanel.cs"/>
+        <Compile Include="PropertyEditing\Controls\PropertyEditorGroupControl.cs"/>
+        <Compile Include="PropertyEditing\Controls\PropertyEditorSlotControl.cs"/>
+        <Compile Include="PropertyEditing\SimplePropertyEditorGroup.cs"/>
+        <Compile Include="PropertyEditing\HandlerCountMode.cs"/>
+        <Compile Include="PropertyEditing\PropertyEditorSlot.cs"/>
+        <Compile Include="PropertyEditing\Automation\ParameterVector2PropertyEditorSlot.cs"/>
+        <Compile Include="PropertyEditing\VideoEditorPropertyEditor.cs"/>
+        <Compile Include="RBC\BinaryUtils.cs"/>
+        <Compile Include="RBC\Events\ReadFromRBEEventHandler.cs"/>
+        <Compile Include="RBC\Events\WriteToRBEEventHandler.cs"/>
+        <Compile Include="RBC\RBEArray.cs"/>
+        <Compile Include="RBC\RBEBase.cs"/>
+        <Compile Include="RBC\RBEDictionary.cs"/>
+        <Compile Include="RBC\RBEGuid.cs"/>
+        <Compile Include="RBC\RBEList.cs"/>
+        <Compile Include="RBC\RBEPrimitive.cs"/>
+        <Compile Include="RBC\RBEStruct.cs"/>
+        <Compile Include="RBC\RBEType.cs"/>
+        <Compile Include="RBC\RBEUtils.cs"/>
+        <Compile Include="ServiceManager.cs"/>
+        <Compile Include="Services\Files\IFilePickDialogService.cs"/>
+        <Compile Include="Services\Messages\IMessageDialogService.cs"/>
+        <Compile Include="Services\Messages\IUserInputDialogService.cs"/>
+        <Compile Include="Services\WPF\Files\WPFFilePickDialogService.cs"/>
+        <Compile Include="Services\WPF\Messages\MessageDialog.xaml.cs">
+            <DependentUpon>MessageDialog.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="Services\WPF\Messages\SingleInputDialog.xaml.cs">
+            <DependentUpon>SingleInputDialog.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="Services\WPF\Messages\WPFMessageDialogService.cs"/>
+        <Compile Include="Services\WPF\Messages\WPFUserInputDialogService.cs"/>
+        <Compile Include="Shortcuts\Attributes\ShortcutTargetAttribute.cs"/>
+        <Compile Include="Shortcuts\Dialogs\IKeyboardDialogService.cs"/>
+        <Compile Include="Shortcuts\Dialogs\IMouseDialogService.cs"/>
+        <Compile Include="Shortcuts\Dialogs\IShortcutManagerDialogService.cs"/>
+        <Compile Include="Shortcuts\Events\ShortcutActivatedEventHandler.cs"/>
+        <Compile Include="Shortcuts\Events\ShortcutModifiedEventHandler.cs"/>
+        <Compile Include="Shortcuts\IKeyboardShortcut.cs"/>
+        <Compile Include="Shortcuts\IMouseShortcut.cs"/>
+        <Compile Include="Shortcuts\Inputs\IInputStroke.cs"/>
+        <Compile Include="Shortcuts\Inputs\InputStrokeSet.cs"/>
+        <Compile Include="Shortcuts\Inputs\KeyStroke.cs"/>
+        <Compile Include="Shortcuts\Inputs\MouseStroke.cs"/>
+        <Compile Include="Shortcuts\IShortcut.cs"/>
+        <Compile Include="Shortcuts\KeyboardShortcut.cs"/>
+        <Compile Include="Shortcuts\Keymapping\IKeymapSerialiser.cs"/>
+        <Compile Include="Shortcuts\Keymapping\Keymap.cs"/>
+        <Compile Include="Shortcuts\Keymapping\XMLShortcutSerialiser.cs"/>
+        <Compile Include="Shortcuts\MouseKeyboardShortcut.cs"/>
+        <Compile Include="Shortcuts\MouseShortcut.cs"/>
+        <Compile Include="Shortcuts\ShortcutUtils.cs"/>
+        <Compile Include="Shortcuts\Usage\IKeyboardShortcutUsage.cs"/>
+        <Compile Include="Shortcuts\Usage\IMouseShortcutUsage.cs"/>
+        <Compile Include="Shortcuts\Usage\IShortcutUsage.cs"/>
+        <Compile Include="Shortcuts\Usage\KeyboardShortcutUsage.cs"/>
+        <Compile Include="Shortcuts\Usage\MouseKeyboardShortcutUsage.cs"/>
+        <Compile Include="Shortcuts\Usage\MouseShortcutUsage.cs"/>
+        <Compile Include="Shortcuts\WPF\Converters\CommandIdToGestureConverter.cs"/>
+        <Compile Include="Shortcuts\WPF\Converters\KeyStrokeStringConverter.cs"/>
+        <Compile Include="Shortcuts\WPF\Converters\MouseStrokeStringConverter.cs"/>
+        <Compile Include="Shortcuts\WPF\Converters\ShortcutIdToGestureConverter.cs"/>
+        <Compile Include="Shortcuts\WPF\Converters\ShortcutIdToHeaderConverter.cs"/>
+        <Compile Include="Shortcuts\WPF\Converters\ShortcutIdToToolTipConverter.cs"/>
+        <Compile Include="Shortcuts\WPF\Converters\ShortcutPathToInputGestureTextConverter.cs"/>
+        <Compile Include="Tasks\ActivityTask.cs"/>
+        <Compile Include="Tasks\CompletionRange.cs"/>
+        <Compile Include="Tasks\DefaultProgressTracker.cs"/>
+        <Compile Include="Tasks\EmptyActivityProgress.cs"/>
+        <Compile Include="Tasks\IActivityProgress.cs"/>
+        <Compile Include="Tasks\StandardActivityControl.cs"/>
+        <Compile Include="Tasks\TaskManager.cs"/>
+        <Compile Include="Themes\Attached\CornerRadiusHelper.cs"/>
+        <Compile Include="Themes\Attached\MenuHelper.cs"/>
+        <Compile Include="Themes\Attached\PasswordBoxHelper.cs"/>
+        <Compile Include="Themes\Attached\TextBoxAutoSelect.cs"/>
+        <Compile Include="Themes\Attached\TextHinting.cs"/>
+        <Compile Include="Themes\ColourKeys.cs"/>
+        <Compile Include="Themes\Controls.xaml.cs">
+            <DependentUpon>Controls.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="Themes\Converters\ScrollViewerInnerBorderThicknessConverter.cs"/>
+        <Compile Include="Themes\Converters\TreeViewLineConverter.cs"/>
+        <Compile Include="Themes\Generator\ThemeGenerator.cs"/>
+        <Compile Include="Themes\ThemeController.cs"/>
+        <Compile Include="Themes\ThemeType.cs"/>
+        <Compile Include="Utils\Accessing\ValueAccessor.cs"/>
+        <Compile Include="Utils\Accessing\ValueAccessors.cs"/>
+        <Compile Include="Utils\Arrays.cs"/>
+        <Compile Include="Utils\AsyncLock.cs"/>
+        <Compile Include="Utils\AudioUtils.cs"/>
+        <Compile Include="Utils\Bits.cs"/>
+        <Compile Include="Utils\BoolBox.cs"/>
+        <Compile Include="Utils\CASLock.cs"/>
+        <Compile Include="Utils\CastingList.cs"/>
+        <Compile Include="Utils\Collections\AdvancedReadOnlyObservableCollection.cs"/>
+        <Compile Include="Utils\Collections\DictionaryList.cs"/>
+        <Compile Include="Utils\Collections\InheritanceDictionary.cs"/>
+        <Compile Include="Utils\Collections\InheritanceMultiMap.cs"/>
+        <Compile Include="Utils\Collections\ITypeEntry.cs"/>
+        <Compile Include="Utils\Collections\ObservableList.cs"/>
+        <Compile Include="Utils\Collections\OrderedList.cs"/>
+        <Compile Include="Utils\Collections\PropertyMap.cs"/>
+        <Compile Include="Utils\Collections\ReferenceDictionary.cs"/>
+        <Compile Include="Utils\Collections\TypeMultiTable.cs"/>
+        <Compile Include="Utils\Collections\WeakReferenceDictionary.cs"/>
+        <Compile Include="Utils\CollectionUtils.cs"/>
+        <Compile Include="Utils\Colour.cs"/>
+        <Compile Include="Utils\Commands\AsyncRelayCommand.cs"/>
+        <Compile Include="Utils\Commands\BaseAsyncRelayCommand.cs"/>
+        <Compile Include="Utils\Commands\BaseRelayCommand.cs"/>
+        <Compile Include="Utils\Commands\IAsyncRelayCommand.cs"/>
+        <Compile Include="Utils\Commands\IRelayCommand.cs"/>
+        <Compile Include="Utils\Commands\RelayCommand.cs"/>
+        <Compile Include="Utils\CursorUtils.cs"/>
+        <Compile Include="Utils\Destroying\Destroyer.cs"/>
+        <Compile Include="Utils\Destroying\IDestroy.cs"/>
+        <Compile Include="Utils\DispatcherCallback.cs"/>
+        <Compile Include="Utils\DispatcherUtils.cs"/>
+        <Compile Include="Utils\Disposable\DisposableRef.cs"/>
+        <Compile Include="Utils\DoubleUtils.cs"/>
+        <Compile Include="Utils\DynamicCodeConverter.cs"/>
+        <Compile Include="Utils\ErrorList.cs"/>
+        <Compile Include="Utils\EventArgsCache.cs"/>
+        <Compile Include="Utils\ExceptionEventHandler.cs"/>
+        <Compile Include="Utils\ExceptionUtils.cs"/>
+        <Compile Include="Utils\Expressions\BasicNumericExpression.cs"/>
+        <Compile Include="Utils\Expressions\ComplexNumericExpression.cs"/>
+        <Compile Include="Utils\FastStringBuf.cs"/>
+        <Compile Include="Utils\FFmpegError.cs"/>
+        <Compile Include="Utils\FileUtils.cs"/>
+        <Compile Include="Utils\Filter.cs"/>
+        <Compile Include="Utils\Filters.cs"/>
+        <Compile Include="Utils\HandlerList.cs"/>
+        <Compile Include="Utils\Helper.cs"/>
+        <Compile Include="Utils\InheritedProperty.cs"/>
+        <Compile Include="Utils\EventUtils.cs"/>
+        <Compile Include="Utils\IntRect.cs"/>
+        <Compile Include="Utils\IRenameTarget.cs"/>
+        <Compile Include="Utils\KBUtils.cs"/>
+        <Compile Include="Utils\KeyboardUtils.cs"/>
+        <Compile Include="Utils\KeyUtils.cs"/>
+        <Compile Include="Utils\Lang.cs"/>
+        <Compile Include="Utils\Maths.cs"/>
+        <Compile Include="Utils\NumberAverager.cs"/>
+        <Compile Include="Utils\Numerics\SizeI.cs"/>
+        <Compile Include="Utils\Numerics\Vector2i.cs"/>
+        <Compile Include="Utils\Periodic.cs"/>
+        <Compile Include="Utils\PrecisionTimer.cs"/>
+        <Compile Include="Utils\RandomUtils.cs"/>
+        <Compile Include="Utils\LimitedRapidDispatchAction.cs"/>
+        <Compile Include="Utils\RDA\IRapidDispatchAction.cs"/>
+        <Compile Include="Utils\RDA\RapidDispatchAction.cs"/>
+        <Compile Include="Utils\RDA\RapidDispatchActionEx.cs"/>
+        <Compile Include="Utils\RDA\TestRDA.cs"/>
+        <Compile Include="Utils\Rect2d.cs"/>
+        <Compile Include="Utils\Rect2i.cs"/>
+        <Compile Include="Utils\Reference.cs"/>
+        <Compile Include="Utils\ReferenceEqualityComparer.cs"/>
+        <Compile Include="Utils\ResourceDictionaryDataTemplateSelector.cs"/>
+        <Compile Include="Utils\RoundingMode.cs"/>
+        <Compile Include="Utils\ScrollerUtils.cs"/>
+        <Compile Include="Utils\ShellIconSize.cs"/>
+        <Compile Include="Utils\ShellUtils.cs"/>
+        <Compile Include="Utils\Singleton.cs"/>
+        <Compile Include="Utils\SingletonEnumerator.cs"/>
+        <Compile Include="Utils\SingletonList.cs"/>
+        <Compile Include="Utils\StringJoiner.cs"/>
+        <Compile Include="Utils\StringUtils.cs"/>
+        <Compile Include="Utils\TextIncrement.cs"/>
+        <Compile Include="Utils\TextPointerUtils.cs"/>
+        <Compile Include="Utils\TextRange.cs"/>
+        <Compile Include="Utils\TextUtils.cs"/>
+        <Compile Include="Utils\ThreadTimer.cs"/>
+        <Compile Include="Utils\Time.cs"/>
+        <Compile Include="Utils\TypeUtils.cs"/>
+        <Compile Include="Utils\UIUtils.cs"/>
+        <Compile Include="Utils\Validate.cs"/>
+        <Compile Include="Utils\Vec2i.cs"/>
+        <Compile Include="Utils\Vectors.cs"/>
+        <Compile Include="Utils\Visuals\VisualAncestorChangedEventInterface.cs"/>
+        <Compile Include="Utils\Visuals\VisualTreeUtils.cs"/>
+        <Compile Include="Views\AppSplashScreen.xaml.cs">
+            <DependentUpon>AppSplashScreen.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="Views\Validators\DoubleRangeValidationRule.cs"/>
+        <Compile Include="Views\Validators\IntRangeValidationRule.cs"/>
+        <Compile Include="Views\Validators\NonEmptyStringValidationRule.cs"/>
+        <Compile Include="Views\WinDarkTheme.cs"/>
+        <Compile Include="Views\WindowEx.cs"/>
+        <Page Include="AdvancedMenuService\ContextService\Controls\ContextStyles.xaml">
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Include="Editors\Controls\Dragger\NumberDraggerStyles.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Include="Editors\Controls\GeneralControlStyles.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Include="Editors\Controls\Resources\ResourceStyles.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Include="Editors\Controls\Timelines\TimelineStyles.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Include="Editors\Controls\TreeViews\Themes\EditTextBox.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Include="Editors\Controls\TreeViews\Themes\MultiSelectTreeView.Aero2.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Include="Editors\Controls\TreeViews\Themes\MultiSelectTreeViewItem.Aero2.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Include="Editors\Exporting\Controls\ExportDialog.xaml">
+            <SubType>Designer</SubType>
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Include="Editors\Exporting\Controls\ExportProgressDialog.xaml">
+            <SubType>Designer</SubType>
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Include="Editors\Exporting\ExporterStyles.xaml">
+            <SubType>Designer</SubType>
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Include="Editors\ProjectProps\ProjectPropertiesDialog.xaml">
+            <SubType>Designer</SubType>
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Include="Editors\ResourceManaging\Autoloading\Controls\InvalidResourceControlStyles.xaml">
+            <SubType>Designer</SubType>
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Include="Editors\ResourceManaging\Autoloading\Controls\ResourceLoaderDialog.xaml">
+            <SubType>Designer</SubType>
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Include="Editors\Views\EditorWindow.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+        <Compile Include="App.xaml.cs">
+            <DependentUpon>App.xaml</DependentUpon>
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Include="AttachedProperties\AttachedInteractivity.cs"/>
+        <Compile Include="AttachedProperties\GridLatchSplitter.cs"/>
+        <Compile Include="AttachedProperties\HandleRequestBringIntoView.cs"/>
+        <Compile Include="AttachedProperties\HorizontalScrolling.cs"/>
+        <Compile Include="AttachedProperties\MultiSelectorHelper.cs"/>
+        <Compile Include="AttachedProperties\ObservableSelectionHelper.cs"/>
+        <Compile Include="AttachedProperties\ScrollBinder.cs"/>
+        <Compile Include="AttachedProperties\TextBlockHelper.cs"/>
+        <Compile Include="AttachedProperties\TextBoxHelper.cs"/>
+        <Compile Include="AttachedProperties\ToggleButtonHelper.cs"/>
+        <Compile Include="AttachedProperties\TopmostFocus.cs"/>
+        <Compile Include="Converters\BoolConverter.cs"/>
+        <Compile Include="Converters\BoolConverterAND.cs"/>
+        <Compile Include="Converters\DbToVolumeConverter.cs"/>
+        <Compile Include="Converters\EnumConverter.cs"/>
+        <Compile Include="Converters\FloatToDoubleConverter.cs"/>
+        <Compile Include="Converters\NullConverter.cs"/>
+        <Compile Include="Converters\VolumeToDbConverter.cs"/>
+        <Compile Include="Editors\Automation\AutomationData.cs"/>
+        <Compile Include="Editors\Automation\AutomationEngine.cs"/>
+        <Compile Include="Editors\Automation\IAutomatable.cs"/>
+        <Compile Include="Editors\Automation\Keyframes\AutomationDataType.cs"/>
+        <Compile Include="Editors\Automation\Keyframes\AutomationSequence.cs"/>
+        <Compile Include="Editors\Automation\Keyframes\InterpolationType.cs"/>
+        <Compile Include="Editors\Automation\Keyframes\KeyFrame.cs"/>
+        <Compile Include="Editors\Automation\Keyframes\KeyFrameUtils.cs"/>
+        <Compile Include="Editors\Automation\Params\Parameter.cs"/>
+        <Compile Include="Editors\Automation\Params\ParameterChangedEventHandler.cs"/>
+        <Compile Include="Editors\Automation\Params\ParameterDescriptor.cs"/>
+        <Compile Include="Editors\Automation\Params\ParameterFlags.cs"/>
+        <Compile Include="Editors\Automation\Params\ParameterKey.cs"/>
+        <Compile Include="Editors\Automation\SwitchAutomationDataTypeAttribute.cs"/>
+        <Compile Include="Editors\Collections\SelectionList.cs"/>
+        <Compile Include="Editors\Controls\Automation\AutomatedUtils.cs"/>
+        <Compile Include="Editors\Controls\Automation\AutomationActivityBrushConverter.cs"/>
+        <Compile Include="Editors\Controls\Automation\AutomationSequenceEditor.cs"/>
+        <Compile Include="Editors\Controls\Automation\DragMode.cs"/>
+        <Compile Include="Editors\Controls\Automation\KeyFramePoint.cs"/>
+        <Compile Include="Editors\Controls\Automation\KeyPointUtils.cs"/>
+        <Compile Include="Editors\Controls\Automation\LineHitType.cs"/>
+        <Compile Include="Editors\Controls\Bindings\AutomationBinder.cs"/>
+        <Compile Include="Editors\Controls\Bindings\UpdaterAutoEventPropertyBinder.cs"/>
+        <Compile Include="Editors\Controls\Bindings\BaseBinder.cs"/>
+        <Compile Include="Editors\Controls\Bindings\GetSetAutoEventPropertyBinder.cs"/>
+        <Compile Include="Editors\Controls\Bindings\IBinder.cs"/>
+        <Compile Include="Editors\Controls\Bindings\UpdaterPropertyBinder.cs"/>
+        <Compile Include="Editors\Controls\Bindings\AutomationUpdaterPropertyBinder.cs"/>
+        <Compile Include="Editors\Controls\CancellableThumb.cs"/>
+        <Compile Include="Editors\Controls\Dragger\EditCompletedEventArgs.cs"/>
+        <Compile Include="Editors\Controls\Dragger\EditCompletedEventHandler.cs"/>
+        <Compile Include="Editors\Controls\Dragger\EditStartEventArgs.cs"/>
+        <Compile Include="Editors\Controls\Dragger\EditStartEventHandler.cs"/>
+        <Compile Include="Editors\Controls\Dragger\HorizontalIncrement.cs"/>
+        <Compile Include="Editors\Controls\Dragger\IChangeMapper.cs"/>
+        <Compile Include="Editors\Controls\Dragger\IValueFormatter.cs"/>
+        <Compile Include="Editors\Controls\Dragger\IValuePreProcessor.cs"/>
+        <Compile Include="Editors\Controls\Dragger\NumberDragger.cs"/>
+        <Compile Include="Editors\Controls\Dragger\ValueStringFormatter.cs"/>
+        <Compile Include="Editors\Controls\Dragger\VerticalIncrement.cs"/>
+        <Compile Include="Editors\Controls\GlyphGenerator.cs"/>
+        <Compile Include="Editors\Controls\GridSlotAutoSizer.cs"/>
+        <Compile Include="Editors\Controls\IClipControl.cs"/>
+        <Compile Include="Editors\Controls\ITrackControl.cs"/>
+        <Compile Include="Editors\Controls\IUIConnection.cs"/>
+        <Compile Include="Editors\Controls\Resources\Explorers\ResourceExplorerListControl.cs"/>
+        <Compile Include="Editors\Controls\Resources\Explorers\ResourceExplorerListItem.cs"/>
+        <Compile Include="Editors\Controls\Resources\Explorers\ResourceExplorerListItemContent.cs"/>
+        <Compile Include="Editors\Controls\Resources\ResourceDropRegistry.cs"/>
+        <Compile Include="Editors\Controls\Resources\ResourcePanelControl.cs"/>
+        <Compile Include="Editors\Controls\Resources\Trees\IResourceTreeControl.cs"/>
+        <Compile Include="Editors\Controls\Resources\Trees\MovedResource.cs"/>
+        <Compile Include="Editors\Controls\Resources\Trees\ResourceTreeView.cs"/>
+        <Compile Include="Editors\Controls\Resources\Trees\ResourceTreeViewItem.cs"/>
+        <Compile Include="Editors\Controls\SpacedStackPanel.cs"/>
+        <Compile Include="Editors\Controls\SpacedUniformGrid.cs"/>
+        <Compile Include="Editors\Controls\Timelines\AutomationBrushConverter.cs"/>
+        <Compile Include="Editors\Controls\Timelines\Playheads\BasePlayHeadControl.cs"/>
+        <Compile Include="Editors\Controls\Timelines\Playheads\PlayHeadControl.cs"/>
+        <Compile Include="Editors\Controls\Timelines\Playheads\PlayheadPositionTextControl.cs"/>
+        <Compile Include="Editors\Controls\Timelines\Playheads\StopHeadControl.cs"/>
+        <Compile Include="Editors\Controls\Timelines\TimelineControl.cs"/>
+        <Compile Include="Editors\Controls\Timelines\TimelineScrollableContentGrid.cs"/>
+        <Compile Include="Editors\Controls\Timelines\TrackStoragePanel.cs"/>
+        <Compile Include="Editors\Controls\Timelines\Tracks\ClipStoragePanel.cs"/>
+        <Compile Include="Editors\Controls\Timelines\Tracks\Clips\TimelineClipControl.cs"/>
+        <Compile Include="Editors\Controls\Timelines\Tracks\Surfaces\TrackControlSurface.cs"/>
+        <Compile Include="Editors\Controls\Timelines\Tracks\Surfaces\TrackControlSurfaceListBox.cs"/>
+        <Compile Include="Editors\Controls\Timelines\Tracks\Surfaces\TrackControlSurfaceListBoxItem.cs"/>
+        <Compile Include="Editors\Controls\Timelines\Tracks\Surfaces\TrackControlSurfaceListBoxPanel.cs"/>
+        <Compile Include="Editors\Controls\Timelines\Tracks\Surfaces\TrackControlSurfaceVideo.cs"/>
+        <Compile Include="Editors\Controls\Timelines\Tracks\TimelineTrackControl.cs"/>
+        <Compile Include="Editors\Controls\TreeViews\Automation\Peers\MultiSelectTreeViewAutomationPeer.cs"/>
+        <Compile Include="Editors\Controls\TreeViews\Automation\Peers\MultiSelectTreeViewItemAutomationPeer.cs"/>
+        <Compile Include="Editors\Controls\TreeViews\Automation\Peers\MultiSelectTreeViewItemDataAutomationPeer.cs"/>
+        <Compile Include="Editors\Controls\TreeViews\Controls\BorderSelectionLogic.cs"/>
+        <Compile Include="Editors\Controls\TreeViews\Controls\EditTextBox.cs"/>
+        <Compile Include="Editors\Controls\TreeViews\Controls\FocusHelper.cs"/>
+        <Compile Include="Editors\Controls\TreeViews\Controls\ISelectionStrategy.cs"/>
+        <Compile Include="Editors\Controls\TreeViews\Controls\ListUtils.cs"/>
+        <Compile Include="Editors\Controls\TreeViews\Controls\MultiSelectTreeView.cs"/>
+        <Compile Include="Editors\Controls\TreeViews\Controls\MultiSelectTreeViewItem.cs"/>
+        <Compile Include="Editors\Controls\TreeViews\Controls\SelectionMultiple.cs"/>
+        <Compile Include="Editors\Controls\Viewports\FreeMoveViewPort.cs"/>
+        <Compile Include="Editors\Controls\Viewports\SKAsyncViewPort.cs"/>
+        <Compile Include="Editors\Controls\Viewports\VideoEditorViewPortPreview.cs"/>
+        <Compile Include="Editors\Factories\ClipFactory.cs"/>
+        <Compile Include="Editors\Factories\EffectFactory.cs"/>
+        <Compile Include="Editors\Factories\ObjectFactory.cs"/>
+        <Compile Include="Editors\Factories\ReflectiveObjectFactory.cs"/>
+        <Compile Include="Editors\Factories\ResourceTypeFactory.cs"/>
+        <Compile Include="Editors\Factories\TrackFactory.cs"/>
+        <Compile Include="Editors\IHaveProject.cs"/>
+        <Compile Include="Editors\IHaveTimeline.cs"/>
+        <Compile Include="Editors\PlaybackManager.cs"/>
+        <Compile Include="Editors\PlayState.cs"/>
+        <Compile Include="Editors\Project.cs"/>
+        <Compile Include="Editors\ProjectSettings.cs"/>
+        <Compile Include="Editors\PropertyEditors\Clips\DisplayNamePropertyEditorSlot.cs"/>
+        <Compile Include="Editors\Rendering\PreRenderContext.cs"/>
+        <Compile Include="Editors\Rendering\RenderContext.cs"/>
+        <Compile Include="Editors\Rendering\RenderFrameInfo.cs"/>
+        <Compile Include="Editors\Rendering\RenderManager.cs"/>
+        <Compile Include="Editors\Rendering\RenderState.cs"/>
+        <Compile Include="Editors\Rendering\TrackRenderState.cs"/>
+        <Compile Include="Editors\RenderUtils.cs"/>
+        <Compile Include="Editors\ResourceManaging\BaseResource.cs"/>
+        <Compile Include="Editors\ResourceManaging\Events\ResourceEvents.cs"/>
+        <Compile Include="Editors\ResourceManaging\Events\ResourceManagerEvents.cs"/>
+        <Compile Include="Editors\ResourceManaging\LinkState.cs"/>
+        <Compile Include="Editors\ResourceManaging\ResourceChangedEventHandler.cs"/>
+        <Compile Include="Editors\ResourceManaging\ResourceFolder.cs"/>
+        <Compile Include="Editors\ResourceManaging\ResourceHelpers\EntryEventHandlers.cs"/>
+        <Compile Include="Editors\ResourceManaging\ResourceHelpers\IBaseResourcePathKey.cs"/>
+        <Compile Include="Editors\ResourceManaging\ResourceHelpers\IResourceHolder.cs"/>
+        <Compile Include="Editors\ResourceManaging\ResourceHelpers\IResourcePathKey.cs"/>
+        <Compile Include="Editors\ResourceManaging\ResourceHelpers\ResourceHelper.cs"/>
+        <Compile Include="Editors\ResourceManaging\ResourceHelpers\ResourceHelperEventHandlers.cs"/>
+        <Compile Include="Editors\ResourceManaging\ResourceHelpers\ResourceLink.cs"/>
+        <Compile Include="Editors\ResourceManaging\ResourceHelpers\ResourcePathFlags.cs"/>
+        <Compile Include="Editors\ResourceManaging\ResourceItem.cs"/>
+        <Compile Include="Editors\ResourceManaging\ResourceManager.cs"/>
+        <Compile Include="Editors\ResourceManaging\ResourceObjectUtils.cs"/>
+        <Compile Include="Editors\ResourceManaging\ResourceRemoveFlags.cs"/>
+        <Compile Include="Editors\ResourceManaging\Resources\ResourceColour.cs"/>
+        <Compile Include="Editors\ResourceManaging\Resources\ResourceImage.cs"/>
+        <Compile Include="Editors\ResourceManaging\Resources\ResourceTextStyle.cs"/>
+        <Compile Include="Editors\Timelines\Clips\Clip.cs"/>
+        <Compile Include="Editors\Timelines\Clips\VideoClip.cs"/>
+        <Compile Include="Editors\Timelines\Effects\BaseEffect.cs"/>
+        <Compile Include="Editors\Timelines\Effects\CPUPixelateEffect.cs"/>
+        <Compile Include="Editors\Timelines\Effects\VideoEffect.cs"/>
+        <Compile Include="Editors\Timelines\FrameSpan.cs"/>
+        <Compile Include="Editors\Timelines\IHaveEffects.cs"/>
+        <Compile Include="Editors\Timelines\SelectionType.cs"/>
+        <Compile Include="Editors\Timelines\Timeline.cs"/>
+        <Compile Include="Editors\Timelines\TrackFrameSpan.cs"/>
+        <Compile Include="Editors\Timelines\TrackPoint.cs"/>
+        <Compile Include="Editors\Timelines\Tracks\ClipCloneOptions.cs"/>
+        <Compile Include="Editors\Timelines\Tracks\ClipRangeCache.cs"/>
+        <Compile Include="Editors\Timelines\Tracks\Track.cs"/>
+        <Compile Include="Editors\Timelines\Tracks\TrackCloneOptions.cs"/>
+        <Compile Include="Editors\Timelines\Tracks\VideoTrack.cs"/>
+        <Compile Include="Editors\Timelines\ZoomType.cs"/>
+        <Compile Include="Editors\TimelineUtils.cs"/>
+        <Compile Include="Editors\Utils\ItemCacheStack.cs"/>
+        <Compile Include="Editors\Utils\SKUtils.cs"/>
+        <Compile Include="Editors\VideoEditor.cs"/>
+        <Compile Include="Editors\Views\EditorWindow.xaml.cs">
+            <DependentUpon>EditorWindow.xaml</DependentUpon>
+        </Compile>
+        <Compile Include="Interactivity\DataObjectWrapper.cs"/>
+        <Compile Include="Interactivity\DragDropRegistry.cs"/>
+        <Compile Include="Interactivity\DropMetadata.cs"/>
+        <Compile Include="Interactivity\DropUtils.cs"/>
+        <Compile Include="Interactivity\EnumDropType.cs"/>
+        <Compile Include="Interactivity\IDataObjekt.cs"/>
+        <Compile Include="Interactivity\NativeDropTypes.cs"/>
+        <Compile Include="Logger\AppLogger.cs"/>
+        <Compile Include="Logger\HeaderedLogEntry.cs"/>
+        <Compile Include="Logger\LogEntry.cs"/>
+        <Page Include="FileBrowser\Controls\FileBrowsingStyles.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Include="Tasks\ActivityDialog.xaml">
+            <SubType>Designer</SubType>
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Include="Tasks\ActivityStyles.xaml">
+            <SubType>Designer</SubType>
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Include="PropertyEditing\Controls\PropertyEditorSlotContentStyles.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Include="PropertyEditing\Controls\PropertyEditorStyles.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Include="Services\WPF\Messages\MessageDialog.xaml">
+            <SubType>Designer</SubType>
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Include="Services\WPF\Messages\SingleInputDialog.xaml">
+            <SubType>Designer</SubType>
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Include="Themes\ColourDictionaries\DarkGreyTheme.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Include="Themes\ColourDictionaries\DeepDark.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Include="Themes\ColourDictionaries\GreyTheme.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Include="Themes\ColourDictionaries\LightTheme.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Include="Themes\ColourDictionaries\RedBlackTheme.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Include="Themes\ColourDictionaries\SoftDark.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Include="Themes\ControlColours.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Include="Themes\ControlColoursSoftDarkBlue.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Include="Themes\Controls.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Include="Views\AppSplashScreen.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <SubType>Designer</SubType>
+        </Page>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Properties\AssemblyInfo.cs">
+            <SubType>Code</SubType>
+        </Compile>
+        <Compile Include="Properties\Resources.Designer.cs">
+            <AutoGen>True</AutoGen>
+            <DesignTime>True</DesignTime>
+            <DependentUpon>Resources.resx</DependentUpon>
+        </Compile>
+        <Compile Include="Properties\Settings.Designer.cs">
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Settings.settings</DependentUpon>
+            <DesignTimeSharedInput>True</DesignTimeSharedInput>
+        </Compile>
+        <EmbeddedResource Include="Properties\Resources.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+        <None Include="Keymap.xsd">
+            <SubType>Designer</SubType>
+        </None>
+        <None Include="OpenTK.dll.config"/>
+        <None Include="packages.config"/>
+        <None Include="Properties\Settings.settings">
+            <Generator>SettingsSingleFileGenerator</Generator>
+            <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+        </None>
+        <Resource Include="Resources\Fonts\Oxanium\Oxanium-Bold.ttf"/>
+        <Resource Include="Resources\Fonts\Oxanium\Oxanium-ExtraBold.ttf"/>
+        <Resource Include="Resources\Fonts\Oxanium\Oxanium-ExtraLight.ttf"/>
+        <Resource Include="Resources\Fonts\Oxanium\Oxanium-Light.ttf"/>
+        <Resource Include="Resources\Fonts\Oxanium\Oxanium-Medium.ttf"/>
+        <Resource Include="Resources\Fonts\Oxanium\Oxanium-Regular.ttf"/>
+        <Resource Include="Resources\Fonts\Oxanium\Oxanium-SemiBold.ttf"/>
+        <Resource Include="Resources\Fonts\Oxanium\Oxanium-VariableFont_wght.ttf"/>
+        <None Include="Shortcuts\ReadMe.md"/>
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="App.config"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Resource Include="Resources\Fonts\Oxanium\OFL.txt"/>
+    </ItemGroup>
+    <ItemGroup>
+        <Resource Include="FramePFX-256.ico"/>
+        <Content Include="Editors\Controls\TreeViews\SOURCECODE.txt"/>
+        <Content Include="Keymap.xml">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+    <Import Project="..\packages\SkiaSharp.NativeAssets.macOS.2.88.7\build\net462\SkiaSharp.NativeAssets.macOS.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.macOS.2.88.7\build\net462\SkiaSharp.NativeAssets.macOS.targets')"/>
+    <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+        <PropertyGroup>
+            <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them. For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+        </PropertyGroup>
+        <Error Condition="!Exists('..\packages\SkiaSharp.NativeAssets.macOS.2.88.7\build\net462\SkiaSharp.NativeAssets.macOS.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SkiaSharp.NativeAssets.macOS.2.88.7\build\net462\SkiaSharp.NativeAssets.macOS.targets'))"/>
+        <Error Condition="!Exists('..\packages\SkiaSharp.NativeAssets.Win32.2.88.7\build\net462\SkiaSharp.NativeAssets.Win32.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\SkiaSharp.NativeAssets.Win32.2.88.7\build\net462\SkiaSharp.NativeAssets.Win32.targets'))"/>
+    </Target>
+    <Import Project="..\packages\SkiaSharp.NativeAssets.Win32.2.88.7\build\net462\SkiaSharp.NativeAssets.Win32.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.Win32.2.88.7\build\net462\SkiaSharp.NativeAssets.Win32.targets')"/>
+    <PropertyGroup>
+        <PostBuildEvent>xcopy /y "$(SolutionDir)compiled-deps\*.dll" $(TargetDir)
+            xcopy /y "$(SolutionDir)libraries\ffmpeg\bin\*.dll" $(TargetDir)
+        </PostBuildEvent>
+    </PropertyGroup>
 </Project>

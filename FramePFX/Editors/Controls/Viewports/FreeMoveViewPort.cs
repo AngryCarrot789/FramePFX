@@ -140,7 +140,7 @@ namespace FramePFX.Editors.Controls.Viewports
 
         protected override int VisualChildrenCount => 1;
 
-        protected override IEnumerator LogicalChildren => (this.InternalChild == null ? new List<object>() : new List<object>() {this.InternalChild}).GetEnumerator();
+        protected override IEnumerator LogicalChildren => (this.InternalChild == null ? new List<object>() : new List<object>() { this.InternalChild }).GetEnumerator();
 
         private ContainerVisual InternalVisual
         {

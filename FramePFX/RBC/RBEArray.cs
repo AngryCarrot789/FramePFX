@@ -522,7 +522,7 @@ namespace FramePFX.RBC
 
         public RBEStructArray CloneCore()
         {
-            return new RBEStructArray {data = Arrays.CloneArrayUnsafe(this.data)};
+            return new RBEStructArray { data = Arrays.CloneArrayUnsafe(this.data) };
         }
     }
 }

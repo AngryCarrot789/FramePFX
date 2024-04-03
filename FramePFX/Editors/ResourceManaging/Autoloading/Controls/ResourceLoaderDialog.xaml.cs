@@ -142,7 +142,7 @@ namespace FramePFX.Editors.ResourceManaging.Autoloading.Controls
             InvalidResourceEntryControl control = InvalidResourceEntryControl.NewInstance(entry.GetType());
             this.controls.Insert(index, control);
             control.AttachToEntry(entry);
-            this.PART_ListBox.Items.Insert(index, new ListBoxItem() {Content = entry.DisplayName});
+            this.PART_ListBox.Items.Insert(index, new ListBoxItem() { Content = entry.DisplayName });
             entry.DisplayNameChanged += this.OnEntryDisplayNameChanged;
         }
 

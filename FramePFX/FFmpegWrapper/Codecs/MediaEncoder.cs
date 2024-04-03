@@ -64,7 +64,7 @@ namespace FramePFX.FFmpegWrapper.Codecs
         /// <summary> Returns the correct <see cref="MediaFrame.PresentationTimestamp"/> for the given timestamp, in respect to <see cref="CodecBase.TimeBase"/>. </summary>
         public long GetFramePts(TimeSpan time)
         {
-            return this.GetFramePts(time.Ticks, new AVRational() {num = 1, den = (int) TimeSpan.TicksPerSecond});
+            return this.GetFramePts(time.Ticks, new AVRational() { num = 1, den = (int) TimeSpan.TicksPerSecond });
         }
 
         /// <summary> Rescales the given timestamp to be in terms of <see cref="CodecBase.TimeBase"/>. </summary>

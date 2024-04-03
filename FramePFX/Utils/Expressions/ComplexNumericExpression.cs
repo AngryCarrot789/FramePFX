@@ -210,7 +210,7 @@ namespace FramePFX.Utils.Expressions
                         }
 
                         index++;
-                        List<double> parameters = new List<double>() {argument};
+                        List<double> parameters = new List<double>() { argument };
                         while (true)
                         {
                             argument = this.ParseExpression(input, ref index);

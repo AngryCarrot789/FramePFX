@@ -47,7 +47,7 @@ namespace FramePFX.Utils
 
             if (this.lastScript == script && this.lastCompiledMethod != null)
             {
-                return this.lastCompiledMethod.Invoke(null, new[] {value});
+                return this.lastCompiledMethod.Invoke(null, new[] { value });
             }
             else
             {
@@ -80,7 +80,7 @@ namespace FramePFX.Utils
                 CompilerOptions = "/optimize"
             };
 
-            CompilerParams.ReferencedAssemblies.AddRange(new[] {"System.dll"});
+            CompilerParams.ReferencedAssemblies.AddRange(new[] { "System.dll" });
 
             CSharpCodeProvider provider = new CSharpCodeProvider();
             CompilerResults compile = provider.CompileAssemblyFromSource(CompilerParams, code);
@@ -108,7 +108,7 @@ namespace FramePFX.Utils
 
             this.lastCompiledMethod = methInfo;
             this.lastScript = script;
-            return methInfo.Invoke(null, new[] {value});
+            return methInfo.Invoke(null, new[] { value });
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

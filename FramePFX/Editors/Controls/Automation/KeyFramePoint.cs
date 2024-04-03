@@ -157,7 +157,7 @@ namespace FramePFX.Editors.Controls.Automation
                     colour = SKColors.OrangeRed;
                 }
 
-                using (SKPaint paint = new SKPaint() {Color = colour.WithAlpha(opacity)})
+                using (SKPaint paint = new SKPaint() { Color = colour.WithAlpha(opacity) })
                 {
                     surface.Canvas.DrawCircle(point.AsSkia(), (float) r, paint);
                 }
@@ -248,7 +248,7 @@ namespace FramePFX.Editors.Controls.Automation
                     colour = this.editor.isOverrideEnabled ? SKColors.White : SKColors.OrangeRed;
                 }
 
-                using (SKPaint paint = new SKPaint() {Color = colour.WithAlpha(opacity)})
+                using (SKPaint paint = new SKPaint() { Color = colour.WithAlpha(opacity) })
                 {
                     suface.Canvas.DrawLine(p1.AsSkia(), p2.AsSkia(), paint);
                 }

@@ -35,11 +35,12 @@ The clip's automation sequence editor's target parameter can be changed by selec
 ## Models and the UI
 
 I previously made this using MVVM everywhere, but I had to basically create ViewModels for every type of Model and map hierarchies of objects (Timeline->Track->Clip, TimelineViewModel->TrackViewModel->ClipViewModel),
-which was frustrating and made adding new features really difficult, so I decided to rewrite the entire program to use a mostly non-view-model design, kind of like MVC except views are the controllers (at the moment...), 
+which was frustrating and made adding new features really difficult, so I decided to rewrite the entire program to use a mostly non-view-model design, kind of like MVP except views are the presenters themselves, 
 where the models are just the state and the views/controls add and remove event handlers to obverse the state of the models.
 
 This turns out to be a lot more performant (which is actually the main reason I switched), somewhat just as easy to add new features, and the  signals between ViewModel/View are not entirely ICommands anymore. 
-But it does mean moving this to something like Avalonia (which I haven't thought of doing yet) would be a lot more difficult.
+But it does mean moving this to something like Avalonia (which I haven't thought of doing yet) would be a lot more difficult. 
+I haven't though of changing back to MVVM or using actual presenters + interfaces, but it's an idea for the future
 
 The editor can run entirely without a front end though, as none of the models contain any UI specific code (except for basic things like a IsSelected property in clips, tracks, resources, etc.). It does need the WPF dispatcher though
 
@@ -57,10 +58,15 @@ The render phase is like this:
 - Once all tracks have been rendered, the final frame is assembled from each track's `SKSurface` (on the rendering thread as well)
 - The final frame is now completed, `FrameRendered` is fired in the render manager, and the view port hooks onto that event and draws the rendered frame
 
+This is a simple but still performant rendering technique over say rendering all clips sequentially on the main thread (which is what I used to do). 
+This may change in the future if I come up with a better system, but for now, it works pretty well
+
 ## Resource list
 The resources are shareable between clips, so that clips can obviously share similar details (e.g. same text or font/font size), or same image, same shape colour, etc.
 
 To drag videos, images, etc., into the editor: drag and drop the file to the top left "resource manager panel", and then drag one of those items into the timeline
+
+This system is still quite janky and, if anything, too flexible; added complexity for limiting the max number of resources referencable, and handling that error case
 
 ## Command system, shortcut system and context menus
 ### Command System
@@ -94,7 +100,8 @@ local context data is changed. The `ContextUsage` class depends on this feature 
 
 # TODO
 ### Audio
-While audio play back exists, it doesn't work properly at all and is extremely glitchy. Trying to figure out how to improve it
+I did get audio playback to finally work, but there's a lot of crackling due to missing audio samples, since I'm always filling the audio buffer 
+with exactly 1 video frame worth of samples, and since the FPS fluctuates by a few frames randomly, I need to re-work it when I figure out what to do instead.
 ### Automation Engine
 - Add support for smooth interpolation (e.g. a curve between 2 key frames). I tried doing this, but had a hard time figuring out the math to do the interpolation, and also doing the hit testing for the UI
 ### Clips
@@ -103,7 +110,8 @@ While audio play back exists, it doesn't work properly at all and is extremely g
 - Implement fading between 2 clips
 ### Rendering
 - I plan to use hardware acceleration for at least the final frame assembly because, at the moment, that is the most computationally expensive operation in the render phase right next to video decoding.
-  I've added many optimisations to improve performance (like render area feedback from clips so that the renderer only copies a known "effective" area of pixels instead of the whole frame), but it's still quite slow, especially when using composition clips
+  I've added many optimisations to improve performance, such as render area feedback from clips so that the renderer only copies a known "effective" area of pixels instead of the whole frame from the track,
+  but it's still quite slow, especially when using composition clips
 ### History system
 - There's no undo functionality yet. I might try and implement this once I implement a few of the other features like audio and maybe hardware accelerated final-frame assembly in the renderer
 ### Bugs to fix
@@ -116,8 +124,7 @@ Compiling the editor yourself requires some manual labour at the moment. It uses
   https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip 
 - PortAudio for audio playback. This can be downloaded and compiled at https://files.portaudio.com/download.html. 
 
-### FramePFX assumes everything is 64 bit: x86/32-bit/AnyCPU most likely won't work!
-
+### FramePFX assumes everything is 64 bit. x86/32-bit/AnyCPU most likely won't work!
 Create a folder called `libraries` in the solution folder and then two sub-folders called `ffmpeg` and `portaudio`. 
 Copy the contents of both of the archive files you download into the respective folders. You should be able to navigate 
 to `\FramePFX\libraries\ffmpeg\lib`, and `\FramePFX\libraries\portaudio\` will contain `CMakeList.txt`
@@ -125,8 +132,8 @@ to `\FramePFX\libraries\ffmpeg\lib`, and `\FramePFX\libraries\portaudio\` will c
 I'd recommend following PortAudio's official build instructions, but they basically consist of: open CMake GUI, set sources folder and build folder, 
 click configure then generate and then open the VS solution and click build solution
 
-Now that you build PortAudio, your build folder should contain Debug or Release depending on what you used. Now, go back into the `portaudio` folder, 
-create a folder called `lib` and copy, from build/Debug (or Release) folder, `portaudio_x64.lib` and `portaudio_x64.pdb`. 
+Now that you've built PortAudio, your build folder should contain Debug or Release depending on what you used. Now, go back into the `portaudio` folder, 
+create a folder called `lib` and copy, from build/Debug (or Release) folder, `portaudio_x64.lib` and `portaudio_x64.pdb` into it. 
 The lib folder is required for the NativeEngine project.
 
 Then back in that build/Debug (or Release) folder, copy `portaudio_x64.dll` and `portaudio_x64.exp` into the video editor's 
@@ -134,7 +141,7 @@ respective Debug or Release folder (inside the FramePFX bin folder).
 
 Now, to make FFmpeg work, if debugging only from VS/Rider or whatever IDE you use, it works fine as long as the ffmpeg folder is in the libraries folder.
 If you associated the `fpfx` file extension with FramePFX in the build folders, then you most likely will need to place all of the DLL files in ffmpeg's `bin`
-folder (noty the .exe files) in the same folder as `FramePFX.exe`. PortAudio's DLL must always be placed in the same folder as the app exe 
+folder (except for the .exe files) in the same folder as `FramePFX.exe`. PortAudio's DLL must always be placed in the same folder as the app exe 
 
 And then hopefully if I didn't miss anything out, you should be able to compile the NativeEngine project and then the FramePFX project, and the editor should run.
 

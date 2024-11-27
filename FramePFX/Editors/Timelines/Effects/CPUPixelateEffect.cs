@@ -21,7 +21,7 @@ using System;
 using System.Numerics;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Rendering;
-using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines.Clips.Video;
 using FramePFX.Editors.Utils;
 using FramePFX.Natives;
 using FramePFX.Utils.Accessing;

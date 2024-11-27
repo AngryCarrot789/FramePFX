@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using FramePFX.Editors.Timelines.Clips;
 
@@ -111,7 +112,7 @@ namespace FramePFX.Editors.Timelines.Tracks
             }
         }
 
-        public void GetClipsAtFrame(List<Clip> dstList, long frame)
+        public void ExtractClipsAt(List<Clip> dstList, long frame)
         {
             if (this.Map.TryGetValue(GetIndex(frame), out ClipList list))
             {
@@ -122,6 +123,24 @@ namespace FramePFX.Editors.Timelines.Tracks
                         dstList.Add(clip);
                 }
             }
+        }
+
+        public IEnumerable<Clip> GetClipsAtFrame(long frame)
+        {
+            if (this.Map.TryGetValue(GetIndex(frame), out ClipList list))
+            {
+                List<Clip> clips = new List<Clip>();
+                for (int i = list.size - 1; i >= 0; i--)
+                {
+                    Clip clip = list.items[i];
+                    if (clip.FrameSpan.Intersects(frame))
+                        clips.Add(clip);
+                }
+
+                return clips;
+            }
+
+            return Enumerable.Empty<Clip>();
         }
 
         public void OnClipAdded(Clip clip) => this.Add(clip);
@@ -157,6 +176,7 @@ namespace FramePFX.Editors.Timelines.Tracks
                     this.Map[frame] = list = new ClipList();
                 else if (list.Contains(clip))
                     throw new Exception("Did not expect clip to already exist in list");
+
                 list.Add(clip);
             }
         }
@@ -289,9 +309,13 @@ namespace FramePFX.Editors.Timelines.Tracks
             return false;
         }
 
+        /// <summary>
+        /// A compact optimised list implementation for clips only
+        /// </summary>
         private class ClipList
         {
             private const int DefaultCapacity = 4;
+            private const int CapacityLimit = 0x7FEFFFFF;
             public Clip[] items;
             public int size;
             private static readonly Clip[] EmptyArray = new Clip[0];
@@ -303,13 +327,12 @@ namespace FramePFX.Editors.Timelines.Tracks
                 if (this.size == this.items.Length)
                     this.EnsureCapacity(this.size + 1);
                 this.items[this.size++] = item;
-                // this.Insert(CollectionUtils.GetSortInsertionIndex(this.items, 0, this.size - 1, item, OrderByBegin), item);
             }
 
             public int IndexOf(Clip item)
             {
                 Clip[] array = this.items;
-                for (int i = array.Length - 1; i >= 0; i--)
+                for (int i = this.size - 1; i >= 0; i--)
                 {
                     Clip clip = array[i];
                     if (item == clip)
@@ -326,21 +349,24 @@ namespace FramePFX.Editors.Timelines.Tracks
                 int length = this.items.Length;
                 if (length >= min)
                     return;
-                int num = length == 0 ? DefaultCapacity : length * 2;
-                if (num > 0x7FEFFFFF)
-                    num = 0x7FEFFFFF;
-                if (num < min)
-                    num = min;
 
-                if (num < this.size)
+                int newCount = length == 0 ? DefaultCapacity : length * 2;
+                if (newCount > CapacityLimit)
+                    newCount = CapacityLimit;
+                if (newCount < min)
+                    newCount = min;
+
+                if (newCount < this.size)
                     throw new Exception("List is too large to increase capacity");
-                if (num == length)
+
+                if (newCount == length)
                     return;
 
-                Clip[] objArray = new Clip[num];
+                Clip[] newItems = new Clip[newCount];
                 if (this.size > 0)
-                    Array.Copy(this.items, 0, objArray, 0, this.size);
-                this.items = objArray;
+                    Array.Copy(this.items, 0, newItems, 0, this.size);
+
+                this.items = newItems;
             }
 
             public bool RemoveClipAndGetIsEmpty(Clip item)
@@ -348,30 +374,14 @@ namespace FramePFX.Editors.Timelines.Tracks
                 int index = this.IndexOf(item);
                 if (index == -1)
                     throw new Exception("Expected item to exist in list");
-                this.RemoveAt(index);
-                return this.size == 0;
-            }
 
-            private void Insert(int index, Clip item)
-            {
-                if (index > this.size)
-                    throw new Exception("Index out of bounds");
-                if (this.size == this.items.Length)
-                    this.EnsureCapacity(this.size + 1);
-                if (index < this.size)
-                    Array.Copy(this.items, index, this.items, index + 1, this.size - index);
-                this.items[index] = item;
-                ++this.size;
-            }
-
-            private void RemoveAt(int index)
-            {
-                if (index >= this.size)
-                    throw new Exception("Index out of bounds");
                 --this.size;
                 if (index < this.size)
                     Array.Copy(this.items, index + 1, this.items, index, this.size - index);
-                this.items[this.size] = null;
+
+                this.items[this.size] = null; // prevent memory leak
+
+                return this.size == 0;
             }
         }
     }

@@ -78,12 +78,12 @@ namespace FramePFX.Editors.Controls.Bindings
 
         private void OnPropertyValueChanged(object sender, EventArgs e) => this.OnControlValueChanged();
 
-        protected override void UpdateModelCore()
+        protected override void UpdateModelOverride()
         {
             this.UpdateModel?.Invoke(this);
         }
 
-        protected override void UpdateControlCore()
+        protected override void UpdateControlOverride()
         {
             this.UpdateControl?.Invoke(this);
         }

@@ -24,6 +24,7 @@ using FFmpeg.AutoGen;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.ResourceManaging.ResourceHelpers;
 using FramePFX.Editors.ResourceManaging.Resources;
+using FramePFX.Editors.Timelines.Clips.Video;
 using FramePFX.FFmpegWrapper;
 using FramePFX.Utils;
 using SkiaSharp;
@@ -190,7 +191,11 @@ namespace FramePFX.Editors.Timelines.Clips.Core
 
             AVFrame* src = ready.Handle;
             AVFrame* dst = this.renderFrameRgb.Handle;
-            ffmpeg.sws_scale(this.scaler, src->data, src->linesize, 0, this.scalerInputFormat.Height, dst->data, dst->linesize);
+
+            // Workaround for when the frame size changes, which can be done with a well crafted video file.
+            // Typically it would crash but now it just stretches the buffer
+            int min = Math.Min(this.scalerInputFormat.Height, ready.Height);
+            ffmpeg.sws_scale(this.scaler, src->data, src->linesize, 0, min, dst->data, dst->linesize);
         }
 
         public static unsafe void GetFrameData(VideoFrame frame, int plane, byte** data, out int stride)

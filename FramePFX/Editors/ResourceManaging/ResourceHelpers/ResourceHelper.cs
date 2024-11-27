@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using FramePFX.Editors.ResourceManaging.Events;
-using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines.Clips.Video;
 using FramePFX.RBC;
 using FramePFX.Utils;
 

@@ -23,6 +23,7 @@ using System.Numerics;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Rendering;
 using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines.Clips.Video;
 using FramePFX.Editors.Timelines.Effects;
 using FramePFX.Editors.Utils;
 using FramePFX.Utils.Accessing;
@@ -328,9 +329,7 @@ namespace FramePFX.Editors.Timelines.Tracks
         {
             this.isMatrixDirty = true;
             foreach (Clip clip in this.Clips)
-            {
-                ((VideoClip) clip).InvalidateTransformationMatrix();
-            }
+                VideoClip.InternalInvalidateTransformationMatrixFromTrack((VideoClip) clip);
 
             this.InvalidateRender();
         }

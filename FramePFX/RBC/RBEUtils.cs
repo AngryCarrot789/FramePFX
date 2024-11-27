@@ -36,15 +36,14 @@ namespace FramePFX.RBC
 
         public static byte[] ToByteArray(RBEBase rbe, Encoding encoding, bool packed = false, int initialBufferSize = 2048)
         {
-            using (MemoryStream stream = new MemoryStream(initialBufferSize))
-            {
-                if (packed)
-                {
-                    WriteToStream(rbe, stream, encoding);
-                }
-                else
+            using (MemoryStream stream = new MemoryStream(initialBufferSize)) {
+                if (packed) 
                 {
                     WriteToStreamPacked(rbe, stream, encoding);
+                }
+                else 
+                {
+                    WriteToStream(rbe, stream, encoding);
                 }
 
                 return stream.ToArray();
@@ -57,11 +56,11 @@ namespace FramePFX.RBC
             {
                 if (packed)
                 {
-                    return ReadFromStream(stream, encoding);
+                    return ReadFromStreamPacked(stream, encoding);
                 }
                 else
                 {
-                    return ReadFromStreamPacked(stream, encoding);
+                    return ReadFromStream(stream, encoding);
                 }
             }
         }

@@ -27,6 +27,7 @@ using FramePFX.Editors.PropertyEditors.Effects;
 using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
 using FramePFX.Editors.Timelines.Clips.Core;
+using FramePFX.Editors.Timelines.Clips.Video;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.PropertyEditing.Automation;
 using FramePFX.PropertyEditing.DataTransfer;

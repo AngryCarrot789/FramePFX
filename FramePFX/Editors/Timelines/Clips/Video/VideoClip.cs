@@ -27,7 +27,7 @@ using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Utils.Accessing;
 using SkiaSharp;
 
-namespace FramePFX.Editors.Timelines.Clips
+namespace FramePFX.Editors.Timelines.Clips.Video
 {
     /// <summary>
     /// The base class for all clips that produce video data, whether that be an image, a video frame at some time, text, particles, etc.
@@ -227,6 +227,11 @@ namespace FramePFX.Editors.Timelines.Clips
         {
             this.isMatrixDirty = true;
             this.InvalidateRender();
+        }
+
+        internal static void InternalInvalidateTransformationMatrixFromTrack(VideoClip clip) 
+        {
+            clip.isMatrixDirty = true;
         }
     }
 }

@@ -17,9 +17,16 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using FramePFX.CommandSystem;
 using FramePFX.Editors.Contextual;
+using FramePFX.Editors.Timelines;
 using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines.Tracks;
+using FramePFX.History;
+using FramePFX.RBC;
 
 namespace FramePFX.Editors.Commands
 {
@@ -42,6 +49,53 @@ namespace FramePFX.Editors.Commands
                 clip.Destroy();
                 clip.Track.RemoveClip(clip);
             }
+        }
+    }
+
+    public class MultiClipDeletionHistoryAction : HistoryAction {
+        private readonly Dictionary<Track, List<byte[]>> trackIdToClipArray;
+        private readonly Timeline timeline;
+        private readonly List<Clip> redeletionList;
+        
+        public MultiClipDeletionHistoryAction(List<Clip> clips, Timeline timeline) {
+            this.timeline = timeline;
+            this.trackIdToClipArray = new Dictionary<Track, List<byte[]>>();
+            this.redeletionList = new List<Clip>();
+            foreach (Clip clip in clips) {
+                if (!this.trackIdToClipArray.TryGetValue(clip.Track, out List<byte[]> list))
+                    this.trackIdToClipArray[clip.Track] = list = new List<byte[]>();
+
+                RBEDictionary dictionary = new RBEDictionary();
+                Clip.WriteSerialisedWithId(dictionary, clip);
+                list.Add(RBEUtils.ToByteArray(dictionary, Encoding.Default, true, 2048));
+            }
+        }
+
+        protected override bool OnUndo() {
+            foreach (KeyValuePair<Track,List<byte[]>> pair in this.trackIdToClipArray) {
+                List<Clip> clips = pair.Value.Select(x => {
+                    RBEDictionary dictionary = (RBEDictionary) RBEUtils.FromByteArray(x, Encoding.Default, true);
+                    return Clip.ReadSerialisedWithId(dictionary);
+                }).ToList();
+
+                foreach (Clip clip in clips) {
+                    // Clips are ordered by their timecode position, not list index
+                    pair.Key.AddClip(clip);
+                }
+                
+                this.redeletionList.AddRange(clips);
+            }
+
+            return true;
+        }
+
+        protected override bool OnRedo() {
+            foreach (Clip clip in this.redeletionList) {
+                clip.Track.RemoveClip(clip);
+            }
+            
+            this.redeletionList.Clear();
+            return true;
         }
     }
 }

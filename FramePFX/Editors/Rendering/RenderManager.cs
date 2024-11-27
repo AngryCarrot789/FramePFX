@@ -23,7 +23,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using FramePFX.Editors.Timelines;
-using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines.Clips.Video;
 using FramePFX.Editors.Timelines.Tracks;
 using FramePFX.Editors.Utils;
 using FramePFX.Utils;

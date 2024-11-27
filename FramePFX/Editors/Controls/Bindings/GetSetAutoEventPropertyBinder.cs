@@ -58,7 +58,7 @@ namespace FramePFX.Editors.Controls.Bindings
 
         private void OnEvent() => this.OnModelValueChanged();
 
-        protected override void UpdateModelCore()
+        protected override void UpdateModelOverride()
         {
             if (this.IsAttached && this.Property != null && this.setter != null)
             {
@@ -67,7 +67,7 @@ namespace FramePFX.Editors.Controls.Bindings
             }
         }
 
-        protected override void UpdateControlCore()
+        protected override void UpdateControlOverride()
         {
             if (this.IsAttached && this.Property != null && this.getter != null)
             {

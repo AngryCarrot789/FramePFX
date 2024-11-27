@@ -68,7 +68,7 @@ namespace FramePFX.Editors.Controls.Bindings
         {
         }
 
-        protected override void UpdateControlCore()
+        protected override void UpdateControlOverride()
         {
             object value = this.Parameter.GetCurrentObjectValue(this.Model);
             this.Control.SetValue(this.Property, value);

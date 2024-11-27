@@ -21,7 +21,7 @@ using System;
 using System.Runtime.InteropServices;
 using FramePFX.Editors.Automation.Params;
 using FramePFX.Editors.Rendering;
-using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines.Clips.Audio;
 using FramePFX.Utils.Accessing;
 
 namespace FramePFX.Editors.Timelines.Tracks

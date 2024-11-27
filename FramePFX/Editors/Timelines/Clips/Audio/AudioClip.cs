@@ -19,7 +19,7 @@
 
 using System;
 
-namespace FramePFX.Editors.Timelines.Clips
+namespace FramePFX.Editors.Timelines.Clips.Audio
 {
     public class AudioClip : Clip
     {

@@ -18,7 +18,7 @@
 //
 
 using FramePFX.Editors.Rendering;
-using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines.Clips.Video;
 using FramePFX.Editors.Timelines.Tracks;
 using SkiaSharp;
 

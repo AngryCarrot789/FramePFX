@@ -18,7 +18,7 @@
 //
 
 using FramePFX.Editors.DataTransfer;
-using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines.Clips.Video;
 
 namespace FramePFX.Editors.Controls.Timelines.Tracks.Clips
 {

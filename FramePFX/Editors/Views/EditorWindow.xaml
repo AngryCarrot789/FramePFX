@@ -28,7 +28,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="20"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <!-- 
             Context capturing menu is used to capture the context data of the 
@@ -181,7 +181,7 @@
         </Grid>
         <Border Grid.Row="2" Background="{DynamicResource ABrush.Tone5.Background.Static}"
                 BorderThickness="0,1,0,0" BorderBrush="{DynamicResource PanelBorderBrush}"
-                x:Name="PART_ActivityBarBorder">
+                x:Name="PART_ActivityBarBorder" Height="20">
             <DockPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
                     <Separator Style="{StaticResource VerticalSeparator}" Margin="5,0" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}"/>

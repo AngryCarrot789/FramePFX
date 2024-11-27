@@ -393,12 +393,7 @@ namespace FramePFX.Editors.Timelines.Tracks
             return list;
         }
 
-        public IEnumerable<Clip> GetClipsAtFrame(long frame)
-        {
-            List<Clip> list = new List<Clip>();
-            this.cache.GetClipsAtFrame(list, frame);
-            return list;
-        }
+        public IEnumerable<Clip> GetClipsAtFrame(long frame) => this.cache.GetClipsAtFrame(frame);
 
         public abstract bool IsEffectTypeAccepted(Type effectType);
 

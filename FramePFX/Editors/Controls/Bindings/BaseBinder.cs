@@ -26,13 +26,13 @@ namespace FramePFX.Editors.Controls.Bindings
     /// The base class for general binders, which are used to create a "bind" between model and event.
     /// <para>
     /// The typical behaviour is to add an event handler in user code and call <see cref="OnModelValueChanged"/>
-    /// which will cause <see cref="UpdateControlCore"/> to be called, allowing you to update the control's value. An internal bool
+    /// which will cause <see cref="UpdateControlOverride"/> to be called, allowing you to update the control's value. An internal bool
     /// will stop a stack overflow when the control's value ends up calling <see cref="OnControlValueChanged"/> which ignores
     /// the call if that bool is true
     /// </para>
     /// <para>
     /// Then, an event handler should be added for the control and it should call <see cref="OnControlValueChanged"/>, which causes
-    /// <see cref="UpdateModelCore"/>. As before, an internal bool stops a stack overflow when the value changes ends up
+    /// <see cref="UpdateModelOverride"/>. As before, an internal bool stops a stack overflow when the value changes ends up
     /// calling <see cref="OnModelValueChanged"/>
     /// </para>
     /// </summary>
@@ -68,7 +68,7 @@ namespace FramePFX.Editors.Controls.Bindings
             try
             {
                 this.IsUpdatingControl = true;
-                this.UpdateControlCore();
+                this.UpdateControlOverride();
             }
             finally
             {
@@ -80,19 +80,19 @@ namespace FramePFX.Editors.Controls.Bindings
         {
             if (!this.IsUpdatingControl && this.IsAttached)
             {
-                this.UpdateModelCore();
+                this.UpdateModelOverride();
             }
         }
 
         /// <summary>
         /// This method should be overridden to update the model's value using the element's value
         /// </summary>
-        protected abstract void UpdateModelCore();
+        protected abstract void UpdateModelOverride();
 
         /// <summary>
         /// This method should be overridden to update the control's value using the model's value
         /// </summary>
-        protected abstract void UpdateControlCore();
+        protected abstract void UpdateControlOverride();
 
         /// <summary>
         /// Called when we become attached to a control and model (both are set to a valid value before this method call)

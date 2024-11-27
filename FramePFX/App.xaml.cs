@@ -165,29 +165,23 @@ namespace FramePFX
 
             await this.splash.SetAction("Loading FFmpeg...", null);
 
-            string ffmpegFolderPath = Path.Combine(Path.GetFullPath("."), "\\libraries\\ffmpeg\\bin");
+            string ffmpegFolderPath = Path.GetFullPath(".\\libraries\\ffmpeg\\bin");
             if (!Directory.Exists(ffmpegFolderPath))
-            {
-                ffmpegFolderPath = Path.GetFullPath("..\\..\\..\\..\\libraries\\ffmpeg\\bin\\");
-            }
+                ffmpegFolderPath = Path.GetFullPath(".\\ffmpeg");
 
             if (!Directory.Exists(ffmpegFolderPath))
-            {
-                IoC.MessageService.ShowMessage("FFmpeg not found", "Could not find the FFmpeg folder. Make sure 'ffmpeg' (containing bin, include, lib, etc.) exists in either the solution directory or the same folder as the .exe\n\nThe editor may crash now...");
-            }
-            else
-            {
+                ffmpegFolderPath = Path.GetFullPath("..\\..\\..\\..\\libraries\\ffmpeg\\bin\\");
+
+            if (Directory.Exists(ffmpegFolderPath))
                 ffmpeg.RootPath = ffmpegFolderPath;
 
-                try
-                {
-                    // ffmpeg.RootPath = ""
-                    ffmpeg.avdevice_register_all();
-                }
-                catch (Exception e)
-                {
-                    IoC.MessageService.ShowMessage("FFmpeg registration failed", "Failed to register all FFmpeg devices", e.GetToString());
-                }
+            try
+            {
+                ffmpeg.avdevice_register_all();
+            }
+            catch (Exception e)
+            {
+                IoC.MessageService.ShowMessage("FFmpeg registration failed", "Failed to register all FFmpeg devices", e.GetToString());
             }
         }
 

@@ -30,7 +30,7 @@ static int AudioEngineCallback(const void* inputBuffer,
                                const PaStreamCallbackTimeInfo* timeInfo,
                                const PaStreamCallbackFlags statusFlags,
                                void* userData) {
-    AudioEngineClientData* data = static_cast<AudioEngineClientData*>(userData);
+    const AudioEngineClientData* data = static_cast<AudioEngineClientData*>(userData);
     if (data->ManagedAudioEngineCallBack) {
         return data->ManagedAudioEngineCallBack(outputBuffer, framesPerBuffer, timeInfo, statusFlags);
     }
@@ -66,7 +66,7 @@ extern "C" {
         PaTime             streamOpened;
 
         outputParameters.device = Pa_GetDefaultOutputDevice(); /* Default output device. */
-        if (outputParameters.device == paNoDevice) {
+         if (outputParameters.device == paNoDevice) {
             fprintf(stderr, "Error: No default output device.\n");
             goto error;
         }
@@ -75,6 +75,7 @@ extern "C" {
         outputParameters.sampleFormat = paFloat32;
         outputParameters.suggestedLatency = Pa_GetDeviceInfo(outputParameters.device)->defaultLowOutputLatency;
         outputParameters.hostApiSpecificStreamInfo = NULL;
+
         err = Pa_OpenStream(&pEngineData->stream,
             NULL,       /* No input. */
             &outputParameters,

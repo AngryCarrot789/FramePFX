@@ -48,7 +48,7 @@ namespace FramePFX.Editors.Controls.Bindings
 
         // we can get away with using the object API for parameters since the DP system boxes everything anyway
 
-        protected override void UpdateModelCore()
+        protected override void UpdateModelOverride()
         {
             if (this.IsAttached)
             {
@@ -57,7 +57,7 @@ namespace FramePFX.Editors.Controls.Bindings
             }
         }
 
-        protected override void UpdateControlCore()
+        protected override void UpdateControlOverride()
         {
             if (this.IsAttached)
             {

@@ -18,6 +18,7 @@
 //
 
 using FramePFX.Editors.Timelines.Clips;
+using FramePFX.Editors.Timelines.Clips.Audio;
 using FramePFX.Editors.Timelines.Clips.Core;
 
 namespace FramePFX.Editors.Factories

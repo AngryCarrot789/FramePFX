@@ -53,12 +53,12 @@ namespace FramePFX.Editors.Controls.Bindings
             this.Model.AutomationData.RemoveParameterChangedHandler(this.Parameter, this.handler);
         }
 
-        protected override void UpdateModelCore()
+        protected override void UpdateModelOverride()
         {
             this.UpdateModel?.Invoke(this);
         }
 
-        protected override void UpdateControlCore()
+        protected override void UpdateControlOverride()
         {
             this.UpdateControl?.Invoke(this);
         }

@@ -10,33 +10,28 @@
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
 using FFmpeg.AutoGen;
 
-namespace FramePFX.FFmpegWrapper.Codecs
-{
-    public unsafe readonly struct CodecHardwareConfig
-    {
-        public AVCodec* Codec { get; }
-        public AVCodecHWConfig* Config { get; }
+namespace FramePFX.FFmpegWrapper.Codecs;
 
-        public AVHWDeviceType DeviceType => this.Config->device_type;
-        public AVPixelFormat PixelFormat => this.Config->pix_fmt;
-        public CodecHardwareMethods Methods => (CodecHardwareMethods) this.Config->methods;
+public unsafe readonly struct CodecHardwareConfig {
+    public AVCodec* Codec { get; }
+    public AVCodecHWConfig* Config { get; }
 
-        public CodecHardwareConfig(AVCodec* codec, AVCodecHWConfig* config)
-        {
-            this.Codec = codec;
-            this.Config = config;
-        }
+    public AVHWDeviceType DeviceType => this.Config->device_type;
+    public AVPixelFormat PixelFormat => this.Config->pix_fmt;
+    public CodecHardwareMethods Methods => (CodecHardwareMethods) this.Config->methods;
 
-        public override string ToString() => new string((sbyte*) this.Codec->name) + " " + this.PixelFormat.ToString().Substring("AV_PIX_FMT_".Length);
+    public CodecHardwareConfig(AVCodec* codec, AVCodecHWConfig* config) {
+        this.Codec = codec;
+        this.Config = config;
     }
 
-    [Flags]
-    public enum CodecHardwareMethods
-    {
-        DeviceContext = 0x01,
-        FramesContext = 0x02
-    }
+    public override string ToString() => new string((sbyte*) this.Codec->name) + " " + this.PixelFormat.ToString().Substring("AV_PIX_FMT_".Length);
+}
+
+[Flags]
+public enum CodecHardwareMethods {
+    DeviceContext = 0x01,
+    FramesContext = 0x02
 }

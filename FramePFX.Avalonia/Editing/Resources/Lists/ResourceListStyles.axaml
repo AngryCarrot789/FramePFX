@@ -1,0 +1,177 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:e="clr-namespace:FramePFX.Avalonia.Editing.Resources.Lists"
+                    xmlns:av="clr-namespace:FramePFX.Avalonia.AvControls"
+                    xmlns:avs="clr-namespace:FramePFX.Avalonia.Shortcuts.Avalonia">
+    <ControlTheme x:Key="{x:Type e:ResourceExplorerListBox}" TargetType="{x:Type e:ResourceExplorerListBox}" BasedOn="{StaticResource {x:Type ListBox}}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+        <Setter Property="avs:UIInputManager.FocusPath" Value="Application/EditorWindow/ResourceManager"/>
+        <Setter Property="ItemsPanel">
+            <ItemsPanelTemplate>
+                <WrapPanel Orientation="Horizontal"/>
+            </ItemsPanelTemplate>
+        </Setter>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type e:ResourceExplorerListBox}">
+                    <Border x:Name="Bd" Padding="0"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        
+                        <ScrollViewer x:Name="PART_ScrollViewer"
+                                      Focusable="False"
+                                      Padding="{TemplateBinding Padding}"
+                                      AllowAutoHide="{TemplateBinding (ScrollViewer.AllowAutoHide)}"
+                                      BringIntoViewOnFocusChange="{TemplateBinding (ScrollViewer.BringIntoViewOnFocusChange)}"
+                                      Background="{TemplateBinding Background}"
+                                      HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}"
+                                      IsScrollChainingEnabled="{TemplateBinding (ScrollViewer.IsScrollChainingEnabled)}"
+                                      IsDeferredScrollingEnabled="{TemplateBinding (ScrollViewer.IsDeferredScrollingEnabled)}"
+                                      VerticalScrollBarVisibility="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility)}"
+                                      VerticalSnapPointsType="{TemplateBinding (ScrollViewer.VerticalSnapPointsType)}"
+                                      HorizontalSnapPointsType="{TemplateBinding (ScrollViewer.HorizontalSnapPointsType)}">
+                            <ItemsPresenter x:Name="PART_ItemsPresenter"
+                                            Margin="{TemplateBinding Padding}"
+                                            ItemsPanel="{TemplateBinding ItemsPanel}"/>
+                        </ScrollViewer>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
+        <Style Selector="^:disabled /template/ Border#Bd">
+            <Setter Property="Background" Value="{DynamicResource ListBox.Disabled.Background}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ListBox.Disabled.Border}"/>
+        </Style>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type e:ResourceExplorerListBoxItem}" TargetType="{x:Type e:ResourceExplorerListBoxItem}">
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Background.Static}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone6.Border.Static}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="2"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+        <Setter Property="avs:UIInputManager.FocusPath" Value="Application/EditorWindow/ResourceManager/Item"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type e:ResourceExplorerListBoxItem}">
+                    <Border x:Name="Bd"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Background="{TemplateBinding Background}"
+                            Padding="{TemplateBinding Padding}"
+                            Width="130" Height="100">
+                        <DockPanel>
+                            <Border Background="{DynamicResource ABrush.Tone6.Background.Static}"
+                                    BorderBrush="{Binding ElementName=Bd, Path=BorderBrush, Mode=OneWay}"
+                                    DockPanel.Dock="Bottom"
+                                    Height="23"
+                                    BorderThickness="0,1,0,0"
+                                    x:Name="PART_HeaderBorder">
+                                <TextBlock Padding="4,2"
+                                           Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=DisplayName, Mode=OneWay}"
+                                           VerticalAlignment="Center"
+                                           FontFamily="Segoe UI" FontWeight="Normal"/>
+                            </Border>
+                            <ContentPresenter x:Name="PART_ContentPresenter" 
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"/>
+                        </DockPanel>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style Selector="^:disabled /template/ Border#Bd">
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
+        </Style>
+        
+        <Style Selector="^:selected[IsFocused=True] /template/ Border#PART_HeaderBorder">
+            <Setter Property="Background" Value="{DynamicResource ABrush.AccentTone3.Background.Static}"/>
+        </Style>
+        <Style Selector="^:selected[IsFocused=True] /template/ Border#Bd">
+            <Setter Property="BorderBrush" Value="{DynamicResource ABrush.AccentTone3.Border.Static}"/>
+        </Style>
+        <Style Selector="^:selected[IsFocused=False] /template/ Border#PART_HeaderBorder">
+            <Setter Property="Background" Value="{DynamicResource ABrush.AccentTone1.Background.Static}"/>
+        </Style>
+        <Style Selector="^:selected[IsFocused=False] /template/ Border#Bd">
+            <Setter Property="BorderBrush" Value="{DynamicResource ABrush.AccentTone1.Border.Static}"/>
+        </Style>
+        <Style Selector="^:pointerover[IsSelected=False] /template/ Border#PART_HeaderBorder">
+            <Setter Property="Background" Value="{DynamicResource Item.MouseOver.Background}"/>
+        </Style>
+        <Style Selector="^:pointerover[IsSelected=False] /template/ Border#Bd">
+            <Setter Property="BorderBrush" Value="{DynamicResource Item.MouseOver.Border}"/>
+        </Style>
+        <Style Selector="^:pointerover[IsResourceOnline=False] /template/ Border#PART_HeaderBorder">
+            <Setter Property="Background" Value="DarkRed"/>
+        </Style>
+        <Style Selector="^:pointerover[IsResourceOnline=False] /template/ Border#Bd">
+            <Setter Property="BorderBrush" Value="DarkRed"/>
+        </Style>
+        <Style Selector="^[IsPointerOver=False][IsResourceOnline=False] /template/ Border#PART_HeaderBorder">
+            <Setter Property="Background" Value="Red"/>
+        </Style>
+        <Style Selector="^[IsPointerOver=False][IsResourceOnline=False] /template/ Border#Bd">
+            <Setter Property="BorderBrush" Value="Red"/>
+        </Style>
+        <Style Selector="^[IsDroppableTargetOver=True] /template/ Border#Bd">
+            <Setter Property="Background" Value="OrangeRed"/>
+        </Style>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type e:ResourceExplorerListItemContent}" TargetType="{x:Type e:ResourceExplorerListItemContent}"/>
+    <ControlTheme x:Key="{x:Type e:RELICFolder}" TargetType="{x:Type e:RELICFolder}" BasedOn="{StaticResource {x:Type e:ResourceExplorerListItemContent}}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type e:RELICFolder}">
+                    <TextBlock Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ItemCount, StringFormat='{}{0} Items'}"
+                               VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type e:RELICColour}" TargetType="{x:Type e:RELICColour}" BasedOn="{StaticResource {x:Type e:ResourceExplorerListItemContent}}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type e:RELICColour}">
+                    <Border Background="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Brush}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type e:RELICImage}" TargetType="{x:Type e:RELICImage}" BasedOn="{StaticResource {x:Type e:ResourceExplorerListItemContent}}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type e:RELICImage}">
+                    <Image x:Name="PART_Image" Stretch="Fill"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type e:RELICComposition}" TargetType="{x:Type e:RELICComposition}" BasedOn="{StaticResource {x:Type e:ResourceExplorerListItemContent}}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type e:RELICComposition}">
+                    <av:SKPreviewViewPortEx x:Name="PART_ViewPort"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

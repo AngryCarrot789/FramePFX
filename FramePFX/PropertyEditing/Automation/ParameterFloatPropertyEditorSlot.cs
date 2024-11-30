@@ -17,51 +17,44 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System;
-using FramePFX.Editors.Automation;
-using FramePFX.Editors.Automation.Params;
-using FramePFX.Editors.Controls.Automation;
+using FramePFX.Editing.Automation;
+using FramePFX.Editing.Automation.Params;
+using FramePFX.PropertyEditing.DataTransfer;
+using FramePFX.Utils;
 
-namespace FramePFX.PropertyEditing.Automation
-{
-    public class ParameterFloatPropertyEditorSlot : ParameterPropertyEditorSlot
-    {
-        private float value;
+namespace FramePFX.PropertyEditing.Automation;
 
-        public float Value
-        {
-            get => this.value;
-            set
-            {
-                float oldVal = this.value;
-                this.value = value;
-                bool useAddition = this.IsMultiHandler;
-                float change = value - oldVal;
-                ParameterFloat parameter = this.Parameter;
-                ParameterDescriptorFloat pdesc = parameter.Descriptor;
-                for (int i = 0, c = this.Handlers.Count; i < c; i++)
-                {
-                    IAutomatable obj = (IAutomatable) this.Handlers[i];
-                    float newValue = pdesc.Clamp(useAddition ? (parameter.GetCurrentValue(obj) + change) : value);
-                    AutomatedUtils.SetDefaultKeyFrameOrAddNew(obj, parameter, newValue);
-                }
+public class ParameterFloatPropertyEditorSlot : NumericParameterPropertyEditorSlot {
+    private float value;
 
-                this.OnValueChanged();
+    public float Value {
+        get => this.value;
+        set {
+            float oldVal = this.value;
+            this.value = value;
+            bool useAddition = this.IsMultiHandler;
+            float change = value - oldVal;
+            ParameterFloat parameter = this.Parameter;
+            ParameterDescriptorFloat pdesc = parameter.Descriptor;
+            for (int i = 0, c = this.Handlers.Count; i < c; i++) {
+                IAutomatable obj = (IAutomatable) this.Handlers[i];
+                float newValue = pdesc.Clamp(useAddition ? (parameter.GetCurrentValue(obj) + change) : value);
+                AutomationUtils.SetDefaultKeyFrameOrAddNew(obj, parameter, newValue);
             }
+
+            this.OnValueChanged();
         }
+    }
 
-        public new ParameterFloat Parameter => (ParameterFloat) base.Parameter;
+    public new ParameterFloat Parameter => (ParameterFloat) base.Parameter;
 
-        public DragStepProfile StepProfile { get; }
+    public DragStepProfile StepProfile { get; }
 
-        public ParameterFloatPropertyEditorSlot(ParameterFloat parameter, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName)
-        {
-            this.StepProfile = stepProfile;
-        }
+    public ParameterFloatPropertyEditorSlot(ParameterFloat parameter, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName) {
+        this.StepProfile = stepProfile;
+    }
 
-        protected override void QueryValueFromHandlers()
-        {
-            this.value = GetEqualValue(this.Handlers, (x) => this.Parameter.GetCurrentValue((IAutomatable) x), out float d) ? d : default;
-        }
+    protected override void QueryValueFromHandlers() {
+        this.value = CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetCurrentValue((IAutomatable) x), out float d) ? d : default;
     }
 }

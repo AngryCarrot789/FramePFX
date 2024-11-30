@@ -17,52 +17,63 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System;
 using System.Numerics;
-using FramePFX.Editors.Automation;
-using FramePFX.Editors.Automation.Params;
-using FramePFX.Editors.Controls.Automation;
+using FramePFX.Editing.Automation;
+using FramePFX.Editing.Automation.Params;
+using FramePFX.Interactivity.Formatting;
+using FramePFX.PropertyEditing.DataTransfer;
+using FramePFX.Utils;
 
-namespace FramePFX.PropertyEditing.Automation
-{
-    public class ParameterVector2PropertyEditorSlot : ParameterPropertyEditorSlot
-    {
-        private Vector2 value;
+namespace FramePFX.PropertyEditing.Automation;
 
-        public Vector2 Value
-        {
-            get => this.value;
-            set
-            {
-                Vector2 oldVal = this.value;
-                this.value = value;
-                bool useAddition = this.IsMultiHandler;
-                Vector2 change = value - oldVal;
-                ParameterVector2 parameter = this.Parameter;
-                ParameterDescriptorVector2 pdesc = parameter.Descriptor;
-                for (int i = 0, c = this.Handlers.Count; i < c; i++)
-                {
-                    IAutomatable obj = (IAutomatable) this.Handlers[i];
-                    Vector2 newValue = pdesc.Clamp(useAddition ? (parameter.GetCurrentValue(obj) + change) : value);
-                    AutomatedUtils.SetDefaultKeyFrameOrAddNew(obj, parameter, newValue);
-                }
+public delegate void ParameterVector2ValueFormatterChangedEventHandler(ParameterVector2PropertyEditorSlot sender, IValueFormatter? oldValueFormatter, IValueFormatter? newValueFormatter);
 
-                this.OnValueChanged();
+public class ParameterVector2PropertyEditorSlot : ParameterPropertyEditorSlot {
+    private Vector2 value;
+    private IValueFormatter? valueFormatter;
+
+    public Vector2 Value {
+        get => this.value;
+        set {
+            Vector2 oldVal = this.value;
+            this.value = value;
+            bool useAddition = this.IsMultiHandler;
+            Vector2 change = value - oldVal;
+            ParameterVector2 parameter = this.Parameter;
+            ParameterDescriptorVector2 pdesc = parameter.Descriptor;
+            for (int i = 0, c = this.Handlers.Count; i < c; i++) {
+                IAutomatable obj = (IAutomatable) this.Handlers[i];
+                Vector2 newValue = pdesc.Clamp(useAddition ? (parameter.GetCurrentValue(obj) + change) : value);
+                AutomationUtils.SetDefaultKeyFrameOrAddNew(obj, parameter, newValue);
             }
+
+            this.OnValueChanged();
         }
+    }
 
-        public new ParameterVector2 Parameter => (ParameterVector2) base.Parameter;
+    public IValueFormatter? ValueFormatter {
+        get => this.valueFormatter;
+        set {
+            IValueFormatter? oldValueFormatter = this.valueFormatter;
+            if (oldValueFormatter == value)
+                return;
 
-        public DragStepProfile StepProfile { get; }
-
-        public ParameterVector2PropertyEditorSlot(ParameterVector2 parameter, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName)
-        {
-            this.StepProfile = stepProfile;
+            this.valueFormatter = value;
+            this.ValueFormatterChanged?.Invoke(this, oldValueFormatter, value);
         }
+    }
 
-        protected override void QueryValueFromHandlers()
-        {
-            this.value = GetEqualValue(this.Handlers, (x) => this.Parameter.GetCurrentValue((IAutomatable) x), out Vector2 d) ? d : default;
-        }
+    public event ParameterVector2ValueFormatterChangedEventHandler? ValueFormatterChanged;
+
+    public new ParameterVector2 Parameter => (ParameterVector2) base.Parameter;
+
+    public DragStepProfile StepProfile { get; }
+
+    public ParameterVector2PropertyEditorSlot(ParameterVector2 parameter, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName) {
+        this.StepProfile = stepProfile;
+    }
+
+    protected override void QueryValueFromHandlers() {
+        this.value = CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetCurrentValue((IAutomatable) x), out Vector2 d) ? d : default;
     }
 }

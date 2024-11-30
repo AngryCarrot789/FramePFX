@@ -12,27 +12,22 @@
 
 using FFmpeg.AutoGen;
 
-namespace FramePFX.FFmpegWrapper.Codecs
-{
-    public unsafe class AudioDecoder : MediaDecoder
-    {
-        public AVSampleFormat SampleFormat => this.ctx->sample_fmt;
-        public int SampleRate => this.ctx->sample_rate;
-        public int NumChannels => this.ctx->ch_layout.nb_channels;
-        public AVChannelLayout ChannelLayout => this.ctx->ch_layout;
+namespace FramePFX.FFmpegWrapper.Codecs;
 
-        public AudioFormat Format => new AudioFormat(this.ctx);
+public unsafe class AudioDecoder : MediaDecoder {
+    public AVSampleFormat SampleFormat => this.ctx->sample_fmt;
+    public int SampleRate => this.ctx->sample_rate;
+    public int NumChannels => this.ctx->ch_layout.nb_channels;
+    public AVChannelLayout ChannelLayout => this.ctx->ch_layout;
 
-        public AudioDecoder(AVCodecID codecId) : this(FindCodecFromId(codecId, enc: false))
-        {
-        }
+    public AudioFormat Format => new AudioFormat(this.ctx);
 
-        public AudioDecoder(AVCodec* codec) : this(AllocContext(codec))
-        {
-        }
+    public AudioDecoder(AVCodecID codecId) : this(FindCodecFromId(codecId, enc: false)) {
+    }
 
-        public AudioDecoder(AVCodecContext* ctx, bool takeOwnership = true) : base(ctx, MediaTypes.Audio, takeOwnership)
-        {
-        }
+    public AudioDecoder(AVCodec* codec) : this(AllocContext(codec)) {
+    }
+
+    public AudioDecoder(AVCodecContext* ctx, bool takeOwnership = true) : base(ctx, MediaTypes.Audio, takeOwnership) {
     }
 }

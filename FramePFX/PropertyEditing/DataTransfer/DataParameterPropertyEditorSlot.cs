@@ -17,110 +17,157 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System;
-using FramePFX.Editors.DataTransfer;
+using FramePFX.DataTransfer;
+using FramePFX.Utils;
 
-namespace FramePFX.PropertyEditing.DataTransfer
-{
-    public delegate void DataParameterPropertyEditorSlotEventHandler(DataParameterPropertyEditorSlot slot);
+namespace FramePFX.PropertyEditing.DataTransfer;
 
-    public abstract class DataParameterPropertyEditorSlot : PropertyEditorSlot
-    {
-        private string displayName;
+public delegate void DataParameterPropertyEditorSlotEventHandler(DataParameterPropertyEditorSlot slot);
 
-        protected ITransferableData SingleHandler => (ITransferableData) this.Handlers[0];
+public delegate void SlotHasMultipleValuesChangedEventHandler(DataParameterPropertyEditorSlot sender);
 
-        public DataParameter DataParameter { get; }
+public delegate void SlotHasProcessedMultipleValuesChangedEventHandler(DataParameterPropertyEditorSlot sender);
 
-        public string DisplayName
-        {
-            get => this.displayName;
-            set
-            {
-                if (this.displayName == value)
-                    return;
-                this.displayName = value;
-                this.DisplayNameChanged?.Invoke(this);
-            }
+public abstract class DataParameterPropertyEditorSlot : PropertyEditorSlot {
+    private string displayName;
+    private bool isEditable;
+    private bool hasMultipleValues;
+    private bool hasProcessedMultipleValuesSinceSetup;
+    protected bool lastQueryHasMultipleValues;
+
+    protected ITransferableData SingleHandler => (ITransferableData) this.Handlers[0];
+
+    /// <summary>
+    /// Gets the value parameter used to communicate the value to/from our handlers
+    /// </summary>
+    public DataParameter Parameter { get; }
+
+    public string DisplayName {
+        get => this.displayName;
+        set {
+            if (this.displayName == value)
+                return;
+            this.displayName = value;
+            this.DisplayNameChanged?.Invoke(this);
         }
+    }
 
-        private bool isEditable;
+    public bool IsEditable {
+        get => this.isEditable;
+        set {
+            if (this.isEditable == value)
+                return;
+            this.isEditable = value;
+            DataParameter<bool>? p = this.IsEditableDataParameter;
 
-        public bool IsEditable
-        {
-            get => this.isEditable;
-            set
-            {
-                if (this.isEditable == value)
-                    return;
-                this.isEditable = value;
-                DataParameter<bool> p = this.IsEditableParameter;
-
-                if (p != null)
-                {
-                    for (int i = 0, c = this.Handlers.Count; i < c; i++)
-                    {
-                        p.SetValue((ITransferableData) this.Handlers[i], value);
-                    }
+            if (p != null) {
+                for (int i = 0, c = this.Handlers.Count; i < c; i++) {
+                    p.SetValue((ITransferableData) this.Handlers[i], value);
                 }
-
-                this.IsEditableChanged?.Invoke(this);
             }
+
+            this.IsEditableChanged?.Invoke(this);
         }
+    }
 
-        public override bool IsSelectable => true;
+    /// <summary>
+    /// Gets whether the slot has multiple handlers and they all have different underlying values.
+    /// This is used to present some sort of signal in the UI warning the user before they try to modify it.
+    /// This state must be updated manually by derived classes when the values are no longer different
+    /// </summary>
+    public bool HasMultipleValues {
+        get => this.hasMultipleValues;
+        protected set {
+            if (this.hasMultipleValues == value)
+                return;
 
-        /// <summary>
-        /// Gets or sets the parameter which determines if the value can be modified in the UI. This should
-        /// only be set during the construction phase of the object and not during its lifetime
-        /// </summary>
-        public DataParameter<bool> IsEditableParameter { get; set; }
-
-        /// <summary>
-        /// Gets or sets if the parameter's value is inverted between the parameter and checkbox in the UI.
-        /// This should only be set during the construction phase of the object and not during its lifetime
-        /// </summary>
-        public bool InvertIsEditableForParameter { get; set; }
-
-        public event DataParameterPropertyEditorSlotEventHandler IsEditableChanged;
-        public event DataParameterPropertyEditorSlotEventHandler DisplayNameChanged;
-        public event DataParameterPropertyEditorSlotEventHandler ValueChanged;
-
-        protected DataParameterPropertyEditorSlot(DataParameter parameter, Type applicableType, string displayName = null) : base(applicableType)
-        {
-            this.DataParameter = parameter ?? throw new ArgumentNullException(nameof(parameter));
-            this.displayName = displayName ?? parameter.Key;
+            if (value)
+                this.HasProcessedMultipleValuesSinceSetup = false;
+            this.hasMultipleValues = value;
+            this.HasMultipleValuesChanged?.Invoke(this);
         }
+    }
 
-        protected override void OnHandlersLoaded()
-        {
-            base.OnHandlersLoaded();
-            if (this.IsSingleHandler)
-                this.SingleHandler.TransferableData.AddValueChangedHandler(this.DataParameter, this.OnValueForSingleHandlerChanged);
-            this.QueryValueFromHandlers();
-            DataParameter<bool> p = this.IsEditableParameter;
-            this.IsEditable = p == null || (!GetEqualValue(this.Handlers, h => p.GetValue((ITransferableData) h), out bool v) || v);
-            this.OnValueChanged();
+    /// <summary>
+    /// Gets or sets whether the <see cref="HasMultipleValues"/> has been
+    /// updated since <see cref="BasePropertyEditorItem.IsCurrentlyApplicable"/> became true
+    /// </summary>
+    public bool HasProcessedMultipleValuesSinceSetup {
+        get => this.hasProcessedMultipleValuesSinceSetup;
+        set {
+            if (this.hasProcessedMultipleValuesSinceSetup == value)
+                return;
+
+            this.hasProcessedMultipleValuesSinceSetup = value;
+            this.HasProcessedMultipleValuesChanged?.Invoke(this);
         }
+    }
 
-        protected override void OnClearingHandlers()
-        {
-            base.OnClearingHandlers();
-            if (this.IsSingleHandler)
-                this.SingleHandler.TransferableData.RemoveValueChangedHandler(this.DataParameter, this.OnValueForSingleHandlerChanged);
-        }
+    public override bool IsSelectable => true;
 
-        private void OnValueForSingleHandlerChanged(DataParameter parameter, ITransferableData owner)
-        {
-            this.QueryValueFromHandlers();
-            this.OnValueChanged();
-        }
+    /// <summary>
+    /// Gets or sets the parameter which determines if the value can be modified in the UI. This should
+    /// only be set during the construction phase of the object and not during its lifetime
+    /// </summary>
+    public DataParameter<bool>? IsEditableDataParameter { get; set; }
 
-        public abstract void QueryValueFromHandlers();
+    /// <summary>
+    /// Gets or sets if the parameter's value is inverted between the parameter and checkbox in the UI.
+    /// This should only be set during the construction phase of the object and not during its lifetime
+    /// </summary>
+    public bool InvertIsEditableForParameter { get; set; }
 
-        protected void OnValueChanged()
-        {
-            this.ValueChanged?.Invoke(this);
-        }
+    /// <summary>
+    /// An event fired when <see cref="HasMultipleValues"/> changes
+    /// </summary>
+    public event SlotHasMultipleValuesChangedEventHandler? HasMultipleValuesChanged;
+
+    public event SlotHasProcessedMultipleValuesChangedEventHandler? HasProcessedMultipleValuesChanged;
+
+    public event DataParameterPropertyEditorSlotEventHandler? IsEditableChanged;
+    public event DataParameterPropertyEditorSlotEventHandler? DisplayNameChanged;
+    public event DataParameterPropertyEditorSlotEventHandler? ValueChanged;
+
+    protected DataParameterPropertyEditorSlot(DataParameter parameter, Type applicableType, string? displayName = null) : base(applicableType) {
+        this.Parameter = parameter ?? throw new ArgumentNullException(nameof(parameter));
+        this.displayName = displayName ?? parameter.Name;
+    }
+
+    protected override void OnHandlersLoaded() {
+        base.OnHandlersLoaded();
+        if (this.IsSingleHandler)
+            this.Parameter.AddValueChangedHandler(this.SingleHandler, this.OnValueForSingleHandlerChanged);
+        this.QueryValueFromHandlers();
+        this.lastQueryHasMultipleValues = this.HasMultipleValues;
+        DataParameter<bool>? p = this.IsEditableDataParameter;
+        this.IsEditable = p == null || (!CollectionUtils.GetEqualValue(this.Handlers, h => p.GetValue((ITransferableData) h), out bool v) || v);
+        this.OnValueChanged();
+    }
+
+    protected override void OnClearingHandlers() {
+        base.OnClearingHandlers();
+        if (this.IsSingleHandler)
+            this.Parameter.RemoveValueChangedHandler(this.SingleHandler, this.OnValueForSingleHandlerChanged);
+    }
+
+    private void OnValueForSingleHandlerChanged(DataParameter parameter, ITransferableData owner) {
+        this.QueryValueFromHandlers();
+        this.lastQueryHasMultipleValues = this.HasMultipleValues;
+        this.OnValueChanged();
+    }
+
+    public abstract void QueryValueFromHandlers();
+
+    /// <summary>
+    /// Raises the value changed event, and optionally updates the <see cref="HasMultipleValues"/> (e.g. for
+    /// if the value of each handler was set to a new value, it can be set to false now)
+    /// </summary>
+    /// <param name="hasMultipleValues">The optional new value of <see cref="HasMultipleValues"/></param>
+    protected void OnValueChanged(bool? hasMultipleValues = null, bool? hasProcessedMultiValueSinceSetup = null) {
+        this.ValueChanged?.Invoke(this);
+        if (hasMultipleValues.HasValue)
+            this.HasMultipleValues = hasMultipleValues.Value;
+        if (hasProcessedMultiValueSinceSetup.HasValue)
+            this.HasProcessedMultipleValuesSinceSetup = hasProcessedMultiValueSinceSetup.Value;
     }
 }

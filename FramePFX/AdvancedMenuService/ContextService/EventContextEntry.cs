@@ -17,23 +17,19 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.AdvancedMenuService.ContextService
-{
-    /// <summary>
-    /// The class for action-based context entries. The header, tooltip, etc, are automatically fetched
-    /// </summary>
-    public class EventContextEntry : BaseContextEntry
-    {
-        public Action<IContextData> Action { get; set; }
+namespace FramePFX.AdvancedMenuService.ContextService;
 
-        public EventContextEntry(string header, string description = null) : base(header, description) { }
+/// <summary>
+/// The class for action-based context entries. The header, tooltip, etc, are automatically fetched
+/// </summary>
+public class EventContextEntry : BaseContextEntry {
+    public Action<IContextData> Action { get; set; }
 
-        public EventContextEntry(Action<IContextData> action, string header, string description = null) : base(header, description)
-        {
-            this.Action = action;
-        }
+    public EventContextEntry(string header, string description = null) : base(header, description) { }
+
+    public EventContextEntry(Action<IContextData> action, string header, string description = null) : base(header, description) {
+        this.Action = action;
     }
 }

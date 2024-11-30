@@ -17,12 +17,14 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Threading.Tasks;
+namespace FramePFX;
 
-namespace FramePFX
-{
-    public interface IApplicationStartupProgress
-    {
-        Task SetAction(string header, string description);
+public interface IApplicationStartupProgress {
+    Task SetAction(string? header, string? description);
+}
+
+public class EmptyApplicationStartupProgress : IApplicationStartupProgress {
+    public Task SetAction(string? header, string? description) {
+        return Task.CompletedTask;
     }
 }

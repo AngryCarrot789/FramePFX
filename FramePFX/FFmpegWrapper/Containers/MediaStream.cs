@@ -10,36 +10,32 @@
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
 using FFmpeg.AutoGen;
 
-namespace FramePFX.FFmpegWrapper.Containers
-{
-    public unsafe class MediaStream
-    {
-        public AVStream* Handle { get; }
+namespace FramePFX.FFmpegWrapper.Containers;
 
-        public int Index => this.Handle->index;
+public unsafe class MediaStream {
+    public AVStream* Handle { get; }
 
-        public AVMediaType Type => this.Handle->codecpar->codec_type;
+    public int Index => this.Handle->index;
 
-        /// <summary> The fundamental unit of time (in seconds) in terms of which frame timestamps are represented. </summary>
-        public AVRational TimeBase => this.Handle->time_base;
+    public AVMediaType Type => this.Handle->codecpar->codec_type;
 
-        /// <summary> Pts of the first frame of the stream in presentation order, in stream time base. </summary>
-        public long? StartTime => FFUtils.GetPTS(this.Handle->start_time);
+    /// <summary> The fundamental unit of time (in seconds) in terms of which frame timestamps are represented. </summary>
+    public AVRational TimeBase => this.Handle->time_base;
 
-        /// <summary> Decoding: duration of the stream, in stream time base. If a source file does not specify a duration, but does specify a bitrate, this value will be estimated from bitrate and file size. </summary>
-        public TimeSpan? Duration => FFUtils.GetTimeSpan(this.Handle->duration, this.TimeBase);
+    /// <summary> Pts of the first frame of the stream in presentation order, in stream time base. </summary>
+    public long? StartTime => FFUtils.GetPTS(this.Handle->start_time);
 
-        public double AvgFrameRate => ffmpeg.av_q2d(this.Handle->avg_frame_rate);
+    /// <summary> Decoding: duration of the stream, in stream time base. If a source file does not specify a duration, but does specify a bitrate, this value will be estimated from bitrate and file size. </summary>
+    public TimeSpan? Duration => FFUtils.GetTimeSpan(this.Handle->duration, this.TimeBase);
 
-        public MediaStream(AVStream* stream)
-        {
-            this.Handle = stream;
-        }
+    public double AvgFrameRate => ffmpeg.av_q2d(this.Handle->avg_frame_rate);
 
-        /// <summary> Returns the corresponding <see cref="TimeSpan"/> for the given timestamp based on <see cref="TimeBase"/> units. </summary>
-        public TimeSpan GetTimestamp(long pts) => FFUtils.GetTimeSpan(pts, this.TimeBase) ?? TimeSpan.Zero;
+    public MediaStream(AVStream* stream) {
+        this.Handle = stream;
     }
+
+    /// <summary> Returns the corresponding <see cref="TimeSpan"/> for the given timestamp based on <see cref="TimeBase"/> units. </summary>
+    public TimeSpan GetTimestamp(long pts) => FFUtils.GetTimeSpan(pts, this.TimeBase) ?? TimeSpan.Zero;
 }

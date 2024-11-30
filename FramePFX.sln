@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34018.315
@@ -9,12 +9,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{070E3833-D
 		docs\TheUI.md = docs\TheUI.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FramePFX", "FramePFX\FramePFX.csproj", "{82D8612A-A293-4B2C-9D9D-8BF7270157A2}"
-	ProjectSection(ProjectDependencies) = postProject
-		{20257E2E-0F5E-46D6-9A66-85B0BD063571} = {20257E2E-0F5E-46D6-9A66-85B0BD063571}
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FramePFX.Avalonia", "FramePFX.Avalonia\FramePFX.Avalonia.csproj", "{4E393A8A-C015-4CA2-9CB8-67BC68826170}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FramePFX.NativeEngine", "FramePFX.NativeEngine\FramePFX.NativeEngine.vcxproj", "{20257E2E-0F5E-46D6-9A66-85B0BD063571}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FramePFX", "FramePFX\FramePFX.csproj", "{0E6A4826-79F9-4E81-898D-F66B3EA0C319}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,14 +19,14 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{82D8612A-A293-4B2C-9D9D-8BF7270157A2}.Debug|x64.ActiveCfg = Debug|x64
-		{82D8612A-A293-4B2C-9D9D-8BF7270157A2}.Debug|x64.Build.0 = Debug|x64
-		{82D8612A-A293-4B2C-9D9D-8BF7270157A2}.Release|x64.ActiveCfg = Release|x64
-		{82D8612A-A293-4B2C-9D9D-8BF7270157A2}.Release|x64.Build.0 = Release|x64
-		{20257E2E-0F5E-46D6-9A66-85B0BD063571}.Debug|x64.ActiveCfg = Debug|x64
-		{20257E2E-0F5E-46D6-9A66-85B0BD063571}.Debug|x64.Build.0 = Debug|x64
-		{20257E2E-0F5E-46D6-9A66-85B0BD063571}.Release|x64.ActiveCfg = Release|x64
-		{20257E2E-0F5E-46D6-9A66-85B0BD063571}.Release|x64.Build.0 = Release|x64
+		{4E393A8A-C015-4CA2-9CB8-67BC68826170}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4E393A8A-C015-4CA2-9CB8-67BC68826170}.Debug|x64.Build.0 = Debug|Any CPU
+		{4E393A8A-C015-4CA2-9CB8-67BC68826170}.Release|x64.ActiveCfg = Release|Any CPU
+		{4E393A8A-C015-4CA2-9CB8-67BC68826170}.Release|x64.Build.0 = Release|Any CPU
+		{0E6A4826-79F9-4E81-898D-F66B3EA0C319}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0E6A4826-79F9-4E81-898D-F66B3EA0C319}.Debug|x64.Build.0 = Debug|Any CPU
+		{0E6A4826-79F9-4E81-898D-F66B3EA0C319}.Release|x64.ActiveCfg = Release|Any CPU
+		{0E6A4826-79F9-4E81-898D-F66B3EA0C319}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

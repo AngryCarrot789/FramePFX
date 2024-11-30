@@ -1,5 +1,5 @@
 // 
-// Copyright (c) 2023-2024 REghZy
+// Copyright (c) 2024-2024 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -17,45 +17,26 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
-namespace FramePFX.Interactivity.Contexts
-{
+namespace FramePFX.Interactivity.Contexts;
+
+/// <summary>
+/// An immutable object that stores context information. Any entry will always have a non-null value (null values are not permitted)
+/// </summary>
+public interface IContextData {
     /// <summary>
-    /// An immutable object that stores context information. Any entry will always have a non-null value (null values are not permitted)
+    /// Returns an enumerable that allows iteration of all entries in this object
     /// </summary>
-    public interface IContextData
-    {
-        /// <summary>
-        /// Returns an enumerable that allows iteration of all entries in this object
-        /// </summary>
-        IEnumerable<KeyValuePair<string, object>> Entries { get; }
+    IEnumerable<KeyValuePair<string, object>> Entries { get; }
 
-        /// <summary>
-        /// Tries to get a value from a data key
-        /// </summary>
-        bool TryGetContext(string key, out object value);
+    /// <summary>
+    /// Tries to get a value from a data key
+    /// </summary>
+    bool TryGetContext(string key, [MaybeNullWhen(false)] out object value);
 
-        /// <summary>
-        /// Tries to get a value from a data key
-        /// </summary>
-        bool TryGetContext<T>(DataKey<T> key, out T value);
-
-        /// <summary>
-        /// Checks if the given data key is contained in this context
-        /// </summary>
-        bool ContainsKey(DataKey key);
-
-        /// <summary>
-        /// Checks if the given data key is contained in this context
-        /// </summary>
-        bool ContainsKey(string key);
-
-        /// <summary>
-        /// Creates a new cloned instance of this context data, which contains all of the entries
-        /// that the current instance contains. The entries' values are not deep-copied
-        /// </summary>
-        /// <returns></returns>
-        IContextData Clone();
-    }
+    /// <summary>
+    /// Checks if the given data key is contained in this context
+    /// </summary>
+    bool ContainsKey(string key);
 }

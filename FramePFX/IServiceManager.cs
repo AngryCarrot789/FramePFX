@@ -1,5 +1,5 @@
 // 
-// Copyright (c) 2023-2024 REghZy
+// Copyright (c) 2024-2024 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -17,19 +17,15 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System;
+namespace FramePFX;
 
-namespace FramePFX
-{
-    public interface IServiceManager
-    {
-        bool HasService<T>();
-        bool HasService(Type serviceType);
+public interface IServiceManager {
+    bool HasService<T>();
+    bool HasService(Type serviceType);
 
-        T GetService<T>();
-        object GetService(Type type);
+    T GetService<T>();
+    object GetService(Type type);
 
-        bool TryGetService(Type serviceType, out object service);
-        bool TryGetService<T>(out T service);
-    }
+    bool TryGetService(Type serviceType, out object service);
+    bool TryGetService<T>(out T service);
 }

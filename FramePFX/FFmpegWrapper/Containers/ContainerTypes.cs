@@ -10,35 +10,30 @@
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
 using FFmpeg.AutoGen;
 
-namespace FramePFX.FFmpegWrapper.Containers
-{
-    public static class ContainerTypes
-    {
-        public const string
-            //General
-            Mp4 = "mp4",
-            Mov = "mov",
-            Matroska = "mkv",
-            WebM = "webm",
-            //Audio
-            Mp3 = "mp3",
-            Ogg = "ogg",
-            Flac = "flac",
-            M4a = "m4a",
-            Wav = "wav";
+namespace FramePFX.FFmpegWrapper.Containers;
 
-        public static unsafe AVOutputFormat* GetOutputFormat(string extension)
-        {
-            AVOutputFormat* fmt = ffmpeg.av_guess_format(null, "dummy." + extension, null);
-            if (fmt == null)
-            {
-                throw new NotSupportedException();
-            }
+public static class ContainerTypes {
+    public const string
+        //General
+        Mp4 = "mp4",
+        Mov = "mov",
+        Matroska = "mkv",
+        WebM = "webm",
+        //Audio
+        Mp3 = "mp3",
+        Ogg = "ogg",
+        Flac = "flac",
+        M4a = "m4a",
+        Wav = "wav";
 
-            return fmt;
+    public static unsafe AVOutputFormat* GetOutputFormat(string extension) {
+        AVOutputFormat* fmt = ffmpeg.av_guess_format(null, "dummy." + extension, null);
+        if (fmt == null) {
+            throw new NotSupportedException();
         }
+
+        return fmt;
     }
 }

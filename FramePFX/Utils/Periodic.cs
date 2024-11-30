@@ -17,18 +17,15 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Utils
-{
-    public static class Periodic
-    {
-        public static long MethodNameHere(long value, long min, long max)
-        {
-            long range = max - min;
-            while (value >= max)
-                value -= range;
-            while (value < min)
-                value += range;
-            return value;
-        }
+namespace FramePFX.Utils;
+
+public static class Periodic {
+    public static long MethodNameHere(long value, long min, long max) {
+        long range = max - min;
+        while (value >= max)
+            value -= range;
+        while (value < min)
+            value += range;
+        return value;
     }
 }

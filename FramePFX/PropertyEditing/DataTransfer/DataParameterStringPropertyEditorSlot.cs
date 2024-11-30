@@ -17,40 +17,55 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System;
-using FramePFX.Editors.DataTransfer;
+using FramePFX.DataTransfer;
+using FramePFX.Utils;
 
-namespace FramePFX.PropertyEditing.DataTransfer
-{
-    public class DataParameterStringPropertyEditorSlot : DataParameterPropertyEditorSlot
-    {
-        private string value;
+namespace FramePFX.PropertyEditing.DataTransfer;
 
-        public string Value
-        {
-            get => this.value;
-            set
-            {
-                this.value = value;
-                DataParameterString parameter = this.DataParameter;
-                for (int i = 0, c = this.Handlers.Count; i < c; i++)
-                {
-                    parameter.SetValue((ITransferableData) this.Handlers[i], value);
-                }
+public delegate void SlotAnticipatedLineCountChangedEventHandler(DataParameterStringPropertyEditorSlot sender);
 
-                this.OnValueChanged();
+public class DataParameterStringPropertyEditorSlot : DataParameterPropertyEditorSlot {
+    private string? value;
+    private int anticipatedLineCount = -1;
+
+    public string? Value {
+        get => this.value;
+        set {
+            this.value = value;
+            DataParameterString parameter = this.Parameter;
+            for (int i = 0, c = this.Handlers.Count; i < c; i++) {
+                parameter.SetValue((ITransferableData) this.Handlers[i], value);
             }
-        }
 
-        public new DataParameterString DataParameter => (DataParameterString) base.DataParameter;
-
-        public DataParameterStringPropertyEditorSlot(DataParameterString parameter, Type applicableType, string displayName) : base(parameter, applicableType, displayName)
-        {
+            this.OnValueChanged(false, true);
         }
+    }
 
-        public override void QueryValueFromHandlers()
-        {
-            this.value = GetEqualValue(this.Handlers, (x) => this.DataParameter.GetValue((ITransferableData) x), out string d) ? d : default;
+    /// <summary>
+    /// Gets or sets the number of lines that will probably be taken up by this property. Default is -1, which means ignored. Value must be -1 or greater than 0
+    /// </summary>
+    public int AnticipatedLineCount {
+        get => this.anticipatedLineCount;
+        set {
+            if (value < 0 && value != -1)
+                throw new ArgumentOutOfRangeException(nameof(value), "Value must be -1 or greater than zero");
+
+            if (this.anticipatedLineCount == value)
+                return;
+
+            this.anticipatedLineCount = value;
+            this.AnticipatedLineCountChanged?.Invoke(this);
         }
+    }
+
+    public event SlotAnticipatedLineCountChangedEventHandler? AnticipatedLineCountChanged;
+
+    public new DataParameterString Parameter => (DataParameterString) base.Parameter;
+
+    public DataParameterStringPropertyEditorSlot(DataParameterString parameter, Type applicableType, string displayName) : base(parameter, applicableType, displayName) {
+    }
+
+    public override void QueryValueFromHandlers() {
+        this.HasMultipleValues = !CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetValue((ITransferableData) x), out this.value);
     }
 }

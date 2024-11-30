@@ -42,8 +42,3 @@ However when there are key frames and the override mode is not enabled, the inte
 
 That newly updated value can then be used during rendering to do things. Rendering shouldn't reference the automation engine at all, and 
 instead, should rely on that field, property, etc., being updated from this event
-
-## ViewModels
-The view models are mainly just observing the changes in the models, however, they still do a few things that models don't automatically do, like
-listening to property changed events from the key frame view models, and automatically triggering an automation update for the owner 
-object (`AutomationEngine.OnKeyFrameChanged`). This must be done manually when using purely models

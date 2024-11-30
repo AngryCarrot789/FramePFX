@@ -17,23 +17,21 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.PropertyEditing
-{
-    public enum HandlerCountMode
-    {
-        /// <summary>
-        /// Any number of handlers are acceptable (more than 0)
-        /// </summary>
-        Any,
+namespace FramePFX.PropertyEditing;
 
-        /// <summary>
-        /// Only a single handler is acceptable (only 1)
-        /// </summary>
-        Single,
+public enum HandlerCountMode {
+    /// <summary>
+    /// Any number of handlers are acceptable (more than 0)
+    /// </summary>
+    Any,
 
-        /// <summary>
-        /// Only multiple handlers are acceptable (more than 1)
-        /// </summary>
-        Multi
-    }
+    /// <summary>
+    /// Only a single handler is acceptable (only 1)
+    /// </summary>
+    Single,
+
+    /// <summary>
+    /// Only multiple handlers are acceptable (more than 1)
+    /// </summary>
+    Multi
 }

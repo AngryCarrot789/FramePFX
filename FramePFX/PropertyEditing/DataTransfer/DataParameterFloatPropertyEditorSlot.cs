@@ -17,49 +17,43 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System;
-using FramePFX.Editors.DataTransfer;
-using FramePFX.PropertyEditing.Automation;
+using FramePFX.DataTransfer;
+using FramePFX.Utils;
 
-namespace FramePFX.PropertyEditing.DataTransfer
-{
-    public class DataParameterFloatPropertyEditorSlot : DataParameterPropertyEditorSlot
-    {
-        private float value;
+namespace FramePFX.PropertyEditing.DataTransfer;
 
-        public float Value
-        {
-            get => this.value;
-            set
-            {
-                float oldVal = this.value;
-                this.value = value;
-                bool useAddition = this.IsMultiHandler;
-                float change = value - oldVal;
-                DataParameterFloat parameter = this.DataParameter;
-                for (int i = 0, c = this.Handlers.Count; i < c; i++)
-                {
-                    ITransferableData obj = (ITransferableData) this.Handlers[i];
-                    float newValue = parameter.Clamp(useAddition ? (parameter.GetValue(obj) + change) : value);
-                    parameter.SetValue(obj, newValue);
-                }
+public class DataParameterFloatPropertyEditorSlot : DataParameterFormattableNumberPropertyEditorSlot {
+    private float value;
 
-                this.OnValueChanged();
+    public float Value {
+        get => this.value;
+        set {
+            float oldVal = this.value;
+            this.value = value;
+            bool useAddition = false; //this.IsMultiHandler; TODO: Fix with new NumberDragger
+            float change = value - oldVal;
+            DataParameterFloat parameter = this.Parameter;
+            for (int i = 0, c = this.Handlers.Count; i < c; i++) {
+                ITransferableData obj = (ITransferableData) this.Handlers[i];
+                float newValue = parameter.Clamp(useAddition ? (parameter.GetValue(obj) + change) : value);
+                parameter.SetValue(obj, newValue);
             }
+
+            this.OnValueChanged(this.lastQueryHasMultipleValues && useAddition, true);
         }
+    }
 
-        public new DataParameterFloat DataParameter => (DataParameterFloat) base.DataParameter;
+    public new DataParameterFloat Parameter => (DataParameterFloat) base.Parameter;
 
-        public DragStepProfile StepProfile { get; }
+    public DragStepProfile StepProfile { get; }
 
-        public DataParameterFloatPropertyEditorSlot(DataParameterFloat parameter, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName)
-        {
-            this.StepProfile = stepProfile;
-        }
+    public DataParameterFloatPropertyEditorSlot(DataParameterFloat parameter, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName) {
+        this.StepProfile = stepProfile;
+    }
 
-        public override void QueryValueFromHandlers()
-        {
-            this.value = GetEqualValue(this.Handlers, (x) => this.DataParameter.GetValue((ITransferableData) x), out float d) ? d : default;
-        }
+    public override void QueryValueFromHandlers() {
+        this.HasMultipleValues = !CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetValue((ITransferableData) x), out this.value);
+        if (this.HasMultipleValues)
+            this.value = Math.Abs(this.Parameter.Maximum - this.Parameter.Minimum) / 2.0F;
     }
 }

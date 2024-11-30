@@ -10,73 +10,59 @@
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
-using System.Collections.Generic;
 using FFmpeg.AutoGen;
 
-namespace FramePFX.FFmpegWrapper.Codecs
-{
-    public unsafe class VideoDecoder : MediaDecoder
-    {
-        //Used to prevent callback pointer from being GC collected
-        private AVCodecContext_get_format chooseHwPixelFmt;
+namespace FramePFX.FFmpegWrapper.Codecs;
 
-        public int Width => this.ctx->width;
-        public int Height => this.ctx->height;
-        public AVPixelFormat PixelFormat => this.ctx->pix_fmt;
+public unsafe class VideoDecoder : MediaDecoder {
+    //Used to prevent callback pointer from being GC collected
+    private AVCodecContext_get_format chooseHwPixelFmt;
 
-        public PictureFormat FrameFormat => new PictureFormat(this.Width, this.Height, this.PixelFormat);
+    public int Width => this.ctx->width;
+    public int Height => this.ctx->height;
+    public AVPixelFormat PixelFormat => this.ctx->pix_fmt;
 
-        public VideoDecoder(AVCodecID codecId) : this(FindCodecFromId(codecId, enc: false))
-        {
-        }
+    public PictureFormat FrameFormat => new PictureFormat(this.Width, this.Height, this.PixelFormat);
 
-        public VideoDecoder(AVCodec* codec) : this(AllocContext(codec))
-        {
-        }
+    public VideoDecoder(AVCodecID codecId) : this(FindCodecFromId(codecId, enc: false)) {
+    }
 
-        public VideoDecoder(AVCodecContext* ctx, bool takeOwnership = true) : base(ctx, MediaTypes.Video, takeOwnership)
-        {
-        }
+    public VideoDecoder(AVCodec* codec) : this(AllocContext(codec)) {
+    }
 
-        public void SetupHardwareAccelerator(HardwareDevice device, params AVPixelFormat[] preferredPixelFormats)
-        {
-            this.ValidateNotOpen();
+    public VideoDecoder(AVCodecContext* ctx, bool takeOwnership = true) : base(ctx, MediaTypes.Video, takeOwnership) {
+    }
 
-            this.ctx->hw_device_ctx = ffmpeg.av_buffer_ref(device.Handle);
-            this.ctx->get_format = this.chooseHwPixelFmt = (ctx, pAvailFmts) =>
-            {
-                for (AVPixelFormat* pFmt = pAvailFmts; *pFmt != PixelFormats.None; pFmt++)
-                {
-                    if (Array.IndexOf(preferredPixelFormats, *pFmt) >= 0)
-                    {
-                        return *pFmt;
-                    }
-                }
+    public void SetupHardwareAccelerator(HardwareDevice device, params AVPixelFormat[] preferredPixelFormats) {
+        this.ValidateNotOpen();
 
-                return PixelFormats.None;
-            };
-        }
-
-        /// <summary> Returns a new list containing all hardware acceleration configurations marked with `AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX`. </summary>
-        public List<CodecHardwareConfig> GetHardwareConfigs()
-        {
-            this.ValidateNotDisposed();
-
-            List<CodecHardwareConfig> configs = new List<CodecHardwareConfig>();
-
-            int i = 0;
-            AVCodecHWConfig* config;
-
-            while ((config = ffmpeg.avcodec_get_hw_config(this.ctx->codec, i++)) != null)
-            {
-                if ((config->methods & (int) CodecHardwareMethods.DeviceContext) != 0)
-                {
-                    configs.Add(new CodecHardwareConfig(this.ctx->codec, config));
+        this.ctx->hw_device_ctx = ffmpeg.av_buffer_ref(device.Handle);
+        this.ctx->get_format = this.chooseHwPixelFmt = (ctx, pAvailFmts) => {
+            for (AVPixelFormat* pFmt = pAvailFmts; *pFmt != PixelFormats.None; pFmt++) {
+                if (Array.IndexOf(preferredPixelFormats, *pFmt) >= 0) {
+                    return *pFmt;
                 }
             }
 
-            return configs;
+            return PixelFormats.None;
+        };
+    }
+
+    /// <summary> Returns a new list containing all hardware acceleration configurations marked with `AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX`. </summary>
+    public List<CodecHardwareConfig> GetHardwareConfigs() {
+        this.ValidateNotDisposed();
+
+        List<CodecHardwareConfig> configs = new List<CodecHardwareConfig>();
+
+        int i = 0;
+        AVCodecHWConfig* config;
+
+        while ((config = ffmpeg.avcodec_get_hw_config(this.ctx->codec, i++)) != null) {
+            if ((config->methods & (int) CodecHardwareMethods.DeviceContext) != 0) {
+                configs.Add(new CodecHardwareConfig(this.ctx->codec, config));
+            }
         }
+
+        return configs;
     }
 }

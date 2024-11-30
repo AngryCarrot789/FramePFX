@@ -17,20 +17,18 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.History
-{
-    public interface IHistoryAction
-    {
-        /// <summary>
-        /// Undoes this action
-        /// </summary>
-        /// <returns>True if the undo was successful, otherwise false, meaning this action stays at the top of the undo stack</returns>
-        bool Undo();
+namespace FramePFX.History;
 
-        /// <summary>
-        /// Redoes this action
-        /// </summary>
-        /// <returns>True if the redo was successful, otherwise false, meaning this action stays at the top of the redo stack</returns>
-        bool Redo();
-    }
+public interface IHistoryAction {
+    /// <summary>
+    /// Undoes this action
+    /// </summary>
+    /// <returns>True if the undo was successful, otherwise false, meaning this action stays at the top of the undo stack</returns>
+    bool Undo();
+
+    /// <summary>
+    /// Redoes this action
+    /// </summary>
+    /// <returns>True if the redo was successful, otherwise false, meaning this action stays at the top of the redo stack</returns>
+    bool Redo();
 }

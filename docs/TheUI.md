@@ -4,7 +4,7 @@ else do I bind to a property in a Clip? I need a ClipViewMode, and therefore
 a TrackViewModel and so on, and it just results in having hierarchy-based 
 view models that match their model counterparts 1:1 pretty much)
 
-So this version instead uses a mix between MVC (model-view-controller) and 
+So this version instead uses a mix between MVP (model-view-presenter) and 
 well MV (view accessing and modifying models and vice versa) except no models 
 contain references to any models
 

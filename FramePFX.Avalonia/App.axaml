@@ -1,0 +1,74 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:a="clr-namespace:FramePFX.Avalonia"
+             xmlns:avalonia="clr-namespace:FramePFX.Avalonia"
+             xmlns:c="clr-namespace:FramePFX.Avalonia.AvControls"
+             xmlns:editing="clr-namespace:FramePFX.Avalonia.Editing"
+             x:Class="FramePFX.Avalonia.App"
+             RequestedThemeVariant="Default">
+    <Application.Styles>
+        <SimpleTheme/>
+        <StyleInclude Source="Themes/Controls.axaml"/>
+        <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Simple/Simple.xaml"/>
+    </Application.Styles>
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <FontFamily x:Key="FontOxanium">/Resources/Fonts/Oxanium/#Oxanium</FontFamily>
+            <ResourceDictionary.MergedDictionaries>
+                <MergeResourceInclude Source="/Themes/Colours/SoftDark.axaml"/>
+                <MergeResourceInclude Source="/Themes/ControlColours.axaml"/>
+                <MergeResourceInclude Source="/AvControls/ControlStyles.axaml"/>
+
+                <MergeResourceInclude Source="/AvControls/Dragger/NumberDraggerStyles.axaml"/>
+                <MergeResourceInclude Source="/PropertyEditing/PropertyEditorGridStyles.axaml"/>
+                <MergeResourceInclude Source="/PropertyEditing/PropertyEditorSlotContentStyles.axaml"/>
+
+                <MergeResourceInclude Source="/Editing/Playheads/PlayHeadStyles.axaml"/>
+                <MergeResourceInclude Source="/Editing/GeneralControlStyles.axaml"/>
+                <MergeResourceInclude Source="/Editing/Timelines/TimelineStyles.axaml"/>
+                <MergeResourceInclude Source="/Editing/Resources/Trees/ResourceTreeStyles.axaml"/>
+                <MergeResourceInclude Source="/Editing/Resources/Lists/ResourceListStyles.axaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+
+        <ControlTheme x:Key="{x:Type editing:VideoEditorViewPortControl}" TargetType="{x:Type editing:VideoEditorViewPortControl}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Button.Static.Border}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Button.Static.Foreground}"/>
+            <Setter Property="UseLayoutRounding" Value="False"/>
+            <Setter Property="Template">
+                <ControlTemplate TargetType="{x:Type editing:VideoEditorViewPortControl}">
+                    <Grid>
+                        <c:FreeMoveViewPortV2 x:Name="PART_FreeMoveViewPort"
+                                              UseLayoutRounding="False"
+                                              PanToCursorOnUserZoom="True"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Stretch"
+                                              Margin="{TemplateBinding BorderThickness}">
+                            <a:TransformationContainer x:Name="PART_CanvasContainer" UseLayoutRounding="False">
+                                <c:SKAsyncViewPort x:Name="PART_SkiaViewPort" UseLayoutRounding="False"/>
+                            </a:TransformationContainer>
+                        </c:FreeMoveViewPortV2>
+                        <!-- Setting background to null should disable hit-testing but I set the property just to be double sure -->
+                        <Border Background="{x:Null}" IsHitTestVisible="False"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter>
+            <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{DynamicResource Button.MouseOver.Background}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource Button.MouseOver.Border}"/>
+            </Style>
+            <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{DynamicResource Button.Pressed.Background}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource Button.Pressed.Border}"/>
+            </Style>
+            <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{DynamicResource Button.Disabled.Background}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource Button.Disabled.Border}"/>
+            </Style>
+        </ControlTheme>
+    </Application.Resources>
+</Application>

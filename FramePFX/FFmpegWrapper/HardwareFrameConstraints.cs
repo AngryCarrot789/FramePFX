@@ -10,42 +10,36 @@
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-using System;
 using FFmpeg.AutoGen;
 
-namespace FramePFX.FFmpegWrapper
-{
-    public readonly struct HardwareFrameConstraints
-    {
-        public AVPixelFormat[] ValidHardwareFormats { get; }
-        public AVPixelFormat[] ValidSoftwareFormats { get; }
+namespace FramePFX.FFmpegWrapper;
 
-        public int MinWidth { get; }
-        public int MinHeight { get; }
+public readonly struct HardwareFrameConstraints {
+    public AVPixelFormat[] ValidHardwareFormats { get; }
+    public AVPixelFormat[] ValidSoftwareFormats { get; }
 
-        public int MaxWidth { get; }
-        public int MaxHeight { get; }
+    public int MinWidth { get; }
+    public int MinHeight { get; }
 
-        public unsafe HardwareFrameConstraints(AVHWFramesConstraints* desc)
-        {
-            this.ValidHardwareFormats = FFUtils.GetSpanFromSentinelTerminatedPtr(desc->valid_hw_formats, PixelFormats.None).ToArray();
-            this.ValidSoftwareFormats = FFUtils.GetSpanFromSentinelTerminatedPtr(desc->valid_sw_formats, PixelFormats.None).ToArray();
-            this.MinWidth = desc->min_width;
-            this.MinHeight = desc->min_height;
-            this.MaxWidth = desc->max_width;
-            this.MaxHeight = desc->max_height;
-        }
+    public int MaxWidth { get; }
+    public int MaxHeight { get; }
 
-        public bool IsValidDimensions(int width, int height)
-        {
-            return width >= this.MinWidth && width <= this.MaxWidth &&
-                   height >= this.MinHeight && height <= this.MaxHeight;
-        }
+    public unsafe HardwareFrameConstraints(AVHWFramesConstraints* desc) {
+        this.ValidHardwareFormats = FFUtils.GetSpanFromSentinelTerminatedPtr(desc->valid_hw_formats, PixelFormats.None).ToArray();
+        this.ValidSoftwareFormats = FFUtils.GetSpanFromSentinelTerminatedPtr(desc->valid_sw_formats, PixelFormats.None).ToArray();
+        this.MinWidth = desc->min_width;
+        this.MinHeight = desc->min_height;
+        this.MaxWidth = desc->max_width;
+        this.MaxHeight = desc->max_height;
+    }
 
-        public bool IsValidFormat(in PictureFormat format)
-        {
-            return this.IsValidDimensions(format.Width, format.Height) &&
-                   Array.IndexOf(this.ValidSoftwareFormats, format.PixelFormat) >= 0;
-        }
+    public bool IsValidDimensions(int width, int height) {
+        return width >= this.MinWidth && width <= this.MaxWidth &&
+               height >= this.MinHeight && height <= this.MaxHeight;
+    }
+
+    public bool IsValidFormat(in PictureFormat format) {
+        return this.IsValidDimensions(format.Width, format.Height) &&
+               Array.IndexOf(this.ValidSoftwareFormats, format.PixelFormat) >= 0;
     }
 }

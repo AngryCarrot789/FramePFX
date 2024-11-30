@@ -17,56 +17,49 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System;
-using FramePFX.Editors.DataTransfer;
-using FramePFX.PropertyEditing.Automation;
+using FramePFX.DataTransfer;
+using FramePFX.Utils;
 
-namespace FramePFX.PropertyEditing.DataTransfer
-{
-    public class DataParameterLongPropertyEditorSlot : DataParameterPropertyEditorSlot
-    {
-        private long value;
+namespace FramePFX.PropertyEditing.DataTransfer;
 
-        public long Value
-        {
-            get => this.value;
-            set
-            {
-                long oldVal = this.value;
-                this.value = value;
-                bool useAddition = this.IsMultiHandler;
-                long change = value - oldVal;
-                DataParameterLong parameter = this.DataParameter;
-                for (int i = 0, c = this.Handlers.Count; i < c; i++)
-                {
-                    ITransferableData obj = (ITransferableData) this.Handlers[i];
-                    long newValue = parameter.Clamp(useAddition ? (parameter.GetValue(obj) + change) : value);
-                    parameter.SetValue(obj, newValue);
-                }
+public class DataParameterLongPropertyEditorSlot : DataParameterFormattableNumberPropertyEditorSlot {
+    private long value;
 
-                this.OnValueChanged();
+    public long Value {
+        get => this.value;
+        set {
+            long oldVal = this.value;
+            this.value = value;
+            bool useAddition = false; //this.IsMultiHandler; TODO: Fix with new NumberDragger
+            long change = value - oldVal;
+            DataParameterLong parameter = this.Parameter;
+            for (int i = 0, c = this.Handlers.Count; i < c; i++) {
+                ITransferableData obj = (ITransferableData) this.Handlers[i];
+                long newValue = parameter.Clamp(useAddition ? (parameter.GetValue(obj) + change) : value);
+                parameter.SetValue(obj, newValue);
             }
+
+            this.OnValueChanged(this.lastQueryHasMultipleValues && useAddition, true);
         }
+    }
 
-        public new DataParameterLong DataParameter => (DataParameterLong) base.DataParameter;
+    public new DataParameterLong Parameter => (DataParameterLong) base.Parameter;
 
-        public DragStepProfile StepProfile { get; }
+    public DragStepProfile StepProfile { get; }
 
-        public DataParameterLongPropertyEditorSlot(DataParameterLong parameter, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName)
-        {
-            this.StepProfile = stepProfile;
-        }
+    public DataParameterLongPropertyEditorSlot(DataParameterLong parameter, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName) {
+        this.StepProfile = stepProfile;
+    }
 
-        public DataParameterLongPropertyEditorSlot(DataParameterLong parameter, DataParameter<bool> isEditableParameter, bool invertIsEditable, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName)
-        {
-            this.StepProfile = stepProfile;
-            this.IsEditableParameter = isEditableParameter;
-            this.InvertIsEditableForParameter = invertIsEditable;
-        }
+    public DataParameterLongPropertyEditorSlot(DataParameterLong parameter, DataParameter<bool> isEditableParameter, bool invertIsEditable, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName) {
+        this.StepProfile = stepProfile;
+        this.IsEditableDataParameter = isEditableParameter;
+        this.InvertIsEditableForParameter = invertIsEditable;
+    }
 
-        public override void QueryValueFromHandlers()
-        {
-            this.value = GetEqualValue(this.Handlers, (x) => this.DataParameter.GetValue((ITransferableData) x), out long d) ? d : default;
-        }
+    public override void QueryValueFromHandlers() {
+        this.HasMultipleValues = !CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetValue((ITransferableData) x), out this.value);
+        if (this.HasMultipleValues)
+            this.value = Math.Abs(this.Parameter.Maximum - this.Parameter.Minimum) / 2;
     }
 }

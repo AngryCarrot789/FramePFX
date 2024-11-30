@@ -17,40 +17,33 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Utils
-{
-    public class NumberAverager
-    {
-        private readonly double[] averages;
+namespace FramePFX.Utils;
 
-        public int NextIndex { get; private set; }
+public class NumberAverager {
+    private readonly double[] averages;
 
-        public int Count => this.averages.Length;
+    public int NextIndex { get; private set; }
 
-        public NumberAverager(int count)
-        {
-            this.averages = new double[count];
+    public int Count => this.averages.Length;
+
+    public NumberAverager(int count) {
+        this.averages = new double[count];
+    }
+
+    public void PushValue(double number) {
+        if (this.NextIndex >= this.averages.Length) {
+            this.NextIndex = 0;
         }
 
-        public void PushValue(double number)
-        {
-            if (this.NextIndex >= this.averages.Length)
-            {
-                this.NextIndex = 0;
-            }
+        this.averages[this.NextIndex++] = number;
+    }
 
-            this.averages[this.NextIndex++] = number;
+    public double GetAverage() {
+        double average = 0;
+        foreach (double elem in this.averages) {
+            average += elem;
         }
 
-        public double GetAverage()
-        {
-            double average = 0;
-            foreach (double elem in this.averages)
-            {
-                average += elem;
-            }
-
-            return average / this.averages.Length;
-        }
+        return average / this.averages.Length;
     }
 }

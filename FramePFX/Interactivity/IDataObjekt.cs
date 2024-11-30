@@ -1,49 +1,30 @@
-//
+﻿// 
 // Copyright (c) 2023-2024 REghZy
-//
+// 
 // This file is part of FramePFX.
-//
+// 
 // FramePFX is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either
 // version 3.0 of the License, or (at your option) any later version.
-//
+// 
 // FramePFX is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // Lesser General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU General Public License
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
-//
+// 
 
-using SkiaSharp;
+namespace FramePFX.Interactivity;
 
-namespace FramePFX.Interactivity
-{
-    /// <summary>
-    /// An interface for a native data object
-    /// </summary>
-    public interface IDataObjekt
-    {
-        object GetData(string format);
+public interface IDataObjekt {
+    object? GetData(string format);
 
-        object GetData(string format, bool autoConvert);
+    bool GetDataPresent(string format);
 
-        bool GetDataPresent(string format);
+    IEnumerable<string> GetFormats();
 
-        bool GetDataPresent(string format, bool autoConvert);
-
-        string[] GetFormats();
-
-        string[] GetFormats(bool autoConvert);
-
-        void SetData(object data);
-
-        void SetData(string format, object data);
-
-        void SetData(string format, object data, bool autoConvert);
-
-        bool GetBitmap(out SKBitmap bitmap, out int error);
-    }
+    void SetData(string format, object data);
 }

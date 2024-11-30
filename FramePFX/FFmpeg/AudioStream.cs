@@ -17,60 +17,49 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System;
 using FFmpeg.AutoGen;
 using FramePFX.FFmpegWrapper;
 using FramePFX.FFmpegWrapper.Codecs;
 using FramePFX.FFmpegWrapper.Containers;
 
-namespace FramePFX.FFmpeg
-{
-    public class AudioStream : StreamWrapper
-    {
-        private AudioDecoder decoder;
+namespace FramePFX.FFmpeg;
 
-        protected override MediaDecoder DecoderInternal => this.decoder;
+public class AudioStream : StreamWrapper {
+    private AudioDecoder decoder;
 
-        public AudioStream(MediaStream stream) : base(stream)
-        {
-        }
+    protected override MediaDecoder DecoderInternal => this.decoder;
 
-        public unsafe AudioDecoder GetDecoder(bool open = true)
-        {
-            if (this.decoder == null || !this.decoder.IsOpen)
-            {
-                AVCodecID codecId = this.Stream.Handle->codecpar->codec_id;
-                this.decoder = new AudioDecoder(codecId);
-                int err = ffmpeg.avcodec_parameters_to_context(this.decoder.Handle, this.Stream.Handle->codecpar);
-                if (FFUtils.GetException(err, "Could not copy stream parameters to the audio decoder.", out Exception e))
-                {
-                    this.decoder.Dispose();
-                    this.decoder = null;
-                    throw e;
-                }
+    public AudioStream(MediaStream stream) : base(stream) {
+    }
 
-                if (open)
-                {
-                    try
-                    {
-                        this.decoder.Open();
-                    }
-                    catch
-                    {
-                        this.decoder.Dispose();
-                        this.decoder = null;
-                        throw;
-                    }
-                }
+    public unsafe AudioDecoder GetDecoder(bool open = true) {
+        if (this.decoder == null || !this.decoder.IsOpen) {
+            AVCodecID codecId = this.Stream.Handle->codecpar->codec_id;
+            this.decoder = new AudioDecoder(codecId);
+            int err = ffmpeg.avcodec_parameters_to_context(this.decoder.Handle, this.Stream.Handle->codecpar);
+            if (FFUtils.GetException(err, "Could not copy stream parameters to the audio decoder.", out Exception e)) {
+                this.decoder.Dispose();
+                this.decoder = null;
+                throw e;
             }
 
-            return this.decoder;
+            if (open) {
+                try {
+                    this.decoder.Open();
+                }
+                catch {
+                    this.decoder.Dispose();
+                    this.decoder = null;
+                    throw;
+                }
+            }
         }
 
-        public override void DisposeDecoder(bool flushBuffers = true)
-        {
-            base.DisposeDecoder(flushBuffers);
-            this.decoder = null;
-        }
+        return this.decoder;
+    }
+
+    public override void DisposeDecoder(bool flushBuffers = true) {
+        base.DisposeDecoder(flushBuffers);
+        this.decoder = null;
     }
 }

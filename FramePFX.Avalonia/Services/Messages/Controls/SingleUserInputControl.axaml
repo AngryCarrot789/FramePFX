@@ -1,0 +1,13 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="400"
+             x:Class="FramePFX.Avalonia.Services.Messages.Controls.SingleUserInputControl">
+    <StackPanel Spacing="5">
+        <TextBlock x:Name="PART_Label" Text="Label Here" Padding="0,5"/>
+        <TextBox x:Name="PART_TextBox" Padding="5,5" VerticalContentAlignment="Center" 
+                 Background="{DynamicResource ABrush.Tone2.Border.Static}"
+                 Text="Text Here"/>
+    </StackPanel>
+</UserControl>

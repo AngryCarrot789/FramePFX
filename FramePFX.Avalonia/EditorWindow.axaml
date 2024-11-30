@@ -1,0 +1,193 @@
+<c:WindowEx xmlns="https://github.com/avaloniaui"
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+            xmlns:sa="clr-namespace:FramePFX.Avalonia.AdvancedMenuService"
+            xmlns:pe="clr-namespace:FramePFX.Avalonia.PropertyEditing"
+            xmlns:cmdu="clr-namespace:FramePFX.Avalonia.CommandSystem.Usages"
+            xmlns:av="clr-namespace:FramePFX.Avalonia.Shortcuts.Avalonia"
+            xmlns:c="clr-namespace:FramePFX.Avalonia.Themes.Controls"
+            xmlns:tl="clr-namespace:FramePFX.Avalonia.Editing.Timelines"
+            xmlns:c1="clr-namespace:FramePFX.Avalonia.Editing"
+            xmlns:fxsrc="clr-namespace:FramePFX.Editing.EffectSource;assembly=FramePFX"
+            xmlns:resources="clr-namespace:FramePFX.Avalonia.Editing.Resources"
+            xmlns:trees="clr-namespace:FramePFX.Avalonia.Editing.Resources.Trees"
+            mc:Ignorable="d"
+            x:Class="FramePFX.Avalonia.EditorWindow"
+            Background="{DynamicResource PanelBackground0}"
+            BorderBrush="{DynamicResource PanelBorderBrush}"
+            TitleBarBrush="{DynamicResource ABrush.Tone7.Background.Static}"
+            Height="840" Width="1348"
+            FontFamily="{StaticResource FontOxanium}" FontWeight="Medium"
+            av:UIInputManager.FocusPath="Application/EditorWindow"
+            WindowStartupLocation="CenterScreen"
+            Title="FramePFX">
+    <Grid Margin="0" x:Name="PART_EditorWindowContent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <!-- 
+            Context capturing menu is used to capture the context data of the 
+            currently focused item before focus is switched to a menu item.
+            This is used to implement a kind of "contextual" non-context menu item
+        -->
+        <sa:ContextCapturingMenu Grid.Row="0" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1"
+                                 Background="{Binding TitleBarBrush, RelativeSource={RelativeSource AncestorType={x:Type c:WindowEx}, Mode=FindAncestor}}">
+            <MenuItem Header="File">
+                <sa:CommandMenuItem Header="New Project" CommandId="commands.generic.NewProjectCommand"/>
+                <sa:CommandMenuItem Header="Open Project..." CommandId="commands.generic.OpenProjectCommand"/>
+                <sa:CommandMenuItem Header="Save Project" CommandId="commands.generic.SaveProjectCommand"/>
+                <sa:CommandMenuItem Header="Save Project As..." CommandId="commands.generic.SaveProjectAsCommand"/>
+                <sa:CommandMenuItem Header="Close Project" CommandId="commands.generic.CloseProjectCommand"/>
+                <Separator/>
+                <sa:CommandMenuItem Header="Export" CommandId="commands.generic.ExportCommand"
+                                    ToolTip.Tip="Export the current project"/>
+                <sa:CommandMenuItem Header="Export Active Timeline" CommandId="commands.generic.ExportActiveTimelineCommand"
+                                    ToolTip.Tip="Exports the currently active timeline only (not the project timeline)"/>
+            </MenuItem>
+        </sa:ContextCapturingMenu>
+        <Grid Grid.Row="1" x:Name="PART_MainVideoEditorContent">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" MinHeight="100"/>
+                <RowDefinition Height="1"/>
+                <RowDefinition Height="*" MinHeight="100"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="44*"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="50*"/>
+                    <ColumnDefinition Width="1"/>
+                    <ColumnDefinition Width="27*"/>
+                </Grid.ColumnDefinitions>
+                <Border Background="{DynamicResource PanelBackground3}">
+                    <TabControl BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0" Margin="0">
+                        <TabItem Header="Resources" av:UIInputManager.FocusPath="Application/EditorWindow/ResourceManager">
+                            <resources:ResourcePanelControl x:Name="PART_ResourcePanelControl"/>
+                        </TabItem>
+                        <!--
+                        This is too laggy at the moment
+                        <TabItem Header="File Browser">
+                            <tv:FileTreeView x:Name="PART_FileTree"/>
+                        </TabItem>
+                        -->
+                        <TabItem Header="Effects" av:UIInputManager.FocusPath="Application/EditorWindow/EffectSourcePanel">
+                        </TabItem>
+                    </TabControl>
+                </Border>
+                <c:GroupBox Grid.Column="2" BorderThickness="0" Header="View Port Preview" BorderBrush="{DynamicResource PanelBorderBrush}"
+                            av:UIInputManager.FocusPath="Application/EditorWindow/ViewPort"
+                            Focusable="True">
+                    <DockPanel>
+                        <Border Background="{DynamicResource ABrush.Tone5.Background.Static}" DockPanel.Dock="Bottom" Height="32" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0 1 0 0">
+                            <DockPanel>
+                                <!-- Left Panel -->
+                                <Grid Margin="5,0,0,0" DockPanel.Dock="Left">
+                                    <Button Focusable="False" Content="Fit to Scale" Width="75" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="0,4,0,4"/>
+                                    <CheckBox Focusable="False" Content="Zoom to cursor" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="85,5,0,5"/>
+                                </Grid>
+
+                                <!-- Right Panel -->
+                                <StackPanel Margin="0,0,5,0" DockPanel.Dock="Right" Orientation="Horizontal">
+                                </StackPanel>
+
+                                <!-- Center Panel -->
+                                <StackPanel Margin="0,4" Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <c1:TogglePlayStateButton Width="24"/>
+                                    <c1:PlayStateButton Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Play" CommandId="commands.editor.PlaybackPlayCommand"/>
+                                    <c1:PlayStateButton Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Pause" CommandId="commands.editor.PlaybackPauseCommand"/>
+                                    <c1:PlayStateButton Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Stop" CommandId="commands.editor.PlaybackStopCommand"/>
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+                        <Border DockPanel.Dock="Top" Height="24"
+                                Background="{DynamicResource ABrush.Tone5.Background.Static}"
+                                BorderBrush="{DynamicResource PanelBorderBrush}"
+                                BorderThickness="0,0,0,1">
+                            <Grid>
+                                <ComboBox HorizontalAlignment="Left" BorderThickness="0" ToolTip.Tip="Rendering quality"/>
+                                <Button Content="Edit Project Settings" HorizontalAlignment="Right" Padding="15,0" BorderThickness="0"/>
+                            </Grid>
+                        </Border>
+                        <Grid Background="Transparent">
+                            <c1:VideoEditorViewPortControl x:Name="PART_ViewPort"
+                                                          Background="Transparent"
+                                                          Focusable="True"
+                                                          av:UIInputManager.FocusPath="Application/EditorWindow/Canvas">
+                                <c1:VideoEditorViewPortControl.Styles>
+                                    <Style Selector="c1|VideoEditorViewPortControl[IsFocused=false]">
+                                        <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
+                                    </Style>
+                                    <Style Selector="c1|VideoEditorViewPortControl[IsFocused=true]">
+                                        <Setter Property="BorderBrush" Value="DodgerBlue"/>
+                                    </Style>
+                                </c1:VideoEditorViewPortControl.Styles>
+                            </c1:VideoEditorViewPortControl>
+                        </Grid>
+                    </DockPanel>
+                </c:GroupBox>
+                <c:GroupBox Grid.Column="4" BorderThickness="0" Header="Property Editor" BorderBrush="{DynamicResource PanelBorderBrush}"
+                            av:UIInputManager.FocusPath="Application/EditorWindow/PropertyEditor" Focusable="True">
+                    <Border Background="{DynamicResource PanelBackground3}">
+                        <pe:PropertyEditorControl x:Name="ThePropertyEditor" Focusable="True" Background="Transparent"/>
+                    </Border>
+                </c:GroupBox>
+                <Border Grid.Column="1" Focusable="False" UseLayoutRounding="True" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                <GridSplitter Grid.Column="1" Focusable="False" BorderThickness="0" Background="Transparent" Margin="-5,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                <Border Grid.Column="3" Focusable="False" UseLayoutRounding="True" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                <GridSplitter Grid.Column="3" Focusable="False" BorderThickness="0" Background="Transparent" Margin="-5,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            </Grid>
+            <c:GroupBox Grid.Row="2"
+                        Grid.ColumnSpan="3"
+                        BorderThickness="0" Background="{DynamicResource ABrush.Tone5.Background.Static}"
+                        Focusable="True" BorderBrush="{DynamicResource PanelBorderBrush}"
+                        av:UIInputManager.FocusPath="Application/EditorWindow/Timeline"
+                        x:Name="PART_TimelinePresenterGroupBox">
+                <c:GroupBox.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Timeline" x:Name="PART_TimelineName" VerticalAlignment="Center"/>
+                        <Separator Theme="{StaticResource VerticalSeparatorTheme}" Margin="5,0"/>
+                        <Button x:Name="PART_CloseTimelineButton" Content="Close Timeline" ToolTip.Tip="Closes the active composition timeline and opens the project timeline" Padding="5,2"/>
+                    </StackPanel>
+                </c:GroupBox.Header>
+                <Border>
+                    <tl:TimelineControl VerticalAlignment="Stretch" x:Name="TheTimeline"/>
+                </Border>
+            </c:GroupBox>
+            <Border Grid.Row="1" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <GridSplitter Grid.Row="1" BorderThickness="0" Background="Transparent" Margin="0,-3,0,-12" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+        </Grid>
+        <Border Grid.Row="2" Background="{DynamicResource ABrush.Tone5.Background.Static}"
+                BorderThickness="0,1,0,0" BorderBrush="{DynamicResource PanelBorderBrush}"
+                x:Name="PART_ActivityBarBorder" Height="20">
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                    <Separator Theme="{StaticResource VerticalSeparatorTheme}" Margin="5,0" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Background="Transparent"
+                                    ToolTip.Tip="The amount of time it took to render a single frame, averaged over 5 ticks">
+                            <TextBlock Text="RT: " VerticalAlignment="Center" Margin="0,2,0,0"/>
+                            <TextBlock x:Name="PART_AvgRenderTimeBlock" Text="" FontFamily="Consolas" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <Separator Theme="{StaticResource VerticalSeparatorTheme}" Margin="5,0" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}"/>
+                        <StackPanel Orientation="Horizontal" Background="Transparent"
+                                    ToolTip.Tip="The average playback FPS, averaged over 5 ticks. Ideally, this should sit exactly at the project FPS">
+                            <TextBlock Text="FPS: " VerticalAlignment="Center" Margin="0,2,0,0"/>
+                            <TextBlock x:Name="PART_AvgFPSBlock" Text="" FontFamily="Consolas" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+                <DockPanel x:Name="PART_ActiveBackgroundTaskGrid" DockPanel.Dock="Right">
+                    <TextBlock x:Name="PART_TaskCaption" Text="progname" DockPanel.Dock="Left" Margin="0,0,5,0" VerticalAlignment="Center"/>
+                    <ProgressBar x:Name="PART_ActiveBgProgress" Width="150" DockPanel.Dock="Right"
+                                 Height="9" BorderThickness="0"
+                                 Background="{DynamicResource ABrush.Tone3.Background.Static}"
+                                 Minimum="0" Maximum="1" Value="0"/>
+                </DockPanel>
+                <TextBlock Padding="4,0" VerticalAlignment="Center" x:Name="ActivityTextBlock" FontFamily="Segoe UI"/>
+            </DockPanel>
+        </Border>
+    </Grid>
+</c:WindowEx>

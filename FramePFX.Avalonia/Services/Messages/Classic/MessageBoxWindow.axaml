@@ -1,0 +1,22 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:l="clr-namespace:FramePFX.Avalonia.Services.Messages.Classic"
+        xmlns:classic="clr-namespace:FramePFX.Avalonia.Services.Messages.Classic"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="FramePFX.Avalonia.Services.Messages.Classic.MessageBoxWindow"
+        MaxWidth="700" MaxHeight="700"
+        Width="550" HeaderMessage="175"
+        Title="Info">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Margin="10">
+        <StackPanel Spacing="10">
+            <TextBlock x:Name="PART_MessageHeader" 
+                       FontSize="20" Foreground="{DynamicResource ABrush.ColourfulGlyph.Static}"
+                       Text="{Binding HeaderMessage, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type classic:MessageBoxWindow}}}"/>
+            <TextBlock x:Name="PART_MessageBody" 
+                       FontSize="20" Foreground="{DynamicResource ABrush.ColourfulGlyph.Static}"
+                       Text="{Binding Message, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type classic:MessageBoxWindow}}}"/>
+        </StackPanel>
+    </ScrollViewer>
+</Window>

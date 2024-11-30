@@ -1,5 +1,5 @@
 // 
-// Copyright (c) 2023-2024 REghZy
+// Copyright (c) 2024-2024 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -17,38 +17,36 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.Services.Files;
-using FramePFX.Services.Messages;
+using FramePFX.Services.ColourPicking;
+using FramePFX.Services.FilePicking;
+using FramePFX.Services.Messaging;
+using FramePFX.Services.UserInputs;
 using FramePFX.Tasks;
 
-namespace FramePFX
-{
-    public static class IoC
-    {
-        /// <summary>
-        /// Gets the application's message dialog service, for showing messages to the user
-        /// </summary>
-        public static IMessageDialogService MessageService => ApplicationCore.Instance.Services.GetService<IMessageDialogService>();
+namespace FramePFX;
 
-        /// <summary>
-        /// Gets the application's user input dialog service, for querying basic inputs from the user
-        /// </summary>
-        public static IUserInputDialogService UserInputService => ApplicationCore.Instance.Services.GetService<IUserInputDialogService>();
+public static class IoC {
+    /// <summary>
+    /// Gets the application's message dialog service, for showing messages to the user
+    /// </summary>
+    public static IMessageDialogService MessageService => RZApplication.Instance.Services.GetService<IMessageDialogService>();
 
-        /// <summary>
-        /// Gets the application's file picking service, for picking files and directories to open/save
-        /// </summary>
-        public static IFilePickDialogService FilePickService => ApplicationCore.Instance.Services.GetService<IFilePickDialogService>();
+    /// <summary>
+    /// Gets the application's user input dialog service, for querying basic inputs from the user
+    /// </summary>
+    public static IUserInputDialogService UserInputService => RZApplication.Instance.Services.GetService<IUserInputDialogService>();
 
-        // The designer code might access this, so it cannot be null ever
-        /// <summary>
-        /// Gets the application main thread's dispatcher, used to dispatch work onto the application thread
-        /// </summary>
-        public static IDispatcher Dispatcher => ApplicationCore.Instance.Dispatcher;
+    /// <summary>
+    /// Gets the application's file picking service, for picking files and directories to open/save
+    /// </summary>
+    public static IFilePickDialogService FilePickService => RZApplication.Instance.Services.GetService<IFilePickDialogService>();
 
-        /// <summary>
-        /// Gets the application's task manager
-        /// </summary>
-        public static TaskManager TaskManager => ApplicationCore.Instance.Services.GetService<TaskManager>();
-    }
+    public static IColourPickerService ColourPickerService => RZApplication.Instance.Services.GetService<IColourPickerService>();
+
+    /// <summary>
+    /// Gets the application's task manager
+    /// </summary>
+    public static TaskManager TaskManager => RZApplication.Instance.Services.GetService<TaskManager>();
+
+    public static IDispatcher Dispatcher => RZApplication.Instance.Dispatcher;
 }

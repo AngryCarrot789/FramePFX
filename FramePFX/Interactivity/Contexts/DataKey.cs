@@ -1,123 +1,107 @@
-//
-// Copyright (c) 2023-2024 REghZy
-//
+// 
+// Copyright (c) 2024-2024 REghZy
+// 
 // This file is part of FramePFX.
-//
+// 
 // FramePFX is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either
 // version 3.0 of the License, or (at your option) any later version.
-//
+// 
 // FramePFX is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // Lesser General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU General Public License
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
-//
+// 
 
-using System;
-using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using FramePFX.CommandSystem;
+using FramePFX.Utils;
 
-namespace FramePFX.Interactivity.Contexts
-{
-    public abstract class DataKey
-    {
-        private static readonly Dictionary<string, DataKey> Registry;
+namespace FramePFX.Interactivity.Contexts;
 
-        /// <summary>
-        /// A unique identifier for this data key
-        /// </summary>
-        public string Id { get; }
+public abstract class DataKey {
+    private static readonly Dictionary<string, DataKey> Registry;
 
-        protected DataKey(string id)
-        {
-            if (string.IsNullOrWhiteSpace(id))
-                throw new ArgumentException("ID cannot be null, empty or consist of only whitespaces");
-            this.Id = id;
-        }
+    /// <summary>
+    /// A unique identifier for this data key
+    /// </summary>
+    public string Id { get; }
 
-        static DataKey()
-        {
-            Registry = new Dictionary<string, DataKey>();
-        }
-
-        public static DataKey GetKeyById(string id)
-        {
-            return Registry.TryGetValue(id, out DataKey key) ? key : null;
-        }
-
-        protected static void RegisterInternal(string id, DataKey key)
-        {
-            if (ReferenceEquals(key, null))
-                throw new ArgumentNullException(nameof(key));
-            if (id == null)
-                throw new ArgumentNullException(nameof(id));
-            if (Registry.ContainsKey(id))
-                throw new InvalidOperationException("ID already in use: " + id);
-            Registry[id] = key;
-        }
-
-        public static bool operator ==(DataKey a, DataKey b)
-        {
-            return ReferenceEquals(a, b) || !ReferenceEquals(a, null) && !ReferenceEquals(b, null) && a.Equals(b);
-        }
-
-        public static bool operator !=(DataKey a, DataKey b)
-        {
-            return !ReferenceEquals(a, b) && (ReferenceEquals(a, null) || ReferenceEquals(b, null) || !a.Equals(b));
-        }
-
-        protected bool Equals(DataKey other)
-        {
-            return this.Id == other.Id;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj))
-                return false;
-            if (ReferenceEquals(this, obj))
-                return true;
-            return obj is DataKey key && this.Equals(key);
-        }
-
-        public override int GetHashCode() => this.Id.GetHashCode();
-
-        public override string ToString() => $"DataKey(\"{this.Id}\")";
+    protected DataKey(string id) {
+        if (string.IsNullOrWhiteSpace(id))
+            throw new ArgumentException("ID cannot be null, empty or consist of only whitespaces");
+        this.Id = id;
     }
 
-    public class DataKey<T> : DataKey
-    {
-        private DataKey(string id) : base(id)
-        {
-        }
+    static DataKey() {
+        Registry = new Dictionary<string, DataKey>();
+    }
 
-        public static DataKey<T> Create(string id)
-        {
-            DataKey<T> key = new DataKey<T>(id);
-            RegisterInternal(id, key);
-            return key;
-        }
+    public static DataKey? GetKeyById(string id) => Registry.GetValueOrDefault(id);
 
-        public bool TryGetContext(IContextData context, out T value)
-        {
-            if (context.TryGetContext(this.Id, out object obj))
-            {
-                value = obj is T t ? t : throw new Exception($"Context contained an invalid value for this key: type mismatch ({typeof(T)} != {obj?.GetType()})");
-                return true;
-            }
-            else
-            {
-                value = default;
-                return false;
-            }
-        }
+    protected static void RegisterInternal(string id, DataKey key) {
+        if (ReferenceEquals(key, null))
+            throw new ArgumentNullException(nameof(key));
+        ArgumentNullException.ThrowIfNull(id);
+        if (!Registry.TryAdd(id, key))
+            throw new InvalidOperationException("ID already in use: " + id);
+    }
 
-        public T GetContext(IContextData context, T def = default)
-        {
-            return context.TryGetContext(this.Id, out object obj) ? (T) obj : def;
+    public static bool operator ==(DataKey a, DataKey b) {
+        return ReferenceEquals(a, b) || !ReferenceEquals(a, null) && !ReferenceEquals(b, null) && a.Equals(b);
+    }
+
+    public static bool operator !=(DataKey a, DataKey b) {
+        return !ReferenceEquals(a, b) && (ReferenceEquals(a, null) || ReferenceEquals(b, null) || !a.Equals(b));
+    }
+
+    protected bool Equals(DataKey other) {
+        return this.Id == other.Id;
+    }
+
+    public override bool Equals(object? obj) {
+        if (ReferenceEquals(null, obj))
+            return false;
+        if (ReferenceEquals(this, obj))
+            return true;
+        return obj is DataKey key && this.Equals(key);
+    }
+
+    public override int GetHashCode() => this.Id.GetHashCode();
+
+    public override string ToString() => $"DataKey(\"{this.Id}\")";
+}
+
+public class DataKey<T> : DataKey {
+    private DataKey(string id) : base(id) { }
+
+    public static DataKey<T> Create(string id) {
+        DataKey<T> key = new DataKey<T>(id);
+        RegisterInternal(id, key);
+        return key;
+    }
+    
+    public bool IsPresent(IContextData contextData) => contextData.ContainsKey(this.Id);
+    
+    public Executability GetExecutabilityForPresence(IContextData contextData) => this.IsPresent(contextData) ? Executability.Valid : Executability.Invalid;
+
+    public bool TryGetContext(IContextData context, [MaybeNullWhen(false)] out T value) {
+        Validate.NotNull(context);
+        if (context.TryGetContext(this.Id, out object? obj)) {
+            value = obj is T t ? t : throw new Exception($"Context contained an invalid value for this key: type mismatch ({typeof(T)} != {obj.GetType()})");
+            return true;
         }
+        else {
+            value = default!;
+            return false;
+        }
+    }
+
+    public T? GetContext(IContextData context, T? def = default) {
+        return this.TryGetContext(context, out T? value) ? value : def;
     }
 }

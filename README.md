@@ -1,5 +1,5 @@
 # FramePFX
-A small (non-linear) video editor, written in C# using WPF
+A small (non-linear) video editor, written in C# using Avalonia for the UI
 
 I mainly started this as a learning tool into the world of video/audio processing (all I really knew before this was basic OpenGL drawing), but also because other editors like vegas, premiere pro, hitfilm, etc, just seem to run so slowly and some of them just lack basic features (e.g zoom in the view port with CTRL + MouseWheel)
 
@@ -7,19 +7,40 @@ I doubt this will ever even come close to those editors, but hopefully it will a
 
 If you have any feedback/criticism for the app, that would be appreciate! Also feel free to contribute, if you would like to. You can see the TODO list near the bottom
 
+# New: Avalonia Remake
+The primary version of the app is v2, which is the Avalonia remake (from WPF). 
+
+Not everything is implemented (such as automation sequence rendering, context menus, drag-drop videos)
+however a lot of it is ready and this version even has a few new features:
+
+- You can drag around a video clip in the preview + there's better outline selection now that I understand transformation matrices better lol
+- Slightly improved data parameter and property editor systems
+- RateLimitedDispatchActions for spontaneous render requests (e.g. changing opacity parameter) to improve UI performance
+- Tracks and Resource Tree Nodes can be moved around by dragging them
+
+However, it seems like this remake is less responsive than the WPF counterpart unfortunately; you can feel a lag between dragging a
+clip and it being redrawn in the timeline, whereas in WPF it was almost unnoticeable
+
+I hope to get this app back into the same state it was when using WPF and also improve upon it
+
 # Preview
-There are 6 themes. This is the `Soft Dark` theme. But there's also `Deep dark`, `Dark Grey`, `Grey`, `Red and Black` and a `Light Theme` (if you dare use it)
 
-This is the latest version:
-![](FramePFX_2024-02-03_01.07.07.png)
+This is the latest version using Avalonia:
+![](FramePFX.Avalonia_2024-11-30_21.42.03.png)
 
-This is a slightly older version showing some automation/animation/keyframe usage:
+## Old previews from WPF
+
+Here are some previews of features that aren't yet implemented, but that once were :) 
+
+This shows of some automation/animation/keyframe usage:
 ![](FramePFX_2024-01-31_02.41.43.png)
 
-Here is a preview of the export process. Export button is in File>Export, you specify a path and then click Export. Notice how slow the render is (bottom right corner) :'(. The render uses Skia's highest quality 
-filter during export (low for the preview view port), but I will add an option to change that. To cancel the render you just click Cancel on the dialog behind the export progress window
+Here is a preview of the export process. Export button is in File>Export, you specify a path and then click Export. Notice how slow the render
+is (bottom right corner). The render uses Skia's highest quality filter during export (low for the preview view port), but I will add an option
+to change that. To cancel the render you just click Cancel on the dialog behind the export progress window
 
 The grey panel below "Exporter: FFmpeg" is encoder-specific details. I haven't added anything yet, but soon I will put things like a bitrate slider in there.
+I'm thinking it will be a PropertyEditor control, and there will be a property editor registry for every type of encoder
 ![](FramePFX_2024-02-03_01.08.52.png)
 
 ### Automation/animation
@@ -34,15 +55,16 @@ The clip's automation sequence editor's target parameter can be changed by selec
 
 ## Models and the UI
 
-I previously made this using MVVM everywhere, but I had to basically create ViewModels for every type of Model and map hierarchies of objects (Timeline->Track->Clip, TimelineViewModel->TrackViewModel->ClipViewModel),
+I previously made this using MVVM, but I had to basically create ViewModels for every type of Model and map hierarchies of objects (Timeline->Track->Clip, TimelineViewModel->TrackViewModel->ClipViewModel),
 which was frustrating and made adding new features really difficult, so I decided to rewrite the entire program to use a mostly non-view-model design, kind of like MVP except views are the presenters themselves, 
 where the models are just the state and the views/controls add and remove event handlers to obverse the state of the models.
 
 This turns out to be a lot more performant (which is actually the main reason I switched), somewhat just as easy to add new features, and the  signals between ViewModel/View are not entirely ICommands anymore. 
-But it does mean moving this to something like Avalonia (which I haven't thought of doing yet) would be a lot more difficult. 
-I haven't though of changing back to MVVM or using actual presenters + interfaces, but it's an idea for the future
 
-The editor can run entirely without a front end though, as none of the models contain any UI specific code (except for basic things like a IsSelected property in clips, tracks, resources, etc.). It does need the WPF dispatcher though
+A comment was here about transitioning to Avalonia would take longer as a result, and well, 20 hours in and still not done
+
+All of the models are able to run without a front end UI. Any UI-interactions needed in the Core project (e.g. delete selected clips command) are done via interfaces which expose UI-specific behaviours. See the ITimelineElement class, which exposes the UI's timeline detains. 
+
 
 ## Rendering
 Rendering uses SkiaSharp (for simplicity) and multiple render threads for speed. The `RenderManager` class handles the render initialisation.
@@ -85,7 +107,7 @@ has a focus path associated with it, which can be set via the `UIInputManager.Fo
 to "activate" based on the current global focus path, and activates all of them until one is activated successfully. 
 Keymap.xml contains the shortcuts (and some unused ones from the old app version)
 
-### Context menus
+### OLD WPF Context menus
 Context menus use the `AdvancedContextMenu` class. Context menu items are generated on demand each time the context menu is open, which isn't the most performant option
 but it's pretty quick for now (much quicker now than before when I used binding and ItemsSource). I try to only use the `CommandContextEntry` (which maps to a `AdvancedCommandMenuItem`) 
 menu item which invokes a command but I sometimes use a `EventContextEntry` because it's much easier to use, but less portable as shortcuts can't activate/invoke them
@@ -93,15 +115,20 @@ menu item which invokes a command but I sometimes use a `EventContextEntry` beca
 ### Data Manager
 The data manager is used to store local context data in a control, and implement context data inheritance containing the merged context data for all of a control's visual parents and itself. 
 
-It has two primary properties: `ContextData`, and `InheritedContextData`. Despite the name, the inherited version does not use WPF's built in property inheritance feature, but instead
+It has two primary properties: `ContextData`, and `InheritedContextData`. Despite the name, the inherited version does not use Avalonia's built in property inheritance feature, but instead
 uses my own inheritance implementation by using `ContextDataProperty` changes and the `VisualAncestorChanged` event (which I add/remove reflectively when the `ContextDataProperty` changes,
-and it fires when an object's visual parent changes). By doing this, an event can be fired (`InheritedContextInvalidatedEvent`) for every single child of an element in its visual tree when its 
+and it fires when an object's visual parent changes). By doing this, an event can be fired (`InheritedContextChangedEvent`) for every single child of an element in its visual tree when its 
 local context data is changed. The `ContextUsage` class depends on this feature in order to do things like re-query the executability state of a command when a control's full inherited context changes
 
 # TODO
+### Avalonia Remake:
+- Context menus
+- Reimplement commands, e.g. group resources, create composition timeline, etc.
+- Implement UI for the task management system
+- Implement project settings dialog
+- Implement UI for Effects list that can be dropped into a clip/track
 ### Audio
-I did get audio playback to finally work, but there's a lot of crackling due to missing audio samples, since I'm always filling the audio buffer 
-with exactly 1 video frame worth of samples, and since the FPS fluctuates by a few frames randomly, I need to re-work it when I figure out what to do instead.
+I removed audio playback from the Avalonia remake because it required PortAudio, requiring a native project, both of which were a hassle to auto-compile. Check out the last WPF release for the issues on it though; it wasn't great
 ### Automation Engine
 - Add support for smooth interpolation (e.g. a curve between 2 key frames). I tried doing this, but had a hard time figuring out the math to do the interpolation, and also doing the hit testing for the UI
 ### Clips
@@ -119,33 +146,20 @@ with exactly 1 video frame worth of samples, and since the FPS fluctuates by a f
 
 # Downloading and Compiling/Building
 
-Compiling the editor yourself requires some manual labour at the moment. It uses 2 external libraries:
-- FFmpeg (for video decoding and exporting/encoding). The pre-compiled binaries and libraries can be downloaded at: 
-  https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip 
-- PortAudio for audio playback. This can be downloaded and compiled at https://files.portaudio.com/download.html. 
+To compile and run the editor, you only require FFmpeg which you must download yourself. 
+You can find the download link here: https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip  
 
-### FramePFX assumes everything is 64 bit. x86/32-bit/AnyCPU most likely won't work!
-Create a folder called `libraries` in the solution folder and then two sub-folders called `ffmpeg` and `portaudio`. 
-Copy the contents of both of the archive files you download into the respective folders. You should be able to navigate 
-to `\FramePFX\libraries\ffmpeg\lib`, and `\FramePFX\libraries\portaudio\` will contain `CMakeList.txt`
+### FramePFX assumes everything is 64 bit --- x86/32-bit/AnyCPU most likely won't work!
+Create a folder called `libraries` in the solution folder and a sub-folders called `ffmpeg`. 
+Copy the contents of both of the ffmpeg archive into that folder. You should be able to navigate 
+to `\FramePFX\libraries\ffmpeg\lib`.
 
-I'd recommend following PortAudio's official build instructions, but they basically consist of: open CMake GUI, set sources folder and build folder, 
-click configure then generate and then open the VS solution and click build solution
+If you only plan on debugging only from VS/Rider or whatever IDE you use, it works fine as long as
+the ffmpeg folder is in the 'libraries' folder. If you associated the `fpfx` file extension with FramePFX 
+in the build folders, then you most likely will need to copy the DLL files in ffmpeg's `bin` folder 
+(except for the .exe files) into the same folder as `FramePFX.exe` 
 
-Now that you've built PortAudio, your build folder should contain Debug or Release depending on what you used. Now, go back into the `portaudio` folder, 
-create a folder called `lib` and copy, from build/Debug (or Release) folder, `portaudio_x64.lib` and `portaudio_x64.pdb` into it. 
-The lib folder is required for the NativeEngine project.
-
-Then back in that build/Debug (or Release) folder, copy `portaudio_x64.dll` and `portaudio_x64.exp` into the video editor's 
-respective Debug or Release folder (inside the FramePFX bin folder).
-
-Now, to make FFmpeg work, if debugging only from VS/Rider or whatever IDE you use, it works fine as long as the ffmpeg folder is in the libraries folder.
-If you associated the `fpfx` file extension with FramePFX in the build folders, then you most likely will need to place all of the DLL files in ffmpeg's `bin`
-folder (except for the .exe files) in the same folder as `FramePFX.exe`. PortAudio's DLL must always be placed in the same folder as the app exe 
-
-And then hopefully if I didn't miss anything out, you should be able to compile the NativeEngine project and then the FramePFX project, and the editor should run.
-
-The project uses .NET Framework 4.8, so you will need that installed too to compile the FramePFX project
+Hopefully then you should be able to build and run without issue. This project uses Avalonia 11.2.2 and .NET 8 (C# 12)
 
 ### Possible build problems
 Sometimes, the SkiaSharp nuget library doesn't copy the skia library files to the bin folder when you clone this repo and built. There are 2 fixes I found:

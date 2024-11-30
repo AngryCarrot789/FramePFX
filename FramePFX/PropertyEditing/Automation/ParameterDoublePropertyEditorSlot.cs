@@ -17,57 +17,50 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System;
-using FramePFX.Editors.Automation;
-using FramePFX.Editors.Automation.Params;
-using FramePFX.Editors.Controls.Automation;
+using FramePFX.Editing.Automation;
+using FramePFX.Editing.Automation.Params;
+using FramePFX.PropertyEditing.DataTransfer;
+using FramePFX.Utils;
 
-namespace FramePFX.PropertyEditing.Automation
-{
-    public class ParameterDoublePropertyEditorSlot : ParameterPropertyEditorSlot
-    {
-        private double value;
+namespace FramePFX.PropertyEditing.Automation;
 
-        public double Value
-        {
-            get => this.value;
-            set
-            {
-                double oldVal = this.value;
-                this.value = value;
-                bool useAddition = this.IsMultiHandler;
-                double change = value - oldVal;
-                ParameterDouble parameter = this.Parameter;
-                ParameterDescriptorDouble pdesc = parameter.Descriptor;
-                for (int i = 0, c = this.Handlers.Count; i < c; i++)
-                {
-                    IAutomatable obj = (IAutomatable) this.Handlers[i];
-                    double newValue = pdesc.Clamp(useAddition ? (parameter.GetCurrentValue(obj) + change) : value);
-                    AutomatedUtils.SetDefaultKeyFrameOrAddNew(obj, parameter, newValue);
-                }
+public class ParameterDoublePropertyEditorSlot : NumericParameterPropertyEditorSlot {
+    private double value;
 
-                this.OnValueChanged();
+    public double Value {
+        get => this.value;
+        set {
+            double oldVal = this.value;
+            this.value = value;
+            bool useAddition = this.IsMultiHandler;
+            double change = value - oldVal;
+            ParameterDouble parameter = this.Parameter;
+            ParameterDescriptorDouble pdesc = parameter.Descriptor;
+            for (int i = 0, c = this.Handlers.Count; i < c; i++) {
+                IAutomatable obj = (IAutomatable) this.Handlers[i];
+                double newValue = pdesc.Clamp(useAddition ? (parameter.GetCurrentValue(obj) + change) : value);
+                AutomationUtils.SetDefaultKeyFrameOrAddNew(obj, parameter, newValue);
             }
+
+            this.OnValueChanged();
         }
+    }
 
-        public new ParameterDouble Parameter => (ParameterDouble) base.Parameter;
+    public new ParameterDouble Parameter => (ParameterDouble) base.Parameter;
 
-        public DragStepProfile StepProfile { get; }
+    public DragStepProfile StepProfile { get; }
 
-        /// <summary>
-        /// Returns true if the UI can attempt to show a 0.0 to 1.0 range as a percentage range (0-100%)
-        /// </summary>
-        public bool CanUsePercentageForUnitRange { get; }
+    /// <summary>
+    /// Returns true if the UI can attempt to show a 0.0 to 1.0 range as a percentage range (0-100%)
+    /// </summary>
+    public bool CanUsePercentageForUnitRange { get; }
 
-        public ParameterDoublePropertyEditorSlot(ParameterDouble parameter, Type applicableType, string displayName, DragStepProfile stepProfile, bool canUsePercentageForUnitRange = true) : base(parameter, applicableType, displayName)
-        {
-            this.StepProfile = stepProfile;
-            this.CanUsePercentageForUnitRange = canUsePercentageForUnitRange;
-        }
+    public ParameterDoublePropertyEditorSlot(ParameterDouble parameter, Type applicableType, string displayName, DragStepProfile stepProfile, bool canUsePercentageForUnitRange = true) : base(parameter, applicableType, displayName) {
+        this.StepProfile = stepProfile;
+        this.CanUsePercentageForUnitRange = canUsePercentageForUnitRange;
+    }
 
-        protected override void QueryValueFromHandlers()
-        {
-            this.value = GetEqualValue(this.Handlers, (x) => this.Parameter.GetCurrentValue((IAutomatable) x), out double d) ? d : default;
-        }
+    protected override void QueryValueFromHandlers() {
+        this.value = CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetCurrentValue((IAutomatable) x), out double d) ? d : default;
     }
 }

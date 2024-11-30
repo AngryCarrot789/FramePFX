@@ -17,229 +17,194 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System;
-using System.Collections.Generic;
 using FramePFX.Utils;
 
-namespace FramePFX.History
-{
+namespace FramePFX.History;
+
+/// <summary>
+/// A class that manages a collection of undo-able and redo-able actions
+/// </summary>
+public class HistoryManager {
+    private readonly LinkedList<IHistoryAction> undoList;
+    private readonly LinkedList<IHistoryAction> redoList;
+
+    private readonly Stack<List<IHistoryAction>> actionStack;
+    // private HistoryManager parent;
+
+    public bool IsUndoInProgress { get; private set; }
+
+    public bool IsRedoInProgress { get; private set; }
+
     /// <summary>
-    /// A class that manages a collection of undo-able and redo-able actions
+    /// Returns the number of undo-able actions. This does not count actions in the current execution section
     /// </summary>
-    public class HistoryManager
-    {
-        private readonly LinkedList<IHistoryAction> undoList;
-        private readonly LinkedList<IHistoryAction> redoList;
+    public bool HasUndoableActions => this.undoList.Count > 0;
 
-        private readonly Stack<List<IHistoryAction>> actionStack;
-        // private HistoryManager parent;
+    /// <summary>
+    /// Returns the number of redo-able actions. This does not count actions in the current execution section
+    /// </summary>
+    public bool HasRedoableActions => this.redoList.Count > 0;
 
-        public bool IsUndoInProgress { get; private set; }
+    /// <summary>
+    /// Returns true if we are not currently undoing something and we have undo-able actions
+    /// </summary>
+    public bool CanUndo => !this.IsUndoInProgress && this.HasUndoableActions;
 
-        public bool IsRedoInProgress { get; private set; }
+    /// <summary>
+    /// Returns true if we are not currently redoing something and we have redo-able actions
+    /// </summary>
+    public bool CanRedo => !this.IsRedoInProgress && this.HasRedoableActions;
 
-        /// <summary>
-        /// Returns the number of undo-able actions. This does not count actions in the current execution section
-        /// </summary>
-        public bool HasUndoableActions => this.undoList.Count > 0;
+    public HistoryManager() {
+        this.undoList = new LinkedList<IHistoryAction>();
+        this.redoList = new LinkedList<IHistoryAction>();
+        this.actionStack = new Stack<List<IHistoryAction>>();
+    }
 
-        /// <summary>
-        /// Returns the number of redo-able actions. This does not count actions in the current execution section
-        /// </summary>
-        public bool HasRedoableActions => this.redoList.Count > 0;
+    // public void LinkToParent(HistoryManager newParent) {
+    //     this.CheckNotPerformingUndoOrRedo();
+    //     this.parent = newParent;
+    //     if (newParent != null) {
+    //         this.ClearBuffers();
+    //     }
+    // }
 
-        /// <summary>
-        /// Returns true if we are not currently undoing something and we have undo-able actions
-        /// </summary>
-        public bool CanUndo => !this.IsUndoInProgress && this.HasUndoableActions;
+    private void ClearBuffers() {
+        this.ClearRedoBuffer();
+        this.ClearUndoBuffer();
+    }
 
-        /// <summary>
-        /// Returns true if we are not currently redoing something and we have redo-able actions
-        /// </summary>
-        public bool CanRedo => !this.IsRedoInProgress && this.HasRedoableActions;
+    private void ClearUndoBuffer() {
+        this.undoList.Clear();
+    }
 
-        public HistoryManager()
-        {
-            this.undoList = new LinkedList<IHistoryAction>();
-            this.redoList = new LinkedList<IHistoryAction>();
-            this.actionStack = new Stack<List<IHistoryAction>>();
+    private void ClearRedoBuffer() {
+        this.redoList.Clear();
+    }
+
+    private void RemoveFirstUndoable() {
+        this.undoList.RemoveFirst();
+    }
+
+    /// <summary>
+    /// Clears all undo-able and redo-able actions
+    /// </summary>
+    public void Clear() {
+        this.CheckNotPerformingUndoOrRedo();
+        this.ClearBuffers();
+    }
+
+    /// <summary>
+    /// Adds the given action to be undone and redone
+    /// </summary>
+    /// <param name="action">The action to add</param>
+    public void AddAction(IHistoryAction action) {
+        if (this.actionStack.Count > 0) {
+            this.actionStack.Peek().Add(action);
         }
-
-        // public void LinkToParent(HistoryManager newParent) {
-        //     this.CheckNotPerformingUndoOrRedo();
-        //     this.parent = newParent;
-        //     if (newParent != null) {
-        //         this.ClearBuffers();
-        //     }
-        // }
-
-        private void ClearBuffers()
-        {
+        else {
             this.ClearRedoBuffer();
-            this.ClearUndoBuffer();
-        }
-
-        private void ClearUndoBuffer()
-        {
-            this.undoList.Clear();
-        }
-
-        private void ClearRedoBuffer()
-        {
-            this.redoList.Clear();
-        }
-
-        private void RemoveFirstUndoable()
-        {
-            this.undoList.RemoveFirst();
-        }
-
-        /// <summary>
-        /// Clears all undo-able and redo-able actions
-        /// </summary>
-        public void Clear()
-        {
-            this.CheckNotPerformingUndoOrRedo();
-            this.ClearBuffers();
-        }
-
-        /// <summary>
-        /// Adds the given action to be undone and redone
-        /// </summary>
-        /// <param name="action">The action to add</param>
-        public void AddAction(IHistoryAction action)
-        {
-            if (this.actionStack.Count > 0)
-            {
-                this.actionStack.Peek().Add(action);
+            this.undoList.AddLast(action);
+            while (this.undoList.Count > 500) {
+                this.RemoveFirstUndoable();
             }
-            else
-            {
-                this.ClearRedoBuffer();
-                this.undoList.AddLast(action);
-                while (this.undoList.Count > 500)
-                {
-                    this.RemoveFirstUndoable();
-                }
 
-                // this.parent?.AddAction(new ChildManagerHistoryAction(this));
-            }
+            // this.parent?.AddAction(new ChildManagerHistoryAction(this));
         }
+    }
 
-        public void Undo() => this.PerformUndoOrRedo(true);
+    public void Undo() => this.PerformUndoOrRedo(true);
 
-        public void Redo() => this.PerformUndoOrRedo(false);
+    public void Redo() => this.PerformUndoOrRedo(false);
 
-        private void PerformUndoOrRedo(bool isUndo)
-        {
-            this.CheckStateForUndoOrRedo(isUndo);
+    private void PerformUndoOrRedo(bool isUndo) {
+        this.CheckStateForUndoOrRedo(isUndo);
 
-            LinkedList<IHistoryAction> srcList = isUndo ? this.undoList : this.redoList;
-            LinkedList<IHistoryAction> dstList = isUndo ? this.redoList : this.undoList;
+        LinkedList<IHistoryAction> srcList = isUndo ? this.undoList : this.redoList;
+        LinkedList<IHistoryAction> dstList = isUndo ? this.redoList : this.undoList;
 
-            IHistoryAction action = srcList.Last.Value;
+        IHistoryAction action = srcList.Last.Value;
 
-            bool success = false;
-            try
-            {
-                try
-                {
-                    if (isUndo)
-                    {
-                        this.IsUndoInProgress = false;
-                        success = action.Undo();
-                    }
-                    else
-                    {
-                        this.IsRedoInProgress = false;
-                        success = action.Redo();
-                    }
+        bool success = false;
+        try {
+            try {
+                if (isUndo) {
+                    this.IsUndoInProgress = false;
+                    success = action.Undo();
                 }
-                finally
-                {
-                    if (isUndo)
-                    {
-                        this.IsUndoInProgress = false;
-                    }
-                    else
-                    {
-                        this.IsRedoInProgress = false;
-                    }
+                else {
+                    this.IsRedoInProgress = false;
+                    success = action.Redo();
                 }
             }
-            catch (Exception e)
-            {
-                IoC.MessageService.ShowMessage((isUndo ? "Undo" : "Redo") + " Error", "An exception occurred while performing history action", e.GetToString());
-            }
-
-            if (success)
-            {
-                srcList.RemoveLast();
-                dstList.AddLast(action);
-            }
-        }
-
-        private void CheckNotPerformingUndoOrRedo()
-        {
-            if (this.IsUndoInProgress)
-                throw new InvalidOperationException("Undo is in progress");
-            if (this.IsRedoInProgress)
-                throw new InvalidOperationException("Redo is in progress");
-        }
-
-        private void CheckStateForUndoOrRedo(bool isUndo)
-        {
-            this.CheckNotPerformingUndoOrRedo();
-            if (isUndo)
-            {
-                if (this.undoList.Count < 1)
-                    throw new InvalidOperationException("Nothing to undo");
-            }
-            else if (this.redoList.Count < 1)
-                throw new InvalidOperationException("Nothing to redo");
-        }
-
-        /// <summary>
-        /// Returns a disposable object that can be used to execute multiple undoable actions and
-        /// once all completed allow them to be grouped together as a single action
-        /// </summary>
-        /// <returns></returns>
-        public IDisposable ExecuteMerged()
-        {
-            this.OnBeginExecutionSection();
-            return new MergedSection(this);
-        }
-
-        private void OnBeginExecutionSection()
-        {
-            this.actionStack.Push(new List<IHistoryAction>());
-        }
-
-        private void OnEndExecutionSection()
-        {
-            List<IHistoryAction> list = this.actionStack.Pop();
-            if (list.Count > 0)
-            {
-                this.AddAction(new MergedHistoryAction(list.ToArray()));
-            }
-        }
-
-        public class MergedSection : IDisposable
-        {
-            private HistoryManager manager;
-
-            public MergedSection(HistoryManager manager)
-            {
-                this.manager = manager;
-            }
-
-            public void Dispose()
-            {
-                if (this.manager != null)
-                {
-                    this.manager.OnEndExecutionSection();
-                    this.manager = null;
+            finally {
+                if (isUndo) {
+                    this.IsUndoInProgress = false;
                 }
+                else {
+                    this.IsRedoInProgress = false;
+                }
+            }
+        }
+        catch (Exception e) {
+            IoC.MessageService.ShowMessage((isUndo ? "Undo" : "Redo") + " Error", "An exception occurred while performing history action", e.GetToString());
+        }
+
+        if (success) {
+            srcList.RemoveLast();
+            dstList.AddLast(action);
+        }
+    }
+
+    private void CheckNotPerformingUndoOrRedo() {
+        if (this.IsUndoInProgress)
+            throw new InvalidOperationException("Undo is in progress");
+        if (this.IsRedoInProgress)
+            throw new InvalidOperationException("Redo is in progress");
+    }
+
+    private void CheckStateForUndoOrRedo(bool isUndo) {
+        this.CheckNotPerformingUndoOrRedo();
+        if (isUndo) {
+            if (this.undoList.Count < 1)
+                throw new InvalidOperationException("Nothing to undo");
+        }
+        else if (this.redoList.Count < 1)
+            throw new InvalidOperationException("Nothing to redo");
+    }
+
+    /// <summary>
+    /// Returns a disposable object that can be used to execute multiple undoable actions and
+    /// once all completed allow them to be grouped together as a single action
+    /// </summary>
+    /// <returns></returns>
+    public IDisposable ExecuteMerged() {
+        this.OnBeginExecutionSection();
+        return new MergedSection(this);
+    }
+
+    private void OnBeginExecutionSection() {
+        this.actionStack.Push(new List<IHistoryAction>());
+    }
+
+    private void OnEndExecutionSection() {
+        List<IHistoryAction> list = this.actionStack.Pop();
+        if (list.Count > 0) {
+            this.AddAction(new MergedHistoryAction(list.ToArray()));
+        }
+    }
+
+    public class MergedSection : IDisposable {
+        private HistoryManager manager;
+
+        public MergedSection(HistoryManager manager) {
+            this.manager = manager;
+        }
+
+        public void Dispose() {
+            if (this.manager != null) {
+                this.manager.OnEndExecutionSection();
+                this.manager = null;
             }
         }
     }

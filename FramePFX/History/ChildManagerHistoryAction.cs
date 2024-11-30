@@ -17,31 +17,26 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.History
-{
-    public class ChildManagerHistoryAction : IHistoryAction
-    {
-        private readonly HistoryManager manager;
+namespace FramePFX.History;
 
-        public ChildManagerHistoryAction(HistoryManager manager)
-        {
-            this.manager = manager;
-        }
+public class ChildManagerHistoryAction : IHistoryAction {
+    private readonly HistoryManager manager;
 
-        public bool Undo()
-        {
-            if (!this.manager.CanUndo)
-                return false;
-            this.manager.Undo();
-            return true;
-        }
+    public ChildManagerHistoryAction(HistoryManager manager) {
+        this.manager = manager;
+    }
 
-        public bool Redo()
-        {
-            if (!this.manager.CanRedo)
-                return false;
-            this.manager.Redo();
-            return true;
-        }
+    public bool Undo() {
+        if (!this.manager.CanUndo)
+            return false;
+        this.manager.Undo();
+        return true;
+    }
+
+    public bool Redo() {
+        if (!this.manager.CanRedo)
+            return false;
+        this.manager.Redo();
+        return true;
     }
 }

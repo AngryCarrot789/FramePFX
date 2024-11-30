@@ -1,5 +1,5 @@
 // 
-// Copyright (c) 2023-2024 REghZy
+// Copyright (c) 2024-2024 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -17,25 +17,21 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Utils
-{
-    public readonly struct TextRange
-    {
-        public int Index { get; }
+namespace FramePFX.Utils;
 
-        public int Length { get; }
+public readonly struct TextRange {
+    public int Index { get; }
 
-        public int EndIndex => this.Index + this.Length;
+    public int Length { get; }
 
-        public TextRange(int index, int length)
-        {
-            this.Index = index;
-            this.Length = length;
-        }
+    public int EndIndex => this.Index + this.Length;
 
-        public string GetString(string input)
-        {
-            return input.Substring(this.Index, this.Length);
-        }
+    public TextRange(int index, int length) {
+        this.Index = index;
+        this.Length = length;
+    }
+
+    public string GetString(string input) {
+        return input.Substring(this.Index, this.Length);
     }
 }

@@ -200,6 +200,8 @@ public class SKAsyncViewPort : Control {
         base.OnSizeChanged(e);
         this.InvalidateVisual();
     }
+    
+    public new void InvalidateVisual() => base.InvalidateVisual();
 
     private SKSizeI CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, IRenderRoot source) {
         unscaledSize = SKSizeI.Empty;

@@ -62,14 +62,14 @@ public class ClipRangeCache {
     /// <summary>
     /// Called when a clip is added, removed or its span changed
     /// </summary>
-    public event ClipRangeCacheEventHandler FrameDataChanged;
+    public event ClipRangeCacheEventHandler? FrameDataChanged;
 
     public ClipRangeCache() {
         this.Map = new SortedList<long, ClipList>();
     }
 
-    public Clip GetPrimaryClipAt(long frame) {
-        if (!this.Map.TryGetValue(GetIndex(frame), out ClipList list)) {
+    public Clip? GetPrimaryClipAt(long frame) {
+        if (!this.Map.TryGetValue(GetIndex(frame), out ClipList? list)) {
             return null;
         }
 
@@ -87,7 +87,7 @@ public class ClipRangeCache {
         long idxA = GetIndex(span.Begin);
         long idxB = GetIndex(span.EndIndex);
         for (long idx = idxA; idx <= idxB; idx++) {
-            if (!this.Map.TryGetValue(idx, out ClipList list)) {
+            if (!this.Map.TryGetValue(idx, out ClipList? list)) {
                 continue;
             }
 
@@ -100,7 +100,7 @@ public class ClipRangeCache {
     }
 
     public void ExtractClipsAt(List<Clip> dstList, long frame) {
-        if (this.Map.TryGetValue(GetIndex(frame), out ClipList list)) {
+        if (this.Map.TryGetValue(GetIndex(frame), out ClipList? list)) {
             for (int i = list.size - 1; i >= 0; i--) {
                 Clip clip = list.items[i];
                 if (clip.FrameSpan.Intersects(frame))
@@ -110,7 +110,7 @@ public class ClipRangeCache {
     }
 
     public IEnumerable<Clip> GetClipsAtFrame(long frame) {
-        if (this.Map.TryGetValue(GetIndex(frame), out ClipList list)) {
+        if (this.Map.TryGetValue(GetIndex(frame), out ClipList? list)) {
             List<Clip> clips = new List<Clip>();
             for (int i = list.size - 1; i >= 0; i--) {
                 Clip clip = list.items[i];
@@ -149,7 +149,7 @@ public class ClipRangeCache {
 
     private void AddClipInRange(Clip clip, long min, long max) {
         for (long frame = min; frame <= max; frame++) {
-            if (!this.Map.TryGetValue(frame, out ClipList list))
+            if (!this.Map.TryGetValue(frame, out ClipList? list))
                 this.Map[frame] = list = new ClipList();
             else if (list.Contains(clip))
                 throw new Exception("Did not expect clip to already exist in list");
@@ -194,7 +194,7 @@ public class ClipRangeCache {
 
         // Add the clip to the new grouped range
         for (long frame = newA; frame <= newB; frame++) {
-            if (!this.Map.TryGetValue(frame, out ClipList list)) {
+            if (!this.Map.TryGetValue(frame, out ClipList? list)) {
                 this.Map[frame] = list = new ClipList();
             }
 
@@ -248,7 +248,7 @@ public class ClipRangeCache {
     public bool IsRegionEmpty(FrameSpan span) {
         GetRange(span, out long a, out long b);
         for (long i = a; i <= b; i++) {
-            if (this.Map.TryGetValue(i, out ClipList list) && IntersectsAny(list, span))
+            if (this.Map.TryGetValue(i, out ClipList? list) && IntersectsAny(list, span))
                 return false;
         }
 

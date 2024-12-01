@@ -77,7 +77,7 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
     /// <summary>
     /// An event fired when our <see cref="IsOnline"/> property changes. <see cref="IsOfflineByUser"/> may have changed too
     /// </summary>
-    public event ResourceItemEventHandler OnlineStateChanged;
+    public event ResourceItemEventHandler? OnlineStateChanged;
 
     protected ResourceItem() {
         this.references = new List<IResourceHolder>();

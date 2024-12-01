@@ -95,7 +95,7 @@ public class PlayHeadControl : BasePlayHeadControl {
     
     protected static readonly FieldInfo LastPointField = typeof(Thumb).GetField("_lastPoint", BindingFlags.NonPublic | BindingFlags.Instance)!;
 
-    public void EnableDragging(Point point, PointerEventArgs e) {
+    public void EnableDragging(PointerEventArgs e) {
         Thumb thumb = this.PART_ThumbBody!;
         e.Handled = true;
         e.Pointer.Capture(thumb);

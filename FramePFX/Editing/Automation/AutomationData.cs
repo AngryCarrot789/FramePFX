@@ -77,7 +77,7 @@ public class AutomationData {
     /// is fired after all handler to <see cref="AutomationSequence.ParameterChanged"/> have been invoked;
     /// this handler is a general handler for all parameter value changes relative to our owner
     /// </summary>
-    public event ParameterChangedEventHandler ParameterValueChanged;
+    public event ParameterChangedEventHandler? ParameterValueChanged;
 
     public AutomationData(IAutomatable owner) {
         this.Owner = owner ?? throw new ArgumentNullException(nameof(owner));

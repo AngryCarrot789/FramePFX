@@ -68,7 +68,7 @@ public abstract class Track : IDisplayName, IAutomatable, IHaveEffects, IDestroy
         }
     }
 
-    public string DisplayName {
+    public string? DisplayName {
         get => this.displayName;
         set {
             string oldName = this.displayName;
@@ -264,7 +264,7 @@ public abstract class Track : IDisplayName, IAutomatable, IHaveEffects, IDestroy
 
     public bool IsRegionEmpty(FrameSpan span) => this.cache.IsRegionEmpty(span);
 
-    public Clip GetClipAtFrame(long frame) => this.cache.GetPrimaryClipAt(frame);
+    public Clip? GetClipAtFrame(long frame) => this.cache.GetPrimaryClipAt(frame);
 
     public void InvalidateRender() {
         this.Timeline?.RenderManager.InvalidateRender();

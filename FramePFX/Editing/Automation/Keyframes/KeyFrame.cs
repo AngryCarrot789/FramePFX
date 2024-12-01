@@ -67,13 +67,13 @@ public abstract class KeyFrame {
     /// <summary>
     /// An event fired when our <see cref="Frame"/> changes
     /// </summary>
-    public event KeyFramePositionChangedEventHandler FrameChanged;
+    public event KeyFramePositionChangedEventHandler? FrameChanged;
 
     /// <summary>
     /// An event fired when this key frame's value changes. Because this event is in
     /// the base class (fired by the derived classes), the previous value cannot be accessed
     /// </summary>
-    public event KeyFrameEventHandler ValueChanged;
+    public event KeyFrameEventHandler? ValueChanged;
 
     protected KeyFrame() {
     }
@@ -290,7 +290,7 @@ public class KeyFrameFloat : KeyFrame {
         }
     }
 
-    public event FloatKeyFrameValueChanged FloatValueChanged;
+    public event FloatKeyFrameValueChanged? FloatValueChanged;
 
     public override AutomationDataType DataType => AutomationDataType.Float;
 
@@ -347,7 +347,7 @@ public class KeyFrameDouble : KeyFrame {
         }
     }
 
-    public event DoubleKeyFrameValueChanged DoubleValueChanged;
+    public event DoubleKeyFrameValueChanged? DoubleValueChanged;
 
     public override AutomationDataType DataType => AutomationDataType.Double;
 
@@ -404,7 +404,7 @@ public class KeyFrameLong : KeyFrame {
         }
     }
 
-    public event LongKeyFrameValueChanged LongValueChanged;
+    public event LongKeyFrameValueChanged? LongValueChanged;
 
     /// <summary>
     /// The rounding mode for the interpolation function. See <see cref="Maths.Lerp(long, long, double, int)"/> for more info. Default value = 3
@@ -465,7 +465,7 @@ public class KeyFrameBoolean : KeyFrame {
         }
     }
 
-    public event BooleanKeyFrameValueChanged BooleanValueChanged;
+    public event BooleanKeyFrameValueChanged? BooleanValueChanged;
 
     public override AutomationDataType DataType => AutomationDataType.Boolean;
 

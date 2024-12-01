@@ -49,7 +49,7 @@ public abstract class BaseResource : IDisplayName, IDestroy {
     /// </summary>
     public string FactoryId => ResourceTypeFactory.Instance.GetId(this.GetType());
 
-    public string DisplayName {
+    public string? DisplayName {
         get => this.displayName;
         set {
             string oldName = this.displayName;
@@ -60,7 +60,7 @@ public abstract class BaseResource : IDisplayName, IDestroy {
         }
     }
 
-    public event DisplayNameChangedEventHandler DisplayNameChanged;
+    public event DisplayNameChangedEventHandler? DisplayNameChanged;
 
     protected BaseResource() {
         this.displayName = "A Resource";

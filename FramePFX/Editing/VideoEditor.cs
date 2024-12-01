@@ -78,9 +78,9 @@ public class VideoEditor : IDestroy {
         }
     }
 
-    public event ProjectChangedEventHandler ProjectChanged;
-    public event VideoEditorEventHandler ShowClipAutomationChanged;
-    public event VideoEditorEventHandler ShowTrackAutomationChanged;
+    public event ProjectChangedEventHandler? ProjectChanged;
+    public event VideoEditorEventHandler? ShowClipAutomationChanged;
+    public event VideoEditorEventHandler? ShowTrackAutomationChanged;
 
     public VideoEditor() {
         this.HistoryManager = new HistoryManager();

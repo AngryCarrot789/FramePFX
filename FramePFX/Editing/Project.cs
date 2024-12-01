@@ -133,16 +133,16 @@ public class Project : IDestroy {
         }
     }
 
-    public event ProjectEventHandler ProjectNameChanged;
-    public event ProjectEventHandler ProjectFilePathChanged;
-    public event ProjectEventHandler IsModifiedChanged;
-    public event ProjectEventHandler IsSavingChanged;
+    public event ProjectEventHandler? ProjectNameChanged;
+    public event ProjectEventHandler? ProjectFilePathChanged;
+    public event ProjectEventHandler? IsModifiedChanged;
+    public event ProjectEventHandler? IsSavingChanged;
 
     /// <summary>
     /// An event fired when our <see cref="ActiveTimeline"/> changes.
     /// The old and new timeline values will always be non-null
     /// </summary>
-    public event ActiveTimelineChangedEventHandler ActiveTimelineChanged;
+    public event ActiveTimelineChangedEventHandler? ActiveTimelineChanged;
 
     public Project() {
         this.projectName = "Unnamed Project";

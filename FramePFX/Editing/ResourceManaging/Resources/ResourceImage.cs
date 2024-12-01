@@ -42,7 +42,7 @@ public class ResourceImage : ResourceItem {
     public object Shared0; // a shared WriteableBitmap for ImageClipContent
     public bool Shared1; // arePixelsDirty
 
-    public event ResourceEventHandler ImageChanged;
+    public event ResourceEventHandler? ImageChanged;
 
     public ResourceImage() {
     }

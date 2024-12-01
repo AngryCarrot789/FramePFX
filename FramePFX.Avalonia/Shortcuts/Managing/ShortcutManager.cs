@@ -50,7 +50,7 @@ public abstract class ShortcutManager {
     /// <summary>
     /// An event fired when a <see cref="GroupedShortcut"/>'s shortcut is modified
     /// </summary>
-    public event ShortcutModifiedEventHandler<GroupedShortcut> ShortcutModified;
+    public event ShortcutModifiedEventHandler<GroupedShortcut>? ShortcutModified;
 
     /// <summary>
     /// Gets or sets the application wide shortcut manager. Realistically, only 1 needs to exist during the runtime of the app

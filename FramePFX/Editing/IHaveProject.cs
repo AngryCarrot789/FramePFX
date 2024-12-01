@@ -27,5 +27,5 @@ public interface IHaveProject {
     /// Gets the project associated with this object. May return null if not associated with
     /// a project yet (e.g. clip not placed in a track)
     /// </summary>
-    Project Project { get; }
+    Project? Project { get; }
 }

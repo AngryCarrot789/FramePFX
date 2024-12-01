@@ -115,11 +115,11 @@ public class AutomationSequence {
     /// <summary>
     /// An event fired, notifying any listeners to query their live value from the automation data
     /// </summary>
-    public event ParameterChangedEventHandler ParameterChanged;
+    public event ParameterChangedEventHandler? ParameterChanged;
 
-    public event KeyFrameAddedEventHandler KeyFrameAdded;
-    public event KeyFrameRemovedEventHandler KeyFrameRemoved;
-    public event AutomationSequenceEventHandler OverrideStateChanged;
+    public event KeyFrameAddedEventHandler? KeyFrameAdded;
+    public event KeyFrameRemovedEventHandler? KeyFrameRemoved;
+    public event AutomationSequenceEventHandler? OverrideStateChanged;
 
     public AutomationSequence(AutomationData automationData, Parameter parameter) {
         this.AutomationData = automationData;

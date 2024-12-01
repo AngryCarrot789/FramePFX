@@ -51,6 +51,7 @@ public class RenderManager {
     internal volatile int useSlowRenderDispatchCount;
     private readonly RateLimitedDispatchAction fastRapidRenderDispatch;
     private readonly RateLimitedDispatchAction slowRapidRenderDispatch;
+    private readonly RapidDispatchActionEx rapidRenderDispatch;
 
     private volatile bool isSkiaValid;
     private SKBitmap bitmap;
@@ -72,11 +73,12 @@ public class RenderManager {
 
     public AudioRingBuffer? audioRingBuffer;
     public int totalRenderCount;
+    private volatile StackTrace stackTrace;
 
     public double AverageVideoRenderTimeMillis => this.averageVideoRenderTimeMillis;
     public double AverageAudioRenderTimeMillis => this.averageAudioRenderTimeMillis;
 
-    public event FrameRenderedEventHandler FrameRendered;
+    public event FrameRenderedEventHandler? FrameRendered;
 
     public RenderManager(Timeline timeline) {
         this.Timeline = timeline;
@@ -86,14 +88,21 @@ public class RenderManager {
         // times a second when the user is dragging around a clip,
         // but to speed up when for example using a number dragger on opacity maybe
         TimeSpan FastRenderInterval = TimeSpan.FromMilliseconds(1000.0 / 80.0); // 80 FPS = 12ms 
-        this.fastRapidRenderDispatch = BaseRateLimitedDispatchAction.ForDispatcherAsync(this.ScheduleRenderForRLDA, FastRenderInterval, DispatchPriority.Background);
+        this.fastRapidRenderDispatch = BaseRateLimitedDispatchAction.ForDispatcherAsync(this.ScheduleRenderFromRLDA, FastRenderInterval, DispatchPriority.Background);
         
         TimeSpan SlowRenderInterval = TimeSpan.FromMilliseconds(1000.0 / 30.0); // 30 FPS = 33.33333ms 
-        this.slowRapidRenderDispatch = BaseRateLimitedDispatchAction.ForDispatcherAsync(this.ScheduleRenderForRLDA, SlowRenderInterval, DispatchPriority.Background);
+        this.slowRapidRenderDispatch = BaseRateLimitedDispatchAction.ForDispatcherAsync(this.ScheduleRenderFromRLDA, SlowRenderInterval, DispatchPriority.Background);
+        
+        this.rapidRenderDispatch = RapidDispatchActionEx.ForAsync(this.ScheduleRenderFromRapidDispatch, IoC.Dispatcher, DispatchPriority.Background);
         // this.renderThread = new Thread(this.RenderThreadMain);
     }
 
-    private async Task ScheduleRenderForRLDA() {
+    private Task ScheduleRenderFromRLDA() {
+        this.rapidRenderDispatch.InvokeAsync();
+        return Task.CompletedTask;
+    }
+
+    private async Task ScheduleRenderFromRapidDispatch() {
         Task? task = this.lastRenderTask;
         if (task != null) {
             await task;
@@ -167,6 +176,7 @@ public class RenderManager {
     }
 
     private void BeginRender(long frame) {
+        StackTrace old = Interlocked.Exchange(ref this.stackTrace, new StackTrace(true));
         if (!RZApplication.Instance.Dispatcher.CheckAccess())
             throw new InvalidOperationException("Cannot start rendering while not on the main thread");
         if (frame < 0 || frame >= this.Timeline.MaxDuration)
@@ -186,7 +196,7 @@ public class RenderManager {
     /// </summary>
     /// <param name="frame">The frame to render</param>
     public Task RenderTimelineAsync(long frame, CancellationToken token, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality) {
-        Project project = this.Timeline.Project;
+        Project? project = this.Timeline.Project;
         if (project == null) {
             return Task.CompletedTask;
         }
@@ -366,7 +376,6 @@ public class RenderManager {
         RateLimitedDispatchAction dispatch = this.useSlowRenderDispatchCount > 0 ? this.slowRapidRenderDispatch : this.fastRapidRenderDispatch;
         dispatch.InvokeAsync();
     }
-
 
     /// <summary>
     /// Raises the <see cref="FrameRendered"/> event

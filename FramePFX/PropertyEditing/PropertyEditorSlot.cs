@@ -78,9 +78,9 @@ public abstract class PropertyEditorSlot : BasePropertyEditorItem {
     /// </summary>
     public virtual ApplicabilityMode ApplicabilityMode => ApplicabilityMode.All;
 
-    public event PropertyEditorSlotEventHandler IsSelectedChanged;
-    public event PropertyEditorSlotEventHandler HandlersLoaded;
-    public event PropertyEditorSlotEventHandler HandlersCleared;
+    public event PropertyEditorSlotEventHandler? IsSelectedChanged;
+    public event PropertyEditorSlotEventHandler? HandlersLoaded;
+    public event PropertyEditorSlotEventHandler? HandlersCleared;
 
     protected PropertyEditorSlot(Type applicableType) : base(applicableType) {
         this.Handlers = EmptyList;

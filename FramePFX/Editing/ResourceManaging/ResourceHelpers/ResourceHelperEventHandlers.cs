@@ -57,14 +57,14 @@ public readonly struct ResourceChangedEventArgs {
     /// <summary>
     /// The previous item
     /// </summary>
-    public ResourceItem OldItem { get; }
+    public ResourceItem? OldItem { get; }
 
     /// <summary>
     /// The new item
     /// </summary>
-    public ResourceItem NewItem { get; }
+    public ResourceItem? NewItem { get; }
 
-    public ResourceChangedEventArgs(IBaseResourcePathKey key, ResourceItem oldItem, ResourceItem newItem) {
+    public ResourceChangedEventArgs(IBaseResourcePathKey key, ResourceItem? oldItem, ResourceItem? newItem) {
         this.Key = key;
         this.OldItem = oldItem;
         this.NewItem = newItem;

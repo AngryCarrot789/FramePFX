@@ -92,7 +92,7 @@ public class TimecodeClip : VideoClip {
         }
     }
 
-    public event ClipEventHandler FontFamilyChanged;
+    public event ClipEventHandler? FontFamilyChanged;
 
     public TimecodeClip() {
         this.UsesCustomOpacityCalculation = true;

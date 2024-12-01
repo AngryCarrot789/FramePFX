@@ -32,7 +32,7 @@ public class VideoClipMediaFrameOffsetPropertyEditorSlot : PropertyEditorSlot {
 
     public long MediaFrameOffset => this.SingleSelection?.MediaFrameOffset ?? 0L;
 
-    public event PropertyEditorSlotEventHandler UpdateMediaFrameOffset;
+    public event PropertyEditorSlotEventHandler? UpdateMediaFrameOffset;
 
     public VideoClipMediaFrameOffsetPropertyEditorSlot() : base(typeof(VideoClip)) {
     }

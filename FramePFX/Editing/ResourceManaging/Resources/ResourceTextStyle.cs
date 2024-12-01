@@ -114,7 +114,7 @@ public class ResourceTextStyle : ResourceItem {
 
     public SKFont GeneratedFont { get; private set; }
 
-    public event ResourceEventHandler RenderDataInvalidated;
+    public event ResourceEventHandler? RenderDataInvalidated;
 
     public ResourceTextStyle() {
         this.foreground = SKColors.White;

@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -196,6 +197,7 @@ public class DataManager {
     /// </summary>
     /// <param name="obj">The element to get the full context of</param>
     /// <returns>The context</returns>
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static IContextData EvaluateContextDataRaw(AvaloniaObject obj) {
         ProviderContextData ctx = new ProviderContextData();
 
@@ -227,6 +229,7 @@ public class DataManager {
         return ctx;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void InvalidateInheritedContextAndChildren(AvaloniaObject obj) {
         // SetValue is around 2x faster than ClearValue, and either way, ClearValue isn't
         // very useful here since WPF inheritance isn't used, and the value will most
@@ -242,6 +245,7 @@ public class DataManager {
     }
 
     // Minimize stack usage as much as possible by using 'as' cast
+    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void RaiseEventRecursive(AvaloniaObject target, RoutedEventArgs args) {
         (target as IInputElement)?.RaiseEvent(args);
 

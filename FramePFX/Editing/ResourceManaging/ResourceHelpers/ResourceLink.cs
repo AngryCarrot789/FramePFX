@@ -18,6 +18,7 @@
 //
 
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using FramePFX.Editing.ResourceManaging.Events;
 using FramePFX.Utils.RBC;
 
@@ -36,7 +37,7 @@ public sealed class ResourceLink : IDisposable {
     private readonly ResourceAndManagerEventHandler resourceRemovedHandler;
     private readonly ResourceItemEventHandler onlineStateChangedHandler;
 
-    private ResourceItem cached;
+    private ResourceItem? cached;
     private bool isDisposing; // are we currently disposing?
     private bool isDisposed; // are we disposed and cannot be used again?
     private bool isManagerChanging; // is the manager being changed? used for fail-fast exceptions
@@ -49,7 +50,7 @@ public sealed class ResourceLink : IDisposable {
     /// <summary>
     /// This resource path's manager, which is used to query resources from and listen to events
     /// </summary>
-    public ResourceManager Manager { get; private set; }
+    public ResourceManager? Manager { get; private set; }
 
     /// <summary>
     /// Gets this resource path's ID. This will not be <see cref="ResourceManager.EmptyId"/>
@@ -69,12 +70,12 @@ public sealed class ResourceLink : IDisposable {
     /// An event that gets fired when this path's resource changes. This can be due to the resource being deleted or
     /// added back (after deletion), <see cref="TryGetResource"/> being invoked and a resource being resolved, etc.
     /// </summary>
-    public event ResourceChangedEventHandler ResourceChanged;
+    public event ResourceChangedEventHandler? ResourceChanged;
 
     /// <summary>
     /// An event fired when the online state of our resource changes (as in, when <see cref="ResourceItem.IsOnline"/> changes)
     /// </summary>
-    public event ResourceEventHandler OnlineStateChanged;
+    public event ResourceEventHandler? OnlineStateChanged;
 
     /// <summary>
     /// Gets the resource path key that owns this resource path
@@ -95,11 +96,11 @@ public sealed class ResourceLink : IDisposable {
     /// Clears this resource's internal cached object and then sets/replaces the <see cref="ResourceManager"/>
     /// </summary>
     /// <param name="manager"></param>
-    public void SetManager(ResourceManager manager) {
+    public void SetManager(ResourceManager? manager) {
         this.EnsureNotDisposed();
         this.EnsureNotDisposing();
         this.EnsureManagerNotChanging("Cannot set manager while it is already being set");
-        ResourceManager oldManager = this.Manager;
+        ResourceManager? oldManager = this.Manager;
         if (ReferenceEquals(oldManager, manager)) {
             return;
         }
@@ -118,8 +119,8 @@ public sealed class ResourceLink : IDisposable {
         this.isManagerChanging = false;
     }
 
-    private void SetInternalResource(ResourceItem newItem) {
-        ResourceItem oldItem = this.cached;
+    private void SetInternalResource(ResourceItem? newItem) {
+        ResourceItem? oldItem = this.cached;
         if (newItem == null) {
             if (oldItem == null)
                 return;
@@ -136,7 +137,7 @@ public sealed class ResourceLink : IDisposable {
         this.OnResourceChanged(oldItem, newItem);
     }
 
-    private void OnResourceChanged(ResourceItem oldItem, ResourceItem newItem) {
+    private void OnResourceChanged(ResourceItem? oldItem, ResourceItem? newItem) {
         if (oldItem != null) {
             oldItem.OnlineStateChanged -= this.onlineStateChangedHandler;
             this.SetReferenceCount(oldItem, false);
@@ -187,13 +188,13 @@ public sealed class ResourceLink : IDisposable {
     /// <typeparam name="T">The type of resource that is required</typeparam>
     /// <returns>True if a valid resource was found and <see cref="requireIsOnline"/> matches its online state</returns>
     /// <exception cref="Exception">Internal errors that should not occur; cached item was wrong</exception>
-    public bool TryGetResource<T>(out T resource, bool requireIsOnline = true) where T : ResourceItem {
-        bool success = this.TryGetResource(out ResourceItem item, requireIsOnline);
-        resource = success ? (T) item : null;
-        return success;
+    public bool TryGetResource<T>([NotNullWhen(true)] out T? resource, bool requireIsOnline = true) where T : ResourceItem {
+        if (!this.TryGetResource(out ResourceItem? item, requireIsOnline) || (resource = item as T) == null)
+            resource = null;
+        return resource != null;
     }
 
-    public bool TryGetResource(out ResourceItem resource, bool requireIsOnline = true) {
+    public bool TryGetResource([NotNullWhen(true)] out ResourceItem? resource, bool requireIsOnline = true) {
         bool success = this.LinkResource(requireIsOnline);
         resource = success ? this.cached : null;
         return success;
@@ -211,7 +212,7 @@ public sealed class ResourceLink : IDisposable {
         switch (this.State) {
             case LinkState.Linked:
                 // assert: this.cached != null
-                return this.cached.IsOnline || !requireIsOnline;
+                return this.cached!.IsOnline || !requireIsOnline;
             case LinkState.NotLinked: {
                 // assert: this.cached == null
                 if (this.Manager != null && this.Manager.TryGetEntryItem(this.ResourceId, out ResourceItem resource)) {
@@ -285,7 +286,7 @@ public sealed class ResourceLink : IDisposable {
     public void Dispose() {
         this.isDisposing = true;
         this.ClearInternalResource();
-        ResourceManager manager = this.Manager;
+        ResourceManager? manager = this.Manager;
         if (manager != null) {
             this.Manager = null;
             this.DetachManager(manager);
@@ -295,12 +296,12 @@ public sealed class ResourceLink : IDisposable {
         this.isDisposing = false;
     }
 
-    private void EnsureNotDisposed(string message = null) {
+    private void EnsureNotDisposed(string? message = null) {
         if (this.isDisposed)
             throw new ObjectDisposedException(this.GetType().Name, message ?? "This resource path is disposed");
     }
 
-    private void EnsureNotDisposing(string message = null) {
+    private void EnsureNotDisposing(string? message = null) {
         if (this.isDisposing)
             throw new ObjectDisposedException(this.GetType().Name, message ?? "This resource path is being disposed");
     }

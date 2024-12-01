@@ -17,6 +17,8 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace FramePFX.Editing.ResourceManaging.ResourceHelpers;
 
 /// <summary>
@@ -48,5 +50,5 @@ public interface IResourcePathKey<T> : IBaseResourcePathKey where T : ResourceIt
     /// </param>
     /// <typeparam name="T">The type of resource to get</typeparam>
     /// <returns>See above</returns>
-    bool TryGetResource(out T resource, bool requireIsOnline = true);
+    bool TryGetResource([NotNullWhen(true)] out T? resource, bool requireIsOnline = true);
 }

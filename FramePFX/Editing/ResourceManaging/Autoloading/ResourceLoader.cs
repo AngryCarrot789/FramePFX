@@ -31,8 +31,8 @@ public sealed class ResourceLoader {
 
     public IReadOnlyList<InvalidResourceEntry> Entries => this.entries;
 
-    public event ResourceLoaderEntryEventHandler EntryAdded;
-    public event ResourceLoaderEntryEventHandler EntryRemoved;
+    public event ResourceLoaderEntryEventHandler? EntryAdded;
+    public event ResourceLoaderEntryEventHandler? EntryRemoved;
 
     public ResourceLoader() {
         this.entries = new List<InvalidResourceEntry>();

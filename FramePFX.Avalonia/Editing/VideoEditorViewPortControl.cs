@@ -67,6 +67,13 @@ public class VideoEditorViewPortControl : TemplatedControl {
         set => this.SetValue(PanToCursorOnUserZoomProperty, value);
     }
 
+    public static readonly StyledProperty<bool> UseTransparentCheckerBoardBackgroundProperty = AvaloniaProperty.Register<VideoEditorViewPortControl, bool>(nameof(UseTransparentCheckerBoardBackground), true);
+
+    public bool UseTransparentCheckerBoardBackground {
+        get => this.GetValue(UseTransparentCheckerBoardBackgroundProperty);
+        set => this.SetValue(UseTransparentCheckerBoardBackgroundProperty, value);
+    }
+
     public EditorWindow Owner { get; set; }
 
     private Project? activeProject;
@@ -105,6 +112,7 @@ public class VideoEditorViewPortControl : TemplatedControl {
         AffectsRender<Image>(VideoEditorProperty);
         AffectsMeasure<Image>(VideoEditorProperty);
         VideoEditorProperty.Changed.AddClassHandler<VideoEditorViewPortControl, VideoEditor?>((d, e) => d.OnVideoEditorChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
+        UseTransparentCheckerBoardBackgroundProperty.Changed.AddClassHandler<VideoEditorViewPortControl, bool>((d, e) => d.OnUseTransparentCheckerBoardBackgroundChanged());
     }
 
     private VideoClip? targetLayer;
@@ -138,6 +146,8 @@ public class VideoEditorViewPortControl : TemplatedControl {
         }
 
         e.Handled = true;
+        if (!ReferenceEquals(e.Pointer.Captured, this))
+            e.Pointer.Capture(this);
 
         Point pos = point.Position;
         this.targetLayer = clip;
@@ -163,6 +173,8 @@ public class VideoEditorViewPortControl : TemplatedControl {
     protected override void OnPointerReleased(PointerReleasedEventArgs e) {
         base.OnPointerReleased(e);
         this.targetLayer = null;
+        if (ReferenceEquals(e.Pointer.Captured, this))
+            e.Pointer.Capture(null);
     }
 
     private void OnVideoEditorChanged(VideoEditor? oldEditor, VideoEditor? newEditor) {
@@ -256,11 +268,15 @@ public class VideoEditorViewPortControl : TemplatedControl {
         return ctx.PushTransform(Matrix.CreateScale(inverseScale, inverseScale));
     }
 
+    private void OnUseTransparentCheckerBoardBackgroundChanged() {
+        this.PART_SkiaViewPort?.InvalidateVisual();
+    }
+    
     private void OnEndRenderViewPort(SKAsyncViewPort sender, DrawingContext ctx, Size size, Point minatureOffset) {
         // Not sure how render-intensive DrawingBrush is, especially with GeometryDrawing
         // But since it's not drawing actual Visuals, just geometry, it should be lightning fast.
         using (this.PushInverseScale(ctx, out double scale)) {
-            ctx.DrawRectangle(TiledBrush.TiledTransparencyBrush8, null, new Rect(default, size * scale));
+            ctx.DrawRectangle(this.UseTransparentCheckerBoardBackground ? TiledBrush.TiledTransparencyBrush8 : Brushes.Black, null, new Rect(default, size * scale));
         }
     }
 
@@ -345,5 +361,9 @@ public class VideoEditorViewPortControl : TemplatedControl {
 
         const double diaInn = 3.0;
         ctx.DrawEllipse(Brushes.SlateBlue, this.selectionPen ??= new Pen(Brushes.BlueViolet, 2.0), cC, diaInn, diaInn);
+    }
+
+    public void OnClipSelectionChanged() {
+        this.PART_SkiaViewPort?.InvalidateVisual();
     }
 }

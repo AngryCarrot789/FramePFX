@@ -18,6 +18,7 @@
 // 
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls.Primitives;
@@ -89,6 +90,14 @@ public static class VisualTreeUtils {
             lastParent = parent;
 
         return lastParent;
+    }
+    
+    public static bool TryGetParent<T>(AvaloniaObject? obj, [NotNullWhen(true)] out T? theParent, bool includeSelf = true, bool visualOnly = false) where T : class {
+        return (theParent = GetParent<T>(obj, includeSelf, visualOnly)) != null;
+    }
+
+    public static bool TryGetLastParent<T>(AvaloniaObject? obj, [NotNullWhen(true)] out T? theParent, bool visualOnly = false) where T : class {
+        return (theParent = GetLastParent<T>(obj, visualOnly)) != null;
     }
 
     public static AdornerLayer? GetRootAdornerLayer(Visual visual) {

@@ -56,7 +56,7 @@ public abstract class BasePropertyEditorItem : BasePropertyEditorObject {
     /// </summary>
     public virtual HandlerCountMode HandlerCountMode => HandlerCountMode.Any;
 
-    public event BasePropertyEditorItemEventHandler IsCurrentlyApplicableChanged;
+    public event BasePropertyEditorItemEventHandler? IsCurrentlyApplicableChanged;
 
     protected BasePropertyEditorItem(Type applicableType) {
         this.ApplicableType = applicableType ?? throw new ArgumentNullException(nameof(applicableType));

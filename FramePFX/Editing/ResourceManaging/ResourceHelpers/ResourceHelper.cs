@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using FramePFX.Editing.ResourceManaging.Events;
 using FramePFX.Editing.Timelines.Clips.Video;
@@ -38,17 +39,17 @@ public class ResourceHelper {
     /// <summary>
     /// An event fired when the underlying resource being used has changed
     /// </summary>
-    public event EntryResourceChangedEventHandler ResourceChanged;
+    public event EntryResourceChangedEventHandler? ResourceChanged;
 
     /// <summary>
     /// An event fired when the underlying resource raises a <see cref="ResourceItem.DataModified"/> event
     /// </summary>
-    public event EntryResourceModifiedEventHandler ResourceDataModified;
+    public event EntryResourceModifiedEventHandler? ResourceDataModified;
 
     /// <summary>
     /// An event fired when the online state of a resource changes (e.g. user set it to offline or online)
     /// </summary>
-    public event EntryOnlineStateChangedEventHandler OnlineStateChanged;
+    public event EntryOnlineStateChangedEventHandler? OnlineStateChanged;
 
     /// <summary>
     /// The object that created this <see cref="ResourceHelper"/> instance
@@ -97,8 +98,8 @@ public class ResourceHelper {
     /// <param name="resource">The resource found</param>
     /// <typeparam name="T">The type of resource to try to get</typeparam>
     /// <returns>See summary</returns>
-    public bool TryGetResource<T>(string key, out T resource) where T : ResourceItem {
-        if (this.ResourceMap.TryGetValue(key, out BaseResourcePathEntry entry) && entry.TryGetResource(out resource))
+    public bool TryGetResource<T>(string key, [NotNullWhen(true)] out T? resource) where T : ResourceItem {
+        if (this.ResourceMap.TryGetValue(key, out BaseResourcePathEntry? entry) && entry.TryGetResource(out resource))
             return true;
         resource = null;
         return false;
@@ -110,7 +111,7 @@ public class ResourceHelper {
     /// <param name="resource">The resource found</param>
     /// <typeparam name="T">The type of resource</typeparam>
     /// <returns></returns>
-    public bool TryGetResourceByTypeName<T>(out T resource) where T : ResourceItem => this.TryGetResource(KeyForTypeName(typeof(T)), out resource);
+    public bool TryGetResourceByTypeName<T>([NotNullWhen(true)] out T? resource) where T : ResourceItem => this.TryGetResource(KeyForTypeName(typeof(T)), out resource);
 
     public void SetTargetResourceId(string key, ulong id) {
         this.ResourceMap[key].SetTargetResourceId(id);
@@ -122,9 +123,9 @@ public class ResourceHelper {
     /// Sets the manager for all <see cref="IBaseResourcePathKey"/> entries in this helper
     /// </summary>
     /// <param name="manager"></param>
-    public void SetManager(ResourceManager manager) {
+    public void SetManager(ResourceManager? manager) {
         foreach (BaseResourcePathEntry entry in this.ResourceMap.Values) {
-            ResourceLink link = entry.link;
+            ResourceLink? link = entry.link;
             if (link == null || ReferenceEquals(link.Manager, manager)) {
                 continue;
             }
@@ -133,7 +134,7 @@ public class ResourceHelper {
         }
     }
 
-    private void OnResourceChanged(BaseResourcePathEntry key, ResourceItem oldItem, ResourceItem newItem) {
+    private void OnResourceChanged(BaseResourcePathEntry key, ResourceItem? oldItem, ResourceItem? newItem) {
         this.ResourceChanged?.Invoke(this, new ResourceChangedEventArgs(key, oldItem, newItem));
         this.TryInvalidateVisual();
     }
@@ -170,7 +171,7 @@ public class ResourceHelper {
     public void ReadFromRootRBE(RBEDictionary data) {
         if (data.TryGetElement(nameof(this.ResourceMap), out RBEDictionary resourceMapDictionary)) {
             foreach (KeyValuePair<string, RBEBase> pair in resourceMapDictionary.Map) {
-                if (this.ResourceMap.TryGetValue(pair.Key, out BaseResourcePathEntry entry) && pair.Value is RBEDictionary dictionary) {
+                if (this.ResourceMap.TryGetValue(pair.Key, out BaseResourcePathEntry? entry) && pair.Value is RBEDictionary dictionary) {
                     BaseResourcePathEntry.ReadFromRBE(entry, dictionary);
                 }
             }
@@ -185,7 +186,7 @@ public class ResourceHelper {
 
     public void LoadDataIntoClone(ResourceHelper clone) {
         foreach (KeyValuePair<string, BaseResourcePathEntry> pair in this.ResourceMap) {
-            ResourceLink link = pair.Value.link;
+            ResourceLink? link = pair.Value.link;
             if (link != null)
                 clone.ResourceMap[pair.Key].SetTargetResourceId(link.ResourceId);
         }
@@ -196,13 +197,13 @@ public class ResourceHelper {
         private readonly ResourceChangedEventHandler resourceChangedHandler;
         private readonly ResourceItemEventHandler onlineStateChangedHandler;
         public readonly string entryKey;
-        public ResourceLink link;
+        public ResourceLink? link;
         private readonly ResourcePathFlags flags;
 
         public ResourcePathFlags Flags => this.flags;
 
         ResourceHelper IResourceHolder.ResourceHelper => this.helper;
-        ResourceLink IBaseResourcePathKey.ActiveLink => this.link;
+        ResourceLink? IBaseResourcePathKey.ActiveLink => this.link;
         string IBaseResourcePathKey.Key => this.entryKey;
 
         public Project Project => this.helper.Owner.Project;
@@ -219,7 +220,7 @@ public class ResourceHelper {
             return (this.flags | flag) != 0;
         }
 
-        private void SetResourcePath(ResourceLink newLink) {
+        private void SetResourcePath(ResourceLink? newLink) {
             if (this.link != null) {
                 if (this.link.CanDispose) {
                     this.link.Dispose();
@@ -254,7 +255,7 @@ public class ResourceHelper {
                 this.SetResourcePath(null);
         }
 
-        public bool TryGetResource<T>(out T resource, bool requireIsOnline = true) where T : ResourceItem {
+        public bool TryGetResource<T>([NotNullWhen(true)] out T? resource, bool requireIsOnline = true) where T : ResourceItem {
             if (this.link != null)
                 return this.link.TryGetResource(out resource, requireIsOnline);
             resource = null;
@@ -263,9 +264,9 @@ public class ResourceHelper {
 
         public abstract bool IsItemTypeApplicable(ResourceItem item);
 
-        protected abstract void OnEntryResourceChanged(ResourceItem oldItem, ResourceItem newItem);
+        protected abstract void OnEntryResourceChanged(ResourceItem? oldItem, ResourceItem? newItem);
 
-        private void OnEntryResourceChangedInternal(ResourceItem oldItem, ResourceItem newItem) {
+        private void OnEntryResourceChangedInternal(ResourceItem? oldItem, ResourceItem? newItem) {
             if (oldItem != null) {
                 oldItem.OnlineStateChanged -= this.onlineStateChangedHandler;
             }
@@ -302,18 +303,18 @@ public class ResourceHelper {
     }
 
     private class ResourcePathEntry<T> : BaseResourcePathEntry, IResourcePathKey<T> where T : ResourceItem {
-        public event EntryResourceChangedEventHandler<T> ResourceChanged;
-        public event EntryOnlineStateChangedEventHandler<T> OnlineStateChanged;
+        public event EntryResourceChangedEventHandler<T>? ResourceChanged;
+        public event EntryOnlineStateChangedEventHandler<T>? OnlineStateChanged;
 
         public ResourcePathEntry(ResourceHelper helper, string entryKey, ResourcePathFlags flags) : base(helper, entryKey, flags) {
         }
 
-        public bool TryGetResource(out T resource, bool requireIsOnline = true) => base.TryGetResource(out resource, requireIsOnline);
+        public bool TryGetResource([NotNullWhen(true)] out T? resource, bool requireIsOnline = true) => base.TryGetResource(out resource, requireIsOnline);
 
         public override bool IsItemTypeApplicable(ResourceItem item) => item is T;
 
-        protected override void OnEntryResourceChanged(ResourceItem oldItem, ResourceItem newItem) {
-            this.ResourceChanged?.Invoke(this, (T) oldItem, (T) newItem);
+        protected override void OnEntryResourceChanged(ResourceItem? oldItem, ResourceItem? newItem) {
+            this.ResourceChanged?.Invoke(this, (T?) oldItem, (T?) newItem);
         }
 
         protected override void OnOnlineStateChanged() {

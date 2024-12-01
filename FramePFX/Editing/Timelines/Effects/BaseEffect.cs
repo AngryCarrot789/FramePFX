@@ -32,7 +32,7 @@ public abstract class BaseEffect : IStrictFrameRange, IAutomatable, ITransferabl
     /// <summary>
     /// Gets the object that this effect is applied to. At the moment, this is either a <see cref="Clip"/> or <see cref="Track"/>
     /// </summary>
-    public IHaveEffects Owner { get; private set; }
+    public IHaveEffects? Owner { get; private set; }
 
     /// <summary>
     /// Returns true when <see cref="Owner"/> is a clip, otherwise it is a track or null.
@@ -49,18 +49,18 @@ public abstract class BaseEffect : IStrictFrameRange, IAutomatable, ITransferabl
     /// <summary>
     /// Casts <see cref="Owner"/> to a <see cref="Clip"/>
     /// </summary>
-    public Clip OwnerClip => this.Owner as Clip;
+    public Clip? OwnerClip => this.Owner as Clip;
 
     /// <summary>
     /// Casts <see cref="Owner"/> to a <see cref="Track"/>
     /// </summary>
-    public Track OwnerTrack => this.Owner as Track;
+    public Track? OwnerTrack => this.Owner as Track;
 
-    public Timeline Timeline => this.Owner?.Timeline;
+    public Timeline? Timeline => this.Owner?.Timeline;
 
-    public Project Project => this.Owner?.Project;
+    public Project? Project => this.Owner?.Project;
 
-    public event TimelineChangedEventHandler TimelineChanged;
+    public event TimelineChangedEventHandler? TimelineChanged;
 
     public TransferableData TransferableData { get; }
 
@@ -110,7 +110,7 @@ public abstract class BaseEffect : IStrictFrameRange, IAutomatable, ITransferabl
     }
 
     public static BaseEffect ReadSerialisedWithId(RBEDictionary dictionary) {
-        string id = dictionary.GetString(nameof(FactoryId));
+        string? id = dictionary.GetString(nameof(FactoryId));
         RBEDictionary data = dictionary.GetDictionary("Data");
         BaseEffect effect = EffectFactory.Instance.NewEffect(id);
         effect.ReadFromRBE(data);
@@ -129,7 +129,7 @@ public abstract class BaseEffect : IStrictFrameRange, IAutomatable, ITransferabl
 
     public static void ReadSerialisedWithIdList(IHaveEffects dstOwner, RBEList list) {
         foreach (RBEDictionary dictionary in list.Cast<RBEDictionary>()) {
-            string factoryId = dictionary.GetString(nameof(FactoryId));
+            string? factoryId = dictionary.GetString(nameof(FactoryId));
             BaseEffect effect = EffectFactory.Instance.NewEffect(factoryId);
             effect.ReadFromRBE(dictionary.GetDictionary("Data"));
             dstOwner.AddEffect(effect);
@@ -145,14 +145,14 @@ public abstract class BaseEffect : IStrictFrameRange, IAutomatable, ITransferabl
     }
 
     protected virtual void OnAdded() {
-        Timeline timeline = this.Owner.Timeline;
+        Timeline? timeline = this.Owner?.Timeline;
         if (timeline != null) {
             this.TimelineChanged?.Invoke(this, null, timeline);
         }
     }
 
     protected virtual void OnRemoved() {
-        Timeline oldTimeline = this.Owner.Timeline;
+        Timeline? oldTimeline = this.Owner?.Timeline;
         if (oldTimeline != null) {
             this.TimelineChanged?.Invoke(this, oldTimeline, null);
         }
@@ -213,7 +213,7 @@ public abstract class BaseEffect : IStrictFrameRange, IAutomatable, ITransferabl
             throw new InvalidOperationException("Cannot add an effect that was already added");
     }
 
-    internal static void OnClipTimelineChanged(BaseEffect effect, Timeline oldTimeline, Timeline newTimeline) {
+    internal static void OnClipTimelineChanged(BaseEffect effect, Timeline? oldTimeline, Timeline? newTimeline) {
         effect.TimelineChanged?.Invoke(effect, oldTimeline, newTimeline);
     }
 

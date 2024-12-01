@@ -17,6 +17,8 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace FramePFX.Editing.ResourceManaging.ResourceHelpers;
 
 /// <summary>
@@ -27,7 +29,7 @@ public interface IBaseResourcePathKey : IResourceHolder {
     /// Gets the active resource link for this resource path entry. This returns null when the resource has not yet or could not
     /// be linked (empty ID, resource does not exist, or the resource does not pass the <see cref="IsItemTypeApplicable"/> test)
     /// </summary>
-    ResourceLink ActiveLink { get; }
+    ResourceLink? ActiveLink { get; }
 
     /// <summary>
     /// Gets the additional flags associated with this entry
@@ -71,5 +73,5 @@ public interface IBaseResourcePathKey : IResourceHolder {
     /// </param>
     /// <typeparam name="T">The type of resource to get</typeparam>
     /// <returns>See above</returns>
-    bool TryGetResource<T>(out T resource, bool requireIsOnline = true) where T : ResourceItem;
+    bool TryGetResource<T>([NotNullWhen(true)] out T? resource, bool requireIsOnline = true) where T : ResourceItem;
 }

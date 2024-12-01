@@ -22,7 +22,7 @@ namespace FramePFX.Editing.ResourceManaging.ResourceHelpers;
 // public delegate void EntryResourceModifiedEventHandler(IBaseResourcePathKey key, ResourceItem resource, string property);
 // public delegate void EntryOnlineStateChangedEventHandler(IBaseResourcePathKey key);
 
-public delegate void EntryResourceChangedEventHandler<T>(IResourcePathKey<T> key, T oldItem, T newItem) where T : ResourceItem;
+public delegate void EntryResourceChangedEventHandler<T>(IResourcePathKey<T> key, T? oldItem, T? newItem) where T : ResourceItem;
 
 public delegate void EntryResourceModifiedEventHandler<T>(IResourcePathKey<T> key, T resource, string property) where T : ResourceItem;
 

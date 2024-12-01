@@ -28,7 +28,7 @@ public interface IDisplayName {
     /// <summary>
     /// Gets or sets the display name. Setting this fires an event
     /// </summary>
-    string DisplayName { get; set; }
+    string? DisplayName { get; set; }
 
     /// <summary>
     /// Fired when our display name property changes

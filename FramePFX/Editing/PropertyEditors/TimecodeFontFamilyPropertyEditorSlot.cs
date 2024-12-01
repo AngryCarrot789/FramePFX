@@ -33,7 +33,7 @@ public class TimecodeFontFamilyPropertyEditorSlot : PropertyEditorSlot {
 
     public override bool IsSelectable => true;
 
-    public event PropertyEditorSlotEventHandler FontFamilyChanged;
+    public event PropertyEditorSlotEventHandler? FontFamilyChanged;
     private bool isProcessingValueChange;
 
     public TimecodeFontFamilyPropertyEditorSlot() : base(typeof(TimecodeClip)) {

@@ -93,8 +93,11 @@ public class Timeline : ITransferableData, IDestroy {
             long oldPlayHead = this.playHeadPosition;
             this.playHeadPosition = value;
             this.PlayHeadChanged?.Invoke(this, oldPlayHead, value);
+            using (this.RenderManager.SuspendRenderInvalidation()) {
+                AutomationEngine.UpdateValues(this, value);
+            }
+            
             this.InvalidateRender();
-            AutomationEngine.UpdateValues(this, value);
         }
     }
 
@@ -114,13 +117,13 @@ public class Timeline : ITransferableData, IDestroy {
 
     public TransferableData TransferableData { get; }
 
-    public event TimelineTrackIndexEventHandler TrackAdded;
-    public event TimelineTrackIndexEventHandler TrackRemoved;
-    public event TimelineTrackMovedEventHandler TrackMoved;
-    public event TimelineEventHandler MaxDurationChanged;
-    public event TimelineEventHandler LargestFrameInUseChanged;
-    public event PlayheadChangedEventHandler PlayHeadChanged;
-    public event PlayheadChangedEventHandler StopHeadChanged;
+    public event TimelineTrackIndexEventHandler? TrackAdded;
+    public event TimelineTrackIndexEventHandler? TrackRemoved;
+    public event TimelineTrackMovedEventHandler? TrackMoved;
+    public event TimelineEventHandler? MaxDurationChanged;
+    public event TimelineEventHandler? LargestFrameInUseChanged;
+    public event PlayheadChangedEventHandler? PlayHeadChanged;
+    public event PlayheadChangedEventHandler? StopHeadChanged;
 
     private readonly List<Track> tracks;
     private long maxDuration;

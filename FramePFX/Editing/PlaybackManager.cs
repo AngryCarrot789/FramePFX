@@ -73,7 +73,7 @@ public class PlaybackManager {
     /// <summary>
     /// An event fired when the play, pause or stop methods are called, if the current playback state does not match the matching function
     /// </summary>
-    public event PlaybackStateEventHandler PlaybackStateChanged;
+    public event PlaybackStateEventHandler? PlaybackStateChanged;
 
     private PFXNative.NativeAudioEngineData audioEngineData;
 

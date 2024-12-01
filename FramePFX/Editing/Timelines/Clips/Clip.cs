@@ -39,19 +39,19 @@ public delegate void ClipSpanChangedEventHandler(Clip clip, FrameSpan oldSpan, F
 
 public delegate void ClipMediaOffsetChangedEventHandler(Clip clip, long oldOffset, long newOffset);
 
-public delegate void ClipTrackChangedEventHandler(Clip clip, Track oldTrack, Track newTrack);
+public delegate void ClipTrackChangedEventHandler(Clip clip, Track? oldTrack, Track? newTrack);
 
-public delegate void ClipActiveSequenceChangedEventHandler(Clip clip, AutomationSequence oldSequence, AutomationSequence newSequence);
+public delegate void ClipActiveSequenceChangedEventHandler(Clip clip, AutomationSequence? oldSequence, AutomationSequence? newSequence);
 
 public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStrictFrameRange, IResourceHolder, IHaveEffects, IDestroy {
     public static readonly SerialisationRegistry SerialisationRegistry;
     private readonly List<BaseEffect> internalEffectList;
     private FrameSpan span;
-    private string displayName;
-    private AutomationSequence activeSequence;
+    private string? displayName;
+    private AutomationSequence? activeSequence;
     private long mediaFrameOffset;
 
-    private ClipGroup myGroup;
+    private ClipGroup? myGroup; // TODO
 
     /// <summary>
     /// Gets the track that this clip is placed in
@@ -116,10 +116,10 @@ public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStr
         }
     }
 
-    public string DisplayName {
+    public string? DisplayName {
         get => this.displayName;
         set {
-            string oldValue = this.displayName;
+            string? oldValue = this.displayName;
             if (oldValue == value)
                 return;
             this.displayName = value;
@@ -137,10 +137,10 @@ public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStr
     /// <summary>
     /// Stores the sequence that this clip's automation sequence editor is using. This is only really used for the UI
     /// </summary>
-    public AutomationSequence ActiveSequence {
+    public AutomationSequence? ActiveSequence {
         get => this.activeSequence;
         set {
-            AutomationSequence oldSequence = this.activeSequence;
+            AutomationSequence? oldSequence = this.activeSequence;
             if (oldSequence == value)
                 return;
             this.activeSequence = value;
@@ -152,25 +152,25 @@ public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStr
 
     public string FactoryId => ClipFactory.Instance.GetId(this.GetType());
 
-    public event EffectOwnerEventHandler EffectAdded;
-    public event EffectOwnerEventHandler EffectRemoved;
-    public event EffectMovedEventHandler EffectMoved;
-    public event ClipSpanChangedEventHandler FrameSpanChanged;
-    public event DisplayNameChangedEventHandler DisplayNameChanged;
-    public event ClipMediaOffsetChangedEventHandler MediaFrameOffsetChanged;
+    public event EffectOwnerEventHandler? EffectAdded;
+    public event EffectOwnerEventHandler? EffectRemoved;
+    public event EffectMovedEventHandler? EffectMoved;
+    public event ClipSpanChangedEventHandler? FrameSpanChanged;
+    public event DisplayNameChangedEventHandler? DisplayNameChanged;
+    public event ClipMediaOffsetChangedEventHandler? MediaFrameOffsetChanged;
 
     /// <summary>
     /// An event fired when this clip's track changes. This may be called when:
     /// </summary>
-    public event ClipTrackChangedEventHandler TrackChanged;
+    public event ClipTrackChangedEventHandler? TrackChanged;
 
-    public event TimelineChangedEventHandler TimelineChanged;
+    public event TimelineChangedEventHandler? TimelineChanged;
 
     /// <summary>
     /// An event fired when this clip's automation sequence editor's sequence changes. The new sequence
     /// may not directly belong to the clip, but may belong to an effect added to the clip
     /// </summary>
-    public event ClipActiveSequenceChangedEventHandler ActiveSequenceChanged;
+    public event ClipActiveSequenceChangedEventHandler? ActiveSequenceChanged;
 
     protected Clip() {
         this.internalEffectList = new List<BaseEffect>();
@@ -307,22 +307,22 @@ public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStr
     /// </summary>
     /// <param name="oldTrack">The previous track</param>
     /// <param name="newTrack">The new track</param>
-    protected virtual void OnTrackChanged(Track oldTrack, Track newTrack) {
+    protected virtual void OnTrackChanged(Track? oldTrack, Track? newTrack) {
         // Debug.WriteLine("Clip's track changed: " + oldTrack + " -> " + newTrack);
         this.TrackChanged?.Invoke(this, oldTrack, newTrack);
-        Timeline oldTimeline = oldTrack?.Timeline;
-        Timeline newTimeline = newTrack?.Timeline;
+        Timeline? oldTimeline = oldTrack?.Timeline;
+        Timeline? newTimeline = newTrack?.Timeline;
         if (!ReferenceEquals(oldTimeline, newTimeline)) {
             this.Timeline = newTimeline;
             this.OnTimelineChanged(oldTimeline, newTimeline);
         }
     }
 
-    protected virtual void OnTimelineChanged(Timeline oldTimeline, Timeline newTimeline) {
+    protected virtual void OnTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline) {
         // Debug.WriteLine("Clip's timeline changed: " + oldTimeline + " -> " + newTimeline);
         this.TimelineChanged?.Invoke(this, oldTimeline, newTimeline);
-        Project oldProject = oldTimeline?.Project;
-        Project newProject = newTimeline?.Project;
+        Project? oldProject = oldTimeline?.Project;
+        Project? newProject = newTimeline?.Project;
         if (!ReferenceEquals(oldProject, newProject)) {
             this.Project = newProject;
             this.OnProjectChanged(oldProject, newProject);
@@ -340,7 +340,7 @@ public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStr
     /// </summary>
     /// <param name="oldProject">The previous project</param>
     /// <param name="newProject">The new project</param>
-    protected virtual void OnProjectChanged(Project oldProject, Project newProject) {
+    protected virtual void OnProjectChanged(Project? oldProject, Project? newProject) {
         // Debug.WriteLine("Clip's project changed: " + oldProject + " -> " + newProject);
         this.ResourceHelper.SetManager(newProject?.ResourceManager);
     }
@@ -488,7 +488,7 @@ public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStr
     /// <summary>
     /// [INTERNAL ONLY] Called when a clip moves from one track to another
     /// </summary>
-    internal static void InternalOnClipMovedToTrack(Clip clip, Track oldTrack, Track newTrack) {
+    internal static void InternalOnClipMovedToTrack(Clip clip, Track? oldTrack, Track? newTrack) {
         if (clip.Track != oldTrack)
             throw new InvalidOperationException("Expected clip's old timeline to equal the given old timeline");
         clip.OnTrackChanged(oldTrack, clip.Track = newTrack);
@@ -497,7 +497,7 @@ public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStr
     /// <summary>
     /// [INTERNAL ONLY] Called when the timeline of the track that the given clip resides in changes
     /// </summary>
-    internal static void InternalOnTrackTimelineChanged(Clip clip, Timeline oldTimeline, Timeline newTimeline) {
+    internal static void InternalOnTrackTimelineChanged(Clip clip, Timeline? oldTimeline, Timeline? newTimeline) {
         if (clip.Timeline != oldTimeline)
             throw new InvalidOperationException("Expected clip's old timeline to equal the given old timeline");
         clip.OnTimelineChanged(oldTimeline, clip.Timeline = newTimeline);
@@ -506,7 +506,7 @@ public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStr
     /// <summary>
     /// [INTERNAL ONLY] Called when the timeline of the track that the given clip resides in changes
     /// </summary>
-    internal static void InternalOnTimelineProjectChanged(Clip clip, Project oldProject, Project newProject) {
+    internal static void InternalOnTimelineProjectChanged(Clip clip, Project? oldProject, Project? newProject) {
         if (clip.Project != oldProject)
             throw new InvalidOperationException("Expected clip's old project to equal the given old project");
         if (clip.Project == newProject)
@@ -514,8 +514,8 @@ public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStr
         clip.OnProjectChanged(oldProject, clip.Project = newProject);
     }
 
-    internal static ClipGroup InternalGetGroup(Clip clip) => clip.myGroup;
-    internal static void InternalSetGroup(Clip clip, ClipGroup group) => clip.myGroup = group;
+    internal static ClipGroup? InternalGetGroup(Clip clip) => clip.myGroup;
+    internal static void InternalSetGroup(Clip clip, ClipGroup? group) => clip.myGroup = group;
 
     // Only used for faster code
     internal static List<BaseEffect> InternalGetEffectListUnsafe(Clip clip) => clip.internalEffectList;

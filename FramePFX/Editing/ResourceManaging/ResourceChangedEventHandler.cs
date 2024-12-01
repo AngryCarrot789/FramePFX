@@ -19,4 +19,4 @@
 
 namespace FramePFX.Editing.ResourceManaging;
 
-public delegate void ResourceChangedEventHandler(ResourceItem oldItem, ResourceItem newItem);
+public delegate void ResourceChangedEventHandler(ResourceItem? oldItem, ResourceItem? newItem);

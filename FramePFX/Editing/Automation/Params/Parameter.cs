@@ -82,7 +82,7 @@ public abstract class Parameter : IEquatable<Parameter>, IComparable<Parameter> 
     /// <summary>
     /// An event fired when this parameter's effective value changes for any <see cref="AutomationSequence"/> throughout the entire application
     /// </summary>
-    public event ParameterChangedEventHandler ValueChanged;
+    public event ParameterChangedEventHandler? ValueChanged;
 
     protected Parameter(Type ownerType, ParameterKey key, ParameterDescriptor descriptor, ParameterFlags flags) {
         if (descriptor == null)

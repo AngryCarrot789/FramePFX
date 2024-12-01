@@ -30,8 +30,8 @@ public class AutomationBinder<TModel> : BaseBinder<TModel> where TModel : class,
 
     public Parameter Parameter { get; }
 
-    public event Action<AutomationBinder<TModel>> UpdateModel;
-    public event Action<AutomationBinder<TModel>> UpdateControl;
+    public event Action<AutomationBinder<TModel>>? UpdateModel;
+    public event Action<AutomationBinder<TModel>>? UpdateControl;
 
     public AutomationBinder(Parameter parameter) {
         this.handler = this.OnParameterValueChanged;

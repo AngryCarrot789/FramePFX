@@ -52,12 +52,12 @@ public class ResourceManager : IDestroy {
     /// <summary>
     /// An event called when a resource is added to this manager
     /// </summary>
-    public event ResourceAndManagerEventHandler ResourceAdded;
+    public event ResourceAndManagerEventHandler? ResourceAdded;
 
     /// <summary>
     /// An event called when a resource is removed from this manager
     /// </summary>
-    public event ResourceAndManagerEventHandler ResourceRemoved;
+    public event ResourceAndManagerEventHandler? ResourceRemoved;
 
     /// <summary>
     /// This manager's root resource folder, which contains the tree of resources. All
@@ -93,7 +93,7 @@ public class ResourceManager : IDestroy {
     /// </summary>
     public Predicate<ulong> IsResourceInUsePredicate { get; }
 
-    public event CurrentFolderChangedEventHandler CurrentFolderChanged;
+    public event CurrentFolderChangedEventHandler? CurrentFolderChanged;
 
     public ResourceManager(Project project) {
         this.Project = project ?? throw new ArgumentNullException(nameof(project));

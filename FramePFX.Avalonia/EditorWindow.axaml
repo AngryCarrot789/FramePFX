@@ -91,7 +91,10 @@
                                 </Grid>
 
                                 <!-- Right Panel -->
-                                <StackPanel Margin="0,0,5,0" DockPanel.Dock="Right" Orientation="Horizontal">
+                                <StackPanel Margin="0,0,5,0" Orientation="Horizontal" DockPanel.Dock="Right">
+                                    <CheckBox Focusable="False" Content="Transparent Bg" Padding="1,0,0,0" Margin="85,5,0,5"
+                                              IsChecked="{Binding UseTransparentCheckerBoardBackground, ElementName=PART_ViewPort}"
+                                              ToolTip.Tip="Enable or disable the checkerboard pattern for transparent backgrounds"/>
                                 </StackPanel>
 
                                 <!-- Center Panel -->

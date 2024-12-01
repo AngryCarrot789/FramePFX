@@ -209,7 +209,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
     }
     
     public void SetPlayHeadToMouseCursor(double x) {
-        this.MovePlayHeadToMouseCursor(x, false, true);
+        this.MovePlayHeadToMouseCursor(x, false);
     }
 
     private void MovePlayHeadToMouseCursor(double x, bool enableThumbDragging = true, bool updateStopHead = true, PointerEventArgs? ex = null) {
@@ -227,26 +227,20 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
             }
             
             if (enableThumbDragging && ex != null) {
-                this.PlayHead!.EnableDragging(new Point(x, 0), ex);
+                this.PlayHead!.EnableDragging(ex);
             }
         }
     }
 
-    public void SetZoom(double zoom, ZoomType type, SKPointD mousePoint) {
+    public void SetZoom(double newZoom, ZoomType type, SKPointD mousePoint) {
         double oldZoom = this.Zoom;
-        if (zoom > 200.0) {
-            zoom = 200;
-        }
-        else if (zoom < 0.1) {
-            zoom = 0.1;
-        }
-
-        if (Maths.Equals(oldZoom, zoom)) {
+        newZoom = Maths.Clamp(newZoom, 0.1, 200);
+        if (Maths.Equals(oldZoom, newZoom)) {
             return;
         }
 
-        this.Zoom = zoom;
-        this.OnTimelineZoomed(oldZoom, zoom, type, mousePoint);
+        this.Zoom = newZoom;
+        this.OnTimelineZoomed(oldZoom, newZoom, type, mousePoint);
     }
 
     private void OnTimelineContentGridPointerPressed(object? sender, PointerPressedEventArgs e) {
@@ -364,7 +358,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
 
         KeyModifiers mods = e.KeyModifiers;
         if ((mods & KeyModifiers.Alt) != 0) {
-            if (VisualTreeUtils.GetParent<TimelineTrackControl>(e.Source as AvaloniaObject) is TimelineTrackControl track) {
+            if (VisualTreeUtils.TryGetParent(e.Source as AvaloniaObject, out TimelineTrackControl? track)) {
                 track.Track!.Height = Maths.Clamp(track.Track.Height + (e.Delta.Y / 120d * 8), TimelineClipControl.HeaderSize, 200d);
             }
 
@@ -381,18 +375,18 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
                 multiplier = 1d - multiplier;
             }
 
-            double oldzoom = this.Zoom;
-            double newzoom = Math.Max(oldzoom * multiplier, 0.0001d);
-            double minzoom = scroller.Viewport.Width / (scroller.Extent.Width / oldzoom); // add 0.000000000000001 to never disable scroll bar
-            newzoom = Math.Max(minzoom, newzoom);
+            double oldZoom = this.Zoom;
+            double newZoom = Math.Max(oldZoom * multiplier, 0.0001d);
+            double minZoom = scroller.Viewport.Width / (scroller.Extent.Width / oldZoom); // add 0.000000000000001 to never disable scroll bar
+            newZoom = Math.Max(minZoom, newZoom);
             Point mPos = e.GetPosition(this);
-            this.SetZoom(newzoom, ZoomType.Direct, new SKPointD(mPos.X, mPos.Y)); // let the coerce function clamp the zoom value
-            newzoom = this.Zoom;
+            this.SetZoom(newZoom, ZoomType.Direct, new SKPointD(mPos.X, mPos.Y)); // let the coerce function clamp the zoom value
+            newZoom = this.Zoom;
 
             // managed to get zooming towards the cursor working
             double mouse_x = e.GetPosition(scroller).X;
-            double target_offset = (scroller.Offset.X + mouse_x) / oldzoom;
-            double scaled_target_offset = target_offset * newzoom;
+            double target_offset = (scroller.Offset.X + mouse_x) / oldZoom;
+            double scaled_target_offset = target_offset * newZoom;
             double new_offset = scaled_target_offset - mouse_x;
             scroller.Offset = new Vector(new_offset, scroller.Offset.Y);
         }
@@ -412,8 +406,8 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         }
     }
 
-    private void OnTimelineZoomed(double oldzoom, double newzoom, ZoomType zoomtype, SKPointD mPos) {
-        this.TrackStorage?.OnZoomChanged(newzoom);
+    private void OnTimelineZoomed(double oldZoom, double newZoom, ZoomType zoomType, SKPointD mPos) {
+        this.TrackStorage?.OnZoomChanged(newZoom);
         this.UpdateContentGridSize();
 
         ScrollViewer? scroller = this.TimelineScrollViewer;
@@ -421,7 +415,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
             return;
         }
 
-        switch (zoomtype) {
+        switch (zoomType) {
             case ZoomType.Direct: break;
             case ZoomType.ViewPortBegin: {
                 break;
@@ -437,13 +431,13 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
             }
             case ZoomType.MouseCursor: {
                 double mouse_x = AvCore.GetRelativePosition(scroller, new Point(mPos.X, mPos.Y)).X;
-                double target_offset = (scroller.Offset.X + mouse_x) / oldzoom;
-                double scaled_target_offset = target_offset * newzoom;
+                double target_offset = (scroller.Offset.X + mouse_x) / oldZoom;
+                double scaled_target_offset = target_offset * newZoom;
                 double new_offset = scaled_target_offset - mouse_x;
                 scroller.Offset = new Vector(new_offset, scroller.Offset.Y);
                 break;
             }
-            default: throw new ArgumentOutOfRangeException(nameof(zoomtype), zoomtype, null);
+            default: throw new ArgumentOutOfRangeException(nameof(zoomType), zoomType, null);
         }
     }
 

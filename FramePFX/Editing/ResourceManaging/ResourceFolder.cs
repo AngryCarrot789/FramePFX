@@ -30,9 +30,9 @@ public sealed class ResourceFolder : BaseResource {
 
     public IReadOnlyList<BaseResource> Items => this.items;
 
-    public event ResourceAddedEventHandler ResourceAdded;
-    public event ResourceRemovedEventHandler ResourceRemoved;
-    public event ResourceMovedEventHandler ResourceMoved;
+    public event ResourceAddedEventHandler? ResourceAdded;
+    public event ResourceRemovedEventHandler? ResourceRemoved;
+    public event ResourceMovedEventHandler? ResourceMoved;
 
     public bool IsRoot => this.Parent == null;
     

@@ -135,26 +135,30 @@ public class FreeMoveViewPortV2 : Border {
     }
 
     public void FitContentToCenter() {
-        if (this.AsyncViewPort is SKAsyncViewPort child) {
-            this.HorizontalOffset = 0;
-            this.VerticalOffset = 0;
-            this.ZoomScale = 1;
+        if (this.AsyncViewPort == null) {
+            return;
+        }
 
-            // Process new zoom after layout update which occurs just after render
-            RZApplication.Instance.Dispatcher.InvokeAsync(() => {
-                const double AddedBorder = 25; // pixels
+        this.HorizontalOffset = 0;
+        this.VerticalOffset = 0;
+        this.ZoomScale = 1;
 
-                Size mySize = this.Bounds.Size;
-                Size childSize = child.DesiredSize.Inflate(new Thickness(AddedBorder));
-                double ratioW = mySize.Width / childSize.Width;
-                double ratioH = mySize.Height / childSize.Height;
-                if (ratioH < ratioW && childSize.Height > 0) {
-                    this.ZoomScale = mySize.Height / childSize.Height;
-                }
-                else if (childSize.Width > 0) {
-                    this.ZoomScale = mySize.Width / childSize.Width;
-                }
-            }, DispatchPriority.Render);
+        // Process new zoom after layout update which occurs just after render
+        const double AddedBorder = 20; // pixels
+
+        Size mySize = this.Bounds.Size;
+        Size childSize = this.AsyncViewPort.DesiredSize.Inflate(new Thickness(AddedBorder));
+        double ratioW = mySize.Width / childSize.Width;
+        double ratioH = mySize.Height / childSize.Height;
+        if (ratioH < ratioW && childSize.Height > 0) {
+            this.ZoomScale = mySize.Height / childSize.Height;
+        }
+        else if (childSize.Width > 0) {
+            this.ZoomScale = mySize.Width / childSize.Width;
+        }
+
+        if (this.CanvasTransformContainer?.Child is Control containerChild) {
+            containerChild.InvalidateMeasure();
         }
     }
 
@@ -200,7 +204,7 @@ public class FreeMoveViewPortV2 : Border {
             // vertically offset
             this.VerticalOffset += delta * (1d / this.ZoomScale) * 20d;
         }
-        
+
         e.Handled = true;
     }
 

@@ -31,7 +31,7 @@ public class DisplayNamePropertyEditorSlot : PropertyEditorSlot {
 
     public override bool IsSelectable => true;
 
-    public event PropertyEditorSlotEventHandler DisplayNameChanged;
+    public event PropertyEditorSlotEventHandler? DisplayNameChanged;
     private bool isProcessingValueChange;
 
     public DisplayNamePropertyEditorSlot() : base(typeof(IDisplayName)) {

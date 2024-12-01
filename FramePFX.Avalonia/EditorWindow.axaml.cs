@@ -67,6 +67,10 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
         taskManager.TaskCompleted += this.OnTaskCompleted;
     }
 
+    private void OnTimelineClipSelectionChanged(ILightSelectionManager<IClipElement> sender) {
+        this.PART_ViewPort.OnClipSelectionChanged();
+    }
+
     static EditorWindow() {
         VideoEditorProperty.Changed.AddClassHandler<EditorWindow, VideoEditor?>((d, e) => d.OnVideoEditorChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }
@@ -80,6 +84,8 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
         this.ThePropertyEditor.ApplyTemplate();
         this.ThePropertyEditor.PropertyEditor = VideoEditorPropertyEditor.Instance;
         this.PART_ActiveBackgroundTaskGrid.IsVisible = false;
+        ((ILightSelectionManager<IClipElement>) this.TheTimeline.ClipSelectionManager!).SelectionChanged += this.OnTimelineClipSelectionChanged;
+        this.PART_ViewPort.OnClipSelectionChanged();
     }
 
     private void OnVideoEditorChanged(VideoEditor? oldEditor, VideoEditor? newEditor) {

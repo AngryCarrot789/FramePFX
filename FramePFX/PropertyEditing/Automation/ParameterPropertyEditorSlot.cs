@@ -82,10 +82,10 @@ public abstract class ParameterPropertyEditorSlot : PropertyEditorSlot {
 
     public override bool IsSelectable => true;
 
-    public event ParameterPropertyEditorSlotEventHandler DisplayNameChanged;
-    public event ParameterPropertyEditorSlotEventHandler ValueChanged;
-    public event ParameterPropertyEditorSlotEventHandler HasMultipleValuesChanged;
-    public event ParameterPropertyEditorSlotEventHandler HasProcessedMultipleValuesChanged;
+    public event ParameterPropertyEditorSlotEventHandler? DisplayNameChanged;
+    public event ParameterPropertyEditorSlotEventHandler? ValueChanged;
+    public event ParameterPropertyEditorSlotEventHandler? HasMultipleValuesChanged;
+    public event ParameterPropertyEditorSlotEventHandler? HasProcessedMultipleValuesChanged;
 
     protected ParameterPropertyEditorSlot(Parameter parameter, Type applicableType, string displayName = null) : base(applicableType) {
         this.Parameter = parameter ?? throw new ArgumentNullException(nameof(parameter));

@@ -56,8 +56,8 @@ public class ProjectSettings {
     public int SampleRate = 44100;
     public int BufferSize = 2048;
 
-    public event ProjectSettingsEventHandler ResolutionChanged;
-    public event ProjectSettingsEventHandler FrameRateChanged;
+    public event ProjectSettingsEventHandler? ResolutionChanged;
+    public event ProjectSettingsEventHandler? FrameRateChanged;
 
     /// <summary>
     /// Gets the project associated with these settings

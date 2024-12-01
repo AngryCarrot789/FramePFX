@@ -32,6 +32,6 @@ public class ReflectiveObjectFactory<T> : ObjectFactory where T : class {
 
     protected T NewInstance(string id) {
         Type type = this.GetType(id);
-        return (T) Activator.CreateInstance(type);
+        return (T) Activator.CreateInstance(type)!;
     }
 }

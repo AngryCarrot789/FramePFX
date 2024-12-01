@@ -43,7 +43,7 @@ public class ResourcePanelControl : TemplatedControl, IResourceManagerElement {
         get => this.GetValue(ResourceManagerProperty);
         set => this.SetValue(ResourceManagerProperty, value);
     }
-    
+
     public ResourceTreeView? ResourceTreeView => this.resourceTreeManagerBinder.TargetControl as ResourceTreeView;
     public ResourceExplorerListBox? ResourceListBox => this.resourceListManagerBinder.TargetControl as ResourceExplorerListBox;
 

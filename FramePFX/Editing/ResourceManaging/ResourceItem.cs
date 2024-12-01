@@ -148,7 +148,7 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
     /// <returns>
     /// True if the resource is already online or is now online, or false meaning the resource could not enable itself
     /// </returns>
-    public bool TryAutoEnable(ResourceLoader loader) {
+    public bool TryAutoEnable(ResourceLoader? loader) {
         if (this.IsOnline) {
             return true;
         }

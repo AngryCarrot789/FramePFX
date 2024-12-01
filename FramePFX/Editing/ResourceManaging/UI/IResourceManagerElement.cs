@@ -20,6 +20,8 @@
 namespace FramePFX.Editing.ResourceManaging.UI;
 
 public interface IResourceManagerElement {
+    ResourceManager? ResourceManager { get; }
+
     /// <summary>
     /// Gets the resource selection manager
     /// </summary>

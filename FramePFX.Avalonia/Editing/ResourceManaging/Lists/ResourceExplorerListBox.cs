@@ -252,6 +252,6 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement {
     }
 
     public IResourceManagerElement ManagerUI { get; set; }
-    IResourceTreeNodeElement? IResourceListElement.CurrentFolder => this.CurrentFolder is ResourceFolder folder ? this.ManagerUI.GetNode(folder) : null;
+    IResourceTreeNodeElement? IResourceListElement.CurrentFolder => this.CurrentFolder is ResourceFolder folder && !folder.IsRoot ? this.ManagerUI.GetNode(folder) : null;
     ISelectionManager<BaseResource> IResourceListElement.Selection => this.SelectionManager;
 }

@@ -259,8 +259,12 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
 
     private void OnTimelineContentGridPointerPressed(object? sender, PointerPressedEventArgs e) {
         // User clicked the dark grey area, so update the play head position
+        if (e.GetCurrentPoint(this).Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonPressed) {
+            return;
+        }
+        
         if ((e.Source == sender || e.Source is ClipStoragePanel) && this.Timeline is Timeline timeline) {
-            timeline.PlayHeadPosition = TimelineClipControl.GetCursorFrame(this.TrackStorage!, e);
+            timeline.PlayHeadPosition = timeline.StopHeadPosition = TimelineClipControl.GetCursorFrame(this.TrackStorage!, e);
             this.ClipSelectionManager?.Clear();
         }
     }

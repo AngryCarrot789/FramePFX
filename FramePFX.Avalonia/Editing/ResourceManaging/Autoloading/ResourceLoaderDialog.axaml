@@ -7,7 +7,7 @@
         x:Class="FramePFX.Avalonia.Editing.ResourceManaging.Autoloading.ResourceLoaderDialog"
         Width="800" Height="450"
         CanResize="False"
-        Title="Caption Here"
+        Title="Solve resource load failures"
         TitleBarBrush="{DynamicResource ABrush.Tone7.Background.Static}"
         WindowStartupLocation="CenterOwner">
     <Grid>

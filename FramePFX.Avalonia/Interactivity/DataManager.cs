@@ -129,9 +129,7 @@ public class DataManager {
     }
 
     /// <summary>
-    /// Raises the <see cref="InheritedContextChangedEvent"/> event for the element's visual tree. This should only really
-    /// be used explicitly when using <see cref="ProviderContextData"/> as the context data for an element and the state of
-    /// the app changes such that one of the provider's function will likely return something different prior to the change
+    /// Raises the <see cref="InheritedContextChangedEvent"/> event for the element's visual tree.
     /// <para>
     /// This does not affect the return value of <see cref="GetFullContextData"/>. Use <see cref="InvalidateInheritedContext"/> instead
     /// </para>
@@ -139,7 +137,7 @@ public class DataManager {
     /// <param name="element">The element to raise the event for, along with its visual tree</param>
     public static void RaiseInheritedContextChanged(AvaloniaObject element) {
         RaiseEventRecursive(element, new RoutedEventArgs(InheritedContextChangedEvent, element));
-        Debug.WriteLine($"Context invalidated: {element.GetType().Name}");
+        // Debug.WriteLine($"Context invalidated: {element.GetType().Name}");
     }
 
     /// <summary>

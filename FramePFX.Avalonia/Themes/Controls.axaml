@@ -30,6 +30,7 @@
                 <MergeResourceInclude Source="ControlStyles/Menu.axaml"/>
                 <MergeResourceInclude Source="ControlStyles/MenuItem.axaml"/>
                 <MergeResourceInclude Source="ControlStyles/MenuFlyoutPresenter.axaml"/>
+                <MergeResourceInclude Source="ControlStyles/ContextMenus.axaml"/>
                 <MergeResourceInclude Source="ControlStyles/Window.axaml"/>
             </ResourceDictionary.MergedDictionaries>
             

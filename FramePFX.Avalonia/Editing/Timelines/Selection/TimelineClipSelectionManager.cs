@@ -162,6 +162,10 @@ public class TimelineClipSelectionManager : ISelectionManager<IClipElement>, ILi
     }
 
     public void Clear() {
+        if (this.Count < 1) {
+            return;
+        }
+        
         this.isBatching = true;
         try {
             foreach (TimelineTrackControl track in this.TrackControls) {

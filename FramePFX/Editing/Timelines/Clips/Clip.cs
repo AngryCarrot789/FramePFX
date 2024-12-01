@@ -18,6 +18,7 @@
 // 
 
 using System.Diagnostics;
+using FramePFX.AdvancedMenuService;
 using FramePFX.DataTransfer;
 using FramePFX.Editing.Automation;
 using FramePFX.Editing.Automation.Keyframes;
@@ -44,6 +45,8 @@ public delegate void ClipTrackChangedEventHandler(Clip clip, Track? oldTrack, Tr
 public delegate void ClipActiveSequenceChangedEventHandler(Clip clip, AutomationSequence? oldSequence, AutomationSequence? newSequence);
 
 public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStrictFrameRange, IResourceHolder, IHaveEffects, IDestroy {
+    public static readonly ContextRegistry ClipContextRegistry = new ContextRegistry();
+    
     public static readonly SerialisationRegistry SerialisationRegistry;
     private readonly List<BaseEffect> internalEffectList;
     private FrameSpan span;
@@ -204,6 +207,12 @@ public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStr
             BaseEffect.WriteSerialisedWithIdList(clip, data.CreateList("Effects"));
             clip.ResourceHelper.WriteToRootRBE(data);
         });
+
+        ContextGroup mod1 = ClipContextRegistry.GetGroup("Modify1");
+        mod1.AddCommand("commands.editor.RenameClip", "Rename", "Open a dialog to rename this clip");
+        mod1.AddCommand("commands.editor.SliceClipsCommand", "Split", "Slice this clip at the playhead");
+        ContextGroup mod2 = ClipContextRegistry.GetGroup("Modify2");
+        mod2.AddCommand("commands.editor.DeleteClipOwnerTrack", "Delete Track", "Delete the track this clip resides in");
 
         // Example new serialisers for new feature added in new build version
         // SerialisationRegistry.Register<Clip>(1, (clip, data, ctx) => {

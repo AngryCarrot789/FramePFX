@@ -52,7 +52,6 @@ public abstract class ResourceExplorerListItemContent : TemplatedControl {
         Registry.RegisterType<ResourceFolder>(() => new RELICFolder());
         Registry.RegisterType<ResourceColour>(() => new RELICColour());
         Registry.RegisterType<ResourceImage>(() => new RELICImage());
-        Registry.RegisterType<ResourceTextStyle>(() => new RELICTextStyle());
         Registry.RegisterType<ResourceAVMedia>(() => new RELICAVMedia());
         Registry.RegisterType<ResourceComposition>(() => new RELICComposition());
     }
@@ -205,11 +204,6 @@ public class RELICImage : ResourceExplorerListItemContent {
     private void ClearImage() {
         this.bitmap = null;
         this.PART_Image.Source = null;
-    }
-}
-
-public class RELICTextStyle : ResourceExplorerListItemContent {
-    public RELICTextStyle() {
     }
 }
 

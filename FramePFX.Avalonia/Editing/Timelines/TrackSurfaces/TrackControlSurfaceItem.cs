@@ -29,6 +29,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using FramePFX.Avalonia.AdvancedMenuService;
 using FramePFX.Avalonia.Editing.Timelines.Selection;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Utils;
@@ -45,7 +46,7 @@ public class TrackControlSurfaceItem : ContentControl {
 
     private Track? myTrack;
     private bool wasFocusedBeforeMoving;
-    private readonly ContextData contextData;
+    internal readonly ContextData contextData;
     private bool internalIsSelected;
     private Point clickPos;
     private PixelPoint lastMovePosAbs;
@@ -70,7 +71,7 @@ public class TrackControlSurfaceItem : ContentControl {
         private set => this.SetAndRaise(IsSelectedProperty, ref this.internalIsSelected, value);
     }
 
-    public ITrackElement? TrackElement { get; private set; }
+    public ITrackElement? TrackElement { get; internal set; }
 
     private static PropertyInfo IsPointerOverPropertyInfo = typeof(InputElement).GetProperty("IsPointerOver")!;
 
@@ -81,6 +82,12 @@ public class TrackControlSurfaceItem : ContentControl {
     protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
         Dispatcher.UIThread.InvokeAsync(() => this.isMovingBetweenTracks = false, DispatcherPriority.Send);
+        AdvancedContextMenu.SetContextRegistry(this, Track.TrackControlSurfaceContextRegistry);
+    }
+    
+    protected override void OnUnloaded(RoutedEventArgs e) {
+        base.OnUnloaded(e);
+        AdvancedContextMenu.SetContextRegistry(this, null);
     }
 
     static TrackControlSurfaceItem() {
@@ -100,15 +107,6 @@ public class TrackControlSurfaceItem : ContentControl {
 
     #region Model Connections
 
-    public void SetTrackElement(ITrackElement? element) {
-        // don't try to invalidate if it was already removed before
-        if (element == null && !this.contextData.ContainsKey(DataKeys.TrackUIKey))
-            return;
-
-        this.contextData.Set(DataKeys.TrackUIKey, this.TrackElement = element);
-        DataManager.InvalidateInheritedContext(this);
-    }
-
     public void OnAddingToList(TrackControlSurfaceList ownerList, Track track, int index) {
         this.Track = track ?? throw new ArgumentNullException(nameof(track));
         this.TrackList = ownerList;
@@ -122,8 +120,6 @@ public class TrackControlSurfaceItem : ContentControl {
         control.ApplyTemplate();
         control.Connect(this);
         this.Height = this.Track!.Height;
-        this.contextData.Set(DataKeys.TrackKey, this.Track);
-        DataManager.InvalidateInheritedContext(this);
     }
 
     public void OnRemovingFromList() {
@@ -132,8 +128,6 @@ public class TrackControlSurfaceItem : ContentControl {
         content.Disconnect();
         this.Content = null;
         this.TrackList!.ReleaseContentObject(this.Track.GetType(), content);
-        this.contextData.Set(DataKeys.TrackKey, null).Set(DataKeys.TrackUIKey, null);
-        DataManager.InvalidateInheritedContext(this);
     }
 
     public void OnRemovedFromList() {

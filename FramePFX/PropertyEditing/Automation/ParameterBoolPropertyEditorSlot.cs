@@ -41,9 +41,9 @@ public class ParameterBoolPropertyEditorSlot : ParameterPropertyEditorSlot {
         }
     }
 
-    public new ParameterBoolean Parameter => (ParameterBoolean) base.Parameter;
+    public new ParameterBool Parameter => (ParameterBool) base.Parameter;
 
-    public ParameterBoolPropertyEditorSlot(ParameterBoolean parameter, Type applicableType, string displayName) : base(parameter, applicableType, displayName) {
+    public ParameterBoolPropertyEditorSlot(ParameterBool parameter, Type applicableType, string displayName) : base(parameter, applicableType, displayName) {
     }
 
     protected override void QueryValueFromHandlers() {

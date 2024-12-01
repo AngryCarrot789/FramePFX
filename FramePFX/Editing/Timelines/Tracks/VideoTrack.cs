@@ -40,14 +40,14 @@ public class VideoTrack : Track {
             ValueAccessors.LinqExpression<double>(typeof(VideoTrack), nameof(Opacity)),
             ParameterFlags.StandardProjectVisual);
 
-    public static readonly ParameterBoolean VisibleParameter = Parameter.RegisterBoolean(typeof(VideoTrack), nameof(VideoTrack), nameof(Visible), true, ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(Visible)), ParameterFlags.StandardProjectVisual);
+    public static readonly ParameterBool VisibleParameter = Parameter.RegisterBool(typeof(VideoTrack), nameof(VideoTrack), nameof(Visible), true, ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(Visible)), ParameterFlags.StandardProjectVisual);
     public static readonly ParameterVector2 MediaPositionParameter = Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaPosition), ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaPosition)), ParameterFlags.StandardProjectVisual);
     public static readonly ParameterVector2 MediaScaleParameter = Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaScale), Vector2.One, ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaScale)), ParameterFlags.StandardProjectVisual);
     public static readonly ParameterVector2 MediaScaleOriginParameter = Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaScaleOrigin), ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaScaleOrigin)), ParameterFlags.StandardProjectVisual);
-    public static readonly ParameterBoolean UseAbsoluteScaleOriginParameter = Parameter.RegisterBoolean(typeof(VideoTrack), nameof(VideoTrack), nameof(UseAbsoluteScaleOrigin), ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(UseAbsoluteScaleOrigin)), ParameterFlags.StandardProjectVisual);
+    public static readonly ParameterBool UseAbsoluteScaleOriginParameter = Parameter.RegisterBool(typeof(VideoTrack), nameof(VideoTrack), nameof(UseAbsoluteScaleOrigin), ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(UseAbsoluteScaleOrigin)), ParameterFlags.StandardProjectVisual);
     public static readonly ParameterDouble MediaRotationParameter = Parameter.RegisterDouble(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaRotation), ValueAccessors.LinqExpression<double>(typeof(VideoTrack), nameof(MediaRotation)), ParameterFlags.StandardProjectVisual);
     public static readonly ParameterVector2 MediaRotationOriginParameter = Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaRotationOrigin), ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaRotationOrigin)), ParameterFlags.StandardProjectVisual);
-    public static readonly ParameterBoolean UseAbsoluteRotationOriginParameter = Parameter.RegisterBoolean(typeof(VideoTrack), nameof(VideoTrack), nameof(UseAbsoluteRotationOrigin), ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(UseAbsoluteRotationOrigin)), ParameterFlags.StandardProjectVisual);
+    public static readonly ParameterBool UseAbsoluteRotationOriginParameter = Parameter.RegisterBool(typeof(VideoTrack), nameof(VideoTrack), nameof(UseAbsoluteRotationOrigin), ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(UseAbsoluteRotationOrigin)), ParameterFlags.StandardProjectVisual);
 
     // Transformation data
     private Vector2 MediaPosition;
@@ -174,10 +174,9 @@ public class VideoTrack : Track {
 
     // CALLED ON A RENDER THREAD
     public void RenderVideoFrame(SKImageInfo imgInfo, EnumRenderQuality quality) {
-        DisposableRef<TrackRenderData> locker = this.myRenderDataLock;
-        TrackRenderData rd = locker.Value;
-        lock (locker) {
-            if (!locker.TryBeginUsage() || rd.surfaceInfo != imgInfo) {
+        TrackRenderData rd = this.myRenderDataLock.Value;
+        lock (this.myRenderDataLock) {
+            if (!this.myRenderDataLock.TryBeginUsage() || rd.surfaceInfo != imgInfo) {
                 rd.Dispose();
                 rd.surface?.Dispose();
                 rd.bitmap?.Dispose();
@@ -189,7 +188,7 @@ public class VideoTrack : Track {
                 int rowBytes = imgInfo.RowBytes;
                 rd.pixmap = new SKPixmap(imgInfo, ptr, rowBytes);
                 rd.surface = SKSurface.Create(rd.pixmap.Info, ptr, rowBytes, null, null, new SKSurfaceProperties(SKPixelGeometry.BgrHorizontal));
-                locker.ResetAndBeginUsage();
+                this.myRenderDataLock.ResetAndBeginUsage();
             }
         }
 
@@ -237,7 +236,7 @@ public class VideoTrack : Track {
             this.theEffectsToApplyToClip = null;
             this.theEffectsToApplyToTrack = null;
             if (renderException != null) {
-                throw renderException;
+                throw new Exception("Exception while rendering clip", renderException);
             }
 
             rd.surface.Flush(true, true);
@@ -248,7 +247,7 @@ public class VideoTrack : Track {
             //     rd.surface.Canvas.DrawRect(rd.renderArea, paint1);
         }
 
-        locker.CompleteUsage();
+        this.myRenderDataLock.CompleteUsage();
     }
 
     public void DrawFrameIntoSurface(SKSurface dstSurface, out SKRect usedRenderingArea) {

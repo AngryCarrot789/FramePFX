@@ -26,8 +26,8 @@ using FramePFX.Utils.Accessing;
 namespace FramePFX.Editing.Timelines.Tracks;
 
 public class AudioTrack : Track {
-    public static readonly ParameterBoolean IsMutedParameter =
-        Parameter.RegisterBoolean(
+    public static readonly ParameterBool IsMutedParameter =
+        Parameter.RegisterBool(
             typeof(AudioTrack),
             nameof(AudioTrack),
             nameof(IsMuted), false,

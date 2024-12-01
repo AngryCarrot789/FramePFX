@@ -47,8 +47,8 @@ namespace FramePFX.Avalonia.Editing.Timelines;
 /// </summary>
 public class TimelineControl : TemplatedControl, ITimelineElement {
     public static readonly StyledProperty<Timeline?> TimelineProperty = AvaloniaProperty.Register<TimelineControl, Timeline?>(nameof(Timeline));
-    public static readonly DirectProperty<TimelineControl, double> ZoomProperty = AvaloniaProperty.RegisterDirect<TimelineControl, double>(nameof(Zoom), o => o.Zoom, unsetValue:1.0);
-    
+    public static readonly DirectProperty<TimelineControl, double> ZoomProperty = AvaloniaProperty.RegisterDirect<TimelineControl, double>(nameof(Zoom), o => o.Zoom, unsetValue: 1.0);
+
     private readonly ModelControlDictionary<Track, ITrackElement> trackElementMap;
 
     public IModelControlDictionary<Track, ITrackElement> TrackElementMap => this.trackElementMap;
@@ -57,7 +57,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         get => this.GetValue(TimelineProperty);
         set => this.SetValue(TimelineProperty, value);
     }
-    
+
     public double Zoom {
         get => this.myZoomFactor;
         private set => this.SetAndRaise(ZoomProperty, ref this.myZoomFactor, value);
@@ -82,7 +82,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
     public Border? TimelineBorder { get; private set; }
 
     public Border TimestampBorder { get; private set; }
-    
+
     public PlayHeadControl? PlayHead { get; private set; }
 
     public StopHeadControl? StopHead { get; private set; }
@@ -131,19 +131,30 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
                 if (value) {
                     this.Timeline.TrackSelectionManager!.Select(this);
                 }
-                else { 
+                else {
                     this.Timeline.TrackSelectionManager!.Unselect(this);
                 }
-            } 
+            }
         }
 
-        public TrackElementImpl(TimelineControl timeline, TrackControlSurfaceItem surfaceControl, TimelineTrackControl trackControl, Track track) {
+        public TrackElementImpl(TimelineControl timeline, TrackControlSurfaceItem surfaceControl, TimelineTrackControl trackControl, Track track, bool isLoadingTimeline) {
             this.Timeline = timeline;
             this.SurfaceControl = surfaceControl;
             this.TrackControl = trackControl;
             this.Track = track;
-            this.SurfaceControl.SetTrackElement(this);
-            this.TrackControl.SetTrackElement(this);
+
+            this.SurfaceControl.contextData.Set(DataKeys.TrackKey, this.Track).Set(DataKeys.TrackUIKey, this.SurfaceControl.TrackElement = this);
+            this.TrackControl.contextData.Set(DataKeys.TrackKey, this.Track).Set(DataKeys.TrackUIKey, this.TrackControl.TrackElement = this);
+            
+            // We can invalidate the surface control since it's in a different branch of the visual tree
+            DataManager.InvalidateInheritedContext(this.SurfaceControl);
+            
+            // Don't invalidate if the TimelineControl is adding the clips for the TimelineChanged event,
+            // because there's no point since the timeline invalidates its own context after all tracks
+            // are loaded which 
+            if (!isLoadingTimeline) {
+                DataManager.InvalidateInheritedContext(this.TrackControl);
+            }
         }
 
         public IClipElement GetClipFromModel(Clip clip) {
@@ -151,8 +162,11 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         }
 
         public void Destroy() {
-            this.SurfaceControl.SetTrackElement(null);
-            this.TrackControl.SetTrackElement(null);
+            this.SurfaceControl.contextData.Set(DataKeys.TrackKey, null).Set(DataKeys.TrackUIKey, null);
+            DataManager.InvalidateInheritedContext(this.SurfaceControl);
+
+            this.TrackControl.contextData.Set(DataKeys.TrackKey, null).Set(DataKeys.TrackUIKey, null);
+            DataManager.InvalidateInheritedContext(this.TrackControl);
         }
 
         public void UpdateSelected(bool state) {
@@ -192,7 +206,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
 
         this.ClipSelectionManager = new TimelineClipSelectionManager(this);
         ((ILightSelectionManager<IClipElement>) this.ClipSelectionManager).SelectionChanged += this.OnSelectionChanged;
-        
+
         this.PlayHead!.TimelineControl = this;
         this.StopHead!.TimelineControl = this;
         this.TimelineContentGrid.PointerPressed += this.OnTimelineContentGridPointerPressed;
@@ -203,11 +217,11 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
     private void OnSelectionChanged(ILightSelectionManager<IClipElement> sender) {
         VideoEditorPropertyEditorHelper.UpdateClipSelectionAsync(this);
     }
-    
+
     private void OnTrackChanged(ILightSelectionManager<ITrackElement> sender) {
         VideoEditorPropertyEditorHelper.UpdateTrackSelectionAsync(this);
     }
-    
+
     public void SetPlayHeadToMouseCursor(double x) {
         this.MovePlayHeadToMouseCursor(x, false);
     }
@@ -225,7 +239,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
                     timeline.StopHeadPosition = frameX;
                 }
             }
-            
+
             if (enableThumbDragging && ex != null) {
                 this.PlayHead!.EnableDragging(ex);
             }
@@ -247,6 +261,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         // User clicked the dark grey area, so update the play head position
         if ((e.Source == sender || e.Source is ClipStoragePanel) && this.Timeline is Timeline timeline) {
             timeline.PlayHeadPosition = TimelineClipControl.GetCursorFrame(this.TrackStorage!, e);
+            this.ClipSelectionManager?.Clear();
         }
     }
 
@@ -275,7 +290,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
             newTimeline.TrackMoved += this.OnTimelineTrackIndexMoved;
             int i = 0;
             foreach (Track track in newTimeline.Tracks) {
-                this.InsertTrackElement(track, i++);
+                this.InsertTrackElement(track, i++, true);
             }
 
             this.contextData.Set(DataKeys.TimelineKey, newTimeline);
@@ -287,11 +302,11 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         DataManager.InvalidateInheritedContext(this);
     }
 
-    private void InsertTrackElement(Track track, int i) {
+    private void InsertTrackElement(Track track, int i, bool isLoadingTimeline = false) {
         // We have to assume this method is invoked after the surface and real timeline are added
         TrackControlSurfaceItem surfaceItem = this.SurfaceTrackList!.GetTrack(i);
         TimelineTrackControl trackControl = this.TrackStorage!.GetTrack(i);
-        this.myTrackElements.Insert(i, new TrackElementImpl(this, surfaceItem, trackControl, track));
+        this.myTrackElements.Insert(i, new TrackElementImpl(this, surfaceItem, trackControl, track, isLoadingTimeline));
     }
 
     private void RemoveTrackElement(int i) {

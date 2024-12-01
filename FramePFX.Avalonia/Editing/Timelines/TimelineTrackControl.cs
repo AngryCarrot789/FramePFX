@@ -23,12 +23,12 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using FramePFX.Avalonia.AdvancedMenuService;
 using FramePFX.Avalonia.Converters;
 using FramePFX.Avalonia.Editing.Timelines.Selection;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Utils;
 using FramePFX.Editing;
-using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.UI;
 using FramePFX.Interactivity;
@@ -48,7 +48,7 @@ public class TimelineTrackControl : TemplatedControl {
     private Track? myTrack;
     private ILinearGradientBrush? clipHeaderBrush;
     private ISolidColorBrush? _trackColourForegroundBrush;
-    private readonly ContextData contextData;
+    internal readonly ContextData contextData;
     private MovedClip? clipBeingMoved;
     private bool internalIsSelected;
     
@@ -102,7 +102,7 @@ public class TimelineTrackControl : TemplatedControl {
     
     public ClipSelectionManager? SelectionManager { get; private set; }
     
-    public ITrackElement? TrackElement { get; private set; }
+    public ITrackElement? TrackElement { get; internal set; }
 
     public TimelineTrackControl() {
         this.ClipHeaderBrush = new LinearGradientBrush();
@@ -112,13 +112,14 @@ public class TimelineTrackControl : TemplatedControl {
         DataManager.SetContextData(this, this.contextData = new ContextData());
     }
 
-    public void SetTrackElement(ITrackElement? element) {
-        // don't try to invalidate if it was already removed before
-        if (element == null && !this.contextData.ContainsKey(DataKeys.TrackUIKey))
-            return;
-        
-        this.contextData.Set(DataKeys.TrackUIKey, this.TrackElement = element);
-        DataManager.InvalidateInheritedContext(this);
+    protected override void OnLoaded(RoutedEventArgs e) {
+        base.OnLoaded(e);
+        AdvancedContextMenu.SetContextRegistry(this, Track.TimelineTrackContextRegistry);
+    }
+
+    protected override void OnUnloaded(RoutedEventArgs e) {
+        base.OnUnloaded(e);
+        AdvancedContextMenu.SetContextRegistry(this, null);
     }
 
     static TimelineTrackControl() {
@@ -151,8 +152,6 @@ public class TimelineTrackControl : TemplatedControl {
         track.ClipMovedTracks += this.OnClipMovedTracks;
         track.HeightChanged += this.OnTrackHeightChanged;
         track.ColourChanged += this.OnTrackColourChanged;
-        this.contextData.Set(DataKeys.TrackKey, null).Set(DataKeys.TrackUIKey, null);
-        DataManager.InvalidateInheritedContext(this);
     }
 
     public virtual void OnConnected() {
@@ -182,7 +181,6 @@ public class TimelineTrackControl : TemplatedControl {
         this.Track = null;
         this.TimelineControl = null;
         this.TrackStoragePanel = null;
-        DataManager.ClearContextData(this);
     }
 
     public virtual void OnIndexMoving(int oldIndex, int newIndex) {
@@ -283,12 +281,11 @@ public class TimelineTrackControl : TemplatedControl {
     
     public void OnPreviewPointerPressed(PointerPressedEventArgs e) {
         if (this.Track != null) {
-            Timeline? timeline = this.Track!.Timeline;
             // update context data, used by action system and context menu system
             PointerUpdateKind change = e.GetCurrentPoint(this).Properties.PointerUpdateKind;
             if (change == PointerUpdateKind.LeftButtonPressed || change == PointerUpdateKind.RightButtonPressed) {
                 this.contextData.Set(DataKeys.TrackContextMouseFrameKey, this.GetFrameAtMousePoint(e));
-                DataManager.SetContextData(this, this.contextData.Clone());
+                DataManager.InvalidateInheritedContext(this);
             }
 
             // don't focus if the click hit a clip, since the clip will be focused right after so it's pointless

@@ -84,7 +84,7 @@ public static class KeyFrameUtils {
             seq.UpdateValue();
     }
 
-    public static void SetDefaultValue(this IAutomatable automatable, ParameterBoolean parameter, bool value, bool enableOverride = false) {
+    public static void SetDefaultValue(this IAutomatable automatable, ParameterBool parameter, bool value, bool enableOverride = false) {
         AutomationSequence seq = automatable.AutomationData[parameter];
         if (enableOverride)
             seq.IsOverrideEnabled = true;

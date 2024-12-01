@@ -63,10 +63,10 @@ public abstract class VideoClip : Clip {
     public static readonly ParameterVector2 MediaPositionParameter = Parameter.RegisterVector2(typeof(VideoClip), nameof(VideoClip), nameof(MediaPosition), ValueAccessors.LinqExpression<Vector2>(typeof(VideoClip), nameof(MediaPosition)), ParameterFlags.StandardProjectVisual);
     public static readonly ParameterVector2 MediaScaleParameter = Parameter.RegisterVector2(typeof(VideoClip), nameof(VideoClip), nameof(MediaScale), Vector2.One, ValueAccessors.LinqExpression<Vector2>(typeof(VideoClip), nameof(MediaScale)), ParameterFlags.StandardProjectVisual);
     public static readonly ParameterVector2 MediaScaleOriginParameter = Parameter.RegisterVector2(typeof(VideoClip), nameof(VideoClip), nameof(MediaScaleOrigin), ValueAccessors.LinqExpression<Vector2>(typeof(VideoClip), nameof(MediaScaleOrigin)), ParameterFlags.StandardProjectVisual);
-    public static readonly ParameterBoolean UseAbsoluteScaleOriginParameter = Parameter.RegisterBoolean(typeof(VideoClip), nameof(VideoClip), nameof(UseAbsoluteScaleOrigin), ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(UseAbsoluteScaleOrigin)), ParameterFlags.StandardProjectVisual);
+    public static readonly ParameterBool UseAbsoluteScaleOriginParameter = Parameter.RegisterBool(typeof(VideoClip), nameof(VideoClip), nameof(UseAbsoluteScaleOrigin), ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(UseAbsoluteScaleOrigin)), ParameterFlags.StandardProjectVisual);
     public static readonly ParameterDouble MediaRotationParameter = Parameter.RegisterDouble(typeof(VideoClip), nameof(VideoClip), nameof(MediaRotation), ValueAccessors.LinqExpression<double>(typeof(VideoClip), nameof(MediaRotation)), ParameterFlags.StandardProjectVisual);
     public static readonly ParameterVector2 MediaRotationOriginParameter = Parameter.RegisterVector2(typeof(VideoClip), nameof(VideoClip), nameof(MediaRotationOrigin), ValueAccessors.LinqExpression<Vector2>(typeof(VideoClip), nameof(MediaRotationOrigin)), ParameterFlags.StandardProjectVisual);
-    public static readonly ParameterBoolean UseAbsoluteRotationOriginParameter = Parameter.RegisterBoolean(typeof(VideoClip), nameof(VideoClip), nameof(UseAbsoluteRotationOrigin), ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(UseAbsoluteRotationOrigin)), ParameterFlags.StandardProjectVisual);
+    public static readonly ParameterBool UseAbsoluteRotationOriginParameter = Parameter.RegisterBool(typeof(VideoClip), nameof(VideoClip), nameof(UseAbsoluteRotationOrigin), ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(UseAbsoluteRotationOrigin)), ParameterFlags.StandardProjectVisual);
 
     public static readonly DataParameterBool IsVisibleParameter = DataParameter.Register(new DataParameterBool(typeof(VideoClip), nameof(IsVisible), true, ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(IsVisible)), DataParameterFlags.StandardProjectVisual));
 
@@ -211,6 +211,10 @@ public abstract class VideoClip : Clip {
     /// </summary>
     /// <returns>The size, if applicable, otherwise null</returns>
     public virtual Vector2? GetRenderSize() => null;
+    
+    protected virtual void OnRenderSizeChanged() {
+        this.InvalidateRender();
+    }
 
     public override bool IsEffectTypeAccepted(Type effectType) => typeof(VideoEffect).IsAssignableFrom(effectType);
 

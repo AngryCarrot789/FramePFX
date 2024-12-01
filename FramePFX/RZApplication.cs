@@ -20,9 +20,7 @@
 using FramePFX.CommandSystem;
 using FramePFX.Editing;
 using FramePFX.Editing.Commands;
-using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.Commands;
-using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Natives;
 using FramePFX.Tasks;
 using FramePFX.Utils;
@@ -104,6 +102,13 @@ public abstract class RZApplication {
         manager.Register("commands.editor.DeleteClipOwnerTrack", new DeleteClipOwnerTrackCommand());
         manager.Register("commands.editor.RenameClip", new RenameClipCommand());
         manager.Register("commands.editor.RenameTrack", new RenameTrackCommand());
+        
+        // Adding clips to tracks
+        manager.Register("commands.editor.AddTextClip", new AddTextClipCommand());
+        manager.Register("commands.editor.AddTimecodeClip", new AddTimecodeClipCommand());
+        manager.Register("commands.editor.AddVideoClipShape", new AddVideoClipShapeCommand());
+        manager.Register("commands.editor.AddImageVideoClip", new AddImageVideoClipCommand());
+        manager.Register("commands.editor.AddCompositionVideoClip", new AddCompositionVideoClipCommand());
 
         // resources
         manager.Register("commands.resources.RenameResource", new RenameResourceCommand());

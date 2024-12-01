@@ -26,6 +26,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
+using FramePFX.Avalonia.AdvancedMenuService;
 using FramePFX.Avalonia.Bindings;
 using FramePFX.Avalonia.Editing.Timelines.Selection;
 using FramePFX.Avalonia.Interactivity;
@@ -130,15 +131,22 @@ public class TimelineClipControl : ContentControl, IClipElement {
         DataManager.SetContextData(this, this.contextData = new ContextData().Set(DataKeys.ClipUIKey, this));
     }
 
+
     static TimelineClipControl() {
         AffectsRender<TimelineClipControl>(BackgroundProperty, DisplayNameProperty);
     }
 
     protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
+        AdvancedContextMenu.SetContextRegistry(this, FramePFX.Editing.Timelines.Clips.Clip.ClipContextRegistry);
         Dispatcher.UIThread.InvokeAsync(() => this.isMovingBetweenTracks = false, DispatcherPriority.Send);
     }
 
+    protected override void OnUnloaded(RoutedEventArgs e) {
+        base.OnUnloaded(e);
+        AdvancedContextMenu.SetContextRegistry(this, null);
+    }
+    
     protected override void OnSizeChanged(SizeChangedEventArgs e) {
         base.OnSizeChanged(e);
         this.renderSizeRectGeometry.Rect = new Rect(e.NewSize);
@@ -603,13 +611,13 @@ public class TimelineClipControl : ContentControl, IClipElement {
     #endregion
 
     protected override Size MeasureOverride(Size availableSize) {
-        Size size = new Size(Math.Round(this.PixelWidth), HeaderSize);
+        Size size = new Size(this.PixelWidth, HeaderSize);
         base.MeasureOverride(size);
         return size;
     }
 
     protected override Size ArrangeOverride(Size finalSize) {
-        Size size = new Size(Math.Round(this.PixelWidth), finalSize.Height);
+        Size size = new Size(this.PixelWidth, finalSize.Height);
         base.ArrangeOverride(size);
         return size;
     }

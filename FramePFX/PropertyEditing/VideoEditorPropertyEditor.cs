@@ -68,6 +68,18 @@ public class VideoEditorPropertyEditor : BasePropertyEditor {
                 group.AddItem(new ParameterVector2PropertyEditorSlot(VideoClipShape.SizeParameter, typeof(VideoClipShape), "Size", DragStepProfile.InfPixelRange) { ValueFormatter = SuffixValueFormatter.StandardPixels });
                 this.ClipGroup.AddItem(group);
             }
+            
+            {
+                SimplePropertyEditorGroup textGroup = new SimplePropertyEditorGroup(typeof(TextVideoClip), GroupType.SecondaryExpander) { DisplayName = "Text" };
+                textGroup.AddItem(new DataParameterStringPropertyEditorSlot(TextVideoClip.FontFamilyParameter, typeof(TextVideoClip), "Font Family"));
+                textGroup.AddItem(new ParameterFloatPropertyEditorSlot(TextVideoClip.FontSizeParameter, typeof(TextVideoClip), "Font Size", DragStepProfile.FontSize) { ValueFormatter = SuffixValueFormatter.StandardPixels });
+                textGroup.AddItem(new ParameterFloatPropertyEditorSlot(TextVideoClip.BorderThicknessParameter, typeof(TextVideoClip), "Stroke Width", DragStepProfile.Pixels) { ValueFormatter = SuffixValueFormatter.StandardPixels });
+                textGroup.AddItem(new ParameterFloatPropertyEditorSlot(TextVideoClip.SkewXParameter, typeof(TextVideoClip), "Skew X", DragStepProfile.Pixels) { ValueFormatter = SuffixValueFormatter.StandardPixels });
+                textGroup.AddItem(new ParameterBoolPropertyEditorSlot(TextVideoClip.IsAntiAliasedParameter, typeof(TextVideoClip), "Anti Alias"));
+                textGroup.AddItem(new ParameterFloatPropertyEditorSlot(TextVideoClip.LineSpacingParameter, typeof(TextVideoClip), "Line Spacing", DragStepProfile.Pixels) { ValueFormatter = SuffixValueFormatter.StandardPixels });
+                textGroup.AddItem(new DataParameterStringPropertyEditorSlot(TextVideoClip.TextParameter, typeof(TextVideoClip), "Text") { AnticipatedLineCount = 8 });
+                this.ClipGroup.AddItem(textGroup);
+            }
 
             {
                 SimplePropertyEditorGroup group = new SimplePropertyEditorGroup(typeof(TimecodeClip), GroupType.SecondaryExpander) { DisplayName = "Timecode Info" };

@@ -19,6 +19,7 @@
 
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using FramePFX.AdvancedMenuService;
 using FramePFX.Editing.Automation;
 using FramePFX.Editing.Automation.Params;
 using FramePFX.Editing.Factories;
@@ -40,6 +41,8 @@ public delegate void TrackClipIndexEventHandler(Track track, Clip clip, int inde
 public delegate void ClipMovedEventHandler(Clip clip, Track oldTrack, int oldIndex, Track newTrack, int newIndex);
 
 public abstract class Track : IDisplayName, IAutomatable, IHaveEffects, IDestroy {
+    public static readonly ContextRegistry TimelineTrackContextRegistry = new ContextRegistry();
+    public static readonly ContextRegistry TrackControlSurfaceContextRegistry = new ContextRegistry();
     public static readonly SerialisationRegistry SerialisationRegistry;
 
     public const double MinimumHeight = 20;
@@ -152,6 +155,30 @@ public abstract class Track : IDisplayName, IAutomatable, IHaveEffects, IDestroy
                 Clip.WriteSerialisedWithId(list.AddDictionary(), clip);
             }
         });
+
+        {
+            ContextGroup mod1 = TimelineTrackContextRegistry.GetGroup("Modify1");
+            mod1.AddCommand("commands.editor.RenameTrack", "Rename", "Open a dialog to rename this track");
+            
+            ContextGroup modAdd = TimelineTrackContextRegistry.GetGroup("ModifyAddClips");
+            modAdd.AddCommand("commands.editor.AddTextClip", "Add Text clip", "Create a new Text clip");
+            modAdd.AddCommand("commands.editor.AddTimecodeClip", "Add Timecode clip", "Create a new Timecode clip");
+            modAdd.AddCommand("commands.editor.AddVideoClipShape", "Add Shape clip", "Create a new Shape clip");
+            modAdd.AddCommand("commands.editor.AddImageVideoClip", "Add ImageVideo clip", "Create a new Image clip");
+            modAdd.AddCommand("commands.editor.AddCompositionVideoClip", "Add CompositionVideo clip", "Create a new Composition clip");
+            
+            ContextGroup mod3 = TimelineTrackContextRegistry.GetGroup("Modify2");
+            mod3.AddCommand("commands.editor.SliceClipsCommand", "Split clips", "Slice this clip at the playhead");
+            
+            ContextGroup mod4 = TimelineTrackContextRegistry.GetGroup("Modify3");
+            mod4.AddCommand("commands.editor.DeleteSpecificTrack", "Delete Track", "Delete this track");
+        }
+        {
+            ContextGroup mod1 = TrackControlSurfaceContextRegistry.GetGroup("Modify1");
+            mod1.AddCommand("commands.editor.RenameTrack", "Rename", "Open a dialog to rename this track");
+            ContextGroup mod3 = TrackControlSurfaceContextRegistry.GetGroup("Modify3");
+            mod3.AddCommand("commands.editor.DeleteSpecificTrack", "Delete Track", "Delete this track");
+        }
     }
 
     public bool GetRelativePlayHead(out long playHead) {

@@ -171,11 +171,11 @@ public abstract class Parameter : IEquatable<Parameter>, IComparable<Parameter> 
         return (ParameterLong) Register(new ParameterLong(ownerType, new ParameterKey(domain, name), desc, accessor, flags));
     }
 
-    public static ParameterBoolean RegisterBoolean(Type ownerType, string domain, string name, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterBoolean(ownerType, domain, name, new ParameterDescriptorBoolean(), accessor, flags);
-    public static ParameterBoolean RegisterBoolean(Type ownerType, string domain, string name, bool defaultValue, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterBoolean(ownerType, domain, name, new ParameterDescriptorBoolean(defaultValue), accessor, flags);
+    public static ParameterBool RegisterBool(Type ownerType, string domain, string name, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterBool(ownerType, domain, name, new ParameterDescriptorBoolean(), accessor, flags);
+    public static ParameterBool RegisterBool(Type ownerType, string domain, string name, bool defaultValue, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterBool(ownerType, domain, name, new ParameterDescriptorBoolean(defaultValue), accessor, flags);
 
-    public static ParameterBoolean RegisterBoolean(Type ownerType, string domain, string name, ParameterDescriptorBoolean desc, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None) {
-        return (ParameterBoolean) Register(new ParameterBoolean(ownerType, new ParameterKey(domain, name), desc, accessor, flags));
+    public static ParameterBool RegisterBool(Type ownerType, string domain, string name, ParameterDescriptorBoolean desc, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None) {
+        return (ParameterBool) Register(new ParameterBool(ownerType, new ParameterKey(domain, name), desc, accessor, flags));
     }
 
     public static ParameterVector2 RegisterVector2(Type ownerType, string domain, string name, ValueAccessor<Vector2> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterVector2(ownerType, domain, name, new ParameterDescriptorVector2(), accessor, flags);
@@ -404,7 +404,7 @@ public sealed class ParameterLong : Parameter {
 /// <summary>
 /// A <see cref="Parameter"/> that handles a <see cref="bool"/> value
 /// </summary>
-public sealed class ParameterBoolean : Parameter {
+public sealed class ParameterBool : Parameter {
     private readonly ValueAccessor<bool> accessor;
 
     /// <summary>
@@ -412,7 +412,7 @@ public sealed class ParameterBoolean : Parameter {
     /// </summary>
     public new ParameterDescriptorBoolean Descriptor => (ParameterDescriptorBoolean) base.Descriptor;
 
-    public ParameterBoolean(Type ownerType, ParameterKey key, ParameterDescriptorBoolean descriptor, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None) : base(ownerType, key, descriptor, flags) {
+    public ParameterBool(Type ownerType, ParameterKey key, ParameterDescriptorBoolean descriptor, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None) : base(ownerType, key, descriptor, flags) {
         this.accessor = accessor;
     }
 

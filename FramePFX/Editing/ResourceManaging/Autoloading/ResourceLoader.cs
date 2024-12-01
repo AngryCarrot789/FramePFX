@@ -85,4 +85,23 @@ public sealed class ResourceLoader {
 
         return false;
     }
+    
+    public bool TryLoadEntry(InvalidResourceEntry entry) {
+        int index = this.entries.IndexOf(entry);
+        if (index == -1) {
+            throw new InvalidOperationException("Entry is not in this loader");
+        }
+        
+        ResourceItem item = entry.Resource;
+        if (item.IsOnline) {
+            return true;
+        }
+
+        if (item.TryEnableForLoaderEntry(entry)) {
+            this.RemoveEntryAt(index);
+            return true;
+        }
+
+        return false;
+    }
 }

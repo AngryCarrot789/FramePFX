@@ -38,7 +38,7 @@ using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 using Key = Avalonia.Input.Key;
 
-namespace FramePFX.Avalonia.Editing.Resources.Trees;
+namespace FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 
 public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElement, IResourceTreeElement {
     public static readonly StyledProperty<bool> IsDroppableTargetOverProperty = ResourceTreeView.IsDroppableTargetOverProperty.AddOwner<ResourceTreeView>();

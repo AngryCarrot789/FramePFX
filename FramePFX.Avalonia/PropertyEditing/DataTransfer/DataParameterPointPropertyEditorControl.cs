@@ -119,12 +119,12 @@ public class DataParameterPointPropertyEditorControl : BaseDataParameterProperty
     }
 
     protected override void UpdateControlValue() {
-        SKPoint value = this.SlotModel.Value;
+        SKPoint value = this.SlotModel!.Value;
         this.draggerX.Value = value.X;
         this.draggerY.Value = value.Y;
     }
 
     protected override void UpdateModelValue() {
-        this.SlotModel.Value = new SKPoint((float) this.draggerX.Value, (float) this.draggerY.Value);
+        this.SlotModel!.Value = new SKPoint((float) this.draggerX.Value, (float) this.draggerY.Value);
     }
 }

@@ -35,7 +35,7 @@ using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Utils.RDA;
 using SkiaSharp;
 
-namespace FramePFX.Avalonia.Editing.Resources.Lists;
+namespace FramePFX.Avalonia.Editing.ResourceManaging.Lists;
 
 public abstract class ResourceExplorerListItemContent : TemplatedControl {
     public static readonly ModelControlRegistry<BaseResource, ResourceExplorerListItemContent> Registry;

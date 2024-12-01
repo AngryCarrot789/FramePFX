@@ -53,9 +53,6 @@ public class SKAsyncViewPort : Control {
     private bool ignorePixelScaling;
     private ILockedFramebuffer? lockKey;
 
-    public SKPoint FeedbackZoomOrigin;
-    public SKPoint FeedbackZoomSize;
-
     /// <summary>Gets the current canvas size.</summary>
     /// <value />
     /// <remarks>The canvas size may be different to the view size as a result of the current device's pixel density.</remarks>

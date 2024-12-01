@@ -10,8 +10,7 @@
             xmlns:tl="clr-namespace:FramePFX.Avalonia.Editing.Timelines"
             xmlns:c1="clr-namespace:FramePFX.Avalonia.Editing"
             xmlns:fxsrc="clr-namespace:FramePFX.Editing.EffectSource;assembly=FramePFX"
-            xmlns:resources="clr-namespace:FramePFX.Avalonia.Editing.Resources"
-            xmlns:trees="clr-namespace:FramePFX.Avalonia.Editing.Resources.Trees"
+            xmlns:resourceManaging="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging"
             mc:Ignorable="d"
             x:Class="FramePFX.Avalonia.EditorWindow"
             Background="{DynamicResource PanelBackground0}"
@@ -36,11 +35,11 @@
         <sa:ContextCapturingMenu Grid.Row="0" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1"
                                  Background="{Binding TitleBarBrush, RelativeSource={RelativeSource AncestorType={x:Type c:WindowEx}, Mode=FindAncestor}}">
             <MenuItem Header="File">
-                <sa:CommandMenuItem Header="New Project" CommandId="commands.generic.NewProjectCommand"/>
-                <sa:CommandMenuItem Header="Open Project..." CommandId="commands.generic.OpenProjectCommand"/>
-                <sa:CommandMenuItem Header="Save Project" CommandId="commands.generic.SaveProjectCommand"/>
-                <sa:CommandMenuItem Header="Save Project As..." CommandId="commands.generic.SaveProjectAsCommand"/>
-                <sa:CommandMenuItem Header="Close Project" CommandId="commands.generic.CloseProjectCommand"/>
+                <sa:CommandMenuItem Header="New Project" CommandId="commands.editor.NewProjectCommand"/>
+                <sa:CommandMenuItem Header="Open Project..." CommandId="commands.editor.OpenProjectCommand"/>
+                <sa:CommandMenuItem Header="Save Project" CommandId="commands.editor.SaveProject"/>
+                <sa:CommandMenuItem Header="Save Project As..." CommandId="commands.editor.SaveProjectAs"/>
+                <sa:CommandMenuItem Header="Close Project" CommandId="commands.editor.CloseProjectCommand"/>
                 <Separator/>
                 <sa:CommandMenuItem Header="Export" CommandId="commands.generic.ExportCommand"
                                     ToolTip.Tip="Export the current project"/>
@@ -65,7 +64,7 @@
                 <Border Background="{DynamicResource PanelBackground3}">
                     <TabControl BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0" Margin="0">
                         <TabItem Header="Resources" av:UIInputManager.FocusPath="Application/EditorWindow/ResourceManager">
-                            <resources:ResourcePanelControl x:Name="PART_ResourcePanelControl"/>
+                            <resourceManaging:ResourcePanelControl x:Name="PART_ResourcePanelControl"/>
                         </TabItem>
                         <!--
                         This is too laggy at the moment
@@ -85,8 +84,10 @@
                             <DockPanel>
                                 <!-- Left Panel -->
                                 <Grid Margin="5,0,0,0" DockPanel.Dock="Left">
-                                    <Button Focusable="False" Content="Fit to Scale" Width="75" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="0,4,0,4"/>
-                                    <CheckBox Focusable="False" Content="Zoom to cursor" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="85,5,0,5"/>
+                                    <Button Focusable="False" Content="Fit to Scale" Width="75" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="0,4,0,4"
+                                            Click="FitToScale_Click"/>
+                                    <CheckBox Focusable="False" Content="Zoom to cursor" HorizontalAlignment="Left" Padding="1,0,0,0" Margin="85,5,0,5"
+                                              IsChecked="{Binding PanToCursorOnUserZoom, ElementName=PART_ViewPort}"/>
                                 </Grid>
 
                                 <!-- Right Panel -->
@@ -179,7 +180,7 @@
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
-                <DockPanel x:Name="PART_ActiveBackgroundTaskGrid" DockPanel.Dock="Right">
+                <DockPanel x:Name="PART_ActiveBackgroundTaskGrid" DockPanel.Dock="Right" IsVisible="False">
                     <TextBlock x:Name="PART_TaskCaption" Text="progname" DockPanel.Dock="Left" Margin="0,0,5,0" VerticalAlignment="Center"/>
                     <ProgressBar x:Name="PART_ActiveBgProgress" Width="150" DockPanel.Dock="Right"
                                  Height="9" BorderThickness="0"

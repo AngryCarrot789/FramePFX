@@ -88,7 +88,7 @@ public class DataParameterEnumPropertyEditorSlot<TEnum> : DataParameterPropertyE
                 parameter.SetValue((ITransferableData) this.Handlers[i], value);
             }
 
-            this.OnValueChanged();
+            this.OnValueChanged(false, true);
         }
     }
 

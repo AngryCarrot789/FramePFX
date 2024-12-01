@@ -17,11 +17,15 @@
 // along with PicNetStudio. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Avalonia.Editing.Resources.Trees;
+namespace FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 
 /// <summary>
-/// A tree view item that represents any type of layer
+/// A tree view which presents a canvas' layer hierarchy in a tree system
 /// </summary>
-public class StandardResourceTreeViewItem : ResourceTreeViewItem {
-    
+public class StandardResourceTreeView : ResourceTreeView {
+    public StandardResourceTreeView() {
+        
+    }
+
+    protected override ResourceTreeViewItem CreateTreeViewItem() => new StandardResourceTreeViewItem();
 }

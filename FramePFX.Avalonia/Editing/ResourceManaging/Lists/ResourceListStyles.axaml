@@ -1,8 +1,8 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:e="clr-namespace:FramePFX.Avalonia.Editing.Resources.Lists"
                     xmlns:av="clr-namespace:FramePFX.Avalonia.AvControls"
-                    xmlns:avs="clr-namespace:FramePFX.Avalonia.Shortcuts.Avalonia">
+                    xmlns:avs="clr-namespace:FramePFX.Avalonia.Shortcuts.Avalonia"
+                    xmlns:e="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging.Lists">
     <ControlTheme x:Key="{x:Type e:ResourceExplorerListBox}" TargetType="{x:Type e:ResourceExplorerListBox}" BasedOn="{StaticResource {x:Type ListBox}}">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderBrush" Value="Transparent"/>

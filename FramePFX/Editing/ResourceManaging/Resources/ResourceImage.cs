@@ -131,7 +131,7 @@ public class ResourceImage : ResourceItem {
         }
     }
 
-    protected override bool OnTryAutoEnable(ResourceLoader loader) {
+    protected override bool OnTryAutoEnable(ResourceLoader? loader) {
         if (string.IsNullOrEmpty(this.FilePath) || this.image != null) {
             return true;
         }
@@ -141,7 +141,7 @@ public class ResourceImage : ResourceItem {
             return true;
         }
         catch (Exception e) {
-            loader?.AddEntry(new InvalidImagePathEntry(this) { FilePath = this.FilePath });
+            loader?.AddEntry(new InvalidImagePathEntry(this));
             return false;
         }
     }

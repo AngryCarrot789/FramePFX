@@ -42,6 +42,7 @@ public class InvalidImagePathEntry : InvalidResourceEntry {
     public event InvalidResourceEntryEventHandler FilePathChanged;
 
     public InvalidImagePathEntry(ResourceImage resource) : base(resource) {
-        this.DisplayName = "Invalid image file path";
+        this.DisplayName = resource.DisplayName ?? "Invalid Image";
+        this.FilePath = resource.FilePath;
     }
 }

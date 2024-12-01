@@ -26,9 +26,10 @@
 
                 <MergeResourceInclude Source="/Editing/Playheads/PlayHeadStyles.axaml"/>
                 <MergeResourceInclude Source="/Editing/GeneralControlStyles.axaml"/>
+                <MergeResourceInclude Source="/Editing/ResourceManaging/Autoloading/InvalidResourceEntryStyles.axaml"/>
                 <MergeResourceInclude Source="/Editing/Timelines/TimelineStyles.axaml"/>
-                <MergeResourceInclude Source="/Editing/Resources/Trees/ResourceTreeStyles.axaml"/>
-                <MergeResourceInclude Source="/Editing/Resources/Lists/ResourceListStyles.axaml"/>
+                <MergeResourceInclude Source="/Editing/ResourceManaging/Trees/ResourceTreeStyles.axaml"/>
+                <MergeResourceInclude Source="/Editing/ResourceManaging/Lists/ResourceListStyles.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
 
@@ -37,12 +38,13 @@
             <Setter Property="BorderBrush" Value="{DynamicResource Button.Static.Border}"/>
             <Setter Property="Foreground" Value="{DynamicResource Button.Static.Foreground}"/>
             <Setter Property="UseLayoutRounding" Value="False"/>
+            <Setter Property="PanToCursorOnUserZoom" Value="True"/>
             <Setter Property="Template">
                 <ControlTemplate TargetType="{x:Type editing:VideoEditorViewPortControl}">
                     <Grid>
                         <c:FreeMoveViewPortV2 x:Name="PART_FreeMoveViewPort"
                                               UseLayoutRounding="False"
-                                              PanToCursorOnUserZoom="True"
+                                              PanToCursorOnUserZoom="{TemplateBinding PanToCursorOnUserZoom}"
                                               HorizontalAlignment="Stretch"
                                               VerticalAlignment="Stretch"
                                               Margin="{TemplateBinding BorderThickness}">

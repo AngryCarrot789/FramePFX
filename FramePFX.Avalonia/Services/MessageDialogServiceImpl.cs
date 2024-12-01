@@ -41,7 +41,7 @@ public class MessageDialogServiceImpl : IMessageDialogService {
     public async Task<MessageBoxResult> ShowMessage(MessageBoxInfo info) {
         Validate.NotNull(info);
 
-        if (App.RZApplicationImpl.TryGetActiveWindow(out Window? window)) {
+        if (RZApplicationImpl.TryGetActiveWindow(out Window? window)) {
             MessageBoxDialog dialog = new MessageBoxDialog {
                 MessageBoxData = info
             };

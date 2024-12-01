@@ -27,7 +27,7 @@ using System.Linq;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Interactivity;
 
-namespace FramePFX.Avalonia.Editing.Resources.Trees;
+namespace FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 
 public class ResourceTreeSelectionManager : ISelectionManager<BaseResource>, ILightSelectionManager<BaseResource> {
     private ResourceTreeView? tree;

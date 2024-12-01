@@ -24,6 +24,7 @@ using FramePFX.FFmpeg;
 using FramePFX.FFmpegWrapper;
 using FramePFX.FFmpegWrapper.Codecs;
 using FramePFX.FFmpegWrapper.Containers;
+using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editing.ResourceManaging.Resources;
@@ -37,10 +38,10 @@ public class ResourceAVMedia : ResourceItem {
         }
     }
 
-    private string filePath;
+    private string? filePath;
     private string loadedFilePath;
 
-    public string FilePath {
+    public string? FilePath {
         get => this.filePath;
         set {
             if (this.filePath == value)
@@ -58,7 +59,7 @@ public class ResourceAVMedia : ResourceItem {
 
     // private readonly DisposalSync<DeocderData> decoderData;
 
-    public event ResourceEventHandler FilePathChanged;
+    public event ResourceEventHandler? FilePathChanged;
 
     public override int ResourceLinkLimit => 1;
 
@@ -76,7 +77,7 @@ public class ResourceAVMedia : ResourceItem {
         });
     }
 
-    protected override bool OnTryAutoEnable(ResourceLoader loader) {
+    protected override bool OnTryAutoEnable(ResourceLoader? loader) {
         if (string.IsNullOrEmpty(this.FilePath)) {
             return true;
         }
@@ -90,6 +91,22 @@ public class ResourceAVMedia : ResourceItem {
         }
 
         return true;
+    }
+
+    public override bool TryEnableForLoaderEntry(InvalidResourceEntry entry) {
+        if (string.IsNullOrEmpty(this.FilePath)) {
+            return true;
+        }
+
+        try {
+            this.LoadMediaFile();
+        }
+        catch (Exception e) {
+            ((InvalidMediaPathEntry) entry).ExceptionMessage = e.GetToString();
+            return false;
+        }
+
+        return base.TryEnableForLoaderEntry(entry);
     }
 
     public unsafe SKSizeI? GetResolution() {

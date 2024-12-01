@@ -37,7 +37,7 @@ public class ParameterBoolPropertyEditorSlot : ParameterPropertyEditorSlot {
                 AutomationUtils.SetDefaultKeyFrameOrAddNew((IAutomatable) this.Handlers[i], base.Parameter, boxedValue);
             }
 
-            this.OnValueChanged();
+            this.OnValueChanged(false, true);
         }
     }
 
@@ -47,6 +47,6 @@ public class ParameterBoolPropertyEditorSlot : ParameterPropertyEditorSlot {
     }
 
     protected override void QueryValueFromHandlers() {
-        CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetCurrentValue((IAutomatable) x), out this.value);
+        this.HasMultipleValues = !CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetCurrentValue((IAutomatable) x), out this.value);
     }
 }

@@ -119,7 +119,7 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
         this.OnDisableCore(user);
         this.IsOnline = false;
         this.IsOfflineByUser = user;
-        this.OnOnlineStateChanged();
+        this.RaiseOnlineStateChanged();
     }
 
     /// <summary>
@@ -172,14 +172,14 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
     /// </para>
     /// </summary>
     /// <param name="loader">The loader to add error entries to. May be null if errors are not processed</param>
-    protected virtual bool OnTryAutoEnable(ResourceLoader loader) {
+    protected virtual bool OnTryAutoEnable(ResourceLoader? loader) {
         return true;
     }
 
     /// <summary>
     /// Called from a resource loader to try and load this resource from an entry this resource created.
     /// This method calls <see cref="EnableCore"/>, which enables this resource. Overriding methods
-    /// should not call the base method if they could not be loaded from the given entry.
+    /// should not call the base method if we could not become loaded/enabled from the given entry.
     /// <para>
     /// If <see cref="OnTryAutoEnable"/> added multiple entries, then you must implement your own way
     /// of identifying which entry is which (e.g. an ID property). Typically, you would just check
@@ -197,7 +197,9 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
     /// Forcefully enables this resource item, if the <see cref="TryAutoEnable"/> method is unnecessary,
     /// e.g. because resources were loaded in a non-standard or direct way
     /// </summary>
-    /// <exception cref="InvalidOperationException"></exception>
+    /// <exception cref="InvalidOperationException">
+    /// Already enabled. Check <see cref="IsOnline"/> first
+    /// </exception>
     protected void EnableCore() {
         if (this.IsOnline) {
             throw new InvalidOperationException("Already enabled");
@@ -205,7 +207,7 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
 
         this.IsOnline = true;
         this.IsOfflineByUser = false;
-        this.OnOnlineStateChanged();
+        this.RaiseOnlineStateChanged();
     }
 
     static ResourceItem() {
@@ -226,8 +228,16 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
         });
     }
 
-    public virtual void OnOnlineStateChanged() {
+    private void RaiseOnlineStateChanged() {
+        this.OnOnlineStateChanged();
         this.OnlineStateChanged?.Invoke(this);
+    }
+
+    /// <summary>
+    /// Invoked when our <see cref="IsOnline"/> state changes. This is called before the <see cref="OnlineStateChanged"/> event
+    /// </summary>
+    protected virtual void OnOnlineStateChanged() {
+        
     }
 
     public override void Destroy() {

@@ -50,7 +50,7 @@ public class FreeMoveViewPortV2 : Border {
     public static readonly StyledProperty<bool> PanToCursorOnUserZoomProperty = AvaloniaProperty.Register<FreeMoveViewPortV2, bool>("PanToCursorOnUserZoom");
     public static readonly DirectProperty<FreeMoveViewPortV2, double> ExtentWidthProperty = AvaloniaProperty.RegisterDirect<FreeMoveViewPortV2, double>("ExtentWidth", o => o.ExtentWidth, null);
     public static readonly DirectProperty<FreeMoveViewPortV2, double> ExtentHeightProperty = AvaloniaProperty.RegisterDirect<FreeMoveViewPortV2, double>("ExtentHeight", o => o.ExtentHeight, null);
-    
+
     private double _extentWidth;
     private double _extentHeight;
 
@@ -58,12 +58,12 @@ public class FreeMoveViewPortV2 : Border {
         get => this._extentWidth;
         set => this.SetAndRaise(ExtentWidthProperty, ref this._extentWidth, value);
     }
-    
+
     public double ExtentHeight {
         get => this._extentHeight;
         set => this.SetAndRaise(ExtentHeightProperty, ref this._extentHeight, value);
     }
-    
+
     public double MinimumZoomScale {
         get => this.GetValue(MinimumZoomScaleProperty);
         set => this.SetValue(MinimumZoomScaleProperty, value);
@@ -101,7 +101,6 @@ public class FreeMoveViewPortV2 : Border {
     public SKAsyncViewPort? AsyncViewPort { get; set; }
 
     public FreeMoveViewPortV2() {
-        this.Loaded += this.OnLoaded;
         this.AddHandler(PointerWheelChangedEvent, this.OnPreviewMouseWheel, RoutingStrategies.Tunnel, false);
         this.Background = Brushes.Transparent;
     }
@@ -129,9 +128,10 @@ public class FreeMoveViewPortV2 : Border {
         this.CanvasTransformContainer = container;
         this.AsyncViewPort = vp;
     }
-    
-    private void OnLoaded(object? sender, RoutedEventArgs e) {
-        this.FitContentToCenter();
+
+    protected override void OnLoaded(RoutedEventArgs e) {
+        base.OnLoaded(e);
+        RZApplication.Instance.Dispatcher.InvokeAsync(this.FitContentToCenter, DispatchPriority.Background);
     }
 
     public void FitContentToCenter() {
@@ -186,6 +186,11 @@ public class FreeMoveViewPortV2 : Border {
                 double side_ratio_h = (pos.Y - (size.Height / 2)) / size.Height;
                 this.VerticalOffset -= pixels_difference_h * side_ratio_h;
             }
+            else {
+                if (this.CanvasTransformContainer?.Child is Control child) {
+                    child.InvalidateMeasure();
+                }
+            }
         }
         else if ((modifiers & KeyModifiers.Shift) != 0) {
             // horizontally offset
@@ -195,7 +200,7 @@ public class FreeMoveViewPortV2 : Border {
             // vertically offset
             this.VerticalOffset += delta * (1d / this.ZoomScale) * 20d;
         }
-
+        
         e.Handled = true;
     }
 
@@ -240,7 +245,7 @@ public class FreeMoveViewPortV2 : Border {
         if (this.CanvasTransformContainer is TransformationContainer container) {
             container.RenderTransform = new ScaleTransform(this.ZoomScale, this.ZoomScale);
             container.RenderTransformOrigin = new RelativePoint(arrangeSize.Width / 2d, arrangeSize.Height / 2d, RelativeUnit.Absolute);
-            
+
             // Size visualSize = new Size(desired.Width * this.ZoomScale, desired.Height * this.ZoomScale);
             // if (visualSize.Width > arrangeSize.Width) {
             //     double diff = visualSize.Width - arrangeSize.Width;

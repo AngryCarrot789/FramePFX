@@ -20,9 +20,12 @@
 using FramePFX.CommandSystem;
 using FramePFX.Editing;
 using FramePFX.Editing.Commands;
+using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.Commands;
+using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Natives;
 using FramePFX.Tasks;
+using FramePFX.Utils;
 
 namespace FramePFX;
 
@@ -109,10 +112,33 @@ public abstract class RZApplication {
         // Editor
         manager.Register("UndoCommand", new UndoCommand());
         manager.Register("RedoCommand", new RedoCommand());
+        manager.Register("commands.editor.NewProjectCommand", new NewProjectCommand());
+        manager.Register("commands.editor.OpenProjectCommand", new OpenProjectCommand());
+        manager.Register("commands.editor.CloseProjectCommand", new CloseProjectCommand());
+        manager.Register("commands.editor.SaveProject", new SaveProjectCommand());
+        manager.Register("commands.editor.SaveProjectAs", new SaveProjectAsCommand());
     }
 
-    protected virtual async Task OnFullyInitialised(VideoEditor editor) {
-        editor.LoadDefaultProject();
+    protected virtual async Task OnFullyInitialised(VideoEditor editor, string[] args) {
+        if (args.Length > 0 && File.Exists(args[0]) && Filters.ProjectType.MatchFilePath(args[0]) == true) {
+            OpenProjectCommand.RunOpenProjectTask(editor, args[0]);
+        }
+        else {
+            // Use to debug why something is causing a crash only in Release mode
+            // string path = ...;
+            // OpenProjectCommand.RunOpenProjectTask(editor, path);
+            editor.LoadDefaultProject();
+        }
+
+        // Testing resource loader dialog
+        // ResourceAVMedia media = new ResourceAVMedia();
+        // media.FilePath = "C:\\sexy";
+        // 
+        // ResourceImage img = new ResourceImage();
+        // img.FilePath = "C:\\sexy2";
+        // 
+        // await this.serviceManager.GetService<IResourceLoaderService>().TryLoadResources(new BaseResource[]{media, img});
+        // media.Destroy();
     }
 
     protected virtual void OnExit(int exitCode) {
@@ -138,5 +164,5 @@ public abstract class RZApplication {
 
     protected static void InternalOnExit(int exitCode) => instance!.OnExit(exitCode);
 
-    protected static Task InternalOnInitialised2(VideoEditor editor) => instance!.OnFullyInitialised(editor);
+    protected static Task InternalOnInitialised2(VideoEditor editor, string[] args) => instance!.OnFullyInitialised(editor, args);
 }

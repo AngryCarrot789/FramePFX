@@ -19,12 +19,12 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using FramePFX.Avalonia.Editing.Resources.Lists;
-using FramePFX.Avalonia.Editing.Resources.Trees;
+using FramePFX.Avalonia.Editing.ResourceManaging.Lists;
+using FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Interactivity;
 
-namespace FramePFX.Avalonia.Editing.Resources;
+namespace FramePFX.Avalonia.Editing.ResourceManaging;
 
 public class TreeListSelectionMergerManager : IResourceSelectionManager {
     public ResourceExplorerListBox ListBox { get; }

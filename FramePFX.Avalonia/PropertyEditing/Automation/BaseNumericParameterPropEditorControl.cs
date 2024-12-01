@@ -20,6 +20,7 @@
 using Avalonia.Controls.Primitives;
 using FramePFX.Avalonia.AvControls.Dragger;
 using FramePFX.Avalonia.Bindings;
+using FramePFX.Avalonia.PropertyEditing.DataTransfer;
 using FramePFX.Avalonia.Utils;
 using FramePFX.PropertyEditing.Automation;
 
@@ -63,6 +64,15 @@ public abstract class BaseNumericParameterPropEditorControl : BaseParameterPrope
         this.dragger = e.NameScope.GetTemplateChild<NumberDragger>("PART_DraggerX");
         this.dragger.ValueChanged += (sender, args) => this.OnControlValueChanged();
         this.valueFormatterBinder.AttachControl(this.dragger);
+        this.UpdateDraggerMultiValueState();
+    }
+    
+    private void UpdateDraggerMultiValueState() {
+        if (!this.IsConnected) {
+            return;
+        }
+
+        BaseNumberDraggerDataParamPropEditorControl.UpdateNumberDragger(this.dragger!, this.SlotModel!.HasMultipleValues, this.SlotModel!.HasProcessedMultipleValuesSinceSetup);
     }
 
     protected override void OnConnected() {
@@ -70,6 +80,10 @@ public abstract class BaseNumericParameterPropEditorControl : BaseParameterPrope
         base.OnConnected();
         NumericParameterPropertyEditorSlot slot = this.SlotModel!;
         slot.ValueChanged += this.OnSlotValueChanged;
+        slot.HasMultipleValuesChanged += this.OnHasMultipleValuesChanged;
+        slot.HasProcessedMultipleValuesChanged += this.OnHasProcessedMultipleValuesChanged;
+        
+        this.UpdateDraggerMultiValueState();
     }
 
     protected override void OnDisconnected() {
@@ -79,6 +93,14 @@ public abstract class BaseNumericParameterPropEditorControl : BaseParameterPrope
         slot.ValueChanged -= this.OnSlotValueChanged;
     }
 
+    private void OnHasMultipleValuesChanged(ParameterPropertyEditorSlot slot) {
+        this.UpdateDraggerMultiValueState();
+    }
+    
+    private void OnHasProcessedMultipleValuesChanged(ParameterPropertyEditorSlot slot) {
+        this.UpdateDraggerMultiValueState();
+    }
+    
     private void OnSlotValueChanged(ParameterPropertyEditorSlot slot) {
         this.OnModelValueChanged();
     }

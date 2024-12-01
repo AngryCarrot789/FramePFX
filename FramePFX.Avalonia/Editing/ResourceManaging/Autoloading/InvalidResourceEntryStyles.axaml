@@ -1,0 +1,38 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:l="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging.Autoloading">
+    <ControlTheme x:Key="{x:Type l:InvalidImagePathEntryControl}" TargetType="{x:Type l:InvalidImagePathEntryControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type l:InvalidImagePathEntryControl}">
+                    <StackPanel Margin="5">
+                        <TextBlock Text="File Path:" Padding="5"/>
+                        <DockPanel>
+                            <Button x:Name="PART_Button" Content="Load" DockPanel.Dock="Right" Margin="5,0,0,0" Width="50"/>    
+                            <TextBox x:Name="PART_TextBox"/>
+                        </DockPanel>
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type l:InvalidMediaPathEntryControl}" TargetType="{x:Type l:InvalidMediaPathEntryControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type l:InvalidMediaPathEntryControl}">
+                    <StackPanel Margin="5">
+                        <TextBlock Text="File Path:" Padding="5"/>
+                        <DockPanel>
+                            <Button x:Name="PART_Button" Content="Load" DockPanel.Dock="Right" Margin="5,0,0,0" Width="50"/>    
+                            <TextBox x:Name="PART_TextBox"/>
+                        </DockPanel>
+                        <Separator Margin="0,5"/>
+                        <TextBlock Text="Full Exception" FontSize="14" FontWeight="Bold" TextDecorations="Underline" Padding="5"/>
+                        <TextBox x:Name="PART_TextBlockErrMsg" IsReadOnly="True"/>
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

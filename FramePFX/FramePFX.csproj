@@ -15,6 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Folder Include="AdvancedMenuService\" />
         <Folder Include="Editing\Contextual\"/>
         <Folder Include="Editing\Timelines\Clips\Core\AVMedia\"/>
     </ItemGroup>

@@ -3,16 +3,16 @@
 <KeyMap Version="1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Keymap.xsd">
     <Group Name="Application">
         <Group Name="EditorWindow">
-            <Shortcut Name="NewProject" CommandId="commands.generic.NewProjectCommand">
+            <Shortcut Name="NewProject" CommandId="commands.editor.NewProjectCommand">
                 <KeyStroke Mods="CTRL" Key="N"/>
             </Shortcut>
-            <Shortcut Name="OpenProject" CommandId="commands.generic.OpenProjectCommand">
+            <Shortcut Name="OpenProject" CommandId="commands.editor.OpenProjectCommand">
                 <KeyStroke Mods="CTRL" Key="O"/>
             </Shortcut>
-            <Shortcut Name="SaveProject" CommandId="commands.generic.SaveProjectCommand">
+            <Shortcut Name="SaveProject" CommandId="commands.editor.SaveProject">
                 <KeyStroke Mods="CTRL" Key="S"/>
             </Shortcut>
-            <Shortcut Name="SaveProjectAs" CommandId="commands.generic.SaveProjectAsCommand">
+            <Shortcut Name="SaveProjectAs" CommandId="commands.editor.SaveProjectAs">
                 <KeyStroke Mods="CTRL+SHIFT" Key="S"/>
             </Shortcut>
             <Shortcut Name="ExportShortcut" CommandId="commands.generic.ExportCommand">

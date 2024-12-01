@@ -37,7 +37,7 @@ public class InputDialogServiceImpl : IUserInputDialogService {
     public static async Task<bool?> ShowDialogAsync(UserInputInfo info) {
         Validate.NotNull(info);
 
-        if (App.RZApplicationImpl.TryGetActiveWindow(out Window? window)) {
+        if (RZApplicationImpl.TryGetActiveWindow(out Window? window)) {
             UserInputDialog dialog = new UserInputDialog {
                 UserInputData = info
             };

@@ -55,7 +55,6 @@
 
     <ItemGroup>
         <AdditionalFiles Include="AvControls\Dragger\NumberDraggerStyles.axaml" />
-        <AdditionalFiles Include="Services\Messages\Classic\MessageBoxWindow.axaml" />
         <AdditionalFiles Include="Services\Messages\Controls\DoubleUserInputControl.axaml" />
         <AdditionalFiles Include="Services\Messages\Controls\MessageBoxDialog.axaml" />
         <AdditionalFiles Include="Services\Messages\Controls\SingleUserInputControl.axaml" />

@@ -27,7 +27,7 @@ using Avalonia.Collections;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Interactivity;
 
-namespace FramePFX.Avalonia.Editing.Resources.Lists;
+namespace FramePFX.Avalonia.Editing.ResourceManaging.Lists;
 
 public class ResourceExplorerSelectionManager : ISelectionManager<BaseResource>, ILightSelectionManager<BaseResource> {
     private readonly AvaloniaList<object> mySelectionList;

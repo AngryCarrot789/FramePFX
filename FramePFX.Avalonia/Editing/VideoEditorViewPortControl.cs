@@ -50,6 +50,7 @@ namespace FramePFX.Avalonia.Editing;
 public class VideoEditorViewPortControl : TemplatedControl {
     public static readonly StyledProperty<VideoEditor?> VideoEditorProperty = AvaloniaProperty.Register<VideoEditorViewPortControl, VideoEditor?>(nameof(VideoEditor));
     public static readonly StyledProperty<bool> DrawSelectedElementsProperty = AvaloniaProperty.Register<VideoEditorViewPortControl, bool>(nameof(DrawSelectedElements));
+    public static readonly StyledProperty<bool> PanToCursorOnUserZoomProperty = FreeMoveViewPortV2.PanToCursorOnUserZoomProperty.AddOwner<VideoEditorViewPortControl>();
 
     public VideoEditor? VideoEditor {
         get => this.GetValue(VideoEditorProperty);
@@ -59,6 +60,11 @@ public class VideoEditorViewPortControl : TemplatedControl {
     public bool DrawSelectedElements {
         get => this.GetValue(DrawSelectedElementsProperty);
         set => this.SetValue(DrawSelectedElementsProperty, value);
+    }
+    
+    public bool PanToCursorOnUserZoom {
+        get => this.GetValue(PanToCursorOnUserZoomProperty);
+        set => this.SetValue(PanToCursorOnUserZoomProperty, value);
     }
 
     public EditorWindow Owner { get; set; }

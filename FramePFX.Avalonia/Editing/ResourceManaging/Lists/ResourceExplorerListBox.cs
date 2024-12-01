@@ -32,7 +32,7 @@ using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
 using ResourceManager = FramePFX.Editing.ResourceManaging.ResourceManager;
 
-namespace FramePFX.Avalonia.Editing.Resources.Lists;
+namespace FramePFX.Avalonia.Editing.ResourceManaging.Lists;
 
 public class ResourceExplorerListBox : ListBox, IResourceListElement {
     public static readonly StyledProperty<ResourceManager?> ResourceManagerProperty = AvaloniaProperty.Register<ResourceExplorerListBox, ResourceManager?>(nameof(ResourceManager));

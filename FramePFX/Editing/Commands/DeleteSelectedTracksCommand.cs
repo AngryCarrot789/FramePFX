@@ -32,7 +32,7 @@ public class DeleteSelectedTracksCommand : Command {
                 return true;
             }
         }
-        
+
         if (DataKeys.TrackKey.TryGetContext(data, out Track? track)) {
             tracks = new Track[] { track };
             return true;
@@ -41,7 +41,7 @@ public class DeleteSelectedTracksCommand : Command {
         tracks = null;
         return false;
     }
-    
+
     public override Executability CanExecute(CommandEventArgs e) {
         return GetTrackSelection(e.ContextData, out _) ? Executability.Valid : Executability.Invalid;
     }

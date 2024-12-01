@@ -25,7 +25,7 @@ using FramePFX.Avalonia.Interactivity;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Avalonia.Editing.Resources.Lists;
+namespace FramePFX.Avalonia.Editing.ResourceManaging.Lists;
 
 public class ResourceExplorerListBoxItem : ListBoxItem {
     public static readonly DirectProperty<ResourceExplorerListBoxItem, bool> IsResourceOnlineProperty = AvaloniaProperty.RegisterDirect<ResourceExplorerListBoxItem, bool>(nameof(IsResourceOnline), o => o.IsResourceOnline);

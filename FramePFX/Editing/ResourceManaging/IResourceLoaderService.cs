@@ -23,5 +23,11 @@ namespace FramePFX.Editing.ResourceManaging;
 /// A service for a user interface for loading resources
 /// </summary>
 public interface IResourceLoaderService {
-    Task TryLoadResources(BaseResource[] resources);
+    Task<bool> TryLoadResources(BaseResource[] resources);
+}
+
+public static class ResourceLoaderServiceExtensions {
+    public static Task<bool> TryLoadResource(this IResourceLoaderService resourceLoaderService, BaseResource resource) {
+        return resourceLoaderService.TryLoadResources(new BaseResource[] { resource });
+    }
 }

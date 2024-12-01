@@ -316,7 +316,7 @@ public class Project : IDestroy {
 
     public static async Task<bool?> SaveProjectAs(Project project, IActivityProgress progress) {
         const string message = "Specify a file path for the project file. Any project data will be stored in the same folder, so it's best to create a project-specific folder";
-        string? filePath = await IoC.FilePickService.SaveFile(message, Filters.ProjectType, project.ProjectFilePath);
+        string? filePath = await IoC.FilePickService.SaveFile(message, Filters.ProjectTypeAndAll, project.ProjectFilePath);
         if (filePath == null) {
             return null;
         }

@@ -52,7 +52,7 @@ public class TrackControlSurfaceItem : ContentControl {
     private bool wasSelectedOnPress;
     private DragState dragState;
     internal IPointer? initiatedDragPointer;
-    private bool isMovingBetweenTracks;
+    private bool isMovingBetweenTracks, hasMovedTrackExFlag;
     private ContentPresenter PART_ContentPresenter;
 
     public Track? Track {
@@ -177,9 +177,20 @@ public class TrackControlSurfaceItem : ContentControl {
             if (state < DragState.Initiated) {
                 this.initiatedDragPointer = null;
             }
+            
+            if (state == DragState.Running) {
+                this.Cursor = new Cursor(StandardCursorType.SizeNorthSouth);
+            }
+            else {
+                this.ClearValue(CursorProperty);
+            }
 
             this.dragState = state;
         }
+    }
+
+    private bool IsHitObjectOnUs(object? source) {
+        return source != null && (ReferenceEquals(source, this) || ReferenceEquals(source, this.PART_ContentPresenter));
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e) {
@@ -190,7 +201,7 @@ public class TrackControlSurfaceItem : ContentControl {
 
         // The mouse didn't click the track area, maybe it clicked
         // the toggle visibility button, so ignore the event
-        if (!ReferenceEquals(e.Source, this.PART_ContentPresenter)) {
+        if (!this.IsHitObjectOnUs(e.Source)) {
             return;
         }
 
@@ -244,7 +255,7 @@ public class TrackControlSurfaceItem : ContentControl {
         }
 
         PointerPoint point = e.GetCurrentPoint(this);
-        if (point.Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonPressed) {
+        if (point.Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonReleased) {
             return;
         }
 
@@ -289,7 +300,7 @@ public class TrackControlSurfaceItem : ContentControl {
             return;
         }
         
-        if (!ReferenceEquals(e.Source, this.PART_ContentPresenter)) {
+        if (!this.IsHitObjectOnUs(e.Source)) {
             return;
         }
 
@@ -339,8 +350,18 @@ public class TrackControlSurfaceItem : ContentControl {
             return;
         }
 
+        // TODO: Even when captured, we need to wait until the mouse cursor comes into view again
+        // Have 3 tracks, minimize the middle one and drag between the top and bottom tracks,
+        // The middle track you're dragging will glitch around everywhere each mouse move event
+        // However it works fine when tracks are all the same height
         Vector mPosDifRel = mPos - this.clickPos;
         if (hasMovedY && !this.isMovingBetweenTracks && Math.Abs(mPosDifRel.Y) >= 1.0d) {
+            // This doesn't work so good
+            // if (this.hasMovedTrackExFlag && (mPos.X < 0 || mPos.X > this.Bounds.Width || mPos.Y < 0 || mPos.Y > this.Bounds.Height)) {
+            //     return;
+            // }
+
+            this.hasMovedTrackExFlag = false;
             double totalHeight = 0.0;
             List<TrackControlSurfaceItem> tracks = this.TrackList!.GetTracks().ToList();
             Point mPosTL = e.GetPosition(this.TrackList);
@@ -350,6 +371,7 @@ public class TrackControlSurfaceItem : ContentControl {
                     Track? newTrack = targetLocation.Track;
                     if (newTrack != null && !ReferenceEquals(this.Track, newTrack)) {
                         this.isMovingBetweenTracks = true;
+                        this.hasMovedTrackExFlag = true;
                         int oldIndex = this.Track!.IndexInTimeline;
                         this.Track!.Timeline!.MoveTrackIndex(oldIndex, targetIndex);
                         break;

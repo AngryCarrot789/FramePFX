@@ -29,6 +29,9 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Avalonia.AdvancedMenuService;
 
+/// <summary>
+/// A menu that captures the context data of the focused element just before the menu is opened
+/// </summary>
 public class ContextCapturingMenu : Menu {
     private static readonly AttachedProperty<IContextData?> CapturedContextProperty = AvaloniaProperty.RegisterAttached<ContextCapturingMenu, AvaloniaObject, IContextData?>("CapturedContext", inherits:true);
 
@@ -45,14 +48,12 @@ public class ContextCapturingMenu : Menu {
     public override void Close() {
         bool wasOpen = this.IsOpen;
         base.Close();
-        if (wasOpen) {
+        if (wasOpen && this.lastFocus != null) {
             this.ClearValue(CapturedContextProperty);
             DataManager.ClearContextData(this);
             Debug.WriteLine("Cleared captured data context");
-            if (this.lastFocus != null) {
-                this.lastFocus.Focus(NavigationMethod.Unspecified, KeyModifiers.None);
-                this.lastFocus = null;
-            }
+            this.lastFocus.Focus();
+            this.lastFocus = null;
         }
     }
 
@@ -73,7 +74,6 @@ public class ContextCapturingMenu : Menu {
     }
 
     protected override void OnLostFocus(RoutedEventArgs e) {
-        this.lastFocus = null;
         base.OnLostFocus(e);
     }
 

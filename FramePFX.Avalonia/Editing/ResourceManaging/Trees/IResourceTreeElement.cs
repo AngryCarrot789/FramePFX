@@ -19,7 +19,7 @@
 
 using FramePFX.Editing.ResourceManaging;
 
-namespace FramePFX.Avalonia.Editing.Resources.Trees;
+namespace FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 
 /// <summary>
 /// An interface for shared properties between a <see cref="ResourceTreeView"/> and <see cref="ResourceTreeViewItem"/>

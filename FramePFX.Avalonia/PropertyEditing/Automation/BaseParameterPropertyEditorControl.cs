@@ -103,6 +103,7 @@ public abstract class BaseParameterPropertyEditorControl : BasePropEditControlCo
                 this.singleHandlerSequence = null;
             }
 
+            this.UpdateLEDColour(null);
             this.keyFrameTools!.AutomationSequence = null;
         }
     }
@@ -120,9 +121,15 @@ public abstract class BaseParameterPropertyEditorControl : BasePropEditControlCo
     }
 
     private void UpdateLEDColour(AutomationSequence? sequence) {
-        if (this.automationLed != null && sequence != null) {
-            this.automationLed.IsVisible = !sequence.IsEmpty;
-            this.automationLed.Fill = sequence.IsOverrideEnabled ? Brushes.Gray : this.AutomationLedBrush;
+        if (this.automationLed != null) {
+            if (sequence != null) {
+                this.automationLed.IsVisible = !sequence.IsEmpty;
+                this.automationLed.Fill = sequence.IsOverrideEnabled ? Brushes.Gray : this.AutomationLedBrush;
+            }
+            else {
+                this.automationLed.IsVisible = false;
+                this.automationLed.Fill = null;  
+            }
         }
     }
 }

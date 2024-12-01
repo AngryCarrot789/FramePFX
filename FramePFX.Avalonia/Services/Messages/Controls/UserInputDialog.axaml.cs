@@ -19,6 +19,7 @@
 
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using FramePFX.Avalonia.Bindings;
@@ -63,6 +64,13 @@ public partial class UserInputDialog : WindowEx {
         
         this.PART_ConfirmButton.Click += this.OnConfirmButtonClicked;
         this.PART_CancelButton.Click += this.OnCancelButtonClicked;
+    }
+
+    protected override void OnKeyDown(KeyEventArgs e) {
+        base.OnKeyDown(e);
+        if (!e.Handled && e.Key == Key.Escape) {
+            this.TryCloseDialog(false);
+        }
     }
 
     static UserInputDialog() {

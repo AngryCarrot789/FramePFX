@@ -42,7 +42,7 @@ public class ParameterDoublePropertyEditorSlot : NumericParameterPropertyEditorS
                 AutomationUtils.SetDefaultKeyFrameOrAddNew(obj, parameter, newValue);
             }
 
-            this.OnValueChanged();
+            this.OnValueChanged(this.lastQueryHasMultipleValues && useAddition, true);
         }
     }
 
@@ -61,6 +61,6 @@ public class ParameterDoublePropertyEditorSlot : NumericParameterPropertyEditorS
     }
 
     protected override void QueryValueFromHandlers() {
-        this.value = CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetCurrentValue((IAutomatable) x), out double d) ? d : default;
+        this.HasMultipleValues = !CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetCurrentValue((IAutomatable) x), out this.value);
     }
 }

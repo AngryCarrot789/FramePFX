@@ -78,8 +78,6 @@ public class PropertyEditorControl : TemplatedControl {
             this.RootGroupControl.DisconnectModel();
         }
 
-        this.InvalidateMeasure();
-        this.UpdateLayout();
         if (newEditor != null) {
             this.RootGroupControl.ConnectModel(this, newEditor.Root);
         }

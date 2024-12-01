@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.Editing.ResourceManaging;
 using FramePFX.Services.ColourPicking;
 using FramePFX.Services.FilePicking;
 using FramePFX.Services.Messaging;
@@ -42,6 +43,8 @@ public static class IoC {
     public static IFilePickDialogService FilePickService => RZApplication.Instance.Services.GetService<IFilePickDialogService>();
 
     public static IColourPickerService ColourPickerService => RZApplication.Instance.Services.GetService<IColourPickerService>();
+    
+    public static IResourceLoaderService ResourceLoaderService => RZApplication.Instance.Services.GetService<IResourceLoaderService>();
 
     /// <summary>
     /// Gets the application's task manager

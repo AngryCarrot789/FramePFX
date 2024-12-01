@@ -29,7 +29,10 @@ public delegate void ParameterPropertyEditorSlotEventHandler(ParameterPropertyEd
 
 public abstract class ParameterPropertyEditorSlot : PropertyEditorSlot {
     private string displayName;
-
+    private bool hasMultipleValues;
+    private bool hasProcessedMultipleValuesSinceSetup;
+    protected bool lastQueryHasMultipleValues;
+    
     protected IAutomatable SingleHandler => (IAutomatable) this.Handlers[0];
 
     public Parameter Parameter { get; }
@@ -43,11 +46,46 @@ public abstract class ParameterPropertyEditorSlot : PropertyEditorSlot {
             this.DisplayNameChanged?.Invoke(this);
         }
     }
+    
+    /// <summary>
+    /// Gets whether the slot has multiple handlers and they all have different underlying values.
+    /// This is used to present some sort of signal in the UI warning the user before they try to modify it.
+    /// This state must be updated manually by derived classes when the values are no longer different
+    /// </summary>
+    public bool HasMultipleValues {
+        get => this.hasMultipleValues;
+        protected set {
+            if (this.hasMultipleValues == value)
+                return;
+
+            if (value)
+                this.HasProcessedMultipleValuesSinceSetup = false;
+            this.hasMultipleValues = value;
+            this.HasMultipleValuesChanged?.Invoke(this);
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets whether the <see cref="HasMultipleValues"/> has been
+    /// updated since <see cref="BasePropertyEditorItem.IsCurrentlyApplicable"/> became true
+    /// </summary>
+    public bool HasProcessedMultipleValuesSinceSetup {
+        get => this.hasProcessedMultipleValuesSinceSetup;
+        set {
+            if (this.hasProcessedMultipleValuesSinceSetup == value)
+                return;
+
+            this.hasProcessedMultipleValuesSinceSetup = value;
+            this.HasProcessedMultipleValuesChanged?.Invoke(this);
+        }
+    }
 
     public override bool IsSelectable => true;
 
     public event ParameterPropertyEditorSlotEventHandler DisplayNameChanged;
     public event ParameterPropertyEditorSlotEventHandler ValueChanged;
+    public event ParameterPropertyEditorSlotEventHandler HasMultipleValuesChanged;
+    public event ParameterPropertyEditorSlotEventHandler HasProcessedMultipleValuesChanged;
 
     protected ParameterPropertyEditorSlot(Parameter parameter, Type applicableType, string displayName = null) : base(applicableType) {
         this.Parameter = parameter ?? throw new ArgumentNullException(nameof(parameter));
@@ -72,6 +110,7 @@ public abstract class ParameterPropertyEditorSlot : PropertyEditorSlot {
         if (this.IsSingleHandler)
             this.SingleHandler.AutomationData[this.Parameter].ParameterChanged += this.OnValueForSingleHandlerChanged;
         this.QueryValueFromHandlers();
+        this.lastQueryHasMultipleValues = this.HasMultipleValues;
         this.OnValueChanged();
     }
 
@@ -83,6 +122,7 @@ public abstract class ParameterPropertyEditorSlot : PropertyEditorSlot {
 
     private void OnValueForSingleHandlerChanged(AutomationSequence sequence) {
         this.QueryValueFromHandlers();
+        this.lastQueryHasMultipleValues = this.HasMultipleValues;
         this.OnValueChanged();
     }
 
@@ -92,7 +132,11 @@ public abstract class ParameterPropertyEditorSlot : PropertyEditorSlot {
     /// </summary>
     protected abstract void QueryValueFromHandlers();
 
-    protected void OnValueChanged() {
+    protected void OnValueChanged(bool? hasMultipleValues = null, bool? hasProcessedMultiValueSinceSetup = null) {
         this.ValueChanged?.Invoke(this);
+        if (hasMultipleValues.HasValue)
+            this.HasMultipleValues = hasMultipleValues.Value;
+        if (hasProcessedMultiValueSinceSetup.HasValue)
+            this.HasProcessedMultipleValuesSinceSetup = hasProcessedMultiValueSinceSetup.Value;
     }
 }

@@ -21,8 +21,8 @@ using System;
 using Avalonia;
 using Avalonia.Controls.Primitives;
 using FramePFX.Avalonia.Bindings;
-using FramePFX.Avalonia.Editing.Resources.Lists;
-using FramePFX.Avalonia.Editing.Resources.Trees;
+using FramePFX.Avalonia.Editing.ResourceManaging.Lists;
+using FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Utils;
 using FramePFX.Editing.ResourceManaging;
@@ -30,7 +30,7 @@ using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Interactivity.Contexts;
 using IResourceTreeElement = FramePFX.Editing.ResourceManaging.UI.IResourceTreeElement;
 
-namespace FramePFX.Avalonia.Editing.Resources;
+namespace FramePFX.Avalonia.Editing.ResourceManaging;
 
 public class ResourcePanelControl : TemplatedControl, IResourceManagerElement {
     public static readonly StyledProperty<ResourceManager?> ResourceManagerProperty = AvaloniaProperty.Register<ResourcePanelControl, ResourceManager?>(nameof(ResourceManager));

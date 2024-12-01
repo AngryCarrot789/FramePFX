@@ -25,7 +25,7 @@ namespace FramePFX.Tasks;
 public delegate void TaskManagerTaskEventHandler(TaskManager taskManager, ActivityTask task, int index);
 
 public class TaskManager : IDisposable {
-    public static TaskManager Instance { get; } = new TaskManager();
+    public static TaskManager Instance => IoC.TaskManager;
 
     // private readonly ThreadLocal<ActivityTask> threadToTask;
     private readonly AsyncLocal<ActivityTask?> threadToTask;

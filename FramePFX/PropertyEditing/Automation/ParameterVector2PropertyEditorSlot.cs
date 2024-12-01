@@ -47,7 +47,7 @@ public class ParameterVector2PropertyEditorSlot : ParameterPropertyEditorSlot {
                 AutomationUtils.SetDefaultKeyFrameOrAddNew(obj, parameter, newValue);
             }
 
-            this.OnValueChanged();
+            this.OnValueChanged(this.lastQueryHasMultipleValues && useAddition, true);
         }
     }
 
@@ -74,6 +74,6 @@ public class ParameterVector2PropertyEditorSlot : ParameterPropertyEditorSlot {
     }
 
     protected override void QueryValueFromHandlers() {
-        this.value = CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetCurrentValue((IAutomatable) x), out Vector2 d) ? d : default;
+        this.HasMultipleValues = !CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetCurrentValue((IAutomatable) x), out this.value);
     }
 }

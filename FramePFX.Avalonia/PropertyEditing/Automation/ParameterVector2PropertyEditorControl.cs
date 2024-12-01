@@ -21,6 +21,7 @@ using System.Numerics;
 using Avalonia.Controls.Primitives;
 using FramePFX.Avalonia.AvControls.Dragger;
 using FramePFX.Avalonia.Bindings;
+using FramePFX.Avalonia.PropertyEditing.DataTransfer;
 using FramePFX.Avalonia.Utils;
 using FramePFX.Editing.Automation.Params;
 using FramePFX.PropertyEditing.Automation;
@@ -52,8 +53,19 @@ public class ParameterVector2PropertyEditorControl : BaseParameterPropertyEditor
         this.draggerY = e.NameScope.GetTemplateChild<NumberDragger>("PART_DraggerY");
         this.draggerX.ValueChanged += (sender, args) => this.OnControlValueChanged();
         this.draggerY.ValueChanged += (sender, args) => this.OnControlValueChanged();
+        this.UpdateDraggerMultiValueState();
     }
 
+    private void UpdateDraggerMultiValueState() {
+        if (!this.IsConnected) {
+            return;
+        }
+
+        bool flag = this.SlotModel!.HasMultipleValues, flag2 = this.SlotModel!.HasProcessedMultipleValuesSinceSetup;
+        BaseNumberDraggerDataParamPropEditorControl.UpdateNumberDragger(this.draggerX, flag, flag2);
+        BaseNumberDraggerDataParamPropEditorControl.UpdateNumberDragger(this.draggerY, flag, flag2);
+    }
+    
     protected void UpdateControlValue() {
         Vector2 value = this.SlotModel!.Value;
         this.draggerX.Value = value.X;
@@ -87,6 +99,8 @@ public class ParameterVector2PropertyEditorControl : BaseParameterPropertyEditor
         this.valueFormatterBinder.AttachModel(slot);
         base.OnConnected();
         slot.ValueChanged += this.OnSlotValueChanged;
+        slot.HasMultipleValuesChanged += this.OnHasMultipleValuesChanged;
+        slot.HasProcessedMultipleValuesChanged += this.OnHasProcessedMultipleValuesChanged;
 
         ParameterDescriptorVector2 desc = slot.Parameter.Descriptor;
         this.draggerX.Minimum = desc.Minimum.X;
@@ -106,8 +120,18 @@ public class ParameterVector2PropertyEditorControl : BaseParameterPropertyEditor
         base.OnDisconnected();
         ParameterVector2PropertyEditorSlot slot = this.SlotModel!;
         slot.ValueChanged -= this.OnSlotValueChanged;
+        slot.HasMultipleValuesChanged += this.OnHasMultipleValuesChanged;
+        slot.HasProcessedMultipleValuesChanged += this.OnHasProcessedMultipleValuesChanged;
     }
 
+    private void OnHasMultipleValuesChanged(ParameterPropertyEditorSlot slot) {
+        this.UpdateDraggerMultiValueState();
+    }
+    
+    private void OnHasProcessedMultipleValuesChanged(ParameterPropertyEditorSlot slot) {
+        this.UpdateDraggerMultiValueState();
+    }
+    
     private void OnSlotValueChanged(ParameterPropertyEditorSlot slot) {
         this.OnModelValueChanged();
     }

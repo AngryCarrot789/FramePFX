@@ -17,20 +17,18 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.Utils;
-
 namespace FramePFX.Editing.ResourceManaging.Autoloading;
 
 public delegate void InvalidResourceEntryEventHandler(InvalidResourceEntry entry);
 
 public abstract class InvalidResourceEntry {
-    private string displayName;
+    private string? displayName;
 
     public ResourceItem Resource { get; }
 
-    public ResourceLoader ResourceLoader { get; private set; }
+    public ResourceLoader? ResourceLoader { get; private set; }
 
-    public string DisplayName {
+    public string? DisplayName {
         get => this.displayName;
         set {
             if (this.displayName == value)
@@ -40,21 +38,17 @@ public abstract class InvalidResourceEntry {
         }
     }
 
-    public event InvalidResourceEntryEventHandler DisplayNameChanged;
+    public event InvalidResourceEntryEventHandler? DisplayNameChanged;
 
     protected InvalidResourceEntry(ResourceItem resource) {
         this.Resource = resource;
     }
 
     public bool TryLoad() {
-        if (this.ResourceLoader == null) {
-            throw new InvalidOperationException("No loader");
-        }
-
-        return this.ResourceLoader.TryLoadEntry(this.ResourceLoader.Entries.IndexOf(this));
+        return this.ResourceLoader?.TryLoadEntry(this) ?? throw new InvalidOperationException("No loader");
     }
 
-    internal static void InternalSetLoader(InvalidResourceEntry resource, ResourceLoader loader) {
+    internal static void InternalSetLoader(InvalidResourceEntry resource, ResourceLoader? loader) {
         resource.ResourceLoader = loader;
     }
 }

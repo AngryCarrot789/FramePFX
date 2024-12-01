@@ -31,6 +31,7 @@ using FramePFX.Editing.UI;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.PropertyEditing;
+using FramePFX.Tasks;
 using FramePFX.Utils;
 
 namespace FramePFX.Avalonia;
@@ -44,21 +45,26 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
     }
 
     public ITimelineElement? ActiveTimeline => this.isFakedActiveTimelineNull ? null : this.TheTimeline;
-    
+
     public event VideoEditorActiveTimelineChanged? ActiveTimelineChanged;
 
     private readonly ContextData contextData = new ContextData();
     private bool doNotInvalidateContext;
     private bool isFakedActiveTimelineNull = true;
     private readonly NumberAverager renderTimeAverager;
+    private ActivityTask? primaryActivity;
 
     public EditorWindow() {
         this.InitializeComponent();
-        
+
         // average 5 samples. Will take a second to catch up when playing at 5 fps but meh
         this.renderTimeAverager = new NumberAverager(5);
         this.TheTimeline.VideoEditor = this;
         DataManager.SetContextData(this, this.contextData.Set(DataKeys.TopLevelHostKey, this).Set(DataKeys.VideoEditorUIKey, this));
+
+        TaskManager taskManager = IoC.TaskManager;
+        taskManager.TaskStarted += this.OnTaskStarted;
+        taskManager.TaskCompleted += this.OnTaskCompleted;
     }
 
     static EditorWindow() {
@@ -68,11 +74,12 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
     protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
         this.contextData.Set(DataKeys.ResourceManagerUIKey, this.PART_ResourcePanelControl);
-        
+
         DataManager.InvalidateInheritedContext(this);
-        
+
         this.ThePropertyEditor.ApplyTemplate();
         this.ThePropertyEditor.PropertyEditor = VideoEditorPropertyEditor.Instance;
+        this.PART_ActiveBackgroundTaskGrid.IsVisible = false;
     }
 
     private void OnVideoEditorChanged(VideoEditor? oldEditor, VideoEditor? newEditor) {
@@ -121,15 +128,19 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
         this.PART_ResourcePanelControl.ResourceManager = newProject?.ResourceManager;
         this.OnActiveTimelineChanged(oldProject?.ActiveTimeline, newProject?.ActiveTimeline);
         this.UpdateWindowTitle(newProject);
-        
+
         // this.contextData.Set(DataKeys.ResourceTreeSelectionManagerKey, this.PART_ResourcePanelControl.MultiSelectionManager);
         // this.contextData.Set(DataKeys.TrackSelectionManagerKey, newProject);
         // this.contextData.Set(DataKeys.ClipSelectionManagerKey, newProject);
         // this.contextData.Set(DataKeys.TimelineClipSelectionManagerKey, newProject);
         if (!this.doNotInvalidateContext)
             DataManager.InvalidateInheritedContext(this);
-        
+
         VideoEditorPropertyEditorHelper.OnProjectChanged();
+        
+        IoC.Dispatcher.InvokeAsync(() => {
+            this.PART_ViewPort?.PART_FreeMoveViewPort?.FitContentToCenter();
+        }, DispatchPriority.Background);
     }
 
     private void OnActiveTimelineChanged(Project project, Timeline? oldTimeline, Timeline? newTimeline) {
@@ -152,12 +163,13 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
             if (newTimeline is CompositionTimeline newComposition) {
                 newComposition.Resource.DisplayNameChanged += this.OnCompositionTimelineDisplayNameChanged;
             }
-            
+
             this.isFakedActiveTimelineNull = false;
             this.ActiveTimelineChanged?.Invoke(this, null, this.ActiveTimeline);
         }
 
         this.TheTimeline.Timeline = newTimeline;
+        this.UpdateTimelineName();
         this.PART_CloseTimelineButton.IsEnabled = newTimeline is Timeline timeline && timeline is CompositionTimeline;
     }
 
@@ -179,7 +191,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
     }
 
     private void OnCompositionTimelineDisplayNameChanged(IDisplayName sender, string oldName, string newName) {
-        // this.UpdateTimelineName();
+        this.UpdateTimelineName();
     }
 
     private void OnProjectFilePathChanged(Project project) {
@@ -192,6 +204,20 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
 
     private void OnProjectModifiedChanged(Project project) {
         this.UpdateWindowTitle(project);
+    }
+
+    private void UpdateTimelineName() {
+        Timeline? timeline = this.TheTimeline?.Timeline;
+        if (timeline == null) {
+            this.PART_TimelineName.Text = "No timeline loaded";
+        }
+        else if (timeline is CompositionTimeline composition) {
+            string text = composition.Resource.DisplayName;
+            this.PART_TimelineName.Text = string.IsNullOrWhiteSpace(text) ? "Unnamed Composition Timeline" : text;
+        }
+        else {
+            this.PART_TimelineName.Text = "Project Timeline";
+        }
     }
 
     private void UpdateWindowTitle(Project? project) {
@@ -217,4 +243,64 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
     protected override void OnPointerMoved(PointerEventArgs e) {
         base.OnPointerMoved(e);
     }
+
+    private void FitToScale_Click(object? sender, RoutedEventArgs e) {
+        this.PART_ViewPort?.PART_FreeMoveViewPort?.FitContentToCenter();
+    }
+
+    #region Task Manager and Activity System
+
+    private void OnTaskStarted(TaskManager manager, ActivityTask task, int index) {
+        if (this.primaryActivity == null || this.primaryActivity.IsCompleted) {
+            this.SetActivityTask(task);
+        }
+    }
+
+    private void OnTaskCompleted(TaskManager manager, ActivityTask task, int index) {
+        if (task == this.primaryActivity) {
+            // try to access next task
+            this.SetActivityTask(manager.ActiveTasks.Count > 0 ? manager.ActiveTasks[0] : null);
+        }
+    }
+
+    private void SetActivityTask(ActivityTask? task) {
+        IActivityProgress? prog = null;
+        if (this.primaryActivity != null) {
+            prog = this.primaryActivity.Progress;
+            prog.TextChanged -= this.OnPrimaryActivityTextChanged;
+            prog.CompletionValueChanged -= this.OnPrimaryActionCompletionValueChanged;
+            prog.IsIndeterminateChanged -= this.OnPrimaryActivityIndeterminateChanged;
+            prog = null;
+        }
+
+        this.primaryActivity = task;
+        if (task != null) {
+            prog = task.Progress;
+            prog.TextChanged += this.OnPrimaryActivityTextChanged;
+            prog.CompletionValueChanged += this.OnPrimaryActionCompletionValueChanged;
+            prog.IsIndeterminateChanged += this.OnPrimaryActivityIndeterminateChanged;
+            this.PART_ActiveBackgroundTaskGrid.IsVisible = true;
+        }
+        else {
+            this.PART_ActiveBackgroundTaskGrid.IsVisible = false;
+        }
+
+        this.OnPrimaryActivityTextChanged(prog);
+        this.OnPrimaryActionCompletionValueChanged(prog);
+        this.OnPrimaryActivityIndeterminateChanged(prog);
+    }
+
+    private void OnPrimaryActivityTextChanged(IActivityProgress? tracker) {
+        IoC.Dispatcher.Invoke(() => this.PART_TaskCaption.Text = tracker?.Text ?? "", DispatchPriority.Loaded);
+    }
+
+    private void OnPrimaryActionCompletionValueChanged(IActivityProgress? tracker) {
+        IoC.Dispatcher.Invoke(() => this.PART_ActiveBgProgress.Value = tracker?.TotalCompletion ?? 0.0, DispatchPriority.Loaded);
+    }
+
+    private void OnPrimaryActivityIndeterminateChanged(IActivityProgress? tracker) {
+        IoC.Dispatcher.Invoke(() => this.PART_ActiveBgProgress.IsIndeterminate = tracker?.IsIndeterminate ?? false, DispatchPriority.Loaded);
+    }
+
+    #endregion
 }

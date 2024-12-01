@@ -18,51 +18,74 @@
 // 
 
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using FramePFX.Services.FilePicking;
+using FramePFX.Utils;
 using Path = System.IO.Path;
 
 namespace FramePFX.Avalonia.Services.Files;
 
 public class FilePickDialogServiceImpl : IFilePickDialogService {
-    public async Task<string?> OpenFile(string? message, string? filter = null, string? initialPath = null) {
-        if (!App.RZApplicationImpl.TryGetActiveWindow(out Window? window)) {
+    public static IReadOnlyList<FilePickerFileType>? ConvertFilters(IEnumerable<FileFilter>? filters) {
+        if (filters == null)
+            return null;
+        
+        return filters.Select(x => new FilePickerFileType(x.Name) {
+            Patterns = x.Patterns,
+            AppleUniformTypeIdentifiers = x.AppleUniformTypeIdentifiers,
+            MimeTypes = x.MimeTypes,
+        }).ToImmutableList();
+    }
+    
+    public async Task<string?> OpenFile(string? message, IEnumerable<FileFilter>? filters = null, string? initialPath = null) {
+        if (!RZApplicationImpl.TryGetActiveWindow(out Window? window)) {
             return null;
         }
         
         string? fileName = initialPath != null ? Path.GetFileName(initialPath) : initialPath;
         IReadOnlyList<IStorageFile> list = await window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions() {
-            Title = message ?? "Pick a file", AllowMultiple = false, SuggestedFileName = fileName
+            Title = message ?? "Pick a file", 
+            AllowMultiple = false, 
+            SuggestedFileName = fileName, 
+            FileTypeFilter = ConvertFilters(filters)
         });
 
         return list.Count != 1 ? null : list[0].Path.AbsolutePath;
     }
 
-    public async Task<string[]?> OpenMultipleFiles(string? message, string? filter = null, string? initialPath = null) {
-        if (!App.RZApplicationImpl.TryGetActiveWindow(out Window? window)) {
+    public async Task<string[]?> OpenMultipleFiles(string? message, IEnumerable<FileFilter>? filters = null, string? initialPath = null) {
+        if (!RZApplicationImpl.TryGetActiveWindow(out Window? window)) {
             return null;
         }
         
         string? fileName = initialPath != null ? Path.GetFileName(initialPath) : initialPath;
         IReadOnlyList<IStorageFile> list = await window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions() {
-            Title = message ?? "Pick some files", AllowMultiple = true, SuggestedFileName = fileName
+            Title = message ?? "Pick some files", 
+            AllowMultiple = true, 
+            SuggestedFileName = fileName, 
+            FileTypeFilter = ConvertFilters(filters)
         });
 
         return list.Count == 0 ? null : list.Select(x => x.Path.AbsolutePath).ToArray();
     }
 
-    public async Task<string?> SaveFile(string? message, string? filter = null, string? initialPath = null, bool warnOverwrite = true) {
-        if (!App.RZApplicationImpl.TryGetActiveWindow(out Window? window)) {
+    public async Task<string?> SaveFile(string? message, IEnumerable<FileFilter>? filters = null, string? initialPath = null, bool warnOverwrite = true) {
+        if (!RZApplicationImpl.TryGetActiveWindow(out Window? window)) {
             return null;
         }
-        
+
         string? fileName = initialPath != null ? Path.GetFileName(initialPath) : initialPath;
         string? extension = fileName != null ? Path.GetExtension(fileName) : null;
         IStorageFile? item = await window.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions() {
-            Title = message ?? "Save a file", SuggestedFileName = fileName, DefaultExtension = extension, ShowOverwritePrompt = warnOverwrite
+            Title = message ?? "Save a file", 
+            SuggestedFileName = fileName, 
+            DefaultExtension = extension,
+            ShowOverwritePrompt = warnOverwrite,
+            FileTypeChoices = ConvertFilters(filters)
         });
 
         return item?.Path.AbsolutePath;

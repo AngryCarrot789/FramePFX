@@ -50,7 +50,7 @@ public class VideoEditorPropertyEditor : BasePropertyEditor {
             };
 
             this.ClipGroup.AddItem(new DisplayNamePropertyEditorSlot());
-            this.ClipGroup.AddItem(new ParameterDoublePropertyEditorSlot(VideoClip.OpacityParameter, typeof(VideoClip), "Opacity", DragStepProfile.UnitOne));
+            this.ClipGroup.AddItem(new ParameterDoublePropertyEditorSlot(VideoClip.OpacityParameter, typeof(VideoClip), "Opacity", DragStepProfile.UnitOne){ ValueFormatter = UnitToPercentFormatter.Standard });
             this.ClipGroup.AddItem(new VideoClipMediaFrameOffsetPropertyEditorSlot());
 
             {

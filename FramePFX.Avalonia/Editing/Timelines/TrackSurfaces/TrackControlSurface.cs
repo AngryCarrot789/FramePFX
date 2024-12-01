@@ -74,7 +74,7 @@ public class TrackControlSurface : TemplatedControl {
 
     public Button? InsertKeyFrameButton { get; private set; }
 
-    public Button? ToggleOverrideButton { get; private set; }
+    public ToggleButton? ToggleOverrideButton { get; private set; }
 
     public StackPanel? AutomationPanel { get; private set; }
 
@@ -86,6 +86,7 @@ public class TrackControlSurface : TemplatedControl {
     private bool isProcessingParameterSelectionChanged;
     private readonly ObservableCollection<TrackListItemParameterViewModel> parameterList;
     private TrackListItemParameterViewModel? selectedParameter;
+    private ComboBox? myComboBox;
 
     private readonly GetSetAutoUpdateAndEventPropertyBinder<Track> displayNameBinder = new GetSetAutoUpdateAndEventPropertyBinder<Track>(DisplayNameProperty, nameof(Track.DisplayNameChanged), b => b.Model.DisplayName, (b, v) => b.Model.DisplayName = (string) v);
 
@@ -122,23 +123,21 @@ public class TrackControlSurface : TemplatedControl {
         base.OnApplyTemplate(e);
         e.NameScope.GetTemplateChild("PART_ExpandTrackButton", out ToggleButton expandButton);
         e.NameScope.GetTemplateChild("PART_InsertKeyFrameButton", out Button insertKeyFrameButton);
-        e.NameScope.GetTemplateChild("PART_OverrideButton", out Button toggleOverrideButton);
-        e.NameScope.GetTemplateChild("PART_ParameterComboBox", out ComboBox paramComboBox);
+        e.NameScope.GetTemplateChild("PART_OverrideButton", out ToggleButton toggleOverrideButton);
+        e.NameScope.GetTemplateChild("PART_ParameterComboBox", out this.myComboBox);
         e.NameScope.GetTemplateChild("PART_AutomationPanel", out StackPanel automationPanel);
 
         this.AutomationPanel = automationPanel;
 
         this.ToggleExpandTrackButton = expandButton;
         expandButton.IsThreeState = false;
-        expandButton.Checked += this.ExpandTrackCheckedChanged;
-        expandButton.Unchecked += this.ExpandTrackCheckedChanged;
+        expandButton.IsCheckedChanged += this.ExpandTrackCheckedChanged;
 
-        this.InsertKeyFrameButton = insertKeyFrameButton;
-        this.CreateBasicButtonAction(insertKeyFrameButton, () => {
-            Parameter parameter = this.selectedParameter?.Parameter;
+        this.InsertKeyFrameButton = this.CreateBasicButtonAction(insertKeyFrameButton, () => {
+            Parameter? parameter = this.selectedParameter?.Parameter;
             if (parameter != null) {
-                Track track = this.Owner.Track;
-                if (track.GetRelativePlayHead(out long playHead)) {
+                Track? track = this.Owner!.Track;
+                if (track != null && track.GetRelativePlayHead(out long playHead)) {
                     AutomationSequence seq = track.AutomationData[parameter];
                     object value = parameter.GetCurrentObjectValue(track);
                     seq.AddNewKeyFrame(playHead, out KeyFrame keyFrame);
@@ -148,18 +147,18 @@ public class TrackControlSurface : TemplatedControl {
             }
         });
 
-        this.ToggleOverrideButton = insertKeyFrameButton;
+        this.ToggleOverrideButton = toggleOverrideButton;
         this.CreateBasicButtonAction(toggleOverrideButton, () => {
             if (this.selectedParameter != null) {
-                AutomationSequence seq = this.Owner.Track.AutomationData[this.selectedParameter.Parameter];
+                AutomationSequence seq = this.Owner!.Track!.AutomationData[this.selectedParameter.Parameter];
                 seq.IsOverrideEnabled = !seq.IsOverrideEnabled;
             }
         });
 
-        paramComboBox.ItemsSource = this.parameterList;
-        paramComboBox.SelectionChanged += this.OnParameterSelectionChanged;
-        this.ParameterComboBox = paramComboBox;
-        this.UpdateForSelectedParameter(this.selectedParameter);
+        this.myComboBox.ItemsSource = this.parameterList;
+        this.myComboBox.SelectionChanged += this.OnParameterSelectionChanged;
+        this.ParameterComboBox = this.myComboBox;
+        this.UpdateForSelectedParameter(null, null);
     }
 
     protected Button CreateBasicButtonAction(Button button, Action action) {
@@ -177,27 +176,40 @@ public class TrackControlSurface : TemplatedControl {
             this.AutomationPanel.IsVisible = visibility;
     }
 
-    private void OnParameterSelectionChanged(object sender, SelectionChangedEventArgs e) {
+    private void OnParameterSelectionChanged(object? sender, SelectionChangedEventArgs e) {
         this.isProcessingParameterSelectionChanged = true;
+        TrackListItemParameterViewModel? oldSelection = this.selectedParameter;
         this.selectedParameter = this.ParameterComboBox!.SelectedItem as TrackListItemParameterViewModel;
-        this.UpdateForSelectedParameter(this.selectedParameter);
+        this.UpdateForSelectedParameter(oldSelection, this.selectedParameter);
         this.isProcessingParameterSelectionChanged = false;
     }
 
-    private void UpdateForSelectedParameter(TrackListItemParameterViewModel? selected) {
-        this.InsertKeyFrameButton!.IsEnabled = selected != null;
-        this.ToggleOverrideButton!.IsEnabled = selected != null;
-        if (this.Owner?.TrackList?.TimelineControl is TimelineControl control) {
-            Track trackModel = this.Owner.Track!;
-            TimelineTrackControl? track = control.TrackStorage!.GetTrackByModel(trackModel);
-            // TODO: Automation editor
-            // if (track?.AutomationEditor != null) {
-            //     track.AutomationEditor.Sequence = selected != null ? trackModel.AutomationData[selected.Parameter] : null;
-            // }
-        }
+    private void UpdateForSelectedParameter(TrackListItemParameterViewModel? oldSelection, TrackListItemParameterViewModel? newSelected) {
+        this.InsertKeyFrameButton!.IsEnabled = newSelected != null;
+        this.ToggleOverrideButton!.IsEnabled = newSelected != null;
+        
+        if (oldSelection != null)
+            oldSelection.Sequence.OverrideStateChanged -= this.OnSelectedSequenceOverrideStateChanged;
+        if (newSelected != null)
+            newSelected.Sequence.OverrideStateChanged += this.OnSelectedSequenceOverrideStateChanged;
+        
+        this.ToggleOverrideButton.IsChecked = newSelected?.IsOverrideEnabled ?? false;
+        // if (this.Owner?.TrackList?.TimelineControl is TimelineControl control) {
+        //     Track trackModel = this.Owner.Track!;
+        //     TimelineTrackControl? track = control.TrackStorage!.GetTrackByModel(trackModel);
+        //     // TODO: Automation editor
+        //     // if (track?.AutomationEditor != null) {
+        //     //     track.AutomationEditor.Sequence = selected != null ? trackModel.AutomationData[selected.Parameter] : null;
+        //     // }
+        // }
     }
 
-    private void ExpandTrackCheckedChanged(object sender, RoutedEventArgs e) {
+    private void OnSelectedSequenceOverrideStateChanged(AutomationSequence sequence) {
+        if (this.selectedParameter != null)
+            this.ToggleOverrideButton!.IsChecked = sequence.IsOverrideEnabled;
+    }
+
+    private void ExpandTrackCheckedChanged(object? sender, RoutedEventArgs e) {
         if (this.ignoreExpandTrackEvent)
             return;
 
@@ -260,6 +272,9 @@ public class TrackControlSurface : TemplatedControl {
             this.parameterList.Add(new TrackListItemParameterViewModel(this, parameter));
         }
 
+        if (this.ParameterComboBox != null)
+            this.ParameterComboBox.SelectedIndex = 0;
+
         foreach (Button actionButton in this.actionButtons) {
             actionButton.IsEnabled = true;
         }
@@ -268,7 +283,7 @@ public class TrackControlSurface : TemplatedControl {
     public virtual void OnDisconnected() {
         this.displayNameBinder.DetachModel();
         this.trackColourBinder.DetachModel();
-        this.Owner.Track.HeightChanged -= this.OnTrackHeightChanged;
+        this.Owner!.Track!.HeightChanged -= this.OnTrackHeightChanged;
 
         foreach (TrackListItemParameterViewModel item in this.parameterList)
             item.Disconnect();
@@ -301,6 +316,8 @@ public class TrackListItemParameterViewModel : INotifyPropertyChanged {
         this.Sequence.OverrideStateChanged += this.SequenceOverrideStateChanged;
         this.Sequence.KeyFrameAdded += this.SequenceKeyFrameCollectionChanged;
         this.Sequence.KeyFrameRemoved += this.SequenceKeyFrameCollectionChanged;
+        this.IsAutomated = !this.Sequence.IsEmpty;
+        this.IsOverrideEnabled = this.Sequence.IsOverrideEnabled;
     }
 
     private void SequenceOverrideStateChanged(AutomationSequence sequence) {

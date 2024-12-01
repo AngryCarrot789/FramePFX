@@ -1,4 +1,4 @@
-﻿// 
+// 
 // Copyright (c) 2023-2024 REghZy
 // 
 // This file is part of FramePFX.
@@ -17,22 +17,20 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.Services.UserInputs;
+using FramePFX.Interactivity;
 
-namespace FramePFX.Avalonia.Services.Messages.Controls;
+namespace FramePFX.Editing.ResourceManaging.UI;
 
-/// <summary>
-/// An interface for user input content controls
-/// </summary>
-public interface IUserInputContent {
-    void Connect(UserInputDialog dialog, UserInputInfo info);
-
-    void Disconnect();
+public interface IResourceListElement {
+    IResourceManagerElement ManagerUI { get; }
 
     /// <summary>
-    /// Try to focus the primary input field. If nothing exists to focus, this
-    /// returns false which usually results in the confirm or cancel button being focused
+    /// Gets the folder being presented
     /// </summary>
-    /// <returns></returns>
-    bool FocusPrimaryInput();
+    IResourceTreeNodeElement? CurrentFolder { get; }
+
+    /// <summary>
+    /// Gets the resource list's selection manager. This may be synced with the resource manager UI selection
+    /// </summary>
+    ISelectionManager<BaseResource> Selection { get; }
 }

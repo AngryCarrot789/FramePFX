@@ -32,6 +32,10 @@
                 <MergeResourceInclude Source="ControlStyles/MenuFlyoutPresenter.axaml"/>
                 <MergeResourceInclude Source="ControlStyles/Window.axaml"/>
             </ResourceDictionary.MergedDictionaries>
+            
+            <Color x:Key="AColour.AutomationActiveColour.Static">#3494E1</Color>
+            <SolidColorBrush x:Key="ABrush.AutomationActiveColour.Static" Color="{StaticResource AColour.AutomationActiveColour.Static}"/>
+
         </ResourceDictionary>
     </Styles.Resources>
 </Styles>

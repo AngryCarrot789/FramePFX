@@ -292,7 +292,18 @@
 
     <!-- Automatable Property Editors -->
 
-    <ControlTheme x:Key="{x:Type pea:BaseNumericParameterPropEditorControl}" TargetType="{x:Type pea:BaseNumericParameterPropEditorControl}">
+    <ControlTheme x:Key="{x:Type pea:BaseParameterPropertyEditorControl}" TargetType="{x:Type pea:BaseParameterPropertyEditorControl}">
+        <Setter Property="AutomationLedBrush" Value="{DynamicResource ABrush.AutomationActiveColour.Static}"/>
+    </ControlTheme>
+
+    <TextBlock x:Key="AutomationLedTooltipTextBlock" x:Shared="True">
+        <Run Text="This LED being visible indicates key frames are present for this parameter"/>
+        <LineBreak/>
+        <!-- must remain single lined!!! avalonia is weird and it isn't drawn the same when multi-line -->
+        <Run Text="When "/><Run BaselineAlignment="Center" Text="lit" Foreground="{DynamicResource ABrush.AutomationActiveColour.Static}"/><Run Text=", it means automation is active, and grey (off) means override is enabled"/>
+    </TextBlock>
+
+    <ControlTheme x:Key="{x:Type pea:BaseNumericParameterPropEditorControl}" TargetType="{x:Type pea:BaseNumericParameterPropEditorControl}" BasedOn="{StaticResource {x:Type pea:BaseParameterPropertyEditorControl}}">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type pea:BaseNumericParameterPropEditorControl}">
@@ -304,7 +315,10 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
                             <TextBlock x:Name="PART_DisplayName" VerticalAlignment="Center"/>
-                            <Ellipse x:Name="PART_AutomationLED" Fill="OrangeRed" Stroke="Black" StrokeThickness="1" Width="6" Margin="2,2,0,0" Height="6" IsVisible="False" VerticalAlignment="Top"/>
+                            <Ellipse x:Name="PART_AutomationLED" Fill="{DynamicResource ABrush.AutomationActiveColour.Static}"
+                                     Stroke="Black" StrokeThickness="1" Width="7" Margin="2,2,0,0"
+                                     Height="7" IsVisible="False" VerticalAlignment="Top"
+                                     ToolTip.Tip="{StaticResource AutomationLedTooltipTextBlock}"/>
                         </StackPanel>
                         <DockPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Center">
                             <pea:KeyFrameToolsControl x:Name="PART_KeyFrameTools" Margin="2,0,0,0" DockPanel.Dock="Right"/>
@@ -320,7 +334,7 @@
     <ControlTheme x:Key="{x:Type pea:ParameterDoublePropertyEditorControl}" TargetType="{x:Type pea:ParameterDoublePropertyEditorControl}" BasedOn="{StaticResource {x:Type pea:BaseNumericParameterPropEditorControl}}"/>
     <ControlTheme x:Key="{x:Type pea:ParameterLongPropertyEditorControl}" TargetType="{x:Type pea:ParameterLongPropertyEditorControl}" BasedOn="{StaticResource {x:Type pea:BaseNumericParameterPropEditorControl}}"/>
 
-    <ControlTheme x:Key="{x:Type pea:ParameterBoolPropertyEditorControl}" TargetType="{x:Type pea:ParameterBoolPropertyEditorControl}">
+    <ControlTheme x:Key="{x:Type pea:ParameterBoolPropertyEditorControl}" TargetType="{x:Type pea:ParameterBoolPropertyEditorControl}" BasedOn="{StaticResource {x:Type pea:BaseParameterPropertyEditorControl}}">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type pea:ParameterBoolPropertyEditorControl}">
@@ -332,7 +346,10 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
                             <TextBlock x:Name="PART_DisplayName" VerticalAlignment="Center"/>
-                            <Ellipse x:Name="PART_AutomationLED" Fill="OrangeRed" Stroke="Black" StrokeThickness="1" Margin="2,2,0,0" Width="6" Height="6" IsVisible="False" VerticalAlignment="Top"/>
+                            <Ellipse x:Name="PART_AutomationLED" Fill="{DynamicResource ABrush.AutomationActiveColour.Static}"
+                                     Stroke="Black" StrokeThickness="1" Width="7" Margin="2,2,0,0"
+                                     Height="7" IsVisible="False" VerticalAlignment="Top"
+                                     ToolTip.Tip="{StaticResource AutomationLedTooltipTextBlock}"/>
                         </StackPanel>
                         <DockPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Center">
                             <pea:KeyFrameToolsControl x:Name="PART_KeyFrameTools" Margin="2,0,0,0" DockPanel.Dock="Right"/>
@@ -344,7 +361,7 @@
         </Setter>
     </ControlTheme>
 
-    <ControlTheme x:Key="{x:Type pea:ParameterVector2PropertyEditorControl}" TargetType="{x:Type pea:ParameterVector2PropertyEditorControl}">
+    <ControlTheme x:Key="{x:Type pea:ParameterVector2PropertyEditorControl}" TargetType="{x:Type pea:ParameterVector2PropertyEditorControl}" BasedOn="{StaticResource {x:Type pea:BaseParameterPropertyEditorControl}}">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type pea:ParameterVector2PropertyEditorControl}">
@@ -356,7 +373,10 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
                             <TextBlock x:Name="PART_DisplayName" VerticalAlignment="Center"/>
-                            <Ellipse x:Name="PART_AutomationLED" Fill="OrangeRed" Stroke="Black" StrokeThickness="1" Margin="2,2,0,0" Width="6" Height="6" IsVisible="False" VerticalAlignment="Top"/>
+                            <Ellipse x:Name="PART_AutomationLED" Fill="{DynamicResource ABrush.AutomationActiveColour.Static}"
+                                     Stroke="Black" StrokeThickness="1" Width="7" Margin="2,2,0,0"
+                                     Height="7" IsVisible="False" VerticalAlignment="Top"
+                                     ToolTip.Tip="{StaticResource AutomationLedTooltipTextBlock}"/>
                         </StackPanel>
                         <DockPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Center">
                             <pea:KeyFrameToolsControl x:Name="PART_KeyFrameTools" Margin="2,0,0,0" DockPanel.Dock="Right"/>

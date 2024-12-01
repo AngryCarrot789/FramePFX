@@ -58,10 +58,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
         // average 5 samples. Will take a second to catch up when playing at 5 fps but meh
         this.renderTimeAverager = new NumberAverager(5);
         this.TheTimeline.VideoEditor = this;
-        DataManager.SetContextData(this, this.contextData.
-                                              Set(DataKeys.TopLevelHostKey, this).
-                                              Set(DataKeys.VideoEditorUIKey, this).
-                                              Set(DataKeys.TimelineUIKey, this.TheTimeline));
+        DataManager.SetContextData(this, this.contextData.Set(DataKeys.TopLevelHostKey, this).Set(DataKeys.VideoEditorUIKey, this));
     }
 
     static EditorWindow() {
@@ -71,8 +68,6 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
     protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
         this.contextData.Set(DataKeys.ResourceManagerUIKey, this.PART_ResourcePanelControl);
-        this.contextData.Set(DataKeys.ResourceTreeUIKey, this.PART_ResourcePanelControl.ResourceTreeView);
-        this.contextData.Set(DataKeys.ResourceListUIKey, this.PART_ResourcePanelControl.ResourceListBox);
         
         DataManager.InvalidateInheritedContext(this);
         

@@ -59,8 +59,8 @@ public class CommandMenuItem : MenuItem {
 
     protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
-        // this.loadedContextData = ContextCapturingMenu.GetCapturedContextData(this) ?? DataManager.GetFullContextData(this);
-        this.loadedContextData = DataManager.GetFullContextData(this);
+        IContextData? captured = ContextCapturingMenu.GetCapturedContext(this);
+        this.loadedContextData = captured ?? DataManager.GetFullContextData(this);
         string? id = this.CommandId;
         if (string.IsNullOrWhiteSpace(id))
             id = null;

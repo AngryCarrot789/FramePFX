@@ -22,7 +22,7 @@ namespace FramePFX.Interactivity.Contexts;
 /// <summary>
 /// A context data object that stores stores value provider functions instead of direct objects
 /// </summary>
-public class ProviderContextData : IContextData {
+public class ProviderContextData : IContextData, IRandomAccessContext {
     private Dictionary<string, ObjectProvider>? map;
 
     public IEnumerable<KeyValuePair<string, object>> Entries {
@@ -37,6 +37,8 @@ public class ProviderContextData : IContextData {
             }
         }
     }
+
+    public int Count => this.map?.Count ?? 0;
 
     public ProviderContextData() {
     }

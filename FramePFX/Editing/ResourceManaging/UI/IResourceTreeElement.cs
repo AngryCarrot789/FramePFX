@@ -17,26 +17,15 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.Interactivity;
+
 namespace FramePFX.Editing.ResourceManaging.UI;
 
-public interface IResourceNodeUI {
-    /// <summary>
-    /// Gets the layer model for this node
-    /// </summary>
-    BaseResource? Resource { get; }
-
-    IResourceNodeUI? Parent { get; }
-
-    IResourceTreeUI? Tree { get; }
+public interface IResourceTreeElement {
+    IResourceManagerElement ManagerUI { get; }
 
     /// <summary>
-    /// Gets or sets if this item is selected
+    /// Gets the resource tree's selection manager. This may be synced with the resource manager UI selection
     /// </summary>
-    bool IsSelected { get; set; }
-
-    /// <summary>
-    /// Gets or sets the editing name state, which when true will show a text box to
-    /// edit the name and when false just shows plain text
-    /// </summary>
-    bool EditNameState { get; set; }
+    ISelectionManager<BaseResource> Selection { get; }
 }

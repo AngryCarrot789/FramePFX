@@ -28,10 +28,11 @@ using FramePFX.Avalonia.Utils;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Interactivity.Contexts;
+using IResourceTreeElement = FramePFX.Editing.ResourceManaging.UI.IResourceTreeElement;
 
 namespace FramePFX.Avalonia.Editing.Resources;
 
-public class ResourcePanelControl : TemplatedControl, IResourceManagerUI {
+public class ResourcePanelControl : TemplatedControl, IResourceManagerElement {
     public static readonly StyledProperty<ResourceManager?> ResourceManagerProperty = AvaloniaProperty.Register<ResourcePanelControl, ResourceManager?>(nameof(ResourceManager));
 
     private readonly PropertyBinder<ResourceManager?> resourceTreeManagerBinder;
@@ -67,16 +68,14 @@ public class ResourcePanelControl : TemplatedControl, IResourceManagerUI {
         this.ResourceListBox!.ManagerUI = this;
         
         this.MultiSelectionManager = new TreeListSelectionMergerManager(this.ResourceListBox!, this.ResourceTreeView!);
-        this.contextData.Set(DataKeys.ResourceTreeUIKey, this.ResourceTreeView);
-        this.contextData.Set(DataKeys.ResourceListUIKey, this.ResourceListBox);
         DataManager.InvalidateInheritedContext(this);
     }
 
-    IResourceSelectionManager IResourceManagerUI.Selection => this.MultiSelectionManager ?? throw new InvalidOperationException("Not ready");
-    IResourceTreeUI IResourceManagerUI.Tree => this.ResourceTreeView!;
-    IResourceListUI IResourceManagerUI.List => this.ResourceListBox!;
+    IResourceSelectionManager IResourceManagerElement.Selection => this.MultiSelectionManager ?? throw new InvalidOperationException("Not ready");
+    IResourceTreeElement IResourceManagerElement.Tree => this.ResourceTreeView!;
+    IResourceListElement IResourceManagerElement.List => this.ResourceListBox!;
 
-    public IResourceNodeUI GetNode(BaseResource resource) {
+    public IResourceTreeNodeElement GetNode(BaseResource resource) {
         return this.ResourceTreeView!.ItemMap.GetControl(resource);
     }
 }

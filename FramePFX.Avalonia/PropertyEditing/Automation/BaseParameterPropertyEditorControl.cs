@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
@@ -30,6 +31,13 @@ using FramePFX.PropertyEditing.Automation;
 namespace FramePFX.Avalonia.PropertyEditing.Automation;
 
 public abstract class BaseParameterPropertyEditorControl : BasePropEditControlContent {
+    public static readonly StyledProperty<IBrush?> AutomationLedBrushProperty = AvaloniaProperty.Register<BaseParameterPropertyEditorControl, IBrush?>(nameof(AutomationLedBrush), Brushes.OrangeRed);
+
+    public IBrush? AutomationLedBrush {
+        get => this.GetValue(AutomationLedBrushProperty);
+        set => this.SetValue(AutomationLedBrushProperty, value);
+    }
+    
     protected IAutomatable? singleHandler;
     protected AutomationSequence? singleHandlerSequence;
     private TextBlock? displayName;
@@ -114,7 +122,7 @@ public abstract class BaseParameterPropertyEditorControl : BasePropEditControlCo
     private void UpdateLEDColour(AutomationSequence? sequence) {
         if (this.automationLed != null && sequence != null) {
             this.automationLed.IsVisible = !sequence.IsEmpty;
-            this.automationLed.Fill = sequence.IsOverrideEnabled ? Brushes.Gray : Brushes.OrangeRed;
+            this.automationLed.Fill = sequence.IsOverrideEnabled ? Brushes.Gray : this.AutomationLedBrush;
         }
     }
 }

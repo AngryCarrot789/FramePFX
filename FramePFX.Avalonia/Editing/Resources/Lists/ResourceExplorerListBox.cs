@@ -23,16 +23,18 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Utils;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.Events;
 using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Interactivity;
+using FramePFX.Interactivity.Contexts;
 using ResourceManager = FramePFX.Editing.ResourceManaging.ResourceManager;
 
 namespace FramePFX.Avalonia.Editing.Resources.Lists;
 
-public class ResourceExplorerListBox : ListBox, IResourceListUI {
+public class ResourceExplorerListBox : ListBox, IResourceListElement {
     public static readonly StyledProperty<ResourceManager?> ResourceManagerProperty = AvaloniaProperty.Register<ResourceExplorerListBox, ResourceManager?>(nameof(ResourceManager));
     public static readonly StyledProperty<ResourceFolder?> CurrentFolderProperty = AvaloniaProperty.Register<ResourceExplorerListBox, ResourceFolder?>(nameof(CurrentFolder));
 
@@ -65,6 +67,7 @@ public class ResourceExplorerListBox : ListBox, IResourceListUI {
         this.itemMap = new ModelControlDictionary<BaseResource, ResourceExplorerListBoxItem>();
         this.SelectionManager = new ResourceExplorerSelectionManager(this);
         this.Focusable = true;
+        DataManager.SetContextData(this, new ContextData().Set(DataKeys.ResourceListUIKey, this));
     }
 
     static ResourceExplorerListBox() {
@@ -248,7 +251,7 @@ public class ResourceExplorerListBox : ListBox, IResourceListUI {
         return true;
     }
 
-    public IResourceManagerUI ManagerUI { get; set; }
-    IResourceNodeUI? IResourceListUI.CurrentFolder => this.CurrentFolder is ResourceFolder folder ? this.ManagerUI.GetNode(folder) : null;
-    ISelectionManager<BaseResource> IResourceListUI.Selection => this.SelectionManager;
+    public IResourceManagerElement ManagerUI { get; set; }
+    IResourceTreeNodeElement? IResourceListElement.CurrentFolder => this.CurrentFolder is ResourceFolder folder ? this.ManagerUI.GetNode(folder) : null;
+    ISelectionManager<BaseResource> IResourceListElement.Selection => this.SelectionManager;
 }

@@ -81,9 +81,10 @@ public partial class DoubleUserInputControl : UserControl, IUserInputContent {
         this.myData = null;
     }
     
-    public void FocusPrimaryInput() {
+    public bool FocusPrimaryInput() {
         this.PART_TextBoxA.Focus();
         this.PART_TextBoxA.SelectAll();
+        return true;
     }
 
     private void UpdateLabelAVisibility() => this.PART_LabelA.IsVisible = !string.IsNullOrWhiteSpace(this.myData!.LabelA);

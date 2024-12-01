@@ -24,14 +24,16 @@ using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using FramePFX.Avalonia.Interactivity;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.Events;
 using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Interactivity;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Avalonia.Editing.Resources.Trees;
 
-public abstract class ResourceTreeView : TreeView, IResourceTreeElement, IResourceTreeUI {
+public abstract class ResourceTreeView : TreeView, IResourceTreeElement, FramePFX.Editing.ResourceManaging.UI.IResourceTreeElement {
     public static readonly StyledProperty<bool> IsDroppableTargetOverProperty = AvaloniaProperty.Register<ResourceTreeView, bool>("IsDroppableTargetOver");
     public static readonly StyledProperty<ResourceManager?> ResourceManagerProperty = AvaloniaProperty.Register<ResourceTreeView, ResourceManager?>(nameof(ResourceManager));
 
@@ -71,6 +73,7 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeElement, IResour
         this.SelectionManager = new ResourceTreeSelectionManager(this);
         this.Focusable = true;
         DragDrop.SetAllowDrop(this, true);
+        DataManager.SetContextData(this, new ContextData().Set(DataKeys.ResourceTreeUIKey, this));
     }
     
     protected override void OnPointerPressed(PointerPressedEventArgs e) {
@@ -260,7 +263,7 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeElement, IResour
         return null;
     }
 
-    public IResourceManagerUI ManagerUI { get; set; }
+    public IResourceManagerElement ManagerUI { get; set; }
 
-    ISelectionManager<BaseResource> IResourceTreeUI.Selection => this.SelectionManager;
+    ISelectionManager<BaseResource> FramePFX.Editing.ResourceManaging.UI.IResourceTreeElement.Selection => this.SelectionManager;
 }

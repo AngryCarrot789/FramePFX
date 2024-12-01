@@ -51,7 +51,7 @@
                             BorderThickness="{TemplateBinding BorderThickness}"
                             Background="{TemplateBinding Background}"
                             Padding="{TemplateBinding Padding}">
-                        <ContentPresenter HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                        <ContentPresenter x:Name="PART_ContentPresenter" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
                                           VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
                                           Content="{TemplateBinding Content}"
                                           ContentTemplate="{TemplateBinding ContentTemplate}"
@@ -337,6 +337,12 @@
 
     <f:UnitToPercentFormatter x:Key="OpacityUnitPercentageFormatter" NonEditingRoundedPlaces="1" EditingRoundedPlaces="4"/>
 
+    <ControlTheme x:Key="AutomationComboBoxTheme" TargetType="{x:Type ComboBox}" BasedOn="{StaticResource {x:Type ComboBox}}">
+        <Style Selector="^:pointerover /template/ Border#border">
+            <Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}"/>
+        </Style>
+    </ControlTheme>
+    
     <ControlTheme x:Key="{x:Type s:TrackControlSurfaceVideo}" TargetType="{x:Type s:TrackControlSurfaceVideo}" BasedOn="{StaticResource {x:Type s:TrackControlSurface}}">
         <Setter Property="Template">
             <Setter.Value>
@@ -376,7 +382,8 @@
                                                      ValueFormatter="{StaticResource OpacityUnitPercentageFormatter}"/>
                                 </StackPanel>
                                 <TextBlock DockPanel.Dock="Right" Margin="0,1,4,0"
-                                           Text="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=DisplayName}"/>
+                                           Text="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=DisplayName}"
+                                           IsHitTestVisible="False"/>
                             </DockPanel>
                             <Grid Grid.Row="2" Margin="2,0,2,2">
                                 <StackPanel x:Name="PART_AutomationPanel"
@@ -386,14 +393,15 @@
                                     <ComboBox Width="100" Height="18" BorderBrush="Black"
                                               Background="{DynamicResource ABrush.Tone6.Background.Static}"
                                               ToolTip.Tip="A list of automatable parameters available for this track"
-                                              x:Name="PART_ParameterComboBox"
-                                              SelectedIndex="0">
+                                              x:Name="PART_ParameterComboBox" Theme="{StaticResource AutomationComboBoxTheme}" SelectedIndex="0">
                                         <ComboBox.ItemTemplate>
                                             <DataTemplate DataType="{x:Type s:TrackListItemParameterViewModel}">
                                                 <StackPanel Orientation="Horizontal">
                                                     <Ellipse Margin="0,0,4,0" VerticalAlignment="Center"
                                                              IsVisible="{Binding IsAutomated, Mode=OneWay}"
-                                                             Width="5" Height="5">
+                                                             Width="7" Height="7"
+                                                             Stroke="Black" StrokeThickness="1"
+                                                             ToolTip.Tip="{StaticResource AutomationLedTooltipTextBlock}">
                                                         <Ellipse.Fill>
                                                             <MultiBinding Converter="{StaticResource AutomationBrushConverter}">
                                                                 <Binding Path="IsAutomated" Mode="OneWay"/>
@@ -401,17 +409,19 @@
                                                             </MultiBinding>
                                                         </Ellipse.Fill>
                                                     </Ellipse>
-                                                    <TextBlock Text="{Binding Name, Mode=OneTime}"/>
+                                                    <TextBlock Text="{Binding Name}"/>
                                                 </StackPanel>
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
-                                    <Button BorderBrush="Black" Height="20" Width="18" ToolTip.Tip="Insert a key frame at the current play head"
+                                    <Button BorderBrush="Black" Height="20" Width="18" 
+                                            ToolTip.Tip="Insert a key frame at the current play head"
                                             x:Name="PART_InsertKeyFrameButton">
-                                        <Ellipse Width="8" Height="8" Fill="{DynamicResource ABrush.Glyph.Static}"/>
+                                        <Ellipse Width="7" Height="7" Fill="{DynamicResource ABrush.AutomationActiveColour.Static}"/>
                                     </Button>
-                                    <Button Content="O" BorderBrush="Black" Height="20" Width="18" ToolTip.Tip="Toggles the parameter override state for this track. This is used to enable or disable automation for the parameter"
-                                            x:Name="PART_OverrideButton"/>
+                                    <ToggleButton Content="O" BorderBrush="Black" Height="20" Width="18" 
+                                                  ToolTip.Tip="Toggles the parameter override state for this track. This is used to enable or disable automation for the parameter"
+                                                  x:Name="PART_OverrideButton"/>
                                 </StackPanel>
                             </Grid>
                         </Grid>

@@ -18,33 +18,40 @@
 // 
 
 using FramePFX.CommandSystem;
-using FramePFX.Editing.ResourceManaging.UI;
+using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Services.UserInputs;
 
-namespace FramePFX.Editing.ResourceManaging.Commands;
+namespace FramePFX.Editing.Commands;
 
-public class RenameResourceCommand : AsyncCommand {
+public abstract class RenameDisplayNameCommand : AsyncCommand {
     protected override Executability CanExecuteOverride(CommandEventArgs e) {
-        if (DataKeys.ResourceNodeUIKey.IsPresent(e.ContextData))
-            return Executability.Valid;
-        if (DataKeys.ResourceObjectKey.IsPresent(e.ContextData))
-            return Executability.Valid;
-        return Executability.Invalid;
+        return e.ContextData.TryGetContext(this.DataKey.Id, out object? value) && value is IDisplayName ? Executability.Valid : Executability.Invalid;
     }
 
     protected override async Task ExecuteAsync(CommandEventArgs e) {
-        if (DataKeys.ResourceNodeUIKey.TryGetContext(e.ContextData, out IResourceTreeNodeElement? resource)) {
-            resource.EditNameState = true;
-        }
-        else if (DataKeys.ResourceObjectKey.TryGetContext(e.ContextData, out BaseResource? baseResource)) {
-            SingleUserInputInfo info = new SingleUserInputInfo("Rename resource", "Resource name", baseResource.DisplayName) {
+        if (e.ContextData.TryGetContext(this.DataKey.Id, out object? obj) && obj is IDisplayName element) {
+            SingleUserInputInfo info = new SingleUserInputInfo("Rename", this.Label, element.DisplayName) {
                 ConfirmText = "Rename", DefaultButton = true
             };
 
             if (await IoC.UserInputService.ShowInputDialogAsync(info) == true) {
-                baseResource.DisplayName = info.Text ?? "";
+                element.DisplayName = info.Text ?? "";
             }
         }
     }
+
+    protected abstract DataKey DataKey { get; }
+
+    protected abstract string Label { get; }
+}
+
+public class RenameClipCommand : RenameDisplayNameCommand {
+    protected override DataKey DataKey => DataKeys.ClipKey;
+    protected override string Label => "Clip Name:";
+}
+
+public class RenameTrackCommand : RenameDisplayNameCommand {
+    protected override DataKey DataKey => DataKeys.TrackKey;
+    protected override string Label => "Track Name:";
 }

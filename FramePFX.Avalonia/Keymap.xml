@@ -73,17 +73,17 @@
                 <Group Name="Sequence">
                     <Group Name="Track">
                         <Group Name="Clip">
-                            <Shortcut Name="RenameClip1" CommandId="commands.generic.RenameClipCommand">
+                            <Shortcut Name="RenameClip1" CommandId="commands.editor.RenameClip">
                                 <KeyStroke Key="F2"/>
                             </Shortcut>
-                            <Shortcut Name="RenameClip2" CommandId="commands.generic.RenameClipCommand">
+                            <Shortcut Name="RenameClip2" CommandId="commands.editor.RenameClip">
                                 <KeyStroke Mods="CTRL" Key="R"/>
                             </Shortcut>
                         </Group>
-                        <Shortcut Name="RenameTrack1" CommandId="commands.generic.RenameTrackCommand">
+                        <Shortcut Name="RenameTrack1" CommandId="commands.editor.RenameTrack">
                             <KeyStroke Key="F2"/>
                         </Shortcut>
-                        <Shortcut Name="RenameTrack2" CommandId="commands.generic.RenameTrackCommand">
+                        <Shortcut Name="RenameTrack2" CommandId="commands.editor.RenameTrack">
                             <KeyStroke Mods="CTRL" Key="R"/>
                         </Shortcut>
                     </Group>
@@ -132,13 +132,13 @@
                     <Shortcut Name="SelectAllTracks" CommandId="commands.generic.SelectAllTracksCommand">
                         <KeyStroke Mods="CTRL" Key="A"/>
                     </Shortcut>
-                    <Shortcut Name="DeleteSelectedTracks" CommandId="commands.generic.DeleteSelectedTracks" Description="Deletes all of the selected tracks">
+                    <Shortcut Name="DeleteSelectedTracks" CommandId="commands.editor.DeleteSelectedTracks" Description="Deletes all of the selected tracks">
                         <KeyStroke Key="Delete"/>
                     </Shortcut>
-                    <Shortcut Name="RenameTrack1" CommandId="commands.generic.RenameTrackCommand">
+                    <Shortcut Name="RenameTrack1" CommandId="commands.editor.RenameTrack">
                         <KeyStroke Key="F2"/>
                     </Shortcut>
-                    <Shortcut Name="RenameTrack2" CommandId="commands.generic.RenameTrackCommand">
+                    <Shortcut Name="RenameTrack2" CommandId="commands.editor.RenameTrack">
                         <KeyStroke Mods="CTRL" Key="R"/>
                     </Shortcut>
                 </Group>

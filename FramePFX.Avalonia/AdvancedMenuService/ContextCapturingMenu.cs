@@ -18,10 +18,71 @@
 // 
 
 using System;
+using System.Diagnostics;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using FramePFX.Avalonia.Interactivity;
+using FramePFX.Avalonia.Shortcuts.Avalonia;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Avalonia.AdvancedMenuService;
 
 public class ContextCapturingMenu : Menu {
+    private static readonly AttachedProperty<IContextData?> CapturedContextProperty = AvaloniaProperty.RegisterAttached<ContextCapturingMenu, AvaloniaObject, IContextData?>("CapturedContext", inherits:true);
+
+    private InputElement? lastFocus;
     protected override Type StyleKeyOverride => typeof(Menu);
+
+    public ContextCapturingMenu() {
+    }
+
+    public override void Open() {
+        base.Open();
+    }
+
+    public override void Close() {
+        bool wasOpen = this.IsOpen;
+        base.Close();
+        if (wasOpen) {
+            this.ClearValue(CapturedContextProperty);
+            DataManager.ClearContextData(this);
+            Debug.WriteLine("Cleared captured data context");
+            if (this.lastFocus != null) {
+                this.lastFocus.Focus(NavigationMethod.Unspecified, KeyModifiers.None);
+                this.lastFocus = null;
+            }
+        }
+    }
+
+    protected override void OnSubmenuOpened(RoutedEventArgs e) {
+        base.OnSubmenuOpened(e);
+    }
+
+    protected override void OnGotFocus(GotFocusEventArgs e) {
+        this.lastFocus = null;
+        if (TopLevel.GetTopLevel(this) is TopLevel topLevel) {
+            this.lastFocus = UIInputManager.GetLastFocusedElement(topLevel);
+        }
+
+        base.OnGotFocus(e);
+        if (this.lastFocus != null) {
+            this.CaptureContextFromObject(this.lastFocus);
+        }
+    }
+
+    protected override void OnLostFocus(RoutedEventArgs e) {
+        this.lastFocus = null;
+        base.OnLostFocus(e);
+    }
+
+    private void CaptureContextFromObject(InputElement inputElement) {
+        IContextData ctx = DataManager.GetFullContextData(inputElement);
+        Debug.WriteLine($"Captured context{(ctx is IRandomAccessContext data ? $" ({data.Count} entries) " : " ")}before menu focus switch from {inputElement.GetType().Name}");
+        this.SetValue(CapturedContextProperty, ctx);
+        DataManager.SetContextData(this, ctx);
+    }
+
+    public static IContextData? GetCapturedContext(AvaloniaObject obj) => obj.GetValue(CapturedContextProperty);
 }

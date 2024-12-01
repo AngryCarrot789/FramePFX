@@ -40,7 +40,7 @@ using Key = Avalonia.Input.Key;
 
 namespace FramePFX.Avalonia.Editing.Resources.Trees;
 
-public abstract class ResourceTreeViewItem : TreeViewItem, IResourceNodeUI, IResourceTreeElement {
+public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElement, IResourceTreeElement {
     public static readonly StyledProperty<bool> IsDroppableTargetOverProperty = ResourceTreeView.IsDroppableTargetOverProperty.AddOwner<ResourceTreeView>();
     public static readonly DirectProperty<ResourceTreeViewItem, bool> IsFolderItemProperty = AvaloniaProperty.RegisterDirect<ResourceTreeViewItem, bool>("IsFolderItem", o => o.IsFolderItem, null);
 
@@ -52,8 +52,8 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceNodeUI, IRes
     
     public BaseResource? Resource { get; private set; }
     
-    IResourceNodeUI? IResourceNodeUI.Parent => this.ParentNode;
-    IResourceTreeUI? IResourceNodeUI.Tree => this.ResourceTree;
+    IResourceTreeNodeElement? IResourceTreeNodeElement.Parent => this.ParentNode;
+    FramePFX.Editing.ResourceManaging.UI.IResourceTreeElement? IResourceTreeNodeElement.Tree => this.ResourceTree;
 
     public bool IsDroppableTargetOver {
         get => this.GetValue(IsDroppableTargetOverProperty);
@@ -92,7 +92,7 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceNodeUI, IRes
     private DragState dragBtnState;
     private bool hasCompletedDrop;
 
-    BaseResource? IResourceNodeUI.Resource => this.Resource;
+    BaseResource? IResourceTreeNodeElement.Resource => this.Resource;
 
     public bool EditNameState {
         get => this.isEditingNameState;

@@ -17,15 +17,28 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.Interactivity;
-
 namespace FramePFX.Editing.ResourceManaging.UI;
 
-public interface IResourceTreeUI {
-    IResourceManagerUI ManagerUI { get; }
+public interface IResourceManagerElement {
+    /// <summary>
+    /// Gets the resource selection manager
+    /// </summary>
+    IResourceSelectionManager Selection { get; }
 
     /// <summary>
-    /// Gets the resource tree's selection manager. This may be synced with the resource manager UI selection
+    /// Gets our resource list
     /// </summary>
-    ISelectionManager<BaseResource> Selection { get; }
+    IResourceTreeElement Tree { get; }
+
+    /// <summary>
+    /// Gets our resource list
+    /// </summary>
+    IResourceListElement List { get; }
+
+    /// <summary>
+    /// Gets the node for the given resource
+    /// </summary>
+    /// <param name="resource">The model</param>
+    /// <returns>The UI</returns>
+    IResourceTreeNodeElement GetNode(BaseResource resource);
 }

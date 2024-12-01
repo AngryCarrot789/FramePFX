@@ -45,7 +45,6 @@ public static class DataKeys {
     public static readonly DataKey<ITrackElement> TrackUIKey = DataKey<ITrackElement>.Create("TrackUI");
     public static readonly DataKey<IClipElement> ClipUIKey = DataKey<IClipElement>.Create("ClipUI");
 
-
     /// <summary>
     /// A data key for the location of the mouse cursor, in frames, when a context menu
     /// was opened (well, specifically when the track was right clicked)
@@ -60,8 +59,8 @@ public static class DataKeys {
 
     public static readonly DataKey<ResourceManager> ResourceManagerKey = DataKey<ResourceManager>.Create("ResourceManager");
     public static readonly DataKey<BaseResource> ResourceObjectKey = DataKey<BaseResource>.Create("ResourceObject");
-    public static readonly DataKey<IResourceManagerUI> ResourceManagerUIKey = DataKey<IResourceManagerUI>.Create("ResourceManagerUI");
-    public static readonly DataKey<IResourceTreeUI> ResourceTreeUIKey = DataKey<IResourceTreeUI>.Create("ResourceTreeUI");
-    public static readonly DataKey<IResourceListUI> ResourceListUIKey = DataKey<IResourceListUI>.Create("ResourceListUI");
-    public static readonly DataKey<IResourceNodeUI> ResourceNodeUIKey = DataKey<IResourceNodeUI>.Create("ResourceNode");
+    public static readonly DataKey<IResourceManagerElement> ResourceManagerUIKey = DataKey<IResourceManagerElement>.Create("ResourceManagerUI");
+    public static readonly DataKey<IResourceTreeElement> ResourceTreeUIKey = DataKey<IResourceTreeElement>.Create("ResourceTreeUI");
+    public static readonly DataKey<IResourceListElement> ResourceListUIKey = DataKey<IResourceListElement>.Create("ResourceListUI");
+    public static readonly DataKey<IResourceTreeNodeElement> ResourceNodeUIKey = DataKey<IResourceTreeNodeElement>.Create("ResourceNode");
 }

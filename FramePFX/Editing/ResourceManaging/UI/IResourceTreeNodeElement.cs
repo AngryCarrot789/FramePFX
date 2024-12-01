@@ -19,26 +19,24 @@
 
 namespace FramePFX.Editing.ResourceManaging.UI;
 
-public interface IResourceManagerUI {
+public interface IResourceTreeNodeElement {
     /// <summary>
-    /// Gets the resource selection manager
+    /// Gets the layer model for this node
     /// </summary>
-    IResourceSelectionManager Selection { get; }
+    BaseResource? Resource { get; }
+
+    IResourceTreeNodeElement? Parent { get; }
+
+    IResourceTreeElement? Tree { get; }
 
     /// <summary>
-    /// Gets our resource list
+    /// Gets or sets if this item is selected
     /// </summary>
-    IResourceTreeUI Tree { get; }
+    bool IsSelected { get; set; }
 
     /// <summary>
-    /// Gets our resource list
+    /// Gets or sets the editing name state, which when true will show a text box to
+    /// edit the name and when false just shows plain text
     /// </summary>
-    IResourceListUI List { get; }
-
-    /// <summary>
-    /// Gets the node for the given resource
-    /// </summary>
-    /// <param name="resource">The model</param>
-    /// <returns>The UI</returns>
-    IResourceNodeUI GetNode(BaseResource resource);
+    bool EditNameState { get; set; }
 }

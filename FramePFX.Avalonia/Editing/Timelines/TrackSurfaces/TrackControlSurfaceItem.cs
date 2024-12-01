@@ -23,16 +23,19 @@ using System.Linq;
 using System.Reflection;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using FramePFX.Avalonia.Editing.Timelines.Selection;
 using FramePFX.Avalonia.Interactivity;
-using FramePFX.Editing.Timelines.Tracks;
+using FramePFX.Avalonia.Utils;
 using FramePFX.Editing.UI;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
+using Track = FramePFX.Editing.Timelines.Tracks.Track;
 
 namespace FramePFX.Avalonia.Editing.Timelines.TrackSurfaces;
 
@@ -50,6 +53,7 @@ public class TrackControlSurfaceItem : ContentControl {
     private DragState dragState;
     internal IPointer? initiatedDragPointer;
     private bool isMovingBetweenTracks;
+    private ContentPresenter PART_ContentPresenter;
 
     public Track? Track {
         get => this.myTrack;
@@ -81,6 +85,11 @@ public class TrackControlSurfaceItem : ContentControl {
 
     static TrackControlSurfaceItem() {
         FocusableProperty.OverrideDefaultValue<TrackControlSurfaceItem>(true);
+    }
+
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
+        base.OnApplyTemplate(e);
+        this.PART_ContentPresenter = e.NameScope.GetTemplateChild<ContentPresenter>("PART_ContentPresenter");
     }
 
     private enum DragState {
@@ -179,6 +188,12 @@ public class TrackControlSurfaceItem : ContentControl {
             return;
         }
 
+        // The mouse didn't click the track area, maybe it clicked
+        // the toggle visibility button, so ignore the event
+        if (!ReferenceEquals(e.Source, this.PART_ContentPresenter)) {
+            return;
+        }
+
         PointerPoint point = e.GetCurrentPoint(this);
         if (point.Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonPressed) {
             return;
@@ -195,6 +210,7 @@ public class TrackControlSurfaceItem : ContentControl {
         this.initiatedDragPointer = e.Pointer;
         this.SetDragState(DragState.Initiated);
 
+        e.Handled = true;
         if (!ReferenceEquals(e.Pointer.Captured, this))
             e.Pointer.Capture(this);
         
@@ -270,6 +286,10 @@ public class TrackControlSurfaceItem : ContentControl {
     protected override void OnPointerMoved(PointerEventArgs e) {
         base.OnPointerMoved(e);
         if (e.Handled || this.TrackList == null || this.TrackElement == null) {
+            return;
+        }
+        
+        if (!ReferenceEquals(e.Source, this.PART_ContentPresenter)) {
             return;
         }
 

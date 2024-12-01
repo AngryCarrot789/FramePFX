@@ -99,6 +99,8 @@ public abstract class RZApplication {
         manager.Register("commands.editor.DeleteSelectedTracks", new DeleteSelectedTracksCommand());
         manager.Register("commands.editor.SliceClipsCommand", new SliceClipsCommand());
         manager.Register("commands.editor.DeleteClipOwnerTrack", new DeleteClipOwnerTrackCommand());
+        manager.Register("commands.editor.RenameClip", new RenameClipCommand());
+        manager.Register("commands.editor.RenameTrack", new RenameTrackCommand());
 
         // resources
         manager.Register("commands.resources.RenameResource", new RenameResourceCommand());

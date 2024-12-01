@@ -120,7 +120,20 @@ public partial class UserInputDialog : WindowEx {
         }
 
         this.InvalidateConfirmButton();
-        Dispatcher.UIThread.InvokeAsync(() => (this.PART_InputFieldContent.Content as IUserInputContent)?.FocusPrimaryInput(), DispatcherPriority.Loaded);
+        Dispatcher.UIThread.InvokeAsync(() => {
+            if ((this.PART_InputFieldContent.Content as IUserInputContent)?.FocusPrimaryInput() == true) {
+                return;
+            }
+
+            if (this.UserInputData?.DefaultButton is bool boolean) {
+                if (boolean) {
+                    this.PART_ConfirmButton.Focus();
+                }
+                else {
+                    this.PART_CancelButton.Focus();
+                }
+            }
+        }, DispatcherPriority.Loaded);
     }
 
     /// <summary>

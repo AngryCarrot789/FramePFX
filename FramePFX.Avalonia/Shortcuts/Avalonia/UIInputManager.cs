@@ -54,6 +54,12 @@ public class UIInputManager {
 
     public static readonly AttachedProperty<bool> IsKeyShortcutProcessingUnblockedWithKeyModifiersProperty = AvaloniaProperty.RegisterAttached<UIInputManager, AvaloniaObject, bool>("IsKeyShortcutProcessingUnBlockedWithKeyModifiers");
 
+    public static readonly AttachedProperty<WeakReference?> CurrentFocusedElementProperty = AvaloniaProperty.RegisterAttached<UIInputManager, TopLevel, WeakReference?>("CurrentFocusedElement");
+    public static readonly AttachedProperty<WeakReference?> LastFocusedElementProperty = AvaloniaProperty.RegisterAttached<UIInputManager, TopLevel, WeakReference?>("LastFocusedElement");
+    
+    public static InputElement? GetCurrentFocusedElement(TopLevel obj) => obj.GetValue(CurrentFocusedElementProperty)?.Target as InputElement;
+    public static InputElement? GetLastFocusedElement(TopLevel obj) => obj.GetValue(LastFocusedElementProperty)?.Target as InputElement;
+
     // /// <summary>
     // /// A dependency property which is used to tells the input system that shortcuts key strokes can be processed when the focused element is the base WPF text editor control
     // /// </summary>
@@ -76,7 +82,7 @@ public class UIInputManager {
     public static event FocusedPathChangedEventHandler OnFocusedPathChanged;
 
     public static WeakReference CurrentlyFocusedObject { get; } = new WeakReference(null);
-
+    
     public string? FocusedPath { get; private set; }
 
     private UIInputManager() {
@@ -86,8 +92,8 @@ public class UIInputManager {
 
     static UIInputManager() {
         RZApplication.Instance.Dispatcher.VerifyAccess();
-        InputElement.GotFocusEvent.AddClassHandler<TopLevel>((s, e) => OnFocusChanged(e.Source as InputElement, false), handledEventsToo: true);
-        InputElement.LostFocusEvent.AddClassHandler<TopLevel>((s, e) => OnFocusChanged(e.Source as InputElement, true), handledEventsToo: true);
+        InputElement.GotFocusEvent.AddClassHandler<TopLevel>((s, e) => OnFocusChanged(s, e, false), handledEventsToo: true);
+        InputElement.LostFocusEvent.AddClassHandler<TopLevel>((s, e) => OnFocusChanged(s, e, true), handledEventsToo: true);
 
         InputElement.KeyDownEvent.AddClassHandler<TopLevel>(OnTopLevelPreviewKeyDown, RoutingStrategies.Tunnel, handledEventsToo: true);
         InputElement.KeyDownEvent.AddClassHandler<TopLevel>(OnTopLevelKeyDown, handledEventsToo: true);
@@ -179,11 +185,22 @@ public class UIInputManager {
 
     #region Focus managing
 
-    private static void OnFocusChanged(InputElement? element, bool lost) {
+    private static void OnFocusChanged(TopLevel sender, RoutedEventArgs e, bool lost) {
+        InputElement? element = e.Source as InputElement;
         if (element == null) {
             return;
         }
 
+        WeakReference? last = sender.GetValue(LastFocusedElementProperty);
+        if (last != null)
+            last.Target = null; // Does this help the GC a bit?
+        
+        WeakReference? curr = sender.GetValue(CurrentFocusedElementProperty);
+        sender.SetValue(LastFocusedElementProperty, curr);
+        sender.SetValue(CurrentFocusedElementProperty, lost ? null : new WeakReference(element));
+
+        Debug.WriteLine($"Focus changed: '{GetLastFocusedElement(sender)?.GetType().Name ?? "null"}' -> '{GetCurrentFocusedElement(sender)?.GetType().Name ?? "null"}'");
+        
         string? oldPath = Instance.FocusedPath;
         string? newPath = lost ? null : GetFocusPath(element);
         if (oldPath != newPath) {

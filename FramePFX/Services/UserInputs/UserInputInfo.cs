@@ -73,6 +73,12 @@ public abstract class UserInputInfo : ITransferableData {
         set => DataParameter.SetValueHelper(this, CancelTextParameter, ref this.cancelText, value);
     }
 
+    /// <summary>
+    /// Gets or sets the button that is focused by default. True for the confirm
+    /// button, False for the cancel button, null for none. Null is default
+    /// </summary>
+    public bool? DefaultButton { get; init; }
+
     public UserInputInfo() {
         this.TransferableData = new TransferableData(this);
     }

@@ -138,6 +138,7 @@ public class DataManager {
     /// <param name="element">The element to raise the event for, along with its visual tree</param>
     public static void RaiseInheritedContextChanged(AvaloniaObject element) {
         RaiseEventRecursive(element, new RoutedEventArgs(InheritedContextChangedEvent, element));
+        Debug.WriteLine($"Context invalidated: {element.GetType().Name}");
     }
 
     /// <summary>

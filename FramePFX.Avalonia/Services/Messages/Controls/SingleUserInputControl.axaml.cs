@@ -68,9 +68,10 @@ public partial class SingleUserInputControl : UserControl, IUserInputContent {
         this.myData = null;
     }
 
-    public void FocusPrimaryInput() {
+    public bool FocusPrimaryInput() {
         this.PART_TextBox.Focus();
         this.PART_TextBox.SelectAll();
+        return true;
     }
 
     private void UpdateLabelVisibility() => this.PART_Label.IsVisible = !string.IsNullOrWhiteSpace(this.myData!.Label);

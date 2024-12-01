@@ -36,10 +36,10 @@ public class DeleteResourcesCommand : AsyncCommand {
 
     protected override async Task ExecuteAsync(CommandEventArgs e) {
         List<BaseResource> selection;
-        if (DataKeys.ResourceTreeUIKey.TryGetContext(e.ContextData, out IResourceTreeUI? tree)) {
+        if (DataKeys.ResourceTreeUIKey.TryGetContext(e.ContextData, out IResourceTreeElement? tree)) {
             selection = tree.Selection.SelectedItems.ToList();
         }
-        else if (DataKeys.ResourceListUIKey.TryGetContext(e.ContextData, out IResourceListUI? list)) {
+        else if (DataKeys.ResourceListUIKey.TryGetContext(e.ContextData, out IResourceListElement? list)) {
             selection = list.Selection.SelectedItems.ToList();
         }
         else {

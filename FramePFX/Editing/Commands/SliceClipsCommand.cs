@@ -36,7 +36,7 @@ public class SliceClipsCommand : Command {
     }
 
     protected override void Execute(CommandEventArgs e) {
-        if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip clip) && clip.Timeline is Timeline timeline) {
+        if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip? clip) && clip.Timeline is Timeline timeline) {
             SliceClip(clip, timeline.PlayHeadPosition);
         }
         else if (DataKeys.TimelineKey.TryGetContext(e.ContextData, out timeline)) {

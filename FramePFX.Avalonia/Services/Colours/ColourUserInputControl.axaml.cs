@@ -57,7 +57,7 @@ public partial class ColourUserInputControl : UserControl, IUserInputContent {
         this.myData = null;
     }
     
-    public void FocusPrimaryInput() {
-        this.PART_ColorView.Focus();
+    public bool FocusPrimaryInput() {
+        return false;
     }
 }

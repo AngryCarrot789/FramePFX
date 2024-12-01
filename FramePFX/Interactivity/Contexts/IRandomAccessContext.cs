@@ -17,17 +17,11 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.Interactivity;
+namespace FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editing.ResourceManaging.UI;
-
-public interface IResourceListUI {
-    IResourceManagerUI ManagerUI { get; }
-
-    IResourceNodeUI? CurrentFolder { get; }
-
+public interface IRandomAccessContext : IContextData {
     /// <summary>
-    /// Gets the resource list's selection manager. This may be synced with the resource manager UI selection
+    /// Gets the number of context elements
     /// </summary>
-    ISelectionManager<BaseResource> Selection { get; }
+    int Count { get; }
 }

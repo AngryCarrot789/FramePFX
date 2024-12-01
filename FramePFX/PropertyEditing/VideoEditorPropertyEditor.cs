@@ -86,7 +86,7 @@ public class VideoEditorPropertyEditor : BasePropertyEditor {
 
         {
             this.TrackGroup = new SimplePropertyEditorGroup(typeof(Track)) {
-                DisplayName = "Track", IsExpanded = false
+                DisplayName = "Track"
             };
 
             this.TrackGroup.AddItem(new DisplayNamePropertyEditorSlot());

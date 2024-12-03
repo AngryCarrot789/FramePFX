@@ -263,34 +263,34 @@ public class VideoTrack : Track {
         SKRect frameRect = rd.surfaceInfo.ToRect();
         SKRect usedArea = rd.renderArea.ClampMinMax(frameRect);
         if (usedArea.Width > 0 && usedArea.Height > 0) {
-            using (SKPaint paint = new SKPaint { Color = new SKColor(255, 255, 255, RenderUtils.DoubleToByte255(this.renderOpacity)) }) {
-                if (usedArea == frameRect) {
-                    // clip rendered to the whole frame or did not use optimisations, therefore
-                    // skia's surface draw might be generally faster... maybe?
-                    rd.surface.Draw(dstSurface.Canvas, 0, 0, paint);
-                }
-                else {
-                    // clip only drew to a part of the screen, so only draw that part
-
-                    // While this works, having to create an image to wrap it isn't great...
-                    // using (SKImage img = SKImage.FromBitmap(rd.bitmap)) {
-                    //     dstSurface.Canvas.DrawImage(img, usedArea, usedArea, paint);
-                    // }
-
-                    // This does the exact same as above; creates an image and draws it :/
-                    // dstSurface.Canvas.DrawBitmap(rd.bitmap, usedArea, usedArea, paint);
-
-                    // Now this fucking works beautufilly!!!!!!!!!!!!!!!!
-                    using (SKImage img = SKImage.FromPixels(rd.surfaceInfo, rd.bitmap.GetPixels())) {
-                        dstSurface.Canvas.DrawImage(img, usedArea, usedArea, paint);
-                    }
-
-                    // Just as slow as drawing the entire surface
-                    // dstSurface.Canvas.DrawSurface(rd.surface, new SKPoint(rdA.Left, rdA.Top));
-                }
-
-                usedRenderingArea = usedArea;
+            using SKPaint paint = new SKPaint();
+            paint.Color = new SKColor(255, 255, 255, RenderUtils.DoubleToByte255(this.renderOpacity));
+            if (usedArea == frameRect) {
+                // clip rendered to the whole frame or did not use optimisations, therefore
+                // skia's surface draw might be generally faster... maybe?
+                rd.surface.Draw(dstSurface.Canvas, 0, 0, paint);
             }
+            else {
+                // clip only drew to a part of the screen, so only draw that part
+
+                // While this works, having to create an image to wrap it isn't great...
+                // using (SKImage img = SKImage.FromBitmap(rd.bitmap)) {
+                //     dstSurface.Canvas.DrawImage(img, usedArea, usedArea, paint);
+                // }
+
+                // This does the exact same as above; creates an image and draws it :/
+                // dstSurface.Canvas.DrawBitmap(rd.bitmap, usedArea, usedArea, paint);
+
+                // Now this fucking works beautufilly!!!!!!!!!!!!!!!!
+                using (SKImage img = SKImage.FromPixels(rd.surfaceInfo, rd.bitmap.GetPixels())) {
+                    dstSurface.Canvas.DrawImage(img, usedArea, usedArea, paint);
+                }
+
+                // Just as slow as drawing the entire surface
+                // dstSurface.Canvas.DrawSurface(rd.surface, new SKPoint(rdA.Left, rdA.Top));
+            }
+
+            usedRenderingArea = usedArea;
         }
         else {
             usedRenderingArea = default;

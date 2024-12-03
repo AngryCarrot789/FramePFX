@@ -147,12 +147,17 @@ public sealed class ResourceFolder : BaseResource {
         BaseResource item = this.items[srcIndex];
         if (target.Manager != null && target.Manager != this.Manager)
             throw new Exception("Target's manager is non-null and different from the current instance");
+        
         this.items.RemoveAt(srcIndex);
         target.items.Insert(dstIndex, item);
         InternalOnItemMoved(item, target);
         ResourceMovedEventArgs args = new ResourceMovedEventArgs(this, target, item, srcIndex, dstIndex);
         this.ResourceMoved?.Invoke(this, args);
-        target.ResourceMoved?.Invoke(target, args);
+        
+        // Obviously no reason to fire it again
+        if (this != target) {
+            target.ResourceMoved?.Invoke(target, args);
+        }
     }
 
     public bool IsParentInHierarchy(ResourceFolder item, bool startAtThis = true) {

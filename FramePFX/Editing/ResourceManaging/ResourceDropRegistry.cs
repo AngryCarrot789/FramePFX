@@ -25,7 +25,7 @@ namespace FramePFX.Editing.ResourceManaging;
 public class ResourceDropRegistry {
     public static readonly DataKey<bool> IsAboveTarget = DataKey<bool>.Create("LayerDropIsAboveTarget");
     
-    public const string DropTypeText = "PFXResourceTreeNode_DropType";
+    public const string DropTypeText = "PFXResManResources_DropType";
     
     public static DragDropRegistry<BaseResource> DropRegistry { get; }
 

@@ -96,26 +96,31 @@ public class AddVideoClipShapeCommand : AddClipCommand<VideoClipShape>;
 
 public class AddImageVideoClipCommand : AddClipCommand<ImageVideoClip> {
     protected override async Task OnPreAddToTrack(Track track, ImageVideoClip clip, IContextData ctx) {
-        if (DataKeys.ResourceManagerUIKey.TryGetContext(ctx, out IResourceManagerElement? manager)) {
-            ResourceManager? resourceManager = manager.ResourceManager;
-            if (resourceManager != null) {
+        ResourceManager? resMan;
+        if (!DataKeys.ResourceManagerUIKey.TryGetContext(ctx, out IResourceManagerElement? manager) || (resMan = manager.ResourceManager) == null) {
+            return;
+        }
+
+        if (MessageBoxResult.Yes == await IoC.MessageService.ShowMessage("Open image", "Do you want to open up an image file for this new clip?", MessageBoxButton.YesNo)) {
+            string? path = await IoC.FilePickService.OpenFile("Open an image file for this image?", Filters.ImageTypesAndAll);
+            if (path != null) {
                 ResourceImage resourceImage = new ResourceImage();
+                ResourceFolder targetFolder;
                 if (manager.List.CurrentFolder?.Resource is ResourceFolder folder) {
-                    folder.AddItem(resourceImage);
+                    (targetFolder = folder).AddItem(resourceImage);
                 }
                 else {
-                    resourceManager.RootContainer.AddItem(resourceImage);
+                    (targetFolder = resMan.RootContainer).AddItem(resourceImage);
                 }
 
-                if (MessageBoxResult.Yes == await IoC.MessageService.ShowMessage("Open image", "Do you want to open up an image file for this new clip?", MessageBoxButton.YesNo)) {
-                    string? path = await IoC.FilePickService.OpenFile("Open an image file for this image?", Filters.ImageTypesAndAll);
-                    if (path != null) {
-                        resourceImage.FilePath = path;
-                        await IoC.ResourceLoaderService.TryLoadResource(resourceImage);
-                    }
+                resourceImage.FilePath = path;
+                if (await IoC.ResourceLoaderService.TryLoadResource(resourceImage)) {
+                    clip.ResourceImageKey.SetTargetResourceId(resourceImage.UniqueId);
                 }
-
-                clip.ResourceImageKey.SetTargetResourceId(resourceImage.UniqueId);
+                else {
+                    targetFolder.RemoveItem(resourceImage);
+                    resourceImage.Destroy();
+                }
             }
         }
     }

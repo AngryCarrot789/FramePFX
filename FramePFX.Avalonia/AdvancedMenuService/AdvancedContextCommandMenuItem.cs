@@ -79,7 +79,7 @@ public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem {
             string cmdId = this.Entry.CommandId;
             Executability state = !string.IsNullOrWhiteSpace(cmdId) && ctx != null ? CommandManager.Instance.CanExecute(cmdId, ctx, true) : Executability.Invalid;
             this.CanExecute = state == Executability.Valid;
-            // this.IsVisible = state != Executability.Invalid;
+            this.IsVisible = state != Executability.Invalid;
         }
     }
 
@@ -108,23 +108,23 @@ public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem {
     }
 
     private bool DispatchCommand(string cmdId) {
-        IContextData context = this.Container?.Context;
+        IContextData? context = this.Container?.Context;
         if (context == null) {
             return false;
         }
         
-        Dispatcher.UIThread.Post((Action) (() => this.ExecuteCommand(cmdId, context)), DispatcherPriority.Render);
+        Dispatcher.UIThread.Post(() => this.ExecuteCommand(cmdId, context), DispatcherPriority.Render);
         return true;
     }
 
-    private void ExecuteCommand(string cmdId, IContextData context) {
+    private async void ExecuteCommand(string cmdId, IContextData? context) {
         try {
             if (!string.IsNullOrWhiteSpace(cmdId) && context != null)
                 CommandManager.Instance.Execute(cmdId, context);
         }
         catch (Exception e) {
             if (!Debugger.IsAttached) {
-                IoC.MessageService.ShowMessage(
+                await IoC.MessageService.ShowMessage(
                     "Error",
                     "An unexpected error occurred while processing command. " +
                     "FramePFX may or may not crash now, but you should probably restart and save just in case",

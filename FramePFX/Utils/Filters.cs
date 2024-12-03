@@ -33,8 +33,8 @@ public static class Filters {
     public static readonly FileFilter ProjectType = FileFilter.Builder("Frame PFX Project").Patterns("*.fpx").AppleUniformTypeIds("public.frame-pfx").Build();
 
     public static readonly IReadOnlyList<FileFilter> ProjectTypeAndAll = [ProjectType, All];
-    public static readonly IReadOnlyList<FileFilter> TextTypeAndAll = [Png, Jpg, Jpeg, Gif, Bmp, Webp, All];
-    public static readonly IReadOnlyList<FileFilter> ImageTypesAndAll = [TextType, All];
+    public static readonly IReadOnlyList<FileFilter> ImageTypesAndAll = [Png, Jpg, Jpeg, Gif, Bmp, Webp, All];
+    public static readonly IReadOnlyList<FileFilter> TextTypeAndAll = [TextType, All];
 }
 
 public class FileFilter {

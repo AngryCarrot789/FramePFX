@@ -24,14 +24,14 @@ namespace FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 /// <summary>
 /// An interface for shared properties between a <see cref="ResourceTreeView"/> and <see cref="ResourceTreeViewItem"/>
 /// </summary>
-public interface IResourceTreeElement {
+public interface IResourceTreeOrNode {
     ResourceTreeView? ResourceTree { get; }
 
     ResourceTreeViewItem? ParentNode { get; }
 
-    MovedResource MovedResource { get; set; }
+    MovedResource? MovedResource { get; set; }
 
-    BaseResource Resource { get; }
+    BaseResource? Resource { get; }
 
     ResourceTreeViewItem GetNodeAt(int index);
 
@@ -40,6 +40,8 @@ public interface IResourceTreeElement {
     void InsertNode(ResourceTreeViewItem control, BaseResource resource, int index);
 
     void RemoveNode(int index, bool canCache = true);
+    
+    void MoveNode(int oldIndex, int newIndex);
 }
 
 /// <summary>

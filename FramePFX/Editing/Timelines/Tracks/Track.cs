@@ -164,8 +164,8 @@ public abstract class Track : IDisplayName, IAutomatable, IHaveEffects, IDestroy
             modAdd.AddCommand("commands.editor.AddTextClip", "Add Text clip", "Create a new Text clip");
             modAdd.AddCommand("commands.editor.AddTimecodeClip", "Add Timecode clip", "Create a new Timecode clip");
             modAdd.AddCommand("commands.editor.AddVideoClipShape", "Add Shape clip", "Create a new Shape clip");
-            modAdd.AddCommand("commands.editor.AddImageVideoClip", "Add ImageVideo clip", "Create a new Image clip");
-            modAdd.AddCommand("commands.editor.AddCompositionVideoClip", "Add CompositionVideo clip", "Create a new Composition clip");
+            modAdd.AddCommand("commands.editor.AddImageVideoClip", "Add Image clip", "Create a new Image clip");
+            modAdd.AddCommand("commands.editor.AddCompositionVideoClip", "Add Composition clip", "Create a new Composition clip");
             
             ContextGroup mod3 = TimelineTrackContextRegistry.GetGroup("Modify2");
             mod3.AddCommand("commands.editor.SliceClipsCommand", "Split clips", "Slice this clip at the playhead");

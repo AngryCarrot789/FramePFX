@@ -19,9 +19,6 @@
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 
-/// <summary>
-/// A tree view which presents a canvas' layer hierarchy in a tree system
-/// </summary>
 public class StandardResourceTreeView : ResourceTreeView {
     public StandardResourceTreeView() {
         

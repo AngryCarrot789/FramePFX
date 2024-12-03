@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using FramePFX.AdvancedMenuService;
 using FramePFX.Editing.Factories;
 using FramePFX.Interactivity;
 using FramePFX.Serialisation;
@@ -30,6 +31,9 @@ namespace FramePFX.Editing.ResourceManaging;
 /// </summary>
 public abstract class BaseResource : IDisplayName, IDestroy {
     public static readonly SerialisationRegistry SerialisationRegistry;
+    public static readonly ContextRegistry ResourceItemContextRegistry;
+    public static readonly ContextRegistry ResourceFolderContextRegistry;
+    public static readonly ContextRegistry ResourceSurfaceContextRegistry;
 
     private string displayName;
 
@@ -55,7 +59,7 @@ public abstract class BaseResource : IDisplayName, IDestroy {
             string oldName = this.displayName;
             if (oldName == value)
                 return;
-            this.displayName = value;
+            this.displayName = value ?? "";
             this.DisplayNameChanged?.Invoke(this, oldName, value);
         }
     }
@@ -74,6 +78,29 @@ public abstract class BaseResource : IDisplayName, IDestroy {
             if (!string.IsNullOrEmpty(resource.DisplayName))
                 data.SetString(nameof(resource.DisplayName), resource.DisplayName);
         });
+
+        ResourceSurfaceContextRegistry = new ContextRegistry();
+        ResourceFolderContextRegistry = new ContextRegistry();
+        ResourceItemContextRegistry = new ContextRegistry();
+
+        static void ApplyCollection(ContextGroup g) {
+            g.AddEntry(new SubListContextEntry("Add new...", "Add a new resource", new List<IContextObject>() {
+                new CommandContextEntry("Add Image", "Create a new image resource", "commands.resources.AddResourceImage"),
+                new CommandContextEntry("Add Media", "Create a new media resource", "commands.resources.AddResourceAVMedia"),
+                new CommandContextEntry("Add Colour", "Create a new colour resource", "commands.resources.AddResourceColour"),
+                new CommandContextEntry("Add Composition Timeline", "Create a composition timeline new resource", "commands.resources.AddResourceComposition")
+            }));
+        }
+        
+        static void ApplyItem(ContextGroup g) {
+            g.AddCommand("commands.resources.RenameResource", "Rename", "Rename this clip");
+            g.AddCommand("commands.resources.DeleteResources", "Delete", "Delete this clip");
+        }
+        
+        ApplyCollection(ResourceSurfaceContextRegistry.GetGroup("ModifyAdd"));
+        ApplyCollection(ResourceFolderContextRegistry.GetGroup("ModifyAdd"));
+        ApplyItem(ResourceItemContextRegistry.GetGroup("Modify1"));
+        ApplyItem(ResourceFolderContextRegistry.GetGroup("Modify1"));
     }
 
     /// <summary>

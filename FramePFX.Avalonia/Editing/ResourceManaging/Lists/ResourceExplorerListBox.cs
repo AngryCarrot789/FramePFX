@@ -23,6 +23,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using FramePFX.Avalonia.AdvancedMenuService;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Utils;
 using FramePFX.Editing.ResourceManaging;
@@ -74,6 +75,16 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement {
         ResourceManagerProperty.Changed.AddClassHandler<ResourceExplorerListBox, ResourceManager?>((d, e) => d.OnResourceManagerChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
         CurrentFolderProperty.Changed.AddClassHandler<ResourceExplorerListBox, ResourceFolder?>((d, e) => d.OnCurrentFolderChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
         PointerPressedEvent.AddClassHandler<ResourceExplorerListBox>((d, e) => d.OnPreviewPointerPressed(e), RoutingStrategies.Tunnel);
+    }
+    
+    protected override void OnLoaded(RoutedEventArgs e) {
+        base.OnLoaded(e);
+        AdvancedContextMenu.SetContextRegistry(this, BaseResource.ResourceSurfaceContextRegistry);
+    }
+
+    protected override void OnUnloaded(RoutedEventArgs e) {
+        base.OnUnloaded(e);
+        AdvancedContextMenu.SetContextRegistry(this, null);
     }
 
     private void OnPreviewPointerPressed(PointerPressedEventArgs e) {

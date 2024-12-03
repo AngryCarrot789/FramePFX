@@ -26,7 +26,7 @@
         <Setter Property="Padding" Value="6 0"/>
         <Setter Property="Template">
             <ControlTemplate>
-                <Border x:Name="root"
+                <Border x:Name="PART_LayoutRoot"
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
@@ -111,12 +111,12 @@
             </Setter>
         </Style>
 
-        <Style Selector="^:pointerover /template/ Border#root">
+        <Style Selector="^:pointerover /template/ Border#PART_LayoutRoot">
             <Setter Property="Background" Value="{DynamicResource MenuItem.MouseOver.Background}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource MenuItem.MouseOver.Background}"/>
         </Style>
 
-        <Style Selector="^:selected /template/ Border#root">
+        <Style Selector="^:selected /template/ Border#PART_LayoutRoot">
             <Setter Property="Background" Value="{DynamicResource MenuItem.MouseOver.Background}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource MenuItem.MouseOver.Background}"/>
         </Style>

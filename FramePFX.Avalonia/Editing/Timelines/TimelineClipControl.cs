@@ -32,11 +32,13 @@ using FramePFX.Avalonia.Editing.Timelines.Selection;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Editing;
 using FramePFX.Editing.Rendering;
+using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Clips.Video;
 using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Editing.UI;
+using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 using SkiaSharp;
@@ -50,6 +52,12 @@ public class TimelineClipControl : ContentControl, IClipElement {
     public static readonly DirectProperty<TimelineClipControl, long> FrameDurationProperty = AvaloniaProperty.RegisterDirect<TimelineClipControl, long>(nameof(FrameDuration), o => o.FrameDuration);
     public static readonly DirectProperty<TimelineClipControl, string?> DisplayNameProperty = AvaloniaProperty.RegisterDirect<TimelineClipControl, string?>(nameof(DisplayName), o => o.DisplayName);
     public static readonly DirectProperty<TimelineClipControl, bool> IsSelectedProperty = AvaloniaProperty.RegisterDirect<TimelineClipControl, bool>(nameof(IsSelected), o => o.IsSelected);
+    public static readonly DirectProperty<TimelineClipControl, bool> IsDroppableTargetOverProperty = AvaloniaProperty.RegisterDirect<TimelineClipControl, bool>(nameof(IsDroppableTargetOver), o => o.IsDroppableTargetOver);
+
+    public bool IsDroppableTargetOver {
+        get => this.isDroppableTargetOver;
+        private set => this.SetAndRaise(IsDroppableTargetOverProperty, ref this.isDroppableTargetOver, value);
+    }
 
     public Clip? ClipModel {
         get => this.myClip;
@@ -106,6 +114,7 @@ public class TimelineClipControl : ContentControl, IClipElement {
     private FrameSpan myFrameSpan;
     private string? myDisplayName;
     private bool isSelected;
+    private bool isDroppableTargetOver;
 
     private readonly IBinder<Clip> frameSpanBinder = new AutoUpdateAndEventPropertyBinder<Clip>(nameof(VideoClip.FrameSpanChanged), obj => ((TimelineClipControl) obj.Control).FrameSpan = obj.Model.FrameSpan, null);
     private readonly IBinder<Clip> displayNameBinder = new AutoUpdateAndEventPropertyBinder<Clip>(DisplayNameProperty, nameof(VideoClip.DisplayNameChanged), obj => ((TimelineClipControl) obj.Control).DisplayName = obj.Model.DisplayName, null);
@@ -124,16 +133,22 @@ public class TimelineClipControl : ContentControl, IClipElement {
     private bool isMovingBetweenTracks;
     private readonly ContextData contextData;
     private bool wasSelectedOnPress;
+    private bool isProcessingAsyncDrop;
 
     public TimelineClipControl() {
         Binders.AttachControls(this, this.frameSpanBinder, this.displayNameBinder);
         this.renderSizeRectGeometry = new RectangleGeometry();
         DataManager.SetContextData(this, this.contextData = new ContextData().Set(DataKeys.ClipUIKey, this));
+        DragDrop.SetAllowDrop(this, true);
     }
 
 
     static TimelineClipControl() {
         AffectsRender<TimelineClipControl>(BackgroundProperty, DisplayNameProperty);
+        DragDrop.DragEnterEvent.AddClassHandler<TimelineClipControl>((o, e) => o.OnDragEnter(e));
+        DragDrop.DragOverEvent.AddClassHandler<TimelineClipControl>((o, e) => o.OnDragOver(e));
+        DragDrop.DragLeaveEvent.AddClassHandler<TimelineClipControl>((o, e) => o.OnDragLeave(e));
+        DragDrop.DropEvent.AddClassHandler<TimelineClipControl>((o, e) => o.OnDrop(e));
     }
 
     protected override void OnLoaded(RoutedEventArgs e) {
@@ -146,7 +161,7 @@ public class TimelineClipControl : ContentControl, IClipElement {
         base.OnUnloaded(e);
         AdvancedContextMenu.SetContextRegistry(this, null);
     }
-    
+
     protected override void OnSizeChanged(SizeChangedEventArgs e) {
         base.OnSizeChanged(e);
         this.renderSizeRectGeometry.Rect = new Rect(e.NewSize);
@@ -624,7 +639,7 @@ public class TimelineClipControl : ContentControl, IClipElement {
 
     public override void Render(DrawingContext dc) {
         base.Render(dc);
-        
+
         // Thickness border = this.IsSelected ? new Thickness(2.0) : new Thickness(1.0, 0.0);
         Rect finalRect = new Rect(default, this.Bounds.Size);
         Rect visibleRect = finalRect; //new Rect(default, this.Bounds.Size).Deflate(border);
@@ -689,4 +704,86 @@ public class TimelineClipControl : ContentControl, IClipElement {
 
     ITrackElement IClipElement.TrackUI => this.Track?.TrackElement ?? throw new InvalidOperationException("Not ready yet");
     Clip IClipElement.Clip => this.ClipModel!;
+
+    #region Drag dropping items into this clip
+
+    protected void OnDragEnter(DragEventArgs e) {
+        this.OnDragOver(e);
+    }
+
+    protected void OnDragOver(DragEventArgs e) {
+        e.Handled = true;
+        if (this.isProcessingAsyncDrop) {
+            e.DragEffects = DragDropEffects.None;
+            return;
+        }
+
+        EnumDropType outputEffects = EnumDropType.None;
+        EnumDropType inputEffects = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
+        if (inputEffects != EnumDropType.None && this.ClipModel is Clip target) {
+            if (e.Data.Get(ResourceDropRegistry.DropTypeText) is List<BaseResource> resources) {
+                if (resources.Count == 1 && resources[0] is ResourceItem) {
+                    outputEffects = ClipDropRegistry.DropRegistry.CanDrop(target, resources[0], inputEffects);
+                }
+            }
+            // else if (e.Data.GetData(EffectProviderListBox.EffectProviderDropType) is EffectProviderEntry provider) {
+            //     outputEffects = ClipDropRegistry.DropRegistry.CanDrop(target, provider, inputEffects);
+            // }
+            else {
+                outputEffects = ClipDropRegistry.DropRegistry.CanDropNative(target, new DataObjectWrapper(e.Data), inputEffects);
+            }
+
+            if (outputEffects != EnumDropType.None) {
+                this.OnAcceptDrop();
+                e.DragEffects = (DragDropEffects) outputEffects;
+            }
+            else {
+                this.IsDroppableTargetOver = false;
+                e.DragEffects = DragDropEffects.None;
+            }
+        }
+    }
+
+    private void OnAcceptDrop() {
+        if (!this.IsDroppableTargetOver)
+            this.IsDroppableTargetOver = true;
+    }
+
+    protected void OnDragLeave(DragEventArgs e) {
+        // Dispatcher.UIThread.Invoke(() => this.ClearValue(IsDroppableTargetOverProperty), DispatcherPriority.Loaded);
+        if (!this.IsPointerOver) {
+            this.IsDroppableTargetOver = false;
+        }
+    }
+
+    protected async void OnDrop(DragEventArgs e) {
+        e.Handled = true;
+        if (this.isProcessingAsyncDrop || !(this.ClipModel is Clip clip)) {
+            return;
+        }
+
+        EnumDropType effects = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
+        if (e.DragEffects == DragDropEffects.None) {
+            return;
+        }
+
+        try {
+            this.isProcessingAsyncDrop = true;
+            if (e.Data.Get(ResourceDropRegistry.DropTypeText) is List<BaseResource> items && items.Count == 1 && items[0] is ResourceItem) {
+                await ClipDropRegistry.DropRegistry.OnDropped(clip, items[0], effects);
+            }
+            // else if (e.Data.GetData(EffectProviderListBox.EffectProviderDropType) is EffectProviderEntry provider) {
+            //     await ClipDropRegistry.DropRegistry.OnDropped(clip, provider, effects);
+            // }
+            else {
+                await ClipDropRegistry.DropRegistry.OnDroppedNative(clip, new DataObjectWrapper(e.Data), effects);
+            }
+        }
+        finally {
+            this.isProcessingAsyncDrop = false;
+            this.IsDroppableTargetOver = false;
+        }
+    }
+
+    #endregion
 }

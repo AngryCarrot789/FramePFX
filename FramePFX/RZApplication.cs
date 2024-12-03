@@ -102,6 +102,7 @@ public abstract class RZApplication {
         manager.Register("commands.editor.DeleteClipOwnerTrack", new DeleteClipOwnerTrackCommand());
         manager.Register("commands.editor.RenameClip", new RenameClipCommand());
         manager.Register("commands.editor.RenameTrack", new RenameTrackCommand());
+        manager.Register("commands.editor.DeleteClips", new DeleteClipsCommand());
         
         // Adding clips to tracks
         manager.Register("commands.editor.AddTextClip", new AddTextClipCommand());
@@ -113,6 +114,10 @@ public abstract class RZApplication {
         // resources
         manager.Register("commands.resources.RenameResource", new RenameResourceCommand());
         manager.Register("commands.resources.DeleteResources", new DeleteResourcesCommand());
+        manager.Register("commands.resources.AddResourceImage", new AddResourceImageCommand());
+        manager.Register("commands.resources.AddResourceAVMedia", new AddResourceAVMediaCommand());
+        manager.Register("commands.resources.AddResourceColour", new AddResourceColourCommand());
+        manager.Register("commands.resources.AddResourceComposition", new AddResourceCompositionCommand());
 
         // Editor
         manager.Register("UndoCommand", new UndoCommand());

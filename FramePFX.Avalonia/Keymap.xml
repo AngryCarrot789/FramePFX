@@ -93,7 +93,7 @@
                     <Shortcut Name="SelectAllClipsInTrack" CommandId="commands.generic.SelectAllClipsInTrackCommand">
                         <KeyStroke Mods="CTRL+SHIFT" Key="A"/>
                     </Shortcut>
-                    <Shortcut Name="DeleteSelectedClips" CommandId="commands.generic.DeleteSelectedClips" Description="Deletes all of the selected clips">
+                    <Shortcut Name="DeleteSelectedClips" CommandId="commands.editor.DeleteClips" Description="Deletes all of the selected clips">
                         <KeyStroke Key="Delete"/>
                     </Shortcut>
                     <Shortcut Name="MoveBack" CommandId="commands.generic.surface.MoveBack">

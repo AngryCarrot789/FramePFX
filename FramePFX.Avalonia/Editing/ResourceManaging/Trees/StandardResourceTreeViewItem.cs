@@ -19,9 +19,6 @@
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 
-/// <summary>
-/// A tree view item that represents any type of layer
-/// </summary>
 public class StandardResourceTreeViewItem : ResourceTreeViewItem {
     
 }

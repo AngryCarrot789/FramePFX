@@ -24,6 +24,8 @@ using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Interactivity;
+using FramePFX.Avalonia.AdvancedMenuService;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.Events;
@@ -33,7 +35,7 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 
-public abstract class ResourceTreeView : TreeView, IResourceTreeElement, FramePFX.Editing.ResourceManaging.UI.IResourceTreeElement {
+public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX.Editing.ResourceManaging.UI.IResourceTreeElement {
     public static readonly StyledProperty<bool> IsDroppableTargetOverProperty = AvaloniaProperty.Register<ResourceTreeView, bool>("IsDroppableTargetOver");
     public static readonly StyledProperty<ResourceManager?> ResourceManagerProperty = AvaloniaProperty.Register<ResourceTreeView, ResourceManager?>(nameof(ResourceManager));
 
@@ -43,7 +45,7 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeElement, FramePF
     private bool isProcessingAsyncDrop;
     private ResourceFolder rootFolder;
     private BaseResource targetDropResourceFolder; // the drop target for DragDrop
-    private IResourceTreeElement targetDropNodeFolder; // the control associated with the drop resource
+    private IResourceTreeOrNode targetDropNodeFolder; // the control associated with the drop resource
 
     public IModelControlDictionary<BaseResource, ResourceTreeViewItem> ItemMap => this.itemMap;
 
@@ -59,11 +61,11 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeElement, FramePF
 
     public MovedResource MovedResource { get; set; }
     
-    ResourceTreeView? IResourceTreeElement.ResourceTree => this;
+    ResourceTreeView? IResourceTreeOrNode.ResourceTree => this;
 
-    ResourceTreeViewItem? IResourceTreeElement.ParentNode => null;
+    ResourceTreeViewItem? IResourceTreeOrNode.ParentNode => null;
 
-    BaseResource IResourceTreeElement.Resource => this.rootFolder;
+    BaseResource IResourceTreeOrNode.Resource => this.rootFolder;
 
     public ResourceTreeSelectionManager SelectionManager { get; }
 
@@ -75,7 +77,17 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeElement, FramePF
         DragDrop.SetAllowDrop(this, true);
         DataManager.SetContextData(this, new ContextData().Set(DataKeys.ResourceTreeUIKey, this));
     }
-    
+
+    protected override void OnLoaded(RoutedEventArgs e) {
+        base.OnLoaded(e);
+        AdvancedContextMenu.SetContextRegistry(this, BaseResource.ResourceSurfaceContextRegistry);
+    }
+
+    protected override void OnUnloaded(RoutedEventArgs e) {
+        base.OnUnloaded(e);
+        AdvancedContextMenu.SetContextRegistry(this, null);
+    }
+
     protected override void OnPointerPressed(PointerPressedEventArgs e) {
         base.OnPointerPressed(e);
         if (e.Handled || e.Source is ResourceTreeViewItem) {
@@ -130,8 +142,10 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeElement, FramePF
 
     public void MoveNode(int oldIndex, int newIndex) {
         ResourceTreeViewItem control = (ResourceTreeViewItem) this.Items[oldIndex]!;
+        control.OnMoving(oldIndex, newIndex);
         this.Items.RemoveAt(oldIndex);
         this.Items.Insert(newIndex, control);
+        control.OnMoved(oldIndex, newIndex);
     }
 
     private void OnResourceManagerChanged(ResourceManager? oldManager, ResourceManager? newManager) {
@@ -238,7 +252,7 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeElement, FramePF
         }
     }
 
-    public static IResourceTreeElement? FindNodeForResource(IResourceTreeElement self, BaseResource resource) {
+    public static IResourceTreeOrNode? FindNodeForResource(IResourceTreeOrNode self, BaseResource resource) {
         ResourceTreeView? root = self.ResourceTree;
         if (root != null) {
             if (root.rootFolder == resource) {

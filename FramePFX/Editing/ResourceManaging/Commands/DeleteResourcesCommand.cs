@@ -80,6 +80,7 @@ public class DeleteResourcesCommand : AsyncCommand {
 
             ResourceFolder.ClearHierarchy(item as ResourceFolder);
             item.Parent.RemoveItem(item);
+            item.Destroy();
         }
     }
 

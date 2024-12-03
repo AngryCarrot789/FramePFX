@@ -27,6 +27,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using FramePFX.Avalonia.AdvancedMenuService;
 using FramePFX.Avalonia.Bindings;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Utils;
@@ -40,20 +41,20 @@ using Key = Avalonia.Input.Key;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 
-public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElement, IResourceTreeElement {
+public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElement, IResourceTreeOrNode {
     public static readonly StyledProperty<bool> IsDroppableTargetOverProperty = ResourceTreeView.IsDroppableTargetOverProperty.AddOwner<ResourceTreeView>();
     public static readonly DirectProperty<ResourceTreeViewItem, bool> IsFolderItemProperty = AvaloniaProperty.RegisterDirect<ResourceTreeViewItem, bool>("IsFolderItem", o => o.IsFolderItem, null);
 
     public ResourceTreeView? ResourceTree { get; private set; }
-    
+
     public ResourceTreeViewItem? ParentNode { get; private set; }
-    
-    public MovedResource MovedResource { get; set; }
-    
+
+    public MovedResource? MovedResource { get; set; }
+
     public BaseResource? Resource { get; private set; }
-    
+
     IResourceTreeNodeElement? IResourceTreeNodeElement.Parent => this.ParentNode;
-    FramePFX.Editing.ResourceManaging.UI.IResourceTreeElement? IResourceTreeNodeElement.Tree => this.ResourceTree;
+    IResourceTreeElement? IResourceTreeNodeElement.Tree => this.ResourceTree;
 
     public bool IsDroppableTargetOver {
         get => this.GetValue(IsDroppableTargetOverProperty);
@@ -64,7 +65,7 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
         get => this.isFolderItem;
         private set => this.SetAndRaise(IsFolderItemProperty, ref this.isFolderItem, value);
     }
-    
+
     private readonly IBinder<BaseResource> displayNameBinder = new GetSetAutoUpdateAndEventPropertyBinder<BaseResource>(HeaderProperty, nameof(BaseResource.DisplayNameChanged), b => b.Model.DisplayName, (b, v) => b.Model.DisplayName = (string) v);
     private Border? PART_DragDropMoveBorder;
     private bool isDragDropping;
@@ -207,6 +208,7 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
 
         this.displayNameBinder.Attach(this, this.Resource!);
         DataManager.SetContextData(this, this.contextData.Set(DataKeys.ResourceObjectKey, this.Resource));
+        AdvancedContextMenu.SetContextRegistry(this, this.IsFolderItem ? BaseResource.ResourceFolderContextRegistry : BaseResource.ResourceItemContextRegistry);
     }
 
     public virtual void OnRemoving() {
@@ -230,8 +232,15 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
         this.Resource = null;
         this.IsFolderItem = false;
         DataManager.ClearContextData(this);
+        AdvancedContextMenu.SetContextRegistry(this, null);
     }
-    
+
+    public virtual void OnMoving(int oldIndex, int newIndex) {
+    }
+
+    public virtual void OnMoved(int oldIndex, int newIndex) {
+    }
+
     private void OnResourceAdded(ResourceFolder parent, BaseResource item, int index) => this.InsertNode(item, index);
 
     private void OnResourceRemoved(ResourceFolder parent, BaseResource item, int index) => this.RemoveNode(index);
@@ -272,6 +281,18 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
         control.OnRemoved();
         if (canCache)
             tree.PushCachedItem(control);
+    }
+
+    public void MoveNode(int oldIndex, int newIndex) {
+        ResourceTreeView? tree = this.ResourceTree;
+        if (tree == null)
+            throw new InvalidOperationException("Cannot remove children when we have no resource tree associated");
+
+        ResourceTreeViewItem control = (ResourceTreeViewItem) this.Items[oldIndex]!;
+        control.OnMoving(oldIndex, newIndex);
+        this.Items.RemoveAt(oldIndex);
+        this.Items.Insert(newIndex, control);
+        control.OnMoved(oldIndex, newIndex);
     }
 
     #region Drag Drop
@@ -403,7 +424,7 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
                 obj.Set(ResourceDropRegistry.DropTypeText, selection);
 
                 this.dragBtnState = DragState.Active;
-                DragDrop.DoDragDrop(e, obj, DragDropEffects.Move | DragDropEffects.Copy);
+                DragDrop.DoDragDrop(e, obj, DragDropEffects.Move | DragDropEffects.Copy | DragDropEffects.Link);
             }
             catch (Exception ex) {
                 Debug.WriteLine("Exception while executing resource tree item drag drop: " + ex.GetToString());
@@ -419,11 +440,11 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
             }
         }
     }
-    
+
     private void CompleteDragForDrop() {
         this.hasCompletedDrop = true;
     }
-    
+
     private void OnDragEnter(DragEventArgs e) {
         this.OnDragOver(e);
     }
@@ -451,21 +472,20 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
             return;
         }
 
-        const DragDropEffects args = DragDropEffects.Move | DragDropEffects.Copy;
         this.GetDropBorder(!(canDragOver ?? false), out double borderTop, out double borderBottom);
         Point point = e.GetPosition(this);
         if (DoubleUtils.LessThan(point.Y, borderTop)) {
             isDropAbove = true;
-            e.DragEffects = args;
         }
         else if (DoubleUtils.GreaterThanOrClose(point.Y, borderBottom)) {
             isDropAbove = false;
-            e.DragEffects = args;
         }
         else {
             if (canDragOver == true) {
                 this.IsDroppableTargetOver = true;
-                e.DragEffects = args;
+            }
+            else {
+                e.DragEffects = DragDropEffects.None;
             }
 
             this.PART_DragDropMoveBorder!.BorderThickness = default;
@@ -504,7 +524,7 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
 
     private async void OnDrop(DragEventArgs e) {
         e.Handled = true;
-        if (this.isProcessingAsyncDrop || !(this.Resource is BaseResource layer) || layer.Parent == null) {
+        if (this.isProcessingAsyncDrop || !(this.Resource is BaseResource myResource) || myResource.Parent == null) {
             return;
         }
 
@@ -516,7 +536,7 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
                 this.GetDropBorder(true, out borderTop, out borderBottom);
                 bool thing = DoubleUtils.LessThan(point.Y, borderTop);
                 ContextData ctx = new ContextData(DataManager.GetFullContextData((ResourceTreeViewItem) e.Source!)).Set(ResourceDropRegistry.IsAboveTarget, thing);
-                if (await ResourceDropRegistry.DropRegistry.OnDroppedNative(layer, new DataObjectWrapper(e.Data), dropType, ctx)) {
+                if (await ResourceDropRegistry.DropRegistry.OnDroppedNative(myResource, new DataObjectWrapper(e.Data), dropType, ctx)) {
                     return;
                 }
 
@@ -525,7 +545,7 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
             }
 
             bool isDropAbove;
-            bool? canDragOver = ProcessCanDragOver(this, this.Resource, e);
+            bool? canDragOver = ProcessCanDragOver(this, myResource, e);
             if (!canDragOver.HasValue) {
                 return;
             }
@@ -538,14 +558,14 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
             else if (DoubleUtils.GreaterThanOrClose(point.Y, borderBottom)) {
                 isDropAbove = false;
             }
-            else if (layer is ResourceFolder folder) {
+            else if (myResource is ResourceFolder myFolder) {
                 if (dropType != EnumDropType.Copy && dropType != EnumDropType.Move) {
                     return;
                 }
 
                 newList = new List<BaseResource>();
                 foreach (BaseResource item in srcItemList) {
-                    if (item is ResourceFolder composition && composition.IsParentInHierarchy(folder)) {
+                    if (item is ResourceFolder composition && composition.IsParentInHierarchy(myFolder)) {
                         continue;
                     }
 
@@ -554,12 +574,12 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
                         if (!TextIncrement.GetIncrementableString((s => true), clone.DisplayName, out string name))
                             name = clone.DisplayName;
                         clone.DisplayName = name;
-                        folder.AddItem(clone);
+                        myFolder.AddItem(clone);
                     }
                     else if (item.Parent != null) {
-                        if (item.Parent != folder) {
+                        if (item.Parent != myFolder) {
                             newList.Add(item);
-                            item.Parent.MoveItemTo(folder, item);
+                            item.Parent.MoveItemTo(myFolder, item);
                         }
                     }
                     else {
@@ -572,7 +592,7 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
                 return;
             }
             else {
-                await ResourceDropRegistry.DropRegistry.OnDropped(layer, srcItemList, dropType);
+                await ResourceDropRegistry.DropRegistry.OnDropped(myResource, srcItemList, dropType);
                 return;
             }
 
@@ -581,21 +601,22 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
             //     return;
 
             // I think this works?
-            ResourceFolder? target = layer.Parent;
+            ResourceFolder? target = myResource.Parent;
             if (target == null || (!target.IsRoot && srcItemList.Any(x => x is ResourceFolder cl && cl.Parent != null && cl.Parent.IsParentInHierarchy(cl)))) {
                 return;
             }
 
-            int index;
+            int myIndex = myResource.Parent.IndexOf(myResource);
+            int srcIndex = -1;
             bool isLayerInList = false;
             switch (dropType) {
                 case EnumDropType.Move:
-                    isLayerInList = srcItemList.Remove(layer);
-                    index = layer.Parent.IndexOf(layer);
+                    isLayerInList = srcItemList.Remove(myResource);
+                    srcIndex = isLayerInList && srcItemList.Count == 0 ? myIndex : srcItemList.Min(x => x.Parent?.IndexOf(x) ?? -1);
                     newList = srcItemList;
                     break;
                 case EnumDropType.Copy: {
-                    index = layer.Parent.IndexOf(layer);
+                    srcIndex = srcItemList.Min(x => x.Parent?.IndexOf(x) ?? -1);
                     List<BaseResource> cloneList = new List<BaseResource>();
                     foreach (BaseResource layerInList in srcItemList) {
                         BaseResource clone = BaseResource.Clone(layerInList);
@@ -611,21 +632,29 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
                 default: return;
             }
 
-            int moveIndex = isDropAbove ? index : (index + 1);
+            // we want to move 1 ->
+
+            if (myIndex == srcIndex) {
+                return;
+            }
+
+            if (isDropAbove && srcIndex != -1 && srcIndex < myIndex)
+                myIndex--;
+
             foreach (BaseResource item in newList) {
                 if (item.Parent != null) {
-                    item.Parent.MoveItemTo(layer.Parent, item, moveIndex++);
+                    item.Parent.MoveItemTo(myResource.Parent, item, myIndex++);
                 }
                 else {
-                    layer.Parent.InsertItem(moveIndex++, item);
+                    myResource.Parent.InsertItem(myIndex++, item);
                 }
             }
 
             if (dropType == EnumDropType.Move && isLayerInList) {
-                newList.Add(layer);
+                newList.Add(myResource);
             }
 
-            this.ResourceTree!.SelectionManager.SetSelection(newList);
+            this.ResourceTree?.SelectionManager.SetSelection(newList);
         }
         finally {
             this.IsDroppableTargetOver = false;
@@ -677,15 +706,20 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
 
     #endregion
 
-    public static void HandleMoveEvent(IResourceTreeElement self, ResourceMovedEventArgs e) {
-        if (e.OldFolder == self.Resource) {
-            // The item in our collection is being moved
-            IResourceTreeElement? dstNode = ResourceTreeView.FindNodeForResource(self, e.NewFolder);
+    public static void HandleMoveEvent(IResourceTreeOrNode self, ResourceMovedEventArgs e) {
+        if (e.OldFolder == e.NewFolder) { // e.IsSameFolder calculates the same information
+            // Only the item index is being moved
+            ResourceTreeViewItem control = self.GetNodeAt(e.OldIndex);
+            if (control.isDragDropping) {
+                control.CompleteDragForDrop();
+            }
+
+            self.MoveNode(e.OldIndex, e.NewIndex);
+        }
+        else if (self.Resource == e.OldFolder) {
+            // The control is being moved from us to another location
+            IResourceTreeOrNode? dstNode = ResourceTreeView.FindNodeForResource(self, e.NewFolder);
             if (dstNode == null) {
-                // Instead of throwing, we could just remove the track or insert a new track, instead of
-                // trying to re-use existing controls, at the cost of performance.
-                // However, moving clips between tracks in different timelines is not directly supported
-                // so there's no need to support it here
                 throw new Exception("Could not find destination tree node. Is the UI corrupted?");
             }
 
@@ -693,16 +727,16 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
             self.RemoveNode(e.OldIndex, false);
             dstNode.MovedResource = new MovedResource(control, e.Item);
         }
-        else if (e.NewFolder == self.Resource) {
+        else if (self.Resource == e.NewFolder) {
+            // The control is being dropped into self, so clear its drag state
             if (!(self.MovedResource is MovedResource moved)) {
-                throw new Exception("Clip control being moved is null. Is the UI timeline corrupted or did the clip move between timelines?");
+                throw new Exception("No information about the moved resource available");
             }
 
-            // The control was dropped into self, so clear its drag state
             if (moved.Control.isDragDropping) {
                 moved.Control.CompleteDragForDrop();
             }
-            
+
             self.InsertNode(moved.Control, moved.Resource, e.NewIndex);
             self.MovedResource = null;
         }

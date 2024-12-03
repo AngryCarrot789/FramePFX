@@ -44,6 +44,8 @@ public static class MenuService {
             if (element is AdvancedContextMenuItem menuItem) {
                 menuItem.OnAdding(container, parent, (BaseContextEntry) entry);
                 items.Add(menuItem);
+                menuItem.ApplyStyling();
+                menuItem.ApplyTemplate();
                 menuItem.OnAdded();
             }
             else {

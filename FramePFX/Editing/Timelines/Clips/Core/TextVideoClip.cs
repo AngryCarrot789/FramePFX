@@ -188,6 +188,8 @@ public class TextVideoClip : VideoClip {
                         offset += this.LineSpacing;
                 }
             }
+
+            renderArea = rc.TranslateRect(new SKRect(0, 0, this.TextBlobBoundingBox.Width, this.TextBlobBoundingBox.Height));
         }
         finally {
             this.renderInfoLock.CompleteUsage();

@@ -130,6 +130,12 @@
             <Setter Property="ZIndex" Value="3"/>
             <Setter Property="IsVisible" Value="True"/>
         </Style>
+        <Style Selector="^[IsDroppableTargetOver=true] /template/ Border#PART_ClipBorderRoot">
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="OrangeRed"/>
+            <Setter Property="ZIndex" Value="4"/>
+            <Setter Property="IsVisible" Value="True"/>
+        </Style>
     </ControlTheme>
 
     <ControlTheme x:Key="{x:Type t:TimelineControl}" TargetType="{x:Type t:TimelineControl}">

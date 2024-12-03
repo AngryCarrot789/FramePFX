@@ -57,11 +57,11 @@ public class TimecodeClip : VideoClip {
     private bool UseClipEndTime;
     private double StartTime;
     private double EndTime;
-    private string fontFamily = "Consolas";
+    private string? fontFamily = "Consolas";
 
     private class LockedFontData : IDisposable {
-        public SKFont cachedFont;
-        public SKTypeface cachedTypeFace;
+        public SKFont? cachedFont;
+        public SKTypeface? cachedTypeFace;
 
         public void Dispose() {
             this.cachedFont?.Dispose();
@@ -80,7 +80,7 @@ public class TimecodeClip : VideoClip {
     private double renderFontSize;
     private SKRect lastRenderRect;
 
-    public string FontFamily {
+    public string? FontFamily {
         get => this.fontFamily;
         set {
             if (this.fontFamily == value)
@@ -149,13 +149,14 @@ public class TimecodeClip : VideoClip {
     }
 
     public override bool PrepareRenderFrame(PreRenderContext rc, long frame) {
-        double fps = this.Project.Settings.FrameRate.AsDouble;
-
         long playHead = this.FrameSpan.Begin + frame;
         this.render_Frame = playHead;
         this.render_Span = this.FrameSpan;
         this.render_StartTime = this.UseClipStartTime ? default : TimeSpan.FromSeconds(this.StartTime);
-        this.render_EndTime = this.UseClipEndTime ? TimeSpan.FromSeconds(this.FrameSpan.Duration / fps) : TimeSpan.FromSeconds(this.EndTime);
+        this.render_EndTime = 
+            this.UseClipEndTime ? 
+            TimeSpan.FromSeconds(this.FrameSpan.Duration / this.Project!.Settings.FrameRate.AsDouble) : 
+            TimeSpan.FromSeconds(this.EndTime);
         if (this.UseClipEndTime)
             this.render_EndTime += this.render_StartTime;
         this.renderFontSize = this.FontSize;
@@ -172,7 +173,7 @@ public class TimecodeClip : VideoClip {
         LockedFontData fd = this.fontData.Value;
         using (SKPaint paint = new SKPaint() { IsAntialias = true, Color = SKColors.White.WithAlpha(this.RenderOpacityByte) }) {
             using (SKTextBlob blob = SKTextBlob.Create(text, fd.cachedFont)) {
-                fd.cachedFont.GetFontMetrics(out SKFontMetrics metrics);
+                fd.cachedFont!.GetFontMetrics(out SKFontMetrics metrics);
                 // we can get away with this since we just use numbers and not any 'special'
                 // characters with bits below the baseline and whatnot
                 SKRect realFinalRenderArea = new SKRect(0, 0, blob.Bounds.Right, blob.Bounds.Bottom - metrics.Ascent - metrics.Descent);

@@ -84,7 +84,7 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
         this.TransferableData = new TransferableData(this);
     }
 
-    public bool HasReachedResourecLimit() {
+    public bool HasReachedResourceLimit() {
         int limit = this.ResourceLinkLimit;
         return limit != -1 && this.references.Count >= limit;
     }
@@ -256,7 +256,7 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
     internal static void AddReference(ResourceItem item, IResourceHolder owner) {
         if (item.references.Contains(owner))
             throw new InvalidOperationException("Object already referenced");
-        if (item.HasReachedResourecLimit())
+        if (item.HasReachedResourceLimit())
             throw new InvalidOperationException("Resource limit reached: cannot reference more than" + item.ResourceLinkLimit);
         item.references.Add(owner);
     }

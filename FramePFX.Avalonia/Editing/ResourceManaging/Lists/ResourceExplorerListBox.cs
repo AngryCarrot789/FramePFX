@@ -104,7 +104,7 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement {
                 if (this.SelectionManager.Count < 1) {
                     this.SelectionManager.RaiseSelectionCleared();
                 }
-                else {
+                else if (e.KeyModifiers == KeyModifiers.None) {
                     this.SelectionManager.Clear();
                 }
 

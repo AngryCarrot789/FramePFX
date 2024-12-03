@@ -57,7 +57,7 @@
                 <Shortcut Name="DeleteItems" CommandId="commands.resources.DeleteResources" Description="Deletes all of the selected resources">
                     <KeyStroke Key="Delete"/>
                 </Shortcut>
-                <Shortcut Name="GroupSelection" CommandId="commands.resources.GroupResourcesCommand" Description="Groups all selected items in the explorer into a folder. Grouping items in the tree is currently unsupported">
+                <Shortcut Name="GroupSelection" CommandId="commands.resources.GroupResources" Description="Groups all selected items in the explorer into a folder. Grouping items in the tree is currently unsupported">
                     <KeyStroke Mods="CTRL" Key="G"/>
                 </Shortcut>
                 <Shortcut Name="RenameResource1" CommandId="commands.resources.RenameResource">

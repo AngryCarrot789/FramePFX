@@ -34,24 +34,23 @@ public static class ClipDropRegistry {
         DropRegistry = new DragDropRegistry<Clip>();
         DropRegistry.Register<Clip, EffectProviderEntry>((clip, x, dt, ctx) => {
             return clip.IsEffectTypeAccepted(x.EffectType) ? EnumDropType.Copy : EnumDropType.None;
-        }, (clip, x, dt, ctx) => {
+        }, async (clip, x, dt, ctx) => {
             BaseEffect effect;
             try {
                 effect = x.CreateEffect();
             }
             catch (Exception e) {
-                IoC.MessageService.ShowMessage("Error", "Failed to create effect from the dropped effect", e.GetToString());
-                return Task.CompletedTask;
+                await IoC.MessageService.ShowMessage("Error", "Failed to create effect from the dropped effect", e.GetToString());
+                return;
             }
 
             if (!effect.IsObjectValidForOwner(clip)) {
-                IoC.MessageService.ShowMessage("Error", "This effect is not allowed to be placed in this clip");
-                return Task.CompletedTask;
+                await IoC.MessageService.ShowMessage("Error", "This effect is not allowed to be placed in this clip");
+                return;
             }
 
             clip.AddEffect(effect);
             clip.Timeline?.InvalidateRender();
-            return Task.CompletedTask;
         });
 
         DropRegistry.Register<VideoClipShape, ResourceColour>((clip, h, dt, ctx) => EnumDropType.Link, (clip, h, dt, c) => {
@@ -64,16 +63,15 @@ public static class ClipDropRegistry {
             return Task.CompletedTask;
         });
 
-        DropRegistry.Register<AVMediaVideoClip, ResourceAVMedia>((clip, h, dt, ctx) => EnumDropType.Link, (clip, h, dt, c) => {
-            if (h.HasReachedResourecLimit()) {
+        DropRegistry.Register<AVMediaVideoClip, ResourceAVMedia>((clip, h, dt, ctx) => EnumDropType.Link, async (clip, h, dt, c) => {
+            if (h.HasReachedResourceLimit()) {
                 int count = h.ResourceLinkLimit;
-                IoC.MessageService.ShowMessage("Resource Limit", $"This resource cannot be used by more than {count} clip{Lang.S(count)}");
-                return Task.CompletedTask;
+                await IoC.MessageService.ShowMessage("Resource Limit", $"This resource cannot be used by more than {count} clip{Lang.S(count)}");
+                return;
             }
 
             clip.ResourceAVMediaKey.SetTargetResourceId(h.UniqueId);
             clip.ResourceAVMediaKey.TryLoadLink();
-            return Task.CompletedTask;
         });
     }
 }

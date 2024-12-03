@@ -27,7 +27,8 @@ using FramePFX.Utils;
 
 namespace FramePFX;
 
-public abstract class RZApplication {
+public abstract class 
+    RZApplication {
     private static RZApplication? instance;
 
     public static RZApplication Instance {
@@ -118,6 +119,7 @@ public abstract class RZApplication {
         manager.Register("commands.resources.AddResourceAVMedia", new AddResourceAVMediaCommand());
         manager.Register("commands.resources.AddResourceColour", new AddResourceColourCommand());
         manager.Register("commands.resources.AddResourceComposition", new AddResourceCompositionCommand());
+        manager.Register("commands.resources.GroupResources", new GroupResourcesCommand());
 
         // Editor
         manager.Register("UndoCommand", new UndoCommand());

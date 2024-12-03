@@ -142,7 +142,6 @@ public class ResourceExplorerListBoxItem : ListBoxItem {
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e) {
-        base.OnPointerPressed(e);
         PointerPoint point = e.GetCurrentPoint(this);
         if (point.Properties.PointerUpdateKind == PointerUpdateKind.LeftButtonPressed) {
             if (e.ClickCount % 2 == 0 && e.KeyModifiers == KeyModifiers.None) {
@@ -168,7 +167,7 @@ public class ResourceExplorerListBoxItem : ListBoxItem {
                                 // do nothing; toggle selection in mouse release
                             }
                             else {
-                                this.SetCurrentValue(IsSelectedProperty, true);
+                                this.ResourceExplorerList.SelectionManager?.Select(this.Resource!);
                             }
                         }
                         else if (this.ResourceExplorerList.SelectionManager.Count < 2 || !this.wasSelectedOnPress) {
@@ -182,6 +181,8 @@ public class ResourceExplorerListBoxItem : ListBoxItem {
                 e.Handled = true;
             }
         }
+        
+        base.OnPointerPressed(e);
     }
 
     #region Drag Drop
@@ -191,7 +192,6 @@ public class ResourceExplorerListBoxItem : ListBoxItem {
     }
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e) {
-        base.OnPointerReleased(e);
         PointerPoint point = e.GetCurrentPoint(this);
         if (point.Properties.PointerUpdateKind == PointerUpdateKind.LeftButtonReleased) {
             if (this.isDragActive) {
@@ -212,7 +212,7 @@ public class ResourceExplorerListBoxItem : ListBoxItem {
                     else if (isToggle && this.wasSelectedOnPress && lastDragState != DragState.Completed) {
                         // Check we want to toggle, check we were selected on click and we probably are still selected,
                         // and also check that the last drag wasn't completed/cancelled just because it feels more normal that way
-                        this.SetCurrentValue(IsSelectedProperty, false);
+                        this.ResourceExplorerList.SelectionManager.Unselect(this.Resource);
                     }
                     else if (selCount > 1 && !isToggle && lastDragState != DragState.Completed) {
                         this.ResourceExplorerList.SelectionManager.SetSelection(this.Resource);
@@ -227,6 +227,8 @@ public class ResourceExplorerListBoxItem : ListBoxItem {
                 // }
             }
         }
+        
+        base.OnPointerReleased(e);
     }
 
     protected override void OnPointerMoved(PointerEventArgs e) {

@@ -101,6 +101,9 @@ public abstract class BaseResource : IDisplayName, IDestroy {
         ApplyCollection(ResourceFolderContextRegistry.GetGroup("ModifyAdd"));
         ApplyItem(ResourceItemContextRegistry.GetGroup("Modify1"));
         ApplyItem(ResourceFolderContextRegistry.GetGroup("Modify1"));
+
+        const string cmdID = "commands.resources.GroupResources";
+        ResourceSurfaceContextRegistry.GetGroup("Modify2").AddCommand(cmdID, "Group");
     }
 
     /// <summary>

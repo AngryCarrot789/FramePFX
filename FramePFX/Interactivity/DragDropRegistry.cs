@@ -52,7 +52,7 @@ public class DragDropRegistry<THandler> where THandler : class {
         Type dropType = typeof(TValue);
         Type handlerType = typeof(T);
 
-        if (!this.registryCustom.TryGetLocalValue(dropType, out InheritanceDictionary<CustomHandlerPair> handlerMap)) {
+        if (!this.registryCustom.TryGetLocalValue(dropType, out InheritanceDictionary<CustomHandlerPair>? handlerMap)) {
             this.registryCustom[dropType] = handlerMap = new InheritanceDictionary<CustomHandlerPair>();
         }
         else if (handlerMap.HasLocalValue(handlerType)) {
@@ -68,7 +68,7 @@ public class DragDropRegistry<THandler> where THandler : class {
         Func<T, IDataObjekt, EnumDropType, IContextData, Task> onDropped)
         where T : THandler {
         Type handlerType = typeof(T);
-        if (!this.registryNative.TryGetValue(dropType, out InheritanceDictionary<NativeHandlerPair> handlerMap)) {
+        if (!this.registryNative.TryGetValue(dropType, out InheritanceDictionary<NativeHandlerPair>? handlerMap)) {
             this.registryNative[dropType] = handlerMap = new InheritanceDictionary<NativeHandlerPair>();
         }
         else if (handlerMap.HasLocalValue(handlerType)) {

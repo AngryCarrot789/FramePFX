@@ -10,7 +10,7 @@
                     xmlns:p="clr-namespace:FramePFX.Avalonia.Editing.Playheads"
                     xmlns:u="clr-namespace:FramePFX.Avalonia.CommandSystem.Usages"
                     xmlns:cc="clr-namespace:FramePFX.Avalonia.Editing.CommandContexts"
-                    xmlns:automation="clr-namespace:FramePFX.Avalonia.Editing.Automation">
+                    xmlns:a="clr-namespace:FramePFX.Avalonia.Editing.Automation">
     <ct:AutomationBrushConverter x:Key="AutomationBrushConverter" AutomationBrush="{StaticResource ABrush.ColourfulGlyph.Static}"/>
 
     <ControlTheme x:Key="{x:Type s:TrackControlSurfaceList}" TargetType="{x:Type s:TrackControlSurfaceList}" BasedOn="{StaticResource {x:Type ListBox}}">
@@ -113,32 +113,41 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type t:TimelineClipControl}">
                     <Border x:Name="PART_ClipBorderRoot" BorderThickness="1,0" BorderBrush="{DynamicResource PanelBorderBrush}" UseLayoutRounding="False">
-                        <Panel Margin="0,20,0,0">
+                        <Panel x:Name="PART_Panel" Margin="0,20,0,0">
                             <ContentPresenter x:Name="PART_ContentPresenter"
                                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                              Margin="0,20,0,0"
                                               Content="{TemplateBinding Content}"
                                               ContentTemplate="{TemplateBinding ContentTemplate}"
                                               CornerRadius="{TemplateBinding CornerRadius}"
                                               RecognizesAccessKey="True"
                                               TextElement.Foreground="{TemplateBinding Foreground}"/>
-                            <automation:AutomationEditorControl x:Name="PART_AutomationEditor"/>
+                            <a:AutomationEditorControl x:Name="PART_AutomationEditor" Margin="0,5"/>
                         </Panel>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-        <Style Selector="^[IsSelected=true] /template/ Border#PART_ClipBorderRoot">
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="YellowGreen"/>
-            <Setter Property="ZIndex" Value="3"/>
-            <Setter Property="IsVisible" Value="True"/>
+        <Style Selector="^[IsSelected=true]">
+            <Style Selector="^/template/ Border#PART_ClipBorderRoot">
+                <Setter Property="BorderThickness" Value="2"/>
+                <Setter Property="BorderBrush" Value="YellowGreen"/>
+                <Setter Property="ZIndex" Value="3"/>
+                <Setter Property="IsVisible" Value="True"/>
+            </Style>
+            <Style Selector="^/template/ Panel#PART_Panel">
+                <Setter Property="Margin" Value="-1,18,-1,-2"/>
+            </Style>
         </Style>
-        <Style Selector="^[IsDroppableTargetOver=true] /template/ Border#PART_ClipBorderRoot">
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="BorderBrush" Value="OrangeRed"/>
-            <Setter Property="ZIndex" Value="4"/>
-            <Setter Property="IsVisible" Value="True"/>
+        <Style Selector="^[IsDroppableTargetOver=true]">
+            <Style Selector="^/template/ Border#PART_ClipBorderRoot">
+                <Setter Property="BorderThickness" Value="2"/>
+                <Setter Property="BorderBrush" Value="OrangeRed"/>
+                <Setter Property="ZIndex" Value="4"/>
+                <Setter Property="IsVisible" Value="True"/>
+            </Style>
+            <Style Selector="^/template/ Panel#PART_Panel">
+                <Setter Property="Margin" Value="-1,18,-1,-2"/>
+            </Style>
         </Style>
     </ControlTheme>
 

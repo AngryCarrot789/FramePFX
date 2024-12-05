@@ -162,7 +162,7 @@ public class ResourceDropRegistry {
 
                 if (dropType == EnumDropType.Copy) {
                     BaseResource clone = BaseResource.Clone(item);
-                    if (!TextIncrement.GetIncrementableString((s => true), clone.DisplayName, out string name))
+                    if (!TextIncrement.GetIncrementableString((s => true), clone.DisplayName, out string? name, canAcceptInitialInput:false))
                         name = clone.DisplayName;
                     clone.DisplayName = name;
                     resourceFolder.AddItem(clone);

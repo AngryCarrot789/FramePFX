@@ -60,7 +60,6 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
 
     public double Zoom {
         get => this.myZoomFactor;
-        private set => this.SetAndRaise(ZoomProperty, ref this.myZoomFactor, value);
     }
 
     /// <summary>
@@ -81,7 +80,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
 
     public Border? TimelineBorder { get; private set; }
 
-    public Border TimestampBorder { get; private set; }
+    public Border? TimestampBorder { get; private set; }
 
     public PlayHeadControl? PlayHead { get; private set; }
 
@@ -101,7 +100,9 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
 
     public bool HasAnySelectedClips => this.ClipSelectionManager!.Count > 0;
 
-    public IVideoEditorUI VideoEditor { get; set; }
+    public EditorWindow? EditorOwner { get; set; }
+
+    IVideoEditorUI ITimelineElement.VideoEditor => this.EditorOwner ?? throw new InvalidOperationException("Not connected to an editor window");
 
     public IReadOnlyList<ITrackElement> Tracks { get; }
 
@@ -175,6 +176,9 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         }
     }
 
+    public event UITimelineModelChanged? TimelineModelChanging;
+    public event UITimelineModelChanged? TimelineModelChanged;
+    
     public TimelineControl() {
         this.Tracks = new TrackListImpl(this);
         this.myTrackElements = new List<TrackElementImpl>();
@@ -253,7 +257,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
             return;
         }
 
-        this.Zoom = newZoom;
+        this.SetAndRaise(ZoomProperty, ref this.myZoomFactor, newZoom);
         this.OnTimelineZoomed(oldZoom, newZoom, type, mousePoint);
     }
 
@@ -270,6 +274,12 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
     }
 
     private void OnTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline) {
+        if (ReferenceEquals(oldTimeline, newTimeline)) {
+            // Should never reach this, but just for clarity, might as well check it
+            return;
+        }
+        
+        this.TimelineModelChanging?.Invoke(this, oldTimeline, newTimeline);
         if (oldTimeline != null) {
             oldTimeline.MaxDurationChanged -= this.OnTimelineMaxDurationChanged;
             oldTimeline.TrackAdded -= this.OnTrackAddedEvent;
@@ -299,11 +309,11 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
 
             this.contextData.Set(DataKeys.TimelineKey, newTimeline);
         }
-
-        // Disable for now since i can't get it to work properly
-        this.StopHead!.IsVisible = false;
+        
         this.TrackSelectionManager!.UpdateSelection();
         DataManager.InvalidateInheritedContext(this);
+        
+        this.TimelineModelChanged?.Invoke(this, oldTimeline, newTimeline);
     }
 
     private void InsertTrackElement(Track track, int i, bool isLoadingTimeline = false) {

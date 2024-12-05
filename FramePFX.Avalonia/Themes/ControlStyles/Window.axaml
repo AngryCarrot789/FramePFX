@@ -103,8 +103,8 @@
         <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource Window.Static.Border}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="ExtendClientAreaToDecorationsHint" Value="True"/>
         <Setter Property="ExtendClientAreaChromeHints" Value="SystemChrome"/>
+        <Setter Property="ExtendClientAreaToDecorationsHint" Value="True"/>
         <Setter Property="ExtendClientAreaTitleBarHeightHint" Value="-1"/>
         <Setter Property="Template">
             <ControlTemplate>
@@ -126,8 +126,8 @@
                             -->
                         </VisualLayerManager.ChromeOverlayLayer>
                         <DockPanel>
-                            <Border Background="{TemplateBinding TitleBarBrush}" Height="30" IsHitTestVisible="False"
-                                    DockPanel.Dock="Top" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+                            <Panel Height="30" IsHitTestVisible="True" DockPanel.Dock="Top" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+                                <Border IsHitTestVisible="False" Background="{TemplateBinding TitleBarBrush}"/>
                                 <DockPanel x:Name="PART_TitleBar">
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" DockPanel.Dock="Right">
                                         <Button x:Name="PART_ButtonMinimize" Focusable="False" IsHitTestVisible="True" Width="45" VerticalContentAlignment="Center"
@@ -155,7 +155,7 @@
                                             </Grid>
                                         </Button>
                                     </StackPanel>
-                                    <DockPanel Margin="0,0,5,0" HorizontalAlignment="Stretch">
+                                    <DockPanel Background="Transparent" Margin="0,0,5,0" HorizontalAlignment="Stretch" IsHitTestVisible="False">
                                         <Image Source="{TemplateBinding Icon}"
                                                HorizontalAlignment="Left" VerticalAlignment="Top" Margin="4,4,0,0" Height="24"/>
                                         <TextBlock FontSize="13" Margin="5,3,0,3" TextAlignment="Left"
@@ -164,7 +164,7 @@
                                                    Text="{TemplateBinding Title}"/>
                                     </DockPanel>
                                 </DockPanel>
-                            </Border>
+                            </Panel>
                             <ContentPresenter x:Name="PART_ContentPresenter"
                                               HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"

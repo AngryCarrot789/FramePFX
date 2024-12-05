@@ -23,6 +23,8 @@ using FramePFX.Interactivity;
 
 namespace FramePFX.Editing.UI;
 
+public delegate void UITimelineModelChanged(ITimelineElement element, Timeline? oldTimeline, Timeline? newTimeline);
+
 /// <summary>
 /// An interface for the UI of a timeline
 /// </summary>
@@ -55,4 +57,19 @@ public interface ITimelineElement {
     ITrackElement GetTrackFromModel(Track track);
     
     Timeline? Timeline { get; }
+    
+    /// <summary>
+    /// An event fired when our timeline is about to be changed. Even though <see cref="Timeline"/>
+    /// will return the new value, all the old UI components will still be in place.
+    /// <para>
+    /// After this is invoked, the selection is cleared, tracks are cleared and depending on if the new timeline
+    /// is non-null, new tracks will be added, and then finally <see cref="TimelineModelChanged"/> will be fired 
+    /// </para>
+    /// </summary>
+    event UITimelineModelChanged? TimelineModelChanging;
+    
+    /// <summary>
+    /// Invoked after our <see cref="Timeline"/> has been changed and all UI components are fully re-generated
+    /// </summary>
+    event UITimelineModelChanged? TimelineModelChanged;
 }

@@ -88,12 +88,12 @@ public class RenderManager {
         // times a second when the user is dragging around a clip,
         // but to speed up when for example using a number dragger on opacity maybe
         TimeSpan FastRenderInterval = TimeSpan.FromMilliseconds(1000.0 / 80.0); // 80 FPS = 12ms 
-        this.fastRapidRenderDispatch = BaseRateLimitedDispatchAction.ForDispatcherAsync(this.ScheduleRenderFromRLDA, FastRenderInterval, DispatchPriority.Background);
+        this.fastRapidRenderDispatch = BaseRateLimitedDispatchAction.ForDispatcherAsync(this.ScheduleRenderFromRLDA, FastRenderInterval, DispatchPriority.Send);
         
         TimeSpan SlowRenderInterval = TimeSpan.FromMilliseconds(1000.0 / 30.0); // 30 FPS = 33.33333ms 
-        this.slowRapidRenderDispatch = BaseRateLimitedDispatchAction.ForDispatcherAsync(this.ScheduleRenderFromRLDA, SlowRenderInterval, DispatchPriority.Background);
+        this.slowRapidRenderDispatch = BaseRateLimitedDispatchAction.ForDispatcherAsync(this.ScheduleRenderFromRLDA, SlowRenderInterval, DispatchPriority.Send);
         
-        this.rapidRenderDispatch = RapidDispatchActionEx.ForAsync(this.ScheduleRenderFromRapidDispatch, IoC.Dispatcher, DispatchPriority.Background);
+        this.rapidRenderDispatch = RapidDispatchActionEx.ForAsync(this.ScheduleRenderFromRapidDispatch, IoC.Dispatcher, DispatchPriority.INTERNAL_BeforeRender);
         // this.renderThread = new Thread(this.RenderThreadMain);
     }
 

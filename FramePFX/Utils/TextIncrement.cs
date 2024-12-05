@@ -40,13 +40,13 @@ public class TextIncrement {
         }
     }
 
-    public static string GetNextText(IEnumerable<string> inputs, string text) {
+    public static string GetNextText(IEnumerable<string> inputs, string text, bool canAcceptInitialInput = true) {
         if (string.IsNullOrEmpty(text)) {
             return text;
         }
 
         HashSet<string> available = new HashSet<string>(inputs);
-        if (!GetIncrementableString((x) => x != null && !available.Contains(x), text, out string? output))
+        if (!GetIncrementableString((x) => x != null && !available.Contains(x), text, out string? output, canAcceptInitialInput:canAcceptInitialInput))
             output = text;
         return output!;
     }
@@ -104,12 +104,12 @@ public class TextIncrement {
     /// <returns>True if the <see cref="accept"/> predicate accepted the output string before the loop counter reached 0</returns>
     /// <exception cref="ArgumentOutOfRangeException">The <see cref="count"/> parameter is zero</exception>
     /// <exception cref="ArgumentException">The <see cref="input"/> parameter is null or empty</exception>
-    public static bool GetIncrementableString(Predicate<string?> accept, string? input, out string? output, ulong count = ulong.MaxValue) {
+    public static bool GetIncrementableString(Predicate<string?> accept, string? input, out string? output, ulong count = ulong.MaxValue, bool canAcceptInitialInput = true) {
         if (count < 1)
             throw new ArgumentOutOfRangeException(nameof(count), "Count must not be zero");
         if (string.IsNullOrEmpty(input))
             throw new ArgumentException("Input cannot be null or empty", nameof(input));
-        if (accept(input))
+        if (canAcceptInitialInput && accept(input))
             return (output = input) != null; // one liner ;) always returns true
 
         if (!GetNumbered(input, out string? content, out long textNumber) || textNumber < 1)

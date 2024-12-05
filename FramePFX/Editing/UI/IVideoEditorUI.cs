@@ -19,8 +19,6 @@
 
 namespace FramePFX.Editing.UI;
 
-public delegate void VideoEditorActiveTimelineChanged(IVideoEditorUI editor, ITimelineElement? oldTimeline, ITimelineElement? newTimeline);
-
 /// <summary>
 /// An interface for the UI of a video editor window
 /// </summary>
@@ -31,12 +29,7 @@ public interface IVideoEditorUI {
     VideoEditor VideoEditor { get; }
 
     /// <summary>
-    /// Gets the active timeline UI
+    /// Gets the timeline UI
     /// </summary>
-    ITimelineElement? ActiveTimeline { get; }
-
-    /// <summary>
-    /// An event fired when our active timeline UI changes
-    /// </summary>
-    event VideoEditorActiveTimelineChanged ActiveTimelineChanged;
+    ITimelineElement TimelineElement { get; }
 }

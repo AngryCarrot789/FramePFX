@@ -23,6 +23,7 @@ using System.Globalization;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
@@ -129,6 +130,7 @@ public class TimelineClipControl : ContentControl, IClipElement {
 
     private readonly IBinder<Clip> frameSpanBinder = new AutoUpdateAndEventPropertyBinder<Clip>(nameof(VideoClip.FrameSpanChanged), obj => ((TimelineClipControl) obj.Control).FrameSpan = obj.Model.FrameSpan, null);
     private readonly IBinder<Clip> displayNameBinder = new AutoUpdateAndEventPropertyBinder<Clip>(DisplayNameProperty, nameof(VideoClip.DisplayNameChanged), obj => ((TimelineClipControl) obj.Control).DisplayName = obj.Model.DisplayName, null);
+    private readonly IBinder<Clip> activeAutoSequenceBinder = new AutoUpdateAndEventPropertyBinder<Clip>(ActiveSequenceProperty, nameof(VideoClip.ActiveSequenceChanged), obj => ((TimelineClipControl) obj.Control).ActiveSequence = obj.Model.ActiveSequence, obj => obj.Model.ActiveSequence = ((TimelineClipControl) obj.Control).ActiveSequence);
     private readonly PropertyBinder<AutomationSequence?> autoSequenceBinder;
     private readonly RectangleGeometry renderSizeRectGeometry;
     private const double EdgeGripSize = 8d;
@@ -150,11 +152,18 @@ public class TimelineClipControl : ContentControl, IClipElement {
     private AutomationEditorControl? PART_AutomationEditor;
 
     public TimelineClipControl() {
-        Binders.AttachControls(this, this.frameSpanBinder, this.displayNameBinder);
+        Binders.AttachControls(this, this.frameSpanBinder, this.displayNameBinder, this.activeAutoSequenceBinder);
         this.renderSizeRectGeometry = new RectangleGeometry();
         DataManager.SetContextData(this, this.contextData = new ContextData().Set(DataKeys.ClipUIKey, this));
         DragDrop.SetAllowDrop(this, true);
         this.autoSequenceBinder = new PropertyBinder<AutomationSequence?>(this, ActiveSequenceProperty, AutomationEditorControl.AutomationSequenceProperty);
+
+        // Testing render offsets
+        // this.Content = new Rectangle() {
+        //     Fill = Brushes.OrangeRed,
+        //     Stroke = Brushes.DeepSkyBlue,
+        //     StrokeThickness = 1
+        // };
     }
     
     static TimelineClipControl() {
@@ -203,11 +212,11 @@ public class TimelineClipControl : ContentControl, IClipElement {
 
     public void OnConnected() {
         this.IsConnected = true;
-        Binders.AttachModels(this.ClipModel!, this.frameSpanBinder, this.displayNameBinder);
+        Binders.AttachModels(this.ClipModel!, this.frameSpanBinder, this.displayNameBinder, this.activeAutoSequenceBinder);
     }
 
     public void OnDisconnecting() {
-        Binders.DetachModels(this.frameSpanBinder, this.displayNameBinder);
+        Binders.DetachModels(this.frameSpanBinder, this.displayNameBinder, this.activeAutoSequenceBinder);
     }
 
     public void OnDisconnected() {

@@ -96,8 +96,8 @@ public class VideoEditorViewPortControl : TemplatedControl {
                 return;
             }
 
-            ITimelineElement? timeline = this.Owner?.ActiveTimeline;
-            if (this.DrawSelectedElements && timeline != null && timeline.ClipSelection.Count == 1) {
+            ITimelineElement? timeline = this.Owner?.TheTimeline;
+            if (timeline != null && this.DrawSelectedElements && timeline.ClipSelection.Count > 0) {
                 this.dashStyle1.Offset = (this.dashStyle1.Offset + 1) % DashStrokeSize;
                 this.dashStyle2.Offset = (this.dashStyle2.Offset + 1) % DashStrokeSize;
 
@@ -119,7 +119,7 @@ public class VideoEditorViewPortControl : TemplatedControl {
     private Vector2 originalPos;
 
     private bool GetSelectedVisibleClip([NotNullWhen(true)] out VideoClip? videoClip, [NotNullWhen(true)] out ITimelineElement? timeline, bool canBeInvisible = true) {
-        if ((timeline = this.Owner?.ActiveTimeline) != null) {
+        if ((timeline = this.Owner.TheTimeline) != null) {
             IClipElement? selectedItems = timeline.ClipSelection.SelectedItems.FirstOrDefault();
             if (selectedItems?.Clip is VideoClip clip && clip.IsTimelineFrameInRange(timeline.Timeline!.PlayHeadPosition)) {
                 if (canBeInvisible || clip.IsEffectivelyVisible) {

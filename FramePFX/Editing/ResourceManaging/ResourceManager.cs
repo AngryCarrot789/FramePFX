@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Diagnostics.CodeAnalysis;
 using FramePFX.Editing.ResourceManaging.Events;
 using FramePFX.Utils;
 using FramePFX.Utils.Destroying;
@@ -184,13 +185,13 @@ public class ResourceManager : IDestroy {
     // For the most part, these functions below should never return false due the the fact that a user would
     // need millions of added resources. Their system would run out of RAM before these functions fail
 
-    public static bool GetDisplayNameForMediaStream(Predicate<string> accept, out string output, string filePath, string streamName) {
-        if (!TextIncrement.GenerateFileString(accept, filePath, out string file)) {
+    public static bool GetDisplayNameForMediaStream(Predicate<string?> accept, [NotNullWhen(true)] out string? output, string filePath, string streamName) {
+        if (!TextIncrement.GenerateFileString(accept, filePath, out string? file)) {
             output = null;
-            return true;
+            return false;
         }
 
-        return TextIncrement.GetIncrementableString(accept, $"{file}::{streamName}", out output, 10000);
+        return TextIncrement.GetIncrementableString(accept, $"{file}::{streamName}", out output, 10000, canAcceptInitialInput:false);
     }
 
     #endregion

@@ -298,6 +298,8 @@ public class TimelineTrackControl : TemplatedControl {
                 this.TimelineControl!.ClipSelectionManager!.Clear();
             }
             
+            // Used to have to manually update property editor, but now that we have the selection managers,
+            // we can use those + RapidDispatchAction or RateLimitedDispatchAction to limit activity
             // VideoEditorPropertyEditor.Instance.UpdateTrackSelectionAsync(timeline);
         }
     }
@@ -305,6 +307,6 @@ public class TimelineTrackControl : TemplatedControl {
     private long GetFrameAtMousePoint(PointerPressedEventArgs e) => this.GetFrameAtMousePoint(e.GetPosition(this));
 
     public long GetFrameAtMousePoint(Point pointRelativeToThis) {
-        return TimelineUtils.PixelToFrame(pointRelativeToThis.X, this.TimelineControl.Zoom, true);
+        return TimelineUtils.PixelToFrame(pointRelativeToThis.X, this.TimelineControl?.Zoom ?? 1.0, true);
     }
 }

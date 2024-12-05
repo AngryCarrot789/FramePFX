@@ -40,17 +40,14 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
     public static readonly StyledProperty<VideoEditor?> VideoEditorProperty = AvaloniaProperty.Register<EditorWindow, VideoEditor?>(nameof(VideoEditor));
 
     public VideoEditor? VideoEditor {
-        get => this.GetValue(VideoEditorProperty);
+        get => this.GetValue(VideoEditorProperty)!;
         set => this.SetValue(VideoEditorProperty, value);
     }
 
-    public ITimelineElement? ActiveTimeline => this.isFakedActiveTimelineNull ? null : this.TheTimeline;
-
-    public event VideoEditorActiveTimelineChanged? ActiveTimelineChanged;
+    ITimelineElement IVideoEditorUI.TimelineElement => this.TheTimeline;
 
     private readonly ContextData contextData = new ContextData();
     private bool doNotInvalidateContext;
-    private bool isFakedActiveTimelineNull = true;
     private readonly NumberAverager renderTimeAverager;
     private ActivityTask? primaryActivity;
 
@@ -59,7 +56,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
 
         // average 5 samples. Will take a second to catch up when playing at 5 fps but meh
         this.renderTimeAverager = new NumberAverager(5);
-        this.TheTimeline.VideoEditor = this;
+        this.TheTimeline.EditorOwner = this;
         DataManager.SetContextData(this, this.contextData.Set(DataKeys.TopLevelHostKey, this).Set(DataKeys.VideoEditorUIKey, this));
 
         TaskManager taskManager = IoC.TaskManager;
@@ -159,9 +156,6 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
             if (oldTimeline is CompositionTimeline oldComposition) {
                 oldComposition.Resource.DisplayNameChanged -= this.OnCompositionTimelineDisplayNameChanged;
             }
-
-            this.isFakedActiveTimelineNull = true;
-            this.ActiveTimelineChanged?.Invoke(this, this.ActiveTimeline, null);
         }
 
         if (newTimeline != null) {
@@ -169,9 +163,6 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
             if (newTimeline is CompositionTimeline newComposition) {
                 newComposition.Resource.DisplayNameChanged += this.OnCompositionTimelineDisplayNameChanged;
             }
-
-            this.isFakedActiveTimelineNull = false;
-            this.ActiveTimelineChanged?.Invoke(this, null, this.ActiveTimeline);
         }
 
         this.TheTimeline.Timeline = newTimeline;
@@ -218,7 +209,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
             this.PART_TimelineName.Text = "No timeline loaded";
         }
         else if (timeline is CompositionTimeline composition) {
-            string text = composition.Resource.DisplayName;
+            string? text = composition.Resource.DisplayName;
             this.PART_TimelineName.Text = string.IsNullOrWhiteSpace(text) ? "Unnamed Composition Timeline" : text;
         }
         else {
@@ -244,10 +235,6 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
 
             this.Title = sb.ToString();
         }
-    }
-
-    protected override void OnPointerMoved(PointerEventArgs e) {
-        base.OnPointerMoved(e);
     }
 
     private void FitToScale_Click(object? sender, RoutedEventArgs e) {

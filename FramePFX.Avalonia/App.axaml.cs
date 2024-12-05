@@ -43,6 +43,7 @@ public partial class App : Application {
     }
 
     public override async void OnFrameworkInitializationCompleted() {
+        base.OnFrameworkInitializationCompleted();
         AvCore.OnFrameworkInitialised();
         UIInputManager.Init();
 
@@ -72,7 +73,7 @@ public partial class App : Application {
 #if !DEBUG
         }
         catch (Exception ex) {
-            await (new MessageDialogServiceImpl().ShowMessage("App startup failed", "Failed to initialise application", ex.GetToString()));
+            await (new FramePFX.Avalonia.Services.MessageDialogServiceImpl().ShowMessage("App startup failed", "Failed to initialise application", ex.GetToString()));
             Dispatcher.UIThread.InvokeShutdown();
             return;
         }
@@ -91,7 +92,6 @@ public partial class App : Application {
         }
 
         await RZApplicationImpl.InternalOnInitialised(editor, envArgs.Length > 1 ? envArgs.Skip(1).ToArray() : Array.Empty<string>());
-        base.OnFrameworkInitializationCompleted();
     }
 
     private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e) {

@@ -34,7 +34,7 @@ public class DataObjectWrapper : IDataObjekt {
         return this.mObject.Get(format);
     }
 
-    public bool GetDataPresent(string format) {
+    public bool Contains(string format) {
         return this.mObject.Contains(format);
     }
 

@@ -38,12 +38,12 @@ public interface IActivityProgress {
     /// <summary>
     /// Gets or sets the header text (aka operation caption)
     /// </summary>
-    string HeaderText { get; set; }
+    string? HeaderText { get; set; }
 
     /// <summary>
     /// Gets or sets the description text (aka operation description, describing what's happening)
     /// </summary>
-    string Text { get; set; }
+    string? Text { get; set; }
 
     /// <summary>
     /// An event fired when the <see cref="IsIndeterminate"/> property changes.
@@ -113,14 +113,14 @@ public interface IActivityProgress {
 /// #read. This can only pop once, then calling Dispose again does nothing
 /// </summary>
 public struct PopDispose : IDisposable {
-    private IActivityProgress tracker;
+    private IActivityProgress? tracker;
 
     public PopDispose(IActivityProgress tracker) {
         this.tracker = tracker;
     }
 
     public void Dispose() {
-        IActivityProgress t = this.tracker;
+        IActivityProgress? t = this.tracker;
         this.tracker = null;
         t?.PopCompletionRange();
     }

@@ -52,6 +52,16 @@ public class TaskManager : IDisposable {
     public ActivityTask RunTask(Func<Task> action, IActivityProgress progress, CancellationToken cancellationToken) {
         return ActivityTask.InternalStartActivity(this, action, progress, cancellationToken);
     }
+    
+    public ActivityTask<T> RunTask<T>(Func<Task<T>> action) => this.RunTask(action, CancellationToken.None);
+
+    public ActivityTask<T> RunTask<T>(Func<Task<T>> action, IActivityProgress progress) => this.RunTask(action, progress, CancellationToken.None);
+
+    public ActivityTask<T> RunTask<T>(Func<Task<T>> action, CancellationToken token) => this.RunTask(action, new DefaultProgressTracker(), token);
+
+    public ActivityTask<T> RunTask<T>(Func<Task<T>> action, IActivityProgress progress, CancellationToken cancellationToken) {
+        return ActivityTask<T>.InternalStartActivity(this, action, progress, cancellationToken);
+    }
 
     /// <summary>
     /// Tries to get the activity task associated with the current caller thread

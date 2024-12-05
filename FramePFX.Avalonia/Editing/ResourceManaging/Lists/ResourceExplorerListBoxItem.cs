@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
@@ -29,7 +28,6 @@ using FramePFX.Avalonia.AdvancedMenuService;
 using FramePFX.Avalonia.Bindings;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Editing.ResourceManaging;
-using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 
@@ -286,81 +284,6 @@ public class ResourceExplorerListBoxItem : ListBoxItem {
                 }
             }
         }
-    }
-
-    private void CompleteDragForDrop() {
-        this.hasCompletedDrop = true;
-    }
-
-    private void GetDropBorder(bool useFullHeight, out double borderTop, out double borderBottom) {
-        const double NormalBorder = 8.0;
-        if (useFullHeight) {
-            borderTop = borderBottom = this.Bounds.Height / 2.0;
-        }
-        else {
-            borderTop = NormalBorder;
-            borderBottom = this.Bounds.Height - NormalBorder;
-        }
-    }
-
-    public static EnumDropType CanDropItemsOnResourceFolder(ResourceFolder target, List<BaseResource> items, EnumDropType dropType) {
-        if (dropType == EnumDropType.None || dropType == EnumDropType.Link) {
-            return EnumDropType.None;
-        }
-
-        foreach (BaseResource item in items) {
-            if (item is ResourceFolder folder && folder.IsParentInHierarchy(target)) {
-                return EnumDropType.None;
-            }
-            else if (dropType != EnumDropType.Copy) {
-                if (target.Contains(item)) {
-                    return EnumDropType.None;
-                }
-            }
-        }
-
-        return dropType;
-    }
-
-    // True = yes, False = no, Null = invalid due to composition layers
-    public static bool? ProcessCanDragOver(AvaloniaObject sender, BaseResource target, DragEventArgs e) {
-        e.Handled = true;
-        if (GetDropResourceListForEvent(e, out List<BaseResource>? items, out EnumDropType effects)) {
-            if (target is ResourceFolder composition) {
-                if (!composition.IsRoot && items.Any(x => x is ResourceFolder cl && cl.Parent != null && cl.Parent.IsParentInHierarchy(cl))) {
-                    return null;
-                }
-            }
-            else {
-                e.DragEffects = (DragDropEffects) ResourceDropRegistry.DropRegistry.CanDrop(target, items, effects, DataManager.GetFullContextData(sender));
-            }
-        }
-        else {
-            e.DragEffects = (DragDropEffects) ResourceDropRegistry.DropRegistry.CanDropNative(target, new DataObjectWrapper(e.Data), effects, DataManager.GetFullContextData(sender));
-        }
-
-        return e.DragEffects != DragDropEffects.None;
-    }
-
-    /// <summary>
-    /// Tries to get the list of resources being drag-dropped from the given drag event. Provides the
-    /// effects currently applicable for the event regardless of this method's return value
-    /// </summary>
-    /// <param name="e">Drag event (enter, over, drop, etc.)</param>
-    /// <param name="resources">The resources in the drag event</param>
-    /// <param name="effects">The effects applicable based on the event's effects and user's keys pressed</param>
-    /// <returns>True if there were resources available, otherwise false, meaning no resources are being dragged</returns>
-    public static bool GetDropResourceListForEvent(DragEventArgs e, [NotNullWhen(true)] out List<BaseResource>? resources, out EnumDropType effects) {
-        effects = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
-        if (e.Data.Contains(ResourceDropRegistry.DropTypeText)) {
-            object? obj = e.Data.Get(ResourceDropRegistry.DropTypeText);
-            if ((resources = (obj as List<BaseResource>)) != null) {
-                return true;
-            }
-        }
-
-        resources = null;
-        return false;
     }
 
     #endregion

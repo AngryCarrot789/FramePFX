@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System.Diagnostics;
 using FramePFX.CommandSystem;
 using FramePFX.Editing.Automation;
 using FramePFX.Editing.ResourceManaging;
@@ -50,8 +49,8 @@ public class OpenProjectCommand : AsyncCommand {
         await RunOpenProjectTask(editor, filePath);
     }
 
-    public static ActivityTask RunOpenProjectTask(VideoEditor editor, string filePath) {
-        return TaskManager.Instance.RunTask(async () => {
+    public static ActivityTask<bool> RunOpenProjectTask(VideoEditor editor, string filePath) {
+        return TaskManager.Instance.RunTask<bool>(async () => {
             IActivityProgress progress = TaskManager.Instance.CurrentTask.Progress;
 
             bool result;
@@ -61,9 +60,11 @@ public class OpenProjectCommand : AsyncCommand {
 
             if (result) {
                 using (progress.PushCompletionRange(0.5, 1.0)) {
-                    await OpenProjectAtBGT(editor, filePath, progress);
+                    return await OpenProjectAtBGT(editor, filePath, progress);
                 }
             }
+
+            return false;
         }, new DefaultProgressTracker());
     }
 
@@ -133,8 +134,11 @@ public class OpenProjectCommand : AsyncCommand {
                 project.SetUnModified();
                 AutomationEngine.UpdateValues(project.ActiveTimeline);
                 project.MainTimeline.RenderManager.InvalidateRender();
-                Debug.Assert(project.IsModified == false, "Expected automation update and render invalidation to not mark project as modified");
             }, DispatchPriority.Input);
+
+            if (project.IsModified) {
+                await IoC.MessageService.ShowMessage("Warning", "Issue: project was marked modified during automation update, which should not happen");
+            }
 
             progress.OnProgress(0.5);
         }

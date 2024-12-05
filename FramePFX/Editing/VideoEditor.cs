@@ -95,7 +95,9 @@ public class VideoEditor : IDestroy {
             throw new Exception("A project is already loaded");
         }
 
-        Project project = new Project();
+        Project project = new Project() {
+            ProjectName = "Default Project"
+        };
 
         ResourceManager manager = project.ResourceManager;
         ResourceColour id_r = manager.RootContainer.AddItemAndRet(new ResourceColour(220, 25, 25) { DisplayName = "colour_red" });

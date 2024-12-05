@@ -14,76 +14,76 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.2.2" />
-        <PackageReference Include="Avalonia.Desktop" Version="11.2.2" />
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.2" />
-        <PackageReference Include="Avalonia.Themes.Simple" Version="11.2.2" />
-        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.2" />
-        <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.2.2" />
+        <PackageReference Include="Avalonia" Version="11.2.2"/>
+        <PackageReference Include="Avalonia.Desktop" Version="11.2.2"/>
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.2"/>
+        <PackageReference Include="Avalonia.Themes.Simple" Version="11.2.2"/>
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.2"/>
+        <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.2.2"/>
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.2.2" />
-        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.0" />
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.2.2"/>
+        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.0"/>
     </ItemGroup>
 
     <ItemGroup>
-        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-Bold.ttf" />
-        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-ExtraBold.ttf" />
-        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-ExtraLight.ttf" />
-        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-Light.ttf" />
-        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-Medium.ttf" />
-        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-Regular.ttf" />
-        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-SemiBold.ttf" />
-        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-VariableFont_wght.ttf" />
-        <None Remove="Keymap.xml" />
+        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-Bold.ttf"/>
+        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-ExtraBold.ttf"/>
+        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-ExtraLight.ttf"/>
+        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-Light.ttf"/>
+        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-Medium.ttf"/>
+        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-Regular.ttf"/>
+        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-SemiBold.ttf"/>
+        <AvaloniaResource Include="Resources\Fonts\Oxanium\Oxanium-VariableFont_wght.ttf"/>
+        <None Remove="Keymap.xml"/>
         <Content Include="Keymap.xml">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="Resources\Fonts\Oxanium\Oxanium-Bold.ttf" />
-        <None Remove="Resources\Fonts\Oxanium\Oxanium-ExtraBold.ttf" />
-        <None Remove="Resources\Fonts\Oxanium\Oxanium-ExtraLight.ttf" />
-        <None Remove="Resources\Fonts\Oxanium\Oxanium-Light.ttf" />
-        <None Remove="Resources\Fonts\Oxanium\Oxanium-Medium.ttf" />
-        <None Remove="Resources\Fonts\Oxanium\Oxanium-Regular.ttf" />
-        <None Remove="Resources\Fonts\Oxanium\Oxanium-SemiBold.ttf" />
-        <None Remove="Resources\Fonts\Oxanium\Oxanium-VariableFont_wght.ttf" />
-        <None Remove="Resources\Icons\paint-brush-icon.png" />
-        <None Remove="Resources\Icons\pencil-icon.png" />
+        <None Remove="Resources\Fonts\Oxanium\Oxanium-Bold.ttf"/>
+        <None Remove="Resources\Fonts\Oxanium\Oxanium-ExtraBold.ttf"/>
+        <None Remove="Resources\Fonts\Oxanium\Oxanium-ExtraLight.ttf"/>
+        <None Remove="Resources\Fonts\Oxanium\Oxanium-Light.ttf"/>
+        <None Remove="Resources\Fonts\Oxanium\Oxanium-Medium.ttf"/>
+        <None Remove="Resources\Fonts\Oxanium\Oxanium-Regular.ttf"/>
+        <None Remove="Resources\Fonts\Oxanium\Oxanium-SemiBold.ttf"/>
+        <None Remove="Resources\Fonts\Oxanium\Oxanium-VariableFont_wght.ttf"/>
+        <None Remove="Resources\Icons\paint-brush-icon.png"/>
+        <None Remove="Resources\Icons\pencil-icon.png"/>
     </ItemGroup>
 
     <ItemGroup>
-        <AdditionalFiles Include="AvControls\Dragger\NumberDraggerStyles.axaml" />
-        <AdditionalFiles Include="Services\Messages\Controls\DoubleUserInputControl.axaml" />
-        <AdditionalFiles Include="Services\Messages\Controls\MessageBoxDialog.axaml" />
-        <AdditionalFiles Include="Services\Messages\Controls\SingleUserInputControl.axaml" />
-        <AdditionalFiles Include="Services\Messages\Controls\UserInputDialog.axaml" />
+        <AdditionalFiles Include="AvControls\Dragger\NumberDraggerStyles.axaml"/>
+        <AdditionalFiles Include="Services\Messages\Controls\DoubleUserInputControl.axaml"/>
+        <AdditionalFiles Include="Services\Messages\Controls\MessageBoxDialog.axaml"/>
+        <AdditionalFiles Include="Services\Messages\Controls\SingleUserInputControl.axaml"/>
+        <AdditionalFiles Include="Services\Messages\Controls\UserInputDialog.axaml"/>
     </ItemGroup>
 
     <ItemGroup>
-        <UpToDateCheckInput Remove="Services\Messages\Controls\DoubleUserInputControl.axaml" />
-        <UpToDateCheckInput Remove="Services\Messages\Controls\MessageBoxDialog.axaml" />
-        <UpToDateCheckInput Remove="Services\Messages\Controls\SingleUserInputControl.axaml" />
-        <UpToDateCheckInput Remove="Services\Messages\Controls\UserInputDialog.axaml" />
-        <UpToDateCheckInput Remove="PicNet\PropertyEditing\Controls\PropertyEditorGridStyles.axaml" />
-        <UpToDateCheckInput Remove="PicNet\PropertyEditing\Controls\PropertyEditorSlotContentStyles.axaml" />
-        <UpToDateCheckInput Remove="PicNet\Layers\LayerControlStyles.axaml" />
-        <UpToDateCheckInput Remove="PicNet\Layers\StateMods\LayerStateModifierControlStyles.axaml" />
-        <UpToDateCheckInput Remove="PicNet\Toolbars\Controls\ToolBarItemStyles.axaml" />
-        <UpToDateCheckInput Remove="Editing\Controls\Dragger\NumberDraggerStyles.axaml" />
-        <UpToDateCheckInput Remove="Editing\Controls\GeneralControlStyles.axaml" />
+        <UpToDateCheckInput Remove="Services\Messages\Controls\DoubleUserInputControl.axaml"/>
+        <UpToDateCheckInput Remove="Services\Messages\Controls\MessageBoxDialog.axaml"/>
+        <UpToDateCheckInput Remove="Services\Messages\Controls\SingleUserInputControl.axaml"/>
+        <UpToDateCheckInput Remove="Services\Messages\Controls\UserInputDialog.axaml"/>
+        <UpToDateCheckInput Remove="PicNet\PropertyEditing\Controls\PropertyEditorGridStyles.axaml"/>
+        <UpToDateCheckInput Remove="PicNet\PropertyEditing\Controls\PropertyEditorSlotContentStyles.axaml"/>
+        <UpToDateCheckInput Remove="PicNet\Layers\LayerControlStyles.axaml"/>
+        <UpToDateCheckInput Remove="PicNet\Layers\StateMods\LayerStateModifierControlStyles.axaml"/>
+        <UpToDateCheckInput Remove="PicNet\Toolbars\Controls\ToolBarItemStyles.axaml"/>
+        <UpToDateCheckInput Remove="Editing\Controls\Dragger\NumberDraggerStyles.axaml"/>
+        <UpToDateCheckInput Remove="Editing\Controls\GeneralControlStyles.axaml"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\FramePFX\FramePFX.csproj" />
+        <ProjectReference Include="..\FramePFX\FramePFX.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <AvaloniaResource Include="FramePFX-256.ico" />
+      <AvaloniaResource Include="FramePFX-256.ico"/>
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-      <Exec Command="xcopy /y &quot;$(SolutionDir)libraries\ffmpeg\bin\*.dll&quot; $(TargetDir)&#xA;        " />
+      <Exec Command="xcopy /y &quot;$(SolutionDir)libraries\ffmpeg\bin\*.dll&quot; $(TargetDir)&#xA;        "/>
     </Target>
 </Project>

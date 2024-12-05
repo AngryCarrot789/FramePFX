@@ -160,9 +160,18 @@ public sealed class ResourceFolder : BaseResource {
         }
     }
 
+    /// <summary>
+    /// Figures out if the given item is a parent in the current instance's hierarchy
+    /// </summary>
+    /// <param name="item">The item to check</param>
+    /// <param name="startAtThis">True to start scanning at the current instance. False to start at our parent</param>
+    /// <returns>
+    /// True when the item is a parent at some point (or equal to the current
+    /// instance when <see cref="startAtThis"/> is true). False when it's not a parent
+    /// </returns>
     public bool IsParentInHierarchy(ResourceFolder item, bool startAtThis = true) {
-        for (ResourceFolder parent = startAtThis ? this : this.Parent; item != null; item = item.Parent) {
-            if (ReferenceEquals(parent, item)) {
+        for (ResourceFolder? self = startAtThis ? this : this.Parent, check = item; check != null; check = item.Parent) {
+            if (ReferenceEquals(self, check)) {
                 return true;
             }
         }

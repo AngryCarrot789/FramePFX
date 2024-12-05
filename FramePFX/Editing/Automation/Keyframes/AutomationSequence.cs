@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Collections.ObjectModel;
 using System.Numerics;
 using FramePFX.Editing.Automation.Params;
 using FramePFX.Editing.Timelines;
@@ -99,7 +100,7 @@ public class AutomationSequence {
     /// engine. Instead, use the methods provided by this class to modify this list
     /// </para>
     /// </summary>
-    public List<KeyFrame> KeyFrames => this.keyFrameList;
+    public ReadOnlyCollection<KeyFrame> KeyFrames { get; }
 
     public AutomationDataType DataType { get; }
 
@@ -125,6 +126,7 @@ public class AutomationSequence {
         this.AutomationData = automationData;
         this.Parameter = parameter;
         this.keyFrameList = new List<KeyFrame>();
+        this.KeyFrames = this.keyFrameList.AsReadOnly();
         this.DataType = parameter.DataType;
         this.DefaultKeyFrame = parameter.CreateKeyFrame();
         KeyFrame.SetupDefaultKeyFrameForSequence(this.DefaultKeyFrame, this);

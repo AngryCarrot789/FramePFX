@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Diagnostics.CodeAnalysis;
 using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Automation.Params;
 using FramePFX.Utils.RBC;
@@ -52,7 +53,7 @@ public class AutomationData {
                 throw new ArgumentNullException(nameof(parameter), "Parameter cannot be null");
             }
 
-            if (this.sequences.TryGetValue(parameter, out AutomationSequence sequence)) {
+            if (this.sequences.TryGetValue(parameter, out AutomationSequence? sequence)) {
                 return sequence;
             }
 
@@ -108,7 +109,7 @@ public class AutomationData {
     /// <param name="parameter"></param>
     /// <param name="value"></param>
     /// <returns></returns>
-    public bool TryGetSequence(Parameter parameter, out AutomationSequence value) {
+    public bool TryGetSequence(Parameter parameter, [NotNullWhen(true)] out AutomationSequence? value) {
         if (this.sequences.TryGetValue(parameter, out value)) {
             return true;
         }
@@ -130,16 +131,16 @@ public class AutomationData {
     }
 
     public void ReadFromRBE(RBEDictionary data) {
-        this.ActiveParameter = ParameterKey.Parse(data.GetString(nameof(this.ActiveParameter), null), default);
+        if (data.TryGetString(nameof(this.ActiveParameter), out string? activeParamText))
+            this.ActiveParameter = ParameterKey.Parse(activeParamText, default);
         RBEList list = data.GetList(nameof(this.Sequences));
         foreach (RBEBase rbe in list.List) {
             if (!(rbe is RBEDictionary dictionary))
                 throw new Exception("Expected a list of dictionaries");
 
-            string fullId = dictionary.GetString("KeyId");
-            ParameterKey paramKey = ParameterKey.Parse(fullId);
+            ParameterKey paramKey = ParameterKey.Parse(dictionary.GetString("KeyId"));
             if (!Parameter.TryGetParameterByKey(paramKey, out Parameter parameter))
-                throw new Exception("Unknown automation parameter: " + fullId);
+                throw new Exception("Unknown automation parameter: " + paramKey);
 
             this[parameter].ReadFromRBE(dictionary);
         }
@@ -202,7 +203,7 @@ public class AutomationData {
     }
 
     public bool IsAutomated(Parameter parameter) {
-        return this.TryGetSequence(parameter, out AutomationSequence sequence) && sequence.HasKeyFrames;
+        return this.TryGetSequence(parameter, out AutomationSequence? sequence) && sequence.HasKeyFrames;
     }
 
     public void InvalidateTimelineRender() => this.Owner.Timeline?.RenderManager.InvalidateRender();

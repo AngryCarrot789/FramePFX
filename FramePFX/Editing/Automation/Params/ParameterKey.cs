@@ -43,7 +43,7 @@ public readonly struct ParameterKey : IEquatable<ParameterKey> {
         this.Name = name ?? throw new ArgumentNullException(nameof(name));
     }
 
-    public static bool TryParse(string input, out ParameterKey key) {
+    public static bool TryParse(string? input, out ParameterKey key) {
         int index;
         if (input == null || (index = input.IndexOf(Parameter.FullIdSplitter)) == -1) {
             key = default;
@@ -58,6 +58,9 @@ public readonly struct ParameterKey : IEquatable<ParameterKey> {
     public static ParameterKey Parse(string input) {
         if (TryParse(input, out ParameterKey key))
             return key;
+        
+        if (string.IsNullOrWhiteSpace(input))
+            throw new FormatException("Invalid parameter key, input cannot be null, empty or consist of only whitespaces");
         throw new FormatException("Invalid parameter key string: " + input);
     }
 
@@ -73,11 +76,15 @@ public readonly struct ParameterKey : IEquatable<ParameterKey> {
         return this.Domain == key.Domain && this.Name == key.Name;
     }
 
-    public override bool Equals(object obj) {
+    public override bool Equals(object? obj) {
         return obj is ParameterKey key && this.Equals(key);
     }
 
     public override int GetHashCode() {
         return this.IsEmpty ? 0 : unchecked((this.Domain.GetHashCode() * 397) ^ this.Name.GetHashCode());
     }
+
+    public static bool operator ==(ParameterKey left, ParameterKey right) => left.Equals(right);
+
+    public static bool operator !=(ParameterKey left, ParameterKey right) => !left.Equals(right);
 }

@@ -188,6 +188,7 @@ public class SKAsyncViewPort : Control {
                 if (srcPtr != IntPtr.Zero && dstPtr != IntPtr.Zero) {
                     unsafe {
                         Unsafe.CopyBlock(dstPtr.ToPointer(), srcPtr.ToPointer(), (uint) imgInfo.BytesSize64);
+                        // NativeMemory.Copy(srcPtr.ToPointer(), dstPtr.ToPointer(), (uint) imgInfo.BytesSize64);
                     }
                 }
             }

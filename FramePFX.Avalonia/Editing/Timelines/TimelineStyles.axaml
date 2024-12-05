@@ -9,7 +9,8 @@
                     xmlns:f="clr-namespace:FramePFX.Interactivity.Formatting;assembly=FramePFX"
                     xmlns:p="clr-namespace:FramePFX.Avalonia.Editing.Playheads"
                     xmlns:u="clr-namespace:FramePFX.Avalonia.CommandSystem.Usages"
-                    xmlns:cc="clr-namespace:FramePFX.Avalonia.Editing.CommandContexts">
+                    xmlns:cc="clr-namespace:FramePFX.Avalonia.Editing.CommandContexts"
+                    xmlns:automation="clr-namespace:FramePFX.Avalonia.Editing.Automation">
     <ct:AutomationBrushConverter x:Key="AutomationBrushConverter" AutomationBrush="{StaticResource ABrush.ColourfulGlyph.Static}"/>
 
     <ControlTheme x:Key="{x:Type s:TrackControlSurfaceList}" TargetType="{x:Type s:TrackControlSurfaceList}" BasedOn="{StaticResource {x:Type ListBox}}">
@@ -112,14 +113,17 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type t:TimelineClipControl}">
                     <Border x:Name="PART_ClipBorderRoot" BorderThickness="1,0" BorderBrush="{DynamicResource PanelBorderBrush}" UseLayoutRounding="False">
-                        <ContentPresenter x:Name="PART_ContentPresenter"
-                                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                          Margin="0,20,0,0"
-                                          Content="{TemplateBinding Content}"
-                                          ContentTemplate="{TemplateBinding ContentTemplate}"
-                                          CornerRadius="{TemplateBinding CornerRadius}"
-                                          RecognizesAccessKey="True"
-                                          TextElement.Foreground="{TemplateBinding Foreground}"/>
+                        <Panel Margin="0,20,0,0">
+                            <ContentPresenter x:Name="PART_ContentPresenter"
+                                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                              Margin="0,20,0,0"
+                                              Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                                              CornerRadius="{TemplateBinding CornerRadius}"
+                                              RecognizesAccessKey="True"
+                                              TextElement.Foreground="{TemplateBinding Foreground}"/>
+                            <automation:AutomationEditorControl x:Name="PART_AutomationEditor"/>
+                        </Panel>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>

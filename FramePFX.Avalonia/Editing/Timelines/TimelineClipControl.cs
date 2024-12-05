@@ -22,26 +22,31 @@ using System.Collections.Generic;
 using System.Globalization;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Reactive;
 using Avalonia.Threading;
 using FramePFX.Avalonia.AdvancedMenuService;
 using FramePFX.Avalonia.Bindings;
+using FramePFX.Avalonia.Editing.Automation;
 using FramePFX.Avalonia.Editing.Timelines.Selection;
 using FramePFX.Avalonia.Interactivity;
+using FramePFX.Avalonia.Utils;
 using FramePFX.Editing;
+using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Clips.Video;
-using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Editing.UI;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 using SkiaSharp;
+using Track = FramePFX.Editing.Timelines.Tracks.Track;
 
 namespace FramePFX.Avalonia.Editing.Timelines;
 
@@ -53,11 +58,7 @@ public class TimelineClipControl : ContentControl, IClipElement {
     public static readonly DirectProperty<TimelineClipControl, string?> DisplayNameProperty = AvaloniaProperty.RegisterDirect<TimelineClipControl, string?>(nameof(DisplayName), o => o.DisplayName);
     public static readonly DirectProperty<TimelineClipControl, bool> IsSelectedProperty = AvaloniaProperty.RegisterDirect<TimelineClipControl, bool>(nameof(IsSelected), o => o.IsSelected);
     public static readonly DirectProperty<TimelineClipControl, bool> IsDroppableTargetOverProperty = AvaloniaProperty.RegisterDirect<TimelineClipControl, bool>(nameof(IsDroppableTargetOver), o => o.IsDroppableTargetOver);
-
-    public bool IsDroppableTargetOver {
-        get => this.isDroppableTargetOver;
-        private set => this.SetAndRaise(IsDroppableTargetOverProperty, ref this.isDroppableTargetOver, value);
-    }
+    public static readonly StyledProperty<AutomationSequence?> ActiveSequenceProperty = AvaloniaProperty.Register<TimelineClipControl, AutomationSequence?>(nameof(ActiveSequence));
 
     public Clip? ClipModel {
         get => this.myClip;
@@ -74,6 +75,16 @@ public class TimelineClipControl : ContentControl, IClipElement {
         private set => this.SetAndRaise(IsSelectedProperty, ref this.isSelected, value);
     }
 
+    public bool IsDroppableTargetOver {
+        get => this.isDroppableTargetOver;
+        private set => this.SetAndRaise(IsDroppableTargetOverProperty, ref this.isDroppableTargetOver, value);
+    }
+    
+    public AutomationSequence? ActiveSequence {
+        get => this.GetValue(ActiveSequenceProperty);
+        set => this.SetValue(ActiveSequenceProperty, value);
+    }
+    
     public ClipStoragePanel? StoragePanel { get; private set; }
 
     public TimelineTrackControl? Track => this.StoragePanel?.TrackControl;
@@ -118,6 +129,7 @@ public class TimelineClipControl : ContentControl, IClipElement {
 
     private readonly IBinder<Clip> frameSpanBinder = new AutoUpdateAndEventPropertyBinder<Clip>(nameof(VideoClip.FrameSpanChanged), obj => ((TimelineClipControl) obj.Control).FrameSpan = obj.Model.FrameSpan, null);
     private readonly IBinder<Clip> displayNameBinder = new AutoUpdateAndEventPropertyBinder<Clip>(DisplayNameProperty, nameof(VideoClip.DisplayNameChanged), obj => ((TimelineClipControl) obj.Control).DisplayName = obj.Model.DisplayName, null);
+    private readonly PropertyBinder<AutomationSequence?> autoSequenceBinder;
     private readonly RectangleGeometry renderSizeRectGeometry;
     private const double EdgeGripSize = 8d;
     public const double HeaderSize = FramePFX.Editing.Timelines.Tracks.Track.MinimumHeight;
@@ -134,21 +146,35 @@ public class TimelineClipControl : ContentControl, IClipElement {
     private readonly ContextData contextData;
     private bool wasSelectedOnPress;
     private bool isProcessingAsyncDrop;
+    private FormattedText? myDisplayNameFormattedText;
+    private AutomationEditorControl? PART_AutomationEditor;
 
     public TimelineClipControl() {
         Binders.AttachControls(this, this.frameSpanBinder, this.displayNameBinder);
         this.renderSizeRectGeometry = new RectangleGeometry();
         DataManager.SetContextData(this, this.contextData = new ContextData().Set(DataKeys.ClipUIKey, this));
         DragDrop.SetAllowDrop(this, true);
+        this.autoSequenceBinder = new PropertyBinder<AutomationSequence?>(this, ActiveSequenceProperty, AutomationEditorControl.AutomationSequenceProperty);
     }
-
-
+    
     static TimelineClipControl() {
         AffectsRender<TimelineClipControl>(BackgroundProperty, DisplayNameProperty);
+        DisplayNameProperty.Changed.Subscribe(new AnonymousObserver<AvaloniaPropertyChangedEventArgs<string?>>(OnDisplayNameChanged));
         DragDrop.DragEnterEvent.AddClassHandler<TimelineClipControl>((o, e) => o.OnDragEnter(e));
         DragDrop.DragOverEvent.AddClassHandler<TimelineClipControl>((o, e) => o.OnDragOver(e));
         DragDrop.DragLeaveEvent.AddClassHandler<TimelineClipControl>((o, e) => o.OnDragLeave(e));
         DragDrop.DropEvent.AddClassHandler<TimelineClipControl>((o, e) => o.OnDrop(e));
+    }
+
+    private static void OnDisplayNameChanged(AvaloniaPropertyChangedEventArgs<string?> obj) {
+        ((TimelineClipControl) obj.Sender).myDisplayNameFormattedText = null;
+    }
+
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
+        base.OnApplyTemplate(e);
+        this.PART_AutomationEditor = e.NameScope.GetTemplateChild<AutomationEditorControl>("PART_AutomationEditor");
+        this.PART_AutomationEditor.HorizontalZoom = this.TimelineZoom;
+        this.autoSequenceBinder.SetTargetControl(this.PART_AutomationEditor);
     }
 
     protected override void OnLoaded(RoutedEventArgs e) {
@@ -349,9 +375,11 @@ public class TimelineClipControl : ContentControl, IClipElement {
                     timelineControl.ClipSelectionManager!.Select(this);
                 }
             }
-            else if (timelineControl.ClipSelectionManager!.Count < 2 || !this.wasSelectedOnPress) {
+            else if (!this.wasSelectedOnPress || timelineControl.ClipSelectionManager!.Count <= 1) {
                 // Set as only selection if 0 or 1 items selected, or we aren't selected
-                timelineControl.ClipSelectionManager.SetSelection(this);
+                // Check we don't update selection since we are already the only selected item. Pointless re-selection
+                if (!this.wasSelectedOnPress)
+                    timelineControl.ClipSelectionManager!.SetSelection(this);
                 this.shouldUpdatePlayHeadOnMouseUp = true;
             }
 
@@ -669,8 +697,8 @@ public class TimelineClipControl : ContentControl, IClipElement {
         if (this.DisplayName is string str && !string.IsNullOrWhiteSpace(str)) {
             SKColor c = this.Track.Track.Colour;
             IBrush foreground = this.Track?.TrackColourForegroundBrush ?? this.Foreground ?? Brushes.Orange;
-            FormattedText text = new FormattedText(str, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, new Typeface("Segoe UI"), 12, foreground);
-            dc.DrawText(text, new Point(3, 1));
+            this.myDisplayNameFormattedText ??= new FormattedText(str, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, new Typeface("Segoe UI"), 12, foreground);
+            dc.DrawText(this.myDisplayNameFormattedText, new Point(3, 1));
         }
 
         if (this.ClipModel?.MediaFrameOffset > 0) {
@@ -695,6 +723,8 @@ public class TimelineClipControl : ContentControl, IClipElement {
     }
 
     public void OnZoomChanged(double newZoom) {
+        if (this.PART_AutomationEditor != null)
+            this.PART_AutomationEditor.HorizontalZoom = newZoom;
     }
 
     internal static void InternalUpdateIsSelected(TimelineClipControl clip, bool isSelected) {

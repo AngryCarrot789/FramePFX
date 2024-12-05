@@ -178,7 +178,7 @@ public class RBEDictionary : RBEBase {
     [return: NotNullIfNotNull(nameof(def))]
     public string? GetString(string key, string? def) => this.TryGetElement(key, out RBEString rbe) ? rbe.Value : def;
 
-    public bool TryGetString(string key, out string? value) => this.TryGetElementValue<RBEString, string>(key, e => e.Value, out value);
+    public bool TryGetString(string key, [NotNullWhen(true)] out string? value) => this.TryGetElementValue<RBEString, string>(key, e => e.Value, out value);
 
     // public string GetLongString(string key) => GetString(this.GetElement<RBEList>(key).List);
     // public string GetLongString(string key, string def) => this.TryGetElement(key, out RBEList rbe) ? GetString(rbe.List) : def;

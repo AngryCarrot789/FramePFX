@@ -19,6 +19,10 @@
 
 namespace FramePFX.Services.Messaging;
 
+/// <summary>
+/// An interface for the message dialog service for the application. The ShowMessage methods can be
+/// called from any thread, but it's best to call from the main thread so that the active window is predicable
+/// </summary>
 public interface IMessageDialogService {
     /// <summary>
     /// Shows a dialog message

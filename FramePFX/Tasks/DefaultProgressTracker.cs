@@ -27,8 +27,8 @@ public class DefaultProgressTracker : IActivityProgress {
     private readonly object dataLock = new object(); // only really used as a memory barrier
     private bool isIndeterminate;
     private double completionValue;
-    private string headerText;
-    private string descriptionText;
+    private string? headerText;
+    private string? descriptionText;
 
     public bool IsIndeterminate {
         get => this.isIndeterminate;
@@ -56,7 +56,7 @@ public class DefaultProgressTracker : IActivityProgress {
         }
     }
 
-    public string HeaderText {
+    public string? HeaderText {
         get => this.headerText;
         set {
             lock (this.dataLock) {
@@ -69,7 +69,7 @@ public class DefaultProgressTracker : IActivityProgress {
         }
     }
 
-    public string Text {
+    public string? Text {
         get => this.descriptionText;
         set {
             lock (this.dataLock) {

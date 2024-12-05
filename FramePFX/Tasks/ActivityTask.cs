@@ -28,13 +28,15 @@ namespace FramePFX.Tasks;
 public class ActivityTask {
     private readonly TaskManager taskManager;
     private readonly Func<Task> action;
-    private Exception exception;
+    private Exception? exception;
 
     //  0 = waiting for activation
     //  1 = running
     //  2 = completed
     //  3 = cancelled
     private volatile int state;
+    private Task? userTask; // task from action()
+    protected Task? theMainTask; // task we created
 
     /// <summary>
     /// Returns true if the task is currently still running
@@ -49,7 +51,7 @@ public class ActivityTask {
     /// <summary>
     /// Gets the exception that was thrown during the execution of the user action
     /// </summary>
-    public Exception Exception => this.exception;
+    public Exception? Exception => this.exception;
 
     /// <summary>
     /// Gets the progress handler associated with this task. Will always be non-null
@@ -66,15 +68,21 @@ public class ActivityTask {
     /// the user task function, and will not throw <see cref="OperationCanceledException"/> when
     /// awaited if our <see cref="CancellationToken"/>'s is cancelled
     /// </summary>
-    public Task Task { get; }
+    public Task Task {
+        get => this.theMainTask!;
+        protected set => this.theMainTask = value;
+    }
 
     // internal int OwningThreadId;
 
-    private ActivityTask(TaskManager taskManager, Func<Task> action, IActivityProgress activityProgress, CancellationToken cancellationToken) {
+    protected ActivityTask(TaskManager taskManager, Func<Task> action, IActivityProgress activityProgress, CancellationToken cancellationToken) {
         this.taskManager = taskManager ?? throw new ArgumentNullException(nameof(taskManager));
         this.action = action ?? throw new ArgumentNullException(nameof(action));
         this.Progress = activityProgress ?? throw new ArgumentNullException(nameof(activityProgress));
         this.CancellationToken = cancellationToken;
+    }
+
+    protected virtual void CreateTask() {
         this.Task = Task.Run(this.TaskMain);
     }
 
@@ -85,7 +93,7 @@ public class ActivityTask {
     /// <returns>The awaiter</returns>
     public TaskAwaiter GetAwaiter() => this.Task.GetAwaiter();
 
-    private async Task TaskMain() {
+    protected async Task TaskMain() {
         // This Dispatcher usage here was used to have a synchronisation context so that async callbacks
         // would be fired on the dispatcher thread meaning ThreadLocal would work. However, AsyncLocal works nicely
 
@@ -94,7 +102,7 @@ public class ActivityTask {
         try {
             await TaskManager.InternalPreActivateTask(this.taskManager, this);
             this.CheckCancelled();
-            await (this.action() ?? Task.CompletedTask);
+            await ((this.userTask = this.action()) ?? Task.CompletedTask);
             await this.OnCompleted(null);
         }
         catch (OperationCanceledException) {
@@ -111,7 +119,7 @@ public class ActivityTask {
 
     private Task OnCancelled() => TaskManager.InternalOnActivityCompleted(this.taskManager, this, 3);
 
-    private async Task OnCompleted(Exception e) {
+    protected virtual async Task OnCompleted(Exception? e) {
         if ((this.exception = e) != null) {
             Debugger.Break();
         }
@@ -120,7 +128,12 @@ public class ActivityTask {
     }
 
     internal static ActivityTask InternalStartActivity(TaskManager taskManager, Func<Task> action, IActivityProgress? progress, CancellationToken token) {
-        return new ActivityTask(taskManager, action, progress ?? new DefaultProgressTracker(), token);
+        return InternalStartActivityImpl(new ActivityTask(taskManager, action, progress ?? new DefaultProgressTracker(), token));
+    }
+
+    internal static ActivityTask InternalStartActivityImpl(ActivityTask task) {
+        task.CreateTask();
+        return task;
     }
 
     public static void InternalPostActivate(ActivityTask task) {
@@ -129,5 +142,35 @@ public class ActivityTask {
 
     public static void InternalComplete(ActivityTask task, int state) {
         task.state = state;
+    }
+}
+
+// This system isn't great but it just about works... i'd rather not use public new ... methods but oh well
+
+public class ActivityTask<T> : ActivityTask {
+    public T? Result { get; private set; }
+    
+    public new Task<T> Task => (Task<T>) this.theMainTask!;
+
+    protected ActivityTask(TaskManager taskManager, Func<Task<T>> action, IActivityProgress activityProgress, CancellationToken cancellationToken) : base(taskManager, action, activityProgress, cancellationToken) {
+    }
+
+    internal static ActivityTask<T> InternalStartActivity(TaskManager taskManager, Func<Task<T>> action, IActivityProgress? progress, CancellationToken token) {
+        return (ActivityTask<T>) InternalStartActivityImpl(new ActivityTask<T>(taskManager, action, progress ?? new DefaultProgressTracker(), token));
+    }
+    
+    /// <inheritdoc cref="ActivityTask.GetAwaiter"/>
+    public new TaskAwaiter<T> GetAwaiter() => this.Task.GetAwaiter();
+
+    protected override void CreateTask() {
+        base.Task = System.Threading.Tasks.Task.Run(this.TaskMain).ContinueWith(x => this.Result, TaskContinuationOptions.ExecuteSynchronously);
+    }
+
+    protected override Task OnCompleted(Exception? e) {
+        if (this.Task is Task<T> t && e == null) {
+            this.Result = t.Result ?? default;
+        }
+
+        return base.OnCompleted(e);
     }
 }

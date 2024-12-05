@@ -22,7 +22,7 @@ namespace FramePFX.Interactivity;
 public interface IDataObjekt {
     object? GetData(string format);
 
-    bool GetDataPresent(string format);
+    bool Contains(string format);
 
     IEnumerable<string> GetFormats();
 

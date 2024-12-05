@@ -17,6 +17,8 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace FramePFX.Utils;
 
 public class TextIncrement {
@@ -30,7 +32,7 @@ public class TextIncrement {
         if (string.IsNullOrEmpty(input)) {
             return " (1)";
         }
-        else if (GetNumbered(input, out string left, out long number)) {
+        else if (GetNumbered(input, out string? left, out long number)) {
             return $"{left} ({number + 1})";
         }
         else {
@@ -44,13 +46,13 @@ public class TextIncrement {
         }
 
         HashSet<string> available = new HashSet<string>(inputs);
-        if (!GetIncrementableString((x) => !available.Contains(x), text, out string output))
+        if (!GetIncrementableString((x) => x != null && !available.Contains(x), text, out string? output))
             output = text;
-        return output;
+        return output!;
     }
 
-    public static bool GetNumbered(string input, out string left, out long number) {
-        if (GetNumberedRaw(input, out left, out string bracketed) && long.TryParse(bracketed, out number)) {
+    public static bool GetNumbered(string? input, out string? left, out long number) {
+        if (GetNumberedRaw(input, out left, out string? bracketed) && long.TryParse(bracketed, out number)) {
             return true;
         }
 
@@ -58,7 +60,11 @@ public class TextIncrement {
         return false;
     }
 
-    public static bool GetNumberedRaw(string input, out string left, out string bracketed) {
+    public static bool GetNumberedRaw(string? input, [NotNullWhen(true)] out string? left, [NotNullWhen(true)] out string? bracketed) {
+        if (string.IsNullOrWhiteSpace(input)) {
+            goto fail;
+        }
+
         int indexA = input.LastIndexOf('(');
         if (indexA < 0 || (indexA != 0 && input[indexA - 1] != ' ')) {
             goto fail;
@@ -98,7 +104,7 @@ public class TextIncrement {
     /// <returns>True if the <see cref="accept"/> predicate accepted the output string before the loop counter reached 0</returns>
     /// <exception cref="ArgumentOutOfRangeException">The <see cref="count"/> parameter is zero</exception>
     /// <exception cref="ArgumentException">The <see cref="input"/> parameter is null or empty</exception>
-    public static bool GetIncrementableString(Predicate<string> accept, string input, out string output, ulong count = ulong.MaxValue) {
+    public static bool GetIncrementableString(Predicate<string?> accept, string? input, out string? output, ulong count = ulong.MaxValue) {
         if (count < 1)
             throw new ArgumentOutOfRangeException(nameof(count), "Count must not be zero");
         if (string.IsNullOrEmpty(input))
@@ -106,7 +112,7 @@ public class TextIncrement {
         if (accept(input))
             return (output = input) != null; // one liner ;) always returns true
 
-        if (!GetNumbered(input, out string content, out long textNumber) || textNumber < 1)
+        if (!GetNumbered(input, out string? content, out long textNumber) || textNumber < 1)
             textNumber = 1;
 
         ulong num = (ulong) textNumber;
@@ -187,8 +193,13 @@ public class TextIncrement {
     /// number, file name with a random string on the end, or null (and the function returns false)
     /// </param>
     /// <returns>True if the given predicate accepted any of the possible output strings</returns>
-    public static bool GenerateFileString(Predicate<string> accept, string filePath, out string output, ulong incrementCounter = 10000UL) {
-        string fileName = Path.GetFileName(filePath);
+    public static bool GenerateFileString(Predicate<string?> accept, string? filePath, out string? output, ulong incrementCounter = 10000UL) {
+        if (string.IsNullOrWhiteSpace(filePath)) {
+            output = filePath;
+            return false;
+        }
+
+        string? fileName = Path.GetFileName(filePath);
         if (!string.IsNullOrEmpty(fileName)) {
             // checks if the predicate accepts the raw fileName
             if (GetIncrementableString(accept, fileName, out output, incrementCounter))
@@ -199,6 +210,8 @@ public class TextIncrement {
             return true;
 
         // what the ass. last resort
+        if (fileName == null)
+            fileName = filePath!;
         return GetRandomDisplayName(accept, fileName + "_", fileName.Length + 1, out output, 16, 128);
     }
 }

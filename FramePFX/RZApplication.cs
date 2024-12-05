@@ -133,7 +133,10 @@ public abstract class
 
     protected virtual async Task OnFullyInitialised(VideoEditor editor, string[] args) {
         if (args.Length > 0 && File.Exists(args[0]) && Filters.ProjectType.MatchFilePath(args[0]) == true) {
-            OpenProjectCommand.RunOpenProjectTask(editor, args[0]);
+            ActivityTask<bool> task = OpenProjectCommand.RunOpenProjectTask(editor, args[0]);
+            if (!await task) {
+                editor.LoadDefaultProject();
+            }
         }
         else {
             // Use to debug why something is causing a crash only in Release mode

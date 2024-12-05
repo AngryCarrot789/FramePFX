@@ -114,7 +114,7 @@ public class DragDropRegistry<THandler> where THandler : class {
         context ??= EmptyContext.Instance;
         Type targetType = target.GetType();
         foreach (KeyValuePair<string, InheritanceDictionary<NativeHandlerPair>> pair in this.registryNative) {
-            if (!value.GetDataPresent(pair.Key)) {
+            if (!value.Contains(pair.Key)) {
                 continue;
             }
 
@@ -170,7 +170,7 @@ public class DragDropRegistry<THandler> where THandler : class {
         context ??= EmptyContext.Instance;
         Type targetType = target.GetType();
         foreach (KeyValuePair<string, InheritanceDictionary<NativeHandlerPair>> registryPair in this.registryNative) {
-            if (!value.GetDataPresent(registryPair.Key)) {
+            if (!value.Contains(registryPair.Key)) {
                 continue;
             }
 

@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Timelines.Clips;
 
 namespace FramePFX.Editing.UI;
@@ -31,6 +32,11 @@ public interface IClipElement {
     /// Gets the clip model
     /// </summary>
     Clip Clip { get; }
+
+    /// <summary>
+    /// Gets or sets the clip's currently active automation sequence in its editor
+    /// </summary>
+    AutomationSequence? ActiveSequence { get; set; }
 
     /// <summary>
     /// Gets if this clip is selected

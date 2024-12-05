@@ -247,7 +247,7 @@ public class VideoEditorViewPortControl : TemplatedControl {
         // nearest neighbour
         RenderOptions.SetBitmapInterpolationMode(this.PART_SkiaViewPort, BitmapInterpolationMode.None);
         RenderOptions.SetEdgeMode(this.PART_SkiaViewPort, EdgeMode.Aliased);
-        this.PART_SkiaViewPort.PreRenderExtension += this.OnEndRenderViewPort;
+        this.PART_SkiaViewPort.PreRenderExtension += this.OnPreRenderViewPort;
         this.PART_SkiaViewPort.PostRenderExtension += this.OnPostRenderViewPort;
         this.PART_FreeMoveViewPort.Setup(this.PART_CanvasContainer, this.PART_SkiaViewPort);
     }
@@ -272,7 +272,7 @@ public class VideoEditorViewPortControl : TemplatedControl {
         this.PART_SkiaViewPort?.InvalidateVisual();
     }
     
-    private void OnEndRenderViewPort(SKAsyncViewPort sender, DrawingContext ctx, Size size, Point minatureOffset) {
+    private void OnPreRenderViewPort(SKAsyncViewPort sender, DrawingContext ctx, Size size, Point minatureOffset) {
         // Not sure how render-intensive DrawingBrush is, especially with GeometryDrawing
         // But since it's not drawing actual Visuals, just geometry, it should be lightning fast.
         using (this.PushInverseScale(ctx, out double scale)) {

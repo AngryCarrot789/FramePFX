@@ -40,7 +40,16 @@ public class MessageDialogServiceImpl : IMessageDialogService {
 
     public async Task<MessageBoxResult> ShowMessage(MessageBoxInfo info) {
         Validate.NotNull(info);
+        if (IoC.Dispatcher.CheckAccess()) {
+            return await ShowMessageMainThread(info);
+        }
+        else {
+            return await await IoC.Dispatcher.InvokeAsync(() => ShowMessageMainThread(info));
+        }
+    }
 
+    private static async Task<MessageBoxResult> ShowMessageMainThread(MessageBoxInfo info) {
+        Validate.NotNull(info);
         if (RZApplicationImpl.TryGetActiveWindow(out Window? window)) {
             MessageBoxDialog dialog = new MessageBoxDialog {
                 MessageBoxData = info

@@ -27,30 +27,11 @@ using FramePFX.Editing.Timelines;
 
 namespace FramePFX.Avalonia.Editing.Playheads;
 
-public class PlayHeadControl : BasePlayHeadControl {
+public class GrippedPlayHeadControl : BasePlayHeadControl {
     private Thumb? PART_ThumbHead;
     private Thumb? PART_ThumbBody;
 
-    public PlayHeadControl() {
-    }
-
-    public override long GetFrame(Timeline timeline) {
-        return timeline.PlayHeadPosition;
-    }
-
-    protected override void OnTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline) {
-        base.OnTimelineChanged(oldTimeline, newTimeline);
-        if (oldTimeline != null) {
-            oldTimeline.PlayHeadChanged -= this.OnTimelinePlayHeadChanged;
-        }
-
-        if (newTimeline != null) {
-            newTimeline.PlayHeadChanged += this.OnTimelinePlayHeadChanged;
-        }
-    }
-
-    private void OnTimelinePlayHeadChanged(Timeline timeline, long oldvalue, long newvalue) {
-        this.SetPixelFromFrameAndZoom(newvalue, this.TimelineControl?.Zoom ?? 1.0);
+    public GrippedPlayHeadControl() {
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
@@ -73,17 +54,14 @@ public class PlayHeadControl : BasePlayHeadControl {
 
         long change = (long) Math.Round(e.Vector.X / control.Zoom);
         if (change != 0) {
-            long oldFrame = timeline.PlayHeadPosition;
+            long oldFrame = this.Frame;
             long newFrame = Math.Max(oldFrame + change, 0);
             if (newFrame >= timeline.MaxDuration) {
                 newFrame = timeline.MaxDuration - 1;
             }
 
             if (newFrame != oldFrame) {
-                timeline.PlayHeadPosition = newFrame;
-
-                // Don't update stop head when dragging on the ruler
-                // timeline.StopHeadPosition = newFrame;
+                this.Frame = newFrame;
             }
         }
     }
@@ -110,17 +88,5 @@ public class PlayHeadControl : BasePlayHeadControl {
 
         e.PreventGestureRecognition();
         thumb.RaiseEvent(ev);
-    }
-
-    protected override Size MeasureCore(Size availableSize) {
-        return base.MeasureCore(availableSize);
-    }
-
-    protected override void ArrangeCore(Rect finalRect) {
-        base.ArrangeCore(finalRect);
-    }
-
-    protected override Size ArrangeOverride(Size finalSize) {
-        return base.ArrangeOverride(finalSize);
     }
 }

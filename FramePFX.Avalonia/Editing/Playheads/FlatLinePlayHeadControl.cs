@@ -25,7 +25,7 @@ using FramePFX.Editing.Timelines;
 
 namespace FramePFX.Avalonia.Editing.Playheads;
 
-public class StopHeadControl : BasePlayHeadControl {
+public class FlatLinePlayHeadControl : BasePlayHeadControl {
     private const int StateNone = 0;
     private const int StateInit = 1;
     private const int StateActive = 2;
@@ -34,7 +34,7 @@ public class StopHeadControl : BasePlayHeadControl {
     private Point clickPoint;
     private int dragState;
 
-    public StopHeadControl() {
+    public FlatLinePlayHeadControl() {
         this.Focusable = true;
     }
 
@@ -84,7 +84,7 @@ public class StopHeadControl : BasePlayHeadControl {
         }
 
         Point diff = mPos - this.clickPoint;
-        long oldFrame = timeline.StopHeadPosition;
+        long oldFrame = this.Frame;
         if (Math.Abs(diff.X) >= 1.0d) {
             long offset = (long) Math.Round(diff.X / control.Zoom);
             if (offset != 0) {
@@ -96,7 +96,7 @@ public class StopHeadControl : BasePlayHeadControl {
                 }
 
                 if (offset != 0) {
-                    timeline.StopHeadPosition = Math.Min(oldFrame + offset, timeline.MaxDuration - 1);
+                    this.Frame = Math.Min(oldFrame + offset, timeline.MaxDuration - 1);
                 }
             }
         }
@@ -104,25 +104,5 @@ public class StopHeadControl : BasePlayHeadControl {
 
     private void SetDragState(int state) {
         this.dragState = state;
-    }
-
-    public override long GetFrame(Timeline timeline) {
-        return timeline.StopHeadPosition;
-    }
-
-    protected override void OnTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline) {
-        base.OnTimelineChanged(oldTimeline, newTimeline);
-        if (oldTimeline != null) {
-            oldTimeline.StopHeadChanged -= this.OnTimelineStopHeadChanged;
-        }
-
-        if (newTimeline != null) {
-            newTimeline.StopHeadChanged += this.OnTimelineStopHeadChanged;
-        }
-    }
-
-    private void OnTimelineStopHeadChanged(Timeline timeline, long oldvalue, long newvalue) {
-        if (this.TimelineControl is TimelineControl control)
-            this.SetPixelFromFrameAndZoom(newvalue, control.Zoom);
     }
 }

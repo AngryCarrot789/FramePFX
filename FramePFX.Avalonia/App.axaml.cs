@@ -73,8 +73,8 @@ public partial class App : Application {
 #if !DEBUG
         }
         catch (Exception ex) {
-            await (new FramePFX.Avalonia.Services.MessageDialogServiceImpl().ShowMessage("App startup failed", "Failed to initialise application", ex.GetToString()));
-            Dispatcher.UIThread.InvokeShutdown();
+            await (new FramePFX.Avalonia.Services.MessageDialogServiceImpl().ShowMessage("App startup failed", "Failed to initialise application", ex.ToString()));
+            global::Avalonia.Threading.Dispatcher.UIThread.InvokeShutdown();
             return;
         }
 #endif

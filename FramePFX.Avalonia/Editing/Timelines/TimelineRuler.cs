@@ -18,6 +18,7 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Avalonia;
@@ -35,7 +36,6 @@ using FramePFX.Utils;
 namespace FramePFX.Avalonia.Editing.Timelines;
 
 public class TimelineRuler : Control {
-    private static readonly int[] Steps = new[] { 1, 2, 5, 10, 50, 100 };
     private const double MinRender = 0.01D;
     private const double MajorLineThickness = 1.0;
     private const double MinorStepRatio = 0.5;
@@ -76,7 +76,7 @@ public class TimelineRuler : Control {
         get => this.GetValue(StepColourProperty);
         set => this.SetValue(StepColourProperty, value);
     }
-    
+
     public ScrollViewer? ScrollViewerReference {
         get => this.GetValue(ScrollViewerReferenceProperty);
         set => this.SetValue(ScrollViewerReferenceProperty, value);
@@ -89,6 +89,7 @@ public class TimelineRuler : Control {
     private Pen? majorLineStepColourPen;
     private Pen? minorLineStepColourPen;
     private Timeline? targetTimelineModel;
+    private double timelineZoom;
 
     public TimelineRuler() {
         this.ClipToBounds = true;
@@ -101,7 +102,7 @@ public class TimelineRuler : Control {
         AffectsRender<TimelineRuler>(StepColourProperty);
         ScrollViewerReferenceProperty.Changed.AddClassHandler<TimelineRuler, ScrollViewer?>((d, e) => d.OnScrollViewerReferenceChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }
-    
+
     private void OnScrollViewerReferenceChanged(ScrollViewer? oldValue, ScrollViewer? newValue) {
         if (oldValue != null) {
             oldValue.SizeChanged -= this.OnScrollerOnSizeChanged;
@@ -122,15 +123,18 @@ public class TimelineRuler : Control {
 
     private void OnTimelineChanged(TimelineControl? oldTimeline, TimelineControl? newTimeline) {
         this.InvalidateVisual();
-        
-        if (oldTimeline != null)
+
+        if (oldTimeline != null) {
             oldTimeline.TimelineModelChanged -= this.OnTimelineModelChanged;
+        }
 
         if (newTimeline != null) {
             newTimeline.TimelineModelChanged += this.OnTimelineModelChanged;
             if (newTimeline.Timeline is Timeline timeline) {
                 this.OnTimelineModelChanged(newTimeline, null, timeline);
             }
+
+            this.timelineZoom = newTimeline.Zoom;
         }
     }
 
@@ -138,7 +142,7 @@ public class TimelineRuler : Control {
         base.OnLoaded(e);
         Dispatcher.UIThread.InvokeAsync(this.InvalidateVisual, DispatcherPriority.Background);
     }
-    
+
     private void OnTimelineModelChanged(ITimelineElement element, Timeline? oldtimeline, Timeline? newtimeline) {
         this.targetTimelineModel = newtimeline;
         this.InvalidateVisual();
@@ -157,7 +161,7 @@ public class TimelineRuler : Control {
         if (this.targetTimelineModel == null || !(this.TimelineControl is TimelineControl timelineControl) || !(this.ScrollViewerReference is ScrollViewer scrollViewer)) {
             return;
         }
-        
+
         Rect myBounds = this.Bounds;
         if (myBounds.Width < MinRender || myBounds.Height < MinRender) {
             return;
@@ -166,96 +170,60 @@ public class TimelineRuler : Control {
         if (this.Background is Brush bg) {
             dc.DrawRectangle(bg, null, myBounds);
         }
+        
+        int[] Steps = [1, 2, 5, 10];
+
+        // #####################################################################################################################
 
         double rulerWidth = myBounds.Width;
-        double zoom = timelineControl.Zoom;
+        double zoom = this.timelineZoom;
         double scrollH = scrollViewer.Offset.X;
-        long offset2 = (long) (scrollH / zoom);
-        double offset3 = (scrollH - offset2 * zoom);
         double timelineWidth = zoom * this.targetTimelineModel.MaxDuration;
         
-        // const int SubStepNumber = 10;
-        // const int MinPixelSize = 3;
-        // double minPixel = MinPixelSize * SubStepNumber / timelineWidth;
-        // double minStep = minPixel * (this.targetTimelineModel.MaxDuration / zoom);
-        // double minStepMagPow = Math.Pow(10, Math.Floor(Math.Log10(minStep)));
-        // double normMinStep = minStep / minStepMagPow;
-        // int finalStep = Steps.FirstOrDefault(step => step > normMinStep);
-        // if (finalStep < 1) {
-        //     return;
-        // }
-
-        double h = Maths.Map(1.0 / zoom, 0.0, 1.0, 0, 100);
-        int finalStep = Steps.FirstOrDefault(step => step > h);
-        if (finalStep < 1 || finalStep > 100)
-            finalStep = 100;
-
-        double firstMajor = scrollH % zoom == 0D ? scrollH : scrollH + (zoom - scrollH % zoom);
-        double firstMajorRelative = zoom - (scrollH - firstMajor + zoom);
-        int majorStepCount = (int) TimelineUtils.PixelToFrame(scrollH + firstMajorRelative, zoom, true);
-        double start = zoom - offset3;
+        // Not using anymore but this is some witchcraft math
+        // double start = zoom - (scrollH - (long) (scrollH / zoom) * zoom);
+        // double firstMajor = scrollH % zoom == 0D ? scrollH : scrollH + (zoom - scrollH % zoom);
+        // double firstMajorRelative = zoom - (scrollH - firstMajor + zoom);
         
-        double subZoom = zoom / finalStep;
-
-        for (double x = firstMajorRelative; x < rulerWidth; x += zoom) {
-            long theFrame = TimelineUtils.PixelToFrame(scrollH + x, zoom, true);
-            bool isMajor = theFrame % finalStep < 0.0001d; 
-            if (isMajor) {
-                double size = Math.Min(myBounds.Height / 2.0, myBounds.Height);
-                dc.DrawLine(this.MajorStepColourPen, new Point(x, myBounds.Height - size), new Point(x, myBounds.Height));
-                this.DrawText(dc, theFrame, x);
-            }
-            else {
-                double size = (myBounds.Height / 2.0) * (1 - MinorStepRatio);
-                dc.DrawLine(this.MinorStepColourPen, new Point(x, myBounds.Height - size), new Point(x, myBounds.Height));
-            }
+        const int SubStepNumber = 10;
+        const int MinPixelSize = 4;
+        double minPixel = MinPixelSize * SubStepNumber / timelineWidth;
+        double minStep = minPixel * this.targetTimelineModel.MaxDuration;
+        double minStepMagPow = Math.Pow(10, Math.Floor(Math.Log10(minStep)));
+        double normMinStep = minStep / minStepMagPow;
+        int finalStep = Steps.FirstOrDefault(step => step > normMinStep);
+        if (finalStep < 1) {
+            return;
         }
-
-        // double timelineWidth = scrollViewer.Extent.Width;
-        // const int SubStepNumber = 10;
-        // const int MinPixelSize = 4;
-        // double minPixel = MinPixelSize * SubStepNumber / timelineWidth;
-        // double minStep = minPixel * this.targetTimelineModel.MaxDuration;
-        // double minStepMagPow = Math.Pow(10, Math.Floor(Math.Log10(minStep)));
-        // double normMinStep = minStep / minStepMagPow;
-        // int finalStep = Steps.FirstOrDefault(step => step > normMinStep);
-        // if (finalStep < 1) {
-        //     return;
-        // }
-
-        // double valueStep = finalStep * minStepMagPow;
-        // double pixelSize = timelineWidth * valueStep / this.targetTimelineModel.MaxDuration;
-
-        // int steps = Math.Min((int) Math.Floor(valueStep), SubStepNumber);
-        // double subpixelSize = pixelSize / steps;
-
-        // // calculate an initial offset instead of looping until we get into a visible region
-        // // Flooring may result in us drawing things partially offscreen to the left, which is kinda required
-        // double pxLeft = myBounds.Left;// + (this.ScrollViewerReference?.Offset.X ?? 0);
-        // double height = myBounds.Height;
         
-        // int i = (int) Math.Floor(pxLeft / pixelSize);
-        // int j = (int) Math.Ceiling((myBounds.Right + pixelSize) / pixelSize);
-        // do {
-        //     double pixel = i * pixelSize;
-        //     if (i > j) {
-        //         break;
-        //     }
+        double valueStep = finalStep * minStepMagPow;
+        double pixelSize = timelineWidth * valueStep / this.targetTimelineModel.MaxDuration;
 
-        //     // TODO: optimise smaller/minor lines, maybe using skia?
-        //     for (int y = 1; y < steps; ++y) {
-        //         double subpixel = pixel + y * subpixelSize;
-        //         this.DrawMinorLine(dc, subpixel, height);
-        //     }
+        int steps = Math.Min((int) Math.Floor(valueStep), SubStepNumber);
+        double subpixelSize = pixelSize / steps;
+        
+        int i = (int) Math.Floor(scrollH / pixelSize);
+        int j = (int) Math.Ceiling((scrollH + rulerWidth + pixelSize) / pixelSize);
+        do {
+            double pixel = i * pixelSize - scrollH;
+            if (i > j) {
+                break;
+            }
 
-        //     double text_value = i * valueStep;
-        //     if (Math.Abs(text_value - (int) text_value) < 0.00001d) {
-        //         this.DrawMajorLine(dc, pixel, height);
-        //         this.DrawText(dc, text_value, pixel);
-        //     }
+            // TODO: optimise smaller/minor lines, maybe using skia?
+            for (int y = 1; y < steps; ++y) {
+                double subpixel = pixel + y * subpixelSize;
+                this.DrawMinorLine(dc, subpixel, this.Bounds.Height);
+            }
 
-        //     i++;
-        // } while (true);
+            double text_value = i * valueStep;
+            if (Math.Abs(text_value - (int) text_value) < 0.00001d) {
+                this.DrawMajorLine(dc, pixel, this.Bounds.Height);
+                this.DrawText(dc, text_value, pixel);
+            }
+
+            i++;
+        } while (true);
     }
 
 
@@ -276,13 +244,13 @@ public class TimelineRuler : Control {
 
         Point point;
         FormattedText format = this.GetFormattedText(value);
-        double gap = (height - majorSize);
-        if (gap >= (format.Height / 2d)) {
-            point = new Point((offset + MajorLineThickness) - (format.Width / 2d), gap - format.Height);
+        double gap = height - majorSize;
+        if (gap >= format.Height / 2d) {
+            point = new Point(offset + MajorLineThickness - format.Width / 2d, gap - format.Height);
         }
         else {
             // Draw above major if possible
-            point = new Point(offset + MajorLineThickness + 2d, (height / 2d) - (format.Height / 2d));
+            point = new Point(offset + MajorLineThickness + 2d, height / 2d - format.Height / 2d);
         }
 
         dc.DrawText(format, point);
@@ -296,5 +264,10 @@ public class TimelineRuler : Control {
             this.CachedTypeFace ??= new Typeface(this.FontFamily),
             12,
             this.Foreground);
+    }
+
+    public void OnZoomChanged(double newZoom) {
+        this.timelineZoom = newZoom;
+        this.InvalidateVisual();
     }
 }

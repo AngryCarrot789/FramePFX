@@ -94,9 +94,11 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
 
     public Border? TimestampBorder { get; private set; }
 
-    public PlayHeadControl? PlayHead { get; private set; }
+    public FlatLinePlayHeadControl? PlayHeadInSequence { get; private set; }
 
-    public StopHeadControl? StopHead { get; private set; }
+    public FlatLinePlayHeadControl? StopHeadInSequence { get; private set; }
+
+    public GrippedPlayHeadControl? PlayHeadInRuler { get; private set; }
 
     public TimelineRuler? TimelineRuler { get; private set; }
     
@@ -217,8 +219,9 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         this.TrackListScrollViewer = e.NameScope.GetTemplateChild<ScrollViewer>("PART_TrackListScrollViewer");
         this.TimelineBorder = e.NameScope.GetTemplateChild<Border>("PART_TimelineSequenceBorder");
         this.TimestampBorder = e.NameScope.GetTemplateChild<Border>("PART_TimestampBoard");
-        this.PlayHead = e.NameScope.GetTemplateChild<PlayHeadControl>("PART_PlayHeadControl");
-        this.StopHead = e.NameScope.GetTemplateChild<StopHeadControl>("PART_StopHeadControl");
+        this.PlayHeadInSequence = e.NameScope.GetTemplateChild<FlatLinePlayHeadControl>("PART_PlayHeadControl");
+        this.StopHeadInSequence = e.NameScope.GetTemplateChild<FlatLinePlayHeadControl>("PART_StopHeadControl");
+        this.PlayHeadInRuler = e.NameScope.GetTemplateChild<GrippedPlayHeadControl>("PART_RulerPlayHead");
         this.TimelineRuler = e.NameScope.GetTemplateChild<TimelineRuler>("PART_Ruler");
         this.PlayHeadInfoTextControl = e.NameScope.GetTemplateChild<PlayheadPositionTextControl>("PART_PlayheadPositionPreviewControl");
 
@@ -234,8 +237,9 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         this.ClipSelectionManager = new TimelineClipSelectionManager(this);
         ((ILightSelectionManager<IClipElement>) this.ClipSelectionManager).SelectionChanged += this.OnSelectionChanged;
 
-        this.PlayHead!.TimelineControl = this;
-        this.StopHead!.TimelineControl = this;
+        this.PlayHeadInSequence!.TimelineControl = this;
+        this.StopHeadInSequence!.TimelineControl = this;
+        this.PlayHeadInRuler!.TimelineControl = this;
         this.TimelineContentGrid.PointerPressed += this.OnTimelineContentGridPointerPressed;
 
         this.TimestampBorder.PointerPressed += (s, ex) => this.MovePlayHeadToMouseCursor(ex.GetPosition((Visual?) s).X, true, false, ex);
@@ -244,6 +248,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         
         // Has to be a 'preview' handler in WPF speak, since we need to prevent the base scroll viewer scrolling down even if CTRL is held
         this.TimelineScrollViewer.AddHandler(PointerWheelChangedEvent, this.TimelineScrollViewerOnPointerWheelChanged, RoutingStrategies.Tunnel);
+        this.TimestampBorder.AddHandler(PointerWheelChangedEvent, this.TimeStampBoardScrollViewerOnPointerWheelChanged, RoutingStrategies.Tunnel);
     }
 
     private void OnIsTrackAutomationVisibilityChanged(bool oldValue, bool newValue) => this.UpdateIsTrackAutomationVisible(newValue, null);
@@ -305,7 +310,8 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
             }
 
             if (enableThumbDragging && ex != null) {
-                this.PlayHead!.EnableDragging(ex);
+                this.PlayHeadInRuler!.EnableDragging(ex);
+                // this.PlayHeadInSequence!.EnableDragging(ex);
             }
         }
     }
@@ -441,7 +447,13 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
     }
     
     private void TimelineScrollViewerOnPointerWheelChanged(object? sender, PointerWheelEventArgs e) {
-        ScrollViewer scroller = (ScrollViewer) sender!;
+        this.OnMouseWheel((ScrollViewer) sender!, e);
+    }    
+    private void TimeStampBoardScrollViewerOnPointerWheelChanged(object? sender, PointerWheelEventArgs e) {
+        this.OnMouseWheel(this.TimelineScrollViewer!, e);
+    }
+    
+    private void OnMouseWheel(ScrollViewer scroller, PointerWheelEventArgs e) {
         KeyModifiers mods = e.KeyModifiers;
         if ((mods & KeyModifiers.Alt) != 0) {
             if (VisualTreeUtils.TryGetParent(e.Source as AvaloniaObject, out TimelineTrackControl? track)) {
@@ -495,6 +507,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
 
     private void OnTimelineZoomed(double oldZoom, double newZoom, ZoomType zoomType, SKPointD mPos) {
         this.TrackStorage?.OnZoomChanged(newZoom);
+        this.TimelineRuler.OnZoomChanged(newZoom);
         this.UpdateContentGridSize();
 
         ScrollViewer? scroller = this.TimelineScrollViewer;

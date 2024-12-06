@@ -178,7 +178,7 @@ public class FreeMoveViewPortV2 : Border {
             // https://gamedev.stackexchange.com/a/182177/160952
             double oldzoom = this.ZoomScale;
             double newzoom = oldzoom * (delta > 0 ? 1.1 : 0.9);
-            this.ZoomScale = newzoom;
+            this.ZoomScale = Math.Round(newzoom);
             if (this.PanToCursorOnUserZoom) {
                 newzoom = this.ZoomScale;
                 Size size = this.Bounds.Size;

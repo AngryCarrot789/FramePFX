@@ -32,13 +32,13 @@
         </Setter>
     </ControlTheme>
     
-    <ControlTheme x:Key="{x:Type p:PlayHeadControl}" TargetType="{x:Type p:PlayHeadControl}">
+    <ControlTheme x:Key="{x:Type p:GrippedPlayHeadControl}" TargetType="{x:Type p:GrippedPlayHeadControl}">
         <Setter Property="Background" Value="{x:Null}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone7.Border.Static}"/>
         <Setter Property="MinWidth" Value="15"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type p:PlayHeadControl}">
+                <ControlTemplate TargetType="{x:Type p:GrippedPlayHeadControl}">
                     <Grid MinHeight="15" RowDefinitions="17,*" Background="{TemplateBinding Background}">
                         <Border IsHitTestVisible="False" Grid.Row="0" Grid.RowSpan="2" Width="1"
                                 VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="7,16,0,0"
@@ -71,14 +71,14 @@
             </Setter.Value>
         </Setter>
     </ControlTheme>
-    <ControlTheme x:Key="{x:Type p:StopHeadControl}" TargetType="{x:Type p:StopHeadControl}">
+    <ControlTheme x:Key="{x:Type p:FlatLinePlayHeadControl}" TargetType="{x:Type p:FlatLinePlayHeadControl}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Glyph.Static}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="MaxWidth" Value="1"/>
         <Setter Property="Cursor" Value="SizeWestEast"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type p:StopHeadControl}">
+                <ControlTemplate TargetType="{x:Type p:FlatLinePlayHeadControl}">
                     <Border Width="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{TemplateBinding Background}"/>
                 </ControlTemplate>
             </Setter.Value>
@@ -86,6 +86,6 @@
     </ControlTheme>
 
     <Design.PreviewWith>
-        <p:PlayHeadControl Height="25"/>
+        <p:GrippedPlayHeadControl Height="25"/>
     </Design.PreviewWith>
 </ResourceDictionary>

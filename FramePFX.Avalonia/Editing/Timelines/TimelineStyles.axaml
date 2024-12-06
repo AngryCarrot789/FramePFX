@@ -172,26 +172,21 @@
                 <ControlTemplate TargetType="{x:Type t:TimelineControl}">
                     <Grid VerticalAlignment="Stretch"
                           Background="{DynamicResource PanelBorderBrush}"
-                          x:Name="PART_RootGrid">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="38"/>
-                            <RowDefinition Height="1"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+                          x:Name="PART_RootGrid" RowDefinitions="38,1,*,Auto">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="225" MinWidth="225"/>
                             <ColumnDefinition Width="1"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Background="{DynamicResource ABrush.Tone6.Background.Static}"
-                                Grid.Column="0" Grid.Row="0">
+                        
+                        <!-- Just above Surface List Box area -->
+                        <Border Background="{DynamicResource ABrush.Tone6.Background.Static}" Grid.Column="0" Grid.Row="0">
                             <DockPanel LastChildFill="False">
-                                <p:PlayheadPositionTextControl x:Name="PART_PlayheadPositionPreviewControl"
-                                                               VerticalAlignment="Center" Margin="8,0,0,0"
-                                                               DockPanel.Dock="Left"/>
+                                <p:PlayheadPositionTextControl x:Name="PART_PlayheadPositionPreviewControl" VerticalAlignment="Center" Margin="8,0,0,0" DockPanel.Dock="Left"/>
                             </DockPanel>
                         </Border>
+                        
+                        <!-- Surface List Box Area -->
                         <ScrollViewer Grid.Column="0" Grid.Row="2"
                                       HorizontalScrollBarVisibility="Visible"
                                       VerticalScrollBarVisibility="Auto"
@@ -206,6 +201,7 @@
                                                        BorderBrush="{Binding RelativeSource={RelativeSource Self}, Path=Background}"/>
                         </ScrollViewer>
 
+                        <!-- Timeline Sequence Area -->
                         <ScrollViewer x:Name="PART_SequenceScrollViewer"
                                       HorizontalScrollBarVisibility="Visible"
                                       VerticalScrollBarVisibility="Auto"
@@ -222,9 +218,6 @@
                                     <RowDefinition Height="1"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <Border x:Name="PART_TimestampBoard" Grid.Row="0" Background="{DynamicResource ABrush.Tone3.Background.Static}">
-                                    
-                                </Border>
                                 <Border Grid.Row="2"
                                         x:Name="PART_TimelineSequenceBorder"
                                         Background="{DynamicResource ABrush.Tone1.Background.Static}"
@@ -236,24 +229,35 @@
                                     <t:TrackStoragePanel x:Name="PART_Timeline"/>
                                 </Border>
                                 <Border Grid.Row="1" Background="{Binding ElementName=PART_Timeline, Path=Background}"/>
-                                <p:StopHeadControl x:Name="PART_StopHeadControl" Grid.Row="2"
-                                                   VerticalAlignment="Stretch"
-                                                   HorizontalAlignment="Left"
-                                                   UseLayoutRounding="True"
-                                                   ZIndex="10"/>
-                                <p:PlayHeadControl x:Name="PART_PlayHeadControl" Grid.RowSpan="3"
-                                                   VerticalAlignment="Stretch"
-                                                   HorizontalAlignment="Left"
-                                                   UseLayoutRounding="True"
-                                                   ZIndex="10"/>
+                                <p:FlatLinePlayHeadControl x:Name="PART_StopHeadControl" Grid.Row="2"
+                                                           VerticalAlignment="Stretch"
+                                                           HorizontalAlignment="Left"
+                                                           UseLayoutRounding="True"
+                                                           ZIndex="10" PlayHeadType="StopHead"
+                                                           Background="Black"/>
+                                
+                                <p:FlatLinePlayHeadControl x:Name="PART_PlayHeadControl" Grid.Row="2"
+                                                           VerticalAlignment="Stretch"
+                                                           HorizontalAlignment="Left"
+                                                           UseLayoutRounding="True"
+                                                           ZIndex="10" PlayHeadType="PlayHead"/>           
+                                
                             </t:TimelineScrollableContentGrid>
                         </ScrollViewer>
 
-                        <!-- This is where we should put the ruler -->
-                        <Border x:Name="PART_TimestampBoard_ViewPortArea" Grid.Row="0" Grid.Column="2" IsHitTestVisible="False">
-                            <t:TimelineRuler x:Name="PART_Ruler"
-                                             UseLayoutRounding="True"
-                                             ScrollViewerReference="{Binding ElementName=PART_SequenceScrollViewer}"/>
+                        <Border x:Name="PART_TimestampBoard" Background="{DynamicResource ABrush.Tone3.Background.Static}" Grid.Row="0" Grid.Column="2" ClipToBounds="True">
+                            <Panel>
+                                <t:TimelineRuler x:Name="PART_Ruler"
+                                                 UseLayoutRounding="True"
+                                                 ScrollViewerReference="{Binding ElementName=PART_SequenceScrollViewer}"
+                                                 IsHitTestVisible="False"/>
+                                <p:GrippedPlayHeadControl x:Name="PART_RulerPlayHead"
+                                                          VerticalAlignment="Stretch"
+                                                          HorizontalAlignment="Left"
+                                                          UseLayoutRounding="True"
+                                                          ZIndex="10" PlayHeadType="PlayHead"
+                                                          ScrollViewerReference="{Binding ElementName=PART_SequenceScrollViewer}"/>
+                            </Panel>
                         </Border>
 
                         <Border Grid.Row="3" Grid.Column="0" Height="26" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,1,0,0">

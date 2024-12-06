@@ -20,7 +20,9 @@
 using System;
 using System.Diagnostics;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Layout;
 using Avalonia.Reactive;
 using FramePFX.Avalonia.Editing.Timelines;
 using FramePFX.Editing.Timelines;
@@ -31,29 +33,75 @@ public abstract class BasePlayHeadControl : TemplatedControl {
     private IDisposable? zoomChangeHandler;
     private IDisposable? timelineChangeHandler;
     public static readonly StyledProperty<TimelineControl?> TimelineControlProperty = AvaloniaProperty.Register<BasePlayHeadControl, TimelineControl?>(nameof(TimelineControl));
+    public static readonly StyledProperty<PlayHeadType> PlayHeadTypeProperty = AvaloniaProperty.Register<BasePlayHeadControl, PlayHeadType>(nameof(PlayHeadType), PlayHeadType.PlayHead);
+    public static readonly StyledProperty<ScrollViewer?> ScrollViewerReferenceProperty = AvaloniaProperty.Register<BasePlayHeadControl, ScrollViewer?>(nameof(ScrollViewerReference));
+    public static readonly StyledProperty<Thickness> AdditionalOffsetProperty = AvaloniaProperty.Register<BasePlayHeadControl, Thickness>(nameof(AdditionalOffset));
 
     public TimelineControl? TimelineControl {
         get => this.GetValue(TimelineControlProperty);
         set => this.SetValue(TimelineControlProperty, value);
     }
+    
+    public PlayHeadType PlayHeadType {
+        get => this.GetValue(PlayHeadTypeProperty);
+        set => this.SetValue(PlayHeadTypeProperty, value);
+    }
 
-    private Timeline? lastTimeline;
+    public ScrollViewer? ScrollViewerReference {
+        get => this.GetValue(ScrollViewerReferenceProperty);
+        set => this.SetValue(ScrollViewerReferenceProperty, value);
+    }
+    
+    public Thickness AdditionalOffset {
+        get => this.GetValue(AdditionalOffsetProperty);
+        set => this.SetValue(AdditionalOffsetProperty, value);
+    }
+    
+    private Timeline? currTimeline;
+    private long currFrame;
+    private double currZoom;
+
+    public long Frame {
+        get => this.currFrame;
+        set {
+            if (this.currTimeline == null)
+                throw new InvalidOperationException("No timeline attached");
+
+            if (value == this.currFrame)
+                return;
+            
+            switch (this.PlayHeadType) {
+                case PlayHeadType.PlayHead: this.currTimeline.PlayHeadPosition = value; break;
+                case PlayHeadType.StopHead: this.currTimeline.StopHeadPosition = value; break;
+            }
+        }
+    }
 
     protected BasePlayHeadControl() {
     }
 
     static BasePlayHeadControl() {
         TimelineControlProperty.Changed.AddClassHandler<BasePlayHeadControl, TimelineControl?>((d, e) => d.OnTimelineControlChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
+        PlayHeadTypeProperty.Changed.AddClassHandler<BasePlayHeadControl, PlayHeadType>((d, e) => d.OnPlayHeadTypeChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
+        ScrollViewerReferenceProperty.Changed.AddClassHandler<BasePlayHeadControl, ScrollViewer?>((d, e) => d.OnScrollViewerReferenceChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
+        AdditionalOffsetProperty.Changed.AddClassHandler<BasePlayHeadControl, Thickness>((d, e) => d.OnAdditionalOffsetChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }
-
-    public abstract long GetFrame(Timeline timeline);
-
+    
+    private void OnAdditionalOffsetChanged(Thickness oldValue, Thickness newValue) {
+        this.UpdatePosition();
+    }
+    
     protected virtual void OnTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline) {
-        Debug.Assert(this.lastTimeline == oldTimeline, "Different last timelines");
-        this.lastTimeline = newTimeline;
+        Debug.Assert(this.currTimeline == oldTimeline, "Different last timelines");
+        this.currTimeline = newTimeline;
+        if (oldTimeline != null) {
+            this.UnregisterPlayHeadEvents(oldTimeline, this.PlayHeadType);
+        }
+
         if (newTimeline != null) {
             // this.IsVisible = this.TimelineControl != null;
-            this.UpdateZoom();
+            this.RegisterPlayHeadEvents(newTimeline, this.PlayHeadType);
+            this.UpdatePosition();
         }
         else {
             // this.IsVisible = false;
@@ -69,39 +117,104 @@ public abstract class BasePlayHeadControl : TemplatedControl {
         if (newTimeline != null) {
             this.timelineChangeHandler = TimelineControl.TimelineProperty.Changed.Subscribe(new AnonymousObserver<AvaloniaPropertyChangedEventArgs<Timeline?>>((e) => this.OnTimelineChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault())));
             this.zoomChangeHandler = TimelineControl.ZoomProperty.Changed.Subscribe(new AnonymousObserver<AvaloniaPropertyChangedEventArgs<double>>(this.OnTimelineZoomed));
+            this.currZoom = newTimeline.Zoom;
+            
             Timeline? newTimelineModel = newTimeline.Timeline;
             if (newTimelineModel != null) {
-                Debug.Assert(this.lastTimeline == oldTimeline?.Timeline, "Different last timelines");
-                this.lastTimeline = newTimelineModel;
+                Debug.Assert(this.currTimeline == oldTimeline?.Timeline, "Different last timelines");
+                this.currTimeline = newTimelineModel;
                 this.OnTimelineChanged(oldTimeline?.Timeline, newTimelineModel);
             }
 
             // this.IsVisible = newTimeline.Timeline != null;
-            this.UpdateZoom();
+            this.UpdatePosition();
         }
         else {
             // this.IsVisible = false;
         }
     }
+    
+    private void OnScrollViewerReferenceChanged(ScrollViewer? oldValue, ScrollViewer? newValue) {
+        if (oldValue != null) {
+            oldValue.ScrollChanged += this.OnScrollViewerScrollChanged;
+            oldValue.EffectiveViewportChanged += this.OnScrollViewerEffectiveViewPortChanged;
+        }
+        
+        if (newValue != null) {
+            newValue.ScrollChanged += this.OnScrollViewerScrollChanged;
+            newValue.EffectiveViewportChanged += this.OnScrollViewerEffectiveViewPortChanged;
+        }
+    }
 
-    private void UpdateZoom() {
-        if (this.TimelineControl is TimelineControl control && control.Timeline is Timeline timeline)
-            this.SetPixelFromFrameAndZoom(this.GetFrame(timeline), control.Zoom);
+    private void OnScrollViewerEffectiveViewPortChanged(object? sender, EffectiveViewportChangedEventArgs e) => this.UpdatePosition();
+
+    private void OnScrollViewerScrollChanged(object? sender, ScrollChangedEventArgs e) => this.UpdatePosition();
+
+    private void OnPlayHeadTypeChanged(PlayHeadType oldValue, PlayHeadType newValue) {
+        if (this.currTimeline != null) {
+            this.UnregisterPlayHeadEvents(this.currTimeline, oldValue);
+            this.RegisterPlayHeadEvents(this.currTimeline, newValue);
+        }
+    }
+
+    private void UnregisterPlayHeadEvents(Timeline timeline, PlayHeadType playHeadType) {
+        switch (playHeadType) {
+            case PlayHeadType.None: break;
+            case PlayHeadType.PlayHead: timeline.PlayHeadChanged -= this.OnPlayHeadValueChanged; break;
+            case PlayHeadType.StopHead: timeline.StopHeadChanged -= this.OnPlayHeadValueChanged; break;
+        }
+    }
+    
+    private void RegisterPlayHeadEvents(Timeline timeline, PlayHeadType playHeadType) {
+        switch (playHeadType) {
+            case PlayHeadType.None: break;
+            case PlayHeadType.PlayHead: 
+                timeline.PlayHeadChanged += this.OnPlayHeadValueChanged; 
+                this.currFrame = timeline.PlayHeadPosition;
+                return;
+            case PlayHeadType.StopHead: 
+                timeline.StopHeadChanged += this.OnPlayHeadValueChanged; 
+                this.currFrame = timeline.PlayHeadPosition; 
+                return;
+        }
+    }
+    
+    private void OnPlayHeadValueChanged(Timeline timeline, long oldValue, long newValue) {
+        this.currFrame = newValue;
+        this.UpdatePosition();
     }
 
     private void OnTimelineZoomed(AvaloniaPropertyChangedEventArgs<double> e) {
-        if (this.TimelineControl?.Timeline is Timeline timeline)
-            this.SetPixelFromFrameAndZoom(this.GetFrame(timeline), e.NewValue.GetValueOrDefault(1.0));
+        this.currZoom = e.NewValue.GetValueOrDefault(1.0);
+        this.UpdatePosition();
     }
-
-    protected void SetPixelFromFrame(long frame) {
-        if (this.TimelineControl is TimelineControl control)
-            this.SetPixelFromFrameAndZoom(frame, control.Zoom);
+    
+    private void UpdatePosition() {
+        this.SetPixelFromFrameAndZoom(this.currFrame, this.TimelineControl?.Zoom ?? 1.0);
     }
 
     protected virtual void SetPixelFromFrameAndZoom(long frame, double zoom) {
         Thickness m = this.Margin;
-        this.SetPixelMargin(new Thickness(frame * zoom, m.Top, m.Right, m.Bottom));
+        double left;
+        if (this.ScrollViewerReference is ScrollViewer scroller) {
+            // Point translated = scroller.TranslatePoint(new Point(frame * zoom, 0.0), this) ?? new Point(scroller.Offset.X, 0.0);
+            double offset = scroller.Offset.X;
+            // double start = zoom - (offset - (long) (offset / zoom) * zoom);
+            // double firstMajor = offset % zoom == 0D ? offset : offset + (zoom - offset % zoom);
+            // double firstMajorRelative = zoom - (offset - firstMajor + zoom);
+            // // left = (frame * zoom) - offset;
+            // // left = (frame * zoom) - ((long) (offset / zoom) * zoom) - (this is GrippedPlayHeadControl ? 7 : 0);
+            // Point? translated2 = this.TranslatePoint(new Point(this.Bounds.Width / 2.0, 0.0), (Visual) scroller.Content!);
+            // double offset3 = (translated2?.X - m.Left) ?? 0.0; 
+            
+            left = (frame * zoom) - offset;
+        }
+        else {
+            left = (frame * zoom);
+        }
+
+        Thickness a = this.AdditionalOffset;
+        this.SetPixelMargin(new Thickness(left + a.Left, m.Top + a.Top, m.Right + a.Right, m.Bottom + a.Bottom));
     }
 
     protected virtual void SetPixelMargin(Thickness thickness) {

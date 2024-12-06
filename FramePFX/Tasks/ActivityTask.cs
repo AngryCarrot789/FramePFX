@@ -38,6 +38,8 @@ public class ActivityTask {
     private Task? userTask; // task from action()
     protected Task? theMainTask; // task we created
 
+    protected Task? UserTask => this.userTask;
+    
     /// <summary>
     /// Returns true if the task is currently still running
     /// </summary>
@@ -167,7 +169,7 @@ public class ActivityTask<T> : ActivityTask {
     }
 
     protected override Task OnCompleted(Exception? e) {
-        if (this.Task is Task<T> t && e == null) {
+        if (this.UserTask is Task<T> t && e == null) {
             this.Result = t.Result ?? default;
         }
 

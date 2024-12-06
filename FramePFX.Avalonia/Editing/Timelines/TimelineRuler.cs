@@ -18,7 +18,6 @@
 // 
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Avalonia;
@@ -28,10 +27,8 @@ using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
-using FramePFX.Editing;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.UI;
-using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.Editing.Timelines;
 

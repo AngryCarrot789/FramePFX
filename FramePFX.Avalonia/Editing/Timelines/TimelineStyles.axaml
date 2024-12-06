@@ -6,7 +6,7 @@
                     xmlns:ap="clr-namespace:FramePFX.Avalonia.Editing"
                     xmlns:av="clr-namespace:FramePFX.Avalonia.Shortcuts.Avalonia"
                     xmlns:ct="clr-namespace:FramePFX.Avalonia.Converters"
-                    xmlns:f="clr-namespace:FramePFX.Interactivity.Formatting;assembly=FramePFX"
+                    xmlns:f="clr-namespace:FramePFX.Interactivity.Formatting;assembly=FramePFX-core"
                     xmlns:p="clr-namespace:FramePFX.Avalonia.Editing.Playheads"
                     xmlns:u="clr-namespace:FramePFX.Avalonia.CommandSystem.Usages"
                     xmlns:cc="clr-namespace:FramePFX.Avalonia.Editing.CommandContexts"

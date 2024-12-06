@@ -59,6 +59,10 @@ public partial class ExportProgressDialog : WindowEx, IExportProgress {
     
     public ActivityTask? ActivityTask { get; set; }
 
+    public ExportProgressDialog() : this(default, new CancellationTokenSource()) {
+        
+    }
+    
     public ExportProgressDialog(FrameSpan renderSpan, CancellationTokenSource cancellation) {
         this.renderSpan = renderSpan;
         this.InitializeComponent();

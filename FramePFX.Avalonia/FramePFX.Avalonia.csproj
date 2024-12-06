@@ -11,6 +11,7 @@
         <ApplicationIcon>FramePFX-256.ico</ApplicationIcon>
         <Company>FramePFX</Company>
         <Product>FramePFX</Product>
+        <AssemblyName>FramePFX-DesktopUI</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>

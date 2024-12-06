@@ -130,11 +130,16 @@ public class OpenProjectCommand : AsyncCommand {
             progress.Text = "Updating automation and rendering";
             progress.OnProgress(0.5);
 
-            await IoC.Dispatcher.InvokeAsync(() => {
-                project.SetUnModified();
-                AutomationEngine.UpdateValues(project.ActiveTimeline);
-                project.MainTimeline.RenderManager.InvalidateRender();
-            }, DispatchPriority.Input);
+            try {
+                await IoC.Dispatcher.InvokeAsync(() => {
+                    project.SetUnModified();
+                    AutomationEngine.UpdateValues(project.ActiveTimeline);
+                    project.MainTimeline.RenderManager.InvalidateRender();
+                }, DispatchPriority.Input);
+            }
+            catch (Exception e) {
+                await IoC.MessageService.ShowMessage("Error updating automation", e.GetToString());
+            }
 
             if (project.IsModified) {
                 await IoC.MessageService.ShowMessage("Warning", "Issue: project was marked modified during automation update, which should not happen");

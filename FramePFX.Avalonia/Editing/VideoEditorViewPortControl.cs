@@ -119,7 +119,7 @@ public class VideoEditorViewPortControl : TemplatedControl {
     private Vector2 originalPos;
 
     private bool GetSelectedVisibleClip([NotNullWhen(true)] out VideoClip? videoClip, [NotNullWhen(true)] out ITimelineElement? timeline, bool canBeInvisible = true) {
-        if ((timeline = this.Owner.TheTimeline) != null) {
+        if ((timeline = this.Owner.TheTimeline) != null && (timeline.Timeline != null)) {
             IClipElement? selectedItems = timeline.ClipSelection.SelectedItems.FirstOrDefault();
             if (selectedItems?.Clip is VideoClip clip && clip.IsTimelineFrameInRange(timeline.Timeline!.PlayHeadPosition)) {
                 if (canBeInvisible || clip.IsEffectivelyVisible) {

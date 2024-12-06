@@ -43,9 +43,6 @@ public delegate void VideoEditorEventHandler(VideoEditor editor);
 /// The class which stores all of the data for the video editor application
 /// </summary>
 public class VideoEditor : IDestroy {
-    private bool showClipAutomation;
-    private bool showTrackAutomation;
-
     /// <summary>
     /// Gets this video editor's history manager, which manages all history actions
     /// </summary>
@@ -58,36 +55,13 @@ public class VideoEditor : IDestroy {
 
     public PlaybackManager Playback { get; }
 
-    public bool ShowClipAutomation {
-        get => this.showClipAutomation;
-        set {
-            if (this.showClipAutomation == value)
-                return;
-            this.showClipAutomation = value;
-            this.ShowClipAutomationChanged?.Invoke(this);
-        }
-    }
-
-    public bool ShowTrackAutomation {
-        get => this.showTrackAutomation;
-        set {
-            if (this.showTrackAutomation == value)
-                return;
-            this.showTrackAutomation = value;
-            this.ShowTrackAutomationChanged?.Invoke(this);
-        }
-    }
-
     public event ProjectChangedEventHandler? ProjectChanged;
-    public event VideoEditorEventHandler? ShowClipAutomationChanged;
-    public event VideoEditorEventHandler? ShowTrackAutomationChanged;
 
     public VideoEditor() {
         this.HistoryManager = new HistoryManager();
         this.Playback = new PlaybackManager(this);
         this.Playback.SetFrameRate(new Rational(1, 1));
         this.Playback.StartTimer();
-        this.showClipAutomation = true;
     }
 
     public void LoadDefaultProject() {

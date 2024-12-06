@@ -24,11 +24,14 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using FramePFX.Avalonia.AdvancedMenuService;
+using FramePFX.Avalonia.Bindings;
 using FramePFX.Avalonia.Converters;
+using FramePFX.Avalonia.Editing.Automation;
 using FramePFX.Avalonia.Editing.Timelines.Selection;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Utils;
 using FramePFX.Editing;
+using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.UI;
 using FramePFX.Interactivity;
@@ -44,6 +47,7 @@ public class TimelineTrackControl : TemplatedControl {
     public static readonly DirectProperty<TimelineTrackControl, bool> IsSelectedProperty = AvaloniaProperty.RegisterDirect<TimelineTrackControl, bool>(nameof(IsSelected), o => o.IsSelected);
     public static readonly DirectProperty<TimelineTrackControl, ILinearGradientBrush?> ClipHeaderBrushProperty = AvaloniaProperty.RegisterDirect<TimelineTrackControl, ILinearGradientBrush?>(nameof(ClipHeaderBrush), o => o.ClipHeaderBrush);
     public static readonly DirectProperty<TimelineTrackControl, ISolidColorBrush?> TrackColourForegroundBrushProperty = AvaloniaProperty.RegisterDirect<TimelineTrackControl, ISolidColorBrush?>(nameof(TrackColourForegroundBrush), o => o.TrackColourForegroundBrush);
+    public static readonly StyledProperty<AutomationSequence?> AutomationSequenceProperty = AvaloniaProperty.Register<TimelineTrackControl, AutomationSequence?>(nameof(AutomationSequence));
     
     private Track? myTrack;
     private ILinearGradientBrush? clipHeaderBrush;
@@ -51,7 +55,9 @@ public class TimelineTrackControl : TemplatedControl {
     internal readonly ContextData contextData;
     private MovedClip? clipBeingMoved;
     private bool internalIsSelected;
-    
+    private readonly PropertyBinder<AutomationSequence?> automationSequenceBinder;
+    private AutomationEditorControl? PART_AutomationEditor;
+
     public Track? Track {
         get => this.myTrack;
         private set {
@@ -80,6 +86,8 @@ public class TimelineTrackControl : TemplatedControl {
     /// </summary>
     public bool IsConnected { get; private set; }
 
+    public double TimelineZoom => this.TimelineControl?.Zoom ?? 1.0;
+    
     public ILinearGradientBrush? ClipHeaderBrush {
         get => this.clipHeaderBrush;
         private set => this.SetAndRaise(ClipHeaderBrushProperty, ref this.clipHeaderBrush, value);
@@ -100,6 +108,11 @@ public class TimelineTrackControl : TemplatedControl {
         private set => this.SetAndRaise(IsSelectedProperty, ref this.internalIsSelected, value);
     }
     
+    public AutomationSequence? AutomationSequence {
+        get => this.GetValue(AutomationSequenceProperty);
+        set => this.SetValue(AutomationSequenceProperty, value);
+    }
+    
     public ClipSelectionManager? SelectionManager { get; private set; }
     
     public ITrackElement? TrackElement { get; internal set; }
@@ -110,6 +123,7 @@ public class TimelineTrackControl : TemplatedControl {
         this.Focusable = true;
         this.UseLayoutRounding = true;
         DataManager.SetContextData(this, this.contextData = new ContextData());
+        this.automationSequenceBinder = new PropertyBinder<AutomationSequence?>(this, AutomationSequenceProperty, AutomationEditorControl.AutomationSequenceProperty);
     }
 
     protected override void OnLoaded(RoutedEventArgs e) {
@@ -134,6 +148,10 @@ public class TimelineTrackControl : TemplatedControl {
         this.ClipStoragePanel.Connect(this);
 
         this.SelectionManager = new ClipSelectionManager(this);
+        
+        this.PART_AutomationEditor = e.NameScope.GetTemplateChild<AutomationEditorControl>("PART_AutomationEditor");
+        this.PART_AutomationEditor.HorizontalZoom = this.TimelineZoom;
+        this.automationSequenceBinder.SetTargetControl(this.PART_AutomationEditor);
     }
 
     public virtual void OnConnecting(TrackStoragePanel timelineControl, Track track) {
@@ -199,7 +217,7 @@ public class TimelineTrackControl : TemplatedControl {
 
     private void OnClipMovedTracks(Clip clip, Track oldTrack, int oldIndex, Track newTrack, int newIndex) {
         if (oldTrack == this.Track) {
-            TimelineTrackControl? dstTrack = this.TrackStoragePanel.GetTrackByModel(newTrack);
+            TimelineTrackControl? dstTrack = this.TrackStoragePanel!.GetTrackByModel(newTrack);
             if (dstTrack == null) {
                 // Instead of throwing, we could just remove the track or insert a new track, instead of
                 // trying to re-use existing controls, at the cost of performance.
@@ -226,7 +244,7 @@ public class TimelineTrackControl : TemplatedControl {
     private void OnTrackHeightChanged(Track track) {
         this.InvalidateMeasure();
         this.ClipStoragePanel!.InvalidateMeasure();
-        this.TrackStoragePanel.InvalidateVisual();
+        this.TrackStoragePanel!.InvalidateVisual();
     }
 
     private void OnTrackColourChanged(Track track) {
@@ -274,6 +292,8 @@ public class TimelineTrackControl : TemplatedControl {
 
     public void OnZoomChanged(double newZoom) {
         // this.InvalidateMeasure();
+        if (this.PART_AutomationEditor != null)
+            this.PART_AutomationEditor.HorizontalZoom = newZoom;
         foreach (TimelineClipControl clip in this.ClipStoragePanel!) {
             clip.OnZoomChanged(newZoom);
         }
@@ -308,5 +328,9 @@ public class TimelineTrackControl : TemplatedControl {
 
     public long GetFrameAtMousePoint(Point pointRelativeToThis) {
         return TimelineUtils.PixelToFrame(pointRelativeToThis.X, this.TimelineControl?.Zoom ?? 1.0, true);
+    }
+
+    public void OnIsAutomationVisibilityChanged(bool isVisible) {
+        this.PART_AutomationEditor!.IsVisible = isVisible;
     }
 }

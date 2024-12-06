@@ -18,19 +18,19 @@
 //
 
 using FramePFX.CommandSystem;
-using FramePFX.Interactivity.Contexts;
+using FramePFX.Editing.UI;
 using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
 
 namespace FramePFX.Editing.Commands;
 
 public class ToggleClipAutomationCommand : Command {
     public override Executability CanExecute(CommandEventArgs e) {
-        return e.ContextData.ContainsKey(DataKeys.VideoEditorKey) ? Executability.Valid : Executability.Invalid;
+        return DataKeys.TimelineUIKey.GetExecutabilityForPresence(e.ContextData);
     }
 
     protected override void Execute(CommandEventArgs e) {
-        if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor editor))
+        if (!DataKeys.TimelineUIKey.TryGetContext(e.ContextData, out ITimelineElement? timeline))
             return;
-        editor.ShowClipAutomation = !editor.ShowClipAutomation;
+        timeline.IsClipAutomationVisible = !timeline.IsClipAutomationVisible;
     }
 }

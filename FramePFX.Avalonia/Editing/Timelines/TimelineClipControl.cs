@@ -23,7 +23,6 @@ using System.Globalization;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
-using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
@@ -825,4 +824,8 @@ public class TimelineClipControl : ContentControl, IClipElement {
     }
 
     #endregion
+
+    public void OnIsAutomationVisibilityChanged(bool isVisible) {
+        this.PART_AutomationEditor!.IsVisible = isVisible;
+    }
 }

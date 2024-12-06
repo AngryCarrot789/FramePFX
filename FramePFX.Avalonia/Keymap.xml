@@ -34,10 +34,10 @@
             </Shortcut>
 
             <!-- ################################## Automation helper shortcuts #################################### -->
-            <Shortcut Name="ToggleTrackAutomationVisibility" CommandId="commands.generic.ToggleTrackAutomationCommand">
+            <Shortcut Name="ToggleTrackAutomationVisibility" CommandId="commands.editor.ToggleTrackAutomationCommand">
                 <KeyStroke Key="T"/>
             </Shortcut>
-            <Shortcut Name="ToggleClipAutomation" CommandId="commands.generic.ToggleClipAutomationCommand">
+            <Shortcut Name="ToggleClipAutomation" CommandId="commands.editor.ToggleClipAutomationCommand">
                 <KeyStroke Key="C"/>
             </Shortcut>
             <!-- ################################################################################################### -->

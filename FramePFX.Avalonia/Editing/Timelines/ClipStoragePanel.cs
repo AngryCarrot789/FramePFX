@@ -84,6 +84,8 @@ public class ClipStoragePanel : Panel, IEnumerable<TimelineClipControl> {
         control.ApplyTemplate();
         control.ApplyTemplate();
         control.OnConnected();
+        
+        TimelineControl.UpdateClipAutomationVisible(control, this.TimelineControl!.IsTrackAutomationVisible, this.TimelineControl!.IsClipAutomationVisible);
     }
 
     public void RemoveClipInternal(int index, bool canCache = true) {

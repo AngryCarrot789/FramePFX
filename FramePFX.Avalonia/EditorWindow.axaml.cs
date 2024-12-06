@@ -20,7 +20,6 @@
 using System;
 using System.Text;
 using Avalonia;
-using Avalonia.Input;
 using Avalonia.Interactivity;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Themes.Controls;
@@ -50,6 +49,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
     private bool doNotInvalidateContext;
     private readonly NumberAverager renderTimeAverager;
     private ActivityTask? primaryActivity;
+    private readonly ContextData timelineGroupBoxContextData;
 
     public EditorWindow() {
         this.InitializeComponent();
@@ -58,6 +58,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
         this.renderTimeAverager = new NumberAverager(5);
         this.TheTimeline.EditorOwner = this;
         DataManager.SetContextData(this, this.contextData.Set(DataKeys.TopLevelHostKey, this).Set(DataKeys.VideoEditorUIKey, this));
+        DataManager.SetContextData(this.PART_TimelinePresenterGroupBox, this.timelineGroupBoxContextData = new ContextData().Set(DataKeys.TimelineUIKey, this.TheTimeline));
 
         TaskManager taskManager = IoC.TaskManager;
         taskManager.TaskStarted += this.OnTaskStarted;
@@ -166,6 +167,8 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
         }
 
         this.TheTimeline.Timeline = newTimeline;
+        this.timelineGroupBoxContextData.Set(DataKeys.TimelineKey, newTimeline);
+        DataManager.InvalidateInheritedContext(this.PART_TimelinePresenterGroupBox);
         this.UpdateTimelineName();
         this.PART_CloseTimelineButton.IsEnabled = newTimeline is Timeline timeline && timeline is CompositionTimeline;
     }

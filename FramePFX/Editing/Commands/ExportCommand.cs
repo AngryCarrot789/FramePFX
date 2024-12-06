@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Dynamic;
 using FramePFX.CommandSystem;
 using FramePFX.Editing.Exporting;
 using FramePFX.Editing.Exporting.Setups;

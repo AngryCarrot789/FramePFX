@@ -99,7 +99,7 @@
 
                                 <!-- Center Panel -->
                                 <StackPanel Margin="0,4" Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <c1:TogglePlayStateButton Width="24"/>
+                                    <c1:TogglePlayStateButton Width="24" Focusable="False"/>
                                     <c1:PlayStateButton Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Play" CommandId="commands.editor.PlaybackPlayCommand"/>
                                     <c1:PlayStateButton Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Pause" CommandId="commands.editor.PlaybackPauseCommand"/>
                                     <c1:PlayStateButton Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Stop" CommandId="commands.editor.PlaybackStopCommand"/>

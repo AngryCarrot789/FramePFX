@@ -24,10 +24,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using Avalonia.Threading;
 using FramePFX.Avalonia.Shortcuts.Avalonia;
 using FramePFX.Editing;
-using FramePFX.Utils;
 
 namespace FramePFX.Avalonia;
 

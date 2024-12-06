@@ -19,12 +19,10 @@
 
 using System.Threading;
 using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
-using Avalonia.Threading;
 using FramePFX.Avalonia.Themes.Controls;
 using FramePFX.Editing.Exporting;
 using FramePFX.Editing.Timelines;
+using FramePFX.Tasks;
 using FramePFX.Utils;
 using FramePFX.Utils.RDA;
 
@@ -52,10 +50,14 @@ public partial class ExportProgressDialog : WindowEx, IExportProgress {
 
     public long CurrentEncodeFrame => this.currentEncodeFrame;
 
+    private int lastRenderProgress;
+    
     public int RenderProgressPercentage => (int) Maths.Map(this.currentRenderFrame, this.BeginFrame, this.EndFrame, 0, 100);
     public int EncodeProgressPercentage => (int) Maths.Map(this.currentEncodeFrame, this.BeginFrame, this.EndFrame, 0, 100);
 
     public CancellationTokenSource Cancellation { get; }
+    
+    public ActivityTask? ActivityTask { get; set; }
 
     public ExportProgressDialog(FrameSpan renderSpan, CancellationTokenSource cancellation) {
         this.renderSpan = renderSpan;
@@ -72,8 +74,15 @@ public partial class ExportProgressDialog : WindowEx, IExportProgress {
     }
 
     private void UpdateRenderedFrame() {
-        this.PART_RenderProgressBar.Value = this.RenderProgressPercentage;
+        int newCompletion = this.RenderProgressPercentage;
+        this.PART_RenderProgressBar.Value = newCompletion;
         this.PART_FrameProgressText.Text = $"{this.currentRenderFrame}/{this.EndFrame - 1}";
+        IActivityProgress? progress = this.ActivityTask?.Progress;
+        if (progress != null) {
+            progress.OnProgress((newCompletion - this.lastRenderProgress) / 100.0);
+        }
+
+        this.lastRenderProgress = newCompletion;
     }
 
     public void OnFrameRendered(long frame) {

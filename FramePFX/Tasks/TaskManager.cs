@@ -72,6 +72,10 @@ public class TaskManager : IDisposable {
         return (task = this.threadToTask.Value) != null;
     }
 
+    /// <summary>
+    /// Gets the activity running on this thread
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Not called from the activity's startup thread</exception>
     public ActivityTask CurrentTask => this.threadToTask.Value ?? throw new InvalidOperationException("No task running on this thread");
 
     /// <summary>

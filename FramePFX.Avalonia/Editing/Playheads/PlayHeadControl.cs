@@ -111,4 +111,16 @@ public class PlayHeadControl : BasePlayHeadControl {
         e.PreventGestureRecognition();
         thumb.RaiseEvent(ev);
     }
+
+    protected override Size MeasureCore(Size availableSize) {
+        return base.MeasureCore(availableSize);
+    }
+
+    protected override void ArrangeCore(Rect finalRect) {
+        base.ArrangeCore(finalRect);
+    }
+
+    protected override Size ArrangeOverride(Size finalSize) {
+        return base.ArrangeOverride(finalSize);
+    }
 }

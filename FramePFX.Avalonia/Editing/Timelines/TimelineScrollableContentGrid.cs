@@ -31,11 +31,10 @@ public class TimelineScrollableContentGrid : Grid {
         get => this.GetValue(TimelineProperty);
         set => this.SetValue(TimelineProperty, value);
     }
-    
+
     public TimelineControl? TimelineControl { get; set; }
-    
-    public bool HandleBringIntoView
-    {
+
+    public bool HandleBringIntoView {
         get => HandleRequestBringIntoView.GetIsEnabled(this);
         set => HandleRequestBringIntoView.SetIsEnabled(this, value);
     }
@@ -50,8 +49,7 @@ public class TimelineScrollableContentGrid : Grid {
 
     protected override void OnPointerPressed(PointerPressedEventArgs e) {
         base.OnPointerPressed(e);
-        if (!e.Handled && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed && this.TimelineControl != null)
-        {
+        if (!e.Handled && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed && this.TimelineControl != null) {
             Point point = e.GetPosition(this);
             // bool isClickSequence = point.Y > this.TimelineControl.TimelineRuler.ActualHeight;
             // this.TimelineControl.SetPlayHeadToMouseCursor(point.X, isClickSequence);
@@ -68,7 +66,7 @@ public class TimelineScrollableContentGrid : Grid {
             oldTimeline.PlayHeadChanged -= this.OnPlayHeadChanged;
         }
 
-        if (newTimeline != null) { 
+        if (newTimeline != null) {
             newTimeline.PlayHeadChanged += this.OnPlayHeadChanged;
         }
     }
@@ -77,10 +75,17 @@ public class TimelineScrollableContentGrid : Grid {
         this.InvalidateMeasure();
     }
 
-    protected override Size ArrangeOverride(Size arrangeSize)
-    {
+    protected override Size MeasureCore(Size availableSize) {
+        Size size = base.MeasureCore(availableSize);
+        if (this.TimelineControl != null && this.TimelineControl.Timeline == null)
+            size = size.WithWidth(this.TimelineControl.Bounds.Width);
+        return size;
+    }
+
+    protected override Size ArrangeOverride(Size arrangeSize) {
         if (this.TimelineControl != null && this.TimelineControl.Timeline == null)
             arrangeSize = arrangeSize.WithWidth(this.TimelineControl.Bounds.Width);
-        return base.ArrangeOverride(arrangeSize);
+        Size arrange = base.ArrangeOverride(arrangeSize);
+        return arrange.WithWidth(arrangeSize.Width);
     }
 }

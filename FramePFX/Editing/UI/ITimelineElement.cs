@@ -55,9 +55,13 @@ public interface ITimelineElement {
     /// <param name="track">The model</param>
     /// <returns>The UI</returns>
     ITrackElement GetTrackFromModel(Track track);
-    
+
     Timeline? Timeline { get; }
+
+    bool IsTrackAutomationVisible { get; set; }
     
+    bool IsClipAutomationVisible { get; set; }
+
     /// <summary>
     /// An event fired when our timeline is about to be changed. Even though <see cref="Timeline"/>
     /// will return the new value, all the old UI components will still be in place.
@@ -67,7 +71,7 @@ public interface ITimelineElement {
     /// </para>
     /// </summary>
     event UITimelineModelChanged? TimelineModelChanging;
-    
+
     /// <summary>
     /// Invoked after our <see cref="Timeline"/> has been changed and all UI components are fully re-generated
     /// </summary>

@@ -52,11 +52,11 @@ public abstract class BasePlayHeadControl : TemplatedControl {
         Debug.Assert(this.lastTimeline == oldTimeline, "Different last timelines");
         this.lastTimeline = newTimeline;
         if (newTimeline != null) {
-            this.IsVisible = this.TimelineControl != null;
+            // this.IsVisible = this.TimelineControl != null;
             this.UpdateZoom();
         }
         else {
-            this.IsVisible = false;
+            // this.IsVisible = false;
         }
     }
 
@@ -76,11 +76,11 @@ public abstract class BasePlayHeadControl : TemplatedControl {
                 this.OnTimelineChanged(oldTimeline?.Timeline, newTimelineModel);
             }
 
-            this.IsVisible = newTimeline.Timeline != null;
+            // this.IsVisible = newTimeline.Timeline != null;
             this.UpdateZoom();
         }
         else {
-            this.IsVisible = false;
+            // this.IsVisible = false;
         }
     }
 

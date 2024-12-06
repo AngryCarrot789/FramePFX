@@ -11,7 +11,19 @@
                     xmlns:u="clr-namespace:FramePFX.Avalonia.CommandSystem.Usages"
                     xmlns:cc="clr-namespace:FramePFX.Avalonia.Editing.CommandContexts"
                     xmlns:a="clr-namespace:FramePFX.Avalonia.Editing.Automation">
-    <ct:AutomationBrushConverter x:Key="AutomationBrushConverter" AutomationBrush="{StaticResource ABrush.ColourfulGlyph.Static}"/>
+    <ct:AutomationBrushConverter x:Key="AutomationBrushConverter"
+                                 AutomationBrush="{StaticResource ABrush.AutomationActiveColour.Static}"/>
+
+    <ControlTheme x:Key="{x:Type a:AutomationEditorControl}" TargetType="{x:Type a:AutomationEditorControl}">
+        <Setter Property="ShapeBrush" Value="{DynamicResource ABrush.AutomationActiveColour.Static}"/>
+    </ControlTheme>
+    <ControlTheme x:Key="{x:Type t:TimelineRuler}" TargetType="{x:Type t:TimelineRuler}">
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
+    </ControlTheme>
+
+    <ControlTheme x:Key="TrackAutomationEditorTheme" TargetType="{x:Type a:AutomationEditorControl}">
+        <Setter Property="ShapeBrush" Value="{DynamicResource ABrush.TrackAutomationActiveColour.Static}"/>
+    </ControlTheme>
 
     <ControlTheme x:Key="{x:Type s:TrackControlSurfaceList}" TargetType="{x:Type s:TrackControlSurfaceList}" BasedOn="{StaticResource {x:Type ListBox}}">
         <Setter Property="Background" Value="{DynamicResource PanelBorderBrush}"/>
@@ -93,9 +105,10 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type t:TimelineTrackControl}">
-                    <Grid>
+                    <Panel>
                         <t:ClipStoragePanel x:Name="PART_TrackClipPanel" Background="{TemplateBinding Background}"/>
-                    </Grid>
+                        <a:AutomationEditorControl x:Name="PART_AutomationEditor" Theme="{StaticResource TrackAutomationEditorTheme}"/>
+                    </Panel>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -187,12 +200,12 @@
                                       ap:ScrollBinder.VerticalBindGroup="TimelineVerticalScrollGroup"
                                       av:UIInputManager.FocusPath="Application/EditorWindow/Timeline/ControlSurfaces">
                             <s:TrackControlSurfaceList x:Name="PART_TrackListBox"
-                                                          Padding="0"
-                                                          VerticalAlignment="Top"
-                                                          BorderThickness="0,0,0,1"
-                                                          BorderBrush="{Binding RelativeSource={RelativeSource Self}, Path=Background}"/>
+                                                       Padding="0"
+                                                       VerticalAlignment="Top"
+                                                       BorderThickness="0,0,0,1"
+                                                       BorderBrush="{Binding RelativeSource={RelativeSource Self}, Path=Background}"/>
                         </ScrollViewer>
-                        
+
                         <ScrollViewer x:Name="PART_SequenceScrollViewer"
                                       HorizontalScrollBarVisibility="Visible"
                                       VerticalScrollBarVisibility="Auto"
@@ -210,6 +223,7 @@
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
                                 <Border x:Name="PART_TimestampBoard" Grid.Row="0" Background="{DynamicResource ABrush.Tone3.Background.Static}">
+                                    
                                 </Border>
                                 <Border Grid.Row="2"
                                         x:Name="PART_TimelineSequenceBorder"
@@ -225,19 +239,23 @@
                                 <p:StopHeadControl x:Name="PART_StopHeadControl" Grid.Row="2"
                                                    VerticalAlignment="Stretch"
                                                    HorizontalAlignment="Left"
-                                                   UseLayoutRounding="True"/>
+                                                   UseLayoutRounding="True"
+                                                   ZIndex="10"/>
                                 <p:PlayHeadControl x:Name="PART_PlayHeadControl" Grid.RowSpan="3"
                                                    VerticalAlignment="Stretch"
                                                    HorizontalAlignment="Left"
-                                                   UseLayoutRounding="True"/>
+                                                   UseLayoutRounding="True"
+                                                   ZIndex="10"/>
                             </t:TimelineScrollableContentGrid>
                         </ScrollViewer>
-                        
+
                         <!-- This is where we should put the ruler -->
                         <Border x:Name="PART_TimestampBoard_ViewPortArea" Grid.Row="0" Grid.Column="2" IsHitTestVisible="False">
-                            <TextBlock Text="Timeline Timestamp/Ruler goes Here" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource ABrush.Foreground.Disabled}"/>
+                            <t:TimelineRuler x:Name="PART_Ruler"
+                                             UseLayoutRounding="True"
+                                             ScrollViewerReference="{Binding ElementName=PART_SequenceScrollViewer}"/>
                         </Border>
-                        
+
                         <Border Grid.Row="3" Grid.Column="0" Height="26" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,1,0,0">
                             <Border HorizontalAlignment="Left" Background="{DynamicResource PanelBorderBrush}" BorderBrush="{Binding RelativeSource={RelativeSource Self}, Path=Background}" BorderThickness="0,0,1,0">
                                 <StackPanel Spacing="1" Orientation="Horizontal">
@@ -351,7 +369,10 @@
     </ControlTheme>
 
     <Design.PreviewWith>
+        <!--
         <s:TrackControlSurfaceVideo Height="25"/>
+        -->
+        <t:TimelineControl Width="600" Height="150"/>
     </Design.PreviewWith>
 
     <f:UnitToPercentFormatter x:Key="OpacityUnitPercentageFormatter" NonEditingRoundedPlaces="1" EditingRoundedPlaces="4"/>
@@ -361,13 +382,13 @@
             <Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}"/>
         </Style>
     </ControlTheme>
-    
+
     <ControlTheme x:Key="{x:Type s:TrackControlSurfaceVideo}" TargetType="{x:Type s:TrackControlSurfaceVideo}" BasedOn="{StaticResource {x:Type s:TrackControlSurface}}">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type s:TrackControlSurfaceVideo}">
                     <DockPanel>
-                        <Border DockPanel.Dock="Left" Width="21" 
+                        <Border DockPanel.Dock="Left" Width="21"
                                 Background="{TemplateBinding TrackColourBrush}"
                                 BorderThickness="0,0,1,0"
                                 HorizontalAlignment="Left" VerticalAlignment="Stretch"
@@ -433,12 +454,12 @@
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
-                                    <Button BorderBrush="Black" Height="20" Width="18" 
+                                    <Button BorderBrush="Black" Height="20" Width="18"
                                             ToolTip.Tip="Insert a key frame at the current play head"
                                             x:Name="PART_InsertKeyFrameButton">
                                         <Ellipse Width="7" Height="7" Fill="{DynamicResource ABrush.AutomationActiveColour.Static}"/>
                                     </Button>
-                                    <ToggleButton Content="O" BorderBrush="Black" Height="20" Width="18" 
+                                    <ToggleButton Content="O" BorderBrush="Black" Height="20" Width="18"
                                                   ToolTip.Tip="Toggles the parameter override state for this track. This is used to enable or disable automation for the parameter"
                                                   x:Name="PART_OverrideButton"/>
                                 </StackPanel>

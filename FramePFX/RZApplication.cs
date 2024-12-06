@@ -91,8 +91,8 @@ public abstract class
         // timelines, tracks and clips
         manager.Register("commands.editor.NewVideoTrack", new NewVideoTrackCommand());
         manager.Register("commands.generic.NewAudioTrack", new NewAudioTrackCommand());
-        manager.Register("commands.generic.ToggleTrackAutomationCommand", new ToggleTrackAutomationCommand());
-        manager.Register("commands.generic.ToggleClipAutomationCommand", new ToggleClipAutomationCommand());
+        manager.Register("commands.editor.ToggleTrackAutomationCommand", new ToggleTrackAutomationCommand());
+        manager.Register("commands.editor.ToggleClipAutomationCommand", new ToggleClipAutomationCommand());
         manager.Register("commands.editor.TogglePlayCommand", new TogglePlayCommand());
         manager.Register("commands.editor.PlaybackPlayCommand", new PlayCommand());
         manager.Register("commands.editor.PlaybackPauseCommand", new PauseCommand());
@@ -108,6 +108,7 @@ public abstract class
         // Adding clips to tracks
         manager.Register("commands.editor.AddTextClip", new AddTextClipCommand());
         manager.Register("commands.editor.AddTimecodeClip", new AddTimecodeClipCommand());
+        manager.Register("commands.editor.AddAVMediaClip", new AddAVMediaClipCommand());
         manager.Register("commands.editor.AddVideoClipShape", new AddVideoClipShapeCommand());
         manager.Register("commands.editor.AddImageVideoClip", new AddImageVideoClipCommand());
         manager.Register("commands.editor.AddCompositionVideoClip", new AddCompositionVideoClipCommand());

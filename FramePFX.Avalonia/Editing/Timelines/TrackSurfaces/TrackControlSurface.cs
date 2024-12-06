@@ -194,14 +194,13 @@ public class TrackControlSurface : TemplatedControl {
             newSelected.Sequence.OverrideStateChanged += this.OnSelectedSequenceOverrideStateChanged;
         
         this.ToggleOverrideButton.IsChecked = newSelected?.IsOverrideEnabled ?? false;
-        // if (this.Owner?.TrackList?.TimelineControl is TimelineControl control) {
-        //     Track trackModel = this.Owner.Track!;
-        //     TimelineTrackControl? track = control.TrackStorage!.GetTrackByModel(trackModel);
-        //     // TODO: Automation editor
-        //     // if (track?.AutomationEditor != null) {
-        //     //     track.AutomationEditor.Sequence = selected != null ? trackModel.AutomationData[selected.Parameter] : null;
-        //     // }
-        // }
+        if (this.Owner?.TrackList?.TimelineControl is TimelineControl control) {
+            Track trackModel = this.Owner.Track!;
+            TimelineTrackControl? track = control.TrackStorage!.GetTrackByModel(trackModel);
+            if (track != null) {
+                track.AutomationSequence = newSelected != null ? trackModel.AutomationData[newSelected.Parameter] : null;
+            }
+        }
     }
 
     private void OnSelectedSequenceOverrideStateChanged(AutomationSequence sequence) {

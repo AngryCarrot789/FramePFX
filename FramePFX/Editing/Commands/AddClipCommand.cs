@@ -93,7 +93,7 @@ public abstract class AddClipCommand<T> : AsyncCommand where T : Clip {
 public class AddTextClipCommand : AddClipCommand<TextVideoClip>;
 public class AddTimecodeClipCommand : AddClipCommand<TimecodeClip>;
 public class AddVideoClipShapeCommand : AddClipCommand<VideoClipShape>;
-
+public class AddAVMediaClipCommand : AddClipCommand<AVMediaVideoClip>;
 public class AddImageVideoClipCommand : AddClipCommand<ImageVideoClip> {
     protected override async Task OnPreAddToTrack(Track track, ImageVideoClip clip, IContextData ctx) {
         ResourceManager? resMan;

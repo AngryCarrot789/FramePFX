@@ -18,7 +18,6 @@
 // 
 
 using FramePFX.Editing.Timelines;
-using FramePFX.FFmpegWrapper.Codecs;
 using FramePFX.Utils;
 
 namespace FramePFX.Editing.Exporting.Setups;

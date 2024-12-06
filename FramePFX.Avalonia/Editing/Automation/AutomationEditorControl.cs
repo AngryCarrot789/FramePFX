@@ -43,6 +43,8 @@ public class AutomationEditorControl : Control {
 
     public static readonly StyledProperty<double> HorizontalZoomProperty = AvaloniaProperty.Register<AutomationEditorControl, double>(nameof(HorizontalZoom));
     public static readonly StyledProperty<AutomationSequence?> AutomationSequenceProperty = AvaloniaProperty.Register<AutomationEditorControl, AutomationSequence?>(nameof(AutomationSequence));
+    public static readonly StyledProperty<IBrush?> ShapeBrushProperty = AvaloniaProperty.Register<AutomationEditorControl, IBrush?>(nameof(ShapeBrush), Brushes.OrangeRed);
+    public static readonly StyledProperty<IBrush?> OverrideShapeBrushProperty = AvaloniaProperty.Register<AutomationEditorControl, IBrush?>(nameof(OverrideShapeBrush), Brushes.DarkGray);
 
     public double HorizontalZoom {
         get => this.GetValue(HorizontalZoomProperty);
@@ -52,6 +54,16 @@ public class AutomationEditorControl : Control {
     public AutomationSequence? AutomationSequence {
         get => this.GetValue(AutomationSequenceProperty);
         set => this.SetValue(AutomationSequenceProperty, value);
+    }
+    
+    public IBrush? ShapeBrush {
+        get => this.GetValue(ShapeBrushProperty);
+        set => this.SetValue(ShapeBrushProperty, value);
+    }
+    
+    public IBrush? OverrideShapeBrush {
+        get => this.GetValue(OverrideShapeBrushProperty);
+        set => this.SetValue(OverrideShapeBrushProperty, value);
     }
 
     public bool IsValueRangeHuge { get; private set; }
@@ -140,7 +152,6 @@ public class AutomationEditorControl : Control {
             return;
         }
 
-
         // Screen offset is used to offset all rendering due to margins and extra borders on the parent.
         // Clips are -1,0 because clips have a natural border thickness of 1,0 so we need to move back to 0,0.
         // Tracks are 0,0 since they have no borders. The track panel has a spacing of 1 but that doesn't count
@@ -148,15 +159,14 @@ public class AutomationEditorControl : Control {
         double zoom = this.HorizontalZoom;
         
         // TODO: cache maybe
-        IBrush? overrideBrush = sequence.IsOverrideEnabled ? Brushes.Gray : null;
-        IBrush theBrush = overrideBrush ?? Brushes.DeepSkyBlue;
+        IBrush? overrideBrush = sequence.IsOverrideEnabled ? (this.OverrideShapeBrush ?? Brushes.Gray) : null;
+        IBrush theBrush = overrideBrush ?? this.ShapeBrush ?? Brushes.OrangeRed;
         Pen ellipsePen = new Pen(theBrush, EllipseThickness);
         Pen linePen = new Pen(theBrush, LineThickness);
 
         if (sequence.IsEmpty) {
-            Pen dottedLinePen = new Pen(theBrush, LineThickness, new ImmutableDashStyle([2, 3], 0), PenLineCap.Square);
-            double y = size.Height / 2.0;
-            ctx.DrawLine(dottedLinePen, new Point(0, y), new Point(size.Width, y));
+            // TODO: uncomment when we can actually modify key frames via this UI 
+            // DrawDottedLine(ctx, theBrush, sequence.IsOverrideEnabled ? this.GetYHelper(sequence.DefaultKeyFrame, size.Height) : (size.Height / 2.0), size.Width);
             return;
         }
 
@@ -177,7 +187,7 @@ public class AutomationEditorControl : Control {
 
         if (sequence.IsOverrideEnabled) {
             double y = this.GetYHelper(sequence.DefaultKeyFrame, size.Height);
-            ctx.DrawLine(linePen, new Point(0, y), new Point(size.Width, y));
+            DrawDottedLine(ctx, theBrush, y, size.Width);
         }
 
         return;
@@ -185,19 +195,24 @@ public class AutomationEditorControl : Control {
         Point Selector(KeyFrame x) => this.PointForKeyFrame(x, size, offset, zoom);
     }
 
+    private static void DrawDottedLine(DrawingContext ctx, IBrush brush, double y, double width) {
+        Pen pen = new Pen(brush, LineThickness, new ImmutableDashStyle([2, 3], 0), PenLineCap.Square);
+        ctx.DrawLine(pen, new Point(0, y), new Point(width, y));
+    }
+
     public Point PointForKeyFrame(KeyFrame keyFrame, Size size, Point offset, double zoom) {
         double height = size.Height + offset.Y;
         double px = TimelineUtils.FrameToPixel(keyFrame.Frame, zoom) + offset.X;
-        double offset_y = this.GetYHelper(keyFrame, height);
-        if (double.IsNaN(offset_y)) {
-            offset_y = 0;
+        double py = this.GetYHelper(keyFrame, height);
+        if (double.IsNaN(py)) {
+            py = 0;
         }
 
-        return new Point(px, height - offset_y);
+        return new Point(px, py);
     }
 
     public double GetYHelper(KeyFrame keyFrame, double height) {
-        return this.IsValueRangeHuge ? (height / 2d) : GetY(keyFrame, height);
+        return this.IsValueRangeHuge ? (height / 2d) : (height - GetY(keyFrame, height));
     }
 
     [SwitchAutomationDataType]

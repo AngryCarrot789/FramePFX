@@ -27,13 +27,12 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using FramePFX.Avalonia.Bindings;
 using FramePFX.Avalonia.Themes.Controls;
-using FramePFX.Editing;
 using FramePFX.Editing.Exporting;
 using FramePFX.Editing.Exporting.Setups;
 using FramePFX.Editing.Timelines;
+using FramePFX.Tasks;
 using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.Exporting;
@@ -130,9 +129,15 @@ public partial class ExportDialog : WindowEx {
         try {
             setup.Project.IsExporting = true;
             // Export will most likely be using unsafe code, meaning async won't work
-            await Task.Factory.StartNew(() => {
-                context.Export(progressDialog, this.exportToken.Token);
-            }, TaskCreationOptions.LongRunning);
+            await TaskManager.Instance.RunTask(() => {
+                return Task.Factory.StartNew(() => {
+                    progressDialog.ActivityTask = TaskManager.Instance.CurrentTask;
+                    progressDialog.ActivityTask.Progress.HeaderText = "Export Task";
+                    progressDialog.ActivityTask.Progress.Text = "Exporting...";
+                    
+                    context.Export(progressDialog, this.exportToken.Token);
+                }, TaskCreationOptions.LongRunning);
+            });
         }
         catch (TaskCanceledException) {
             isCancelled = true;
@@ -170,9 +175,25 @@ public partial class ExportDialog : WindowEx {
     }
 
     protected override void OnClosing(WindowClosingEventArgs e) {
-        if (this.IsExporting)
+        if (this.IsExporting) {
             e.Cancel = true;
+        }
+
         base.OnClosing(e);
+    }
+
+    protected override void OnClosed(EventArgs e) {
+        // We need to deselect the exporter so that it detaches events
+        this.Setup.SpanChanged -= this.OnSetupSpanChanged;
+        this.Setup.ExporterChanged -= this.SetupOnExporterChanged;
+        this.PART_ComboBox.SelectionChanged -= this.OnComboBoxSelectionChanged;
+        this.PART_BeginFrameDragger.ValueChanged -= this.BeginFrameDraggerOnValueChanged;
+        this.PART_EndFrameDragger.ValueChanged -= this.EndFrameDraggerOnValueChanged;
+        this.Setup.Exporter = null;
+        this.myKeyList.Clear();
+        this.PART_ComboBox.Items.Clear();
+        
+        base.OnClosed(e);
     }
 
     #region Span Editors

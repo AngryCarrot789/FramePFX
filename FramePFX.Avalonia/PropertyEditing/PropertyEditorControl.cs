@@ -28,14 +28,14 @@ namespace FramePFX.Avalonia.PropertyEditing;
 public class PropertyEditorControl : TemplatedControl {
     private static readonly GridLength Star = new GridLength(1, GridUnitType.Star);
 
-    public static readonly StyledProperty<BasePropertyEditor?> PropertyEditorProperty = AvaloniaProperty.Register<PropertyEditorControl, BasePropertyEditor?>("PropertyEditor");
+    public static readonly StyledProperty<PropertyEditor?> PropertyEditorProperty = AvaloniaProperty.Register<PropertyEditorControl, PropertyEditor?>("PropertyEditor");
     public static readonly StyledProperty<GridLength> ColumnWidth0Property = AvaloniaProperty.Register<PropertyEditorControl, GridLength>("ColumnWidth0", new GridLength(85d));
     public static readonly StyledProperty<GridLength> ColumnWidth1Property = AvaloniaProperty.Register<PropertyEditorControl, GridLength>("ColumnWidth1", new GridLength(5));
     public static readonly StyledProperty<GridLength> ColumnWidth2Property = AvaloniaProperty.Register<PropertyEditorControl, GridLength>("ColumnWidth2", Star);
 
     // public static readonly AvaloniaProperty PropertyEditorProperty = AvaloniaProperty.Register("PropertyEditor", typeof(BasePropertyEditor), typeof(PropertyEditorControl), new PropertyMetadata(null, (d, e) => ((PropertyEditorControl) d).OnPropertyEditorChanged((BasePropertyEditor) e.OldValue, (BasePropertyEditor) e.NewValue)));
 
-    public BasePropertyEditor? PropertyEditor {
+    public PropertyEditor? PropertyEditor {
         get => this.GetValue(PropertyEditorProperty);
         set => this.SetValue(PropertyEditorProperty, value);
     }
@@ -52,7 +52,7 @@ public class PropertyEditorControl : TemplatedControl {
     }
 
     static PropertyEditorControl() {
-        PropertyEditorProperty.Changed.AddClassHandler<PropertyEditorControl, BasePropertyEditor?>((o, e) => o.OnPropertyEditorChanged(e.GetOldValue<BasePropertyEditor?>(), e.GetNewValue<BasePropertyEditor?>()));
+        PropertyEditorProperty.Changed.AddClassHandler<PropertyEditorControl, PropertyEditor?>((o, e) => o.OnPropertyEditorChanged(e.GetOldValue<PropertyEditor?>(), e.GetNewValue<PropertyEditor?>()));
     }
 
     // protected override void OnMouseDown(MouseButtonEventArgs e) {
@@ -73,7 +73,7 @@ public class PropertyEditorControl : TemplatedControl {
         this.RootGroupControl = e.NameScope.GetTemplateChild<PropertyEditorGroupControl>("PART_RootGroupControl");
     }
 
-    private void OnPropertyEditorChanged(BasePropertyEditor? oldEditor, BasePropertyEditor? newEditor) {
+    private void OnPropertyEditorChanged(PropertyEditor? oldEditor, PropertyEditor? newEditor) {
         if (oldEditor != null) {
             this.RootGroupControl.DisconnectModel();
         }

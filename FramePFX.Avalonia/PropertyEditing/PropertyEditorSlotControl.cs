@@ -69,7 +69,7 @@ public class PropertyEditorSlotControl : ContentControl {
             if ((e.KeyModifiers & KeyModifiers.Control) != 0) {
                 this.IsSelected = !this.IsSelected;
             }
-            else if (this.Model?.PropertyEditor is BasePropertyEditor editor) {
+            else if (this.Model?.PropertyEditor is PropertyEditor editor) {
                 editor.ClearSelection();
                 this.IsSelected = true;
             }

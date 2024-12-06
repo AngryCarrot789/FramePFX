@@ -32,7 +32,7 @@ namespace FramePFX.PropertyEditing;
 /// <summary>
 /// A class which stores the video editor's general property editor information
 /// </summary>
-public class VideoEditorPropertyEditor : BasePropertyEditor {
+public class VideoEditorPropertyEditor : PropertyEditor {
     public static VideoEditorPropertyEditor Instance { get; } = new VideoEditorPropertyEditor();
 
     public SimplePropertyEditorGroup ClipGroup { get; }

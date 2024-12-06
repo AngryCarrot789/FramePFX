@@ -15,7 +15,7 @@
             <Shortcut Name="SaveProjectAs" CommandId="commands.editor.SaveProjectAs">
                 <KeyStroke Mods="CTRL+SHIFT" Key="S"/>
             </Shortcut>
-            <Shortcut Name="ExportShortcut" CommandId="commands.generic.ExportCommand">
+            <Shortcut Name="ExportShortcut" CommandId="commands.editor.Export">
                 <KeyStroke Mods="CTRL" Key="E"/>
             </Shortcut>
             <Shortcut Name="ExportActiveTimelineShortcut" CommandId="commands.generic.ExportActiveTimelineCommand">

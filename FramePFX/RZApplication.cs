@@ -129,6 +129,7 @@ public abstract class
         manager.Register("commands.editor.CloseProjectCommand", new CloseProjectCommand());
         manager.Register("commands.editor.SaveProject", new SaveProjectCommand());
         manager.Register("commands.editor.SaveProjectAs", new SaveProjectAsCommand());
+        manager.Register("commands.editor.Export", new ExportCommand());
     }
 
     protected virtual async Task OnFullyInitialised(VideoEditor editor, string[] args) {

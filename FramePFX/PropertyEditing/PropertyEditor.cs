@@ -19,12 +19,15 @@
 
 namespace FramePFX.PropertyEditing;
 
-public abstract class BasePropertyEditor {
+/// <summary>
+/// The main class for a property editor. This handles selection and the root-level group
+/// </summary>
+public class PropertyEditor {
     private readonly HashSet<PropertyEditorSlot> selectedSlots;
 
     public SimplePropertyEditorGroup Root { get; }
 
-    public BasePropertyEditor() {
+    public PropertyEditor() {
         this.selectedSlots = new HashSet<PropertyEditorSlot>();
         this.Root = new SimplePropertyEditorGroup(typeof(object)) {
             DisplayName = "Root Object", IsExpanded = true
@@ -34,7 +37,7 @@ public abstract class BasePropertyEditor {
     }
 
     internal static void InternalProcessSelectionChanged(PropertyEditorSlot slot) {
-        BasePropertyEditor? editor = slot.PropertyEditor;
+        PropertyEditor? editor = slot.PropertyEditor;
         if (editor != null) {
             if (slot.IsSelected) {
                 editor.selectedSlots.Add(slot);
@@ -45,7 +48,7 @@ public abstract class BasePropertyEditor {
         }
     }
 
-    internal static void InternalProcessSelectionForEditorChanged(PropertyEditorSlot slot, BasePropertyEditor? oldEditor, BasePropertyEditor? newEditor) {
+    internal static void InternalProcessSelectionForEditorChanged(PropertyEditorSlot slot, PropertyEditor? oldEditor, PropertyEditor? newEditor) {
         if (oldEditor != null && slot.IsSelected) {
             oldEditor.selectedSlots.Remove(slot);
         }

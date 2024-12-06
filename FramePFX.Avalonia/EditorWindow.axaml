@@ -41,7 +41,7 @@
                 <sa:CommandMenuItem Header="Save Project As..." CommandId="commands.editor.SaveProjectAs"/>
                 <sa:CommandMenuItem Header="Close Project" CommandId="commands.editor.CloseProjectCommand"/>
                 <Separator/>
-                <sa:CommandMenuItem Header="Export" CommandId="commands.generic.ExportCommand"
+                <sa:CommandMenuItem Header="Export" CommandId="commands.editor.Export"
                                     ToolTip.Tip="Export the current project"/>
                 <sa:CommandMenuItem Header="Export Active Timeline" CommandId="commands.generic.ExportActiveTimelineCommand"
                                     ToolTip.Tip="Exports the currently active timeline only (not the project timeline)"/>

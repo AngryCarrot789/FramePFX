@@ -30,7 +30,7 @@ public abstract class BasePropertyEditorObject {
     /// </summary>
     public BasePropertyEditorGroup? Parent { get; private set; }
 
-    public BasePropertyEditor? PropertyEditor { get; private set; }
+    public PropertyEditor? PropertyEditor { get; private set; }
 
     protected BasePropertyEditorObject() {
     }
@@ -41,7 +41,7 @@ public abstract class BasePropertyEditorObject {
     /// </summary>
     /// <param name="oldEditor">The previous editor</param>
     /// <param name="newEditor">The new editor</param>
-    protected virtual void OnPropertyEditorChanged(BasePropertyEditor? oldEditor, BasePropertyEditor? newEditor) {
+    protected virtual void OnPropertyEditorChanged(PropertyEditor? oldEditor, PropertyEditor? newEditor) {
     }
 
     protected static void OnAddedToGroup(BasePropertyEditorObject propObj, BasePropertyEditorGroup parent) {
@@ -58,8 +58,8 @@ public abstract class BasePropertyEditorObject {
         SetPropertyEditor(propObj, null);
     }
 
-    internal static void SetPropertyEditor(BasePropertyEditorObject obj, BasePropertyEditor? newEditor) {
-        BasePropertyEditor? oldEditor = obj.PropertyEditor;
+    internal static void SetPropertyEditor(BasePropertyEditorObject obj, PropertyEditor? newEditor) {
+        PropertyEditor? oldEditor = obj.PropertyEditor;
         if (oldEditor != newEditor) {
             obj.PropertyEditor = newEditor;
             obj.OnPropertyEditorChanged(oldEditor, newEditor);

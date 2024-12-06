@@ -81,7 +81,7 @@ public abstract class BasePropertyEditorGroup : BasePropertyEditorItem {
         this.GroupType = groupType;
     }
 
-    protected override void OnPropertyEditorChanged(BasePropertyEditor? oldEditor, BasePropertyEditor? newEditor) {
+    protected override void OnPropertyEditorChanged(PropertyEditor? oldEditor, PropertyEditor? newEditor) {
         base.OnPropertyEditorChanged(oldEditor, newEditor);
         foreach (BasePropertyEditorObject obj in this.propObjs) {
             SetPropertyEditor(obj, newEditor);

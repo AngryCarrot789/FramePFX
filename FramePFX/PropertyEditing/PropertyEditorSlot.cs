@@ -46,7 +46,7 @@ public abstract class PropertyEditorSlot : BasePropertyEditorItem {
             if (this.isSelected == value)
                 return;
             this.isSelected = value;
-            BasePropertyEditor.InternalProcessSelectionChanged(this);
+            PropertyEditing.PropertyEditor.InternalProcessSelectionChanged(this);
             this.IsSelectedChanged?.Invoke(this);
         }
     }
@@ -86,9 +86,9 @@ public abstract class PropertyEditorSlot : BasePropertyEditorItem {
         this.Handlers = EmptyList;
     }
 
-    protected override void OnPropertyEditorChanged(BasePropertyEditor? oldEditor, BasePropertyEditor? newEditor) {
+    protected override void OnPropertyEditorChanged(PropertyEditor? oldEditor, PropertyEditor? newEditor) {
         base.OnPropertyEditorChanged(oldEditor, newEditor);
-        BasePropertyEditor.InternalProcessSelectionForEditorChanged(this, oldEditor, newEditor);
+        PropertyEditing.PropertyEditor.InternalProcessSelectionForEditorChanged(this, oldEditor, newEditor);
     }
 
     /// <summary>

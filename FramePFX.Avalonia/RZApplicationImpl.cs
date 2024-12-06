@@ -30,12 +30,14 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using FFmpeg.AutoGen;
 using FramePFX.Avalonia.Editing.ResourceManaging.Autoloading;
+using FramePFX.Avalonia.Exporting;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Services;
 using FramePFX.Avalonia.Services.Colours;
 using FramePFX.Avalonia.Services.Files;
 using FramePFX.Avalonia.Shortcuts.Avalonia;
 using FramePFX.Editing;
+using FramePFX.Editing.Exporting;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Services.ColourPicking;
 using FramePFX.Services.FilePicking;
@@ -70,6 +72,7 @@ public class RZApplicationImpl : RZApplication {
         manager.Register<IColourPickerService>(new ColourPickerServiceImpl());
         manager.Register<IFilePickDialogService>(new FilePickDialogServiceImpl());
         manager.Register<IResourceLoaderService>(new ResourceLoaderServiceImpl());
+        manager.Register<IExportService>(new ExportServiceImpl());
 
         if (AvCore.TryLocateDefaultMouse(out IGlobalMouseDevice mouse)) {
             manager.Register<IGlobalMouseDevice>(mouse);

@@ -18,13 +18,19 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Threading;
 using FramePFX.AdvancedMenuService;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Avalonia.AdvancedMenuService;
 
-public class AdvancedContextMenuItem : MenuItem {
+public class AdvancedContextMenuItem : MenuItem, IAdvancedContextElement {
     protected override Type StyleKeyOverride => typeof(MenuItem);
+
+    public IContextData? Context => this.Container.Context;
 
     /// <summary>
     /// Gets the container object, that being, the root object that stores the menu item tree that this instance is in
@@ -38,7 +44,21 @@ public class AdvancedContextMenuItem : MenuItem {
 
     public BaseContextEntry Entry { get; private set; }
 
+    private Dictionary<int, DynamicGroupContextObject>? dynamicInsertion;
+    private Dictionary<int, int>? dynamicInserted;
+
     public AdvancedContextMenuItem() { }
+
+    protected override void OnLoaded(RoutedEventArgs e) {
+        base.OnLoaded(e);
+        MenuService.GenerateDynamicItems(this, ref this.dynamicInsertion, ref this.dynamicInserted);
+        Dispatcher.UIThread.InvokeAsync(() => MenuService.ProcessSeparators(this), DispatcherPriority.Loaded);
+    }
+
+    protected override void OnUnloaded(RoutedEventArgs e) {
+        base.OnUnloaded(e);
+        MenuService.ClearDynamicItems(this, ref this.dynamicInsertion, ref this.dynamicInserted);
+    }
 
     public virtual void OnAdding(IAdvancedContainer container, ItemsControl parent, BaseContextEntry entry) {
         this.Container = container;
@@ -48,7 +68,9 @@ public class AdvancedContextMenuItem : MenuItem {
 
     public virtual void OnAdded() {
         this.Header = this.Entry.DisplayName;
-        ToolTip.SetTip(this, this.Entry.Description ?? "");
+        if (this.Entry.Description != null)
+            ToolTip.SetTip(this, this.Entry.Description ?? "");
+
         if (this.Entry is SubListContextEntry list) {
             MenuService.InsertItemNodes(this.Container, this, list.ItemList);
         }
@@ -65,5 +87,9 @@ public class AdvancedContextMenuItem : MenuItem {
     }
 
     public virtual void UpdateCanExecute() {
+    }
+
+    public void StoreDynamicGroup(DynamicGroupContextObject group, int index) {
+        (this.dynamicInsertion ??= new Dictionary<int, DynamicGroupContextObject>())[index] = group;
     }
 }

@@ -24,6 +24,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using FramePFX.Avalonia.AdvancedMenuService;
+using FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Utils;
 using FramePFX.Editing.ResourceManaging;
@@ -39,6 +40,15 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement {
     public static readonly StyledProperty<ResourceManager?> ResourceManagerProperty = AvaloniaProperty.Register<ResourceExplorerListBox, ResourceManager?>(nameof(ResourceManager));
     public static readonly StyledProperty<ResourceFolder?> CurrentFolderProperty = AvaloniaProperty.Register<ResourceExplorerListBox, ResourceFolder?>(nameof(CurrentFolder));
 
+    private const int MaxItemCacheSize = 64;
+    private const int MaxItemContentCacheSize = 16;
+
+    private readonly ModelControlDictionary<BaseResource, ResourceExplorerListBoxItem> itemMap;
+    private readonly Dictionary<Type, Stack<ResourceExplorerListItemContent>> itemContentCacheMap;
+    private readonly Stack<ResourceExplorerListBoxItem> itemCache;
+    private bool isProcessingManagerCurrentFolderChanged;
+    private bool isProcessingAsyncDrop;
+
     public ResourceManager? ResourceManager {
         get => this.GetValue(ResourceManagerProperty);
         set => this.SetValue(ResourceManagerProperty, value);
@@ -50,16 +60,13 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement {
     }
     
     public ResourceExplorerSelectionManager SelectionManager { get; }
-
-    private const int MaxItemCacheSize = 64;
-    private const int MaxItemContentCacheSize = 16;
-
-    private readonly ModelControlDictionary<BaseResource, ResourceExplorerListBoxItem> itemMap;
-    private readonly Dictionary<Type, Stack<ResourceExplorerListItemContent>> itemContentCacheMap;
-    private readonly Stack<ResourceExplorerListBoxItem> itemCache;
-    private bool isProcessingManagerCurrentFolderChanged;
     
     public IModelControlDictionary<BaseResource, ResourceExplorerListBoxItem> ItemMap => this.itemMap;
+    
+    public IResourceManagerElement ManagerUI { get; set; }
+    IResourceTreeNodeElement? IResourceListElement.CurrentFolderNode => this.CurrentFolder is ResourceFolder folder && !folder.IsRoot ? this.ManagerUI.GetNode(folder) : null;
+    IResourceListItemElement? IResourceListElement.CurrentFolderItem => this.CurrentFolder is ResourceFolder folder && !folder.IsRoot ? this.itemMap.GetControl(folder) : null;
+    ISelectionManager<BaseResource> IResourceListElement.Selection => this.SelectionManager;
 
     public ResourceExplorerListBox() {
         this.SelectionMode = SelectionMode.Multiple;
@@ -75,6 +82,10 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement {
         ResourceManagerProperty.Changed.AddClassHandler<ResourceExplorerListBox, ResourceManager?>((d, e) => d.OnResourceManagerChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
         CurrentFolderProperty.Changed.AddClassHandler<ResourceExplorerListBox, ResourceFolder?>((d, e) => d.OnCurrentFolderChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
         PointerPressedEvent.AddClassHandler<ResourceExplorerListBox>((d, e) => d.OnPreviewPointerPressed(e), RoutingStrategies.Tunnel);
+        DragDrop.DragEnterEvent.AddClassHandler<ResourceExplorerListBox>((o, e) => o.OnDragEnter(e));
+        DragDrop.DragOverEvent.AddClassHandler<ResourceExplorerListBox>((o, e) => o.OnDragOver(e));
+        DragDrop.DragLeaveEvent.AddClassHandler<ResourceExplorerListBox>((o, e) => o.OnDragLeave(e));
+        DragDrop.DropEvent.AddClassHandler<ResourceExplorerListBox>((o, e) => o.OnDrop(e));
     }
     
     protected override void OnLoaded(RoutedEventArgs e) {
@@ -262,7 +273,75 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement {
         return true;
     }
 
-    public IResourceManagerElement ManagerUI { get; set; }
-    IResourceTreeNodeElement? IResourceListElement.CurrentFolder => this.CurrentFolder is ResourceFolder folder && !folder.IsRoot ? this.ManagerUI.GetNode(folder) : null;
-    ISelectionManager<BaseResource> IResourceListElement.Selection => this.SelectionManager;
+    #region Drop
+
+    private void OnDragEnter(DragEventArgs e) {
+        this.OnDragOver(e);
+    }
+
+    private void OnDragOver(DragEventArgs e) {
+        EnumDropType dropType = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
+        ContextData ctx = new ContextData(DataManager.GetFullContextData(this));
+
+        if (!ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? droppedItems)) {
+            e.DragEffects = (DragDropEffects) ResourceDropRegistry.CanDropNativeTypeIntoListOrItem(this, null, new DataObjectWrapper(e.Data), ctx, dropType);
+        }
+        else {
+            ResourceFolder? folder = this.ResourceManager?.RootContainer;
+            if (folder != null) {
+                e.DragEffects = ResourceDropRegistry.CanDropResourceListIntoFolder(folder, droppedItems, dropType) ? (DragDropEffects) dropType : DragDropEffects.None;
+            }
+            else {
+                e.DragEffects = DragDropEffects.None;
+            }
+        }
+
+        // this.IsDroppableTargetOver = e.DragEffects != DragDropEffects.None;
+        e.Handled = true;
+    }
+
+    private void OnDragLeave(DragEventArgs e) {
+        // if (!this.IsPointerOver) {
+        //     this.IsDroppableTargetOver = false;
+        // }
+    }
+
+    private async void OnDrop(DragEventArgs e) {
+        e.Handled = true;
+        if (this.isProcessingAsyncDrop || !(this.ResourceManager?.RootContainer is ResourceFolder folder)) {
+            return;
+        }
+
+        try {
+            EnumDropType dropType = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
+            ContextData ctx = new ContextData(DataManager.GetFullContextData(this));
+
+            this.isProcessingAsyncDrop = true;
+            // Dropped non-resources into this node
+            if (!ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? droppedItems)) {
+                if (!await ResourceDropRegistry.OnDropNativeTypeIntoListOrItem(this, null, new DataObjectWrapper(e.Data), ctx, dropType)) {
+                    await IoC.MessageService.ShowMessage("Unknown Data", "Unknown dropped item. Drop files here");
+                }
+
+                return;
+            }
+
+            // First process final drop type, then check if the drop is allowed on this tree node
+            // Then from the check drop result we determine if we can drop the list "into" or above/below
+
+            e.DragEffects = ResourceDropRegistry.CanDropResourceListIntoFolder(folder, droppedItems, dropType) ? (DragDropEffects) dropType : DragDropEffects.None;
+            await ResourceDropRegistry.OnDropResourceListIntoListItem(this, null, droppedItems, ctx, (EnumDropType) e.DragEffects);
+        }
+#if !DEBUG
+        catch (Exception exception) {
+            await FramePFX.IoC.MessageService.ShowMessage("Error", "An error occurred while processing list item drop", exception.ToString());
+        }
+#endif
+        finally {
+            // this.IsDroppableTargetOver = false;
+            this.isProcessingAsyncDrop = false;
+        }
+    }
+
+    #endregion
 }

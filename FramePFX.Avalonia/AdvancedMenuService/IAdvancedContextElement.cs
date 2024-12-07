@@ -17,25 +17,21 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.Interactivity;
+using FramePFX.AdvancedMenuService;
+using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editing.ResourceManaging.UI;
+namespace FramePFX.Avalonia.AdvancedMenuService;
 
-public interface IResourceListElement {
-    IResourceManagerElement ManagerUI { get; }
+public interface IAdvancedContextElement {
+    IContextData? Context { get; }
 
-    /// <summary>
-    /// Gets the folder TREE NODE being presented. This is a helper property to access the tree node from our <see cref="ManagerUI"/>
-    /// </summary>
-    IResourceTreeNodeElement? CurrentFolderNode { get; }
-    
-    /// <summary>
-    /// Gets the folder item being presented
-    /// </summary>
-    IResourceListItemElement? CurrentFolderItem { get; }
+    IAdvancedContainer Container { get; }
 
     /// <summary>
-    /// Gets the resource list's selection manager. This may be synced with the resource manager UI selection
+    /// Stores the dynamic group for insertion at the given index inside this element's item
+    /// list. This is a marker index, so post-processing must be done during generation
     /// </summary>
-    ISelectionManager<BaseResource> Selection { get; }
+    /// <param name="group"></param>
+    /// <param name="index"></param>
+    void StoreDynamicGroup(DynamicGroupContextObject group, int index);
 }

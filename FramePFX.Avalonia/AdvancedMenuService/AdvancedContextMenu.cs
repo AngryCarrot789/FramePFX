@@ -24,13 +24,14 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using FramePFX.AdvancedMenuService;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Avalonia.AdvancedMenuService;
 
-public class AdvancedContextMenu : ContextMenu, IAdvancedContainer {
+public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedContextElement {
     // We maintain a map of the registries to the context menu. This is to
     // save memory, since we don't have to create a context menu for each handler
     private static readonly Dictionary<ContextRegistry, AdvancedContextMenu> contextMenus;
@@ -44,8 +45,11 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer {
     private readonly Dictionary<Type, Stack<Control>> itemCache;
     private readonly List<Control> owners;
     private Control? currentTarget;
+    private Dictionary<int, DynamicGroupContextObject>? dynamicInsertion;
+    private Dictionary<int, int>? dynamicInserted;
 
     public IContextData? Context { get; private set; }
+    IAdvancedContainer IAdvancedContextElement.Container => this;
 
     protected override Type StyleKeyOverride => typeof(ContextMenu);
 
@@ -72,6 +76,17 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer {
     static AdvancedContextMenu() {
         contextMenus = new Dictionary<ContextRegistry, AdvancedContextMenu>();
         ContextRegistryProperty.Changed.AddClassHandler<Control, ContextRegistry?>((d, e) => OnContextRegistryChanged(d, e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
+    }
+
+    protected override void OnLoaded(RoutedEventArgs e) {
+        base.OnLoaded(e);
+        MenuService.GenerateDynamicItems(this, ref this.dynamicInsertion, ref this.dynamicInserted);
+        Dispatcher.UIThread.InvokeAsync(() => MenuService.ProcessSeparators(this), DispatcherPriority.Loaded);
+    }
+
+    protected override void OnUnloaded(RoutedEventArgs e) {
+        base.OnUnloaded(e);
+        MenuService.ClearDynamicItems(this, ref this.dynamicInsertion, ref this.dynamicInserted);
     }
 
     private void OnOwnerRequestedContext(object? sender, ContextRequestedEventArgs e) {
@@ -106,11 +121,16 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer {
                 List<IContextObject> contextObjects = new List<IContextObject>();
 
                 int i = 0;
-                foreach (KeyValuePair<string, ContextGroup> entry in newValue.Groups) {
+                foreach (KeyValuePair<string, IContextGroup> entry in newValue.Groups) {
                     if (i++ != 0)
                         contextObjects.Add(new SeparatorEntry());
-                    
-                    contextObjects.AddRange(entry.Value.Items);
+
+                    if (entry.Value is FixedContextGroup fixedGroup) {
+                        contextObjects.AddRange(fixedGroup.Items);
+                    }
+                    else if (entry.Value is DynamicContextGroup dynamicContextGroup) {
+                        contextObjects.Add(new DynamicGroupContextObject(dynamicContextGroup));
+                    }
                 }
                 
                 MenuService.InsertItemNodes(menu, menu, contextObjects);
@@ -153,4 +173,8 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer {
     public Control? PopCachedItem(Type entryType) => MenuService.PopCachedItem(this.itemCache, entryType);
 
     public Control CreateChildItem(IContextObject entry) => MenuService.CreateChildItem(this, entry);
+    
+    public void StoreDynamicGroup(DynamicGroupContextObject group, int index) {
+        (this.dynamicInsertion ??= new Dictionary<int, DynamicGroupContextObject>())[index] = group;
+    }
 }

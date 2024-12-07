@@ -630,9 +630,9 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
                     return parA.IndexOf(a).CompareTo(parB!.IndexOf(b));
                 });
                 
-                int count = droppedItems.Count(x => x.Parent == myParent && x.Parent.IndexOf(x) < dropIndex);
+                // int count = droppedItems.Count(x => x.Parent == myParent && x.Parent.IndexOf(x) < dropIndex);
                 newList = droppedItems;
-                dropIndex -= count;// = Maths.Clamp(dropIndex - count, 0, parentFolder.Items.Count);
+                // dropIndex -= count;// = Maths.Clamp(dropIndex - count, 0, parentFolder.Items.Count);
             }
             else {
                 List<BaseResource> cloneList = new List<BaseResource>();
@@ -646,18 +646,15 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
 
                 newList = cloneList;
             }
-
-            foreach (BaseResource item in newList) {
-                if (item.Parent != null) {
-                    item.Parent.MoveItemTo(myParent, item, dropIndex++);
-                }
-                else {
-                    myParent.InsertItem(dropIndex++, item);
-                }
-            }
-
+            
+            ResourceFolder.MoveListTo(myParent, newList, dropIndex);
             this.ResourceTree?.SelectionManager.SetSelection(newList);
         }
+#if !DEBUG
+        catch (Exception exception) {
+            await FramePFX.IoC.MessageService.ShowMessage("Error", "An error occurred while processing list item drop", exception.ToString());
+        }  
+#endif
         finally {
             this.IsDroppableTargetOver = false;
             this.isProcessingAsyncDrop = false;

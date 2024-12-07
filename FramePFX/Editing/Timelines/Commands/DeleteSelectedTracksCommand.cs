@@ -22,7 +22,7 @@ using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Editing.UI;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Editing.Commands;
+namespace FramePFX.Editing.Timelines.Commands;
 
 public class DeleteSelectedTracksCommand : Command {
     public static bool GetTrackSelection(IContextData data, out Track[] tracks) {

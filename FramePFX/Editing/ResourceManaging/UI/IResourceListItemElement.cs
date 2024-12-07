@@ -17,20 +17,8 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.CommandSystem;
-using FramePFX.Editing.Timelines.Tracks;
-using FramePFX.Interactivity.Contexts;
+namespace FramePFX.Editing.ResourceManaging.UI;
 
-namespace FramePFX.Editing.Commands;
-
-public class DeleteSpecificTrackCommand : Command {
-    public override Executability CanExecute(CommandEventArgs e) {
-        return DataKeys.TrackKey.GetExecutabilityForPresence(e.ContextData);
-    }
-
-    protected override void Execute(CommandEventArgs e) {
-        if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track? track)) {
-            track.Timeline?.RemoveTrack(track);
-        }
-    }
+public interface IResourceListItemElement {
+    BaseResource? Resource { get; }
 }

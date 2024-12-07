@@ -1,4 +1,4 @@
-﻿//
+//
 // Copyright (c) 2023-2024 REghZy
 //
 // This file is part of FramePFX.
@@ -18,19 +18,26 @@
 //
 
 using FramePFX.CommandSystem;
-using FramePFX.Editing.UI;
+using FramePFX.Editing.Timelines.Tracks;
+using FramePFX.Interactivity.Contexts;
 using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
 
-namespace FramePFX.Editing.Commands;
+namespace FramePFX.Editing.Timelines.Commands;
 
-public class ToggleClipAutomationCommand : Command {
+public class NewAudioTrackCommand : Command {
     public override Executability CanExecute(CommandEventArgs e) {
-        return DataKeys.TimelineUIKey.GetExecutabilityForPresence(e.ContextData);
+        return e.ContextData.ContainsKey(DataKeys.TimelineKey) ? Executability.Valid : Executability.Invalid;
     }
 
     protected override void Execute(CommandEventArgs e) {
-        if (!DataKeys.TimelineUIKey.TryGetContext(e.ContextData, out ITimelineElement? timeline))
+        if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline timeline)) {
             return;
-        timeline.IsClipAutomationVisible = !timeline.IsClipAutomationVisible;
+        }
+
+        AudioTrack track = new AudioTrack() {
+            DisplayName = "New Audio Track"
+        };
+
+        timeline.AddTrack(track);
     }
 }

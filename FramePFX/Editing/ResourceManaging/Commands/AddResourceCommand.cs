@@ -19,14 +19,13 @@
 
 using FramePFX.CommandSystem;
 using FramePFX.Editing.Factories;
-using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 using SkiaSharp;
 
-namespace FramePFX.Editing.Commands;
+namespace FramePFX.Editing.ResourceManaging.Commands;
 
 public abstract class AddResourceCommand<T> : AsyncCommand where T : BaseResource {
     static AddResourceCommand() {
@@ -42,7 +41,7 @@ public abstract class AddResourceCommand<T> : AsyncCommand where T : BaseResourc
         }
 
         ResourceManager resMan = manager.ResourceManager!;
-        IResourceTreeNodeElement? current = manager.List.CurrentFolder;
+        IResourceTreeNodeElement? current = manager.List.CurrentFolderNode;
         ResourceFolder targetFolder = (ResourceFolder) (current?.Resource ?? resMan.RootContainer);
 
         T resource = this.NewInstance();

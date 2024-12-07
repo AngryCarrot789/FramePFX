@@ -1,5 +1,5 @@
 // 
-// Copyright (c) 2024-2024 REghZy
+// Copyright (c) 2023-2024 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -20,27 +20,12 @@
 namespace FramePFX.AdvancedMenuService;
 
 /// <summary>
-/// A group of context items, not a sub-list
+/// This interface is an invisible placeholder which is where dynamic items will be injected
 /// </summary>
-public class ContextGroup {
-    private readonly List<IContextObject> items;
-    
-    /// <summary>
-    /// Gets our items
-    /// </summary>
-    public IReadOnlyList<IContextObject> Items => this.items;
+public class DynamicGroupContextObject : IContextObject {
+    public DynamicContextGroup DynamicGroup { get; }
 
-    public ContextGroup() {
-        this.items = new List<IContextObject>();
-    }
-
-    public void AddEntry(IContextObject item) {
-        this.items.Add(item);
-    }
-
-    public void AddSeparator() => this.AddEntry(new SeparatorEntry());
-
-    public void AddCommand(string cmdId, string displayName, string? description = null) {
-        this.AddEntry(new CommandContextEntry(displayName, description, cmdId));
+    public DynamicGroupContextObject(DynamicContextGroup dynamicGroup) {
+        this.DynamicGroup = dynamicGroup;
     }
 }

@@ -18,13 +18,12 @@
 //
 
 using FramePFX.CommandSystem;
-using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Interactivity.Contexts;
 using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
 
-namespace FramePFX.Editing.Commands;
+namespace FramePFX.Editing.Timelines.Commands;
 
 public class SliceClipsCommand : Command {
     public override Executability CanExecute(CommandEventArgs e) {

@@ -157,10 +157,10 @@ public abstract class Track : IDisplayName, IAutomatable, IHaveEffects, IDestroy
         });
 
         {
-            ContextGroup mod1 = TimelineTrackContextRegistry.GetGroup("Modify1");
+            FixedContextGroup mod1 = TimelineTrackContextRegistry.GetFixedGroup("modify.generic");
             mod1.AddCommand("commands.editor.RenameTrack", "Rename", "Open a dialog to rename this track");
             
-            ContextGroup modAdd = TimelineTrackContextRegistry.GetGroup("ModifyAddClips");
+            FixedContextGroup modAdd = TimelineTrackContextRegistry.GetFixedGroup("ModifyAddClips");
             modAdd.AddCommand("commands.editor.AddTextClip", "Add Text clip", "Create a new Text clip");
             modAdd.AddCommand("commands.editor.AddTimecodeClip", "Add Timecode clip", "Create a new Timecode clip");
             modAdd.AddCommand("commands.editor.AddAVMediaClip", "Add Video Media clip", "Create a new media clip for playing videos or most types of media");
@@ -168,16 +168,16 @@ public abstract class Track : IDisplayName, IAutomatable, IHaveEffects, IDestroy
             modAdd.AddCommand("commands.editor.AddImageVideoClip", "Add Image clip", "Create a new Image clip");
             modAdd.AddCommand("commands.editor.AddCompositionVideoClip", "Add Composition clip", "Create a new Composition clip");
             
-            ContextGroup mod3 = TimelineTrackContextRegistry.GetGroup("Modify2");
+            FixedContextGroup mod3 = TimelineTrackContextRegistry.GetFixedGroup("Modify2");
             mod3.AddCommand("commands.editor.SliceClipsCommand", "Split clips", "Slice this clip at the playhead");
             
-            ContextGroup mod4 = TimelineTrackContextRegistry.GetGroup("Modify3");
+            FixedContextGroup mod4 = TimelineTrackContextRegistry.GetFixedGroup("modify.destruction", 100000);
             mod4.AddCommand("commands.editor.DeleteSpecificTrack", "Delete Track", "Delete this track");
         }
         {
-            ContextGroup mod1 = TrackControlSurfaceContextRegistry.GetGroup("Modify1");
+            FixedContextGroup mod1 = TrackControlSurfaceContextRegistry.GetFixedGroup("modify.generic");
             mod1.AddCommand("commands.editor.RenameTrack", "Rename", "Open a dialog to rename this track");
-            ContextGroup mod3 = TrackControlSurfaceContextRegistry.GetGroup("Modify3");
+            FixedContextGroup mod3 = TrackControlSurfaceContextRegistry.GetFixedGroup("modify.destruction", 100000);
             mod3.AddCommand("commands.editor.DeleteSpecificTrack", "Delete Track", "Delete this track");
         }
     }

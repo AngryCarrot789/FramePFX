@@ -18,7 +18,9 @@
 // 
 
 using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Input;
+using Avalonia.Platform.Storage;
 using FramePFX.Interactivity;
 
 namespace FramePFX.Avalonia.Interactivity;
@@ -31,7 +33,39 @@ public class DataObjectWrapper : IDataObjekt {
     }
 
     public object? GetData(string format) {
-        return this.mObject.Get(format);
+        object? value = this.mObject.Get(format);
+        
+        switch (format) {
+            //case "Text":
+            //case "UnicodeText":
+            //case "Dib":
+            //case "Bitmap":
+            //case "EnhancedMetafile":
+            //case "MetafilePicture":
+            //case "SymbolicLink":
+            //case "Dif":
+            //case "Tiff":
+            //case "OemText":
+            //case "Palette":
+            //case "PenData":
+            //case "Riff":
+            //case "WaveAudio":
+            case "Files":
+                if (value is IEnumerable<IStorageItem> items)
+                    return items.Select(x => x.Path.AbsolutePath).ToArray();
+                break;
+            //case "Locale":
+            //case "Html":
+            //case "Rtf":
+            //case "CommaSeparatedValue":
+            //case "StringFormat":
+            //case "Serializable":
+            //case "Xaml":
+            //case "XamlPackage":
+            default: break;
+        }
+
+        return value;
     }
 
     public bool Contains(string format) {

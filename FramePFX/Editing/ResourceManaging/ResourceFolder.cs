@@ -143,10 +143,33 @@ public sealed class ResourceFolder : BaseResource {
 
     public void MoveItemTo(ResourceFolder target, int srcIndex) => this.MoveItemTo(target, srcIndex, target.items.Count);
 
+    /// <summary>
+    /// Moves an item from the source index to the destination index.
+    /// <para>
+    /// Assume this folder contains items 0,1,2,3,4. Moved items behave like this:
+    /// <code>
+    /// Move(1,3) // Items now become 0,2,3,1,4
+    /// Move(0,4) // Items now become 2,3,1,4,0
+    /// </code>
+    /// </para>
+    /// </summary>
+    /// <param name="target"></param>
+    /// <param name="srcIndex"></param>
+    /// <param name="dstIndex"></param>
+    /// <exception cref="Exception"></exception>
     public void MoveItemTo(ResourceFolder target, int srcIndex, int dstIndex) {
         BaseResource item = this.items[srcIndex];
         if (target.Manager != null && target.Manager != this.Manager)
             throw new Exception("Target's manager is non-null and different from the current instance");
+        
+        // Assist drop-move behaviour by correcting the destination index
+        if (this == target) {
+            if (dstIndex == this.items.Count)
+                dstIndex--;
+            
+            if (srcIndex == dstIndex)
+                return;
+        }
         
         this.items.RemoveAt(srcIndex);
         target.items.Insert(dstIndex, item);
@@ -246,6 +269,30 @@ public sealed class ResourceFolder : BaseResource {
             else {
                 items++;
                 references += ((ResourceItem) resource).References.Count;
+            }
+        }
+    }
+
+    public static void MoveListTo(ResourceFolder destination, List<BaseResource> items, int targetIndex) {
+        // Assume this folder contains items 0,1,2,3,4. Moved items behave like this:
+        // Move(1,3) // Items now become 0,2,3,1,4
+        // Move(0,4) // Items now become 2,3,1,4,0
+        
+        // Assume this folder contains items a,b,c
+        // Move(0,2) // Items now become b,c,a
+        
+        // Assume this folder contains items a,b,c
+        // Move(0,1) // Items now become b,a,c
+        
+        // int count = droppedItems.Count(x => x.Parent == myParent && x.Parent.IndexOf(x) < dropIndex);
+        // dropIndex -= count;// = Maths.Clamp(dropIndex - count, 0, parentFolder.Items.Count);
+
+        foreach (BaseResource item in items) {
+            if (item.Parent != null) {
+                item.Parent.MoveItemTo(destination, item, targetIndex++);
+            }
+            else {
+                destination.InsertItem(targetIndex++, item);
             }
         }
     }

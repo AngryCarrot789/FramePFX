@@ -1,4 +1,4 @@
-//
+﻿//
 // Copyright (c) 2023-2024 REghZy
 //
 // This file is part of FramePFX.
@@ -18,23 +18,19 @@
 //
 
 using FramePFX.CommandSystem;
-using FramePFX.Editing.Timelines.Clips;
-using FramePFX.Interactivity.Contexts;
+using FramePFX.Editing.UI;
+using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
 
-namespace FramePFX.Editing.Commands;
+namespace FramePFX.Editing.Timelines.Commands;
 
-public class DeleteClipOwnerTrackCommand : Command {
+public class ToggleTrackAutomationCommand : Command {
     public override Executability CanExecute(CommandEventArgs e) {
-        if (!DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip clip))
-            return Executability.Invalid;
-        if (clip.Timeline == null)
-            return Executability.ValidButCannotExecute;
-        return Executability.Valid;
+        return DataKeys.TimelineUIKey.GetExecutabilityForPresence(e.ContextData);
     }
 
     protected override void Execute(CommandEventArgs e) {
-        if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip clip)) {
-            clip.Timeline?.DeleteTrack(clip.Track);
-        }
+        if (!DataKeys.TimelineUIKey.TryGetContext(e.ContextData, out ITimelineElement? timeline))
+            return;
+        timeline.IsTrackAutomationVisible = !timeline.IsTrackAutomationVisible;
     }
 }

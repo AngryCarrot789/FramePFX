@@ -49,11 +49,11 @@ public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem {
     protected override bool IsEnabledCore => base.IsEnabledCore && this.CanExecute;
 
     public AdvancedContextCommandMenuItem() {
-        this.Loaded += this.OnLoaded;
     }
 
-    private void OnLoaded(object sender, RoutedEventArgs e) {
+    protected override void OnLoaded(RoutedEventArgs e) {
         this.UpdateCanExecute();
+        base.OnLoaded(e);
         // CommandContextEntry entry = this.Entry;
         // if (entry == null) {
         //     return;

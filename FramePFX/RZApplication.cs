@@ -21,6 +21,7 @@ using FramePFX.CommandSystem;
 using FramePFX.Editing;
 using FramePFX.Editing.Commands;
 using FramePFX.Editing.ResourceManaging.Commands;
+using FramePFX.Editing.Timelines.Commands;
 using FramePFX.Natives;
 using FramePFX.Tasks;
 using FramePFX.Utils;
@@ -121,6 +122,9 @@ public abstract class
         manager.Register("commands.resources.AddResourceColour", new AddResourceColourCommand());
         manager.Register("commands.resources.AddResourceComposition", new AddResourceCompositionCommand());
         manager.Register("commands.resources.GroupResources", new GroupResourcesCommand());
+        manager.Register("commands.resources.SetResourcesOnline", new SetResourcesOnlineCommand());
+        manager.Register("commands.resources.SetResourcesOffline", new SetResourcesOfflineCommand());
+        manager.Register("commands.resources.ToggleOnlineState", new ToggleOnlineStateCommand());
 
         // Editor
         manager.Register("UndoCommand", new UndoCommand());

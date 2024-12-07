@@ -19,6 +19,7 @@
 
 using FramePFX.AdvancedMenuService;
 using FramePFX.Editing.Factories;
+using FramePFX.Editing.ResourceManaging.Commands;
 using FramePFX.Interactivity;
 using FramePFX.Serialisation;
 using FramePFX.Utils.Destroying;
@@ -79,11 +80,16 @@ public abstract class BaseResource : IDisplayName, IDestroy {
                 data.SetString(nameof(resource.DisplayName), resource.DisplayName);
         });
 
+        // For the ListBox and TreeView
         ResourceSurfaceContextRegistry = new ContextRegistry();
+        
+        // For ResourceFolder only
         ResourceFolderContextRegistry = new ContextRegistry();
+        
+        // For ResourceItem only
         ResourceItemContextRegistry = new ContextRegistry();
 
-        static void ApplyCollection(ContextGroup g) {
+        static void ApplyNewItemEntries(FixedContextGroup g) {
             g.AddEntry(new SubListContextEntry("Add new...", "Add a new resource", new List<IContextObject>() {
                 new CommandContextEntry("Add Image", "Create a new image resource", "commands.resources.AddResourceImage"),
                 new CommandContextEntry("Add Media", "Create a new media resource", "commands.resources.AddResourceAVMedia"),
@@ -92,18 +98,44 @@ public abstract class BaseResource : IDisplayName, IDestroy {
             }));
         }
         
-        static void ApplyItem(ContextGroup g) {
-            g.AddCommand("commands.resources.RenameResource", "Rename", "Rename this clip");
-            g.AddCommand("commands.resources.DeleteResources", "Delete", "Delete this clip");
+        static void ApplyModifyGeneric(FixedContextGroup g) {
+            g.AddCommand("commands.resources.RenameResource", "Rename", "Rename this resource");
+        }
+        static void ApplyModifyDestruction(FixedContextGroup g) {
+            g.AddCommand("commands.resources.DeleteResources", "Delete", "Delete this/these resource(s)");
         }
         
-        ApplyCollection(ResourceSurfaceContextRegistry.GetGroup("ModifyAdd"));
-        ApplyCollection(ResourceFolderContextRegistry.GetGroup("ModifyAdd"));
-        ApplyItem(ResourceItemContextRegistry.GetGroup("Modify1"));
-        ApplyItem(ResourceFolderContextRegistry.GetGroup("Modify1"));
+        ApplyNewItemEntries(ResourceSurfaceContextRegistry.GetFixedGroup("modify.subcreation"));
+        ApplyNewItemEntries(ResourceFolderContextRegistry.GetFixedGroup("modify.subcreation"));
+        ApplyModifyGeneric(ResourceItemContextRegistry.GetFixedGroup("modify.generic"));
+        ApplyModifyGeneric(ResourceFolderContextRegistry.GetFixedGroup("modify.generic"));
 
         const string cmdID = "commands.resources.GroupResources";
-        ResourceSurfaceContextRegistry.GetGroup("Modify2").AddCommand(cmdID, "Group");
+        ResourceSurfaceContextRegistry.GetFixedGroup("Modify2").AddCommand(cmdID, "Group");
+        ResourceItemContextRegistry.GetFixedGroup("Modify2").AddCommand(cmdID, "Group Item(s)");
+        
+        ResourceItemContextRegistry.CreateDynamicGroup("ModifyOnlineStates", (g, ctx, items) => {
+            if (!ToggleOnlineStateCommand.GetTargetItems(ctx, out List<ResourceItem>? list)) {
+                return;
+            }
+
+            if (list.Count == 1) {
+                if (list[0].IsOnline) {
+                    items.Add(new CommandContextEntry("Set Offline", "Set the selected resources offline", "commands.resources.SetResourcesOffline"));
+                }
+                else {
+                    items.Add(new CommandContextEntry("Set Online", "Set the selected resources online", "commands.resources.SetResourcesOnline"));
+                }
+            }
+            else {
+                items.Add(new CommandContextEntry("Set Online", "Set the selected resources online", "commands.resources.SetResourcesOnline"));
+                items.Add(new CommandContextEntry("Set Offline", "Set the selected resources offline", "commands.resources.SetResourcesOffline"));
+                items.Add(new CommandContextEntry("Toggle Online", "Toggles the online state of the selected resources", "commands.resources.ToggleOnlineState"));
+            }
+        });
+        
+        ApplyModifyDestruction(ResourceItemContextRegistry.GetFixedGroup("modify.destruction", 100000));
+        ApplyModifyDestruction(ResourceFolderContextRegistry.GetFixedGroup("modify.destruction", 100000));
     }
 
     /// <summary>

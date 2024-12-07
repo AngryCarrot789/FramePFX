@@ -22,7 +22,6 @@ using FramePFX.Editing.Factories;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.ResourceManaging.UI;
-using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Clips.Core;
 using FramePFX.Editing.Timelines.Tracks;
@@ -30,7 +29,7 @@ using FramePFX.Interactivity.Contexts;
 using FramePFX.Services.Messaging;
 using FramePFX.Utils;
 
-namespace FramePFX.Editing.Commands;
+namespace FramePFX.Editing.Timelines.Commands;
 
 public abstract class AddClipCommand<T> : AsyncCommand where T : Clip {
     protected override Executability CanExecuteOverride(CommandEventArgs e) {
@@ -106,7 +105,7 @@ public class AddImageVideoClipCommand : AddClipCommand<ImageVideoClip> {
             if (path != null) {
                 ResourceImage resourceImage = new ResourceImage();
                 ResourceFolder targetFolder;
-                if (manager.List.CurrentFolder?.Resource is ResourceFolder folder) {
+                if (manager.List.CurrentFolderNode?.Resource is ResourceFolder folder) {
                     (targetFolder = folder).AddItem(resourceImage);
                 }
                 else {

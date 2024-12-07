@@ -26,14 +26,17 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using FramePFX.Avalonia.AdvancedMenuService;
 using FramePFX.Avalonia.Bindings;
+using FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Editing.ResourceManaging;
+using FramePFX.Editing.ResourceManaging.UI;
+using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Lists;
 
-public class ResourceExplorerListBoxItem : ListBoxItem {
+public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement {
     public static readonly DirectProperty<ResourceExplorerListBoxItem, bool> IsResourceOnlineProperty = AvaloniaProperty.RegisterDirect<ResourceExplorerListBoxItem, bool>(nameof(IsResourceOnline), o => o.IsResourceOnline);
     public static readonly StyledProperty<bool> IsDroppableTargetOverProperty = AvaloniaProperty.Register<ResourceExplorerListBoxItem, bool>(nameof(IsDroppableTargetOver));
     public static readonly StyledProperty<string?> DisplayNameProperty = AvaloniaProperty.Register<ResourceExplorerListBoxItem, string?>(nameof(DisplayName));
@@ -70,7 +73,7 @@ public class ResourceExplorerListBoxItem : ListBoxItem {
     private bool isDragActive;
     private bool isDragDropping;
     private bool isProcessingAsyncDrop;
-    
+
     private enum DragState {
         None = 0, // No drag drop has been started yet
         Standby = 1, // User left-clicked, so wait for enough move mvoement
@@ -88,6 +91,10 @@ public class ResourceExplorerListBoxItem : ListBoxItem {
     }
 
     static ResourceExplorerListBoxItem() {
+        DragDrop.DragEnterEvent.AddClassHandler<ResourceExplorerListBoxItem>((o, e) => o.OnDragEnter(e));
+        DragDrop.DragOverEvent.AddClassHandler<ResourceExplorerListBoxItem>((o, e) => o.OnDragOver(e));
+        DragDrop.DragLeaveEvent.AddClassHandler<ResourceExplorerListBoxItem>((o, e) => o.OnDragLeave(e));
+        DragDrop.DropEvent.AddClassHandler<ResourceExplorerListBoxItem>((o, e) => o.OnDrop(e));
     }
 
     public void OnAddingToList(ResourceExplorerListBox explorerList, BaseResource resource) {
@@ -179,7 +186,7 @@ public class ResourceExplorerListBoxItem : ListBoxItem {
                 e.Handled = true;
             }
         }
-        
+
         base.OnPointerPressed(e);
     }
 
@@ -225,7 +232,7 @@ public class ResourceExplorerListBoxItem : ListBoxItem {
                 // }
             }
         }
-        
+
         base.OnPointerReleased(e);
     }
 
@@ -283,6 +290,81 @@ public class ResourceExplorerListBoxItem : ListBoxItem {
                     this.IsSelected = false;
                 }
             }
+        }
+    }
+
+    private void OnDragEnter(DragEventArgs e) {
+        this.OnDragOver(e);
+    }
+
+    private void OnDragOver(DragEventArgs e) {
+        EnumDropType dropType = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
+        ContextData ctx = new ContextData(DataManager.GetFullContextData(this));
+
+        if (!ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? droppedItems)) {
+            e.DragEffects = (DragDropEffects) ResourceDropRegistry.CanDropNativeTypeIntoListOrItem(this.ResourceExplorerList!, this, new DataObjectWrapper(e.Data), ctx, dropType);
+        }
+        else {
+            if (this.Resource is ResourceFolder resAsFolder) {
+                e.DragEffects = ResourceDropRegistry.CanDropResourceListIntoFolder(resAsFolder, droppedItems, dropType) ? (DragDropEffects) dropType : DragDropEffects.None;
+            }
+            else {
+                e.DragEffects = DragDropEffects.Copy | DragDropEffects.Move;
+            }
+
+            // Ideally should never be null
+            ResourceFolder? parent = this.Resource!.Parent;
+            if (parent == null || (!parent.IsRoot && droppedItems.Any(x => x is ResourceFolder && x.Parent != null && x.Parent.IsParentInHierarchy((ResourceFolder) x)))) {
+                e.DragEffects = DragDropEffects.None;
+            }
+        }
+
+        this.IsDroppableTargetOver = e.DragEffects != DragDropEffects.None;
+        e.Handled = true;
+    }
+
+    private void OnDragLeave(DragEventArgs e) {
+        if (!this.IsPointerOver) {
+            this.IsDroppableTargetOver = false;
+        }
+    }
+
+    private async void OnDrop(DragEventArgs e) {
+        e.Handled = true;
+        if (this.isProcessingAsyncDrop || this.Resource == null) {
+            return;
+        }
+
+        try {
+            EnumDropType dropType = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
+            ContextData ctx = new ContextData(DataManager.GetFullContextData(this));
+
+            this.isProcessingAsyncDrop = true;
+            // Dropped non-resources into this node
+            if (!ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? droppedItems)) {
+                if (!await ResourceDropRegistry.OnDropNativeTypeIntoListOrItem(this.ResourceExplorerList!, this, new DataObjectWrapper(e.Data), ctx, dropType)) {
+                    await IoC.MessageService.ShowMessage("Unknown Data", "Unknown dropped item. Drop files here");
+                }
+
+                return;
+            }
+
+            // First process final drop type, then check if the drop is allowed on this tree node
+            // Then from the check drop result we determine if we can drop the list "into" or above/below
+
+            if (this.Resource is ResourceFolder resAsFolder) {
+                e.DragEffects = ResourceDropRegistry.CanDropResourceListIntoFolder(resAsFolder, droppedItems, dropType) ? (DragDropEffects) dropType : DragDropEffects.None;
+                await ResourceDropRegistry.OnDropResourceListIntoListItem(this.ResourceExplorerList!, this, droppedItems, ctx, (EnumDropType) e.DragEffects);
+            }
+        }
+#if !DEBUG
+        catch (Exception exception) {
+            await FramePFX.IoC.MessageService.ShowMessage("Error", "An error occurred while processing list item drop", exception.ToString());
+        }  
+#endif
+        finally {
+            this.IsDroppableTargetOver = false;
+            this.isProcessingAsyncDrop = false;
         }
     }
 

@@ -208,11 +208,14 @@ public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStr
             clip.ResourceHelper.WriteToRootRBE(data);
         });
 
-        ContextGroup mod1 = ClipContextRegistry.GetGroup("Modify1");
+        FixedContextGroup mod1 = ClipContextRegistry.GetFixedGroup("modify.generic");
         mod1.AddCommand("commands.editor.RenameClip", "Rename", "Open a dialog to rename this clip");
-        mod1.AddCommand("commands.editor.SliceClipsCommand", "Split", "Slice this clip at the playhead");
-        ContextGroup mod2 = ClipContextRegistry.GetGroup("Modify2");
-        mod2.AddCommand("commands.editor.DeleteClipOwnerTrack", "Delete Track", "Delete the track this clip resides in");
+        
+        FixedContextGroup mod2 = ClipContextRegistry.GetFixedGroup("Modify2");
+        mod2.AddCommand("commands.editor.SliceClipsCommand", "Split", "Slice this clip at the playhead");
+        
+        FixedContextGroup mod3 = ClipContextRegistry.GetFixedGroup("modify.destruction", 100000);
+        mod3.AddCommand("commands.editor.DeleteClipOwnerTrack", "Delete Track", "Delete the track this clip resides in");
 
         // Example new serialisers for new feature added in new build version
         // SerialisationRegistry.Register<Clip>(1, (clip, data, ctx) => {

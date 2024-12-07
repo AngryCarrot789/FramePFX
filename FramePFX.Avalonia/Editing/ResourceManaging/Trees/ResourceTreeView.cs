@@ -198,9 +198,24 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
     }
 
     private void OnDragOver(DragEventArgs e) {
-        // TODO: DragDrop
-        // if (this.ResourceManager != null)
-        //     this.IsDroppableTargetOver = ResourceTreeViewItem.ProcessCanDragOver(this, this.ResourceManager.RootComposition, e) == true;
+        EnumDropType dropType = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
+        ContextData ctx = new ContextData(DataManager.GetFullContextData(this));
+
+        if (!ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? droppedItems)) {
+            e.DragEffects = (DragDropEffects) ResourceDropRegistry.CanDropNativeTypeIntoTreeOrNode(this, null, new DataObjectWrapper(e.Data), ctx, dropType);
+        }
+        else {
+            ResourceFolder? folder = this.ResourceManager?.RootContainer;
+            if (folder != null) {
+                e.DragEffects = ResourceDropRegistry.CanDropResourceListIntoFolder(folder, droppedItems, dropType) ? (DragDropEffects) dropType : DragDropEffects.None;
+            }
+            else {
+                e.DragEffects = DragDropEffects.None;
+            }
+        }
+
+        // this.IsDroppableTargetOver = e.DragEffects != DragDropEffects.None;
+        e.Handled = true;
     }
 
     private void OnDragLeave(DragEventArgs e) {
@@ -209,24 +224,40 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
     }
 
     private async void OnDrop(DragEventArgs e) {
-        // e.Handled = true;
-        // if (this.isProcessingAsyncDrop || this.Canvas == null) {
-        //     return;
-        // }
-        //
-        // try {
-        //     this.isProcessingAsyncDrop = true;
-        //     if (ResourceTreeViewItem.GetDropResourceListForEvent(e, out List<BaseResource>? list, out EnumDropType effects)) {
-        //         await LayerDropRegistry.DropRegistry.OnDropped(this.Canvas.RootComposition, list, effects);
-        //     }
-        //     else if (!await LayerDropRegistry.DropRegistry.OnDroppedNative(this.Canvas.RootComposition, new DataObjectWrapper(e.Data), effects)) {
-        //         await IoC.MessageService.ShowMessage("Unknown Data", "Unknown dropped item. Drop files here");
-        //     }
-        // }
-        // finally {
-        //     this.IsDroppableTargetOver = false;
-        //     this.isProcessingAsyncDrop = false;
-        // }
+        e.Handled = true;
+        if (this.isProcessingAsyncDrop || !(this.ResourceManager?.RootContainer is ResourceFolder folder)) {
+            return;
+        }
+
+        try {
+            EnumDropType dropType = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
+            ContextData ctx = new ContextData(DataManager.GetFullContextData(this));
+
+            this.isProcessingAsyncDrop = true;
+            // Dropped non-resources into this node
+            if (!ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? droppedItems)) {
+                if (!await ResourceDropRegistry.OnDropNativeTypeIntoTreeOrNode(this, null, new DataObjectWrapper(e.Data), ctx, dropType)) {
+                    await IoC.MessageService.ShowMessage("Unknown Data", "Unknown dropped item. Drop files here");
+                }
+
+                return;
+            }
+
+            // First process final drop type, then check if the drop is allowed on this tree node
+            // Then from the check drop result we determine if we can drop the list "into" or above/below
+
+            e.DragEffects = ResourceDropRegistry.CanDropResourceListIntoFolder(folder, droppedItems, dropType) ? (DragDropEffects) dropType : DragDropEffects.None;
+            await ResourceDropRegistry.OnDropResourceListIntoTreeOrNode(this, null, droppedItems, ctx, (EnumDropType) e.DragEffects);
+        }
+#if !DEBUG
+        catch (Exception exception) {
+            await FramePFX.IoC.MessageService.ShowMessage("Error", "An error occurred while processing list item drop", exception.ToString());
+        }
+#endif
+        finally {
+            // this.IsDroppableTargetOver = false;
+            this.isProcessingAsyncDrop = false;
+        }
     }
 
     #endregion

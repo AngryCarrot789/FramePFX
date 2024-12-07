@@ -17,22 +17,30 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System;
-using Avalonia.Controls;
-using FramePFX.AdvancedMenuService;
-using FramePFX.Interactivity.Contexts;
+namespace FramePFX.AdvancedMenuService;
 
-namespace FramePFX.Avalonia.AdvancedMenuService;
-
-public interface IAdvancedContainer {
-    /// <summary>
-    /// Gets the context for the container menu or root container menu item
-    /// </summary>
-    IContextData? Context { get; }
-
-    bool PushCachedItem(Type entryType, Control element);
-
-    Control? PopCachedItem(Type entryType);
+/// <summary>
+/// A fixed group of context items
+/// </summary>
+public class FixedContextGroup : IContextGroup {
+    private readonly List<IContextObject> items;
     
-    Control CreateChildItem(IContextObject entry);
+    /// <summary>
+    /// Gets our items
+    /// </summary>
+    public IReadOnlyList<IContextObject> Items => this.items;
+
+    public FixedContextGroup() {
+        this.items = new List<IContextObject>();
+    }
+
+    public void AddEntry(IContextObject item) {
+        this.items.Add(item);
+    }
+
+    public void AddSeparator() => this.AddEntry(new SeparatorEntry());
+
+    public void AddCommand(string cmdId, string displayName, string? description = null) {
+        this.AddEntry(new CommandContextEntry(displayName, description, cmdId));
+    }
 }

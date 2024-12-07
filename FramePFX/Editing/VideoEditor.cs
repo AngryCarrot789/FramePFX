@@ -206,7 +206,7 @@ public class VideoEditor : IDestroy {
     }
 
     public void CloseProject() {
-        Project oldProject = this.Project;
+        Project? oldProject = this.Project;
         if (oldProject == null) {
             throw new Exception("There is no project opened");
         }

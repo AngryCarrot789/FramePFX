@@ -39,7 +39,7 @@ public class DefaultProgressTracker : IActivityProgress {
                 this.isIndeterminate = value;
             }
 
-            this.updateIsIndeterminate.InvokeAsync();
+            this.updateIsIndeterminate?.InvokeAsync();
         }
     }
 
@@ -52,7 +52,7 @@ public class DefaultProgressTracker : IActivityProgress {
                 this.completionValue = value;
             }
 
-            this.updateCompletionValue.InvokeAsync();
+            this.updateCompletionValue?.InvokeAsync();
         }
     }
 
@@ -65,7 +65,7 @@ public class DefaultProgressTracker : IActivityProgress {
                 this.headerText = value;
             }
 
-            this.updateHeaderText.InvokeAsync();
+            this.updateHeaderText?.InvokeAsync();
         }
     }
 
@@ -78,7 +78,7 @@ public class DefaultProgressTracker : IActivityProgress {
                 this.descriptionText = value;
             }
 
-            this.updateText.InvokeAsync();
+            this.updateText?.InvokeAsync();
         }
     }
 
@@ -109,7 +109,7 @@ public class DefaultProgressTracker : IActivityProgress {
     }
 
     public PopDispose PushCompletionRange(double min, double max) {
-        CompletionRange range = new CompletionRange(max - min, this.totalMultiplier);
+        CompletionRange range = new CompletionRange(max - min, this.totalMultiplier, this.TotalCompletion);
         this.totalMultiplier *= range.Range;
         this.ranges.Push(range);
         return new PopDispose(this);
@@ -131,10 +131,21 @@ public class DefaultProgressTracker : IActivityProgress {
             this.TotalCompletion += value;
         }
     }
+    
+    public void SetProgress(double value) {
+        if (this.ranges.TryPeek(out CompletionRange top)) {
+            this.TotalCompletion = top.PreviousTotalCompletion + (this.totalMultiplier * value);
+        }
+        else {
+            // assert totalMultiplier == 1.0
+            this.TotalCompletion = value;
+        }
+    }
 
     public static void TestCompletionRangeFunctionality() {
         // Begin: CloseActiveAndOpenProject
-
+        
+        
         DefaultProgressTracker tracker = new DefaultProgressTracker();
         using (tracker.PushCompletionRange(0.0, 0.5)) {
             // Begin: CloseActive
@@ -156,7 +167,10 @@ public class DefaultProgressTracker : IActivityProgress {
 
                 using (tracker.PushCompletionRange(0.0, 0.1)) {
                     // Begin: ProcessPreLoad
-                    tracker.OnProgress(0.5);
+                    tracker.SetProgress(0.7);
+                    tracker.SetProgress(0.8);
+                    tracker.SetProgress(0.2);
+                    tracker.SetProgress(0.5);
                     tracker.OnProgress(0.5);
                     // End: ProcessPreLoad
                 }

@@ -85,6 +85,7 @@ public class PlaybackManager {
 
     private readonly NumberAverager averager = new NumberAverager(5);
     private long lastTickTime;
+    private volatile Action? stopCallback;
 
     public PlaybackManager(VideoEditor editor) {
         this.Editor = editor;
@@ -202,7 +203,9 @@ public class PlaybackManager {
         // }
     }
 
-    private void OnAboutToStopPlaying() {
+    private void OnAboutToStopPlaying(Action? callback = null) {
+        if (callback != null)
+            Interlocked.Exchange(ref this.stopCallback, callback);
         this.thread_IsPlaying = false;
     }
 
@@ -237,15 +240,20 @@ public class PlaybackManager {
             return;
         }
 
-        this.OnAboutToStopPlaying();
+        this.OnAboutToStopPlaying(this.InvalidateVisualForStop);
         this.PlayState = PlayState.Stop;
         this.PlaybackStateChanged?.Invoke(this, this.PlayState, this.Timeline.StopHeadPosition);
         this.OnStoppedPlaying();
         this.Timeline.PlayHeadPosition = this.Timeline.StopHeadPosition;
     }
 
+    private void InvalidateVisualForStop() {
+        IoC.Dispatcher.Invoke(() => this.Timeline?.InvalidateRender(), DispatchPriority.Background);
+    }
+
     private void OnTimerFrame() {
         if (!this.thread_IsPlaying || !this.thread_IsTimerRunning) {
+            this.TryInvokeStopCallback();
             return;
         }
 
@@ -263,6 +271,7 @@ public class PlaybackManager {
 
                 VideoEditor? editor = project.Editor;
                 if (editor == null || !this.thread_IsPlaying) {
+                    this.TryInvokeStopCallback();
                     return Task.CompletedTask;
                 }
 
@@ -350,8 +359,12 @@ public class PlaybackManager {
 
     private void TimerMain() {
         do {
-            while (!this.thread_IsPlaying) {
-                Thread.Sleep(50);
+            if (!this.thread_IsPlaying) {
+                this.TryInvokeStopCallback();
+                // Saves attempting to invoke stopCallback every 50ms
+                do {
+                    Thread.Sleep(50);
+                } while (!this.thread_IsPlaying);
             }
 
             long target = this.nextTickTime;
@@ -375,5 +388,9 @@ public class PlaybackManager {
     internal static void InternalOnActiveTimelineChanged(PlaybackManager playback, Timeline oldTimeline, Timeline newTimeline) {
         playback.Stop();
         playback.Timeline = newTimeline;
+    }
+
+    private void TryInvokeStopCallback() {
+        Interlocked.Exchange(ref this.stopCallback, null)?.Invoke();
     }
 }

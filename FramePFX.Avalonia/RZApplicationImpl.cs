@@ -171,15 +171,6 @@ public class RZApplicationImpl : RZApplication {
             }
         }
 
-        public void Invoke<T>(Action<T> action, T parameter, DispatchPriority priority) {
-            if (priority == DispatchPriority.Send && this.dispatcher.CheckAccess()) {
-                action(parameter);
-            }
-            else {
-                this.dispatcher.Post(x => action((T) x!), parameter, ToAvaloniaPriority(priority));
-            }
-        }
-
         public T Invoke<T>(Func<T> function, DispatchPriority priority) {
             if (priority == DispatchPriority.Send && this.dispatcher.CheckAccess())
                 return function();

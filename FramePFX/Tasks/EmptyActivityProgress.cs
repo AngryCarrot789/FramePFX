@@ -51,4 +51,5 @@ public class EmptyActivityProgress : IActivityProgress {
     }
 
     void IActivityProgress.OnProgress(double value) { }
+    void IActivityProgress.SetProgress(double value) { }
 }

@@ -106,6 +106,14 @@ public interface IActivityProgress {
     /// </summary>
     /// <param name="value">The value to append (multiplied based on the current ranges on the stack)</param>
     void OnProgress(double value);
+    
+    /// <summary>
+    /// Sets the given value as the total completion. The value <see cref="TotalCompletion"/>
+    /// becomes depends on the ranges on the stack. If there are none, then
+    /// <see cref="TotalCompletion"/> is set directly
+    /// </summary>
+    /// <param name="value">The value to append (multiplied based on the current ranges on the stack)</param>
+    void SetProgress(double value);
 }
 
 /// <summary>

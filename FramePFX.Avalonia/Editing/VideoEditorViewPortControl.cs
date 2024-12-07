@@ -229,10 +229,6 @@ public class VideoEditorViewPortControl : TemplatedControl {
     }
 
     private void OnFrameAvailable(RenderManager manager) {
-        if (manager.Timeline.Project?.IsExporting ?? false) {
-            return;
-        }
-
         if (this.PART_SkiaViewPort!.BeginRenderWithSurface(manager.ImageInfo)) {
             this.PART_SkiaViewPort!.EndRenderWithSurface(manager.surface);
         }

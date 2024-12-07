@@ -33,8 +33,19 @@ public static class BugFix {
         // in the TextBox's ControlTheme
         TextPresenter? presenter = textBox.FindDescendantOfType<TextPresenter>(false);
         if (presenter != null) {
+            presenter.CoerceValue(TextPresenter.CaretBrushProperty);
+            presenter.CoerceValue(TextPresenter.CaretIndexProperty);
+            presenter.CoerceValue(TextPresenter.LineHeightProperty);
+            presenter.CoerceValue(TextPresenter.LetterSpacingProperty);
+            presenter.CoerceValue(TextPresenter.PasswordCharProperty);
+            presenter.CoerceValue(TextPresenter.RevealPasswordProperty);
+            presenter.CoerceValue(TextPresenter.SelectionBrushProperty);
+            presenter.CoerceValue(TextPresenter.SelectionForegroundBrushProperty);
             presenter.CoerceValue(TextPresenter.SelectionStartProperty);
             presenter.CoerceValue(TextPresenter.SelectionEndProperty);
+            presenter.CoerceValue(TextPresenter.TextProperty);
+            presenter.CoerceValue(TextPresenter.TextAlignmentProperty);
+            presenter.CoerceValue(TextPresenter.TextWrappingProperty);
         }
     }
 }

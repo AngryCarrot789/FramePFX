@@ -26,6 +26,12 @@ public static class DoubleUtils {
     internal const double DBL_EPSILON = 2.22E-16;
     internal const float FLT_EPSILON = 1.19E-7F;
 
+    /// <summary>
+    /// Returns true when the value is not infinity and is not NaN
+    /// </summary>
+    public static bool IsValid(double value) => !double.IsInfinity(value) && !double.IsNaN(value);
+    public static bool IsValid(float value) => !float.IsInfinity(value) && !float.IsNaN(value);
+
     public static bool AreClose(double a, double b) {
         if (a == b)
             return true;

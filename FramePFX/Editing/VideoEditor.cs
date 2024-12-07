@@ -43,6 +43,8 @@ public delegate void VideoEditorEventHandler(VideoEditor editor);
 /// The class which stores all of the data for the video editor application
 /// </summary>
 public class VideoEditor : IDestroy {
+    private bool isExporting;
+    
     /// <summary>
     /// Gets this video editor's history manager, which manages all history actions
     /// </summary>
@@ -55,7 +57,22 @@ public class VideoEditor : IDestroy {
 
     public PlaybackManager Playback { get; }
 
+    /// <summary>
+    /// Gets or sets if this editor is being used to export at the current moment
+    /// </summary>
+    public bool IsExporting {
+        get => this.isExporting;
+        set {
+            if (this.isExporting == value)
+                return;
+
+            this.isExporting = value;
+            this.IsExportingChanged?.Invoke(this);
+        }
+    }
+
     public event ProjectChangedEventHandler? ProjectChanged;
+    public event VideoEditorEventHandler? IsExportingChanged;
 
     public VideoEditor() {
         this.HistoryManager = new HistoryManager();

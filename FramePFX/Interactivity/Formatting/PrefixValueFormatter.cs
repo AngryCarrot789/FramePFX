@@ -42,7 +42,7 @@ public class PrefixValueFormatter : BaseSimpleValueFormatter {
     }
 
     public override string ToString(double value, bool isEditing) {
-        return value.ToString("F" + (isEditing ? this.EditingRoundedPlaces : this.NonEditingRoundedPlaces)) + (this.prefix ?? "");
+        return value.ToString(isEditing ? this.EditingRoundedPlacesFormat : this.NonEditingRoundedPlacesFormat) + (this.prefix ?? "");
     }
 
     public override bool TryConvertToDouble(string format, out double value) {

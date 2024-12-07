@@ -55,26 +55,24 @@ public abstract class AsyncCommand : Command {
         return Executability.Valid;
     }
 
-    protected sealed override void Execute(CommandEventArgs e) {
-        if (!this.allowMultipleExecutions && this.isExecuting) {
-            if (e.IsUserInitiated)
-                IoC.MessageService.ShowMessage("Already running", "This command is already running");
-            return;
-        }
+    protected sealed override void Execute(CommandEventArgs e) => this.ExecuteAsyncImpl(e);
 
-        this.ExecuteCore(e);
-    }
-
-    private async void ExecuteCore(CommandEventArgs args) {
-        this.isExecuting = true;
+    private async void ExecuteAsyncImpl(CommandEventArgs args) {
         try {
+            if (!this.allowMultipleExecutions && this.isExecuting) {
+                if (args.IsUserInitiated)
+                    await IoC.MessageService.ShowMessage("Already running", "This command is already running");
+                return;
+            }
+            
+            this.isExecuting = true;
             await (this.ExecuteAsync(args) ?? Task.CompletedTask);
         }
         catch (Exception e) {
             // we need to handle the exception here, because otherwise the application
             // would never catch it, and therefore the exception would be lost forever
             string msg = e.GetToString();
-            IoC.MessageService.ShowMessage("Command Error", "An exception occurred while executing command", msg);
+            await IoC.MessageService.ShowMessage("Command Error", "An exception occurred while executing command", msg);
         }
         finally {
             this.isExecuting = false;

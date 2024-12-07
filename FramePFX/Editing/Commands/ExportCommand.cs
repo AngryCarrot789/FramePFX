@@ -61,6 +61,10 @@ public class ExportCommand : AsyncCommand {
             return Task.CompletedTask;
         }
 
+        if (theEditor.IsExporting) {
+            return Task.CompletedTask;
+        }
+
         theEditor.Playback.Pause();
         IExportService service = RZApplication.Instance.Services.GetService<IExportService>();
 

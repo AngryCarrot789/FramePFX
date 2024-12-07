@@ -82,11 +82,6 @@ public class Project : IDestroy {
     public ProjectSettings Settings { get; }
 
     /// <summary>
-    /// Gets or sets if a video is being exported. Used by the view port to optimise the UI for rendering
-    /// </summary>
-    public bool IsExporting { get; set; }
-
-    /// <summary>
     /// Gets or sets the readable name of this project. This may be differently named from the saved file path.
     /// This can be changed at any time and fires the <see cref="ProjectNameChanged"/>
     /// </summary>

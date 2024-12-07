@@ -26,7 +26,13 @@ I hope to get this app back into the same state it was when using WPF and also i
 # Preview
 
 This is the latest version using Avalonia:
-![](FramePFX.Avalonia_2024-11-30_21.42.03.png)
+![](FramePFX-DesktopUI_2024-12-06_17.33.20.png)
+
+Here is a preview of the export process. Export button is in File>Export, you specify a path and then click Export.
+To cancel the render you just click Cancel on the dialog behind the export progress window
+
+The grey panel below "Exporter: FFmpeg" is encoder-specific details
+![](FramePFX-DesktopUI_2024-12-07_00.13.06.png)
 
 ## Old previews from WPF
 
@@ -34,14 +40,6 @@ Here are some previews of features that aren't yet implemented, but that once we
 
 This shows of some automation/animation/keyframe usage:
 ![](FramePFX_2024-01-31_02.41.43.png)
-
-Here is a preview of the export process. Export button is in File>Export, you specify a path and then click Export. Notice how slow the render
-is (bottom right corner). The render uses Skia's highest quality filter during export (low for the preview view port), but I will add an option
-to change that. To cancel the render you just click Cancel on the dialog behind the export progress window
-
-The grey panel below "Exporter: FFmpeg" is encoder-specific details. I haven't added anything yet, but soon I will put things like a bitrate slider in there.
-I'm thinking it will be a PropertyEditor control, and there will be a property editor registry for every type of encoder
-![](FramePFX_2024-02-03_01.08.52.png)
 
 ### Automation/animation
 Always found automating parameters in the standard editors to be generally finicky. Ableton Live has a really good automation editor though, so I took a fair bit of inspiration from it:
@@ -91,6 +89,8 @@ To drag videos, images, etc., into the editor: drag and drop the file to the top
 This system is still quite janky and, if anything, too flexible; added complexity for limiting the max number of resources referencable, and handling that error case
 
 ## Command system, shortcut system and context menus
+Beware, Over detailed explanations!!!
+
 ### Command System
 I created a system that is inspired from IntelliJ IDEA's action system, where you have a single command manager which contains all of the commands. You access commands
 via a string key (simplest type of key to use), and then execute the command by passing in contextual data (stored in a `IContextData`). The context data gets a value from
@@ -99,7 +99,7 @@ The `DataManager` class manages the context data for all UI components (scroll d
 
 This means that when you for example press F2 or CTRL+R while focused on a clip, there's a lot of data keys between the root window and the clip UI object, and so
 in the rename command, you have access to all of them; the editor, project, timeline, track and clip. Whereas if you just have the window focused and press a shortcut, you 
-may only have the editor and project available; It's context sensitive, duh
+may only have the editor and project available; It's context-sensitive, duh
 
 ### Shortcuts
 The shortcut system listens to inputs at an application level instead of receiving input from a specific window (however, a window can only really process shortcuts if it
@@ -107,10 +107,17 @@ has a focus path associated with it, which can be set via the `UIInputManager.Fo
 to "activate" based on the current global focus path, and activates all of them until one is activated successfully. 
 Keymap.xml contains the shortcuts (and some unused ones from the old app version)
 
-### OLD WPF Context menus
-Context menus use the `AdvancedContextMenu` class. Context menu items are generated on demand each time the context menu is open, which isn't the most performant option
-but it's pretty quick for now (much quicker now than before when I used binding and ItemsSource). I try to only use the `CommandContextEntry` (which maps to a `AdvancedCommandMenuItem`) 
-menu item which invokes a command but I sometimes use a `EventContextEntry` because it's much easier to use, but less portable as shortcuts can't activate/invoke them
+### Advanced Context Menu system
+So far, all context menus use the `AdvancedContextMenu` class. The menu items are have a model-view connection and all the model items are stored in a `ContextRegistry`
+which, when linked to a control, will find the context menu associated with the registry, or it creates one and then the UI components are generated, and it sets it as the
+control's ContextMenu so that standard context behaviour works. There's one menu per 
+registry, to help with performance and memory usage.
+
+Each context registry contains a list of groups, which contain a list of items (and those items can contain child items). This gives some control order the ordering of 
+menu items if a plugin system is ever implemented; plugins could access known groups and insert their commands into the appropriate ones
+
+There's also the `ContextCapturingMenu`, which is used as a window's top level menu. This menu captures the fully-inherited IContextData of the control
+that was focused just before a menu item was opened in said menu (see below for more info about context data and this fully-inherited behaviour)
 
 ### Data Manager
 The data manager is used to store local context data in a control, and implement context data inheritance containing the merged context data for all of a control's visual parents and itself. 

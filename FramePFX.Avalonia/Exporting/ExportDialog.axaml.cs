@@ -92,6 +92,8 @@ public partial class ExportDialog : WindowEx {
         this.filePathBinder.Attach(this.PART_FilePathTextBox, this.Setup);
         this.UpdateBeginFrameDragger();
         this.UpdateEndFrameDragger();
+        
+        // Select the first exporter for convenience
         this.PART_ComboBox.SelectedIndex = 0;
     }
 
@@ -119,42 +121,31 @@ public partial class ExportDialog : WindowEx {
         
         this.IsExporting = true;
 
-        bool isCancelled = false;
         this.exportToken = new CancellationTokenSource();
 
         ExportProgressDialog progressDialog = new ExportProgressDialog(setup.Span, this.exportToken);
+        progressDialog.Topmost = true;
         progressDialog.Show();
 
+        setup.Editor.IsExporting = true;
+        ActivityTask exportTask = TaskManager.Instance.RunTask(() => {
+            progressDialog.ActivityTask = TaskManager.Instance.CurrentTask;
+            progressDialog.ActivityTask.Progress.HeaderText = "Export Task";
+            progressDialog.ActivityTask.Progress.Text = "Exporting...";
 
-        try {
-            setup.Project.IsExporting = true;
             // Export will most likely be using unsafe code, meaning async won't work
-            await TaskManager.Instance.RunTask(() => {
-                return Task.Factory.StartNew(() => {
-                    progressDialog.ActivityTask = TaskManager.Instance.CurrentTask;
-                    progressDialog.ActivityTask.Progress.HeaderText = "Export Task";
-                    progressDialog.ActivityTask.Progress.Text = "Exporting...";
-                    
-                    context.Export(progressDialog, this.exportToken.Token);
-                }, TaskCreationOptions.LongRunning);
-            });
-        }
-        catch (TaskCanceledException) {
-            isCancelled = true;
-        }
-        catch (OperationCanceledException) {
-            isCancelled = true;
-        }
-        catch (Exception ex) {
-            string err = ex.GetToString();
-            // AppLogger.Instance.WriteLine("Error exporting: " + err);
-            await IoC.MessageService.ShowMessage("Export failure", "An exception occurred while exporting video", err);
-        }
-        finally {
-            setup.Project.IsExporting = false;
+            context.Export(progressDialog, this.exportToken.Token);
+            return Task.CompletedTask;
+        }, TaskCreationOptions.LongRunning);
+        
+        await exportTask;
+        setup.Editor.IsExporting = false;
+
+        if (exportTask.Exception != null) {
+            await IoC.MessageService.ShowMessage("Export failure", "An exception occurred while exporting video", exportTask.Exception.ToString());
         }
 
-        if (isCancelled && File.Exists(setup.FilePath)) {
+        if (exportTask.IsCancelled && File.Exists(setup.FilePath)) {
             try {
                 File.Delete(setup.FilePath);
             }
@@ -164,7 +155,7 @@ public partial class ExportDialog : WindowEx {
         }
 
         this.IsExporting = false;
-        setup.Timeline.RenderManager.InvalidateRender();
+        setup.Timeline.UpdateAutomation(setup.Timeline.PlayHeadPosition, true); 
         progressDialog.Close();
         this.Close();
     }

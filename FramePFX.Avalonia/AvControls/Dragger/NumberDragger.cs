@@ -148,11 +148,10 @@ public class NumberDragger : RangeBase {
             this.flagHasSpecialPropertyChangedWhileEditing = false;
             this.UpdateTextControlVisibility();
             this.UpdateTextBlockAndBox();
+            this.RaisePropertyChanged(IsEditingProperty, !value, value);
             if (value && this.PART_TextBox != null) {
                 BugFix.TextBox_FocusSelectAll(this.PART_TextBox);
             }
-            
-            this.RaisePropertyChanged(IsEditingProperty, !value, value);
         }
     }
     

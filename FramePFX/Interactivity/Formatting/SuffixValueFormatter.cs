@@ -47,7 +47,7 @@ public class SuffixValueFormatter : BaseSimpleValueFormatter {
     }
 
     public override string ToString(double value, bool isEditing) {
-        return value.ToString("F" + (isEditing ? this.EditingRoundedPlaces : this.NonEditingRoundedPlaces)) + (this.suffix ?? "");
+        return value.ToString(isEditing ? this.EditingRoundedPlacesFormat : this.NonEditingRoundedPlacesFormat) + (this.suffix ?? "");
     }
 
     public override bool TryConvertToDouble(string format, out double value) {

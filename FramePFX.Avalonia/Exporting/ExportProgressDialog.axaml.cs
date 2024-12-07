@@ -59,6 +59,7 @@ public partial class ExportProgressDialog : WindowEx, IExportProgress {
     
     public ActivityTask? ActivityTask { get; set; }
 
+    // Makes the avalonia XAML compiler thing stop complaining about non-default constructors. We don't use this constructor
     public ExportProgressDialog() : this(default, new CancellationTokenSource()) {
         
     }

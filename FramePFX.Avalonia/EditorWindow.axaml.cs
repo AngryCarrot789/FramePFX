@@ -95,18 +95,25 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
                 this.OnProjectChanged(oldProject, null);
 
             this.PART_ViewPort.VideoEditor = null;
+            oldEditor.IsExportingChanged -= this.OnIsExportingChanged;
         }
 
         if (newEditor != null) {
             newEditor.ProjectChanged += this.OnProjectChanged;
+            newEditor.IsExportingChanged += this.OnIsExportingChanged;
             this.PART_ViewPort.Owner = this;
             this.PART_ViewPort.VideoEditor = newEditor;
-            this.OnProjectChanged(null, newEditor?.Project);
+            this.OnProjectChanged(null, newEditor.Project);
+            this.OnIsExportingChanged(newEditor);
         }
 
         this.doNotInvalidateContext = false;
         this.contextData.Set(DataKeys.VideoEditorKey, newEditor);
         DataManager.InvalidateInheritedContext(this);
+    }
+
+    private void OnIsExportingChanged(VideoEditor editor) {
+        this.PART_EditorWindowContent.IsEnabled = !editor.IsExporting;
     }
 
     private void OnProjectChanged(VideoEditor editor, Project oldproject, Project newproject) {

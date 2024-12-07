@@ -33,7 +33,13 @@ using SkiaSharp;
 namespace FramePFX.Editing.Exporting.FFmpeg;
 
 public class FFmpegExporterInfo : ExporterInfo {
-    public static readonly DataParameterLong BitRateParameter = DataParameter.Register(new DataParameterLong(typeof(FFmpegExporterInfo), nameof(BitRate), 25000000, 100, 10000000000, ValueAccessors.Reflective<long>(typeof(FFmpegExporterInfo), nameof(myBitRate))));
+    public static readonly DataParameterLong BitRateParameter =
+        DataParameter.Register(
+            new DataParameterLong(
+                typeof(FFmpegExporterInfo),
+                nameof(BitRate),
+                25000000, 100, 10_000_000_000,
+                ValueAccessors.Reflective<long>(typeof(FFmpegExporterInfo), nameof(myBitRate))));
 
     public static readonly DataParameterLong GopParameter =
         DataParameter.Register(
@@ -60,13 +66,19 @@ public class FFmpegExporterInfo : ExporterInfo {
         this.myBitRate = BitRateParameter.GetDefaultValue(this);
         this.myGop = GopParameter.GetDefaultValue(this);
 
-        // TODO: bit,kbit,mbit,gbit value formatter
-        this.PropertyEditor.Root.AddItem(new DataParameterLongPropertyEditorSlot(BitRateParameter, typeof(FFmpegExporterInfo), "Bit Rate", DragStepProfile.UnitOne) { ValueFormatter = SuffixValueFormatter.StandardBits });
+        this.PropertyEditor.Root.AddItem(new DataParameterLongPropertyEditorSlot(BitRateParameter, typeof(FFmpegExporterInfo), "Bit Rate", DragStepProfile.UnitOne) {
+            ValueFormatter = new AutoMemoryValueFormatter(MemoryValueFormatter.Bits) {
+                SourceFormat = MemoryFormatType.Bit
+            }
+        });
+
         this.PropertyEditor.Root.AddItem(new DataParameterLongPropertyEditorSlot(GopParameter, typeof(FFmpegExporterInfo), "'GOP'", DragStepProfile.UnitOne));
     }
 
     public override void Reset() {
         base.Reset();
+        BitRateParameter.Reset(this);
+        GopParameter.Reset(this);
     }
 
     public override ExportContext CreateContext(ExportSetup setup) {
@@ -78,7 +90,7 @@ public class FFmpegExportContext : ExportContext {
     public AVCodecID Codecs { get; set; }
 
     public new FFmpegExporterInfo Exporter => (FFmpegExporterInfo) base.Exporter;
-    
+
     public FFmpegExportContext(FFmpegExporterInfo exporter, ExportSetup setup) : base(exporter, setup) {
         this.Codecs = AVCodecID.AV_CODEC_ID_H264;
     }
@@ -438,7 +450,7 @@ public class FFmpegExportContext : ExportContext {
         }
 
         if (exception != null) {
-            byte[] buffer = new byte[4096];
+            byte[] buffer = new byte[4096]; // i highly doubt stackalloc would cause a stack overflow... but ya never know
             fixed (byte* strbuf = buffer) {
                 ffmpeg.av_make_error_string(strbuf, 4096, ret);
                 int i = 0;

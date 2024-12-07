@@ -17,21 +17,31 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Threading.Tasks;
-using Avalonia.Controls;
-using FramePFX.Editing.Exporting;
-using FramePFX.Editing.Exporting.Setups;
+namespace FramePFX.Interactivity.Formatting;
 
-namespace FramePFX.Avalonia.Exporting;
+public enum MemoryFormatType {
+    /// <summary>
+    /// A single bit
+    /// </summary>
+    Bit,
 
-public class ExportServiceImpl : IExportService {
-    public Task ShowExportDialog(ExportSetup setup) {
-        if (!RZApplicationImpl.TryGetActiveWindow(out Window? window)) {
-            return Task.CompletedTask;
-        }
-        
-        ExportDialog dialog = new ExportDialog(setup);
-        dialog.Topmost = true;
-        return dialog.ShowDialog(window);
-    }
+    /// <summary>
+    /// 8 bits
+    /// </summary>
+    Byte,
+
+    // Here we go, IEC kicking us in the butt cracks to make life harder
+
+    KiloBit,
+    KiloByte1000,
+    KibiByte1024,
+    MegaBit,
+    MegaByte1000,
+    MebiByte1024,
+    GigaBit,
+    GigaByte1000,
+    GibiByte1024,
+    TeraBit,
+    TeraByte1000,
+    TebiByte1024
 }

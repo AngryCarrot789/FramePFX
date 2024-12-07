@@ -93,11 +93,7 @@ public class Timeline : ITransferableData, IDestroy {
             long oldPlayHead = this.playHeadPosition;
             this.playHeadPosition = value;
             this.PlayHeadChanged?.Invoke(this, oldPlayHead, value);
-            using (this.RenderManager.SuspendRenderInvalidation()) {
-                AutomationEngine.UpdateValues(this, value);
-            }
-            
-            this.InvalidateRender();
+            this.UpdateAutomation(value, true);
         }
     }
 
@@ -137,6 +133,15 @@ public class Timeline : ITransferableData, IDestroy {
         this.Tracks = new ReadOnlyCollection<Track>(this.tracks);
         this.maxDuration = 5000L;
         this.RenderManager = new RenderManager(this);
+    }
+
+    public void UpdateAutomation(long playHead, bool invalidateRender = true) {
+        using (this.RenderManager.SuspendRenderInvalidation()) {
+            AutomationEngine.UpdateValues(this, playHead);
+        }
+            
+        if (invalidateRender)
+            this.InvalidateRender();
     }
 
     public virtual void WriteToRBE(RBEDictionary data) {

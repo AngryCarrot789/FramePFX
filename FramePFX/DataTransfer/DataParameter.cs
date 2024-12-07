@@ -447,4 +447,12 @@ public class DataParameter<T> : DataParameter {
         if (error != null)
             throw error;
     }
+    
+    /// <summary>
+    /// Sets our value to the default value
+    /// </summary>
+    /// <param name="owner">The owner</param>
+    public virtual void Reset(ITransferableData owner) {
+        this.SetValue(owner, this.GetDefaultValue(owner));
+    }
 }

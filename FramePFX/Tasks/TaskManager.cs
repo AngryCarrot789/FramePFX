@@ -18,7 +18,6 @@
 // 
 
 using System.Diagnostics;
-using FramePFX.Utils;
 
 namespace FramePFX.Tasks;
 
@@ -43,24 +42,24 @@ public class TaskManager : IDisposable {
         this.locker = new object();
     }
 
-    public ActivityTask RunTask(Func<Task> action) => this.RunTask(action, CancellationToken.None);
+    public ActivityTask RunTask(Func<Task> action, TaskCreationOptions creationOptions = TaskCreationOptions.None) => this.RunTask(action, CancellationToken.None, creationOptions);
 
-    public ActivityTask RunTask(Func<Task> action, IActivityProgress progress) => this.RunTask(action, progress, CancellationToken.None);
+    public ActivityTask RunTask(Func<Task> action, IActivityProgress progress, TaskCreationOptions creationOptions = TaskCreationOptions.None) => this.RunTask(action, progress, CancellationToken.None, creationOptions);
 
-    public ActivityTask RunTask(Func<Task> action, CancellationToken token) => this.RunTask(action, new DefaultProgressTracker(), token);
+    public ActivityTask RunTask(Func<Task> action, CancellationToken token, TaskCreationOptions creationOptions = TaskCreationOptions.None) => this.RunTask(action, new DefaultProgressTracker(), token, creationOptions);
 
-    public ActivityTask RunTask(Func<Task> action, IActivityProgress progress, CancellationToken cancellationToken) {
-        return ActivityTask.InternalStartActivity(this, action, progress, cancellationToken);
+    public ActivityTask RunTask(Func<Task> action, IActivityProgress progress, CancellationToken cancellationToken, TaskCreationOptions creationOptions = TaskCreationOptions.None) {
+        return ActivityTask.InternalStartActivity(this, action, progress, cancellationToken, creationOptions);
     }
     
-    public ActivityTask<T> RunTask<T>(Func<Task<T>> action) => this.RunTask(action, CancellationToken.None);
+    public ActivityTask<T> RunTask<T>(Func<Task<T>> action, TaskCreationOptions creationOptions = TaskCreationOptions.None) => this.RunTask(action, CancellationToken.None, creationOptions);
 
-    public ActivityTask<T> RunTask<T>(Func<Task<T>> action, IActivityProgress progress) => this.RunTask(action, progress, CancellationToken.None);
+    public ActivityTask<T> RunTask<T>(Func<Task<T>> action, IActivityProgress progress, TaskCreationOptions creationOptions = TaskCreationOptions.None) => this.RunTask(action, progress, CancellationToken.None, creationOptions);
 
-    public ActivityTask<T> RunTask<T>(Func<Task<T>> action, CancellationToken token) => this.RunTask(action, new DefaultProgressTracker(), token);
+    public ActivityTask<T> RunTask<T>(Func<Task<T>> action, CancellationToken token, TaskCreationOptions creationOptions = TaskCreationOptions.None) => this.RunTask(action, new DefaultProgressTracker(), token, creationOptions);
 
-    public ActivityTask<T> RunTask<T>(Func<Task<T>> action, IActivityProgress progress, CancellationToken cancellationToken) {
-        return ActivityTask<T>.InternalStartActivity(this, action, progress, cancellationToken);
+    public ActivityTask<T> RunTask<T>(Func<Task<T>> action, IActivityProgress progress, CancellationToken cancellationToken, TaskCreationOptions creationOptions = TaskCreationOptions.None) {
+        return ActivityTask<T>.InternalStartActivity(this, action, progress, cancellationToken, creationOptions);
     }
 
     /// <summary>
@@ -130,12 +129,6 @@ public class TaskManager : IDisposable {
 
             taskManager.tasks.RemoveAt(index);
             taskManager.TaskCompleted?.Invoke(taskManager, task, index);
-        }
-
-        if (task.Exception is Exception e) {
-            // TODO: raise event for task completion error maybe?
-            Debug.WriteLine($"Task Error\nAn exception occurred while running a task\n{e.GetToString()}");
-            Debugger.Break();
         }
     }
 }

@@ -99,19 +99,21 @@ public abstract class BaseResource : IDisplayName, IDestroy {
             }));
         }
         
-        static void ApplyModifyGeneric(FixedContextGroup g) {
+        static void ApplyModifyGeneral(FixedContextGroup g) {
+            g.AddHeader("General");
             g.AddCommand("commands.resources.RenameResource", "Rename", "Rename this resource");
         }
+        
         static void ApplyModifyDestruction(FixedContextGroup g) {
             g.AddCommand("commands.resources.DeleteResources", "Delete", "Delete this/these resource(s)");
         }
         
         ApplyNewItemEntries(ResourceSurfaceContextRegistry.GetFixedGroup("modify.subcreation"));
         ApplyNewItemEntries(ResourceFolderContextRegistry.GetFixedGroup("modify.subcreation"));
-        ApplyModifyGeneric(ResourceItemContextRegistry.GetFixedGroup("modify.generic"));
-        ApplyModifyGeneric(ResourceFolderContextRegistry.GetFixedGroup("modify.generic"));
+        ApplyModifyGeneral(ResourceItemContextRegistry.GetFixedGroup("modify.general"));
+        ApplyModifyGeneral(ResourceFolderContextRegistry.GetFixedGroup("modify.general"));
         
-        ResourceItemContextRegistry.GetFixedGroup("modify.generic").AddDynamicSubGroup((group, ctx, items) => {
+        ResourceItemContextRegistry.GetFixedGroup("modify.general").AddDynamicSubGroup((group, ctx, items) => {
             if (ResourceCommandUtils.GetSingleItem(ctx, out BaseResource? resource) && resource is ResourceColour) {
                 items.Add(new CommandContextEntry("Change Colour", "Change the colour of the resource", "commands.resources.ChangeResourceColour"));
             }

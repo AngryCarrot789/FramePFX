@@ -19,7 +19,8 @@
                     <ScrollViewer Theme="{StaticResource SimpleMenuScrollViewer}">
                         <ItemsPresenter x:Name="PART_ItemsPresenter"
                                         ItemsPanel="{TemplateBinding ItemsPanel}"
-                                        KeyboardNavigation.TabNavigation="Continue"/>
+                                        KeyboardNavigation.TabNavigation="Continue"
+                                        Grid.IsSharedSizeScope="True"/>
                     </ScrollViewer>
                 </Border>
             </ControlTemplate>
@@ -27,6 +28,7 @@
     </ControlTheme>
     
     <ControlTheme x:Key="{x:Type ams:AdvancedContextMenu}" TargetType="{x:Type ams:AdvancedContextMenu}" BasedOn="{StaticResource {x:Type ContextMenu}}">
+        <Setter Property="WindowManagerAddShadowHint" Value="True"/>
         <Setter Property="Template">
             <ControlTemplate>
                 <Border Padding="{TemplateBinding Padding}"
@@ -45,7 +47,8 @@
                         <ScrollViewer Grid.Row="2" Theme="{StaticResource SimpleMenuScrollViewer}">
                             <ItemsPresenter x:Name="PART_ItemsPresenter"
                                             ItemsPanel="{TemplateBinding ItemsPanel}"
-                                            KeyboardNavigation.TabNavigation="Continue"/>
+                                            KeyboardNavigation.TabNavigation="Continue"
+                                            Grid.IsSharedSizeScope="True"/>
                         </ScrollViewer>
                     </Grid>
                 </Border>

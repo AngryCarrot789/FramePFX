@@ -208,8 +208,8 @@ public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStr
             clip.ResourceHelper.WriteToRootRBE(data);
         });
 
-        FixedContextGroup modGeneric = ClipContextRegistry.GetFixedGroup("modify.generic");
-        modGeneric.AddHeader("Generic Modification");
+        FixedContextGroup modGeneric = ClipContextRegistry.GetFixedGroup("modify.general");
+        modGeneric.AddHeader("General");
         modGeneric.AddCommand("commands.editor.RenameClip", "Rename", "Open a dialog to rename this clip");
         
         FixedContextGroup modEdit = ClipContextRegistry.GetFixedGroup("modify.edit");

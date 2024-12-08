@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System.Reflection.Metadata.Ecma335;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;

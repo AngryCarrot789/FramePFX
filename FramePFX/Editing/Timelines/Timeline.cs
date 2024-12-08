@@ -187,8 +187,8 @@ public class Timeline : ITransferableData, IDestroy {
     }
 
     static Timeline() {
-        FixedContextGroup modGeneric = ContextRegistry.GetFixedGroup("modify.generic");
-        modGeneric.AddHeader("Generic Modification");
+        FixedContextGroup modGeneric = ContextRegistry.GetFixedGroup("modify.general");
+        modGeneric.AddHeader("General");
         modGeneric.AddCommand("commands.editor.SelectAllClips", "Select All Clips", "Select all clips");
         modGeneric.AddCommand("commands.editor.SliceClipsCommand", "Slice Clips", "Slice clips at the play head");
 

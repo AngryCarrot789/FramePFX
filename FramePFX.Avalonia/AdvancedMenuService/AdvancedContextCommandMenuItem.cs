@@ -19,9 +19,13 @@
 
 using System;
 using System.Diagnostics;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using FramePFX.AdvancedMenuService;
+using FramePFX.Avalonia.Shortcuts.Converters;
+using FramePFX.Avalonia.Utils;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
@@ -29,9 +33,10 @@ using FramePFX.Utils;
 namespace FramePFX.Avalonia.AdvancedMenuService;
 
 public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem {
-    public bool IsExecuting { get; private set; }
-
     private bool canExecute;
+    private TextBlock? InputGestureTextBlock;
+    
+    public bool IsExecuting { get; private set; }
 
     protected bool CanExecute {
         get => this.canExecute;
@@ -44,27 +49,40 @@ public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem {
         }
     }
 
-    public new CommandContextEntry Entry => (CommandContextEntry) base.Entry;
+    public new CommandContextEntry? Entry => (CommandContextEntry?) base.Entry;
 
     protected override bool IsEnabledCore => base.IsEnabledCore && this.CanExecute;
 
     public AdvancedContextCommandMenuItem() {
     }
-    
+
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
+        base.OnApplyTemplate(e);
+        e.NameScope.GetTemplateChild("PART_InputGestureText", out this.InputGestureTextBlock);
+        this.UpdateInputGestureText();
+    }
+
     protected override void OnLoaded(RoutedEventArgs e) {
         this.UpdateCanExecute();
         base.OnLoaded(e);
-        // CommandContextEntry entry = this.Entry;
-        // if (entry == null) {
-        //     return;
-        // }
-        // TODO: gesture
-        // Command? cmd = CommandManager.Instance.GetCommandById(entry.CommandId);
-        // if (cmd != null) {
-        //     if (CommandIdToGestureConverter.CommandIdToGesture(entry.CommandId, null, out string value)) {
-        //         this.SetCurrentValue(InputGestureProperty, value);
-        //     }
-        // }
+        this.UpdateInputGestureText();
+    }
+
+    private void UpdateInputGestureText() {
+        if (this.InputGestureTextBlock == null) {
+            return;
+        }
+        
+        CommandContextEntry? entry = this.Entry;
+        if (entry == null) {
+            return;
+        }
+        
+        if (CommandManager.Instance.GetCommandById(entry.CommandId) != null) {
+            if (CommandIdToGestureConverter.CommandIdToGesture(entry.CommandId, null, out string value)) {
+                this.InputGestureTextBlock.Text = value;
+            }
+        }
     }
 
     public override void UpdateCanExecute() {
@@ -76,7 +94,7 @@ public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem {
         }
         else {
             IContextData? ctx = this.Container?.Context;
-            string cmdId = this.Entry.CommandId;
+            string? cmdId = this.Entry?.CommandId;
             Executability state = !string.IsNullOrWhiteSpace(cmdId) && ctx != null ? CommandManager.Instance.CanExecute(cmdId, ctx, true) : Executability.Invalid;
             this.CanExecute = state == Executability.Valid;
             this.IsVisible = state != Executability.Invalid;
@@ -90,8 +108,8 @@ public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem {
         }
 
         this.IsExecuting = true;
-        string id = this.Entry.CommandId;
-        if (string.IsNullOrWhiteSpace(id)) {
+        string? cmdId = this.Entry?.CommandId;
+        if (string.IsNullOrWhiteSpace(cmdId)) {
             base.OnClick(e);
             this.IsExecuting = false;
             this.UpdateCanExecute();
@@ -101,7 +119,7 @@ public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem {
         // disable execution while executing command
         this.CanExecute = false;
         base.OnClick(e);
-        if (!this.DispatchCommand(id)) {
+        if (!this.DispatchCommand(cmdId)) {
             this.IsExecuting = false;
             this.CanExecute = true;
         }

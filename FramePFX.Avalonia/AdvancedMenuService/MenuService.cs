@@ -218,7 +218,7 @@ public static class MenuService {
             switch (entry) {
                 case CommandContextEntry _: element = new AdvancedContextCommandMenuItem(); break;
                 case BaseContextEntry _: element = new AdvancedContextMenuItem(); break;
-                case SeparatorEntry _: element = new Separator(); break;
+                case SeparatorEntry _: element = new Separator() {Margin = new Thickness(5,2)}; break;
                 case CaptionEntry _: element = new CaptionSeparator(); break;
                 default: throw new Exception("Unknown item type: " + entry?.GetType());
             }

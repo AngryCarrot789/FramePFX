@@ -99,7 +99,8 @@
                         CornerRadius="{TemplateBinding CornerRadius}">
                     <ItemsPresenter x:Name="PART_ItemsPresenter"
                                     ItemsPanel="{TemplateBinding ItemsPanel}"
-                                    KeyboardNavigation.TabNavigation="Continue"/>
+                                    KeyboardNavigation.TabNavigation="Continue"
+                                    Grid.IsSharedSizeScope="True"/>
                 </Border>
             </ControlTemplate>
         </Setter>

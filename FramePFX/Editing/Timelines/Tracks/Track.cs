@@ -157,8 +157,8 @@ public abstract class Track : IDisplayName, IAutomatable, IHaveEffects, IDestroy
         });
 
         {
-            FixedContextGroup modGeneric = TimelineTrackContextRegistry.GetFixedGroup("modify.generic");
-            modGeneric.AddHeader("Generic Modification");
+            FixedContextGroup modGeneric = TimelineTrackContextRegistry.GetFixedGroup("modify.general");
+            modGeneric.AddHeader("General");
             modGeneric.AddCommand("commands.editor.RenameTrack", "Rename", "Open a dialog to rename this track");
             modGeneric.AddCommand("commands.editor.SelectClipsInTracks", "Select All", "Select all clips in this track");
             
@@ -184,9 +184,14 @@ public abstract class Track : IDisplayName, IAutomatable, IHaveEffects, IDestroy
             mod4.AddCommand("commands.editor.DeleteSpecificTrack", "Delete Track", "Delete this track");
         }
         {
-            FixedContextGroup modGeneric = TrackControlSurfaceContextRegistry.GetFixedGroup("modify.generic");
-            modGeneric.AddHeader("Generic Modification");
+            FixedContextGroup modGeneric = TrackControlSurfaceContextRegistry.GetFixedGroup("modify.general");
+            modGeneric.AddHeader("General");
             modGeneric.AddCommand("commands.editor.RenameTrack", "Rename", "Open a dialog to rename this track");
+            FixedContextGroup modExternal = TrackControlSurfaceContextRegistry.GetFixedGroup("modify.externalmodify");
+            modExternal.AddHeader("New Tracks");
+            modExternal.AddCommand("commands.editor.NewVideoTrack", "Insert Video Track Above", "Inserts a new Video Track above this track");
+            modExternal.AddCommand("commands.editor.NewAudioTrack", "Insert Audio Track Above", "Inserts a new Audio Track above this track");
+
             FixedContextGroup mod3 = TrackControlSurfaceContextRegistry.GetFixedGroup("modify.destruction", 100000);
             mod3.AddCommand("commands.editor.DeleteSpecificTrack", "Delete Track", "Delete this track");
         }

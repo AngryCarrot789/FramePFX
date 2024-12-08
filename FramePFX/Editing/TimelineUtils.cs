@@ -59,7 +59,7 @@ public static class TimelineUtils {
         return (long) (round ? Math.Round(pixels / zoom) : (pixels / zoom));
     }
 
-    public static double FrameToPixel(long pixels, double zoom) {
-        return pixels * zoom;
+    public static double FrameToPixel(long frame, double zoom) {
+        return frame * zoom;
     }
 }

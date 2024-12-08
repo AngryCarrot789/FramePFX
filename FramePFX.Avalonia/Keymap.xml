@@ -87,12 +87,6 @@
                             <KeyStroke Mods="CTRL" Key="R"/>
                         </Shortcut>
                     </Group>
-                    <Shortcut Name="SelectAllClipsInTimeline" CommandId="commands.generic.SelectAllClipsInTimelineCommand">
-                        <KeyStroke Mods="CTRL" Key="A"/>
-                    </Shortcut>
-                    <Shortcut Name="SelectAllClipsInTrack" CommandId="commands.generic.SelectAllClipsInTrackCommand">
-                        <KeyStroke Mods="CTRL+SHIFT" Key="A"/>
-                    </Shortcut>
                     <Shortcut Name="DeleteSelectedClips" CommandId="commands.editor.DeleteClips" Description="Deletes all of the selected clips">
                         <KeyStroke Key="Delete"/>
                     </Shortcut>
@@ -143,10 +137,21 @@
                     </Shortcut>
                 </Group>
 
+                <Shortcut Name="SelectAllClipsInTimeline" CommandId="commands.editor.SelectAllClips" RepeatMode="NonRepeat">
+                    <KeyStroke Mods="CTRL" Key="A"/>
+                </Shortcut>
+                <Shortcut Name="SelectAllClipsInTrack" CommandId="commands.editor.SelectClipsInTracks" RepeatMode="NonRepeat">
+                    <KeyStroke Mods="CTRL+SHIFT" Key="A"/>
+                </Shortcut>
+
+                <Shortcut Name="AutoLoopRegion" RepeatMode="NonRepeat" CommandId="commands.editor.AutoToggleLoopTimelineRegion">
+                    <KeyStroke Mods="CTRL" Key="L"/>
+                </Shortcut>
+                
                 <Shortcut Name="NewVideoTrack" CommandId="commands.editor.NewVideoTrack" Description="Creates a new video track">
                     <KeyStroke Mods="CTRL+SHIFT" Key="Q"/>
                 </Shortcut>
-                <Shortcut Name="NewAudioTrack" CommandId="commands.generic.NewAudioTrack" Description="Creates a new audio track">
+                <Shortcut Name="NewAudioTrack" CommandId="commands.editor.NewAudioTrack" Description="Creates a new audio track">
                     <KeyStroke Mods="CTRL" Key="Q"/>
                 </Shortcut>
 
@@ -173,7 +178,7 @@
                 <Shortcut Name="DuplicateClips" CommandId="commands.generic.DuplicateClipsCommand">
                     <KeyStroke Mods="CTRL" Key="D"/>
                 </Shortcut>
-                <Shortcut Name="ToggleClipVisibility" CommandId="commands.generic.ToggleClipVisibilityCommand">
+                <Shortcut Name="ToggleClipVisibility" CommandId="commands.editor.ToggleClipsVisibility">
                     <KeyStroke Key="D0"/>
                 </Shortcut>
 

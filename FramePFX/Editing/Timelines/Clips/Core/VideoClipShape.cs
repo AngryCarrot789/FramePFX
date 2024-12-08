@@ -20,6 +20,7 @@
 using System.Numerics;
 using FramePFX.Editing.Automation.Params;
 using FramePFX.Editing.Rendering;
+using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.ResourceHelpers;
 using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.Timelines.Clips.Video;
@@ -51,9 +52,17 @@ public class VideoClipShape : VideoClip {
         this.UsesCustomOpacityCalculation = true;
         this.Size = SizeParameter.Descriptor.DefaultValue;
         this.ColourKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceColour>();
-        this.ColourKey.ResourceChanged += (key, item, newItem) => {
+        this.ColourKey.ResourceChanged += (key, oldItem, newItem) => {
             this.InvalidateRender();
+            if (oldItem != null)
+                oldItem.ColourChanged -= this.OnColourChanged;
+            if (newItem != null)
+                newItem.ColourChanged += this.OnColourChanged;
         };
+    }
+
+    private void OnColourChanged(BaseResource resource) {
+        this.InvalidateRender();
     }
 
     public override Vector2? GetRenderSize() {
@@ -63,7 +72,7 @@ public class VideoClipShape : VideoClip {
     public override bool PrepareRenderFrame(PreRenderContext rc, long frame) {
         this.renderData = new RenderData() {
             size = this.Size,
-            colour = this.ColourKey.TryGetResource(out ResourceColour resource) ? resource.Colour : (this.Track?.Colour ?? SKColors.White)
+            colour = this.ColourKey.TryGetResource(out ResourceColour? resource) ? resource.Colour : (this.Track?.Colour ?? SKColors.White)
         };
 
         return true;
@@ -72,12 +81,13 @@ public class VideoClipShape : VideoClip {
     public override void RenderFrame(RenderContext rc, ref SKRect renderArea) {
         RenderData d = this.renderData;
         SKColor colour = RenderUtils.BlendAlpha(d.colour, this.RenderOpacity);
-        using (SKPaint paint = new SKPaint() { Color = colour, IsAntialias = true }) {
+        using (SKPaint paint = new SKPaint()) {
+            paint.Color = colour;
+            paint.IsAntialias = true;
             rc.Canvas.DrawRect(0, 0, d.size.X, d.size.Y, paint);
         }
 
         renderArea = rc.TranslateRect(new SKRect(0, 0, d.size.X, d.size.Y));
-        // renderArea = new SKRect(0, 0, d.size.X, d.size.Y);
     }
 
     private struct RenderData {

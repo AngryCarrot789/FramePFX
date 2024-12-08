@@ -23,7 +23,7 @@ using FramePFX.Interactivity.Contexts;
 namespace FramePFX.Avalonia.Editing.CommandContexts;
 
 public class BasicPlaybackCommandUsage : CommandSourceCommandUsage {
-    private VideoEditor editor;
+    private VideoEditor? editor;
 
     public BasicPlaybackCommandUsage(string cmdId) : base(cmdId) {
     }
@@ -39,7 +39,7 @@ public class BasicPlaybackCommandUsage : CommandSourceCommandUsage {
             this.editor = null;
         }
 
-        if (DataKeys.VideoEditorKey.TryGetContext(this.GetContextData(), out this.editor)) {
+        if (this.GetContextData() is IContextData ctx && DataKeys.VideoEditorKey.TryGetContext(ctx, out this.editor)) {
             this.editor.Playback.PlaybackStateChanged += this.OnEditorPlayStateChanged;
         }
     }

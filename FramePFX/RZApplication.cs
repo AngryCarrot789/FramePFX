@@ -28,8 +28,7 @@ using FramePFX.Utils;
 
 namespace FramePFX;
 
-public abstract class 
-    RZApplication {
+public abstract class RZApplication {
     private static RZApplication? instance;
 
     public static RZApplication Instance {
@@ -91,7 +90,7 @@ public abstract class
 
         // timelines, tracks and clips
         manager.Register("commands.editor.NewVideoTrack", new NewVideoTrackCommand());
-        manager.Register("commands.generic.NewAudioTrack", new NewAudioTrackCommand());
+        manager.Register("commands.editor.NewAudioTrack", new NewAudioTrackCommand());
         manager.Register("commands.editor.ToggleTrackAutomationCommand", new ToggleTrackAutomationCommand());
         manager.Register("commands.editor.ToggleClipAutomationCommand", new ToggleClipAutomationCommand());
         manager.Register("commands.editor.TogglePlayCommand", new TogglePlayCommand());
@@ -105,7 +104,12 @@ public abstract class
         manager.Register("commands.editor.RenameClip", new RenameClipCommand());
         manager.Register("commands.editor.RenameTrack", new RenameTrackCommand());
         manager.Register("commands.editor.DeleteClips", new DeleteClipsCommand());
-        
+        manager.Register("commands.editor.ToggleLoopTimelineRegion", new ToggleLoopTimelineRegionCommand());
+        manager.Register("commands.editor.AutoToggleLoopTimelineRegion", new ToggleLoopTimelineRegionCommand() { CanUpdateRegionToClipSelection = true });
+        manager.Register("commands.editor.ToggleClipsVisibility", new ToggleClipsVisibilityCommand());
+        manager.Register("commands.editor.SelectAllClips", new SelectAllClipsCommand());
+        manager.Register("commands.editor.SelectClipsInTracks", new SelectClipsInTracksCommand());
+
         // Adding clips to tracks
         manager.Register("commands.editor.AddTextClip", new AddTextClipCommand());
         manager.Register("commands.editor.AddTimecodeClip", new AddTimecodeClipCommand());
@@ -125,6 +129,7 @@ public abstract class
         manager.Register("commands.resources.SetResourcesOnline", new SetResourcesOnlineCommand());
         manager.Register("commands.resources.SetResourcesOffline", new SetResourcesOfflineCommand());
         manager.Register("commands.resources.ToggleOnlineState", new ToggleOnlineStateCommand());
+        manager.Register("commands.resources.ChangeResourceColour", new ChangeResourceColourCommand());
 
         // Editor
         manager.Register("UndoCommand", new UndoCommand());

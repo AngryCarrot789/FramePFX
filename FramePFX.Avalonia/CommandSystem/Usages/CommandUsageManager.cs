@@ -19,6 +19,7 @@
 
 using System;
 using Avalonia;
+using FramePFX.Avalonia.Editing.CommandContexts;
 
 namespace FramePFX.Avalonia.CommandSystem.Usages;
 
@@ -55,6 +56,9 @@ public class CommandUsageManager {
             }
 
             if (e.NewValue.GetValueOrDefault() is Type newType) {
+                if (!(newType.IsAssignableTo(typeof(CommandUsage))))
+                    throw new InvalidOperationException("UsageClass type does not represent a CommandUsage");
+                
                 CommandUsage usage = (CommandUsage) Activator.CreateInstance(newType)!;
                 d.SetValue(InternalCommandContextProperty, usage);
                 usage.Connect(d);

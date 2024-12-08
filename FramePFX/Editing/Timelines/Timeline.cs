@@ -18,6 +18,7 @@
 //
 
 using System.Collections.ObjectModel;
+using FramePFX.AdvancedMenuService;
 using FramePFX.DataTransfer;
 using FramePFX.Editing.Automation;
 using FramePFX.Editing.Factories;
@@ -35,16 +36,28 @@ public delegate void TimelineTrackMovedEventHandler(Timeline timeline, Track tra
 
 public delegate void TimelineEventHandler(Timeline timeline);
 
-public delegate void PlayheadChangedEventHandler(Timeline timeline, long oldValue, long newValue);
-
-public delegate void ZoomEventHandler(Timeline timeline, double oldZoom, double newZoom, ZoomType zoomType, SKPointD mousePoint);
+public delegate void PlayHeadChangedEventHandler(Timeline timeline, long oldValue, long newValue);
 
 public class Timeline : ITransferableData, IDestroy {
+    public static readonly ContextRegistry ContextRegistry = new ContextRegistry("Timeline");
+    
+    private FrameSpan? loopRegion;
+    private bool isLoopRegionEnabled;
+
     public Project? Project { get; private set; }
 
     public TrackPoint RangedSelectionAnchor { get; set; } = TrackPoint.Invalid;
 
     public ReadOnlyCollection<Track> Tracks { get; }
+
+    public RenderManager RenderManager { get; }
+
+    public TransferableData TransferableData { get; }
+
+    /// <summary>
+    /// Returns true when this timeline is currently visible in the editor
+    /// </summary>
+    public bool IsActive { get; private set; }
 
     /// <summary>
     /// Gets or sets the total length of all tracks, in frames. This is incremented on demand when necessary, and is used for UI calculations
@@ -54,6 +67,19 @@ public class Timeline : ITransferableData, IDestroy {
         set {
             if (this.maxDuration == value)
                 return;
+
+            if (value < 0)
+                throw new ArgumentOutOfRangeException(nameof(value), value, "Maximum duration cannot be negative");
+
+            if (this.loopRegion.HasValue) {
+                FrameSpan span = this.loopRegion.Value;
+                if (span.EndIndex > value) {
+                    // Recalculate a smaller loop region. Clear it if the new one doesn't fit anymore
+                    span = span.WithEndIndexClamped(value);
+                    this.LoopRegion = span.Duration < 1 ? null : span;
+                }
+            }
+
             this.maxDuration = value;
             this.MaxDurationChanged?.Invoke(this);
         }
@@ -66,9 +92,9 @@ public class Timeline : ITransferableData, IDestroy {
                 return;
 
             if (value < 0)
-                throw new ArgumentOutOfRangeException(nameof(value), value, "Stophead cannot be negative");
+                throw new ArgumentOutOfRangeException(nameof(value), value, "StopHead cannot be negative");
             if (value >= this.maxDuration)
-                throw new ArgumentOutOfRangeException(nameof(value), value, "Stophead exceeds the timeline duration range (0 to TotalFrames)");
+                throw new ArgumentOutOfRangeException(nameof(value), value, "StopHead exceeds the timeline duration range (0 to TotalFrames)");
 
             long oldStopHead = this.stopHeadPosition;
             this.stopHeadPosition = value;
@@ -86,9 +112,9 @@ public class Timeline : ITransferableData, IDestroy {
                 return;
 
             if (value < 0)
-                throw new ArgumentOutOfRangeException(nameof(value), value, "Playhead cannot be negative");
+                throw new ArgumentOutOfRangeException(nameof(value), value, "PlayHead cannot be negative");
             if (value >= this.maxDuration)
-                throw new ArgumentOutOfRangeException(nameof(value), value, "Playhead exceeds the timeline duration range (0 to TotalFrames)");
+                throw new ArgumentOutOfRangeException(nameof(value), value, "PlayHead exceeds the timeline duration range (0 to TotalFrames)");
 
             long oldPlayHead = this.playHeadPosition;
             this.playHeadPosition = value;
@@ -107,19 +133,44 @@ public class Timeline : ITransferableData, IDestroy {
         }
     }
 
-    public bool IsActive { get; private set; }
+    public FrameSpan? LoopRegion {
+        get => this.loopRegion;
+        set {
+            if (this.loopRegion == value)
+                return;
 
-    public RenderManager RenderManager { get; }
+            if (value.HasValue) {
+                FrameSpan span = value.Value;
+                if (span.Begin < 0 || span.EndIndex > this.maxDuration) {
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "Loop region exceeds timeline maximum duration");
+                }
+            }
 
-    public TransferableData TransferableData { get; }
+            this.loopRegion = value;
+            this.LoopRegionChanged?.Invoke(this);
+        }
+    }
+
+    public bool IsLoopRegionEnabled {
+        get => this.isLoopRegionEnabled;
+        set {
+            if (this.isLoopRegionEnabled == value)
+                return;
+
+            this.isLoopRegionEnabled = value;
+            this.IsLoopRegionEnabledChanged?.Invoke(this);
+        }
+    }
 
     public event TimelineTrackIndexEventHandler? TrackAdded;
     public event TimelineTrackIndexEventHandler? TrackRemoved;
     public event TimelineTrackMovedEventHandler? TrackMoved;
     public event TimelineEventHandler? MaxDurationChanged;
     public event TimelineEventHandler? LargestFrameInUseChanged;
-    public event PlayheadChangedEventHandler? PlayHeadChanged;
-    public event PlayheadChangedEventHandler? StopHeadChanged;
+    public event PlayHeadChangedEventHandler? PlayHeadChanged;
+    public event PlayHeadChangedEventHandler? StopHeadChanged;
+    public event TimelineEventHandler? IsLoopRegionEnabledChanged;
+    public event TimelineEventHandler? LoopRegionChanged;
 
     private readonly List<Track> tracks;
     private long maxDuration;
@@ -135,11 +186,22 @@ public class Timeline : ITransferableData, IDestroy {
         this.RenderManager = new RenderManager(this);
     }
 
+    static Timeline() {
+        FixedContextGroup modGeneric = ContextRegistry.GetFixedGroup("modify.generic");
+        modGeneric.AddHeader("Generic Modification");
+        modGeneric.AddCommand("commands.editor.SelectAllClips", "Select All Clips", "Select all clips");
+        modGeneric.AddCommand("commands.editor.SliceClipsCommand", "Slice Clips", "Slice clips at the play head");
+
+        FixedContextGroup modGenerate = ContextRegistry.GetFixedGroup("modify.generate");
+        modGenerate.AddHeader("New Tracks");
+        modGenerate.AddCommand("commands.editor.NewVideoTrack", "New Video Track", "Creates a new video track");
+    }
+    
     public void UpdateAutomation(long playHead, bool invalidateRender = true) {
         using (this.RenderManager.SuspendRenderInvalidation()) {
             AutomationEngine.UpdateValues(this, playHead);
         }
-            
+
         if (invalidateRender)
             this.InvalidateRender();
     }
@@ -372,5 +434,9 @@ public class Timeline : ITransferableData, IDestroy {
     public static void InternalOnActiveTimelineChanged(Timeline oldTimeline, Timeline newTimeline) {
         oldTimeline.IsActive = false;
         newTimeline.IsActive = true;
+    }
+
+    public int IndexOf(Track track) {
+        return track.Timeline == this ? track.IndexInTimeline : -1;
     }
 }

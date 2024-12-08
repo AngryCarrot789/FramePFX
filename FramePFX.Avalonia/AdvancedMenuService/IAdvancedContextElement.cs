@@ -25,7 +25,7 @@ namespace FramePFX.Avalonia.AdvancedMenuService;
 public interface IAdvancedContextElement {
     IContextData? Context { get; }
 
-    IAdvancedContainer Container { get; }
+    IAdvancedContainer? Container { get; }
 
     /// <summary>
     /// Stores the dynamic group for insertion at the given index inside this element's item

@@ -48,6 +48,12 @@ public abstract class CommandUsage {
     public string CommandId { get; }
 
     public AvaloniaObject? Control { get; private set; }
+    
+    /// <summary>
+    /// Gets whether this usage is currently connected to a control. When disconnecting, this is set
+    /// to false while <see cref="Control"/> remains non-null, until <see cref="OnDisconnected"/> has returned
+    /// </summary>
+    public bool IsConnected { get; private set; }
 
     protected CommandUsage(string commandId) {
         Validate.NotNullOrWhiteSpaces(commandId);
@@ -58,7 +64,7 @@ public abstract class CommandUsage {
     /// Gets the current available context for our connected control. Returns null if disconnected
     /// </summary>
     /// <returns>The context data</returns>
-    public IContextData? GetContextData() => this.Control != null ? DataManager.GetFullContextData(this.Control) : null;
+    public IContextData? GetContextData() => this.Control != null && this.IsConnected ? DataManager.GetFullContextData(this.Control) : null;
 
     /// <summary>
     /// Connects to the given object control
@@ -67,7 +73,8 @@ public abstract class CommandUsage {
     /// <exception cref="ArgumentNullException">Control is null</exception>
     public void Connect(AvaloniaObject control) {
         this.Control = control ?? throw new ArgumentNullException(nameof(control));
-        DataManager.AddInheritedContextChangedHandler(control, this.OnInheritedContextChanged);
+        this.IsConnected = true;
+        DataManager.AddInheritedContextChangedHandler(control, this.OnInheritedContextChangedImmediately);
         this.OnConnected();
     }
 
@@ -79,19 +86,23 @@ public abstract class CommandUsage {
         if (this.Control == null)
             throw new InvalidCastException("Not connected");
 
-        DataManager.RemoveInheritedContextChangedHandler(this.Control, this.OnInheritedContextChanged);
+        DataManager.RemoveInheritedContextChangedHandler(this.Control, this.OnInheritedContextChangedImmediately);
+        this.IsConnected = false;
         this.OnDisconnected();
         this.Control = null;
     }
-
-    private void OnInheritedContextChanged(object sender, RoutedEventArgs e) {
+    
+    private void OnInheritedContextChangedImmediately(object sender, RoutedEventArgs e) {
         this.OnContextChanged();
     }
 
     protected virtual void OnConnected() => this.OnContextChanged();
 
     protected virtual void OnDisconnected() => this.OnContextChanged();
-
+    
+    /// <summary>
+    /// Called immediately when our inherited context changes
+    /// </summary>
     protected virtual void OnContextChanged() {
         this.UpdateCanExecuteLater();
     }

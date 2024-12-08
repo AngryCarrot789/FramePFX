@@ -20,8 +20,8 @@
 using System;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
-using FramePFX.Avalonia.Interactivity;
 using FramePFX.CommandSystem;
+using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Avalonia.CommandSystem.Usages;
 
@@ -56,12 +56,12 @@ public abstract class BaseToggleButtonCommandUsage : CommandUsage {
     }
 
     private void OnCheckChanged(object sender, RoutedEventArgs e) {
-        if (this.ignoreCheckChanged) {
+        if (this.ignoreCheckChanged || !this.IsConnected) {
             return;
         }
 
         this.UpdateCanExecute();
-        CommandManager.Instance.TryExecute(this.CommandId, () => DataManager.GetFullContextData(this.Control));
+        CommandManager.Instance.TryExecute(this.CommandId, () => this.GetContextData() ?? EmptyContext.Instance);
 
         // We update after running, just in case the command is async which affects the CanExecute method
         this.UpdateIsChecked();

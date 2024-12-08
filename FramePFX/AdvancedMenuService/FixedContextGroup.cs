@@ -39,8 +39,20 @@ public class FixedContextGroup : IContextGroup {
     }
 
     public void AddSeparator() => this.AddEntry(new SeparatorEntry());
+    
+    public void AddGroupCaption(string caption) => this.AddEntry(new CaptionEntry(caption));
 
     public void AddCommand(string cmdId, string displayName, string? description = null) {
         this.AddEntry(new CommandContextEntry(displayName, description, cmdId));
+    }
+    
+    public void AddDynamicSubGroup(DynamicGenerateContextFunction generate) {
+        this.AddEntry(new DynamicGroupContextObject(new DynamicContextGroup(generate)));
+    }
+
+    public CaptionEntry AddHeader(string caption) {
+        CaptionEntry entry = new CaptionEntry(caption);
+        this.items.Add(entry);
+        return entry;
     }
 }

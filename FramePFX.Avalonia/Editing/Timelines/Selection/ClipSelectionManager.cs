@@ -133,6 +133,10 @@ public class ClipSelectionManager : ISelectionManager<IClipElement>, ILightSelec
         this.OnSelectionCleared();
     }
 
+    public void SelectAll() {
+        this.Select(this.Track.ClipStoragePanel!.GetClips());
+    }
+
     private void OnPreSelectionCleared() {
         foreach (IClipElement control in this.selectionSet) {
             TimelineClipControl.InternalUpdateIsSelected((TimelineClipControl) control, false);

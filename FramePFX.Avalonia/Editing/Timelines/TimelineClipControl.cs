@@ -34,6 +34,7 @@ using FramePFX.Avalonia.Editing.Automation;
 using FramePFX.Avalonia.Editing.Timelines.Selection;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Utils;
+using FramePFX.DataTransfer;
 using FramePFX.Editing;
 using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Rendering;
@@ -45,7 +46,6 @@ using FramePFX.Editing.UI;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
-using SkiaSharp;
 using Track = FramePFX.Editing.Timelines.Tracks.Track;
 
 namespace FramePFX.Avalonia.Editing.Timelines;
@@ -70,21 +70,18 @@ public class TimelineClipControl : ContentControl, IClipElement {
         private set => this.SetAndRaise(DisplayNameProperty, ref this.myDisplayName, value);
     }
 
-    public bool IsSelected {
-        get => this.isSelected;
-        private set => this.SetAndRaise(IsSelectedProperty, ref this.isSelected, value);
-    }
+    public bool IsSelected => this.isSelected;
 
     public bool IsDroppableTargetOver {
         get => this.isDroppableTargetOver;
         private set => this.SetAndRaise(IsDroppableTargetOverProperty, ref this.isDroppableTargetOver, value);
     }
-    
+
     public AutomationSequence? ActiveSequence {
         get => this.GetValue(ActiveSequenceProperty);
         set => this.SetValue(ActiveSequenceProperty, value);
     }
-    
+
     public ClipStoragePanel? StoragePanel { get; private set; }
 
     public TimelineTrackControl? Track => this.StoragePanel?.TrackControl;
@@ -121,6 +118,8 @@ public class TimelineClipControl : ContentControl, IClipElement {
 
     public double PixelWidth => this.FrameDuration * this.TimelineZoom;
 
+    public bool IsClipVisible { get; private set; }
+
     private Clip? myClip;
     private FrameSpan myFrameSpan;
     private string? myDisplayName;
@@ -149,6 +148,7 @@ public class TimelineClipControl : ContentControl, IClipElement {
     private bool isProcessingAsyncDrop;
     private FormattedText? myDisplayNameFormattedText;
     private AutomationEditorControl? PART_AutomationEditor;
+    private Border? PART_ClipBorderRoot;
 
     public TimelineClipControl() {
         Binders.AttachControls(this, this.frameSpanBinder, this.displayNameBinder, this.activeAutoSequenceBinder);
@@ -164,7 +164,7 @@ public class TimelineClipControl : ContentControl, IClipElement {
         //     StrokeThickness = 1
         // };
     }
-    
+
     static TimelineClipControl() {
         AffectsRender<TimelineClipControl>(BackgroundProperty, DisplayNameProperty);
         DisplayNameProperty.Changed.Subscribe(new AnonymousObserver<AvaloniaPropertyChangedEventArgs<string?>>(OnDisplayNameChanged));
@@ -178,10 +178,19 @@ public class TimelineClipControl : ContentControl, IClipElement {
         ((TimelineClipControl) obj.Sender).myDisplayNameFormattedText = null;
     }
 
+    private void UpdateIsClipVisibleState() {
+        bool newValue = !(this.ClipModel is VideoClip clip) || VideoClip.IsVisibleParameter.GetValue(clip);
+        if (newValue != this.IsClipVisible) {
+            this.IsClipVisible = newValue;
+            this.InvalidateVisual();
+        }
+    }
+
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.PART_AutomationEditor = e.NameScope.GetTemplateChild<AutomationEditorControl>("PART_AutomationEditor");
         this.PART_AutomationEditor.HorizontalZoom = this.TimelineZoom;
+        this.PART_ClipBorderRoot = e.NameScope.GetTemplateChild<Border>("PART_ClipBorderRoot");
         this.autoSequenceBinder.SetTargetControl(this.PART_AutomationEditor);
     }
 
@@ -212,14 +221,26 @@ public class TimelineClipControl : ContentControl, IClipElement {
     public void OnConnected() {
         this.IsConnected = true;
         Binders.AttachModels(this.ClipModel!, this.frameSpanBinder, this.displayNameBinder, this.activeAutoSequenceBinder);
+        if (this.ClipModel is VideoClip videoClip) {
+            videoClip.TransferableData.AddValueChangedHandler(VideoClip.IsVisibleParameter, this.OnVisibilityParameterChanged);
+        }
+        
+        this.UpdateIsClipVisibleState();
     }
 
     public void OnDisconnecting() {
         Binders.DetachModels(this.frameSpanBinder, this.displayNameBinder, this.activeAutoSequenceBinder);
+        if (this.ClipModel is VideoClip videoClip) {
+            videoClip.TransferableData.RemoveValueChangedHandler(VideoClip.IsVisibleParameter, this.OnVisibilityParameterChanged);
+        }
     }
 
     public void OnDisconnected() {
         this.IsConnected = false;
+    }
+    
+    private void OnVisibilityParameterChanged(DataParameter parameter, ITransferableData owner) {
+        this.UpdateIsClipVisibleState();
     }
 
     #region Drag Move
@@ -676,58 +697,69 @@ public class TimelineClipControl : ContentControl, IClipElement {
     public override void Render(DrawingContext dc) {
         base.Render(dc);
 
-        // Thickness border = this.IsSelected ? new Thickness(2.0) : new Thickness(1.0, 0.0);
         Rect finalRect = new Rect(default, this.Bounds.Size);
-        Rect visibleRect = finalRect; //new Rect(default, this.Bounds.Size).Deflate(border);
         if (this.renderSizeRectGeometry.Rect != finalRect) {
             this.renderSizeRectGeometry.Rect = finalRect;
         }
 
-        DrawingContext.PushedState clip = dc.PushGeometryClip(this.renderSizeRectGeometry);
+        using (dc.PushGeometryClip(this.renderSizeRectGeometry)) {
+            using (dc.PushRenderOptions(new RenderOptions() { EdgeMode = EdgeMode.Aliased, TextRenderingMode = TextRenderingMode.Antialias })) {
+                if (!this.IsClipVisible) {
+                    dc.DrawRectangle(Brushes.Gray, null, finalRect);
+                }
+                else if (this.Background is Brush background) {
+                    dc.DrawRectangle(background, null, finalRect);
+                }
 
-        // if (!this.IsClipVisible) {
-        //     dc.DrawRectangle(Brushes.Gray, null, rect);
-        // }
-        /* else */
-        if (this.Background is Brush background) {
-            dc.DrawRectangle(background, null, visibleRect);
+                Thickness border = this.PART_ClipBorderRoot!.BorderThickness;
+                Thickness border2 = new Thickness(border.Left, 0, border.Right, 0);
+                
+                Rect headerRect = new Rect(finalRect.X, finalRect.Y, finalRect.Width, Math.Min(finalRect.Height, HeaderSize)).Deflate(border2);
+                if (!this.IsClipVisible) {
+                    dc.DrawRectangle(Brushes.DarkRed, null, headerRect);
+                }
+                else if (this.Track?.ClipHeaderBrush is Brush headerBrush) {
+                    dc.DrawRectangle(headerBrush, null, headerRect);
+                }
+
+                if (this.DisplayName is string str && !string.IsNullOrWhiteSpace(str)) {
+                    IBrush foreground = this.Track?.TrackColourForegroundBrush ?? this.Foreground ?? Brushes.Orange;
+                    this.myDisplayNameFormattedText ??= new FormattedText(str, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, new Typeface("Segoe UI"), 12, foreground);
+
+                    // Need to redraw when scrolling. Could do this but we have to draw everything else...
+                    // ScrollViewer? scroller = this.Track?.TimelineControl?.TimelineScrollViewer;
+                    // Point location;
+                    // if (scroller == null) {
+                    //     location = new Point(3, 1);
+                    // }
+                    // else {
+                    //     Point a = scroller.TranslatePoint(default, this) ?? default;
+                    //     location = new Point(Math.Max(a.X, 3), 1);
+                    // }
+                    
+                    dc.DrawText(this.myDisplayNameFormattedText, new Point(3, 1));
+                }
+
+                if (this.ClipModel?.MediaFrameOffset > 0) {
+                    double pixelX = TimelineUtils.FrameToPixel(this.ClipModel.MediaFrameOffset, this.TimelineZoom);
+                    dc.DrawRectangle(Brushes.White, null, new Rect(pixelX, 0, 1, 5));
+                }
+
+                // IBrush? outlineBrush = this.PART_ClipBorderRoot!.BorderBrush;// this.IsSelected ? Brushes.YellowGreen : this.BorderBrush;
+                // if (outlineBrush != null) {
+                //     Thickness border = this.IsSelected ? new Thickness(2) : new Thickness(1,0);
+                //     if (border.IsUniform) {
+                //         dc.DrawRectangle(new Pen(outlineBrush, border.Left), finalRect.Deflate(border.Left / 2.0));
+                //     }
+                //     else {
+                //         if (!DoubleUtils.AreClose(border.Left, 0.0))
+                //             dc.DrawLine(new Pen(outlineBrush, border.Left), new Point(finalRect.X + (border.Left / 2.0) , 0), new Point(finalRect.Y + (border.Left / 2.0), finalRect.Height));
+                //         if (!DoubleUtils.AreClose(border.Right, 0.0))
+                //             dc.DrawLine(new Pen(outlineBrush, border.Right), new Point(finalRect.Width - (border.Right / 2.0) , 0), new Point(finalRect.Width - (border.Right / 2.0), finalRect.Height));
+                //     }
+                // }
+            }
         }
-
-        Rect headerRect = new Rect(visibleRect.X, visibleRect.Y, visibleRect.Width, Math.Min(visibleRect.Height, HeaderSize));
-        // if (!this.IsClipVisible) {
-        //     dc.DrawRectangle(Brushes.DarkRed, null, headerRect);
-        // }
-        /* else */
-        if (this.Track?.ClipHeaderBrush is Brush headerBrush) {
-            dc.DrawRectangle(headerBrush, null, headerRect);
-        }
-
-        if (this.DisplayName is string str && !string.IsNullOrWhiteSpace(str)) {
-            SKColor c = this.Track.Track.Colour;
-            IBrush foreground = this.Track?.TrackColourForegroundBrush ?? this.Foreground ?? Brushes.Orange;
-            this.myDisplayNameFormattedText ??= new FormattedText(str, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, new Typeface("Segoe UI"), 12, foreground);
-            dc.DrawText(this.myDisplayNameFormattedText, new Point(3, 1));
-        }
-
-        if (this.ClipModel?.MediaFrameOffset > 0) {
-            double pixelX = TimelineUtils.FrameToPixel(this.ClipModel.MediaFrameOffset, this.TimelineZoom);
-            dc.DrawRectangle(Brushes.White, null, new Rect(pixelX, 0, 1, 5));
-        }
-
-        // IBrush? outlineBrush = this.IsSelected ? Brushes.YellowGreen : this.BorderBrush;
-        // if (outlineBrush != null) {
-        //     if (border.IsUniform) {
-        //         dc.DrawRectangle(new Pen(outlineBrush, border.Left), finalRect.Deflate(border.Left / 2.0));
-        //     }
-        //     else {
-        //         if (!DoubleUtils.AreClose(border.Left, 0.0))
-        //             dc.DrawLine(new Pen(outlineBrush, border.Left), new Point(finalRect.X + (border.Left / 2.0) , 0), new Point(finalRect.Y + (border.Left / 2.0), finalRect.Height));
-        //         if (!DoubleUtils.AreClose(border.Right, 0.0))
-        //             dc.DrawLine(new Pen(outlineBrush, border.Right), new Point(finalRect.Width - (border.Right / 2.0) , 0), new Point(finalRect.Width - (border.Right / 2.0), finalRect.Height));
-        //     }
-        // }
-
-        clip.Dispose();
     }
 
     public void OnZoomChanged(double newZoom) {
@@ -736,7 +768,7 @@ public class TimelineClipControl : ContentControl, IClipElement {
     }
 
     internal static void InternalUpdateIsSelected(TimelineClipControl clip, bool isSelected) {
-        clip.IsSelected = isSelected;
+        clip.SetAndRaise(IsSelectedProperty, ref clip.isSelected, isSelected);
         clip.ZIndex = isSelected ? 10 : 1;
     }
 

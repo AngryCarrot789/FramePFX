@@ -36,6 +36,12 @@ public abstract class BasePlayHeadControl : TemplatedControl {
     public static readonly StyledProperty<PlayHeadType> PlayHeadTypeProperty = AvaloniaProperty.Register<BasePlayHeadControl, PlayHeadType>(nameof(PlayHeadType), PlayHeadType.PlayHead);
     public static readonly StyledProperty<ScrollViewer?> ScrollViewerReferenceProperty = AvaloniaProperty.Register<BasePlayHeadControl, ScrollViewer?>(nameof(ScrollViewerReference));
     public static readonly StyledProperty<Thickness> AdditionalOffsetProperty = AvaloniaProperty.Register<BasePlayHeadControl, Thickness>(nameof(AdditionalOffset));
+    public static readonly StyledProperty<BasePlayHeadControl?> SnapToDecimalSourceProperty = AvaloniaProperty.Register<BasePlayHeadControl, BasePlayHeadControl?>(nameof(SnapToDecimalSource));
+
+    public BasePlayHeadControl? SnapToDecimalSource {
+        get => this.GetValue(SnapToDecimalSourceProperty);
+        set => this.SetValue(SnapToDecimalSourceProperty, value);
+    }
 
     public TimelineControl? TimelineControl {
         get => this.GetValue(TimelineControlProperty);
@@ -85,9 +91,14 @@ public abstract class BasePlayHeadControl : TemplatedControl {
         PlayHeadTypeProperty.Changed.AddClassHandler<BasePlayHeadControl, PlayHeadType>((d, e) => d.OnPlayHeadTypeChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
         ScrollViewerReferenceProperty.Changed.AddClassHandler<BasePlayHeadControl, ScrollViewer?>((d, e) => d.OnScrollViewerReferenceChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
         AdditionalOffsetProperty.Changed.AddClassHandler<BasePlayHeadControl, Thickness>((d, e) => d.OnAdditionalOffsetChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
+        SnapToDecimalSourceProperty.Changed.AddClassHandler<BasePlayHeadControl, BasePlayHeadControl?>((d, e) => d.OnSnapToDecimalSourceChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }
     
     private void OnAdditionalOffsetChanged(Thickness oldValue, Thickness newValue) {
+        this.UpdatePosition();
+    }
+    
+    private void OnSnapToDecimalSourceChanged(BasePlayHeadControl? oldValue, BasePlayHeadControl? newValue) {
         this.UpdatePosition();
     }
     
@@ -207,14 +218,14 @@ public abstract class BasePlayHeadControl : TemplatedControl {
             // Point? translated2 = this.TranslatePoint(new Point(this.Bounds.Width / 2.0, 0.0), (Visual) scroller.Content!);
             // double offset3 = (translated2?.X - m.Left) ?? 0.0; 
             
-            left = (frame * zoom) - offset;
+            left = (frame * zoom) - Math.Round(offset);
         }
         else {
             left = (frame * zoom);
         }
 
         Thickness a = this.AdditionalOffset;
-        this.SetPixelMargin(new Thickness(left + a.Left, m.Top + a.Top, m.Right + a.Right, m.Bottom + a.Bottom));
+        this.SetPixelMargin(new Thickness(Math.Floor(left + a.Left), m.Top + a.Top, m.Right + a.Right, m.Bottom + a.Bottom));
     }
 
     protected virtual void SetPixelMargin(Thickness thickness) {

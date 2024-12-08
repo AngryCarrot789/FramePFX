@@ -30,10 +30,10 @@ namespace FramePFX.Avalonia.Editing.CommandContexts;
 /// A command usage for a <see cref="ICommandSource"/> control and that uses an <see cref="ICommand"/> to execute the underlying command
 /// </summary>
 public class CommandSourceCommandUsage : CommandUsage {
-    private CoreCommandICommand command;
+    private CoreCommandICommand? command;
     private ButtonHelper? button;
 
-    public ICommand Command => this.command ?? (this.command = new CoreCommandICommand(this));
+    public ICommand Command => this.command ??= new CoreCommandICommand(this);
 
     public CommandSourceCommandUsage(string commandId) : base(commandId) { }
 
@@ -64,11 +64,10 @@ public class CommandSourceCommandUsage : CommandUsage {
         }
 
         public bool CanExecute(object? parameter) {
-            IContextData? ctx = this.usage.GetContextData();
-            if (ctx == null)
+            if (!this.usage.IsConnected)
                 return false;
 
-            return CommandManager.Instance.CanExecute(this.usage.CommandId, ctx) == Executability.Valid;
+            return CommandManager.Instance.CanExecute(this.usage.CommandId, this.usage.GetContextData()!) == Executability.Valid;
         }
 
         public void Execute(object? parameter) {

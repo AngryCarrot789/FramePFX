@@ -22,7 +22,7 @@ using FramePFX.Utils;
 
 namespace FramePFX.AdvancedMenuService;
 
-public delegate void DynamicGenerateContext(DynamicContextGroup group, IContextData ctx, List<IContextObject> items);
+public delegate void DynamicGenerateContextFunction(DynamicContextGroup group, IContextData ctx, List<IContextObject> items);
 
 /// <summary>
 /// A dynamic group. The docs for <see cref="IContextGroup"/> explain this better, but this class
@@ -30,9 +30,9 @@ public delegate void DynamicGenerateContext(DynamicContextGroup group, IContextD
 /// application and also the <see cref="IContextData"/> provided to the generator
 /// </summary>
 public class DynamicContextGroup : IContextGroup {
-    private readonly DynamicGenerateContext generate;
+    private readonly DynamicGenerateContextFunction generate;
 
-    public DynamicContextGroup(DynamicGenerateContext generate) {
+    public DynamicContextGroup(DynamicGenerateContextFunction generate) {
         Validate.NotNull(generate);
         this.generate = generate;
     }

@@ -36,7 +36,7 @@ public class OpenProjectCommand : AsyncCommand {
             return;
         }
 
-        string? filePath = await IoC.FilePickService.OpenFile("Open a project file (.fpfx)", Filters.ProjectTypeAndAll);
+        string? filePath = await IoC.FilePickService.OpenFile("Open a project file (.fpfx)", Filters.ListProjectTypeAndAll);
         if (filePath == null) {
             return;
         }

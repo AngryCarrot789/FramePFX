@@ -73,15 +73,14 @@ public class CommandSourceCommandUsage : CommandUsage {
             this.usage = usage;
         }
 
-        public bool CanExecute(object parameter) {
-            IContextData ctx = this.usage.GetContextData();
-            if (ctx == null)
+        public bool CanExecute(object? parameter) {
+            if (!this.usage.IsConnected)
                 return false;
 
-            return CommandManager.Instance.CanExecute(this.usage.CommandId, ctx) == Executability.Valid;
+            return CommandManager.Instance.CanExecute(this.usage.CommandId, this.usage.GetContextData()!) == Executability.Valid;
         }
 
-        public void Execute(object parameter) {
+        public void Execute(object? parameter) {
             CommandManager.Instance.TryExecute(this.usage.CommandId, () => this.usage.GetContextData() ?? EmptyContext.Instance);
         }
 

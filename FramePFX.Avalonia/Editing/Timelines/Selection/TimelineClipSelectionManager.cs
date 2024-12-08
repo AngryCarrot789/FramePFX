@@ -97,8 +97,10 @@ public class TimelineClipSelectionManager : ISelectionManager<IClipElement>, ILi
     }
 
     private void OnTrackSelectionCleared(ISelectionManager<IClipElement> sender) {
-        if (!this.isBatching)
-            this.OnSelectionCleared();
+        if (!this.isBatching) {
+            // Deselect all items in the track
+            this.Unselect(sender.SelectedItems.ToList());
+        }
     }
 
     public bool IsSelected(IClipElement item) {
@@ -118,9 +120,7 @@ public class TimelineClipSelectionManager : ISelectionManager<IClipElement>, ILi
     public void Select(IClipElement item) {
         item.TrackUI.Selection.Select(item);
     }
-
-    private static ReadOnlyCollection<IClipElement>? GetList(List<IClipElement>? list) => list == null || list.Count < 1 ? null : list.AsReadOnly();
-
+    
     // maybe Select(IEnumerable<(Track, List<IClipElement>)>)?
 
     public void Select(IEnumerable<IClipElement> items) {
@@ -140,8 +140,8 @@ public class TimelineClipSelectionManager : ISelectionManager<IClipElement>, ILi
     }
 
     private void DoBatchedEvent(IEnumerable<IClipElement> items, Action<ISelectionManager<IClipElement>, IClipElement> action) {
-        this.isBatching = true;
         try {
+            this.isBatching = true;
             foreach (IClipElement clip in items) {
                 // TODO: could optimise this to figure out a list of clips per track to select
                 action(clip.TrackUI.Selection, clip);
@@ -152,8 +152,7 @@ public class TimelineClipSelectionManager : ISelectionManager<IClipElement>, ILi
         }
 
         try {
-            ReadOnlyCollection<IClipElement>? newList = GetList(this.batchClips_new);
-            this.OnSelectionChanged(GetList(this.batchClips_old), newList);
+            this.OnSelectionChanged(GetList(this.batchClips_old), GetList(this.batchClips_new));
         }
         finally {
             this.batchClips_old?.Clear();
@@ -165,9 +164,9 @@ public class TimelineClipSelectionManager : ISelectionManager<IClipElement>, ILi
         if (this.Count < 1) {
             return;
         }
-        
-        this.isBatching = true;
+
         try {
+            this.isBatching = true;
             foreach (TimelineTrackControl track in this.TrackControls) {
                 track.SelectionManager!.Clear();
             }
@@ -176,13 +175,29 @@ public class TimelineClipSelectionManager : ISelectionManager<IClipElement>, ILi
             this.isBatching = false;
         }
 
-        this.OnSelectionCleared();
-    }
-
-    private void OnSelectionCleared() {
         this.selectedClipSet.Clear();
         this.SelectionCleared?.Invoke(this);
         this.LightSelectionChanged?.Invoke(this);
+    }
+
+    public void SelectAll() {
+        try {
+            this.isBatching = true;
+            foreach (TimelineTrackControl track in this.TrackControls) {
+                track.SelectionManager!.SelectAll();
+            }
+        }
+        finally {
+            this.isBatching = false;
+        }
+
+        try {
+            this.OnSelectionChanged(GetList(this.batchClips_old), GetList(this.batchClips_new));
+        }
+        finally {
+            this.batchClips_old?.Clear();
+            this.batchClips_new?.Clear();
+        }
     }
 
     private void OnSelectionChanged(IList<IClipElement>? oldList, IList<IClipElement>? newList) {
@@ -190,7 +205,7 @@ public class TimelineClipSelectionManager : ISelectionManager<IClipElement>, ILi
             // Skip if there's no changes
             return;
         }
-        
+
         if (oldList != null)
             foreach (IClipElement clip in oldList)
                 this.selectedClipSet.Remove(clip);
@@ -198,8 +213,10 @@ public class TimelineClipSelectionManager : ISelectionManager<IClipElement>, ILi
         if (newList != null)
             foreach (IClipElement clip in newList)
                 this.selectedClipSet.Add(clip);
-        
+
         this.SelectionChanged?.Invoke(this, oldList, newList);
         this.LightSelectionChanged?.Invoke(this);
     }
+    
+    private static ReadOnlyCollection<IClipElement>? GetList(List<IClipElement>? list) => list == null || list.Count < 1 ? null : list.AsReadOnly();
 }

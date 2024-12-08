@@ -94,6 +94,7 @@ public class ResourceTreeSelectionManager : ISelectionManager<BaseResource>, ILi
 
     public event SelectionChangedEventHandler<BaseResource>? SelectionChanged;
     public event SelectionClearedEventHandler<BaseResource>? SelectionCleared;
+
     private LightSelectionChangedEventHandler<BaseResource>? LightSelectionChanged;
 
     event LightSelectionChangedEventHandler<BaseResource>? ILightSelectionManager<BaseResource>.SelectionChanged {
@@ -231,6 +232,10 @@ public class ResourceTreeSelectionManager : ISelectionManager<BaseResource>, ILi
         if (this.tree != null) {
             this.tree.SelectedItems.Clear();
         }
+    }
+    
+    public void SelectAll() {
+        this.tree?.SelectAll();
     }
     
     private static IEnumerable<BaseResource> ControlToModelList(ResourceTreeView tree) => tree.SelectedItems.Cast<ResourceTreeViewItem>().Select(x => x.Resource!);

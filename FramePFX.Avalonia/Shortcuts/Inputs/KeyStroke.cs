@@ -64,6 +64,12 @@ public readonly struct KeyStroke : IInputStroke, IEquatable<KeyStroke> {
 
     public bool IsMouse => false;
 
+    // Cannot do since avalonia is a bucket full of . and can't detect repeated keys apparently
+    // /// <summary>
+    // /// Gets the repeat mode. 0 = ignored, 1 = Repeat Only, 2 = No Repeat
+    // /// </summary>
+    // public byte RepeatMode { get; }
+
     public KeyStroke(int keyCode, int modifiers, bool isRelease) {
         this.KeyCode = keyCode;
         this.Modifiers = modifiers;

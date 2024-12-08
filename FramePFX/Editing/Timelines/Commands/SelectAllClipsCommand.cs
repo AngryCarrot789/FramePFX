@@ -1,5 +1,5 @@
 // 
-// Copyright (c) 2024-2024 REghZy
+// Copyright (c) 2023-2024 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -17,24 +17,20 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System;
-using Avalonia.Controls;
-using FramePFX.AdvancedMenuService;
+using FramePFX.CommandSystem;
+using FramePFX.Editing.UI;
 using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Avalonia.AdvancedMenuService;
+namespace FramePFX.Editing.Timelines.Commands;
 
-public interface IAdvancedContainer {
-    /// <summary>
-    /// Gets the context for the container menu or root container menu item
-    /// </summary>
-    IContextData? Context { get; }
-
-    bool PushCachedItem(Type entryType, Control element);
-
-    Control? PopCachedItem(Type entryType);
+public class SelectAllClipsCommand : Command {
+    public override Executability CanExecute(CommandEventArgs e) {
+        return DataKeys.TimelineUIKey.GetExecutabilityForPresence(e.ContextData);
+    }
     
-    Control CreateChildItem(IContextObject entry);
-
-    void UpdateSubListVisibility();
+    protected override void Execute(CommandEventArgs e) {
+        if (DataKeys.TimelineUIKey.TryGetContext(e.ContextData, out ITimelineElement? timeline)) {
+            timeline.ClipSelection.SelectAll();
+        }
+    }
 }

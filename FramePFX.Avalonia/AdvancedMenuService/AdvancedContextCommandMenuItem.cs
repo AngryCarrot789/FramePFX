@@ -50,7 +50,7 @@ public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem {
 
     public AdvancedContextCommandMenuItem() {
     }
-
+    
     protected override void OnLoaded(RoutedEventArgs e) {
         this.UpdateCanExecute();
         base.OnLoaded(e);

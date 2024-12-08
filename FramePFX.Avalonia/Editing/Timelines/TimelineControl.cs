@@ -28,6 +28,7 @@ using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
+using FramePFX.Avalonia.AdvancedMenuService;
 using FramePFX.Avalonia.Editing.Playheads;
 using FramePFX.Avalonia.Editing.Timelines.Selection;
 using FramePFX.Avalonia.Editing.Timelines.TrackSurfaces;
@@ -101,6 +102,8 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
     public GrippedPlayHeadControl? PlayHeadInRuler { get; private set; }
 
     public TimelineRuler? TimelineRuler { get; private set; }
+    
+    public TimelineLoopControl? LoopControl { get; private set; }
     
     public PlayheadPositionTextControl PlayHeadInfoTextControl { get; private set; }
 
@@ -223,6 +226,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         this.StopHeadInSequence = e.NameScope.GetTemplateChild<FlatLinePlayHeadControl>("PART_StopHeadControl");
         this.PlayHeadInRuler = e.NameScope.GetTemplateChild<GrippedPlayHeadControl>("PART_RulerPlayHead");
         this.TimelineRuler = e.NameScope.GetTemplateChild<TimelineRuler>("PART_Ruler");
+        this.LoopControl = e.NameScope.GetTemplateChild<TimelineLoopControl>("PART_LoopControl");
         this.PlayHeadInfoTextControl = e.NameScope.GetTemplateChild<PlayheadPositionTextControl>("PART_PlayheadPositionPreviewControl");
 
         ToggleButton toggleTrackAutomationButton = e.NameScope.GetTemplateChild<ToggleButton>("PART_ToggleTrackAutomation");
@@ -241,8 +245,9 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         this.StopHeadInSequence!.TimelineControl = this;
         this.PlayHeadInRuler!.TimelineControl = this;
         this.TimelineContentGrid.PointerPressed += this.OnTimelineContentGridPointerPressed;
+        AdvancedContextMenu.SetContextRegistry(this.TimelineContentGrid, Timeline.ContextRegistry);
 
-        this.TimestampBorder.PointerPressed += (s, ex) => this.MovePlayHeadToMouseCursor(ex.GetPosition((Visual?) s).X, true, false, ex);
+        this.TimestampBorder.PointerPressed += (s, ex) => this.MovePlayHeadToMouseCursor(ex.GetPosition(this.TimelineContentGrid).X, true, false, ex);
 
         this.UpdateIsTrackAutomationVisible(true, true);
         
@@ -364,6 +369,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         this.SurfaceTrackList.Timeline = newTimeline;
         this.PlayHeadInfoTextControl.Timeline = newTimeline;
         this.TimelineRuler!.TimelineControl = this;
+        this.LoopControl!.TimelineControl = this;
         if (newTimeline != null) {
             newTimeline.MaxDurationChanged += this.OnTimelineMaxDurationChanged;
             newTimeline.TrackAdded += this.OnTrackAddedEvent;
@@ -448,7 +454,8 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
     
     private void TimelineScrollViewerOnPointerWheelChanged(object? sender, PointerWheelEventArgs e) {
         this.OnMouseWheel((ScrollViewer) sender!, e);
-    }    
+    }
+    
     private void TimeStampBoardScrollViewerOnPointerWheelChanged(object? sender, PointerWheelEventArgs e) {
         this.OnMouseWheel(this.TimelineScrollViewer!, e);
     }
@@ -507,38 +514,8 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
 
     private void OnTimelineZoomed(double oldZoom, double newZoom, ZoomType zoomType, SKPointD mPos) {
         this.TrackStorage?.OnZoomChanged(newZoom);
-        this.TimelineRuler.OnZoomChanged(newZoom);
+        this.TimelineRuler?.OnZoomChanged(newZoom);
         this.UpdateContentGridSize();
-
-        ScrollViewer? scroller = this.TimelineScrollViewer;
-        if (scroller == null) {
-            return;
-        }
-
-        switch (zoomType) {
-            case ZoomType.Direct: break;
-            case ZoomType.ViewPortBegin: {
-                break;
-            }
-            case ZoomType.ViewPortMiddle: {
-                break;
-            }
-            case ZoomType.ViewPortEnd: {
-                break;
-            }
-            case ZoomType.PlayHead: {
-                break;
-            }
-            case ZoomType.MouseCursor: {
-                double mouse_x = AvCore.GetRelativePosition(scroller, new Point(mPos.X, mPos.Y)).X;
-                double target_offset = (scroller.Offset.X + mouse_x) / oldZoom;
-                double scaled_target_offset = target_offset * newZoom;
-                double new_offset = scaled_target_offset - mouse_x;
-                scroller.Offset = new Vector(new_offset, scroller.Offset.Y);
-                break;
-            }
-            default: throw new ArgumentOutOfRangeException(nameof(zoomType), zoomType, null);
-        }
     }
 
     public void MakeSingleSelection(IClipElement clipToSelect) {
@@ -570,7 +547,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
             track.SelectionManager!.SetSelection(tuple.clips.Select(x => track.ClipStoragePanel!.ItemMap.GetControl(x)));
         }
     }
-
+    
     private class TrackListImpl : IReadOnlyList<ITrackElement> {
         public readonly TimelineControl control;
 

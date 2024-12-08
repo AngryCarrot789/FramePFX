@@ -453,4 +453,24 @@ public static class CollectionUtils {
 
         return true;
     }
+
+    public static void UpdateOrInitialiseValue<TKey, TValue>(this SortedList<TKey, TValue> list, TKey key, Func<TValue, TValue> updater, Func<TValue> defaultProvider) where TKey : notnull {
+        int index = list.IndexOfKey(key); 
+        if (index == -1) {
+            list[key] = defaultProvider();
+        }
+        else {
+            list.SetValueAtIndex(index, updater(list.GetValueAtIndex(index)));
+        }
+    }
+    
+    public static void UpdateOrInitialiseValue<TKey, TValue>(this SortedList<TKey, TValue> list, TKey key, Func<TValue, TValue> updater, TValue defaultValue) where TKey : notnull {
+        int index = list.IndexOfKey(key); 
+        if (index == -1) {
+            list[key] = defaultValue;
+        }
+        else {
+            list.SetValueAtIndex(index, updater(list.GetValueAtIndex(index)));
+        }
+    }
 }

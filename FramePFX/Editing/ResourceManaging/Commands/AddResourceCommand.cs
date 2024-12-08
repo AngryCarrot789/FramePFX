@@ -87,7 +87,7 @@ public class AddResourceImageCommand : AddResourceCommand<ResourceImage> {
         if (!success)
             return;
 
-        string? path = await IoC.FilePickService.OpenFile("Open an image file", Filters.ImageTypesAndAll);
+        string? path = await IoC.FilePickService.OpenFile("Open an image file", Filters.CombinedImageTypesAndAll);
         if (path != null) {
             resource.FilePath = path;
             resource.DisplayName = Path.GetFileName(path);
@@ -104,7 +104,7 @@ public class AddResourceAVMediaCommand : AddResourceCommand<ResourceAVMedia> {
         if (!success)
             return;
 
-        string? path = await IoC.FilePickService.OpenFile("Open an image file for this image?", Filters.ImageTypesAndAll);
+        string? path = await IoC.FilePickService.OpenFile("Open a media file for this resource?", Filters.CombinedVideoTypesAndAll);
         if (path != null) {
             resource.FilePath = path;
             resource.DisplayName = Path.GetFileName(path);

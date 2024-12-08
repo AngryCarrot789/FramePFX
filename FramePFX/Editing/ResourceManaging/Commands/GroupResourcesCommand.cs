@@ -41,6 +41,10 @@ public class GroupResourcesCommand : Command {
 
         // Safety post processing
         resources = resources.Where(x => x.Parent == dest).ToList();
+        if (resources.Count < 1) {
+            return;
+        }
+        
         int minIndex = resources.Min(x => dest.IndexOf(x));
         if (minIndex == -1) {
             throw new Exception("Fatal error, item was not in the target group");

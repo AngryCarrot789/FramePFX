@@ -30,7 +30,7 @@ namespace FramePFX.Avalonia.Editing.Timelines.Selection;
 /// </summary>
 public class TrackSelectionManager : ISelectionManager<ITrackElement>, ILightSelectionManager<ITrackElement> {
     private readonly TimelineControl timeline;
-    private readonly List<TimelineControl.TrackElementImpl> allTrackElements;
+    private readonly List<TimelineControl.TrackElementImpl> refToAllTrackElements;
     private readonly HashSet<TimelineControl.TrackElementImpl> selectedElements;
 
     public IEnumerable<ITrackElement> SelectedItems { get; }
@@ -39,6 +39,7 @@ public class TrackSelectionManager : ISelectionManager<ITrackElement>, ILightSel
 
     public event SelectionChangedEventHandler<ITrackElement>? SelectionChanged;
     public event SelectionClearedEventHandler<ITrackElement>? SelectionCleared;
+
     private LightSelectionChangedEventHandler<ITrackElement>? LightSelectionChanged;
 
     event LightSelectionChangedEventHandler<ITrackElement>? ILightSelectionManager<ITrackElement>.SelectionChanged {
@@ -46,9 +47,9 @@ public class TrackSelectionManager : ISelectionManager<ITrackElement>, ILightSel
         remove => this.LightSelectionChanged -= value;
     }
 
-    internal TrackSelectionManager(TimelineControl timeline, List<TimelineControl.TrackElementImpl> allTrackElements) {
+    internal TrackSelectionManager(TimelineControl timeline, List<TimelineControl.TrackElementImpl> refToAllTrackElements) {
         this.timeline = timeline;
-        this.allTrackElements = allTrackElements;
+        this.refToAllTrackElements = refToAllTrackElements;
         this.SelectedItems = this.selectedElements = new HashSet<TimelineControl.TrackElementImpl>();
     }
 
@@ -123,43 +124,52 @@ public class TrackSelectionManager : ISelectionManager<ITrackElement>, ILightSel
         this.Select(items);
     }
     
-    private void SelectInternal(ITrackElement item) {
+    private bool SelectInternal(ITrackElement item) {
         TimelineControl.TrackElementImpl theTrack = (TimelineControl.TrackElementImpl) item;
         if (this.selectedElements.Add(theTrack)) {
             this.SetSelectionState(theTrack, true);
+            return true;
         }
+
+        return false;
     }
 
-    private void UnselectInternal(ITrackElement item) {
+    private bool UnselectInternal(ITrackElement item) {
         TimelineControl.TrackElementImpl theTrack = (TimelineControl.TrackElementImpl) item;
         if (this.selectedElements.Remove(theTrack)) {
             this.SetSelectionState(theTrack, false);
+            return true;
         }
+
+        return false;
     }
 
     public void Select(ITrackElement item) {
-        this.SelectInternal(item);
-        this.OnSelectionChanged(null, new SingletonList<ITrackElement>(item));
+        if (this.SelectInternal(item)) {
+            this.OnSelectionChanged(null, new SingletonList<ITrackElement>(item));
+        }
     }
 
     public void Select(IEnumerable<ITrackElement> items) {
-        List<ITrackElement> list = items.ToList();
-        foreach (ITrackElement item in list) {
-            this.SelectInternal(item);
+        List<ITrackElement> list = new List<ITrackElement>();
+        foreach (ITrackElement item in items.ToList()) {
+            if (this.SelectInternal(item))
+                list.Add(item);
         }
         
         this.OnSelectionChanged(null, list.AsReadOnly());
     }
 
     public void Unselect(ITrackElement item) {
-        this.UnselectInternal(item);
-        this.OnSelectionChanged(new SingletonList<ITrackElement>(item), null);
+        if (this.UnselectInternal(item))
+            this.OnSelectionChanged(new SingletonList<ITrackElement>(item), null);
     }
 
     public void Unselect(IEnumerable<ITrackElement> items) {
-        List<ITrackElement> list = items.ToList();
-        foreach (ITrackElement item in list) {
-            this.UnselectInternal(item);
+        List<ITrackElement> list = new List<ITrackElement>();
+        foreach (ITrackElement element in items.ToList()) {
+            if (this.UnselectInternal(element))
+                list.Add(element);
         }
         
         this.OnSelectionChanged(list.AsReadOnly(), null);
@@ -181,6 +191,10 @@ public class TrackSelectionManager : ISelectionManager<ITrackElement>, ILightSel
     public void Clear() {
         this.selectedElements.Clear();
         this.OnSelectionCleared();
+    }
+    
+    public void SelectAll() {
+        this.Select(this.refToAllTrackElements);
     }
     
     private void OnSelectionChanged(IList<ITrackElement>? oldList, IList<ITrackElement>? newList) {

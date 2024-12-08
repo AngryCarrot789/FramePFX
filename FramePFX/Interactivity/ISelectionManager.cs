@@ -129,6 +129,11 @@ public interface ISelectionManager<T> : IBaseSelectionManager<T> {
     /// An event fired when the selection is cleared
     /// </summary>
     public event SelectionClearedEventHandler<T>? SelectionCleared;
+
+    /// <summary>
+    /// Selects all items in this selection manager
+    /// </summary>
+    void SelectAll();
 }
 
 /// <summary>
@@ -154,4 +159,11 @@ public interface ILightSelectionManager<T> : IBaseSelectionManager<T> {
     /// happening (it could be selection cleared, item added, maybe multiple items being added or removed, etc.)
     /// </summary>
     event LightSelectionChangedEventHandler<T> SelectionChanged;
+}
+
+public interface ISelectAllManager {
+    /// <summary>
+    /// Selects all the items in this selection manager
+    /// </summary>
+    void SelectAll();
 }

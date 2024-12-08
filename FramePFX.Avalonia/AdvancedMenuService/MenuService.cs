@@ -36,77 +36,57 @@ public static class MenuService {
 
         return false;
     }
+    
+    private static bool IsSeparatorNotNeeded(ItemCollection items, int index) {
+        if (items[index] is Separator) {
+            if (index > 0 && items[index - 1] is CaptionSeparator prevCaption && prevCaption.IsVisible)
+                return true;
+            return (index < items.Count - 1) && items[index + 1] is CaptionSeparator nextCaption && nextCaption.IsVisible;
+        }
 
-    private static void NormalizeSeparators(ItemCollection items) {
-        bool lastVisibleWasEntry = false;
-
-        for (int i = 0; i < items.Count; i++) {
-            object? current = items[i];
-            if (current is Separator separator) {
-                // A separator is visible only if the last visible item was an entry
-                // and there's a visible entry after this separator
-                if (!lastVisibleWasEntry || !HasVisibleEntryAfter(items, i)) {
-                    separator.IsVisible = false;
-                }
-                else {
-                    lastVisibleWasEntry = false; // Reset because we're on a separator
-                }
+        return false;
+    }
+    
+    // I think it needs to be longer
+    private static void GoBackAndHideSeparatorsUntilNonSeparatorReached(ItemCollection items, int index) {
+        for (int i = index - 1; i >= 0; i--) {
+            if (items[i] is Separator separator) {
+                separator.IsVisible = false;
             }
-            else if (((Visual) current!).IsVisible) {
-                lastVisibleWasEntry = true; // Mark that we found a visible entry
+            else {
+                break;
             }
         }
     }
 
-    public static void ProcessSeparators(ItemsControl control) {
-        ItemCollection list = control.Items;
-        NormalizeSeparators(list);
-
-        // This does not work so well
-        // object? previousItem = null;
-        // Separator? continueLastSeparator = null;
-        // int continuousDisabledControlCount = 0;
-        // for (int i = 0, endIndex = list.Count - 1; i <= endIndex; i++) {
-        //     object? item = list[i];
-        //     if (item is Separator separator) {
-        //         if (continuousDisabledControlCount > 0 || i == 0 || i == endIndex || previousItem is Separator || (previousItem is Control prevControl && !prevControl.IsVisible)) {
-        //             separator.IsVisible = false;
-        //         }
-        //         else {
-        //             separator.IsVisible = true;
-        //         }
-        //         
-        //         continuousDisabledControlCount = 0;
-        //         continueLastSeparator = null;
-        //     }
-        //     else if (item is Control theControl) {
-        //         if (!theControl.IsVisible) {
-        //             if (previousItem is Separator prevSeparator) {
-        //                 Debug.Assert(continuousDisabledControlCount == 0);
-        //                 continueLastSeparator = prevSeparator;
-        //             }
-        //             else {
-        //                 Debug.Assert(continuousDisabledControlCount > 0);
-        //             }
-        //
-        //             continuousDisabledControlCount++;
-        //         }
-        //         else {
-        //             if (continuousDisabledControlCount > 0) {
-        //                 continuousDisabledControlCount = 0;
-        //                 continueLastSeparator!.IsVisible = true;
-        //                 continueLastSeparator = null;
-        //             }
-        //
-        //         }
-        //     }
-        //     
-        //     previousItem = item;
-        // }
-        //
-        // if (continuousDisabledControlCount > 0) {
-        //     continueLastSeparator!.IsVisible = false;
-        // }
+    /// <summary>
+    /// Calculates which controls are visible. It is assumed the control's items are all
+    /// fully loaded and their current visibility reflects their true underlying state 
+    /// </summary>
+    /// <param name="control">The control whose items should be processed</param>
+    public static void NormaliseSeparators(ItemsControl control) {
+        ItemCollection items = control.Items;
+        bool lastVisibleWasEntry = false;
+        for (int i = 0; i < items.Count; i++) {
+            object? current = items[i];
+            if (current is Separator separator) {
+                if (IsSeparatorNotNeeded(items, i)) {
+                    separator.IsVisible = false;
+                }
+                else if (!lastVisibleWasEntry || !HasVisibleEntryAfter(items, i)) {
+                    separator.IsVisible = false;
+                }
+                else {
+                    lastVisibleWasEntry = false;
+                }
+            }
+            else if (((Visual) current!).IsVisible) {
+                lastVisibleWasEntry = true;
+                if (current is CaptionSeparator && i > 0 && items[i - 1] is Separator) {
+                    GoBackAndHideSeparatorsUntilNonSeparatorReached(items, i);
+                }
+            }
+        }
     }
 
     public static IEnumerable<IContextObject> CleanEntries(IReadOnlyList<IContextObject> entries) {
@@ -142,6 +122,13 @@ public static class MenuService {
                 menuItem.ApplyTemplate();
                 menuItem.OnAdded();
             }
+            else if (element is IAdvancedEntryConnection connection) {
+                connection.OnAdding(container, parent, entry);
+                items.Insert(i++, element);
+                element.ApplyStyling();
+                element.ApplyTemplate();
+                connection.OnAdded();
+            }
             else {
                 items.Insert(i++, element);
             }
@@ -164,19 +151,30 @@ public static class MenuService {
     }
 
     internal static void RemoveItemNode(ItemsControl control, int index, IAdvancedContainer? container) {
-        ItemCollection list = control.Items;
-        Control item = (Control) list[index]!;
-        if (item is AdvancedContextMenuItem menuItem) {
+        ItemCollection items = control.Items;
+        Control element = (Control) items[index]!;
+        if (element is AdvancedContextMenuItem menuItem) {
             Type type = menuItem.Entry.GetType();
             menuItem.OnRemoving();
-            list.RemoveAt(index);
+            items.RemoveAt(index);
             menuItem.OnRemoved();
-            container?.PushCachedItem(type, item);
+            container?.PushCachedItem(type, element);
+        }
+        else if (element is IAdvancedEntryConnection connection) {
+            Type type = connection.Entry!.GetType();
+            connection.OnRemoving();
+            items.RemoveAt(index);
+            connection.OnRemoved();
+            container?.PushCachedItem(type, element);
         }
         else {
-            list.RemoveAt(index);
-            if (container != null && item is Separator)
-                container.PushCachedItem(typeof(SeparatorEntry), item);
+            items.RemoveAt(index);
+            if (container != null) {
+                if (element is Separator)
+                    container.PushCachedItem(typeof(SeparatorEntry), element);
+                else if (element is CaptionSeparator)
+                    container.PushCachedItem(typeof(CaptionSeparator), element);
+            }
         }
     }
 
@@ -221,6 +219,7 @@ public static class MenuService {
                 case CommandContextEntry _: element = new AdvancedContextCommandMenuItem(); break;
                 case BaseContextEntry _: element = new AdvancedContextMenuItem(); break;
                 case SeparatorEntry _: element = new Separator(); break;
+                case CaptionEntry _: element = new CaptionSeparator(); break;
                 default: throw new Exception("Unknown item type: " + entry?.GetType());
             }
         }
@@ -237,7 +236,7 @@ public static class MenuService {
         IContextData context = element.Context ?? EmptyContext.Instance;
 
         dynamicInserted ??= new Dictionary<int, int>();
-        
+
         int offset = 0;
         List<KeyValuePair<int, DynamicGroupContextObject>> items = dynamicInsertion.OrderBy(x => x.Key).ToList();
         foreach (KeyValuePair<int, DynamicGroupContextObject> item in items) {
@@ -260,7 +259,7 @@ public static class MenuService {
         foreach (KeyValuePair<int, int> item in items) {
             ClearItemNodeRange((ItemsControl) element, item.Key, item.Value);
         }
-        
+
         dynamicInserted.Clear();
     }
 }

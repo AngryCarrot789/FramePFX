@@ -140,7 +140,7 @@ public readonly struct FrameSpan : IEquatable<FrameSpan> {
     /// <param name="value">The new end index value. This value is trusted to be non-negative</param>
     /// <returns>A new frame span</returns>
     /// <exception cref="ArgumentOutOfRangeException">Input value is less than the begin value</exception>
-    public FrameSpan MoveEndIndex(long value) {
+    public FrameSpan WithEndIndex(long value) {
         if (value < this.Begin) {
             throw new ArgumentOutOfRangeException(nameof(value), $"Value cannot be smaller than the begin index ({value} < {this.Begin})");
         }
@@ -149,12 +149,12 @@ public readonly struct FrameSpan : IEquatable<FrameSpan> {
     }
 
     /// <summary>
-    /// Same as <see cref="MoveEndIndex"/>, but instead of throwing, the span is clamped to empty
+    /// Same as <see cref="WithEndIndex"/>, but instead of throwing, the span is clamped to empty
     /// </summary>
     /// <param name="value">The new end index value. This value is trusted to be non-negative</param>
     /// <param name="upperLimit">The upper limit for the end index. By default, this is <see cref="long.MaxValue"/> meaning effectively no upper limit</param>
     /// <returns>A new frame span, or empty when the value is less than or equal to the begin value</returns>
-    public FrameSpan MoveEndIndexClamped(long value, long upperLimit = long.MaxValue) {
+    public FrameSpan WithEndIndexClamped(long value, long upperLimit = long.MaxValue) {
         if (value > this.Begin) {
             if (value > upperLimit)
                 value = upperLimit;
@@ -193,11 +193,11 @@ public readonly struct FrameSpan : IEquatable<FrameSpan> {
     }
 
     public FrameSpan AddEndIndex(long value) {
-        return this.MoveEndIndex(this.EndIndex + value);
+        return this.WithEndIndex(this.EndIndex + value);
     }
 
     public FrameSpan AddEndIndexClamped(long value, long upperLimit = long.MaxValue) {
-        return this.MoveEndIndexClamped(this.EndIndex + value, upperLimit);
+        return this.WithEndIndexClamped(this.EndIndex + value, upperLimit);
     }
 
     public FrameSpan AddBeginIndex(long value) {

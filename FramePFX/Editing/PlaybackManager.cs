@@ -302,7 +302,16 @@ public class PlaybackManager {
                 // Don't allow jumps of more than 3 frames, otherwise that runaway thing might occur
                 incr = Math.Min(incr, 3);
 
-                long newPlayHead = Periodic.MethodNameHere(timeline.PlayHeadPosition + incr, 0, timeline.MaxDuration - 1);
+                long newPlayHead;
+                long newPlayHeadUnprocessed = timeline.PlayHeadPosition + incr;
+                FrameSpan? loopRegion = timeline.IsLoopRegionEnabled ? timeline.LoopRegion : null;
+                if (loopRegion is FrameSpan loop && !loop.IsEmpty && newPlayHeadUnprocessed >= loop.Begin && newPlayHeadUnprocessed <= loop.EndIndex) {
+                    newPlayHead = Periodic.MethodNameHere(newPlayHeadUnprocessed, loop.Begin, loop.EndIndex);
+                }
+                else {
+                    newPlayHead = Periodic.MethodNameHere(newPlayHeadUnprocessed, 0, timeline.MaxDuration - 1);
+                }
+
                 timeline.PlayHeadPosition = newPlayHead;
                 if ((timeline.RenderManager.LastRenderTask?.IsCompleted ?? true)) {
                     return RenderTimeline(editor, timeline.RenderManager, timeline.PlayHeadPosition, CancellationToken.None);

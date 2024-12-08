@@ -35,7 +35,7 @@ public class PropertyEditorSlotControl : ContentControl {
 
     /// <summary>
     /// Whether or not this slot is selected. Setting this property automatically affects
-    /// our <see cref="PropertyEditing.PropertyEditor"/>'s selected items
+    /// our <see cref="PropertyEditor"/>'s selected items
     /// </summary>
     [Category("Appearance")]
     public bool IsSelected {

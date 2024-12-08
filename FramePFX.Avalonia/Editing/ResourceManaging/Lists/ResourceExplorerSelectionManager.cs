@@ -42,11 +42,16 @@ public class ResourceExplorerSelectionManager : ISelectionManager<BaseResource>,
 
     public event SelectionChangedEventHandler<BaseResource>? SelectionChanged;
     public event SelectionClearedEventHandler<BaseResource>? SelectionCleared;
+
     private LightSelectionChangedEventHandler<BaseResource>? LightSelectionChanged;
     event LightSelectionChangedEventHandler<BaseResource>? ILightSelectionManager<BaseResource>.SelectionChanged {
         add => this.LightSelectionChanged += value;
         remove => this.LightSelectionChanged -= value;
     }
+    
+    private bool isBatching;
+    private List<BaseResource>? batchResources_old;
+    private List<BaseResource>? batchResources_new;
     
     public ResourceExplorerSelectionManager(ResourceExplorerListBox listBox) {
         this.ListBox = listBox;
@@ -74,20 +79,18 @@ public class ResourceExplorerSelectionManager : ISelectionManager<BaseResource>,
     }
     
     internal void ProcessTreeSelection(IList? oldItems, IList? newItems) {
-        ReadOnlyCollection<BaseResource>? oldList = oldItems?.Cast<ResourceExplorerListBoxItem>().Select(x => x.Resource!).ToList().AsReadOnly();
-        ReadOnlyCollection<BaseResource>? newList = newItems?.Cast<ResourceExplorerListBoxItem>().Select(x => x.Resource!).ToList().AsReadOnly();
-        if (oldList?.Count > 0 || newList?.Count > 0) {
-            this.OnSelectionChanged(oldList, newList);
+        List<BaseResource>? oldList = oldItems?.Cast<ResourceExplorerListBoxItem>().Select(x => x.Resource!).ToList();
+        List<BaseResource>? newList = newItems?.Cast<ResourceExplorerListBoxItem>().Select(x => x.Resource!).ToList();
+        if (this.isBatching) {
+            // Batch them into one final event that will get called after isBatching is set to false
+            if (newList != null && newList.Count > 0)
+                (this.batchResources_new ??= new List<BaseResource>()).AddRange(newList);
+            if (oldList != null && oldList.Count > 0)
+                (this.batchResources_old ??= new List<BaseResource>()).AddRange(oldList);
         }
-    }
-
-    private void OnSelectionChanged(ReadOnlyCollection<BaseResource>? oldList, ReadOnlyCollection<BaseResource>? newList) {
-        if (ReferenceEquals(oldList, newList) || (oldList?.Count < 1 && newList?.Count < 1)) {
-            return;
+        else if (oldList?.Count > 0 || newList?.Count > 0) {
+            this.RaiseSelectionChanged(GetList(oldList), GetList(newList));
         }
-        
-        this.SelectionChanged?.Invoke(this, oldList, newList);
-        this.LightSelectionChanged?.Invoke(this);
     }
     
     public bool IsSelected(BaseResource item) {
@@ -111,8 +114,22 @@ public class ResourceExplorerSelectionManager : ISelectionManager<BaseResource>,
     }
 
     public void Select(IEnumerable<BaseResource> items) {
-        foreach (BaseResource resource in items) {
-            this.Select(resource);
+        try {
+            this.isBatching = true;
+            foreach (BaseResource resource in items) {
+                this.Select(resource);
+            }
+        }
+        finally {
+            this.isBatching = false;
+        }
+        
+        try {
+            this.RaiseSelectionChanged(GetList(this.batchResources_old), GetList(this.batchResources_new));
+        }
+        finally {
+            this.batchResources_old?.Clear();
+            this.batchResources_new?.Clear();
         }
     }
 
@@ -123,8 +140,22 @@ public class ResourceExplorerSelectionManager : ISelectionManager<BaseResource>,
     }
 
     public void Unselect(IEnumerable<BaseResource> items) {
-        foreach (BaseResource resource in items) {
-            this.Unselect(resource);
+        try {
+            this.isBatching = true;
+            foreach (BaseResource resource in items) {
+                this.Unselect(resource);
+            }
+        }
+        finally {
+            this.isBatching = false;
+        }
+        
+        try {
+            this.RaiseSelectionChanged(GetList(this.batchResources_old), GetList(this.batchResources_new));
+        }
+        finally {
+            this.batchResources_old?.Clear();
+            this.batchResources_new?.Clear();
         }
     }
 
@@ -138,8 +169,39 @@ public class ResourceExplorerSelectionManager : ISelectionManager<BaseResource>,
         this.mySelectionList.Clear();
     }
     
+    public void SelectAll() {
+        try {
+            this.isBatching = true;
+            foreach (ResourceExplorerListBoxItem control in this.ListBox.ItemMap.Controls) {
+                control.IsSelected = true;
+            }
+        }
+        finally {
+            this.isBatching = false;
+        }
+        
+        try {
+            this.RaiseSelectionChanged(GetList(this.batchResources_old), GetList(this.batchResources_new));
+        }
+        finally {
+            this.batchResources_old?.Clear();
+            this.batchResources_new?.Clear();
+        }
+    }
+    
+    private void RaiseSelectionChanged(ReadOnlyCollection<BaseResource>? oldList, ReadOnlyCollection<BaseResource>? newList) {
+        if (ReferenceEquals(oldList, newList) || (oldList?.Count < 1 && newList?.Count < 1)) {
+            return;
+        }
+        
+        this.SelectionChanged?.Invoke(this, oldList, newList);
+        this.LightSelectionChanged?.Invoke(this);
+    }
+    
     public void RaiseSelectionCleared() {
         this.SelectionCleared?.Invoke(this);
         this.LightSelectionChanged?.Invoke(this);
     }
+    
+    private static ReadOnlyCollection<BaseResource>? GetList(List<BaseResource>? list) => list == null || list.Count < 1 ? null : list.AsReadOnly();
 }

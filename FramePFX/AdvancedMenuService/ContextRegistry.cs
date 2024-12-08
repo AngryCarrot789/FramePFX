@@ -34,9 +34,12 @@ public class ContextRegistry {
     /// Gets the groups in our registry
     /// </summary>
     public IEnumerable<KeyValuePair<string, IContextGroup>> Groups => this.groups.OrderBy(x => x.Key).Select(x => x.Value).SelectMany(x => x);
+
+    public string Caption { get; }
     
-    public ContextRegistry() {
+    public ContextRegistry(string caption) {
         this.groups = new Dictionary<int, Dictionary<string, IContextGroup>>();
+        this.Caption = caption;
     }
 
     public FixedContextGroup GetFixedGroup(string name, int priority = 0) {
@@ -47,7 +50,7 @@ public class ContextRegistry {
         return (FixedContextGroup) group;
     }
     
-    public DynamicContextGroup CreateDynamicGroup(string name, DynamicGenerateContext generate, int priority = 0) {
+    public DynamicContextGroup CreateDynamicGroup(string name, DynamicGenerateContextFunction generate, int priority = 0) {
         if (!this.GetDictionary(priority).TryGetValue(name, out IContextGroup? group)) 
             this.SetDictionary(priority, name, group = new DynamicContextGroup(generate));
         else if (!(group is DynamicContextGroup))

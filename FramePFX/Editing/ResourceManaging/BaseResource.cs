@@ -20,6 +20,7 @@
 using FramePFX.AdvancedMenuService;
 using FramePFX.Editing.Factories;
 using FramePFX.Editing.ResourceManaging.Commands;
+using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Interactivity;
 using FramePFX.Serialisation;
 using FramePFX.Utils.Destroying;
@@ -81,13 +82,13 @@ public abstract class BaseResource : IDisplayName, IDestroy {
         });
 
         // For the ListBox and TreeView
-        ResourceSurfaceContextRegistry = new ContextRegistry();
+        ResourceSurfaceContextRegistry = new ContextRegistry("Resource Manager");
         
         // For ResourceFolder only
-        ResourceFolderContextRegistry = new ContextRegistry();
+        ResourceFolderContextRegistry = new ContextRegistry("Resource Folder(s)");
         
         // For ResourceItem only
-        ResourceItemContextRegistry = new ContextRegistry();
+        ResourceItemContextRegistry = new ContextRegistry("Resource Item(s)");
 
         static void ApplyNewItemEntries(FixedContextGroup g) {
             g.AddEntry(new SubListContextEntry("Add new...", "Add a new resource", new List<IContextObject>() {
@@ -109,7 +110,14 @@ public abstract class BaseResource : IDisplayName, IDestroy {
         ApplyNewItemEntries(ResourceFolderContextRegistry.GetFixedGroup("modify.subcreation"));
         ApplyModifyGeneric(ResourceItemContextRegistry.GetFixedGroup("modify.generic"));
         ApplyModifyGeneric(ResourceFolderContextRegistry.GetFixedGroup("modify.generic"));
-
+        
+        ResourceItemContextRegistry.GetFixedGroup("modify.generic").AddDynamicSubGroup((group, ctx, items) => {
+            if (ResourceCommandUtils.GetSingleItem(ctx, out BaseResource? resource) && resource is ResourceColour) {
+                items.Add(new CommandContextEntry("Change Colour", "Change the colour of the resource", "commands.resources.ChangeResourceColour"));
+            }
+            
+        });
+        
         const string cmdID = "commands.resources.GroupResources";
         ResourceSurfaceContextRegistry.GetFixedGroup("Modify2").AddCommand(cmdID, "Group");
         ResourceItemContextRegistry.GetFixedGroup("Modify2").AddCommand(cmdID, "Group Item(s)");
@@ -118,7 +126,8 @@ public abstract class BaseResource : IDisplayName, IDestroy {
             if (!ToggleOnlineStateCommand.GetTargetItems(ctx, out List<ResourceItem>? list)) {
                 return;
             }
-
+            
+            items.Add(new CaptionEntry("Modify Online State"));
             if (list.Count == 1) {
                 if (list[0].IsOnline) {
                     items.Add(new CommandContextEntry("Set Offline", "Set the selected resources offline", "commands.resources.SetResourcesOffline"));

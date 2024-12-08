@@ -344,11 +344,11 @@ public abstract class XMLShortcutSerialiser : IKeymapSerialiser {
         }
     }
 
-    protected static string GetDescription(XmlElement element) => GetAttributeNullable(element, "Description");
+    protected static string? GetDescription(XmlElement element) => GetAttributeNullable(element, "Description");
 
-    protected static string GetDisplayName(XmlElement element) => GetAttributeNullable(element, "DisplayName");
+    protected static string? GetDisplayName(XmlElement element) => GetAttributeNullable(element, "DisplayName");
 
-    protected static string GetAttributeNullable(XmlElement element, string key, bool whitespacesToNull = true) {
+    protected static string? GetAttributeNullable(XmlElement element, string key, bool whitespacesToNull = true) {
         string attribute = element.GetAttribute(key);
         if (whitespacesToNull ? string.IsNullOrWhiteSpace(attribute) : string.IsNullOrEmpty(attribute))
             return null;

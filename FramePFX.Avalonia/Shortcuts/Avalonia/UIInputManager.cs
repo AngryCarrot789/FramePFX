@@ -18,6 +18,7 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
@@ -79,11 +80,13 @@ public class UIInputManager {
     public static UIInputManager Instance { get; } = new UIInputManager();
 
 
-    public static event FocusedPathChangedEventHandler OnFocusedPathChanged;
+    public static event FocusedPathChangedEventHandler? OnFocusedPathChanged;
 
     public static WeakReference CurrentlyFocusedObject { get; } = new WeakReference(null);
     
     public string? FocusedPath { get; private set; }
+
+    private static readonly SortedList<Key, int> RepeatCounter; 
 
     private UIInputManager() {
         if (Instance != null)
@@ -107,6 +110,7 @@ public class UIInputManager {
 
         IsKeyShortcutProcessingBlockedProperty.OverrideMetadata(typeof(TextBox), new StyledPropertyMetadata<bool>(true));
         IsKeyShortcutProcessingBlockedProperty.OverrideMetadata(typeof(TextPresenter), new StyledPropertyMetadata<bool>(true));
+        RepeatCounter = new SortedList<Key, int>();
         // AvalonEdit
         // IsKeyShortcutProcessingBlockedProperty.OverrideMetadata(typeof(TextEditor), new StyledPropertyMetadata<bool>(true));
         // IsKeyShortcutProcessingBlockedProperty.OverrideMetadata(typeof(TextArea), new StyledPropertyMetadata<bool>(true));
@@ -137,13 +141,13 @@ public class UIInputManager {
 
     // Key Events
 
-    private static void OnTopLevelPreviewKeyDown(TopLevel sender, KeyEventArgs e) => OnTopLevelKeyEvent(sender, e, false, true);
+    private static void OnTopLevelPreviewKeyDown(TopLevel sender, KeyEventArgs e) => OnTopLevelKeyEvent(sender, e, isRelease: false, isPreview: true);
 
-    private static void OnTopLevelKeyDown(TopLevel sender, KeyEventArgs e) => OnTopLevelKeyEvent(sender, e, false, false);
+    private static void OnTopLevelKeyDown(TopLevel sender, KeyEventArgs e) => OnTopLevelKeyEvent(sender, e, isRelease: false, isPreview: false);
 
-    private static void OnTopLevelPreviewKeyUp(TopLevel sender, KeyEventArgs e) => OnTopLevelKeyEvent(sender, e, true, true);
+    private static void OnTopLevelPreviewKeyUp(TopLevel sender, KeyEventArgs e) => OnTopLevelKeyEvent(sender, e, isRelease: true, isPreview: true);
 
-    private static void OnTopLevelKeyUp(TopLevel sender, KeyEventArgs e) => OnTopLevelKeyEvent(sender, e, true, false);
+    private static void OnTopLevelKeyUp(TopLevel sender, KeyEventArgs e) => OnTopLevelKeyEvent(sender, e, isRelease: true, isPreview: false);
 
     private static void OnTopLevelKeyEvent(TopLevel sender, KeyEventArgs e, bool isRelease, bool isPreview) {
         // we only want to handle shortcuts in preview events, since we will
@@ -160,10 +164,36 @@ public class UIInputManager {
         if (processor.isProcessingKey)
             return;
 
-        if (!(e.Source is InputElement element))
-            return;
-
-        processor.OnInputSourceKeyEvent(processor, element, e, key, isRelease);
+        bool isRepeat = false;
+        if (isRelease) {
+            RepeatCounter[key] = 0;
+        }
+        else {
+            int keyIndex = RepeatCounter.IndexOfKey(key);
+            if (keyIndex == -1) {
+                RepeatCounter[key] = 1;
+                isRepeat = false;
+            }
+            else {
+                int count = RepeatCounter.GetValueAtIndex(keyIndex);
+                RepeatCounter.SetValueAtIndex(keyIndex, count + 1);
+                isRepeat = count > 0;
+            }
+        }
+        
+        InputElement? focused = GetCurrentFocusedElement(sender);
+        if (!ReferenceEquals(e.Source, sender)) {
+            if (focused != null && !ReferenceEquals(focused, e.Source)) {
+                // hmm
+                Debugger.Break();
+            }
+        }
+        
+        InputElement? element = focused ?? e.Source as InputElement;
+        if (element != null) {
+            processor.OnInputSourceKeyEvent(processor, element, e, key, isRelease, isRepeat);
+        }
+        
         // If OnInputSourceKeyEvent becomes async for some reason,
         // e.Handled will be set to true in assumption that work is being done
         // if (processor.isProcessingKey)

@@ -240,6 +240,10 @@
                   TargetType="{x:Type dta:AutomaticDataParameterLongPropertyEditorControl}"
                   BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorControl}}"/>
 
+<Design.PreviewWith>
+    <dta:AutomaticDataParameterPointPropertyEditorControl/>
+</Design.PreviewWith>
+
     <ControlTheme x:Key="{x:Type dta:AutomaticDataParameterPointPropertyEditorControl}"
                   TargetType="{x:Type dta:AutomaticDataParameterPointPropertyEditorControl}">
         <Setter Property="Template">
@@ -264,13 +268,13 @@
                             </Grid.ColumnDefinitions>
                             <dragger:NumberDragger x:Name="PART_DraggerX" Height="20" Grid.Column="0" BorderBrush="Black" Padding="4,2"/>
                             <dragger:NumberDragger x:Name="PART_DraggerY" Height="20" Grid.Column="2" BorderBrush="Black" Padding="4,2"/>
-
                             <!--
                             <Button x:Name="PART_SetAutomaticButton" Margin="0"
                                     Background="{DynamicResource ABrush.Tone4.Border.Static}"
                                     BorderBrush="Black"
                                     Width="20" Height="20" CornerRadius="2"
-                                    ToolTip.Tip="Make this parameter automatically calculated" Grid.Column="4" Focusable="False">
+                                    ToolTip.Tip="Make this parameter automatically calculated" 
+                                    Grid.Column="4" Focusable="False">
                                 <Path Width="12" Height="14" Stretch="Fill" Fill="{DynamicResource ABrush.Glyph.Static}" Data="M0 40 10 0 25 0 35 40 30 40 21 5 14 5 5 40ZM11.4286 15 23.5714 15 23.3142 14 11.6857 14"/>
                             </Button>
                             -->

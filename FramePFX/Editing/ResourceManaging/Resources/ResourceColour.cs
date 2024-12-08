@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using FramePFX.Editing.ResourceManaging.Events;
 using FramePFX.Utils;
 using SkiaSharp;
 
@@ -75,7 +76,7 @@ public class ResourceColour : ResourceItem {
         set => this.myColour = this.myColour.WithAlpha(value);
     }
 
-    public event Events.ResourceEventHandler ColourChanged;
+    public event ResourceEventHandler ColourChanged;
 
     public ResourceColour() : this(0, 0, 0) {
     }

@@ -40,7 +40,8 @@ public class TimelineRuler : Control {
     public static readonly StyledProperty<IBrush?> BackgroundProperty = Panel.BackgroundProperty.AddOwner<TimelineControl>();
     public static readonly AttachedProperty<FontFamily> FontFamilyProperty = TextElement.FontFamilyProperty.AddOwner<TimelineControl>();
     public static readonly AttachedProperty<IBrush?> ForegroundProperty = TextElement.ForegroundProperty.AddOwner<TimelineControl>();
-    public static readonly StyledProperty<IBrush?> StepColourProperty = AvaloniaProperty.Register<TimelineRuler, IBrush?>(nameof(StepColour), Brushes.DimGray);
+    public static readonly StyledProperty<IBrush?> MajorStepColourProperty = AvaloniaProperty.Register<TimelineRuler, IBrush?>(nameof(MajorStepColour), Brushes.Gray);
+    public static readonly StyledProperty<IBrush?> MinorStepColourProperty = AvaloniaProperty.Register<TimelineRuler, IBrush?>(nameof(MinorStepColour), Brushes.DimGray);
     public static readonly StyledProperty<ScrollViewer?> ScrollViewerReferenceProperty = AvaloniaProperty.Register<TimelineRuler, ScrollViewer?>(nameof(ScrollViewerReference));
 
     // public static readonly DependencyProperty TimelineProperty = DependencyProperty.Register("Timeline", typeof(Timeline), typeof(TimelineRuler), new PropertyMetadata(null, (d, e) => ((TimelineRuler) d).OnTimelineChanged((Timeline) e.OldValue, (Timeline) e.NewValue)));
@@ -69,9 +70,14 @@ public class TimelineRuler : Control {
         set => this.SetValue(ForegroundProperty, value);
     }
 
-    public IBrush? StepColour {
-        get => this.GetValue(StepColourProperty);
-        set => this.SetValue(StepColourProperty, value);
+    public IBrush? MajorStepColour {
+        get => this.GetValue(MajorStepColourProperty);
+        set => this.SetValue(MajorStepColourProperty, value);
+    }
+    
+    public IBrush? MinorStepColour {
+        get => this.GetValue(MinorStepColourProperty);
+        set => this.SetValue(MinorStepColourProperty, value);
     }
 
     public ScrollViewer? ScrollViewerReference {
@@ -79,8 +85,8 @@ public class TimelineRuler : Control {
         set => this.SetValue(ScrollViewerReferenceProperty, value);
     }
 
-    private Pen MajorStepColourPen => this.majorLineStepColourPen ??= new Pen(this.StepColour, MajorLineThickness);
-    private Pen MinorStepColourPen => this.minorLineStepColourPen ??= new Pen(this.StepColour, 0.5);
+    private Pen MajorStepColourPen => this.majorLineStepColourPen ??= new Pen(this.MajorStepColour, 1.0);
+    private Pen MinorStepColourPen => this.minorLineStepColourPen ??= new Pen(this.MinorStepColour, 1.0);
 
     private Typeface? CachedTypeFace;
     private Pen? majorLineStepColourPen;
@@ -94,9 +100,10 @@ public class TimelineRuler : Control {
 
     static TimelineRuler() {
         TimelineControlProperty.Changed.AddClassHandler<TimelineRuler, TimelineControl?>((d, e) => d.OnTimelineChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
-        StepColourProperty.Changed.AddClassHandler<TimelineRuler, IBrush?>((d, e) => d.majorLineStepColourPen = null);
+        MajorStepColourProperty.Changed.AddClassHandler<TimelineRuler, IBrush?>((d, e) => d.majorLineStepColourPen = null);
+        MinorStepColourProperty.Changed.AddClassHandler<TimelineRuler, IBrush?>((d, e) => d.minorLineStepColourPen = null);
         FontFamilyProperty.Changed.AddClassHandler<TimelineRuler, FontFamily>((d, e) => d.CachedTypeFace = null);
-        AffectsRender<TimelineRuler>(StepColourProperty);
+        AffectsRender<TimelineRuler>(MajorStepColourProperty, MinorStepColourProperty);
         ScrollViewerReferenceProperty.Changed.AddClassHandler<TimelineRuler, ScrollViewer?>((d, e) => d.OnScrollViewerReferenceChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }
 
@@ -167,7 +174,7 @@ public class TimelineRuler : Control {
         if (this.Background is Brush bg) {
             dc.DrawRectangle(bg, null, myBounds);
         }
-        
+
         int[] Steps = [1, 2, 5, 10];
 
         // #####################################################################################################################
@@ -176,14 +183,14 @@ public class TimelineRuler : Control {
         double zoom = this.timelineZoom;
         double scrollH = scrollViewer.Offset.X;
         double timelineWidth = zoom * this.targetTimelineModel.MaxDuration;
-        
+
         // Not using anymore but this is some witchcraft math
         // double start = zoom - (scrollH - (long) (scrollH / zoom) * zoom);
         // double firstMajor = scrollH % zoom == 0D ? scrollH : scrollH + (zoom - scrollH % zoom);
         // double firstMajorRelative = zoom - (scrollH - firstMajor + zoom);
-        
+
         const int SubStepNumber = 10;
-        const int MinPixelSize = 4;
+        const int MinPixelSize = 5;
         double minPixel = MinPixelSize * SubStepNumber / timelineWidth;
         double minStep = minPixel * this.targetTimelineModel.MaxDuration;
         double minStepMagPow = Math.Pow(10, Math.Floor(Math.Log10(minStep)));
@@ -192,35 +199,37 @@ public class TimelineRuler : Control {
         if (finalStep < 1) {
             return;
         }
-        
+
         double valueStep = finalStep * minStepMagPow;
         double pixelSize = timelineWidth * valueStep / this.targetTimelineModel.MaxDuration;
 
         int steps = Math.Min((int) Math.Floor(valueStep), SubStepNumber);
         double subpixelSize = pixelSize / steps;
-        
+
         int i = (int) Math.Floor(scrollH / pixelSize);
         int j = (int) Math.Ceiling((scrollH + rulerWidth + pixelSize) / pixelSize);
-        do {
-            double pixel = i * pixelSize - scrollH;
-            if (i > j) {
-                break;
-            }
+        using (dc.PushRenderOptions(new RenderOptions() {EdgeMode = EdgeMode.Aliased})) {
+            do {
+                double pixel = i * pixelSize - scrollH;
+                if (i > j) {
+                    break;
+                }
 
-            // TODO: optimise smaller/minor lines, maybe using skia?
-            for (int y = 1; y < steps; ++y) {
-                double subpixel = pixel + y * subpixelSize;
-                this.DrawMinorLine(dc, subpixel, this.Bounds.Height);
-            }
+                // TODO: optimise smaller/minor lines, maybe using skia?
+                for (int y = 1; y < steps; ++y) {
+                    double subpixel = pixel + y * subpixelSize;
+                    this.DrawMinorLine(dc, subpixel, this.Bounds.Height);
+                }
 
-            double text_value = i * valueStep;
-            if (Math.Abs(text_value - (int) text_value) < 0.00001d) {
-                this.DrawMajorLine(dc, pixel, this.Bounds.Height);
-                this.DrawText(dc, text_value, pixel);
-            }
+                double text_value = i * valueStep;
+                if (Math.Abs(text_value - (int) text_value) < 0.00001d) {
+                    this.DrawMajorLine(dc, pixel, this.Bounds.Height);
+                    this.DrawText(dc, text_value, pixel);
+                }
 
-            i++;
-        } while (true);
+                i++;
+            } while (true);
+        }
     }
 
 

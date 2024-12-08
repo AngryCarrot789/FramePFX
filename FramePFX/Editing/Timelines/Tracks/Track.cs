@@ -41,8 +41,8 @@ public delegate void TrackClipIndexEventHandler(Track track, Clip clip, int inde
 public delegate void ClipMovedEventHandler(Clip clip, Track oldTrack, int oldIndex, Track newTrack, int newIndex);
 
 public abstract class Track : IDisplayName, IAutomatable, IHaveEffects, IDestroy {
-    public static readonly ContextRegistry TimelineTrackContextRegistry = new ContextRegistry();
-    public static readonly ContextRegistry TrackControlSurfaceContextRegistry = new ContextRegistry();
+    public static readonly ContextRegistry TimelineTrackContextRegistry = new ContextRegistry("Track");
+    public static readonly ContextRegistry TrackControlSurfaceContextRegistry = new ContextRegistry("Track Control Surface");
     public static readonly SerialisationRegistry SerialisationRegistry;
 
     public const double MinimumHeight = 20;
@@ -157,10 +157,13 @@ public abstract class Track : IDisplayName, IAutomatable, IHaveEffects, IDestroy
         });
 
         {
-            FixedContextGroup mod1 = TimelineTrackContextRegistry.GetFixedGroup("modify.generic");
-            mod1.AddCommand("commands.editor.RenameTrack", "Rename", "Open a dialog to rename this track");
+            FixedContextGroup modGeneric = TimelineTrackContextRegistry.GetFixedGroup("modify.generic");
+            modGeneric.AddHeader("Generic Modification");
+            modGeneric.AddCommand("commands.editor.RenameTrack", "Rename", "Open a dialog to rename this track");
+            modGeneric.AddCommand("commands.editor.SelectClipsInTracks", "Select All", "Select all clips in this track");
             
             FixedContextGroup modAdd = TimelineTrackContextRegistry.GetFixedGroup("ModifyAddClips");
+            modAdd.AddHeader("Add new clips");
             modAdd.AddCommand("commands.editor.AddTextClip", "Add Text clip", "Create a new Text clip");
             modAdd.AddCommand("commands.editor.AddTimecodeClip", "Add Timecode clip", "Create a new Timecode clip");
             modAdd.AddCommand("commands.editor.AddAVMediaClip", "Add Video Media clip", "Create a new media clip for playing videos or most types of media");
@@ -169,14 +172,21 @@ public abstract class Track : IDisplayName, IAutomatable, IHaveEffects, IDestroy
             modAdd.AddCommand("commands.editor.AddCompositionVideoClip", "Add Composition clip", "Create a new Composition clip");
             
             FixedContextGroup mod3 = TimelineTrackContextRegistry.GetFixedGroup("Modify2");
-            mod3.AddCommand("commands.editor.SliceClipsCommand", "Split clips", "Slice this clip at the playhead");
+            // Removed from here and added to timeline sequence
+            // mod3.AddCommand("commands.editor.SliceClipsCommand", "Split clips", "Slice this clip at the playhead");
+            
+            FixedContextGroup modExternal = TimelineTrackContextRegistry.GetFixedGroup("modify.externalmodify");
+            modExternal.AddHeader("New Tracks");
+            modExternal.AddCommand("commands.editor.NewVideoTrack", "Insert Video Track Above", "Inserts a new Video Track above this track");
+            modExternal.AddCommand("commands.editor.NewAudioTrack", "Insert Audio Track Above", "Inserts a new Audio Track above this track");
             
             FixedContextGroup mod4 = TimelineTrackContextRegistry.GetFixedGroup("modify.destruction", 100000);
             mod4.AddCommand("commands.editor.DeleteSpecificTrack", "Delete Track", "Delete this track");
         }
         {
-            FixedContextGroup mod1 = TrackControlSurfaceContextRegistry.GetFixedGroup("modify.generic");
-            mod1.AddCommand("commands.editor.RenameTrack", "Rename", "Open a dialog to rename this track");
+            FixedContextGroup modGeneric = TrackControlSurfaceContextRegistry.GetFixedGroup("modify.generic");
+            modGeneric.AddHeader("Generic Modification");
+            modGeneric.AddCommand("commands.editor.RenameTrack", "Rename", "Open a dialog to rename this track");
             FixedContextGroup mod3 = TrackControlSurfaceContextRegistry.GetFixedGroup("modify.destruction", 100000);
             mod3.AddCommand("commands.editor.DeleteSpecificTrack", "Delete Track", "Delete this track");
         }

@@ -77,9 +77,6 @@ public sealed class GroupedShortcut : IGroupedObject {
 
     /// <summary>
     /// Whether or not this shortcut is triggered by non-repeated key strokes, repeated key strokes, or if repeats are ignored
-    /// <para>
-    /// Set to true to accept
-    /// </para>
     /// </summary>
     public RepeatMode RepeatMode { get; set; }
 

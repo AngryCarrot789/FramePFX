@@ -19,6 +19,7 @@
 
 using FramePFX.CommandSystem;
 using FramePFX.Editing.Timelines.Tracks;
+using FramePFX.Editing.UI;
 using FramePFX.Interactivity.Contexts;
 using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
 
@@ -30,14 +31,27 @@ public class NewVideoTrackCommand : Command {
     }
 
     protected override void Execute(CommandEventArgs e) {
-        if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline timeline)) {
-            return;
+        // if (DataKeys.TimelineUIKey.TryGetContext(e.ContextData, out ITimelineElement? timelineElement)) {
+        //     var seleted = timelineElement.Selection.SelectedItems.FirstOrDefault();
+        // }
+        if (DataKeys.TrackUIKey.TryGetContext(e.ContextData, out ITrackElement? trackUIContext)) {
+            Timeline timeline = trackUIContext.Timeline.Timeline!;
+            int index = timeline.IndexOf(trackUIContext.Track!);
+            if (index == -1)
+                throw new Exception("Fatal error... track index error");
+            
+            VideoTrack track = new VideoTrack() {
+                DisplayName = "New Video Track"
+            };
+            
+            timeline.InsertTrack(index, track);
         }
+        else if (DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline? timeline)) {
+            VideoTrack track = new VideoTrack() {
+                DisplayName = "New Video Track"
+            };
 
-        VideoTrack track = new VideoTrack() {
-            DisplayName = "New Video Track"
-        };
-
-        timeline.AddTrack(track);
+            timeline.InsertTrack(0, track);
+        }
     }
 }

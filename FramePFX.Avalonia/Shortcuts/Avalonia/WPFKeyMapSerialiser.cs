@@ -97,10 +97,10 @@ public class WPFKeyMapSerialiser : XMLShortcutSerialiser {
     }
 
     protected override KeyStroke DeserialiseKeyStroke(XmlElement element) {
-        string keyText = GetAttributeNullable(element, "Key");
-        string keyCodeText = GetAttributeNullable(element, "KeyCode");
-        string modsText = GetAttributeNullable(element, "Mods");
-        string isReleaseText = GetAttributeNullable(element, "IsRelease");
+        string? keyText = GetAttributeNullable(element, "Key");
+        string? keyCodeText = GetAttributeNullable(element, "KeyCode");
+        string? modsText = GetAttributeNullable(element, "Mods");
+        string? isReleaseText = GetAttributeNullable(element, "IsRelease");
 
         int keyCode;
         Key key = KeyUtils.ParseKey(keyText);
@@ -125,11 +125,11 @@ public class WPFKeyMapSerialiser : XMLShortcutSerialiser {
     }
 
     protected override MouseStroke DeserialiseMouseStroke(XmlElement element) {
-        string modsText = GetAttributeNullable(element, "Mods");
-        string buttonText = GetAttributeNullable(element, "Button");
-        string isReleaseText = GetAttributeNullable(element, "IsRelease");
-        string clickCountText = GetAttributeNullable(element, "ClickCount");
-        string wheelDeltaText = GetAttributeNullable(element, "WheelDelta");
+        string? modsText = GetAttributeNullable(element, "Mods");
+        string? buttonText = GetAttributeNullable(element, "Button");
+        string? isReleaseText = GetAttributeNullable(element, "IsRelease");
+        string? clickCountText = GetAttributeNullable(element, "ClickCount");
+        string? wheelDeltaText = GetAttributeNullable(element, "WheelDelta");
         if (string.IsNullOrWhiteSpace(buttonText)) {
             throw new Exception("Missing mouse button");
         }
@@ -198,7 +198,7 @@ public class WPFKeyMapSerialiser : XMLShortcutSerialiser {
         return joiner.ToString();
     }
 
-    public static KeyModifiers StringToMods(string mods) {
+    public static KeyModifiers StringToMods(string? mods) {
         KeyModifiers keys = KeyModifiers.None;
         if (string.IsNullOrWhiteSpace(mods)) {
             return keys;

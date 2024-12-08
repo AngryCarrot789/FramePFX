@@ -45,7 +45,7 @@ public delegate void ClipTrackChangedEventHandler(Clip clip, Track? oldTrack, Tr
 public delegate void ClipActiveSequenceChangedEventHandler(Clip clip, AutomationSequence? oldSequence, AutomationSequence? newSequence);
 
 public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStrictFrameRange, IResourceHolder, IHaveEffects, IDestroy {
-    public static readonly ContextRegistry ClipContextRegistry = new ContextRegistry();
+    public static readonly ContextRegistry ClipContextRegistry = new ContextRegistry("Clips");
     
     public static readonly SerialisationRegistry SerialisationRegistry;
     private readonly List<BaseEffect> internalEffectList;
@@ -208,14 +208,16 @@ public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStr
             clip.ResourceHelper.WriteToRootRBE(data);
         });
 
-        FixedContextGroup mod1 = ClipContextRegistry.GetFixedGroup("modify.generic");
-        mod1.AddCommand("commands.editor.RenameClip", "Rename", "Open a dialog to rename this clip");
+        FixedContextGroup modGeneric = ClipContextRegistry.GetFixedGroup("modify.generic");
+        modGeneric.AddHeader("Generic Modification");
+        modGeneric.AddCommand("commands.editor.RenameClip", "Rename", "Open a dialog to rename this clip");
         
-        FixedContextGroup mod2 = ClipContextRegistry.GetFixedGroup("Modify2");
-        mod2.AddCommand("commands.editor.SliceClipsCommand", "Split", "Slice this clip at the playhead");
+        FixedContextGroup modEdit = ClipContextRegistry.GetFixedGroup("modify.edit");
+        modEdit.AddHeader("Edit");
+        modEdit.AddCommand("commands.editor.SliceClipsCommand", "Split", "Slice this clip at the playhead");
         
-        FixedContextGroup mod3 = ClipContextRegistry.GetFixedGroup("modify.destruction", 100000);
-        mod3.AddCommand("commands.editor.DeleteClipOwnerTrack", "Delete Track", "Delete the track this clip resides in");
+        FixedContextGroup modDestruction = ClipContextRegistry.GetFixedGroup("modify.destruction", 100000);
+        modDestruction.AddCommand("commands.editor.DeleteClipOwnerTrack", "Delete Track", "Delete the track this clip resides in");
 
         // Example new serialisers for new feature added in new build version
         // SerialisationRegistry.Register<Clip>(1, (clip, data, ctx) => {

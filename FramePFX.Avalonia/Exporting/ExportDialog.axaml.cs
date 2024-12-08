@@ -203,7 +203,7 @@ public partial class ExportDialog : WindowEx {
             return;
 
         this.isProcessingFrameSpanControls = true;
-        this.Setup.Span = this.Setup.Span.MoveEndIndex((long) e.NewValue);
+        this.Setup.Span = this.Setup.Span.WithEndIndex((long) e.NewValue);
         this.isProcessingFrameSpanControls = false;
     }
 

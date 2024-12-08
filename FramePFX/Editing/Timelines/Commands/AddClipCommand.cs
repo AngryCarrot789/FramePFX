@@ -25,6 +25,7 @@ using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Clips.Core;
 using FramePFX.Editing.Timelines.Tracks;
+using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Services.Messaging;
 using FramePFX.Utils;
@@ -51,7 +52,7 @@ public abstract class AddClipCommand<T> : AsyncCommand where T : Clip {
         await this.OnPreAddToTrack(track, clip, e.ContextData);
 
         // Is this way too over secure???
-        
+
         using ErrorList list = new ErrorList("Exception adding clip to track");
 
         bool success = false;
@@ -79,20 +80,46 @@ public abstract class AddClipCommand<T> : AsyncCommand where T : Clip {
     protected virtual T NewInstance() {
         return (T) ClipFactory.Instance.NewClip(ClipFactory.Instance.GetId(typeof(T)));
     }
-    
+
     protected virtual Task OnPreAddToTrack(Track track, T clip, IContextData ctx) {
         return Task.CompletedTask;
     }
-    
+
     protected virtual Task OnPostAddToTrack(Track track, T clip, bool success, IContextData ctx) {
         return Task.CompletedTask;
     }
 }
 
 public class AddTextClipCommand : AddClipCommand<TextVideoClip>;
+
 public class AddTimecodeClipCommand : AddClipCommand<TimecodeClip>;
-public class AddVideoClipShapeCommand : AddClipCommand<VideoClipShape>;
-public class AddAVMediaClipCommand : AddClipCommand<AVMediaVideoClip>;
+
+public class AddVideoClipShapeCommand : AddClipCommand<VideoClipShape> {
+    protected override async Task OnPostAddToTrack(Track track, VideoClipShape clip, bool success, IContextData ctx) {
+        if (DataKeys.ResourceManagerUIKey.TryGetContext(ctx, out IResourceManagerElement? manager)) {
+            ISelectionManager<BaseResource> selection = manager.List.Selection;
+            if (selection.Count == 1 && selection.SelectedItems.First() is ResourceColour colour && colour.IsRegistered()) {
+                if (await IoC.MessageService.ShowMessage("Link resource", $"Link '{colour.DisplayName ?? "Selected Media Resource"}' to this clip?", MessageBoxButton.YesNo) == MessageBoxResult.Yes) {
+                    clip.ColourKey.SetTargetResourceId(colour.UniqueId);
+                }
+            }
+        }
+    }
+}
+
+public class AddAVMediaClipCommand : AddClipCommand<AVMediaVideoClip> {
+    protected override async Task OnPostAddToTrack(Track track, AVMediaVideoClip clip, bool success, IContextData ctx) {
+        if (DataKeys.ResourceManagerUIKey.TryGetContext(ctx, out IResourceManagerElement? manager)) {
+            ISelectionManager<BaseResource> selection = manager.List.Selection;
+            if (selection.Count == 1 && selection.SelectedItems.First() is ResourceAVMedia media && media.IsRegistered()) {
+                if (await IoC.MessageService.ShowMessage("Link resource", $"Link '{media.DisplayName ?? "Selected Media Resource"}' to this clip?", MessageBoxButton.YesNo) == MessageBoxResult.Yes) {
+                    clip.ResourceAVMediaKey.SetTargetResourceId(media.UniqueId);
+                }
+            }
+        }
+    }
+}
+
 public class AddImageVideoClipCommand : AddClipCommand<ImageVideoClip> {
     protected override async Task OnPreAddToTrack(Track track, ImageVideoClip clip, IContextData ctx) {
         ResourceManager? resMan;
@@ -101,7 +128,7 @@ public class AddImageVideoClipCommand : AddClipCommand<ImageVideoClip> {
         }
 
         if (MessageBoxResult.Yes == await IoC.MessageService.ShowMessage("Open image", "Do you want to open up an image file for this new clip?", MessageBoxButton.YesNo)) {
-            string? path = await IoC.FilePickService.OpenFile("Open an image file for this image?", Filters.ImageTypesAndAll);
+            string? path = await IoC.FilePickService.OpenFile("Open an image file for this image?", Filters.CombinedImageTypesAndAll);
             if (path != null) {
                 ResourceImage resourceImage = new ResourceImage();
                 ResourceFolder targetFolder;

@@ -39,6 +39,13 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
     public static readonly AttachedProperty<ContextRegistry?> ContextRegistryProperty = AvaloniaProperty.RegisterAttached<AdvancedContextMenu, Control, ContextRegistry?>("ContextRegistry");
     private static readonly AttachedProperty<AdvancedContextMenu?> AdvancedContextMenuProperty = AvaloniaProperty.RegisterAttached<AdvancedContextMenu, Control, AdvancedContextMenu?>("AdvancedContextMenu");
 
+    public static readonly StyledProperty<string?> ContextCaptionProperty = AvaloniaProperty.Register<AdvancedContextMenu, string?>(nameof(ContextCaption));
+
+    public string? ContextCaption {
+        get => this.GetValue(ContextCaptionProperty);
+        set => this.SetValue(ContextCaptionProperty, value);
+    }
+
     private static void SetAdvancedContextMenu(Control obj, AdvancedContextMenu? value) => obj.SetValue(AdvancedContextMenuProperty, value);
     private static AdvancedContextMenu? GetAdvancedContextMenu(Control obj) => obj.GetValue(AdvancedContextMenuProperty);
 
@@ -47,21 +54,50 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
     private Control? currentTarget;
     private Dictionary<int, DynamicGroupContextObject>? dynamicInsertion;
     private Dictionary<int, int>? dynamicInserted;
+    private bool ignoreUpdateNormalisation;
 
     public IContextData? Context { get; private set; }
     IAdvancedContainer IAdvancedContextElement.Container => this;
-
-    protected override Type StyleKeyOverride => typeof(ContextMenu);
 
     public AdvancedContextMenu() {
         this.itemCache = new Dictionary<Type, Stack<Control>>();
         this.owners = new List<Control>();
         this.Opening += this.OnOpening;
         this.Closed += this.OnClosed;
+        this.ignoreUpdateNormalisation = true;
+    }
+
+    public void UpdateSubListVisibility() {
+        if (this.ignoreUpdateNormalisation)
+            return;
+
+        this.ignoreUpdateNormalisation = true;
+        MenuService.NormaliseSeparators(this);
+        this.ignoreUpdateNormalisation = false;
+    }
+    
+    static AdvancedContextMenu() {
+        contextMenus = new Dictionary<ContextRegistry, AdvancedContextMenu>();
+        ContextRegistryProperty.Changed.AddClassHandler<Control, ContextRegistry?>((d, e) => OnContextRegistryChanged(d, e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
+    }
+
+    protected override Control CreateContainerForItemOverride(object? item, int index, object? recycleKey) {
+        return new AdvancedContextMenuItem();
+    }
+
+    protected override bool NeedsContainerOverride(object? item, int index, out object? recycleKey) {
+        if (item is MenuItem || item is Separator || item is CaptionSeparator) {
+            recycleKey = null;
+            return false;
+        }
+
+        recycleKey = DefaultRecycleKey;
+        return true;
     }
 
     private void OnClosed(object? sender, RoutedEventArgs e) {
         this.ClearContext();
+        this.ignoreUpdateNormalisation = true;
     }
 
     private void OnOpening(object? sender, CancelEventArgs e) {
@@ -73,15 +109,13 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
         this.CaptureContextFromObject(this.currentTarget);
     }
 
-    static AdvancedContextMenu() {
-        contextMenus = new Dictionary<ContextRegistry, AdvancedContextMenu>();
-        ContextRegistryProperty.Changed.AddClassHandler<Control, ContextRegistry?>((d, e) => OnContextRegistryChanged(d, e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
-    }
-
     protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
         MenuService.GenerateDynamicItems(this, ref this.dynamicInsertion, ref this.dynamicInserted);
-        Dispatcher.UIThread.InvokeAsync(() => MenuService.ProcessSeparators(this), DispatcherPriority.Loaded);
+        Dispatcher.UIThread.InvokeAsync(() => {
+            MenuService.NormaliseSeparators(this);
+            this.ignoreUpdateNormalisation = false;
+        }, DispatcherPriority.Loaded);
     }
 
     protected override void OnUnloaded(RoutedEventArgs e) {
@@ -117,7 +151,9 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
         if (newValue != null) {
             // Generate context menu, if required
             if (!contextMenus.TryGetValue(newValue, out AdvancedContextMenu? menu)) {
-                contextMenus[newValue] = menu = new AdvancedContextMenu();
+                contextMenus[newValue] = menu = new AdvancedContextMenu() {
+                    ContextCaption = newValue.Caption ?? "Context Menu"
+                };
                 List<IContextObject> contextObjects = new List<IContextObject>();
 
                 int i = 0;

@@ -127,7 +127,7 @@ public class ClipStoragePanel : Panel, IEnumerable<TimelineClipControl> {
         Controls items = this.Children;
         for (int i = 0, count = items.Count; i < count; i++) {
             TimelineClipControl clip = (TimelineClipControl) items[i];
-            clip.Arrange(new Rect(clip.PixelBegin, 0, clip.PixelWidth, finalSize.Height));
+            clip.Arrange(new Rect(Math.Floor(clip.PixelBegin), 0, clip.PixelWidth, finalSize.Height));
         }
 
         return finalSize;

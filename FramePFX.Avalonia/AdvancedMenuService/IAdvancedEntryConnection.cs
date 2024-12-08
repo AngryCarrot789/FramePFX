@@ -17,24 +17,20 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System;
 using Avalonia.Controls;
 using FramePFX.AdvancedMenuService;
-using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Avalonia.AdvancedMenuService;
 
-public interface IAdvancedContainer {
-    /// <summary>
-    /// Gets the context for the container menu or root container menu item
-    /// </summary>
-    IContextData? Context { get; }
+/// <summary>
+/// An interface for some sort of object inside an advanced menu that
+/// can be connected to and from a context menu entry
+/// </summary>
+public interface IAdvancedEntryConnection {
+    IContextObject? Entry { get; }
 
-    bool PushCachedItem(Type entryType, Control element);
-
-    Control? PopCachedItem(Type entryType);
-    
-    Control CreateChildItem(IContextObject entry);
-
-    void UpdateSubListVisibility();
+    void OnAdding(IAdvancedContainer container, ItemsControl parent, IContextObject entry);
+    void OnAdded();
+    void OnRemoving();
+    void OnRemoved();
 }

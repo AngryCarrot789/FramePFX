@@ -34,7 +34,7 @@ public class AvaloniaShortcutInputProcessor : ShortcutInputProcessor {
         this.CurrentTargetObject = null;
     }
 
-    public void OnInputSourceKeyEvent(AvaloniaShortcutInputProcessor processor, InputElement focused, KeyEventArgs e, Key key, bool isRelease) {
+    public void OnInputSourceKeyEvent(AvaloniaShortcutInputProcessor processor, InputElement focused, KeyEventArgs e, Key key, bool isRelease, bool isRepeat) {
         KeyModifiers mods = ShortcutUtils.IsModifierKey(key) ? KeyModifiers.None : e.KeyModifiers;
         KeyStroke stroke = new KeyStroke((int) key, (int) mods, isRelease);
 
@@ -46,7 +46,7 @@ public class AvaloniaShortcutInputProcessor : ShortcutInputProcessor {
             this.isProcessingKey = true;
             this.BeginInputProcessing(focused);
 
-            e.Handled = processor.OnKeyStroke(UIInputManager.Instance.FocusedPath, stroke, false);
+            e.Handled = processor.OnKeyStroke(UIInputManager.Instance.FocusedPath, stroke, isRepeat);
         }
         finally {
             this.isProcessingKey = false;

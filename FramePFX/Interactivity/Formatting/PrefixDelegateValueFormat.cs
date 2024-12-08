@@ -44,7 +44,19 @@ public class PrefixDelegateValueFormat : IValueFormatter
 
     public bool TryConvertToDouble(string format, out double value)
     {
-        return this.Formatter.TryConvertToDouble(format.Substring(this.Prefix.Length), out value);
+        int i = 0, j = format.Length;
+        if (!string.IsNullOrEmpty(this.Prefix) && format.StartsWith(this.Prefix))
+        {
+            i += this.Prefix.Length;
+        }
+        
+        if (i >= j)
+        {
+            value = default;
+            return false;
+        }
+
+        return this.Formatter.TryConvertToDouble(i == 0 ? format : format.Substring(i, j - i), out value);
     }
 }
 
@@ -70,6 +82,16 @@ public class PlusMinusValueFormat : IValueFormatter
 
     public bool TryConvertToDouble(string format, out double value)
     {
-        return this.Formatter.TryConvertToDouble(format.Substring(1), out value);
+        int i = 0, j = format.Length;
+        if (j > 0 && format[0] == '+' || format[0] == '-')
+            i++;
+        
+        if (i >= j)
+        {
+            value = default;
+            return false;
+        }
+        
+        return this.Formatter.TryConvertToDouble(format.Substring(i, j - i), out value);
     }
 }

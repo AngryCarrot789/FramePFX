@@ -57,7 +57,12 @@ public class SuffixValueFormatter : BaseSimpleValueFormatter
 
     public override bool TryConvertToDouble(string format, out double value)
     {
-        int parseLength = string.IsNullOrEmpty(this.suffix) ? format.Length : (format.Length - this.suffix.Length);
+        int parseLength = format.Length;
+        if (!string.IsNullOrEmpty(this.suffix) && format.EndsWith(this.suffix, StringComparison.OrdinalIgnoreCase))
+        {
+            parseLength -= this.suffix.Length;
+        }
+        
         if (parseLength < 1)
         {
             value = default;

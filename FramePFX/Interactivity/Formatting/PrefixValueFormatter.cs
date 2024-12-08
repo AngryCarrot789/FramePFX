@@ -52,14 +52,19 @@ public class PrefixValueFormatter : BaseSimpleValueFormatter
 
     public override bool TryConvertToDouble(string format, out double value)
     {
-        int parseLength = string.IsNullOrEmpty(this.prefix) ? format.Length : (format.Length - this.prefix.Length);
-        if (parseLength < 1)
+        int i = 0, j = format.Length;
+        if (!string.IsNullOrEmpty(this.prefix) && format.StartsWith(this.prefix))
+        {
+            i += this.prefix.Length;
+        }
+        
+        if (i >= j)
         {
             value = default;
             return false;
         }
 
-        return double.TryParse(format.AsSpan(0, parseLength), out value);
+        return double.TryParse(format.AsSpan(i, j - i), out value);
     }
 
     public static PrefixValueFormatter Parse(string input)

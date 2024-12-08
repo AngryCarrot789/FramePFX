@@ -18,7 +18,6 @@
 //
 
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.Timelines;
 using FramePFX.Natives;

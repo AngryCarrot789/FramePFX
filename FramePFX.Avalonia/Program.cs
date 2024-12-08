@@ -33,7 +33,17 @@ class Program
     {
         try
         {
-            BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+            BuildAvaloniaApp().
+                // With(new SkiaOptions()
+                // {
+                //     MaxGpuResourceSizeBytes = 256 * 1024 * 1024,
+                // }).
+                // With(new Win32PlatformOptions()
+                // {
+                //     RenderingMode = [Win32RenderingMode.AngleEgl],
+                //     CompositionMode = [Win32CompositionMode.LowLatencyDxgiSwapChain]
+                // }).
+                StartWithClassicDesktopLifetime(args);
         }
         catch (Exception e)
         {

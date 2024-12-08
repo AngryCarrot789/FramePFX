@@ -201,19 +201,17 @@ public class TimelineRuler : Control
             dc.DrawRectangle(bg, null, myBounds);
         }
 
-        int[] Steps = [1, 2, 5, 10];
-
-        // #####################################################################################################################
-
-        double rulerWidth = myBounds.Width;
-        double zoom = this.timelineZoom;
-        double scrollH = scrollViewer.Offset.X;
-        double timelineWidth = zoom * this.targetTimelineModel.MaxDuration;
-
         // Not using anymore but this is some witchcraft math
         // double start = zoom - (scrollH - (long) (scrollH / zoom) * zoom);
         // double firstMajor = scrollH % zoom == 0D ? scrollH : scrollH + (zoom - scrollH % zoom);
         // double firstMajorRelative = zoom - (scrollH - firstMajor + zoom);
+        
+        int[] Steps = [1, 2, 5, 10];
+
+        double rulerWidth = myBounds.Width;
+        double zoom = this.timelineZoom;
+        double scrollH = Math.Round(scrollViewer.Offset.X);
+        double timelineWidth = zoom * this.targetTimelineModel.MaxDuration;
 
         const int SubStepNumber = 10;
         const int MinPixelSize = 5;
@@ -230,9 +228,10 @@ public class TimelineRuler : Control
         double valueStep = finalStep * minStepMagPow;
         double pixelSize = timelineWidth * valueStep / this.targetTimelineModel.MaxDuration;
 
-        int steps = Math.Min((int) Math.Floor(valueStep), SubStepNumber);
-        double subpixelSize = pixelSize / steps;
+        int minorSteps = Math.Min((int) Math.Floor(valueStep), SubStepNumber);
+        double minorSubPixelSize = pixelSize / minorSteps;
 
+        // These are slightly outside the rendering area both left and right, but that's fine since it's not by much
         int i = (int) Math.Floor(scrollH / pixelSize);
         int j = (int) Math.Ceiling((scrollH + rulerWidth + pixelSize) / pixelSize);
         using (dc.PushRenderOptions(new RenderOptions() { EdgeMode = EdgeMode.Aliased }))
@@ -241,14 +240,12 @@ public class TimelineRuler : Control
             {
                 double pixel = i * pixelSize - scrollH;
                 if (i > j)
-                {
                     break;
-                }
 
                 // TODO: optimise smaller/minor lines, maybe using skia?
-                for (int y = 1; y < steps; ++y)
+                for (int y = 1; y < minorSteps; ++y)
                 {
-                    double subpixel = pixel + y * subpixelSize;
+                    double subpixel = pixel + y * minorSubPixelSize;
                     this.DrawMinorLine(dc, subpixel, this.Bounds.Height);
                 }
 

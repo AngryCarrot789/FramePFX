@@ -22,7 +22,8 @@ namespace FramePFX.Editing.UI;
 /// <summary>
 /// An interface for the UI of a video editor window
 /// </summary>
-public interface IVideoEditorUI {
+public interface IVideoEditorUI
+{
     /// <summary>
     /// Gets our video editor model
     /// </summary>

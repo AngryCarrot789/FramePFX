@@ -25,33 +25,42 @@ using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
 
 namespace FramePFX.Editing.Timelines.Commands;
 
-public class SliceClipsCommand : Command {
-    public override Executability CanExecute(CommandEventArgs e) {
-        if (DataKeys.ClipKey.TryGetContext(e.ContextData, out var clip) && clip.Timeline != null)
-            return Executability.Valid;
+public class SplitClipsCommand : Command
+{
+    public override Executability CanExecute(CommandEventArgs e)
+    {
+        if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip? clip) && clip.Timeline != null)
+            return clip.IsTimelineFrameInRange(clip.Timeline.PlayHeadPosition) ? Executability.Valid : Executability.ValidButCannotExecute;
         if (e.ContextData.ContainsKey(DataKeys.TimelineKey))
             return Executability.Valid;
         return Executability.Invalid;
     }
 
-    protected override void Execute(CommandEventArgs e) {
-        if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip? clip) && clip.Timeline is Timeline timeline) {
+    protected override void Execute(CommandEventArgs e)
+    {
+        if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip? clip) && clip.Timeline is Timeline timeline)
+        {
             SliceClip(clip, timeline.PlayHeadPosition);
         }
-        else if (DataKeys.TimelineKey.TryGetContext(e.ContextData, out timeline)) {
+        else if (DataKeys.TimelineKey.TryGetContext(e.ContextData, out timeline))
+        {
             List<Clip> clips = new List<Clip>();
-            foreach (Track track in timeline.Tracks) {
+            foreach (Track track in timeline.Tracks)
+            {
                 clips.AddRange(track.GetClipsAtFrame(timeline.PlayHeadPosition));
             }
 
-            for (int i = clips.Count - 1; i >= 0; i--) {
+            for (int i = clips.Count - 1; i >= 0; i--)
+            {
                 SliceClip(clips[i], timeline.PlayHeadPosition);
             }
         }
     }
 
-    public static void SliceClip(Clip clip, long playHead) {
-        if (clip.IntersectsFrameAt(playHead) && playHead != clip.FrameSpan.Begin && playHead != clip.FrameSpan.EndIndex) {
+    public static void SliceClip(Clip clip, long playHead)
+    {
+        if (clip.IntersectsFrameAt(playHead) && playHead != clip.FrameSpan.Begin && playHead != clip.FrameSpan.EndIndex)
+        {
             clip.CutAt(playHead - clip.FrameSpan.Begin);
         }
     }

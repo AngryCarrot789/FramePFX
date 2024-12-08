@@ -24,20 +24,24 @@ using Avalonia.Reactive;
 
 namespace FramePFX.Avalonia;
 
-public static class HandleRequestBringIntoView {
+public static class HandleRequestBringIntoView
+{
     public static readonly AttachedProperty<bool> IsEnabledProperty = AvaloniaProperty.RegisterAttached<Control, bool>("IsEnabled", typeof(HandleRequestBringIntoView));
 
     public static void SetIsEnabled(Control obj, bool value) => obj.SetValue(IsEnabledProperty, value);
-        
+
     public static bool GetIsEnabled(Control obj) => obj.GetValue(IsEnabledProperty);
 
-    static HandleRequestBringIntoView() {
+    static HandleRequestBringIntoView()
+    {
         Control.RequestBringIntoViewEvent.Raised.Subscribe(new AnonymousObserver<(object, RoutedEventArgs)>(GridOnRequestBringIntoView));
     }
 
-    private static void GridOnRequestBringIntoView((object ctrl, RoutedEventArgs eventArgs) tuple) {
+    private static void GridOnRequestBringIntoView((object ctrl, RoutedEventArgs eventArgs) tuple)
+    {
         // Prevent the timeline scrolling when you select a cli
-        if (tuple.ctrl is Control control && GetIsEnabled(control)) {
+        if (tuple.ctrl is Control control && GetIsEnabled(control))
+        {
             tuple.eventArgs.Handled = true;
         }
     }

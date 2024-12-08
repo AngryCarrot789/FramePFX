@@ -28,7 +28,8 @@ public delegate void EffectMovedEventHandler(IHaveEffects effects, BaseEffect ef
 /// <summary>
 /// An interface for an object that has effects associated with it. This is either a clip or track
 /// </summary>
-public interface IHaveEffects : IHaveTimeline {
+public interface IHaveEffects : IHaveTimeline
+{
     /// <summary>
     /// Returns a list of effects. This collection is read-only so it cannot and also must not be modified directly
     /// </summary>

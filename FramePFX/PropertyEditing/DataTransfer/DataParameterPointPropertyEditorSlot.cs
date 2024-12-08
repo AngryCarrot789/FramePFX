@@ -23,18 +23,22 @@ using SkiaSharp;
 
 namespace FramePFX.PropertyEditing.DataTransfer;
 
-public class DataParameterPointPropertyEditorSlot : DataParameterFormattableNumberPropertyEditorSlot {
+public class DataParameterPointPropertyEditorSlot : DataParameterFormattableNumberPropertyEditorSlot
+{
     private SKPoint value;
 
-    public SKPoint Value {
+    public SKPoint Value
+    {
         get => this.value;
-        set {
+        set
+        {
             SKPoint oldVal = this.value;
             this.value = value;
             bool useAddition = false; //this.IsMultiHandler; TODO: Fix with new NumberDragger
             SKPoint change = value - oldVal;
             DataParameterPoint parameter = this.Parameter;
-            for (int i = 0, c = this.Handlers.Count; i < c; i++) {
+            for (int i = 0, c = this.Handlers.Count; i < c; i++)
+            {
                 ITransferableData obj = (ITransferableData) this.Handlers[i];
                 SKPoint newValue = parameter.Clamp(useAddition ? (parameter.GetValue(obj) + change) : value);
                 parameter.SetValue(obj, newValue);
@@ -52,9 +56,11 @@ public class DataParameterPointPropertyEditorSlot : DataParameterFormattableNumb
     public DataParameterPointPropertyEditorSlot(DataParameterPoint parameter, Type applicableType, string displayName) : base(parameter, applicableType, displayName) {
     }
 
-    public override void QueryValueFromHandlers() {
+    public override void QueryValueFromHandlers()
+    {
         this.HasMultipleValues = !CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetValue((ITransferableData) x), out this.value);
-        if (this.HasMultipleValues) {
+        if (this.HasMultipleValues)
+        {
             SKPoint range = (this.Parameter.Maximum - this.Parameter.Minimum);
             this.value = new SKPoint(Math.Abs(range.X) / 2.0F, Math.Abs(range.Y) / 2.0F);
         }

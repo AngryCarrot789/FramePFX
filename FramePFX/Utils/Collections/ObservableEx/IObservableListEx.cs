@@ -25,6 +25,7 @@ public delegate void ObservableListExChangedEventHandler<T>(IObservableListEx<T>
 /// A list implementation that invokes a series of events when the collection changes
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public interface IObservableListEx<T> : IList<T> {
+public interface IObservableListEx<T> : IList<T>
+{
     event ObservableListExChangedEventHandler<T>? CollectionChanged;
 }

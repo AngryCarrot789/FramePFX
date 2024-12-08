@@ -29,13 +29,16 @@ namespace FramePFX.Avalonia.AvControls;
 /// A helper class for using the Path or Polygon controls in a panel or a standalone one.
 /// For some reason they don't measure correctly and get clipped so we need to do some manual labour to get them to work
 /// </summary>
-public static class PathHelper {
-    public static bool Arrange(TemplatedControl control, Layoutable? thing, Size finalSize, out Size arrange) {
-        if (thing == null) {
+public static class PathHelper
+{
+    public static bool Arrange(TemplatedControl control, Layoutable? thing, Size finalSize, out Size arrange)
+    {
+        if (thing == null)
+        {
             arrange = default;
             return false;
         }
-        
+
         Size size = finalSize.Deflate(control.Padding);
         double sX = size.Width / thing.Width, sY = size.Height / thing.Height;
         thing.RenderTransform = new ScaleTransform(Math.Min(sX, sY), Math.Min(sX, sY));

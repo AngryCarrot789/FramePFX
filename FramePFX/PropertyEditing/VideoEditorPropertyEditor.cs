@@ -32,7 +32,8 @@ namespace FramePFX.PropertyEditing;
 /// <summary>
 /// A class which stores the video editor's general property editor information
 /// </summary>
-public class VideoEditorPropertyEditor : PropertyEditor {
+public class VideoEditorPropertyEditor : PropertyEditor
+{
     public static VideoEditorPropertyEditor Instance { get; } = new VideoEditorPropertyEditor();
 
     public SimplePropertyEditorGroup ClipGroup { get; }
@@ -43,14 +44,16 @@ public class VideoEditorPropertyEditor : PropertyEditor {
 
     public EffectListPropertyEditorGroup TrackEffectListGroup { get; }
 
-    private VideoEditorPropertyEditor() {
+    private VideoEditorPropertyEditor()
+    {
         {
-            this.ClipGroup = new SimplePropertyEditorGroup(typeof(Clip)) {
+            this.ClipGroup = new SimplePropertyEditorGroup(typeof(Clip))
+            {
                 DisplayName = "Clip", IsExpanded = true
             };
 
             this.ClipGroup.AddItem(new DisplayNamePropertyEditorSlot());
-            this.ClipGroup.AddItem(new ParameterDoublePropertyEditorSlot(VideoClip.OpacityParameter, typeof(VideoClip), "Opacity", DragStepProfile.UnitOne){ ValueFormatter = UnitToPercentFormatter.Standard });
+            this.ClipGroup.AddItem(new ParameterDoublePropertyEditorSlot(VideoClip.OpacityParameter, typeof(VideoClip), "Opacity", DragStepProfile.UnitOne) { ValueFormatter = UnitToPercentFormatter.Standard });
             this.ClipGroup.AddItem(new VideoClipMediaFrameOffsetPropertyEditorSlot());
 
             {
@@ -68,7 +71,7 @@ public class VideoEditorPropertyEditor : PropertyEditor {
                 group.AddItem(new ParameterVector2PropertyEditorSlot(VideoClipShape.SizeParameter, typeof(VideoClipShape), "Size", DragStepProfile.InfPixelRange) { ValueFormatter = SuffixValueFormatter.StandardPixels });
                 this.ClipGroup.AddItem(group);
             }
-            
+
             {
                 SimplePropertyEditorGroup textGroup = new SimplePropertyEditorGroup(typeof(TextVideoClip), GroupType.SecondaryExpander) { DisplayName = "Text" };
                 textGroup.AddItem(new DataParameterStringPropertyEditorSlot(TextVideoClip.FontFamilyParameter, typeof(TextVideoClip), "Font Family"));
@@ -97,7 +100,8 @@ public class VideoEditorPropertyEditor : PropertyEditor {
         this.Root.AddItem(this.ClipGroup);
 
         {
-            this.TrackGroup = new SimplePropertyEditorGroup(typeof(Track)) {
+            this.TrackGroup = new SimplePropertyEditorGroup(typeof(Track))
+            {
                 DisplayName = "Track"
             };
 
@@ -121,7 +125,8 @@ public class VideoEditorPropertyEditor : PropertyEditor {
         this.Root.AddItem(this.TrackGroup);
     }
 
-    public void OnProjectChanged() {
+    public void OnProjectChanged()
+    {
         this.ClipEffectListGroup.ClearHierarchy();
         this.TrackEffectListGroup.ClearHierarchy();
         this.ClipGroup.ClearHierarchy();

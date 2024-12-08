@@ -24,14 +24,16 @@ using FramePFX.AdvancedMenuService;
 
 namespace FramePFX.Avalonia.AdvancedMenuService;
 
-public class CaptionSeparator : TemplatedControl, IAdvancedEntryConnection {
+public class CaptionSeparator : TemplatedControl, IAdvancedEntryConnection
+{
     public static readonly StyledProperty<string?> TextProperty = AvaloniaProperty.Register<CaptionSeparator, string?>(nameof(Text));
 
-    public string? Text {
+    public string? Text
+    {
         get => this.GetValue(TextProperty);
         set => this.SetValue(TextProperty, value);
     }
-    
+
     public CaptionEntry? Entry { get; private set; }
 
     IContextObject? IAdvancedEntryConnection.Entry => this.Entry;
@@ -39,24 +41,29 @@ public class CaptionSeparator : TemplatedControl, IAdvancedEntryConnection {
     public CaptionSeparator() {
     }
 
-    public void OnAdding(IAdvancedContainer container, ItemsControl parent, IContextObject entry) {
+    public void OnAdding(IAdvancedContainer container, ItemsControl parent, IContextObject entry)
+    {
         this.Entry = (CaptionEntry) entry;
     }
 
-    public void OnAdded() {
+    public void OnAdded()
+    {
         this.Entry!.CaptionChanged += this.OnCaptionChanged;
         this.OnCaptionChanged(this.Entry);
     }
 
-    public void OnRemoving() {
+    public void OnRemoving()
+    {
         this.Entry!.CaptionChanged -= this.OnCaptionChanged;
     }
 
-    public void OnRemoved() {
+    public void OnRemoved()
+    {
         this.Entry = null;
     }
-    
-    private void OnCaptionChanged(CaptionEntry sender) {
+
+    private void OnCaptionChanged(CaptionEntry sender)
+    {
         this.Text = sender.Caption;
     }
 }

@@ -24,21 +24,25 @@ using SkiaSharp;
 
 namespace FramePFX.Services.ColourPicking;
 
-public class ColourUserInputInfo : UserInputInfo {
+public class ColourUserInputInfo : UserInputInfo
+{
     public static readonly DataParameter<SKColor> ColourParameter = DataParameter.Register(new DataParameter<SKColor>(typeof(ColourUserInputInfo), nameof(Colour), SKColors.Empty, ValueAccessors.Reflective<SKColor>(typeof(ColourUserInputInfo), nameof(colour))));
 
     private SKColor colour;
 
-    public SKColor Colour {
+    public SKColor Colour
+    {
         get => this.colour;
         set => DataParameter.SetValueHelper(this, ColourParameter, ref this.colour, value);
     }
 
-    public ColourUserInputInfo() {
+    public ColourUserInputInfo()
+    {
         this.colour = ColourParameter.GetDefaultValue(this);
     }
 
-    public override bool CanDialogClose() {
+    public override bool CanDialogClose()
+    {
         return true;
     }
 }

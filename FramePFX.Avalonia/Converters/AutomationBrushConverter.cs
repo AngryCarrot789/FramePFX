@@ -26,22 +26,27 @@ using Avalonia.Media;
 
 namespace FramePFX.Avalonia.Converters;
 
-public class AutomationBrushConverter : IMultiValueConverter {
+public class AutomationBrushConverter : IMultiValueConverter
+{
     public IBrush NoAutomationBrush { get; set; } = Brushes.Transparent;
     public IBrush AutomationBrush { get; set; } = Brushes.Orange;
     public IBrush OverrideBrush { get; set; } = Brushes.Gray;
 
-    public object Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture) {
-        if (values[0] == AvaloniaProperty.UnsetValue || values[1] == AvaloniaProperty.UnsetValue) {
+    public object Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (values[0] == AvaloniaProperty.UnsetValue || values[1] == AvaloniaProperty.UnsetValue)
+        {
             return AvaloniaProperty.UnsetValue;
         }
 
         bool isAutomated = (bool) values[0];
         bool isOverride = (bool) values[1];
-        if (isAutomated) {
+        if (isAutomated)
+        {
             return isOverride ? this.OverrideBrush : this.AutomationBrush;
         }
-        else {
+        else
+        {
             return this.NoAutomationBrush;
         }
     }

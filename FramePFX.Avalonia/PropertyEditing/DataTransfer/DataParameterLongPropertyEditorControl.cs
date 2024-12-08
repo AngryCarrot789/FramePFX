@@ -23,18 +23,21 @@ using FramePFX.PropertyEditing.DataTransfer;
 
 namespace FramePFX.Avalonia.PropertyEditing.DataTransfer;
 
-public class DataParameterLongPropertyEditorControl : BaseNumberDraggerDataParamPropEditorControl {
+public class DataParameterLongPropertyEditorControl : BaseNumberDraggerDataParamPropEditorControl
+{
     public new DataParameterLongPropertyEditorSlot? SlotModel => (DataParameterLongPropertyEditorSlot?) base.SlotControl?.Model;
 
-    public override double SlotValue {
+    public override double SlotValue
+    {
         get => this.SlotModel!.Value;
         set => this.SlotModel!.Value = (long) Math.Round(this.dragger.Value);
     }
-    
+
     public DataParameterLongPropertyEditorControl() {
     }
 
-    protected override void OnConnected() {
+    protected override void OnConnected()
+    {
         base.OnConnected();
         DataParameterLongPropertyEditorSlot slot = this.SlotModel;
         DataParameterLong param = slot.Parameter;
@@ -47,6 +50,6 @@ public class DataParameterLongPropertyEditorControl : BaseNumberDraggerDataParam
         this.dragger.NormalChange = Math.Max(profile.NormalStep, 1.0);
         this.dragger.LargeChange = Math.Max(profile.LargeStep, 1.0);
     }
-    
+
     protected override void ResetValue() => this.SlotModel.Value = this.SlotModel.Parameter.DefaultValue;
 }

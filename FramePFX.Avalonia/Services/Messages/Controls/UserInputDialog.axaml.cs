@@ -31,15 +31,17 @@ using FramePFX.Services.UserInputs;
 
 namespace FramePFX.Avalonia.Services.Messages.Controls;
 
-public partial class UserInputDialog : WindowEx {
-    public static readonly SingleUserInputInfo DummySingleInput = new SingleUserInputInfo("Text Input Here") {Message = "A primary message here", ConfirmText = "Confirm", CancelText = "Cancel", Caption = "The caption here", Label = "The label here"};
-    public static readonly DoubleUserInputInfo DummyDoubleInput = new DoubleUserInputInfo("Text A Here", "Text B Here") {Message = "A primary message here", ConfirmText = "Confirm", CancelText = "Cancel", Caption = "The caption here", LabelA = "Label A Here:", LabelB = "Label B Here:"};
-    
+public partial class UserInputDialog : WindowEx
+{
+    public static readonly SingleUserInputInfo DummySingleInput = new SingleUserInputInfo("Text Input Here") { Message = "A primary message here", ConfirmText = "Confirm", CancelText = "Cancel", Caption = "The caption here", Label = "The label here" };
+    public static readonly DoubleUserInputInfo DummyDoubleInput = new DoubleUserInputInfo("Text A Here", "Text B Here") { Message = "A primary message here", ConfirmText = "Confirm", CancelText = "Cancel", Caption = "The caption here", LabelA = "Label A Here:", LabelB = "Label B Here:" };
+
     public static readonly ModelControlRegistry<UserInputInfo, Control> Registry;
-    
+
     public static readonly StyledProperty<UserInputInfo?> UserInputDataProperty = AvaloniaProperty.Register<UserInputDialog, UserInputInfo?>("UserInputData");
 
-    public UserInputInfo? UserInputData {
+    public UserInputInfo? UserInputData
+    {
         get => this.GetValue(UserInputDataProperty);
         set => this.SetValue(UserInputDataProperty, value);
     }
@@ -54,90 +56,108 @@ public partial class UserInputDialog : WindowEx {
     private readonly DataParameterPropertyBinder<UserInputInfo> confirmTextBinder = new DataParameterPropertyBinder<UserInputInfo>(ContentProperty, UserInputInfo.ConfirmTextParameter);
     private readonly DataParameterPropertyBinder<UserInputInfo> cancelTextBinder = new DataParameterPropertyBinder<UserInputInfo>(ContentProperty, UserInputInfo.CancelTextParameter);
 
-    public UserInputDialog() {
+    public UserInputDialog()
+    {
         this.InitializeComponent();
         this.captionBinder.AttachControl(this);
         this.messageBinder.AttachControl(this.PART_Message);
         this.confirmTextBinder.AttachControl(this.PART_ConfirmButton);
         this.cancelTextBinder.AttachControl(this.PART_CancelButton);
         this.PART_Message.PropertyChanged += this.OnMessageTextBlockPropertyChanged;
-        
+
         this.PART_ConfirmButton.Click += this.OnConfirmButtonClicked;
         this.PART_CancelButton.Click += this.OnCancelButtonClicked;
     }
 
-    protected override void OnKeyDown(KeyEventArgs e) {
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
         base.OnKeyDown(e);
-        if (!e.Handled && e.Key == Key.Escape) {
+        if (!e.Handled && e.Key == Key.Escape)
+        {
             this.TryCloseDialog(false);
         }
     }
 
-    static UserInputDialog() {
+    static UserInputDialog()
+    {
         Registry = new ModelControlRegistry<UserInputInfo, Control>();
         Registry.RegisterType<SingleUserInputInfo>((x) => new SingleUserInputControl());
         Registry.RegisterType<DoubleUserInputInfo>((x) => new DoubleUserInputControl());
         Registry.RegisterType<ColourUserInputInfo>((x) => new ColourUserInputControl());
-        
+
         UserInputDataProperty.Changed.AddClassHandler<UserInputDialog, UserInputInfo?>((o, e) => o.OnUserInputDataChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }
-    
-    private void OnMessageTextBlockPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e) {
-        if (e.Property == TextBlock.TextProperty) {
+
+    private void OnMessageTextBlockPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Property == TextBlock.TextProperty)
+        {
             this.PART_MessageContainer.IsVisible = !string.IsNullOrWhiteSpace(e.GetNewValue<string?>());
         }
     }
 
-    protected override void OnLoaded(RoutedEventArgs e) {
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
         base.OnLoaded(e);
         this.PART_DockPanelRoot.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         Size size = this.PART_DockPanelRoot.DesiredSize;
         size = new Size(size.Width + 2, size.Height);
-        if (size.Width > 300.0) {
-            this.Width = size.Width; 
+        if (size.Width > 300.0)
+        {
+            this.Width = size.Width;
         }
-        
+
         const double TitleBarHeight = 32;
         this.Height = size.Height + TitleBarHeight;
     }
 
-    private void OnConfirmButtonClicked(object? sender, RoutedEventArgs e) {
+    private void OnConfirmButtonClicked(object? sender, RoutedEventArgs e)
+    {
         this.TryCloseDialog(true);
     }
-    
-    private void OnCancelButtonClicked(object? sender, RoutedEventArgs e) {
+
+    private void OnCancelButtonClicked(object? sender, RoutedEventArgs e)
+    {
         this.TryCloseDialog(false);
     }
 
-    private void OnUserInputDataChanged(UserInputInfo? oldData, UserInputInfo? newData) {
-        if (oldData != null) {
+    private void OnUserInputDataChanged(UserInputInfo? oldData, UserInputInfo? newData)
+    {
+        if (oldData != null)
+        {
             (this.PART_InputFieldContent.Content as IUserInputContent)?.Disconnect();
         }
 
         // Create this first just in case there's a problem with no registrations
         Control? control = newData != null ? Registry.NewInstance(newData) : null;
-        
+
         this.captionBinder.SwitchModel(newData);
         this.messageBinder.SwitchModel(newData);
         this.confirmTextBinder.SwitchModel(newData);
         this.cancelTextBinder.SwitchModel(newData);
-        if (control != null) {
+        if (control != null)
+        {
             this.PART_InputFieldContent.Content = control;
             control.InvalidateMeasure();
             (control as IUserInputContent)?.Connect(this, newData!);
         }
 
         this.InvalidateConfirmButton();
-        Dispatcher.UIThread.InvokeAsync(() => {
-            if ((this.PART_InputFieldContent.Content as IUserInputContent)?.FocusPrimaryInput() == true) {
+        Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            if ((this.PART_InputFieldContent.Content as IUserInputContent)?.FocusPrimaryInput() == true)
+            {
                 return;
             }
 
-            if (this.UserInputData?.DefaultButton is bool boolean) {
-                if (boolean) {
+            if (this.UserInputData?.DefaultButton is bool boolean)
+            {
+                if (boolean)
+                {
                     this.PART_ConfirmButton.Focus();
                 }
-                else {
+                else
+                {
                     this.PART_CancelButton.Focus();
                 }
             }
@@ -147,7 +167,8 @@ public partial class UserInputDialog : WindowEx {
     /// <summary>
     /// Updates the confirm button's enabled state
     /// </summary>
-    public void InvalidateConfirmButton() {
+    public void InvalidateConfirmButton()
+    {
         this.PART_ConfirmButton.IsEnabled = this.UserInputData?.CanDialogClose() ?? false;
     }
 
@@ -156,17 +177,21 @@ public partial class UserInputDialog : WindowEx {
     /// </summary>
     /// <param name="result">The dialog result wanted</param>
     /// <returns>True if the dialog was closed, false if it could not be closed due to a validation error or other error</returns>
-    public bool TryCloseDialog(bool result) {
-        if (result) {
+    public bool TryCloseDialog(bool result)
+    {
+        if (result)
+        {
             UserInputInfo? data = this.UserInputData;
-            if (data == null || !data.CanDialogClose()) {
+            if (data == null || !data.CanDialogClose())
+            {
                 return false;
             }
 
             this.Close(this.DialogResult = true);
             return true;
         }
-        else {
+        else
+        {
             this.Close(this.DialogResult = false);
             return true;
         }

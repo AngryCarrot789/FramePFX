@@ -23,13 +23,17 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editing.Timelines.Commands;
 
-public class DeleteSpecificTrackCommand : Command {
-    public override Executability CanExecute(CommandEventArgs e) {
+public class DeleteSpecificTrackCommand : Command
+{
+    public override Executability CanExecute(CommandEventArgs e)
+    {
         return DataKeys.TrackKey.GetExecutabilityForPresence(e.ContextData);
     }
 
-    protected override void Execute(CommandEventArgs e) {
-        if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track? track)) {
+    protected override void Execute(CommandEventArgs e)
+    {
+        if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track? track))
+        {
             track.Timeline?.RemoveTrack(track);
         }
     }

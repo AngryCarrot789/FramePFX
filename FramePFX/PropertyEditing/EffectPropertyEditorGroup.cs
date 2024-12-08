@@ -27,30 +27,37 @@ namespace FramePFX.PropertyEditing;
 /// A property editor group that encapsulates a single instance of an effect.
 /// For now, the effect property editor only supports single selection
 /// </summary>
-public class EffectPropertyEditorGroup : BasePropertyEditorGroup {
+public class EffectPropertyEditorGroup : BasePropertyEditorGroup
+{
     private static readonly Dictionary<Type, Func<EffectPropertyEditorGroup>> Constructors;
 
     public BaseEffect Effect { get; private set; }
 
-    public EffectPropertyEditorGroup(Type applicableType) : base(applicableType) {
+    public EffectPropertyEditorGroup(Type applicableType) : base(applicableType)
+    {
         this.DisplayName = applicableType.Name;
     }
 
-    static EffectPropertyEditorGroup() {
+    static EffectPropertyEditorGroup()
+    {
         Constructors = new Dictionary<Type, Func<EffectPropertyEditorGroup>>();
         RegisterEffect<CPUPixelateEffect>(() => new CPUPixelateEffectPropertyEditorGroup());
     }
 
-    public static void RegisterEffect<T>(Func<EffectPropertyEditorGroup> constructor) where T : BaseEffect {
+    public static void RegisterEffect<T>(Func<EffectPropertyEditorGroup> constructor) where T : BaseEffect
+    {
         Constructors.Add(typeof(T), constructor ?? throw new ArgumentNullException(nameof(constructor)));
     }
 
-    public void SetupEffect(BaseEffect effect) {
-        if (!(this.Parent is EffectListPropertyEditorGroup parent)) {
+    public void SetupEffect(BaseEffect effect)
+    {
+        if (!(this.Parent is EffectListPropertyEditorGroup parent))
+        {
             throw new InvalidOperationException("This group is not placed in a " + nameof(EffectListPropertyEditorGroup));
         }
 
-        if (parent.EffectOwner == null) {
+        if (parent.EffectOwner == null)
+        {
             throw new InvalidOperationException("This group's parent's effect owner is null");
         }
 
@@ -59,19 +66,23 @@ public class EffectPropertyEditorGroup : BasePropertyEditorGroup {
         IReadOnlyList<object> handlers = new List<object>() { effect };
 
         bool isApplicable = false;
-        for (int i = 0, end = this.PropertyObjects.Count - 1; i <= end; i++) {
+        for (int i = 0, end = this.PropertyObjects.Count - 1; i <= end; i++)
+        {
             BasePropertyEditorObject obj = this.PropertyObjects[i];
-            if (obj is SimplePropertyEditorGroup group) {
+            if (obj is SimplePropertyEditorGroup group)
+            {
                 group.SetupHierarchyState(handlers);
                 isApplicable |= group.IsCurrentlyApplicable;
             }
-            else if (obj is PropertyEditorSlot editor) {
+            else if (obj is PropertyEditorSlot editor)
+            {
                 editor.SetHandlers(handlers);
                 isApplicable |= editor.IsCurrentlyApplicable;
             }
         }
 
-        if (isApplicable) {
+        if (isApplicable)
+        {
             this.Effect = effect;
         }
 
@@ -81,13 +92,17 @@ public class EffectPropertyEditorGroup : BasePropertyEditorGroup {
     /// <summary>
     /// Recursively clears the state of all groups and editors
     /// </summary>
-    public void ClearHierarchy() {
-        if (!this.IsCurrentlyApplicable && !this.IsRoot) {
+    public void ClearHierarchy()
+    {
+        if (!this.IsCurrentlyApplicable && !this.IsRoot)
+        {
             return;
         }
 
-        foreach (BasePropertyEditorObject obj in this.PropertyObjects) {
-            switch (obj) {
+        foreach (BasePropertyEditorObject obj in this.PropertyObjects)
+        {
+            switch (obj)
+            {
                 case PropertyEditorSlot editor: editor.ClearHandlers(); break;
                 case SimplePropertyEditorGroup group: group.ClearHierarchy(); break;
             }
@@ -97,19 +112,24 @@ public class EffectPropertyEditorGroup : BasePropertyEditorGroup {
         this.Effect = null;
     }
 
-    public override bool IsPropertyEditorObjectAcceptable(BasePropertyEditorObject obj) {
+    public override bool IsPropertyEditorObjectAcceptable(BasePropertyEditorObject obj)
+    {
         return obj is PropertyEditorSlot || obj is BasePropertyEditorGroup;
     }
 
-    public static EffectPropertyEditorGroup NewInstanceFromEffect(BaseEffect effect) {
+    public static EffectPropertyEditorGroup NewInstanceFromEffect(BaseEffect effect)
+    {
         // Just try to find a base control type. It should be found first try unless I forgot to register a new control type
         bool hasLogged = false;
-        for (Type type = effect.GetType(); type != null; type = type.BaseType) {
-            if (Constructors.TryGetValue(type, out Func<EffectPropertyEditorGroup> func)) {
+        for (Type type = effect.GetType(); type != null; type = type.BaseType)
+        {
+            if (Constructors.TryGetValue(type, out Func<EffectPropertyEditorGroup> func))
+            {
                 return func();
             }
 
-            if (!hasLogged) {
+            if (!hasLogged)
+            {
                 hasLogged = true;
                 Debugger.Break();
                 Debug.WriteLine("Could not find effect editor group constructor for effect type on first try. Scanning base types");

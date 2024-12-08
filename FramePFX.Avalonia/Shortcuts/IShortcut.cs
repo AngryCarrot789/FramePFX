@@ -27,7 +27,8 @@ namespace FramePFX.Avalonia.Shortcuts;
 /// <summary>
 /// The base class for all shortcuts
 /// </summary>
-public interface IShortcut {
+public interface IShortcut
+{
     /// <summary>
     /// Whether this shortcut is a keyboard-based shortcut. When false, it may be something else (mouse, joystick, etc)
     /// </summary>

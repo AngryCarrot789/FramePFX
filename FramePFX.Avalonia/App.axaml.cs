@@ -29,26 +29,30 @@ using FramePFX.Editing;
 
 namespace FramePFX.Avalonia;
 
-public partial class App : Application {
+public partial class App : Application
+{
     static App() {
     }
 
     public App() {
     }
 
-    public override void Initialize() {
+    public override void Initialize()
+    {
         AvaloniaXamlLoader.Load(this);
         RZApplicationImpl.InternalPreInititaliseImpl(this);
         AvCore.OnApplicationInitialised();
     }
 
-    public override async void OnFrameworkInitializationCompleted() {
+    public override async void OnFrameworkInitializationCompleted()
+    {
         base.OnFrameworkInitializationCompleted();
         AvCore.OnFrameworkInitialised();
         UIInputManager.Init();
 
         IApplicationStartupProgress progress;
-        if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop1) {
+        if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop1)
+        {
             desktop1.Exit += this.OnExit;
             desktop1.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             AppSplashScreen splashScreen = new AppSplashScreen();
@@ -56,12 +60,14 @@ public partial class App : Application {
             desktop1.MainWindow = splashScreen;
             splashScreen.Show();
         }
-        else {
+        else
+        {
             progress = new EmptyApplicationStartupProgress();
         }
 
         string[] envArgs = Environment.GetCommandLineArgs();
-        if (envArgs.Length > 0 && Path.GetDirectoryName(envArgs[0]) is string dir && dir.Length > 0) {
+        if (envArgs.Length > 0 && Path.GetDirectoryName(envArgs[0]) is string dir && dir.Length > 0)
+        {
             Directory.SetCurrentDirectory(dir);
         }
 
@@ -82,7 +88,8 @@ public partial class App : Application {
         await progress.SetAction("Loading editor window", null);
 
         VideoEditor editor = new VideoEditor();
-        if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+        if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
             EditorWindow mainWindow = new EditorWindow();
             mainWindow.Show();
             (progress as AppSplashScreen)?.Close();
@@ -94,7 +101,8 @@ public partial class App : Application {
         await RZApplicationImpl.InternalOnInitialised(editor, envArgs.Length > 1 ? envArgs.Skip(1).ToArray() : Array.Empty<string>());
     }
 
-    private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e) {
+    private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
+    {
         RZApplicationImpl.InternalExit(e.ApplicationExitCode);
     }
 }

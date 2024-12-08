@@ -27,9 +27,10 @@ namespace FramePFX.Avalonia.Editing.Timelines.Selection;
 /// <summary>
 /// A selection manager that manages clip selection across a single track
 /// </summary>
-public class ClipSelectionManager : ISelectionManager<IClipElement>, ILightSelectionManager<IClipElement> {
+public class ClipSelectionManager : ISelectionManager<IClipElement>, ILightSelectionManager<IClipElement>
+{
     private readonly HashSet<IClipElement> selectionSet;
-    
+
     /// <summary>
     /// Gets this track control, whose templated is assumed to be fully loaded
     /// </summary>
@@ -38,35 +39,42 @@ public class ClipSelectionManager : ISelectionManager<IClipElement>, ILightSelec
     public IEnumerable<IClipElement> SelectedItems => this.selectionSet;
 
     public int Count => this.selectionSet.Count;
-    
+
     public event SelectionChangedEventHandler<IClipElement>? SelectionChanged;
     public event SelectionClearedEventHandler<IClipElement>? SelectionCleared;
     private LightSelectionChangedEventHandler<IClipElement>? LightSelectionChanged;
-    event LightSelectionChangedEventHandler<IClipElement>? ILightSelectionManager<IClipElement>.SelectionChanged {
+
+    event LightSelectionChangedEventHandler<IClipElement>? ILightSelectionManager<IClipElement>.SelectionChanged
+    {
         add => this.LightSelectionChanged += value;
         remove => this.LightSelectionChanged -= value;
     }
 
-    public ClipSelectionManager(TimelineTrackControl track) {
+    public ClipSelectionManager(TimelineTrackControl track)
+    {
         this.Track = track;
         this.selectionSet = new HashSet<IClipElement>();
     }
 
-    public bool IsSelected(IClipElement item) {
+    public bool IsSelected(IClipElement item)
+    {
         return this.selectionSet.Contains(item);
     }
 
-    public void SetSelection(IClipElement item) {
+    public void SetSelection(IClipElement item)
+    {
         this.Clear();
         this.Select(item);
     }
 
-    public void SetSelection(IEnumerable<IClipElement> items) {
+    public void SetSelection(IEnumerable<IClipElement> items)
+    {
         this.Clear();
         this.Select(items);
     }
 
-    public void Select(IClipElement item) {
+    public void Select(IClipElement item)
+    {
         if (!this.selectionSet.Add(item))
             return;
 
@@ -74,15 +82,19 @@ public class ClipSelectionManager : ISelectionManager<IClipElement>, ILightSelec
         this.OnSelectionChanged(null, new List<IClipElement>() { item }.AsReadOnly());
     }
 
-    public void Select(IEnumerable<IClipElement> items) {
+    public void Select(IEnumerable<IClipElement> items)
+    {
         List<IClipElement> clips = new List<IClipElement>();
-        foreach (IClipElement clipToSelect in items) {
+        foreach (IClipElement clipToSelect in items)
+        {
             if (!this.selectionSet.Contains(clipToSelect))
                 clips.Add(clipToSelect);
         }
-        
-        if (clips.Count > 0) {
-            foreach (IClipElement clipToSelect in clips) {
+
+        if (clips.Count > 0)
+        {
+            foreach (IClipElement clipToSelect in clips)
+            {
                 this.selectionSet.Add(clipToSelect);
                 TimelineClipControl.InternalUpdateIsSelected((TimelineClipControl) clipToSelect, true);
             }
@@ -91,22 +103,28 @@ public class ClipSelectionManager : ISelectionManager<IClipElement>, ILightSelec
         }
     }
 
-    public void Unselect(IClipElement item) {
-        if (this.selectionSet.Remove(item)) {
+    public void Unselect(IClipElement item)
+    {
+        if (this.selectionSet.Remove(item))
+        {
             TimelineClipControl.InternalUpdateIsSelected((TimelineClipControl) item, false);
             this.OnSelectionChanged(new List<IClipElement>() { item }.AsReadOnly(), null);
         }
     }
 
-    public void Unselect(IEnumerable<IClipElement> items) {
+    public void Unselect(IEnumerable<IClipElement> items)
+    {
         List<IClipElement> clips = new List<IClipElement>();
-        foreach (IClipElement clipToSelect in items) {
+        foreach (IClipElement clipToSelect in items)
+        {
             if (this.selectionSet.Contains(clipToSelect))
                 clips.Add(clipToSelect);
         }
-        
-        if (clips.Count > 0) {
-            foreach (IClipElement clipToDeselect in clips) {
+
+        if (clips.Count > 0)
+        {
+            foreach (IClipElement clipToDeselect in clips)
+            {
                 this.selectionSet.Remove(clipToDeselect);
                 TimelineClipControl.InternalUpdateIsSelected((TimelineClipControl) clipToDeselect, false);
             }
@@ -117,8 +135,10 @@ public class ClipSelectionManager : ISelectionManager<IClipElement>, ILightSelec
 
     public void ToggleSelected(IClipElement item) => this.ToggleSelected<IClipElement>(item);
 
-    private void OnSelectionChanged(ReadOnlyCollection<IClipElement>? oldList, ReadOnlyCollection<IClipElement>? newList) {
-        if (ReferenceEquals(oldList, newList) || (oldList?.Count < 1 && newList?.Count < 1)) {
+    private void OnSelectionChanged(ReadOnlyCollection<IClipElement>? oldList, ReadOnlyCollection<IClipElement>? newList)
+    {
+        if (ReferenceEquals(oldList, newList) || (oldList?.Count < 1 && newList?.Count < 1))
+        {
             return;
         }
 
@@ -126,24 +146,29 @@ public class ClipSelectionManager : ISelectionManager<IClipElement>, ILightSelec
         this.LightSelectionChanged?.Invoke(this);
     }
 
-    public void Clear() {
+    public void Clear()
+    {
         this.OnPreSelectionCleared();
         this.selectionSet.Clear();
         this.selectionSet.Clear();
         this.OnSelectionCleared();
     }
 
-    public void SelectAll() {
+    public void SelectAll()
+    {
         this.Select(this.Track.ClipStoragePanel!.GetClips());
     }
 
-    private void OnPreSelectionCleared() {
-        foreach (IClipElement control in this.selectionSet) {
+    private void OnPreSelectionCleared()
+    {
+        foreach (IClipElement control in this.selectionSet)
+        {
             TimelineClipControl.InternalUpdateIsSelected((TimelineClipControl) control, false);
         }
     }
 
-    private void OnSelectionCleared() {
+    private void OnSelectionCleared()
+    {
         this.SelectionCleared?.Invoke(this);
         this.LightSelectionChanged?.Invoke(this);
     }

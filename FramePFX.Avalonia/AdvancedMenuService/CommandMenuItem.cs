@@ -27,7 +27,8 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Avalonia.AdvancedMenuService;
 
-public class CommandMenuItem : MenuItem {
+public class CommandMenuItem : MenuItem
+{
     public static readonly StyledProperty<string?> CommandIdProperty = AvaloniaProperty.Register<CommandMenuItem, string?>("CommandId");
 
     private IContextData? loadedContextData;
@@ -36,14 +37,17 @@ public class CommandMenuItem : MenuItem {
 
     protected override Type StyleKeyOverride => typeof(MenuItem);
 
-    public string? CommandId {
+    public string? CommandId
+    {
         get => this.GetValue(CommandIdProperty);
         set => this.SetValue(CommandIdProperty, value);
     }
 
-    protected bool CanExecute {
+    protected bool CanExecute
+    {
         get => this.canExecute;
-        set {
+        set
+        {
             this.canExecute = value;
 
             // Causes IsEnableCore to be fetched, which returns false if we are executing something or
@@ -57,7 +61,8 @@ public class CommandMenuItem : MenuItem {
     public CommandMenuItem() {
     }
 
-    protected override void OnLoaded(RoutedEventArgs e) {
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
         base.OnLoaded(e);
         IContextData? captured = ContextCapturingMenu.GetCapturedContext(this);
         this.loadedContextData = captured ?? DataManager.GetFullContextData(this);
@@ -74,13 +79,15 @@ public class CommandMenuItem : MenuItem {
         //     }
         // }
 
-        if (this.generateItemsOnLoad) {
+        if (this.generateItemsOnLoad)
+        {
             this.generateItemsOnLoad = false;
             this.GenerateChildren();
         }
     }
 
-    private void GenerateChildren() {
+    private void GenerateChildren()
+    {
         string? cmdId = this.CommandId;
         if (string.IsNullOrWhiteSpace(cmdId))
             return;
@@ -90,21 +97,26 @@ public class CommandMenuItem : MenuItem {
 
         ItemCollection list = this.Items;
         list.Clear();
-        foreach (string childCmdId in group.Commands) {
+        foreach (string childCmdId in group.Commands)
+        {
             list.Add(new CommandMenuItem() { CommandId = childCmdId });
         }
     }
 
-    protected override void OnUnloaded(RoutedEventArgs e) {
+    protected override void OnUnloaded(RoutedEventArgs e)
+    {
         base.OnUnloaded(e);
         this.loadedContextData = null;
     }
 
-    protected override void OnClick(RoutedEventArgs e) {
-        if (this.loadedContextData != null && this.CommandId is string commandId) {
+    protected override void OnClick(RoutedEventArgs e)
+    {
+        if (this.loadedContextData != null && this.CommandId is string commandId)
+        {
             CommandManager.Instance.Execute(commandId, this.loadedContextData);
         }
-        else {
+        else
+        {
             base.OnClick(e);
         }
     }

@@ -28,7 +28,8 @@ namespace FramePFX.Avalonia.Bindings;
 /// which invokes the <see cref="IBinder.UpdateModel"/> method
 /// </summary>
 /// <typeparam name="TModel">The model type</typeparam>
-public abstract class BaseAutoUpdatePropertyBinder<TModel> : BaseBinder<TModel> where TModel : class {
+public abstract class BaseAutoUpdatePropertyBinder<TModel> : BaseBinder<TModel> where TModel : class
+{
     /// <summary>
     /// A property which, when its value changes on the attached control, will invoke <see cref="BaseBinder{TModel}.UpdateModel"/>.
     /// <para>
@@ -37,13 +38,16 @@ public abstract class BaseAutoUpdatePropertyBinder<TModel> : BaseBinder<TModel> 
     /// </summary>
     public AvaloniaProperty? Property { get; }
 
-    protected BaseAutoUpdatePropertyBinder(AvaloniaProperty? property) {
+    protected BaseAutoUpdatePropertyBinder(AvaloniaProperty? property)
+    {
         this.Property = property;
     }
 
-    protected override void CheckAttachControl(Control control) {
+    protected override void CheckAttachControl(Control control)
+    {
         base.CheckAttachControl(control);
-        if (this.Property != null && !AvaloniaPropertyRegistry.Instance.IsRegistered(control.GetType(), this.Property)) {
+        if (this.Property != null && !AvaloniaPropertyRegistry.Instance.IsRegistered(control.GetType(), this.Property))
+        {
             throw new InvalidOperationException($"The control cannot be attached because the property owner type is incompatible with the control type. Control '{control.GetType().Name}' is not assignable to prop owner '{this.Property.OwnerType.Name}'");
         }
     }
@@ -52,12 +56,14 @@ public abstract class BaseAutoUpdatePropertyBinder<TModel> : BaseBinder<TModel> 
     // change handler for the property itself, because otherwise the handler gets
     // called for any instance. It might be cheaper to listen to the event
 
-    protected override void OnAttached() {
+    protected override void OnAttached()
+    {
         if (this.Property != null)
             this.myControl!.PropertyChanged += this.OnControlPropertyChanged;
     }
 
-    protected override void OnDetached() {
+    protected override void OnDetached()
+    {
         if (this.Property != null)
             this.myControl!.PropertyChanged -= this.OnControlPropertyChanged;
     }
@@ -68,8 +74,10 @@ public abstract class BaseAutoUpdatePropertyBinder<TModel> : BaseBinder<TModel> 
     /// </summary>
     protected virtual void OnControlValueChanged() => this.UpdateModel();
 
-    private void OnControlPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e) {
-        if (e.Property == this.Property) {
+    private void OnControlPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Property == this.Property)
+        {
             this.OnControlValueChanged();
         }
     }

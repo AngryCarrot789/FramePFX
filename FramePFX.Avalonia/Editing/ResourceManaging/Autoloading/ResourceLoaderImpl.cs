@@ -26,20 +26,25 @@ using FramePFX.Editing.ResourceManaging.Autoloading;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Autoloading;
 
-public class ResourceLoaderServiceImpl : IResourceLoaderService {
-    public async Task<bool> TryLoadResources(BaseResource[] resources) {
+public class ResourceLoaderServiceImpl : IResourceLoaderService
+{
+    public async Task<bool> TryLoadResources(BaseResource[] resources)
+    {
         ImmutableList<BaseResource> list = resources.ToImmutableList();
         ResourceLoader loader = new ResourceLoader();
         LoadResources(list, loader);
-        if (loader.Entries.Count < 1) {
+        if (loader.Entries.Count < 1)
+        {
             return true;
         }
 
-        if (RZApplicationImpl.TryGetActiveWindow(out Window? window)) {
+        if (RZApplicationImpl.TryGetActiveWindow(out Window? window))
+        {
             ResourceLoaderDialog dialog = new ResourceLoaderDialog();
             dialog.ResourceLoader = loader;
             bool? result = await dialog.ShowDialog<bool?>(window);
-            if (result == true) {
+            if (result == true)
+            {
                 return true;
             }
         }
@@ -47,14 +52,19 @@ public class ResourceLoaderServiceImpl : IResourceLoaderService {
         return false;
     }
 
-    private static void LoadResources(IEnumerable<BaseResource> resources, ResourceLoader loader) {
-        foreach (BaseResource obj in resources) {
-            if (obj is ResourceFolder folder) {
+    private static void LoadResources(IEnumerable<BaseResource> resources, ResourceLoader loader)
+    {
+        foreach (BaseResource obj in resources)
+        {
+            if (obj is ResourceFolder folder)
+            {
                 LoadResources(folder.Items, loader);
             }
-            else {
+            else
+            {
                 ResourceItem item = (ResourceItem) obj;
-                if (!item.IsOnline) {
+                if (!item.IsOnline)
+                {
                     item.TryAutoEnable(loader);
                 }
             }

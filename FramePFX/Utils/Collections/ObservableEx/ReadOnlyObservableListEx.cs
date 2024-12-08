@@ -21,14 +21,17 @@ using System.Collections.ObjectModel;
 
 namespace FramePFX.Utils.Collections.ObservableEx;
 
-public class ReadOnlyObservableListEx<T> : ReadOnlyCollection<T>, IObservableListEx<T> {
+public class ReadOnlyObservableListEx<T> : ReadOnlyCollection<T>, IObservableListEx<T>
+{
     public event ObservableListExChangedEventHandler<T>? CollectionChanged;
 
-    public ReadOnlyObservableListEx(IObservableListEx<T> list) : base(list) {
+    public ReadOnlyObservableListEx(IObservableListEx<T> list) : base(list)
+    {
         list.CollectionChanged += this.HandleCollectionChanged;
     }
 
-    private void HandleCollectionChanged(IObservableListEx<T> list, ObservableListChangedEventArgs<T> e) {
+    private void HandleCollectionChanged(IObservableListEx<T> list, ObservableListChangedEventArgs<T> e)
+    {
         this.CollectionChanged?.Invoke(this, e);
     }
 }

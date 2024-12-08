@@ -100,7 +100,7 @@
             <Setter Property="Stroke" Value="{DynamicResource Expander.Disabled.Arrow.Stroke}"/>
         </Style>
     </ControlTheme>
-    
+
     <!-- ################################## EXPANDER THEMES ################################## -->
 
     <ControlTheme x:Key="PrimaryHierarchicalExpanderStyle" TargetType="{x:Type Expander}">

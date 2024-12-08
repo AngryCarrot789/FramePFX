@@ -1,20 +1,20 @@
 ﻿// 
 // Copyright (c) 2023-2024 REghZy
 // 
-// This file is part of PicNetStudio.
+// This file is part of FramePFX.
 // 
-// PicNetStudio is free software; you can redistribute it and/or
+// FramePFX is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either
 // version 3.0 of the License, or (at your option) any later version.
 // 
-// PicNetStudio is distributed in the hope that it will be useful,
+// FramePFX is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // Lesser General Public License for more details.
 // 
 // You should have received a copy of the GNU General Public License
-// along with PicNetStudio. If not, see <https://www.gnu.org/licenses/>.
+// along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
 using System;
@@ -35,32 +35,36 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 
-public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX.Editing.ResourceManaging.UI.IResourceTreeElement {
-    public static readonly StyledProperty<bool> IsDroppableTargetOverProperty = AvaloniaProperty.Register<ResourceTreeView, bool>("IsDroppableTargetOver");
+public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX.Editing.ResourceManaging.UI.IResourceTreeElement
+{
     public static readonly StyledProperty<ResourceManager?> ResourceManagerProperty = AvaloniaProperty.Register<ResourceTreeView, ResourceManager?>(nameof(ResourceManager));
+    public static readonly DirectProperty<ResourceTreeView, bool> IsDroppableTargetOverProperty = AvaloniaProperty.RegisterDirect<ResourceTreeView, bool>(nameof(IsDroppableTargetOver), o => o.IsDroppableTargetOver);
 
     private readonly ModelControlDictionary<BaseResource, ResourceTreeViewItem> itemMap = new ModelControlDictionary<BaseResource, ResourceTreeViewItem>();
     private readonly AvaloniaList<ResourceTreeViewItem> selectedItemsList;
     internal readonly Stack<ResourceTreeViewItem> itemCache;
     private bool isProcessingAsyncDrop;
+    private bool _isDroppableTargetOver;
     private ResourceFolder rootFolder;
     private BaseResource targetDropResourceFolder; // the drop target for DragDrop
     private IResourceTreeOrNode targetDropNodeFolder; // the control associated with the drop resource
 
     public IModelControlDictionary<BaseResource, ResourceTreeViewItem> ItemMap => this.itemMap;
 
-    public ResourceManager? ResourceManager {
+    public ResourceManager? ResourceManager
+    {
         get => this.GetValue(ResourceManagerProperty);
         set => this.SetValue(ResourceManagerProperty, value);
     }
-
-    public bool IsDroppableTargetOver {
-        get => this.GetValue(IsDroppableTargetOverProperty);
-        set => this.SetValue(IsDroppableTargetOverProperty, value);
+    
+    public bool IsDroppableTargetOver
+    {
+        get => this._isDroppableTargetOver;
+        set => this.SetAndRaise(IsDroppableTargetOverProperty, ref this._isDroppableTargetOver, value);
     }
 
     public MovedResource MovedResource { get; set; }
-    
+
     ResourceTreeView? IResourceTreeOrNode.ResourceTree => this;
 
     ResourceTreeViewItem? IResourceTreeOrNode.ParentNode => null;
@@ -69,7 +73,8 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
 
     public ResourceTreeSelectionManager SelectionManager { get; }
 
-    public ResourceTreeView() {
+    public ResourceTreeView()
+    {
         this.itemCache = new Stack<ResourceTreeViewItem>();
         this.SelectedItems = this.selectedItemsList = new AvaloniaList<ResourceTreeViewItem>();
         this.SelectionManager = new ResourceTreeSelectionManager(this);
@@ -78,19 +83,23 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
         DataManager.SetContextData(this, new ContextData().Set(DataKeys.ResourceTreeUIKey, this));
     }
 
-    protected override void OnLoaded(RoutedEventArgs e) {
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
         base.OnLoaded(e);
         AdvancedContextMenu.SetContextRegistry(this, BaseResource.ResourceSurfaceContextRegistry);
     }
 
-    protected override void OnUnloaded(RoutedEventArgs e) {
+    protected override void OnUnloaded(RoutedEventArgs e)
+    {
         base.OnUnloaded(e);
         AdvancedContextMenu.SetContextRegistry(this, null);
     }
 
-    protected override void OnPointerPressed(PointerPressedEventArgs e) {
+    protected override void OnPointerPressed(PointerPressedEventArgs e)
+    {
         base.OnPointerPressed(e);
-        if (e.Handled || e.Source is ResourceTreeViewItem) {
+        if (e.Handled || e.Source is ResourceTreeViewItem)
+        {
             return;
         }
 
@@ -100,11 +109,13 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
 
     protected abstract ResourceTreeViewItem CreateTreeViewItem();
 
-    private void MarkContainerSelected(Control container, bool selected) {
+    private void MarkContainerSelected(Control container, bool selected)
+    {
         container.SetCurrentValue(SelectingItemsControl.IsSelectedProperty, selected);
     }
 
-    static ResourceTreeView() {
+    static ResourceTreeView()
+    {
         ResourceManagerProperty.Changed.AddClassHandler<ResourceTreeView, ResourceManager?>((o, e) => o.OnResourceManagerChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
         DragDrop.DragEnterEvent.AddClassHandler<ResourceTreeView>((o, e) => o.OnDragEnter(e));
         DragDrop.DragOverEvent.AddClassHandler<ResourceTreeView>((o, e) => o.OnDragOver(e));
@@ -112,15 +123,18 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
         DragDrop.DropEvent.AddClassHandler<ResourceTreeView>((o, e) => o.OnDrop(e));
     }
 
-    public ResourceTreeViewItem GetNodeAt(int index) {
+    public ResourceTreeViewItem GetNodeAt(int index)
+    {
         return (ResourceTreeViewItem) this.Items[index]!;
     }
 
-    public void InsertNode(BaseResource item, int index) {
+    public void InsertNode(BaseResource item, int index)
+    {
         this.InsertNode(this.GetCachedItemOrNew(), item, index);
     }
 
-    public void InsertNode(ResourceTreeViewItem control, BaseResource layer, int index) {
+    public void InsertNode(ResourceTreeViewItem control, BaseResource layer, int index)
+    {
         control.OnAdding(this, null, layer);
         this.Items.Insert(index, control);
         this.AddResourceMapping(control, layer);
@@ -129,7 +143,8 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
         control.OnAdded();
     }
 
-    public void RemoveNode(int index, bool canCache = true) {
+    public void RemoveNode(int index, bool canCache = true)
+    {
         ResourceTreeViewItem control = (ResourceTreeViewItem) this.Items[index]!;
         BaseResource model = control.Resource ?? throw new Exception("Expected node to have a resource");
         control.OnRemoving();
@@ -140,7 +155,8 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
             this.PushCachedItem(control);
     }
 
-    public void MoveNode(int oldIndex, int newIndex) {
+    public void MoveNode(int oldIndex, int newIndex)
+    {
         ResourceTreeViewItem control = (ResourceTreeViewItem) this.Items[oldIndex]!;
         control.OnMoving(oldIndex, newIndex);
         this.Items.RemoveAt(oldIndex);
@@ -148,24 +164,29 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
         control.OnMoved(oldIndex, newIndex);
     }
 
-    private void OnResourceManagerChanged(ResourceManager? oldManager, ResourceManager? newManager) {
-        if (oldManager != null) {
+    private void OnResourceManagerChanged(ResourceManager? oldManager, ResourceManager? newManager)
+    {
+        if (oldManager != null)
+        {
             this.rootFolder = oldManager.RootContainer;
             this.rootFolder.ResourceAdded -= this.OnResourceAdded;
             this.rootFolder.ResourceRemoved -= this.OnResourceRemoved;
             this.rootFolder.ResourceMoved -= this.OnResourceMoved;
-            for (int i = this.Items.Count - 1; i >= 0; i--) {
+            for (int i = this.Items.Count - 1; i >= 0; i--)
+            {
                 this.RemoveNode(i);
             }
         }
 
-        if (newManager != null) {
+        if (newManager != null)
+        {
             this.rootFolder = newManager.RootContainer;
             this.rootFolder.ResourceAdded += this.OnResourceAdded;
             this.rootFolder.ResourceRemoved += this.OnResourceRemoved;
             this.rootFolder.ResourceMoved += this.OnResourceMoved;
             int i = 0;
-            foreach (BaseResource resource in this.rootFolder.Items) {
+            foreach (BaseResource resource in this.rootFolder.Items)
+            {
                 this.InsertNode(resource, i++);
             }
         }
@@ -181,35 +202,44 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
 
     public void RemoveResourceMapping(ResourceTreeViewItem control, BaseResource layer) => this.itemMap.RemoveMapping(layer, control);
 
-    public ResourceTreeViewItem GetCachedItemOrNew() {
+    public ResourceTreeViewItem GetCachedItemOrNew()
+    {
         return this.itemCache.Count > 0 ? this.itemCache.Pop() : this.CreateTreeViewItem();
     }
 
-    public void PushCachedItem(ResourceTreeViewItem item) {
-        if (this.itemCache.Count < 128) {
+    public void PushCachedItem(ResourceTreeViewItem item)
+    {
+        if (this.itemCache.Count < 128)
+        {
             this.itemCache.Push(item);
         }
     }
 
     #region Drag drop
 
-    private void OnDragEnter(DragEventArgs e) {
+    private void OnDragEnter(DragEventArgs e)
+    {
         this.OnDragOver(e);
     }
 
-    private void OnDragOver(DragEventArgs e) {
+    private void OnDragOver(DragEventArgs e)
+    {
         EnumDropType dropType = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
         ContextData ctx = new ContextData(DataManager.GetFullContextData(this));
 
-        if (!ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? droppedItems)) {
+        if (!ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? droppedItems))
+        {
             e.DragEffects = (DragDropEffects) ResourceDropRegistry.CanDropNativeTypeIntoTreeOrNode(this, null, new DataObjectWrapper(e.Data), ctx, dropType);
         }
-        else {
+        else
+        {
             ResourceFolder? folder = this.ResourceManager?.RootContainer;
-            if (folder != null) {
+            if (folder != null)
+            {
                 e.DragEffects = ResourceDropRegistry.CanDropResourceListIntoFolder(folder, droppedItems, dropType) ? (DragDropEffects) dropType : DragDropEffects.None;
             }
-            else {
+            else
+            {
                 e.DragEffects = DragDropEffects.None;
             }
         }
@@ -218,25 +248,31 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
         e.Handled = true;
     }
 
-    private void OnDragLeave(DragEventArgs e) {
+    private void OnDragLeave(DragEventArgs e)
+    {
         if (!this.IsPointerOver)
             this.IsDroppableTargetOver = false;
     }
 
-    private async void OnDrop(DragEventArgs e) {
+    private async void OnDrop(DragEventArgs e)
+    {
         e.Handled = true;
-        if (this.isProcessingAsyncDrop || !(this.ResourceManager?.RootContainer is ResourceFolder folder)) {
+        if (this.isProcessingAsyncDrop || !(this.ResourceManager?.RootContainer is ResourceFolder folder))
+        {
             return;
         }
 
-        try {
+        try
+        {
             EnumDropType dropType = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
             ContextData ctx = new ContextData(DataManager.GetFullContextData(this));
 
             this.isProcessingAsyncDrop = true;
             // Dropped non-resources into this node
-            if (!ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? droppedItems)) {
-                if (!await ResourceDropRegistry.OnDropNativeTypeIntoTreeOrNode(this, null, new DataObjectWrapper(e.Data), ctx, dropType)) {
+            if (!ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? droppedItems))
+            {
+                if (!await ResourceDropRegistry.OnDropNativeTypeIntoTreeOrNode(this, null, new DataObjectWrapper(e.Data), ctx, dropType))
+                {
                     await IoC.MessageService.ShowMessage("Unknown Data", "Unknown dropped item. Drop files here");
                 }
 
@@ -254,7 +290,8 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
             await FramePFX.IoC.MessageService.ShowMessage("Error", "An error occurred while processing list item drop", exception.ToString());
         }
 #endif
-        finally {
+        finally
+        {
             // this.IsDroppableTargetOver = false;
             this.isProcessingAsyncDrop = false;
         }
@@ -262,34 +299,44 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
 
     #endregion
 
-    public void SetSelection(ResourceTreeViewItem item) {
+    public void SetSelection(ResourceTreeViewItem item)
+    {
         this.SelectedItems.Clear();
         this.SelectedItems.Add(item);
     }
 
-    public void SetSelection(IEnumerable<ResourceTreeViewItem> items) {
+    public void SetSelection(IEnumerable<ResourceTreeViewItem> items)
+    {
         this.SelectedItems.Clear();
-        foreach (ResourceTreeViewItem item in items) {
+        foreach (ResourceTreeViewItem item in items)
+        {
             this.SelectedItems.Add(item);
         }
     }
 
-    public void SetSelection(List<BaseResource> modelItems) {
+    public void SetSelection(List<BaseResource> modelItems)
+    {
         this.SelectedItems.Clear();
-        foreach (BaseResource item in modelItems) {
-            if (this.itemMap.TryGetControl(item, out ResourceTreeViewItem? control)) {
+        foreach (BaseResource item in modelItems)
+        {
+            if (this.itemMap.TryGetControl(item, out ResourceTreeViewItem? control))
+            {
                 control.IsSelected = true;
             }
         }
     }
 
-    public static IResourceTreeOrNode? FindNodeForResource(IResourceTreeOrNode self, BaseResource resource) {
+    public static IResourceTreeOrNode? FindNodeForResource(IResourceTreeOrNode self, BaseResource resource)
+    {
         ResourceTreeView? root = self.ResourceTree;
-        if (root != null) {
-            if (root.rootFolder == resource) {
+        if (root != null)
+        {
+            if (root.rootFolder == resource)
+            {
                 return root;
             }
-            else if (root.targetDropResourceFolder == resource) {
+            else if (root.targetDropResourceFolder == resource)
+            {
                 return root.targetDropNodeFolder;
             }
 
@@ -297,9 +344,11 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
         }
 
         ItemCollection list = ((ItemsControl) self).Items;
-        for (int i = 0, count = list.Count; i < count; i++) {
+        for (int i = 0, count = list.Count; i < count; i++)
+        {
             ResourceTreeViewItem control = (ResourceTreeViewItem) list[i]!;
-            if (control.Resource == resource) {
+            if (control.Resource == resource)
+            {
                 return control;
             }
         }

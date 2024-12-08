@@ -21,6 +21,7 @@ using FramePFX.Avalonia.Shortcuts.Inputs;
 
 namespace FramePFX.Avalonia.Shortcuts.Dialogs;
 
-public interface IKeyboardDialogService {
+public interface IKeyboardDialogService
+{
     KeyStroke? ShowGetKeyStrokeDialog();
 }

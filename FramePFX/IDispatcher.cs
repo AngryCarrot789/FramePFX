@@ -19,7 +19,8 @@
 
 namespace FramePFX;
 
-public interface IDispatcher {
+public interface IDispatcher
+{
     /// <summary>
     /// Determines whether the calling thread is the thread associated with this dispatcher
     bool CheckAccess();

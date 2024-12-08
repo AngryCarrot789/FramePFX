@@ -23,7 +23,8 @@ namespace FramePFX.Tasks;
 
 public delegate void TaskManagerTaskEventHandler(TaskManager taskManager, ActivityTask task, int index);
 
-public class TaskManager : IDisposable {
+public class TaskManager : IDisposable
+{
     public static TaskManager Instance => IoC.TaskManager;
 
     // private readonly ThreadLocal<ActivityTask> threadToTask;
@@ -36,7 +37,8 @@ public class TaskManager : IDisposable {
 
     public IReadOnlyList<ActivityTask> ActiveTasks => this.tasks;
 
-    public TaskManager() {
+    public TaskManager()
+    {
         this.threadToTask = new AsyncLocal<ActivityTask?>();
         this.tasks = new List<ActivityTask>();
         this.locker = new object();
@@ -48,17 +50,19 @@ public class TaskManager : IDisposable {
 
     public ActivityTask RunTask(Func<Task> action, CancellationToken token, TaskCreationOptions creationOptions = TaskCreationOptions.None) => this.RunTask(action, new DefaultProgressTracker(), token, creationOptions);
 
-    public ActivityTask RunTask(Func<Task> action, IActivityProgress progress, CancellationToken cancellationToken, TaskCreationOptions creationOptions = TaskCreationOptions.None) {
+    public ActivityTask RunTask(Func<Task> action, IActivityProgress progress, CancellationToken cancellationToken, TaskCreationOptions creationOptions = TaskCreationOptions.None)
+    {
         return ActivityTask.InternalStartActivity(this, action, progress, cancellationToken, creationOptions);
     }
-    
+
     public ActivityTask<T> RunTask<T>(Func<Task<T>> action, TaskCreationOptions creationOptions = TaskCreationOptions.None) => this.RunTask(action, CancellationToken.None, creationOptions);
 
     public ActivityTask<T> RunTask<T>(Func<Task<T>> action, IActivityProgress progress, TaskCreationOptions creationOptions = TaskCreationOptions.None) => this.RunTask(action, progress, CancellationToken.None, creationOptions);
 
     public ActivityTask<T> RunTask<T>(Func<Task<T>> action, CancellationToken token, TaskCreationOptions creationOptions = TaskCreationOptions.None) => this.RunTask(action, new DefaultProgressTracker(), token, creationOptions);
 
-    public ActivityTask<T> RunTask<T>(Func<Task<T>> action, IActivityProgress progress, CancellationToken cancellationToken, TaskCreationOptions creationOptions = TaskCreationOptions.None) {
+    public ActivityTask<T> RunTask<T>(Func<Task<T>> action, IActivityProgress progress, CancellationToken cancellationToken, TaskCreationOptions creationOptions = TaskCreationOptions.None)
+    {
         return ActivityTask<T>.InternalStartActivity(this, action, progress, cancellationToken, creationOptions);
     }
 
@@ -67,7 +71,8 @@ public class TaskManager : IDisposable {
     /// </summary>
     /// <param name="task">The task associated with the current thread</param>
     /// <returns>True if this thread is running a task</returns>
-    public bool TryGetCurrentTask(out ActivityTask? task) {
+    public bool TryGetCurrentTask(out ActivityTask? task)
+    {
         return (task = this.threadToTask.Value) != null;
     }
 
@@ -81,22 +86,26 @@ public class TaskManager : IDisposable {
     /// Gets either the current task's activity progress tracker, or the <see cref="EmptyActivityProgress"/> instance (for convenience over null-checks)
     /// </summary>
     /// <returns></returns>
-    public IActivityProgress GetCurrentProgressOrEmpty() {
+    public IActivityProgress GetCurrentProgressOrEmpty()
+    {
         return this.TryGetCurrentTask(out ActivityTask? task) ? task!.Progress : EmptyActivityProgress.Instance;
     }
 
-    public void Dispose() {
+    public void Dispose()
+    {
         // this.threadToTask.Dispose();
     }
 
     // Activity thread
 
-    internal static Task InternalPreActivateTask(TaskManager taskManager, ActivityTask task) {
+    internal static Task InternalPreActivateTask(TaskManager taskManager, ActivityTask task)
+    {
         taskManager.threadToTask.Value = task;
         return RZApplication.Instance.Dispatcher.InvokeAsync(() => InternalOnTaskStarted(taskManager, task));
     }
 
-    internal static Task InternalOnActivityCompleted(TaskManager taskManager, ActivityTask task, int state) {
+    internal static Task InternalOnActivityCompleted(TaskManager taskManager, ActivityTask task, int state)
+    {
         taskManager.threadToTask.Value = null;
 
         // Before AsyncLocal, I was trying out a dispatcher for each task XD
@@ -106,8 +115,10 @@ public class TaskManager : IDisposable {
 
     // Main Thread
 
-    internal static void InternalOnTaskStarted(TaskManager taskManager, ActivityTask task) {
-        lock (taskManager.locker) {
+    internal static void InternalOnTaskStarted(TaskManager taskManager, ActivityTask task)
+    {
+        lock (taskManager.locker)
+        {
             int index = taskManager.tasks.Count;
             taskManager.tasks.Insert(index, task);
             taskManager.TaskStarted?.Invoke(taskManager, task, index);
@@ -116,11 +127,14 @@ public class TaskManager : IDisposable {
         ActivityTask.InternalPostActivate(task);
     }
 
-    internal static void InternalOnTaskCompleted(TaskManager taskManager, ActivityTask task, int state) {
+    internal static void InternalOnTaskCompleted(TaskManager taskManager, ActivityTask task, int state)
+    {
         ActivityTask.InternalComplete(task, state);
-        lock (taskManager.locker) {
+        lock (taskManager.locker)
+        {
             int index = taskManager.tasks.IndexOf(task);
-            if (index == -1) {
+            if (index == -1)
+            {
                 const string msg = "Completed activity task did not exist in this task manager's internal task list";
                 Debug.WriteLine("[FATAL] " + msg);
                 Debugger.Break();

@@ -22,7 +22,8 @@ namespace FramePFX.PropertyEditing.DataTransfer;
 /// <summary>
 /// Contains information about how a number dragger should step value changes
 /// </summary>
-public readonly struct DragStepProfile {
+public readonly struct DragStepProfile
+{
     public static readonly DragStepProfile UnitOne = new DragStepProfile(0.0001, 0.001, 0.0025, 0.01);
     public static readonly DragStepProfile SubPixel = new DragStepProfile(0.00025, 0.0025, 0.025, 0.25);
     public static readonly DragStepProfile Pixels = new DragStepProfile(0.001, 0.01, 0.1, 1.0);
@@ -51,7 +52,8 @@ public readonly struct DragStepProfile {
     /// </summary>
     public readonly double LargeStep;
 
-    public DragStepProfile(double tinyStep, double smallStep, double normalStep, double largeStep) {
+    public DragStepProfile(double tinyStep, double smallStep, double normalStep, double largeStep)
+    {
         this.TinyStep = tinyStep;
         this.SmallStep = smallStep;
         this.NormalStep = normalStep;

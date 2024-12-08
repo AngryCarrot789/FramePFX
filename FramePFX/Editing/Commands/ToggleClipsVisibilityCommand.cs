@@ -24,28 +24,36 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editing.Commands;
 
-public class ToggleClipsVisibilityCommand : Command {
-    public override Executability CanExecute(CommandEventArgs e) {
+public class ToggleClipsVisibilityCommand : Command
+{
+    public override Executability CanExecute(CommandEventArgs e)
+    {
         return (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip? clip) && clip is VideoClip) || DataKeys.TimelineUIKey.IsPresent(e.ContextData) ? Executability.Valid : Executability.Invalid;
     }
 
-    protected override void Execute(CommandEventArgs e) {
-        if (!TimelineCommandUtils.TryGetSelectedVideoModels(e.ContextData, out List<VideoClip>? list)) {
+    protected override void Execute(CommandEventArgs e)
+    {
+        if (!TimelineCommandUtils.TryGetSelectedVideoModels(e.ContextData, out List<VideoClip>? list))
+        {
             return;
         }
 
-        if (list.Count == 1) {
+        if (list.Count == 1)
+        {
             VideoClip.IsVisibleParameter.SetValue(list[0], !VideoClip.IsVisibleParameter.GetValue(list[0]));
         }
-        else {
+        else
+        {
             int visibleCount = 0;
-            foreach (VideoClip clip in list) {
+            foreach (VideoClip clip in list)
+            {
                 if (VideoClip.IsVisibleParameter.GetValue(clip))
                     visibleCount++;
             }
 
             bool newIsVisible = visibleCount < (list.Count / 2);
-            foreach (VideoClip clip in list) {
+            foreach (VideoClip clip in list)
+            {
                 VideoClip.IsVisibleParameter.SetValue(clip, newIsVisible);
             }
         }

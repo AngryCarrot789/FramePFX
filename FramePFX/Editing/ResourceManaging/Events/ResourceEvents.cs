@@ -34,7 +34,8 @@ public delegate void ResourceMovedEventHandler(ResourceFolder sender, ResourceMo
 /// <summary>
 /// Event args for when a resource is moved from one folder to another
 /// </summary>
-public class ResourceMovedEventArgs : EventArgs {
+public class ResourceMovedEventArgs : EventArgs
+{
     /// <summary>
     /// The source/original folder
     /// </summary>
@@ -65,7 +66,8 @@ public class ResourceMovedEventArgs : EventArgs {
     /// </summary>
     public bool IsSameFolder => this.OldFolder == this.NewFolder;
 
-    public ResourceMovedEventArgs(ResourceFolder oldFolder, ResourceFolder newFolder, BaseResource item, int oldIndex, int newIndex) {
+    public ResourceMovedEventArgs(ResourceFolder oldFolder, ResourceFolder newFolder, BaseResource item, int oldIndex, int newIndex)
+    {
         this.OldFolder = oldFolder;
         this.NewFolder = newFolder;
         this.Item = item;

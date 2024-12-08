@@ -27,7 +27,8 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Avalonia.AdvancedMenuService;
 
-public class AdvancedContextMenuItem : MenuItem, IAdvancedContextElement {
+public class AdvancedContextMenuItem : MenuItem, IAdvancedContextElement
+{
     protected override Type StyleKeyOverride => typeof(MenuItem);
 
     public IContextData? Context => this.Container?.Context;
@@ -49,48 +50,55 @@ public class AdvancedContextMenuItem : MenuItem, IAdvancedContextElement {
 
     public AdvancedContextMenuItem() { }
 
-    protected override void OnLoaded(RoutedEventArgs e) {
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
         base.OnLoaded(e);
         MenuService.GenerateDynamicItems(this, ref this.dynamicInsertion, ref this.dynamicInserted);
         Dispatcher.UIThread.InvokeAsync(() => MenuService.NormaliseSeparators(this), DispatcherPriority.Loaded);
     }
 
-    protected override void OnUnloaded(RoutedEventArgs e) {
+    protected override void OnUnloaded(RoutedEventArgs e)
+    {
         base.OnUnloaded(e);
         MenuService.ClearDynamicItems(this, ref this.dynamicInsertion, ref this.dynamicInserted);
     }
 
-    public virtual void OnAdding(IAdvancedContainer container, ItemsControl parent, BaseContextEntry entry) {
+    public virtual void OnAdding(IAdvancedContainer container, ItemsControl parent, BaseContextEntry entry)
+    {
         this.Container = container;
         this.ParentNode = parent;
         this.Entry = entry;
     }
 
-    public virtual void OnAdded() {
+    public virtual void OnAdded()
+    {
         this.Header = this.Entry!.DisplayName;
         if (this.Entry.Description != null)
             ToolTip.SetTip(this, this.Entry.Description ?? "");
 
-        if (this.Entry is SubListContextEntry list) {
+        if (this.Entry is SubListContextEntry list)
+        {
             MenuService.InsertItemNodes(this.Container!, this, list.ItemList);
         }
     }
 
-    public virtual void OnRemoving() {
+    public virtual void OnRemoving()
+    {
         MenuService.ClearItemNodes(this);
     }
 
-    public virtual void OnRemoved() {
+    public virtual void OnRemoved()
+    {
         this.Container = null;
         this.ParentNode = null;
         this.Entry = null;
     }
 
     public virtual void UpdateCanExecute() {
-        
     }
 
-    public void StoreDynamicGroup(DynamicGroupContextObject group, int index) {
+    public void StoreDynamicGroup(DynamicGroupContextObject group, int index)
+    {
         (this.dynamicInsertion ??= new Dictionary<int, DynamicGroupContextObject>())[index] = group;
     }
 }

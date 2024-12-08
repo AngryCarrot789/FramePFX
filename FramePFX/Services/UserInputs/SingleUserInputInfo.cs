@@ -24,7 +24,8 @@ namespace FramePFX.Services.UserInputs;
 
 public delegate void SingleUserInputDataEventHandler(SingleUserInputInfo sender);
 
-public class SingleUserInputInfo : UserInputInfo {
+public class SingleUserInputInfo : UserInputInfo
+{
     public static readonly DataParameterString TextParameter = DataParameter.Register(new DataParameterString(typeof(SingleUserInputInfo), nameof(Text), null, ValueAccessors.Reflective<string?>(typeof(SingleUserInputInfo), nameof(text))));
     public static readonly DataParameterString LabelParameter = DataParameter.Register(new DataParameterString(typeof(SingleUserInputInfo), nameof(Label), null, ValueAccessors.Reflective<string?>(typeof(SingleUserInputInfo), nameof(label))));
 
@@ -32,12 +33,14 @@ public class SingleUserInputInfo : UserInputInfo {
     private string? label = LabelParameter.DefaultValue;
     private bool allowEmptyText;
 
-    public string? Text {
+    public string? Text
+    {
         get => this.text;
         set => DataParameter.SetValueHelper(this, TextParameter, ref this.text, value);
     }
 
-    public string? Label {
+    public string? Label
+    {
         get => this.label;
         set => DataParameter.SetValueHelper(this, LabelParameter, ref this.label, value);
     }
@@ -47,9 +50,11 @@ public class SingleUserInputInfo : UserInputInfo {
     /// string. When this is true and the text is empty, the validation predicate is not called.
     /// However it is called if this value is false
     /// </summary>
-    public bool AllowEmptyText {
+    public bool AllowEmptyText
+    {
         get => this.allowEmptyText;
-        set {
+        set
+        {
             if (this.allowEmptyText == value)
                 return;
 
@@ -68,17 +73,20 @@ public class SingleUserInputInfo : UserInputInfo {
     public SingleUserInputInfo() {
     }
 
-    public SingleUserInputInfo(string? defaultText) {
+    public SingleUserInputInfo(string? defaultText)
+    {
         this.text = defaultText;
     }
 
-    public SingleUserInputInfo(string? caption, string? label, string? defaultText) {
+    public SingleUserInputInfo(string? caption, string? label, string? defaultText)
+    {
         this.Caption = caption;
         this.label = label;
         this.text = defaultText;
     }
 
-    public override bool CanDialogClose() {
+    public override bool CanDialogClose()
+    {
         if (string.IsNullOrEmpty(this.Text) && !this.AllowEmptyText)
             return false;
 

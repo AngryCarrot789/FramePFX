@@ -44,7 +44,7 @@
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
                                StrokeDashArray="2,2" Stroke="{DynamicResource ABrush.Tone7.Border.Static}" StrokeThickness="1"/>
-                    <Path x:Name="PART_Path" 
+                    <Path x:Name="PART_Path"
                           HorizontalAlignment="Center"
                           VerticalAlignment="Center"
                           Data="M 0 3 L 3 3 L 3 0 L 5 0 L 5 3 L 8 3 L 8 5 L 5 5 L 5 8 L 3 8 L 3 5 L 0 5"

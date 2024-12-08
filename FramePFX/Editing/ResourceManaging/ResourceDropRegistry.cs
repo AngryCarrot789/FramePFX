@@ -26,7 +26,8 @@ using FramePFX.Utils;
 
 namespace FramePFX.Editing.ResourceManaging;
 
-public class ResourceDropRegistry {
+public class ResourceDropRegistry
+{
     public const string DropTypeText = "PFXResManResources_DropType";
 
     public static DragDropRegistry<TreePath> TreeDropRegistry { get; } = new DragDropRegistry<TreePath>();
@@ -34,37 +35,46 @@ public class ResourceDropRegistry {
     static ResourceDropRegistry() {
     }
 
-    public static EnumDropType CanDropNativeTypeIntoTreeOrNode(IResourceTreeElement tree, IResourceTreeNodeElement? node, IDataObjekt obj, IContextData ctx, EnumDropType inputDropType) {
-        if (node != null && !(node.Resource is ResourceFolder)) {
+    public static EnumDropType CanDropNativeTypeIntoTreeOrNode(IResourceTreeElement tree, IResourceTreeNodeElement? node, IDataObjekt obj, IContextData ctx, EnumDropType inputDropType)
+    {
+        if (node != null && !(node.Resource is ResourceFolder))
+        {
             return EnumDropType.None;
         }
 
         return CanDropNativeType(obj, ctx, inputDropType);
     }
 
-    public static EnumDropType CanDropNativeTypeIntoListOrItem(IResourceListElement list, IResourceListItemElement? item, IDataObjekt obj, IContextData ctx, EnumDropType inputDropType) {
+    public static EnumDropType CanDropNativeTypeIntoListOrItem(IResourceListElement list, IResourceListItemElement? item, IDataObjekt obj, IContextData ctx, EnumDropType inputDropType)
+    {
         return CanDropNativeType(obj, ctx, inputDropType);
     }
 
-    public static EnumDropType CanDropNativeType(IDataObjekt obj, IContextData ctx, EnumDropType inputDropType) {
-        if (obj.Contains(NativeDropTypes.Files)) {
+    public static EnumDropType CanDropNativeType(IDataObjekt obj, IContextData ctx, EnumDropType inputDropType)
+    {
+        if (obj.Contains(NativeDropTypes.Files))
+        {
             return EnumDropType.Copy;
         }
 
         return EnumDropType.None;
     }
 
-    public static Task<bool> OnDropNativeTypeIntoTreeOrNode(IResourceTreeElement tree, IResourceTreeNodeElement? node, IDataObjekt obj, IContextData ctx, EnumDropType inputDropType) {
-        if (node != null && !(node.Resource is ResourceFolder)) {
+    public static Task<bool> OnDropNativeTypeIntoTreeOrNode(IResourceTreeElement tree, IResourceTreeNodeElement? node, IDataObjekt obj, IContextData ctx, EnumDropType inputDropType)
+    {
+        if (node != null && !(node.Resource is ResourceFolder))
+        {
             return Task.FromResult<bool>(false);
         }
 
         ResourceFolder folder = node != null ? (ResourceFolder) node.Resource! : tree.ManagerUI.ResourceManager!.RootContainer;
         return OnDropNativeType(folder, obj, ctx, inputDropType);
     }
-    
-    public static Task<bool> OnDropNativeTypeIntoListOrItem(IResourceListElement list, IResourceListItemElement? item, IDataObjekt obj, IContextData ctx, EnumDropType inputDropType) {
-        if (item != null && !(item.Resource is ResourceFolder)) {
+
+    public static Task<bool> OnDropNativeTypeIntoListOrItem(IResourceListElement list, IResourceListItemElement? item, IDataObjekt obj, IContextData ctx, EnumDropType inputDropType)
+    {
+        if (item != null && !(item.Resource is ResourceFolder))
+        {
             return Task.FromResult<bool>(false);
         }
 
@@ -72,14 +82,18 @@ public class ResourceDropRegistry {
         return OnDropNativeType(folder, obj, ctx, inputDropType);
     }
 
-    public static async Task<bool> OnDropNativeType(ResourceFolder folder, IDataObjekt obj, IContextData ctx, EnumDropType inputDropType) {
-        if (!(obj.GetData(NativeDropTypes.Files) is string[] files) || files.Length < 1) {
+    public static async Task<bool> OnDropNativeType(ResourceFolder folder, IDataObjekt obj, IContextData ctx, EnumDropType inputDropType)
+    {
+        if (!(obj.GetData(NativeDropTypes.Files) is string[] files) || files.Length < 1)
+        {
             return false;
         }
 
         List<BaseResource> resources = new List<BaseResource>();
-        foreach (string path in files) {
-            switch (Path.GetExtension(path).ToLower()) {
+        foreach (string path in files)
+        {
+            switch (Path.GetExtension(path).ToLower())
+            {
                 case ".gif":
                 case ".mp3":
                 case ".wav":
@@ -94,8 +108,10 @@ public class ResourceDropRegistry {
                 case ".mkv":
                 case ".qt":
                 case ".webm":
-                case ".flv": {
-                    ResourceAVMedia media = new ResourceAVMedia() {
+                case ".flv":
+                {
+                    ResourceAVMedia media = new ResourceAVMedia()
+                    {
                         FilePath = path, DisplayName = Path.GetFileName(path)
                     };
 
@@ -106,7 +122,8 @@ public class ResourceDropRegistry {
                 case ".png":
                 case ".bmp":
                 case ".jpg":
-                case ".jpeg": {
+                case ".jpeg":
+                {
                     ResourceImage image = new ResourceImage() { FilePath = path, DisplayName = Path.GetFileName(path) };
                     resources.Add(image);
                     folder.AddItem(image);
@@ -115,8 +132,10 @@ public class ResourceDropRegistry {
             }
         }
 
-        if (!await IoC.ResourceLoaderService.TryLoadResources(resources.ToArray())) {
-            foreach (BaseResource res in resources) {
+        if (!await IoC.ResourceLoaderService.TryLoadResources(resources.ToArray()))
+        {
+            foreach (BaseResource res in resources)
+            {
                 res.Destroy();
                 res.Parent!.RemoveItem(res);
             }
@@ -125,70 +144,87 @@ public class ResourceDropRegistry {
         return true;
     }
 
-    public static bool CanDropResourceListIntoFolder(ResourceFolder folder, List<BaseResource> droppedItems, EnumDropType dropType) {
+    public static bool CanDropResourceListIntoFolder(ResourceFolder folder, List<BaseResource> droppedItems, EnumDropType dropType)
+    {
         // ResourceFolder? myParent = this.Resource.Parent;
         // if (myParent == null || (!myParent.IsRoot && droppedItems.Any(x => x is ResourceFolder cl && cl.Parent != null && cl.Parent.IsParentInHierarchy(cl)))) {
         //     return;
         // }
 
-        if (!folder.IsRoot && droppedItems.Any(x => x is ResourceFolder cl && cl.Parent != null && cl.Parent.IsParentInHierarchy(cl))) {
+        if (!folder.IsRoot && droppedItems.Any(x => x is ResourceFolder cl && cl.Parent != null && cl.Parent.IsParentInHierarchy(cl)))
+        {
             // We can't drop into the folder since we would create an infinite loop
             return false;
         }
-        
+
         return true;
     }
 
-    public static Task OnDropResourceListIntoTreeOrNode(IResourceTreeElement tree, IResourceTreeNodeElement? node, List<BaseResource> droppedItems, IContextData ctx, EnumDropType dropType) {
-        if (node != null) {
-            if (node.Resource is ResourceFolder resourceFolder) {
+    public static Task OnDropResourceListIntoTreeOrNode(IResourceTreeElement tree, IResourceTreeNodeElement? node, List<BaseResource> droppedItems, IContextData ctx, EnumDropType dropType)
+    {
+        if (node != null)
+        {
+            if (node.Resource is ResourceFolder resourceFolder)
+            {
                 OnDropResourceList(resourceFolder, droppedItems, dropType);
             }
         }
-        else {
+        else
+        {
             OnDropResourceList(tree.ManagerUI.ResourceManager!.RootContainer, droppedItems, dropType);
         }
 
         return Task.CompletedTask;
     }
-    
-    public static Task OnDropResourceListIntoListItem(IResourceListElement list, IResourceListItemElement? item, List<BaseResource> droppedItems, IContextData ctx, EnumDropType dropType) {
+
+    public static Task OnDropResourceListIntoListItem(IResourceListElement list, IResourceListItemElement? item, List<BaseResource> droppedItems, IContextData ctx, EnumDropType dropType)
+    {
         ResourceFolder? destinationResource;
-        if (item != null) {
+        if (item != null)
+        {
             destinationResource = item.Resource as ResourceFolder;
         }
-        else {
+        else
+        {
             destinationResource = list.CurrentFolderItem?.Resource as ResourceFolder ?? list.ManagerUI.ResourceManager!.RootContainer;
         }
-        
-        if (destinationResource != null) {
+
+        if (destinationResource != null)
+        {
             OnDropResourceList(destinationResource, droppedItems, dropType);
         }
 
         return Task.CompletedTask;
     }
 
-    private static void OnDropResourceList(ResourceFolder destination, List<BaseResource> droppedItems, EnumDropType dropType) {
-        if (dropType != EnumDropType.Copy && dropType != EnumDropType.Move) {
+    private static void OnDropResourceList(ResourceFolder destination, List<BaseResource> droppedItems, EnumDropType dropType)
+    {
+        if (dropType != EnumDropType.Copy && dropType != EnumDropType.Move)
+        {
             return;
         }
 
-        foreach (BaseResource res in droppedItems) {
-            if (res is ResourceFolder composition && composition.IsParentInHierarchy(destination)) {
+        foreach (BaseResource res in droppedItems)
+        {
+            if (res is ResourceFolder composition && composition.IsParentInHierarchy(destination))
+            {
                 continue;
             }
 
-            if (dropType == EnumDropType.Copy) {
+            if (dropType == EnumDropType.Copy)
+            {
                 BaseResource clone = BaseResource.Clone(res);
                 if (!TextIncrement.GetIncrementableString((s => true), clone.DisplayName, out string? name, canAcceptInitialInput: false))
                     name = clone.DisplayName;
                 clone.DisplayName = name;
                 destination.AddItem(clone);
             }
-            else if (res.Parent != null) {
+            else if (res.Parent != null)
+            {
                 res.Parent.MoveItemTo(destination, res);
             }
-            else {
+            else
+            {
                 Debug.Assert(false, "No parent");
                 // AppLogger.Instance.WriteLine("A resource was dropped with a null parent???");
             }

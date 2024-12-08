@@ -25,7 +25,8 @@ namespace FramePFX.Natives;
 /// <summary>
 /// A class which contains all the native methods available through the PFX native composition engine
 /// </summary>
-public static class PFXNative {
+public static class PFXNative
+{
     #region System Helpers
 
     [DllImport("kernel32.dll", SetLastError = true)]
@@ -51,7 +52,8 @@ public static class PFXNative {
 
     public unsafe delegate int PFXAEFUNC_EndAudioPlayback(NativeAudioEngineData* pEngineData);
 
-    public struct NativeAudioEngineData {
+    public struct NativeAudioEngineData
+    {
         public IntPtr ManagedAudioEngineCallback;
         public IntPtr AudioEngineStream;
     }
@@ -64,10 +66,12 @@ public static class PFXNative {
 
     private static IntPtr LibraryAddress;
 
-    public static void InitialiseLibrary() {
+    public static void InitialiseLibrary()
+    {
         const string DLL_NAME = "FramePFX.NativeEngine.dll";
         string dllPath = Path.Combine(Path.GetFullPath("."), DLL_NAME);
-        if (!File.Exists(dllPath)) {
+        if (!File.Exists(dllPath))
+        {
 #if DEBUG
             dllPath = "..\\..\\..\\..\\x64\\Debug\\" + DLL_NAME;
 #else
@@ -77,18 +81,21 @@ public static class PFXNative {
             dllPath = Path.GetFullPath(dllPath);
         }
 
-        if (!File.Exists(dllPath)) {
+        if (!File.Exists(dllPath))
+        {
             throw new Exception("Library DLL could not be found. Make sure you built the C++ project first");
         }
 
         LibraryAddress = LoadLibrary(dllPath);
-        if (LibraryAddress == IntPtr.Zero) {
+        if (LibraryAddress == IntPtr.Zero)
+        {
             throw new Exception("Failed to load library. Check the project is compiled in x64, and ensure there are no missing DLL references in something like depends", new Win32Exception());
         }
 
         GetFunction("PFXCE_InitEngine", out InitEngine);
         GetFunction("PFXCE_ShutdownEngine", out ShutdownEngine);
-        if (InitEngine() != 1) {
+        if (InitEngine() != 1)
+        {
             throw new Exception("Engine initialisation failed");
         }
 
@@ -97,20 +104,25 @@ public static class PFXNative {
         GetFunction(nameof(PFXAE_EndAudioPlayback), out PFXAE_EndAudioPlayback);
     }
 
-    public static void ShutdownLibrary() {
-        if (LibraryAddress != IntPtr.Zero) {
+    public static void ShutdownLibrary()
+    {
+        if (LibraryAddress != IntPtr.Zero)
+        {
             ShutdownEngine();
 
-            try {
+            try
+            {
                 FreeLibrary(LibraryAddress);
             }
-            finally {
+            finally
+            {
                 LibraryAddress = IntPtr.Zero;
             }
         }
     }
 
-    private static void GetFunction<T>(string functionName, out T function) where T : Delegate {
+    private static void GetFunction<T>(string functionName, out T function) where T : Delegate
+    {
         IntPtr pFuncAddress = GetProcAddress(LibraryAddress, functionName);
         if (pFuncAddress == IntPtr.Zero)
             throw new Exception("Could not find function address for name: " + functionName);

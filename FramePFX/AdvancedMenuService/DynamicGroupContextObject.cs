@@ -22,10 +22,12 @@ namespace FramePFX.AdvancedMenuService;
 /// <summary>
 /// This interface is an invisible placeholder which is where dynamic items will be injected
 /// </summary>
-public class DynamicGroupContextObject : IContextObject {
+public class DynamicGroupContextObject : IContextObject
+{
     public DynamicContextGroup DynamicGroup { get; }
 
-    public DynamicGroupContextObject(DynamicContextGroup dynamicGroup) {
+    public DynamicGroupContextObject(DynamicContextGroup dynamicGroup)
+    {
         this.DynamicGroup = dynamicGroup;
     }
 }

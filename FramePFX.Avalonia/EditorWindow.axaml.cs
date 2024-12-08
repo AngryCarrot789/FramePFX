@@ -35,10 +35,12 @@ using FramePFX.Utils;
 
 namespace FramePFX.Avalonia;
 
-public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
+public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI
+{
     public static readonly StyledProperty<VideoEditor?> VideoEditorProperty = AvaloniaProperty.Register<EditorWindow, VideoEditor?>(nameof(VideoEditor));
 
-    public VideoEditor? VideoEditor {
+    public VideoEditor? VideoEditor
+    {
         get => this.GetValue(VideoEditorProperty)!;
         set => this.SetValue(VideoEditorProperty, value);
     }
@@ -51,7 +53,8 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
     private ActivityTask? primaryActivity;
     private readonly ContextData timelineGroupBoxContextData;
 
-    public EditorWindow() {
+    public EditorWindow()
+    {
         this.InitializeComponent();
 
         // average 5 samples. Will take a second to catch up when playing at 5 fps but meh
@@ -65,15 +68,18 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
         taskManager.TaskCompleted += this.OnTaskCompleted;
     }
 
-    private void OnTimelineClipSelectionChanged(ILightSelectionManager<IClipElement> sender) {
+    private void OnTimelineClipSelectionChanged(ILightSelectionManager<IClipElement> sender)
+    {
         this.PART_ViewPort.OnClipSelectionChanged();
     }
 
-    static EditorWindow() {
+    static EditorWindow()
+    {
         VideoEditorProperty.Changed.AddClassHandler<EditorWindow, VideoEditor?>((d, e) => d.OnVideoEditorChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }
 
-    protected override void OnLoaded(RoutedEventArgs e) {
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
         base.OnLoaded(e);
         this.contextData.Set(DataKeys.ResourceManagerUIKey, this.PART_ResourcePanelControl);
 
@@ -86,9 +92,11 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
         this.PART_ViewPort.OnClipSelectionChanged();
     }
 
-    private void OnVideoEditorChanged(VideoEditor? oldEditor, VideoEditor? newEditor) {
+    private void OnVideoEditorChanged(VideoEditor? oldEditor, VideoEditor? newEditor)
+    {
         this.doNotInvalidateContext = true;
-        if (oldEditor != null) {
+        if (oldEditor != null)
+        {
             oldEditor.ProjectChanged -= this.OnProjectChanged;
             Project? oldProject = oldEditor.Project;
             if (oldProject != null)
@@ -98,7 +106,8 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
             oldEditor.IsExportingChanged -= this.OnIsExportingChanged;
         }
 
-        if (newEditor != null) {
+        if (newEditor != null)
+        {
             newEditor.ProjectChanged += this.OnProjectChanged;
             newEditor.IsExportingChanged += this.OnIsExportingChanged;
             this.PART_ViewPort.Owner = this;
@@ -112,23 +121,28 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
         DataManager.InvalidateInheritedContext(this);
     }
 
-    private void OnIsExportingChanged(VideoEditor editor) {
+    private void OnIsExportingChanged(VideoEditor editor)
+    {
         this.PART_EditorWindowContent.IsEnabled = !editor.IsExporting;
     }
 
-    private void OnProjectChanged(VideoEditor editor, Project oldproject, Project newproject) {
+    private void OnProjectChanged(VideoEditor editor, Project oldproject, Project newproject)
+    {
         this.OnProjectChanged(oldproject, newproject);
     }
 
-    private void OnProjectChanged(Project? oldProject, Project? newProject) {
-        if (oldProject != null) {
+    private void OnProjectChanged(Project? oldProject, Project? newProject)
+    {
+        if (oldProject != null)
+        {
             oldProject.ActiveTimelineChanged -= this.OnActiveTimelineChanged;
             oldProject.ProjectFilePathChanged -= this.OnProjectFilePathChanged;
             oldProject.ProjectNameChanged -= this.OnProjectNameChanged;
             oldProject.IsModifiedChanged -= this.OnProjectModifiedChanged;
         }
 
-        if (newProject != null) {
+        if (newProject != null)
+        {
             newProject.ActiveTimelineChanged += this.OnActiveTimelineChanged;
             newProject.ProjectFilePathChanged += this.OnProjectFilePathChanged;
             newProject.ProjectNameChanged += this.OnProjectNameChanged;
@@ -148,27 +162,34 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
             DataManager.InvalidateInheritedContext(this);
 
         VideoEditorPropertyEditorHelper.OnProjectChanged();
-        
-        IoC.Dispatcher.InvokeAsync(() => {
+
+        IoC.Dispatcher.InvokeAsync(() =>
+        {
             this.PART_ViewPort?.PART_FreeMoveViewPort?.FitContentToCenter();
         }, DispatchPriority.Background);
     }
 
-    private void OnActiveTimelineChanged(Project project, Timeline? oldTimeline, Timeline? newTimeline) {
+    private void OnActiveTimelineChanged(Project project, Timeline? oldTimeline, Timeline? newTimeline)
+    {
         this.OnActiveTimelineChanged(oldTimeline, newTimeline);
     }
 
-    private void OnActiveTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline) {
-        if (oldTimeline != null) {
+    private void OnActiveTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline)
+    {
+        if (oldTimeline != null)
+        {
             oldTimeline.RenderManager.FrameRendered -= this.UpdateFrameRenderInterval;
-            if (oldTimeline is CompositionTimeline oldComposition) {
+            if (oldTimeline is CompositionTimeline oldComposition)
+            {
                 oldComposition.Resource.DisplayNameChanged -= this.OnCompositionTimelineDisplayNameChanged;
             }
         }
 
-        if (newTimeline != null) {
+        if (newTimeline != null)
+        {
             newTimeline.RenderManager.FrameRendered += this.UpdateFrameRenderInterval;
-            if (newTimeline is CompositionTimeline newComposition) {
+            if (newTimeline is CompositionTimeline newComposition)
+            {
                 newComposition.Resource.DisplayNameChanged += this.OnCompositionTimelineDisplayNameChanged;
             }
         }
@@ -180,59 +201,74 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
         this.PART_CloseTimelineButton.IsEnabled = newTimeline is Timeline timeline && timeline is CompositionTimeline;
     }
 
-    private void UpdateFrameRenderInterval(RenderManager manager) {
+    private void UpdateFrameRenderInterval(RenderManager manager)
+    {
         this.UpdateFrameRenderInterval(manager.Timeline.Project?.Editor, manager.Timeline);
     }
 
-    private void UpdateFrameRenderInterval(VideoEditor? editor, Timeline? timeline) {
-        if (editor != null) {
+    private void UpdateFrameRenderInterval(VideoEditor? editor, Timeline? timeline)
+    {
+        if (editor != null)
+        {
             double avgPlaybackMillis = editor.Playback.AveragePlaybackIntervalMillis;
             this.PART_AvgFPSBlock.Text = $"{Math.Round(avgPlaybackMillis, 2).ToString(),5} ms ({((int) Math.Round(1000.0 / avgPlaybackMillis)).ToString(),3} FPS)";
         }
 
-        if (timeline != null) {
+        if (timeline != null)
+        {
             this.renderTimeAverager.PushValue(timeline.RenderManager.AverageVideoRenderTimeMillis);
             double avgRenderMillis = this.renderTimeAverager.GetAverage();
             this.PART_AvgRenderTimeBlock.Text = $"{Math.Round(avgRenderMillis, 2).ToString(),5} ms ({((int) Math.Round(1000.0 / avgRenderMillis)).ToString(),3} FPS)";
         }
     }
 
-    private void OnCompositionTimelineDisplayNameChanged(IDisplayName sender, string oldName, string newName) {
+    private void OnCompositionTimelineDisplayNameChanged(IDisplayName sender, string oldName, string newName)
+    {
         this.UpdateTimelineName();
     }
 
-    private void OnProjectFilePathChanged(Project project) {
+    private void OnProjectFilePathChanged(Project project)
+    {
         this.UpdateWindowTitle(project);
     }
 
-    private void OnProjectNameChanged(Project project) {
+    private void OnProjectNameChanged(Project project)
+    {
         this.UpdateWindowTitle(project);
     }
 
-    private void OnProjectModifiedChanged(Project project) {
+    private void OnProjectModifiedChanged(Project project)
+    {
         this.UpdateWindowTitle(project);
     }
 
-    private void UpdateTimelineName() {
+    private void UpdateTimelineName()
+    {
         Timeline? timeline = this.TheTimeline?.Timeline;
-        if (timeline == null) {
+        if (timeline == null)
+        {
             this.PART_TimelineName.Text = "No timeline loaded";
         }
-        else if (timeline is CompositionTimeline composition) {
+        else if (timeline is CompositionTimeline composition)
+        {
             string? text = composition.Resource.DisplayName;
             this.PART_TimelineName.Text = string.IsNullOrWhiteSpace(text) ? "Unnamed Composition Timeline" : text;
         }
-        else {
+        else
+        {
             this.PART_TimelineName.Text = "Project Timeline";
         }
     }
 
-    private void UpdateWindowTitle(Project? project) {
+    private void UpdateWindowTitle(Project? project)
+    {
         const string DefaultTitle = "Bootleg song vegas (FramePFX v2.0.0)";
-        if (project == null) {
+        if (project == null)
+        {
             this.Title = DefaultTitle;
         }
-        else {
+        else
+        {
             StringBuilder sb = new StringBuilder().Append(DefaultTitle);
             if (!string.IsNullOrEmpty(project.ProjectFilePath))
                 sb.Append(" - ").Append(project.ProjectFilePath);
@@ -247,28 +283,35 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
         }
     }
 
-    private void FitToScale_Click(object? sender, RoutedEventArgs e) {
+    private void FitToScale_Click(object? sender, RoutedEventArgs e)
+    {
         this.PART_ViewPort?.PART_FreeMoveViewPort?.FitContentToCenter();
     }
 
     #region Task Manager and Activity System
 
-    private void OnTaskStarted(TaskManager manager, ActivityTask task, int index) {
-        if (this.primaryActivity == null || this.primaryActivity.IsCompleted) {
+    private void OnTaskStarted(TaskManager manager, ActivityTask task, int index)
+    {
+        if (this.primaryActivity == null || this.primaryActivity.IsCompleted)
+        {
             this.SetActivityTask(task);
         }
     }
 
-    private void OnTaskCompleted(TaskManager manager, ActivityTask task, int index) {
-        if (task == this.primaryActivity) {
+    private void OnTaskCompleted(TaskManager manager, ActivityTask task, int index)
+    {
+        if (task == this.primaryActivity)
+        {
             // try to access next task
             this.SetActivityTask(manager.ActiveTasks.Count > 0 ? manager.ActiveTasks[0] : null);
         }
     }
 
-    private void SetActivityTask(ActivityTask? task) {
+    private void SetActivityTask(ActivityTask? task)
+    {
         IActivityProgress? prog = null;
-        if (this.primaryActivity != null) {
+        if (this.primaryActivity != null)
+        {
             prog = this.primaryActivity.Progress;
             prog.TextChanged -= this.OnPrimaryActivityTextChanged;
             prog.CompletionValueChanged -= this.OnPrimaryActionCompletionValueChanged;
@@ -277,14 +320,16 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
         }
 
         this.primaryActivity = task;
-        if (task != null) {
+        if (task != null)
+        {
             prog = task.Progress;
             prog.TextChanged += this.OnPrimaryActivityTextChanged;
             prog.CompletionValueChanged += this.OnPrimaryActionCompletionValueChanged;
             prog.IsIndeterminateChanged += this.OnPrimaryActivityIndeterminateChanged;
             this.PART_ActiveBackgroundTaskGrid.IsVisible = true;
         }
-        else {
+        else
+        {
             this.PART_ActiveBackgroundTaskGrid.IsVisible = false;
         }
 
@@ -293,15 +338,18 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
         this.OnPrimaryActivityIndeterminateChanged(prog);
     }
 
-    private void OnPrimaryActivityTextChanged(IActivityProgress? tracker) {
+    private void OnPrimaryActivityTextChanged(IActivityProgress? tracker)
+    {
         IoC.Dispatcher.Invoke(() => this.PART_TaskCaption.Text = tracker?.Text ?? "", DispatchPriority.Loaded);
     }
 
-    private void OnPrimaryActionCompletionValueChanged(IActivityProgress? tracker) {
+    private void OnPrimaryActionCompletionValueChanged(IActivityProgress? tracker)
+    {
         IoC.Dispatcher.Invoke(() => this.PART_ActiveBgProgress.Value = tracker?.TotalCompletion ?? 0.0, DispatchPriority.Loaded);
     }
 
-    private void OnPrimaryActivityIndeterminateChanged(IActivityProgress? tracker) {
+    private void OnPrimaryActivityIndeterminateChanged(IActivityProgress? tracker)
+    {
         IoC.Dispatcher.Invoke(() => this.PART_ActiveBgProgress.IsIndeterminate = tracker?.IsIndeterminate ?? false, DispatchPriority.Loaded);
     }
 

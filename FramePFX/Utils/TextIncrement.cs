@@ -21,38 +21,48 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace FramePFX.Utils;
 
-public class TextIncrement {
-    public static int GetChars(ulong value, char[] dst, int offset) {
+public class TextIncrement
+{
+    public static int GetChars(ulong value, char[] dst, int offset)
+    {
         string str = value.ToString();
         str.CopyTo(0, dst, offset, str.Length);
         return str.Length;
     }
 
-    public static string GetNextText(string input) {
-        if (string.IsNullOrEmpty(input)) {
+    public static string GetNextText(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+        {
             return " (1)";
         }
-        else if (GetNumbered(input, out string? left, out long number)) {
+        else if (GetNumbered(input, out string? left, out long number))
+        {
             return $"{left} ({number + 1})";
         }
-        else {
+        else
+        {
             return $"{input} (1)";
         }
     }
 
-    public static string GetNextText(IEnumerable<string> inputs, string text, bool canAcceptInitialInput = true) {
-        if (string.IsNullOrEmpty(text)) {
+    public static string GetNextText(IEnumerable<string> inputs, string text, bool canAcceptInitialInput = true)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
             return text;
         }
 
         HashSet<string> available = new HashSet<string>(inputs);
-        if (!GetIncrementableString((x) => x != null && !available.Contains(x), text, out string? output, canAcceptInitialInput:canAcceptInitialInput))
+        if (!GetIncrementableString((x) => x != null && !available.Contains(x), text, out string? output, canAcceptInitialInput: canAcceptInitialInput))
             output = text;
         return output!;
     }
 
-    public static bool GetNumbered(string? input, out string? left, out long number) {
-        if (GetNumberedRaw(input, out left, out string? bracketed) && long.TryParse(bracketed, out number)) {
+    public static bool GetNumbered(string? input, out string? left, out long number)
+    {
+        if (GetNumberedRaw(input, out left, out string? bracketed) && long.TryParse(bracketed, out number))
+        {
             return true;
         }
 
@@ -60,26 +70,32 @@ public class TextIncrement {
         return false;
     }
 
-    public static bool GetNumberedRaw(string? input, [NotNullWhen(true)] out string? left, [NotNullWhen(true)] out string? bracketed) {
-        if (string.IsNullOrWhiteSpace(input)) {
+    public static bool GetNumberedRaw(string? input, [NotNullWhen(true)] out string? left, [NotNullWhen(true)] out string? bracketed)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+        {
             goto fail;
         }
 
         int indexA = input.LastIndexOf('(');
-        if (indexA < 0 || (indexA != 0 && input[indexA - 1] != ' ')) {
+        if (indexA < 0 || (indexA != 0 && input[indexA - 1] != ' '))
+        {
             goto fail;
         }
 
         int indexB = input.LastIndexOf(')');
-        if (indexB < 0 || indexB <= indexA || indexB != (input.Length - 1)) {
+        if (indexB < 0 || indexB <= indexA || indexB != (input.Length - 1))
+        {
             goto fail;
         }
 
-        if (indexA == 0) {
+        if (indexA == 0)
+        {
             left = "";
             bracketed = input.Substring(1, input.Length - 2);
         }
-        else {
+        else
+        {
             left = input.Substring(0, indexA - 1);
             bracketed = input.JSubstring(indexA + 1, indexB);
         }
@@ -104,7 +120,8 @@ public class TextIncrement {
     /// <returns>True if the <see cref="accept"/> predicate accepted the output string before the loop counter reached 0</returns>
     /// <exception cref="ArgumentOutOfRangeException">The <see cref="count"/> parameter is zero</exception>
     /// <exception cref="ArgumentException">The <see cref="input"/> parameter is null or empty</exception>
-    public static bool GetIncrementableString(Predicate<string?> accept, string? input, out string? output, ulong count = ulong.MaxValue, bool canAcceptInitialInput = true) {
+    public static bool GetIncrementableString(Predicate<string?> accept, string? input, out string? output, ulong count = ulong.MaxValue, bool canAcceptInitialInput = true)
+    {
         if (count < 1)
             throw new ArgumentOutOfRangeException(nameof(count), "Count must not be zero");
         if (string.IsNullOrEmpty(input))
@@ -121,7 +138,8 @@ public class TextIncrement {
         // This is probably over-optimised... this is just for concatenating a string and ulong
         // in the most efficient way possible. 23 = 3 (for ' ' + '(' + ')' chars) + 20 (for ulong.MaxValue representation)
         // hello (69) | len = 10, index = 7, j = 9, j+1 = 10 (passed to new string())
-        if (content == null) {
+        if (content == null)
+        {
             content = input;
         }
 
@@ -131,7 +149,8 @@ public class TextIncrement {
         chars[index] = ' ';
         chars[index + 1] = '(';
         index += 2;
-        for (ulong i = num; i < max; i++) {
+        for (ulong i = num; i < max; i++)
+        {
             // int len = TextIncrement.GetChars(i, chars, index);
             // int j = index + len; // val.Length
             string val = i.ToString();
@@ -141,7 +160,8 @@ public class TextIncrement {
             // TODO: stack allocate string instead of heap allocate? probably not in NS2.0 :(
             // or maybe use some really really unsafe reflection/pointer manipulation
             output = new string(chars, 0, j + 1);
-            if (accept(output)) {
+            if (accept(output))
+            {
                 return true;
             }
         }
@@ -166,13 +186,16 @@ public class TextIncrement {
     /// <param name="length">The length of the random id</param>
     /// <param name="loop">Maximum number of times to generate a random ID before throwing, default is 32</param>
     /// <returns>True if the <see cref="accept"/> predicate accepted the output string before the loop counter reached 0</returns>
-    public static unsafe bool GetRandomDisplayName(Predicate<string> accept, string src, int srcIndex, out string output, int length = 20, int loop = 32) {
+    public static unsafe bool GetRandomDisplayName(Predicate<string> accept, string src, int srcIndex, out string output, int length = 20, int loop = 32)
+    {
         Random random = new Random();
         char* chars = stackalloc char[length];
-        while (loop > 0) {
+        while (loop > 0)
+        {
             RandomUtils.RandomLetters(random, chars, 0, length);
             output = StringUtils.InjectOrUseChars(src, srcIndex, chars, length);
-            if (accept(output)) {
+            if (accept(output))
+            {
                 return true;
             }
 
@@ -193,14 +216,17 @@ public class TextIncrement {
     /// number, file name with a random string on the end, or null (and the function returns false)
     /// </param>
     /// <returns>True if the given predicate accepted any of the possible output strings</returns>
-    public static bool GenerateFileString(Predicate<string?> accept, string? filePath, out string? output, ulong incrementCounter = 10000UL) {
-        if (string.IsNullOrWhiteSpace(filePath)) {
+    public static bool GenerateFileString(Predicate<string?> accept, string? filePath, out string? output, ulong incrementCounter = 10000UL)
+    {
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
             output = filePath;
             return false;
         }
 
         string? fileName = Path.GetFileName(filePath);
-        if (!string.IsNullOrEmpty(fileName)) {
+        if (!string.IsNullOrEmpty(fileName))
+        {
             // checks if the predicate accepts the raw fileName
             if (GetIncrementableString(accept, fileName, out output, incrementCounter))
                 return true;

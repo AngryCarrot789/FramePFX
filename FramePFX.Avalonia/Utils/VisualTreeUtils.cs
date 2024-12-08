@@ -27,9 +27,12 @@ using Avalonia.VisualTree;
 
 namespace FramePFX.Avalonia.Utils;
 
-public static class VisualTreeUtils {
-    public static AvaloniaObject? FindNearestInheritedPropertyDefinition<T>(AvaloniaProperty<T> property, AvaloniaObject target) {
-        for (AvaloniaObject? next = target; next != null; next = GetParent(next)) {
+public static class VisualTreeUtils
+{
+    public static AvaloniaObject? FindNearestInheritedPropertyDefinition<T>(AvaloniaProperty<T> property, AvaloniaObject target)
+    {
+        for (AvaloniaObject? next = target; next != null; next = GetParent(next))
+        {
             Optional<T> localValue = next.GetBaseValue(property);
             if (!localValue.HasValue)
                 continue;
@@ -51,7 +54,8 @@ public static class VisualTreeUtils {
     /// <returns>The parent, or null, if there was no parent available</returns>
     public static AvaloniaObject? GetParent(AvaloniaObject? source, bool visualOnly = false) => GetParent(source as Visual, visualOnly);
 
-    public static AvaloniaObject? GetParent(Visual? source, bool visualOnly = false) {
+    public static AvaloniaObject? GetParent(Visual? source, bool visualOnly = false)
+    {
         if (source == null)
             return null;
 
@@ -69,13 +73,15 @@ public static class VisualTreeUtils {
     /// <param name="includeSelf">True to check if obj is of the given generic type, and if so, return that. Otherwise, scan parents</param>
     /// <typeparam name="T">Type of parent</typeparam>
     /// <returns>The parent, or null, if none of the given type were found</returns>
-    public static T? GetParent<T>(AvaloniaObject? obj, bool includeSelf = true, bool visualOnly = false) where T : class {
+    public static T? GetParent<T>(AvaloniaObject? obj, bool includeSelf = true, bool visualOnly = false) where T : class
+    {
         if (obj == null)
             return null;
         if (includeSelf && obj is T)
             return (T) (object) obj;
 
-        do {
+        do
+        {
             obj = GetParent(obj, visualOnly);
             if (obj == null)
                 return null;
@@ -84,23 +90,27 @@ public static class VisualTreeUtils {
         } while (true);
     }
 
-    public static T? GetLastParent<T>(AvaloniaObject? obj, bool visualOnly = false) where T : class {
+    public static T? GetLastParent<T>(AvaloniaObject? obj, bool visualOnly = false) where T : class
+    {
         T? lastParent = null;
         for (T? parent = GetParent<T>(obj, false, visualOnly); parent != null; parent = GetParent<T>((AvaloniaObject) (object) parent, false, visualOnly))
             lastParent = parent;
 
         return lastParent;
     }
-    
-    public static bool TryGetParent<T>(AvaloniaObject? obj, [NotNullWhen(true)] out T? theParent, bool includeSelf = true, bool visualOnly = false) where T : class {
+
+    public static bool TryGetParent<T>(AvaloniaObject? obj, [NotNullWhen(true)] out T? theParent, bool includeSelf = true, bool visualOnly = false) where T : class
+    {
         return (theParent = GetParent<T>(obj, includeSelf, visualOnly)) != null;
     }
 
-    public static bool TryGetLastParent<T>(AvaloniaObject? obj, [NotNullWhen(true)] out T? theParent, bool visualOnly = false) where T : class {
+    public static bool TryGetLastParent<T>(AvaloniaObject? obj, [NotNullWhen(true)] out T? theParent, bool visualOnly = false) where T : class
+    {
         return (theParent = GetLastParent<T>(obj, visualOnly)) != null;
     }
 
-    public static AdornerLayer? GetRootAdornerLayer(Visual visual) {
+    public static AdornerLayer? GetRootAdornerLayer(Visual visual)
+    {
         AdornerLayer? layer = AdornerLayer.GetAdornerLayer(visual);
         for (AdornerLayer? parent = layer; parent != null; parent = GetParent(parent) is Visual v ? AdornerLayer.GetAdornerLayer(v) : null)
             layer = parent;
@@ -110,7 +120,8 @@ public static class VisualTreeUtils {
 
     public static IAvaloniaList<Visual> GetVisualChildren(Visual visual) => (IAvaloniaList<Visual>) visual.GetVisualChildren();
 
-    public static int GetChildrenCount(AvaloniaObject obj) {
+    public static int GetChildrenCount(AvaloniaObject obj)
+    {
         return obj is Visual visual ? GetChildrenCount(visual) : throw new Exception("Object is not a visual object");
     }
 
@@ -118,14 +129,15 @@ public static class VisualTreeUtils {
 
     [Obsolete("Use VisualTreeUtils.GetVisualChildren() instead")]
     public static Visual GetChild(Visual visual, int index) => ((IAvaloniaList<Visual>) visual.GetVisualChildren())[index];
-    
+
     /// <summary>
     /// Calculates if the given item is either the given templated item type, or it is a templated child of the type.
     /// <para>
     /// This is the same as invoking <see cref="GetParent{T}"/> with self included and checking the value is non-null
     /// </para>
     /// </summary>
-    public static bool IsTemplatedItemOrChild<T>(AvaloniaObject? obj) where T : class {
+    public static bool IsTemplatedItemOrChild<T>(AvaloniaObject? obj) where T : class
+    {
         return GetParent<T>(obj, true, false) != null;
     }
 }

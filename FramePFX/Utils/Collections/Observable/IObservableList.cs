@@ -29,7 +29,8 @@ public delegate void ObservableListReplaceEventHandler<T>(IObservableList<T> lis
 /// A list implementation that invokes a series of events when the collection changes
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public interface IObservableList<T> : IList<T> {
+public interface IObservableList<T> : IList<T>
+{
     /// <summary>
     /// An event fired when one or more items are inserted into the list.
     /// <para>

@@ -23,35 +23,40 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Avalonia.Editing.CommandContexts;
 
-public class ToggleLoopCommandUsage : BasicButtonCommandUsage {
+public class ToggleLoopCommandUsage : BasicButtonCommandUsage
+{
     private Timeline? myTimeline;
 
     public ToggleLoopCommandUsage() : base("commands.editor.ToggleLoopTimelineRegion") {
-        
     }
 
-    protected override void OnContextChanged() {
+    protected override void OnContextChanged()
+    {
         base.OnContextChanged();
 
-        if (this.myTimeline != null) {
+        if (this.myTimeline != null)
+        {
             this.myTimeline.IsLoopRegionEnabledChanged -= this.OnIsLoopRegionEnabledChanged;
             this.myTimeline = null;
         }
 
-        if (this.GetContextData() is IContextData ctx && DataKeys.TimelineKey.TryGetContext(ctx, out this.myTimeline)) {
+        if (this.GetContextData() is IContextData ctx && DataKeys.TimelineKey.TryGetContext(ctx, out this.myTimeline))
+        {
             this.myTimeline.IsLoopRegionEnabledChanged += this.OnIsLoopRegionEnabledChanged;
             this.UpdateIsChecked();
         }
     }
 
-    private void OnIsLoopRegionEnabledChanged(Timeline timeline) {
+    private void OnIsLoopRegionEnabledChanged(Timeline timeline)
+    {
         this.UpdateIsChecked();
     }
 
-    private void UpdateIsChecked() {
-        if (this.Control is ToggleButton toggleButton) {
+    private void UpdateIsChecked()
+    {
+        if (this.Control is ToggleButton toggleButton)
+        {
             toggleButton.IsChecked = this.myTimeline?.IsLoopRegionEnabled ?? false;
         }
     }
 }
-

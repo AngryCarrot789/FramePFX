@@ -24,19 +24,23 @@ using FramePFX.Utils;
 
 namespace FramePFX.PropertyEditing.Automation;
 
-public class ParameterDoublePropertyEditorSlot : NumericParameterPropertyEditorSlot {
+public class ParameterDoublePropertyEditorSlot : NumericParameterPropertyEditorSlot
+{
     private double value;
 
-    public double Value {
+    public double Value
+    {
         get => this.value;
-        set {
+        set
+        {
             double oldVal = this.value;
             this.value = value;
             bool useAddition = this.IsMultiHandler;
             double change = value - oldVal;
             ParameterDouble parameter = this.Parameter;
             ParameterDescriptorDouble pdesc = parameter.Descriptor;
-            for (int i = 0, c = this.Handlers.Count; i < c; i++) {
+            for (int i = 0, c = this.Handlers.Count; i < c; i++)
+            {
                 IAutomatable obj = (IAutomatable) this.Handlers[i];
                 double newValue = pdesc.Clamp(useAddition ? (parameter.GetCurrentValue(obj) + change) : value);
                 AutomationUtils.SetDefaultKeyFrameOrAddNew(obj, parameter, newValue);
@@ -55,12 +59,14 @@ public class ParameterDoublePropertyEditorSlot : NumericParameterPropertyEditorS
     /// </summary>
     public bool CanUsePercentageForUnitRange { get; }
 
-    public ParameterDoublePropertyEditorSlot(ParameterDouble parameter, Type applicableType, string displayName, DragStepProfile stepProfile, bool canUsePercentageForUnitRange = true) : base(parameter, applicableType, displayName) {
+    public ParameterDoublePropertyEditorSlot(ParameterDouble parameter, Type applicableType, string displayName, DragStepProfile stepProfile, bool canUsePercentageForUnitRange = true) : base(parameter, applicableType, displayName)
+    {
         this.StepProfile = stepProfile;
         this.CanUsePercentageForUnitRange = canUsePercentageForUnitRange;
     }
 
-    protected override void QueryValueFromHandlers() {
+    protected override void QueryValueFromHandlers()
+    {
         this.HasMultipleValues = !CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetCurrentValue((IAutomatable) x), out this.value);
     }
 }

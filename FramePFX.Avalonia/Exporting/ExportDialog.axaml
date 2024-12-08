@@ -23,13 +23,13 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="Begin Frame" Padding="0,0,0,2" HorizontalAlignment="Center"/>
-                    <dr:NumberDragger x:Name="PART_BeginFrameDragger" TinyChange="1" SmallChange="1" NormalChange="1" LargeChange="10" 
+                    <dr:NumberDragger x:Name="PART_BeginFrameDragger" TinyChange="1" SmallChange="1" NormalChange="1" LargeChange="10"
                                       Padding="0,1" BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}"
                                       Theme="{StaticResource NumberDraggerAbletonTheme}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="End Frame" Padding="0,0,0,2" HorizontalAlignment="Center"/>
-                    <dr:NumberDragger x:Name="PART_EndFrameDragger" TinyChange="1" SmallChange="1" NormalChange="1" LargeChange="10" 
+                    <dr:NumberDragger x:Name="PART_EndFrameDragger" TinyChange="1" SmallChange="1" NormalChange="1" LargeChange="10"
                                       Padding="0,1" BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}"
                                       Theme="{StaticResource NumberDraggerAbletonTheme}"/>
                 </StackPanel>
@@ -49,7 +49,7 @@
             <Border Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="4" Height="42"
                     Background="{DynamicResource ABrush.Tone4.Background.Static}">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,0" Spacing="10">
-                    <Button x:Name="PART_ExportButton" Content="Export" Width="72" Height="24" CornerRadius="3" 
+                    <Button x:Name="PART_ExportButton" Content="Export" Width="72" Height="24" CornerRadius="3"
                             FocusAdorner="{x:Null}" Theme="{StaticResource ButtonImplicitStyleSetters}"
                             Click="PART_ExportButton_OnClick">
                         <Button.Styles>
@@ -64,7 +64,7 @@
                             </Style>
                         </Button.Styles>
                     </Button>
-                    <Button x:Name="PART_CancelButton" Content="Cancel" Width="72" Height="24" CornerRadius="3" 
+                    <Button x:Name="PART_CancelButton" Content="Cancel" Width="72" Height="24" CornerRadius="3"
                             FocusAdorner="{x:Null}" Theme="{StaticResource ButtonImplicitStyleSetters}"
                             Click="PART_CancelButton_OnClick">
                         <Button.Styles>

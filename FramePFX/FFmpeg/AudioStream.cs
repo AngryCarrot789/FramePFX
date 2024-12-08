@@ -24,7 +24,8 @@ using FramePFX.FFmpegWrapper.Containers;
 
 namespace FramePFX.FFmpeg;
 
-public class AudioStream : StreamWrapper {
+public class AudioStream : StreamWrapper
+{
     private AudioDecoder decoder;
 
     protected override MediaDecoder DecoderInternal => this.decoder;
@@ -32,22 +33,28 @@ public class AudioStream : StreamWrapper {
     public AudioStream(MediaStream stream) : base(stream) {
     }
 
-    public unsafe AudioDecoder GetDecoder(bool open = true) {
-        if (this.decoder == null || !this.decoder.IsOpen) {
+    public unsafe AudioDecoder GetDecoder(bool open = true)
+    {
+        if (this.decoder == null || !this.decoder.IsOpen)
+        {
             AVCodecID codecId = this.Stream.Handle->codecpar->codec_id;
             this.decoder = new AudioDecoder(codecId);
             int err = ffmpeg.avcodec_parameters_to_context(this.decoder.Handle, this.Stream.Handle->codecpar);
-            if (FFUtils.GetException(err, "Could not copy stream parameters to the audio decoder.", out Exception e)) {
+            if (FFUtils.GetException(err, "Could not copy stream parameters to the audio decoder.", out Exception e))
+            {
                 this.decoder.Dispose();
                 this.decoder = null;
                 throw e;
             }
 
-            if (open) {
-                try {
+            if (open)
+            {
+                try
+                {
                     this.decoder.Open();
                 }
-                catch {
+                catch
+                {
                     this.decoder.Dispose();
                     this.decoder = null;
                     throw;
@@ -58,7 +65,8 @@ public class AudioStream : StreamWrapper {
         return this.decoder;
     }
 
-    public override void DisposeDecoder(bool flushBuffers = true) {
+    public override void DisposeDecoder(bool flushBuffers = true)
+    {
         base.DisposeDecoder(flushBuffers);
         this.decoder = null;
     }

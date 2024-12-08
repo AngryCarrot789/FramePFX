@@ -28,7 +28,8 @@ public delegate void UITimelineModelChanged(ITimelineElement element, Timeline? 
 /// <summary>
 /// An interface for the UI of a timeline
 /// </summary>
-public interface ITimelineElement {
+public interface ITimelineElement
+{
     /// <summary>
     /// Gets our video editor Ui
     /// </summary>
@@ -59,7 +60,7 @@ public interface ITimelineElement {
     Timeline? Timeline { get; }
 
     bool IsTrackAutomationVisible { get; set; }
-    
+
     bool IsClipAutomationVisible { get; set; }
 
     /// <summary>

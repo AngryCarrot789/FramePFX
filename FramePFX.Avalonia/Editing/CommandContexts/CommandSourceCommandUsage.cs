@@ -29,7 +29,8 @@ namespace FramePFX.Avalonia.Editing.CommandContexts;
 /// <summary>
 /// A command usage for a <see cref="ICommandSource"/> control and that uses an <see cref="ICommand"/> to execute the underlying command
 /// </summary>
-public class CommandSourceCommandUsage : CommandUsage {
+public class CommandSourceCommandUsage : CommandUsage
+{
     private CoreCommandICommand? command;
     private ButtonHelper? button;
 
@@ -37,7 +38,8 @@ public class CommandSourceCommandUsage : CommandUsage {
 
     public CommandSourceCommandUsage(string commandId) : base(commandId) { }
 
-    protected override void OnConnected() {
+    protected override void OnConnected()
+    {
         base.OnConnected();
         if (!(this.Control is ICommandSource))
             throw new InvalidOperationException("Cannot connect to non-ICommandSource");
@@ -46,7 +48,8 @@ public class CommandSourceCommandUsage : CommandUsage {
         this.button.Command = this.Command;
     }
 
-    protected override void OnDisconnected() {
+    protected override void OnDisconnected()
+    {
         base.OnDisconnected();
         this.button?.Dispose();
         this.button = null;
@@ -54,27 +57,32 @@ public class CommandSourceCommandUsage : CommandUsage {
 
     protected override void UpdateCanExecute() => this.command?.RaiseCanExecuteChanged();
 
-    private class CoreCommandICommand : ICommand {
+    private class CoreCommandICommand : ICommand
+    {
         private readonly CommandSourceCommandUsage usage;
 
         public event EventHandler? CanExecuteChanged;
 
-        public CoreCommandICommand(CommandSourceCommandUsage usage) {
+        public CoreCommandICommand(CommandSourceCommandUsage usage)
+        {
             this.usage = usage;
         }
 
-        public bool CanExecute(object? parameter) {
+        public bool CanExecute(object? parameter)
+        {
             if (!this.usage.IsConnected)
                 return false;
 
             return CommandManager.Instance.CanExecute(this.usage.CommandId, this.usage.GetContextData()!) == Executability.Valid;
         }
 
-        public void Execute(object? parameter) {
+        public void Execute(object? parameter)
+        {
             CommandManager.Instance.TryExecute(this.usage.CommandId, () => this.usage.GetContextData() ?? EmptyContext.Instance);
         }
 
-        public void RaiseCanExecuteChanged() {
+        public void RaiseCanExecuteChanged()
+        {
             this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         }
     }

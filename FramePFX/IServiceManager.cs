@@ -19,7 +19,8 @@
 
 namespace FramePFX;
 
-public interface IServiceManager {
+public interface IServiceManager
+{
     bool HasService<T>();
     bool HasService(Type serviceType);
 

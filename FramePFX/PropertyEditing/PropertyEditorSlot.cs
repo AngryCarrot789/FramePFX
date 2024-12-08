@@ -27,7 +27,8 @@ public delegate void PropertyEditorSlotEventHandler(PropertyEditorSlot sender);
 /// The base class for a slot in a property editor. This is what stores the data used to
 /// modify one or more actual data properties in the UI. This is basically a single row in the editor
 /// </summary>
-public abstract class PropertyEditorSlot : BasePropertyEditorItem {
+public abstract class PropertyEditorSlot : BasePropertyEditorItem
+{
     private static readonly ReadOnlyCollection<object> EmptyList = new List<object>().AsReadOnly();
 
     private bool isSelected;
@@ -38,9 +39,11 @@ public abstract class PropertyEditorSlot : BasePropertyEditorItem {
     /// Gets whether this slot is selectable in the UI. While not used yet, it was used in FramePFX to signal
     /// to the automation controls to set the active automation sequence to the one this slot is related to
     /// </summary>
-    public bool IsSelected {
+    public bool IsSelected
+    {
         get => this.isSelected && this.IsSelectable;
-        set {
+        set
+        {
             if (!this.IsSelectable)
                 throw new InvalidOperationException("Not selectable");
             if (this.isSelected == value)
@@ -82,11 +85,13 @@ public abstract class PropertyEditorSlot : BasePropertyEditorItem {
     public event PropertyEditorSlotEventHandler? HandlersLoaded;
     public event PropertyEditorSlotEventHandler? HandlersCleared;
 
-    protected PropertyEditorSlot(Type applicableType) : base(applicableType) {
+    protected PropertyEditorSlot(Type applicableType) : base(applicableType)
+    {
         this.Handlers = EmptyList;
     }
 
-    protected override void OnPropertyEditorChanged(PropertyEditor? oldEditor, PropertyEditor? newEditor) {
+    protected override void OnPropertyEditorChanged(PropertyEditor? oldEditor, PropertyEditor? newEditor)
+    {
         base.OnPropertyEditorChanged(oldEditor, newEditor);
         PropertyEditing.PropertyEditor.InternalProcessSelectionForEditorChanged(this, oldEditor, newEditor);
     }
@@ -97,8 +102,10 @@ public abstract class PropertyEditorSlot : BasePropertyEditorItem {
     /// If there are no handlers currently loaded, then this function does nothing
     /// </para>
     /// </summary>
-    public void ClearHandlers() {
-        if (this.Handlers.Count < 1) {
+    public void ClearHandlers()
+    {
+        if (this.Handlers.Count < 1)
+        {
             return;
         }
 
@@ -121,13 +128,16 @@ public abstract class PropertyEditorSlot : BasePropertyEditorItem {
     /// <see cref="BasePropertyObjectViewModel.IsCurrentlyApplicable"/> is set to true and the handlers are loaded
     /// </summary>
     /// <param name="input">Input list of objects</param>
-    public void SetHandlers(IReadOnlyList<object> targets) {
+    public void SetHandlers(IReadOnlyList<object> targets)
+    {
         this.ClearHandlers();
-        if (!this.IsHandlerCountAcceptable(targets.Count)) {
+        if (!this.IsHandlerCountAcceptable(targets.Count))
+        {
             return;
         }
 
-        if (!GetApplicable(this, targets, out IReadOnlyList<object> list)) {
+        if (!GetApplicable(this, targets, out IReadOnlyList<object> list))
+        {
             return;
         }
 
@@ -139,16 +149,22 @@ public abstract class PropertyEditorSlot : BasePropertyEditorItem {
     /// <summary>
     /// Called just after all handlers are fulled loaded. When this is cleared, there is guaranteed to be 1 or more loaded handlers
     /// </summary>
-    protected virtual void OnHandlersLoaded() {
+    protected virtual void OnHandlersLoaded()
+    {
         this.HandlersLoaded?.Invoke(this);
     }
 
-    private static bool GetApplicable(PropertyEditorSlot slot, IReadOnlyList<object> input, out IReadOnlyList<object> output) {
-        switch (slot.ApplicabilityMode) {
-            case ApplicabilityMode.All: {
+    private static bool GetApplicable(PropertyEditorSlot slot, IReadOnlyList<object> input, out IReadOnlyList<object> output)
+    {
+        switch (slot.ApplicabilityMode)
+        {
+            case ApplicabilityMode.All:
+            {
                 // return sources.All(x => editor.IsApplicable(x));
-                for (int i = 0, c = input.Count; i < c; i++) {
-                    if (!slot.IsObjectApplicable(input[i])) {
+                for (int i = 0, c = input.Count; i < c; i++)
+                {
+                    if (!slot.IsObjectApplicable(input[i]))
+                    {
                         output = null;
                         return false;
                     }
@@ -157,11 +173,15 @@ public abstract class PropertyEditorSlot : BasePropertyEditorItem {
                 output = input;
                 return true;
             }
-            case ApplicabilityMode.Any: {
-                for (int i = 0, c = input.Count; i < c; i++) {
-                    if (slot.IsObjectApplicable(input[i])) {
+            case ApplicabilityMode.Any:
+            {
+                for (int i = 0, c = input.Count; i < c; i++)
+                {
+                    if (slot.IsObjectApplicable(input[i]))
+                    {
                         List<object> list = new List<object>();
-                        do {
+                        do
+                        {
                             list.Add(input[i++]);
                         } while (i < c);
 

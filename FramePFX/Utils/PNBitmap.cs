@@ -26,7 +26,8 @@ public delegate void BitmapHandleChangedEventHandler(PNBitmap bitmap);
 /// <summary>
 /// A class that encapsulates a Skia bitmap
 /// </summary>
-public class PNBitmap {
+public class PNBitmap
+{
     private IntPtr hColourData;
     private SKBitmap? skBitmap;
     private SKCanvas? skCanvas;
@@ -69,21 +70,25 @@ public class PNBitmap {
     /// <param name="w"></param>
     /// <param name="h"></param>
     /// <exception cref="InvalidOperationException"></exception>
-    public void InitialiseBitmapUnsafe(IntPtr hColourData, int w, int h) {
+    public void InitialiseBitmapUnsafe(IntPtr hColourData, int w, int h)
+    {
         if (w < 0 || h < 0)
             throw new InvalidOperationException("Cannot set width or height to a negative value");
 
         this.skCanvas?.Dispose();
         this.skBitmap?.Dispose();
-        if (hColourData == IntPtr.Zero || w == 0 || h == 0) {
-            if (this.hColourData == IntPtr.Zero) {
+        if (hColourData == IntPtr.Zero || w == 0 || h == 0)
+        {
+            if (this.hColourData == IntPtr.Zero)
+            {
                 return;
             }
 
             this.hColourData = IntPtr.Zero;
             this.size = default;
         }
-        else {
+        else
+        {
             this.hColourData = hColourData;
             this.size = new PixSize(w, h);
 
@@ -101,21 +106,25 @@ public class PNBitmap {
         this.BitmapHandleChanged?.Invoke(this);
     }
 
-    public void InitialiseBitmap(PixSize resolution) {
+    public void InitialiseBitmap(PixSize resolution)
+    {
         if (resolution.Width < 0 || resolution.Height < 0)
             throw new InvalidOperationException("Cannot set width or height to a negative value");
 
         this.skCanvas?.Dispose();
         this.skBitmap?.Dispose();
-        if (resolution.Width == 0 || resolution.Height == 0) {
-            if (this.hColourData == IntPtr.Zero) {
+        if (resolution.Width == 0 || resolution.Height == 0)
+        {
+            if (this.hColourData == IntPtr.Zero)
+            {
                 return;
             }
 
             this.hColourData = IntPtr.Zero;
             this.size = default;
         }
-        else {
+        else
+        {
             this.size = resolution;
             this.skBitmap = new SKBitmap(new SKImageInfo(resolution.Width, resolution.Height, SKImageInfo.PlatformColorType, SKAlphaType.Premul));
             this.skCanvas = new SKCanvas(this.skBitmap);
@@ -125,12 +134,14 @@ public class PNBitmap {
         this.BitmapHandleChanged?.Invoke(this);
     }
 
-    public unsafe int PixelAt(int x, int y) {
+    public unsafe int PixelAt(int x, int y)
+    {
         return ((int*) this.hColourData)[this.size.Width * y + x];
     }
 
     // Endianness is flipped so it's technically ARGB
-    public unsafe void SetPixelAt(int x, int y, int colourData) {
+    public unsafe void SetPixelAt(int x, int y, int colourData)
+    {
         if (x < 0 || y < 0 || x >= this.size.Width || y >= this.size.Height)
             return;
 
@@ -140,12 +151,14 @@ public class PNBitmap {
     // public unsafe void Fill(uint colour) {
     //     new Span<uint>((void*) this.hColourData, this.size.Width * this.size.Height).Fill(colour);
     // }
-    public void Paste(PNBitmap bitmap) {
+    public void Paste(PNBitmap bitmap)
+    {
         if (bitmap.skBitmap != null)
             this.Canvas?.DrawBitmap(bitmap.skBitmap, new SKPoint(0, 0));
     }
 
-    public void InitialiseBitmap(PNBitmap bitmap) {
+    public void InitialiseBitmap(PNBitmap bitmap)
+    {
         if (!bitmap.IsInitialised)
             return;
 
@@ -159,18 +172,22 @@ public class PNBitmap {
     /// <param name="bitmap">
     /// The bitmap to use. Once this method returns, ownership of this bitmap becomes that of the PNB
     /// </param>
-    public void InitialiseUsingBitmap(SKBitmap? bitmap) {
+    public void InitialiseUsingBitmap(SKBitmap? bitmap)
+    {
         this.skCanvas?.Dispose();
         this.skBitmap?.Dispose();
-        if (bitmap == null) {
-            if (this.hColourData == IntPtr.Zero) {
+        if (bitmap == null)
+        {
+            if (this.hColourData == IntPtr.Zero)
+            {
                 return;
             }
 
             this.hColourData = IntPtr.Zero;
             this.size = default;
         }
-        else {
+        else
+        {
             SKImageInfo info = bitmap.Info;
             this.size = new PixSize(info.Width, info.Height);
             this.skBitmap = bitmap;

@@ -22,15 +22,18 @@ using System.Runtime.InteropServices;
 
 namespace FramePFX.Avalonia.AvControls.Dragger;
 
-public static class CursorUtils {
+public static class CursorUtils
+{
     [StructLayout(LayoutKind.Sequential)]
-    public struct RECT {
+    public struct RECT
+    {
         public int x;
         public int y;
         public int w;
         public int h;
 
-        public RECT(int x, int y, int w, int h) {
+        public RECT(int x, int y, int w, int h)
+        {
             this.x = x;
             this.y = y;
             this.w = w;
@@ -39,11 +42,13 @@ public static class CursorUtils {
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    public struct POINT {
+    public struct POINT
+    {
         public int x;
         public int y;
 
-        public POINT(int x, int y) {
+        public POINT(int x, int y)
+        {
             this.x = x;
             this.y = y;
         }
@@ -71,34 +76,39 @@ public static class CursorUtils {
     /// </summary>
     public static bool IsCursorClipped { get; private set; }
 
-    public static unsafe void SetClip(int x, int y, int width, int height) {
+    public static unsafe void SetClip(int x, int y, int width, int height)
+    {
         RECT rect = new RECT(x, y, width, height);
         if (!ClipCursor(&rect))
             throw new Win32Exception();
         IsCursorClipped = true;
     }
 
-    public static unsafe void ClearClip() {
+    public static unsafe void ClearClip()
+    {
         if (!ClipCursor(null))
             throw new Win32Exception();
         IsCursorClipped = false;
     }
 
-    public static unsafe RECT GetClip() {
+    public static unsafe RECT GetClip()
+    {
         RECT r;
         if (!GetClipCursor(&r))
             throw new Win32Exception();
         return r;
     }
 
-    public static unsafe POINT GetCursorPos() {
+    public static unsafe POINT GetCursorPos()
+    {
         POINT p;
         if (!GetCursorPos(&p))
             throw new Win32Exception();
         return p;
     }
 
-    public static void SetCursorPos(int x, int y) {
+    public static void SetCursorPos(int x, int y)
+    {
         if (!e_SetCursorPos(x, y))
             throw new Win32Exception();
     }

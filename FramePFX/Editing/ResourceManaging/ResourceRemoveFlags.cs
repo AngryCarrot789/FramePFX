@@ -20,7 +20,8 @@
 namespace FramePFX.Editing.ResourceManaging;
 
 [Flags]
-public enum ResourceRemoveFlags {
+public enum ResourceRemoveFlags
+{
     None,
     RemoveFromModel = 1,
     UnregisterHierarchy = 2,

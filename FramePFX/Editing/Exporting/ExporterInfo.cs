@@ -32,11 +32,12 @@ public delegate void ExporterInfoCurrentSetupChangedEventHandler(ExporterInfo se
 /// Exporters are singletons, but an <see cref="ExportContext"/> is created each time the user actually attempts to export content.
 /// </para>
 /// </summary>
-public abstract class ExporterInfo : ITransferableData {
+public abstract class ExporterInfo : ITransferableData
+{
     private ExporterKey myKey;
 
     public ExporterKey Key => !this.myKey.IsEmpty ? this.myKey : throw new InvalidOperationException("This exporter has not been registered yet");
-    
+
     /// <summary>
     /// Gets our property editor, which contains all specific information editable by the user to change
     /// how the export takes place. This shouldn't contain the basic information that all exporters have
@@ -50,15 +51,17 @@ public abstract class ExporterInfo : ITransferableData {
 
     public event ExporterInfoCurrentSetupChangedEventHandler? CurrentSetupChanged;
 
-    protected ExporterInfo() {
+    protected ExporterInfo()
+    {
         this.TransferableData = new TransferableData(this);
         this.PropertyEditor = new PropertyEditor();
     }
 
-    public void OnSelected(ExportSetup setup) {
+    public void OnSelected(ExportSetup setup)
+    {
         if (this.CurrentSetup != null)
             throw new InvalidOperationException("Setup already connected");
-        
+
         ExportSetup? oldCurrentSetup = this.CurrentSetup;
         if (oldCurrentSetup == setup)
             throw new InvalidOperationException("Setup changed to the same value");
@@ -67,8 +70,9 @@ public abstract class ExporterInfo : ITransferableData {
         this.CurrentSetup = setup;
         this.CurrentSetupChanged?.Invoke(this, oldCurrentSetup, setup);
     }
-    
-    public void Deselect() {
+
+    public void Deselect()
+    {
         ExportSetup? old = this.CurrentSetup;
         if (old == null)
             throw new InvalidOperationException("Setup not connected");
@@ -83,7 +87,6 @@ public abstract class ExporterInfo : ITransferableData {
     /// called when the export dialog closes (export cancelled, completed, etc.)
     /// </summary>
     public virtual void Reset() {
-        
     }
 
     /// <summary>
@@ -92,6 +95,6 @@ public abstract class ExporterInfo : ITransferableData {
     /// <param name="setup">The setup information</param>
     /// <returns>The exporting context</returns>
     public abstract ExportContext CreateContext(ExportSetup setup);
-    
+
     internal static void InternalSetKey(ExporterInfo info, ExporterKey key) => info.myKey = key;
 }

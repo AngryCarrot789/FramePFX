@@ -32,7 +32,8 @@ namespace FramePFX.Editing.ResourceManaging.ResourceHelpers;
 /// it's very easy to accidentally create a loading loop (and therefore a crash)
 /// </para>
 /// </summary>
-public sealed class ResourceLink : IDisposable {
+public sealed class ResourceLink : IDisposable
+{
     private readonly ResourceAndManagerEventHandler resourceAddedHandler;
     private readonly ResourceAndManagerEventHandler resourceRemovedHandler;
     private readonly ResourceItemEventHandler onlineStateChangedHandler;
@@ -82,7 +83,8 @@ public sealed class ResourceLink : IDisposable {
     /// </summary>
     public IBaseResourcePathKey Owner { get; }
 
-    public ResourceLink(IBaseResourcePathKey owner, ulong resourceId) {
+    public ResourceLink(IBaseResourcePathKey owner, ulong resourceId)
+    {
         this.ResourceId = resourceId == ResourceManager.EmptyId ? throw new ArgumentException("Unique id cannot be 0 (null)") : resourceId;
         this.Owner = owner ?? throw new ArgumentNullException(nameof(owner));
         this.resourceAddedHandler = this.OnManagerResourceAdded;
@@ -96,12 +98,14 @@ public sealed class ResourceLink : IDisposable {
     /// Clears this resource's internal cached object and then sets/replaces the <see cref="ResourceManager"/>
     /// </summary>
     /// <param name="manager"></param>
-    public void SetManager(ResourceManager? manager) {
+    public void SetManager(ResourceManager? manager)
+    {
         this.EnsureNotDisposed();
         this.EnsureNotDisposing();
         this.EnsureManagerNotChanging("Cannot set manager while it is already being set");
         ResourceManager? oldManager = this.Manager;
-        if (ReferenceEquals(oldManager, manager)) {
+        if (ReferenceEquals(oldManager, manager))
+        {
             return;
         }
 
@@ -119,15 +123,18 @@ public sealed class ResourceLink : IDisposable {
         this.isManagerChanging = false;
     }
 
-    private void SetInternalResource(ResourceItem? newItem) {
+    private void SetInternalResource(ResourceItem? newItem)
+    {
         ResourceItem? oldItem = this.cached;
-        if (newItem == null) {
+        if (newItem == null)
+        {
             if (oldItem == null)
                 return;
             this.cached = null;
             this.State = LinkState.NotLinked;
         }
-        else {
+        else
+        {
             if (ReferenceEquals(oldItem, newItem))
                 return;
             this.cached = newItem;
@@ -137,13 +144,16 @@ public sealed class ResourceLink : IDisposable {
         this.OnResourceChanged(oldItem, newItem);
     }
 
-    private void OnResourceChanged(ResourceItem? oldItem, ResourceItem? newItem) {
-        if (oldItem != null) {
+    private void OnResourceChanged(ResourceItem? oldItem, ResourceItem? newItem)
+    {
+        if (oldItem != null)
+        {
             oldItem.OnlineStateChanged -= this.onlineStateChangedHandler;
             this.SetReferenceCount(oldItem, false);
         }
 
-        if (newItem != null) {
+        if (newItem != null)
+        {
             newItem.OnlineStateChanged += this.onlineStateChangedHandler;
             this.SetReferenceCount(newItem, true);
         }
@@ -151,29 +161,37 @@ public sealed class ResourceLink : IDisposable {
         this.ResourceChanged?.Invoke(oldItem, newItem);
     }
 
-    public void SetReferenceCount(ResourceItem item, bool isReferenced) {
-        if (isReferenced) {
-            if (!this.isReferencedCounted) {
+    public void SetReferenceCount(ResourceItem item, bool isReferenced)
+    {
+        if (isReferenced)
+        {
+            if (!this.isReferencedCounted)
+            {
                 ResourceItem.AddReference(item, this.Owner.ResourceHelper.Owner);
                 this.isReferencedCounted = true;
             }
         }
-        else if (this.isReferencedCounted) {
+        else if (this.isReferencedCounted)
+        {
             ResourceItem.RemoveReference(item, this.Owner.ResourceHelper.Owner);
             this.isReferencedCounted = false;
         }
     }
 
-    public void SetResourceId(ulong uniqueId, bool autoLink = false) {
+    public void SetResourceId(ulong uniqueId, bool autoLink = false)
+    {
         this.EnsureNotDisposed("Cannot set resource ID on a disposed resource link");
         this.EnsureNotDisposing("Cannot set resource ID while disposing this resource link");
-        if (this.ResourceId != uniqueId) {
+        if (this.ResourceId != uniqueId)
+        {
             this.ClearInternalResource();
             this.ResourceId = uniqueId;
-            if (autoLink) {
+            if (autoLink)
+            {
                 this.LinkResource();
             }
-            else {
+            else
+            {
                 this.State = LinkState.NotLinked;
             }
         }
@@ -188,13 +206,15 @@ public sealed class ResourceLink : IDisposable {
     /// <typeparam name="T">The type of resource that is required</typeparam>
     /// <returns>True if a valid resource was found and <see cref="requireIsOnline"/> matches its online state</returns>
     /// <exception cref="Exception">Internal errors that should not occur; cached item was wrong</exception>
-    public bool TryGetResource<T>([NotNullWhen(true)] out T? resource, bool requireIsOnline = true) where T : ResourceItem {
+    public bool TryGetResource<T>([NotNullWhen(true)] out T? resource, bool requireIsOnline = true) where T : ResourceItem
+    {
         if (!this.TryGetResource(out ResourceItem? item, requireIsOnline) || (resource = item as T) == null)
             resource = null;
         return resource != null;
     }
 
-    public bool TryGetResource([NotNullWhen(true)] out ResourceItem? resource, bool requireIsOnline = true) {
+    public bool TryGetResource([NotNullWhen(true)] out ResourceItem? resource, bool requireIsOnline = true)
+    {
         bool success = this.LinkResource(requireIsOnline);
         resource = success ? this.cached : null;
         return success;
@@ -206,25 +226,32 @@ public sealed class ResourceLink : IDisposable {
     /// <param name="requireIsOnline">A filter applied to the return value</param>
     /// <returns>True when a resource was found with an acceptable type, and its online state matches the requireIsOnline parameter, otherwise false</returns>
     /// <exception cref="Exception">Invalid object state</exception>
-    public bool LinkResource(bool requireIsOnline = true) {
+    public bool LinkResource(bool requireIsOnline = true)
+    {
         this.EnsureNotDisposed();
         this.EnsureManagerNotChanging("Cannot attempt to get resource while manager is being set");
-        switch (this.State) {
+        switch (this.State)
+        {
             case LinkState.Linked:
                 // assert: this.cached != null
                 return this.cached!.IsOnline || !requireIsOnline;
-            case LinkState.NotLinked: {
+            case LinkState.NotLinked:
+            {
                 // assert: this.cached == null
-                if (this.Manager != null && this.Manager.TryGetEntryItem(this.ResourceId, out ResourceItem resource)) {
-                    if (this.IsItemApplicable(resource)) {
+                if (this.Manager != null && this.Manager.TryGetEntryItem(this.ResourceId, out ResourceItem resource))
+                {
+                    if (this.IsItemApplicable(resource))
+                    {
                         this.SetInternalResource(resource);
                         return resource.IsOnline || !requireIsOnline;
                     }
-                    else {
+                    else
+                    {
                         this.State = LinkState.IncompatibleResource;
                     }
                 }
-                else {
+                else
+                {
                     this.State = LinkState.NoSuchResource;
                 }
 
@@ -236,14 +263,18 @@ public sealed class ResourceLink : IDisposable {
         }
     }
 
-    private void ClearInternalResource() {
-        if (this.State == LinkState.Linked) {
+    private void ClearInternalResource()
+    {
+        if (this.State == LinkState.Linked)
+        {
             this.SetInternalResource(null);
         }
     }
 
-    private void OnManagerResourceAdded(ResourceManager manager, ResourceItem item) {
-        if (this.isDisposed) {
+    private void OnManagerResourceAdded(ResourceManager manager, ResourceItem item)
+    {
+        if (this.isDisposed)
+        {
             // AppLogger.Instance.WriteLine("RESOURCE IS DISPOSED BUT RECEIVED RESOURCE ADDED EVENT!!!!!!!!!!!!!!!!!!!!!!!");
             Debugger.Break();
             return;
@@ -256,24 +287,29 @@ public sealed class ResourceLink : IDisposable {
         this.SetInternalResource(item);
     }
 
-    private void OnManagerResourceRemoved(ResourceManager manager, ResourceItem item) {
-        if (item.UniqueId != this.ResourceId) {
+    private void OnManagerResourceRemoved(ResourceManager manager, ResourceItem item)
+    {
+        if (item.UniqueId != this.ResourceId)
+        {
             return;
         }
 
         this.SetInternalResource(null);
     }
 
-    private void OnOnlineStateChanged(ResourceItem item) {
+    private void OnOnlineStateChanged(ResourceItem item)
+    {
         this.OnlineStateChanged?.Invoke(item);
     }
 
-    private void AttachManager(ResourceManager manager) {
+    private void AttachManager(ResourceManager manager)
+    {
         manager.ResourceAdded += this.resourceAddedHandler;
         manager.ResourceRemoved += this.resourceRemovedHandler;
     }
 
-    private void DetachManager(ResourceManager manager) {
+    private void DetachManager(ResourceManager manager)
+    {
         manager.ResourceAdded -= this.resourceAddedHandler;
         manager.ResourceRemoved -= this.resourceRemovedHandler;
     }
@@ -283,11 +319,13 @@ public sealed class ResourceLink : IDisposable {
     /// event to be fired), removes the <see cref="ResourceManager"/> handlers and finally sets the manager
     /// to null
     /// </summary>
-    public void Dispose() {
+    public void Dispose()
+    {
         this.isDisposing = true;
         this.ClearInternalResource();
         ResourceManager? manager = this.Manager;
-        if (manager != null) {
+        if (manager != null)
+        {
             this.Manager = null;
             this.DetachManager(manager);
         }
@@ -296,28 +334,33 @@ public sealed class ResourceLink : IDisposable {
         this.isDisposing = false;
     }
 
-    private void EnsureNotDisposed(string? message = null) {
+    private void EnsureNotDisposed(string? message = null)
+    {
         if (this.isDisposed)
             throw new ObjectDisposedException(this.GetType().Name, message ?? "This resource path is disposed");
     }
 
-    private void EnsureNotDisposing(string? message = null) {
+    private void EnsureNotDisposing(string? message = null)
+    {
         if (this.isDisposing)
             throw new ObjectDisposedException(this.GetType().Name, message ?? "This resource path is being disposed");
     }
 
-    private void EnsureManagerNotChanging(string message) {
+    private void EnsureManagerNotChanging(string message)
+    {
         if (this.isManagerChanging)
             throw new InvalidOperationException(message);
     }
 
     #region Serialisation
 
-    public static void WriteToRBE(ResourceLink resource, RBEDictionary data) {
+    public static void WriteToRBE(ResourceLink resource, RBEDictionary data)
+    {
         data.SetULong(nameof(resource.ResourceId), resource.ResourceId);
     }
 
-    public static ResourceLink ReadFromRBE(IBaseResourcePathKey owner, RBEDictionary data) {
+    public static ResourceLink ReadFromRBE(IBaseResourcePathKey owner, RBEDictionary data)
+    {
         ulong id = data.GetULong(nameof(ResourceId));
         if (id == ResourceManager.EmptyId)
             throw new ArgumentException("Resource ID from the data was 0 (null)");

@@ -31,7 +31,8 @@ public delegate void ExportSetupExporterChangedEventHandler(ExportSetup sender, 
 /// <summary>
 /// Information about preparing to export. This is created when the user opens the export dialog
 /// </summary>
-public class ExportSetup {
+public class ExportSetup
+{
     private FrameSpan span;
     private string? filePath;
     private ExporterInfo? exporter;
@@ -40,7 +41,7 @@ public class ExportSetup {
     /// Gets the video editor that owns the timeline being exported
     /// </summary>
     public VideoEditor Editor { get; }
-    
+
     /// <summary>
     /// Gets the project that owns the timeline being exported
     /// </summary>
@@ -54,9 +55,11 @@ public class ExportSetup {
     /// <summary>
     /// Gets or sets the region of the timeline that is to be exported
     /// </summary>
-    public FrameSpan Span {
+    public FrameSpan Span
+    {
         get => this.span;
-        set {
+        set
+        {
             FrameSpan oldSpan = this.span;
             if (oldSpan == value)
                 return;
@@ -69,9 +72,11 @@ public class ExportSetup {
     /// <summary>
     /// Gets or sets the destination file path for the export. May be a folder if the current exporter requires that
     /// </summary>
-    public string? FilePath {
+    public string? FilePath
+    {
         get => this.filePath;
-        set {
+        set
+        {
             string? oldFilePath = this.filePath;
             if (oldFilePath == value)
                 return;
@@ -84,9 +89,11 @@ public class ExportSetup {
     /// <summary>
     /// Gets or sets the exporter registration that will be used for actually exporting
     /// </summary>
-    public ExporterInfo? Exporter {
+    public ExporterInfo? Exporter
+    {
         get => this.exporter;
-        set {
+        set
+        {
             ExporterInfo? oldExporter = this.exporter;
             if (oldExporter == value)
                 return;
@@ -102,14 +109,15 @@ public class ExportSetup {
     public event ExportSetupFilePathChangedEventHandler? FilePathChanged;
     public event ExportSetupExporterChangedEventHandler? ExporterChanged;
 
-    public ExportSetup(VideoEditor editor, Timeline timeline) {
+    public ExportSetup(VideoEditor editor, Timeline timeline)
+    {
         Validate.NotNull(editor);
         Validate.NotNull(timeline);
         if (editor.Project == null)
             throw new InvalidOperationException("Editor has no projet");
         if (timeline.Project?.Editor != editor)
             throw new InvalidOperationException("Timeline's owner editor is not the editor provided");
-        
+
         this.Project = editor.Project!;
         this.Editor = editor;
         this.Timeline = timeline;

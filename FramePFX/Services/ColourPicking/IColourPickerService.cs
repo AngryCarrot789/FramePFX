@@ -21,6 +21,7 @@ using SkiaSharp;
 
 namespace FramePFX.Services.ColourPicking;
 
-public interface IColourPickerService {
+public interface IColourPickerService
+{
     Task<SKColor?> PickColourAsync(SKColor? defaultColour);
 }

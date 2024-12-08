@@ -21,36 +21,44 @@ using System.Collections;
 
 namespace FramePFX.Utils;
 
-public static class EnumerableExtensionsEx {
-    public static IEnumerable<T> NonNull<T>(this IEnumerable<T?> enumerable) {
+public static class EnumerableExtensionsEx
+{
+    public static IEnumerable<T> NonNull<T>(this IEnumerable<T?> enumerable)
+    {
         return enumerable.Where(x => x != null)!;
     }
 
-    public static bool ContainsAll(this IEnumerable enumerable, IList items, bool resultOnEmptyEnumerable = true) {
+    public static bool ContainsAll(this IEnumerable enumerable, IList items, bool resultOnEmptyEnumerable = true)
+    {
         IEnumerator itr = enumerable.GetEnumerator();
-        try {
+        try
+        {
             if (!itr.MoveNext())
                 return resultOnEmptyEnumerable;
 
-            for (object? value = itr.Current; itr.MoveNext(); value = itr.Current) {
+            for (object? value = itr.Current; itr.MoveNext(); value = itr.Current)
+            {
                 if (!items.Contains(value))
                     return false;
             }
 
             return true;
         }
-        finally {
+        finally
+        {
             if (itr is IDisposable)
                 ((IDisposable) itr).Dispose();
         }
     }
 
-    public static bool ContainsAll<T>(this IEnumerable<T> enumerable, ICollection<T> items, bool resultOnEmptyEnumerable = true) {
+    public static bool ContainsAll<T>(this IEnumerable<T> enumerable, ICollection<T> items, bool resultOnEmptyEnumerable = true)
+    {
         using IEnumerator<T> itr = enumerable.GetEnumerator();
         if (!itr.MoveNext())
             return resultOnEmptyEnumerable;
 
-        for (T? value = itr.Current; itr.MoveNext(); value = itr.Current) {
+        for (T? value = itr.Current; itr.MoveNext(); value = itr.Current)
+        {
             if (!items.Contains(value))
                 return false;
         }

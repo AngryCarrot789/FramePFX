@@ -29,25 +29,30 @@ namespace FramePFX.Editing.Timelines.Clips.Core;
 /// <summary>
 /// A clip that represents the visual part of a composition timeline
 /// </summary>
-public class CompositionVideoClip : VideoClip, ICompositionClip {
+public class CompositionVideoClip : VideoClip, ICompositionClip
+{
     public IResourcePathKey<ResourceComposition> ResourceCompositionKey { get; }
 
     private Task renderTask;
     private ResourceComposition renderResource;
 
-    public CompositionVideoClip() {
+    public CompositionVideoClip()
+    {
         this.UsesCustomOpacityCalculation = true;
         this.ResourceCompositionKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceComposition>();
         this.ResourceCompositionKey.ResourceChanged += this.ResourceCompositionKeyOnResourceChanged;
     }
 
-    private void ResourceCompositionKeyOnResourceChanged(IResourcePathKey<ResourceComposition> key, ResourceComposition olditem, ResourceComposition newitem) {
+    private void ResourceCompositionKeyOnResourceChanged(IResourcePathKey<ResourceComposition> key, ResourceComposition olditem, ResourceComposition newitem)
+    {
         this.InvalidateRender();
     }
 
-    public override Vector2? GetRenderSize() {
+    public override Vector2? GetRenderSize()
+    {
         Project project = this.Project;
-        if (project == null) {
+        if (project == null)
+        {
             return null;
         }
 
@@ -59,8 +64,10 @@ public class CompositionVideoClip : VideoClip, ICompositionClip {
         // return new Vector2(lastRect.Width, lastRect.Height);
     }
 
-    public override bool PrepareRenderFrame(PreRenderContext rc, long frame) {
-        if (!this.ResourceCompositionKey.TryGetResource(out ResourceComposition resource)) {
+    public override bool PrepareRenderFrame(PreRenderContext rc, long frame)
+    {
+        if (!this.ResourceCompositionKey.TryGetResource(out ResourceComposition resource))
+        {
             return false;
         }
 
@@ -69,8 +76,10 @@ public class CompositionVideoClip : VideoClip, ICompositionClip {
         return true;
     }
 
-    public override void RenderFrame(RenderContext rc, ref SKRect renderArea) {
-        try {
+    public override void RenderFrame(RenderContext rc, ref SKRect renderArea)
+    {
+        try
+        {
             this.renderTask.GetAwaiter().GetResult();
             RenderManager render = this.renderResource.Timeline.RenderManager;
             render.OnFrameCompleted();
@@ -82,14 +91,17 @@ public class CompositionVideoClip : VideoClip, ICompositionClip {
         }
         catch (OperationCanceledException) {
         }
-        catch (AggregateException e) {
-            if (e.InnerExceptions.FirstOrDefault(x => x is TaskCanceledException) != null) {
+        catch (AggregateException e)
+        {
+            if (e.InnerExceptions.FirstOrDefault(x => x is TaskCanceledException) != null)
+            {
                 return;
             }
 
             throw;
         }
-        finally {
+        finally
+        {
             this.renderResource = null;
             this.renderTask = null;
         }

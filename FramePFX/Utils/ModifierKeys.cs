@@ -20,7 +20,8 @@
 namespace FramePFX.Utils;
 
 [Flags]
-public enum ModifierKeys {
+public enum ModifierKeys
+{
     None = 0,
     Alt = 1,
     Control = 2,

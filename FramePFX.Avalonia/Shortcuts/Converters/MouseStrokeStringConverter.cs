@@ -29,57 +29,45 @@ using FramePFX.Avalonia.Shortcuts.Avalonia;
 
 namespace FramePFX.Avalonia.Shortcuts.Converters;
 
-public class MouseStrokeStringConverter : IMultiValueConverter {
+public class MouseStrokeStringConverter : IMultiValueConverter
+{
     public static MouseStrokeStringConverter Instance { get; } = new MouseStrokeStringConverter();
 
-    public static string ToStringFunction(int mouseButton, int modifiers, int clickCount) {
+    public static string ToStringFunction(int mouseButton, int modifiers, int clickCount)
+    {
         StringBuilder sb = new StringBuilder();
         string mods = KeyStrokeStringConverter.ModsToString((KeyModifiers) modifiers);
-        if (mods.Length > 0) {
+        if (mods.Length > 0)
+        {
             sb.Append(mods).Append('+');
         }
 
         string name;
-        switch (mouseButton) {
-            case 0:
-                name = "Left Click";
-                break;
-            case 1:
-                name = "Middle Click";
-                break;
-            case 2:
-                name = "Right Click";
-                break;
-            case 3:
-                name = "X1 (←)";
-                break;
-            case 4:
-                name = "X2 (→)";
-                break;
-            case AvaloniaShortcutManager.BUTTON_WHEEL_UP:
-                name = "Wheel Up";
-                break;
-            case AvaloniaShortcutManager.BUTTON_WHEEL_DOWN:
-                name = "Wheel Down";
-                break;
+        switch (mouseButton)
+        {
+            case 0: name = "Left Click"; break;
+            case 1: name = "Middle Click"; break;
+            case 2: name = "Right Click"; break;
+            case 3: name = "X1 (←)"; break;
+            case 4: name = "X2 (→)"; break;
+            case AvaloniaShortcutManager.BUTTON_WHEEL_UP: name = "Wheel Up"; break;
+            case AvaloniaShortcutManager.BUTTON_WHEEL_DOWN: name = "Wheel Down"; break;
             default: throw new Exception("Invalid mouse button: " + mouseButton);
         }
 
-        switch (clickCount) {
-            case 2:
-                sb.Append("Double ").Append(name);
-                break;
-            case 3:
-                sb.Append("Triple ").Append(name);
-                break;
-            case 4:
-                sb.Append("Quad ").Append(name);
-                break;
-            default: {
-                if (clickCount > 0) {
+        switch (clickCount)
+        {
+            case 2: sb.Append("Double ").Append(name); break;
+            case 3: sb.Append("Triple ").Append(name); break;
+            case 4: sb.Append("Quad ").Append(name); break;
+            default:
+            {
+                if (clickCount > 0)
+                {
                     sb.Append(name).Append(" (x").Append(clickCount).Append(")");
                 }
-                else {
+                else
+                {
                     sb.Append(name);
                 }
 
@@ -90,8 +78,10 @@ public class MouseStrokeStringConverter : IMultiValueConverter {
         return sb.ToString();
     }
 
-    public object Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture) {
-        if (values == null || values.Count != 3 || values.Count != 4) {
+    public object Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (values == null || values.Count != 3 || values.Count != 4)
+        {
             Debug.WriteLine($"This converter requires 4 elements; mouseButton, modifiers, clickCount, wheelDelta. Got: {values}");
             return AvaloniaProperty.UnsetValue;
         }
@@ -106,7 +96,8 @@ public class MouseStrokeStringConverter : IMultiValueConverter {
         return ToStringFunction(mouseButton, modifiers, clickCount);
     }
 
-    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) {
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+    {
         throw new NotImplementedException();
     }
 }

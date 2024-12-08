@@ -22,12 +22,15 @@ namespace FramePFX.Utils.Commands;
 /// <summary>
 /// A simple async relay command, which does not take any parameters
 /// </summary>
-public class AsyncRelayCommand : BaseAsyncRelayCommand {
+public class AsyncRelayCommand : BaseAsyncRelayCommand
+{
     private readonly Func<Task> execute;
     private readonly Func<bool>? canExecute;
 
-    public AsyncRelayCommand(Func<Task> execute, Func<bool> canExecute = null) {
-        if (execute == null) {
+    public AsyncRelayCommand(Func<Task> execute, Func<bool> canExecute = null)
+    {
+        if (execute == null)
+        {
             throw new ArgumentNullException(nameof(execute), "Execute callback cannot be null");
         }
 
@@ -35,11 +38,13 @@ public class AsyncRelayCommand : BaseAsyncRelayCommand {
         this.canExecute = canExecute;
     }
 
-    protected override bool CanExecuteCore(object? parameter) {
+    protected override bool CanExecuteCore(object? parameter)
+    {
         return this.canExecute == null || this.canExecute();
     }
 
-    protected override Task ExecuteCoreAsync(object? parameter) {
+    protected override Task ExecuteCoreAsync(object? parameter)
+    {
         return this.execute();
     }
 }
@@ -48,7 +53,8 @@ public class AsyncRelayCommand : BaseAsyncRelayCommand {
 /// A simple async relay command, which may take a parameter
 /// </summary>
 /// <typeparam name="T">The type of parameter</typeparam>
-public class AsyncRelayCommand<T> : BaseAsyncRelayCommand {
+public class AsyncRelayCommand<T> : BaseAsyncRelayCommand
+{
     private readonly Func<T?, Task> execute;
     private readonly Func<T?, bool>? canExecute;
 
@@ -57,8 +63,10 @@ public class AsyncRelayCommand<T> : BaseAsyncRelayCommand {
     /// </summary>
     public bool ConvertParameter { get; set; }
 
-    public AsyncRelayCommand(Func<T?, Task> execute, Func<T?, bool> canExecute = null, bool convertParameter = true) {
-        if (execute == null) {
+    public AsyncRelayCommand(Func<T?, Task> execute, Func<T?, bool> canExecute = null, bool convertParameter = true)
+    {
+        if (execute == null)
+        {
             throw new ArgumentNullException(nameof(execute), "Execute callback cannot be null");
         }
 
@@ -67,8 +75,10 @@ public class AsyncRelayCommand<T> : BaseAsyncRelayCommand {
         this.ConvertParameter = convertParameter;
     }
 
-    protected override bool CanExecuteCore(object? parameter) {
-        if (this.ConvertParameter) {
+    protected override bool CanExecuteCore(object? parameter)
+    {
+        if (this.ConvertParameter)
+        {
             parameter = GetConvertedParameter<T>(parameter);
         }
 
@@ -77,13 +87,16 @@ public class AsyncRelayCommand<T> : BaseAsyncRelayCommand {
                parameter is T t && this.canExecute(t);
     }
 
-    protected override Task ExecuteCoreAsync(object? parameter) {
-        if (this.ConvertParameter) {
+    protected override Task ExecuteCoreAsync(object? parameter)
+    {
+        if (this.ConvertParameter)
+        {
             parameter = GetConvertedParameter<T>(parameter);
         }
 
         T? param;
-        switch (parameter) {
+        switch (parameter)
+        {
             case null: param = default; break;
             case T p1: param = p1; break;
             default: return Task.CompletedTask;

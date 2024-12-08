@@ -23,12 +23,15 @@ using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
 
 namespace FramePFX.Editing.Timelines.Commands;
 
-public class ToggleClipAutomationCommand : Command {
-    public override Executability CanExecute(CommandEventArgs e) {
+public class ToggleClipAutomationCommand : Command
+{
+    public override Executability CanExecute(CommandEventArgs e)
+    {
         return DataKeys.TimelineUIKey.GetExecutabilityForPresence(e.ContextData);
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override void Execute(CommandEventArgs e)
+    {
         if (!DataKeys.TimelineUIKey.TryGetContext(e.ContextData, out ITimelineElement? timeline))
             return;
         timeline.IsClipAutomationVisible = !timeline.IsClipAutomationVisible;

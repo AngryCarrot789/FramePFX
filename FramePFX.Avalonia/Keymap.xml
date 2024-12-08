@@ -147,7 +147,7 @@
                 <Shortcut Name="AutoLoopRegion" RepeatMode="NonRepeat" CommandId="commands.editor.AutoToggleLoopTimelineRegion">
                     <KeyStroke Mods="CTRL" Key="L"/>
                 </Shortcut>
-                
+
                 <Shortcut Name="NewVideoTrack" CommandId="commands.editor.NewVideoTrack" Description="Creates a new video track">
                     <KeyStroke Mods="CTRL+SHIFT" Key="Q"/>
                 </Shortcut>
@@ -172,7 +172,7 @@
                     <KeyStroke Key="Space"/>
                 </Shortcut>
 
-                <Shortcut Name="SliceClips" CommandId="commands.editor.SliceClipsCommand" Description="Cuts the selected clip in half where the play head is. If you have no selection, then all clips over the play head are sliced">
+                <Shortcut Name="SplitClips" CommandId="commands.editor.SplitClipsCommand" Description="Cuts the selected clip in half where the play head is. If you have no selection, then all clips over the play head are sliced">
                     <KeyStroke Key="S"/>
                 </Shortcut>
                 <Shortcut Name="DuplicateClips" CommandId="commands.generic.DuplicateClipsCommand">

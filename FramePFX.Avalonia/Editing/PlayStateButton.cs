@@ -29,7 +29,8 @@ using FramePFX.Utils.RDA;
 
 namespace FramePFX.Avalonia.Editing;
 
-public class PlayStateButton : Button {
+public class PlayStateButton : Button
+{
     public static readonly StyledProperty<PlayState> PlayStateProperty = AvaloniaProperty.Register<PlayStateButton, PlayState>(nameof(PlayState));
     public static readonly StyledProperty<string?> CommandIdProperty = AvaloniaProperty.Register<PlayStateButton, string?>(nameof(CommandId));
 
@@ -37,12 +38,14 @@ public class PlayStateButton : Button {
     /// Gets or sets the play state that is shown in the UI, e.g. if this value is <see cref="Play"/> then it shows a play arrow.
     /// This is not the play state of the video editor, that would effectively be the opposite of this property
     /// </summary>
-    public PlayState PlayState {
+    public PlayState PlayState
+    {
         get => this.GetValue(PlayStateProperty);
         set => this.SetValue(PlayStateProperty, value);
     }
 
-    public string? CommandId {
+    public string? CommandId
+    {
         get => (string?) this.GetValue(CommandIdProperty);
         set => this.SetValue(CommandIdProperty, value);
     }
@@ -51,13 +54,16 @@ public class PlayStateButton : Button {
     private readonly RapidDispatchAction delayedContextChangeUpdater;
     private readonly RelayCommand command;
 
-    public PlayStateButton() {
+    public PlayStateButton()
+    {
         DataManager.AddInheritedContextChangedHandler(this, this.OnInheritedContextChanged);
         this.delayedContextChangeUpdater = new RapidDispatchAction(this.UpdateForContext, DispatchPriority.Loaded, "UpdateCanExecute");
-        this.command = new RelayCommand(() => {
+        this.command = new RelayCommand(() =>
+        {
             if (this.CommandId is string cmdId && !string.IsNullOrWhiteSpace(cmdId))
                 CommandManager.Instance.TryExecute(cmdId, () => DataManager.GetFullContextData(this));
-        }, () => {
+        }, () =>
+        {
             if (this.editor == null || !(this.CommandId is string cmdId) || string.IsNullOrWhiteSpace(cmdId))
                 return false;
             return CommandManager.Instance.CanExecute(cmdId, DataManager.GetFullContextData(this)) == Executability.Valid;
@@ -66,34 +72,41 @@ public class PlayStateButton : Button {
         this.Command = this.command;
     }
 
-    static PlayStateButton() {
+    static PlayStateButton()
+    {
         CommandIdProperty.Changed.AddClassHandler<PlayStateButton>((d, e) => d.UpdateButtonUI());
     }
 
-    protected override void OnLoaded(RoutedEventArgs e) {
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
         base.OnLoaded(e);
         this.UpdateForContext();
     }
 
-    private void OnInheritedContextChanged(object sender, RoutedEventArgs e) {
+    private void OnInheritedContextChanged(object sender, RoutedEventArgs e)
+    {
         this.delayedContextChangeUpdater.InvokeAsync();
     }
 
-    private void UpdateForContext() {
-        if (this.editor != null) {
+    private void UpdateForContext()
+    {
+        if (this.editor != null)
+        {
             this.editor.Playback.PlaybackStateChanged -= this.OnEditorPlayStateChanged;
             this.editor = null;
         }
 
         IContextData context = DataManager.GetFullContextData(this);
-        if (DataKeys.VideoEditorKey.TryGetContext(context, out this.editor)) {
+        if (DataKeys.VideoEditorKey.TryGetContext(context, out this.editor))
+        {
             this.editor.Playback.PlaybackStateChanged += this.OnEditorPlayStateChanged;
         }
 
         this.UpdateButtonUI();
     }
 
-    protected virtual void OnEditorPlayStateChanged(PlaybackManager sender, PlayState state, long frame) {
+    protected virtual void OnEditorPlayStateChanged(PlaybackManager sender, PlayState state, long frame)
+    {
         this.UpdateButtonUI();
     }
 

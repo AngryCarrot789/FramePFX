@@ -25,7 +25,8 @@ using FramePFX.Editing.Timelines;
 
 namespace FramePFX.Avalonia.Editing.Playheads;
 
-public class FlatLinePlayHeadControl : BasePlayHeadControl {
+public class FlatLinePlayHeadControl : BasePlayHeadControl
+{
     private const int StateNone = 0;
     private const int StateInit = 1;
     private const int StateActive = 2;
@@ -34,11 +35,13 @@ public class FlatLinePlayHeadControl : BasePlayHeadControl {
     private Point clickPoint;
     private int dragState;
 
-    public FlatLinePlayHeadControl() {
+    public FlatLinePlayHeadControl()
+    {
         this.Focusable = true;
     }
 
-    protected override void OnPointerPressed(PointerPressedEventArgs e) {
+    protected override void OnPointerPressed(PointerPressedEventArgs e)
+    {
         base.OnPointerPressed(e);
         e.Handled = true;
         this.Focus();
@@ -48,7 +51,8 @@ public class FlatLinePlayHeadControl : BasePlayHeadControl {
             e.Pointer.Capture(this);
     }
 
-    protected override void OnPointerReleased(PointerReleasedEventArgs e) {
+    protected override void OnPointerReleased(PointerReleasedEventArgs e)
+    {
         base.OnPointerReleased(e);
         e.Handled = true;
         this.SetDragState(StateNone);
@@ -56,53 +60,64 @@ public class FlatLinePlayHeadControl : BasePlayHeadControl {
             e.Pointer.Capture(null);
     }
 
-    protected override void OnPointerMoved(PointerEventArgs e) {
+    protected override void OnPointerMoved(PointerEventArgs e)
+    {
         base.OnPointerMoved(e);
         Point mPos = e.GetPosition(this);
-        if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed) {
+        if (!e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
             this.SetDragState(StateNone);
             if (ReferenceEquals(e.Pointer.Captured, this))
                 e.Pointer.Capture(null);
-            
+
             return;
         }
 
-        if (!(this.TimelineControl is TimelineControl control) || !(control.Timeline is Timeline timeline)) {
+        if (!(this.TimelineControl is TimelineControl control) || !(control.Timeline is Timeline timeline))
+        {
             return;
         }
 
-        if (this.dragState == StateInit) {
-            if (Math.Abs(mPos.X - this.clickPoint.X) < MinDragInitPx) {
+        if (this.dragState == StateInit)
+        {
+            if (Math.Abs(mPos.X - this.clickPoint.X) < MinDragInitPx)
+            {
                 return;
             }
 
             this.SetDragState(StateActive);
         }
 
-        if (this.dragState == StateNone) {
+        if (this.dragState == StateNone)
+        {
             return;
         }
 
         Point diff = mPos - this.clickPoint;
         long oldFrame = this.Frame;
-        if (Math.Abs(diff.X) >= 1.0d) {
+        if (Math.Abs(diff.X) >= 1.0d)
+        {
             long offset = (long) Math.Round(diff.X / control.Zoom);
-            if (offset != 0) {
+            if (offset != 0)
+            {
                 // If begin is 2 and offset is -5, this sets offset to -2
                 // and since newBegin = begin+offset (2 + -2)
                 // this ensures begin never drops below 0
-                if ((oldFrame + offset) < 0) {
+                if ((oldFrame + offset) < 0)
+                {
                     offset = -oldFrame;
                 }
 
-                if (offset != 0) {
+                if (offset != 0)
+                {
                     this.Frame = Math.Min(oldFrame + offset, timeline.MaxDuration - 1);
                 }
             }
         }
     }
 
-    private void SetDragState(int state) {
+    private void SetDragState(int state)
+    {
         this.dragState = state;
     }
 }

@@ -22,18 +22,24 @@ using FramePFX.Editing.Automation.Params;
 
 namespace FramePFX.Editing.Automation;
 
-public static class AutomationUtils {
-    public static void SetDefaultKeyFrameOrAddNew(AutomationSequence sequence, object value) {
-        if (sequence.IsEmpty || sequence.IsOverrideEnabled) {
+public static class AutomationUtils
+{
+    public static void SetDefaultKeyFrameOrAddNew(AutomationSequence sequence, object value)
+    {
+        if (sequence.IsEmpty || sequence.IsOverrideEnabled)
+        {
             sequence.DefaultKeyFrame.SetValueFromObject(value);
         }
-        else {
-            if (sequence.AutomationData.Owner.GetRelativePlayHead(out long playHead)) {
+        else
+        {
+            if (sequence.AutomationData.Owner.GetRelativePlayHead(out long playHead))
+            {
                 // Either get the last key frame at the playhead or create a new one at that location
                 KeyFrame keyFrame = sequence.GetOrCreateKeyFrameAtFrame(playHead, out _);
                 keyFrame.SetValueFromObject(value);
             }
-            else {
+            else
+            {
                 // when the object is has a strict frame range, e.g. clip, effect, and it is not in range,
                 // enable override and set the default key frame
                 sequence.DefaultKeyFrame.SetValueFromObject(value);
@@ -42,15 +48,19 @@ public static class AutomationUtils {
         }
     }
 
-    public static void GetDefaultKeyFrameOrAddNew(AutomationSequence sequence, out KeyFrame keyFrame, bool enableOverrideIfOutOfRange = true) {
-        if (sequence.IsEmpty || sequence.IsOverrideEnabled) {
+    public static void GetDefaultKeyFrameOrAddNew(AutomationSequence sequence, out KeyFrame keyFrame, bool enableOverrideIfOutOfRange = true)
+    {
+        if (sequence.IsEmpty || sequence.IsOverrideEnabled)
+        {
             keyFrame = sequence.DefaultKeyFrame;
         }
-        else if (sequence.AutomationData.Owner.GetRelativePlayHead(out long playHead)) {
+        else if (sequence.AutomationData.Owner.GetRelativePlayHead(out long playHead))
+        {
             // Either get the last key frame at the playhead or create a new one at that location
             keyFrame = sequence.GetOrCreateKeyFrameAtFrame(playHead, out _);
         }
-        else {
+        else
+        {
             // when the object is has a strict frame range, e.g. clip, effect, and it is not in range,
             // enable override and set the default key frame
             keyFrame = sequence.DefaultKeyFrame;
@@ -59,17 +69,21 @@ public static class AutomationUtils {
         }
     }
 
-    public static void SetDefaultKeyFrameOrAddNew(IAutomatable automatable, Parameter parameter, object value, bool createFirstIfEmpty = false) {
+    public static void SetDefaultKeyFrameOrAddNew(IAutomatable automatable, Parameter parameter, object value, bool createFirstIfEmpty = false)
+    {
         AutomationSequence sequence = automatable.AutomationData[parameter];
-        if ((!createFirstIfEmpty && sequence.IsEmpty) || sequence.IsOverrideEnabled) {
+        if ((!createFirstIfEmpty && sequence.IsEmpty) || sequence.IsOverrideEnabled)
+        {
             sequence.DefaultKeyFrame.SetValueFromObject(value);
         }
-        else if (sequence.AutomationData.Owner.GetRelativePlayHead(out long playHead)) {
+        else if (sequence.AutomationData.Owner.GetRelativePlayHead(out long playHead))
+        {
             // Either get the last key frame at the playhead or create a new one at that location
             KeyFrame keyFrame = sequence.GetOrCreateKeyFrameAtFrame(playHead, out _);
             keyFrame.SetValueFromObject(value);
         }
-        else {
+        else
+        {
             // when the object is has a strict frame range, e.g. clip, effect, and it is not in range,
             // enable override and set the default key frame
             sequence.DefaultKeyFrame.SetValueFromObject(value);
@@ -77,12 +91,15 @@ public static class AutomationUtils {
         }
     }
 
-    public static bool TryAddKeyFrameAtLocation(AutomationSequence sequence, out KeyFrame keyFrame) {
-        if (sequence.AutomationData.Owner.GetRelativePlayHead(out long playHead)) {
+    public static bool TryAddKeyFrameAtLocation(AutomationSequence sequence, out KeyFrame keyFrame)
+    {
+        if (sequence.AutomationData.Owner.GetRelativePlayHead(out long playHead))
+        {
             keyFrame = sequence.GetOrCreateKeyFrameAtFrame(playHead, out _, true);
             return true;
         }
-        else {
+        else
+        {
             keyFrame = null;
             return false;
         }

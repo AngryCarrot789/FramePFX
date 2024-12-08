@@ -24,7 +24,8 @@ namespace FramePFX.Services.UserInputs;
 
 public delegate void DoubleUserInputDataEventHandler(DoubleUserInputInfo sender);
 
-public class DoubleUserInputInfo : UserInputInfo {
+public class DoubleUserInputInfo : UserInputInfo
+{
     public static readonly DataParameterString TextAParameter = DataParameter.Register(new DataParameterString(typeof(DoubleUserInputInfo), nameof(TextA), null, ValueAccessors.Reflective<string?>(typeof(DoubleUserInputInfo), nameof(textA))));
     public static readonly DataParameterString TextBParameter = DataParameter.Register(new DataParameterString(typeof(DoubleUserInputInfo), nameof(TextB), null, ValueAccessors.Reflective<string?>(typeof(DoubleUserInputInfo), nameof(textB))));
     public static readonly DataParameterString LabelAParameter = DataParameter.Register(new DataParameterString(typeof(DoubleUserInputInfo), nameof(LabelA), null, ValueAccessors.Reflective<string?>(typeof(DoubleUserInputInfo), nameof(labelA))));
@@ -37,29 +38,35 @@ public class DoubleUserInputInfo : UserInputInfo {
     private bool allowEmptyTextA;
     private bool allowEmptyTextB;
 
-    public string? TextA {
+    public string? TextA
+    {
         get => this.textA;
         set => DataParameter.SetValueHelper(this, TextAParameter, ref this.textA, value);
     }
 
-    public string? TextB {
+    public string? TextB
+    {
         get => this.textB;
         set => DataParameter.SetValueHelper(this, TextBParameter, ref this.textB, value);
     }
 
-    public string? LabelA {
+    public string? LabelA
+    {
         get => this.labelA;
         set => DataParameter.SetValueHelper(this, LabelAParameter, ref this.labelA, value);
     }
 
-    public string? LabelB {
+    public string? LabelB
+    {
         get => this.labelB;
         set => DataParameter.SetValueHelper(this, LabelBParameter, ref this.labelB, value);
     }
 
-    public bool AllowEmptyTextA {
+    public bool AllowEmptyTextA
+    {
         get => this.allowEmptyTextA;
-        set {
+        set
+        {
             if (this.allowEmptyTextA == value)
                 return;
 
@@ -68,9 +75,11 @@ public class DoubleUserInputInfo : UserInputInfo {
         }
     }
 
-    public bool AllowEmptyTextB {
+    public bool AllowEmptyTextB
+    {
         get => this.allowEmptyTextB;
-        set {
+        set
+        {
             if (this.allowEmptyTextB == value)
                 return;
 
@@ -90,12 +99,14 @@ public class DoubleUserInputInfo : UserInputInfo {
     public DoubleUserInputInfo() {
     }
 
-    public DoubleUserInputInfo(string? textA, string? textB) {
+    public DoubleUserInputInfo(string? textA, string? textB)
+    {
         this.textA = textA;
         this.textB = textB;
     }
 
-    public override bool CanDialogClose() {
+    public override bool CanDialogClose()
+    {
         if ((string.IsNullOrEmpty(this.TextA) && !this.AllowEmptyTextA) || (string.IsNullOrEmpty(this.TextA) && !this.AllowEmptyTextA))
             return false;
 

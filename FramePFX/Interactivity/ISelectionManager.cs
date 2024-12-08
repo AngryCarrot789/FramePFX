@@ -25,18 +25,22 @@ public delegate void SelectionClearedEventHandler<T>(ISelectionManager<T> sender
 
 public delegate void LightSelectionChangedEventHandler<T>(ILightSelectionManager<T> sender);
 
-public static class BaseSelectionManagerExtensions {
+public static class BaseSelectionManagerExtensions
+{
     /// <summary>
     /// A helper method to flip the selected state
     /// </summary>
     /// <param name="manager"></param>
     /// <param name="item"></param>
     /// <typeparam name="T"></typeparam>
-    public static void ToggleSelected<T>(this IBaseSelectionManager<T> manager, T item) {
-        if (manager.IsSelected(item)) {
+    public static void ToggleSelected<T>(this IBaseSelectionManager<T> manager, T item)
+    {
+        if (manager.IsSelected(item))
+        {
             manager.Unselect(item);
         }
-        else {
+        else
+        {
             manager.Select(item);
         }
     }
@@ -46,7 +50,8 @@ public static class BaseSelectionManagerExtensions {
 /// A base interface for general selection managers providing get/set/add/remove/clear/is support
 /// </summary>
 /// <typeparam name="T">The type of selected items supported</typeparam>
-public interface IBaseSelectionManager<in T> {
+public interface IBaseSelectionManager<in T>
+{
     /// <summary>
     /// Returns true when the item is selected
     /// </summary>
@@ -106,7 +111,8 @@ public interface IBaseSelectionManager<in T> {
 /// An interface for an object that manages the selection state of items
 /// </summary>
 /// <typeparam name="T">The type of selected items supported</typeparam>
-public interface ISelectionManager<T> : IBaseSelectionManager<T> {
+public interface ISelectionManager<T> : IBaseSelectionManager<T>
+{
     /// <summary>
     /// Gets an enumerable of the selected items. Ideally, create a list from
     /// this as soon as possible because the enumerable may be cached and become
@@ -140,7 +146,8 @@ public interface ISelectionManager<T> : IBaseSelectionManager<T> {
 /// An interface for a simple selection manager that has basic selection methods and a basic selection changed event
 /// </summary>
 /// <typeparam name="T">The type of selected items supported</typeparam>
-public interface ILightSelectionManager<T> : IBaseSelectionManager<T> {
+public interface ILightSelectionManager<T> : IBaseSelectionManager<T>
+{
     /// <summary>
     /// Gets an enumerable of the selected items. Ideally, create a list from
     /// this as soon as possible because the enumerable may be cached and become
@@ -161,7 +168,8 @@ public interface ILightSelectionManager<T> : IBaseSelectionManager<T> {
     event LightSelectionChangedEventHandler<T> SelectionChanged;
 }
 
-public interface ISelectAllManager {
+public interface ISelectAllManager
+{
     /// <summary>
     /// Selects all the items in this selection manager
     /// </summary>

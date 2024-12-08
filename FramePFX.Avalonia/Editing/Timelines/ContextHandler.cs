@@ -20,5 +20,4 @@
 namespace FramePFX.Avalonia.Editing.Timelines;
 
 public class ContextHandler {
-    
 }

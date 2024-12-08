@@ -23,16 +23,19 @@ using Avalonia.VisualTree;
 
 namespace FramePFX.Avalonia;
 
-public static class BugFix {
-    public static void TextBox_FocusSelectAll(TextBox textBox) {
+public static class BugFix
+{
+    public static void TextBox_FocusSelectAll(TextBox textBox)
+    {
         textBox.Focus();
         textBox.SelectAll();
-        
+
         // Fixes an issue with the TextPresenter being rendered before the
         // SelectionStart/SelectionEnd properties update via the TemplateBinding
         // in the TextBox's ControlTheme
         TextPresenter? presenter = textBox.FindDescendantOfType<TextPresenter>(false);
-        if (presenter != null) {
+        if (presenter != null)
+        {
             presenter.CoerceValue(TextPresenter.CaretBrushProperty);
             presenter.CoerceValue(TextPresenter.CaretIndexProperty);
             presenter.CoerceValue(TextPresenter.LineHeightProperty);

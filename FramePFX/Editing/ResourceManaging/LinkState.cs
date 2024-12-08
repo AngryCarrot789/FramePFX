@@ -22,7 +22,8 @@ namespace FramePFX.Editing.ResourceManaging;
 /// <summary>
 /// A state for a resource link
 /// </summary>
-public enum LinkState {
+public enum LinkState
+{
     /// <summary>
     /// Not linked; link not attempted, no reference count
     /// </summary>

@@ -46,7 +46,8 @@ public delegate void AsyncViewPortEndRenderEventHandler(SKAsyncViewPort sender, 
 /// </param>
 public delegate void AsyncViewPortRenderEventHandler(SKAsyncViewPort sender, DrawingContext ctx, Size size, Point minatureOffset);
 
-public class SKAsyncViewPort : Control {
+public class SKAsyncViewPort : Control
+{
     private WriteableBitmap? bitmap;
     private SKSurface? targetSurface;
     private SKImageInfo skImageInfo;
@@ -61,9 +62,11 @@ public class SKAsyncViewPort : Control {
     /// <summary>Gets or sets a value indicating whether the drawing canvas should be resized on high resolution displays.</summary>
     /// <value />
     /// <remarks>By default, when false, the canvas is resized to 1 canvas pixel per display pixel. When true, the canvas is resized to device independent pixels, and then stretched to fill the view. Although performance is improved and all objects are the same size on different display densities, blurring and pixelation may occur.</remarks>
-    public bool IgnorePixelScaling {
+    public bool IgnorePixelScaling
+    {
         get => this.ignorePixelScaling;
-        set {
+        set
+        {
             this.ignorePixelScaling = value;
             this.InvalidateVisual();
         }
@@ -78,16 +81,19 @@ public class SKAsyncViewPort : Control {
     public SKAsyncViewPort() {
     }
 
-    public bool BeginRender(out SKSurface surface) {
+    public bool BeginRender(out SKSurface surface)
+    {
         IRenderRoot? source;
-        if (this.targetSurface != null || (source = this.GetVisualRoot()) == null) {
+        if (this.targetSurface != null || (source = this.GetVisualRoot()) == null)
+        {
             surface = null;
             return false;
         }
 
         SKSizeI pixelSize = this.CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, source);
         this.CanvasSize = this.ignorePixelScaling ? unscaledSize : pixelSize;
-        if (pixelSize.Width <= 0 || pixelSize.Height <= 0) {
+        if (pixelSize.Width <= 0 || pixelSize.Height <= 0)
+        {
             surface = null;
             return false;
         }
@@ -96,13 +102,15 @@ public class SKAsyncViewPort : Control {
         this.skImageInfo = frameInfo;
 
         WriteableBitmap? bmp = this.bitmap;
-        if (bmp == null || frameInfo.Width != bmp.PixelSize.Width || frameInfo.Height != bmp.PixelSize.Height) {
+        if (bmp == null || frameInfo.Width != bmp.PixelSize.Width || frameInfo.Height != bmp.PixelSize.Height)
+        {
             this.bitmap = bmp = new WriteableBitmap(new PixelSize(frameInfo.Width, frameInfo.Height), new Vector(scaleX * 96d, scaleY * 96d));
         }
 
         this.lockKey = bmp.Lock();
         this.targetSurface = surface = SKSurface.Create(frameInfo, this.lockKey.Address, this.lockKey.RowBytes);
-        if (this.ignorePixelScaling) {
+        if (this.ignorePixelScaling)
+        {
             SKCanvas canvas = surface.Canvas;
             canvas.Scale((float) scaleX, (float) scaleY);
             canvas.Save();
@@ -111,7 +119,8 @@ public class SKAsyncViewPort : Control {
         return true;
     }
 
-    public void EndRender(bool invalidateVisual = true) {
+    public void EndRender(bool invalidateVisual = true)
+    {
         // SKImageInfo info = this.skImageInfo;
         // this.lockKey.AddDirtyRect(new Int32Rect(0, 0, info.Width, info.Height));
         this.EndRenderExtension?.Invoke(this, this.targetSurface!);
@@ -123,10 +132,12 @@ public class SKAsyncViewPort : Control {
         this.targetSurface = null;
     }
 
-    public override void Render(DrawingContext context) {
+    public override void Render(DrawingContext context)
+    {
         base.Render(context);
         WriteableBitmap? bmp = this.bitmap;
-        if (bmp != null) {
+        if (bmp != null)
+        {
             Rect myBounds = this.Bounds, finalBounds = new Rect(0d, 0d, myBounds.Width, myBounds.Height);
 
             // While this might be somewhat useful in some cases, it didn't seem to work well
@@ -143,7 +154,8 @@ public class SKAsyncViewPort : Control {
     /// <summary>
     /// A method that disposes our bitmap to save on some memory
     /// </summary>
-    public void DisposeBitmaps() {
+    public void DisposeBitmaps()
+    {
         if (this.targetSurface != null)
             throw new InvalidOperationException("Currently rendering; cannot dispose");
 
@@ -153,21 +165,25 @@ public class SKAsyncViewPort : Control {
         this.bitmap = default;
     }
 
-    public bool BeginRenderWithSurface(SKImageInfo frameInfo) {
+    public bool BeginRenderWithSurface(SKImageInfo frameInfo)
+    {
         IRenderRoot? source;
-        if (this.targetSurface != null || (source = this.GetVisualRoot()) == null) {
+        if (this.targetSurface != null || (source = this.GetVisualRoot()) == null)
+        {
             return false;
         }
 
         SKSizeI pixelSize = this.CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, source);
         this.CanvasSize = this.ignorePixelScaling ? unscaledSize : pixelSize;
-        if (pixelSize.Width <= 0 || pixelSize.Height <= 0) {
+        if (pixelSize.Width <= 0 || pixelSize.Height <= 0)
+        {
             return false;
         }
 
         this.skImageInfo = frameInfo;
         WriteableBitmap? bmp = this.bitmap;
-        if (bmp == null || frameInfo.Width != bmp.PixelSize.Width || frameInfo.Height != bmp.PixelSize.Height) {
+        if (bmp == null || frameInfo.Width != bmp.PixelSize.Width || frameInfo.Height != bmp.PixelSize.Height)
+        {
             this.bitmap = new WriteableBitmap(
                 new PixelSize(frameInfo.Width, frameInfo.Height),
                 new Vector(unscaledSize.Width == pixelSize.Width ? 96d : (96d * scaleX), unscaledSize.Height == pixelSize.Height ? 96d : (96d * scaleY)),
@@ -177,16 +193,21 @@ public class SKAsyncViewPort : Control {
         return true;
     }
 
-    public void EndRenderWithSurface(SKSurface surface) {
+    public void EndRenderWithSurface(SKSurface surface)
+    {
         this.EndRenderExtension?.Invoke(this, this.targetSurface!);
         surface.Flush(true, true);
-        using (ILockedFramebuffer buffer = this.bitmap!.Lock()) {
+        using (ILockedFramebuffer buffer = this.bitmap!.Lock())
+        {
             SKImageInfo imgInfo = this.FrameInfo;
-            if (imgInfo.Width == this.bitmap.PixelSize.Width && imgInfo.Height == this.bitmap.PixelSize.Height) {
+            if (imgInfo.Width == this.bitmap.PixelSize.Width && imgInfo.Height == this.bitmap.PixelSize.Height)
+            {
                 IntPtr srcPtr = surface.PeekPixels().GetPixels();
                 IntPtr dstPtr = buffer.Address;
-                if (srcPtr != IntPtr.Zero && dstPtr != IntPtr.Zero) {
-                    unsafe {
+                if (srcPtr != IntPtr.Zero && dstPtr != IntPtr.Zero)
+                {
+                    unsafe
+                    {
                         Unsafe.CopyBlock(dstPtr.ToPointer(), srcPtr.ToPointer(), (uint) imgInfo.BytesSize64);
                         // NativeMemory.Copy(srcPtr.ToPointer(), dstPtr.ToPointer(), (uint) imgInfo.BytesSize64);
                     }
@@ -197,20 +218,23 @@ public class SKAsyncViewPort : Control {
         this.InvalidateVisual();
     }
 
-    protected override void OnSizeChanged(SizeChangedEventArgs e) {
+    protected override void OnSizeChanged(SizeChangedEventArgs e)
+    {
         base.OnSizeChanged(e);
         this.InvalidateVisual();
     }
-    
+
     public new void InvalidateVisual() => base.InvalidateVisual();
 
-    private SKSizeI CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, IRenderRoot source) {
+    private SKSizeI CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, IRenderRoot source)
+    {
         unscaledSize = SKSizeI.Empty;
         scaleX = 1f;
         scaleY = 1f;
 
         Size bounds = this.Bounds.Size;
-        if (IsPositive(bounds.Width) && IsPositive(bounds.Height)) {
+        if (IsPositive(bounds.Width) && IsPositive(bounds.Height))
+        {
             unscaledSize = new SKSizeI((int) bounds.Width, (int) bounds.Height);
             double transformToDevice = source.RenderScaling;
             scaleX = transformToDevice;

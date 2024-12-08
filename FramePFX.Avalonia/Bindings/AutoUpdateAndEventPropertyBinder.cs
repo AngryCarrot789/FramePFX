@@ -27,14 +27,16 @@ namespace FramePFX.Avalonia.Bindings;
 /// uses two action events for updating the control and the model
 /// </summary>
 /// <typeparam name="TModel">The type of model</typeparam>
-public class AutoUpdateAndEventPropertyBinder<TModel> : BaseAutoUpdateAndEventPropertyBinder<TModel> where TModel : class {
+public class AutoUpdateAndEventPropertyBinder<TModel> : BaseAutoUpdateAndEventPropertyBinder<TModel> where TModel : class
+{
     public event Action<IBinder<TModel>>? DoUpdateControl;
     public event Action<IBinder<TModel>>? DoUpdateModel;
 
     public AutoUpdateAndEventPropertyBinder(string eventName, Action<IBinder<TModel>>? updateControl, Action<IBinder<TModel>>? updateModel) : this(null, eventName, updateControl, updateModel) {
     }
 
-    public AutoUpdateAndEventPropertyBinder(AvaloniaProperty? property, string eventName, Action<IBinder<TModel>>? updateControl, Action<IBinder<TModel>>? updateModel) : base(property, eventName) {
+    public AutoUpdateAndEventPropertyBinder(AvaloniaProperty? property, string eventName, Action<IBinder<TModel>>? updateControl, Action<IBinder<TModel>>? updateModel) : base(property, eventName)
+    {
         this.DoUpdateControl = updateControl;
         this.DoUpdateModel = updateModel;
     }

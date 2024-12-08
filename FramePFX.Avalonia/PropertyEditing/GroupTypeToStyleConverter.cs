@@ -26,17 +26,21 @@ using FramePFX.PropertyEditing;
 
 namespace FramePFX.Avalonia.PropertyEditing;
 
-public class GroupTypeToStyleConverter : IValueConverter {
+public class GroupTypeToStyleConverter : IValueConverter
+{
     public ControlTheme PrimaryExpander { get; set; }
     public ControlTheme SecondaryExpander { get; set; }
     public ControlTheme NoExpanderStyle { get; set; }
 
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-        if (value == AvaloniaProperty.UnsetValue || !(value is GroupType groupType)) {
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value == AvaloniaProperty.UnsetValue || !(value is GroupType groupType))
+        {
             return AvaloniaProperty.UnsetValue;
         }
 
-        switch (groupType) {
+        switch (groupType)
+        {
             case GroupType.PrimaryExpander: return this.PrimaryExpander;
             case GroupType.SecondaryExpander: return this.SecondaryExpander;
             case GroupType.NoExpander: return this.NoExpanderStyle;
@@ -44,7 +48,8 @@ public class GroupTypeToStyleConverter : IValueConverter {
         }
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
         throw new NotImplementedException();
     }
 }

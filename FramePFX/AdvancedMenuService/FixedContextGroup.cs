@@ -22,35 +22,41 @@ namespace FramePFX.AdvancedMenuService;
 /// <summary>
 /// A fixed group of context items
 /// </summary>
-public class FixedContextGroup : IContextGroup {
+public class FixedContextGroup : IContextGroup
+{
     private readonly List<IContextObject> items;
-    
+
     /// <summary>
     /// Gets our items
     /// </summary>
     public IReadOnlyList<IContextObject> Items => this.items;
 
-    public FixedContextGroup() {
+    public FixedContextGroup()
+    {
         this.items = new List<IContextObject>();
     }
 
-    public void AddEntry(IContextObject item) {
+    public void AddEntry(IContextObject item)
+    {
         this.items.Add(item);
     }
 
     public void AddSeparator() => this.AddEntry(new SeparatorEntry());
-    
+
     public void AddGroupCaption(string caption) => this.AddEntry(new CaptionEntry(caption));
 
-    public void AddCommand(string cmdId, string displayName, string? description = null) {
+    public void AddCommand(string cmdId, string displayName, string? description = null)
+    {
         this.AddEntry(new CommandContextEntry(displayName, description, cmdId));
     }
-    
-    public void AddDynamicSubGroup(DynamicGenerateContextFunction generate) {
+
+    public void AddDynamicSubGroup(DynamicGenerateContextFunction generate)
+    {
         this.AddEntry(new DynamicGroupContextObject(new DynamicContextGroup(generate)));
     }
 
-    public CaptionEntry AddHeader(string caption) {
+    public CaptionEntry AddHeader(string caption)
+    {
         CaptionEntry entry = new CaptionEntry(caption);
         this.items.Add(entry);
         return entry;

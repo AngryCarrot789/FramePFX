@@ -25,7 +25,8 @@ namespace FramePFX.Editing.Rendering;
 /// <summary>
 /// The rendering context used to render a clip, and may also be used by effects to access the back buffer
 /// </summary>
-public class RenderContext {
+public class RenderContext
+{
     /// <summary>
     /// The image info associated with our <see cref="Surface"/>
     /// </summary>
@@ -70,7 +71,8 @@ public class RenderContext {
 
     public SKFilterQuality FilterQuality { get; }
 
-    public RenderContext(SKImageInfo imageInfo, SKSurface surface, SKBitmap bitmap, SKPixmap pixmap, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality) {
+    public RenderContext(SKImageInfo imageInfo, SKSurface surface, SKBitmap bitmap, SKPixmap pixmap, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality)
+    {
         this.ImageInfo = imageInfo;
         this.Surface = surface;
         this.Canvas = surface.Canvas;
@@ -85,7 +87,8 @@ public class RenderContext {
     /// </summary>
     /// <param name="inputRect">The input rect to be translated</param>
     /// <returns>The final rect which represents the effective drawing area</returns>
-    public SKRect TranslateRect(SKRect inputRect) {
+    public SKRect TranslateRect(SKRect inputRect)
+    {
         return this.Canvas.TotalMatrix.MapRect(inputRect);
     }
 }

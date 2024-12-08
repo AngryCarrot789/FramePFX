@@ -19,16 +19,21 @@
 
 namespace FramePFX.History;
 
-public class MergedHistoryAction : IHistoryAction {
+public class MergedHistoryAction : IHistoryAction
+{
     private readonly IHistoryAction[] actions;
 
-    public MergedHistoryAction(IHistoryAction[] actions) {
+    public MergedHistoryAction(IHistoryAction[] actions)
+    {
         this.actions = actions ?? throw new ArgumentNullException(nameof(actions));
     }
 
-    public bool Undo() {
-        for (int i = this.actions.Length - 1; i >= 0; i--) {
-            if (!this.actions[i].Undo()) {
+    public bool Undo()
+    {
+        for (int i = this.actions.Length - 1; i >= 0; i--)
+        {
+            if (!this.actions[i].Undo())
+            {
                 return false;
             }
         }
@@ -36,9 +41,12 @@ public class MergedHistoryAction : IHistoryAction {
         return true;
     }
 
-    public bool Redo() {
-        for (int i = 0; i < this.actions.Length; i++) {
-            if (!this.actions[i].Redo()) {
+    public bool Redo()
+    {
+        for (int i = 0; i < this.actions.Length; i++)
+        {
+            if (!this.actions[i].Redo())
+            {
                 return false;
             }
         }

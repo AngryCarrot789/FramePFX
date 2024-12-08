@@ -29,27 +29,34 @@ using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.Shortcuts.Converters;
 
-public class ShortcutIdToGestureConverter : IValueConverter {
+public class ShortcutIdToGestureConverter : IValueConverter
+{
     public static ShortcutIdToGestureConverter Instance { get; } = new ShortcutIdToGestureConverter();
 
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-        if (value is string path) {
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is string path)
+        {
             return ShortcutIdToGesture(path, null, out string gesture) ? gesture : AvaloniaProperty.UnsetValue;
         }
-        else if (value is IEnumerable<string> paths) {
+        else if (value is IEnumerable<string> paths)
+        {
             return ShortcutIdToGesture(paths, null, out string gesture) ? gesture : AvaloniaProperty.UnsetValue;
         }
 
         throw new Exception("Value is not a shortcut string");
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
         throw new NotImplementedException();
     }
 
-    public static bool ShortcutIdToGesture(string path, string fallback, out string gesture) {
+    public static bool ShortcutIdToGesture(string path, string fallback, out string gesture)
+    {
         GroupedShortcut shortcut = ShortcutManager.Instance?.FindShortcutByPath(path);
-        if (shortcut == null) {
+        if (shortcut == null)
+        {
             return (gesture = fallback) != null;
         }
 
@@ -57,22 +64,28 @@ public class ShortcutIdToGestureConverter : IValueConverter {
         return true;
     }
 
-    public static bool ShortcutIdToGesture(IEnumerable<string> paths, string fallback, out string gesture) {
+    public static bool ShortcutIdToGesture(IEnumerable<string> paths, string fallback, out string gesture)
+    {
         List<GroupedShortcut> shortcut = ShortcutManager.Instance?.FindShortcutsByPaths(paths).ToList();
-        if (shortcut == null || shortcut.Count < 1) {
+        if (shortcut == null || shortcut.Count < 1)
+        {
             return (gesture = fallback) != null;
         }
 
         return (gesture = ShortcutsToGesture(shortcut, null)) != null;
     }
 
-    public static string ShortcutsToGesture(IEnumerable<GroupedShortcut> shortcuts, string fallback, bool removeDupliateInputStrokes = true) {
-        if (removeDupliateInputStrokes) {
+    public static string ShortcutsToGesture(IEnumerable<GroupedShortcut> shortcuts, string fallback, bool removeDupliateInputStrokes = true)
+    {
+        if (removeDupliateInputStrokes)
+        {
             HashSet<string> strokes = new HashSet<string>();
             List<string> newList = new List<string>();
-            foreach (GroupedShortcut sc in shortcuts) {
+            foreach (GroupedShortcut sc in shortcuts)
+            {
                 string text = ToString(sc);
-                if (!strokes.Contains(text)) {
+                if (!strokes.Contains(text))
+                {
                     strokes.Add(text);
                     newList.Add(text);
                 }
@@ -80,23 +93,29 @@ public class ShortcutIdToGestureConverter : IValueConverter {
 
             return newList.JoinString(", ", " or ", fallback);
         }
-        else {
+        else
+        {
             return shortcuts.Select(ToString).JoinString(", ", " or ", fallback);
         }
     }
 
-    public static string ToString(GroupedShortcut shortcut) {
+    public static string ToString(GroupedShortcut shortcut)
+    {
         return string.Join("+", shortcut.Shortcut.InputStrokes.Select(ToString));
     }
 
-    public static string ToString(IInputStroke stroke) {
-        if (stroke is MouseStroke ms) {
+    public static string ToString(IInputStroke stroke)
+    {
+        if (stroke is MouseStroke ms)
+        {
             return MouseStrokeStringConverter.ToStringFunction(ms.MouseButton, ms.Modifiers, ms.ClickCount);
         }
-        else if (stroke is KeyStroke ks) {
+        else if (stroke is KeyStroke ks)
+        {
             return KeyStrokeStringConverter.ToStringFunction(ks.KeyCode, ks.Modifiers, ks.IsRelease, false, true);
         }
-        else {
+        else
+        {
             return stroke.ToString();
         }
     }

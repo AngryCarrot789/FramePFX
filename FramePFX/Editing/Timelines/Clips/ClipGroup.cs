@@ -22,28 +22,36 @@ namespace FramePFX.Editing.Timelines.Clips;
 /// <summary>
 /// A class used to manage a collection of clips where location changes are synchronised
 /// </summary>
-public class ClipGroup {
+public class ClipGroup
+{
     private readonly List<Clip> info;
 
-    public ClipGroup() {
+    public ClipGroup()
+    {
         this.info = new List<Clip>();
     }
 
     // Null if no clips in list
-    public static ClipGroup? CreateOrMergeGroups(List<Clip> newClips) {
+    public static ClipGroup? CreateOrMergeGroups(List<Clip> newClips)
+    {
         ClipGroup? finalGroup = null;
-        foreach (Clip clip in newClips) {
+        foreach (Clip clip in newClips)
+        {
             ClipGroup? group = Clip.InternalGetGroup(clip);
-            if (group != null) {
-                if (finalGroup == null) {
+            if (group != null)
+            {
+                if (finalGroup == null)
+                {
                     finalGroup = group;
                 }
-                else if (finalGroup != group) {
+                else if (finalGroup != group)
+                {
                     group.RemoveClip(clip);
                     finalGroup.AddClip(clip);
                 }
             }
-            else {
+            else
+            {
                 finalGroup ??= new ClipGroup();
                 finalGroup.AddClip(clip);
             }
@@ -52,7 +60,8 @@ public class ClipGroup {
         return finalGroup;
     }
 
-    private void AddClip(Clip clip) {
+    private void AddClip(Clip clip)
+    {
         if (this.info.Contains(clip))
             throw new Exception("Clip already contained in this group");
         if (Clip.InternalGetGroup(clip) != null)
@@ -61,7 +70,8 @@ public class ClipGroup {
         this.info.Add(clip);
     }
 
-    private void RemoveClip(Clip clip) {
+    private void RemoveClip(Clip clip)
+    {
         ClipGroup? oldgroup = Clip.InternalGetGroup(clip);
         if (oldgroup == null)
             throw new Exception("Clip did not have a group");
@@ -72,7 +82,8 @@ public class ClipGroup {
         Clip.InternalSetGroup(clip, null);
     }
 
-    private void MoveClipToGroup(Clip clip, ClipGroup newGroup) {
+    private void MoveClipToGroup(Clip clip, ClipGroup newGroup)
+    {
         ClipGroup? oldgroup = Clip.InternalGetGroup(clip);
         oldgroup?.RemoveClip(clip);
         newGroup?.AddClip(clip);

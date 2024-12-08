@@ -22,10 +22,12 @@ using SkiaSharp;
 
 namespace FramePFX.Editing;
 
-public static class RenderUtils {
+public static class RenderUtils
+{
     private static readonly Random Rnd = new Random();
 
-    private static readonly SKColor[] Colours = new SKColor[] {
+    private static readonly SKColor[] Colours = new SKColor[]
+    {
         SKColors.Black,
         SKColors.Brown,
         SKColors.CadetBlue,
@@ -91,27 +93,33 @@ public static class RenderUtils {
         SKColors.Tomato,
     };
 
-    public static SKColor RandomColour() {
+    public static SKColor RandomColour()
+    {
         return Colours[Rnd.Next(Colours.Length)];
     }
 
-    public static SKColor BlendAlpha(SKColor colour, double alpha) {
+    public static SKColor BlendAlpha(SKColor colour, double alpha)
+    {
         return colour.WithAlpha(MultiplyByte255(colour.Alpha, alpha));
     }
 
-    public static byte MultiplyByte255(byte a, double b) {
+    public static byte MultiplyByte255(byte a, double b)
+    {
         return (byte) Maths.Clamp((int) Math.Round(a / 255d * b * 255d), 0, 255);
     }
 
-    public static byte DoubleToByte255(double value) {
+    public static byte DoubleToByte255(double value)
+    {
         return (byte) Maths.Clamp((int) Math.Round(value * 255d), 0, 255);
     }
 
-    public static double Byte255ToDouble(byte value) {
+    public static double Byte255ToDouble(byte value)
+    {
         return Maths.Clamp(value / 255d, 0d, 1d);
     }
 
-    public static sbyte DoubleToSByte127(double value) {
+    public static sbyte DoubleToSByte127(double value)
+    {
         return (sbyte) Maths.Clamp((int) Math.Round(value * 255d), sbyte.MinValue, sbyte.MaxValue);
     }
 }

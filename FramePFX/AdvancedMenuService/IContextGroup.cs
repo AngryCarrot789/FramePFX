@@ -33,5 +33,4 @@ namespace FramePFX.AdvancedMenuService;
 /// </para>
 /// </summary>
 public interface IContextGroup {
-    
 }

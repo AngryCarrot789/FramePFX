@@ -27,7 +27,8 @@ using FramePFX.Utils.Commands;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Autoloading;
 
-public class InvalidMediaPathEntryControl : InvalidResourceEntryControl {
+public class InvalidMediaPathEntryControl : InvalidResourceEntryControl
+{
     private TextBox? filePathBox;
     private TextBox? errorMessageBlock;
     private Button? confirmButton;
@@ -37,30 +38,36 @@ public class InvalidMediaPathEntryControl : InvalidResourceEntryControl {
 
     public new InvalidMediaPathEntry? Entry => (InvalidMediaPathEntry?) base.Entry;
 
-    public InvalidMediaPathEntryControl() {
+    public InvalidMediaPathEntryControl()
+    {
         this.filePathBinder = new GetSetAutoUpdateAndEventPropertyBinder<InvalidMediaPathEntry>(TextBox.TextProperty, nameof(InvalidMediaPathEntry.FilePathChanged), b => b.Model.FilePath, (b, v) => b.Model.FilePath = (string) v!);
         this.exceptionMsgBinder = new GetSetAutoUpdateAndEventPropertyBinder<InvalidMediaPathEntry>(TextBox.TextProperty, nameof(InvalidMediaPathEntry.ExceptionMessageChanged), b => b.Model.ExceptionMessage, null);
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
         base.OnApplyTemplate(e);
         this.filePathBox = e.NameScope.GetTemplateChild<TextBox>("PART_TextBox");
         this.confirmButton = e.NameScope.GetTemplateChild<Button>("PART_Button");
         this.errorMessageBlock = e.NameScope.GetTemplateChild<TextBox>("PART_TextBlockErrMsg");
-        this.confirmButton.Command = new AsyncRelayCommand(async () => {
-            if (!this.Entry!.TryLoad()) {
+        this.confirmButton.Command = new AsyncRelayCommand(async () =>
+        {
+            if (!this.Entry!.TryLoad())
+            {
                 await IoC.MessageService.ShowMessage("No such file", "Media file path is still invalid");
             }
         });
     }
 
-    protected override void OnLoaded(RoutedEventArgs e) {
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
         base.OnLoaded(e);
         this.filePathBinder.Attach(this.filePathBox!, this.Entry!);
         this.exceptionMsgBinder.Attach(this.errorMessageBlock!, this.Entry!);
     }
 
-    protected override void OnUnloaded(RoutedEventArgs e) {
+    protected override void OnUnloaded(RoutedEventArgs e)
+    {
         base.OnUnloaded(e);
         this.filePathBinder.Detach();
         this.exceptionMsgBinder.Detach();

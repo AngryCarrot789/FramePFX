@@ -26,7 +26,8 @@ using FramePFX.Tasks;
 
 namespace FramePFX;
 
-public static class IoC {
+public static class IoC
+{
     /// <summary>
     /// Gets the application's message dialog service, for showing messages to the user
     /// </summary>
@@ -43,7 +44,7 @@ public static class IoC {
     public static IFilePickDialogService FilePickService => RZApplication.Instance.Services.GetService<IFilePickDialogService>();
 
     public static IColourPickerService ColourPickerService => RZApplication.Instance.Services.GetService<IColourPickerService>();
-    
+
     public static IResourceLoaderService ResourceLoaderService => RZApplication.Instance.Services.GetService<IResourceLoaderService>();
 
     /// <summary>

@@ -23,7 +23,8 @@ using FramePFX.DataTransfer;
 
 namespace FramePFX.Avalonia.Bindings;
 
-public class ErroringDataParameterPropertyBinder<TModel, TValue> : BaseAutoUpdatePropertyBinder<TModel> where TModel : class, ITransferableData {
+public class ErroringDataParameterPropertyBinder<TModel, TValue> : BaseAutoUpdatePropertyBinder<TModel> where TModel : class, ITransferableData
+{
     private bool hasError;
 
     public delegate bool PropertyToParameterFunction(object? prop, out TValue? value);
@@ -33,9 +34,11 @@ public class ErroringDataParameterPropertyBinder<TModel, TValue> : BaseAutoUpdat
     private readonly Func<TValue?, object?> ParamToProp;
     private readonly PropertyToParameterFunction PropToParam;
 
-    public bool HasError {
+    public bool HasError
+    {
         get => this.hasError;
-        set {
+        set
+        {
             if (this.hasError == value)
                 return;
 
@@ -53,27 +56,34 @@ public class ErroringDataParameterPropertyBinder<TModel, TValue> : BaseAutoUpdat
     /// <param name="parameter">The data parameter, used to listen to model value changes</param>
     /// <param name="parameterToProperty">Converts the parameter value to an appropriate property value (e.g. double to string)</param>
     /// <param name="propertyToParameter">Converts the property value back to the parameter value (e.g. string to double, or returns validation error)</param>
-    public ErroringDataParameterPropertyBinder(AvaloniaProperty? property, DataParameter<TValue> parameter, Func<TValue?, object?> parameterToProperty, PropertyToParameterFunction propertyToParameter) : base(property) {
+    public ErroringDataParameterPropertyBinder(AvaloniaProperty? property, DataParameter<TValue> parameter, Func<TValue?, object?> parameterToProperty, PropertyToParameterFunction propertyToParameter) : base(property)
+    {
         this.Parameter = parameter ?? throw new ArgumentNullException(nameof(parameter));
         this.ParamToProp = parameterToProperty ?? throw new ArgumentNullException(nameof(parameterToProperty));
         this.PropToParam = propertyToParameter ?? throw new ArgumentNullException(nameof(propertyToParameter));
     }
 
-    protected override void UpdateModelOverride() {
-        if (this.IsFullyAttached && this.Property != null) {
+    protected override void UpdateModelOverride()
+    {
+        if (this.IsFullyAttached && this.Property != null)
+        {
             object? newValue = this.myControl!.GetValue(this.Property);
-            if (this.PropToParam(newValue, out TValue? theValue)) {
+            if (this.PropToParam(newValue, out TValue? theValue))
+            {
                 this.Parameter.SetObjectValue(this.Model, theValue);
                 this.HasError = false;
             }
-            else {
+            else
+            {
                 this.HasError = true;
             }
         }
     }
 
-    protected override void UpdateControlOverride() {
-        if (this.IsFullyAttached && this.Property != null) {
+    protected override void UpdateControlOverride()
+    {
+        if (this.IsFullyAttached && this.Property != null)
+        {
             TValue? newValue = this.Parameter.GetValue(this.Model);
             this.myControl!.SetValue(this.Property, this.ParamToProp(newValue));
         }
@@ -81,12 +91,14 @@ public class ErroringDataParameterPropertyBinder<TModel, TValue> : BaseAutoUpdat
 
     private void OnDataParameterValueChanged(DataParameter parameter, ITransferableData owner) => this.UpdateControl();
 
-    protected override void OnAttached() {
+    protected override void OnAttached()
+    {
         base.OnAttached();
         this.Parameter.AddValueChangedHandler(this.Model, this.OnDataParameterValueChanged);
     }
 
-    protected override void OnDetached() {
+    protected override void OnDetached()
+    {
         base.OnDetached();
         this.Parameter.RemoveValueChangedHandler(this.Model, this.OnDataParameterValueChanged);
     }

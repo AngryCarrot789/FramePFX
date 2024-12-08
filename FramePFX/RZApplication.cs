@@ -28,11 +28,14 @@ using FramePFX.Utils;
 
 namespace FramePFX;
 
-public abstract class RZApplication {
+public abstract class RZApplication
+{
     private static RZApplication? instance;
 
-    public static RZApplication Instance {
-        get {
+    public static RZApplication Instance
+    {
+        get
+        {
             if (instance == null)
                 throw new InvalidOperationException("Application not initialised yet");
 
@@ -67,25 +70,29 @@ public abstract class RZApplication {
     /// </summary>
     public int CurrentBuild => this.CurrentVersion.Build;
 
-    protected RZApplication() {
+    protected RZApplication()
+    {
         this.serviceManager = new ServiceManager();
     }
 
     private void OnPreInitialise() {
     }
 
-    protected virtual async Task OnInitialise(IApplicationStartupProgress progress) {
+    protected virtual async Task OnInitialise(IApplicationStartupProgress progress)
+    {
         await progress.SetAction("Initialising services", null);
         this.RegisterServices(progress, this.serviceManager);
         await progress.SetAction("Initialising commands", null);
         this.RegisterCommands(progress, CommandManager.Instance);
     }
 
-    protected virtual void RegisterServices(IApplicationStartupProgress progress, ServiceManager manager) {
+    protected virtual void RegisterServices(IApplicationStartupProgress progress, ServiceManager manager)
+    {
         manager.Register<TaskManager>(new TaskManager());
     }
 
-    protected virtual void RegisterCommands(IApplicationStartupProgress progress, CommandManager manager) {
+    protected virtual void RegisterCommands(IApplicationStartupProgress progress, CommandManager manager)
+    {
         // tools
 
         // timelines, tracks and clips
@@ -99,7 +106,7 @@ public abstract class RZApplication {
         manager.Register("commands.editor.PlaybackStopCommand", new StopCommand());
         manager.Register("commands.editor.DeleteSpecificTrack", new DeleteSpecificTrackCommand());
         manager.Register("commands.editor.DeleteSelectedTracks", new DeleteSelectedTracksCommand());
-        manager.Register("commands.editor.SliceClipsCommand", new SliceClipsCommand());
+        manager.Register("commands.editor.SplitClipsCommand", new SplitClipsCommand());
         manager.Register("commands.editor.DeleteClipOwnerTrack", new DeleteClipOwnerTrackCommand());
         manager.Register("commands.editor.RenameClip", new RenameClipCommand());
         manager.Register("commands.editor.RenameTrack", new RenameTrackCommand());
@@ -142,14 +149,18 @@ public abstract class RZApplication {
         manager.Register("commands.editor.Export", new ExportCommand());
     }
 
-    protected virtual async Task OnFullyInitialised(VideoEditor editor, string[] args) {
-        if (args.Length > 0 && File.Exists(args[0]) && Filters.ProjectType.MatchFilePath(args[0]) == true) {
+    protected virtual async Task OnFullyInitialised(VideoEditor editor, string[] args)
+    {
+        if (args.Length > 0 && File.Exists(args[0]) && Filters.ProjectType.MatchFilePath(args[0]) == true)
+        {
             ActivityTask<bool> task = OpenProjectCommand.RunOpenProjectTask(editor, args[0]);
-            if (!await task) {
+            if (!await task)
+            {
                 editor.LoadDefaultProject();
             }
         }
-        else {
+        else
+        {
             // Use to debug why something is causing a crash only in Release mode
             // string path = ...;
             // OpenProjectCommand.RunOpenProjectTask(editor, path);
@@ -167,11 +178,13 @@ public abstract class RZApplication {
         // media.Destroy();
     }
 
-    protected virtual void OnExit(int exitCode) {
+    protected virtual void OnExit(int exitCode)
+    {
         PFXNative.ShutdownLibrary();
     }
 
-    protected static void InternalPreInititalise(RZApplication application) {
+    protected static void InternalPreInititalise(RZApplication application)
+    {
         if (application == null)
             throw new ArgumentNullException(nameof(application));
 
@@ -181,7 +194,8 @@ public abstract class RZApplication {
         instance = application;
     }
 
-    protected static Task InternalInititalise(IApplicationStartupProgress progress) {
+    protected static Task InternalInititalise(IApplicationStartupProgress progress)
+    {
         if (instance == null)
             throw new InvalidOperationException("Application has not been pre-initialised yet");
 

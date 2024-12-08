@@ -22,7 +22,8 @@ using FramePFX.Utils.Accessing;
 
 namespace FramePFX.DataTransfer;
 
-public sealed class DataParameterLong : DataParameter<long>, IRangedParameter<long> {
+public sealed class DataParameterLong : DataParameter<long>, IRangedParameter<long>
+{
     public long Minimum { get; }
     public long Maximum { get; }
     public bool HasExplicitRangeLimit { get; }
@@ -33,7 +34,8 @@ public sealed class DataParameterLong : DataParameter<long>, IRangedParameter<lo
     public DataParameterLong(Type ownerType, string name, long defValue, ValueAccessor<long> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, name, defValue, long.MinValue, long.MaxValue, accessor, flags) {
     }
 
-    public DataParameterLong(Type ownerType, string name, long defValue, long minValue, long maxValue, ValueAccessor<long> accessor, DataParameterFlags flags = DataParameterFlags.None) : base(ownerType, name, defValue, accessor, flags) {
+    public DataParameterLong(Type ownerType, string name, long defValue, long minValue, long maxValue, ValueAccessor<long> accessor, DataParameterFlags flags = DataParameterFlags.None) : base(ownerType, name, defValue, accessor, flags)
+    {
         if (minValue > maxValue)
             throw new ArgumentException($"Minimum value exceeds the maximum value: {minValue} > {maxValue}", nameof(minValue));
         if (defValue < minValue || defValue > maxValue)
@@ -47,19 +49,24 @@ public sealed class DataParameterLong : DataParameter<long>, IRangedParameter<lo
 
     public bool IsValueOutOfRange(long value) => this.HasExplicitRangeLimit && (value < this.Minimum || value > this.Maximum);
 
-    public override void SetValue(ITransferableData owner, long value) {
-        if (this.HasExplicitRangeLimit) {
+    public override void SetValue(ITransferableData owner, long value)
+    {
+        if (this.HasExplicitRangeLimit)
+        {
             value = Maths.Clamp(value, this.Minimum, this.Maximum);
         }
 
         base.SetValue(owner, value);
     }
 
-    public override void SetObjectValue(ITransferableData owner, object? value) {
-        if (this.HasExplicitRangeLimit) {
+    public override void SetObjectValue(ITransferableData owner, object? value)
+    {
+        if (this.HasExplicitRangeLimit)
+        {
             long unboxed = (long) value;
             long clamped = Maths.Clamp(unboxed, this.Minimum, this.Maximum);
-            if (unboxed != clamped) {
+            if (unboxed != clamped)
+            {
                 value = clamped;
             }
         }

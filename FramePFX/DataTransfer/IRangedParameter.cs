@@ -23,7 +23,8 @@ namespace FramePFX.DataTransfer;
 /// An interface that supports a limited range in which its value can be, e.g. a range between 0-100, or a range between two vectors
 /// </summary>
 /// <typeparam name="T">The type of value this parameter is for</typeparam>
-public interface IRangedParameter<T> {
+public interface IRangedParameter<T>
+{
     /// <summary>
     /// The minimum value of the parameter. The final effective value will not be below this
     /// </summary>

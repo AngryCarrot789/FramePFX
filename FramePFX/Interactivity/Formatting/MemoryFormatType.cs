@@ -19,7 +19,8 @@
 
 namespace FramePFX.Interactivity.Formatting;
 
-public enum MemoryFormatType {
+public enum MemoryFormatType
+{
     /// <summary>
     /// A single bit
     /// </summary>

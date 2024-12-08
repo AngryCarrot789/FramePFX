@@ -20,7 +20,8 @@
 namespace FramePFX.Utils;
 
 /// <summary>Defines the keys available on a keyboard.</summary>
-public enum PNKey {
+public enum EnumKey
+{
     /// <summary>No key pressed.</summary>
     None = 0,
 

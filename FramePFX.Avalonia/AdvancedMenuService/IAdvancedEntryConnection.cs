@@ -26,7 +26,8 @@ namespace FramePFX.Avalonia.AdvancedMenuService;
 /// An interface for some sort of object inside an advanced menu that
 /// can be connected to and from a context menu entry
 /// </summary>
-public interface IAdvancedEntryConnection {
+public interface IAdvancedEntryConnection
+{
     IContextObject? Entry { get; }
 
     void OnAdding(IAdvancedContainer container, ItemsControl parent, IContextObject entry);

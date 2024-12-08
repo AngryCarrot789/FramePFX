@@ -24,29 +24,36 @@ namespace FramePFX.Utils.RBC;
 /// <summary>
 /// Used to store named elements using a dictionary
 /// </summary>
-public class RBEDictionary : RBEBase {
+public class RBEDictionary : RBEBase
+{
     public Dictionary<string, RBEBase> Map { get; private set; }
 
     public override RBEType Type => RBEType.Dictionary;
 
-    public RBEBase this[string key] {
+    public RBEBase this[string key]
+    {
         get => this.Map.TryGetValue(ValidateKey(key), out RBEBase value) ? value : null;
-        set {
+        set
+        {
             key = ValidateKey(key);
-            if (value != null) {
+            if (value != null)
+            {
                 this.Map[key] = value;
             }
-            else {
+            else
+            {
                 this.Map.Remove(key);
             }
         }
     }
 
-    public RBEDictionary() {
+    public RBEDictionary()
+    {
         this.Map = new Dictionary<string, RBEBase>();
     }
 
-    public RBEDictionary(Dictionary<string, RBEBase> map) {
+    public RBEDictionary(Dictionary<string, RBEBase> map)
+    {
         this.Map = map ?? throw new ArgumentNullException(nameof(map), "Map cannot be null");
     }
 
@@ -54,8 +61,10 @@ public class RBEDictionary : RBEBase {
 
     public bool ContainsKey(string key) => this.Map.ContainsKey(ValidateKey(key));
 
-    public T GetElement<T>(string key) where T : RBEBase {
-        if (this.TryGetElement(key, out T value)) {
+    public T GetElement<T>(string key) where T : RBEBase
+    {
+        if (this.TryGetElement(key, out T value))
+        {
             return value;
         }
 
@@ -63,8 +72,10 @@ public class RBEDictionary : RBEBase {
         throw new Exception($"No such entry '{key}' of type {readableTypeName}");
     }
 
-    public bool TryGetElement<T>(string key, out T element) where T : RBEBase {
-        if (this.Map.TryGetValue(ValidateKey(key), out RBEBase? rbeBase) && rbeBase is T rbe) {
+    public bool TryGetElement<T>(string key, out T element) where T : RBEBase
+    {
+        if (this.Map.TryGetValue(ValidateKey(key), out RBEBase? rbeBase) && rbeBase is T rbe)
+        {
             element = rbe;
             return true;
         }
@@ -73,8 +84,10 @@ public class RBEDictionary : RBEBase {
         return false;
     }
 
-    public bool TryGetElementValue<TElement, T>(string key, Func<TElement, T?> elemToVal, out T? value) where TElement : RBEBase {
-        if (this.TryGetElement(key, out TElement element)) {
+    public bool TryGetElementValue<TElement, T>(string key, Func<TElement, T?> elemToVal, out T? value) where TElement : RBEBase
+    {
+        if (this.TryGetElement(key, out TElement element))
+        {
             value = elemToVal(element);
             return true;
         }
@@ -87,13 +100,15 @@ public class RBEDictionary : RBEBase {
     public RBEDictionary GetDictionary(string key, RBEDictionary def) => this.TryGetElement(key, out RBEDictionary rbe) ? rbe : def;
     public bool TryGetDictionary(string key, out RBEDictionary value) => (value = this.GetDictionary(key, null)) != null;
 
-    public RBEDictionary GetOrCreateDictionary(string key) {
+    public RBEDictionary GetOrCreateDictionary(string key)
+    {
         if (!this.TryGetElement(key, out RBEDictionary dictionary))
             this[key] = dictionary = new RBEDictionary();
         return dictionary;
     }
 
-    public RBEDictionary CreateDictionary(string key) {
+    public RBEDictionary CreateDictionary(string key)
+    {
         if (this.ContainsKey(key))
             throw new Exception("Key already in use: " + key);
         RBEDictionary dictionary = new RBEDictionary();
@@ -105,13 +120,15 @@ public class RBEDictionary : RBEBase {
     public RBEList GetList(string key, RBEList def) => this.TryGetElement(key, out RBEList rbe) ? rbe : def;
     public bool TryGetList(string key, out RBEList value) => (value = this.GetList(key, null)) != null;
 
-    public RBEList GetOrCreateList(string key) {
+    public RBEList GetOrCreateList(string key)
+    {
         if (!this.TryGetElement(key, out RBEList dictionary))
             this[key] = dictionary = new RBEList();
         return dictionary;
     }
 
-    public RBEList CreateList(string key) {
+    public RBEList CreateList(string key)
+    {
         if (this.ContainsKey(key))
             throw new Exception("Key already in use: " + key);
         RBEList list = new RBEList();
@@ -206,7 +223,8 @@ public class RBEDictionary : RBEBase {
     public T GetStruct<T>(string key) where T : unmanaged => this.GetElement<RBEStruct>(key).GetValue<T>();
     public T GetStruct<T>(string key, T def) where T : unmanaged => this.TryGetElement(key, out RBEStruct rbe) ? rbe.GetValue<T>() : def;
 
-    public bool TryGetStruct<T>(string key, out T value) where T : unmanaged {
+    public bool TryGetStruct<T>(string key, out T value) where T : unmanaged
+    {
         if (this.TryGetElement(key, out RBEStruct rbe) && rbe.TryGetValue(out value))
             return true;
         value = default;
@@ -265,8 +283,10 @@ public class RBEDictionary : RBEBase {
     public T[] GetStructArray<T>(string key) where T : unmanaged => this.GetElement<RBEStructArray>(key).GetValues<T>();
     public T[] GetStructArray<T>(string key, T[] def) where T : unmanaged => this.TryGetElement(key, out RBEStructArray rbe) ? rbe.GetValues<T>() : def;
 
-    public bool TryGetStructArray<T>(string key, out T[] value) where T : unmanaged {
-        if (this.TryGetElement(key, out RBEStructArray rbe) && rbe.TryGetValues(out value)) {
+    public bool TryGetStructArray<T>(string key, out T[] value) where T : unmanaged
+    {
+        if (this.TryGetElement(key, out RBEStructArray rbe) && rbe.TryGetValues(out value))
+        {
             return true;
         }
 
@@ -307,20 +327,24 @@ public class RBEDictionary : RBEBase {
 
     #endregion
 
-    protected override void Read(BinaryReader reader) {
+    protected override void Read(BinaryReader reader)
+    {
         int length = reader.ReadUInt16();
         this.Map = new Dictionary<string, RBEBase>(length);
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < length; i++)
+        {
             string key = new string(reader.ReadChars(reader.ReadByte()));
             RBEBase element = ReadIdAndElement(reader);
             this.Map[key] = element;
         }
     }
 
-    protected override void ReadPacked(BinaryReader reader, Dictionary<int, string> packData) {
+    protected override void ReadPacked(BinaryReader reader, Dictionary<int, string> packData)
+    {
         int length = reader.ReadUInt16();
         this.Map = new Dictionary<string, RBEBase>(length);
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < length; i++)
+        {
             int index = reader.ReadInt32();
             if (!packData.TryGetValue(index, out string key))
                 throw new Exception($"No such key for index: {index}");
@@ -329,9 +353,11 @@ public class RBEDictionary : RBEBase {
         }
     }
 
-    protected override void Write(BinaryWriter writer) {
+    protected override void Write(BinaryWriter writer)
+    {
         writer.Write((ushort) this.Map.Count);
-        foreach (KeyValuePair<string, RBEBase> entry in this.Map) {
+        foreach (KeyValuePair<string, RBEBase> entry in this.Map)
+        {
             int length = entry.Key.Length;
             if (length > 255)
                 throw new Exception($"Map contained a key longer than 255 characters: {length}");
@@ -341,9 +367,11 @@ public class RBEDictionary : RBEBase {
         }
     }
 
-    protected override void WritePacked(BinaryWriter writer, Dictionary<string, int> dictionary) {
+    protected override void WritePacked(BinaryWriter writer, Dictionary<string, int> dictionary)
+    {
         writer.Write((ushort) this.Map.Count);
-        foreach (KeyValuePair<string, RBEBase> entry in this.Map) {
+        foreach (KeyValuePair<string, RBEBase> entry in this.Map)
+        {
             if (!dictionary.TryGetValue(entry.Key, out int index))
                 throw new Exception($"No such index for key: {entry.Key}");
             writer.Write(index);
@@ -351,8 +379,10 @@ public class RBEDictionary : RBEBase {
         }
     }
 
-    protected internal override void AccumulatePackedEntries(Dictionary<string, int> dictionary) {
-        foreach (KeyValuePair<string, RBEBase> entry in this.Map) {
+    protected internal override void AccumulatePackedEntries(Dictionary<string, int> dictionary)
+    {
+        foreach (KeyValuePair<string, RBEBase> entry in this.Map)
+        {
             if (!dictionary.ContainsKey(entry.Key))
                 dictionary[entry.Key] = dictionary.Count;
             entry.Value.AccumulatePackedEntries(dictionary);
@@ -361,22 +391,27 @@ public class RBEDictionary : RBEBase {
 
     public override RBEBase Clone() => this.CloneCore();
 
-    public RBEDictionary CloneCore() {
+    public RBEDictionary CloneCore()
+    {
         Dictionary<string, RBEBase> map = new Dictionary<string, RBEBase>(this.Map.Count);
         foreach (KeyValuePair<string, RBEBase> element in this.Map)
             map[element.Key] = element.Value.Clone();
         return new RBEDictionary(map);
     }
 
-    private static string ValidateKey(string key) {
+    private static string ValidateKey(string key)
+    {
         // CanonicalizeKey
-        if (key == null) {
+        if (key == null)
+        {
             return "";
         }
-        else if (key.Length > 255) {
+        else if (key.Length > 255)
+        {
             throw new ArgumentNullException(nameof(key), $"Key length must be less than 256 characters: {key.Length}");
         }
-        else {
+        else
+        {
             return key;
         }
     }

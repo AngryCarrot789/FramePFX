@@ -23,10 +23,12 @@ using FramePFX.Editing.Timelines.Clips.Core;
 
 namespace FramePFX.Editing.Factories;
 
-public class ClipFactory : ReflectiveObjectFactory<Clip> {
+public class ClipFactory : ReflectiveObjectFactory<Clip>
+{
     public static ClipFactory Instance { get; } = new ClipFactory();
 
-    private ClipFactory() {
+    private ClipFactory()
+    {
         // no need to register the base class, since you can't
         // create an instance of an abstract class
         // this.RegisterType("clip_vid", typeof(VideoClip));
@@ -40,7 +42,8 @@ public class ClipFactory : ReflectiveObjectFactory<Clip> {
         this.RegisterType("ac_dummytest", typeof(AudioClip));
     }
 
-    public Clip NewClip(string id) {
+    public Clip NewClip(string id)
+    {
         return base.NewInstance(id);
     }
 }

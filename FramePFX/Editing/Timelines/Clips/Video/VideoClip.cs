@@ -50,7 +50,8 @@ namespace FramePFX.Editing.Timelines.Clips.Video;
 /// port then presents the fully rendered frame to the user
 /// </para>
 /// </summary>
-public abstract class VideoClip : Clip {
+public abstract class VideoClip : Clip
+{
     public static readonly ParameterDouble OpacityParameter =
         Parameter.RegisterDouble(
             typeof(VideoClip),
@@ -101,13 +102,15 @@ public abstract class VideoClip : Clip {
     /// efficient render. Returns false if it should be handled automatically using an offscreen buffer
     /// </summary>
     public bool UsesCustomOpacityCalculation { get; protected set; }
-    
+
     /// <summary>
     /// Gets the transformation matrix for the transformation properties in this clip
     /// only, not including parent transformations. This is our local-to-world matrix
     /// </summary>
-    public SKMatrix TransformationMatrix {
-        get {
+    public SKMatrix TransformationMatrix
+    {
+        get
+        {
             if (this.isMatrixDirty)
                 this.GenerateMatrices();
             return this.myTransformationMatrix;
@@ -118,8 +121,10 @@ public abstract class VideoClip : Clip {
     /// Gets the absolute transformation matrix, which is a concatenation of all of our
     /// parents' matrices and our own. This is our local-to-world matrix
     /// </summary>
-    public SKMatrix AbsoluteTransformationMatrix {
-        get {
+    public SKMatrix AbsoluteTransformationMatrix
+    {
+        get
+        {
             if (this.isMatrixDirty)
                 this.GenerateMatrices();
             return this.myAbsoluteTransformationMatrix;
@@ -129,8 +134,10 @@ public abstract class VideoClip : Clip {
     /// <summary>
     /// Gets the inverse of our transformation matrix. This is our world-to-local matrix
     /// </summary>
-    public SKMatrix InverseTransformationMatrix {
-        get {
+    public SKMatrix InverseTransformationMatrix
+    {
+        get
+        {
             if (this.isMatrixDirty)
                 this.GenerateMatrices();
             return this.myInverseTransformationMatrix;
@@ -141,17 +148,20 @@ public abstract class VideoClip : Clip {
     /// Gets the inverse of our absolute transformation matrix. This can be used to, for example,
     /// map a location on the entire canvas to this clip. This is our world-to-local matrix
     /// </summary>
-    public SKMatrix AbsoluteInverseTransformationMatrix {
-        get {
+    public SKMatrix AbsoluteInverseTransformationMatrix
+    {
+        get
+        {
             if (this.isMatrixDirty)
                 this.GenerateMatrices();
             return this.myAbsoluteInverseTransformationMatrix;
         }
     }
-    
+
     public bool IsEffectivelyVisible => this.IsVisible && this.Opacity > 0.0;
 
-    protected VideoClip() {
+    protected VideoClip()
+    {
         this.isMatrixDirty = true;
         this.Opacity = OpacityParameter.Descriptor.DefaultValue;
         this.IsVisible = IsVisibleParameter.DefaultValue;
@@ -164,12 +174,15 @@ public abstract class VideoClip : Clip {
         this.UseAbsoluteRotationOrigin = UseAbsoluteRotationOriginParameter.Descriptor.DefaultValue;
     }
 
-    static VideoClip() {
-        SerialisationRegistry.Register<VideoClip>(0, (clip, data, ctx) => {
+    static VideoClip()
+    {
+        SerialisationRegistry.Register<VideoClip>(0, (clip, data, ctx) =>
+        {
             ctx.DeserialiseBaseType(data);
             clip.IsVisible = data.GetBool(nameof(clip.IsVisible));
             clip.isMatrixDirty = true;
-        }, (clip, data, ctx) => {
+        }, (clip, data, ctx) =>
+        {
             ctx.SerialiseBaseType(data);
             data.SetBool(nameof(clip.IsVisible), clip.IsVisible);
         });
@@ -177,25 +190,29 @@ public abstract class VideoClip : Clip {
         Parameter.AddMultipleHandlers(s => ((VideoClip) s.AutomationData.Owner).InvalidateTransformationMatrix(), MediaPositionParameter, MediaScaleParameter, MediaScaleOriginParameter, UseAbsoluteScaleOriginParameter, MediaRotationParameter, MediaRotationOriginParameter, UseAbsoluteRotationOriginParameter);
     }
 
-    private void GenerateMatrices() {
+    private void GenerateMatrices()
+    {
         this.myTransformationMatrix = MatrixUtils.CreateTransformationMatrix(this.MediaPosition, this.MediaScale, this.MediaRotation, this.MediaScaleOrigin, this.MediaRotationOrigin);
         this.myInverseTransformationMatrix = MatrixUtils.CreateInverseTransformationMatrix(this.MediaPosition, this.MediaScale, this.MediaRotation, this.MediaScaleOrigin, this.MediaRotationOrigin);
-        if (this.Track is VideoTrack vidTrack) {
+        if (this.Track is VideoTrack vidTrack)
+        {
             // If VideoTrack could easily access the composition clip that is currently in use,
             // These would use the absolute matrices. But since we can't get the clip,
             // VideoTrack only supports non-absolute matrices
             this.myAbsoluteTransformationMatrix = vidTrack.TransformationMatrix.PreConcat(this.myTransformationMatrix);
-            this.myAbsoluteInverseTransformationMatrix = this.myInverseTransformationMatrix.PreConcat(vidTrack.InverseTransformationMatrix);   
+            this.myAbsoluteInverseTransformationMatrix = this.myInverseTransformationMatrix.PreConcat(vidTrack.InverseTransformationMatrix);
         }
-        else {
+        else
+        {
             this.myAbsoluteTransformationMatrix = this.myTransformationMatrix;
             this.myAbsoluteInverseTransformationMatrix = this.myInverseTransformationMatrix;
         }
-        
+
         this.isMatrixDirty = false;
     }
 
-    protected override void OnTrackChanged(Track oldTrack, Track newTrack) {
+    protected override void OnTrackChanged(Track oldTrack, Track newTrack)
+    {
         base.OnTrackChanged(oldTrack, newTrack);
         this.InvalidateTransformationMatrix();
     }
@@ -211,8 +228,9 @@ public abstract class VideoClip : Clip {
     /// </summary>
     /// <returns>The size, if applicable, otherwise null</returns>
     public virtual Vector2? GetRenderSize() => null;
-    
-    protected virtual void OnRenderSizeChanged() {
+
+    protected virtual void OnRenderSizeChanged()
+    {
         this.InvalidateRender();
     }
 
@@ -221,11 +239,13 @@ public abstract class VideoClip : Clip {
     /// <summary>
     /// Propagates the render invalidated state to our project's <see cref="RenderManager"/>
     /// </summary>
-    public void InvalidateRender() {
+    public void InvalidateRender()
+    {
         this.Timeline?.RenderManager.InvalidateRender();
     }
 
-    protected override void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan) {
+    protected override void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan)
+    {
         base.OnFrameSpanChanged(oldSpan, newSpan);
         this.InvalidateRender();
     }
@@ -251,12 +271,14 @@ public abstract class VideoClip : Clip {
     /// </param>
     public abstract void RenderFrame(RenderContext rc, ref SKRect renderArea);
 
-    public void InvalidateTransformationMatrix() {
+    public void InvalidateTransformationMatrix()
+    {
         this.isMatrixDirty = true;
         this.InvalidateRender();
     }
 
-    internal static void InternalInvalidateTransformationMatrixFromTrack(VideoClip clip) {
+    internal static void InternalInvalidateTransformationMatrixFromTrack(VideoClip clip)
+    {
         clip.isMatrixDirty = true;
     }
 }

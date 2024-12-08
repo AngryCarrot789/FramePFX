@@ -26,11 +26,13 @@ namespace FramePFX.Avalonia.Bindings;
 /// <summary>
 /// A struct that generates an event handler (in the form of an action) from almost any event
 /// </summary>
-public readonly struct AutoEventHelper {
+public readonly struct AutoEventHelper
+{
     public readonly EventInfo EventInfo;
     public readonly Delegate HandlerDelegate;
 
-    public AutoEventHelper(string eventName, Type modelType, Action callback) {
+    public AutoEventHelper(string eventName, Type modelType, Action callback)
+    {
         Validate.NotNull(eventName);
 
         EventInfo? info = modelType.GetEvent(eventName, BindingFlags.Public | BindingFlags.Instance);
@@ -43,11 +45,13 @@ public readonly struct AutoEventHelper {
         this.HandlerDelegate = EventUtils.CreateDelegateToInvokeActionFromEvent(handlerType, callback);
     }
 
-    public void AddEventHandler(object model) {
+    public void AddEventHandler(object model)
+    {
         this.EventInfo.AddEventHandler(model, this.HandlerDelegate);
     }
 
-    public void RemoveEventHandler(object model) {
+    public void RemoveEventHandler(object model)
+    {
         this.EventInfo.RemoveEventHandler(model, this.HandlerDelegate);
     }
 }

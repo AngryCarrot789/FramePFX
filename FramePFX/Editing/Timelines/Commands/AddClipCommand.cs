@@ -32,18 +32,23 @@ using FramePFX.Utils;
 
 namespace FramePFX.Editing.Timelines.Commands;
 
-public abstract class AddClipCommand<T> : AsyncCommand where T : Clip {
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {
+public abstract class AddClipCommand<T> : AsyncCommand where T : Clip
+{
+    protected override Executability CanExecuteOverride(CommandEventArgs e)
+    {
         return DataKeys.TrackKey.GetExecutabilityForPresence(e.ContextData);
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
-        if (!DataKeys.TrackKey.TryGetContext(e.ContextData, out Track? track)) {
+    protected override async Task ExecuteAsync(CommandEventArgs e)
+    {
+        if (!DataKeys.TrackKey.TryGetContext(e.ContextData, out Track? track))
+        {
             return;
         }
 
         FrameSpan span = new FrameSpan(0, 300);
-        if (DataKeys.TrackContextMouseFrameKey.TryGetContext(e.ContextData, out long frame)) {
+        if (DataKeys.TrackContextMouseFrameKey.TryGetContext(e.ContextData, out long frame))
+        {
             span = span.WithBegin(frame);
         }
 
@@ -56,36 +61,45 @@ public abstract class AddClipCommand<T> : AsyncCommand where T : Clip {
         using ErrorList list = new ErrorList("Exception adding clip to track");
 
         bool success = false;
-        try {
+        try
+        {
             track.AddClip(clip);
             success = true;
         }
-        catch (Exception ex) {
+        catch (Exception ex)
+        {
             list.Add(ex);
         }
-        finally {
-            try {
+        finally
+        {
+            try
+            {
                 await this.OnPostAddToTrack(track, clip, success, e.ContextData);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 list.Add(ex);
             }
         }
     }
 
-    protected virtual bool IsAllowedInTrack(Track track, T clip) {
+    protected virtual bool IsAllowedInTrack(Track track, T clip)
+    {
         return track.IsClipTypeAccepted(clip.GetType());
     }
 
-    protected virtual T NewInstance() {
+    protected virtual T NewInstance()
+    {
         return (T) ClipFactory.Instance.NewClip(ClipFactory.Instance.GetId(typeof(T)));
     }
 
-    protected virtual Task OnPreAddToTrack(Track track, T clip, IContextData ctx) {
+    protected virtual Task OnPreAddToTrack(Track track, T clip, IContextData ctx)
+    {
         return Task.CompletedTask;
     }
 
-    protected virtual Task OnPostAddToTrack(Track track, T clip, bool success, IContextData ctx) {
+    protected virtual Task OnPostAddToTrack(Track track, T clip, bool success, IContextData ctx)
+    {
         return Task.CompletedTask;
     }
 }
@@ -94,12 +108,17 @@ public class AddTextClipCommand : AddClipCommand<TextVideoClip>;
 
 public class AddTimecodeClipCommand : AddClipCommand<TimecodeClip>;
 
-public class AddVideoClipShapeCommand : AddClipCommand<VideoClipShape> {
-    protected override async Task OnPostAddToTrack(Track track, VideoClipShape clip, bool success, IContextData ctx) {
-        if (DataKeys.ResourceManagerUIKey.TryGetContext(ctx, out IResourceManagerElement? manager)) {
+public class AddVideoClipShapeCommand : AddClipCommand<VideoClipShape>
+{
+    protected override async Task OnPostAddToTrack(Track track, VideoClipShape clip, bool success, IContextData ctx)
+    {
+        if (DataKeys.ResourceManagerUIKey.TryGetContext(ctx, out IResourceManagerElement? manager))
+        {
             ISelectionManager<BaseResource> selection = manager.List.Selection;
-            if (selection.Count == 1 && selection.SelectedItems.First() is ResourceColour colour && colour.IsRegistered()) {
-                if (await IoC.MessageService.ShowMessage("Link resource", $"Link '{colour.DisplayName ?? "Selected Media Resource"}' to this clip?", MessageBoxButton.YesNo) == MessageBoxResult.Yes) {
+            if (selection.Count == 1 && selection.SelectedItems.First() is ResourceColour colour && colour.IsRegistered())
+            {
+                if (await IoC.MessageService.ShowMessage("Link resource", $"Link '{colour.DisplayName ?? "Selected Media Resource"}' to this clip?", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
                     clip.ColourKey.SetTargetResourceId(colour.UniqueId);
                 }
             }
@@ -107,12 +126,17 @@ public class AddVideoClipShapeCommand : AddClipCommand<VideoClipShape> {
     }
 }
 
-public class AddAVMediaClipCommand : AddClipCommand<AVMediaVideoClip> {
-    protected override async Task OnPostAddToTrack(Track track, AVMediaVideoClip clip, bool success, IContextData ctx) {
-        if (DataKeys.ResourceManagerUIKey.TryGetContext(ctx, out IResourceManagerElement? manager)) {
+public class AddAVMediaClipCommand : AddClipCommand<AVMediaVideoClip>
+{
+    protected override async Task OnPostAddToTrack(Track track, AVMediaVideoClip clip, bool success, IContextData ctx)
+    {
+        if (DataKeys.ResourceManagerUIKey.TryGetContext(ctx, out IResourceManagerElement? manager))
+        {
             ISelectionManager<BaseResource> selection = manager.List.Selection;
-            if (selection.Count == 1 && selection.SelectedItems.First() is ResourceAVMedia media && media.IsRegistered()) {
-                if (await IoC.MessageService.ShowMessage("Link resource", $"Link '{media.DisplayName ?? "Selected Media Resource"}' to this clip?", MessageBoxButton.YesNo) == MessageBoxResult.Yes) {
+            if (selection.Count == 1 && selection.SelectedItems.First() is ResourceAVMedia media && media.IsRegistered())
+            {
+                if (await IoC.MessageService.ShowMessage("Link resource", $"Link '{media.DisplayName ?? "Selected Media Resource"}' to this clip?", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                {
                     clip.ResourceAVMediaKey.SetTargetResourceId(media.UniqueId);
                 }
             }
@@ -120,30 +144,39 @@ public class AddAVMediaClipCommand : AddClipCommand<AVMediaVideoClip> {
     }
 }
 
-public class AddImageVideoClipCommand : AddClipCommand<ImageVideoClip> {
-    protected override async Task OnPreAddToTrack(Track track, ImageVideoClip clip, IContextData ctx) {
+public class AddImageVideoClipCommand : AddClipCommand<ImageVideoClip>
+{
+    protected override async Task OnPreAddToTrack(Track track, ImageVideoClip clip, IContextData ctx)
+    {
         ResourceManager? resMan;
-        if (!DataKeys.ResourceManagerUIKey.TryGetContext(ctx, out IResourceManagerElement? manager) || (resMan = manager.ResourceManager) == null) {
+        if (!DataKeys.ResourceManagerUIKey.TryGetContext(ctx, out IResourceManagerElement? manager) || (resMan = manager.ResourceManager) == null)
+        {
             return;
         }
 
-        if (MessageBoxResult.Yes == await IoC.MessageService.ShowMessage("Open image", "Do you want to open up an image file for this new clip?", MessageBoxButton.YesNo)) {
+        if (MessageBoxResult.Yes == await IoC.MessageService.ShowMessage("Open image", "Do you want to open up an image file for this new clip?", MessageBoxButton.YesNo))
+        {
             string? path = await IoC.FilePickService.OpenFile("Open an image file for this image?", Filters.CombinedImageTypesAndAll);
-            if (path != null) {
+            if (path != null)
+            {
                 ResourceImage resourceImage = new ResourceImage();
                 ResourceFolder targetFolder;
-                if (manager.List.CurrentFolderNode?.Resource is ResourceFolder folder) {
+                if (manager.List.CurrentFolderNode?.Resource is ResourceFolder folder)
+                {
                     (targetFolder = folder).AddItem(resourceImage);
                 }
-                else {
+                else
+                {
                     (targetFolder = resMan.RootContainer).AddItem(resourceImage);
                 }
 
                 resourceImage.FilePath = path;
-                if (await IoC.ResourceLoaderService.TryLoadResource(resourceImage)) {
+                if (await IoC.ResourceLoaderService.TryLoadResource(resourceImage))
+                {
                     clip.ResourceImageKey.SetTargetResourceId(resourceImage.UniqueId);
                 }
-                else {
+                else
+                {
                     targetFolder.RemoveItem(resourceImage);
                     resourceImage.Destroy();
                 }

@@ -33,10 +33,10 @@
                 <MergeResourceInclude Source="ControlStyles/ContextMenus.axaml"/>
                 <MergeResourceInclude Source="ControlStyles/Window.axaml"/>
             </ResourceDictionary.MergedDictionaries>
-            
+
             <Color x:Key="AColour.AutomationActiveColour.Static">OrangeRed</Color>
             <SolidColorBrush x:Key="ABrush.AutomationActiveColour.Static" Color="{StaticResource AColour.AutomationActiveColour.Static}"/>
-            
+
             <Color x:Key="AColour.TrackAutomationActiveColour.Static">Chocolate</Color>
             <SolidColorBrush x:Key="ABrush.TrackAutomationActiveColour.Static" Color="{StaticResource AColour.AutomationActiveColour.Static}"/>
 

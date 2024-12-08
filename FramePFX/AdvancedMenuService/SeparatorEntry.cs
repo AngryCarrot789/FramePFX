@@ -20,5 +20,4 @@
 namespace FramePFX.AdvancedMenuService;
 
 public sealed class SeparatorEntry : IContextObject {
-    
 }

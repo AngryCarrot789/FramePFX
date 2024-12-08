@@ -22,18 +22,22 @@ using FramePFX.Utils;
 
 namespace FramePFX.PropertyEditing.DataTransfer;
 
-public class DataParameterLongPropertyEditorSlot : DataParameterFormattableNumberPropertyEditorSlot {
+public class DataParameterLongPropertyEditorSlot : DataParameterFormattableNumberPropertyEditorSlot
+{
     private long value;
 
-    public long Value {
+    public long Value
+    {
         get => this.value;
-        set {
+        set
+        {
             long oldVal = this.value;
             this.value = value;
             bool useAddition = false; //this.IsMultiHandler; TODO: Fix with new NumberDragger
             long change = value - oldVal;
             DataParameterLong parameter = this.Parameter;
-            for (int i = 0, c = this.Handlers.Count; i < c; i++) {
+            for (int i = 0, c = this.Handlers.Count; i < c; i++)
+            {
                 ITransferableData obj = (ITransferableData) this.Handlers[i];
                 long newValue = parameter.Clamp(useAddition ? (parameter.GetValue(obj) + change) : value);
                 parameter.SetValue(obj, newValue);
@@ -47,17 +51,20 @@ public class DataParameterLongPropertyEditorSlot : DataParameterFormattableNumbe
 
     public DragStepProfile StepProfile { get; }
 
-    public DataParameterLongPropertyEditorSlot(DataParameterLong parameter, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName) {
+    public DataParameterLongPropertyEditorSlot(DataParameterLong parameter, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName)
+    {
         this.StepProfile = stepProfile;
     }
 
-    public DataParameterLongPropertyEditorSlot(DataParameterLong parameter, DataParameter<bool> isEditableParameter, bool invertIsEditable, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName) {
+    public DataParameterLongPropertyEditorSlot(DataParameterLong parameter, DataParameter<bool> isEditableParameter, bool invertIsEditable, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName)
+    {
         this.StepProfile = stepProfile;
         this.IsEditableDataParameter = isEditableParameter;
         this.InvertIsEditableForParameter = invertIsEditable;
     }
 
-    public override void QueryValueFromHandlers() {
+    public override void QueryValueFromHandlers()
+    {
         this.HasMultipleValues = !CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetValue((ITransferableData) x), out this.value);
         if (this.HasMultipleValues)
             this.value = Math.Abs(this.Parameter.Maximum - this.Parameter.Minimum) / 2;

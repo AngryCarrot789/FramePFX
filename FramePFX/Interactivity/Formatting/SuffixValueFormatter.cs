@@ -22,7 +22,8 @@ namespace FramePFX.Interactivity.Formatting;
 /// <summary>
 /// A value formatter that converts a unit value (0.0 to 1.0) into a percentage (0 to 100%) with an optional decimal precision
 /// </summary>
-public class SuffixValueFormatter : BaseSimpleValueFormatter {
+public class SuffixValueFormatter : BaseSimpleValueFormatter
+{
     public static SuffixValueFormatter StandardPixels { get; } = new SuffixValueFormatter("px");
     public static SuffixValueFormatter StandardDegrees { get; } = new SuffixValueFormatter("\u00b0");
     public static SuffixValueFormatter StandardMultiplier { get; } = new SuffixValueFormatter("x");
@@ -30,9 +31,11 @@ public class SuffixValueFormatter : BaseSimpleValueFormatter {
 
     private string? suffix;
 
-    public string? Suffix {
+    public string? Suffix
+    {
         get => this.suffix;
-        set {
+        set
+        {
             if (this.suffix == value)
                 return;
             this.suffix = value;
@@ -40,19 +43,23 @@ public class SuffixValueFormatter : BaseSimpleValueFormatter {
         }
     }
 
-    public SuffixValueFormatter(string? suffix = null, int nonEditingRoundedPlaces = 2, int editingRoundedPlaces = 6) {
+    public SuffixValueFormatter(string? suffix = null, int nonEditingRoundedPlaces = 2, int editingRoundedPlaces = 6)
+    {
         this.suffix = suffix;
         this.NonEditingRoundedPlaces = nonEditingRoundedPlaces;
         this.EditingRoundedPlaces = editingRoundedPlaces;
     }
 
-    public override string ToString(double value, bool isEditing) {
+    public override string ToString(double value, bool isEditing)
+    {
         return value.ToString(isEditing ? this.EditingRoundedPlacesFormat : this.NonEditingRoundedPlacesFormat) + (this.suffix ?? "");
     }
 
-    public override bool TryConvertToDouble(string format, out double value) {
+    public override bool TryConvertToDouble(string format, out double value)
+    {
         int parseLength = string.IsNullOrEmpty(this.suffix) ? format.Length : (format.Length - this.suffix.Length);
-        if (parseLength < 1) {
+        if (parseLength < 1)
+        {
             value = default;
             return false;
         }
@@ -60,7 +67,8 @@ public class SuffixValueFormatter : BaseSimpleValueFormatter {
         return double.TryParse(format.AsSpan(0, parseLength), out value);
     }
 
-    public static SuffixValueFormatter Parse(string input) {
+    public static SuffixValueFormatter Parse(string input)
+    {
         if (string.IsNullOrWhiteSpace(input))
             throw new ArgumentException("Input is null, empty or whitespaces only", nameof(input));
 

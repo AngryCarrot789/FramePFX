@@ -23,22 +23,26 @@ using Avalonia.Controls.Primitives;
 
 namespace FramePFX.Avalonia.Themes.Controls;
 
-public class WindowTitleBar : TemplatedControl {
+public class WindowTitleBar : TemplatedControl
+{
     public static readonly StyledProperty<WindowIcon?> IconProperty = Window.IconProperty.AddOwner<WindowTitleBar>();
     public static readonly StyledProperty<string?> TitleProperty = Window.TitleProperty.AddOwner<WindowTitleBar>();
     public static readonly StyledProperty<bool> IsMinimizedProperty = AvaloniaProperty.Register<WindowTitleBar, bool>("IsMinimized");
 
-    public WindowIcon? Icon {
+    public WindowIcon? Icon
+    {
         get => this.GetValue(IconProperty);
         set => this.SetValue(IconProperty, value);
     }
 
-    public string? Title {
+    public string? Title
+    {
         get => this.GetValue(TitleProperty);
         set => this.SetValue(TitleProperty, value);
     }
 
-    public bool IsMinimized {
+    public bool IsMinimized
+    {
         get => this.GetValue(IsMinimizedProperty);
         set => this.SetValue(IsMinimizedProperty, value);
     }

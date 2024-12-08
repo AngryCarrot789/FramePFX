@@ -26,7 +26,8 @@ namespace FramePFX.DataTransfer;
 /// A <see cref="DataParameter{T}"/> that manages a 64-bit double precision floating point
 /// number (aka, a double). This also has an optional minimum and maximum value range
 /// </summary>
-public sealed class DataParameterDouble : DataParameter<double>, IRangedParameter<double> {
+public sealed class DataParameterDouble : DataParameter<double>, IRangedParameter<double>
+{
     public double Minimum { get; }
     public double Maximum { get; }
     public bool HasExplicitRangeLimit { get; }
@@ -37,7 +38,8 @@ public sealed class DataParameterDouble : DataParameter<double>, IRangedParamete
     public DataParameterDouble(Type ownerType, string name, double defValue, ValueAccessor<double> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, name, defValue, double.MinValue, double.MaxValue, accessor, flags) {
     }
 
-    public DataParameterDouble(Type ownerType, string name, double defValue, double minValue, double maxValue, ValueAccessor<double> accessor, DataParameterFlags flags = DataParameterFlags.None) : base(ownerType, name, defValue, accessor, flags) {
+    public DataParameterDouble(Type ownerType, string name, double defValue, double minValue, double maxValue, ValueAccessor<double> accessor, DataParameterFlags flags = DataParameterFlags.None) : base(ownerType, name, defValue, accessor, flags)
+    {
         if (minValue > maxValue)
             throw new ArgumentException($"Minimum value exceeds the maximum value: {minValue} > {maxValue}", nameof(minValue));
         if (defValue < minValue || defValue > maxValue)
@@ -51,16 +53,20 @@ public sealed class DataParameterDouble : DataParameter<double>, IRangedParamete
 
     public bool IsValueOutOfRange(double value) => value < this.Minimum || value > this.Maximum;
 
-    public override void SetValue(ITransferableData owner, double value) {
-        if (this.HasExplicitRangeLimit) {
+    public override void SetValue(ITransferableData owner, double value)
+    {
+        if (this.HasExplicitRangeLimit)
+        {
             value = Maths.Clamp(value, this.Minimum, this.Maximum);
         }
 
         base.SetValue(owner, value);
     }
 
-    public override void SetObjectValue(ITransferableData owner, object? value) {
-        if (this.HasExplicitRangeLimit) {
+    public override void SetObjectValue(ITransferableData owner, object? value)
+    {
+        if (this.HasExplicitRangeLimit)
+        {
             double unboxed = (double) value;
             double clamped = Maths.Clamp(unboxed, this.Minimum, this.Maximum);
             if (!DoubleUtils.AreClose(unboxed, clamped))

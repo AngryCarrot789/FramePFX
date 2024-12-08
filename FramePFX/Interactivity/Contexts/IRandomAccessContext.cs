@@ -19,7 +19,8 @@
 
 namespace FramePFX.Interactivity.Contexts;
 
-public interface IRandomAccessContext : IContextData {
+public interface IRandomAccessContext : IContextData
+{
     /// <summary>
     /// Gets the number of context elements
     /// </summary>

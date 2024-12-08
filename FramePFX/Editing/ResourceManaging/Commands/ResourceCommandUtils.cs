@@ -24,74 +24,91 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editing.ResourceManaging.Commands;
 
-public static class ResourceCommandUtils {
+public static class ResourceCommandUtils
+{
     /// <summary>
     /// Gets either the non-selected contextual resource, or the only selected item in either the list or tree
     /// </summary>
     /// <param name="ctx"></param>
     /// <param name="resource"></param>
     /// <returns></returns>
-    public static bool GetSingleItem(IContextData ctx, [NotNullWhen(true)] out BaseResource? resource) {
+    public static bool GetSingleItem(IContextData ctx, [NotNullWhen(true)] out BaseResource? resource)
+    {
         int count;
         bool isSelected;
-        if (DataKeys.ResourceListUIKey.TryGetContext(ctx, out IResourceListElement? listElement)) {
-            if ((count = listElement.Selection.Count) == 0) {
+        if (DataKeys.ResourceListUIKey.TryGetContext(ctx, out IResourceListElement? listElement))
+        {
+            if ((count = listElement.Selection.Count) == 0)
+            {
                 return DataKeys.ResourceObjectKey.TryGetContext(ctx, out resource);
             }
 
-            if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out resource)) {
+            if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out resource))
+            {
                 return false;
             }
-            
+
             isSelected = listElement.Selection.IsSelected(resource);
         }
-        else if (DataKeys.ResourceTreeUIKey.TryGetContext(ctx, out IResourceTreeElement? treeElement)) {
-            if ((count = treeElement.Selection.Count) == 0) {
+        else if (DataKeys.ResourceTreeUIKey.TryGetContext(ctx, out IResourceTreeElement? treeElement))
+        {
+            if ((count = treeElement.Selection.Count) == 0)
+            {
                 return DataKeys.ResourceObjectKey.TryGetContext(ctx, out resource);
             }
 
-            if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out resource)) {
+            if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out resource))
+            {
                 return false;
             }
-            
+
             isSelected = treeElement.Selection.IsSelected(resource);
         }
-        else {
+        else
+        {
             return DataKeys.ResourceObjectKey.TryGetContext(ctx, out resource);
         }
-        
+
         return count == 1 ? isSelected : !isSelected;
     }
 
-    public static Executability GetExecutabilityForSingleItem(IContextData ctx) {
+    public static Executability GetExecutabilityForSingleItem(IContextData ctx)
+    {
         int count;
         bool isSelected;
-        if (DataKeys.ResourceListUIKey.TryGetContext(ctx, out IResourceListElement? listElement)) {
-            if ((count = listElement.Selection.Count) == 0) {
+        if (DataKeys.ResourceListUIKey.TryGetContext(ctx, out IResourceListElement? listElement))
+        {
+            if ((count = listElement.Selection.Count) == 0)
+            {
                 return DataKeys.ResourceObjectKey.GetExecutabilityForPresence(ctx);
             }
 
-            if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource? resource)) {
+            if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource? resource))
+            {
                 return Executability.Invalid;
             }
-            
+
             isSelected = listElement.Selection.IsSelected(resource);
         }
-        else if (DataKeys.ResourceTreeUIKey.TryGetContext(ctx, out IResourceTreeElement? treeElement)) {
-            if ((count = treeElement.Selection.Count) == 0) {
+        else if (DataKeys.ResourceTreeUIKey.TryGetContext(ctx, out IResourceTreeElement? treeElement))
+        {
+            if ((count = treeElement.Selection.Count) == 0)
+            {
                 return DataKeys.ResourceObjectKey.GetExecutabilityForPresence(ctx);
             }
 
-            if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource? resource)) {
+            if (!DataKeys.ResourceObjectKey.TryGetContext(ctx, out BaseResource? resource))
+            {
                 return Executability.Invalid;
             }
-            
+
             isSelected = treeElement.Selection.IsSelected(resource);
         }
-        else {
+        else
+        {
             return DataKeys.ResourceObjectKey.GetExecutabilityForPresence(ctx);
         }
-        
+
         return (count == 1 ? isSelected : !isSelected) ? Executability.Valid : Executability.ValidButCannotExecute;
     }
 }

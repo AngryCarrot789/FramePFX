@@ -24,32 +24,39 @@ using FramePFX.Editing.Timelines;
 
 namespace FramePFX.Avalonia.Editing.Timelines;
 
-public class TimelineScrollableContentGrid : Grid {
+public class TimelineScrollableContentGrid : Grid
+{
     public static readonly StyledProperty<Timeline?> TimelineProperty = AvaloniaProperty.Register<TimelineScrollableContentGrid, Timeline?>(nameof(Timeline));
 
-    public Timeline? Timeline {
+    public Timeline? Timeline
+    {
         get => this.GetValue(TimelineProperty);
         set => this.SetValue(TimelineProperty, value);
     }
 
     public TimelineControl? TimelineControl { get; set; }
 
-    public bool HandleBringIntoView {
+    public bool HandleBringIntoView
+    {
         get => HandleRequestBringIntoView.GetIsEnabled(this);
         set => HandleRequestBringIntoView.SetIsEnabled(this, value);
     }
 
-    static TimelineScrollableContentGrid() {
+    static TimelineScrollableContentGrid()
+    {
         TimelineProperty.Changed.AddClassHandler<TimelineScrollableContentGrid, Timeline?>((d, e) => d.OnTimelineChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }
 
-    public TimelineScrollableContentGrid() {
+    public TimelineScrollableContentGrid()
+    {
         this.HandleBringIntoView = true;
     }
 
-    protected override void OnPointerPressed(PointerPressedEventArgs e) {
+    protected override void OnPointerPressed(PointerPressedEventArgs e)
+    {
         base.OnPointerPressed(e);
-        if (!e.Handled && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed && this.TimelineControl != null) {
+        if (!e.Handled && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed && this.TimelineControl != null)
+        {
             Point point = e.GetPosition(this);
             // bool isClickSequence = point.Y > this.TimelineControl.TimelineRuler.ActualHeight;
             // this.TimelineControl.SetPlayHeadToMouseCursor(point.X, isClickSequence);
@@ -61,28 +68,34 @@ public class TimelineScrollableContentGrid : Grid {
         }
     }
 
-    private void OnTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline) {
-        if (oldTimeline != null) {
+    private void OnTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline)
+    {
+        if (oldTimeline != null)
+        {
             oldTimeline.PlayHeadChanged -= this.OnPlayHeadChanged;
         }
 
-        if (newTimeline != null) {
+        if (newTimeline != null)
+        {
             newTimeline.PlayHeadChanged += this.OnPlayHeadChanged;
         }
     }
 
-    private void OnPlayHeadChanged(Timeline timeline, long oldvalue, long newvalue) {
+    private void OnPlayHeadChanged(Timeline timeline, long oldvalue, long newvalue)
+    {
         this.InvalidateMeasure();
     }
 
-    protected override Size MeasureCore(Size availableSize) {
+    protected override Size MeasureCore(Size availableSize)
+    {
         Size size = base.MeasureCore(availableSize);
         if (this.TimelineControl != null && this.TimelineControl.Timeline == null)
             size = size.WithWidth(this.TimelineControl.Bounds.Width);
         return size;
     }
 
-    protected override Size ArrangeOverride(Size arrangeSize) {
+    protected override Size ArrangeOverride(Size arrangeSize)
+    {
         if (this.TimelineControl != null && this.TimelineControl.Timeline == null)
             arrangeSize = arrangeSize.WithWidth(this.TimelineControl.Bounds.Width);
         Size arrange = base.ArrangeOverride(arrangeSize);

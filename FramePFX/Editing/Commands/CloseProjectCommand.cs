@@ -24,25 +24,30 @@ using FramePFX.Tasks;
 
 namespace FramePFX.Editing.Commands;
 
-public class CloseProjectCommand : AsyncCommand {
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {
+public class CloseProjectCommand : AsyncCommand
+{
+    protected override Executability CanExecuteOverride(CommandEventArgs e)
+    {
         if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? editor))
             return Executability.Invalid;
         return editor.Project == null ? Executability.ValidButCannotExecute : Executability.Valid;
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
+    protected override async Task ExecuteAsync(CommandEventArgs e)
+    {
         if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? editor))
             return;
 
-        await TaskManager.Instance.RunTask(async () => {
+        await TaskManager.Instance.RunTask(async () =>
+        {
             IActivityProgress prog = TaskManager.Instance.CurrentTask.Progress;
             prog.Text = "Closing project...";
             await CloseProjectBGT(editor, prog);
         });
     }
 
-    public static async Task<bool> CloseProjectBGT(VideoEditor editor, IActivityProgress? progress, string msgTitle = "Project is open", string message = "A project is open. Do you want to save it?") {
+    public static async Task<bool> CloseProjectBGT(VideoEditor editor, IActivityProgress? progress, string msgTitle = "Project is open", string message = "A project is open. Do you want to save it?")
+    {
         Project? oldProject = editor.Project;
         if (oldProject == null)
             return true;
@@ -53,25 +58,31 @@ public class CloseProjectCommand : AsyncCommand {
         progress.Text = "Closing active project";
         progress.OnProgress(0.2);
         MessageBoxResult result = await await IoC.Dispatcher.InvokeAsync(() => IoC.MessageService.ShowMessage(msgTitle, message, MessageBoxButton.YesNoCancel));
-        switch (result) {
+        switch (result)
+        {
             case MessageBoxResult.Cancel: return false;
-            case MessageBoxResult.Yes: {
+            case MessageBoxResult.Yes:
+            {
                 bool? saveResult;
-                using (progress.PushCompletionRange(0.2, 0.5)) {
+                using (progress.PushCompletionRange(0.2, 0.5))
+                {
                     progress.Text = "Saving project...";
                     progress.OnProgress(0.5);
                     saveResult = await await IoC.Dispatcher.InvokeAsync(() => Project.SaveProject(editor.Project, progress));
                     progress.OnProgress(0.5);
                 }
 
-                using (progress.PushCompletionRange(0.5, 0.8)) {
-                    if (saveResult.HasValue) {
+                using (progress.PushCompletionRange(0.5, 0.8))
+                {
+                    if (saveResult.HasValue)
+                    {
                         progress.Text = "Closing project...";
                         progress.OnProgress(0.5);
                         await IoC.Dispatcher.InvokeAsync(editor.CloseProject);
                         progress.OnProgress(0.5);
                     }
-                    else {
+                    else
+                    {
                         progress.OnProgress(1.0);
                         return false;
                     }
@@ -79,8 +90,10 @@ public class CloseProjectCommand : AsyncCommand {
 
                 break;
             }
-            default: {
-                using (progress.PushCompletionRange(0.2, 0.8)) {
+            default:
+            {
+                using (progress.PushCompletionRange(0.2, 0.8))
+                {
                     progress.Text = "Closing project...";
                     progress.OnProgress(0.5);
                     await IoC.Dispatcher.InvokeAsync(editor.CloseProject);

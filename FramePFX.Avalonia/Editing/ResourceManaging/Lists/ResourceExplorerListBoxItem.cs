@@ -36,22 +36,26 @@ using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Lists;
 
-public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement {
+public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
+{
     public static readonly DirectProperty<ResourceExplorerListBoxItem, bool> IsResourceOnlineProperty = AvaloniaProperty.RegisterDirect<ResourceExplorerListBoxItem, bool>(nameof(IsResourceOnline), o => o.IsResourceOnline);
     public static readonly StyledProperty<bool> IsDroppableTargetOverProperty = AvaloniaProperty.Register<ResourceExplorerListBoxItem, bool>(nameof(IsDroppableTargetOver));
     public static readonly StyledProperty<string?> DisplayNameProperty = AvaloniaProperty.Register<ResourceExplorerListBoxItem, string?>(nameof(DisplayName));
 
-    public bool IsResourceOnline {
+    public bool IsResourceOnline
+    {
         get => this.isResourceOnline;
         private set => this.SetAndRaise(IsResourceOnlineProperty, ref this.isResourceOnline, value);
     }
 
-    public bool IsDroppableTargetOver {
+    public bool IsDroppableTargetOver
+    {
         get => this.GetValue(IsDroppableTargetOverProperty);
         set => this.SetValue(IsDroppableTargetOverProperty, value);
     }
 
-    public string? DisplayName {
+    public string? DisplayName
+    {
         get => this.GetValue(DisplayNameProperty);
         set => this.SetValue(DisplayNameProperty, value);
     }
@@ -74,7 +78,8 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
     private bool isDragDropping;
     private bool isProcessingAsyncDrop;
 
-    private enum DragState {
+    private enum DragState
+    {
         None = 0, // No drag drop has been started yet
         Standby = 1, // User left-clicked, so wait for enough move mvoement
         Active = 2, // User moved their mouse enough. DragDrop is running
@@ -90,27 +95,32 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
     public ResourceExplorerListBoxItem() {
     }
 
-    static ResourceExplorerListBoxItem() {
+    static ResourceExplorerListBoxItem()
+    {
         DragDrop.DragEnterEvent.AddClassHandler<ResourceExplorerListBoxItem>((o, e) => o.OnDragEnter(e));
         DragDrop.DragOverEvent.AddClassHandler<ResourceExplorerListBoxItem>((o, e) => o.OnDragOver(e));
         DragDrop.DragLeaveEvent.AddClassHandler<ResourceExplorerListBoxItem>((o, e) => o.OnDragLeave(e));
         DragDrop.DropEvent.AddClassHandler<ResourceExplorerListBoxItem>((o, e) => o.OnDrop(e));
     }
 
-    public void OnAddingToList(ResourceExplorerListBox explorerList, BaseResource resource) {
+    public void OnAddingToList(ResourceExplorerListBox explorerList, BaseResource resource)
+    {
         this.ResourceExplorerList = explorerList;
         this.Resource = resource;
         this.Content = explorerList.GetContentObject(resource);
         DragDrop.SetAllowDrop(this, resource is ResourceFolder);
     }
 
-    public void OnAddedToList() {
+    public void OnAddedToList()
+    {
         this.displayNameBinder.Attach(this, this.Resource!);
-        if (this.Resource is ResourceItem item) {
+        if (this.Resource is ResourceItem item)
+        {
             item.OnlineStateChanged += this.UpdateIsOnlineState;
             this.UpdateIsOnlineState(item);
         }
-        else {
+        else
+        {
             // Probably a folder so it's online
             this.IsResourceOnline = true;
         }
@@ -123,9 +133,11 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
         AdvancedContextMenu.SetContextRegistry(this, this.Resource is ResourceFolder ? BaseResource.ResourceFolderContextRegistry : BaseResource.ResourceItemContextRegistry);
     }
 
-    public void OnRemovingFromList() {
+    public void OnRemovingFromList()
+    {
         this.displayNameBinder.Detach();
-        if (this.Resource is ResourceItem item) {
+        if (this.Resource is ResourceItem item)
+        {
             item.OnlineStateChanged -= this.UpdateIsOnlineState;
         }
 
@@ -135,47 +147,61 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
         this.ResourceExplorerList!.ReleaseContentObject(this.Resource!, content);
     }
 
-    public void OnRemovedFromList() {
+    public void OnRemovedFromList()
+    {
         this.ResourceExplorerList = null;
         this.Resource = null;
         DataManager.ClearContextData(this);
         AdvancedContextMenu.SetContextRegistry(this, null);
     }
 
-    private void UpdateIsOnlineState(ResourceItem resource) {
+    private void UpdateIsOnlineState(ResourceItem resource)
+    {
         this.IsResourceOnline = resource.IsOnline;
     }
 
-    protected override void OnPointerPressed(PointerPressedEventArgs e) {
+    protected override void OnPointerPressed(PointerPressedEventArgs e)
+    {
         PointerPoint point = e.GetCurrentPoint(this);
-        if (point.Properties.PointerUpdateKind == PointerUpdateKind.LeftButtonPressed) {
-            if (e.ClickCount % 2 == 0 && e.KeyModifiers == KeyModifiers.None) {
-                if (this.Resource is ResourceFolder folder) {
-                    if (this.ResourceExplorerList != null) {
+        if (point.Properties.PointerUpdateKind == PointerUpdateKind.LeftButtonPressed)
+        {
+            if (e.ClickCount % 2 == 0 && e.KeyModifiers == KeyModifiers.None)
+            {
+                if (this.Resource is ResourceFolder folder)
+                {
+                    if (this.ResourceExplorerList != null)
+                    {
                         this.ResourceExplorerList.CurrentFolder = folder;
                     }
                 }
 
                 e.Handled = true;
             }
-            else if (CanBeginDragDrop(e.KeyModifiers)) {
-                if ((this.IsFocused || this.Focus()) && !this.isDragDropping) {
+            else if (CanBeginDragDrop(e.KeyModifiers))
+            {
+                if ((this.IsFocused || this.Focus()) && !this.isDragDropping)
+                {
                     this.dragBtnState = DragState.Standby;
                     e.Pointer.Capture(this);
                     this.originMousePoint = point.Position;
                     this.isDragActive = true;
-                    if (this.ResourceExplorerList != null && this.Resource != null) {
+                    if (this.ResourceExplorerList != null && this.Resource != null)
+                    {
                         this.wasSelectedOnPress = this.IsSelected;
                         bool isToggle = (e.KeyModifiers & KeyModifiers.Control) != 0;
-                        if (isToggle) {
-                            if (this.wasSelectedOnPress) {
+                        if (isToggle)
+                        {
+                            if (this.wasSelectedOnPress)
+                            {
                                 // do nothing; toggle selection in mouse release
                             }
-                            else {
+                            else
+                            {
                                 this.ResourceExplorerList.SelectionManager?.Select(this.Resource!);
                             }
                         }
-                        else if (this.ResourceExplorerList.SelectionManager.Count < 2 || !this.wasSelectedOnPress) {
+                        else if (this.ResourceExplorerList.SelectionManager.Count < 2 || !this.wasSelectedOnPress)
+                        {
                             // Set as only selection if 0 or 1 items selected, or we aren't selected
                             this.ResourceExplorerList.SelectionManager?.SetSelection(this.Resource!);
                         }
@@ -192,34 +218,43 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
 
     #region Drag Drop
 
-    public static bool CanBeginDragDrop(KeyModifiers modifiers) {
+    public static bool CanBeginDragDrop(KeyModifiers modifiers)
+    {
         return (modifiers & (KeyModifiers.Shift)) == 0;
     }
 
-    protected override void OnPointerReleased(PointerReleasedEventArgs e) {
+    protected override void OnPointerReleased(PointerReleasedEventArgs e)
+    {
         PointerPoint point = e.GetCurrentPoint(this);
-        if (point.Properties.PointerUpdateKind == PointerUpdateKind.LeftButtonReleased) {
-            if (this.isDragActive) {
+        if (point.Properties.PointerUpdateKind == PointerUpdateKind.LeftButtonReleased)
+        {
+            if (this.isDragActive)
+            {
                 DragState lastDragState = this.dragBtnState;
                 this.dragBtnState = DragState.None;
                 this.isDragActive = false;
-                if (ReferenceEquals(e.Pointer.Captured, this)) {
+                if (ReferenceEquals(e.Pointer.Captured, this))
+                {
                     e.Pointer.Capture(null);
                 }
 
-                if (this.ResourceExplorerList != null && this.Resource != null) {
+                if (this.ResourceExplorerList != null && this.Resource != null)
+                {
                     bool isToggle = (e.KeyModifiers & KeyModifiers.Control) != 0;
                     int selCount = this.ResourceExplorerList.SelectionManager.Count;
-                    if (selCount == 0) {
+                    if (selCount == 0)
+                    {
                         // very rare scenario, shouldn't really occur
                         this.ResourceExplorerList.SelectionManager.SetSelection(this.Resource);
                     }
-                    else if (isToggle && this.wasSelectedOnPress && lastDragState != DragState.Completed) {
+                    else if (isToggle && this.wasSelectedOnPress && lastDragState != DragState.Completed)
+                    {
                         // Check we want to toggle, check we were selected on click and we probably are still selected,
                         // and also check that the last drag wasn't completed/cancelled just because it feels more normal that way
                         this.ResourceExplorerList.SelectionManager.Unselect(this.Resource);
                     }
-                    else if (selCount > 1 && !isToggle && lastDragState != DragState.Completed) {
+                    else if (selCount > 1 && !isToggle && lastDragState != DragState.Completed)
+                    {
                         this.ResourceExplorerList.SelectionManager.SetSelection(this.Resource);
                     }
                 }
@@ -236,11 +271,14 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
         base.OnPointerReleased(e);
     }
 
-    protected override void OnPointerMoved(PointerEventArgs e) {
+    protected override void OnPointerMoved(PointerEventArgs e)
+    {
         base.OnPointerMoved(e);
         PointerPoint point = e.GetCurrentPoint(this);
-        if (!point.Properties.IsLeftButtonPressed) {
-            if (ReferenceEquals(e.Pointer.Captured, this)) {
+        if (!point.Properties.IsLeftButtonPressed)
+        {
+            if (ReferenceEquals(e.Pointer.Captured, this))
+            {
                 e.Pointer.Capture(null);
             }
 
@@ -249,28 +287,34 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
             return;
         }
 
-        if (this.dragBtnState != DragState.Standby) {
+        if (this.dragBtnState != DragState.Standby)
+        {
             return;
         }
 
-        if (!this.isDragActive || this.isDragDropping || this.ResourceExplorerList == null || this.Resource == null) {
+        if (!this.isDragActive || this.isDragDropping || this.ResourceExplorerList == null || this.Resource == null)
+        {
             return;
         }
 
-        if (!(this.Resource is BaseResource resource) || resource.Manager == null) {
+        if (!(this.Resource is BaseResource resource) || resource.Manager == null)
+        {
             return;
         }
 
         Point posA = point.Position;
         Point posB = this.originMousePoint;
         Point change = new Point(Math.Abs(posA.X - posB.X), Math.Abs(posA.X - posB.X));
-        if (change.X > 4 || change.Y > 4) {
+        if (change.X > 4 || change.Y > 4)
+        {
             List<BaseResource> selection = this.ResourceExplorerList.SelectionManager.SelectedItems.ToList();
-            if (selection.Count < 1 || !selection.Contains(this.Resource)) {
+            if (selection.Count < 1 || !selection.Contains(this.Resource))
+            {
                 this.IsSelected = true;
             }
 
-            try {
+            try
+            {
                 this.isDragDropping = true;
                 DataObject obj = new DataObject();
                 obj.Set(ResourceDropRegistry.DropTypeText, selection);
@@ -278,14 +322,17 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
                 this.dragBtnState = DragState.Active;
                 DragDrop.DoDragDrop(e, obj, DragDropEffects.Move | DragDropEffects.Copy | DragDropEffects.Link);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Debug.WriteLine("Exception while executing resource tree item drag drop: " + ex.GetToString());
             }
-            finally {
+            finally
+            {
                 this.dragBtnState = DragState.Completed;
                 this.isDragDropping = false;
 
-                if (this.hasCompletedDrop) {
+                if (this.hasCompletedDrop)
+                {
                     this.hasCompletedDrop = false;
                     this.IsSelected = false;
                 }
@@ -293,28 +340,35 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
         }
     }
 
-    private void OnDragEnter(DragEventArgs e) {
+    private void OnDragEnter(DragEventArgs e)
+    {
         this.OnDragOver(e);
     }
 
-    private void OnDragOver(DragEventArgs e) {
+    private void OnDragOver(DragEventArgs e)
+    {
         EnumDropType dropType = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
         ContextData ctx = new ContextData(DataManager.GetFullContextData(this));
 
-        if (!ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? droppedItems)) {
+        if (!ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? droppedItems))
+        {
             e.DragEffects = (DragDropEffects) ResourceDropRegistry.CanDropNativeTypeIntoListOrItem(this.ResourceExplorerList!, this, new DataObjectWrapper(e.Data), ctx, dropType);
         }
-        else {
-            if (this.Resource is ResourceFolder resAsFolder) {
+        else
+        {
+            if (this.Resource is ResourceFolder resAsFolder)
+            {
                 e.DragEffects = ResourceDropRegistry.CanDropResourceListIntoFolder(resAsFolder, droppedItems, dropType) ? (DragDropEffects) dropType : DragDropEffects.None;
             }
-            else {
+            else
+            {
                 e.DragEffects = DragDropEffects.Copy | DragDropEffects.Move;
             }
 
             // Ideally should never be null
             ResourceFolder? parent = this.Resource!.Parent;
-            if (parent == null || (!parent.IsRoot && droppedItems.Any(x => x is ResourceFolder && x.Parent != null && x.Parent.IsParentInHierarchy((ResourceFolder) x)))) {
+            if (parent == null || (!parent.IsRoot && droppedItems.Any(x => x is ResourceFolder && x.Parent != null && x.Parent.IsParentInHierarchy((ResourceFolder) x))))
+            {
                 e.DragEffects = DragDropEffects.None;
             }
         }
@@ -323,26 +377,33 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
         e.Handled = true;
     }
 
-    private void OnDragLeave(DragEventArgs e) {
-        if (!this.IsPointerOver) {
+    private void OnDragLeave(DragEventArgs e)
+    {
+        if (!this.IsPointerOver)
+        {
             this.IsDroppableTargetOver = false;
         }
     }
 
-    private async void OnDrop(DragEventArgs e) {
+    private async void OnDrop(DragEventArgs e)
+    {
         e.Handled = true;
-        if (this.isProcessingAsyncDrop || this.Resource == null) {
+        if (this.isProcessingAsyncDrop || this.Resource == null)
+        {
             return;
         }
 
-        try {
+        try
+        {
             EnumDropType dropType = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
             ContextData ctx = new ContextData(DataManager.GetFullContextData(this));
 
             this.isProcessingAsyncDrop = true;
             // Dropped non-resources into this node
-            if (!ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? droppedItems)) {
-                if (!await ResourceDropRegistry.OnDropNativeTypeIntoListOrItem(this.ResourceExplorerList!, this, new DataObjectWrapper(e.Data), ctx, dropType)) {
+            if (!ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? droppedItems))
+            {
+                if (!await ResourceDropRegistry.OnDropNativeTypeIntoListOrItem(this.ResourceExplorerList!, this, new DataObjectWrapper(e.Data), ctx, dropType))
+                {
                     await IoC.MessageService.ShowMessage("Unknown Data", "Unknown dropped item. Drop files here");
                 }
 
@@ -352,7 +413,8 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
             // First process final drop type, then check if the drop is allowed on this tree node
             // Then from the check drop result we determine if we can drop the list "into" or above/below
 
-            if (this.Resource is ResourceFolder resAsFolder) {
+            if (this.Resource is ResourceFolder resAsFolder)
+            {
                 e.DragEffects = ResourceDropRegistry.CanDropResourceListIntoFolder(resAsFolder, droppedItems, dropType) ? (DragDropEffects) dropType : DragDropEffects.None;
                 await ResourceDropRegistry.OnDropResourceListIntoListItem(this.ResourceExplorerList!, this, droppedItems, ctx, (EnumDropType) e.DragEffects);
             }
@@ -360,9 +422,10 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
 #if !DEBUG
         catch (Exception exception) {
             await FramePFX.IoC.MessageService.ShowMessage("Error", "An error occurred while processing list item drop", exception.ToString());
-        }  
+        }
 #endif
-        finally {
+        finally
+        {
             this.IsDroppableTargetOver = false;
             this.isProcessingAsyncDrop = false;
         }

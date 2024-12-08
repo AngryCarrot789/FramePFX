@@ -115,9 +115,9 @@
                         </Border>
                         <Grid Background="Transparent">
                             <c1:VideoEditorViewPortControl x:Name="PART_ViewPort"
-                                                          Background="Transparent"
-                                                          Focusable="True"
-                                                          av:UIInputManager.FocusPath="Application/EditorWindow/Canvas">
+                                                           Background="Transparent"
+                                                           Focusable="True"
+                                                           av:UIInputManager.FocusPath="Application/EditorWindow/Canvas">
                                 <c1:VideoEditorViewPortControl.Styles>
                                     <Style Selector="c1|VideoEditorViewPortControl[IsFocused=false]">
                                         <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>

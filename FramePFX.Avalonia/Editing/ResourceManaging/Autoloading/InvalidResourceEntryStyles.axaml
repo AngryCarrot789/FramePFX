@@ -10,7 +10,7 @@
                                    Foreground="{DynamicResource ABrush.AccentTone3.Background.Static}"/>
                         <TextBlock Text="File Path:" Padding="5"/>
                         <DockPanel>
-                            <Button x:Name="PART_Button" Content="Load" DockPanel.Dock="Right" Margin="5,0,0,0" Width="50"/>    
+                            <Button x:Name="PART_Button" Content="Load" DockPanel.Dock="Right" Margin="5,0,0,0" Width="50"/>
                             <TextBox x:Name="PART_TextBox"/>
                         </DockPanel>
                     </StackPanel>
@@ -28,7 +28,7 @@
                                    Foreground="{DynamicResource ABrush.AccentTone3.Background.Static}"/>
                         <TextBlock Text="File Path:" Padding="5"/>
                         <DockPanel>
-                            <Button x:Name="PART_Button" Content="Load" DockPanel.Dock="Right" Margin="5,0,0,0" Width="50"/>    
+                            <Button x:Name="PART_Button" Content="Load" DockPanel.Dock="Right" Margin="5,0,0,0" Width="50"/>
                             <TextBox x:Name="PART_TextBox"/>
                         </DockPanel>
                         <Separator Margin="0,5"/>

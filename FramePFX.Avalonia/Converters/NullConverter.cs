@@ -24,34 +24,41 @@ using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.Converters;
 
-public class NullConverter : IValueConverter {
+public class NullConverter : IValueConverter
+{
     public object NullValue { get; set; }
     public object NonNullValue { get; set; }
 
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
         return value == null ? this.NullValue : this.NonNullValue;
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
         throw new NotImplementedException();
     }
 }
 
-public class NullToBoolConverter : NullConverter {
+public class NullToBoolConverter : NullConverter
+{
     public static NullToBoolConverter NullToFalse { get; } = new NullToBoolConverter();
     public static NullToBoolConverter NullToTrue { get; } = new NullToBoolConverter() { NullValue = true, NonNullValue = false };
 
-    public new bool NullValue {
+    public new bool NullValue
+    {
         get => (bool) base.NullValue;
         set => base.NullValue = value.Box();
     }
 
-    public new bool NonNullValue {
+    public new bool NonNullValue
+    {
         get => (bool) base.NonNullValue;
         set => base.NonNullValue = value.Box();
     }
 
-    public NullToBoolConverter() {
+    public NullToBoolConverter()
+    {
         base.NullValue = BoolBox.False;
         base.NonNullValue = BoolBox.True;
     }

@@ -19,7 +19,8 @@
 
 namespace FramePFX.Utils.RDA;
 
-public abstract class RapidDispatchActionExBase {
+public abstract class RapidDispatchActionExBase
+{
     private const int S_NOT_SCHEDULED = 0;
     private const int S_RUNNING = 1;
     private const int S_SCHEDULED = 2;
@@ -51,7 +52,8 @@ public abstract class RapidDispatchActionExBase {
     /// <param name="callback">The callback action</param>
     /// <param name="priority">The dispatcher priority</param>
     /// <param name="debugId">A debugging ID</param>
-    protected RapidDispatchActionExBase(IDispatcher dispatcher, DispatchPriority priority, string debugId) {
+    protected RapidDispatchActionExBase(IDispatcher dispatcher, DispatchPriority priority, string debugId)
+    {
         this.dispatcher = dispatcher;
         this.DebugId = debugId;
         this.Priority = priority;
@@ -59,22 +61,28 @@ public abstract class RapidDispatchActionExBase {
         this.doExecuteCallback = this.DoExecuteAsync;
     }
 
-    private async void DoExecuteAsync() {
+    private async void DoExecuteAsync()
+    {
         Exception exception = null;
 
         int state;
         lock (this.stateLock)
             this.myState = S_RUNNING;
 
-        try {
+        try
+        {
             await this.ExecuteCore();
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             exception = e;
         }
-        finally {
-            lock (this.stateLock) {
-                switch (state = this.myState) {
+        finally
+        {
+            lock (this.stateLock)
+            {
+                switch (state = this.myState)
+                {
                     // standard case; we were running, now we are not
                     case S_RUNNING: this.myState = S_NOT_SCHEDULED; break;
 
@@ -100,9 +108,12 @@ public abstract class RapidDispatchActionExBase {
 
     private void ScheduleExecute() => this.dispatcher.InvokeAsync(this.doExecuteCallback, this.Priority);
 
-    protected bool BeginInvoke() {
-        lock (this.stateLock) {
-            switch (this.myState) {
+    protected bool BeginInvoke()
+    {
+        lock (this.stateLock)
+        {
+            switch (this.myState)
+            {
                 // Default state of the object: not scheduled
                 case S_NOT_SCHEDULED: this.myState = S_SCHEDULED; break;
 
@@ -135,9 +146,12 @@ public abstract class RapidDispatchActionExBase {
     /// similar 're-scheduling' behaviour manually
     /// </para>
     /// </summary>
-    public void ClearRescheduledState() {
-        lock (this.stateLock) {
-            if (this.myState == S_RESCHEDULED) {
+    public void ClearRescheduledState()
+    {
+        lock (this.stateLock)
+        {
+            if (this.myState == S_RESCHEDULED)
+            {
                 this.myState = S_RUNNING;
             }
         }
@@ -153,10 +167,12 @@ public abstract class RapidDispatchActionExBase {
 /// example, the execute callback updates a progress bar when asynchronous progress is made on another thread
 /// </para>
 /// </summary>
-public sealed class RapidDispatchActionEx : RapidDispatchActionExBase, IDispatchAction {
+public sealed class RapidDispatchActionEx : RapidDispatchActionExBase, IDispatchAction
+{
     private readonly Func<Task> callback;
 
-    private RapidDispatchActionEx(IDispatcher dispatcher, Func<Task> callback, DispatchPriority priority, string debugId) : base(dispatcher, priority, debugId) {
+    private RapidDispatchActionEx(IDispatcher dispatcher, Func<Task> callback, DispatchPriority priority, string debugId) : base(dispatcher, priority, debugId)
+    {
         this.callback = callback;
     }
 
@@ -172,11 +188,13 @@ public sealed class RapidDispatchActionEx : RapidDispatchActionExBase, IDispatch
     /// <summary>
     /// Creates an instance of <see cref="RapidDispatchActionEx"/> that runs a non-async callback
     /// </summary>
-    public static RapidDispatchActionEx ForSync(Action callback, IDispatcher dispatcher, DispatchPriority priority, string debugId = null) {
+    public static RapidDispatchActionEx ForSync(Action callback, IDispatcher dispatcher, DispatchPriority priority, string debugId = null)
+    {
         Validate.NotNull(callback, nameof(callback));
         Validate.NotNull(dispatcher, nameof(dispatcher));
 
-        return new RapidDispatchActionEx(dispatcher, () => {
+        return new RapidDispatchActionEx(dispatcher, () =>
+        {
             callback();
             return Task.CompletedTask;
         }, priority, debugId);
@@ -194,7 +212,8 @@ public sealed class RapidDispatchActionEx : RapidDispatchActionExBase, IDispatch
     /// <summary>
     /// Creates an instance of <see cref="RapidDispatchActionEx"/> that runs an async callback
     /// </summary>
-    public static RapidDispatchActionEx ForAsync(Func<Task> callback, IDispatcher dispatcher, DispatchPriority priority, string debugId = null) {
+    public static RapidDispatchActionEx ForAsync(Func<Task> callback, IDispatcher dispatcher, DispatchPriority priority, string debugId = null)
+    {
         Validate.NotNull(callback, nameof(callback));
         Validate.NotNull(dispatcher, nameof(dispatcher));
 
@@ -214,28 +233,33 @@ public sealed class RapidDispatchActionEx : RapidDispatchActionExBase, IDispatch
 /// A parameterised version of <see cref="RapidDispatchActionEx"/> that passes a custom parameter to the callback method
 /// </summary>
 /// <typeparam name="T">The type of parameter</typeparam>
-public sealed class RapidDispatchActionEx<T> : RapidDispatchActionExBase, IDispatchAction<T> {
+public sealed class RapidDispatchActionEx<T> : RapidDispatchActionExBase, IDispatchAction<T>
+{
     private readonly Func<T, Task> callback;
     private readonly object paramLock;
     private T parameter;
 
-    private RapidDispatchActionEx(IDispatcher dispatcher, Func<T, Task> callback, DispatchPriority priority, string debugId) : base(dispatcher, priority, debugId) {
+    private RapidDispatchActionEx(IDispatcher dispatcher, Func<T, Task> callback, DispatchPriority priority, string debugId) : base(dispatcher, priority, debugId)
+    {
         this.callback = callback;
         this.paramLock = new object();
     }
 
-    public static RapidDispatchActionEx<T> ForSync(Action<T> callback, DispatchPriority priority, string debugId = null) {
+    public static RapidDispatchActionEx<T> ForSync(Action<T> callback, DispatchPriority priority, string debugId = null)
+    {
         return ForSync(callback, RZApplication.Instance.Dispatcher, priority, debugId);
     }
 
     /// <summary>
     /// Creates an instance of <see cref="RapidDispatchActionEx"/> that runs a non-async callback
     /// </summary>
-    public static RapidDispatchActionEx<T> ForSync(Action<T> callback, IDispatcher dispatcher, DispatchPriority priority, string debugId = null) {
+    public static RapidDispatchActionEx<T> ForSync(Action<T> callback, IDispatcher dispatcher, DispatchPriority priority, string debugId = null)
+    {
         Validate.NotNull(callback, nameof(callback));
         Validate.NotNull(dispatcher, nameof(dispatcher));
 
-        return new RapidDispatchActionEx<T>(dispatcher, (t) => {
+        return new RapidDispatchActionEx<T>(dispatcher, (t) =>
+        {
             callback(t);
             return Task.CompletedTask;
         }, priority, debugId);
@@ -244,23 +268,27 @@ public sealed class RapidDispatchActionEx<T> : RapidDispatchActionExBase, IDispa
     /// <summary>
     /// Creates an instance of <see cref="RapidDispatchActionEx"/> that runs an async callback
     /// </summary>
-    public static RapidDispatchActionEx<T> ForAsync(Func<T, Task> callback, DispatchPriority priority, string debugId = null) {
+    public static RapidDispatchActionEx<T> ForAsync(Func<T, Task> callback, DispatchPriority priority, string debugId = null)
+    {
         return ForAsync(callback, RZApplication.Instance.Dispatcher, priority, debugId);
     }
 
     /// <summary>
     /// Creates an instance of <see cref="RapidDispatchActionEx"/> that runs an async callback
     /// </summary>
-    public static RapidDispatchActionEx<T> ForAsync(Func<T, Task> callback, IDispatcher dispatcher, DispatchPriority priority, string debugId = null) {
+    public static RapidDispatchActionEx<T> ForAsync(Func<T, Task> callback, IDispatcher dispatcher, DispatchPriority priority, string debugId = null)
+    {
         Validate.NotNull(callback, nameof(callback));
         Validate.NotNull(dispatcher, nameof(dispatcher));
 
         return new RapidDispatchActionEx<T>(dispatcher, callback, priority, debugId);
     }
 
-    protected override Task ExecuteCore() {
+    protected override Task ExecuteCore()
+    {
         T param;
-        lock (this.paramLock) {
+        lock (this.paramLock)
+        {
             param = this.parameter;
             this.parameter = default;
         }
@@ -268,7 +296,8 @@ public sealed class RapidDispatchActionEx<T> : RapidDispatchActionExBase, IDispa
         return this.callback(param);
     }
 
-    public void InvokeAsync(T param) {
+    public void InvokeAsync(T param)
+    {
         lock (this.paramLock)
             this.parameter = param;
 

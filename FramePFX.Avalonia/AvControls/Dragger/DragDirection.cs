@@ -19,7 +19,8 @@
 
 namespace FramePFX.Avalonia.AvControls.Dragger;
 
-public enum DragDirection {
+public enum DragDirection
+{
     /// <summary>
     /// Decrement the value when dragged left, increment when dragged right (default)
     /// </summary>
@@ -29,7 +30,7 @@ public enum DragDirection {
     /// Increment the value when dragged left, decrement when dragged right
     /// </summary>
     LeftIncrRightDecr,
-    
+
     /// <summary>
     /// Decrement the value when dragged up, and increment when dragged down (default)
     /// </summary>

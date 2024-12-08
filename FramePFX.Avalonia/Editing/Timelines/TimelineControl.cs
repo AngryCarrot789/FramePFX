@@ -48,7 +48,8 @@ namespace FramePFX.Avalonia.Editing.Timelines;
 /// <summary>
 /// The main control for a timeline in a video editor
 /// </summary>
-public class TimelineControl : TemplatedControl, ITimelineElement {
+public class TimelineControl : TemplatedControl, ITimelineElement
+{
     public static readonly StyledProperty<Timeline?> TimelineProperty = AvaloniaProperty.Register<TimelineControl, Timeline?>(nameof(Timeline));
     public static readonly DirectProperty<TimelineControl, double> ZoomProperty = AvaloniaProperty.RegisterDirect<TimelineControl, double>(nameof(Zoom), o => o.Zoom, unsetValue: 1.0);
     public static readonly StyledProperty<bool> IsTrackAutomationVisibleProperty = AvaloniaProperty.Register<TimelineControl, bool>(nameof(IsTrackAutomationVisible), true);
@@ -58,17 +59,20 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
 
     public IModelControlDictionary<Track, ITrackElement> TrackElementMap => this.trackElementMap;
 
-    public Timeline? Timeline {
+    public Timeline? Timeline
+    {
         get => this.GetValue(TimelineProperty);
         set => this.SetValue(TimelineProperty, value);
     }
 
-    public bool IsTrackAutomationVisible {
+    public bool IsTrackAutomationVisible
+    {
         get => this.GetValue(IsTrackAutomationVisibleProperty);
         set => this.SetValue(IsTrackAutomationVisibleProperty, value);
     }
 
-    public bool IsClipAutomationVisible {
+    public bool IsClipAutomationVisible
+    {
         get => this.GetValue(IsClipAutomationVisibleProperty);
         set => this.SetValue(IsClipAutomationVisibleProperty, value);
     }
@@ -102,9 +106,9 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
     public GrippedPlayHeadControl? PlayHeadInRuler { get; private set; }
 
     public TimelineRuler? TimelineRuler { get; private set; }
-    
+
     public TimelineLoopControl? LoopControl { get; private set; }
-    
+
     public PlayheadPositionTextControl PlayHeadInfoTextControl { get; private set; }
 
     /// <summary>
@@ -134,7 +138,8 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
     internal readonly List<TrackElementImpl> myTrackElements;
 
     // A fake track element implementation, because there's technically 2 controls for a single track (the surface and real track)
-    internal class TrackElementImpl : ITrackElement {
+    internal class TrackElementImpl : ITrackElement
+    {
         public readonly TimelineControl Timeline;
         public readonly TrackControlSurfaceItem SurfaceControl;
         public readonly TimelineTrackControl TrackControl;
@@ -145,19 +150,24 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
 
         public Track Track { get; }
 
-        public bool IsSelected {
+        public bool IsSelected
+        {
             get => this.Timeline.TrackSelectionManager!.IsSelected(this);
-            set {
-                if (value) {
+            set
+            {
+                if (value)
+                {
                     this.Timeline.TrackSelectionManager!.Select(this);
                 }
-                else {
+                else
+                {
                     this.Timeline.TrackSelectionManager!.Unselect(this);
                 }
             }
         }
 
-        public TrackElementImpl(TimelineControl timeline, TrackControlSurfaceItem surfaceControl, TimelineTrackControl trackControl, Track track, bool isLoadingTimeline) {
+        public TrackElementImpl(TimelineControl timeline, TrackControlSurfaceItem surfaceControl, TimelineTrackControl trackControl, Track track, bool isLoadingTimeline)
+        {
             this.Timeline = timeline;
             this.SurfaceControl = surfaceControl;
             this.TrackControl = trackControl;
@@ -172,16 +182,19 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
             // Don't invalidate if the TimelineControl is adding the clips for the TimelineChanged event,
             // because there's no point since the timeline invalidates its own context after all tracks
             // are loaded which 
-            if (!isLoadingTimeline) {
+            if (!isLoadingTimeline)
+            {
                 DataManager.InvalidateInheritedContext(this.TrackControl);
             }
         }
 
-        public IClipElement GetClipFromModel(Clip clip) {
+        public IClipElement GetClipFromModel(Clip clip)
+        {
             return this.TrackControl.ClipStoragePanel!.ItemMap.GetControl(clip);
         }
 
-        public void Destroy() {
+        public void Destroy()
+        {
             this.SurfaceControl.contextData.Set(DataKeys.TrackKey, null).Set(DataKeys.TrackUIKey, null);
             DataManager.InvalidateInheritedContext(this.SurfaceControl);
 
@@ -189,7 +202,8 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
             DataManager.InvalidateInheritedContext(this.TrackControl);
         }
 
-        public void UpdateSelected(bool state) {
+        public void UpdateSelected(bool state)
+        {
             TimelineTrackControl.InternalSetIsSelected(this.TrackControl, state);
             TrackControlSurfaceItem.InternalSetIsSelected(this.SurfaceControl, state);
         }
@@ -198,14 +212,16 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
     public event UITimelineModelChanged? TimelineModelChanging;
     public event UITimelineModelChanged? TimelineModelChanged;
 
-    public TimelineControl() {
+    public TimelineControl()
+    {
         this.Tracks = new TrackListImpl(this);
         this.myTrackElements = new List<TrackElementImpl>();
         this.trackElementMap = new ModelControlDictionary<Track, ITrackElement>();
         DataManager.SetContextData(this, this.contextData = new ContextData().Set(DataKeys.TimelineUIKey, this));
     }
 
-    static TimelineControl() {
+    static TimelineControl()
+    {
         TimelineProperty.Changed.AddClassHandler<TimelineControl, Timeline?>((d, e) => d.OnTimelineChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
         IsTrackAutomationVisibleProperty.Changed.AddClassHandler<TimelineControl, bool>((d, e) => d.OnIsTrackAutomationVisibilityChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
         IsClipAutomationVisibleProperty.Changed.AddClassHandler<TimelineControl, bool>((d, e) => d.OnIsClipAutomationVisibilityChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
@@ -213,7 +229,8 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
 
     ITrackElement ITimelineElement.GetTrackFromModel(Track track) => this.trackElementMap.GetControl(track);
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
         base.OnApplyTemplate(e);
         this.SurfaceTrackList = e.NameScope.GetTemplateChild<TrackControlSurfaceList>("PART_TrackListBox");
         this.TrackStorage = e.NameScope.GetTemplateChild<TrackStoragePanel>("PART_Timeline");
@@ -250,7 +267,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         this.TimestampBorder.PointerPressed += (s, ex) => this.MovePlayHeadToMouseCursor(ex.GetPosition(this.TimelineContentGrid).X, true, false, ex);
 
         this.UpdateIsTrackAutomationVisible(true, true);
-        
+
         // Has to be a 'preview' handler in WPF speak, since we need to prevent the base scroll viewer scrolling down even if CTRL is held
         this.TimelineScrollViewer.AddHandler(PointerWheelChangedEvent, this.TimelineScrollViewerOnPointerWheelChanged, RoutingStrategies.Tunnel);
         this.TimestampBorder.AddHandler(PointerWheelChangedEvent, this.TimeStampBoardScrollViewerOnPointerWheelChanged, RoutingStrategies.Tunnel);
@@ -260,71 +277,89 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
 
     private void OnIsClipAutomationVisibilityChanged(bool oldValue, bool newValue) => this.UpdateIsTrackAutomationVisible(null, newValue);
 
-    private void UpdateIsTrackAutomationVisible(bool? trackVisible, bool? clipVisible) {
-        if (!clipVisible.HasValue && !trackVisible.HasValue) {
+    private void UpdateIsTrackAutomationVisible(bool? trackVisible, bool? clipVisible)
+    {
+        if (!clipVisible.HasValue && !trackVisible.HasValue)
+        {
             return;
         }
-        
-        foreach (TimelineTrackControl track in this.TrackStorage!.GetTracks()) {
+
+        foreach (TimelineTrackControl track in this.TrackStorage!.GetTracks())
+        {
             UpdateTrackAutomationVisible(track, trackVisible, clipVisible, true);
         }
     }
 
-    public static void UpdateTrackAutomationVisible(TimelineTrackControl track, bool? trackVisible, bool? clipVisible, bool clipsToo) {
+    public static void UpdateTrackAutomationVisible(TimelineTrackControl track, bool? trackVisible, bool? clipVisible, bool clipsToo)
+    {
         if (trackVisible.HasValue)
             track.OnIsAutomationVisibilityChanged(trackVisible.Value);
-        
-        if (clipsToo) {
-            foreach (TimelineClipControl clip in track.ClipStoragePanel!.GetClips()) {
+
+        if (clipsToo)
+        {
+            foreach (TimelineClipControl clip in track.ClipStoragePanel!.GetClips())
+            {
                 UpdateClipAutomationVisible(clip, trackVisible, clipVisible);
             }
         }
     }
-    
-    public static void UpdateClipAutomationVisible(TimelineClipControl clip, bool? trackVisible, bool? clipVisible) {
+
+    public static void UpdateClipAutomationVisible(TimelineClipControl clip, bool? trackVisible, bool? clipVisible)
+    {
         if (clipVisible.HasValue)
             clip.OnIsAutomationVisibilityChanged(clipVisible.Value);
         if (trackVisible.HasValue)
             clip.Opacity = trackVisible.Value ? 0.8 : 1.0;
     }
 
-    private void OnSelectionChanged(ILightSelectionManager<IClipElement> sender) {
+    private void OnSelectionChanged(ILightSelectionManager<IClipElement> sender)
+    {
         VideoEditorPropertyEditorHelper.UpdateClipSelectionAsync(this);
     }
 
-    private void OnTrackChanged(ILightSelectionManager<ITrackElement> sender) {
+    private void OnTrackChanged(ILightSelectionManager<ITrackElement> sender)
+    {
         VideoEditorPropertyEditorHelper.UpdateTrackSelectionAsync(this);
     }
 
-    public void SetPlayHeadToMouseCursor(double x) {
+    public void SetPlayHeadToMouseCursor(double x)
+    {
         this.MovePlayHeadToMouseCursor(x, false);
     }
 
-    private void MovePlayHeadToMouseCursor(double x, bool enableThumbDragging = true, bool updateStopHead = true, PointerEventArgs? ex = null) {
-        if (!(this.Timeline is Timeline timeline)) {
+    private void MovePlayHeadToMouseCursor(double x, bool enableThumbDragging = true, bool updateStopHead = true, PointerEventArgs? ex = null)
+    {
+        if (!(this.Timeline is Timeline timeline))
+        {
             return;
         }
 
-        if (x >= 0d) {
+        if (x >= 0d)
+        {
             long frameX = TimelineUtils.PixelToFrame(x, this.Zoom, true);
-            if (frameX != timeline.PlayHeadPosition && frameX >= 0 && frameX < timeline.MaxDuration) {
+            if (frameX != timeline.PlayHeadPosition && frameX >= 0 && frameX < timeline.MaxDuration)
+            {
                 timeline.PlayHeadPosition = frameX;
-                if (updateStopHead) {
+                if (updateStopHead)
+                {
                     timeline.StopHeadPosition = frameX;
                 }
             }
 
-            if (enableThumbDragging && ex != null) {
+            if (enableThumbDragging && ex != null)
+            {
                 this.PlayHeadInRuler!.EnableDragging(ex);
                 // this.PlayHeadInSequence!.EnableDragging(ex);
             }
         }
     }
 
-    public void SetZoom(double newZoom, ZoomType type, SKPointD mousePoint) {
+    public void SetZoom(double newZoom, ZoomType type, SKPointD mousePoint)
+    {
         double oldZoom = this.Zoom;
         newZoom = Maths.Clamp(newZoom, 0.1, 200);
-        if (Maths.Equals(oldZoom, newZoom)) {
+        if (Maths.Equals(oldZoom, newZoom))
+        {
             return;
         }
 
@@ -332,31 +367,38 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         this.OnTimelineZoomed(oldZoom, newZoom, type, mousePoint);
     }
 
-    private void OnTimelineContentGridPointerPressed(object? sender, PointerPressedEventArgs e) {
+    private void OnTimelineContentGridPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
         // User clicked the dark grey area, so update the play head position
-        if (e.GetCurrentPoint(this).Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonPressed) {
+        if (e.GetCurrentPoint(this).Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonPressed)
+        {
             return;
         }
 
-        if ((e.Source == sender || e.Source is ClipStoragePanel) && this.Timeline is Timeline timeline) {
+        if ((e.Source == sender || e.Source is ClipStoragePanel) && this.Timeline is Timeline timeline)
+        {
             timeline.PlayHeadPosition = timeline.StopHeadPosition = TimelineClipControl.GetCursorFrame(this.TrackStorage!, e);
             this.ClipSelectionManager?.Clear();
         }
     }
 
-    private void OnTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline) {
-        if (ReferenceEquals(oldTimeline, newTimeline)) {
+    private void OnTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline)
+    {
+        if (ReferenceEquals(oldTimeline, newTimeline))
+        {
             // Should never reach this, but just for clarity, might as well check it
             return;
         }
 
         this.TimelineModelChanging?.Invoke(this, oldTimeline, newTimeline);
-        if (oldTimeline != null) {
+        if (oldTimeline != null)
+        {
             oldTimeline.MaxDurationChanged -= this.OnTimelineMaxDurationChanged;
             oldTimeline.TrackAdded -= this.OnTrackAddedEvent;
             oldTimeline.TrackRemoved -= this.OnTrackRemovedEvent;
             oldTimeline.TrackMoved -= this.OnTimelineTrackIndexMoved;
-            for (int i = this.myTrackElements.Count - 1; i >= 0; i--) {
+            for (int i = this.myTrackElements.Count - 1; i >= 0; i--)
+            {
                 this.RemoveTrackElement(i);
             }
 
@@ -370,13 +412,15 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         this.PlayHeadInfoTextControl.Timeline = newTimeline;
         this.TimelineRuler!.TimelineControl = this;
         this.LoopControl!.TimelineControl = this;
-        if (newTimeline != null) {
+        if (newTimeline != null)
+        {
             newTimeline.MaxDurationChanged += this.OnTimelineMaxDurationChanged;
             newTimeline.TrackAdded += this.OnTrackAddedEvent;
             newTimeline.TrackRemoved += this.OnTrackRemovedEvent;
             newTimeline.TrackMoved += this.OnTimelineTrackIndexMoved;
             int i = 0;
-            foreach (Track track in newTimeline.Tracks) {
+            foreach (Track track in newTimeline.Tracks)
+            {
                 this.InsertTrackElement(track, i++, true);
             }
 
@@ -389,7 +433,8 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         this.TimelineModelChanged?.Invoke(this, oldTimeline, newTimeline);
     }
 
-    private void InsertTrackElement(Track track, int i, bool isLoadingTimeline = false) {
+    private void InsertTrackElement(Track track, int i, bool isLoadingTimeline = false)
+    {
         // We have to assume this method is invoked after the surface and real timeline are added
         TrackControlSurfaceItem surfaceItem = this.SurfaceTrackList!.GetTrack(i);
         TimelineTrackControl trackControl = this.TrackStorage!.GetTrack(i);
@@ -397,86 +442,104 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         UpdateTrackAutomationVisible(trackControl, this.IsTrackAutomationVisible, this.IsClipAutomationVisible, true);
     }
 
-    private void RemoveTrackElement(int i) {
+    private void RemoveTrackElement(int i)
+    {
         TrackElementImpl element = this.myTrackElements[i];
         this.TrackSelectionManager!.Unselect(element);
         element.Destroy();
         this.myTrackElements.RemoveAt(i);
     }
 
-    private void MoveTrackElement(int oldIndex, int newIndex) {
+    private void MoveTrackElement(int oldIndex, int newIndex)
+    {
         TrackElementImpl item = this.myTrackElements[oldIndex];
         this.myTrackElements.RemoveAt(oldIndex);
         this.myTrackElements.Insert(newIndex, item);
     }
 
-    private void OnTimelineTrackIndexMoved(Timeline timeline, Track track, int oldindex, int newindex) {
+    private void OnTimelineTrackIndexMoved(Timeline timeline, Track track, int oldindex, int newindex)
+    {
         this.MoveTrackElement(oldindex, newindex);
 
         TrackControlSurfaceItem movedTrack = this.SurfaceTrackList!.GetTrack(newindex);
         movedTrack.initiatedDragPointer?.Capture(movedTrack);
     }
 
-    private void OnTrackAddedEvent(Timeline timeline, Track track, int index) {
+    private void OnTrackAddedEvent(Timeline timeline, Track track, int index)
+    {
         this.InsertTrackElement(track, index);
         this.TrackSelectionManager?.UpdateSelection(this.myTrackElements[index]);
         this.OnTrackAddedOrRemoved(timeline, index);
     }
 
-    private void OnTrackRemovedEvent(Timeline timeline, Track track, int index) {
+    private void OnTrackRemovedEvent(Timeline timeline, Track track, int index)
+    {
         this.OnTrackAddedOrRemoved(timeline, index);
         this.RemoveTrackElement(index);
     }
 
-    private void OnTrackAddedOrRemoved(Timeline timeline, int index) {
+    private void OnTrackAddedOrRemoved(Timeline timeline, int index)
+    {
         this.UpdateBorderThicknesses(timeline);
     }
 
-    private void UpdateBorderThicknesses(Timeline timeline) {
+    private void UpdateBorderThicknesses(Timeline timeline)
+    {
         // Just a cool feature to hide the border when there's no tracks, not necessary but meh
         Thickness thickness = new Thickness(0, 0, 0, (timeline.Tracks.Count < 1) ? 0 : 1);
         this.TimelineBorder!.BorderThickness = thickness;
         this.SurfaceTrackList!.BorderThickness = thickness;
     }
 
-    private void OnTimelineMaxDurationChanged(Timeline timeline) {
+    private void OnTimelineMaxDurationChanged(Timeline timeline)
+    {
         this.UpdateContentGridSize();
     }
 
-    private void UpdateContentGridSize() {
-        if (this.TimelineContentGrid != null) {
+    private void UpdateContentGridSize()
+    {
+        if (this.TimelineContentGrid != null)
+        {
             if (this.Timeline is Timeline timeline)
                 this.TimelineContentGrid.Width = TimelineUtils.FrameToPixel(timeline.MaxDuration, this.Zoom);
             else
                 this.TimelineContentGrid.ClearValue(Layoutable.WidthProperty);
         }
     }
-    
-    private void TimelineScrollViewerOnPointerWheelChanged(object? sender, PointerWheelEventArgs e) {
+
+    private void TimelineScrollViewerOnPointerWheelChanged(object? sender, PointerWheelEventArgs e)
+    {
         this.OnMouseWheel((ScrollViewer) sender!, e);
     }
-    
-    private void TimeStampBoardScrollViewerOnPointerWheelChanged(object? sender, PointerWheelEventArgs e) {
+
+    private void TimeStampBoardScrollViewerOnPointerWheelChanged(object? sender, PointerWheelEventArgs e)
+    {
         this.OnMouseWheel(this.TimelineScrollViewer!, e);
     }
-    
-    private void OnMouseWheel(ScrollViewer scroller, PointerWheelEventArgs e) {
+
+    private void OnMouseWheel(ScrollViewer scroller, PointerWheelEventArgs e)
+    {
         KeyModifiers mods = e.KeyModifiers;
-        if ((mods & KeyModifiers.Alt) != 0) {
-            if (VisualTreeUtils.TryGetParent(e.Source as AvaloniaObject, out TimelineTrackControl? track)) {
+        if ((mods & KeyModifiers.Alt) != 0)
+        {
+            if (VisualTreeUtils.TryGetParent(e.Source as AvaloniaObject, out TimelineTrackControl? track))
+            {
                 track.Track!.Height = Maths.Clamp(track.Track.Height + (e.Delta.Y / 120d * 8), TimelineClipControl.HeaderSize, 200d);
             }
 
             e.Handled = true;
         }
-        else if ((mods & KeyModifiers.Control) != 0) {
+        else if ((mods & KeyModifiers.Control) != 0)
+        {
             e.Handled = true;
             bool shift = (mods & KeyModifiers.Shift) != 0;
             double multiplier = (shift ? 0.2 : 0.4);
-            if (e.Delta.Y > 0) {
+            if (e.Delta.Y > 0)
+            {
                 multiplier = 1d + multiplier;
             }
-            else {
+            else
+            {
                 multiplier = 1d - multiplier;
             }
 
@@ -496,14 +559,19 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
             scroller.Offset = new Vector(new_offset, scroller.Offset.Y);
             e.Handled = true;
         }
-        else if ((mods & KeyModifiers.Shift) != 0) {
-            if (e.Delta.Y < 0 || e.Delta.X < 0) {
-                for (int i = 0; i < 6; i++) {
+        else if ((mods & KeyModifiers.Shift) != 0)
+        {
+            if (e.Delta.Y < 0 || e.Delta.X < 0)
+            {
+                for (int i = 0; i < 6; i++)
+                {
                     scroller.LineRight();
                 }
             }
-            else {
-                for (int i = 0; i < 6; i++) {
+            else
+            {
+                for (int i = 0; i < 6; i++)
+                {
                     scroller.LineLeft();
                 }
             }
@@ -512,50 +580,62 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         }
     }
 
-    private void OnTimelineZoomed(double oldZoom, double newZoom, ZoomType zoomType, SKPointD mPos) {
+    private void OnTimelineZoomed(double oldZoom, double newZoom, ZoomType zoomType, SKPointD mPos)
+    {
         this.TrackStorage?.OnZoomChanged(newZoom);
         this.TimelineRuler?.OnZoomChanged(newZoom);
         this.UpdateContentGridSize();
     }
 
-    public void MakeSingleSelection(IClipElement clipToSelect) {
+    public void MakeSingleSelection(IClipElement clipToSelect)
+    {
         this.ClipSelectionManager!.SetSelection(clipToSelect);
     }
 
-    public void MakeFrameRangeSelection(FrameSpan span, int trackSrcIdx = -1, int trackEndIndex = -1) {
+    public void MakeFrameRangeSelection(FrameSpan span, int trackSrcIdx = -1, int trackEndIndex = -1)
+    {
         Timeline? timeline = this.Timeline;
-        if (timeline == null) {
+        if (timeline == null)
+        {
             return;
         }
 
         this.ClipSelectionManager!.Clear();
         List<(int, List<Clip>)> items = new List<(int, List<Clip>)>();
-        if (trackSrcIdx == -1 || trackEndIndex == -1) {
+        if (trackSrcIdx == -1 || trackEndIndex == -1)
+        {
             int i = 0;
-            foreach (Track track in timeline.Tracks) {
+            foreach (Track track in timeline.Tracks)
+            {
                 items.Add((i++, track.GetClipsInSpan(span)));
             }
         }
-        else {
-            for (int i = trackSrcIdx; i < trackEndIndex; i++) {
+        else
+        {
+            for (int i = trackSrcIdx; i < trackEndIndex; i++)
+            {
                 items.Add((i, timeline.Tracks[i].GetClipsInSpan(span)));
             }
         }
 
-        foreach ((int trackIndex, List<Clip> clips) tuple in items) {
+        foreach ((int trackIndex, List<Clip> clips) tuple in items)
+        {
             TimelineTrackControl track = (TimelineTrackControl) this.TrackStorage!.Children[tuple.trackIndex];
             track.SelectionManager!.SetSelection(tuple.clips.Select(x => track.ClipStoragePanel!.ItemMap.GetControl(x)));
         }
     }
-    
-    private class TrackListImpl : IReadOnlyList<ITrackElement> {
+
+    private class TrackListImpl : IReadOnlyList<ITrackElement>
+    {
         public readonly TimelineControl control;
 
-        public TrackListImpl(TimelineControl control) {
+        public TrackListImpl(TimelineControl control)
+        {
             this.control = control;
         }
 
-        public IEnumerator<ITrackElement> GetEnumerator() {
+        public IEnumerator<ITrackElement> GetEnumerator()
+        {
             return this.control.myTrackElements.GetEnumerator();
         }
 

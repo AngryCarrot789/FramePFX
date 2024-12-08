@@ -21,12 +21,14 @@ using FramePFX.Utils;
 
 namespace FramePFX.AdvancedMenuService;
 
-public class BaseContextEntry : IContextEntry {
+public class BaseContextEntry : IContextEntry
+{
     public string DisplayName { get; }
-    
+
     public string? Description { get; }
 
-    public BaseContextEntry(string displayName, string? description) {
+    public BaseContextEntry(string displayName, string? description)
+    {
         Validate.NotNullOrWhiteSpaces(displayName);
         this.DisplayName = displayName;
         this.Description = description;

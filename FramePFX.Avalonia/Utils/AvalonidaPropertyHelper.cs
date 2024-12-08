@@ -24,15 +24,18 @@ using Avalonia.Data;
 
 namespace FramePFX.Avalonia.Utils;
 
-public static class AvalonidaPropertyHelper {
+public static class AvalonidaPropertyHelper
+{
     public static T WithChangedHandler<T, TOwner, TValue>(this T property, Action<TOwner, AvaloniaPropertyChangedEventArgs<TValue>> handler)
         where TOwner : AvaloniaObject
-        where T : AvaloniaProperty<TValue> {
+        where T : AvaloniaProperty<TValue>
+    {
         property.Changed.AddClassHandler(handler);
         return property;
     }
 
-    public static bool TryGetOldValue<TValue>(this AvaloniaPropertyChangedEventArgs<TValue> args, [NotNullWhen(true)] out TValue value) {
+    public static bool TryGetOldValue<TValue>(this AvaloniaPropertyChangedEventArgs<TValue> args, [NotNullWhen(true)] out TValue value)
+    {
         Optional<TValue> oldVal = (args).OldValue;
         if (oldVal.HasValue && (value = oldVal.Value) != null)
             return true;
@@ -41,7 +44,8 @@ public static class AvalonidaPropertyHelper {
         return false;
     }
 
-    public static bool TryGetNewValue<TValue>(this AvaloniaPropertyChangedEventArgs<TValue> args, [NotNullWhen(true)] out TValue value) {
+    public static bool TryGetNewValue<TValue>(this AvaloniaPropertyChangedEventArgs<TValue> args, [NotNullWhen(true)] out TValue value)
+    {
         BindingValue<TValue> newVal = (args).NewValue;
         if (newVal.HasValue && (value = newVal.Value) != null)
             return true;

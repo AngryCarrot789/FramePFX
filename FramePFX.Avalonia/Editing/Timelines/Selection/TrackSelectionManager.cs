@@ -28,7 +28,8 @@ namespace FramePFX.Avalonia.Editing.Timelines.Selection;
 /// <summary>
 /// A selection manager which manages the selected tracks in a timeline
 /// </summary>
-public class TrackSelectionManager : ISelectionManager<ITrackElement>, ILightSelectionManager<ITrackElement> {
+public class TrackSelectionManager : ISelectionManager<ITrackElement>, ILightSelectionManager<ITrackElement>
+{
     private readonly TimelineControl timeline;
     private readonly List<TimelineControl.TrackElementImpl> refToAllTrackElements;
     private readonly HashSet<TimelineControl.TrackElementImpl> selectedElements;
@@ -42,12 +43,14 @@ public class TrackSelectionManager : ISelectionManager<ITrackElement>, ILightSel
 
     private LightSelectionChangedEventHandler<ITrackElement>? LightSelectionChanged;
 
-    event LightSelectionChangedEventHandler<ITrackElement>? ILightSelectionManager<ITrackElement>.SelectionChanged {
+    event LightSelectionChangedEventHandler<ITrackElement>? ILightSelectionManager<ITrackElement>.SelectionChanged
+    {
         add => this.LightSelectionChanged += value;
         remove => this.LightSelectionChanged -= value;
     }
 
-    internal TrackSelectionManager(TimelineControl timeline, List<TimelineControl.TrackElementImpl> refToAllTrackElements) {
+    internal TrackSelectionManager(TimelineControl timeline, List<TimelineControl.TrackElementImpl> refToAllTrackElements)
+    {
         this.timeline = timeline;
         this.refToAllTrackElements = refToAllTrackElements;
         this.SelectedItems = this.selectedElements = new HashSet<TimelineControl.TrackElementImpl>();
@@ -56,12 +59,14 @@ public class TrackSelectionManager : ISelectionManager<ITrackElement>, ILightSel
     /// <summary>
     /// Updates the UI selection states based on what is selected in this selection manager
     /// </summary>
-    public void UpdateSelection() {
-        foreach (TimelineControl.TrackElementImpl track in this.selectedElements) {
+    public void UpdateSelection()
+    {
+        foreach (TimelineControl.TrackElementImpl track in this.selectedElements)
+        {
             this.SetSelectionState(track, true);
         }
     }
-    
+
     /// <summary>
     /// Updates the UI selection state based on if the track is currently selected in this selection manager
     /// </summary>
@@ -74,7 +79,8 @@ public class TrackSelectionManager : ISelectionManager<ITrackElement>, ILightSel
     /// </summary>
     /// <param name="track">The track</param>
     /// <param name="isSelected">The new selection state. Null to figure out automatically</param>
-    private void SetSelectionState(TimelineControl.TrackElementImpl track, bool? isSelected) {
+    private void SetSelectionState(TimelineControl.TrackElementImpl track, bool? isSelected)
+    {
         track.UpdateSelected(isSelected ?? this.selectedElements.Contains(track));
     }
 
@@ -110,23 +116,28 @@ public class TrackSelectionManager : ISelectionManager<ITrackElement>, ILightSel
     //     this.LightSelectionChanged?.Invoke(this);
     // }
 
-    public bool IsSelected(ITrackElement item) {
+    public bool IsSelected(ITrackElement item)
+    {
         return this.selectedElements.Contains((TimelineControl.TrackElementImpl) item);
     }
 
-    public void SetSelection(ITrackElement item) {
+    public void SetSelection(ITrackElement item)
+    {
         this.Clear();
         this.Select(item);
     }
 
-    public void SetSelection(IEnumerable<ITrackElement> items) {
+    public void SetSelection(IEnumerable<ITrackElement> items)
+    {
         this.Clear();
         this.Select(items);
     }
-    
-    private bool SelectInternal(ITrackElement item) {
+
+    private bool SelectInternal(ITrackElement item)
+    {
         TimelineControl.TrackElementImpl theTrack = (TimelineControl.TrackElementImpl) item;
-        if (this.selectedElements.Add(theTrack)) {
+        if (this.selectedElements.Add(theTrack))
+        {
             this.SetSelectionState(theTrack, true);
             return true;
         }
@@ -134,9 +145,11 @@ public class TrackSelectionManager : ISelectionManager<ITrackElement>, ILightSel
         return false;
     }
 
-    private bool UnselectInternal(ITrackElement item) {
+    private bool UnselectInternal(ITrackElement item)
+    {
         TimelineControl.TrackElementImpl theTrack = (TimelineControl.TrackElementImpl) item;
-        if (this.selectedElements.Remove(theTrack)) {
+        if (this.selectedElements.Remove(theTrack))
+        {
             this.SetSelectionState(theTrack, false);
             return true;
         }
@@ -144,70 +157,86 @@ public class TrackSelectionManager : ISelectionManager<ITrackElement>, ILightSel
         return false;
     }
 
-    public void Select(ITrackElement item) {
-        if (this.SelectInternal(item)) {
+    public void Select(ITrackElement item)
+    {
+        if (this.SelectInternal(item))
+        {
             this.OnSelectionChanged(null, new SingletonList<ITrackElement>(item));
         }
     }
 
-    public void Select(IEnumerable<ITrackElement> items) {
+    public void Select(IEnumerable<ITrackElement> items)
+    {
         List<ITrackElement> list = new List<ITrackElement>();
-        foreach (ITrackElement item in items.ToList()) {
+        foreach (ITrackElement item in items.ToList())
+        {
             if (this.SelectInternal(item))
                 list.Add(item);
         }
-        
+
         this.OnSelectionChanged(null, list.AsReadOnly());
     }
 
-    public void Unselect(ITrackElement item) {
+    public void Unselect(ITrackElement item)
+    {
         if (this.UnselectInternal(item))
             this.OnSelectionChanged(new SingletonList<ITrackElement>(item), null);
     }
 
-    public void Unselect(IEnumerable<ITrackElement> items) {
+    public void Unselect(IEnumerable<ITrackElement> items)
+    {
         List<ITrackElement> list = new List<ITrackElement>();
-        foreach (ITrackElement element in items.ToList()) {
+        foreach (ITrackElement element in items.ToList())
+        {
             if (this.UnselectInternal(element))
                 list.Add(element);
         }
-        
+
         this.OnSelectionChanged(list.AsReadOnly(), null);
     }
 
-    public void ToggleSelected(ITrackElement item) {
+    public void ToggleSelected(ITrackElement item)
+    {
         TimelineControl.TrackElementImpl theTrack = (TimelineControl.TrackElementImpl) item;
-        if (this.selectedElements.Add(theTrack)) { // Added successfully, so say it's selected
+        if (this.selectedElements.Add(theTrack))
+        { // Added successfully, so say it's selected
             this.SetSelectionState(theTrack, true);
             this.OnSelectionChanged(null, new SingletonList<ITrackElement>(theTrack));
         }
-        else { // Already added, so deselect
+        else
+        { // Already added, so deselect
             this.selectedElements.Remove(theTrack);
             this.SetSelectionState(theTrack, false);
             this.OnSelectionChanged(new SingletonList<ITrackElement>(theTrack), null);
         }
     }
 
-    public void Clear() {
+    public void Clear()
+    {
         this.selectedElements.Clear();
         this.OnSelectionCleared();
     }
-    
-    public void SelectAll() {
+
+    public void SelectAll()
+    {
         this.Select(this.refToAllTrackElements);
     }
-    
-    private void OnSelectionChanged(IList<ITrackElement>? oldList, IList<ITrackElement>? newList) {
-        if (ReferenceEquals(oldList, newList) || (oldList?.Count < 1 && newList?.Count < 1)) {
+
+    private void OnSelectionChanged(IList<ITrackElement>? oldList, IList<ITrackElement>? newList)
+    {
+        if (ReferenceEquals(oldList, newList) || (oldList?.Count < 1 && newList?.Count < 1))
+        {
             return;
         }
-        
+
         this.SelectionChanged?.Invoke(this, oldList, newList);
         this.LightSelectionChanged?.Invoke(this);
     }
-    
-    private void OnSelectionCleared() {
-        foreach (TimelineControl.TrackElementImpl track in this.timeline.myTrackElements) {
+
+    private void OnSelectionCleared()
+    {
+        foreach (TimelineControl.TrackElementImpl track in this.timeline.myTrackElements)
+        {
             this.SetSelectionState(track, false);
         }
 

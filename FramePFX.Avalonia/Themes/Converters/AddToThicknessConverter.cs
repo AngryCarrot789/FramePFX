@@ -24,12 +24,14 @@ using Avalonia.Data.Converters;
 
 namespace FramePFX.Avalonia.Themes.Converters;
 
-public class AddToThicknessConverter : IValueConverter {
+public class AddToThicknessConverter : IValueConverter
+{
     public Thickness Thickness { get; set; }
 
     public double Uniform { get; set; }
 
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
         if (value == AvaloniaProperty.UnsetValue)
             return value;
 
@@ -43,7 +45,8 @@ public class AddToThicknessConverter : IValueConverter {
         throw new Exception("Invalid value: " + value);
     }
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
         throw new NotImplementedException();
     }
 }

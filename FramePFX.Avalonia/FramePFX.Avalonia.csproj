@@ -7,11 +7,12 @@
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <Platforms>AnyCPU;x64</Platforms>
+        <Platforms>x64</Platforms>
         <ApplicationIcon>FramePFX-256.ico</ApplicationIcon>
         <Company>FramePFX</Company>
         <Product>FramePFX</Product>
         <AssemblyName>FramePFX-DesktopUI</AssemblyName>
+        <Configurations>Debug;Release</Configurations>
     </PropertyGroup>
 
     <ItemGroup>
@@ -81,10 +82,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <AvaloniaResource Include="FramePFX-256.ico"/>
+        <AvaloniaResource Include="FramePFX-256.ico"/>
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-      <Exec Command="xcopy /y &quot;$(SolutionDir)libraries\ffmpeg\bin\*.dll&quot; $(TargetDir)&#xA;        "/>
+        <Exec Command="xcopy /y &quot;$(SolutionDir)libraries\ffmpeg\bin\*.dll&quot; $(TargetDir)&#xA;        "/>
     </Target>
 </Project>

@@ -21,13 +21,15 @@ using System.Collections.ObjectModel;
 
 namespace FramePFX.Utils.Collections.Observable;
 
-public class ReadOnlyObservableList<T> : ReadOnlyCollection<T>, IObservableList<T> {
+public class ReadOnlyObservableList<T> : ReadOnlyCollection<T>, IObservableList<T>
+{
     public event ObservableListMultipleItemsEventHandler<T>? ItemsAdded;
     public event ObservableListMultipleItemsEventHandler<T>? ItemsRemoved;
     public event ObservableListReplaceEventHandler<T>? ItemReplaced;
     public event ObservableListSingleItemEventHandler<T>? ItemMoved;
 
-    public ReadOnlyObservableList(IObservableList<T> list) : base(list) {
+    public ReadOnlyObservableList(IObservableList<T> list) : base(list)
+    {
         list.ItemsAdded += this.ListOnItemsAdded;
         list.ItemsRemoved += this.ListOnItemsRemoved;
         list.ItemReplaced += this.ListOnItemReplaced;

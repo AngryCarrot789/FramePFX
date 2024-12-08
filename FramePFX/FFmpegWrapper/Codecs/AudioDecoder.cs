@@ -14,7 +14,8 @@ using FFmpeg.AutoGen;
 
 namespace FramePFX.FFmpegWrapper.Codecs;
 
-public unsafe class AudioDecoder : MediaDecoder {
+public unsafe class AudioDecoder : MediaDecoder
+{
     public AVSampleFormat SampleFormat => this.ctx->sample_fmt;
     public int SampleRate => this.ctx->sample_rate;
     public int NumChannels => this.ctx->ch_layout.nb_channels;

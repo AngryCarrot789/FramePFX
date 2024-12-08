@@ -37,7 +37,8 @@ using SkiaSharp;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Lists;
 
-public abstract class ResourceExplorerListItemContent : TemplatedControl {
+public abstract class ResourceExplorerListItemContent : TemplatedControl
+{
     public static readonly ModelControlRegistry<BaseResource, ResourceExplorerListItemContent> Registry;
 
     public ResourceExplorerListBoxItem? ListItem { get; private set; }
@@ -47,7 +48,8 @@ public abstract class ResourceExplorerListItemContent : TemplatedControl {
     protected ResourceExplorerListItemContent() {
     }
 
-    static ResourceExplorerListItemContent() {
+    static ResourceExplorerListItemContent()
+    {
         Registry = new ModelControlRegistry<BaseResource, ResourceExplorerListItemContent>();
         Registry.RegisterType<ResourceFolder>(() => new RELICFolder());
         Registry.RegisterType<ResourceColour>(() => new RELICColour());
@@ -56,12 +58,14 @@ public abstract class ResourceExplorerListItemContent : TemplatedControl {
         Registry.RegisterType<ResourceComposition>(() => new RELICComposition());
     }
 
-    public void Connect(ResourceExplorerListBoxItem item) {
+    public void Connect(ResourceExplorerListBoxItem item)
+    {
         this.ListItem = item ?? throw new ArgumentNullException(nameof(item));
         this.OnConnected();
     }
 
-    public void Disconnect() {
+    public void Disconnect()
+    {
         this.OnDisconnected();
         this.ListItem = null;
     }
@@ -73,12 +77,14 @@ public abstract class ResourceExplorerListItemContent : TemplatedControl {
     }
 }
 
-public class RELICFolder : ResourceExplorerListItemContent {
+public class RELICFolder : ResourceExplorerListItemContent
+{
     public static readonly DirectProperty<RELICFolder, int> ItemCountProperty = AvaloniaProperty.RegisterDirect<RELICFolder, int>(nameof(ItemCount), o => o.ItemCount);
-    
+
     private int itemCount;
 
-    public int ItemCount {
+    public int ItemCount
+    {
         get => this.itemCount;
         private set => this.SetAndRaise(ItemCountProperty, ref this.itemCount, value);
     }
@@ -88,7 +94,8 @@ public class RELICFolder : ResourceExplorerListItemContent {
     public RELICFolder() {
     }
 
-    protected override void OnConnected() {
+    protected override void OnConnected()
+    {
         base.OnConnected();
         this.Resource!.ResourceAdded += this.OnResourceAddedOrRemoved;
         this.Resource.ResourceRemoved += this.OnResourceAddedOrRemoved;
@@ -96,7 +103,8 @@ public class RELICFolder : ResourceExplorerListItemContent {
         this.UpdateItemCount();
     }
 
-    protected override void OnDisconnected() {
+    protected override void OnDisconnected()
+    {
         base.OnDisconnected();
         this.Resource!.ResourceAdded -= this.OnResourceAddedOrRemoved;
         this.Resource.ResourceRemoved -= this.OnResourceAddedOrRemoved;
@@ -107,47 +115,56 @@ public class RELICFolder : ResourceExplorerListItemContent {
 
     private void OnResourceMoved(ResourceFolder sender, ResourceMovedEventArgs e) => this.UpdateItemCount();
 
-    private void UpdateItemCount() {
+    private void UpdateItemCount()
+    {
         this.ItemCount = this.Resource!.Items.Count;
     }
 }
 
-public class RELICColour : ResourceExplorerListItemContent {
+public class RELICColour : ResourceExplorerListItemContent
+{
     public static readonly StyledProperty<SolidColorBrush?> BrushProperty = AvaloniaProperty.Register<RELICColour, SolidColorBrush?>(nameof(Brush));
 
-    public SolidColorBrush? Brush {
+    public SolidColorBrush? Brush
+    {
         get => this.GetValue(BrushProperty);
         set => this.SetValue(BrushProperty, value);
     }
 
     public new ResourceColour? Resource => (ResourceColour?) base.Resource;
 
-    private readonly AutoUpdateAndEventPropertyBinder<ResourceColour> colourBinder = new AutoUpdateAndEventPropertyBinder<ResourceColour>(BrushProperty, nameof(ResourceColour.ColourChanged), binder => {
+    private readonly AutoUpdateAndEventPropertyBinder<ResourceColour> colourBinder = new AutoUpdateAndEventPropertyBinder<ResourceColour>(BrushProperty, nameof(ResourceColour.ColourChanged), binder =>
+    {
         RELICColour element = (RELICColour) binder.Control;
         SKColor c = binder.Model.Colour;
         element.Brush!.Color = Color.FromArgb(c.Alpha, c.Red, c.Green, c.Blue);
-    }, binder => {
+    }, binder =>
+    {
         RELICColour element = (RELICColour) binder.Control;
         Color c = element.Brush!.Color;
         binder.Model.Colour = new SKColor(c.R, c.G, c.B, c.A);
     });
 
-    public RELICColour() {
+    public RELICColour()
+    {
         this.Brush = new SolidColorBrush();
     }
 
-    protected override void OnConnected() {
+    protected override void OnConnected()
+    {
         base.OnConnected();
         this.colourBinder.Attach(this, this.Resource!);
     }
 
-    protected override void OnDisconnected() {
+    protected override void OnDisconnected()
+    {
         base.OnDisconnected();
         this.colourBinder.Detach();
     }
 }
 
-public class RELICImage : ResourceExplorerListItemContent {
+public class RELICImage : ResourceExplorerListItemContent
+{
     public new ResourceImage? Resource => (ResourceImage?) base.Resource;
 
     private Image PART_Image;
@@ -156,36 +173,44 @@ public class RELICImage : ResourceExplorerListItemContent {
     public RELICImage() {
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
         base.OnApplyTemplate(e);
         this.PART_Image = e.NameScope.GetTemplateChild<Image>(nameof(this.PART_Image));
     }
 
-    protected override void OnConnected() {
+    protected override void OnConnected()
+    {
         base.OnConnected();
         this.Resource!.ImageChanged += this.ResourceOnImageChanged;
         this.TryLoadImage(this.Resource);
     }
 
-    protected override void OnDisconnected() {
+    protected override void OnDisconnected()
+    {
         base.OnDisconnected();
         this.Resource!.ImageChanged -= this.ResourceOnImageChanged;
         this.ClearImage();
     }
 
-    private void ResourceOnImageChanged(BaseResource resource) {
+    private void ResourceOnImageChanged(BaseResource resource)
+    {
         this.TryLoadImage((ResourceImage) resource);
     }
 
-    private unsafe void TryLoadImage(ResourceImage imgRes) {
-        if (imgRes.bitmap != null) {
+    private unsafe void TryLoadImage(ResourceImage imgRes)
+    {
+        if (imgRes.bitmap != null)
+        {
             SKBitmap bmp = imgRes.bitmap;
-            if (this.bitmap == null || this.bitmap.PixelSize.Width != bmp.Width || this.bitmap.PixelSize.Height != bmp.Height) {
+            if (this.bitmap == null || this.bitmap.PixelSize.Width != bmp.Width || this.bitmap.PixelSize.Height != bmp.Height)
+            {
                 this.bitmap = new WriteableBitmap(new PixelSize(bmp.Width, bmp.Height), new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Premul);
             }
 
             // Lock the WriteableBitmap for writing
-            using (var lockedFramebuffer = this.bitmap.Lock()) {
+            using (var lockedFramebuffer = this.bitmap.Lock())
+            {
                 IntPtr bmpPixels = bmp.GetPixels();
                 if (bmpPixels == IntPtr.Zero)
                     throw new InvalidOperationException("Could not access SKBitmap pixels");
@@ -196,48 +221,59 @@ public class RELICImage : ResourceExplorerListItemContent {
 
             this.PART_Image.Source = this.bitmap;
         }
-        else {
+        else
+        {
             this.ClearImage();
         }
     }
 
-    private void ClearImage() {
+    private void ClearImage()
+    {
         this.bitmap = null;
         this.PART_Image.Source = null;
     }
 }
 
-public class RELICAVMedia : ResourceExplorerListItemContent {
+public class RELICAVMedia : ResourceExplorerListItemContent
+{
     public RELICAVMedia() {
     }
 }
 
-public class RELICComposition : ResourceExplorerListItemContent {
+public class RELICComposition : ResourceExplorerListItemContent
+{
     private SKPreviewViewPortEx PART_ViewPort;
 
     public new ResourceComposition Resource => (ResourceComposition) base.Resource;
 
     private readonly RateLimitedDispatchAction updatePreviewExecutor;
 
-    public RELICComposition() {
+    public RELICComposition()
+    {
         this.updatePreviewExecutor = new RateLimitedDispatchAction(this.OnUpdatePreview, TimeSpan.FromSeconds(0.2));
     }
 
-    private async Task OnUpdatePreview() {
+    private async Task OnUpdatePreview()
+    {
         if (this.PART_ViewPort == null || this.ListItem == null)
             return;
 
-        await IoC.Dispatcher.Invoke(async () => {
-            if (this.PART_ViewPort == null || this.ListItem == null) {
+        await IoC.Dispatcher.Invoke(async () =>
+        {
+            if (this.PART_ViewPort == null || this.ListItem == null)
+            {
                 return;
             }
 
             ResourceComposition resource = this.Resource;
             RenderManager rm = resource.Timeline.RenderManager;
-            if (rm.surface != null) {
+            if (rm.surface != null)
+            {
                 await (rm.LastRenderTask ?? Task.CompletedTask);
-                if (rm.LastRenderRect.Width > 0 && rm.LastRenderRect.Height > 0) {
-                    if (this.PART_ViewPort.BeginRenderWithSurface(rm.ImageInfo)) {
+                if (rm.LastRenderRect.Width > 0 && rm.LastRenderRect.Height > 0)
+                {
+                    if (this.PART_ViewPort.BeginRenderWithSurface(rm.ImageInfo))
+                    {
                         this.PART_ViewPort.EndRenderWithSurface(rm.surface);
                     }
                 }
@@ -248,23 +284,27 @@ public class RELICComposition : ResourceExplorerListItemContent {
     private void OnFrameRendered() {
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
         base.OnApplyTemplate(e);
         this.PART_ViewPort = e.NameScope.GetTemplateChild<SKPreviewViewPortEx>(nameof(this.PART_ViewPort));
     }
 
-    protected override void OnConnected() {
+    protected override void OnConnected()
+    {
         base.OnConnected();
         this.Resource.Timeline.RenderManager.FrameRendered += this.RenderManagerOnFrameRendered;
         this.updatePreviewExecutor.InvokeAsync();
     }
 
-    protected override void OnDisconnected() {
+    protected override void OnDisconnected()
+    {
         base.OnDisconnected();
         this.Resource.Timeline.RenderManager.FrameRendered -= this.RenderManagerOnFrameRendered;
     }
 
-    private void RenderManagerOnFrameRendered(RenderManager manager) {
+    private void RenderManagerOnFrameRendered(RenderManager manager)
+    {
         this.updatePreviewExecutor.InvokeAsync();
     }
 }

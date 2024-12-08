@@ -25,7 +25,8 @@ using FramePFX.Editing.Automation.Params;
 
 namespace FramePFX.Avalonia.Bindings;
 
-public class AutomationBinder<TModel> : BaseBinder<TModel> where TModel : class, IHaveTimeline, IAutomatable {
+public class AutomationBinder<TModel> : BaseBinder<TModel> where TModel : class, IHaveTimeline, IAutomatable
+{
     private readonly ParameterChangedEventHandler handler;
 
     public Parameter Parameter { get; }
@@ -33,7 +34,8 @@ public class AutomationBinder<TModel> : BaseBinder<TModel> where TModel : class,
     public event Action<AutomationBinder<TModel>>? UpdateModel;
     public event Action<AutomationBinder<TModel>>? UpdateControl;
 
-    public AutomationBinder(Parameter parameter) {
+    public AutomationBinder(Parameter parameter)
+    {
         this.handler = this.OnParameterValueChanged;
         this.Parameter = parameter;
     }
@@ -43,19 +45,23 @@ public class AutomationBinder<TModel> : BaseBinder<TModel> where TModel : class,
 
     private void OnParameterValueChanged(AutomationSequence sequence) => this.OnModelValueChanged();
 
-    protected override void OnAttached() {
+    protected override void OnAttached()
+    {
         this.Model.AutomationData.AddParameterChangedHandler(this.Parameter, this.handler);
     }
 
-    protected override void OnDetached() {
+    protected override void OnDetached()
+    {
         this.Model.AutomationData.RemoveParameterChangedHandler(this.Parameter, this.handler);
     }
 
-    protected override void UpdateModelOverride() {
+    protected override void UpdateModelOverride()
+    {
         this.UpdateModel?.Invoke(this);
     }
 
-    protected override void UpdateControlOverride() {
+    protected override void UpdateControlOverride()
+    {
         this.UpdateControl?.Invoke(this);
     }
 }

@@ -24,15 +24,18 @@ public delegate void BasePropertyEditorItemEventHandler(BasePropertyEditorItem s
 /// <summary>
 /// A base class for natural items in a property editor, such as a slot or group
 /// </summary>
-public abstract class BasePropertyEditorItem : BasePropertyEditorObject {
+public abstract class BasePropertyEditorItem : BasePropertyEditorObject
+{
     private bool isCurrentlyApplicable;
 
     /// <summary>
     /// Gets or sets if this item is applicable
     /// </summary>
-    public bool IsCurrentlyApplicable {
+    public bool IsCurrentlyApplicable
+    {
         get => this.isCurrentlyApplicable;
-        protected set {
+        protected set
+        {
             if (this.isCurrentlyApplicable == value)
                 return;
             this.isCurrentlyApplicable = value;
@@ -58,7 +61,8 @@ public abstract class BasePropertyEditorItem : BasePropertyEditorObject {
 
     public event BasePropertyEditorItemEventHandler? IsCurrentlyApplicableChanged;
 
-    protected BasePropertyEditorItem(Type applicableType) {
+    protected BasePropertyEditorItem(Type applicableType)
+    {
         this.ApplicableType = applicableType ?? throw new ArgumentNullException(nameof(applicableType));
     }
 
@@ -77,12 +81,15 @@ public abstract class BasePropertyEditorItem : BasePropertyEditorObject {
     /// </summary>
     /// <param name="count">The number of handlers that are available</param>
     /// <returns>This property is applicable for the given number of handlers</returns>
-    public bool IsHandlerCountAcceptable(int count) {
+    public bool IsHandlerCountAcceptable(int count)
+    {
         return IsHandlerCountAcceptable(this.HandlerCountMode, count);
     }
 
-    public static bool IsHandlerCountAcceptable(HandlerCountMode mode, int count) {
-        switch (mode) {
+    public static bool IsHandlerCountAcceptable(HandlerCountMode mode, int count)
+    {
+        switch (mode)
+        {
             case HandlerCountMode.Any: return count > 0;
             case HandlerCountMode.Single: return count == 1;
             case HandlerCountMode.Multi: return count > 1;

@@ -34,16 +34,18 @@ namespace FramePFX.Avalonia.Editing.Timelines.TrackSurfaces;
 /// <summary>
 /// The list box control which stores the track control surface items
 /// </summary>
-public class TrackControlSurfaceList : TemplatedControl {
+public class TrackControlSurfaceList : TemplatedControl
+{
     public static readonly StyledProperty<Timeline?> TimelineProperty = AvaloniaProperty.Register<TrackControlSurfaceList, Timeline?>(nameof(Timeline));
 
     public IModelControlDictionary<Track, TrackControlSurfaceItem> ItemMap => this.TrackStorage!.ItemMap;
-    
-    public Timeline? Timeline {
+
+    public Timeline? Timeline
+    {
         get => this.GetValue(TimelineProperty);
         set => this.SetValue(TimelineProperty, value);
     }
-    
+
     public TimelineControl? TimelineControl { get; set; }
 
     public TrackControlSurfacePanel? TrackStorage { get; private set; }
@@ -51,73 +53,84 @@ public class TrackControlSurfaceList : TemplatedControl {
     public TrackControlSurfaceList() {
     }
 
-    static TrackControlSurfaceList() {
+    static TrackControlSurfaceList()
+    {
         TimelineProperty.Changed.AddClassHandler<TrackControlSurfaceList, Timeline?>((d, e) => d.OnTimelineChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
         base.OnApplyTemplate(e);
         this.TrackStorage = e.NameScope.GetTemplateChild<TrackControlSurfacePanel>("PART_TrackPanel");
         this.TrackStorage.Owner = this;
     }
 
     public TrackControlSurfaceItem GetTrack(int index) => (TrackControlSurfaceItem) this.TrackStorage!.Children[index];
-    
-    private void OnTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline) {
+
+    private void OnTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline)
+    {
         if (oldTimeline == newTimeline)
             return;
-        if (oldTimeline != null) {
+        if (oldTimeline != null)
+        {
             oldTimeline.TrackAdded -= this.OnTrackAdded;
             oldTimeline.TrackRemoved -= this.OnTrackRemoved;
             oldTimeline.TrackMoved -= this.OnTrackMoved;
             this.TrackStorage!.ClearTracks();
         }
 
-        if (newTimeline != null) {
+        if (newTimeline != null)
+        {
             newTimeline.TrackAdded += this.OnTrackAdded;
             newTimeline.TrackRemoved += this.OnTrackRemoved;
             newTimeline.TrackMoved += this.OnTrackMoved;
             this.TrackStorage!.LoadTracks(newTimeline);
             DataManager.SetContextData(this, new ContextData().Set(DataKeys.TimelineKey, newTimeline));
         }
-        else {
+        else
+        {
             DataManager.ClearContextData(this);
         }
     }
 
-    private void OnTrackAdded(Timeline timeline, Track track, int index) {
+    private void OnTrackAdded(Timeline timeline, Track track, int index)
+    {
         this.TrackStorage!.InsertTrack(track, index);
     }
 
-    private void OnTrackRemoved(Timeline timeline, Track track, int index) {
+    private void OnTrackRemoved(Timeline timeline, Track track, int index)
+    {
         this.TrackStorage!.RemoveTrack(index);
     }
-    
-    private void OnTrackMoved(Timeline timeline, Track track, int oldindex, int newindex) {
+
+    private void OnTrackMoved(Timeline timeline, Track track, int oldindex, int newindex)
+    {
         this.TrackStorage!.MoveTrack(oldindex, newindex);
     }
 
-    public TrackControlSurface GetContentObject(Track track) {
+    public TrackControlSurface GetContentObject(Track track)
+    {
         return this.TrackStorage!.GetContentObject(track);
     }
 
-    public bool ReleaseContentObject(Type trackType, TrackControlSurface contentControl) {
+    public bool ReleaseContentObject(Type trackType, TrackControlSurface contentControl)
+    {
         return this.TrackStorage!.ReleaseContentObject(trackType, contentControl);
     }
 
-    public int IndexOf(TrackControlSurfaceItem item) {
+    public int IndexOf(TrackControlSurfaceItem item)
+    {
         return this.TrackStorage!.Children.IndexOf(item);
     }
 
     public void SelectRange(TrackControlSurfaceItem source, PointerEventArgs e) {
-        
     }
 
     public void SetRangeAnchor(TrackControlSurfaceItem source, PointerEventArgs e) {
-        
     }
-    
-    public IEnumerable<TrackControlSurfaceItem> GetTracks() {
+
+    public IEnumerable<TrackControlSurfaceItem> GetTracks()
+    {
         return this.TrackStorage!.Children.Cast<TrackControlSurfaceItem>();
     }
 }

@@ -24,7 +24,8 @@ public delegate void PropertyEditorObjectEventHandler(BasePropertyEditorObject s
 /// <summary>
 /// A base class for all items in a property editor hierarchy, such as slots, groups, separators, etc.
 /// </summary>
-public abstract class BasePropertyEditorObject {
+public abstract class BasePropertyEditorObject
+{
     /// <summary>
     /// Gets this property editor item's parent group. May be null for the root <see cref="BasePropertyEditorGroup"/>
     /// </summary>
@@ -44,23 +45,27 @@ public abstract class BasePropertyEditorObject {
     protected virtual void OnPropertyEditorChanged(PropertyEditor? oldEditor, PropertyEditor? newEditor) {
     }
 
-    protected static void OnAddedToGroup(BasePropertyEditorObject propObj, BasePropertyEditorGroup parent) {
+    protected static void OnAddedToGroup(BasePropertyEditorObject propObj, BasePropertyEditorGroup parent)
+    {
         if (propObj.Parent == parent)
             throw new InvalidOperationException("Object already added to this parent");
         propObj.Parent = parent;
         SetPropertyEditor(propObj, parent.PropertyEditor!);
     }
 
-    protected static void OnRemovedFromGroup(BasePropertyEditorObject propObj, BasePropertyEditorGroup parent) {
+    protected static void OnRemovedFromGroup(BasePropertyEditorObject propObj, BasePropertyEditorGroup parent)
+    {
         if (propObj.Parent == null)
             throw new InvalidOperationException("Object does not exist in a parent");
         propObj.Parent = null;
         SetPropertyEditor(propObj, null);
     }
 
-    internal static void SetPropertyEditor(BasePropertyEditorObject obj, PropertyEditor? newEditor) {
+    internal static void SetPropertyEditor(BasePropertyEditorObject obj, PropertyEditor? newEditor)
+    {
         PropertyEditor? oldEditor = obj.PropertyEditor;
-        if (oldEditor != newEditor) {
+        if (oldEditor != newEditor)
+        {
             obj.PropertyEditor = newEditor;
             obj.OnPropertyEditorChanged(oldEditor, newEditor);
         }

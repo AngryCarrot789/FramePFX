@@ -30,7 +30,8 @@ using SkiaSharp;
 
 namespace FramePFX.Avalonia.PropertyEditing.DataTransfer;
 
-public class DataParameterPointPropertyEditorControl : BaseDataParameterPropertyEditorControl {
+public class DataParameterPointPropertyEditorControl : BaseDataParameterPropertyEditorControl
+{
     internal static readonly IImmutableBrush MultipleValuesBrush = BaseNumberDraggerDataParamPropEditorControl.MultipleValuesBrush;
 
     public new DataParameterPointPropertyEditorSlot? SlotModel => (DataParameterPointPropertyEditorSlot?) base.SlotControl?.Model;
@@ -41,15 +42,18 @@ public class DataParameterPointPropertyEditorControl : BaseDataParameterProperty
 
     private readonly AutoUpdateAndEventPropertyBinder<DataParameterFormattableNumberPropertyEditorSlot> valueFormatterBinder;
 
-    public DataParameterPointPropertyEditorControl() {
-        this.valueFormatterBinder = new AutoUpdateAndEventPropertyBinder<DataParameterFormattableNumberPropertyEditorSlot>(null, nameof(DataParameterFormattableNumberPropertyEditorSlot.ValueFormatterChanged), (x) => {
+    public DataParameterPointPropertyEditorControl()
+    {
+        this.valueFormatterBinder = new AutoUpdateAndEventPropertyBinder<DataParameterFormattableNumberPropertyEditorSlot>(null, nameof(DataParameterFormattableNumberPropertyEditorSlot.ValueFormatterChanged), (x) =>
+        {
             DataParameterPointPropertyEditorControl editor = (DataParameterPointPropertyEditorControl) x.Control;
             editor.draggerX.ValueFormatter = x.Model.ValueFormatter;
             editor.draggerY.ValueFormatter = x.Model.ValueFormatter;
         }, null);
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
         base.OnApplyTemplate(e);
         this.draggerX = e.NameScope.GetTemplateChild<NumberDragger>("PART_DraggerX");
         this.draggerX.ValueChanged += (sender, args) => this.OnControlValueChanged();
@@ -61,12 +65,15 @@ public class DataParameterPointPropertyEditorControl : BaseDataParameterProperty
         this.UpdateDraggerMultiValueState();
     }
 
-    private void ResetButtonOnClick(object? sender, RoutedEventArgs e) {
+    private void ResetButtonOnClick(object? sender, RoutedEventArgs e)
+    {
         this.SlotModel.Value = this.SlotModel.Parameter.DefaultValue;
     }
 
-    private void UpdateDraggerMultiValueState() {
-        if (!this.IsConnected) {
+    private void UpdateDraggerMultiValueState()
+    {
+        if (!this.IsConnected)
+        {
             return;
         }
 
@@ -75,12 +82,14 @@ public class DataParameterPointPropertyEditorControl : BaseDataParameterProperty
         BaseNumberDraggerDataParamPropEditorControl.UpdateNumberDragger(this.draggerY, flag, flag2);
     }
 
-    protected override void OnCanEditValueChanged(bool canEdit) {
+    protected override void OnCanEditValueChanged(bool canEdit)
+    {
         this.draggerX.IsEnabled = canEdit;
         this.draggerY.IsEnabled = canEdit;
     }
 
-    protected override void OnConnected() {
+    protected override void OnConnected()
+    {
         this.valueFormatterBinder.AttachModel(this.SlotModel!);
         base.OnConnected();
 
@@ -107,24 +116,28 @@ public class DataParameterPointPropertyEditorControl : BaseDataParameterProperty
         this.UpdateDraggerMultiValueState();
     }
 
-    protected override void OnDisconnected() {
+    protected override void OnDisconnected()
+    {
         this.valueFormatterBinder.DetachModel();
         base.OnDisconnected();
 
         this.SlotModel!.HasMultipleValuesChanged -= this.OnHasMultipleValuesChanged;
     }
 
-    private void OnHasMultipleValuesChanged(DataParameterPropertyEditorSlot sender) {
+    private void OnHasMultipleValuesChanged(DataParameterPropertyEditorSlot sender)
+    {
         this.UpdateDraggerMultiValueState();
     }
 
-    protected override void UpdateControlValue() {
+    protected override void UpdateControlValue()
+    {
         SKPoint value = this.SlotModel!.Value;
         this.draggerX.Value = value.X;
         this.draggerY.Value = value.Y;
     }
 
-    protected override void UpdateModelValue() {
+    protected override void UpdateModelValue()
+    {
         this.SlotModel!.Value = new SKPoint((float) this.draggerX.Value, (float) this.draggerY.Value);
     }
 }

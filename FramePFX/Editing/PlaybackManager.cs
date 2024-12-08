@@ -37,7 +37,8 @@ public delegate void PlaybackStateEventHandler(PlaybackManager sender, PlayState
 /// <summary>
 /// A class that manages the playback functionality of the editor, which manages the timer and play/pause/stop states
 /// </summary>
-public class PlaybackManager {
+public class PlaybackManager
+{
     private static readonly long THREAD_SPLICE_IN_TICKS = (long) (16.4d * Time.TICK_PER_MILLIS);
     private static readonly long YIELD_MILLIS_IN_TICKS = Time.TICK_PER_MILLIS / 10;
 
@@ -87,18 +88,22 @@ public class PlaybackManager {
     private long lastTickTime;
     private volatile Action? stopCallback;
 
-    public PlaybackManager(VideoEditor editor) {
+    public PlaybackManager(VideoEditor editor)
+    {
         this.Editor = editor;
-        unsafe {
-            this.engineCallbackDelgate = this.AudioEngineCallback;
-            this.engineCallbackDelgatePtr = Marshal.GetFunctionPointerForDelegate(this.engineCallbackDelgate);
-            this.audioEngineData = new PFXNative.NativeAudioEngineData() {
-                ManagedAudioEngineCallback = this.engineCallbackDelgatePtr
-            };
-        }
+        // unsafe
+        // {
+        //     this.engineCallbackDelgate = this.AudioEngineCallback;
+        //     this.engineCallbackDelgatePtr = Marshal.GetFunctionPointerForDelegate(this.engineCallbackDelgate);
+        //     this.audioEngineData = new PFXNative.NativeAudioEngineData()
+        //     {
+        //         ManagedAudioEngineCallback = this.engineCallbackDelgatePtr
+        //     };
+        // }
     }
 
-    public unsafe int AudioEngineCallback(void* output, ulong framesPerBuffer, IntPtr timeInfo, ulong statusFlags) {
+    public unsafe int AudioEngineCallback(void* output, ulong framesPerBuffer, IntPtr timeInfo, ulong statusFlags)
+    {
         float* outputFloats = (float*) output;
         AudioRingBuffer buffer = this.Timeline.RenderManager.audioRingBuffer;
         // const int sampleRate = 44100;
@@ -115,11 +120,14 @@ public class PlaybackManager {
         //     *outputFloats++ = sample;
         // }
 
-        if (buffer != null) {
-            lock (buffer) {
+        if (buffer != null)
+        {
+            lock (buffer)
+            {
                 int totalsamples = (int) (framesPerBuffer * 2);
                 int readCount = buffer.ReadFromRingBuffer(outputFloats, totalsamples);
-                for (int i = readCount < 1 ? 0 : readCount; i < totalsamples; i++) {
+                for (int i = readCount < 1 ? 0 : readCount; i < totalsamples; i++)
+                {
                     *outputFloats++ = 0;
                 }
             }
@@ -129,12 +137,15 @@ public class PlaybackManager {
         return 0;
     }
 
-    public bool CanSetPlayStateTo(PlayState newState) {
-        if (this.Timeline == null) {
+    public bool CanSetPlayStateTo(PlayState newState)
+    {
+        if (this.Timeline == null)
+        {
             return false;
         }
 
-        switch (newState) {
+        switch (newState)
+        {
             case PlayState.Play: return this.PlayState != PlayState.Play;
             case PlayState.Pause:
             case PlayState.Stop:
@@ -143,12 +154,15 @@ public class PlaybackManager {
         }
     }
 
-    public void StartTimer() {
-        if (this.thread != null && this.thread.IsAlive) {
+    public void StartTimer()
+    {
+        if (this.thread != null && this.thread.IsAlive)
+        {
             throw new InvalidOperationException("Timer thread already running");
         }
 
-        this.thread = new Thread(this.TimerMain) {
+        this.thread = new Thread(this.TimerMain)
+        {
             IsBackground = true, // thread auto-stops when app tries to exit :D
             Name = "FramePFX Playback Thread"
         };
@@ -157,39 +171,42 @@ public class PlaybackManager {
         this.thread.Start();
     }
 
-    public void StopTimer() {
+    public void StopTimer()
+    {
         this.Stop();
         this.thread_IsTimerRunning = false;
         // this.thread?.Join();
     }
 
-    public void SetFrameRate(Rational frameRate) {
+    public void SetFrameRate(Rational frameRate)
+    {
         double fps = frameRate.AsDouble;
         this.intervalTicks = (long) Math.Round(Time.TICK_PER_SECOND_D / fps);
         this.audioSamplesPerFrame = (int) Math.Ceiling(44100.0 / fps);
     }
 
-    public void Play() {
-        if (this.Timeline == null || this.PlayState == PlayState.Play) {
+    public void Play()
+    {
+        if (this.Timeline == null || this.PlayState == PlayState.Play)
+        {
             return;
         }
 
         this.PlayInternal(this.Timeline.PlayHeadPosition);
     }
 
-    public void Play(long frame) {
-        if (this.Timeline == null) {
-            return;
-        }
-
-        if (this.PlayState == PlayState.Play && this.Timeline.PlayHeadPosition == frame) {
+    public void Play(long frame)
+    {
+        if (this.Timeline == null || (this.PlayState == PlayState.Play && this.Timeline.PlayHeadPosition == frame))
+        {
             return;
         }
 
         this.PlayInternal(frame);
     }
 
-    private void PlayInternal(long targetFrame) {
+    private void PlayInternal(long targetFrame)
+    {
         this.PlayState = PlayState.Play;
         this.PlaybackStateChanged?.Invoke(this, this.PlayState, targetFrame);
         this.lastRenderTime = DateTime.Now;
@@ -203,15 +220,19 @@ public class PlaybackManager {
         // }
     }
 
-    private void OnAboutToStopPlaying(Action? callback = null) {
+    private void OnAboutToStopPlaying(Action? callback = null)
+    {
         if (callback != null)
             Interlocked.Exchange(ref this.stopCallback, callback);
         this.thread_IsPlaying = false;
     }
 
-    private void OnStoppedPlaying() {
-        if (this.isAudioPlaying) {
-            unsafe {
+    private void OnStoppedPlaying()
+    {
+        if (this.isAudioPlaying)
+        {
+            unsafe
+            {
                 // fixed (PFXNative.NativeAudioEngineData* engineData = &this.audioEngineData) {
                 //     PFXNative.PFXAE_EndAudioPlayback(engineData);
                 // }
@@ -221,8 +242,10 @@ public class PlaybackManager {
         }
     }
 
-    public void Pause() {
-        if (this.PlayState != PlayState.Play || this.Timeline == null) {
+    public void Pause()
+    {
+        if (this.PlayState != PlayState.Play || this.Timeline == null)
+        {
             return;
         }
 
@@ -235,8 +258,10 @@ public class PlaybackManager {
         this.Timeline.StopHeadPosition = playHead;
     }
 
-    public void Stop() {
-        if (this.PlayState != PlayState.Play || this.Timeline == null) {
+    public void Stop()
+    {
+        if (this.PlayState != PlayState.Play || this.Timeline == null)
+        {
             return;
         }
 
@@ -247,30 +272,38 @@ public class PlaybackManager {
         this.Timeline.PlayHeadPosition = this.Timeline.StopHeadPosition;
     }
 
-    private void InvalidateVisualForStop() {
+    private void InvalidateVisualForStop()
+    {
         IoC.Dispatcher.Invoke(() => this.Timeline?.InvalidateRender(), DispatchPriority.Background);
     }
 
-    private void OnTimerFrame() {
-        if (!this.thread_IsPlaying || !this.thread_IsTimerRunning) {
+    private void OnTimerFrame()
+    {
+        if (!this.thread_IsPlaying || !this.thread_IsTimerRunning)
+        {
             this.TryInvokeStopCallback();
             return;
         }
 
-        if (this.Timeline?.Project == null) {
+        if (this.Timeline?.Project == null)
+        {
             return;
         }
 
-        using (this.Timeline.RenderManager.SuspendRenderInvalidation()) {
-            Task renderTask = RZApplication.Instance.Dispatcher.Invoke(() => {
+        using (this.Timeline.RenderManager.SuspendRenderInvalidation())
+        {
+            Task renderTask = RZApplication.Instance.Dispatcher.Invoke(() =>
+            {
                 Timeline timeline = this.Timeline;
                 Project project;
-                if (timeline == null || (project = timeline.Project) == null || !timeline.IsActive) {
+                if (timeline == null || (project = timeline.Project) == null || !timeline.IsActive)
+                {
                     return Task.CompletedTask;
                 }
 
                 VideoEditor? editor = project.Editor;
-                if (editor == null || !this.thread_IsPlaying) {
+                if (editor == null || !this.thread_IsPlaying)
+                {
                     this.TryInvokeStopCallback();
                     return Task.CompletedTask;
                 }
@@ -291,7 +324,8 @@ public class PlaybackManager {
                 this.lastRenderTime = DateTime.Now;
 
                 long incr = 1;
-                if (actualInterval > expectedInterval) {
+                if (actualInterval > expectedInterval)
+                {
                     double diffMillis = (actualInterval - expectedInterval) / Time.TICK_PER_MILLIS_D;
                     double incrDouble = (diffMillis / (1000.0 / fps)) + this.accumulatedVideoSubFrames;
                     long extra = (long) Math.Floor(incrDouble);
@@ -305,25 +339,30 @@ public class PlaybackManager {
                 long newPlayHead;
                 long newPlayHeadUnprocessed = timeline.PlayHeadPosition + incr;
                 FrameSpan? loopRegion = timeline.IsLoopRegionEnabled ? timeline.LoopRegion : null;
-                if (loopRegion is FrameSpan loop && !loop.IsEmpty && newPlayHeadUnprocessed >= loop.Begin && newPlayHeadUnprocessed <= loop.EndIndex) {
+                if (loopRegion is FrameSpan loop && !loop.IsEmpty && newPlayHeadUnprocessed >= loop.Begin && newPlayHeadUnprocessed <= loop.EndIndex)
+                {
                     newPlayHead = Periodic.MethodNameHere(newPlayHeadUnprocessed, loop.Begin, loop.EndIndex);
                 }
-                else {
+                else
+                {
                     newPlayHead = Periodic.MethodNameHere(newPlayHeadUnprocessed, 0, timeline.MaxDuration - 1);
                 }
 
                 timeline.PlayHeadPosition = newPlayHead;
-                if ((timeline.RenderManager.LastRenderTask?.IsCompleted ?? true)) {
+                if ((timeline.RenderManager.LastRenderTask?.IsCompleted ?? true))
+                {
                     return RenderTimeline(editor, timeline.RenderManager, timeline.PlayHeadPosition, CancellationToken.None);
                 }
 
                 return Task.CompletedTask;
             });
 
-            try {
+            try
+            {
                 renderTask.Wait();
             }
-            catch (AggregateException) {
+            catch (AggregateException)
+            {
                 if (!renderTask.IsCanceled)
                     throw;
             }
@@ -331,7 +370,8 @@ public class PlaybackManager {
             }
             catch (OperationCanceledException) {
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 this.thread_IsPlaying = false;
                 // AppLogger.Instance.WriteLine("Render exception on playback thread");
                 // AppLogger.Instance.WriteLine(e.GetToString());
@@ -344,19 +384,23 @@ public class PlaybackManager {
         this.averager.PushValue(tickInterval);
     }
 
-    private static async Task RenderTimeline(VideoEditor videoEditor, RenderManager renderManager, long frame, CancellationToken cancellationToken) {
+    private static async Task RenderTimeline(VideoEditor videoEditor, RenderManager renderManager, long frame, CancellationToken cancellationToken)
+    {
         // await (renderManager.ScheduledRenderTask ?? Task.CompletedTask);
         if (cancellationToken.IsCancellationRequested)
             throw new TaskCanceledException();
-        try {
+        try
+        {
             await (renderManager.LastRenderTask = renderManager.RenderTimelineAsync(frame, cancellationToken));
         }
         catch (TaskCanceledException) {
         }
         catch (OperationCanceledException) {
         }
-        catch (Exception e) {
-            if (videoEditor.Playback.PlayState == PlayState.Play) {
+        catch (Exception e)
+        {
+            if (videoEditor.Playback.PlayState == PlayState.Play)
+            {
                 videoEditor.Playback.Pause();
             }
 
@@ -366,12 +410,16 @@ public class PlaybackManager {
         renderManager.OnFrameCompleted();
     }
 
-    private void TimerMain() {
-        do {
-            if (!this.thread_IsPlaying) {
+    private void TimerMain()
+    {
+        do
+        {
+            if (!this.thread_IsPlaying)
+            {
                 this.TryInvokeStopCallback();
                 // Saves attempting to invoke stopCallback every 50ms
-                do {
+                do
+                {
                     Thread.Sleep(50);
                 } while (!this.thread_IsPlaying);
             }
@@ -384,7 +432,8 @@ public class PlaybackManager {
 
             // CPU intensive wait
             long time = Time.GetSystemTicks();
-            while (time < target) {
+            while (time < target)
+            {
                 Thread.SpinWait(8);
                 time = Time.GetSystemTicks();
             }
@@ -394,12 +443,14 @@ public class PlaybackManager {
         } while (this.thread_IsTimerRunning);
     }
 
-    internal static void InternalOnActiveTimelineChanged(PlaybackManager playback, Timeline oldTimeline, Timeline newTimeline) {
+    internal static void InternalOnActiveTimelineChanged(PlaybackManager playback, Timeline oldTimeline, Timeline newTimeline)
+    {
         playback.Stop();
         playback.Timeline = newTimeline;
     }
 
-    private void TryInvokeStopCallback() {
+    private void TryInvokeStopCallback()
+    {
         Interlocked.Exchange(ref this.stopCallback, null)?.Invoke();
     }
 }

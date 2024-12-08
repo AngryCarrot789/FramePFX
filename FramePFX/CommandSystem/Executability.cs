@@ -39,7 +39,8 @@ namespace FramePFX.CommandSystem;
 /// or the state of the contextual data changes since <see cref="Command.CanExecute"/> was called)
 /// </para>
 /// </summary>
-public enum Executability {
+public enum Executability
+{
     /// <summary>
     /// The context does not contain the relevant data for the command to execute.
     /// This might also be used if a targeted command does not exist

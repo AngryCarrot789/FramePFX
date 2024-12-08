@@ -19,7 +19,8 @@
 
 namespace FramePFX.History;
 
-public interface IHistoryAction {
+public interface IHistoryAction
+{
     /// <summary>
     /// Undoes this action
     /// </summary>

@@ -22,10 +22,12 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace FramePFX.Utils;
 
-public class DictionaryList<TValue> : IReadOnlyList<TValue?> {
+public class DictionaryList<TValue> : IReadOnlyList<TValue?>
+{
     public List<TValue?> List { get; }
 
-    public DictionaryList(List<TValue?> list) {
+    public DictionaryList(List<TValue?> list)
+    {
         this.List = list;
     }
 
@@ -34,37 +36,45 @@ public class DictionaryList<TValue> : IReadOnlyList<TValue?> {
 
     public bool IsSet(int index) => index < this.List.Count && this.List[index] != null;
 
-    public void Set(int index, TValue value) {
+    public void Set(int index, TValue value)
+    {
         if ((index + 1) > this.List.Count)
             this.List.FillToCapacity(index + 1);
         this.List[index] = value;
     }
 
-    public bool Unset(int index) {
-        if (index < 0 || index >= this.List.Count) {
+    public bool Unset(int index)
+    {
+        if (index < 0 || index >= this.List.Count)
+        {
             return false;
         }
 
-        if (index == (this.List.Count - 1)) {
+        if (index == (this.List.Count - 1))
+        {
             this.List.RemoveAt(index);
 
             // Remove extra null
-            for (int i = index - 1; i > 0; i--) {
+            for (int i = index - 1; i > 0; i--)
+            {
                 if (this.List[index] == null)
                     this.List.RemoveAt(i);
             }
 
             this.List.TrimExcess();
         }
-        else {
+        else
+        {
             this.List[index] = default;
         }
 
         return true;
     }
 
-    public bool TryGet(int index, [NotNullWhen(true)] out TValue? value) {
-        if (index >= 0 && index < this.List.Count && (value = this.List[index]) != null) {
+    public bool TryGet(int index, [NotNullWhen(true)] out TValue? value)
+    {
+        if (index >= 0 && index < this.List.Count && (value = this.List[index]) != null)
+        {
             return true;
         }
 

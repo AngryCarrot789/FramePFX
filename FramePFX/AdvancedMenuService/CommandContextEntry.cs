@@ -22,10 +22,12 @@ namespace FramePFX.AdvancedMenuService;
 /// <summary>
 /// A context entry that executes a <see cref="CommandSystem.Command"/>
 /// </summary>
-public class CommandContextEntry : BaseContextEntry {
+public class CommandContextEntry : BaseContextEntry
+{
     public string CommandId { get; }
-    
-    public CommandContextEntry(string displayName, string? description, string commandId) : base(displayName, description) {
+
+    public CommandContextEntry(string displayName, string? description, string commandId) : base(displayName, description)
+    {
         this.CommandId = commandId;
     }
 }

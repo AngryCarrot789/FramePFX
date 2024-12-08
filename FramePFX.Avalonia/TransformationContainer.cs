@@ -26,7 +26,8 @@ namespace FramePFX.Avalonia;
 /// A dummy container control that sits inbetween the <see cref="FreeMoveViewPortV2"/> and
 /// its child control, so that the child itself doesn't get render transformed directly
 /// </summary>
-public class TransformationContainer : Decorator {
+public class TransformationContainer : Decorator
+{
     public TransformationContainer() {
     }
 }

@@ -42,13 +42,14 @@ using Track = FramePFX.Editing.Timelines.Tracks.Track;
 
 namespace FramePFX.Avalonia.Editing.Timelines;
 
-public class TimelineTrackControl : TemplatedControl {
+public class TimelineTrackControl : TemplatedControl
+{
     public static readonly DirectProperty<TimelineTrackControl, Track?> TrackProperty = AvaloniaProperty.RegisterDirect<TimelineTrackControl, Track?>(nameof(Track), o => o.Track);
     public static readonly DirectProperty<TimelineTrackControl, bool> IsSelectedProperty = AvaloniaProperty.RegisterDirect<TimelineTrackControl, bool>(nameof(IsSelected), o => o.IsSelected);
     public static readonly DirectProperty<TimelineTrackControl, ILinearGradientBrush?> ClipHeaderBrushProperty = AvaloniaProperty.RegisterDirect<TimelineTrackControl, ILinearGradientBrush?>(nameof(ClipHeaderBrush), o => o.ClipHeaderBrush);
     public static readonly DirectProperty<TimelineTrackControl, ISolidColorBrush?> TrackColourForegroundBrushProperty = AvaloniaProperty.RegisterDirect<TimelineTrackControl, ISolidColorBrush?>(nameof(TrackColourForegroundBrush), o => o.TrackColourForegroundBrush);
     public static readonly StyledProperty<AutomationSequence?> AutomationSequenceProperty = AvaloniaProperty.Register<TimelineTrackControl, AutomationSequence?>(nameof(AutomationSequence));
-    
+
     private Track? myTrack;
     private ILinearGradientBrush? clipHeaderBrush;
     private ISolidColorBrush? _trackColourForegroundBrush;
@@ -58,15 +59,17 @@ public class TimelineTrackControl : TemplatedControl {
     private readonly PropertyBinder<AutomationSequence?> automationSequenceBinder;
     private AutomationEditorControl? PART_AutomationEditor;
 
-    public Track? Track {
+    public Track? Track
+    {
         get => this.myTrack;
-        private set {
+        private set
+        {
             Track? oldTrack = this.myTrack;
             this.SetAndRaise(TrackProperty, ref this.myTrack, value);
             this.ClipStoragePanel?.OnTrackChanged(oldTrack, value);
         }
     }
-    
+
     public ISelectionManager<IClipElement> Selection => this.SelectionManager!;
 
     /// <summary>
@@ -87,13 +90,15 @@ public class TimelineTrackControl : TemplatedControl {
     public bool IsConnected { get; private set; }
 
     public double TimelineZoom => this.TimelineControl?.Zoom ?? 1.0;
-    
-    public ILinearGradientBrush? ClipHeaderBrush {
+
+    public ILinearGradientBrush? ClipHeaderBrush
+    {
         get => this.clipHeaderBrush;
         private set => this.SetAndRaise(ClipHeaderBrushProperty, ref this.clipHeaderBrush, value);
     }
-    
-    public ISolidColorBrush? TrackColourForegroundBrush {
+
+    public ISolidColorBrush? TrackColourForegroundBrush
+    {
         get => this._trackColourForegroundBrush;
         private set => this.SetAndRaise(TrackColourForegroundBrushProperty, ref this._trackColourForegroundBrush, value);
     }
@@ -103,21 +108,24 @@ public class TimelineTrackControl : TemplatedControl {
     /// <summary>
     /// Gets whether this track control is selected
     /// </summary>
-    public bool IsSelected {
+    public bool IsSelected
+    {
         get => this.internalIsSelected;
         private set => this.SetAndRaise(IsSelectedProperty, ref this.internalIsSelected, value);
     }
-    
-    public AutomationSequence? AutomationSequence {
+
+    public AutomationSequence? AutomationSequence
+    {
         get => this.GetValue(AutomationSequenceProperty);
         set => this.SetValue(AutomationSequenceProperty, value);
     }
-    
+
     public ClipSelectionManager? SelectionManager { get; private set; }
-    
+
     public ITrackElement? TrackElement { get; internal set; }
 
-    public TimelineTrackControl() {
+    public TimelineTrackControl()
+    {
         this.ClipHeaderBrush = new LinearGradientBrush();
         this.TrackColourForegroundBrush = new SolidColorBrush();
         this.Focusable = true;
@@ -126,35 +134,40 @@ public class TimelineTrackControl : TemplatedControl {
         this.automationSequenceBinder = new PropertyBinder<AutomationSequence?>(this, AutomationSequenceProperty, AutomationEditorControl.AutomationSequenceProperty);
     }
 
-    protected override void OnLoaded(RoutedEventArgs e) {
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
         base.OnLoaded(e);
         AdvancedContextMenu.SetContextRegistry(this, Track.TimelineTrackContextRegistry);
     }
 
-    protected override void OnUnloaded(RoutedEventArgs e) {
+    protected override void OnUnloaded(RoutedEventArgs e)
+    {
         base.OnUnloaded(e);
         AdvancedContextMenu.SetContextRegistry(this, null);
     }
 
-    static TimelineTrackControl() {
+    static TimelineTrackControl()
+    {
         PointerPressedEvent.AddClassHandler<TimelineTrackControl>((c, e) => c.OnPreviewPointerPressed(e), RoutingStrategies.Tunnel);
     }
 
     internal static void InternalSetIsSelected(TimelineTrackControl control, bool isSelected) => control.IsSelected = isSelected;
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
         base.OnApplyTemplate(e);
         this.ClipStoragePanel = e.NameScope.GetTemplateChild<ClipStoragePanel>("PART_TrackClipPanel");
         this.ClipStoragePanel.Connect(this);
 
         this.SelectionManager = new ClipSelectionManager(this);
-        
+
         this.PART_AutomationEditor = e.NameScope.GetTemplateChild<AutomationEditorControl>("PART_AutomationEditor");
         this.PART_AutomationEditor.HorizontalZoom = this.TimelineZoom;
         this.automationSequenceBinder.SetTargetControl(this.PART_AutomationEditor);
     }
 
-    public virtual void OnConnecting(TrackStoragePanel timelineControl, Track track) {
+    public virtual void OnConnecting(TrackStoragePanel timelineControl, Track track)
+    {
         if (this.Track != null)
             throw new InvalidOperationException("Already connected to a track");
 
@@ -172,17 +185,20 @@ public class TimelineTrackControl : TemplatedControl {
         track.ColourChanged += this.OnTrackColourChanged;
     }
 
-    public virtual void OnConnected() {
+    public virtual void OnConnected()
+    {
         this.IsConnected = true;
         this.UpdateTrackColour();
 
         int i = 0;
-        foreach (Clip clip in this.Track!.Clips) {
+        foreach (Clip clip in this.Track!.Clips)
+        {
             this.ClipStoragePanel!.InsertClip(clip, i++);
         }
     }
 
-    public virtual void OnDisconnecting() {
+    public virtual void OnDisconnecting()
+    {
         if (this.Track == null)
             throw new InvalidOperationException("Not connected to a track");
 
@@ -194,7 +210,8 @@ public class TimelineTrackControl : TemplatedControl {
         this.ClipStoragePanel!.ClearClipsInternal();
     }
 
-    public virtual void OnDisconnected() {
+    public virtual void OnDisconnected()
+    {
         this.IsConnected = false;
         this.Track = null;
         this.TimelineControl = null;
@@ -207,18 +224,23 @@ public class TimelineTrackControl : TemplatedControl {
     public virtual void OnIndexMoved(int oldIndex, int newIndex) {
     }
 
-    private void OnClipAdded(Track track, Clip clip, int index) {
+    private void OnClipAdded(Track track, Clip clip, int index)
+    {
         this.ClipStoragePanel!.InsertClip(clip, index);
     }
 
-    private void OnClipRemoved(Track track, Clip clip, int index) {
+    private void OnClipRemoved(Track track, Clip clip, int index)
+    {
         this.ClipStoragePanel!.RemoveClipInternal(index);
     }
 
-    private void OnClipMovedTracks(Clip clip, Track oldTrack, int oldIndex, Track newTrack, int newIndex) {
-        if (oldTrack == this.Track) {
+    private void OnClipMovedTracks(Clip clip, Track oldTrack, int oldIndex, Track newTrack, int newIndex)
+    {
+        if (oldTrack == this.Track)
+        {
             TimelineTrackControl? dstTrack = this.TrackStoragePanel!.GetTrackByModel(newTrack);
-            if (dstTrack == null) {
+            if (dstTrack == null)
+            {
                 // Instead of throwing, we could just remove the track or insert a new track, instead of
                 // trying to re-use existing controls, at the cost of performance.
                 // However, moving clips between tracks in different timelines is not directly supported
@@ -230,8 +252,10 @@ public class TimelineTrackControl : TemplatedControl {
             this.ClipStoragePanel.RemoveClipInternal(oldIndex, false);
             dstTrack.clipBeingMoved = new MovedClip(control, clip);
         }
-        else if (newTrack == this.Track) {
-            if (!(this.clipBeingMoved is MovedClip movedClip)) {
+        else if (newTrack == this.Track)
+        {
+            if (!(this.clipBeingMoved is MovedClip movedClip))
+            {
                 throw new Exception("Clip control being moved is null. Is the UI timeline corrupted or did the clip move between timelines?");
             }
 
@@ -241,21 +265,26 @@ public class TimelineTrackControl : TemplatedControl {
         }
     }
 
-    private void OnTrackHeightChanged(Track track) {
+    private void OnTrackHeightChanged(Track track)
+    {
         this.InvalidateMeasure();
         this.ClipStoragePanel!.InvalidateMeasure();
         this.TrackStoragePanel!.InvalidateVisual();
     }
 
-    private void OnTrackColourChanged(Track track) {
+    private void OnTrackColourChanged(Track track)
+    {
         this.UpdateTrackColour();
-        foreach (TimelineClipControl clip in this.ClipStoragePanel!) {
+        foreach (TimelineClipControl clip in this.ClipStoragePanel!)
+        {
             clip.InvalidateVisual();
         }
     }
 
-    private void UpdateTrackColour() {
-        if (this.Track == null) {
+    private void UpdateTrackColour()
+    {
+        if (this.Track == null)
+        {
             return;
         }
 
@@ -274,15 +303,17 @@ public class TimelineTrackControl : TemplatedControl {
         brush.GradientStops.Clear();
         brush.GradientStops.Add(new GradientStop(primary, 0.0));
         brush.GradientStops.Add(new GradientStop(secondary, 1.0));
-        
+
         ((SolidColorBrush) this.TrackColourForegroundBrush!).Color = PerceivedForegroundConverter.GetColour(primary);
     }
 
-    private readonly struct MovedClip {
+    private readonly struct MovedClip
+    {
         public readonly TimelineClipControl control;
         public readonly Clip clip;
 
-        public MovedClip(TimelineClipControl control, Clip clip) {
+        public MovedClip(TimelineClipControl control, Clip clip)
+        {
             this.control = control;
             this.clip = clip;
         }
@@ -290,34 +321,41 @@ public class TimelineTrackControl : TemplatedControl {
 
     public void OnClipSpanChanged() => this.ClipStoragePanel?.InvalidateArrange();
 
-    public void OnZoomChanged(double newZoom) {
+    public void OnZoomChanged(double newZoom)
+    {
         // this.InvalidateMeasure();
         if (this.PART_AutomationEditor != null)
             this.PART_AutomationEditor.HorizontalZoom = newZoom;
-        foreach (TimelineClipControl clip in this.ClipStoragePanel!) {
+        foreach (TimelineClipControl clip in this.ClipStoragePanel!)
+        {
             clip.OnZoomChanged(newZoom);
         }
     }
-    
-    public void OnPreviewPointerPressed(PointerPressedEventArgs e) {
-        if (this.Track != null) {
+
+    public void OnPreviewPointerPressed(PointerPressedEventArgs e)
+    {
+        if (this.Track != null)
+        {
             // update context data, used by action system and context menu system
             PointerUpdateKind change = e.GetCurrentPoint(this).Properties.PointerUpdateKind;
-            if (change == PointerUpdateKind.LeftButtonPressed || change == PointerUpdateKind.RightButtonPressed) {
+            if (change == PointerUpdateKind.LeftButtonPressed || change == PointerUpdateKind.RightButtonPressed)
+            {
                 this.contextData.Set(DataKeys.TrackContextMouseFrameKey, this.GetFrameAtMousePoint(e));
                 DataManager.InvalidateInheritedContext(this);
             }
 
             // don't focus if the click hit a clip, since the clip will be focused right after so it's pointless
-            if (this.IsConnected && this.TrackElement != null) {
+            if (this.IsConnected && this.TrackElement != null)
+            {
                 this.TimelineControl!.TrackSelectionManager!.SetSelection(this.TrackElement);
             }
 
             // If we didn't hit a clip, then clear clip selection
-            if (!(e.Source is TimelineClipControl)) {
+            if (!(e.Source is TimelineClipControl))
+            {
                 this.TimelineControl!.ClipSelectionManager!.Clear();
             }
-            
+
             // Used to have to manually update property editor, but now that we have the selection managers,
             // we can use those + RapidDispatchAction or RateLimitedDispatchAction to limit activity
             // VideoEditorPropertyEditor.Instance.UpdateTrackSelectionAsync(timeline);
@@ -326,11 +364,13 @@ public class TimelineTrackControl : TemplatedControl {
 
     private long GetFrameAtMousePoint(PointerPressedEventArgs e) => this.GetFrameAtMousePoint(e.GetPosition(this));
 
-    public long GetFrameAtMousePoint(Point pointRelativeToThis) {
+    public long GetFrameAtMousePoint(Point pointRelativeToThis)
+    {
         return TimelineUtils.PixelToFrame(pointRelativeToThis.X, this.TimelineControl?.Zoom ?? 1.0, true);
     }
 
-    public void OnIsAutomationVisibilityChanged(bool isVisible) {
+    public void OnIsAutomationVisibilityChanged(bool isVisible)
+    {
         this.PART_AutomationEditor!.IsVisible = isVisible;
     }
 }

@@ -21,10 +21,12 @@ using System.Collections.Immutable;
 
 namespace FramePFX.AdvancedMenuService;
 
-public class SubListContextEntry : BaseContextEntry {
+public class SubListContextEntry : BaseContextEntry
+{
     public ImmutableList<IContextObject> ItemList { get; }
-    
-    public SubListContextEntry(string displayName, string? description, IEnumerable<IContextObject> entries) : base(displayName, description) {
+
+    public SubListContextEntry(string displayName, string? description, IEnumerable<IContextObject> entries) : base(displayName, description)
+    {
         this.ItemList = entries.ToImmutableList();
     }
 }

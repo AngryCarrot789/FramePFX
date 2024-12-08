@@ -25,7 +25,8 @@ using FramePFX.PropertyEditing.DataTransfer;
 
 namespace FramePFX.Avalonia.PropertyEditing.DataTransfer;
 
-public class DataParameterBoolPropertyEditorControl : BaseDataParameterPropertyEditorControl {
+public class DataParameterBoolPropertyEditorControl : BaseDataParameterPropertyEditorControl
+{
     protected CheckBox checkBox;
 
     public new DataParameterBoolPropertyEditorSlot SlotModel => (DataParameterBoolPropertyEditorSlot) base.SlotControl.Model;
@@ -33,25 +34,30 @@ public class DataParameterBoolPropertyEditorControl : BaseDataParameterPropertyE
     public DataParameterBoolPropertyEditorControl() {
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
         base.OnApplyTemplate(e);
         this.checkBox = e.NameScope.GetTemplateChild<CheckBox>("PART_CheckBox");
         this.checkBox.IsCheckedChanged += this.CheckBoxOnChecked;
     }
 
-    private void CheckBoxOnChecked(object? sender, RoutedEventArgs e) {
+    private void CheckBoxOnChecked(object? sender, RoutedEventArgs e)
+    {
         this.OnControlValueChanged();
     }
 
-    protected override void UpdateControlValue() {
+    protected override void UpdateControlValue()
+    {
         this.checkBox.IsChecked = this.SlotModel.Value;
     }
 
-    protected override void UpdateModelValue() {
+    protected override void UpdateModelValue()
+    {
         this.SlotModel.Value = this.checkBox.IsChecked ?? false;
     }
 
-    protected override void OnCanEditValueChanged(bool canEdit) {
+    protected override void OnCanEditValueChanged(bool canEdit)
+    {
         this.checkBox.IsEnabled = canEdit;
     }
 }

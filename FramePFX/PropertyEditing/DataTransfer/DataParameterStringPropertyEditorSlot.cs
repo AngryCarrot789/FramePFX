@@ -24,16 +24,20 @@ namespace FramePFX.PropertyEditing.DataTransfer;
 
 public delegate void SlotAnticipatedLineCountChangedEventHandler(DataParameterStringPropertyEditorSlot sender);
 
-public class DataParameterStringPropertyEditorSlot : DataParameterPropertyEditorSlot {
+public class DataParameterStringPropertyEditorSlot : DataParameterPropertyEditorSlot
+{
     private string? value;
     private int anticipatedLineCount = -1;
 
-    public string? Value {
+    public string? Value
+    {
         get => this.value;
-        set {
+        set
+        {
             this.value = value;
             DataParameterString parameter = this.Parameter;
-            for (int i = 0, c = this.Handlers.Count; i < c; i++) {
+            for (int i = 0, c = this.Handlers.Count; i < c; i++)
+            {
                 parameter.SetValue((ITransferableData) this.Handlers[i], value);
             }
 
@@ -44,9 +48,11 @@ public class DataParameterStringPropertyEditorSlot : DataParameterPropertyEditor
     /// <summary>
     /// Gets or sets the number of lines that will probably be taken up by this property. Default is -1, which means ignored. Value must be -1 or greater than 0
     /// </summary>
-    public int AnticipatedLineCount {
+    public int AnticipatedLineCount
+    {
         get => this.anticipatedLineCount;
-        set {
+        set
+        {
             if (value < 0 && value != -1)
                 throw new ArgumentOutOfRangeException(nameof(value), "Value must be -1 or greater than zero");
 
@@ -65,7 +71,8 @@ public class DataParameterStringPropertyEditorSlot : DataParameterPropertyEditor
     public DataParameterStringPropertyEditorSlot(DataParameterString parameter, Type applicableType, string displayName) : base(parameter, applicableType, displayName) {
     }
 
-    public override void QueryValueFromHandlers() {
+    public override void QueryValueFromHandlers()
+    {
         this.HasMultipleValues = !CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetValue((ITransferableData) x), out this.value);
     }
 }

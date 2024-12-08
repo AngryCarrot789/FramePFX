@@ -23,17 +23,21 @@ using FramePFX.Utils.RDA;
 
 namespace FramePFX.Tasks;
 
-public class DefaultProgressTracker : IActivityProgress {
+public class DefaultProgressTracker : IActivityProgress
+{
     private readonly object dataLock = new object(); // only really used as a memory barrier
     private bool isIndeterminate;
     private double completionValue;
     private string? headerText;
     private string? descriptionText;
 
-    public bool IsIndeterminate {
+    public bool IsIndeterminate
+    {
         get => this.isIndeterminate;
-        set {
-            lock (this.dataLock) {
+        set
+        {
+            lock (this.dataLock)
+            {
                 if (this.isIndeterminate == value)
                     return;
                 this.isIndeterminate = value;
@@ -43,10 +47,13 @@ public class DefaultProgressTracker : IActivityProgress {
         }
     }
 
-    public double TotalCompletion {
+    public double TotalCompletion
+    {
         get => this.completionValue;
-        set {
-            lock (this.dataLock) {
+        set
+        {
+            lock (this.dataLock)
+            {
                 if (DoubleUtils.AreClose(this.completionValue, value))
                     return;
                 this.completionValue = value;
@@ -56,10 +63,13 @@ public class DefaultProgressTracker : IActivityProgress {
         }
     }
 
-    public string? HeaderText {
+    public string? HeaderText
+    {
         get => this.headerText;
-        set {
-            lock (this.dataLock) {
+        set
+        {
+            lock (this.dataLock)
+            {
                 if (this.headerText == value)
                     return;
                 this.headerText = value;
@@ -69,10 +79,13 @@ public class DefaultProgressTracker : IActivityProgress {
         }
     }
 
-    public string? Text {
+    public string? Text
+    {
         get => this.descriptionText;
-        set {
-            lock (this.dataLock) {
+        set
+        {
+            lock (this.dataLock)
+            {
                 if (this.descriptionText == value)
                     return;
                 this.descriptionText = value;
@@ -99,7 +112,8 @@ public class DefaultProgressTracker : IActivityProgress {
     public DefaultProgressTracker() : this(DispatchPriority.Loaded) {
     }
 
-    public DefaultProgressTracker(DispatchPriority eventDispatchPriority) {
+    public DefaultProgressTracker(DispatchPriority eventDispatchPriority)
+    {
         this.totalMultiplier = 1.0;
         this.eventDispatchPriority = eventDispatchPriority;
         this.updateIsIndeterminate = RapidDispatchActionEx.ForSync(() => this.IsIndeterminateChanged?.Invoke(this), eventDispatchPriority);
@@ -108,46 +122,56 @@ public class DefaultProgressTracker : IActivityProgress {
         this.updateText = RapidDispatchActionEx.ForSync(() => this.TextChanged?.Invoke(this), eventDispatchPriority);
     }
 
-    public PopDispose PushCompletionRange(double min, double max) {
+    public PopDispose PushCompletionRange(double min, double max)
+    {
         CompletionRange range = new CompletionRange(max - min, this.totalMultiplier, this.TotalCompletion);
         this.totalMultiplier *= range.Range;
         this.ranges.Push(range);
         return new PopDispose(this);
     }
 
-    public void PopCompletionRange() {
+    public void PopCompletionRange()
+    {
         if (this.ranges.Count < 1)
             throw new InvalidOperationException("Too many completion ranges popped: the stack is empty!");
         CompletionRange popped = this.ranges.Pop();
         this.totalMultiplier = popped.PreviousMultiplier;
     }
 
-    public void OnProgress(double value) {
-        if (this.ranges.Count > 0) {
+    public void OnProgress(double value)
+    {
+        if (this.ranges.Count > 0)
+        {
             this.TotalCompletion += this.totalMultiplier * value;
         }
-        else {
+        else
+        {
             // assert totalMultiplier == 1.0
             this.TotalCompletion += value;
         }
     }
-    
-    public void SetProgress(double value) {
-        if (this.ranges.TryPeek(out CompletionRange top)) {
+
+    public void SetProgress(double value)
+    {
+        if (this.ranges.TryPeek(out CompletionRange top))
+        {
             this.TotalCompletion = top.PreviousTotalCompletion + (this.totalMultiplier * value);
         }
-        else {
+        else
+        {
             // assert totalMultiplier == 1.0
             this.TotalCompletion = value;
         }
     }
 
-    public static void TestCompletionRangeFunctionality() {
+    public static void TestCompletionRangeFunctionality()
+    {
         // Begin: CloseActiveAndOpenProject
-        
-        
+
+
         DefaultProgressTracker tracker = new DefaultProgressTracker();
-        using (tracker.PushCompletionRange(0.0, 0.5)) {
+        using (tracker.PushCompletionRange(0.0, 0.5))
+        {
             // Begin: CloseActive
             // parent range = 0.5, so 0.5 * 0.25 = 0.125.
             // TotalCompletion = 0.0 + 0.125
@@ -159,13 +183,16 @@ public class DefaultProgressTracker : IActivityProgress {
             // End: CloseActive
         }
 
-        using (tracker.PushCompletionRange(0.5, 1.0)) {
+        using (tracker.PushCompletionRange(0.5, 1.0))
+        {
             // Begin: OpenProject
 
-            using (tracker.PushCompletionRange(0.0, 0.25)) {
+            using (tracker.PushCompletionRange(0.0, 0.25))
+            {
                 // Begin: PreLoad
 
-                using (tracker.PushCompletionRange(0.0, 0.1)) {
+                using (tracker.PushCompletionRange(0.0, 0.1))
+                {
                     // Begin: ProcessPreLoad
                     tracker.SetProgress(0.7);
                     tracker.SetProgress(0.8);
@@ -180,14 +207,16 @@ public class DefaultProgressTracker : IActivityProgress {
                 // End: PreLoad
             }
 
-            using (tracker.PushCompletionRange(0.25, 0.5)) {
+            using (tracker.PushCompletionRange(0.25, 0.5))
+            {
                 // Begin: PostLoad
                 tracker.OnProgress(0.2);
                 tracker.OnProgress(0.8);
                 // End: PostLoad
             }
 
-            using (tracker.PushCompletionRange(0.5, 1.0)) {
+            using (tracker.PushCompletionRange(0.5, 1.0))
+            {
                 // Begin: PostLoad
                 tracker.OnProgress(0.3);
                 tracker.OnProgress(0.6);
@@ -198,7 +227,8 @@ public class DefaultProgressTracker : IActivityProgress {
             // End: OpenProject
         }
 
-        if (!DoubleUtils.AreClose(tracker.TotalCompletion, 1.0)) {
+        if (!DoubleUtils.AreClose(tracker.TotalCompletion, 1.0))
+        {
             Debugger.Break(); // test failed
             throw new Exception("Test failed. Completion ranges do not function as expected");
         }

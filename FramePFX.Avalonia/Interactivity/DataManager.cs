@@ -39,7 +39,8 @@ namespace FramePFX.Avalonia.Interactivity;
 /// allowing listeners to do anything they want (e.g. re-query command executability based on available context)
 /// </para>
 /// </summary>
-public class DataManager {
+public class DataManager
+{
     private static int totalSuspensionCount; // used for performance reasons
 
     /// <summary>
@@ -67,7 +68,8 @@ public class DataManager {
     public static readonly RoutedEvent InheritedContextChangedEvent =
         RoutedEvent.Register<DataManager, RoutedEventArgs>("InheritedContextChanged", RoutingStrategies.Direct);
 
-    static DataManager() {
+    static DataManager()
+    {
         ContextDataProperty.Changed.AddClassHandler<AvaloniaObject, IContextData?>(OnContextDataChanged);
 
         // May cause performance issues... xaml seems to be loaded bottom-to-top when a control template is loaded
@@ -84,7 +86,8 @@ public class DataManager {
     /// <param name="target">The target object</param>
     /// <param name="handler">The event handler</param>
     /// <exception cref="ArgumentException">The target is not <see cref="IInputElement"/> and therefore cannot accept event handlers</exception>
-    public static void AddInheritedContextChangedHandler(AvaloniaObject target, Delegate handler) {
+    public static void AddInheritedContextChangedHandler(AvaloniaObject target, Delegate handler)
+    {
         if (!(target is IInputElement input))
             throw new ArgumentException("Target is not an instance of " + nameof(IInputElement));
         input.AddHandler(InheritedContextChangedEvent, handler);
@@ -96,7 +99,8 @@ public class DataManager {
     /// <param name="target">The target object</param>
     /// <param name="handler">The event handler</param>
     /// <exception cref="ArgumentException">The target is not <see cref="IInputElement"/> and therefore cannot accept event handlers</exception>
-    public static void RemoveInheritedContextChangedHandler(AvaloniaObject target, Delegate handler) {
+    public static void RemoveInheritedContextChangedHandler(AvaloniaObject target, Delegate handler)
+    {
         if (!(target is IInputElement input))
             throw new ArgumentException("Target is not an instance of " + nameof(IInputElement));
         input.RemoveHandler(InheritedContextChangedEvent, handler);
@@ -111,8 +115,10 @@ public class DataManager {
     /// </para>
     /// </summary>
     /// <param name="element">The element to invalidate the inherited context data of, along with its visual tree</param>
-    public static void InvalidateInheritedContext(AvaloniaObject element) {
-        if (totalSuspensionCount > 0 && GetSuspendedInvalidationCount(element) > 0) {
+    public static void InvalidateInheritedContext(AvaloniaObject element)
+    {
+        if (totalSuspensionCount > 0 && GetSuspendedInvalidationCount(element) > 0)
+        {
             return;
         }
 
@@ -135,7 +141,8 @@ public class DataManager {
     /// </para>
     /// </summary>
     /// <param name="element">The element to raise the event for, along with its visual tree</param>
-    public static void RaiseInheritedContextChanged(AvaloniaObject element) {
+    public static void RaiseInheritedContextChanged(AvaloniaObject element)
+    {
         RaiseEventRecursive(element, new RoutedEventArgs(InheritedContextChangedEvent, element));
         // Debug.WriteLine($"Context invalidated: {element.GetType().Name}");
     }
@@ -143,14 +150,16 @@ public class DataManager {
     /// <summary>
     /// Clears the <see cref="ContextDataProperty"/> value for the specific dependency object
     /// </summary>
-    public static void ClearContextData(AvaloniaObject element) {
+    public static void ClearContextData(AvaloniaObject element)
+    {
         element.ClearValue(ContextDataProperty);
     }
 
     /// <summary>
     /// Sets or replaces the context data for the specific dependency object
     /// </summary>
-    public static void SetContextData(AvaloniaObject element, IContextData value) {
+    public static void SetContextData(AvaloniaObject element, IContextData value)
+    {
         element.SetValue(ContextDataProperty, value);
     }
 
@@ -158,7 +167,8 @@ public class DataManager {
     /// Gets the local context data for the specific dependency object. The returned
     /// value is the same as the value passed to <see cref="SetContextData"/>
     /// </summary>
-    public static IContextData GetContextData(AvaloniaObject element) {
+    public static IContextData GetContextData(AvaloniaObject element)
+    {
         return element.GetValue(ContextDataProperty);
     }
 
@@ -175,9 +185,11 @@ public class DataManager {
     /// </summary>
     /// <param name="component">The target object</param>
     /// <returns>The fully inherited and merged context data. Will always be non-null</returns>
-    public static IContextData GetFullContextData(AvaloniaObject component) {
+    public static IContextData GetFullContextData(AvaloniaObject component)
+    {
         IContextData? value = component.GetValue(InheritedContextDataProperty);
-        if (value == null) {
+        if (value == null)
+        {
             component.SetValue(InheritedContextDataProperty, value = EvaluateContextDataRaw(component));
         }
 
@@ -196,7 +208,8 @@ public class DataManager {
     /// <param name="obj">The element to get the full context of</param>
     /// <returns>The context</returns>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static IContextData EvaluateContextDataRaw(AvaloniaObject obj) {
+    public static IContextData EvaluateContextDataRaw(AvaloniaObject obj)
+    {
         ProviderContextData ctx = new ProviderContextData();
 
         // I thought about using TreeLevel, then thought reflection was too slow, so then I profiled the code...
@@ -211,15 +224,18 @@ public class DataManager {
 
         // Accumulate visual tree bottom-to-top. Visual tree will contain the reverse tree
         List<AvaloniaObject> visualTree = new List<AvaloniaObject>(32);
-        for (AvaloniaObject? dp = obj; dp != null; dp = VisualTreeUtils.GetParent(dp)) {
+        for (AvaloniaObject? dp = obj; dp != null; dp = VisualTreeUtils.GetParent(dp))
+        {
             visualTree.Add(dp);
         }
 
         // Scan top-down in order to allow deeper objects' entries to override higher up entries
-        for (int i = visualTree.Count - 1; i >= 0; i--) {
+        for (int i = visualTree.Count - 1; i >= 0; i--)
+        {
             AvaloniaObject dp = visualTree[i];
             IContextData? data = dp.GetBaseValue(ContextDataProperty).GetValueOrDefault();
-            if (data != null) {
+            if (data != null)
+            {
                 ctx.Merge(data);
             }
         }
@@ -228,7 +244,8 @@ public class DataManager {
     }
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    private static void InvalidateInheritedContextAndChildren(AvaloniaObject obj) {
+    private static void InvalidateInheritedContextAndChildren(AvaloniaObject obj)
+    {
         // SetValue is around 2x faster than ClearValue, and either way, ClearValue isn't
         // very useful here since WPF inheritance isn't used, and the value will most
         // likely be re-calculated very near in the future possibly via dispatcher on background priority
@@ -244,7 +261,8 @@ public class DataManager {
 
     // Minimize stack usage as much as possible by using 'as' cast
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    private static void RaiseEventRecursive(AvaloniaObject target, RoutedEventArgs args) {
+    private static void RaiseEventRecursive(AvaloniaObject target, RoutedEventArgs args)
+    {
         (target as IInputElement)?.RaiseEvent(args);
 
         if (target is Visual visual)
@@ -274,28 +292,34 @@ public class DataManager {
     /// <param name="obj"></param>
     /// <param name="autoInvalidateOnUnsuspended"></param>
     /// <returns></returns>
-    public static IDisposable SuspendMergedContextInvalidation(AvaloniaObject obj, bool autoInvalidateOnUnsuspended = true) {
+    public static IDisposable SuspendMergedContextInvalidation(AvaloniaObject obj, bool autoInvalidateOnUnsuspended = true)
+    {
         totalSuspensionCount++;
         return new SuspendInvalidation(obj, autoInvalidateOnUnsuspended);
     }
 
-    public static int GetSuspendedInvalidationCount(AvaloniaObject element) {
+    public static int GetSuspendedInvalidationCount(AvaloniaObject element)
+    {
         return (int) element.GetValue(SuspendedInvalidationCountProperty);
     }
 
-    private class SuspendInvalidation : IDisposable {
+    private class SuspendInvalidation : IDisposable
+    {
         private AvaloniaObject target;
         private readonly bool autoInvalidateOnUnsuspended;
 
-        public SuspendInvalidation(AvaloniaObject target, bool autoInvalidateOnUnsuspended) {
+        public SuspendInvalidation(AvaloniaObject target, bool autoInvalidateOnUnsuspended)
+        {
             this.target = target;
             this.autoInvalidateOnUnsuspended = autoInvalidateOnUnsuspended;
             target.SetValue(SuspendedInvalidationCountProperty, (int) target.GetValue(SuspendedInvalidationCountProperty) + 1);
         }
 
-        public void Dispose() {
+        public void Dispose()
+        {
             AvaloniaObject dp = this.target;
-            if (dp == null) {
+            if (dp == null)
+            {
                 return;
             }
 
@@ -303,18 +327,22 @@ public class DataManager {
             totalSuspensionCount--;
 
             int count = GetSuspendedInvalidationCount(dp);
-            if (count < 0) {
+            if (count < 0)
+            {
                 Debugger.Break();
                 return;
             }
 
-            if (count == 1) {
+            if (count == 1)
+            {
                 dp.SetValue(SuspendedInvalidationCountProperty, SuspendedInvalidationCountProperty.GetDefaultValue(dp.GetType()));
-                if (this.autoInvalidateOnUnsuspended) {
+                if (this.autoInvalidateOnUnsuspended)
+                {
                     InvalidateInheritedContext(dp);
                 }
             }
-            else {
+            else
+            {
                 dp.SetValue(SuspendedInvalidationCountProperty, count - 1);
             }
         }

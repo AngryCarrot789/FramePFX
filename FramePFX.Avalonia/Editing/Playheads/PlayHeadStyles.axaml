@@ -31,7 +31,7 @@
             </Setter.Value>
         </Setter>
     </ControlTheme>
-    
+
     <ControlTheme x:Key="{x:Type p:GrippedPlayHeadControl}" TargetType="{x:Type p:GrippedPlayHeadControl}">
         <Setter Property="Background" Value="{x:Null}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource ABrush.Tone7.Border.Static}"/>
@@ -58,12 +58,12 @@
                                 Opacity="0.3"/>
                         <Border IsHitTestVisible="False" BorderThickness="1,1,0,0" Width="3" Height="7" Margin="5,-4,0,0" BorderBrush="{DynamicResource ABrush.Tone6.Border.Static}"
                                 Opacity="0.3"/>
-                        <Thumb Grid.Row="0" x:Name="PART_ThumbHead" 
-                               VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
+                        <Thumb Grid.Row="0" x:Name="PART_ThumbHead"
+                               VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                                Cursor="SizeWestEast"
                                Background="Transparent" Theme="{StaticResource NoAppearanceThumbTheme}"/>
-                        <Thumb Grid.Row="1" x:Name="PART_ThumbBody" 
-                               VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
+                        <Thumb Grid.Row="1" x:Name="PART_ThumbBody"
+                               VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                                Margin="5,0" Width="1" Cursor="SizeWestEast"
                                Background="Transparent" Theme="{StaticResource NoAppearanceThumbTheme}"/>
                     </Grid>

@@ -26,22 +26,28 @@ using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
 
 namespace FramePFX.Editing.Commands;
 
-public class OpenProjectCommand : AsyncCommand {
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {
+public class OpenProjectCommand : AsyncCommand
+{
+    protected override Executability CanExecuteOverride(CommandEventArgs e)
+    {
         return DataKeys.VideoEditorKey.GetExecutabilityForPresence(e.ContextData);
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
-        if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? editor)) {
+    protected override async Task ExecuteAsync(CommandEventArgs e)
+    {
+        if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? editor))
+        {
             return;
         }
 
         string? filePath = await IoC.FilePickService.OpenFile("Open a project file (.fpfx)", Filters.ListProjectTypeAndAll);
-        if (filePath == null) {
+        if (filePath == null)
+        {
             return;
         }
 
-        if (!File.Exists(filePath)) {
+        if (!File.Exists(filePath))
+        {
             await IoC.MessageService.ShowMessage("No such file", "That project file does not exist");
             return;
         }
@@ -49,17 +55,22 @@ public class OpenProjectCommand : AsyncCommand {
         await RunOpenProjectTask(editor, filePath);
     }
 
-    public static ActivityTask<bool> RunOpenProjectTask(VideoEditor editor, string filePath) {
-        return TaskManager.Instance.RunTask<bool>(async () => {
+    public static ActivityTask<bool> RunOpenProjectTask(VideoEditor editor, string filePath)
+    {
+        return TaskManager.Instance.RunTask<bool>(async () =>
+        {
             IActivityProgress progress = TaskManager.Instance.CurrentTask.Progress;
 
             bool result;
-            using (progress.PushCompletionRange(0.0, 0.5)) {
+            using (progress.PushCompletionRange(0.0, 0.5))
+            {
                 result = await CloseProjectCommand.CloseProjectBGT(editor, progress);
             }
 
-            if (result) {
-                using (progress.PushCompletionRange(0.5, 1.0)) {
+            if (result)
+            {
+                using (progress.PushCompletionRange(0.5, 1.0))
+                {
                     return await OpenProjectAtBGT(editor, filePath, progress);
                 }
             }
@@ -68,20 +79,24 @@ public class OpenProjectCommand : AsyncCommand {
         }, new DefaultProgressTracker());
     }
 
-    public static async Task<bool> OpenProjectAtBGT(VideoEditor editor, string filePath, IActivityProgress? progress) {
+    public static async Task<bool> OpenProjectAtBGT(VideoEditor editor, string filePath, IActivityProgress? progress)
+    {
         Project project;
 
         if (progress == null)
             progress = EmptyActivityProgress.Instance;
 
-        using (progress.PushCompletionRange(0.0, 0.4)) {
+        using (progress.PushCompletionRange(0.0, 0.4))
+        {
             progress.Text = "Reading project data from file";
             progress.OnProgress(0.5);
 
-            try {
+            try
+            {
                 project = Project.ReadProjectAt(filePath);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 await IoC.MessageService.ShowMessage("Read Error", "An exception occurred while reading the project", ex.GetToString());
                 return false;
             }
@@ -89,10 +104,12 @@ public class OpenProjectCommand : AsyncCommand {
             progress.OnProgress(0.5);
         }
 
-        using (progress.PushCompletionRange(0.4, 0.6)) {
+        using (progress.PushCompletionRange(0.4, 0.6))
+        {
             progress.Text = "Loading project";
             progress.OnProgress(0.5);
-            await IoC.Dispatcher.InvokeAsync(() => {
+            await IoC.Dispatcher.InvokeAsync(() =>
+            {
                 if (editor.Project != null)
                     editor.CloseProject();
                 editor.SetProject(project);
@@ -100,17 +117,22 @@ public class OpenProjectCommand : AsyncCommand {
             progress.OnProgress(0.5);
         }
 
-        using (progress.PushCompletionRange(0.6, 0.9)) {
+        using (progress.PushCompletionRange(0.6, 0.9))
+        {
             progress.Text = "Loading resources";
             progress.OnProgress(0.5);
 
-            bool result = await await IoC.Dispatcher.InvokeAsync(async () => {
+            bool result = await await IoC.Dispatcher.InvokeAsync(async () =>
+            {
                 IResourceLoaderService loader = RZApplication.Instance.Services.GetService<IResourceLoaderService>();
-                if (!await loader.TryLoadResource(project.ResourceManager.RootContainer)) {
-                    try {
+                if (!await loader.TryLoadResource(project.ResourceManager.RootContainer))
+                {
+                    try
+                    {
                         editor.CloseProject();
                     }
-                    catch (Exception e) {
+                    catch (Exception e)
+                    {
                         await IoC.MessageService.ShowMessage("Close Error", "An exception occurred while closing the project", e.GetToString());
                     }
 
@@ -126,22 +148,27 @@ public class OpenProjectCommand : AsyncCommand {
             progress.OnProgress(0.5);
         }
 
-        using (progress.PushCompletionRange(0.9, 1.0)) {
+        using (progress.PushCompletionRange(0.9, 1.0))
+        {
             progress.Text = "Updating automation and rendering";
             progress.OnProgress(0.5);
 
-            try {
-                await IoC.Dispatcher.InvokeAsync(() => {
+            try
+            {
+                await IoC.Dispatcher.InvokeAsync(() =>
+                {
                     project.SetUnModified();
                     AutomationEngine.UpdateValues(project.ActiveTimeline);
                     project.MainTimeline.RenderManager.InvalidateRender();
                 }, DispatchPriority.Input);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 await IoC.MessageService.ShowMessage("Error updating automation", e.GetToString());
             }
 
-            if (project.IsModified) {
+            if (project.IsModified)
+            {
                 await IoC.MessageService.ShowMessage("Warning", "Issue: project was marked modified during automation update, which should not happen");
             }
 

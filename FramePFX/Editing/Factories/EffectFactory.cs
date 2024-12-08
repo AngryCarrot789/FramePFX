@@ -21,14 +21,17 @@ using FramePFX.Editing.Timelines.Effects;
 
 namespace FramePFX.Editing.Factories;
 
-public class EffectFactory : ReflectiveObjectFactory<BaseEffect> {
+public class EffectFactory : ReflectiveObjectFactory<BaseEffect>
+{
     public static EffectFactory Instance { get; } = new EffectFactory();
 
-    private EffectFactory() {
+    private EffectFactory()
+    {
         this.RegisterType("vfx_pixelate", typeof(CPUPixelateEffect));
     }
 
-    public BaseEffect NewEffect(string id) {
+    public BaseEffect NewEffect(string id)
+    {
         return base.NewInstance(id);
     }
 }

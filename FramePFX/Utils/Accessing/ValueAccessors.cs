@@ -14,12 +14,14 @@ using Expression = System.Linq.Expressions.Expression;
 
 namespace FramePFX.Utils.Accessing;
 
-public static class ValueAccessors {
+public static class ValueAccessors
+{
     // Is using a map of maps even a good idea? It might be slower...
     private static readonly Dictionary<Type, Dictionary<PropOrFieldKey, object>> CachedLinqAccessors;
     private static ParameterExpression? InstanceParameter;
 
-    static ValueAccessors() {
+    static ValueAccessors()
+    {
         CachedLinqAccessors = new Dictionary<Type, Dictionary<PropOrFieldKey, object>>();
     }
 
@@ -32,7 +34,8 @@ public static class ValueAccessors {
     /// <typeparam name="TValue">The value type</typeparam>
     /// <returns>A value accessor</returns>
     /// <exception cref="Exception">No property or field found with the specified name</exception>
-    public static ValueAccessor<TValue> Reflective<TValue>(Type owner, string propertyOrField) {
+    public static ValueAccessor<TValue> Reflective<TValue>(Type owner, string propertyOrField)
+    {
         MemberInfo info = GetPropertyOrField(owner, propertyOrField);
         if (info is PropertyInfo)
             return new ReflectivePropertyValueAccessor<TValue>((PropertyInfo) info);
@@ -50,16 +53,19 @@ public static class ValueAccessors {
     /// </param>
     /// <typeparam name="TValue">The value type</typeparam>
     /// <returns>A value accessor</returns>
-    public static ValueAccessor<TValue> LinqExpression<TValue>(Type owner, string propertyOrField, bool canUseCached = false) {
+    public static ValueAccessor<TValue> LinqExpression<TValue>(Type owner, string propertyOrField, bool canUseCached = false)
+    {
         MemberInfo targetMember = GetPropertyOrField(owner, propertyOrField);
         Type? memberOwnerType = targetMember.DeclaringType;
         if (memberOwnerType == null)
             throw new Exception($"The target member named '{propertyOrField}' does not have a declaring type somehow");
 
-        if (canUseCached) {
+        if (canUseCached)
+        {
             return GetOrCreateCachedLinqAccessor<TValue>(memberOwnerType, propertyOrField, targetMember);
         }
-        else {
+        else
+        {
             return CreateLinqAccessor<TValue>(memberOwnerType, targetMember);
         }
     }
@@ -72,7 +78,8 @@ public static class ValueAccessors {
     /// <typeparam name="TValue"></typeparam>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public static ValueAccessor<TValue> FastStartupAccessor<TValue>(Type owner, string propertyOrField) {
+    public static ValueAccessor<TValue> FastStartupAccessor<TValue>(Type owner, string propertyOrField)
+    {
         // Using Time.GetSystemTicks(), this constructor takes 1ms~ compared to 7ms~ for LinqExpression() (both first calls before JIT).
         // JIT constructor is roughly 2x to 4x as fast compared to JIT LinqExpression(), but the JIT fast startup
         // was like 0.2 ms so it's not exactly saving much time
@@ -80,24 +87,29 @@ public static class ValueAccessors {
         return new FastStartupValueAccessor<TValue>(owner, propertyOrField);
     }
 
-    private static ValueAccessor<TValue> GetOrCreateCachedLinqAccessor<TValue>(Type memberOwnerType, string propertyOrField, MemberInfo targetMember) {
+    private static ValueAccessor<TValue> GetOrCreateCachedLinqAccessor<TValue>(Type memberOwnerType, string propertyOrField, MemberInfo targetMember)
+    {
         PropOrFieldKey key = new PropOrFieldKey(propertyOrField, targetMember);
         Dictionary<PropOrFieldKey, object>? memberToAccessor;
-        lock (CachedLinqAccessors) {
+        lock (CachedLinqAccessors)
+        {
             if (!CachedLinqAccessors.TryGetValue(memberOwnerType, out memberToAccessor))
                 CachedLinqAccessors[memberOwnerType] = memberToAccessor = new Dictionary<PropOrFieldKey, object>();
         }
 
-        lock (memberToAccessor) {
+        lock (memberToAccessor)
+        {
             bool result = memberToAccessor.TryGetValue(key, out object? rawAccessor);
             ValueAccessor<TValue> accessor;
-            if (result) {
+            if (result)
+            {
                 // Assuming the CLR won't allow duplicate properties or fields with the same name,
                 // or if that's not the case then assuming order is at least maintained during runtime and
                 // the property/field types cannot be changed, then this should cast successfully
                 accessor = (ValueAccessor<TValue>) rawAccessor!;
             }
-            else {
+            else
+            {
                 memberToAccessor[key] = accessor = CreateLinqAccessor<TValue>(memberOwnerType, targetMember);
             }
 
@@ -105,7 +117,8 @@ public static class ValueAccessors {
         }
     }
 
-    private static ValueAccessor<TValue> CreateLinqAccessor<TValue>(Type memberOwnerType, MemberInfo memberInfo) {
+    private static ValueAccessor<TValue> CreateLinqAccessor<TValue>(Type memberOwnerType, MemberInfo memberInfo)
+    {
         ParameterExpression paramInstance = InstanceParameter ??= Expression.Parameter(typeof(object), "instance");
         UnaryExpression castToOwner = Expression.Convert(paramInstance, memberOwnerType);
         MemberExpression dataMember = Expression.MakeMemberAccess(castToOwner, memberInfo);
@@ -126,7 +139,8 @@ public static class ValueAccessors {
     /// <param name="setter">The value setter</param>
     /// <typeparam name="TValue">The value type</typeparam>
     /// <returns>A value accessor</returns>
-    public static ValueAccessor<TValue> GetSet<TValue>(AccessGetter<TValue> getter, AccessSetter<TValue> setter) {
+    public static ValueAccessor<TValue> GetSet<TValue>(AccessGetter<TValue> getter, AccessSetter<TValue> setter)
+    {
         return new GetSetValueAccessor<TValue>(getter, setter!);
     }
 
@@ -137,83 +151,102 @@ public static class ValueAccessors {
     // /// <returns>The storage value accessor</returns>
     // public static ValueAccessor<TValue> MappedStorage<TValue>() => new MappedStorageValueAccessor<TValue>();
 
-    private class ReflectiveFieldValueAccessor<TValue> : ValueAccessor<TValue> {
+    private class ReflectiveFieldValueAccessor<TValue> : ValueAccessor<TValue>
+    {
         private readonly FieldInfo info;
 
-        public ReflectiveFieldValueAccessor(FieldInfo info) {
+        public ReflectiveFieldValueAccessor(FieldInfo info)
+        {
             this.IsObjectPreferred = true;
             this.info = info ?? throw new ArgumentNullException(nameof(info));
         }
 
-        public override TValue? GetValue(object owner) {
+        public override TValue? GetValue(object owner)
+        {
             return (TValue?) this.info.GetValue(owner);
         }
 
-        public override object? GetObjectValue(object owner) {
+        public override object? GetObjectValue(object owner)
+        {
             return this.info.GetValue(owner);
         }
 
-        public override void SetValue(object owner, TValue? value) {
+        public override void SetValue(object owner, TValue? value)
+        {
             this.info.SetValue(owner, value);
         }
 
-        public override void SetObjectValue(object owner, object? value) {
+        public override void SetObjectValue(object owner, object? value)
+        {
             this.info.SetValue(owner, value);
         }
     }
 
-    private class ReflectivePropertyValueAccessor<TValue> : ValueAccessor<TValue> {
+    private class ReflectivePropertyValueAccessor<TValue> : ValueAccessor<TValue>
+    {
         private readonly PropertyInfo info;
 
-        public ReflectivePropertyValueAccessor(PropertyInfo info) {
+        public ReflectivePropertyValueAccessor(PropertyInfo info)
+        {
             this.IsObjectPreferred = true;
             this.info = info ?? throw new ArgumentNullException(nameof(info));
         }
 
-        public override TValue? GetValue(object owner) {
+        public override TValue? GetValue(object owner)
+        {
             return (TValue?) this.info.GetValue(owner);
         }
 
-        public override object? GetObjectValue(object owner) {
+        public override object? GetObjectValue(object owner)
+        {
             return this.info.GetValue(owner);
         }
 
-        public override void SetValue(object owner, TValue? value) {
+        public override void SetValue(object owner, TValue? value)
+        {
             this.info.SetValue(owner, value);
         }
 
-        public override void SetObjectValue(object owner, object? value) {
+        public override void SetObjectValue(object owner, object? value)
+        {
             this.info.SetValue(owner, value);
         }
     }
 
-    private class GetSetValueAccessor<TValue> : ValueAccessor<TValue> {
+    private class GetSetValueAccessor<TValue> : ValueAccessor<TValue>
+    {
         private readonly AccessGetter<TValue?> get;
         private readonly AccessSetter<TValue?> set;
 
-        public GetSetValueAccessor(AccessGetter<TValue?> get, AccessSetter<TValue?> set) {
+        public GetSetValueAccessor(AccessGetter<TValue?> get, AccessSetter<TValue?> set)
+        {
             this.get = get ?? throw new ArgumentNullException(nameof(get));
             this.set = set ?? throw new ArgumentNullException(nameof(set));
         }
 
-        public override TValue? GetValue(object owner) {
+        public override TValue? GetValue(object owner)
+        {
             return this.get(owner);
         }
 
-        public override object? GetObjectValue(object owner) {
+        public override object? GetObjectValue(object owner)
+        {
             return this.get(owner);
         }
 
-        public override void SetValue(object owner, TValue? value) {
+        public override void SetValue(object owner, TValue? value)
+        {
             this.set(owner, value);
         }
 
-        public override void SetObjectValue(object owner, object? value) {
+        public override void SetObjectValue(object owner, object? value)
+        {
             this.set(owner, (TValue?) value);
         }
     }
 
-    private class FastStartupValueAccessor<TValue> : ValueAccessor<TValue> {
+    private class FastStartupValueAccessor<TValue> : ValueAccessor<TValue>
+    {
         private readonly object locker = new object();
         private int isExpression;
         private int count;
@@ -222,16 +255,21 @@ public static class ValueAccessors {
         private readonly Type ownerType;
         private readonly string propertyOrFieldName;
 
-        public FastStartupValueAccessor(Type ownerType, string propertyOrFieldName) {
+        public FastStartupValueAccessor(Type ownerType, string propertyOrFieldName)
+        {
             this.accessor = Reflective<TValue>(ownerType, propertyOrFieldName);
             this.ownerType = ownerType;
             this.propertyOrFieldName = propertyOrFieldName;
         }
 
-        private void CheckUpgrade() {
-            if (this.isExpression == 0) {
-                lock (this.locker) {
-                    if (this.isExpression == 0 && ++this.count > 10) {
+        private void CheckUpgrade()
+        {
+            if (this.isExpression == 0)
+            {
+                lock (this.locker)
+                {
+                    if (this.isExpression == 0 && ++this.count > 10)
+                    {
                         Interlocked.Exchange(ref this.isExpression, 1);
                         this.accessor = LinqExpression<TValue>(this.ownerType, this.propertyOrFieldName);
                     }
@@ -239,28 +277,33 @@ public static class ValueAccessors {
             }
         }
 
-        public override TValue? GetValue(object owner) {
+        public override TValue? GetValue(object owner)
+        {
             this.CheckUpgrade();
             return this.accessor.GetValue(owner);
         }
 
-        public override object? GetObjectValue(object owner) {
+        public override object? GetObjectValue(object owner)
+        {
             this.CheckUpgrade();
             return this.accessor.GetObjectValue(owner);
         }
 
-        public override void SetValue(object owner, TValue? value) {
+        public override void SetValue(object owner, TValue? value)
+        {
             this.CheckUpgrade();
             this.accessor.SetValue(owner, value);
         }
 
-        public override void SetObjectValue(object owner, object? value) {
+        public override void SetObjectValue(object owner, object? value)
+        {
             this.CheckUpgrade();
             this.accessor.SetObjectValue(owner, value);
         }
     }
 
-    private static MemberInfo GetPropertyOrField(Type type, string name) {
+    private static MemberInfo GetPropertyOrField(Type type, string name)
+    {
         // Can't get public or private in a single method call, according to the Expression class
         PropertyInfo? p = type.GetProperty(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
         if (!ReferenceEquals(p, null))
@@ -276,12 +319,14 @@ public static class ValueAccessors {
     }
 
 #if SHOULD_BE_REALLY_ANAL
-    private readonly struct PropOrFieldKey : IEquatable<PropOrFieldKey> {
+    private readonly struct PropOrFieldKey : IEquatable<PropOrFieldKey>
+    {
         public readonly string Name;
         public readonly Type DataType;
         private readonly int HashCode;
 
-        private PropOrFieldKey(string name, Type dataType) {
+        private PropOrFieldKey(string name, Type dataType)
+        {
             this.Name = name;
             this.DataType = dataType;
             this.HashCode = unchecked((this.Name.GetHashCode() * 397) ^ this.DataType.GetHashCode());

@@ -21,7 +21,8 @@ using FramePFX.Editing.Exporting.Setups;
 
 namespace FramePFX.Editing.Exporting;
 
-public interface IExportService {
+public interface IExportService
+{
     /// <summary>
     /// Shows the export dialog, in relation to the given timeline
     /// </summary>

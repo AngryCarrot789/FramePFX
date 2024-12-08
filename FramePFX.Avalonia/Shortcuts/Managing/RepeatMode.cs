@@ -19,7 +19,8 @@
 
 namespace FramePFX.Avalonia.Shortcuts.Managing;
 
-public enum RepeatMode {
+public enum RepeatMode
+{
     /// <summary>
     /// Repeated input strokes are ignored
     /// </summary>

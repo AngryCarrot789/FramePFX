@@ -31,7 +31,8 @@ namespace FramePFX.Interactivity.Contexts;
 /// <summary>
 /// A class which contains all of the general FramePFX data keys
 /// </summary>
-public static class DataKeys {
+public static class DataKeys
+{
     public static readonly DataKey<ITopLevel> TopLevelHostKey = DataKey<ITopLevel>.Create("TopLevel");
     public static readonly DataKey<VideoEditor> VideoEditorKey = DataKey<VideoEditor>.Create("VideoEditor");
     public static readonly DataKey<Project> ProjectKey = DataKey<Project>.Create("Project");

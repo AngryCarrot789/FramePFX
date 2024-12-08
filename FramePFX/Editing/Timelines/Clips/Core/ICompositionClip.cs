@@ -25,7 +25,8 @@ namespace FramePFX.Editing.Timelines.Clips.Core;
 /// <summary>
 /// An interface for a clip that is can be linked to a composition timeline
 /// </summary>
-public interface ICompositionClip {
+public interface ICompositionClip
+{
     /// <summary>
     /// Gets the resource path key for the composition resource
     /// </summary>

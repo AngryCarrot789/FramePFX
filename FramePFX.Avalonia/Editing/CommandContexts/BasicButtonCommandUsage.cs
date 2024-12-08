@@ -23,23 +23,27 @@ using FramePFX.CommandSystem;
 
 namespace FramePFX.Avalonia.Editing.CommandContexts;
 
-public class BasicButtonCommandUsage : CommandUsage {
+public class BasicButtonCommandUsage : CommandUsage
+{
     private ButtonHelper? button;
-    
+
     public BasicButtonCommandUsage(string commandId) : base(commandId) { }
 
-    protected override void OnConnected() {
+    protected override void OnConnected()
+    {
         base.OnConnected();
         this.button = ButtonHelper.Create(this.Control, this.OnButtonClick);
     }
 
-    protected override void OnDisconnected() {
+    protected override void OnDisconnected()
+    {
         base.OnDisconnected();
         this.button?.Dispose();
         this.button = null;
     }
 
-    protected virtual void OnButtonClick() {
+    protected virtual void OnButtonClick()
+    {
         this.UpdateCanExecute();
         CommandManager.Instance.TryExecute(this.CommandId, () => DataManager.GetFullContextData(this.Control!));
 
@@ -48,7 +52,8 @@ public class BasicButtonCommandUsage : CommandUsage {
         this.UpdateCanExecute();
     }
 
-    protected override void OnUpdateForCanExecuteState(Executability state) {
+    protected override void OnUpdateForCanExecuteState(Executability state)
+    {
         this.button!.IsEnabled = state == Executability.Valid;
     }
 }

@@ -22,7 +22,8 @@ using System.Diagnostics;
 
 namespace FramePFX.Utils.Collections.Observable;
 
-public class ObservableList<T> : Collection<T>, IObservableList<T> {
+public class ObservableList<T> : Collection<T>, IObservableList<T>
+{
     private readonly List<T> myItems;
     private SimpleMonitor? _monitor;
     private readonly bool isDerivedType;
@@ -40,7 +41,8 @@ public class ObservableList<T> : Collection<T>, IObservableList<T> {
     public ObservableList(IEnumerable<T> collection) : this(new List<T>(collection ?? throw new ArgumentNullException(nameof(collection)))) {
     }
 
-    public ObservableList(List<T> list) : base(new List<T>(list ?? throw new ArgumentNullException(nameof(list)))) {
+    public ObservableList(List<T> list) : base(new List<T>(list ?? throw new ArgumentNullException(nameof(list))))
+    {
         this.myItems = (List<T>?) base.Items!;
 
         // Optimisation
@@ -51,20 +53,24 @@ public class ObservableList<T> : Collection<T>, IObservableList<T> {
         this.isDerivedType = this.GetType() != typeof(ObservableList<T>);
     }
 
-    protected override void InsertItem(int index, T item) {
+    protected override void InsertItem(int index, T item)
+    {
         this.CheckReentrancy();
         this.myItems.Insert(index, item);
         this.OnItemsAdded(index, new SingletonList<T>(item));
     }
 
-    public void InsertRange(int index, IEnumerable<T> items) {
+    public void InsertRange(int index, IEnumerable<T> items)
+    {
         this.CheckReentrancy();
 
         // Slight risk in passing list to the ItemsAdded event in case items mutates asynchronously... meh
-        if (items is IList<T> list) {
+        if (items is IList<T> list)
+        {
             this.myItems.InsertRange(index, list);
         }
-        else {
+        else
+        {
             // Probably enumerator method or something along those lines, convert to list for speedy insertion
             list = items.ToList();
             this.myItems.InsertRange(index, list);
@@ -75,26 +81,31 @@ public class ObservableList<T> : Collection<T>, IObservableList<T> {
         this.OnItemsAdded(index, list);
     }
 
-    protected override void RemoveItem(int index) {
+    protected override void RemoveItem(int index)
+    {
         this.CheckReentrancy();
         T removedItem = this[index];
         this.myItems.RemoveAt(index);
         this.OnItemsRemoved(index, new SingletonList<T>(removedItem));
     }
 
-    public void RemoveRange(int index, int count) {
+    public void RemoveRange(int index, int count)
+    {
         this.CheckReentrancy();
-        if (this.isDerivedType || this.ItemsRemoved != null) {
+        if (this.isDerivedType || this.ItemsRemoved != null)
+        {
             List<T> items = this.myItems.Slice(index, count);
             this.myItems.RemoveRange(index, count);
             this.OnItemsRemoved(index, items.AsReadOnly());
         }
-        else {
+        else
+        {
             this.myItems.RemoveRange(index, count);
         }
     }
 
-    protected override void SetItem(int index, T newItem) {
+    protected override void SetItem(int index, T newItem)
+    {
         this.CheckReentrancy();
         T oldItem = this[index];
         base.SetItem(index, newItem);
@@ -103,7 +114,8 @@ public class ObservableList<T> : Collection<T>, IObservableList<T> {
 
     public void Move(int oldIndex, int newIndex) => this.MoveItem(oldIndex, newIndex);
 
-    protected virtual void MoveItem(int oldIndex, int newIndex) {
+    protected virtual void MoveItem(int oldIndex, int newIndex)
+    {
         this.CheckReentrancy();
         T item = this[oldIndex];
         base.RemoveItem(oldIndex);
@@ -111,69 +123,88 @@ public class ObservableList<T> : Collection<T>, IObservableList<T> {
         this.OnItemMoved(oldIndex, newIndex, item);
     }
 
-    protected override void ClearItems() {
+    protected override void ClearItems()
+    {
         this.CheckReentrancy();
-        if (this.Items.Count < 1) {
+        if (this.Items.Count < 1)
+        {
             return;
         }
 
-        if (this.isDerivedType || this.ItemsRemoved != null) {
+        if (this.isDerivedType || this.ItemsRemoved != null)
+        {
             ReadOnlyCollection<T> items = this.myItems.ToList().AsReadOnly();
             this.myItems.Clear();
             this.OnItemsRemoved(0, items);
         }
-        else {
+        else
+        {
             this.myItems.Clear();
         }
     }
 
-    protected virtual void OnItemsAdded(int index, IList<T> items) {
-        try {
+    protected virtual void OnItemsAdded(int index, IList<T> items)
+    {
+        try
+        {
             this.blockReentrancyCount++;
             this.ItemsAdded?.Invoke(this, items, index);
         }
-        finally {
+        finally
+        {
             this.blockReentrancyCount--;
         }
     }
 
-    protected virtual void OnItemsRemoved(int index, IList<T> items) {
-        try {
+    protected virtual void OnItemsRemoved(int index, IList<T> items)
+    {
+        try
+        {
             this.blockReentrancyCount++;
             this.ItemsRemoved?.Invoke(this, items, index);
         }
-        finally {
+        finally
+        {
             this.blockReentrancyCount--;
         }
     }
 
-    protected virtual void OnItemReplaced(int index, T oldItem, T newItem) {
-        try {
+    protected virtual void OnItemReplaced(int index, T oldItem, T newItem)
+    {
+        try
+        {
             this.blockReentrancyCount++;
             this.ItemReplaced?.Invoke(this, oldItem, newItem, index);
         }
-        finally {
+        finally
+        {
             this.blockReentrancyCount--;
         }
     }
 
-    protected virtual void OnItemMoved(int oldIndex, int newIndex, T item) {
-        try {
+    protected virtual void OnItemMoved(int oldIndex, int newIndex, T item)
+    {
+        try
+        {
             this.blockReentrancyCount++;
             this.ItemMoved?.Invoke(this, item, oldIndex, newIndex);
         }
-        finally {
+        finally
+        {
             this.blockReentrancyCount--;
         }
     }
 
-    protected IDisposable BlockReentrancy() {
+    protected IDisposable BlockReentrancy()
+    {
         this.blockReentrancyCount++;
         return this.EnsureMonitorInitialized();
     }
 
-    protected void CheckReentrancy() {
-        if (this.blockReentrancyCount > 0) {
+    protected void CheckReentrancy()
+    {
+        if (this.blockReentrancyCount > 0)
+        {
             // we can allow changes if there's only one listener - the problem
             // only arises if reentrant changes make the original event args
             // invalid for later listeners.  This keeps existing code working
@@ -188,12 +219,14 @@ public class ObservableList<T> : Collection<T>, IObservableList<T> {
 
     private SimpleMonitor EnsureMonitorInitialized() => this._monitor ??= new SimpleMonitor(this);
 
-    private sealed class SimpleMonitor : IDisposable {
+    private sealed class SimpleMonitor : IDisposable
+    {
         internal int _busyCount; // Only used during (de)serialization to maintain compatibility with desktop. Do not rename (binary serialization)
 
         [NonSerialized] internal ObservableList<T> _collection;
 
-        public SimpleMonitor(ObservableList<T> collection) {
+        public SimpleMonitor(ObservableList<T> collection)
+        {
             Debug.Assert(collection != null);
             this._collection = collection;
         }
@@ -201,15 +234,19 @@ public class ObservableList<T> : Collection<T>, IObservableList<T> {
         public void Dispose() => this._collection.blockReentrancyCount--;
     }
 
-    public static void Test() {
+    public static void Test()
+    {
         ObservableList<int> list = new ObservableList<int>();
 
         // Indexable processor removes back to front as an optimisation, can disable in constructor
-        ObservableItemProcessor.MakeIndexable(list, (s, i, o) => {
+        ObservableItemProcessor.MakeIndexable(list, (s, i, o) =>
+        {
             Console.WriteLine($"Added '{o}' at {i}");
-        }, (s, i, o) => {
+        }, (s, i, o) =>
+        {
             Console.WriteLine($"Removed '{o}' at {i}");
-        }, (s, oldI, newI, o) => {
+        }, (s, oldI, newI, o) =>
+        {
             Console.WriteLine($"Moved '{o}' from {oldI} to {newI}");
         });
 

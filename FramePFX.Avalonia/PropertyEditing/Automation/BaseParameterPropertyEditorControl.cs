@@ -30,14 +30,16 @@ using FramePFX.PropertyEditing.Automation;
 
 namespace FramePFX.Avalonia.PropertyEditing.Automation;
 
-public abstract class BaseParameterPropertyEditorControl : BasePropEditControlContent {
+public abstract class BaseParameterPropertyEditorControl : BasePropEditControlContent
+{
     public static readonly StyledProperty<IBrush?> AutomationLedBrushProperty = AvaloniaProperty.Register<BaseParameterPropertyEditorControl, IBrush?>(nameof(AutomationLedBrush), Brushes.OrangeRed);
 
-    public IBrush? AutomationLedBrush {
+    public IBrush? AutomationLedBrush
+    {
         get => this.GetValue(AutomationLedBrushProperty);
         set => this.SetValue(AutomationLedBrushProperty, value);
     }
-    
+
     protected IAutomatable? singleHandler;
     protected AutomationSequence? singleHandlerSequence;
     private TextBlock? displayName;
@@ -47,11 +49,12 @@ public abstract class BaseParameterPropertyEditorControl : BasePropEditControlCo
     protected BaseParameterPropertyEditorControl() {
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
         base.OnApplyTemplate(e);
         this.displayName = e.NameScope.GetTemplateChild<TextBlock>("PART_DisplayName");
         this.automationLed = e.NameScope.GetTemplateChild<Ellipse>("PART_AutomationLED");
-        
+
         // For some reason the template isn't being applied automatically in enough time.
         // OnHandlerListChanged is called and while keyFrameTools is non-null, it has no template.
         // So we can just force it
@@ -60,7 +63,8 @@ public abstract class BaseParameterPropertyEditorControl : BasePropEditControlCo
         this.keyFrameTools.ApplyTemplate();
     }
 
-    protected override void OnConnected() {
+    protected override void OnConnected()
+    {
         ParameterPropertyEditorSlot slot = (ParameterPropertyEditorSlot) this.SlotModel!;
         slot.HandlersLoaded += this.OnHandlersChanged;
         slot.HandlersCleared += this.OnHandlersChanged;
@@ -69,7 +73,8 @@ public abstract class BaseParameterPropertyEditorControl : BasePropEditControlCo
         this.OnHandlerListChanged(true);
     }
 
-    protected override void OnDisconnected() {
+    protected override void OnDisconnected()
+    {
         ParameterPropertyEditorSlot slot = (ParameterPropertyEditorSlot) this.SlotModel!;
         slot.DisplayNameChanged -= this.OnSlotDisplayNameChanged;
         slot.HandlersLoaded -= this.OnHandlersChanged;
@@ -77,14 +82,17 @@ public abstract class BaseParameterPropertyEditorControl : BasePropEditControlCo
         this.OnHandlerListChanged(false);
     }
 
-    private void OnSlotDisplayNameChanged(ParameterPropertyEditorSlot slot) {
+    private void OnSlotDisplayNameChanged(ParameterPropertyEditorSlot slot)
+    {
         if (this.displayName != null)
             this.displayName.Text = slot.DisplayName;
     }
 
-    private void OnHandlerListChanged(bool connect) {
+    private void OnHandlerListChanged(bool connect)
+    {
         ParameterPropertyEditorSlot slot = (ParameterPropertyEditorSlot) this.SlotModel!;
-        if (connect && slot.Handlers.Count == 1) {
+        if (connect && slot.Handlers.Count == 1)
+        {
             this.singleHandler = (IAutomatable) slot.Handlers[0];
             this.keyFrameTools!.IsVisible = true;
             this.singleHandlerSequence = this.singleHandler.AutomationData[slot.Parameter];
@@ -94,9 +102,11 @@ public abstract class BaseParameterPropertyEditorControl : BasePropEditControlCo
             this.singleHandlerSequence.KeyFrameRemoved += this.OnKeyFrameAddedOrRemoved;
             this.UpdateLEDColour(this.singleHandlerSequence);
         }
-        else {
+        else
+        {
             this.keyFrameTools!.IsVisible = false;
-            if (this.singleHandlerSequence != null) {
+            if (this.singleHandlerSequence != null)
+            {
                 this.singleHandlerSequence.OverrideStateChanged -= this.OnOverrideStateChanged;
                 this.singleHandlerSequence.KeyFrameAdded -= this.OnKeyFrameAddedOrRemoved;
                 this.singleHandlerSequence.KeyFrameRemoved -= this.OnKeyFrameAddedOrRemoved;
@@ -108,27 +118,34 @@ public abstract class BaseParameterPropertyEditorControl : BasePropEditControlCo
         }
     }
 
-    private void OnHandlersChanged(PropertyEditorSlot sender) {
+    private void OnHandlersChanged(PropertyEditorSlot sender)
+    {
         this.OnHandlerListChanged(true);
     }
 
-    private void OnKeyFrameAddedOrRemoved(AutomationSequence sequence, KeyFrame keyframe, int index) {
+    private void OnKeyFrameAddedOrRemoved(AutomationSequence sequence, KeyFrame keyframe, int index)
+    {
         this.UpdateLEDColour(sequence);
     }
 
-    private void OnOverrideStateChanged(AutomationSequence sequence) {
+    private void OnOverrideStateChanged(AutomationSequence sequence)
+    {
         this.UpdateLEDColour(sequence);
     }
 
-    private void UpdateLEDColour(AutomationSequence? sequence) {
-        if (this.automationLed != null) {
-            if (sequence != null) {
+    private void UpdateLEDColour(AutomationSequence? sequence)
+    {
+        if (this.automationLed != null)
+        {
+            if (sequence != null)
+            {
                 this.automationLed.IsVisible = !sequence.IsEmpty;
                 this.automationLed.Fill = sequence.IsOverrideEnabled ? Brushes.Gray : this.AutomationLedBrush;
             }
-            else {
+            else
+            {
                 this.automationLed.IsVisible = false;
-                this.automationLed.Fill = null;  
+                this.automationLed.Fill = null;
             }
         }
     }

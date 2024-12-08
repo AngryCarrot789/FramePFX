@@ -22,7 +22,8 @@ using FramePFX.Avalonia.Shortcuts.Managing;
 
 namespace FramePFX.Avalonia.Shortcuts.Keymapping;
 
-public interface IKeymapSerialiser {
+public interface IKeymapSerialiser
+{
     Keymap Deserialise(ShortcutManager manager, Stream stream);
     void Serialise(Keymap keymap, Stream stream);
 }

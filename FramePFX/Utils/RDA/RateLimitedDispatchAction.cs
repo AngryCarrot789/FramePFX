@@ -25,7 +25,8 @@ namespace FramePFX.Utils.RDA;
 /// A class that is similar to <see cref="RapidDispatchActionEx"/>, but has a set amount of time
 /// that has to pass before the callback is scheduled, ensuring the callback is not executed too quickly
 /// </summary>
-public abstract class BaseRateLimitedDispatchAction {
+public abstract class BaseRateLimitedDispatchAction
+{
     protected static readonly TimeSpan DefaultTimeout = TimeSpan.FromMicroseconds(250);
 
     protected const int S_CONTINUE = 1; // Keeps the task running
@@ -42,9 +43,11 @@ public abstract class BaseRateLimitedDispatchAction {
     /// Gets or sets the minimum callback interval, that is, the smallest amount of time
     /// that must pass before the callback function can be invoked and awaited
     /// </summary>
-    public TimeSpan MinimumInterval {
+    public TimeSpan MinimumInterval
+    {
         get => new TimeSpan(Interlocked.Read(ref this.minIntervalTicks));
-        set {
+        set
+        {
             long ticks = value.Ticks;
             if (ticks <= 0)
                 throw new ArgumentOutOfRangeException(nameof(value), ticks, "Value must represent more than zero time");
@@ -55,7 +58,8 @@ public abstract class BaseRateLimitedDispatchAction {
 
     protected BaseRateLimitedDispatchAction() : this(DefaultTimeout) { }
 
-    protected BaseRateLimitedDispatchAction(TimeSpan minimumInterval) {
+    protected BaseRateLimitedDispatchAction(TimeSpan minimumInterval)
+    {
         if (minimumInterval.Ticks < 0)
             throw new ArgumentOutOfRangeException(nameof(minimumInterval), "Minimum interval must represent zero or more time");
 
@@ -66,24 +70,30 @@ public abstract class BaseRateLimitedDispatchAction {
     /// <summary>
     /// Triggers this RLDA, possibly starting a new <see cref="Task"/>, or notifying the existing internal task that there's new input
     /// </summary>
-    protected void InvokeAsyncCore() {
-        lock (this.stateLock) {
+    protected void InvokeAsyncCore()
+    {
+        lock (this.stateLock)
+        {
             int myState = this.state;
-            if ((myState & S_EXECUTING) == 0) {
+            if ((myState & S_EXECUTING) == 0)
+            {
                 // We are not executing, so append CONTINUE to let the task continue running
                 myState |= S_CONTINUE;
             }
-            else {
+            else
+            {
                 // The callback is currently being processed, so the critical condition is set
                 myState |= S_CONTINUE_CRITICAL;
             }
 
-            if ((myState & S_RUNNING) == 0) {
+            if ((myState & S_RUNNING) == 0)
+            {
                 // We are not running, so start a new task and append RUNNING
                 this.state = myState | S_RUNNING;
                 goto StartTask;
             }
-            else {
+            else
+            {
                 // Task is already running, so just volatile write the state
                 this.state = myState;
             }
@@ -95,41 +105,50 @@ public abstract class BaseRateLimitedDispatchAction {
         Task.Run(this.TaskMain);
     }
 
-    private async Task TaskMain() {
+    private async Task TaskMain()
+    {
         long lastExecTime = Interlocked.Read(ref this.lastExecutionTime);
         long currInterval = Time.GetSystemTicks() - lastExecTime;
 
-        do {
+        do
+        {
             // We will sleep at least twice, even if InvokeAsync is only called once.
             // This is so that we don't need to keep creating lots of tasks when
             // InvokeAsync is called very often
 
             long minInterval = Interlocked.Read(ref this.minIntervalTicks);
-            if (currInterval < minInterval) {
+            if (currInterval < minInterval)
+            {
                 await Task.Delay(new TimeSpan(minInterval - currInterval));
             }
 
             int myState;
-            lock (this.stateLock) {
-                if (((myState = this.state) & S_CONTINUE) == 0) {
+            lock (this.stateLock)
+            {
+                if (((myState = this.state) & S_CONTINUE) == 0)
+                {
                     this.state = myState & ~S_RUNNING;
                     Interlocked.Exchange(ref this.lastExecutionTime, lastExecTime);
                     return;
                 }
-                else {
+                else
+                {
                     // Not sure if CONTINUE needs to be removed here... I don't think it does
                     this.state = (myState & ~S_CONTINUE) | S_EXECUTING;
                 }
             }
 
-            try {
+            try
+            {
                 // state at this point is S_EXECUTING possibly with S_CONTINUE_CRITICAL
                 await this.ExecuteCore();
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 RZApplication.Instance.Dispatcher.Post(() => throw new Exception("Exception while awaiting operation", e));
             }
-            finally {
+            finally
+            {
                 // This sets CONTINUE to false, indicating that there is no more work required.
                 // However there is a window between when the task finishes and condition being set to false
                 // where another thread can set condition to true:
@@ -139,12 +158,15 @@ public abstract class BaseRateLimitedDispatchAction {
                 // That might mean that whatever work the task does will lose out on the absolute latest
                 // update (that occurred a few microseconds~ after the task completed)
                 // So hopefully, the usage of EXECUTING and CONTINUE_CRITICAL will help against that
-                lock (this.stateLock) {
-                    if (((myState = this.state) & S_CONTINUE_CRITICAL) != 0) {
+                lock (this.stateLock)
+                {
+                    if (((myState = this.state) & S_CONTINUE_CRITICAL) != 0)
+                    {
                         // Critical condition is active, so: Remove CRITICAL and append CONTINUE
                         myState = (myState & ~S_CONTINUE_CRITICAL) | S_CONTINUE;
                     }
-                    else {
+                    else
+                    {
                         // Critical condition not met, so just remove continue,
                         // allowing the task to possibly exit normally
                         myState &= ~S_CONTINUE;
@@ -173,10 +195,13 @@ public abstract class BaseRateLimitedDispatchAction {
     /// the callback execution. This is useful if you have code to handle similar 're-scheduling' behaviour manually
     /// </para>
     /// </summary>
-    public void ClearCriticalState() {
-        lock (this.stateLock) {
+    public void ClearCriticalState()
+    {
+        lock (this.stateLock)
+        {
             int myState = this.state;
-            if ((myState & S_CONTINUE_CRITICAL) != 0) {
+            if ((myState & S_CONTINUE_CRITICAL) != 0)
+            {
                 // Critical condition is active, so remove it, as if it was never activated
                 myState &= ~S_CONTINUE_CRITICAL;
             }
@@ -210,7 +235,8 @@ public abstract class BaseRateLimitedDispatchAction {
     public static RateLimitedDispatchAction<T> ForDispatcherSync<T>(Action<T> callback, TimeSpan minInterval, DispatchPriority priority) where T : class => ForDispatcherSync(callback, minInterval, RZApplication.Instance.Dispatcher, priority);
     public static RateLimitedDispatchAction<T> ForDispatcherSync<T>(Action<T> callback, TimeSpan minInterval, IDispatcher dispatcher) where T : class => ForDispatcherSync(callback, minInterval, dispatcher, DispatchPriority.Send);
 
-    public static RateLimitedDispatchAction ForDispatcherSync(Action callback, TimeSpan minInterval, IDispatcher dispatcher, DispatchPriority priority) {
+    public static RateLimitedDispatchAction ForDispatcherSync(Action callback, TimeSpan minInterval, IDispatcher dispatcher, DispatchPriority priority)
+    {
         Validate.NotNull(callback, nameof(callback));
         Validate.NotNull(dispatcher, nameof(dispatcher));
         // No need to use async, since we can just directly access the DispatcherOperation's task,
@@ -218,33 +244,42 @@ public abstract class BaseRateLimitedDispatchAction {
         return new RateLimitedDispatchAction(() => dispatcher.InvokeAsync(callback, priority), minInterval);
     }
 
-    public static RateLimitedDispatchAction<T> ForDispatcherSync<T>(Action<T> callback, TimeSpan minInterval, IDispatcher dispatcher, DispatchPriority priority) where T : class {
+    public static RateLimitedDispatchAction<T> ForDispatcherSync<T>(Action<T> callback, TimeSpan minInterval, IDispatcher dispatcher, DispatchPriority priority) where T : class
+    {
         Validate.NotNull(callback, nameof(callback));
         Validate.NotNull(dispatcher, nameof(dispatcher));
         return new RateLimitedDispatchAction<T>((t) => dispatcher.InvokeAsync(() => callback(t), priority), minInterval);
     }
 
-    public static RateLimitedDispatchAction ForDispatcherAsync(Func<Task> callback, TimeSpan minInterval, IDispatcher dispatcher, DispatchPriority priority) {
+    public static RateLimitedDispatchAction ForDispatcherAsync(Func<Task> callback, TimeSpan minInterval, IDispatcher dispatcher, DispatchPriority priority)
+    {
         Validate.NotNull(callback, nameof(callback));
         Validate.NotNull(dispatcher, nameof(dispatcher));
-        return new RateLimitedDispatchAction(async () => {
-            try {
+        return new RateLimitedDispatchAction(async () =>
+        {
+            try
+            {
                 await dispatcher.InvokeAsync(callback, priority);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 dispatcher.Post(() => throw new Exception("Exception while awaiting operation", e));
             }
         }, minInterval);
     }
 
-    public static RateLimitedDispatchAction<T> ForDispatcherAsync<T>(Func<T, Task> callback, TimeSpan minInterval, IDispatcher dispatcher, DispatchPriority priority) where T : class {
+    public static RateLimitedDispatchAction<T> ForDispatcherAsync<T>(Func<T, Task> callback, TimeSpan minInterval, IDispatcher dispatcher, DispatchPriority priority) where T : class
+    {
         Validate.NotNull(callback, nameof(callback));
         Validate.NotNull(dispatcher, nameof(dispatcher));
-        return new RateLimitedDispatchAction<T>(async (t) => {
-            try {
+        return new RateLimitedDispatchAction<T>(async (t) =>
+        {
+            try
+            {
                 await dispatcher.InvokeAsync(() => callback(t), priority);
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 dispatcher.Post(() => throw new Exception("Exception while awaiting operation", e));
             }
         }, minInterval);
@@ -253,13 +288,15 @@ public abstract class BaseRateLimitedDispatchAction {
     #endregion
 }
 
-public class RateLimitedDispatchAction : BaseRateLimitedDispatchAction, IDispatchAction {
+public class RateLimitedDispatchAction : BaseRateLimitedDispatchAction, IDispatchAction
+{
     private readonly Func<Task> callback;
 
     public RateLimitedDispatchAction(Func<Task> callback) : this(callback, DefaultTimeout) {
     }
 
-    public RateLimitedDispatchAction(Func<Task> callback, TimeSpan minimumInterval) : base(minimumInterval) {
+    public RateLimitedDispatchAction(Func<Task> callback, TimeSpan minimumInterval) : base(minimumInterval)
+    {
         Validate.NotNull(callback, nameof(callback));
         this.callback = callback;
     }
@@ -269,11 +306,14 @@ public class RateLimitedDispatchAction : BaseRateLimitedDispatchAction, IDispatc
     protected override Task ExecuteCore() => this.callback();
 }
 
-public class RateLimitedDispatchAction<T> : BaseRateLimitedDispatchAction, IDispatchAction<T> where T : class {
-    private class ObjectWrapper {
+public class RateLimitedDispatchAction<T> : BaseRateLimitedDispatchAction, IDispatchAction<T> where T : class
+{
+    private class ObjectWrapper
+    {
         public T value;
 
-        public ObjectWrapper(T value) {
+        public ObjectWrapper(T value)
+        {
             this.value = value;
         }
     }
@@ -284,7 +324,8 @@ public class RateLimitedDispatchAction<T> : BaseRateLimitedDispatchAction, IDisp
     public RateLimitedDispatchAction(Func<T, Task> callback) : this(callback, DefaultTimeout) {
     }
 
-    public RateLimitedDispatchAction(Func<T, Task> callback, TimeSpan minimumInterval) : base(minimumInterval) {
+    public RateLimitedDispatchAction(Func<T, Task> callback, TimeSpan minimumInterval) : base(minimumInterval)
+    {
         Validate.NotNull(callback, nameof(callback));
         this.callback = callback;
     }
@@ -293,14 +334,17 @@ public class RateLimitedDispatchAction<T> : BaseRateLimitedDispatchAction, IDisp
     // When ExecuteCore() comes around, a null value is fine, but a null wrapper is a problem,
     // which should never occur if the exchange of values is implemented correctly
 
-    public void InvokeAsync(T param) {
+    public void InvokeAsync(T param)
+    {
         _ = Interlocked.Exchange(ref this.currentValue, new ObjectWrapper(param));
         base.InvokeAsyncCore();
     }
 
-    protected override Task ExecuteCore() {
+    protected override Task ExecuteCore()
+    {
         ObjectWrapper? value = Interlocked.Exchange(ref this.currentValue, null);
-        if (value == null) {
+        if (value == null)
+        {
             Debug.Assert(false, "Did not expect current value to be null");
             return Task.CompletedTask;
         }

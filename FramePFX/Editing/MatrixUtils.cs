@@ -22,8 +22,10 @@ using SkiaSharp;
 
 namespace FramePFX.Editing;
 
-public static class MatrixUtils {
-    public static SKMatrix CreateTransformationMatrix(Vector2 pos, Vector2 scale, double rotation, Vector2 scaleOrigin, Vector2 rotationOrigin) {
+public static class MatrixUtils
+{
+    public static SKMatrix CreateTransformationMatrix(Vector2 pos, Vector2 scale, double rotation, Vector2 scaleOrigin, Vector2 rotationOrigin)
+    {
         SKMatrix matrix = SKMatrix.Identity;
         matrix = matrix.PreConcat(SKMatrix.CreateTranslation(pos.X, pos.Y));
         matrix = matrix.PreConcat(SKMatrix.CreateRotationDegrees((float) rotation, rotationOrigin.X, rotationOrigin.Y));
@@ -31,7 +33,8 @@ public static class MatrixUtils {
         return matrix;
     }
 
-    public static SKMatrix CreateInverseTransformationMatrix(Vector2 pos, Vector2 scale, double rotation, Vector2 scaleOrigin, Vector2 rotationOrigin) {
+    public static SKMatrix CreateInverseTransformationMatrix(Vector2 pos, Vector2 scale, double rotation, Vector2 scaleOrigin, Vector2 rotationOrigin)
+    {
         SKMatrix matrix = SKMatrix.Identity;
         matrix = matrix.PreConcat(SKMatrix.CreateScale(scale.X == 0.0F ? float.MaxValue : (1 / scale.X), scale.Y == 0.0F ? float.MaxValue : (1 / scale.Y), scaleOrigin.X, scaleOrigin.Y));
         matrix = matrix.PreConcat(SKMatrix.CreateRotationDegrees((float) -rotation, rotationOrigin.X, rotationOrigin.Y));

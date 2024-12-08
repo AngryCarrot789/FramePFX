@@ -240,9 +240,9 @@
                   TargetType="{x:Type dta:AutomaticDataParameterLongPropertyEditorControl}"
                   BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorControl}}"/>
 
-<Design.PreviewWith>
-    <dta:AutomaticDataParameterPointPropertyEditorControl/>
-</Design.PreviewWith>
+    <Design.PreviewWith>
+        <dta:AutomaticDataParameterPointPropertyEditorControl/>
+    </Design.PreviewWith>
 
     <ControlTheme x:Key="{x:Type dta:AutomaticDataParameterPointPropertyEditorControl}"
                   TargetType="{x:Type dta:AutomaticDataParameterPointPropertyEditorControl}">

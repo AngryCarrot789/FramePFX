@@ -29,12 +29,15 @@ public delegate void FocusChangedEventHandler(CommandManager manager, IContextDa
 /// A class which manages registered commands and the execution of commands.
 /// Commands are registered at application startup, before any primary UI is loaded
 /// </summary>
-public class CommandManager {
+public class CommandManager
+{
     // using this just in case I soon add more data associated with commands
-    private class CommandEntry {
+    private class CommandEntry
+    {
         public readonly Command Command;
 
-        public CommandEntry(Command command) {
+        public CommandEntry(Command command)
+        {
             this.Command = command;
         }
     }
@@ -51,13 +54,16 @@ public class CommandManager {
     /// <summary>
     /// An event fired when the application's focus changes, possibly invalidating the executability state of a command presentation
     /// </summary>
-    public event FocusChangedEventHandler? FocusChanged {
-        add {
+    public event FocusChangedEventHandler? FocusChanged
+    {
+        add
+        {
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
             this.focusChangeHandlerSet.Add(value);
         }
-        remove {
+        remove
+        {
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
             this.focusChangeHandlerSet.Remove(value);
@@ -68,15 +74,18 @@ public class CommandManager {
     private readonly HashSet<FocusChangedEventHandler> focusChangeHandlerSet;
     private readonly RapidDispatchAction<Func<IContextData>> focusChangeRaiserRda;
 
-    public CommandManager() {
+    public CommandManager()
+    {
         this.commands = new Dictionary<string, CommandEntry>();
         this.focusChangeHandlerSet = new HashSet<FocusChangedEventHandler>();
         this.focusChangeRaiserRda = new RapidDispatchAction<Func<IContextData>>(this.OnFocusChange, DispatchPriority.Background);
     }
 
-    public Command Unregister(string id) {
+    public Command Unregister(string id)
+    {
         ValidateId(id);
-        if (this.commands.TryGetValue(id, out CommandEntry entry)) {
+        if (this.commands.TryGetValue(id, out CommandEntry entry))
+        {
             this.commands.Remove(id);
             return entry.Command;
         }
@@ -91,15 +100,18 @@ public class CommandManager {
     /// <param name="command">The command to register</param>
     /// <exception cref="ArgumentException">Command ID is null or empty</exception>
     /// <exception cref="ArgumentNullException">Command is null</exception>
-    public void Register(string id, Command command) {
+    public void Register(string id, Command command)
+    {
         ValidateId(id);
         if (command == null)
             throw new ArgumentNullException(nameof(command));
         this.RegisterInternal(id, command);
     }
 
-    private void RegisterInternal(string id, Command command) {
-        if (this.commands.TryGetValue(id, out CommandEntry existing)) {
+    private void RegisterInternal(string id, Command command)
+    {
+        if (this.commands.TryGetValue(id, out CommandEntry existing))
+        {
             throw new Exception($"a command is already registered with the ID '{id}': {existing.Command.GetType()}");
         }
 
@@ -109,7 +121,8 @@ public class CommandManager {
     /// <summary>
     /// Gets a command with the given ID
     /// </summary>
-    public virtual Command? GetCommandById(string id) {
+    public virtual Command? GetCommandById(string id)
+    {
         return !string.IsNullOrEmpty(id) && this.commands.TryGetValue(id, out CommandEntry? command) ? command.Command : null;
     }
 
@@ -128,7 +141,8 @@ public class CommandManager {
     /// <exception cref="Exception">The context is null, or the assembly was compiled in debug mode and the command threw ane exception</exception>
     /// <exception cref="ArgumentException">ID is null, empty or consists of only whitespaces</exception>
     /// <exception cref="ArgumentNullException">Context is null</exception>
-    public void Execute(string commandId, IContextData context, bool isUserInitiated = true) {
+    public void Execute(string commandId, IContextData context, bool isUserInitiated = true)
+    {
         ValidateId(commandId);
         if (this.commands.TryGetValue(commandId, out CommandEntry? command))
             this.Execute(commandId, command.Command, context, isUserInitiated);
@@ -142,7 +156,8 @@ public class CommandManager {
     /// <param name="commandId">The target command id</param>
     /// <param name="contextProvider">A function that provides the data context if required (if the command exists)</param>
     /// <param name="isUserInitiated">True when executed as a user, which is usually the default</param>
-    public bool TryExecute(string commandId, Func<IContextData> contextProvider, bool isUserInitiated = true) {
+    public bool TryExecute(string commandId, Func<IContextData> contextProvider, bool isUserInitiated = true)
+    {
         ValidateId(commandId);
         if (contextProvider == null)
             throw new ArgumentNullException(nameof(contextProvider), "Data context provider cannot be null");
@@ -164,7 +179,8 @@ public class CommandManager {
     /// <param name="command"></param>
     /// <param name="context"></param>
     /// <param name="isUserInitiated"></param>
-    public void Execute(string commandId, Command command, IContextData context, bool isUserInitiated = true) {
+    public void Execute(string commandId, Command command, IContextData context, bool isUserInitiated = true)
+    {
         ValidateId(commandId);
         ValidateContext(context);
         Command.InternalExecute(commandId, command, new CommandEventArgs(this, context, isUserInitiated));
@@ -177,7 +193,8 @@ public class CommandManager {
     /// <param name="context"></param>
     /// <param name="isUserInitiated"></param>
     /// <returns></returns>
-    public void Execute(Command command, IContextData context, bool isUserInitiated = true) {
+    public void Execute(Command command, IContextData context, bool isUserInitiated = true)
+    {
         ValidateContext(context);
         Command.InternalExecute(null, command, new CommandEventArgs(this, context, isUserInitiated));
     }
@@ -192,17 +209,20 @@ public class CommandManager {
     /// <exception cref="Exception">The context is null, or the assembly was compiled in debug mode and the GetPresentation function threw ane exception</exception>
     /// <exception cref="ArgumentException">ID is null, empty or consists of only whitespaces</exception>
     /// <exception cref="ArgumentNullException">Context is null</exception>
-    public Executability CanExecute(string commandId, IContextData context, bool isUserInitiated = true) {
+    public Executability CanExecute(string commandId, IContextData context, bool isUserInitiated = true)
+    {
         ValidateId(commandId);
         ValidateContext(context);
-        if (this.commands.TryGetValue(commandId, out CommandEntry? command)) {
+        if (this.commands.TryGetValue(commandId, out CommandEntry? command))
+        {
             return this.CanExecute(command.Command, context, isUserInitiated);
         }
 
         return Executability.Invalid;
     }
 
-    public virtual Executability CanExecute(Command command, IContextData context, bool isUserInitiated = true) {
+    public virtual Executability CanExecute(Command command, IContextData context, bool isUserInitiated = true)
+    {
         ValidateContext(context);
         return command.CanExecute(new CommandEventArgs(this, context, isUserInitiated));
     }
@@ -211,33 +231,42 @@ public class CommandManager {
     /// Invokes all focus change handlers for the given ID. This also invokes global handlers first
     /// </summary>
     /// <exception cref="ArgumentNullException">newFocusProvider is null</exception>
-    internal static void InternalOnApplicationFocusChanged(Func<IContextData> newFocusProvider) {
+    internal static void InternalOnApplicationFocusChanged(Func<IContextData> newFocusProvider)
+    {
         if (newFocusProvider == null)
             throw new ArgumentNullException(nameof(newFocusProvider));
+
         Instance.focusChangeRaiserRda.InvokeAsync(newFocusProvider);
     }
 
-    private void OnFocusChange(Func<IContextData> newFocusProvider) {
+    private void OnFocusChange(Func<IContextData> newFocusProvider)
+    {
         // only calls newFocusProvider if there are handlers
-        if (this.focusChangeHandlerSet.Count >= 1) {
+        if (this.focusChangeHandlerSet.Count >= 1)
+        {
             IContextData ctx = newFocusProvider();
             if (ctx == null)
                 throw new Exception("New Focus Context provider gave a null context");
 
-            foreach (FocusChangedEventHandler handler in this.focusChangeHandlerSet) {
+            foreach (FocusChangedEventHandler handler in this.focusChangeHandlerSet)
+            {
                 handler(this, ctx);
             }
         }
     }
 
-    public static void ValidateId(string id) {
-        if (id != null && string.IsNullOrWhiteSpace(id)) {
+    public static void ValidateId(string id)
+    {
+        if (id != null && string.IsNullOrWhiteSpace(id))
+        {
             throw new ArgumentException("Command ID cannot be null or empty", nameof(id));
         }
     }
 
-    public static void ValidateContext(IContextData context) {
-        if (context == null) {
+    public static void ValidateContext(IContextData context)
+    {
+        if (context == null)
+        {
             throw new ArgumentNullException(nameof(context), "Context cannot be null");
         }
     }

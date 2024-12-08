@@ -32,7 +32,8 @@ using FramePFX.Editing.UI;
 
 namespace FramePFX.Avalonia.Editing.Timelines;
 
-public class TimelineRuler : Control {
+public class TimelineRuler : Control
+{
     private const double MinRender = 0.01D;
     private const double MajorLineThickness = 1.0;
     private const double MinorStepRatio = 0.5;
@@ -50,37 +51,44 @@ public class TimelineRuler : Control {
     // public static readonly DependencyProperty ForegroundProperty = TextElement.ForegroundProperty.AddOwner(typeof(TimelineRuler), new FrameworkPropertyMetadata(SystemColors.ControlTextBrush));
     // public static readonly DependencyProperty StepColorProperty = DependencyProperty.Register(nameof(StepColor), typeof(Brush), typeof(TimelineRuler), new FrameworkPropertyMetadata(Brushes.DimGray, FrameworkPropertyMetadataOptions.AffectsRender, (d, e) => ((TimelineRuler) d).majorLineStepColourPen = null));
 
-    public TimelineControl? TimelineControl {
+    public TimelineControl? TimelineControl
+    {
         get => this.GetValue(TimelineControlProperty);
         set => this.SetValue(TimelineControlProperty, value);
     }
 
-    public IBrush? Background {
+    public IBrush? Background
+    {
         get => this.GetValue(BackgroundProperty);
         set => this.SetValue(BackgroundProperty, value);
     }
 
-    public FontFamily FontFamily {
+    public FontFamily FontFamily
+    {
         get => this.GetValue(FontFamilyProperty);
         set => this.SetValue(FontFamilyProperty, value);
     }
 
-    public IBrush? Foreground {
+    public IBrush? Foreground
+    {
         get => this.GetValue(ForegroundProperty);
         set => this.SetValue(ForegroundProperty, value);
     }
 
-    public IBrush? MajorStepColour {
+    public IBrush? MajorStepColour
+    {
         get => this.GetValue(MajorStepColourProperty);
         set => this.SetValue(MajorStepColourProperty, value);
     }
-    
-    public IBrush? MinorStepColour {
+
+    public IBrush? MinorStepColour
+    {
         get => this.GetValue(MinorStepColourProperty);
         set => this.SetValue(MinorStepColourProperty, value);
     }
 
-    public ScrollViewer? ScrollViewerReference {
+    public ScrollViewer? ScrollViewerReference
+    {
         get => this.GetValue(ScrollViewerReferenceProperty);
         set => this.SetValue(ScrollViewerReferenceProperty, value);
     }
@@ -94,11 +102,13 @@ public class TimelineRuler : Control {
     private Timeline? targetTimelineModel;
     private double timelineZoom;
 
-    public TimelineRuler() {
+    public TimelineRuler()
+    {
         this.ClipToBounds = true;
     }
 
-    static TimelineRuler() {
+    static TimelineRuler()
+    {
         TimelineControlProperty.Changed.AddClassHandler<TimelineRuler, TimelineControl?>((d, e) => d.OnTimelineChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
         MajorStepColourProperty.Changed.AddClassHandler<TimelineRuler, IBrush?>((d, e) => d.majorLineStepColourPen = null);
         MinorStepColourProperty.Changed.AddClassHandler<TimelineRuler, IBrush?>((d, e) => d.minorLineStepColourPen = null);
@@ -107,34 +117,42 @@ public class TimelineRuler : Control {
         ScrollViewerReferenceProperty.Changed.AddClassHandler<TimelineRuler, ScrollViewer?>((d, e) => d.OnScrollViewerReferenceChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }
 
-    private void OnScrollViewerReferenceChanged(ScrollViewer? oldValue, ScrollViewer? newValue) {
-        if (oldValue != null) {
+    private void OnScrollViewerReferenceChanged(ScrollViewer? oldValue, ScrollViewer? newValue)
+    {
+        if (oldValue != null)
+        {
             oldValue.SizeChanged -= this.OnScrollerOnSizeChanged;
             oldValue.ScrollChanged -= this.OnScrollerOnScrollChanged;
             oldValue.EffectiveViewportChanged -= this.OnEffectiveViewportChanged;
         }
 
-        if (newValue != null) {
+        if (newValue != null)
+        {
             newValue.SizeChanged += this.OnScrollerOnSizeChanged;
             newValue.ScrollChanged += this.OnScrollerOnScrollChanged;
             newValue.EffectiveViewportChanged += this.OnEffectiveViewportChanged;
         }
     }
 
-    private void OnEffectiveViewportChanged(object? sender, EffectiveViewportChangedEventArgs e) {
+    private void OnEffectiveViewportChanged(object? sender, EffectiveViewportChangedEventArgs e)
+    {
         this.InvalidateVisual();
     }
 
-    private void OnTimelineChanged(TimelineControl? oldTimeline, TimelineControl? newTimeline) {
+    private void OnTimelineChanged(TimelineControl? oldTimeline, TimelineControl? newTimeline)
+    {
         this.InvalidateVisual();
 
-        if (oldTimeline != null) {
+        if (oldTimeline != null)
+        {
             oldTimeline.TimelineModelChanged -= this.OnTimelineModelChanged;
         }
 
-        if (newTimeline != null) {
+        if (newTimeline != null)
+        {
             newTimeline.TimelineModelChanged += this.OnTimelineModelChanged;
-            if (newTimeline.Timeline is Timeline timeline) {
+            if (newTimeline.Timeline is Timeline timeline)
+            {
                 this.OnTimelineModelChanged(newTimeline, null, timeline);
             }
 
@@ -142,36 +160,44 @@ public class TimelineRuler : Control {
         }
     }
 
-    protected override void OnLoaded(RoutedEventArgs e) {
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
         base.OnLoaded(e);
         Dispatcher.UIThread.InvokeAsync(this.InvalidateVisual, DispatcherPriority.Background);
     }
 
-    private void OnTimelineModelChanged(ITimelineElement element, Timeline? oldtimeline, Timeline? newtimeline) {
+    private void OnTimelineModelChanged(ITimelineElement element, Timeline? oldtimeline, Timeline? newtimeline)
+    {
         this.targetTimelineModel = newtimeline;
         this.InvalidateVisual();
     }
 
     private void OnScrollerOnSizeChanged(object? o, SizeChangedEventArgs e) => this.InvalidateVisual();
 
-    private void OnScrollerOnScrollChanged(object? o, ScrollChangedEventArgs e) {
-        if (e.OffsetDelta.X != 0 || e.OffsetDelta.Y != 0) {
+    private void OnScrollerOnScrollChanged(object? o, ScrollChangedEventArgs e)
+    {
+        if (e.OffsetDelta.X != 0 || e.OffsetDelta.Y != 0)
+        {
             this.InvalidateVisual();
         }
     }
 
-    public override void Render(DrawingContext dc) {
+    public override void Render(DrawingContext dc)
+    {
         base.Render(dc);
-        if (this.targetTimelineModel == null || !(this.TimelineControl is TimelineControl timelineControl) || !(this.ScrollViewerReference is ScrollViewer scrollViewer)) {
+        if (this.targetTimelineModel == null || !(this.TimelineControl is TimelineControl timelineControl) || !(this.ScrollViewerReference is ScrollViewer scrollViewer))
+        {
             return;
         }
 
         Rect myBounds = this.Bounds;
-        if (myBounds.Width < MinRender || myBounds.Height < MinRender) {
+        if (myBounds.Width < MinRender || myBounds.Height < MinRender)
+        {
             return;
         }
 
-        if (this.Background is Brush bg) {
+        if (this.Background is Brush bg)
+        {
             dc.DrawRectangle(bg, null, myBounds);
         }
 
@@ -196,7 +222,8 @@ public class TimelineRuler : Control {
         double minStepMagPow = Math.Pow(10, Math.Floor(Math.Log10(minStep)));
         double normMinStep = minStep / minStepMagPow;
         int finalStep = Steps.FirstOrDefault(step => step > normMinStep);
-        if (finalStep < 1) {
+        if (finalStep < 1)
+        {
             return;
         }
 
@@ -208,21 +235,26 @@ public class TimelineRuler : Control {
 
         int i = (int) Math.Floor(scrollH / pixelSize);
         int j = (int) Math.Ceiling((scrollH + rulerWidth + pixelSize) / pixelSize);
-        using (dc.PushRenderOptions(new RenderOptions() {EdgeMode = EdgeMode.Aliased})) {
-            do {
+        using (dc.PushRenderOptions(new RenderOptions() { EdgeMode = EdgeMode.Aliased }))
+        {
+            do
+            {
                 double pixel = i * pixelSize - scrollH;
-                if (i > j) {
+                if (i > j)
+                {
                     break;
                 }
 
                 // TODO: optimise smaller/minor lines, maybe using skia?
-                for (int y = 1; y < steps; ++y) {
+                for (int y = 1; y < steps; ++y)
+                {
                     double subpixel = pixel + y * subpixelSize;
                     this.DrawMinorLine(dc, subpixel, this.Bounds.Height);
                 }
 
                 double text_value = i * valueStep;
-                if (Math.Abs(text_value - (int) text_value) < 0.00001d) {
+                if (Math.Abs(text_value - (int) text_value) < 0.00001d)
+                {
                     this.DrawMajorLine(dc, pixel, this.Bounds.Height);
                     this.DrawText(dc, text_value, pixel);
                 }
@@ -233,28 +265,33 @@ public class TimelineRuler : Control {
     }
 
 
-    public void DrawMajorLine(DrawingContext dc, double offset, double height) {
+    public void DrawMajorLine(DrawingContext dc, double offset, double height)
+    {
         double size = Math.Min(height / 2d, height);
         dc.DrawLine(this.MajorStepColourPen, new Point(offset, height - size), new Point(offset, height));
     }
 
-    public void DrawMinorLine(DrawingContext dc, double offset, double height) {
+    public void DrawMinorLine(DrawingContext dc, double offset, double height)
+    {
         double majorSize = height / 2d;
         double size = majorSize * (1 - MinorStepRatio);
         dc.DrawLine(this.MinorStepColourPen, new Point(offset, height - size), new Point(offset, height));
     }
 
-    public void DrawText(DrawingContext dc, double value, double offset) {
+    public void DrawText(DrawingContext dc, double value, double offset)
+    {
         double height = this.Bounds.Height;
         double majorSize = this.Bounds.Height / 2d;
 
         Point point;
         FormattedText format = this.GetFormattedText(value);
         double gap = height - majorSize;
-        if (gap >= format.Height / 2d) {
+        if (gap >= format.Height / 2d)
+        {
             point = new Point(offset + MajorLineThickness - format.Width / 2d, gap - format.Height);
         }
-        else {
+        else
+        {
             // Draw above major if possible
             point = new Point(offset + MajorLineThickness + 2d, height / 2d - format.Height / 2d);
         }
@@ -262,7 +299,8 @@ public class TimelineRuler : Control {
         dc.DrawText(format, point);
     }
 
-    protected FormattedText GetFormattedText(double value) {
+    protected FormattedText GetFormattedText(double value)
+    {
         string text = value.ToString();
         return new FormattedText(text,
             CultureInfo.CurrentUICulture,
@@ -272,7 +310,8 @@ public class TimelineRuler : Control {
             this.Foreground);
     }
 
-    public void OnZoomChanged(double newZoom) {
+    public void OnZoomChanged(double newZoom)
+    {
         this.timelineZoom = newZoom;
         this.InvalidateVisual();
     }

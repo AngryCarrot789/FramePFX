@@ -22,14 +22,17 @@ using FramePFX.Utils;
 
 namespace FramePFX.Editing.ResourceManaging.Resources;
 
-public class InvalidMediaPathEntry : InvalidResourceEntry {
+public class InvalidMediaPathEntry : InvalidResourceEntry
+{
     public new ResourceAVMedia Resource => (ResourceAVMedia) base.Resource;
 
     private string? filePath;
 
-    public string? FilePath {
+    public string? FilePath
+    {
         get => this.filePath;
-        set {
+        set
+        {
             if (this.filePath == value)
                 return;
             this.filePath = value;
@@ -39,9 +42,11 @@ public class InvalidMediaPathEntry : InvalidResourceEntry {
 
     private string? exceptionMessage;
 
-    public string? ExceptionMessage {
+    public string? ExceptionMessage
+    {
         get => this.exceptionMessage;
-        set {
+        set
+        {
             if (this.exceptionMessage == value)
                 return;
 
@@ -53,7 +58,8 @@ public class InvalidMediaPathEntry : InvalidResourceEntry {
     public event InvalidResourceEntryEventHandler? FilePathChanged;
     public event InvalidResourceEntryEventHandler? ExceptionMessageChanged;
 
-    public InvalidMediaPathEntry(ResourceAVMedia resource, Exception exception) : base(resource) {
+    public InvalidMediaPathEntry(ResourceAVMedia resource, Exception exception) : base(resource)
+    {
         this.DisplayName = resource.DisplayName ?? "Invalid Media";
         this.ExceptionMessage = exception?.GetToString() ?? "<no error available>";
         this.FilePath = resource.FilePath;

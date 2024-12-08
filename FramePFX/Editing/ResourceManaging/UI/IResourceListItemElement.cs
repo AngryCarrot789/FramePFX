@@ -19,6 +19,7 @@
 
 namespace FramePFX.Editing.ResourceManaging.UI;
 
-public interface IResourceListItemElement {
+public interface IResourceListItemElement
+{
     BaseResource? Resource { get; }
 }

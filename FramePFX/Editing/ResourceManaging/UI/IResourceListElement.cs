@@ -21,14 +21,15 @@ using FramePFX.Interactivity;
 
 namespace FramePFX.Editing.ResourceManaging.UI;
 
-public interface IResourceListElement {
+public interface IResourceListElement
+{
     IResourceManagerElement ManagerUI { get; }
 
     /// <summary>
     /// Gets the folder TREE NODE being presented. This is a helper property to access the tree node from our <see cref="ManagerUI"/>
     /// </summary>
     IResourceTreeNodeElement? CurrentFolderNode { get; }
-    
+
     /// <summary>
     /// Gets the folder item being presented
     /// </summary>

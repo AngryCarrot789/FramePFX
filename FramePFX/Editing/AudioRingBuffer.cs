@@ -21,7 +21,8 @@ using System.Runtime.InteropServices;
 
 namespace FramePFX.Editing;
 
-public class AudioRingBuffer : IDisposable {
+public class AudioRingBuffer : IDisposable
+{
     private unsafe float* data;
     private readonly int capacity;
     private readonly int capacity_bytes;
@@ -31,7 +32,8 @@ public class AudioRingBuffer : IDisposable {
 
     public unsafe Span<float> Data => new Span<float>(this.data, this.capacity);
 
-    public unsafe AudioRingBuffer(int capacitySamples) {
+    public unsafe AudioRingBuffer(int capacitySamples)
+    {
         this.capacity = capacitySamples;
         this.capacity_bytes = capacitySamples * sizeof(float);
         this.data = (float*) Marshal.AllocHGlobal(this.capacity_bytes);
@@ -39,15 +41,19 @@ public class AudioRingBuffer : IDisposable {
         SetMemory(this.data, 0, this.capacity_bytes);
     }
 
-    public void OffsetWrite(int numSamples) {
-        if (numSamples <= 0) {
+    public void OffsetWrite(int numSamples)
+    {
+        if (numSamples <= 0)
+        {
             return;
         }
 
         // the total number of written samples in this ring buffer
         int numSamplesWritten = this.capacity - this.free;
-        if (numSamplesWritten > 0) {
-            if (numSamples > numSamplesWritten) {
+        if (numSamplesWritten > 0)
+        {
+            if (numSamples > numSamplesWritten)
+            {
                 numSamples = numSamplesWritten;
             }
 
@@ -56,21 +62,26 @@ public class AudioRingBuffer : IDisposable {
         }
     }
 
-    public unsafe int WriteToRingBuffer(float* src, int numSamples) {
-        if (src == null || numSamples <= 0) {
+    public unsafe int WriteToRingBuffer(float* src, int numSamples)
+    {
+        if (src == null || numSamples <= 0)
+        {
             return 0;
         }
 
-        if (numSamples > this.free) {
+        if (numSamples > this.free)
+        {
             numSamples = this.free;
         }
 
         int availableSamplesToWrite = this.capacity - this.writeOffset;
-        if (numSamples > availableSamplesToWrite) {
+        if (numSamples > availableSamplesToWrite)
+        {
             CopyMemory(src, this.data + this.writeOffset, availableSamplesToWrite * sizeof(float));
             CopyMemory(src + availableSamplesToWrite, this.data, (numSamples - availableSamplesToWrite) * sizeof(float));
         }
-        else {
+        else
+        {
             CopyMemory(src, this.data + this.writeOffset, numSamples * sizeof(float));
         }
 
@@ -79,27 +90,33 @@ public class AudioRingBuffer : IDisposable {
         return numSamples;
     }
 
-    public unsafe int ReadFromRingBuffer(float* dst, int numSamples) {
-        if (dst == null || numSamples <= 0) {
+    public unsafe int ReadFromRingBuffer(float* dst, int numSamples)
+    {
+        if (dst == null || numSamples <= 0)
+        {
             return 0;
         }
 
         // the total number of written samples in this ring buffer
         int numSamplesWritten = this.capacity - this.free;
-        if (numSamplesWritten < 1) {
+        if (numSamplesWritten < 1)
+        {
             return 0;
         }
 
-        if (numSamples > numSamplesWritten) {
+        if (numSamples > numSamplesWritten)
+        {
             numSamples = numSamplesWritten;
         }
 
         int availableSamplesToRead = this.capacity - this.readOffset;
-        if (numSamples > availableSamplesToRead) {
+        if (numSamples > availableSamplesToRead)
+        {
             CopyMemory(this.data + this.readOffset, dst, availableSamplesToRead * sizeof(float));
             CopyMemory(this.data, dst + availableSamplesToRead, (numSamples - availableSamplesToRead) * sizeof(float));
         }
-        else {
+        else
+        {
             CopyMemory(this.data + this.readOffset, dst, numSamples * sizeof(float));
         }
 
@@ -108,7 +125,8 @@ public class AudioRingBuffer : IDisposable {
         return numSamples;
     }
 
-    public unsafe void Dispose() {
+    public unsafe void Dispose()
+    {
         Marshal.FreeHGlobal((IntPtr) this.data);
         this.data = null;
     }

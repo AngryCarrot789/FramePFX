@@ -21,12 +21,16 @@ using System.Text.RegularExpressions;
 
 namespace FramePFX.Utils;
 
-public static class RegexUtils {
-    public static bool IsValidRegex(string pattern) {
-        try {
+public static class RegexUtils
+{
+    public static bool IsValidRegex(string pattern)
+    {
+        try
+        {
             Regex.Match("", pattern);
         }
-        catch (ArgumentException) {
+        catch (ArgumentException)
+        {
             return false;
         }
 

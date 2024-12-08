@@ -21,7 +21,8 @@ using System.Runtime.CompilerServices;
 
 namespace FramePFX.Utils;
 
-public static class TypeUtils {
+public static class TypeUtils
+{
     /// <summary>
     /// Checks if the left type is an instance of the right type.
     /// This is equivalent to:
@@ -30,7 +31,8 @@ public static class TypeUtils {
     /// <param name="left">The left hand type</param>
     /// <param name="right">The right hand type</param>
     /// <returns>A bool</returns>
-    public static bool instanceof(this Type left, Type right) {
+    public static bool instanceof(this Type left, Type right)
+    {
         return right.IsAssignableFrom(left);
     }
 
@@ -42,7 +44,8 @@ public static class TypeUtils {
     /// <param name="left">The left hand type</param>
     /// <typeparam name="T">The right hand type</typeparam>
     /// <returns>A bool</returns>
-    public static bool instanceof<T>(this Type left) {
+    public static bool instanceof<T>(this Type left)
+    {
         return typeof(T).IsAssignableFrom(left);
     }
 
@@ -54,7 +57,8 @@ public static class TypeUtils {
     /// <param name="left">The left instance</param>
     /// <param name="right">The right hand type</param>
     /// <returns>A bool</returns>
-    public static bool instanceof(this object left, Type right) {
+    public static bool instanceof(this object left, Type right)
+    {
         return right.IsInstanceOfType(left);
     }
 
@@ -68,7 +72,8 @@ public static class TypeUtils {
     /// <returns>A bool</returns>
     public static bool instanceof<T>(this object left) => left is T;
 
-    public static void RunStaticConstructor<T>() {
+    public static void RunStaticConstructor<T>()
+    {
         RuntimeHelpers.RunClassConstructor(typeof(T).TypeHandle);
     }
 }

@@ -19,7 +19,8 @@
 
 namespace FramePFX.Services.UserInputs;
 
-public interface IUserInputDialogService {
+public interface IUserInputDialogService
+{
     /// <summary>
     /// Shows an input dialog with a single input field
     /// </summary>

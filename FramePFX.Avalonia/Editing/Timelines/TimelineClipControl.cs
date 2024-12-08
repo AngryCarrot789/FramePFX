@@ -50,7 +50,8 @@ using Track = FramePFX.Editing.Timelines.Tracks.Track;
 
 namespace FramePFX.Avalonia.Editing.Timelines;
 
-public class TimelineClipControl : ContentControl, IClipElement {
+public class TimelineClipControl : ContentControl, IClipElement
+{
     public static readonly DirectProperty<TimelineClipControl, Clip?> ClipModelProperty = AvaloniaProperty.RegisterDirect<TimelineClipControl, Clip?>(nameof(ClipModel), o => o.ClipModel);
     public static readonly DirectProperty<TimelineClipControl, FrameSpan> FrameSpanProperty = AvaloniaProperty.RegisterDirect<TimelineClipControl, FrameSpan>(nameof(FrameSpan), o => o.FrameSpan);
     public static readonly DirectProperty<TimelineClipControl, long> FrameBeginProperty = AvaloniaProperty.RegisterDirect<TimelineClipControl, long>(nameof(FrameBegin), o => o.FrameBegin);
@@ -60,24 +61,28 @@ public class TimelineClipControl : ContentControl, IClipElement {
     public static readonly DirectProperty<TimelineClipControl, bool> IsDroppableTargetOverProperty = AvaloniaProperty.RegisterDirect<TimelineClipControl, bool>(nameof(IsDroppableTargetOver), o => o.IsDroppableTargetOver);
     public static readonly StyledProperty<AutomationSequence?> ActiveSequenceProperty = AvaloniaProperty.Register<TimelineClipControl, AutomationSequence?>(nameof(ActiveSequence));
 
-    public Clip? ClipModel {
+    public Clip? ClipModel
+    {
         get => this.myClip;
         private set => this.SetAndRaise(ClipModelProperty, ref this.myClip, value);
     }
 
-    public string? DisplayName {
+    public string? DisplayName
+    {
         get => this.myDisplayName;
         private set => this.SetAndRaise(DisplayNameProperty, ref this.myDisplayName, value);
     }
 
     public bool IsSelected => this.isSelected;
 
-    public bool IsDroppableTargetOver {
+    public bool IsDroppableTargetOver
+    {
         get => this.isDroppableTargetOver;
         private set => this.SetAndRaise(IsDroppableTargetOverProperty, ref this.isDroppableTargetOver, value);
     }
 
-    public AutomationSequence? ActiveSequence {
+    public AutomationSequence? ActiveSequence
+    {
         get => this.GetValue(ActiveSequenceProperty);
         set => this.SetValue(ActiveSequenceProperty, value);
     }
@@ -88,9 +93,11 @@ public class TimelineClipControl : ContentControl, IClipElement {
 
     public bool IsConnected { get; private set; }
 
-    public FrameSpan FrameSpan {
+    public FrameSpan FrameSpan
+    {
         get => this.myFrameSpan;
-        private set {
+        private set
+        {
             FrameSpan oldSpan = this.myFrameSpan;
             if (oldSpan == value)
                 return;
@@ -138,7 +145,7 @@ public class TimelineClipControl : ContentControl, IClipElement {
     private DragState dragState;
     private Track? trackAtDragBegin;
     private FrameSpan spanAtDragBegin;
-    private Point clickPos;
+    private Point leftClickPos;
     private PixelPoint lastMovePosAbs;
     private bool hasMadeRangeSelectionInMousePress;
     private bool shouldUpdatePlayHeadOnMouseUp;
@@ -150,7 +157,8 @@ public class TimelineClipControl : ContentControl, IClipElement {
     private AutomationEditorControl? PART_AutomationEditor;
     private Border? PART_ClipBorderRoot;
 
-    public TimelineClipControl() {
+    public TimelineClipControl()
+    {
         Binders.AttachControls(this, this.frameSpanBinder, this.displayNameBinder, this.activeAutoSequenceBinder);
         this.renderSizeRectGeometry = new RectangleGeometry();
         DataManager.SetContextData(this, this.contextData = new ContextData().Set(DataKeys.ClipUIKey, this));
@@ -165,7 +173,8 @@ public class TimelineClipControl : ContentControl, IClipElement {
         // };
     }
 
-    static TimelineClipControl() {
+    static TimelineClipControl()
+    {
         AffectsRender<TimelineClipControl>(BackgroundProperty, DisplayNameProperty);
         DisplayNameProperty.Changed.Subscribe(new AnonymousObserver<AvaloniaPropertyChangedEventArgs<string?>>(OnDisplayNameChanged));
         DragDrop.DragEnterEvent.AddClassHandler<TimelineClipControl>((o, e) => o.OnDragEnter(e));
@@ -174,19 +183,23 @@ public class TimelineClipControl : ContentControl, IClipElement {
         DragDrop.DropEvent.AddClassHandler<TimelineClipControl>((o, e) => o.OnDrop(e));
     }
 
-    private static void OnDisplayNameChanged(AvaloniaPropertyChangedEventArgs<string?> obj) {
+    private static void OnDisplayNameChanged(AvaloniaPropertyChangedEventArgs<string?> obj)
+    {
         ((TimelineClipControl) obj.Sender).myDisplayNameFormattedText = null;
     }
 
-    private void UpdateIsClipVisibleState() {
+    private void UpdateIsClipVisibleState()
+    {
         bool newValue = !(this.ClipModel is VideoClip clip) || VideoClip.IsVisibleParameter.GetValue(clip);
-        if (newValue != this.IsClipVisible) {
+        if (newValue != this.IsClipVisible)
+        {
             this.IsClipVisible = newValue;
             this.InvalidateVisual();
         }
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
         base.OnApplyTemplate(e);
         this.PART_AutomationEditor = e.NameScope.GetTemplateChild<AutomationEditorControl>("PART_AutomationEditor");
         this.PART_AutomationEditor.HorizontalZoom = this.TimelineZoom;
@@ -194,58 +207,69 @@ public class TimelineClipControl : ContentControl, IClipElement {
         this.autoSequenceBinder.SetTargetControl(this.PART_AutomationEditor);
     }
 
-    protected override void OnLoaded(RoutedEventArgs e) {
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
         base.OnLoaded(e);
         AdvancedContextMenu.SetContextRegistry(this, FramePFX.Editing.Timelines.Clips.Clip.ClipContextRegistry);
         Dispatcher.UIThread.InvokeAsync(() => this.isMovingBetweenTracks = false, DispatcherPriority.Send);
     }
 
-    protected override void OnUnloaded(RoutedEventArgs e) {
+    protected override void OnUnloaded(RoutedEventArgs e)
+    {
         base.OnUnloaded(e);
         AdvancedContextMenu.SetContextRegistry(this, null);
     }
 
-    protected override void OnSizeChanged(SizeChangedEventArgs e) {
+    protected override void OnSizeChanged(SizeChangedEventArgs e)
+    {
         base.OnSizeChanged(e);
         this.renderSizeRectGeometry.Rect = new Rect(e.NewSize);
         this.InvalidateVisual();
     }
 
-    public void OnConnecting(ClipStoragePanel storagePanel, Clip clip) {
+    public void OnConnecting(ClipStoragePanel storagePanel, Clip clip)
+    {
         this.StoragePanel = storagePanel;
         this.ClipModel = clip;
         this.contextData.Set(DataKeys.ClipKey, clip);
         DataManager.InvalidateInheritedContext(this);
     }
 
-    public void OnConnected() {
+    public void OnConnected()
+    {
         this.IsConnected = true;
         Binders.AttachModels(this.ClipModel!, this.frameSpanBinder, this.displayNameBinder, this.activeAutoSequenceBinder);
-        if (this.ClipModel is VideoClip videoClip) {
+        if (this.ClipModel is VideoClip videoClip)
+        {
             videoClip.TransferableData.AddValueChangedHandler(VideoClip.IsVisibleParameter, this.OnVisibilityParameterChanged);
         }
-        
+
         this.UpdateIsClipVisibleState();
     }
 
-    public void OnDisconnecting() {
+    public void OnDisconnecting()
+    {
         Binders.DetachModels(this.frameSpanBinder, this.displayNameBinder, this.activeAutoSequenceBinder);
-        if (this.ClipModel is VideoClip videoClip) {
+        if (this.ClipModel is VideoClip videoClip)
+        {
             videoClip.TransferableData.RemoveValueChangedHandler(VideoClip.IsVisibleParameter, this.OnVisibilityParameterChanged);
         }
     }
 
-    public void OnDisconnected() {
+    public void OnDisconnected()
+    {
         this.IsConnected = false;
     }
-    
-    private void OnVisibilityParameterChanged(DataParameter parameter, ITransferableData owner) {
+
+    private void OnVisibilityParameterChanged(DataParameter parameter, ITransferableData owner)
+    {
         this.UpdateIsClipVisibleState();
     }
 
     #region Drag Move
 
-    private enum DragState {
+    private enum DragState
+    {
         None,
         Initiated,
         DragHeader,
@@ -253,7 +277,8 @@ public class TimelineClipControl : ContentControl, IClipElement {
         DragRightGrip
     }
 
-    private enum ClipPart {
+    private enum ClipPart
+    {
         None,
         Body,
         Header,
@@ -261,19 +286,25 @@ public class TimelineClipControl : ContentControl, IClipElement {
         RightGrip
     }
 
-    private ClipPart GetPartForPoint(Point mPos) {
-        if (mPos.Y <= HeaderSize) {
-            if (mPos.X <= EdgeGripSize) {
+    private ClipPart GetPartForPoint(Point mPos)
+    {
+        if (mPos.Y <= HeaderSize)
+        {
+            if (mPos.X <= EdgeGripSize)
+            {
                 return ClipPart.LeftGrip;
             }
-            else if (mPos.X >= (this.Bounds.Width - EdgeGripSize)) {
+            else if (mPos.X >= (this.Bounds.Width - EdgeGripSize))
+            {
                 return ClipPart.RightGrip;
             }
-            else {
+            else
+            {
                 return ClipPart.Header;
             }
         }
-        else {
+        else
+        {
             Size size = this.Bounds.Size;
             if (mPos.X < 0 || mPos.Y < 0 || mPos.X > size.Width || mPos.Y > size.Height)
                 return ClipPart.None;
@@ -281,9 +312,11 @@ public class TimelineClipControl : ContentControl, IClipElement {
         }
     }
 
-    private void SetCursorForMousePoint(Point mPos) {
+    private void SetCursorForMousePoint(Point mPos)
+    {
         ClipPart part = this.GetPartForPoint(mPos);
-        switch (part) {
+        switch (part)
+        {
             case ClipPart.None:
             case ClipPart.Body:
                 this.SetCursorForDragState(DragState.None, true);
@@ -295,9 +328,12 @@ public class TimelineClipControl : ContentControl, IClipElement {
         }
     }
 
-    private void SetDragState(DragState state) {
-        if (this.dragState != state) {
-            if (state < DragState.Initiated) {
+    private void SetDragState(DragState state)
+    {
+        if (this.dragState != state)
+        {
+            if (state < DragState.Initiated)
+            {
                 this.initiatedDragPointer = null;
             }
 
@@ -306,12 +342,15 @@ public class TimelineClipControl : ContentControl, IClipElement {
         }
     }
 
-    private void SetCursorForDragState(DragState state, bool isPreview) {
-        if (isPreview && this.dragState != DragState.None) {
+    private void SetCursorForDragState(DragState state, bool isPreview)
+    {
+        if (isPreview && this.dragState != DragState.None)
+        {
             return;
         }
 
-        switch (state) {
+        switch (state)
+        {
             case DragState.None: this.ClearValue(CursorProperty); break;
             case DragState.Initiated: break;
             case DragState.DragHeader: this.Cursor = new Cursor(StandardCursorType.SizeAll); break;
@@ -323,102 +362,140 @@ public class TimelineClipControl : ContentControl, IClipElement {
         }
     }
 
-    public static long GetCursorFrame(TimelineClipControl clip, PointerEventArgs e, bool useRounding = true) {
+    public static long GetCursorFrame(TimelineClipControl clip, PointerEventArgs e, bool useRounding = true)
+    {
         TrackStoragePanel? timeline = clip.Track?.TrackStoragePanel;
-        if (timeline == null) {
+        if (timeline == null)
+        {
             throw new Exception("Clip does not have a timeline sequence associated with it");
         }
 
         return GetCursorFrame(timeline, e, useRounding);
     }
 
-    public static long GetCursorFrame(TrackStoragePanel trackStoragePanel, PointerEventArgs e, bool useRounding = true) {
+    public static long GetCursorFrame(TrackStoragePanel trackStoragePanel, PointerEventArgs e, bool useRounding = true)
+    {
         double cursor = e.GetPosition(trackStoragePanel).X;
         return TimelineUtils.PixelToFrame(cursor, trackStoragePanel.TimelineControl?.Zoom ?? 1.0, useRounding);
     }
 
-    protected override void OnPointerPressed(PointerPressedEventArgs e) {
+    protected override void OnPointerPressed(PointerPressedEventArgs e)
+    {
         base.OnPointerPressed(e);
         PointerPoint point = e.GetCurrentPoint(this);
-        if (this.ClipModel == null || point.Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonPressed) {
+        if (this.ClipModel == null)
             return;
-        }
 
-        this.spanAtDragBegin = this.ClipModel.FrameSpan;
-        this.trackAtDragBegin = this.ClipModel.Track;
-
-        e.Handled = true;
-        this.Focus();
-        this.clickPos = e.GetPosition(this);
-        this.lastMovePosAbs = this.PointToScreen(this.clickPos);
-        if (this.GetPartForPoint(this.clickPos) > ClipPart.Body) {
-            this.initiatedDragPointer = e.Pointer;
-            this.SetDragState(DragState.Initiated);
-        }
-
-        if (!ReferenceEquals(e.Pointer.Captured, this)) {
-            e.Pointer.Capture(this);
-        }
+        bool isRightClick = point.Properties.PointerUpdateKind == PointerUpdateKind.RightButtonPressed;
+        if (point.Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonPressed && !isRightClick)
+            return;
 
         Timeline? timeline;
         TimelineControl? timelineControl = this.Track?.TimelineControl;
-        if (timelineControl == null || (timeline = timelineControl.Timeline) == null) {
+        if (timelineControl == null || (timeline = timelineControl.Timeline) == null)
             return;
-        }
 
-        long mouseFrame = GetCursorFrame(this, e);
-        bool isToggle = (e.KeyModifiers & KeyModifiers.Control) != 0;
-        if ((e.KeyModifiers & KeyModifiers.Shift) != 0) {
-            this.hasMadeRangeSelectionInMousePress = true;
-            TrackPoint anchor = timeline.RangedSelectionAnchor;
-            if (anchor.TrackIndex != -1) {
-                int idxA = anchor.TrackIndex;
-                int idxB = this.ClipModel.Track!.IndexInTimeline;
-                if (idxA > idxB) {
-                    Maths.Swap(ref idxA, ref idxB);
-                }
-
-                long frameA = anchor.Frame;
-                if (frameA > mouseFrame) {
-                    Maths.Swap(ref frameA, ref mouseFrame);
-                }
-
-                timelineControl.MakeFrameRangeSelection(FrameSpan.FromIndex(frameA, mouseFrame), idxA, idxB + 1);
+        if (isRightClick)
+        {
+            e.Handled = true;
+            this.Focus();
+            this.lastMovePosAbs = this.PointToScreen(this.leftClickPos);
+            if (!ReferenceEquals(e.Pointer.Captured, this))
+            {
+                e.Pointer.Capture(this);
             }
-            else {
-                long frameA = timeline.PlayHeadPosition;
-                if (frameA > mouseFrame) {
-                    Maths.Swap(ref frameA, ref mouseFrame);
-                }
 
-                timelineControl.MakeFrameRangeSelection(FrameSpan.FromIndex(frameA, mouseFrame));
+            if (!this.IsSelected)
+            {
+                timelineControl.ClipSelectionManager!.SetSelection(this);
             }
         }
-        else {
-            this.wasSelectedOnPress = this.IsSelected;
-            if (isToggle) {
-                if (this.wasSelectedOnPress) {
-                    // do nothing; toggle selection in mouse release
-                }
-                else {
-                    timelineControl.ClipSelectionManager!.Select(this);
-                }
-            }
-            else if (!this.wasSelectedOnPress || timelineControl.ClipSelectionManager!.Count <= 1) {
-                // Set as only selection if 0 or 1 items selected, or we aren't selected
-                // Check we don't update selection since we are already the only selected item. Pointless re-selection
-                if (!this.wasSelectedOnPress)
-                    timelineControl.ClipSelectionManager!.SetSelection(this);
-                this.shouldUpdatePlayHeadOnMouseUp = true;
+        else
+        {
+            this.spanAtDragBegin = this.ClipModel.FrameSpan;
+            this.trackAtDragBegin = this.ClipModel.Track;
+
+            e.Handled = true;
+            this.Focus();
+            this.leftClickPos = e.GetPosition(this);
+            this.lastMovePosAbs = this.PointToScreen(this.leftClickPos);
+            if (this.GetPartForPoint(this.leftClickPos) > ClipPart.Body)
+            {
+                this.initiatedDragPointer = e.Pointer;
+                this.SetDragState(DragState.Initiated);
             }
 
-            timeline.RangedSelectionAnchor = new TrackPoint(this.ClipModel, mouseFrame);
+            if (!ReferenceEquals(e.Pointer.Captured, this))
+            {
+                e.Pointer.Capture(this);
+            }
+
+            long mouseFrame = GetCursorFrame(this, e);
+            bool isToggle = (e.KeyModifiers & KeyModifiers.Control) != 0;
+            if ((e.KeyModifiers & KeyModifiers.Shift) != 0)
+            {
+                this.hasMadeRangeSelectionInMousePress = true;
+                TrackPoint anchor = timeline.RangedSelectionAnchor;
+                if (anchor.TrackIndex != -1)
+                {
+                    int idxA = anchor.TrackIndex;
+                    int idxB = this.ClipModel.Track!.IndexInTimeline;
+                    if (idxA > idxB)
+                    {
+                        Maths.Swap(ref idxA, ref idxB);
+                    }
+
+                    long frameA = anchor.Frame;
+                    if (frameA > mouseFrame)
+                    {
+                        Maths.Swap(ref frameA, ref mouseFrame);
+                    }
+
+                    timelineControl.MakeFrameRangeSelection(FrameSpan.FromIndex(frameA, mouseFrame), idxA, idxB + 1);
+                }
+                else
+                {
+                    long frameA = timeline.PlayHeadPosition;
+                    if (frameA > mouseFrame)
+                    {
+                        Maths.Swap(ref frameA, ref mouseFrame);
+                    }
+
+                    timelineControl.MakeFrameRangeSelection(FrameSpan.FromIndex(frameA, mouseFrame));
+                }
+            }
+            else
+            {
+                this.wasSelectedOnPress = this.IsSelected;
+                if (isToggle)
+                {
+                    if (this.wasSelectedOnPress)
+                    {
+                        // do nothing; toggle selection in mouse release
+                    }
+                    else
+                    {
+                        timelineControl.ClipSelectionManager!.Select(this);
+                    }
+                }
+                else if (!this.wasSelectedOnPress || timelineControl.ClipSelectionManager!.Count <= 1)
+                {
+                    // Check we don't update selection since we are already the only selected item. Pointless re-selection
+                    if (!this.wasSelectedOnPress)
+                        timelineControl.ClipSelectionManager!.SetSelection(this);
+                    this.shouldUpdatePlayHeadOnMouseUp = true;
+                }
+
+                timeline.RangedSelectionAnchor = new TrackPoint(this.ClipModel, mouseFrame);
+            }
         }
     }
 
-    protected override void OnPointerReleased(PointerReleasedEventArgs e) {
+    protected override void OnPointerReleased(PointerReleasedEventArgs e)
+    {
         base.OnPointerReleased(e);
-        if (this.ClipModel == null || e.GetCurrentPoint(this).Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonReleased) {
+        if (this.ClipModel == null || e.GetCurrentPoint(this).Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonReleased)
+        {
             return;
         }
 
@@ -426,7 +503,8 @@ public class TimelineClipControl : ContentControl, IClipElement {
         DragState lastDragState = this.dragState;
         bool updatePlayHeadOnMouseUp = this.shouldUpdatePlayHeadOnMouseUp;
         this.shouldUpdatePlayHeadOnMouseUp = false;
-        if (this.dragState <= DragState.Initiated && updatePlayHeadOnMouseUp) {
+        if (this.dragState <= DragState.Initiated && updatePlayHeadOnMouseUp)
+        {
             this.Track!.TrackStoragePanel!.SetPlayHeadToMouseCursor(e);
         }
 
@@ -436,61 +514,74 @@ public class TimelineClipControl : ContentControl, IClipElement {
             e.Pointer.Capture(null);
 
         // If we made a range selection then don't do anything with the current selection
-        if (this.hasMadeRangeSelectionInMousePress) {
+        if (this.hasMadeRangeSelectionInMousePress)
+        {
             this.hasMadeRangeSelectionInMousePress = false;
             return;
         }
 
         Timeline? timeline;
         TimelineControl? timelineControl = this.Track?.TimelineControl;
-        if (timelineControl == null || (timeline = timelineControl.Timeline) == null) {
+        if (timelineControl == null || (timeline = timelineControl.Timeline) == null)
+        {
             return;
         }
 
         TimelineClipSelectionManager selector = timelineControl.ClipSelectionManager!;
-        if (lastDragState == DragState.None || lastDragState == DragState.Initiated) {
+        if (lastDragState == DragState.None || lastDragState == DragState.Initiated)
+        {
             bool isToggle = (e.KeyModifiers & KeyModifiers.Control) != 0;
             int selCount = selector.Count;
-            if ((e.KeyModifiers & KeyModifiers.Shift) == 0 && (!isToggle || (selCount == 1 && selector.IsSelected(this)))) {
+            if ((e.KeyModifiers & KeyModifiers.Shift) == 0 && (!isToggle || (selCount == 1 && selector.IsSelected(this))))
+            {
                 timeline.RangedSelectionAnchor = new TrackPoint(this.ClipModel, GetCursorFrame(this, e));
             }
 
-            if (selCount == 0) {
+            if (selCount == 0)
+            {
                 // very rare scenario, shouldn't really occur
                 selector.SetSelection(this);
             }
-            else if (isToggle && this.wasSelectedOnPress) {
+            else if (isToggle && this.wasSelectedOnPress)
+            {
                 // Check we want to toggle, check we were selected on click and we probably are still selected,
                 // and also check that the last drag wasn't completed/cancelled just because it feels more normal that way
                 selector.Unselect(this);
             }
-            else if (selCount > 1 && !isToggle) {
+            else if (selCount > 1 && !isToggle)
+            {
                 selector.SetSelection(this);
             }
         }
     }
 
-    private void SetClipSpanForDrag(FrameSpan newSpan) {
+    private void SetClipSpanForDrag(FrameSpan newSpan)
+    {
         RenderManager? manager = this.ClipModel!.Timeline?.RenderManager;
-        if (manager != null) {
+        if (manager != null)
+        {
             // Signal to use slow render dispatch because of how
             // often mouse movements are that will lag the UI
             using (manager.UseSlowRenderDispatch())
                 this.ClipModel!.FrameSpan = newSpan;
         }
-        else {
+        else
+        {
             this.ClipModel!.FrameSpan = newSpan;
         }
     }
 
-    protected override void OnPointerMoved(PointerEventArgs e) {
+    protected override void OnPointerMoved(PointerEventArgs e)
+    {
         base.OnPointerMoved(e);
-        if (this.ClipModel == null) {
+        if (this.ClipModel == null)
+        {
             return;
         }
 
         TrackStoragePanel? trackList = this.Track?.TrackStoragePanel;
-        if (trackList == null) {
+        if (trackList == null)
+        {
             return;
         }
 
@@ -507,13 +598,15 @@ public class TimelineClipControl : ContentControl, IClipElement {
 
         bool hasMovedX = !DoubleUtils.AreClose(mPosAbs.X, this.lastMovePosAbs.X);
         bool hasMovedY = !DoubleUtils.AreClose(mPosAbs.Y, this.lastMovePosAbs.Y);
-        if (!hasMovedX && !hasMovedY) {
+        if (!hasMovedX && !hasMovedY)
+        {
             return;
         }
 
         this.lastMovePosAbs = mPosAbs;
 
-        if (!point.Properties.IsLeftButtonPressed) {
+        if (!point.Properties.IsLeftButtonPressed)
+        {
             this.SetDragState(DragState.None);
             this.SetCursorForMousePoint(mPos);
             e.Pointer.Capture(null);
@@ -521,57 +614,69 @@ public class TimelineClipControl : ContentControl, IClipElement {
         }
 
         this.SetCursorForMousePoint(mPos);
-        if (!this.IsConnected) {
+        if (!this.IsConnected)
+        {
             return;
         }
 
         const int MinimumHorizontalDragDistance = 2;
         const int MinimumVerticalDragDistance = 2;
 
-        if (hasMovedX && this.dragState == DragState.Initiated) {
+        if (hasMovedX && this.dragState == DragState.Initiated)
+        {
             const double minDragX = MinimumHorizontalDragDistance;
             const double minDragY = MinimumVerticalDragDistance;
-            if (Math.Abs(mPos.X - this.clickPos.X) < minDragX && Math.Abs(mPos.Y - this.clickPos.Y) < minDragY) {
+            if (Math.Abs(mPos.X - this.leftClickPos.X) < minDragX && Math.Abs(mPos.Y - this.leftClickPos.Y) < minDragY)
+            {
                 return;
             }
 
-            if ((e.KeyModifiers & KeyModifiers.Control) != 0) {
-                // phantom drag
+            if ((e.KeyModifiers & KeyModifiers.Control) != 0)
+            {
+                // TODO: phantom drag
                 return;
             }
 
-            ClipPart part = this.GetPartForPoint(this.clickPos);
-            switch (part) {
+            ClipPart part = this.GetPartForPoint(this.leftClickPos);
+            switch (part)
+            {
                 case ClipPart.Header: this.SetDragState(DragState.DragHeader); break;
                 case ClipPart.LeftGrip: this.SetDragState(DragState.DragLeftGrip); break;
                 case ClipPart.RightGrip: this.SetDragState(DragState.DragRightGrip); break;
             }
         }
-        else if (this.dragState == DragState.None) {
+        else if (this.dragState == DragState.None)
+        {
             return;
         }
 
         double zoom = this.TimelineZoom;
-        Vector mPosDifRel = mPos - this.clickPos;
+        Vector mPosDifRel = mPos - this.leftClickPos;
 
         // Vector mPosDiff = absMpos - this.screenClickPos;
         FrameSpan oldSpan = this.ClipModel.FrameSpan;
-        if (this.dragState == DragState.DragHeader) {
-            if (hasMovedX) {
+        if (this.dragState == DragState.DragHeader)
+        {
+            if (hasMovedX)
+            {
                 double frameOffsetDouble = (mPosDifRel.X / zoom);
                 long offset = (long) Math.Round(frameOffsetDouble);
-                if (offset != 0) {
+                if (offset != 0)
+                {
                     // If begin is 2 and offset is -5, this sets offset to -2
                     // and since newBegin = begin+offset (2 + -2)
                     // this ensures begin never drops below 0
-                    if ((oldSpan.Begin + offset) < 0) {
+                    if ((oldSpan.Begin + offset) < 0)
+                    {
                         offset = -oldSpan.Begin;
                     }
 
-                    if (offset != 0) {
+                    if (offset != 0)
+                    {
                         FrameSpan newSpan = new FrameSpan(oldSpan.Begin + offset, oldSpan.Duration);
                         long newEndIndex = newSpan.EndIndex;
-                        if (newEndIndex > trackList.Timeline!.MaxDuration) {
+                        if (newEndIndex > trackList.Timeline!.MaxDuration)
+                        {
                             trackList.Timeline.TryExpandForFrame(newEndIndex);
                         }
 
@@ -580,15 +685,19 @@ public class TimelineClipControl : ContentControl, IClipElement {
                 }
             }
 
-            if (hasMovedY && !this.isMovingBetweenTracks && Math.Abs(mPosDifRel.Y) >= 1.0d) {
+            if (hasMovedY && !this.isMovingBetweenTracks && Math.Abs(mPosDifRel.Y) >= 1.0d)
+            {
                 double totalHeight = 0.0;
                 List<TimelineTrackControl> tracks = new List<TimelineTrackControl>(trackList.GetTracks());
                 Point mPosTL = e.GetPosition(trackList);
-                for (int i = 0, endIndex = tracks.Count - 1; i <= endIndex; i++) {
+                for (int i = 0, endIndex = tracks.Count - 1; i <= endIndex; i++)
+                {
                     TimelineTrackControl track = tracks[i];
-                    if (DoubleUtils.GreaterThanOrClose(mPosTL.Y, totalHeight) && DoubleUtils.LessThanOrClose(mPosTL.Y, totalHeight + track.Bounds.Height)) {
+                    if (DoubleUtils.GreaterThanOrClose(mPosTL.Y, totalHeight) && DoubleUtils.LessThanOrClose(mPosTL.Y, totalHeight + track.Bounds.Height))
+                    {
                         Track? newTrack = track.Track;
-                        if (newTrack != null && !ReferenceEquals(this.ClipModel.Track, newTrack) && newTrack.IsClipTypeAccepted(this.ClipModel.GetType())) {
+                        if (newTrack != null && !ReferenceEquals(this.ClipModel.Track, newTrack) && newTrack.IsClipTypeAccepted(this.ClipModel.GetType()))
+                        {
                             this.isMovingBetweenTracks = true;
                             this.ClipModel.MoveToTrack(newTrack);
                             break;
@@ -600,25 +709,32 @@ public class TimelineClipControl : ContentControl, IClipElement {
                 }
             }
         }
-        else if (this.dragState == DragState.DragLeftGrip || this.dragState == DragState.DragRightGrip) {
-            if (!hasMovedX || !(Math.Abs(mPosDifRel.X) >= 1.0d)) {
+        else if (this.dragState == DragState.DragLeftGrip || this.dragState == DragState.DragRightGrip)
+        {
+            if (!hasMovedX || !(Math.Abs(mPosDifRel.X) >= 1.0d))
+            {
                 return;
             }
 
             long offset = (long) Math.Round(mPosDifRel.X / zoom);
-            if (offset == 0) {
+            if (offset == 0)
+            {
                 return;
             }
 
-            if (this.dragState == DragState.DragLeftGrip) {
-                if ((oldSpan.Begin + offset) < 0) {
+            if (this.dragState == DragState.DragLeftGrip)
+            {
+                if ((oldSpan.Begin + offset) < 0)
+                {
                     offset = -oldSpan.Begin;
                 }
 
-                if (offset != 0) {
+                if (offset != 0)
+                {
                     long newBegin = oldSpan.Begin + offset;
                     // Clamps the offset to ensure we don't end up with a negative duration
-                    if (newBegin >= oldSpan.EndIndex) {
+                    if (newBegin >= oldSpan.EndIndex)
+                    {
                         // subtract 1 to ensure clip is always 1 frame long
                         newBegin = oldSpan.EndIndex - 1;
                     }
@@ -630,14 +746,17 @@ public class TimelineClipControl : ContentControl, IClipElement {
                         this.ClipModel.MediaFrameOffset += (oldSpan.Begin - newSpan.Begin);
                 }
             }
-            else {
+            else
+            {
                 // Clamps the offset to ensure we don't end up with a negative duration
-                if ((oldSpan.EndIndex + offset) <= oldSpan.Begin) {
+                if ((oldSpan.EndIndex + offset) <= oldSpan.Begin)
+                {
                     // add 1 to ensure clip is always 1 frame long, just because ;)
                     offset = -oldSpan.Duration + 1;
                 }
 
-                if (offset != 0) {
+                if (offset != 0)
+                {
                     long newEndIndex = oldSpan.EndIndex + offset;
                     // Clamp new frame span to 1 frame, in case user resizes too much to the right
                     // if (newEndIndex >= oldSpan.EndIndex) {
@@ -653,24 +772,29 @@ public class TimelineClipControl : ContentControl, IClipElement {
                     // since the clip is resized, the origin point will not work correctly and
                     // results in an exponential endIndex increase unless the below code is used.
                     // This code is not needed for the left grip because it just naturally isn't
-                    this.clickPos = new Point(this.clickPos.X + (newSpan.EndIndex - oldSpan.EndIndex) * zoom, this.clickPos.Y);
+                    this.leftClickPos = new Point(this.leftClickPos.X + (newSpan.EndIndex - oldSpan.EndIndex) * zoom, this.leftClickPos.Y);
                 }
             }
         }
     }
 
-    protected override void OnKeyDown(KeyEventArgs e) {
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
         base.OnKeyDown(e);
-        if (!e.Handled && this.dragState > DragState.Initiated) {
-            if (e.Key == Key.Escape) {
+        if (!e.Handled && this.dragState > DragState.Initiated)
+        {
+            if (e.Key == Key.Escape)
+            {
                 this.SetDragState(DragState.None);
                 this.SetCursorForMousePoint(this.lastMovePosAbs.ToPoint(1.0));
                 this.initiatedDragPointer?.Capture(null);
 
                 // it better not be null!!!
-                if (this.trackAtDragBegin != null) {
+                if (this.trackAtDragBegin != null)
+                {
                     this.ClipModel!.FrameSpan = this.spanAtDragBegin;
-                    if (!ReferenceEquals(this.ClipModel.Track, this.trackAtDragBegin)) {
+                    if (!ReferenceEquals(this.ClipModel.Track, this.trackAtDragBegin))
+                    {
                         this.ClipModel.MoveToTrack(this.trackAtDragBegin);
                     }
 
@@ -682,47 +806,58 @@ public class TimelineClipControl : ContentControl, IClipElement {
 
     #endregion
 
-    protected override Size MeasureOverride(Size availableSize) {
+    protected override Size MeasureOverride(Size availableSize)
+    {
         Size size = new Size(this.PixelWidth, HeaderSize);
         base.MeasureOverride(size);
         return size;
     }
 
-    protected override Size ArrangeOverride(Size finalSize) {
+    protected override Size ArrangeOverride(Size finalSize)
+    {
         Size size = new Size(this.PixelWidth, finalSize.Height);
         base.ArrangeOverride(size);
         return size;
     }
 
-    public override void Render(DrawingContext dc) {
+    public override void Render(DrawingContext dc)
+    {
         base.Render(dc);
 
         Rect finalRect = new Rect(default, this.Bounds.Size);
-        if (this.renderSizeRectGeometry.Rect != finalRect) {
+        if (this.renderSizeRectGeometry.Rect != finalRect)
+        {
             this.renderSizeRectGeometry.Rect = finalRect;
         }
 
-        using (dc.PushGeometryClip(this.renderSizeRectGeometry)) {
-            using (dc.PushRenderOptions(new RenderOptions() { EdgeMode = EdgeMode.Aliased, TextRenderingMode = TextRenderingMode.Antialias })) {
-                if (!this.IsClipVisible) {
+        using (dc.PushGeometryClip(this.renderSizeRectGeometry))
+        {
+            using (dc.PushRenderOptions(new RenderOptions() { EdgeMode = EdgeMode.Aliased, TextRenderingMode = TextRenderingMode.Antialias }))
+            {
+                if (!this.IsClipVisible)
+                {
                     dc.DrawRectangle(Brushes.Gray, null, finalRect);
                 }
-                else if (this.Background is Brush background) {
+                else if (this.Background is Brush background)
+                {
                     dc.DrawRectangle(background, null, finalRect);
                 }
 
                 Thickness border = this.PART_ClipBorderRoot!.BorderThickness;
                 Thickness border2 = new Thickness(border.Left, 0, border.Right, 0);
-                
+
                 Rect headerRect = new Rect(finalRect.X, finalRect.Y, finalRect.Width, Math.Min(finalRect.Height, HeaderSize)).Deflate(border2);
-                if (!this.IsClipVisible) {
+                if (!this.IsClipVisible)
+                {
                     dc.DrawRectangle(Brushes.DarkRed, null, headerRect);
                 }
-                else if (this.Track?.ClipHeaderBrush is Brush headerBrush) {
+                else if (this.Track?.ClipHeaderBrush is Brush headerBrush)
+                {
                     dc.DrawRectangle(headerBrush, null, headerRect);
                 }
 
-                if (this.DisplayName is string str && !string.IsNullOrWhiteSpace(str)) {
+                if (this.DisplayName is string str && !string.IsNullOrWhiteSpace(str))
+                {
                     IBrush foreground = this.Track?.TrackColourForegroundBrush ?? this.Foreground ?? Brushes.Orange;
                     this.myDisplayNameFormattedText ??= new FormattedText(str, CultureInfo.CurrentCulture, FlowDirection.LeftToRight, new Typeface("Segoe UI"), 12, foreground);
 
@@ -736,11 +871,12 @@ public class TimelineClipControl : ContentControl, IClipElement {
                     //     Point a = scroller.TranslatePoint(default, this) ?? default;
                     //     location = new Point(Math.Max(a.X, 3), 1);
                     // }
-                    
+
                     dc.DrawText(this.myDisplayNameFormattedText, new Point(3, 1));
                 }
 
-                if (this.ClipModel?.MediaFrameOffset > 0) {
+                if (this.ClipModel?.MediaFrameOffset > 0)
+                {
                     double pixelX = TimelineUtils.FrameToPixel(this.ClipModel.MediaFrameOffset, this.TimelineZoom);
                     dc.DrawRectangle(Brushes.White, null, new Rect(pixelX, 0, 1, 5));
                 }
@@ -762,12 +898,14 @@ public class TimelineClipControl : ContentControl, IClipElement {
         }
     }
 
-    public void OnZoomChanged(double newZoom) {
+    public void OnZoomChanged(double newZoom)
+    {
         if (this.PART_AutomationEditor != null)
             this.PART_AutomationEditor.HorizontalZoom = newZoom;
     }
 
-    internal static void InternalUpdateIsSelected(TimelineClipControl clip, bool isSelected) {
+    internal static void InternalUpdateIsSelected(TimelineClipControl clip, bool isSelected)
+    {
         clip.SetAndRaise(IsSelectedProperty, ref clip.isSelected, isSelected);
         clip.ZIndex = isSelected ? 10 : 1;
     }
@@ -777,79 +915,98 @@ public class TimelineClipControl : ContentControl, IClipElement {
 
     #region Drag dropping items into this clip
 
-    protected void OnDragEnter(DragEventArgs e) {
+    protected void OnDragEnter(DragEventArgs e)
+    {
         this.OnDragOver(e);
     }
 
-    protected void OnDragOver(DragEventArgs e) {
+    protected void OnDragOver(DragEventArgs e)
+    {
         e.Handled = true;
-        if (this.isProcessingAsyncDrop) {
+        if (this.isProcessingAsyncDrop)
+        {
             e.DragEffects = DragDropEffects.None;
             return;
         }
 
         EnumDropType outputEffects = EnumDropType.None;
         EnumDropType inputEffects = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
-        if (inputEffects != EnumDropType.None && this.ClipModel is Clip target) {
-            if (e.Data.Get(ResourceDropRegistry.DropTypeText) is List<BaseResource> resources) {
-                if (resources.Count == 1 && resources[0] is ResourceItem) {
+        if (inputEffects != EnumDropType.None && this.ClipModel is Clip target)
+        {
+            if (e.Data.Get(ResourceDropRegistry.DropTypeText) is List<BaseResource> resources)
+            {
+                if (resources.Count == 1 && resources[0] is ResourceItem)
+                {
                     outputEffects = ClipDropRegistry.DropRegistry.CanDrop(target, resources[0], inputEffects);
                 }
             }
             // else if (e.Data.GetData(EffectProviderListBox.EffectProviderDropType) is EffectProviderEntry provider) {
             //     outputEffects = ClipDropRegistry.DropRegistry.CanDrop(target, provider, inputEffects);
             // }
-            else {
+            else
+            {
                 outputEffects = ClipDropRegistry.DropRegistry.CanDropNative(target, new DataObjectWrapper(e.Data), inputEffects);
             }
 
-            if (outputEffects != EnumDropType.None) {
+            if (outputEffects != EnumDropType.None)
+            {
                 this.OnAcceptDrop();
                 e.DragEffects = (DragDropEffects) outputEffects;
             }
-            else {
+            else
+            {
                 this.IsDroppableTargetOver = false;
                 e.DragEffects = DragDropEffects.None;
             }
         }
     }
 
-    private void OnAcceptDrop() {
+    private void OnAcceptDrop()
+    {
         if (!this.IsDroppableTargetOver)
             this.IsDroppableTargetOver = true;
     }
 
-    protected void OnDragLeave(DragEventArgs e) {
+    protected void OnDragLeave(DragEventArgs e)
+    {
         // Dispatcher.UIThread.Invoke(() => this.ClearValue(IsDroppableTargetOverProperty), DispatcherPriority.Loaded);
-        if (!this.IsPointerOver) {
+        if (!this.IsPointerOver)
+        {
             this.IsDroppableTargetOver = false;
         }
     }
 
-    protected async void OnDrop(DragEventArgs e) {
+    protected async void OnDrop(DragEventArgs e)
+    {
         e.Handled = true;
-        if (this.isProcessingAsyncDrop || !(this.ClipModel is Clip clip)) {
+        if (this.isProcessingAsyncDrop || !(this.ClipModel is Clip clip))
+        {
             return;
         }
 
         EnumDropType effects = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
-        if (e.DragEffects == DragDropEffects.None) {
+        if (e.DragEffects == DragDropEffects.None)
+        {
             return;
         }
 
-        try {
+        try
+        {
             this.isProcessingAsyncDrop = true;
-            if (e.Data.Get(ResourceDropRegistry.DropTypeText) is List<BaseResource> items && items.Count == 1 && items[0] is ResourceItem) {
+            if (e.Data.Get(ResourceDropRegistry.DropTypeText) is List<BaseResource> items && items.Count == 1 && items[0] is ResourceItem)
+            {
                 await ClipDropRegistry.DropRegistry.OnDropped(clip, items[0], effects);
             }
             // else if (e.Data.GetData(EffectProviderListBox.EffectProviderDropType) is EffectProviderEntry provider) {
             //     await ClipDropRegistry.DropRegistry.OnDropped(clip, provider, effects);
             // }
-            else {
+            else
+            {
                 await ClipDropRegistry.DropRegistry.OnDroppedNative(clip, new DataObjectWrapper(e.Data), effects);
             }
         }
-        finally {
+        finally
+        {
             this.isProcessingAsyncDrop = false;
             this.IsDroppableTargetOver = false;
         }
@@ -857,7 +1014,8 @@ public class TimelineClipControl : ContentControl, IClipElement {
 
     #endregion
 
-    public void OnIsAutomationVisibilityChanged(bool isVisible) {
+    public void OnIsAutomationVisibilityChanged(bool isVisible)
+    {
         this.PART_AutomationEditor!.IsVisible = isVisible;
     }
 }

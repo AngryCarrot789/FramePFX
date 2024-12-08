@@ -24,7 +24,8 @@ public delegate void ActivityProgressEventHandler(IActivityProgress tracker);
 /// <summary>
 /// An interface for an object used to track progression of an activity
 /// </summary>
-public interface IActivityProgress {
+public interface IActivityProgress
+{
     /// <summary>
     /// Gets or sets if this tracker's completions state is indeterminate
     /// </summary>
@@ -106,7 +107,7 @@ public interface IActivityProgress {
     /// </summary>
     /// <param name="value">The value to append (multiplied based on the current ranges on the stack)</param>
     void OnProgress(double value);
-    
+
     /// <summary>
     /// Sets the given value as the total completion. The value <see cref="TotalCompletion"/>
     /// becomes depends on the ranges on the stack. If there are none, then
@@ -120,14 +121,17 @@ public interface IActivityProgress {
 /// A struct used to automatically pop a completion range from a tracker, to make the code easier to
 /// #read. This can only pop once, then calling Dispose again does nothing
 /// </summary>
-public struct PopDispose : IDisposable {
+public struct PopDispose : IDisposable
+{
     private IActivityProgress? tracker;
 
-    public PopDispose(IActivityProgress tracker) {
+    public PopDispose(IActivityProgress tracker)
+    {
         this.tracker = tracker;
     }
 
-    public void Dispose() {
+    public void Dispose()
+    {
         IActivityProgress? t = this.tracker;
         this.tracker = null;
         t?.PopCompletionRange();

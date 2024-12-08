@@ -37,7 +37,8 @@ public delegate void DataParameterValueChangedEventHandler(DataParameter paramet
 /// <item>A specific parameter changed, globally</item>
 /// </list>
 /// </summary>
-public abstract class DataParameter : IEquatable<DataParameter>, IComparable<DataParameter> {
+public abstract class DataParameter : IEquatable<DataParameter>, IComparable<DataParameter>
+{
     private static readonly Dictionary<string, DataParameter> RegistryMap;
     private static readonly Dictionary<Type, List<DataParameter>> TypeToParametersMap;
 
@@ -86,7 +87,8 @@ public abstract class DataParameter : IEquatable<DataParameter>, IComparable<Dat
     /// </summary>
     public event DataParameterValueChangedEventHandler? ValueChanged;
 
-    protected DataParameter(Type ownerType, string name, DataParameterFlags flags) {
+    protected DataParameter(Type ownerType, string name, DataParameterFlags flags)
+    {
         Validate.NotNull(ownerType);
         Validate.NotNullOrWhiteSpaces(name);
         this.OwnerType = ownerType;
@@ -94,7 +96,8 @@ public abstract class DataParameter : IEquatable<DataParameter>, IComparable<Dat
         this.Flags = flags;
     }
 
-    static DataParameter() {
+    static DataParameter()
+    {
         RegistryMap = new Dictionary<string, DataParameter>();
         TypeToParametersMap = new Dictionary<Type, List<DataParameter>>();
     }
@@ -104,8 +107,10 @@ public abstract class DataParameter : IEquatable<DataParameter>, IComparable<Dat
     /// </summary>
     /// <param name="handler">The handler to add</param>
     /// <param name="parameters">The parameters to add the event handler to</param>
-    public static void AddMultipleHandlers(DataParameterValueChangedEventHandler handler, params DataParameter[] parameters) {
-        foreach (DataParameter parameter in parameters) {
+    public static void AddMultipleHandlers(DataParameterValueChangedEventHandler handler, params DataParameter[] parameters)
+    {
+        foreach (DataParameter parameter in parameters)
+        {
             parameter.ValueChanged += handler;
         }
     }
@@ -115,8 +120,10 @@ public abstract class DataParameter : IEquatable<DataParameter>, IComparable<Dat
     /// </summary>
     /// <param name="handler">The handler to remove</param>
     /// <param name="parameters">The parameters to remove the event handler from</param>
-    public static void RemoveMultipleHandlers(DataParameterValueChangedEventHandler handler, params DataParameter[] parameters) {
-        foreach (DataParameter parameter in parameters) {
+    public static void RemoveMultipleHandlers(DataParameterValueChangedEventHandler handler, params DataParameter[] parameters)
+    {
+        foreach (DataParameter parameter in parameters)
+        {
             parameter.ValueChanged -= handler;
         }
     }
@@ -128,13 +135,16 @@ public abstract class DataParameter : IEquatable<DataParameter>, IComparable<Dat
     /// <returns></returns>
     /// <exception cref="InvalidOperationException">The parameter was already registered</exception>
     /// <exception cref="Exception">The parameter's key is already in use</exception>
-    public static T Register<T>(T parameter) where T : DataParameter {
+    public static T Register<T>(T parameter) where T : DataParameter
+    {
         RegisterCore(parameter);
         return parameter;
     }
 
-    private static void RegisterCore(DataParameter parameter) {
-        if (parameter.GlobalIndex != 0) {
+    private static void RegisterCore(DataParameter parameter)
+    {
+        if (parameter.GlobalIndex != 0)
+        {
             throw new InvalidOperationException("Data parameter was already registered with a global index of " + parameter.GlobalIndex);
         }
 
@@ -142,8 +152,10 @@ public abstract class DataParameter : IEquatable<DataParameter>, IComparable<Dat
         while (Interlocked.CompareExchange(ref RegistrationFlag, 1, 0) != 0)
             Thread.SpinWait(32);
 
-        try {
-            if (RegistryMap.TryGetValue(path, out DataParameter? existingParameter)) {
+        try
+        {
+            if (RegistryMap.TryGetValue(path, out DataParameter? existingParameter))
+            {
                 throw new Exception($"Key already exists with the ID '{path}': {existingParameter}");
             }
 
@@ -153,26 +165,30 @@ public abstract class DataParameter : IEquatable<DataParameter>, IComparable<Dat
             list.Add(parameter);
             parameter.GlobalIndex = NextGlobalIndex++;
         }
-        finally {
+        finally
+        {
             RegistrationFlag = 0;
         }
     }
 
-    public bool IsValueChanging(ITransferableData owner) {
+    public bool IsValueChanging(ITransferableData owner)
+    {
         return owner.TransferableData.IsValueChanging(this);
     }
 
     /// <summary>
     /// Adds a value changed event handler for this parameter on the given owner
     /// </summary>
-    public void AddValueChangedHandler(ITransferableData owner, DataParameterValueChangedEventHandler handler) {
+    public void AddValueChangedHandler(ITransferableData owner, DataParameterValueChangedEventHandler handler)
+    {
         TransferableData.InternalAddHandler(this, owner.TransferableData, handler);
     }
 
     /// <summary>
     /// Removes a value changed handler for this parameter on the given owner
     /// </summary>
-    public void RemoveValueChangedHandler(ITransferableData owner, DataParameterValueChangedEventHandler handler) {
+    public void RemoveValueChangedHandler(ITransferableData owner, DataParameterValueChangedEventHandler handler)
+    {
         TransferableData.InternalRemoveHandler(this, owner.TransferableData, handler);
     }
 
@@ -195,7 +211,8 @@ public abstract class DataParameter : IEquatable<DataParameter>, IComparable<Dat
     /// data corruption due to value change events not being fired
     /// </summary>
     /// <param name="owner">The owner whose value is going to be changed</param>
-    protected virtual void OnBeginValueChange(ITransferableData owner) {
+    protected virtual void OnBeginValueChange(ITransferableData owner)
+    {
         TransferableData.InternalBeginValueChange(this, owner);
     }
 
@@ -204,33 +221,41 @@ public abstract class DataParameter : IEquatable<DataParameter>, IComparable<Dat
     /// in <see cref="OnBeginValueChange"/>, except now we need to finalize the states
     /// </summary>
     /// <param name="owner">The owner whose value has now changed</param>
-    protected virtual void OnEndValueChange(ITransferableData owner) {
+    protected virtual void OnEndValueChange(ITransferableData owner)
+    {
         TransferableData.InternalEndValueChange(this, owner);
     }
 
-    protected void OnEndValueChangeHelper(ITransferableData owner, ref Exception? e) {
-        try {
+    protected void OnEndValueChangeHelper(ITransferableData owner, ref Exception? e)
+    {
+        try
+        {
             this.OnEndValueChange(owner);
         }
-        catch (Exception exception) {
+        catch (Exception exception)
+        {
             e = e != null
                 ? new AggregateException("An exception occurred while updating the value and finalizing the transaction", e, exception)
                 : new Exception("An exception occurred while processing the end of a value change transaction", exception);
         }
     }
 
-    public static DataParameter GetParameterByKey(string key) {
+    public static DataParameter GetParameterByKey(string key)
+    {
         if (!TryGetParameterByKey(key, out DataParameter? parameter))
             throw new Exception("No such parameter with the key: " + key);
         return parameter;
     }
 
-    public static DataParameter GetParameterByKey(string key, DataParameter def) {
+    public static DataParameter GetParameterByKey(string key, DataParameter def)
+    {
         return TryGetParameterByKey(key, out DataParameter? parameter) ? parameter : def;
     }
 
-    public static bool TryGetParameterByKey(string? key, [NotNullWhen(true)] out DataParameter? parameter) {
-        if (key == null) {
+    public static bool TryGetParameterByKey(string? key, [NotNullWhen(true)] out DataParameter? parameter)
+    {
+        if (key == null)
+        {
             parameter = null;
             return false;
         }
@@ -238,19 +263,23 @@ public abstract class DataParameter : IEquatable<DataParameter>, IComparable<Dat
         while (Interlocked.CompareExchange(ref RegistrationFlag, 2, 0) != 0)
             Thread.Sleep(1);
 
-        try {
+        try
+        {
             return RegistryMap.TryGetValue(key, out parameter);
         }
-        finally {
+        finally
+        {
             RegistrationFlag = 0;
         }
     }
 
-    public bool Equals(DataParameter? other) {
+    public bool Equals(DataParameter? other)
+    {
         return !ReferenceEquals(other, null) && this.GlobalIndex == other.GlobalIndex;
     }
 
-    public override bool Equals(object? obj) {
+    public override bool Equals(object? obj)
+    {
         return obj is DataParameter parameter && this.GlobalIndex == parameter.GlobalIndex;
     }
 
@@ -258,7 +287,8 @@ public abstract class DataParameter : IEquatable<DataParameter>, IComparable<Dat
     // ReSharper disable once NonReadonlyMemberInGetHashCode
     public override int GetHashCode() => this.GlobalIndex;
 
-    public int CompareTo(DataParameter? other) {
+    public int CompareTo(DataParameter? other)
+    {
         if (ReferenceEquals(this, other))
             return 0;
         if (ReferenceEquals(null, other))
@@ -266,24 +296,28 @@ public abstract class DataParameter : IEquatable<DataParameter>, IComparable<Dat
         return this.GlobalIndex.CompareTo(other.GlobalIndex);
     }
 
-    public override string ToString() {
+    public override string ToString()
+    {
         return $"{this.GetType().Name}({this.GlobalKey})";
     }
 
     public bool IsOwnerValid(ITransferableData owner) => this.OwnerType.IsInstanceOfType(owner);
     public bool IsOwnerValid(Type ownerType) => this.OwnerType.IsAssignableFrom(ownerType);
 
-    public void ValidateOwner(ITransferableData owner) {
+    public void ValidateOwner(ITransferableData owner)
+    {
         if (!this.IsOwnerValid(owner))
             throw this.ExceptionForInvalidOwner(owner.GetType());
     }
 
-    public void ValidateOwner(Type ownerType) {
+    public void ValidateOwner(Type ownerType)
+    {
         if (!this.IsOwnerValid(ownerType))
             throw this.ExceptionForInvalidOwner(ownerType);
     }
 
-    private Exception ExceptionForInvalidOwner(Type ownerType) {
+    private Exception ExceptionForInvalidOwner(Type ownerType)
+    {
         throw new ArgumentException($"Parameter '{this.GlobalKey}' is incompatible for our owner. '{ownerType.Name}' is not assignable to '{this.OwnerType.Name}'");
     }
 
@@ -295,15 +329,20 @@ public abstract class DataParameter : IEquatable<DataParameter>, IComparable<Dat
     /// When true, it will also accumulate the parameters of every base type. When false,
     /// it just gets the parameters for the exact given type (parameters whose owner types match)</param>
     /// <returns>An enumerable of parameters</returns>
-    public static List<DataParameter> GetApplicableParameters(Type targetType, bool inHierarchy = true) {
+    public static List<DataParameter> GetApplicableParameters(Type targetType, bool inHierarchy = true)
+    {
         List<DataParameter> parameters = new List<DataParameter>();
-        if (TypeToParametersMap.TryGetValue(targetType, out List<DataParameter>? list)) {
+        if (TypeToParametersMap.TryGetValue(targetType, out List<DataParameter>? list))
+        {
             parameters.AddRange(list);
         }
 
-        if (inHierarchy) {
-            for (Type? bType = targetType.BaseType; bType != null; bType = bType.BaseType) {
-                if (TypeToParametersMap.TryGetValue(bType, out list)) {
+        if (inHierarchy)
+        {
+            for (Type? bType = targetType.BaseType; bType != null; bType = bType.BaseType)
+            {
+                if (TypeToParametersMap.TryGetValue(bType, out list))
+                {
                     parameters.AddRange(list);
                 }
             }
@@ -312,7 +351,8 @@ public abstract class DataParameter : IEquatable<DataParameter>, IComparable<Dat
         return parameters;
     }
 
-    internal static void InternalOnParameterValueChanged(DataParameter parameter, ITransferableData owner, bool priority) {
+    internal static void InternalOnParameterValueChanged(DataParameter parameter, ITransferableData owner, bool priority)
+    {
         (priority ? parameter.PriorityValueChanged : parameter.ValueChanged)?.Invoke(parameter, owner);
     }
 
@@ -326,14 +366,17 @@ public abstract class DataParameter : IEquatable<DataParameter>, IComparable<Dat
     /// <param name="field">A ref to the backing value field</param>
     /// <param name="newValue">The new value to set the property or field to</param>
     /// <typeparam name="T">The type of value</typeparam>
-    public static void SetValueHelper<T>(ITransferableData owner, DataParameter<T> parameter, ref T field, T newValue) {
-        if (parameter.IsValueChanging(owner)) {
+    public static void SetValueHelper<T>(ITransferableData owner, DataParameter<T> parameter, ref T field, T newValue)
+    {
+        if (parameter.IsValueChanging(owner))
+        {
             if (!EqualityComparer<T>.Default.Equals(field, newValue))
                 throw new InvalidOperationException("Attempted to set value to a different value during the Value Change process");
 
             field = newValue;
         }
-        else {
+        else
+        {
             parameter.SetValue(owner, newValue);
         }
     }
@@ -346,7 +389,8 @@ public abstract class DataParameter : IEquatable<DataParameter>, IComparable<Dat
 /// </para>
 /// </summary>
 /// <typeparam name="T">The type of value this data parameter deals with</typeparam>
-public class DataParameter<T> : DataParameter {
+public class DataParameter<T> : DataParameter
+{
     private readonly ValueAccessor<T> accessor;
     protected readonly bool isObjectAccessPreferred;
     private Dictionary<Type, T>? overrideDefaultValue;
@@ -357,36 +401,44 @@ public class DataParameter<T> : DataParameter {
     /// </summary>
     public T DefaultValue { get; }
 
-    public DataParameter(Type ownerType, string name, ValueAccessor<T> accessor, DataParameterFlags flags = DataParameterFlags.None) : base(ownerType, name, flags) {
+    public DataParameter(Type ownerType, string name, ValueAccessor<T> accessor, DataParameterFlags flags = DataParameterFlags.None) : base(ownerType, name, flags)
+    {
         if (accessor == null)
             throw new ArgumentNullException(nameof(accessor));
         this.accessor = accessor;
         this.isObjectAccessPreferred = accessor.IsObjectPreferred;
     }
 
-    public DataParameter(Type ownerType, string name, T defaultValue, ValueAccessor<T> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, name, accessor, flags) {
+    public DataParameter(Type ownerType, string name, T defaultValue, ValueAccessor<T> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, name, accessor, flags)
+    {
         this.DefaultValue = defaultValue;
     }
 
-    public void OverrideDefaultValue(Type ownerType, T newDefaultValue) {
+    public void OverrideDefaultValue(Type ownerType, T newDefaultValue)
+    {
         this.ValidateOwner(ownerType);
         (this.overrideDefaultValue ??= new Dictionary<Type, T>())[ownerType] = newDefaultValue;
         // this.lastResult = default;
     }
 
-    public T GetDefaultValue(ITransferableData instance) {
+    public T GetDefaultValue(ITransferableData instance)
+    {
         return this.overrideDefaultValue == null ? this.DefaultValue : this.GetDefaultValue(instance.GetType());
     }
 
-    public T GetDefaultValue(Type type) {
-        if (this.overrideDefaultValue != null) {
+    public T GetDefaultValue(Type type)
+    {
+        if (this.overrideDefaultValue != null)
+        {
             // (Type src, T val)? lastPath = this.lastDef;
             // if (lastPath != null && lastPath.Value.src == type) {
             //     return lastPath.Value.val;
             // }
 
-            for (Type? subType = type; subType != null; subType = subType.BaseType) {
-                if (this.overrideDefaultValue.TryGetValue(subType, out T? value)) {
+            for (Type? subType = type; subType != null; subType = subType.BaseType)
+            {
+                if (this.overrideDefaultValue.TryGetValue(subType, out T? value))
+                {
                     // this.lastDef = (type, value);
                     return value;
                 }
@@ -401,11 +453,13 @@ public class DataParameter<T> : DataParameter {
     /// </summary>
     /// <param name="owner">The owner instance</param>
     /// <returns>The generic value</returns>
-    public virtual T? GetValue(ITransferableData owner) {
+    public virtual T? GetValue(ITransferableData owner)
+    {
         return this.accessor.GetValue(owner);
     }
 
-    public override object? GetObjectValue(ITransferableData owner) {
+    public override object? GetObjectValue(ITransferableData owner)
+    {
         return this.accessor.GetObjectValue(owner);
     }
 
@@ -414,16 +468,20 @@ public class DataParameter<T> : DataParameter {
     /// </summary>
     /// <param name="owner">The owner instance</param>
     /// <param name="value">The new value</param>
-    public virtual void SetValue(ITransferableData owner, T value) {
+    public virtual void SetValue(ITransferableData owner, T value)
+    {
         this.OnBeginValueChange(owner);
         Exception? error = null;
-        try {
+        try
+        {
             this.accessor.SetValue(owner, value);
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             error = e;
         }
-        finally {
+        finally
+        {
             this.OnEndValueChangeHelper(owner, ref error);
         }
 
@@ -431,28 +489,33 @@ public class DataParameter<T> : DataParameter {
             throw error;
     }
 
-    public override void SetObjectValue(ITransferableData owner, object? value) {
+    public override void SetObjectValue(ITransferableData owner, object? value)
+    {
         this.OnBeginValueChange(owner);
         Exception? error = null;
-        try {
+        try
+        {
             this.accessor.SetObjectValue(owner, value);
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             error = e;
         }
-        finally {
+        finally
+        {
             this.OnEndValueChangeHelper(owner, ref error);
         }
 
         if (error != null)
             throw error;
     }
-    
+
     /// <summary>
     /// Sets our value to the default value
     /// </summary>
     /// <param name="owner">The owner</param>
-    public virtual void Reset(ITransferableData owner) {
+    public virtual void Reset(ITransferableData owner)
+    {
         this.SetValue(owner, this.GetDefaultValue(owner));
     }
 }

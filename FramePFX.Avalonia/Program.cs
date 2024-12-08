@@ -23,29 +23,37 @@ using System.IO;
 
 namespace FramePFX.Avalonia;
 
-class Program {
+class Program
+{
     // Initialization code. Don't use any Avalonia, third-party APIs or any
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
     // yet and stuff might break.
     [STAThread]
-    public static void Main(string[] args) {
-        try {
+    public static void Main(string[] args)
+    {
+        try
+        {
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             string? filePath = args.Length > 0 ? args[0] : null;
-            if (string.IsNullOrEmpty(filePath)) {
+            if (string.IsNullOrEmpty(filePath))
+            {
                 string[] trueArgs = Environment.GetCommandLineArgs();
                 if (trueArgs.Length > 0)
                     filePath = trueArgs[0];
             }
 
             string? dirPath = Path.GetDirectoryName(filePath);
-            if (!string.IsNullOrEmpty(dirPath) && Directory.Exists(dirPath)) {
-                try {
+            if (!string.IsNullOrEmpty(dirPath) && Directory.Exists(dirPath))
+            {
+                try
+                {
                     File.WriteAllText(Path.Combine(dirPath, "FramePFX_LastCrashError.txt"), e.ToString());
                 }
-                catch {
+                catch
+                {
                     // ignored
                 }
             }

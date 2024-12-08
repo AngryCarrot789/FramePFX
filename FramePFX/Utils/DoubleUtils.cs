@@ -21,7 +21,8 @@ using System.Runtime.InteropServices;
 
 namespace FramePFX.Utils;
 
-public static class DoubleUtils {
+public static class DoubleUtils
+{
     // https://en.wikipedia.org/wiki/Machine_epsilon
     internal const double DBL_EPSILON = 2.22E-16;
     internal const float FLT_EPSILON = 1.19E-7F;
@@ -30,9 +31,11 @@ public static class DoubleUtils {
     /// Returns true when the value is not infinity and is not NaN
     /// </summary>
     public static bool IsValid(double value) => !double.IsInfinity(value) && !double.IsNaN(value);
+
     public static bool IsValid(float value) => !float.IsInfinity(value) && !float.IsNaN(value);
 
-    public static bool AreClose(double a, double b) {
+    public static bool AreClose(double a, double b)
+    {
         if (a == b)
             return true;
         double x = (Math.Abs(a) + Math.Abs(b) + 10.0) * DBL_EPSILON;
@@ -56,7 +59,8 @@ public static class DoubleUtils {
 
     public static int DoubleToInt(double val) => 0.0 >= val ? (int) (val - 0.5) : (int) (val + 0.5);
 
-    public static bool IsNaN(double value) {
+    public static bool IsNaN(double value)
+    {
         NanUnion nanUnion = new NanUnion { DoubleValue = value };
         ulong num1 = nanUnion.UintValue & 18442240474082181120UL;
         ulong num2 = nanUnion.UintValue & 4503599627370495UL;
@@ -64,7 +68,8 @@ public static class DoubleUtils {
     }
 
     [StructLayout(LayoutKind.Explicit)]
-    private struct NanUnion {
+    private struct NanUnion
+    {
         [FieldOffset(0)] internal double DoubleValue;
         [FieldOffset(0)] internal ulong UintValue;
     }

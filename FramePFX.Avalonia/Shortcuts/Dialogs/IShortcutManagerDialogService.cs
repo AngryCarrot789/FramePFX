@@ -19,7 +19,8 @@
 
 namespace FramePFX.Avalonia.Shortcuts.Dialogs;
 
-public interface IShortcutManagerDialogService {
+public interface IShortcutManagerDialogService
+{
     bool IsOpen { get; }
 
     void ShowEditorDialog();

@@ -26,7 +26,7 @@
             </ControlTemplate>
         </Setter>
     </ControlTheme>
-    
+
     <ControlTheme x:Key="{x:Type ams:AdvancedContextMenu}" TargetType="{x:Type ams:AdvancedContextMenu}" BasedOn="{StaticResource {x:Type ContextMenu}}">
         <Setter Property="WindowManagerAddShadowHint" Value="True"/>
         <Setter Property="Template">
@@ -38,9 +38,9 @@
                         CornerRadius="{TemplateBinding CornerRadius}">
                     <Grid RowDefinitions="Auto,1,*">
                         <Border Grid.Row="0" Background="{DynamicResource ABrush.Tone6.Background.Static}">
-                            <TextBlock Text="{TemplateBinding ContextCaption}" 
-                                       FontSize="16" 
-                                       FontWeight="Bold" 
+                            <TextBlock Text="{TemplateBinding ContextCaption}"
+                                       FontSize="16"
+                                       FontWeight="Bold"
                                        Padding="8,5"/>
                         </Border>
                         <Border Grid.Row="1" Background="{TemplateBinding BorderBrush}"/>
@@ -63,8 +63,8 @@
         <Setter Property="Template">
             <ControlTemplate>
                 <Grid ColumnDefinitions="Auto,5,*">
-                    <TextBlock Text="{TemplateBinding Text}" 
-                               Padding="0,0,5,0" Grid.Column="0" 
+                    <TextBlock Text="{TemplateBinding Text}"
+                               Padding="0,0,5,0" Grid.Column="0"
                                Foreground="{TemplateBinding Foreground}"
                                FontWeight="Bold"/>
                     <Border Background="{TemplateBinding Background}"
@@ -76,12 +76,12 @@
             </ControlTemplate>
         </Setter>
     </ControlTheme>
-    
+
     <Design.PreviewWith>
         <Grid RowDefinitions="Auto,1,*">
             <Border Grid.Row="0" Background="{DynamicResource ABrush.Tone6.Background.Static}">
-                <TextBlock Text="My Context Menu" FontSize="16" 
-                           FontWeight="Bold" 
+                <TextBlock Text="My Context Menu" FontSize="16"
+                           FontWeight="Bold"
                            Padding="8,5"/>
             </Border>
             <Border Grid.Row="1" Background="{DynamicResource Popup.Static.Border}"/>

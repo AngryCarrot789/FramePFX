@@ -26,7 +26,8 @@ namespace FramePFX.Editing.UI;
 /// <summary>
 /// An interface for the UI of a track
 /// </summary>
-public interface ITrackElement {
+public interface ITrackElement
+{
     /// <summary>
     /// Gets our timeline UI
     /// </summary>

@@ -21,7 +21,8 @@ using FramePFX.Interactivity;
 
 namespace FramePFX.Editing.ResourceManaging;
 
-public interface IResourceSelectionManager {
+public interface IResourceSelectionManager
+{
     /// <summary>
     /// Gets our tree's selection manager
     /// </summary>

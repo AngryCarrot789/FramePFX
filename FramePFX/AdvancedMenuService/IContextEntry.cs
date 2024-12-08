@@ -23,5 +23,4 @@ namespace FramePFX.AdvancedMenuService;
 /// An interface for some sort of menu item in a context menu
 /// </summary>
 public interface IContextEntry : IContextObject {
-    
 }

@@ -29,15 +29,18 @@ public delegate void DynamicGenerateContextFunction(DynamicContextGroup group, I
 /// contains a generator which generates the context objects based on the current state of the
 /// application and also the <see cref="IContextData"/> provided to the generator
 /// </summary>
-public class DynamicContextGroup : IContextGroup {
+public class DynamicContextGroup : IContextGroup
+{
     private readonly DynamicGenerateContextFunction generate;
 
-    public DynamicContextGroup(DynamicGenerateContextFunction generate) {
+    public DynamicContextGroup(DynamicGenerateContextFunction generate)
+    {
         Validate.NotNull(generate);
         this.generate = generate;
     }
 
-    public List<IContextObject> GenerateItems(IContextData context) {
+    public List<IContextObject> GenerateItems(IContextData context)
+    {
         List<IContextObject> list = new List<IContextObject>();
         this.generate(this, context, list);
         return list;

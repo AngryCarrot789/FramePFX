@@ -22,7 +22,8 @@ using Point = Avalonia.Point;
 
 namespace FramePFX.Avalonia.Interactivity;
 
-public interface IGlobalMouseDevice {
+public interface IGlobalMouseDevice
+{
     /// <summary>
     /// Gets the position of this mouse device, optionally relative to the given visual
     /// </summary>

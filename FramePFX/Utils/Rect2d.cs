@@ -24,7 +24,8 @@ namespace FramePFX.Utils;
 /// <summary>
 /// A struct that stores a width and height property, as doubles
 /// </summary>
-public readonly struct Rect2d : IEqualityComparer<Rect2d>, IEquatable<Rect2d>, IComparable<Rect2d> {
+public readonly struct Rect2d : IEqualityComparer<Rect2d>, IEquatable<Rect2d>, IComparable<Rect2d>
+{
     /// <summary>
     /// A resolution whose width and height is zero
     /// </summary>
@@ -45,16 +46,19 @@ public readonly struct Rect2d : IEqualityComparer<Rect2d>, IEquatable<Rect2d>, I
     /// </summary>
     public bool IsEmpty => this.Width == 0 && this.Height == 0;
 
-    public Rect2d(double width, double height) {
+    public Rect2d(double width, double height)
+    {
         this.Width = width;
         this.Height = height;
     }
 
-    public Rect2d WithWidth(double width) {
+    public Rect2d WithWidth(double width)
+    {
         return new Rect2d(width, this.Height);
     }
 
-    public Rect2d WithHeight(double height) {
+    public Rect2d WithHeight(double height)
+    {
         return new Rect2d(this.Width, height);
     }
 
@@ -63,7 +67,8 @@ public readonly struct Rect2d : IEqualityComparer<Rect2d>, IEquatable<Rect2d>, I
     /// </summary>
     /// <param name="height">The resolution height</param>
     /// <returns>A new resolution</returns>
-    public Rect2d ResizeToHeight(double height) {
+    public Rect2d ResizeToHeight(double height)
+    {
         return new Rect2d(height / this.Height * this.Width, height);
     }
 
@@ -72,27 +77,33 @@ public readonly struct Rect2d : IEqualityComparer<Rect2d>, IEquatable<Rect2d>, I
     /// </summary>
     /// <param name="width">The width of this resolution</param>
     /// <returns>A new resolution</returns>
-    public Rect2d ResizeToWidth(double width) {
+    public Rect2d ResizeToWidth(double width)
+    {
         return new Rect2d(width, width / this.Width * this.Height);
     }
 
-    public Rect2d Floor() {
+    public Rect2d Floor()
+    {
         return new Rect2d(Math.Floor(this.Width), Math.Floor(this.Height));
     }
 
-    public Rect2d Ceiling() {
+    public Rect2d Ceiling()
+    {
         return new Rect2d(Math.Ceiling(this.Width), Math.Ceiling(this.Height));
     }
 
-    public static Rect2d Floor(double width, double height) {
+    public static Rect2d Floor(double width, double height)
+    {
         return new Rect2d(Math.Floor(width), Math.Floor(height));
     }
 
-    public static Rect2d Ceiling(double width, double height) {
+    public static Rect2d Ceiling(double width, double height)
+    {
         return new Rect2d(Math.Ceiling(width), Math.Ceiling(height));
     }
 
-    public static Rect2d Round(double width, double height) {
+    public static Rect2d Round(double width, double height)
+    {
         return new Rect2d(Math.Round(width), Math.Round(height));
     }
 
@@ -109,7 +120,8 @@ public readonly struct Rect2d : IEqualityComparer<Rect2d>, IEquatable<Rect2d>, I
 
     public override int GetHashCode() => unchecked((this.Width.GetHashCode() * 397) ^ this.Height.GetHashCode());
 
-    public int CompareTo(Rect2d other) {
+    public int CompareTo(Rect2d other)
+    {
         int cmp = this.Width.CompareTo(other.Width);
         if (cmp == 0)
             cmp = this.Height.CompareTo(other.Height);
@@ -120,7 +132,8 @@ public readonly struct Rect2d : IEqualityComparer<Rect2d>, IEquatable<Rect2d>, I
 
     public int GetHashCode(Rect2d obj) => obj.GetHashCode();
 
-    public override string ToString() {
+    public override string ToString()
+    {
         return $"{this.Width}x{this.Height}";
     }
 }

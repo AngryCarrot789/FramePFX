@@ -33,7 +33,8 @@ public delegate void FrameRenderedEventHandler(RenderManager manager);
 /// <summary>
 /// A class that manages the audio-visual rendering for a timeline
 /// </summary>
-public class RenderManager {
+public class RenderManager
+{
     public Timeline Timeline { get; }
 
     public SKImageInfo ImageInfo { get; private set; }
@@ -61,7 +62,8 @@ public class RenderManager {
     // public but unsafe access to the underlying surface, used by view port. Must not be replaced externally
     public SKSurface surface;
 
-    public Task? LastRenderTask {
+    public Task? LastRenderTask
+    {
         get => this.lastRenderTask;
         set => this.lastRenderTask = value;
     }
@@ -80,7 +82,8 @@ public class RenderManager {
 
     public event FrameRenderedEventHandler? FrameRendered;
 
-    public RenderManager(Timeline timeline) {
+    public RenderManager(Timeline timeline)
+    {
         this.Timeline = timeline;
 
         // These RLDAs are for spontaneous render requests.
@@ -89,29 +92,33 @@ public class RenderManager {
         // but to speed up when for example using a number dragger on opacity maybe
         TimeSpan FastRenderInterval = TimeSpan.FromMilliseconds(1000.0 / 80.0); // 80 FPS = 12ms 
         this.fastRapidRenderDispatch = BaseRateLimitedDispatchAction.ForDispatcherAsync(this.ScheduleRenderFromRLDA, FastRenderInterval, DispatchPriority.Send);
-        
+
         TimeSpan SlowRenderInterval = TimeSpan.FromMilliseconds(1000.0 / 30.0); // 30 FPS = 33.33333ms 
         this.slowRapidRenderDispatch = BaseRateLimitedDispatchAction.ForDispatcherAsync(this.ScheduleRenderFromRLDA, SlowRenderInterval, DispatchPriority.Send);
-        
+
         this.rapidRenderDispatch = RapidDispatchActionEx.ForAsync(this.ScheduleRenderFromRapidDispatch, IoC.Dispatcher, DispatchPriority.INTERNAL_BeforeRender);
         // this.renderThread = new Thread(this.RenderThreadMain);
     }
 
-    private Task ScheduleRenderFromRLDA() {
+    private Task ScheduleRenderFromRLDA()
+    {
         this.rapidRenderDispatch.InvokeAsync();
         return Task.CompletedTask;
     }
 
-    private async Task ScheduleRenderFromRapidDispatch() {
+    private async Task ScheduleRenderFromRapidDispatch()
+    {
         Task? task = this.lastRenderTask;
-        if (task != null) {
+        if (task != null)
+        {
             await task;
         }
-        
+
         await (this.lastRenderTask = this.DoScheduledRender());
     }
 
-    public SuspendRenderToken CancelRenderAndWaitForCompletion() {
+    public SuspendRenderToken CancelRenderAndWaitForCompletion()
+    {
         SuspendRenderToken suspension = this.SuspendRenderInvalidation();
         this.isRenderCancelled = 1;
         while (this.isRendering != 0)
@@ -119,14 +126,17 @@ public class RenderManager {
         return suspension;
     }
 
-    public static void InternalOnTimelineProjectChanged(RenderManager manager, Project? oldProject, Project? newProject) {
-        if (oldProject != null) {
+    public static void InternalOnTimelineProjectChanged(RenderManager manager, Project? oldProject, Project? newProject)
+    {
+        if (oldProject != null)
+        {
             oldProject.Settings.ResolutionChanged -= manager.SettingsOnResolutionChanged;
             manager.DisposeCanvas();
             manager.audioRingBuffer?.Dispose();
         }
 
-        if (newProject != null) {
+        if (newProject != null)
+        {
             newProject.Settings.ResolutionChanged += manager.SettingsOnResolutionChanged;
             manager.SettingsOnResolutionChanged(newProject.Settings);
             manager.audioRingBuffer?.Dispose();
@@ -134,33 +144,41 @@ public class RenderManager {
         }
     }
 
-    private void SettingsOnResolutionChanged(ProjectSettings settings) {
+    private void SettingsOnResolutionChanged(ProjectSettings settings)
+    {
         this.UpdateFrameInfo(settings);
         this.InvalidateRender();
     }
 
-    public void Dispose() {
+    public void Dispose()
+    {
         this.DisposeCanvas();
         this.isDisposed = true;
     }
 
-    private void DisposeCanvas() {
-        using (this.CancelRenderAndWaitForCompletion()) {
+    private void DisposeCanvas()
+    {
+        using (this.CancelRenderAndWaitForCompletion())
+        {
             this.DisposeSkiaObjects();
         }
     }
 
-    private void DisposeSkiaObjects() {
+    private void DisposeSkiaObjects()
+    {
         this.isSkiaValid = false;
         this.bitmap?.Dispose();
         this.pixmap?.Dispose();
         this.surface?.Dispose();
     }
 
-    public void UpdateFrameInfo(ProjectSettings settings) {
-        using (this.CancelRenderAndWaitForCompletion()) {
+    public void UpdateFrameInfo(ProjectSettings settings)
+    {
+        using (this.CancelRenderAndWaitForCompletion())
+        {
             SKImageInfo info = new SKImageInfo(settings.Width, settings.Height, SKColorType.Bgra8888);
-            if (this.ImageInfo == info && this.isSkiaValid) {
+            if (this.ImageInfo == info && this.isSkiaValid)
+            {
                 return;
             }
 
@@ -175,7 +193,8 @@ public class RenderManager {
         }
     }
 
-    private void BeginRender(long frame) {
+    private void BeginRender(long frame)
+    {
         StackTrace old = Interlocked.Exchange(ref this.stackTrace, new StackTrace(true));
         if (!RZApplication.Instance.Dispatcher.CheckAccess())
             throw new InvalidOperationException("Cannot start rendering while not on the main thread");
@@ -195,9 +214,11 @@ public class RenderManager {
     /// completed when the render is completed
     /// </summary>
     /// <param name="frame">The frame to render</param>
-    public Task RenderTimelineAsync(long frame, CancellationToken token, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality) {
+    public Task RenderTimelineAsync(long frame, CancellationToken token, EnumRenderQuality quality = EnumRenderQuality.UnspecifiedQuality)
+    {
         Project? project = this.Timeline.Project;
-        if (project == null) {
+        if (project == null)
+        {
             return Task.CompletedTask;
         }
 
@@ -208,7 +229,8 @@ public class RenderManager {
         List<AudioTrack> audioTrackList;
         SKImageInfo imgInfo;
 
-        try {
+        try
+        {
             videoTrackList = new List<VideoTrack>();
             audioTrackList = new List<AudioTrack>();
             imgInfo = this.ImageInfo;
@@ -228,47 +250,58 @@ public class RenderManager {
             // samples = project.Settings.BufferSize;
 
             // render bottom to top, as most video editors do
-            for (int i = this.Timeline.Tracks.Count - 1; i >= 0; i--) {
+            for (int i = this.Timeline.Tracks.Count - 1; i >= 0; i--)
+            {
                 Track track = this.Timeline.Tracks[i];
-                if (track is VideoTrack videoTrack && VideoTrack.VisibleParameter.GetCurrentValue(videoTrack)) {
-                    if (videoTrack.PrepareRenderFrame(imgInfo, frame, quality)) {
+                if (track is VideoTrack videoTrack && VideoTrack.VisibleParameter.GetCurrentValue(videoTrack))
+                {
+                    if (videoTrack.PrepareRenderFrame(imgInfo, frame, quality))
+                    {
                         videoTrackList.Add(videoTrack);
                     }
                 }
 
-                if (track is AudioTrack audioTrack && !AudioTrack.IsMutedParameter.GetCurrentValue(audioTrack)) {
-                    if (audioTrack.PrepareRenderFrame(frame, samplesToProcess, quality)) {
+                if (track is AudioTrack audioTrack && !AudioTrack.IsMutedParameter.GetCurrentValue(audioTrack))
+                {
+                    if (audioTrack.PrepareRenderFrame(frame, samplesToProcess, quality))
+                    {
                         audioTrackList.Add(audioTrack);
                     }
                 }
             }
         }
-        catch {
+        catch
+        {
             this.isRendering = 0;
             throw;
         }
 
         bool isFirstRenderRect = true;
         SKRect totalRenderArea = default;
-        Task renderVideo = Task.Run(async () => {
+        Task renderVideo = Task.Run(async () =>
+        {
             this.CheckRenderCancelled();
             Task[] tasks = new Task[videoTrackList.Count];
-            for (int i = 0; i < tasks.Length; i++) {
+            for (int i = 0; i < tasks.Length; i++)
+            {
                 VideoTrack track = videoTrackList[i];
                 tasks[i] = Task.Run(() => track.RenderVideoFrame(imgInfo, quality), token);
             }
 
             this.CheckRenderCancelled();
             this.surface.Canvas.Clear(SKColors.Transparent);
-            for (int i = 0; i < tasks.Length; i++) {
+            for (int i = 0; i < tasks.Length; i++)
+            {
                 if (!tasks[i].IsCompleted)
                     await tasks[i];
                 videoTrackList[i].DrawFrameIntoSurface(this.surface, out SKRect usedRenderingArea);
-                if (isFirstRenderRect) {
+                if (isFirstRenderRect)
+                {
                     totalRenderArea = usedRenderingArea;
                     isFirstRenderRect = false;
                 }
-                else {
+                else
+                {
                     totalRenderArea = SKRect.Union(totalRenderArea, usedRenderingArea);
                 }
             }
@@ -277,18 +310,21 @@ public class RenderManager {
         }, token);
 
         // probably not a good idea to render audio like this...?
-        Task renderAudio = Task.Run(async () => {
+        Task renderAudio = Task.Run(async () =>
+        {
             this.CheckRenderCancelled();
 
             Task[] tasks = new Task[audioTrackList.Count];
-            for (int i = 0; i < tasks.Length; i++) {
+            for (int i = 0; i < tasks.Length; i++)
+            {
                 AudioTrack track = audioTrackList[i];
                 tasks[i] = Task.Run(() => track.RenderAudioFrame(samplesToProcess, quality), token);
             }
 
             this.CheckRenderCancelled();
 
-            for (int i = 0; i < tasks.Length; i++) {
+            for (int i = 0; i < tasks.Length; i++)
+            {
                 if (!tasks[i].IsCompleted)
                     await tasks[i];
             }
@@ -297,19 +333,24 @@ public class RenderManager {
             this.averageAudioRenderTimeMillis = (Time.GetSystemTicks() - beginRender) / Time.TICK_PER_MILLIS_D;
         }, token);
 
-        return Task.WhenAll(renderVideo, renderAudio).ContinueWith(t => {
+        return Task.WhenAll(renderVideo, renderAudio).ContinueWith(t =>
+        {
             this.LastRenderRect = totalRenderArea;
             this.isRendering = 0;
         }, TaskContinuationOptions.ExecuteSynchronously);
     }
 
-    private unsafe void SumTrackSamples(List<AudioTrack> tracks, int sampleFrames, int effectiveSamples) {
-        lock (this.audioRingBuffer) {
+    private unsafe void SumTrackSamples(List<AudioTrack> tracks, int sampleFrames, int effectiveSamples)
+    {
+        lock (this.audioRingBuffer)
+        {
             int samples = sampleFrames * 2;
             float* final = stackalloc float[samples];
-            foreach (AudioTrack track in tracks) {
+            foreach (AudioTrack track in tracks)
+            {
                 float* tsamples = track.renderedSamples;
-                for (int i = 0; i < samples; i++) {
+                for (int i = 0; i < samples; i++)
+                {
                     *(final + i) = *(final + i) + tsamples[i];
                 }
             }
@@ -322,7 +363,8 @@ public class RenderManager {
         }
     }
 
-    private void CheckRenderCancelled() {
+    private void CheckRenderCancelled()
+    {
         if (this.isRenderCancelled != 0 || !this.isSkiaValid)
             throw new TaskCanceledException();
     }
@@ -330,21 +372,27 @@ public class RenderManager {
     // SaveLayer requires a temporary drawing bitmap, which can slightly
     // decrease performance, so only SaveLayer when absolutely necessary
 
-    public static int BeginClipOpacityLayer(SKCanvas canvas, VideoClip clip, ref SKPaint? paint) {
-        if (clip.UsesCustomOpacityCalculation || clip.RenderOpacity >= 1.0) {
+    public static int BeginClipOpacityLayer(SKCanvas canvas, VideoClip clip, ref SKPaint? paint)
+    {
+        if (clip.UsesCustomOpacityCalculation || clip.RenderOpacity >= 1.0)
+        {
             // check greater than just in case...
             return canvas.Save();
         }
-        else {
-            return canvas.SaveLayer(paint ??= new SKPaint {
+        else
+        {
+            return canvas.SaveLayer(paint ??= new SKPaint
+            {
                 Color = new SKColor(255, 255, 255, clip.RenderOpacityByte)
             });
         }
     }
 
-    public static void EndOpacityLayer(SKCanvas canvas, int count, ref SKPaint paint) {
+    public static void EndOpacityLayer(SKCanvas canvas, int count, ref SKPaint paint)
+    {
         canvas.RestoreToCount(count);
-        if (paint != null) {
+        if (paint != null)
+        {
             paint.Dispose();
             paint = null;
         }
@@ -353,15 +401,18 @@ public class RenderManager {
     /// <summary>
     /// Schedules the timeline to be re-drawn once the application is no longer busy
     /// </summary>
-    public void InvalidateRender() {
-        if (this.isDisposed || this.suspendRenderCount > 0) {
+    public void InvalidateRender()
+    {
+        if (this.isDisposed || this.suspendRenderCount > 0)
+        {
             // most likely suspendRenderCount > 0, which is true when
             // playback is active. PlaybackManager uses suspension to prevent
             // excessive rendering requests during automation updates
             return;
         }
 
-        if (!this.Timeline.IsActive) {
+        if (!this.Timeline.IsActive)
+        {
             // if (this.Timeline is CompositionTimeline composition)
             //     composition.TryNotifyParentTimelineRenderInvalidated();
             return;
@@ -369,7 +420,8 @@ public class RenderManager {
 
         // don't invalidate when not in an editor, or while playing video
         VideoEditor? editor = this.Timeline.Project?.Editor;
-        if (editor == null || editor.Playback.PlayState == PlayState.Play) {
+        if (editor == null || editor.Playback.PlayState == PlayState.Play)
+        {
             return;
         }
 
@@ -382,18 +434,23 @@ public class RenderManager {
     /// </summary>
     public void OnFrameCompleted() => this.FrameRendered?.Invoke(this);
 
-    private async Task DoScheduledRender() {
+    private async Task DoScheduledRender()
+    {
         VideoEditor editor;
-        if (this.suspendRenderCount < 1 && (editor = this.Timeline?.Project?.Editor) != null) {
-            try {
+        if (this.suspendRenderCount < 1 && (editor = this.Timeline?.Project?.Editor) != null)
+        {
+            try
+            {
                 await this.RenderTimelineAsync(this.Timeline.PlayHeadPosition, CancellationToken.None, EnumRenderQuality.Low);
             }
             catch (TaskCanceledException) {
             }
             catch (OperationCanceledException) {
             }
-            catch (Exception e) {
-                if (editor.Playback.PlayState == PlayState.Play) {
+            catch (Exception e)
+            {
+                if (editor.Playback.PlayState == PlayState.Play)
+                {
                     editor.Playback.Pause();
                 }
 
@@ -410,9 +467,11 @@ public class RenderManager {
     /// </summary>
     /// <param name="target">The surface in which our rendered frame is drawn into</param>
     /// <param name="paint">The paint used for drawing, e.g., for adding opacity</param>
-    public void Draw(SKSurface target, SKPaint paint = null) {
+    public void Draw(SKSurface target, SKPaint paint = null)
+    {
         SKRect usedArea = this.LastRenderRect;
-        if (!(usedArea.Width > 0) || !(usedArea.Height > 0)) {
+        if (!(usedArea.Width > 0) || !(usedArea.Height > 0))
+        {
             return;
         }
 
@@ -420,49 +479,60 @@ public class RenderManager {
 
         // this is the same code that VideoTrack uses for efficient final frame assembly
         SKRect frameRect = this.ImageInfo.ToRect();
-        if (usedArea == frameRect) {
+        if (usedArea == frameRect)
+        {
             this.surface.Draw(target.Canvas, 0, 0, paint);
         }
-        else {
-            using (SKImage img = SKImage.FromPixels(this.ImageInfo, this.bitmap.GetPixels())) {
+        else
+        {
+            using (SKImage img = SKImage.FromPixels(this.ImageInfo, this.bitmap.GetPixels()))
+            {
                 target.Canvas.DrawImage(img, usedArea, usedArea, paint);
             }
         }
     }
 
-    public SuspendRenderToken SuspendRenderInvalidation() {
+    public SuspendRenderToken SuspendRenderInvalidation()
+    {
         Interlocked.Increment(ref this.suspendRenderCount);
         return new SuspendRenderToken(this);
     }
-    
-    public UseSlowRenderToken UseSlowRenderDispatch() {
+
+    public UseSlowRenderToken UseSlowRenderDispatch()
+    {
         Interlocked.Increment(ref this.useSlowRenderDispatchCount);
         return new UseSlowRenderToken(this);
     }
 }
 
-public struct SuspendRenderToken : IDisposable {
+public struct SuspendRenderToken : IDisposable
+{
     internal RenderManager manager;
 
-    internal SuspendRenderToken(RenderManager manager) {
+    internal SuspendRenderToken(RenderManager manager)
+    {
         this.manager = manager;
     }
 
-    public void Dispose() {
+    public void Dispose()
+    {
         if (this.manager != null)
             Interlocked.Decrement(ref this.manager.suspendRenderCount);
         this.manager = null;
     }
 }
 
-public struct UseSlowRenderToken : IDisposable {
+public struct UseSlowRenderToken : IDisposable
+{
     internal RenderManager manager;
 
-    internal UseSlowRenderToken(RenderManager manager) {
+    internal UseSlowRenderToken(RenderManager manager)
+    {
         this.manager = manager;
     }
 
-    public void Dispose() {
+    public void Dispose()
+    {
         if (this.manager != null)
             Interlocked.Decrement(ref this.manager.useSlowRenderDispatchCount);
         this.manager = null;

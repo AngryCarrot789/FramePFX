@@ -24,13 +24,15 @@ namespace FramePFX.Utils;
 /// and manages its disposal when used by different thread.
 /// </summary>
 /// <typeparam name="T">The type of value</typeparam>
-public class DisposableRef<T> where T : IDisposable {
-    private enum DisposedState {
+public class DisposableRef<T> where T : IDisposable
+{
+    private enum DisposedState
+    {
         Valid,
         Queued,
         Disposed
     }
-    
+
     private int usageCount;
     private DisposedState disposeState; // 0 == valid, 1 == dispose queued, 2 == disposed
     private event EventHandler? UsageEmpty;
@@ -38,13 +40,14 @@ public class DisposableRef<T> where T : IDisposable {
     public T Value { get; }
 
     public bool IsWaitingDisposal => this.disposeState == DisposedState.Queued;
-    
+
     /// <summary>
     /// The constructor for a disposable reference
     /// </summary>
     /// <param name="value">The value that gets stored</param>
     /// <param name="isInitiallyDisposed">True to mark the value as disposed to implement lazily loading of the value</param>
-    public DisposableRef(T value, bool isInitiallyDisposed = false) {
+    public DisposableRef(T value, bool isInitiallyDisposed = false)
+    {
         this.Value = value;
         if (isInitiallyDisposed)
             this.disposeState = DisposedState.Disposed;
@@ -59,8 +62,10 @@ public class DisposableRef<T> where T : IDisposable {
     /// </para>
     /// </summary>
     /// <returns>True if not disposed, otherwise false</returns>
-    public bool TryBeginUsage() {
-        if (this.disposeState == DisposedState.Disposed) {
+    public bool TryBeginUsage()
+    {
+        if (this.disposeState == DisposedState.Disposed)
+        {
             return false;
         }
 
@@ -75,7 +80,8 @@ public class DisposableRef<T> where T : IDisposable {
     /// This method MUST be called while a lock to this object's instance is acquired
     /// </para>
     /// </summary>
-    public void ResetAndBeginUsage() {
+    public void ResetAndBeginUsage()
+    {
         this.disposeState = DisposedState.Valid;
         this.usageCount++;
     }
@@ -90,9 +96,12 @@ public class DisposableRef<T> where T : IDisposable {
     /// <param name="owner">Passed to the resetter</param>
     /// <param name="resetter">The resetter to reset the value (to un-dispose it)</param>
     /// <typeparam name="TOwner">The owner type</typeparam>
-    public void BeginUsage<TOwner>(TOwner owner, Action<TOwner, T> resetter) {
-        lock (this) {
-            if (this.disposeState == DisposedState.Disposed) {
+    public void BeginUsage<TOwner>(TOwner owner, Action<TOwner, T> resetter)
+    {
+        lock (this)
+        {
+            if (this.disposeState == DisposedState.Disposed)
+            {
                 this.disposeState = DisposedState.Valid;
                 resetter(owner, this.Value);
             }
@@ -110,11 +119,14 @@ public class DisposableRef<T> where T : IDisposable {
     /// <exception cref="InvalidOperationException">
     /// Excessive calls to CompleteUsage, or the lock was not acquired causing this object to become corrupted
     /// </exception>
-    public void CompleteUsage() {
-        lock (this) {
+    public void CompleteUsage()
+    {
+        lock (this)
+        {
             if (this.usageCount < 1)
                 throw new InvalidOperationException("Expected a usage beforehand. Possible bug, excessive calls to CompleteUsage?");
-            if (--this.usageCount == 0) {
+            if (--this.usageCount == 0)
+            {
                 if (this.disposeState == DisposedState.Queued)
                     this.DisposeInternal();
                 this.UsageEmpty?.Invoke(this, EventArgs.Empty);
@@ -128,29 +140,36 @@ public class DisposableRef<T> where T : IDisposable {
     /// This method automatically acquires the lock on this instance
     /// </para>
     /// </summary>
-    public void Dispose() {
-        lock (this) {
-            if (this.usageCount > 0) {
+    public void Dispose()
+    {
+        lock (this)
+        {
+            if (this.usageCount > 0)
+            {
                 this.disposeState = DisposedState.Queued;
             }
-            else {
+            else
+            {
                 this.DisposeInternal();
             }
         }
     }
 
-    private void DisposeInternal() {
+    private void DisposeInternal()
+    {
         this.disposeState = DisposedState.Disposed;
         this.Value!.Dispose();
     }
 
-    public Task WaitForNoUsages() {
+    public Task WaitForNoUsages()
+    {
         if (this.usageCount < 1)
             return Task.CompletedTask;
 
         TaskCompletionSource<bool> tcs = new TaskCompletionSource<bool>();
         EventHandler handler = null;
-        handler = (sender, args) => {
+        handler = (sender, args) =>
+        {
             tcs.SetResult(true);
             this.UsageEmpty -= handler;
         };

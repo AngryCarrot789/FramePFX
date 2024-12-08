@@ -25,8 +25,10 @@ using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
 
 namespace FramePFX.Editing.Timelines.Commands;
 
-public class TrimStartCommand : Command {
-    public override Executability CanExecute(CommandEventArgs e) {
+public class TrimStartCommand : Command
+{
+    public override Executability CanExecute(CommandEventArgs e)
+    {
         if (DataKeys.ClipKey.TryGetContext(e.ContextData, out var clip) && clip.Timeline != null)
             return Executability.Valid;
         if (e.ContextData.ContainsKey(DataKeys.TimelineKey))
@@ -34,33 +36,42 @@ public class TrimStartCommand : Command {
         return Executability.Invalid;
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override void Execute(CommandEventArgs e)
+    {
         // TODO
-        if (DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline? timeline)) {
+        if (DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline? timeline))
+        {
             List<Clip> clips = new List<Clip>();
-            foreach (Track track in timeline.Tracks) {
+            foreach (Track track in timeline.Tracks)
+            {
                 clips.AddRange(track.GetClipsAtFrame(timeline.PlayHeadPosition));
             }
 
-            foreach (Clip clip in clips) {
+            foreach (Clip clip in clips)
+            {
                 long begin = clip.FrameSpan.Begin;
                 clip.FrameSpan = FrameSpan.FromIndex(begin, begin + (timeline.PlayHeadPosition - begin));
             }
         }
-        else if (DataKeys.TimelineKey.TryGetContext(e.ContextData, out timeline)) {
+        else if (DataKeys.TimelineKey.TryGetContext(e.ContextData, out timeline))
+        {
             List<Clip> clips = new List<Clip>();
-            foreach (Track track in timeline.Tracks) {
+            foreach (Track track in timeline.Tracks)
+            {
                 clips.AddRange(track.GetClipsAtFrame(timeline.PlayHeadPosition));
             }
 
-            for (int i = clips.Count - 1; i >= 0; i--) {
+            for (int i = clips.Count - 1; i >= 0; i--)
+            {
                 ApplyClips(clips[i], timeline.PlayHeadPosition);
             }
         }
     }
 
-    public static void ApplyClips(Clip clip, long playHead) {
-        if (clip.IntersectsFrameAt(playHead) && playHead != clip.FrameSpan.Begin && playHead != clip.FrameSpan.EndIndex) {
+    public static void ApplyClips(Clip clip, long playHead)
+    {
+        if (clip.IntersectsFrameAt(playHead) && playHead != clip.FrameSpan.Begin && playHead != clip.FrameSpan.EndIndex)
+        {
             clip.CutAt(playHead - clip.FrameSpan.Begin);
         }
     }

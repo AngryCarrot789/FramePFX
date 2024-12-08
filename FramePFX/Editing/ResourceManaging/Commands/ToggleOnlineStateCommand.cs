@@ -24,22 +24,29 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editing.ResourceManaging.Commands;
 
-public class ToggleOnlineStateCommand : AsyncCommand {
-    protected override Executability CanExecuteOverride(CommandEventArgs e) {
+public class ToggleOnlineStateCommand : AsyncCommand
+{
+    protected override Executability CanExecuteOverride(CommandEventArgs e)
+    {
         return DataKeys.ResourceTreeUIKey.IsPresent(e.ContextData) || DataKeys.ResourceListUIKey.IsPresent(e.ContextData) ? Executability.Valid : Executability.Invalid;
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e) {
-        if (!GetTargetItems(e.ContextData, out List<ResourceItem>? items)) {
+    protected override async Task ExecuteAsync(CommandEventArgs e)
+    {
+        if (!GetTargetItems(e.ContextData, out List<ResourceItem>? items))
+        {
             return;
         }
 
         List<ResourceItem> enable = new List<ResourceItem>();
-        foreach (ResourceItem item in items) {
-            if (item.IsOnline) {
+        foreach (ResourceItem item in items)
+        {
+            if (item.IsOnline)
+            {
                 item.Disable(true);
             }
-            else {
+            else
+            {
                 enable.Add(item);
             }
         }
@@ -48,23 +55,28 @@ public class ToggleOnlineStateCommand : AsyncCommand {
             await IoC.ResourceLoaderService.TryLoadResources(enable.Cast<BaseResource>().ToArray());
     }
 
-    public static bool GetTargetItems(IContextData context, [NotNullWhen(true)] out List<ResourceItem>? items, bool requireAtLeastOne = true) {
-        if (DataKeys.ResourceTreeUIKey.TryGetContext(context, out IResourceTreeElement? tree)) {
+    public static bool GetTargetItems(IContextData context, [NotNullWhen(true)] out List<ResourceItem>? items, bool requireAtLeastOne = true)
+    {
+        if (DataKeys.ResourceTreeUIKey.TryGetContext(context, out IResourceTreeElement? tree))
+        {
             items = tree.Selection.SelectedItems.OfType<ResourceItem>().ToList();
         }
-        else if (DataKeys.ResourceListUIKey.TryGetContext(context, out IResourceListElement? list)) {
+        else if (DataKeys.ResourceListUIKey.TryGetContext(context, out IResourceListElement? list))
+        {
             items = list.Selection.SelectedItems.OfType<ResourceItem>().ToList();
         }
-        else {
+        else
+        {
             items = null;
             return false;
         }
 
-        if (DataKeys.ResourceObjectKey.TryGetContext(context, out BaseResource? resource)) {
+        if (DataKeys.ResourceObjectKey.TryGetContext(context, out BaseResource? resource))
+        {
             if (resource is ResourceItem item && !items.Contains(item))
                 items.Add(item);
         }
-        
+
         return !requireAtLeastOne || items.Count > 0;
     }
 }

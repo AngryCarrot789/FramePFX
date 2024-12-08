@@ -22,19 +22,23 @@ using FramePFX.Utils.Accessing;
 
 namespace FramePFX.DataTransfer;
 
-public sealed class DataParameterBool : DataParameter<bool> {
+public sealed class DataParameterBool : DataParameter<bool>
+{
     public DataParameterBool(Type ownerType, string name, ValueAccessor<bool> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, name, false, accessor, flags) {
     }
 
     public DataParameterBool(Type ownerType, string name, bool defValue, ValueAccessor<bool> accessor, DataParameterFlags flags = DataParameterFlags.None) : base(ownerType, name, defValue, accessor, flags) {
     }
 
-    public override void SetValue(ITransferableData owner, bool value) {
+    public override void SetValue(ITransferableData owner, bool value)
+    {
         // Allow optimised boxing of boolean
-        if (this.isObjectAccessPreferred) {
+        if (this.isObjectAccessPreferred)
+        {
             base.SetObjectValue(owner, value.Box());
         }
-        else {
+        else
+        {
             base.SetValue(owner, value);
         }
     }

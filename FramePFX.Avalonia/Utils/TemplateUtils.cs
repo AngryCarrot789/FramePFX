@@ -27,7 +27,8 @@ namespace FramePFX.Avalonia.Utils;
 /// <summary>
 /// A helper class for conveniently accessing scope template children by name
 /// </summary>
-public static class TemplateUtils {
+public static class TemplateUtils
+{
     /// <summary>
     /// Gets the template child of the given scope. Throws an exception if no such child exists with that name or the child is an invalid type
     /// </summary>
@@ -36,7 +37,8 @@ public static class TemplateUtils {
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public static T GetTemplateChild<T>(this INameScope scope, string childName) where T : AvaloniaObject {
+    public static T GetTemplateChild<T>(this INameScope scope, string childName) where T : AvaloniaObject
+    {
         object? child = scope?.Find(childName);
         if (child == null)
             throw new Exception($"Missing template part '{childName}'");
@@ -54,7 +56,8 @@ public static class TemplateUtils {
     /// <param name="childName">The name of the templated child</param>
     /// <param name="value">The output child</param>
     /// <typeparam name="T">The type of templated child</typeparam>
-    public static void GetTemplateChild<T>(this INameScope scope, string childName, [NotNull] out T value) where T : AvaloniaObject {
+    public static void GetTemplateChild<T>(this INameScope scope, string childName, [NotNull] out T value) where T : AvaloniaObject
+    {
         value = GetTemplateChild<T>(scope, childName);
     }
 
@@ -66,7 +69,8 @@ public static class TemplateUtils {
     /// <param name="value">The found template child</param>
     /// <typeparam name="T">The type of child</typeparam>
     /// <returns>True if the child was found, or false if not</returns>
-    public static bool TryGetTemplateChild<T>(this INameScope scope, string childName, [NotNullWhen(true)] out T? value) where T : AvaloniaObject {
+    public static bool TryGetTemplateChild<T>(this INameScope scope, string childName, [NotNullWhen(true)] out T? value) where T : AvaloniaObject
+    {
         return (value = scope?.Find(childName) as T) != null;
     }
 }

@@ -20,6 +20,7 @@
 namespace FramePFX.Editing.ResourceManaging.ResourceHelpers;
 
 [Flags]
-public enum ResourcePathFlags {
+public enum ResourcePathFlags
+{
     None,
 }

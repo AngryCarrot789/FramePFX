@@ -23,17 +23,21 @@ using Avalonia.Threading;
 
 namespace FramePFX.Avalonia;
 
-public partial class AppSplashScreen : Window, IApplicationStartupProgress {
-    public string? CurrentActivity {
+public partial class AppSplashScreen : Window, IApplicationStartupProgress
+{
+    public string? CurrentActivity
+    {
         get => this.CurrentActivityTextBlock.Text;
         set => this.CurrentActivityTextBlock.Text = value;
     }
 
-    public AppSplashScreen() {
+    public AppSplashScreen()
+    {
         this.InitializeComponent();
     }
 
-    public async Task SetAction(string? header, string? description) {
+    public async Task SetAction(string? header, string? description)
+    {
         // AppLogger.Instance.WriteLine(header);
         this.CurrentActivity = header;
         await Dispatcher.UIThread.InvokeAsync(() => { }, DispatcherPriority.Loaded);

@@ -26,47 +26,60 @@ using FramePFX.Utils;
 
 namespace FramePFX.Editing.Commands;
 
-public static class TimelineCommandUtils {
-    public static bool TryGetSelectedModels(IContextData data, [NotNullWhen(true)] out List<Clip>? clips, bool requireAtLeastOne = true) {
-        if (DataKeys.TimelineUIKey.TryGetContext(data, out ITimelineElement? timeline)) {
+public static class TimelineCommandUtils
+{
+    public static bool TryGetSelectedModels(IContextData data, [NotNullWhen(true)] out List<Clip>? clips, bool requireAtLeastOne = true)
+    {
+        if (DataKeys.TimelineUIKey.TryGetContext(data, out ITimelineElement? timeline))
+        {
             clips = timeline.ClipSelection.SelectedItems.Select(x => x.Clip).ToList();
-            if (DataKeys.ClipKey.TryGetContext(data, out Clip? clip)) {
+            if (DataKeys.ClipKey.TryGetContext(data, out Clip? clip))
+            {
                 clips.TryAdd(clip);
             }
 
             return !requireAtLeastOne || clips.Count > 0;
         }
-        else if (DataKeys.ClipKey.TryGetContext(data, out Clip? clip)) {
+        else if (DataKeys.ClipKey.TryGetContext(data, out Clip? clip))
+        {
             clips = new List<Clip>() { clip };
             return true;
         }
-        else {
+        else
+        {
             clips = null;
             return false;
         }
     }
-    
-    public static bool TryGetSelectedElements(IContextData data, [NotNullWhen(true)] out List<IClipElement>? clips, bool requireAtLeastOne = true) {
-        if (DataKeys.TimelineUIKey.TryGetContext(data, out ITimelineElement? timeline)) {
+
+    public static bool TryGetSelectedElements(IContextData data, [NotNullWhen(true)] out List<IClipElement>? clips, bool requireAtLeastOne = true)
+    {
+        if (DataKeys.TimelineUIKey.TryGetContext(data, out ITimelineElement? timeline))
+        {
             clips = timeline.ClipSelection.SelectedItems.ToList();
-            if (DataKeys.ClipUIKey.TryGetContext(data, out IClipElement? clip)) {
+            if (DataKeys.ClipUIKey.TryGetContext(data, out IClipElement? clip))
+            {
                 clips.TryAdd(clip);
             }
 
             return !requireAtLeastOne || clips.Count > 0;
         }
-        else if (DataKeys.ClipUIKey.TryGetContext(data, out IClipElement? clip)) {
+        else if (DataKeys.ClipUIKey.TryGetContext(data, out IClipElement? clip))
+        {
             clips = new List<IClipElement>() { clip };
             return true;
         }
-        else {
+        else
+        {
             clips = null;
             return false;
         }
     }
-    
-    public static bool TryGetSelectedVideoModels(IContextData data, [NotNullWhen(true)] out List<VideoClip>? clips, bool requireAtLeastOne = true) {
-        if (TryGetSelectedModels(data, out List<Clip>? list, requireAtLeastOne)) {
+
+    public static bool TryGetSelectedVideoModels(IContextData data, [NotNullWhen(true)] out List<VideoClip>? clips, bool requireAtLeastOne = true)
+    {
+        if (TryGetSelectedModels(data, out List<Clip>? list, requireAtLeastOne))
+        {
             clips = list.OfType<VideoClip>().ToList();
             return !requireAtLeastOne || clips.Count > 0;
         }
@@ -74,9 +87,11 @@ public static class TimelineCommandUtils {
         clips = default;
         return false;
     }
-    
-    public static bool TryGetSelectedVideoElements(IContextData data, [NotNullWhen(true)] out List<IClipElement>? clips, bool requireAtLeastOne = true) {
-        if (TryGetSelectedElements(data, out List<IClipElement>? list, requireAtLeastOne)) {
+
+    public static bool TryGetSelectedVideoElements(IContextData data, [NotNullWhen(true)] out List<IClipElement>? clips, bool requireAtLeastOne = true)
+    {
+        if (TryGetSelectedElements(data, out List<IClipElement>? list, requireAtLeastOne))
+        {
             clips = list.Where(x => x.Clip is VideoClip).ToList();
             return !requireAtLeastOne || clips.Count > 0;
         }

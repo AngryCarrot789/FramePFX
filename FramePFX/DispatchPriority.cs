@@ -21,7 +21,8 @@ using System.ComponentModel;
 
 namespace FramePFX;
 
-public enum DispatchPriority : int {
+public enum DispatchPriority : int
+{
     /// <summary>The lowest foreground dispatcher priority</summary>
     Default = 0,
 

@@ -24,16 +24,21 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editing.Timelines.Commands;
 
-public class DeleteSelectedTracksCommand : Command {
-    public static bool GetTrackSelection(IContextData data, out Track[] tracks) {
-        if (DataKeys.TimelineUIKey.TryGetContext(data, out ITimelineElement? timeline)) {
-            if (timeline.Selection.Count > 0) {
+public class DeleteSelectedTracksCommand : Command
+{
+    public static bool GetTrackSelection(IContextData data, out Track[] tracks)
+    {
+        if (DataKeys.TimelineUIKey.TryGetContext(data, out ITimelineElement? timeline))
+        {
+            if (timeline.Selection.Count > 0)
+            {
                 tracks = timeline.Selection.SelectedItems.Select(x => x.Track).ToArray();
                 return true;
             }
         }
 
-        if (DataKeys.TrackKey.TryGetContext(data, out Track? track)) {
+        if (DataKeys.TrackKey.TryGetContext(data, out Track? track))
+        {
             tracks = new Track[] { track };
             return true;
         }
@@ -42,15 +47,18 @@ public class DeleteSelectedTracksCommand : Command {
         return false;
     }
 
-    public override Executability CanExecute(CommandEventArgs e) {
+    public override Executability CanExecute(CommandEventArgs e)
+    {
         return GetTrackSelection(e.ContextData, out _) ? Executability.Valid : Executability.Invalid;
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override void Execute(CommandEventArgs e)
+    {
         if (!GetTrackSelection(e.ContextData, out Track[] tracks))
             return;
 
-        foreach (Track track in tracks) {
+        foreach (Track track in tracks)
+        {
             track.Timeline?.RemoveTrack(track);
         }
     }

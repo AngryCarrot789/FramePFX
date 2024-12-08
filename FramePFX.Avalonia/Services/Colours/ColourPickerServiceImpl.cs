@@ -23,16 +23,20 @@ using SkiaSharp;
 
 namespace FramePFX.Avalonia.Services.Colours;
 
-public class ColourPickerServiceImpl : IColourPickerService {
-    public async Task<SKColor?> PickColourAsync(SKColor? defaultColour) {
-        ColourUserInputInfo info = new ColourUserInputInfo() {
+public class ColourPickerServiceImpl : IColourPickerService
+{
+    public async Task<SKColor?> PickColourAsync(SKColor? defaultColour)
+    {
+        ColourUserInputInfo info = new ColourUserInputInfo()
+        {
             Colour = defaultColour ?? SKColors.Black
         };
 
         return await ShowAsync(info) == true ? info.Colour : default(SKColor?);
     }
 
-    private static Task<bool?> ShowAsync(ColourUserInputInfo info) {
+    private static Task<bool?> ShowAsync(ColourUserInputInfo info)
+    {
         return InputDialogServiceImpl.ShowDialogAsync(info);
     }
 }

@@ -23,39 +23,47 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editing.ResourceManaging.Commands;
 
-public class GroupResourcesCommand : Command {
-    public override Executability CanExecute(CommandEventArgs e) {
+public class GroupResourcesCommand : Command
+{
+    public override Executability CanExecute(CommandEventArgs e)
+    {
         return DataKeys.ResourceListUIKey.GetExecutabilityForPresence(e.ContextData);
     }
 
-    protected override void Execute(CommandEventArgs e) {
+    protected override void Execute(CommandEventArgs e)
+    {
         ResourceFolder dest;
         List<BaseResource> resources;
-        if (DataKeys.ResourceListUIKey.TryGetContext(e.ContextData, out IResourceListElement? list)) {
+        if (DataKeys.ResourceListUIKey.TryGetContext(e.ContextData, out IResourceListElement? list))
+        {
             resources = list.Selection.SelectedItems.ToList();
             dest = (ResourceFolder?) list.CurrentFolderNode?.Resource ?? list.ManagerUI.ResourceManager!.RootContainer;
         }
-        else {
+        else
+        {
             return;
         }
 
         // Safety post processing
         resources = resources.Where(x => x.Parent == dest).ToList();
-        if (resources.Count < 1) {
+        if (resources.Count < 1)
+        {
             return;
         }
-        
+
         int minIndex = resources.Min(x => dest.IndexOf(x));
-        if (minIndex == -1) {
+        if (minIndex == -1)
+        {
             throw new Exception("Fatal error, item was not in the target group");
         }
-            
+
         ResourceFolder folder = new ResourceFolder("New Folder");
         dest.InsertItem(minIndex, folder);
-        foreach (BaseResource res in resources) {
+        foreach (BaseResource res in resources)
+        {
             res.Parent!.MoveItemTo(folder, res);
         }
-        
+
         list.ManagerUI.Selection.Tree.Clear();
         list.Selection.SetSelection(folder);
     }

@@ -31,7 +31,8 @@ namespace FramePFX.Editing.ResourceManaging;
 /// <summary>
 /// Base class for resource items and groups
 /// </summary>
-public abstract class BaseResource : IDisplayName, IDestroy {
+public abstract class BaseResource : IDisplayName, IDestroy
+{
     public static readonly SerialisationRegistry SerialisationRegistry;
     public static readonly ContextRegistry ResourceItemContextRegistry;
     public static readonly ContextRegistry ResourceFolderContextRegistry;
@@ -55,9 +56,11 @@ public abstract class BaseResource : IDisplayName, IDestroy {
     /// </summary>
     public string FactoryId => ResourceTypeFactory.Instance.GetId(this.GetType());
 
-    public string? DisplayName {
+    public string? DisplayName
+    {
         get => this.displayName;
-        set {
+        set
+        {
             string oldName = this.displayName;
             if (oldName == value)
                 return;
@@ -68,83 +71,98 @@ public abstract class BaseResource : IDisplayName, IDestroy {
 
     public event DisplayNameChangedEventHandler? DisplayNameChanged;
 
-    protected BaseResource() {
+    protected BaseResource()
+    {
         this.displayName = "A Resource";
     }
 
-    static BaseResource() {
+    static BaseResource()
+    {
         SerialisationRegistry = new SerialisationRegistry();
-        SerialisationRegistry.Register<BaseResource>(0, (resource, data, ctx) => {
+        SerialisationRegistry.Register<BaseResource>(0, (resource, data, ctx) =>
+        {
             resource.DisplayName = data.GetString(nameof(resource.DisplayName), null);
-        }, (resource, data, ctx) => {
+        }, (resource, data, ctx) =>
+        {
             if (!string.IsNullOrEmpty(resource.DisplayName))
                 data.SetString(nameof(resource.DisplayName), resource.DisplayName);
         });
 
         // For the ListBox and TreeView
         ResourceSurfaceContextRegistry = new ContextRegistry("Resource Manager");
-        
+
         // For ResourceFolder only
         ResourceFolderContextRegistry = new ContextRegistry("Resource Folder(s)");
-        
+
         // For ResourceItem only
         ResourceItemContextRegistry = new ContextRegistry("Resource Item(s)");
 
-        static void ApplyNewItemEntries(FixedContextGroup g) {
-            g.AddEntry(new SubListContextEntry("Add new...", "Add a new resource", new List<IContextObject>() {
+        static void ApplyNewItemEntries(FixedContextGroup g)
+        {
+            g.AddEntry(new SubListContextEntry("Add new...", "Add a new resource", new List<IContextObject>()
+            {
                 new CommandContextEntry("Add Image", "Create a new image resource", "commands.resources.AddResourceImage"),
                 new CommandContextEntry("Add Media", "Create a new media resource", "commands.resources.AddResourceAVMedia"),
                 new CommandContextEntry("Add Colour", "Create a new colour resource", "commands.resources.AddResourceColour"),
                 new CommandContextEntry("Add Composition Timeline", "Create a composition timeline new resource", "commands.resources.AddResourceComposition")
             }));
         }
-        
-        static void ApplyModifyGeneral(FixedContextGroup g) {
+
+        static void ApplyModifyGeneral(FixedContextGroup g)
+        {
             g.AddHeader("General");
             g.AddCommand("commands.resources.RenameResource", "Rename", "Rename this resource");
         }
-        
-        static void ApplyModifyDestruction(FixedContextGroup g) {
+
+        static void ApplyModifyDestruction(FixedContextGroup g)
+        {
             g.AddCommand("commands.resources.DeleteResources", "Delete", "Delete this/these resource(s)");
         }
-        
+
         ApplyNewItemEntries(ResourceSurfaceContextRegistry.GetFixedGroup("modify.subcreation"));
         ApplyNewItemEntries(ResourceFolderContextRegistry.GetFixedGroup("modify.subcreation"));
         ApplyModifyGeneral(ResourceItemContextRegistry.GetFixedGroup("modify.general"));
         ApplyModifyGeneral(ResourceFolderContextRegistry.GetFixedGroup("modify.general"));
-        
-        ResourceItemContextRegistry.GetFixedGroup("modify.general").AddDynamicSubGroup((group, ctx, items) => {
-            if (ResourceCommandUtils.GetSingleItem(ctx, out BaseResource? resource) && resource is ResourceColour) {
+
+        ResourceItemContextRegistry.GetFixedGroup("modify.general").AddDynamicSubGroup((group, ctx, items) =>
+        {
+            if (ResourceCommandUtils.GetSingleItem(ctx, out BaseResource? resource) && resource is ResourceColour)
+            {
                 items.Add(new CommandContextEntry("Change Colour", "Change the colour of the resource", "commands.resources.ChangeResourceColour"));
             }
-            
         });
-        
+
         const string cmdID = "commands.resources.GroupResources";
         ResourceSurfaceContextRegistry.GetFixedGroup("Modify2").AddCommand(cmdID, "Group");
         ResourceItemContextRegistry.GetFixedGroup("Modify2").AddCommand(cmdID, "Group Item(s)");
-        
-        ResourceItemContextRegistry.CreateDynamicGroup("ModifyOnlineStates", (g, ctx, items) => {
-            if (!ToggleOnlineStateCommand.GetTargetItems(ctx, out List<ResourceItem>? list)) {
+
+        ResourceItemContextRegistry.CreateDynamicGroup("ModifyOnlineStates", (g, ctx, items) =>
+        {
+            if (!ToggleOnlineStateCommand.GetTargetItems(ctx, out List<ResourceItem>? list))
+            {
                 return;
             }
-            
+
             items.Add(new CaptionEntry("Modify Online State"));
-            if (list.Count == 1) {
-                if (list[0].IsOnline) {
+            if (list.Count == 1)
+            {
+                if (list[0].IsOnline)
+                {
                     items.Add(new CommandContextEntry("Set Offline", "Set the selected resources offline", "commands.resources.SetResourcesOffline"));
                 }
-                else {
+                else
+                {
                     items.Add(new CommandContextEntry("Set Online", "Set the selected resources online", "commands.resources.SetResourcesOnline"));
                 }
             }
-            else {
+            else
+            {
                 items.Add(new CommandContextEntry("Set Online", "Set the selected resources online", "commands.resources.SetResourcesOnline"));
                 items.Add(new CommandContextEntry("Set Offline", "Set the selected resources offline", "commands.resources.SetResourcesOffline"));
                 items.Add(new CommandContextEntry("Toggle Online", "Toggles the online state of the selected resources", "commands.resources.ToggleOnlineState"));
             }
         });
-        
+
         ApplyModifyDestruction(ResourceItemContextRegistry.GetFixedGroup("modify.destruction", 100000));
         ApplyModifyDestruction(ResourceFolderContextRegistry.GetFixedGroup("modify.destruction", 100000));
     }
@@ -155,7 +173,8 @@ public abstract class BaseResource : IDisplayName, IDestroy {
     /// <param name="item">The item to clone</param>
     /// <returns>A cloned and fully registered but offline resource</returns>
     /// <exception cref="Exception">Internal error with the resource registry; cloned item type does not match the original item</exception>
-    public static BaseResource Clone(BaseResource item) {
+    public static BaseResource Clone(BaseResource item)
+    {
         BaseResource clone = ResourceTypeFactory.Instance.NewResource(item.FactoryId);
         if (clone.GetType() != item.GetType())
             throw new Exception("Cloned object type does not match the item type");
@@ -187,7 +206,8 @@ public abstract class BaseResource : IDisplayName, IDestroy {
     protected internal virtual void OnDetachedFromManager() {
     }
 
-    public static BaseResource ReadSerialisedWithType(RBEDictionary dictionary) {
+    public static BaseResource ReadSerialisedWithType(RBEDictionary dictionary)
+    {
         string registryId = dictionary.GetString(nameof(FactoryId), null);
         if (string.IsNullOrEmpty(registryId))
             throw new Exception("Missing the registry ID for item");
@@ -197,14 +217,16 @@ public abstract class BaseResource : IDisplayName, IDestroy {
         return item;
     }
 
-    public static void WriteSerialisedWithType(RBEDictionary dictionary, BaseResource item) {
+    public static void WriteSerialisedWithType(RBEDictionary dictionary, BaseResource item)
+    {
         if (!(item.FactoryId is string id))
             throw new Exception("Unknown resource item type: " + item.GetType());
         dictionary.SetString(nameof(FactoryId), id);
         SerialisationRegistry.Serialise(item, dictionary.CreateDictionary("Data"));
     }
 
-    public static RBEDictionary WriteSerialisedWithType(BaseResource clip) {
+    public static RBEDictionary WriteSerialisedWithType(BaseResource clip)
+    {
         RBEDictionary dictionary = new RBEDictionary();
         WriteSerialisedWithType(dictionary, clip);
         return dictionary;
@@ -215,7 +237,8 @@ public abstract class BaseResource : IDisplayName, IDestroy {
     /// load data from the given object into the current instance
     /// </summary>
     /// <param name="clone">An object to copy data from</param>
-    protected virtual void LoadDataIntoClone(BaseResource clone) {
+    protected virtual void LoadDataIntoClone(BaseResource clone)
+    {
         clone.DisplayName = this.DisplayName;
     }
 
@@ -239,46 +262,56 @@ public abstract class BaseResource : IDisplayName, IDestroy {
     /// <summary>
     /// An internal method used to set a manager's root folder's manager
     /// </summary>
-    internal static void InternalSetManagerForRootFolder(ResourceFolder root, ResourceManager owner) {
+    internal static void InternalSetManagerForRootFolder(ResourceFolder root, ResourceManager owner)
+    {
         // root folder selection should not be processed
         root.Manager = owner;
         root.OnAttachedToManager();
     }
 
-    protected static void InternalOnItemAdded(BaseResource obj, ResourceFolder parent) {
+    protected static void InternalOnItemAdded(BaseResource obj, ResourceFolder parent)
+    {
         obj.Parent = parent;
         ResourceManager manager = parent.Manager;
-        if (manager != null) {
+        if (manager != null)
+        {
             InternalSetResourceManager(obj, manager);
         }
     }
 
-    protected static void InternalOnItemRemoved(BaseResource obj, ResourceFolder parent) {
+    protected static void InternalOnItemRemoved(BaseResource obj, ResourceFolder parent)
+    {
         obj.Parent = null;
-        if (obj.Manager != null) {
+        if (obj.Manager != null)
+        {
             ResourceManager.InternalProcessResourceOnDetached(obj);
             obj.OnDetachedFromManager();
             obj.Manager = null;
         }
     }
 
-    protected static void InternalOnItemMoved(BaseResource obj, ResourceFolder newParent) {
+    protected static void InternalOnItemMoved(BaseResource obj, ResourceFolder newParent)
+    {
         if (obj.Manager != newParent.Manager)
             throw new Exception("Manager was different");
         obj.Parent = newParent;
     }
 
-    protected static void InternalSetResourceManager(BaseResource resource, ResourceManager manager) {
-        if (ReferenceEquals(resource.Manager, manager)) {
+    protected static void InternalSetResourceManager(BaseResource resource, ResourceManager manager)
+    {
+        if (ReferenceEquals(resource.Manager, manager))
+        {
             throw new InvalidOperationException("Cannot set manager to same instance");
         }
 
-        if (manager != null) {
+        if (manager != null)
+        {
             resource.Manager = manager;
             ResourceManager.InternalProcessResourceOnAttached(resource, manager);
             resource.OnAttachedToManager();
         }
-        else {
+        else
+        {
             ResourceManager.InternalProcessResourceOnDetached(resource);
             resource.OnDetachedFromManager();
             resource.Manager = null;

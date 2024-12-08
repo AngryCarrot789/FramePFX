@@ -30,7 +30,8 @@ using SkiaSharp;
 
 namespace FramePFX.Avalonia.AvControls;
 
-public class SKPreviewViewPortEx : Control {
+public class SKPreviewViewPortEx : Control
+{
     /// <summary>Gets the current canvas size.</summary>
     /// <remarks>The canvas size may be different to the view size as a result of the current device's pixel density.</remarks>
     public SKSize CanvasSize { get; private set; }
@@ -42,21 +43,25 @@ public class SKPreviewViewPortEx : Control {
     public SKPreviewViewPortEx() {
     }
 
-    public bool BeginRenderWithSurface(SKImageInfo frameInfo) {
+    public bool BeginRenderWithSurface(SKImageInfo frameInfo)
+    {
         IRenderRoot? source;
-        if (this.isRendering || (source = this.GetVisualRoot()) == null) {
+        if (this.isRendering || (source = this.GetVisualRoot()) == null)
+        {
             return false;
         }
 
         SKSizeI scaledSize = this.CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, source);
         this.CanvasSize = scaledSize;
-        if (scaledSize.Width <= 0 || scaledSize.Height <= 0) {
+        if (scaledSize.Width <= 0 || scaledSize.Height <= 0)
+        {
             return false;
         }
 
         this.skImageInfo = frameInfo;
         WriteableBitmap? bmp = this.bitmap;
-        if (bmp == null || frameInfo.Width != bmp.PixelSize.Width || frameInfo.Height != bmp.PixelSize.Height) {
+        if (bmp == null || frameInfo.Width != bmp.PixelSize.Width || frameInfo.Height != bmp.PixelSize.Height)
+        {
             this.bitmap = new WriteableBitmap(
                 new PixelSize(frameInfo.Width, frameInfo.Height),
                 new Vector(
@@ -69,7 +74,8 @@ public class SKPreviewViewPortEx : Control {
         return true;
     }
 
-    public void EndRenderWithSurface(SKSurface srcSurface) {
+    public void EndRenderWithSurface(SKSurface srcSurface)
+    {
         SKImageInfo imgInfo = this.skImageInfo;
         srcSurface.Flush(true, true);
         ILockedFramebuffer lockKey = this.bitmap!.Lock();
@@ -78,10 +84,12 @@ public class SKPreviewViewPortEx : Control {
         int dstPxH = this.bitmap.PixelSize.Height;
         IntPtr srcPtr = srcSurface.PeekPixels().GetPixels();
         IntPtr dstPtr = lockKey.Address;
-        if (imgInfo.Width == dstPxW && imgInfo.Height == dstPxH) {
+        if (imgInfo.Width == dstPxW && imgInfo.Height == dstPxH)
+        {
             BitBltSkia(srcPtr, dstPtr, imgInfo);
         }
-        else {
+        else
+        {
             using SKPixmap srcPixmal = new SKPixmap(imgInfo, srcPtr);
             SKImageInfo dstInfo = new SKImageInfo(dstPxW, dstPxH, imgInfo.ColorType, imgInfo.AlphaType, imgInfo.ColorSpace);
             using SKPixmap dstPixmap = new SKPixmap(dstInfo, dstPtr);
@@ -95,9 +103,12 @@ public class SKPreviewViewPortEx : Control {
         this.InvalidateVisual();
     }
 
-    private static void BitBltSkia(IntPtr srcPtr, IntPtr dstPtr, SKImageInfo imgInfo) {
-        if (srcPtr != IntPtr.Zero && dstPtr != IntPtr.Zero) {
-            unsafe {
+    private static void BitBltSkia(IntPtr srcPtr, IntPtr dstPtr, SKImageInfo imgInfo)
+    {
+        if (srcPtr != IntPtr.Zero && dstPtr != IntPtr.Zero)
+        {
+            unsafe
+            {
                 Unsafe.CopyBlock(dstPtr.ToPointer(), srcPtr.ToPointer(), (uint) imgInfo.BytesSize64);
             }
         }
@@ -109,27 +120,32 @@ public class SKPreviewViewPortEx : Control {
 
     protected virtual void OnPostEndRender() { }
 
-    public override void Render(DrawingContext context) {
+    public override void Render(DrawingContext context)
+    {
         base.Render(context);
         WriteableBitmap? bmp = this.bitmap;
-        if (bmp != null) {
+        if (bmp != null)
+        {
             Rect bounds = this.Bounds;
             context.DrawImage(bmp, new Rect(0d, 0d, bounds.Width, bounds.Height));
         }
     }
 
-    protected override void OnSizeChanged(SizeChangedEventArgs e) {
+    protected override void OnSizeChanged(SizeChangedEventArgs e)
+    {
         base.OnSizeChanged(e);
         this.InvalidateVisual();
     }
 
-    private SKSizeI CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, IRenderRoot source) {
+    private SKSizeI CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, IRenderRoot source)
+    {
         unscaledSize = SKSizeI.Empty;
         scaleX = 1f;
         scaleY = 1f;
 
         Size bounds = this.Bounds.Size;
-        if (IsPositive(bounds.Width) && IsPositive(bounds.Height)) {
+        if (IsPositive(bounds.Width) && IsPositive(bounds.Height))
+        {
             unscaledSize = new SKSizeI((int) bounds.Width, (int) bounds.Height);
             double transformToDevice = source.RenderScaling;
             scaleX = transformToDevice;

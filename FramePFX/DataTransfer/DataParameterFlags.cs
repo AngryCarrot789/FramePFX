@@ -20,7 +20,8 @@
 namespace FramePFX.DataTransfer;
 
 [Flags]
-public enum DataParameterFlags {
+public enum DataParameterFlags
+{
     /// <summary>
     /// This data parameter does nothing special on its own
     /// </summary>

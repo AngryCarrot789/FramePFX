@@ -24,7 +24,8 @@ using SkiaSharp;
 
 namespace FramePFX.Editing.Timelines.Effects;
 
-public abstract class VideoEffect : BaseEffect {
+public abstract class VideoEffect : BaseEffect
+{
     /// <summary>
     /// Casts <see cref="Owner"/> to a <see cref="VideoClip"/>
     /// </summary>

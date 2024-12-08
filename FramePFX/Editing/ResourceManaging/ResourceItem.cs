@@ -36,7 +36,8 @@ namespace FramePFX.Editing.ResourceManaging;
 /// a <see cref="ResourceLoader"/> which is used to present a collection of errors to the user
 /// </para>
 /// </summary>
-public abstract class ResourceItem : BaseResource, ITransferableData {
+public abstract class ResourceItem : BaseResource, ITransferableData
+{
     public const ulong EmptyId = ResourceManager.EmptyId;
     protected bool doNotProcessUniqueIdForSerialisation;
     private readonly List<IResourceHolder> references;
@@ -79,27 +80,32 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
     /// </summary>
     public event ResourceItemEventHandler? OnlineStateChanged;
 
-    protected ResourceItem() {
+    protected ResourceItem()
+    {
         this.references = new List<IResourceHolder>();
         this.TransferableData = new TransferableData(this);
     }
 
-    public bool HasReachedResourceLimit() {
+    public bool HasReachedResourceLimit()
+    {
         int limit = this.ResourceLinkLimit;
         return limit != -1 && this.references.Count >= limit;
     }
 
-    protected internal override void OnAttachedToManager() {
+    protected internal override void OnAttachedToManager()
+    {
         base.OnAttachedToManager();
         ResourceManager.InternalOnResourceItemAttachedToManager(this);
     }
 
-    protected internal override void OnDetachedFromManager() {
+    protected internal override void OnDetachedFromManager()
+    {
         base.OnDetachedFromManager();
         ResourceManager.InternalOnResourceItemDetachedFromManager(this);
     }
 
-    public bool IsRegistered() {
+    public bool IsRegistered()
+    {
         return this.Manager != null && this.UniqueId != EmptyId;
     }
 
@@ -111,8 +117,10 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
     /// the item. <see cref="IsOfflineByUser"/> is set to this parameter
     /// </param>
     /// <returns></returns>
-    public void Disable(bool user) {
-        if (!this.IsOnline) {
+    public void Disable(bool user)
+    {
+        if (!this.IsOnline)
+        {
             return;
         }
 
@@ -148,16 +156,20 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
     /// <returns>
     /// True if the resource is already online or is now online, or false meaning the resource could not enable itself
     /// </returns>
-    public bool TryAutoEnable(ResourceLoader? loader) {
-        if (this.IsOnline) {
+    public bool TryAutoEnable(ResourceLoader? loader)
+    {
+        if (this.IsOnline)
+        {
             return true;
         }
 
-        if (this.OnTryAutoEnable(loader)) {
+        if (this.OnTryAutoEnable(loader))
+        {
             this.EnableCore();
             return true;
         }
-        else {
+        else
+        {
             return false;
         }
     }
@@ -172,7 +184,8 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
     /// </para>
     /// </summary>
     /// <param name="loader">The loader to add error entries to. May be null if errors are not processed</param>
-    protected virtual bool OnTryAutoEnable(ResourceLoader? loader) {
+    protected virtual bool OnTryAutoEnable(ResourceLoader? loader)
+    {
         return true;
     }
 
@@ -188,7 +201,8 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
     /// </summary>
     /// <param name="entry">The entry that we created</param>
     /// <returns>True if the resource was successfully enabled, otherwise false</returns>
-    public virtual bool TryEnableForLoaderEntry(InvalidResourceEntry entry) {
+    public virtual bool TryEnableForLoaderEntry(InvalidResourceEntry entry)
+    {
         this.EnableCore();
         return true;
     }
@@ -200,8 +214,10 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
     /// <exception cref="InvalidOperationException">
     /// Already enabled. Check <see cref="IsOnline"/> first
     /// </exception>
-    protected void EnableCore() {
-        if (this.IsOnline) {
+    protected void EnableCore()
+    {
+        if (this.IsOnline)
+        {
             throw new InvalidOperationException("Already enabled");
         }
 
@@ -210,16 +226,20 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
         this.RaiseOnlineStateChanged();
     }
 
-    static ResourceItem() {
-        SerialisationRegistry.Register<ResourceItem>(0, (resource, data, ctx) => {
+    static ResourceItem()
+    {
+        SerialisationRegistry.Register<ResourceItem>(0, (resource, data, ctx) =>
+        {
             ctx.DeserialiseBaseType(data);
             if (!resource.doNotProcessUniqueIdForSerialisation)
                 resource.UniqueId = data.GetULong(nameof(resource.UniqueId), EmptyId);
-            if (data.TryGetBool(nameof(resource.IsOnline), out bool isOnline) && !isOnline) {
+            if (data.TryGetBool(nameof(resource.IsOnline), out bool isOnline) && !isOnline)
+            {
                 resource.IsOnline = false;
                 resource.IsOfflineByUser = true;
             }
-        }, (resource, data, ctx) => {
+        }, (resource, data, ctx) =>
+        {
             ctx.SerialiseBaseType(data);
             if (resource.UniqueId != EmptyId && !resource.doNotProcessUniqueIdForSerialisation)
                 data.SetULong(nameof(resource.UniqueId), resource.UniqueId);
@@ -228,7 +248,8 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
         });
     }
 
-    private void RaiseOnlineStateChanged() {
+    private void RaiseOnlineStateChanged()
+    {
         this.OnOnlineStateChanged();
         this.OnlineStateChanged?.Invoke(this);
     }
@@ -237,11 +258,12 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
     /// Invoked when our <see cref="IsOnline"/> state changes. This is called before the <see cref="OnlineStateChanged"/> event
     /// </summary>
     protected virtual void OnOnlineStateChanged() {
-        
     }
 
-    public override void Destroy() {
-        if (this.IsOnline) {
+    public override void Destroy()
+    {
+        if (this.IsOnline)
+        {
             this.Disable(false);
         }
 
@@ -253,7 +275,8 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
     /// </summary>
     internal static void SetUniqueId(ResourceItem item, ulong id) => item.UniqueId = id;
 
-    internal static void AddReference(ResourceItem item, IResourceHolder owner) {
+    internal static void AddReference(ResourceItem item, IResourceHolder owner)
+    {
         if (item.references.Contains(owner))
             throw new InvalidOperationException("Object already referenced");
         if (item.HasReachedResourceLimit())
@@ -261,7 +284,8 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
         item.references.Add(owner);
     }
 
-    internal static void RemoveReference(ResourceItem item, IResourceHolder owner) {
+    internal static void RemoveReference(ResourceItem item, IResourceHolder owner)
+    {
         if (!item.references.Remove(owner))
             throw new InvalidOperationException("Object was not referenced");
     }

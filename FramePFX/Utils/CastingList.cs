@@ -24,14 +24,16 @@ namespace FramePFX.Utils;
 /// <summary>
 /// A list that delegates get/set to a list with a lower type that the required type
 /// </summary>
-public class CastingList<T> : IReadOnlyList<T> {
+public class CastingList<T> : IReadOnlyList<T>
+{
     private readonly IReadOnlyList<object> list;
 
     public int Count => this.list.Count;
 
     public T this[int index] => (T) this.list[index];
 
-    public CastingList(IReadOnlyList<object> list) {
+    public CastingList(IReadOnlyList<object> list)
+    {
         this.list = list ?? throw new ArgumentNullException(nameof(list));
     }
 
@@ -41,30 +43,38 @@ public class CastingList<T> : IReadOnlyList<T> {
 
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
-    public struct Enumerator : IEnumerator<T>, IDisposable, IEnumerator {
+    public struct Enumerator : IEnumerator<T>, IDisposable, IEnumerator
+    {
         private readonly CastingList<T> list;
         private int index;
         private T current;
 
         public T Current => this.current;
 
-        object IEnumerator.Current {
-            get {
-                if (this.index > 0) {
-                    if (this.index < this.list.Count + 1) {
+        object IEnumerator.Current
+        {
+            get
+            {
+                if (this.index > 0)
+                {
+                    if (this.index < this.list.Count + 1)
+                    {
                         return this.Current;
                     }
-                    else {
+                    else
+                    {
                         throw new InvalidOperationException("End of enumeration");
                     }
                 }
-                else {
+                else
+                {
                     throw new InvalidOperationException(nameof(this.MoveNext) + " not called once");
                 }
             }
         }
 
-        internal Enumerator(CastingList<T> list) {
+        internal Enumerator(CastingList<T> list)
+        {
             this.list = list;
             this.index = 0;
             this.current = default;
@@ -72,19 +82,23 @@ public class CastingList<T> : IReadOnlyList<T> {
 
         public void Dispose() { }
 
-        public bool MoveNext() {
-            if (this.index < this.list.Count) {
+        public bool MoveNext()
+        {
+            if (this.index < this.list.Count)
+            {
                 this.current = this.list[this.index++];
                 return true;
             }
-            else {
+            else
+            {
                 this.index = this.list.Count + 1;
                 this.current = default;
                 return false;
             }
         }
 
-        void IEnumerator.Reset() {
+        void IEnumerator.Reset()
+        {
             this.index = 0;
             this.current = default;
         }

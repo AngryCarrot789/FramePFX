@@ -24,10 +24,12 @@ using Avalonia.Data.Converters;
 
 namespace FramePFX.Avalonia.Themes.Converters;
 
-public abstract class ThicknessConverter : IValueConverter {
+public abstract class ThicknessConverter : IValueConverter
+{
     public object? UnsetValue { get; set; } = AvaloniaProperty.UnsetValue;
 
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
         if (value == AvaloniaProperty.UnsetValue)
             return this.UnsetValue;
 
@@ -45,7 +47,8 @@ public abstract class ThicknessConverter : IValueConverter {
     protected abstract Thickness Convert(Thickness value, object? targetType, CultureInfo parameter, bool isUniformDouble);
 }
 
-public class AddThicknessConverter : ThicknessConverter {
+public class AddThicknessConverter : ThicknessConverter
+{
     public Thickness Thickness { get; set; }
 
     /// <summary>
@@ -53,45 +56,54 @@ public class AddThicknessConverter : ThicknessConverter {
     /// </summary>
     public double Uniform { get; set; }
 
-    protected override Thickness Convert(Thickness v, object? targetType, CultureInfo parameter, bool isUniformDouble) {
+    protected override Thickness Convert(Thickness v, object? targetType, CultureInfo parameter, bool isUniformDouble)
+    {
         return v + this.Thickness + new Thickness(this.Uniform);
     }
 }
 
-public class MultiplyThicknessConverter : ThicknessConverter {
+public class MultiplyThicknessConverter : ThicknessConverter
+{
     public Thickness Thickness { get; set; } = new Thickness(1);
 
-    protected override Thickness Convert(Thickness v, object? targetType, CultureInfo parameter, bool isUniformDouble) {
+    protected override Thickness Convert(Thickness v, object? targetType, CultureInfo parameter, bool isUniformDouble)
+    {
         Thickness t = this.Thickness;
         return new Thickness(v.Left * t.Left, v.Top * t.Top, v.Right * t.Right, v.Bottom * t.Bottom);
     }
 }
 
-public class SetThicknessConverter : ThicknessConverter {
+public class SetThicknessConverter : ThicknessConverter
+{
     public double? Left { get; set; }
     public double? Top { get; set; }
     public double? Right { get; set; }
     public double? Bottom { get; set; }
 
-    protected override Thickness Convert(Thickness v, object? targetType, CultureInfo parameter, bool isUniformDouble) {
+    protected override Thickness Convert(Thickness v, object? targetType, CultureInfo parameter, bool isUniformDouble)
+    {
         return new Thickness(this.Left ?? v.Left, this.Top ?? v.Top, this.Right ?? v.Right, this.Bottom ?? v.Bottom);
     }
 }
 
-public class RaisedBaseContentMarginConverter : ThicknessConverter {
+public class RaisedBaseContentMarginConverter : ThicknessConverter
+{
     public double RaisedBaseGap { get; set; } = 4.0;
 
-    protected override Thickness Convert(Thickness v, object? targetType, CultureInfo parameter, bool isUniformDouble) {
+    protected override Thickness Convert(Thickness v, object? targetType, CultureInfo parameter, bool isUniformDouble)
+    {
         Thickness v2 = v * 2;
         double g = this.RaisedBaseGap;
         return new Thickness(v2.Left + g, v2.Top + g, v2.Right + g, v2.Bottom + g);
     }
 }
 
-public class RaisedBasePressedContentMarginConverter : ThicknessConverter {
+public class RaisedBasePressedContentMarginConverter : ThicknessConverter
+{
     public double RaisedBaseGap { get; set; } = 4.0;
 
-    protected override Thickness Convert(Thickness v, object? targetType, CultureInfo parameter, bool isUniformDouble) {
+    protected override Thickness Convert(Thickness v, object? targetType, CultureInfo parameter, bool isUniformDouble)
+    {
         return v + new Thickness(this.RaisedBaseGap) + v + new Thickness(v.Left, v.Top, -v.Right, -v.Bottom);
     }
 }

@@ -19,18 +19,20 @@
 
 namespace FramePFX.Editing.ResourceManaging.UI;
 
-public class TreePath {
+public class TreePath
+{
     /// <summary>
     /// Gets the tree associated with this path
     /// </summary>
     public readonly IResourceTreeElement Tree;
-        
+
     /// <summary>
     /// Gets the node involved. Null means it involved the root of the tree instead of a specific node
     /// </summary>
     public readonly IResourceTreeNodeElement? Node;
 
-    public TreePath(IResourceTreeElement tree, IResourceTreeNodeElement? node) {
+    public TreePath(IResourceTreeElement tree, IResourceTreeNodeElement? node)
+    {
         this.Tree = tree;
         this.Node = node;
     }

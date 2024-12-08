@@ -24,7 +24,8 @@ namespace FramePFX.Interactivity.Contexts;
 /// <summary>
 /// An implementation of <see cref="IContextData"/> that stores static entries in an internal dictionary
 /// </summary>
-public class ContextData : IRandomAccessContext {
+public class ContextData : IRandomAccessContext
+{
     private Dictionary<string, object>? map;
 
     /// <summary>
@@ -43,7 +44,8 @@ public class ContextData : IRandomAccessContext {
     /// Copy constructor, effectively the same as <see cref="Clone"/>
     /// </summary>
     /// <param name="ctx">The context to copy, if non-null</param>
-    public ContextData(ContextData ctx) {
+    public ContextData(ContextData ctx)
+    {
         if (ctx.map != null && ctx.map.Count > 0)
             this.map = new Dictionary<string, object>(ctx.map);
     }
@@ -54,11 +56,14 @@ public class ContextData : IRandomAccessContext {
 
     public ContextData Set(DataKey<bool> key, bool? value) => this.SetRaw(key.Id, value.BoxNullable());
 
-    public ContextData SetRaw(string key, object? value) {
-        if (value == null) {
+    public ContextData SetRaw(string key, object? value)
+    {
+        if (value == null)
+        {
             this.map?.Remove(key);
         }
-        else {
+        else
+        {
             (this.map ??= new Dictionary<string, object>())[key] = value;
         }
 
@@ -77,20 +82,25 @@ public class ContextData : IRandomAccessContext {
     /// <returns></returns>
     public bool TryReplace<T>(DataKey<T> key, T value) => this.TryReplaceRaw(key.Id, value);
 
-    public bool TryReplaceRaw(string key, object? value) {
-        if (value == null) {
+    public bool TryReplaceRaw(string key, object? value)
+    {
+        if (value == null)
+        {
             return this.map != null && this.map.Remove(key);
         }
-        else if (this.map == null || this.map.TryGetValue(key, out object? oldVal) && value.Equals(oldVal)) {
+        else if (this.map == null || this.map.TryGetValue(key, out object? oldVal) && value.Equals(oldVal))
+        {
             return false;
         }
-        else {
+        else
+        {
             this.map[key] = value;
             return true;
         }
     }
 
-    public bool TryGetContext(string key, out object value) {
+    public bool TryGetContext(string key, out object value)
+    {
         if (this.map != null && this.map.TryGetValue(key, out value!))
             return true;
         value = null!;
@@ -103,7 +113,8 @@ public class ContextData : IRandomAccessContext {
     /// Creates a new instance of <see cref="ContextData"/> containing all entries from this instance
     /// </summary>
     /// <returns>A new cloned instance</returns>
-    public ContextData Clone() {
+    public ContextData Clone()
+    {
         ContextData ctx = new ContextData();
         if (this.map != null && this.map.Count > 0)
             ctx.map = new Dictionary<string, object>(this.map);
@@ -112,14 +123,17 @@ public class ContextData : IRandomAccessContext {
 
     public ContextData? ToNullIfEmpty() => this.Count > 0 ? this : null;
 
-    public ContextData Merge(IContextData ctx) {
-        if (ctx is ContextData cd && cd.map != null) {
+    public ContextData Merge(IContextData ctx)
+    {
+        if (ctx is ContextData cd && cd.map != null)
+        {
             using Dictionary<string, object>.Enumerator enumerator = cd.map.GetEnumerator();
             if (!enumerator.MoveNext())
                 return this;
 
             Dictionary<string, object> myMap = this.map ??= new Dictionary<string, object>();
-            do {
+            do
+            {
                 KeyValuePair<string, object> entry = enumerator.Current;
                 myMap[entry.Key] = entry.Value;
             } while (enumerator.MoveNext());
@@ -128,9 +142,11 @@ public class ContextData : IRandomAccessContext {
         return this;
     }
 
-    public override string ToString() {
+    public override string ToString()
+    {
         string details = "";
-        if (this.map != null && this.map.Count > 0) {
+        if (this.map != null && this.map.Count > 0)
+        {
             details = string.Join(", ", this.map.Select(x => "\"" + x.Key + "\"" + "=" + x.Value));
         }
 
@@ -145,7 +161,8 @@ public class ContextData : IRandomAccessContext {
     /// <param name="dataA">Source</param>
     /// <param name="dataB">Merge</param>
     /// <returns>A new context data containing entries from dataA and dataB</returns>
-    public static ContextData Merge(ContextData dataA, ContextData dataB) {
+    public static ContextData Merge(ContextData dataA, ContextData dataB)
+    {
         return new ContextData(dataA).Merge(dataB);
     }
 }

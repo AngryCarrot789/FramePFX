@@ -27,43 +27,53 @@ namespace FramePFX.Avalonia.CommandSystem.Usages;
 /// This class helps associated a command usage with a control, so that it may do
 /// things like execute a command or update its look based on the command
 /// </summary>
-public class CommandUsageManager {
+public class CommandUsageManager
+{
     public static readonly AttachedProperty<string?> SimpleButtonCommandIdProperty = AvaloniaProperty.RegisterAttached<CommandUsageManager, AvaloniaObject, string?>("SimpleButtonCommandId");
     public static readonly AttachedProperty<Type?> UsageClassTypeProperty = AvaloniaProperty.RegisterAttached<CommandUsageManager, AvaloniaObject, Type?>("UsageClassType", validate: Validate);
     public static readonly AttachedProperty<CommandUsage?> InternalCommandContextProperty = AvaloniaProperty.RegisterAttached<CommandUsageManager, AvaloniaObject, CommandUsage?>("InternalCommandContext");
 
     private static bool Validate(Type? value) => value == null || (value is Type type && typeof(CommandUsage).IsAssignableFrom(type));
 
-    static CommandUsageManager() {
-        SimpleButtonCommandIdProperty.Changed.AddClassHandler<AvaloniaObject, string?>((d, e) => {
-            if (d.GetValue(InternalCommandContextProperty) is CommandUsage oldContext) {
+    static CommandUsageManager()
+    {
+        SimpleButtonCommandIdProperty.Changed.AddClassHandler<AvaloniaObject, string?>((d, e) =>
+        {
+            if (d.GetValue(InternalCommandContextProperty) is CommandUsage oldContext)
+            {
                 oldContext.Disconnect();
             }
 
-            if (e.NewValue.GetValueOrDefault() is string cmdId) {
+            if (e.NewValue.GetValueOrDefault() is string cmdId)
+            {
                 CommandUsage ctx = new BasicButtonCommandUsage(cmdId);
                 d.SetValue(InternalCommandContextProperty, ctx);
                 ctx.Connect(d);
             }
-            else {
+            else
+            {
                 d.SetValue(InternalCommandContextProperty, null);
             }
         });
 
-        UsageClassTypeProperty.Changed.AddClassHandler<AvaloniaObject, Type?>((d, e) => {
-            if (d.GetValue(InternalCommandContextProperty) is CommandUsage oldContext) {
+        UsageClassTypeProperty.Changed.AddClassHandler<AvaloniaObject, Type?>((d, e) =>
+        {
+            if (d.GetValue(InternalCommandContextProperty) is CommandUsage oldContext)
+            {
                 oldContext.Disconnect();
             }
 
-            if (e.NewValue.GetValueOrDefault() is Type newType) {
+            if (e.NewValue.GetValueOrDefault() is Type newType)
+            {
                 if (!(newType.IsAssignableTo(typeof(CommandUsage))))
                     throw new InvalidOperationException("UsageClass type does not represent a CommandUsage");
-                
+
                 CommandUsage usage = (CommandUsage) Activator.CreateInstance(newType)!;
                 d.SetValue(InternalCommandContextProperty, usage);
                 usage.Connect(d);
             }
-            else {
+            else
+            {
                 d.SetValue(InternalCommandContextProperty, null);
             }
         });

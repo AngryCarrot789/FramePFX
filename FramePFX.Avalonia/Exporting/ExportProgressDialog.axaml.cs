@@ -28,10 +28,12 @@ using FramePFX.Utils.RDA;
 
 namespace FramePFX.Avalonia.Exporting;
 
-public partial class ExportProgressDialog : WindowEx, IExportProgress {
+public partial class ExportProgressDialog : WindowEx, IExportProgress
+{
     public static readonly StyledProperty<bool> HasEncodeProgressProperty = AvaloniaProperty.Register<ExportProgressDialog, bool>(nameof(HasEncodeProgress));
 
-    public bool HasEncodeProgress {
+    public bool HasEncodeProgress
+    {
         get => this.GetValue(HasEncodeProgressProperty);
         set => this.SetValue(HasEncodeProgressProperty, value);
     }
@@ -51,20 +53,20 @@ public partial class ExportProgressDialog : WindowEx, IExportProgress {
     public long CurrentEncodeFrame => this.currentEncodeFrame;
 
     private int lastRenderProgress;
-    
+
     public int RenderProgressPercentage => (int) Maths.Map(this.currentRenderFrame, this.BeginFrame, this.EndFrame, 0, 100);
     public int EncodeProgressPercentage => (int) Maths.Map(this.currentEncodeFrame, this.BeginFrame, this.EndFrame, 0, 100);
 
     public CancellationTokenSource Cancellation { get; }
-    
+
     public ActivityTask? ActivityTask { get; set; }
 
     // Makes the avalonia XAML compiler thing stop complaining about non-default constructors. We don't use this constructor
     public ExportProgressDialog() : this(default, new CancellationTokenSource()) {
-        
     }
-    
-    public ExportProgressDialog(FrameSpan renderSpan, CancellationTokenSource cancellation) {
+
+    public ExportProgressDialog(FrameSpan renderSpan, CancellationTokenSource cancellation)
+    {
         this.renderSpan = renderSpan;
         this.InitializeComponent();
 
@@ -73,29 +75,34 @@ public partial class ExportProgressDialog : WindowEx, IExportProgress {
         this.currentEncodeFrame = renderSpan.Begin;
         this.PART_FrameProgressText.Text = "0/" + (this.EndFrame - 1);
         this.rapidUpdateRender = RapidDispatchActionEx.ForSync(this.UpdateRenderedFrame, DispatchPriority.Normal, "ExportUpdateRender");
-        this.rapidUpdateEncode = RapidDispatchActionEx.ForSync(() => {
+        this.rapidUpdateEncode = RapidDispatchActionEx.ForSync(() =>
+        {
             this.PART_EncodeProgressBar.Value = this.EncodeProgressPercentage;
         }, DispatchPriority.Normal, "ExportUpdateEncode");
     }
 
-    private void UpdateRenderedFrame() {
+    private void UpdateRenderedFrame()
+    {
         int newCompletion = this.RenderProgressPercentage;
         this.PART_RenderProgressBar.Value = newCompletion;
         this.PART_FrameProgressText.Text = $"{this.currentRenderFrame}/{this.EndFrame - 1}";
         IActivityProgress? progress = this.ActivityTask?.Progress;
-        if (progress != null) {
+        if (progress != null)
+        {
             progress.OnProgress((newCompletion - this.lastRenderProgress) / 100.0);
         }
 
         this.lastRenderProgress = newCompletion;
     }
 
-    public void OnFrameRendered(long frame) {
+    public void OnFrameRendered(long frame)
+    {
         Interlocked.Increment(ref this.currentRenderFrame);
         this.rapidUpdateRender.InvokeAsync();
     }
 
-    public void OnFrameEncoded(long frame) {
+    public void OnFrameEncoded(long frame)
+    {
         Interlocked.Increment(ref this.currentEncodeFrame);
         this.rapidUpdateEncode.InvokeAsync();
     }

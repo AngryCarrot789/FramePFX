@@ -24,7 +24,8 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Avalonia.AdvancedMenuService;
 
-public interface IAdvancedContainer {
+public interface IAdvancedContainer
+{
     /// <summary>
     /// Gets the context for the container menu or root container menu item
     /// </summary>
@@ -33,7 +34,7 @@ public interface IAdvancedContainer {
     bool PushCachedItem(Type entryType, Control element);
 
     Control? PopCachedItem(Type entryType);
-    
+
     Control CreateChildItem(IContextObject entry);
 
     void UpdateSubListVisibility();

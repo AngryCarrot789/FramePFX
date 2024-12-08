@@ -25,7 +25,8 @@ using FramePFX.PropertyEditing;
 
 namespace FramePFX.Avalonia.PropertyEditing.Core;
 
-public class VideoClipMediaFrameOffsetPropertyEditorControl : BasePropEditControlContent {
+public class VideoClipMediaFrameOffsetPropertyEditorControl : BasePropEditControlContent
+{
     public VideoClipMediaFrameOffsetPropertyEditorSlot? SlotModel => (VideoClipMediaFrameOffsetPropertyEditorSlot?) base.SlotControl?.Model;
 
     private TextBlock? textBlock;
@@ -33,21 +34,25 @@ public class VideoClipMediaFrameOffsetPropertyEditorControl : BasePropEditContro
     public VideoClipMediaFrameOffsetPropertyEditorControl() {
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
         base.OnApplyTemplate(e);
         this.textBlock = e.NameScope.GetTemplateChild<TextBlock>("PART_TextBlock");
     }
 
-    private void SlotModelOnUpdateMediaFrameOffset(PropertyEditorSlot sender) {
+    private void SlotModelOnUpdateMediaFrameOffset(PropertyEditorSlot sender)
+    {
         if (this.textBlock != null)
             this.textBlock.Text = this.SlotModel!.MediaFrameOffset.ToString();
     }
 
-    protected override void OnConnected() {
+    protected override void OnConnected()
+    {
         this.SlotModel!.UpdateMediaFrameOffset += this.SlotModelOnUpdateMediaFrameOffset;
     }
 
-    protected override void OnDisconnected() {
+    protected override void OnDisconnected()
+    {
         this.SlotModel!.UpdateMediaFrameOffset -= this.SlotModelOnUpdateMediaFrameOffset;
     }
 }

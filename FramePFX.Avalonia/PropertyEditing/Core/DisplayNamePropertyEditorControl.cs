@@ -25,7 +25,8 @@ using FramePFX.PropertyEditing.Core;
 
 namespace FramePFX.Avalonia.PropertyEditing.Core;
 
-public class DisplayNamePropertyEditorControl : BasePropEditControlContent {
+public class DisplayNamePropertyEditorControl : BasePropEditControlContent
+{
     public new DisplayNamePropertyEditorSlot? SlotModel => (DisplayNamePropertyEditorSlot?) base.SlotControl.Model;
 
     private TextBox displayNameBox;
@@ -35,16 +36,19 @@ public class DisplayNamePropertyEditorControl : BasePropEditControlContent {
     public DisplayNamePropertyEditorControl() {
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
         base.OnApplyTemplate(e);
         this.displayNameBox = e.NameScope.GetTemplateChild<TextBox>("PART_TextBox");
     }
 
-    protected override void OnConnected() {
+    protected override void OnConnected()
+    {
         this.displayNameBinder.Attach(this.displayNameBox, this.SlotModel!);
     }
 
-    protected override void OnDisconnected() {
+    protected override void OnDisconnected()
+    {
         this.displayNameBinder.Detach();
     }
 }

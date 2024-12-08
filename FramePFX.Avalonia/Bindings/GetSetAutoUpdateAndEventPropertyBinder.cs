@@ -27,24 +27,30 @@ namespace FramePFX.Avalonia.Bindings;
 /// it uses a getter and setter method passed in the constructor, rather than a value accessor 
 /// </summary>
 /// <typeparam name="TModel">The model type</typeparam>
-public class GetSetAutoUpdateAndEventPropertyBinder<TModel> : BaseAutoUpdateAndEventPropertyBinder<TModel> where TModel : class {
+public class GetSetAutoUpdateAndEventPropertyBinder<TModel> : BaseAutoUpdateAndEventPropertyBinder<TModel> where TModel : class
+{
     private readonly Func<IBinder<TModel>, object?>? getter;
     private readonly Action<IBinder<TModel>, object?>? setter;
 
-    public GetSetAutoUpdateAndEventPropertyBinder(AvaloniaProperty property, string eventName, Func<IBinder<TModel>, object?>? getModelValue, Action<IBinder<TModel>, object?>? setModelValue) : base(property, eventName) {
+    public GetSetAutoUpdateAndEventPropertyBinder(AvaloniaProperty property, string eventName, Func<IBinder<TModel>, object?>? getModelValue, Action<IBinder<TModel>, object?>? setModelValue) : base(property, eventName)
+    {
         this.getter = getModelValue;
         this.setter = setModelValue;
     }
 
-    protected override void UpdateModelOverride() {
-        if (this.IsFullyAttached && this.Property != null && this.setter != null) {
+    protected override void UpdateModelOverride()
+    {
+        if (this.IsFullyAttached && this.Property != null && this.setter != null)
+        {
             object? newValue = this.myControl!.GetValue(this.Property);
             this.setter(this, newValue);
         }
     }
 
-    protected override void UpdateControlOverride() {
-        if (this.IsFullyAttached && this.Property != null && this.getter != null) {
+    protected override void UpdateControlOverride()
+    {
+        if (this.IsFullyAttached && this.Property != null && this.getter != null)
+        {
             object? newValue = this.getter(this);
             this.myControl!.SetValue(this.Property, newValue);
         }

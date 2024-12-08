@@ -23,7 +23,8 @@ namespace FramePFX.Utils.Collections;
 /// An interface for an entry in an <see cref="InheritanceDictionary{T}"/>
 /// </summary>
 /// <typeparam name="T">The type of value this entry stores</typeparam>
-public interface ITypeEntry<out T> {
+public interface ITypeEntry<out T>
+{
     /// <summary>
     /// Gets the CLR type that keys to this instance (as in, the key to the <see cref="InheritanceDictionary{T}"/>)
     /// </summary>

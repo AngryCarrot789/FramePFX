@@ -27,9 +27,10 @@ using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.AvControls;
 
-public class FreeMoveViewPortV2 : Border {
+public class FreeMoveViewPortV2 : Border
+{
     private const double SafeMinimumZoomFactor = 0.05;
-    
+
     public static readonly StyledProperty<double> MinimumZoomScaleProperty = AvaloniaProperty.Register<FreeMoveViewPortV2, double>("MinimumZoomScale", SafeMinimumZoomFactor, coerce: (o, v) => !DoubleUtils.IsValid(v) ? o.GetValue(MinimumZoomScaleProperty!) : Math.Max(v, SafeMinimumZoomFactor));
     public static readonly StyledProperty<double> MaximumZoomScaleProperty = AvaloniaProperty.Register<FreeMoveViewPortV2, double>("MaximumZoomScale", 200.0, coerce: (o, v) => !DoubleUtils.IsValid(v) ? o.GetValue(MaximumZoomScaleProperty!) : Math.Max(v, o.GetValue(MinimumZoomScaleProperty)));
     public static readonly StyledProperty<double> ZoomScaleProperty = AvaloniaProperty.Register<FreeMoveViewPortV2, double>("ZoomScale", 1.0, coerce: (o, v) => !DoubleUtils.IsValid(v) ? o.GetValue(ZoomScaleProperty!) : Maths.Clamp(v, o.GetValue(MinimumZoomScaleProperty), o.GetValue(MaximumZoomScaleProperty)));
@@ -42,42 +43,50 @@ public class FreeMoveViewPortV2 : Border {
     private double _extentWidth;
     private double _extentHeight;
 
-    public double ExtentWidth {
+    public double ExtentWidth
+    {
         get => this._extentWidth;
         set => this.SetAndRaise(ExtentWidthProperty, ref this._extentWidth, value);
     }
 
-    public double ExtentHeight {
+    public double ExtentHeight
+    {
         get => this._extentHeight;
         set => this.SetAndRaise(ExtentHeightProperty, ref this._extentHeight, value);
     }
 
-    public double MinimumZoomScale {
+    public double MinimumZoomScale
+    {
         get => this.GetValue(MinimumZoomScaleProperty);
         set => this.SetValue(MinimumZoomScaleProperty, value);
     }
 
-    public double MaximumZoomScale {
+    public double MaximumZoomScale
+    {
         get => this.GetValue(MaximumZoomScaleProperty);
         set => this.SetValue(MaximumZoomScaleProperty, value);
     }
 
-    public double ZoomScale {
+    public double ZoomScale
+    {
         get => this.GetValue(ZoomScaleProperty);
         set => this.SetValue(ZoomScaleProperty, value);
     }
 
-    public double HorizontalOffset {
+    public double HorizontalOffset
+    {
         get => this.GetValue(HorizontalOffsetProperty);
         set => this.SetValue(HorizontalOffsetProperty, value);
     }
 
-    public double VerticalOffset {
+    public double VerticalOffset
+    {
         get => this.GetValue(VerticalOffsetProperty);
         set => this.SetValue(VerticalOffsetProperty, value);
     }
 
-    public bool PanToCursorOnUserZoom {
+    public bool PanToCursorOnUserZoom
+    {
         get => this.GetValue(PanToCursorOnUserZoomProperty);
         set => this.SetValue(PanToCursorOnUserZoomProperty, value);
     }
@@ -88,20 +97,24 @@ public class FreeMoveViewPortV2 : Border {
     public TransformationContainer? CanvasTransformContainer { get; set; }
     public SKAsyncViewPort? AsyncViewPort { get; set; }
 
-    public FreeMoveViewPortV2() {
+    public FreeMoveViewPortV2()
+    {
         this.AddHandler(PointerWheelChangedEvent, this.OnPreviewMouseWheel, RoutingStrategies.Tunnel, false);
         this.Background = Brushes.Transparent;
     }
 
-    static FreeMoveViewPortV2() {
+    static FreeMoveViewPortV2()
+    {
         AffectsMeasure<FreeMoveViewPortV2>(MinimumZoomScaleProperty, MaximumZoomScaleProperty, ZoomScaleProperty, HorizontalOffsetProperty, VerticalOffsetProperty);
 
-        MinimumZoomScaleProperty.Changed.AddClassHandler<FreeMoveViewPortV2, double>((o, e) => {
+        MinimumZoomScaleProperty.Changed.AddClassHandler<FreeMoveViewPortV2, double>((o, e) =>
+        {
             o.CoerceValue(MaximumZoomScaleProperty);
             o.CoerceValue(ZoomScaleProperty);
         });
 
-        MaximumZoomScaleProperty.Changed.AddClassHandler<FreeMoveViewPortV2, double>((o, e) => {
+        MaximumZoomScaleProperty.Changed.AddClassHandler<FreeMoveViewPortV2, double>((o, e) =>
+        {
             o.CoerceValue(ZoomScaleProperty);
         });
 
@@ -112,18 +125,22 @@ public class FreeMoveViewPortV2 : Border {
         });
     }
 
-    public void Setup(TransformationContainer container, SKAsyncViewPort vp) {
+    public void Setup(TransformationContainer container, SKAsyncViewPort vp)
+    {
         this.CanvasTransformContainer = container;
         this.AsyncViewPort = vp;
     }
 
-    protected override void OnLoaded(RoutedEventArgs e) {
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
         base.OnLoaded(e);
         RZApplication.Instance.Dispatcher.InvokeAsync(this.FitContentToCenter, DispatchPriority.Background);
     }
 
-    public void FitContentToCenter() {
-        if (this.AsyncViewPort == null) {
+    public void FitContentToCenter()
+    {
+        if (this.AsyncViewPort == null)
+        {
             return;
         }
 
@@ -138,19 +155,23 @@ public class FreeMoveViewPortV2 : Border {
         Size childSize = this.AsyncViewPort.DesiredSize.Inflate(new Thickness(AddedBorder));
         double ratioW = mySize.Width / childSize.Width;
         double ratioH = mySize.Height / childSize.Height;
-        if (ratioH < ratioW && childSize.Height > 0) {
+        if (ratioH < ratioW && childSize.Height > 0)
+        {
             this.ZoomScale = mySize.Height / childSize.Height;
         }
-        else if (childSize.Width > 0) {
+        else if (childSize.Width > 0)
+        {
             this.ZoomScale = mySize.Width / childSize.Width;
         }
 
-        if (this.CanvasTransformContainer?.Child is Control containerChild) {
+        if (this.CanvasTransformContainer?.Child is Control containerChild)
+        {
             containerChild.InvalidateMeasure();
         }
     }
 
-    private void OnPreviewMouseWheel(object? sender, PointerWheelEventArgs e) {
+    private void OnPreviewMouseWheel(object? sender, PointerWheelEventArgs e)
+    {
         KeyModifiers modifiers = e.KeyModifiers;
 
         double delta = e.Delta.Y;
@@ -159,7 +180,8 @@ public class FreeMoveViewPortV2 : Border {
         if (DoubleUtils.IsZero(delta))
             return;
 
-        if ((modifiers & (KeyModifiers.Alt | KeyModifiers.Control)) != 0) { // zoom in or out
+        if ((modifiers & (KeyModifiers.Alt | KeyModifiers.Control)) != 0)
+        { // zoom in or out
             // I spent so much time trying to get this working myself but could never figure it out,
             // but this post worked pretty much first try. Smh my head.
             // I changed a few things though, like flipping zoom
@@ -167,7 +189,8 @@ public class FreeMoveViewPortV2 : Border {
             double oldzoom = this.ZoomScale;
             double newzoom = oldzoom * (delta > 0 ? 1.1 : 0.9);
             this.ZoomScale = newzoom;
-            if (this.PanToCursorOnUserZoom) {
+            if (this.PanToCursorOnUserZoom)
+            {
                 newzoom = this.ZoomScale;
                 Size size = this.Bounds.Size;
                 Point pos = e.GetPosition(this);
@@ -178,17 +201,21 @@ public class FreeMoveViewPortV2 : Border {
                 double side_ratio_h = (pos.Y - (size.Height / 2)) / size.Height;
                 this.VerticalOffset -= pixels_difference_h * side_ratio_h;
             }
-            else {
-                if (this.CanvasTransformContainer?.Child is Control child) {
+            else
+            {
+                if (this.CanvasTransformContainer?.Child is Control child)
+                {
                     child.InvalidateMeasure();
                 }
             }
         }
-        else if ((modifiers & KeyModifiers.Shift) != 0) {
+        else if ((modifiers & KeyModifiers.Shift) != 0)
+        {
             // horizontally offset
             this.HorizontalOffset += delta * (1d / this.ZoomScale) * 20d;
         }
-        else {
+        else
+        {
             // vertically offset
             this.VerticalOffset += delta * (1d / this.ZoomScale) * 20d;
         }
@@ -196,18 +223,22 @@ public class FreeMoveViewPortV2 : Border {
         e.Handled = true;
     }
 
-    protected override void OnPointerEntered(PointerEventArgs e) {
+    protected override void OnPointerEntered(PointerEventArgs e)
+    {
         base.OnPointerEntered(e);
         this.lastMousePointAbs = e.GetPosition(this);
         this.lastMousePointRel = e.GetPosition(this);
     }
 
-    protected override void OnPointerMoved(PointerEventArgs e) {
+    protected override void OnPointerMoved(PointerEventArgs e)
+    {
         base.OnPointerMoved(e);
         PointerPoint info = e.GetCurrentPoint(this);
         Point mousePoint = info.Position;
-        if (info.Properties.IsMiddleButtonPressed || (info.Properties.IsLeftButtonPressed && (e.KeyModifiers & KeyModifiers.Alt) != 0)) {
-            if (!ReferenceEquals(info.Pointer.Captured, this)) {
+        if (info.Properties.IsMiddleButtonPressed || (info.Properties.IsLeftButtonPressed && (e.KeyModifiers & KeyModifiers.Alt) != 0))
+        {
+            if (!ReferenceEquals(info.Pointer.Captured, this))
+            {
                 info.Pointer.Capture(this);
             }
 
@@ -215,7 +246,8 @@ public class FreeMoveViewPortV2 : Border {
             this.HorizontalOffset += change.X / this.ZoomScale;
             this.VerticalOffset += change.Y / this.ZoomScale;
         }
-        else {
+        else
+        {
             info.Pointer.Capture(null);
         }
 
@@ -225,7 +257,8 @@ public class FreeMoveViewPortV2 : Border {
 
     #region Measure and Arrangement
 
-    protected override Size MeasureOverride(Size constraint) {
+    protected override Size MeasureOverride(Size constraint)
+    {
         Size size = new Size();
         this.AsyncViewPort?.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
         this.ExtentWidth = constraint.Width * this.ZoomScale;
@@ -233,8 +266,10 @@ public class FreeMoveViewPortV2 : Border {
         return size;
     }
 
-    protected override Size ArrangeOverride(Size arrangeSize) {
-        if (this.CanvasTransformContainer is TransformationContainer container) {
+    protected override Size ArrangeOverride(Size arrangeSize)
+    {
+        if (this.CanvasTransformContainer is TransformationContainer container)
+        {
             container.RenderTransform = new ScaleTransform(this.ZoomScale, this.ZoomScale);
             container.RenderTransformOrigin = new RelativePoint(arrangeSize.Width / 2d, arrangeSize.Height / 2d, RelativeUnit.Absolute);
 
@@ -248,7 +283,8 @@ public class FreeMoveViewPortV2 : Border {
             //     top -= (diff / 4d);
             // }
 
-            if (container.Child is Control control) {
+            if (container.Child is Control control)
+            {
                 Size desired = container.DesiredSize;
                 double left = ((arrangeSize.Width - desired.Width) / 2) + this.HorizontalOffset;
                 double top = ((arrangeSize.Height - desired.Height) / 2) + this.VerticalOffset;

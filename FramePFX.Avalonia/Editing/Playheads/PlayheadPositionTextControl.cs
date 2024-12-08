@@ -24,28 +24,33 @@ using FramePFX.Editing.Timelines;
 
 namespace FramePFX.Avalonia.Editing.Playheads;
 
-public class PlayheadPositionTextControl : TemplatedControl {
+public class PlayheadPositionTextControl : TemplatedControl
+{
     public static readonly StyledProperty<Timeline?> TimelineProperty = AvaloniaProperty.Register<PlayheadPositionTextControl, Timeline?>(nameof(Timeline));
     public static readonly StyledProperty<long> PlayHeadPositionProperty = AvaloniaProperty.Register<PlayheadPositionTextControl, long>("PlayHeadPosition");
     public static readonly StyledProperty<long> TotalFrameDurationProperty = AvaloniaProperty.Register<PlayheadPositionTextControl, long>("TotalFrameDuration");
     public static readonly StyledProperty<long> LargestFrameInUseProperty = AvaloniaProperty.Register<PlayheadPositionTextControl, long>("LargestFrameInUse");
 
-    public Timeline? Timeline {
+    public Timeline? Timeline
+    {
         get => this.GetValue(TimelineProperty);
         set => this.SetValue(TimelineProperty, value);
     }
 
-    public long PlayHeadPosition {
+    public long PlayHeadPosition
+    {
         get => this.GetValue(PlayHeadPositionProperty);
         set => this.SetValue(PlayHeadPositionProperty, value);
     }
 
-    public long TotalFrameDuration {
+    public long TotalFrameDuration
+    {
         get => this.GetValue(TotalFrameDurationProperty);
         set => this.SetValue(TotalFrameDurationProperty, value);
     }
 
-    public long LargestFrameInUse {
+    public long LargestFrameInUse
+    {
         get => this.GetValue(LargestFrameInUseProperty);
         set => this.SetValue(LargestFrameInUseProperty, value);
     }
@@ -57,23 +62,28 @@ public class PlayheadPositionTextControl : TemplatedControl {
     public PlayheadPositionTextControl() {
     }
 
-    static PlayheadPositionTextControl() {
+    static PlayheadPositionTextControl()
+    {
         TimelineProperty.Changed.AddClassHandler<PlayheadPositionTextControl, Timeline?>((d, e) => d.OnTimelineChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }
 
-    private void OnTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline) {
-        if (oldTimeline != null) {
+    private void OnTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline)
+    {
+        if (oldTimeline != null)
+        {
             this.totalFramesBinder.Detach();
             this.playHeadBinder.Detach();
             this.largestFrameInUseBinder.Detach();
         }
 
-        if (newTimeline != null) {
+        if (newTimeline != null)
+        {
             this.totalFramesBinder.Attach(this, newTimeline);
             this.playHeadBinder.Attach(this, newTimeline);
             this.largestFrameInUseBinder.Attach(this, newTimeline);
         }
-        else {
+        else
+        {
             this.PlayHeadPosition = 0;
             this.TotalFrameDuration = 0;
             this.LargestFrameInUse = 0;

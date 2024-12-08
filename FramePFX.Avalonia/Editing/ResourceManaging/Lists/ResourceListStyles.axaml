@@ -24,7 +24,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}">
-                        
+
                         <ScrollViewer x:Name="PART_ScrollViewer"
                                       Focusable="False"
                                       Padding="{TemplateBinding Padding}"
@@ -84,7 +84,7 @@
                                            VerticalAlignment="Center"
                                            FontFamily="Segoe UI" FontWeight="Normal"/>
                             </Border>
-                            <ContentPresenter x:Name="PART_ContentPresenter" 
+                            <ContentPresenter x:Name="PART_ContentPresenter"
                                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                               Content="{TemplateBinding Content}"
@@ -97,7 +97,7 @@
         <Style Selector="^:disabled /template/ Border#Bd">
             <Setter Property="TextElement.Foreground" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
         </Style>
-        
+
         <Style Selector="^:selected[IsFocused=True] /template/ Border#PART_HeaderBorder">
             <Setter Property="Background" Value="{DynamicResource ABrush.AccentTone3.Background.Static}"/>
         </Style>

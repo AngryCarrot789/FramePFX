@@ -25,7 +25,8 @@ using FramePFX.Services.UserInputs;
 
 namespace FramePFX.Avalonia.Services.Messages.Controls;
 
-public partial class DoubleUserInputControl : UserControl, IUserInputContent {
+public partial class DoubleUserInputControl : UserControl, IUserInputContent
+{
     private readonly DataParameterPropertyBinder<DoubleUserInputInfo> labelABinder = new DataParameterPropertyBinder<DoubleUserInputInfo>(TextBlock.TextProperty, DoubleUserInputInfo.LabelAParameter);
     private readonly DataParameterPropertyBinder<DoubleUserInputInfo> labelBBinder = new DataParameterPropertyBinder<DoubleUserInputInfo>(TextBlock.TextProperty, DoubleUserInputInfo.LabelBParameter);
     private readonly DataParameterPropertyBinder<DoubleUserInputInfo> textABinder = new DataParameterPropertyBinder<DoubleUserInputInfo>(TextBox.TextProperty, DoubleUserInputInfo.TextAParameter);
@@ -33,24 +34,28 @@ public partial class DoubleUserInputControl : UserControl, IUserInputContent {
     private UserInputDialog? myDialog;
     private DoubleUserInputInfo? myData;
 
-    public DoubleUserInputControl() {
+    public DoubleUserInputControl()
+    {
         this.InitializeComponent();
         this.labelABinder.AttachControl(this.PART_LabelA);
         this.labelBBinder.AttachControl(this.PART_LabelB);
         this.textABinder.AttachControl(this.PART_TextBoxA);
         this.textBBinder.AttachControl(this.PART_TextBoxB);
-        
+
         this.PART_TextBoxA.KeyDown += this.OnAnyTextFieldKeyDown;
         this.PART_TextBoxB.KeyDown += this.OnAnyTextFieldKeyDown;
     }
-    
-    private void OnAnyTextFieldKeyDown(object? sender, KeyEventArgs e) {
-        if ((e.Key == Key.Escape || e.Key == Key.Enter) && this.myDialog != null) {
+
+    private void OnAnyTextFieldKeyDown(object? sender, KeyEventArgs e)
+    {
+        if ((e.Key == Key.Escape || e.Key == Key.Enter) && this.myDialog != null)
+        {
             this.myDialog.TryCloseDialog(e.Key != Key.Escape);
         }
     }
 
-    public void Connect(UserInputDialog dialog, UserInputInfo info) {
+    public void Connect(UserInputDialog dialog, UserInputInfo info)
+    {
         this.myDialog = dialog;
         this.myData = (DoubleUserInputInfo) info;
         this.labelABinder.AttachModel(this.myData);
@@ -66,7 +71,8 @@ public partial class DoubleUserInputControl : UserControl, IUserInputContent {
         this.UpdateLabelBVisibility();
     }
 
-    public void Disconnect() {
+    public void Disconnect()
+    {
         this.labelABinder.DetachModel();
         this.labelBBinder.DetachModel();
         this.textABinder.DetachModel();
@@ -76,12 +82,13 @@ public partial class DoubleUserInputControl : UserControl, IUserInputContent {
         DoubleUserInputInfo.LabelBParameter.RemoveValueChangedHandler(this.myData!, this.OnLabelBChanged);
         this.myData!.AllowEmptyTextAChanged -= this.OnAllowEmptyTextChanged;
         this.myData!.AllowEmptyTextBChanged -= this.OnAllowEmptyTextChanged;
-        
+
         this.myDialog = null;
         this.myData = null;
     }
-    
-    public bool FocusPrimaryInput() {
+
+    public bool FocusPrimaryInput()
+    {
         this.PART_TextBoxA.Focus();
         this.PART_TextBoxA.SelectAll();
         return true;

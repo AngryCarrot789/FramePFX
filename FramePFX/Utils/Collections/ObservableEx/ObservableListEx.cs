@@ -22,7 +22,8 @@ using System.Diagnostics;
 
 namespace FramePFX.Utils.Collections.ObservableEx;
 
-public class ObservableListEx<T> : Collection<T>, IObservableListEx<T> {
+public class ObservableListEx<T> : Collection<T>, IObservableListEx<T>
+{
     private SimpleMonitor? _monitor;
     private int blockReentrancyCount;
 
@@ -39,14 +40,16 @@ public class ObservableListEx<T> : Collection<T>, IObservableListEx<T> {
 
     public void Move(int oldIndex, int newIndex) => this.MoveItem(oldIndex, newIndex);
 
-    protected override void ClearItems() {
+    protected override void ClearItems()
+    {
         this.CheckReentrancy();
         ObservableListChangedEventArgs<T> e = new ObservableListChangedEventArgs<T>(this.Items);
         base.ClearItems();
         this.OnCollectionChanged(e);
     }
 
-    protected override void RemoveItem(int index) {
+    protected override void RemoveItem(int index)
+    {
         this.CheckReentrancy();
         T removedItem = this[index];
 
@@ -54,20 +57,23 @@ public class ObservableListEx<T> : Collection<T>, IObservableListEx<T> {
         this.OnCollectionChanged(new ObservableListChangedEventArgs<T>(ObservableListCollectionChangedAction.Remove, removedItem, default, index, -1));
     }
 
-    protected override void InsertItem(int index, T item) {
+    protected override void InsertItem(int index, T item)
+    {
         this.CheckReentrancy();
         base.InsertItem(index, item);
         this.OnCollectionChanged(new ObservableListChangedEventArgs<T>(ObservableListCollectionChangedAction.Add, default, item, -1, index));
     }
 
-    protected override void SetItem(int index, T newItem) {
+    protected override void SetItem(int index, T newItem)
+    {
         this.CheckReentrancy();
         T oldItem = this[index];
         base.SetItem(index, newItem);
         this.OnCollectionChanged(new ObservableListChangedEventArgs<T>(ObservableListCollectionChangedAction.Replace, oldItem, newItem, index, index));
     }
 
-    protected virtual void MoveItem(int oldIndex, int newIndex) {
+    protected virtual void MoveItem(int oldIndex, int newIndex)
+    {
         this.CheckReentrancy();
 
         T removedItem = this[oldIndex];
@@ -77,27 +83,34 @@ public class ObservableListEx<T> : Collection<T>, IObservableListEx<T> {
         this.OnCollectionChanged(new ObservableListChangedEventArgs<T>(ObservableListCollectionChangedAction.Move, removedItem, removedItem, oldIndex, newIndex));
     }
 
-    protected virtual void OnCollectionChanged(ObservableListChangedEventArgs<T> e) {
+    protected virtual void OnCollectionChanged(ObservableListChangedEventArgs<T> e)
+    {
         ObservableListExChangedEventHandler<T>? handler = this.CollectionChanged;
-        if (handler != null) {
+        if (handler != null)
+        {
             // Not calling BlockReentrancy() here to avoid the SimpleMonitor allocation.
             this.blockReentrancyCount++;
-            try {
+            try
+            {
                 handler(this, e);
             }
-            finally {
+            finally
+            {
                 this.blockReentrancyCount--;
             }
         }
     }
 
-    protected IDisposable BlockReentrancy() {
+    protected IDisposable BlockReentrancy()
+    {
         this.blockReentrancyCount++;
         return this.EnsureMonitorInitialized();
     }
 
-    protected void CheckReentrancy() {
-        if (this.blockReentrancyCount > 0) {
+    protected void CheckReentrancy()
+    {
+        if (this.blockReentrancyCount > 0)
+        {
             // we can allow changes if there's only one listener - the problem
             // only arises if reentrant changes make the original event args
             // invalid for later listeners.  This keeps existing code working
@@ -109,12 +122,14 @@ public class ObservableListEx<T> : Collection<T>, IObservableListEx<T> {
 
     private SimpleMonitor EnsureMonitorInitialized() => this._monitor ??= new SimpleMonitor(this);
 
-    private sealed class SimpleMonitor : IDisposable {
+    private sealed class SimpleMonitor : IDisposable
+    {
         internal int _busyCount; // Only used during (de)serialization to maintain compatibility with desktop. Do not rename (binary serialization)
 
         [NonSerialized] internal ObservableListEx<T> _collection;
 
-        public SimpleMonitor(ObservableListEx<T> collection) {
+        public SimpleMonitor(ObservableListEx<T> collection)
+        {
             Debug.Assert(collection != null);
             this._collection = collection;
         }
@@ -123,7 +138,8 @@ public class ObservableListEx<T> : Collection<T>, IObservableListEx<T> {
     }
 }
 
-public readonly struct ObservableListChangedEventArgs<T> {
+public readonly struct ObservableListChangedEventArgs<T>
+{
     /// <summary>
     /// The action that occurred
     /// </summary>
@@ -154,7 +170,8 @@ public readonly struct ObservableListChangedEventArgs<T> {
     /// </summary>
     public int OldIndex { get; } = -1;
 
-    public ObservableListChangedEventArgs(ObservableListCollectionChangedAction action, T? oldItem, T? newItem, int oldIndex, int newIndex) {
+    public ObservableListChangedEventArgs(ObservableListCollectionChangedAction action, T? oldItem, T? newItem, int oldIndex, int newIndex)
+    {
         this.Action = action;
         this.OldItems = oldItem != null ? new SingletonReadOnlyList<T>(oldItem) : ReadOnlyCollection<T>.Empty;
         this.NewItems = newItem != null ? new SingletonReadOnlyList<T>(newItem) : ReadOnlyCollection<T>.Empty;
@@ -162,7 +179,8 @@ public readonly struct ObservableListChangedEventArgs<T> {
         this.OldIndex = oldIndex;
     }
 
-    public ObservableListChangedEventArgs(ObservableListCollectionChangedAction action, IEnumerable<T>? oldItems, IEnumerable<T>? newItems, int oldIndex, int newIndex) {
+    public ObservableListChangedEventArgs(ObservableListCollectionChangedAction action, IEnumerable<T>? oldItems, IEnumerable<T>? newItems, int oldIndex, int newIndex)
+    {
         this.Action = action;
         this.OldItems = oldItems == null ? ReadOnlyCollection<T>.Empty : (oldItems is IList<T> ? new ReadOnlyCollection<T>((IList<T>) oldItems) : oldItems.ToList().AsReadOnly());
         this.NewItems = newItems == null ? ReadOnlyCollection<T>.Empty : (newItems is IList<T> ? new ReadOnlyCollection<T>((IList<T>) newItems) : newItems.ToList().AsReadOnly());
@@ -170,7 +188,8 @@ public readonly struct ObservableListChangedEventArgs<T> {
         this.OldIndex = oldIndex;
     }
 
-    public ObservableListChangedEventArgs(IEnumerable<T>? itemsBeingCleared) {
+    public ObservableListChangedEventArgs(IEnumerable<T>? itemsBeingCleared)
+    {
         this.Action = ObservableListCollectionChangedAction.Reset;
         this.OldItems = itemsBeingCleared == null ? ReadOnlyCollection<T>.Empty : (itemsBeingCleared is IList<T> ? new ReadOnlyCollection<T>((IList<T>) itemsBeingCleared) : itemsBeingCleared.ToList().AsReadOnly());
         this.NewItems = ReadOnlyCollection<T>.Empty;
@@ -178,7 +197,8 @@ public readonly struct ObservableListChangedEventArgs<T> {
     }
 }
 
-public enum ObservableListCollectionChangedAction {
+public enum ObservableListCollectionChangedAction
+{
     /// <summary>
     /// Item(s) added. <see cref="ObservableListChangedEventArgs{T}.NewItems"/> contains the added items
     /// </summary>

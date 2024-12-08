@@ -19,18 +19,21 @@
 
 namespace FramePFX.Tasks;
 
-public readonly struct CompletionRange {
+public readonly struct CompletionRange
+{
     public readonly double Range;
     public readonly double PreviousMultiplier;
     public readonly double PreviousTotalCompletion;
 
-    public CompletionRange(double range, double previousMultiplier, double previousTotalCompletion) {
+    public CompletionRange(double range, double previousMultiplier, double previousTotalCompletion)
+    {
         this.Range = range;
         this.PreviousMultiplier = previousMultiplier;
         this.PreviousTotalCompletion = previousTotalCompletion;
     }
 
-    public override string ToString() {
+    public override string ToString()
+    {
         return $"Range={this.Range:F4} ~ PrevMultiplier={this.PreviousMultiplier:F4} ~ PrevTotalCompletion={this.PreviousTotalCompletion:F4}";
     }
 }

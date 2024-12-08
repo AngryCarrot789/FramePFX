@@ -19,12 +19,15 @@
 
 namespace FramePFX;
 
-public interface IApplicationStartupProgress {
+public interface IApplicationStartupProgress
+{
     Task SetAction(string? header, string? description);
 }
 
-public class EmptyApplicationStartupProgress : IApplicationStartupProgress {
-    public Task SetAction(string? header, string? description) {
+public class EmptyApplicationStartupProgress : IApplicationStartupProgress
+{
+    public Task SetAction(string? header, string? description)
+    {
         return Task.CompletedTask;
     }
 }

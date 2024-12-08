@@ -24,7 +24,8 @@ namespace FramePFX.History;
 /// <summary>
 /// A class that manages a collection of undo-able and redo-able actions
 /// </summary>
-public class HistoryManager {
+public class HistoryManager
+{
     private readonly LinkedList<IHistoryAction> undoList;
     private readonly LinkedList<IHistoryAction> redoList;
 
@@ -55,7 +56,8 @@ public class HistoryManager {
     /// </summary>
     public bool CanRedo => !this.IsRedoInProgress && this.HasRedoableActions;
 
-    public HistoryManager() {
+    public HistoryManager()
+    {
         this.undoList = new LinkedList<IHistoryAction>();
         this.redoList = new LinkedList<IHistoryAction>();
         this.actionStack = new Stack<List<IHistoryAction>>();
@@ -69,27 +71,32 @@ public class HistoryManager {
     //     }
     // }
 
-    private void ClearBuffers() {
+    private void ClearBuffers()
+    {
         this.ClearRedoBuffer();
         this.ClearUndoBuffer();
     }
 
-    private void ClearUndoBuffer() {
+    private void ClearUndoBuffer()
+    {
         this.undoList.Clear();
     }
 
-    private void ClearRedoBuffer() {
+    private void ClearRedoBuffer()
+    {
         this.redoList.Clear();
     }
 
-    private void RemoveFirstUndoable() {
+    private void RemoveFirstUndoable()
+    {
         this.undoList.RemoveFirst();
     }
 
     /// <summary>
     /// Clears all undo-able and redo-able actions
     /// </summary>
-    public void Clear() {
+    public void Clear()
+    {
         this.CheckNotPerformingUndoOrRedo();
         this.ClearBuffers();
     }
@@ -98,14 +105,18 @@ public class HistoryManager {
     /// Adds the given action to be undone and redone
     /// </summary>
     /// <param name="action">The action to add</param>
-    public void AddAction(IHistoryAction action) {
-        if (this.actionStack.Count > 0) {
+    public void AddAction(IHistoryAction action)
+    {
+        if (this.actionStack.Count > 0)
+        {
             this.actionStack.Peek().Add(action);
         }
-        else {
+        else
+        {
             this.ClearRedoBuffer();
             this.undoList.AddLast(action);
-            while (this.undoList.Count > 500) {
+            while (this.undoList.Count > 500)
+            {
                 this.RemoveFirstUndoable();
             }
 
@@ -117,7 +128,8 @@ public class HistoryManager {
 
     public void Redo() => this.PerformUndoOrRedo(false);
 
-    private void PerformUndoOrRedo(bool isUndo) {
+    private void PerformUndoOrRedo(bool isUndo)
+    {
         this.CheckStateForUndoOrRedo(isUndo);
 
         LinkedList<IHistoryAction> srcList = isUndo ? this.undoList : this.redoList;
@@ -126,46 +138,58 @@ public class HistoryManager {
         IHistoryAction action = srcList.Last.Value;
 
         bool success = false;
-        try {
-            try {
-                if (isUndo) {
+        try
+        {
+            try
+            {
+                if (isUndo)
+                {
                     this.IsUndoInProgress = false;
                     success = action.Undo();
                 }
-                else {
+                else
+                {
                     this.IsRedoInProgress = false;
                     success = action.Redo();
                 }
             }
-            finally {
-                if (isUndo) {
+            finally
+            {
+                if (isUndo)
+                {
                     this.IsUndoInProgress = false;
                 }
-                else {
+                else
+                {
                     this.IsRedoInProgress = false;
                 }
             }
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             IoC.MessageService.ShowMessage((isUndo ? "Undo" : "Redo") + " Error", "An exception occurred while performing history action", e.GetToString());
         }
 
-        if (success) {
+        if (success)
+        {
             srcList.RemoveLast();
             dstList.AddLast(action);
         }
     }
 
-    private void CheckNotPerformingUndoOrRedo() {
+    private void CheckNotPerformingUndoOrRedo()
+    {
         if (this.IsUndoInProgress)
             throw new InvalidOperationException("Undo is in progress");
         if (this.IsRedoInProgress)
             throw new InvalidOperationException("Redo is in progress");
     }
 
-    private void CheckStateForUndoOrRedo(bool isUndo) {
+    private void CheckStateForUndoOrRedo(bool isUndo)
+    {
         this.CheckNotPerformingUndoOrRedo();
-        if (isUndo) {
+        if (isUndo)
+        {
             if (this.undoList.Count < 1)
                 throw new InvalidOperationException("Nothing to undo");
         }
@@ -178,31 +202,39 @@ public class HistoryManager {
     /// once all completed allow them to be grouped together as a single action
     /// </summary>
     /// <returns></returns>
-    public IDisposable ExecuteMerged() {
+    public IDisposable ExecuteMerged()
+    {
         this.OnBeginExecutionSection();
         return new MergedSection(this);
     }
 
-    private void OnBeginExecutionSection() {
+    private void OnBeginExecutionSection()
+    {
         this.actionStack.Push(new List<IHistoryAction>());
     }
 
-    private void OnEndExecutionSection() {
+    private void OnEndExecutionSection()
+    {
         List<IHistoryAction> list = this.actionStack.Pop();
-        if (list.Count > 0) {
+        if (list.Count > 0)
+        {
             this.AddAction(new MergedHistoryAction(list.ToArray()));
         }
     }
 
-    public class MergedSection : IDisposable {
+    public class MergedSection : IDisposable
+    {
         private HistoryManager manager;
 
-        public MergedSection(HistoryManager manager) {
+        public MergedSection(HistoryManager manager)
+        {
             this.manager = manager;
         }
 
-        public void Dispose() {
-            if (this.manager != null) {
+        public void Dispose()
+        {
+            if (this.manager != null)
+            {
                 this.manager.OnEndExecutionSection();
                 this.manager = null;
             }

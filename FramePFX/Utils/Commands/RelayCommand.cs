@@ -23,12 +23,15 @@ namespace FramePFX.Utils.Commands;
 /// A simple relay command, which does not take any parameters
 /// </summary>
 /// <typeparam name="T">The type of parameter</typeparam>
-public class RelayCommand : BaseRelayCommand {
+public class RelayCommand : BaseRelayCommand
+{
     private readonly Action execute;
     private readonly Func<bool>? canExecute;
 
-    public RelayCommand(Action execute, Func<bool>? canExecute = null) {
-        if (execute == null) {
+    public RelayCommand(Action execute, Func<bool>? canExecute = null)
+    {
+        if (execute == null)
+        {
             throw new ArgumentNullException(nameof(execute), "Execute callback cannot be null");
         }
 
@@ -45,14 +48,17 @@ public class RelayCommand : BaseRelayCommand {
 /// A simple relay command, which may take a parameter
 /// </summary>
 /// <typeparam name="T">The type of parameter</typeparam>
-public class RelayCommand<T> : BaseRelayCommand {
+public class RelayCommand<T> : BaseRelayCommand
+{
     private readonly Action<T?> execute;
     private readonly Func<T?, bool>? canExecute;
 
     public bool ConvertParameter { get; set; }
 
-    public RelayCommand(Action<T?> execute, Func<T?, bool>? canExecute = null, bool convertParameter = true) {
-        if (execute == null) {
+    public RelayCommand(Action<T?> execute, Func<T?, bool>? canExecute = null, bool convertParameter = true)
+    {
+        if (execute == null)
+        {
             throw new ArgumentNullException(nameof(execute), "Execute callback cannot be null");
         }
 
@@ -61,30 +67,38 @@ public class RelayCommand<T> : BaseRelayCommand {
         this.ConvertParameter = convertParameter;
     }
 
-    public override bool CanExecute(object? parameter) {
-        if (this.ConvertParameter) {
+    public override bool CanExecute(object? parameter)
+    {
+        if (this.ConvertParameter)
+        {
             parameter = GetConvertedParameter<T>(parameter);
         }
 
-        if (base.CanExecute(parameter)) {
+        if (base.CanExecute(parameter))
+        {
             return this.canExecute == null || parameter == null && this.canExecute(default) || parameter is T t && this.canExecute(t);
         }
 
         return false;
     }
 
-    public override void Execute(object? parameter) {
-        if (this.ConvertParameter) {
+    public override void Execute(object? parameter)
+    {
+        if (this.ConvertParameter)
+        {
             parameter = GetConvertedParameter<T>(parameter);
         }
 
-        if (parameter == null) {
+        if (parameter == null)
+        {
             this.execute(default);
         }
-        else if (parameter is T value) {
+        else if (parameter is T value)
+        {
             this.execute(value);
         }
-        else {
+        else
+        {
             throw new InvalidCastException($"Parameter type ({parameter.GetType()}) cannot be used for the callback method (which requires type {typeof(T).Name})");
         }
     }

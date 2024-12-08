@@ -24,7 +24,8 @@ namespace FramePFX.Editing.ResourceManaging.UI;
 /// <summary>
 /// An interface for the resource tree UI component
 /// </summary>
-public interface IResourceTreeElement {
+public interface IResourceTreeElement
+{
     /// <summary>
     /// Gets our tree's resource manager UI component
     /// </summary>

@@ -21,7 +21,8 @@ using FramePFX.Avalonia.Shortcuts.Inputs;
 
 namespace FramePFX.Avalonia.Shortcuts.Usage;
 
-public interface IKeyboardShortcutUsage : IShortcutUsage {
+public interface IKeyboardShortcutUsage : IShortcutUsage
+{
     /// <summary>
     /// A reference to the shortcut that created this instance
     /// </summary>

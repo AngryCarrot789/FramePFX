@@ -22,10 +22,12 @@ using FramePFX.Editing.ResourceManaging.Resources;
 
 namespace FramePFX.Editing.Factories;
 
-public class ResourceTypeFactory : ReflectiveObjectFactory<BaseResource> {
+public class ResourceTypeFactory : ReflectiveObjectFactory<BaseResource>
+{
     public static ResourceTypeFactory Instance { get; } = new ResourceTypeFactory();
 
-    private ResourceTypeFactory() {
+    private ResourceTypeFactory()
+    {
         this.RegisterType("r_group", typeof(ResourceFolder));
         this.RegisterType("r_argb", typeof(ResourceColour));
         this.RegisterType("r_img", typeof(ResourceImage));
@@ -33,7 +35,8 @@ public class ResourceTypeFactory : ReflectiveObjectFactory<BaseResource> {
         this.RegisterType("r_comp", typeof(ResourceComposition));
     }
 
-    public BaseResource NewResource(string id) {
+    public BaseResource NewResource(string id)
+    {
         return base.NewInstance(id);
     }
 }

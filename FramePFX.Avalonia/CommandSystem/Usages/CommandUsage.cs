@@ -37,7 +37,8 @@ namespace FramePFX.Avalonia.CommandSystem.Usages;
 /// executability state to be re-queried from the command based on the new contextual data
 /// </para>
 /// </summary>
-public abstract class CommandUsage {
+public abstract class CommandUsage
+{
     // Since its invoke method is only called from the main thread,
     // there's no need for the extended version
     private RapidDispatchAction? delayedContextUpdate;
@@ -48,14 +49,15 @@ public abstract class CommandUsage {
     public string CommandId { get; }
 
     public AvaloniaObject? Control { get; private set; }
-    
+
     /// <summary>
     /// Gets whether this usage is currently connected to a control. When disconnecting, this is set
     /// to false while <see cref="Control"/> remains non-null, until <see cref="OnDisconnected"/> has returned
     /// </summary>
     public bool IsConnected { get; private set; }
 
-    protected CommandUsage(string commandId) {
+    protected CommandUsage(string commandId)
+    {
         Validate.NotNullOrWhiteSpaces(commandId);
         this.CommandId = commandId;
     }
@@ -71,7 +73,8 @@ public abstract class CommandUsage {
     /// </summary>
     /// <param name="control">Control to connect to</param>
     /// <exception cref="ArgumentNullException">Control is null</exception>
-    public void Connect(AvaloniaObject control) {
+    public void Connect(AvaloniaObject control)
+    {
         this.Control = control ?? throw new ArgumentNullException(nameof(control));
         this.IsConnected = true;
         DataManager.AddInheritedContextChangedHandler(control, this.OnInheritedContextChangedImmediately);
@@ -82,7 +85,8 @@ public abstract class CommandUsage {
     /// Disconnects from this control
     /// </summary>
     /// <exception cref="InvalidCastException">Not connected</exception>
-    public void Disconnect() {
+    public void Disconnect()
+    {
         if (this.Control == null)
             throw new InvalidCastException("Not connected");
 
@@ -91,31 +95,35 @@ public abstract class CommandUsage {
         this.OnDisconnected();
         this.Control = null;
     }
-    
-    private void OnInheritedContextChangedImmediately(object sender, RoutedEventArgs e) {
+
+    private void OnInheritedContextChangedImmediately(object sender, RoutedEventArgs e)
+    {
         this.OnContextChanged();
     }
 
     protected virtual void OnConnected() => this.OnContextChanged();
 
     protected virtual void OnDisconnected() => this.OnContextChanged();
-    
+
     /// <summary>
     /// Called immediately when our inherited context changes
     /// </summary>
-    protected virtual void OnContextChanged() {
+    protected virtual void OnContextChanged()
+    {
         this.UpdateCanExecuteLater();
     }
 
     /// <summary>
     /// Schedules the <see cref="UpdateCanExecute"/> method to be invoked later. This is called by <see cref="OnContextChanged"/>
     /// </summary>
-    public void UpdateCanExecuteLater() {
+    public void UpdateCanExecuteLater()
+    {
         RapidDispatchAction guard = this.delayedContextUpdate ??= new RapidDispatchAction(this.UpdateCanExecute, DispatchPriority.Loaded, "UpdateCanExecute");
         guard.InvokeAsync();
     }
 
-    protected virtual void UpdateCanExecute() {
+    protected virtual void UpdateCanExecute()
+    {
         IContextData? ctx = this.GetContextData();
         this.OnUpdateForCanExecuteState(ctx != null ? CommandManager.Instance.CanExecute(this.CommandId, ctx) : Executability.Invalid);
     }

@@ -37,8 +37,8 @@
             <Setter Property="BorderBrush" Value="{DynamicResource Button.Disabled.Border}"/>
         </Style>
     </ControlTheme>
-    
-        <ControlTheme x:Key="ButtonImplicitStyleSetters" TargetType="{x:Type Button}">
+
+    <ControlTheme x:Key="ButtonImplicitStyleSetters" TargetType="{x:Type Button}">
         <Setter Property="Background" Value="{DynamicResource Button.Static.Background}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource Button.Static.Border}"/>
         <Setter Property="Foreground" Value="{DynamicResource Button.Static.Foreground}"/>

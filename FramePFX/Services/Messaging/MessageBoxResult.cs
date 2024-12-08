@@ -22,7 +22,8 @@ namespace FramePFX.Services.Messaging;
 /// <summary>
 /// An enum for the result of a simple message box
 /// </summary>
-public enum MessageBoxResult {
+public enum MessageBoxResult
+{
     /// <summary>
     /// Nothing was clicked (user force closed the window, e.g. by clicking the close button or pressing Esc)
     /// </summary>

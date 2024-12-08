@@ -26,7 +26,8 @@ namespace FramePFX.Editing.Exporting;
 /// <summary>
 /// A registry of exporters
 /// </summary>
-public class ExporterRegistry {
+public class ExporterRegistry
+{
     public static ExporterRegistry Instance { get; } = new ExporterRegistry();
 
     private readonly Dictionary<ExporterKey, ExporterInfo> exporters;
@@ -41,24 +42,27 @@ public class ExporterRegistry {
     /// Gets an ordered enumerable of keys, ordered by the registration order
     /// </summary>
     public IEnumerable<ExporterKey> Keys => this.exporterList.Select(x => x.Item1);
-    
-    private ExporterRegistry() {
+
+    private ExporterRegistry()
+    {
         this.exporters = new Dictionary<ExporterKey, ExporterInfo>(ExporterKey.DefaultComparer);
         this.exporterList = new List<(ExporterKey, ExporterInfo)>();
     }
 
-    static ExporterRegistry() {
+    static ExporterRegistry()
+    {
         // Standard exporters
         Instance.RegisterExporter(new ExporterKey("exporter_ffmpeg", "FFmpeg"), new FFmpegExporterInfo());
     }
 
-    public void RegisterExporter(ExporterKey key, ExporterInfo exporter) {
+    public void RegisterExporter(ExporterKey key, ExporterInfo exporter)
+    {
         Validate.NotNull(exporter);
         if (!this.exporters.TryAdd(key, exporter))
             throw new InvalidOperationException("Key already registered: " + key.ToString());
         this.exporterList.Add((key, exporter));
         ExporterInfo.InternalSetKey(exporter, key);
     }
-    
+
     public bool TryGetExporter(ExporterKey key, [NotNullWhen(true)] out ExporterInfo? exporter) => this.exporters.TryGetValue(key, out exporter);
 }

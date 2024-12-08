@@ -23,7 +23,8 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editing.Timelines.Commands;
 
-public class ToggleLoopTimelineRegionCommand : Command {
+public class ToggleLoopTimelineRegionCommand : Command
+{
     /// <summary>
     /// Gets or sets the special behaviour state which allows us to update the loop region around
     /// selected clips if applicable and keep the loop enabled rather than toggle it. If false, we just toggle it as usual
@@ -33,18 +34,24 @@ public class ToggleLoopTimelineRegionCommand : Command {
     public ToggleLoopTimelineRegionCommand() {
     }
 
-    protected override void Execute(CommandEventArgs e) {
-        if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline? timeline)) {
+    protected override void Execute(CommandEventArgs e)
+    {
+        if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline? timeline))
+        {
             return;
         }
 
         // Create loop region spanning the whole timeline as a default value
-        if (this.CanUpdateRegionToClipSelection) {
-            if (DataKeys.TimelineUIKey.TryGetContext(e.ContextData, out ITimelineElement? ui)) {
-                if (FrameSpan.TryUnionAll(ui.ClipSelection.SelectedItems.Select(x => x.Clip.FrameSpan), out FrameSpan span)) {
+        if (this.CanUpdateRegionToClipSelection)
+        {
+            if (DataKeys.TimelineUIKey.TryGetContext(e.ContextData, out ITimelineElement? ui))
+            {
+                if (FrameSpan.TryUnionAll(ui.ClipSelection.SelectedItems.Select(x => x.Clip.FrameSpan), out FrameSpan span))
+                {
                     // If the region is not the same, then the user just wanted to update their loop region
                     // So we won't actually toggle it but instead ensure it's enabled and also update the region
-                    if (timeline.LoopRegion != span) {
+                    if (timeline.LoopRegion != span)
+                    {
                         timeline.LoopRegion = span;
                         timeline.IsLoopRegionEnabled = true;
                         return;
@@ -52,7 +59,8 @@ public class ToggleLoopTimelineRegionCommand : Command {
                 }
             }
         }
-        else if (!timeline.IsLoopRegionEnabled && !timeline.LoopRegion.HasValue) {
+        else if (!timeline.IsLoopRegionEnabled && !timeline.LoopRegion.HasValue)
+        {
             timeline.LoopRegion = new FrameSpan(0, timeline.MaxDuration);
         }
 

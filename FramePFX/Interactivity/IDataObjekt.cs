@@ -19,7 +19,8 @@
 
 namespace FramePFX.Interactivity;
 
-public interface IDataObjekt {
+public interface IDataObjekt
+{
     object? GetData(string format);
 
     bool Contains(string format);

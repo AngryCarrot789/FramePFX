@@ -29,26 +29,32 @@ namespace FramePFX.Avalonia.Bindings;
 /// </summary>
 /// <typeparam name="TModel">The model type</typeparam>
 /// <typeparam name="TValue">The value type</typeparam>
-public class AccessorAutoUpdateAndEventPropertyBinder<TModel, TValue> : BaseAutoUpdateAndEventPropertyBinder<TModel> where TModel : class {
+public class AccessorAutoUpdateAndEventPropertyBinder<TModel, TValue> : BaseAutoUpdateAndEventPropertyBinder<TModel> where TModel : class
+{
     private readonly ValueAccessor<TValue> accessor;
 
     public new AvaloniaProperty<TValue>? Property => (AvaloniaProperty<TValue>?) base.Property;
 
-    public AccessorAutoUpdateAndEventPropertyBinder(AvaloniaProperty<TValue>? property, string eventName, ValueAccessor<TValue> accessor) : base(property, eventName) {
+    public AccessorAutoUpdateAndEventPropertyBinder(AvaloniaProperty<TValue>? property, string eventName, ValueAccessor<TValue> accessor) : base(property, eventName)
+    {
         this.accessor = accessor ?? throw new ArgumentNullException(nameof(accessor));
     }
 
     private void OnEvent() => this.UpdateControl();
 
-    protected override void UpdateModelOverride() {
-        if (this.IsFullyAttached && base.Property != null) {
+    protected override void UpdateModelOverride()
+    {
+        if (this.IsFullyAttached && base.Property != null)
+        {
             object? newValue = this.myControl!.GetValue(base.Property);
             this.accessor.SetObjectValue(this.myModel!, newValue);
         }
     }
 
-    protected override void UpdateControlOverride() {
-        if (this.IsFullyAttached && base.Property != null) {
+    protected override void UpdateControlOverride()
+    {
+        if (this.IsFullyAttached && base.Property != null)
+        {
             object? newValue = this.accessor.GetObjectValue(this.myModel!);
             this.myControl!.SetValue(base.Property!, newValue);
         }

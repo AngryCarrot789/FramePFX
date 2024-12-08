@@ -21,6 +21,7 @@ using FramePFX.Avalonia.Shortcuts.Inputs;
 
 namespace FramePFX.Avalonia.Shortcuts.Dialogs;
 
-public interface IMouseDialogService {
+public interface IMouseDialogService
+{
     MouseStroke? ShowGetMouseStrokeDialog();
 }

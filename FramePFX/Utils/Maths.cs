@@ -21,7 +21,8 @@ using SkiaSharp;
 
 namespace FramePFX.Utils;
 
-public static class Maths {
+public static class Maths
+{
     /// <summary>
     /// Maps a double value from the input range to the output range
     /// <code>17.5 = Map(75, 0, 100, 10, 20)</code>
@@ -32,7 +33,8 @@ public static class Maths {
     /// <param name="outA">Output range lower bound</param>
     /// <param name="outB">Output range upper bound</param>
     /// <returns>The output value, between outA and outB</returns>
-    public static double Map(double dIn, double inA, double inB, double outA, double outB) {
+    public static double Map(double dIn, double inA, double inB, double outA, double outB)
+    {
         return outA + ((outB - outA) / (inB - inA) * (dIn - inA));
     }
 
@@ -44,22 +46,29 @@ public static class Maths {
     public static long Clamp(long value, long min, long max) => Math.Max(Math.Min(value, max), min);
     public static decimal Clamp(decimal value, decimal min, decimal max) => Math.Max(Math.Min(value, max), min);
 
-    public static int Compare(double a, double b, double tolerance = 0.000001D) {
-        if (double.IsNaN(a)) {
+    public static int Compare(double a, double b, double tolerance = 0.000001D)
+    {
+        if (double.IsNaN(a))
+        {
             return double.IsNaN(b) ? 0 : -1;
         }
-        else if (double.IsNaN(b)) {
+        else if (double.IsNaN(b))
+        {
             return 1;
         }
-        else {
+        else
+        {
             double d = Math.Abs(a - b);
-            if (d < tolerance) {
+            if (d < tolerance)
+            {
                 return 0;
             }
-            else if (a > b) {
+            else if (a > b)
+            {
                 return 1;
             }
-            else {
+            else
+            {
                 return -1;
             }
         }
@@ -73,7 +82,8 @@ public static class Maths {
     /// <param name="b">The rhs</param>
     /// <param name="tolerance">The tolerance</param>
     /// <returns>True if the difference between a and b are less than the given tolerance</returns>
-    public static bool Equals(double a, double b, double tolerance = 0.000001D) {
+    public static bool Equals(double a, double b, double tolerance = 0.000001D)
+    {
         return Math.Abs(a - b) < tolerance;
     }
 
@@ -86,7 +96,8 @@ public static class Maths {
     /// <param name="b">The rhs</param>
     /// <param name="tolerance">The tolerance</param>
     /// <returns>True if the difference between a and b are less than the given tolerance</returns>
-    public static bool Equals(float a, float b, float tolerance = 0.0001F) {
+    public static bool Equals(float a, float b, float tolerance = 0.0001F)
+    {
         return Math.Abs(a - b) < tolerance;
     }
 
@@ -94,7 +105,8 @@ public static class Maths {
 
     public static bool IsZero(double value) => Math.Abs(value) < 2.22044604925031E-15; // 0.00000000000000222044604925031
 
-    public static double Lerp(double a, double b, double blend) {
+    public static double Lerp(double a, double b, double blend)
+    {
         return a + (b - a) * blend;
     }
 
@@ -106,10 +118,12 @@ public static class Maths {
     /// <param name="blend">Blend</param>
     /// <param name="roundingMode">0 = cast to long, 1 = floor, 2 = ceil, 3 = round</param>
     /// <returns>A lerp-ed long value</returns>
-    public static long Lerp(long a, long b, double blend, int roundingMode) {
+    public static long Lerp(long a, long b, double blend, int roundingMode)
+    {
         double nA = a, nB = b;
         double val = nA + (nB - nA) * blend;
-        switch (roundingMode) {
+        switch (roundingMode)
+        {
             case 0: return (long) val;
             case 1: return (long) Math.Floor(val);
             case 2: return (long) Math.Ceiling(val);
@@ -118,21 +132,25 @@ public static class Maths {
         }
     }
 
-    public static double InverseLerp(double a, double b, double value) {
+    public static double InverseLerp(double a, double b, double value)
+    {
         return !Equals(a, b) ? ((value - a) / (b - a)) : 0f;
     }
 
-    public static int Ceil(int value, int multiple) {
+    public static int Ceil(int value, int multiple)
+    {
         int mod = value % multiple;
         return mod == 0 ? value : value + (multiple - mod);
     }
 
-    public static long Ceil(long value, int multiple) {
+    public static long Ceil(long value, int multiple)
+    {
         long mod = value % multiple;
         return mod == 0 ? value : value + (multiple - mod);
     }
 
-    public static double Ceil(double value, int multiple) {
+    public static double Ceil(double value, int multiple)
+    {
         double mod = value % multiple;
         return mod == 0D ? value : value + (multiple - mod);
     }
@@ -147,7 +165,8 @@ public static class Maths {
     public static bool WillUnderflow(long a, long b) => b < 0 && a < long.MinValue - b;
 
     // https://stackoverflow.com/a/51099524/11034928
-    public static int GetDigitCount(ulong v) {
+    public static int GetDigitCount(ulong v)
+    {
         // could optimise similar to a binary search, but hopefully the JIT will help out
         if (v < 10L)
             return 1;
@@ -188,68 +207,81 @@ public static class Maths {
         return v < 10000000000000000000L ? 19 : 20;
     }
 
-    public static void Swap(ref float a, ref float b) {
+    public static void Swap(ref float a, ref float b)
+    {
         float tmp = a;
         a = b;
         b = tmp;
     }
 
-    public static void Swap(ref double a, ref double b) {
+    public static void Swap(ref double a, ref double b)
+    {
         double tmp = a;
         a = b;
         b = tmp;
     }
 
-    public static void Swap(ref long a, ref long b) {
+    public static void Swap(ref long a, ref long b)
+    {
         long tmp = a;
         a = b;
         b = tmp;
     }
 
-    public static void Swap(ref int a, ref int b) {
+    public static void Swap(ref int a, ref int b)
+    {
         int tmp = a;
         a = b;
         b = tmp;
     }
 
-    public static float Swap(ref float a, float b) {
+    public static float Swap(ref float a, float b)
+    {
         float oA = a;
         a = b;
         return oA;
     }
 
-    public static double Swap(ref double a, double b) {
+    public static double Swap(ref double a, double b)
+    {
         double oA = a;
         a = b;
         return oA;
     }
 
-    public static long Swap(ref long a, long b) {
+    public static long Swap(ref long a, long b)
+    {
         long oA = a;
         a = b;
         return oA;
     }
 
-    public static int Swap(ref int a, int b) {
+    public static int Swap(ref int a, int b)
+    {
         int oA = a;
         a = b;
         return oA;
     }
 
-    public static double GetRange(float min, float max) {
+    public static double GetRange(float min, float max)
+    {
         return max < min ? (min - max) : (max - min);
     }
 
-    public static double GetRange(double min, double max) {
+    public static double GetRange(double min, double max)
+    {
         return max < min ? (min - max) : (max - min);
     }
 
-    public static double GetRange(long min, long max) {
+    public static double GetRange(long min, long max)
+    {
         return max < min ? (min - max) : (max - min);
     }
 
-    public static int Round(float value, RoundingMode mode = RoundingMode.Cast) {
-        switch (mode) {
+    public static int Round(float value, RoundingMode mode = RoundingMode.Cast)
+    {
+        switch (mode)
+        {
             case RoundingMode.None:
             case RoundingMode.Cast:
                 return (int) value;
@@ -260,8 +292,10 @@ public static class Maths {
         }
     }
 
-    public static int Round(double value, RoundingMode mode = RoundingMode.Cast) {
-        switch (mode) {
+    public static int Round(double value, RoundingMode mode = RoundingMode.Cast)
+    {
+        switch (mode)
+        {
             case RoundingMode.None:
             case RoundingMode.Cast:
                 return (int) value;
@@ -272,8 +306,10 @@ public static class Maths {
         }
     }
 
-    public static int Round(decimal value, RoundingMode mode = RoundingMode.Cast) {
-        switch (mode) {
+    public static int Round(decimal value, RoundingMode mode = RoundingMode.Cast)
+    {
+        switch (mode)
+        {
             case RoundingMode.None:
             case RoundingMode.Cast:
                 return (int) value;
@@ -284,8 +320,10 @@ public static class Maths {
         }
     }
 
-    public static long RoundLong(double value, RoundingMode mode = RoundingMode.Cast) {
-        switch (mode) {
+    public static long RoundLong(double value, RoundingMode mode = RoundingMode.Cast)
+    {
+        switch (mode)
+        {
             case RoundingMode.None:
             case RoundingMode.Cast:
                 return (long) value;
@@ -299,13 +337,15 @@ public static class Maths {
     public static int Floor(double d) => (int) Math.Floor(d);
     public static int Ceil(double d) => (int) Math.Ceiling(d);
 
-    public static SKSize? Max2F<T>(IEnumerable<T> sources, Func<T, SKSize> func) {
+    public static SKSize? Max2F<T>(IEnumerable<T> sources, Func<T, SKSize> func)
+    {
         using IEnumerator<T> enumerator = sources.GetEnumerator();
         if (!enumerator.MoveNext())
             return null;
 
         SKSize first = func(enumerator.Current);
-        while (enumerator.MoveNext()) {
+        while (enumerator.MoveNext())
+        {
             SKSize next = func(enumerator.Current);
             if (next.Width > first.Width)
                 first.Width = next.Width;

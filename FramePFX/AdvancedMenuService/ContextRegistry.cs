@@ -27,7 +27,8 @@ namespace FramePFX.AdvancedMenuService;
 /// into the right group... hopefully
 /// </para>
 /// </summary>
-public class ContextRegistry {
+public class ContextRegistry
+{
     private readonly Dictionary<int, Dictionary<string, IContextGroup>> groups;
 
     /// <summary>
@@ -36,35 +37,40 @@ public class ContextRegistry {
     public IEnumerable<KeyValuePair<string, IContextGroup>> Groups => this.groups.OrderBy(x => x.Key).Select(x => x.Value).SelectMany(x => x);
 
     public string Caption { get; }
-    
-    public ContextRegistry(string caption) {
+
+    public ContextRegistry(string caption)
+    {
         this.groups = new Dictionary<int, Dictionary<string, IContextGroup>>();
         this.Caption = caption;
     }
 
-    public FixedContextGroup GetFixedGroup(string name, int priority = 0) {
-        if (!this.GetDictionary(priority).TryGetValue(name, out IContextGroup? group)) 
+    public FixedContextGroup GetFixedGroup(string name, int priority = 0)
+    {
+        if (!this.GetDictionary(priority).TryGetValue(name, out IContextGroup? group))
             this.SetDictionary(priority, name, group = new FixedContextGroup());
         else if (!(group is FixedContextGroup))
             throw new InvalidOperationException("Context group is not fixed: " + name);
         return (FixedContextGroup) group;
     }
-    
-    public DynamicContextGroup CreateDynamicGroup(string name, DynamicGenerateContextFunction generate, int priority = 0) {
-        if (!this.GetDictionary(priority).TryGetValue(name, out IContextGroup? group)) 
+
+    public DynamicContextGroup CreateDynamicGroup(string name, DynamicGenerateContextFunction generate, int priority = 0)
+    {
+        if (!this.GetDictionary(priority).TryGetValue(name, out IContextGroup? group))
             this.SetDictionary(priority, name, group = new DynamicContextGroup(generate));
         else if (!(group is DynamicContextGroup))
             throw new InvalidOperationException("Context group is not dynamic: " + name);
         return (DynamicContextGroup) group;
     }
 
-    private Dictionary<string, IContextGroup> GetDictionary(int priority) {
+    private Dictionary<string, IContextGroup> GetDictionary(int priority)
+    {
         if (!this.groups.TryGetValue(priority, out Dictionary<string, IContextGroup>? dict))
             this.groups[priority] = dict = new Dictionary<string, IContextGroup>();
         return dict;
     }
-    
-    private void SetDictionary(int priority, string name, IContextGroup group) {
+
+    private void SetDictionary(int priority, string name, IContextGroup group)
+    {
         this.GetDictionary(priority)[name] = group;
     }
 }

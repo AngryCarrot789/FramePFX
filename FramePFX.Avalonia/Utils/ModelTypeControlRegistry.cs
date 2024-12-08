@@ -28,30 +28,38 @@ namespace FramePFX.Avalonia.Utils;
 /// A model type to control instance registry
 /// </summary>
 /// <typeparam name="TControl">The base class for the controls</typeparam>
-public class ModelTypeControlRegistry<TControl> where TControl : Control {
+public class ModelTypeControlRegistry<TControl> where TControl : Control
+{
     private readonly Dictionary<Type, Func<TControl>> constructors;
 
-    public ModelTypeControlRegistry() {
+    public ModelTypeControlRegistry()
+    {
         this.constructors = new Dictionary<Type, Func<TControl>>();
     }
 
-    public void RegisterType(Type modelType, Func<TControl> constructor) {
+    public void RegisterType(Type modelType, Func<TControl> constructor)
+    {
         this.constructors[modelType] = constructor;
     }
 
-    public TControl NewInstance(Type modelType) {
-        if (modelType == null) {
+    public TControl NewInstance(Type modelType)
+    {
+        if (modelType == null)
+        {
             throw new ArgumentNullException(nameof(modelType));
         }
 
         // Just try to find a base control type. It should be found first try unless I forgot to register a new control type
         bool hasLogged = false;
-        for (Type? type = modelType; type != null; type = type.BaseType) {
-            if (this.constructors.TryGetValue(type, out Func<TControl>? func)) {
+        for (Type? type = modelType; type != null; type = type.BaseType)
+        {
+            if (this.constructors.TryGetValue(type, out Func<TControl>? func))
+            {
                 return func();
             }
 
-            if (!hasLogged) {
+            if (!hasLogged)
+            {
                 hasLogged = true;
                 Debugger.Break();
                 Debug.WriteLine("Could not find control for resource type on first try. Scanning base types");

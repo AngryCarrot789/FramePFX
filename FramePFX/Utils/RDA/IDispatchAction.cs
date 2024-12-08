@@ -23,7 +23,8 @@ namespace FramePFX.Utils.RDA;
 /// An interface that represents a parameter-less object that signals work to be dispatched somewhere at some point.
 /// Implementations so far are <see cref="RapidDispatchAction"/> and <see cref="RapidDispatchActionEx"/>
 /// </summary>
-public interface IDispatchAction {
+public interface IDispatchAction
+{
     /// <summary>
     /// Tries to schedule this RDA for execution with its dispatcher
     /// </summary>
@@ -34,7 +35,8 @@ public interface IDispatchAction {
 /// A parameterised version of <see cref="IDispatchAction"/>
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public interface IDispatchAction<in T> {
+public interface IDispatchAction<in T>
+{
     /// <summary>
     /// Tries to schedule this RDA for execution with its dispatcher
     /// </summary>

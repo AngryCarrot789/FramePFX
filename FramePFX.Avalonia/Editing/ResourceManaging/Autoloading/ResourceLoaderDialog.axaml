@@ -1,15 +1,15 @@
 <c:WindowEx xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:c="clr-namespace:FramePFX.Avalonia.Themes.Controls"
-        mc:Ignorable="d"
-        x:Class="FramePFX.Avalonia.Editing.ResourceManaging.Autoloading.ResourceLoaderDialog"
-        Width="800" Height="450"
-        CanResize="False"
-        Title="Solve resource load failures"
-        TitleBarBrush="{DynamicResource ABrush.Tone7.Background.Static}"
-        WindowStartupLocation="CenterOwner">
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+            xmlns:c="clr-namespace:FramePFX.Avalonia.Themes.Controls"
+            mc:Ignorable="d"
+            x:Class="FramePFX.Avalonia.Editing.ResourceManaging.Autoloading.ResourceLoaderDialog"
+            Width="800" Height="450"
+            CanResize="False"
+            Title="Solve resource load failures"
+            TitleBarBrush="{DynamicResource ABrush.Tone7.Background.Static}"
+            WindowStartupLocation="CenterOwner">
     <Grid>
         <Grid.RowDefinitions>
             <!-- make halo great again -->
@@ -22,8 +22,8 @@
         </Grid.ColumnDefinitions>
         <Border Background="{DynamicResource PanelBackground3}" Height="42" Grid.Column="1" Grid.Row="1">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,0" Spacing="10">
-                <Button x:Name="OfflineAll" Content="Offline All" 
-                        Width="80" Height="24" CornerRadius="3" FocusAdorner="{x:Null}" 
+                <Button x:Name="OfflineAll" Content="Offline All"
+                        Width="80" Height="24" CornerRadius="3" FocusAdorner="{x:Null}"
                         Theme="{StaticResource ButtonImplicitStyleSetters}"
                         Click="OfflineAll_Clicked">
                     <Button.Styles>
@@ -38,8 +38,8 @@
                         </Style>
                     </Button.Styles>
                 </Button>
-                <Button x:Name="OfflineSelected" Content="Offline" 
-                        Width="80" Height="24" CornerRadius="3" FocusAdorner="{x:Null}" 
+                <Button x:Name="OfflineSelected" Content="Offline"
+                        Width="80" Height="24" CornerRadius="3" FocusAdorner="{x:Null}"
                         Theme="{StaticResource ButtonImplicitStyleSetters}"
                         Click="OfflineSelected_Click">
                     <Button.Styles>
@@ -54,8 +54,8 @@
                         </Style>
                     </Button.Styles>
                 </Button>
-                <Button x:Name="PART_CancelButton" Content="Cancel" 
-                        Width="72" Height="24" CornerRadius="3" FocusAdorner="{x:Null}" 
+                <Button x:Name="PART_CancelButton" Content="Cancel"
+                        Width="72" Height="24" CornerRadius="3" FocusAdorner="{x:Null}"
                         Theme="{StaticResource ButtonImplicitStyleSetters}"
                         Click="Cancel_Click">
                     <Button.Styles>
@@ -86,7 +86,7 @@
                 </ListBox.ItemContainerTheme>
             </ListBox>
         </Grid>
-        <Border Grid.Column="1" Background="{DynamicResource PanelBackground1}" 
+        <Border Grid.Column="1" Background="{DynamicResource PanelBackground1}"
                 BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}" BorderThickness="1,0,0,1">
             <ContentPresenter x:Name="PART_ContentPresenter"/>
         </Border>

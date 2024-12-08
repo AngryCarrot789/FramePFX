@@ -33,7 +33,8 @@ using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.PropertyEditing;
 
-public abstract class BasePropEditControlContent : TemplatedControl {
+public abstract class BasePropEditControlContent : TemplatedControl
+{
     public static readonly ModelControlRegistry<PropertyEditorSlot, BasePropEditControlContent> Registry;
 
     public PropertyEditorSlotControl? SlotControl { get; private set; }
@@ -45,7 +46,8 @@ public abstract class BasePropEditControlContent : TemplatedControl {
     protected BasePropEditControlContent() {
     }
 
-    static BasePropEditControlContent() {
+    static BasePropEditControlContent()
+    {
         Registry = new ModelControlRegistry<PropertyEditorSlot, BasePropEditControlContent>();
         // specific case editors
         Registry.RegisterType<DisplayNamePropertyEditorSlot>(() => new DisplayNamePropertyEditorControl());
@@ -59,13 +61,13 @@ public abstract class BasePropEditControlContent : TemplatedControl {
         Registry.RegisterType<DataParameterBoolPropertyEditorSlot>(() => new DataParameterBoolPropertyEditorControl());
         Registry.RegisterType<DataParameterStringPropertyEditorSlot>(() => new DataParameterStringPropertyEditorControl());
         Registry.RegisterType<DataParameterPointPropertyEditorSlot>(() => new DataParameterPointPropertyEditorControl());
-        
+
         // automatic editors
         Registry.RegisterType<AutomaticDataParameterFloatPropertyEditorSlot>(() => new AutomaticDataParameterFloatPropertyEditorControl());
         Registry.RegisterType<AutomaticDataParameterDoublePropertyEditorSlot>(() => new AutomaticDataParameterDoublePropertyEditorControl());
         Registry.RegisterType<AutomaticDataParameterLongPropertyEditorSlot>(() => new AutomaticDataParameterLongPropertyEditorControl());
         Registry.RegisterType<AutomaticDataParameterPointPropertyEditorSlot>(() => new AutomaticDataParameterPointPropertyEditorControl());
-        
+
         // automation parameter editors
         Registry.RegisterType<ParameterFloatPropertyEditorSlot>(() => new ParameterFloatPropertyEditorControl());
         Registry.RegisterType<ParameterDoublePropertyEditorSlot>(() => new ParameterDoublePropertyEditorControl());
@@ -74,17 +76,20 @@ public abstract class BasePropEditControlContent : TemplatedControl {
         Registry.RegisterType<ParameterBoolPropertyEditorSlot>(() => new ParameterBoolPropertyEditorControl());
     }
 
-    public static BasePropEditControlContent NewContentInstance(PropertyEditorSlot slot) {
+    public static BasePropEditControlContent NewContentInstance(PropertyEditorSlot slot)
+    {
         Validate.NotNull(slot);
         return Registry.NewInstance(slot);
     }
 
-    public void Connect(PropertyEditorSlotControl slot) {
+    public void Connect(PropertyEditorSlotControl slot)
+    {
         this.SlotControl = slot;
         this.OnConnected();
     }
 
-    public void Disconnect() {
+    public void Disconnect()
+    {
         this.OnDisconnected();
         this.SlotControl = null;
     }

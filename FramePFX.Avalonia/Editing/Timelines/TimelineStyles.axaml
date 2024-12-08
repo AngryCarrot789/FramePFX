@@ -123,8 +123,8 @@
         <Setter Property="UseLayoutRounding" Value="True"/>
         <Setter Property="Template">
             <ControlTemplate TargetType="{x:Type t:TimelineClipControl}">
-                <Border x:Name="PART_ClipBorderRoot" BorderThickness="1,0" 
-                        BorderBrush="{DynamicResource ABrush.Tone1.Border.Static}" 
+                <Border x:Name="PART_ClipBorderRoot" BorderThickness="1,0"
+                        BorderBrush="{DynamicResource ABrush.Tone1.Border.Static}"
                         UseLayoutRounding="False" RenderOptions.EdgeMode="Aliased">
                     <Panel x:Name="PART_Panel" Margin="0,20,0,0">
                         <ContentPresenter x:Name="PART_ContentPresenter"
@@ -233,15 +233,15 @@
                                                        HorizontalAlignment="Left"
                                                        UseLayoutRounding="True"
                                                        ZIndex="10" PlayHeadType="PlayHead"/>
-                            
-                            <t:TimelineLoopControl x:Name="PART_LoopControl" 
-                                                   IsHitTestVisible="False" 
+
+                            <t:TimelineLoopControl x:Name="PART_LoopControl"
+                                                   IsHitTestVisible="False"
                                                    Focusable="False"/>
 
                         </t:TimelineScrollableContentGrid>
                     </ScrollViewer>
 
-                    <Border x:Name="PART_TimestampBoard" Background="{DynamicResource ABrush.Tone3.Background.Static}" 
+                    <Border x:Name="PART_TimestampBoard" Background="{DynamicResource ABrush.Tone3.Background.Static}"
                             Grid.Row="0" Grid.Column="2" ClipToBounds="True">
                         <Panel>
                             <t:TimelineRuler x:Name="PART_Ruler"
@@ -256,9 +256,9 @@
                                                       ScrollViewerReference="{Binding ElementName=PART_SequenceScrollViewer}"/>
                         </Panel>
                     </Border>
-                    
+
                     <!-- Border that spans the sequence VIEW PORT -->
-                    <Border x:Name="PART_SequenceBorderArea" Grid.Row="2" Grid.Column="2" 
+                    <Border x:Name="PART_SequenceBorderArea" Grid.Row="2" Grid.Column="2"
                             ClipToBounds="True" IsHitTestVisible="False"
                             Height="{Binding ElementName=PART_ContentGrid, Path=Bounds.Height}">
                         <!-- <Panel> -->
@@ -267,7 +267,6 @@
                         <!--                            IsHitTestVisible="False" Focusable="False"/> -->
                         <!-- </Panel> -->
                     </Border>
-                    
 
 
                     <Border Grid.Row="3" Grid.Column="0" Height="26" Background="{DynamicResource ABrush.Tone4.Background.Static}" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,1,0,0">

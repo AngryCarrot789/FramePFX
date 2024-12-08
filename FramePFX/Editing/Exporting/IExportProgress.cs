@@ -19,9 +19,10 @@
 
 namespace FramePFX.Editing.Exporting;
 
-public interface IExportProgress {
+public interface IExportProgress
+{
     bool HasEncodeProgress { get; set; }
-    
+
     void OnFrameRendered(long frame);
 
     void OnFrameEncoded(long frame);

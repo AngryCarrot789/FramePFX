@@ -48,9 +48,12 @@ public abstract class InvalidResourceEntry
         this.Resource = resource;
     }
 
-    public bool TryLoad()
+    public Task<bool> TryLoad()
     {
-        return this.ResourceLoader?.TryLoadEntry(this) ?? throw new InvalidOperationException("No loader");
+        if (this.ResourceLoader == null)
+            throw new InvalidOperationException("No loader");
+        
+        return this.ResourceLoader.TryLoadEntry(this);
     }
 
     internal static void InternalSetLoader(InvalidResourceEntry resource, ResourceLoader? loader)

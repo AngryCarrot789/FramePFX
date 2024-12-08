@@ -355,4 +355,9 @@ public static class Maths
 
         return first;
     }
+
+    public static bool IsBetween(double value, double min, double max)
+    {
+        return DoubleUtils.GreaterThanOrClose(value, min) && DoubleUtils.LessThanOrClose(value, max);
+    }
 }

@@ -75,7 +75,7 @@ public class ResourceImage : ResourceItem
                 {
                     try
                     {
-                        byte[] array = data.GetByteArray(nameof(resource.bitmap));
+                        byte[]? array = data.GetByteArray(nameof(resource.bitmap));
                         resource.bitmap = new SKBitmap();
                         fixed (byte* ptr = array)
                         {
@@ -91,7 +91,7 @@ public class ResourceImage : ResourceItem
                     }
                 }
             }
-            else if (data.TryGetString(nameof(resource.FilePath), out string filePath))
+            else if (data.TryGetString(nameof(resource.FilePath), out string? filePath))
             {
                 resource.FilePath = filePath;
             }
@@ -128,9 +128,9 @@ public class ResourceImage : ResourceItem
         this.bitmap = skBitmap;
         this.image = SKImage.FromBitmap(skBitmap);
         this.IsRawBitmapMode = true;
-        if (enableResource)
+        if (enableResource && !this.IsOnline)
         {
-            this.TryAutoEnable(null);
+            this.Enable();
         }
 
         this.ImageChanged?.Invoke(this);
@@ -155,7 +155,7 @@ public class ResourceImage : ResourceItem
         }
     }
 
-    protected override bool OnTryAutoEnable(ResourceLoader? loader)
+    protected override async ValueTask<bool> OnTryAutoEnable(ResourceLoader? loader)
     {
         if (string.IsNullOrEmpty(this.FilePath) || this.image != null)
         {
@@ -164,7 +164,7 @@ public class ResourceImage : ResourceItem
 
         try
         {
-            this.LoadImageAsync(this.FilePath);
+            await this.LoadImageAsync(this.FilePath);
             return true;
         }
         catch (Exception e)
@@ -174,13 +174,13 @@ public class ResourceImage : ResourceItem
         }
     }
 
-    public override bool TryEnableForLoaderEntry(InvalidResourceEntry entry)
+    public override async ValueTask<bool> TryEnableForLoaderEntry(InvalidResourceEntry entry)
     {
         if (entry is InvalidImagePathEntry imgEntry)
         {
             try
             {
-                this.LoadImageAsync(imgEntry.FilePath);
+                await this.LoadImageAsync(imgEntry.FilePath);
             }
             catch (Exception e)
             {
@@ -189,20 +189,21 @@ public class ResourceImage : ResourceItem
             }
         }
 
-        return base.TryEnableForLoaderEntry(entry);
+        return await base.TryEnableForLoaderEntry(entry);
     }
 
-    public void LoadImageAsync(string file)
+    public async Task LoadImageAsync(string file)
     {
-        SKBitmap bmp = null;
-        SKImage img = null;
+        SKBitmap? bmp = null;
+        SKImage? img = null;
         try
         {
-            using (BufferedStream stream = new BufferedStream(File.OpenRead(file), 32768))
+            await Task.Run(() =>
             {
+                using BufferedStream stream = new BufferedStream(File.OpenRead(file), 32768);
                 bmp = SKBitmap.Decode(stream);
                 img = SKImage.FromBitmap(bmp);
-            }
+            });
         }
         catch
         {

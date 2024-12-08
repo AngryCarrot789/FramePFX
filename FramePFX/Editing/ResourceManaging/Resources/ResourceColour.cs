@@ -96,7 +96,7 @@ public class ResourceColour : ResourceItem
     public ResourceColour(byte r, byte g, byte b, byte a = 255)
     {
         this.myColour = new SKColor(r, g, b, a);
-        this.TryAutoEnable(null);
+        this.Enable();
     }
 
     static ResourceColour()

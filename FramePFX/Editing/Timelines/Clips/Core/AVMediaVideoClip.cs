@@ -29,7 +29,7 @@ using SkiaSharp;
 
 namespace FramePFX.Editing.Timelines.Clips.Core;
 
-public class AVMediaVideoClip : VideoClip
+public class AVMediaVideoClip : VideoClip, IHavePlaybackSpeedClip
 {
     private VideoFrame renderFrameRgb, downloadedHwFrame;
     private unsafe SwsContext* scaler;
@@ -39,20 +39,73 @@ public class AVMediaVideoClip : VideoClip
     private Task<VideoFrame> decodeFrameTask;
     private long decodeFrameBegin;
     private long lastDecodeFrameDuration;
+    private FrameSpan spanWithoutSpeed;
+    private bool ignoreFrameSpanChanged;
+
+    public bool HasSpeedApplied { get; private set; }
+
+    public double PlaybackSpeed { get; private set; }
 
     public IResourcePathKey<ResourceAVMedia> ResourceAVMediaKey { get; }
-
+    
     public AVMediaVideoClip()
     {
+        this.PlaybackSpeed = 1.0;
         this.IsMediaFrameSensitive = true;
         this.UsesCustomOpacityCalculation = true;
         this.ResourceAVMediaKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceAVMedia>();
         this.ResourceAVMediaKey.ResourceChanged += this.OnResourceChanged;
     }
 
+    protected override void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan)
+    {
+        if (!this.ignoreFrameSpanChanged)
+        {
+            if (this.HasSpeedApplied)
+            {
+                long change = newSpan.Duration - oldSpan.Duration;
+                this.spanWithoutSpeed = new FrameSpan(newSpan.Begin, this.spanWithoutSpeed.Duration + change);
+            }
+            else
+            {
+                this.spanWithoutSpeed = newSpan;
+            }
+        }
+
+        base.OnFrameSpanChanged(oldSpan, newSpan);
+    }
+
+    public void SetPlaybackSpeed(double speed)
+    {
+        speed = Maths.Clamp(speed, IHavePlaybackSpeedClip.MinimumSpeed, IHavePlaybackSpeedClip.MaximumSpeed);
+        double oldSpeed = this.PlaybackSpeed;
+        if (DoubleUtils.AreClose(oldSpeed, speed))
+        {
+            return;
+        }
+
+        this.PlaybackSpeed = speed;
+        this.ignoreFrameSpanChanged = true;
+        if (DoubleUtils.AreClose(speed, 1.0))
+        {
+            this.HasSpeedApplied = false;
+            this.FrameSpan = this.spanWithoutSpeed;
+        }
+        else
+        {
+            this.HasSpeedApplied = true;
+            double newDuration = this.spanWithoutSpeed.Duration / speed;
+            this.FrameSpan = new FrameSpan(this.FrameSpan.Begin, Math.Max((long) Math.Floor(newDuration), 1));
+        }
+        
+        this.ignoreFrameSpanChanged = false;
+    }
+
+    public void ClearPlaybackSpeed() => this.SetPlaybackSpeed(1.0);
+
     public override Vector2? GetRenderSize()
     {
-        if (this.ResourceAVMediaKey.TryGetResource(out ResourceAVMedia resource) && resource.GetResolution() is SKSizeI size)
+        if (this.ResourceAVMediaKey.TryGetResource(out ResourceAVMedia? resource) && resource.GetResolution() is SKSizeI size)
         {
             return new Vector2(size.Width, size.Height);
         }
@@ -98,7 +151,7 @@ public class AVMediaVideoClip : VideoClip
         }
 
         // TimeSpan timestamp = TimeSpan.FromTicks((long) ((frame - this.MediaFrameOffset) * this.targetFrameIntervalTicks));
-        TimeSpan timestamp = TimeSpan.FromSeconds((frame - this.MediaFrameOffset) / this.Project.Settings.FrameRate.AsDouble);
+        TimeSpan timestamp = TimeSpan.FromSeconds((frame - this.MediaFrameOffset) / (this.Project.Settings.FrameRate.AsDouble / this.PlaybackSpeed));
 
         // No need to dispose as the frames are stored in a frame buffer, which is disposed by the resource itself
         this.currentFrame = frame;

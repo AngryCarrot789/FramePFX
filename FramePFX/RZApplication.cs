@@ -116,6 +116,7 @@ public abstract class RZApplication
         manager.Register("commands.editor.ToggleClipsVisibility", new ToggleClipsVisibilityCommand());
         manager.Register("commands.editor.SelectAllClips", new SelectAllClipsCommand());
         manager.Register("commands.editor.SelectClipsInTracks", new SelectClipsInTracksCommand());
+        manager.Register("commands.editor.ChangeClipPlaybackSpeed", new ChangeClipPlaybackSpeedCommand());
 
         // Adding clips to tracks
         manager.Register("commands.editor.AddTextClip", new AddTextClipCommand());

@@ -33,12 +33,18 @@ public class SingleUserInputInfo : UserInputInfo
     private string? label = LabelParameter.DefaultValue;
     private bool allowEmptyText;
 
+    /// <summary>
+    /// Gets the value the user have typed into the text field
+    /// </summary>
     public string? Text
     {
         get => this.text;
         set => DataParameter.SetValueHelper(this, TextParameter, ref this.text, value);
     }
 
+    /// <summary>
+    /// Gets the label placed right above the text field
+    /// </summary>
     public string? Label
     {
         get => this.label;
@@ -78,9 +84,14 @@ public class SingleUserInputInfo : UserInputInfo
         this.text = defaultText;
     }
 
-    public SingleUserInputInfo(string? caption, string? label, string? defaultText)
+    public SingleUserInputInfo(string? caption, string? label, string? defaultText) : base(caption, null)
     {
-        this.Caption = caption;
+        this.label = label;
+        this.text = defaultText;
+    }
+    
+    public SingleUserInputInfo(string? caption, string? message, string? label, string? defaultText) : base(caption, message)
+    {
         this.label = label;
         this.text = defaultText;
     }

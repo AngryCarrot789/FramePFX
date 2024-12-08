@@ -32,7 +32,7 @@ public class ResourceLoaderServiceImpl : IResourceLoaderService
     {
         ImmutableList<BaseResource> list = resources.ToImmutableList();
         ResourceLoader loader = new ResourceLoader();
-        LoadResources(list, loader);
+        await LoadResources(list, loader);
         if (loader.Entries.Count < 1)
         {
             return true;
@@ -52,20 +52,20 @@ public class ResourceLoaderServiceImpl : IResourceLoaderService
         return false;
     }
 
-    private static void LoadResources(IEnumerable<BaseResource> resources, ResourceLoader loader)
+    private static async ValueTask LoadResources(IEnumerable<BaseResource> resources, ResourceLoader loader)
     {
         foreach (BaseResource obj in resources)
         {
             if (obj is ResourceFolder folder)
             {
-                LoadResources(folder.Items, loader);
+                await LoadResources(folder.Items, loader);
             }
             else
             {
                 ResourceItem item = (ResourceItem) obj;
                 if (!item.IsOnline)
                 {
-                    item.TryAutoEnable(loader);
+                    await item.TryAutoEnable(loader);
                 }
             }
         }

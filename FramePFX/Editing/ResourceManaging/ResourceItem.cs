@@ -30,7 +30,7 @@ namespace FramePFX.Editing.ResourceManaging;
 /// <para>
 /// Resource items have an online status, which can be used to for example reduce memory usage when
 /// resources aren't in use, such as Image and AVMedia resources.
-/// While a resource can force itself online via <see cref="EnableCore"/>, the general idea is that
+/// While a resource can force itself online via <see cref="Enable"/>, the general idea is that
 /// resources can load themselves based on their state, and if there was a problem or missing data,
 /// they add error entries called <see cref="InvalidResourceEntry"/> objects which get added to
 /// a <see cref="ResourceLoader"/> which is used to present a collection of errors to the user
@@ -113,7 +113,7 @@ public abstract class ResourceItem : BaseResource, ITransferableData
     /// A method that forces this resource offline, releasing any resources in the process
     /// </summary>
     /// <param name="user">
-    /// Whether or not this resource was disabled by the user force disabling
+    /// Whether this resource was disabled by the user force-disabling
     /// the item. <see cref="IsOfflineByUser"/> is set to this parameter
     /// </param>
     /// <returns></returns>
@@ -156,16 +156,16 @@ public abstract class ResourceItem : BaseResource, ITransferableData
     /// <returns>
     /// True if the resource is already online or is now online, or false meaning the resource could not enable itself
     /// </returns>
-    public bool TryAutoEnable(ResourceLoader? loader)
+    public async ValueTask<bool> TryAutoEnable(ResourceLoader? loader)
     {
         if (this.IsOnline)
         {
             return true;
         }
 
-        if (this.OnTryAutoEnable(loader))
+        if (await this.OnTryAutoEnable(loader))
         {
-            this.EnableCore();
+            this.Enable();
             return true;
         }
         else
@@ -184,14 +184,14 @@ public abstract class ResourceItem : BaseResource, ITransferableData
     /// </para>
     /// </summary>
     /// <param name="loader">The loader to add error entries to. May be null if errors are not processed</param>
-    protected virtual bool OnTryAutoEnable(ResourceLoader? loader)
+    protected virtual ValueTask<bool> OnTryAutoEnable(ResourceLoader? loader)
     {
-        return true;
+        return ValueTask.FromResult(true);
     }
 
     /// <summary>
     /// Called from a resource loader to try and load this resource from an entry this resource created.
-    /// This method calls <see cref="EnableCore"/>, which enables this resource. Overriding methods
+    /// This method calls <see cref="Enable"/>, which enables this resource. Overriding methods
     /// should not call the base method if we could not become loaded/enabled from the given entry.
     /// <para>
     /// If <see cref="OnTryAutoEnable"/> added multiple entries, then you must implement your own way
@@ -201,20 +201,24 @@ public abstract class ResourceItem : BaseResource, ITransferableData
     /// </summary>
     /// <param name="entry">The entry that we created</param>
     /// <returns>True if the resource was successfully enabled, otherwise false</returns>
-    public virtual bool TryEnableForLoaderEntry(InvalidResourceEntry entry)
+    public virtual ValueTask<bool> TryEnableForLoaderEntry(InvalidResourceEntry entry)
     {
-        this.EnableCore();
-        return true;
+        this.Enable();
+        return ValueTask.FromResult(true);
     }
 
     /// <summary>
-    /// Forcefully enables this resource item, if the <see cref="TryAutoEnable"/> method is unnecessary,
-    /// e.g. because resources were loaded in a non-standard or direct way
+    /// Forcefully enables this resource item, if the <see cref="TryAutoEnable"/> method is
+    /// unnecessary, e.g. because resources were loaded in a non-standard or direct way.
+    /// <para>
+    /// This method is protected because if something loads this resource 'for fun', it could cause
+    /// crashing or hard to track bugs (maybe this resource requires a file path to be enabled)
+    /// </para>
     /// </summary>
     /// <exception cref="InvalidOperationException">
     /// Already enabled. Check <see cref="IsOnline"/> first
     /// </exception>
-    protected void EnableCore()
+    protected void Enable()
     {
         if (this.IsOnline)
         {

@@ -44,7 +44,7 @@ public delegate void ClipTrackChangedEventHandler(Clip clip, Track? oldTrack, Tr
 
 public delegate void ClipActiveSequenceChangedEventHandler(Clip clip, AutomationSequence? oldSequence, AutomationSequence? newSequence);
 
-public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStrictFrameRange, IResourceHolder, IHaveEffects, IDestroy
+public abstract class Clip : IClip, IDestroy
 {
     public static readonly ContextRegistry ClipContextRegistry = new ContextRegistry("Clips");
 
@@ -57,19 +57,10 @@ public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStr
 
     private ClipGroup? myGroup; // TODO
 
-    /// <summary>
-    /// Gets the track that this clip is placed in
-    /// </summary>
     public Track? Track { get; private set; }
 
-    /// <summary>
-    /// Gets the timeline that this clip exists in
-    /// </summary>
     public Timeline? Timeline { get; private set; }
 
-    /// <summary>
-    /// Gets the project that this clip exists in
-    /// </summary>
     public Project? Project { get; private set; }
 
     public IReadOnlyList<BaseEffect> Effects => this.internalEffectList;
@@ -78,11 +69,6 @@ public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStr
 
     public AutomationData AutomationData { get; }
 
-    /// <summary>
-    /// Gets or sets this clip's frame span, that is, a beginning and duration property contain in a
-    /// single struct that represents the location and duration of a clip within a track
-    /// </summary>
-    /// <exception cref="ArgumentOutOfRangeException">Begin or duration were negative</exception>
     public FrameSpan FrameSpan
     {
         get => this.span;
@@ -93,7 +79,11 @@ public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStr
                 return;
             if (value.Begin < 0 || value.Duration < 0)
                 throw new ArgumentOutOfRangeException(nameof(value), value, "Span contained negative values");
+            if (value.Duration < 1)
+                throw new ArgumentOutOfRangeException(nameof(value), value, "Span duration cannot be zero");
+            
             this.span = value;
+            
             Track.InternalOnClipSpanChanged(this, oldSpan);
             this.OnFrameSpanChanged(oldSpan, value);
         }
@@ -170,12 +160,7 @@ public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStr
     public event ClipSpanChangedEventHandler? FrameSpanChanged;
     public event DisplayNameChangedEventHandler? DisplayNameChanged;
     public event ClipMediaOffsetChangedEventHandler? MediaFrameOffsetChanged;
-
-    /// <summary>
-    /// An event fired when this clip's track changes. This may be called when:
-    /// </summary>
     public event ClipTrackChangedEventHandler? TrackChanged;
-
     public event TimelineChangedEventHandler? TimelineChanged;
 
     /// <summary>
@@ -228,6 +213,7 @@ public abstract class Clip : IDisplayName, IAutomatable, ITransferableData, IStr
         FixedContextGroup modEdit = ClipContextRegistry.GetFixedGroup("modify.edit");
         modEdit.AddHeader("Edit");
         modEdit.AddCommand("commands.editor.SplitClipsCommand", "Split", "Slice this clip at the playhead");
+        modEdit.AddCommand("commands.editor.ChangeClipPlaybackSpeed", "Change Speed", "Change the playback speed of this clip");
 
         FixedContextGroup modDestruction = ClipContextRegistry.GetFixedGroup("modify.destruction", 100000);
         modDestruction.AddCommand("commands.editor.DeleteClipOwnerTrack", "Delete Track", "Delete the track this clip resides in");

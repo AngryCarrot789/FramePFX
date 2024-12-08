@@ -48,7 +48,7 @@ public class InvalidImagePathEntryControl : InvalidResourceEntryControl
         this.confirmButton = e.NameScope.GetTemplateChild<Button>("PART_Button");
         this.confirmButton.Command = new AsyncRelayCommand(async () =>
         {
-            if (!this.Entry!.TryLoad())
+            if (!await this.Entry!.TryLoad())
             {
                 await IoC.MessageService.ShowMessage("No such file", "File path is still invalid");
             }

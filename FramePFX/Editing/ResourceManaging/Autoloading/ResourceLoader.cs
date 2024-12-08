@@ -68,7 +68,7 @@ public sealed class ResourceLoader
         this.EntryRemoved?.Invoke(this, entry, index);
     }
 
-    public bool TryLoadEntry(ResourceItem item)
+    public Task<bool> TryLoadEntry(ResourceItem item)
     {
         int index = this.entries.FindIndex(x => x.Resource == item);
         if (index == -1)
@@ -79,7 +79,7 @@ public sealed class ResourceLoader
         return this.TryLoadEntry(index);
     }
 
-    public bool TryLoadEntry(int index)
+    public async Task<bool> TryLoadEntry(int index)
     {
         ResourceItem item = this.entries[index].Resource;
         if (item.IsOnline)
@@ -87,7 +87,7 @@ public sealed class ResourceLoader
             return true;
         }
 
-        if (item.TryEnableForLoaderEntry(this.entries[index]))
+        if (await item.TryEnableForLoaderEntry(this.entries[index]))
         {
             this.RemoveEntryAt(index);
             return true;
@@ -96,7 +96,7 @@ public sealed class ResourceLoader
         return false;
     }
 
-    public bool TryLoadEntry(InvalidResourceEntry entry)
+    public async Task<bool> TryLoadEntry(InvalidResourceEntry entry)
     {
         int index = this.entries.IndexOf(entry);
         if (index == -1)
@@ -110,7 +110,7 @@ public sealed class ResourceLoader
             return true;
         }
 
-        if (item.TryEnableForLoaderEntry(entry))
+        if (await item.TryEnableForLoaderEntry(entry))
         {
             this.RemoveEntryAt(index);
             return true;

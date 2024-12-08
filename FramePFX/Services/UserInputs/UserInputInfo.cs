@@ -50,8 +50,8 @@ public abstract class UserInputInfo : ITransferableData
     }
 
     /// <summary>
-    /// Gets or sets the dialog's message, displayed above the input field(s) at the top of the dialog's content.
-    /// This could be some general information about what the fields do or maybe some rules.
+    /// Gets or sets the dialog's message, displayed above the input field(s) at the top of the dialog's content,
+    /// typically in bolder text. This could be some general information about what the fields do or maybe some rules.
     /// See derived classes for properties such as labels or field descriptions, which may be more specific
     /// </summary>
     public string? Message
@@ -87,6 +87,12 @@ public abstract class UserInputInfo : ITransferableData
     public UserInputInfo()
     {
         this.TransferableData = new TransferableData(this);
+    }
+    
+    public UserInputInfo(string? caption, string? message) : this()
+    {
+        this.caption = caption;
+        this.message = message;
     }
 
     public abstract bool CanDialogClose();

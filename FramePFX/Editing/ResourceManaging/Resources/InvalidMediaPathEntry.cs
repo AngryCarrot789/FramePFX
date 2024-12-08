@@ -58,10 +58,14 @@ public class InvalidMediaPathEntry : InvalidResourceEntry
     public event InvalidResourceEntryEventHandler? FilePathChanged;
     public event InvalidResourceEntryEventHandler? ExceptionMessageChanged;
 
-    public InvalidMediaPathEntry(ResourceAVMedia resource, Exception exception) : base(resource)
+    public InvalidMediaPathEntry(ResourceAVMedia resource, Exception? exception) : this(resource, exception?.GetToString() ?? "<no error available>")
+    {
+    }
+    
+    public InvalidMediaPathEntry(ResourceAVMedia resource, string errorMessage) : base(resource)
     {
         this.DisplayName = resource.DisplayName ?? "Invalid Media";
-        this.ExceptionMessage = exception?.GetToString() ?? "<no error available>";
+        this.ExceptionMessage = errorMessage;
         this.FilePath = resource.FilePath;
     }
 }

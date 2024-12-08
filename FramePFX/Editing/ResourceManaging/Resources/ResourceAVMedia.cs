@@ -55,10 +55,10 @@ public class ResourceAVMedia : ResourceItem
         }
     }
 
-    public MediaDemuxer Demuxer;
-    public MediaStream stream;
-    public VideoDecoder decoder;
-    public FrameQueue frameQueue;
+    public MediaDemuxer? Demuxer;
+    public MediaStream? stream;
+    public VideoDecoder? decoder;
+    public FrameQueue? frameQueue;
     public bool hasHardwareDecoder;
 
     // private readonly DisposalSync<DeocderData> decoderData;
@@ -84,11 +84,11 @@ public class ResourceAVMedia : ResourceItem
         });
     }
 
-    protected override bool OnTryAutoEnable(ResourceLoader? loader)
+    protected override ValueTask<bool> OnTryAutoEnable(ResourceLoader? loader)
     {
         if (string.IsNullOrEmpty(this.FilePath))
         {
-            return true;
+            return new ValueTask<bool>(true);
         }
 
         try
@@ -98,17 +98,17 @@ public class ResourceAVMedia : ResourceItem
         catch (Exception e)
         {
             loader?.AddEntry(new InvalidMediaPathEntry(this, e));
-            return false;
+            return new ValueTask<bool>(false);
         }
 
-        return true;
+        return new ValueTask<bool>(true);
     }
 
-    public override bool TryEnableForLoaderEntry(InvalidResourceEntry entry)
+    public override ValueTask<bool> TryEnableForLoaderEntry(InvalidResourceEntry entry)
     {
         if (string.IsNullOrEmpty(this.FilePath))
         {
-            return true;
+            return ValueTask.FromResult(true);
         }
 
         try
@@ -118,7 +118,7 @@ public class ResourceAVMedia : ResourceItem
         catch (Exception e)
         {
             ((InvalidMediaPathEntry) entry).ExceptionMessage = e.GetToString();
-            return false;
+            return ValueTask.FromResult(false);
         }
 
         return base.TryEnableForLoaderEntry(entry);
@@ -136,12 +136,9 @@ public class ResourceAVMedia : ResourceItem
         return null;
     }
 
-    public TimeSpan GetDuration()
-    {
-        return this.Demuxer.Duration ?? TimeSpan.Zero;
-    }
+    public TimeSpan GetDuration() => this.Demuxer?.Duration ?? TimeSpan.Zero;
 
-    public VideoFrame GetFrameAt(TimeSpan timestamp, out double minDistanceToTimeStampSecs)
+    public VideoFrame? GetFrameAt(TimeSpan timestamp, out double minDistanceToTimeStampSecs)
     {
         if (this.stream == null || this.decoder == null)
         {
@@ -155,7 +152,7 @@ public class ResourceAVMedia : ResourceItem
             timestamp = this.GetDuration();
         }
 
-        VideoFrame frame = this.frameQueue.GetNearest(timestamp, out minDistanceToTimeStampSecs);
+        VideoFrame frame = this.frameQueue!.GetNearest(timestamp, out minDistanceToTimeStampSecs);
         double distThreshold = 0.5 / this.stream.AvgFrameRate; //will dupe too many frames if set to 1.0
 
         if (Math.Abs(minDistanceToTimeStampSecs) > distThreshold)
@@ -163,8 +160,8 @@ public class ResourceAVMedia : ResourceItem
             // If the nearest frame is past or too far after the requested timestamp, seek to the nearest keyframe before it
             if (minDistanceToTimeStampSecs < 0 || minDistanceToTimeStampSecs > 3.0)
             {
-                this.Demuxer.Seek(timestamp);
-                this.decoder.Flush();
+                this.Demuxer!.Seek(timestamp);
+                this.decoder!.Flush();
             }
 
             this.DecodeFramesUntil(timestamp);
@@ -178,8 +175,8 @@ public class ResourceAVMedia : ResourceItem
     {
         while (true)
         {
-            VideoFrame frame = this.frameQueue.Current();
-            if (this.decoder.ReceiveFrame(frame))
+            VideoFrame frame = this.frameQueue!.Current();
+            if (this.decoder!.ReceiveFrame(frame))
             {
                 if (this.frameQueue.Shift(out long spanTicks) && spanTicks >= endTime.Ticks)
                 {
@@ -191,9 +188,9 @@ public class ResourceAVMedia : ResourceItem
             using (MediaPacket packet = new MediaPacket())
             {
                 bool gotPacket = false;
-                while (this.Demuxer.Read(packet))
+                while (this.Demuxer!.Read(packet))
                 {
-                    if (packet.StreamIndex == this.stream.Index)
+                    if (packet.StreamIndex == this.stream!.Index)
                     {
                         this.decoder.SendPacket(packet);
                         gotPacket = true;
@@ -213,6 +210,10 @@ public class ResourceAVMedia : ResourceItem
     public void LoadMediaFile()
     {
         this.DisposeMediaFile();
+
+        if (string.IsNullOrWhiteSpace(this.FilePath))
+            throw new InvalidOperationException("No file path provided");
+        
         try
         {
             this.Demuxer = new MediaDemuxer(this.FilePath);

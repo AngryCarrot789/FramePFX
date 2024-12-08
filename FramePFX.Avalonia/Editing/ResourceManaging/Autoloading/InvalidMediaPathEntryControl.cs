@@ -52,7 +52,7 @@ public class InvalidMediaPathEntryControl : InvalidResourceEntryControl
         this.errorMessageBlock = e.NameScope.GetTemplateChild<TextBox>("PART_TextBlockErrMsg");
         this.confirmButton.Command = new AsyncRelayCommand(async () =>
         {
-            if (!this.Entry!.TryLoad())
+            if (!await this.Entry!.TryLoad())
             {
                 await IoC.MessageService.ShowMessage("No such file", "Media file path is still invalid");
             }

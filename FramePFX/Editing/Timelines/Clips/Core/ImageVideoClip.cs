@@ -37,13 +37,13 @@ public class ImageVideoClip : VideoClip
     {
         this.UsesCustomOpacityCalculation = true;
         this.ResourceImageKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceImage>();
-        this.ResourceImageKey.ResourceChanged += this.OnResoureChanged;
+        this.ResourceImageKey.ResourceChanged += this.OnResourceChanged;
         this.lockedImage = new RenderLockedData<SKImage>();
     }
 
     public override Vector2? GetRenderSize()
     {
-        if (this.ResourceImageKey.TryGetResource(out ResourceImage res) && res.image != null)
+        if (this.ResourceImageKey.TryGetResource(out ResourceImage? res) && res.image != null)
         {
             return new Vector2(res.image.Width, res.image.Height);
         }
@@ -53,7 +53,7 @@ public class ImageVideoClip : VideoClip
 
     private void SignalDisposeImage() => this.lockedImage.Dispose();
 
-    private void OnResoureChanged(IResourcePathKey<ResourceImage> key, ResourceImage olditem, ResourceImage newitem)
+    private void OnResourceChanged(IResourcePathKey<ResourceImage> key, ResourceImage? olditem, ResourceImage? newitem)
     {
         this.SignalDisposeImage();
         if (olditem != null)
@@ -66,7 +66,7 @@ public class ImageVideoClip : VideoClip
 
     public override bool PrepareRenderFrame(PreRenderContext rc, long frame)
     {
-        if (this.ResourceImageKey.TryGetResource(out ResourceImage resource) && resource.image != null)
+        if (this.ResourceImageKey.TryGetResource(out ResourceImage? resource) && resource.image != null)
         {
             this.lockedImage.OnPrepareRender(resource.image);
             return true;

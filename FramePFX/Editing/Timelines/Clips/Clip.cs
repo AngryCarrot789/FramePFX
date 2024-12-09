@@ -405,6 +405,8 @@ public abstract class Clip : IClip, IDestroy
 
         this.FrameSpan = spanLeft;
         clone.FrameSpan = spanRight;
+        if (clone.IsMediaFrameSensitive)
+            clone.MediaFrameOffset -= offset;
     }
 
     public void Duplicate() {

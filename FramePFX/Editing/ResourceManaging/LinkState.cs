@@ -33,6 +33,11 @@ public enum LinkState
     /// Link failed due to an incompatible resource object type, no reference count
     /// </summary>
     IncompatibleResource,
+    
+    /// <summary>
+    /// Unlinked due to a resource limit being reached
+    /// </summary>
+    LimitReachedUnlinked,
 
     /// <summary>
     /// Link failed because a resource did not exist with the specific ID, no reference count

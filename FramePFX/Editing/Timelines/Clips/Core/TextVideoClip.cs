@@ -99,11 +99,15 @@ public class TextVideoClip : VideoClip
             ctx.DeserialiseBaseType(data);
             clip.fontFamily = data.GetString("FontFamily", FontFamilyParameter.GetDefaultValue(clip)!);
             clip.clipProps = data.GetStruct<BitVector32>("ClipProps");
-        }, (layer, data, ctx) =>
+            clip.myText = data.GetString("Text");
+            clip.foreground = data.GetUInt("Foreground");
+        }, (clip, data, ctx) =>
         {
             ctx.SerialiseBaseType(data);
-            data.SetString("FontFamily", layer.fontFamily!);
-            data.SetStruct("ClipProps", layer.clipProps);
+            data.SetString("FontFamily", clip.fontFamily!);
+            data.SetStruct("ClipProps", clip.clipProps);
+            data.SetString("Text", clip.myText);
+            data.SetUInt("Foreground", (uint) clip.foreground);
         });
 
         Parameter.AddMultipleHandlers((s) => ((TextVideoClip) s.AutomationData.Owner).InvalidateFontData(), FontSizeParameter, BorderThicknessParameter, SkewXParameter, IsAntiAliasedParameter, LineSpacingParameter);

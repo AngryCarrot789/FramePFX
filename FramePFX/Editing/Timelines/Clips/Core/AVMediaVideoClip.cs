@@ -23,6 +23,7 @@ using FramePFX.Editing.Rendering;
 using FramePFX.Editing.ResourceManaging.ResourceHelpers;
 using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.Timelines.Clips.Video;
+using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.FFmpegWrapper;
 using FramePFX.Utils;
 using SkiaSharp;
@@ -31,12 +32,12 @@ namespace FramePFX.Editing.Timelines.Clips.Core;
 
 public class AVMediaVideoClip : VideoClip, IHavePlaybackSpeedClip
 {
-    private VideoFrame renderFrameRgb, downloadedHwFrame;
+    private VideoFrame? renderFrameRgb, downloadedHwFrame;
     private unsafe SwsContext* scaler;
     private PictureFormat scalerInputFormat;
-    private VideoFrame lastReadyFrame;
+    private VideoFrame? lastReadyFrame;
     private long currentFrame = -1;
-    private Task<VideoFrame> decodeFrameTask;
+    private Task<VideoFrame?>? decodeFrameTask;
     private long decodeFrameBegin;
     private long lastDecodeFrameDuration;
     private FrameSpan spanWithoutSpeed;
@@ -55,6 +56,32 @@ public class AVMediaVideoClip : VideoClip, IHavePlaybackSpeedClip
         this.UsesCustomOpacityCalculation = true;
         this.ResourceAVMediaKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceAVMedia>();
         this.ResourceAVMediaKey.ResourceChanged += this.OnResourceChanged;
+    }
+
+    static AVMediaVideoClip()
+    {
+        SerialisationRegistry.Register<AVMediaVideoClip>(0, (clip, data, ctx) =>
+        {
+            ctx.DeserialiseBaseType(data);
+            clip.PlaybackSpeed = Maths.Clamp(data.GetDouble("PlaybackSpeed"), IHavePlaybackSpeedClip.MinimumSpeed, IHavePlaybackSpeedClip.MaximumSpeed);
+            clip.spanWithoutSpeed = data.GetStruct<FrameSpan>("spanWithoutSpeed").Clamp(new FrameSpan(0, long.MaxValue));
+            clip.HasSpeedApplied = data.GetBool("HasSpeedApplied");
+        }, (clip, data, ctx) =>
+        {
+            ctx.SerialiseBaseType(data);
+            data.SetDouble("PlaybackSpeed", clip.PlaybackSpeed);
+            data.SetStruct("spanWithoutSpeed", clip.spanWithoutSpeed);
+            data.SetBool("HasSpeedApplied", clip.HasSpeedApplied);
+        });
+    }
+
+    protected override void LoadDataIntoClone(Clip clone, ClipCloneOptions options)
+    {
+        base.LoadDataIntoClone(clone, options);
+        AVMediaVideoClip clip = (AVMediaVideoClip) clone;
+        clip.PlaybackSpeed = this.PlaybackSpeed;
+        clip.spanWithoutSpeed = this.spanWithoutSpeed;
+        clip.HasSpeedApplied = this.HasSpeedApplied;
     }
 
     protected override void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan)
@@ -113,7 +140,7 @@ public class AVMediaVideoClip : VideoClip, IHavePlaybackSpeedClip
         return null;
     }
 
-    private void OnResourceChanged(IResourcePathKey<ResourceAVMedia> key, ResourceAVMedia olditem, ResourceAVMedia newitem)
+    private void OnResourceChanged(IResourcePathKey<ResourceAVMedia> key, ResourceAVMedia? oldItem, ResourceAVMedia? newItem)
     {
         this.renderFrameRgb?.Dispose();
         this.renderFrameRgb = null;
@@ -131,7 +158,7 @@ public class AVMediaVideoClip : VideoClip, IHavePlaybackSpeedClip
 
     public override bool PrepareRenderFrame(PreRenderContext rc, long frame)
     {
-        if (!this.ResourceAVMediaKey.TryGetResource(out ResourceAVMedia resource))
+        if (!this.ResourceAVMediaKey.TryGetResource(out ResourceAVMedia? resource))
             return false;
         if (resource.stream == null || resource.Demuxer == null)
             return false;
@@ -151,15 +178,15 @@ public class AVMediaVideoClip : VideoClip, IHavePlaybackSpeedClip
         }
 
         // TimeSpan timestamp = TimeSpan.FromTicks((long) ((frame - this.MediaFrameOffset) * this.targetFrameIntervalTicks));
-        TimeSpan timestamp = TimeSpan.FromSeconds((frame - this.MediaFrameOffset) / (this.Project.Settings.FrameRate.AsDouble / this.PlaybackSpeed));
+        TimeSpan timestamp = TimeSpan.FromSeconds((frame - this.MediaFrameOffset) / (this.Project!.Settings.FrameRate.AsDouble / this.PlaybackSpeed));
 
         // No need to dispose as the frames are stored in a frame buffer, which is disposed by the resource itself
         this.currentFrame = frame;
         this.decodeFrameTask = Task.Run(() =>
         {
             this.decodeFrameBegin = Time.GetSystemTicks();
-            VideoFrame output = null;
-            VideoFrame ready = resource.GetFrameAt(timestamp, out _);
+            VideoFrame? output = null;
+            VideoFrame? ready = resource.GetFrameAt(timestamp, out _);
             if (ready != null && !ready.IsDisposed)
             {
                 // TODO: Maybe add an async frame fetcher that buffers the frames, or maybe add
@@ -169,7 +196,7 @@ public class AVMediaVideoClip : VideoClip, IHavePlaybackSpeedClip
                     // As of ffmpeg 6.0, GetHardwareTransferFormats() only returns more than one format for VAAPI,
                     // which isn't widely supported on Windows yet, so we can't transfer directly to RGB without
                     // hacking into the API specific device context (like D3D11VA).
-                    ready.TransferTo(this.downloadedHwFrame ?? (this.downloadedHwFrame = new VideoFrame()));
+                    ready.TransferTo(this.downloadedHwFrame ??= new VideoFrame());
                     ready = this.downloadedHwFrame;
                 }
 
@@ -186,7 +213,7 @@ public class AVMediaVideoClip : VideoClip, IHavePlaybackSpeedClip
 
     public override void RenderFrame(RenderContext rc, ref SKRect renderArea)
     {
-        VideoFrame ready;
+        VideoFrame? ready;
         if (this.decodeFrameTask != null)
         {
             this.lastReadyFrame = ready = this.decodeFrameTask.Result;
@@ -205,10 +232,10 @@ public class AVMediaVideoClip : VideoClip, IHavePlaybackSpeedClip
 
         unsafe
         {
-            long startA = Time.GetSystemTicks();
+            // long startA = Time.GetSystemTicks();
             byte* ptr;
-            GetFrameData(this.renderFrameRgb, 0, &ptr, out int rowBytes);
-            SKImageInfo image = new SKImageInfo(this.renderFrameRgb.Width, this.renderFrameRgb.Height, SKColorType.Rgba8888);
+            GetFrameData(this.renderFrameRgb!, 0, &ptr, out int rowBytes);
+            SKImageInfo image = new SKImageInfo(this.renderFrameRgb!.Width, this.renderFrameRgb.Height, SKColorType.Rgba8888);
             using (SKImage img = SKImage.FromPixels(image, (IntPtr) ptr, rowBytes))
             {
                 if (img == null)
@@ -225,7 +252,7 @@ public class AVMediaVideoClip : VideoClip, IHavePlaybackSpeedClip
                 // renderArea = new SKRect(0, 0, img.Width, img.Height);
             }
 
-            long time = Time.GetSystemTicks() - startA;
+            // long time = Time.GetSystemTicks() - startA;
             // System.Diagnostics.Debug.WriteLine("Last render time: " + Math.Round((double) time) / Time.TICK_PER_MILLIS + " ms");
         }
     }
@@ -235,13 +262,13 @@ public class AVMediaVideoClip : VideoClip, IHavePlaybackSpeedClip
         if (this.scaler == null)
         {
             PictureFormat srcfmt = ready.Format;
-            PictureFormat dstfmt = this.renderFrameRgb.Format;
+            PictureFormat dstfmt = this.renderFrameRgb!.Format;
             this.scalerInputFormat = srcfmt;
             this.scaler = ffmpeg.sws_getContext(srcfmt.Width, srcfmt.Height, srcfmt.PixelFormat, dstfmt.Width, dstfmt.Height, dstfmt.PixelFormat, ffmpeg.SWS_BICUBIC, null, null, null);
         }
 
         AVFrame* src = ready.Handle;
-        AVFrame* dst = this.renderFrameRgb.Handle;
+        AVFrame* dst = this.renderFrameRgb!.Handle;
 
         // Workaround for when the frame size changes, which can be done with a well crafted video file.
         // Typically it would crash but now it just stretches the buffer

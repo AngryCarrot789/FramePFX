@@ -34,12 +34,6 @@ namespace FramePFX.Editing.ResourceManaging.Resources;
 /// </summary>
 public class ResourceAVMedia : ResourceItem
 {
-    public class DeocderData : IDisposable
-    {
-        public void Dispose() {
-        }
-    }
-
     private string? filePath;
     private string loadedFilePath;
 

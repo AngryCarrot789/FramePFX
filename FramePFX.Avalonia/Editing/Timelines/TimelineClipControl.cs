@@ -741,9 +741,35 @@ public class TimelineClipControl : ContentControl, IClipElement
 
                     FrameSpan newSpan = FrameSpan.FromIndex(newBegin, oldSpan.EndIndex);
                     trackList.Timeline!.TryExpandForFrame(newSpan.EndIndex);
-                    this.SetClipSpanForDrag(newSpan);
                     if (this.ClipModel.IsMediaFrameSensitive)
+                    {
                         this.ClipModel.MediaFrameOffset += (oldSpan.Begin - newSpan.Begin);
+                        this.SetClipSpanForDrag(newSpan);
+                        // if (this.ClipModel.MediaFrameOffset > 0)
+                        // {
+                        //     if (this.ClipModel.IsMediaFrameSensitive)
+                        //         this.ClipModel.MediaFrameOffset += (oldSpan.Begin - newSpan.Begin);
+                        // }
+                        // else
+                        // {
+                        //     long posChange = (newSpan.Begin - oldSpan.Begin);
+                        //     long extraMediaFrame = (oldSpan.Begin - newSpan.Begin);
+                        //     long subFromSpan = -(this.ClipModel.MediaFrameOffset + extraMediaFrame);
+                        //     if (subFromSpan < 0)
+                        //     {
+                        //         this.SetClipSpanForDrag(new FrameSpan(newSpan.Begin - subFromSpan, oldSpan.Duration));
+                        //     }
+                        //     else
+                        //     {
+                        //         this.ClipModel.MediaFrameOffset += extraMediaFrame;
+                        //         this.SetClipSpanForDrag(newSpan);
+                        //     }
+                        // }
+                    }
+                    else
+                    {
+                        this.SetClipSpanForDrag(newSpan);
+                    }
                 }
             }
             else

@@ -242,8 +242,15 @@ public sealed class ResourceLink : IDisposable
                 {
                     if (this.IsItemApplicable(resource))
                     {
-                        this.SetInternalResource(resource);
-                        return resource.IsOnline || !requireIsOnline;
+                        if (!resource.HasReachedResourceLimit())
+                        {
+                            this.SetInternalResource(resource);
+                            return resource.IsOnline || !requireIsOnline;
+                        }
+                        else
+                        {
+                            this.State = LinkState.LimitReachedUnlinked;
+                        }
                     }
                     else
                     {

@@ -20,8 +20,13 @@
 using FramePFX.CommandSystem;
 using FramePFX.Editing;
 using FramePFX.Editing.Commands;
+using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.Commands;
+using FramePFX.Editing.ResourceManaging.Resources;
+using FramePFX.Editing.Timelines;
+using FramePFX.Editing.Timelines.Clips.Core;
 using FramePFX.Editing.Timelines.Commands;
+using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Natives;
 using FramePFX.Tasks;
 using FramePFX.Utils;
@@ -84,11 +89,70 @@ public abstract class RZApplication
         this.RegisterServices(progress, this.serviceManager);
         await progress.SetAction("Initialising commands", null);
         this.RegisterCommands(progress, CommandManager.Instance);
+        
+        await progress.SetAction("Initialising other data...", null);
+        this.serviceManager.GetService<ResourceClipRegistry>().Register(typeof(ResourceAVMedia), new AVMediaDropInformation());
+        this.serviceManager.GetService<ResourceClipRegistry>().Register(typeof(ResourceColour), new ResourceColourDropInformation());
+        this.serviceManager.GetService<ResourceClipRegistry>().Register(typeof(ResourceImage), new ResourceImageDropInformation());
+    }
+
+    private class AVMediaDropInformation : IResourceDropInformation
+    {
+        public long GetClipDurationForDrop(ResourceItem resource)
+        {
+            if (resource.Manager == null)
+                return -1;
+
+            TimeSpan duration = ((ResourceAVMedia) resource).GetDuration();
+            double fps = resource.Manager.Project.Settings.FrameRate.AsDouble;
+
+            return (long) (duration.TotalSeconds * fps);
+        }
+
+        public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span)
+        {
+            ResourceAVMedia media = (ResourceAVMedia) resource;
+            AVMediaVideoClip clip = new AVMediaVideoClip();
+            clip.FrameSpan = span;
+            clip.ResourceAVMediaKey.SetTargetResourceId(media.UniqueId);
+
+            track.AddClip(clip);
+        }
+    }
+    private class ResourceImageDropInformation : IResourceDropInformation
+    {
+        public long GetClipDurationForDrop(ResourceItem resource) => 300;
+
+        public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span)
+        {
+            ResourceImage media = (ResourceImage) resource;
+            ImageVideoClip clip = new ImageVideoClip();
+            clip.FrameSpan = span;
+            clip.ResourceImageKey.SetTargetResourceId(media.UniqueId);
+
+            track.AddClip(clip);
+        }
+    }
+    
+    private class ResourceColourDropInformation : IResourceDropInformation
+    {
+        public long GetClipDurationForDrop(ResourceItem resource) => 300;
+
+        public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span)
+        {
+            ResourceColour colourRes = (ResourceColour) resource;
+            VideoClipShape shape = new VideoClipShape();
+            shape.FrameSpan = span;
+            shape.ColourKey.SetTargetResourceId(colourRes.UniqueId);
+
+            track.AddClip(shape);
+        }
     }
 
     protected virtual void RegisterServices(IApplicationStartupProgress progress, ServiceManager manager)
     {
-        manager.Register<TaskManager>(new TaskManager());
+        manager.Register(new TaskManager());
+        manager.Register(new ResourceClipRegistry());
     }
 
     protected virtual void RegisterCommands(IApplicationStartupProgress progress, CommandManager manager)

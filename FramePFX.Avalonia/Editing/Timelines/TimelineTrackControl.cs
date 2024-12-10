@@ -18,7 +18,9 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -27,11 +29,14 @@ using FramePFX.Avalonia.AdvancedMenuService;
 using FramePFX.Avalonia.Bindings;
 using FramePFX.Avalonia.Converters;
 using FramePFX.Avalonia.Editing.Automation;
+using FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 using FramePFX.Avalonia.Editing.Timelines.Selection;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Utils;
 using FramePFX.Editing;
 using FramePFX.Editing.Automation.Keyframes;
+using FramePFX.Editing.ResourceManaging;
+using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.UI;
 using FramePFX.Interactivity;
@@ -49,16 +54,26 @@ public class TimelineTrackControl : TemplatedControl
     public static readonly DirectProperty<TimelineTrackControl, ILinearGradientBrush?> ClipHeaderBrushProperty = AvaloniaProperty.RegisterDirect<TimelineTrackControl, ILinearGradientBrush?>(nameof(ClipHeaderBrush), o => o.ClipHeaderBrush);
     public static readonly DirectProperty<TimelineTrackControl, ISolidColorBrush?> TrackColourForegroundBrushProperty = AvaloniaProperty.RegisterDirect<TimelineTrackControl, ISolidColorBrush?>(nameof(TrackColourForegroundBrush), o => o.TrackColourForegroundBrush);
     public static readonly StyledProperty<AutomationSequence?> AutomationSequenceProperty = AvaloniaProperty.Register<TimelineTrackControl, AutomationSequence?>(nameof(AutomationSequence));
+    public static readonly DirectProperty<TimelineTrackControl, FrameSpan?> DropFrameSpanProperty = AvaloniaProperty.RegisterDirect<TimelineTrackControl, FrameSpan?>(nameof(DropFrameSpan), o => o.DropFrameSpan);
 
+    private FrameSpan? _dropFrameSpan;
     private Track? myTrack;
     private ILinearGradientBrush? clipHeaderBrush;
     private ISolidColorBrush? _trackColourForegroundBrush;
     internal readonly ContextData contextData;
     private MovedClip? clipBeingMoved;
     private bool internalIsSelected;
+    private bool isProcessingAsyncDrop;
     private readonly PropertyBinder<AutomationSequence?> automationSequenceBinder;
     private AutomationEditorControl? PART_AutomationEditor;
+    private Border? dropBorder;
 
+    public FrameSpan? DropFrameSpan
+    {
+        get => this._dropFrameSpan;
+        private set => this.SetAndRaise(DropFrameSpanProperty, ref this._dropFrameSpan, value);
+    }
+    
     public Track? Track
     {
         get => this.myTrack;
@@ -132,6 +147,7 @@ public class TimelineTrackControl : TemplatedControl
         this.UseLayoutRounding = true;
         DataManager.SetContextData(this, this.contextData = new ContextData());
         this.automationSequenceBinder = new PropertyBinder<AutomationSequence?>(this, AutomationSequenceProperty, AutomationEditorControl.AutomationSequenceProperty);
+        DragDrop.SetAllowDrop(this, true);
     }
 
     protected override void OnLoaded(RoutedEventArgs e)
@@ -149,6 +165,27 @@ public class TimelineTrackControl : TemplatedControl
     static TimelineTrackControl()
     {
         PointerPressedEvent.AddClassHandler<TimelineTrackControl>((c, e) => c.OnPreviewPointerPressed(e), RoutingStrategies.Tunnel);
+        DragDrop.DragEnterEvent.AddClassHandler<TimelineTrackControl>((o, e) => o.OnDragEnter(e));
+        DragDrop.DragOverEvent.AddClassHandler<TimelineTrackControl>((o, e) => o.OnDragOver(e));
+        DragDrop.DragLeaveEvent.AddClassHandler<TimelineTrackControl>((o, e) => o.OnDragLeave(e));
+        DragDrop.DropEvent.AddClassHandler<TimelineTrackControl>((o, e) => o.OnDrop(e));
+        DropFrameSpanProperty.Changed.AddClassHandler<TimelineTrackControl, FrameSpan?>((d, e) => d.OnDropFrameSpanChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
+    }
+
+    private void OnDropFrameSpanChanged(FrameSpan? oldValue, FrameSpan? newValue) {
+        if (!newValue.HasValue)
+        {
+            this.dropBorder!.IsVisible = false;
+        }
+        else
+        {
+            this.dropBorder!.IsVisible = true;
+            FrameSpan span = newValue.Value;
+            double pxBegin = TimelineUtils.FrameToPixel(span.Begin, this.TimelineZoom);
+            double pxDuration = TimelineUtils.FrameToPixel(span.Duration, this.TimelineZoom);
+            this.dropBorder!.Margin = new Thickness(pxBegin, 0, 0, 0);
+            this.dropBorder!.Width = pxDuration;
+        }
     }
 
     internal static void InternalSetIsSelected(TimelineTrackControl control, bool isSelected) => control.IsSelected = isSelected;
@@ -164,6 +201,9 @@ public class TimelineTrackControl : TemplatedControl
         this.PART_AutomationEditor = e.NameScope.GetTemplateChild<AutomationEditorControl>("PART_AutomationEditor");
         this.PART_AutomationEditor.HorizontalZoom = this.TimelineZoom;
         this.automationSequenceBinder.SetTargetControl(this.PART_AutomationEditor);
+
+        this.dropBorder = e.NameScope.GetTemplateChild<Border>("PART_DropSpanBorder");
+        this.dropBorder.ZIndex = 50;
     }
 
     public virtual void OnConnecting(TrackStoragePanel timelineControl, Track track)
@@ -373,4 +413,82 @@ public class TimelineTrackControl : TemplatedControl
     {
         this.PART_AutomationEditor!.IsVisible = isVisible;
     }
+
+    #region Drag dropping items into this clip
+
+    protected void OnDragEnter(DragEventArgs e) => this.OnDragOver(e);
+
+    protected void OnDragOver(DragEventArgs e)
+    {
+        e.Handled = true;
+        if (this.isProcessingAsyncDrop)
+        {
+            e.DragEffects = DragDropEffects.None;
+            return;
+        }
+
+        EnumDropType inputEffects = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
+        e.DragEffects = DragDropEffects.None;
+        if (inputEffects != EnumDropType.None && this.Track is Track target)
+        {
+            if (ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? resources) && resources.Count == 1 && resources[0] is ResourceItem item)
+            {
+                ResourceClipRegistry registry = RZApplication.Instance.Services.GetService<ResourceClipRegistry>();
+                if (registry.TryGetValue(item.GetType(), out IResourceDropInformation? info))
+                {
+                    long duration = info.GetClipDurationForDrop(item);
+                    if (duration > 0)
+                    {
+                        e.DragEffects = DragDropEffects.Copy;
+                        this.DropFrameSpan = new FrameSpan(this.GetFrameAtMousePoint(e.GetPosition(this)), duration);
+                    }
+                }
+            }
+            // else if (e.Data.GetData(EffectProviderListBox.EffectProviderDropType) is EffectProviderEntry provider) {
+            //     outputEffects = ClipDropRegistry.DropRegistry.CanDrop(target, provider, inputEffects);
+            // }
+        }
+    }
+
+    protected void OnDragLeave(DragEventArgs e)
+    {
+        // Dispatcher.UIThread.Invoke(() => this.ClearValue(IsDroppableTargetOverProperty), DispatcherPriority.Loaded);
+        if (!this.IsPointerOver)
+        {
+            this.DropFrameSpan = null;
+        }
+    }
+
+    protected async void OnDrop(DragEventArgs e)
+    {
+        e.Handled = true;
+        if (this.isProcessingAsyncDrop || !(this.Track is Track track) || e.DragEffects == DragDropEffects.None)
+        {
+            return;
+        }
+
+        try
+        {
+            this.isProcessingAsyncDrop = true;
+            if (ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? resources) && resources.Count == 1 && resources[0] is ResourceItem item)
+            {
+                ResourceClipRegistry registry = RZApplication.Instance.Services.GetService<ResourceClipRegistry>();
+                if (registry.TryGetValue(item.GetType(), out IResourceDropInformation? info))
+                {
+                    long duration = info.GetClipDurationForDrop(item);
+                    if (duration > 0)
+                    {
+                        await info.OnDroppedInTrack(track, item, new FrameSpan(this.GetFrameAtMousePoint(e.GetPosition(this)), duration));
+                    }
+                }
+            }
+        }
+        finally
+        {
+            this.isProcessingAsyncDrop = false;
+            this.DropFrameSpan = null;
+        }
+    }
+
+    #endregion
 }

@@ -108,6 +108,9 @@
                 <Panel>
                     <t:ClipStoragePanel x:Name="PART_TrackClipPanel" Background="{TemplateBinding Background}"/>
                     <a:AutomationEditorControl x:Name="PART_AutomationEditor" Theme="{StaticResource TrackAutomationEditorTheme}"/>
+                    <Border x:Name="PART_DropSpanBorder" IsVisible="False"
+                            BorderBrush="{DynamicResource ABrush.Glyph.Static}" BorderThickness="2"
+                            HorizontalAlignment="Left"/>
                 </Panel>
             </ControlTemplate>
         </Setter>

@@ -60,7 +60,7 @@ public class FilePickDialogServiceImpl : IFilePickDialogService
             FileTypeFilter = ConvertFilters(filters)
         });
 
-        return list.Count != 1 ? null : list[0].Path.AbsolutePath;
+        return list.Count != 1 ? null : list[0].Path.LocalPath;
     }
 
     public async Task<string[]?> OpenMultipleFiles(string? message, IEnumerable<FileFilter>? filters = null, string? initialPath = null)
@@ -79,7 +79,7 @@ public class FilePickDialogServiceImpl : IFilePickDialogService
             FileTypeFilter = ConvertFilters(filters)
         });
 
-        return list.Count == 0 ? null : list.Select(x => x.Path.AbsolutePath).ToArray();
+        return list.Count == 0 ? null : list.Select(x => x.Path.LocalPath).ToArray();
     }
 
     public async Task<string?> SaveFile(string? message, IEnumerable<FileFilter>? filters = null, string? initialPath = null, bool warnOverwrite = true)
@@ -100,6 +100,6 @@ public class FilePickDialogServiceImpl : IFilePickDialogService
             FileTypeChoices = ConvertFilters(filters)
         });
 
-        return item?.Path.AbsolutePath;
+        return item?.Path.LocalPath;
     }
 }

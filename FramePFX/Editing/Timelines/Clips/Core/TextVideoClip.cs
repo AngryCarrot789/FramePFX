@@ -85,11 +85,13 @@ public class TextVideoClip : VideoClip
 
     public TextVideoClip()
     {
+        this.UsesCustomOpacityCalculation = true;
         this.myText = TextParameter.GetDefaultValue(this);
         this.fontFamily = FontFamilyParameter.GetDefaultValue(this);
         this.clipProps = new BitVector32();
         this.foreground = SKColors.Black; // TODO: add automatable colour??? maybe an int
         this.renderInfoLock = new DisposableRef<RenderingInfo>(new RenderingInfo(), true);
+        this.AutomationData.AddParameterChangedHandler(OpacityParameter, (o) => ((TextVideoClip) o.AutomationData.Owner).InvalidateFontData());
     }
 
     static TextVideoClip()
@@ -129,83 +131,63 @@ public class TextVideoClip : VideoClip
 
     public override bool PrepareRenderFrame(PreRenderContext rc, long frame)
     {
-        RenderingInfo info = this.renderInfoLock.Value;
-        lock (this.renderInfoLock)
-        {
-            // Try to use the data. If it has been disposed, then regenerate
-            if (!this.renderInfoLock.TryBeginUsage())
-            {
-                if (info.GeneratedFont == null)
-                {
-                    SKTypeface typeface = SKTypeface.FromFamilyName(string.IsNullOrEmpty(this.FontFamily) ? "Consolas" : this.FontFamily);
-                    if (typeface != null)
-                    {
-                        info.GeneratedFont = new SKFont(typeface, this.FontSize, 1f, this.SkewX);
-                    }
-                }
-
-                info.GeneratedPaint ??= new SKPaint()
-                {
-                    StrokeWidth = this.BorderThickness,
-                    Color = this.foreground,
-                    TextAlign = SKTextAlign.Left,
-                    IsAntialias = this.IsAntiAliased
-                };
-
-                if (info.GeneratedFont != null && info.GeneratedPaint != null && !string.IsNullOrEmpty(this.Text))
-                {
-                    SKTextBlob?[]? blobs = info.TextBlobs = this.CreateTextBlobs(this.Text, info.GeneratedPaint, info.GeneratedFont);
-                    if (blobs != null)
-                    {
-                        info.GeneratedFont!.GetFontMetrics(out SKFontMetrics metrics);
-                        float w = 0, h = 0, myLineHeight = 0.0F;
-                        for (int i = 0, endIndex = blobs.Length - 1; i <= endIndex; i++)
-                        {
-                            SKTextBlob? blob = blobs[i];
-                            if (blob != null)
-                            {
-                                SKRect bound = blob.Bounds;
-                                w = Math.Max(w, bound.Width);
-
-                                float height = Math.Abs(blob.Bounds.Bottom - blob.Bounds.Top) - metrics.Bottom;
-                                h += height + myLineHeight;
-                                myLineHeight = this.LineSpacing;
-                            }
-                        }
-
-                        this.TextBlobBoundingBox = new SKSize(w, h);
-                        this.OnRenderSizeChanged();
-                    }
-                }
-
-                // Begin usage to prevent premature disposal again
-                this.renderInfoLock.ResetAndBeginUsage();
-            }
-        }
-
-        // Check the info was generated right. If not, complete usage and do not render.
-        // Info will be disposed when a property changes that will actually allow the
-        // info to be regneerated successfully, then we can draw. Hopefully that was english
-        if (info.TextBlobs != null && info.GeneratedPaint != null)
-        {
-            return true;
-        }
-        else
-        {
-            this.renderInfoLock.CompleteUsage();
-        }
-
-        return false;
+        return !string.IsNullOrEmpty(this.Text);
     }
 
     public override void RenderFrame(RenderContext rc, ref SKRect renderArea)
     {
-        RenderingInfo info = this.renderInfoLock.Value;
+        this.renderInfoLock.BeginUsage(this, (clip, info) =>
+        {
+            if (info.GeneratedFont == null)
+            {
+                SKTypeface typeface = SKTypeface.FromFamilyName(string.IsNullOrEmpty(clip.FontFamily) ? "Consolas" : clip.FontFamily) ?? SKTypeface.Default;
+                info.GeneratedFont = new SKFont(typeface, clip.FontSize, 1f, clip.SkewX);
+            }
+
+            SKColorF fgF = clip.foreground;
+            info.GeneratedPaint ??= new SKPaint()
+            {
+                StrokeWidth = clip.BorderThickness,
+                ColorF = fgF.WithAlpha(fgF.Alpha * (float) clip.RenderOpacity),
+                TextAlign = SKTextAlign.Left,
+                IsAntialias = clip.IsAntiAliased
+            };
+
+            if (!string.IsNullOrEmpty(clip.Text))
+            {
+                SKTextBlob?[]? blobs = info.TextBlobs = clip.CreateTextBlobs(clip.Text, info.GeneratedPaint, info.GeneratedFont);
+                if (blobs != null)
+                {
+                    info.GeneratedFont!.GetFontMetrics(out SKFontMetrics metrics);
+                    float w = 0, h = 0, myLineHeight = 0.0F;
+                    for (int i = 0, endIndex = blobs.Length - 1; i <= endIndex; i++)
+                    {
+                        SKTextBlob? blob = blobs[i];
+                        if (blob != null)
+                        {
+                            SKRect bound = blob.Bounds;
+                            w = Math.Max(w, bound.Width);
+
+                            float height = Math.Abs(blob.Bounds.Bottom - blob.Bounds.Top) - metrics.Bottom;
+                            h += height + myLineHeight;
+                            myLineHeight = clip.LineSpacing;
+                        }
+                    }
+
+                    clip.TextBlobBoundingBox = new SKSize(w, h);
+                    clip.OnRenderSizeChanged();
+                }
+            }
+        });
+        
+        RenderingInfo renderInfo = this.renderInfoLock.Value;
         try
         {
-            SKPaint? paint = info.GeneratedPaint;
-            info.GeneratedFont!.GetFontMetrics(out SKFontMetrics metrics);
-            SKTextBlob?[] blobs = info.TextBlobs!;
+            SKPaint? paint = renderInfo.GeneratedPaint;
+            if (paint != null)
+                paint.FilterQuality = rc.FilterQuality;
+            renderInfo.GeneratedFont!.GetFontMetrics(out SKFontMetrics metrics);
+            SKTextBlob?[] blobs = renderInfo.TextBlobs!;
             float offset = 0.0F;
             for (int i = 0, endIndex = blobs.Length - 1; i <= endIndex; i++)
             {

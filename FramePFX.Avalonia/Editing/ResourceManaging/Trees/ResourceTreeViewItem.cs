@@ -732,6 +732,11 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
 
             ResourceFolder.MoveListTo(myParent, newList, dropIndex);
             this.ResourceTree?.SelectionManager.SetSelection(newList);
+
+            if (dropType == EnumDropType.Copy)
+            {
+                await IoC.ResourceLoaderService.TryLoadResources(newList.ToArray());
+            }
         }
 #if !DEBUG
         catch (Exception exception) {

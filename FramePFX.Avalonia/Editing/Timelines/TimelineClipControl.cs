@@ -143,6 +143,7 @@ public class TimelineClipControl : ContentControl, IClipElement
 
     internal IPointer? initiatedDragPointer;
     private DragState dragState;
+    private ClipPart clickedPart;
     private Track? trackAtDragBegin;
     private FrameSpan spanAtDragBegin;
     private Point leftClickPos;
@@ -335,6 +336,7 @@ public class TimelineClipControl : ContentControl, IClipElement
             if (state < DragState.Initiated)
             {
                 this.initiatedDragPointer = null;
+                this.clickedPart = ClipPart.None;
             }
 
             this.dragState = state;
@@ -419,7 +421,8 @@ public class TimelineClipControl : ContentControl, IClipElement
             this.Focus();
             this.leftClickPos = e.GetPosition(this);
             this.lastMovePosAbs = this.PointToScreen(this.leftClickPos);
-            if (this.GetPartForPoint(this.leftClickPos) > ClipPart.Body)
+            this.clickedPart = this.GetPartForPoint(this.leftClickPos); 
+            if (this.clickedPart > ClipPart.Body)
             {
                 this.initiatedDragPointer = e.Pointer;
                 this.SetDragState(DragState.Initiated);
@@ -483,7 +486,7 @@ public class TimelineClipControl : ContentControl, IClipElement
                     // Check we don't update selection since we are already the only selected item. Pointless re-selection
                     if (!this.wasSelectedOnPress)
                         timelineControl.ClipSelectionManager!.SetSelection(this);
-                    this.shouldUpdatePlayHeadOnMouseUp = true;
+                    this.shouldUpdatePlayHeadOnMouseUp = this.clickedPart != ClipPart.Header;
                 }
 
                 timeline.RangedSelectionAnchor = new TrackPoint(this.ClipModel, mouseFrame);

@@ -97,10 +97,19 @@
 
                                 <!-- Center Panel -->
                                 <StackPanel Margin="0,4" Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <c1:TogglePlayStateButton Width="24" Focusable="False"/>
-                                    <c1:PlayStateButton Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Play" CommandId="commands.editor.PlaybackPlayCommand"/>
-                                    <c1:PlayStateButton Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Pause" CommandId="commands.editor.PlaybackPauseCommand"/>
-                                    <c1:PlayStateButton Focusable="False" Width="24" HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Stop" CommandId="commands.editor.PlaybackStopCommand"/>
+                                    <c1:TogglePlayStateButton Width="24" Focusable="False" ToolTip.Tip="Play or pause playback"/>
+                                    <c1:PlayStateButton Width="24" Focusable="False" 
+                                                        HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Play" 
+                                                        CommandId="commands.editor.PlaybackPlayCommand" 
+                                                        ToolTip.Tip="Start playback"/>
+                                    <c1:PlayStateButton Width="24" Focusable="False" 
+                                                        HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Pause" 
+                                                        CommandId="commands.editor.PlaybackPauseCommand" 
+                                                        ToolTip.Tip="Pause playback, keeping the play head at the current frame"/>
+                                    <c1:PlayStateButton Width="24" Focusable="False" 
+                                                        HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Stop" 
+                                                        CommandId="commands.editor.PlaybackStopCommand" 
+                                                        ToolTip.Tip="Stop playback, returning the play head to the stop head location"/>
                                 </StackPanel>
                             </DockPanel>
                         </Border>

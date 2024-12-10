@@ -82,8 +82,12 @@ public class ImageVideoClip : VideoClip
             return;
         }
 
-        using (SKPaint paint = new SKPaint { FilterQuality = rc.FilterQuality, ColorF = RenderUtils.BlendAlpha(SKColors.White, this.RenderOpacity) })
+        using (SKPaint paint = new SKPaint())
+        {
+            paint.FilterQuality = rc.FilterQuality;
+            paint.Color = RenderUtils.BlendAlpha(SKColors.White, this.RenderOpacity);
             rc.Canvas.DrawImage(image, 0, 0, paint);
+        }
 
         renderArea = rc.TranslateRect(new SKRect(0, 0, image.Width, image.Height));
         this.lockedImage.OnRenderFinished();

@@ -285,20 +285,25 @@
                                 <StackPanel Spacing="1" Orientation="Horizontal">
                                     <ap:TogglePlayStateButton Focusable="False"
                                                               Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderThickness="0"
-                                                              Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"/>
+                                                              Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
+                                                              ToolTip.Tip="Play or pause playback"/>
                                     <ap:PlayStateButton Focusable="False" Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
                                                         Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderThickness="0"
-                                                        PlayState="Play" CommandId="commands.editor.PlaybackPlayCommand"/>
+                                                        PlayState="Play" CommandId="commands.editor.PlaybackPlayCommand"
+                                                        ToolTip.Tip="Start playback"/>
                                     <ap:PlayStateButton Focusable="False" Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
                                                         Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderThickness="0"
-                                                        PlayState="Pause" CommandId="commands.editor.PlaybackPauseCommand"/>
+                                                        PlayState="Pause" CommandId="commands.editor.PlaybackPauseCommand"
+                                                        ToolTip.Tip="Pause playback, keeping the play head at the current frame"/>
                                     <ap:PlayStateButton Focusable="False" Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
                                                         Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderThickness="0"
-                                                        PlayState="Stop" CommandId="commands.editor.PlaybackStopCommand"/>
+                                                        PlayState="Stop" CommandId="commands.editor.PlaybackStopCommand"
+                                                        ToolTip.Tip="Stop playback, returning the play head to the stop head location"/>
                                     <ToggleButton u:CommandUsageManager.UsageClassType="{x:Type cc:ToggleLoopCommandUsage}"
                                                   Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
                                                   Background="{DynamicResource ABrush.Tone6.Background.Static}"
-                                                  BorderThickness="0" Focusable="False">
+                                                  BorderThickness="0" Focusable="False"
+                                                  ToolTip.Tip="Toggles if looping is enabled. When enabled and the play head is inside the loop region, the play head returns back to the start of the loop when it reaches the end">
                                         <Path Fill="{DynamicResource ABrush.Glyph.Static}" Data="M0 11 0 0 16.8 0 16.8 11.6 10 11.6 12.6 13.8 8.7 13.8 4.8 10.3 8.7 6.6 12.6 6.6 10 9.2 14.4 9.2 14.4 2.6 2.6 2.6 2.6 9 4.6 9 3.6 10.3 4.5 11.6 0 11.6Z"/>
                                     </ToggleButton>
                                 </StackPanel>

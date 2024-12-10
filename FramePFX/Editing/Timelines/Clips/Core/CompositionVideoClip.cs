@@ -83,8 +83,13 @@ public class CompositionVideoClip : VideoClip, ICompositionClip
             this.renderTask.GetAwaiter().GetResult();
             RenderManager render = this.renderResource.Timeline.RenderManager;
             render.OnFrameCompleted();
-            using (SKPaint paint = new SKPaint { FilterQuality = rc.FilterQuality, ColorF = RenderUtils.BlendAlpha(SKColors.White, this.RenderOpacity) })
+            using (SKPaint paint = new SKPaint())
+            {
+                paint.FilterQuality = rc.FilterQuality;
+                paint.Color = RenderUtils.BlendAlpha(SKColors.White, this.RenderOpacity);
                 render.Draw(rc.Surface, paint);
+            }
+
             renderArea = rc.TranslateRect(render.LastRenderRect);
         }
         catch (TaskCanceledException) {

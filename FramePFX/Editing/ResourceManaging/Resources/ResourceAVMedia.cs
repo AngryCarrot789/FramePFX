@@ -78,6 +78,12 @@ public class ResourceAVMedia : ResourceItem
         });
     }
 
+    protected override void LoadDataIntoClone(BaseResource clone)
+    {
+        base.LoadDataIntoClone(clone);
+        ((ResourceAVMedia) clone).filePath = this.filePath;
+    }
+
     protected override ValueTask<bool> OnTryAutoEnable(ResourceLoader? loader)
     {
         if (string.IsNullOrEmpty(this.FilePath))
@@ -141,10 +147,9 @@ public class ResourceAVMedia : ResourceItem
         }
 
         // Images have a single frame, which we'll miss if we don't clamp timestamp to zero.
-        if (timestamp > this.GetDuration())
-        {
-            timestamp = this.GetDuration();
-        }
+        TimeSpan duration = this.GetDuration();
+        if (timestamp > duration)
+            timestamp = duration;
 
         VideoFrame frame = this.frameQueue!.GetNearest(timestamp, out minDistanceToTimeStampSecs);
         double distThreshold = 0.5 / this.stream.AvgFrameRate; //will dupe too many frames if set to 1.0
@@ -207,7 +212,7 @@ public class ResourceAVMedia : ResourceItem
 
         if (string.IsNullOrWhiteSpace(this.FilePath))
             throw new InvalidOperationException("No file path provided");
-        
+
         try
         {
             this.Demuxer = new MediaDemuxer(this.FilePath);

@@ -237,6 +237,7 @@ public class VideoTrack : Track
             try
             {
                 this.theClipToRender.RenderFrame(ctx, ref renderArea);
+                this.theClipToRender.LastRenderRect = renderArea;
             }
             catch (Exception e)
             {

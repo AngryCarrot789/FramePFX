@@ -333,7 +333,7 @@ public class VideoEditorViewPortControl : TemplatedControl
         {
             return;
         }
-
+        
         using DrawingContext.PushedState state = this.PushInverseScale(ctx, out double scale);
 
         SKSize sz = new SKSize(frameSize.X, frameSize.Y);

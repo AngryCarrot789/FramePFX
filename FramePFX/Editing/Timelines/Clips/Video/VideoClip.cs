@@ -159,6 +159,8 @@ public abstract class VideoClip : Clip
     }
 
     public bool IsEffectivelyVisible => this.IsVisible && this.Opacity > 0.0;
+    
+    public SKRect LastRenderRect;
 
     protected VideoClip()
     {

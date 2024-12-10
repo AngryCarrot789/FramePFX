@@ -160,24 +160,22 @@ public class ResourceDropRegistry
         return true;
     }
 
-    public static Task OnDropResourceListIntoTreeOrNode(IResourceTreeElement tree, IResourceTreeNodeElement? node, List<BaseResource> droppedItems, IContextData ctx, EnumDropType dropType)
+    public static async Task OnDropResourceListIntoTreeOrNode(IResourceTreeElement tree, IResourceTreeNodeElement? node, List<BaseResource> droppedItems, IContextData ctx, EnumDropType dropType)
     {
         if (node != null)
         {
             if (node.Resource is ResourceFolder resourceFolder)
             {
-                OnDropResourceList(resourceFolder, droppedItems, dropType);
+                await OnDropResourceList(resourceFolder, droppedItems, dropType);
             }
         }
         else
         {
-            OnDropResourceList(tree.ManagerUI.ResourceManager!.RootContainer, droppedItems, dropType);
+            await OnDropResourceList(tree.ManagerUI.ResourceManager!.RootContainer, droppedItems, dropType);
         }
-
-        return Task.CompletedTask;
     }
 
-    public static Task OnDropResourceListIntoListItem(IResourceListElement list, IResourceListItemElement? item, List<BaseResource> droppedItems, IContextData ctx, EnumDropType dropType)
+    public static async Task OnDropResourceListIntoListItem(IResourceListElement list, IResourceListItemElement? item, List<BaseResource> droppedItems, IContextData ctx, EnumDropType dropType)
     {
         ResourceFolder? destinationResource;
         if (item != null)
@@ -191,19 +189,18 @@ public class ResourceDropRegistry
 
         if (destinationResource != null)
         {
-            OnDropResourceList(destinationResource, droppedItems, dropType);
+            await OnDropResourceList(destinationResource, droppedItems, dropType);
         }
-
-        return Task.CompletedTask;
     }
 
-    private static void OnDropResourceList(ResourceFolder destination, List<BaseResource> droppedItems, EnumDropType dropType)
+    private static async Task OnDropResourceList(ResourceFolder destination, List<BaseResource> droppedItems, EnumDropType dropType)
     {
         if (dropType != EnumDropType.Copy && dropType != EnumDropType.Move)
         {
             return;
         }
 
+        List<BaseResource>? cloned = dropType == EnumDropType.Copy ? new List<BaseResource>() : null;
         foreach (BaseResource res in droppedItems)
         {
             if (res is ResourceFolder composition && composition.IsParentInHierarchy(destination))
@@ -218,6 +215,7 @@ public class ResourceDropRegistry
                     name = clone.DisplayName;
                 clone.DisplayName = name;
                 destination.AddItem(clone);
+                cloned!.Add(clone);
             }
             else if (res.Parent != null)
             {
@@ -228,6 +226,11 @@ public class ResourceDropRegistry
                 Debug.Assert(false, "No parent");
                 // AppLogger.Instance.WriteLine("A resource was dropped with a null parent???");
             }
+        }
+        
+        if (dropType == EnumDropType.Copy)
+        {
+            await IoC.ResourceLoaderService.TryLoadResources(cloned!.ToArray());
         }
     }
 }

@@ -185,21 +185,23 @@ public class TimecodeClip : VideoClip
 
         string text = this.GetCurrentTimeString();
         LockedFontData fd = this.fontData.Value;
-        using (SKPaint paint = new SKPaint() { IsAntialias = true, Color = SKColors.White.WithAlpha(this.RenderOpacityByte) })
+        
+        using SKPaint paint = new SKPaint();
+        paint.IsAntialias = true;
+        paint.Color = SKColors.White.WithAlpha(this.RenderOpacityByte);
+        paint.FilterQuality = rc.FilterQuality;
+        using (SKTextBlob blob = SKTextBlob.Create(text, fd.cachedFont))
         {
-            using (SKTextBlob blob = SKTextBlob.Create(text, fd.cachedFont))
-            {
-                fd.cachedFont!.GetFontMetrics(out SKFontMetrics metrics);
-                // we can get away with this since we just use numbers and not any 'special'
-                // characters with bits below the baseline and whatnot
-                SKRect realFinalRenderArea = new SKRect(0, 0, blob.Bounds.Right, blob.Bounds.Bottom - metrics.Ascent - metrics.Descent);
-                rc.Canvas.DrawText(blob, 0, -blob.Bounds.Top - metrics.Descent, paint);
+            fd.cachedFont!.GetFontMetrics(out SKFontMetrics metrics);
+            // we can get away with this since we just use numbers and not any 'special'
+            // characters with bits below the baseline and whatnot
+            SKRect realFinalRenderArea = new SKRect(0, 0, blob.Bounds.Right, blob.Bounds.Bottom - metrics.Ascent - metrics.Descent);
+            rc.Canvas.DrawText(blob, 0, -blob.Bounds.Top - metrics.Descent, paint);
 
-                // we still need to tell the track the rendering area, otherwise we're copying the entire frame which is
-                // unacceptable. Even though there will most likely be a bunch of transparent padding pixels, it's still better
-                renderArea = rc.TranslateRect(realFinalRenderArea);
-                this.lastRenderRect = realFinalRenderArea;
-            }
+            // we still need to tell the track the rendering area, otherwise we're copying the entire frame which is
+            // unacceptable. Even though there will most likely be a bunch of transparent padding pixels, it's still better
+            renderArea = rc.TranslateRect(realFinalRenderArea);
+            this.lastRenderRect = realFinalRenderArea;
         }
 
         this.fontData.CompleteUsage();

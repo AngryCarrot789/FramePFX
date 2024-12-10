@@ -243,8 +243,10 @@ public class AVMediaVideoClip : VideoClip, IHavePlaybackSpeedClip
                     return;
                 }
 
-                using (SKPaint paint = new SKPaint() { FilterQuality = rc.FilterQuality, ColorF = new SKColorF(1f, 1f, 1f, (float) this.RenderOpacity) })
+                using (SKPaint paint = new SKPaint())
                 {
+                    paint.FilterQuality = rc.FilterQuality;
+                    paint.Color = SKColors.White.WithAlpha(this.RenderOpacityByte);
                     rc.Canvas.DrawImage(img, 0, 0, paint);
                 }
 

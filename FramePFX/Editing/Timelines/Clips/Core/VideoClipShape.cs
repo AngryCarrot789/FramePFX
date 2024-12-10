@@ -93,6 +93,8 @@ public class VideoClipShape : VideoClip
         {
             paint.Color = colour;
             paint.IsAntialias = true;
+            paint.FilterQuality = rc.FilterQuality;
+
             rc.Canvas.DrawRect(0, 0, d.size.X, d.size.Y, paint);
         }
 

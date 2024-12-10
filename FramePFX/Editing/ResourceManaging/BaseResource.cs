@@ -22,6 +22,7 @@ using FramePFX.Editing.Factories;
 using FramePFX.Editing.ResourceManaging.Commands;
 using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Interactivity;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.Serialisation;
 using FramePFX.Utils.Destroying;
 using FramePFX.Utils.RBC;
@@ -93,19 +94,58 @@ public abstract class BaseResource : IDisplayName, IDestroy
 
         // For ResourceFolder only
         ResourceFolderContextRegistry = new ContextRegistry("Resource Folder(s)");
+        ResourceFolderContextRegistry.Opened += (r, ctx) =>
+        {
+            int selected;
+            if (DataKeys.ResourceListUIKey.TryGetContext(ctx, out var list))
+                selected = list.Selection.SelectedItems.Count(x => x is ResourceFolder);
+            else if (DataKeys.ResourceTreeUIKey.TryGetContext(ctx, out var tree))
+                selected = tree.Selection.SelectedItems.Count(x => x is ResourceFolder);
+            else
+                return;
+
+            if (selected > 0)
+                r.Caption = selected == 1 ? "1 Folder" : $"{selected} Folders";
+        };
+
+        ResourceFolderContextRegistry.Closed += (r) => r.Caption = "Resource Folder(s)";
 
         // For ResourceItem only
         ResourceItemContextRegistry = new ContextRegistry("Resource Item(s)");
+        ResourceItemContextRegistry.Opened += (r, ctx) =>
+        {
+            List<BaseResource> selected;
+            if (DataKeys.ResourceListUIKey.TryGetContext(ctx, out var list))
+                selected = list.Selection.SelectedItems.Where(x => x is ResourceItem).ToList();
+            else if (DataKeys.ResourceTreeUIKey.TryGetContext(ctx, out var tree))
+                selected = tree.Selection.SelectedItems.Where(x => x is ResourceItem).ToList();
+            else
+                return;
+
+            if (selected.Count == 1)
+            {
+                string? name = selected[0].DisplayName;
+                if (string.IsNullOrWhiteSpace(name))
+                    name = null;
+
+                string typeName = selected[0].GetType().Name;
+                r.Caption = name != null ? $"{typeName} ({name})" : typeName;
+            }
+            else
+            {
+                r.Caption = $"{selected} Items";
+            }
+        };
+
+        ResourceItemContextRegistry.Closed += r => r.Caption = "Resource Item(s)";
 
         static void ApplyNewItemEntries(FixedContextGroup g)
         {
-            g.AddEntry(new SubListContextEntry("Add new...", "Add a new resource", new List<IContextObject>()
-            {
-                new CommandContextEntry("Add Image", "Create a new image resource", "commands.resources.AddResourceImage"),
-                new CommandContextEntry("Add Media", "Create a new media resource", "commands.resources.AddResourceAVMedia"),
-                new CommandContextEntry("Add Colour", "Create a new colour resource", "commands.resources.AddResourceColour"),
-                new CommandContextEntry("Add Composition Timeline", "Create a composition timeline new resource", "commands.resources.AddResourceComposition")
-            }));
+            g.AddHeader("Create Resources");
+            g.AddEntry(new CommandContextEntry("Add Image", "Create a new image resource", "commands.resources.AddResourceImage"));
+            g.AddEntry(new CommandContextEntry("Add Media", "Create a new media resource", "commands.resources.AddResourceAVMedia"));
+            g.AddEntry(new CommandContextEntry("Add Colour", "Create a new colour resource", "commands.resources.AddResourceColour"));
+            g.AddEntry(new CommandContextEntry("Add Composition Timeline", "Create a composition timeline new resource", "commands.resources.AddResourceComposition"));
         }
 
         static void ApplyModifyGeneral(FixedContextGroup g)
@@ -119,10 +159,10 @@ public abstract class BaseResource : IDisplayName, IDestroy
             g.AddCommand("commands.resources.DeleteResources", "Delete", "Delete this/these resource(s)");
         }
 
-        ApplyNewItemEntries(ResourceSurfaceContextRegistry.GetFixedGroup("modify.subcreation"));
-        ApplyNewItemEntries(ResourceFolderContextRegistry.GetFixedGroup("modify.subcreation"));
         ApplyModifyGeneral(ResourceItemContextRegistry.GetFixedGroup("modify.general"));
         ApplyModifyGeneral(ResourceFolderContextRegistry.GetFixedGroup("modify.general"));
+        ApplyNewItemEntries(ResourceSurfaceContextRegistry.GetFixedGroup("modify.subcreation"));
+        ApplyNewItemEntries(ResourceFolderContextRegistry.GetFixedGroup("modify.subcreation"));
 
         ResourceItemContextRegistry.GetFixedGroup("modify.general").AddDynamicSubGroup((group, ctx, items) =>
         {

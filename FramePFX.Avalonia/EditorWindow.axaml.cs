@@ -32,6 +32,7 @@ using FramePFX.Interactivity.Contexts;
 using FramePFX.PropertyEditing;
 using FramePFX.Tasks;
 using FramePFX.Utils;
+using FramePFX.Utils.RDA;
 
 namespace FramePFX.Avalonia;
 
@@ -52,6 +53,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI
     private readonly NumberAverager renderTimeAverager;
     private ActivityTask? primaryActivity;
     private readonly ContextData timelineGroupBoxContextData;
+    private RateLimitedDispatchAction<Timeline> updateFpsInfoRlda;
 
     public EditorWindow()
     {
@@ -60,6 +62,19 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI
         // average 5 samples. Will take a second to catch up when playing at 5 fps but meh
         this.renderTimeAverager = new NumberAverager(5);
         this.TheTimeline.EditorOwner = this;
+
+        this.updateFpsInfoRlda = BaseRateLimitedDispatchAction.ForDispatcherSync<Timeline>((t) =>
+        {
+            if (t.Project?.Editor is VideoEditor editor)
+            {
+                double avgPlaybackMillis = editor.Playback.AveragePlaybackIntervalMillis;
+                this.PART_AvgFPSBlock.Text = $"{Math.Round(avgPlaybackMillis, 2).ToString(),5} ms ({((int) Math.Round(1000.0 / avgPlaybackMillis)).ToString(),3} FPS)";
+            }
+
+            double avgRenderMillis = this.renderTimeAverager.GetAverage();
+            this.PART_AvgRenderTimeBlock.Text = $"{Math.Round(avgRenderMillis, 2).ToString(),5} ms ({((int) Math.Round(1000.0 / avgRenderMillis)).ToString(),3} FPS)";
+        }, TimeSpan.FromSeconds(0.1), DispatchPriority.Loaded);
+        
         DataManager.SetContextData(this, this.contextData.Set(DataKeys.TopLevelHostKey, this).Set(DataKeys.VideoEditorUIKey, this));
         DataManager.SetContextData(this.PART_TimelinePresenterGroupBox, this.timelineGroupBoxContextData = new ContextData().Set(DataKeys.TimelineUIKey, this.TheTimeline));
 
@@ -203,44 +218,17 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI
 
     private void UpdateFrameRenderInterval(RenderManager manager)
     {
-        this.UpdateFrameRenderInterval(manager.Timeline.Project?.Editor, manager.Timeline);
+        this.renderTimeAverager.PushValue(manager.AverageVideoRenderTimeMillis);
+        this.updateFpsInfoRlda.InvokeAsync(manager.Timeline);
     }
 
-    private void UpdateFrameRenderInterval(VideoEditor? editor, Timeline? timeline)
-    {
-        if (editor != null)
-        {
-            double avgPlaybackMillis = editor.Playback.AveragePlaybackIntervalMillis;
-            this.PART_AvgFPSBlock.Text = $"{Math.Round(avgPlaybackMillis, 2).ToString(),5} ms ({((int) Math.Round(1000.0 / avgPlaybackMillis)).ToString(),3} FPS)";
-        }
+    private void OnCompositionTimelineDisplayNameChanged(IDisplayName sender, string? oldName, string? newName) => this.UpdateTimelineName();
 
-        if (timeline != null)
-        {
-            this.renderTimeAverager.PushValue(timeline.RenderManager.AverageVideoRenderTimeMillis);
-            double avgRenderMillis = this.renderTimeAverager.GetAverage();
-            this.PART_AvgRenderTimeBlock.Text = $"{Math.Round(avgRenderMillis, 2).ToString(),5} ms ({((int) Math.Round(1000.0 / avgRenderMillis)).ToString(),3} FPS)";
-        }
-    }
+    private void OnProjectFilePathChanged(Project project) => this.UpdateWindowTitle(project);
 
-    private void OnCompositionTimelineDisplayNameChanged(IDisplayName sender, string oldName, string newName)
-    {
-        this.UpdateTimelineName();
-    }
+    private void OnProjectNameChanged(Project project) => this.UpdateWindowTitle(project);
 
-    private void OnProjectFilePathChanged(Project project)
-    {
-        this.UpdateWindowTitle(project);
-    }
-
-    private void OnProjectNameChanged(Project project)
-    {
-        this.UpdateWindowTitle(project);
-    }
-
-    private void OnProjectModifiedChanged(Project project)
-    {
-        this.UpdateWindowTitle(project);
-    }
+    private void OnProjectModifiedChanged(Project project) => this.UpdateWindowTitle(project);
 
     private void UpdateTimelineName()
     {

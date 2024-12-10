@@ -60,7 +60,7 @@ public class AdvancedContextMenuItem : MenuItem, IAdvancedContextElement
     protected override void OnUnloaded(RoutedEventArgs e)
     {
         base.OnUnloaded(e);
-        MenuService.ClearDynamicItems(this, ref this.dynamicInsertion, ref this.dynamicInserted);
+        MenuService.ClearDynamicItems(this, ref this.dynamicInserted);
     }
 
     public virtual void OnAdding(IAdvancedContainer container, ItemsControl parent, BaseContextEntry entry)

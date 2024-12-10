@@ -17,7 +17,12 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.Interactivity.Contexts;
+
 namespace FramePFX.AdvancedMenuService;
+
+public delegate void ContextRegistryEventHandler(ContextRegistry registry);
+public delegate void ContextRegistryContextEventHandler(ContextRegistry registry, IContextData context);
 
 /// <summary>
 /// A class which stores a context entry hierarchy for use in context menus.
@@ -30,13 +35,34 @@ namespace FramePFX.AdvancedMenuService;
 public class ContextRegistry
 {
     private readonly Dictionary<int, Dictionary<string, IContextGroup>> groups;
+    private string? caption;
 
     /// <summary>
     /// Gets the groups in our registry
     /// </summary>
     public IEnumerable<KeyValuePair<string, IContextGroup>> Groups => this.groups.OrderBy(x => x.Key).Select(x => x.Value).SelectMany(x => x);
 
-    public string Caption { get; }
+    /// <summary>
+    /// Gets or sets this registry's caption
+    /// </summary>
+    public string? Caption
+    {
+        get => this.caption;
+        set
+        {
+            if (this.caption == value)
+                return;
+
+            this.caption = value;
+            this.CaptionChanged?.Invoke(this);
+        }
+    }
+
+    public bool IsOpened { get; private set; }
+
+    public event ContextRegistryEventHandler? CaptionChanged;
+    public event ContextRegistryContextEventHandler? Opened;
+    public event ContextRegistryEventHandler? Closed;
 
     public ContextRegistry(string caption)
     {
@@ -44,6 +70,24 @@ public class ContextRegistry
         this.Caption = caption;
     }
 
+    public void OnOpened(IContextData context)
+    {
+        if (this.IsOpened)
+            throw new InvalidOperationException("Already open");
+
+        this.IsOpened = true;
+        this.Opened?.Invoke(this, context ?? EmptyContext.Instance);
+    }
+    
+    public void OnClosed()
+    {
+        if (!this.IsOpened)
+            throw new InvalidOperationException("Not opened");
+
+        this.IsOpened = false;
+        this.Closed?.Invoke(this);
+    }
+    
     public FixedContextGroup GetFixedGroup(string name, int priority = 0)
     {
         if (!this.GetDictionary(priority).TryGetValue(name, out IContextGroup? group))
@@ -72,5 +116,14 @@ public class ContextRegistry
     private void SetDictionary(int priority, string name, IContextGroup group)
     {
         this.GetDictionary(priority)[name] = group;
+    }
+
+    public static void AddStaticOnlineStateHandlers(ContextRegistry registry, ContextRegistryContextEventHandler? onOpened, ContextRegistryEventHandler? onClosed)
+    {
+        if (onOpened != null)
+            registry.Opened += onOpened;
+        
+        if (onClosed != null)
+            registry.Closed += onClosed;
     }
 }

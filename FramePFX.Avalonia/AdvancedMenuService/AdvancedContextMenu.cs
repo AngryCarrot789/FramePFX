@@ -26,6 +26,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using FramePFX.AdvancedMenuService;
+using FramePFX.Avalonia.Bindings;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Interactivity.Contexts;
 
@@ -48,9 +49,7 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
         set => this.SetValue(ContextCaptionProperty, value);
     }
 
-    private static void SetAdvancedContextMenu(Control obj, AdvancedContextMenu? value) => obj.SetValue(AdvancedContextMenuProperty, value);
-    private static AdvancedContextMenu? GetAdvancedContextMenu(Control obj) => obj.GetValue(AdvancedContextMenuProperty);
-
+    private readonly IBinder<ContextRegistry> captionBinder;
     private readonly Dictionary<Type, Stack<Control>> itemCache;
     private readonly List<Control> owners;
     private Control? currentTarget;
@@ -63,6 +62,7 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
 
     public AdvancedContextMenu()
     {
+        this.captionBinder = new GetSetAutoUpdateAndEventPropertyBinder<ContextRegistry>(ContextCaptionProperty, nameof(this.ContextRegistry.CaptionChanged), (b) => b.Model.Caption, null);
         this.itemCache = new Dictionary<Type, Stack<Control>>();
         this.owners = new List<Control>();
         this.Opening += this.OnOpening;
@@ -129,12 +129,21 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
             MenuService.NormaliseSeparators(this);
             this.ignoreUpdateNormalisation = false;
         }, DispatcherPriority.Loaded);
+        
+        if (this.ContextRegistry.IsOpened)
+            this.ContextRegistry.OnClosed();
+        
+        this.ContextRegistry.OnOpened(this.Context ?? EmptyContext.Instance);
+        this.captionBinder.Attach(this, this.ContextRegistry);
     }
 
     protected override void OnUnloaded(RoutedEventArgs e)
     {
         base.OnUnloaded(e);
-        MenuService.ClearDynamicItems(this, ref this.dynamicInsertion, ref this.dynamicInserted);
+        MenuService.ClearDynamicItems(this, ref this.dynamicInserted);
+        if (this.ContextRegistry.IsOpened)
+            this.ContextRegistry.OnClosed();
+        this.captionBinder.Detach();
     }
 
     private void OnOwnerRequestedContext(object? sender, ContextRequestedEventArgs e)
@@ -176,7 +185,7 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
             {
                 contextMenus[newValue] = menu = new AdvancedContextMenu()
                 {
-                    ContextCaption = newValue.Caption ?? "Context Menu"
+                    ContextCaption = newValue.Caption ?? "Context Menu", ContextRegistry = newValue
                 };
                 List<IContextObject> contextObjects = new List<IContextObject>();
 
@@ -219,6 +228,8 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
         }
     }
 
+    public ContextRegistry ContextRegistry { get; init; }
+
     private void AddOwner(Control target)
     {
         this.owners.Add(target);
@@ -232,8 +243,6 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
         return this.owners.Count == 0;
     }
 
-    public static void SetContextRegistry(Control obj, ContextRegistry? value) => obj.SetValue(ContextRegistryProperty, value);
-
     public bool PushCachedItem(Type entryType, Control item) => MenuService.PushCachedItem(this.itemCache, entryType, item);
 
     public Control? PopCachedItem(Type entryType) => MenuService.PopCachedItem(this.itemCache, entryType);
@@ -244,4 +253,6 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
     {
         (this.dynamicInsertion ??= new Dictionary<int, DynamicGroupContextObject>())[index] = group;
     }
+    
+    public static void SetContextRegistry(Control obj, ContextRegistry? value) => obj.SetValue(ContextRegistryProperty, value);
 }

@@ -61,7 +61,7 @@ public static class MenuService
             {
                 separator.IsVisible = false;
             }
-            else
+            else if (((Visual) items[i]!).IsVisible)
             {
                 break;
             }
@@ -75,6 +75,17 @@ public static class MenuService
     /// <param name="control">The control whose items should be processed</param>
     public static void NormaliseSeparators(ItemsControl control)
     {
+        // # Caption (general)
+        // Rename
+        // Change Colour
+        // # Separator
+        // Group Items
+        // # Separator
+        // # Caption (Modify Online State)
+        // Set Offline
+        // # Separator
+        // Delete
+        
         ItemCollection items = control.Items;
         bool lastVisibleWasEntry = false;
         for (int i = 0; i < items.Count; i++)
@@ -98,7 +109,7 @@ public static class MenuService
             else if (((Visual) current!).IsVisible)
             {
                 lastVisibleWasEntry = true;
-                if (current is CaptionSeparator && i > 0 && items[i - 1] is Separator)
+                if (current is CaptionSeparator && i > 0)
                 {
                     GoBackAndHideSeparatorsUntilNonSeparatorReached(items, i);
                 }
@@ -185,7 +196,7 @@ public static class MenuService
         Control element = (Control) items[index]!;
         if (element is AdvancedContextMenuItem menuItem)
         {
-            Type type = menuItem.Entry.GetType();
+            Type type = menuItem.Entry!.GetType();
             menuItem.OnRemoving();
             items.RemoveAt(index);
             menuItem.OnRemoved();
@@ -268,12 +279,13 @@ public static class MenuService
 
     public static void GenerateDynamicItems(IAdvancedContextElement element, ref Dictionary<int, DynamicGroupContextObject>? dynamicInsertion, ref Dictionary<int, int>? dynamicInserted)
     {
-        ClearDynamicItems(element, ref dynamicInsertion, ref dynamicInserted);
+        ClearDynamicItems(element, ref dynamicInserted);
         if (dynamicInsertion == null || dynamicInsertion.Count < 1)
         {
             return;
         }
 
+        IAdvancedContainer container = element.Container ?? throw new InvalidOperationException("No container available");
         IContextData context = element.Context ?? EmptyContext.Instance;
 
         dynamicInserted ??= new Dictionary<int, int>();
@@ -286,13 +298,13 @@ public static class MenuService
             // This is also why we must insert from start to end
             int index = item.Key + offset;
             List<IContextObject> generated = item.Value.DynamicGroup.GenerateItems(context);
-            InsertItemNodes(element.Container, (ItemsControl) element, index, generated);
+            InsertItemNodes(container, (ItemsControl) element, index, generated);
             dynamicInserted[index] = generated.Count;
             offset += generated.Count;
         }
     }
 
-    public static void ClearDynamicItems(IAdvancedContextElement element, ref Dictionary<int, DynamicGroupContextObject>? dynamicInsertion, ref Dictionary<int, int>? dynamicInserted)
+    public static void ClearDynamicItems(IAdvancedContextElement element, ref Dictionary<int, int>? dynamicInserted)
     {
         if (dynamicInserted == null || dynamicInserted.Count < 1)
         {

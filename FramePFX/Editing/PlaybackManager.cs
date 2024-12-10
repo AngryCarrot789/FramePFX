@@ -47,7 +47,7 @@ public class PlaybackManager
     private volatile bool thread_IsTimerRunning;
     private long intervalTicks;
     private long nextTickTime;
-    private Thread thread;
+    private Thread? thread;
 
     public PlayState PlayState { get; private set; } = PlayState.Stop;
 
@@ -79,7 +79,7 @@ public class PlaybackManager
 
     public unsafe delegate int ManagedAudioEngineCallback(void* output, ulong framesPerBuffer, IntPtr timeInfo, ulong statusFlags);
 
-    private readonly ManagedAudioEngineCallback engineCallbackDelgate;
+    private readonly ManagedAudioEngineCallback? engineCallbackDelgate;
     private readonly IntPtr engineCallbackDelgatePtr;
     private double phase;
 

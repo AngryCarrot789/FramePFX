@@ -125,15 +125,15 @@ public class VideoEditorViewPortControl : TemplatedControl
         UseTransparentCheckerBoardBackgroundProperty.Changed.AddClassHandler<VideoEditorViewPortControl, bool>((d, e) => d.OnUseTransparentCheckerBoardBackgroundChanged());
     }
 
-    private VideoClip? targetLayer;
+    private VideoClip? targetClip;
     private Vector2 originalPos;
 
     private bool GetSelectedVisibleClip([NotNullWhen(true)] out VideoClip? videoClip, [NotNullWhen(true)] out ITimelineElement? timeline, bool canBeInvisible = true)
     {
-        if ((timeline = this.Owner.TheTimeline) != null && (timeline.Timeline != null))
+        if ((timeline = this.Owner.TheTimeline) != null && (timeline.Timeline != null) && timeline.ClipSelection.Count == 1)
         {
-            IClipElement? selectedItems = timeline.ClipSelection.SelectedItems.FirstOrDefault();
-            if (selectedItems?.Clip is VideoClip clip && clip.IsTimelineFrameInRange(timeline.Timeline!.PlayHeadPosition))
+            IClipElement firstItem = timeline.ClipSelection.SelectedItems.First();
+            if (firstItem.Clip is VideoClip clip && clip.IsTimelineFrameInRange(timeline.Timeline!.PlayHeadPosition))
             {
                 if (canBeInvisible || clip.IsEffectivelyVisible)
                 {
@@ -167,14 +167,14 @@ public class VideoEditorViewPortControl : TemplatedControl
             e.Pointer.Capture(this);
 
         Point pos = point.Position;
-        this.targetLayer = clip;
+        this.targetClip = clip;
         this.originalPos = VideoClip.MediaPositionParameter.GetCurrentValue(clip) - new Vector2((float) pos.X, (float) pos.Y);
     }
 
     protected override void OnPointerMoved(PointerEventArgs e)
     {
         base.OnPointerMoved(e);
-        if (this.targetLayer == null)
+        if (this.targetClip == null)
         {
             return;
         }
@@ -184,7 +184,7 @@ public class VideoEditorViewPortControl : TemplatedControl
 
         ParameterDescriptorVector2 desc = VideoClip.MediaPositionParameter.Descriptor;
         Vector2 newValue = desc.Clamp(this.originalPos + new Vector2((float) pos.X, (float) pos.Y));
-        AutomationUtils.SetDefaultKeyFrameOrAddNew(this.targetLayer, VideoClip.MediaPositionParameter, newValue, true);
+        AutomationUtils.SetDefaultKeyFrameOrAddNew(this.targetClip, VideoClip.MediaPositionParameter, newValue);
 
         e.Handled = true;
     }
@@ -192,7 +192,7 @@ public class VideoEditorViewPortControl : TemplatedControl
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
         base.OnPointerReleased(e);
-        this.targetLayer = null;
+        this.targetClip = null;
         if (ReferenceEquals(e.Pointer.Captured, this))
             e.Pointer.Capture(null);
     }

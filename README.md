@@ -10,9 +10,7 @@ If you have any feedback/criticism for the app, that would be appreciate! Also f
 # New: Avalonia Remake
 The primary version of the app is v2, which is the Avalonia remake (from WPF). 
 
-Not everything is implemented (such as automation sequence rendering, context menus, drag-drop videos)
-however a lot of it is ready and this version even has a few new features:
-
+This version has new features that were not in the WPF edition, such as:
 - You can drag around a video clip in the preview + there's better outline selection now that I understand transformation matrices better lol
 - Slightly improved data parameter and property editor systems
 - RateLimitedDispatchActions for spontaneous render requests (e.g. changing opacity parameter) to improve UI performance
@@ -43,26 +41,11 @@ This shows of some automation/animation/keyframe usage:
 
 ### Automation/animation
 Always found automating parameters in the standard editors to be generally finicky. Ableton Live has a really good automation editor though, so I took a fair bit of inspiration from it:
-- Each clip has it's own keyframe/envelope editor that stretches the entirety of the clip. Effects also use this
+- Each clip has its own keyframe/envelope editor that stretches the entirety of the clip. Effects also use this
 - Tracks have the same, but it stretches the entire timeline. 
 - Automating project settings, or anything else really, will soon be do-able on a timeline automation specific track (allowing for more than just video/audio tracks)
 
 The clip's automation sequence editor's target parameter can be changed by selecting a row (I call them "slots") in the property editor. The currently selected slot is what the clip shows (if clip automation is visible, click C to toggle)
-
-# General code/docs overview
-
-## Models and the UI
-
-I previously made this using MVVM, but I had to basically create ViewModels for every type of Model and map hierarchies of objects (Timeline->Track->Clip, TimelineViewModel->TrackViewModel->ClipViewModel),
-which was frustrating and made adding new features really difficult, so I decided to rewrite the entire program to use a mostly non-view-model design, kind of like MVP except views are the presenters themselves, 
-where the models are just the state and the views/controls add and remove event handlers to obverse the state of the models.
-
-This turns out to be a lot more performant (which is actually the main reason I switched), somewhat just as easy to add new features, and the  signals between ViewModel/View are not entirely ICommands anymore. 
-
-A comment was here about transitioning to Avalonia would take longer as a result, and well, 20 hours in and still not done
-
-All of the models are able to run without a front end UI. Any UI-interactions needed in the Core project (e.g. delete selected clips command) are done via interfaces which expose UI-specific behaviours. See the ITimelineElement class, which exposes the UI's timeline detains. 
-
 
 ## Rendering
 Rendering uses SkiaSharp (for simplicity) and multiple render threads for speed. The `RenderManager` class handles the render initialisation.
@@ -88,50 +71,8 @@ To drag videos, images, etc., into the editor: drag and drop the file to the top
 
 This system is still quite janky and, if anything, too flexible; added complexity for limiting the max number of resources referencable, and handling that error case
 
-## Command system, shortcut system and context menus
-Beware, Over detailed explanations!!!
-
-### Command System
-I created a system that is inspired from IntelliJ IDEA's action system, where you have a single command manager which contains all of the commands. You access commands
-via a string key (simplest type of key to use), and then execute the command by passing in contextual data (stored in a `IContextData`). The context data gets a value from
-data keys, and the `ContextData` implementation stores entries in a map which is how UI components store their context data. 
-The `DataManager` class manages the context data for all UI components (scroll down for more info)
-
-This means that when you for example press F2 or CTRL+R while focused on a clip, there's a lot of data keys between the root window and the clip UI object, and so
-in the rename command, you have access to all of them; the editor, project, timeline, track and clip. Whereas if you just have the window focused and press a shortcut, you 
-may only have the editor and project available; It's context-sensitive, duh
-
-### Shortcuts
-The shortcut system listens to inputs at an application level instead of receiving input from a specific window (however, a window can only really process shortcuts if it
-has a focus path associated with it, which can be set via the `UIInputManager.FocusPath` attached property). To save the details, the shortcut system figures out a list of shortcuts
-to "activate" based on the current global focus path, and activates all of them until one is activated successfully. 
-Keymap.xml contains the shortcuts (and some unused ones from the old app version)
-
-### Advanced Context Menu system
-So far, all context menus use the `AdvancedContextMenu` class. The menu items are have a model-view connection and all the model items are stored in a `ContextRegistry`
-which, when linked to a control, will find the context menu associated with the registry, or it creates one and then the UI components are generated, and it sets it as the
-control's ContextMenu so that standard context behaviour works. There's one menu per 
-registry, to help with performance and memory usage.
-
-Each context registry contains a list of groups, which contain a list of items (and those items can contain child items). This gives some control order the ordering of 
-menu items if a plugin system is ever implemented; plugins could access known groups and insert their commands into the appropriate ones
-
-There's also the `ContextCapturingMenu`, which is used as a window's top level menu. This menu captures the fully-inherited IContextData of the control
-that was focused just before a menu item was opened in said menu (see below for more info about context data and this fully-inherited behaviour)
-
-### Data Manager
-The data manager is used to store local context data in a control, and implement context data inheritance containing the merged context data for all of a control's visual parents and itself. 
-
-It has two primary properties: `ContextData`, and `InheritedContextData`. Despite the name, the inherited version does not use Avalonia's built in property inheritance feature, but instead
-uses my own inheritance implementation by using `ContextDataProperty` changes and the `VisualAncestorChanged` event (which I add/remove reflectively when the `ContextDataProperty` changes,
-and it fires when an object's visual parent changes). By doing this, an event can be fired (`InheritedContextChangedEvent`) for every single child of an element in its visual tree when its 
-local context data is changed. The `ContextUsage` class depends on this feature in order to do things like re-query the executability state of a command when a control's full inherited context changes
-
 # TODO
 ### Avalonia Remake:
-- Context menus
-- Reimplement commands, e.g. group resources, create composition timeline, etc.
-- Implement UI for the task management system
 - Implement project settings dialog
 - Implement UI for Effects list that can be dropped into a clip/track
 ### Audio
@@ -171,11 +112,12 @@ Hopefully then you should be able to build and run without issue. This project u
 ### Possible build problems
 Sometimes, the SkiaSharp nuget library doesn't copy the skia library files to the bin folder when you clone this repo and built. There are 2 fixes I found:
 - Copy `\packages\SkiaSharp.2.88.7\runtimes\win-x64\native\libSkiaSharp.dll` into the editor's bin folder.
-- Or, delete the `packages` folder in the solution dir, then right click the solution in visual studio and click "Clean Solution", then click Restore Nuget Packages, then rebuild all.
+- Or, delete the `packages` folder in the solution dir, then right-click the solution in visual studio and click "Clean Solution", then click Restore Nuget Packages, then rebuild all.
 If none of these work, try uninstalling SkiaSharp in the nuget manager and then reinstalling. If that still does not work, then I really don't know what's going on... 
 
 ## Contributing
 Feel free to contribute whatever you want if you think it'll make the editor better!
+The code base isn't perfect so feel free to help try and standardize things
 
 # Licence
 All source files in FramePFX are under the GNU General Public License version 3.0 or later (GPL v3.0+).

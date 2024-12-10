@@ -73,7 +73,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI
 
             double avgRenderMillis = this.renderTimeAverager.GetAverage();
             this.PART_AvgRenderTimeBlock.Text = $"{Math.Round(avgRenderMillis, 2).ToString(),5} ms ({((int) Math.Round(1000.0 / avgRenderMillis)).ToString(),3} FPS)";
-        }, TimeSpan.FromSeconds(0.1), DispatchPriority.Loaded);
+        }, TimeSpan.FromSeconds(0.05), DispatchPriority.Loaded);
         
         DataManager.SetContextData(this, this.contextData.Set(DataKeys.TopLevelHostKey, this).Set(DataKeys.VideoEditorUIKey, this));
         DataManager.SetContextData(this.PART_TimelinePresenterGroupBox, this.timelineGroupBoxContextData = new ContextData().Set(DataKeys.TimelineUIKey, this.TheTimeline));

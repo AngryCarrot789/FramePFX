@@ -21,7 +21,7 @@ Sequences are basically just a list of key frames with a "default keyframe" too.
 between key frames at some specific input frame, via methods such as `GetDoubleValue`, `GetVector2Value`, etc.
 
 The default key frame is used as backing storage for the default automation value of the automatable object, or put simply, it's the value when not using key frames.
-This used to be called `OverrideKeyFrame` but I renamed it to `OverrideKeyFrame` because it mainly serves the above purpose, and not just storing the override value
+This used to be called `OverrideKeyFrame` but I renamed it to `DefaultKeyFrame` because it mainly serves the above purpose, and not just storing the override value
 
 The override mode is a way to temporarily disable automation. When there are no key frames present, the sequence is implicitly
 in override mode (hence why I previously named that key frame `OverrideKeyFrame`)

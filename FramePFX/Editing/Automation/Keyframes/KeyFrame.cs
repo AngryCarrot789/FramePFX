@@ -40,14 +40,17 @@ public delegate void BooleanKeyFrameValueChanged(KeyFrameBoolean keyFrame, bool 
 public delegate void Vector2KeyFrameValueChanged(KeyFrameVector2 keyFrame, Vector2 oldValue, Vector2 newValue);
 
 /// <summary>
-/// A keyframe stores a time and value
+/// A keyframe stores a time and value and is placed in an <see cref="AutomationSequence"/>
 /// </summary>
 public abstract class KeyFrame
 {
     protected long myFrame;
-    public AutomationSequence sequence;
     public double curveBend = 0D; // -1d to +1d. // A 'bend' in the interpolation. could add something more complicated?
+    internal AutomationSequence? sequence;
 
+    /// <summary>
+    /// Gets or sets the location of this key frame
+    /// </summary>
     public long Frame
     {
         get => this.myFrame;
@@ -58,7 +61,7 @@ public abstract class KeyFrame
                 return;
             this.myFrame = value;
             this.FrameChanged?.Invoke(this, oldFrame, value);
-            AutomationSequence.InternalOnKeyFramePositionChanged(this.sequence, this);
+            AutomationSequence.InternalOnKeyFramePositionChanged(this.Sequence, this);
         }
     }
 
@@ -68,7 +71,16 @@ public abstract class KeyFrame
     public abstract AutomationDataType DataType { get; }
 
     /// <summary>
-    /// An event fired when our <see cref="Frame"/> changes
+    /// Gets the sequence that this key frame exists in
+    /// </summary>
+    public AutomationSequence? Sequence
+    {
+        get => this.sequence;
+        private set => this.sequence = value;
+    }
+
+    /// <summary>
+    /// An event fired when our position changes (specifically, <see cref="Frame"/> changes)
     /// </summary>
     public event KeyFramePositionChangedEventHandler? FrameChanged;
 
@@ -100,7 +112,7 @@ public abstract class KeyFrame
 
     internal static void SetupDefaultKeyFrameForSequence(KeyFrame frame, AutomationSequence sequence)
     {
-        frame.sequence = sequence;
+        frame.Sequence = sequence;
     }
 
     #region Getter functions
@@ -309,7 +321,7 @@ public class KeyFrameFloat : KeyFrame
             this.myValue = value;
             this.OnValueChanged();
             this.FloatValueChanged?.Invoke(this, oldValue, value);
-            AutomationSequence.InternalOnKeyFrameValueChanged(this.sequence, this);
+            AutomationSequence.InternalOnKeyFrameValueChanged(this.Sequence, this);
         }
     }
 
@@ -374,7 +386,7 @@ public class KeyFrameDouble : KeyFrame
             this.myValue = value;
             this.OnValueChanged();
             this.DoubleValueChanged?.Invoke(this, oldValue, value);
-            AutomationSequence.InternalOnKeyFrameValueChanged(this.sequence, this);
+            AutomationSequence.InternalOnKeyFrameValueChanged(this.Sequence, this);
         }
     }
 
@@ -439,7 +451,7 @@ public class KeyFrameLong : KeyFrame
             this.myValue = value;
             this.OnValueChanged();
             this.LongValueChanged?.Invoke(this, oldValue, value);
-            AutomationSequence.InternalOnKeyFrameValueChanged(this.sequence, this);
+            AutomationSequence.InternalOnKeyFrameValueChanged(this.Sequence, this);
         }
     }
 
@@ -508,7 +520,7 @@ public class KeyFrameBoolean : KeyFrame
             this.myValue = value;
             this.OnValueChanged();
             this.BooleanValueChanged?.Invoke(this, oldValue, value);
-            AutomationSequence.InternalOnKeyFrameValueChanged(this.sequence, this);
+            AutomationSequence.InternalOnKeyFrameValueChanged(this.Sequence, this);
         }
     }
 
@@ -585,7 +597,7 @@ public class KeyFrameVector2 : KeyFrame
             this.myValue = value;
             this.OnValueChanged();
             this.Vector2ValueChanged?.Invoke(this, oldValue, value);
-            AutomationSequence.InternalOnKeyFrameValueChanged(this.sequence, this);
+            AutomationSequence.InternalOnKeyFrameValueChanged(this.Sequence, this);
         }
     }
 

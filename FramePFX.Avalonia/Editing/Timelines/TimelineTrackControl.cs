@@ -65,7 +65,7 @@ public class TimelineTrackControl : TemplatedControl
     private bool internalIsSelected;
     private bool isProcessingAsyncDrop;
     private readonly PropertyBinder<AutomationSequence?> automationSequenceBinder;
-    private AutomationEditorControl? PART_AutomationEditor;
+    private AutomationSequenceEditorControl? PART_AutomationEditor;
     private Border? dropBorder;
 
     public FrameSpan? DropFrameSpan
@@ -84,8 +84,6 @@ public class TimelineTrackControl : TemplatedControl
             this.ClipStoragePanel?.OnTrackChanged(oldTrack, value);
         }
     }
-
-    public ISelectionManager<IClipElement> Selection => this.SelectionManager!;
 
     /// <summary>
     /// Gets the storage panel this track exists in
@@ -135,7 +133,7 @@ public class TimelineTrackControl : TemplatedControl
         set => this.SetValue(AutomationSequenceProperty, value);
     }
 
-    public ClipSelectionManager? SelectionManager { get; private set; }
+    public ClipSelectionManager SelectionManager { get; }
 
     public ITrackElement? TrackElement { get; internal set; }
 
@@ -143,10 +141,11 @@ public class TimelineTrackControl : TemplatedControl
     {
         this.ClipHeaderBrush = new LinearGradientBrush();
         this.TrackColourForegroundBrush = new SolidColorBrush();
+        this.SelectionManager = new ClipSelectionManager(this);
         this.Focusable = true;
         this.UseLayoutRounding = true;
         DataManager.SetContextData(this, this.contextData = new ContextData());
-        this.automationSequenceBinder = new PropertyBinder<AutomationSequence?>(this, AutomationSequenceProperty, AutomationEditorControl.AutomationSequenceProperty);
+        this.automationSequenceBinder = new PropertyBinder<AutomationSequence?>(this, AutomationSequenceProperty, AutomationSequenceEditorControl.AutomationSequenceProperty);
         DragDrop.SetAllowDrop(this, true);
     }
 
@@ -196,14 +195,21 @@ public class TimelineTrackControl : TemplatedControl
         this.ClipStoragePanel = e.NameScope.GetTemplateChild<ClipStoragePanel>("PART_TrackClipPanel");
         this.ClipStoragePanel.Connect(this);
 
-        this.SelectionManager = new ClipSelectionManager(this);
-
-        this.PART_AutomationEditor = e.NameScope.GetTemplateChild<AutomationEditorControl>("PART_AutomationEditor");
+        this.PART_AutomationEditor = e.NameScope.GetTemplateChild<AutomationSequenceEditorControl>("PART_AutomationEditor");
         this.PART_AutomationEditor.HorizontalZoom = this.TimelineZoom;
+        if (this.TimelineControl?.Timeline is Timeline timeline)
+            this.PART_AutomationEditor.FrameDuration = timeline.MaxDuration;
+        
         this.automationSequenceBinder.SetTargetControl(this.PART_AutomationEditor);
 
         this.dropBorder = e.NameScope.GetTemplateChild<Border>("PART_DropSpanBorder");
         this.dropBorder.ZIndex = 50;
+    }
+
+    public void OnMaxDurationChanged(long newMaxDuration)
+    {
+        if (this.PART_AutomationEditor != null)
+            this.PART_AutomationEditor.FrameDuration = newMaxDuration;
     }
 
     public virtual void OnConnecting(TrackStoragePanel timelineControl, Track track)
@@ -393,7 +399,9 @@ public class TimelineTrackControl : TemplatedControl
             // If we didn't hit a clip, then clear clip selection
             if (!(e.Source is TimelineClipControl))
             {
-                this.TimelineControl!.ClipSelectionManager!.Clear();
+                this.SelectionManager.Clear();
+                
+                // this.TimelineControl!.ClipSelectionManager!.Clear();
             }
 
             // Used to have to manually update property editor, but now that we have the selection managers,
@@ -436,7 +444,7 @@ public class TimelineTrackControl : TemplatedControl
                 ResourceClipRegistry registry = RZApplication.Instance.Services.GetService<ResourceClipRegistry>();
                 if (registry.TryGetValue(item.GetType(), out IResourceDropInformation? info))
                 {
-                    long duration = info.GetClipDurationForDrop(item);
+                    long duration = info.GetClipDurationForDrop(target, item);
                     if (duration > 0)
                     {
                         e.DragEffects = DragDropEffects.Copy;
@@ -475,7 +483,7 @@ public class TimelineTrackControl : TemplatedControl
                 ResourceClipRegistry registry = RZApplication.Instance.Services.GetService<ResourceClipRegistry>();
                 if (registry.TryGetValue(item.GetType(), out IResourceDropInformation? info))
                 {
-                    long duration = info.GetClipDurationForDrop(item);
+                    long duration = info.GetClipDurationForDrop(track, item);
                     if (duration > 0)
                     {
                         await info.OnDroppedInTrack(track, item, new FrameSpan(this.GetFrameAtMousePoint(e.GetPosition(this)), duration));

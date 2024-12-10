@@ -14,7 +14,7 @@
     <ct:AutomationBrushConverter x:Key="AutomationBrushConverter"
                                  AutomationBrush="{StaticResource ABrush.AutomationActiveColour.Static}"/>
 
-    <ControlTheme x:Key="{x:Type a:AutomationEditorControl}" TargetType="{x:Type a:AutomationEditorControl}">
+    <ControlTheme x:Key="{x:Type a:AutomationSequenceEditorControl}" TargetType="{x:Type a:AutomationSequenceEditorControl}">
         <Setter Property="ShapeBrush" Value="{DynamicResource ABrush.AutomationActiveColour.Static}"/>
     </ControlTheme>
     <ControlTheme x:Key="{x:Type t:TimelineRuler}" TargetType="{x:Type t:TimelineRuler}">
@@ -23,7 +23,7 @@
         <Setter Property="MinorStepColour" Value="{DynamicResource ABrush.Tone5.Border.Disabled}"/>
     </ControlTheme>
 
-    <ControlTheme x:Key="TrackAutomationEditorTheme" TargetType="{x:Type a:AutomationEditorControl}">
+    <ControlTheme x:Key="TrackAutomationEditorTheme" TargetType="{x:Type a:AutomationSequenceEditorControl}">
         <Setter Property="ShapeBrush" Value="{DynamicResource ABrush.TrackAutomationActiveColour.Static}"/>
     </ControlTheme>
 
@@ -107,7 +107,7 @@
             <ControlTemplate TargetType="{x:Type t:TimelineTrackControl}">
                 <Panel>
                     <t:ClipStoragePanel x:Name="PART_TrackClipPanel" Background="{TemplateBinding Background}"/>
-                    <a:AutomationEditorControl x:Name="PART_AutomationEditor" Theme="{StaticResource TrackAutomationEditorTheme}"/>
+                    <a:AutomationSequenceEditorControl x:Name="PART_AutomationEditor" Theme="{StaticResource TrackAutomationEditorTheme}"/>
                     <Border x:Name="PART_DropSpanBorder" IsVisible="False"
                             BorderBrush="{DynamicResource ABrush.Glyph.Static}" BorderThickness="2"
                             HorizontalAlignment="Left"/>
@@ -137,7 +137,8 @@
                                           CornerRadius="{TemplateBinding CornerRadius}"
                                           RecognizesAccessKey="True"
                                           TextElement.Foreground="{TemplateBinding Foreground}"/>
-                        <a:AutomationEditorControl x:Name="PART_AutomationEditor" Margin="0,5"/>
+                        <a:AutomationSequenceEditorControl x:Name="PART_AutomationEditor" Margin="0,5"
+                                                           RenderOptions.EdgeMode="Aliased"/>
                     </Panel>
                 </Border>
             </ControlTemplate>

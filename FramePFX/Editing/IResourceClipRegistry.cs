@@ -50,7 +50,7 @@ public sealed class ResourceClipRegistry
 
 public interface IResourceDropInformation
 {
-    long GetClipDurationForDrop(ResourceItem resource);
+    long GetClipDurationForDrop(Track track, ResourceItem resource);
     
     Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span);
 }

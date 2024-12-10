@@ -254,17 +254,9 @@
                                   IsScrollChainingEnabled="{TemplateBinding (ScrollViewer.IsScrollChainingEnabled)}"
                                   IsDeferredScrollingEnabled="{TemplateBinding (ScrollViewer.IsDeferredScrollingEnabled)}"
                                   VerticalScrollBarVisibility="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility)}">
-                        <Panel>
-                            <DockPanel>
-                                <Border DockPanel.Dock="Top" Background="{DynamicResource ABrush.Tone5.Background.Static}"
-                                        BorderBrush="{DynamicResource ABrush.Tone1.Border.Static}" BorderThickness="0,0,0,1" Height="20">
-                                    <TextBlock Text="Name" Padding="5,1,0,1" HorizontalAlignment="Stretch"/>
-                                </Border>
-                                <ItemsPresenter x:Name="PART_ItemsPresenter"
-                                                Margin="{TemplateBinding Padding}"
-                                                ItemsPanel="{TemplateBinding ItemsPanel}"/>
-                            </DockPanel>
-                        </Panel>
+                        <ItemsPresenter x:Name="PART_ItemsPresenter"
+                                        Margin="{TemplateBinding Padding}"
+                                        ItemsPanel="{TemplateBinding ItemsPanel}"/>
                     </ScrollViewer>
                 </Border>
             </ControlTemplate>

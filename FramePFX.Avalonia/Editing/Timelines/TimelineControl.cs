@@ -146,7 +146,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement
 
         ITimelineElement ITrackElement.Timeline => this.Timeline;
 
-        public ISelectionManager<IClipElement> Selection => this.TrackControl.Selection;
+        public ISelectionManager<IClipElement> Selection => this.TrackControl.SelectionManager;
 
         public Track Track { get; }
 
@@ -621,7 +621,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement
         foreach ((int trackIndex, List<Clip> clips) tuple in items)
         {
             TimelineTrackControl track = (TimelineTrackControl) this.TrackStorage!.Children[tuple.trackIndex];
-            track.SelectionManager!.SetSelection(tuple.clips.Select(x => track.ClipStoragePanel!.ItemMap.GetControl(x)));
+            track.SelectionManager.SetSelection(tuple.clips.Select(x => track.ClipStoragePanel!.ItemMap.GetControl(x)));
         }
     }
 

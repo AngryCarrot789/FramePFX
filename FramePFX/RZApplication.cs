@@ -98,7 +98,7 @@ public abstract class RZApplication
 
     private class AVMediaDropInformation : IResourceDropInformation
     {
-        public long GetClipDurationForDrop(ResourceItem resource)
+        public long GetClipDurationForDrop(Track track, ResourceItem resource)
         {
             if (resource.Manager == null)
                 return -1;
@@ -121,7 +121,7 @@ public abstract class RZApplication
     }
     private class ResourceImageDropInformation : IResourceDropInformation
     {
-        public long GetClipDurationForDrop(ResourceItem resource) => 300;
+        public long GetClipDurationForDrop(Track track, ResourceItem resource) => 300;
 
         public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span)
         {
@@ -136,7 +136,7 @@ public abstract class RZApplication
     
     private class ResourceColourDropInformation : IResourceDropInformation
     {
-        public long GetClipDurationForDrop(ResourceItem resource) => 300;
+        public long GetClipDurationForDrop(Track track, ResourceItem resource) => 300;
 
         public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span)
         {

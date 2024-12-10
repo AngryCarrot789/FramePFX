@@ -79,14 +79,14 @@ public class TimelineClipSelectionManager : ISelectionManager<IClipElement>, ILi
 
     public void InternalOnTrackAdded(TimelineTrackControl control)
     {
-        control.SelectionManager!.SelectionChanged += this.OnTrackSelectionChanged;
-        control.SelectionManager!.SelectionCleared += this.OnTrackSelectionCleared;
+        control.SelectionManager.SelectionChanged += this.OnTrackSelectionChanged;
+        control.SelectionManager.SelectionCleared += this.OnTrackSelectionCleared;
     }
 
     public void InternalOnTrackRemoving(TimelineTrackControl control)
     {
-        control.SelectionManager!.SelectionChanged -= this.OnTrackSelectionChanged;
-        control.SelectionManager!.SelectionCleared -= this.OnTrackSelectionCleared;
+        control.SelectionManager.SelectionChanged -= this.OnTrackSelectionChanged;
+        control.SelectionManager.SelectionCleared -= this.OnTrackSelectionCleared;
     }
 
     private void OnTrackSelectionChanged(ISelectionManager<IClipElement> sender, IList<IClipElement>? oldItems, IList<IClipElement>? newItems)
@@ -109,8 +109,15 @@ public class TimelineClipSelectionManager : ISelectionManager<IClipElement>, ILi
     {
         if (!this.isBatching)
         {
-            // Deselect all items in the track
-            this.Unselect(sender.SelectedItems.ToList());
+            List<IClipElement> deselected = new List<IClipElement>();
+            TimelineTrackControl track = ((ClipSelectionManager) sender).Track;
+            foreach (TimelineClipControl clip in track.ClipStoragePanel!.GetClips())
+            {
+                if (this.selectedClipSet.Remove(clip))
+                    deselected.Add(clip);
+            }
+
+            this.OnSelectionChanged(GetList(deselected), null);
         }
     }
 
@@ -160,6 +167,9 @@ public class TimelineClipSelectionManager : ISelectionManager<IClipElement>, ILi
 
     private void DoBatchedEvent(IEnumerable<IClipElement> items, Action<ISelectionManager<IClipElement>, IClipElement> action)
     {
+        if (this.isBatching)
+            throw new InvalidOperationException("Already batching");
+        
         try
         {
             this.isBatching = true;
@@ -197,7 +207,7 @@ public class TimelineClipSelectionManager : ISelectionManager<IClipElement>, ILi
             this.isBatching = true;
             foreach (TimelineTrackControl track in this.TrackControls)
             {
-                track.SelectionManager!.Clear();
+                track.SelectionManager.Clear();
             }
         }
         finally
@@ -217,7 +227,7 @@ public class TimelineClipSelectionManager : ISelectionManager<IClipElement>, ILi
             this.isBatching = true;
             foreach (TimelineTrackControl track in this.TrackControls)
             {
-                track.SelectionManager!.SelectAll();
+                track.SelectionManager.SelectAll();
             }
         }
         finally

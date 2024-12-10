@@ -413,6 +413,7 @@ public class AutomationSequence
             throw new ArgumentException($"Invalid key frame data type. Expected {this.DataType}, got {keyFrame.DataType}", nameof(keyFrame));
         if (keyFrame.sequence != null && keyFrame.sequence.GetIndexOf(keyFrame) != -1)
             throw new InvalidOperationException("Key frame already exists in another sequence");
+        
         return this.AddKeyFrameInternal(keyFrame);
     }
 
@@ -615,22 +616,23 @@ public class AutomationSequence
         return $"{nameof(AutomationSequence)}<{this.Parameter.Key} of type {this.DataType} ({this.keyFrameList.Count} keyframes)>";
     }
 
-    internal static void InternalOnKeyFrameValueChanged(AutomationSequence sequence, KeyFrame keyFrame)
+    internal static void InternalOnKeyFrameValueChanged(AutomationSequence? sequence, KeyFrame keyFrame)
     {
         sequence?.UpdateValue();
         OnKeyFrameModified(sequence, keyFrame);
     }
 
-    internal static void InternalOnKeyFramePositionChanged(AutomationSequence sequence, KeyFrame keyFrame)
+    internal static void InternalOnKeyFramePositionChanged(AutomationSequence? sequence, KeyFrame keyFrame)
     {
         sequence?.UpdateValue();
         OnKeyFrameModified(sequence, keyFrame);
     }
 
-    private static void OnKeyFrameModified(AutomationSequence sequence, KeyFrame keyFrame)
+    private static void OnKeyFrameModified(AutomationSequence? sequence, KeyFrame keyFrame)
     {
         if (sequence == null)
             return;
+        
         ParameterFlags flags = sequence.Parameter.Flags;
         if (flags != ParameterFlags.None)
         {

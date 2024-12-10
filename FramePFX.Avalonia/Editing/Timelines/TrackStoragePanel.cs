@@ -87,7 +87,13 @@ public class TrackStoragePanel : StackPanel
         }
     }
 
-    private void OnMaxDurationChanged(Timeline timeline) => this.InvalidateMeasure();
+    private void OnMaxDurationChanged(Timeline timeline)
+    {
+        this.InvalidateMeasure();
+        
+        foreach (TimelineTrackControl track in this.GetTracks())
+            track.OnMaxDurationChanged(timeline.MaxDuration);
+    }
 
     private void OnTrackAdded(Timeline timeline, Track track, int index)
     {

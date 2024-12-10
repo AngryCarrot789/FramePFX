@@ -103,11 +103,17 @@ public class TimelineClipControl : ContentControl, IClipElement
                 return;
 
             this.myFrameSpan = value;
+            
             this.RaisePropertyChanged(FrameSpanProperty, oldSpan, value);
             if (oldSpan.Begin != value.Begin)
                 this.RaisePropertyChanged(FrameBeginProperty, oldSpan.Begin, value.Begin);
+            
             if (oldSpan.Duration != value.Duration)
+            {
                 this.RaisePropertyChanged(FrameDurationProperty, oldSpan.Duration, value.Duration);
+                if (this.PART_AutomationEditor != null)
+                    this.PART_AutomationEditor.FrameDuration = value.Duration;
+            }
 
             this.InvalidateMeasure();
             if (this.IsConnected && this.StoragePanel!.IsConnected)
@@ -155,7 +161,7 @@ public class TimelineClipControl : ContentControl, IClipElement
     private bool wasSelectedOnPress;
     private bool isProcessingAsyncDrop;
     private FormattedText? myDisplayNameFormattedText;
-    private AutomationEditorControl? PART_AutomationEditor;
+    private AutomationSequenceEditorControl? PART_AutomationEditor;
     private Border? PART_ClipBorderRoot;
 
     public TimelineClipControl()
@@ -164,7 +170,7 @@ public class TimelineClipControl : ContentControl, IClipElement
         this.renderSizeRectGeometry = new RectangleGeometry();
         DataManager.SetContextData(this, this.contextData = new ContextData().Set(DataKeys.ClipUIKey, this));
         DragDrop.SetAllowDrop(this, true);
-        this.autoSequenceBinder = new PropertyBinder<AutomationSequence?>(this, ActiveSequenceProperty, AutomationEditorControl.AutomationSequenceProperty);
+        this.autoSequenceBinder = new PropertyBinder<AutomationSequence?>(this, ActiveSequenceProperty, AutomationSequenceEditorControl.AutomationSequenceProperty);
 
         // Testing render offsets
         // this.Content = new Rectangle() {
@@ -202,8 +208,9 @@ public class TimelineClipControl : ContentControl, IClipElement
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         base.OnApplyTemplate(e);
-        this.PART_AutomationEditor = e.NameScope.GetTemplateChild<AutomationEditorControl>("PART_AutomationEditor");
+        this.PART_AutomationEditor = e.NameScope.GetTemplateChild<AutomationSequenceEditorControl>("PART_AutomationEditor");
         this.PART_AutomationEditor.HorizontalZoom = this.TimelineZoom;
+        this.PART_AutomationEditor.FrameDuration = this.FrameDuration;
         this.PART_ClipBorderRoot = e.NameScope.GetTemplateChild<Border>("PART_ClipBorderRoot");
         this.autoSequenceBinder.SetTargetControl(this.PART_AutomationEditor);
     }

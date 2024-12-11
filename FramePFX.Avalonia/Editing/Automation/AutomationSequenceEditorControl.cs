@@ -77,7 +77,7 @@ public class AutomationSequenceEditorControl : Control
         get => this.GetValue(OverrideShapeBrushProperty);
         set => this.SetValue(OverrideShapeBrushProperty, value);
     }
-    
+
     public long FrameDuration
     {
         get => this.GetValue(FrameDurationProperty);
@@ -93,11 +93,17 @@ public class AutomationSequenceEditorControl : Control
     private KeyFrameMultiElement? mouseOverElement;
     private KeyFrameMultiElement? capturedElement;
 
-    private Point leftClickPos;
+    private Point leftClickPos, lastMovePos;
     private DragState dragState;
+    private LockedMoveDirection lockedMoveDirection;
     private bool flagHasCreatedKeyFrameForPress;
+    private bool isInitialLineMouseOver;
+    private double accumulatedLineDragP1, accumulatedLineDragP2;
 
     private enum DragState { None, Initiated, Active }
+
+    [Flags]
+    private enum LockedMoveDirection { None, Horizontal, Vertical, All }
 
     private readonly struct KeyFrameMultiElement
     {
@@ -173,26 +179,58 @@ public class AutomationSequenceEditorControl : Control
         base.OnPointerPressed(e);
         if (this.mouseOverElement is KeyFrameMultiElement mouseOver)
         {
+            bool isShiftPressed = (e.KeyModifiers & KeyModifiers.Shift) != 0;
             this.leftClickPos = e.GetPosition(this);
             this.dragState = DragState.Initiated;
             if (mouseOver.part == KeyFrameElementPart.LeftLine || mouseOver.part == KeyFrameElementPart.RightLine)
             {
-                Point pos = e.GetPosition(this);
-                long frame = TimelineUtils.PixelToFrame(pos.X, this.HorizontalZoom);
-                int index = mouseOver.keyFrame.sequence.AddNewKeyFrame(frame, out KeyFrame keyFrame);
-                KeyFrameUI newKeyFrameUI = this.keyFrameUIs[index];
-                this.capturedElement = this.mouseOverElement = new KeyFrameMultiElement(newKeyFrameUI, KeyFrameElementPart.KeyFrame);
-                newKeyFrameUI.MouseOverPart = KeyFrameElementPart.KeyFrame;
-                newKeyFrameUI.SetValueForMousePoint(pos);
-                this.flagHasCreatedKeyFrameForPress = true;
+                if (isShiftPressed)
+                {
+                    this.capturedElement = mouseOver;
+                }
+                else
+                {
+                    this.ClearMouseOverElement();
+
+                    long frame = TimelineUtils.PixelToFrame(this.leftClickPos.X, this.HorizontalZoom);
+                    int index = mouseOver.keyFrame.sequence.AddNewKeyFrame(frame, out KeyFrame keyFrame);
+                    KeyFrameUI newKeyFrameUI = this.keyFrameUIs[index];
+
+                    this.capturedElement = this.mouseOverElement = new KeyFrameMultiElement(newKeyFrameUI, KeyFrameElementPart.KeyFrame);
+                    newKeyFrameUI.MouseOverPart = KeyFrameElementPart.KeyFrame;
+                    newKeyFrameUI.SetValueForMousePoint(this.leftClickPos);
+                    this.flagHasCreatedKeyFrameForPress = true;
+                }
             }
             else
             {
                 this.capturedElement = mouseOver;
             }
-            
+
             e.Pointer.Capture(this);
             e.Handled = true;
+        }
+        else if (this.AutomationSequence is AutomationSequence sequence && sequence.IsEmpty)
+        {
+            Point pos = e.GetPosition(this);
+
+            double linePosY = sequence.IsOverrideEnabled ? this.defaultKeyFrameUI!.GetPosition().Y : this.Bounds.Height / 2.0;
+            if ((pos.Y - linePosY) <= LineHitThickness)
+            {
+                long frame = TimelineUtils.PixelToFrame(pos.X, this.HorizontalZoom);
+                int index = sequence.AddNewKeyFrame(frame, out KeyFrame keyFrame);
+                KeyFrameUI newKeyFrameUI = this.keyFrameUIs[index];
+                this.capturedElement = this.mouseOverElement = new KeyFrameMultiElement(newKeyFrameUI, KeyFrameElementPart.KeyFrame);
+                newKeyFrameUI.MouseOverPart = KeyFrameElementPart.KeyFrame;
+                newKeyFrameUI.SetValueForMousePoint(pos);
+
+                this.flagHasCreatedKeyFrameForPress = true;
+                e.Pointer.Capture(this);
+                e.Handled = true;
+
+                this.isInitialLineMouseOver = false;
+                this.InvalidateVisual();
+            }
         }
     }
 
@@ -202,12 +240,13 @@ public class AutomationSequenceEditorControl : Control
 
         bool flag = this.flagHasCreatedKeyFrameForPress;
         this.flagHasCreatedKeyFrameForPress = false;
-        
+
         if (this.capturedElement is KeyFrameMultiElement captured)
         {
             DragState oldState = this.dragState;
             this.capturedElement = null;
             this.dragState = DragState.None;
+            this.lockedMoveDirection = LockedMoveDirection.None;
             if (ReferenceEquals(this, e.Pointer.Captured))
                 e.Pointer.Capture(null);
 
@@ -224,44 +263,136 @@ public class AutomationSequenceEditorControl : Control
     {
         base.OnPointerMoved(e);
 
+        if (!(this.AutomationSequence is AutomationSequence sequence))
+        {
+            return;
+        }
+
         PointerPoint pointer = e.GetCurrentPoint(this);
         Point mPos = e.GetPosition(this);
-        if (this.capturedElement is KeyFrameMultiElement captured && captured.part == KeyFrameElementPart.KeyFrame)
+        Point lastMPos = this.lastMovePos;
+        this.lastMovePos = mPos;
+
+
+        if (sequence.IsEmpty)
+        {
+            if (!this.isInitialLineMouseOver)
+            {
+                double linePosY = sequence.IsOverrideEnabled ? this.defaultKeyFrameUI!.GetPosition().Y : this.Bounds.Height / 2.0;
+                if ((mPos.Y - linePosY) <= LineHitThickness)
+                {
+                    this.isInitialLineMouseOver = true;
+                    this.InvalidateVisual();
+                }
+            }
+        }
+        else
+        {
+            if (this.isInitialLineMouseOver)
+            {
+                this.isInitialLineMouseOver = false;
+                this.InvalidateVisual();
+            }
+        }
+
+        if (this.capturedElement is KeyFrameMultiElement captured)
         {
             if (!pointer.Properties.IsLeftButtonPressed)
             {
                 return;
             }
-            
+
             const double minDragX = 5.0;
             const double minDragY = 5.0;
-            if (Math.Abs(mPos.X - this.leftClickPos.X) < minDragX && Math.Abs(mPos.Y - this.leftClickPos.Y) < minDragY)
+            bool hasStartedDragThisFrame = false;
+            if (this.dragState != DragState.Active)
             {
-                return;
+                double dx = Math.Abs(mPos.X - this.leftClickPos.X);
+                double dy = Math.Abs(mPos.Y - this.leftClickPos.Y);
+
+                if (dx < minDragX && dy < minDragY)
+                {
+                    return;
+                }
+
+                hasStartedDragThisFrame = true;
+                this.dragState = DragState.Active;
+                if ((e.KeyModifiers & KeyModifiers.Shift) != 0 && !DoubleUtils.AreClose(dx, dy))
+                {
+                    this.lockedMoveDirection = dx > dy ? LockedMoveDirection.Horizontal : LockedMoveDirection.Vertical;
+                }
+                else
+                {
+                    this.lockedMoveDirection = LockedMoveDirection.All;
+                }
             }
 
-            this.dragState = DragState.Active;
-            
-            KeyFrameUI? prev = captured.keyFrame.Prev;
-            KeyFrameUI? next = captured.keyFrame.Next;
-
-            long min = prev?.keyFrame.Frame ?? 0;
-            long max = next?.keyFrame.Frame ?? this.FrameDuration;
-
-            // Update X position
-            long newTime = Math.Max(0, (long) Math.Round(mPos.X / this.HorizontalZoom));
-            long oldTime = captured.keyFrame.keyFrame.Frame;
-            if ((oldTime + newTime) < 0)
+            if (captured.part == KeyFrameElementPart.KeyFrame)
             {
-                newTime = -oldTime;
+                KeyFrameUI? prev = captured.keyFrame.Prev;
+                KeyFrameUI? next = captured.keyFrame.Next;
+
+                long min = prev?.keyFrame.Frame ?? 0;
+                long max = next?.keyFrame.Frame ?? this.FrameDuration;
+
+                // Update X position
+                if ((this.lockedMoveDirection & LockedMoveDirection.Horizontal) != 0)
+                {
+                    long newTime = Math.Max(0, (long) Math.Round(mPos.X / this.HorizontalZoom));
+                    long oldTime = captured.keyFrame.keyFrame.Frame;
+                    if ((oldTime + newTime) < 0)
+                    {
+                        newTime = -oldTime;
+                    }
+
+                    captured.keyFrame.keyFrame.Frame = Maths.Clamp(newTime, min, max);
+                }
+
+                // Try update Y position
+                if ((this.lockedMoveDirection & LockedMoveDirection.Vertical) != 0)
+                {
+                    if (!this.IsValueRangeHuge)
+                    {
+                        captured.keyFrame.SetValueForMousePoint(mPos);
+                    }
+                }
             }
-            
-            captured.keyFrame.keyFrame.Frame = Maths.Clamp(newTime, min, max);
-
-            // Try update Y position
-            if (!this.IsValueRangeHuge)
+            else
             {
-                captured.keyFrame.SetValueForMousePoint(mPos);
+                this.lockedMoveDirection = LockedMoveDirection.Vertical;
+
+                if (!this.IsValueRangeHuge)
+                {
+                    KeyFrameUI kf1 = captured.keyFrame;
+                    Point p1 = kf1.GetPosition();
+                    
+                    KeyFrameUI? kf2;
+                    bool isNotFirstLine = kf1.Prev != null || kf1.MouseOverPart != KeyFrameElementPart.LeftLine;
+                    if (isNotFirstLine && (kf2 = captured.keyFrame.Next) != null)
+                    {
+                        // TODO: probably need to re-calculate this if the key frame's value changes outside of this frame
+                        // Though I guess we could just call it undefined behaviour since why are they changing at random?
+                        Point p2 = kf2.GetPosition();
+                        if (hasStartedDragThisFrame)
+                        {
+                            this.accumulatedLineDragP1 = p1.Y;
+                            this.accumulatedLineDragP2 = p2.Y;
+                        }
+                        else
+                        {
+                            double dy = mPos.Y - lastMPos.Y;
+                            this.accumulatedLineDragP1 += dy;
+                            this.accumulatedLineDragP2 += dy;
+                        }
+
+                        kf1.SetValueForMousePoint(mPos.WithX(p1.X).WithY(this.accumulatedLineDragP1));
+                        kf2.SetValueForMousePoint(mPos.WithX(p2.X).WithY(this.accumulatedLineDragP2));
+                    }
+                    else
+                    {
+                        kf1.SetValueForMousePoint(mPos.WithX(p1.X));
+                    }
+                }
             }
 
             return;
@@ -286,7 +417,7 @@ public class AutomationSequenceEditorControl : Control
                         list.Add((KeyFrameUI) keyFrameOrList);
                         keyFrameOrList = list;
                     }
-                    
+
                     list.Add(keyFrame);
                 }
             }
@@ -309,16 +440,16 @@ public class AutomationSequenceEditorControl : Control
                     }
                 }
             }
-            
+
             this.mouseOverElement = new KeyFrameMultiElement(keyFrame, KeyFrameElementPart.KeyFrame);
             keyFrame.MouseOverPart = KeyFrameElementPart.KeyFrame;
-            
+
             if (!hasNotifiedDirty)
                 this.InvalidateVisual();
 
             return;
         }
-        
+
         foreach (KeyFrameUI keyFrame in this.keyFrameUIs)
         {
             if (GetMouseOverLinePart(keyFrame, mPos) is bool part)
@@ -339,7 +470,7 @@ public class AutomationSequenceEditorControl : Control
 
                 if (!hasNotifiedDirty)
                     this.InvalidateVisual();
-                
+
                 return;
             }
         }
@@ -348,7 +479,13 @@ public class AutomationSequenceEditorControl : Control
     protected override void OnPointerExited(PointerEventArgs e)
     {
         base.OnPointerExited(e);
-        this.ClearMouseOverElement();
+        bool invalidated = this.ClearMouseOverElement();
+        if (this.isInitialLineMouseOver)
+        {
+            this.isInitialLineMouseOver = false;
+            if (!invalidated)
+                this.InvalidateVisual();
+        }
     }
 
     private bool ClearMouseOverElement()
@@ -358,14 +495,16 @@ public class AutomationSequenceEditorControl : Control
             KeyFrameUI? prev = mouseOver.keyFrame.Prev;
             if (prev != null)
                 prev.MouseOverPart = null;
-            
+
             KeyFrameUI? next = mouseOver.keyFrame.Next;
             if (next != null)
                 next.MouseOverPart = null;
-            
+
             mouseOver.keyFrame.MouseOverPart = null;
             this.mouseOverElement = null;
             this.capturedElement = null;
+            this.dragState = DragState.None;
+            this.lockedMoveDirection = LockedMoveDirection.None;
             this.InvalidateVisual();
             return true;
         }
@@ -382,7 +521,7 @@ public class AutomationSequenceEditorControl : Control
         double b = mPos.X - pos.X;
         return Math.Sqrt((a * a) + (b * b));
     }
-    
+
     // Null = none, True = left, False = right
     private static bool? GetMouseOverLinePart(KeyFrameUI keyFrame, Point mPos)
     {
@@ -394,13 +533,13 @@ public class AutomationSequenceEditorControl : Control
 
         if (IsMouseOverLine(ref mPos, ref lineP1, ref lineP2, LineHitThickness))
             return true;
-        
+
         if (IsMouseOverLine(ref mPos, ref lineP2, ref lineP3, LineHitThickness))
             return false;
-        
+
         return null;
     }
-    
+
     public static bool IsMouseOverLine(ref Point p, ref Point a, ref Point b, double thickness)
     {
         double c1 = Math.Abs((b.X - a.X) * (a.Y - p.Y) - (a.X - p.X) * (b.Y - a.Y));
@@ -434,14 +573,13 @@ public class AutomationSequenceEditorControl : Control
         IBrush? overrideBrush = sequence.IsOverrideEnabled ? (this.OverrideShapeBrush ?? Brushes.Gray) : null;
         IBrush theBrush = overrideBrush ?? this.ShapeBrush ?? Brushes.OrangeRed;
         IBrush? theMouseOverBrush = null;
-        Pen transparentLinePen = new Pen(Brushes.Transparent, LineHitThickness);
+        ImmutablePen transparentLinePen = new ImmutablePen(Brushes.Transparent, LineHitThickness);
         Pen linePen = new Pen(theBrush, LineThickness);
-        Pen? mouseOverLinePen = null;
+        ImmutablePen? mouseOverLinePen = null;
 
         if (sequence.IsEmpty)
         {
-            // TODO: uncomment when we can actually modify key frames via this UI 
-            // DrawDottedLine(ctx, theBrush, sequence.IsOverrideEnabled ? this.GetYHelper(sequence.DefaultKeyFrame, size.Height) : (size.Height / 2.0), size.Width);
+            DrawDottedLine(ctx, this.isInitialLineMouseOver ? Brushes.White : theBrush, transparentLinePen, sequence.IsOverrideEnabled ? this.defaultKeyFrameUI!.GetPosition().Y : (size.Height / 2.0), size.Width);
             return;
         }
 
@@ -452,7 +590,7 @@ public class AutomationSequenceEditorControl : Control
         for (int i = 0; i < points.Count; i++)
         {
             Point pt = points[i];
-            IPen pen = this.keyFrameUIs[i].MouseOverPart == KeyFrameElementPart.LeftLine ? (mouseOverLinePen ??= new Pen(Brushes.White, LineThickness)) : linePen;
+            IPen pen = this.keyFrameUIs[i].MouseOverPart == KeyFrameElementPart.LeftLine ? (mouseOverLinePen ??= new ImmutablePen(Brushes.White, LineThickness)) : linePen;
             ctx.DrawLine(transparentLinePen, prevPoint, pt);
             ctx.DrawLine(pen, prevPoint, pt);
             prevPoint = pt;
@@ -461,9 +599,9 @@ public class AutomationSequenceEditorControl : Control
         {
             Point endPos = points[points.Count - 1].WithX(size.Width);
             ctx.DrawLine(transparentLinePen, prevPoint, endPos);
-            ctx.DrawLine(this.keyFrameUIs[points.Count - 1].MouseOverPart == KeyFrameElementPart.RightLine ? (mouseOverLinePen ?? new Pen(Brushes.White, LineThickness)) : linePen, prevPoint, endPos);
+            ctx.DrawLine(this.keyFrameUIs[points.Count - 1].MouseOverPart == KeyFrameElementPart.RightLine ? (mouseOverLinePen ?? new ImmutablePen(Brushes.White, LineThickness)) : linePen, prevPoint, endPos);
         }
-        
+
         for (int i = 0; i < points.Count; i++)
         {
             IBrush brush = this.keyFrameUIs[i].MouseOverPart == KeyFrameElementPart.KeyFrame ? (theMouseOverBrush ??= Brushes.White) : theBrush;
@@ -473,12 +611,14 @@ public class AutomationSequenceEditorControl : Control
 
         if (sequence.IsOverrideEnabled)
         {
-            DrawDottedLine(ctx, theBrush, this.defaultKeyFrameUI!.GetPosition().Y, size.Width);
+            DrawDottedLine(ctx, theBrush, transparentLinePen, this.defaultKeyFrameUI!.GetPosition().Y, size.Width);
         }
     }
 
-    private static void DrawDottedLine(DrawingContext ctx, IBrush brush, double y, double width)
+    private static void DrawDottedLine(DrawingContext ctx, IBrush brush, IPen transparentLinePen, double y, double width)
     {
+        ctx.DrawLine(transparentLinePen, new Point(0, y), new Point(width, y));
+
         Pen pen = new Pen(brush, LineThickness, new ImmutableDashStyle([2, 3], 0), PenLineCap.Square);
         ctx.DrawLine(pen, new Point(0, y), new Point(width, y));
     }
@@ -526,11 +666,12 @@ public class AutomationSequenceEditorControl : Control
 
     private void OnKeyFrameAdded(bool isOnSequenceChange, KeyFrame keyFrame, int index)
     {
+        this.isInitialLineMouseOver = false;
         this.keyFrameUIs.Insert(index, new KeyFrameUI(this, keyFrame)
         {
             Index = index
         });
-        
+
         this.keyFrameUIs[index].OnAdded();
 
         if (!isOnSequenceChange)
@@ -553,7 +694,7 @@ public class AutomationSequenceEditorControl : Control
             this.InvalidateVisual();
         }
     }
-    
+
     private static void UpdateIndexForInsertionOrRemoval(List<KeyFrameUI> keyFrames, int index)
     {
         for (int i = keyFrames.Count - 1; i >= index; i--)

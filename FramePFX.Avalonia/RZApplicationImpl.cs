@@ -95,7 +95,7 @@ public class RZApplicationImpl : RZApplication
         // catch (Exception e) {
         //     await IoC.MessageService.ShowMessage(
         //         "Native Library Failure",
-        //         "Error loading native engine library. Be sure to built the C++ project. If it built correctly, then one of its" +
+        //         "Error loading native engine library. Be sure to build the C++ project. If it built correctly, then one of its" +
         //         "library DLL dependencies may be missing. Make sure the FFmpeg and PortAudio DLLs are available (e.g. in the bin folder)." +
         //         "\n\nError:\n" + e.GetToString());
         //     throw new Exception("PFXCE native engine load failed", e);
@@ -112,12 +112,12 @@ public class RZApplicationImpl : RZApplication
             }
             catch (Exception ex)
             {
-                await IoC.MessageService.ShowMessage("Keymap", "Failed to read keymap file" + keymapFilePath, ex.GetToString());
+                await IoC.MessageService.ShowMessage("Keymap", "Failed to read keymap file" + keymapFilePath + ". This error can be ignored, but shortcuts won't work", ex.GetToString());
             }
         }
         else
         {
-            await IoC.MessageService.ShowMessage("Keymap", "Keymap file does not exist at " + keymapFilePath);
+            await IoC.MessageService.ShowMessage("Keymap", "Keymap file does not exist at " + keymapFilePath + ". This error can be ignored, but shortcuts won't work");
         }
 
         await progress.SetAction("Loading FFmpeg...", null);
@@ -138,7 +138,7 @@ public class RZApplicationImpl : RZApplication
         }
         catch (Exception e)
         {
-            await IoC.MessageService.ShowMessage("FFmpeg registration failed", "Failed to register all FFmpeg devices", e.GetToString());
+            await IoC.MessageService.ShowMessage("FFmpeg registration failed", "Failed to register all FFmpeg devices. Is FFmpeg installed correctly?", e.GetToString());
         }
     }
 

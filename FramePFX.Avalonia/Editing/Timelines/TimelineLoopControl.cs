@@ -222,7 +222,7 @@ public class TimelineLoopControl : TemplatedControl
             return;
         }
 
-        Pen gripPen = new Pen(Brushes.DarkBlue, 1);
+        ImmutablePen gripPen = new ImmutablePen(Brushes.DarkBlue, 1);
         double x1 = 0.5; //TimelineUtils.FrameToPixel(span.Begin, control.Zoom);
         double x2 = TimelineUtils.FrameToPixel(span.Duration, this.currZoom);
         double height = this.Bounds.Height;

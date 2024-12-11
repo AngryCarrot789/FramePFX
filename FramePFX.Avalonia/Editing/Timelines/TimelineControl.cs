@@ -309,7 +309,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement
         if (clipVisible.HasValue)
             clip.OnIsAutomationVisibilityChanged(clipVisible.Value);
         if (trackVisible.HasValue)
-            clip.Opacity = trackVisible.Value ? 0.8 : 1.0;
+            clip.Opacity = trackVisible.Value ? 0.7 : 1.0;
     }
 
     private void OnSelectionChanged(ILightSelectionManager<IClipElement> sender)

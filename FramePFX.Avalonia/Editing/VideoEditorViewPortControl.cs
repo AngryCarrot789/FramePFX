@@ -90,10 +90,10 @@ public class VideoEditorViewPortControl : TemplatedControl
     // tiled background + selection borders stuff
     private const double DashStrokeSize = 8;
     private DashStyle? dashStyle1, dashStyle2;
-    private Pen? outlinePen1, outlinePen2;
-    private Pen? selPen1, selPen2;
+    private ImmutablePen? outlinePen1, outlinePen2;
+    private ImmutablePen? selPen1, selPen2;
     private bool isProcessingAsyncDrop;
-    private Pen? selectionPen;
+    private ImmutablePen? selectionPen;
 
     public VideoEditorViewPortControl()
     {
@@ -383,14 +383,14 @@ public class VideoEditorViewPortControl : TemplatedControl
         Point cR = new Point(func(rOrg.X) * scale, func(rOrg.Y) * scale);
         Point cS = new Point(func(pts[5].X) * scale, func(pts[5].Y) * scale);
 
-        this.selPen1 ??= new Pen(Brushes.Black, 1.0, new ImmutableDashStyle(new double[] { 4, 4 }, 0));
-        this.selPen2 ??= new Pen(Brushes.White, 1.0, new ImmutableDashStyle(new double[] { 4, 4 }, 4 /* start half way */));
+        this.selPen1 ??= new ImmutablePen(Brushes.Black, 1.0, new ImmutableDashStyle(new double[] { 4, 4 }, 0));
+        this.selPen2 ??= new ImmutablePen(Brushes.White, 1.0, new ImmutableDashStyle(new double[] { 4, 4 }, 4 /* start half way */));
 
         ctx.DrawGeometry(null, this.selPen1, selRectGeometry);
         ctx.DrawGeometry(null, this.selPen2, selRectGeometry);
 
-        Pen pen1 = new Pen(Brushes.Red, 2.0D);
-        Pen pen2 = new Pen(Brushes.DeepSkyBlue, 2.0D);
+        ImmutablePen pen1 = new ImmutablePen(Brushes.Red, 2.0D);
+        ImmutablePen pen2 = new ImmutablePen(Brushes.DeepSkyBlue, 2.0D);
 
         const double crosshairLen = 12.0;
         ctx.DrawLine(pen1, new Point(cR.X - crosshairLen, cR.Y), new Point(cR.X + crosshairLen, cR.Y));
@@ -401,7 +401,7 @@ public class VideoEditorViewPortControl : TemplatedControl
         ctx.DrawLine(pen2, new Point(cS.X - dist, cS.Y + dist), new Point(cS.X + dist, cS.Y - dist));
 
         const double diaInn = 3.0;
-        ctx.DrawEllipse(Brushes.SlateBlue, this.selectionPen ??= new Pen(Brushes.BlueViolet, 2.0), cC, diaInn, diaInn);
+        ctx.DrawEllipse(Brushes.SlateBlue, this.selectionPen ??= new ImmutablePen(Brushes.BlueViolet, 2.0), cC, diaInn, diaInn);
     }
 
     public void OnClipSelectionChanged()

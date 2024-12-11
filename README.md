@@ -8,19 +8,15 @@ I doubt this will ever even come close to those editors, but hopefully it will a
 If you have any feedback/criticism for the app, that would be appreciate! Also feel free to contribute, if you would like to. You can see the TODO list near the bottom
 
 # Downloading and Compiling/Building
+### FramePFX assumes everything is 64 bit --- x86/32-bit/AnyCPU most likely won't work!
 
 To compile and run the editor, you need to download FFmpeg yourself. 
-Here is the specific version that works currently: https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2024-12-11-13-02/ffmpeg-N-118048-g1e76bd2f39-win64-gpl.zip
+Here is the specific version that works currently: https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2024-12-11-13-02/ffmpeg-N-118048-g1e76bd2f39-win64-gpl-shared.zip
 
-### FramePFX assumes everything is 64 bit --- x86/32-bit/AnyCPU most likely won't work!
-Create a folder called `libraries` in the solution folder and a sub-folders called `ffmpeg`.
-Copy the contents of both of the ffmpeg archive into that folder. You should be able to navigate
-to `\FramePFX\libraries\ffmpeg\lib`.
+Create a folder called `libraries` in the solution folder and a sub-folders called `ffmpeg`. From the downloaded archive, 
+find the bin folder and copy all of the DLL files from there into the newly created ffmpeg folder.
 
-If you only plan on debugging only from VS/Rider or whatever IDE you use, it works fine as long as
-the ffmpeg folder is in the 'libraries' folder. If you associated the `fpfx` file extension with FramePFX
-in the build folders, then you most likely will need to copy the DLL files in ffmpeg's `bin` folder
-(except for the .exe files) into the same folder as `FramePFX.exe`
+There should be 8 files in `\FramePFX\libraries\ffmpeg`, e.g. avcodec-61.dll
 
 Hopefully then you should be able to build and run without issue. This project uses Avalonia 11.2.2 and .NET 8 (C# 12)
 

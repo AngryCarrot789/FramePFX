@@ -86,6 +86,6 @@
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Exec Command="xcopy /y &quot;$(SolutionDir)libraries\ffmpeg\bin\*.dll&quot; $(TargetDir)&#xA;        "/>
+      <Exec Command="xcopy /y &quot;$(SolutionDir)libraries\ffmpeg\*.dll&quot; $(TargetDir)&#xA;        " />
     </Target>
 </Project>

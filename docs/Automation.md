@@ -1,6 +1,13 @@
 # Automation Engine
 The automation engine is used to automate pieces of data, e.g. media position, scale, opacity, etc. 
 
+Always found automating parameters in the standard editors to be generally finicky. Ableton Live has a really good automation editor though, so I took a fair bit of inspiration from it:
+- Each clip has its own keyframe/envelope editor that stretches the entirety of the clip. Effects also use this
+- Tracks have the same, but it stretches the entire timeline.
+- Automating project settings, or anything else really, will soon be do-able on a timeline automation specific track (allowing for more than just video/audio tracks)
+
+The clip's automation sequence editor's target parameter can be changed by selecting a row (I call them "slots") in the property editor. The currently selected slot is what the clip shows (if clip automation is visible, click C to toggle)
+
 ### Key frames
 I'm sure you know what key frame are; they just store a value at some time. I decided to store the time as a frame (relative to the project FPS)
 because it's much simpler, however, when you change the project FPS it will cause automation to run faster or slower depending on the frame rate difference,

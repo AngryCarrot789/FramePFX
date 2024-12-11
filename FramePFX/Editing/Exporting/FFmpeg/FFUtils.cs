@@ -122,33 +122,6 @@ namespace FramePFX.Editing.Exporting.FFmpeg
             return best_samplerate;
         }
 
-        /* select layout with the highest channel count */
-        static unsafe ulong select_channel_layout(AVCodec* codec)
-        {
-            ulong* p;
-            ulong best_ch_layout = 0;
-            int best_nb_channells = 0;
-
-            if (codec->channel_layouts == null)
-                return ffmpeg.AV_CH_LAYOUT_STEREO;
-
-            p = codec->channel_layouts;
-            while (*p != 0)
-            {
-                int nb_channels = ffmpeg.av_get_channel_layout_nb_channels(*p);
-
-                if (nb_channels > best_nb_channells)
-                {
-                    best_ch_layout = *p;
-                    best_nb_channells = nb_channels;
-                }
-
-                p++;
-            }
-
-            return best_ch_layout;
-        }
-
         static unsafe void video_encode_example(string filename, AVCodecID codec_id)
         {
             Exception exception = null;

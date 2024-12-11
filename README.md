@@ -9,7 +9,8 @@ If you have any feedback/criticism for the app, that would be appreciate! Also f
 
 # Downloading and Compiling/Building
 
-To compile and run the editor, you need to download FFmpeg yourself. You can find the download link here: https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip
+To compile and run the editor, you need to download FFmpeg yourself. 
+Here is the specific version that works currently: https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2024-12-11-13-02/ffmpeg-N-118048-g1e76bd2f39-win64-gpl.zip
 
 ### FramePFX assumes everything is 64 bit --- x86/32-bit/AnyCPU most likely won't work!
 Create a folder called `libraries` in the solution folder and a sub-folders called `ffmpeg`.

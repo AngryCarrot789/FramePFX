@@ -342,7 +342,22 @@ public class RateLimitedDispatchAction<T> : BaseRateLimitedDispatchAction, IDisp
 
     protected override Task ExecuteCore()
     {
+        // BUG:
+        // InvokeAsync(value)
+        // ExecuteCore, value not exchanged yet ---
+        // InvokeAsync(another_value)
+        // ExecuteCore exchanges the value, but now the critical state is met due to the above InvokeAsync
+        // ExecuteCore completes and then executes again due to the critical state
+        // ExecuteCore runs again but with a null currentValue
+        
+        // FIX:
+        // We need to clear the critical state after reading the value.
+        // This way, we still get the latest value but ExecuteCore won't get called again,
+        // unless InvokeAsync is invoked right after the critical state is cleared which is fine.
+        // Technically ExecuteCore should get called twice, but i can't think of a better solution currently 
         ObjectWrapper? value = Interlocked.Exchange(ref this.currentValue, null);
+        this.ClearCriticalState();
+
         if (value == null)
         {
             Debug.Assert(false, "Did not expect current value to be null");

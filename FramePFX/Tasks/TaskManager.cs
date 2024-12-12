@@ -18,6 +18,7 @@
 // 
 
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace FramePFX.Tasks;
 
@@ -71,7 +72,7 @@ public sealed class TaskManager : IDisposable
     /// </summary>
     /// <param name="task">The task associated with the current thread</param>
     /// <returns>True if this thread is running a task</returns>
-    public bool TryGetCurrentTask(out ActivityTask? task)
+    public bool TryGetCurrentTask([NotNullWhen(true)] out ActivityTask? task)
     {
         return (task = this.threadToTask.Value) != null;
     }
@@ -88,7 +89,7 @@ public sealed class TaskManager : IDisposable
     /// <returns></returns>
     public IActivityProgress GetCurrentProgressOrEmpty()
     {
-        return this.TryGetCurrentTask(out ActivityTask? task) ? task!.Progress : EmptyActivityProgress.Instance;
+        return this.TryGetCurrentTask(out ActivityTask? task) ? task.Progress : EmptyActivityProgress.Instance;
     }
 
     public void Dispose()

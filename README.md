@@ -18,6 +18,9 @@ find the bin folder and copy all of the DLL files from there into the newly crea
 
 There should be 8 files in `\FramePFX\libraries\ffmpeg`, e.g. avcodec-61.dll
 
+If you're building on windows, there's a build event that uses xcopy to copy the ffmpeg DLLs into the build folder, but this might not work on other platforms so you may have to do it manually. 
+The 8 DLLs just have to be in the same directly as the FramePFX-DesktopUI.exe executable
+
 Hopefully then you should be able to build and run without issue. This project uses Avalonia 11.2.2 and .NET 8 (C# 12)
 
 ### Possible build problems

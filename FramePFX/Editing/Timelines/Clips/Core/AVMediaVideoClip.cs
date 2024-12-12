@@ -48,7 +48,7 @@ public class AVMediaVideoClip : VideoClip, IHavePlaybackSpeedClip
     public double PlaybackSpeed { get; private set; }
 
     public IResourcePathKey<ResourceAVMedia> ResourceAVMediaKey { get; }
-    
+
     public AVMediaVideoClip()
     {
         this.PlaybackSpeed = 1.0;
@@ -124,7 +124,7 @@ public class AVMediaVideoClip : VideoClip, IHavePlaybackSpeedClip
             double newDuration = this.spanWithoutSpeed.Duration / speed;
             this.FrameSpan = new FrameSpan(this.FrameSpan.Begin, Math.Max((long) Math.Floor(newDuration), 1));
         }
-        
+
         this.ignoreFrameSpanChanged = false;
     }
 
@@ -173,7 +173,7 @@ public class AVMediaVideoClip : VideoClip, IHavePlaybackSpeedClip
             unsafe
             {
                 AVCodecParameters* pars = resource.stream.Handle->codecpar;
-                this.renderFrameRgb = new VideoFrame(pars->width, pars->height, PixelFormats.RGBA);
+                this.renderFrameRgb = new VideoFrame(pars->width, pars->height, PixelFormats.BGRA);
             }
         }
 
@@ -217,6 +217,7 @@ public class AVMediaVideoClip : VideoClip, IHavePlaybackSpeedClip
         if (this.decodeFrameTask != null)
         {
             this.lastReadyFrame = ready = this.decodeFrameTask.Result;
+            this.decodeFrameTask = null;
             // System.Diagnostics.Debug.WriteLine("Last decode time: " + Math.Round((double) this.lastDecodeFrameDuration) / Time.TICK_PER_MILLIS + " ms");
         }
         else
@@ -235,7 +236,7 @@ public class AVMediaVideoClip : VideoClip, IHavePlaybackSpeedClip
             // long startA = Time.GetSystemTicks();
             byte* ptr;
             GetFrameData(this.renderFrameRgb!, 0, &ptr, out int rowBytes);
-            SKImageInfo image = new SKImageInfo(this.renderFrameRgb!.Width, this.renderFrameRgb.Height, SKColorType.Rgba8888);
+            SKImageInfo image = new SKImageInfo(this.renderFrameRgb!.Width, this.renderFrameRgb.Height, SKColorType.Bgra8888);
             using (SKImage img = SKImage.FromPixels(image, (IntPtr) ptr, rowBytes))
             {
                 if (img == null)
@@ -243,12 +244,14 @@ public class AVMediaVideoClip : VideoClip, IHavePlaybackSpeedClip
                     return;
                 }
 
-                using (SKPaint paint = new SKPaint())
+                using SKPaint? paint = rc.FilterQuality != SKFilterQuality.None || this.RenderOpacityByte != 255 ? new SKPaint() : null;
+                if (paint != null)
                 {
                     paint.FilterQuality = rc.FilterQuality;
                     paint.Color = SKColors.White.WithAlpha(this.RenderOpacityByte);
-                    rc.Canvas.DrawImage(img, 0, 0, paint);
                 }
+
+                rc.Canvas.DrawImage(img, 0, 0, paint);
 
                 renderArea = rc.TranslateRect(new SKRect(0, 0, img.Width, img.Height));
                 // renderArea = new SKRect(0, 0, img.Width, img.Height);

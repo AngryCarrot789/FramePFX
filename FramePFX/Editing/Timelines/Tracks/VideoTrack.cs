@@ -164,6 +164,7 @@ public class VideoTrack : Track
             }
 
             clip.RenderOpacity = VideoClip.OpacityParameter.GetCurrentValue(clip);
+            clip.RenderOpacityByte = RenderUtils.DoubleToByte255(clip.RenderOpacity);
             List<VideoEffect> trackEffects = new List<VideoEffect>();
             foreach (VideoEffect videoFx in InternalGetEffectListUnsafe(this))
             {

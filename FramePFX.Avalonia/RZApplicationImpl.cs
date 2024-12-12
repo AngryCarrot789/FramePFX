@@ -122,16 +122,6 @@ public class RZApplicationImpl : RZApplication
 
         await progress.SetAction("Loading FFmpeg...", null);
 
-        string ffmpegFolderPath = Path.GetFullPath(".\\libraries\\ffmpeg\\bin");
-        if (!Directory.Exists(ffmpegFolderPath))
-            ffmpegFolderPath = Path.GetFullPath(".\\ffmpeg");
-
-        if (!Directory.Exists(ffmpegFolderPath))
-            ffmpegFolderPath = Path.GetFullPath("..\\..\\..\\..\\libraries\\ffmpeg\\bin\\");
-
-        if (Directory.Exists(ffmpegFolderPath))
-            ffmpeg.RootPath = ffmpegFolderPath;
-
         try
         {
             ffmpeg.avdevice_register_all();

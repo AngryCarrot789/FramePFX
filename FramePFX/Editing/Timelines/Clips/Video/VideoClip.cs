@@ -95,7 +95,7 @@ public abstract class VideoClip : Clip
     /// <summary>
     /// This is <see cref="RenderOpacity"/> converted to a byte
     /// </summary>
-    public byte RenderOpacityByte => RenderUtils.DoubleToByte255(this.RenderOpacity);
+    public byte RenderOpacityByte;
 
     /// <summary>
     /// Returns true if this clip handles its own opacity calculations in order for a more
@@ -260,7 +260,7 @@ public abstract class VideoClip : Clip
     /// <param name="frame">The play head frame, relative to this clip. This will always be within range of our span</param>
     /// <returns>True if this clip can be rendered (meaning <see cref="RenderFrame"/> may be called after this call)</returns>
     public abstract bool PrepareRenderFrame(PreRenderContext rc, long frame);
-
+    
     /// <summary>
     /// Renders this clip using the given rendering context data. This is called on a randomly
     /// assigned rendering thread, therefore, this method should not access un-synchronised clip data

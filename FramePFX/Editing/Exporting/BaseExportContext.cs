@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.Editing.Exporting.Setups;
 using FramePFX.Editing.Timelines;
 using FramePFX.Utils;
 
@@ -26,12 +25,12 @@ namespace FramePFX.Editing.Exporting;
 /// <summary>
 /// A specific exportation context for an exporter
 /// </summary>
-public abstract class ExportContext
+public abstract class BaseExportContext
 {
     /// <summary>
     /// The export registration that created this context
     /// </summary>
-    public ExporterInfo Exporter { get; }
+    public BaseExporterInfo Exporter { get; }
 
     /// <summary>
     /// Gets the export setup
@@ -54,7 +53,7 @@ public abstract class ExportContext
     /// </summary>
     public FrameSpan Span => this.Setup.Span;
 
-    protected ExportContext(ExporterInfo exporter, ExportSetup setup)
+    protected BaseExportContext(BaseExporterInfo exporter, ExportSetup setup)
     {
         Validate.NotNull(exporter);
         Validate.NotNull(setup);

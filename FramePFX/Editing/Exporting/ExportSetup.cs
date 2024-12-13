@@ -20,22 +20,22 @@
 using FramePFX.Editing.Timelines;
 using FramePFX.Utils;
 
-namespace FramePFX.Editing.Exporting.Setups;
+namespace FramePFX.Editing.Exporting;
 
 public delegate void ExportSetupSpanChangedEventHandler(ExportSetup sender, FrameSpan oldSpan, FrameSpan newSpan);
 
 public delegate void ExportSetupFilePathChangedEventHandler(ExportSetup sender, string? oldFilePath, string? newFilePath);
 
-public delegate void ExportSetupExporterChangedEventHandler(ExportSetup sender, ExporterInfo? oldExporter, ExporterInfo? newExporter);
+public delegate void ExportSetupExporterChangedEventHandler(ExportSetup sender, BaseExporterInfo? oldExporter, BaseExporterInfo? newExporter);
 
 /// <summary>
 /// Information about preparing to export. This is created when the user opens the export dialog
 /// </summary>
-public class ExportSetup
+public sealed class ExportSetup
 {
     private FrameSpan span;
     private string? filePath;
-    private ExporterInfo? exporter;
+    private BaseExporterInfo? exporter;
 
     /// <summary>
     /// Gets the video editor that owns the timeline being exported
@@ -89,12 +89,12 @@ public class ExportSetup
     /// <summary>
     /// Gets or sets the exporter registration that will be used for actually exporting
     /// </summary>
-    public ExporterInfo? Exporter
+    public BaseExporterInfo? Exporter
     {
         get => this.exporter;
         set
         {
-            ExporterInfo? oldExporter = this.exporter;
+            BaseExporterInfo? oldExporter = this.exporter;
             if (oldExporter == value)
                 return;
 

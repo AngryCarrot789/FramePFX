@@ -23,6 +23,7 @@ using FramePFX.Avalonia.PropertyEditing.Core;
 using FramePFX.Avalonia.PropertyEditing.DataTransfer;
 using FramePFX.Avalonia.PropertyEditing.DataTransfer.Automatic;
 using FramePFX.Avalonia.Utils;
+using FramePFX.Editing.Exporting.FFmpeg;
 using FramePFX.Editing.PropertyEditors;
 using FramePFX.PropertyEditing;
 using FramePFX.PropertyEditing.Automation;
@@ -74,6 +75,9 @@ public abstract class BasePropEditControlContent : TemplatedControl
         Registry.RegisterType<ParameterLongPropertyEditorSlot>(() => new ParameterLongPropertyEditorControl());
         Registry.RegisterType<ParameterVector2PropertyEditorSlot>(() => new ParameterVector2PropertyEditorControl());
         Registry.RegisterType<ParameterBoolPropertyEditorSlot>(() => new ParameterBoolPropertyEditorControl());
+        
+        // Enums
+        Registry.RegisterType<DataParameterAVCodecIDPropertyEditorSlot>(() => new DataParameterAVCodedIdPropertyEditorControl());
     }
 
     public static BasePropEditControlContent NewContentInstance(PropertyEditorSlot slot)

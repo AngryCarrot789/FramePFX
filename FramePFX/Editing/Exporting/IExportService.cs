@@ -17,14 +17,12 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.Editing.Exporting.Setups;
-
 namespace FramePFX.Editing.Exporting;
 
 public interface IExportService
 {
     /// <summary>
-    /// Shows the export dialog, in relation to the given timeline
+    /// Shows the export dialog
     /// </summary>
     /// <param name="setup">The setup info</param>
     /// <returns>A task that completes when the dialog closes</returns>

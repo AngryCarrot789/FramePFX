@@ -18,21 +18,20 @@
 // 
 
 using FramePFX.DataTransfer;
-using FramePFX.Editing.Exporting.Setups;
 using FramePFX.PropertyEditing;
 using FramePFX.Utils;
 
 namespace FramePFX.Editing.Exporting;
 
-public delegate void ExporterInfoCurrentSetupChangedEventHandler(ExporterInfo sender, ExportSetup? oldCurrentSetup, ExportSetup? newCurrentSetup);
+public delegate void ExporterInfoCurrentSetupChangedEventHandler(BaseExporterInfo sender, ExportSetup? oldCurrentSetup, ExportSetup? newCurrentSetup);
 
 /// <summary>
 /// Contains information about an exporter, and provides a mechanism for creating an exportation context for actually exporting content.
 /// <para>
-/// Exporters are singletons, but an <see cref="ExportContext"/> is created each time the user actually attempts to export content.
+/// Exporters are singletons, but an <see cref="BaseExportContext"/> is created each time the user actually attempts to export content.
 /// </para>
 /// </summary>
-public abstract class ExporterInfo : ITransferableData
+public abstract class BaseExporterInfo : ITransferableData
 {
     private ExporterKey myKey;
 
@@ -51,7 +50,7 @@ public abstract class ExporterInfo : ITransferableData
 
     public event ExporterInfoCurrentSetupChangedEventHandler? CurrentSetupChanged;
 
-    protected ExporterInfo()
+    protected BaseExporterInfo()
     {
         this.TransferableData = new TransferableData(this);
         this.PropertyEditor = new PropertyEditor();
@@ -94,7 +93,7 @@ public abstract class ExporterInfo : ITransferableData
     /// </summary>
     /// <param name="setup">The setup information</param>
     /// <returns>The exporting context</returns>
-    public abstract ExportContext CreateContext(ExportSetup setup);
+    public abstract BaseExportContext CreateContext(ExportSetup setup);
 
-    internal static void InternalSetKey(ExporterInfo info, ExporterKey key) => info.myKey = key;
+    internal static void InternalSetKey(BaseExporterInfo info, ExporterKey key) => info.myKey = key;
 }

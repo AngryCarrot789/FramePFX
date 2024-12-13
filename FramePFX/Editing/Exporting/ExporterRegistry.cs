@@ -30,13 +30,13 @@ public class ExporterRegistry
 {
     public static ExporterRegistry Instance { get; } = new ExporterRegistry();
 
-    private readonly Dictionary<ExporterKey, ExporterInfo> exporters;
-    private readonly List<(ExporterKey, ExporterInfo)> exporterList;
+    private readonly Dictionary<ExporterKey, BaseExporterInfo> exporters;
+    private readonly List<(ExporterKey, BaseExporterInfo)> exporterList;
 
     /// <summary>
     /// Gets the un-ordered dictionary of registered exporters by key
     /// </summary>
-    public IReadOnlyDictionary<ExporterKey, ExporterInfo> Exporters => this.exporters;
+    public IReadOnlyDictionary<ExporterKey, BaseExporterInfo> Exporters => this.exporters;
 
     /// <summary>
     /// Gets an ordered enumerable of keys, ordered by the registration order
@@ -45,8 +45,8 @@ public class ExporterRegistry
 
     private ExporterRegistry()
     {
-        this.exporters = new Dictionary<ExporterKey, ExporterInfo>(ExporterKey.DefaultComparer);
-        this.exporterList = new List<(ExporterKey, ExporterInfo)>();
+        this.exporters = new Dictionary<ExporterKey, BaseExporterInfo>(ExporterKey.DefaultComparer);
+        this.exporterList = new List<(ExporterKey, BaseExporterInfo)>();
     }
 
     static ExporterRegistry()
@@ -55,14 +55,14 @@ public class ExporterRegistry
         Instance.RegisterExporter(new ExporterKey("exporter_ffmpeg", "FFmpeg"), new FFmpegExporterInfo());
     }
 
-    public void RegisterExporter(ExporterKey key, ExporterInfo exporter)
+    public void RegisterExporter(ExporterKey key, BaseExporterInfo exporter)
     {
         Validate.NotNull(exporter);
         if (!this.exporters.TryAdd(key, exporter))
             throw new InvalidOperationException("Key already registered: " + key.ToString());
         this.exporterList.Add((key, exporter));
-        ExporterInfo.InternalSetKey(exporter, key);
+        BaseExporterInfo.InternalSetKey(exporter, key);
     }
 
-    public bool TryGetExporter(ExporterKey key, [NotNullWhen(true)] out ExporterInfo? exporter) => this.exporters.TryGetValue(key, out exporter);
+    public bool TryGetExporter(ExporterKey key, [NotNullWhen(true)] out BaseExporterInfo? exporter) => this.exporters.TryGetValue(key, out exporter);
 }

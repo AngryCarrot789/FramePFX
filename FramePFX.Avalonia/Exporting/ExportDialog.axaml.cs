@@ -30,7 +30,6 @@ using Avalonia.Interactivity;
 using FramePFX.Avalonia.Bindings;
 using FramePFX.Avalonia.Themes.Controls;
 using FramePFX.Editing.Exporting;
-using FramePFX.Editing.Exporting.Setups;
 using FramePFX.Editing.Timelines;
 using FramePFX.Tasks;
 using FramePFX.Utils;
@@ -107,7 +106,7 @@ public partial class ExportDialog : WindowEx
 
     // TODO: combobox can change exporter, but changing exporter externally will not change combo box. Too lazy to implement :-)
 
-    private void SetupOnExporterChanged(ExportSetup sender, ExporterInfo? oldExporter, ExporterInfo? newExporter)
+    private void SetupOnExporterChanged(ExportSetup sender, BaseExporterInfo? oldExporter, BaseExporterInfo? newExporter)
     {
         this.ThePropertyEditor.PropertyEditor = newExporter?.PropertyEditor;
     }
@@ -123,13 +122,13 @@ public partial class ExportDialog : WindowEx
             return;
 
         ExportSetup setup = this.Setup;
-        ExporterInfo? exporter = setup.Exporter;
+        BaseExporterInfo? exporter = setup.Exporter;
         if (exporter == null)
         {
             return;
         }
 
-        ExportContext context = exporter.CreateContext(setup);
+        BaseExportContext context = exporter.CreateContext(setup);
 
         this.IsExporting = true;
 

@@ -32,12 +32,13 @@ public class DataParameterEnumInfo<TEnum> where TEnum : Enum
     public IEnumerable<TEnum> EnumList => this.AllowedEnumList.Select(x => x.Item1);
     public IEnumerable<string> TextList => this.AllowedEnumList.Select(x => x.Item2);
 
-    public DataParameterEnumInfo() : this(typeof(TEnum).GetEnumValues().Cast<TEnum>()) {
+    public DataParameterEnumInfo() : this(null) {
     }
 
-    public DataParameterEnumInfo(IEnumerable<TEnum> allowedEnumValues)
+    public DataParameterEnumInfo(IEnumerable<TEnum>? allowedEnumValues)
     {
-        Validate.NotNull(allowedEnumValues);
+        if (allowedEnumValues == null)
+            allowedEnumValues = typeof(TEnum).GetEnumValues().Cast<TEnum>();
 
         this.AllowedEnumList = allowedEnumValues.Select(x => (x, x.ToString())).ToList().AsReadOnly();
         this.EnumToText = new Dictionary<TEnum, string>(this.AllowedEnumList.Select(x => new KeyValuePair<TEnum, string>(x.Item1, x.Item2)));
@@ -64,10 +65,10 @@ public class DataParameterEnumInfo<TEnum> where TEnum : Enum
     }
 }
 
-public class DataParameterEnumPropertyEditorSlot<TEnum> : DataParameterPropertyEditorSlot where TEnum : Enum
+public class DataParameterEnumPropertyEditorSlot<TEnum> : DataParameterPropertyEditorSlot where TEnum : struct, Enum
 {
-    public static readonly ReadOnlyCollection<TEnum> Values = typeof(TEnum).GetEnumValues().Cast<TEnum>().ToList().AsReadOnly();
-    public static readonly IReadOnlySet<TEnum> ValuesSet = new HashSet<TEnum>(Values);
+    public static readonly ReadOnlyCollection<TEnum> EnumValues = Enum.GetValues<TEnum>().ToList().AsReadOnly();
+    public static readonly IReadOnlySet<TEnum> EnumValuesSet = new HashSet<TEnum>(EnumValues);
 
     public readonly DataParameterEnumInfo<TEnum>? TranslationInfo;
 
@@ -83,8 +84,8 @@ public class DataParameterEnumPropertyEditorSlot<TEnum> : DataParameterPropertyE
         get => this.value;
         set
         {
-            if (!ValuesSet.Contains(value))
-                value = Values[0];
+            if (!EnumValuesSet.Contains(value))
+                value = EnumValues[0];
 
             if (EqualityComparer<TEnum>.Default.Equals(value, this.value))
                 return;
@@ -100,19 +101,19 @@ public class DataParameterEnumPropertyEditorSlot<TEnum> : DataParameterPropertyE
         }
     }
 
-    public TEnum? DefaultValue => ReferenceEquals(this.ValueEnumerable, Values) ? Values[0] : this.ValueEnumerable.FirstOrDefault();
+    public TEnum? DefaultValue => ReferenceEquals(this.ValueEnumerable, EnumValues) ? EnumValues[0] : this.ValueEnumerable.FirstOrDefault();
 
     public new DataParameter<TEnum> Parameter => (DataParameter<TEnum>) base.Parameter;
 
     public DataParameterEnumPropertyEditorSlot(DataParameter<TEnum> parameter, Type applicableType, string displayName, IEnumerable<TEnum>? values = null, DataParameterEnumInfo<TEnum>? translationInfo = null) : base(parameter, applicableType, displayName)
     {
         this.TranslationInfo = translationInfo;
-        this.ValueEnumerable = values != null ? values.ToList().AsReadOnly() : Values;
+        this.ValueEnumerable = values != null ? values.ToList().AsReadOnly() : EnumValues;
     }
 
     public override void QueryValueFromHandlers()
     {
         TEnum? val = CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetValue((ITransferableData) x), out TEnum? d) ? d : default;
-        this.value = ValuesSet.Contains(val) ? val : Values[0];
+        this.value = val.HasValue && EnumValuesSet.Contains(val.Value) ? val.Value : EnumValues[0];
     }
 }

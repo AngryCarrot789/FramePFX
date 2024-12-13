@@ -230,6 +230,26 @@
                   TargetType="{x:Type dt:DataParameterLongPropertyEditorControl}"
                   BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorControl}}"/>
 
+    
+    <ControlTheme x:Key="{x:Type dt:DataParameterAVCodedIdPropertyEditorControl}" TargetType="{x:Type dt:DataParameterAVCodedIdPropertyEditorControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type dt:DataParameterAVCodedIdPropertyEditorControl}">
+                    <Grid Margin="5,0,2,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox x:Name="PART_DisplayNameCheckBox" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0" Focusable="False"
+                                  Theme="{TemplateBinding IsCheckBoxToggleable, Converter={StaticResource IsCheckBoxToggleableToStyleConverter}}"/>
+                        <ComboBox x:Name="PART_ComboBox" Grid.Row="0" Grid.Column="2"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+    
     <ControlTheme x:Key="{x:Type dta:AutomaticDataParameterFloatPropertyEditorControl}"
                   TargetType="{x:Type dta:AutomaticDataParameterFloatPropertyEditorControl}"
                   BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorControl}}"/>

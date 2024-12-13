@@ -19,6 +19,17 @@
 
 namespace FramePFX.Editing.Exporting;
 
+// TODO: replace with an abstract class BaseExportProgress
+// The ExporterContext creates an instance of the correct export progress model,
+// and we use a control registry to create an instance of the corresponding control/window
+
+// Or instead of a window, could we just re-implement the old FramePFX
+// notification system from WPF, and show the export progress in there?
+// Notifications are smaller, but dialogs require generally more work per exporter to setup I suppose
+
+/// <summary>
+/// An interface for the export progress
+/// </summary>
 public interface IExportProgress
 {
     bool HasEncodeProgress { get; set; }

@@ -100,17 +100,16 @@ public class DataParameterPointPropertyEditorControl : BaseDataParameterProperty
         this.draggerX.Maximum = param.Maximum.X;
         this.draggerY.Maximum = param.Maximum.Y;
 
-        DragStepProfile profileX = slot.StepProfileX;
-        this.draggerX.TinyChange = profileX.TinyStep;
-        this.draggerX.SmallChange = profileX.SmallStep;
-        this.draggerX.NormalChange = profileX.NormalStep;
-        this.draggerX.LargeChange = profileX.LargeStep;
+        DragStepProfile profile = slot.StepProfile;
+        this.draggerX.TinyChange = profile.TinyStep;
+        this.draggerX.SmallChange = profile.SmallStep;
+        this.draggerX.NormalChange = profile.NormalStep;
+        this.draggerX.LargeChange = profile.LargeStep;
 
-        DragStepProfile profileY = slot.StepProfileY;
-        this.draggerY.TinyChange = profileY.TinyStep;
-        this.draggerY.SmallChange = profileY.SmallStep;
-        this.draggerY.NormalChange = profileY.NormalStep;
-        this.draggerY.LargeChange = profileY.LargeStep;
+        this.draggerY.TinyChange = profile.TinyStep;
+        this.draggerY.SmallChange = profile.SmallStep;
+        this.draggerY.NormalChange = profile.NormalStep;
+        this.draggerY.LargeChange = profile.LargeStep;
 
         this.SlotModel!.HasMultipleValuesChanged += this.OnHasMultipleValuesChanged;
         this.UpdateDraggerMultiValueState();

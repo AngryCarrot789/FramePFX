@@ -27,7 +27,7 @@
                             <TextBlock Text="O" Margin="0,1,0,0"/>
                         </ToggleButton>
                         <Button x:Name="PART_ResetValue" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
-                                Width="20" Height="20" CornerRadius="2" ToolTip.Tip="Reset the opacity">
+                                Width="20" Height="20" CornerRadius="2" ToolTip.Tip="Reset the value to the default (for this parameter)">
                             <Path Width="12" Height="14" Stretch="Fill" Fill="{DynamicResource ABrush.Glyph.Static}" Data="{StaticResource ResetGeometry}"/>
                         </Button>
                     </StackPanel>

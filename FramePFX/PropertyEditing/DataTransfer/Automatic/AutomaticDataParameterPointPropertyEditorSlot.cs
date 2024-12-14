@@ -55,9 +55,7 @@ public class AutomaticDataParameterPointPropertyEditorSlot : DataParameterFormat
 
     public DataParameterBool IsAutomaticParameter { get; }
 
-    public DragStepProfile StepProfileX { get; set; }
-
-    public DragStepProfile StepProfileY { get; set; }
+    public DragStepProfile StepProfile { get; init; }
 
     public AutomaticDataParameterPointPropertyEditorSlot(DataParameter parameter, DataParameterBool isAutomaticParameter, Type applicableType, string? displayName = null) : base(parameter, applicableType, displayName)
     {

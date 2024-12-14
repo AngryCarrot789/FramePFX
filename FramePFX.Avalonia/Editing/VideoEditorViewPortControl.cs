@@ -351,8 +351,8 @@ public class VideoEditorViewPortControl : TemplatedControl
             new SKPoint(sz.Width, 0),
             new SKPoint(sz.Width, sz.Height),
             new SKPoint(0, sz.Height),
-            Vec2Pt(VideoClip.MediaRotationOriginParameter.GetCurrentValue(clip)),
-            Vec2Pt(VideoClip.MediaScaleOriginParameter.GetCurrentValue(clip)),
+            clip.MediaRotationOrigin,
+            clip.MediaScaleOrigin,
             new SKPoint(sz.Width / 2.0F, sz.Height / 2.0F)
         });
 
@@ -369,16 +369,16 @@ public class VideoEditorViewPortControl : TemplatedControl
             new Point(func(pts[0].X) * scale, func(pts[0].Y) * scale)
         }, false);
 
-        Vector2 rotationOrigin = VideoClip.MediaRotationOriginParameter.GetCurrentValue(clip);
+        SKPoint rotationOrigin = clip.MediaRotationOrigin;
         SKMatrix newMat = ((VideoTrack) clip.Track!).TransformationMatrix.PreConcat(
             MatrixUtils.CreateTransformationMatrix(
                 VideoClip.MediaPositionParameter.GetCurrentValue(clip),
                 new Vector2(1, 1),
                 VideoClip.MediaRotationParameter.GetCurrentValue(clip),
                 default,
-                rotationOrigin));
+                new Vector2(rotationOrigin.X, rotationOrigin.Y)));
 
-        SKPoint rOrg = newMat.MapPoint(Vec2Pt(rotationOrigin));
+        SKPoint rOrg = newMat.MapPoint(rotationOrigin);
         Point cC = new Point(func(pts[6].X) * scale, func(pts[6].Y) * scale);
         Point cR = new Point(func(rOrg.X) * scale, func(rOrg.Y) * scale);
         Point cS = new Point(func(pts[5].X) * scale, func(pts[5].Y) * scale);

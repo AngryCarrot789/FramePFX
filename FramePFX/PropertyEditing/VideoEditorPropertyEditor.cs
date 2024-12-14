@@ -26,6 +26,7 @@ using FramePFX.Interactivity.Formatting;
 using FramePFX.PropertyEditing.Automation;
 using FramePFX.PropertyEditing.Core;
 using FramePFX.PropertyEditing.DataTransfer;
+using FramePFX.PropertyEditing.DataTransfer.Automatic;
 
 namespace FramePFX.PropertyEditing;
 
@@ -58,11 +59,11 @@ public class VideoEditorPropertyEditor : PropertyEditor
 
             {
                 SimplePropertyEditorGroup group = new SimplePropertyEditorGroup(typeof(VideoClip), GroupType.SecondaryExpander) { DisplayName = "Motion/Transformation" };
-                group.AddItem(new ParameterVector2PropertyEditorSlot(VideoClip.MediaPositionParameter, typeof(VideoClip), "Pos", DragStepProfile.InfPixelRange) { ValueFormatter = SuffixValueFormatter.StandardPixels });
+                group.AddItem(new ParameterVector2PropertyEditorSlot(VideoClip.MediaPositionParameter, typeof(VideoClip), "Position", DragStepProfile.InfPixelRange) { ValueFormatter = SuffixValueFormatter.StandardPixels });
                 group.AddItem(new ParameterVector2PropertyEditorSlot(VideoClip.MediaScaleParameter, typeof(VideoClip), "Scale", DragStepProfile.UnitOne));
-                group.AddItem(new ParameterVector2PropertyEditorSlot(VideoClip.MediaScaleOriginParameter, typeof(VideoClip), "Scale Origin", DragStepProfile.InfPixelRange) { ValueFormatter = SuffixValueFormatter.StandardPixels });
                 group.AddItem(new ParameterDoublePropertyEditorSlot(VideoClip.MediaRotationParameter, typeof(VideoClip), "Rotation", DragStepProfile.Rotation) { ValueFormatter = SuffixValueFormatter.StandardDegrees });
-                group.AddItem(new ParameterVector2PropertyEditorSlot(VideoClip.MediaRotationOriginParameter, typeof(VideoClip), "Rotation Origin", DragStepProfile.InfPixelRange) { ValueFormatter = SuffixValueFormatter.StandardPixels });
+                group.AddItem(new AutomaticDataParameterPointPropertyEditorSlot(VideoClip.MediaScaleOriginParameter, VideoClip.IsMediaScaleOriginAutomaticParameter, typeof(VideoClip), "Scale Origin") { ValueFormatter = SuffixValueFormatter.StandardPixels, StepProfile = DragStepProfile.InfPixelRange });
+                group.AddItem(new AutomaticDataParameterPointPropertyEditorSlot(VideoClip.MediaRotationOriginParameter, VideoClip.IsMediaRotationOriginAutomaticParameter, typeof(VideoClip), "Rotation Origin") { ValueFormatter = SuffixValueFormatter.StandardPixels, StepProfile = DragStepProfile.InfPixelRange });
                 this.ClipGroup.AddItem(group);
             }
 
@@ -112,9 +113,9 @@ public class VideoEditorPropertyEditor : PropertyEditor
                 SimplePropertyEditorGroup group = new SimplePropertyEditorGroup(typeof(VideoTrack), GroupType.SecondaryExpander) { DisplayName = "Motion/Transformation" };
                 group.AddItem(new ParameterVector2PropertyEditorSlot(VideoTrack.MediaPositionParameter, typeof(VideoTrack), "Pos", DragStepProfile.InfPixelRange) { ValueFormatter = SuffixValueFormatter.StandardPixels });
                 group.AddItem(new ParameterVector2PropertyEditorSlot(VideoTrack.MediaScaleParameter, typeof(VideoTrack), "Scale", DragStepProfile.UnitOne));
-                group.AddItem(new ParameterVector2PropertyEditorSlot(VideoTrack.MediaScaleOriginParameter, typeof(VideoTrack), "Scale Origin", DragStepProfile.InfPixelRange) { ValueFormatter = SuffixValueFormatter.StandardPixels });
                 group.AddItem(new ParameterDoublePropertyEditorSlot(VideoTrack.MediaRotationParameter, typeof(VideoTrack), "Rotation", DragStepProfile.Rotation) { ValueFormatter = SuffixValueFormatter.StandardDegrees });
-                group.AddItem(new ParameterVector2PropertyEditorSlot(VideoTrack.MediaRotationOriginParameter, typeof(VideoTrack), "Rotation Origin", DragStepProfile.InfPixelRange) { ValueFormatter = SuffixValueFormatter.StandardPixels });
+                group.AddItem(new AutomaticDataParameterPointPropertyEditorSlot(VideoTrack.MediaScaleOriginParameter, VideoTrack.IsMediaScaleOriginAutomaticParameter, typeof(VideoTrack), "Scale Origin") { ValueFormatter = SuffixValueFormatter.StandardPixels, StepProfile = DragStepProfile.InfPixelRange });
+                group.AddItem(new AutomaticDataParameterPointPropertyEditorSlot(VideoTrack.MediaRotationOriginParameter, VideoTrack.IsMediaRotationOriginAutomaticParameter, typeof(VideoTrack), "Rotation Origin") { ValueFormatter = SuffixValueFormatter.StandardPixels, StepProfile = DragStepProfile.InfPixelRange });
                 this.TrackGroup.AddItem(group);
             }
 

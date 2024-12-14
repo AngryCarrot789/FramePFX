@@ -29,6 +29,7 @@ using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.History;
 using FramePFX.PropertyEditing;
 using FramePFX.Utils.Destroying;
+using SkiaSharp;
 
 namespace FramePFX.Editing;
 
@@ -137,7 +138,7 @@ public class VideoEditor : IDestroy
             };
 
             clip2.SetDefaultValue(VideoClipShape.SizeParameter, new Vector2(200, 200));
-            clip2.SetDefaultValue(VideoClip.MediaScaleOriginParameter, new Vector2(100, 100));
+            VideoClip.MediaScaleOriginParameter.SetValue(clip2, new SKPoint(100, 100));
 
             clip2.ColourKey.SetTargetResourceId(id_g.UniqueId);
             clip2.AutomationData.UpdateBackingStorage();

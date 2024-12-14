@@ -50,8 +50,7 @@ public class DataParameterPointPropertyEditorSlot : DataParameterFormattableNumb
 
     public new DataParameterPoint Parameter => (DataParameterPoint) base.Parameter;
 
-    public DragStepProfile StepProfileX { get; set; }
-    public DragStepProfile StepProfileY { get; set; }
+    public DragStepProfile StepProfile { get; init; }
 
     public DataParameterPointPropertyEditorSlot(DataParameterPoint parameter, Type applicableType, string displayName) : base(parameter, applicableType, displayName) {
     }

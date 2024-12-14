@@ -18,6 +18,7 @@
 //
 
 using System.Numerics;
+using FramePFX.DataTransfer;
 using FramePFX.Editing.Automation.Params;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.Timelines.Clips;
@@ -44,20 +45,22 @@ public class VideoTrack : Track
     public static readonly ParameterBool VisibleParameter = Parameter.RegisterBool(typeof(VideoTrack), nameof(VideoTrack), nameof(Visible), true, ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(Visible)), ParameterFlags.StandardProjectVisual);
     public static readonly ParameterVector2 MediaPositionParameter = Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaPosition), ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaPosition)), ParameterFlags.StandardProjectVisual);
     public static readonly ParameterVector2 MediaScaleParameter = Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaScale), Vector2.One, ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaScale)), ParameterFlags.StandardProjectVisual);
-    public static readonly ParameterVector2 MediaScaleOriginParameter = Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaScaleOrigin), ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaScaleOrigin)), ParameterFlags.StandardProjectVisual);
-    public static readonly ParameterBool UseAbsoluteScaleOriginParameter = Parameter.RegisterBool(typeof(VideoTrack), nameof(VideoTrack), nameof(UseAbsoluteScaleOrigin), ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(UseAbsoluteScaleOrigin)), ParameterFlags.StandardProjectVisual);
     public static readonly ParameterDouble MediaRotationParameter = Parameter.RegisterDouble(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaRotation), ValueAccessors.LinqExpression<double>(typeof(VideoTrack), nameof(MediaRotation)), ParameterFlags.StandardProjectVisual);
-    public static readonly ParameterVector2 MediaRotationOriginParameter = Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaRotationOrigin), ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaRotationOrigin)), ParameterFlags.StandardProjectVisual);
-    public static readonly ParameterBool UseAbsoluteRotationOriginParameter = Parameter.RegisterBool(typeof(VideoTrack), nameof(VideoTrack), nameof(UseAbsoluteRotationOrigin), ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(UseAbsoluteRotationOrigin)), ParameterFlags.StandardProjectVisual);
+    
+    
+    public static readonly DataParameterPoint MediaScaleOriginParameter = DataParameter.Register(new DataParameterPoint(typeof(VideoTrack), nameof(MediaScaleOrigin), ValueAccessors.Reflective<SKPoint>(typeof(VideoTrack), nameof(mediaScaleOrigin))));
+    public static readonly DataParameterPoint MediaRotationOriginParameter = DataParameter.Register(new DataParameterPoint(typeof(VideoTrack), nameof(MediaRotationOrigin), ValueAccessors.Reflective<SKPoint>(typeof(VideoTrack), nameof(mediaRotationOrigin))));
+    public static readonly DataParameterBool IsMediaScaleOriginAutomaticParameter = DataParameter.Register(new DataParameterBool(typeof(VideoTrack), nameof(IsMediaScaleOriginAutomatic), true, ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(isMediaScaleOriginAutomatic)), DataParameterFlags.StandardProjectVisual));
+    public static readonly DataParameterBool IsMediaRotationOriginAutomaticParameter = DataParameter.Register(new DataParameterBool(typeof(VideoTrack), nameof(IsMediaRotationOriginAutomatic), true, ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(isMediaRotationOriginAutomatic)), DataParameterFlags.StandardProjectVisual));
 
     // Transformation data
     private Vector2 MediaPosition;
     private Vector2 MediaScale;
-    private Vector2 MediaScaleOrigin;
     private double MediaRotation;
-    private Vector2 MediaRotationOrigin;
-    private bool UseAbsoluteScaleOrigin;
-    private bool UseAbsoluteRotationOrigin;
+    private SKPoint mediaScaleOrigin;
+    private SKPoint mediaRotationOrigin;
+    private bool isMediaScaleOriginAutomatic;
+    private bool isMediaRotationOriginAutomatic;
     private SKMatrix myTransformationMatrix, myInverseTransformationMatrix;
     private bool isMatrixDirty = true;
 
@@ -89,6 +92,31 @@ public class VideoTrack : Track
                 this.GenerateMatrices();
             return this.myInverseTransformationMatrix;
         }
+    }
+    
+    public SKPoint MediaScaleOrigin
+    {
+        get => this.mediaScaleOrigin;
+        set => DataParameter.SetValueHelper(this, MediaScaleOriginParameter, ref this.mediaScaleOrigin, value);
+    }
+    
+    public SKPoint MediaRotationOrigin
+    {
+        get => this.mediaRotationOrigin;
+        set => DataParameter.SetValueHelper(this, MediaRotationOriginParameter, ref this.mediaRotationOrigin, value);
+    }
+    
+    public bool IsMediaScaleOriginAutomatic
+    {
+        get => this.isMediaScaleOriginAutomatic;
+        set => DataParameter.SetValueHelper(this, IsMediaScaleOriginAutomaticParameter, ref this.isMediaScaleOriginAutomatic, value);
+    }
+    
+
+    public bool IsMediaRotationOriginAutomatic
+    {
+        get => this.isMediaRotationOriginAutomatic;
+        set => DataParameter.SetValueHelper(this, IsMediaRotationOriginAutomaticParameter, ref this.isMediaRotationOriginAutomatic, value);
     }
 
     private class TrackRenderData : IDisposable
@@ -127,23 +155,45 @@ public class VideoTrack : Track
         this.Visible = VisibleParameter.Descriptor.DefaultValue;
         this.MediaPosition = MediaPositionParameter.Descriptor.DefaultValue;
         this.MediaScale = MediaScaleParameter.Descriptor.DefaultValue;
-        this.MediaScaleOrigin = MediaScaleOriginParameter.Descriptor.DefaultValue;
-        this.UseAbsoluteScaleOrigin = UseAbsoluteScaleOriginParameter.Descriptor.DefaultValue;
         this.MediaRotation = MediaRotationParameter.Descriptor.DefaultValue;
-        this.MediaRotationOrigin = MediaRotationOriginParameter.Descriptor.DefaultValue;
-        this.UseAbsoluteRotationOrigin = UseAbsoluteRotationOriginParameter.Descriptor.DefaultValue;
+        this.mediaScaleOrigin = MediaScaleOriginParameter.GetDefaultValue(this);
+        this.mediaRotationOrigin = MediaRotationOriginParameter.GetDefaultValue(this);
+        this.isMediaScaleOriginAutomatic = IsMediaScaleOriginAutomaticParameter.GetDefaultValue(this);
+        this.isMediaRotationOriginAutomatic = IsMediaRotationOriginAutomaticParameter.GetDefaultValue(this);
     }
 
     static VideoTrack()
     {
-        Parameter.AddMultipleHandlers(s => ((VideoTrack) s.AutomationData.Owner).InvalidateTransformationMatrix(), MediaPositionParameter, MediaScaleParameter, MediaScaleOriginParameter, UseAbsoluteScaleOriginParameter, MediaRotationParameter, MediaRotationOriginParameter, UseAbsoluteRotationOriginParameter);
+        Parameter.AddMultipleHandlers(s => ((VideoTrack) s.AutomationData.Owner).InvalidateTransformationMatrix(), MediaPositionParameter, MediaScaleParameter, MediaRotationParameter);
+        DataParameter.AddMultipleHandlers((p, o) => ((VideoTrack) o).InvalidateTransformationMatrix(), MediaScaleOriginParameter, MediaRotationOriginParameter);
+        IsMediaScaleOriginAutomaticParameter.PriorityValueChanged += (parameter, owner) => ((VideoTrack) owner).UpdateAutomaticScaleOrigin();
+        IsMediaRotationOriginAutomaticParameter.PriorityValueChanged += (parameter, owner) => ((VideoTrack) owner).UpdateAutomaticRotationOrigin();
     }
 
+    protected void UpdateAutomaticScaleOrigin() {
+        if (this.IsMediaScaleOriginAutomatic) {
+            SKSize size = this.GetSizeForAutomaticOrigins();
+            MediaScaleOriginParameter.SetValue(this, new SKPoint(size.Width / 2, size.Height / 2));
+        }
+    }
+
+    protected void UpdateAutomaticRotationOrigin() {
+        if (this.IsMediaRotationOriginAutomatic) {
+            SKSize size = this.GetSizeForAutomaticOrigins();
+            MediaRotationOriginParameter.SetValue(this, new SKPoint(size.Width / 2, size.Height / 2));
+        }
+    }
+    
     private void GenerateMatrices()
     {
-        this.myTransformationMatrix = MatrixUtils.CreateTransformationMatrix(this.MediaPosition, this.MediaScale, this.MediaRotation, this.MediaScaleOrigin, this.MediaRotationOrigin);
-        this.myInverseTransformationMatrix = MatrixUtils.CreateInverseTransformationMatrix(this.MediaPosition, this.MediaScale, this.MediaRotation, this.MediaScaleOrigin, this.MediaRotationOrigin);
+        this.myTransformationMatrix = MatrixUtils.CreateTransformationMatrix(this.MediaPosition, this.MediaScale, this.MediaRotation, new Vector2(this.MediaScaleOrigin.X, this.MediaScaleOrigin.Y), new Vector2(this.MediaRotationOrigin.X, this.MediaRotationOrigin.Y));
+        this.myInverseTransformationMatrix = MatrixUtils.CreateInverseTransformationMatrix(this.MediaPosition, this.MediaScale, this.MediaRotation, new Vector2(this.MediaScaleOrigin.X, this.MediaScaleOrigin.Y), new Vector2(this.MediaRotationOrigin.X, this.MediaRotationOrigin.Y));
         this.isMatrixDirty = false;
+    }
+    
+    public virtual SKSize GetSizeForAutomaticOrigins()
+    {
+        return this.Project?.Settings.Resolution ?? SKSize.Empty;
     }
 
     public override void Destroy()

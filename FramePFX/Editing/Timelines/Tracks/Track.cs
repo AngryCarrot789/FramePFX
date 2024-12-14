@@ -20,6 +20,7 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using FramePFX.AdvancedMenuService;
+using FramePFX.DataTransfer;
 using FramePFX.Editing.Automation;
 using FramePFX.Editing.Automation.Params;
 using FramePFX.Editing.Factories;
@@ -40,7 +41,7 @@ public delegate void TrackClipIndexEventHandler(Track track, Clip clip, int inde
 
 public delegate void ClipMovedEventHandler(Clip clip, Track oldTrack, int oldIndex, Track newTrack, int newIndex);
 
-public abstract class Track : IDisplayName, IAutomatable, IHaveEffects, IDestroy
+public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHaveEffects, IDestroy
 {
     public static readonly ContextRegistry TimelineTrackContextRegistry = new ContextRegistry("Track");
     public static readonly ContextRegistry TrackControlSurfaceContextRegistry = new ContextRegistry("Track Control Surface");
@@ -108,6 +109,8 @@ public abstract class Track : IDisplayName, IAutomatable, IHaveEffects, IDestroy
 
     public AutomationData AutomationData { get; }
 
+    public TransferableData TransferableData { get; }
+    
     public event TrackClipIndexEventHandler? ClipAdded;
     public event TrackClipIndexEventHandler? ClipRemoved;
     public event ClipMovedEventHandler? ClipMovedTracks;
@@ -137,6 +140,7 @@ public abstract class Track : IDisplayName, IAutomatable, IHaveEffects, IDestroy
         this.internalEffectList = new List<BaseEffect>();
         this.colour = RenderUtils.RandomColour();
         this.AutomationData = new AutomationData(this);
+        this.TransferableData = new TransferableData(this);
     }
 
     static Track()

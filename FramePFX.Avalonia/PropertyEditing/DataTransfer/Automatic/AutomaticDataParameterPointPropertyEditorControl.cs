@@ -27,6 +27,7 @@ using FramePFX.Avalonia.Utils;
 using FramePFX.DataTransfer;
 using FramePFX.PropertyEditing.DataTransfer;
 using FramePFX.PropertyEditing.DataTransfer.Automatic;
+using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Avalonia.PropertyEditing.DataTransfer.Automatic;
@@ -64,6 +65,26 @@ public class AutomaticDataParameterPointPropertyEditorControl : BaseDataParamete
         this.resetButton.Click += this.ResetButtonOnClick;
         this.valueFormatterBinder.AttachControl(this);
         this.UpdateDraggerMultiValueState();
+        
+        this.draggerX.InvalidInputEntered += this.PartDraggerOnInvalidInputEntered;
+        this.draggerY.InvalidInputEntered += this.PartDraggerOnInvalidInputEntered;
+    }
+
+    private void PartDraggerOnInvalidInputEntered(object? sender, InvalidInputEnteredEventArgs e)
+    {
+        AutomaticDataParameterPointPropertyEditorSlot? model = this.SlotModel;
+        if (model == null || !model.IsCurrentlyApplicable)
+        {
+            return;
+        }
+
+        if (("auto".EqualsIgnoreCase(e.Input) || "automatic".EqualsIgnoreCase(e.Input) || "\"auto\"".EqualsIgnoreCase(e.Input)))
+        {
+            foreach (object handler in model.Handlers)
+            {
+                model.IsAutomaticParameter.SetValue((ITransferableData) handler, true);
+            }
+        }
     }
 
     private void ResetButtonOnClick(object? sender, RoutedEventArgs e)
@@ -108,17 +129,16 @@ public class AutomaticDataParameterPointPropertyEditorControl : BaseDataParamete
         this.draggerX.Maximum = param.Maximum.X;
         this.draggerY.Maximum = param.Maximum.Y;
 
-        DragStepProfile profileX = slot.StepProfileX;
-        this.draggerX.TinyChange = profileX.TinyStep;
-        this.draggerX.SmallChange = profileX.SmallStep;
-        this.draggerX.NormalChange = profileX.NormalStep;
-        this.draggerX.LargeChange = profileX.LargeStep;
+        DragStepProfile profile = slot.StepProfile;
+        this.draggerX.TinyChange = profile.TinyStep;
+        this.draggerX.SmallChange = profile.SmallStep;
+        this.draggerX.NormalChange = profile.NormalStep;
+        this.draggerX.LargeChange = profile.LargeStep;
 
-        DragStepProfile profileY = slot.StepProfileY;
-        this.draggerY.TinyChange = profileY.TinyStep;
-        this.draggerY.SmallChange = profileY.SmallStep;
-        this.draggerY.NormalChange = profileY.NormalStep;
-        this.draggerY.LargeChange = profileY.LargeStep;
+        this.draggerY.TinyChange = profile.TinyStep;
+        this.draggerY.SmallChange = profile.SmallStep;
+        this.draggerY.NormalChange = profile.NormalStep;
+        this.draggerY.LargeChange = profile.LargeStep;
 
         this.SlotModel!.HasMultipleValuesChanged += this.OnHasMultipleValuesChanged;
         this.UpdateDraggerMultiValueState();

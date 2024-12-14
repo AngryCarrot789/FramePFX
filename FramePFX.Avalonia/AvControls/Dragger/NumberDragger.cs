@@ -228,6 +228,8 @@ public class NumberDragger : RangeBase
                 d.UpdateTextBlockAndBox();
             }
         });
+
+        FinalPreviewStringFormatProperty.Changed.AddClassHandler<NumberDragger, string?>((d, e) => d.UpdateTextBlockAndBox());
     }
 
     private static void PropertyAffectsIgnoreLostFocusValueChange(params AvaloniaProperty[] properties)
@@ -293,10 +295,10 @@ public class NumberDragger : RangeBase
 
     private void UpdateTextBlockOnly(ref string? textBlock)
     {
-        if (this.PART_TextBlock != null)
+        if (this.PART_TextBlock != null && !this.isEditing)
         {
             string value = this.TextPreviewOverride ?? (textBlock = this.GetValueToString(false));
-            if (!this.isEditing && this.FinalPreviewStringFormat is string format)
+            if (this.FinalPreviewStringFormat is string format)
             {
                 value = string.Format(format, value);
             }

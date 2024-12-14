@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Utils;
@@ -216,13 +217,13 @@ public abstract class Parameter : IEquatable<Parameter>, IComparable<Parameter>
 
         try
         {
-            if (RegistryMap.TryGetValue(path, out Parameter existingParameter))
+            if (RegistryMap.TryGetValue(path, out Parameter? existingParameter))
             {
                 throw new Exception($"Key already exists with the ID '{path}': {existingParameter}");
             }
 
             RegistryMap[path] = parameter;
-            if (!TypeToParametersMap.TryGetValue(parameter.OwnerType, out List<Parameter> list))
+            if (!TypeToParametersMap.TryGetValue(parameter.OwnerType, out List<Parameter>? list))
                 TypeToParametersMap[parameter.OwnerType] = list = new List<Parameter>();
             list.Add(parameter);
             parameter.GlobalIndex = NextGlobalIndex++;
@@ -239,17 +240,17 @@ public abstract class Parameter : IEquatable<Parameter>, IComparable<Parameter>
 
     public static Parameter GetParameterByKey(ParameterKey key)
     {
-        if (!TryGetParameterByKey(key, out Parameter parameter))
+        if (!TryGetParameterByKey(key, out Parameter? parameter))
             throw new Exception("No such parameter with the key: " + key);
         return parameter;
     }
 
     public static Parameter GetParameterByKey(ParameterKey key, Parameter def)
     {
-        return TryGetParameterByKey(key, out Parameter parameter) ? parameter : def;
+        return TryGetParameterByKey(key, out Parameter? parameter) ? parameter : def;
     }
 
-    public static bool TryGetParameterByKey(ParameterKey key, out Parameter parameter)
+    public static bool TryGetParameterByKey(ParameterKey key, [NotNullWhen(true)] out Parameter? parameter)
     {
         if (key.IsEmpty)
         {
@@ -270,12 +271,12 @@ public abstract class Parameter : IEquatable<Parameter>, IComparable<Parameter>
         }
     }
 
-    public bool Equals(Parameter other)
+    public bool Equals(Parameter? other)
     {
         return !ReferenceEquals(other, null) && this.GlobalIndex == other.GlobalIndex;
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is Parameter parameter && this.GlobalIndex == parameter.GlobalIndex;
     }
@@ -284,7 +285,7 @@ public abstract class Parameter : IEquatable<Parameter>, IComparable<Parameter>
     // ReSharper disable once NonReadonlyMemberInGetHashCode
     public override int GetHashCode() => this.GlobalIndex;
 
-    public int CompareTo(Parameter other)
+    public int CompareTo(Parameter? other)
     {
         if (ReferenceEquals(this, other))
             return 0;
@@ -304,14 +305,14 @@ public abstract class Parameter : IEquatable<Parameter>, IComparable<Parameter>
     public static List<Parameter> GetApplicableParameters(Type targetType, bool inHierarchy = true)
     {
         List<Parameter> parameters = new List<Parameter>();
-        if (TypeToParametersMap.TryGetValue(targetType, out List<Parameter> list))
+        if (TypeToParametersMap.TryGetValue(targetType, out List<Parameter>? list))
         {
             parameters.AddRange(list);
         }
 
         if (inHierarchy)
         {
-            for (Type bType = targetType.BaseType; bType != null; bType = bType.BaseType)
+            for (Type? bType = targetType.BaseType; bType != null; bType = bType.BaseType)
             {
                 if (TypeToParametersMap.TryGetValue(bType, out list))
                 {
@@ -365,7 +366,7 @@ public sealed class ParameterFloat : Parameter
     /// <returns>The current effective value</returns>
     public float GetCurrentValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
 
-    public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
+    public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable)!;
 
     public override object EvaluateObjectValue(long frame, AutomationSequence sequence) => sequence.GetFloatValue(frame);
 }
@@ -400,7 +401,7 @@ public sealed class ParameterDouble : Parameter
     /// <returns>The current effective value</returns>
     public double GetCurrentValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
 
-    public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
+    public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable)!;
 
     public override object EvaluateObjectValue(long frame, AutomationSequence sequence) => sequence.GetDoubleValue(frame);
 }
@@ -435,7 +436,7 @@ public sealed class ParameterLong : Parameter
     /// <returns>The current effective value</returns>
     public long GetCurrentValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
 
-    public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
+    public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable)!;
 
     public override object EvaluateObjectValue(long frame, AutomationSequence sequence) => sequence.GetLongValue(frame);
 }
@@ -479,7 +480,7 @@ public sealed class ParameterBool : Parameter
     /// <returns>The current effective value</returns>
     public bool GetCurrentValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
 
-    public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
+    public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable)!;
 
     public override object EvaluateObjectValue(long frame, AutomationSequence sequence) => sequence.GetBooleanValue(frame);
 }
@@ -514,7 +515,7 @@ public sealed class ParameterVector2 : Parameter
     /// <returns>The current effective value</returns>
     public Vector2 GetCurrentValue(IAutomatable automatable) => this.accessor.GetValue(automatable);
 
-    public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable);
+    public override object GetCurrentObjectValue(IAutomatable automatable) => this.accessor.GetObjectValue(automatable)!;
 
     public override object EvaluateObjectValue(long frame, AutomationSequence sequence) => sequence.GetVector2Value(frame);
 }

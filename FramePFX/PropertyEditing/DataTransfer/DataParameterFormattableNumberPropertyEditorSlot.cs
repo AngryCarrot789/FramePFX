@@ -22,23 +22,19 @@ using FramePFX.Interactivity.Formatting;
 
 namespace FramePFX.PropertyEditing.DataTransfer;
 
-public delegate void SlotValueFormatterChangedEventHandler(DataParameterFormattableNumberPropertyEditorSlot sender, IValueFormatter oldValueFormatter, IValueFormatter newValueFormatter);
-
-public delegate void SlotValueFormatterForAdditionChangedEventHandler(DataParameterFormattableNumberPropertyEditorSlot sender, IValueFormatter oldValueFormatterForAddition, IValueFormatter newValueFormatterForAddition);
-
 public abstract class DataParameterFormattableNumberPropertyEditorSlot : DataParameterPropertyEditorSlot
 {
-    private IValueFormatter valueFormatter;
+    private IValueFormatter? valueFormatter;
 
     /// <summary>
     /// Gets or sets the value formatter used to format our numeric value in the UI
     /// </summary>
-    public IValueFormatter ValueFormatter
+    public IValueFormatter? ValueFormatter
     {
         get => this.valueFormatter;
         set
         {
-            IValueFormatter oldValueFormatter = this.valueFormatter;
+            IValueFormatter? oldValueFormatter = this.valueFormatter;
             if (oldValueFormatter == value)
                 return;
 
@@ -47,7 +43,7 @@ public abstract class DataParameterFormattableNumberPropertyEditorSlot : DataPar
         }
     }
 
-    public event SlotValueFormatterChangedEventHandler? ValueFormatterChanged;
+    public event DataParameterValueFormatterChangedEventHandler? ValueFormatterChanged;
 
     protected DataParameterFormattableNumberPropertyEditorSlot(DataParameter parameter, Type applicableType, string? displayName = null) : base(parameter, applicableType, displayName) {
     }

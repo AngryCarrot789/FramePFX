@@ -85,19 +85,13 @@ public abstract class BaseEffect : IStrictFrameRange, IAutomatable, ITransferabl
 
     public bool GetRelativePlayHead(out long playHead)
     {
-        if (this.Owner is Clip clip)
+        switch (this.Owner)
         {
-            return clip.GetRelativePlayHead(out playHead);
-        }
-        else if (this.Owner is Track track)
-        {
-            playHead = track.Timeline?.PlayHeadPosition ?? 0L;
-            return true;
-        }
-        else
-        {
-            playHead = 0;
-            return true;
+            case Clip clip: return clip.GetRelativePlayHead(out playHead);
+            case Track track: return track.GetRelativePlayHead(out playHead);
+            default:
+                playHead = 0;
+                return false;
         }
     }
 

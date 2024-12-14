@@ -19,6 +19,7 @@
 
 using System.Numerics;
 using FramePFX.DataTransfer;
+using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Automation.Params;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.Timelines.Effects;
@@ -70,6 +71,8 @@ public abstract class VideoClip : Clip
     public static readonly ParameterBool UseAbsoluteRotationOriginParameter = Parameter.RegisterBool(typeof(VideoClip), nameof(VideoClip), nameof(UseAbsoluteRotationOrigin), ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(UseAbsoluteRotationOrigin)), ParameterFlags.StandardProjectVisual);
 
     public static readonly DataParameterBool IsVisibleParameter = DataParameter.Register(new DataParameterBool(typeof(VideoClip), nameof(IsVisible), true, ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(IsVisible)), DataParameterFlags.StandardProjectVisual));
+    public static readonly DataParameterBool IsScaleOriginAutomaticParameter = DataParameter.Register(new DataParameterBool(typeof(VideoClip), nameof(IsScaleOriginAutomatic), false, ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(isScaleOriginAutomatic))));
+    public static readonly DataParameterBool IsRotationOriginAutomaticParameter = DataParameter.Register(new DataParameterBool(typeof(VideoClip), nameof(IsRotationOriginAutomatic), false, ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(isRotationOriginAutomatic))));
 
     // Transformation data
     private Vector2 MediaPosition;
@@ -83,6 +86,8 @@ public abstract class VideoClip : Clip
     private SKMatrix myAbsoluteTransformationMatrix, myAbsoluteInverseTransformationMatrix;
     private bool isMatrixDirty;
     private bool IsVisible;
+    private bool isScaleOriginAutomatic;
+    private bool isRotationOriginAutomatic;
 
     // video clip stuff
     private double Opacity;
@@ -157,6 +162,19 @@ public abstract class VideoClip : Clip
             return this.myAbsoluteInverseTransformationMatrix;
         }
     }
+    
+    public bool IsScaleOriginAutomatic
+    {
+        get => this.isScaleOriginAutomatic;
+        set => DataParameter.SetValueHelper(this, IsScaleOriginAutomaticParameter, ref this.isScaleOriginAutomatic, value);
+    }
+    
+
+    public bool IsRotationOriginAutomatic
+    {
+        get => this.isRotationOriginAutomatic;
+        set => DataParameter.SetValueHelper(this, IsRotationOriginAutomaticParameter, ref this.isRotationOriginAutomatic, value);
+    }
 
     public bool IsEffectivelyVisible => this.IsVisible && this.Opacity > 0.0;
     
@@ -164,6 +182,8 @@ public abstract class VideoClip : Clip
 
     protected VideoClip()
     {
+        this.isScaleOriginAutomatic = IsScaleOriginAutomaticParameter.GetDefaultValue(this);
+        this.isRotationOriginAutomatic = IsRotationOriginAutomaticParameter.GetDefaultValue(this);
         this.isMatrixDirty = true;
         this.Opacity = OpacityParameter.Descriptor.DefaultValue;
         this.IsVisible = IsVisibleParameter.DefaultValue;
@@ -190,6 +210,16 @@ public abstract class VideoClip : Clip
         });
 
         Parameter.AddMultipleHandlers(s => ((VideoClip) s.AutomationData.Owner).InvalidateTransformationMatrix(), MediaPositionParameter, MediaScaleParameter, MediaScaleOriginParameter, UseAbsoluteScaleOriginParameter, MediaRotationParameter, MediaRotationOriginParameter, UseAbsoluteRotationOriginParameter);
+        IsScaleOriginAutomaticParameter.PriorityValueChanged += OnIsScaleOriginAutomaticParameterValueChanged;
+        IsRotationOriginAutomaticParameter.PriorityValueChanged += OnIsRotationOriginAutomaticParameterValueChanged;
+    }
+
+    private static void OnIsScaleOriginAutomaticParameterValueChanged(DataParameter parameter, ITransferableData owner) {
+        ((VideoClip) owner).UpdateAutomaticScaleOrigin();
+    }
+
+    private static void OnIsRotationOriginAutomaticParameterValueChanged(DataParameter parameter, ITransferableData owner) {
+        ((VideoClip) owner).UpdateAutomaticRotationOrigin();
     }
 
     private void GenerateMatrices()
@@ -212,8 +242,28 @@ public abstract class VideoClip : Clip
 
         this.isMatrixDirty = false;
     }
+    
+    protected void UpdateAutomaticScaleOrigin() {
+        if (this.IsScaleOriginAutomatic && !this.AutomationData.IsAutomated(MediaScaleOriginParameter)) {
+            SKSize size = this.GetSizeForAutomaticOrigins();
+            this.AutomationData[MediaScaleOriginParameter].DefaultKeyFrame.SetVector2Value(new Vector2(size.Width / 2, size.Height / 2), MediaScaleOriginParameter.Descriptor);
+        }
+    }
 
-    protected override void OnTrackChanged(Track oldTrack, Track newTrack)
+    protected void UpdateAutomaticRotationOrigin() {
+        if (this.IsRotationOriginAutomatic && !this.AutomationData.IsAutomated(MediaRotationOriginParameter)) {
+            SKSize size = this.GetSizeForAutomaticOrigins();
+            this.AutomationData[MediaRotationOriginParameter].DefaultKeyFrame.SetVector2Value(new Vector2(size.Width / 2, size.Height / 2), MediaRotationOriginParameter.Descriptor);
+        }
+    }
+    
+    public virtual SKSize GetSizeForAutomaticOrigins()
+    {
+        Vector2 sz = this.GetRenderSize() ?? default;
+        return new SKSize(sz.X, sz.Y);
+    }
+    
+    protected override void OnTrackChanged(Track? oldTrack, Track? newTrack)
     {
         base.OnTrackChanged(oldTrack, newTrack);
         this.InvalidateTransformationMatrix();
@@ -234,6 +284,8 @@ public abstract class VideoClip : Clip
     protected virtual void OnRenderSizeChanged()
     {
         this.InvalidateRender();
+        this.UpdateAutomaticScaleOrigin();
+        this.UpdateAutomaticRotationOrigin();
     }
 
     public override bool IsEffectTypeAccepted(Type effectType) => typeof(VideoEffect).IsAssignableFrom(effectType);

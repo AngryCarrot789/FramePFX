@@ -64,6 +64,8 @@ public class VideoClipShape : VideoClip
         };
     }
 
+    static VideoClipShape() => SizeParameter.ValueChanged += sequence => ((VideoClipShape) sequence.AutomationData.Owner).OnRenderSizeChanged();
+
     private void OnColourChanged(BaseResource resource)
     {
         this.InvalidateRender();

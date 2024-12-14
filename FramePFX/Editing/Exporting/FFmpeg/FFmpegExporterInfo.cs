@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Collections.ObjectModel;
 using FFmpeg.AutoGen;
 using FramePFX.DataTransfer;
 using FramePFX.Interactivity.Formatting;

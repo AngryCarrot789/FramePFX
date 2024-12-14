@@ -30,7 +30,7 @@ public class DataParameterLongPropertyEditorControl : BaseNumberDraggerDataParam
     public override double SlotValue
     {
         get => this.SlotModel!.Value;
-        set => this.SlotModel!.Value = (long) Math.Round(this.dragger.Value);
+        set => this.SlotModel!.Value = (long) Math.Round(value);
     }
 
     public DataParameterLongPropertyEditorControl() {
@@ -39,17 +39,17 @@ public class DataParameterLongPropertyEditorControl : BaseNumberDraggerDataParam
     protected override void OnConnected()
     {
         base.OnConnected();
-        DataParameterLongPropertyEditorSlot slot = this.SlotModel;
+        DataParameterLongPropertyEditorSlot slot = this.SlotModel!;
         DataParameterLong param = slot.Parameter;
-        this.dragger.Minimum = param.Minimum;
-        this.dragger.Maximum = param.Maximum;
+        this.dragger!.Minimum = param.Minimum;
+        this.dragger!.Maximum = param.Maximum;
 
         DragStepProfile profile = slot.StepProfile;
-        this.dragger.TinyChange = Math.Max(profile.TinyStep, 1.0);
-        this.dragger.SmallChange = Math.Max(profile.SmallStep, 1.0);
-        this.dragger.NormalChange = Math.Max(profile.NormalStep, 1.0);
-        this.dragger.LargeChange = Math.Max(profile.LargeStep, 1.0);
+        this.dragger!.TinyChange = Math.Max(profile.TinyStep, 1.0);
+        this.dragger!.SmallChange = Math.Max(profile.SmallStep, 1.0);
+        this.dragger!.NormalChange = Math.Max(profile.NormalStep, 1.0);
+        this.dragger!.LargeChange = Math.Max(profile.LargeStep, 1.0);
     }
 
-    protected override void ResetValue() => this.SlotModel.Value = this.SlotModel.Parameter.DefaultValue;
+    protected override void ResetValue() => this.SlotValue = this.SlotModel!.Parameter.DefaultValue;
 }

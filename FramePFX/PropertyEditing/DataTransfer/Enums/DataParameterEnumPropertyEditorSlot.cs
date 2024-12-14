@@ -21,49 +21,7 @@ using System.Collections.ObjectModel;
 using FramePFX.DataTransfer;
 using FramePFX.Utils;
 
-namespace FramePFX.PropertyEditing.DataTransfer;
-
-public class DataParameterEnumInfo<TEnum> where TEnum : Enum
-{
-    public readonly ReadOnlyCollection<(TEnum, string)> AllowedEnumList;
-    public readonly IReadOnlyDictionary<TEnum, string> EnumToText;
-    public readonly IReadOnlyDictionary<string, TEnum> TextToEnum;
-
-    public IEnumerable<TEnum> EnumList => this.AllowedEnumList.Select(x => x.Item1);
-    public IEnumerable<string> TextList => this.AllowedEnumList.Select(x => x.Item2);
-
-    public DataParameterEnumInfo() : this(null) {
-    }
-
-    public DataParameterEnumInfo(IEnumerable<TEnum>? allowedEnumValues)
-    {
-        if (allowedEnumValues == null)
-            allowedEnumValues = typeof(TEnum).GetEnumValues().Cast<TEnum>();
-
-        this.AllowedEnumList = allowedEnumValues.Select(x => (x, x.ToString())).ToList().AsReadOnly();
-        this.EnumToText = new Dictionary<TEnum, string>(this.AllowedEnumList.Select(x => new KeyValuePair<TEnum, string>(x.Item1, x.Item2)));
-        this.TextToEnum = new Dictionary<string, TEnum>(this.AllowedEnumList.Select(x => new KeyValuePair<string, TEnum>(x.Item2, x.Item1)));
-    }
-
-    public DataParameterEnumInfo(IEnumerable<TEnum> allowedEnumValues, IReadOnlyDictionary<TEnum, string> enumToTextMap)
-    {
-        Validate.NotNull(allowedEnumValues);
-        Validate.NotNull(enumToTextMap);
-
-        this.AllowedEnumList = allowedEnumValues.Select(x => (x, enumToTextMap.TryGetValue(x, out string? value) ? value : x.ToString())).ToList().AsReadOnly();
-
-        // Generate missing translations
-        Dictionary<TEnum, string> fullEnumToTextMap = new Dictionary<TEnum, string>(enumToTextMap);
-        foreach ((TEnum theEnum, string theName) t in this.AllowedEnumList)
-        {
-            if (!fullEnumToTextMap.ContainsKey(t.theEnum))
-                fullEnumToTextMap[t.theEnum] = t.theName;
-        }
-
-        this.EnumToText = fullEnumToTextMap.AsReadOnly();
-        this.TextToEnum = new Dictionary<string, TEnum>(this.EnumToText.Select(x => new KeyValuePair<string, TEnum>(x.Value, x.Key)));
-    }
-}
+namespace FramePFX.PropertyEditing.DataTransfer.Enums;
 
 public class DataParameterEnumPropertyEditorSlot<TEnum> : DataParameterPropertyEditorSlot where TEnum : struct, Enum
 {

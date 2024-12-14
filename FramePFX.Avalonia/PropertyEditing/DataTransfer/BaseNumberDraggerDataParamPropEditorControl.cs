@@ -40,8 +40,8 @@ public abstract class BaseNumberDraggerDataParamPropEditorControl : BaseDataPara
     /// </summary>
     public abstract double SlotValue { get; set; }
 
-    protected NumberDragger dragger;
-    protected Button resetButton;
+    protected NumberDragger? dragger;
+    protected Button? resetButton;
     private readonly AutoUpdateAndEventPropertyBinder<DataParameterFormattableNumberPropertyEditorSlot> valueFormatterBinder;
 
     protected BaseNumberDraggerDataParamPropEditorControl()

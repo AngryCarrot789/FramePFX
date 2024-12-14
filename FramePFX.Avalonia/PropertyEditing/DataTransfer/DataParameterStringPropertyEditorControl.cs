@@ -26,7 +26,7 @@ namespace FramePFX.Avalonia.PropertyEditing.DataTransfer;
 
 public class DataParameterStringPropertyEditorControl : BaseDataParameterPropertyEditorControl
 {
-    protected TextBox textBox;
+    protected TextBox? textBox;
 
     public new DataParameterStringPropertyEditorSlot? SlotModel => (DataParameterStringPropertyEditorSlot?) base.SlotControl?.Model;
 
@@ -43,17 +43,17 @@ public class DataParameterStringPropertyEditorControl : BaseDataParameterPropert
 
     protected override void UpdateControlValue()
     {
-        this.textBox.Text = this.SlotModel!.Value;
+        this.textBox!.Text = this.SlotModel!.Value;
     }
 
     protected override void UpdateModelValue()
     {
-        this.SlotModel!.Value = this.textBox.Text!;
+        this.SlotModel!.Value = this.textBox!.Text!;
     }
 
     protected override void OnCanEditValueChanged(bool canEdit)
     {
-        this.textBox.IsEnabled = canEdit;
+        this.textBox!.IsEnabled = canEdit;
     }
 
     protected override void OnConnected()
@@ -82,12 +82,12 @@ public class DataParameterStringPropertyEditorControl : BaseDataParameterPropert
             int count = slot.AnticipatedLineCount;
             if (count == -1)
             {
-                this.textBox.ClearValue(TextBox.MinLinesProperty);
+                this.textBox!.ClearValue(TextBox.MinLinesProperty);
                 this.textBox.AcceptsReturn = false;
             }
             else
             {
-                this.textBox.MinLines = count;
+                this.textBox!.MinLines = count;
                 this.textBox.AcceptsReturn = true;
             }
         }

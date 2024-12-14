@@ -17,8 +17,12 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Diagnostics.CodeAnalysis;
 using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Automation.Params;
+using FramePFX.Editing.Timelines.Clips;
+using FramePFX.Editing.Timelines.Effects;
+using FramePFX.Editing.Timelines.Tracks;
 
 namespace FramePFX.Editing.Automation;
 
@@ -101,6 +105,40 @@ public static class AutomationUtils
         else
         {
             keyFrame = null;
+            return false;
+        }
+    }
+
+    public static bool GetClipForAutomatable(IAutomatable? automatable, [NotNullWhen(true)] out Clip? clip)
+    {
+        if ((clip = automatable as Clip) != null)
+        {
+            return true;
+        }
+        else if (automatable is BaseEffect effect)
+        {
+            return (clip = effect.OwnerClip) != null;
+        }
+        else
+        {
+            clip = null;
+            return false;
+        }
+    }
+    
+    public static bool GetTrackForAutomatable(IAutomatable? automatable, [NotNullWhen(true)] out Track? track)
+    {
+        if ((track = automatable as Track) != null)
+        {
+            return true;
+        }
+        else if (automatable is BaseEffect effect)
+        {
+            return (track = effect.OwnerTrack) != null;
+        }
+        else
+        {
+            track = null;
             return false;
         }
     }

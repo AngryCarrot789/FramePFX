@@ -28,7 +28,6 @@ using FramePFX.Editing.Automation;
 using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Clips;
-using FramePFX.Editing.Timelines.Effects;
 
 namespace FramePFX.Avalonia.PropertyEditing.Automation;
 
@@ -55,6 +54,7 @@ public class KeyFrameToolsControl : TemplatedControl
     private Button PART_ResetValue;
 
     private IStrictFrameRange? strictFrameRange;
+    private Clip? attachedClip;
 
     public KeyFrameToolsControl() {
     }
@@ -73,8 +73,11 @@ public class KeyFrameToolsControl : TemplatedControl
             this.strictFrameRange = null;
             IAutomatable oldOwner = oldValue.AutomationData.Owner;
             oldOwner.TimelineChanged -= this.OnClipTimelineChanged;
-            if (GetClipForAutomatable(oldOwner, out Clip clip))
-                clip.FrameSpanChanged -= this.OnOwnerClipFrameSpanChanged;
+            if (this.attachedClip != null)
+            {
+                this.attachedClip.FrameSpanChanged -= this.OnOwnerClipFrameSpanChanged;
+                this.attachedClip = null;
+            }
         }
 
         if (newValue != null)
@@ -83,8 +86,8 @@ public class KeyFrameToolsControl : TemplatedControl
             IAutomatable newOwner = newValue.AutomationData.Owner;
             this.strictFrameRange = newOwner as IStrictFrameRange;
             newOwner.TimelineChanged += this.OnClipTimelineChanged;
-            if (GetClipForAutomatable(newOwner, out Clip clip))
-                clip.FrameSpanChanged += this.OnOwnerClipFrameSpanChanged;
+            if (AutomationUtils.GetClipForAutomatable(newOwner, out this.attachedClip))
+                this.attachedClip.FrameSpanChanged += this.OnOwnerClipFrameSpanChanged;
 
             this.UpdateInsertKeyFrame(newOwner);
 
@@ -139,30 +142,6 @@ public class KeyFrameToolsControl : TemplatedControl
             sequence.UpdateValue();
             // sequence.InvalidateTimelineRender();
         }
-    }
-
-    private static bool GetClipForAutomatable(IAutomatable automatable, out Clip clip)
-    {
-        if (automatable == null)
-        {
-            clip = null;
-            return false;
-        }
-        else if (automatable is Clip automatableClip)
-        {
-            clip = automatableClip;
-        }
-        else if (automatable is BaseEffect effect && effect.Owner is Clip effectOwnerClip)
-        {
-            clip = effectOwnerClip;
-        }
-        else
-        {
-            clip = null;
-            return false;
-        }
-
-        return true;
     }
 
     private void OnClipTimelineChanged(IHaveTimeline owner, Timeline? oldTimeline, Timeline? newTimeline)

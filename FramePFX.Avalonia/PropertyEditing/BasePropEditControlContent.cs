@@ -17,11 +17,14 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System;
 using Avalonia.Controls.Primitives;
+using FFmpeg.AutoGen;
 using FramePFX.Avalonia.PropertyEditing.Automation;
 using FramePFX.Avalonia.PropertyEditing.Core;
 using FramePFX.Avalonia.PropertyEditing.DataTransfer;
 using FramePFX.Avalonia.PropertyEditing.DataTransfer.Automatic;
+using FramePFX.Avalonia.PropertyEditing.DataTransfer.Enums;
 using FramePFX.Avalonia.Utils;
 using FramePFX.Editing.Exporting.FFmpeg;
 using FramePFX.Editing.PropertyEditors;
@@ -30,6 +33,7 @@ using FramePFX.PropertyEditing.Automation;
 using FramePFX.PropertyEditing.Core;
 using FramePFX.PropertyEditing.DataTransfer;
 using FramePFX.PropertyEditing.DataTransfer.Automatic;
+using FramePFX.PropertyEditing.DataTransfer.Enums;
 using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.PropertyEditing;
@@ -77,7 +81,12 @@ public abstract class BasePropEditControlContent : TemplatedControl
         Registry.RegisterType<ParameterBoolPropertyEditorSlot>(() => new ParameterBoolPropertyEditorControl());
         
         // Enums
-        Registry.RegisterType<DataParameterAVCodecIDPropertyEditorSlot>(() => new DataParameterAVCodedIdPropertyEditorControl());
+        RegisterEnumProperty<AVCodecID, DataParameterAVCodecIDPropertyEditorSlot>();
+    }
+
+    public static void RegisterEnumProperty<TEnum, TSlot>() where TEnum : struct, Enum where TSlot : DataParameterEnumPropertyEditorSlot<TEnum>
+    {
+        Registry.RegisterType<TSlot>(() => new EnumDataParameterPropertyEditorControl<TEnum>());
     }
 
     public static BasePropEditControlContent NewContentInstance(PropertyEditorSlot slot)

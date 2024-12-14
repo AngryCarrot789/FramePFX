@@ -38,17 +38,17 @@ public class DataParameterDoublePropertyEditorControl : BaseNumberDraggerDataPar
     protected override void OnConnected()
     {
         base.OnConnected();
-        DataParameterDoublePropertyEditorSlot slot = this.SlotModel;
+        DataParameterDoublePropertyEditorSlot slot = this.SlotModel!;
         DataParameterDouble param = slot.Parameter;
-        this.dragger.Minimum = param.Minimum;
-        this.dragger.Maximum = param.Maximum;
+        this.dragger!.Minimum = param.Minimum;
+        this.dragger!.Maximum = param.Maximum;
 
         DragStepProfile profile = slot.StepProfile;
-        this.dragger.TinyChange = profile.TinyStep;
-        this.dragger.SmallChange = profile.SmallStep;
-        this.dragger.NormalChange = profile.NormalStep;
-        this.dragger.LargeChange = profile.LargeStep;
+        this.dragger!.TinyChange = profile.TinyStep;
+        this.dragger!.SmallChange = profile.SmallStep;
+        this.dragger!.NormalChange = profile.NormalStep;
+        this.dragger!.LargeChange = profile.LargeStep;
     }
 
-    protected override void ResetValue() => this.SlotModel.Value = this.SlotModel.Parameter.DefaultValue;
+    protected override void ResetValue() => this.SlotValue = this.SlotModel!.Parameter.DefaultValue;
 }

@@ -213,7 +213,7 @@ public abstract class Track : IDisplayName, IAutomatable, IHaveEffects, IDestroy
     public bool GetRelativePlayHead(out long playHead)
     {
         playHead = this.Timeline?.PlayHeadPosition ?? 0L;
-        return true;
+        return this.Timeline != null;
     }
 
     public bool IsAutomated(Parameter parameter)

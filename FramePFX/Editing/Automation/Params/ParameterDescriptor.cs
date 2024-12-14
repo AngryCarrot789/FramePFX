@@ -18,6 +18,7 @@
 //
 
 using System.Numerics;
+using FramePFX.DataTransfer;
 using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Utils;
 
@@ -36,7 +37,7 @@ public abstract class ParameterDescriptor
     }
 }
 
-public sealed class ParameterDescriptorFloat : ParameterDescriptor
+public sealed class ParameterDescriptorFloat : ParameterDescriptor, IRangedParameter<float>
 {
     /// <summary>
     /// The default value of the parameter
@@ -53,6 +54,8 @@ public sealed class ParameterDescriptorFloat : ParameterDescriptor
     /// </summary>
     public float Maximum { get; }
 
+    public bool HasExplicitRangeLimit { get; }
+
     public ParameterDescriptorFloat(float defaultValue = default, float minimum = float.MinValue, float maximum = float.MaxValue) : base(AutomationDataType.Float)
     {
         if (minimum > maximum)
@@ -62,6 +65,7 @@ public sealed class ParameterDescriptorFloat : ParameterDescriptor
         this.DefaultValue = defaultValue;
         this.Minimum = minimum;
         this.Maximum = maximum;
+        this.HasExplicitRangeLimit = minimum > float.MinValue || maximum < float.MaxValue;
     }
 
     public float Clamp(float value) => Maths.Clamp(value, this.Minimum, this.Maximum);
@@ -69,7 +73,7 @@ public sealed class ParameterDescriptorFloat : ParameterDescriptor
     public bool IsValueOutOfRange(float value) => value < this.Minimum || value > this.Maximum;
 }
 
-public sealed class ParameterDescriptorDouble : ParameterDescriptor
+public sealed class ParameterDescriptorDouble : ParameterDescriptor, IRangedParameter<double>
 {
     /// <summary>
     /// The default value of the parameter
@@ -86,6 +90,8 @@ public sealed class ParameterDescriptorDouble : ParameterDescriptor
     /// </summary>
     public double Maximum { get; }
 
+    public bool HasExplicitRangeLimit { get; }
+
     public ParameterDescriptorDouble(double defaultValue = default, double minimum = double.MinValue, double maximum = double.MaxValue) : base(AutomationDataType.Double)
     {
         if (minimum > maximum)
@@ -95,6 +101,7 @@ public sealed class ParameterDescriptorDouble : ParameterDescriptor
         this.DefaultValue = defaultValue;
         this.Minimum = minimum;
         this.Maximum = maximum;
+        this.HasExplicitRangeLimit = minimum > double.MinValue || maximum < double.MaxValue;
     }
 
     public double Clamp(double value) => Maths.Clamp(value, this.Minimum, this.Maximum);
@@ -102,7 +109,7 @@ public sealed class ParameterDescriptorDouble : ParameterDescriptor
     public bool IsValueOutOfRange(double value) => value < this.Minimum || value > this.Maximum;
 }
 
-public sealed class ParameterDescriptorLong : ParameterDescriptor
+public sealed class ParameterDescriptorLong : ParameterDescriptor, IRangedParameter<long>
 {
     /// <summary>
     /// The default value of the parameter
@@ -119,6 +126,8 @@ public sealed class ParameterDescriptorLong : ParameterDescriptor
     /// </summary>
     public long Maximum { get; }
 
+    public bool HasExplicitRangeLimit { get; }
+
     public ParameterDescriptorLong(long defaultValue = default, long minimum = long.MinValue, long maximum = long.MaxValue) : base(AutomationDataType.Long)
     {
         if (minimum > maximum)
@@ -128,6 +137,7 @@ public sealed class ParameterDescriptorLong : ParameterDescriptor
         this.DefaultValue = defaultValue;
         this.Minimum = minimum;
         this.Maximum = maximum;
+        this.HasExplicitRangeLimit = minimum != long.MinValue || maximum != long.MaxValue;
     }
 
     public long Clamp(long value) => Maths.Clamp(value, this.Minimum, this.Maximum);
@@ -148,7 +158,7 @@ public sealed class ParameterDescriptorBoolean : ParameterDescriptor
     }
 }
 
-public sealed class ParameterDescriptorVector2 : ParameterDescriptor
+public sealed class ParameterDescriptorVector2 : ParameterDescriptor, IRangedParameter<Vector2>
 {
     /// <summary>
     /// The default value of the parameter
@@ -165,6 +175,8 @@ public sealed class ParameterDescriptorVector2 : ParameterDescriptor
     /// </summary>
     public Vector2 Maximum { get; }
 
+    public bool HasExplicitRangeLimit { get; }
+
     public ParameterDescriptorVector2() : this(default) {
     }
 
@@ -180,6 +192,7 @@ public sealed class ParameterDescriptorVector2 : ParameterDescriptor
         this.DefaultValue = defaultValue;
         this.Minimum = minimum;
         this.Maximum = maximum;
+        this.HasExplicitRangeLimit = minimum.X > float.MinValue || minimum.Y > float.MinValue || maximum.X < float.MaxValue || maximum.Y < float.MaxValue;
     }
 
     public Vector2 Clamp(Vector2 value) => Vector2.Clamp(value, this.Minimum, this.Maximum);

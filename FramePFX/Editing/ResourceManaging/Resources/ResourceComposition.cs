@@ -26,6 +26,8 @@ public sealed class ResourceComposition : ResourceItem
 {
     public CompositionTimeline Timeline { get; }
 
+    public override int ResourceLinkLimit => 1;
+
     public ResourceComposition()
     {
         this.Timeline = new CompositionTimeline();
@@ -56,7 +58,7 @@ public sealed class ResourceComposition : ResourceItem
         base.OnDetachedFromManager();
         Project project = this.Manager.Project;
         if (ReferenceEquals(project.ActiveTimeline, this.Timeline))
-            project.ActiveTimeline = null; // sets to main timeline when assigning null
+            project.ActiveTimeline = project.MainTimeline; // sets to main timeline when assigning null
         Timelines.Timeline.InternalSetCompositionTimelineProjectReference(this.Timeline, null);
     }
 

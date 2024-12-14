@@ -29,7 +29,7 @@ public class ChangeClipPlaybackSpeedCommand : AsyncCommand
 {
     protected override Executability CanExecuteOverride(CommandEventArgs e)
     {
-        if (!DataKeys.ClipKey.TryGetContext(e.ContextData, out var clip))
+        if (!DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip? clip))
         {
             return Executability.Invalid;
         }

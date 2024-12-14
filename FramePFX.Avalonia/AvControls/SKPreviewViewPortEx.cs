@@ -58,12 +58,16 @@ public class SKPreviewViewPortEx : Control
             return false;
         }
 
+        Rect bounds = this.Bounds;
+        PixelSize pixelSize = new PixelSize((int) Math.Floor(bounds.Width), (int) Math.Floor(bounds.Height));
+        // PixelSize pixelSize = new PixelSize(frameInfo.Width, frameInfo.Height);
+
         this.skImageInfo = frameInfo;
-        WriteableBitmap? bmp = this.bitmap;
-        if (bmp == null || frameInfo.Width != bmp.PixelSize.Width || frameInfo.Height != bmp.PixelSize.Height)
+        if (this.bitmap == null || pixelSize != this.bitmap.PixelSize)
         {
+            this.bitmap?.Dispose();
             this.bitmap = new WriteableBitmap(
-                new PixelSize(frameInfo.Width, frameInfo.Height),
+                pixelSize,
                 new Vector(
                     unscaledSize.Width == scaledSize.Width ? 96d : (96d * scaleX),
                     unscaledSize.Height == scaledSize.Height ? 96d : (96d * scaleY)));
@@ -74,26 +78,29 @@ public class SKPreviewViewPortEx : Control
         return true;
     }
 
-    public void EndRenderWithSurface(SKSurface srcSurface)
+    public void EndRenderWithSurface(SKSurface srcSurface, SKRect? srcRect)
     {
         SKImageInfo imgInfo = this.skImageInfo;
         srcSurface.Flush(true, true);
         ILockedFramebuffer lockKey = this.bitmap!.Lock();
 
+        
         int dstPxW = this.bitmap.PixelSize.Width;
         int dstPxH = this.bitmap.PixelSize.Height;
-        IntPtr srcPtr = srcSurface.PeekPixels().GetPixels();
         IntPtr dstPtr = lockKey.Address;
+        SKImageInfo dstInfo = new SKImageInfo(dstPxW, dstPxH, imgInfo.ColorType, imgInfo.AlphaType, imgInfo.ColorSpace);
         if (imgInfo.Width == dstPxW && imgInfo.Height == dstPxH)
         {
-            BitBltSkia(srcPtr, dstPtr, imgInfo);
+            srcSurface.ReadPixels(dstInfo, dstPtr, imgInfo.RowBytes, 0, 0);
+            // Not sure if the below is faster
+            // using SKPixmap srcPixmap = srcSurface.PeekPixels();
+            // BitBltSkia(srcPixmap.GetPixels(), dstPtr, imgInfo);
         }
         else
         {
-            using SKPixmap srcPixmal = new SKPixmap(imgInfo, srcPtr);
-            SKImageInfo dstInfo = new SKImageInfo(dstPxW, dstPxH, imgInfo.ColorType, imgInfo.AlphaType, imgInfo.ColorSpace);
+            using SKPixmap srcPixmap = srcSurface.PeekPixels();
             using SKPixmap dstPixmap = new SKPixmap(dstInfo, dstPtr);
-            srcPixmal.ScalePixels(dstPixmap, SKFilterQuality.High);
+            srcPixmap.ScalePixels(dstPixmap, SKFilterQuality.Low);
         }
 
         this.OnPreEndRender();
@@ -123,11 +130,12 @@ public class SKPreviewViewPortEx : Control
     public override void Render(DrawingContext context)
     {
         base.Render(context);
-        WriteableBitmap? bmp = this.bitmap;
-        if (bmp != null)
+        Rect bounds = this.Bounds;
+        Rect myRect = new Rect(0, 0, bounds.Width, bounds.Height);
+        context.DrawRectangle(Brushes.Black, null, myRect);
+        if (this.bitmap != null)
         {
-            Rect bounds = this.Bounds;
-            context.DrawImage(bmp, new Rect(0d, 0d, bounds.Width, bounds.Height));
+            context.DrawImage(this.bitmap, myRect);
         }
     }
 

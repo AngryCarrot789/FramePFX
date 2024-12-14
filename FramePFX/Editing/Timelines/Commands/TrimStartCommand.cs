@@ -29,7 +29,7 @@ public class TrimStartCommand : Command
 {
     public override Executability CanExecute(CommandEventArgs e)
     {
-        if (DataKeys.ClipKey.TryGetContext(e.ContextData, out var clip) && clip.Timeline != null)
+        if (DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip? clip) && clip.Timeline != null)
             return Executability.Valid;
         if (e.ContextData.ContainsKey(DataKeys.TimelineKey))
             return Executability.Valid;

@@ -47,11 +47,12 @@ public class Project : IDestroy
         get => this.activeTimeline;
         set
         {
-            if (value == null)
-                value = this.MainTimeline;
+            Validate.NotNull(value);
+            
             Timeline oldTimeline = this.activeTimeline;
             if (oldTimeline == value)
                 return;
+            
             if (value.Project != this)
                 throw new InvalidOperationException("The new active timeline's project does not match the current instance");
 

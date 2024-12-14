@@ -25,11 +25,14 @@ using FramePFX.Utils;
 
 namespace FramePFX.Editing;
 
-public sealed class ResourceClipRegistry
+/// <summary>
+/// A class which manages the behaviour for when a user tries to drop a resource into a timeline
+/// </summary>
+public sealed class ResourceToClipDropRegistry
 {
     private readonly Dictionary<Type, IResourceDropInformation> information;
 
-    public ResourceClipRegistry()
+    public ResourceToClipDropRegistry()
     {
         this.information = new Dictionary<Type, IResourceDropInformation>();
     }

@@ -21,6 +21,7 @@ using FramePFX.AdvancedMenuService;
 using FramePFX.Editing.Factories;
 using FramePFX.Editing.ResourceManaging.Commands;
 using FramePFX.Editing.ResourceManaging.Resources;
+using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Serialisation;
@@ -97,9 +98,9 @@ public abstract class BaseResource : IDisplayName, IDestroy
         ResourceFolderContextRegistry.Opened += (r, ctx) =>
         {
             int selected;
-            if (DataKeys.ResourceListUIKey.TryGetContext(ctx, out var list))
+            if (DataKeys.ResourceListUIKey.TryGetContext(ctx, out IResourceListElement? list))
                 selected = list.Selection.SelectedItems.Count(x => x is ResourceFolder);
-            else if (DataKeys.ResourceTreeUIKey.TryGetContext(ctx, out var tree))
+            else if (DataKeys.ResourceTreeUIKey.TryGetContext(ctx, out IResourceTreeElement? tree))
                 selected = tree.Selection.SelectedItems.Count(x => x is ResourceFolder);
             else
                 return;
@@ -115,9 +116,9 @@ public abstract class BaseResource : IDisplayName, IDestroy
         ResourceItemContextRegistry.Opened += (r, ctx) =>
         {
             List<BaseResource> selected;
-            if (DataKeys.ResourceListUIKey.TryGetContext(ctx, out var list))
+            if (DataKeys.ResourceListUIKey.TryGetContext(ctx, out IResourceListElement? list))
                 selected = list.Selection.SelectedItems.Where(x => x is ResourceItem).ToList();
-            else if (DataKeys.ResourceTreeUIKey.TryGetContext(ctx, out var tree))
+            else if (DataKeys.ResourceTreeUIKey.TryGetContext(ctx, out IResourceTreeElement? tree))
                 selected = tree.Selection.SelectedItems.Where(x => x is ResourceItem).ToList();
             else
                 return;
@@ -166,9 +167,17 @@ public abstract class BaseResource : IDisplayName, IDestroy
 
         ResourceItemContextRegistry.GetFixedGroup("modify.general").AddDynamicSubGroup((group, ctx, items) =>
         {
-            if (ResourceCommandUtils.GetSingleItem(ctx, out BaseResource? resource) && resource is ResourceColour)
+            if (ResourceCommandUtils.GetSingleItem(ctx, out BaseResource? resource))
             {
-                items.Add(new CommandContextEntry("Change Colour", "Change the colour of the resource", "commands.resources.ChangeResourceColour"));
+                switch (resource)
+                {
+                    case ResourceColour: 
+                        items.Add(new CommandContextEntry("Change Colour", "Change the colour of the resource", "commands.resources.ChangeResourceColour")); 
+                        break;
+                    case ResourceComposition: 
+                        items.Add(new CommandContextEntry("Open Timeline", "Opens this composition resource's timeline in the editor", "commands.editor.OpenCompositionTimeline")); 
+                        break;
+                }
             }
         });
 

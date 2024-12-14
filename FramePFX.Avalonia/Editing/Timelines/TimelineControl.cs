@@ -354,7 +354,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement
         }
     }
 
-    public void SetZoom(double newZoom, ZoomType type, SKPointD mousePoint)
+    public void SetZoom(double newZoom)
     {
         double oldZoom = this.Zoom;
         newZoom = Maths.Clamp(newZoom, 0.1, 200);
@@ -364,7 +364,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement
         }
 
         this.SetAndRaise(ZoomProperty, ref this.myZoomFactor, newZoom);
-        this.OnTimelineZoomed(oldZoom, newZoom, type, mousePoint);
+        this.OnTimelineZoomed(oldZoom, newZoom);
     }
 
     private void OnTimelineContentGridPointerPressed(object? sender, PointerPressedEventArgs e)
@@ -431,6 +431,34 @@ public class TimelineControl : TemplatedControl, ITimelineElement
         DataManager.InvalidateInheritedContext(this);
 
         this.TimelineModelChanged?.Invoke(this, oldTimeline, newTimeline);
+        
+        this.SetZoom(1.0);
+        IoC.Dispatcher.Invoke(this.UpdateTimelineViewportSize, DispatchPriority.Loaded);
+    }
+
+    protected override void OnSizeChanged(SizeChangedEventArgs e)
+    {
+        base.OnSizeChanged(e);
+        this.UpdateTimelineViewportSize();
+    }
+
+    private void UpdateTimelineViewportSize()
+    {
+        if (this.TimelineScrollViewer != null)
+        {
+            if (this.Timeline is Timeline timeline)
+            {
+                double widthVp = this.TimelineScrollViewer.Viewport.Width;
+                double rawTimelineWidth = timeline.MaxDuration;
+                double realTimelineWidth = rawTimelineWidth * this.Zoom;
+                // !DoubleUtils.AreClose(realTimelineWidth, this.TimelineScrollViewer.Extent.Width) || 
+                if (realTimelineWidth < widthVp)
+                {
+                    double newZoomRatio = widthVp / rawTimelineWidth;
+                    this.SetZoom(newZoomRatio);
+                }
+            }
+        }
     }
 
     private void InsertTrackElement(Track track, int i, bool isLoadingTimeline = false)
@@ -548,7 +576,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement
             double minZoom = scroller.Viewport.Width / (scroller.Extent.Width / oldZoom); // add 0.000000000000001 to never disable scroll bar
             newZoom = Math.Max(minZoom, newZoom);
             Point mPos = e.GetPosition(this);
-            this.SetZoom(newZoom, ZoomType.Direct, new SKPointD(mPos.X, mPos.Y)); // let the coerce function clamp the zoom value
+            this.SetZoom(newZoom); // let the coerce function clamp the zoom value
             newZoom = this.Zoom;
 
             // managed to get zooming towards the cursor working
@@ -580,7 +608,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement
         }
     }
 
-    private void OnTimelineZoomed(double oldZoom, double newZoom, ZoomType zoomType, SKPointD mPos)
+    private void OnTimelineZoomed(double oldZoom, double newZoom)
     {
         this.TrackStorage?.OnZoomChanged(newZoom);
         this.TimelineRuler?.OnZoomChanged(newZoom);

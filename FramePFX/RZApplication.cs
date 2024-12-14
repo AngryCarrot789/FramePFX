@@ -91,11 +91,26 @@ public abstract class RZApplication
         this.RegisterCommands(progress, CommandManager.Instance);
         
         await progress.SetAction("Initialising other data...", null);
-        this.serviceManager.GetService<ResourceClipRegistry>().Register(typeof(ResourceAVMedia), new AVMediaDropInformation());
-        this.serviceManager.GetService<ResourceClipRegistry>().Register(typeof(ResourceColour), new ResourceColourDropInformation());
-        this.serviceManager.GetService<ResourceClipRegistry>().Register(typeof(ResourceImage), new ResourceImageDropInformation());
+
+        ResourceToClipDropRegistry res2clip = this.serviceManager.GetService<ResourceToClipDropRegistry>(); 
+        res2clip.Register(typeof(ResourceAVMedia), new AVMediaDropInformation());
+        res2clip.Register(typeof(ResourceColour), new ResourceColourDropInformation());
+        res2clip.Register(typeof(ResourceImage), new ResourceImageDropInformation());
+        res2clip.Register(typeof(ResourceComposition), new CompositionResourceDropInformation());
     }
 
+    private static async ValueTask<bool> HandleGeneralCanDropResource(ResourceItem item)
+    {
+        if (item.HasReachedResourceLimit())
+        {
+            int count = item.ResourceLinkLimit;
+            await IoC.MessageService.ShowMessage("Resource Limit", $"This resource cannot be used by more than {count} clip{Lang.S(count)}");
+            return false;
+        }
+
+        return true;
+    }
+    
     private class AVMediaDropInformation : IResourceDropInformation
     {
         public long GetClipDurationForDrop(Track track, ResourceItem resource)
@@ -111,6 +126,9 @@ public abstract class RZApplication
 
         public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span)
         {
+            if (!await HandleGeneralCanDropResource(resource))
+                return;
+            
             ResourceAVMedia media = (ResourceAVMedia) resource;
             AVMediaVideoClip clip = new AVMediaVideoClip();
             clip.FrameSpan = span;
@@ -119,12 +137,16 @@ public abstract class RZApplication
             track.AddClip(clip);
         }
     }
+    
     private class ResourceImageDropInformation : IResourceDropInformation
     {
         public long GetClipDurationForDrop(Track track, ResourceItem resource) => 300;
 
         public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span)
         {
+            if (!await HandleGeneralCanDropResource(resource))
+                return;
+            
             ResourceImage media = (ResourceImage) resource;
             ImageVideoClip clip = new ImageVideoClip();
             clip.FrameSpan = span;
@@ -140,6 +162,9 @@ public abstract class RZApplication
 
         public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span)
         {
+            if (!await HandleGeneralCanDropResource(resource))
+                return;
+            
             ResourceColour colourRes = (ResourceColour) resource;
             VideoClipShape shape = new VideoClipShape();
             shape.FrameSpan = span;
@@ -148,11 +173,35 @@ public abstract class RZApplication
             track.AddClip(shape);
         }
     }
+    
+    private class CompositionResourceDropInformation : IResourceDropInformation
+    {
+        public long GetClipDurationForDrop(Track track, ResourceItem resource)
+        {
+            if (resource.Manager == null)
+                return -1;
+
+            return ((ResourceComposition) resource).Timeline.LargestFrameInUse;
+        }
+
+        public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span)
+        {
+            if (!await HandleGeneralCanDropResource(resource))
+                return;
+            
+            ResourceComposition comp = (ResourceComposition) resource;
+            CompositionVideoClip clip = new CompositionVideoClip();
+            clip.FrameSpan = span;
+            clip.ResourceCompositionKey.SetTargetResourceId(comp.UniqueId);
+
+            track.AddClip(clip);
+        }
+    }
 
     protected virtual void RegisterServices(IApplicationStartupProgress progress, ServiceManager manager)
     {
         manager.Register(new TaskManager());
-        manager.Register(new ResourceClipRegistry());
+        manager.Register(new ResourceToClipDropRegistry());
     }
 
     protected virtual void RegisterCommands(IApplicationStartupProgress progress, CommandManager manager)
@@ -181,6 +230,8 @@ public abstract class RZApplication
         manager.Register("commands.editor.SelectAllClips", new SelectAllClipsCommand());
         manager.Register("commands.editor.SelectClipsInTracks", new SelectClipsInTracksCommand());
         manager.Register("commands.editor.ChangeClipPlaybackSpeed", new ChangeClipPlaybackSpeedCommand());
+        manager.Register("commands.editor.CreateCompositionFromSelection", new CreateCompositionFromSelectionCommand());
+        manager.Register("commands.editor.OpenCompositionTimeline", new OpenCompositionTimelineCommand());
 
         // Adding clips to tracks
         manager.Register("commands.editor.AddTextClip", new AddTextClipCommand());
@@ -206,9 +257,9 @@ public abstract class RZApplication
         // Editor
         manager.Register("UndoCommand", new UndoCommand());
         manager.Register("RedoCommand", new RedoCommand());
-        manager.Register("commands.editor.NewProjectCommand", new NewProjectCommand());
-        manager.Register("commands.editor.OpenProjectCommand", new OpenProjectCommand());
-        manager.Register("commands.editor.CloseProjectCommand", new CloseProjectCommand());
+        manager.Register("commands.editor.NewProject", new NewProjectCommand());
+        manager.Register("commands.editor.OpenProject", new OpenProjectCommand());
+        manager.Register("commands.editor.CloseProject", new CloseProjectCommand());
         manager.Register("commands.editor.SaveProject", new SaveProjectCommand());
         manager.Register("commands.editor.SaveProjectAs", new SaveProjectAsCommand());
         manager.Register("commands.editor.Export", new ExportCommand());

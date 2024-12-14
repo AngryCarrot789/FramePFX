@@ -26,7 +26,7 @@ public class TogglePlayCommand : Command
 {
     public override Executability CanExecute(CommandEventArgs e)
     {
-        if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out var editor))
+        if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? editor))
             return Executability.Invalid;
         return editor.Playback.Timeline != null ? Executability.Valid : Executability.ValidButCannotExecute;
     }

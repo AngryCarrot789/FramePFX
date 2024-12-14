@@ -64,7 +64,7 @@ public class IntegerRangeMap<T>
     private Range? GetLowerRange(int index)
     {
         Range? lowerRange = null;
-        foreach (var key in this.ranges.Keys)
+        foreach (int key in this.ranges.Keys)
         {
             if (key <= index && this.ranges[key].End >= index)
                 return this.ranges[key];
@@ -79,7 +79,7 @@ public class IntegerRangeMap<T>
 
     private Range? GetUpperRange(int index)
     {
-        foreach (var key in this.ranges.Keys)
+        foreach (int key in this.ranges.Keys)
         {
             if (key > index)
                 return this.ranges[key];

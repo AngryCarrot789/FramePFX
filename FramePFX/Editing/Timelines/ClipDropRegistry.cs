@@ -84,5 +84,18 @@ public static class ClipDropRegistry
             clip.ResourceAVMediaKey.SetTargetResourceId(h.UniqueId);
             clip.ResourceAVMediaKey.TryLoadLink();
         });
+        
+        DropRegistry.Register<CompositionVideoClip, ResourceComposition>((clip, h, dt, ctx) => EnumDropType.Link, async (clip, h, dt, c) =>
+        {
+            if (h.HasReachedResourceLimit())
+            {
+                int count = h.ResourceLinkLimit;
+                await IoC.MessageService.ShowMessage("Resource Limit", $"At the moment, composition timelines cannot be used by more than {count} clip{Lang.S(count)}");
+                return;
+            }
+
+            clip.ResourceCompositionKey.SetTargetResourceId(h.UniqueId);
+            clip.ResourceCompositionKey.TryLoadLink();
+        });
     }
 }

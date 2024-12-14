@@ -3,10 +3,10 @@
 <KeyMap Version="1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Keymap.xsd">
     <Group Name="Application">
         <Group Name="EditorWindow">
-            <Shortcut Name="NewProject" CommandId="commands.editor.NewProjectCommand">
+            <Shortcut Name="NewProject" CommandId="commands.editor.NewProject">
                 <KeyStroke Mods="CTRL" Key="N"/>
             </Shortcut>
-            <Shortcut Name="OpenProject" CommandId="commands.editor.OpenProjectCommand">
+            <Shortcut Name="OpenProject" CommandId="commands.editor.OpenProject">
                 <KeyStroke Mods="CTRL" Key="O"/>
             </Shortcut>
             <Shortcut Name="SaveProject" CommandId="commands.editor.SaveProject">
@@ -185,7 +185,7 @@
                 <Shortcut Name="AddKeyFrame" CommandId="commands.generic.commands.automation.AddKeyFrame" Description="Adds a new key frame at the play head at the playhead for the clip's or clip's active sequence">
                     <KeyStroke Key="K"/>
                 </Shortcut>
-                <Shortcut Name="CreateCompositionFromSelection" CommandId="commands.generic.CreateCompositionFromSelectionCommand">
+                <Shortcut Name="CreateCompositionFromSelection" CommandId="commands.editor.CreateCompositionFromSelection">
                     <KeyStroke Mods="ALT" Key="C"/>
                 </Shortcut>
                 <Shortcut Name="ToggleDragScroll" CommandId="commands.timeline.ToggleAutoScrollOnClipDrag">

@@ -167,7 +167,7 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement
         ResourceManager? manager;
         if (!this.isProcessingManagerCurrentFolderChanged && (manager = this.ResourceManager) != null)
         {
-            manager.CurrentFolder = newFolder;
+            manager.CurrentFolder = newFolder ?? manager.RootContainer;
         }
     }
 

@@ -342,4 +342,12 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI
     }
 
     #endregion
+
+    private void CloseTimelineClick(object? sender, RoutedEventArgs e)
+    {
+        if (this.VideoEditor?.Project is Project project)
+        {
+            project.ActiveTimeline = project.MainTimeline;
+        }
+    }
 }

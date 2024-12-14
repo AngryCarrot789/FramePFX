@@ -209,7 +209,7 @@ public class RELICImage : ResourceExplorerListItemContent
             }
 
             // Lock the WriteableBitmap for writing
-            using (var lockedFramebuffer = this.bitmap.Lock())
+            using (ILockedFramebuffer lockedFramebuffer = this.bitmap.Lock())
             {
                 IntPtr bmpPixels = bmp.GetPixels();
                 if (bmpPixels == IntPtr.Zero)
@@ -242,9 +242,9 @@ public class RELICAVMedia : ResourceExplorerListItemContent
 
 public class RELICComposition : ResourceExplorerListItemContent
 {
-    private SKPreviewViewPortEx PART_ViewPort;
+    private SKPreviewViewPortEx? PART_ViewPort;
 
-    public new ResourceComposition Resource => (ResourceComposition) base.Resource;
+    public new ResourceComposition? Resource => (ResourceComposition?) base.Resource;
 
     private readonly RateLimitedDispatchAction updatePreviewExecutor;
 
@@ -253,6 +253,12 @@ public class RELICComposition : ResourceExplorerListItemContent
         this.updatePreviewExecutor = new RateLimitedDispatchAction(this.OnUpdatePreview, TimeSpan.FromSeconds(0.2));
     }
 
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
+        base.OnApplyTemplate(e);
+        this.PART_ViewPort = e.NameScope.GetTemplateChild<SKPreviewViewPortEx>(nameof(this.PART_ViewPort));
+    }
+    
     private async Task OnUpdatePreview()
     {
         if (this.PART_ViewPort == null || this.ListItem == null)
@@ -265,16 +271,16 @@ public class RELICComposition : ResourceExplorerListItemContent
                 return;
             }
 
-            ResourceComposition resource = this.Resource;
-            RenderManager rm = resource.Timeline.RenderManager;
-            if (rm.surface != null)
+            ResourceComposition? resource = this.Resource;
+            RenderManager? rm = resource?.Timeline.RenderManager;
+            if (rm?.surface != null)
             {
                 await (rm.LastRenderTask ?? Task.CompletedTask);
                 if (rm.LastRenderRect.Width > 0 && rm.LastRenderRect.Height > 0)
                 {
                     if (this.PART_ViewPort.BeginRenderWithSurface(rm.ImageInfo))
                     {
-                        this.PART_ViewPort.EndRenderWithSurface(rm.surface);
+                        this.PART_ViewPort.EndRenderWithSurface(rm.surface, rm.LastRenderRect);
                     }
                 }
             }
@@ -284,23 +290,17 @@ public class RELICComposition : ResourceExplorerListItemContent
     private void OnFrameRendered() {
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
-        base.OnApplyTemplate(e);
-        this.PART_ViewPort = e.NameScope.GetTemplateChild<SKPreviewViewPortEx>(nameof(this.PART_ViewPort));
-    }
-
     protected override void OnConnected()
     {
         base.OnConnected();
-        this.Resource.Timeline.RenderManager.FrameRendered += this.RenderManagerOnFrameRendered;
+        this.Resource!.Timeline.RenderManager.FrameRendered += this.RenderManagerOnFrameRendered;
         this.updatePreviewExecutor.InvokeAsync();
     }
 
     protected override void OnDisconnected()
     {
         base.OnDisconnected();
-        this.Resource.Timeline.RenderManager.FrameRendered -= this.RenderManagerOnFrameRendered;
+        this.Resource!.Timeline.RenderManager.FrameRendered -= this.RenderManagerOnFrameRendered;
     }
 
     private void RenderManagerOnFrameRendered(RenderManager manager)

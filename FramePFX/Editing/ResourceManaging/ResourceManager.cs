@@ -72,16 +72,19 @@ public class ResourceManager : IDestroy
     /// Gets or sets the current folder that is being displayed to the user. This value will never be null,
     /// and assigning it to null will result in <see cref="RootContainer"/> being used instead
     /// </summary>
-    public ResourceFolder? CurrentFolder
+    public ResourceFolder CurrentFolder
     {
-        get => this.currentFolder!;
+        get => this.currentFolder;
         set
         {
-            if (value == null)
-                value = this.RootContainer;
+            Validate.NotNull(value);
             ResourceFolder oldFolder = this.currentFolder;
             if (oldFolder == value)
                 return;
+            
+            if (value.Manager != this)
+                throw new InvalidOperationException("Value's manager is not equal to the current manager");
+            
             this.currentFolder = value;
             this.CurrentFolderChanged?.Invoke(this, oldFolder, value);
         }

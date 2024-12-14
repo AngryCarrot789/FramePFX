@@ -132,6 +132,10 @@ public class Timeline : ITransferableData, IDestroy
         }
     }
 
+    /// <summary>
+    /// Gets the effective duration of this timeline. That is, the <see cref="FrameSpan.EndIndex"/> of the clip that is
+    /// furthest towards the right side of the timeline. This value is typically always less than <see cref="MaxDuration"/>
+    /// </summary>
     public long LargestFrameInUse
     {
         get => this.largestFrameInUse;
@@ -144,6 +148,13 @@ public class Timeline : ITransferableData, IDestroy
         }
     }
 
+    /// <summary>
+    /// Gets or sets the looping region. This is not effective until <see cref="IsLoopRegionEnabled"/> is true.
+    /// Setting this to null intrinsically makes <see cref="IsLoopRegionEnabled"/> false
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// Value's begin is negative or endIndex exceeds our <see cref="MaxDuration"/>
+    /// </exception>
     public FrameSpan? LoopRegion
     {
         get => this.loopRegion;

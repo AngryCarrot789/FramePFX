@@ -33,11 +33,11 @@
         <sa:ContextCapturingMenu Grid.Row="0" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1"
                                  Background="{Binding TitleBarBrush, RelativeSource={RelativeSource AncestorType={x:Type c:WindowEx}, Mode=FindAncestor}}">
             <MenuItem Header="File">
-                <sa:CommandMenuItem Header="New Project" CommandId="commands.editor.NewProjectCommand"/>
-                <sa:CommandMenuItem Header="Open Project..." CommandId="commands.editor.OpenProjectCommand"/>
+                <sa:CommandMenuItem Header="New Project" CommandId="commands.editor.NewProject"/>
+                <sa:CommandMenuItem Header="Open Project..." CommandId="commands.editor.OpenProject"/>
                 <sa:CommandMenuItem Header="Save Project" CommandId="commands.editor.SaveProject"/>
                 <sa:CommandMenuItem Header="Save Project As..." CommandId="commands.editor.SaveProjectAs"/>
-                <sa:CommandMenuItem Header="Close Project" CommandId="commands.editor.CloseProjectCommand"/>
+                <sa:CommandMenuItem Header="Close Project" CommandId="commands.editor.CloseProject"/>
                 <Separator/>
                 <sa:CommandMenuItem Header="Export" CommandId="commands.editor.Export"
                                     ToolTip.Tip="Export the current project"/>
@@ -160,7 +160,7 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Timeline" x:Name="PART_TimelineName" VerticalAlignment="Center"/>
                         <Separator Theme="{StaticResource VerticalSeparatorTheme}" Margin="5,0"/>
-                        <Button x:Name="PART_CloseTimelineButton" Content="Close Timeline" ToolTip.Tip="Closes the active composition timeline and opens the project timeline" Padding="5,2"/>
+                        <Button x:Name="PART_CloseTimelineButton" Click="CloseTimelineClick" Content="Close Timeline" ToolTip.Tip="Closes the active composition timeline and opens the project timeline" Padding="5,2"/>
                     </StackPanel>
                 </c:GroupBox.Header>
                 <Border>

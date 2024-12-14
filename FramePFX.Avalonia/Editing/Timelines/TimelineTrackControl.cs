@@ -441,8 +441,8 @@ public class TimelineTrackControl : TemplatedControl
         {
             if (ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? resources) && resources.Count == 1 && resources[0] is ResourceItem item)
             {
-                ResourceClipRegistry registry = RZApplication.Instance.Services.GetService<ResourceClipRegistry>();
-                if (registry.TryGetValue(item.GetType(), out IResourceDropInformation? info))
+                ResourceToClipDropRegistry dropRegistry = RZApplication.Instance.Services.GetService<ResourceToClipDropRegistry>();
+                if (dropRegistry.TryGetValue(item.GetType(), out IResourceDropInformation? info))
                 {
                     long duration = info.GetClipDurationForDrop(target, item);
                     if (duration > 0)
@@ -480,8 +480,8 @@ public class TimelineTrackControl : TemplatedControl
             this.isProcessingAsyncDrop = true;
             if (ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? resources) && resources.Count == 1 && resources[0] is ResourceItem item)
             {
-                ResourceClipRegistry registry = RZApplication.Instance.Services.GetService<ResourceClipRegistry>();
-                if (registry.TryGetValue(item.GetType(), out IResourceDropInformation? info))
+                ResourceToClipDropRegistry dropRegistry = RZApplication.Instance.Services.GetService<ResourceToClipDropRegistry>();
+                if (dropRegistry.TryGetValue(item.GetType(), out IResourceDropInformation? info))
                 {
                     long duration = info.GetClipDurationForDrop(track, item);
                     if (duration > 0)

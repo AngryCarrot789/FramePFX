@@ -19,7 +19,6 @@
 
 using System.Numerics;
 using FramePFX.DataTransfer;
-using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Automation.Params;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.Timelines.Effects;

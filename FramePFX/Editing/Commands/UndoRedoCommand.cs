@@ -33,7 +33,7 @@ public abstract class UndoRedoCommand : Command
 
     public override Executability CanExecute(CommandEventArgs e)
     {
-        if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out var editor))
+        if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? editor))
             return Executability.Invalid;
 
         bool canExecute = this.IsUndo ? editor.HistoryManager.CanUndo : editor.HistoryManager.CanRedo;

@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Diagnostics;
 using FramePFX.Utils;
 
 namespace FramePFX.CommandSystem;
@@ -75,7 +76,7 @@ public abstract class AsyncCommand : Command
             this.isExecuting = true;
             await (this.ExecuteAsync(args) ?? Task.CompletedTask);
         }
-        catch (Exception e)
+        catch (Exception e) when (!Debugger.IsAttached)
         {
             // we need to handle the exception here, because otherwise the application
             // would never catch it, and therefore the exception would be lost forever

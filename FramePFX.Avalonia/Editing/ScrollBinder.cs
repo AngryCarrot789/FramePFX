@@ -51,7 +51,7 @@ public static class ScrollBinder
         {
             if (e.OldValue.GetValueOrDefault() is string oldGroup)
             {
-                if (RegisteredScrollers.TryGetValue(oldGroup, out var list))
+                if (RegisteredScrollers.TryGetValue(oldGroup, out List<ScrollViewer>? list))
                 {
                     list.Remove(scroller);
                 }
@@ -77,7 +77,7 @@ public static class ScrollBinder
         {
             if (e.OldValue.GetValueOrDefault() is string oldGroup)
             {
-                if (RegisteredScrollers.TryGetValue(oldGroup, out var list))
+                if (RegisteredScrollers.TryGetValue(oldGroup, out List<ScrollViewer>? list))
                 {
                     list.Remove(scroller);
                 }
@@ -111,7 +111,7 @@ public static class ScrollBinder
             return;
         }
 
-        if (RegisteredScrollers.TryGetValue(group, out var list))
+        if (RegisteredScrollers.TryGetValue(group, out List<ScrollViewer>? list))
         {
             IsUpdatingScroll = true;
             try
@@ -146,7 +146,7 @@ public static class ScrollBinder
             return;
         }
 
-        if (RegisteredScrollers.TryGetValue(group, out var list))
+        if (RegisteredScrollers.TryGetValue(group, out List<ScrollViewer>? list))
         {
             IsUpdatingScroll = true;
             try

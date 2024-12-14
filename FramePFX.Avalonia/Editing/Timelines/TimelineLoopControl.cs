@@ -103,22 +103,21 @@ public class TimelineLoopControl : TemplatedControl
     private void OnTimelineControlChanged(TimelineControl? oldTimeline, TimelineControl? newTimeline)
     {
         this.zoomChangeHandler?.Dispose();
-        if (this.myTimeline != null)
-        {
-            this.OnTimelineChanged(this.myTimeline, null);
-            this.myTimeline = null;
-        }
-
         if (oldTimeline != null)
         {
             oldTimeline.TimelineModelChanged -= this.OnControlTimelineChanged;
+        }
+        
+        if (this.myTimeline != null)
+        {
+            this.OnTimelineChanged(this.myTimeline, null);
         }
 
         if (newTimeline != null)
         {
             this.zoomChangeHandler = TimelineControl.ZoomProperty.Changed.Subscribe(new AnonymousObserver<AvaloniaPropertyChangedEventArgs<double>>(this.OnTimelineZoomed));
             this.currZoom = newTimeline.Zoom;
-            newTimeline.TimelineModelChanged -= this.OnControlTimelineChanged;
+            newTimeline.TimelineModelChanged += this.OnControlTimelineChanged;
             if (newTimeline.Timeline is Timeline timeline)
             {
                 this.OnTimelineChanged(null, timeline);
@@ -128,10 +127,11 @@ public class TimelineLoopControl : TemplatedControl
         }
     }
 
-    private void OnControlTimelineChanged(ITimelineElement element, Timeline? oldtimeline, Timeline? newtimeline)
+    private void OnControlTimelineChanged(ITimelineElement element, Timeline? oldTimeline, Timeline? newTimeline)
     {
-        Debug.Assert(oldtimeline == this.myTimeline);
-        this.OnTimelineChanged(oldtimeline, newtimeline);
+        Debug.Assert(oldTimeline == this.myTimeline);
+        this.myTimeline = newTimeline;
+        this.OnTimelineChanged(oldTimeline, newTimeline);
         this.UpdatePosition();
     }
 
@@ -149,6 +149,7 @@ public class TimelineLoopControl : TemplatedControl
             newTimeline.IsLoopRegionEnabledChanged += this.OnIsLoopRegionEnabledChanged;
             this.isLoopRegionEnabled = newTimeline.IsLoopRegionEnabled;
             this.LoopSpan = newTimeline.LoopRegion ?? FrameSpan.Empty;
+            this.InvalidateVisual();
         }
     }
 
@@ -173,6 +174,7 @@ public class TimelineLoopControl : TemplatedControl
         this.isUpdatingControl = true;
         this.LoopSpan = timeline.LoopRegion ?? FrameSpan.Empty;
         this.isUpdatingControl = false;
+        this.InvalidateVisual();
     }
 
     private void OnTimelineZoomed(AvaloniaPropertyChangedEventArgs<double> e)

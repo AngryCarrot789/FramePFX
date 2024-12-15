@@ -19,6 +19,7 @@
 
 using FramePFX.CommandSystem;
 using FramePFX.Editing.Timelines.Clips;
+using FramePFX.Editing.Timelines.Clips.Video;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Services.UserInputs;
 using FramePFX.Utils;
@@ -27,33 +28,59 @@ namespace FramePFX.Editing.Commands;
 
 public class ChangeClipPlaybackSpeedCommand : AsyncCommand
 {
+    public bool IgnoreNotSensitiveToSpeed { get; init; }
+
+    public ChangeClipPlaybackSpeedCommand() { }
+
     protected override Executability CanExecuteOverride(CommandEventArgs e)
     {
-        if (!DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip? clip))
-        {
+        if (!DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip? clip) || !(clip is VideoClip videoClip))
             return Executability.Invalid;
-        }
 
-        return clip is IHavePlaybackSpeedClip ? Executability.Valid : Executability.ValidButCannotExecute;
+        // TODO: welp
+        // This is where the loss of intention occurs between the UI and the Commands... well, models in general
+        // Should this be Invalid or ValidButCannotExecute?
+        
+        // We have the appropriate data so technically speaking it should be ValidButCannotExecute.
+        // However, we know it's basically pointless to show any Context Menu entries of this
+        // command if the clip is insensitive to speed, which is why we hide it with Invalid.
+        
+        // This is probably why JetBrains used a Presentation object which can adjust the visibility and
+        // executability based on where the command is actually being used within the UI (e.g. is it a
+        // context menu item or top-level menu item or is it just a button). However, with that comes the
+        // issue of commands needing to understand the GUI parts which isn't great. :/
+        
+        // The only other option is to always use a dynamic context group, or, implement a
+        // dynamically visible menu item based on available context information.
+        if (!videoClip.IsSensitiveToPlaybackSpeed)
+            return Executability.Invalid;
+
+        return Executability.Valid;
     }
 
     protected override async Task ExecuteAsync(CommandEventArgs e)
     {
-        if (!DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip? someClip) || !(someClip is IHavePlaybackSpeedClip clip))
+        if (!DataKeys.ClipKey.TryGetContext(e.ContextData, out Clip? clip) || !(clip is VideoClip videoClip))
         {
             return;
         }
 
-        SingleUserInputInfo info = new SingleUserInputInfo("Change playback speed", "Change the playback rate of this clip. 1.0 is the default", "Playback Multiplier:", clip.PlaybackSpeed.ToString("F5"))
+        // Maybe create two commands, one that doesn't care and can set the speed anyway?
+        if (!videoClip.IsSensitiveToPlaybackSpeed && !this.IgnoreNotSensitiveToSpeed)
         {
-            Validate = (x) => double.TryParse(x, out double v) && Maths.IsBetween(v, IHavePlaybackSpeedClip.MinimumSpeed, IHavePlaybackSpeedClip.MaximumSpeed),
+            return;
+        }
+
+        SingleUserInputInfo info = new SingleUserInputInfo("Change playback speed", "Change the playback rate of this clip. 1.0 is the default", "Playback Multiplier:", videoClip.PlaybackSpeed.ToString("F5"))
+        {
+            Validate = (x) => double.TryParse(x, out double v) && Maths.IsBetween(v, VideoClip.MinimumSpeed, VideoClip.MaximumSpeed),
             DefaultButton = true
         };
-        
+
         if (await IoC.UserInputService.ShowInputDialogAsync(info) == true)
         {
             double value = double.Parse(info.Text!);
-            clip.SetPlaybackSpeed(value);
+            videoClip.SetPlaybackSpeed(value);
         }
     }
 }

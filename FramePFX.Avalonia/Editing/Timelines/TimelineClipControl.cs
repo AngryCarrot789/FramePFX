@@ -197,10 +197,10 @@ public class TimelineClipControl : ContentControl, IClipElement
 
     private void UpdateIsClipVisibleState()
     {
-        bool newValue = !(this.ClipModel is VideoClip clip) || VideoClip.IsVisibleParameter.GetValue(clip);
-        if (newValue != this.IsClipVisible)
+        bool isVisible = !(this.ClipModel is VideoClip clip) || VideoClip.IsVisibleParameter.GetCurrentValue(clip);
+        if (isVisible != this.IsClipVisible)
         {
-            this.IsClipVisible = newValue;
+            this.IsClipVisible = isVisible;
             this.InvalidateVisual();
         }
     }
@@ -249,7 +249,7 @@ public class TimelineClipControl : ContentControl, IClipElement
         Binders.AttachModels(this.ClipModel!, this.frameSpanBinder, this.displayNameBinder, this.activeAutoSequenceBinder);
         if (this.ClipModel is VideoClip videoClip)
         {
-            videoClip.TransferableData.AddValueChangedHandler(VideoClip.IsVisibleParameter, this.OnVisibilityParameterChanged);
+            videoClip.AutomationData.AddParameterChangedHandler(VideoClip.IsVisibleParameter, this.OnIsVisibleChanged);
         }
 
         this.UpdateIsClipVisibleState();
@@ -260,7 +260,7 @@ public class TimelineClipControl : ContentControl, IClipElement
         Binders.DetachModels(this.frameSpanBinder, this.displayNameBinder, this.activeAutoSequenceBinder);
         if (this.ClipModel is VideoClip videoClip)
         {
-            videoClip.TransferableData.RemoveValueChangedHandler(VideoClip.IsVisibleParameter, this.OnVisibilityParameterChanged);
+            videoClip.AutomationData.RemoveParameterChangedHandler(VideoClip.IsVisibleParameter, this.OnIsVisibleChanged);
         }
     }
 
@@ -269,11 +269,11 @@ public class TimelineClipControl : ContentControl, IClipElement
         this.IsConnected = false;
     }
 
-    private void OnVisibilityParameterChanged(DataParameter parameter, ITransferableData owner)
+    private void OnIsVisibleChanged(AutomationSequence sequence)
     {
         this.UpdateIsClipVisibleState();
     }
-
+    
     #region Drag Move
 
     private enum DragState

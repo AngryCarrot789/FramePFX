@@ -35,7 +35,7 @@ public delegate void DoubleKeyFrameValueChanged(KeyFrameDouble keyFrame, double 
 
 public delegate void LongKeyFrameValueChanged(KeyFrameLong keyFrame, long oldValue, long newValue);
 
-public delegate void BooleanKeyFrameValueChanged(KeyFrameBoolean keyFrame, bool oldValue, bool newValue);
+public delegate void BoolKeyFrameValueChanged(KeyFrameBool keyFrame, bool oldValue, bool newValue);
 
 public delegate void Vector2KeyFrameValueChanged(KeyFrameVector2 keyFrame, Vector2 oldValue, Vector2 newValue);
 
@@ -173,7 +173,7 @@ public abstract class KeyFrame
             case AutomationDataType.Float: return new KeyFrameFloat();
             case AutomationDataType.Double: return new KeyFrameDouble();
             case AutomationDataType.Long: return new KeyFrameLong();
-            case AutomationDataType.Boolean: return new KeyFrameBoolean();
+            case AutomationDataType.Boolean: return new KeyFrameBool();
             case AutomationDataType.Vector2: return new KeyFrameVector2();
             default: throw new ArgumentOutOfRangeException(nameof(type), type, "Invalid automation data type enum");
         }
@@ -505,7 +505,7 @@ public class KeyFrameLong : KeyFrame
     }
 }
 
-public class KeyFrameBoolean : KeyFrame
+public class KeyFrameBool : KeyFrame
 {
     private bool myValue;
 
@@ -524,13 +524,13 @@ public class KeyFrameBoolean : KeyFrame
         }
     }
 
-    public event BooleanKeyFrameValueChanged? BooleanValueChanged;
+    public event BoolKeyFrameValueChanged? BooleanValueChanged;
 
     public override AutomationDataType DataType => AutomationDataType.Boolean;
 
-    public KeyFrameBoolean() { }
+    public KeyFrameBool() { }
 
-    public KeyFrameBoolean(long frame, bool value)
+    public KeyFrameBool(long frame, bool value)
     {
         this.myFrame = frame;
         this.Value = value;
@@ -540,11 +540,11 @@ public class KeyFrameBoolean : KeyFrame
 
     public override object GetObjectValue() => this.Value.Box();
 
-    public override void AssignDefaultValue(ParameterDescriptor desc) => this.Value = ((ParameterDescriptorBoolean) desc).DefaultValue;
+    public override void AssignDefaultValue(ParameterDescriptor desc) => this.Value = ((ParameterDescriptorBool) desc).DefaultValue;
 
     public override void AssignCurrentValue(long frame, AutomationSequence seq, bool ignoreOverrideState = false) => this.Value = seq.GetBooleanValue(frame, ignoreOverrideState);
 
-    public bool Interpolate(long time, KeyFrameBoolean frame)
+    public bool Interpolate(long time, KeyFrameBool frame)
     {
         this.ValidateTime(time, frame);
         if (this.myValue == frame.Value)
@@ -577,7 +577,7 @@ public class KeyFrameBoolean : KeyFrame
 
     public override bool IsEqualTo(KeyFrame other)
     {
-        return base.IsEqualTo(other) && other is KeyFrameBoolean keyFrame && keyFrame.myValue == this.myValue;
+        return base.IsEqualTo(other) && other is KeyFrameBool keyFrame && keyFrame.myValue == this.myValue;
     }
 }
 

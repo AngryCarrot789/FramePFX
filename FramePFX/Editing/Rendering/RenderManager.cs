@@ -253,7 +253,7 @@ public class RenderManager
             for (int i = this.Timeline.Tracks.Count - 1; i >= 0; i--)
             {
                 Track track = this.Timeline.Tracks[i];
-                if (track is VideoTrack videoTrack && VideoTrack.VisibleParameter.GetCurrentValue(videoTrack))
+                if (track is VideoTrack videoTrack && VideoTrack.IsVisibleParameter.GetCurrentValue(videoTrack))
                 {
                     if (videoTrack.PrepareRenderFrame(imgInfo, frame, quality))
                     {
@@ -388,7 +388,7 @@ public class RenderManager
         }
     }
 
-    public static void EndOpacityLayer(SKCanvas canvas, int count, ref SKPaint paint)
+    public static void EndOpacityLayer(SKCanvas canvas, int count, ref SKPaint? paint)
     {
         canvas.RestoreToCount(count);
         if (paint != null)

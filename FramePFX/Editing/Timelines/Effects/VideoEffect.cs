@@ -84,12 +84,11 @@ public abstract class VideoEffect : BaseEffect
     /// The render area rect that a clip generated via its <see cref="VideoClip.RenderFrame"/> method.
     /// The rect contains the actual area that was rendered into, but may default to the full frame
     /// if the clip is unoptimised. This value is valid for both clip and track effects just in case
-    /// they need it, and can be modified by both in case they affect the final rendering area (e.g.
-    /// liquify effect).
+    /// they need it, and can be modified by both in case they affect the final rendering area (e.g. liquify effect).
     /// <para>
-    /// <see cref="MotionEffect"/> is an exception where it does affect the render area but doesn't modify
-    /// this value, because the clip calculates its render area from the current matrix. Therefore,
-    /// effects extending <see cref="ITransformationEffect"/> shouldn't really need to modify this
+    /// The old <see cref="MotionEffect"/> was an exception where it does affect the render area, but it didn't
+    /// modify this value, because the clip calculated its render area from the current matrix. Therefore,
+    /// effects extending <see cref="ITransformationEffect"/> didn't really need to modify this
     /// </para>
     /// </param>
     public virtual void PostProcessFrame(RenderContext rc, ref SKRect renderArea) {

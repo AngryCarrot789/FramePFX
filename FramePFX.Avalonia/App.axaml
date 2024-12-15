@@ -24,12 +24,15 @@
                 <MergeResourceInclude Source="/PropertyEditing/PropertyEditorGridStyles.axaml"/>
                 <MergeResourceInclude Source="/PropertyEditing/PropertyEditorSlotContentStyles.axaml"/>
 
-                <MergeResourceInclude Source="/Editing/Playheads/PlayHeadStyles.axaml"/>
+                <MergeResourceInclude Source="/Editing/Playheads/PlayHeadThemes.axaml"/>
                 <MergeResourceInclude Source="/Editing/GeneralControlStyles.axaml"/>
-                <MergeResourceInclude Source="/Editing/ResourceManaging/Autoloading/InvalidResourceEntryStyles.axaml"/>
-                <MergeResourceInclude Source="/Editing/Timelines/TimelineStyles.axaml"/>
-                <MergeResourceInclude Source="/Editing/ResourceManaging/Trees/ResourceTreeStyles.axaml"/>
-                <MergeResourceInclude Source="/Editing/ResourceManaging/Lists/ResourceListStyles.axaml"/>
+                <MergeResourceInclude Source="/Editing/ResourceManaging/Autoloading/InvalidResourceEntryThemes.axaml"/>
+                <MergeResourceInclude Source="/Editing/Automation/AutomationSequenceEditorThemes.axaml"/>
+                <MergeResourceInclude Source="/Editing/Timelines/TimelineRulerThemes.axaml"/>
+                <MergeResourceInclude Source="/Editing/Timelines/TrackSurfaces/TrackControlSurfaceThemes.axaml"/>
+                <MergeResourceInclude Source="/Editing/Timelines/TimelineThemes.axaml"/>
+                <MergeResourceInclude Source="/Editing/ResourceManaging/Trees/ResourceTreeThemes.axaml"/>
+                <MergeResourceInclude Source="/Editing/ResourceManaging/Lists/ResourceListThemes.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
 

@@ -23,14 +23,13 @@ using FramePFX.Editing.Rendering;
 using FramePFX.Editing.ResourceManaging.ResourceHelpers;
 using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.Timelines.Clips.Video;
-using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.FFmpegWrapper;
 using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editing.Timelines.Clips.Core;
 
-public class AVMediaVideoClip : VideoClip, IHavePlaybackSpeedClip
+public class AVMediaVideoClip : VideoClip
 {
     private VideoFrame? renderFrameRgb, downloadedHwFrame;
     private unsafe SwsContext* scaler;
@@ -40,18 +39,11 @@ public class AVMediaVideoClip : VideoClip, IHavePlaybackSpeedClip
     private Task<VideoFrame?>? decodeFrameTask;
     private long decodeFrameBegin;
     private long lastDecodeFrameDuration;
-    private FrameSpan spanWithoutSpeed;
-    private bool ignoreFrameSpanChanged;
-
-    public bool HasSpeedApplied { get; private set; }
-
-    public double PlaybackSpeed { get; private set; }
 
     public IResourcePathKey<ResourceAVMedia> ResourceAVMediaKey { get; }
 
     public AVMediaVideoClip()
     {
-        this.PlaybackSpeed = 1.0;
         this.IsMediaFrameSensitive = true;
         this.UsesCustomOpacityCalculation = true;
         this.ResourceAVMediaKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceAVMedia>();
@@ -63,72 +55,13 @@ public class AVMediaVideoClip : VideoClip, IHavePlaybackSpeedClip
         SerialisationRegistry.Register<AVMediaVideoClip>(0, (clip, data, ctx) =>
         {
             ctx.DeserialiseBaseType(data);
-            clip.PlaybackSpeed = Maths.Clamp(data.GetDouble("PlaybackSpeed"), IHavePlaybackSpeedClip.MinimumSpeed, IHavePlaybackSpeedClip.MaximumSpeed);
-            clip.spanWithoutSpeed = data.GetStruct<FrameSpan>("spanWithoutSpeed").Clamp(new FrameSpan(0, long.MaxValue));
-            clip.HasSpeedApplied = data.GetBool("HasSpeedApplied");
+
         }, (clip, data, ctx) =>
         {
             ctx.SerialiseBaseType(data);
-            data.SetDouble("PlaybackSpeed", clip.PlaybackSpeed);
-            data.SetStruct("spanWithoutSpeed", clip.spanWithoutSpeed);
-            data.SetBool("HasSpeedApplied", clip.HasSpeedApplied);
+
         });
     }
-
-    protected override void LoadDataIntoClone(Clip clone, ClipCloneOptions options)
-    {
-        base.LoadDataIntoClone(clone, options);
-        AVMediaVideoClip clip = (AVMediaVideoClip) clone;
-        clip.PlaybackSpeed = this.PlaybackSpeed;
-        clip.spanWithoutSpeed = this.spanWithoutSpeed;
-        clip.HasSpeedApplied = this.HasSpeedApplied;
-    }
-
-    protected override void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan)
-    {
-        if (!this.ignoreFrameSpanChanged)
-        {
-            if (this.HasSpeedApplied)
-            {
-                long change = newSpan.Duration - oldSpan.Duration;
-                this.spanWithoutSpeed = new FrameSpan(newSpan.Begin, this.spanWithoutSpeed.Duration + change);
-            }
-            else
-            {
-                this.spanWithoutSpeed = newSpan;
-            }
-        }
-
-        base.OnFrameSpanChanged(oldSpan, newSpan);
-    }
-
-    public void SetPlaybackSpeed(double speed)
-    {
-        speed = Maths.Clamp(speed, IHavePlaybackSpeedClip.MinimumSpeed, IHavePlaybackSpeedClip.MaximumSpeed);
-        double oldSpeed = this.PlaybackSpeed;
-        if (DoubleUtils.AreClose(oldSpeed, speed))
-        {
-            return;
-        }
-
-        this.PlaybackSpeed = speed;
-        this.ignoreFrameSpanChanged = true;
-        if (DoubleUtils.AreClose(speed, 1.0))
-        {
-            this.HasSpeedApplied = false;
-            this.FrameSpan = this.spanWithoutSpeed;
-        }
-        else
-        {
-            this.HasSpeedApplied = true;
-            double newDuration = this.spanWithoutSpeed.Duration / speed;
-            this.FrameSpan = new FrameSpan(this.FrameSpan.Begin, Math.Max((long) Math.Floor(newDuration), 1));
-        }
-
-        this.ignoreFrameSpanChanged = false;
-    }
-
-    public void ClearPlaybackSpeed() => this.SetPlaybackSpeed(1.0);
 
     public override Vector2? GetRenderSize()
     {

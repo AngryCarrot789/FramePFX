@@ -35,7 +35,7 @@ public class TrackControlSurfaceVideo : TrackControlSurface
     public VideoTrack MyTrack { get; private set; }
 
     private readonly AutomationBinder<VideoTrack> opacityBinder = new AutomationBinder<VideoTrack>(VideoTrack.OpacityParameter);
-    private readonly AutomationBinder<VideoTrack> visibilityBinder = new AutomationBinder<VideoTrack>(VideoTrack.VisibleParameter);
+    private readonly AutomationBinder<VideoTrack> visibilityBinder = new AutomationBinder<VideoTrack>(VideoTrack.IsVisibleParameter);
 
     public TrackControlSurfaceVideo()
     {
@@ -100,6 +100,6 @@ public class TrackControlSurfaceVideo : TrackControlSurface
     private static void UpdateVisibilityForControl(AutomationBinder<VideoTrack> binder)
     {
         TrackControlSurfaceVideo control = (TrackControlSurfaceVideo) binder.Control;
-        control.VisibilityButton.IsChecked = VideoTrack.VisibleParameter.GetCurrentValue(binder.Model);
+        control.VisibilityButton.IsChecked = VideoTrack.IsVisibleParameter.GetCurrentValue(binder.Model);
     }
 }

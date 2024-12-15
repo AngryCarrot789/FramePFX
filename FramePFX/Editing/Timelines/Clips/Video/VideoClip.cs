@@ -23,6 +23,7 @@ using FramePFX.Editing.Automation.Params;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.Timelines.Effects;
 using FramePFX.Editing.Timelines.Tracks;
+using FramePFX.Utils;
 using FramePFX.Utils.Accessing;
 using SkiaSharp;
 
@@ -52,6 +53,9 @@ namespace FramePFX.Editing.Timelines.Clips.Video;
 /// </summary>
 public abstract class VideoClip : Clip
 {
+    public const double MinimumSpeed = 0.001;
+    public const double MaximumSpeed = 1000.0;
+    
     public static readonly ParameterDouble OpacityParameter =
         Parameter.RegisterDouble(
             typeof(VideoClip),
@@ -67,7 +71,7 @@ public abstract class VideoClip : Clip
     public static readonly DataParameterPoint MediaScaleOriginParameter = DataParameter.Register(new DataParameterPoint(typeof(VideoClip), nameof(MediaScaleOrigin), ValueAccessors.Reflective<SKPoint>(typeof(VideoClip), nameof(mediaScaleOrigin))));
     public static readonly DataParameterPoint MediaRotationOriginParameter = DataParameter.Register(new DataParameterPoint(typeof(VideoClip), nameof(MediaRotationOrigin), ValueAccessors.Reflective<SKPoint>(typeof(VideoClip), nameof(mediaRotationOrigin))));
 
-    public static readonly DataParameterBool IsVisibleParameter = DataParameter.Register(new DataParameterBool(typeof(VideoClip), nameof(IsVisible), true, ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(isVisible)), DataParameterFlags.StandardProjectVisual));
+    public static readonly ParameterBool IsVisibleParameter = Parameter.RegisterBool(typeof(VideoClip), nameof(VideoClip), nameof(IsVisible), true, ValueAccessors.LinqExpression<bool>(typeof(VideoClip), nameof(IsVisible)), ParameterFlags.StandardProjectVisual);
     public static readonly DataParameterBool IsMediaScaleOriginAutomaticParameter = DataParameter.Register(new DataParameterBool(typeof(VideoClip), nameof(IsMediaScaleOriginAutomatic), true, ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(isMediaScaleOriginAutomatic)), DataParameterFlags.StandardProjectVisual));
     public static readonly DataParameterBool IsMediaRotationOriginAutomaticParameter = DataParameter.Register(new DataParameterBool(typeof(VideoClip), nameof(IsMediaRotationOriginAutomatic), true, ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(isMediaRotationOriginAutomatic)), DataParameterFlags.StandardProjectVisual));
 
@@ -82,7 +86,9 @@ public abstract class VideoClip : Clip
     private SKMatrix myTransformationMatrix, myInverseTransformationMatrix;
     private SKMatrix myAbsoluteTransformationMatrix, myAbsoluteInverseTransformationMatrix;
     private bool isMatrixDirty;
-    private bool isVisible;
+    private bool isAdjustingFrameSpanForSpeedChange;
+    private FrameSpan spanWithoutSpeed;
+    private bool IsVisible;
 
     // video clip stuff
     private double Opacity;
@@ -157,12 +163,6 @@ public abstract class VideoClip : Clip
             return this.myAbsoluteInverseTransformationMatrix;
         }
     }
-
-    public bool IsVisible
-    {
-        get => this.isVisible;
-        set => DataParameter.SetValueHelper(this, IsVisibleParameter, ref this.isVisible, value);
-    }
     
     public SKPoint MediaScaleOrigin
     {
@@ -189,6 +189,21 @@ public abstract class VideoClip : Clip
         set => DataParameter.SetValueHelper(this, IsMediaRotationOriginAutomaticParameter, ref this.isMediaRotationOriginAutomatic, value);
     }
 
+    /// <summary>
+    /// Gets whether there is a playback speed set that is not 1.0
+    /// </summary>
+    public bool HasSpeedApplied { get; private set; }
+
+    /// <summary>
+    /// Gets the playback speed. 1.0 is the default
+    /// </summary>
+    public double PlaybackSpeed { get; private set; } = 1.0;
+
+    /// <summary>
+    /// Gets whether this clip is sensitive to the <see cref="PlaybackSpeed"/>. This is true for clips like media video clips, but is false for images (since they consist of a single frame)
+    /// </summary>
+    public virtual bool IsSensitiveToPlaybackSpeed => false;
+
     public bool IsEffectivelyVisible => this.IsVisible && this.Opacity > 0.0;
     
     public SKRect LastRenderRect;
@@ -197,7 +212,7 @@ public abstract class VideoClip : Clip
     {
         this.isMatrixDirty = true;
         this.Opacity = OpacityParameter.Descriptor.DefaultValue;
-        this.isVisible = IsVisibleParameter.DefaultValue;
+        this.IsVisible = IsVisibleParameter.Descriptor.DefaultValue;
         this.MediaPosition = MediaPositionParameter.Descriptor.DefaultValue;
         this.MediaScale = MediaScaleParameter.Descriptor.DefaultValue;
         this.MediaRotation = MediaRotationParameter.Descriptor.DefaultValue;
@@ -212,14 +227,20 @@ public abstract class VideoClip : Clip
         SerialisationRegistry.Register<VideoClip>(0, (clip, data, ctx) =>
         {
             ctx.DeserialiseBaseType(data);
-            clip.isVisible = data.GetBool(nameof(clip.IsVisible));
             clip.isMediaScaleOriginAutomatic = data.GetBool("IsMediaScaleOriginAutomatic");
             clip.isMediaRotationOriginAutomatic = data.GetBool("IsMediaRotationOriginAutomatic");
+            clip.PlaybackSpeed = Maths.Clamp(data.GetDouble("PlaybackSpeed"), MinimumSpeed, MaximumSpeed);
+            clip.spanWithoutSpeed = data.GetStruct<FrameSpan>("SpanWOSpeed").Clamp(new FrameSpan(0, long.MaxValue));
+            clip.HasSpeedApplied = data.GetBool("HasSpeedApplied");
             clip.isMatrixDirty = true;
         }, (clip, data, ctx) =>
         {
             ctx.SerialiseBaseType(data);
-            data.SetBool(nameof(clip.IsVisible), clip.isVisible);
+            data.SetBool("IsMediaScaleOriginAutomatic", clip.isMediaScaleOriginAutomatic);
+            data.SetBool("IsMediaRotationOriginAutomatic", clip.isMediaRotationOriginAutomatic);
+            data.SetDouble("PlaybackSpeed", clip.PlaybackSpeed);
+            data.SetStruct("SpanWOSpeed", clip.spanWithoutSpeed);
+            data.SetBool("HasSpeedApplied", clip.HasSpeedApplied);
         });
 
         Parameter.AddMultipleHandlers(s => ((VideoClip) s.AutomationData.Owner).InvalidateTransformationMatrix(), MediaPositionParameter, MediaScaleParameter, MediaRotationParameter);
@@ -227,6 +248,60 @@ public abstract class VideoClip : Clip
         IsMediaScaleOriginAutomaticParameter.PriorityValueChanged += (parameter, owner) => ((VideoClip) owner).UpdateAutomaticScaleOrigin();
         IsMediaRotationOriginAutomaticParameter.PriorityValueChanged += (parameter, owner) => ((VideoClip) owner).UpdateAutomaticRotationOrigin();
     }
+    
+    /// <summary>
+    /// Multiplies the frame by our playback speed and floors the result as a long
+    /// </summary>
+    /// <param name="frame">The input frame</param>
+    /// <returns>The output scaled frame</returns>
+    public long GetRelativeFrameForPlaybackSpeed(long frame) => !this.HasSpeedApplied ? frame : (long) Math.Round(frame * this.PlaybackSpeed);
+
+    protected override void LoadDataIntoClone(Clip clone, ClipCloneOptions options)
+    {
+        base.LoadDataIntoClone(clone, options);
+        VideoClip clip = (VideoClip) clone;
+        clip.PlaybackSpeed = this.PlaybackSpeed;
+        clip.spanWithoutSpeed = this.spanWithoutSpeed;
+        clip.HasSpeedApplied = this.HasSpeedApplied;
+        clip.isMediaScaleOriginAutomatic = this.isMediaScaleOriginAutomatic;
+        clip.isMediaRotationOriginAutomatic = this.isMediaRotationOriginAutomatic;
+    }
+
+    /// <summary>
+    /// Sets the playback speed. This method also updates the <see cref="Clip.FrameSpan"/> to accomodate.
+    /// If set to 1.0, <see cref="HasSpeedApplied"/> becomes 0 and our span is set back to the original
+    /// </summary>
+    /// <param name="speed"></param>
+    public void SetPlaybackSpeed(double speed)
+    {
+        speed = Maths.Clamp(speed, MinimumSpeed, MaximumSpeed);
+        double oldSpeed = this.PlaybackSpeed;
+        if (DoubleUtils.AreClose(oldSpeed, speed))
+        {
+            return;
+        }
+
+        this.PlaybackSpeed = speed;
+        this.isAdjustingFrameSpanForSpeedChange = true;
+        if (DoubleUtils.AreClose(speed, 1.0))
+        {
+            this.HasSpeedApplied = false;
+            this.FrameSpan = this.spanWithoutSpeed;
+        }
+        else
+        {
+            this.HasSpeedApplied = true;
+            double newDuration = this.spanWithoutSpeed.Duration / speed;
+            this.FrameSpan = new FrameSpan(this.FrameSpan.Begin, Math.Max((long) Math.Floor(newDuration), 1));
+        }
+
+        this.isAdjustingFrameSpanForSpeedChange = false;
+    }
+
+    /// <summary>
+    /// Sets the playback speed back to 1.0. This is a helper method to calling <see cref="SetPlaybackSpeed"/> with 1.0
+    /// </summary>
+    public void ClearPlaybackSpeed() => this.SetPlaybackSpeed(1.0);
 
     private void GenerateMatrices()
     {
@@ -289,9 +364,9 @@ public abstract class VideoClip : Clip
 
     protected virtual void OnRenderSizeChanged()
     {
-        this.InvalidateRender();
         this.UpdateAutomaticScaleOrigin();
         this.UpdateAutomaticRotationOrigin();
+        this.InvalidateRender();
     }
 
     public override bool IsEffectTypeAccepted(Type effectType) => typeof(VideoEffect).IsAssignableFrom(effectType);
@@ -306,6 +381,19 @@ public abstract class VideoClip : Clip
 
     protected override void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan)
     {
+        if (!this.isAdjustingFrameSpanForSpeedChange)
+        {
+            if (this.HasSpeedApplied)
+            {
+                long change = newSpan.Duration - oldSpan.Duration;
+                this.spanWithoutSpeed = new FrameSpan(newSpan.Begin, this.spanWithoutSpeed.Duration + change);
+            }
+            else
+            {
+                this.spanWithoutSpeed = newSpan;
+            }
+        }
+        
         base.OnFrameSpanChanged(oldSpan, newSpan);
         this.InvalidateRender();
     }

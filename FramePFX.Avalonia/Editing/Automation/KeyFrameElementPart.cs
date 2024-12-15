@@ -19,6 +19,9 @@
 
 namespace FramePFX.Avalonia.Editing.Automation;
 
+/// <summary>
+/// A sub-part to a graphical key frame
+/// </summary>
 public enum KeyFrameElementPart
 {
     /// <summary>

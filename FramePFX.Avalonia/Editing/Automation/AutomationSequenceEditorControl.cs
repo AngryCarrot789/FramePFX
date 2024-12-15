@@ -34,6 +34,9 @@ using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.Editing.Automation;
 
+/// <summary>
+/// A control that provides the user a way to add, remove, move and visualise key frames
+/// </summary>
 public class AutomationSequenceEditorControl : Control
 {
     public const double EllipseRadius = 4.0;
@@ -99,6 +102,7 @@ public class AutomationSequenceEditorControl : Control
     private bool flagHasCreatedKeyFrameForPress;
     private bool isInitialLineMouseOver;
     private double accumulatedLineDragP1, accumulatedLineDragP2;
+    private bool isBooleanDataType;
 
     private enum DragState { None, Initiated, Active }
 
@@ -157,6 +161,7 @@ public class AutomationSequenceEditorControl : Control
 
         if (newSequence != null)
         {
+            this.isBooleanDataType = newSequence.DataType == AutomationDataType.Boolean;
             newSequence.OverrideStateChanged += this.OnIsOverriddenEnabledChanged;
             newSequence.KeyFrameAdded += this.OnKeyFrameAdded;
             newSequence.KeyFrameRemoved += this.OnKeyFrameRemoved;
@@ -591,8 +596,27 @@ public class AutomationSequenceEditorControl : Control
         {
             Point pt = points[i];
             IPen pen = this.keyFrameUIs[i].MouseOverPart == KeyFrameElementPart.LeftLine ? (mouseOverLinePen ??= new ImmutablePen(Brushes.White, LineThickness)) : linePen;
-            ctx.DrawLine(transparentLinePen, prevPoint, pt);
-            ctx.DrawLine(pen, prevPoint, pt);
+            if (this.isBooleanDataType)
+            {
+                KeyFrameBool KF1 = (KeyFrameBool) this.keyFrameUIs[i].keyFrame;
+                if ((i == 0 && !KF1.Value) || (i != 0 && ((KeyFrameBool) this.keyFrameUIs[i - 1].keyFrame).Value != KF1.Value))
+                {
+                    ctx.DrawLine(transparentLinePen, prevPoint, pt);
+                    ctx.DrawLine(pen, prevPoint, pt);
+                    ctx.DrawEllipse(Brushes.DodgerBlue, null, prevPoint + ((pt - prevPoint) / 2.0), 4, 4);
+                }
+                else
+                {
+                    ctx.DrawLine(transparentLinePen, prevPoint, pt);
+                    ctx.DrawLine(pen, prevPoint, pt);
+                }
+            }
+            else
+            {
+                ctx.DrawLine(transparentLinePen, prevPoint, pt);
+                ctx.DrawLine(pen, prevPoint, pt);
+            }
+
             prevPoint = pt;
         }
 

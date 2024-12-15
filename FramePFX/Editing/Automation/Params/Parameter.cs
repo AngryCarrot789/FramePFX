@@ -180,10 +180,10 @@ public abstract class Parameter : IEquatable<Parameter>, IComparable<Parameter>
         return (ParameterLong) Register(new ParameterLong(ownerType, new ParameterKey(domain, name), desc, accessor, flags));
     }
 
-    public static ParameterBool RegisterBool(Type ownerType, string domain, string name, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterBool(ownerType, domain, name, new ParameterDescriptorBoolean(), accessor, flags);
-    public static ParameterBool RegisterBool(Type ownerType, string domain, string name, bool defaultValue, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterBool(ownerType, domain, name, new ParameterDescriptorBoolean(defaultValue), accessor, flags);
+    public static ParameterBool RegisterBool(Type ownerType, string domain, string name, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterBool(ownerType, domain, name, new ParameterDescriptorBool(), accessor, flags);
+    public static ParameterBool RegisterBool(Type ownerType, string domain, string name, bool defaultValue, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None) => RegisterBool(ownerType, domain, name, new ParameterDescriptorBool(defaultValue), accessor, flags);
 
-    public static ParameterBool RegisterBool(Type ownerType, string domain, string name, ParameterDescriptorBoolean desc, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None)
+    public static ParameterBool RegisterBool(Type ownerType, string domain, string name, ParameterDescriptorBool desc, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None)
     {
         return (ParameterBool) Register(new ParameterBool(ownerType, new ParameterKey(domain, name), desc, accessor, flags));
     }
@@ -449,11 +449,11 @@ public sealed class ParameterBool : Parameter
     private readonly ValueAccessor<bool> accessor;
 
     /// <summary>
-    /// Gets the <see cref="ParameterDescriptorBoolean"/> for this parameter. This just casts the base <see cref="Parameter.Descriptor"/> property
+    /// Gets the <see cref="ParameterDescriptorBool"/> for this parameter. This just casts the base <see cref="Parameter.Descriptor"/> property
     /// </summary>
-    public new ParameterDescriptorBoolean Descriptor => (ParameterDescriptorBoolean) base.Descriptor;
+    public new ParameterDescriptorBool Descriptor => (ParameterDescriptorBool) base.Descriptor;
 
-    public ParameterBool(Type ownerType, ParameterKey key, ParameterDescriptorBoolean descriptor, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None) : base(ownerType, key, descriptor, flags)
+    public ParameterBool(Type ownerType, ParameterKey key, ParameterDescriptorBool descriptor, ValueAccessor<bool> accessor, ParameterFlags flags = ParameterFlags.None) : base(ownerType, key, descriptor, flags)
     {
         this.accessor = accessor;
     }

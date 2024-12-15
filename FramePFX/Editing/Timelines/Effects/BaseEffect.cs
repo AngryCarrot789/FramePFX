@@ -28,6 +28,10 @@ using FramePFX.Utils.RBC;
 
 namespace FramePFX.Editing.Timelines.Effects;
 
+/// <summary>
+/// The base class for any effect applicable to clips and tracks. his handles basic ownership
+/// references and notifications of ownership change, and also some automation utilities
+/// </summary>
 public abstract class BaseEffect : IStrictFrameRange, IAutomatable, ITransferableData, IDestroy
 {
     /// <summary>

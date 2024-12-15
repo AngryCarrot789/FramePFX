@@ -18,6 +18,8 @@
 // 
 
 using FramePFX.CommandSystem;
+using FramePFX.Editing.Automation;
+using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Clips.Video;
 using FramePFX.Interactivity.Contexts;
@@ -40,21 +42,15 @@ public class ToggleClipsVisibilityCommand : Command
 
         if (list.Count == 1)
         {
-            VideoClip.IsVisibleParameter.SetValue(list[0], !VideoClip.IsVisibleParameter.GetValue(list[0]));
+            AutomationUtils.SetDefaultKeyFrameOrAddNew(list[0], VideoClip.IsVisibleParameter, !VideoClip.IsVisibleParameter.GetCurrentValue(list[0]), (k, v) => k.SetBoolValue(v));
         }
         else
         {
-            int visibleCount = 0;
-            foreach (VideoClip clip in list)
-            {
-                if (VideoClip.IsVisibleParameter.GetValue(clip))
-                    visibleCount++;
-            }
-
+            int visibleCount = list.Count(clip => VideoClip.IsVisibleParameter.GetCurrentValue(clip));
             bool newIsVisible = visibleCount < (list.Count / 2);
             foreach (VideoClip clip in list)
             {
-                VideoClip.IsVisibleParameter.SetValue(clip, newIsVisible);
+                AutomationUtils.SetDefaultKeyFrameOrAddNew(clip, VideoClip.IsVisibleParameter, newIsVisible, (k, v) => k.SetBoolValue(v));
             }
         }
     }

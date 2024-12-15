@@ -394,7 +394,6 @@ public class DataParameter<T> : DataParameter
     private readonly ValueAccessor<T> accessor;
     protected readonly bool isObjectAccessPreferred;
     private Dictionary<Type, T>? overrideDefaultValue;
-    private (Type src, T val)? lastResult;
 
     /// <summary>
     /// Gets the default value for this data parameter. For type-specific default values, see <see cref="GetDefaultValue"/>

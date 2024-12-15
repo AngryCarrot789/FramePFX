@@ -28,6 +28,9 @@ using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.Editing.Automation;
 
+/// <summary>
+/// A class which contains UI information about a key frame
+/// </summary>
 public class KeyFrameUI
 {
     public readonly AutomationSequenceEditorControl editor;
@@ -143,7 +146,7 @@ public class KeyFrameUI
                 ParameterDescriptorLong desc = (ParameterDescriptorLong) key.Descriptor;
                 return Maths.Map(frame.Value, desc.Minimum, desc.Maximum, 0, height);
             }
-            case KeyFrameBoolean frame:
+            case KeyFrameBool frame:
             {
                 double offset = (height / 100) * 10;
                 return frame.Value ? (height - offset) : offset;
@@ -189,16 +192,16 @@ public class KeyFrameUI
             case KeyFrameFloat frame when key.Descriptor is ParameterDescriptorFloat fd: frame.SetFloatValue((float) Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum), fd); break;
             case KeyFrameDouble frame when key.Descriptor is ParameterDescriptorDouble fd: frame.SetDoubleValue(Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum), fd); break;
             case KeyFrameLong frame when key.Descriptor is ParameterDescriptorLong fd: frame.SetLongValue((long) Math.Round(Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum)), fd); break;
-            case KeyFrameBoolean frame:
+            case KeyFrameBool frame:
                 double offset = (height / 100) * 30;
                 double bound_b = height - offset;
                 if (point.Y >= bound_b)
                 {
-                    frame.SetBooleanValue(false);
+                    frame.SetBoolValue(false);
                 }
                 else if (point.Y < offset)
                 {
-                    frame.SetBooleanValue(true);
+                    frame.SetBoolValue(true);
                 }
                 else
                 {

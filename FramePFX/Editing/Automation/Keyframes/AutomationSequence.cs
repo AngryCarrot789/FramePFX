@@ -40,12 +40,12 @@ public class AutomationSequence
     private static readonly Func<KeyFrame, float> FuncGetFloat = k => ((KeyFrameFloat) k).Value;
     private static readonly Func<KeyFrame, double> FuncGetDouble = k => ((KeyFrameDouble) k).Value;
     private static readonly Func<KeyFrame, long> FuncGetLong = k => ((KeyFrameLong) k).Value;
-    private static readonly Func<KeyFrame, bool> FuncGetBool = k => ((KeyFrameBoolean) k).Value;
+    private static readonly Func<KeyFrame, bool> FuncGetBool = k => ((KeyFrameBool) k).Value;
     private static readonly Func<KeyFrame, Vector2> FuncGetVector2 = k => ((KeyFrameVector2) k).Value;
     private static readonly Func<long, KeyFrame, KeyFrame, float> FuncCalcFloat = (t, a, b) => ((KeyFrameFloat) a).Interpolate(t, (KeyFrameFloat) b);
     private static readonly Func<long, KeyFrame, KeyFrame, double> FuncCalcDouble = (t, a, b) => ((KeyFrameDouble) a).Interpolate(t, (KeyFrameDouble) b);
     private static readonly Func<long, KeyFrame, KeyFrame, long> FuncCalcLong = (t, a, b) => ((KeyFrameLong) a).Interpolate(t, (KeyFrameLong) b);
-    private static readonly Func<long, KeyFrame, KeyFrame, bool> FuncCalcBool = (t, a, b) => ((KeyFrameBoolean) a).Interpolate(t, (KeyFrameBoolean) b);
+    private static readonly Func<long, KeyFrame, KeyFrame, bool> FuncCalcBool = (t, a, b) => ((KeyFrameBool) a).Interpolate(t, (KeyFrameBool) b);
     private static readonly Func<long, KeyFrame, KeyFrame, Vector2> FuncCalcVector2 = (t, a, b) => ((KeyFrameVector2) a).Interpolate(t, (KeyFrameVector2) b);
     private readonly List<KeyFrame> keyFrameList;
     private bool isOverrideEnabled;

@@ -22,6 +22,7 @@ using FramePFX.Editing.Rendering;
 using FramePFX.Editing.ResourceManaging.ResourceHelpers;
 using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.Timelines.Clips.Video;
+using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editing.Timelines.Clips.Core;
@@ -29,12 +30,14 @@ namespace FramePFX.Editing.Timelines.Clips.Core;
 /// <summary>
 /// A clip that represents the visual part of a composition timeline
 /// </summary>
-public class CompositionVideoClip : VideoClip, ICompositionClip
+public class CompositionVideoClip : VideoClip
 {
     public IResourcePathKey<ResourceComposition> ResourceCompositionKey { get; }
 
     private Task renderTask;
     private ResourceComposition renderResource;
+
+    public override bool IsSensitiveToPlaybackSpeed => true;
 
     public CompositionVideoClip()
     {
@@ -48,9 +51,15 @@ public class CompositionVideoClip : VideoClip, ICompositionClip
         this.InvalidateRender();
     }
 
+    protected override void OnProjectChanged(Project? oldProject, Project? newProject)
+    {
+        base.OnProjectChanged(oldProject, newProject);
+        this.OnRenderSizeChanged();
+    }
+
     public override Vector2? GetRenderSize()
     {
-        Project project = this.Project;
+        Project? project = this.Project;
         if (project == null)
         {
             return null;
@@ -66,11 +75,22 @@ public class CompositionVideoClip : VideoClip, ICompositionClip
 
     public override bool PrepareRenderFrame(PreRenderContext rc, long frame)
     {
-        if (!this.ResourceCompositionKey.TryGetResource(out ResourceComposition resource))
+        if (!this.ResourceCompositionKey.TryGetResource(out ResourceComposition? resource))
         {
             return false;
         }
 
+        long maxDuration = resource.Timeline.MaxDuration;
+        if (maxDuration < 1)
+        {
+            return false;
+        }
+
+        // Check just in case someone naughtily derives this class and sets to false ;)
+        if (this.IsSensitiveToPlaybackSpeed)
+            frame = this.GetRelativeFrameForPlaybackSpeed(frame);
+
+        frame = Periodic.MethodNameHere(frame, 0, resource.Timeline.MaxDuration);
         this.renderResource = resource;
         this.renderTask = resource.Timeline.RenderManager.RenderTimelineAsync(frame, CancellationToken.None, rc.RenderQuality);
         return true;

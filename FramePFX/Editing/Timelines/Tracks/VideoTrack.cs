@@ -42,12 +42,11 @@ public class VideoTrack : Track
             ValueAccessors.LinqExpression<double>(typeof(VideoTrack), nameof(Opacity)),
             ParameterFlags.StandardProjectVisual);
 
-    public static readonly ParameterBool VisibleParameter = Parameter.RegisterBool(typeof(VideoTrack), nameof(VideoTrack), nameof(Visible), true, ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(Visible)), ParameterFlags.StandardProjectVisual);
+    public static readonly ParameterBool IsVisibleParameter = Parameter.RegisterBool(typeof(VideoTrack), nameof(VideoTrack), nameof(IsVisible), true, ValueAccessors.LinqExpression<bool>(typeof(VideoTrack), nameof(IsVisible)), ParameterFlags.StandardProjectVisual);
     public static readonly ParameterVector2 MediaPositionParameter = Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaPosition), ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaPosition)), ParameterFlags.StandardProjectVisual);
     public static readonly ParameterVector2 MediaScaleParameter = Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaScale), Vector2.One, ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaScale)), ParameterFlags.StandardProjectVisual);
     public static readonly ParameterDouble MediaRotationParameter = Parameter.RegisterDouble(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaRotation), ValueAccessors.LinqExpression<double>(typeof(VideoTrack), nameof(MediaRotation)), ParameterFlags.StandardProjectVisual);
-    
-    
+
     public static readonly DataParameterPoint MediaScaleOriginParameter = DataParameter.Register(new DataParameterPoint(typeof(VideoTrack), nameof(MediaScaleOrigin), ValueAccessors.Reflective<SKPoint>(typeof(VideoTrack), nameof(mediaScaleOrigin))));
     public static readonly DataParameterPoint MediaRotationOriginParameter = DataParameter.Register(new DataParameterPoint(typeof(VideoTrack), nameof(MediaRotationOrigin), ValueAccessors.Reflective<SKPoint>(typeof(VideoTrack), nameof(mediaRotationOrigin))));
     public static readonly DataParameterBool IsMediaScaleOriginAutomaticParameter = DataParameter.Register(new DataParameterBool(typeof(VideoTrack), nameof(IsMediaScaleOriginAutomatic), true, ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(isMediaScaleOriginAutomatic)), DataParameterFlags.StandardProjectVisual));
@@ -65,7 +64,7 @@ public class VideoTrack : Track
     private bool isMatrixDirty = true;
 
     private double Opacity;
-    private bool Visible;
+    private bool IsVisible;
 
     /// <summary>
     /// Gets the transformation matrix for the transformation properties in this clip
@@ -99,19 +98,19 @@ public class VideoTrack : Track
         get => this.mediaScaleOrigin;
         set => DataParameter.SetValueHelper(this, MediaScaleOriginParameter, ref this.mediaScaleOrigin, value);
     }
-    
+
     public SKPoint MediaRotationOrigin
     {
         get => this.mediaRotationOrigin;
         set => DataParameter.SetValueHelper(this, MediaRotationOriginParameter, ref this.mediaRotationOrigin, value);
     }
-    
+
     public bool IsMediaScaleOriginAutomatic
     {
         get => this.isMediaScaleOriginAutomatic;
         set => DataParameter.SetValueHelper(this, IsMediaScaleOriginAutomaticParameter, ref this.isMediaScaleOriginAutomatic, value);
     }
-    
+
 
     public bool IsMediaRotationOriginAutomatic
     {
@@ -121,9 +120,9 @@ public class VideoTrack : Track
 
     private class TrackRenderData : IDisposable
     {
-        public SKBitmap bitmap;
-        public SKPixmap pixmap;
-        public SKSurface surface;
+        public SKBitmap? bitmap;
+        public SKPixmap? pixmap;
+        public SKSurface? surface;
         public SKImageInfo surfaceInfo;
 
         // Very important for fast rendering: clips modify this value
@@ -143,16 +142,16 @@ public class VideoTrack : Track
 
     // rendering data
     private readonly DisposableRef<TrackRenderData> myRenderDataLock;
-    private VideoClip theClipToRender;
-    private List<VideoEffect> theEffectsToApplyToClip;
-    private List<VideoEffect> theEffectsToApplyToTrack;
+    private VideoClip? theClipToRender;
+    private List<VideoEffect>? theEffectsToApplyToClip;
+    private List<VideoEffect>? theEffectsToApplyToTrack;
     private double renderOpacity;
 
     public VideoTrack()
     {
         this.myRenderDataLock = new DisposableRef<TrackRenderData>(new TrackRenderData(), true);
+        this.IsVisible = IsVisibleParameter.Descriptor.DefaultValue;
         this.Opacity = OpacityParameter.Descriptor.DefaultValue;
-        this.Visible = VisibleParameter.Descriptor.DefaultValue;
         this.MediaPosition = MediaPositionParameter.Descriptor.DefaultValue;
         this.MediaScale = MediaScaleParameter.Descriptor.DefaultValue;
         this.MediaRotation = MediaRotationParameter.Descriptor.DefaultValue;
@@ -164,33 +163,50 @@ public class VideoTrack : Track
 
     static VideoTrack()
     {
+        SerialisationRegistry.Register<VideoTrack>(0, (track, data, ctx) =>
+        {
+            ctx.DeserialiseBaseType(data);
+            track.isMediaScaleOriginAutomatic = data.GetBool("IsMediaScaleOriginAutomatic");
+            track.isMediaRotationOriginAutomatic = data.GetBool("IsMediaRotationOriginAutomatic");
+            track.isMatrixDirty = true;
+        }, (track, data, ctx) =>
+        {
+            ctx.SerialiseBaseType(data);
+            data.SetBool("IsMediaScaleOriginAutomatic", track.isMediaScaleOriginAutomatic);
+            data.SetBool("IsMediaRotationOriginAutomatic", track.isMediaRotationOriginAutomatic);
+        });
+        
         Parameter.AddMultipleHandlers(s => ((VideoTrack) s.AutomationData.Owner).InvalidateTransformationMatrix(), MediaPositionParameter, MediaScaleParameter, MediaRotationParameter);
         DataParameter.AddMultipleHandlers((p, o) => ((VideoTrack) o).InvalidateTransformationMatrix(), MediaScaleOriginParameter, MediaRotationOriginParameter);
         IsMediaScaleOriginAutomaticParameter.PriorityValueChanged += (parameter, owner) => ((VideoTrack) owner).UpdateAutomaticScaleOrigin();
         IsMediaRotationOriginAutomaticParameter.PriorityValueChanged += (parameter, owner) => ((VideoTrack) owner).UpdateAutomaticRotationOrigin();
     }
 
-    protected void UpdateAutomaticScaleOrigin() {
-        if (this.IsMediaScaleOriginAutomatic) {
+    protected void UpdateAutomaticScaleOrigin()
+    {
+        if (this.IsMediaScaleOriginAutomatic)
+        {
             SKSize size = this.GetSizeForAutomaticOrigins();
             MediaScaleOriginParameter.SetValue(this, new SKPoint(size.Width / 2, size.Height / 2));
         }
     }
 
-    protected void UpdateAutomaticRotationOrigin() {
-        if (this.IsMediaRotationOriginAutomatic) {
+    protected void UpdateAutomaticRotationOrigin()
+    {
+        if (this.IsMediaRotationOriginAutomatic)
+        {
             SKSize size = this.GetSizeForAutomaticOrigins();
             MediaRotationOriginParameter.SetValue(this, new SKPoint(size.Width / 2, size.Height / 2));
         }
     }
-    
+
     private void GenerateMatrices()
     {
         this.myTransformationMatrix = MatrixUtils.CreateTransformationMatrix(this.MediaPosition, this.MediaScale, this.MediaRotation, new Vector2(this.MediaScaleOrigin.X, this.MediaScaleOrigin.Y), new Vector2(this.MediaRotationOrigin.X, this.MediaRotationOrigin.Y));
         this.myInverseTransformationMatrix = MatrixUtils.CreateInverseTransformationMatrix(this.MediaPosition, this.MediaScale, this.MediaRotation, new Vector2(this.MediaScaleOrigin.X, this.MediaScaleOrigin.Y), new Vector2(this.MediaRotationOrigin.X, this.MediaRotationOrigin.Y));
         this.isMatrixDirty = false;
     }
-    
+
     public virtual SKSize GetSizeForAutomaticOrigins()
     {
         return this.Project?.Settings.Resolution ?? SKSize.Empty;
@@ -204,8 +220,8 @@ public class VideoTrack : Track
 
     public bool PrepareRenderFrame(SKImageInfo imgInfo, long frame, EnumRenderQuality quality)
     {
-        VideoClip clip = (VideoClip) this.GetClipAtFrame(frame);
-        if (clip != null && VideoClip.IsVisibleParameter.GetValue(clip))
+        VideoClip? clip = (VideoClip?) this.GetClipAtFrame(frame);
+        if (clip != null && VideoClip.IsVisibleParameter.GetCurrentValue(clip))
         {
             PreRenderContext ctx = new PreRenderContext(imgInfo, quality);
             if (!clip.PrepareRenderFrame(ctx, frame - clip.FrameSpan.Begin))
@@ -215,18 +231,18 @@ public class VideoTrack : Track
 
             clip.RenderOpacity = VideoClip.OpacityParameter.GetCurrentValue(clip);
             clip.RenderOpacityByte = RenderUtils.DoubleToByte255(clip.RenderOpacity);
-            List<VideoEffect> trackEffects = new List<VideoEffect>();
-            foreach (VideoEffect videoFx in InternalGetEffectListUnsafe(this))
+            List<VideoEffect>? trackEffects = null;
+            foreach (VideoEffect trackFx in InternalGetEffectListUnsafe(this))
             {
-                videoFx.PrepareRender(ctx, frame);
-                trackEffects.Add(videoFx);
+                trackFx.PrepareRender(ctx, frame);
+                (trackEffects ??= new List<VideoEffect>()).Add(trackFx);
             }
 
-            List<VideoEffect> clipEffects = new List<VideoEffect>();
-            foreach (VideoEffect videoFx in Clip.InternalGetEffectListUnsafe(clip))
+            List<VideoEffect>? clipEffects = null;
+            foreach (VideoEffect clipFx in Clip.InternalGetEffectListUnsafe(clip))
             {
-                videoFx.PrepareRender(ctx, frame);
-                clipEffects.Add(videoFx);
+                clipFx.PrepareRender(ctx, frame);
+                (clipEffects ??= new List<VideoEffect>()).Add(clipFx);
             }
 
             this.theClipToRender = clip;
@@ -264,23 +280,29 @@ public class VideoTrack : Track
 
         if (this.theClipToRender != null)
         {
-            rd.surface.Canvas.Clear(SKColors.Transparent);
-            Exception renderException = null;
-            SKPaint transparency = null;
+            rd.surface!.Canvas.Clear(SKColors.Transparent);
+            Exception? renderException = null;
+            SKPaint? transparency = null;
 
-            RenderContext ctx = new RenderContext(imgInfo, rd.surface, rd.bitmap, rd.pixmap, quality);
+            RenderContext ctx = new RenderContext(imgInfo, rd.surface!, rd.bitmap!, rd.pixmap!, quality);
             int trackSaveCount = ctx.Canvas.Save();
             ctx.Canvas.SetMatrix(ctx.Canvas.TotalMatrix.PreConcat(this.TransformationMatrix));
-            foreach (VideoEffect fx in this.theEffectsToApplyToTrack)
+            if (this.theEffectsToApplyToTrack != null)
             {
-                fx.PreProcessFrame(ctx);
+                foreach (VideoEffect fx in this.theEffectsToApplyToTrack)
+                {
+                    fx.PreProcessFrame(ctx);
+                }
             }
 
             int clipSaveCount = RenderManager.BeginClipOpacityLayer(ctx.Canvas, this.theClipToRender, ref transparency);
             ctx.Canvas.SetMatrix(ctx.Canvas.TotalMatrix.PreConcat(this.theClipToRender.TransformationMatrix));
-            foreach (VideoEffect fx in this.theEffectsToApplyToClip)
+            if (this.theEffectsToApplyToClip != null)
             {
-                fx.PreProcessFrame(ctx);
+                foreach (VideoEffect fx in this.theEffectsToApplyToClip)
+                {
+                    fx.PreProcessFrame(ctx);
+                }
             }
 
             SKRect frameArea = new SKRect(0, 0, imgInfo.Width, imgInfo.Height);
@@ -297,14 +319,20 @@ public class VideoTrack : Track
 
             renderArea = renderArea.ClampMinMax(frameArea);
 
-            foreach (VideoEffect fx in this.theEffectsToApplyToClip)
+            if (this.theEffectsToApplyToClip != null)
             {
-                fx.PostProcessFrame(ctx, ref renderArea);
+                foreach (VideoEffect fx in this.theEffectsToApplyToClip)
+                {
+                    fx.PostProcessFrame(ctx, ref renderArea);
+                }
             }
 
-            foreach (VideoEffect fx in this.theEffectsToApplyToTrack)
+            if (this.theEffectsToApplyToTrack != null)
             {
-                fx.PostProcessFrame(ctx, ref renderArea);
+                foreach (VideoEffect fx in this.theEffectsToApplyToTrack)
+                {
+                    fx.PostProcessFrame(ctx, ref renderArea);
+                }
             }
 
             RenderManager.EndOpacityLayer(ctx.Canvas, clipSaveCount, ref transparency);
@@ -319,7 +347,11 @@ public class VideoTrack : Track
             }
 
             rd.surface.Flush(true, true);
+
+            // Floor the top-left bounds and ceil the bottom-right bounds, just in case there's sub pixels
+            // e.g. drawing red at 4.5, there's partial red at 4 and 5, so we want to contain pixel 4
             rd.renderArea = renderArea.FloorAndCeil();
+
             // using (SKPaint paint1 = new SKPaint() {Color = SKColors.Green})
             //     rd.surface.Canvas.DrawRect(renderArea, paint1);
             // using (SKPaint paint1 = new SKPaint() {Color = SKColors.Red})

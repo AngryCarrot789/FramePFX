@@ -29,7 +29,7 @@ public static class KeyFrameUtils
     #region Unsafe/Raw Setters
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void SetBooleanValue(this KeyFrame kf, bool value) => ((KeyFrameBoolean) kf).Value = value;
+    public static void SetBoolValue(this KeyFrame kf, bool value) => ((KeyFrameBool) kf).Value = value;
 
     #endregion
 
@@ -45,7 +45,7 @@ public static class KeyFrameUtils
     public static void SetLongValue(this KeyFrame kf, long value, ParameterDescriptor desc) => ((KeyFrameLong) kf).Value = ((ParameterDescriptorLong) desc).Clamp(value);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void SetBooleanValue(this KeyFrame kf, bool value, ParameterDescriptor desc) => ((KeyFrameBoolean) kf).Value = value;
+    public static void SetBoolValue(this KeyFrame kf, bool value, ParameterDescriptor desc) => ((KeyFrameBool) kf).Value = value;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void SetVector2Value(this KeyFrame kf, Vector2 value, ParameterDescriptor desc) => ((KeyFrameVector2) kf).Value = ((ParameterDescriptorVector2) desc).Clamp(value);
@@ -94,7 +94,7 @@ public static class KeyFrameUtils
         AutomationSequence seq = automatable.AutomationData[parameter];
         if (enableOverride)
             seq.IsOverrideEnabled = true;
-        seq.DefaultKeyFrame.SetBooleanValue(value, ((Parameter) parameter).Descriptor);
+        seq.DefaultKeyFrame.SetBoolValue(value, ((Parameter) parameter).Descriptor);
         if (!seq.CanAutomate)
             seq.UpdateValue();
     }

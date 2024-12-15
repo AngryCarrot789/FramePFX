@@ -1,0 +1,11 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:a="clr-namespace:FramePFX.Avalonia.Editing.Automation">
+    <ControlTheme x:Key="{x:Type a:AutomationSequenceEditorControl}" TargetType="{x:Type a:AutomationSequenceEditorControl}">
+        <Setter Property="ShapeBrush" Value="{DynamicResource ABrush.AutomationActiveColour.Static}"/>
+    </ControlTheme>
+
+    <ControlTheme x:Key="TrackAutomationEditorTheme" TargetType="{x:Type a:AutomationSequenceEditorControl}">
+        <Setter Property="ShapeBrush" Value="{DynamicResource ABrush.TrackAutomationActiveColour.Static}"/>
+    </ControlTheme>
+</ResourceDictionary>

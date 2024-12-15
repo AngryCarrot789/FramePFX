@@ -52,8 +52,11 @@ public static class AutomationEngine
             effect.AutomationData.UpdateAllAutomated(relativePlayHead);
         }
 
-        if (clip is ICompositionClip compClip && compClip.ResourceCompositionKey.TryGetResource(out ResourceComposition compResource))
+        if (clip is CompositionVideoClip compClip && compClip.ResourceCompositionKey.TryGetResource(out ResourceComposition? compResource))
         {
+            if (compClip.IsSensitiveToPlaybackSpeed)
+                relativePlayHead = compClip.GetRelativeFrameForPlaybackSpeed(relativePlayHead);
+            
             UpdateValues(compResource.Timeline, relativePlayHead);
         }
     }

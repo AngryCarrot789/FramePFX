@@ -94,6 +94,27 @@ public static class AutomationUtils
             sequence.IsOverrideEnabled = true;
         }
     }
+    
+    public static void SetDefaultKeyFrameOrAddNew<T>(IAutomatable automatable, Parameter parameter, T value, Action<KeyFrame, T> setter, bool createFirstIfEmpty = false)
+    {
+        AutomationSequence sequence = automatable.AutomationData[parameter];
+        if ((!createFirstIfEmpty && sequence.IsEmpty) || sequence.IsOverrideEnabled)
+        {
+            setter(sequence.DefaultKeyFrame, value);
+        }
+        else if (sequence.AutomationData.Owner.GetRelativePlayHead(out long playHead))
+        {
+            // Either get the last key frame at the playhead or create a new one at that location
+            setter(sequence.GetOrCreateKeyFrameAtFrame(playHead, out _), value);
+        }
+        else
+        {
+            // when the object is has a strict frame range, e.g. clip, effect, and it is not in range,
+            // enable override and set the default key frame
+            setter(sequence.DefaultKeyFrame, value);
+            sequence.IsOverrideEnabled = true;
+        }
+    }
 
     public static bool TryAddKeyFrameAtLocation(AutomationSequence sequence, out KeyFrame keyFrame)
     {

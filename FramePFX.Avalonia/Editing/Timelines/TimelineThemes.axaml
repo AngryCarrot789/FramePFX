@@ -11,89 +11,8 @@
                     xmlns:u="clr-namespace:FramePFX.Avalonia.CommandSystem.Usages"
                     xmlns:cc="clr-namespace:FramePFX.Avalonia.Editing.CommandContexts"
                     xmlns:a="clr-namespace:FramePFX.Avalonia.Editing.Automation">
-    <ct:AutomationBrushConverter x:Key="AutomationBrushConverter"
-                                 AutomationBrush="{StaticResource ABrush.AutomationActiveColour.Static}"/>
-
-    <ControlTheme x:Key="{x:Type a:AutomationSequenceEditorControl}" TargetType="{x:Type a:AutomationSequenceEditorControl}">
-        <Setter Property="ShapeBrush" Value="{DynamicResource ABrush.AutomationActiveColour.Static}"/>
-    </ControlTheme>
-    <ControlTheme x:Key="{x:Type t:TimelineRuler}" TargetType="{x:Type t:TimelineRuler}">
-        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
-        <Setter Property="MajorStepColour" Value="{DynamicResource ABrush.Tone8.Border.Disabled}"/>
-        <Setter Property="MinorStepColour" Value="{DynamicResource ABrush.Tone5.Border.Disabled}"/>
-    </ControlTheme>
-
-    <ControlTheme x:Key="TrackAutomationEditorTheme" TargetType="{x:Type a:AutomationSequenceEditorControl}">
-        <Setter Property="ShapeBrush" Value="{DynamicResource ABrush.TrackAutomationActiveColour.Static}"/>
-    </ControlTheme>
-
+    <ct:AutomationBrushConverter x:Key="AutomationBrushConverter" AutomationBrush="{StaticResource ABrush.AutomationActiveColour.Static}"/>
     <ControlTheme x:Key="{x:Type t:TimelineLoopControl}" TargetType="{x:Type t:TimelineLoopControl}">
-    </ControlTheme>
-
-    <ControlTheme x:Key="{x:Type s:TrackControlSurfaceList}" TargetType="{x:Type s:TrackControlSurfaceList}" BasedOn="{StaticResource {x:Type ListBox}}">
-        <Setter Property="Background" Value="{DynamicResource PanelBorderBrush}"/>
-        <Setter Property="Padding" Value="0"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="av:UIInputManager.FocusPath" Value="Application/EditorWindow/Timeline/ControlSurfaces"/>
-        <Setter Property="Template">
-            <ControlTemplate TargetType="{x:Type s:TrackControlSurfaceList}">
-                <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        Background="{TemplateBinding Background}">
-                    <s:TrackControlSurfacePanel x:Name="PART_TrackPanel" Margin="{TemplateBinding Padding}"/>
-                </Border>
-            </ControlTemplate>
-        </Setter>
-        <Style Selector="^:disabled /template/ Border#Bd">
-            <Setter Property="Background" Value="{DynamicResource ListBox.Disabled.Background}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource ListBox.Disabled.Border}"/>
-        </Style>
-    </ControlTheme>
-
-    <ControlTheme x:Key="{x:Type s:TrackControlSurfaceItem}" TargetType="{x:Type s:TrackControlSurfaceItem}" BasedOn="{StaticResource {x:Type ListBoxItem}}">
-        <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Background.Static}"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Padding" Value="0"/>
-        <Setter Property="HorizontalAlignment" Value="Stretch"/>
-        <Setter Property="VerticalAlignment" Value="Stretch"/>
-        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
-        <Setter Property="av:UIInputManager.FocusPath" Value="Application/EditorWindow/Timeline/ControlSurfaces/Item"/>
-        <Setter Property="Template">
-            <ControlTemplate TargetType="{x:Type s:TrackControlSurfaceItem}">
-                <Border x:Name="Bd"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        Background="{TemplateBinding Background}"
-                        Padding="{TemplateBinding Padding}">
-                    <ContentPresenter x:Name="PART_ContentPresenter" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                      VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                      Content="{TemplateBinding Content}"
-                                      ContentTemplate="{TemplateBinding ContentTemplate}"
-                                      CornerRadius="{TemplateBinding CornerRadius}"
-                                      RecognizesAccessKey="True"
-                                      TextElement.Foreground="{TemplateBinding Foreground}"/>
-                </Border>
-            </ControlTemplate>
-        </Setter>
-        <Style Selector="^[IsPointerOver=true] /template/ ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource Item.MouseOver.Background}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Item.MouseOver.Border}"/>
-        </Style>
-        <Style Selector="^[IsSelected=True][IsFocused=False] /template/ Border#Bd">
-            <Setter Property="Background" Value="{DynamicResource Item.SelectedInactive.Background}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Item.SelectedInactive.Border}"/>
-        </Style>
-        <Style Selector="^[IsSelected=True][IsFocused=True] /template/ Border#Bd">
-            <Setter Property="Background" Value="{DynamicResource Item.SelectedActive.Background}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource Item.SelectedActive.Border}"/>
-        </Style>
-        <Style Selector="^[IsSelected=False][IsPointerOver=true] /template/ Border#Bd">
-            <Setter Property="Background" Value="{DynamicResource ABrush.Tone6.Background.Static}"/>
-        </Style>
-        <Style Selector="^:disabled /template/ Border#Bd">
-            <Setter Property="TextElement.Foreground" Value="{DynamicResource ABrush.Foreground.Disabled}"/>
-        </Style>
     </ControlTheme>
 
     <ControlTheme x:Key="{x:Type t:TrackStoragePanel}" TargetType="{x:Type t:TrackStoragePanel}">
@@ -138,7 +57,7 @@
                                           RecognizesAccessKey="True"
                                           TextElement.Foreground="{TemplateBinding Foreground}"/>
                         <a:AutomationSequenceEditorControl x:Name="PART_AutomationEditor" Margin="0,5"
-                                                           RenderOptions.EdgeMode="Aliased"/>
+                                                           RenderOptions.EdgeMode="Antialias"/>
                     </Panel>
                 </Border>
             </ControlTemplate>
@@ -334,163 +253,10 @@
         </Setter>
     </ControlTheme>
 
-    <ControlTheme x:Key="{x:Type s:TrackControlSurface}" TargetType="{x:Type s:TrackControlSurface}">
-        <Setter Property="HorizontalAlignment" Value="Stretch"/>
-        <Setter Property="VerticalAlignment" Value="Stretch"/>
-    </ControlTheme>
-
-    <ControlTheme x:Key="TrackListExpandToggleButtonStyle" TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource {x:Type ToggleButton}}">
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="BorderBrush" Value="Transparent"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Padding" Value="0"/>
-        <Setter Property="Foreground" Value="{DynamicResource Expander.Static.Arrow.Stroke}"/>
-        <Setter Property="Template">
-            <ControlTemplate TargetType="{x:Type ToggleButton}">
-                <Border Padding="{TemplateBinding Padding}">
-                    <Grid Background="Transparent">
-                        <Border x:Name="PART_Border"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"/>
-                        <Path x:Name="arrow" Data="M 1,1.5 L 4.5,5 L 8,1.5"
-                              StrokeThickness="2"
-                              Stroke="{TemplateBinding Foreground}"
-                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Grid>
-                </Border>
-            </ControlTemplate>
-        </Setter>
-        <Style Selector="^[IsChecked=true] /template/ Path#arrow">
-            <Setter Property="Data" Value="M 1,4.5  L 4.5,1  L 8,4.5"/>
-        </Style>
-        <Style Selector="^[IsPointerOver=true]">
-            <Style Selector="^ /template/ Border#PART_Border">
-                <Setter Property="BorderBrush" Value="{DynamicResource Expander.MouseOver.Circle.Stroke}"/>
-                <Setter Property="Background" Value="{DynamicResource Expander.MouseOver.Circle.Fill}"/>
-            </Style>
-            <Style Selector="^ /template/ Path#arrow">
-                <Setter Property="Stroke" Value="{DynamicResource Expander.MouseOver.Arrow.Stroke}"/>
-            </Style>
-        </Style>
-        <Style Selector="^[IsPressed=true]">
-            <Style Selector="^ /template/ Border#PART_Border">
-                <Setter Property="BorderBrush" Value="{DynamicResource Expander.Pressed.Circle.Stroke}"/>
-                <Setter Property="Background" Value="{DynamicResource Expander.Pressed.Circle.Fill}"/>
-            </Style>
-            <Style Selector="^ /template/ Path#arrow">
-                <Setter Property="Stroke" Value="{DynamicResource Expander.Pressed.Arrow.Stroke}"/>
-            </Style>
-        </Style>
-        <Style Selector="^[IsEnabled=false]">
-            <Style Selector="^ /template/ Border#PART_Border">
-                <Setter Property="BorderBrush" Value="{DynamicResource Expander.Disabled.Circle.Stroke}"/>
-                <Setter Property="Background" Value="{DynamicResource Expander.Disabled.Circle.Fill}"/>
-            </Style>
-            <Style Selector="^ /template/ Path#arrow">
-                <Setter Property="Stroke" Value="{DynamicResource Expander.Disabled.Arrow.Stroke}"/>
-            </Style>
-        </Style>
-    </ControlTheme>
-
     <Design.PreviewWith>
         <!--
         <s:TrackControlSurfaceVideo Height="25"/>
         -->
         <t:TimelineControl Width="600" Height="150"/>
     </Design.PreviewWith>
-
-    <f:UnitToPercentFormatter x:Key="OpacityUnitPercentageFormatter" NonEditingRoundedPlaces="1" EditingRoundedPlaces="4"/>
-
-    <ControlTheme x:Key="AutomationComboBoxTheme" TargetType="{x:Type ComboBox}" BasedOn="{StaticResource {x:Type ComboBox}}">
-        <Style Selector="^:pointerover /template/ Border#border">
-            <Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}"/>
-        </Style>
-    </ControlTheme>
-
-    <ControlTheme x:Key="{x:Type s:TrackControlSurfaceVideo}" TargetType="{x:Type s:TrackControlSurfaceVideo}" BasedOn="{StaticResource {x:Type s:TrackControlSurface}}">
-        <Setter Property="Template">
-            <ControlTemplate TargetType="{x:Type s:TrackControlSurfaceVideo}">
-                <DockPanel>
-                    <Border DockPanel.Dock="Left" Width="21"
-                            Background="{TemplateBinding TrackColourBrush}"
-                            BorderThickness="0,0,1,0"
-                            HorizontalAlignment="Left" VerticalAlignment="Stretch"
-                            BorderBrush="{DynamicResource PanelBorderBrush}">
-                        <Grid RowDefinitions="Auto,*,Auto">
-                            <ToggleButton Grid.Row="0" Width="20" Height="20"
-                                          Theme="{StaticResource TrackListExpandToggleButtonStyle}"
-                                          x:Name="PART_ExpandTrackButton"
-                                          Focusable="False"
-                                          Foreground="{TemplateBinding TrackColourForegroundBrush}"/>
-                            <Button Content="x" Grid.Row="2" Width="20" Height="20"
-                                    Background="Transparent" BorderThickness="0"
-                                    Focusable="False" ToolTip.Tip="Delete this track"
-                                    u:CommandUsageManager.UsageClassType="{x:Type cc:DeleteSpecificTrackCommandUsage}"
-                                    Foreground="{TemplateBinding TrackColourForegroundBrush}"/>
-                        </Grid>
-                    </Border>
-                    <Grid RowDefinitions="Auto,*,Auto">
-                        <DockPanel Margin="2,2,2,0" LastChildFill="False" Grid.Row="0" ClipToBounds="True">
-                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                                <ToggleButton x:Name="PART_VisibilityButton"
-                                              VerticalAlignment="Top" Content="V" BorderBrush="Black"
-                                              Height="17" Width="17" Theme="{StaticResource StaticBorderToggleButtonTheme}"/>
-                                <d:NumberDragger Width="55" Height="17" BorderBrush="Black"
-                                                 VerticalAlignment="Top"
-                                                 Minimum="0" Maximum="1" Margin="2,0,0,0"
-                                                 TinyChange="0.0001" SmallChange="0.001"
-                                                 NormalChange="0.002" LargeChange="0.01"
-                                                 Theme="{StaticResource NumberDraggerAbletonTheme}"
-                                                 x:Name="PART_OpacitySlider" Padding="0,1,0,0"
-                                                 ValueFormatter="{StaticResource OpacityUnitPercentageFormatter}"/>
-                            </StackPanel>
-                            <TextBlock DockPanel.Dock="Right" Margin="0,1,4,0"
-                                       Text="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=DisplayName}"
-                                       IsHitTestVisible="False"/>
-                        </DockPanel>
-                        <Grid Grid.Row="2" Margin="2,0,2,2">
-                            <StackPanel x:Name="PART_AutomationPanel"
-                                        Orientation="Horizontal"
-                                        VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                                        Spacing="1" Margin="0,2,0,0" ClipToBounds="True">
-                                <ComboBox Width="100" Height="18" BorderBrush="Black"
-                                          Background="{DynamicResource ABrush.Tone6.Background.Static}"
-                                          ToolTip.Tip="A list of automatable parameters available for this track"
-                                          x:Name="PART_ParameterComboBox" Theme="{StaticResource AutomationComboBoxTheme}" SelectedIndex="0">
-                                    <ComboBox.ItemTemplate>
-                                        <DataTemplate DataType="{x:Type s:TrackListItemParameterViewModel}">
-                                            <StackPanel Orientation="Horizontal">
-                                                <Ellipse Margin="0,0,4,0" VerticalAlignment="Center"
-                                                         IsVisible="{Binding IsAutomated, Mode=OneWay}"
-                                                         Width="7" Height="7"
-                                                         Stroke="Black" StrokeThickness="1"
-                                                         ToolTip.Tip="{StaticResource AutomationLedTooltipTextBlock}">
-                                                    <Ellipse.Fill>
-                                                        <MultiBinding Converter="{StaticResource AutomationBrushConverter}">
-                                                            <Binding Path="IsAutomated" Mode="OneWay"/>
-                                                            <Binding Path="IsOverrideEnabled" Mode="OneWay"/>
-                                                        </MultiBinding>
-                                                    </Ellipse.Fill>
-                                                </Ellipse>
-                                                <TextBlock Text="{Binding Name}"/>
-                                            </StackPanel>
-                                        </DataTemplate>
-                                    </ComboBox.ItemTemplate>
-                                </ComboBox>
-                                <Button BorderBrush="Black" Height="20" Width="18"
-                                        ToolTip.Tip="Insert a key frame at the current play head"
-                                        x:Name="PART_InsertKeyFrameButton">
-                                    <Ellipse Width="7" Height="7" Fill="{DynamicResource ABrush.AutomationActiveColour.Static}"/>
-                                </Button>
-                                <ToggleButton Content="O" BorderBrush="Black" Height="20" Width="18"
-                                              ToolTip.Tip="Toggles the parameter override state for this track. This is used to enable or disable automation for the parameter"
-                                              x:Name="PART_OverrideButton"/>
-                            </StackPanel>
-                        </Grid>
-                    </Grid>
-                </DockPanel>
-            </ControlTemplate>
-        </Setter>
-    </ControlTheme>
 </ResourceDictionary>

@@ -145,14 +145,14 @@ public sealed class ParameterDescriptorLong : ParameterDescriptor, IRangedParame
     public bool IsValueOutOfRange(long value) => value < this.Minimum || value > this.Maximum;
 }
 
-public sealed class ParameterDescriptorBoolean : ParameterDescriptor
+public sealed class ParameterDescriptorBool : ParameterDescriptor
 {
     /// <summary>
     /// The default value of the parameter
     /// </summary>
     public bool DefaultValue { get; }
 
-    public ParameterDescriptorBoolean(bool defaultValue = false) : base(AutomationDataType.Boolean)
+    public ParameterDescriptorBool(bool defaultValue = false) : base(AutomationDataType.Boolean)
     {
         this.DefaultValue = defaultValue;
     }

@@ -111,15 +111,9 @@ public partial class UserInputDialog : WindowEx
         this.Height = size.Height + TitleBarHeight;
     }
 
-    private void OnConfirmButtonClicked(object? sender, RoutedEventArgs e)
-    {
-        this.TryCloseDialog(true);
-    }
+    private void OnConfirmButtonClicked(object? sender, RoutedEventArgs e) => this.TryCloseDialog(true);
 
-    private void OnCancelButtonClicked(object? sender, RoutedEventArgs e)
-    {
-        this.TryCloseDialog(false);
-    }
+    private void OnCancelButtonClicked(object? sender, RoutedEventArgs e) => this.TryCloseDialog(false);
 
     private void OnUserInputDataChanged(UserInputInfo? oldData, UserInputInfo? newData)
     {
@@ -176,7 +170,10 @@ public partial class UserInputDialog : WindowEx
     /// Tries to close the dialog
     /// </summary>
     /// <param name="result">The dialog result wanted</param>
-    /// <returns>True if the dialog was closed, false if it could not be closed due to a validation error or other error</returns>
+    /// <returns>
+    /// True if the dialog was closed (regardless of the dialog result),
+    /// false if it could not be closed due to a validation error or other error
+    /// </returns>
     public bool TryCloseDialog(bool result)
     {
         if (result)
@@ -188,12 +185,12 @@ public partial class UserInputDialog : WindowEx
             }
 
             this.Close(this.DialogResult = true);
-            return true;
         }
         else
         {
             this.Close(this.DialogResult = false);
-            return true;
         }
+
+        return true;
     }
 }

@@ -33,7 +33,7 @@ public readonly struct DragStepProfile
     public static readonly DragStepProfile InfPixelRange = new DragStepProfile(0.05, 0.1, 1.0, 5);
     public static readonly DragStepProfile SecondsRealtime = new DragStepProfile(0.001, 0.01, 0.05, 0.5);
 
-    /// <summary>1
+    /// <summary>
     /// A tiny step change, when holding CTRL+SHIFT
     /// </summary>
     public readonly double TinyStep;

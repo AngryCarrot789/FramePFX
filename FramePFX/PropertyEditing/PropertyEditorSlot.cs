@@ -111,8 +111,8 @@ public abstract class PropertyEditorSlot : BasePropertyEditorItem
 
         this.OnClearingHandlers();
         this.Handlers = EmptyList;
-        this.IsCurrentlyApplicable = false;
         this.HandlersCleared?.Invoke(this);
+        this.IsCurrentlyApplicable = false;
     }
 
     /// <summary>

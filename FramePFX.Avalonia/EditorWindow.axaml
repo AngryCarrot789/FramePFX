@@ -43,6 +43,9 @@
                                     ToolTip.Tip="Export the current project"/>
                 <sa:CommandMenuItem Header="Export Active Timeline" CommandId="commands.generic.ExportActiveTimelineCommand"
                                     ToolTip.Tip="Exports the currently active timeline only (not the project timeline)"/>
+                <Separator/>
+                <sa:CommandMenuItem Header="Open Editor Settings" CommandId="commands.editor.OpenEditorSettings"
+                                    ToolTip.Tip="Opens the editor's settings in a dialog"/>
             </MenuItem>
         </sa:ContextCapturingMenu>
         <Grid Grid.Row="1" x:Name="PART_MainVideoEditorContent">

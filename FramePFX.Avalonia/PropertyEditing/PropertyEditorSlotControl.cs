@@ -143,6 +143,7 @@ public class PropertyEditorSlotControl : ContentControl
         ((BasePropEditControlContent) this.Content!).Disconnect();
         this.isSelectedBinder.Detach();
         this.UpdateVisibility();
+        this.Model!.IsCurrentlyApplicableChanged -= this.Model_IsCurrentlyApplicableChanged;
         this.Model = null;
         this.OwnerGroup = null;
     }

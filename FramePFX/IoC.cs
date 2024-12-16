@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.Configurations;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Services.ColourPicking;
 using FramePFX.Services.FilePicking;
@@ -51,6 +52,13 @@ public static class IoC
     /// Gets the application's task manager
     /// </summary>
     public static TaskManager TaskManager => RZApplication.Instance.Services.GetService<TaskManager>();
+    
+    /// <summary>
+    /// Gets the application's configuration manager
+    /// </summary>
+    public static ApplicationConfigurationManager ApplicationConfigurationManager => RZApplication.Instance.Services.GetService<ApplicationConfigurationManager>();
+    
+    public static IConfigurationService ConfigurationService => RZApplication.Instance.Services.GetService<IConfigurationService>();
 
     public static IDispatcher Dispatcher => RZApplication.Instance.Dispatcher;
 }

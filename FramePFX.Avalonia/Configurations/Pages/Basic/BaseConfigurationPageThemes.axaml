@@ -1,0 +1,26 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:b="clr-namespace:FramePFX.Avalonia.Configurations.Pages.Basic"
+                    xmlns:pages="clr-namespace:FramePFX.Avalonia.Configurations.Pages"
+                    xmlns:propertyEditing="clr-namespace:FramePFX.Avalonia.PropertyEditing">
+    <ControlTheme x:Key="{x:Type b:BasicEditorWindowConfigurationPageControl}" TargetType="{x:Type b:BasicEditorWindowConfigurationPageControl}">
+        <Setter Property="Template">
+            <ControlTemplate TargetType="{x:Type b:BasicEditorWindowConfigurationPageControl}">
+                <StackPanel Margin="10">
+                    <DockPanel>
+                        <TextBlock Text="Editor Title Bar: " DockPanel.Dock="Left" VerticalAlignment="Center" Padding="5,2"/>
+                        <TextBox x:Name="PART_TitleBarTextBox" VerticalContentAlignment="Center" Padding="4"/>
+                    </DockPanel>
+                </StackPanel>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+    
+    <ControlTheme x:Key="{x:Type pages:PropertyEditorConfigurationPageControl}" TargetType="{x:Type pages:PropertyEditorConfigurationPageControl}">
+        <Setter Property="Template">
+            <ControlTemplate TargetType="{x:Type pages:PropertyEditorConfigurationPageControl}">
+                <propertyEditing:PropertyEditorControl x:Name="PART_PropertyEditor"/>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

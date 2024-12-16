@@ -56,9 +56,9 @@ public class ModelControlRegistry<TModel, TControl> where TControl : Control whe
         return (control = this.NewInstanceInternal(model, false)) != null;
     }
 
-    public TControl NewInstance(TModel model)
+    public TControl NewInstance(TModel model, bool logBaseTypeScan = true)
     {
-        TControl? control = this.NewInstanceInternal(model, true);
+        TControl? control = this.NewInstanceInternal(model, logBaseTypeScan);
         return control ?? throw new Exception("No such content control for resource type: " + model.GetType().Name);
     }
 

@@ -75,6 +75,8 @@ public class PropertyEditorControl : TemplatedControl
     {
         base.OnApplyTemplate(e);
         this.RootGroupControl = e.NameScope.GetTemplateChild<PropertyEditorGroupControl>("PART_RootGroupControl");
+        this.RootGroupControl.ApplyStyling();
+        this.RootGroupControl.ApplyTemplate();
     }
 
     private void OnPropertyEditorChanged(PropertyEditor? oldEditor, PropertyEditor? newEditor)

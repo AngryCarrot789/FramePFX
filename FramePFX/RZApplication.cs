@@ -18,6 +18,8 @@
 // 
 
 using FramePFX.CommandSystem;
+using FramePFX.Configurations;
+using FramePFX.Configurations.Commands;
 using FramePFX.Editing;
 using FramePFX.Editing.Commands;
 using FramePFX.Editing.ResourceManaging;
@@ -199,6 +201,7 @@ public abstract class RZApplication
     {
         manager.Register(new TaskManager());
         manager.Register(new ResourceToClipDropRegistry());
+        manager.Register(ApplicationConfigurationManager.Instance);
     }
 
     protected virtual void RegisterCommands(IApplicationStartupProgress progress, CommandManager manager)
@@ -268,6 +271,7 @@ public abstract class RZApplication
         manager.Register("commands.editor.SaveProject", new SaveProjectCommand());
         manager.Register("commands.editor.SaveProjectAs", new SaveProjectAsCommand());
         manager.Register("commands.editor.Export", new ExportCommand());
+        manager.Register("commands.editor.OpenEditorSettings", new OpenEditorSettingsCommand());
     }
 
     protected virtual async Task OnFullyInitialised(VideoEditor editor, string[] args)

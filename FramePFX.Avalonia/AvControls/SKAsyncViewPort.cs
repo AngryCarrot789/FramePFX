@@ -353,8 +353,8 @@ public class SKAsyncViewPort : Control
 
         public void Render(ImmediateDrawingContext context)
         {
-            using (context.PushPreTransform(Matrix.CreateScale(inverseScale, inverseScale)))
-                context.DrawBitmap(this.bmp, this.transformedVisibleBounds * inverseScale, this.transformedVisibleBounds);
+            using (context.PushPreTransform(Matrix.CreateScale(this.inverseScale, this.inverseScale)))
+                context.DrawBitmap(this.bmp, this.transformedVisibleBounds * this.inverseScale, this.transformedVisibleBounds);
         }
     }
 }

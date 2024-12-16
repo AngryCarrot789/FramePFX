@@ -21,6 +21,8 @@ using System;
 using System.Text;
 using Avalonia;
 using Avalonia.Interactivity;
+using Avalonia.Media;
+using Avalonia.Media.Immutable;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Themes.Controls;
 using FramePFX.Editing;
@@ -33,6 +35,7 @@ using FramePFX.PropertyEditing;
 using FramePFX.Tasks;
 using FramePFX.Utils;
 using FramePFX.Utils.RDA;
+using SkiaSharp;
 
 namespace FramePFX.Avalonia;
 
@@ -105,6 +108,29 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI
         this.PART_ActiveBackgroundTaskGrid.IsVisible = false;
         ((ILightSelectionManager<IClipElement>) this.TheTimeline.ClipSelectionManager!).SelectionChanged += this.OnTimelineClipSelectionChanged;
         this.PART_ViewPort.OnClipSelectionChanged();
+
+        EditorConfigurationOptions.Instance.TitleBarPrefixChanged += this.OnApplicationTitleBarPrefixChanged;
+        EditorConfigurationOptions.Instance.TitleBarBrushChanged += this.OnApplicationTitleBarBrushChanged;
+    }
+
+    protected override void OnUnloaded(RoutedEventArgs e)
+    {
+        base.OnUnloaded(e);
+        
+        // Prevent semantic memory leak
+        EditorConfigurationOptions.Instance.TitleBarPrefixChanged -= this.OnApplicationTitleBarPrefixChanged;
+        EditorConfigurationOptions.Instance.TitleBarBrushChanged -= this.OnApplicationTitleBarBrushChanged;
+    }
+
+    private void OnApplicationTitleBarPrefixChanged(EditorConfigurationOptions sender)
+    {
+        this.UpdateWindowTitle(this.VideoEditor?.Project);
+    }
+    
+    private void OnApplicationTitleBarBrushChanged(EditorConfigurationOptions sender)
+    {
+        SKColor c = sender.TitleBarBrush;
+        this.TitleBarBrush = new ImmutableSolidColorBrush(new Color(c.Alpha, c.Red, c.Green, c.Blue));
     }
 
     private void OnVideoEditorChanged(VideoEditor? oldEditor, VideoEditor? newEditor)
@@ -250,14 +276,14 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI
 
     private void UpdateWindowTitle(Project? project)
     {
-        const string DefaultTitle = "Bootleg song vegas (FramePFX v2.0.0)";
+        EditorConfigurationOptions options = EditorConfigurationOptions.Instance;
         if (project == null)
         {
-            this.Title = DefaultTitle;
+            this.Title = options.TitleBarPrefix;
         }
         else
         {
-            StringBuilder sb = new StringBuilder().Append(DefaultTitle);
+            StringBuilder sb = new StringBuilder().Append(options.TitleBarPrefix);
             if (!string.IsNullOrEmpty(project.ProjectFilePath))
                 sb.Append(" - ").Append(project.ProjectFilePath);
 

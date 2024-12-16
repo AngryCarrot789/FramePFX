@@ -39,6 +39,7 @@ using FramePFX.Avalonia.Shortcuts.Avalonia;
 using FramePFX.Editing;
 using FramePFX.Editing.Exporting;
 using FramePFX.Editing.ResourceManaging;
+using FramePFX.Natives;
 using FramePFX.Services.ColourPicking;
 using FramePFX.Services.FilePicking;
 using FramePFX.Services.Messaging;
@@ -120,6 +121,16 @@ public class RZApplicationImpl : RZApplication
             await IoC.MessageService.ShowMessage("Keymap", "Keymap file does not exist at " + keymapFilePath + ". This error can be ignored, but shortcuts won't work");
         }
 
+        await progress.SetAction("Loading Native Engine...", null);
+        try
+        {
+            PFXNative.InitialiseLibrary();
+        }
+        catch (Exception e)
+        {
+            await IoC.MessageService.ShowMessage("Native Engine Initialisation Failed", "Failed to initialise native engine", e.GetToString());
+        }
+        
         await progress.SetAction("Loading FFmpeg...", null);
 
         try
@@ -129,6 +140,21 @@ public class RZApplicationImpl : RZApplication
         catch (Exception e)
         {
             await IoC.MessageService.ShowMessage("FFmpeg registration failed", "Failed to register all FFmpeg devices. Is FFmpeg installed correctly?", e.GetToString());
+        }
+
+        {
+            const ulong a = ulong.MaxValue;
+            const ushort b = ushort.MaxValue;
+            const ulong expected = a - b;
+
+            await progress.SetAction("Checking native engine functionality", null);
+            
+            // cute little test to see if we're pumping iron not rust
+            if (expected != PFXNative.TestEngineSubNumbers(a, b)) 
+            {
+                await IoC.MessageService.ShowMessage("Native Engine malfunction", "Native engine test failed");
+                throw new Exception("Native engine functionality failed");
+            }
         }
     }
 

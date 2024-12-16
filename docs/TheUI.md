@@ -25,3 +25,10 @@ The order is something along the line of this:
 - The control's measure may be invalidated and then UpdateLayout too. This is to force the template to be applied. But
   sometimes this might not work, so ApplyTemplate might be called before/afterwards too
 - `OnAdded` is called on the control. The template  (if there is one) should be applied
+
+## Resource list
+The resources are shareable between clips, so that clips can obviously share similar details (e.g. same text or font/font size), or same image, same shape colour, etc.
+
+To drag videos, images, etc., into the editor: drag and drop the file to the top left "resource manager panel", and then drag one of those items into the timeline
+
+This system is still quite janky and, if anything, too flexible; added complexity for limiting the max number of resources referencable, and handling that error case

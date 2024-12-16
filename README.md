@@ -5,29 +5,8 @@ I mainly started this as a learning tool into the world of video/audio processin
 
 I doubt this will ever even come close to those editors, but hopefully it will at least support some basic editing
 
-If you have any feedback/criticism for the app, that would be appreciate! Also feel free to contribute, if you would like to. You can see the TODO list near the bottom
-
-# Downloading and Compiling/Building
-### FramePFX assumes everything is 64 bit --- x86/32-bit/AnyCPU most likely won't work!
-
-To compile and run the editor, you need to download FFmpeg yourself. 
-Here is the specific version that works currently: https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2024-12-11-13-02/ffmpeg-N-118048-g1e76bd2f39-win64-gpl-shared.zip
-
-Create a folder called `libraries` in the solution folder and a sub-folders called `ffmpeg`. From the downloaded archive, 
-find the bin folder and copy all of the DLL files from there into the newly created ffmpeg folder.
-
-There should be 8 files in `\FramePFX\libraries\ffmpeg`, e.g. avcodec-61.dll
-
-If you're building on windows, there's a build event that uses xcopy to copy the ffmpeg DLLs into the build folder, but this might not work on other platforms so you may have to do it manually. 
-The 8 DLLs just have to be in the same directly as the FramePFX-DesktopUI.exe executable
-
-Hopefully then you should be able to build and run without issue. This project uses Avalonia 11.2.2 and .NET 8 (C# 12)
-
-### Possible build problems
-Sometimes, the SkiaSharp nuget library doesn't copy the skia library files to the bin folder when you clone this repo and built. There are 2 fixes I found:
-- Copy `\packages\SkiaSharp.2.88.7\runtimes\win-x64\native\libSkiaSharp.dll` into the editor's bin folder.
-- Or, delete the `packages` folder in the solution dir, then right-click the solution in visual studio and click "Clean Solution", then click Restore Nuget Packages, then rebuild all.
-  If none of these work, try uninstalling SkiaSharp in the nuget manager and then reinstalling. If that still does not work, then I really don't know what's going on...
+If you have any feedback/criticism for the app, that would be appreciate! Also feel free to contribute, if you would like to. 
+You can see the TODO list near the bottom, and also how to download and compile the appliation
 
 # Preview
 
@@ -40,12 +19,37 @@ To cancel the render you just click Cancel on the dialog behind the export progr
 The grey panel below "Exporter: FFmpeg" is encoder-specific details
 ![](FramePFX-DesktopUI_2024-12-07_00.13.06.png)
 
-## Resource list
-The resources are shareable between clips, so that clips can obviously share similar details (e.g. same text or font/font size), or same image, same shape colour, etc.
+# Downloading and Compiling/Building
+FramePFX assumes everything is 64 bit --- x86/32-bit/AnyCPU won't work properly!
 
-To drag videos, images, etc., into the editor: drag and drop the file to the top left "resource manager panel", and then drag one of those items into the timeline
+All of the native projects are automatically downloaded and compiled when you 
+first build the C# projects, however,  FFmpeg needs to be downloaded separately. 
+Here is the specific version that works currently (windows only): 
+https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2024-12-11-13-02/ffmpeg-N-118048-g1e76bd2f39-win64-gpl-shared.zip
 
-This system is still quite janky and, if anything, too flexible; added complexity for limiting the max number of resources referencable, and handling that error case
+### Instructions:
+
+- Create a folder called `ffmpeg` in the solution folder. 
+- From the downloaded archive copy everything (4 dirs and the LICENCE.txt) into this new ffmpeg folder
+
+There should be 8 DLL files in `\FramePFX\ffmpeg\bin`, and one of them should be avcodec-61.dll. If it's not 61 you have the wrong version of FFmpeg.
+You can delete the EXE files if you want, since they aren't used
+
+Hopefully then you should be able to build and run without issue. This project uses Avalonia 11.2.2 and .NET 8 (C# 12)
+
+### Windows only commands
+
+The projects in the solution use windows commands like mkdir and xcopy, which may not work on other platforms.
+I only have a Windows machine, so I can't really offer any alternatives. However, feel free to create a pull request
+on a more cross-platform solution!
+
+The 8 DLLs just have to be in the same directly as the FramePFX-DesktopUI.exe executable
+
+### Possible build problems
+Sometimes, the SkiaSharp nuget library doesn't copy the skia library files to the bin folder when you clone this repo and built. There are 2 fixes I found:
+- Copy `\packages\SkiaSharp.2.88.7\runtimes\win-x64\native\libSkiaSharp.dll` into the editor's bin folder.
+- Or, delete the `packages` folder in the solution dir, then right-click the solution in visual studio and click "Clean Solution", then click Restore Nuget Packages, then rebuild all.
+  If none of these work, try uninstalling SkiaSharp in the nuget manager and then reinstalling. If that still does not work, then I really don't know what's going on...
 
 # TODO
 ### Avalonia Remake:

@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-using System.ComponentModel;
 using System.Runtime.InteropServices;
 
 namespace FramePFX.Natives;
@@ -27,107 +26,54 @@ namespace FramePFX.Natives;
 /// </summary>
 public static class PFXNative
 {
-    #region System Helpers
-
-    [DllImport("kernel32.dll", SetLastError = true)]
-    private static extern IntPtr LoadLibrary(string dllToLoad);
-
-    [DllImport("kernel32.dll", SetLastError = true)]
-    private static extern IntPtr GetProcAddress(IntPtr hModule, string procedureName);
-
-    [DllImport("kernel32.dll", SetLastError = true)]
-    private static extern bool FreeLibrary(IntPtr hModule);
-
-    #endregion
-
-    // Prefix: PFXCEFUNC_
-
-    private delegate int PFXCEFUNC_InitEngine();
-
-    private delegate int PFXCEFUNC_ShutdownEngine();
-
-    public unsafe delegate int PFXCEFUNC_PixelateVfx(uint* pImg, int srcWidth, int srcHeight, int left, int top, int right, int bottom, int blockSize);
-
-    public unsafe delegate int PFXAEFUNC_BeginAudioPlayback(NativeAudioEngineData* pEngineData);
-
-    public unsafe delegate int PFXAEFUNC_EndAudioPlayback(NativeAudioEngineData* pEngineData);
-
+    public const string DllName = "FramePFX.NativeEngine.dll";
+    
     public struct NativeAudioEngineData
     {
         public IntPtr ManagedAudioEngineCallback;
         public IntPtr AudioEngineStream;
     }
 
-    private static PFXCEFUNC_InitEngine InitEngine;
-    private static PFXCEFUNC_ShutdownEngine ShutdownEngine;
-    public static PFXCEFUNC_PixelateVfx PFXCE_PixelateVfx;
-    public static PFXAEFUNC_BeginAudioPlayback PFXAE_BeginAudioPlayback;
-    public static PFXAEFUNC_EndAudioPlayback PFXAE_EndAudioPlayback;
+    [DllImport(DllName, EntryPoint = "PFXCE_InitEngine")]
+    private static extern int InitEngine();
+    
+    [DllImport(DllName, EntryPoint = "PFXCE_ShutdownEngine")]
+    private static extern int ShutdownEngine();
+    
+    [DllImport(DllName, EntryPoint = "PFXCE_TestEngineSubNumbers")]
+    public static extern ulong TestEngineSubNumbers(ulong a, ushort b);
+    
+    [DllImport(DllName, EntryPoint = "PFXCE_PixelateVfx")]
+    public static extern unsafe int PFXCE_PixelateVfx(uint* pImg, int srcWidth, int srcHeight, int left, int top, int right, int bottom, int blockSize);
+    
+    [DllImport(DllName, EntryPoint = "PFXAE_BeginAudioPlayback")]
+    public static extern unsafe int PFXAE_BeginAudioPlayback(NativeAudioEngineData* pEngineData);
+    
+    [DllImport(DllName, EntryPoint = "PFXAE_EndAudioPlayback")]
+    public static extern unsafe int PFXAE_EndAudioPlayback(NativeAudioEngineData* pEngineData);
 
-    private static IntPtr LibraryAddress;
-
+    public static bool IsInitialised { get; set; }
+    
     public static void InitialiseLibrary()
     {
-        const string DLL_NAME = "FramePFX.NativeEngine.dll";
-        string dllPath = Path.Combine(Path.GetFullPath("."), DLL_NAME);
-        if (!File.Exists(dllPath))
-        {
-#if DEBUG
-            dllPath = "..\\..\\..\\..\\x64\\Debug\\" + DLL_NAME;
-#else
-                dllPath = "..\\..\\..\\..\\x64\\Release\\" + DLL_NAME;
-#endif
-
-            dllPath = Path.GetFullPath(dllPath);
-        }
-
-        if (!File.Exists(dllPath))
-        {
-            throw new Exception("Library DLL could not be found. Make sure you built the C++ project first");
-        }
-
-        LibraryAddress = LoadLibrary(dllPath);
-        if (LibraryAddress == IntPtr.Zero)
-        {
-            throw new Exception("Failed to load library. Check the project is compiled in x64, and ensure there are no missing DLL references in something like depends", new Win32Exception());
-        }
-
-        GetFunction("PFXCE_InitEngine", out InitEngine);
-        GetFunction("PFXCE_ShutdownEngine", out ShutdownEngine);
         if (InitEngine() != 1)
-        {
             throw new Exception("Engine initialisation failed");
-        }
 
-        GetFunction(nameof(PFXCE_PixelateVfx), out PFXCE_PixelateVfx);
-        GetFunction(nameof(PFXAE_BeginAudioPlayback), out PFXAE_BeginAudioPlayback);
-        GetFunction(nameof(PFXAE_EndAudioPlayback), out PFXAE_EndAudioPlayback);
+        IsInitialised = true;
     }
 
     public static void ShutdownLibrary()
     {
-        if (LibraryAddress != IntPtr.Zero)
+        if (IsInitialised)
         {
-            ShutdownEngine();
-
             try
             {
-                FreeLibrary(LibraryAddress);
+                ShutdownEngine();
             }
             finally
             {
-                LibraryAddress = IntPtr.Zero;
+                IsInitialised = false;
             }
         }
-    }
-
-    private static void GetFunction<T>(string functionName, out T function) where T : Delegate
-    {
-        IntPtr pFuncAddress = GetProcAddress(LibraryAddress, functionName);
-        if (pFuncAddress == IntPtr.Zero)
-            throw new Exception("Could not find function address for name: " + functionName);
-        function = (T) Marshal.GetDelegateForFunctionPointer(pFuncAddress, typeof(T));
-        if (function == null)
-            throw new Exception("Could not create delegate for function pointer");
     }
 }

@@ -12,8 +12,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{070E3833-D
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FramePFX.Avalonia", "FramePFX.Avalonia\FramePFX.Avalonia.csproj", "{4E393A8A-C015-4CA2-9CB8-67BC68826170}"
+	ProjectSection(ProjectDependencies) = postProject
+		{78D88225-65C7-466D-9B83-1DBC1E97EE1D} = {78D88225-65C7-466D-9B83-1DBC1E97EE1D}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FramePFX", "FramePFX\FramePFX.csproj", "{0E6A4826-79F9-4E81-898D-F66B3EA0C319}"
+	ProjectSection(ProjectDependencies) = postProject
+		{78D88225-65C7-466D-9B83-1DBC1E97EE1D} = {78D88225-65C7-466D-9B83-1DBC1E97EE1D}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FramePFX.NativeEngine", "FramePFX.NativeEngine\FramePFX.NativeEngine.vcxproj", "{78D88225-65C7-466D-9B83-1DBC1E97EE1D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4FFAF3C7-639D-3D9E-BCC9-21C43FCC0652} = {4FFAF3C7-639D-3D9E-BCC9-21C43FCC0652}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "portaudio", "portaudio\buildsln64\portaudio.vcxproj", "{4FFAF3C7-639D-3D9E-BCC9-21C43FCC0652}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +42,14 @@ Global
 		{0E6A4826-79F9-4E81-898D-F66B3EA0C319}.Debug|x64.Build.0 = Debug|x64
 		{0E6A4826-79F9-4E81-898D-F66B3EA0C319}.Release|x64.ActiveCfg = Release|x64
 		{0E6A4826-79F9-4E81-898D-F66B3EA0C319}.Release|x64.Build.0 = Release|x64
+		{78D88225-65C7-466D-9B83-1DBC1E97EE1D}.Debug|x64.ActiveCfg = Debug|x64
+		{78D88225-65C7-466D-9B83-1DBC1E97EE1D}.Debug|x64.Build.0 = Debug|x64
+		{78D88225-65C7-466D-9B83-1DBC1E97EE1D}.Release|x64.ActiveCfg = Release|x64
+		{78D88225-65C7-466D-9B83-1DBC1E97EE1D}.Release|x64.Build.0 = Release|x64
+		{4FFAF3C7-639D-3D9E-BCC9-21C43FCC0652}.Debug|x64.ActiveCfg = Debug|x64
+		{4FFAF3C7-639D-3D9E-BCC9-21C43FCC0652}.Debug|x64.Build.0 = Debug|x64
+		{4FFAF3C7-639D-3D9E-BCC9-21C43FCC0652}.Release|x64.ActiveCfg = Release|x64
+		{4FFAF3C7-639D-3D9E-BCC9-21C43FCC0652}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

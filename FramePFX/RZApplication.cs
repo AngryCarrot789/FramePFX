@@ -80,9 +80,6 @@ public abstract class RZApplication
         this.serviceManager = new ServiceManager();
     }
 
-    private void OnPreInitialise() {
-    }
-
     protected virtual async Task OnInitialise(IApplicationStartupProgress progress)
     {
         await progress.SetAction("Initialising services", null);

@@ -19,7 +19,7 @@ To cancel the render you just click Cancel on the dialog behind the export progr
 The grey panel below "Exporter: FFmpeg" is encoder-specific details
 ![](FramePFX-DesktopUI_2024-12-07_00.13.06.png)
 
-# Downloading and Compiling/Building
+# Building
 FramePFX assumes everything is 64 bit --- x86/32-bit/AnyCPU won't work properly!
 
 All of the native projects are automatically downloaded and compiled when you 
@@ -27,7 +27,7 @@ first build the C# projects, however,  FFmpeg needs to be downloaded separately.
 Here is the specific version that works currently (windows only): 
 https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2024-12-11-13-02/ffmpeg-N-118048-g1e76bd2f39-win64-gpl-shared.zip
 
-### Instructions:
+### Instructions
 
 - Create a folder called `ffmpeg` in the solution folder. 
 - From the downloaded archive copy everything (4 dirs and the LICENCE.txt) into this new ffmpeg folder
@@ -35,7 +35,9 @@ https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2024-12-11-13-
 There should be 8 DLL files in `\FramePFX\ffmpeg\bin`, and one of them should be avcodec-61.dll. If it's not 61 you have the wrong version of FFmpeg.
 You can delete the EXE files if you want, since they aren't used
 
-Hopefully then you should be able to build and run without issue. This project uses Avalonia 11.2.2 and .NET 8 (C# 12)
+- Open FramePFX.sln. You will get an error about projects not being loaded; Ignore it. Now build the solution by going to the `Build` menu and clicking `Build Solution` 
+
+Hopefully then you should be able to run and modify any of the 3 FramePFX projects without issue. This project uses Avalonia 11.2.2 and .NET 8 (C# 12)
 
 ### Windows only commands
 

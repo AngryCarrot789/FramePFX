@@ -38,6 +38,7 @@ using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Clips;
+using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Editing.UI;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
@@ -241,7 +242,17 @@ public class TimelineTrackControl : TemplatedControl
         {
             this.ClipStoragePanel!.InsertClip(clip, i++);
         }
+
+        if (this.Track is VideoTrack)
+        {
+            VideoTrack.IsEnabledParameter.AddParameterChangedHandler(this.Track!, this.OnIsEnabledChanged);
+            this.UpdateTrackOpacity();
+        }
     }
+
+    private void OnIsEnabledChanged(AutomationSequence sequence) => this.UpdateTrackOpacity();
+
+    private void UpdateTrackOpacity() => this.ClipStoragePanel!.Opacity = VideoTrack.IsEnabledParameter.GetCurrentValue(this.Track!) ? 1.0 : 0.3;
 
     public virtual void OnDisconnecting()
     {
@@ -254,6 +265,11 @@ public class TimelineTrackControl : TemplatedControl
         this.Track.HeightChanged -= this.OnTrackHeightChanged;
         this.Track.ColourChanged -= this.OnTrackColourChanged;
         this.ClipStoragePanel!.ClearClipsInternal();
+        
+        if (this.Track is VideoTrack)
+        {
+            VideoTrack.IsEnabledParameter.RemoveParameterChangedHandler(this.Track!, this.OnIsEnabledChanged);
+        }
     }
 
     public virtual void OnDisconnected()

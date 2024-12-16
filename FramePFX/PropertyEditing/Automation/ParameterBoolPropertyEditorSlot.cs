@@ -18,6 +18,7 @@
 //
 
 using FramePFX.Editing.Automation;
+using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Automation.Params;
 using FramePFX.Utils;
 
@@ -35,10 +36,11 @@ public class ParameterBoolPropertyEditorSlot : ParameterPropertyEditorSlot
             if (value == this.value)
                 return;
             this.value = value;
-            object boxedValue = value.HasValue ? value.Value.Box() : BoolBox.False;
+            bool theValue = value ?? false;
+            Parameter parameter = base.Parameter;
             for (int i = 0, c = this.Handlers.Count; i < c; i++)
             {
-                AutomationUtils.SetDefaultKeyFrameOrAddNew((IAutomatable) this.Handlers[i], base.Parameter, boxedValue);
+                AutomationUtils.SetDefaultKeyFrameOrAddNew((IAutomatable) this.Handlers[i], parameter, theValue, (k, d, o) => k.SetBoolValue(o, d), false);
             }
 
             this.OnValueChanged(false, true);

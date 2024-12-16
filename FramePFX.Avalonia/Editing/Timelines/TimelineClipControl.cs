@@ -34,7 +34,6 @@ using FramePFX.Avalonia.Editing.Automation;
 using FramePFX.Avalonia.Editing.Timelines.Selection;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Utils;
-using FramePFX.DataTransfer;
 using FramePFX.Editing;
 using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Rendering;
@@ -131,7 +130,7 @@ public class TimelineClipControl : ContentControl, IClipElement
 
     public double PixelWidth => this.FrameDuration * this.TimelineZoom;
 
-    public bool IsClipVisible { get; private set; }
+    public bool IsClipEnabled { get; private set; }
 
     private Clip? myClip;
     private FrameSpan myFrameSpan;
@@ -197,10 +196,10 @@ public class TimelineClipControl : ContentControl, IClipElement
 
     private void UpdateIsClipVisibleState()
     {
-        bool isVisible = !(this.ClipModel is VideoClip clip) || VideoClip.IsVisibleParameter.GetCurrentValue(clip);
-        if (isVisible != this.IsClipVisible)
+        bool isEnabled = !(this.ClipModel is VideoClip clip) || VideoClip.IsEnabledParameter.GetCurrentValue(clip);
+        if (isEnabled != this.IsClipEnabled)
         {
-            this.IsClipVisible = isVisible;
+            this.IsClipEnabled = isEnabled;
             this.InvalidateVisual();
         }
     }
@@ -249,7 +248,7 @@ public class TimelineClipControl : ContentControl, IClipElement
         Binders.AttachModels(this.ClipModel!, this.frameSpanBinder, this.displayNameBinder, this.activeAutoSequenceBinder);
         if (this.ClipModel is VideoClip videoClip)
         {
-            videoClip.AutomationData.AddParameterChangedHandler(VideoClip.IsVisibleParameter, this.OnIsVisibleChanged);
+            videoClip.AutomationData.AddParameterChangedHandler(VideoClip.IsEnabledParameter, this.OnIsVisibleChanged);
         }
 
         this.UpdateIsClipVisibleState();
@@ -260,7 +259,7 @@ public class TimelineClipControl : ContentControl, IClipElement
         Binders.DetachModels(this.frameSpanBinder, this.displayNameBinder, this.activeAutoSequenceBinder);
         if (this.ClipModel is VideoClip videoClip)
         {
-            videoClip.AutomationData.RemoveParameterChangedHandler(VideoClip.IsVisibleParameter, this.OnIsVisibleChanged);
+            videoClip.AutomationData.RemoveParameterChangedHandler(VideoClip.IsEnabledParameter, this.OnIsVisibleChanged);
         }
     }
 
@@ -870,7 +869,7 @@ public class TimelineClipControl : ContentControl, IClipElement
         {
             using (dc.PushRenderOptions(new RenderOptions() { EdgeMode = EdgeMode.Aliased, TextRenderingMode = TextRenderingMode.Antialias }))
             {
-                if (!this.IsClipVisible)
+                if (!this.IsClipEnabled)
                 {
                     dc.DrawRectangle(Brushes.Gray, null, finalRect);
                 }
@@ -883,7 +882,7 @@ public class TimelineClipControl : ContentControl, IClipElement
                 Thickness border2 = new Thickness(border.Left, 0, border.Right, 0);
 
                 Rect headerRect = new Rect(finalRect.X, finalRect.Y, finalRect.Width, Math.Min(finalRect.Height, HeaderSize)).Deflate(border2);
-                if (!this.IsClipVisible)
+                if (!this.IsClipEnabled)
                 {
                     dc.DrawRectangle(Brushes.DarkRed, null, headerRect);
                 }
@@ -946,8 +945,9 @@ public class TimelineClipControl : ContentControl, IClipElement
         clip.ZIndex = isSelected ? 10 : 1;
     }
 
-    ITrackElement IClipElement.TrackUI => this.Track?.TrackElement ?? throw new InvalidOperationException("Not ready yet");
-    Clip IClipElement.Clip => this.ClipModel!;
+    ITrackElement IClipElement.TrackUI => this.Track?.TrackElement ?? throw GetInvalidElementException();
+    
+    Clip IClipElement.Clip => this.ClipModel ?? throw GetInvalidElementException();
 
     #region Drag dropping items into this clip
 
@@ -1054,4 +1054,6 @@ public class TimelineClipControl : ContentControl, IClipElement
     {
         this.PART_AutomationEditor!.IsVisible = isVisible;
     }
+
+    private static InvalidOperationException GetInvalidElementException() => new InvalidOperationException("Invalid clip element");
 }

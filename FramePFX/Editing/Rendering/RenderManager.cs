@@ -195,7 +195,9 @@ public class RenderManager
 
     private void BeginRender(long frame)
     {
+#if DEBUG
         StackTrace old = Interlocked.Exchange(ref this.stackTrace, new StackTrace(true));
+#endif
         if (!RZApplication.Instance.Dispatcher.CheckAccess())
             throw new InvalidOperationException("Cannot start rendering while not on the main thread");
         if (frame < 0 || frame >= this.Timeline.MaxDuration)
@@ -253,7 +255,7 @@ public class RenderManager
             for (int i = this.Timeline.Tracks.Count - 1; i >= 0; i--)
             {
                 Track track = this.Timeline.Tracks[i];
-                if (track is VideoTrack videoTrack && VideoTrack.IsVisibleParameter.GetCurrentValue(videoTrack))
+                if (track is VideoTrack videoTrack && VideoTrack.IsEnabledParameter.GetCurrentValue(videoTrack))
                 {
                     if (videoTrack.PrepareRenderFrame(imgInfo, frame, quality))
                     {

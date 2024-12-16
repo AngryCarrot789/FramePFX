@@ -143,10 +143,10 @@ public abstract class BaseResource : IDisplayName, IDestroy
         static void ApplyNewItemEntries(FixedContextGroup g)
         {
             g.AddHeader("Create Resources");
-            g.AddEntry(new CommandContextEntry("Add Image", "Create a new image resource", "commands.resources.AddResourceImage"));
-            g.AddEntry(new CommandContextEntry("Add Media", "Create a new media resource", "commands.resources.AddResourceAVMedia"));
-            g.AddEntry(new CommandContextEntry("Add Colour", "Create a new colour resource", "commands.resources.AddResourceColour"));
-            g.AddEntry(new CommandContextEntry("Add Composition Timeline", "Create a composition timeline new resource", "commands.resources.AddResourceComposition"));
+            g.AddEntry(new CommandContextEntry("commands.resources.AddResourceImage", "Add Image", "Create a new image resource"));
+            g.AddEntry(new CommandContextEntry("commands.resources.AddResourceAVMedia", "Add Media", "Create a new media resource"));
+            g.AddEntry(new CommandContextEntry("commands.resources.AddResourceColour", "Add Colour", "Create a new colour resource"));
+            g.AddEntry(new CommandContextEntry("commands.resources.AddResourceComposition", "Add Composition Timeline", "Create a composition timeline new resource"));
         }
 
         static void ApplyModifyGeneral(FixedContextGroup g)
@@ -172,10 +172,10 @@ public abstract class BaseResource : IDisplayName, IDestroy
                 switch (resource)
                 {
                     case ResourceColour: 
-                        items.Add(new CommandContextEntry("Change Colour", "Change the colour of the resource", "commands.resources.ChangeResourceColour")); 
+                        items.Add(new CommandContextEntry("commands.resources.ChangeResourceColour", "Change Colour", "Change the colour of the resource")); 
                         break;
                     case ResourceComposition: 
-                        items.Add(new CommandContextEntry("Open Timeline", "Opens this composition resource's timeline in the editor", "commands.editor.OpenCompositionTimeline")); 
+                        items.Add(new CommandContextEntry("commands.editor.OpenCompositionTimeline", "Open Timeline", "Opens this composition resource's timeline in the editor")); 
                         break;
                 }
             }
@@ -197,18 +197,18 @@ public abstract class BaseResource : IDisplayName, IDestroy
             {
                 if (list[0].IsOnline)
                 {
-                    items.Add(new CommandContextEntry("Set Offline", "Set the selected resources offline", "commands.resources.SetResourcesOffline"));
+                    items.Add(new CommandContextEntry("commands.resources.SetResourcesOffline", "Set Offline", "Set the selected resources offline"));
                 }
                 else
                 {
-                    items.Add(new CommandContextEntry("Set Online", "Set the selected resources online", "commands.resources.SetResourcesOnline"));
+                    items.Add(new CommandContextEntry("commands.resources.SetResourcesOnline", "Set Online", "Set the selected resources online"));
                 }
             }
             else
             {
-                items.Add(new CommandContextEntry("Set Online", "Set the selected resources online", "commands.resources.SetResourcesOnline"));
-                items.Add(new CommandContextEntry("Set Offline", "Set the selected resources offline", "commands.resources.SetResourcesOffline"));
-                items.Add(new CommandContextEntry("Toggle Online", "Toggles the online state of the selected resources", "commands.resources.ToggleOnlineState"));
+                items.Add(new CommandContextEntry("commands.resources.SetResourcesOnline", "Set Online", "Set the selected resources online"));
+                items.Add(new CommandContextEntry("commands.resources.SetResourcesOffline", "Set Offline", "Set the selected resources offline"));
+                items.Add(new CommandContextEntry("commands.resources.ToggleOnlineState", "Toggle Online", "Toggles the online state of the selected resources"));
             }
         });
 

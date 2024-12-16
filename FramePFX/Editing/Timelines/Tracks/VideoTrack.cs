@@ -42,7 +42,7 @@ public class VideoTrack : Track
             ValueAccessors.LinqExpression<double>(typeof(VideoTrack), nameof(Opacity)),
             ParameterFlags.StandardProjectVisual);
 
-    public static readonly ParameterBool IsVisibleParameter = Parameter.RegisterBool(typeof(VideoTrack), nameof(VideoTrack), nameof(IsVisible), true, ValueAccessors.LinqExpression<bool>(typeof(VideoTrack), nameof(IsVisible)), ParameterFlags.StandardProjectVisual);
+    public static readonly ParameterBool IsEnabledParameter = Parameter.RegisterBool(typeof(VideoTrack), nameof(VideoTrack), nameof(IsEnabled), true, ValueAccessors.LinqExpression<bool>(typeof(VideoTrack), nameof(IsEnabled)), ParameterFlags.StandardProjectVisual);
     public static readonly ParameterVector2 MediaPositionParameter = Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaPosition), ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaPosition)), ParameterFlags.StandardProjectVisual);
     public static readonly ParameterVector2 MediaScaleParameter = Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaScale), Vector2.One, ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaScale)), ParameterFlags.StandardProjectVisual);
     public static readonly ParameterDouble MediaRotationParameter = Parameter.RegisterDouble(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaRotation), ValueAccessors.LinqExpression<double>(typeof(VideoTrack), nameof(MediaRotation)), ParameterFlags.StandardProjectVisual);
@@ -64,7 +64,7 @@ public class VideoTrack : Track
     private bool isMatrixDirty = true;
 
     private double Opacity;
-    private bool IsVisible;
+    private bool IsEnabled;
 
     /// <summary>
     /// Gets the transformation matrix for the transformation properties in this clip
@@ -150,7 +150,7 @@ public class VideoTrack : Track
     public VideoTrack()
     {
         this.myRenderDataLock = new DisposableRef<TrackRenderData>(new TrackRenderData(), true);
-        this.IsVisible = IsVisibleParameter.Descriptor.DefaultValue;
+        this.IsEnabled = IsEnabledParameter.Descriptor.DefaultValue;
         this.Opacity = OpacityParameter.Descriptor.DefaultValue;
         this.MediaPosition = MediaPositionParameter.Descriptor.DefaultValue;
         this.MediaScale = MediaScaleParameter.Descriptor.DefaultValue;
@@ -212,6 +212,19 @@ public class VideoTrack : Track
         return this.Project?.Settings.Resolution ?? SKSize.Empty;
     }
 
+    protected override void OnProjectChanged(Project? oldProject, Project? newProject)
+    {
+        base.OnProjectChanged(oldProject, newProject);
+        this.OnRenderSizeChanged();
+    }
+
+    protected void OnRenderSizeChanged()
+    {
+        this.UpdateAutomaticRotationOrigin();
+        this.UpdateAutomaticScaleOrigin();
+        this.InvalidateRender();
+    }
+
     public override void Destroy()
     {
         base.Destroy();
@@ -221,7 +234,7 @@ public class VideoTrack : Track
     public bool PrepareRenderFrame(SKImageInfo imgInfo, long frame, EnumRenderQuality quality)
     {
         VideoClip? clip = (VideoClip?) this.GetClipAtFrame(frame);
-        if (clip != null && VideoClip.IsVisibleParameter.GetCurrentValue(clip))
+        if (clip != null && VideoClip.IsEnabledParameter.GetCurrentValue(clip))
         {
             PreRenderContext ctx = new PreRenderContext(imgInfo, quality);
             if (!clip.PrepareRenderFrame(ctx, frame - clip.FrameSpan.Begin))

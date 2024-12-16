@@ -117,6 +117,26 @@ public abstract class Parameter : IEquatable<Parameter>, IComparable<Parameter>
             parameter.ValueChanged += handler;
         }
     }
+    
+    /// <summary>
+    /// A helper method to add an event handler
+    /// </summary>
+    /// <param name="owner">The owner</param>
+    /// <param name="handler">The event handler</param>
+    public void AddParameterChangedHandler(IAutomatable owner, ParameterChangedEventHandler handler)
+    {
+        owner.AutomationData.AddParameterChangedHandler(this, handler);
+    }
+
+    /// <summary>
+    /// A helper method to remove an event handler
+    /// </summary>
+    /// <param name="owner">The owner</param>
+    /// <param name="handler">The event handler</param>
+    public void RemoveParameterChangedHandler(IAutomatable owner, ParameterChangedEventHandler handler)
+    {
+        owner.AutomationData.RemoveParameterChangedHandler(this, handler);
+    }
 
     /// <summary>
     /// Calculates and sets effective value of the sequence's data owner. Calling this method directly will

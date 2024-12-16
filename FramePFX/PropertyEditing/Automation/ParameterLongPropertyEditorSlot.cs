@@ -18,6 +18,7 @@
 //
 
 using FramePFX.Editing.Automation;
+using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Automation.Params;
 using FramePFX.PropertyEditing.DataTransfer;
 using FramePFX.Utils;
@@ -43,7 +44,7 @@ public class ParameterLongPropertyEditorSlot : NumericParameterPropertyEditorSlo
             {
                 IAutomatable obj = (IAutomatable) this.Handlers[i];
                 long newValue = pdesc.Clamp(useAddition ? (parameter.GetCurrentValue(obj) + change) : value);
-                AutomationUtils.SetDefaultKeyFrameOrAddNew(obj, parameter, newValue);
+                AutomationUtils.SetDefaultKeyFrameOrAddNew(obj, parameter, newValue, (k, d, o) => k.SetLongValue(o, d));
             }
 
             this.OnValueChanged(this.lastQueryHasMultipleValues && useAddition, true);

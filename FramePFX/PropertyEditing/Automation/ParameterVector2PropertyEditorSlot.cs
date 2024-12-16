@@ -19,6 +19,7 @@
 
 using System.Numerics;
 using FramePFX.Editing.Automation;
+using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Automation.Params;
 using FramePFX.Interactivity.Formatting;
 using FramePFX.PropertyEditing.DataTransfer;
@@ -48,7 +49,7 @@ public class ParameterVector2PropertyEditorSlot : ParameterPropertyEditorSlot
             {
                 IAutomatable obj = (IAutomatable) this.Handlers[i];
                 Vector2 newValue = pdesc.Clamp(useAddition ? (parameter.GetCurrentValue(obj) + change) : value);
-                AutomationUtils.SetDefaultKeyFrameOrAddNew(obj, parameter, newValue);
+                AutomationUtils.SetDefaultKeyFrameOrAddNew(obj, parameter, newValue, (k, d, o) => k.SetVector2Value(o, d));
             }
 
             this.OnValueChanged(this.lastQueryHasMultipleValues && useAddition, true);

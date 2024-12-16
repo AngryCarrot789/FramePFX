@@ -27,6 +27,7 @@ using FramePFX.Editing.Factories;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Effects;
 using FramePFX.Interactivity;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.Serialisation;
 using FramePFX.Utils;
 using FramePFX.Utils.Destroying;
@@ -178,6 +179,7 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
             modGeneric.AddHeader("General");
             modGeneric.AddCommand("commands.editor.RenameTrack", "Rename", "Open a dialog to rename this track");
             modGeneric.AddCommand("commands.editor.SelectClipsInTracks", "Select All", "Select all clips in this track");
+            modGeneric.AddDynamicSubGroup(GenerateEnableDisableCommands);
 
             FixedContextGroup modAdd = TimelineTrackContextRegistry.GetFixedGroup("ModifyAddClips");
             modAdd.AddHeader("Add new clips");
@@ -204,6 +206,8 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
             FixedContextGroup modGeneric = TrackControlSurfaceContextRegistry.GetFixedGroup("modify.general");
             modGeneric.AddHeader("General");
             modGeneric.AddCommand("commands.editor.RenameTrack", "Rename", "Open a dialog to rename this track");
+            modGeneric.AddDynamicSubGroup(GenerateEnableDisableCommands);
+            
             FixedContextGroup modExternal = TrackControlSurfaceContextRegistry.GetFixedGroup("modify.externalmodify");
             modExternal.AddHeader("New Tracks");
             modExternal.AddCommand("commands.editor.NewVideoTrack", "Insert Video Track Above", "Inserts a new Video Track above this track");
@@ -211,6 +215,27 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
 
             FixedContextGroup mod3 = TrackControlSurfaceContextRegistry.GetFixedGroup("modify.destruction", 100000);
             mod3.AddCommand("commands.editor.DeleteSpecificTrack", "Delete Track", "Delete this track");
+        }
+    }
+
+    private static void GenerateEnableDisableCommands(DynamicContextGroup group, IContextData ctx, List<IContextObject> items)
+    {
+        if (DataKeys.TrackKey.TryGetContext(ctx, out Track? track) && track is VideoTrack videoTrack)
+        {
+            if (VideoTrack.IsEnabledParameter.GetCurrentValue(videoTrack))
+            {
+                items.Add(new CommandContextEntry("commands.editor.DisableTracks", "Disable", "Disable this track"));
+            }
+            else
+            {
+                items.Add(new CommandContextEntry("commands.editor.EnableTracks", "Enable", "Enable this track"));
+            }
+        }
+        else
+        {
+            items.Add(new CommandContextEntry("commands.editor.EnableTracks", "Enable", "Enable the selected tracks"));
+            items.Add(new CommandContextEntry("commands.editor.DisableTracks", "Disable", "Disable the selected tracks"));
+            items.Add(new CommandContextEntry("commands.editor.ToggleTracksEnabled", "Toggle Enabled", "Toggle the enabled state of the selected tracks"));
         }
     }
 

@@ -35,6 +35,7 @@ using FramePFX.Avalonia.AvControls;
 using FramePFX.Avalonia.Utils;
 using FramePFX.Editing;
 using FramePFX.Editing.Automation;
+using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Automation.Params;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.Timelines;
@@ -184,7 +185,7 @@ public class VideoEditorViewPortControl : TemplatedControl
 
         ParameterDescriptorVector2 desc = VideoClip.MediaPositionParameter.Descriptor;
         Vector2 newValue = desc.Clamp(this.originalPos + new Vector2((float) pos.X, (float) pos.Y));
-        AutomationUtils.SetDefaultKeyFrameOrAddNew(this.targetClip, VideoClip.MediaPositionParameter, newValue);
+        AutomationUtils.SetDefaultKeyFrameOrAddNew(this.targetClip, VideoClip.MediaPositionParameter, newValue, (k, d, o) => k.SetVector2Value(o, d));
 
         e.Handled = true;
     }

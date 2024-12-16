@@ -28,30 +28,6 @@ namespace FramePFX.Editing.Automation;
 
 public static class AutomationUtils
 {
-    public static void SetDefaultKeyFrameOrAddNew(AutomationSequence sequence, object value)
-    {
-        if (sequence.IsEmpty || sequence.IsOverrideEnabled)
-        {
-            sequence.DefaultKeyFrame.SetValueFromObject(value);
-        }
-        else
-        {
-            if (sequence.AutomationData.Owner.GetRelativePlayHead(out long playHead))
-            {
-                // Either get the last key frame at the playhead or create a new one at that location
-                KeyFrame keyFrame = sequence.GetOrCreateKeyFrameAtFrame(playHead, out _);
-                keyFrame.SetValueFromObject(value);
-            }
-            else
-            {
-                // when the object is has a strict frame range, e.g. clip, effect, and it is not in range,
-                // enable override and set the default key frame
-                sequence.DefaultKeyFrame.SetValueFromObject(value);
-                sequence.IsOverrideEnabled = true;
-            }
-        }
-    }
-
     public static void GetDefaultKeyFrameOrAddNew(AutomationSequence sequence, out KeyFrame keyFrame, bool enableOverrideIfOutOfRange = true)
     {
         if (sequence.IsEmpty || sequence.IsOverrideEnabled)
@@ -73,45 +49,25 @@ public static class AutomationUtils
         }
     }
 
-    public static void SetDefaultKeyFrameOrAddNew(IAutomatable automatable, Parameter parameter, object value, bool createFirstIfEmpty = false)
+    public static void SetDefaultKeyFrameOrAddNew(IAutomatable automatable, Parameter parameter, object value, bool createFirstIfEmpty = false) => SetDefaultKeyFrameOrAddNew(automatable, parameter, value, (k, d, o) => k.SetValueFromObject(o), createFirstIfEmpty);
+
+    public static void SetDefaultKeyFrameOrAddNew<T>(IAutomatable automatable, Parameter parameter, T value, Action<KeyFrame, ParameterDescriptor, T> setter, bool createFirstIfEmpty = false)
     {
         AutomationSequence sequence = automatable.AutomationData[parameter];
         if ((!createFirstIfEmpty && sequence.IsEmpty) || sequence.IsOverrideEnabled)
         {
-            sequence.DefaultKeyFrame.SetValueFromObject(value);
+            setter(sequence.DefaultKeyFrame, parameter.Descriptor, value);
         }
         else if (sequence.AutomationData.Owner.GetRelativePlayHead(out long playHead))
         {
             // Either get the last key frame at the playhead or create a new one at that location
-            KeyFrame keyFrame = sequence.GetOrCreateKeyFrameAtFrame(playHead, out _);
-            keyFrame.SetValueFromObject(value);
+            setter(sequence.GetOrCreateKeyFrameAtFrame(playHead, out _), parameter.Descriptor, value);
         }
         else
         {
             // when the object is has a strict frame range, e.g. clip, effect, and it is not in range,
             // enable override and set the default key frame
-            sequence.DefaultKeyFrame.SetValueFromObject(value);
-            sequence.IsOverrideEnabled = true;
-        }
-    }
-    
-    public static void SetDefaultKeyFrameOrAddNew<T>(IAutomatable automatable, Parameter parameter, T value, Action<KeyFrame, T> setter, bool createFirstIfEmpty = false)
-    {
-        AutomationSequence sequence = automatable.AutomationData[parameter];
-        if ((!createFirstIfEmpty && sequence.IsEmpty) || sequence.IsOverrideEnabled)
-        {
-            setter(sequence.DefaultKeyFrame, value);
-        }
-        else if (sequence.AutomationData.Owner.GetRelativePlayHead(out long playHead))
-        {
-            // Either get the last key frame at the playhead or create a new one at that location
-            setter(sequence.GetOrCreateKeyFrameAtFrame(playHead, out _), value);
-        }
-        else
-        {
-            // when the object is has a strict frame range, e.g. clip, effect, and it is not in range,
-            // enable override and set the default key frame
-            setter(sequence.DefaultKeyFrame, value);
+            setter(sequence.DefaultKeyFrame, parameter.Descriptor, value);
             sequence.IsOverrideEnabled = true;
         }
     }

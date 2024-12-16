@@ -25,9 +25,11 @@ using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Automation.Params;
 using FramePFX.Editing.Factories;
 using FramePFX.Editing.ResourceManaging.ResourceHelpers;
+using FramePFX.Editing.Timelines.Clips.Video;
 using FramePFX.Editing.Timelines.Effects;
 using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Interactivity;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.Serialisation;
 using FramePFX.Utils.Destroying;
 using FramePFX.Utils.RBC;
@@ -209,6 +211,26 @@ public abstract class Clip : IClip, IDestroy
         FixedContextGroup modGeneric = ClipContextRegistry.GetFixedGroup("modify.general");
         modGeneric.AddHeader("General");
         modGeneric.AddCommand("commands.editor.RenameClip", "Rename", "Open a dialog to rename this clip");
+        modGeneric.AddDynamicSubGroup((group, ctx, items) =>
+        {
+            if (DataKeys.ClipKey.TryGetContext(ctx, out Clip? clip) && clip is VideoClip videoClip)
+            {
+                if (VideoClip.IsEnabledParameter.GetCurrentValue(videoClip))
+                {
+                    items.Add(new CommandContextEntry("commands.editor.DisableClips", "Disable", "Disable this clip"));
+                }
+                else
+                {
+                    items.Add(new CommandContextEntry("commands.editor.EnableClips", "Enable", "Enable this clip"));
+                }
+            }
+            else
+            {
+                items.Add(new CommandContextEntry("commands.editor.EnableClips", "Enable", "Enable the selected clips"));
+                items.Add(new CommandContextEntry("commands.editor.DisableClips", "Disable", "Disable the selected clips"));
+                items.Add(new CommandContextEntry("commands.editor.ToggleClipsEnabled", "Toggle Enabled", "Toggle the enabled state of the selected clips"));
+            }
+        });
 
         FixedContextGroup modEdit = ClipContextRegistry.GetFixedGroup("modify.edit");
         modEdit.AddHeader("Edit");

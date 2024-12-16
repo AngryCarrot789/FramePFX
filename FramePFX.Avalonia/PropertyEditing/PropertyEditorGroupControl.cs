@@ -39,7 +39,7 @@ public class PropertyEditorGroupControl : TemplatedControl
     public static readonly StyledProperty<bool> IsExpandedProperty = AvaloniaProperty.Register<PropertyEditorGroupControl, bool>("IsExpanded");
     public static readonly StyledProperty<GroupType> GroupTypeProperty = AvaloniaProperty.Register<PropertyEditorGroupControl, GroupType>("GroupType");
     public static readonly StyledProperty<PropertyEditorControl?> PropertyEditorProperty = AvaloniaProperty.Register<PropertyEditorGroupControl, PropertyEditorControl?>("PropertyEditor");
-
+    
     public bool IsExpanded
     {
         get => this.GetValue(IsExpandedProperty);
@@ -78,7 +78,7 @@ public class PropertyEditorGroupControl : TemplatedControl
         Registry.RegisterType<BasePropertyEditorGroup>((x) => x.GroupType == GroupType.NoExpander ? new PropertyEditorGroupNonExpanderControl() : new PropertyEditorGroupControl());
         Registry.RegisterType<PropertyEditorSlot>(() => new PropertyEditorSlotControl());
     }
-
+    
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         base.OnPointerPressed(e);

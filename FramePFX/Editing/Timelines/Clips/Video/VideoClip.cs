@@ -71,7 +71,7 @@ public abstract class VideoClip : Clip
     public static readonly DataParameterPoint MediaScaleOriginParameter = DataParameter.Register(new DataParameterPoint(typeof(VideoClip), nameof(MediaScaleOrigin), ValueAccessors.Reflective<SKPoint>(typeof(VideoClip), nameof(mediaScaleOrigin))));
     public static readonly DataParameterPoint MediaRotationOriginParameter = DataParameter.Register(new DataParameterPoint(typeof(VideoClip), nameof(MediaRotationOrigin), ValueAccessors.Reflective<SKPoint>(typeof(VideoClip), nameof(mediaRotationOrigin))));
 
-    public static readonly ParameterBool IsVisibleParameter = Parameter.RegisterBool(typeof(VideoClip), nameof(VideoClip), nameof(IsVisible), true, ValueAccessors.LinqExpression<bool>(typeof(VideoClip), nameof(IsVisible)), ParameterFlags.StandardProjectVisual);
+    public static readonly ParameterBool IsEnabledParameter = Parameter.RegisterBool(typeof(VideoClip), nameof(VideoClip), nameof(IsEnabled), true, ValueAccessors.LinqExpression<bool>(typeof(VideoClip), nameof(IsEnabled)), ParameterFlags.StandardProjectVisual);
     public static readonly DataParameterBool IsMediaScaleOriginAutomaticParameter = DataParameter.Register(new DataParameterBool(typeof(VideoClip), nameof(IsMediaScaleOriginAutomatic), true, ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(isMediaScaleOriginAutomatic)), DataParameterFlags.StandardProjectVisual));
     public static readonly DataParameterBool IsMediaRotationOriginAutomaticParameter = DataParameter.Register(new DataParameterBool(typeof(VideoClip), nameof(IsMediaRotationOriginAutomatic), true, ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(isMediaRotationOriginAutomatic)), DataParameterFlags.StandardProjectVisual));
 
@@ -88,7 +88,7 @@ public abstract class VideoClip : Clip
     private bool isMatrixDirty;
     private bool isAdjustingFrameSpanForSpeedChange;
     private FrameSpan spanWithoutSpeed;
-    private bool IsVisible;
+    private bool IsEnabled;
 
     // video clip stuff
     private double Opacity;
@@ -204,7 +204,7 @@ public abstract class VideoClip : Clip
     /// </summary>
     public virtual bool IsSensitiveToPlaybackSpeed => false;
 
-    public bool IsEffectivelyVisible => this.IsVisible && this.Opacity > 0.0;
+    public bool IsEffectivelyVisible => this.IsEnabled && this.Opacity > 0.0;
     
     public SKRect LastRenderRect;
 
@@ -212,7 +212,7 @@ public abstract class VideoClip : Clip
     {
         this.isMatrixDirty = true;
         this.Opacity = OpacityParameter.Descriptor.DefaultValue;
-        this.IsVisible = IsVisibleParameter.Descriptor.DefaultValue;
+        this.IsEnabled = IsEnabledParameter.Descriptor.DefaultValue;
         this.MediaPosition = MediaPositionParameter.Descriptor.DefaultValue;
         this.MediaScale = MediaScaleParameter.Descriptor.DefaultValue;
         this.MediaRotation = MediaRotationParameter.Descriptor.DefaultValue;

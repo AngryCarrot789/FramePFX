@@ -137,78 +137,6 @@ public class TimelineControl : TemplatedControl, ITimelineElement
     private readonly ContextData contextData;
     internal readonly List<TrackElementImpl> myTrackElements;
 
-    // A fake track element implementation, because there's technically 2 controls for a single track (the surface and real track)
-    internal class TrackElementImpl : ITrackElement
-    {
-        public readonly TimelineControl Timeline;
-        public readonly TrackControlSurfaceItem SurfaceControl;
-        public readonly TimelineTrackControl TrackControl;
-
-        ITimelineElement ITrackElement.Timeline => this.Timeline;
-
-        public ISelectionManager<IClipElement> Selection => this.TrackControl.SelectionManager;
-
-        public Track Track { get; }
-
-        public bool IsSelected
-        {
-            get => this.Timeline.TrackSelectionManager!.IsSelected(this);
-            set
-            {
-                if (value)
-                {
-                    this.Timeline.TrackSelectionManager!.Select(this);
-                }
-                else
-                {
-                    this.Timeline.TrackSelectionManager!.Unselect(this);
-                }
-            }
-        }
-
-        public TrackElementImpl(TimelineControl timeline, TrackControlSurfaceItem surfaceControl, TimelineTrackControl trackControl, Track track, bool isLoadingTimeline)
-        {
-            this.Timeline = timeline;
-            this.SurfaceControl = surfaceControl;
-            this.TrackControl = trackControl;
-            this.Track = track;
-
-            this.SurfaceControl.contextData.Set(DataKeys.TrackKey, this.Track).Set(DataKeys.TrackUIKey, this.SurfaceControl.TrackElement = this);
-            this.TrackControl.contextData.Set(DataKeys.TrackKey, this.Track).Set(DataKeys.TrackUIKey, this.TrackControl.TrackElement = this);
-
-            // We can invalidate the surface control since it's in a different branch of the visual tree
-            DataManager.InvalidateInheritedContext(this.SurfaceControl);
-
-            // Don't invalidate if the TimelineControl is adding the clips for the TimelineChanged event,
-            // because there's no point since the timeline invalidates its own context after all tracks
-            // are loaded which 
-            if (!isLoadingTimeline)
-            {
-                DataManager.InvalidateInheritedContext(this.TrackControl);
-            }
-        }
-
-        public IClipElement GetClipFromModel(Clip clip)
-        {
-            return this.TrackControl.ClipStoragePanel!.ItemMap.GetControl(clip);
-        }
-
-        public void Destroy()
-        {
-            this.SurfaceControl.contextData.Set(DataKeys.TrackKey, null).Set(DataKeys.TrackUIKey, null);
-            DataManager.InvalidateInheritedContext(this.SurfaceControl);
-
-            this.TrackControl.contextData.Set(DataKeys.TrackKey, null).Set(DataKeys.TrackUIKey, null);
-            DataManager.InvalidateInheritedContext(this.TrackControl);
-        }
-
-        public void UpdateSelected(bool state)
-        {
-            TimelineTrackControl.InternalSetIsSelected(this.TrackControl, state);
-            TrackControlSurfaceItem.InternalSetIsSelected(this.SurfaceControl, state);
-        }
-    }
-
     public event UITimelineModelChanged? TimelineModelChanging;
     public event UITimelineModelChanged? TimelineModelChanged;
 
@@ -672,5 +600,86 @@ public class TimelineControl : TemplatedControl, ITimelineElement
         public int Count => this.control.TrackStorage!.Children.Count;
 
         public ITrackElement this[int index] => this.control.myTrackElements[index];
+    }
+    
+    // A fake track element implementation, because there's technically 2 controls for a single track
+    internal class TrackElementImpl : ITrackElement
+    {
+        public readonly TimelineControl Timeline;
+        public readonly TrackControlSurfaceItem SurfaceControl;
+        public readonly TimelineTrackControl TrackControl;
+        private Track? myTrack;
+
+        ITimelineElement ITrackElement.Timeline => this.myTrack != null ? this.Timeline : throw new InvalidOperationException("Invalid track element");
+
+        public ISelectionManager<IClipElement> Selection => this.TrackControl.SelectionManager;
+
+        public Track Track => this.myTrack ?? throw new InvalidOperationException("Invalid track element");
+
+        public bool IsSelected
+        {
+            get => this.Timeline.TrackSelectionManager!.IsSelected(this);
+            set
+            {
+                if (this.myTrack == null)
+                    throw new InvalidOperationException("Invalid track element");
+                
+                if (value)
+                {
+                    this.Timeline.TrackSelectionManager!.Select(this);
+                }
+                else
+                {
+                    this.Timeline.TrackSelectionManager!.Unselect(this);
+                }
+            }
+        }
+
+        public TrackElementImpl(TimelineControl timeline, TrackControlSurfaceItem surfaceControl, TimelineTrackControl trackControl, Track track, bool isLoadingTimeline)
+        {
+            this.Timeline = timeline;
+            this.SurfaceControl = surfaceControl;
+            this.TrackControl = trackControl;
+            this.myTrack = track;
+
+            this.SurfaceControl.contextData.Set(DataKeys.TrackKey, this.Track).Set(DataKeys.TrackUIKey, this.SurfaceControl.TrackElement = this);
+            this.TrackControl.contextData.Set(DataKeys.TrackKey, this.Track).Set(DataKeys.TrackUIKey, this.TrackControl.TrackElement = this);
+
+            // We can invalidate the surface control since it's in a different branch of the visual tree
+            DataManager.InvalidateInheritedContext(this.SurfaceControl);
+
+            // Don't invalidate if the TimelineControl is adding the clips for the TimelineChanged event,
+            // because there's no point since the timeline invalidates its own context after all tracks
+            // are loaded which 
+            if (!isLoadingTimeline)
+            {
+                DataManager.InvalidateInheritedContext(this.TrackControl);
+            }
+        }
+
+        public IClipElement GetClipFromModel(Clip clip)
+        {
+            if (this.myTrack == null)
+                throw new InvalidOperationException("Invalid track element");
+            
+            return this.TrackControl.ClipStoragePanel!.ItemMap.GetControl(clip);
+        }
+
+        public void Destroy()
+        {
+            this.SurfaceControl.contextData.Set(DataKeys.TrackKey, null).Set(DataKeys.TrackUIKey, null);
+            DataManager.InvalidateInheritedContext(this.SurfaceControl);
+
+            this.TrackControl.contextData.Set(DataKeys.TrackKey, null).Set(DataKeys.TrackUIKey, null);
+            DataManager.InvalidateInheritedContext(this.TrackControl);
+
+            this.myTrack = null;
+        }
+
+        public void UpdateSelected(bool state)
+        {
+            TimelineTrackControl.InternalSetIsSelected(this.TrackControl, state);
+            TrackControlSurfaceItem.InternalSetIsSelected(this.SurfaceControl, state);
+        }
     }
 }

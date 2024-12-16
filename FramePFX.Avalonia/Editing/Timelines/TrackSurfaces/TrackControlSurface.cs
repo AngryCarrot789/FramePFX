@@ -188,12 +188,6 @@ public class TrackControlSurface : TemplatedControl
         return button;
     }
 
-    public void SetAutomationVisibility(bool visibility)
-    {
-        if (this.AutomationPanel != null)
-            this.AutomationPanel.IsVisible = visibility;
-    }
-
     private void OnParameterSelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         this.isProcessingParameterSelectionChanged = true;

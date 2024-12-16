@@ -47,7 +47,7 @@ public class FixedContextGroup : IContextGroup
 
     public void AddCommand(string cmdId, string displayName, string? description = null)
     {
-        this.AddEntry(new CommandContextEntry(displayName, description, cmdId));
+        this.AddEntry(new CommandContextEntry(cmdId, displayName, description));
     }
 
     public void AddDynamicSubGroup(DynamicGenerateContextFunction generate)

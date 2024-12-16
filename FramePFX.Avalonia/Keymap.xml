@@ -178,7 +178,7 @@
                 <Shortcut Name="DuplicateClips" CommandId="commands.generic.DuplicateClipsCommand">
                     <KeyStroke Mods="CTRL" Key="D"/>
                 </Shortcut>
-                <Shortcut Name="ToggleClipVisibility" CommandId="commands.editor.ToggleClipsVisibility">
+                <Shortcut Name="ToggleClipVisibility" CommandId="commands.editor.ToggleClipsEnabled">
                     <KeyStroke Key="D0"/>
                 </Shortcut>
 

@@ -226,7 +226,14 @@ public abstract class RZApplication
         manager.Register("commands.editor.DeleteClips", new DeleteClipsCommand());
         manager.Register("commands.editor.ToggleLoopTimelineRegion", new ToggleLoopTimelineRegionCommand());
         manager.Register("commands.editor.AutoToggleLoopTimelineRegion", new ToggleLoopTimelineRegionCommand() { CanUpdateRegionToClipSelection = true });
-        manager.Register("commands.editor.ToggleClipsVisibility", new ToggleClipsVisibilityCommand());
+        
+        manager.Register("commands.editor.ToggleClipsEnabled", new ToggleClipsEnabledCommand());
+        manager.Register("commands.editor.EnableClips", new EnableClipsCommand());
+        manager.Register("commands.editor.DisableClips", new DisableClipsCommand());
+        manager.Register("commands.editor.ToggleTracksEnabled", new ToggleTracksEnabledCommand());
+        manager.Register("commands.editor.EnableTracks", new EnableTracksCommand());
+        manager.Register("commands.editor.DisableTracks", new DisableTracksCommand());
+        
         manager.Register("commands.editor.SelectAllClips", new SelectAllClipsCommand());
         manager.Register("commands.editor.SelectClipsInTracks", new SelectClipsInTracksCommand());
         manager.Register("commands.editor.ChangeClipPlaybackSpeed", new ChangeClipPlaybackSpeedCommand());

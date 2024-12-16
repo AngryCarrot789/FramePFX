@@ -66,6 +66,7 @@ public abstract class BasePropEditControlContent : TemplatedControl
         Registry.RegisterType<DataParameterBoolPropertyEditorSlot>(() => new DataParameterBoolPropertyEditorControl());
         Registry.RegisterType<DataParameterStringPropertyEditorSlot>(() => new DataParameterStringPropertyEditorControl());
         Registry.RegisterType<DataParameterPointPropertyEditorSlot>(() => new DataParameterPointPropertyEditorControl());
+        Registry.RegisterType<DataParameterColourPropertyEditorSlot>(() => new DataParameterColourPropertyEditorControl());
 
         // automatic editors
         Registry.RegisterType<AutomaticDataParameterFloatPropertyEditorSlot>(() => new AutomaticDataParameterFloatPropertyEditorControl());

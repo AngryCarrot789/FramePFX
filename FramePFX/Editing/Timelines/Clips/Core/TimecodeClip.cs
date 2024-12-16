@@ -31,28 +31,15 @@ namespace FramePFX.Editing.Timelines.Clips.Core;
 
 public class TimecodeClip : VideoClip
 {
-    public static readonly ParameterDouble FontSizeParameter =
-        Parameter.RegisterDouble(
-            typeof(TimecodeClip),
-            nameof(TimecodeClip),
-            nameof(FontSize),
-            40,
-            ValueAccessors.LinqExpression<double>(typeof(TimecodeClip), nameof(FontSize)),
-            ParameterFlags.StandardProjectVisual);
-
-    public static readonly DataParameterBool UseClipStartTimeParameter =
-        DataParameter.Register(
-            new DataParameterBool(
-                typeof(TimecodeClip),
-                nameof(UseClipStartTime),
-                true,
-                ValueAccessors.Reflective<bool>(typeof(TimecodeClip), nameof(UseClipStartTime)),
-                DataParameterFlags.StandardProjectVisual));
+    public static readonly ParameterDouble FontSizeParameter = Parameter.RegisterDouble(typeof(TimecodeClip), nameof(TimecodeClip), nameof(FontSize), 40, ValueAccessors.LinqExpression<double>(typeof(TimecodeClip), nameof(FontSize)), ParameterFlags.StandardProjectVisual);
+    public static readonly DataParameterBool UseClipStartTimeParameter = DataParameter.Register(new DataParameterBool(typeof(TimecodeClip), nameof(UseClipStartTime), true, ValueAccessors.Reflective<bool>(typeof(TimecodeClip), nameof(UseClipStartTime)), DataParameterFlags.StandardProjectVisual));
+    public static readonly DataParameter<SKColor> ForegroundParameter = DataParameter.Register(new DataParameter<SKColor>(typeof(TimecodeClip), nameof(Foreground), SKColors.Red, ValueAccessors.Reflective<SKColor>(typeof(TimecodeClip), nameof(foreground)), DataParameterFlags.StandardProjectVisual));
 
     public static readonly DataParameterBool UseClipEndTimeParameter = DataParameter.Register(new DataParameterBool(typeof(TimecodeClip), nameof(UseClipEndTime), true, ValueAccessors.Reflective<bool>(typeof(TimecodeClip), nameof(UseClipEndTime)), DataParameterFlags.StandardProjectVisual));
     public static readonly DataParameterDouble StartTimeParameter = DataParameter.Register(new DataParameterDouble(typeof(TimecodeClip), nameof(StartTime), 0.0, ValueAccessors.Reflective<double>(typeof(TimecodeClip), nameof(StartTime)), DataParameterFlags.StandardProjectVisual));
     public static readonly DataParameterDouble EndTimeParameter = DataParameter.Register(new DataParameterDouble(typeof(TimecodeClip), nameof(EndTime), 0.0, ValueAccessors.Reflective<double>(typeof(TimecodeClip), nameof(EndTime)), DataParameterFlags.StandardProjectVisual));
 
+    private SKColor foreground;
     private double FontSize;
     private bool UseClipStartTime;
     private bool UseClipEndTime;
@@ -96,7 +83,13 @@ public class TimecodeClip : VideoClip
             this.InvalidateRender();
         }
     }
-
+    
+    public SKColor Foreground
+    {
+        get => this.foreground;
+        set => DataParameter.SetValueHelper(this, ForegroundParameter, ref this.foreground, value);
+    }
+    
     public event ClipEventHandler? FontFamilyChanged;
 
     public TimecodeClip()
@@ -108,6 +101,7 @@ public class TimecodeClip : VideoClip
         this.UseClipEndTime = UseClipEndTimeParameter.DefaultValue;
         this.StartTime = StartTimeParameter.DefaultValue;
         this.EndTime = EndTimeParameter.DefaultValue;
+        this.foreground = ForegroundParameter.GetDefaultValue(this);
     }
 
     private string GetCurrentTimeString()
@@ -127,6 +121,7 @@ public class TimecodeClip : VideoClip
             clip.StartTime = data.GetDouble("StartTime");
             clip.EndTime = data.GetDouble("EndTime");
             clip.fontFamily = data.GetString("FontFamily", null);
+            clip.foreground = data.GetUInt("Foreground");
         }, (clip, data, ctx) =>
         {
             ctx.SerialiseBaseType(data);
@@ -136,16 +131,26 @@ public class TimecodeClip : VideoClip
             data.SetDouble("EndTime", clip.EndTime);
             if (clip.fontFamily != null)
                 data.SetString("FontFamily", clip.fontFamily);
+            data.SetUInt("Foreground", (uint) clip.foreground);
         });
-
+        
+        DataParameter.AddMultipleHandlers((parameter, owner) => ((TimecodeClip) owner).InvalidateRender(), ForegroundParameter);
+        
+        DataParameter.AddMultipleHandlers((parameter, owner) =>
+        {
+            ((TimecodeClip) owner).InvalidateRender();
+            ((TimecodeClip) owner).OnRenderSizeChanged();
+        }, UseClipStartTimeParameter, UseClipEndTimeParameter, StartTimeParameter, EndTimeParameter);
+        
         FontSizeParameter.ValueChanged += sequence =>
         {
             TimecodeClip owner = (TimecodeClip) sequence.AutomationData.Owner;
             owner.fontData.Dispose();
             owner.InvalidateRender();
+            owner.OnRenderSizeChanged();
         };
     }
-
+    
     protected override void LoadDataIntoClone(Clip clone, ClipCloneOptions options)
     {
         base.LoadDataIntoClone(clone, options);
@@ -154,6 +159,7 @@ public class TimecodeClip : VideoClip
         timer.UseClipEndTime = this.UseClipEndTime;
         timer.StartTime = this.StartTime;
         timer.EndTime = this.EndTime;
+        timer.foreground = this.foreground;
     }
 
     public override Vector2? GetRenderSize()
@@ -188,7 +194,7 @@ public class TimecodeClip : VideoClip
         
         using SKPaint paint = new SKPaint();
         paint.IsAntialias = true;
-        paint.Color = SKColors.White.WithAlpha(this.RenderOpacityByte);
+        paint.Color = RenderUtils.BlendAlpha(this.foreground, this.RenderOpacityByte);
         paint.FilterQuality = rc.FilterQuality;
         using (SKTextBlob blob = SKTextBlob.Create(text, fd.cachedFont))
         {

@@ -211,7 +211,8 @@
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
                         </Grid.ColumnDefinitions>
                         <CheckBox x:Name="PART_DisplayNameCheckBox" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Focusable="False"
-                                  Theme="{TemplateBinding IsCheckBoxToggleable, Converter={StaticResource IsCheckBoxToggleableToStyleConverter}}"/>
+                                  Theme="{TemplateBinding IsCheckBoxToggleable, Converter={StaticResource IsCheckBoxToggleableToStyleConverter}}"
+                                  Padding="0,4"/>
                         <TextBox x:Name="PART_TextBox" Grid.Column="2" Padding="2" VerticalAlignment="Center"/>
                     </Grid>
                 </ControlTemplate>
@@ -231,7 +232,25 @@
                   TargetType="{x:Type dt:DataParameterLongPropertyEditorControl}"
                   BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorControl}}"/>
 
-    
+    <ControlTheme x:Key="{x:Type dt:DataParameterColourPropertyEditorControl}"
+                  TargetType="{x:Type dt:DataParameterColourPropertyEditorControl}">
+        <Setter Property="Template">
+            <ControlTemplate TargetType="{x:Type dt:DataParameterColourPropertyEditorControl}">
+                <Grid Margin="5,0,2,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
+                        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
+                        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox x:Name="PART_DisplayNameCheckBox" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Focusable="False" Padding="0,4"
+                              Theme="{TemplateBinding IsCheckBoxToggleable, Converter={StaticResource IsCheckBoxToggleableToStyleConverter}}"/>
+                    <Rectangle x:Name="PART_Rectangle" Grid.Row="0" Grid.Column="2" Height="24" Margin="0,2"/>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+
+
     <ControlTheme x:Key="{x:Type enums:BaseEnumDataParameterPropertyEditorControlEx}" TargetType="{x:Type enums:BaseEnumDataParameterPropertyEditorControlEx}">
         <Setter Property="Template">
             <Setter.Value>
@@ -250,7 +269,7 @@
             </Setter.Value>
         </Setter>
     </ControlTheme>
-    
+
     <ControlTheme x:Key="{x:Type dta:AutomaticDataParameterFloatPropertyEditorControl}"
                   TargetType="{x:Type dta:AutomaticDataParameterFloatPropertyEditorControl}"
                   BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorControl}}"/>

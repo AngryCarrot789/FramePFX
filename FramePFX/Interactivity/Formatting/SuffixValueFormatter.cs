@@ -28,6 +28,7 @@ public class SuffixValueFormatter : BaseSimpleValueFormatter
     public static SuffixValueFormatter StandardDegrees { get; } = new SuffixValueFormatter("\u00b0");
     public static SuffixValueFormatter StandardMultiplier { get; } = new SuffixValueFormatter("x");
     public static SuffixValueFormatter StandardBits { get; } = new SuffixValueFormatter(" bits");
+    public static SuffixValueFormatter StandardSeconds { get; } = new SuffixValueFormatter("s");
 
     private string? suffix;
 

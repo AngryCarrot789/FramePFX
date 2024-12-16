@@ -79,9 +79,9 @@ public class VideoEditorPropertyEditor : PropertyEditor
                 textGroup.AddItem(new ParameterFloatPropertyEditorSlot(TextVideoClip.FontSizeParameter, typeof(TextVideoClip), "Font Size", DragStepProfile.FontSize) { ValueFormatter = SuffixValueFormatter.StandardPixels });
                 textGroup.AddItem(new ParameterFloatPropertyEditorSlot(TextVideoClip.BorderThicknessParameter, typeof(TextVideoClip), "Stroke Width", DragStepProfile.Pixels) { ValueFormatter = SuffixValueFormatter.StandardPixels });
                 textGroup.AddItem(new ParameterFloatPropertyEditorSlot(TextVideoClip.SkewXParameter, typeof(TextVideoClip), "Skew X", DragStepProfile.Pixels) { ValueFormatter = SuffixValueFormatter.StandardPixels });
-                textGroup.AddItem(new ParameterBoolPropertyEditorSlot(TextVideoClip.IsAntiAliasedParameter, typeof(TextVideoClip), "Anti Alias"));
                 textGroup.AddItem(new ParameterFloatPropertyEditorSlot(TextVideoClip.LineSpacingParameter, typeof(TextVideoClip), "Line Spacing", DragStepProfile.Pixels) { ValueFormatter = SuffixValueFormatter.StandardPixels });
                 textGroup.AddItem(new DataParameterStringPropertyEditorSlot(TextVideoClip.TextParameter, typeof(TextVideoClip), "Text") { AnticipatedLineCount = 8 });
+                textGroup.AddItem(new DataParameterColourPropertyEditorSlot(TextVideoClip.ForegroundParameter, typeof(TextVideoClip), "Foreground"));
                 this.ClipGroup.AddItem(textGroup);
             }
 
@@ -89,8 +89,9 @@ public class VideoEditorPropertyEditor : PropertyEditor
                 SimplePropertyEditorGroup group = new SimplePropertyEditorGroup(typeof(TimecodeClip), GroupType.SecondaryExpander) { DisplayName = "Timecode Info" };
                 group.AddItem(new TimecodeFontFamilyPropertyEditorSlot());
                 group.AddItem(new ParameterDoublePropertyEditorSlot(TimecodeClip.FontSizeParameter, typeof(TimecodeClip), "Font Size", DragStepProfile.FontSize) { ValueFormatter = SuffixValueFormatter.StandardPixels });
-                group.AddItem(new DataParameterDoublePropertyEditorSlot(TimecodeClip.StartTimeParameter, TimecodeClip.UseClipStartTimeParameter, true, typeof(TimecodeClip), "Start secs", DragStepProfile.Percentage) { ValueFormatter = UnitToPercentFormatter.Standard });
-                group.AddItem(new DataParameterDoublePropertyEditorSlot(TimecodeClip.EndTimeParameter, TimecodeClip.UseClipEndTimeParameter, true, typeof(TimecodeClip), "End secs", DragStepProfile.Percentage) { ValueFormatter = UnitToPercentFormatter.Standard });
+                group.AddItem(new DataParameterDoublePropertyEditorSlot(TimecodeClip.StartTimeParameter, TimecodeClip.UseClipStartTimeParameter, true, typeof(TimecodeClip), "Start secs", DragStepProfile.SecondsRealtime) { ValueFormatter = SuffixValueFormatter.StandardSeconds});
+                group.AddItem(new DataParameterDoublePropertyEditorSlot(TimecodeClip.EndTimeParameter, TimecodeClip.UseClipEndTimeParameter, true, typeof(TimecodeClip), "End secs", DragStepProfile.SecondsRealtime) { ValueFormatter = SuffixValueFormatter.StandardSeconds});
+                group.AddItem(new DataParameterColourPropertyEditorSlot(TimecodeClip.ForegroundParameter, typeof(TimecodeClip), "Foreground"));
                 this.ClipGroup.AddItem(group);
             }
 

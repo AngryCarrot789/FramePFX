@@ -447,9 +447,6 @@ public abstract class Clip : IClip, IDestroy
             clone.MediaFrameOffset -= offset;
     }
 
-    public void Duplicate() {
-    }
-
     public long ConvertRelativeToTimelineFrame(long relative) => this.span.Begin + relative;
 
     public long ConvertTimelineToRelativeFrame(long timeline, out bool inRange)

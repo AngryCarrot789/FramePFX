@@ -37,9 +37,9 @@ public class TextVideoClip : VideoClip
     public static readonly ParameterFloat FontSizeParameter = Parameter.RegisterFloat(typeof(TextVideoClip), nameof(TextVideoClip), nameof(FontSize), 40.0F, ValueAccessors.Reflective<float>(typeof(TextVideoClip), nameof(FontSize)));
     public static readonly ParameterFloat BorderThicknessParameter = Parameter.RegisterFloat(typeof(TextVideoClip), nameof(TextVideoClip), nameof(BorderThickness), 0.0F, ValueAccessors.Reflective<float>(typeof(TextVideoClip), nameof(BorderThickness)));
     public static readonly ParameterFloat SkewXParameter = Parameter.RegisterFloat(typeof(TextVideoClip), nameof(TextVideoClip), nameof(SkewX), 0.0F, ValueAccessors.Reflective<float>(typeof(TextVideoClip), nameof(SkewX)));
-    public static readonly ParameterBool IsAntiAliasedParameter = Parameter.RegisterBool(typeof(TextVideoClip), nameof(TextVideoClip), nameof(IsAntiAliased), true, ValueAccessors.Reflective<bool>(typeof(TextVideoClip), nameof(IsAntiAliased)));
     public static readonly ParameterFloat LineSpacingParameter = Parameter.RegisterFloat(typeof(TextVideoClip), nameof(TextVideoClip), nameof(LineSpacing), 0.0F, ValueAccessors.Reflective<float>(typeof(TextVideoClip), nameof(LineSpacing)));
-
+    public static readonly DataParameter<SKColor> ForegroundParameter = DataParameter.Register(new DataParameter<SKColor>(typeof(TextVideoClip), nameof(Foreground), SKColors.Red, ValueAccessors.Reflective<SKColor>(typeof(TextVideoClip), nameof(foreground))));
+    
     public string? Text
     {
         get => this.myText;
@@ -52,6 +52,11 @@ public class TextVideoClip : VideoClip
         set => DataParameter.SetValueHelper(this, FontFamilyParameter, ref this.fontFamily, value);
     }
 
+    public SKColor Foreground
+    {
+        get => this.foreground;
+        set => DataParameter.SetValueHelper(this, ForegroundParameter, ref this.foreground, value);
+    }
 
     private BitVector32 clipProps;
     private SKSize TextBlobBoundingBox;
@@ -62,7 +67,6 @@ public class TextVideoClip : VideoClip
     private float FontSize = FontSizeParameter.Descriptor.DefaultValue;
     private float BorderThickness = BorderThicknessParameter.Descriptor.DefaultValue;
     private float SkewX = SkewXParameter.Descriptor.DefaultValue;
-    private bool IsAntiAliased = IsAntiAliasedParameter.Descriptor.DefaultValue;
     private float LineSpacing = LineSpacingParameter.Descriptor.DefaultValue;
 
     private class RenderingInfo : IDisposable
@@ -88,8 +92,8 @@ public class TextVideoClip : VideoClip
         this.UsesCustomOpacityCalculation = true;
         this.myText = TextParameter.GetDefaultValue(this);
         this.fontFamily = FontFamilyParameter.GetDefaultValue(this);
+        this.foreground = ForegroundParameter.GetDefaultValue(this);
         this.clipProps = new BitVector32();
-        this.foreground = SKColors.Black; // TODO: add automatable colour??? maybe an int
         this.renderInfoLock = new DisposableRef<RenderingInfo>(new RenderingInfo(), true);
         this.AutomationData.AddParameterChangedHandler(OpacityParameter, (o) => ((TextVideoClip) o.AutomationData.Owner).InvalidateFontData());
     }
@@ -112,8 +116,8 @@ public class TextVideoClip : VideoClip
             data.SetUInt("Foreground", (uint) clip.foreground);
         });
 
-        Parameter.AddMultipleHandlers((s) => ((TextVideoClip) s.AutomationData.Owner).InvalidateFontData(), FontSizeParameter, BorderThicknessParameter, SkewXParameter, IsAntiAliasedParameter, LineSpacingParameter);
-        DataParameter.AddMultipleHandlers((_, owner) => ((TextVideoClip) owner).InvalidateFontData(), FontFamilyParameter, TextParameter);
+        Parameter.AddMultipleHandlers((s) => ((TextVideoClip) s.AutomationData.Owner).InvalidateFontData(), FontSizeParameter, BorderThicknessParameter, SkewXParameter, LineSpacingParameter);
+        DataParameter.AddMultipleHandlers((_, owner) => ((TextVideoClip) owner).InvalidateFontData(), FontFamilyParameter, TextParameter, ForegroundParameter);
     }
 
     protected override void LoadDataIntoClone(Clip clone, ClipCloneOptions options)
@@ -122,6 +126,8 @@ public class TextVideoClip : VideoClip
         TextVideoClip clip = (TextVideoClip) clone;
         clip.myText = this.myText;
         clip.clipProps = this.clipProps;
+        clip.fontFamily = this.fontFamily;
+        clip.foreground = this.foreground;
     }
 
     public override Vector2? GetRenderSize()
@@ -144,13 +150,11 @@ public class TextVideoClip : VideoClip
                 info.GeneratedFont = new SKFont(typeface, clip.FontSize, 1f, clip.SkewX);
             }
 
-            SKColorF fgF = clip.foreground;
             info.GeneratedPaint ??= new SKPaint()
             {
                 StrokeWidth = clip.BorderThickness,
-                ColorF = fgF.WithAlpha(fgF.Alpha * (float) clip.RenderOpacity),
-                TextAlign = SKTextAlign.Left,
-                IsAntialias = clip.IsAntiAliased
+                ColorF = RenderUtils.BlendAlpha(clip.foreground, clip.RenderOpacity),
+                TextAlign = SKTextAlign.Left
             };
 
             if (!string.IsNullOrEmpty(clip.Text))
@@ -175,7 +179,14 @@ public class TextVideoClip : VideoClip
                     }
 
                     clip.TextBlobBoundingBox = new SKSize(w, h);
-                    clip.OnRenderSizeChanged();
+                    
+                    // Since OnRenderSizeChanged will typically immediately update the GUI components,
+                    // it has to be fired on the main thread. However, this means that the UI parts
+                    // might start "flickering", the values might start jumping between 0 and whatever.
+
+                    // InvalidateFontData sets TextBlobBoundingBox to default, but if we don't do that,
+                    // the flickering is gone. This is the issue with lazily generating the render size :/
+                    IoC.Dispatcher.Post(clip.OnRenderSizeChanged);
                 }
             }
         });

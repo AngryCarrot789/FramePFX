@@ -67,5 +67,12 @@ public interface IDispatcher
     /// <returns>A task that can be awaited, which is completed once the function returns on the UI thread</returns>
     Task<T> InvokeAsync<T>(Func<T> function, DispatchPriority priority = DispatchPriority.Normal, CancellationToken token = default);
 
+    /// <summary>
+    /// Invokes the action asynchronously on this dispatcher thread. This differs from <see cref="InvokeAsync"/> where
+    /// this method will cause any exception the actions throws and will throw it on the main thread, causing the app to crash,
+    /// as apposed to silencing it and stuffing it into the Task object
+    /// </summary>
+    /// <param name="action"></param>
+    /// <param name="priority"></param>
     void Post(Action action, DispatchPriority priority = DispatchPriority.Default);
 }

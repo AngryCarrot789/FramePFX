@@ -127,7 +127,7 @@ public class VideoEditor : IDestroy
 
             clip1.SetDefaultValue(VideoClipShape.SizeParameter, 200, 200);
 
-            clip1.ColourKey.SetTargetResourceId(id_r.UniqueId);
+            clip1.ResourceHelper.SetResource(VideoClipShape.ColourKey, id_r);
             clip1.AutomationData.UpdateBackingStorage();
             track.AddClip(clip1);
 
@@ -140,7 +140,7 @@ public class VideoEditor : IDestroy
             clip2.SetDefaultValue(VideoClipShape.SizeParameter, new Vector2(200, 200));
             VideoClip.MediaScaleOriginParameter.SetValue(clip2, new SKPoint(100, 100));
 
-            clip2.ColourKey.SetTargetResourceId(id_g.UniqueId);
+            clip2.ResourceHelper.SetResource(VideoClipShape.ColourKey, id_g);
             clip2.AutomationData.UpdateBackingStorage();
             track.AddClip(clip2);
         }
@@ -156,7 +156,7 @@ public class VideoEditor : IDestroy
 
             clip1.SetDefaultValue(VideoClipShape.SizeParameter, 400, 400);
 
-            clip1.ColourKey.SetTargetResourceId(id_b.UniqueId);
+            clip1.ResourceHelper.SetResource(VideoClipShape.ColourKey, id_b);
             clip1.AutomationData.UpdateBackingStorage();
             track.AddClip(clip1);
             VideoClipShape clip2 = new VideoClipShape
@@ -171,7 +171,7 @@ public class VideoEditor : IDestroy
             clip2.AutomationData[VideoClip.MediaPositionParameter].AddKeyFrame(new KeyFrameVector2(90L, new Vector2(400, 400)));
             clip2.AutomationData[VideoClip.MediaPositionParameter].AddKeyFrame(new KeyFrameVector2(115L, new Vector2(100, 700)));
             clip2.AutomationData.ActiveParameter = VideoClip.MediaPositionParameter.Key;
-            clip2.ColourKey.SetTargetResourceId(id_d.UniqueId);
+            clip2.ResourceHelper.SetResource(VideoClipShape.ColourKey, id_d);
             clip2.AutomationData.UpdateBackingStorage();
             track.AddClip(clip2);
         }

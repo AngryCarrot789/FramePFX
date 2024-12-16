@@ -50,13 +50,13 @@ public sealed class ResourceComposition : ResourceItem
     protected internal override void OnAttachedToManager()
     {
         base.OnAttachedToManager();
-        Timelines.Timeline.InternalSetCompositionTimelineProjectReference(this.Timeline, this.Manager.Project);
+        Timelines.Timeline.InternalSetCompositionTimelineProjectReference(this.Timeline, this.Manager!.Project);
     }
 
     protected internal override void OnDetachedFromManager()
     {
         base.OnDetachedFromManager();
-        Project project = this.Manager.Project;
+        Project project = this.Manager!.Project;
         if (ReferenceEquals(project.ActiveTimeline, this.Timeline))
             project.ActiveTimeline = project.MainTimeline; // sets to main timeline when assigning null
         Timelines.Timeline.InternalSetCompositionTimelineProjectReference(this.Timeline, null);

@@ -18,13 +18,15 @@
 // 
 
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using FramePFX.AdvancedMenuService;
 using FramePFX.DataTransfer;
 using FramePFX.Editing.Automation;
 using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Automation.Params;
 using FramePFX.Editing.Factories;
-using FramePFX.Editing.ResourceManaging.ResourceHelpers;
+using FramePFX.Editing.ResourceManaging.NewResourceHelper;
+using FramePFX.Editing.Timelines.Clips.Core;
 using FramePFX.Editing.Timelines.Clips.Video;
 using FramePFX.Editing.Timelines.Effects;
 using FramePFX.Editing.Timelines.Tracks;
@@ -179,6 +181,13 @@ public abstract class Clip : IClip, IDestroy
         this.TransferableData = new TransferableData(this);
     }
 
+    // We don't want any deriving object to try and change the equality behaviour.
+    // Clips should only be reference comparable
+    
+    public sealed override bool Equals(object? obj) => this == obj;
+
+    public sealed override int GetHashCode() => RuntimeHelpers.GetHashCode(this);
+
     static Clip()
     {
         SerialisationRegistry = new SerialisationRegistry();
@@ -236,6 +245,13 @@ public abstract class Clip : IClip, IDestroy
         modEdit.AddHeader("Edit");
         modEdit.AddCommand("commands.editor.SplitClipsCommand", "Split", "Slice this clip at the playhead");
         modEdit.AddCommand("commands.editor.ChangeClipPlaybackSpeed", "Change Speed", "Change the playback speed of this clip");
+        modEdit.AddDynamicSubGroup((group, ctx, items) =>
+        {
+            if (DataKeys.ClipKey.TryGetContext(ctx, out Clip? clip) && clip is CompositionVideoClip)
+            {
+                items.Add(new CommandContextEntry("commands.editor.OpenCompositionClipTimeline", "Open Timeline", "Opens this clip's timeline"));
+            }
+        });
 
         FixedContextGroup modDestruction = ClipContextRegistry.GetFixedGroup("modify.destruction", 100000);
         modDestruction.AddCommand("commands.editor.DeleteClipOwnerTrack", "Delete Track", "Delete the track this clip resides in");
@@ -307,7 +323,7 @@ public abstract class Clip : IClip, IDestroy
 
     public static Clip ReadSerialisedWithId(RBEDictionary dictionary)
     {
-        string id = dictionary.GetString(nameof(FactoryId));
+        string? id = dictionary.GetString(nameof(FactoryId));
         Clip clip = ClipFactory.Instance.NewClip(id);
         SerialisationRegistry.Deserialise(clip, dictionary.GetDictionary("Data"));
         return clip;
@@ -395,7 +411,7 @@ public abstract class Clip : IClip, IDestroy
     protected virtual void OnProjectChanged(Project? oldProject, Project? newProject)
     {
         // Debug.WriteLine("Clip's project changed: " + oldProject + " -> " + newProject);
-        this.ResourceHelper.SetManager(newProject?.ResourceManager);
+        this.ResourceHelper.OnResourceManagerChanged(newProject?.ResourceManager);
     }
 
     public bool IntersectsFrameAt(long playHead)

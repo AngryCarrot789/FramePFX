@@ -580,7 +580,7 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
         track.indexInTimeline = newIndex;
     }
 
-    internal static void InternalOnTimelineProjectChanged(Track track, Project oldProject, Project newProject)
+    internal static void InternalOnTimelineProjectChanged(Track track, Project? oldProject, Project? newProject)
     {
         if (ReferenceEquals(track.Project, newProject))
         {

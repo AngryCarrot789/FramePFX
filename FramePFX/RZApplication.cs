@@ -129,7 +129,7 @@ public abstract class RZApplication
             ResourceAVMedia media = (ResourceAVMedia) resource;
             AVMediaVideoClip clip = new AVMediaVideoClip();
             clip.FrameSpan = span;
-            clip.ResourceAVMediaKey.SetTargetResourceId(media.UniqueId);
+            await clip.ResourceHelper.SetResourceHelper(AVMediaVideoClip.MediaKey, media);
 
             track.AddClip(clip);
         }
@@ -147,7 +147,7 @@ public abstract class RZApplication
             ResourceImage media = (ResourceImage) resource;
             ImageVideoClip clip = new ImageVideoClip();
             clip.FrameSpan = span;
-            clip.ResourceImageKey.SetTargetResourceId(media.UniqueId);
+            clip.ResourceHelper.SetResource(ImageVideoClip.ResourceImageKey, media);
 
             track.AddClip(clip);
         }
@@ -165,7 +165,7 @@ public abstract class RZApplication
             ResourceColour colourRes = (ResourceColour) resource;
             VideoClipShape shape = new VideoClipShape();
             shape.FrameSpan = span;
-            shape.ColourKey.SetTargetResourceId(colourRes.UniqueId);
+            shape.ResourceHelper.SetResource(VideoClipShape.ColourKey, colourRes);
 
             track.AddClip(shape);
         }
@@ -189,7 +189,7 @@ public abstract class RZApplication
             ResourceComposition comp = (ResourceComposition) resource;
             CompositionVideoClip clip = new CompositionVideoClip();
             clip.FrameSpan = span;
-            clip.ResourceCompositionKey.SetTargetResourceId(comp.UniqueId);
+            await clip.ResourceHelper.SetResourceHelper(CompositionVideoClip.ResourceCompositionKey, comp);
 
             track.AddClip(clip);
         }
@@ -236,6 +236,7 @@ public abstract class RZApplication
         manager.Register("commands.editor.ChangeClipPlaybackSpeed", new ChangeClipPlaybackSpeedCommand());
         manager.Register("commands.editor.CreateCompositionFromSelection", new CreateCompositionFromSelectionCommand());
         manager.Register("commands.editor.OpenCompositionTimeline", new OpenCompositionTimelineCommand());
+        manager.Register("commands.editor.OpenCompositionClipTimeline", new OpenCompositionClipTimelineCommand());
 
         // Adding clips to tracks
         manager.Register("commands.editor.AddTextClip", new AddTextClipCommand());

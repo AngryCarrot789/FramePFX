@@ -19,7 +19,7 @@
 
 using System.Numerics;
 using FramePFX.Editing.Rendering;
-using FramePFX.Editing.ResourceManaging.ResourceHelpers;
+using FramePFX.Editing.ResourceManaging.NewResourceHelper;
 using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.Timelines.Clips.Video;
 using FramePFX.Utils;
@@ -32,7 +32,7 @@ namespace FramePFX.Editing.Timelines.Clips.Core;
 /// </summary>
 public class CompositionVideoClip : VideoClip
 {
-    public IResourcePathKey<ResourceComposition> ResourceCompositionKey { get; }
+    public static readonly ResourceSlot<ResourceComposition> ResourceCompositionKey = ResourceSlot.Register<ResourceComposition>(typeof(CompositionVideoClip), "CompositionResKey"); 
 
     private Task renderTask;
     private ResourceComposition renderResource;
@@ -42,15 +42,13 @@ public class CompositionVideoClip : VideoClip
     public CompositionVideoClip()
     {
         this.UsesCustomOpacityCalculation = true;
-        this.ResourceCompositionKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceComposition>();
-        this.ResourceCompositionKey.ResourceChanged += this.ResourceCompositionKeyOnResourceChanged;
     }
 
-    private void ResourceCompositionKeyOnResourceChanged(IResourcePathKey<ResourceComposition> key, ResourceComposition olditem, ResourceComposition newitem)
+    static CompositionVideoClip()
     {
-        this.InvalidateRender();
+        ResourceCompositionKey.ResourceChanged += (slot, owner, oldResource, newResource) => ((CompositionVideoClip) owner).InvalidateRender();
     }
-
+    
     protected override void OnProjectChanged(Project? oldProject, Project? newProject)
     {
         base.OnProjectChanged(oldProject, newProject);
@@ -75,7 +73,7 @@ public class CompositionVideoClip : VideoClip
 
     public override bool PrepareRenderFrame(PreRenderContext rc, long frame)
     {
-        if (!this.ResourceCompositionKey.TryGetResource(out ResourceComposition? resource))
+        if (!ResourceCompositionKey.TryGetResource(this, out ResourceComposition? resource))
         {
             return false;
         }

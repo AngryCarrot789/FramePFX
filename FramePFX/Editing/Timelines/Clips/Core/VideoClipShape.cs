@@ -21,7 +21,7 @@ using System.Numerics;
 using FramePFX.Editing.Automation.Params;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.ResourceManaging;
-using FramePFX.Editing.ResourceManaging.ResourceHelpers;
+using FramePFX.Editing.ResourceManaging.NewResourceHelper;
 using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.Timelines.Clips.Video;
 using FramePFX.Utils.Accessing;
@@ -47,21 +47,20 @@ public class VideoClipShape : VideoClip
 
     public Vector2 Size;
 
-    public IResourcePathKey<ResourceColour> ColourKey { get; }
+    public static readonly ResourceSlot<ResourceColour> ColourKey = ResourceSlot.Register<ResourceColour>(typeof(VideoClipShape), "ColourKey");
 
     public VideoClipShape()
     {
         this.UsesCustomOpacityCalculation = true;
         this.Size = SizeParameter.Descriptor.DefaultValue;
-        this.ColourKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceColour>();
-        this.ColourKey.ResourceChanged += (key, oldItem, newItem) =>
+        ColourKey.AddValueChangedHandlerEx(this, (owner, slot, oldItem, newItem) =>
         {
             this.InvalidateRender();
             if (oldItem != null)
                 oldItem.ColourChanged -= this.OnColourChanged;
             if (newItem != null)
                 newItem.ColourChanged += this.OnColourChanged;
-        };
+        });
     }
 
     static VideoClipShape() => SizeParameter.ValueChanged += sequence => ((VideoClipShape) sequence.AutomationData.Owner).OnRenderSizeChanged();
@@ -81,7 +80,7 @@ public class VideoClipShape : VideoClip
         this.renderData = new RenderData()
         {
             size = this.Size,
-            colour = this.ColourKey.TryGetResource(out ResourceColour? resource) ? resource.Colour : (this.Track?.Colour ?? SKColors.White)
+            colour = ColourKey.TryGetResource(this, out ResourceColour? resource) ? resource.Colour : (this.Track?.Colour ?? SKColors.White)
         };
 
         return true;

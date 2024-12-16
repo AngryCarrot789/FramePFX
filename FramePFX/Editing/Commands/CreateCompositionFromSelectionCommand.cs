@@ -133,7 +133,7 @@ public class CreateCompositionFromSelectionCommand : AsyncCommand
             FrameSpan = new FrameSpan(minSpanBegin, composition.Timeline.LargestFrameInUse)
         };
 
-        videoClip.ResourceCompositionKey.SetTargetResourceId(composition.UniqueId);
+        videoClip.ResourceHelper.SetResource(CompositionVideoClip.ResourceCompositionKey, composition);
         oldTracks[0].AddClip(videoClip);
         // TODO: add audio track here
 

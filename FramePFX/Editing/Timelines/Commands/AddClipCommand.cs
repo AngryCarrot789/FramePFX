@@ -119,7 +119,7 @@ public class AddVideoClipShapeCommand : AddClipCommand<VideoClipShape>
             {
                 if (await IoC.MessageService.ShowMessage("Link resource", $"Link '{colour.DisplayName ?? "Selected Media Resource"}' to this clip?", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
-                    clip.ColourKey.SetTargetResourceId(colour.UniqueId);
+                    clip.ResourceHelper.SetResource(VideoClipShape.ColourKey, colour);
                 }
             }
         }
@@ -137,7 +137,7 @@ public class AddAVMediaClipCommand : AddClipCommand<AVMediaVideoClip>
             {
                 if (await IoC.MessageService.ShowMessage("Link resource", $"Link '{media.DisplayName ?? "Selected Media Resource"}' to this clip?", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
-                    clip.ResourceAVMediaKey.SetTargetResourceId(media.UniqueId);
+                    await clip.ResourceHelper.SetResourceHelper(AVMediaVideoClip.MediaKey, media);
                 }
             }
         }
@@ -173,7 +173,7 @@ public class AddImageVideoClipCommand : AddClipCommand<ImageVideoClip>
                 resourceImage.FilePath = path;
                 if (await IoC.ResourceLoaderService.TryLoadResource(resourceImage))
                 {
-                    clip.ResourceImageKey.SetTargetResourceId(resourceImage.UniqueId);
+                    clip.ResourceHelper.SetResource(ImageVideoClip.ResourceImageKey, resourceImage);
                 }
                 else
                 {

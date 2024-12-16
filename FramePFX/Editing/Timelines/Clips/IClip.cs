@@ -19,7 +19,7 @@
 
 using FramePFX.DataTransfer;
 using FramePFX.Editing.Automation;
-using FramePFX.Editing.ResourceManaging.ResourceHelpers;
+using FramePFX.Editing.ResourceManaging.NewResourceHelper;
 using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Interactivity;
 

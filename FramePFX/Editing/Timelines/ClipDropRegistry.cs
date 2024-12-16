@@ -60,29 +60,19 @@ public static class ClipDropRegistry
             clip.Timeline?.InvalidateRender();
         });
 
-        DropRegistry.Register<VideoClipShape, ResourceColour>((clip, h, dt, ctx) => EnumDropType.Link, (clip, h, dt, c) =>
+        DropRegistry.Register<VideoClipShape, ResourceColour>((clip, h, dt, ctx) => EnumDropType.Link, async (clip, h, dt, c) =>
         {
-            clip.ColourKey.SetTargetResourceId(h.UniqueId);
-            return Task.CompletedTask;
+            await clip.ResourceHelper.SetResourceHelper(VideoClipShape.ColourKey, h);
         });
 
-        DropRegistry.Register<ImageVideoClip, ResourceImage>((clip, h, dt, ctx) => EnumDropType.Link, (clip, h, dt, c) =>
+        DropRegistry.Register<ImageVideoClip, ResourceImage>((clip, h, dt, ctx) => EnumDropType.Link, async (clip, h, dt, c) =>
         {
-            clip.ResourceImageKey.SetTargetResourceId(h.UniqueId);
-            return Task.CompletedTask;
+            await clip.ResourceHelper.SetResourceHelper(ImageVideoClip.ResourceImageKey, h);
         });
 
         DropRegistry.Register<AVMediaVideoClip, ResourceAVMedia>((clip, h, dt, ctx) => EnumDropType.Link, async (clip, h, dt, c) =>
         {
-            if (h.HasReachedResourceLimit())
-            {
-                int count = h.ResourceLinkLimit;
-                await IoC.MessageService.ShowMessage("Resource Limit", $"This resource cannot be used by more than {count} clip{Lang.S(count)}");
-                return;
-            }
-
-            clip.ResourceAVMediaKey.SetTargetResourceId(h.UniqueId);
-            clip.ResourceAVMediaKey.TryLoadLink();
+            await clip.ResourceHelper.SetResourceHelper(AVMediaVideoClip.MediaKey, h);
         });
         
         DropRegistry.Register<CompositionVideoClip, ResourceComposition>((clip, h, dt, ctx) => EnumDropType.Link, async (clip, h, dt, c) =>
@@ -93,9 +83,8 @@ public static class ClipDropRegistry
                 await IoC.MessageService.ShowMessage("Resource Limit", $"At the moment, composition timelines cannot be used by more than {count} clip{Lang.S(count)}");
                 return;
             }
-
-            clip.ResourceCompositionKey.SetTargetResourceId(h.UniqueId);
-            clip.ResourceCompositionKey.TryLoadLink();
+            
+            clip.ResourceHelper.SetResource(CompositionVideoClip.ResourceCompositionKey, h);
         });
     }
 }

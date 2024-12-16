@@ -202,6 +202,7 @@ public class Project : IDestroy
             this.Settings.ReadFromRBE(settings);
             this.ResourceManager.ReadFromRBE(manager);
             this.MainTimeline.ReadFromRBE(timeline);
+            Timeline.InternalLoadResources(this.MainTimeline, this.ResourceManager);
         }
         catch (Exception e)
         {

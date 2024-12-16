@@ -20,7 +20,7 @@
 using FramePFX.DataTransfer;
 using FramePFX.Editing.ResourceManaging.Autoloading;
 using FramePFX.Editing.ResourceManaging.Events;
-using FramePFX.Editing.ResourceManaging.ResourceHelpers;
+using FramePFX.Editing.ResourceManaging.NewResourceHelper;
 
 namespace FramePFX.Editing.ResourceManaging;
 

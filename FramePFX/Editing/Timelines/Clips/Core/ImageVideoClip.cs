@@ -20,7 +20,7 @@
 using System.Numerics;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.ResourceManaging;
-using FramePFX.Editing.ResourceManaging.ResourceHelpers;
+using FramePFX.Editing.ResourceManaging.NewResourceHelper;
 using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.Timelines.Clips.Video;
 using SkiaSharp;
@@ -31,19 +31,31 @@ public class ImageVideoClip : VideoClip
 {
     private readonly RenderLockedData<SKImage> lockedImage;
 
-    public IResourcePathKey<ResourceImage> ResourceImageKey { get; }
+    public static readonly ResourceSlot<ResourceImage> ResourceImageKey = ResourceSlot.Register<ResourceImage>(typeof(ImageVideoClip), "ImageKey");
 
     public ImageVideoClip()
     {
         this.UsesCustomOpacityCalculation = true;
-        this.ResourceImageKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceImage>();
-        this.ResourceImageKey.ResourceChanged += this.OnResourceChanged;
+        ResourceImageKey.AddResourceChangedHandler(this, this.OnResourceChanged);
         this.lockedImage = new RenderLockedData<SKImage>();
+    }
+
+    static ImageVideoClip()
+    {
+        ResourceImageKey.ResourceChanged += (slot, owner, oldResource, newResource) =>
+        {
+            ImageVideoClip clip = (ImageVideoClip) owner;
+            clip.SignalDisposeImage();
+            if (oldResource != null)
+                ((ResourceImage) oldResource).ImageChanged -= clip.OnImageChanged;
+            if (newResource != null)
+                ((ResourceImage) newResource).ImageChanged += clip.OnImageChanged;
+        };
     }
 
     public override Vector2? GetRenderSize()
     {
-        if (this.ResourceImageKey.TryGetResource(out ResourceImage? res) && res.image != null)
+        if (ResourceImageKey.TryGetResource(this, out ResourceImage? res) && res.image != null)
         {
             return new Vector2(res.image.Width, res.image.Height);
         }
@@ -53,20 +65,16 @@ public class ImageVideoClip : VideoClip
 
     private void SignalDisposeImage() => this.lockedImage.Dispose();
 
-    private void OnResourceChanged(IResourcePathKey<ResourceImage> key, ResourceImage? olditem, ResourceImage? newitem)
+    private void OnResourceChanged(IResourceHolder owner, ResourceSlot slot, ResourceItem? oldItem, ResourceItem? newItem)
     {
-        this.SignalDisposeImage();
-        if (olditem != null)
-            olditem.ImageChanged -= this.OnImageChanged;
-        if (newitem != null)
-            newitem.ImageChanged += this.OnImageChanged;
+
     }
 
     private void OnImageChanged(BaseResource resource) => this.SignalDisposeImage();
 
     public override bool PrepareRenderFrame(PreRenderContext rc, long frame)
     {
-        if (this.ResourceImageKey.TryGetResource(out ResourceImage? resource) && resource.image != null)
+        if (ResourceImageKey.TryGetResource(this, out ResourceImage? resource) && resource.image != null)
         {
             this.lockedImage.OnPrepareRender(resource.image);
             return true;

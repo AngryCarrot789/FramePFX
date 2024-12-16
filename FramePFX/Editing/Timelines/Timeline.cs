@@ -23,6 +23,8 @@ using FramePFX.DataTransfer;
 using FramePFX.Editing.Automation;
 using FramePFX.Editing.Factories;
 using FramePFX.Editing.Rendering;
+using FramePFX.Editing.ResourceManaging;
+using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Utils;
 using FramePFX.Utils.Destroying;
@@ -470,7 +472,7 @@ public class Timeline : ITransferableData, IDestroy
 
     public void TryExpandForFrame(long frame)
     {
-        if (frame > this.maxDuration)
+        if (frame >= this.maxDuration)
         {
             this.MaxDuration = frame + 1000;
         }
@@ -486,7 +488,7 @@ public class Timeline : ITransferableData, IDestroy
         RenderManager.InternalOnTimelineProjectChanged(timeline.RenderManager, null, project);
     }
 
-    internal static void InternalSetCompositionTimelineProjectReference(Timeline timeline, Project project)
+    internal static void InternalSetCompositionTimelineProjectReference(Timeline timeline, Project? project)
     {
         Project? oldProject = timeline.Project;
         if (ReferenceEquals(oldProject, project))
@@ -498,6 +500,15 @@ public class Timeline : ITransferableData, IDestroy
         foreach (Track track in timeline.tracks)
         {
             Track.InternalOnTimelineProjectChanged(track, oldProject, project);
+        }
+
+        if (project != null)
+        {
+            InternalLoadResources(timeline, project.ResourceManager);
+        }
+        else
+        {
+            InternalUnloadResources(timeline);
         }
 
         RenderManager.InternalOnTimelineProjectChanged(timeline.RenderManager, oldProject, project);
@@ -512,5 +523,27 @@ public class Timeline : ITransferableData, IDestroy
     public int IndexOf(Track track)
     {
         return track.Timeline == this ? track.IndexInTimeline : -1;
+    }
+
+    public static void InternalLoadResources(Timeline timeline, ResourceManager manager)
+    {
+        foreach (Track track in timeline.tracks)
+        {
+            foreach (Clip clip in track.Clips)
+            {
+                clip.ResourceHelper.OnResourceManagerLoaded(manager);
+            }
+        }
+    }
+    
+    public static void InternalUnloadResources(Timeline timeline)
+    {
+        foreach (Track track in timeline.tracks)
+        {
+            foreach (Clip clip in track.Clips)
+            {
+                clip.ResourceHelper.OnResourceManagerUnloaded();
+            }
+        }
     }
 }

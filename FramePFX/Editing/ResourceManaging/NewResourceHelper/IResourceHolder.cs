@@ -17,15 +17,12 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Editing.ResourceManaging.ResourceHelpers;
+namespace FramePFX.Editing.ResourceManaging.NewResourceHelper;
 
-/// <summary>
-/// An interface for a project-bound object that can have resources associated with it
-/// </summary>
 public interface IResourceHolder : IHaveProject
 {
     /// <summary>
-    /// Gets the resource helper for this clip, which manages the resource states
+    /// Gets the resource management object
     /// </summary>
     ResourceHelper ResourceHelper { get; }
 }

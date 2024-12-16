@@ -20,7 +20,7 @@
 using System.Numerics;
 using FFmpeg.AutoGen;
 using FramePFX.Editing.Rendering;
-using FramePFX.Editing.ResourceManaging.ResourceHelpers;
+using FramePFX.Editing.ResourceManaging.NewResourceHelper;
 using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.Timelines.Clips.Video;
 using FramePFX.FFmpegWrapper;
@@ -31,6 +31,8 @@ namespace FramePFX.Editing.Timelines.Clips.Core;
 
 public class AVMediaVideoClip : VideoClip
 {
+    public static readonly ResourceSlot<ResourceAVMedia> MediaKey = ResourceSlot.Register<ResourceAVMedia>(typeof(AVMediaVideoClip), "AVMediaKey");
+    
     private VideoFrame? renderFrameRgb, downloadedHwFrame;
     private unsafe SwsContext* scaler;
     private PictureFormat scalerInputFormat;
@@ -40,14 +42,10 @@ public class AVMediaVideoClip : VideoClip
     private long decodeFrameBegin;
     private long lastDecodeFrameDuration;
 
-    public IResourcePathKey<ResourceAVMedia> ResourceAVMediaKey { get; }
-
     public AVMediaVideoClip()
     {
         this.IsMediaFrameSensitive = true;
         this.UsesCustomOpacityCalculation = true;
-        this.ResourceAVMediaKey = this.ResourceHelper.RegisterKeyByTypeName<ResourceAVMedia>();
-        this.ResourceAVMediaKey.ResourceChanged += this.OnResourceChanged;
     }
 
     static AVMediaVideoClip()
@@ -61,38 +59,41 @@ public class AVMediaVideoClip : VideoClip
             ctx.SerialiseBaseType(data);
 
         });
+
+        MediaKey.ResourceChanged += (slot, owner, oldResource, newResource) =>
+        {
+            AVMediaVideoClip clip = (AVMediaVideoClip) owner;
+            clip.renderFrameRgb?.Dispose();
+            clip.renderFrameRgb = null;
+            clip.downloadedHwFrame?.Dispose();
+            clip.downloadedHwFrame = null;
+            unsafe
+            {
+                if (clip.scaler != null)
+                {
+                    ffmpeg.sws_freeContext(clip.scaler);
+                    clip.scaler = null;
+                }
+            }
+        };
     }
 
     public override Vector2? GetRenderSize()
     {
-        if (this.ResourceAVMediaKey.TryGetResource(out ResourceAVMedia? resource) && resource.GetResolution() is SKSizeI size)
-        {
+        if (MediaKey.TryGetResource(this, out ResourceAVMedia? resource) && resource.GetResolution() is SKSizeI size)
             return new Vector2(size.Width, size.Height);
-        }
 
         return null;
     }
 
-    private void OnResourceChanged(IResourcePathKey<ResourceAVMedia> key, ResourceAVMedia? oldItem, ResourceAVMedia? newItem)
-    {
-        this.renderFrameRgb?.Dispose();
-        this.renderFrameRgb = null;
-        this.downloadedHwFrame?.Dispose();
-        this.downloadedHwFrame = null;
-        unsafe
-        {
-            if (this.scaler != null)
-            {
-                ffmpeg.sws_freeContext(this.scaler);
-                this.scaler = null;
-            }
-        }
-    }
-
     public override bool PrepareRenderFrame(PreRenderContext rc, long frame)
     {
-        if (!this.ResourceAVMediaKey.TryGetResource(out ResourceAVMedia? resource))
+        if (!MediaKey.TryGetResource(this, out ResourceAVMedia? resource))
             return false;
+        
+        // if (!this.ResourceAVMediaKey.TryGetResource(out ResourceAVMedia? resource))
+        //     return false;
+        
         if (resource.stream == null || resource.Demuxer == null)
             return false;
 

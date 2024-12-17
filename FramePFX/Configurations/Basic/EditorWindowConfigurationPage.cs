@@ -37,7 +37,7 @@ public class EditorWindowConfigurationPage : ConfigurationPage
             
             this.titleBar = value;
             this.TitleBarChanged?.Invoke(this);
-            this.MarkImmediatelyModified();
+            this.MarkModified();
         }
     }
 

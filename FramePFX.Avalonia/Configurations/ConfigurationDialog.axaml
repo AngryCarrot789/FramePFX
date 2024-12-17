@@ -54,6 +54,6 @@
                 </Button>
             </StackPanel>
         </Border>
-        <configurations:ConfigurationPanelEditor x:Name="PART_EditorPanel"/>
+        <configurations:ConfigurationPanelControl x:Name="PART_EditorPanel"/>
     </DockPanel>
 </c:WindowEx>

@@ -25,8 +25,8 @@ using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using FramePFX.Avalonia.Shortcuts.Managing;
 using FramePFX.Avalonia.Utils;
+using FramePFX.Shortcuts;
 
 namespace FramePFX.Avalonia.Shortcuts.Avalonia;
 

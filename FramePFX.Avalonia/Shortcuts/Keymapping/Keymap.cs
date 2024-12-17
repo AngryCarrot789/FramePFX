@@ -18,7 +18,7 @@
 // 
 
 using System;
-using FramePFX.Avalonia.Shortcuts.Managing;
+using FramePFX.Shortcuts;
 
 namespace FramePFX.Avalonia.Shortcuts.Keymapping;
 

@@ -69,31 +69,25 @@ public class ConfigurationContext
 
         if (oldPage != null)
         {
-            if (oldPage.IsDynamicModificationSupported)
+            if (oldPage.IsModified())
             {
-                if (oldPage.IsModified())
-                {
-                    (this.modifiedPages ??= new HashSet<ConfigurationPage>()).Add(oldPage);
-                    this.modificationLevelForModifiedPages++;
-                    this.updateIsModifiedAction.InvokeAsync();
-                }
-                else if (this.modifiedPages != null && this.modifiedPages.Remove(oldPage))
-                {
-                    this.modificationLevelForModifiedPages--;
-                    this.updateIsModifiedAction.InvokeAsync();
-                }
+                this.MarkImmediatelyModified(oldPage);
             }
-            
+            else
+            {
+                this.ClearModifiedState(oldPage);
+            }
+
             ConfigurationPage.InternalSetContext(oldPage, null);
         }
 
         if (page != null)
         {
             ConfigurationPage.InternalSetContext(this.activePage = page, this);
-        }
-        else
-        {
-            this.updateIsModifiedAction.InvokeAsync();
+            if (page.IsModified())
+            {
+                this.MarkImmediatelyModified(page);
+            }
         }
 
         this.ActivePageChanged?.Invoke(this, oldPage, page);
@@ -105,14 +99,21 @@ public class ConfigurationContext
     /// <param name="page"></param>
     public void MarkImmediatelyModified(ConfigurationPage page)
     {
-        (this.modifiedPages ??= new HashSet<ConfigurationPage>()).Add(page);
-        this.modificationLevelForModifiedPages++;
-        this.updateIsModifiedAction.InvokeAsync();
+        if (this.modifiedPages == null || !this.modifiedPages.Contains(page))
+        {
+            (this.modifiedPages ??= new HashSet<ConfigurationPage>()).Add(page);
+            this.modificationLevelForModifiedPages++;
+            this.updateIsModifiedAction.InvokeAsync();
+        }
     }
 
-    public void NotifyModification(ConfigurationPage page)
+    public void ClearModifiedState(ConfigurationPage page)
     {
-        this.MarkImmediatelyModified(page);
+        if (this.modifiedPages != null && this.modifiedPages.Remove(page))
+        {
+            this.modificationLevelForModifiedPages++;
+            this.updateIsModifiedAction.InvokeAsync();
+        }
     }
 
     public void OnCreated()

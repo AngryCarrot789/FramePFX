@@ -3,9 +3,9 @@
 using Avalonia;
 using Avalonia.Input;
 using FramePFX.Avalonia.Interactivity;
-using FramePFX.Avalonia.Shortcuts.Inputs;
-using FramePFX.Avalonia.Shortcuts.Managing;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Shortcuts;
+using FramePFX.Shortcuts.Inputs;
 
 namespace FramePFX.Avalonia.Shortcuts.Avalonia;
 

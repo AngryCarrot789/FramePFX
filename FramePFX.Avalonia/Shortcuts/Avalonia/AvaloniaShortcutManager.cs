@@ -22,10 +22,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Avalonia.Input;
-using FramePFX.Avalonia.Shortcuts.Inputs;
 using FramePFX.Avalonia.Shortcuts.Keymapping;
-using FramePFX.Avalonia.Shortcuts.Managing;
-using FramePFX.Avalonia.Shortcuts.Usage;
+using FramePFX.Shortcuts;
+using FramePFX.Shortcuts.Inputs;
+using FramePFX.Shortcuts.Usage;
 using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.Shortcuts.Avalonia;
@@ -79,7 +79,7 @@ public class AvaloniaShortcutManager : ShortcutManager
     public void DeserialiseRoot(Stream stream)
     {
         this.InvalidateShortcutCache();
-        Keymap map = WPFKeyMapSerialiser.Instance.Deserialise(this, stream);
+        Keymap map = KeyMapSerialiser.Instance.Deserialise(this, stream);
         this.Root = map.Root; // invalidates cache automatically
         try
         {
@@ -93,7 +93,7 @@ public class AvaloniaShortcutManager : ShortcutManager
         }
     }
 
-    protected internal override void OnSecondShortcutUsagesProgressed(ShortcutInputProcessor inputProcessor)
+    protected override void OnSecondShortcutUsagesProgressed(ShortcutInputProcessor inputProcessor)
     {
         base.OnSecondShortcutUsagesProgressed(inputProcessor);
         StringJoiner joiner = new StringJoiner(", ");
@@ -105,7 +105,7 @@ public class AvaloniaShortcutManager : ShortcutManager
         BroadcastShortcutActivity("Waiting for next input: " + joiner);
     }
 
-    protected internal override void OnShortcutUsagesCreated(ShortcutInputProcessor inputProcessor)
+    protected override void OnShortcutUsagesCreated(ShortcutInputProcessor inputProcessor)
     {
         base.OnShortcutUsagesCreated(inputProcessor);
         StringJoiner joiner = new StringJoiner(", ");
@@ -117,19 +117,19 @@ public class AvaloniaShortcutManager : ShortcutManager
         BroadcastShortcutActivity("Waiting for next input: " + joiner);
     }
 
-    protected internal override void OnCancelUsageForNoSuchNextMouseStroke(ShortcutInputProcessor inputProcessor, IShortcutUsage usage, GroupedShortcut shortcut, MouseStroke stroke)
+    protected override void OnCancelUsageForNoSuchNextMouseStroke(ShortcutInputProcessor inputProcessor, IShortcutUsage usage, GroupedShortcut shortcut, MouseStroke stroke)
     {
         base.OnCancelUsageForNoSuchNextMouseStroke(inputProcessor, usage, shortcut, stroke);
         BroadcastShortcutActivity("No such shortcut for next mouse stroke: " + stroke);
     }
 
-    protected internal override void OnCancelUsageForNoSuchNextKeyStroke(ShortcutInputProcessor inputProcessor, IShortcutUsage usage, GroupedShortcut shortcut, KeyStroke stroke)
+    protected override void OnCancelUsageForNoSuchNextKeyStroke(ShortcutInputProcessor inputProcessor, IShortcutUsage usage, GroupedShortcut shortcut, KeyStroke stroke)
     {
         base.OnCancelUsageForNoSuchNextKeyStroke(inputProcessor, usage, shortcut, stroke);
         BroadcastShortcutActivity("No such shortcut for next key stroke: " + stroke);
     }
 
-    protected internal override void OnNoSuchShortcutForMouseStroke(ShortcutInputProcessor inputProcessor, string group, MouseStroke stroke)
+    protected override void OnNoSuchShortcutForMouseStroke(ShortcutInputProcessor inputProcessor, string group, MouseStroke stroke)
     {
         base.OnNoSuchShortcutForMouseStroke(inputProcessor, group, stroke);
         if (Debugger.IsAttached)
@@ -138,7 +138,7 @@ public class AvaloniaShortcutManager : ShortcutManager
         }
     }
 
-    protected internal override void OnNoSuchShortcutForKeyStroke(ShortcutInputProcessor inputProcessor, string group, KeyStroke stroke)
+    protected override void OnNoSuchShortcutForKeyStroke(ShortcutInputProcessor inputProcessor, string group, KeyStroke stroke)
     {
         base.OnNoSuchShortcutForKeyStroke(inputProcessor, group, stroke);
         if (stroke.IsKeyDown && Debugger.IsAttached)

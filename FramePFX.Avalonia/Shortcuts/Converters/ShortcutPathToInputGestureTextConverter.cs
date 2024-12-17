@@ -20,7 +20,7 @@
 using System;
 using System.Globalization;
 using Avalonia.Data.Converters;
-using FramePFX.Avalonia.Shortcuts.Managing;
+using FramePFX.Shortcuts;
 
 namespace FramePFX.Avalonia.Shortcuts.Converters;
 

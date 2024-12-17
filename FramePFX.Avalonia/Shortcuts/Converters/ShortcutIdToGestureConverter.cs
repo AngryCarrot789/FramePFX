@@ -23,8 +23,8 @@ using System.Globalization;
 using System.Linq;
 using Avalonia;
 using Avalonia.Data.Converters;
-using FramePFX.Avalonia.Shortcuts.Inputs;
-using FramePFX.Avalonia.Shortcuts.Managing;
+using FramePFX.Shortcuts;
+using FramePFX.Shortcuts.Inputs;
 using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.Shortcuts.Converters;

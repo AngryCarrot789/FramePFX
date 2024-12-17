@@ -35,6 +35,7 @@
                 <MergeResourceInclude Source="/Editing/ResourceManaging/Lists/ResourceListThemes.axaml"/>
                 <MergeResourceInclude Source="/Configurations/Trees/ConfigurationTreeThemes.axaml"/>
                 <MergeResourceInclude Source="/Configurations/Pages/Basic/BaseConfigurationPageThemes.axaml"/>
+                <MergeResourceInclude Source="Shortcuts/Trees/ShortcutTreeThemes.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
 

@@ -18,9 +18,11 @@
 // 
 
 using FramePFX.Configurations.Basic;
+using FramePFX.Configurations.Shortcuts;
 using FramePFX.DataTransfer;
 using FramePFX.Editing;
 using FramePFX.PropertyEditing.DataTransfer;
+using FramePFX.Shortcuts;
 using FramePFX.Utils.Accessing;
 using SkiaSharp;
 
@@ -52,6 +54,11 @@ public class ApplicationConfigurationManager : ConfigurationManager
         {
             DisplayName = "Colours Copy", Id = "config.editor.colours", Page = new EditorWindowPropEditorConfigurationPage()
         });
+        
+        this.RootEntry.AddEntry(new ConfigurationEntry()
+        {
+            DisplayName = "Keymap", Id = "config.keymap", Page = new ShortcutEditorConfigurationPage(ShortcutManager.Instance)
+        });
     }
 
     public class EditorWindowPropEditorConfigurationPage : PropertyEditorConfigurationPage, ITransferableData
@@ -82,7 +89,7 @@ public class ApplicationConfigurationManager : ConfigurationManager
             this.PropertyEditor.Root.AddItem(new DataParameterColourPropertyEditorSlot(TitleBarBrushParameter, typeof(EditorWindowPropEditorConfigurationPage), "Titlebar Brush"));
         }
 
-        private void Handler(DataParameter parameter, ITransferableData owner) => this.MarkImmediatelyModified();
+        private void Handler(DataParameter parameter, ITransferableData owner) => this.MarkModified();
 
         public override async ValueTask OnContextCreated(ConfigurationContext context)
         {

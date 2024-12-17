@@ -36,6 +36,7 @@ using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Utils;
 using FramePFX.Editing;
 using FramePFX.Editing.Automation.Keyframes;
+using FramePFX.Editing.ContextRegistries;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.Timelines;
@@ -217,7 +218,7 @@ public class TimelineClipControl : ContentControl, IClipElement
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-        AdvancedContextMenu.SetContextRegistry(this, FramePFX.Editing.Timelines.Clips.Clip.ClipContextRegistry);
+        AdvancedContextMenu.SetContextRegistry(this, ClipContextRegistry.Registry);
         Dispatcher.UIThread.InvokeAsync(() => this.isMovingBetweenTracks = false, DispatcherPriority.Send);
     }
 

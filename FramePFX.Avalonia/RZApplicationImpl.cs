@@ -70,9 +70,9 @@ public class RZApplicationImpl : RZApplication
     public static void InternalExit(int exitCode) => InternalOnExit(exitCode);
     public static Task InternalOnInitialised(VideoEditor editor, string[] args) => InternalOnInitialised2(editor, args);
 
-    protected override void RegisterServices(IApplicationStartupProgress progress, ServiceManager manager)
+    protected override void RegisterServicesA(IApplicationStartupProgress progress, ServiceManager manager)
     {
-        base.RegisterServices(progress, manager);
+        base.RegisterServicesA(progress, manager);
         manager.Register<IMessageDialogService>(new MessageDialogServiceImpl());
         manager.Register<IUserInputDialogService>(new InputDialogServiceImpl());
         manager.Register<IColourPickerService>(new ColourPickerServiceImpl());

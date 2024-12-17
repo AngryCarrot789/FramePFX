@@ -85,17 +85,9 @@ public abstract class RZApplication
     protected virtual async Task OnInitialise(IApplicationStartupProgress progress)
     {
         await progress.SetAction("Initialising services", null);
-        this.RegisterServices(progress, this.serviceManager);
+        this.RegisterServicesA(progress, this.serviceManager);
         await progress.SetAction("Initialising commands", null);
         this.RegisterCommands(progress, CommandManager.Instance);
-        
-        await progress.SetAction("Initialising other data...", null);
-
-        ResourceToClipDropRegistry res2clip = this.serviceManager.GetService<ResourceToClipDropRegistry>(); 
-        res2clip.Register(typeof(ResourceAVMedia), new AVMediaDropInformation());
-        res2clip.Register(typeof(ResourceColour), new ResourceColourDropInformation());
-        res2clip.Register(typeof(ResourceImage), new ResourceImageDropInformation());
-        res2clip.Register(typeof(ResourceComposition), new CompositionResourceDropInformation());
     }
 
     private static async ValueTask<bool> HandleGeneralCanDropResource(ResourceItem item)
@@ -197,11 +189,21 @@ public abstract class RZApplication
         }
     }
 
-    protected virtual void RegisterServices(IApplicationStartupProgress progress, ServiceManager manager)
+    protected virtual void RegisterServicesA(IApplicationStartupProgress progress, ServiceManager manager)
     {
         manager.Register(new TaskManager());
         manager.Register(new ResourceToClipDropRegistry());
+    }
+    
+    protected virtual void RegisterServicesB(IApplicationStartupProgress progress, ServiceManager manager)
+    {
         manager.Register(ApplicationConfigurationManager.Instance);
+        
+        ResourceToClipDropRegistry res2clip = manager.GetService<ResourceToClipDropRegistry>(); 
+        res2clip.Register(typeof(ResourceAVMedia), new AVMediaDropInformation());
+        res2clip.Register(typeof(ResourceColour), new ResourceColourDropInformation());
+        res2clip.Register(typeof(ResourceImage), new ResourceImageDropInformation());
+        res2clip.Register(typeof(ResourceComposition), new CompositionResourceDropInformation());
     }
 
     protected virtual void RegisterCommands(IApplicationStartupProgress progress, CommandManager manager)
@@ -319,12 +321,15 @@ public abstract class RZApplication
         instance = application;
     }
 
-    protected static Task InternalInititalise(IApplicationStartupProgress progress)
+    protected static async Task InternalInititalise(IApplicationStartupProgress progress)
     {
         if (instance == null)
             throw new InvalidOperationException("Application has not been pre-initialised yet");
 
-        return instance.OnInitialise(progress);
+        await instance.OnInitialise(progress);
+        
+        await progress.SetAction("Initialising post-initialisation services", null);
+        instance.RegisterServicesB(progress, instance.serviceManager);
     }
 
     protected static void InternalOnExit(int exitCode) => instance!.OnExit(exitCode);

@@ -22,8 +22,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using Avalonia;
 using Avalonia.Data.Converters;
-using FramePFX.Avalonia.Shortcuts.Managing;
 using FramePFX.CommandSystem;
+using FramePFX.Shortcuts;
 
 namespace FramePFX.Avalonia.Shortcuts.Converters;
 

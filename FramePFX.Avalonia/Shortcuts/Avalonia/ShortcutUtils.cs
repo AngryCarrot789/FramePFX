@@ -19,7 +19,7 @@
 
 using System;
 using Avalonia.Input;
-using FramePFX.Avalonia.Shortcuts.Inputs;
+using FramePFX.Shortcuts.Inputs;
 
 namespace FramePFX.Avalonia.Shortcuts.Avalonia;
 

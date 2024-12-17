@@ -64,7 +64,7 @@ public partial class ConfigurationDialog : WindowEx
         }, DispatchPriority.Loaded);
     }
 
-    private void OnEditorContextChanged(ConfigurationPanelEditor sender, ConfigurationContext? oldContext, ConfigurationContext? newContext)
+    private void OnEditorContextChanged(ConfigurationPanelControl sender, ConfigurationContext? oldContext, ConfigurationContext? newContext)
     {
         if (oldContext != null)
             oldContext.ModifiedPagesUpdated -= this.OnModifiedPagesChanged;

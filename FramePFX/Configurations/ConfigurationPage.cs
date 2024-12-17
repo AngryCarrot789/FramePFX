@@ -38,11 +38,6 @@ public abstract class ConfigurationPage
     /// </summary>
     public ConfigurationContext? ActiveContext { get; private set; }
 
-    /// <summary>
-    /// Returns true when this configuration page supports dynamic modification checks as opposed to direct modification signaling
-    /// </summary>
-    public virtual bool IsDynamicModificationSupported => true;
-    
     public bool IsMarkedImmediatelyModified { get; internal set; }
     
     protected ConfigurationPage()
@@ -91,17 +86,17 @@ public abstract class ConfigurationPage
     /// <summary>
     /// Marks this page as immediately modified for the current context, rather than relying on periodic checkups
     /// </summary>
-    public void MarkImmediatelyModified()
+    public void MarkModified()
     {
-        this.ActiveContext?.MarkImmediatelyModified(this);
         this.IsMarkedImmediatelyModified = true;
+        this.ActiveContext?.MarkImmediatelyModified(this);
     }
 
-    /// <summary>
-    /// Notifies our context that this page has been modified in some way. This is preferred
-    /// over <see cref="MarkImmediatelyModified"/> if <see cref="IsDynamicModificationSupported"/> is true
-    /// </summary>
-    public void NotifyModification() => this.ActiveContext?.NotifyModification(this);
+    public void ClearModifiedState()
+    {
+        this.IsMarkedImmediatelyModified = false;
+        this.ActiveContext?.ClearModifiedState(this);
+    }
 
     public static void InternalSetContext(ConfigurationPage page, ConfigurationContext? context)
     {

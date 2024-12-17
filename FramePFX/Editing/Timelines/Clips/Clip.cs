@@ -24,6 +24,7 @@ using FramePFX.DataTransfer;
 using FramePFX.Editing.Automation;
 using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Automation.Params;
+using FramePFX.Editing.ContextRegistries;
 using FramePFX.Editing.Factories;
 using FramePFX.Editing.ResourceManaging.NewResourceHelper;
 using FramePFX.Editing.Timelines.Clips.Core;
@@ -50,8 +51,6 @@ public delegate void ClipActiveSequenceChangedEventHandler(Clip clip, Automation
 
 public abstract class Clip : IClip, IDestroy
 {
-    public static readonly ContextRegistry ClipContextRegistry = new ContextRegistry("Clips");
-
     public static readonly SerialisationRegistry SerialisationRegistry;
     private readonly List<BaseEffect> internalEffectList;
     private FrameSpan span;
@@ -216,45 +215,6 @@ public abstract class Clip : IClip, IDestroy
             BaseEffect.WriteSerialisedWithIdList(clip, data.CreateList("Effects"));
             clip.ResourceHelper.WriteToRootRBE(data);
         });
-
-        FixedContextGroup modGeneric = ClipContextRegistry.GetFixedGroup("modify.general");
-        modGeneric.AddHeader("General");
-        modGeneric.AddCommand("commands.editor.RenameClip", "Rename", "Open a dialog to rename this clip");
-        modGeneric.AddDynamicSubGroup((group, ctx, items) =>
-        {
-            if (DataKeys.ClipKey.TryGetContext(ctx, out Clip? clip) && clip is VideoClip videoClip)
-            {
-                if (VideoClip.IsEnabledParameter.GetCurrentValue(videoClip))
-                {
-                    items.Add(new CommandContextEntry("commands.editor.DisableClips", "Disable", "Disable this clip"));
-                }
-                else
-                {
-                    items.Add(new CommandContextEntry("commands.editor.EnableClips", "Enable", "Enable this clip"));
-                }
-            }
-            else
-            {
-                items.Add(new CommandContextEntry("commands.editor.EnableClips", "Enable", "Enable the selected clips"));
-                items.Add(new CommandContextEntry("commands.editor.DisableClips", "Disable", "Disable the selected clips"));
-                items.Add(new CommandContextEntry("commands.editor.ToggleClipsEnabled", "Toggle Enabled", "Toggle the enabled state of the selected clips"));
-            }
-        });
-
-        FixedContextGroup modEdit = ClipContextRegistry.GetFixedGroup("modify.edit");
-        modEdit.AddHeader("Edit");
-        modEdit.AddCommand("commands.editor.SplitClipsCommand", "Split", "Slice this clip at the playhead");
-        modEdit.AddCommand("commands.editor.ChangeClipPlaybackSpeed", "Change Speed", "Change the playback speed of this clip");
-        modEdit.AddDynamicSubGroup((group, ctx, items) =>
-        {
-            if (DataKeys.ClipKey.TryGetContext(ctx, out Clip? clip) && clip is CompositionVideoClip)
-            {
-                items.Add(new CommandContextEntry("commands.editor.OpenCompositionClipTimeline", "Open Timeline", "Opens this clip's timeline"));
-            }
-        });
-
-        FixedContextGroup modDestruction = ClipContextRegistry.GetFixedGroup("modify.destruction", 100000);
-        modDestruction.AddCommand("commands.editor.DeleteClipOwnerTrack", "Delete Track", "Delete the track this clip resides in");
 
         // Example new serialisers for new feature added in new build version
         // SerialisationRegistry.Register<Clip>(1, (clip, data, ctx) => {

@@ -21,6 +21,7 @@ using FramePFX.Avalonia.Configurations.Pages.Basic;
 using FramePFX.Avalonia.Utils;
 using FramePFX.Configurations;
 using FramePFX.Configurations.Basic;
+using FramePFX.Configurations.Shortcuts;
 
 namespace FramePFX.Avalonia.Configurations.Pages;
 
@@ -33,5 +34,6 @@ public static class ConfigurationPageRegistry
         Registry = new ModelControlRegistry<ConfigurationPage, BaseConfigurationPageControl>();
         Registry.RegisterType<EditorWindowConfigurationPage>(() => new BasicEditorWindowConfigurationPageControl());
         Registry.RegisterType<PropertyEditorConfigurationPage>(() => new PropertyEditorConfigurationPageControl());
+        Registry.RegisterType<ShortcutEditorConfigurationPage>(() => new ShortcutEditorConfigurationPageControl());
     }
 }

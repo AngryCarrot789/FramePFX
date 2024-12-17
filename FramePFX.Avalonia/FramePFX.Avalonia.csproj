@@ -85,6 +85,10 @@
         <AvaloniaResource Include="FramePFX-256.ico"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Shortcuts\Managing\" />
+    </ItemGroup>
+
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
       <Exec Command="xcopy /y &quot;$(SolutionDir)NativeEngineBinaries\*.dll&quot; $(TargetDir)&#xA;xcopy /y &quot;$(SolutionDir)ffmpeg\bin\*.dll&quot; $(TargetDir)&#xA;        " />
     </Target>

@@ -39,13 +39,15 @@
                 <sa:CommandMenuItem Header="Save Project As..." CommandId="commands.editor.SaveProjectAs"/>
                 <sa:CommandMenuItem Header="Close Project" CommandId="commands.editor.CloseProject"/>
                 <Separator/>
+                <sa:CommandMenuItem Header="Open Editor Settings" CommandId="commands.editor.OpenEditorSettings"
+                                    ToolTip.Tip="Opens the editor's settings in a dialog"/>
+                <sa:CommandMenuItem Header="Open Project Settings" CommandId="commands.editor.OpenProjectSettings"
+                                    ToolTip.Tip="Opens the project's settings in a dialog"/>
+                <Separator/>
                 <sa:CommandMenuItem Header="Export" CommandId="commands.editor.Export"
                                     ToolTip.Tip="Export the current project"/>
                 <sa:CommandMenuItem Header="Export Active Timeline" CommandId="commands.generic.ExportActiveTimelineCommand"
                                     ToolTip.Tip="Exports the currently active timeline only (not the project timeline)"/>
-                <Separator/>
-                <sa:CommandMenuItem Header="Open Editor Settings" CommandId="commands.editor.OpenEditorSettings"
-                                    ToolTip.Tip="Opens the editor's settings in a dialog"/>
             </MenuItem>
         </sa:ContextCapturingMenu>
         <Grid Grid.Row="1" x:Name="PART_MainVideoEditorContent">

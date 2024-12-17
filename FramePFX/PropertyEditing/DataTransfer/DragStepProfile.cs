@@ -32,6 +32,7 @@ public readonly struct DragStepProfile
     public static readonly DragStepProfile Rotation = new DragStepProfile(0.005, 0.05, 0.5, 2);
     public static readonly DragStepProfile InfPixelRange = new DragStepProfile(0.05, 0.1, 1.0, 5);
     public static readonly DragStepProfile SecondsRealtime = new DragStepProfile(0.001, 0.01, 0.05, 0.5);
+    public static readonly DragStepProfile FramesPerSeconds = new DragStepProfile(0.00025, 0.0025, 0.025, 0.25);
 
     /// <summary>
     /// A tiny step change, when holding CTRL+SHIFT

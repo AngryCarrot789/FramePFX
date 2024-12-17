@@ -274,6 +274,7 @@ public abstract class RZApplication
         manager.Register("commands.editor.SaveProjectAs", new SaveProjectAsCommand());
         manager.Register("commands.editor.Export", new ExportCommand());
         manager.Register("commands.editor.OpenEditorSettings", new OpenEditorSettingsCommand());
+        manager.Register("commands.editor.OpenProjectSettings", new OpenProjectSettingsCommand());
     }
 
     protected virtual async Task OnFullyInitialised(VideoEditor editor, string[] args)

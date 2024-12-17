@@ -59,6 +59,14 @@ public class ShortcutEditorConfigurationPage : ConfigurationPage
 
     public override ValueTask Apply()
     {
+        if (this.modifiedEntries != null)
+        {
+            foreach (ShortcutEntry entry in this.modifiedEntries)
+                entry.GroupedObject.Shortcut = entry.Shortcut;
+
+            this.modifiedEntries = null;
+        }
+
         return ValueTask.CompletedTask;
     }
 
@@ -74,5 +82,6 @@ public class ShortcutEditorConfigurationPage : ConfigurationPage
         }
         
         this.ModifiedShortcutsChanged?.Invoke(this);
+        this.MarkModified();
     }
 }

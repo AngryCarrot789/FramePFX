@@ -36,6 +36,8 @@ public class DataParameterPropertyBinder<TModel> : BaseAutoUpdatePropertyBinder<
     private readonly Func<object?, object?>? ParamToProp;
     private readonly Func<object?, object?>? PropToParam;
 
+    public bool CanUpdateModel { get; init; } = true;
+
     /// <summary>
     /// Creates a new data parameter property binder
     /// </summary>
@@ -52,7 +54,7 @@ public class DataParameterPropertyBinder<TModel> : BaseAutoUpdatePropertyBinder<
 
     protected override void UpdateModelOverride()
     {
-        if (this.IsFullyAttached && this.Property != null && this.Parameter != null)
+        if (this.CanUpdateModel && this.IsFullyAttached && this.Property != null && this.Parameter != null)
         {
             object? newValue = this.myControl!.GetValue(this.Property);
             this.Parameter.SetObjectValue(this.Model, this.PropToParam != null ? this.PropToParam(newValue) : newValue);

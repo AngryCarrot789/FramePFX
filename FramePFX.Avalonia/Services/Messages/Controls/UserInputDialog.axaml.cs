@@ -24,9 +24,11 @@ using Avalonia.Interactivity;
 using Avalonia.Threading;
 using FramePFX.Avalonia.Bindings;
 using FramePFX.Avalonia.Services.Colours;
+using FramePFX.Avalonia.Shortcuts.Dialogs;
 using FramePFX.Avalonia.Themes.Controls;
 using FramePFX.Avalonia.Utils;
 using FramePFX.Services.ColourPicking;
+using FramePFX.Services.InputStrokes;
 using FramePFX.Services.UserInputs;
 
 namespace FramePFX.Avalonia.Services.Messages.Controls;
@@ -81,9 +83,11 @@ public partial class UserInputDialog : WindowEx
     static UserInputDialog()
     {
         Registry = new ModelControlRegistry<UserInputInfo, Control>();
-        Registry.RegisterType<SingleUserInputInfo>((x) => new SingleUserInputControl());
-        Registry.RegisterType<DoubleUserInputInfo>((x) => new DoubleUserInputControl());
-        Registry.RegisterType<ColourUserInputInfo>((x) => new ColourUserInputControl());
+        Registry.RegisterType<SingleUserInputInfo>(() => new SingleUserInputControl());
+        Registry.RegisterType<DoubleUserInputInfo>(() => new DoubleUserInputControl());
+        Registry.RegisterType<ColourUserInputInfo>(() => new ColourUserInputControl());
+        Registry.RegisterType<KeyStrokeUserInputInfo>(() => new KeyStrokeUserInputControl());
+        Registry.RegisterType<MouseStrokeUserInputInfo>(() => new MouseStrokeUserInputControl());
 
         UserInputDataProperty.Changed.AddClassHandler<UserInputDialog, UserInputInfo?>((o, e) => o.OnUserInputDataChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }

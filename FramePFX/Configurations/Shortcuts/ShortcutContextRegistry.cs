@@ -17,16 +17,16 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.Shortcuts.Inputs;
+using FramePFX.AdvancedMenuService;
 
-namespace FramePFX.Shortcuts;
+namespace FramePFX.Configurations.Shortcuts;
 
-/// <summary>
-/// A service that lets the user specify an input stroke, e.g. a key stroke or mouse clic
-/// </summary>
-public interface IInputStrokeQueryService
+public static class ShortcutContextRegistry
 {
-    Task<KeyStroke?> ShowGetKeyStrokeDialog();
-    
-    Task<MouseStroke?> ShowGetMouseStrokeDialog();
+    public static readonly ContextRegistry Registry = new ContextRegistry("Shortcut Options");
+
+    static ShortcutContextRegistry()
+    {
+        Registry.GetFixedGroup("root").AddCommand("commands.shortcuts.AddKeyStrokeToShortcut", "Add Key Stroke", "Add a new key stroke");
+    }
 }

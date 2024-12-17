@@ -1,4 +1,4 @@
-# REghZy Shortcut Manager
+# Shortcut Manager
 
 I created this because WPF doesn't have any kind of built in 'hotkey' manager, except for input bindings but they don't support the triggering hotkeys to be modified (AFAIK)
 

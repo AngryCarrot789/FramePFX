@@ -37,6 +37,7 @@ using FramePFX.Avalonia.Services;
 using FramePFX.Avalonia.Services.Colours;
 using FramePFX.Avalonia.Services.Files;
 using FramePFX.Avalonia.Shortcuts.Avalonia;
+using FramePFX.Avalonia.Shortcuts.Dialogs;
 using FramePFX.Configurations;
 using FramePFX.Editing;
 using FramePFX.Editing.Exporting;
@@ -44,6 +45,7 @@ using FramePFX.Editing.ResourceManaging;
 using FramePFX.Natives;
 using FramePFX.Services.ColourPicking;
 using FramePFX.Services.FilePicking;
+using FramePFX.Services.InputStrokes;
 using FramePFX.Services.Messaging;
 using FramePFX.Services.UserInputs;
 using FramePFX.Utils;
@@ -80,6 +82,7 @@ public class RZApplicationImpl : RZApplication
         manager.Register<IResourceLoaderService>(new ResourceLoaderServiceImpl());
         manager.Register<IExportService>(new ExportServiceImpl());
         manager.Register<IConfigurationService>(new ConfigurationServiceImpl());
+        manager.Register<IInputStrokeQueryService>(new InputStrokeDialogsImpl());
         manager.Register(new EditorConfigurationOptions());
 
         if (AvCore.TryLocateDefaultMouse(out IGlobalMouseDevice mouse))

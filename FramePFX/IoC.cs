@@ -21,6 +21,7 @@ using FramePFX.Configurations;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Services.ColourPicking;
 using FramePFX.Services.FilePicking;
+using FramePFX.Services.InputStrokes;
 using FramePFX.Services.Messaging;
 using FramePFX.Services.UserInputs;
 using FramePFX.Tasks;
@@ -47,7 +48,8 @@ public static class IoC
     public static IColourPickerService ColourPickerService => RZApplication.Instance.Services.GetService<IColourPickerService>();
 
     public static IResourceLoaderService ResourceLoaderService => RZApplication.Instance.Services.GetService<IResourceLoaderService>();
-
+    
+    public static IInputStrokeQueryService InputStrokeQueryService => RZApplication.Instance.Services.GetService<IInputStrokeQueryService>();
     /// <summary>
     /// Gets the application's task manager
     /// </summary>

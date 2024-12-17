@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.Configurations.Shortcuts.Models;
 using FramePFX.Editing;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.UI;
@@ -64,4 +65,7 @@ public static class DataKeys
     public static readonly DataKey<IResourceTreeElement> ResourceTreeUIKey = DataKey<IResourceTreeElement>.Create("ResourceTreeUI");
     public static readonly DataKey<IResourceListElement> ResourceListUIKey = DataKey<IResourceListElement>.Create("ResourceListUI");
     public static readonly DataKey<IResourceTreeNodeElement> ResourceNodeUIKey = DataKey<IResourceTreeNodeElement>.Create("ResourceNode");
+    
+    public static readonly DataKey<ShortcutEntry> ShortcutEntryKey = DataKey<ShortcutEntry>.Create("ShortcutTreeEntry");
+    public static readonly DataKey<ShortcutGroupEntry> ShortcutGroupEntryKey = DataKey<ShortcutGroupEntry>.Create("ShortcutGroupTreeEntry");
 }

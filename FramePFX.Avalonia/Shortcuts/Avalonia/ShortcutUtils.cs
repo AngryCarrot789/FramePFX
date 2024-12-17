@@ -97,4 +97,17 @@ public static class ShortcutUtils
             default: return false;
         }
     }
+
+    public static MouseStroke GetMouseStrokeForEvent(PointerPressedEventArgs e)
+    {
+        // TODO
+        return new MouseStroke(0, 0, false);
+    }
+    
+    public static bool GetMouseStrokeForEvent(PointerWheelEventArgs e, out MouseStroke stroke)
+    {
+        // TODO
+        stroke = default;
+        return false;
+    }
 }

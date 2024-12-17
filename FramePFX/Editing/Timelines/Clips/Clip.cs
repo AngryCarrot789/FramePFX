@@ -19,20 +19,15 @@
 
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using FramePFX.AdvancedMenuService;
 using FramePFX.DataTransfer;
 using FramePFX.Editing.Automation;
 using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Automation.Params;
-using FramePFX.Editing.ContextRegistries;
 using FramePFX.Editing.Factories;
 using FramePFX.Editing.ResourceManaging.NewResourceHelper;
-using FramePFX.Editing.Timelines.Clips.Core;
-using FramePFX.Editing.Timelines.Clips.Video;
 using FramePFX.Editing.Timelines.Effects;
 using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Interactivity;
-using FramePFX.Interactivity.Contexts;
 using FramePFX.Serialisation;
 using FramePFX.Utils.Destroying;
 using FramePFX.Utils.RBC;

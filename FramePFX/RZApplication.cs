@@ -20,6 +20,7 @@
 using FramePFX.CommandSystem;
 using FramePFX.Configurations;
 using FramePFX.Configurations.Commands;
+using FramePFX.Configurations.Shortcuts.Commands;
 using FramePFX.Editing;
 using FramePFX.Editing.Commands;
 using FramePFX.Editing.ResourceManaging;
@@ -275,6 +276,11 @@ public abstract class RZApplication
         manager.Register("commands.editor.Export", new ExportCommand());
         manager.Register("commands.editor.OpenEditorSettings", new OpenEditorSettingsCommand());
         manager.Register("commands.editor.OpenProjectSettings", new OpenProjectSettingsCommand());
+        
+        
+        
+        
+        manager.Register("commands.shortcuts.AddKeyStrokeToShortcut", new AddKeyStrokeToShortcutCommand());
     }
 
     protected virtual async Task OnFullyInitialised(VideoEditor editor, string[] args)

@@ -21,9 +21,14 @@ using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Interactivity;
+using FramePFX.Avalonia.AdvancedMenuService;
+using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Shortcuts.Trees.InputStrokeControls;
 using FramePFX.Avalonia.Utils;
+using FramePFX.Configurations.Shortcuts;
 using FramePFX.Configurations.Shortcuts.Models;
+using FramePFX.Interactivity.Contexts;
 using FramePFX.Shortcuts.Inputs;
 
 namespace FramePFX.Avalonia.Shortcuts.Trees;
@@ -50,6 +55,18 @@ public class ShortcutTreeViewItem : TreeViewItem, IShortcutTreeOrNode
         this.PART_InputStrokeList = e.NameScope.GetTemplateChild<StackPanel>(nameof(this.PART_InputStrokeList));
     }
 
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+        AdvancedContextMenu.SetContextRegistry(this, ShortcutContextRegistry.Registry);
+    }
+
+    protected override void OnUnloaded(RoutedEventArgs e)
+    {
+        base.OnUnloaded(e);
+        AdvancedContextMenu.SetContextRegistry(this, null);
+    }
+
     #region Model Connection
 
     public virtual void OnAdding(ShortcutTreeView tree, ShortcutTreeViewItem? parentNode, BaseShortcutEntry resource)
@@ -57,6 +74,8 @@ public class ShortcutTreeViewItem : TreeViewItem, IShortcutTreeOrNode
         this.ResourceTree = tree;
         this.ParentNode = parentNode;
         this.Entry = resource;
+        if (resource is ShortcutEntry entry)
+            DataManager.SetContextData(this, new ContextData().Set(DataKeys.ShortcutEntryKey, entry));
     }
 
     public virtual void OnAdded()
@@ -114,6 +133,7 @@ public class ShortcutTreeViewItem : TreeViewItem, IShortcutTreeOrNode
         this.ResourceTree = null;
         this.ParentNode = null;
         this.Entry = null;
+        DataManager.ClearContextData(this);
     }
 
     #endregion

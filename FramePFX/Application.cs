@@ -36,11 +36,14 @@ using FramePFX.Utils;
 
 namespace FramePFX;
 
-public abstract class RZApplication
+/// <summary>
+/// The main application model class
+/// </summary>
+public abstract class Application
 {
-    private static RZApplication? instance;
+    private static Application? instance;
 
-    public static RZApplication Instance
+    public static Application Instance
     {
         get
         {
@@ -53,10 +56,13 @@ public abstract class RZApplication
 
     private readonly ServiceManager serviceManager;
 
+    /// <summary>
+    /// Gets the service manager
+    /// </summary>
     public IServiceManager Services => this.serviceManager;
 
     /// <summary>
-    /// Gets the main application thread
+    /// Gets the main application thread dispatcher
     /// </summary>
     public abstract IDispatcher Dispatcher { get; }
 
@@ -65,12 +71,13 @@ public abstract class RZApplication
     /// <para>The <see cref="Version.Major"/> property is used to represent a backwards-compatibility breaking change to the application (e.g. removal or a change in operating behaviour of a core feature)</para>
     /// <para>The <see cref="Version.Minor"/> property is used to represent a significant but non-breaking change (e.g. new feature that does not affect existing features, or a UI change)</para>
     /// <para>The <see cref="Version.Revision"/> property is used to represent any change to the code</para>
-    /// <para>The <see cref="Version.Build"/> property is represents the current build, e.g. if a revision is made but then reverted, there are 2 builds in that</para>
+    /// <para>The <see cref="Version.Build"/> property is representing the current build, e.g. if a revision is made but then reverted, there are 2 builds in that</para>
     /// <para>
     /// 'for next update' meaning the number is incremented when there's a push to the github, as this is
     /// easiest to track. Many different changes can count as one update
     /// </para>
     /// </summary>
+    // Even though we're version 2.0, I wouldn't consider this an official release yet, so we stay at 1.0
     public Version CurrentVersion { get; } = new Version(1, 0, 0, 0);
 
     /// <summary>
@@ -78,17 +85,20 @@ public abstract class RZApplication
     /// </summary>
     public int CurrentBuild => this.CurrentVersion.Build;
 
-    protected RZApplication()
+    protected Application()
     {
         this.serviceManager = new ServiceManager();
     }
 
     protected virtual async Task OnInitialise(IApplicationStartupProgress progress)
     {
-        await progress.SetAction("Initialising services", null);
-        this.RegisterServicesA(progress, this.serviceManager);
-        await progress.SetAction("Initialising commands", null);
-        this.RegisterCommands(progress, CommandManager.Instance);
+        await progress.ProgressAndSynchroniseAsync("Initialising services");
+        using (progress.CompletionState.PushCompletionRange(0.0, 0.5))
+            this.RegisterServicesA(progress, this.serviceManager);
+
+        await progress.ProgressAndSynchroniseAsync("Initialising commands");
+        using (progress.CompletionState.PushCompletionRange(0.5, 1.0))
+            this.RegisterCommands(progress, CommandManager.Instance);
     }
 
     private static async ValueTask<bool> HandleGeneralCanDropResource(ResourceItem item)
@@ -102,7 +112,7 @@ public abstract class RZApplication
 
         return true;
     }
-    
+
     private class AVMediaDropInformation : IResourceDropInformation
     {
         public long GetClipDurationForDrop(Track track, ResourceItem resource)
@@ -120,7 +130,7 @@ public abstract class RZApplication
         {
             if (!await HandleGeneralCanDropResource(resource))
                 return;
-            
+
             ResourceAVMedia media = (ResourceAVMedia) resource;
             AVMediaVideoClip clip = new AVMediaVideoClip();
             clip.FrameSpan = span;
@@ -129,7 +139,7 @@ public abstract class RZApplication
             track.AddClip(clip);
         }
     }
-    
+
     private class ResourceImageDropInformation : IResourceDropInformation
     {
         public long GetClipDurationForDrop(Track track, ResourceItem resource) => 300;
@@ -138,7 +148,7 @@ public abstract class RZApplication
         {
             if (!await HandleGeneralCanDropResource(resource))
                 return;
-            
+
             ResourceImage media = (ResourceImage) resource;
             ImageVideoClip clip = new ImageVideoClip();
             clip.FrameSpan = span;
@@ -147,7 +157,7 @@ public abstract class RZApplication
             track.AddClip(clip);
         }
     }
-    
+
     private class ResourceColourDropInformation : IResourceDropInformation
     {
         public long GetClipDurationForDrop(Track track, ResourceItem resource) => 300;
@@ -156,7 +166,7 @@ public abstract class RZApplication
         {
             if (!await HandleGeneralCanDropResource(resource))
                 return;
-            
+
             ResourceColour colourRes = (ResourceColour) resource;
             VideoClipShape shape = new VideoClipShape();
             shape.FrameSpan = span;
@@ -165,7 +175,7 @@ public abstract class RZApplication
             track.AddClip(shape);
         }
     }
-    
+
     private class CompositionResourceDropInformation : IResourceDropInformation
     {
         public long GetClipDurationForDrop(Track track, ResourceItem resource)
@@ -180,7 +190,7 @@ public abstract class RZApplication
         {
             if (!await HandleGeneralCanDropResource(resource))
                 return;
-            
+
             ResourceComposition comp = (ResourceComposition) resource;
             CompositionVideoClip clip = new CompositionVideoClip();
             clip.FrameSpan = span;
@@ -194,17 +204,21 @@ public abstract class RZApplication
     {
         manager.Register(new TaskManager());
         manager.Register(new ResourceToClipDropRegistry());
+        
+        progress.CompletionState.SetProgress(1.0);
     }
-    
+
     protected virtual void RegisterServicesB(IApplicationStartupProgress progress, ServiceManager manager)
     {
         manager.Register(ApplicationConfigurationManager.Instance);
-        
-        ResourceToClipDropRegistry res2clip = manager.GetService<ResourceToClipDropRegistry>(); 
+
+        ResourceToClipDropRegistry res2clip = manager.GetService<ResourceToClipDropRegistry>();
         res2clip.Register(typeof(ResourceAVMedia), new AVMediaDropInformation());
         res2clip.Register(typeof(ResourceColour), new ResourceColourDropInformation());
         res2clip.Register(typeof(ResourceImage), new ResourceImageDropInformation());
         res2clip.Register(typeof(ResourceComposition), new CompositionResourceDropInformation());
+        
+        progress.CompletionState.SetProgress(1.0);
     }
 
     protected virtual void RegisterCommands(IApplicationStartupProgress progress, CommandManager manager)
@@ -229,14 +243,14 @@ public abstract class RZApplication
         manager.Register("commands.editor.DeleteClips", new DeleteClipsCommand());
         manager.Register("commands.editor.ToggleLoopTimelineRegion", new ToggleLoopTimelineRegionCommand());
         manager.Register("commands.editor.AutoToggleLoopTimelineRegion", new ToggleLoopTimelineRegionCommand() { CanUpdateRegionToClipSelection = true });
-        
+
         manager.Register("commands.editor.ToggleClipsEnabled", new ToggleClipsEnabledCommand());
         manager.Register("commands.editor.EnableClips", new EnableClipsCommand());
         manager.Register("commands.editor.DisableClips", new DisableClipsCommand());
         manager.Register("commands.editor.ToggleTracksEnabled", new ToggleTracksEnabledCommand());
         manager.Register("commands.editor.EnableTracks", new EnableTracksCommand());
         manager.Register("commands.editor.DisableTracks", new DisableTracksCommand());
-        
+
         manager.Register("commands.editor.SelectAllClips", new SelectAllClipsCommand());
         manager.Register("commands.editor.SelectClipsInTracks", new SelectClipsInTracksCommand());
         manager.Register("commands.editor.ChangeClipPlaybackSpeed", new ChangeClipPlaybackSpeedCommand());
@@ -276,11 +290,11 @@ public abstract class RZApplication
         manager.Register("commands.editor.Export", new ExportCommand());
         manager.Register("commands.editor.OpenEditorSettings", new OpenEditorSettingsCommand());
         manager.Register("commands.editor.OpenProjectSettings", new OpenProjectSettingsCommand());
-        
-        
-        
-        
+
+
         manager.Register("commands.shortcuts.AddKeyStrokeToShortcut", new AddKeyStrokeToShortcutCommand());
+        
+        progress.CompletionState.SetProgress(1.0);
     }
 
     protected virtual async Task OnFullyInitialised(VideoEditor editor, string[] args)
@@ -317,7 +331,7 @@ public abstract class RZApplication
         PFXNative.ShutdownLibrary();
     }
 
-    protected static void InternalPreInititalise(RZApplication application)
+    protected static void InternalPreInititalise(Application application)
     {
         if (application == null)
             throw new ArgumentNullException(nameof(application));
@@ -333,10 +347,12 @@ public abstract class RZApplication
         if (instance == null)
             throw new InvalidOperationException("Application has not been pre-initialised yet");
 
-        await instance.OnInitialise(progress);
-        
-        await progress.SetAction("Initialising post-initialisation services", null);
-        instance.RegisterServicesB(progress, instance.serviceManager);
+        using (progress.CompletionState.PushCompletionRange(0.0, 0.5))
+            await instance.OnInitialise(progress);
+
+        await progress.ProgressAndSynchroniseAsync("Initialising post-initialisation services");
+        using (progress.CompletionState.PushCompletionRange(0.5, 1.0))
+            instance.RegisterServicesB(progress, instance.serviceManager);
     }
 
     protected static void InternalOnExit(int exitCode) => instance!.OnExit(exitCode);

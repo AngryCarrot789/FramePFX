@@ -360,8 +360,8 @@ public class Project : IDestroy
             return null;
         }
 
-        progress.OnProgress(0.1);
-        using (progress.PushCompletionRange(0.1, 0.8))
+        progress.CompletionState.OnProgress(0.1);
+        using (progress.CompletionState.PushCompletionRange(0.1, 0.8))
         {
             return await SaveProjectInternal(project, filePath, progress);
         }
@@ -382,18 +382,18 @@ public class Project : IDestroy
         {
             project.Editor?.Playback.Pause();
 
-            progress.Text = "Serialising project...";
-            progress.OnProgress(0.5);
+            progress.CurrentAction = "Serialising project...";
+            progress.CompletionState.OnProgress(0.5);
             try
             {
                 project.SaveToFileAndSetPath(filePath);
-                progress.OnProgress(0.5);
+                progress.CompletionState.OnProgress(0.5);
                 return Task.FromResult(true);
             }
             catch (Exception e)
             {
                 IoC.MessageService.ShowMessage("Save Error", "An exception occurred while saving project", e.GetToString());
-                progress.OnProgress(0.5);
+                progress.CompletionState.OnProgress(0.5);
                 return Task.FromResult(false);
             }
         }

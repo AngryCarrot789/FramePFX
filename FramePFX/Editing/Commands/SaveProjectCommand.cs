@@ -44,7 +44,7 @@ public class SaveProjectCommand : AsyncCommand
             await TaskManager.Instance.RunTask(async () =>
             {
                 IActivityProgress progress = TaskManager.Instance.GetCurrentProgressOrEmpty();
-                progress.Text = "Saving project...";
+                progress.CurrentAction = "Saving project...";
 
                 await IoC.Dispatcher.InvokeAsync(async () =>
                 {
@@ -64,7 +64,7 @@ public class SaveProjectAsCommand : SaveProjectCommand
             await TaskManager.Instance.RunTask(async () =>
             {
                 IActivityProgress progress = TaskManager.Instance.GetCurrentProgressOrEmpty();
-                progress.Text = "Saving project as...";
+                progress.CurrentAction = "Saving project as...";
 
                 await await IoC.Dispatcher.InvokeAsync(async () =>
                 {

@@ -1,14 +1,12 @@
-# FramePFX
-A small (non-linear) video editor, written in C# using Avalonia for the UI
+<div style="margin-top: 10pt; display: flex">
+    <img src="icons/FramePFX-256.png" alt="drawing" width="64">
+    <div style="margin-left: 10pt; text-align: center; font-weight: bold; font-size: 32pt">FramePFX</div>
+</div>
 
-I mainly started this as a learning tool into the world of video/audio processing (all I really knew before this was basic OpenGL drawing), but also because other editors like vegas, premiere pro, hitfilm, etc, just seem to run so slowly and some of them just lack basic features (e.g zoom in the view port with CTRL + MouseWheel)
+FramePFX is a small, open source, non-linear video editor, written in C# using Avalonia for the UI.
 
-I doubt this will ever even come close to those editors, but hopefully it will at least support some basic editing
 
-If you have any feedback/criticism for the app, that would be appreciate! Also feel free to contribute, if you would like to. 
-You can see the TODO list near the bottom, and also how to download and compile the appliation
-
-# Preview
+# Previews
 
 This is the latest version using Avalonia:
 ![](FramePFX-DesktopUI_2024-12-06_17.33.20.png)
@@ -42,8 +40,7 @@ Hopefully then you should be able to run and modify any of the 3 FramePFX projec
 ### Windows only commands
 
 The projects in the solution use windows commands like mkdir and xcopy, which may not work on other platforms.
-I only have a Windows machine, so I can't really offer any alternatives. However, feel free to create a pull request
-on a more cross-platform solution!
+Feel free to create a pull request on a more cross-platform solution!
 
 The 8 DLLs just have to be in the same directly as the FramePFX-DesktopUI.exe executable
 
@@ -55,24 +52,45 @@ Sometimes, the SkiaSharp nuget library doesn't copy the skia library files to th
 
 # TODO
 ### Avalonia Remake:
-- Implement project settings dialog
 - Implement UI for Effects list that can be dropped into a clip/track
-### Audio
-I removed audio playback from the Avalonia remake because it required PortAudio, requiring a native project, both of which were a hassle to auto-compile. Check out the last WPF release for the issues on it though; it wasn't great
+### Rendering Engine
+- While we have access to port-audio, I think the entire rendering engine needs an overhaul. 
+  Previously, rendering audio by extracting an exact number of bytes from a clip based on the
+  project frame rate. However, this results in a lot of crackling since the playback FPS isn't pinpoint accurate
+
+  Rendering video too needs to be redone, since the view port is typically quite small, but we are rendering full-sized video 
+  frames of each clip and then just scaling down. This isn't so bad for, say, rectangles and basic primitive shapes. 
+  However, rendering a 4K video frame from an MP4 file is a long and nasty task, then scaling down to 1080p (or whatever the MediaScale of the clip is) 
+  and then finally down to the viewport (typically around the 500x300 size) in the end is just hugely wasteful, so we need either RenderFull and 
+  RenderPreview methods, or, a new rendering system. The current technique of async-rendering doesn't seem so bad. 
 ### Automation Engine
 - Add support for smooth interpolation (e.g. a curve between 2 key frames). I tried doing this, but had a hard time figuring out the math to do the interpolation, and also doing the hit testing for the UI
 ### Clips
-- AVMediaVideoClip is extremely slow for large resolution videos (e.g. 4K takes around 40ms to decode and render onscreen), and only a few video codecs even seem to work. Lots of common file formats give an error like "found invalid 
+- AVMediaVideoClip is extremely slow for large resolution videos (e.g. 4K takes around 40ms to decode and render onscreen), 
+  and only a few video codecs even seem to work. Lots of common file formats give an error like "found invalid 
   data while decoding". I don't know FFmpeg much but I hope to somehow fix this at some point
 - Implement fading between 2 clips
 ### History system
 - There's no undo functionality yet. I might try and implement this once I implement a few of the other features like audio and maybe hardware accelerated final-frame assembly in the renderer
 ### Bugs to fix
 - Importing certain video files can cause the render to fail (some sort of "found invalid data while decoding" error)
+### Multi-thread synchronisation
+- We need to create locks to make accessing and modifying the application state safer, especially now that the activity system works. 
+ 
+  Maybe an application-wide lock for writing into the state of the models? This is similar to how IntelliJ IDEA works; a mostly-read, read-write lock. 
+  Write locks are only acquirable on the main thread (we use the dispatcher to get on there), but any thread can take the read lock. Taking the 
+  read lock requires blocking until no write operations are left, and taking the write-lock requires blocking until all readers are done (and 
+  there's also an event fired when trying to acquire the write lock, to let readers cancel their operations to avoid freezing the UI)
 
 ## Contributing
-Feel free to contribute whatever you want if you think it'll make the editor better!
-The code base isn't perfect so feel free to help try and standardize things
+Contributions are welcomed with open arms! Just create a pull request, or an issue then PR, whichever you fancy. 
+You can find information on how to compile and run/debug the app if you scroll up a bit.
+The TODO list is above, but you can also just search `// TODO:` in the code base
+
+You can find detailed explanations in the docs folder, which explains the core parts of the editor (such as the
+commands, automation, etc.). There's still lots to be documented so it doesn't explain everything
+
+The code base isn't perfect so feel free to help try and standardize things!
 
 # Licence
 All source files in FramePFX are under the GNU General Public License version 3.0 or later (GPL v3.0+).

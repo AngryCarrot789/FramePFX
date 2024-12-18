@@ -33,34 +33,34 @@ public static class IoC
     /// <summary>
     /// Gets the application's message dialog service, for showing messages to the user
     /// </summary>
-    public static IMessageDialogService MessageService => RZApplication.Instance.Services.GetService<IMessageDialogService>();
+    public static IMessageDialogService MessageService => Application.Instance.Services.GetService<IMessageDialogService>();
 
     /// <summary>
     /// Gets the application's user input dialog service, for querying basic inputs from the user
     /// </summary>
-    public static IUserInputDialogService UserInputService => RZApplication.Instance.Services.GetService<IUserInputDialogService>();
+    public static IUserInputDialogService UserInputService => Application.Instance.Services.GetService<IUserInputDialogService>();
 
     /// <summary>
     /// Gets the application's file picking service, for picking files and directories to open/save
     /// </summary>
-    public static IFilePickDialogService FilePickService => RZApplication.Instance.Services.GetService<IFilePickDialogService>();
+    public static IFilePickDialogService FilePickService => Application.Instance.Services.GetService<IFilePickDialogService>();
 
-    public static IColourPickerService ColourPickerService => RZApplication.Instance.Services.GetService<IColourPickerService>();
+    public static IColourPickerService ColourPickerService => Application.Instance.Services.GetService<IColourPickerService>();
 
-    public static IResourceLoaderService ResourceLoaderService => RZApplication.Instance.Services.GetService<IResourceLoaderService>();
+    public static IResourceLoaderService ResourceLoaderService => Application.Instance.Services.GetService<IResourceLoaderService>();
     
-    public static IInputStrokeQueryService InputStrokeQueryService => RZApplication.Instance.Services.GetService<IInputStrokeQueryService>();
+    public static IInputStrokeQueryService InputStrokeQueryService => Application.Instance.Services.GetService<IInputStrokeQueryService>();
     /// <summary>
     /// Gets the application's task manager
     /// </summary>
-    public static TaskManager TaskManager => RZApplication.Instance.Services.GetService<TaskManager>();
+    public static TaskManager TaskManager => Application.Instance.Services.GetService<TaskManager>();
     
     /// <summary>
     /// Gets the application's configuration manager
     /// </summary>
-    public static ApplicationConfigurationManager ApplicationConfigurationManager => RZApplication.Instance.Services.GetService<ApplicationConfigurationManager>();
+    public static ApplicationConfigurationManager ApplicationConfigurationManager => Application.Instance.Services.GetService<ApplicationConfigurationManager>();
     
-    public static IConfigurationService ConfigurationService => RZApplication.Instance.Services.GetService<IConfigurationService>();
+    public static IConfigurationService ConfigurationService => Application.Instance.Services.GetService<IConfigurationService>();
 
-    public static IDispatcher Dispatcher => RZApplication.Instance.Dispatcher;
+    public static IDispatcher Dispatcher => Application.Instance.Dispatcher;
 }

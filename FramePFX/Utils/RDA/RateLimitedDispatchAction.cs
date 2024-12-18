@@ -145,7 +145,7 @@ public abstract class BaseRateLimitedDispatchAction
             }
             catch (Exception e)
             {
-                RZApplication.Instance.Dispatcher.Post(() => throw new Exception("Exception while awaiting operation", e));
+                Application.Instance.Dispatcher.Post(() => throw new Exception("Exception while awaiting operation", e));
             }
             finally
             {
@@ -220,19 +220,19 @@ public abstract class BaseRateLimitedDispatchAction
     #region Static Helper Constructors
 
     public static RateLimitedDispatchAction ForDispatcherAsync(Func<Task> callback, TimeSpan minInterval) => ForDispatcherAsync(callback, minInterval, DispatchPriority.Send);
-    public static RateLimitedDispatchAction ForDispatcherAsync(Func<Task> callback, TimeSpan minInterval, DispatchPriority priority) => ForDispatcherAsync(callback, minInterval, RZApplication.Instance.Dispatcher, priority);
+    public static RateLimitedDispatchAction ForDispatcherAsync(Func<Task> callback, TimeSpan minInterval, DispatchPriority priority) => ForDispatcherAsync(callback, minInterval, Application.Instance.Dispatcher, priority);
     public static RateLimitedDispatchAction ForDispatcherAsync(Func<Task> callback, TimeSpan minInterval, IDispatcher dispatcher) => ForDispatcherAsync(callback, minInterval, dispatcher, DispatchPriority.Send);
 
     public static RateLimitedDispatchAction ForDispatcherSync(Action callback, TimeSpan minInterval) => ForDispatcherSync(callback, minInterval, DispatchPriority.Send);
-    public static RateLimitedDispatchAction ForDispatcherSync(Action callback, TimeSpan minInterval, DispatchPriority priority) => ForDispatcherSync(callback, minInterval, RZApplication.Instance.Dispatcher, priority);
+    public static RateLimitedDispatchAction ForDispatcherSync(Action callback, TimeSpan minInterval, DispatchPriority priority) => ForDispatcherSync(callback, minInterval, Application.Instance.Dispatcher, priority);
     public static RateLimitedDispatchAction ForDispatcherSync(Action callback, TimeSpan minInterval, IDispatcher dispatcher) => ForDispatcherSync(callback, minInterval, dispatcher, DispatchPriority.Send);
 
     public static RateLimitedDispatchAction<T> ForDispatcherAsync<T>(Func<T, Task> callback, TimeSpan minInterval) where T : class => ForDispatcherAsync(callback, minInterval, DispatchPriority.Send);
-    public static RateLimitedDispatchAction<T> ForDispatcherAsync<T>(Func<T, Task> callback, TimeSpan minInterval, DispatchPriority priority) where T : class => ForDispatcherAsync(callback, minInterval, RZApplication.Instance.Dispatcher, priority);
+    public static RateLimitedDispatchAction<T> ForDispatcherAsync<T>(Func<T, Task> callback, TimeSpan minInterval, DispatchPriority priority) where T : class => ForDispatcherAsync(callback, minInterval, Application.Instance.Dispatcher, priority);
     public static RateLimitedDispatchAction<T> ForDispatcherAsync<T>(Func<T, Task> callback, TimeSpan minInterval, IDispatcher dispatcher) where T : class => ForDispatcherAsync(callback, minInterval, dispatcher, DispatchPriority.Send);
 
     public static RateLimitedDispatchAction<T> ForDispatcherSync<T>(Action<T> callback, TimeSpan minInterval) where T : class => ForDispatcherSync(callback, minInterval, DispatchPriority.Send);
-    public static RateLimitedDispatchAction<T> ForDispatcherSync<T>(Action<T> callback, TimeSpan minInterval, DispatchPriority priority) where T : class => ForDispatcherSync(callback, minInterval, RZApplication.Instance.Dispatcher, priority);
+    public static RateLimitedDispatchAction<T> ForDispatcherSync<T>(Action<T> callback, TimeSpan minInterval, DispatchPriority priority) where T : class => ForDispatcherSync(callback, minInterval, Application.Instance.Dispatcher, priority);
     public static RateLimitedDispatchAction<T> ForDispatcherSync<T>(Action<T> callback, TimeSpan minInterval, IDispatcher dispatcher) where T : class => ForDispatcherSync(callback, minInterval, dispatcher, DispatchPriority.Send);
 
     public static RateLimitedDispatchAction ForDispatcherSync(Action callback, TimeSpan minInterval, IDispatcher dispatcher, DispatchPriority priority)

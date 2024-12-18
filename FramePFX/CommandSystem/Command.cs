@@ -65,7 +65,7 @@ public abstract class Command
 
     internal static void InternalExecute(string cmdId, Command command, CommandEventArgs e)
     {
-        RZApplication.Instance.Dispatcher.VerifyAccess();
+        Application.Instance.Dispatcher.VerifyAccess();
         if (e.IsUserInitiated)
         {
             try

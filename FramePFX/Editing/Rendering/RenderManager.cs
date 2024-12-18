@@ -198,7 +198,7 @@ public class RenderManager
 #if DEBUG
         StackTrace old = Interlocked.Exchange(ref this.stackTrace, new StackTrace(true));
 #endif
-        if (!RZApplication.Instance.Dispatcher.CheckAccess())
+        if (!Application.Instance.Dispatcher.CheckAccess())
             throw new InvalidOperationException("Cannot start rendering while not on the main thread");
         if (frame < 0 || frame >= this.Timeline.MaxDuration)
             throw new ArgumentOutOfRangeException(nameof(frame), "Frame is not within the bounds of the timeline");

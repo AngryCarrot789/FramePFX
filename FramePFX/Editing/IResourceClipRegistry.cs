@@ -30,8 +30,10 @@ namespace FramePFX.Editing;
 /// </summary>
 public sealed class ResourceToClipDropRegistry
 {
+    public static ResourceToClipDropRegistry Instance => Application.Instance.Services.GetService<ResourceToClipDropRegistry>();
+    
     private readonly Dictionary<Type, IResourceDropInformation> information;
-
+    
     public ResourceToClipDropRegistry()
     {
         this.information = new Dictionary<Type, IResourceDropInformation>();

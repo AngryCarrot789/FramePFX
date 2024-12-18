@@ -24,7 +24,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
@@ -52,7 +51,7 @@ using FramePFX.Utils;
 
 namespace FramePFX.Avalonia;
 
-public class RZApplicationImpl : RZApplication
+public class ApplicationImpl : Application
 {
     public override IDispatcher Dispatcher { get; }
 
@@ -61,13 +60,13 @@ public class RZApplicationImpl : RZApplication
     /// </summary>
     public App App { get; }
 
-    public RZApplicationImpl(App app)
+    public ApplicationImpl(App app)
     {
         this.App = app ?? throw new ArgumentNullException(nameof(app));
         this.Dispatcher = new DispatcherImpl(global::Avalonia.Threading.Dispatcher.UIThread);
     }
 
-    public static void InternalPreInititaliseImpl(App app) => InternalPreInititalise(new RZApplicationImpl(app));
+    public static void InternalPreInititaliseImpl(App app) => InternalPreInititalise(new ApplicationImpl(app));
     public static Task InternalInititaliseImpl(IApplicationStartupProgress progress) => InternalInititalise(progress);
     public static void InternalExit(int exitCode) => InternalOnExit(exitCode);
     public static Task InternalOnInitialised(VideoEditor editor, string[] args) => InternalOnInitialised2(editor, args);
@@ -93,7 +92,10 @@ public class RZApplicationImpl : RZApplication
 
     protected override async Task OnInitialise(IApplicationStartupProgress progress)
     {
-        await base.OnInitialise(progress);
+        // Since we're calling a base method which will complete to 100%,
+        // we need to push a completion range for our custom code
+        using (progress.CompletionState.PushCompletionRange(0.0, 0.5))
+            await base.OnInitialise(progress);
 
         // PFXCE engine removed because it's a hassle to compile it, mainly PortAudio
         // await progress.SetAction("Loading PFXCE native engine...", null);
@@ -109,7 +111,8 @@ public class RZApplicationImpl : RZApplication
         //     throw new Exception("PFXCE native engine load failed", e);
         // }
 
-        await progress.SetAction("Loading keymap...", null);
+        await progress.ProgressAndSynchroniseAsync("Loading keymap...");
+        
         string keymapFilePath = Path.GetFullPath(@"Keymap.xml");
         if (File.Exists(keymapFilePath))
         {
@@ -128,7 +131,8 @@ public class RZApplicationImpl : RZApplication
             await IoC.MessageService.ShowMessage("Keymap", "Keymap file does not exist at " + keymapFilePath + ". This error can be ignored, but shortcuts won't work");
         }
 
-        await progress.SetAction("Loading Native Engine...", null);
+        await progress.ProgressAndSynchroniseAsync("Loading Native Engine...", 0.65);
+
         try
         {
             PFXNative.InitialiseLibrary();
@@ -138,8 +142,11 @@ public class RZApplicationImpl : RZApplication
             await IoC.MessageService.ShowMessage("Native Engine Initialisation Failed", "Failed to initialise native engine", e.GetToString());
         }
         
-        await progress.SetAction("Loading FFmpeg...", null);
+        await progress.ProgressAndSynchroniseAsync("Loading FFmpeg...", 0.8);
 
+        // FramePFX is a small non-linear video editor, written in C# using Avalonia for the UI
+        // but what if we don't
+        
         try
         {
             ffmpeg.avdevice_register_all();
@@ -154,7 +161,7 @@ public class RZApplicationImpl : RZApplication
             const ushort b = ushort.MaxValue;
             const ulong expected = a - b;
 
-            await progress.SetAction("Checking native engine functionality", null);
+            await progress.ProgressAndSynchroniseAsync("Checking native engine functionality", 0.95);
             
             // cute little test to see if we're pumping iron not rust
             if (expected != PFXNative.TestEngineSubNumbers(a, b)) 
@@ -176,7 +183,7 @@ public class RZApplicationImpl : RZApplication
 
     public static bool TryGetActiveWindow([NotNullWhen(true)] out Window? window)
     {
-        if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        if (global::Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             return (window = desktop.Windows.FirstOrDefault(x => x.IsActive) ?? desktop.MainWindow) != null;
         }
@@ -187,6 +194,7 @@ public class RZApplicationImpl : RZApplication
 
     private class DispatcherImpl : IDispatcher
     {
+        private static readonly Action EmptyAction = () => { };
         private readonly Dispatcher dispatcher;
 
         public DispatcherImpl(Dispatcher dispatcher)
@@ -236,6 +244,11 @@ public class RZApplicationImpl : RZApplication
         public void Post(Action action, DispatchPriority priority = DispatchPriority.Default)
         {
             this.dispatcher.Post(action, ToAvaloniaPriority(priority));
+        }
+        
+        public Task Process(DispatchPriority priority)
+        {
+            return this.InvokeAsync(EmptyAction, priority);
         }
 
         private static DispatcherPriority ToAvaloniaPriority(DispatchPriority priority)

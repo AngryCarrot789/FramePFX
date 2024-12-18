@@ -27,7 +27,7 @@ public class ConfigurationServiceImpl : IConfigurationService
 {
     public Task ShowConfigurationDialog(ConfigurationManager configurationManager)
     {
-        if (!RZApplicationImpl.TryGetActiveWindow(out Window? window))
+        if (!ApplicationImpl.TryGetActiveWindow(out Window? window))
             return Task.CompletedTask;
         
         ConfigurationDialog dialog = new ConfigurationDialog(configurationManager);

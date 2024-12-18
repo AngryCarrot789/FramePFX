@@ -57,7 +57,7 @@ public class MessageDialogServiceImpl : IMessageDialogService
     private static async Task<MessageBoxResult> ShowMessageMainThread(MessageBoxInfo info)
     {
         Validate.NotNull(info);
-        if (RZApplicationImpl.TryGetActiveWindow(out Window? window))
+        if (ApplicationImpl.TryGetActiveWindow(out Window? window))
         {
             MessageBoxDialog dialog = new MessageBoxDialog
             {

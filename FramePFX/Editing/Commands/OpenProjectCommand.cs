@@ -62,14 +62,14 @@ public class OpenProjectCommand : AsyncCommand
             IActivityProgress progress = TaskManager.Instance.CurrentTask.Progress;
 
             bool result;
-            using (progress.PushCompletionRange(0.0, 0.5))
+            using (progress.CompletionState.PushCompletionRange(0.0, 0.5))
             {
                 result = await CloseProjectCommand.CloseProjectBGT(editor, progress);
             }
 
             if (result)
             {
-                using (progress.PushCompletionRange(0.5, 1.0))
+                using (progress.CompletionState.PushCompletionRange(0.5, 1.0))
                 {
                     return await OpenProjectAtBGT(editor, filePath, progress);
                 }
@@ -86,10 +86,10 @@ public class OpenProjectCommand : AsyncCommand
         if (progress == null)
             progress = EmptyActivityProgress.Instance;
 
-        using (progress.PushCompletionRange(0.0, 0.4))
+        using (progress.CompletionState.PushCompletionRange(0.0, 0.4))
         {
-            progress.Text = "Reading project data from file";
-            progress.OnProgress(0.5);
+            progress.CurrentAction = "Reading project data from file";
+            progress.CompletionState.OnProgress(0.5);
 
             try
             {
@@ -101,30 +101,30 @@ public class OpenProjectCommand : AsyncCommand
                 return false;
             }
 
-            progress.OnProgress(0.5);
+            progress.CompletionState.OnProgress(0.5);
         }
 
-        using (progress.PushCompletionRange(0.4, 0.6))
+        using (progress.CompletionState.PushCompletionRange(0.4, 0.6))
         {
-            progress.Text = "Loading project";
-            progress.OnProgress(0.5);
+            progress.CurrentAction = "Loading project";
+            progress.CompletionState.OnProgress(0.5);
             await IoC.Dispatcher.InvokeAsync(() =>
             {
                 if (editor.Project != null)
                     editor.CloseProject();
                 editor.SetProject(project);
             });
-            progress.OnProgress(0.5);
+            progress.CompletionState.OnProgress(0.5);
         }
 
-        using (progress.PushCompletionRange(0.6, 0.9))
+        using (progress.CompletionState.PushCompletionRange(0.6, 0.9))
         {
-            progress.Text = "Loading resources";
-            progress.OnProgress(0.5);
+            progress.CurrentAction = "Loading resources";
+            progress.CompletionState.OnProgress(0.5);
 
             bool result = await await IoC.Dispatcher.InvokeAsync(async () =>
             {
-                IResourceLoaderService loader = RZApplication.Instance.Services.GetService<IResourceLoaderService>();
+                IResourceLoaderService loader = Application.Instance.Services.GetService<IResourceLoaderService>();
                 if (!await loader.TryLoadResource(project.ResourceManager.RootContainer))
                 {
                     try
@@ -145,13 +145,13 @@ public class OpenProjectCommand : AsyncCommand
             if (!result)
                 return false;
 
-            progress.OnProgress(0.5);
+            progress.CompletionState.OnProgress(0.5);
         }
 
-        using (progress.PushCompletionRange(0.9, 1.0))
+        using (progress.CompletionState.PushCompletionRange(0.9, 1.0))
         {
-            progress.Text = "Updating automation and rendering";
-            progress.OnProgress(0.5);
+            progress.CurrentAction = "Updating automation and rendering";
+            progress.CompletionState.OnProgress(0.5);
 
             try
             {
@@ -172,7 +172,7 @@ public class OpenProjectCommand : AsyncCommand
                 await IoC.MessageService.ShowMessage("Warning", "Issue: project was marked modified during automation update, which should not happen");
             }
 
-            progress.OnProgress(0.5);
+            progress.CompletionState.OnProgress(0.5);
         }
 
         await Task.Delay(100);

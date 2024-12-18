@@ -180,7 +180,7 @@ public sealed class RapidDispatchActionEx : RapidDispatchActionExBase, IDispatch
         ForSync(callback, DispatchPriority.Normal, debugId);
 
     public static RapidDispatchActionEx ForSync(Action callback, DispatchPriority priority, string debugId = null) =>
-        ForSync(callback, RZApplication.Instance.Dispatcher, priority, debugId);
+        ForSync(callback, Application.Instance.Dispatcher, priority, debugId);
 
     public static RapidDispatchActionEx ForSync(Action callback, IDispatcher dispatcher, string debugId = null) =>
         ForSync(callback, dispatcher, DispatchPriority.Normal, debugId);
@@ -204,7 +204,7 @@ public sealed class RapidDispatchActionEx : RapidDispatchActionExBase, IDispatch
         ForAsync(callback, DispatchPriority.Normal, debugId);
 
     public static RapidDispatchActionEx ForAsync(Func<Task> callback, DispatchPriority priority, string debugId = null) =>
-        ForAsync(callback, RZApplication.Instance.Dispatcher, priority, debugId);
+        ForAsync(callback, Application.Instance.Dispatcher, priority, debugId);
 
     public static RapidDispatchActionEx ForAsync(Func<Task> callback, IDispatcher dispatcher, string debugId = null) =>
         ForAsync(callback, dispatcher, DispatchPriority.Normal, debugId);
@@ -247,7 +247,7 @@ public sealed class RapidDispatchActionEx<T> : RapidDispatchActionExBase, IDispa
 
     public static RapidDispatchActionEx<T> ForSync(Action<T> callback, DispatchPriority priority, string debugId = null)
     {
-        return ForSync(callback, RZApplication.Instance.Dispatcher, priority, debugId);
+        return ForSync(callback, Application.Instance.Dispatcher, priority, debugId);
     }
 
     /// <summary>
@@ -270,7 +270,7 @@ public sealed class RapidDispatchActionEx<T> : RapidDispatchActionExBase, IDispa
     /// </summary>
     public static RapidDispatchActionEx<T> ForAsync(Func<T, Task> callback, DispatchPriority priority, string debugId = null)
     {
-        return ForAsync(callback, RZApplication.Instance.Dispatcher, priority, debugId);
+        return ForAsync(callback, Application.Instance.Dispatcher, priority, debugId);
     }
 
     /// <summary>

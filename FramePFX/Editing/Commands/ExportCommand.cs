@@ -77,7 +77,7 @@ public class ExportCommand : AsyncCommand
         }
 
         theEditor.Playback.Pause();
-        IExportService service = RZApplication.Instance.Services.GetService<IExportService>();
+        IExportService service = Application.Instance.Services.GetService<IExportService>();
 
         ExportSetup setup = new ExportSetup(theEditor, theTimeline)
         {

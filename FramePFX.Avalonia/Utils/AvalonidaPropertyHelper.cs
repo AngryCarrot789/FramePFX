@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System;
 using System.Diagnostics.CodeAnalysis;
 using Avalonia;
 using Avalonia.Data;
@@ -26,14 +25,6 @@ namespace FramePFX.Avalonia.Utils;
 
 public static class AvalonidaPropertyHelper
 {
-    public static T WithChangedHandler<T, TOwner, TValue>(this T property, Action<TOwner, AvaloniaPropertyChangedEventArgs<TValue>> handler)
-        where TOwner : AvaloniaObject
-        where T : AvaloniaProperty<TValue>
-    {
-        property.Changed.AddClassHandler(handler);
-        return property;
-    }
-
     public static bool TryGetOldValue<TValue>(this AvaloniaPropertyChangedEventArgs<TValue> args, [NotNullWhen(true)] out TValue value)
     {
         Optional<TValue> oldVal = (args).OldValue;

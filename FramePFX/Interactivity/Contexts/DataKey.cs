@@ -44,15 +44,22 @@ public abstract class DataKey
         Registry = new Dictionary<string, DataKey>();
     }
 
-    public static DataKey? GetKeyById(string id) => Registry.GetValueOrDefault(id);
+    public static DataKey? GetKeyById(string id)
+    {
+        lock (Registry)
+            return Registry.GetValueOrDefault(id);
+    }
 
     protected static void RegisterInternal(string id, DataKey key)
     {
         if (ReferenceEquals(key, null))
             throw new ArgumentNullException(nameof(key));
         ArgumentNullException.ThrowIfNull(id);
-        if (!Registry.TryAdd(id, key))
-            throw new InvalidOperationException("ID already in use: " + id);
+        lock (Registry)
+        {
+            if (!Registry.TryAdd(id, key))
+                throw new InvalidOperationException("ID already in use: " + id);   
+        }
     }
 
     public static bool operator ==(DataKey a, DataKey b)
@@ -84,7 +91,7 @@ public abstract class DataKey
     public override string ToString() => $"DataKey(\"{this.Id}\")";
 }
 
-public class DataKey<T> : DataKey
+public sealed class DataKey<T> : DataKey
 {
     private DataKey(string id) : base(id) { }
 

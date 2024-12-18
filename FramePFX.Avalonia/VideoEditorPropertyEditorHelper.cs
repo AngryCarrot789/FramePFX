@@ -47,12 +47,12 @@ public static class VideoEditorPropertyEditorHelper
         // operations will be stalling the background operations... well I assume that's how it works lmfao)
         rateLimitedClipUpdate = new RateLimitedDispatchAction<ITimelineElement>((t) =>
         {
-            return RZApplication.Instance.Dispatcher.InvokeAsync(() => UpdateClipSelection(t), DispatchPriority.Background);
+            return Application.Instance.Dispatcher.InvokeAsync(() => UpdateClipSelection(t), DispatchPriority.Background);
         }, TimeSpan.FromMilliseconds(100));
 
         rateLimitedTrackUpdate = new RateLimitedDispatchAction<ITimelineElement>((t) =>
         {
-            return RZApplication.Instance.Dispatcher.InvokeAsync(() => UpdateTrackSelection(t), DispatchPriority.Background);
+            return Application.Instance.Dispatcher.InvokeAsync(() => UpdateTrackSelection(t), DispatchPriority.Background);
         }, TimeSpan.FromMilliseconds(100));
     }
 

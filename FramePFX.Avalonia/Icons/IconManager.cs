@@ -17,23 +17,24 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Threading.Tasks;
-using Avalonia.Controls;
-using FramePFX.Editing.Exporting;
+using SkiaSharp;
 
-namespace FramePFX.Avalonia.Exporting;
+namespace FramePFX.Avalonia.Icons;
 
-public class ExportServiceImpl : IExportService
+/// <summary>
+/// A class that manages a set of registered icons throughout the application. This is used to simply icon usage
+/// </summary>
+public class IconManager
 {
-    public Task ShowExportDialog(ExportSetup setup)
+    public IconKey RegisterIconByFilePath(string name, string filePath)
     {
-        if (!ApplicationImpl.TryGetActiveWindow(out Window? window))
-        {
-            return Task.CompletedTask;
-        }
-
-        ExportDialog dialog = new ExportDialog(setup);
-        dialog.Topmost = true;
-        return dialog.ShowDialog(window);
+        // Try to find an existing icon with the same file path. Share pixel data, maybe using a wrapper, because icons are lazily loaded
+        return null;
+    }
+    
+    public IconKey RegisterIconUsingBitmap(string name, SKBitmap bitmap)
+    {
+        // Try to find an existing icon with the same file path. Share pixel data, maybe using a wrapper, because icons are lazily loaded
+        return null;
     }
 }

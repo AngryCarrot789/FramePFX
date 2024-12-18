@@ -41,7 +41,7 @@ public class InputDialogServiceImpl : IUserInputDialogService
     {
         Validate.NotNull(info);
 
-        if (RZApplicationImpl.TryGetActiveWindow(out Window? window))
+        if (ApplicationImpl.TryGetActiveWindow(out Window? window))
         {
             UserInputDialog dialog = new UserInputDialog
             {

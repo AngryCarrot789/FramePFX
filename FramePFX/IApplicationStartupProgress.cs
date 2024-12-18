@@ -17,17 +17,36 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.Tasks;
+
 namespace FramePFX;
 
 public interface IApplicationStartupProgress
 {
-    Task SetAction(string? header, string? description);
+    /// <summary>
+    /// Gets or sets the current action
+    /// </summary>
+    string? ActionText { get; set; }
+
+    /// <summary>
+    /// Gets the completion state progress bar
+    /// </summary>
+    CompletionState CompletionState { get; }
+
+    /// <summary>
+    /// Updates the action (if non-null) and sets the current progress (if non-null)
+    /// and then returns a task that completes onces the UI has been rendered
+    /// </summary>
+    /// <param name="action">New <see cref="ActionText"/> if non-null</param>
+    /// <param name="newProgress">Value passed to <see cref="Tasks.CompletionState.SetProgress"/> if non-null</param>
+    /// <returns>A task completed once rendered</returns>
+    Task ProgressAndSynchroniseAsync(string action, double? newProgress = default);
 }
 
 public class EmptyApplicationStartupProgress : IApplicationStartupProgress
 {
-    public Task SetAction(string? header, string? description)
-    {
-        return Task.CompletedTask;
-    }
+    public string? ActionText { get; set; }
+
+    public CompletionState CompletionState { get; } = new SimpleCompletionState();
+    public Task ProgressAndSynchroniseAsync(string action, double? newProgress) => Task.CompletedTask;
 }

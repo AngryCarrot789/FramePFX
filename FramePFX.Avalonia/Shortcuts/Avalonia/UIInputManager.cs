@@ -97,7 +97,7 @@ public class UIInputManager
 
     static UIInputManager()
     {
-        RZApplication.Instance.Dispatcher.VerifyAccess();
+        Application.Instance.Dispatcher.VerifyAccess();
         InputElement.GotFocusEvent.AddClassHandler<TopLevel>((s, e) => OnFocusChanged(s, e, false), handledEventsToo: true);
         InputElement.LostFocusEvent.AddClassHandler<TopLevel>((s, e) => OnFocusChanged(s, e, true), handledEventsToo: true);
 

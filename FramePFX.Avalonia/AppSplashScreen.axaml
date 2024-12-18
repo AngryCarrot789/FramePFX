@@ -16,8 +16,12 @@
         BorderThickness="3"
         FontFamily="{StaticResource FontOxanium}">
     <Grid>
-        <TextBlock Text="FramePFX v2.0.0" FontFamily="{StaticResource FontOxanium}" FontWeight="DemiBold" FontSize="64" VerticalAlignment="Top" TextAlignment="Center" Margin="0,12"/>
-        <TextBlock x:Name="CurrentActivityTextBlock" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Padding="10" FontSize="12"/>
+        
+        <TextBlock Text="FramePFX v2.0.1" FontFamily="{StaticResource FontOxanium}" FontWeight="DemiBold" FontSize="64" VerticalAlignment="Top" TextAlignment="Center" Margin="0,12"/>
+        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
+            <TextBlock x:Name="PART_ActivityTextBlock" Text="test11" Padding="10" FontSize="12"/>
+            <ProgressBar x:Name="PART_ProgressBar" Minimum="0" Maximum="1" Value="0" BorderThickness="0"/>
+        </StackPanel>
         <TextBlock FontFamily="{StaticResource FontOxanium}" Margin="0,92,0,228" VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center">
             <Run FontWeight="Bold" Text="Frame Pixel Effect"/>
         </TextBlock>

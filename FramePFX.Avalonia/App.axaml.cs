@@ -20,7 +20,7 @@
 using System;
 using System.IO;
 using System.Linq;
-using Avalonia;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -29,7 +29,7 @@ using FramePFX.Editing;
 
 namespace FramePFX.Avalonia;
 
-public partial class App : Application
+public partial class App : global::Avalonia.Application
 {
     static App() {
     }
@@ -40,7 +40,7 @@ public partial class App : Application
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
-        RZApplicationImpl.InternalPreInititaliseImpl(this);
+        ApplicationImpl.InternalPreInititaliseImpl(this);
         AvCore.OnApplicationInitialised();
     }
 
@@ -71,26 +71,33 @@ public partial class App : Application
             Directory.SetCurrentDirectory(dir);
         }
 
-        // Let the app crash in debug mode so that the IDE can spot the exception
+        // App initialisation takes a big chunk of the startup
+        // phase, so it has a healthy dose of range available
+        await progress.ProgressAndSynchroniseAsync("Setup", 0.01);
+        using (progress.CompletionState.PushCompletionRange(0.0, 0.7))
+        {
+            // Let the app crash in debug mode so that the IDE can spot the exception
 #if !DEBUG
-        try {
+            try {
 #endif
-        await RZApplicationImpl.InternalInititaliseImpl(progress);
+            await ApplicationImpl.InternalInititaliseImpl(progress);
 #if !DEBUG
-        }
-        catch (Exception ex) {
-            await (new FramePFX.Avalonia.Services.MessageDialogServiceImpl().ShowMessage("App startup failed", "Failed to initialise application", ex.ToString()));
-            global::Avalonia.Threading.Dispatcher.UIThread.InvokeShutdown();
-            return;
-        }
+            }
+            catch (Exception ex) {
+                await (new FramePFX.Avalonia.Services.MessageDialogServiceImpl().ShowMessage("App startup failed", "Failed to initialise application", ex.ToString()));
+                global::Avalonia.Threading.Dispatcher.UIThread.InvokeShutdown();
+                return;
+            }
 #endif
-
-        await progress.SetAction("Loading editor window", null);
+        }
+        
+        await progress.ProgressAndSynchroniseAsync("Loading editor window", 0.8);
 
         VideoEditor editor = new VideoEditor();
         if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             EditorWindow mainWindow = new EditorWindow();
+            await progress.ProgressAndSynchroniseAsync("Loading editor window", 0.9);
             mainWindow.Show();
             (progress as AppSplashScreen)?.Close();
             desktop.MainWindow = mainWindow;
@@ -98,11 +105,11 @@ public partial class App : Application
             mainWindow.VideoEditor = editor;
         }
 
-        await RZApplicationImpl.InternalOnInitialised(editor, envArgs.Length > 1 ? envArgs.Skip(1).ToArray() : Array.Empty<string>());
+        await ApplicationImpl.InternalOnInitialised(editor, envArgs.Length > 1 ? envArgs.Skip(1).ToArray() : Array.Empty<string>());
     }
 
     private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
     {
-        RZApplicationImpl.InternalExit(e.ApplicationExitCode);
+        ApplicationImpl.InternalExit(e.ApplicationExitCode);
     }
 }

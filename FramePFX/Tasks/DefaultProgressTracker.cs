@@ -47,23 +47,7 @@ public class DefaultProgressTracker : IActivityProgress
         }
     }
 
-    public double TotalCompletion
-    {
-        get => this.completionValue;
-        set
-        {
-            lock (this.dataLock)
-            {
-                if (DoubleUtils.AreClose(this.completionValue, value))
-                    return;
-                this.completionValue = value;
-            }
-
-            this.updateCompletionValue?.InvokeAsync();
-        }
-    }
-
-    public string? HeaderText
+    public string? Caption
     {
         get => this.headerText;
         set
@@ -79,7 +63,7 @@ public class DefaultProgressTracker : IActivityProgress
         }
     }
 
-    public string? Text
+    public string? CurrentAction
     {
         get => this.descriptionText;
         set
@@ -96,138 +80,92 @@ public class DefaultProgressTracker : IActivityProgress
     }
 
     public event ActivityProgressEventHandler? IsIndeterminateChanged;
-    public event ActivityProgressEventHandler? CompletionValueChanged;
-    public event ActivityProgressEventHandler? HeaderTextChanged;
-    public event ActivityProgressEventHandler? TextChanged;
-
-    private readonly Stack<CompletionRange> ranges = new Stack<CompletionRange>();
-    private double totalMultiplier;
+    public event ActivityProgressEventHandler? CaptionChanged;
+    public event ActivityProgressEventHandler? CurrentActionChanged;
 
     private readonly RapidDispatchActionEx updateIsIndeterminate;
-    private readonly RapidDispatchActionEx updateCompletionValue;
     private readonly RapidDispatchActionEx updateHeaderText;
     private readonly RapidDispatchActionEx updateText;
     private readonly DispatchPriority eventDispatchPriority;
 
+    public CompletionState CompletionState { get; }
+    
     public DefaultProgressTracker() : this(DispatchPriority.Loaded) {
     }
 
     public DefaultProgressTracker(DispatchPriority eventDispatchPriority)
     {
-        this.totalMultiplier = 1.0;
         this.eventDispatchPriority = eventDispatchPriority;
         this.updateIsIndeterminate = RapidDispatchActionEx.ForSync(() => this.IsIndeterminateChanged?.Invoke(this), eventDispatchPriority);
-        this.updateCompletionValue = RapidDispatchActionEx.ForSync(() => this.CompletionValueChanged?.Invoke(this), eventDispatchPriority);
-        this.updateHeaderText = RapidDispatchActionEx.ForSync(() => this.HeaderTextChanged?.Invoke(this), eventDispatchPriority);
-        this.updateText = RapidDispatchActionEx.ForSync(() => this.TextChanged?.Invoke(this), eventDispatchPriority);
+        this.updateHeaderText = RapidDispatchActionEx.ForSync(() => this.CaptionChanged?.Invoke(this), eventDispatchPriority);
+        this.updateText = RapidDispatchActionEx.ForSync(() => this.CurrentActionChanged?.Invoke(this), eventDispatchPriority);
+        this.CompletionState = new ConcurrentCompletionState(eventDispatchPriority);
     }
-
-    public PopDispose PushCompletionRange(double min, double max)
-    {
-        CompletionRange range = new CompletionRange(max - min, this.totalMultiplier, this.TotalCompletion);
-        this.totalMultiplier *= range.Range;
-        this.ranges.Push(range);
-        return new PopDispose(this);
-    }
-
-    public void PopCompletionRange()
-    {
-        if (this.ranges.Count < 1)
-            throw new InvalidOperationException("Too many completion ranges popped: the stack is empty!");
-        CompletionRange popped = this.ranges.Pop();
-        this.totalMultiplier = popped.PreviousMultiplier;
-    }
-
-    public void OnProgress(double value)
-    {
-        if (this.ranges.Count > 0)
-        {
-            this.TotalCompletion += this.totalMultiplier * value;
-        }
-        else
-        {
-            // assert totalMultiplier == 1.0
-            this.TotalCompletion += value;
-        }
-    }
-
-    public void SetProgress(double value)
-    {
-        if (this.ranges.TryPeek(out CompletionRange top))
-        {
-            this.TotalCompletion = top.PreviousTotalCompletion + (this.totalMultiplier * value);
-        }
-        else
-        {
-            // assert totalMultiplier == 1.0
-            this.TotalCompletion = value;
-        }
-    }
-
+    
     public static void TestCompletionRangeFunctionality()
     {
         // Begin: CloseActiveAndOpenProject
 
 
         DefaultProgressTracker tracker = new DefaultProgressTracker();
-        using (tracker.PushCompletionRange(0.0, 0.5))
+        using (tracker.CompletionState.PushCompletionRange(0.0, 0.5))
         {
             // Begin: CloseActive
             // parent range = 0.5, so 0.5 * 0.25 = 0.125.
             // TotalCompletion = 0.0 + 0.125
-            tracker.OnProgress(0.25);
+            tracker.CompletionState.OnProgress(0.25);
             // parent range = 0.5, so 0.5 * 0.75 = 0.375
             // TotalCompletion = 0.125 + 0.375 = 0.5
-            tracker.OnProgress(0.75);
+            tracker.CompletionState.OnProgress(0.75);
             // assert tracker.TotalCompletion == 0.5
             // End: CloseActive
         }
 
-        using (tracker.PushCompletionRange(0.5, 1.0))
+        using (tracker.CompletionState.PushCompletionRange(0.5, 1.0))
         {
             // Begin: OpenProject
 
-            using (tracker.PushCompletionRange(0.0, 0.25))
+            using (tracker.CompletionState.PushCompletionRange(0.0, 0.25))
             {
                 // Begin: PreLoad
 
-                using (tracker.PushCompletionRange(0.0, 0.1))
+                using (tracker.CompletionState.PushCompletionRange(0.0, 0.1))
                 {
                     // Begin: ProcessPreLoad
-                    tracker.SetProgress(0.7);
-                    tracker.SetProgress(0.8);
-                    tracker.SetProgress(0.2);
-                    tracker.SetProgress(0.5);
-                    tracker.OnProgress(0.5);
+                    tracker.CompletionState.SetProgress(0.7);
+                    tracker.CompletionState.SetProgress(0.8);
+                    tracker.CompletionState.SetProgress(0.2);
+                    tracker.CompletionState.SetProgress(0.5);
+                    tracker.CompletionState.OnProgress(0.5);
                     // End: ProcessPreLoad
                 }
 
-                tracker.OnProgress(0.4);
-                tracker.OnProgress(0.5);
+                tracker.CompletionState.OnProgress(0.4);
+                tracker.CompletionState.OnProgress(0.5);
                 // End: PreLoad
             }
 
-            using (tracker.PushCompletionRange(0.25, 0.5))
+            using (tracker.CompletionState.PushCompletionRange(0.25, 0.5))
             {
                 // Begin: PostLoad
-                tracker.OnProgress(0.2);
-                tracker.OnProgress(0.8);
+                tracker.CompletionState.OnProgress(0.2);
+                tracker.CompletionState.OnProgress(0.8);
                 // End: PostLoad
             }
 
-            using (tracker.PushCompletionRange(0.5, 1.0))
+            using (tracker.CompletionState.PushCompletionRange(0.5, 1.0))
             {
                 // Begin: PostLoad
-                tracker.OnProgress(0.3);
-                tracker.OnProgress(0.6);
-                tracker.OnProgress(0.1);
+                tracker.CompletionState.OnProgress(0.3);
+                tracker.CompletionState.OnProgress(0.6);
+                tracker.CompletionState.OnProgress(0.1);
                 // End: PostLoad
             }
 
             // End: OpenProject
         }
 
-        if (!DoubleUtils.AreClose(tracker.TotalCompletion, 1.0))
+        if (!DoubleUtils.AreClose(tracker.CompletionState.TotalCompletion, 1.0))
         {
             Debugger.Break(); // test failed
             throw new Exception("Test failed. Completion ranges do not function as expected");

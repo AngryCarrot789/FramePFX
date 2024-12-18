@@ -327,8 +327,8 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI
         if (this.primaryActivity != null)
         {
             prog = this.primaryActivity.Progress;
-            prog.TextChanged -= this.OnPrimaryActivityTextChanged;
-            prog.CompletionValueChanged -= this.OnPrimaryActionCompletionValueChanged;
+            prog.CurrentActionChanged -= this.OnPrimaryActivityCurrentActionChanged;
+            prog.CompletionState.CompletionValueChanged -= this.OnPrimaryActionCompletionValueChanged;
             prog.IsIndeterminateChanged -= this.OnPrimaryActivityIndeterminateChanged;
             prog = null;
         }
@@ -337,8 +337,8 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI
         if (task != null)
         {
             prog = task.Progress;
-            prog.TextChanged += this.OnPrimaryActivityTextChanged;
-            prog.CompletionValueChanged += this.OnPrimaryActionCompletionValueChanged;
+            prog.CurrentActionChanged += this.OnPrimaryActivityCurrentActionChanged;
+            prog.CompletionState.CompletionValueChanged += this.OnPrimaryActionCompletionValueChanged;
             prog.IsIndeterminateChanged += this.OnPrimaryActivityIndeterminateChanged;
             this.PART_ActiveBackgroundTaskGrid.IsVisible = true;
         }
@@ -347,19 +347,19 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI
             this.PART_ActiveBackgroundTaskGrid.IsVisible = false;
         }
 
-        this.OnPrimaryActivityTextChanged(prog);
-        this.OnPrimaryActionCompletionValueChanged(prog);
+        this.OnPrimaryActivityCurrentActionChanged(prog);
+        this.OnPrimaryActionCompletionValueChanged(prog?.CompletionState);
         this.OnPrimaryActivityIndeterminateChanged(prog);
     }
 
-    private void OnPrimaryActivityTextChanged(IActivityProgress? tracker)
+    private void OnPrimaryActivityCurrentActionChanged(IActivityProgress? tracker)
     {
-        IoC.Dispatcher.Invoke(() => this.PART_TaskCaption.Text = tracker?.Text ?? "", DispatchPriority.Loaded);
+        IoC.Dispatcher.Invoke(() => this.PART_TaskCaption.Text = tracker?.CurrentAction ?? "", DispatchPriority.Loaded);
     }
 
-    private void OnPrimaryActionCompletionValueChanged(IActivityProgress? tracker)
+    private void OnPrimaryActionCompletionValueChanged(CompletionState? state)
     {
-        IoC.Dispatcher.Invoke(() => this.PART_ActiveBgProgress.Value = tracker?.TotalCompletion ?? 0.0, DispatchPriority.Loaded);
+        IoC.Dispatcher.Invoke(() => this.PART_ActiveBgProgress.Value = state?.TotalCompletion ?? 0.0, DispatchPriority.Loaded);
     }
 
     private void OnPrimaryActivityIndeterminateChanged(IActivityProgress? tracker)

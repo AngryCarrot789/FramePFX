@@ -215,7 +215,7 @@ public class VideoEditor : IDestroy
         this.ProjectChanged?.Invoke(this, null, project);
         VideoEditorPropertyEditor.Instance.OnProjectChanged();
 
-        RZApplication.Instance.Dispatcher.InvokeAsync(() =>
+        Application.Instance.Dispatcher.InvokeAsync(() =>
         {
             this.Project?.ActiveTimeline.InvalidateRender();
         }, DispatchPriority.Background);

@@ -79,13 +79,13 @@ public abstract class BaseRelayCommand : IRelayCommand
     {
         if (this.CanExecuteChanged != null)
         {
-            if (RZApplication.Instance.Dispatcher.CheckAccess())
+            if (Application.Instance.Dispatcher.CheckAccess())
             {
                 this.CanExecuteChanged?.Invoke(this, EventArgs.Empty);
             }
             else
             {
-                RZApplication.Instance.Dispatcher.Invoke(() => this.CanExecuteChanged?.Invoke(this, EventArgs.Empty));
+                Application.Instance.Dispatcher.Invoke(() => this.CanExecuteChanged?.Invoke(this, EventArgs.Empty));
             }
         }
     }

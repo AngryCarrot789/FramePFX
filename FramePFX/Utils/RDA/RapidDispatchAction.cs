@@ -47,13 +47,13 @@ public abstract class RapidDispatchActionBase
             return false;
 
         this.isScheduled = true;
-        RZApplication.Instance.Dispatcher.InvokeAsync(this.doExecuteCallback, this.Priority);
+        Application.Instance.Dispatcher.InvokeAsync(this.doExecuteCallback, this.Priority);
         return true;
     }
 
     protected static void VerifyThreadAccess()
     {
-        if (!RZApplication.Instance.Dispatcher.CheckAccess())
+        if (!Application.Instance.Dispatcher.CheckAccess())
             throw new InvalidOperationException("Cannot invoke when not on the main thread. Use " + nameof(RapidDispatchActionEx) + " for multi-threading");
     }
 

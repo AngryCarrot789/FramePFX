@@ -29,7 +29,7 @@ public delegate void EditorConfigurationOptionsTitleBarBrushChangedEventHandler(
 /// </summary>
 public sealed class EditorConfigurationOptions
 {
-    public static EditorConfigurationOptions Instance => RZApplication.Instance.Services.GetService<EditorConfigurationOptions>();
+    public static EditorConfigurationOptions Instance => Application.Instance.Services.GetService<EditorConfigurationOptions>();
     
     private string titleBar;
     private SKColor titleBarBrush;
@@ -47,6 +47,10 @@ public sealed class EditorConfigurationOptions
         }
     }
 
+    /// <summary>
+    /// Not assigned the actual titlebar default value for now, since this feature might
+    /// not stick since it's wonky having this and no other customisation features
+    /// </summary>
     public SKColor TitleBarBrush
     {
         get => this.titleBarBrush;
@@ -66,7 +70,7 @@ public sealed class EditorConfigurationOptions
 
     public EditorConfigurationOptions()
     {
-        this.titleBar = "Bootleg song vegas (FramePFX v2.0.0)";
+        this.titleBar = "Bootleg song vegas (FramePFX v2.0.1)";
         this.TitleBarBrush = SKColors.Red;
     }
 }

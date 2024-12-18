@@ -161,7 +161,7 @@ public class AvaloniaShortcutManager : ShortcutManager
         }
 
         BroadcastShortcutActivity($"Activating {tostr}...");
-        bool result = RZApplication.Instance.Dispatcher.Invoke(() => base.OnShortcutActivatedOverride(inputProcessor, shortcut), DispatchPriority.Render);
+        bool result = Application.Instance.Dispatcher.Invoke(() => base.OnShortcutActivatedOverride(inputProcessor, shortcut), DispatchPriority.Render);
         BroadcastShortcutActivity($"Activated {tostr}!");
         return result;
     }

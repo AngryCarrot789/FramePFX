@@ -291,7 +291,7 @@ public class PlaybackManager
 
         using (this.Timeline.RenderManager.SuspendRenderInvalidation())
         {
-            Task renderTask = RZApplication.Instance.Dispatcher.Invoke(() =>
+            Task renderTask = Application.Instance.Dispatcher.Invoke(() =>
             {
                 Timeline timeline = this.Timeline;
                 Project project;

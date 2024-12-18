@@ -102,7 +102,7 @@ public sealed class TaskManager : IDisposable
     internal static Task InternalPreActivateTask(TaskManager taskManager, ActivityTask task)
     {
         taskManager.threadToTask.Value = task;
-        return RZApplication.Instance.Dispatcher.InvokeAsync(() => InternalOnTaskStarted(taskManager, task));
+        return Application.Instance.Dispatcher.InvokeAsync(() => InternalOnTaskStarted(taskManager, task));
     }
 
     internal static Task InternalOnActivityCompleted(TaskManager taskManager, ActivityTask task, int state)
@@ -111,7 +111,7 @@ public sealed class TaskManager : IDisposable
 
         // Before AsyncLocal, I was trying out a dispatcher for each task XD
         // Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatchPriority.Background);
-        return RZApplication.Instance.Dispatcher.InvokeAsync(() => InternalOnTaskCompleted(taskManager, task, state));
+        return Application.Instance.Dispatcher.InvokeAsync(() => InternalOnTaskCompleted(taskManager, task, state));
     }
 
     // Main Thread

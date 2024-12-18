@@ -46,7 +46,7 @@ public class FilePickDialogServiceImpl : IFilePickDialogService
 
     public async Task<string?> OpenFile(string? message, IEnumerable<FileFilter>? filters = null, string? initialPath = null)
     {
-        if (!RZApplicationImpl.TryGetActiveWindow(out Window? window))
+        if (!ApplicationImpl.TryGetActiveWindow(out Window? window))
         {
             return null;
         }
@@ -65,7 +65,7 @@ public class FilePickDialogServiceImpl : IFilePickDialogService
 
     public async Task<string[]?> OpenMultipleFiles(string? message, IEnumerable<FileFilter>? filters = null, string? initialPath = null)
     {
-        if (!RZApplicationImpl.TryGetActiveWindow(out Window? window))
+        if (!ApplicationImpl.TryGetActiveWindow(out Window? window))
         {
             return null;
         }
@@ -84,7 +84,7 @@ public class FilePickDialogServiceImpl : IFilePickDialogService
 
     public async Task<string?> SaveFile(string? message, IEnumerable<FileFilter>? filters = null, string? initialPath = null, bool warnOverwrite = true)
     {
-        if (!RZApplicationImpl.TryGetActiveWindow(out Window? window))
+        if (!ApplicationImpl.TryGetActiveWindow(out Window? window))
         {
             return null;
         }

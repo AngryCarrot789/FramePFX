@@ -52,8 +52,6 @@ public partial class ExportProgressDialog : WindowEx, IExportProgress
 
     public long CurrentEncodeFrame => this.currentEncodeFrame;
 
-    private int lastRenderProgress;
-
     public int RenderProgressPercentage => (int) Maths.Map(this.currentRenderFrame, this.BeginFrame, this.EndFrame, 0, 100);
     public int EncodeProgressPercentage => (int) Maths.Map(this.currentEncodeFrame, this.BeginFrame, this.EndFrame, 0, 100);
 
@@ -74,11 +72,8 @@ public partial class ExportProgressDialog : WindowEx, IExportProgress
         this.currentRenderFrame = renderSpan.Begin;
         this.currentEncodeFrame = renderSpan.Begin;
         this.PART_FrameProgressText.Text = "0/" + (this.EndFrame - 1);
-        this.rapidUpdateRender = RapidDispatchActionEx.ForSync(this.UpdateRenderedFrame, DispatchPriority.Normal, "ExportUpdateRender");
-        this.rapidUpdateEncode = RapidDispatchActionEx.ForSync(() =>
-        {
-            this.PART_EncodeProgressBar.Value = this.EncodeProgressPercentage;
-        }, DispatchPriority.Normal, "ExportUpdateEncode");
+        this.rapidUpdateRender = RapidDispatchActionEx.ForSync(this.UpdateRenderedFrame, DispatchPriority.INTERNAL_BeforeRender, "ExportUpdateRender");
+        this.rapidUpdateEncode = RapidDispatchActionEx.ForSync(() => this.PART_EncodeProgressBar.Value = this.EncodeProgressPercentage, DispatchPriority.INTERNAL_BeforeRender, "ExportUpdateEncode");
     }
 
     private void UpdateRenderedFrame()
@@ -86,13 +81,13 @@ public partial class ExportProgressDialog : WindowEx, IExportProgress
         int newCompletion = this.RenderProgressPercentage;
         this.PART_RenderProgressBar.Value = newCompletion;
         this.PART_FrameProgressText.Text = $"{this.currentRenderFrame}/{this.EndFrame - 1}";
+        
+        // Try to update the activity if there's one associated with the export process
         IActivityProgress? progress = this.ActivityTask?.Progress;
         if (progress != null)
         {
-            progress.OnProgress((newCompletion - this.lastRenderProgress) / 100.0);
+            progress.CompletionState.SetProgress(newCompletion / 100.0);
         }
-
-        this.lastRenderProgress = newCompletion;
     }
 
     public void OnFrameRendered(long frame)

@@ -76,7 +76,10 @@ public class DataManager
         Visual.VisualParentProperty.Changed.AddClassHandler<Visual, Visual?>(OnVisualParentChanged);
     }
 
-    private static void OnContextDataChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs<IContextData?> e) => InvalidateInheritedContext(d);
+    private static void OnContextDataChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs<IContextData?> e)
+    {
+        InvalidateInheritedContext(d);
+    }
 
     private static void OnVisualParentChanged(Visual sender, AvaloniaPropertyChangedEventArgs<Visual?> e) => InvalidateInheritedContext(sender);
 
@@ -127,7 +130,7 @@ public class DataManager
 
         // In release mode, using Time.GetSystemTicks, these 2 methods when element is NotepadWindow with an active editor,
         // takes about 150 microseconds to invoke... that's pretty fast, especially for a double visual tree traversal
-
+        
         InvalidateInheritedContextAndChildren(element);
         RaiseInheritedContextChanged(element);
         // long b = Time.GetSystemTicks() - a;
@@ -221,6 +224,8 @@ public class DataManager
         //     initialSize = (int) (uint) TreeLevelPropertyInfo.GetValue(element);
         // if (initialSize < 1)
         //     initialSize = 32;
+        
+        // Try to find a linked list from the element's parent chain
 
         // Accumulate visual tree bottom-to-top. Visual tree will contain the reverse tree
         List<AvaloniaObject> visualTree = new List<AvaloniaObject>(32);

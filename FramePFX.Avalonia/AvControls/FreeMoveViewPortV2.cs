@@ -134,7 +134,7 @@ public class FreeMoveViewPortV2 : Border
     protected override void OnLoaded(RoutedEventArgs e)
     {
         base.OnLoaded(e);
-        RZApplication.Instance.Dispatcher.InvokeAsync(this.FitContentToCenter, DispatchPriority.Background);
+        Application.Instance.Dispatcher.InvokeAsync(this.FitContentToCenter, DispatchPriority.Background);
     }
 
     public void FitContentToCenter()
@@ -181,7 +181,8 @@ public class FreeMoveViewPortV2 : Border
             return;
 
         if ((modifiers & (KeyModifiers.Alt | KeyModifiers.Control)) != 0)
-        { // zoom in or out
+        { 
+            // zoom in or out
             // I spent so much time trying to get this working myself but could never figure it out,
             // but this post worked pretty much first try. Smh my head.
             // I changed a few things though, like flipping zoom

@@ -142,8 +142,8 @@ public partial class ExportDialog : WindowEx
         ActivityTask exportTask = TaskManager.Instance.RunTask(() =>
         {
             progressDialog.ActivityTask = TaskManager.Instance.CurrentTask;
-            progressDialog.ActivityTask.Progress.HeaderText = "Export Task";
-            progressDialog.ActivityTask.Progress.Text = "Exporting...";
+            progressDialog.ActivityTask.Progress.Caption = "Export Task";
+            progressDialog.ActivityTask.Progress.CurrentAction = "Exporting...";
 
             // Export will most likely be using unsafe code, meaning async won't work
             context.Export(progressDialog, this.exportToken.Token);

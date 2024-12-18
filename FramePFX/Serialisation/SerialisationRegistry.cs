@@ -67,7 +67,7 @@ public class SerialisationRegistry
     /// <param name="obj">The object to serialise</param>
     /// <param name="data">The RBE dictionary, in which data is written into</param>
     /// <param name="flags">Optional flags for the serialisation process</param>
-    public void Serialise(object obj, RBEDictionary data) => this.Serialise(obj, data, RZApplication.Instance.CurrentBuild);
+    public void Serialise(object obj, RBEDictionary data) => this.Serialise(obj, data, Application.Instance.CurrentBuild);
 
     /// <summary>
     /// Serialises the object, using it's full type as a starting point for the serialisers to target
@@ -88,7 +88,7 @@ public class SerialisationRegistry
     /// <param name="obj">The object to serialise</param>
     /// <param name="data">The RBE dictionary, in which data is written into</param>
     /// <param name="flags">Optional flags for the serialisation process</param>
-    public void Deserialise(object obj, RBEDictionary data) => this.Deserialise(obj, data, RZApplication.Instance.CurrentBuild);
+    public void Deserialise(object obj, RBEDictionary data) => this.Deserialise(obj, data, Application.Instance.CurrentBuild);
 
     /// <summary>
     /// Deserialises the object, using it's full type as a starting point for the deserialisers to target

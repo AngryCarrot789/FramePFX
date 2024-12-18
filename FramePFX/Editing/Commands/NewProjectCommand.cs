@@ -46,13 +46,13 @@ public class NewProjectCommand : AsyncCommand
         {
             IActivityProgress progress = TaskManager.Instance.CurrentTask.Progress;
 
-            progress.OnProgress(0.25);
+            progress.CompletionState.OnProgress(0.25);
             if (!await CloseProjectCommand.CloseProjectBGT(editor, null))
             {
                 return;
             }
 
-            progress.OnProgress(0.5);
+            progress.CompletionState.OnProgress(0.5);
 
             await IoC.Dispatcher.InvokeAsync(() =>
             {
@@ -66,7 +66,7 @@ public class NewProjectCommand : AsyncCommand
                 editor.SetProject(project);
             });
 
-            progress.OnProgress(0.25);
+            progress.CompletionState.OnProgress(0.25);
         }, new DefaultProgressTracker());
     }
 }

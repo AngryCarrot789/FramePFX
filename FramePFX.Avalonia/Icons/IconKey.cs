@@ -17,23 +17,12 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Threading.Tasks;
-using Avalonia.Controls;
-using FramePFX.Editing.Exporting;
+namespace FramePFX.Avalonia.Icons;
 
-namespace FramePFX.Avalonia.Exporting;
-
-public class ExportServiceImpl : IExportService
+/// <summary>
+/// A key for a registered icon. This is used to access the icon itself and also obtain information about the icon
+/// </summary>
+public class IconKey
 {
-    public Task ShowExportDialog(ExportSetup setup)
-    {
-        if (!ApplicationImpl.TryGetActiveWindow(out Window? window))
-        {
-            return Task.CompletedTask;
-        }
-
-        ExportDialog dialog = new ExportDialog(setup);
-        dialog.Topmost = true;
-        return dialog.ShowDialog(window);
-    }
+    
 }

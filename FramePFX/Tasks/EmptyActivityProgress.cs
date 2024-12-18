@@ -27,32 +27,15 @@ public class EmptyActivityProgress : IActivityProgress
     public static readonly IActivityProgress Instance = new EmptyActivityProgress();
 
     bool IActivityProgress.IsIndeterminate { get => default; set { } }
-    double IActivityProgress.TotalCompletion { get => default; set { } }
-    string IActivityProgress.HeaderText { get => default; set { } }
-    string IActivityProgress.Text { get => default; set { } }
+    string IActivityProgress.Caption { get => default; set { } }
+    string IActivityProgress.CurrentAction { get => default; set { } }
+    CompletionState IActivityProgress.CompletionState { get; } = new EmptyCompletionState();
 
     event ActivityProgressEventHandler IActivityProgress.IsIndeterminateChanged { add { } remove { } }
-    event ActivityProgressEventHandler IActivityProgress.CompletionValueChanged { add { } remove { } }
-    event ActivityProgressEventHandler IActivityProgress.HeaderTextChanged { add { } remove { } }
-    event ActivityProgressEventHandler IActivityProgress.TextChanged { add { } remove { } }
+    event ActivityProgressEventHandler IActivityProgress.CaptionChanged { add { } remove { } }
+    event ActivityProgressEventHandler IActivityProgress.CurrentActionChanged { add { } remove { } }
 
     private int stackCount; // used to track possible bugs
 
     public EmptyActivityProgress() { }
-
-    PopDispose IActivityProgress.PushCompletionRange(double min, double max)
-    {
-        ++this.stackCount;
-        return new PopDispose(this);
-    }
-
-    void IActivityProgress.PopCompletionRange()
-    {
-        if (this.stackCount == 0)
-            throw new InvalidOperationException("Cannot pop completion range: stack was empty!");
-        --this.stackCount;
-    }
-
-    void IActivityProgress.OnProgress(double value) { }
-    void IActivityProgress.SetProgress(double value) { }
 }

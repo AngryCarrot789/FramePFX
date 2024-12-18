@@ -38,7 +38,7 @@ public class ResourceLoaderServiceImpl : IResourceLoaderService
             return true;
         }
 
-        if (RZApplicationImpl.TryGetActiveWindow(out Window? window))
+        if (ApplicationImpl.TryGetActiveWindow(out Window? window))
         {
             ResourceLoaderDialog dialog = new ResourceLoaderDialog();
             dialog.ResourceLoader = loader;

@@ -27,8 +27,9 @@ https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2024-12-11-13-
 
 ### Instructions
 
+- Clone the project: `git clone --recursive https://github.com/AngryCarrot789/FramePFX`
 - Create a folder called `ffmpeg` in the solution folder. 
-- From the downloaded archive copy everything (4 dirs and the LICENCE.txt) into this new ffmpeg folder
+- From the downloaded ffmpeg archive, copy everything (the 4 dirs and the LICENCE.txt) into that new ffmpeg folder
 
 There should be 8 DLL files in `\FramePFX\ffmpeg\bin`, and one of them should be avcodec-61.dll. If it's not 61 you have the wrong version of FFmpeg.
 You can delete the EXE files if you want, since they aren't used

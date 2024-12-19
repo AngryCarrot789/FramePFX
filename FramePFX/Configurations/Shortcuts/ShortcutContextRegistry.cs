@@ -18,6 +18,10 @@
 // 
 
 using FramePFX.AdvancedMenuService;
+using FramePFX.Configurations.Shortcuts.Models;
+using FramePFX.Interactivity.Contexts;
+using FramePFX.Shortcuts;
+using FramePFX.Shortcuts.Inputs;
 
 namespace FramePFX.Configurations.Shortcuts;
 
@@ -28,5 +32,58 @@ public static class ShortcutContextRegistry
     static ShortcutContextRegistry()
     {
         Registry.GetFixedGroup("root").AddCommand("commands.shortcuts.AddKeyStrokeToShortcut", "Add Key Stroke", "Add a new key stroke");
+        Registry.GetFixedGroup("root").AddCommand("commands.shortcuts.AddMouseStrokeToShortcut", "Add Mouse Stroke", "Add a new key stroke");
+        Registry.CreateDynamicGroup("RemoveInputStrokes", (group, ctx, items) =>
+        {
+            if (!DataKeys.ShortcutEntryKey.TryGetContext(ctx, out ShortcutEntry? entry))
+                return;
+
+            foreach (IInputStroke stroke in entry.Shortcut.InputStrokes)
+            {
+                items.Add(new DeleteInputStrokeCallbackEntry(stroke, entry, "Delete " + stroke.ToString(), null));
+            }
+        });
+    }
+
+    private class DeleteInputStrokeCallbackEntry : CallbackContextEntry
+    {
+        public ShortcutEntry Entry { get; }
+
+        public IInputStroke Stroke { get; }
+        
+        public DeleteInputStrokeCallbackEntry(IInputStroke stroke, ShortcutEntry entry, string displayName, string? description) : base(displayName, description)
+        {
+            this.Stroke = stroke;
+            this.Entry = entry;
+            this.Action = this.Invoke;
+        }
+
+        private void Invoke(CallbackContextEntry arg1, IContextData arg2)
+        {
+            switch (this.Entry.Shortcut)
+            {
+                case KeyboardShortcut ks:
+                {
+                    List<KeyStroke> list = ks.KeyStrokes.ToList();
+                    list.Remove((KeyStroke) this.Stroke);
+                    this.Entry.Shortcut = new KeyboardShortcut(list);
+                    break;
+                } 
+                case MouseShortcut ks:
+                {
+                    List<MouseStroke> list = ks.MouseStrokes.ToList();
+                    list.Remove((MouseStroke) this.Stroke);
+                    this.Entry.Shortcut = new MouseShortcut(list);
+                    break;
+                } 
+                case MouseKeyboardShortcut ks:
+                {
+                    List<IInputStroke> list = ks.InputStrokes.ToList();
+                    list.Remove(this.Stroke);
+                    this.Entry.Shortcut = new MouseKeyboardShortcut(list);
+                    break;
+                } 
+            }
+        }
     }
 }

@@ -17,8 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Diagnostics;
-using FramePFX.Utils;
 using FramePFX.Utils.RDA;
 
 namespace FramePFX.Tasks;
@@ -100,75 +98,5 @@ public class DefaultProgressTracker : IActivityProgress
         this.updateHeaderText = RapidDispatchActionEx.ForSync(() => this.CaptionChanged?.Invoke(this), eventDispatchPriority);
         this.updateText = RapidDispatchActionEx.ForSync(() => this.CurrentActionChanged?.Invoke(this), eventDispatchPriority);
         this.CompletionState = new ConcurrentCompletionState(eventDispatchPriority);
-    }
-    
-    public static void TestCompletionRangeFunctionality()
-    {
-        // Begin: CloseActiveAndOpenProject
-
-
-        DefaultProgressTracker tracker = new DefaultProgressTracker();
-        using (tracker.CompletionState.PushCompletionRange(0.0, 0.5))
-        {
-            // Begin: CloseActive
-            // parent range = 0.5, so 0.5 * 0.25 = 0.125.
-            // TotalCompletion = 0.0 + 0.125
-            tracker.CompletionState.OnProgress(0.25);
-            // parent range = 0.5, so 0.5 * 0.75 = 0.375
-            // TotalCompletion = 0.125 + 0.375 = 0.5
-            tracker.CompletionState.OnProgress(0.75);
-            // assert tracker.TotalCompletion == 0.5
-            // End: CloseActive
-        }
-
-        using (tracker.CompletionState.PushCompletionRange(0.5, 1.0))
-        {
-            // Begin: OpenProject
-
-            using (tracker.CompletionState.PushCompletionRange(0.0, 0.25))
-            {
-                // Begin: PreLoad
-
-                using (tracker.CompletionState.PushCompletionRange(0.0, 0.1))
-                {
-                    // Begin: ProcessPreLoad
-                    tracker.CompletionState.SetProgress(0.7);
-                    tracker.CompletionState.SetProgress(0.8);
-                    tracker.CompletionState.SetProgress(0.2);
-                    tracker.CompletionState.SetProgress(0.5);
-                    tracker.CompletionState.OnProgress(0.5);
-                    // End: ProcessPreLoad
-                }
-
-                tracker.CompletionState.OnProgress(0.4);
-                tracker.CompletionState.OnProgress(0.5);
-                // End: PreLoad
-            }
-
-            using (tracker.CompletionState.PushCompletionRange(0.25, 0.5))
-            {
-                // Begin: PostLoad
-                tracker.CompletionState.OnProgress(0.2);
-                tracker.CompletionState.OnProgress(0.8);
-                // End: PostLoad
-            }
-
-            using (tracker.CompletionState.PushCompletionRange(0.5, 1.0))
-            {
-                // Begin: PostLoad
-                tracker.CompletionState.OnProgress(0.3);
-                tracker.CompletionState.OnProgress(0.6);
-                tracker.CompletionState.OnProgress(0.1);
-                // End: PostLoad
-            }
-
-            // End: OpenProject
-        }
-
-        if (!DoubleUtils.AreClose(tracker.CompletionState.TotalCompletion, 1.0))
-        {
-            Debugger.Break(); // test failed
-            throw new Exception("Test failed. Completion ranges do not function as expected");
-        }
     }
 }

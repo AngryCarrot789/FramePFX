@@ -67,5 +67,4 @@ public static class DataKeys
     public static readonly DataKey<IResourceTreeNodeElement> ResourceNodeUIKey = DataKey<IResourceTreeNodeElement>.Create("ResourceNode");
     
     public static readonly DataKey<ShortcutEntry> ShortcutEntryKey = DataKey<ShortcutEntry>.Create("ShortcutTreeEntry");
-    public static readonly DataKey<ShortcutGroupEntry> ShortcutGroupEntryKey = DataKey<ShortcutGroupEntry>.Create("ShortcutGroupTreeEntry");
 }

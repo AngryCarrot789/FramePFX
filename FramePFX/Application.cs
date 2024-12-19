@@ -23,13 +23,8 @@ using FramePFX.Configurations.Commands;
 using FramePFX.Configurations.Shortcuts.Commands;
 using FramePFX.Editing;
 using FramePFX.Editing.Commands;
-using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.Commands;
-using FramePFX.Editing.ResourceManaging.Resources;
-using FramePFX.Editing.Timelines;
-using FramePFX.Editing.Timelines.Clips.Core;
 using FramePFX.Editing.Timelines.Commands;
-using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Natives;
 using FramePFX.Tasks;
 using FramePFX.Utils;
@@ -101,105 +96,6 @@ public abstract class Application
             this.RegisterCommands(progress, CommandManager.Instance);
     }
 
-    private static async ValueTask<bool> HandleGeneralCanDropResource(ResourceItem item)
-    {
-        if (item.HasReachedResourceLimit())
-        {
-            int count = item.ResourceLinkLimit;
-            await IoC.MessageService.ShowMessage("Resource Limit", $"This resource cannot be used by more than {count} clip{Lang.S(count)}");
-            return false;
-        }
-
-        return true;
-    }
-
-    private class AVMediaDropInformation : IResourceDropInformation
-    {
-        public long GetClipDurationForDrop(Track track, ResourceItem resource)
-        {
-            if (resource.Manager == null)
-                return -1;
-
-            TimeSpan duration = ((ResourceAVMedia) resource).GetDuration();
-            double fps = resource.Manager.Project.Settings.FrameRate.AsDouble;
-
-            return (long) (duration.TotalSeconds * fps);
-        }
-
-        public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span)
-        {
-            if (!await HandleGeneralCanDropResource(resource))
-                return;
-
-            ResourceAVMedia media = (ResourceAVMedia) resource;
-            AVMediaVideoClip clip = new AVMediaVideoClip();
-            clip.FrameSpan = span;
-            await clip.ResourceHelper.SetResourceHelper(AVMediaVideoClip.MediaKey, media);
-
-            track.AddClip(clip);
-        }
-    }
-
-    private class ResourceImageDropInformation : IResourceDropInformation
-    {
-        public long GetClipDurationForDrop(Track track, ResourceItem resource) => 300;
-
-        public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span)
-        {
-            if (!await HandleGeneralCanDropResource(resource))
-                return;
-
-            ResourceImage media = (ResourceImage) resource;
-            ImageVideoClip clip = new ImageVideoClip();
-            clip.FrameSpan = span;
-            clip.ResourceHelper.SetResource(ImageVideoClip.ResourceImageKey, media);
-
-            track.AddClip(clip);
-        }
-    }
-
-    private class ResourceColourDropInformation : IResourceDropInformation
-    {
-        public long GetClipDurationForDrop(Track track, ResourceItem resource) => 300;
-
-        public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span)
-        {
-            if (!await HandleGeneralCanDropResource(resource))
-                return;
-
-            ResourceColour colourRes = (ResourceColour) resource;
-            VideoClipShape shape = new VideoClipShape();
-            shape.FrameSpan = span;
-            shape.ResourceHelper.SetResource(VideoClipShape.ColourKey, colourRes);
-
-            track.AddClip(shape);
-        }
-    }
-
-    private class CompositionResourceDropInformation : IResourceDropInformation
-    {
-        public long GetClipDurationForDrop(Track track, ResourceItem resource)
-        {
-            if (resource.Manager == null)
-                return -1;
-
-            return ((ResourceComposition) resource).Timeline.LargestFrameInUse;
-        }
-
-        public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span)
-        {
-            if (!await HandleGeneralCanDropResource(resource))
-                return;
-
-            ResourceComposition comp = (ResourceComposition) resource;
-            CompositionVideoClip clip = new CompositionVideoClip();
-            clip.FrameSpan = span;
-            await clip.ResourceHelper.SetResourceHelper(CompositionVideoClip.ResourceCompositionKey, comp);
-
-            track.AddClip(clip);
-        }
-    }
-
     protected virtual void RegisterServicesA(IApplicationStartupProgress progress, ServiceManager manager)
     {
         manager.Register(new TaskManager());
@@ -211,13 +107,8 @@ public abstract class Application
     protected virtual void RegisterServicesB(IApplicationStartupProgress progress, ServiceManager manager)
     {
         manager.Register(ApplicationConfigurationManager.Instance);
+        ResourceToClipDropRegistry.Instance.RegisterStandard();
 
-        ResourceToClipDropRegistry res2clip = manager.GetService<ResourceToClipDropRegistry>();
-        res2clip.Register(typeof(ResourceAVMedia), new AVMediaDropInformation());
-        res2clip.Register(typeof(ResourceColour), new ResourceColourDropInformation());
-        res2clip.Register(typeof(ResourceImage), new ResourceImageDropInformation());
-        res2clip.Register(typeof(ResourceComposition), new CompositionResourceDropInformation());
-        
         progress.CompletionState.SetProgress(1.0);
     }
 
@@ -291,8 +182,8 @@ public abstract class Application
         manager.Register("commands.editor.OpenEditorSettings", new OpenEditorSettingsCommand());
         manager.Register("commands.editor.OpenProjectSettings", new OpenProjectSettingsCommand());
 
-
-        manager.Register("commands.shortcuts.AddKeyStrokeToShortcut", new AddKeyStrokeToShortcutCommand());
+        manager.Register("commands.shortcuts.AddKeyStrokeToShortcut", new AddKeyStrokeToShortcutUsingDialogCommand());
+        manager.Register("commands.shortcuts.AddMouseStrokeToShortcut", new AddMouseStrokeToShortcutUsingDialogCommand());
         
         progress.CompletionState.SetProgress(1.0);
     }

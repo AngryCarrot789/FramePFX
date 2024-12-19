@@ -25,7 +25,7 @@ using FramePFX.Shortcuts.Inputs;
 
 namespace FramePFX.Configurations.Shortcuts.Commands;
 
-public class AddKeyStrokeToShortcutCommand : AsyncCommand
+public class AddKeyStrokeToShortcutUsingDialogCommand : AsyncCommand
 {
     protected override Executability CanExecuteOverride(CommandEventArgs e)
     {

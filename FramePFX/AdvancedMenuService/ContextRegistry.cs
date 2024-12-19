@@ -88,34 +88,34 @@ public class ContextRegistry
         this.Closed?.Invoke(this);
     }
     
-    public FixedContextGroup GetFixedGroup(string name, int priority = 0)
+    public FixedContextGroup GetFixedGroup(string name, int weight = 0)
     {
-        if (!this.GetDictionary(priority).TryGetValue(name, out IContextGroup? group))
-            this.SetDictionary(priority, name, group = new FixedContextGroup());
+        if (!this.GetDictionary(weight).TryGetValue(name, out IContextGroup? group))
+            this.SetDictionary(weight, name, group = new FixedContextGroup());
         else if (!(group is FixedContextGroup))
             throw new InvalidOperationException("Context group is not fixed: " + name);
         return (FixedContextGroup) group;
     }
 
-    public DynamicContextGroup CreateDynamicGroup(string name, DynamicGenerateContextFunction generate, int priority = 0)
+    public DynamicContextGroup CreateDynamicGroup(string name, DynamicGenerateContextFunction generate, int weight = 0)
     {
-        if (!this.GetDictionary(priority).TryGetValue(name, out IContextGroup? group))
-            this.SetDictionary(priority, name, group = new DynamicContextGroup(generate));
+        if (!this.GetDictionary(weight).TryGetValue(name, out IContextGroup? group))
+            this.SetDictionary(weight, name, group = new DynamicContextGroup(generate));
         else if (!(group is DynamicContextGroup))
             throw new InvalidOperationException("Context group is not dynamic: " + name);
         return (DynamicContextGroup) group;
     }
 
-    private Dictionary<string, IContextGroup> GetDictionary(int priority)
+    private Dictionary<string, IContextGroup> GetDictionary(int weight)
     {
-        if (!this.groups.TryGetValue(priority, out Dictionary<string, IContextGroup>? dict))
-            this.groups[priority] = dict = new Dictionary<string, IContextGroup>();
+        if (!this.groups.TryGetValue(weight, out Dictionary<string, IContextGroup>? dict))
+            this.groups[weight] = dict = new Dictionary<string, IContextGroup>();
         return dict;
     }
 
-    private void SetDictionary(int priority, string name, IContextGroup group)
+    private void SetDictionary(int weight, string name, IContextGroup group)
     {
-        this.GetDictionary(priority)[name] = group;
+        this.GetDictionary(weight)[name] = group;
     }
 
     public static void AddStaticOnlineStateHandlers(ContextRegistry registry, ContextRegistryContextEventHandler? onOpened, ContextRegistryEventHandler? onClosed)

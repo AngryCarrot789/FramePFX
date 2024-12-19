@@ -141,9 +141,9 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
     {
         base.OnUnloaded(e);
         MenuService.ClearDynamicItems(this, ref this.dynamicInserted);
+        this.captionBinder.Detach();
         if (this.ContextRegistry.IsOpened)
             this.ContextRegistry.OnClosed();
-        this.captionBinder.Detach();
     }
 
     private void OnOwnerRequestedContext(object? sender, ContextRequestedEventArgs e)
@@ -185,8 +185,9 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
             {
                 contextMenus[newValue] = menu = new AdvancedContextMenu()
                 {
-                    ContextCaption = newValue.Caption ?? "Context Menu", ContextRegistry = newValue
+                    ContextRegistry = newValue
                 };
+                
                 List<IContextObject> contextObjects = new List<IContextObject>();
 
                 int i = 0;
@@ -195,13 +196,14 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
                     if (i++ != 0)
                         contextObjects.Add(new SeparatorEntry());
 
-                    if (entry.Value is FixedContextGroup fixedGroup)
+                    switch (entry.Value)
                     {
-                        contextObjects.AddRange(fixedGroup.Items);
-                    }
-                    else if (entry.Value is DynamicContextGroup dynamicContextGroup)
-                    {
-                        contextObjects.Add(new DynamicGroupContextObject(dynamicContextGroup));
+                        case FixedContextGroup fixedGroup: 
+                            contextObjects.AddRange(fixedGroup.Items); 
+                            break;
+                        case DynamicContextGroup dynamicGroup: 
+                            contextObjects.Add(new DynamicGroupContextObject(dynamicGroup)); 
+                            break;
                     }
                 }
 

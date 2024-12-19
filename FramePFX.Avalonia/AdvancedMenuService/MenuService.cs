@@ -117,19 +117,6 @@ public static class MenuService
         }
     }
 
-    public static IEnumerable<IContextObject> CleanEntries(IReadOnlyList<IContextObject> entries)
-    {
-        return entries;
-        // IContextObject? lastEntry = null;
-        // for (int i = 0, end = entries.Count - 1; i <= end; i++) {
-        //     IContextObject entry = entries[i];
-        //     if (!(entry is SeparatorEntry) || (i != 0 && i != end && !(lastEntry is SeparatorEntry))) {
-        //         yield return entry;
-        //     }
-        //     lastEntry = entry;
-        // }
-    }
-
     internal static void InsertItemNodes(IAdvancedContainer container, ItemsControl parent, IReadOnlyList<IContextObject> entries)
     {
         InsertItemNodes(container, parent, parent.Items.Count, entries);
@@ -139,34 +126,35 @@ public static class MenuService
     {
         ItemCollection items = parent.Items;
         int i = index;
-        foreach (IContextObject entry in CleanEntries(entries))
+        foreach (IContextObject entry in entries)
         {
             if (entry is DynamicGroupContextObject)
             {
                 (parent as IAdvancedContextElement)?.StoreDynamicGroup((DynamicGroupContextObject) entry, i);
-                continue;
-            }
-
-            Control element = container.CreateChildItem(entry);
-            if (element is AdvancedContextMenuItem menuItem)
-            {
-                menuItem.OnAdding(container, parent, (BaseContextEntry) entry);
-                items.Insert(i++, menuItem);
-                menuItem.ApplyStyling();
-                menuItem.ApplyTemplate();
-                menuItem.OnAdded();
-            }
-            else if (element is IAdvancedEntryConnection connection)
-            {
-                connection.OnAdding(container, parent, entry);
-                items.Insert(i++, element);
-                element.ApplyStyling();
-                element.ApplyTemplate();
-                connection.OnAdded();
             }
             else
             {
-                items.Insert(i++, element);
+                Control element = container.CreateChildItem(entry);
+                if (element is AdvancedContextMenuItem menuItem)
+                {
+                    menuItem.OnAdding(container, parent, (BaseContextEntry) entry);
+                    items.Insert(i++, menuItem);
+                    menuItem.ApplyStyling();
+                    menuItem.ApplyTemplate();
+                    menuItem.OnAdded();
+                }
+                else if (element is IAdvancedEntryConnection connection)
+                {
+                    connection.OnAdding(container, parent, entry);
+                    items.Insert(i++, element);
+                    element.ApplyStyling();
+                    element.ApplyTemplate();
+                    connection.OnAdded();
+                }
+                else
+                {
+                    items.Insert(i++, element);
+                }
             }
         }
     }
@@ -217,8 +205,6 @@ public static class MenuService
             {
                 if (element is Separator)
                     container.PushCachedItem(typeof(SeparatorEntry), element);
-                else if (element is CaptionSeparator)
-                    container.PushCachedItem(typeof(CaptionSeparator), element);
             }
         }
     }

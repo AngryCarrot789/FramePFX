@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Text;
 using FramePFX.CommandSystem;
 using FramePFX.Configurations;
 using FramePFX.Configurations.Commands;
@@ -26,6 +27,7 @@ using FramePFX.Editing.Commands;
 using FramePFX.Editing.ResourceManaging.Commands;
 using FramePFX.Editing.Timelines.Commands;
 using FramePFX.Natives;
+using FramePFX.Plugins.Exceptions;
 using FramePFX.Tasks;
 using FramePFX.Utils;
 
@@ -79,7 +81,7 @@ public abstract class Application
     /// Gets the current build version for this application. This accesses <see cref="CurrentVersion"/>, and changes whenever a new change is made to the application (regardless of how small)
     /// </summary>
     public int CurrentBuild => this.CurrentVersion.Build;
-
+    
     protected Application()
     {
         this.serviceManager = new ServiceManager();
@@ -87,29 +89,40 @@ public abstract class Application
 
     protected virtual async Task OnInitialise(IApplicationStartupProgress progress)
     {
+        await progress.ProgressAndSynchroniseAsync("Loading plugins...");
+        
+        List<BasePluginLoadException> exceptions = new List<BasePluginLoadException>();
+        if (exceptions.Count > 0)
+        {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < exceptions.Count; i++)
+            {
+                BasePluginLoadException e = exceptions[i];
+                sb.Append($"Exception {i + 1}: ").Append(e).Append('\n').Append('\n');
+            }
+
+            await IoC.MessageService.ShowMessage("Error loading one or more plugins", sb.ToString());
+        }
+        
         await progress.ProgressAndSynchroniseAsync("Initialising services");
         using (progress.CompletionState.PushCompletionRange(0.0, 0.5))
-            this.RegisterServicesA(progress, this.serviceManager);
+        {
+            this.RegisterServices(this.serviceManager);
+        }
 
         await progress.ProgressAndSynchroniseAsync("Initialising commands");
         using (progress.CompletionState.PushCompletionRange(0.5, 1.0))
+        {
             this.RegisterCommands(progress, CommandManager.Instance);
+        }
     }
 
-    protected virtual void RegisterServicesA(IApplicationStartupProgress progress, ServiceManager manager)
+    protected virtual void RegisterServices(ServiceManager manager)
     {
         manager.Register(new TaskManager());
         manager.Register(new ResourceToClipDropRegistry());
-        
-        progress.CompletionState.SetProgress(1.0);
-    }
-
-    protected virtual void RegisterServicesB(IApplicationStartupProgress progress, ServiceManager manager)
-    {
+        manager.Register(new EditorConfigurationOptions());
         manager.Register(ApplicationConfigurationManager.Instance);
-        ResourceToClipDropRegistry.Instance.RegisterStandard();
-
-        progress.CompletionState.SetProgress(1.0);
     }
 
     protected virtual void RegisterCommands(IApplicationStartupProgress progress, CommandManager manager)
@@ -152,7 +165,6 @@ public abstract class Application
         // Adding clips to tracks
         manager.Register("commands.editor.AddTextClip", new AddTextClipCommand());
         manager.Register("commands.editor.AddTimecodeClip", new AddTimecodeClipCommand());
-        manager.Register("commands.editor.AddAVMediaClip", new AddAVMediaClipCommand());
         manager.Register("commands.editor.AddVideoClipShape", new AddVideoClipShapeCommand());
         manager.Register("commands.editor.AddImageVideoClip", new AddImageVideoClipCommand());
         manager.Register("commands.editor.AddCompositionVideoClip", new AddCompositionVideoClipCommand());
@@ -161,7 +173,6 @@ public abstract class Application
         manager.Register("commands.resources.RenameResource", new RenameResourceCommand());
         manager.Register("commands.resources.DeleteResources", new DeleteResourcesCommand());
         manager.Register("commands.resources.AddResourceImage", new AddResourceImageCommand());
-        manager.Register("commands.resources.AddResourceAVMedia", new AddResourceAVMediaCommand());
         manager.Register("commands.resources.AddResourceColour", new AddResourceColourCommand());
         manager.Register("commands.resources.AddResourceComposition", new AddResourceCompositionCommand());
         manager.Register("commands.resources.GroupResources", new GroupResourcesCommand());
@@ -238,12 +249,10 @@ public abstract class Application
         if (instance == null)
             throw new InvalidOperationException("Application has not been pre-initialised yet");
 
-        using (progress.CompletionState.PushCompletionRange(0.0, 0.5))
+        using (progress.CompletionState.PushCompletionRange(0, 1))
             await instance.OnInitialise(progress);
 
-        await progress.ProgressAndSynchroniseAsync("Initialising post-initialisation services");
-        using (progress.CompletionState.PushCompletionRange(0.5, 1.0))
-            instance.RegisterServicesB(progress, instance.serviceManager);
+        await progress.SynchroniseAsync();
     }
 
     protected static void InternalOnExit(int exitCode) => instance!.OnExit(exitCode);

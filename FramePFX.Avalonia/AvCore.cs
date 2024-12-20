@@ -22,7 +22,6 @@ using System.Reflection;
 using Avalonia;
 using Avalonia.Rendering;
 using Avalonia.VisualTree;
-using FramePFX.Avalonia.Interactivity;
 
 namespace FramePFX.Avalonia;
 
@@ -99,11 +98,5 @@ public static class AvCore
 
         PixelPoint screen = root.PointToScreen(point);
         return relativeTo.PointToClient(screen);
-    }
-
-    public static bool TryLocateDefaultMouse(out IGlobalMouseDevice globalMouseDevice)
-    {
-        globalMouseDevice = null;
-        return false;
     }
 }

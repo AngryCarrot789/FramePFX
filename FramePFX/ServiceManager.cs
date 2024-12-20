@@ -22,6 +22,8 @@ namespace FramePFX;
 public class ServiceManager : IServiceManager
 {
     private readonly Dictionary<Type, object> services;
+    
+    public IEnumerable<KeyValuePair<Type, object>> Services => this.services;
 
     public ServiceManager()
     {

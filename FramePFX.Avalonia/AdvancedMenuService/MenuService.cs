@@ -253,7 +253,7 @@ public static class MenuService
             switch (entry)
             {
                 case CommandContextEntry _: element = new AdvancedContextCommandMenuItem(); break;
-                case CallbackContextEntry _: element = new AdvancedContextCallbackMenuItem(); break;
+                case CustomContextEntry _: element = new AdvancedContextCustomMenuItem(); break;
                 case BaseContextEntry _: element = new AdvancedContextMenuItem(); break;
                 case SeparatorEntry _: element = new Separator() { Margin = new Thickness(5, 2) }; break;
                 case CaptionEntry _: element = new CaptionSeparator(); break;

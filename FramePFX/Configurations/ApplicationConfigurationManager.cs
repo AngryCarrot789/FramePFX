@@ -44,15 +44,11 @@ public class ApplicationConfigurationManager : ConfigurationManager
         
         this.RootEntry.AddEntry(this.EditorConfigurationEntry = new ConfigurationEntry()
         {
-            DisplayName = "Editor", Id = "config.editor", Page = new EditorWindowConfigurationPage(), Items = [new ConfigurationEntry()
+            DisplayName = "Editor", Id = "config.editor", Page = new EditorWindowConfigurationPage(), 
+            Items = [new ConfigurationEntry()
             {
                 DisplayName = "Colours", Id = "config.editor.colours", Page = new EditorWindowPropEditorConfigurationPage()
             }]
-        });
-        
-        this.RootEntry.AddEntry(new ConfigurationEntry()
-        {
-            DisplayName = "Colours Copy", Id = "config.editor.colours", Page = new EditorWindowPropEditorConfigurationPage()
         });
         
         this.RootEntry.AddEntry(new ConfigurationEntry()

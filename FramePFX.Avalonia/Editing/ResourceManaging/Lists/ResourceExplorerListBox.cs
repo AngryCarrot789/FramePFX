@@ -80,6 +80,7 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement
         this.SelectionManager = new ResourceExplorerSelectionManager(this);
         this.Focusable = true;
         DataManager.SetContextData(this, new ContextData().Set(DataKeys.ResourceListUIKey, this));
+        DragDrop.SetAllowDrop(this, true);
     }
 
     static ResourceExplorerListBox()
@@ -113,7 +114,7 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement
             case PointerUpdateKind.XButton1Pressed:
                 this.CurrentFolder = this.CurrentFolder?.Parent ?? this.ResourceManager?.RootContainer;
                 e.Handled = true;
-                break;
+            break;
             case PointerUpdateKind.LeftButtonPressed:
                 // We want to clear the selection manager when the user clicks an
                 // item, because the list box's implementation of selecting a single
@@ -135,7 +136,7 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement
                     this.Focus();
                 }
 
-                break;
+            break;
         }
     }
 

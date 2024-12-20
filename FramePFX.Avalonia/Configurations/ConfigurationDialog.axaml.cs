@@ -28,22 +28,37 @@ namespace FramePFX.Avalonia.Configurations;
 public partial class ConfigurationDialog : WindowEx
 {
     private readonly ConfigurationManager configManager;
-    private ConfigurationEntry? connectedEntry;
     private readonly AsyncRelayCommand ApplyCommand;
+    private readonly AsyncRelayCommand ApplyThenCloseCommand;
 
     public ConfigurationDialog(ConfigurationManager manager)
     {
         this.InitializeComponent();
         this.configManager = manager;
         
+        this.PART_ApplyButton.Click += this.OnApplyButtonClicked;
         this.PART_ConfirmButton.Click += this.OnConfirmButtonClicked;
         this.PART_CancelButton.Click += this.OnCancelButtonClicked;
 
+        this.PART_ApplyButton.IsEnabled = true;
         this.PART_ConfirmButton.IsEnabled = true;
         this.PART_CancelButton.IsEnabled = true;
         this.PART_EditorPanel.IsEnabled = true;
         this.ApplyCommand = new AsyncRelayCommand(async () =>
         {
+            this.PART_ApplyButton.IsEnabled = false;
+            this.PART_ConfirmButton.IsEnabled = false;
+            this.PART_CancelButton.IsEnabled = false;
+            this.PART_EditorPanel.IsEnabled = false;
+            await this.configManager.ApplyHierarchyAsync();
+            this.PART_ApplyButton.IsEnabled = true;
+            this.PART_ConfirmButton.IsEnabled = true;
+            this.PART_CancelButton.IsEnabled = true;
+            this.PART_EditorPanel.IsEnabled = true;
+        });
+        this.ApplyThenCloseCommand = new AsyncRelayCommand(async () =>
+        {
+            this.PART_ApplyButton.IsEnabled = false;
             this.PART_ConfirmButton.IsEnabled = false;
             this.PART_CancelButton.IsEnabled = false;
             this.PART_EditorPanel.IsEnabled = false;
@@ -78,6 +93,8 @@ public partial class ConfigurationDialog : WindowEx
         this.PART_ConfirmButton.IsEnabled = context.ModifiedPages.Any();
     }
 
+    private void OnApplyButtonClicked(object? sender, RoutedEventArgs e) => this.ApplyCommand.Execute(null);
+    
     private void OnConfirmButtonClicked(object? sender, RoutedEventArgs e) => this.TryCloseDialog(true);
 
     private void OnCancelButtonClicked(object? sender, RoutedEventArgs e) => this.TryCloseDialog(false);
@@ -92,7 +109,7 @@ public partial class ConfigurationDialog : WindowEx
         if (result)
         {
             // TODO: 'failure to apply' system; a list of FailedApplyConfigurationEntry which gets presented to the user?
-            this.ApplyCommand.Execute(null);
+            this.ApplyThenCloseCommand.Execute(null);
             return true;
         }
         else

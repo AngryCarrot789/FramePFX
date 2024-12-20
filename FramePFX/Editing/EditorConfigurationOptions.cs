@@ -70,7 +70,7 @@ public sealed class EditorConfigurationOptions
 
     public EditorConfigurationOptions()
     {
-        this.titleBar = "Bootleg song vegas (FramePFX v2.0.1)";
+        this.titleBar = "Bootleg sony vegas (FramePFX v2.0.1)";
         this.TitleBarBrush = SKColors.Red;
     }
 }

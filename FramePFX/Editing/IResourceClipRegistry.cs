@@ -39,10 +39,6 @@ public sealed class ResourceToClipDropRegistry
     public ResourceToClipDropRegistry()
     {
         this.information = new Dictionary<Type, IResourceDropInformation>();
-    }
-
-    public void RegisterStandard()
-    {
         this.Register(typeof(ResourceAVMedia), new AVMediaDropInformation());
         this.Register(typeof(ResourceColour), new ResourceColourDropInformation());
         this.Register(typeof(ResourceImage), new ResourceImageDropInformation());
@@ -77,8 +73,12 @@ public sealed class ResourceToClipDropRegistry
 
         public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span)
         {
-            if (!await HandleGeneralCanDropResource(resource))
+            if (resource.HasReachedResourceLimit())
+            {
+                int count = resource.ResourceLinkLimit;
+                await IoC.MessageService.ShowMessage("Resource Limit", $"This resource cannot be used by more than {count} clip{Lang.S(count)}");
                 return;
+            }
 
             ResourceAVMedia media = (ResourceAVMedia) resource;
             AVMediaVideoClip clip = new AVMediaVideoClip();
@@ -88,7 +88,7 @@ public sealed class ResourceToClipDropRegistry
             track.AddClip(clip);
         }
     }
-
+    
     private class ResourceImageDropInformation : IResourceDropInformation
     {
         public long GetClipDurationForDrop(Track track, ResourceItem resource) => 300;

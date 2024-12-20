@@ -1,5 +1,5 @@
 // 
-// Copyright (c) 2023-2024 REghZy
+// Copyright (c) 2024-2024 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -17,17 +17,25 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using Avalonia;
-using Point = Avalonia.Point;
+using FramePFX.Interactivity.Contexts;
 
-namespace FramePFX.Avalonia.Interactivity;
+namespace FramePFX.AdvancedMenuService;
 
-public interface IGlobalMouseDevice
+/// <summary>
+/// A context entry that invokes a callback method
+/// </summary>
+public abstract class CustomContextEntry : BaseContextEntry
 {
-    /// <summary>
-    /// Gets the position of this mouse device, optionally relative to the given visual
-    /// </summary>
-    /// <param name="visual"></param>
-    /// <returns>The mouse position</returns>
-    Point GetPosition(Visual? visual);
+    public Action<CustomContextEntry, IContextData>? Action { get; init; }
+
+    protected CustomContextEntry(string displayName, string? description) : base(displayName, description)
+    {
+    }
+
+    public virtual bool CanExecute(IContextData context)
+    {
+        return true;
+    }
+    
+    public abstract Task OnExecute(IContextData context);
 }

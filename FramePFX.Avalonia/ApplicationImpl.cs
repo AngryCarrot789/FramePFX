@@ -31,7 +31,6 @@ using FFmpeg.AutoGen;
 using FramePFX.Avalonia.Configurations;
 using FramePFX.Avalonia.Editing.ResourceManaging.Autoloading;
 using FramePFX.Avalonia.Exporting;
-using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Services;
 using FramePFX.Avalonia.Services.Colours;
 using FramePFX.Avalonia.Services.Files;
@@ -67,13 +66,16 @@ public class ApplicationImpl : Application
     }
 
     public static void InternalPreInititaliseImpl(App app) => InternalPreInititalise(new ApplicationImpl(app));
+
     public static Task InternalInititaliseImpl(IApplicationStartupProgress progress) => InternalInititalise(progress);
+
     public static void InternalExit(int exitCode) => InternalOnExit(exitCode);
+
     public static Task InternalOnInitialised(VideoEditor editor, string[] args) => InternalOnInitialised2(editor, args);
 
-    protected override void RegisterServicesA(IApplicationStartupProgress progress, ServiceManager manager)
+    protected override void RegisterServices(ServiceManager manager)
     {
-        base.RegisterServicesA(progress, manager);
+        base.RegisterServices(manager);
         manager.Register<IMessageDialogService>(new MessageDialogServiceImpl());
         manager.Register<IUserInputDialogService>(new InputDialogServiceImpl());
         manager.Register<IColourPickerService>(new ColourPickerServiceImpl());
@@ -82,12 +84,6 @@ public class ApplicationImpl : Application
         manager.Register<IExportService>(new ExportServiceImpl());
         manager.Register<IConfigurationService>(new ConfigurationServiceImpl());
         manager.Register<IInputStrokeQueryService>(new InputStrokeDialogsImpl());
-        manager.Register(new EditorConfigurationOptions());
-
-        if (AvCore.TryLocateDefaultMouse(out IGlobalMouseDevice mouse))
-        {
-            manager.Register<IGlobalMouseDevice>(mouse);
-        }
     }
 
     protected override async Task OnInitialise(IApplicationStartupProgress progress)

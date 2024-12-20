@@ -63,6 +63,8 @@ public partial class AppSplashScreen : Window, IApplicationStartupProgress
             this.ActionText = action;
         if (newProgress.HasValue)
             this.CompletionState.SetProgress(newProgress.Value);
-        return IoC.Dispatcher.Process(DispatchPriority.INTERNAL_AfterRender);
+        return this.SynchroniseAsync();
     }
+    
+    public Task SynchroniseAsync() => IoC.Dispatcher.Process(DispatchPriority.INTERNAL_AfterRender);
 }

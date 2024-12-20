@@ -56,7 +56,7 @@ public class DataObjectWrapper : IDataObjekt
             //case "WaveAudio":
             case "Files":
                 if (value is IEnumerable<IStorageItem> items)
-                    return items.Select(x => x.Path.AbsolutePath).ToArray();
+                    return items.Select(x => x.Path.LocalPath).ToArray();
                 break;
             //case "Locale":
             //case "Html":

@@ -40,25 +40,24 @@ public static class ShortcutContextRegistry
 
             foreach (IInputStroke stroke in entry.Shortcut.InputStrokes)
             {
-                items.Add(new DeleteInputStrokeCallbackEntry(stroke, entry, "Delete " + stroke.ToString(), null));
+                items.Add(new DeleteInputStrokeEntry(stroke, entry, $"Delete '{stroke}'", "Remove this input stroke"));
             }
         });
     }
 
-    private class DeleteInputStrokeCallbackEntry : CallbackContextEntry
+    private class DeleteInputStrokeEntry : CustomContextEntry
     {
         public ShortcutEntry Entry { get; }
 
         public IInputStroke Stroke { get; }
         
-        public DeleteInputStrokeCallbackEntry(IInputStroke stroke, ShortcutEntry entry, string displayName, string? description) : base(displayName, description)
+        public DeleteInputStrokeEntry(IInputStroke stroke, ShortcutEntry entry, string displayName, string? description) : base(displayName, description)
         {
             this.Stroke = stroke;
             this.Entry = entry;
-            this.Action = this.Invoke;
         }
 
-        private void Invoke(CallbackContextEntry arg1, IContextData arg2)
+        public override Task OnExecute(IContextData context)
         {
             switch (this.Entry.Shortcut)
             {
@@ -84,6 +83,8 @@ public static class ShortcutContextRegistry
                     break;
                 } 
             }
+
+            return Task.CompletedTask;
         }
     }
 }

@@ -41,6 +41,8 @@ public interface IApplicationStartupProgress
     /// <param name="newProgress">Value passed to <see cref="Tasks.CompletionState.SetProgress"/> if non-null</param>
     /// <returns>A task completed once rendered</returns>
     Task ProgressAndSynchroniseAsync(string action, double? newProgress = default);
+
+    Task SynchroniseAsync();
 }
 
 public class EmptyApplicationStartupProgress : IApplicationStartupProgress
@@ -49,4 +51,5 @@ public class EmptyApplicationStartupProgress : IApplicationStartupProgress
 
     public CompletionState CompletionState { get; } = new SimpleCompletionState();
     public Task ProgressAndSynchroniseAsync(string action, double? newProgress) => Task.CompletedTask;
+    public Task SynchroniseAsync() => Task.CompletedTask;
 }

@@ -5,7 +5,7 @@
         xmlns:trees="clr-namespace:FramePFX.Avalonia.Configurations.Trees"
         xmlns:configurations="clr-namespace:FramePFX.Avalonia.Configurations"
         xmlns:c="clr-namespace:FramePFX.Avalonia.Themes.Controls"
-        mc:Ignorable="d" Width="800" Height="450"
+        mc:Ignorable="d" Width="950" Height="700"
         x:Class="FramePFX.Avalonia.Configurations.ConfigurationDialog"
         Title="Settings"
         Background="{DynamicResource PanelBackground0}"
@@ -20,6 +20,27 @@
                 BorderThickness="0,1,0,0"
                 Height="42">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,0" Spacing="10">
+                <Button x:Name="PART_ApplyButton" Content="Apply" 
+                        Width="72" Height="24" 
+                        CornerRadius="3" FocusAdorner="{x:Null}" 
+                        Theme="{StaticResource ButtonImplicitStyleSetters}">
+                    <Button.Styles>
+                        <Style Selector="Button[IsPointerOver=False]">
+                            <Setter Property="Background" Value="{DynamicResource ABrush.AccentTone3.Background.Static}"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource ABrush.AccentTone3.Background.Static}"/>
+                            <Setter Property="BorderThickness" Value="3"/>
+                        </Style>
+                        <Style Selector="Button[IsPointerOver=True]">
+                            <Setter Property="Background" Value="{DynamicResource ABrush.AccentTone1.Background.Static}"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource ABrush.AccentTone2.Background.Static}"/>
+                            <Setter Property="BorderThickness" Value="3"/>
+                        </Style>
+                        <Style Selector="Button[IsFocused=True]">
+                            <Setter Property="BorderBrush" Value="{DynamicResource ABrush.AccentTone2.Background.Static}"/>
+                            <Setter Property="BorderThickness" Value="3"/>
+                        </Style>
+                    </Button.Styles>
+                </Button>
                 <Button x:Name="PART_ConfirmButton" Content="Save" 
                         Width="72" Height="24" 
                         CornerRadius="3" FocusAdorner="{x:Null}" 

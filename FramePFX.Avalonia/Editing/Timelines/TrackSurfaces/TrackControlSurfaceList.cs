@@ -63,6 +63,8 @@ public class TrackControlSurfaceList : TemplatedControl
         base.OnApplyTemplate(e);
         this.TrackStorage = e.NameScope.GetTemplateChild<TrackControlSurfacePanel>("PART_TrackPanel");
         this.TrackStorage.Owner = this;
+        this.TrackStorage.ApplyStyling();
+        this.TrackStorage.ApplyTemplate();
     }
 
     public TrackControlSurfaceItem GetTrack(int index) => (TrackControlSurfaceItem) this.TrackStorage!.Children[index];

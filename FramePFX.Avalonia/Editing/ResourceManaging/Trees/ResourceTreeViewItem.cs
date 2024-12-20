@@ -573,12 +573,10 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
         Point point = e.GetPosition(this);
 
         EnumDropType dropType = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
-        ContextData ctx = new ContextData(DataManager.GetFullContextData(this));
-
         DragLocation location;
         if (!GetResourceListFromDragEvent(e, out List<BaseResource>? items))
         {
-            e.DragEffects = (DragDropEffects) ResourceDropRegistry.CanDropNativeTypeIntoTreeOrNode(this.ResourceTree!, this, new DataObjectWrapper(e.Data), ctx, dropType);
+            e.DragEffects = (DragDropEffects) ResourceDropRegistry.CanDropNativeTypeIntoTreeOrNode(this.ResourceTree!, this, new DataObjectWrapper(e.Data), DataManager.GetFullContextData(this), dropType);
             location = this.GetDragLocation(point, e.DragEffects == DragDropEffects.None);
         }
         else
@@ -638,13 +636,12 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
             Point point = e.GetPosition(this);
 
             EnumDropType dropType = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
-            ContextData ctx = new ContextData(DataManager.GetFullContextData(this));
 
             this.isProcessingAsyncDrop = true;
             // Dropped non-resources into this node
             if (!GetResourceListFromDragEvent(e, out List<BaseResource>? droppedItems))
             {
-                if (!await ResourceDropRegistry.OnDropNativeTypeIntoTreeOrNode(this.ResourceTree!, this, new DataObjectWrapper(e.Data), ctx, dropType))
+                if (!await ResourceDropRegistry.OnDropNativeTypeIntoTreeOrNode(this.ResourceTree!, this, new DataObjectWrapper(e.Data), DataManager.GetFullContextData(this), dropType))
                 {
                     await IoC.MessageService.ShowMessage("Unknown Data", "Unknown dropped item. Drop files here");
                 }
@@ -671,7 +668,7 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
             if (location == DragLocation.Inside)
             {
                 // We are allowed to drop the list "into" this node
-                await ResourceDropRegistry.OnDropResourceListIntoTreeOrNode(this.ResourceTree!, this, droppedItems, ctx, (EnumDropType) e.DragEffects);
+                await ResourceDropRegistry.OnDropResourceListIntoTreeOrNode(this.ResourceTree!, this, droppedItems, DataManager.GetFullContextData(this), (EnumDropType) e.DragEffects);
                 return;
             }
 

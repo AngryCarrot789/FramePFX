@@ -348,11 +348,9 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
     private void OnDragOver(DragEventArgs e)
     {
         EnumDropType dropType = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
-        ContextData ctx = new ContextData(DataManager.GetFullContextData(this));
-
         if (!ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? droppedItems))
         {
-            e.DragEffects = (DragDropEffects) ResourceDropRegistry.CanDropNativeTypeIntoListOrItem(this.ResourceExplorerList!, this, new DataObjectWrapper(e.Data), ctx, dropType);
+            e.DragEffects = (DragDropEffects) ResourceDropRegistry.CanDropNativeTypeIntoListOrItem(this.ResourceExplorerList!, this, new DataObjectWrapper(e.Data), DataManager.GetFullContextData(this), dropType);
         }
         else
         {
@@ -396,13 +394,11 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
         try
         {
             EnumDropType dropType = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
-            ContextData ctx = new ContextData(DataManager.GetFullContextData(this));
-
             this.isProcessingAsyncDrop = true;
             // Dropped non-resources into this node
             if (!ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? droppedItems))
             {
-                if (!await ResourceDropRegistry.OnDropNativeTypeIntoListOrItem(this.ResourceExplorerList!, this, new DataObjectWrapper(e.Data), ctx, dropType))
+                if (!await ResourceDropRegistry.OnDropNativeTypeIntoListOrItem(this.ResourceExplorerList!, this, new DataObjectWrapper(e.Data), DataManager.GetFullContextData(this), dropType))
                 {
                     await IoC.MessageService.ShowMessage("Unknown Data", "Unknown dropped item. Drop files here");
                 }
@@ -416,7 +412,7 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
             if (this.Resource is ResourceFolder resAsFolder)
             {
                 e.DragEffects = ResourceDropRegistry.CanDropResourceListIntoFolder(resAsFolder, droppedItems, dropType) ? (DragDropEffects) dropType : DragDropEffects.None;
-                await ResourceDropRegistry.OnDropResourceListIntoListItem(this.ResourceExplorerList!, this, droppedItems, ctx, (EnumDropType) e.DragEffects);
+                await ResourceDropRegistry.OnDropResourceListIntoListItem(this.ResourceExplorerList!, this, droppedItems, DataManager.GetFullContextData(this), (EnumDropType) e.DragEffects);
             }
         }
 #if !DEBUG

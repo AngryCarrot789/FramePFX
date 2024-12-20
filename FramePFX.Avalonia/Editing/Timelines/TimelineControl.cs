@@ -52,7 +52,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement
 {
     public static readonly StyledProperty<Timeline?> TimelineProperty = AvaloniaProperty.Register<TimelineControl, Timeline?>(nameof(Timeline));
     public static readonly DirectProperty<TimelineControl, double> ZoomProperty = AvaloniaProperty.RegisterDirect<TimelineControl, double>(nameof(Zoom), o => o.Zoom, unsetValue: 1.0);
-    public static readonly StyledProperty<bool> IsTrackAutomationVisibleProperty = AvaloniaProperty.Register<TimelineControl, bool>(nameof(IsTrackAutomationVisible), true);
+    public static readonly StyledProperty<bool> IsTrackAutomationVisibleProperty = AvaloniaProperty.Register<TimelineControl, bool>(nameof(IsTrackAutomationVisible), false);
     public static readonly StyledProperty<bool> IsClipAutomationVisibleProperty = AvaloniaProperty.Register<TimelineControl, bool>(nameof(IsClipAutomationVisible), true);
 
     private readonly ModelControlDictionary<Track, ITrackElement> trackElementMap;
@@ -194,8 +194,6 @@ public class TimelineControl : TemplatedControl, ITimelineElement
 
         this.TimestampBorder.PointerPressed += (s, ex) => this.MovePlayHeadToMouseCursor(ex.GetPosition(this.TimelineContentGrid).X, true, false, ex);
 
-        this.UpdateIsTrackAutomationVisible(true, true);
-
         // Has to be a 'preview' handler in WPF speak, since we need to prevent the base scroll viewer scrolling down even if CTRL is held
         this.TimelineScrollViewer.AddHandler(PointerWheelChangedEvent, this.TimelineScrollViewerOnPointerWheelChanged, RoutingStrategies.Tunnel);
         this.TimestampBorder.AddHandler(PointerWheelChangedEvent, this.TimeStampBoardScrollViewerOnPointerWheelChanged, RoutingStrategies.Tunnel);
@@ -216,6 +214,11 @@ public class TimelineControl : TemplatedControl, ITimelineElement
         {
             UpdateTrackAutomationVisible(track, trackVisible, clipVisible, true);
         }
+        
+        foreach (TrackControlSurfaceItem track in this.SurfaceTrackList!.GetTracks())
+        {
+            UpdateTrackAutomationVisible(track, trackVisible);
+        }
     }
 
     public static void UpdateTrackAutomationVisible(TimelineTrackControl track, bool? trackVisible, bool? clipVisible, bool clipsToo)
@@ -230,6 +233,12 @@ public class TimelineControl : TemplatedControl, ITimelineElement
                 UpdateClipAutomationVisible(clip, trackVisible, clipVisible);
             }
         }
+    }
+    
+    public static void UpdateTrackAutomationVisible(TrackControlSurfaceItem track, bool? trackVisible)
+    {
+        if (trackVisible.HasValue)
+            track.OnIsAutomationVisibilityChanged(trackVisible.Value);
     }
 
     public static void UpdateClipAutomationVisible(TimelineClipControl clip, bool? trackVisible, bool? clipVisible)
@@ -353,6 +362,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement
             }
 
             this.contextData.Set(DataKeys.TimelineKey, newTimeline);
+            this.UpdateIsTrackAutomationVisible(this.IsTrackAutomationVisible, this.IsClipAutomationVisible);
         }
 
         this.TrackSelectionManager!.UpdateSelection();

@@ -438,4 +438,9 @@ public class TrackControlSurfaceItem : ContentControl
     }
 
     internal static void InternalSetIsSelected(TrackControlSurfaceItem control, bool isSelected) => control.IsSelected = isSelected;
+
+    public void OnIsAutomationVisibilityChanged(bool isVisible)
+    {
+        ((TrackControlSurface?) this.Content)?.OnIsAutomationVisibilityChanged(isVisible);
+    }
 }

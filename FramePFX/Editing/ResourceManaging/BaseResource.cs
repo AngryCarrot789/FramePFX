@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Text;
 using FramePFX.AdvancedMenuService;
 using FramePFX.Editing.Factories;
 using FramePFX.Editing.ResourceManaging.Commands;
@@ -117,9 +118,9 @@ public abstract class BaseResource : IDisplayName, IDestroy
         {
             List<BaseResource> selected;
             if (DataKeys.ResourceListUIKey.TryGetContext(ctx, out IResourceListElement? list))
-                selected = list.Selection.SelectedItems.Where(x => x is ResourceItem).ToList();
+                selected = list.Selection.SelectedItems.ToList();
             else if (DataKeys.ResourceTreeUIKey.TryGetContext(ctx, out IResourceTreeElement? tree))
-                selected = tree.Selection.SelectedItems.Where(x => x is ResourceItem).ToList();
+                selected = tree.Selection.SelectedItems.ToList();
             else
                 return;
 
@@ -134,7 +135,14 @@ public abstract class BaseResource : IDisplayName, IDestroy
             }
             else
             {
-                r.Caption = $"{selected} Items";
+                int fC = selected.Count(x => x is ResourceFolder);
+                int iC = selected.Count(x => x is ResourceItem);
+                StringBuilder sb = new StringBuilder();
+                if (fC > 0)
+                    sb.Append(fC).Append(" Folder").Append(fC == 1 ? "" : "s");
+                if (iC > 0)
+                    (fC > 0 ? sb.Append(", ") : sb).Append(iC).Append(" Resource").Append(fC == 1 ? "" : "s");
+                r.Caption = sb.ToString();
             }
         };
 
@@ -181,9 +189,10 @@ public abstract class BaseResource : IDisplayName, IDestroy
             }
         });
 
-        const string cmdID = "commands.resources.GroupResources";
-        ResourceSurfaceContextRegistry.GetFixedGroup("Modify2").AddCommand(cmdID, "Group");
-        ResourceItemContextRegistry.GetFixedGroup("Modify2").AddCommand(cmdID, "Group Item(s)");
+        const string groupCmd = "commands.resources.GroupResources";
+        ResourceSurfaceContextRegistry.GetFixedGroup("modify.general").AddCommand(groupCmd, "Group Item(s)");
+        ResourceItemContextRegistry.GetFixedGroup("modify.general").AddCommand(groupCmd, "Group Item(s)");
+        ResourceFolderContextRegistry.GetFixedGroup("modify.general").AddCommand(groupCmd, "Group Item(s)");
 
         ResourceItemContextRegistry.CreateDynamicGroup("ModifyOnlineStates", (g, ctx, items) =>
         {

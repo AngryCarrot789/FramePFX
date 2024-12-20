@@ -27,11 +27,14 @@ public class GroupResourcesCommand : Command
 {
     public override Executability CanExecute(CommandEventArgs e)
     {
-        return DataKeys.ResourceListUIKey.GetExecutabilityForPresence(e.ContextData);
+        return DataKeys.ResourceListUIKey.IsPresent(e.ContextData)&& DataKeys.ResourceObjectKey.IsPresent(e.ContextData) ? Executability.Valid : Executability.Invalid;
     }
 
     protected override void Execute(CommandEventArgs e)
     {
+        if (!DataKeys.ResourceObjectKey.IsPresent(e.ContextData))
+            return;
+        
         ResourceFolder dest;
         List<BaseResource> resources;
         if (DataKeys.ResourceListUIKey.TryGetContext(e.ContextData, out IResourceListElement? list))

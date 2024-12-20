@@ -21,6 +21,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 
 namespace FramePFX.Avalonia.Utils;
 
@@ -37,7 +38,7 @@ public static class TemplateUtils
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public static T GetTemplateChild<T>(this INameScope scope, string childName) where T : AvaloniaObject
+    public static T GetTemplateChild<T>(this INameScope scope, string childName, bool applyChildTemplate = true) where T : AvaloniaObject
     {
         object? child = scope?.Find(childName);
         if (child == null)
@@ -45,6 +46,12 @@ public static class TemplateUtils
 
         if (!(child is T value))
             throw new Exception($"Incompatible template part type '{childName}'. Expected {typeof(T).FullName}, got {child.GetType().FullName}");
+
+        if (applyChildTemplate && value is TemplatedControl c)
+        {
+            c.ApplyStyling();
+            c.ApplyTemplate();
+        }
 
         return value;
     }

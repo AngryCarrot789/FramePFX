@@ -324,6 +324,12 @@ public class TrackControlSurface : TemplatedControl
             actionButton.IsEnabled = false;
         }
     }
+
+    public void OnIsAutomationVisibilityChanged(bool isVisible)
+    {
+        if (this.AutomationPanel != null)
+            this.AutomationPanel.IsVisible = isVisible;
+    }
 }
 
 public class TrackListItemParameterViewModel : INotifyPropertyChanged

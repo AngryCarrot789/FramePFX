@@ -103,17 +103,17 @@
                                 <!-- Center Panel -->
                                 <StackPanel Margin="0,4" Orientation="Horizontal" HorizontalAlignment="Center">
                                     <c1:TogglePlayStateButton Width="24" Focusable="False" ToolTip.Tip="Play or pause playback"/>
-                                    <c1:PlayStateButton Width="24" Focusable="False" 
-                                                        HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Play" 
-                                                        CommandId="commands.editor.PlaybackPlayCommand" 
+                                    <c1:PlayStateButton Width="24" Focusable="False"
+                                                        HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Play"
+                                                        CommandId="commands.editor.PlaybackPlayCommand"
                                                         ToolTip.Tip="Start playback"/>
-                                    <c1:PlayStateButton Width="24" Focusable="False" 
-                                                        HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Pause" 
-                                                        CommandId="commands.editor.PlaybackPauseCommand" 
+                                    <c1:PlayStateButton Width="24" Focusable="False"
+                                                        HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Pause"
+                                                        CommandId="commands.editor.PlaybackPauseCommand"
                                                         ToolTip.Tip="Pause playback, keeping the play head at the current frame"/>
-                                    <c1:PlayStateButton Width="24" Focusable="False" 
-                                                        HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Stop" 
-                                                        CommandId="commands.editor.PlaybackStopCommand" 
+                                    <c1:PlayStateButton Width="24" Focusable="False"
+                                                        HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Stop"
+                                                        CommandId="commands.editor.PlaybackStopCommand"
                                                         ToolTip.Tip="Stop playback, returning the play head to the stop head location"/>
                                 </StackPanel>
                             </DockPanel>
@@ -182,17 +182,32 @@
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
                     <Separator Theme="{StaticResource VerticalSeparatorTheme}" Margin="5,0" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}"/>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal" Background="Transparent"
-                                    ToolTip.Tip="The amount of time it took to render a single frame, averaged over 5 ticks">
-                            <TextBlock Text="RT: " VerticalAlignment="Center" Margin="0,2,0,0"/>
-                            <TextBlock x:Name="PART_AvgRenderTimeBlock" Text="" FontFamily="Consolas" VerticalAlignment="Center"/>
-                        </StackPanel>
+                        <TextBlock x:Name="PART_AvgRenderTimeBlock" Text="" FontFamily="Consolas" VerticalAlignment="Center" Background="Transparent">
+                            <ToolTip.Tip>
+                                <TextBlock>
+                                    <TextBlock.Inlines>
+                                        <Run Text="The time it took to render a single frame, averaged over 5 ticks."/>
+                                        <LineBreak/>
+                                        <LineBreak/>
+                                        <Run Text="The displayed FPS just to show how many frames could theoretically be rendered in 1 second."/>
+                                        <LineBreak/>
+                                        <Run Text="It's not strictly valid, since the render times change based on so many things (computer activity, clips being rendered, etc.)"/>
+                                    </TextBlock.Inlines>
+                                </TextBlock>
+                            </ToolTip.Tip>
+                        </TextBlock>
                         <Separator Theme="{StaticResource VerticalSeparatorTheme}" Margin="5,0" BorderBrush="{DynamicResource ABrush.Tone5.Border.Static}"/>
-                        <StackPanel Orientation="Horizontal" Background="Transparent"
-                                    ToolTip.Tip="The average playback FPS, averaged over 5 ticks. Ideally, this should sit exactly at the project FPS">
-                            <TextBlock Text="FPS: " VerticalAlignment="Center" Margin="0,2,0,0"/>
-                            <TextBlock x:Name="PART_AvgFPSBlock" Text="" FontFamily="Consolas" VerticalAlignment="Center"/>
-                        </StackPanel>
+                        <TextBlock x:Name="PART_AvgFPSBlock" Text="" FontFamily="Consolas" VerticalAlignment="Center" Background="Transparent">
+                            <ToolTip.Tip>
+                                <TextBlock>
+                                    <TextBlock.Inlines>
+                                        <Run Text="The average playback FPS, averaged over 5 ticks."/>
+                                        <LineBreak/>
+                                        <Run Text="This should ideally sit exactly at the project FPS."/>
+                                    </TextBlock.Inlines>
+                                </TextBlock>
+                            </ToolTip.Tip>
+                        </TextBlock>
                     </StackPanel>
                 </StackPanel>
                 <DockPanel x:Name="PART_ActiveBackgroundTaskGrid" DockPanel.Dock="Right" IsVisible="False">

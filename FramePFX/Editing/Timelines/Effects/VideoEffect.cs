@@ -29,12 +29,12 @@ public abstract class VideoEffect : BaseEffect
     /// <summary>
     /// Casts <see cref="Owner"/> to a <see cref="VideoClip"/>
     /// </summary>
-    public new VideoClip OwnerClip => (VideoClip) this.Owner;
+    public new VideoClip? OwnerClip => (VideoClip?) this.Owner;
 
     /// <summary>
     /// Casts <see cref="Owner"/> to a <see cref="VideoTrack"/>
     /// </summary>
-    public new VideoTrack OwnerTrack => (VideoTrack) this.Owner;
+    public new VideoTrack? OwnerTrack => (VideoTrack?) this.Owner;
 
     /// <summary>
     /// The render area rect that a clip generated via its <see cref="VideoClip.RenderFrame"/> method.

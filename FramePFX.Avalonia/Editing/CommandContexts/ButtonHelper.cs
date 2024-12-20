@@ -52,8 +52,9 @@ public abstract class ButtonHelper
     {
         switch (obj)
         {
-            case Button b: return new ButtonImpl(b, onClick);
-            case MenuItem m: return new MenuItemImpl(m, onClick);
+            case Button b:      return new ButtonImpl(b, onClick);
+            case MenuItem m:    return new MenuItemImpl(m, onClick);
+            // case SplitButton b: return new SplitButtonImpl(b, onClick);
         }
 
         throw new InvalidOperationException("Unknown control type for a button-esc control: " + (obj?.GetType().Name ?? "null"));

@@ -33,13 +33,13 @@ public class CPUPixelateEffect : VideoEffect
     public static readonly ParameterLong BlockSizeParameter =
         Parameter.RegisterLong(
             typeof(CPUPixelateEffect),
-            nameof(BlockSize),
+            nameof(CPUPixelateEffect),
             nameof(BlockSize),
             16, 0, 1024, // def/min/max
             ValueAccessors.LinqExpression<long>(typeof(CPUPixelateEffect), nameof(BlockSize)),
             ParameterFlags.StandardProjectVisual);
 
-    public long BlockSize;
+    private long BlockSize;
 
     private Vector2 renderSize;
 

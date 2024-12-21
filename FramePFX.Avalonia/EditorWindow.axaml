@@ -9,6 +9,8 @@
             xmlns:tl="clr-namespace:FramePFX.Avalonia.Editing.Timelines"
             xmlns:c1="clr-namespace:FramePFX.Avalonia.Editing"
             xmlns:resourceManaging="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging"
+            xmlns:commandSystem="clr-namespace:FramePFX.CommandSystem;assembly=FramePFX-core"
+            xmlns:usages="clr-namespace:FramePFX.Avalonia.CommandSystem.Usages"
             mc:Ignorable="d"
             x:Class="FramePFX.Avalonia.EditorWindow"
             Background="{DynamicResource PanelBackground0}"
@@ -123,8 +125,10 @@
                                 BorderBrush="{DynamicResource PanelBorderBrush}"
                                 BorderThickness="0,0,0,1">
                             <Grid>
-                                <ComboBox HorizontalAlignment="Left" BorderThickness="0" ToolTip.Tip="Rendering quality"/>
-                                <Button Content="Edit Project Settings" HorizontalAlignment="Right" Padding="15,0" BorderThickness="0"/>
+                                <ComboBox x:Name="PART_RenderQualityComboBox" HorizontalAlignment="Left" BorderThickness="0" ToolTip.Tip="Rendering quality"/>
+                                <Button Content="Edit Project Settings" HorizontalAlignment="Right" Padding="15,0" BorderThickness="0"
+                                        usages:CommandUsageManager.SimpleButtonCommandId="commands.editor.OpenProjectSettings"
+                                        ToolTip.Tip="Opens the project's settings in a dialog"/>
                             </Grid>
                         </Border>
                         <Grid Background="Transparent">

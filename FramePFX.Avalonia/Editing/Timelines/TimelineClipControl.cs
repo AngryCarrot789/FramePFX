@@ -27,7 +27,6 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Reactive;
-using Avalonia.Rendering.Composition;
 using Avalonia.Threading;
 using FramePFX.Avalonia.AdvancedMenuService;
 using FramePFX.Avalonia.Bindings;

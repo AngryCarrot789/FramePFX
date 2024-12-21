@@ -25,6 +25,7 @@ using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Themes.Controls;
+using FramePFX.Configurations;
 using FramePFX.Editing;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.Timelines;
@@ -51,12 +52,30 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI
 
     ITimelineElement IVideoEditorUI.TimelineElement => this.TheTimeline;
 
+    public ProjectConfigurationManager? ActiveProjectConfigurationManager
+    {
+        get
+        {
+            if (this.myActiveProjectConfiguration != null)
+            {
+                return this.myActiveProjectConfiguration;
+            }
+            
+            if (this.activeProject != null)
+                return this.myActiveProjectConfiguration = new ProjectConfigurationManager(this.activeProject, this);
+
+            return null;
+        }
+    }
+
     private readonly ContextData contextData = new ContextData();
     private bool doNotInvalidateContext;
     private readonly NumberAverager renderTimeAverager;
     private ActivityTask? primaryActivity;
     private readonly ContextData timelineGroupBoxContextData;
     private RateLimitedDispatchAction<Timeline> updateFpsInfoRlda;
+    private ProjectConfigurationManager? myActiveProjectConfiguration;
+    private Project? activeProject;
 
     public EditorWindow()
     {
@@ -190,6 +209,9 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI
             newProject.IsModifiedChanged += this.OnProjectModifiedChanged;
         }
 
+        this.activeProject = newProject;
+        this.myActiveProjectConfiguration?.Destroy();
+        this.myActiveProjectConfiguration = null;
         this.contextData.Set(DataKeys.ProjectKey, newProject);
         this.PART_ResourcePanelControl.ResourceManager = newProject?.ResourceManager;
         this.OnActiveTimelineChanged(oldProject?.ActiveTimeline, newProject?.ActiveTimeline);
@@ -375,5 +397,10 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI
         {
             project.ActiveTimeline = project.MainTimeline;
         }
+    }
+    
+    public void CenterViewPort()
+    {
+        IoC.Dispatcher.InvokeAsync(() => this.PART_ViewPort?.PART_FreeMoveViewPort?.FitContentToCenter(), DispatchPriority.Background);
     }
 }

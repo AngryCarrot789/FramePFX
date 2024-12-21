@@ -17,9 +17,9 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Runtime.CompilerServices;
 using FramePFX.DataTransfer;
 using FramePFX.Editing;
+using FramePFX.Editing.UI;
 using FramePFX.Interactivity.Formatting;
 using FramePFX.PropertyEditing.DataTransfer;
 using FramePFX.Utils;
@@ -33,32 +33,23 @@ namespace FramePFX.Configurations;
 /// </summary>
 public class ProjectConfigurationManager : ConfigurationManager
 {
-    private static readonly ConditionalWeakTable<Project, ProjectConfigurationManager> ProjectToConfigurationManager;
-
     public Project Project { get; }
+    
+    public IVideoEditorUI VideoEditor { get; }
 
-    public ProjectConfigurationManager(Project project)
+    public ProjectConfigurationManager(Project project, IVideoEditorUI editorUi)
     {
         this.Project = project;
+        this.VideoEditor = editorUi;
         this.RootEntry.AddEntry(new ConfigurationEntry()
         {
             DisplayName = "Video", Id = "config.project.video", Page = new ProjectVideoPropertyEditorConfigurationPage(this)
         });
     }
 
-    static ProjectConfigurationManager()
+    public void Destroy()
     {
-        ProjectToConfigurationManager = new ConditionalWeakTable<Project, ProjectConfigurationManager>();
-    }
-
-    public static ProjectConfigurationManager GetProjectConfigurationManager(Project project)
-    {
-        if (!ProjectToConfigurationManager.TryGetValue(project, out ProjectConfigurationManager? configurationManager))
-        {
-            ProjectToConfigurationManager.Add(project, configurationManager = new ProjectConfigurationManager(project));
-        }
-
-        return configurationManager;
+        
     }
 }
 
@@ -156,5 +147,7 @@ public class ProjectVideoPropertyEditorConfigurationPage : PropertyEditorConfigu
         {
             settings.FrameRate = Rational.FromDouble(this.FrameRate);
         }
+
+        this.manager.VideoEditor.CenterViewPort();
     }
 }

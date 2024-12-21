@@ -32,7 +32,7 @@ public class FreeMoveViewPortV2 : Border
     private const double SafeMinimumZoomFactor = 0.05;
 
     public static readonly StyledProperty<double> MinimumZoomScaleProperty = AvaloniaProperty.Register<FreeMoveViewPortV2, double>("MinimumZoomScale", SafeMinimumZoomFactor, coerce: (o, v) => !DoubleUtils.IsValid(v) ? o.GetValue(MinimumZoomScaleProperty!) : Math.Max(v, SafeMinimumZoomFactor));
-    public static readonly StyledProperty<double> MaximumZoomScaleProperty = AvaloniaProperty.Register<FreeMoveViewPortV2, double>("MaximumZoomScale", 200.0, coerce: (o, v) => !DoubleUtils.IsValid(v) ? o.GetValue(MaximumZoomScaleProperty!) : Math.Max(v, o.GetValue(MinimumZoomScaleProperty)));
+    public static readonly StyledProperty<double> MaximumZoomScaleProperty = AvaloniaProperty.Register<FreeMoveViewPortV2, double>("MaximumZoomScale", 50, coerce: (o, v) => !DoubleUtils.IsValid(v) ? o.GetValue(MaximumZoomScaleProperty!) : Math.Max(v, o.GetValue(MinimumZoomScaleProperty)));
     public static readonly StyledProperty<double> ZoomScaleProperty = AvaloniaProperty.Register<FreeMoveViewPortV2, double>("ZoomScale", 1.0, coerce: (o, v) => !DoubleUtils.IsValid(v) ? o.GetValue(ZoomScaleProperty!) : Maths.Clamp(v, o.GetValue(MinimumZoomScaleProperty), o.GetValue(MaximumZoomScaleProperty)));
     public static readonly StyledProperty<double> HorizontalOffsetProperty = AvaloniaProperty.Register<FreeMoveViewPortV2, double>("HorizontalOffset");
     public static readonly StyledProperty<double> VerticalOffsetProperty = AvaloniaProperty.Register<FreeMoveViewPortV2, double>("VerticalOffset");

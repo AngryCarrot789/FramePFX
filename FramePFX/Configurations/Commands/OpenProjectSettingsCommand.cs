@@ -18,7 +18,6 @@
 // 
 
 using FramePFX.CommandSystem;
-using FramePFX.Editing;
 using FramePFX.Editing.UI;
 using FramePFX.Interactivity.Contexts;
 
@@ -28,17 +27,22 @@ public class OpenProjectSettingsCommand : AsyncCommand
 {
     protected override Executability CanExecuteOverride(CommandEventArgs e)
     {
-        return DataKeys.ProjectKey.GetExecutabilityForPresence(e.ContextData);
+        if (!DataKeys.VideoEditorUIKey.TryGetContext(e.ContextData, out IVideoEditorUI? editor))
+            return Executability.Invalid;
+        
+        return editor.VideoEditor.Project != null ? Executability.Valid : Executability.ValidButCannotExecute;
     }
 
     protected override async Task ExecuteAsync(CommandEventArgs e)
     {
-        if (!DataKeys.ProjectKey.TryGetContext(e.ContextData, out Project? project))
+        if (!DataKeys.VideoEditorUIKey.TryGetContext(e.ContextData, out IVideoEditorUI? editorUI))
             return;
 
-        await IoC.ConfigurationService.ShowConfigurationDialog(ProjectConfigurationManager.GetProjectConfigurationManager(project));
-        
-        if (DataKeys.VideoEditorUIKey.TryGetContext(e.ContextData, out IVideoEditorUI? editor))
-            editor.TimelineElement.Timeline!.InvalidateRender();
+        ProjectConfigurationManager? config = editorUI.ActiveProjectConfigurationManager;
+        if (config != null)
+        {
+            await IoC.ConfigurationService.ShowConfigurationDialog(config);
+            editorUI.TimelineElement.Timeline!.InvalidateRender();
+        }
     }
 }

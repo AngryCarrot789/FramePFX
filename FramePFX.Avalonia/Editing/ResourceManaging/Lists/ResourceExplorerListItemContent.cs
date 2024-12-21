@@ -205,6 +205,7 @@ public class RELICImage : ResourceExplorerListItemContent
             SKBitmap bmp = imgRes.bitmap;
             if (this.bitmap == null || this.bitmap.PixelSize.Width != bmp.Width || this.bitmap.PixelSize.Height != bmp.Height)
             {
+                this.bitmap?.Dispose();
                 this.bitmap = new WriteableBitmap(new PixelSize(bmp.Width, bmp.Height), new Vector(96, 96), PixelFormat.Bgra8888, AlphaFormat.Premul);
             }
 

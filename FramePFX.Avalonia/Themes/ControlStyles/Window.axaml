@@ -103,9 +103,6 @@
         <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource Window.Static.Border}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="ExtendClientAreaChromeHints" Value="SystemChrome"/>
-        <Setter Property="ExtendClientAreaToDecorationsHint" Value="True"/>
-        <Setter Property="ExtendClientAreaTitleBarHeightHint" Value="-1"/>
         <Setter Property="Template">
             <ControlTemplate>
                 <Panel Margin="{TemplateBinding OffScreenMargin}">
@@ -148,7 +145,16 @@
                                             </Grid>
                                         </Button>
                                         <Border Background="Transparent" Width="1" VerticalAlignment="Stretch"/>
-                                        <Button x:Name="PART_ButtonClose" Focusable="False" IsHitTestVisible="True" Width="45" Background="Transparent" BorderThickness="0" ZIndex="2147483548">
+                                        <Button x:Name="PART_ButtonClose" Focusable="False" IsHitTestVisible="True" Width="45" 
+                                                Background="Transparent" BorderThickness="0" ZIndex="2147483548"
+                                                Theme="{StaticResource ButtonImplicitStyleSetters}">
+                                            <Button.Styles>
+                                                <Style Selector="Button[IsPointerOver=True]">
+                                                    <Setter Property="Background" Value="Red"/>
+                                                    <Setter Property="BorderBrush" Value="Red"/>
+                                                    <Setter Property="BorderThickness" Value="3"/>
+                                                </Style>
+                                            </Button.Styles>
                                             <Grid Margin="0,1,0,0">
                                                 <Line StartPoint="0,0" EndPoint="11,11" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="2"/>
                                                 <Line StartPoint="0,11" EndPoint="11,0" Stroke="{DynamicResource ABrush.Glyph.Static}" StrokeThickness="2"/>

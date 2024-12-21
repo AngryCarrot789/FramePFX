@@ -32,24 +32,16 @@ namespace FramePFX.Avalonia.Shortcuts.Dialogs;
 public partial class MouseStrokeUserInputControl : UserControl, IUserInputContent
 {
     public MouseStrokeUserInputInfo? InputInfo { get; private set; }
-    
+
     private readonly IBinder<MouseStrokeUserInputInfo> mouseStrokeBinder = new DataParameterPropertyBinder<MouseStrokeUserInputInfo>(TextBox.TextProperty, MouseStrokeUserInputInfo.MouseStrokeParameter, (p) =>
     {
-        MouseStroke? stroke = (MouseStroke?) p;
-        if (!stroke.HasValue || stroke.Value == default)
-        {
-            return "";
-        }
-        else
-        {
-            MouseStroke s = stroke.Value;
-            return MouseStrokeStringConverter.ToStringFunction(s.MouseButton, s.Modifiers, s.ClickCount);
-        }
+        MouseStroke s = (MouseStroke?) p ?? default;
+        return MouseStrokeStringConverter.ToStringFunction(s.MouseButton, s.Modifiers, s.ClickCount);
     });
-    
+
     public MouseStrokeUserInputControl()
     {
-        InitializeComponent();
+        this.InitializeComponent();
         this.mouseStrokeBinder.AttachControl(this.InputBox);
     }
 
@@ -61,7 +53,8 @@ public partial class MouseStrokeUserInputControl : UserControl, IUserInputConten
 
     private void InputElement_OnPointerWheelChanged(object? sender, PointerWheelEventArgs e)
     {
-        if (ShortcutUtils.GetMouseStrokeForEvent(e, out MouseStroke stroke)) {
+        if (ShortcutUtils.GetMouseStrokeForEvent(e, out MouseStroke stroke))
+        {
             this.InputInfo!.MouseStroke = stroke;
         }
     }

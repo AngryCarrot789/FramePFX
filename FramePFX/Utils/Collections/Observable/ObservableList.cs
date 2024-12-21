@@ -17,11 +17,16 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Buffers;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
 namespace FramePFX.Utils.Collections.Observable;
 
+/// <summary>
+/// An optimised observable collection. This class is not thread safe; manual synchronization required
+/// </summary>
+/// <typeparam name="T">Type of value to store</typeparam>
 public class ObservableList<T> : Collection<T>, IObservableList<T>
 {
     private readonly List<T> myItems;
@@ -57,8 +62,15 @@ public class ObservableList<T> : Collection<T>, IObservableList<T>
     {
         this.CheckReentrancy();
         this.myItems.Insert(index, item);
-        this.OnItemsAdded(index, new SingletonList<T>(item));
+
+        // Invoke base method when derived or we have an ItemsAdded handler
+        if (this.isDerivedType || this.ItemsAdded != null)
+            this.OnItemsAdded(index, new SingletonList<T>(item));
     }
+
+    public void AddRange(IEnumerable<T> items) => this.InsertRange(this.Count, items);
+
+    public void AddSpanRange(ReadOnlySpan<T> items) => this.InsertSpanRange(this.Count, items);
 
     public void InsertRange(int index, IEnumerable<T> items)
     {
@@ -74,11 +86,27 @@ public class ObservableList<T> : Collection<T>, IObservableList<T>
             // Probably enumerator method or something along those lines, convert to list for speedy insertion
             list = items.ToList();
             this.myItems.InsertRange(index, list);
-            if (this.isDerivedType || this.ItemsRemoved != null) // Stops the event handler modifying the list
-                list = list.AsReadOnly();
         }
 
+        if (this.isDerivedType || this.ItemsAdded != null) // Stops the event handler modifying the list
+            list = list.AsReadOnly();
+
         this.OnItemsAdded(index, list);
+    }
+
+    /// <summary>
+    /// Inserts a span of items into this list. Before trying to optimise code to use this, know that this method may
+    /// create an array and then list from the span if we are a derived type or we have event handlers for <see cref="ItemsAdded"/>
+    /// </summary>
+    /// <param name="index"></param>
+    /// <param name="items"></param>
+    public void InsertSpanRange(int index, ReadOnlySpan<T> items)
+    {
+        this.CheckReentrancy();
+
+        this.myItems.InsertRange(index, items);
+        if (this.isDerivedType || this.ItemsAdded != null)
+            this.OnItemsAdded(index, new ReadOnlyCollection<T>(items.ToArray()));
     }
 
     protected override void RemoveItem(int index)
@@ -86,21 +114,26 @@ public class ObservableList<T> : Collection<T>, IObservableList<T>
         this.CheckReentrancy();
         T removedItem = this[index];
         this.myItems.RemoveAt(index);
-        this.OnItemsRemoved(index, new SingletonList<T>(removedItem));
+
+        // Invoke base method when derived or we have an ItemsRemoved handler
+        if (this.isDerivedType || this.ItemsRemoved != null)
+            this.OnItemsRemoved(index, new SingletonList<T>(removedItem));
     }
 
     public void RemoveRange(int index, int count)
     {
         this.CheckReentrancy();
-        if (this.isDerivedType || this.ItemsRemoved != null)
+        if (!this.isDerivedType && this.ItemsRemoved == null)
+        {
+            // We are not a derived type, and we have no ItemsRemoved handler,
+            // so we don't need to create any pointless sub-lists
+            this.myItems.RemoveRange(index, count);
+        }
+        else
         {
             List<T> items = this.myItems.Slice(index, count);
             this.myItems.RemoveRange(index, count);
             this.OnItemsRemoved(index, items.AsReadOnly());
-        }
-        else
-        {
-            this.myItems.RemoveRange(index, count);
         }
     }
 
@@ -126,20 +159,22 @@ public class ObservableList<T> : Collection<T>, IObservableList<T>
     protected override void ClearItems()
     {
         this.CheckReentrancy();
-        if (this.Items.Count < 1)
+        if (this.myItems.Count < 1)
         {
             return;
         }
 
-        if (this.isDerivedType || this.ItemsRemoved != null)
+        if (!this.isDerivedType && this.ItemsRemoved == null)
+        {
+            // We are not a derived type, and we have no ItemsRemoved handler,
+            // so we don't need to create any pointless sub-lists
+            this.myItems.Clear();
+        }
+        else
         {
             ReadOnlyCollection<T> items = this.myItems.ToList().AsReadOnly();
             this.myItems.Clear();
             this.OnItemsRemoved(0, items);
-        }
-        else
-        {
-            this.myItems.Clear();
         }
     }
 
@@ -195,7 +230,7 @@ public class ObservableList<T> : Collection<T>, IObservableList<T>
         }
     }
 
-    protected IDisposable BlockReentrancy()
+    public IDisposable BlockReentrancy()
     {
         this.blockReentrancyCount++;
         return this.EnsureMonitorInitialized();

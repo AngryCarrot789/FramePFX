@@ -27,6 +27,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Reactive;
+using Avalonia.Rendering.Composition;
 using Avalonia.Threading;
 using FramePFX.Avalonia.AdvancedMenuService;
 using FramePFX.Avalonia.Bindings;
@@ -171,7 +172,8 @@ public class TimelineClipControl : ContentControl, IClipElement
         DataManager.SetContextData(this, this.contextData = new ContextData().Set(DataKeys.ClipUIKey, this));
         DragDrop.SetAllowDrop(this, true);
         this.autoSequenceBinder = new PropertyBinder<AutomationSequence?>(this, ActiveSequenceProperty, AutomationSequenceEditorControl.AutomationSequenceProperty);
-
+        
+        // Compositor.TryGetDefaultCompositor().create
         // Testing render offsets
         // this.Content = new Rectangle() {
         //     Fill = Brushes.OrangeRed,
@@ -231,8 +233,8 @@ public class TimelineClipControl : ContentControl, IClipElement
     protected override void OnSizeChanged(SizeChangedEventArgs e)
     {
         base.OnSizeChanged(e);
-        this.renderSizeRectGeometry.Rect = new Rect(e.NewSize);
-        this.InvalidateVisual();
+        // this.renderSizeRectGeometry.Rect = new Rect(e.NewSize);
+        // this.InvalidateVisual();
     }
 
     public void OnConnecting(ClipStoragePanel storagePanel, Clip clip)
@@ -859,7 +861,6 @@ public class TimelineClipControl : ContentControl, IClipElement
     public override void Render(DrawingContext dc)
     {
         base.Render(dc);
-
         Rect finalRect = new Rect(default, this.Bounds.Size);
         if (this.renderSizeRectGeometry.Rect != finalRect)
         {

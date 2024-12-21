@@ -21,6 +21,10 @@ using System.Collections.ObjectModel;
 
 namespace FramePFX.Utils.Collections.Observable;
 
+/// <summary>
+/// A read-only wrapper of <see cref="IObservableList{T}"/>
+/// </summary>
+/// <typeparam name="T">The type of value we store</typeparam>
 public class ReadOnlyObservableList<T> : ReadOnlyCollection<T>, IObservableList<T>
 {
     public event ObservableListMultipleItemsEventHandler<T>? ItemsAdded;
@@ -40,7 +44,7 @@ public class ReadOnlyObservableList<T> : ReadOnlyCollection<T>, IObservableList<
 
     private void ListOnItemsRemoved(IObservableList<T> list, IList<T> items, int index) => this.ItemsRemoved?.Invoke(this, items, index);
 
-    private void ListOnItemReplaced(IObservableList<T> list, T olditem, T newitem, int index) => this.ItemReplaced?.Invoke(this, olditem, newitem, index);
+    private void ListOnItemReplaced(IObservableList<T> list, T oldItem, T newItem, int index) => this.ItemReplaced?.Invoke(this, oldItem, newItem, index);
 
-    private void ListOnItemMoved(IObservableList<T> list, T item, int oldindex, int newindex) => this.ItemMoved?.Invoke(this, item, oldindex, newindex);
+    private void ListOnItemMoved(IObservableList<T> list, T item, int oldIndex, int newIndex) => this.ItemMoved?.Invoke(this, item, oldIndex, newIndex);
 }

@@ -60,6 +60,7 @@ public class DeleteSelectedTracksCommand : Command
         foreach (Track track in tracks)
         {
             track.Timeline?.RemoveTrack(track);
+            track.Destroy();
         }
     }
 }

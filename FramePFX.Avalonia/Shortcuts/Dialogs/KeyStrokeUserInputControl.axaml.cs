@@ -36,16 +36,8 @@ public partial class KeyStrokeUserInputControl : UserControl, IUserInputContent
 
     private readonly IBinder<KeyStrokeUserInputInfo> keyStrokeBinder = new DataParameterPropertyBinder<KeyStrokeUserInputInfo>(TextBox.TextProperty, KeyStrokeUserInputInfo.KeyStrokeParameter, (p) =>
     {
-        KeyStroke? stroke = (KeyStroke?) p;
-        if (!stroke.HasValue || stroke.Value == default)
-        {
-            return "";
-        }
-        else
-        {
-            KeyStroke s = stroke.Value;
-            return KeyStrokeStringConverter.ToStringFunction(s.KeyCode, s.Modifiers, s.IsRelease, false, true);
-        }
+        KeyStroke s = (KeyStroke?) p ?? default;
+        return KeyStrokeStringConverter.ToStringFunction(s.KeyCode, s.Modifiers, s.IsRelease, false, true);
     })
     {
         CanUpdateModel = false
@@ -57,6 +49,7 @@ public partial class KeyStrokeUserInputControl : UserControl, IUserInputContent
     {
         this.InitializeComponent();
         this.keyStrokeBinder.AttachControl(this.InputBox);
+        this.InputBox.AddHandler(TextBox.KeyDownEvent, this.InputBox_KeyDown, RoutingStrategies.Tunnel);
     }
 
     private void ToggleButton_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
@@ -69,11 +62,12 @@ public partial class KeyStrokeUserInputControl : UserControl, IUserInputContent
         this.myDialog!.InvalidateConfirmButton();
     }
 
-    private void InputBox_OnKeyDown(object? sender, KeyEventArgs e)
+    private void InputBox_KeyDown(object? sender, KeyEventArgs e)
     {
         if (ShortcutUtils.GetKeyStrokeForEvent(e, out KeyStroke stroke, this.IsKeyReleaseCheckBox.IsChecked ?? false)) {
             this.InputInfo!.KeyStroke = stroke;
             this.myDialog!.InvalidateConfirmButton();
+            e.Handled = true;
         }
     }
     

@@ -72,5 +72,9 @@ class Program
 
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure<App>().UsePlatformDetect().WithInterFont().LogToTrace();
+        => AppBuilder.Configure<App>().
+                      UsePlatformDetect().
+                      WithInterFont().
+                      With(new Win32PlatformOptions() {CompositionMode = [Win32CompositionMode.LowLatencyDxgiSwapChain], RenderingMode = [Win32RenderingMode.AngleEgl]}).
+                      LogToTrace();
 }

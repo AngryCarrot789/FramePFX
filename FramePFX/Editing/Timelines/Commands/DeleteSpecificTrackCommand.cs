@@ -35,6 +35,7 @@ public class DeleteSpecificTrackCommand : Command
         if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track? track))
         {
             track.Timeline?.RemoveTrack(track);
+            track.Destroy();
         }
     }
 }

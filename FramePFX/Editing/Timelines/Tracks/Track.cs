@@ -370,13 +370,13 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
 
     public virtual void Destroy()
     {
-        this.ClearTrack();
+        this.ClearTrackAndDeleteClips();
     }
 
     /// <summary>
     /// Destroys and removes all clips. All clips are removed back to front so this method calls <see cref="ClipRemoved"/> for every clip
     /// </summary>
-    public void ClearTrack()
+    public void ClearTrackAndDeleteClips()
     {
         for (int i = this.clips.Count - 1; i >= 0; i--)
         {
@@ -384,6 +384,8 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
             clip.Destroy();
             this.RemoveClipAt(i);
         }
+        
+        this.InvalidateRender();
     }
 
     public override string ToString()

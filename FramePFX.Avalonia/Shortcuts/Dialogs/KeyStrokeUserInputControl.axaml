@@ -4,10 +4,18 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="FramePFX.Avalonia.Shortcuts.Dialogs.KeyStrokeUserInputControl">
-    <Grid>
-        <TextBlock Margin="10,10,10,0" VerticalAlignment="Top" Padding="2" Text="Press any key combination in here:"/>
-        <TextBox x:Name="InputBox" Text="Input" KeyDown="InputBox_OnKeyDown" Padding="5" IsReadOnly="True" VerticalContentAlignment="Center" Margin="10,35,10,36" Background="{DynamicResource AREghZyBrush.Deep.2.Background.Static}"/>
-        <RadioButton IsCheckedChanged="ToggleButton_OnIsCheckedChanged" IsChecked="True" Content="Is key down" HorizontalAlignment="Left" Margin="10,0,0,10" VerticalAlignment="Bottom"/>
-        <RadioButton IsCheckedChanged="ToggleButton_OnIsCheckedChanged" IsChecked="False" x:Name="IsKeyReleaseCheckBox" Content="Is key up" HorizontalAlignment="Left" Margin="97,0,0,10" VerticalAlignment="Bottom"/>
+    <Grid RowDefinitions="0,Auto,5,*,10,Auto,0">
+        <TextBlock VerticalAlignment="Top" Padding="2" Margin="0,0"
+                   Text="Press any key combination in here:"
+                   Grid.Row="1"/>
+        <StackPanel Orientation="Horizontal" Spacing="10" Grid.Row="5" Margin="0,0">
+            <RadioButton IsCheckedChanged="ToggleButton_OnIsCheckedChanged" IsChecked="True" 
+                         Content="Is key down"/>
+            <RadioButton IsCheckedChanged="ToggleButton_OnIsCheckedChanged" IsChecked="False" 
+                         x:Name="IsKeyReleaseCheckBox" Content="Is key up"/>
+        </StackPanel>
+        <TextBox x:Name="InputBox" Grid.Row="3" Margin="0,0"
+                 Padding="4,2" IsReadOnly="True" VerticalContentAlignment="Center" 
+                 Background="{DynamicResource ABrush.Tone2.Background.Static}"/>
     </Grid>
 </UserControl>

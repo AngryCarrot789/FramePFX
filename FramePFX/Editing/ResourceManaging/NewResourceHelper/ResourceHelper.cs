@@ -330,4 +330,15 @@ public class ResourceHelper
             }
         }
     }
+
+    public void Destroy()
+    {
+        if (this.references != null)
+        {
+            foreach (ResourceSlot slot in this.references.Keys.ToList())
+            {
+                this.ClearResource(slot);
+            }
+        }
+    }
 }

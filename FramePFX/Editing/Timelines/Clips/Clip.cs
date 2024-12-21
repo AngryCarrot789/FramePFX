@@ -507,6 +507,8 @@ public abstract class Clip : IClip, IDestroy
             effect.Destroy();
             this.RemoveEffectAt(i);
         }
+
+        this.ResourceHelper.Destroy();
     }
 
     /// <summary>

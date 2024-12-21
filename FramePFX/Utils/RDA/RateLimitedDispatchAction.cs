@@ -22,8 +22,7 @@ using System.Diagnostics;
 namespace FramePFX.Utils.RDA;
 
 /// <summary>
-/// A class that is similar to <see cref="RapidDispatchActionEx"/>, but has a set amount of time
-/// that has to pass before the callback is scheduled, ensuring the callback is not executed too quickly
+/// The base class for a rate-limited dispatch action
 /// </summary>
 public abstract class BaseRateLimitedDispatchAction
 {
@@ -288,6 +287,10 @@ public abstract class BaseRateLimitedDispatchAction
     #endregion
 }
 
+/// <summary>
+/// A class that is similar to <see cref="RapidDispatchActionEx"/>, but has a set amount of time
+/// that has to pass before the callback is scheduled, ensuring the callback is not executed too quickly
+/// </summary>
 public class RateLimitedDispatchAction : BaseRateLimitedDispatchAction, IDispatchAction
 {
     private readonly Func<Task> callback;
@@ -306,6 +309,10 @@ public class RateLimitedDispatchAction : BaseRateLimitedDispatchAction, IDispatc
     protected override Task ExecuteCore() => this.callback();
 }
 
+/// <summary>
+/// A parameter version of <see cref="RateLimitedDispatchAction"/>. 
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public class RateLimitedDispatchAction<T> : BaseRateLimitedDispatchAction, IDispatchAction<T> where T : class
 {
     private class ObjectWrapper

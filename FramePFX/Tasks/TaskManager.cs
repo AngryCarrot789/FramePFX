@@ -26,7 +26,7 @@ public delegate void TaskManagerTaskEventHandler(TaskManager taskManager, Activi
 
 public sealed class TaskManager : IDisposable
 {
-    public static TaskManager Instance => IoC.TaskManager;
+    public static TaskManager Instance => Application.Instance.ServiceManager.GetService<TaskManager>();
 
     // private readonly ThreadLocal<ActivityTask> threadToTask;
     private readonly AsyncLocal<ActivityTask?> threadToTask;

@@ -41,12 +41,6 @@ public abstract class Plugin
     /// Invoked after the plugin is created and the descriptor is set
     /// </summary>
     public abstract void OnCreated();
-
-    /// <summary>
-    /// Adds this plugin's services to the given service manager
-    /// </summary>
-    /// <param name="manager">Service manager</param>
-    public abstract void RegisterServices(ServiceManager manager);
     
     /// <summary>
     /// Register this plugin's commands

@@ -49,7 +49,7 @@ public class InheritanceMultiMap<T>
 
     private TypeEntry GetOrCreateEntry(Type key)
     {
-        if (this.items.TryGetValue(key, out TypeEntry entry))
+        if (this.items.TryGetValue(key, out TypeEntry? entry))
         {
             return entry;
         }
@@ -95,7 +95,7 @@ public class InheritanceMultiMap<T>
     /// <returns>The list of values, or the EmptyList instance</returns>
     public IReadOnlyList<T> GetLocalValues(Type key)
     {
-        return this.items.TryGetValue(key, out TypeEntry entry) ? entry.items : EmptyList;
+        return this.items.TryGetValue(key, out TypeEntry? entry) ? entry.items : EmptyList;
     }
 
     /// <summary>
@@ -148,7 +148,7 @@ public class InheritanceMultiMap<T>
     /// <param name="key">The key</param>
     public void Clear(Type key)
     {
-        if (this.items.TryGetValue(key, out TypeEntry entry))
+        if (this.items.TryGetValue(key, out TypeEntry? entry))
         {
             entry.Clear();
         }

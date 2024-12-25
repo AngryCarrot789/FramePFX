@@ -156,7 +156,7 @@ public sealed class ShortcutGroup : IGroupedObject
     /// <summary>
     /// Old name: CollectShortcutsWithPrimaryStroke
     /// </summary>
-    public void EvaulateShortcutsAndInputStates(ref GroupEvaulationArgs args, string? focus, bool allowDuplicateInheritedShortcuts = false)
+    public void EvaulateShortcutsAndInputStates(ref ShortcutEvalArgs args, string? focus, bool allowDuplicateInheritedShortcuts = false)
     {
         this.CollectShortcutsInternal(ref args, string.IsNullOrWhiteSpace(focus) ? null : focus, allowDuplicateInheritedShortcuts);
     }
@@ -174,7 +174,7 @@ public sealed class ShortcutGroup : IGroupedObject
         return false;
     }
 
-    private void CollectShortcutsInternal(ref GroupEvaulationArgs args, string? focus, bool allowDuplicateInheritedShortcuts = false)
+    private void CollectShortcutsInternal(ref ShortcutEvalArgs args, string? focus, bool allowDuplicateInheritedShortcuts = false)
     {
         // Searching groups first is what allows inheritance to work properly, because you search the deepest
         // levels first and make your way to the root. Similar to how bubble events work
@@ -235,7 +235,7 @@ public sealed class ShortcutGroup : IGroupedObject
         return path != null && focused != null && (inherit ? focused.StartsWith(path) : focused.Equals(path));
     }
 
-    public GroupedShortcut FindFirstShortcutByCommandId(string cmdId)
+    public GroupedShortcut? FindFirstShortcutByCommandId(string cmdId)
     {
         foreach (GroupedShortcut shortcut in this.shortcuts)
         {
@@ -247,7 +247,7 @@ public sealed class ShortcutGroup : IGroupedObject
 
         foreach (ShortcutGroup group in this.Groups)
         {
-            GroupedShortcut result = group.FindFirstShortcutByCommandId(cmdId);
+            GroupedShortcut? result = group.FindFirstShortcutByCommandId(cmdId);
             if (result != null)
             {
                 return result;
@@ -257,13 +257,13 @@ public sealed class ShortcutGroup : IGroupedObject
         return null;
     }
 
-    public ShortcutGroup GetGroupByName(string name)
+    public ShortcutGroup? GetGroupByName(string name)
     {
         ValidateName(name);
-        return this.mapToItem.TryGetValue(name, out object value) ? value as ShortcutGroup : null;
+        return this.mapToItem.TryGetValue(name, out object? value) ? value as ShortcutGroup : null;
     }
 
-    public ShortcutGroup GetGroupByPath(string path)
+    public ShortcutGroup? GetGroupByPath(string path)
     {
         if (string.IsNullOrWhiteSpace(path))
         {
@@ -274,12 +274,12 @@ public sealed class ShortcutGroup : IGroupedObject
         return split == -1 ? this.GetGroupByName(path) : this.GetGroupByPath(path.Split(SeparatorChar));
     }
 
-    public ShortcutGroup GetGroupByPath(string[] path)
+    public ShortcutGroup? GetGroupByPath(string[] path)
     {
         return this.GetGroupByPath(path, 0, path.Length);
     }
 
-    public ShortcutGroup GetGroupByPath(string[] path, int startIndex, int endIndex)
+    public ShortcutGroup? GetGroupByPath(string[]? path, int startIndex, int endIndex)
     {
         if (path == null || (endIndex - startIndex) == 0)
         {
@@ -287,7 +287,7 @@ public sealed class ShortcutGroup : IGroupedObject
         }
 
         ValidatePathBounds(path, startIndex, endIndex);
-        ShortcutGroup root = this;
+        ShortcutGroup? root = this;
         for (int i = startIndex; i < endIndex; i++)
         {
             if ((root = root.GetGroupByName(path[i])) == null)
@@ -302,7 +302,7 @@ public sealed class ShortcutGroup : IGroupedObject
     public GroupedShortcut GetShortcutByName(string name)
     {
         ValidateName(name);
-        return this.mapToItem.TryGetValue(name, out object value) ? value as GroupedShortcut : null;
+        return this.mapToItem.TryGetValue(name, out object? value) ? value as GroupedShortcut : null;
     }
 
     public GroupedShortcut GetShortcutByPath(string path)

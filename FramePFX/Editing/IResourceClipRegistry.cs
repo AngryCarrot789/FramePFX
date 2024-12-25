@@ -23,6 +23,7 @@ using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Clips.Core;
 using FramePFX.Editing.Timelines.Tracks;
+using FramePFX.Services.Messaging;
 using FramePFX.Utils;
 
 namespace FramePFX.Editing;
@@ -30,22 +31,22 @@ namespace FramePFX.Editing;
 /// <summary>
 /// A class which manages the behaviour for when a user tries to drop a resource into a timeline
 /// </summary>
-public sealed class ResourceToClipDropRegistry
+public sealed class ResourceDropOnTimelineService
 {
-    public static ResourceToClipDropRegistry Instance => Application.Instance.Services.GetService<ResourceToClipDropRegistry>();
+    public static ResourceDropOnTimelineService Instance => Application.Instance.ServiceManager.GetService<ResourceDropOnTimelineService>();
     
-    private readonly Dictionary<Type, IResourceDropInformation> information;
+    private readonly Dictionary<Type, IResourceDropHandler> information;
     
-    public ResourceToClipDropRegistry()
+    public ResourceDropOnTimelineService()
     {
-        this.information = new Dictionary<Type, IResourceDropInformation>();
-        this.Register(typeof(ResourceAVMedia), new AVMediaDropInformation());
-        this.Register(typeof(ResourceColour), new ResourceColourDropInformation());
-        this.Register(typeof(ResourceImage), new ResourceImageDropInformation());
-        this.Register(typeof(ResourceComposition), new CompositionResourceDropInformation());
+        this.information = new Dictionary<Type, IResourceDropHandler>();
+        this.Register(typeof(ResourceAVMedia), new AvMediaDropHandler());
+        this.Register(typeof(ResourceColour), new ResourceColourDropHandler());
+        this.Register(typeof(ResourceImage), new ResourceImageDropHandler());
+        this.Register(typeof(ResourceComposition), new CompositionResourceDropHandler());
     }
 
-    public void Register(Type resourceType, IResourceDropInformation info)
+    public void Register(Type resourceType, IResourceDropHandler info)
     {
         Validate.NotNull(resourceType);
         Validate.NotNull(info);
@@ -56,9 +57,9 @@ public sealed class ResourceToClipDropRegistry
         this.information[resourceType] = info;
     }
 
-    public bool TryGetValue(Type key, [NotNullWhen(true)] out IResourceDropInformation? value) => this.information.TryGetValue(key, out value);
+    public bool TryGetHandler(Type key, [NotNullWhen(true)] out IResourceDropHandler? value) => this.information.TryGetValue(key, out value);
     
-    private class AVMediaDropInformation : IResourceDropInformation
+    private class AvMediaDropHandler : IResourceDropHandler
     {
         public long GetClipDurationForDrop(Track track, ResourceItem resource)
         {
@@ -76,7 +77,7 @@ public sealed class ResourceToClipDropRegistry
             if (resource.HasReachedResourceLimit())
             {
                 int count = resource.ResourceLinkLimit;
-                await IoC.MessageService.ShowMessage("Resource Limit", $"This resource cannot be used by more than {count} clip{Lang.S(count)}");
+                await IMessageDialogService.Instance.ShowMessage("Resource Limit", $"This resource cannot be used by more than {count} clip{Lang.S(count)}");
                 return;
             }
 
@@ -89,7 +90,7 @@ public sealed class ResourceToClipDropRegistry
         }
     }
     
-    private class ResourceImageDropInformation : IResourceDropInformation
+    private class ResourceImageDropHandler : IResourceDropHandler
     {
         public long GetClipDurationForDrop(Track track, ResourceItem resource) => 300;
 
@@ -107,7 +108,7 @@ public sealed class ResourceToClipDropRegistry
         }
     }
 
-    private class ResourceColourDropInformation : IResourceDropInformation
+    private class ResourceColourDropHandler : IResourceDropHandler
     {
         public long GetClipDurationForDrop(Track track, ResourceItem resource) => 300;
 
@@ -125,7 +126,7 @@ public sealed class ResourceToClipDropRegistry
         }
     }
 
-    private class CompositionResourceDropInformation : IResourceDropInformation
+    private class CompositionResourceDropHandler : IResourceDropHandler
     {
         public long GetClipDurationForDrop(Track track, ResourceItem resource)
         {
@@ -154,7 +155,7 @@ public sealed class ResourceToClipDropRegistry
         if (item.HasReachedResourceLimit())
         {
             int count = item.ResourceLinkLimit;
-            await IoC.MessageService.ShowMessage("Resource Limit", $"This resource cannot be used by more than {count} clip{Lang.S(count)}");
+            await IMessageDialogService.Instance.ShowMessage("Resource Limit", $"This resource cannot be used by more than {count} clip{Lang.S(count)}");
             return false;
         }
 
@@ -162,7 +163,10 @@ public sealed class ResourceToClipDropRegistry
     }
 }
 
-public interface IResourceDropInformation
+/// <summary>
+/// An object that handles a resource being dropped in a track. 
+/// </summary>
+public interface IResourceDropHandler
 {
     long GetClipDurationForDrop(Track track, ResourceItem resource);
     

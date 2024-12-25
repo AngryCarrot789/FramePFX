@@ -25,7 +25,6 @@ public class DefaultProgressTracker : IActivityProgress
 {
     private readonly object dataLock = new object(); // only really used as a memory barrier
     private bool isIndeterminate;
-    private double completionValue;
     private string? headerText;
     private string? descriptionText;
 
@@ -41,7 +40,7 @@ public class DefaultProgressTracker : IActivityProgress
                 this.isIndeterminate = value;
             }
 
-            this.updateIsIndeterminate?.InvokeAsync();
+            this.updateIsIndeterminateRda?.InvokeAsync();
         }
     }
 
@@ -57,11 +56,11 @@ public class DefaultProgressTracker : IActivityProgress
                 this.headerText = value;
             }
 
-            this.updateHeaderText?.InvokeAsync();
+            this.updateCaptionRda?.InvokeAsync();
         }
     }
 
-    public string? CurrentAction
+    public string? Text
     {
         get => this.descriptionText;
         set
@@ -73,17 +72,17 @@ public class DefaultProgressTracker : IActivityProgress
                 this.descriptionText = value;
             }
 
-            this.updateText?.InvokeAsync();
+            this.updateTextRda?.InvokeAsync();
         }
     }
 
     public event ActivityProgressEventHandler? IsIndeterminateChanged;
     public event ActivityProgressEventHandler? CaptionChanged;
-    public event ActivityProgressEventHandler? CurrentActionChanged;
+    public event ActivityProgressEventHandler? TextChanged;
 
-    private readonly RapidDispatchActionEx updateIsIndeterminate;
-    private readonly RapidDispatchActionEx updateHeaderText;
-    private readonly RapidDispatchActionEx updateText;
+    private readonly RapidDispatchActionEx updateIsIndeterminateRda;
+    private readonly RapidDispatchActionEx updateCaptionRda;
+    private readonly RapidDispatchActionEx updateTextRda;
     private readonly DispatchPriority eventDispatchPriority;
 
     public CompletionState CompletionState { get; }
@@ -94,9 +93,9 @@ public class DefaultProgressTracker : IActivityProgress
     public DefaultProgressTracker(DispatchPriority eventDispatchPriority)
     {
         this.eventDispatchPriority = eventDispatchPriority;
-        this.updateIsIndeterminate = RapidDispatchActionEx.ForSync(() => this.IsIndeterminateChanged?.Invoke(this), eventDispatchPriority);
-        this.updateHeaderText = RapidDispatchActionEx.ForSync(() => this.CaptionChanged?.Invoke(this), eventDispatchPriority);
-        this.updateText = RapidDispatchActionEx.ForSync(() => this.CurrentActionChanged?.Invoke(this), eventDispatchPriority);
+        this.updateIsIndeterminateRda = RapidDispatchActionEx.ForSync(() => this.IsIndeterminateChanged?.Invoke(this), eventDispatchPriority);
+        this.updateCaptionRda = RapidDispatchActionEx.ForSync(() => this.CaptionChanged?.Invoke(this), eventDispatchPriority);
+        this.updateTextRda = RapidDispatchActionEx.ForSync(() => this.TextChanged?.Invoke(this), eventDispatchPriority);
         this.CompletionState = new ConcurrentCompletionState(eventDispatchPriority);
     }
 }

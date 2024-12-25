@@ -19,6 +19,7 @@
 
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Services.Messaging;
 using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
 
 namespace FramePFX.Editing.Timelines.Commands;
@@ -39,6 +40,6 @@ public class NewAudioTrackCommand : AsyncCommand
         //     DisplayName = "New Audio Track"
         // };
         // timeline.AddTrack(track);
-        return IoC.MessageService.ShowMessage("Not implemented", "Audio tracks are not supported yet");
+        return IMessageDialogService.Instance.ShowMessage("Not implemented", "Audio tracks are not supported yet");
     }
 }

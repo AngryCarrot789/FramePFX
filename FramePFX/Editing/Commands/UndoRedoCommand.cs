@@ -19,6 +19,7 @@
 
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Services.Messaging;
 
 namespace FramePFX.Editing.Commands;
 
@@ -42,15 +43,15 @@ public abstract class UndoRedoCommand : Command
 
     public static void Undo(IContextData context)
     {
-        if (!DataKeys.VideoEditorKey.TryGetContext(context, out VideoEditor editor))
+        if (!DataKeys.VideoEditorKey.TryGetContext(context, out VideoEditor? editor))
             return;
         if (!editor.HistoryManager.HasUndoableActions)
         {
-            IoC.MessageService.ShowMessage("Undo attempt", "Nothing to undo!");
+            IMessageDialogService.Instance.ShowMessage("Undo attempt", "Nothing to undo!");
         }
         else if (editor.HistoryManager.IsUndoInProgress)
         {
-            IoC.MessageService.ShowMessage("Cannot Undo", "An undo action is already in progress... somehow");
+            IMessageDialogService.Instance.ShowMessage("Cannot Undo", "An undo action is already in progress... somehow");
         }
         else
         {
@@ -60,15 +61,15 @@ public abstract class UndoRedoCommand : Command
 
     public static void Redo(IContextData context)
     {
-        if (!DataKeys.VideoEditorKey.TryGetContext(context, out VideoEditor editor))
+        if (!DataKeys.VideoEditorKey.TryGetContext(context, out VideoEditor? editor))
             return;
         if (!editor.HistoryManager.HasRedoableActions)
         {
-            IoC.MessageService.ShowMessage("Redo attempt", "Nothing to redo!");
+            IMessageDialogService.Instance.ShowMessage("Redo attempt", "Nothing to redo!");
         }
         else if (editor.HistoryManager.IsRedoInProgress)
         {
-            IoC.MessageService.ShowMessage("Cannot Redo", "A redo action is already in progress... somehow");
+            IMessageDialogService.Instance.ShowMessage("Cannot Redo", "A redo action is already in progress... somehow");
         }
         else
         {

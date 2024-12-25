@@ -246,7 +246,7 @@ public class FFmpegExportContext : BaseExportContext
                 width, height, AVPixelFormat.AV_PIX_FMT_YUV420P,
                 ffmpeg.SWS_BILINEAR, null, null, null);
 
-            IDispatcher dispatcher = IoC.Dispatcher;
+            IDispatcher dispatcher = Application.Instance.Dispatcher;
             for (; exportFrame < frameEnd; exportFrame++, ptsFrame++)
             {
                 if (cancellation.IsCancellationRequested)

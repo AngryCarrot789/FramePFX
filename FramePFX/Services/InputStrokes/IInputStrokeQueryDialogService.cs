@@ -1,5 +1,5 @@
 // 
-// Copyright (c) 2023-2024 REghZy
+// Copyright (c) 2024-2024 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -17,20 +17,18 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Threading.Tasks;
-using Avalonia.Controls;
-using FramePFX.Configurations;
+using FramePFX.Shortcuts.Inputs;
 
-namespace FramePFX.Avalonia.Configurations;
+namespace FramePFX.Services.InputStrokes;
 
-public class ConfigurationServiceImpl : IConfigurationService
+/// <summary>
+/// A service that lets the user specify an input stroke, e.g. a key stroke or mouse clic
+/// </summary>
+public interface IInputStrokeQueryDialogService
 {
-    public Task ShowConfigurationDialog(ConfigurationManager configurationManager)
-    {
-        if (!ApplicationImpl.TryGetActiveWindow(out Window? window))
-            return Task.CompletedTask;
-        
-        ConfigurationDialog dialog = new ConfigurationDialog(configurationManager);
-        return dialog.ShowDialog(window);
-    }
+    public static IInputStrokeQueryDialogService Instance => Application.Instance.ServiceManager.GetService<IInputStrokeQueryDialogService>();
+    
+    Task<KeyStroke?> ShowGetKeyStrokeDialog(KeyStroke? keyStroke);
+    
+    Task<MouseStroke?> ShowGetMouseStrokeDialog(MouseStroke? mouseStroke);
 }

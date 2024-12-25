@@ -22,6 +22,7 @@ using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Clips.Video;
 using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Editing.Utils;
+using FramePFX.Services.Messaging;
 using FramePFX.Utils;
 using FramePFX.Utils.RDA;
 using SkiaSharp;
@@ -96,7 +97,7 @@ public class RenderManager
         TimeSpan SlowRenderInterval = TimeSpan.FromMilliseconds(1000.0 / 30.0); // 30 FPS = 33.33333ms 
         this.slowRapidRenderDispatch = BaseRateLimitedDispatchAction.ForDispatcherAsync(this.ScheduleRenderFromRLDA, SlowRenderInterval, DispatchPriority.Send);
 
-        this.rapidRenderDispatch = RapidDispatchActionEx.ForAsync(this.ScheduleRenderFromRapidDispatch, IoC.Dispatcher, DispatchPriority.INTERNAL_BeforeRender);
+        this.rapidRenderDispatch = RapidDispatchActionEx.ForAsync(this.ScheduleRenderFromRapidDispatch, Application.Instance.Dispatcher, DispatchPriority.INTERNAL_BeforeRender);
         // this.renderThread = new Thread(this.RenderThreadMain);
     }
 
@@ -456,7 +457,7 @@ public class RenderManager
                     editor.Playback.Pause();
                 }
 
-                await IoC.MessageService.ShowMessage("Render Error", "An exception occurred while rendering", e.GetToString());
+                await IMessageDialogService.Instance.ShowMessage("Render Error", "An exception occurred while rendering", e.GetToString());
                 Debug.WriteLine(e.GetToString());
             }
 

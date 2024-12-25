@@ -27,6 +27,7 @@ using FramePFX.Editing.Timelines.Clips.Core;
 using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Services.FilePicking;
 using FramePFX.Services.Messaging;
 using FramePFX.Utils;
 
@@ -117,7 +118,7 @@ public class AddVideoClipShapeCommand : AddClipCommand<VideoClipShape>
             ISelectionManager<BaseResource> selection = manager.List.Selection;
             if (selection.Count == 1 && selection.SelectedItems.First() is ResourceColour colour && colour.IsRegistered())
             {
-                if (await IoC.MessageService.ShowMessage("Link resource", $"Link '{colour.DisplayName ?? "Selected Media Resource"}' to this clip?", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                if (await IMessageDialogService.Instance.ShowMessage("Link resource", $"Link '{colour.DisplayName ?? "Selected Media Resource"}' to this clip?", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
                     clip.ResourceHelper.SetResource(VideoClipShape.ColourKey, colour);
                 }
@@ -135,7 +136,7 @@ public class AddAVMediaClipCommand : AddClipCommand<AVMediaVideoClip>
             ISelectionManager<BaseResource> selection = manager.List.Selection;
             if (selection.Count == 1 && selection.SelectedItems.First() is ResourceAVMedia media && media.IsRegistered())
             {
-                if (await IoC.MessageService.ShowMessage("Link resource", $"Link '{media.DisplayName ?? "Selected Media Resource"}' to this clip?", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                if (await IMessageDialogService.Instance.ShowMessage("Link resource", $"Link '{media.DisplayName ?? "Selected Media Resource"}' to this clip?", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
                 {
                     await clip.ResourceHelper.SetResourceHelper(AVMediaVideoClip.MediaKey, media);
                 }
@@ -154,9 +155,9 @@ public class AddImageVideoClipCommand : AddClipCommand<ImageVideoClip>
             return;
         }
 
-        if (MessageBoxResult.Yes == await IoC.MessageService.ShowMessage("Open image", "Do you want to open up an image file for this new clip?", MessageBoxButton.YesNo))
+        if (MessageBoxResult.Yes == await IMessageDialogService.Instance.ShowMessage("Open image", "Do you want to open up an image file for this new clip?", MessageBoxButton.YesNo))
         {
-            string? path = await IoC.FilePickService.OpenFile("Open an image file for this image?", Filters.CombinedImageTypesAndAll);
+            string? path = await IFilePickDialogService.Instance.OpenFile("Open an image file for this image?", Filters.CombinedImageTypesAndAll);
             if (path != null)
             {
                 ResourceImage resourceImage = new ResourceImage();
@@ -171,7 +172,7 @@ public class AddImageVideoClipCommand : AddClipCommand<ImageVideoClip>
                 }
 
                 resourceImage.FilePath = path;
-                if (await IoC.ResourceLoaderService.TryLoadResource(resourceImage))
+                if (await IResourceLoaderDialogService.Instance.TryLoadResource(resourceImage))
                 {
                     clip.ResourceHelper.SetResource(ImageVideoClip.ResourceImageKey, resourceImage);
                 }

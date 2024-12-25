@@ -25,6 +25,8 @@ namespace FramePFX.Services.Messaging;
 /// </summary>
 public interface IMessageDialogService
 {
+    public static IMessageDialogService Instance => Application.Instance.ServiceManager.GetService<IMessageDialogService>();
+    
     /// <summary>
     /// Shows a dialog message
     /// </summary>

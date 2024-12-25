@@ -62,21 +62,6 @@ public class PluginLoader
         }
     }
     
-    public void RegisterServices(ServiceManager manager)
-    {
-        foreach (Plugin plugin in this.plugins)
-        {
-            ServiceManager newManager = new ServiceManager();
-            plugin.RegisterServices(newManager);
-
-            foreach (KeyValuePair<Type, object> pair in newManager.Services)
-            {
-                if (!manager.HasService(pair.Key))
-                    manager.Register(pair.Key, pair.Value);
-            }
-        }
-    }
-    
     public void RegisterCommands(CommandManager manager)
     {
         foreach (Plugin plugin in this.plugins)

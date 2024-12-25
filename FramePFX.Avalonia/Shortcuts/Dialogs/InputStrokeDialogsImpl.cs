@@ -24,7 +24,7 @@ using FramePFX.Shortcuts.Inputs;
 
 namespace FramePFX.Avalonia.Shortcuts.Dialogs;
 
-public class InputStrokeDialogsImpl : IInputStrokeQueryService
+public class InputStrokeDialogsImpl : IInputStrokeQueryDialogService
 {
     public async Task<KeyStroke?> ShowGetKeyStrokeDialog(KeyStroke? keyStroke)
     {

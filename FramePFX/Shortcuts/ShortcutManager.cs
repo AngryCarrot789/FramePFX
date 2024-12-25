@@ -66,22 +66,22 @@ public abstract class ShortcutManager
         this.root = ShortcutGroup.CreateRoot(this);
     }
 
-    public ShortcutGroup FindGroupByPath(string path)
+    public ShortcutGroup? FindGroupByPath(string path)
     {
         return this.Root.GetGroupByPath(path);
     }
 
-    public GroupedShortcut FindShortcutByPath(string path)
+    public GroupedShortcut? FindShortcutByPath(string path)
     {
         this.EnsureCacheBuilt();
-        return this.cachedPathToShortcut.TryGetValue(path, out GroupedShortcut x) ? x : null;
+        return this.cachedPathToShortcut.GetValueOrDefault(path);
         // return this.Root.GetShortcutByPath(path);
     }
 
-    public GroupedShortcut FindFirstShortcutByCommandId(string cmdId)
+    public GroupedShortcut? FindFirstShortcutByCommandId(string cmdId)
     {
         this.EnsureCacheBuilt();
-        return this.cachedCmdToShortcut.TryGetValue(cmdId, out LinkedList<GroupedShortcut> list) && list.Count > 0 ? list.First.Value : null;
+        return this.cachedCmdToShortcut.TryGetValue(cmdId, out LinkedList<GroupedShortcut>? list) && list.Count > 0 ? list.First!.Value : null;
     }
 
     /// <summary>
@@ -159,7 +159,7 @@ public abstract class ShortcutManager
         {
             if (!string.IsNullOrWhiteSpace(shortcut.CommandId))
             {
-                if (!this.cachedCmdToShortcut.TryGetValue(shortcut.CommandId, out LinkedList<GroupedShortcut> list))
+                if (!this.cachedCmdToShortcut.TryGetValue(shortcut.CommandId, out LinkedList<GroupedShortcut>? list))
                 {
                     this.cachedCmdToShortcut[shortcut.CommandId] = list = new LinkedList<GroupedShortcut>();
                 }
@@ -183,7 +183,7 @@ public abstract class ShortcutManager
     {
         foreach (string path in paths)
         {
-            GroupedShortcut shortcut = this.FindShortcutByPath(path);
+            GroupedShortcut? shortcut = this.FindShortcutByPath(path);
             if (shortcut != null)
             {
                 yield return shortcut;
@@ -212,13 +212,13 @@ public abstract class ShortcutManager
     /// <returns>The result of the shortcut activation used by the processor's input manager</returns>
     protected virtual bool OnShortcutActivatedOverride(ShortcutInputProcessor inputProcessor, GroupedShortcut shortcut)
     {
-        Command command = CommandManager.Instance.GetCommandById(shortcut.CommandId);
+        Command? command = CommandManager.Instance.GetCommandById(shortcut.CommandId);
         if (command == null)
         {
             return false;
         }
 
-        CommandManager.Instance.Execute(shortcut.CommandId, command, inputProcessor.ProvideCurrentContextInternal());
+        CommandManager.Instance.Execute(shortcut.CommandId!, command, inputProcessor.ProvideCurrentContextInternal()!);
         return true;
     }
 
@@ -243,7 +243,7 @@ public abstract class ShortcutManager
     /// <returns>An existing or new instance</returns>
     public InputStateManager GetInputStateManager(string id)
     {
-        if (!this.stateGroups.TryGetValue(id, out InputStateManager group))
+        if (!this.stateGroups.TryGetValue(id, out InputStateManager? group))
             this.stateGroups[id] = group = new InputStateManager(this, id);
         return group;
     }
@@ -262,7 +262,7 @@ public abstract class ShortcutManager
 
     protected internal virtual void OnCancelUsageForNoSuchNextKeyStroke(ShortcutInputProcessor inputProcessor, IShortcutUsage usage, GroupedShortcut shortcut, KeyStroke stroke) { }
 
-    protected internal virtual void OnNoSuchShortcutForMouseStroke(ShortcutInputProcessor inputProcessor, string group, MouseStroke stroke) { }
+    protected internal virtual void OnNoSuchShortcutForMouseStroke(ShortcutInputProcessor inputProcessor, string? group, MouseStroke stroke) { }
 
-    protected internal virtual void OnNoSuchShortcutForKeyStroke(ShortcutInputProcessor inputProcessor, string group, KeyStroke stroke) { }
+    protected internal virtual void OnNoSuchShortcutForKeyStroke(ShortcutInputProcessor inputProcessor, string? group, KeyStroke stroke) { }
 }

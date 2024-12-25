@@ -17,13 +17,10 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System;
 using System.Diagnostics.CodeAnalysis;
 using Avalonia;
-using Avalonia.Collections;
 using Avalonia.Controls.Primitives;
 using Avalonia.Data;
-using Avalonia.VisualTree;
 
 namespace FramePFX.Avalonia.Utils;
 
@@ -109,34 +106,13 @@ public static class VisualTreeUtils
         return (theParent = GetLastParent<T>(obj, visualOnly)) != null;
     }
 
-    public static AdornerLayer? GetRootAdornerLayer(Visual visual)
-    {
-        AdornerLayer? layer = AdornerLayer.GetAdornerLayer(visual);
-        for (AdornerLayer? parent = layer; parent != null; parent = GetParent(parent) is Visual v ? AdornerLayer.GetAdornerLayer(v) : null)
-            layer = parent;
-
-        return layer;
-    }
-
-    public static IAvaloniaList<Visual> GetVisualChildren(Visual visual) => (IAvaloniaList<Visual>) visual.GetVisualChildren();
-
-    public static int GetChildrenCount(AvaloniaObject obj)
-    {
-        return obj is Visual visual ? GetChildrenCount(visual) : throw new Exception("Object is not a visual object");
-    }
-
-    public static int GetChildrenCount(Visual visual) => ((IAvaloniaList<Visual>) visual.GetVisualChildren()).Count;
-
-    [Obsolete("Use VisualTreeUtils.GetVisualChildren() instead")]
-    public static Visual GetChild(Visual visual, int index) => ((IAvaloniaList<Visual>) visual.GetVisualChildren())[index];
-
     /// <summary>
     /// Calculates if the given item is either the given templated item type, or it is a templated child of the type.
     /// <para>
     /// This is the same as invoking <see cref="GetParent{T}"/> with self included and checking the value is non-null
     /// </para>
     /// </summary>
-    public static bool IsTemplatedItemOrChild<T>(AvaloniaObject? obj) where T : class
+    public static bool IsTemplatedItemOrDescended<T>(AvaloniaObject? obj) where T : class
     {
         return GetParent<T>(obj, true, false) != null;
     }

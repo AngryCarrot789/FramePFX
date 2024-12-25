@@ -77,13 +77,13 @@ public class ExportCommand : AsyncCommand
         }
 
         theEditor.Playback.Pause();
-        IExportService service = Application.Instance.Services.GetService<IExportService>();
+        IExportDialogService dialogService = Application.Instance.ServiceManager.GetService<IExportDialogService>();
 
         ExportSetup setup = new ExportSetup(theEditor, theTimeline)
         {
             Span = new FrameSpan(0, theTimeline.LargestFrameInUse),
             FilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "video.mp4")
         };
-        return service.ShowExportDialog(setup);
+        return dialogService.ShowExportDialog(setup);
     }
 }

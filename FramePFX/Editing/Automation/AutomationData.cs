@@ -153,7 +153,7 @@ public class AutomationData
                 throw new Exception("Expected a list of dictionaries");
 
             ParameterKey paramKey = ParameterKey.Parse(dictionary.GetString("KeyId"));
-            if (!Parameter.TryGetParameterByKey(paramKey, out Parameter parameter))
+            if (!Parameter.TryGetParameterByKey(paramKey, out Parameter? parameter))
                 throw new Exception("Unknown automation parameter: " + paramKey);
 
             this[parameter].ReadFromRBE(dictionary);

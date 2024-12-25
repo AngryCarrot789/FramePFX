@@ -17,10 +17,12 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace FramePFX.Interactivity.Contexts;
 
 /// <summary>
-/// A context data object that stores stores value provider functions instead of direct objects
+/// A context data object that stores value provider functions instead of direct objects
 /// </summary>
 public class ProviderContextData : IContextData, IRandomAccessContext
 {
@@ -53,7 +55,7 @@ public class ProviderContextData : IContextData, IRandomAccessContext
 
     public void SetValueRaw(string key, object? value) => this.SetProviderImpl(key, ObjectProvider.ForValue(value));
 
-    public void SetProvider<T>(DataKey<T> key, Func<T> provider) => this.SetProviderRaw(key.Id, () => provider());
+    public void SetProvider<T>(DataKey<T> key, Func<T> provider) => this.SetProviderRaw(key.Id, () => provider()!);
 
     public void SetProviderRaw(DataKey key, Func<object> provider) => this.SetProviderRaw(key.Id, provider);
 
@@ -64,7 +66,7 @@ public class ProviderContextData : IContextData, IRandomAccessContext
         (this.map ??= new Dictionary<string, ObjectProvider>())[key] = provider;
     }
 
-    public bool TryGetContext(string key, out object value)
+    public bool TryGetContext(string key, [NotNullWhen(true)] out object? value)
     {
         if (this.map != null && this.map.TryGetValue(key, out ObjectProvider provider))
         {

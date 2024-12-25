@@ -35,7 +35,7 @@ public partial class AppSplashScreen : Window, IApplicationStartupProgress
             if (this.myActionText == value)
                 return;
             
-            IoC.Dispatcher.Invoke(() =>
+            Application.Instance.Dispatcher.Invoke(() =>
             {
                 this.myActionText = value;
                 return this.PART_ActivityTextBlock.Text = value;
@@ -66,5 +66,5 @@ public partial class AppSplashScreen : Window, IApplicationStartupProgress
         return this.SynchroniseAsync();
     }
     
-    public Task SynchroniseAsync() => IoC.Dispatcher.Process(DispatchPriority.INTERNAL_AfterRender);
+    public Task SynchroniseAsync() => Application.Instance.Dispatcher.Process(DispatchPriority.INTERNAL_AfterRender);
 }

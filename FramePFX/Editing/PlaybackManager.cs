@@ -273,7 +273,7 @@ public class PlaybackManager
 
     private void InvalidateVisualForStop()
     {
-        IoC.Dispatcher.Invoke(() => this.Timeline?.InvalidateRender(), DispatchPriority.Background);
+        Application.Instance.Dispatcher.Invoke(() => this.Timeline?.InvalidateRender(), DispatchPriority.Background);
     }
 
     private void OnTimerFrame()

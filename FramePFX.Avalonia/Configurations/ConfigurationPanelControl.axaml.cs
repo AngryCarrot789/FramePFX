@@ -31,6 +31,7 @@ using FramePFX.Avalonia.Configurations.Pages;
 using FramePFX.Avalonia.Configurations.Trees;
 using FramePFX.Avalonia.Editing;
 using FramePFX.Configurations;
+using FramePFX.Services.Messaging;
 
 namespace FramePFX.Avalonia.Configurations;
 
@@ -221,7 +222,7 @@ public partial class ConfigurationPanelControl : UserControl
     private async void OnConfigurationManagerChanged(ConfigurationManager? oldValue, ConfigurationManager? newValue)
     {
         this.SetLoadingState(true);
-        await IoC.Dispatcher.InvokeAsync(() => Task.CompletedTask, DispatchPriority.Loaded);
+        await Application.Instance.Dispatcher.InvokeAsync(() => Task.CompletedTask, DispatchPriority.Loaded);
 
         try
         {
@@ -233,8 +234,8 @@ public partial class ConfigurationPanelControl : UserControl
         }
         catch (Exception ex)
         {
-            await IoC.MessageService.ShowMessage("Error", "Error unloading settings properties. The editor will now crash", ex.ToString());
-            IoC.Dispatcher.Post(() => throw ex);
+            await IMessageDialogService.Instance.ShowMessage("Error", "Error unloading settings properties. The editor will now crash", ex.ToString());
+            Application.Instance.Dispatcher.Post(() => throw ex);
         }
 
         this.ActiveContext?.OnDestroyed();
@@ -250,16 +251,16 @@ public partial class ConfigurationPanelControl : UserControl
             }
             catch (Exception ex)
             {
-                await IoC.MessageService.ShowMessage("Error", "Error loading settings properties. The editor will now crash", ex.ToString());
-                IoC.Dispatcher.Post(() => throw ex);
+                await IMessageDialogService.Instance.ShowMessage("Error", "Error loading settings properties. The editor will now crash", ex.ToString());
+                Application.Instance.Dispatcher.Post(() => throw ex);
             }
 
             this.ActiveContext!.OnCreated();
             this.PART_ConfigurationTree.RootConfigurationEntry = newValue.RootEntry;
         }
 
-        await IoC.Dispatcher.InvokeAsync(() => Task.CompletedTask, DispatchPriority.Loaded);
-        IoC.Dispatcher.Post(() =>
+        await Application.Instance.Dispatcher.InvokeAsync(() => Task.CompletedTask, DispatchPriority.Loaded);
+        Application.Instance.Dispatcher.Post(() =>
         {
             this.SetLoadingState(false);
             this.UpdateSelection();

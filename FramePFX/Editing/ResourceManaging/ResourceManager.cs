@@ -169,7 +169,7 @@ public class ResourceManager : IDestroy
         return true;
     }
 
-    public bool TryGetEntryItem(ulong id, out ResourceItem resource)
+    public bool TryGetEntryItem(ulong id, [NotNullWhen(true)] out ResourceItem? resource)
     {
         if (id == EmptyId)
             throw new ArgumentException(EmptyIdErrorMessage, nameof(id));

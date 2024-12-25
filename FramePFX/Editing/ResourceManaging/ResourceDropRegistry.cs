@@ -132,7 +132,7 @@ public class ResourceDropRegistry
             }
         }
 
-        if (!await IoC.ResourceLoaderService.TryLoadResources(resources.ToArray()))
+        if (!await IResourceLoaderDialogService.Instance.TryLoadResources(resources.ToArray()))
         {
             foreach (BaseResource res in resources)
             {
@@ -230,7 +230,7 @@ public class ResourceDropRegistry
         
         if (dropType == EnumDropType.Copy)
         {
-            await IoC.ResourceLoaderService.TryLoadResources(cloned!.ToArray());
+            await IResourceLoaderDialogService.Instance.TryLoadResources(cloned!.ToArray());
         }
     }
 }

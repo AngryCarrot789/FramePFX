@@ -40,7 +40,7 @@ public abstract class RenameDisplayNameCommand : AsyncCommand
                 ConfirmText = "Rename", DefaultButton = true
             };
 
-            if (await IoC.UserInputService.ShowInputDialogAsync(info) == true)
+            if (await IUserInputDialogService.Instance.ShowInputDialogAsync(info) == true)
             {
                 element.DisplayName = info.Text ?? "";
             }

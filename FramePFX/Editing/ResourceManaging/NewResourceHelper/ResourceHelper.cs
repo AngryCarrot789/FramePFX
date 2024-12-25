@@ -18,6 +18,7 @@
 // 
 
 using System.Diagnostics.CodeAnalysis;
+using FramePFX.Services.Messaging;
 using FramePFX.Utils.RBC;
 
 namespace FramePFX.Editing.ResourceManaging.NewResourceHelper;
@@ -68,7 +69,7 @@ public class ResourceHelper
     {
         if (resource.HasReachedResourceLimit())
         {
-            await IoC.MessageService.ShowMessage("Resource limit reached", $"Resource limit reached: cannot reference more than {resource.ResourceLinkLimit} objects");
+            await IMessageDialogService.Instance.ShowMessage("Resource limit reached", $"Resource limit reached: cannot reference more than {resource.ResourceLinkLimit} objects");
         }
         else
         {

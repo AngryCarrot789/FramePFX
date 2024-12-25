@@ -52,7 +52,7 @@ public class ToggleOnlineStateCommand : AsyncCommand
         }
 
         if (enable.Count > 0)
-            await IoC.ResourceLoaderService.TryLoadResources(enable.Cast<BaseResource>().ToArray());
+            await IResourceLoaderDialogService.Instance.TryLoadResources(enable.Cast<BaseResource>().ToArray());
     }
 
     public static bool GetTargetItems(IContextData context, [NotNullWhen(true)] out List<ResourceItem>? items, bool requireAtLeastOne = true)

@@ -71,9 +71,9 @@ public abstract class ShortcutInputProcessor
 
     #region Shortcut Accumulation
 
-    private void AccumulateShortcuts(IInputStroke stroke, string? focusedGroup, Predicate<GroupedShortcut> shortcutFilter = null, bool canProcessInputStates = true, bool canInherit = true)
+    private void AccumulateShortcuts(IInputStroke stroke, string? focusedGroup, Predicate<GroupedShortcut>? shortcutFilter = null, bool canProcessInputStates = true, bool canInherit = true)
     {
-        GroupEvaulationArgs args = new GroupEvaulationArgs(stroke, this.cachedShortcutList, this.cachedInputStateList, shortcutFilter, canProcessInputStates, canInherit);
+        ShortcutEvalArgs args = new ShortcutEvalArgs(stroke, this.cachedShortcutList, this.cachedInputStateList, shortcutFilter, canProcessInputStates, canInherit);
         this.Manager.Root.EvaulateShortcutsAndInputStates(ref args, focusedGroup);
     }
 
@@ -451,7 +451,7 @@ public abstract class ShortcutInputProcessor
     /// <param name="group"></param>
     /// <param name="stroke">The received keyboard stroke</param>
     /// <returns>The key stroke event outcome. True = Handled/Cancelled, False = Ignored/Continue</returns>
-    protected virtual bool OnNoSuchShortcutForKeyStroke(string group, KeyStroke stroke)
+    protected virtual bool OnNoSuchShortcutForKeyStroke(string? group, KeyStroke stroke)
     {
         this.Manager.OnNoSuchShortcutForKeyStroke(this, group, stroke);
         return false;
@@ -463,7 +463,7 @@ public abstract class ShortcutInputProcessor
     /// <param name="group"></param>
     /// <param name="stroke">The received mouse input stroke</param>
     /// <returns>The mouse stroke event outcome. True = Handled/Cancelled, False = Ignored/Continue</returns>
-    protected virtual bool OnNoSuchShortcutForMouseStroke(string group, MouseStroke stroke)
+    protected virtual bool OnNoSuchShortcutForMouseStroke(string? group, MouseStroke stroke)
     {
         this.Manager.OnNoSuchShortcutForMouseStroke(this, group, stroke);
         return false;

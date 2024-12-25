@@ -28,12 +28,12 @@ public class EmptyActivityProgress : IActivityProgress
 
     bool IActivityProgress.IsIndeterminate { get => default; set { } }
     string IActivityProgress.Caption { get => default; set { } }
-    string IActivityProgress.CurrentAction { get => default; set { } }
+    string IActivityProgress.Text { get => default; set { } }
     CompletionState IActivityProgress.CompletionState { get; } = new EmptyCompletionState();
 
     event ActivityProgressEventHandler IActivityProgress.IsIndeterminateChanged { add { } remove { } }
     event ActivityProgressEventHandler IActivityProgress.CaptionChanged { add { } remove { } }
-    event ActivityProgressEventHandler IActivityProgress.CurrentActionChanged { add { } remove { } }
+    event ActivityProgressEventHandler IActivityProgress.TextChanged { add { } remove { } }
 
     private int stackCount; // used to track possible bugs
 

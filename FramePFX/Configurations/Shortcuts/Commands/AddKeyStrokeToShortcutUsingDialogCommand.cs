@@ -20,6 +20,7 @@
 using FramePFX.CommandSystem;
 using FramePFX.Configurations.Shortcuts.Models;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Services.InputStrokes;
 using FramePFX.Shortcuts;
 using FramePFX.Shortcuts.Inputs;
 
@@ -36,7 +37,7 @@ public class AddKeyStrokeToShortcutUsingDialogCommand : AsyncCommand
     {
         if (DataKeys.ShortcutEntryKey.TryGetContext(e.ContextData, out ShortcutEntry? entry))
         {
-            KeyStroke? stroke = await IoC.InputStrokeQueryService.ShowGetKeyStrokeDialog(default);
+            KeyStroke? stroke = await IInputStrokeQueryDialogService.Instance.ShowGetKeyStrokeDialog(default);
             if (stroke.HasValue)
             {
                 if (entry.Shortcut is KeyboardShortcut shortcut)

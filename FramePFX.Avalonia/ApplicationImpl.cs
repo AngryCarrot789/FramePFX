@@ -41,6 +41,7 @@ using FramePFX.Editing;
 using FramePFX.Editing.Exporting;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Natives;
+using FramePFX.Services;
 using FramePFX.Services.ColourPicking;
 using FramePFX.Services.FilePicking;
 using FramePFX.Services.InputStrokes;
@@ -76,14 +77,14 @@ public class ApplicationImpl : Application
     protected override void RegisterServices(ServiceManager manager)
     {
         base.RegisterServices(manager);
-        manager.Register<IMessageDialogService>(new MessageDialogServiceImpl());
-        manager.Register<IUserInputDialogService>(new InputDialogServiceImpl());
-        manager.Register<IColourPickerService>(new ColourPickerServiceImpl());
-        manager.Register<IFilePickDialogService>(new FilePickDialogServiceImpl());
-        manager.Register<IResourceLoaderService>(new ResourceLoaderServiceImpl());
-        manager.Register<IExportService>(new ExportServiceImpl());
-        manager.Register<IConfigurationService>(new ConfigurationServiceImpl());
-        manager.Register<IInputStrokeQueryService>(new InputStrokeDialogsImpl());
+        manager.RegisterConstant<IMessageDialogService>(new MessageDialogServiceImpl());
+        manager.RegisterConstant<IUserInputDialogService>(new InputDialogServiceImpl());
+        manager.RegisterConstant<IColourPickerDialogService>(new ColourPickerDialogServiceImpl());
+        manager.RegisterConstant<IFilePickDialogService>(new FilePickDialogServiceImpl());
+        manager.RegisterConstant<IResourceLoaderDialogService>(new ResourceLoaderDialogServiceImpl());
+        manager.RegisterConstant<IExportDialogService>(new ExportDialogServiceImpl());
+        manager.RegisterConstant<IConfigurationDialogService>(new ConfigurationDialogServiceImpl());
+        manager.RegisterConstant<IInputStrokeQueryDialogService>(new InputStrokeDialogsImpl());
     }
 
     protected override async Task OnInitialise(IApplicationStartupProgress progress)
@@ -119,12 +120,12 @@ public class ApplicationImpl : Application
             }
             catch (Exception ex)
             {
-                await IoC.MessageService.ShowMessage("Keymap", "Failed to read keymap file" + keymapFilePath + ". This error can be ignored, but shortcuts won't work", ex.GetToString());
+                await IMessageDialogService.Instance.ShowMessage("Keymap", "Failed to read keymap file" + keymapFilePath + ". This error can be ignored, but shortcuts won't work", ex.GetToString());
             }
         }
         else
         {
-            await IoC.MessageService.ShowMessage("Keymap", "Keymap file does not exist at " + keymapFilePath + ". This error can be ignored, but shortcuts won't work");
+            await IMessageDialogService.Instance.ShowMessage("Keymap", "Keymap file does not exist at " + keymapFilePath + ". This error can be ignored, but shortcuts won't work");
         }
 
         await progress.ProgressAndSynchroniseAsync("Loading Native Engine...", 0.65);
@@ -135,7 +136,7 @@ public class ApplicationImpl : Application
         }
         catch (Exception e)
         {
-            await IoC.MessageService.ShowMessage("Native Engine Initialisation Failed", "Failed to initialise native engine", e.GetToString());
+            await IMessageDialogService.Instance.ShowMessage("Native Engine Initialisation Failed", "Failed to initialise native engine", e.GetToString());
         }
         
         await progress.ProgressAndSynchroniseAsync("Loading FFmpeg...", 0.8);
@@ -149,7 +150,7 @@ public class ApplicationImpl : Application
         }
         catch (Exception e)
         {
-            await IoC.MessageService.ShowMessage("FFmpeg registration failed", "Failed to register all FFmpeg devices. Is FFmpeg installed correctly?", e.GetToString());
+            await IMessageDialogService.Instance.ShowMessage("FFmpeg registration failed", "Failed to register all FFmpeg devices. Is FFmpeg installed correctly?", e.GetToString());
         }
 
         {
@@ -162,7 +163,7 @@ public class ApplicationImpl : Application
             // cute little test to see if we're pumping iron not rust
             if (expected != PFXNative.TestEngineSubNumbers(a, b)) 
             {
-                await IoC.MessageService.ShowMessage("Native Engine malfunction", "Native engine test failed");
+                await IMessageDialogService.Instance.ShowMessage("Native Engine malfunction", "Native engine test failed");
                 throw new Exception("Native engine functionality failed");
             }
         }

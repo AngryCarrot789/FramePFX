@@ -1,5 +1,5 @@
-// 
-// Copyright (c) 2024-2024 REghZy
+﻿// 
+// Copyright (c) 2023-2024 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -17,16 +17,26 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.Shortcuts.Inputs;
+using System.Threading.Tasks;
+using FramePFX.Services.ColourPicking;
+using SkiaSharp;
 
-namespace FramePFX.Services.InputStrokes;
+namespace FramePFX.Avalonia.Services.Colours;
 
-/// <summary>
-/// A service that lets the user specify an input stroke, e.g. a key stroke or mouse clic
-/// </summary>
-public interface IInputStrokeQueryService
+public class ColourPickerDialogServiceImpl : IColourPickerDialogService
 {
-    Task<KeyStroke?> ShowGetKeyStrokeDialog(KeyStroke? keyStroke);
-    
-    Task<MouseStroke?> ShowGetMouseStrokeDialog(MouseStroke? mouseStroke);
+    public async Task<SKColor?> PickColourAsync(SKColor? defaultColour)
+    {
+        ColourUserInputInfo info = new ColourUserInputInfo()
+        {
+            Colour = defaultColour ?? SKColors.Black
+        };
+
+        return await ShowAsync(info) == true ? info.Colour : default(SKColor?);
+    }
+
+    private static Task<bool?> ShowAsync(ColourUserInputInfo info)
+    {
+        return InputDialogServiceImpl.ShowDialogAsync(info);
+    }
 }

@@ -31,6 +31,7 @@ using FramePFX.Avalonia.Bindings;
 using FramePFX.Avalonia.Themes.Controls;
 using FramePFX.Editing.Exporting;
 using FramePFX.Editing.Timelines;
+using FramePFX.Services.Messaging;
 using FramePFX.Tasks;
 using FramePFX.Utils;
 
@@ -143,7 +144,7 @@ public partial class ExportDialog : WindowEx
         {
             progressDialog.ActivityTask = TaskManager.Instance.CurrentTask;
             progressDialog.ActivityTask.Progress.Caption = "Export Task";
-            progressDialog.ActivityTask.Progress.CurrentAction = "Exporting...";
+            progressDialog.ActivityTask.Progress.Text = "Exporting...";
 
             // Export will most likely be using unsafe code, meaning async won't work
             context.Export(progressDialog, this.exportToken.Token);
@@ -155,7 +156,7 @@ public partial class ExportDialog : WindowEx
 
         if (exportTask.Exception != null)
         {
-            await IoC.MessageService.ShowMessage("Export failure", "An exception occurred while exporting video", exportTask.Exception.ToString());
+            await IMessageDialogService.Instance.ShowMessage("Export failure", "An exception occurred while exporting video", exportTask.Exception.ToString());
         }
 
         if (exportTask.IsCancelled && File.Exists(setup.FilePath))

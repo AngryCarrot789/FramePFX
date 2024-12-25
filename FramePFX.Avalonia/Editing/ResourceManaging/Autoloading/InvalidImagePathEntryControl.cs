@@ -23,6 +23,7 @@ using Avalonia.Interactivity;
 using FramePFX.Avalonia.Bindings;
 using FramePFX.Avalonia.Utils;
 using FramePFX.Editing.ResourceManaging.Resources;
+using FramePFX.Services.Messaging;
 using FramePFX.Utils.Commands;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Autoloading;
@@ -50,7 +51,7 @@ public class InvalidImagePathEntryControl : InvalidResourceEntryControl
         {
             if (!await this.Entry!.TryLoad())
             {
-                await IoC.MessageService.ShowMessage("No such file", "File path is still invalid");
+                await IMessageDialogService.Instance.ShowMessage("No such file", "File path is still invalid");
             }
         });
     }

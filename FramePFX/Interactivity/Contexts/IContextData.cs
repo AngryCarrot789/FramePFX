@@ -34,7 +34,7 @@ public interface IContextData
     /// <summary>
     /// Tries to get a value from a data key
     /// </summary>
-    bool TryGetContext(string key, [MaybeNullWhen(false)] out object value);
+    bool TryGetContext(string key, [NotNullWhen(true)] out object? value);
 
     /// <summary>
     /// Checks if the given data key is contained in this context

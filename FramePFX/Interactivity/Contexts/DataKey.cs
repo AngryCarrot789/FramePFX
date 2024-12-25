@@ -106,7 +106,7 @@ public sealed class DataKey<T> : DataKey
 
     public Executability GetExecutabilityForPresence(IContextData contextData) => this.IsPresent(contextData) ? Executability.Valid : Executability.Invalid;
 
-    public bool TryGetContext(IContextData context, [MaybeNullWhen(false)] out T value)
+    public bool TryGetContext(IContextData context, [NotNullWhen(true)] out T? value)
     {
         Validate.NotNull(context);
         if (context.TryGetContext(this.Id, out object? obj))

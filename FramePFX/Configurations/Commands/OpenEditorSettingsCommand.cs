@@ -25,6 +25,6 @@ public class OpenEditorSettingsCommand : AsyncCommand
 {
     protected override Task ExecuteAsync(CommandEventArgs e)
     {
-        return IoC.ConfigurationService.ShowConfigurationDialog(ApplicationConfigurationManager.Instance);
+        return IConfigurationDialogService.Instance.ShowConfigurationDialog(ApplicationConfigurationManager.Instance);
     }
 }

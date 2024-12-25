@@ -41,7 +41,7 @@ public class CloseProjectCommand : AsyncCommand
         await TaskManager.Instance.RunTask(async () =>
         {
             IActivityProgress prog = TaskManager.Instance.CurrentTask.Progress;
-            prog.CurrentAction = "Closing project...";
+            prog.Text = "Closing project...";
             await CloseProjectBGT(editor, prog);
         });
     }
@@ -55,9 +55,9 @@ public class CloseProjectCommand : AsyncCommand
         if (progress == null)
             progress = TaskManager.Instance.GetCurrentProgressOrEmpty();
 
-        progress.CurrentAction = "Closing active project";
+        progress.Text = "Closing active project";
         progress.CompletionState.OnProgress(0.2);
-        MessageBoxResult result = await await IoC.Dispatcher.InvokeAsync(() => IoC.MessageService.ShowMessage(msgTitle, message, MessageBoxButton.YesNoCancel));
+        MessageBoxResult result = await await Application.Instance.Dispatcher.InvokeAsync(() => IMessageDialogService.Instance.ShowMessage(msgTitle, message, MessageBoxButton.YesNoCancel));
         switch (result)
         {
             case MessageBoxResult.Cancel: return false;
@@ -66,9 +66,9 @@ public class CloseProjectCommand : AsyncCommand
                 bool? saveResult;
                 using (progress.CompletionState.PushCompletionRange(0.2, 0.5))
                 {
-                    progress.CurrentAction = "Saving project...";
+                    progress.Text = "Saving project...";
                     progress.CompletionState.OnProgress(0.5);
-                    saveResult = await await IoC.Dispatcher.InvokeAsync(() => Project.SaveProject(editor.Project, progress));
+                    saveResult = await await Application.Instance.Dispatcher.InvokeAsync(() => Project.SaveProject(editor.Project, progress));
                     progress.CompletionState.OnProgress(0.5);
                 }
 
@@ -76,9 +76,9 @@ public class CloseProjectCommand : AsyncCommand
                 {
                     if (saveResult.HasValue)
                     {
-                        progress.CurrentAction = "Closing project...";
+                        progress.Text = "Closing project...";
                         progress.CompletionState.OnProgress(0.5);
-                        await IoC.Dispatcher.InvokeAsync(editor.CloseProject);
+                        await Application.Instance.Dispatcher.InvokeAsync(editor.CloseProject);
                         progress.CompletionState.OnProgress(0.5);
                     }
                     else
@@ -94,9 +94,9 @@ public class CloseProjectCommand : AsyncCommand
             {
                 using (progress.CompletionState.PushCompletionRange(0.2, 0.8))
                 {
-                    progress.CurrentAction = "Closing project...";
+                    progress.Text = "Closing project...";
                     progress.CompletionState.OnProgress(0.5);
-                    await IoC.Dispatcher.InvokeAsync(editor.CloseProject);
+                    await Application.Instance.Dispatcher.InvokeAsync(editor.CloseProject);
                     progress.CompletionState.OnProgress(0.5);
                 }
 

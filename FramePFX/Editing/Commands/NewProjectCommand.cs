@@ -54,7 +54,7 @@ public class NewProjectCommand : AsyncCommand
 
             progress.CompletionState.OnProgress(0.5);
 
-            await IoC.Dispatcher.InvokeAsync(() =>
+            await Application.Instance.Dispatcher.InvokeAsync(() =>
             {
                 Project project = new Project();
                 VideoTrack track = new VideoTrack()

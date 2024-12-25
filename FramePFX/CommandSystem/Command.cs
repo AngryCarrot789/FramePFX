@@ -18,6 +18,7 @@
 // 
 
 using System.Diagnostics;
+using FramePFX.Services.Messaging;
 using FramePFX.Utils;
 
 namespace FramePFX.CommandSystem;
@@ -74,7 +75,7 @@ public abstract class Command
             }
             catch (Exception ex) when (!Debugger.IsAttached)
             {
-                IoC.MessageService.ShowMessage("Command execution exception", $"An exception occurred while executing '{CmdToString(cmdId, command)}'", ex.GetToString());
+                IMessageDialogService.Instance.ShowMessage("Command execution exception", $"An exception occurred while executing '{CmdToString(cmdId, command)}'", ex.GetToString());
             }
         }
         else

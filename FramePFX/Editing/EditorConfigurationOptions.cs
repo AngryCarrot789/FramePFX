@@ -29,7 +29,7 @@ public delegate void EditorConfigurationOptionsTitleBarBrushChangedEventHandler(
 /// </summary>
 public sealed class EditorConfigurationOptions
 {
-    public static EditorConfigurationOptions Instance => Application.Instance.Services.GetService<EditorConfigurationOptions>();
+    public static EditorConfigurationOptions Instance => Application.Instance.ServiceManager.GetService<EditorConfigurationOptions>();
     
     private string titleBar;
     private SKColor titleBarBrush;

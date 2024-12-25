@@ -18,6 +18,7 @@
 // 
 
 using System.Diagnostics;
+using FramePFX.Services.Messaging;
 using FramePFX.Utils;
 
 namespace FramePFX.CommandSystem;
@@ -69,7 +70,7 @@ public abstract class AsyncCommand : Command
             if (!this.allowMultipleExecutions && this.isExecuting)
             {
                 if (args.IsUserInitiated)
-                    await IoC.MessageService.ShowMessage("Already running", "This command is already running");
+                    await IMessageDialogService.Instance.ShowMessage("Already running", "This command is already running");
                 return;
             }
 
@@ -81,7 +82,7 @@ public abstract class AsyncCommand : Command
             // we need to handle the exception here, because otherwise the application
             // would never catch it, and therefore the exception would be lost forever
             string msg = e.GetToString();
-            await IoC.MessageService.ShowMessage("Command Error", "An exception occurred while executing command", msg);
+            await IMessageDialogService.Instance.ShowMessage("Command Error", "An exception occurred while executing command", msg);
         }
         finally
         {

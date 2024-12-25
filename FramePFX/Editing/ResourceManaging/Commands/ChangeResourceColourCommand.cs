@@ -19,6 +19,7 @@
 
 using FramePFX.CommandSystem;
 using FramePFX.Editing.ResourceManaging.Resources;
+using FramePFX.Services.ColourPicking;
 using SkiaSharp;
 
 namespace FramePFX.Editing.ResourceManaging.Commands;
@@ -42,7 +43,7 @@ public class ChangeResourceColourCommand : AsyncCommand
 
         if (resource is ResourceColour resourceColour)
         {
-            SKColor? colour = await IoC.ColourPickerService.PickColourAsync(resourceColour.Colour);
+            SKColor? colour = await IColourPickerDialogService.Instance.PickColourAsync(resourceColour.Colour);
             if (colour.HasValue)
             {
                 resourceColour.Colour = colour.Value;

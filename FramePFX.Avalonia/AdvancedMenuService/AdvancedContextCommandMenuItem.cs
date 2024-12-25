@@ -28,6 +28,7 @@ using FramePFX.Avalonia.Shortcuts.Converters;
 using FramePFX.Avalonia.Utils;
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Services.Messaging;
 using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.AdvancedMenuService;
@@ -165,7 +166,7 @@ public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem
         {
             if (!Debugger.IsAttached)
             {
-                await IoC.MessageService.ShowMessage(
+                await IMessageDialogService.Instance.ShowMessage(
                     "Error",
                     "An unexpected error occurred while processing command. " +
                     "FramePFX may or may not crash now, but you should probably restart and save just in case",

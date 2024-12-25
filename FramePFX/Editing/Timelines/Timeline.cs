@@ -26,6 +26,7 @@ using FramePFX.Editing.Rendering;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Tracks;
+using FramePFX.Services;
 using FramePFX.Utils;
 using FramePFX.Utils.Destroying;
 using FramePFX.Utils.RBC;
@@ -40,7 +41,7 @@ public delegate void TimelineEventHandler(Timeline timeline);
 
 public delegate void PlayHeadChangedEventHandler(Timeline timeline, long oldValue, long newValue);
 
-public class Timeline : ITransferableData, IDestroy
+public class Timeline : ITransferableData, IServiceable, IDestroy
 {
     public static readonly ContextRegistry ContextRegistry = new ContextRegistry("Timeline");
 
@@ -191,6 +192,8 @@ public class Timeline : ITransferableData, IDestroy
             this.IsLoopRegionEnabledChanged?.Invoke(this);
         }
     }
+    
+    public ServiceManager ServiceManager { get; }
 
     public event TimelineTrackIndexEventHandler? TrackAdded;
     public event TimelineTrackIndexEventHandler? TrackRemoved;
@@ -214,6 +217,7 @@ public class Timeline : ITransferableData, IDestroy
         this.tracks = new List<Track>();
         this.Tracks = new ReadOnlyCollection<Track>(this.tracks);
         this.maxDuration = 5000L;
+        this.ServiceManager = new ServiceManager(this);
         this.RenderManager = new RenderManager(this);
     }
 

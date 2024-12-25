@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using FramePFX.Services.Messaging;
 using FramePFX.Utils;
 
 namespace FramePFX.History;
@@ -167,7 +168,7 @@ public class HistoryManager
         }
         catch (Exception e)
         {
-            IoC.MessageService.ShowMessage((isUndo ? "Undo" : "Redo") + " Error", "An exception occurred while performing history action", e.GetToString());
+            IMessageDialogService.Instance.ShowMessage((isUndo ? "Undo" : "Redo") + " Error", "An exception occurred while performing history action", e.GetToString());
         }
 
         if (success)

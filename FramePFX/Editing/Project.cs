@@ -20,6 +20,8 @@
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.Timelines;
+using FramePFX.Services.FilePicking;
+using FramePFX.Services.Messaging;
 using FramePFX.Tasks;
 using FramePFX.Utils;
 using FramePFX.Utils.Destroying;
@@ -215,7 +217,7 @@ public class Project : IDestroy
 
         if (data.TryGetULong("ActiveTimelineResourceId", out ulong resourceId))
         {
-            if (this.ResourceManager.TryGetEntryItem(resourceId, out ResourceItem resource) && resource is ResourceComposition composition)
+            if (this.ResourceManager.TryGetEntryItem(resourceId, out ResourceItem? resource) && resource is ResourceComposition composition)
             {
                 this.ActiveTimeline = composition.Timeline;
             }
@@ -354,7 +356,7 @@ public class Project : IDestroy
     public static async Task<bool?> SaveProjectAs(Project project, IActivityProgress progress)
     {
         const string message = "Specify a file path for the project file. Any project data will be stored in the same folder, so it's best to create a project-specific folder";
-        string? filePath = await IoC.FilePickService.SaveFile(message, Filters.ListProjectTypeAndAll, project.ProjectFilePath);
+        string? filePath = await IFilePickDialogService.Instance.SaveFile(message, Filters.ListProjectTypeAndAll, project.ProjectFilePath);
         if (filePath == null)
         {
             return null;
@@ -382,7 +384,7 @@ public class Project : IDestroy
         {
             project.Editor?.Playback.Pause();
 
-            progress.CurrentAction = "Serialising project...";
+            progress.Text = "Serialising project...";
             progress.CompletionState.OnProgress(0.5);
             try
             {
@@ -392,7 +394,7 @@ public class Project : IDestroy
             }
             catch (Exception e)
             {
-                IoC.MessageService.ShowMessage("Save Error", "An exception occurred while saving project", e.GetToString());
+                IMessageDialogService.Instance.ShowMessage("Save Error", "An exception occurred while saving project", e.GetToString());
                 progress.CompletionState.OnProgress(0.5);
                 return Task.FromResult(false);
             }

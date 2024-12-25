@@ -38,6 +38,6 @@ public class SetResourcesOnlineCommand : AsyncCommand
 
         List<ResourceItem> enable = items.Where(x => !x.IsOnline).ToList();
         if (enable.Count > 0)
-            await IoC.ResourceLoaderService.TryLoadResources(enable.Cast<BaseResource>().ToArray());
+            await IResourceLoaderDialogService.Instance.TryLoadResources(enable.Cast<BaseResource>().ToArray());
     }
 }

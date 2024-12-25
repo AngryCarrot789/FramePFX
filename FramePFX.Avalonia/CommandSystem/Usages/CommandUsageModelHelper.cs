@@ -90,8 +90,8 @@ public class CommandUsageModelHelper<T> where T : class
     /// <param name="usage"></param>
     public void OnContextChanged(DataKey<T> dataKey, CommandUsage usage)
     {
-        IContextData ctx = usage.GetContextData();
-        if (ctx != null && dataKey.TryGetContext(ctx, out T newFindModel))
+        IContextData? ctx = usage.GetContextData();
+        if (ctx != null && dataKey.TryGetContext(ctx, out T? newFindModel))
         {
             this.SetModel(usage, newFindModel);
         }

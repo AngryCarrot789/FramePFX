@@ -22,6 +22,8 @@ using FramePFX.Editing.Factories;
 using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Services.ColourPicking;
+using FramePFX.Services.FilePicking;
 using FramePFX.Utils;
 using SkiaSharp;
 
@@ -29,9 +31,6 @@ namespace FramePFX.Editing.ResourceManaging.Commands;
 
 public abstract class AddResourceCommand<T> : AsyncCommand where T : BaseResource
 {
-    static AddResourceCommand() {
-    }
-
     protected override Executability CanExecuteOverride(CommandEventArgs e)
     {
         return DataKeys.ResourceManagerUIKey.GetExecutabilityForPresence(e.ContextData);
@@ -101,7 +100,7 @@ public class AddResourceImageCommand : AddResourceCommand<ResourceImage>
         if (!success)
             return;
 
-        string? path = await IoC.FilePickService.OpenFile("Open an image file", Filters.CombinedImageTypesAndAll);
+        string? path = await IFilePickDialogService.Instance.OpenFile("Open an image file", Filters.CombinedImageTypesAndAll);
         if (path != null)
         {
             resource.FilePath = path;
@@ -109,7 +108,7 @@ public class AddResourceImageCommand : AddResourceCommand<ResourceImage>
             if (string.IsNullOrWhiteSpace(resource.DisplayName))
                 resource.DisplayName = "New Image";
 
-            await IoC.ResourceLoaderService.TryLoadResource(resource);
+            await IResourceLoaderDialogService.Instance.TryLoadResource(resource);
         }
     }
 }
@@ -121,14 +120,14 @@ public class AddResourceAVMediaCommand : AddResourceCommand<ResourceAVMedia>
         if (!success)
             return;
 
-        string? path = await IoC.FilePickService.OpenFile("Open a media file for this resource?", Filters.CombinedVideoTypesAndAll);
+        string? path = await IFilePickDialogService.Instance.OpenFile("Open a media file for this resource?", Filters.CombinedVideoTypesAndAll);
         if (path != null)
         {
             resource.FilePath = path;
             resource.DisplayName = Path.GetFileName(path);
             if (string.IsNullOrWhiteSpace(resource.DisplayName))
                 resource.DisplayName = "New AVMedia";
-            await IoC.ResourceLoaderService.TryLoadResource(resource);
+            await IResourceLoaderDialogService.Instance.TryLoadResource(resource);
         }
     }
 }
@@ -140,7 +139,7 @@ public class AddResourceColourCommand : AddResourceCommand<ResourceColour>
         if (!success)
             return;
 
-        SKColor? colour = await IoC.ColourPickerService.PickColourAsync(SKColors.DodgerBlue);
+        SKColor? colour = await IColourPickerDialogService.Instance.PickColourAsync(SKColors.DodgerBlue);
         if (colour.HasValue)
         {
             resource.Colour = colour.Value;

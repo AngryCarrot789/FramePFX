@@ -1,4 +1,4 @@
-﻿// 
+// 
 // Copyright (c) 2023-2024 REghZy
 // 
 // This file is part of FramePFX.
@@ -18,25 +18,19 @@
 // 
 
 using System.Threading.Tasks;
-using FramePFX.Services.ColourPicking;
-using SkiaSharp;
+using Avalonia.Controls;
+using FramePFX.Configurations;
 
-namespace FramePFX.Avalonia.Services.Colours;
+namespace FramePFX.Avalonia.Configurations;
 
-public class ColourPickerServiceImpl : IColourPickerService
+public class ConfigurationDialogServiceImpl : IConfigurationDialogService
 {
-    public async Task<SKColor?> PickColourAsync(SKColor? defaultColour)
+    public Task ShowConfigurationDialog(ConfigurationManager configurationManager)
     {
-        ColourUserInputInfo info = new ColourUserInputInfo()
-        {
-            Colour = defaultColour ?? SKColors.Black
-        };
-
-        return await ShowAsync(info) == true ? info.Colour : default(SKColor?);
-    }
-
-    private static Task<bool?> ShowAsync(ColourUserInputInfo info)
-    {
-        return InputDialogServiceImpl.ShowDialogAsync(info);
+        if (!ApplicationImpl.TryGetActiveWindow(out Window? window))
+            return Task.CompletedTask;
+        
+        ConfigurationDialog dialog = new ConfigurationDialog(configurationManager);
+        return dialog.ShowDialog(window);
     }
 }

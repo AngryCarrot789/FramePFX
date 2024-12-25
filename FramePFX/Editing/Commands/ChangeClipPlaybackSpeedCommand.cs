@@ -77,7 +77,7 @@ public class ChangeClipPlaybackSpeedCommand : AsyncCommand
             DefaultButton = true
         };
 
-        if (await IoC.UserInputService.ShowInputDialogAsync(info) == true)
+        if (await IUserInputDialogService.Instance.ShowInputDialogAsync(info) == true)
         {
             double value = double.Parse(info.Text!);
             videoClip.SetPlaybackSpeed(value);

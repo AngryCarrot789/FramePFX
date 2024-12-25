@@ -24,6 +24,7 @@ using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using FramePFX.Avalonia.Utils;
 using FramePFX.PropertyEditing.DataTransfer;
+using FramePFX.Services.ColourPicking;
 using FramePFX.Utils.Commands;
 using SkiaSharp;
 
@@ -46,7 +47,7 @@ public class DataParameterColourPropertyEditorControl : BaseDataParameterPropert
     {
         choseColourCommand = new AsyncRelayCommand<DataParameterColourPropertyEditorControl>(async (x) =>
         {
-            SKColor? colour = await IoC.ColourPickerService.PickColourAsync(x!.myColour);
+            SKColor? colour = await IColourPickerDialogService.Instance.PickColourAsync(x!.myColour);
             if (colour.HasValue)
             {
                 x.myColour = colour.Value;

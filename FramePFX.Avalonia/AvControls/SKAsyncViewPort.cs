@@ -18,7 +18,6 @@
 // 
 
 using System;
-using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
@@ -26,7 +25,6 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Reactive;
 using Avalonia.Rendering;
-using Avalonia.Rendering.SceneGraph;
 using Avalonia.VisualTree;
 using FramePFX.Utils;
 using SkiaSharp;
@@ -340,53 +338,53 @@ public class SKAsyncViewPort : Control
 
     private static bool IsPositive(double value) => !double.IsNaN(value) && !double.IsInfinity(value) && value > 0.0;
     
-    private class DrawBitmapOperation : ICustomDrawOperation
-    {
-        private readonly SKBitmap bitmap;
-        private readonly Bitmap bmp;
-        private readonly Rect bounds;
-        private readonly Rect transformedVisibleBounds;
-        private readonly double inverseScale;
-
-        public Rect Bounds => this.bounds;
-        
-        public DrawBitmapOperation(WriteableBitmap bmp, Rect bounds, Rect transformedVisibleBounds, double inverseScale)
-        {
-            this.bitmap = new SKBitmap((int) bounds.Width, (int) bounds.Height, SKColorType.Bgra8888, SKAlphaType.Premul);
-
-            using (ILockedFramebuffer buffer = bmp.Lock())
-            {
-                IntPtr srcPtr = buffer.Address;
-                IntPtr dstPtr = this.bitmap.GetPixels();
-                if (srcPtr != IntPtr.Zero && dstPtr != IntPtr.Zero)
-                {
-                    unsafe
-                    {
-                        Unsafe.CopyBlock(dstPtr.ToPointer(), srcPtr.ToPointer(), (uint) (this.bitmap.RowBytes * this.bitmap.Height));
-                    }
-                }
-            }
-
-            this.bmp = new Bitmap(PixelFormat.Bgra8888, AlphaFormat.Premul, this.bitmap.GetPixels(), new PixelSize((int) bounds.Width, (int) bounds.Height), new Vector(96, 96), this.bitmap.RowBytes);
-            this.bounds = bounds;
-            this.transformedVisibleBounds = transformedVisibleBounds;
-            this.inverseScale = inverseScale;
-        }
-
-        public void Dispose()
-        {
-            this.bmp.Dispose();
-            this.bitmap.Dispose();
-        }
-
-        public bool Equals(ICustomDrawOperation? other) => other == this;
-
-        public bool HitTest(Point p) => this.bounds.Contains(p);
-
-        public void Render(ImmediateDrawingContext context)
-        {
-            using (context.PushPreTransform(Matrix.CreateScale(this.inverseScale, this.inverseScale)))
-                context.DrawBitmap(this.bmp, this.transformedVisibleBounds * this.inverseScale, this.transformedVisibleBounds);
-        }
-    }
+    // private class DrawBitmapOperation : ICustomDrawOperation
+    // {
+    //     private readonly SKBitmap bitmap;
+    //     private readonly Bitmap bmp;
+    //     private readonly Rect bounds;
+    //     private readonly Rect transformedVisibleBounds;
+    //     private readonly double inverseScale;
+    //
+    //     public Rect Bounds => this.bounds;
+    //     
+    //     public DrawBitmapOperation(WriteableBitmap bmp, Rect bounds, Rect transformedVisibleBounds, double inverseScale)
+    //     {
+    //         this.bitmap = new SKBitmap((int) bounds.Width, (int) bounds.Height, SKColorType.Bgra8888, SKAlphaType.Premul);
+    //
+    //         using (ILockedFramebuffer buffer = bmp.Lock())
+    //         {
+    //             IntPtr srcPtr = buffer.Address;
+    //             IntPtr dstPtr = this.bitmap.GetPixels();
+    //             if (srcPtr != IntPtr.Zero && dstPtr != IntPtr.Zero)
+    //             {
+    //                 unsafe
+    //                 {
+    //                     Unsafe.CopyBlock(dstPtr.ToPointer(), srcPtr.ToPointer(), (uint) (this.bitmap.RowBytes * this.bitmap.Height));
+    //                 }
+    //             }
+    //         }
+    //
+    //         this.bmp = new Bitmap(PixelFormat.Bgra8888, AlphaFormat.Premul, this.bitmap.GetPixels(), new PixelSize((int) bounds.Width, (int) bounds.Height), new Vector(96, 96), this.bitmap.RowBytes);
+    //         this.bounds = bounds;
+    //         this.transformedVisibleBounds = transformedVisibleBounds;
+    //         this.inverseScale = inverseScale;
+    //     }
+    //
+    //     public void Dispose()
+    //     {
+    //         this.bmp.Dispose();
+    //         this.bitmap.Dispose();
+    //     }
+    //
+    //     public bool Equals(ICustomDrawOperation? other) => other == this;
+    //
+    //     public bool HitTest(Point p) => this.bounds.Contains(p);
+    //
+    //     public void Render(ImmediateDrawingContext context)
+    //     {
+    //         using (context.PushPreTransform(Matrix.CreateScale(this.inverseScale, this.inverseScale)))
+    //             context.DrawBitmap(this.bmp, this.transformedVisibleBounds * this.inverseScale, this.transformedVisibleBounds);
+    //     }
+    // }
 }

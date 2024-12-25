@@ -32,6 +32,7 @@ using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Services.Messaging;
 using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Lists;
@@ -400,7 +401,7 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
             {
                 if (!await ResourceDropRegistry.OnDropNativeTypeIntoListOrItem(this.ResourceExplorerList!, this, new DataObjectWrapper(e.Data), DataManager.GetFullContextData(this), dropType))
                 {
-                    await IoC.MessageService.ShowMessage("Unknown Data", "Unknown dropped item. Drop files here");
+                    await IMessageDialogService.Instance.ShowMessage("Unknown Data", "Unknown dropped item. Drop files here");
                 }
 
                 return;

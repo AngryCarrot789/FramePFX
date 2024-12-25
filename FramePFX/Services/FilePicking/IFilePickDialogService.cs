@@ -26,6 +26,8 @@ namespace FramePFX.Services.FilePicking;
 /// </summary>
 public interface IFilePickDialogService
 {
+    public static IFilePickDialogService Instance => Application.Instance.ServiceManager.GetService<IFilePickDialogService>();
+    
     /// <summary>
     /// Shows a dialog that allows the user to pick a single file
     /// </summary>

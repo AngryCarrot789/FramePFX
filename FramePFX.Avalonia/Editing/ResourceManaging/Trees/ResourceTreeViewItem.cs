@@ -36,6 +36,7 @@ using FramePFX.Editing.ResourceManaging.Events;
 using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Services.Messaging;
 using FramePFX.Utils;
 using Key = Avalonia.Input.Key;
 
@@ -643,7 +644,7 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
             {
                 if (!await ResourceDropRegistry.OnDropNativeTypeIntoTreeOrNode(this.ResourceTree!, this, new DataObjectWrapper(e.Data), DataManager.GetFullContextData(this), dropType))
                 {
-                    await IoC.MessageService.ShowMessage("Unknown Data", "Unknown dropped item. Drop files here");
+                    await IMessageDialogService.Instance.ShowMessage("Unknown Data", "Unknown dropped item. Drop files here");
                 }
 
                 return;
@@ -732,7 +733,7 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
 
             if (dropType == EnumDropType.Copy)
             {
-                await IoC.ResourceLoaderService.TryLoadResources(newList.ToArray());
+                await IResourceLoaderDialogService.Instance.TryLoadResources(newList.ToArray());
             }
         }
 #if !DEBUG

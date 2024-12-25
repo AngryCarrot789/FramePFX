@@ -19,6 +19,7 @@
 
 using FramePFX.CommandSystem;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Services.Messaging;
 using FramePFX.Tasks;
 using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
 
@@ -37,16 +38,16 @@ public class SaveProjectCommand : AsyncCommand
         {
             if (project.IsSaving)
             {
-                await IoC.MessageService.ShowMessage("Already Saving", "Project is already saving!");
+                await IMessageDialogService.Instance.ShowMessage("Already Saving", "Project is already saving!");
                 return;
             }
 
             await TaskManager.Instance.RunTask(async () =>
             {
                 IActivityProgress progress = TaskManager.Instance.GetCurrentProgressOrEmpty();
-                progress.CurrentAction = "Saving project...";
+                progress.Text = "Saving project...";
 
-                await IoC.Dispatcher.InvokeAsync(async () =>
+                await Application.Instance.Dispatcher.InvokeAsync(async () =>
                 {
                     await Project.SaveProject(project, progress);
                 });
@@ -64,9 +65,9 @@ public class SaveProjectAsCommand : SaveProjectCommand
             await TaskManager.Instance.RunTask(async () =>
             {
                 IActivityProgress progress = TaskManager.Instance.GetCurrentProgressOrEmpty();
-                progress.CurrentAction = "Saving project as...";
+                progress.Text = "Saving project as...";
 
-                await await IoC.Dispatcher.InvokeAsync(async () =>
+                await await Application.Instance.Dispatcher.InvokeAsync(async () =>
                 {
                     await Project.SaveProjectAs(project, progress);
                 });

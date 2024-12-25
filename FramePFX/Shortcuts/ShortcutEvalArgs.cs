@@ -21,16 +21,16 @@ using FramePFX.Shortcuts.Inputs;
 
 namespace FramePFX.Shortcuts;
 
-public readonly struct GroupEvaulationArgs
+public readonly struct ShortcutEvalArgs
 {
     public readonly IInputStroke stroke;
     public readonly List<GroupedShortcut> shortcuts;
     public readonly List<(GroupedInputState, bool)> inputStates;
-    public readonly Predicate<GroupedShortcut> filter;
+    public readonly Predicate<GroupedShortcut>? filter;
     public readonly bool canProcessInputStates;
     public readonly bool canInherit;
 
-    public GroupEvaulationArgs(IInputStroke stroke, List<GroupedShortcut> shortcuts, List<(GroupedInputState, bool)> inputStates, Predicate<GroupedShortcut> filter, bool canProcessInputStates, bool canInherit)
+    public ShortcutEvalArgs(IInputStroke stroke, List<GroupedShortcut> shortcuts, List<(GroupedInputState, bool)> inputStates, Predicate<GroupedShortcut>? filter, bool canProcessInputStates, bool canInherit)
     {
         this.stroke = stroke;
         this.shortcuts = shortcuts;

@@ -197,13 +197,19 @@ public class AutomationSequenceEditorControl : Control
                 {
                     this.ClearMouseOverElement();
 
+                    AutomationSequence sequence = mouseOver.keyFrame.sequence;
                     long frame = TimelineUtils.PixelToFrame(this.leftClickPos.X, this.HorizontalZoom);
-                    int index = mouseOver.keyFrame.sequence.AddNewKeyFrame(frame, out KeyFrame keyFrame);
+                    object currValue = sequence.GetObjectValue(frame);
+                    int index = sequence.AddNewKeyFrame(frame, out KeyFrame keyFrame);
                     KeyFrameUI newKeyFrameUI = this.keyFrameUIs[index];
 
                     this.capturedElement = this.mouseOverElement = new KeyFrameMultiElement(newKeyFrameUI, KeyFrameElementPart.KeyFrame);
                     newKeyFrameUI.MouseOverPart = KeyFrameElementPart.KeyFrame;
-                    newKeyFrameUI.SetValueForMousePoint(this.leftClickPos);
+                    if (!newKeyFrameUI.SetValueForMousePoint(this.leftClickPos))
+                    {
+                        keyFrame.SetValueFromObject(currValue);
+                    }
+                    
                     this.flagHasCreatedKeyFrameForPress = true;
                 }
             }
@@ -223,11 +229,15 @@ public class AutomationSequenceEditorControl : Control
             if ((pos.Y - linePosY) <= LineHitThickness)
             {
                 long frame = TimelineUtils.PixelToFrame(pos.X, this.HorizontalZoom);
+                object currValue = sequence.GetObjectValue(frame);
                 int index = sequence.AddNewKeyFrame(frame, out KeyFrame keyFrame);
                 KeyFrameUI newKeyFrameUI = this.keyFrameUIs[index];
                 this.capturedElement = this.mouseOverElement = new KeyFrameMultiElement(newKeyFrameUI, KeyFrameElementPart.KeyFrame);
                 newKeyFrameUI.MouseOverPart = KeyFrameElementPart.KeyFrame;
-                newKeyFrameUI.SetValueForMousePoint(pos);
+                if (!newKeyFrameUI.SetValueForMousePoint(pos))
+                {
+                    keyFrame.SetValueFromObject(currValue);
+                }
 
                 this.flagHasCreatedKeyFrameForPress = true;
                 e.Pointer.Capture(this);

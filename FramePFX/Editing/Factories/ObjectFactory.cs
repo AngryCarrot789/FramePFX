@@ -45,9 +45,9 @@ public class ObjectFactory
             throw new ArgumentNullException(nameof(type));
         if (!this.IsTypeValid(type))
             throw new ArgumentException($"Incompatible type: {type.Name}", nameof(type));
-        if (this.idToType.TryGetValue(id, out Type existingType))
+        if (this.idToType.TryGetValue(id, out Type? existingType))
             throw new InvalidOperationException($"ID '{id}' already registered with type '{existingType.Name}'");
-        if (this.typeToId.TryGetValue(type, out string existingId))
+        if (this.typeToId.TryGetValue(type, out string? existingId))
             throw new InvalidOperationException($"Type '{type.Name}' already registered with ID '{existingId}'");
         this.idToType[id] = type;
         this.typeToId[type] = id;
@@ -57,7 +57,7 @@ public class ObjectFactory
     protected bool UnregisterType(string id)
     {
         ValidateId(id);
-        if (!this.idToType.TryGetValue(id, out Type type))
+        if (!this.idToType.TryGetValue(id, out Type? type))
             return false;
 
         this.idToType.Remove(id);
@@ -100,7 +100,7 @@ public class ObjectFactory
     public Type GetType(string id)
     {
         ValidateId(id);
-        if (!this.idToType.TryGetValue(id, out Type type))
+        if (!this.idToType.TryGetValue(id, out Type? type))
             throw new Exception($"No entry registered with ID '{id}'");
         return type;
     }
@@ -109,7 +109,7 @@ public class ObjectFactory
     {
         if (type == null)
             throw new ArgumentNullException(nameof(type));
-        if (!this.typeToId.TryGetValue(type, out string id))
+        if (!this.typeToId.TryGetValue(type, out string? id))
             throw new Exception($"No entry registered with type '{type.Name}'");
         return id;
     }

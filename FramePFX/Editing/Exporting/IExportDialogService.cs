@@ -17,20 +17,14 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Editing.ResourceManaging;
+namespace FramePFX.Editing.Exporting;
 
-/// <summary>
-/// A service for a user interface for loading resources
-/// </summary>
-public interface IResourceLoaderService
+public interface IExportDialogService
 {
-    Task<bool> TryLoadResources(BaseResource[] resources);
-}
-
-public static class ResourceLoaderServiceExtensions
-{
-    public static Task<bool> TryLoadResource(this IResourceLoaderService resourceLoaderService, BaseResource resource)
-    {
-        return resourceLoaderService.TryLoadResources(new BaseResource[] { resource });
-    }
+    /// <summary>
+    /// Shows the export dialog
+    /// </summary>
+    /// <param name="setup">The setup info</param>
+    /// <returns>A task that completes when the dialog closes</returns>
+    Task ShowExportDialog(ExportSetup setup);
 }

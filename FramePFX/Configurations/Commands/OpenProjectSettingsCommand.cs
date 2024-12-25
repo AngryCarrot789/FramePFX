@@ -41,7 +41,7 @@ public class OpenProjectSettingsCommand : AsyncCommand
         ProjectConfigurationManager? config = editorUI.ActiveProjectConfigurationManager;
         if (config != null)
         {
-            await IoC.ConfigurationService.ShowConfigurationDialog(config);
+            await IConfigurationDialogService.Instance.ShowConfigurationDialog(config);
             editorUI.TimelineElement.Timeline!.InvalidateRender();
         }
     }

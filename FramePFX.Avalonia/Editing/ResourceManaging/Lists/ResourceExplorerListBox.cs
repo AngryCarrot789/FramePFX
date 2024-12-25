@@ -32,6 +32,7 @@ using FramePFX.Editing.ResourceManaging.Events;
 using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Services.Messaging;
 using ResourceManager = FramePFX.Editing.ResourceManaging.ResourceManager;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Lists;
@@ -131,7 +132,7 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement
                     this.SelectionManager.Clear();
                 }
 
-                if (!VisualTreeUtils.IsTemplatedItemOrChild<ResourceExplorerListBoxItem>(e.Source as AvaloniaObject))
+                if (!VisualTreeUtils.IsTemplatedItemOrDescended<ResourceExplorerListBoxItem>(e.Source as AvaloniaObject))
                 {
                     this.Focus();
                 }
@@ -370,7 +371,7 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement
                 // Dropped non-resources into this node
                 if (!await ResourceDropRegistry.OnDropNativeTypeIntoListOrItem(this, null, new DataObjectWrapper(e.Data), DataManager.GetFullContextData(this), dropType))
                 {
-                    await IoC.MessageService.ShowMessage("Unknown Data", "Unknown dropped item. Drop files here");
+                    await IMessageDialogService.Instance.ShowMessage("Unknown Data", "Unknown dropped item. Drop files here");
                 }
 
                 return;

@@ -20,6 +20,7 @@
 using FramePFX.CommandSystem;
 using FramePFX.Configurations.Shortcuts.Models;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Services.InputStrokes;
 using FramePFX.Shortcuts;
 using FramePFX.Shortcuts.Inputs;
 
@@ -39,7 +40,7 @@ public class AddMouseStrokeToShortcutUsingDialogCommand : AsyncCommand
             return;
         }
 
-        MouseStroke? stroke = await IoC.InputStrokeQueryService.ShowGetMouseStrokeDialog(default);
+        MouseStroke? stroke = await IInputStrokeQueryDialogService.Instance.ShowGetMouseStrokeDialog(default);
         if (!stroke.HasValue)
         {
             return;

@@ -265,7 +265,7 @@ public class RELICComposition : ResourceExplorerListItemContent
         if (this.PART_ViewPort == null || this.ListItem == null)
             return;
 
-        await IoC.Dispatcher.Invoke(async () =>
+        await Application.Instance.Dispatcher.Invoke(async () =>
         {
             if (this.PART_ViewPort == null || this.ListItem == null)
             {

@@ -39,7 +39,7 @@ public interface IActivityProgress
     /// <summary>
     /// Gets or sets the description text (aka operation description). This can be what is currently going on. 
     /// </summary>
-    string? CurrentAction { get; set; }
+    string? Text { get; set; }
 
     /// <summary>
     /// An event fired when the <see cref="IsIndeterminate"/> property changes.
@@ -54,10 +54,10 @@ public interface IActivityProgress
     event ActivityProgressEventHandler CaptionChanged;
 
     /// <summary>
-    /// An event fired when the <see cref="CurrentAction"/> property changes.
-    /// This event is fired on the main thread, even if <see cref="CurrentAction"/> is changed on a task thread
+    /// An event fired when the <see cref="Text"/> property changes.
+    /// This event is fired on the main thread, even if <see cref="Text"/> is changed on a task thread
     /// </summary>
-    event ActivityProgressEventHandler CurrentActionChanged;
+    event ActivityProgressEventHandler TextChanged;
 
     /// <summary>
     /// Gets this activity's completion state

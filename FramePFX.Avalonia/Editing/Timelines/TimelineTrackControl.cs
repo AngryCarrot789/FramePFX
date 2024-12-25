@@ -74,7 +74,7 @@ public class TimelineTrackControl : TemplatedControl
         get => this._dropFrameSpan;
         private set => this.SetAndRaise(DropFrameSpanProperty, ref this._dropFrameSpan, value);
     }
-    
+
     public Track? Track
     {
         get => this.myTrack;
@@ -172,7 +172,8 @@ public class TimelineTrackControl : TemplatedControl
         DropFrameSpanProperty.Changed.AddClassHandler<TimelineTrackControl, FrameSpan?>((d, e) => d.OnDropFrameSpanChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }
 
-    private void OnDropFrameSpanChanged(FrameSpan? oldValue, FrameSpan? newValue) {
+    private void OnDropFrameSpanChanged(FrameSpan? oldValue, FrameSpan? newValue)
+    {
         if (!newValue.HasValue)
         {
             this.dropBorder!.IsVisible = false;
@@ -200,7 +201,7 @@ public class TimelineTrackControl : TemplatedControl
         this.PART_AutomationEditor.HorizontalZoom = this.TimelineZoom;
         if (this.TimelineControl?.Timeline is Timeline timeline)
             this.PART_AutomationEditor.FrameDuration = timeline.MaxDuration;
-        
+
         this.automationSequenceBinder.SetTargetControl(this.PART_AutomationEditor);
 
         this.dropBorder = e.NameScope.GetTemplateChild<Border>("PART_DropSpanBorder");
@@ -265,7 +266,7 @@ public class TimelineTrackControl : TemplatedControl
         this.Track.HeightChanged -= this.OnTrackHeightChanged;
         this.Track.ColourChanged -= this.OnTrackColourChanged;
         this.ClipStoragePanel!.ClearClipsInternal();
-        
+
         if (this.Track is VideoTrack)
         {
             VideoTrack.IsEnabledParameter.RemoveParameterChangedHandler(this.Track!, this.OnIsEnabledChanged);
@@ -280,10 +281,12 @@ public class TimelineTrackControl : TemplatedControl
         this.TrackStoragePanel = null;
     }
 
-    public virtual void OnIndexMoving(int oldIndex, int newIndex) {
+    public virtual void OnIndexMoving(int oldIndex, int newIndex)
+    {
     }
 
-    public virtual void OnIndexMoved(int oldIndex, int newIndex) {
+    public virtual void OnIndexMoved(int oldIndex, int newIndex)
+    {
     }
 
     private void OnClipAdded(Track track, Clip clip, int index)
@@ -416,7 +419,7 @@ public class TimelineTrackControl : TemplatedControl
             if (!(e.Source is TimelineClipControl))
             {
                 this.SelectionManager.Clear();
-                
+
                 // this.TimelineControl!.ClipSelectionManager!.Clear();
             }
 
@@ -457,7 +460,7 @@ public class TimelineTrackControl : TemplatedControl
         {
             if (ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? resources) && resources.Count == 1 && resources[0] is ResourceItem item)
             {
-                if (ResourceToClipDropRegistry.Instance.TryGetValue(item.GetType(), out IResourceDropInformation? info))
+                if (ResourceDropOnTimelineService.Instance.TryGetHandler(item.GetType(), out IResourceDropHandler? info))
                 {
                     long duration = info.GetClipDurationForDrop(target, item);
                     if (duration > 0)
@@ -492,17 +495,13 @@ public class TimelineTrackControl : TemplatedControl
 
         try
         {
+            IDataObjekt dataObjekt = new DataObjectWrapper(e.Data);
+            ContextData data = new ContextData(DataManager.GetFullContextData(this));
+            data.Set(TimelineDropManager.DropFrame, this.GetFrameAtMousePoint(e.GetPosition(this)));
             this.isProcessingAsyncDrop = true;
-            if (ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? resources) && resources.Count == 1 && resources[0] is ResourceItem item)
+            if (await TimelineDropManager.Instance.OnDrop(track, (EnumDropType) e.DragEffects, dataObjekt, data))
             {
-                if (ResourceToClipDropRegistry.Instance.TryGetValue(item.GetType(), out IResourceDropInformation? info))
-                {
-                    long duration = info.GetClipDurationForDrop(track, item);
-                    if (duration > 0)
-                    {
-                        await info.OnDroppedInTrack(track, item, new FrameSpan(this.GetFrameAtMousePoint(e.GetPosition(this)), duration));
-                    }
-                }
+                e.Handled = true;
             }
         }
         finally

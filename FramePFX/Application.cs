@@ -25,9 +25,12 @@ using FramePFX.Configurations.Shortcuts.Commands;
 using FramePFX.Editing;
 using FramePFX.Editing.Commands;
 using FramePFX.Editing.ResourceManaging.Commands;
+using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Commands;
 using FramePFX.Natives;
 using FramePFX.Plugins.Exceptions;
+using FramePFX.Services;
+using FramePFX.Services.Messaging;
 using FramePFX.Tasks;
 using FramePFX.Utils;
 
@@ -36,7 +39,7 @@ namespace FramePFX;
 /// <summary>
 /// The main application model class
 /// </summary>
-public abstract class Application
+public abstract class Application : IServiceable
 {
     private static Application? instance;
 
@@ -51,12 +54,7 @@ public abstract class Application
         }
     }
 
-    private readonly ServiceManager serviceManager;
-
-    /// <summary>
-    /// Gets the service manager
-    /// </summary>
-    public IServiceManager Services => this.serviceManager;
+    public ServiceManager ServiceManager { get; }
 
     /// <summary>
     /// Gets the main application thread dispatcher
@@ -84,7 +82,7 @@ public abstract class Application
     
     protected Application()
     {
-        this.serviceManager = new ServiceManager();
+        this.ServiceManager = new ServiceManager(this);
     }
 
     protected virtual async Task OnInitialise(IApplicationStartupProgress progress)
@@ -101,13 +99,13 @@ public abstract class Application
                 sb.Append($"Exception {i + 1}: ").Append(e).Append('\n').Append('\n');
             }
 
-            await IoC.MessageService.ShowMessage("Error loading one or more plugins", sb.ToString());
+            await IMessageDialogService.Instance.ShowMessage("Error loading one or more plugins", sb.ToString());
         }
         
         await progress.ProgressAndSynchroniseAsync("Initialising services");
         using (progress.CompletionState.PushCompletionRange(0.0, 0.5))
         {
-            this.RegisterServices(this.serviceManager);
+            this.RegisterServices(this.ServiceManager);
         }
 
         await progress.ProgressAndSynchroniseAsync("Initialising commands");
@@ -119,10 +117,11 @@ public abstract class Application
 
     protected virtual void RegisterServices(ServiceManager manager)
     {
-        manager.Register(new TaskManager());
-        manager.Register(new ResourceToClipDropRegistry());
-        manager.Register(new EditorConfigurationOptions());
-        manager.Register(ApplicationConfigurationManager.Instance);
+        manager.RegisterConstant(new TaskManager());
+        manager.RegisterConstant(new ResourceDropOnTimelineService());
+        manager.RegisterConstant(new EditorConfigurationOptions());
+        manager.RegisterConstant(new TimelineDropManager());
+        manager.RegisterConstant(ApplicationConfigurationManager.Instance);
     }
 
     protected virtual void RegisterCommands(IApplicationStartupProgress progress, CommandManager manager)
@@ -166,6 +165,7 @@ public abstract class Application
         manager.Register("commands.editor.AddTextClip", new AddTextClipCommand());
         manager.Register("commands.editor.AddTimecodeClip", new AddTimecodeClipCommand());
         manager.Register("commands.editor.AddVideoClipShape", new AddVideoClipShapeCommand());
+        manager.Register("commands.editor.AddAVMediaClip", new AddAVMediaClipCommand());
         manager.Register("commands.editor.AddImageVideoClip", new AddImageVideoClipCommand());
         manager.Register("commands.editor.AddCompositionVideoClip", new AddCompositionVideoClipCommand());
 
@@ -173,6 +173,7 @@ public abstract class Application
         manager.Register("commands.resources.RenameResource", new RenameResourceCommand());
         manager.Register("commands.resources.DeleteResources", new DeleteResourcesCommand());
         manager.Register("commands.resources.AddResourceImage", new AddResourceImageCommand());
+        manager.Register("commands.resources.AddResourceAVMedia", new AddResourceAVMediaCommand());
         manager.Register("commands.resources.AddResourceColour", new AddResourceColourCommand());
         manager.Register("commands.resources.AddResourceComposition", new AddResourceCompositionCommand());
         manager.Register("commands.resources.GroupResources", new GroupResourcesCommand());

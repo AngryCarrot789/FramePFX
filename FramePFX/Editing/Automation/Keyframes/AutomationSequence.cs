@@ -203,6 +203,20 @@ public class AutomationSequence
 
     #region Helper Getter Functions
 
+    public object GetObjectValue(long frame, bool ignoreOverrideState = false)
+    {
+        switch (this.DataType)
+        {
+            case AutomationDataType.Float:   return this.GetValueInternal(frame, FuncGetFloat, FuncCalcFloat, ignoreOverrideState);
+            case AutomationDataType.Double:  return this.GetValueInternal(frame, FuncGetDouble, FuncCalcDouble, ignoreOverrideState);
+            case AutomationDataType.Long:    return this.GetValueInternal(frame, FuncGetLong, FuncCalcLong, ignoreOverrideState);
+            case AutomationDataType.Boolean: return this.GetValueInternal(frame, FuncGetBool, FuncCalcBool, ignoreOverrideState);
+            case AutomationDataType.Vector2: return this.GetValueInternal(frame, FuncGetVector2, FuncCalcVector2, ignoreOverrideState);
+        }
+
+        throw new Exception("Switch Exception");
+    }
+    
     public float GetFloatValue(long frame, bool ignoreOverrideState = false)
     {
         ValidateType(AutomationDataType.Float, this.DataType);

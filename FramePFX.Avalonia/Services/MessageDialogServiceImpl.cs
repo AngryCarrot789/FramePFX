@@ -44,13 +44,13 @@ public class MessageDialogServiceImpl : IMessageDialogService
     public async Task<MessageBoxResult> ShowMessage(MessageBoxInfo info)
     {
         Validate.NotNull(info);
-        if (IoC.Dispatcher.CheckAccess())
+        if (Application.Instance.Dispatcher.CheckAccess())
         {
             return await ShowMessageMainThread(info);
         }
         else
         {
-            return await await IoC.Dispatcher.InvokeAsync(() => ShowMessageMainThread(info));
+            return await await Application.Instance.Dispatcher.InvokeAsync(() => ShowMessageMainThread(info));
         }
     }
 

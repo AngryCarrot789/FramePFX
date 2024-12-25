@@ -48,7 +48,7 @@ public class RenameResourceCommand : AsyncCommand
                 ConfirmText = "Rename", DefaultButton = true
             };
 
-            if (await IoC.UserInputService.ShowInputDialogAsync(info) == true)
+            if (await IUserInputDialogService.Instance.ShowInputDialogAsync(info) == true)
             {
                 baseResource.DisplayName = info.Text ?? "";
             }

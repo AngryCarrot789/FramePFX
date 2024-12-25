@@ -23,7 +23,7 @@ using FramePFX.Editing.Exporting;
 
 namespace FramePFX.Avalonia.Exporting;
 
-public class ExportServiceImpl : IExportService
+public class ExportDialogServiceImpl : IExportDialogService
 {
     public Task ShowExportDialog(ExportSetup setup)
     {

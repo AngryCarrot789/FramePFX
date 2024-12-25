@@ -84,7 +84,7 @@ public class AppLogger
     /// <returns></returns>
     public Task FlushEntries()
     {
-        return IoC.Dispatcher.InvokeAsync(async () =>
+        return Application.Instance.Dispatcher.InvokeAsync(async () =>
         {
             LogEntry[] items;
             lock (this.cachedEntries)
@@ -107,7 +107,7 @@ public class AppLogger
             for (int i = ChunkSize; i < count; i += ChunkSize)
             {
                 int j = Math.Min(i + ChunkSize, count);
-                await IoC.Dispatcher.InvokeAsync(() =>
+                await Application.Instance.Dispatcher.InvokeAsync(() =>
                 {
                     this.entries.AddSpanRange(items.AsSpan().Slice(i, j - i));
                 }, DispatchPriority.INTERNAL_AfterRender);

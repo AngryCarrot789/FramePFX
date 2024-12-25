@@ -62,7 +62,7 @@ public class CreateCompositionFromSelectionCommand : AsyncCommand
 
         if (selected.Count < 1)
         {
-            await IoC.MessageService.ShowMessage("No selection", "No selected clips!");
+            await IMessageDialogService.Instance.ShowMessage("No selection", "No selected clips!");
             return;
         }
         
@@ -75,7 +75,7 @@ public class CreateCompositionFromSelectionCommand : AsyncCommand
             int index = clip.Track?.IndexInTimeline ?? -1;
             if (index == -1)
             {
-                await IoC.MessageService.ShowMessage("Error", "One or more selected clips did not have a track associated... this is a very bad bug");
+                await IMessageDialogService.Instance.ShowMessage("Error", "One or more selected clips did not have a track associated... this is a very bad bug");
                 return;
             }
 
@@ -137,7 +137,7 @@ public class CreateCompositionFromSelectionCommand : AsyncCommand
         oldTracks[0].AddClip(videoClip);
         // TODO: add audio track here
 
-        if (await IoC.MessageService.ShowMessage("Open Timeline?", "Do you want to open the composition timeline?", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+        if (await IMessageDialogService.Instance.ShowMessage("Open Timeline?", "Do you want to open the composition timeline?", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
         {
             project.ActiveTimeline = composition.Timeline;
         }

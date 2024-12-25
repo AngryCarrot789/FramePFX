@@ -49,7 +49,7 @@ public class DeleteResourcesCommand : AsyncCommand
         }
         else
         {
-            await IoC.MessageService.ShowMessage("Error", "Hmm... could not find any context to delete resources");
+            await IMessageDialogService.Instance.ShowMessage("Error", "Hmm... could not find any context to delete resources");
             return;
         }
 
@@ -76,7 +76,7 @@ public class DeleteResourcesCommand : AsyncCommand
             YesOkText = "Delete"
         };
 
-        if (await IoC.MessageService.ShowMessage(info) != MessageBoxResult.OK)
+        if (await IMessageDialogService.Instance.ShowMessage(info) != MessageBoxResult.OK)
         {
             return;
         }

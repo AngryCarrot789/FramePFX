@@ -26,7 +26,7 @@ using FramePFX.Editing.ResourceManaging.Autoloading;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Autoloading;
 
-public class ResourceLoaderServiceImpl : IResourceLoaderService
+public class ResourceLoaderDialogServiceImpl : IResourceLoaderDialogService
 {
     public async Task<bool> TryLoadResources(BaseResource[] resources)
     {

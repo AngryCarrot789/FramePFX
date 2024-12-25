@@ -81,18 +81,6 @@ public class CommandManager
         this.focusChangeRaiserRda = new RapidDispatchAction<Func<IContextData>>(this.OnFocusChange, DispatchPriority.Background);
     }
 
-    public Command Unregister(string id)
-    {
-        ValidateId(id);
-        if (this.commands.TryGetValue(id, out CommandEntry entry))
-        {
-            this.commands.Remove(id);
-            return entry.Command;
-        }
-
-        return null;
-    }
-
     /// <summary>
     /// Registers a command with the given ID
     /// </summary>
@@ -110,7 +98,7 @@ public class CommandManager
 
     private void RegisterInternal(string id, Command command)
     {
-        if (this.commands.TryGetValue(id, out CommandEntry existing))
+        if (this.commands.TryGetValue(id, out CommandEntry? existing))
         {
             throw new Exception($"a command is already registered with the ID '{id}': {existing.Command.GetType()}");
         }
@@ -121,7 +109,7 @@ public class CommandManager
     /// <summary>
     /// Gets a command with the given ID
     /// </summary>
-    public virtual Command? GetCommandById(string id)
+    public virtual Command? GetCommandById(string? id)
     {
         return !string.IsNullOrEmpty(id) && this.commands.TryGetValue(id, out CommandEntry? command) ? command.Command : null;
     }

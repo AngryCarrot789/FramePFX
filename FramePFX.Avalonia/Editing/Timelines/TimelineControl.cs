@@ -371,7 +371,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement
         this.TimelineModelChanged?.Invoke(this, oldTimeline, newTimeline);
         
         this.SetZoom(1.0);
-        IoC.Dispatcher.Invoke(this.UpdateTimelineViewportSize, DispatchPriority.Loaded);
+        Application.Instance.Dispatcher.Invoke(this.UpdateTimelineViewportSize, DispatchPriority.Loaded);
     }
 
     protected override void OnSizeChanged(SizeChangedEventArgs e)

@@ -144,7 +144,7 @@ public class VideoEditorViewPortControl : TemplatedControl
             }
         }
 
-        videoClip = default;
+        videoClip = null;
         return false;
     }
 

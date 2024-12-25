@@ -23,6 +23,7 @@ using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Clips.Core;
 using FramePFX.Editing.Timelines.Effects;
 using FramePFX.Interactivity;
+using FramePFX.Services.Messaging;
 using FramePFX.Utils;
 
 namespace FramePFX.Editing.Timelines;
@@ -46,13 +47,13 @@ public static class ClipDropRegistry
             }
             catch (Exception e)
             {
-                await IoC.MessageService.ShowMessage("Error", "Failed to create effect from the dropped effect", e.GetToString());
+                await IMessageDialogService.Instance.ShowMessage("Error", "Failed to create effect from the dropped effect", e.GetToString());
                 return;
             }
 
             if (!effect.IsObjectValidForOwner(clip))
             {
-                await IoC.MessageService.ShowMessage("Error", "This effect is not allowed to be placed in this clip");
+                await IMessageDialogService.Instance.ShowMessage("Error", "This effect is not allowed to be placed in this clip");
                 return;
             }
 
@@ -80,7 +81,7 @@ public static class ClipDropRegistry
             if (h.HasReachedResourceLimit())
             {
                 int count = h.ResourceLinkLimit;
-                await IoC.MessageService.ShowMessage("Resource Limit", $"At the moment, composition timelines cannot be used by more than {count} clip{Lang.S(count)}");
+                await IMessageDialogService.Instance.ShowMessage("Resource Limit", $"At the moment, composition timelines cannot be used by more than {count} clip{Lang.S(count)}");
                 return;
             }
             

@@ -32,6 +32,7 @@ using FramePFX.Editing.ResourceManaging.Events;
 using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Services.Messaging;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 
@@ -269,7 +270,7 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
                 // Dropped non-resources into this node
                 if (!await ResourceDropRegistry.OnDropNativeTypeIntoTreeOrNode(this, null, new DataObjectWrapper(e.Data), DataManager.GetFullContextData(this), dropType))
                 {
-                    await IoC.MessageService.ShowMessage("Unknown Data", "Unknown dropped item. Drop files here");
+                    await IMessageDialogService.Instance.ShowMessage("Unknown Data", "Unknown dropped item. Drop files here");
                 }
 
                 return;

@@ -100,7 +100,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI
         DataManager.SetContextData(this, this.contextData.Set(DataKeys.TopLevelHostKey, this).Set(DataKeys.VideoEditorUIKey, this));
         DataManager.SetContextData(this.PART_TimelinePresenterGroupBox, this.timelineGroupBoxContextData = new ContextData().Set(DataKeys.TimelineUIKey, this.TheTimeline));
 
-        TaskManager taskManager = IoC.TaskManager;
+        TaskManager taskManager = TaskManager.Instance;
         taskManager.TaskStarted += this.OnTaskStarted;
         taskManager.TaskCompleted += this.OnTaskCompleted;
     }
@@ -226,7 +226,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI
 
         VideoEditorPropertyEditorHelper.OnProjectChanged();
 
-        IoC.Dispatcher.InvokeAsync(() =>
+        Application.Instance.Dispatcher.InvokeAsync(() =>
         {
             this.PART_ViewPort?.PART_FreeMoveViewPort?.FitContentToCenter();
         }, DispatchPriority.Background);
@@ -349,7 +349,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI
         if (this.primaryActivity != null)
         {
             prog = this.primaryActivity.Progress;
-            prog.CurrentActionChanged -= this.OnPrimaryActivityCurrentActionChanged;
+            prog.TextChanged -= this.OnPrimaryActivityTextChanged;
             prog.CompletionState.CompletionValueChanged -= this.OnPrimaryActionCompletionValueChanged;
             prog.IsIndeterminateChanged -= this.OnPrimaryActivityIndeterminateChanged;
             prog = null;
@@ -359,7 +359,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI
         if (task != null)
         {
             prog = task.Progress;
-            prog.CurrentActionChanged += this.OnPrimaryActivityCurrentActionChanged;
+            prog.TextChanged += this.OnPrimaryActivityTextChanged;
             prog.CompletionState.CompletionValueChanged += this.OnPrimaryActionCompletionValueChanged;
             prog.IsIndeterminateChanged += this.OnPrimaryActivityIndeterminateChanged;
             this.PART_ActiveBackgroundTaskGrid.IsVisible = true;
@@ -369,24 +369,24 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI
             this.PART_ActiveBackgroundTaskGrid.IsVisible = false;
         }
 
-        this.OnPrimaryActivityCurrentActionChanged(prog);
+        this.OnPrimaryActivityTextChanged(prog);
         this.OnPrimaryActionCompletionValueChanged(prog?.CompletionState);
         this.OnPrimaryActivityIndeterminateChanged(prog);
     }
 
-    private void OnPrimaryActivityCurrentActionChanged(IActivityProgress? tracker)
+    private void OnPrimaryActivityTextChanged(IActivityProgress? tracker)
     {
-        IoC.Dispatcher.Invoke(() => this.PART_TaskCaption.Text = tracker?.CurrentAction ?? "", DispatchPriority.Loaded);
+        Application.Instance.Dispatcher.Invoke(() => this.PART_TaskCaption.Text = tracker?.Text ?? "", DispatchPriority.Loaded);
     }
 
     private void OnPrimaryActionCompletionValueChanged(CompletionState? state)
     {
-        IoC.Dispatcher.Invoke(() => this.PART_ActiveBgProgress.Value = state?.TotalCompletion ?? 0.0, DispatchPriority.Loaded);
+        Application.Instance.Dispatcher.Invoke(() => this.PART_ActiveBgProgress.Value = state?.TotalCompletion ?? 0.0, DispatchPriority.Loaded);
     }
 
     private void OnPrimaryActivityIndeterminateChanged(IActivityProgress? tracker)
     {
-        IoC.Dispatcher.Invoke(() => this.PART_ActiveBgProgress.IsIndeterminate = tracker?.IsIndeterminate ?? false, DispatchPriority.Loaded);
+        Application.Instance.Dispatcher.Invoke(() => this.PART_ActiveBgProgress.IsIndeterminate = tracker?.IsIndeterminate ?? false, DispatchPriority.Loaded);
     }
 
     #endregion
@@ -401,6 +401,6 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI
     
     public void CenterViewPort()
     {
-        IoC.Dispatcher.InvokeAsync(() => this.PART_ViewPort?.PART_FreeMoveViewPort?.FitContentToCenter(), DispatchPriority.Background);
+        Application.Instance.Dispatcher.InvokeAsync(() => this.PART_ViewPort?.PART_FreeMoveViewPort?.FitContentToCenter(), DispatchPriority.Background);
     }
 }

@@ -23,24 +23,20 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Configurations.Commands;
 
-public class OpenProjectSettingsCommand : AsyncCommand
-{
-    protected override Executability CanExecuteOverride(CommandEventArgs e)
-    {
+public class OpenProjectSettingsCommand : AsyncCommand {
+    protected override Executability CanExecuteOverride(CommandEventArgs e) {
         if (!DataKeys.VideoEditorUIKey.TryGetContext(e.ContextData, out IVideoEditorUI? editor))
             return Executability.Invalid;
-        
+
         return editor.VideoEditor.Project != null ? Executability.Valid : Executability.ValidButCannotExecute;
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e)
-    {
+    protected override async Task ExecuteAsync(CommandEventArgs e) {
         if (!DataKeys.VideoEditorUIKey.TryGetContext(e.ContextData, out IVideoEditorUI? editorUI))
             return;
 
         ProjectConfigurationManager? config = editorUI.ActiveProjectConfigurationManager;
-        if (config != null)
-        {
+        if (config != null) {
             await IConfigurationDialogService.Instance.ShowConfigurationDialog(config);
             editorUI.TimelineElement.Timeline!.InvalidateRender();
         }

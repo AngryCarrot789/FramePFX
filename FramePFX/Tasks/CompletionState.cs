@@ -28,8 +28,7 @@ public delegate void TotalCompletionChangedEventHandler(CompletionState state);
 /// <summary>
 /// Represents the state of a completable action
 /// </summary>
-public abstract class CompletionState
-{
+public abstract class CompletionState {
     private readonly Stack<CompletionRange> ranges;
     private double totalMultiplier;
 
@@ -40,8 +39,7 @@ public abstract class CompletionState
 
     public event TotalCompletionChangedEventHandler? CompletionValueChanged;
 
-    protected CompletionState()
-    {
+    protected CompletionState() {
         this.ranges = new Stack<CompletionRange>();
         this.totalMultiplier = 1.0;
     }
@@ -49,8 +47,7 @@ public abstract class CompletionState
     /// <summary>
     /// Raises the <see cref="CompletionValueChanged"/> event
     /// </summary>
-    protected virtual void OnCompletionValueChanged()
-    {
+    protected virtual void OnCompletionValueChanged() {
         this.CompletionValueChanged?.Invoke(this);
     }
 
@@ -78,8 +75,7 @@ public abstract class CompletionState
     /// This struct can be used in a using statement, where the 'operation' is inside the using block, for convenience
     /// and clean code sakes. The struct does not need to be used; <see cref="PopCompletionRange"/> can be called manually
     /// </returns>
-    public PopCompletionStateRangeToken PushCompletionRange(double min, double max, bool fillRemainingOnCompleted = true)
-    {
+    public PopCompletionStateRangeToken PushCompletionRange(double min, double max, bool fillRemainingOnCompleted = true) {
         CompletionRange range = new CompletionRange(max - min, this.totalMultiplier, this.TotalCompletion);
         this.totalMultiplier *= range.Range;
         this.ranges.Push(range);
@@ -93,15 +89,14 @@ public abstract class CompletionState
     /// Sets the current progress to 1.0 for the current stack before popping the top range.
     /// This is to ensure the progression is complete is someone forgets to update the progress
     /// </param>
-    public void PopCompletionRange(bool fillRemainingOnCompleted = true)
-    {
+    public void PopCompletionRange(bool fillRemainingOnCompleted = true) {
         if (this.ranges.Count < 1)
             throw new InvalidOperationException("Too many completion ranges popped: the stack is empty!");
 
         // Just set the progress to 100%
         if (fillRemainingOnCompleted)
             this.TotalCompletion = this.ranges.Peek().PreviousTotalCompletion + this.totalMultiplier;
-        
+
         CompletionRange popped = this.ranges.Pop();
         this.totalMultiplier = popped.PreviousMultiplier;
     }
@@ -112,14 +107,11 @@ public abstract class CompletionState
     /// adding the value to <see cref="TotalCompletion"/> directly
     /// </summary>
     /// <param name="value">The value to append (multiplied based on the current ranges on the stack)</param>
-    public void OnProgress(double value)
-    {
-        if (this.ranges.Count > 0)
-        {
+    public void OnProgress(double value) {
+        if (this.ranges.Count > 0) {
             this.TotalCompletion += this.totalMultiplier * value;
         }
-        else
-        {
+        else {
             // assert totalMultiplier == 1.0
             this.TotalCompletion += value;
         }
@@ -131,24 +123,19 @@ public abstract class CompletionState
     /// <see cref="TotalCompletion"/> is set directly
     /// </summary>
     /// <param name="value">The value to append (multiplied based on the current ranges on the stack)</param>
-    public void SetProgress(double value)
-    {
-        if (this.ranges.TryPeek(out CompletionRange top))
-        {
+    public void SetProgress(double value) {
+        if (this.ranges.TryPeek(out CompletionRange top)) {
             this.TotalCompletion = top.PreviousTotalCompletion + (this.totalMultiplier * value);
         }
-        else
-        {
+        else {
             // assert totalMultiplier == 1.0
             this.TotalCompletion = value;
         }
     }
-    
-    public static void TestCompletionRangeFunctionality()
-    {
+
+    public static void TestCompletionRangeFunctionality() {
         SimpleCompletionState tracker = new SimpleCompletionState();
-        using (tracker.PushCompletionRange(0.0, 0.5))
-        {
+        using (tracker.PushCompletionRange(0.0, 0.5)) {
             // Begin: CloseActive
             // parent range = 0.5, so 0.5 * 0.25 = 0.125.
             // TotalCompletion = 0.0 + 0.125
@@ -160,16 +147,13 @@ public abstract class CompletionState
             // End: CloseActive
         }
 
-        using (tracker.PushCompletionRange(0.5, 1.0))
-        {
+        using (tracker.PushCompletionRange(0.5, 1.0)) {
             // Begin: OpenProject
 
-            using (tracker.PushCompletionRange(0.0, 0.25))
-            {
+            using (tracker.PushCompletionRange(0.0, 0.25)) {
                 // Begin: PreLoad
 
-                using (tracker.PushCompletionRange(0.0, 0.1))
-                {
+                using (tracker.PushCompletionRange(0.0, 0.1)) {
                     // Begin: ProcessPreLoad
                     tracker.SetProgress(0.7);
                     tracker.SetProgress(0.8);
@@ -184,16 +168,14 @@ public abstract class CompletionState
                 // End: PreLoad
             }
 
-            using (tracker.PushCompletionRange(0.25, 0.5))
-            {
+            using (tracker.PushCompletionRange(0.25, 0.5)) {
                 // Begin: PostLoad
                 tracker.OnProgress(0.2);
                 tracker.OnProgress(0.8);
                 // End: PostLoad
             }
 
-            using (tracker.PushCompletionRange(0.5, 1.0))
-            {
+            using (tracker.PushCompletionRange(0.5, 1.0)) {
                 // Begin: PostLoad
                 tracker.OnProgress(0.3);
                 tracker.OnProgress(0.6);
@@ -204,18 +186,15 @@ public abstract class CompletionState
             // End: OpenProject
         }
 
-        if (!DoubleUtils.AreClose(tracker.TotalCompletion, 1.0))
-        {
+        if (!DoubleUtils.AreClose(tracker.TotalCompletion, 1.0)) {
             Debugger.Break(); // test failed
             throw new Exception("Test failed. Completion ranges do not function as expected");
         }
     }
 }
 
-public sealed class EmptyCompletionState : CompletionState
-{
-    public override double TotalCompletion
-    {
+public sealed class EmptyCompletionState : CompletionState {
+    public override double TotalCompletion {
         get => 0.0;
         set { }
     }
@@ -225,24 +204,20 @@ public sealed class EmptyCompletionState : CompletionState
 /// A completion state that supports changing the completion value from any thread,
 /// and raises the <see cref="CompletionState.CompletionValueChanged"/> event only on the main thread
 /// </summary>
-public sealed class ConcurrentCompletionState : CompletionState
-{
+public sealed class ConcurrentCompletionState : CompletionState {
     private readonly RapidDispatchActionEx updateCompletionValue;
     private double myCompletion;
 
-    public override double TotalCompletion
-    {
+    public override double TotalCompletion {
         get => this.myCompletion;
-        set
-        {
+        set {
             double previous = Interlocked.Exchange(ref this.myCompletion, value);
             if (!DoubleUtils.AreClose(previous, value))
                 this.updateCompletionValue?.InvokeAsync();
         }
     }
 
-    public ConcurrentCompletionState(DispatchPriority priority)
-    {
+    public ConcurrentCompletionState(DispatchPriority priority) {
         this.updateCompletionValue = RapidDispatchActionEx.ForSync(this.OnCompletionValueChanged, priority);
     }
 }
@@ -250,18 +225,15 @@ public sealed class ConcurrentCompletionState : CompletionState
 /// <summary>
 /// A simple implementation of <see cref="CompletionState"/>
 /// </summary>
-public sealed class SimpleCompletionState : CompletionState
-{
+public sealed class SimpleCompletionState : CompletionState {
     private double myCompletion;
 
-    public override double TotalCompletion
-    {
+    public override double TotalCompletion {
         get => this.myCompletion;
-        set
-        {
+        set {
             if (DoubleUtils.AreClose(this.myCompletion, value))
                 return;
-            
+
             this.myCompletion = value;
             this.OnCompletionValueChanged();
         }
@@ -272,19 +244,16 @@ public sealed class SimpleCompletionState : CompletionState
 /// A struct used to automatically pop a completion range from a tracker, to make the code easier to
 /// #read. This can only pop once, then calling Dispose again does nothing
 /// </summary>
-public struct PopCompletionStateRangeToken : IDisposable
-{
+public struct PopCompletionStateRangeToken : IDisposable {
     private CompletionState? state;
     private readonly bool fillRemainingOnCompleted;
 
-    public PopCompletionStateRangeToken(CompletionState state, bool fillRemainingOnCompleted)
-    {
+    public PopCompletionStateRangeToken(CompletionState state, bool fillRemainingOnCompleted) {
         this.state = state;
         this.fillRemainingOnCompleted = fillRemainingOnCompleted;
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         CompletionState? t = this.state;
         this.state = null;
         t?.PopCompletionRange(this.fillRemainingOnCompleted);

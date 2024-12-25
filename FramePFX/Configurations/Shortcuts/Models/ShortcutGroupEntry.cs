@@ -22,35 +22,29 @@ using FramePFX.Shortcuts;
 
 namespace FramePFX.Configurations.Shortcuts.Models;
 
-public class ShortcutGroupEntry : BaseShortcutEntry
-{
+public class ShortcutGroupEntry : BaseShortcutEntry {
     public new GroupedShortcut GroupedObject => (GroupedShortcut) base.GroupedObject;
-    
+
     public ShortcutEditorConfigurationPage ConfigurationPage { get; }
-    
+
     public ImmutableList<BaseShortcutEntry> Items { get; }
 
-    public ShortcutGroupEntry(ShortcutEditorConfigurationPage configurationPage, ShortcutGroupEntry? parentEntry, ShortcutGroup group) : base(parentEntry, group)
-    {
+    public ShortcutGroupEntry(ShortcutEditorConfigurationPage configurationPage, ShortcutGroupEntry? parentEntry, ShortcutGroup group) : base(parentEntry, group) {
         this.ConfigurationPage = configurationPage;
         List<BaseShortcutEntry> entries = new List<BaseShortcutEntry>();
-        foreach (ShortcutGroup g in group.Groups)
-        {
+        foreach (ShortcutGroup g in group.Groups) {
             entries.Add(new ShortcutGroupEntry(configurationPage, this, g));
         }
-        
-        foreach (GroupedShortcut s in group.Shortcuts)
-        {
+
+        foreach (GroupedShortcut s in group.Shortcuts) {
             entries.Add(new ShortcutEntry(this, s));
         }
-        
+
         this.Items = entries.ToImmutableList();
     }
 
-    public override void ResetHierarchy()
-    {
-        foreach (BaseShortcutEntry item in this.Items)
-        {
+    public override void ResetHierarchy() {
+        foreach (BaseShortcutEntry item in this.Items) {
             item.ResetHierarchy();
         }
     }

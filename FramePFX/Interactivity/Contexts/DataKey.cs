@@ -23,8 +23,7 @@ using FramePFX.Utils;
 
 namespace FramePFX.Interactivity.Contexts;
 
-public abstract class DataKey
-{
+public abstract class DataKey {
     private static readonly Dictionary<string, DataKey> Registry;
 
     /// <summary>
@@ -32,53 +31,44 @@ public abstract class DataKey
     /// </summary>
     public string Id { get; }
 
-    protected DataKey(string id)
-    {
+    protected DataKey(string id) {
         if (string.IsNullOrWhiteSpace(id))
             throw new ArgumentException("ID cannot be null, empty or consist of only whitespaces");
         this.Id = id;
     }
 
-    static DataKey()
-    {
+    static DataKey() {
         Registry = new Dictionary<string, DataKey>();
     }
 
-    public static DataKey? GetKeyById(string id)
-    {
+    public static DataKey? GetKeyById(string id) {
         lock (Registry)
             return Registry.GetValueOrDefault(id);
     }
 
-    protected static void RegisterInternal(string id, DataKey key)
-    {
+    protected static void RegisterInternal(string id, DataKey key) {
         if (ReferenceEquals(key, null))
             throw new ArgumentNullException(nameof(key));
         ArgumentNullException.ThrowIfNull(id);
-        lock (Registry)
-        {
+        lock (Registry) {
             if (!Registry.TryAdd(id, key))
-                throw new InvalidOperationException("ID already in use: " + id);   
+                throw new InvalidOperationException("ID already in use: " + id);
         }
     }
 
-    public static bool operator ==(DataKey a, DataKey b)
-    {
+    public static bool operator ==(DataKey a, DataKey b) {
         return ReferenceEquals(a, b) || !ReferenceEquals(a, null) && !ReferenceEquals(b, null) && a.Equals(b);
     }
 
-    public static bool operator !=(DataKey a, DataKey b)
-    {
+    public static bool operator !=(DataKey a, DataKey b) {
         return !ReferenceEquals(a, b) && (ReferenceEquals(a, null) || ReferenceEquals(b, null) || !a.Equals(b));
     }
 
-    protected bool Equals(DataKey other)
-    {
+    protected bool Equals(DataKey other) {
         return this.Id == other.Id;
     }
 
-    public override bool Equals(object? obj)
-    {
+    public override bool Equals(object? obj) {
         if (ReferenceEquals(null, obj))
             return false;
         if (ReferenceEquals(this, obj))
@@ -91,12 +81,10 @@ public abstract class DataKey
     public override string ToString() => $"DataKey(\"{this.Id}\")";
 }
 
-public sealed class DataKey<T> : DataKey
-{
+public sealed class DataKey<T> : DataKey {
     private DataKey(string id) : base(id) { }
 
-    public static DataKey<T> Create(string id)
-    {
+    public static DataKey<T> Create(string id) {
         DataKey<T> key = new DataKey<T>(id);
         RegisterInternal(id, key);
         return key;
@@ -106,23 +94,19 @@ public sealed class DataKey<T> : DataKey
 
     public Executability GetExecutabilityForPresence(IContextData contextData) => this.IsPresent(contextData) ? Executability.Valid : Executability.Invalid;
 
-    public bool TryGetContext(IContextData context, [NotNullWhen(true)] out T? value)
-    {
+    public bool TryGetContext(IContextData context, [NotNullWhen(true)] out T? value) {
         Validate.NotNull(context);
-        if (context.TryGetContext(this.Id, out object? obj))
-        {
+        if (context.TryGetContext(this.Id, out object? obj)) {
             value = obj is T t ? t : throw new Exception($"Context contained an invalid value for this key: type mismatch ({typeof(T)} != {obj.GetType()})");
             return true;
         }
-        else
-        {
+        else {
             value = default!;
             return false;
         }
     }
 
-    public T? GetContext(IContextData context, T? def = default)
-    {
+    public T? GetContext(IContextData context, T? def = default) {
         return this.TryGetContext(context, out T? value) ? value : def;
     }
 }

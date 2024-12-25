@@ -23,8 +23,7 @@ namespace FramePFX.Interactivity;
 /// An enum for the type of cursor used in a cursor interaction event
 /// </summary>
 [Flags]
-public enum EnumCursorType
-{
+public enum EnumCursorType {
     /// <summary>
     /// No cursor was involved, e.g. the user just moved their mouse without any buttons pressed
     /// </summary>

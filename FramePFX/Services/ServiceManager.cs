@@ -23,8 +23,7 @@ using FramePFX.Utils;
 
 namespace FramePFX.Services;
 
-public sealed class ServiceManager
-{
+public sealed class ServiceManager {
     private readonly Dictionary<Type, ServiceEntry> services;
 
     /// <summary>
@@ -32,8 +31,7 @@ public sealed class ServiceManager
     /// </summary>
     public object Owner { get; }
 
-    public ServiceManager(object owner)
-    {
+    public ServiceManager(object owner) {
         this.services = new Dictionary<Type, ServiceEntry>();
         this.Owner = owner;
     }
@@ -47,8 +45,7 @@ public sealed class ServiceManager
     /// check if the service is lazily creatable but not yet created
     /// </param>
     /// <returns>See summary</returns>
-    public bool HasService(Type serviceType, bool createdOnly = false)
-    {
+    public bool HasService(Type serviceType, bool createdOnly = false) {
         Validate.NotNull(serviceType);
         return createdOnly ? this.TryGetService(serviceType, out _, false) : this.services.ContainsKey(serviceType);
     }
@@ -58,8 +55,7 @@ public sealed class ServiceManager
     /// </summary>
     /// <param name="serviceType">The service type</param>
     /// <returns></returns>
-    public object GetService(Type serviceType)
-    {
+    public object GetService(Type serviceType) {
         Validate.NotNull(serviceType);
         if (!this.TryGetService(serviceType, out object? service))
             throw new Exception($"No service registered with type: {serviceType}");
@@ -74,23 +70,19 @@ public sealed class ServiceManager
     /// <param name="service"></param>
     /// <param name="canCreate"></param>
     /// <returns></returns>
-    public bool TryGetService(Type serviceType, [NotNullWhen(true)] out object? service, bool canCreate = true)
-    {
+    public bool TryGetService(Type serviceType, [NotNullWhen(true)] out object? service, bool canCreate = true) {
         Validate.NotNull(serviceType);
-        if (!this.services.TryGetValue(serviceType, out ServiceEntry entry))
-        {
+        if (!this.services.TryGetValue(serviceType, out ServiceEntry entry)) {
             service = null;
             return false;
         }
 
-        if (entry.isLazyEntry)
-        {
+        if (entry.isLazyEntry) {
             service = ((Func<object, object>) entry.value)(this.Owner);
             Debug.Assert(serviceType.IsInstanceOfType(service), "New service instance is incompatible with target type");
             this.services[serviceType] = new ServiceEntry(false, service);
         }
-        else
-        {
+        else {
             service = entry.value;
         }
 
@@ -119,10 +111,8 @@ public sealed class ServiceManager
     /// <param name="canCreate">True to create the service if it is lazy initialisable</param>
     /// <typeparam name="T">The service type</typeparam>
     /// <returns>True if the service was found or created, false if not</returns>
-    public bool TryGetService<T>([NotNullWhen(true)] out T? service, bool canCreate = true) where T : class
-    {
-        if (this.TryGetService(typeof(T), out object? serviceObject, canCreate))
-        {
+    public bool TryGetService<T>([NotNullWhen(true)] out T? service, bool canCreate = true) where T : class {
+        if (this.TryGetService(typeof(T), out object? serviceObject, canCreate)) {
             service = (T) serviceObject;
             return true;
         }
@@ -136,8 +126,7 @@ public sealed class ServiceManager
     /// </summary>
     /// <param name="service">The service</param>
     /// <typeparam name="T">The service type</typeparam>
-    public void RegisterConstant<T>(T service) where T : class
-    {
+    public void RegisterConstant<T>(T service) where T : class {
         Validate.NotNull(service);
 
         this.services[typeof(T)] = new ServiceEntry(false, service);
@@ -150,8 +139,7 @@ public sealed class ServiceManager
     /// <param name="service">The service</param>
     /// <exception cref="ArgumentNullException">Service or service type are null</exception>
     /// <exception cref="ArgumentException">Service is not assignable to the service type</exception>
-    public void RegisterConstant(Type serviceType, object service)
-    {
+    public void RegisterConstant(Type serviceType, object service) {
         Validate.NotNull(serviceType);
         Validate.NotNull(service);
         if (!serviceType.IsInstanceOfType(service))
@@ -165,19 +153,16 @@ public sealed class ServiceManager
     /// </summary>
     /// <param name="factory"></param>
     /// <typeparam name="T"></typeparam>
-    public void RegisterLazy<T>(Func<object, T> factory) where T : class
-    {
+    public void RegisterLazy<T>(Func<object, T> factory) where T : class {
         Validate.NotNull(factory);
         this.services[typeof(T)] = new ServiceEntry(true, new Func<object, object>(o => factory(o)!));
     }
 
-    private readonly struct ServiceEntry
-    {
+    private readonly struct ServiceEntry {
         public readonly bool isLazyEntry;
         public readonly object value;
 
-        public ServiceEntry(bool isLazyEntry, object value)
-        {
+        public ServiceEntry(bool isLazyEntry, object value) {
             this.isLazyEntry = isLazyEntry;
             this.value = value;
         }

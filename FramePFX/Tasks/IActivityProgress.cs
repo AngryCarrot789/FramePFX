@@ -24,8 +24,7 @@ public delegate void ActivityProgressEventHandler(IActivityProgress tracker);
 /// <summary>
 /// An interface for an object used to track progression of an activity
 /// </summary>
-public interface IActivityProgress
-{
+public interface IActivityProgress {
     /// <summary>
     /// Gets or sets if this tracker's completions state is indeterminate
     /// </summary>

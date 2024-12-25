@@ -24,8 +24,7 @@ namespace FramePFX.Shortcuts;
 /// <summary>
 /// An input state has a property called <see cref="IsActive"/> which can be activated, deactivated or toggled by the user
 /// </summary>
-public class GroupedInputState : IGroupedObject
-{
+public class GroupedInputState : IGroupedObject {
     private IInputStroke activationStroke;
     private IInputStroke deactivationStroke;
     private bool? isPressAndRelease;
@@ -53,11 +52,9 @@ public class GroupedInputState : IGroupedObject
     /// The input stroke that activates this key state (as in, sets <see cref="IsActive"/> to true)
     /// </summary>
     /// <exception cref="ArgumentNullException">Value cannot be null</exception>
-    public IInputStroke ActivationStroke
-    {
+    public IInputStroke ActivationStroke {
         get => this.activationStroke;
-        set
-        {
+        set {
             this.activationStroke = value ?? throw new ArgumentNullException(nameof(value), "Activation stroke cannot be null");
             this.isPressAndRelease = null;
         }
@@ -67,11 +64,9 @@ public class GroupedInputState : IGroupedObject
     /// The input stroke that deactivates this key state (as in, sets <see cref="IsActive"/> to false)
     /// </summary>
     /// <exception cref="ArgumentNullException">Value cannot be null</exception>
-    public IInputStroke DeactivationStroke
-    {
+    public IInputStroke DeactivationStroke {
         get => this.deactivationStroke;
-        set
-        {
+        set {
             this.deactivationStroke = value ?? throw new ArgumentNullException(nameof(value), "Activation stroke cannot be null");
             this.isPressAndRelease = null;
         }
@@ -82,18 +77,13 @@ public class GroupedInputState : IGroupedObject
     /// pressed then released. This is a special case used by the <see cref="InputStateManager"/>
     /// </summary>
     /// <value>See above</value>
-    public bool IsInputPressAndRelease
-    {
-        get
-        {
-            if (!this.isPressAndRelease.HasValue)
-            {
-                if (this.activationStroke is KeyStroke a && this.deactivationStroke is KeyStroke b)
-                {
+    public bool IsInputPressAndRelease {
+        get {
+            if (!this.isPressAndRelease.HasValue) {
+                if (this.activationStroke is KeyStroke a && this.deactivationStroke is KeyStroke b) {
                     this.isPressAndRelease = a.EqualsExceptRelease(b);
                 }
-                else
-                {
+                else {
                     this.isPressAndRelease = false;
                 }
             }
@@ -105,18 +95,15 @@ public class GroupedInputState : IGroupedObject
     /// <summary>
     /// Whether this input state's activation and deactivation stroke are equal, meaning it behaves like a toggle state
     /// </summary>
-    public bool IsUsingToggleBehaviour
-    {
-        get
-        {
+    public bool IsUsingToggleBehaviour {
+        get {
             if (!this.isToggleBehaviour.HasValue)
                 this.isToggleBehaviour = this.activationStroke.Equals(this.deactivationStroke);
             return this.isToggleBehaviour.Value;
         }
     }
 
-    public GroupedInputState(ShortcutGroup group, string name, IInputStroke activationStroke, IInputStroke deactivationStroke)
-    {
+    public GroupedInputState(ShortcutGroup group, string name, IInputStroke activationStroke, IInputStroke deactivationStroke) {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Name cannot be null, empty, or consist of only whitespaces");
         this.Parent = group ?? throw new ArgumentNullException(nameof(group), "Collection cannot be null");
@@ -131,10 +118,8 @@ public class GroupedInputState : IGroupedObject
     /// </summary>
     /// <param name="shortcutProcessor"></param>
     /// <returns>A task to await for activation</returns>
-    public void OnActivated(ShortcutInputProcessor inputProcessor)
-    {
-        if (this.IsActive)
-        {
+    public void OnActivated(ShortcutInputProcessor inputProcessor) {
+        if (this.IsActive) {
             throw new Exception("Already active; cannot activate again");
         }
 
@@ -147,10 +132,8 @@ public class GroupedInputState : IGroupedObject
     /// </summary>
     /// <param name="shortcutProcessor"></param>
     /// <returns>A task to await for activation</returns>
-    public void OnDeactivated(ShortcutInputProcessor inputProcessor)
-    {
-        if (!this.IsActive)
-        {
+    public void OnDeactivated(ShortcutInputProcessor inputProcessor) {
+        if (!this.IsActive) {
             throw new Exception("Not active; cannot deactivate again");
         }
 
@@ -158,8 +141,7 @@ public class GroupedInputState : IGroupedObject
         inputProcessor.OnInputStateDeactivated(this);
     }
 
-    public override string ToString()
-    {
+    public override string ToString() {
         return $"{nameof(GroupedInputState)} ({this.FullPath}: {(this.IsActive ? "pressed" : "released")} [{this.activationStroke}, {this.deactivationStroke}])";
     }
 }

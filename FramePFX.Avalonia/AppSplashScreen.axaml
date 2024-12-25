@@ -16,7 +16,7 @@
         BorderThickness="3"
         FontFamily="{StaticResource FontOxanium}">
     <Grid>
-        
+
         <TextBlock Text="FramePFX v2.0.1" FontFamily="{StaticResource FontOxanium}" FontWeight="DemiBold" FontSize="64" VerticalAlignment="Top" TextAlignment="Center" Margin="0,12"/>
         <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
             <TextBlock x:Name="PART_ActivityTextBlock" Text="test11" Padding="10" FontSize="12"/>

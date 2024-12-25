@@ -24,10 +24,8 @@ using FramePFX.Services.UserInputs;
 
 namespace FramePFX.Editing.ResourceManaging.Commands;
 
-public class RenameResourceCommand : AsyncCommand
-{
-    protected override Executability CanExecuteOverride(CommandEventArgs e)
-    {
+public class RenameResourceCommand : AsyncCommand {
+    protected override Executability CanExecuteOverride(CommandEventArgs e) {
         if (DataKeys.ResourceNodeUIKey.IsPresent(e.ContextData))
             return Executability.Valid;
         if (DataKeys.ResourceObjectKey.IsPresent(e.ContextData))
@@ -35,21 +33,16 @@ public class RenameResourceCommand : AsyncCommand
         return Executability.Invalid;
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e)
-    {
-        if (DataKeys.ResourceNodeUIKey.TryGetContext(e.ContextData, out IResourceTreeNodeElement? resource))
-        {
+    protected override async Task ExecuteAsync(CommandEventArgs e) {
+        if (DataKeys.ResourceNodeUIKey.TryGetContext(e.ContextData, out IResourceTreeNodeElement? resource)) {
             resource.EditNameState = true;
         }
-        else if (DataKeys.ResourceObjectKey.TryGetContext(e.ContextData, out BaseResource? baseResource))
-        {
-            SingleUserInputInfo info = new SingleUserInputInfo("Rename resource", "Resource name", baseResource.DisplayName)
-            {
+        else if (DataKeys.ResourceObjectKey.TryGetContext(e.ContextData, out BaseResource? baseResource)) {
+            SingleUserInputInfo info = new SingleUserInputInfo("Rename resource", "Resource name", baseResource.DisplayName) {
                 ConfirmText = "Rename", DefaultButton = true
             };
 
-            if (await IUserInputDialogService.Instance.ShowInputDialogAsync(info) == true)
-            {
+            if (await IUserInputDialogService.Instance.ShowInputDialogAsync(info) == true) {
                 baseResource.DisplayName = info.Text ?? "";
             }
         }

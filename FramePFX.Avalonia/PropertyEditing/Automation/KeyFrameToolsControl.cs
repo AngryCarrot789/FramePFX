@@ -37,12 +37,10 @@ namespace FramePFX.Avalonia.PropertyEditing.Automation;
 [TemplatePart(Name = "PART_ToggleOverride", Type = typeof(ToggleButton))]
 [TemplatePart(Name = "PART_InsertKeyFrame", Type = typeof(Button))]
 [TemplatePart(Name = "PART_ResetValue", Type = typeof(Button))]
-public class KeyFrameToolsControl : TemplatedControl
-{
+public class KeyFrameToolsControl : TemplatedControl {
     public static readonly StyledProperty<AutomationSequence?> AutomationSequenceProperty = AvaloniaProperty.Register<KeyFrameToolsControl, AutomationSequence?>(nameof(AutomationSequence));
 
-    public AutomationSequence? AutomationSequence
-    {
+    public AutomationSequence? AutomationSequence {
         get => this.GetValue(AutomationSequenceProperty);
         set => this.SetValue(AutomationSequenceProperty, value);
     }
@@ -59,29 +57,24 @@ public class KeyFrameToolsControl : TemplatedControl
     public KeyFrameToolsControl() {
     }
 
-    static KeyFrameToolsControl()
-    {
+    static KeyFrameToolsControl() {
         AutomationSequenceProperty.Changed.AddClassHandler<KeyFrameToolsControl, AutomationSequence?>((d, e) => d.OnAutomationSequenceChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }
 
-    private void OnAutomationSequenceChanged(AutomationSequence? oldValue, AutomationSequence? newValue)
-    {
-        if (oldValue != null)
-        {
+    private void OnAutomationSequenceChanged(AutomationSequence? oldValue, AutomationSequence? newValue) {
+        if (oldValue != null) {
             oldValue.OverrideStateChanged -= this.OnOverrideStateChanged;
 
             this.strictFrameRange = null;
             IAutomatable oldOwner = oldValue.AutomationData.Owner;
             oldOwner.TimelineChanged -= this.OnClipTimelineChanged;
-            if (this.attachedClip != null)
-            {
+            if (this.attachedClip != null) {
                 this.attachedClip.FrameSpanChanged -= this.OnOwnerClipFrameSpanChanged;
                 this.attachedClip = null;
             }
         }
 
-        if (newValue != null)
-        {
+        if (newValue != null) {
             newValue.OverrideStateChanged += this.OnOverrideStateChanged;
             IAutomatable newOwner = newValue.AutomationData.Owner;
             this.strictFrameRange = newOwner as IStrictFrameRange;
@@ -95,14 +88,12 @@ public class KeyFrameToolsControl : TemplatedControl
             if (timeline != null)
                 this.OnClipTimelineChanged(newOwner, null, timeline);
         }
-        else
-        {
+        else {
             this.UpdateInsertKeyFrame(null);
         }
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.PART_ToggleOverride = e.NameScope.GetTemplateChild<ToggleButton>(nameof(this.PART_ToggleOverride));
         this.PART_InsertKeyFrame = e.NameScope.GetTemplateChild<Button>(nameof(this.PART_InsertKeyFrame));
@@ -113,30 +104,24 @@ public class KeyFrameToolsControl : TemplatedControl
         this.PART_ResetValue.Click += this.OnResetValueClicked;
     }
 
-    private void OnToggleOverrideChanged(object? sender, RoutedEventArgs e)
-    {
+    private void OnToggleOverrideChanged(object? sender, RoutedEventArgs e) {
         this.isUpdatingToggleOverride = true;
-        if (this.AutomationSequence is AutomationSequence sequence)
-        {
+        if (this.AutomationSequence is AutomationSequence sequence) {
             sequence.IsOverrideEnabled = this.PART_ToggleOverride.IsChecked == true;
         }
 
         this.isUpdatingToggleOverride = false;
     }
 
-    private void OnInsertKeyFrameClicked(object? sender, RoutedEventArgs e)
-    {
-        if (this.AutomationSequence is AutomationSequence sequence)
-        {
+    private void OnInsertKeyFrameClicked(object? sender, RoutedEventArgs e) {
+        if (this.AutomationSequence is AutomationSequence sequence) {
             AutomationUtils.TryAddKeyFrameAtLocation(sequence, out _);
             sequence.UpdateValue();
         }
     }
 
-    private void OnResetValueClicked(object? sender, RoutedEventArgs e)
-    {
-        if (this.AutomationSequence is AutomationSequence sequence)
-        {
+    private void OnResetValueClicked(object? sender, RoutedEventArgs e) {
+        if (this.AutomationSequence is AutomationSequence sequence) {
             AutomationUtils.GetDefaultKeyFrameOrAddNew(sequence, out KeyFrame keyFrame);
             keyFrame.AssignDefaultValue(sequence.Parameter.Descriptor);
             sequence.UpdateValue();
@@ -144,47 +129,38 @@ public class KeyFrameToolsControl : TemplatedControl
         }
     }
 
-    private void OnClipTimelineChanged(IHaveTimeline owner, Timeline? oldTimeline, Timeline? newTimeline)
-    {
+    private void OnClipTimelineChanged(IHaveTimeline owner, Timeline? oldTimeline, Timeline? newTimeline) {
         if (oldTimeline != null)
             oldTimeline.PlayHeadChanged -= this.OnTimelinePlayHeadChanged;
         if (newTimeline != null)
             newTimeline.PlayHeadChanged += this.OnTimelinePlayHeadChanged;
     }
 
-    private void OnTimelinePlayHeadChanged(Timeline timeline, long oldvalue, long newvalue)
-    {
+    private void OnTimelinePlayHeadChanged(Timeline timeline, long oldvalue, long newvalue) {
         this.UpdateInsertKeyFrame(newvalue);
     }
 
-    private void OnOwnerClipFrameSpanChanged(Clip clip, FrameSpan oldspan, FrameSpan newspan)
-    {
+    private void OnOwnerClipFrameSpanChanged(Clip clip, FrameSpan oldspan, FrameSpan newspan) {
         this.UpdateInsertKeyFrame(clip);
     }
 
-    private void UpdateInsertKeyFrame(long timelinePlayHeadFrame)
-    {
+    private void UpdateInsertKeyFrame(long timelinePlayHeadFrame) {
         bool isInRange = this.strictFrameRange == null || this.strictFrameRange.IsTimelineFrameInRange(timelinePlayHeadFrame);
-        if (isInRange != this.PART_InsertKeyFrame.IsEnabled)
-        {
+        if (isInRange != this.PART_InsertKeyFrame.IsEnabled) {
             this.PART_InsertKeyFrame.IsEnabled = isInRange;
         }
     }
 
-    private void UpdateInsertKeyFrame(IHaveTimeline owner)
-    {
-        if (owner?.Timeline is Timeline timeline)
-        {
+    private void UpdateInsertKeyFrame(IHaveTimeline owner) {
+        if (owner?.Timeline is Timeline timeline) {
             this.UpdateInsertKeyFrame(timeline.PlayHeadPosition);
         }
-        else if (this.PART_InsertKeyFrame.IsEnabled)
-        {
+        else if (this.PART_InsertKeyFrame.IsEnabled) {
             this.PART_InsertKeyFrame.IsEnabled = false;
         }
     }
 
-    private void OnOverrideStateChanged(AutomationSequence sequence)
-    {
+    private void OnOverrideStateChanged(AutomationSequence sequence) {
         if (this.isUpdatingToggleOverride)
             return;
         this.PART_ToggleOverride.IsChecked = sequence.IsOverrideEnabled;

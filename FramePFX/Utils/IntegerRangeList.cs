@@ -25,16 +25,14 @@ namespace FramePFX.Utils;
 /// <summary>
 /// This class efficiently stores a set of integers. It is pretty much an integer hash set
 /// </summary>
-public class IntegerRangeList
-{
+public class IntegerRangeList {
     private readonly List<IntRange> list;
 
     public IEnumerable<IntRange> Items => this.list;
 
     public bool IsEmpty => this.list.Count < 1;
 
-    public IntegerRangeList()
-    {
+    public IntegerRangeList() {
         this.list = new List<IntRange>();
     }
 
@@ -43,36 +41,29 @@ public class IntegerRangeList
     /// </summary>
     /// <param name="a"></param>
     /// <param name="b"></param>
-    public void AddRange(int a, int b)
-    {
+    public void AddRange(int a, int b) {
         for (int i = a; i <= b; i++)
             this.Add(i);
     }
 
-    public void Add(int value)
-    {
-        for (int i = 0; i < this.list.Count; i++)
-        {
+    public void Add(int value) {
+        for (int i = 0; i < this.list.Count; i++) {
             IntRange range = this.list[i];
 
-            if (value >= range.A && value <= range.B)
-            {
+            if (value >= range.A && value <= range.B) {
                 return;
             }
-            else if (value == range.A - 1)
-            {
+            else if (value == range.A - 1) {
                 this.list[i] = new IntRange(value, range.B);
                 this.MergeRanges(i);
                 return;
             }
-            else if (value == range.B + 1)
-            {
+            else if (value == range.B + 1) {
                 this.list[i] = new IntRange(range.A, value);
                 this.MergeRanges(i);
                 return;
             }
-            else if (value < range.A)
-            {
+            else if (value < range.A) {
                 this.list.Insert(i, new IntRange(value, value));
                 return;
             }
@@ -81,28 +72,21 @@ public class IntegerRangeList
         this.list.Add(new IntRange(value, value));
     }
 
-    public void Remove(int value)
-    {
-        for (int i = 0; i < this.list.Count; i++)
-        {
+    public void Remove(int value) {
+        for (int i = 0; i < this.list.Count; i++) {
             IntRange range = this.list[i];
 
-            if (value >= range.A && value <= range.B)
-            {
-                if (range.A == range.B)
-                {
+            if (value >= range.A && value <= range.B) {
+                if (range.A == range.B) {
                     this.list.RemoveAt(i);
                 }
-                else if (value == range.A)
-                {
+                else if (value == range.A) {
                     this.list[i] = new IntRange(range.A + 1, range.B);
                 }
-                else if (value == range.B)
-                {
+                else if (value == range.B) {
                     this.list[i] = new IntRange(range.A, range.B - 1);
                 }
-                else
-                {
+                else {
                     this.list[i] = new IntRange(range.A, value - 1);
                     this.list.Insert(i + 1, new IntRange(value + 1, range.B));
                 }
@@ -112,22 +96,18 @@ public class IntegerRangeList
         }
     }
 
-    private void MergeRanges(int index)
-    {
-        if (index < this.list.Count - 1 && this.list[index].B + 1 == this.list[index + 1].A)
-        {
+    private void MergeRanges(int index) {
+        if (index < this.list.Count - 1 && this.list[index].B + 1 == this.list[index + 1].A) {
             this.list[index] = new IntRange(this.list[index].A, this.list[index + 1].B);
             this.list.RemoveAt(index + 1);
         }
     }
 
-    public override string ToString()
-    {
+    public override string ToString() {
         return string.Join(", ", this.list);
     }
 
-    public static void Test()
-    {
+    public static void Test() {
         IntegerRangeList list = new IntegerRangeList();
         list.Add(1);
         list.Add(3);
@@ -150,8 +130,7 @@ public class IntegerRangeList
 /// <summary>
 /// Contains two pairs of integer, both inclusive
 /// </summary>
-public readonly struct IntRange : IEquatable<IntRange>, IEnumerable<int>
-{
+public readonly struct IntRange : IEquatable<IntRange>, IEnumerable<int> {
     /// <summary>
     /// The starting position, inclusive
     /// </summary>
@@ -162,8 +141,7 @@ public readonly struct IntRange : IEquatable<IntRange>, IEnumerable<int>
     /// </summary>
     public readonly int B;
 
-    public IntRange(int a, int b)
-    {
+    public IntRange(int a, int b) {
         this.A = a;
         this.B = b;
     }
@@ -182,10 +160,8 @@ public readonly struct IntRange : IEquatable<IntRange>, IEnumerable<int>
 
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 
-    public IEnumerator<int> GetEnumerator()
-    {
-        for (int i = this.A; i < +this.B; i++)
-        {
+    public IEnumerator<int> GetEnumerator() {
+        for (int i = this.A; i < +this.B; i++) {
             yield return i;
         }
     }

@@ -22,8 +22,7 @@ using Avalonia.Controls;
 
 namespace FramePFX.Avalonia.PropertyEditing;
 
-public static class ExpanderHelper
-{
+public static class ExpanderHelper {
     public static readonly AttachedProperty<bool> IsPointerOverExProperty = AvaloniaProperty.RegisterAttached<Expander, bool>("IsPointerOverEx", typeof(ExpanderHelper));
 
     public static void SetIsPointerOverEx(Expander obj, bool value) => obj.SetValue(IsPointerOverExProperty, value);

@@ -24,22 +24,17 @@ using FramePFX.Shortcuts.Inputs;
 
 namespace FramePFX.Avalonia.Shortcuts.Dialogs;
 
-public class InputStrokeDialogsImpl : IInputStrokeQueryDialogService
-{
-    public async Task<KeyStroke?> ShowGetKeyStrokeDialog(KeyStroke? keyStroke)
-    {
-        KeyStrokeUserInputInfo info = new KeyStrokeUserInputInfo()
-        {
+public class InputStrokeDialogsImpl : IInputStrokeQueryDialogService {
+    public async Task<KeyStroke?> ShowGetKeyStrokeDialog(KeyStroke? keyStroke) {
+        KeyStrokeUserInputInfo info = new KeyStrokeUserInputInfo() {
             KeyStroke = keyStroke, Caption = "Key Input Stroke"
         };
 
         return await InputDialogServiceImpl.ShowDialogAsync(info) == true ? info.KeyStroke : default;
     }
 
-    public async Task<MouseStroke?> ShowGetMouseStrokeDialog(MouseStroke? mouseStroke)
-    {
-        MouseStrokeUserInputInfo info = new MouseStrokeUserInputInfo()
-        {
+    public async Task<MouseStroke?> ShowGetMouseStrokeDialog(MouseStroke? mouseStroke) {
+        MouseStrokeUserInputInfo info = new MouseStrokeUserInputInfo() {
             MouseStroke = mouseStroke, Caption = "Mouse Input Stroke"
         };
 

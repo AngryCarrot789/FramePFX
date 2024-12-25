@@ -19,8 +19,7 @@
 
 namespace FramePFX.Interactivity.Formatting;
 
-public abstract class BaseSimpleValueFormatter : IValueFormatter
-{
+public abstract class BaseSimpleValueFormatter : IValueFormatter {
     private int nonEditingRoundedPlaces;
     private int editingRoundedPlaces;
     private string? tempNonEditingRoundedPlacesFormat, tempEditingRoundedPlacesFormat;
@@ -34,14 +33,11 @@ public abstract class BaseSimpleValueFormatter : IValueFormatter
     /// This is for performance when changing the two rounded places properties
     /// </para>
     /// </summary>
-    protected string? RoundedPlaceValueFormat
-    {
-        get
-        {
+    protected string? RoundedPlaceValueFormat {
+        get {
             return this.myRoundedPlaceValueFormat;
         }
-        set
-        {
+        set {
             if (ReferenceEquals(this.myRoundedPlaceValueFormat, value))
                 return;
 
@@ -62,11 +58,9 @@ public abstract class BaseSimpleValueFormatter : IValueFormatter
     /// </summary>
     protected string EditingRoundedPlacesFormat => this.tempEditingRoundedPlacesFormat ??= (this.RoundedPlaceValueFormat != null ? string.Format(this.RoundedPlaceValueFormat, this.editingRoundedPlaces) : ("F" + this.editingRoundedPlaces));
 
-    public int NonEditingRoundedPlaces
-    {
+    public int NonEditingRoundedPlaces {
         get => this.nonEditingRoundedPlaces;
-        set
-        {
+        set {
             value = Math.Max(value, 0);
             if (this.nonEditingRoundedPlaces == value)
                 return;
@@ -77,11 +71,9 @@ public abstract class BaseSimpleValueFormatter : IValueFormatter
         }
     }
 
-    public int EditingRoundedPlaces
-    {
+    public int EditingRoundedPlaces {
         get => this.editingRoundedPlaces;
-        set
-        {
+        set {
             value = Math.Max(value, 0);
             if (this.editingRoundedPlaces == value)
                 return;

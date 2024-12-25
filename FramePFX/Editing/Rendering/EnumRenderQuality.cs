@@ -24,8 +24,7 @@ namespace FramePFX.Editing.Rendering;
 /// <summary>
 /// A quality factor for when drawing
 /// </summary>
-public enum EnumRenderQuality : byte
-{
+public enum EnumRenderQuality : byte {
     /// <summary>
     /// Unspecified quality settings; SkiaSharp default
     /// </summary>
@@ -47,17 +46,14 @@ public enum EnumRenderQuality : byte
     High
 }
 
-public static class EnumRenderQualityExtensions
-{
-    public static SKFilterQuality ToFilterQuality(this EnumRenderQuality quality)
-    {
-        switch (quality)
-        {
+public static class EnumRenderQualityExtensions {
+    public static SKFilterQuality ToFilterQuality(this EnumRenderQuality quality) {
+        switch (quality) {
             case EnumRenderQuality.UnspecifiedQuality: return SKFilterQuality.None;
-            case EnumRenderQuality.Low: return SKFilterQuality.Low;
-            case EnumRenderQuality.Medium: return SKFilterQuality.Medium;
-            case EnumRenderQuality.High: return SKFilterQuality.High;
-            default: throw new ArgumentOutOfRangeException(nameof(quality), quality, null);
+            case EnumRenderQuality.Low:                return SKFilterQuality.Low;
+            case EnumRenderQuality.Medium:             return SKFilterQuality.Medium;
+            case EnumRenderQuality.High:               return SKFilterQuality.High;
+            default:                                   throw new ArgumentOutOfRangeException(nameof(quality), quality, null);
         }
     }
 }

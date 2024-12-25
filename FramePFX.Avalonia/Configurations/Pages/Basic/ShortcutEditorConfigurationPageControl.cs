@@ -24,29 +24,23 @@ using FramePFX.Configurations.Shortcuts;
 
 namespace FramePFX.Avalonia.Configurations.Pages.Basic;
 
-public class ShortcutEditorConfigurationPageControl : BaseConfigurationPageControl
-{
+public class ShortcutEditorConfigurationPageControl : BaseConfigurationPageControl {
     private ShortcutTreeView? PART_ShortcutTree;
-    
-    public ShortcutEditorConfigurationPageControl()
-    {
-        
+
+    public ShortcutEditorConfigurationPageControl() {
     }
 
-    public override void OnConnected()
-    {
+    public override void OnConnected() {
         base.OnConnected();
         this.PART_ShortcutTree!.RootEntry = ((ShortcutEditorConfigurationPage) this.Page!).RootGroupEntry;
     }
 
-    public override void OnDisconnected()
-    {
+    public override void OnDisconnected() {
         base.OnDisconnected();
         this.PART_ShortcutTree!.RootEntry = null;
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.PART_ShortcutTree = e.NameScope.GetTemplateChild<ShortcutTreeView>("PART_ShortcutTree");
     }

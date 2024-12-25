@@ -25,8 +25,7 @@ namespace FramePFX.Editing.ResourceManaging.NewResourceHelper;
 
 public delegate void ResourceSlotResourceChangedEventHandler(IResourceHolder owner, ResourceSlot slot, ResourceItem? oldItem, ResourceItem? newItem);
 
-public class ResourceHelper
-{
+public class ResourceHelper {
     private Dictionary<ResourceSlot, ResourceItem>? references;
     private Dictionary<int, SlotInstanceData>? paramData;
     private List<(ResourceSlot, ulong)>? resourcesToLoad; // used for both serialisation and project ref change 
@@ -43,15 +42,12 @@ public class ResourceHelper
     /// </summary>
     public event ResourceSlotResourceChangedEventHandler? ResourceChanged;
 
-    public ResourceHelper(IResourceHolder owner)
-    {
+    public ResourceHelper(IResourceHolder owner) {
         this.Owner = owner;
     }
 
-    public bool TryGetResource<T>(ResourceSlot<T> slot, [NotNullWhen(true)] out T? resource) where T : ResourceItem
-    {
-        if (this.references == null || !this.references.TryGetValue(slot, out ResourceItem? value))
-        {
+    public bool TryGetResource<T>(ResourceSlot<T> slot, [NotNullWhen(true)] out T? resource) where T : ResourceItem {
+        if (this.references == null || !this.references.TryGetValue(slot, out ResourceItem? value)) {
             resource = default;
             return false;
         }
@@ -59,61 +55,51 @@ public class ResourceHelper
         resource = (T) value;
         return true;
     }
-    
-    public bool HasResource(ResourceSlot slot)
-    {
+
+    public bool HasResource(ResourceSlot slot) {
         return this.references != null && this.references.ContainsKey(slot);
     }
 
-    public async Task SetResourceHelper<T>(ResourceSlot<T> slot, T resource) where T : ResourceItem
-    {
-        if (resource.HasReachedResourceLimit())
-        {
+    public async Task SetResourceHelper<T>(ResourceSlot<T> slot, T resource) where T : ResourceItem {
+        if (resource.HasReachedResourceLimit()) {
             await IMessageDialogService.Instance.ShowMessage("Resource limit reached", $"Resource limit reached: cannot reference more than {resource.ResourceLinkLimit} objects");
         }
-        else
-        {
+        else {
             this.SetResource(slot, resource);
         }
     }
 
-    private static void CheckOwner(ResourceSlot slot, IResourceHolder owner)
-    {
+    private static void CheckOwner(ResourceSlot slot, IResourceHolder owner) {
         if (!slot.OwnerType.IsInstanceOfType(owner))
             throw new InvalidOperationException($"Incompatible owner type. Owner '{owner.GetType().FullName}' is not an instance of '{slot.OwnerType.FullName}'");
     }
-    
-    private static void CheckValueType(ResourceSlot slot, ResourceItem item)
-    {
+
+    private static void CheckValueType(ResourceSlot slot, ResourceItem item) {
         if (item != null && !slot.ValueType.IsInstanceOfType(item))
             throw new InvalidOperationException($"Incompatible value type. Cannot assign resource '{item.GetType().FullName}' to '{slot.OwnerType.FullName}'");
     }
-    
-    public void SetResource<T>(ResourceSlot<T> slot, T resource) where T : ResourceItem
-    {
+
+    public void SetResource<T>(ResourceSlot<T> slot, T resource) where T : ResourceItem {
         CheckOwner(slot, this.Owner);
         if (resource.HasReachedResourceLimit())
             throw new InvalidOperationException($"Resource limit reached: cannot reference more than {resource.ResourceLinkLimit} objects");
-        
+
         this.SetResourceInternal(slot, resource);
     }
-    
-    public void SetResourceUnsafe(ResourceSlot slot, ResourceItem resource)
-    {
+
+    public void SetResourceUnsafe(ResourceSlot slot, ResourceItem resource) {
         CheckOwner(slot, this.Owner);
         CheckValueType(slot, resource);
         if (resource.HasReachedResourceLimit())
             throw new InvalidOperationException($"Resource limit reached: cannot reference more than {resource.ResourceLinkLimit} objects");
-        
+
         this.SetResourceInternal(slot, resource);
     }
-    
-    private void SetResourceInternal(ResourceSlot slot, ResourceItem resource)
-    {
+
+    private void SetResourceInternal(ResourceSlot slot, ResourceItem resource) {
         InternalBeginValueChange(slot, this);
         ResourceItem? oldResource = null;
-        if (this.references != null && this.references.TryGetValue(slot, out oldResource))
-        {
+        if (this.references != null && this.references.TryGetValue(slot, out oldResource)) {
             ResourceItem.RemoveReference(oldResource, this.Owner);
         }
 
@@ -122,10 +108,8 @@ public class ResourceHelper
         InternalEndValueChange(slot, this.Owner, oldResource, resource);
     }
 
-    public void ClearResource(ResourceSlot slot)
-    {
-        if (this.references != null && this.references.TryGetValue(slot, out ResourceItem? oldResource))
-        {
+    public void ClearResource(ResourceSlot slot) {
+        if (this.references != null && this.references.TryGetValue(slot, out ResourceItem? oldResource)) {
             InternalBeginValueChange(slot, this);
             this.references.Remove(slot);
             ResourceItem.RemoveReference(oldResource, this.Owner);
@@ -133,8 +117,7 @@ public class ResourceHelper
         }
     }
 
-    private static void InternalBeginValueChange(ResourceSlot slot, ResourceHelper owner)
-    {
+    private static void InternalBeginValueChange(ResourceSlot slot, ResourceHelper owner) {
         SlotInstanceData internalData = owner.GetOrCreateParamData(slot);
         if (internalData.isValueChanging)
             throw new InvalidOperationException("Value is already changing. This exception is thrown, as the alternative is most likely a stack overflow exception");
@@ -142,29 +125,24 @@ public class ResourceHelper
         internalData.isValueChanging = true;
     }
 
-    private static void InternalEndValueChange(ResourceSlot slot, IResourceHolder owner, ResourceItem? oldResource, ResourceItem? newResource)
-    {
+    private static void InternalEndValueChange(ResourceSlot slot, IResourceHolder owner, ResourceItem? oldResource, ResourceItem? newResource) {
         ResourceHelper data = owner.ResourceHelper;
         SlotInstanceData internalData = data.GetOrCreateParamData(slot);
-        try
-        {
+        try {
             internalData.RaiseValueChanged(slot, owner, oldResource, newResource);
             data.ResourceChanged?.Invoke(owner, slot, oldResource, newResource);
             ResourceSlot.InternalOnResourceChanged(slot, owner, oldResource, newResource);
         }
-        finally
-        {
+        finally {
             internalData.isValueChanging = false;
         }
     }
 
-    public bool IsValueChanging(ResourceSlot slot)
-    {
+    public bool IsValueChanging(ResourceSlot slot) {
         return this.TryGetParameterData(slot, out SlotInstanceData? data) && data.isValueChanging;
     }
 
-    private bool TryGetParameterData(ResourceSlot slot, [NotNullWhen(true)] out SlotInstanceData? data)
-    {
+    private bool TryGetParameterData(ResourceSlot slot, [NotNullWhen(true)] out SlotInstanceData? data) {
         if (slot == null)
             throw new ArgumentNullException(nameof(slot), "Parameter cannot be null");
         if (this.paramData != null && this.paramData.TryGetValue(slot.GlobalIndex, out data))
@@ -173,8 +151,7 @@ public class ResourceHelper
         return false;
     }
 
-    private SlotInstanceData GetOrCreateParamData(ResourceSlot slot)
-    {
+    private SlotInstanceData GetOrCreateParamData(ResourceSlot slot) {
         if (slot == null)
             throw new ArgumentNullException(nameof(slot), "Parameter cannot be null");
 
@@ -187,45 +164,35 @@ public class ResourceHelper
         return data;
     }
 
-    private class SlotInstanceData
-    {
+    private class SlotInstanceData {
         public bool isValueChanging;
         public event ResourceSlotResourceChangedEventHandler? ValueChanged;
 
-        public void RaiseValueChanged(ResourceSlot slot, IResourceHolder owner, ResourceItem? oldItem, ResourceItem? newItem)
-        {
+        public void RaiseValueChanged(ResourceSlot slot, IResourceHolder owner, ResourceItem? oldItem, ResourceItem? newItem) {
             this.ValueChanged?.Invoke(owner, slot, oldItem, newItem);
         }
     }
 
-    public static void InternalAddHandler(ResourceSlot slot, ResourceHelper owner, ResourceSlotResourceChangedEventHandler handler)
-    {
+    public static void InternalAddHandler(ResourceSlot slot, ResourceHelper owner, ResourceSlotResourceChangedEventHandler handler) {
         owner.GetOrCreateParamData(slot).ValueChanged += handler;
     }
 
-    public static void InternalRemoveHandler(ResourceSlot slot, ResourceHelper owner, ResourceSlotResourceChangedEventHandler handler)
-    {
-        if (owner.TryGetParameterData(slot, out SlotInstanceData? data))
-        {
+    public static void InternalRemoveHandler(ResourceSlot slot, ResourceHelper owner, ResourceSlotResourceChangedEventHandler handler) {
+        if (owner.TryGetParameterData(slot, out SlotInstanceData? data)) {
             data.ValueChanged -= handler;
         }
     }
 
-    public void ReadFromRootRBE(RBEDictionary data)
-    {
-        if (this.references != null)
-        {
+    public void ReadFromRootRBE(RBEDictionary data) {
+        if (this.references != null) {
             throw new InvalidOperationException("Cannot deserialise while references are loaded");
         }
 
-        if (data.TryGetElement("ResourceMap", out RBEDictionary resourceMapDictionary))
-        {
-            foreach (KeyValuePair<string, RBEBase> pair in resourceMapDictionary.Map)
-            {
+        if (data.TryGetElement("ResourceMap", out RBEDictionary resourceMapDictionary)) {
+            foreach (KeyValuePair<string, RBEBase> pair in resourceMapDictionary.Map) {
                 string globalKey = pair.Key;
                 RBEDictionary resourceReferenceData = (RBEDictionary) pair.Value;
-                if (ResourceSlot.TryGetSlotFromKey(globalKey, out ResourceSlot? slot))
-                {
+                if (ResourceSlot.TryGetSlotFromKey(globalKey, out ResourceSlot? slot)) {
                     ulong id = resourceReferenceData.GetULong("ResourceId");
                     if (id == ResourceManager.EmptyId)
                         throw new ArgumentException("Resource ID from the data was 0 (null)");
@@ -237,74 +204,63 @@ public class ResourceHelper
         }
     }
 
-    public void OnResourceManagerLoaded(ResourceManager newManager, List<ulong>? notFoundIds = null, List<ResourceItem>? limitReachedResources = null)
-    {
+    public void OnResourceManagerLoaded(ResourceManager newManager, List<ulong>? notFoundIds = null, List<ResourceItem>? limitReachedResources = null) {
         if (ReferenceEquals(this.manager, newManager))
             return;
-        
+
         if (this.resourcesToLoad == null)
             return;
 
         this.manager = newManager;
-        foreach ((ResourceSlot Slot, ulong Id) tuple in this.resourcesToLoad)
-        {
-            if (newManager.TryGetEntryItem(tuple.Id, out ResourceItem resource))
-            {
-                if (resource.HasReachedResourceLimit())
-                {
+        foreach ((ResourceSlot Slot, ulong Id) tuple in this.resourcesToLoad) {
+            if (newManager.TryGetEntryItem(tuple.Id, out ResourceItem resource)) {
+                if (resource.HasReachedResourceLimit()) {
                     limitReachedResources?.Add(resource);
                 }
-                else
-                {
+                else {
                     this.SetResourceInternal(tuple.Slot, resource);
                 }
             }
-            else
-            {
+            else {
                 notFoundIds?.Add(tuple.Id);
             }
         }
 
         this.resourcesToLoad = null;
     }
-    
-    public void OnResourceManagerUnloaded()
-    {
+
+    public void OnResourceManagerUnloaded() {
         if (ReferenceEquals(this.manager, null))
             return;
-        
+
         if (this.references == null)
             return;
-        
-        foreach (KeyValuePair<ResourceSlot, ResourceItem> pair in this.references.ToList())
-        {
+
+        foreach (KeyValuePair<ResourceSlot, ResourceItem> pair in this.references.ToList()) {
             (this.resourcesToLoad ??= new List<(ResourceSlot, ulong)>()).Add((pair.Key, pair.Value.UniqueId));
             this.ClearResource(pair.Key);
         }
 
         this.manager = null;
     }
-    
-    public void OnResourceManagerChanged(ResourceManager? manager, List<ulong>? notFoundIds = null, List<ResourceItem>? limitReachedResources = null)
-    {
+
+    public void OnResourceManagerChanged(ResourceManager? manager, List<ulong>? notFoundIds = null, List<ResourceItem>? limitReachedResources = null) {
         if (ReferenceEquals(this.manager, manager))
             return;
-        
+
         if (this.manager != null)
             this.OnResourceManagerUnloaded();
-        
+
         if (manager != null)
             this.OnResourceManagerLoaded(manager, notFoundIds, limitReachedResources);
     }
 
-    public void WriteToRootRBE(RBEDictionary data)
-    {
+    public void WriteToRootRBE(RBEDictionary data) {
         if (this.references == null)
             return;
 
         RBEDictionary resourceMapDictionary = data.CreateDictionary("ResourceMap");
-        foreach (KeyValuePair<ResourceSlot, ResourceItem> pair in this.references)
-        {
+        foreach (KeyValuePair<ResourceSlot, ResourceItem> pair in this.references) {
             ulong id = pair.Value.UniqueId;
             if (id == ResourceManager.EmptyId)
                 throw new InvalidOperationException("Resource item has an empty id");
@@ -314,30 +270,22 @@ public class ResourceHelper
         }
     }
 
-    public void LoadDataIntoClone(ResourceHelper clone, List<ResourceItem>? limitReachedResources = null)
-    {
-        if (this.references != null)
-        {
-            foreach (KeyValuePair<ResourceSlot, ResourceItem> pair in this.references)
-            {
-                if (pair.Value.HasReachedResourceLimit())
-                {
+    public void LoadDataIntoClone(ResourceHelper clone, List<ResourceItem>? limitReachedResources = null) {
+        if (this.references != null) {
+            foreach (KeyValuePair<ResourceSlot, ResourceItem> pair in this.references) {
+                if (pair.Value.HasReachedResourceLimit()) {
                     limitReachedResources?.Add(pair.Value);
                 }
-                else
-                {
+                else {
                     clone.SetResourceInternal(pair.Key, pair.Value);
                 }
             }
         }
     }
 
-    public void Destroy()
-    {
-        if (this.references != null)
-        {
-            foreach (ResourceSlot slot in this.references.Keys.ToList())
-            {
+    public void Destroy() {
+        if (this.references != null) {
+            foreach (ResourceSlot slot in this.references.Keys.ToList()) {
                 this.ClearResource(slot);
             }
         }

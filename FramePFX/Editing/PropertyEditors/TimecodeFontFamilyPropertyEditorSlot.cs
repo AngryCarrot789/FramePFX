@@ -24,8 +24,7 @@ using FramePFX.Utils;
 
 namespace FramePFX.Editing.PropertyEditors;
 
-public class TimecodeFontFamilyPropertyEditorSlot : PropertyEditorSlot
-{
+public class TimecodeFontFamilyPropertyEditorSlot : PropertyEditorSlot {
     public IEnumerable<TimecodeClip> Clips => this.Handlers.Cast<TimecodeClip>();
 
     public TimecodeClip SingleSelection => (TimecodeClip) this.Handlers[0];
@@ -40,13 +39,11 @@ public class TimecodeFontFamilyPropertyEditorSlot : PropertyEditorSlot
     public TimecodeFontFamilyPropertyEditorSlot() : base(typeof(TimecodeClip)) {
     }
 
-    public void SetValue(string value)
-    {
+    public void SetValue(string value) {
         this.isProcessingValueChange = true;
 
         this.FontFamily = value;
-        for (int i = 0, c = this.Handlers.Count; i < c; i++)
-        {
+        for (int i = 0, c = this.Handlers.Count; i < c; i++) {
             TimecodeClip clip = (TimecodeClip) this.Handlers[i];
             clip.FontFamily = value;
         }
@@ -55,40 +52,33 @@ public class TimecodeFontFamilyPropertyEditorSlot : PropertyEditorSlot
         this.isProcessingValueChange = false;
     }
 
-    protected override void OnHandlersLoaded()
-    {
+    protected override void OnHandlersLoaded() {
         base.OnHandlersLoaded();
-        if (this.Handlers.Count == 1)
-        {
+        if (this.Handlers.Count == 1) {
             this.SingleSelection.FontFamilyChanged += this.OnClipFontFamilyChanged;
         }
 
         this.RequeryOpacityFromHandlers();
     }
 
-    protected override void OnClearingHandlers()
-    {
+    protected override void OnClearingHandlers() {
         base.OnClearingHandlers();
-        if (this.Handlers.Count == 1)
-        {
+        if (this.Handlers.Count == 1) {
             this.SingleSelection.FontFamilyChanged -= this.OnClipFontFamilyChanged;
         }
     }
 
-    public void RequeryOpacityFromHandlers()
-    {
+    public void RequeryOpacityFromHandlers() {
         this.FontFamily = CollectionUtils.GetEqualValue(this.Handlers, x => ((TimecodeClip) x).FontFamily, out string? d) ? d : "<different values>";
         this.FontFamilyChanged?.Invoke(this);
     }
 
-    private void OnClipFontFamilyChanged(Clip theClip)
-    {
+    private void OnClipFontFamilyChanged(Clip theClip) {
         if (this.isProcessingValueChange)
             return;
 
         TimecodeClip clip = (TimecodeClip) theClip;
-        if (this.FontFamily != clip.FontFamily)
-        {
+        if (this.FontFamily != clip.FontFamily) {
             this.FontFamily = clip.FontFamily;
             this.FontFamilyChanged?.Invoke(this);
         }

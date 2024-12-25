@@ -32,8 +32,7 @@ using SkiaSharp;
 
 namespace FramePFX.Avalonia.PropertyEditing.DataTransfer.Automatic;
 
-public class AutomaticDataParameterPointPropertyEditorControl : BaseDataParameterPropertyEditorControl
-{
+public class AutomaticDataParameterPointPropertyEditorControl : BaseDataParameterPropertyEditorControl {
     internal static readonly IImmutableBrush MultipleValuesBrush = BaseNumberDraggerDataParamPropEditorControl.MultipleValuesBrush;
 
     public new AutomaticDataParameterPointPropertyEditorSlot? SlotModel => (AutomaticDataParameterPointPropertyEditorSlot?) base.SlotControl?.Model;
@@ -44,18 +43,15 @@ public class AutomaticDataParameterPointPropertyEditorControl : BaseDataParamete
 
     private readonly AutoUpdateAndEventPropertyBinder<DataParameterFormattableNumberPropertyEditorSlot> valueFormatterBinder;
 
-    public AutomaticDataParameterPointPropertyEditorControl()
-    {
-        this.valueFormatterBinder = new AutoUpdateAndEventPropertyBinder<DataParameterFormattableNumberPropertyEditorSlot>(null, nameof(DataParameterFormattableNumberPropertyEditorSlot.ValueFormatterChanged), (x) =>
-        {
+    public AutomaticDataParameterPointPropertyEditorControl() {
+        this.valueFormatterBinder = new AutoUpdateAndEventPropertyBinder<DataParameterFormattableNumberPropertyEditorSlot>(null, nameof(DataParameterFormattableNumberPropertyEditorSlot.ValueFormatterChanged), (x) => {
             AutomaticDataParameterPointPropertyEditorControl editor = (AutomaticDataParameterPointPropertyEditorControl) x.Control;
             editor.draggerX.ValueFormatter = x.Model.ValueFormatter;
             editor.draggerY.ValueFormatter = x.Model.ValueFormatter;
         }, null);
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.draggerX = e.NameScope.GetTemplateChild<NumberDragger>("PART_DraggerX");
         this.draggerY = e.NameScope.GetTemplateChild<NumberDragger>("PART_DraggerY");
@@ -65,44 +61,35 @@ public class AutomaticDataParameterPointPropertyEditorControl : BaseDataParamete
         this.resetButton.Click += this.ResetButtonOnClick;
         this.valueFormatterBinder.AttachControl(this);
         this.UpdateDraggerMultiValueState();
-        
+
         this.draggerX.InvalidInputEntered += this.PartDraggerOnInvalidInputEntered;
         this.draggerY.InvalidInputEntered += this.PartDraggerOnInvalidInputEntered;
     }
 
-    private void PartDraggerOnInvalidInputEntered(object? sender, InvalidInputEnteredEventArgs e)
-    {
+    private void PartDraggerOnInvalidInputEntered(object? sender, InvalidInputEnteredEventArgs e) {
         AutomaticDataParameterPointPropertyEditorSlot? model = this.SlotModel;
-        if (model == null || !model.IsCurrentlyApplicable)
-        {
+        if (model == null || !model.IsCurrentlyApplicable) {
             return;
         }
 
-        if (("auto".EqualsIgnoreCase(e.Input) || "automatic".EqualsIgnoreCase(e.Input) || "\"auto\"".EqualsIgnoreCase(e.Input)))
-        {
-            foreach (object handler in model.Handlers)
-            {
+        if (("auto".EqualsIgnoreCase(e.Input) || "automatic".EqualsIgnoreCase(e.Input) || "\"auto\"".EqualsIgnoreCase(e.Input))) {
+            foreach (object handler in model.Handlers) {
                 model.IsAutomaticParameter.SetValue((ITransferableData) handler, true);
             }
         }
     }
 
-    private void ResetButtonOnClick(object? sender, RoutedEventArgs e)
-    {
+    private void ResetButtonOnClick(object? sender, RoutedEventArgs e) {
         AutomaticDataParameterPointPropertyEditorSlot? slot = this.SlotModel;
-        if (slot != null && slot.HasHandlers)
-        {
-            foreach (ITransferableData handler in slot.Handlers)
-            {
+        if (slot != null && slot.HasHandlers) {
+            foreach (ITransferableData handler in slot.Handlers) {
                 slot.IsAutomaticParameter.SetValue(handler, true);
             }
         }
     }
 
-    private void UpdateDraggerMultiValueState()
-    {
-        if (!this.IsConnected)
-        {
+    private void UpdateDraggerMultiValueState() {
+        if (!this.IsConnected) {
             return;
         }
 
@@ -111,14 +98,12 @@ public class AutomaticDataParameterPointPropertyEditorControl : BaseDataParamete
         BaseNumberDraggerDataParamPropEditorControl.UpdateNumberDragger(this.draggerY, flag, flag2);
     }
 
-    protected override void OnCanEditValueChanged(bool canEdit)
-    {
+    protected override void OnCanEditValueChanged(bool canEdit) {
         this.draggerX.IsEnabled = canEdit;
         this.draggerY.IsEnabled = canEdit;
     }
 
-    protected override void OnConnected()
-    {
+    protected override void OnConnected() {
         this.valueFormatterBinder.AttachModel(this.SlotModel!);
         base.OnConnected();
 
@@ -144,60 +129,49 @@ public class AutomaticDataParameterPointPropertyEditorControl : BaseDataParamete
         this.UpdateDraggerMultiValueState();
     }
 
-    protected override void OnDisconnected()
-    {
+    protected override void OnDisconnected() {
         this.valueFormatterBinder.DetachModel();
         base.OnDisconnected();
 
         this.SlotModel!.HasMultipleValuesChanged -= this.OnHasMultipleValuesChanged;
     }
 
-    protected override void OnHandlersLoadedOverride(bool isLoaded)
-    {
+    protected override void OnHandlersLoadedOverride(bool isLoaded) {
         base.OnHandlersLoadedOverride(isLoaded);
-        if (isLoaded)
-        {
+        if (isLoaded) {
             if (this.singleHandler != null)
                 this.SlotModel!.IsAutomaticParameter.AddValueChangedHandler(this.singleHandler, this.OnIsAutomaticChanged);
         }
-        else if (this.singleHandler != null)
-        {
+        else if (this.singleHandler != null) {
             this.SlotModel!.IsAutomaticParameter.RemoveValueChangedHandler(this.singleHandler, this.OnIsAutomaticChanged);
         }
     }
 
-    private void OnIsAutomaticChanged(DataParameter parameter, ITransferableData owner)
-    {
+    private void OnIsAutomaticChanged(DataParameter parameter, ITransferableData owner) {
         this.UpdateTextPreview();
     }
 
-    private void UpdateTextPreview()
-    {
-        if (this.singleHandler != null && this.SlotModel!.IsAutomaticParameter.GetValue(this.singleHandler))
-        {
+    private void UpdateTextPreview() {
+        if (this.singleHandler != null && this.SlotModel!.IsAutomaticParameter.GetValue(this.singleHandler)) {
             this.draggerX.FinalPreviewStringFormat = this.draggerY.FinalPreviewStringFormat = "{0} (Auto)";
         }
-        else
-        {
+        else {
             this.draggerX.FinalPreviewStringFormat = this.draggerY.FinalPreviewStringFormat = null;
         }
     }
 
-    private void OnHasMultipleValuesChanged(DataParameterPropertyEditorSlot sender)
-    {
+    private void OnHasMultipleValuesChanged(DataParameterPropertyEditorSlot sender) {
         this.UpdateDraggerMultiValueState();
     }
 
-    protected override void UpdateControlValue()
-    {
+    protected override void UpdateControlValue() {
         SKPoint value = this.SlotModel!.Value;
         this.draggerX.Value = value.X;
         this.draggerY.Value = value.Y;
         this.UpdateTextPreview();
     }
 
-    protected override void UpdateModelValue()
-    {
+    protected override void UpdateModelValue() {
         this.SlotModel!.Value = new SKPoint((float) this.draggerX.Value, (float) this.draggerY.Value);
     }
 }

@@ -51,8 +51,7 @@ using FramePFX.Utils;
 
 namespace FramePFX.Avalonia;
 
-public class ApplicationImpl : Application
-{
+public class ApplicationImpl : Application {
     public override IDispatcher Dispatcher { get; }
 
     /// <summary>
@@ -60,8 +59,7 @@ public class ApplicationImpl : Application
     /// </summary>
     public App App { get; }
 
-    public ApplicationImpl(App app)
-    {
+    public ApplicationImpl(App app) {
         this.App = app ?? throw new ArgumentNullException(nameof(app));
         this.Dispatcher = new DispatcherImpl(global::Avalonia.Threading.Dispatcher.UIThread);
     }
@@ -74,8 +72,7 @@ public class ApplicationImpl : Application
 
     public static Task InternalOnInitialised(VideoEditor editor, string[] args) => InternalOnInitialised2(editor, args);
 
-    protected override void RegisterServices(ServiceManager manager)
-    {
+    protected override void RegisterServices(ServiceManager manager) {
         base.RegisterServices(manager);
         manager.RegisterConstant<IMessageDialogService>(new MessageDialogServiceImpl());
         manager.RegisterConstant<IUserInputDialogService>(new InputDialogServiceImpl());
@@ -87,8 +84,7 @@ public class ApplicationImpl : Application
         manager.RegisterConstant<IInputStrokeQueryDialogService>(new InputStrokeDialogsImpl());
     }
 
-    protected override async Task OnInitialise(IApplicationStartupProgress progress)
-    {
+    protected override async Task OnInitialise(IApplicationStartupProgress progress) {
         // Since we're calling a base method which will complete to 100%,
         // we need to push a completion range for our custom code
         using (progress.CompletionState.PushCompletionRange(0.0, 0.5))
@@ -109,47 +105,39 @@ public class ApplicationImpl : Application
         // }
 
         await progress.ProgressAndSynchroniseAsync("Loading keymap...");
-        
+
         string keymapFilePath = Path.GetFullPath(@"Keymap.xml");
-        if (File.Exists(keymapFilePath))
-        {
-            try
-            {
+        if (File.Exists(keymapFilePath)) {
+            try {
                 await using FileStream stream = File.OpenRead(keymapFilePath);
                 AvaloniaShortcutManager.AvaloniaInstance.DeserialiseRoot(stream);
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 await IMessageDialogService.Instance.ShowMessage("Keymap", "Failed to read keymap file" + keymapFilePath + ". This error can be ignored, but shortcuts won't work", ex.GetToString());
             }
         }
-        else
-        {
+        else {
             await IMessageDialogService.Instance.ShowMessage("Keymap", "Keymap file does not exist at " + keymapFilePath + ". This error can be ignored, but shortcuts won't work");
         }
 
         await progress.ProgressAndSynchroniseAsync("Loading Native Engine...", 0.65);
 
-        try
-        {
+        try {
             PFXNative.InitialiseLibrary();
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             await IMessageDialogService.Instance.ShowMessage("Native Engine Initialisation Failed", "Failed to initialise native engine", e.GetToString());
         }
-        
+
         await progress.ProgressAndSynchroniseAsync("Loading FFmpeg...", 0.8);
 
         // FramePFX is a small non-linear video editor, written in C# using Avalonia for the UI
         // but what if we don't
-        
-        try
-        {
+
+        try {
             ffmpeg.avdevice_register_all();
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
             await IMessageDialogService.Instance.ShowMessage("FFmpeg registration failed", "Failed to register all FFmpeg devices. Is FFmpeg installed correctly?", e.GetToString());
         }
 
@@ -159,29 +147,24 @@ public class ApplicationImpl : Application
             const ulong expected = a - b;
 
             await progress.ProgressAndSynchroniseAsync("Checking native engine functionality", 0.95);
-            
+
             // cute little test to see if we're pumping iron not rust
-            if (expected != PFXNative.TestEngineSubNumbers(a, b)) 
-            {
+            if (expected != PFXNative.TestEngineSubNumbers(a, b)) {
                 await IMessageDialogService.Instance.ShowMessage("Native Engine malfunction", "Native engine test failed");
                 throw new Exception("Native engine functionality failed");
             }
         }
     }
 
-    protected override async Task OnFullyInitialised(VideoEditor editor, string[] args)
-    {
+    protected override async Task OnFullyInitialised(VideoEditor editor, string[] args) {
         await base.OnFullyInitialised(editor, args);
-        if (this.App.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        {
+        if (this.App.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             ((EditorWindow) desktop.MainWindow!).PART_ViewPort!.PART_FreeMoveViewPort!.FitContentToCenter();
         }
     }
 
-    public static bool TryGetActiveWindow([NotNullWhen(true)] out Window? window)
-    {
-        if (global::Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        {
+    public static bool TryGetActiveWindow([NotNullWhen(true)] out Window? window) {
+        if (global::Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             return (window = desktop.Windows.FirstOrDefault(x => x.IsActive) ?? desktop.MainWindow) != null;
         }
 
@@ -189,67 +172,56 @@ public class ApplicationImpl : Application
         return false;
     }
 
-    private class DispatcherImpl : IDispatcher
-    {
-        private static readonly Action EmptyAction = () => { };
+    private class DispatcherImpl : IDispatcher {
+        private static readonly Action EmptyAction = () => {
+        };
+
         private readonly Dispatcher dispatcher;
 
-        public DispatcherImpl(Dispatcher dispatcher)
-        {
+        public DispatcherImpl(Dispatcher dispatcher) {
             this.dispatcher = dispatcher;
         }
 
-        public bool CheckAccess()
-        {
+        public bool CheckAccess() {
             return this.dispatcher.CheckAccess();
         }
 
-        public void VerifyAccess()
-        {
+        public void VerifyAccess() {
             this.dispatcher.VerifyAccess();
         }
 
-        public void Invoke(Action action, DispatchPriority priority)
-        {
-            if (priority == DispatchPriority.Send && this.dispatcher.CheckAccess())
-            {
+        public void Invoke(Action action, DispatchPriority priority) {
+            if (priority == DispatchPriority.Send && this.dispatcher.CheckAccess()) {
                 action();
             }
-            else
-            {
+            else {
                 this.dispatcher.Invoke(action, ToAvaloniaPriority(priority));
             }
         }
 
-        public T Invoke<T>(Func<T> function, DispatchPriority priority)
-        {
+        public T Invoke<T>(Func<T> function, DispatchPriority priority) {
             if (priority == DispatchPriority.Send && this.dispatcher.CheckAccess())
                 return function();
             return this.dispatcher.Invoke(function, ToAvaloniaPriority(priority));
         }
 
-        public Task InvokeAsync(Action action, DispatchPriority priority, CancellationToken token = default)
-        {
+        public Task InvokeAsync(Action action, DispatchPriority priority, CancellationToken token = default) {
             return this.dispatcher.InvokeAsync(action, ToAvaloniaPriority(priority), token).GetTask();
         }
 
-        public Task<T> InvokeAsync<T>(Func<T> function, DispatchPriority priority, CancellationToken token = default)
-        {
+        public Task<T> InvokeAsync<T>(Func<T> function, DispatchPriority priority, CancellationToken token = default) {
             return this.dispatcher.InvokeAsync(function, ToAvaloniaPriority(priority), token).GetTask();
         }
 
-        public void Post(Action action, DispatchPriority priority = DispatchPriority.Default)
-        {
+        public void Post(Action action, DispatchPriority priority = DispatchPriority.Default) {
             this.dispatcher.Post(action, ToAvaloniaPriority(priority));
         }
-        
-        public Task Process(DispatchPriority priority)
-        {
+
+        public Task Process(DispatchPriority priority) {
             return this.InvokeAsync(EmptyAction, priority);
         }
 
-        private static DispatcherPriority ToAvaloniaPriority(DispatchPriority priority)
-        {
+        private static DispatcherPriority ToAvaloniaPriority(DispatchPriority priority) {
             return Unsafe.As<DispatchPriority, DispatcherPriority>(ref priority);
         }
     }

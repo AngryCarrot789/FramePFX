@@ -19,8 +19,7 @@
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 
-public enum ResourceNodeDragState
-{
+public enum ResourceNodeDragState {
     // No drag drop has been started yet
     None = 0,
 

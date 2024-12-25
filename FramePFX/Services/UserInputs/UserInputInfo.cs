@@ -26,8 +26,7 @@ namespace FramePFX.Services.UserInputs;
 /// The base class for a user input dialog's model, which contains generic
 /// properties suitable across any type of two-buttoned titlebar and message dialog
 /// </summary>
-public abstract class UserInputInfo : ITransferableData
-{
+public abstract class UserInputInfo : ITransferableData {
     public static readonly DataParameterString CaptionParameter = DataParameter.Register(new DataParameterString(typeof(UserInputInfo), nameof(Caption), null, ValueAccessors.Reflective<string?>(typeof(UserInputInfo), nameof(caption))));
     public static readonly DataParameterString MessageParameter = DataParameter.Register(new DataParameterString(typeof(UserInputInfo), nameof(Message), null, ValueAccessors.Reflective<string?>(typeof(UserInputInfo), nameof(message))));
     public static readonly DataParameterString ConfirmTextParameter = DataParameter.Register(new DataParameterString(typeof(UserInputInfo), nameof(ConfirmText), "OK", ValueAccessors.Reflective<string?>(typeof(UserInputInfo), nameof(confirmText))));
@@ -43,8 +42,7 @@ public abstract class UserInputInfo : ITransferableData
     /// <summary>
     /// Gets or sets the dialog's caption, displayed usually in the titlebar
     /// </summary>
-    public string? Caption
-    {
+    public string? Caption {
         get => this.caption;
         set => DataParameter.SetValueHelper(this, CaptionParameter, ref this.caption, value);
     }
@@ -54,8 +52,7 @@ public abstract class UserInputInfo : ITransferableData
     /// typically in bolder text. This could be some general information about what the fields do or maybe some rules.
     /// See derived classes for properties such as labels or field descriptions, which may be more specific
     /// </summary>
-    public string? Message
-    {
+    public string? Message {
         get => this.message;
         set => DataParameter.SetValueHelper(this, MessageParameter, ref this.message, value);
     }
@@ -63,8 +60,7 @@ public abstract class UserInputInfo : ITransferableData
     /// <summary>
     /// Gets or sets the text in the confirm button
     /// </summary>
-    public string? ConfirmText
-    {
+    public string? ConfirmText {
         get => this.confirmText;
         set => DataParameter.SetValueHelper(this, ConfirmTextParameter, ref this.confirmText, value);
     }
@@ -72,8 +68,7 @@ public abstract class UserInputInfo : ITransferableData
     /// <summary>
     /// Gets or sets the text in the cancel button
     /// </summary>
-    public string? CancelText
-    {
+    public string? CancelText {
         get => this.cancelText;
         set => DataParameter.SetValueHelper(this, CancelTextParameter, ref this.cancelText, value);
     }
@@ -84,13 +79,11 @@ public abstract class UserInputInfo : ITransferableData
     /// </summary>
     public bool? DefaultButton { get; init; }
 
-    public UserInputInfo()
-    {
+    public UserInputInfo() {
         this.TransferableData = new TransferableData(this);
     }
-    
-    public UserInputInfo(string? caption, string? message) : this()
-    {
+
+    public UserInputInfo(string? caption, string? message) : this() {
         this.caption = caption;
         this.message = message;
     }

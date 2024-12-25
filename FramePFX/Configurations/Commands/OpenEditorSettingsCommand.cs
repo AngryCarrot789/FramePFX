@@ -21,10 +21,8 @@ using FramePFX.CommandSystem;
 
 namespace FramePFX.Configurations.Commands;
 
-public class OpenEditorSettingsCommand : AsyncCommand
-{
-    protected override Task ExecuteAsync(CommandEventArgs e)
-    {
+public class OpenEditorSettingsCommand : AsyncCommand {
+    protected override Task ExecuteAsync(CommandEventArgs e) {
         return IConfigurationDialogService.Instance.ShowConfigurationDialog(ApplicationConfigurationManager.Instance);
     }
 }

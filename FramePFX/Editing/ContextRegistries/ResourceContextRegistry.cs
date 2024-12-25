@@ -19,7 +19,5 @@
 
 namespace FramePFX.Editing.ContextRegistries;
 
-public class ResourceContextRegistry
-{
-    
+public class ResourceContextRegistry {
 }

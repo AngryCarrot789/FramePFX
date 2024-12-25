@@ -26,8 +26,7 @@ namespace FramePFX.Shortcuts;
 /// <summary>
 /// A shortcut that accepts a combination of key and mouse strokes
 /// </summary>
-public class MouseKeyboardShortcut : IMouseShortcut, IKeyboardShortcut
-{
+public class MouseKeyboardShortcut : IMouseShortcut, IKeyboardShortcut {
     public static readonly MouseShortcut EmptyMouseKeyboardShortcut = new MouseShortcut();
 
     private readonly List<IInputStroke> inputStrokes;
@@ -38,8 +37,7 @@ public class MouseKeyboardShortcut : IMouseShortcut, IKeyboardShortcut
 
     public IInputStroke PrimaryStroke => this.inputStrokes[0];
 
-    public IEnumerable<IInputStroke> InputStrokes
-    {
+    public IEnumerable<IInputStroke> InputStrokes {
         get => this.inputStrokes;
     }
 
@@ -51,68 +49,54 @@ public class MouseKeyboardShortcut : IMouseShortcut, IKeyboardShortcut
 
     public bool HasSecondaryStrokes => this.inputStrokes.Count > 1;
 
-    public MouseKeyboardShortcut()
-    {
+    public MouseKeyboardShortcut() {
         this.inputStrokes = new List<IInputStroke>();
     }
 
-    public MouseKeyboardShortcut(params IInputStroke[] secondMouseStrokes)
-    {
+    public MouseKeyboardShortcut(params IInputStroke[] secondMouseStrokes) {
         this.inputStrokes = new List<IInputStroke>(secondMouseStrokes);
     }
 
-    public MouseKeyboardShortcut(IEnumerable<IInputStroke> secondMouseStrokes)
-    {
+    public MouseKeyboardShortcut(IEnumerable<IInputStroke> secondMouseStrokes) {
         this.inputStrokes = new List<IInputStroke>(secondMouseStrokes);
     }
 
-    public MouseKeyboardShortcut(List<IInputStroke> inputStrokes)
-    {
+    public MouseKeyboardShortcut(List<IInputStroke> inputStrokes) {
         Validate.NotNull(inputStrokes);
         this.inputStrokes = inputStrokes;
     }
 
-    public IMouseShortcutUsage CreateMouseUsage()
-    {
+    public IMouseShortcutUsage CreateMouseUsage() {
         return (IMouseShortcutUsage) this.CreateUsage();
     }
 
 
-    public IKeyboardShortcutUsage CreateKeyUsage()
-    {
+    public IKeyboardShortcutUsage CreateKeyUsage() {
         return (IKeyboardShortcutUsage) this.CreateUsage();
     }
 
-    public IShortcutUsage CreateUsage()
-    {
+    public IShortcutUsage CreateUsage() {
         return this.IsEmpty ? throw new InvalidOperationException("Shortcut is empty. Cannot create a usage") : new MouseKeyboardShortcutUsage(this);
     }
 
-    public bool IsPrimaryStroke(IInputStroke input)
-    {
+    public bool IsPrimaryStroke(IInputStroke input) {
         return this.PrimaryStroke.Equals(input);
     }
 
-    public override string ToString()
-    {
+    public override string ToString() {
         return string.Join(", ", this.inputStrokes);
     }
 
-    public override bool Equals(object? obj)
-    {
-        if (obj is MouseKeyboardShortcut shortcut)
-        {
+    public override bool Equals(object? obj) {
+        if (obj is MouseKeyboardShortcut shortcut) {
             int lenA = this.inputStrokes.Count;
             int lenB = shortcut.inputStrokes.Count;
-            if (lenA != lenB)
-            {
+            if (lenA != lenB) {
                 return false;
             }
 
-            for (int i = 0; i < lenA; i++)
-            {
-                if (!this.inputStrokes[i].Equals(shortcut.inputStrokes[i]))
-                {
+            for (int i = 0; i < lenA; i++) {
+                if (!this.inputStrokes[i].Equals(shortcut.inputStrokes[i])) {
                     return false;
                 }
             }
@@ -123,8 +107,7 @@ public class MouseKeyboardShortcut : IMouseShortcut, IKeyboardShortcut
         return false;
     }
 
-    public override int GetHashCode()
-    {
+    public override int GetHashCode() {
         int code = 0;
         foreach (IInputStroke stroke in this.inputStrokes)
             code += stroke.GetHashCode();

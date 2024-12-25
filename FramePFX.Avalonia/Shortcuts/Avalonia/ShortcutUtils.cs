@@ -23,45 +23,36 @@ using FramePFX.Shortcuts.Inputs;
 
 namespace FramePFX.Avalonia.Shortcuts.Avalonia;
 
-public static class ShortcutUtils
-{
-    public static void SplitValue(string input, out string shortcutId, out string usageId)
-    {
-        if (string.IsNullOrWhiteSpace(input))
-        {
+public static class ShortcutUtils {
+    public static void SplitValue(string input, out string shortcutId, out string usageId) {
+        if (string.IsNullOrWhiteSpace(input)) {
             shortcutId = null;
             usageId = AvaloniaShortcutManager.DEFAULT_USAGE_ID;
             return;
         }
 
         int split = input.LastIndexOf(':');
-        if (split == -1)
-        {
+        if (split == -1) {
             shortcutId = input;
             usageId = AvaloniaShortcutManager.DEFAULT_USAGE_ID;
         }
-        else
-        {
+        else {
             shortcutId = input.Substring(0, split);
-            if (string.IsNullOrWhiteSpace(shortcutId))
-            {
+            if (string.IsNullOrWhiteSpace(shortcutId)) {
                 shortcutId = null;
             }
 
             usageId = input.Substring(split + 1);
-            if (string.IsNullOrWhiteSpace(usageId))
-            {
+            if (string.IsNullOrWhiteSpace(usageId)) {
                 usageId = AvaloniaShortcutManager.DEFAULT_USAGE_ID;
             }
         }
     }
 
-    public static bool GetKeyStrokeForEvent(KeyEventArgs e, out KeyStroke stroke, bool isRelease)
-    {
+    public static bool GetKeyStrokeForEvent(KeyEventArgs e, out KeyStroke stroke, bool isRelease) {
         // Key key = e.Key == Key.System ? (Key) e.PhysicalKey : e.Key;
         Key key = e.Key;
-        if (IsModifierKey(key) || key == Key.DeadCharProcessed)
-        {
+        if (IsModifierKey(key) || key == Key.DeadCharProcessed) {
             stroke = default;
             return false;
         }
@@ -70,18 +61,14 @@ public static class ShortcutUtils
         return true;
     }
 
-    public static void EnforceIdFormat(string id, string paramName)
-    {
-        if (string.IsNullOrWhiteSpace(id))
-        {
+    public static void EnforceIdFormat(string id, string paramName) {
+        if (string.IsNullOrWhiteSpace(id)) {
             throw new Exception($"{paramName} cannot be null/empty or consist of whitespaces only");
         }
     }
 
-    public static bool IsModifierKey(Key key)
-    {
-        switch (key)
-        {
+    public static bool IsModifierKey(Key key) {
+        switch (key) {
             case Key.LeftCtrl:
             case Key.RightCtrl:
             case Key.LeftAlt:
@@ -98,14 +85,12 @@ public static class ShortcutUtils
         }
     }
 
-    public static MouseStroke GetMouseStrokeForEvent(PointerPressedEventArgs e)
-    {
+    public static MouseStroke GetMouseStrokeForEvent(PointerPressedEventArgs e) {
         // TODO
         return new MouseStroke(0, 0, false);
     }
-    
-    public static bool GetMouseStrokeForEvent(PointerWheelEventArgs e, out MouseStroke stroke)
-    {
+
+    public static bool GetMouseStrokeForEvent(PointerWheelEventArgs e, out MouseStroke stroke) {
         // TODO
         stroke = default;
         return false;

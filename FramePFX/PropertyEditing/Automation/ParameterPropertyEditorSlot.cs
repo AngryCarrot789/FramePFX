@@ -27,8 +27,7 @@ namespace FramePFX.PropertyEditing.Automation;
 
 public delegate void ParameterPropertyEditorSlotEventHandler(ParameterPropertyEditorSlot slot);
 
-public abstract class ParameterPropertyEditorSlot : PropertyEditorSlot
-{
+public abstract class ParameterPropertyEditorSlot : PropertyEditorSlot {
     private string displayName;
     private bool hasMultipleValues;
     private bool hasProcessedMultipleValuesSinceSetup;
@@ -38,11 +37,9 @@ public abstract class ParameterPropertyEditorSlot : PropertyEditorSlot
 
     public Parameter Parameter { get; }
 
-    public string DisplayName
-    {
+    public string DisplayName {
         get => this.displayName;
-        set
-        {
+        set {
             if (this.displayName == value)
                 return;
             this.displayName = value;
@@ -55,11 +52,9 @@ public abstract class ParameterPropertyEditorSlot : PropertyEditorSlot
     /// This is used to present some sort of signal in the UI warning the user before they try to modify it.
     /// This state must be updated manually by derived classes when the values are no longer different
     /// </summary>
-    public bool HasMultipleValues
-    {
+    public bool HasMultipleValues {
         get => this.hasMultipleValues;
-        protected set
-        {
+        protected set {
             if (this.hasMultipleValues == value)
                 return;
 
@@ -74,11 +69,9 @@ public abstract class ParameterPropertyEditorSlot : PropertyEditorSlot
     /// Gets or sets whether the <see cref="HasMultipleValues"/> has been
     /// updated since <see cref="BasePropertyEditorItem.IsCurrentlyApplicable"/> became true
     /// </summary>
-    public bool HasProcessedMultipleValuesSinceSetup
-    {
+    public bool HasProcessedMultipleValuesSinceSetup {
         get => this.hasProcessedMultipleValuesSinceSetup;
-        set
-        {
+        set {
             if (this.hasProcessedMultipleValuesSinceSetup == value)
                 return;
 
@@ -94,31 +87,25 @@ public abstract class ParameterPropertyEditorSlot : PropertyEditorSlot
     public event ParameterPropertyEditorSlotEventHandler? HasMultipleValuesChanged;
     public event ParameterPropertyEditorSlotEventHandler? HasProcessedMultipleValuesChanged;
 
-    protected ParameterPropertyEditorSlot(Parameter parameter, Type applicableType, string displayName = null) : base(applicableType)
-    {
+    protected ParameterPropertyEditorSlot(Parameter parameter, Type applicableType, string displayName = null) : base(applicableType) {
         this.Parameter = parameter ?? throw new ArgumentNullException(nameof(parameter));
         this.displayName = displayName ?? parameter.Key.ToString();
         this.IsSelectedChanged += this.OnIsSelectedChanged;
     }
 
-    private void OnIsSelectedChanged(PropertyEditorSlot sender)
-    {
+    private void OnIsSelectedChanged(PropertyEditorSlot sender) {
         bool selected = this.IsSelected;
-        foreach (IAutomatable automatable in this.Handlers)
-        {
-            if (automatable is Clip clip)
-            {
+        foreach (IAutomatable automatable in this.Handlers) {
+            if (automatable is Clip clip) {
                 clip.ActiveSequence = selected ? clip.AutomationData[this.Parameter] : null;
             }
-            else if (automatable is BaseEffect effect && effect.Owner is Clip effectClipOwner)
-            {
+            else if (automatable is BaseEffect effect && effect.Owner is Clip effectClipOwner) {
                 effectClipOwner.ActiveSequence = selected ? effect.AutomationData[this.Parameter] : null;
             }
         }
     }
 
-    protected override void OnHandlersLoaded()
-    {
+    protected override void OnHandlersLoaded() {
         base.OnHandlersLoaded();
         if (this.IsSingleHandler)
             this.SingleHandler.AutomationData[this.Parameter].ParameterChanged += this.OnValueForSingleHandlerChanged;
@@ -127,15 +114,13 @@ public abstract class ParameterPropertyEditorSlot : PropertyEditorSlot
         this.OnValueChanged();
     }
 
-    protected override void OnClearingHandlers()
-    {
+    protected override void OnClearingHandlers() {
         base.OnClearingHandlers();
         if (this.IsSingleHandler)
             this.SingleHandler.AutomationData[this.Parameter].ParameterChanged -= this.OnValueForSingleHandlerChanged;
     }
 
-    private void OnValueForSingleHandlerChanged(AutomationSequence sequence)
-    {
+    private void OnValueForSingleHandlerChanged(AutomationSequence sequence) {
         this.QueryValueFromHandlers();
         this.lastQueryHasMultipleValues = this.HasMultipleValues;
         this.OnValueChanged();
@@ -147,8 +132,7 @@ public abstract class ParameterPropertyEditorSlot : PropertyEditorSlot
     /// </summary>
     protected abstract void QueryValueFromHandlers();
 
-    protected void OnValueChanged(bool? hasMultipleValues = null, bool? hasProcessedMultiValueSinceSetup = null)
-    {
+    protected void OnValueChanged(bool? hasMultipleValues = null, bool? hasProcessedMultiValueSinceSetup = null) {
         this.ValueChanged?.Invoke(this);
         if (hasMultipleValues.HasValue)
             this.HasMultipleValues = hasMultipleValues.Value;

@@ -25,17 +25,14 @@ namespace FramePFX.Configurations;
 /// <summary>
 /// A configuration page that consists entirely of a property editor
 /// </summary>
-public abstract class PropertyEditorConfigurationPage : ConfigurationPage
-{
+public abstract class PropertyEditorConfigurationPage : ConfigurationPage {
     public PropertyEditor PropertyEditor { get; }
 
-    public PropertyEditorConfigurationPage()
-    {
+    public PropertyEditorConfigurationPage() {
         this.PropertyEditor = new PropertyEditor();
     }
 
-    public PropertyEditorConfigurationPage(PropertyEditor propertyEditor)
-    {
+    public PropertyEditorConfigurationPage(PropertyEditor propertyEditor) {
         Validate.NotNull(propertyEditor);
         this.PropertyEditor = propertyEditor;
     }

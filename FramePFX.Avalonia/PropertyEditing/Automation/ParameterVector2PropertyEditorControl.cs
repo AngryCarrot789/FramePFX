@@ -29,8 +29,7 @@ using FramePFX.PropertyEditing.DataTransfer;
 
 namespace FramePFX.Avalonia.PropertyEditing.Automation;
 
-public class ParameterVector2PropertyEditorControl : BaseParameterPropertyEditorControl
-{
+public class ParameterVector2PropertyEditorControl : BaseParameterPropertyEditorControl {
     protected NumberDragger draggerX;
     protected NumberDragger draggerY;
     protected bool IsUpdatingControl;
@@ -39,10 +38,8 @@ public class ParameterVector2PropertyEditorControl : BaseParameterPropertyEditor
 
     private readonly AutoUpdateAndEventPropertyBinder<ParameterVector2PropertyEditorSlot> valueFormatterBinder;
 
-    public ParameterVector2PropertyEditorControl()
-    {
-        this.valueFormatterBinder = new AutoUpdateAndEventPropertyBinder<ParameterVector2PropertyEditorSlot>(null, nameof(ParameterVector2PropertyEditorSlot.ValueFormatterChanged), (x) =>
-        {
+    public ParameterVector2PropertyEditorControl() {
+        this.valueFormatterBinder = new AutoUpdateAndEventPropertyBinder<ParameterVector2PropertyEditorSlot>(null, nameof(ParameterVector2PropertyEditorSlot.ValueFormatterChanged), (x) => {
             ParameterVector2PropertyEditorControl editor = (ParameterVector2PropertyEditorControl) x.Control;
             editor.draggerX.ValueFormatter = x.Model.ValueFormatter;
             editor.draggerY.ValueFormatter = x.Model.ValueFormatter;
@@ -50,8 +47,7 @@ public class ParameterVector2PropertyEditorControl : BaseParameterPropertyEditor
         this.valueFormatterBinder.AttachControl(this);
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.draggerX = e.NameScope.GetTemplateChild<NumberDragger>("PART_DraggerX");
         this.draggerY = e.NameScope.GetTemplateChild<NumberDragger>("PART_DraggerY");
@@ -60,10 +56,8 @@ public class ParameterVector2PropertyEditorControl : BaseParameterPropertyEditor
         this.UpdateDraggerMultiValueState();
     }
 
-    private void UpdateDraggerMultiValueState()
-    {
-        if (!this.IsConnected)
-        {
+    private void UpdateDraggerMultiValueState() {
+        if (!this.IsConnected) {
             return;
         }
 
@@ -72,44 +66,35 @@ public class ParameterVector2PropertyEditorControl : BaseParameterPropertyEditor
         BaseNumberDraggerDataParamPropEditorControl.UpdateNumberDragger(this.draggerY, flag, flag2);
     }
 
-    protected void UpdateControlValue()
-    {
+    protected void UpdateControlValue() {
         Vector2 value = this.SlotModel!.Value;
         this.draggerX.Value = value.X;
         this.draggerY.Value = value.Y;
     }
 
-    protected void UpdateModelValue()
-    {
+    protected void UpdateModelValue() {
         this.SlotModel!.Value = new Vector2((float) this.draggerX.Value, (float) this.draggerY.Value);
     }
 
-    private void OnModelValueChanged()
-    {
-        if (this.SlotModel != null)
-        {
+    private void OnModelValueChanged() {
+        if (this.SlotModel != null) {
             this.IsUpdatingControl = true;
-            try
-            {
+            try {
                 this.UpdateControlValue();
             }
-            finally
-            {
+            finally {
                 this.IsUpdatingControl = false;
             }
         }
     }
 
-    private void OnControlValueChanged()
-    {
-        if (!this.IsUpdatingControl && this.SlotModel != null)
-        {
+    private void OnControlValueChanged() {
+        if (!this.IsUpdatingControl && this.SlotModel != null) {
             this.UpdateModelValue();
         }
     }
 
-    protected override void OnConnected()
-    {
+    protected override void OnConnected() {
         ParameterVector2PropertyEditorSlot slot = this.SlotModel!;
         this.valueFormatterBinder.AttachModel(slot);
         base.OnConnected();
@@ -130,8 +115,7 @@ public class ParameterVector2PropertyEditorControl : BaseParameterPropertyEditor
         this.draggerX.LargeChange = this.draggerY.LargeChange = profile.LargeStep;
     }
 
-    protected override void OnDisconnected()
-    {
+    protected override void OnDisconnected() {
         this.valueFormatterBinder.DetachModel();
         base.OnDisconnected();
         ParameterVector2PropertyEditorSlot slot = this.SlotModel!;
@@ -140,18 +124,15 @@ public class ParameterVector2PropertyEditorControl : BaseParameterPropertyEditor
         slot.HasProcessedMultipleValuesChanged += this.OnHasProcessedMultipleValuesChanged;
     }
 
-    private void OnHasMultipleValuesChanged(ParameterPropertyEditorSlot slot)
-    {
+    private void OnHasMultipleValuesChanged(ParameterPropertyEditorSlot slot) {
         this.UpdateDraggerMultiValueState();
     }
 
-    private void OnHasProcessedMultipleValuesChanged(ParameterPropertyEditorSlot slot)
-    {
+    private void OnHasProcessedMultipleValuesChanged(ParameterPropertyEditorSlot slot) {
         this.UpdateDraggerMultiValueState();
     }
 
-    private void OnSlotValueChanged(ParameterPropertyEditorSlot slot)
-    {
+    private void OnSlotValueChanged(ParameterPropertyEditorSlot slot) {
         this.OnModelValueChanged();
     }
 }

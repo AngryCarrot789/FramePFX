@@ -26,8 +26,7 @@ namespace FramePFX.PropertyEditing.DataTransfer.Enums;
 /// Information about an enum set
 /// </summary>
 /// <typeparam name="TEnum">Type of enum</typeparam>
-public class DataParameterEnumInfo<TEnum> where TEnum : struct, Enum
-{
+public class DataParameterEnumInfo<TEnum> where TEnum : struct, Enum {
     public readonly ReadOnlyCollection<(TEnum, string)> AllowedEnumList;
     public readonly IReadOnlyDictionary<TEnum, string> EnumToText;
     public readonly IReadOnlyDictionary<string, TEnum> TextToEnum;
@@ -38,8 +37,7 @@ public class DataParameterEnumInfo<TEnum> where TEnum : struct, Enum
     public DataParameterEnumInfo() : this(null) {
     }
 
-    public DataParameterEnumInfo(IEnumerable<TEnum>? allowedEnumValues)
-    {
+    public DataParameterEnumInfo(IEnumerable<TEnum>? allowedEnumValues) {
         if (allowedEnumValues == null)
             allowedEnumValues = typeof(TEnum).GetEnumValues().Cast<TEnum>();
 
@@ -48,8 +46,7 @@ public class DataParameterEnumInfo<TEnum> where TEnum : struct, Enum
         this.TextToEnum = new Dictionary<string, TEnum>(this.AllowedEnumList.Select(x => new KeyValuePair<string, TEnum>(x.Item2, x.Item1)));
     }
 
-    public DataParameterEnumInfo(IEnumerable<TEnum> allowedEnumValues, IReadOnlyDictionary<TEnum, string> enumToTextMap)
-    {
+    public DataParameterEnumInfo(IEnumerable<TEnum> allowedEnumValues, IReadOnlyDictionary<TEnum, string> enumToTextMap) {
         Validate.NotNull(allowedEnumValues);
         Validate.NotNull(enumToTextMap);
 
@@ -57,8 +54,7 @@ public class DataParameterEnumInfo<TEnum> where TEnum : struct, Enum
 
         // Generate missing translations
         Dictionary<TEnum, string> fullEnumToTextMap = new Dictionary<TEnum, string>(enumToTextMap);
-        foreach ((TEnum theEnum, string theName) t in this.AllowedEnumList)
-        {
+        foreach ((TEnum theEnum, string theName) t in this.AllowedEnumList) {
             if (!fullEnumToTextMap.ContainsKey(t.theEnum))
                 fullEnumToTextMap[t.theEnum] = t.theName;
         }

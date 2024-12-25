@@ -29,8 +29,7 @@ using FramePFX.Interactivity;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Lists;
 
-public class ResourceExplorerSelectionManager : ISelectionManager<BaseResource>, ILightSelectionManager<BaseResource>
-{
+public class ResourceExplorerSelectionManager : ISelectionManager<BaseResource>, ILightSelectionManager<BaseResource> {
     private readonly AvaloniaList<object> mySelectionList;
 
     public ResourceExplorerListBox ListBox { get; }
@@ -46,8 +45,7 @@ public class ResourceExplorerSelectionManager : ISelectionManager<BaseResource>,
 
     private LightSelectionChangedEventHandler<BaseResource>? LightSelectionChanged;
 
-    event LightSelectionChangedEventHandler<BaseResource>? ILightSelectionManager<BaseResource>.SelectionChanged
-    {
+    event LightSelectionChangedEventHandler<BaseResource>? ILightSelectionManager<BaseResource>.SelectionChanged {
         add => this.LightSelectionChanged += value;
         remove => this.LightSelectionChanged -= value;
     }
@@ -56,172 +54,136 @@ public class ResourceExplorerSelectionManager : ISelectionManager<BaseResource>,
     private List<BaseResource>? batchResources_old;
     private List<BaseResource>? batchResources_new;
 
-    public ResourceExplorerSelectionManager(ResourceExplorerListBox listBox)
-    {
+    public ResourceExplorerSelectionManager(ResourceExplorerListBox listBox) {
         this.ListBox = listBox;
         this.ListBox.SelectedItems = this.mySelectionList = new AvaloniaList<object>();
         this.mySelectionList.CollectionChanged += this.OnSelectionCollectionChanged;
     }
 
-    private void OnSelectionCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        switch (e.Action)
-        {
-            case NotifyCollectionChangedAction.Add: this.ProcessTreeSelection(null, e.NewItems ?? null); break;
-            case NotifyCollectionChangedAction.Remove: this.ProcessTreeSelection(e.OldItems, null); break;
+    private void OnSelectionCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) {
+        switch (e.Action) {
+            case NotifyCollectionChangedAction.Add:     this.ProcessTreeSelection(null, e.NewItems ?? null); break;
+            case NotifyCollectionChangedAction.Remove:  this.ProcessTreeSelection(e.OldItems, null); break;
             case NotifyCollectionChangedAction.Replace: this.ProcessTreeSelection(e.OldItems, e.NewItems ?? null); break;
-            case NotifyCollectionChangedAction.Reset: this.RaiseSelectionCleared(); break;
-            case NotifyCollectionChangedAction.Move: break;
-            default: throw new ArgumentOutOfRangeException();
+            case NotifyCollectionChangedAction.Reset:   this.RaiseSelectionCleared(); break;
+            case NotifyCollectionChangedAction.Move:    break;
+            default:                                    throw new ArgumentOutOfRangeException();
         }
     }
 
-    internal void ProcessTreeSelection(IList? oldItems, IList? newItems)
-    {
+    internal void ProcessTreeSelection(IList? oldItems, IList? newItems) {
         List<BaseResource>? oldList = oldItems?.Cast<ResourceExplorerListBoxItem>().Select(x => x.Resource!).ToList();
         List<BaseResource>? newList = newItems?.Cast<ResourceExplorerListBoxItem>().Select(x => x.Resource!).ToList();
-        if (this.isBatching)
-        {
+        if (this.isBatching) {
             // Batch them into one final event that will get called after isBatching is set to false
             if (newList != null && newList.Count > 0)
                 (this.batchResources_new ??= new List<BaseResource>()).AddRange(newList);
             if (oldList != null && oldList.Count > 0)
                 (this.batchResources_old ??= new List<BaseResource>()).AddRange(oldList);
         }
-        else if (oldList?.Count > 0 || newList?.Count > 0)
-        {
+        else if (oldList?.Count > 0 || newList?.Count > 0) {
             this.RaiseSelectionChanged(GetList(oldList), GetList(newList));
         }
     }
 
-    public bool IsSelected(BaseResource item)
-    {
+    public bool IsSelected(BaseResource item) {
         return this.ListBox.ItemMap.TryGetControl(item, out ResourceExplorerListBoxItem? control) && control.IsSelected;
     }
 
-    public void SetSelection(BaseResource item)
-    {
+    public void SetSelection(BaseResource item) {
         this.Clear();
         this.Select(item);
     }
 
-    public void SetSelection(IEnumerable<BaseResource> items)
-    {
+    public void SetSelection(IEnumerable<BaseResource> items) {
         this.Clear();
         this.Select(items);
     }
 
-    public void Select(BaseResource item)
-    {
-        if (this.ListBox.ItemMap.TryGetControl(item, out ResourceExplorerListBoxItem? control))
-        {
+    public void Select(BaseResource item) {
+        if (this.ListBox.ItemMap.TryGetControl(item, out ResourceExplorerListBoxItem? control)) {
             control.IsSelected = true;
         }
     }
 
-    public void Select(IEnumerable<BaseResource> items)
-    {
-        try
-        {
+    public void Select(IEnumerable<BaseResource> items) {
+        try {
             this.isBatching = true;
-            foreach (BaseResource resource in items)
-            {
+            foreach (BaseResource resource in items) {
                 this.Select(resource);
             }
         }
-        finally
-        {
+        finally {
             this.isBatching = false;
         }
 
-        try
-        {
+        try {
             this.RaiseSelectionChanged(GetList(this.batchResources_old), GetList(this.batchResources_new));
         }
-        finally
-        {
+        finally {
             this.batchResources_old?.Clear();
             this.batchResources_new?.Clear();
         }
     }
 
-    public void Unselect(BaseResource item)
-    {
-        if (this.ListBox.ItemMap.TryGetControl(item, out ResourceExplorerListBoxItem? control))
-        {
+    public void Unselect(BaseResource item) {
+        if (this.ListBox.ItemMap.TryGetControl(item, out ResourceExplorerListBoxItem? control)) {
             control.IsSelected = false;
         }
     }
 
-    public void Unselect(IEnumerable<BaseResource> items)
-    {
-        try
-        {
+    public void Unselect(IEnumerable<BaseResource> items) {
+        try {
             this.isBatching = true;
-            foreach (BaseResource resource in items)
-            {
+            foreach (BaseResource resource in items) {
                 this.Unselect(resource);
             }
         }
-        finally
-        {
+        finally {
             this.isBatching = false;
         }
 
-        try
-        {
+        try {
             this.RaiseSelectionChanged(GetList(this.batchResources_old), GetList(this.batchResources_new));
         }
-        finally
-        {
+        finally {
             this.batchResources_old?.Clear();
             this.batchResources_new?.Clear();
         }
     }
 
-    public void ToggleSelected(BaseResource item)
-    {
-        if (this.ListBox.ItemMap.TryGetControl(item, out ResourceExplorerListBoxItem? control))
-        {
+    public void ToggleSelected(BaseResource item) {
+        if (this.ListBox.ItemMap.TryGetControl(item, out ResourceExplorerListBoxItem? control)) {
             control.IsSelected = !control.IsSelected;
         }
     }
 
-    public void Clear()
-    {
+    public void Clear() {
         this.mySelectionList.Clear();
     }
 
-    public void SelectAll()
-    {
-        try
-        {
+    public void SelectAll() {
+        try {
             this.isBatching = true;
-            foreach (ResourceExplorerListBoxItem control in this.ListBox.ItemMap.Controls)
-            {
+            foreach (ResourceExplorerListBoxItem control in this.ListBox.ItemMap.Controls) {
                 control.IsSelected = true;
             }
         }
-        finally
-        {
+        finally {
             this.isBatching = false;
         }
 
-        try
-        {
+        try {
             this.RaiseSelectionChanged(GetList(this.batchResources_old), GetList(this.batchResources_new));
         }
-        finally
-        {
+        finally {
             this.batchResources_old?.Clear();
             this.batchResources_new?.Clear();
         }
     }
 
-    private void RaiseSelectionChanged(ReadOnlyCollection<BaseResource>? oldList, ReadOnlyCollection<BaseResource>? newList)
-    {
-        if (ReferenceEquals(oldList, newList) || (oldList?.Count < 1 && newList?.Count < 1))
-        {
+    private void RaiseSelectionChanged(ReadOnlyCollection<BaseResource>? oldList, ReadOnlyCollection<BaseResource>? newList) {
+        if (ReferenceEquals(oldList, newList) || (oldList?.Count < 1 && newList?.Count < 1)) {
             return;
         }
 
@@ -229,8 +191,7 @@ public class ResourceExplorerSelectionManager : ISelectionManager<BaseResource>,
         this.LightSelectionChanged?.Invoke(this);
     }
 
-    public void RaiseSelectionCleared()
-    {
+    public void RaiseSelectionCleared() {
         this.SelectionCleared?.Invoke(this);
         this.LightSelectionChanged?.Invoke(this);
     }

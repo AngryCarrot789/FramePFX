@@ -20,8 +20,7 @@
 namespace FramePFX.Editing.Automation.Params;
 
 [Flags]
-public enum ParameterFlags
-{
+public enum ParameterFlags {
     /// <summary>
     /// No automatic functionality is done for this parameter
     /// </summary>

@@ -24,15 +24,12 @@ using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
 
 namespace FramePFX.Editing.Timelines.Commands;
 
-public class NewAudioTrackCommand : AsyncCommand
-{
-    protected override Executability CanExecuteOverride(CommandEventArgs e)
-    {
+public class NewAudioTrackCommand : AsyncCommand {
+    protected override Executability CanExecuteOverride(CommandEventArgs e) {
         return e.ContextData.ContainsKey(DataKeys.TimelineKey) ? Executability.ValidButCannotExecute : Executability.Invalid;
     }
 
-    protected override Task ExecuteAsync(CommandEventArgs e)
-    {
+    protected override Task ExecuteAsync(CommandEventArgs e) {
         // if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline timeline)) {
         //     return;
         // }

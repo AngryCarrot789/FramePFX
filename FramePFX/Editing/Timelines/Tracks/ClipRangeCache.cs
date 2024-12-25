@@ -28,8 +28,7 @@ public delegate void ClipRangeCacheEventHandler(ClipRangeCache handler);
 /// A class that stores clips in chunks of 128 frames (0-127, 128-255, 256-383, etc.) to efficiently
 /// locate clips at a particular frame, rather than having to scan the entire track's clip list
 /// </summary>
-public class ClipRangeCache
-{
+public class ClipRangeCache {
     private readonly SortedList<long, ClipList> Map;
 
     /// <summary>
@@ -65,23 +64,18 @@ public class ClipRangeCache
     /// </summary>
     public event ClipRangeCacheEventHandler? FrameDataChanged;
 
-    public ClipRangeCache()
-    {
+    public ClipRangeCache() {
         this.Map = new SortedList<long, ClipList>();
     }
 
-    public Clip? GetPrimaryClipAt(long frame)
-    {
-        if (!this.Map.TryGetValue(GetIndex(frame), out ClipList? list))
-        {
+    public Clip? GetPrimaryClipAt(long frame) {
+        if (!this.Map.TryGetValue(GetIndex(frame), out ClipList? list)) {
             return null;
         }
 
-        for (int i = list.size - 1; i >= 0; i--)
-        {
+        for (int i = list.size - 1; i >= 0; i--) {
             Clip clip = list.items[i];
-            if (clip.IntersectsFrameAt(frame))
-            {
+            if (clip.IntersectsFrameAt(frame)) {
                 return clip;
             }
         }
@@ -89,19 +83,15 @@ public class ClipRangeCache
         return null;
     }
 
-    public void GetClipsInRange(List<Clip> dstList, FrameSpan span)
-    {
+    public void GetClipsInRange(List<Clip> dstList, FrameSpan span) {
         long idxA = GetIndex(span.Begin);
         long idxB = GetIndex(span.EndIndex);
-        for (long idx = idxA; idx <= idxB; idx++)
-        {
-            if (!this.Map.TryGetValue(idx, out ClipList? list))
-            {
+        for (long idx = idxA; idx <= idxB; idx++) {
+            if (!this.Map.TryGetValue(idx, out ClipList? list)) {
                 continue;
             }
 
-            for (int i = list.size - 1; i >= 0; i--)
-            {
+            for (int i = list.size - 1; i >= 0; i--) {
                 Clip clip = list.items[i];
                 if (clip.FrameSpan.Intersects(span))
                     dstList.Add(clip);
@@ -109,12 +99,9 @@ public class ClipRangeCache
         }
     }
 
-    public void ExtractClipsAt(List<Clip> dstList, long frame)
-    {
-        if (this.Map.TryGetValue(GetIndex(frame), out ClipList? list))
-        {
-            for (int i = list.size - 1; i >= 0; i--)
-            {
+    public void ExtractClipsAt(List<Clip> dstList, long frame) {
+        if (this.Map.TryGetValue(GetIndex(frame), out ClipList? list)) {
+            for (int i = list.size - 1; i >= 0; i--) {
                 Clip clip = list.items[i];
                 if (clip.FrameSpan.Intersects(frame))
                     dstList.Add(clip);
@@ -122,13 +109,10 @@ public class ClipRangeCache
         }
     }
 
-    public IEnumerable<Clip> GetClipsAtFrame(long frame)
-    {
-        if (this.Map.TryGetValue(GetIndex(frame), out ClipList? list))
-        {
+    public IEnumerable<Clip> GetClipsAtFrame(long frame) {
+        if (this.Map.TryGetValue(GetIndex(frame), out ClipList? list)) {
             List<Clip> clips = new List<Clip>();
-            for (int i = list.size - 1; i >= 0; i--)
-            {
+            for (int i = list.size - 1; i >= 0; i--) {
                 Clip clip = list.items[i];
                 if (clip.FrameSpan.Intersects(frame))
                     clips.Add(clip);
@@ -144,8 +128,7 @@ public class ClipRangeCache
 
     public void OnClipRemoved(Clip clip) => this.Remove(clip.FrameSpan, clip);
 
-    public void Add(Clip clip)
-    {
+    public void Add(Clip clip) {
         FrameSpan span = clip.FrameSpan;
         GetRange(span, out long a, out long b);
         this.AddClipInRange(clip, a, b);
@@ -156,8 +139,7 @@ public class ClipRangeCache
         this.FrameDataChanged?.Invoke(this);
     }
 
-    public void Remove(FrameSpan location, Clip clip)
-    {
+    public void Remove(FrameSpan location, Clip clip) {
         GetRange(location, out long a, out long b);
         this.RemoveClipInRange(clip, a, b);
         this.ProcessSmallestAndLargestFrame();
@@ -165,10 +147,8 @@ public class ClipRangeCache
 
     #region Processor functions
 
-    private void AddClipInRange(Clip clip, long min, long max)
-    {
-        for (long frame = min; frame <= max; frame++)
-        {
+    private void AddClipInRange(Clip clip, long min, long max) {
+        for (long frame = min; frame <= max; frame++) {
             if (!this.Map.TryGetValue(frame, out ClipList? list))
                 this.Map[frame] = list = new ClipList();
             else if (list.Contains(clip))
@@ -178,55 +158,43 @@ public class ClipRangeCache
         }
     }
 
-    private void RemoveClipInRange(Clip clip, long min, long max)
-    {
-        for (long i = min; i <= max; i++)
-        {
+    private void RemoveClipInRange(Clip clip, long min, long max) {
+        for (long i = min; i <= max; i++) {
             int index = this.Map.IndexOfKey(i);
-            if (index != -1)
-            {
+            if (index != -1) {
                 ClipList list = this.Map.Values[index];
-                if (list.RemoveClipAndGetIsEmpty(clip))
-                {
+                if (list.RemoveClipAndGetIsEmpty(clip)) {
                     this.Map.RemoveAt(index);
                 }
             }
-            else
-            {
+            else {
                 throw new Exception("Expected ClipList to exist at index: " + i);
             }
         }
     }
 
-    public void OnSpanChanged(Clip clip, FrameSpan oldSpan)
-    {
+    public void OnSpanChanged(Clip clip, FrameSpan oldSpan) {
         FrameSpan newSpan = clip.FrameSpan;
-        if (oldSpan == newSpan)
-        {
+        if (oldSpan == newSpan) {
             return;
         }
 
         GetRange(oldSpan, out long oldA, out long oldB);
         GetRange(newSpan, out long newA, out long newB);
-        if (oldA == newA && oldB == newB)
-        {
+        if (oldA == newA && oldB == newB) {
             // ClipList list = this.Map[oldA];
             // list.OnClipSpanChanged(clip, oldSpan);
         }
 
-        for (long frame = oldA; frame <= oldB; frame++)
-        {
-            if (this.Map[frame].RemoveClipAndGetIsEmpty(clip))
-            {
+        for (long frame = oldA; frame <= oldB; frame++) {
+            if (this.Map[frame].RemoveClipAndGetIsEmpty(clip)) {
                 this.Map.Remove(frame);
             }
         }
 
         // Add the clip to the new grouped range
-        for (long frame = newA; frame <= newB; frame++)
-        {
-            if (!this.Map.TryGetValue(frame, out ClipList? list))
-            {
+        for (long frame = newA; frame <= newB; frame++) {
+            if (!this.Map.TryGetValue(frame, out ClipList? list)) {
                 this.Map[frame] = list = new ClipList();
             }
 
@@ -238,25 +206,20 @@ public class ClipRangeCache
 
     #endregion
 
-    private void ProcessSmallestAndLargestFrame()
-    {
+    private void ProcessSmallestAndLargestFrame() {
         long min = 0, max = 0;
         int index = this.Map.Count - 1;
-        if (index >= 0)
-        {
+        if (index >= 0) {
             ClipList list = this.Map.Values[index];
-            for (int i = 0; i < list.size; i++)
-            {
+            for (int i = 0; i < list.size; i++) {
                 max = Math.Max(list.items[i].FrameSpan.EndIndex, max);
             }
 
             min = max;
             list = this.Map.Values[0];
-            for (int i = 0; i < list.size; i++)
-            {
+            for (int i = 0; i < list.size; i++) {
                 min = Math.Min(list.items[i].FrameSpan.Begin, min);
-                if (min < 1)
-                {
+                if (min < 1) {
                     break;
                 }
             }
@@ -272,8 +235,7 @@ public class ClipRangeCache
     #region Util functions
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void GetRange(FrameSpan span, out long a, out long b)
-    {
+    public static void GetRange(FrameSpan span, out long a, out long b) {
         a = GetIndex(span.Begin);
         b = GetIndex(span.EndIndex);
     }
@@ -283,11 +245,9 @@ public class ClipRangeCache
 
     #endregion
 
-    public bool IsRegionEmpty(FrameSpan span)
-    {
+    public bool IsRegionEmpty(FrameSpan span) {
         GetRange(span, out long a, out long b);
-        for (long i = a; i <= b; i++)
-        {
+        for (long i = a; i <= b; i++) {
             if (this.Map.TryGetValue(i, out ClipList? list) && IntersectsAny(list, span))
                 return false;
         }
@@ -295,10 +255,8 @@ public class ClipRangeCache
         return true;
     }
 
-    private static bool IntersectsAny(ClipList list, FrameSpan span)
-    {
-        for (int j = list.size - 1; j >= 0; j--)
-        {
+    private static bool IntersectsAny(ClipList list, FrameSpan span) {
+        for (int j = list.size - 1; j >= 0; j--) {
             if (list.items[j].FrameSpan.Intersects(span))
                 return true;
         }
@@ -309,8 +267,7 @@ public class ClipRangeCache
     /// <summary>
     /// A compact optimised list implementation for clips only
     /// </summary>
-    private class ClipList
-    {
+    private class ClipList {
         private const int DefaultCapacity = 4;
         private const int CapacityLimit = 0x7FEFFFFF;
         public Clip[] items;
@@ -319,18 +276,15 @@ public class ClipRangeCache
 
         public ClipList() => this.items = EmptyArray;
 
-        public void Add(Clip item)
-        {
+        public void Add(Clip item) {
             if (this.size == this.items.Length)
                 this.EnsureCapacity(this.size + 1);
             this.items[this.size++] = item;
         }
 
-        public int IndexOf(Clip item)
-        {
+        public int IndexOf(Clip item) {
             Clip[] array = this.items;
-            for (int i = this.size - 1; i >= 0; i--)
-            {
+            for (int i = this.size - 1; i >= 0; i--) {
                 Clip clip = array[i];
                 if (item == clip)
                     return i;
@@ -341,8 +295,7 @@ public class ClipRangeCache
 
         public bool Contains(Clip item) => this.IndexOf(item) != -1;
 
-        private void EnsureCapacity(int min)
-        {
+        private void EnsureCapacity(int min) {
             int length = this.items.Length;
             if (length >= min)
                 return;
@@ -366,8 +319,7 @@ public class ClipRangeCache
             this.items = newItems;
         }
 
-        public bool RemoveClipAndGetIsEmpty(Clip item)
-        {
+        public bool RemoveClipAndGetIsEmpty(Clip item) {
             int index = this.IndexOf(item);
             if (index == -1)
                 throw new Exception("Expected item to exist in list");

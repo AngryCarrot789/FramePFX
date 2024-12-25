@@ -25,30 +25,23 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editing.ContextRegistries;
 
-public static class ClipContextRegistry
-{
+public static class ClipContextRegistry {
     public static readonly ContextRegistry Registry = new ContextRegistry("Clips");
 
-    static ClipContextRegistry()
-    {
+    static ClipContextRegistry() {
         FixedContextGroup modGeneric = Registry.GetFixedGroup("modify.general");
         modGeneric.AddHeader("General");
         modGeneric.AddCommand("commands.editor.RenameClip", "Rename", "Open a dialog to rename this clip");
-        modGeneric.AddDynamicSubGroup((group, ctx, items) =>
-        {
-            if (DataKeys.ClipKey.TryGetContext(ctx, out Clip? clip) && clip is VideoClip videoClip)
-            {
-                if (VideoClip.IsEnabledParameter.GetCurrentValue(videoClip))
-                {
+        modGeneric.AddDynamicSubGroup((group, ctx, items) => {
+            if (DataKeys.ClipKey.TryGetContext(ctx, out Clip? clip) && clip is VideoClip videoClip) {
+                if (VideoClip.IsEnabledParameter.GetCurrentValue(videoClip)) {
                     items.Add(new CommandContextEntry("commands.editor.DisableClips", "Disable", "Disable this clip"));
                 }
-                else
-                {
+                else {
                     items.Add(new CommandContextEntry("commands.editor.EnableClips", "Enable", "Enable this clip"));
                 }
             }
-            else
-            {
+            else {
                 items.Add(new CommandContextEntry("commands.editor.EnableClips", "Enable", "Enable the selected clips"));
                 items.Add(new CommandContextEntry("commands.editor.DisableClips", "Disable", "Disable the selected clips"));
                 items.Add(new CommandContextEntry("commands.editor.ToggleClipsEnabled", "Toggle Enabled", "Toggle the enabled state of the selected clips"));
@@ -59,10 +52,8 @@ public static class ClipContextRegistry
         modEdit.AddHeader("Edit");
         modEdit.AddCommand("commands.editor.SplitClipsCommand", "Split", "Slice this clip at the playhead");
         modEdit.AddCommand("commands.editor.ChangeClipPlaybackSpeed", "Change Speed", "Change the playback speed of this clip");
-        modEdit.AddDynamicSubGroup((group, ctx, items) =>
-        {
-            if (DataKeys.ClipKey.TryGetContext(ctx, out Clip? clip) && clip is CompositionVideoClip)
-            {
+        modEdit.AddDynamicSubGroup((group, ctx, items) => {
+            if (DataKeys.ClipKey.TryGetContext(ctx, out Clip? clip) && clip is CompositionVideoClip) {
                 items.Add(new CommandContextEntry("commands.editor.OpenCompositionClipTimeline", "Open Timeline", "Opens this clip's timeline"));
             }
         });

@@ -23,8 +23,7 @@ namespace FramePFX.Configurations.Shortcuts.Models;
 
 public delegate void ShortcutEntryShortcutChangedEventHandler(ShortcutEntry sender);
 
-public class ShortcutEntry : BaseShortcutEntry
-{
+public class ShortcutEntry : BaseShortcutEntry {
     public new GroupedShortcut GroupedObject => (GroupedShortcut) base.GroupedObject;
 
     private IShortcut shortcut;
@@ -32,17 +31,15 @@ public class ShortcutEntry : BaseShortcutEntry
     /// <summary>
     /// Gets or sets this entry's shortcut
     /// </summary>
-    public IShortcut Shortcut
-    {
+    public IShortcut Shortcut {
         get => this.shortcut;
-        set
-        {
+        set {
             if (Equals(this.shortcut, value))
                 return;
 
             this.shortcut = value;
             this.ShortcutChanged?.Invoke(this);
-            
+
             // parent entry should never be null anyway
             this.ParentEntry?.ConfigurationPage.OnShortcutChanged(this, value);
         }
@@ -50,13 +47,11 @@ public class ShortcutEntry : BaseShortcutEntry
 
     public event ShortcutEntryShortcutChangedEventHandler? ShortcutChanged;
 
-    public ShortcutEntry(ShortcutGroupEntry parentEntry, GroupedShortcut shortcut) : base(parentEntry, shortcut)
-    {
+    public ShortcutEntry(ShortcutGroupEntry parentEntry, GroupedShortcut shortcut) : base(parentEntry, shortcut) {
         this.shortcut = shortcut.Shortcut;
     }
 
-    public override void ResetHierarchy()
-    {
+    public override void ResetHierarchy() {
         this.shortcut = this.GroupedObject.Shortcut;
     }
 }

@@ -22,8 +22,7 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Avalonia.AdvancedMenuService;
 
-public interface IAdvancedContextElement
-{
+public interface IAdvancedContextElement {
     IContextData? Context { get; }
 
     IAdvancedContainer? Container { get; }

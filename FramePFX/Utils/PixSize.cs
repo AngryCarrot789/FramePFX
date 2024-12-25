@@ -20,8 +20,7 @@
 namespace FramePFX.Utils;
 
 /// <summary>Represents a size in device pixels.</summary>
-public readonly struct PixSize : IEquatable<PixSize>
-{
+public readonly struct PixSize : IEquatable<PixSize> {
     /// <summary>A size representing zero</summary>
     public static readonly PixSize Empty = new PixSize(0, 0);
 
@@ -39,8 +38,7 @@ public readonly struct PixSize : IEquatable<PixSize>
     /// </summary>
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>
-    public PixSize(int width, int height)
-    {
+    public PixSize(int width, int height) {
         this.Width = width;
         this.Height = height;
     }
@@ -79,8 +77,7 @@ public readonly struct PixSize : IEquatable<PixSize>
     /// Returns a hash code for a <see cref="T:Avalonia.PixelSize" />.
     /// </summary>
     /// <returns>The hash code.</returns>
-    public override int GetHashCode()
-    {
+    public override int GetHashCode() {
         return (17 * 23 + this.Width.GetHashCode()) * 23 + this.Height.GetHashCode();
     }
 
@@ -104,8 +101,7 @@ public readonly struct PixSize : IEquatable<PixSize>
     /// </summary>
     /// <param name="scale">The scaling factor.</param>
     /// <returns>The device-independent size.</returns>
-    public SKSizeD ToSize(double scale)
-    {
+    public SKSizeD ToSize(double scale) {
         return new SKSizeD((float) (this.Width / scale), (float) (this.Height / scale));
     }
 
@@ -115,8 +111,7 @@ public readonly struct PixSize : IEquatable<PixSize>
     /// </summary>
     /// <param name="scale">The scaling factor.</param>
     /// <returns>The device-independent size.</returns>
-    public SKSizeD ToSize(SKPointD scale)
-    {
+    public SKSizeD ToSize(SKPointD scale) {
         return new SKSizeD(this.Width / scale.X, this.Height / scale.Y);
     }
 
@@ -142,8 +137,7 @@ public readonly struct PixSize : IEquatable<PixSize>
     /// <param name="size">The size.</param>
     /// <param name="scale">The scaling factor.</param>
     /// <returns>The device-independent size.</returns>
-    public static PixSize FromSize(SKSizeD size, double scale)
-    {
+    public static PixSize FromSize(SKSizeD size, double scale) {
         return new PixSize((int) Math.Ceiling(size.Width * scale), (int) Math.Ceiling(size.Height * scale));
     }
 
@@ -153,8 +147,7 @@ public readonly struct PixSize : IEquatable<PixSize>
     /// <param name="size">The size.</param>
     /// <param name="scale">The scaling factor.</param>
     /// <returns>The device-independent size.</returns>
-    internal static PixSize FromSizeRounded(SKSizeD size, double scale)
-    {
+    internal static PixSize FromSizeRounded(SKSizeD size, double scale) {
         return new PixSize((int) Math.Round(size.Width * scale), (int) Math.Round(size.Height * scale));
     }
 
@@ -164,8 +157,7 @@ public readonly struct PixSize : IEquatable<PixSize>
     /// <param name="size">The size.</param>
     /// <param name="scale">The scaling factor.</param>
     /// <returns>The device-independent size.</returns>
-    public static PixSize FromSize(SKSizeD size, SKPointD scale)
-    {
+    public static PixSize FromSize(SKSizeD size, SKPointD scale) {
         return new PixSize((int) Math.Ceiling(size.Width * scale.X), (int) Math.Ceiling(size.Height * scale.Y));
     }
 
@@ -175,8 +167,7 @@ public readonly struct PixSize : IEquatable<PixSize>
     /// <param name="size">The size.</param>
     /// <param name="dpi">The dots per inch.</param>
     /// <returns>The device-independent size.</returns>
-    public static PixSize FromSizeWithDpi(SKSizeD size, double dpi)
-    {
+    public static PixSize FromSizeWithDpi(SKSizeD size, double dpi) {
         return FromSize(size, dpi / 96.0);
     }
 
@@ -186,15 +177,13 @@ public readonly struct PixSize : IEquatable<PixSize>
     /// <param name="size">The size.</param>
     /// <param name="dpi">The dots per inch.</param>
     /// <returns>The device-independent size.</returns>
-    public static PixSize FromSizeWithDpi(SKSizeD size, SKPointD dpi)
-    {
+    public static PixSize FromSizeWithDpi(SKSizeD size, SKPointD dpi) {
         return FromSize(size, new SKPointD(dpi.X / 96.0, dpi.Y / 96.0));
     }
 
     /// <summary>Returns the string representation of the size.</summary>
     /// <returns>The string representation of the size.</returns>
-    public override string ToString()
-    {
+    public override string ToString() {
         return $"{this.Width:F4},{this.Height:F4}";
     }
 }

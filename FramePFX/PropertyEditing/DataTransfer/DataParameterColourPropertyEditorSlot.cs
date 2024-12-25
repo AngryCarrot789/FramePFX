@@ -23,19 +23,15 @@ using SkiaSharp;
 
 namespace FramePFX.PropertyEditing.DataTransfer;
 
-public class DataParameterColourPropertyEditorSlot : DataParameterFormattableNumberPropertyEditorSlot
-{
+public class DataParameterColourPropertyEditorSlot : DataParameterFormattableNumberPropertyEditorSlot {
     private SKColor value;
 
-    public SKColor Value
-    {
+    public SKColor Value {
         get => this.value;
-        set
-        {
+        set {
             this.value = value;
             DataParameter<SKColor> parameter = this.Parameter;
-            for (int i = 0, c = this.Handlers.Count; i < c; i++)
-            {
+            for (int i = 0, c = this.Handlers.Count; i < c; i++) {
                 parameter.SetValue((ITransferableData) this.Handlers[i], value);
             }
 
@@ -45,18 +41,15 @@ public class DataParameterColourPropertyEditorSlot : DataParameterFormattableNum
 
     public new DataParameter<SKColor> Parameter => (DataParameter<SKColor>) base.Parameter;
 
-    public DataParameterColourPropertyEditorSlot(DataParameter<SKColor> parameter, Type applicableType, string displayName) : base(parameter, applicableType, displayName)
-    {
+    public DataParameterColourPropertyEditorSlot(DataParameter<SKColor> parameter, Type applicableType, string displayName) : base(parameter, applicableType, displayName) {
     }
 
-    public DataParameterColourPropertyEditorSlot(DataParameter<SKColor> parameter, DataParameter<bool> isEditableParameter, bool invertIsEditable, Type applicableType, string displayName) : base(parameter, applicableType, displayName)
-    {
+    public DataParameterColourPropertyEditorSlot(DataParameter<SKColor> parameter, DataParameter<bool> isEditableParameter, bool invertIsEditable, Type applicableType, string displayName) : base(parameter, applicableType, displayName) {
         this.IsEditableDataParameter = isEditableParameter;
         this.InvertIsEditableForParameter = invertIsEditable;
     }
 
-    public override void QueryValueFromHandlers()
-    {
+    public override void QueryValueFromHandlers() {
         this.HasMultipleValues = !CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetValue((ITransferableData) x), out this.value);
     }
 }

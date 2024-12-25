@@ -29,16 +29,14 @@ namespace FramePFX.Shortcuts;
 /// When the shortcut only consists of 1 key stroke, the shortcut may be activated immediately.
 /// </para>
 /// </summary>
-public class KeyboardShortcut : IKeyboardShortcut
-{
+public class KeyboardShortcut : IKeyboardShortcut {
     public static readonly KeyboardShortcut EmptyKeyboardShortcut = new KeyboardShortcut();
 
     private readonly List<KeyStroke> keyStrokes;
 
     public IInputStroke PrimaryStroke => this.keyStrokes[0];
 
-    public IEnumerable<IInputStroke> InputStrokes
-    {
+    public IEnumerable<IInputStroke> InputStrokes {
         get => this.keyStrokes.Cast<IInputStroke>();
     }
 
@@ -52,62 +50,49 @@ public class KeyboardShortcut : IKeyboardShortcut
 
     public bool HasSecondaryStrokes => this.keyStrokes.Count > 1;
 
-    public KeyboardShortcut()
-    {
+    public KeyboardShortcut() {
         this.keyStrokes = new List<KeyStroke>();
     }
 
-    public KeyboardShortcut(params KeyStroke[] secondKeyStrokes)
-    {
+    public KeyboardShortcut(params KeyStroke[] secondKeyStrokes) {
         this.keyStrokes = new List<KeyStroke>(secondKeyStrokes);
     }
 
-    public KeyboardShortcut(IEnumerable<KeyStroke> strokes)
-    {
+    public KeyboardShortcut(IEnumerable<KeyStroke> strokes) {
         this.keyStrokes = new List<KeyStroke>(strokes);
     }
 
-    public KeyboardShortcut(List<KeyStroke> keyStrokes)
-    {
+    public KeyboardShortcut(List<KeyStroke> keyStrokes) {
         Validate.NotNull(keyStrokes);
         this.keyStrokes = keyStrokes;
     }
 
-    public IKeyboardShortcutUsage CreateKeyUsage()
-    {
+    public IKeyboardShortcutUsage CreateKeyUsage() {
         return this.IsEmpty ? throw new InvalidOperationException("Shortcut is empty. Cannot create a usage") : new KeyboardShortcutUsage(this);
     }
 
-    public IShortcutUsage CreateUsage()
-    {
+    public IShortcutUsage CreateUsage() {
         return this.CreateKeyUsage();
     }
 
-    public bool IsPrimaryStroke(IInputStroke input)
-    {
+    public bool IsPrimaryStroke(IInputStroke input) {
         return input is KeyStroke stroke && this.keyStrokes[0].Equals(stroke);
     }
 
-    public override string ToString()
-    {
+    public override string ToString() {
         return string.Join(", ", this.keyStrokes);
     }
 
-    public override bool Equals(object? obj)
-    {
-        if (obj is KeyboardShortcut shortcut)
-        {
+    public override bool Equals(object? obj) {
+        if (obj is KeyboardShortcut shortcut) {
             int lenA = this.keyStrokes.Count;
             int lenB = shortcut.keyStrokes.Count;
-            if (lenA != lenB)
-            {
+            if (lenA != lenB) {
                 return false;
             }
 
-            for (int i = 0; i < lenA; i++)
-            {
-                if (!this.keyStrokes[i].Equals(shortcut.keyStrokes[i]))
-                {
+            for (int i = 0; i < lenA; i++) {
+                if (!this.keyStrokes[i].Equals(shortcut.keyStrokes[i])) {
                     return false;
                 }
             }
@@ -118,8 +103,7 @@ public class KeyboardShortcut : IKeyboardShortcut
         return false;
     }
 
-    public override int GetHashCode()
-    {
+    public override int GetHashCode() {
         int code = 0;
         foreach (KeyStroke stroke in this.keyStrokes)
             code += stroke.GetHashCode();

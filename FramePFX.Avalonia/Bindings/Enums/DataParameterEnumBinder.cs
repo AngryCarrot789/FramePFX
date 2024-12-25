@@ -28,8 +28,7 @@ namespace FramePFX.Avalonia.Bindings.Enums;
 /// <summary>
 /// A class which helps bind radio buttons to an enum data parameter
 /// </summary>
-public class DataParameterEnumBinder<TEnum> where TEnum : struct
-{
+public class DataParameterEnumBinder<TEnum> where TEnum : struct {
     public delegate void DataParameterEnumBinderCurrentValueChangedEventHandler(DataParameterEnumBinder<TEnum> sender, TEnum oldCurrentValue, TEnum newCurrentValue);
 
     private readonly Dictionary<RadioButton, TEnum> buttonToState;
@@ -37,16 +36,13 @@ public class DataParameterEnumBinder<TEnum> where TEnum : struct
     private readonly TEnum defaultEnum;
     private TEnum currentValue;
 
-    public TEnum CurrentValue
-    {
+    public TEnum CurrentValue {
         get => this.currentValue;
-        set
-        {
+        set {
             TEnum oldCurrentValue = this.currentValue;
             this.currentValue = value;
             this.CurrentValueChanged?.Invoke(this, oldCurrentValue, value);
-            if (this.Owner != null)
-            {
+            if (this.Owner != null) {
                 this.Parameter.SetValue(this.Owner, value);
             }
         }
@@ -61,8 +57,7 @@ public class DataParameterEnumBinder<TEnum> where TEnum : struct
 
     public event DataParameterEnumBinderCurrentValueChangedEventHandler? CurrentValueChanged;
 
-    public DataParameterEnumBinder(DataParameter<TEnum> parameter, TEnum defaultValue = default)
-    {
+    public DataParameterEnumBinder(DataParameter<TEnum> parameter, TEnum defaultValue = default) {
         this.buttonToState = new Dictionary<RadioButton, TEnum>();
         this.defaultButtons = new List<RadioButton>();
         this.currentValue = defaultValue;
@@ -70,67 +65,53 @@ public class DataParameterEnumBinder<TEnum> where TEnum : struct
         this.Parameter = parameter ?? throw new ArgumentNullException(nameof(parameter));
     }
 
-    public void Assign(RadioButton button, TEnum enumValue)
-    {
+    public void Assign(RadioButton button, TEnum enumValue) {
         // If now added then add event, otherwise, just update target enum value
-        if (this.buttonToState.TryAdd(button, enumValue))
-        {
+        if (this.buttonToState.TryAdd(button, enumValue)) {
             button.IsCheckedChanged += this.OnCheckChanged;
         }
-        else
-        {
+        else {
             this.buttonToState[button] = enumValue;
         }
 
-        if (enumValue.Equals(this.defaultEnum))
-        {
+        if (enumValue.Equals(this.defaultEnum)) {
             this.defaultButtons.Add(button);
         }
     }
 
-    public void Unasign(RadioButton button)
-    {
-        if (this.buttonToState.Remove(button))
-        {
+    public void Unasign(RadioButton button) {
+        if (this.buttonToState.Remove(button)) {
             button.IsCheckedChanged -= this.OnCheckChanged;
             this.defaultButtons.Remove(button);
         }
     }
 
-    private void OnCheckChanged(object? sender, RoutedEventArgs e)
-    {
+    private void OnCheckChanged(object? sender, RoutedEventArgs e) {
         if (sender is RadioButton button && button.IsChecked == true)
             this.CurrentValue = this.buttonToState[button];
     }
 
-    public void Attach(ITransferableData owner)
-    {
+    public void Attach(ITransferableData owner) {
         if (owner == null)
             throw new ArgumentNullException(nameof(owner));
 
         this.Owner = owner;
-        foreach (KeyValuePair<RadioButton, TEnum> pair in this.buttonToState)
-        {
-            if (pair.Key.IsChecked == true)
-            {
+        foreach (KeyValuePair<RadioButton, TEnum> pair in this.buttonToState) {
+            if (pair.Key.IsChecked == true) {
                 this.CurrentValue = pair.Value;
                 return;
             }
         }
 
-        if (this.defaultButtons.Count > 0)
-        {
-            foreach (RadioButton button in this.defaultButtons)
-            {
+        if (this.defaultButtons.Count > 0) {
+            foreach (RadioButton button in this.defaultButtons) {
                 button.IsChecked = true;
             }
         }
     }
 
-    public void Detach()
-    {
-        if (this.Owner != null)
-        {
+    public void Detach() {
+        if (this.Owner != null) {
             this.Owner = null;
         }
     }

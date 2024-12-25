@@ -35,8 +35,7 @@ public delegate void AccessSetter<in T>(object a, T v);
 /// A class used by parameters (and data parameters) to get and set the effective value of a specific parameter for an object
 /// </summary>
 /// <typeparam name="TValue">The type of value this accessor accesses</typeparam>
-public abstract class ValueAccessor<TValue>
-{
+public abstract class ValueAccessor<TValue> {
     /// <summary>
     /// Returns true when the boxed getter and setters are preferred, e.g. this instance is reflection-based which always uses boxed values
     /// </summary>

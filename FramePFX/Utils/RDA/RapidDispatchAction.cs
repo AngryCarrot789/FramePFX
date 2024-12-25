@@ -22,16 +22,14 @@ namespace FramePFX.Utils.RDA;
 /// <summary>
 /// The base class for a regular RDA implementation
 /// </summary>
-public abstract class RapidDispatchActionBase
-{
+public abstract class RapidDispatchActionBase {
     public readonly string DebugId; // allows debugger breakpoint to match this
     private readonly Action doExecuteCallback;
     private bool isScheduled;
 
     public DispatchPriority Priority { get; }
 
-    protected RapidDispatchActionBase(DispatchPriority priority, string debugId = null)
-    {
+    protected RapidDispatchActionBase(DispatchPriority priority, string debugId = null) {
         this.DebugId = debugId;
         this.Priority = priority;
         this.doExecuteCallback = this.DoExecute;
@@ -41,8 +39,7 @@ public abstract class RapidDispatchActionBase
     /// Tries to schedule this RDA for execution on the current dispatcher
     /// </summary>
     /// <returns>True if scheduled, false if already scheduled</returns>
-    protected bool BeginInvoke()
-    {
+    protected bool BeginInvoke() {
         if (this.isScheduled)
             return false;
 
@@ -51,20 +48,16 @@ public abstract class RapidDispatchActionBase
         return true;
     }
 
-    protected static void VerifyThreadAccess()
-    {
+    protected static void VerifyThreadAccess() {
         if (!Application.Instance.Dispatcher.CheckAccess())
             throw new InvalidOperationException("Cannot invoke when not on the main thread. Use " + nameof(RapidDispatchActionEx) + " for multi-threading");
     }
 
-    private void DoExecute()
-    {
-        try
-        {
+    private void DoExecute() {
+        try {
             this.Execute();
         }
-        finally
-        {
+        finally {
             this.isScheduled = false;
         }
     }
@@ -80,15 +73,13 @@ public abstract class RapidDispatchActionBase
 /// For multi-threaded use, see <see cref="RapidDispatchActionEx"/>
 /// </para>
 /// </summary>
-public class RapidDispatchAction : RapidDispatchActionBase, IDispatchAction
-{
+public class RapidDispatchAction : RapidDispatchActionBase, IDispatchAction {
     private readonly Action callback;
 
     public RapidDispatchAction(Action callback, string debugId = null) : this(callback, DispatchPriority.Normal, debugId) {
     }
 
-    public RapidDispatchAction(Action callback, DispatchPriority priority, string debugId = null) : base(priority, debugId)
-    {
+    public RapidDispatchAction(Action callback, DispatchPriority priority, string debugId = null) : base(priority, debugId) {
         this.callback = callback;
     }
 
@@ -96,8 +87,7 @@ public class RapidDispatchAction : RapidDispatchActionBase, IDispatchAction
     /// Tries to schedule our action to be invoked asynchronously
     /// </summary>
     /// <returns>True if the action was scheduled, otherwise false meaning it is already scheduled</returns>
-    public void InvokeAsync()
-    {
+    public void InvokeAsync() {
         VerifyThreadAccess();
         this.BeginInvoke();
     }
@@ -109,21 +99,18 @@ public class RapidDispatchAction : RapidDispatchActionBase, IDispatchAction
 /// A parameterised version of <see cref="RapidDispatchAction"/> that passes a custom parameter to the callback method
 /// </summary>
 /// <typeparam name="T">The type of parameter</typeparam>
-public class RapidDispatchAction<T> : RapidDispatchActionBase, IDispatchAction<T>
-{
+public class RapidDispatchAction<T> : RapidDispatchActionBase, IDispatchAction<T> {
     private readonly Action<T> callback;
     private T parameter;
 
     public RapidDispatchAction(Action<T> callback, string debugId = null) : this(callback, DispatchPriority.Normal, debugId) {
     }
 
-    public RapidDispatchAction(Action<T> callback, DispatchPriority priority, string debugId = null) : base(priority, debugId)
-    {
+    public RapidDispatchAction(Action<T> callback, DispatchPriority priority, string debugId = null) : base(priority, debugId) {
         this.callback = callback ?? throw new ArgumentNullException(nameof(callback));
     }
 
-    protected override void Execute()
-    {
+    protected override void Execute() {
         T param = this.parameter;
         this.parameter = default;
         this.callback(param);
@@ -137,8 +124,7 @@ public class RapidDispatchAction<T> : RapidDispatchActionBase, IDispatchAction<T
     ///     then this becomes the new parameter passed to the callback
     /// </param>
     /// <returns>True if the action was scheduled, otherwise false meaning it is already scheduled</returns>
-    public void InvokeAsync(T param)
-    {
+    public void InvokeAsync(T param) {
         VerifyThreadAccess();
 
         this.parameter = param;

@@ -21,7 +21,6 @@ using FramePFX.PropertyEditing;
 
 namespace FramePFX.Avalonia.PropertyEditing;
 
-public interface IPropertyEditorConnectable
-{
+public interface IPropertyEditorConnectable {
     void OnPreConnection(PropertyEditorGroupControl ownerGroup, PropertyEditorSlot item);
 }

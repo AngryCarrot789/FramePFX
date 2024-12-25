@@ -22,16 +22,13 @@ using System.Reflection;
 
 namespace FramePFX.Utils;
 
-public static class EventUtils
-{
+public static class EventUtils {
     internal static readonly MethodInfo InvokeActionMethod = typeof(Action).GetMethod("Invoke")!;
     internal static readonly Dictionary<Type, ParameterExpression[]> EventToParamListMap = new Dictionary<Type, ParameterExpression[]>();
 
-    public static Delegate CreateDelegateToInvokeActionFromEvent(Type eventType, Action actionToInvoke)
-    {
+    public static Delegate CreateDelegateToInvokeActionFromEvent(Type eventType, Action actionToInvoke) {
         // Get or create cached array of the eventType's parameters. Generic parameters cannot be handled currently
-        if (!EventToParamListMap.TryGetValue(eventType, out ParameterExpression[]? paramArray))
-        {
+        if (!EventToParamListMap.TryGetValue(eventType, out ParameterExpression[]? paramArray)) {
             MethodInfo invokeMethod = eventType.GetMethod("Invoke") ?? throw new Exception(eventType.Name + " is not a delegate type");
             EventToParamListMap[eventType] = paramArray = invokeMethod.GetParameters().Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToArray();
         }
@@ -42,23 +39,20 @@ public static class EventUtils
         return Expression.Lambda(eventType, invokeAction, paramArray).Compile();
     }
 
-    public static void CreateEventInterface<TTarget, TEvent>(EventInfo info, out Action<TTarget, TEvent> addHandler, out Action<TTarget, TEvent> removeHandler) where TEvent : Delegate
-    {
+    public static void CreateEventInterface<TTarget, TEvent>(EventInfo info, out Action<TTarget, TEvent> addHandler, out Action<TTarget, TEvent> removeHandler) where TEvent : Delegate {
         ParameterExpression paramTarget = Expression.Parameter(typeof(TTarget), "instance");
         ParameterExpression paramHandler = Expression.Parameter(typeof(TEvent), "handler");
         addHandler = CreateAddOrRemove<TTarget, TEvent>(paramTarget, info.AddMethod!, paramHandler);
         removeHandler = CreateAddOrRemove<TTarget, TEvent>(paramTarget, info.RemoveMethod!, paramHandler);
     }
 
-    public static Action<TTarget, TEvent> CreateAddOrRemove<TTarget, TEvent>(MethodInfo addOrRemoveMethod) where TEvent : Delegate
-    {
+    public static Action<TTarget, TEvent> CreateAddOrRemove<TTarget, TEvent>(MethodInfo addOrRemoveMethod) where TEvent : Delegate {
         ParameterExpression paramTarget = Expression.Parameter(typeof(TTarget), "instance");
         ParameterExpression paramHandler = Expression.Parameter(typeof(TEvent), "handler");
         return CreateAddOrRemove<TTarget, TEvent>(paramTarget, addOrRemoveMethod, paramHandler);
     }
 
-    public static Action<TTarget, TEvent> CreateAddOrRemove<TTarget, TEvent>(ParameterExpression target, MethodInfo targetMethod, ParameterExpression handler) where TEvent : Delegate
-    {
+    public static Action<TTarget, TEvent> CreateAddOrRemove<TTarget, TEvent>(ParameterExpression target, MethodInfo targetMethod, ParameterExpression handler) where TEvent : Delegate {
         return Expression.Lambda<Action<TTarget, TEvent>>(Expression.Call(target, targetMethod, handler), target, handler).Compile();
     }
 }

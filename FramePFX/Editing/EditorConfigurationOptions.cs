@@ -22,23 +22,21 @@ using SkiaSharp;
 namespace FramePFX.Editing;
 
 public delegate void EditorConfigurationOptionsTitleBarPrefixChangedEventHandler(EditorConfigurationOptions sender);
+
 public delegate void EditorConfigurationOptionsTitleBarBrushChangedEventHandler(EditorConfigurationOptions sender);
 
 /// <summary>
 /// A singleton object which contains properties that all editors share in common such as the titlebar prefix (for version control)
 /// </summary>
-public sealed class EditorConfigurationOptions
-{
+public sealed class EditorConfigurationOptions {
     public static EditorConfigurationOptions Instance => Application.Instance.ServiceManager.GetService<EditorConfigurationOptions>();
-    
+
     private string titleBar;
     private SKColor titleBarBrush;
 
-    public string TitleBarPrefix
-    {
+    public string TitleBarPrefix {
         get => this.titleBar;
-        set
-        {
+        set {
             if (this.titleBar == value)
                 return;
 
@@ -51,14 +49,12 @@ public sealed class EditorConfigurationOptions
     /// Not assigned the actual titlebar default value for now, since this feature might
     /// not stick since it's wonky having this and no other customisation features
     /// </summary>
-    public SKColor TitleBarBrush
-    {
+    public SKColor TitleBarBrush {
         get => this.titleBarBrush;
-        set
-        {
+        set {
             if (this.titleBarBrush == value)
                 return;
-        
+
             this.titleBarBrush = value;
             this.TitleBarBrushChanged?.Invoke(this);
         }
@@ -68,8 +64,7 @@ public sealed class EditorConfigurationOptions
 
     public event EditorConfigurationOptionsTitleBarPrefixChangedEventHandler? TitleBarPrefixChanged;
 
-    public EditorConfigurationOptions()
-    {
+    public EditorConfigurationOptions() {
         this.titleBar = "Bootleg sony vegas (FramePFX v2.0.1)";
         this.TitleBarBrush = SKColors.Red;
     }

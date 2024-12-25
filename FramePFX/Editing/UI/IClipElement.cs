@@ -22,8 +22,7 @@ using FramePFX.Editing.Timelines.Clips;
 
 namespace FramePFX.Editing.UI;
 
-public interface IClipElement
-{
+public interface IClipElement {
     /// <summary>
     /// Gets the track UI this clip is in
     /// </summary>

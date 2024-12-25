@@ -37,12 +37,10 @@ using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.Exporting;
 
-public partial class ExportDialog : WindowEx
-{
+public partial class ExportDialog : WindowEx {
     public static readonly DirectProperty<ExportDialog, bool> IsExportingProperty = AvaloniaProperty.RegisterDirect<ExportDialog, bool>(nameof(IsExporting), o => o.IsExporting);
 
-    public bool IsExporting
-    {
+    public bool IsExporting {
         get => this.myIsExporting;
         private set => this.SetAndRaise(IsExportingProperty, ref this.myIsExporting, value);
     }
@@ -56,21 +54,18 @@ public partial class ExportDialog : WindowEx
     private bool isProcessingFrameSpanControls;
     private CancellationTokenSource? exportToken;
 
-    public ExportDialog(ExportSetup setup)
-    {
+    public ExportDialog(ExportSetup setup) {
         Validate.NotNull(setup);
 
         this.Setup = setup;
         this.InitializeComponent();
 
         this.myKeyList = ExporterRegistry.Instance.Keys.ToList();
-        foreach (ExporterKey key in this.myKeyList)
-        {
+        foreach (ExporterKey key in this.myKeyList) {
             // Reset to prepare for new info... or maybe just leave it???
             ExporterRegistry.Instance.Exporters[key].Reset();
 
-            this.PART_ComboBox.Items.Add(new ComboBoxItem()
-            {
+            this.PART_ComboBox.Items.Add(new ComboBoxItem() {
                 Content = key.DisplayName
             });
         }
@@ -83,18 +78,15 @@ public partial class ExportDialog : WindowEx
         this.OnIsExportingChanged(false);
     }
 
-    static ExportDialog()
-    {
+    static ExportDialog() {
         IsExportingProperty.Changed.AddClassHandler<ExportDialog, bool>((d, e) => d.OnIsExportingChanged(e.NewValue.GetValueOrDefault()));
     }
 
-    private void OnIsExportingChanged(bool isExporting)
-    {
+    private void OnIsExportingChanged(bool isExporting) {
         this.PART_ExportButton.IsEnabled = !isExporting;
     }
 
-    protected override void OnLoaded(RoutedEventArgs e)
-    {
+    protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
         this.ThePropertyEditor.ApplyTemplate();
         this.filePathBinder.Attach(this.PART_FilePathTextBox, this.Setup);
@@ -107,25 +99,21 @@ public partial class ExportDialog : WindowEx
 
     // TODO: combobox can change exporter, but changing exporter externally will not change combo box. Too lazy to implement :-)
 
-    private void SetupOnExporterChanged(ExportSetup sender, BaseExporterInfo? oldExporter, BaseExporterInfo? newExporter)
-    {
+    private void SetupOnExporterChanged(ExportSetup sender, BaseExporterInfo? oldExporter, BaseExporterInfo? newExporter) {
         this.ThePropertyEditor.PropertyEditor = newExporter?.PropertyEditor;
     }
 
-    private void OnComboBoxSelectionChanged(object? sender, SelectionChangedEventArgs e)
-    {
+    private void OnComboBoxSelectionChanged(object? sender, SelectionChangedEventArgs e) {
         this.Setup.Exporter = ExporterRegistry.Instance.Exporters[this.myKeyList[this.PART_ComboBox.SelectedIndex]];
     }
 
-    private async void PART_ExportButton_OnClick(object? sender, RoutedEventArgs e)
-    {
+    private async void PART_ExportButton_OnClick(object? sender, RoutedEventArgs e) {
         if (this.IsExporting)
             return;
 
         ExportSetup setup = this.Setup;
         BaseExporterInfo? exporter = setup.Exporter;
-        if (exporter == null)
-        {
+        if (exporter == null) {
             return;
         }
 
@@ -140,8 +128,7 @@ public partial class ExportDialog : WindowEx
         progressDialog.Show();
 
         setup.Editor.IsExporting = true;
-        ActivityTask exportTask = TaskManager.Instance.RunTask(() =>
-        {
+        ActivityTask exportTask = TaskManager.Instance.RunTask(() => {
             progressDialog.ActivityTask = TaskManager.Instance.CurrentTask;
             progressDialog.ActivityTask.Progress.Caption = "Export Task";
             progressDialog.ActivityTask.Progress.Text = "Exporting...";
@@ -154,19 +141,15 @@ public partial class ExportDialog : WindowEx
         await exportTask;
         setup.Editor.IsExporting = false;
 
-        if (exportTask.Exception != null)
-        {
+        if (exportTask.Exception != null) {
             await IMessageDialogService.Instance.ShowMessage("Export failure", "An exception occurred while exporting video", exportTask.Exception.ToString());
         }
 
-        if (exportTask.IsCancelled && File.Exists(setup.FilePath))
-        {
-            try
-            {
+        if (exportTask.IsCancelled && File.Exists(setup.FilePath)) {
+            try {
                 File.Delete(setup.FilePath);
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 // AppLogger.Instance.WriteLine("Failed to delete cancelled export's file: " + ex.GetToString());
             }
         }
@@ -177,24 +160,20 @@ public partial class ExportDialog : WindowEx
         this.Close();
     }
 
-    private void PART_CancelButton_OnClick(object? sender, RoutedEventArgs e)
-    {
+    private void PART_CancelButton_OnClick(object? sender, RoutedEventArgs e) {
         this.exportToken?.Cancel();
         this.Close();
     }
 
-    protected override void OnClosing(WindowClosingEventArgs e)
-    {
-        if (this.IsExporting)
-        {
+    protected override void OnClosing(WindowClosingEventArgs e) {
+        if (this.IsExporting) {
             e.Cancel = true;
         }
 
         base.OnClosing(e);
     }
 
-    protected override void OnClosed(EventArgs e)
-    {
+    protected override void OnClosed(EventArgs e) {
         // We need to deselect the exporter so that it detaches events
         this.Setup.SpanChanged -= this.OnSetupSpanChanged;
         this.Setup.ExporterChanged -= this.SetupOnExporterChanged;
@@ -210,8 +189,7 @@ public partial class ExportDialog : WindowEx
 
     #region Span Editors
 
-    private void BeginFrameDraggerOnValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
-    {
+    private void BeginFrameDraggerOnValueChanged(object? sender, RangeBaseValueChangedEventArgs e) {
         if (this.isProcessingFrameSpanControls)
             return;
 
@@ -220,8 +198,7 @@ public partial class ExportDialog : WindowEx
         this.isProcessingFrameSpanControls = false;
     }
 
-    private void EndFrameDraggerOnValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
-    {
+    private void EndFrameDraggerOnValueChanged(object? sender, RangeBaseValueChangedEventArgs e) {
         if (this.isProcessingFrameSpanControls)
             return;
 
@@ -230,8 +207,7 @@ public partial class ExportDialog : WindowEx
         this.isProcessingFrameSpanControls = false;
     }
 
-    private void UpdateBeginFrameDragger()
-    {
+    private void UpdateBeginFrameDragger() {
         ExportSetup setup = this.Setup;
         this.PART_EndFrameDragger.Maximum = setup.Timeline.MaxDuration;
         this.PART_EndFrameDragger.Minimum = setup.Span.Begin;
@@ -239,8 +215,7 @@ public partial class ExportDialog : WindowEx
         this.PART_DurationTextBlock.Text = setup.Span.Duration.ToString();
     }
 
-    private void UpdateEndFrameDragger()
-    {
+    private void UpdateEndFrameDragger() {
         ExportSetup setup = this.Setup;
         this.PART_BeginFrameDragger.Maximum = setup.Span.EndIndex;
         this.PART_BeginFrameDragger.Minimum = 0;
@@ -248,8 +223,7 @@ public partial class ExportDialog : WindowEx
         this.PART_DurationTextBlock.Text = setup.Span.Duration.ToString();
     }
 
-    private void OnSetupSpanChanged(ExportSetup sender, FrameSpan oldspan, FrameSpan newspan)
-    {
+    private void OnSetupSpanChanged(ExportSetup sender, FrameSpan oldspan, FrameSpan newspan) {
         this.UpdateBeginFrameDragger();
         this.UpdateEndFrameDragger();
     }

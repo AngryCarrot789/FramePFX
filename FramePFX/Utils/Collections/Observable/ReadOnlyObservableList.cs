@@ -25,15 +25,13 @@ namespace FramePFX.Utils.Collections.Observable;
 /// A read-only wrapper of <see cref="IObservableList{T}"/>
 /// </summary>
 /// <typeparam name="T">The type of value we store</typeparam>
-public class ReadOnlyObservableList<T> : ReadOnlyCollection<T>, IObservableList<T>
-{
+public class ReadOnlyObservableList<T> : ReadOnlyCollection<T>, IObservableList<T> {
     public event ObservableListMultipleItemsEventHandler<T>? ItemsAdded;
     public event ObservableListMultipleItemsEventHandler<T>? ItemsRemoved;
     public event ObservableListReplaceEventHandler<T>? ItemReplaced;
     public event ObservableListSingleItemEventHandler<T>? ItemMoved;
 
-    public ReadOnlyObservableList(IObservableList<T> list) : base(list)
-    {
+    public ReadOnlyObservableList(IObservableList<T> list) : base(list) {
         list.ItemsAdded += this.ListOnItemsAdded;
         list.ItemsRemoved += this.ListOnItemsRemoved;
         list.ItemReplaced += this.ListOnItemReplaced;

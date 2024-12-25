@@ -22,8 +22,7 @@ namespace FramePFX;
 /// <summary>
 /// Provides a mechanism for invoking actions on the UI thread
 /// </summary>
-public interface IDispatcher
-{
+public interface IDispatcher {
     /// <summary>
     /// Determines whether the calling thread is the thread associated with this dispatcher
     bool CheckAccess();
@@ -78,7 +77,7 @@ public interface IDispatcher
     /// <param name="action"></param>
     /// <param name="priority"></param>
     void Post(Action action, DispatchPriority priority = DispatchPriority.Default);
-    
+
     /// <summary>
     /// Process all queued events at and above the given priority
     /// </summary>

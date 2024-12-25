@@ -31,30 +31,24 @@ namespace FramePFX.Configurations;
 /// <summary>
 /// The configuration manager for a FramePFX project
 /// </summary>
-public class ProjectConfigurationManager : ConfigurationManager
-{
+public class ProjectConfigurationManager : ConfigurationManager {
     public Project Project { get; }
-    
+
     public IVideoEditorUI VideoEditor { get; }
 
-    public ProjectConfigurationManager(Project project, IVideoEditorUI editorUi)
-    {
+    public ProjectConfigurationManager(Project project, IVideoEditorUI editorUi) {
         this.Project = project;
         this.VideoEditor = editorUi;
-        this.RootEntry.AddEntry(new ConfigurationEntry()
-        {
+        this.RootEntry.AddEntry(new ConfigurationEntry() {
             DisplayName = "Video", Id = "config.project.video", Page = new ProjectVideoPropertyEditorConfigurationPage(this)
         });
     }
 
-    public void Destroy()
-    {
-        
+    public void Destroy() {
     }
 }
 
-public class ProjectVideoPropertyEditorConfigurationPage : PropertyEditorConfigurationPage, ITransferableData
-{
+public class ProjectVideoPropertyEditorConfigurationPage : PropertyEditorConfigurationPage, ITransferableData {
     public static readonly DataParameterLong WidthParameter =
         DataParameter.Register(
             new DataParameterLong(
@@ -81,51 +75,44 @@ public class ProjectVideoPropertyEditorConfigurationPage : PropertyEditorConfigu
     private double frameRate;
     private readonly ProjectConfigurationManager manager;
 
-    public long Width
-    {
+    public long Width {
         get => this.width;
         set => DataParameter.SetValueHelper(this, WidthParameter, ref this.width, value);
     }
 
-    public long Height
-    {
+    public long Height {
         get => this.height;
         set => DataParameter.SetValueHelper(this, HeightParameter, ref this.height, value);
     }
 
-    public double FrameRate
-    {
+    public double FrameRate {
         get => this.frameRate;
         set => DataParameter.SetValueHelper(this, FrameRateParameter, ref this.frameRate, value);
     }
 
     public TransferableData TransferableData { get; }
 
-    public ProjectVideoPropertyEditorConfigurationPage(ProjectConfigurationManager manager)
-    {
+    public ProjectVideoPropertyEditorConfigurationPage(ProjectConfigurationManager manager) {
         this.manager = manager;
         this.TransferableData = new TransferableData(this);
         this.width = WidthParameter.GetDefaultValue(this);
         this.height = HeightParameter.GetDefaultValue(this);
         this.frameRate = FrameRateParameter.GetDefaultValue(this);
-        
-        this.PropertyEditor.Root.AddItem(new DataParameterLongPropertyEditorSlot(WidthParameter, WidthParameter.OwnerType, "Width", DragStepProfile.Pixels) {ValueFormatter = SuffixValueFormatter.StandardPixels});
-        this.PropertyEditor.Root.AddItem(new DataParameterLongPropertyEditorSlot(HeightParameter, HeightParameter.OwnerType, "Height", DragStepProfile.Pixels) {ValueFormatter = SuffixValueFormatter.StandardPixels});
+
+        this.PropertyEditor.Root.AddItem(new DataParameterLongPropertyEditorSlot(WidthParameter, WidthParameter.OwnerType, "Width", DragStepProfile.Pixels) { ValueFormatter = SuffixValueFormatter.StandardPixels });
+        this.PropertyEditor.Root.AddItem(new DataParameterLongPropertyEditorSlot(HeightParameter, HeightParameter.OwnerType, "Height", DragStepProfile.Pixels) { ValueFormatter = SuffixValueFormatter.StandardPixels });
         this.PropertyEditor.Root.AddItem(new DataParameterDoublePropertyEditorSlot(FrameRateParameter, FrameRateParameter.OwnerType, "Frame Rate", DragStepProfile.FramesPerSeconds));
     }
 
-    static ProjectVideoPropertyEditorConfigurationPage()
-    {
+    static ProjectVideoPropertyEditorConfigurationPage() {
         DataParameter.AddMultipleHandlers(MarkModified, WidthParameter, HeightParameter, FrameRateParameter);
     }
 
-    private static void MarkModified(DataParameter parameter, ITransferableData owner)
-    {
+    private static void MarkModified(DataParameter parameter, ITransferableData owner) {
         ((ProjectVideoPropertyEditorConfigurationPage) owner).MarkModified();
     }
 
-    public override async ValueTask OnContextCreated(ConfigurationContext context)
-    {
+    public override async ValueTask OnContextCreated(ConfigurationContext context) {
         ProjectSettings settings = this.manager.Project.Settings;
         this.width = settings.Width;
         this.height = settings.Height;
@@ -133,18 +120,15 @@ public class ProjectVideoPropertyEditorConfigurationPage : PropertyEditorConfigu
         this.PropertyEditor.Root.SetupHierarchyState([this]);
     }
 
-    public override ValueTask OnContextDestroyed(ConfigurationContext context)
-    {
+    public override ValueTask OnContextDestroyed(ConfigurationContext context) {
         this.PropertyEditor.Root.ClearHierarchy();
         return ValueTask.CompletedTask;
     }
 
-    public override async ValueTask Apply()
-    {
+    public override async ValueTask Apply() {
         ProjectSettings settings = this.manager.Project.Settings;
         settings.Resolution = new SKSizeI((int) this.Width, (int) this.Height);
-        if (DoubleUtils.IsValid(this.FrameRate))
-        {
+        if (DoubleUtils.IsValid(this.FrameRate)) {
             settings.FrameRate = Rational.FromDouble(this.FrameRate);
         }
 

@@ -19,13 +19,10 @@
 
 namespace FramePFX.Utils;
 
-public static class BinarySearch
-{
-    public static int IndexOf(IList<int> list, int value)
-    {
+public static class BinarySearch {
+    public static int IndexOf(IList<int> list, int value) {
         int min = 0, max = list.Count - 1;
-        while (min <= max)
-        {
+        while (min <= max) {
             int mid = min + (max - min) / 2;
             int val = list[mid];
             if (val == value)
@@ -39,11 +36,9 @@ public static class BinarySearch
         return ~min;
     }
 
-    public static int IndexOf<T>(IReadOnlyList<T> list, int value, Func<T, int> func)
-    {
+    public static int IndexOf<T>(IReadOnlyList<T> list, int value, Func<T, int> func) {
         int min = 0, max = list.Count - 1;
-        while (min <= max)
-        {
+        while (min <= max) {
             int mid = min + (max - min) / 2;
             int val = func(list[mid]);
             if (val == value)

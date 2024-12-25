@@ -25,40 +25,32 @@ using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
 
 namespace FramePFX.Editing.Commands;
 
-public class NewProjectCommand : AsyncCommand
-{
+public class NewProjectCommand : AsyncCommand {
     // true: project was already closed or is now closed
     // false: close was cancelled; cancel entire operation
 
-    protected override Executability CanExecuteOverride(CommandEventArgs e)
-    {
+    protected override Executability CanExecuteOverride(CommandEventArgs e) {
         return e.ContextData.ContainsKey(DataKeys.VideoEditorKey) ? Executability.Valid : Executability.Invalid;
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e)
-    {
-        if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? editor))
-        {
+    protected override async Task ExecuteAsync(CommandEventArgs e) {
+        if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? editor)) {
             return;
         }
 
-        await TaskManager.Instance.RunTask(async () =>
-        {
+        await TaskManager.Instance.RunTask(async () => {
             IActivityProgress progress = TaskManager.Instance.CurrentTask.Progress;
 
             progress.CompletionState.OnProgress(0.25);
-            if (!await CloseProjectCommand.CloseProjectBGT(editor, null))
-            {
+            if (!await CloseProjectCommand.CloseProjectBGT(editor, null)) {
                 return;
             }
 
             progress.CompletionState.OnProgress(0.5);
 
-            await Application.Instance.Dispatcher.InvokeAsync(() =>
-            {
+            await Application.Instance.Dispatcher.InvokeAsync(() => {
                 Project project = new Project();
-                VideoTrack track = new VideoTrack()
-                {
+                VideoTrack track = new VideoTrack() {
                     DisplayName = "Video Track 1"
                 };
 

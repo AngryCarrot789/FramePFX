@@ -22,10 +22,9 @@ namespace FramePFX.Editing.ResourceManaging;
 /// <summary>
 /// A service for a user interface for loading resources
 /// </summary>
-public interface IResourceLoaderDialogService
-{
+public interface IResourceLoaderDialogService {
     public static IResourceLoaderDialogService Instance => Application.Instance.ServiceManager.GetService<IResourceLoaderDialogService>();
-    
+
     /// <summary>
     /// Tries to load a collection of resources. When one or more resources could not be
     /// loaded, a dialog is shown that allows the user to try and fix the resource.
@@ -33,7 +32,7 @@ public interface IResourceLoaderDialogService
     /// <param name="resources">The resources</param>
     /// <returns>A task that completes when all resources are loaded or the resource loader dialog closes</returns>
     Task<bool> TryLoadResources(BaseResource[] resources);
-    
+
     /// <summary>
     /// Tries to load a single resource. See <see cref="TryLoadResources"/> for more info
     /// </summary>

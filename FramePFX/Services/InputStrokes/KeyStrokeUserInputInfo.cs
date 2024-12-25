@@ -24,8 +24,7 @@ using FramePFX.Utils.Accessing;
 
 namespace FramePFX.Services.InputStrokes;
 
-public class KeyStrokeUserInputInfo : UserInputInfo
-{
+public class KeyStrokeUserInputInfo : UserInputInfo {
     public static readonly DataParameter<KeyStroke?> KeyStrokeParameter =
         DataParameter.Register(
             new DataParameter<KeyStroke?>(
@@ -35,19 +34,16 @@ public class KeyStrokeUserInputInfo : UserInputInfo
 
     private KeyStroke? keyStroke;
 
-    public KeyStroke? KeyStroke
-    {
+    public KeyStroke? KeyStroke {
         get => this.keyStroke;
         set => DataParameter.SetValueHelper(this, KeyStrokeParameter, ref this.keyStroke, value);
     }
 
-    public KeyStrokeUserInputInfo()
-    {
+    public KeyStrokeUserInputInfo() {
         this.keyStroke = KeyStrokeParameter.GetDefaultValue(this);
     }
 
-    public override bool CanDialogClose()
-    {
+    public override bool CanDialogClose() {
         return this.keyStroke.HasValue && this.keyStroke.Value != default;
     }
 }

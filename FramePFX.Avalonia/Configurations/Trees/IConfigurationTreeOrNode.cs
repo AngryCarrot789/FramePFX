@@ -24,8 +24,7 @@ namespace FramePFX.Avalonia.Configurations.Trees;
 /// <summary>
 /// An interface for shared properties between a <see cref="ConfigurationTreeView"/> and <see cref="ConfigurationTreeViewItem"/>
 /// </summary>
-public interface IConfigurationTreeOrNode
-{
+public interface IConfigurationTreeOrNode {
     /// <summary>
     /// Gets the configuration tree view associated with this node, or returns the current instance
     /// </summary>

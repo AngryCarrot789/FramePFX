@@ -28,8 +28,7 @@ namespace FramePFX.Editing.Timelines.Clips;
 /// <summary>
 /// An interface for all types of clip models
 /// </summary>
-public interface IClip : IHaveEffects, IStrictFrameRange, IAutomatable, ITransferableData, IResourceHolder, IDisplayName
-{
+public interface IClip : IHaveEffects, IStrictFrameRange, IAutomatable, ITransferableData, IResourceHolder, IDisplayName {
     /// <summary>
     /// Gets or sets this clip's frame span, that is, a beginning and duration
     /// property contain in a single struct that represents the location and
@@ -37,7 +36,7 @@ public interface IClip : IHaveEffects, IStrictFrameRange, IAutomatable, ITransfe
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">Begin or duration were negative</exception>
     FrameSpan FrameSpan { get; set; }
-    
+
     /// <summary>
     /// Gets the track that this clip is placed in
     /// </summary>
@@ -47,7 +46,7 @@ public interface IClip : IHaveEffects, IStrictFrameRange, IAutomatable, ITransfe
     /// An event fired when this clip's <see cref="FrameSpan"/> changed
     /// </summary>
     event ClipSpanChangedEventHandler? FrameSpanChanged;
-    
+
     /// <summary>
     /// An event fired when this clip's track changes. This may be called when:
     /// </summary>

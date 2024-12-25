@@ -19,7 +19,5 @@
 
 namespace FramePFX.Avalonia.PropertyEditing.ResourceManaging;
 
-public class ResourceItemPropertyEditorSlot
-{
-    
+public class ResourceItemPropertyEditorSlot {
 }

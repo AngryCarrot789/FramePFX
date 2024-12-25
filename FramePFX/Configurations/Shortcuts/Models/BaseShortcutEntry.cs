@@ -21,20 +21,16 @@ using FramePFX.Shortcuts;
 
 namespace FramePFX.Configurations.Shortcuts.Models;
 
-public abstract class BaseShortcutEntry
-{
+public abstract class BaseShortcutEntry {
     public IGroupedObject GroupedObject { get; }
 
     public ShortcutGroupEntry? ParentEntry { get; }
-    
-    protected BaseShortcutEntry(ShortcutGroupEntry? parentEntry, IGroupedObject groupedObject)
-    {
+
+    protected BaseShortcutEntry(ShortcutGroupEntry? parentEntry, IGroupedObject groupedObject) {
         this.GroupedObject = groupedObject;
         this.ParentEntry = parentEntry;
     }
 
-    public virtual void ResetHierarchy()
-    {
-        
+    public virtual void ResetHierarchy() {
     }
 }

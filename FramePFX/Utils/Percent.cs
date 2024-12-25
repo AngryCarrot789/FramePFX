@@ -59,8 +59,7 @@ public readonly struct Percent : IComparable<Percent>, IComparable<int>, IEquata
 
     private readonly int m_value;
 
-    public Percent(int mValue)
-    {
+    public Percent(int mValue) {
         this.m_value = mValue;
     }
 
@@ -70,8 +69,7 @@ public readonly struct Percent : IComparable<Percent>, IComparable<int>, IEquata
 
     public static Percent Abs(Percent value) => (Percent) Math.Abs(value.m_value);
 
-    public static Percent Parse(string? s, IFormatProvider? provider = null)
-    {
+    public static Percent Parse(string? s, IFormatProvider? provider = null) {
         if (s == null)
             throw new ArgumentNullException(nameof(s), "String is null");
 
@@ -81,8 +79,7 @@ public readonly struct Percent : IComparable<Percent>, IComparable<int>, IEquata
         throw new ArgumentException("Invalid percentage");
     }
 
-    public static bool TryParse(string? s, IFormatProvider? provider, out Percent result)
-    {
+    public static bool TryParse(string? s, IFormatProvider? provider, out Percent result) {
         int max;
         if (s != null && (max = (s = s.Trim()).Length) > 0)
             return TryParseInternal(s.AsSpan(0, s[max - 1] == '%' ? (max - 1) : max), provider, out result);
@@ -91,30 +88,25 @@ public readonly struct Percent : IComparable<Percent>, IComparable<int>, IEquata
         return false;
     }
 
-    public static Percent Parse(ReadOnlySpan<char> s, IFormatProvider? provider = null)
-    {
+    public static Percent Parse(ReadOnlySpan<char> s, IFormatProvider? provider = null) {
         if (TryParse(s, provider, out Percent x))
             return x;
 
         throw new ArgumentException("Invalid percentage");
     }
 
-    public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, out Percent result)
-    {
+    public static bool TryParse(ReadOnlySpan<char> s, IFormatProvider? provider, out Percent result) {
         int max = (s = s.Trim()).Length;
         return TryParseInternal(s.Slice(0, s[max - 1] == '%' ? (max - 1) : max), provider, out result);
     }
 
-    private static bool TryParseInternal(ReadOnlySpan<char> span, IFormatProvider? provider, out Percent result)
-    {
-        if (int.TryParse(span, provider, out int intResult))
-        {
+    private static bool TryParseInternal(ReadOnlySpan<char> span, IFormatProvider? provider, out Percent result) {
+        if (int.TryParse(span, provider, out int intResult)) {
             result = new Percent(intResult * 100);
             return true;
         }
 
-        if (double.TryParse(span, provider, out double dres))
-        {
+        if (double.TryParse(span, provider, out double dres)) {
             result = new Percent((int) Math.Floor(Math.Round(dres * 100.0, 2)));
             return true;
         }
@@ -135,15 +127,13 @@ public readonly struct Percent : IComparable<Percent>, IComparable<int>, IEquata
 
     public override string ToString() => Math.Round(this.AsPercentDouble, 2) + "%";
 
-    public int CompareTo(object? value)
-    {
+    public int CompareTo(object? value) {
         if (value == null)
             return 1;
 
         // NOTE: Cannot use return (_value - value) as this causes a wrap
         // around in cases where _value - value > MaxValue.
-        if (value is Percent i)
-        {
+        if (value is Percent i) {
             if (this.m_value < i.m_value)
                 return -1;
             if (this.m_value > i.m_value)
@@ -176,14 +166,12 @@ public readonly struct Percent : IComparable<Percent>, IComparable<int>, IEquata
 
     public static Percent FromPercentInt(int value) => new(value * 100);
 
-    public static Percent FromPercentDouble(double value, RoundingMode roundingMode = RoundingMode.Round)
-    {
+    public static Percent FromPercentDouble(double value, RoundingMode roundingMode = RoundingMode.Round) {
         decimal value2 = (decimal) value * 100;
         return new Percent(Maths.Round(value2, roundingMode));
     }
 
-    public static Percent FromUnitDouble(double unitDouble, RoundingMode roundingMode = RoundingMode.Round)
-    {
+    public static Percent FromUnitDouble(double unitDouble, RoundingMode roundingMode = RoundingMode.Round) {
         decimal value = (decimal) unitDouble * 10000;
         return new Percent(Maths.Round(value, roundingMode));
     }

@@ -39,14 +39,11 @@ namespace FramePFX;
 /// <summary>
 /// The main application model class
 /// </summary>
-public abstract class Application : IServiceable
-{
+public abstract class Application : IServiceable {
     private static Application? instance;
 
-    public static Application Instance
-    {
-        get
-        {
+    public static Application Instance {
+        get {
             if (instance == null)
                 throw new InvalidOperationException("Application not initialised yet");
 
@@ -79,44 +76,37 @@ public abstract class Application : IServiceable
     /// Gets the current build version for this application. This accesses <see cref="CurrentVersion"/>, and changes whenever a new change is made to the application (regardless of how small)
     /// </summary>
     public int CurrentBuild => this.CurrentVersion.Build;
-    
-    protected Application()
-    {
+
+    protected Application() {
         this.ServiceManager = new ServiceManager(this);
     }
 
-    protected virtual async Task OnInitialise(IApplicationStartupProgress progress)
-    {
+    protected virtual async Task OnInitialise(IApplicationStartupProgress progress) {
         await progress.ProgressAndSynchroniseAsync("Loading plugins...");
-        
+
         List<BasePluginLoadException> exceptions = new List<BasePluginLoadException>();
-        if (exceptions.Count > 0)
-        {
+        if (exceptions.Count > 0) {
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < exceptions.Count; i++)
-            {
+            for (int i = 0; i < exceptions.Count; i++) {
                 BasePluginLoadException e = exceptions[i];
                 sb.Append($"Exception {i + 1}: ").Append(e).Append('\n').Append('\n');
             }
 
             await IMessageDialogService.Instance.ShowMessage("Error loading one or more plugins", sb.ToString());
         }
-        
+
         await progress.ProgressAndSynchroniseAsync("Initialising services");
-        using (progress.CompletionState.PushCompletionRange(0.0, 0.5))
-        {
+        using (progress.CompletionState.PushCompletionRange(0.0, 0.5)) {
             this.RegisterServices(this.ServiceManager);
         }
 
         await progress.ProgressAndSynchroniseAsync("Initialising commands");
-        using (progress.CompletionState.PushCompletionRange(0.5, 1.0))
-        {
+        using (progress.CompletionState.PushCompletionRange(0.5, 1.0)) {
             this.RegisterCommands(progress, CommandManager.Instance);
         }
     }
 
-    protected virtual void RegisterServices(ServiceManager manager)
-    {
+    protected virtual void RegisterServices(ServiceManager manager) {
         manager.RegisterConstant(new TaskManager());
         manager.RegisterConstant(new ResourceDropOnTimelineService());
         manager.RegisterConstant(new EditorConfigurationOptions());
@@ -124,8 +114,7 @@ public abstract class Application : IServiceable
         manager.RegisterConstant(ApplicationConfigurationManager.Instance);
     }
 
-    protected virtual void RegisterCommands(IApplicationStartupProgress progress, CommandManager manager)
-    {
+    protected virtual void RegisterCommands(IApplicationStartupProgress progress, CommandManager manager) {
         // tools
 
         // timelines, tracks and clips
@@ -196,22 +185,18 @@ public abstract class Application : IServiceable
 
         manager.Register("commands.shortcuts.AddKeyStrokeToShortcut", new AddKeyStrokeToShortcutUsingDialogCommand());
         manager.Register("commands.shortcuts.AddMouseStrokeToShortcut", new AddMouseStrokeToShortcutUsingDialogCommand());
-        
+
         progress.CompletionState.SetProgress(1.0);
     }
 
-    protected virtual async Task OnFullyInitialised(VideoEditor editor, string[] args)
-    {
-        if (args.Length > 0 && File.Exists(args[0]) && Filters.ProjectType.MatchFilePath(args[0]) == true)
-        {
+    protected virtual async Task OnFullyInitialised(VideoEditor editor, string[] args) {
+        if (args.Length > 0 && File.Exists(args[0]) && Filters.ProjectType.MatchFilePath(args[0]) == true) {
             ActivityTask<bool> task = OpenProjectCommand.RunOpenProjectTask(editor, args[0]);
-            if (!await task)
-            {
+            if (!await task) {
                 editor.LoadDefaultProject();
             }
         }
-        else
-        {
+        else {
             // Use to debug why something is causing a crash only in Release mode
             // string path = ...;
             // OpenProjectCommand.RunOpenProjectTask(editor, path);
@@ -229,13 +214,11 @@ public abstract class Application : IServiceable
         // media.Destroy();
     }
 
-    protected virtual void OnExit(int exitCode)
-    {
+    protected virtual void OnExit(int exitCode) {
         PFXNative.ShutdownLibrary();
     }
 
-    protected static void InternalPreInititalise(Application application)
-    {
+    protected static void InternalPreInititalise(Application application) {
         if (application == null)
             throw new ArgumentNullException(nameof(application));
 
@@ -245,8 +228,7 @@ public abstract class Application : IServiceable
         instance = application;
     }
 
-    protected static async Task InternalInititalise(IApplicationStartupProgress progress)
-    {
+    protected static async Task InternalInititalise(IApplicationStartupProgress progress) {
         if (instance == null)
             throw new InvalidOperationException("Application has not been pre-initialised yet");
 

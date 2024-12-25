@@ -24,24 +24,18 @@ using FramePFX.Services.UserInputs;
 
 namespace FramePFX.Editing.Commands;
 
-public abstract class RenameDisplayNameCommand : AsyncCommand
-{
-    protected override Executability CanExecuteOverride(CommandEventArgs e)
-    {
+public abstract class RenameDisplayNameCommand : AsyncCommand {
+    protected override Executability CanExecuteOverride(CommandEventArgs e) {
         return e.ContextData.TryGetContext(this.DataKey.Id, out object? value) && value is IDisplayName ? Executability.Valid : Executability.Invalid;
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e)
-    {
-        if (e.ContextData.TryGetContext(this.DataKey.Id, out object? obj) && obj is IDisplayName element)
-        {
-            SingleUserInputInfo info = new SingleUserInputInfo("Rename", this.Label, element.DisplayName)
-            {
+    protected override async Task ExecuteAsync(CommandEventArgs e) {
+        if (e.ContextData.TryGetContext(this.DataKey.Id, out object? obj) && obj is IDisplayName element) {
+            SingleUserInputInfo info = new SingleUserInputInfo("Rename", this.Label, element.DisplayName) {
                 ConfirmText = "Rename", DefaultButton = true
             };
 
-            if (await IUserInputDialogService.Instance.ShowInputDialogAsync(info) == true)
-            {
+            if (await IUserInputDialogService.Instance.ShowInputDialogAsync(info) == true) {
                 element.DisplayName = info.Text ?? "";
             }
         }
@@ -52,14 +46,12 @@ public abstract class RenameDisplayNameCommand : AsyncCommand
     protected abstract string Label { get; }
 }
 
-public class RenameClipCommand : RenameDisplayNameCommand
-{
+public class RenameClipCommand : RenameDisplayNameCommand {
     protected override DataKey DataKey => DataKeys.ClipKey;
     protected override string Label => "Clip Name:";
 }
 
-public class RenameTrackCommand : RenameDisplayNameCommand
-{
+public class RenameTrackCommand : RenameDisplayNameCommand {
     protected override DataKey DataKey => DataKeys.TrackKey;
     protected override string Label => "Track Name:";
 }

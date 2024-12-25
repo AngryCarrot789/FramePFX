@@ -23,17 +23,13 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editing.Timelines.Commands;
 
-public class SelectAllClipsCommand : Command
-{
-    public override Executability CanExecute(CommandEventArgs e)
-    {
+public class SelectAllClipsCommand : Command {
+    public override Executability CanExecute(CommandEventArgs e) {
         return DataKeys.TimelineUIKey.GetExecutabilityForPresence(e.ContextData);
     }
 
-    protected override void Execute(CommandEventArgs e)
-    {
-        if (DataKeys.TimelineUIKey.TryGetContext(e.ContextData, out ITimelineElement? timeline))
-        {
+    protected override void Execute(CommandEventArgs e) {
+        if (DataKeys.TimelineUIKey.TryGetContext(e.ContextData, out ITimelineElement? timeline)) {
             timeline.ClipSelection.SelectAll();
         }
     }

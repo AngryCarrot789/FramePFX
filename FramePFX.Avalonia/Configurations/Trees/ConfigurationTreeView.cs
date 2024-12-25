@@ -26,15 +26,13 @@ using FramePFX.Configurations;
 
 namespace FramePFX.Avalonia.Configurations.Trees;
 
-public class ConfigurationTreeView : TreeView, IConfigurationTreeOrNode
-{
+public class ConfigurationTreeView : TreeView, IConfigurationTreeOrNode {
     public static readonly StyledProperty<ConfigurationEntry?> RootConfigurationEntryProperty = AvaloniaProperty.Register<ConfigurationTreeView, ConfigurationEntry?>(nameof(RootConfigurationEntry));
 
     /// <summary>
     /// Gets or sets our root configuration entry. Setting this will clear and reload all the child nodes
     /// </summary>
-    public ConfigurationEntry? RootConfigurationEntry
-    {
+    public ConfigurationEntry? RootConfigurationEntry {
         get => this.GetValue(RootConfigurationEntryProperty);
         set => this.SetValue(RootConfigurationEntryProperty, value);
     }
@@ -50,27 +48,22 @@ public class ConfigurationTreeView : TreeView, IConfigurationTreeOrNode
 
     ConfigurationEntry IConfigurationTreeOrNode.Entry => this.RootConfigurationEntry ?? throw new InvalidOperationException("Invalid usage of the interface");
 
-    public ConfigurationTreeView()
-    {
+    public ConfigurationTreeView() {
         this.itemCache = new Stack<ConfigurationTreeViewItem>();
         this.Focusable = true;
     }
 
-    static ConfigurationTreeView()
-    {
+    static ConfigurationTreeView() {
         RootConfigurationEntryProperty.Changed.AddClassHandler<ConfigurationTreeView, ConfigurationEntry?>((d, e) => d.OnRootConfigurationEntryChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }
 
-    private void OnRootConfigurationEntryChanged(ConfigurationEntry? oldEntry, ConfigurationEntry? newEntry)
-    {
-        if (oldEntry != null)
-        {
+    private void OnRootConfigurationEntryChanged(ConfigurationEntry? oldEntry, ConfigurationEntry? newEntry) {
+        if (oldEntry != null) {
             for (int i = this.Items.Count - 1; i >= 0; i--)
                 this.RemoveNode(i);
         }
 
-        if (newEntry != null)
-        {
+        if (newEntry != null) {
             int i = 0;
             foreach (ConfigurationEntry resource in newEntry.Items)
                 this.InsertNode(resource, i++);
@@ -81,8 +74,7 @@ public class ConfigurationTreeView : TreeView, IConfigurationTreeOrNode
 
     public void InsertNode(ConfigurationEntry item, int index) => this.InsertNode(this.GetCachedItemOrNew(), item, index);
 
-    public void InsertNode(ConfigurationTreeViewItem control, ConfigurationEntry layer, int index)
-    {
+    public void InsertNode(ConfigurationTreeViewItem control, ConfigurationEntry layer, int index) {
         control.OnAdding(this, null, layer);
         this.Items.Insert(index, control);
         this.AddResourceMapping(control, layer);
@@ -91,8 +83,7 @@ public class ConfigurationTreeView : TreeView, IConfigurationTreeOrNode
         control.OnAdded();
     }
 
-    public void RemoveNode(int index, bool canCache = true)
-    {
+    public void RemoveNode(int index, bool canCache = true) {
         ConfigurationTreeViewItem control = (ConfigurationTreeViewItem) this.Items[index]!;
         ConfigurationEntry model = control.Entry ?? throw new Exception("Expected node to have a resource");
         control.OnRemoving();
@@ -107,21 +98,17 @@ public class ConfigurationTreeView : TreeView, IConfigurationTreeOrNode
 
     public void RemoveResourceMapping(ConfigurationTreeViewItem control, ConfigurationEntry layer) => this.itemMap.RemoveMapping(layer, control);
 
-    public ConfigurationTreeViewItem GetCachedItemOrNew()
-    {
+    public ConfigurationTreeViewItem GetCachedItemOrNew() {
         return this.itemCache.Count > 0 ? this.itemCache.Pop() : new ConfigurationTreeViewItem();
     }
 
-    public void PushCachedItem(ConfigurationTreeViewItem item)
-    {
-        if (this.itemCache.Count < 128)
-        {
+    public void PushCachedItem(ConfigurationTreeViewItem item) {
+        if (this.itemCache.Count < 128) {
             this.itemCache.Push(item);
         }
     }
 
-    public void SetSelection(ConfigurationTreeViewItem item)
-    {
+    public void SetSelection(ConfigurationTreeViewItem item) {
         this.SelectedItem = item;
     }
 }

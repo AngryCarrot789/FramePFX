@@ -21,8 +21,7 @@ using SkiaSharp;
 
 namespace FramePFX.Utils;
 
-public struct SKSizeD : IEquatable<SKSizeD>
-{
+public struct SKSizeD : IEquatable<SKSizeD> {
     /// <summary>Represents a new instance of the <see cref="T:SkiaSharp.SKSizeD" /> class with member data left uninitialized.</summary>
     /// <remarks />
     public static readonly SKSizeD Empty;
@@ -31,14 +30,12 @@ public struct SKSizeD : IEquatable<SKSizeD>
 
     public double Height;
 
-    public SKSizeD(double width, double height)
-    {
+    public SKSizeD(double width, double height) {
         this.Width = width;
         this.Height = height;
     }
 
-    public SKSizeD(SKPointD pt)
-    {
+    public SKSizeD(SKPointD pt) {
         this.Width = pt.X;
         this.Height = pt.Y;
     }
@@ -56,16 +53,14 @@ public struct SKSizeD : IEquatable<SKSizeD>
     /// <summary>Converts a <see cref="T:SkiaSharp.SKSizeD" /> structure to a <see cref="T:SkiaSharp.SKSizeI" /> structure.</summary>
     /// <returns>Returns a <see cref="T:SkiaSharp.SKSizeI" /> structure.</returns>
     /// <remarks />
-    public readonly SKSizeI ToSizeI()
-    {
+    public readonly SKSizeI ToSizeI() {
         return new SKSizeI(checked((int) this.Width), checked((int) this.Height));
     }
 
     /// <summary>Converts this <see cref="T:SkiaSharp.SKSizeD" /> to a human readable string.</summary>
     /// <returns>A string that represents this <see cref="T:SkiaSharp.SKSizeD" />.</returns>
     /// <remarks />
-    public readonly override string ToString()
-    {
+    public readonly override string ToString() {
         return $"{this.Width:F4},{this.Height:F4}";
     }
 
@@ -88,25 +83,21 @@ public struct SKSizeD : IEquatable<SKSizeD>
     /// <summary>Adds the width and height of one <see cref="T:SkiaSharp.SKSizeD" /> structure to the width and height of another <see cref="T:SkiaSharp.SKSizeD" /> structure.</summary>
     /// <returns>A <see cref="T:SkiaSharp.SKSizeD" /> structure that is the result of the addition operation.</returns>
     /// <remarks />
-    public static SKSizeD operator +(SKSizeD sz1, SKSizeD sz2)
-    {
+    public static SKSizeD operator +(SKSizeD sz1, SKSizeD sz2) {
         return new SKSizeD(sz1.Width + sz2.Width, sz1.Height + sz2.Height);
     }
 
-    public static SKSizeD operator -(SKSizeD sz1, SKSizeD sz2)
-    {
+    public static SKSizeD operator -(SKSizeD sz1, SKSizeD sz2) {
         return new SKSizeD(sz1.Width - sz2.Width, sz1.Height - sz2.Height);
     }
 
     public static explicit operator SKPointD(SKSizeD size) => new SKPointD(size.Width, size.Height);
 
-    public static implicit operator SKSizeD(SKSizeI size)
-    {
+    public static implicit operator SKSizeD(SKSizeI size) {
         return new SKSizeD(size.Width, size.Height);
     }
 
-    public readonly bool Equals(SKSizeD obj)
-    {
+    public readonly bool Equals(SKSizeD obj) {
         return this.Width == obj.Width && this.Height == obj.Height;
     }
 
@@ -119,8 +110,7 @@ public struct SKSizeD : IEquatable<SKSizeD>
     /// <summary>Returns a hash code for this <see cref="T:SkiaSharp.SKSizeD" /> structure.</summary>
     /// <returns>An integer value that specifies a hash value for this <see cref="T:SkiaSharp.SKSizeD" /> structure.</returns>
     /// <remarks />
-    public readonly override int GetHashCode()
-    {
+    public readonly override int GetHashCode() {
         HashCode hashCode = new HashCode();
         hashCode.Add<double>(this.Width);
         hashCode.Add<double>(this.Height);

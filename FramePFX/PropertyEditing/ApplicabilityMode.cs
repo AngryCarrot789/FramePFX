@@ -22,8 +22,7 @@ namespace FramePFX.PropertyEditing;
 /// <summary>
 /// A mode for determining if a <see cref="PropertyEditorSlot"/> is applicable for a collection of handlers
 /// </summary>
-public enum ApplicabilityMode
-{
+public enum ApplicabilityMode {
     /// <summary>
     /// Applicable when all handlers are applicable
     /// </summary>

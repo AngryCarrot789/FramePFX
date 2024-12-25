@@ -9,8 +9,7 @@ using FramePFX.Shortcuts.Inputs;
 
 namespace FramePFX.Avalonia.Shortcuts.Avalonia;
 
-public class AvaloniaShortcutInputProcessor : ShortcutInputProcessor
-{
+public class AvaloniaShortcutInputProcessor : ShortcutInputProcessor {
     internal bool isProcessingKey;
 
     public new AvaloniaShortcutManager Manager => (AvaloniaShortcutManager) base.Manager;
@@ -26,19 +25,16 @@ public class AvaloniaShortcutInputProcessor : ShortcutInputProcessor
     public AvaloniaShortcutInputProcessor(AvaloniaShortcutManager manager) : base(manager) {
     }
 
-    public void BeginInputProcessing(AvaloniaObject target)
-    {
+    public void BeginInputProcessing(AvaloniaObject target) {
         this.CurrentTargetObject = target;
     }
 
-    private void EndInputProcessing()
-    {
+    private void EndInputProcessing() {
         this.lazyCurrentContextData = null;
         this.CurrentTargetObject = null;
     }
 
-    public void OnInputSourceKeyEvent(AvaloniaShortcutInputProcessor processor, InputElement focused, KeyEventArgs e, Key key, bool isRelease, bool isRepeat)
-    {
+    public void OnInputSourceKeyEvent(AvaloniaShortcutInputProcessor processor, InputElement focused, KeyEventArgs e, Key key, bool isRelease, bool isRepeat) {
         KeyModifiers mods = ShortcutUtils.IsModifierKey(key) ? KeyModifiers.None : e.KeyModifiers;
         KeyStroke stroke = new KeyStroke((int) key, (int) mods, isRelease);
 
@@ -46,22 +42,19 @@ public class AvaloniaShortcutInputProcessor : ShortcutInputProcessor
             if (stroke.Modifiers == 0 && !UIInputManager.GetIsKeyShortcutProcessingUnblockedWithKeyModifiers(focused))
                 return;
 
-        try
-        {
+        try {
             this.isProcessingKey = true;
             this.BeginInputProcessing(focused);
 
             e.Handled = processor.OnKeyStroke(UIInputManager.Instance.FocusedPath, stroke, isRepeat);
         }
-        finally
-        {
+        finally {
             this.isProcessingKey = false;
             this.EndInputProcessing();
         }
     }
 
-    public override IContextData? GetCurrentContext()
-    {
+    public override IContextData? GetCurrentContext() {
         if (this.lazyCurrentContextData != null)
             return this.lazyCurrentContextData;
 

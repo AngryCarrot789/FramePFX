@@ -25,37 +25,30 @@ using System.Text;
 
 namespace FramePFX.Utils;
 
-public static class ExceptionUtils
-{
+public static class ExceptionUtils {
     private const String CAUSE_CAPTION = "Caused By: ";
     private const String AGGREGATED_CAPTION = "Additionally Caused By: ";
     private const String SUPPRESSED_CAPTION = "Suppressed: ";
 
-    public static List<Exception> GetSuppressed(this Exception e, bool create = true)
-    {
-        if (e.Data.Contains("SuppressedList"))
-        {
+    public static List<Exception> GetSuppressed(this Exception e, bool create = true) {
+        if (e.Data.Contains("SuppressedList")) {
             return (List<Exception>) e.Data["SuppressedList"];
         }
-        else if (create)
-        {
+        else if (create) {
             List<Exception> list = new List<Exception>();
             e.Data["SuppressedList"] = list;
             return list;
         }
-        else
-        {
+        else {
             return null;
         }
     }
 
-    public static void AddSuppressed(this Exception @this, Exception suppressed)
-    {
+    public static void AddSuppressed(this Exception @this, Exception suppressed) {
         GetSuppressed(@this, true).Add(suppressed);
     }
 
-    public static string GetToString(this Exception e, bool message = true, bool fileInfo = true)
-    {
+    public static string GetToString(this Exception e, bool message = true, bool fileInfo = true) {
         List<string> list = new List<string>();
         HashSet<Exception> dejaVu = new HashSet<Exception>();
         dejaVu.Add(e);
@@ -63,49 +56,39 @@ public static class ExceptionUtils
 
         StackFrame[] trace = new StackTrace(e, fileInfo).GetFrames() ?? new StackFrame[0];
         // Print our stack trace
-        foreach (StackFrame frame in trace)
-        {
+        foreach (StackFrame frame in trace) {
             list.Add($"    at {FormatFrame(frame, fileInfo)}");
         }
 
         // Print aggregated exceptions, if any
         ReadOnlyCollection<Exception> aggregations;
-        if (e is AggregateException aggregateException && (aggregations = aggregateException.InnerExceptions).Count > 0)
-        {
-            foreach (Exception ex in aggregations)
-            {
+        if (e is AggregateException aggregateException && (aggregations = aggregateException.InnerExceptions).Count > 0) {
+            foreach (Exception ex in aggregations) {
                 GetEnclosedStackTrace(ex, list, message, fileInfo, trace, AGGREGATED_CAPTION, "    ", dejaVu);
             }
         }
 
         // Print suppressed exceptions, if any
         IReadOnlyCollection<Exception> suppressed = GetSuppressed(e, false);
-        if (suppressed != null && suppressed.Count > 0)
-        {
-            foreach (Exception ex in suppressed)
-            {
+        if (suppressed != null && suppressed.Count > 0) {
+            foreach (Exception ex in suppressed) {
                 GetEnclosedStackTrace(ex, list, message, fileInfo, trace, SUPPRESSED_CAPTION, "    ", dejaVu);
             }
         }
 
         // Print cause, if any
         Exception cause = e.InnerException;
-        if (cause != null)
-        {
+        if (cause != null) {
             GetEnclosedStackTrace(cause, list, message, fileInfo, trace, CAUSE_CAPTION, "", dejaVu);
         }
 
         StringBuilder sb = new StringBuilder(2048);
-        foreach (string line in list)
-        {
-            if (!string.IsNullOrEmpty(line))
-            {
-                if (line.EndsWith(Environment.NewLine) || line[line.Length - 1] == '\n')
-                {
+        foreach (string line in list) {
+            if (!string.IsNullOrEmpty(line)) {
+                if (line.EndsWith(Environment.NewLine) || line[line.Length - 1] == '\n') {
                     sb.Append(line);
                 }
-                else
-                {
+                else {
                     sb.Append(line).Append(Environment.NewLine);
                 }
             }
@@ -114,23 +97,18 @@ public static class ExceptionUtils
         return sb.ToString().Trim();
     }
 
-    public static string GetExceptionHeader(Exception e, bool message)
-    {
+    public static string GetExceptionHeader(Exception e, bool message) {
         string msg = message ? e.Message : null;
-        if (string.IsNullOrEmpty(msg))
-        {
+        if (string.IsNullOrEmpty(msg)) {
             return e.GetType().ToString();
         }
-        else
-        {
+        else {
             return e.GetType() + ": " + msg;
         }
     }
 
-    public static void GetEnclosedStackTrace(Exception e, List<string> list, bool message, bool fileInfo, StackFrame[] enclosing, String caption, String prefix, HashSet<Exception> dejaVu)
-    {
-        if (dejaVu.Contains(e))
-        {
+    public static void GetEnclosedStackTrace(Exception e, List<string> list, bool message, bool fileInfo, StackFrame[] enclosing, String caption, String prefix, HashSet<Exception> dejaVu) {
+        if (dejaVu.Contains(e)) {
             list.Add($"[CIRCULAR REFERENCE: {GetExceptionHeader(e, message)}]");
             return;
         }
@@ -140,8 +118,7 @@ public static class ExceptionUtils
         StackFrame[] trace = new StackTrace(e, fileInfo).GetFrames() ?? new StackFrame[0];
         int m = trace.Length - 1;
         int n = enclosing.Length - 1;
-        while (m >= 0 && n >= 0 && trace[m].Equals(enclosing[n]))
-        {
+        while (m >= 0 && n >= 0 && trace[m].Equals(enclosing[n])) {
             m--;
             n--;
         }
@@ -157,55 +134,45 @@ public static class ExceptionUtils
 
         // Print suppressed exceptions, if any
         List<Exception> suppressed = GetSuppressed(e, false);
-        if (suppressed != null && suppressed.Count > 0)
-        {
-            foreach (Exception ex in suppressed)
-            {
+        if (suppressed != null && suppressed.Count > 0) {
+            foreach (Exception ex in suppressed) {
                 GetEnclosedStackTrace(ex, list, message, fileInfo, trace, SUPPRESSED_CAPTION, prefix + "    ", dejaVu);
             }
         }
 
         // Print cause, if any
         Exception cause = e.InnerException;
-        if (cause != null)
-        {
+        if (cause != null) {
             GetEnclosedStackTrace(cause, list, message, fileInfo, trace, CAUSE_CAPTION, prefix, dejaVu);
         }
     }
 
-    public static string FormatFrame(StackFrame frame, bool fileInfo)
-    {
+    public static string FormatFrame(StackFrame frame, bool fileInfo) {
         // return frame.ToString(); // default formatting
         MethodBase method = frame.GetMethod();
-        if (method == null)
-        {
+        if (method == null) {
             return frame.ToString();
         }
 
         StringBuilder sb = new StringBuilder(byte.MaxValue);
         Type declaringType = method.DeclaringType;
-        if (declaringType != null)
-        {
+        if (declaringType != null) {
             sb.Append(declaringType.FullName?.Replace('+', '$') ?? "??");
             sb.Append(".");
         }
 
         bool isFirst;
         sb.Append(method.Name);
-        if (method is MethodInfo && method.IsGenericMethod)
-        {
+        if (method is MethodInfo && method.IsGenericMethod) {
             Type[] genericArguments = method.GetGenericArguments();
             sb.Append("[");
             int i = 0;
             isFirst = true;
-            for (; i < genericArguments.Length; ++i)
-            {
-                if (isFirst)
-                {
+            for (; i < genericArguments.Length; ++i) {
+                if (isFirst) {
                     isFirst = false;
                 }
-                else
-                {
+                else {
                     sb.Append(",");
                 }
 
@@ -218,8 +185,7 @@ public static class ExceptionUtils
         sb.Append("(");
         ParameterInfo[] parameters = method.GetParameters();
         isFirst = true;
-        foreach (ParameterInfo param in parameters)
-        {
+        foreach (ParameterInfo param in parameters) {
             if (!isFirst)
                 sb.Append(", ");
             else
@@ -231,11 +197,9 @@ public static class ExceptionUtils
         }
 
         sb.Append(")");
-        if (fileInfo && frame.GetILOffset() != -1)
-        {
+        if (fileInfo && frame.GetILOffset() != -1) {
             string fileName = null;
-            try
-            {
+            try {
                 fileName = frame.GetFileName();
             }
             catch (NotSupportedException) {
@@ -243,8 +207,7 @@ public static class ExceptionUtils
             catch (SecurityException) {
             }
 
-            if (fileName != null)
-            {
+            if (fileName != null) {
                 sb.Append(' ');
                 sb.Append($"in '{fileName}' on line {frame.GetFileLineNumber()}");
             }
@@ -253,10 +216,8 @@ public static class ExceptionUtils
         return sb.ToString();
     }
 
-    public static void Assert(bool condition, string msg)
-    {
-        if (!condition)
-        {
+    public static void Assert(bool condition, string msg) {
+        if (!condition) {
             throw new Exception(msg);
         }
     }

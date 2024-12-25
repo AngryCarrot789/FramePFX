@@ -42,8 +42,7 @@ public delegate void TrackClipIndexEventHandler(Track track, Clip clip, int inde
 
 public delegate void ClipMovedEventHandler(Clip clip, Track oldTrack, int oldIndex, Track newTrack, int newIndex);
 
-public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHaveEffects, IDestroy
-{
+public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHaveEffects, IDestroy {
     public static readonly ContextRegistry TimelineTrackContextRegistry = new ContextRegistry("Track");
     public static readonly ContextRegistry TrackControlSurfaceContextRegistry = new ContextRegistry("Track Control Surface");
     public static readonly SerialisationRegistry SerialisationRegistry;
@@ -63,11 +62,9 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
 
     public IReadOnlyList<BaseEffect> Effects => this.internalEffectList;
 
-    public double Height
-    {
+    public double Height {
         get => this.height;
-        set
-        {
+        set {
             value = Maths.Clamp(value, MinimumHeight, MaximumHeight);
             if (Maths.Equals(this.height, value, HeightCmpTol))
                 return;
@@ -76,11 +73,9 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
         }
     }
 
-    public string? DisplayName
-    {
+    public string? DisplayName {
         get => this.displayName;
-        set
-        {
+        set {
             string oldName = this.displayName;
             if (oldName == value)
                 return;
@@ -89,11 +84,9 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
         }
     }
 
-    public SKColor Colour
-    {
+    public SKColor Colour {
         get => this.colour;
-        set
-        {
+        set {
             if (this.colour == value)
                 return;
             this.colour = value;
@@ -111,7 +104,7 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
     public AutomationData AutomationData { get; }
 
     public TransferableData TransferableData { get; }
-    
+
     public event TrackClipIndexEventHandler? ClipAdded;
     public event TrackClipIndexEventHandler? ClipRemoved;
     public event ClipMovedEventHandler? ClipMovedTracks;
@@ -131,8 +124,7 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
     private SKColor colour;
     private int indexInTimeline; // updated by timeline
 
-    protected Track()
-    {
+    protected Track() {
         this.indexInTimeline = -1;
         this.clips = new List<Clip>();
         this.Clips = new ReadOnlyCollection<Clip>(this.clips);
@@ -144,11 +136,9 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
         this.TransferableData = new TransferableData(this);
     }
 
-    static Track()
-    {
+    static Track() {
         SerialisationRegistry = new SerialisationRegistry();
-        SerialisationRegistry.Register<Track>(0, (track, data, ctx) =>
-        {
+        SerialisationRegistry.Register<Track>(0, (track, data, ctx) => {
             // should maybe guard against NaN/Infinity?
             track.Height = Maths.Clamp(data.GetDouble(nameof(track.Height), DefaultHeight), MinimumHeight, MaximumHeight);
             track.DisplayName = data.GetString(nameof(track.DisplayName), null);
@@ -156,20 +146,17 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
                 track.Colour = new SKColor(colourU32);
             track.AutomationData.ReadFromRBE(data.GetDictionary(nameof(track.AutomationData)));
             BaseEffect.ReadSerialisedWithIdList(track, data.GetList("Effects"));
-            foreach (RBEDictionary dictionary in data.GetList(nameof(track.Clips)).Cast<RBEDictionary>())
-            {
+            foreach (RBEDictionary dictionary in data.GetList(nameof(track.Clips)).Cast<RBEDictionary>()) {
                 track.AddClip(Clip.ReadSerialisedWithId(dictionary));
             }
-        }, (track, data, ctx) =>
-        {
+        }, (track, data, ctx) => {
             data.SetDouble(nameof(track.Height), track.Height);
             data.SetString(nameof(track.DisplayName), track.DisplayName);
             data.SetUInt(nameof(track.Colour), (uint) track.Colour);
             track.AutomationData.WriteToRBE(data.CreateDictionary(nameof(track.AutomationData)));
             RBEList list = data.CreateList(nameof(track.Clips));
             BaseEffect.WriteSerialisedWithIdList(track, data.CreateList("Effects"));
-            foreach (Clip clip in track.clips)
-            {
+            foreach (Clip clip in track.clips) {
                 Clip.WriteSerialisedWithId(list.AddDictionary(), clip);
             }
         });
@@ -207,7 +194,7 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
             modGeneric.AddHeader("General");
             modGeneric.AddCommand("commands.editor.RenameTrack", "Rename", "Open a dialog to rename this track");
             modGeneric.AddDynamicSubGroup(GenerateEnableDisableCommands);
-            
+
             FixedContextGroup modExternal = TrackControlSurfaceContextRegistry.GetFixedGroup("modify.externalmodify");
             modExternal.AddHeader("New Tracks");
             modExternal.AddCommand("commands.editor.NewVideoTrack", "Insert Video Track Above", "Inserts a new Video Track above this track");
@@ -218,40 +205,32 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
         }
     }
 
-    private static void GenerateEnableDisableCommands(DynamicContextGroup group, IContextData ctx, List<IContextObject> items)
-    {
-        if (DataKeys.TrackKey.TryGetContext(ctx, out Track? track) && track is VideoTrack videoTrack)
-        {
-            if (VideoTrack.IsEnabledParameter.GetCurrentValue(videoTrack))
-            {
+    private static void GenerateEnableDisableCommands(DynamicContextGroup group, IContextData ctx, List<IContextObject> items) {
+        if (DataKeys.TrackKey.TryGetContext(ctx, out Track? track) && track is VideoTrack videoTrack) {
+            if (VideoTrack.IsEnabledParameter.GetCurrentValue(videoTrack)) {
                 items.Add(new CommandContextEntry("commands.editor.DisableTracks", "Disable", "Disable this track"));
             }
-            else
-            {
+            else {
                 items.Add(new CommandContextEntry("commands.editor.EnableTracks", "Enable", "Enable this track"));
             }
         }
-        else
-        {
+        else {
             items.Add(new CommandContextEntry("commands.editor.EnableTracks", "Enable", "Enable the selected tracks"));
             items.Add(new CommandContextEntry("commands.editor.DisableTracks", "Disable", "Disable the selected tracks"));
             items.Add(new CommandContextEntry("commands.editor.ToggleTracksEnabled", "Toggle Enabled", "Toggle the enabled state of the selected tracks"));
         }
     }
 
-    public bool GetRelativePlayHead(out long playHead)
-    {
+    public bool GetRelativePlayHead(out long playHead) {
         playHead = this.Timeline?.PlayHeadPosition ?? 0L;
         return this.Timeline != null;
     }
 
-    public bool IsAutomated(Parameter parameter)
-    {
+    public bool IsAutomated(Parameter parameter) {
         return this.AutomationData.IsAutomated(parameter);
     }
 
-    private void OnRangeCachedFrameDataChanged(ClipRangeCache handler)
-    {
+    private void OnRangeCachedFrameDataChanged(ClipRangeCache handler) {
         this.Timeline?.UpdateLargestFrame();
     }
 
@@ -263,31 +242,26 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
 
     public Track Clone() => this.Clone(TrackCloneOptions.Default);
 
-    public Track Clone(TrackCloneOptions options)
-    {
+    public Track Clone(TrackCloneOptions options) {
         string id = this.FactoryId;
         Track track = TrackFactory.Instance.NewTrack(id);
         this.LoadDataIntoClone(track, options);
         return track;
     }
 
-    protected virtual void LoadDataIntoClone(Track clone, TrackCloneOptions options)
-    {
+    protected virtual void LoadDataIntoClone(Track clone, TrackCloneOptions options) {
         clone.height = Maths.Clamp(this.height, MinimumHeight, MaximumHeight);
         clone.displayName = this.displayName;
         clone.colour = this.colour;
 
         this.AutomationData.LoadDataIntoClone(clone.AutomationData);
-        foreach (BaseEffect effect in this.Effects)
-        {
+        foreach (BaseEffect effect in this.Effects) {
             if (effect.IsCloneable)
                 clone.AddEffect(effect.Clone());
         }
 
-        if (options.ClipCloneOptions is ClipCloneOptions clipCloneOptions)
-        {
-            for (int i = 0; i < this.clips.Count; i++)
-            {
+        if (options.ClipCloneOptions is ClipCloneOptions clipCloneOptions) {
+            for (int i = 0; i < this.clips.Count; i++) {
                 clone.InsertClip(i, this.clips[i].Clone(clipCloneOptions));
             }
         }
@@ -295,8 +269,7 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
 
     public void AddClip(Clip clip) => this.InsertClip(this.clips.Count, clip);
 
-    public void InsertClip(int index, Clip clip)
-    {
+    public void InsertClip(int index, Clip clip) {
         if (!this.IsClipTypeAccepted(clip.GetType()))
             throw new InvalidOperationException("This track (" + this.GetType().Name + ") does not accept the clip type " + clip.GetType().Name);
         if (this.clips.Contains(clip))
@@ -307,8 +280,7 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
         this.InvalidateRender();
     }
 
-    public bool RemoveClip(Clip clip)
-    {
+    public bool RemoveClip(Clip clip) {
         int index = this.clips.IndexOf(clip);
         if (index == -1)
             return false;
@@ -316,8 +288,7 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
         return true;
     }
 
-    public void RemoveClipAt(int index)
-    {
+    public void RemoveClipAt(int index) {
         Clip clip = this.clips[index];
         this.InternalRemoveClipAt(index, clip);
         Clip.InternalOnClipRemovedFromTrack(clip);
@@ -325,8 +296,7 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
         this.InvalidateRender();
     }
 
-    public void MoveClipToTrack(int srcIndex, Track dstTrack, int dstIndex)
-    {
+    public void MoveClipToTrack(int srcIndex, Track dstTrack, int dstIndex) {
         if (dstTrack == null)
             throw new ArgumentOutOfRangeException(nameof(dstTrack));
         if (dstIndex < 0 || dstIndex > dstTrack.clips.Count)
@@ -345,14 +315,12 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
         dstTrack.InvalidateRender();
     }
 
-    private void InternalInsertClipAt(int index, Clip clip)
-    {
+    private void InternalInsertClipAt(int index, Clip clip) {
         this.clips.Insert(index, clip);
         this.cache.OnClipAdded(clip);
     }
 
-    private void InternalRemoveClipAt(int index, Clip clip)
-    {
+    private void InternalRemoveClipAt(int index, Clip clip) {
         this.clips.RemoveAt(index);
         this.cache.OnClipRemoved(clip);
     }
@@ -363,33 +331,28 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
 
     public Clip? GetClipAtFrame(long frame) => this.cache.GetPrimaryClipAt(frame);
 
-    public void InvalidateRender()
-    {
+    public void InvalidateRender() {
         this.Timeline?.RenderManager.InvalidateRender();
     }
 
-    public virtual void Destroy()
-    {
+    public virtual void Destroy() {
         this.ClearTrackAndDeleteClips();
     }
 
     /// <summary>
     /// Destroys and removes all clips. All clips are removed back to front so this method calls <see cref="ClipRemoved"/> for every clip
     /// </summary>
-    public void ClearTrackAndDeleteClips()
-    {
-        for (int i = this.clips.Count - 1; i >= 0; i--)
-        {
+    public void ClearTrackAndDeleteClips() {
+        for (int i = this.clips.Count - 1; i >= 0; i--) {
             Clip clip = this.clips[i];
             clip.Destroy();
             this.RemoveClipAt(i);
         }
-        
+
         this.InvalidateRender();
     }
 
-    public override string ToString()
-    {
+    public override string ToString() {
         return $"{this.GetType().Name} ({this.clips.Count.ToString()} clips between {this.cache.SmallestActiveFrame.ToString()} and {this.cache.LargestActiveFrame.ToString()})";
     }
 
@@ -398,13 +361,11 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
     /// </summary>
     /// <param name="list">The destination list</param>
     /// <param name="span">The span range</param>
-    public void CollectClipsInSpan(List<Clip> list, FrameSpan span)
-    {
+    public void CollectClipsInSpan(List<Clip> list, FrameSpan span) {
         this.cache.GetClipsInRange(list, span);
     }
 
-    public List<Clip> GetClipsInSpan(FrameSpan span)
-    {
+    public List<Clip> GetClipsInSpan(FrameSpan span) {
         List<Clip> list = new List<Clip>();
         this.CollectClipsInSpan(list, span);
         return list;
@@ -414,27 +375,23 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
 
     public abstract bool IsEffectTypeAccepted(Type effectType);
 
-    public void AddEffect(BaseEffect effect)
-    {
+    public void AddEffect(BaseEffect effect) {
         this.InsertEffect(this.internalEffectList.Count, effect);
     }
 
-    public void InsertEffect(int index, BaseEffect effect)
-    {
+    public void InsertEffect(int index, BaseEffect effect) {
         BaseEffect.ValidateInsertEffect(this, effect, index);
         this.internalEffectList.Insert(index, effect);
         BaseEffect.OnAddedInternal(this, effect);
         this.OnEffectAdded(index, effect);
     }
 
-    public bool RemoveEffect(BaseEffect effect)
-    {
+    public bool RemoveEffect(BaseEffect effect) {
         if (effect.Owner != this)
             return false;
 
         int index = this.internalEffectList.IndexOf(effect);
-        if (index == -1)
-        {
+        if (index == -1) {
             // what to do here?????
             Debug.WriteLine("EFFECT OWNER MATCHES THIS CLIP BUT IT IS NOT PLACED IN THE COLLECTION");
             Debugger.Break();
@@ -445,11 +402,9 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
         return true;
     }
 
-    public void RemoveEffectAt(int index)
-    {
+    public void RemoveEffectAt(int index) {
         BaseEffect effect = this.Effects[index];
-        if (!ReferenceEquals(effect.Owner, this))
-        {
+        if (!ReferenceEquals(effect.Owner, this)) {
             Debug.WriteLine("EFFECT STORED IN CLIP HAS A MISMATCHING OWNER");
             Debugger.Break();
         }
@@ -457,8 +412,7 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
         this.RemoveEffectAtInternal(index, effect);
     }
 
-    public void MoveEffect(int oldIndex, int newIndex)
-    {
+    public void MoveEffect(int oldIndex, int newIndex) {
         if (newIndex < 0 || newIndex >= this.internalEffectList.Count)
             throw new IndexOutOfRangeException($"{nameof(newIndex)} is not within range: {(newIndex < 0 ? "less than zero" : "greater than list length")} ({newIndex})");
         BaseEffect effect = this.internalEffectList[oldIndex];
@@ -467,25 +421,21 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
         this.EffectMoved?.Invoke(this, effect, oldIndex, newIndex);
     }
 
-    private void RemoveEffectAtInternal(int index, BaseEffect effect)
-    {
+    private void RemoveEffectAtInternal(int index, BaseEffect effect) {
         this.internalEffectList.RemoveAt(index);
         BaseEffect.OnRemovedInternal(effect);
         this.OnEffectRemoved(index, effect);
     }
 
-    private void OnEffectAdded(int index, BaseEffect effect)
-    {
+    private void OnEffectAdded(int index, BaseEffect effect) {
         this.EffectAdded?.Invoke(this, effect, index);
     }
 
-    private void OnEffectRemoved(int index, BaseEffect effect)
-    {
+    private void OnEffectRemoved(int index, BaseEffect effect) {
         this.EffectRemoved?.Invoke(this, effect, index);
     }
 
-    public FrameSpan GetSpanUntilClipOrLimitedDuration(long frame, long defaultDuration = 300, long maxDurationLimit = 100000000)
-    {
+    public FrameSpan GetSpanUntilClipOrLimitedDuration(long frame, long defaultDuration = 300, long maxDurationLimit = 100000000) {
         if (this.TryGetSpanUntilClip(frame, out FrameSpan span, defaultDuration, maxDurationLimit))
             return span;
         return new FrameSpan(frame, defaultDuration);
@@ -501,26 +451,19 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
     /// <param name="defaultDuration">The default duration for the span when there are no clips in the way</param>
     /// <param name="maxDurationLimit">An upper limit for how long the output span can be</param>
     /// <returns></returns>
-    public bool TryGetSpanUntilClip(long frame, out FrameSpan span, long defaultDuration = 300, long maxDurationLimit = 100000000U)
-    {
+    public bool TryGetSpanUntilClip(long frame, out FrameSpan span, long defaultDuration = 300, long maxDurationLimit = 100000000U) {
         long minimum = long.MaxValue;
-        if (this.clips.Count > 0)
-        {
-            foreach (Clip clip in this.clips)
-            {
+        if (this.clips.Count > 0) {
+            foreach (Clip clip in this.clips) {
                 long begin = clip.FrameSpan.Begin;
-                if (begin >= frame)
-                {
-                    if (clip.IntersectsFrameAt(frame))
-                    {
+                if (begin >= frame) {
+                    if (clip.IntersectsFrameAt(frame)) {
                         span = default;
                         return false;
                     }
-                    else
-                    {
+                    else {
                         minimum = Math.Min(begin, minimum);
-                        if (minimum <= frame)
-                        {
+                        if (minimum <= frame) {
                             break;
                         }
                     }
@@ -528,12 +471,10 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
             }
         }
 
-        if (minimum > frame && minimum != long.MaxValue)
-        {
+        if (minimum > frame && minimum != long.MaxValue) {
             span = new FrameSpan(frame, Math.Min(minimum - frame, maxDurationLimit));
         }
-        else
-        {
+        else {
             span = new FrameSpan(frame, defaultDuration);
         }
 
@@ -542,57 +483,47 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
 
     #region Internal Access Helpers -- Used internally only
 
-    internal static void InternalOnAddedToTimeline(Track track, Timeline timeline)
-    {
+    internal static void InternalOnAddedToTimeline(Track track, Timeline timeline) {
         InternalOnTrackTimelineChanged(track, null, timeline);
     }
 
-    internal static void InternalOnRemovedFromTimeline1(Track track, Timeline timeline)
-    {
+    internal static void InternalOnRemovedFromTimeline1(Track track, Timeline timeline) {
         InternalOnTrackTimelineChanged(track, timeline, null);
     }
 
-    internal static void InternalOnTrackTimelineChanged(Track track, Timeline? oldTimeline, Timeline? newTimeline)
-    {
+    internal static void InternalOnTrackTimelineChanged(Track track, Timeline? oldTimeline, Timeline? newTimeline) {
         track.Timeline = newTimeline;
         track.Project = newTimeline?.Project;
         track.OnTimelineChanged(oldTimeline, newTimeline);
         track.TimelineChanged?.Invoke(track, oldTimeline, newTimeline);
         Project? oldProject = oldTimeline?.Project;
         Project? newProject = newTimeline?.Project;
-        if (!ReferenceEquals(oldProject, newProject))
-        {
+        if (!ReferenceEquals(oldProject, newProject)) {
             track.Project = newProject;
             track.OnProjectChanged(oldProject, newProject);
         }
 
-        foreach (Clip clip in track.clips)
-        {
+        foreach (Clip clip in track.clips) {
             Clip.InternalOnTrackTimelineChanged(clip, oldTimeline, newTimeline);
         }
     }
 
-    internal static void InternalOnClipSpanChanged(Clip clip, FrameSpan oldSpan)
-    {
+    internal static void InternalOnClipSpanChanged(Clip clip, FrameSpan oldSpan) {
         clip.Track?.cache.OnSpanChanged(clip, oldSpan);
     }
 
-    internal static void InternalSetPrecomputedTrackIndex(Track track, int newIndex)
-    {
+    internal static void InternalSetPrecomputedTrackIndex(Track track, int newIndex) {
         track.indexInTimeline = newIndex;
     }
 
-    internal static void InternalOnTimelineProjectChanged(Track track, Project? oldProject, Project? newProject)
-    {
-        if (ReferenceEquals(track.Project, newProject))
-        {
+    internal static void InternalOnTimelineProjectChanged(Track track, Project? oldProject, Project? newProject) {
+        if (ReferenceEquals(track.Project, newProject)) {
             throw new InvalidOperationException("Fatal error: clip's project equals the new project???");
         }
 
         track.Project = newProject;
         track.OnProjectChanged(oldProject, newProject);
-        foreach (Clip clip in track.clips)
-        {
+        foreach (Clip clip in track.clips) {
             Clip.InternalOnTimelineProjectChanged(clip, oldProject, newProject);
         }
     }

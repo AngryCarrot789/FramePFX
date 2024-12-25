@@ -30,8 +30,7 @@ public delegate void CurrentFolderChangedEventHandler(ResourceManager manager, R
 /// <summary>
 /// Stores registered <see cref="ResourceItem"/> entries and maps <see cref="ResourceItem.UniqueId"/> to a <see cref="ResourceItem"/>
 /// </summary>
-public class ResourceManager : IDestroy
-{
+public class ResourceManager : IDestroy {
     private ulong currId; // starts at 0, incremented by GetNextId()
     public const ulong EmptyId = 0UL;
     private const string EmptyIdErrorMessage = "ID cannot be zero (null)";
@@ -72,19 +71,17 @@ public class ResourceManager : IDestroy
     /// Gets or sets the current folder that is being displayed to the user. This value will never be null,
     /// and assigning it to null will result in <see cref="RootContainer"/> being used instead
     /// </summary>
-    public ResourceFolder CurrentFolder
-    {
+    public ResourceFolder CurrentFolder {
         get => this.currentFolder;
-        set
-        {
+        set {
             Validate.NotNull(value);
             ResourceFolder oldFolder = this.currentFolder;
             if (oldFolder == value)
                 return;
-            
+
             if (value.Manager != this)
                 throw new InvalidOperationException("Value's manager is not equal to the current manager");
-            
+
             this.currentFolder = value;
             this.CurrentFolderChanged?.Invoke(this, oldFolder, value);
         }
@@ -102,8 +99,7 @@ public class ResourceManager : IDestroy
 
     public event CurrentFolderChangedEventHandler? CurrentFolderChanged;
 
-    public ResourceManager(Project project)
-    {
+    public ResourceManager(Project project) {
         this.Project = project ?? throw new ArgumentNullException(nameof(project));
         this.uuidToItem = new Dictionary<ulong, ResourceItem>();
         this.RootContainer = new ResourceFolder() { DisplayName = "<root>" };
@@ -113,29 +109,25 @@ public class ResourceManager : IDestroy
         this.IsResourceInUsePredicate = this.EntryExists;
     }
 
-    public ulong GetNextId()
-    {
+    public ulong GetNextId() {
         // assuming a CPU can somehow call GetNextId() 3 billion times in 1 second, it
         // would take roughly 97 years to reach ulong.MaxValue. LOL
         // That is unless it gets set maliciously either via modifying the
         // saved config's data or through cheat engine or something
         ulong id = this.currId;
-        do
-        {
+        do {
             id++;
         } while (this.uuidToItem.ContainsKey(id));
 
         return this.currId = id;
     }
 
-    public void WriteToRBE(RBEDictionary data)
-    {
+    public void WriteToRBE(RBEDictionary data) {
         BaseResource.SerialisationRegistry.Serialise(this.RootContainer, data.CreateDictionary(nameof(this.RootContainer)));
         data.SetULong("CurrId", this.currId);
     }
 
-    public void ReadFromRBE(RBEDictionary data)
-    {
+    public void ReadFromRBE(RBEDictionary data) {
         if (this.uuidToItem.Count > 0)
             throw new Exception("Cannot read data while resources are still registered");
 
@@ -143,23 +135,20 @@ public class ResourceManager : IDestroy
         BaseResource.SerialisationRegistry.Deserialise(this.RootContainer, data.GetDictionary(nameof(this.RootContainer)));
     }
 
-    private void RegisterEntryInternal(ulong id, ResourceItem item)
-    {
+    private void RegisterEntryInternal(ulong id, ResourceItem item) {
         this.uuidToItem[id] = item;
         ResourceItem.SetUniqueId(item, id);
         this.ResourceAdded?.Invoke(this, item);
     }
 
-    private bool UnregisterItem(ResourceItem item)
-    {
+    private bool UnregisterItem(ResourceItem item) {
         if (item == null)
             throw new ArgumentNullException(nameof(item), "Item cannot be null");
         if (item.UniqueId == EmptyId)
             return false;
         if (!ReferenceEquals(item.Manager, this))
             return false;
-        if (!this.uuidToItem.Remove(item.UniqueId))
-        {
+        if (!this.uuidToItem.Remove(item.UniqueId)) {
             System.Diagnostics.Debugger.Break();
             throw new Exception("Corrupted application data");
         }
@@ -169,8 +158,7 @@ public class ResourceManager : IDestroy
         return true;
     }
 
-    public bool TryGetEntryItem(ulong id, [NotNullWhen(true)] out ResourceItem? resource)
-    {
+    public bool TryGetEntryItem(ulong id, [NotNullWhen(true)] out ResourceItem? resource) {
         if (id == EmptyId)
             throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
         return this.uuidToItem.TryGetValue(id, out resource);
@@ -182,8 +170,7 @@ public class ResourceManager : IDestroy
     /// <param name="id">The Id to check</param>
     /// <returns>Whether or not the id is registered in the manager</returns>
     /// <exception cref="ArgumentException">The ID is null, empty or only whitespaces</exception>
-    public bool EntryExists(ulong id)
-    {
+    public bool EntryExists(ulong id) {
         if (id == EmptyId)
             throw new ArgumentException(EmptyIdErrorMessage, nameof(id));
         return this.uuidToItem.ContainsKey(id);
@@ -192,8 +179,7 @@ public class ResourceManager : IDestroy
     /// <summary>
     /// Destroys and clears our <see cref="RootContainer"/>
     /// </summary>
-    public void Clear()
-    {
+    public void Clear() {
         ResourceFolder.ClearHierarchy(this.RootContainer, true);
     }
 
@@ -202,10 +188,8 @@ public class ResourceManager : IDestroy
     // For the most part, these functions below should never return false due the the fact that a user would
     // need millions of added resources. Their system would run out of RAM before these functions fail
 
-    public static bool GetDisplayNameForMediaStream(Predicate<string?> accept, [NotNullWhen(true)] out string? output, string filePath, string streamName)
-    {
-        if (!TextIncrement.GenerateFileString(accept, filePath, out string? file))
-        {
+    public static bool GetDisplayNameForMediaStream(Predicate<string?> accept, [NotNullWhen(true)] out string? output, string filePath, string streamName) {
+        if (!TextIncrement.GenerateFileString(accept, filePath, out string? file)) {
             output = null;
             return false;
         }
@@ -216,29 +200,25 @@ public class ResourceManager : IDestroy
     #endregion
 
 
-    internal static void InternalProcessResourceOnAttached(BaseResource resource, ResourceManager manager)
-    {
+    internal static void InternalProcessResourceOnAttached(BaseResource resource, ResourceManager manager) {
         manager.Project.MarkModified();
     }
 
-    internal static void InternalProcessResourceOnDetached(BaseResource resource)
-    {
+    internal static void InternalProcessResourceOnDetached(BaseResource resource) {
         ResourceManager manager = resource.Manager;
         if (manager == null)
             throw new InvalidOperationException("Expected resource item to have a manager associated with it when it was being detached...");
         manager.Project.MarkModified();
     }
 
-    internal static void InternalOnResourceItemAttachedToManager(ResourceItem item)
-    {
+    internal static void InternalOnResourceItemAttachedToManager(ResourceItem item) {
         ResourceManager manager = item.Manager;
         if (manager == null)
             throw new InvalidOperationException("Expected resource item to have a manager associated with it when it was being attached...");
         manager.RegisterEntryInternal(item.UniqueId == EmptyId ? manager.GetNextId() : item.UniqueId, item);
     }
 
-    internal static void InternalOnResourceItemDetachedFromManager(ResourceItem item)
-    {
+    internal static void InternalOnResourceItemDetachedFromManager(ResourceItem item) {
         item.Manager.UnregisterItem(item);
     }
 

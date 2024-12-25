@@ -19,10 +19,8 @@
 
 namespace FramePFX.Utils;
 
-public class PercentUtils
-{
-    public static void ValidateHopperRange(Percent value)
-    {
+public class PercentUtils {
+    public static void ValidateHopperRange(Percent value) {
         if (value.Numerator < 0)
             throw new ArgumentException("Percent cannot be negative");
         if (value.Numerator > 10000)

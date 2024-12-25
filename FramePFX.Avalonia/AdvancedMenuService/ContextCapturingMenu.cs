@@ -32,8 +32,7 @@ namespace FramePFX.Avalonia.AdvancedMenuService;
 /// <summary>
 /// A menu that captures the context data of the focused element just before the menu is opened
 /// </summary>
-public class ContextCapturingMenu : Menu
-{
+public class ContextCapturingMenu : Menu {
     private static readonly AttachedProperty<IContextData?> CapturedContextProperty = AvaloniaProperty.RegisterAttached<ContextCapturingMenu, AvaloniaObject, IContextData?>("CapturedContext", inherits: true);
 
     private InputElement? lastFocus;
@@ -42,17 +41,14 @@ public class ContextCapturingMenu : Menu
     public ContextCapturingMenu() {
     }
 
-    public override void Open()
-    {
+    public override void Open() {
         base.Open();
     }
 
-    public override void Close()
-    {
+    public override void Close() {
         bool wasOpen = this.IsOpen;
         base.Close();
-        if (wasOpen && this.lastFocus != null)
-        {
+        if (wasOpen && this.lastFocus != null) {
             this.ClearValue(CapturedContextProperty);
             DataManager.ClearContextData(this);
             Debug.WriteLine("Cleared captured data context");
@@ -61,33 +57,27 @@ public class ContextCapturingMenu : Menu
         }
     }
 
-    protected override void OnSubmenuOpened(RoutedEventArgs e)
-    {
+    protected override void OnSubmenuOpened(RoutedEventArgs e) {
         base.OnSubmenuOpened(e);
     }
 
-    protected override void OnGotFocus(GotFocusEventArgs e)
-    {
+    protected override void OnGotFocus(GotFocusEventArgs e) {
         this.lastFocus = null;
-        if (TopLevel.GetTopLevel(this) is TopLevel topLevel)
-        {
+        if (TopLevel.GetTopLevel(this) is TopLevel topLevel) {
             this.lastFocus = UIInputManager.GetLastFocusedElement(topLevel);
         }
 
         base.OnGotFocus(e);
-        if (this.lastFocus != null)
-        {
+        if (this.lastFocus != null) {
             this.CaptureContextFromObject(this.lastFocus);
         }
     }
 
-    protected override void OnLostFocus(RoutedEventArgs e)
-    {
+    protected override void OnLostFocus(RoutedEventArgs e) {
         base.OnLostFocus(e);
     }
 
-    private void CaptureContextFromObject(InputElement inputElement)
-    {
+    private void CaptureContextFromObject(InputElement inputElement) {
         IContextData ctx = DataManager.GetFullContextData(inputElement);
         Debug.WriteLine($"Captured context{(ctx is IRandomAccessContext data ? $" ({data.Count} entries) " : " ")}before menu focus switch from {inputElement.GetType().Name}");
         this.SetValue(CapturedContextProperty, ctx);

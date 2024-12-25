@@ -23,11 +23,10 @@ using FramePFX.PropertyEditing.DataTransfer.Enums;
 
 namespace FramePFX.Avalonia.PropertyEditing.DataTransfer.Enums;
 
-public class EnumDataParameterPropertyEditorControl<TEnum> : BaseEnumDataParameterPropertyEditorControlEx where TEnum : struct, Enum
-{
+public class EnumDataParameterPropertyEditorControl<TEnum> : BaseEnumDataParameterPropertyEditorControlEx where TEnum : struct, Enum {
     // TODO: maybe add a property in the slot for the type of
     // control to use? combobox, radiobuttons, etc.
-    
+
     public new DataParameterEnumPropertyEditorSlot<TEnum>? SlotModel => (DataParameterEnumPropertyEditorSlot<TEnum>?) base.SlotControl!.Model;
 
     public EnumDataParameterPropertyEditorControl() {

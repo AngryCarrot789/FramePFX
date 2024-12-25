@@ -24,8 +24,7 @@ namespace FramePFX.Editing.Exporting;
 /// <summary>
 /// A key for an exporter, to identify it globally
 /// </summary>
-public readonly struct ExporterKey : IEquatable<ExporterKey>
-{
+public readonly struct ExporterKey : IEquatable<ExporterKey> {
     /// <summary>
     /// Gets the unique id for an exporter, across the entire application
     /// </summary>
@@ -40,34 +39,29 @@ public readonly struct ExporterKey : IEquatable<ExporterKey>
 
     public static IEqualityComparer<ExporterKey> DefaultComparer { get; } = new UniqueIdDisplayNameEqualityComparer();
 
-    public ExporterKey(string uniqueId, string? displayName = null)
-    {
+    public ExporterKey(string uniqueId, string? displayName = null) {
         Validate.NotNullOrWhiteSpaces(uniqueId);
 
         this.UniqueId = uniqueId;
         this.DisplayName = displayName ?? uniqueId;
     }
 
-    public bool Equals(ExporterKey other)
-    {
+    public bool Equals(ExporterKey other) {
         return this.UniqueId == other.UniqueId && this.DisplayName == other.DisplayName;
     }
 
-    public override bool Equals(object? obj)
-    {
+    public override bool Equals(object? obj) {
         return obj is ExporterKey other && this.Equals(other);
     }
 
-    public override int GetHashCode()
-    {
+    public override int GetHashCode() {
         return HashCode.Combine(this.UniqueId, this.DisplayName);
     }
 
     public static bool operator ==(ExporterKey left, ExporterKey right) => left.Equals(right);
     public static bool operator !=(ExporterKey left, ExporterKey right) => !left.Equals(right);
 
-    private sealed class UniqueIdDisplayNameEqualityComparer : IEqualityComparer<ExporterKey>
-    {
+    private sealed class UniqueIdDisplayNameEqualityComparer : IEqualityComparer<ExporterKey> {
         public bool Equals(ExporterKey x, ExporterKey y) => x.Equals(y);
         public int GetHashCode(ExporterKey obj) => obj.GetHashCode();
     }

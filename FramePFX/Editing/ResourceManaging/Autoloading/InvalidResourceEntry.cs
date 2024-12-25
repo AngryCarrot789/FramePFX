@@ -21,19 +21,16 @@ namespace FramePFX.Editing.ResourceManaging.Autoloading;
 
 public delegate void InvalidResourceEntryEventHandler(InvalidResourceEntry entry);
 
-public abstract class InvalidResourceEntry
-{
+public abstract class InvalidResourceEntry {
     private string? displayName;
 
     public ResourceItem Resource { get; }
 
     public ResourceLoader? ResourceLoader { get; private set; }
 
-    public string? DisplayName
-    {
+    public string? DisplayName {
         get => this.displayName;
-        set
-        {
+        set {
             if (this.displayName == value)
                 return;
             this.displayName = value;
@@ -43,21 +40,18 @@ public abstract class InvalidResourceEntry
 
     public event InvalidResourceEntryEventHandler? DisplayNameChanged;
 
-    protected InvalidResourceEntry(ResourceItem resource)
-    {
+    protected InvalidResourceEntry(ResourceItem resource) {
         this.Resource = resource;
     }
 
-    public Task<bool> TryLoad()
-    {
+    public Task<bool> TryLoad() {
         if (this.ResourceLoader == null)
             throw new InvalidOperationException("No loader");
-        
+
         return this.ResourceLoader.TryLoadEntry(this);
     }
 
-    internal static void InternalSetLoader(InvalidResourceEntry resource, ResourceLoader? loader)
-    {
+    internal static void InternalSetLoader(InvalidResourceEntry resource, ResourceLoader? loader) {
         resource.ResourceLoader = loader;
     }
 }

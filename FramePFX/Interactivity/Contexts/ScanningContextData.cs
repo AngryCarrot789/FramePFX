@@ -22,12 +22,10 @@ namespace FramePFX.Interactivity.Contexts;
 /// <summary>
 /// Data context that scans a visual tree for an entry
 /// </summary>
-public class ScanningContextData : IContextData
-{
+public class ScanningContextData : IContextData {
     public IEnumerable<KeyValuePair<string, object>> Entries { get; }
 
-    public bool TryGetContext(string key, out object value)
-    {
+    public bool TryGetContext(string key, out object value) {
         throw new System.NotImplementedException();
     }
 

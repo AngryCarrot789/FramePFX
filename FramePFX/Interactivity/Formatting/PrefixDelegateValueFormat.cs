@@ -19,39 +19,32 @@
 
 namespace FramePFX.Interactivity.Formatting;
 
-public class PrefixDelegateValueFormat : IValueFormatter
-{
+public class PrefixDelegateValueFormat : IValueFormatter {
     public string Prefix { get; }
 
     public IValueFormatter Formatter { get; }
 
-    public event EventHandler? InvalidateFormat
-    {
+    public event EventHandler? InvalidateFormat {
         add => this.Formatter.InvalidateFormat += value;
         remove => this.Formatter.InvalidateFormat -= value;
     }
 
-    public PrefixDelegateValueFormat(IValueFormatter formatter, string prefix)
-    {
+    public PrefixDelegateValueFormat(IValueFormatter formatter, string prefix) {
         this.Formatter = formatter;
         this.Prefix = prefix;
     }
 
-    public string ToString(double value, bool isEditing)
-    {
+    public string ToString(double value, bool isEditing) {
         return this.Prefix + this.Formatter.ToString(value, isEditing);
     }
 
-    public bool TryConvertToDouble(string format, out double value)
-    {
+    public bool TryConvertToDouble(string format, out double value) {
         int i = 0, j = format.Length;
-        if (!string.IsNullOrEmpty(this.Prefix) && format.StartsWith(this.Prefix))
-        {
+        if (!string.IsNullOrEmpty(this.Prefix) && format.StartsWith(this.Prefix)) {
             i += this.Prefix.Length;
         }
-        
-        if (i >= j)
-        {
+
+        if (i >= j) {
             value = default;
             return false;
         }
@@ -60,38 +53,32 @@ public class PrefixDelegateValueFormat : IValueFormatter
     }
 }
 
-public class PlusMinusValueFormat : IValueFormatter
-{
+public class PlusMinusValueFormat : IValueFormatter {
     public IValueFormatter Formatter { get; }
 
-    public event EventHandler? InvalidateFormat
-    {
+    public event EventHandler? InvalidateFormat {
         add => this.Formatter.InvalidateFormat += value;
         remove => this.Formatter.InvalidateFormat -= value;
     }
 
-    public PlusMinusValueFormat(IValueFormatter formatter)
-    {
+    public PlusMinusValueFormat(IValueFormatter formatter) {
         this.Formatter = formatter;
     }
 
-    public string ToString(double value, bool isEditing)
-    {
+    public string ToString(double value, bool isEditing) {
         return (value < 0.0 ? "-" : "+") + this.Formatter.ToString(value, isEditing);
     }
 
-    public bool TryConvertToDouble(string format, out double value)
-    {
+    public bool TryConvertToDouble(string format, out double value) {
         int i = 0, j = format.Length;
         if (j > 0 && format[0] == '+' || format[0] == '-')
             i++;
-        
-        if (i >= j)
-        {
+
+        if (i >= j) {
             value = default;
             return false;
         }
-        
+
         return this.Formatter.TryConvertToDouble(format.Substring(i, j - i), out value);
     }
 }

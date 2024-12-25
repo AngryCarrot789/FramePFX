@@ -28,57 +28,48 @@ using Key = Avalonia.Input.Key;
 
 namespace FramePFX.Avalonia.Shortcuts.Avalonia;
 
-public class KeyMapSerialiser : XMLShortcutSerialiser
-{
+public class KeyMapSerialiser : XMLShortcutSerialiser {
     public static readonly KeyMapSerialiser Instance = new KeyMapSerialiser();
 
     public KeyMapSerialiser() { }
 
-    protected override void SerialiseKeystroke(XmlDocument doc, XmlElement elem, in KeyStroke stroke, string childElementName = "KeyStroke")
-    {
+    protected override void SerialiseKeystroke(XmlDocument doc, XmlElement elem, in KeyStroke stroke, string childElementName = "KeyStroke") {
         XmlElement element = doc.CreateElement(childElementName);
-        if (stroke.Modifiers != 0)
-        {
+        if (stroke.Modifiers != 0) {
             element.SetAttribute("Mods", ModsToString((KeyModifiers) stroke.Modifiers));
         }
 
         Key key = (Key) stroke.KeyCode;
-        if (Enum.IsDefined(typeof(Key), key))
-        {
+        if (Enum.IsDefined(typeof(Key), key)) {
             element.SetAttribute("Key", KeyUtils.KeyToString(key));
         }
-        else
-        {
+        else {
             element.SetAttribute("KeyCode", stroke.KeyCode.ToString());
         }
 
-        if (stroke.IsRelease)
-        {
+        if (stroke.IsRelease) {
             element.SetAttribute("IsRelease", "true");
         }
 
         elem.AppendChild(element);
     }
 
-    protected override void SerialiseMousestroke(XmlDocument doc, XmlElement elem, in MouseStroke stroke, string childElementName = "MouseStroke")
-    {
+    protected override void SerialiseMousestroke(XmlDocument doc, XmlElement elem, in MouseStroke stroke, string childElementName = "MouseStroke") {
         XmlElement element = doc.CreateElement(childElementName);
-        if (stroke.Modifiers != 0)
-        {
+        if (stroke.Modifiers != 0) {
             element.SetAttribute("Mods", ModsToString((KeyModifiers) stroke.Modifiers));
         }
 
         string btn;
-        switch (stroke.MouseButton)
-        {
-            case 0: btn = "Left"; break;
-            case 1: btn = "Middle"; break;
-            case 2: btn = "Right"; break;
-            case 3: btn = "X1"; break;
-            case 4: btn = "X2"; break;
-            case AvaloniaShortcutManager.BUTTON_WHEEL_UP: btn = "WHEEL_UP"; break;
+        switch (stroke.MouseButton) {
+            case 0:                                         btn = "Left"; break;
+            case 1:                                         btn = "Middle"; break;
+            case 2:                                         btn = "Right"; break;
+            case 3:                                         btn = "X1"; break;
+            case 4:                                         btn = "X2"; break;
+            case AvaloniaShortcutManager.BUTTON_WHEEL_UP:   btn = "WHEEL_UP"; break;
             case AvaloniaShortcutManager.BUTTON_WHEEL_DOWN: btn = "WHEEL_DOWN"; break;
-            default: throw new Exception("Invalid mouse button: " + stroke.MouseButton);
+            default:                                        throw new Exception("Invalid mouse button: " + stroke.MouseButton);
         }
 
         element.SetAttribute("Button", btn);
@@ -91,8 +82,7 @@ public class KeyMapSerialiser : XMLShortcutSerialiser
         elem.AppendChild(element);
     }
 
-    protected override KeyStroke DeserialiseKeyStroke(XmlElement element)
-    {
+    protected override KeyStroke DeserialiseKeyStroke(XmlElement element) {
         string? keyText = GetAttributeNullable(element, "Key");
         string? keyCodeText = GetAttributeNullable(element, "KeyCode");
         string? modsText = GetAttributeNullable(element, "Mods");
@@ -100,19 +90,15 @@ public class KeyMapSerialiser : XMLShortcutSerialiser
 
         int keyCode;
         Key key = KeyUtils.ParseKey(keyText);
-        if (key != Key.None)
-        {
+        if (key != Key.None) {
             keyCode = (int) key;
         }
-        else if (!int.TryParse(keyCodeText, out keyCode))
-        {
-            if (keyText != null)
-            {
+        else if (!int.TryParse(keyCodeText, out keyCode)) {
+            if (keyText != null) {
                 throw new Exception($"Unknown key: {keyText}");
             }
 
-            if (keyCodeText != null)
-            {
+            if (keyCodeText != null) {
                 throw new Exception($"Unknown key code point: '{keyCodeText}'");
             }
 
@@ -124,48 +110,43 @@ public class KeyMapSerialiser : XMLShortcutSerialiser
         return new KeyStroke(keyCode, mods, isRelease);
     }
 
-    protected override MouseStroke DeserialiseMouseStroke(XmlElement element)
-    {
+    protected override MouseStroke DeserialiseMouseStroke(XmlElement element) {
         string? modsText = GetAttributeNullable(element, "Mods");
         string? buttonText = GetAttributeNullable(element, "Button");
         string? isReleaseText = GetAttributeNullable(element, "IsRelease");
         string? clickCountText = GetAttributeNullable(element, "ClickCount");
         string? wheelDeltaText = GetAttributeNullable(element, "WheelDelta");
-        if (string.IsNullOrWhiteSpace(buttonText))
-        {
+        if (string.IsNullOrWhiteSpace(buttonText)) {
             throw new Exception("Missing mouse button");
         }
 
         int mouseButton;
-        switch (buttonText.ToLower())
-        {
+        switch (buttonText.ToLower()) {
             case "lmb":
             case "left":
                 mouseButton = 0;
-                break;
+            break;
             case "mmb": // middle mouse button
             case "mwb": // mouse wheel button
             case "middle":
                 mouseButton = 1;
-                break;
+            break;
             case "rmb":
             case "right":
                 mouseButton = 2;
-                break;
+            break;
             case "x1": mouseButton = 3; break;
             case "x2": mouseButton = 4; break;
             case "wheel_up":
             case "wheelup":
                 mouseButton = AvaloniaShortcutManager.BUTTON_WHEEL_UP;
-                break;
+            break;
             case "wheel_down":
             case "wheeldown":
                 mouseButton = AvaloniaShortcutManager.BUTTON_WHEEL_DOWN;
-                break;
-            default:
-            {
-                if (!int.TryParse(buttonText, out mouseButton))
-                {
+            break;
+            default: {
+                if (!int.TryParse(buttonText, out mouseButton)) {
                     throw new Exception("Invalid mouse button: " + buttonText);
                 }
 
@@ -174,13 +155,11 @@ public class KeyMapSerialiser : XMLShortcutSerialiser
         }
 
         int mods = (int) StringToMods(modsText);
-        if (string.IsNullOrWhiteSpace(clickCountText) || !int.TryParse(clickCountText, out int clickCout))
-        {
+        if (string.IsNullOrWhiteSpace(clickCountText) || !int.TryParse(clickCountText, out int clickCout)) {
             clickCout = -1;
         }
 
-        if (string.IsNullOrWhiteSpace(wheelDeltaText) || !int.TryParse(wheelDeltaText, out int wheelDelta))
-        {
+        if (string.IsNullOrWhiteSpace(wheelDeltaText) || !int.TryParse(wheelDeltaText, out int wheelDelta)) {
             wheelDelta = 0;
         }
 
@@ -188,8 +167,7 @@ public class KeyMapSerialiser : XMLShortcutSerialiser
         return new MouseStroke(mouseButton, mods, isRelease, clickCout, wheelDelta);
     }
 
-    public static string ModsToString(KeyModifiers keys)
-    {
+    public static string ModsToString(KeyModifiers keys) {
         StringJoiner joiner = new StringJoiner("+");
         if ((keys & KeyModifiers.Control) != 0)
             joiner.Append("CTRL");
@@ -202,30 +180,25 @@ public class KeyMapSerialiser : XMLShortcutSerialiser
         return joiner.ToString();
     }
 
-    public static KeyModifiers StringToMods(string? mods)
-    {
+    public static KeyModifiers StringToMods(string? mods) {
         KeyModifiers keys = KeyModifiers.None;
-        if (string.IsNullOrWhiteSpace(mods))
-        {
+        if (string.IsNullOrWhiteSpace(mods)) {
             return keys;
         }
 
         string[] parts = mods.Split('+');
-        if (parts.Length <= 0)
-        {
+        if (parts.Length <= 0) {
             return keys;
         }
 
-        foreach (string part in parts)
-        {
+        foreach (string part in parts) {
             KeyModifiers mod;
-            switch (part.Trim().ToLower())
-            {
-                case "ctrl": mod = KeyModifiers.Control; break;
-                case "alt": mod = KeyModifiers.Alt; break;
+            switch (part.Trim().ToLower()) {
+                case "ctrl":  mod = KeyModifiers.Control; break;
+                case "alt":   mod = KeyModifiers.Alt; break;
                 case "shift": mod = KeyModifiers.Shift; break;
-                case "win": mod = KeyModifiers.Meta; break;
-                default: continue;
+                case "win":   mod = KeyModifiers.Meta; break;
+                default:      continue;
             }
 
             keys |= mod;

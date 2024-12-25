@@ -30,36 +30,30 @@ namespace FramePFX.Editing.Timelines.Clips.Core;
 /// <summary>
 /// A clip that represents the visual part of a composition timeline
 /// </summary>
-public class CompositionVideoClip : VideoClip
-{
-    public static readonly ResourceSlot<ResourceComposition> ResourceCompositionKey = ResourceSlot.Register<ResourceComposition>(typeof(CompositionVideoClip), "CompositionResKey"); 
+public class CompositionVideoClip : VideoClip {
+    public static readonly ResourceSlot<ResourceComposition> ResourceCompositionKey = ResourceSlot.Register<ResourceComposition>(typeof(CompositionVideoClip), "CompositionResKey");
 
     private Task renderTask;
     private ResourceComposition renderResource;
 
     public override bool IsSensitiveToPlaybackSpeed => true;
 
-    public CompositionVideoClip()
-    {
+    public CompositionVideoClip() {
         this.UsesCustomOpacityCalculation = true;
     }
 
-    static CompositionVideoClip()
-    {
+    static CompositionVideoClip() {
         ResourceCompositionKey.ResourceChanged += (slot, owner, oldResource, newResource) => ((CompositionVideoClip) owner).InvalidateRender();
     }
-    
-    protected override void OnProjectChanged(Project? oldProject, Project? newProject)
-    {
+
+    protected override void OnProjectChanged(Project? oldProject, Project? newProject) {
         base.OnProjectChanged(oldProject, newProject);
         this.OnRenderSizeChanged();
     }
 
-    public override Vector2? GetRenderSize()
-    {
+    public override Vector2? GetRenderSize() {
         Project? project = this.Project;
-        if (project == null)
-        {
+        if (project == null) {
             return null;
         }
 
@@ -71,16 +65,13 @@ public class CompositionVideoClip : VideoClip
         // return new Vector2(lastRect.Width, lastRect.Height);
     }
 
-    public override bool PrepareRenderFrame(PreRenderContext rc, long frame)
-    {
-        if (!ResourceCompositionKey.TryGetResource(this, out ResourceComposition? resource))
-        {
+    public override bool PrepareRenderFrame(PreRenderContext rc, long frame) {
+        if (!ResourceCompositionKey.TryGetResource(this, out ResourceComposition? resource)) {
             return false;
         }
 
         long maxDuration = resource.Timeline.MaxDuration;
-        if (maxDuration < 1)
-        {
+        if (maxDuration < 1) {
             return false;
         }
 
@@ -94,15 +85,12 @@ public class CompositionVideoClip : VideoClip
         return true;
     }
 
-    public override void RenderFrame(RenderContext rc, ref SKRect renderArea)
-    {
-        try
-        {
+    public override void RenderFrame(RenderContext rc, ref SKRect renderArea) {
+        try {
             this.renderTask.GetAwaiter().GetResult();
             RenderManager render = this.renderResource.Timeline.RenderManager;
             render.OnFrameCompleted();
-            using (SKPaint paint = new SKPaint())
-            {
+            using (SKPaint paint = new SKPaint()) {
                 paint.FilterQuality = rc.FilterQuality;
                 paint.Color = RenderUtils.BlendAlpha(SKColors.White, this.RenderOpacity);
                 render.Draw(rc.Surface, paint);
@@ -114,17 +102,14 @@ public class CompositionVideoClip : VideoClip
         }
         catch (OperationCanceledException) {
         }
-        catch (AggregateException e)
-        {
-            if (e.InnerExceptions.FirstOrDefault(x => x is TaskCanceledException) != null)
-            {
+        catch (AggregateException e) {
+            if (e.InnerExceptions.FirstOrDefault(x => x is TaskCanceledException) != null) {
                 return;
             }
 
             throw;
         }
-        finally
-        {
+        finally {
             this.renderResource = null;
             this.renderTask = null;
         }

@@ -26,41 +26,34 @@ using FramePFX.Shortcuts.Inputs;
 
 namespace FramePFX.Avalonia.Shortcuts.Trees.InputStrokeControls;
 
-public class KeyStrokeControl : TemplatedControl
-{
+public class KeyStrokeControl : TemplatedControl {
     public static readonly StyledProperty<KeyStroke?> KeyStrokeProperty = AvaloniaProperty.Register<KeyStrokeControl, KeyStroke?>(nameof(KeyStroke));
 
-    public KeyStroke? KeyStroke
-    {
+    public KeyStroke? KeyStroke {
         get => this.GetValue(KeyStrokeProperty);
         set => this.SetValue(KeyStrokeProperty, value);
     }
 
     private TextBlock? PART_TextBlock;
-    
-    public KeyStrokeControl()
-    {
+
+    public KeyStrokeControl() {
     }
 
-    static KeyStrokeControl()
-    {
+    static KeyStrokeControl() {
         KeyStrokeProperty.Changed.AddClassHandler<KeyStrokeControl, KeyStroke?>((d, e) => d.OnKeyStrokeChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.PART_TextBlock = e.NameScope.GetTemplateChild<TextBlock>("PART_TextBlock");
         this.UpdateText();
     }
 
-    private void OnKeyStrokeChanged(KeyStroke? oldValue, KeyStroke? newValue)
-    {
+    private void OnKeyStrokeChanged(KeyStroke? oldValue, KeyStroke? newValue) {
         this.UpdateText();
     }
 
-    private void UpdateText()
-    {
+    private void UpdateText() {
         if (this.PART_TextBlock == null)
             return;
 

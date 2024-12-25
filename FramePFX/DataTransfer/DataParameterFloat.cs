@@ -26,8 +26,7 @@ namespace FramePFX.DataTransfer;
 /// A <see cref="DataParameter{T}"/> that manages a 32-bit single precision floating point
 /// number (aka, a float). This also has an optional minimum and maximum value range
 /// </summary>
-public sealed class DataParameterFloat : DataParameter<float>, IRangedParameter<float>
-{
+public sealed class DataParameterFloat : DataParameter<float>, IRangedParameter<float> {
     public float Minimum { get; }
     public float Maximum { get; }
     public bool HasExplicitRangeLimit { get; }
@@ -38,8 +37,7 @@ public sealed class DataParameterFloat : DataParameter<float>, IRangedParameter<
     public DataParameterFloat(Type ownerType, string name, float defValue, ValueAccessor<float> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, name, defValue, float.MinValue, float.MaxValue, accessor, flags) {
     }
 
-    public DataParameterFloat(Type ownerType, string name, float defValue, float minValue, float maxValue, ValueAccessor<float> accessor, DataParameterFlags flags = DataParameterFlags.None) : base(ownerType, name, defValue, accessor, flags)
-    {
+    public DataParameterFloat(Type ownerType, string name, float defValue, float minValue, float maxValue, ValueAccessor<float> accessor, DataParameterFlags flags = DataParameterFlags.None) : base(ownerType, name, defValue, accessor, flags) {
         if (minValue > maxValue)
             throw new ArgumentException($"Minimum value exceeds the maximum value: {minValue} > {maxValue}", nameof(minValue));
         if (defValue < minValue || defValue > maxValue)
@@ -53,20 +51,16 @@ public sealed class DataParameterFloat : DataParameter<float>, IRangedParameter<
 
     public bool IsValueOutOfRange(float value) => value < this.Minimum || value > this.Maximum;
 
-    public override void SetValue(ITransferableData owner, float value)
-    {
-        if (this.HasExplicitRangeLimit)
-        {
+    public override void SetValue(ITransferableData owner, float value) {
+        if (this.HasExplicitRangeLimit) {
             value = Maths.Clamp(value, this.Minimum, this.Maximum);
         }
 
         base.SetValue(owner, value);
     }
 
-    public override void SetObjectValue(ITransferableData owner, object? value)
-    {
-        if (this.HasExplicitRangeLimit)
-        {
+    public override void SetObjectValue(ITransferableData owner, object? value) {
+        if (this.HasExplicitRangeLimit) {
             float unboxed = (float) value!;
             float clamped = Maths.Clamp(unboxed, this.Minimum, this.Maximum);
             if (!Maths.Equals(unboxed, clamped))

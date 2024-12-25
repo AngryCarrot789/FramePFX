@@ -19,8 +19,7 @@
 
 namespace FramePFX.Editing.Automation.Keyframes;
 
-public enum InterpolationType
-{
+public enum InterpolationType {
     Linear,
     Curve
 }

@@ -30,34 +30,27 @@ using SkiaSharp;
 
 namespace FramePFX.Avalonia.PropertyEditing.DataTransfer;
 
-public class DataParameterColourPropertyEditorControl : BaseDataParameterPropertyEditorControl
-{
+public class DataParameterColourPropertyEditorControl : BaseDataParameterPropertyEditorControl {
     public new DataParameterColourPropertyEditorSlot? SlotModel => (DataParameterColourPropertyEditorSlot?) base.SlotControl?.Model;
 
     private Rectangle? myRectangle;
     private SKColor myColour;
     private static readonly AsyncRelayCommand<DataParameterColourPropertyEditorControl> choseColourCommand;
 
-    public DataParameterColourPropertyEditorControl()
-    {
-        
+    public DataParameterColourPropertyEditorControl() {
     }
 
-    static DataParameterColourPropertyEditorControl()
-    {
-        choseColourCommand = new AsyncRelayCommand<DataParameterColourPropertyEditorControl>(async (x) =>
-        {
+    static DataParameterColourPropertyEditorControl() {
+        choseColourCommand = new AsyncRelayCommand<DataParameterColourPropertyEditorControl>(async (x) => {
             SKColor? colour = await IColourPickerDialogService.Instance.PickColourAsync(x!.myColour);
-            if (colour.HasValue)
-            {
+            if (colour.HasValue) {
                 x.myColour = colour.Value;
                 x.OnControlValueChanged();
             }
         });
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.myRectangle = e.NameScope.GetTemplateChild<Rectangle>("PART_Rectangle");
         this.myRectangle.PointerPressed += this.OnRectangleClicked;
@@ -65,30 +58,25 @@ public class DataParameterColourPropertyEditorControl : BaseDataParameterPropert
 
     private void OnRectangleClicked(object? sender, PointerPressedEventArgs e) => choseColourCommand.Execute(this);
 
-    protected override void OnConnected()
-    {
+    protected override void OnConnected() {
         base.OnConnected();
     }
 
-    protected override void OnDisconnected()
-    {
+    protected override void OnDisconnected() {
         base.OnDisconnected();
     }
 
-    protected override void UpdateControlValue()
-    {
+    protected override void UpdateControlValue() {
         this.myColour = this.SlotModel!.Value;
         SKColor c = this.myColour;
         this.myRectangle!.Fill = new ImmutableSolidColorBrush(new Color(c.Alpha, c.Red, c.Green, c.Blue));
     }
 
-    protected override void UpdateModelValue()
-    {
+    protected override void UpdateModelValue() {
         this.SlotModel!.Value = this.myColour;
     }
 
-    protected override void OnCanEditValueChanged(bool canEdit)
-    {
+    protected override void OnCanEditValueChanged(bool canEdit) {
         this.myRectangle!.IsEnabled = canEdit;
     }
 }

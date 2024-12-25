@@ -25,8 +25,7 @@ using Avalonia.Reactive;
 
 namespace FramePFX.Avalonia.Editing;
 
-public static class ScrollBinder
-{
+public static class ScrollBinder {
     public static readonly AttachedProperty<string?> VerticalBindGroupProperty = AvaloniaProperty.RegisterAttached<ScrollViewer, string?>("VerticalBindGroup", typeof(ScrollBinder), defaultBindingMode: BindingMode.TwoWay);
     public static readonly AttachedProperty<string?> HorizontalBindGroupProperty = AvaloniaProperty.RegisterAttached<ScrollViewer, string?>("HorizontalBindGroup", typeof(ScrollBinder), defaultBindingMode: BindingMode.TwoWay);
 
@@ -39,30 +38,23 @@ public static class ScrollBinder
     private static bool IsUpdatingScroll;
     private static readonly Dictionary<string, List<ScrollViewer>> RegisteredScrollers = new Dictionary<string, List<ScrollViewer>>();
 
-    static ScrollBinder()
-    {
+    static ScrollBinder() {
         VerticalBindGroupProperty.Changed.Subscribe(new AnonymousObserver<AvaloniaPropertyChangedEventArgs<string?>>(OnVerticalBindGroupChanged));
         HorizontalBindGroupProperty.Changed.Subscribe(new AnonymousObserver<AvaloniaPropertyChangedEventArgs<string?>>(OnHorizontalBindGroupChanged));
     }
 
-    private static void OnVerticalBindGroupChanged(AvaloniaPropertyChangedEventArgs<string?> e)
-    {
-        if (e.Sender is ScrollViewer scroller)
-        {
-            if (e.OldValue.GetValueOrDefault() is string oldGroup)
-            {
-                if (RegisteredScrollers.TryGetValue(oldGroup, out List<ScrollViewer>? list))
-                {
+    private static void OnVerticalBindGroupChanged(AvaloniaPropertyChangedEventArgs<string?> e) {
+        if (e.Sender is ScrollViewer scroller) {
+            if (e.OldValue.GetValueOrDefault() is string oldGroup) {
+                if (RegisteredScrollers.TryGetValue(oldGroup, out List<ScrollViewer>? list)) {
                     list.Remove(scroller);
                 }
             }
 
             scroller.ScrollChanged -= OnVerticalScrollChanged;
-            if (e.NewValue.GetValueOrDefault() is string newGroup)
-            {
+            if (e.NewValue.GetValueOrDefault() is string newGroup) {
                 scroller.ScrollChanged += OnVerticalScrollChanged;
-                if (!RegisteredScrollers.TryGetValue(newGroup, out List<ScrollViewer>? list))
-                {
+                if (!RegisteredScrollers.TryGetValue(newGroup, out List<ScrollViewer>? list)) {
                     RegisteredScrollers[newGroup] = list = new List<ScrollViewer>();
                 }
 
@@ -71,24 +63,18 @@ public static class ScrollBinder
         }
     }
 
-    private static void OnHorizontalBindGroupChanged(AvaloniaPropertyChangedEventArgs<string?> e)
-    {
-        if (e.Sender is ScrollViewer scroller)
-        {
-            if (e.OldValue.GetValueOrDefault() is string oldGroup)
-            {
-                if (RegisteredScrollers.TryGetValue(oldGroup, out List<ScrollViewer>? list))
-                {
+    private static void OnHorizontalBindGroupChanged(AvaloniaPropertyChangedEventArgs<string?> e) {
+        if (e.Sender is ScrollViewer scroller) {
+            if (e.OldValue.GetValueOrDefault() is string oldGroup) {
+                if (RegisteredScrollers.TryGetValue(oldGroup, out List<ScrollViewer>? list)) {
                     list.Remove(scroller);
                 }
             }
 
             scroller.ScrollChanged -= OnHorizontalScrollChanged;
-            if (e.NewValue.GetValueOrDefault() is string newGroup)
-            {
+            if (e.NewValue.GetValueOrDefault() is string newGroup) {
                 scroller.ScrollChanged += OnHorizontalScrollChanged;
-                if (!RegisteredScrollers.TryGetValue(newGroup, out List<ScrollViewer>? list))
-                {
+                if (!RegisteredScrollers.TryGetValue(newGroup, out List<ScrollViewer>? list)) {
                     RegisteredScrollers[newGroup] = list = new List<ScrollViewer>();
                 }
 
@@ -97,70 +83,54 @@ public static class ScrollBinder
         }
     }
 
-    private static void OnVerticalScrollChanged(object? sender, ScrollChangedEventArgs e)
-    {
-        if (IsUpdatingScroll)
-        {
+    private static void OnVerticalScrollChanged(object? sender, ScrollChangedEventArgs e) {
+        if (IsUpdatingScroll) {
             return;
         }
 
         ScrollViewer viewer = (ScrollViewer) sender!;
         string? group = GetVerticalBindGroup(viewer);
-        if (group == null)
-        {
+        if (group == null) {
             return;
         }
 
-        if (RegisteredScrollers.TryGetValue(group, out List<ScrollViewer>? list))
-        {
+        if (RegisteredScrollers.TryGetValue(group, out List<ScrollViewer>? list)) {
             IsUpdatingScroll = true;
-            try
-            {
-                foreach (ScrollViewer scrollViewer in list)
-                {
-                    if (scrollViewer != viewer)
-                    {
+            try {
+                foreach (ScrollViewer scrollViewer in list) {
+                    if (scrollViewer != viewer) {
                         scrollViewer.Offset = new Vector(scrollViewer.Offset.X, scrollViewer.Offset.Y + e.OffsetDelta.Y);
                         scrollViewer.UpdateLayout();
                     }
                 }
             }
-            finally
-            {
+            finally {
                 IsUpdatingScroll = false;
             }
         }
     }
 
-    private static void OnHorizontalScrollChanged(object? sender, ScrollChangedEventArgs e)
-    {
-        if (IsUpdatingScroll)
-        {
+    private static void OnHorizontalScrollChanged(object? sender, ScrollChangedEventArgs e) {
+        if (IsUpdatingScroll) {
             return;
         }
 
         ScrollViewer viewer = (ScrollViewer) sender!;
         string? group = GetHorizontalBindGroup(viewer);
-        if (group == null)
-        {
+        if (group == null) {
             return;
         }
 
-        if (RegisteredScrollers.TryGetValue(group, out List<ScrollViewer>? list))
-        {
+        if (RegisteredScrollers.TryGetValue(group, out List<ScrollViewer>? list)) {
             IsUpdatingScroll = true;
-            try
-            {
-                foreach (ScrollViewer scrollViewer in list)
-                {
-                    if (scrollViewer != viewer)
-                    {
+            try {
+                foreach (ScrollViewer scrollViewer in list) {
+                    if (scrollViewer != viewer) {
                         scrollViewer.Offset = new Vector(scrollViewer.Offset.X + e.OffsetDelta.X, scrollViewer.Offset.Y);
                     }
                 }
             }
-            finally
-            {
+            finally {
                 IsUpdatingScroll = false;
             }
         }

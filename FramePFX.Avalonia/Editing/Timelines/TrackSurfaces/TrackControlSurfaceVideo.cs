@@ -26,8 +26,7 @@ using FramePFX.Editing.Timelines.Tracks;
 
 namespace FramePFX.Avalonia.Editing.Timelines.TrackSurfaces;
 
-public class TrackControlSurfaceVideo : TrackControlSurface
-{
+public class TrackControlSurfaceVideo : TrackControlSurface {
     public NumberDragger OpacityDragger { get; private set; }
 
     public ToggleButton VisibilityButton { get; private set; }
@@ -37,32 +36,28 @@ public class TrackControlSurfaceVideo : TrackControlSurface
     private readonly AutomationBinder<VideoTrack> opacityBinder = new AutomationBinder<VideoTrack>(VideoTrack.OpacityParameter);
     private readonly AutomationBinder<VideoTrack> visibilityBinder = new AutomationBinder<VideoTrack>(VideoTrack.IsEnabledParameter);
 
-    public TrackControlSurfaceVideo()
-    {
+    public TrackControlSurfaceVideo() {
         this.opacityBinder.UpdateModel += UpdateOpacityForModel;
         this.opacityBinder.UpdateControl += UpdateOpacityForControl;
         this.visibilityBinder.UpdateModel += UpdateVisibilityForModel;
         this.visibilityBinder.UpdateControl += UpdateVisibilityForControl;
     }
 
-    public override void OnConnected()
-    {
+    public override void OnConnected() {
         base.OnConnected();
         this.MyTrack = (VideoTrack) this.Owner!.Track!;
         this.opacityBinder.Attach(this, this.MyTrack);
         this.visibilityBinder.Attach(this, this.MyTrack);
     }
 
-    public override void OnDisconnected()
-    {
+    public override void OnDisconnected() {
         base.OnDisconnected();
         this.opacityBinder.Detach();
         this.visibilityBinder.Detach();
         this.MyTrack = null;
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         e.NameScope.GetTemplateChild("PART_OpacitySlider", out NumberDragger dragger);
         e.NameScope.GetTemplateChild("PART_VisibilityButton", out ToggleButton visibilityButton);
@@ -74,31 +69,26 @@ public class TrackControlSurfaceVideo : TrackControlSurface
         this.VisibilityButton.IsCheckedChanged += this.VisibilityCheckedChanged;
     }
 
-    private void VisibilityCheckedChanged(object? sender, RoutedEventArgs e)
-    {
+    private void VisibilityCheckedChanged(object? sender, RoutedEventArgs e) {
         this.visibilityBinder.OnControlValueChanged();
     }
 
-    private static void UpdateOpacityForModel(AutomationBinder<VideoTrack> binder)
-    {
+    private static void UpdateOpacityForModel(AutomationBinder<VideoTrack> binder) {
         AvAutomationUtils.SetDefaultKeyFrameOrAddNew(binder.Model, ((TrackControlSurfaceVideo) binder.Control).OpacityDragger, binder.Parameter, RangeBase.ValueProperty);
         binder.Model.InvalidateRender();
     }
 
-    private static void UpdateOpacityForControl(AutomationBinder<VideoTrack> binder)
-    {
+    private static void UpdateOpacityForControl(AutomationBinder<VideoTrack> binder) {
         TrackControlSurfaceVideo control = (TrackControlSurfaceVideo) binder.Control;
         control.OpacityDragger.Value = VideoTrack.OpacityParameter.GetCurrentValue(binder.Model);
     }
 
-    private static void UpdateVisibilityForModel(AutomationBinder<VideoTrack> binder)
-    {
+    private static void UpdateVisibilityForModel(AutomationBinder<VideoTrack> binder) {
         AvAutomationUtils.SetDefaultKeyFrameOrAddNew(binder.Model, ((TrackControlSurfaceVideo) binder.Control).VisibilityButton, binder.Parameter, ToggleButton.IsCheckedProperty);
         binder.Model.InvalidateRender();
     }
 
-    private static void UpdateVisibilityForControl(AutomationBinder<VideoTrack> binder)
-    {
+    private static void UpdateVisibilityForControl(AutomationBinder<VideoTrack> binder) {
         TrackControlSurfaceVideo control = (TrackControlSurfaceVideo) binder.Control;
         control.VisibilityButton.IsChecked = VideoTrack.IsEnabledParameter.GetCurrentValue(binder.Model);
     }

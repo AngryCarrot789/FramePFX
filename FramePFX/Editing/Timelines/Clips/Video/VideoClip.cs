@@ -51,11 +51,10 @@ namespace FramePFX.Editing.Timelines.Clips.Video;
 /// port then presents the fully rendered frame to the user
 /// </para>
 /// </summary>
-public abstract class VideoClip : Clip
-{
+public abstract class VideoClip : Clip {
     public const double MinimumSpeed = 0.001;
     public const double MaximumSpeed = 1000.0;
-    
+
     public static readonly ParameterDouble OpacityParameter =
         Parameter.RegisterDouble(
             typeof(VideoClip),
@@ -113,10 +112,8 @@ public abstract class VideoClip : Clip
     /// Gets the transformation matrix for the transformation properties in this clip
     /// only, not including parent transformations. This is our local-to-world matrix
     /// </summary>
-    public SKMatrix TransformationMatrix
-    {
-        get
-        {
+    public SKMatrix TransformationMatrix {
+        get {
             if (this.isMatrixDirty)
                 this.GenerateMatrices();
             return this.myTransformationMatrix;
@@ -127,10 +124,8 @@ public abstract class VideoClip : Clip
     /// Gets the absolute transformation matrix, which is a concatenation of all of our
     /// parents' matrices and our own. This is our local-to-world matrix
     /// </summary>
-    public SKMatrix AbsoluteTransformationMatrix
-    {
-        get
-        {
+    public SKMatrix AbsoluteTransformationMatrix {
+        get {
             if (this.isMatrixDirty)
                 this.GenerateMatrices();
             return this.myAbsoluteTransformationMatrix;
@@ -140,10 +135,8 @@ public abstract class VideoClip : Clip
     /// <summary>
     /// Gets the inverse of our transformation matrix. This is our world-to-local matrix
     /// </summary>
-    public SKMatrix InverseTransformationMatrix
-    {
-        get
-        {
+    public SKMatrix InverseTransformationMatrix {
+        get {
             if (this.isMatrixDirty)
                 this.GenerateMatrices();
             return this.myInverseTransformationMatrix;
@@ -154,37 +147,31 @@ public abstract class VideoClip : Clip
     /// Gets the inverse of our absolute transformation matrix. This can be used to, for example,
     /// map a location on the entire canvas to this clip. This is our world-to-local matrix
     /// </summary>
-    public SKMatrix AbsoluteInverseTransformationMatrix
-    {
-        get
-        {
+    public SKMatrix AbsoluteInverseTransformationMatrix {
+        get {
             if (this.isMatrixDirty)
                 this.GenerateMatrices();
             return this.myAbsoluteInverseTransformationMatrix;
         }
     }
-    
-    public SKPoint MediaScaleOrigin
-    {
+
+    public SKPoint MediaScaleOrigin {
         get => this.mediaScaleOrigin;
         set => DataParameter.SetValueHelper(this, MediaScaleOriginParameter, ref this.mediaScaleOrigin, value);
     }
-    
-    public SKPoint MediaRotationOrigin
-    {
+
+    public SKPoint MediaRotationOrigin {
         get => this.mediaRotationOrigin;
         set => DataParameter.SetValueHelper(this, MediaRotationOriginParameter, ref this.mediaRotationOrigin, value);
     }
-    
-    public bool IsMediaScaleOriginAutomatic
-    {
+
+    public bool IsMediaScaleOriginAutomatic {
         get => this.isMediaScaleOriginAutomatic;
         set => DataParameter.SetValueHelper(this, IsMediaScaleOriginAutomaticParameter, ref this.isMediaScaleOriginAutomatic, value);
     }
-    
 
-    public bool IsMediaRotationOriginAutomatic
-    {
+
+    public bool IsMediaRotationOriginAutomatic {
         get => this.isMediaRotationOriginAutomatic;
         set => DataParameter.SetValueHelper(this, IsMediaRotationOriginAutomaticParameter, ref this.isMediaRotationOriginAutomatic, value);
     }
@@ -205,11 +192,10 @@ public abstract class VideoClip : Clip
     public virtual bool IsSensitiveToPlaybackSpeed => false;
 
     public bool IsEffectivelyVisible => this.IsEnabled && this.Opacity > 0.0;
-    
+
     public SKRect LastRenderRect;
 
-    protected VideoClip()
-    {
+    protected VideoClip() {
         this.isMatrixDirty = true;
         this.Opacity = OpacityParameter.Descriptor.DefaultValue;
         this.IsEnabled = IsEnabledParameter.Descriptor.DefaultValue;
@@ -222,10 +208,8 @@ public abstract class VideoClip : Clip
         this.isMediaRotationOriginAutomatic = IsMediaRotationOriginAutomaticParameter.GetDefaultValue(this);
     }
 
-    static VideoClip()
-    {
-        SerialisationRegistry.Register<VideoClip>(0, (clip, data, ctx) =>
-        {
+    static VideoClip() {
+        SerialisationRegistry.Register<VideoClip>(0, (clip, data, ctx) => {
             ctx.DeserialiseBaseType(data);
             clip.isMediaScaleOriginAutomatic = data.GetBool("IsMediaScaleOriginAutomatic");
             clip.isMediaRotationOriginAutomatic = data.GetBool("IsMediaRotationOriginAutomatic");
@@ -233,8 +217,7 @@ public abstract class VideoClip : Clip
             clip.spanWithoutSpeed = data.GetStruct<FrameSpan>("SpanWOSpeed").Clamp(new FrameSpan(0, long.MaxValue));
             clip.HasSpeedApplied = data.GetBool("HasSpeedApplied");
             clip.isMatrixDirty = true;
-        }, (clip, data, ctx) =>
-        {
+        }, (clip, data, ctx) => {
             ctx.SerialiseBaseType(data);
             data.SetBool("IsMediaScaleOriginAutomatic", clip.isMediaScaleOriginAutomatic);
             data.SetBool("IsMediaRotationOriginAutomatic", clip.isMediaRotationOriginAutomatic);
@@ -248,7 +231,7 @@ public abstract class VideoClip : Clip
         IsMediaScaleOriginAutomaticParameter.PriorityValueChanged += (parameter, owner) => ((VideoClip) owner).UpdateAutomaticScaleOrigin();
         IsMediaRotationOriginAutomaticParameter.PriorityValueChanged += (parameter, owner) => ((VideoClip) owner).UpdateAutomaticRotationOrigin();
     }
-    
+
     /// <summary>
     /// Multiplies the frame by our playback speed and floors the result as a long
     /// </summary>
@@ -256,8 +239,7 @@ public abstract class VideoClip : Clip
     /// <returns>The output scaled frame</returns>
     public long GetRelativeFrameForPlaybackSpeed(long frame) => !this.HasSpeedApplied ? frame : (long) Math.Round(frame * this.PlaybackSpeed);
 
-    protected override void LoadDataIntoClone(Clip clone, ClipCloneOptions options)
-    {
+    protected override void LoadDataIntoClone(Clip clone, ClipCloneOptions options) {
         base.LoadDataIntoClone(clone, options);
         VideoClip clip = (VideoClip) clone;
         clip.PlaybackSpeed = this.PlaybackSpeed;
@@ -272,24 +254,20 @@ public abstract class VideoClip : Clip
     /// If set to 1.0, <see cref="HasSpeedApplied"/> becomes 0 and our span is set back to the original
     /// </summary>
     /// <param name="speed"></param>
-    public void SetPlaybackSpeed(double speed)
-    {
+    public void SetPlaybackSpeed(double speed) {
         speed = Maths.Clamp(speed, MinimumSpeed, MaximumSpeed);
         double oldSpeed = this.PlaybackSpeed;
-        if (DoubleUtils.AreClose(oldSpeed, speed))
-        {
+        if (DoubleUtils.AreClose(oldSpeed, speed)) {
             return;
         }
 
         this.PlaybackSpeed = speed;
         this.isAdjustingFrameSpanForSpeedChange = true;
-        if (DoubleUtils.AreClose(speed, 1.0))
-        {
+        if (DoubleUtils.AreClose(speed, 1.0)) {
             this.HasSpeedApplied = false;
             this.FrameSpan = this.spanWithoutSpeed;
         }
-        else
-        {
+        else {
             this.HasSpeedApplied = true;
             double newDuration = this.spanWithoutSpeed.Duration / speed;
             this.FrameSpan = new FrameSpan(this.FrameSpan.Begin, Math.Max((long) Math.Floor(newDuration), 1));
@@ -303,27 +281,24 @@ public abstract class VideoClip : Clip
     /// </summary>
     public void ClearPlaybackSpeed() => this.SetPlaybackSpeed(1.0);
 
-    private void GenerateMatrices()
-    {
+    private void GenerateMatrices() {
         this.myTransformationMatrix = MatrixUtils.CreateTransformationMatrix(this.MediaPosition, this.MediaScale, this.MediaRotation, new Vector2(this.MediaScaleOrigin.X, this.MediaScaleOrigin.Y), new Vector2(this.MediaRotationOrigin.X, this.MediaRotationOrigin.Y));
         this.myInverseTransformationMatrix = MatrixUtils.CreateInverseTransformationMatrix(this.MediaPosition, this.MediaScale, this.MediaRotation, new Vector2(this.MediaScaleOrigin.X, this.MediaScaleOrigin.Y), new Vector2(this.MediaRotationOrigin.X, this.MediaRotationOrigin.Y));
-        if (this.Track is VideoTrack vidTrack)
-        {
+        if (this.Track is VideoTrack vidTrack) {
             // If VideoTrack could easily access the composition clip that is currently in use,
             // These would use the absolute matrices. But since we can't get the clip,
             // VideoTrack only supports non-absolute matrices
             this.myAbsoluteTransformationMatrix = vidTrack.TransformationMatrix.PreConcat(this.myTransformationMatrix);
             this.myAbsoluteInverseTransformationMatrix = this.myInverseTransformationMatrix.PreConcat(vidTrack.InverseTransformationMatrix);
         }
-        else
-        {
+        else {
             this.myAbsoluteTransformationMatrix = this.myTransformationMatrix;
             this.myAbsoluteInverseTransformationMatrix = this.myInverseTransformationMatrix;
         }
 
         this.isMatrixDirty = false;
     }
-    
+
     protected void UpdateAutomaticScaleOrigin() {
         if (this.IsMediaScaleOriginAutomatic) {
             SKSize size = this.GetSizeForAutomaticOrigins();
@@ -337,15 +312,13 @@ public abstract class VideoClip : Clip
             MediaRotationOriginParameter.SetValue(this, new SKPoint(size.Width / 2, size.Height / 2));
         }
     }
-    
-    public virtual SKSize GetSizeForAutomaticOrigins()
-    {
+
+    public virtual SKSize GetSizeForAutomaticOrigins() {
         Vector2 sz = this.GetRenderSize() ?? default;
         return new SKSize(sz.X, sz.Y);
     }
-    
-    protected override void OnTrackChanged(Track? oldTrack, Track? newTrack)
-    {
+
+    protected override void OnTrackChanged(Track? oldTrack, Track? newTrack) {
         base.OnTrackChanged(oldTrack, newTrack);
         this.InvalidateTransformationMatrix();
     }
@@ -362,8 +335,7 @@ public abstract class VideoClip : Clip
     /// <returns>The size, if applicable, otherwise null</returns>
     public virtual Vector2? GetRenderSize() => null;
 
-    protected virtual void OnRenderSizeChanged()
-    {
+    protected virtual void OnRenderSizeChanged() {
         this.UpdateAutomaticScaleOrigin();
         this.UpdateAutomaticRotationOrigin();
         this.InvalidateRender();
@@ -374,26 +346,21 @@ public abstract class VideoClip : Clip
     /// <summary>
     /// Propagates the render invalidated state to our project's <see cref="RenderManager"/>
     /// </summary>
-    public void InvalidateRender()
-    {
+    public void InvalidateRender() {
         this.Timeline?.RenderManager.InvalidateRender();
     }
 
-    protected override void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan)
-    {
-        if (!this.isAdjustingFrameSpanForSpeedChange)
-        {
-            if (this.HasSpeedApplied)
-            {
+    protected override void OnFrameSpanChanged(FrameSpan oldSpan, FrameSpan newSpan) {
+        if (!this.isAdjustingFrameSpanForSpeedChange) {
+            if (this.HasSpeedApplied) {
                 long change = newSpan.Duration - oldSpan.Duration;
                 this.spanWithoutSpeed = new FrameSpan(newSpan.Begin, this.spanWithoutSpeed.Duration + change);
             }
-            else
-            {
+            else {
                 this.spanWithoutSpeed = newSpan;
             }
         }
-        
+
         base.OnFrameSpanChanged(oldSpan, newSpan);
         this.InvalidateRender();
     }
@@ -406,7 +373,7 @@ public abstract class VideoClip : Clip
     /// <param name="frame">The play head frame, relative to this clip. This will always be within range of our span</param>
     /// <returns>True if this clip can be rendered (meaning <see cref="RenderFrame"/> may be called after this call)</returns>
     public abstract bool PrepareRenderFrame(PreRenderContext rc, long frame);
-    
+
     /// <summary>
     /// Renders this clip using the given rendering context data. This is called on a randomly
     /// assigned rendering thread, therefore, this method should not access un-synchronised clip data
@@ -419,14 +386,12 @@ public abstract class VideoClip : Clip
     /// </param>
     public abstract void RenderFrame(RenderContext rc, ref SKRect renderArea);
 
-    public void InvalidateTransformationMatrix()
-    {
+    public void InvalidateTransformationMatrix() {
         this.isMatrixDirty = true;
         this.InvalidateRender();
     }
 
-    internal static void InternalInvalidateTransformationMatrixFromTrack(VideoClip clip)
-    {
+    internal static void InternalInvalidateTransformationMatrixFromTrack(VideoClip clip) {
         clip.isMatrixDirty = true;
     }
 }

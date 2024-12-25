@@ -25,8 +25,7 @@ namespace FramePFX.Shortcuts;
 /// A class used to store a reference to a <see cref="Shortcut"/> and its
 /// owning <see cref="ShortcutGroup"/>, and also other shortcut data
 /// </summary>
-public sealed class GroupedShortcut : IGroupedObject
-{
+public sealed class GroupedShortcut : IGroupedObject {
     private IShortcut shortcut;
 
     public ShortcutManager Manager => this.Parent?.Manager;
@@ -83,14 +82,12 @@ public sealed class GroupedShortcut : IGroupedObject
     /// <summary>
     /// The shortcut itself. Will not be null
     /// </summary>
-    public IShortcut Shortcut
-    {
+    public IShortcut Shortcut {
         get => this.shortcut;
         set => this.shortcut = value ?? throw new ArgumentNullException(nameof(value), "Shortcut cannot be null");
     }
 
-    public GroupedShortcut(ShortcutGroup group, string name, IShortcut shortcut, bool isGlobal = false)
-    {
+    public GroupedShortcut(ShortcutGroup group, string name, IShortcut shortcut, bool isGlobal = false) {
         if (string.IsNullOrWhiteSpace(name))
             throw new ArgumentException("Name cannot be null, empty, or consist of only whitespaces");
         this.Parent = group ?? throw new ArgumentNullException(nameof(group), "Collection cannot be null");
@@ -101,12 +98,10 @@ public sealed class GroupedShortcut : IGroupedObject
         this.IsInherited = true;
     }
 
-    public override string ToString()
-    {
+    public override string ToString() {
         StringBuilder sb = new StringBuilder();
         sb.Append(nameof(GroupedShortcut)).Append(" (").Append(this.Shortcut.IsEmpty ? "Empty/No Shortcut" : this.Shortcut.ToString()).Append(" -> ").Append(this.FullPath);
-        if (!string.IsNullOrWhiteSpace(this.Description))
-        {
+        if (!string.IsNullOrWhiteSpace(this.Description)) {
             sb.Append(" (").Append(this.Description).Append(")");
         }
 

@@ -22,8 +22,7 @@ namespace FramePFX.Tasks;
 /// <summary>
 /// An implementation of <see cref="EmptyActivityProgress"/> that does nothing (no events, get/set values return default values, etc.)
 /// </summary>
-public class EmptyActivityProgress : IActivityProgress
-{
+public class EmptyActivityProgress : IActivityProgress {
     public static readonly IActivityProgress Instance = new EmptyActivityProgress();
 
     bool IActivityProgress.IsIndeterminate { get => default; set { } }

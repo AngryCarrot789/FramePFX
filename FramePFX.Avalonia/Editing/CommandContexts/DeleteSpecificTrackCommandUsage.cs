@@ -19,8 +19,7 @@
 
 namespace FramePFX.Avalonia.Editing.CommandContexts;
 
-public class DeleteSpecificTrackCommandUsage : BasicButtonCommandUsage
-{
+public class DeleteSpecificTrackCommandUsage : BasicButtonCommandUsage {
     public DeleteSpecificTrackCommandUsage() : base("commands.editor.DeleteSpecificTrack") {
     }
 }

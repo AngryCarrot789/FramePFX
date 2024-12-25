@@ -22,8 +22,7 @@ namespace FramePFX.Services.Messaging;
 /// <summary>
 /// An enum which tells a message box which type of buttons are shown
 /// </summary>
-public enum MessageBoxButton
-{
+public enum MessageBoxButton {
     /// <summary>
     /// The message box only shows an OK button
     /// </summary>

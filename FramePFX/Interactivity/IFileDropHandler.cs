@@ -19,8 +19,7 @@
 
 namespace FramePFX.Interactivity;
 
-public interface IFileDropNotifier
-{
+public interface IFileDropNotifier {
     /// <summary>
     /// Ges the allow drop type(s) from the given dragged paths and input allowed drop types
     /// </summary>

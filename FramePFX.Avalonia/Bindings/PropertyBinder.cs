@@ -28,8 +28,7 @@ namespace FramePFX.Avalonia.Bindings;
 /// A helper class for binding 
 /// </summary>
 /// <typeparam name="TModel"></typeparam>
-public class PropertyBinder<TModel>
-{
+public class PropertyBinder<TModel> {
     public AvaloniaProperty<TModel> SourceProperty { get; }
     public AvaloniaProperty<TModel> TargetProperty { get; }
 
@@ -45,21 +44,17 @@ public class PropertyBinder<TModel>
 
     private IDisposable? binder;
 
-    public PropertyBinder(Control sourceControl, AvaloniaProperty<TModel> sourceProperty, AvaloniaProperty<TModel> targetProperty)
-    {
+    public PropertyBinder(Control sourceControl, AvaloniaProperty<TModel> sourceProperty, AvaloniaProperty<TModel> targetProperty) {
         this.SourceControl = sourceControl;
         this.SourceProperty = sourceProperty;
         this.TargetProperty = targetProperty;
     }
 
-    public void SetTargetControl(Control? control)
-    {
+    public void SetTargetControl(Control? control) {
         this.binder?.Dispose();
         this.TargetControl?.ClearValue(this.TargetProperty); // Is this necessary?
-        if ((this.TargetControl = control) != null)
-        {
-            this.binder = this.TargetControl.Bind(this.TargetProperty, new IndexerDescriptor()
-            {
+        if ((this.TargetControl = control) != null) {
+            this.binder = this.TargetControl.Bind(this.TargetProperty, new IndexerDescriptor() {
                 Property = this.SourceProperty, Mode = BindingMode.OneWay, Source = this.SourceControl
             });
         }

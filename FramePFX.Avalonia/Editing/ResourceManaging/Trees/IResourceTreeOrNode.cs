@@ -24,8 +24,7 @@ namespace FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 /// <summary>
 /// An interface for shared properties between a <see cref="ResourceTreeView"/> and <see cref="ResourceTreeViewItem"/>
 /// </summary>
-public interface IResourceTreeOrNode
-{
+public interface IResourceTreeOrNode {
     ResourceTreeView? ResourceTree { get; }
 
     ResourceTreeViewItem? ParentNode { get; }
@@ -48,13 +47,11 @@ public interface IResourceTreeOrNode
 /// <summary>
 /// A class used to assist in efficient moving of a resource control
 /// </summary>
-public class MovedResource
-{
+public class MovedResource {
     public readonly ResourceTreeViewItem Control;
     public readonly BaseResource Resource;
 
-    public MovedResource(ResourceTreeViewItem control, BaseResource resource)
-    {
+    public MovedResource(ResourceTreeViewItem control, BaseResource resource) {
         this.Control = control;
         this.Resource = resource;
     }

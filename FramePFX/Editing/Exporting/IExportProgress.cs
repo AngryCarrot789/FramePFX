@@ -30,8 +30,7 @@ namespace FramePFX.Editing.Exporting;
 /// <summary>
 /// An interface for the export progress
 /// </summary>
-public interface IExportProgress
-{
+public interface IExportProgress {
     bool HasEncodeProgress { get; set; }
 
     void OnFrameRendered(long frame);

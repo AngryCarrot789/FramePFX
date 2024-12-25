@@ -22,8 +22,7 @@ namespace FramePFX.Editing.ResourceManaging.UI;
 /// <summary>
 /// An interface for the resource manager area UI component
 /// </summary>
-public interface IResourceManagerElement
-{
+public interface IResourceManagerElement {
     /// <summary>
     /// Gets the resource manager object
     /// </summary>

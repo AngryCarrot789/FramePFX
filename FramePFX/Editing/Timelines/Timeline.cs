@@ -41,8 +41,7 @@ public delegate void TimelineEventHandler(Timeline timeline);
 
 public delegate void PlayHeadChangedEventHandler(Timeline timeline, long oldValue, long newValue);
 
-public class Timeline : ITransferableData, IServiceable, IDestroy
-{
+public class Timeline : ITransferableData, IServiceable, IDestroy {
     public static readonly ContextRegistry ContextRegistry = new ContextRegistry("Timeline");
 
     private FrameSpan? loopRegion;
@@ -66,22 +65,18 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
     /// <summary>
     /// Gets or sets the total length of all tracks, in frames. This is incremented on demand when necessary, and is used for UI calculations
     /// </summary>
-    public long MaxDuration
-    {
+    public long MaxDuration {
         get => this.maxDuration;
-        set
-        {
+        set {
             if (this.maxDuration == value)
                 return;
 
             if (value < 0)
                 throw new ArgumentOutOfRangeException(nameof(value), value, "Maximum duration cannot be negative");
 
-            if (this.loopRegion.HasValue)
-            {
+            if (this.loopRegion.HasValue) {
                 FrameSpan span = this.loopRegion.Value;
-                if (span.EndIndex > value)
-                {
+                if (span.EndIndex > value) {
                     // Recalculate a smaller loop region. Clear it if the new one doesn't fit anymore
                     span = span.WithEndIndexClamped(value);
                     this.LoopRegion = span.Duration < 1 ? null : span;
@@ -93,11 +88,9 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
         }
     }
 
-    public long StopHeadPosition
-    {
+    public long StopHeadPosition {
         get => this.stopHeadPosition;
-        set
-        {
+        set {
             if (this.stopHeadPosition == value)
                 return;
 
@@ -115,11 +108,9 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
     /// <summary>
     /// The position of the play head, in frames
     /// </summary>
-    public long PlayHeadPosition
-    {
+    public long PlayHeadPosition {
         get => this.playHeadPosition;
-        set
-        {
+        set {
             if (this.playHeadPosition == value)
                 return;
 
@@ -139,11 +130,9 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
     /// Gets the effective duration of this timeline. That is, the <see cref="FrameSpan.EndIndex"/> of the clip that is
     /// furthest towards the right side of the timeline. This value is typically always less than <see cref="MaxDuration"/>
     /// </summary>
-    public long LargestFrameInUse
-    {
+    public long LargestFrameInUse {
         get => this.largestFrameInUse;
-        private set
-        {
+        private set {
             if (this.largestFrameInUse == value)
                 return;
             this.largestFrameInUse = value;
@@ -158,19 +147,15 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
     /// <exception cref="ArgumentOutOfRangeException">
     /// Value's begin is negative or endIndex exceeds our <see cref="MaxDuration"/>
     /// </exception>
-    public FrameSpan? LoopRegion
-    {
+    public FrameSpan? LoopRegion {
         get => this.loopRegion;
-        set
-        {
+        set {
             if (this.loopRegion == value)
                 return;
 
-            if (value.HasValue)
-            {
+            if (value.HasValue) {
                 FrameSpan span = value.Value;
-                if (span.Begin < 0 || span.EndIndex > this.maxDuration)
-                {
+                if (span.Begin < 0 || span.EndIndex > this.maxDuration) {
                     throw new ArgumentOutOfRangeException(nameof(value), value, "Loop region exceeds timeline maximum duration");
                 }
             }
@@ -180,11 +165,9 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
         }
     }
 
-    public bool IsLoopRegionEnabled
-    {
+    public bool IsLoopRegionEnabled {
         get => this.isLoopRegionEnabled;
-        set
-        {
+        set {
             if (this.isLoopRegionEnabled == value)
                 return;
 
@@ -192,7 +175,7 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
             this.IsLoopRegionEnabledChanged?.Invoke(this);
         }
     }
-    
+
     public ServiceManager ServiceManager { get; }
 
     public event TimelineTrackIndexEventHandler? TrackAdded;
@@ -211,8 +194,7 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
     private long stopHeadPosition;
     private long largestFrameInUse;
 
-    public Timeline()
-    {
+    public Timeline() {
         this.TransferableData = new TransferableData(this);
         this.tracks = new List<Track>();
         this.Tracks = new ReadOnlyCollection<Track>(this.tracks);
@@ -221,8 +203,7 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
         this.RenderManager = new RenderManager(this);
     }
 
-    static Timeline()
-    {
+    static Timeline() {
         FixedContextGroup modGeneric = ContextRegistry.GetFixedGroup("modify.general");
         modGeneric.AddHeader("General");
         modGeneric.AddCommand("commands.editor.SelectAllClips", "Select All Clips", "Select all clips in the timeline");
@@ -233,10 +214,8 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
         modGenerate.AddCommand("commands.editor.NewVideoTrack", "New Video Track", "Creates a new video track");
     }
 
-    public void UpdateAutomation(long playHead, bool invalidateRender = true)
-    {
-        using (this.RenderManager.SuspendRenderInvalidation())
-        {
+    public void UpdateAutomation(long playHead, bool invalidateRender = true) {
+        using (this.RenderManager.SuspendRenderInvalidation()) {
             AutomationEngine.UpdateValues(this, playHead);
         }
 
@@ -244,14 +223,12 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
             this.InvalidateRender();
     }
 
-    public virtual void WriteToRBE(RBEDictionary data)
-    {
+    public virtual void WriteToRBE(RBEDictionary data) {
         data.SetLong(nameof(this.PlayHeadPosition), this.PlayHeadPosition);
         data.SetLong(nameof(this.StopHeadPosition), this.StopHeadPosition);
         data.SetLong(nameof(this.MaxDuration), this.MaxDuration);
         RBEList list = data.CreateList(nameof(this.Tracks));
-        foreach (Track track in this.tracks)
-        {
+        foreach (Track track in this.tracks) {
             if (!(track.FactoryId is string registryId))
                 throw new Exception("Unknown track type: " + track.GetType());
             RBEDictionary trackTag = list.AddDictionary();
@@ -260,18 +237,15 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
         }
     }
 
-    public virtual void ReadFromRBE(RBEDictionary data)
-    {
-        if (this.tracks.Count > 0)
-        {
+    public virtual void ReadFromRBE(RBEDictionary data) {
+        if (this.tracks.Count > 0) {
             throw new InvalidOperationException("Cannot read track RBE data while there are still tracks");
         }
 
         this.playHeadPosition = data.GetLong(nameof(this.PlayHeadPosition));
         this.stopHeadPosition = data.GetLong(nameof(this.StopHeadPosition));
         this.maxDuration = data.GetLong(nameof(this.MaxDuration));
-        foreach (RBEDictionary trackTag in data.GetList(nameof(this.Tracks)).Cast<RBEDictionary>())
-        {
+        foreach (RBEDictionary trackTag in data.GetList(nameof(this.Tracks)).Cast<RBEDictionary>()) {
             string registryId = trackTag.GetString(nameof(Track.FactoryId));
             Track track = TrackFactory.Instance.NewTrack(registryId);
             Track.SerialisationRegistry.Deserialise(track, trackTag.GetDictionary("Data"));
@@ -283,18 +257,15 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
         this.UpdateLargestFrame();
     }
 
-    public void LoadDataIntoClone(Timeline clone)
-    {
-        if (this.tracks.Count > 0)
-        {
+    public void LoadDataIntoClone(Timeline clone) {
+        if (this.tracks.Count > 0) {
             throw new InvalidOperationException("Cannot read track RBE data while there are still tracks");
         }
 
         clone.playHeadPosition = this.playHeadPosition;
         clone.stopHeadPosition = this.stopHeadPosition;
         clone.maxDuration = this.maxDuration;
-        foreach (Track track in this.tracks)
-        {
+        foreach (Track track in this.tracks) {
             clone.AddTrack(track.Clone());
         }
 
@@ -303,35 +274,29 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
         clone.UpdateLargestFrame();
     }
 
-    public void UpdateLargestFrame()
-    {
+    public void UpdateLargestFrame() {
         IReadOnlyList<Track> list = this.Tracks;
         int count = list.Count;
-        if (count > 0)
-        {
+        if (count > 0) {
             long max = list[0].LargestFrameInUse;
-            for (int i = 1; i < count; i++)
-            {
+            for (int i = 1; i < count; i++) {
                 max = Math.Max(max, list[i].LargestFrameInUse);
             }
 
             this.LargestFrameInUse = max;
         }
-        else
-        {
+        else {
             this.LargestFrameInUse = 0;
         }
 
-        if (this.largestFrameInUse > this.maxDuration)
-        {
+        if (this.largestFrameInUse > this.maxDuration) {
             this.MaxDuration = this.largestFrameInUse + 100;
         }
     }
 
     public void AddTrack(Track track) => this.InsertTrack(this.tracks.Count, track);
 
-    public void InsertTrack(int index, Track track)
-    {
+    public void InsertTrack(int index, Track track) {
         if (track == null)
             throw new ArgumentNullException(nameof(track), "Cannot add a null track");
         if (track.Timeline == this)
@@ -344,10 +309,8 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
 
         // update anchor
         TrackPoint anchor = this.RangedSelectionAnchor;
-        if (anchor.TrackIndex != -1)
-        {
-            if (index <= anchor.TrackIndex)
-            {
+        if (anchor.TrackIndex != -1) {
+            if (index <= anchor.TrackIndex) {
                 this.RangedSelectionAnchor = new TrackPoint(anchor.Frame, anchor.TrackIndex + 1);
             }
         }
@@ -359,8 +322,7 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
         this.InvalidateRender();
     }
 
-    public bool RemoveTrack(Track track)
-    {
+    public bool RemoveTrack(Track track) {
         int index = track.IndexInTimeline;
         if (index == -1)
             return false;
@@ -370,21 +332,17 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
         return true;
     }
 
-    public void RemoveTrackAt(int index)
-    {
+    public void RemoveTrackAt(int index) {
         Track track = this.tracks[index];
         this.tracks.RemoveAt(index);
 
         // update anchor
         TrackPoint anchor = this.RangedSelectionAnchor;
-        if (anchor.TrackIndex != -1)
-        {
-            if (this.tracks.Count == 0)
-            {
+        if (anchor.TrackIndex != -1) {
+            if (this.tracks.Count == 0) {
                 this.RangedSelectionAnchor = TrackPoint.Invalid;
             }
-            else if (index <= anchor.TrackIndex)
-            {
+            else if (index <= anchor.TrackIndex) {
                 this.RangedSelectionAnchor = new TrackPoint(anchor.Frame, anchor.TrackIndex - 1);
             }
         }
@@ -396,17 +354,14 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
         this.InvalidateRender();
     }
 
-    public void MoveTrackIndex(int oldIndex, int newIndex)
-    {
-        if (oldIndex != newIndex)
-        {
+    public void MoveTrackIndex(int oldIndex, int newIndex) {
+        if (oldIndex != newIndex) {
             this.tracks.MoveItem(oldIndex, newIndex);
             this.UpdateIndexForTrackMove(oldIndex, newIndex);
 
             // update anchor
             TrackPoint anchor = this.RangedSelectionAnchor;
-            if (anchor.TrackIndex != -1 && anchor.TrackIndex == oldIndex)
-            {
+            if (anchor.TrackIndex != -1 && anchor.TrackIndex == oldIndex) {
                 this.RangedSelectionAnchor = new TrackPoint(anchor.Frame, newIndex);
             }
 
@@ -415,15 +370,12 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
         }
     }
 
-    public virtual void Destroy()
-    {
+    public virtual void Destroy() {
         // TODO: this is no good
         while (this.RenderManager.IsRendering)
             Thread.Sleep(1);
-        using (this.RenderManager.SuspendRenderInvalidation())
-        {
-            for (int i = this.tracks.Count - 1; i >= 0; i--)
-            {
+        using (this.RenderManager.SuspendRenderInvalidation()) {
+            for (int i = this.tracks.Count - 1; i >= 0; i--) {
                 Track track = this.tracks[i];
                 this.RemoveTrackAt(i);
                 track.Destroy();
@@ -433,25 +385,20 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
         this.RenderManager.Dispose();
     }
 
-    private void UpdateIndexForInsertionOrRemoval(int index)
-    {
+    private void UpdateIndexForInsertionOrRemoval(int index) {
         List<Track> list = this.tracks;
-        for (int i = list.Count - 1; i >= index; i--)
-        {
+        for (int i = list.Count - 1; i >= index; i--) {
             Track.InternalSetPrecomputedTrackIndex(list[i], i);
         }
     }
 
-    private void UpdateIndexForTrackMove(int oldIndex, int newIndex)
-    {
+    private void UpdateIndexForTrackMove(int oldIndex, int newIndex) {
         int min, max;
-        if (newIndex < oldIndex)
-        {
+        if (newIndex < oldIndex) {
             min = newIndex;
             max = oldIndex;
         }
-        else
-        {
+        else {
             min = oldIndex;
             max = newIndex;
         }
@@ -462,28 +409,23 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
 
     public void InvalidateRender() => this.RenderManager.InvalidateRender();
 
-    public void DeleteTrack(Track track)
-    {
+    public void DeleteTrack(Track track) {
         track.Destroy();
         this.RemoveTrack(track);
     }
 
-    public void DeleteTrackAt(int index)
-    {
+    public void DeleteTrackAt(int index) {
         this.tracks[index].Destroy();
         this.RemoveTrackAt(index);
     }
 
-    public void TryExpandForFrame(long frame)
-    {
-        if (frame >= this.maxDuration)
-        {
+    public void TryExpandForFrame(long frame) {
+        if (frame >= this.maxDuration) {
             this.MaxDuration = frame + 1000;
         }
     }
 
-    internal static void InternalSetMainTimelineProjectReference(Timeline timeline, Project project)
-    {
+    internal static void InternalSetMainTimelineProjectReference(Timeline timeline, Project project) {
         // no need to tell clips or tracks that our project changed, since there is guaranteed
         // to be none, unless this method is called outside of the project's constructor which it
         // shouldn't have been anyway
@@ -492,60 +434,47 @@ public class Timeline : ITransferableData, IServiceable, IDestroy
         RenderManager.InternalOnTimelineProjectChanged(timeline.RenderManager, null, project);
     }
 
-    internal static void InternalSetCompositionTimelineProjectReference(Timeline timeline, Project? project)
-    {
+    internal static void InternalSetCompositionTimelineProjectReference(Timeline timeline, Project? project) {
         Project? oldProject = timeline.Project;
-        if (ReferenceEquals(oldProject, project))
-        {
+        if (ReferenceEquals(oldProject, project)) {
             throw new InvalidOperationException("Cannot set same project instance");
         }
 
         timeline.Project = project;
-        foreach (Track track in timeline.tracks)
-        {
+        foreach (Track track in timeline.tracks) {
             Track.InternalOnTimelineProjectChanged(track, oldProject, project);
         }
 
-        if (project != null)
-        {
+        if (project != null) {
             InternalLoadResources(timeline, project.ResourceManager);
         }
-        else
-        {
+        else {
             InternalUnloadResources(timeline);
         }
 
         RenderManager.InternalOnTimelineProjectChanged(timeline.RenderManager, oldProject, project);
     }
 
-    public static void InternalOnActiveTimelineChanged(Timeline oldTimeline, Timeline newTimeline)
-    {
+    public static void InternalOnActiveTimelineChanged(Timeline oldTimeline, Timeline newTimeline) {
         oldTimeline.IsActive = false;
         newTimeline.IsActive = true;
     }
 
-    public int IndexOf(Track track)
-    {
+    public int IndexOf(Track track) {
         return track.Timeline == this ? track.IndexInTimeline : -1;
     }
 
-    public static void InternalLoadResources(Timeline timeline, ResourceManager manager)
-    {
-        foreach (Track track in timeline.tracks)
-        {
-            foreach (Clip clip in track.Clips)
-            {
+    public static void InternalLoadResources(Timeline timeline, ResourceManager manager) {
+        foreach (Track track in timeline.tracks) {
+            foreach (Clip clip in track.Clips) {
                 clip.ResourceHelper.OnResourceManagerLoaded(manager);
             }
         }
     }
-    
-    public static void InternalUnloadResources(Timeline timeline)
-    {
-        foreach (Track track in timeline.tracks)
-        {
-            foreach (Clip clip in track.Clips)
-            {
+
+    public static void InternalUnloadResources(Timeline timeline) {
+        foreach (Track track in timeline.tracks) {
+            foreach (Clip clip in track.Clips) {
                 clip.ResourceHelper.OnResourceManagerUnloaded();
             }
         }

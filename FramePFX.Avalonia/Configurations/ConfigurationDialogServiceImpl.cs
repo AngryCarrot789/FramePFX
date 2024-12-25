@@ -23,13 +23,11 @@ using FramePFX.Configurations;
 
 namespace FramePFX.Avalonia.Configurations;
 
-public class ConfigurationDialogServiceImpl : IConfigurationDialogService
-{
-    public Task ShowConfigurationDialog(ConfigurationManager configurationManager)
-    {
+public class ConfigurationDialogServiceImpl : IConfigurationDialogService {
+    public Task ShowConfigurationDialog(ConfigurationManager configurationManager) {
         if (!ApplicationImpl.TryGetActiveWindow(out Window? window))
             return Task.CompletedTask;
-        
+
         ConfigurationDialog dialog = new ConfigurationDialog(configurationManager);
         return dialog.ShowDialog(window);
     }

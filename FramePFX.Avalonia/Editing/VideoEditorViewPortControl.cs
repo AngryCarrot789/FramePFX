@@ -48,34 +48,29 @@ using MatrixUtils = FramePFX.Editing.MatrixUtils;
 
 namespace FramePFX.Avalonia.Editing;
 
-public class VideoEditorViewPortControl : TemplatedControl
-{
+public class VideoEditorViewPortControl : TemplatedControl {
     public static readonly StyledProperty<VideoEditor?> VideoEditorProperty = AvaloniaProperty.Register<VideoEditorViewPortControl, VideoEditor?>(nameof(VideoEditor));
     public static readonly StyledProperty<bool> DrawSelectedElementsProperty = AvaloniaProperty.Register<VideoEditorViewPortControl, bool>(nameof(DrawSelectedElements));
     public static readonly StyledProperty<bool> PanToCursorOnUserZoomProperty = FreeMoveViewPortV2.PanToCursorOnUserZoomProperty.AddOwner<VideoEditorViewPortControl>();
 
-    public VideoEditor? VideoEditor
-    {
+    public VideoEditor? VideoEditor {
         get => this.GetValue(VideoEditorProperty);
         set => this.SetValue(VideoEditorProperty, value);
     }
 
-    public bool DrawSelectedElements
-    {
+    public bool DrawSelectedElements {
         get => this.GetValue(DrawSelectedElementsProperty);
         set => this.SetValue(DrawSelectedElementsProperty, value);
     }
 
-    public bool PanToCursorOnUserZoom
-    {
+    public bool PanToCursorOnUserZoom {
         get => this.GetValue(PanToCursorOnUserZoomProperty);
         set => this.SetValue(PanToCursorOnUserZoomProperty, value);
     }
 
     public static readonly StyledProperty<bool> UseTransparentCheckerBoardBackgroundProperty = AvaloniaProperty.Register<VideoEditorViewPortControl, bool>(nameof(UseTransparentCheckerBoardBackground), true);
 
-    public bool UseTransparentCheckerBoardBackground
-    {
+    public bool UseTransparentCheckerBoardBackground {
         get => this.GetValue(UseTransparentCheckerBoardBackgroundProperty);
         set => this.SetValue(UseTransparentCheckerBoardBackgroundProperty, value);
     }
@@ -96,18 +91,14 @@ public class VideoEditorViewPortControl : TemplatedControl
     private bool isProcessingAsyncDrop;
     private ImmutablePen? selectionPen;
 
-    public VideoEditorViewPortControl()
-    {
-        this.updateDashStyleOffsetTimer = new DispatcherTimer(TimeSpan.FromSeconds(0.1d), DispatcherPriority.Background, (sender, args) =>
-        {
-            if (this.dashStyle1 == null || this.dashStyle2 == null)
-            {
+    public VideoEditorViewPortControl() {
+        this.updateDashStyleOffsetTimer = new DispatcherTimer(TimeSpan.FromSeconds(0.1d), DispatcherPriority.Background, (sender, args) => {
+            if (this.dashStyle1 == null || this.dashStyle2 == null) {
                 return;
             }
 
             ITimelineElement? timeline = this.Owner?.TheTimeline;
-            if (timeline != null && this.DrawSelectedElements && timeline.ClipSelection.Count > 0)
-            {
+            if (timeline != null && this.DrawSelectedElements && timeline.ClipSelection.Count > 0) {
                 this.dashStyle1.Offset = (this.dashStyle1.Offset + 1) % DashStrokeSize;
                 this.dashStyle2.Offset = (this.dashStyle2.Offset + 1) % DashStrokeSize;
 
@@ -118,8 +109,7 @@ public class VideoEditorViewPortControl : TemplatedControl
         });
     }
 
-    static VideoEditorViewPortControl()
-    {
+    static VideoEditorViewPortControl() {
         AffectsRender<Image>(VideoEditorProperty);
         AffectsMeasure<Image>(VideoEditorProperty);
         VideoEditorProperty.Changed.AddClassHandler<VideoEditorViewPortControl, VideoEditor?>((d, e) => d.OnVideoEditorChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
@@ -129,15 +119,11 @@ public class VideoEditorViewPortControl : TemplatedControl
     private VideoClip? targetClip;
     private Vector2 originalPos;
 
-    private bool GetSelectedVisibleClip([NotNullWhen(true)] out VideoClip? videoClip, [NotNullWhen(true)] out ITimelineElement? timeline, bool canBeInvisible = true)
-    {
-        if ((timeline = this.Owner.TheTimeline) != null && (timeline.Timeline != null) && timeline.ClipSelection.Count == 1)
-        {
+    private bool GetSelectedVisibleClip([NotNullWhen(true)] out VideoClip? videoClip, [NotNullWhen(true)] out ITimelineElement? timeline, bool canBeInvisible = true) {
+        if ((timeline = this.Owner.TheTimeline) != null && (timeline.Timeline != null) && timeline.ClipSelection.Count == 1) {
             IClipElement firstItem = timeline.ClipSelection.SelectedItems.First();
-            if (firstItem.Clip is VideoClip clip && clip.IsTimelineFrameInRange(timeline.Timeline!.PlayHeadPosition))
-            {
-                if (canBeInvisible || clip.IsEffectivelyVisible)
-                {
+            if (firstItem.Clip is VideoClip clip && clip.IsTimelineFrameInRange(timeline.Timeline!.PlayHeadPosition)) {
+                if (canBeInvisible || clip.IsEffectivelyVisible) {
                     videoClip = clip;
                     return true;
                 }
@@ -148,18 +134,15 @@ public class VideoEditorViewPortControl : TemplatedControl
         return false;
     }
 
-    protected override void OnPointerPressed(PointerPressedEventArgs e)
-    {
+    protected override void OnPointerPressed(PointerPressedEventArgs e) {
         base.OnPointerPressed(e);
 
         PointerPoint point = e.GetCurrentPoint(this.PART_SkiaViewPort);
-        if (e.KeyModifiers != KeyModifiers.None || point.Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonPressed)
-        {
+        if (e.KeyModifiers != KeyModifiers.None || point.Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonPressed) {
             return;
         }
 
-        if (!this.GetSelectedVisibleClip(out VideoClip? clip, out ITimelineElement? timeline))
-        {
+        if (!this.GetSelectedVisibleClip(out VideoClip? clip, out ITimelineElement? timeline)) {
             return;
         }
 
@@ -172,11 +155,9 @@ public class VideoEditorViewPortControl : TemplatedControl
         this.originalPos = VideoClip.MediaPositionParameter.GetCurrentValue(clip) - new Vector2((float) pos.X, (float) pos.Y);
     }
 
-    protected override void OnPointerMoved(PointerEventArgs e)
-    {
+    protected override void OnPointerMoved(PointerEventArgs e) {
         base.OnPointerMoved(e);
-        if (this.targetClip == null)
-        {
+        if (this.targetClip == null) {
             return;
         }
 
@@ -190,46 +171,38 @@ public class VideoEditorViewPortControl : TemplatedControl
         e.Handled = true;
     }
 
-    protected override void OnPointerReleased(PointerReleasedEventArgs e)
-    {
+    protected override void OnPointerReleased(PointerReleasedEventArgs e) {
         base.OnPointerReleased(e);
         this.targetClip = null;
         if (ReferenceEquals(e.Pointer.Captured, this))
             e.Pointer.Capture(null);
     }
 
-    private void OnVideoEditorChanged(VideoEditor? oldEditor, VideoEditor? newEditor)
-    {
-        if (oldEditor != null)
-        {
+    private void OnVideoEditorChanged(VideoEditor? oldEditor, VideoEditor? newEditor) {
+        if (oldEditor != null) {
             oldEditor.ProjectChanged -= this.OnProjectChanged;
         }
 
-        if (newEditor != null)
-        {
+        if (newEditor != null) {
             newEditor.ProjectChanged += this.OnProjectChanged;
             this.SetProject(newEditor.Project);
         }
     }
 
-    private void OnProjectChanged(VideoEditor editor, Project? oldProject, Project? newProject)
-    {
+    private void OnProjectChanged(VideoEditor editor, Project? oldProject, Project? newProject) {
         this.SetProject(newProject);
     }
 
-    private void SetProject(Project? project)
-    {
+    private void SetProject(Project? project) {
         Project? oldProject = this.activeProject;
-        if (oldProject != null)
-        {
+        if (oldProject != null) {
             oldProject.Settings.ResolutionChanged -= this.UpdateResolution;
             oldProject.ActiveTimelineChanged -= this.OnProjectActiveTimelineChanged;
             this.UpdateTimelineChanged(oldProject.ActiveTimeline, null);
         }
 
         this.activeProject = project;
-        if (project != null)
-        {
+        if (project != null) {
             project.Settings.ResolutionChanged += this.UpdateResolution;
             project.ActiveTimelineChanged += this.OnProjectActiveTimelineChanged;
             this.UpdateTimelineChanged(null, project.ActiveTimeline);
@@ -237,40 +210,32 @@ public class VideoEditorViewPortControl : TemplatedControl
         }
     }
 
-    private void OnProjectActiveTimelineChanged(Project project, Timeline? oldTimeline, Timeline? newTimeline)
-    {
+    private void OnProjectActiveTimelineChanged(Project project, Timeline? oldTimeline, Timeline? newTimeline) {
         this.UpdateTimelineChanged(oldTimeline, newTimeline);
     }
 
-    private void UpdateTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline)
-    {
-        if (oldTimeline != null)
-        {
+    private void UpdateTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline) {
+        if (oldTimeline != null) {
             oldTimeline.RenderManager.FrameRendered -= this.OnFrameAvailable;
         }
 
-        if (newTimeline != null)
-        {
+        if (newTimeline != null) {
             newTimeline.RenderManager.FrameRendered += this.OnFrameAvailable;
         }
     }
 
-    private void UpdateResolution(ProjectSettings settings)
-    {
+    private void UpdateResolution(ProjectSettings settings) {
         this.PART_SkiaViewPort!.Width = settings.Width;
         this.PART_SkiaViewPort!.Height = settings.Height;
     }
 
-    private void OnFrameAvailable(RenderManager manager)
-    {
-        if (this.PART_SkiaViewPort!.BeginRenderWithSurface(manager.ImageInfo))
-        {
+    private void OnFrameAvailable(RenderManager manager) {
+        if (this.PART_SkiaViewPort!.BeginRenderWithSurface(manager.ImageInfo)) {
             this.PART_SkiaViewPort!.EndRenderWithSurface(manager.surface);
         }
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         e.NameScope.GetTemplateChild("PART_FreeMoveViewPort", out this.PART_FreeMoveViewPort);
         e.NameScope.GetTemplateChild("PART_SkiaViewPort", out this.PART_SkiaViewPort);
@@ -284,14 +249,12 @@ public class VideoEditorViewPortControl : TemplatedControl
         this.PART_FreeMoveViewPort.Setup(this.PART_CanvasContainer, this.PART_SkiaViewPort);
     }
 
-    protected override void OnLoaded(RoutedEventArgs e)
-    {
+    protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
         this.InvalidateVisual();
     }
 
-    private DrawingContext.PushedState PushInverseScale(DrawingContext ctx, out double realScale)
-    {
+    private DrawingContext.PushedState PushInverseScale(DrawingContext ctx, out double realScale) {
         // The ctx is relative to the fully translated and scaled view port.
         // This means that any drawing into it is scaled according to the zoom,
         // so we need to inverse it to get back to screen pixels.
@@ -302,23 +265,19 @@ public class VideoEditorViewPortControl : TemplatedControl
         return ctx.PushTransform(Matrix.CreateScale(inverseScale, inverseScale));
     }
 
-    private void OnUseTransparentCheckerBoardBackgroundChanged()
-    {
+    private void OnUseTransparentCheckerBoardBackgroundChanged() {
         this.PART_SkiaViewPort?.InvalidateVisual();
     }
 
-    private void OnPreRenderViewPort(SKAsyncViewPort sender, DrawingContext ctx, Size size, Point minatureOffset)
-    {
+    private void OnPreRenderViewPort(SKAsyncViewPort sender, DrawingContext ctx, Size size, Point minatureOffset) {
         // Not sure how render-intensive DrawingBrush is, especially with GeometryDrawing
         // But since it's not drawing actual Visuals, just geometry, it should be lightning fast.
-        using (this.PushInverseScale(ctx, out double scale))
-        {
+        using (this.PushInverseScale(ctx, out double scale)) {
             ctx.DrawRectangle(this.UseTransparentCheckerBoardBackground ? TiledBrush.TiledTransparencyBrush8 : Brushes.Black, null, new Rect(default, size * scale));
         }
     }
 
-    private void OnPostRenderViewPort(SKAsyncViewPort sender, DrawingContext ctx, Size size, Point minatureOffset)
-    {
+    private void OnPostRenderViewPort(SKAsyncViewPort sender, DrawingContext ctx, Size size, Point minatureOffset) {
         /*
             // potentially faster than scanning SelectedClips due to track clip chunking
             IEnumerable<Clip> clips = track.GetClipsAtFrame(timeline.PlayHeadPosition).Where(x => x.IsSelected);
@@ -330,24 +289,21 @@ public class VideoEditorViewPortControl : TemplatedControl
             }
          */
 
-        if (!this.GetSelectedVisibleClip(out VideoClip? clip, out ITimelineElement? timeline) || !(clip.GetRenderSize() is Vector2 frameSize))
-        {
+        if (!this.GetSelectedVisibleClip(out VideoClip? clip, out ITimelineElement? timeline) || !(clip.GetRenderSize() is Vector2 frameSize)) {
             return;
         }
-        
+
         using DrawingContext.PushedState state = this.PushInverseScale(ctx, out double scale);
 
         SKSize sz = new SKSize(frameSize.X, frameSize.Y);
-        if (DoubleUtils.AreClose(sz.Width, 0.0) || DoubleUtils.AreClose(sz.Height, 0.0))
-        {
+        if (DoubleUtils.AreClose(sz.Width, 0.0) || DoubleUtils.AreClose(sz.Height, 0.0)) {
             return;
         }
 
         static SKPoint Vec2Pt(Vector2 v) => new SKPoint(v.X, v.Y);
 
         // Map points from 'local' layer space to 'world' canvas space 
-        SKPoint[]? pts = clip.AbsoluteTransformationMatrix.MapPoints(new SKPoint[]
-        {
+        SKPoint[]? pts = clip.AbsoluteTransformationMatrix.MapPoints(new SKPoint[] {
             default,
             new SKPoint(sz.Width, 0),
             new SKPoint(sz.Width, sz.Height),
@@ -361,8 +317,7 @@ public class VideoEditorViewPortControl : TemplatedControl
         // Func<double, double> func = clip is RasterLayer && RasterLayer.IsAntiAliasedParameter.GetValue(clip) ? Math.Floor : Math.Round;
         Func<double, double> func = Math.Round;
 
-        Geometry selRectGeometry = new PolylineGeometry(new List<Point>()
-        {
+        Geometry selRectGeometry = new PolylineGeometry(new List<Point>() {
             new Point(func(pts[0].X) * scale, func(pts[0].Y) * scale),
             new Point(func(pts[1].X) * scale, func(pts[1].Y) * scale),
             new Point(func(pts[2].X) * scale, func(pts[2].Y) * scale),
@@ -405,8 +360,7 @@ public class VideoEditorViewPortControl : TemplatedControl
         ctx.DrawEllipse(Brushes.SlateBlue, this.selectionPen ??= new ImmutablePen(Brushes.BlueViolet, 2.0), cC, diaInn, diaInn);
     }
 
-    public void OnClipSelectionChanged()
-    {
+    public void OnClipSelectionChanged() {
         this.PART_SkiaViewPort?.InvalidateVisual();
     }
 }

@@ -26,15 +26,13 @@ using FramePFX.Configurations.Shortcuts.Models;
 
 namespace FramePFX.Avalonia.Shortcuts.Trees;
 
-public class ShortcutTreeView : TreeView, IShortcutTreeOrNode
-{
+public class ShortcutTreeView : TreeView, IShortcutTreeOrNode {
     public static readonly StyledProperty<ShortcutGroupEntry?> RootEntryProperty = AvaloniaProperty.Register<ShortcutTreeView, ShortcutGroupEntry?>(nameof(RootEntry));
 
     /// <summary>
     /// Gets or sets our root configuration entry. Setting this will clear and reload all the child nodes
     /// </summary>
-    public ShortcutGroupEntry? RootEntry
-    {
+    public ShortcutGroupEntry? RootEntry {
         get => this.GetValue(RootEntryProperty);
         set => this.SetValue(RootEntryProperty, value);
     }
@@ -50,27 +48,22 @@ public class ShortcutTreeView : TreeView, IShortcutTreeOrNode
 
     BaseShortcutEntry IShortcutTreeOrNode.Entry => this.RootEntry ?? throw new InvalidOperationException("Invalid usage of the interface");
 
-    public ShortcutTreeView()
-    {
+    public ShortcutTreeView() {
         this.itemCache = new Stack<ShortcutTreeViewItem>();
         this.Focusable = true;
     }
 
-    static ShortcutTreeView()
-    {
+    static ShortcutTreeView() {
         RootEntryProperty.Changed.AddClassHandler<ShortcutTreeView, ShortcutGroupEntry?>((d, e) => d.OnRootEntryChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }
 
-    private void OnRootEntryChanged(ShortcutGroupEntry? oldEntry, ShortcutGroupEntry? newEntry)
-    {
-        if (oldEntry != null)
-        {
+    private void OnRootEntryChanged(ShortcutGroupEntry? oldEntry, ShortcutGroupEntry? newEntry) {
+        if (oldEntry != null) {
             for (int i = this.Items.Count - 1; i >= 0; i--)
                 this.RemoveNode(i);
         }
 
-        if (newEntry != null)
-        {
+        if (newEntry != null) {
             int i = 0;
             foreach (BaseShortcutEntry resource in newEntry.Items)
                 this.InsertNode(resource, i++);
@@ -81,8 +74,7 @@ public class ShortcutTreeView : TreeView, IShortcutTreeOrNode
 
     public void InsertNode(BaseShortcutEntry item, int index) => this.InsertNode(this.GetCachedItemOrNew(), item, index);
 
-    public void InsertNode(ShortcutTreeViewItem control, BaseShortcutEntry layer, int index)
-    {
+    public void InsertNode(ShortcutTreeViewItem control, BaseShortcutEntry layer, int index) {
         control.OnAdding(this, null, layer);
         this.Items.Insert(index, control);
         this.AddResourceMapping(control, layer);
@@ -91,8 +83,7 @@ public class ShortcutTreeView : TreeView, IShortcutTreeOrNode
         control.OnAdded();
     }
 
-    public void RemoveNode(int index, bool canCache = true)
-    {
+    public void RemoveNode(int index, bool canCache = true) {
         ShortcutTreeViewItem control = (ShortcutTreeViewItem) this.Items[index]!;
         BaseShortcutEntry model = control.Entry ?? throw new Exception("Expected node to have a resource");
         control.OnRemoving();
@@ -107,21 +98,17 @@ public class ShortcutTreeView : TreeView, IShortcutTreeOrNode
 
     public void RemoveResourceMapping(ShortcutTreeViewItem control, BaseShortcutEntry layer) => this.itemMap.RemoveMapping(layer, control);
 
-    public ShortcutTreeViewItem GetCachedItemOrNew()
-    {
+    public ShortcutTreeViewItem GetCachedItemOrNew() {
         return this.itemCache.Count > 0 ? this.itemCache.Pop() : new ShortcutTreeViewItem();
     }
 
-    public void PushCachedItem(ShortcutTreeViewItem item)
-    {
-        if (this.itemCache.Count < 128)
-        {
+    public void PushCachedItem(ShortcutTreeViewItem item) {
+        if (this.itemCache.Count < 128) {
             this.itemCache.Push(item);
         }
     }
 
-    public void SetSelection(ShortcutTreeViewItem item)
-    {
+    public void SetSelection(ShortcutTreeViewItem item) {
         this.SelectedItem = item;
     }
 }

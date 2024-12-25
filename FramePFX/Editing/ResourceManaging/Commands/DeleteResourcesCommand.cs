@@ -25,10 +25,8 @@ using FramePFX.Services.Messaging;
 
 namespace FramePFX.Editing.ResourceManaging.Commands;
 
-public class DeleteResourcesCommand : AsyncCommand
-{
-    protected override Executability CanExecuteOverride(CommandEventArgs e)
-    {
+public class DeleteResourcesCommand : AsyncCommand {
+    protected override Executability CanExecuteOverride(CommandEventArgs e) {
         if (DataKeys.ResourceTreeUIKey.IsPresent(e.ContextData))
             return Executability.Valid;
         if (DataKeys.ResourceListUIKey.IsPresent(e.ContextData))
@@ -36,25 +34,20 @@ public class DeleteResourcesCommand : AsyncCommand
         return Executability.Invalid;
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e)
-    {
+    protected override async Task ExecuteAsync(CommandEventArgs e) {
         List<BaseResource> selection;
-        if (DataKeys.ResourceTreeUIKey.TryGetContext(e.ContextData, out IResourceTreeElement? tree))
-        {
+        if (DataKeys.ResourceTreeUIKey.TryGetContext(e.ContextData, out IResourceTreeElement? tree)) {
             selection = tree.Selection.SelectedItems.ToList();
         }
-        else if (DataKeys.ResourceListUIKey.TryGetContext(e.ContextData, out IResourceListElement? list))
-        {
+        else if (DataKeys.ResourceListUIKey.TryGetContext(e.ContextData, out IResourceListElement? list)) {
             selection = list.Selection.SelectedItems.ToList();
         }
-        else
-        {
+        else {
             await IMessageDialogService.Instance.ShowMessage("Error", "Hmm... could not find any context to delete resources");
             return;
         }
 
-        if (selection.Count < 1)
-        {
+        if (selection.Count < 1) {
             return;
         }
 
@@ -69,20 +62,17 @@ public class DeleteResourcesCommand : AsyncCommand
                      + $"   - {items} item{(items == 1 ? "" : "s")}\n"
                      + $"   - {itemReferences} reference{(itemReferences == 1 ? "" : "s")}, probably {(itemReferences == 1 ? "a clip" : "clips")}";
 
-        MessageBoxInfo info = new MessageBoxInfo("Delete resources", $"Are you sure you want to delete {(grandTotal == 1 ? "this 1 item" : $"these {grandTotal} items")}?", msg)
-        {
+        MessageBoxInfo info = new MessageBoxInfo("Delete resources", $"Are you sure you want to delete {(grandTotal == 1 ? "this 1 item" : $"these {grandTotal} items")}?", msg) {
             Buttons = MessageBoxButton.OKCancel,
             DefaultButton = MessageBoxResult.OK,
             YesOkText = "Delete"
         };
 
-        if (await IMessageDialogService.Instance.ShowMessage(info) != MessageBoxResult.OK)
-        {
+        if (await IMessageDialogService.Instance.ShowMessage(info) != MessageBoxResult.OK) {
             return;
         }
 
-        foreach (BaseResource item in selection)
-        {
+        foreach (BaseResource item in selection) {
             // Since the tree's selected items will be unordered (hash set), we might end up removing
             // a folder containing some selected items, so parent will be null since it deletes the hierarchy
             if (item.Parent == null)
@@ -95,21 +85,17 @@ public class DeleteResourcesCommand : AsyncCommand
     }
 
 
-    public static HashSet<ResourceFolder> FindHighestLevelFolders(List<BaseResource> resources)
-    {
+    public static HashSet<ResourceFolder> FindHighestLevelFolders(List<BaseResource> resources) {
         Dictionary<ResourceFolder, List<BaseResource>> map = resources.GroupBy(r => r.Parent!).ToDictionary(g => g.Key, g => g.ToList());
 
         HashSet<ResourceFolder> foldersToRemove = new HashSet<ResourceFolder>();
-        foreach (ResourceFolder folder in map.Keys)
-        {
+        foreach (ResourceFolder folder in map.Keys) {
             ResourceFolder? current = folder;
             bool isCovered = false;
 
             // Traverse up the folder hierarchy to see if an ancestor is already marked for removal
-            while (current != null)
-            {
-                if (foldersToRemove.Contains(current))
-                {
+            while (current != null) {
+                if (foldersToRemove.Contains(current)) {
                     isCovered = true;
                     break;
                 }
@@ -117,8 +103,7 @@ public class DeleteResourcesCommand : AsyncCommand
                 current = current.Parent;
             }
 
-            if (!isCovered)
-            {
+            if (!isCovered) {
                 foldersToRemove.Add(folder);
             }
         }

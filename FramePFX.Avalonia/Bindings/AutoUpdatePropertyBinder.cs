@@ -32,16 +32,14 @@ namespace FramePFX.Avalonia.Bindings;
 /// </para>
 /// </summary>
 /// <typeparam name="TModel">The type of model</typeparam>
-public class AutoUpdatePropertyBinder<TModel> : BaseAutoUpdatePropertyBinder<TModel> where TModel : class
-{
+public class AutoUpdatePropertyBinder<TModel> : BaseAutoUpdatePropertyBinder<TModel> where TModel : class {
     public event Action<IBinder<TModel>>? DoUpdateControl;
     public event Action<IBinder<TModel>>? DoUpdateModel;
 
     public AutoUpdatePropertyBinder(Action<IBinder<TModel>>? updateControl, Action<IBinder<TModel>>? updateModel) : this(null, updateControl, updateModel) {
     }
 
-    public AutoUpdatePropertyBinder(AvaloniaProperty? property, Action<IBinder<TModel>>? updateControl, Action<IBinder<TModel>>? updateModel) : base(property)
-    {
+    public AutoUpdatePropertyBinder(AvaloniaProperty? property, Action<IBinder<TModel>>? updateControl, Action<IBinder<TModel>>? updateModel) : base(property) {
         this.DoUpdateControl = updateControl;
         this.DoUpdateModel = updateModel;
     }

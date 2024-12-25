@@ -22,42 +22,35 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editing.Commands;
 
-public abstract class BasicPlayActionCommand : Command
-{
+public abstract class BasicPlayActionCommand : Command {
     public abstract PlayState TargetState { get; }
 
-    public override Executability CanExecute(CommandEventArgs e)
-    {
+    public override Executability CanExecute(CommandEventArgs e) {
         if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? editor))
             return Executability.Invalid;
         return editor.Playback.CanSetPlayStateTo(this.TargetState) ? Executability.Valid : Executability.ValidButCannotExecute;
     }
 
-    protected override void Execute(CommandEventArgs e)
-    {
+    protected override void Execute(CommandEventArgs e) {
         if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? editor) || !editor.Playback.CanSetPlayStateTo(this.TargetState))
             return;
-        switch (this.TargetState)
-        {
-            case PlayState.Play: editor.Playback.Play(); break;
+        switch (this.TargetState) {
+            case PlayState.Play:  editor.Playback.Play(); break;
             case PlayState.Pause: editor.Playback.Pause(); break;
-            case PlayState.Stop: editor.Playback.Stop(); break;
-            default: throw new ArgumentOutOfRangeException();
+            case PlayState.Stop:  editor.Playback.Stop(); break;
+            default:              throw new ArgumentOutOfRangeException();
         }
     }
 }
 
-public class PlayCommand : BasicPlayActionCommand
-{
+public class PlayCommand : BasicPlayActionCommand {
     public override PlayState TargetState => PlayState.Play;
 }
 
-public class PauseCommand : BasicPlayActionCommand
-{
+public class PauseCommand : BasicPlayActionCommand {
     public override PlayState TargetState => PlayState.Pause;
 }
 
-public class StopCommand : BasicPlayActionCommand
-{
+public class StopCommand : BasicPlayActionCommand {
     public override PlayState TargetState => PlayState.Stop;
 }

@@ -19,10 +19,8 @@
 
 namespace FramePFX.Utils;
 
-public static class Periodic
-{
-    public static long MethodNameHere(long value, long min, long max)
-    {
+public static class Periodic {
+    public static long MethodNameHere(long value, long min, long max) {
         long range = max - min;
         while (value >= max)
             value -= range;

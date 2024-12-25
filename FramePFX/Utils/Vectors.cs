@@ -22,8 +22,7 @@ using SkiaSharp;
 
 namespace FramePFX.Utils;
 
-public static class Vectors
-{
+public static class Vectors {
     public static Vector2 Zero => default;
     public static Vector2 One => default;
     public static Vector2 MinValue => new Vector2(float.MinValue);
@@ -39,43 +38,35 @@ public static class Vectors
 
     public static Vector3 Round(this Vector3 vector, int digits) => new Vector3((float) Math.Round(vector.X, digits), (float) Math.Round(vector.Y, digits), (float) Math.Round(vector.Z, digits));
 
-    public static bool IsPositiveInfinityX(in this Vector2 vector)
-    {
+    public static bool IsPositiveInfinityX(in this Vector2 vector) {
         return float.IsPositiveInfinity(vector.X);
     }
 
-    public static bool IsPositiveInfinityY(in this Vector2 vector)
-    {
+    public static bool IsPositiveInfinityY(in this Vector2 vector) {
         return float.IsPositiveInfinity(vector.Y);
     }
 
-    public static bool IsNegativeInfinityX(in this Vector2 vector)
-    {
+    public static bool IsNegativeInfinityX(in this Vector2 vector) {
         return float.IsNegativeInfinity(vector.X);
     }
 
-    public static bool IsNegativeInfinityY(in this Vector2 vector)
-    {
+    public static bool IsNegativeInfinityY(in this Vector2 vector) {
         return float.IsNegativeInfinity(vector.Y);
     }
 
-    public static Vector2 Lerp(in this Vector2 a, in Vector2 b, float blend)
-    {
+    public static Vector2 Lerp(in this Vector2 a, in Vector2 b, float blend) {
         return new Vector2(blend * (b.X - a.X) + a.X, blend * (b.Y - a.Y) + a.Y);
     }
 
-    public static SKRect ToRectAsSize(in this Vector2 a, float left, float top)
-    {
+    public static SKRect ToRectAsSize(in this Vector2 a, float left, float top) {
         return new SKRect(left, top, left + a.X, top + a.Y);
     }
 
-    public static bool IsLessThan(in this Vector2 a, Vector2 b)
-    {
+    public static bool IsLessThan(in this Vector2 a, Vector2 b) {
         return a.X < b.X || a.Y < b.Y;
     }
 
-    public static bool IsGreaterThan(in this Vector2 a, Vector2 b)
-    {
+    public static bool IsGreaterThan(in this Vector2 a, Vector2 b) {
         return a.X > b.X || a.Y > b.Y;
     }
 }

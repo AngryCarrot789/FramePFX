@@ -22,8 +22,7 @@ namespace FramePFX.Editing.Automation.Keyframes;
 /// <summary>
 /// All of the data types that are currently automatable
 /// </summary>
-public enum AutomationDataType : byte
-{
+public enum AutomationDataType : byte {
     /// <summary>
     /// An automated 32-bit floating point number
     /// </summary>

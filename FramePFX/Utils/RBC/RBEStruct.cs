@@ -28,8 +28,7 @@ namespace FramePFX.Utils.RBC;
 /// that contains a reference type as a field/property is not unmanaged and cannot be stored (maybe apart from strings? not sure)
 /// </para>
 /// </summary>
-public class RBEStruct : RBEBase
-{
+public class RBEStruct : RBEBase {
     private byte[] data;
 
     public override RBEType Type => RBEType.Struct;
@@ -37,27 +36,22 @@ public class RBEStruct : RBEBase
     public RBEStruct() {
     }
 
-    public static RBEStruct ForValue<T>(in T value) where T : unmanaged
-    {
+    public static RBEStruct ForValue<T>(in T value) where T : unmanaged {
         RBEStruct rbe = new RBEStruct();
         rbe.SetValue(value);
         return rbe;
     }
 
-    protected override void Read(BinaryReader reader)
-    {
+    protected override void Read(BinaryReader reader) {
         int length = reader.ReadUInt16();
         this.data = new byte[length];
-        if (reader.Read(this.data, 0, length) != length)
-        {
+        if (reader.Read(this.data, 0, length) != length) {
             throw new IOException("Failed to read " + length + " bytes");
         }
     }
 
-    protected override void Write(BinaryWriter writer)
-    {
-        if (this.data == null)
-        {
+    protected override void Write(BinaryWriter writer) {
+        if (this.data == null) {
             throw new InvalidOperationException("Array has not been set yet");
         }
 
@@ -66,28 +60,23 @@ public class RBEStruct : RBEBase
         writer.Write(this.data);
     }
 
-    public T GetValue<T>() where T : unmanaged
-    {
+    public T GetValue<T>() where T : unmanaged {
         byte[] array = this.data;
-        if (array == null)
-        {
+        if (array == null) {
             throw new Exception("Binary data has not been read yet");
         }
 
         int size = Unsafe.SizeOf<T>();
-        if (array.Length != size)
-        {
+        if (array.Length != size) {
             throw new Exception($"Binary data size does not match struct size (binary({array.Length}) != struct({size}) for struct {typeof(T)})");
         }
 
         return BinaryUtils.ReadStruct<T>(array, 0);
     }
 
-    public bool TryGetValue<T>(out T value) where T : unmanaged
-    {
+    public bool TryGetValue<T>(out T value) where T : unmanaged {
         int size;
-        if (this.data == null || this.data.Length != (size = Unsafe.SizeOf<T>()))
-        {
+        if (this.data == null || this.data.Length != (size = Unsafe.SizeOf<T>())) {
             value = default;
             return false;
         }
@@ -96,11 +85,9 @@ public class RBEStruct : RBEBase
         return true;
     }
 
-    public void SetValue<T>(in T value) where T : unmanaged
-    {
+    public void SetValue<T>(in T value) where T : unmanaged {
         int size = Unsafe.SizeOf<T>();
-        if (size > ushort.MaxValue)
-        {
+        if (size > ushort.MaxValue) {
             throw new Exception("Value's size is too large: " + size);
         }
 
@@ -110,11 +97,9 @@ public class RBEStruct : RBEBase
 
     public override RBEBase Clone() => this.CloneCore();
 
-    public RBEStruct CloneCore()
-    {
+    public RBEStruct CloneCore() {
         byte[] src = this.data, dest = null;
-        if (src != null)
-        {
+        if (src != null) {
             dest = new byte[src.Length];
             Unsafe.CopyBlock(ref dest[0], ref src[0], (uint) dest.Length);
         }

@@ -24,63 +24,50 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editing.Commands;
 
-public class ExportCommand : AsyncCommand
-{
-    protected override Executability CanExecuteOverride(CommandEventArgs e)
-    {
+public class ExportCommand : AsyncCommand {
+    protected override Executability CanExecuteOverride(CommandEventArgs e) {
         VideoEditor? theEditor;
-        if (DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline? theTimeline))
-        {
+        if (DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline? theTimeline)) {
             theEditor = theTimeline.Project?.Editor;
         }
-        else if (DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out theEditor))
-        {
+        else if (DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out theEditor)) {
             theTimeline = theEditor.Project?.ActiveTimeline;
         }
-        else
-        {
+        else {
             return Executability.Invalid;
         }
 
-        if (theEditor == null || theTimeline == null || theEditor.Project == null)
-        {
+        if (theEditor == null || theTimeline == null || theEditor.Project == null) {
             return Executability.ValidButCannotExecute;
         }
 
         return Executability.Valid;
     }
 
-    protected override Task ExecuteAsync(CommandEventArgs e)
-    {
+    protected override Task ExecuteAsync(CommandEventArgs e) {
         VideoEditor? theEditor;
-        if (DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline? theTimeline))
-        {
+        if (DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline? theTimeline)) {
             theEditor = theTimeline.Project?.Editor;
         }
-        else if (DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out theEditor))
-        {
+        else if (DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out theEditor)) {
             theTimeline = theEditor.Project?.ActiveTimeline;
         }
-        else
-        {
+        else {
             return Task.CompletedTask;
         }
 
-        if (theEditor == null || theTimeline == null || theEditor.Project == null)
-        {
+        if (theEditor == null || theTimeline == null || theEditor.Project == null) {
             return Task.CompletedTask;
         }
 
-        if (theEditor.IsExporting)
-        {
+        if (theEditor.IsExporting) {
             return Task.CompletedTask;
         }
 
         theEditor.Playback.Pause();
         IExportDialogService dialogService = Application.Instance.ServiceManager.GetService<IExportDialogService>();
 
-        ExportSetup setup = new ExportSetup(theEditor, theTimeline)
-        {
+        ExportSetup setup = new ExportSetup(theEditor, theTimeline) {
             Span = new FrameSpan(0, theTimeline.LargestFrameInUse),
             FilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "video.mp4")
         };

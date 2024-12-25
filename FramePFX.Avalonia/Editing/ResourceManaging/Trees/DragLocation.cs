@@ -19,8 +19,7 @@
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 
-public enum DragLocation
-{
+public enum DragLocation {
     Above,
     Below,
     Inside

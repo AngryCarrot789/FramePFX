@@ -40,8 +40,7 @@ using Track = FramePFX.Editing.Timelines.Tracks.Track;
 
 namespace FramePFX.Avalonia.Editing.Timelines.TrackSurfaces;
 
-public class TrackControlSurfaceItem : ContentControl
-{
+public class TrackControlSurfaceItem : ContentControl {
     public static readonly DirectProperty<TrackControlSurfaceItem, Track?> TrackProperty = AvaloniaProperty.RegisterDirect<TrackControlSurfaceItem, Track?>(nameof(Track), o => o.Track);
     public static readonly DirectProperty<TrackControlSurfaceItem, bool> IsSelectedProperty = AvaloniaProperty.RegisterDirect<TrackControlSurfaceItem, bool>(nameof(IsSelected), o => o.IsSelected);
 
@@ -57,8 +56,7 @@ public class TrackControlSurfaceItem : ContentControl
     private bool isMovingBetweenTracks, hasMovedTrackExFlag;
     private ContentPresenter PART_ContentPresenter;
 
-    public Track? Track
-    {
+    public Track? Track {
         get => this.myTrack;
         private set => this.SetAndRaise(TrackProperty, ref this.myTrack, value);
     }
@@ -68,8 +66,7 @@ public class TrackControlSurfaceItem : ContentControl
 
     public TrackControlSurfaceList? TrackList { get; private set; }
 
-    public bool IsSelected
-    {
+    public bool IsSelected {
         get => this.internalIsSelected;
         private set => this.SetAndRaise(IsSelectedProperty, ref this.internalIsSelected, value);
     }
@@ -78,37 +75,31 @@ public class TrackControlSurfaceItem : ContentControl
 
     private static PropertyInfo IsPointerOverPropertyInfo = typeof(InputElement).GetProperty("IsPointerOver")!;
 
-    public TrackControlSurfaceItem()
-    {
+    public TrackControlSurfaceItem() {
         DataManager.SetContextData(this, this.contextData = new ContextData());
     }
 
-    protected override void OnLoaded(RoutedEventArgs e)
-    {
+    protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
         Dispatcher.UIThread.InvokeAsync(() => this.isMovingBetweenTracks = false, DispatcherPriority.Send);
         AdvancedContextMenu.SetContextRegistry(this, Track.TrackControlSurfaceContextRegistry);
     }
 
-    protected override void OnUnloaded(RoutedEventArgs e)
-    {
+    protected override void OnUnloaded(RoutedEventArgs e) {
         base.OnUnloaded(e);
         AdvancedContextMenu.SetContextRegistry(this, null);
     }
 
-    static TrackControlSurfaceItem()
-    {
+    static TrackControlSurfaceItem() {
         FocusableProperty.OverrideDefaultValue<TrackControlSurfaceItem>(true);
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.PART_ContentPresenter = e.NameScope.GetTemplateChild<ContentPresenter>("PART_ContentPresenter");
     }
 
-    private enum DragState
-    {
+    private enum DragState {
         None,
         Initiated,
         Running
@@ -116,16 +107,14 @@ public class TrackControlSurfaceItem : ContentControl
 
     #region Model Connections
 
-    public void OnAddingToList(TrackControlSurfaceList ownerList, Track track, int index)
-    {
+    public void OnAddingToList(TrackControlSurfaceList ownerList, Track track, int index) {
         this.Track = track ?? throw new ArgumentNullException(nameof(track));
         this.TrackList = ownerList;
         this.Track.HeightChanged += this.OnTrackHeightChanged;
         this.Content = ownerList.GetContentObject(track);
     }
 
-    public void OnAddedToList()
-    {
+    public void OnAddedToList() {
         TrackControlSurface control = (TrackControlSurface) this.Content!;
         control.ApplyStyling();
         control.ApplyTemplate();
@@ -133,8 +122,7 @@ public class TrackControlSurfaceItem : ContentControl
         this.Height = this.Track!.Height;
     }
 
-    public void OnRemovingFromList()
-    {
+    public void OnRemovingFromList() {
         this.Track!.HeightChanged -= this.OnTrackHeightChanged;
         TrackControlSurface content = (TrackControlSurface) this.Content!;
         content.Disconnect();
@@ -142,17 +130,14 @@ public class TrackControlSurfaceItem : ContentControl
         this.TrackList!.ReleaseContentObject(this.Track.GetType(), content);
     }
 
-    public void OnRemovedFromList()
-    {
+    public void OnRemovedFromList() {
         this.TrackList = null;
         this.Track = null;
 
         // WORKAROUND for avalonia's broken pointer over system
         SetPointerNotOver(this);
-        foreach (Visual child in this.GetVisualChildren())
-        {
-            if (child is InputElement element)
-            {
+        foreach (Visual child in this.GetVisualChildren()) {
+            if (child is InputElement element) {
                 SetPointerNotOver(element);
             }
         }
@@ -160,47 +145,37 @@ public class TrackControlSurfaceItem : ContentControl
 
     #endregion
 
-    private static void SetPointerNotOver(InputElement element)
-    {
+    private static void SetPointerNotOver(InputElement element) {
         IsPointerOverPropertyInfo.SetValue(element, BoolBox.False);
         ((IPseudoClasses) element.Classes).Remove(":pointerover");
     }
 
-    public void OnIndexMoving(int oldIndex, int newIndex)
-    {
+    public void OnIndexMoving(int oldIndex, int newIndex) {
         this.wasFocusedBeforeMoving = this.IsFocused;
     }
 
-    public void OnIndexMoved(int oldIndex, int newIndex)
-    {
+    public void OnIndexMoved(int oldIndex, int newIndex) {
         this.Height = this.Track!.Height;
-        if (this.wasFocusedBeforeMoving)
-        {
+        if (this.wasFocusedBeforeMoving) {
             this.wasFocusedBeforeMoving = false;
             this.Focus();
         }
     }
 
-    private void OnTrackHeightChanged(Track track)
-    {
+    private void OnTrackHeightChanged(Track track) {
         this.Height = track.Height;
     }
 
-    private void SetDragState(DragState state)
-    {
-        if (this.dragState != state)
-        {
-            if (state < DragState.Initiated)
-            {
+    private void SetDragState(DragState state) {
+        if (this.dragState != state) {
+            if (state < DragState.Initiated) {
                 this.initiatedDragPointer = null;
             }
 
-            if (state == DragState.Running)
-            {
+            if (state == DragState.Running) {
                 this.Cursor = new Cursor(StandardCursorType.SizeNorthSouth);
             }
-            else
-            {
+            else {
                 this.ClearValue(CursorProperty);
             }
 
@@ -208,35 +183,29 @@ public class TrackControlSurfaceItem : ContentControl
         }
     }
 
-    private bool IsHitObjectOnUs(object? source)
-    {
+    private bool IsHitObjectOnUs(object? source) {
         return source != null && (ReferenceEquals(source, this) || ReferenceEquals(source, this.PART_ContentPresenter));
     }
 
-    protected override void OnPointerPressed(PointerPressedEventArgs e)
-    {
+    protected override void OnPointerPressed(PointerPressedEventArgs e) {
         base.OnPointerPressed(e);
-        if (e.Handled || this.TrackList == null || this.TrackElement == null)
-        {
+        if (e.Handled || this.TrackList == null || this.TrackElement == null) {
             return;
         }
 
         // The mouse didn't click the track area, maybe it clicked
         // the toggle visibility button, so ignore the event
-        if (!this.IsHitObjectOnUs(e.Source))
-        {
+        if (!this.IsHitObjectOnUs(e.Source)) {
             return;
         }
 
         PointerPoint point = e.GetCurrentPoint(this);
-        if (point.Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonPressed)
-        {
+        if (point.Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonPressed) {
             return;
         }
 
         TimelineControl? timelineControl = this.TrackList?.TimelineControl;
-        if (timelineControl == null || timelineControl.Timeline == null)
-        {
+        if (timelineControl == null || timelineControl.Timeline == null) {
             return;
         }
 
@@ -251,26 +220,20 @@ public class TrackControlSurfaceItem : ContentControl
             e.Pointer.Capture(this);
 
         bool isToggle = (e.KeyModifiers & KeyModifiers.Control) != 0;
-        if ((e.KeyModifiers & KeyModifiers.Shift) != 0)
-        {
+        if ((e.KeyModifiers & KeyModifiers.Shift) != 0) {
             this.TrackList!.SelectRange(this, e);
         }
-        else
-        {
+        else {
             this.wasSelectedOnPress = this.IsSelected;
-            if (isToggle)
-            {
-                if (this.wasSelectedOnPress)
-                {
+            if (isToggle) {
+                if (this.wasSelectedOnPress) {
                     // do nothing; toggle selection in mouse release
                 }
-                else
-                {
+                else {
                     timelineControl.TrackSelectionManager!.Select(this.TrackElement);
                 }
             }
-            else if (timelineControl.ClipSelectionManager!.Count < 2 || !this.wasSelectedOnPress)
-            {
+            else if (timelineControl.ClipSelectionManager!.Count < 2 || !this.wasSelectedOnPress) {
                 // Set as only selection if 0 or 1 items selected, or we aren't selected
                 timelineControl.TrackSelectionManager!.SetSelection(this.TrackElement);
             }
@@ -279,17 +242,14 @@ public class TrackControlSurfaceItem : ContentControl
         }
     }
 
-    protected override void OnPointerReleased(PointerReleasedEventArgs e)
-    {
+    protected override void OnPointerReleased(PointerReleasedEventArgs e) {
         base.OnPointerReleased(e);
-        if (e.Handled || this.TrackList == null || this.TrackElement == null)
-        {
+        if (e.Handled || this.TrackList == null || this.TrackElement == null) {
             return;
         }
 
         PointerPoint point = e.GetCurrentPoint(this);
-        if (point.Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonReleased)
-        {
+        if (point.Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonReleased) {
             return;
         }
 
@@ -301,49 +261,40 @@ public class TrackControlSurfaceItem : ContentControl
             e.Pointer.Capture(null);
 
         TimelineControl? timelineControl = this.TrackList?.TimelineControl;
-        if (timelineControl == null || timelineControl.Timeline == null)
-        {
+        if (timelineControl == null || timelineControl.Timeline == null) {
             return;
         }
 
         TrackSelectionManager selector = timelineControl.TrackSelectionManager!;
-        if (lastDragState == DragState.None || lastDragState == DragState.Initiated)
-        {
+        if (lastDragState == DragState.None || lastDragState == DragState.Initiated) {
             bool isToggle = (e.KeyModifiers & KeyModifiers.Control) != 0;
             int selCount = selector.Count;
-            if ((e.KeyModifiers & KeyModifiers.Shift) == 0 && (!isToggle || (selCount == 1 && selector.IsSelected(this.TrackElement))))
-            {
+            if ((e.KeyModifiers & KeyModifiers.Shift) == 0 && (!isToggle || (selCount == 1 && selector.IsSelected(this.TrackElement)))) {
                 this.TrackList!.SetRangeAnchor(this, e);
             }
 
-            if (selCount == 0)
-            {
+            if (selCount == 0) {
                 // very rare scenario, shouldn't really occur
                 selector.SetSelection(this.TrackElement);
             }
-            else if (isToggle && this.wasSelectedOnPress)
-            {
+            else if (isToggle && this.wasSelectedOnPress) {
                 // Check we want to toggle, check we were selected on click and we probably are still selected,
                 // and also check that the last drag wasn't completed/cancelled just because it feels more normal that way
                 selector.Unselect(this.TrackElement);
             }
-            else if (selCount > 1 && !isToggle)
-            {
+            else if (selCount > 1 && !isToggle) {
                 selector.SetSelection(this.TrackElement);
             }
         }
     }
 
-    protected override void OnPointerMoved(PointerEventArgs e)
-    {
+    protected override void OnPointerMoved(PointerEventArgs e) {
         base.OnPointerMoved(e);
-        if (e.Handled || this.TrackList == null || this.TrackElement == null)
-        {
+        if (e.Handled || this.TrackList == null || this.TrackElement == null) {
             return;
         }
 
-        if (!this.IsHitObjectOnUs(e.Source))
-        {
+        if (!this.IsHitObjectOnUs(e.Source)) {
             return;
         }
 
@@ -360,15 +311,13 @@ public class TrackControlSurfaceItem : ContentControl
 
         bool hasMovedX = !DoubleUtils.AreClose(mPosAbs.X, this.lastMovePosAbs.X);
         bool hasMovedY = !DoubleUtils.AreClose(mPosAbs.Y, this.lastMovePosAbs.Y);
-        if (!hasMovedX && !hasMovedY)
-        {
+        if (!hasMovedX && !hasMovedY) {
             return;
         }
 
         this.lastMovePosAbs = mPosAbs;
 
-        if (!point.Properties.IsLeftButtonPressed)
-        {
+        if (!point.Properties.IsLeftButtonPressed) {
             this.SetDragState(DragState.None);
             e.Pointer.Capture(null);
             return;
@@ -377,25 +326,21 @@ public class TrackControlSurfaceItem : ContentControl
         const int MinimumHorizontalDragDistance = 2;
         const int MinimumVerticalDragDistance = 2;
 
-        if (hasMovedX && this.dragState == DragState.Initiated)
-        {
+        if (hasMovedX && this.dragState == DragState.Initiated) {
             const double minDragX = MinimumHorizontalDragDistance;
             const double minDragY = MinimumVerticalDragDistance;
-            if (Math.Abs(mPos.X - this.clickPos.X) < minDragX && Math.Abs(mPos.Y - this.clickPos.Y) < minDragY)
-            {
+            if (Math.Abs(mPos.X - this.clickPos.X) < minDragX && Math.Abs(mPos.Y - this.clickPos.Y) < minDragY) {
                 return;
             }
 
-            if ((e.KeyModifiers & KeyModifiers.Control) != 0)
-            {
+            if ((e.KeyModifiers & KeyModifiers.Control) != 0) {
                 // phantom drag
                 return;
             }
 
             this.SetDragState(DragState.Running);
         }
-        else if (this.dragState == DragState.None)
-        {
+        else if (this.dragState == DragState.None) {
             return;
         }
 
@@ -404,8 +349,7 @@ public class TrackControlSurfaceItem : ContentControl
         // The middle track you're dragging will glitch around everywhere each mouse move event
         // However it works fine when tracks are all the same height
         Vector mPosDifRel = mPos - this.clickPos;
-        if (hasMovedY && !this.isMovingBetweenTracks && Math.Abs(mPosDifRel.Y) >= 1.0d)
-        {
+        if (hasMovedY && !this.isMovingBetweenTracks && Math.Abs(mPosDifRel.Y) >= 1.0d) {
             // This doesn't work so good
             // if (this.hasMovedTrackExFlag && (mPos.X < 0 || mPos.X > this.Bounds.Width || mPos.Y < 0 || mPos.Y > this.Bounds.Height)) {
             //     return;
@@ -415,14 +359,11 @@ public class TrackControlSurfaceItem : ContentControl
             double totalHeight = 0.0;
             List<TrackControlSurfaceItem> tracks = this.TrackList!.GetTracks().ToList();
             Point mPosTL = e.GetPosition(this.TrackList);
-            for (int targetIndex = 0, endIndex = tracks.Count - 1; targetIndex <= endIndex; targetIndex++)
-            {
+            for (int targetIndex = 0, endIndex = tracks.Count - 1; targetIndex <= endIndex; targetIndex++) {
                 TrackControlSurfaceItem targetLocation = tracks[targetIndex];
-                if (DoubleUtils.GreaterThanOrClose(mPosTL.Y, totalHeight) && DoubleUtils.LessThanOrClose(mPosTL.Y, totalHeight + targetLocation.Bounds.Height))
-                {
+                if (DoubleUtils.GreaterThanOrClose(mPosTL.Y, totalHeight) && DoubleUtils.LessThanOrClose(mPosTL.Y, totalHeight + targetLocation.Bounds.Height)) {
                     Track? newTrack = targetLocation.Track;
-                    if (newTrack != null && !ReferenceEquals(this.Track, newTrack))
-                    {
+                    if (newTrack != null && !ReferenceEquals(this.Track, newTrack)) {
                         this.isMovingBetweenTracks = true;
                         this.hasMovedTrackExFlag = true;
                         int oldIndex = this.Track!.IndexInTimeline;
@@ -439,8 +380,7 @@ public class TrackControlSurfaceItem : ContentControl
 
     internal static void InternalSetIsSelected(TrackControlSurfaceItem control, bool isSelected) => control.IsSelected = isSelected;
 
-    public void OnIsAutomationVisibilityChanged(bool isVisible)
-    {
+    public void OnIsAutomationVisibilityChanged(bool isVisible) {
         ((TrackControlSurface?) this.Content)?.OnIsAutomationVisibilityChanged(isVisible);
     }
 }

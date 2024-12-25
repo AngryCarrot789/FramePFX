@@ -22,22 +22,18 @@ using FramePFX.Utils;
 
 namespace FramePFX.PropertyEditing.DataTransfer;
 
-public class DataParameterFloatPropertyEditorSlot : DataParameterFormattableNumberPropertyEditorSlot
-{
+public class DataParameterFloatPropertyEditorSlot : DataParameterFormattableNumberPropertyEditorSlot {
     private float value;
 
-    public float Value
-    {
+    public float Value {
         get => this.value;
-        set
-        {
+        set {
             float oldVal = this.value;
             this.value = value;
             bool useAddition = false; //this.IsMultiHandler; TODO: Fix with new NumberDragger
             float change = value - oldVal;
             DataParameterFloat parameter = this.Parameter;
-            for (int i = 0, c = this.Handlers.Count; i < c; i++)
-            {
+            for (int i = 0, c = this.Handlers.Count; i < c; i++) {
                 ITransferableData obj = (ITransferableData) this.Handlers[i];
                 float newValue = parameter.Clamp(useAddition ? (parameter.GetValue(obj) + change) : value);
                 parameter.SetValue(obj, newValue);
@@ -51,13 +47,11 @@ public class DataParameterFloatPropertyEditorSlot : DataParameterFormattableNumb
 
     public DragStepProfile StepProfile { get; }
 
-    public DataParameterFloatPropertyEditorSlot(DataParameterFloat parameter, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName)
-    {
+    public DataParameterFloatPropertyEditorSlot(DataParameterFloat parameter, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName) {
         this.StepProfile = stepProfile;
     }
 
-    public override void QueryValueFromHandlers()
-    {
+    public override void QueryValueFromHandlers() {
         this.HasMultipleValues = !CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetValue((ITransferableData) x), out this.value);
         if (this.HasMultipleValues)
             this.value = Math.Abs(this.Parameter.Maximum - this.Parameter.Minimum) / 2.0F;

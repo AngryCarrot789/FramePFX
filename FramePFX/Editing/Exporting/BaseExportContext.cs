@@ -25,8 +25,7 @@ namespace FramePFX.Editing.Exporting;
 /// <summary>
 /// A specific exportation context for an exporter
 /// </summary>
-public abstract class BaseExportContext
-{
+public abstract class BaseExportContext {
     /// <summary>
     /// The export registration that created this context
     /// </summary>
@@ -53,8 +52,7 @@ public abstract class BaseExportContext
     /// </summary>
     public FrameSpan Span => this.Setup.Span;
 
-    protected BaseExportContext(BaseExporterInfo exporter, ExportSetup setup)
-    {
+    protected BaseExportContext(BaseExporterInfo exporter, ExportSetup setup) {
         Validate.NotNull(exporter);
         Validate.NotNull(setup);
 

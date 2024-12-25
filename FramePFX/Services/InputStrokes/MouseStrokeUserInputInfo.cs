@@ -24,8 +24,7 @@ using FramePFX.Utils.Accessing;
 
 namespace FramePFX.Services.InputStrokes;
 
-public class MouseStrokeUserInputInfo : UserInputInfo
-{
+public class MouseStrokeUserInputInfo : UserInputInfo {
     public static readonly DataParameter<MouseStroke?> MouseStrokeParameter =
         DataParameter.Register(
             new DataParameter<MouseStroke?>(
@@ -35,18 +34,16 @@ public class MouseStrokeUserInputInfo : UserInputInfo
 
     private MouseStroke? mouseStroke;
 
-    public MouseStroke? MouseStroke
-    {
+    public MouseStroke? MouseStroke {
         get => this.mouseStroke;
         set => DataParameter.SetValueHelper(this, MouseStrokeParameter, ref this.mouseStroke, value);
     }
-    
+
     public MouseStrokeUserInputInfo() {
         this.mouseStroke = MouseStrokeParameter.GetDefaultValue(this);
     }
-    
-    public override bool CanDialogClose()
-    {
+
+    public override bool CanDialogClose() {
         return this.mouseStroke.HasValue && this.mouseStroke.Value != default;
     }
 }

@@ -19,8 +19,7 @@
 
 namespace FramePFX.Editing.Exporting;
 
-public interface IExportDialogService
-{
+public interface IExportDialogService {
     /// <summary>
     /// Shows the export dialog
     /// </summary>

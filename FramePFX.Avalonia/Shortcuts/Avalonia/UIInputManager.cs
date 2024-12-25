@@ -33,8 +33,7 @@ namespace FramePFX.Avalonia.Shortcuts.Avalonia;
 /// <summary>
 /// A class which manages the WPF inputs and global focus scopes. This class also dispatches input events to the shortcut system
 /// </summary>
-public class UIInputManager
-{
+public class UIInputManager {
     public delegate void FocusedPathChangedEventHandler(string? oldPath, string? newPath);
 
     private static readonly AttachedProperty<AvaloniaShortcutInputProcessor?> ShortcutProcessorProperty = AvaloniaProperty.RegisterAttached<UIInputManager, TopLevel, AvaloniaShortcutInputProcessor?>("ShortcutProcessor");
@@ -89,14 +88,12 @@ public class UIInputManager
 
     private static readonly SortedList<Key, int> RepeatCounter;
 
-    private UIInputManager()
-    {
+    private UIInputManager() {
         if (Instance != null)
             throw new InvalidOperationException();
     }
 
-    static UIInputManager()
-    {
+    static UIInputManager() {
         Application.Instance.Dispatcher.VerifyAccess();
         InputElement.GotFocusEvent.AddClassHandler<TopLevel>((s, e) => OnFocusChanged(s, e, false), handledEventsToo: true);
         InputElement.LostFocusEvent.AddClassHandler<TopLevel>((s, e) => OnFocusChanged(s, e, true), handledEventsToo: true);
@@ -119,15 +116,12 @@ public class UIInputManager
         // IsKeyShortcutProcessingBlockedProperty.OverrideMetadata(typeof(TextArea), new StyledPropertyMetadata<bool>(true));
     }
 
-    public static void Init()
-    {
+    public static void Init() {
         ShortcutManager.Instance = new AvaloniaShortcutManager();
     }
 
-    private static void OnTopLevelPreviewPointerPressed(TopLevel sender, PointerPressedEventArgs e)
-    {
-        if (!(e.Source is InputElement element))
-        {
+    private static void OnTopLevelPreviewPointerPressed(TopLevel sender, PointerPressedEventArgs e) {
+        if (!(e.Source is InputElement element)) {
             return;
         }
     }
@@ -137,13 +131,11 @@ public class UIInputManager
     private static void OnTopLevelPointerPressed(TopLevel sender, PointerPressedEventArgs e) {
     }
 
-    private static void OnTopLevelPreviewPointerReleased(TopLevel sender, PointerReleasedEventArgs e)
-    {
+    private static void OnTopLevelPreviewPointerReleased(TopLevel sender, PointerReleasedEventArgs e) {
         // Example: A button click will be handled after this method returns
     }
 
-    private static void OnTopLevelPointerReleased(TopLevel sender, PointerReleasedEventArgs e)
-    {
+    private static void OnTopLevelPointerReleased(TopLevel sender, PointerReleasedEventArgs e) {
         // Example: A button click will have been processed before this method
     }
 
@@ -157,8 +149,7 @@ public class UIInputManager
 
     private static void OnTopLevelKeyUp(TopLevel sender, KeyEventArgs e) => OnTopLevelKeyEvent(sender, e, isRelease: true, isPreview: false);
 
-    private static void OnTopLevelKeyEvent(TopLevel sender, KeyEventArgs e, bool isRelease, bool isPreview)
-    {
+    private static void OnTopLevelKeyEvent(TopLevel sender, KeyEventArgs e, bool isRelease, bool isPreview) {
         // we only want to handle shortcuts in preview events, since we will
         // have the target element but its non-preview typical handler will
         // not have been delivered yet
@@ -174,20 +165,16 @@ public class UIInputManager
             return;
 
         bool isRepeat = false;
-        if (isRelease)
-        {
+        if (isRelease) {
             RepeatCounter[key] = 0;
         }
-        else
-        {
+        else {
             int keyIndex = RepeatCounter.IndexOfKey(key);
-            if (keyIndex == -1)
-            {
+            if (keyIndex == -1) {
                 RepeatCounter[key] = 1;
                 isRepeat = false;
             }
-            else
-            {
+            else {
                 int count = RepeatCounter.GetValueAtIndex(keyIndex);
                 RepeatCounter.SetValueAtIndex(keyIndex, count + 1);
                 isRepeat = count > 0;
@@ -195,18 +182,15 @@ public class UIInputManager
         }
 
         InputElement? focused = GetCurrentFocusedElement(sender);
-        if (!ReferenceEquals(e.Source, sender))
-        {
-            if (focused != null && !ReferenceEquals(focused, e.Source))
-            {
+        if (!ReferenceEquals(e.Source, sender)) {
+            if (focused != null && !ReferenceEquals(focused, e.Source)) {
                 // hmm
                 Debugger.Break();
             }
         }
 
         InputElement? element = focused ?? e.Source as InputElement;
-        if (element != null)
-        {
+        if (element != null) {
             processor.OnInputSourceKeyEvent(processor, element, e, key, isRelease, isRepeat);
         }
 
@@ -216,8 +200,7 @@ public class UIInputManager
         //     e.Handled = true;
     }
 
-    private static AvaloniaShortcutInputProcessor GetShortcutProcessor(TopLevel topLevel)
-    {
+    private static AvaloniaShortcutInputProcessor GetShortcutProcessor(TopLevel topLevel) {
         AvaloniaShortcutInputProcessor? processor = topLevel.GetValue(ShortcutProcessorProperty);
         if (processor == null)
             topLevel.SetValue(ShortcutProcessorProperty, processor = new AvaloniaShortcutInputProcessor(AvaloniaShortcutManager.AvaloniaInstance));
@@ -232,11 +215,9 @@ public class UIInputManager
 
     #region Focus managing
 
-    private static void OnFocusChanged(TopLevel sender, RoutedEventArgs e, bool lost)
-    {
+    private static void OnFocusChanged(TopLevel sender, RoutedEventArgs e, bool lost) {
         InputElement? element = e.Source as InputElement;
-        if (element == null)
-        {
+        if (element == null) {
             return;
         }
 
@@ -252,8 +233,7 @@ public class UIInputManager
 
         string? oldPath = Instance.FocusedPath;
         string? newPath = lost ? null : GetFocusPath(element);
-        if (oldPath != newPath)
-        {
+        if (oldPath != newPath) {
             Instance.FocusedPath = newPath;
             OnFocusedPathChanged?.Invoke(oldPath, newPath);
             UpdateFocusGroup(element, newPath);
@@ -277,11 +257,9 @@ public class UIInputManager
     /// </summary>
     /// <param name="target">Target/focused element which now has focus</param>
     /// <param name="newPath"></param>
-    public static void UpdateFocusGroup(AvaloniaObject target, string? newPath)
-    {
+    public static void UpdateFocusGroup(AvaloniaObject target, string? newPath) {
         object? lastFocused = CurrentlyFocusedObject.Target;
-        if (lastFocused != null)
-        {
+        if (lastFocused != null) {
             CurrentlyFocusedObject.Target = null;
         }
 
@@ -289,12 +267,10 @@ public class UIInputManager
             return;
 
         AvaloniaObject? root = VisualTreeUtils.FindNearestInheritedPropertyDefinition(FocusPathProperty, target);
-        if (root != null)
-        {
+        if (root != null) {
             CurrentlyFocusedObject.Target = root;
         }
-        else
-        {
+        else {
             Debug.WriteLine("Failed to find root control that owns the FocusPathProperty of '" + GetFocusPath(target) + "'");
         }
     }

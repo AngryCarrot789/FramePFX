@@ -15,8 +15,7 @@ using FramePFX.FFmpegWrapper.Codecs;
 
 namespace FramePFX.FFmpegWrapper;
 
-public unsafe class VideoFrame : MediaFrame
-{
+public unsafe class VideoFrame : MediaFrame {
     public int Width => this.frame->width;
     public int Height => this.frame->height;
     public AVPixelFormat PixelFormat => (AVPixelFormat) this.frame->format;
@@ -47,10 +46,8 @@ public unsafe class VideoFrame : MediaFrame
     public VideoFrame(PictureFormat fmt, bool clearToBlack = true) : this(fmt.Width, fmt.Height, fmt.PixelFormat, clearToBlack) {
     }
 
-    public VideoFrame(int width, int height, AVPixelFormat fmt = AVPixelFormat.AV_PIX_FMT_RGBA, bool clearToBlack = true)
-    {
-        if (width <= 0 || height <= 0)
-        {
+    public VideoFrame(int width, int height, AVPixelFormat fmt = AVPixelFormat.AV_PIX_FMT_RGBA, bool clearToBlack = true) {
+        if (width <= 0 || height <= 0) {
             throw new ArgumentException("Invalid frame dimensions.");
         }
 
@@ -61,26 +58,22 @@ public unsafe class VideoFrame : MediaFrame
 
         FFUtils.CheckError(ffmpeg.av_frame_get_buffer(this.frame, 0), "Failed to allocate frame buffers.");
 
-        if (clearToBlack)
-        {
+        if (clearToBlack) {
             this.Clear();
         }
     }
 
     /// <summary> Wraps an existing <see cref="AVFrame"/> pointer. </summary>
     /// <param name="takeOwnership">True if <paramref name="frame"/> should be freed when Dispose() is called.</param>
-    public VideoFrame(AVFrame* frame, bool clearToBlack = false, bool takeOwnership = false)
-    {
-        if (frame == null)
-        {
+    public VideoFrame(AVFrame* frame, bool clearToBlack = false, bool takeOwnership = false) {
+        if (frame == null) {
             throw new ArgumentNullException(nameof(frame));
         }
 
         this.frame = frame;
         this._ownsFrame = takeOwnership;
 
-        if (clearToBlack)
-        {
+        if (clearToBlack) {
             this.Clear();
         }
     }
@@ -88,10 +81,8 @@ public unsafe class VideoFrame : MediaFrame
     /// <summary> Returns a view over the pixel row for the specified plane. </summary>
     /// <remarks> The returned span may be longer than <see cref="Width"/> due to padding. </remarks>
     /// <param name="y">Row index, in top to bottom order.</param>
-    public Span<T> GetRowSpan<T>(int y, int plane = 0) where T : unmanaged
-    {
-        if ((uint) y >= (uint) this.GetPlaneSize(plane).Height)
-        {
+    public Span<T> GetRowSpan<T>(int y, int plane = 0) where T : unmanaged {
+        if ((uint) y >= (uint) this.GetPlaneSize(plane).Height) {
             throw new ArgumentOutOfRangeException();
         }
 
@@ -102,15 +93,13 @@ public unsafe class VideoFrame : MediaFrame
     /// <summary> Returns a view over the pixel data for the specified plane. </summary>
     /// <remarks> Note that rows may be stored in reverse order depending on <see cref="IsVerticallyFlipped"/>. </remarks>
     /// <param name="stride">Number of pixels per row.</param>
-    public Span<T> GetPlaneSpan<T>(int plane, out int stride) where T : unmanaged
-    {
+    public Span<T> GetPlaneSpan<T>(int plane, out int stride) where T : unmanaged {
         int height = this.GetPlaneSize(plane).Height;
 
         byte* data = this.frame->data[(uint) plane];
         int rowSize = this.frame->linesize[(uint) plane];
 
-        if (rowSize < 0)
-        {
+        if (rowSize < 0) {
             data += rowSize * (height - 1);
             // possible underflow in unchecked context?
             rowSize *= -1;
@@ -120,32 +109,27 @@ public unsafe class VideoFrame : MediaFrame
         return new Span<T>(data, checked(height * stride));
     }
 
-    public (int Width, int Height) GetPlaneSize(int plane)
-    {
+    public (int Width, int Height) GetPlaneSize(int plane) {
         this.ValidateNotDisposed();
 
         (int Width, int Height) size = (this.Width, this.Height);
 
         //https://github.com/FFmpeg/FFmpeg/blob/c558fcf41e2027a1096d00b286954da2cc4ae73f/libavutil/imgutils.c#L111
-        if (plane == 0)
-        {
+        if (plane == 0) {
             return size;
         }
 
         AVPixFmtDescriptor* desc = ffmpeg.av_pix_fmt_desc_get(this.PixelFormat);
 
-        if (desc == null || (desc->flags & ffmpeg.AV_PIX_FMT_FLAG_HWACCEL) != 0)
-        {
+        if (desc == null || (desc->flags & ffmpeg.AV_PIX_FMT_FLAG_HWACCEL) != 0) {
             throw new InvalidOperationException();
         }
 
-        for (uint i = 0; i < 4; i++)
-        {
+        for (uint i = 0; i < 4; i++) {
             if (desc->comp[i].plane != plane)
                 continue;
 
-            if ((i == 1 || i == 2) && (desc->flags & ffmpeg.AV_PIX_FMT_FLAG_RGB) == 0)
-            {
+            if ((i == 1 || i == 2) && (desc->flags & ffmpeg.AV_PIX_FMT_FLAG_RGB) == 0) {
                 size.Width = CeilShr(size.Width, desc->log2_chroma_w);
                 size.Height = CeilShr(size.Height, desc->log2_chroma_h);
             }
@@ -159,15 +143,13 @@ public unsafe class VideoFrame : MediaFrame
     internal static int CeilShr(int x, int s) => (x + (1 << s) - 1) >> s;
 
     /// <summary> Creates a hardware frame memory mapping. </summary>
-    public VideoFrame Map(HardwareFrameMappingFlags flags)
-    {
+    public VideoFrame Map(HardwareFrameMappingFlags flags) {
         this.ValidateNotDisposed();
 
         AVFrame* mapping = ffmpeg.av_frame_alloc();
         int result = ffmpeg.av_hwframe_map(mapping, this.frame, (int) flags);
 
-        if (result == 0)
-        {
+        if (result == 0) {
             mapping->width = this.frame->width;
             mapping->height = this.frame->height;
             return new VideoFrame(mapping, takeOwnership: true);
@@ -178,20 +160,17 @@ public unsafe class VideoFrame : MediaFrame
     }
 
     /// <summary> Copy data from this frame to <paramref name="dest"/>. At least one of <see langword="this"/> or <paramref name="dest"/> must be a hardware frame. </summary>
-    public void TransferTo(VideoFrame dest)
-    {
+    public void TransferTo(VideoFrame dest) {
         this.ValidateNotDisposed();
         FFUtils.CheckError(ffmpeg.av_hwframe_transfer_data(dest.Handle, this.frame, 0), "Failed to transfer data from hardware frame");
     }
 
     /// <summary> Gets an array of possible source or dest formats usable in <see cref="TransferTo(VideoFrame)"/>. </summary>
-    public AVPixelFormat[] GetHardwareTransferFormats(HardwareFrameTransferDirection direction)
-    {
+    public AVPixelFormat[] GetHardwareTransferFormats(HardwareFrameTransferDirection direction) {
         this.ValidateNotDisposed();
         AVPixelFormat* pFormats;
 
-        if (ffmpeg.av_hwframe_transfer_get_formats(this.frame->hw_frames_ctx, (AVHWFrameTransferDirection) direction, &pFormats, 0) < 0)
-        {
+        if (ffmpeg.av_hwframe_transfer_get_formats(this.frame->hw_frames_ctx, (AVHWFrameTransferDirection) direction, &pFormats, 0) < 0) {
             return Array.Empty<AVPixelFormat>();
         }
 
@@ -202,13 +181,11 @@ public unsafe class VideoFrame : MediaFrame
     }
 
     /// <summary> Fills this frame with black pixels. </summary>
-    public void Clear()
-    {
+    public void Clear() {
         this.ValidateNotDisposed();
         long_array4 linesizes = new long_array4();
 
-        for (uint i = 0; i < 4; i++)
-        {
+        for (uint i = 0; i < 4; i++) {
             linesizes[i] = this.frame->linesize[i];
         }
 
@@ -220,8 +197,7 @@ public unsafe class VideoFrame : MediaFrame
     /// <summary> Saves this frame to the specified file. The format will be choosen based on the file extension. (Can be either JPG or PNG) </summary>
     /// <remarks> This is an unoptimized debug method. Production use is not recommended. </remarks>
     /// <param name="quality">JPEG: Quantization factor. PNG: ZLib compression level. 0-100</param>
-    public void Save(string filename, int quality = 90, int outWidth = 0, int outHeight = 0)
-    {
+    public void Save(string filename, int quality = 90, int outWidth = 0, int outHeight = 0) {
         this.ValidateNotDisposed();
 
         bool jpeg = filename.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
@@ -235,36 +211,30 @@ public unsafe class VideoFrame : MediaFrame
         if (outHeight <= 0)
             outHeight = this.Height;
 
-        using (VideoEncoder encoder = new VideoEncoder(codec, new PictureFormat(outWidth, outHeight, pixFmt), 1, 10000))
-        {
-            if (jpeg)
-            {
+        using (VideoEncoder encoder = new VideoEncoder(codec, new PictureFormat(outWidth, outHeight, pixFmt), 1, 10000)) {
+            if (jpeg) {
                 //1-31
                 int q = 1 + (100 - quality) * 31 / 100;
                 encoder.MaxQuantizer = q;
                 encoder.MinQuantizer = q;
                 encoder.Handle->color_range = AVColorRange.AVCOL_RANGE_JPEG;
             }
-            else
-            {
+            else {
                 //zlib compression (0-9)
                 encoder.CompressionLevel = quality * 9 / 100;
             }
 
             encoder.Open();
 
-            using (VideoFrame tempFrame = new VideoFrame(encoder.FrameFormat))
-            {
-                using (SwScaler sws = new SwScaler(this.Format, tempFrame.Format))
-                {
+            using (VideoFrame tempFrame = new VideoFrame(encoder.FrameFormat)) {
+                using (SwScaler sws = new SwScaler(this.Format, tempFrame.Format)) {
                     sws.Convert(this, tempFrame);
                 }
 
                 encoder.SendFrame(tempFrame);
             }
 
-            using (MediaPacket packet = new MediaPacket())
-            {
+            using (MediaPacket packet = new MediaPacket()) {
                 encoder.ReceivePacket(packet);
                 File.WriteAllBytes(filename, packet.Data.ToArray());
             }
@@ -273,8 +243,7 @@ public unsafe class VideoFrame : MediaFrame
 }
 
 /// <summary> Flags to apply to hardware frame memory mappings. </summary>
-public enum HardwareFrameMappingFlags
-{
+public enum HardwareFrameMappingFlags {
     /// <summary> The mapping must be readable. </summary>
     Read = 1 << 0,
 
@@ -296,8 +265,7 @@ public enum HardwareFrameMappingFlags
     Direct = 1 << 3,
 }
 
-public enum HardwareFrameTransferDirection
-{
+public enum HardwareFrameTransferDirection {
     /// <summary> Transfer the data from the queried hw frame. </summary>
     From = AVHWFrameTransferDirection.AV_HWFRAME_TRANSFER_DIRECTION_FROM,
 

@@ -23,12 +23,10 @@ namespace FramePFX.Avalonia.Bindings;
 /// A base binder class which implements an event handler for the model which fires the <see cref="IBinder.UpdateControl"/> method
 /// </summary>
 /// <typeparam name="TModel">The model type</typeparam>
-public abstract class BaseAutoEventPropertyBinder<TModel> : BaseBinder<TModel> where TModel : class
-{
+public abstract class BaseAutoEventPropertyBinder<TModel> : BaseBinder<TModel> where TModel : class {
     private readonly AutoEventHelper autoEventHelper;
 
-    protected BaseAutoEventPropertyBinder(string eventName)
-    {
+    protected BaseAutoEventPropertyBinder(string eventName) {
         this.autoEventHelper = new AutoEventHelper(eventName, typeof(TModel), this.OnModelValueChanged);
     }
 
@@ -37,13 +35,11 @@ public abstract class BaseAutoEventPropertyBinder<TModel> : BaseBinder<TModel> w
     /// </summary>
     protected virtual void OnModelValueChanged() => this.UpdateControl();
 
-    protected override void OnAttached()
-    {
+    protected override void OnAttached() {
         this.autoEventHelper.AddEventHandler(this.myModel!);
     }
 
-    protected override void OnDetached()
-    {
+    protected override void OnDetached() {
         this.autoEventHelper.RemoveEventHandler(this.myModel!);
     }
 }

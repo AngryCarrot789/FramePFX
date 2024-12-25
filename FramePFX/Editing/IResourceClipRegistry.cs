@@ -31,14 +31,12 @@ namespace FramePFX.Editing;
 /// <summary>
 /// A class which manages the behaviour for when a user tries to drop a resource into a timeline
 /// </summary>
-public sealed class ResourceDropOnTimelineService
-{
+public sealed class ResourceDropOnTimelineService {
     public static ResourceDropOnTimelineService Instance => Application.Instance.ServiceManager.GetService<ResourceDropOnTimelineService>();
-    
+
     private readonly Dictionary<Type, IResourceDropHandler> information;
-    
-    public ResourceDropOnTimelineService()
-    {
+
+    public ResourceDropOnTimelineService() {
         this.information = new Dictionary<Type, IResourceDropHandler>();
         this.Register(typeof(ResourceAVMedia), new AvMediaDropHandler());
         this.Register(typeof(ResourceColour), new ResourceColourDropHandler());
@@ -46,23 +44,20 @@ public sealed class ResourceDropOnTimelineService
         this.Register(typeof(ResourceComposition), new CompositionResourceDropHandler());
     }
 
-    public void Register(Type resourceType, IResourceDropHandler info)
-    {
+    public void Register(Type resourceType, IResourceDropHandler info) {
         Validate.NotNull(resourceType);
         Validate.NotNull(info);
 
         if (!typeof(ResourceItem).IsAssignableFrom(resourceType))
             throw new ArgumentException("Resource type is not an instance of " + nameof(ResourceItem));
-        
+
         this.information[resourceType] = info;
     }
 
     public bool TryGetHandler(Type key, [NotNullWhen(true)] out IResourceDropHandler? value) => this.information.TryGetValue(key, out value);
-    
-    private class AvMediaDropHandler : IResourceDropHandler
-    {
-        public long GetClipDurationForDrop(Track track, ResourceItem resource)
-        {
+
+    private class AvMediaDropHandler : IResourceDropHandler {
+        public long GetClipDurationForDrop(Track track, ResourceItem resource) {
             if (resource.Manager == null)
                 return -1;
 
@@ -72,10 +67,8 @@ public sealed class ResourceDropOnTimelineService
             return (long) (duration.TotalSeconds * fps);
         }
 
-        public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span)
-        {
-            if (resource.HasReachedResourceLimit())
-            {
+        public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span) {
+            if (resource.HasReachedResourceLimit()) {
                 int count = resource.ResourceLinkLimit;
                 await IMessageDialogService.Instance.ShowMessage("Resource Limit", $"This resource cannot be used by more than {count} clip{Lang.S(count)}");
                 return;
@@ -89,13 +82,11 @@ public sealed class ResourceDropOnTimelineService
             track.AddClip(clip);
         }
     }
-    
-    private class ResourceImageDropHandler : IResourceDropHandler
-    {
+
+    private class ResourceImageDropHandler : IResourceDropHandler {
         public long GetClipDurationForDrop(Track track, ResourceItem resource) => 300;
 
-        public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span)
-        {
+        public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span) {
             if (!await HandleGeneralCanDropResource(resource))
                 return;
 
@@ -108,12 +99,10 @@ public sealed class ResourceDropOnTimelineService
         }
     }
 
-    private class ResourceColourDropHandler : IResourceDropHandler
-    {
+    private class ResourceColourDropHandler : IResourceDropHandler {
         public long GetClipDurationForDrop(Track track, ResourceItem resource) => 300;
 
-        public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span)
-        {
+        public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span) {
             if (!await HandleGeneralCanDropResource(resource))
                 return;
 
@@ -126,18 +115,15 @@ public sealed class ResourceDropOnTimelineService
         }
     }
 
-    private class CompositionResourceDropHandler : IResourceDropHandler
-    {
-        public long GetClipDurationForDrop(Track track, ResourceItem resource)
-        {
+    private class CompositionResourceDropHandler : IResourceDropHandler {
+        public long GetClipDurationForDrop(Track track, ResourceItem resource) {
             if (resource.Manager == null)
                 return -1;
 
             return ((ResourceComposition) resource).Timeline.LargestFrameInUse;
         }
 
-        public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span)
-        {
+        public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span) {
             if (!await HandleGeneralCanDropResource(resource))
                 return;
 
@@ -149,11 +135,9 @@ public sealed class ResourceDropOnTimelineService
             track.AddClip(clip);
         }
     }
-    
-    private static async ValueTask<bool> HandleGeneralCanDropResource(ResourceItem item)
-    {
-        if (item.HasReachedResourceLimit())
-        {
+
+    private static async ValueTask<bool> HandleGeneralCanDropResource(ResourceItem item) {
+        if (item.HasReachedResourceLimit()) {
             int count = item.ResourceLinkLimit;
             await IMessageDialogService.Instance.ShowMessage("Resource Limit", $"This resource cannot be used by more than {count} clip{Lang.S(count)}");
             return false;
@@ -166,9 +150,8 @@ public sealed class ResourceDropOnTimelineService
 /// <summary>
 /// An object that handles a resource being dropped in a track. 
 /// </summary>
-public interface IResourceDropHandler
-{
+public interface IResourceDropHandler {
     long GetClipDurationForDrop(Track track, ResourceItem resource);
-    
+
     Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span);
 }

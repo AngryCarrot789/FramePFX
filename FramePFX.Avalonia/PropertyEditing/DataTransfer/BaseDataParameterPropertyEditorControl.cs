@@ -28,8 +28,7 @@ using FramePFX.PropertyEditing.DataTransfer;
 
 namespace FramePFX.Avalonia.PropertyEditing.DataTransfer;
 
-public abstract class BaseDataParameterPropertyEditorControl : BasePropEditControlContent
-{
+public abstract class BaseDataParameterPropertyEditorControl : BasePropEditControlContent {
     public static readonly StyledProperty<bool> IsCheckBoxToggleableProperty = AvaloniaProperty.Register<BaseDataParameterPropertyEditorControl, bool>("IsCheckBoxToggleable");
 
     protected ITransferableData? singleHandler;
@@ -37,8 +36,7 @@ public abstract class BaseDataParameterPropertyEditorControl : BasePropEditContr
     protected bool IsUpdatingPrimaryControl;
     protected bool isUpdatingCheckBoxControl;
 
-    public bool IsCheckBoxToggleable
-    {
+    public bool IsCheckBoxToggleable {
         get => this.GetValue(IsCheckBoxToggleableProperty);
         set => this.SetValue(IsCheckBoxToggleableProperty, value);
     }
@@ -48,17 +46,14 @@ public abstract class BaseDataParameterPropertyEditorControl : BasePropEditContr
     protected BaseDataParameterPropertyEditorControl() {
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.displayNameCheckBox = e.NameScope.GetTemplateChild<CheckBox>("PART_DisplayNameCheckBox")!;
         this.displayNameCheckBox.IsCheckedChanged += this.OnDisplayNameCheckChanged;
     }
 
-    protected virtual void OnDisplayNameCheckChanged(object? sender, RoutedEventArgs e)
-    {
-        if (this.IsCheckBoxToggleable && !this.isUpdatingCheckBoxControl && this.SlotModel != null)
-        {
+    protected virtual void OnDisplayNameCheckChanged(object? sender, RoutedEventArgs e) {
+        if (this.IsCheckBoxToggleable && !this.isUpdatingCheckBoxControl && this.SlotModel != null) {
             bool value = this.displayNameCheckBox!.IsChecked ?? false;
             this.SlotModel.IsEditable = this.SlotModel.InvertIsEditableForParameter ? !value : value;
         }
@@ -68,32 +63,25 @@ public abstract class BaseDataParameterPropertyEditorControl : BasePropEditContr
 
     protected abstract void UpdateModelValue();
 
-    protected void OnModelValueChanged()
-    {
-        if (this.SlotModel != null)
-        {
+    protected void OnModelValueChanged() {
+        if (this.SlotModel != null) {
             this.IsUpdatingPrimaryControl = true;
-            try
-            {
+            try {
                 this.UpdateControlValue();
             }
-            finally
-            {
+            finally {
                 this.IsUpdatingPrimaryControl = false;
             }
         }
     }
 
-    protected void OnControlValueChanged()
-    {
-        if (!this.IsUpdatingPrimaryControl && this.SlotModel != null)
-        {
+    protected void OnControlValueChanged() {
+        if (!this.IsUpdatingPrimaryControl && this.SlotModel != null) {
             this.UpdateModelValue();
         }
     }
 
-    protected override void OnConnected()
-    {
+    protected override void OnConnected() {
         DataParameterPropertyEditorSlot slot = this.SlotModel!;
         slot.HandlersLoaded += this.OnHandlersChanged;
         slot.HandlersCleared += this.OnHandlersChanged;
@@ -105,8 +93,7 @@ public abstract class BaseDataParameterPropertyEditorControl : BasePropEditContr
         this.OnHandlerListChanged(true);
     }
 
-    protected override void OnDisconnected()
-    {
+    protected override void OnDisconnected() {
         DataParameterPropertyEditorSlot slot = this.SlotModel!;
         slot.DisplayNameChanged -= this.OnSlotDisplayNameChanged;
         slot.HandlersLoaded -= this.OnHandlersChanged;
@@ -116,13 +103,11 @@ public abstract class BaseDataParameterPropertyEditorControl : BasePropEditContr
         this.OnHandlerListChanged(false);
     }
 
-    private void SlotOnIsEditableChanged(DataParameterPropertyEditorSlot slot)
-    {
+    private void SlotOnIsEditableChanged(DataParameterPropertyEditorSlot slot) {
         this.UpdateCanEdit();
     }
 
-    private void UpdateCanEdit()
-    {
+    private void UpdateCanEdit() {
         this.isUpdatingCheckBoxControl = true;
         DataParameterPropertyEditorSlot slot = this.SlotModel!;
         bool value = slot.IsEditable;
@@ -134,45 +119,37 @@ public abstract class BaseDataParameterPropertyEditorControl : BasePropEditContr
 
     protected abstract void OnCanEditValueChanged(bool canEdit);
 
-    private void OnSlotValueChanged(DataParameterPropertyEditorSlot slot)
-    {
+    private void OnSlotValueChanged(DataParameterPropertyEditorSlot slot) {
         this.OnModelValueChanged();
     }
 
-    private void OnSlotDisplayNameChanged(DataParameterPropertyEditorSlot slot)
-    {
+    private void OnSlotDisplayNameChanged(DataParameterPropertyEditorSlot slot) {
         if (this.displayNameCheckBox != null)
             this.displayNameCheckBox.Content = slot.DisplayName;
     }
 
-    private void OnHandlerListChanged(bool connect)
-    {
+    private void OnHandlerListChanged(bool connect) {
         DataParameterPropertyEditorSlot? slot = this.SlotModel;
-        if (connect)
-        {
-            if (slot != null && slot.Handlers.Count == 1)
-            {
+        if (connect) {
+            if (slot != null && slot.Handlers.Count == 1) {
                 this.singleHandler = (ITransferableData) slot.Handlers[0];
             }
 
             this.OnHandlersLoadedOverride(true);
         }
-        else
-        {
+        else {
             this.OnHandlersLoadedOverride(false);
             this.singleHandler = null;
         }
     }
 
-    protected virtual void OnHandlersLoadedOverride(bool isLoaded)
-    {
+    protected virtual void OnHandlersLoadedOverride(bool isLoaded) {
         this.UpdateCanEdit();
         if (isLoaded)
             this.OnModelValueChanged();
     }
 
-    private void OnHandlersChanged(PropertyEditorSlot sender)
-    {
+    private void OnHandlersChanged(PropertyEditorSlot sender) {
         this.OnHandlerListChanged(sender.IsCurrentlyApplicable);
     }
 }

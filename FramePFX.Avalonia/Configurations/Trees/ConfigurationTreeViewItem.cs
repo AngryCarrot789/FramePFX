@@ -26,8 +26,7 @@ using FramePFX.Configurations;
 
 namespace FramePFX.Avalonia.Configurations.Trees;
 
-public class ConfigurationTreeViewItem : TreeViewItem, IConfigurationTreeOrNode
-{
+public class ConfigurationTreeViewItem : TreeViewItem, IConfigurationTreeOrNode {
     public ConfigurationTreeView? ResourceTree { get; private set; }
 
     public ConfigurationTreeViewItem? ParentNode { get; private set; }
@@ -36,47 +35,39 @@ public class ConfigurationTreeViewItem : TreeViewItem, IConfigurationTreeOrNode
 
     private TextBlock? PART_HeaderTextBlock;
 
-    public ConfigurationTreeViewItem()
-    {
+    public ConfigurationTreeViewItem() {
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.PART_HeaderTextBlock = e.NameScope.GetTemplateChild<TextBlock>(nameof(this.PART_HeaderTextBlock));
     }
 
     #region Model Connection
 
-    public virtual void OnAdding(ConfigurationTreeView tree, ConfigurationTreeViewItem? parentNode, ConfigurationEntry resource)
-    {
+    public virtual void OnAdding(ConfigurationTreeView tree, ConfigurationTreeViewItem? parentNode, ConfigurationEntry resource) {
         this.ResourceTree = tree;
         this.ParentNode = parentNode;
         this.Entry = resource;
     }
 
-    public virtual void OnAdded()
-    {
+    public virtual void OnAdded() {
         int i = 0;
-        foreach (ConfigurationEntry item in this.Entry!.Items)
-        {
+        foreach (ConfigurationEntry item in this.Entry!.Items) {
             this.InsertNode(item, i++);
         }
 
         this.Header = this.Entry.DisplayName ?? "Unnamed Configuration";
     }
 
-    public virtual void OnRemoving()
-    {
+    public virtual void OnRemoving() {
         int count = this.Items.Count;
-        for (int i = count - 1; i >= 0; i--)
-        {
+        for (int i = count - 1; i >= 0; i--) {
             this.RemoveNode(i);
         }
     }
 
-    public virtual void OnRemoved()
-    {
+    public virtual void OnRemoved() {
         this.ResourceTree = null;
         this.ParentNode = null;
         this.Entry = null;
@@ -90,8 +81,7 @@ public class ConfigurationTreeViewItem : TreeViewItem, IConfigurationTreeOrNode
 
     public void InsertNode(ConfigurationEntry item, int index) => this.InsertNode(null, item, index);
 
-    public void InsertNode(ConfigurationTreeViewItem? control, ConfigurationEntry layer, int index)
-    {
+    public void InsertNode(ConfigurationTreeViewItem? control, ConfigurationEntry layer, int index) {
         ConfigurationTreeView? tree = this.ResourceTree;
         if (tree == null)
             throw new InvalidOperationException("Cannot add children when we have no resource tree associated");
@@ -106,8 +96,7 @@ public class ConfigurationTreeViewItem : TreeViewItem, IConfigurationTreeOrNode
         control.OnAdded();
     }
 
-    public void RemoveNode(int index, bool canCache = true)
-    {
+    public void RemoveNode(int index, bool canCache = true) {
         ConfigurationTreeView? tree = this.ResourceTree;
         if (tree == null)
             throw new InvalidOperationException("Cannot remove children when we have no resource tree associated");
@@ -124,31 +113,25 @@ public class ConfigurationTreeViewItem : TreeViewItem, IConfigurationTreeOrNode
 
     #endregion
 
-    protected override void OnPointerPressed(PointerPressedEventArgs e)
-    {
+    protected override void OnPointerPressed(PointerPressedEventArgs e) {
         base.OnPointerPressed(e);
-        if (e.Handled)
-        {
+        if (e.Handled) {
             return;
         }
 
         PointerPoint point = e.GetCurrentPoint(this);
-        if (point.Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonPressed)
-        {
+        if (point.Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonPressed) {
             return;
         }
 
         bool isToggle = (e.KeyModifiers & KeyModifiers.Control) != 0;
-        if ((e.ClickCount % 2) == 0)
-        {
-            if (!isToggle)
-            {
+        if ((e.ClickCount % 2) == 0) {
+            if (!isToggle) {
                 this.SetCurrentValue(IsExpandedProperty, !this.IsExpanded);
                 e.Handled = true;
             }
         }
-        else if ((this.IsFocused || this.Focus()))
-        {
+        else if ((this.IsFocused || this.Focus())) {
             e.Pointer.Capture(this);
             this.ResourceTree?.SetSelection(this);
             e.Handled = true;

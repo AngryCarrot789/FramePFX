@@ -25,15 +25,13 @@ using FramePFX.Services.UserInputs;
 
 namespace FramePFX.Avalonia.Services.Messages.Controls;
 
-public partial class SingleUserInputControl : UserControl, IUserInputContent
-{
+public partial class SingleUserInputControl : UserControl, IUserInputContent {
     private readonly DataParameterPropertyBinder<SingleUserInputInfo> labelBinder = new DataParameterPropertyBinder<SingleUserInputInfo>(TextBlock.TextProperty, SingleUserInputInfo.LabelParameter);
     private readonly DataParameterPropertyBinder<SingleUserInputInfo> textBinder = new DataParameterPropertyBinder<SingleUserInputInfo>(TextBox.TextProperty, SingleUserInputInfo.TextParameter);
     private UserInputDialog? myDialog;
     private SingleUserInputInfo? myData;
 
-    public SingleUserInputControl()
-    {
+    public SingleUserInputControl() {
         this.InitializeComponent();
         this.labelBinder.AttachControl(this.PART_Label);
         this.textBinder.AttachControl(this.PART_TextBox);
@@ -41,16 +39,13 @@ public partial class SingleUserInputControl : UserControl, IUserInputContent
         this.PART_TextBox.KeyDown += this.OnTextFieldKeyDown;
     }
 
-    private void OnTextFieldKeyDown(object? sender, KeyEventArgs e)
-    {
-        if ((e.Key == Key.Escape || e.Key == Key.Enter) && this.myDialog != null)
-        {
+    private void OnTextFieldKeyDown(object? sender, KeyEventArgs e) {
+        if ((e.Key == Key.Escape || e.Key == Key.Enter) && this.myDialog != null) {
             this.myDialog.TryCloseDialog(e.Key != Key.Escape);
         }
     }
 
-    public void Connect(UserInputDialog dialog, UserInputInfo info)
-    {
+    public void Connect(UserInputDialog dialog, UserInputInfo info) {
         this.myDialog = dialog;
         this.myData = (SingleUserInputInfo) info;
         this.labelBinder.AttachModel(this.myData);
@@ -62,8 +57,7 @@ public partial class SingleUserInputControl : UserControl, IUserInputContent
         this.UpdateLabelVisibility();
     }
 
-    public void Disconnect()
-    {
+    public void Disconnect() {
         this.labelBinder.DetachModel();
         this.textBinder.DetachModel();
         SingleUserInputInfo.TextParameter.RemoveValueChangedHandler(this.myData!, this.OnTextChanged);
@@ -74,8 +68,7 @@ public partial class SingleUserInputControl : UserControl, IUserInputContent
         this.myData = null;
     }
 
-    public bool FocusPrimaryInput()
-    {
+    public bool FocusPrimaryInput() {
         this.PART_TextBox.Focus();
         this.PART_TextBox.SelectAll();
         return true;

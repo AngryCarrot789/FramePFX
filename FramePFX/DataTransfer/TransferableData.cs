@@ -26,15 +26,12 @@ namespace FramePFX.DataTransfer;
 /// object. This class manages firing value changed events and processing data property flags,
 /// which is why it is important that the setter methods of the data properties are not called directly
 /// </summary>
-public sealed class TransferableData
-{
-    private class ParameterData
-    {
+public sealed class TransferableData {
+    private class ParameterData {
         public bool isValueChanging;
         public event DataParameterValueChangedEventHandler? ValueChanged;
 
-        public void RaiseValueChanged(DataParameter parameter, ITransferableData owner)
-        {
+        public void RaiseValueChanged(DataParameter parameter, ITransferableData owner) {
             this.ValueChanged?.Invoke(parameter, owner);
         }
     }
@@ -48,43 +45,35 @@ public sealed class TransferableData
     /// </summary>
     public event DataParameterValueChangedEventHandler? ValueChanged;
 
-    public TransferableData(ITransferableData owner)
-    {
+    public TransferableData(ITransferableData owner) {
         this.Owner = owner ?? throw new ArgumentNullException(nameof(owner));
     }
 
-    internal static void InternalAddHandler(DataParameter parameter, TransferableData owner, DataParameterValueChangedEventHandler handler)
-    {
+    internal static void InternalAddHandler(DataParameter parameter, TransferableData owner, DataParameterValueChangedEventHandler handler) {
         owner.GetOrCreateParamData(parameter).ValueChanged += handler;
     }
 
-    internal static void InternalRemoveHandler(DataParameter parameter, TransferableData owner, DataParameterValueChangedEventHandler handler)
-    {
-        if (owner.TryGetParameterData(parameter, out ParameterData? data))
-        {
+    internal static void InternalRemoveHandler(DataParameter parameter, TransferableData owner, DataParameterValueChangedEventHandler handler) {
+        if (owner.TryGetParameterData(parameter, out ParameterData? data)) {
             data.ValueChanged -= handler;
         }
     }
 
-    public bool IsValueChanging(DataParameter parameter)
-    {
+    public bool IsValueChanging(DataParameter parameter) {
         return this.TryGetParameterData(parameter, out ParameterData? data) && data.isValueChanging;
     }
 
-    public bool IsParameterValid(DataParameter parameter)
-    {
+    public bool IsParameterValid(DataParameter parameter) {
         // parameter.OwnerType.IsAssignableFrom(this.Owner.GetType());
         return parameter.OwnerType.IsInstanceOfType(this.Owner);
     }
 
-    public void ValidateParameter(DataParameter parameter)
-    {
+    public void ValidateParameter(DataParameter parameter) {
         if (!this.IsParameterValid(parameter))
             throw new ArgumentException($"Parameter '{parameter.GlobalKey}' is incompatible for our owner. {this.Owner.GetType().Name} is not assignable to {parameter.OwnerType.Name}");
     }
 
-    private bool TryGetParameterData(DataParameter parameter, [NotNullWhen(true)] out ParameterData? data)
-    {
+    private bool TryGetParameterData(DataParameter parameter, [NotNullWhen(true)] out ParameterData? data) {
         if (parameter == null)
             throw new ArgumentNullException(nameof(parameter), "Parameter cannot be null");
         if (this.paramData != null && this.paramData.TryGetValue(parameter.GlobalIndex, out data))
@@ -94,8 +83,7 @@ public sealed class TransferableData
         return false;
     }
 
-    private ParameterData GetOrCreateParamData(DataParameter parameter)
-    {
+    private ParameterData GetOrCreateParamData(DataParameter parameter) {
         if (parameter == null)
             throw new ArgumentNullException(nameof(parameter), "Parameter cannot be null");
 
@@ -109,30 +97,25 @@ public sealed class TransferableData
         return data;
     }
 
-    internal static void InternalBeginValueChange(DataParameter parameter, ITransferableData owner)
-    {
+    internal static void InternalBeginValueChange(DataParameter parameter, ITransferableData owner) {
         ParameterData internalData = owner.TransferableData.GetOrCreateParamData(parameter);
-        if (internalData.isValueChanging)
-        {
+        if (internalData.isValueChanging) {
             throw new InvalidOperationException("Value is already changing. This exception is thrown, as the alternative is most likely a stack overflow exception");
         }
 
         internalData.isValueChanging = true;
     }
 
-    internal static void InternalEndValueChange(DataParameter parameter, ITransferableData owner)
-    {
+    internal static void InternalEndValueChange(DataParameter parameter, ITransferableData owner) {
         TransferableData data = owner.TransferableData;
         ParameterData internalData = data.GetOrCreateParamData(parameter);
-        try
-        {
+        try {
             DataParameter.InternalOnParameterValueChanged(parameter, owner, true);
             internalData.RaiseValueChanged(parameter, owner);
             data.ValueChanged?.Invoke(parameter, owner);
             DataParameter.InternalOnParameterValueChanged(parameter, owner, false);
         }
-        finally
-        {
+        finally {
             internalData.isValueChanging = false;
         }
     }

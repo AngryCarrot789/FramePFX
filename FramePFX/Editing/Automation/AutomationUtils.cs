@@ -26,21 +26,16 @@ using FramePFX.Editing.Timelines.Tracks;
 
 namespace FramePFX.Editing.Automation;
 
-public static class AutomationUtils
-{
-    public static void GetDefaultKeyFrameOrAddNew(AutomationSequence sequence, out KeyFrame keyFrame, bool enableOverrideIfOutOfRange = true)
-    {
-        if (sequence.IsEmpty || sequence.IsOverrideEnabled)
-        {
+public static class AutomationUtils {
+    public static void GetDefaultKeyFrameOrAddNew(AutomationSequence sequence, out KeyFrame keyFrame, bool enableOverrideIfOutOfRange = true) {
+        if (sequence.IsEmpty || sequence.IsOverrideEnabled) {
             keyFrame = sequence.DefaultKeyFrame;
         }
-        else if (sequence.AutomationData.Owner.GetRelativePlayHead(out long playHead))
-        {
+        else if (sequence.AutomationData.Owner.GetRelativePlayHead(out long playHead)) {
             // Either get the last key frame at the playhead or create a new one at that location
             keyFrame = sequence.GetOrCreateKeyFrameAtFrame(playHead, out _);
         }
-        else
-        {
+        else {
             // when the object is has a strict frame range, e.g. clip, effect, and it is not in range,
             // enable override and set the default key frame
             keyFrame = sequence.DefaultKeyFrame;
@@ -51,20 +46,16 @@ public static class AutomationUtils
 
     public static void SetDefaultKeyFrameOrAddNew(IAutomatable automatable, Parameter parameter, object value, bool createFirstIfEmpty = false) => SetDefaultKeyFrameOrAddNew(automatable, parameter, value, (k, d, o) => k.SetValueFromObject(o), createFirstIfEmpty);
 
-    public static void SetDefaultKeyFrameOrAddNew<T>(IAutomatable automatable, Parameter parameter, T value, Action<KeyFrame, ParameterDescriptor, T> setter, bool createFirstIfEmpty = false)
-    {
+    public static void SetDefaultKeyFrameOrAddNew<T>(IAutomatable automatable, Parameter parameter, T value, Action<KeyFrame, ParameterDescriptor, T> setter, bool createFirstIfEmpty = false) {
         AutomationSequence sequence = automatable.AutomationData[parameter];
-        if ((!createFirstIfEmpty && sequence.IsEmpty) || sequence.IsOverrideEnabled)
-        {
+        if ((!createFirstIfEmpty && sequence.IsEmpty) || sequence.IsOverrideEnabled) {
             setter(sequence.DefaultKeyFrame, parameter.Descriptor, value);
         }
-        else if (sequence.AutomationData.Owner.GetRelativePlayHead(out long playHead))
-        {
+        else if (sequence.AutomationData.Owner.GetRelativePlayHead(out long playHead)) {
             // Either get the last key frame at the playhead or create a new one at that location
             setter(sequence.GetOrCreateKeyFrameAtFrame(playHead, out _), parameter.Descriptor, value);
         }
-        else
-        {
+        else {
             // when the object is has a strict frame range, e.g. clip, effect, and it is not in range,
             // enable override and set the default key frame
             setter(sequence.DefaultKeyFrame, parameter.Descriptor, value);
@@ -72,49 +63,38 @@ public static class AutomationUtils
         }
     }
 
-    public static bool TryAddKeyFrameAtLocation(AutomationSequence sequence, out KeyFrame keyFrame)
-    {
-        if (sequence.AutomationData.Owner.GetRelativePlayHead(out long playHead))
-        {
+    public static bool TryAddKeyFrameAtLocation(AutomationSequence sequence, out KeyFrame keyFrame) {
+        if (sequence.AutomationData.Owner.GetRelativePlayHead(out long playHead)) {
             keyFrame = sequence.GetOrCreateKeyFrameAtFrame(playHead, out _, true);
             return true;
         }
-        else
-        {
+        else {
             keyFrame = null;
             return false;
         }
     }
 
-    public static bool GetClipForAutomatable(IAutomatable? automatable, [NotNullWhen(true)] out Clip? clip)
-    {
-        if ((clip = automatable as Clip) != null)
-        {
+    public static bool GetClipForAutomatable(IAutomatable? automatable, [NotNullWhen(true)] out Clip? clip) {
+        if ((clip = automatable as Clip) != null) {
             return true;
         }
-        else if (automatable is BaseEffect effect)
-        {
+        else if (automatable is BaseEffect effect) {
             return (clip = effect.OwnerClip) != null;
         }
-        else
-        {
+        else {
             clip = null;
             return false;
         }
     }
-    
-    public static bool GetTrackForAutomatable(IAutomatable? automatable, [NotNullWhen(true)] out Track? track)
-    {
-        if ((track = automatable as Track) != null)
-        {
+
+    public static bool GetTrackForAutomatable(IAutomatable? automatable, [NotNullWhen(true)] out Track? track) {
+        if ((track = automatable as Track) != null) {
             return true;
         }
-        else if (automatable is BaseEffect effect)
-        {
+        else if (automatable is BaseEffect effect) {
             return (track = effect.OwnerTrack) != null;
         }
-        else
-        {
+        else {
             track = null;
             return false;
         }

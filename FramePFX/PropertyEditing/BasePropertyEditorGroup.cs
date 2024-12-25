@@ -26,8 +26,7 @@ public delegate void PropertyEditorGroupChildEventHandler(BasePropertyEditorGrou
 
 public delegate void PropertyEditorGroupChildMovedEventHandler(BasePropertyEditorGroup group, BasePropertyEditorObject item, int oldIndex, int newIndex);
 
-public abstract class BasePropertyEditorGroup : BasePropertyEditorItem
-{
+public abstract class BasePropertyEditorGroup : BasePropertyEditorItem {
     private readonly List<BasePropertyEditorObject> propObjs;
     private string displayName;
     private bool isExpanded = true; // expand by default
@@ -40,11 +39,9 @@ public abstract class BasePropertyEditorGroup : BasePropertyEditorItem
     /// <summary>
     /// Gets or sets this group's display name
     /// </summary>
-    public string DisplayName
-    {
+    public string DisplayName {
         get => this.displayName;
-        set
-        {
+        set {
             if (this.displayName == value)
                 return;
             this.displayName = value;
@@ -55,11 +52,9 @@ public abstract class BasePropertyEditorGroup : BasePropertyEditorItem
     /// <summary>
     /// Gets or sets if this group is expanded or not
     /// </summary>
-    public bool IsExpanded
-    {
+    public bool IsExpanded {
         get => this.isExpanded;
-        set
-        {
+        set {
             if (this.isExpanded == value)
                 return;
             this.isExpanded = value;
@@ -80,42 +75,33 @@ public abstract class BasePropertyEditorGroup : BasePropertyEditorItem
     public event BasePropertyEditorItemEventHandler? DisplayNameChanged;
     public event BasePropertyEditorItemEventHandler? IsExpandedChanged;
 
-    public BasePropertyEditorGroup(Type applicableType, GroupType groupType = GroupType.PrimaryExpander) : base(applicableType)
-    {
+    public BasePropertyEditorGroup(Type applicableType, GroupType groupType = GroupType.PrimaryExpander) : base(applicableType) {
         this.propObjs = new List<BasePropertyEditorObject>();
         this.PropertyObjects = this.propObjs.AsReadOnly();
         this.GroupType = groupType;
     }
 
-    protected override void OnPropertyEditorChanged(PropertyEditor? oldEditor, PropertyEditor? newEditor)
-    {
+    protected override void OnPropertyEditorChanged(PropertyEditor? oldEditor, PropertyEditor? newEditor) {
         base.OnPropertyEditorChanged(oldEditor, newEditor);
-        foreach (BasePropertyEditorObject obj in this.propObjs)
-        {
+        foreach (BasePropertyEditorObject obj in this.propObjs) {
             SetPropertyEditor(obj, newEditor);
         }
     }
 
-    public void ExpandHierarchy()
-    {
+    public void ExpandHierarchy() {
         this.IsExpanded = true;
-        foreach (BasePropertyEditorObject obj in this.propObjs)
-        {
-            if (obj is BasePropertyEditorGroup group)
-            {
+        foreach (BasePropertyEditorObject obj in this.propObjs) {
+            if (obj is BasePropertyEditorGroup group) {
                 group.ExpandHierarchy();
             }
         }
     }
 
-    public void CollapseHierarchy()
-    {
+    public void CollapseHierarchy() {
         // probably more performant to expand the top first, so that closing child ones won't cause rendering
         this.IsExpanded = false;
-        foreach (BasePropertyEditorObject obj in this.propObjs)
-        {
-            if (obj is BasePropertyEditorGroup group)
-            {
+        foreach (BasePropertyEditorObject obj in this.propObjs) {
+            if (obj is BasePropertyEditorGroup group) {
                 group.CollapseHierarchy();
             }
         }
@@ -123,8 +109,7 @@ public abstract class BasePropertyEditorGroup : BasePropertyEditorItem
 
     public virtual void AddItem(BasePropertyEditorObject propObj) => this.InsertItem(this.propObjs.Count, propObj);
 
-    public virtual void InsertItem(int index, BasePropertyEditorObject propObj)
-    {
+    public virtual void InsertItem(int index, BasePropertyEditorObject propObj) {
         if (propObj == null)
             throw new ArgumentNullException(nameof(propObj));
         if (!this.IsPropertyEditorObjectAcceptable(propObj))
@@ -134,8 +119,7 @@ public abstract class BasePropertyEditorGroup : BasePropertyEditorItem
         this.ItemAdded?.Invoke(this, propObj, index);
     }
 
-    public virtual bool RemoveItem(BasePropertyEditorObject propObj)
-    {
+    public virtual bool RemoveItem(BasePropertyEditorObject propObj) {
         int index = this.propObjs.IndexOf(propObj);
         if (index == -1)
             return false;
@@ -143,16 +127,14 @@ public abstract class BasePropertyEditorGroup : BasePropertyEditorItem
         return true;
     }
 
-    public virtual void RemoveItemAt(int index)
-    {
+    public virtual void RemoveItemAt(int index) {
         BasePropertyEditorObject propObj = this.propObjs[index];
         this.propObjs.RemoveAt(index);
         OnRemovedFromGroup(propObj, this);
         this.ItemRemoved?.Invoke(this, propObj, index);
     }
 
-    public virtual void MoveItem(int oldIndex, int newIndex)
-    {
+    public virtual void MoveItem(int oldIndex, int newIndex) {
         BasePropertyEditorObject propObj = this.propObjs[oldIndex];
         this.propObjs.MoveItem(oldIndex, newIndex);
         this.ItemMoved?.Invoke(this, propObj, oldIndex, newIndex);

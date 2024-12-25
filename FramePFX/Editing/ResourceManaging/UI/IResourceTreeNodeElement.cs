@@ -19,8 +19,7 @@
 
 namespace FramePFX.Editing.ResourceManaging.UI;
 
-public interface IResourceTreeNodeElement
-{
+public interface IResourceTreeNodeElement {
     /// <summary>
     /// Gets the layer model for this node
     /// </summary>

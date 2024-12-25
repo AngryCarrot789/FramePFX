@@ -24,15 +24,12 @@ namespace FramePFX.PropertyEditing.Automation;
 
 public delegate void SlotValueFormatterChangedEventHandler(NumericParameterPropertyEditorSlot sender, IValueFormatter? oldValueFormatter, IValueFormatter? newValueFormatter);
 
-public abstract class NumericParameterPropertyEditorSlot : ParameterPropertyEditorSlot
-{
+public abstract class NumericParameterPropertyEditorSlot : ParameterPropertyEditorSlot {
     private IValueFormatter? valueFormatter;
 
-    public IValueFormatter? ValueFormatter
-    {
+    public IValueFormatter? ValueFormatter {
         get => this.valueFormatter;
-        set
-        {
+        set {
             IValueFormatter? oldValueFormatter = this.valueFormatter;
             if (oldValueFormatter == value)
                 return;

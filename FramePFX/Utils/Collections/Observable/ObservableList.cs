@@ -26,8 +26,7 @@ namespace FramePFX.Utils.Collections.Observable;
 /// An optimised observable collection. This class is not thread safe; manual synchronization required
 /// </summary>
 /// <typeparam name="T">Type of value to store</typeparam>
-public class ObservableList<T> : Collection<T>, IObservableList<T>
-{
+public class ObservableList<T> : Collection<T>, IObservableList<T> {
     private readonly List<T> myItems;
     private SimpleMonitor? _monitor;
     private readonly bool isDerivedType;
@@ -45,8 +44,7 @@ public class ObservableList<T> : Collection<T>, IObservableList<T>
     public ObservableList(IEnumerable<T> collection) : this(new List<T>(collection ?? throw new ArgumentNullException(nameof(collection)))) {
     }
 
-    public ObservableList(List<T> list) : base(new List<T>(list ?? throw new ArgumentNullException(nameof(list))))
-    {
+    public ObservableList(List<T> list) : base(new List<T>(list ?? throw new ArgumentNullException(nameof(list)))) {
         this.myItems = (List<T>?) base.Items!;
 
         // Optimisation
@@ -57,8 +55,7 @@ public class ObservableList<T> : Collection<T>, IObservableList<T>
         this.isDerivedType = this.GetType() != typeof(ObservableList<T>);
     }
 
-    protected override void InsertItem(int index, T item)
-    {
+    protected override void InsertItem(int index, T item) {
         this.CheckReentrancy();
         this.myItems.Insert(index, item);
 
@@ -71,17 +68,14 @@ public class ObservableList<T> : Collection<T>, IObservableList<T>
 
     public void AddSpanRange(ReadOnlySpan<T> items) => this.InsertSpanRange(this.Count, items);
 
-    public void InsertRange(int index, IEnumerable<T> items)
-    {
+    public void InsertRange(int index, IEnumerable<T> items) {
         this.CheckReentrancy();
 
         // Slight risk in passing list to the ItemsAdded event in case items mutates asynchronously... meh
-        if (items is IList<T> list)
-        {
+        if (items is IList<T> list) {
             this.myItems.InsertRange(index, list);
         }
-        else
-        {
+        else {
             // Probably enumerator method or something along those lines, convert to list for speedy insertion
             list = items.ToList();
             this.myItems.InsertRange(index, list);
@@ -99,8 +93,7 @@ public class ObservableList<T> : Collection<T>, IObservableList<T>
     /// </summary>
     /// <param name="index"></param>
     /// <param name="items"></param>
-    public void InsertSpanRange(int index, ReadOnlySpan<T> items)
-    {
+    public void InsertSpanRange(int index, ReadOnlySpan<T> items) {
         this.CheckReentrancy();
 
         this.myItems.InsertRange(index, items);
@@ -108,8 +101,7 @@ public class ObservableList<T> : Collection<T>, IObservableList<T>
             this.OnItemsAdded(index, new ReadOnlyCollection<T>(items.ToArray()));
     }
 
-    protected override void RemoveItem(int index)
-    {
+    protected override void RemoveItem(int index) {
         this.CheckReentrancy();
         T removedItem = this[index];
         this.myItems.RemoveAt(index);
@@ -119,25 +111,21 @@ public class ObservableList<T> : Collection<T>, IObservableList<T>
             this.OnItemsRemoved(index, new SingletonList<T>(removedItem));
     }
 
-    public void RemoveRange(int index, int count)
-    {
+    public void RemoveRange(int index, int count) {
         this.CheckReentrancy();
-        if (!this.isDerivedType && this.ItemsRemoved == null)
-        {
+        if (!this.isDerivedType && this.ItemsRemoved == null) {
             // We are not a derived type, and we have no ItemsRemoved handler,
             // so we don't need to create any pointless sub-lists
             this.myItems.RemoveRange(index, count);
         }
-        else
-        {
+        else {
             List<T> items = this.myItems.Slice(index, count);
             this.myItems.RemoveRange(index, count);
             this.OnItemsRemoved(index, items.AsReadOnly());
         }
     }
 
-    protected override void SetItem(int index, T newItem)
-    {
+    protected override void SetItem(int index, T newItem) {
         this.CheckReentrancy();
         T oldItem = this[index];
         base.SetItem(index, newItem);
@@ -146,8 +134,7 @@ public class ObservableList<T> : Collection<T>, IObservableList<T>
 
     public void Move(int oldIndex, int newIndex) => this.MoveItem(oldIndex, newIndex);
 
-    protected virtual void MoveItem(int oldIndex, int newIndex)
-    {
+    protected virtual void MoveItem(int oldIndex, int newIndex) {
         this.CheckReentrancy();
         T item = this[oldIndex];
         base.RemoveItem(oldIndex);
@@ -155,90 +142,71 @@ public class ObservableList<T> : Collection<T>, IObservableList<T>
         this.OnItemMoved(oldIndex, newIndex, item);
     }
 
-    protected override void ClearItems()
-    {
+    protected override void ClearItems() {
         this.CheckReentrancy();
-        if (this.myItems.Count < 1)
-        {
+        if (this.myItems.Count < 1) {
             return;
         }
 
-        if (!this.isDerivedType && this.ItemsRemoved == null)
-        {
+        if (!this.isDerivedType && this.ItemsRemoved == null) {
             // We are not a derived type, and we have no ItemsRemoved handler,
             // so we don't need to create any pointless sub-lists
             this.myItems.Clear();
         }
-        else
-        {
+        else {
             ReadOnlyCollection<T> items = this.myItems.ToList().AsReadOnly();
             this.myItems.Clear();
             this.OnItemsRemoved(0, items);
         }
     }
 
-    protected virtual void OnItemsAdded(int index, IList<T> items)
-    {
-        try
-        {
+    protected virtual void OnItemsAdded(int index, IList<T> items) {
+        try {
             this.blockReentrancyCount++;
             this.ItemsAdded?.Invoke(this, items, index);
         }
-        finally
-        {
+        finally {
             this.blockReentrancyCount--;
         }
     }
 
-    protected virtual void OnItemsRemoved(int index, IList<T> items)
-    {
-        try
-        {
+    protected virtual void OnItemsRemoved(int index, IList<T> items) {
+        try {
             this.blockReentrancyCount++;
             this.ItemsRemoved?.Invoke(this, items, index);
         }
-        finally
-        {
+        finally {
             this.blockReentrancyCount--;
         }
     }
 
-    protected virtual void OnItemReplaced(int index, T oldItem, T newItem)
-    {
-        try
-        {
+    protected virtual void OnItemReplaced(int index, T oldItem, T newItem) {
+        try {
             this.blockReentrancyCount++;
             this.ItemReplaced?.Invoke(this, oldItem, newItem, index);
         }
-        finally
-        {
+        finally {
             this.blockReentrancyCount--;
         }
     }
 
-    protected virtual void OnItemMoved(int oldIndex, int newIndex, T item)
-    {
-        try
-        {
+    protected virtual void OnItemMoved(int oldIndex, int newIndex, T item) {
+        try {
             this.blockReentrancyCount++;
             this.ItemMoved?.Invoke(this, item, oldIndex, newIndex);
         }
-        finally
-        {
+        finally {
             this.blockReentrancyCount--;
         }
     }
 
-    public IDisposable BlockReentrancy()
-    {
+    public IDisposable BlockReentrancy() {
         this.blockReentrancyCount++;
         return this.EnsureMonitorInitialized();
     }
 
-    protected void CheckReentrancy()
-    {
-        if (this.blockReentrancyCount > 0)
-        {
+    protected void CheckReentrancy() {
+        if (this.blockReentrancyCount > 0) {
             // we can allow changes if there's only one listener - the problem
             // only arises if reentrant changes make the original event args
             // invalid for later listeners.  This keeps existing code working
@@ -253,14 +221,12 @@ public class ObservableList<T> : Collection<T>, IObservableList<T>
 
     private SimpleMonitor EnsureMonitorInitialized() => this._monitor ??= new SimpleMonitor(this);
 
-    private sealed class SimpleMonitor : IDisposable
-    {
+    private sealed class SimpleMonitor : IDisposable {
         internal int _busyCount; // Only used during (de)serialization to maintain compatibility with desktop. Do not rename (binary serialization)
 
         [NonSerialized] internal ObservableList<T> _collection;
 
-        public SimpleMonitor(ObservableList<T> collection)
-        {
+        public SimpleMonitor(ObservableList<T> collection) {
             Debug.Assert(collection != null);
             this._collection = collection;
         }
@@ -268,19 +234,15 @@ public class ObservableList<T> : Collection<T>, IObservableList<T>
         public void Dispose() => this._collection.blockReentrancyCount--;
     }
 
-    public static void Test()
-    {
+    public static void Test() {
         ObservableList<int> list = new ObservableList<int>();
 
         // Indexable processor removes back to front as an optimisation, can disable in constructor
-        ObservableItemProcessor.MakeIndexable(list, (s, i, o) =>
-        {
+        ObservableItemProcessor.MakeIndexable(list, (s, i, o) => {
             Console.WriteLine($"Added '{o}' at {i}");
-        }, (s, i, o) =>
-        {
+        }, (s, i, o) => {
             Console.WriteLine($"Removed '{o}' at {i}");
-        }, (s, oldI, newI, o) =>
-        {
+        }, (s, oldI, newI, o) => {
             Console.WriteLine($"Moved '{o}' from {oldI} to {newI}");
         });
 

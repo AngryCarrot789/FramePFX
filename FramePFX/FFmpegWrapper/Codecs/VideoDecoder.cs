@@ -14,8 +14,7 @@ using FFmpeg.AutoGen;
 
 namespace FramePFX.FFmpegWrapper.Codecs;
 
-public unsafe class VideoDecoder : MediaDecoder
-{
+public unsafe class VideoDecoder : MediaDecoder {
     //Used to prevent callback pointer from being GC collected
     private AVCodecContext_get_format chooseHwPixelFmt;
 
@@ -34,17 +33,13 @@ public unsafe class VideoDecoder : MediaDecoder
     public VideoDecoder(AVCodecContext* ctx, bool takeOwnership = true) : base(ctx, MediaTypes.Video, takeOwnership) {
     }
 
-    public void SetupHardwareAccelerator(HardwareDevice device, params AVPixelFormat[] preferredPixelFormats)
-    {
+    public void SetupHardwareAccelerator(HardwareDevice device, params AVPixelFormat[] preferredPixelFormats) {
         this.ValidateNotOpen();
 
         this.ctx->hw_device_ctx = ffmpeg.av_buffer_ref(device.Handle);
-        this.ctx->get_format = this.chooseHwPixelFmt = (ctx, pAvailFmts) =>
-        {
-            for (AVPixelFormat* pFmt = pAvailFmts; *pFmt != PixelFormats.None; pFmt++)
-            {
-                if (Array.IndexOf(preferredPixelFormats, *pFmt) >= 0)
-                {
+        this.ctx->get_format = this.chooseHwPixelFmt = (ctx, pAvailFmts) => {
+            for (AVPixelFormat* pFmt = pAvailFmts; *pFmt != PixelFormats.None; pFmt++) {
+                if (Array.IndexOf(preferredPixelFormats, *pFmt) >= 0) {
                     return *pFmt;
                 }
             }
@@ -54,8 +49,7 @@ public unsafe class VideoDecoder : MediaDecoder
     }
 
     /// <summary> Returns a new list containing all hardware acceleration configurations marked with `AV_CODEC_HW_CONFIG_METHOD_HW_DEVICE_CTX`. </summary>
-    public List<CodecHardwareConfig> GetHardwareConfigs()
-    {
+    public List<CodecHardwareConfig> GetHardwareConfigs() {
         this.ValidateNotDisposed();
 
         List<CodecHardwareConfig> configs = new List<CodecHardwareConfig>();
@@ -63,10 +57,8 @@ public unsafe class VideoDecoder : MediaDecoder
         int i = 0;
         AVCodecHWConfig* config;
 
-        while ((config = ffmpeg.avcodec_get_hw_config(this.ctx->codec, i++)) != null)
-        {
-            if ((config->methods & (int) CodecHardwareMethods.DeviceContext) != 0)
-            {
+        while ((config = ffmpeg.avcodec_get_hw_config(this.ctx->codec, i++)) != null) {
+            if ((config->methods & (int) CodecHardwareMethods.DeviceContext) != 0) {
                 configs.Add(new CodecHardwareConfig(this.ctx->codec, config));
             }
         }

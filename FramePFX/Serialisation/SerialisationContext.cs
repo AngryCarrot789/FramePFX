@@ -26,8 +26,7 @@ namespace FramePFX.Serialisation;
 /// Stores information about the current serialisation or deserialisation operation. This is a mutable
 /// class whose state is modified during each serialisation frame (old values restored during end of serialisation)
 /// </summary>
-public readonly struct SerialisationContext
-{
+public readonly struct SerialisationContext {
     /// <summary>
     /// Gets the target serialisation version. This is typically the version of the application.
     /// This is used to determine what type of serialisers to target. Serialisation implementation
@@ -64,8 +63,7 @@ public readonly struct SerialisationContext
     /// </summary>
     public readonly SerialisationRegistry Registry;
 
-    public SerialisationContext(int targetVersion, int actualVersion, object currentObject, Type currentType, SerialisationRegistry registry)
-    {
+    public SerialisationContext(int targetVersion, int actualVersion, object currentObject, Type currentType, SerialisationRegistry registry) {
         if (targetVersion < 0)
             throw new InvalidOperationException("Target version cannot be negative");
         if (actualVersion < 0)
@@ -88,11 +86,9 @@ public readonly struct SerialisationContext
     /// </summary>
     /// <param name="data">The RBE dictionary, which should be written into</param>
     /// <param name="version">The version of our current type's base type's serialiser to use</param>
-    public void SerialiseBaseType(RBEDictionary data, int version)
-    {
+    public void SerialiseBaseType(RBEDictionary data, int version) {
         Type? baseType = this.CurrentType.BaseType;
-        if (baseType != null)
-        {
+        if (baseType != null) {
             this.Registry.RunSerialisersInternal(true, this.CurrentObject, baseType, data, version);
         }
     }
@@ -102,8 +98,7 @@ public readonly struct SerialisationContext
     /// certain the previous serialiser version will work properly
     /// </summary>
     /// <param name="data">The RBE dictionary, which should be written into</param>
-    public void SerialiseLastVersion(RBEDictionary data)
-    {
+    public void SerialiseLastVersion(RBEDictionary data) {
         if (this.ActualVersion <= 0)
             throw new InvalidOperationException("Cannot serialise the previous version of our object when we are the first version");
         this.Registry.RunSerialisersInternal(true, this.CurrentObject, this.CurrentType, data, this.ActualVersion - 1);
@@ -120,11 +115,9 @@ public readonly struct SerialisationContext
     /// </summary>
     /// <param name="data">The RBE dictionary, which should be read from</param>
     /// <param name="version">The version of our current type's base type's serialiser to use</param>
-    public void DeserialiseBaseType(RBEDictionary data, int version)
-    {
+    public void DeserialiseBaseType(RBEDictionary data, int version) {
         Type? baseType = this.CurrentType.BaseType;
-        if (baseType != null)
-        {
+        if (baseType != null) {
             this.Registry.RunSerialisersInternal(false, this.CurrentObject, baseType, data, version);
         }
     }
@@ -133,8 +126,7 @@ public readonly struct SerialisationContext
     /// Same as <see cref="SerialiseLastVersion{T}"/>, except for deserialisation
     /// </summary>
     /// <param name="data">The RBE dictionary, which should be read from</param>
-    public void DeserialiseLastVersion(RBEDictionary data)
-    {
+    public void DeserialiseLastVersion(RBEDictionary data) {
         if (this.ActualVersion <= 0)
             throw new InvalidOperationException("Cannot deserialise the previous version of our object when we are the first version");
         this.Registry.RunSerialisersInternal(false, this.CurrentObject, this.CurrentType, data, this.ActualVersion - 1);

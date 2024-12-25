@@ -30,63 +30,54 @@ using FramePFX.Shortcuts.Inputs;
 
 namespace FramePFX.Avalonia.Shortcuts.Dialogs;
 
-public partial class KeyStrokeUserInputControl : UserControl, IUserInputContent
-{
+public partial class KeyStrokeUserInputControl : UserControl, IUserInputContent {
     public KeyStrokeUserInputInfo? InputInfo { get; private set; }
 
-    private readonly IBinder<KeyStrokeUserInputInfo> keyStrokeBinder = new DataParameterPropertyBinder<KeyStrokeUserInputInfo>(TextBox.TextProperty, KeyStrokeUserInputInfo.KeyStrokeParameter, (p) =>
-    {
+    private readonly IBinder<KeyStrokeUserInputInfo> keyStrokeBinder = new DataParameterPropertyBinder<KeyStrokeUserInputInfo>(TextBox.TextProperty, KeyStrokeUserInputInfo.KeyStrokeParameter, (p) => {
         KeyStroke s = (KeyStroke?) p ?? default;
         return KeyStrokeStringConverter.ToStringFunction(s.KeyCode, s.Modifiers, s.IsRelease, false, true);
-    })
-    {
+    }) {
         CanUpdateModel = false
     };
 
     private UserInputDialog? myDialog;
 
-    public KeyStrokeUserInputControl()
-    {
+    public KeyStrokeUserInputControl() {
         this.InitializeComponent();
         this.keyStrokeBinder.AttachControl(this.InputBox);
         this.InputBox.AddHandler(TextBox.KeyDownEvent, this.InputBox_KeyDown, RoutingStrategies.Tunnel);
     }
 
-    private void ToggleButton_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
-    {
+    private void ToggleButton_OnIsCheckedChanged(object? sender, RoutedEventArgs e) {
         if (this.InputInfo == null)
             return;
-        
+
         KeyStroke s = this.InputInfo!.KeyStroke ?? default;
         this.InputInfo!.KeyStroke = new KeyStroke(s.KeyCode, s.Modifiers, this.IsKeyReleaseCheckBox.IsChecked ?? false);
         this.myDialog!.InvalidateConfirmButton();
     }
 
-    private void InputBox_KeyDown(object? sender, KeyEventArgs e)
-    {
+    private void InputBox_KeyDown(object? sender, KeyEventArgs e) {
         if (ShortcutUtils.GetKeyStrokeForEvent(e, out KeyStroke stroke, this.IsKeyReleaseCheckBox.IsChecked ?? false)) {
             this.InputInfo!.KeyStroke = stroke;
             this.myDialog!.InvalidateConfirmButton();
             e.Handled = true;
         }
     }
-    
-    public void Connect(UserInputDialog dialog, UserInputInfo info)
-    {
+
+    public void Connect(UserInputDialog dialog, UserInputInfo info) {
         this.InputInfo = (KeyStrokeUserInputInfo) info;
         this.myDialog = dialog;
         this.keyStrokeBinder.AttachModel(this.InputInfo);
     }
 
-    public void Disconnect()
-    {
+    public void Disconnect() {
         this.keyStrokeBinder.DetachModel();
         this.InputInfo = null;
         this.myDialog = null;
     }
 
-    public bool FocusPrimaryInput()
-    {
+    public bool FocusPrimaryInput() {
         this.InputBox.Focus();
         return true;
     }

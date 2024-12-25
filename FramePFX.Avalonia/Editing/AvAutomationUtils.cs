@@ -23,10 +23,8 @@ using Parameter = FramePFX.Editing.Automation.Params.Parameter;
 
 namespace FramePFX.Avalonia.Editing;
 
-public class AvAutomationUtils
-{
-    public static void SetDefaultKeyFrameOrAddNew(IAutomatable automatable, AvaloniaObject control, Parameter parameter, AvaloniaProperty property)
-    {
+public class AvAutomationUtils {
+    public static void SetDefaultKeyFrameOrAddNew(IAutomatable automatable, AvaloniaObject control, Parameter parameter, AvaloniaProperty property) {
         AutomationUtils.SetDefaultKeyFrameOrAddNew(automatable, parameter, control.GetValue(property)!);
     }
 }

@@ -28,8 +28,7 @@ namespace FramePFX.Shortcuts.Inputs;
 /// code for SHIFT, CTRL, ALT, etc., and <see cref="Modifiers"/> will always be 0 in this case
 /// </para>
 /// </summary>
-public readonly struct KeyStroke : IInputStroke, IEquatable<KeyStroke>
-{
+public readonly struct KeyStroke : IInputStroke, IEquatable<KeyStroke> {
     /// <summary>
     /// A non-null function for converting a key code into a string representation
     /// </summary>
@@ -70,8 +69,7 @@ public readonly struct KeyStroke : IInputStroke, IEquatable<KeyStroke>
     // /// </summary>
     // public byte RepeatMode { get; }
 
-    public KeyStroke(int keyCode, int modifiers, bool isRelease)
-    {
+    public KeyStroke(int keyCode, int modifiers, bool isRelease) {
         this.KeyCode = keyCode;
         this.Modifiers = modifiers;
         this.IsRelease = isRelease;
@@ -86,20 +84,16 @@ public readonly struct KeyStroke : IInputStroke, IEquatable<KeyStroke>
 
     public override bool Equals(object obj) => obj is KeyStroke other && this.Equals(other);
 
-    public bool Equals(KeyStroke stroke)
-    {
+    public bool Equals(KeyStroke stroke) {
         return this.KeyCode == stroke.KeyCode && this.Modifiers == stroke.Modifiers && this.IsRelease == stroke.IsRelease;
     }
 
-    public bool EqualsExceptRelease(KeyStroke stroke)
-    {
+    public bool EqualsExceptRelease(KeyStroke stroke) {
         return this.KeyCode == stroke.KeyCode && this.Modifiers == stroke.Modifiers;
     }
 
-    public override int GetHashCode()
-    {
-        unchecked
-        {
+    public override int GetHashCode() {
+        unchecked {
             int hash = this.KeyCode;
             hash = (hash * 397) ^ this.Modifiers;
             hash = (hash * 397) ^ (this.IsRelease ? 1 : 0);
@@ -107,30 +101,24 @@ public readonly struct KeyStroke : IInputStroke, IEquatable<KeyStroke>
         }
     }
 
-    public override string ToString()
-    {
+    public override string ToString() {
         return this.ToString(false, true);
     }
 
-    public string ToString(bool appendIsReleaseOnly, bool useSpacers)
-    {
+    public string ToString(bool appendIsReleaseOnly, bool useSpacers) {
         StringBuilder sb = new StringBuilder();
         string mod = ModifierToStringProvider(this.Modifiers, useSpacers);
-        if (mod.Length > 0)
-        {
+        if (mod.Length > 0) {
             sb.Append(mod).Append(useSpacers ? " + " : "+");
         }
 
         sb.Append(KeyCodeToStringProvider(this.KeyCode));
-        if (appendIsReleaseOnly)
-        {
-            if (this.IsRelease)
-            {
+        if (appendIsReleaseOnly) {
+            if (this.IsRelease) {
                 sb.Append(" (Release)");
             }
         }
-        else
-        {
+        else {
             sb.Append(this.IsRelease ? " (Release)" : " (Press)");
         }
 

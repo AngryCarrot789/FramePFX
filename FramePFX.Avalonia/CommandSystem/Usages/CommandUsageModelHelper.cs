@@ -25,8 +25,7 @@ namespace FramePFX.Avalonia.CommandSystem.Usages;
 /// A class that is used to manage a model extracted from a <see cref="CommandUsage"/>'s available context data
 /// </summary>
 /// <typeparam name="T">The model type</typeparam>
-public class CommandUsageModelHelper<T> where T : class
-{
+public class CommandUsageModelHelper<T> where T : class {
     public delegate void ModelUsageEventHandler(CommandUsageModelHelper<T> helper);
 
     /// <summary>
@@ -60,20 +59,16 @@ public class CommandUsageModelHelper<T> where T : class
     /// </summary>
     /// <param name="usage">The owner command usage</param>
     /// <param name="newModel">The new model</param>
-    public void SetModel(CommandUsage usage, T newModel)
-    {
-        if (ReferenceEquals(this.Model, newModel))
-        {
+    public void SetModel(CommandUsage usage, T newModel) {
+        if (ReferenceEquals(this.Model, newModel)) {
             return;
         }
 
-        if (this.Model != null)
-        {
+        if (this.Model != null) {
             this.Disconnected?.Invoke(this);
         }
 
-        if ((this.Model = newModel) != null)
-        {
+        if ((this.Model = newModel) != null) {
             this.Connected?.Invoke(this);
         }
 
@@ -88,15 +83,12 @@ public class CommandUsageModelHelper<T> where T : class
     /// </summary>
     /// <param name="dataKey"></param>
     /// <param name="usage"></param>
-    public void OnContextChanged(DataKey<T> dataKey, CommandUsage usage)
-    {
+    public void OnContextChanged(DataKey<T> dataKey, CommandUsage usage) {
         IContextData? ctx = usage.GetContextData();
-        if (ctx != null && dataKey.TryGetContext(ctx, out T? newFindModel))
-        {
+        if (ctx != null && dataKey.TryGetContext(ctx, out T? newFindModel)) {
             this.SetModel(usage, newFindModel);
         }
-        else
-        {
+        else {
             this.SetModel(usage, null);
         }
     }

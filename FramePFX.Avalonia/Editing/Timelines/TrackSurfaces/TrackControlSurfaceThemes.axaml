@@ -66,7 +66,7 @@
             <Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}"/>
         </Style>
     </ControlTheme>
-    
+
     <ControlTheme x:Key="{x:Type s:TrackControlSurfaceList}" TargetType="{x:Type s:TrackControlSurfaceList}" BasedOn="{StaticResource {x:Type ListBox}}">
         <Setter Property="Background" Value="{DynamicResource PanelBorderBrush}"/>
         <Setter Property="Padding" Value="0"/>

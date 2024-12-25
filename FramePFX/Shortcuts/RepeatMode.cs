@@ -19,8 +19,7 @@
 
 namespace FramePFX.Shortcuts;
 
-public enum RepeatMode
-{
+public enum RepeatMode {
     /// <summary>
     /// Repeated input strokes are ignored
     /// </summary>

@@ -28,30 +28,26 @@ using FramePFX.Editing;
 
 namespace FramePFX.Avalonia;
 
-public partial class App : global::Avalonia.Application
-{
+public partial class App : global::Avalonia.Application {
     static App() {
     }
 
     public App() {
     }
 
-    public override void Initialize()
-    {
+    public override void Initialize() {
         AvaloniaXamlLoader.Load(this);
         ApplicationImpl.InternalPreInititaliseImpl(this);
         AvCore.OnApplicationInitialised();
     }
 
-    public override async void OnFrameworkInitializationCompleted()
-    {
+    public override async void OnFrameworkInitializationCompleted() {
         base.OnFrameworkInitializationCompleted();
         AvCore.OnFrameworkInitialised();
         UIInputManager.Init();
 
         IApplicationStartupProgress progress;
-        if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop1)
-        {
+        if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop1) {
             desktop1.Exit += this.OnExit;
             desktop1.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             AppSplashScreen splashScreen = new AppSplashScreen();
@@ -59,22 +55,19 @@ public partial class App : global::Avalonia.Application
             desktop1.MainWindow = splashScreen;
             splashScreen.Show();
         }
-        else
-        {
+        else {
             progress = new EmptyApplicationStartupProgress();
         }
 
         string[] envArgs = Environment.GetCommandLineArgs();
-        if (envArgs.Length > 0 && Path.GetDirectoryName(envArgs[0]) is string dir && dir.Length > 0)
-        {
+        if (envArgs.Length > 0 && Path.GetDirectoryName(envArgs[0]) is string dir && dir.Length > 0) {
             Directory.SetCurrentDirectory(dir);
         }
 
         // App initialisation takes a big chunk of the startup
         // phase, so it has a healthy dose of range available
         await progress.ProgressAndSynchroniseAsync("Setup", 0.01);
-        using (progress.CompletionState.PushCompletionRange(0.0, 0.7))
-        {
+        using (progress.CompletionState.PushCompletionRange(0.0, 0.7)) {
             // Let the app crash in debug mode so that the IDE can spot the exception
 #if !DEBUG
             try {
@@ -89,12 +82,11 @@ public partial class App : global::Avalonia.Application
             }
 #endif
         }
-        
+
         await progress.ProgressAndSynchroniseAsync("Loading editor window", 0.8);
 
         VideoEditor editor = new VideoEditor();
-        if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        {
+        if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             EditorWindow mainWindow = new EditorWindow();
             await progress.ProgressAndSynchroniseAsync("Loading editor window", 0.9);
             mainWindow.Show();
@@ -107,8 +99,7 @@ public partial class App : global::Avalonia.Application
         await ApplicationImpl.InternalOnInitialised(editor, envArgs.Length > 1 ? envArgs.Skip(1).ToArray() : Array.Empty<string>());
     }
 
-    private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e)
-    {
+    private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e) {
         ApplicationImpl.InternalExit(e.ApplicationExitCode);
     }
 }

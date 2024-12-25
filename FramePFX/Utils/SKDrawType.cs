@@ -19,8 +19,7 @@
 
 namespace FramePFX.Utils;
 
-public enum SKDrawType
-{
+public enum SKDrawType {
     Color,
     Line,
     Paint,

@@ -1,7 +1,9 @@
 ## Rendering
+
 Rendering uses SkiaSharp (for simplicity) and multiple render threads for speed. The `RenderManager` class handles the render initialisation.
 
 The render phase is like this:
+
 - Something tells the RenderManager that the render state is invalidated and to schedule a render on the app dispatcher
 - All timeline tracks processed (bottom to top, as most editors do) to figure out if the track can be rendered (is it visible
   and a non-zero opacity and are there clips on the playhead that are visible)

@@ -25,12 +25,10 @@ using FramePFX.Configurations.Shortcuts;
 
 namespace FramePFX.Avalonia.Configurations.Pages;
 
-public static class ConfigurationPageRegistry
-{
+public static class ConfigurationPageRegistry {
     public static readonly ModelControlRegistry<ConfigurationPage, BaseConfigurationPageControl> Registry;
 
-    static ConfigurationPageRegistry()
-    {
+    static ConfigurationPageRegistry() {
         Registry = new ModelControlRegistry<ConfigurationPage, BaseConfigurationPageControl>();
         Registry.RegisterType<EditorWindowConfigurationPage>(() => new BasicEditorWindowConfigurationPageControl());
         Registry.RegisterType<PropertyEditorConfigurationPage>(() => new PropertyEditorConfigurationPageControl());

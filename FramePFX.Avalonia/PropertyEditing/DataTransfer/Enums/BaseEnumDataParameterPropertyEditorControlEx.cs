@@ -24,15 +24,12 @@ using FramePFX.Avalonia.Utils;
 
 namespace FramePFX.Avalonia.PropertyEditing.DataTransfer.Enums;
 
-public abstract class BaseEnumDataParameterPropertyEditorControlEx : BaseDataParameterPropertyEditorControl
-{
+public abstract class BaseEnumDataParameterPropertyEditorControlEx : BaseDataParameterPropertyEditorControl {
     protected ComboBox? comboBox;
 
     protected override Type StyleKeyOverride => typeof(BaseEnumDataParameterPropertyEditorControlEx);
 
-    protected BaseEnumDataParameterPropertyEditorControlEx()
-    {
-        
+    protected BaseEnumDataParameterPropertyEditorControlEx() {
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
@@ -41,19 +38,17 @@ public abstract class BaseEnumDataParameterPropertyEditorControlEx : BaseDataPar
         if (this.IsConnected)
             this.comboBox.SelectionChanged += this.OnSelectionChanged;
     }
-    
+
     private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e) {
         this.OnControlValueChanged();
     }
 
-    protected override void OnConnected()
-    {
+    protected override void OnConnected() {
         base.OnConnected();
         this.comboBox!.SelectionChanged += this.OnSelectionChanged;
     }
 
-    protected override void OnDisconnected()
-    {
+    protected override void OnDisconnected() {
         base.OnDisconnected();
         this.comboBox!.SelectionChanged -= this.OnSelectionChanged;
         this.comboBox!.Items.Clear();

@@ -21,8 +21,7 @@ using FramePFX.Tasks;
 
 namespace FramePFX;
 
-public interface IApplicationStartupProgress
-{
+public interface IApplicationStartupProgress {
     /// <summary>
     /// Gets or sets the current action
     /// </summary>
@@ -45,8 +44,7 @@ public interface IApplicationStartupProgress
     Task SynchroniseAsync();
 }
 
-public class EmptyApplicationStartupProgress : IApplicationStartupProgress
-{
+public class EmptyApplicationStartupProgress : IApplicationStartupProgress {
     public string? ActionText { get; set; }
 
     public CompletionState CompletionState { get; } = new SimpleCompletionState();

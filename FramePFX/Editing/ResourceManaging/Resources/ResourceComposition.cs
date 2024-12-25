@@ -22,39 +22,32 @@ namespace FramePFX.Editing.ResourceManaging.Resources;
 /// <summary>
 /// A resource that represents a composition timeline/sequence
 /// </summary>
-public sealed class ResourceComposition : ResourceItem
-{
+public sealed class ResourceComposition : ResourceItem {
     public CompositionTimeline Timeline { get; }
 
     public override int ResourceLinkLimit => 1;
 
-    public ResourceComposition()
-    {
+    public ResourceComposition() {
         this.Timeline = new CompositionTimeline();
         CompositionTimeline.InternalConstructCompositionTimeline(this);
     }
 
-    static ResourceComposition()
-    {
-        SerialisationRegistry.Register<ResourceComposition>(0, (resource, data, ctx) =>
-        {
+    static ResourceComposition() {
+        SerialisationRegistry.Register<ResourceComposition>(0, (resource, data, ctx) => {
             ctx.DeserialiseBaseType(data);
             resource.Timeline.ReadFromRBE(data.GetDictionary(nameof(resource.Timeline)));
-        }, (resource, data, ctx) =>
-        {
+        }, (resource, data, ctx) => {
             ctx.SerialiseBaseType(data);
             resource.Timeline.WriteToRBE(data.CreateDictionary(nameof(resource.Timeline)));
         });
     }
 
-    protected internal override void OnAttachedToManager()
-    {
+    protected internal override void OnAttachedToManager() {
         base.OnAttachedToManager();
         Timelines.Timeline.InternalSetCompositionTimelineProjectReference(this.Timeline, this.Manager!.Project);
     }
 
-    protected internal override void OnDetachedFromManager()
-    {
+    protected internal override void OnDetachedFromManager() {
         base.OnDetachedFromManager();
         Project project = this.Manager!.Project;
         if (ReferenceEquals(project.ActiveTimeline, this.Timeline))
@@ -62,14 +55,12 @@ public sealed class ResourceComposition : ResourceItem
         Timelines.Timeline.InternalSetCompositionTimelineProjectReference(this.Timeline, null);
     }
 
-    public override void Destroy()
-    {
+    public override void Destroy() {
         base.Destroy();
         this.Timeline.Destroy();
     }
 
-    protected override void LoadDataIntoClone(BaseResource clone)
-    {
+    protected override void LoadDataIntoClone(BaseResource clone) {
         base.LoadDataIntoClone(clone);
         this.Timeline.LoadDataIntoClone(((ResourceComposition) clone).Timeline);
     }

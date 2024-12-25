@@ -22,18 +22,15 @@ using FramePFX.Interactivity.Formatting;
 
 namespace FramePFX.PropertyEditing.DataTransfer;
 
-public abstract class DataParameterFormattableNumberPropertyEditorSlot : DataParameterPropertyEditorSlot
-{
+public abstract class DataParameterFormattableNumberPropertyEditorSlot : DataParameterPropertyEditorSlot {
     private IValueFormatter? valueFormatter;
 
     /// <summary>
     /// Gets or sets the value formatter used to format our numeric value in the UI
     /// </summary>
-    public IValueFormatter? ValueFormatter
-    {
+    public IValueFormatter? ValueFormatter {
         get => this.valueFormatter;
-        set
-        {
+        set {
             IValueFormatter? oldValueFormatter = this.valueFormatter;
             if (oldValueFormatter == value)
                 return;

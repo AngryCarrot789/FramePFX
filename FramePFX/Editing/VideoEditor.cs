@@ -43,8 +43,7 @@ public delegate void VideoEditorEventHandler(VideoEditor editor);
 /// <summary>
 /// The class which stores all of the data for the video editor application
 /// </summary>
-public class VideoEditor : IDestroy
-{
+public class VideoEditor : IDestroy {
     private bool isExporting;
 
     /// <summary>
@@ -62,11 +61,9 @@ public class VideoEditor : IDestroy
     /// <summary>
     /// Gets or sets if this editor is being used to export at the current moment
     /// </summary>
-    public bool IsExporting
-    {
+    public bool IsExporting {
         get => this.isExporting;
-        set
-        {
+        set {
             if (this.isExporting == value)
                 return;
 
@@ -78,23 +75,19 @@ public class VideoEditor : IDestroy
     public event ProjectChangedEventHandler? ProjectChanged;
     public event VideoEditorEventHandler? IsExportingChanged;
 
-    public VideoEditor()
-    {
+    public VideoEditor() {
         this.HistoryManager = new HistoryManager();
         this.Playback = new PlaybackManager(this);
         this.Playback.SetFrameRate(new Rational(1, 1));
         this.Playback.StartTimer();
     }
 
-    public void LoadDefaultProject()
-    {
-        if (this.Project != null)
-        {
+    public void LoadDefaultProject() {
+        if (this.Project != null) {
             throw new Exception("A project is already loaded");
         }
 
-        Project project = new Project()
-        {
+        Project project = new Project() {
             ProjectName = "Default Project"
         };
 
@@ -109,8 +102,7 @@ public class VideoEditor : IDestroy
         ResourceColour id_d = folder.AddItemAndRet(new ResourceColour(50, 100, 220) { DisplayName = "idek" });
 
         {
-            VideoTrack track = new VideoTrack()
-            {
+            VideoTrack track = new VideoTrack() {
                 DisplayName = "Track 1 with stuff"
             };
             project.MainTimeline.AddTrack(track);
@@ -119,8 +111,7 @@ public class VideoEditor : IDestroy
             track.AutomationData[VideoTrack.OpacityParameter].AddKeyFrame(new KeyFrameDouble(100, 1d));
             track.AutomationData.ActiveParameter = VideoTrack.OpacityParameter.Key;
 
-            VideoClipShape clip1 = new VideoClipShape
-            {
+            VideoClipShape clip1 = new VideoClipShape {
                 FrameSpan = new FrameSpan(0, 120),
                 DisplayName = "Clip colour_red"
             };
@@ -131,8 +122,7 @@ public class VideoEditor : IDestroy
             clip1.AutomationData.UpdateBackingStorage();
             track.AddClip(clip1);
 
-            VideoClipShape clip2 = new VideoClipShape
-            {
+            VideoClipShape clip2 = new VideoClipShape {
                 FrameSpan = new FrameSpan(150, 30),
                 DisplayName = "Clip colour_green"
             };
@@ -148,8 +138,7 @@ public class VideoEditor : IDestroy
             VideoTrack track = new VideoTrack() { DisplayName = "Track 2" };
             project.MainTimeline.AddTrack(track);
 
-            VideoClipShape clip1 = new VideoClipShape
-            {
+            VideoClipShape clip1 = new VideoClipShape {
                 FrameSpan = new FrameSpan(300, 90),
                 DisplayName = "Clip colour_blue"
             };
@@ -159,8 +148,7 @@ public class VideoEditor : IDestroy
             clip1.ResourceHelper.SetResource(VideoClipShape.ColourKey, id_b);
             clip1.AutomationData.UpdateBackingStorage();
             track.AddClip(clip1);
-            VideoClipShape clip2 = new VideoClipShape
-            {
+            VideoClipShape clip2 = new VideoClipShape {
                 FrameSpan = new FrameSpan(15, 130),
                 DisplayName = "Clip blueish"
             };
@@ -177,8 +165,7 @@ public class VideoEditor : IDestroy
         }
 
         {
-            VideoTrack empty = new VideoTrack()
-            {
+            VideoTrack empty = new VideoTrack() {
                 DisplayName = "Empty Track"
             };
             project.MainTimeline.AddTrack(empty);
@@ -195,8 +182,7 @@ public class VideoEditor : IDestroy
         Debug.Assert(project.IsModified == false, "Expected editor not to modify project while setting it as the active project");
     }
 
-    public void SetProject(Project project)
-    {
+    public void SetProject(Project project) {
         if (this.Project != null)
             throw new Exception("A project is already loaded; it must be unloaded first (CloseProject)");
         if (project == null)
@@ -215,17 +201,14 @@ public class VideoEditor : IDestroy
         this.ProjectChanged?.Invoke(this, null, project);
         VideoEditorPropertyEditor.Instance.OnProjectChanged();
 
-        Application.Instance.Dispatcher.InvokeAsync(() =>
-        {
+        Application.Instance.Dispatcher.InvokeAsync(() => {
             this.Project?.ActiveTimeline.InvalidateRender();
         }, DispatchPriority.Background);
     }
 
-    public void CloseProject()
-    {
+    public void CloseProject() {
         Project? oldProject = this.Project;
-        if (oldProject == null)
-        {
+        if (oldProject == null) {
             throw new Exception("There is no project opened");
         }
 
@@ -238,18 +221,15 @@ public class VideoEditor : IDestroy
         this.HistoryManager.Clear();
     }
 
-    private void OnProjectFrameRateChanged(ProjectSettings settings)
-    {
+    private void OnProjectFrameRateChanged(ProjectSettings settings) {
         this.Playback.SetFrameRate(settings.FrameRate);
     }
 
-    internal static void InternalOnActiveTimelineChanged(VideoEditor editor, Timeline oldTimeline, Timeline newTimeline)
-    {
+    internal static void InternalOnActiveTimelineChanged(VideoEditor editor, Timeline oldTimeline, Timeline newTimeline) {
         PlaybackManager.InternalOnActiveTimelineChanged(editor.Playback, oldTimeline, newTimeline);
     }
 
-    public void Destroy()
-    {
+    public void Destroy() {
         this.Playback.StopTimer();
     }
 }

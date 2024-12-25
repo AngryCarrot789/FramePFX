@@ -25,8 +25,7 @@ using FramePFX.Editing.PropertyEditors;
 
 namespace FramePFX.Avalonia.PropertyEditing.Core;
 
-public class TimecodeFontFamilyPropertyEditorControl : BasePropEditControlContent
-{
+public class TimecodeFontFamilyPropertyEditorControl : BasePropEditControlContent {
     public TimecodeFontFamilyPropertyEditorSlot? SlotModel => (TimecodeFontFamilyPropertyEditorSlot?) base.SlotControl?.Model;
 
     private TextBox? fontFamilyTextBox;
@@ -36,20 +35,17 @@ public class TimecodeFontFamilyPropertyEditorControl : BasePropEditControlConten
     public TimecodeFontFamilyPropertyEditorControl() {
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.fontFamilyTextBox = e.NameScope.GetTemplateChild<TextBox>("PART_TextBox");
         // this.fontFamilyTextBox.TextChanged += (sender, args) => this.fontFamilyBinder.OnControlValueChanged();
     }
 
-    protected override void OnConnected()
-    {
+    protected override void OnConnected() {
         this.fontFamilyBinder.Attach(this.fontFamilyTextBox!, this.SlotModel!);
     }
 
-    protected override void OnDisconnected()
-    {
+    protected override void OnDisconnected() {
         this.fontFamilyBinder.Detach();
     }
 }

@@ -25,21 +25,17 @@ using FramePFX.Interactivity;
 
 namespace FramePFX.Avalonia.Interactivity;
 
-public class DataObjectWrapper : IDataObjekt
-{
+public class DataObjectWrapper : IDataObjekt {
     private readonly IDataObject mObject;
 
-    public DataObjectWrapper(IDataObject mObject)
-    {
+    public DataObjectWrapper(IDataObject mObject) {
         this.mObject = mObject;
     }
 
-    public object? GetData(string format)
-    {
+    public object? GetData(string format) {
         object? value = this.mObject.Get(format);
 
-        switch (format)
-        {
+        switch (format) {
             //case "Text":
             //case "UnicodeText":
             //case "Dib":
@@ -57,7 +53,7 @@ public class DataObjectWrapper : IDataObjekt
             case "Files":
                 if (value is IEnumerable<IStorageItem> items)
                     return items.Select(x => x.Path.LocalPath).ToArray();
-                break;
+            break;
             //case "Locale":
             //case "Html":
             //case "Rtf":
@@ -72,18 +68,15 @@ public class DataObjectWrapper : IDataObjekt
         return value;
     }
 
-    public bool Contains(string format)
-    {
+    public bool Contains(string format) {
         return this.mObject.Contains(format);
     }
 
-    public IEnumerable<string> GetFormats()
-    {
+    public IEnumerable<string> GetFormats() {
         return this.mObject.GetDataFormats();
     }
 
-    public void SetData(string format, object data)
-    {
+    public void SetData(string format, object data) {
         (this.mObject as DataObject)?.Set(format, data);
     }
 }

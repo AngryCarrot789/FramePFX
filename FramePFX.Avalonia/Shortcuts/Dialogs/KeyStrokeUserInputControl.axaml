@@ -9,13 +9,13 @@
                    Text="Press any key combination in here:"
                    Grid.Row="1"/>
         <StackPanel Orientation="Horizontal" Spacing="10" Grid.Row="5" Margin="0,0">
-            <RadioButton IsCheckedChanged="ToggleButton_OnIsCheckedChanged" IsChecked="True" 
+            <RadioButton IsCheckedChanged="ToggleButton_OnIsCheckedChanged" IsChecked="True"
                          Content="Is key down"/>
-            <RadioButton IsCheckedChanged="ToggleButton_OnIsCheckedChanged" IsChecked="False" 
+            <RadioButton IsCheckedChanged="ToggleButton_OnIsCheckedChanged" IsChecked="False"
                          x:Name="IsKeyReleaseCheckBox" Content="Is key up"/>
         </StackPanel>
         <TextBox x:Name="InputBox" Grid.Row="3" Margin="0,0"
-                 Padding="4,2" IsReadOnly="True" VerticalContentAlignment="Center" 
+                 Padding="4,2" IsReadOnly="True" VerticalContentAlignment="Center"
                  Background="{DynamicResource ABrush.Tone2.Background.Static}"/>
     </Grid>
 </UserControl>

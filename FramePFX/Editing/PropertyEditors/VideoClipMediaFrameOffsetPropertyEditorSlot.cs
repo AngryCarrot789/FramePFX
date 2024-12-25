@@ -23,8 +23,7 @@ using FramePFX.PropertyEditing;
 
 namespace FramePFX.Editing.PropertyEditors;
 
-public class VideoClipMediaFrameOffsetPropertyEditorSlot : PropertyEditorSlot
-{
+public class VideoClipMediaFrameOffsetPropertyEditorSlot : PropertyEditorSlot {
     public override bool IsSelectable => false;
 
     public override HandlerCountMode HandlerCountMode => HandlerCountMode.Single;
@@ -38,21 +37,18 @@ public class VideoClipMediaFrameOffsetPropertyEditorSlot : PropertyEditorSlot
     public VideoClipMediaFrameOffsetPropertyEditorSlot() : base(typeof(VideoClip)) {
     }
 
-    protected override void OnHandlersLoaded()
-    {
+    protected override void OnHandlersLoaded() {
         base.OnHandlersLoaded();
         this.SingleSelection.MediaFrameOffsetChanged += this.OnMediaFrameOffsetChanged;
         this.UpdateMediaFrameOffset?.Invoke(this);
     }
 
-    protected override void OnClearingHandlers()
-    {
+    protected override void OnClearingHandlers() {
         base.OnClearingHandlers();
         this.SingleSelection.MediaFrameOffsetChanged -= this.OnMediaFrameOffsetChanged;
     }
 
-    private void OnMediaFrameOffsetChanged(Clip clip, long oldoffset, long newoffset)
-    {
+    private void OnMediaFrameOffsetChanged(Clip clip, long oldoffset, long newoffset) {
         this.UpdateMediaFrameOffset?.Invoke(this);
     }
 }

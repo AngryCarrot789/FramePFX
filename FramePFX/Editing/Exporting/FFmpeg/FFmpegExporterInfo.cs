@@ -25,9 +25,7 @@ using FramePFX.Utils.Accessing;
 
 namespace FramePFX.Editing.Exporting.FFmpeg;
 
-public class FFmpegExporterInfo : BaseExporterInfo
-{
-    
+public class FFmpegExporterInfo : BaseExporterInfo {
     public static readonly DataParameterLong BitRateParameter =
         DataParameter.Register(
             new DataParameterLong(
@@ -53,8 +51,7 @@ public class FFmpegExporterInfo : BaseExporterInfo
 
     private AVCodecID codecId;
 
-    public AVCodecID CodecId
-    {
+    public AVCodecID CodecId {
         get => this.codecId;
         set => DataParameter.SetValueHelper(this, CodecIdParameter, ref this.codecId, value);
     }
@@ -62,28 +59,23 @@ public class FFmpegExporterInfo : BaseExporterInfo
     private long myBitRate;
     private long myGop;
 
-    public long BitRate
-    {
+    public long BitRate {
         get => this.myBitRate;
         set => DataParameter.SetValueHelper(this, BitRateParameter, ref this.myBitRate, value);
     }
 
-    public long Gop
-    {
+    public long Gop {
         get => this.myGop;
         set => DataParameter.SetValueHelper(this, GopParameter, ref this.myGop, value);
     }
 
-    public FFmpegExporterInfo()
-    {
+    public FFmpegExporterInfo() {
         this.myBitRate = BitRateParameter.GetDefaultValue(this);
         this.myGop = GopParameter.GetDefaultValue(this);
         this.codecId = CodecIdParameter.GetDefaultValue(this);
 
-        this.PropertyEditor.Root.AddItem(new DataParameterLongPropertyEditorSlot(BitRateParameter, typeof(FFmpegExporterInfo), "Bit Rate", DragStepProfile.UnitOne)
-        {
-            ValueFormatter = new AutoMemoryValueFormatter(MemoryValueFormatter.Bits)
-            {
+        this.PropertyEditor.Root.AddItem(new DataParameterLongPropertyEditorSlot(BitRateParameter, typeof(FFmpegExporterInfo), "Bit Rate", DragStepProfile.UnitOne) {
+            ValueFormatter = new AutoMemoryValueFormatter(MemoryValueFormatter.Bits) {
                 SourceFormat = MemoryFormatType.Bit
             }
         });
@@ -92,15 +84,13 @@ public class FFmpegExporterInfo : BaseExporterInfo
         this.PropertyEditor.Root.AddItem(new DataParameterAVCodecIDPropertyEditorSlot(CodecIdParameter, typeof(FFmpegExporterInfo)));
     }
 
-    public override void Reset()
-    {
+    public override void Reset() {
         base.Reset();
         BitRateParameter.Reset(this);
         GopParameter.Reset(this);
     }
 
-    public override BaseExportContext CreateContext(ExportSetup setup)
-    {
+    public override BaseExportContext CreateContext(ExportSetup setup) {
         return new FFmpegExportContext(this, setup);
     }
 }

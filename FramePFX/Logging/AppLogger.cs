@@ -25,8 +25,7 @@ namespace FramePFX.Logging;
 /// <summary>
 /// A thread-safe logger that contains a list of log entries. Logged entries are temporarily stored 
 /// </summary>
-public class AppLogger
-{
+public class AppLogger {
     public static AppLogger Instance { get; } = new AppLogger();
 
     private readonly List<LogEntry> cachedEntries;
@@ -35,8 +34,7 @@ public class AppLogger
 
     public ReadOnlyObservableList<LogEntry> Entries { get; }
 
-    public AppLogger()
-    {
+    public AppLogger() {
         this.entries = new ObservableList<LogEntry>();
         this.Entries = new ReadOnlyObservableList<LogEntry>(this.entries);
 
@@ -46,18 +44,15 @@ public class AppLogger
         this.delayedFlush = new RateLimitedDispatchAction(this.FlushEntries, TimeSpan.FromMilliseconds(50));
     }
 
-    static AppLogger()
-    {
+    static AppLogger() {
     }
 
-    private static bool CanonicalizeLine(ref string line)
-    {
+    private static bool CanonicalizeLine(ref string line) {
         int strlen;
         if (string.IsNullOrEmpty(line))
             return false;
 
-        if (line[(strlen = line.Length) - 1] == '\n')
-        {
+        if (line[(strlen = line.Length) - 1] == '\n') {
             int offset = (strlen > 1 && line[strlen - 2] == '\r' ? 2 : 1);
             line = line.Substring(0, strlen - offset);
         }
@@ -66,8 +61,7 @@ public class AppLogger
         return true;
     }
 
-    public void WriteLine(string line)
-    {
+    public void WriteLine(string line) {
         if (!CanonicalizeLine(ref line))
             return;
 
@@ -82,13 +76,10 @@ public class AppLogger
     /// Flushes cached entries to our <see cref="entries"/> collection
     /// </summary>
     /// <returns></returns>
-    public Task FlushEntries()
-    {
-        return Application.Instance.Dispatcher.InvokeAsync(async () =>
-        {
+    public Task FlushEntries() {
+        return Application.Instance.Dispatcher.InvokeAsync(async () => {
             LogEntry[] items;
-            lock (this.cachedEntries)
-            {
+            lock (this.cachedEntries) {
                 items = this.cachedEntries.ToArray();
                 this.cachedEntries.Clear();
             }
@@ -104,11 +95,9 @@ public class AppLogger
             // Dispatch in chunks to give the UI some responsiveness
             const int ChunkSize = 10;
             this.entries.AddSpanRange(items.AsSpan().Slice(0, Math.Min(ChunkSize, count)));
-            for (int i = ChunkSize; i < count; i += ChunkSize)
-            {
+            for (int i = ChunkSize; i < count; i += ChunkSize) {
                 int j = Math.Min(i + ChunkSize, count);
-                await Application.Instance.Dispatcher.InvokeAsync(() =>
-                {
+                await Application.Instance.Dispatcher.InvokeAsync(() => {
                     this.entries.AddSpanRange(items.AsSpan().Slice(i, j - i));
                 }, DispatchPriority.INTERNAL_AfterRender);
             }

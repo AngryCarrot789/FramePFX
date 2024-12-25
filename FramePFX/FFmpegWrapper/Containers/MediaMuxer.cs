@@ -15,14 +15,11 @@ using FramePFX.FFmpegWrapper.Codecs;
 
 namespace FramePFX.FFmpegWrapper.Containers;
 
-public unsafe class MediaMuxer : FFObject
-{
+public unsafe class MediaMuxer : FFObject {
     private AVFormatContext* _ctx;
 
-    public AVFormatContext* Handle
-    {
-        get
-        {
+    public AVFormatContext* Handle {
+        get {
             this.ValidateNotDisposed();
             return this._ctx;
         }
@@ -38,10 +35,8 @@ public unsafe class MediaMuxer : FFObject
 
     public bool IsOpen { get; private set; } = false;
 
-    public MediaMuxer(string filename)
-    {
-        fixed (AVFormatContext** fmtCtx = &this._ctx)
-        {
+    public MediaMuxer(string filename) {
+        fixed (AVFormatContext** fmtCtx = &this._ctx) {
             FFUtils.CheckError(ffmpeg.avformat_alloc_output_context2(fmtCtx, null, null, filename), "Could not allocate muxer");
         }
 
@@ -51,14 +46,12 @@ public unsafe class MediaMuxer : FFObject
     public MediaMuxer(IOContext ioc, string formatExtension, bool leaveOpen = false) : this(ioc, ContainerTypes.GetOutputFormat(formatExtension), leaveOpen) {
     }
 
-    public MediaMuxer(IOContext ioc, AVOutputFormat* format, bool leaveOpen = false)
-    {
+    public MediaMuxer(IOContext ioc, AVOutputFormat* format, bool leaveOpen = false) {
         this.IOC = ioc;
         this._iocLeaveOpen = leaveOpen;
 
         this._ctx = ffmpeg.avformat_alloc_context();
-        if (this._ctx == null)
-        {
+        if (this._ctx == null) {
             throw new OutOfMemoryException("Could not allocate muxer");
         }
 
@@ -68,23 +61,19 @@ public unsafe class MediaMuxer : FFObject
 
     /// <summary> Creates and adds a new stream to the muxed file. </summary>
     /// <remarks> The <paramref name="encoder"/> must be open before this is called. </remarks>
-    public MediaStream AddStream(MediaEncoder encoder)
-    {
+    public MediaStream AddStream(MediaEncoder encoder) {
         this.ValidateNotDisposed();
-        if (this.IsOpen)
-        {
+        if (this.IsOpen) {
             throw new InvalidOperationException("Cannot add new streams once the muxer is open.");
         }
 
-        if (encoder.IsOpen)
-        {
+        if (encoder.IsOpen) {
             //This is an unfortunate limitation, but the GlobalHeader flag must be set before the encoder is open.
             throw new InvalidOperationException("Cannot add stream with an already open encoder.");
         }
 
         AVStream* stream = ffmpeg.avformat_new_stream(this._ctx, encoder.Handle->codec);
-        if (stream == null)
-        {
+        if (stream == null) {
             throw new OutOfMemoryException("Could not allocate stream");
         }
 
@@ -92,8 +81,7 @@ public unsafe class MediaMuxer : FFObject
         stream->time_base = encoder.TimeBase;
 
         //Some formats want stream headers to be separate.
-        if ((this._ctx->oformat->flags & ffmpeg.AVFMT_GLOBALHEADER) != 0)
-        {
+        if ((this._ctx->oformat->flags & ffmpeg.AVFMT_GLOBALHEADER) != 0) {
             encoder.Handle->flags |= ffmpeg.AV_CODEC_FLAG_GLOBAL_HEADER;
         }
 
@@ -104,16 +92,13 @@ public unsafe class MediaMuxer : FFObject
 
     /// <summary> Opens all streams and writes the container header. </summary>
     /// <remarks> This method will also open all encoders passed to <see cref="AddStream(MediaEncoder)"/>. </remarks>
-    public void Open()
-    {
+    public void Open() {
         this.ValidateNotDisposed();
-        if (this.IsOpen)
-        {
+        if (this.IsOpen) {
             throw new InvalidOperationException("Muxer is already open.");
         }
 
-        foreach ((MediaStream stream, MediaEncoder encoder) in this._streams)
-        {
+        foreach ((MediaStream stream, MediaEncoder encoder) in this._streams) {
             encoder.Open();
             FFUtils.CheckError(ffmpeg.avcodec_parameters_from_context(stream.Handle->codecpar, encoder.Handle), "Could not copy the encoder parameters to the stream.");
         }
@@ -122,19 +107,16 @@ public unsafe class MediaMuxer : FFObject
         this.IsOpen = true;
     }
 
-    public void Write(MediaPacket packet)
-    {
+    public void Write(MediaPacket packet) {
         this.ThrowIfNotOpen();
 
         FFUtils.CheckError(ffmpeg.av_interleaved_write_frame(this._ctx, packet.Handle), "Failed to write frame");
     }
 
-    public void EncodeAndWrite(MediaStream stream, MediaEncoder encoder, MediaFrame frame)
-    {
+    public void EncodeAndWrite(MediaStream stream, MediaEncoder encoder, MediaFrame frame) {
         this.ThrowIfNotOpen();
 
-        if (this._streams[stream.Index].Stream != stream)
-        {
+        if (this._streams[stream.Index].Stream != stream) {
             throw new ArgumentException("Specified stream is not owned by the muxer.");
         }
 
@@ -143,34 +125,28 @@ public unsafe class MediaMuxer : FFObject
 
         encoder.SendFrame(frame);
 
-        while (encoder.ReceivePacket(this._tempPacket))
-        {
+        while (encoder.ReceivePacket(this._tempPacket)) {
             this._tempPacket.RescaleTS(encoder.TimeBase, stream.TimeBase);
             this._tempPacket.StreamIndex = stream.Index;
             ffmpeg.av_interleaved_write_frame(this._ctx, this._tempPacket.Handle);
         }
     }
 
-    private void ThrowIfNotOpen()
-    {
+    private void ThrowIfNotOpen() {
         this.ValidateNotDisposed();
 
-        if (!this.IsOpen)
-        {
+        if (!this.IsOpen) {
             throw new InvalidOperationException("Muxer is not open");
         }
     }
 
-    protected override void Free()
-    {
-        if (this._ctx != null)
-        {
+    protected override void Free() {
+        if (this._ctx != null) {
             ffmpeg.av_write_trailer(this._ctx);
             ffmpeg.avformat_free_context(this._ctx);
             this._ctx = null;
 
-            if (!this._iocLeaveOpen)
-            {
+            if (!this._iocLeaveOpen) {
                 this.IOC?.Dispose();
             }
 
@@ -178,10 +154,8 @@ public unsafe class MediaMuxer : FFObject
         }
     }
 
-    private void ValidateNotDisposed()
-    {
-        if (this._ctx == null)
-        {
+    private void ValidateNotDisposed() {
+        if (this._ctx == null) {
             throw new ObjectDisposedException(nameof(MediaMuxer));
         }
     }

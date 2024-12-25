@@ -145,7 +145,7 @@
                                             </Grid>
                                         </Button>
                                         <Border Background="Transparent" Width="1" VerticalAlignment="Stretch"/>
-                                        <Button x:Name="PART_ButtonClose" Focusable="False" IsHitTestVisible="True" Width="45" 
+                                        <Button x:Name="PART_ButtonClose" Focusable="False" IsHitTestVisible="True" Width="45"
                                                 Background="Transparent" BorderThickness="0" ZIndex="2147483548"
                                                 Theme="{StaticResource ButtonImplicitStyleSetters}">
                                             <Button.Styles>

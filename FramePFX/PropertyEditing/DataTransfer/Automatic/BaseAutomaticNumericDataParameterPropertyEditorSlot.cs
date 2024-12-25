@@ -34,24 +34,20 @@ namespace FramePFX.PropertyEditing.DataTransfer.Automatic;
 /// </para>
 /// </summary>
 /// <typeparam name="T">The parameter value type</typeparam>
-public abstract class BaseAutomaticNumericDataParameterPropertyEditorSlot<T> : DataParameterFormattableNumberPropertyEditorSlot
-{
+public abstract class BaseAutomaticNumericDataParameterPropertyEditorSlot<T> : DataParameterFormattableNumberPropertyEditorSlot {
     protected T myLocalValue;
 
     /// <summary>
     /// Gets or sets the value. Setting this will update the value for all of our handlers,
     /// and it will also set the <see cref="IsAutomaticParameter"/> for all parameters to false
     /// </summary>
-    public T Value
-    {
+    public T Value {
         get => this.myLocalValue;
-        set
-        {
+        set {
             this.myLocalValue = value;
             DataParameter<T> parameter = this.Parameter;
             IRangedParameter<T>? range = parameter as IRangedParameter<T>;
-            for (int i = 0, c = this.Handlers.Count; i < c; i++)
-            {
+            for (int i = 0, c = this.Handlers.Count; i < c; i++) {
                 ITransferableData obj = (ITransferableData) this.Handlers[i];
                 // Set IsAutomatic to false so that the value is no longer auto-calculated by the handlers.
                 // Though there ideally shouldn't be any issue setting it to false after setting the parameter
@@ -73,14 +69,12 @@ public abstract class BaseAutomaticNumericDataParameterPropertyEditorSlot<T> : D
 
     public DragStepProfile StepProfile { get; }
 
-    public BaseAutomaticNumericDataParameterPropertyEditorSlot(DataParameter<T> parameter, DataParameterBool isAutomaticParameter, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName)
-    {
+    public BaseAutomaticNumericDataParameterPropertyEditorSlot(DataParameter<T> parameter, DataParameterBool isAutomaticParameter, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName) {
         this.StepProfile = stepProfile;
         this.IsAutomaticParameter = isAutomaticParameter;
     }
 
-    public override void QueryValueFromHandlers()
-    {
+    public override void QueryValueFromHandlers() {
         this.HasMultipleValues = !CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetValue((ITransferableData) x), out this.myLocalValue);
     }
 }

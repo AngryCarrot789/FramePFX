@@ -67,10 +67,10 @@
                                               VerticalAlignment="Center" HorizontalAlignment="Center"
                                               Margin="0,0,0,0"/>
                                 <Grid Grid.Column="2" VerticalAlignment="Center"
-                                       HorizontalAlignment="Stretch"
-                                       Background="Transparent"
-                                       Margin="{TemplateBinding Padding}"
-                                       Focusable="False" ColumnDefinitions="Auto,*,Auto">
+                                      HorizontalAlignment="Stretch"
+                                      Background="Transparent"
+                                      Margin="{TemplateBinding Padding}"
+                                      Focusable="False" ColumnDefinitions="Auto,*,Auto">
                                     <StackPanel Orientation="Horizontal" Spacing="3" Grid.Column="0">
                                         <Panel VerticalAlignment="Center">
                                             <TextBlock x:Name="PART_HeaderTextBlock" Text="{TemplateBinding Header}" Margin="0,-1,0,0"/>

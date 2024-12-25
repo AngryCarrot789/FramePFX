@@ -24,22 +24,18 @@ using FramePFX.Utils;
 
 namespace FramePFX.PropertyEditing.Automation;
 
-public class ParameterBoolPropertyEditorSlot : ParameterPropertyEditorSlot
-{
+public class ParameterBoolPropertyEditorSlot : ParameterPropertyEditorSlot {
     private bool? value;
 
-    public bool? Value
-    {
+    public bool? Value {
         get => this.value;
-        set
-        {
+        set {
             if (value == this.value)
                 return;
             this.value = value;
             bool theValue = value ?? false;
             Parameter parameter = base.Parameter;
-            for (int i = 0, c = this.Handlers.Count; i < c; i++)
-            {
+            for (int i = 0, c = this.Handlers.Count; i < c; i++) {
                 AutomationUtils.SetDefaultKeyFrameOrAddNew((IAutomatable) this.Handlers[i], parameter, theValue, (k, d, o) => k.SetBoolValue(o, d), false);
             }
 
@@ -52,8 +48,7 @@ public class ParameterBoolPropertyEditorSlot : ParameterPropertyEditorSlot
     public ParameterBoolPropertyEditorSlot(ParameterBool parameter, Type applicableType, string displayName) : base(parameter, applicableType, displayName) {
     }
 
-    protected override void QueryValueFromHandlers()
-    {
+    protected override void QueryValueFromHandlers() {
         this.HasMultipleValues = !CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetCurrentValue((IAutomatable) x), out this.value);
     }
 }

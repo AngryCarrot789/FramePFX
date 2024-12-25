@@ -21,22 +21,19 @@ using System.Collections;
 
 namespace FramePFX.Utils;
 
-public class SingletonList<T> : IList<T>
-{
+public class SingletonList<T> : IList<T> {
     private readonly T value;
 
     public int Count => 1;
 
     public bool IsReadOnly => true;
 
-    public T this[int index]
-    {
+    public T this[int index] {
         get => index == 0 ? this.value : throw new IndexOutOfRangeException("Index was out of range: " + index);
         set => throw new NotImplementedException("Read-only list");
     }
 
-    public SingletonList(T value)
-    {
+    public SingletonList(T value) {
         this.value = value;
     }
 
@@ -51,52 +48,43 @@ public class SingletonList<T> : IList<T>
     public void RemoveAt(int index) => throw new NotImplementedException("Read-only list");
 
 
-    public bool Contains(T item)
-    {
+    public bool Contains(T item) {
         return this.IndexOf(item) == 0;
     }
 
-    public void CopyTo(T[] array, int arrayIndex)
-    {
+    public void CopyTo(T[] array, int arrayIndex) {
         array[arrayIndex] = this.value;
     }
 
-    public int IndexOf(T item)
-    {
+    public int IndexOf(T item) {
         return EqualityComparer<T>.Default.Equals(item, this.value) ? 0 : -1;
     }
 
-    public IEnumerator<T> GetEnumerator()
-    {
+    public IEnumerator<T> GetEnumerator() {
         yield return this.value;
     }
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
+    IEnumerator IEnumerable.GetEnumerator() {
         yield return this.value;
     }
 }
 
-public class SingletonReadOnlyList<T> : IReadOnlyList<T>
-{
+public class SingletonReadOnlyList<T> : IReadOnlyList<T> {
     private readonly T value;
 
     public int Count => 1;
 
     public T this[int index] => index == 0 ? this.value : throw new IndexOutOfRangeException("Index was out of range: " + index);
 
-    public SingletonReadOnlyList(T value)
-    {
+    public SingletonReadOnlyList(T value) {
         this.value = value;
     }
 
-    public IEnumerator<T> GetEnumerator()
-    {
+    public IEnumerator<T> GetEnumerator() {
         yield return this.value;
     }
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
+    IEnumerator IEnumerable.GetEnumerator() {
         yield return this.value;
     }
 }

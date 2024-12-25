@@ -22,16 +22,17 @@ namespace FramePFX.Avalonia.Editing.Automation;
 /// <summary>
 /// A sub-part to a graphical key frame
 /// </summary>
-public enum KeyFrameElementPart
-{
+public enum KeyFrameElementPart {
     /// <summary>
     /// The key frame ellipse
     /// </summary>
     KeyFrame,
+
     /// <summary>
     /// The line to the left
     /// </summary>
     LeftLine,
+
     /// <summary>
     /// The line to the right
     /// </summary>

@@ -23,27 +23,22 @@ using Avalonia.Data.Converters;
 
 namespace FramePFX.Avalonia.Converters;
 
-public class FloatToDoubleConverter : IValueConverter
-{
+public class FloatToDoubleConverter : IValueConverter {
     public static FloatToDoubleConverter Instance { get; } = new FloatToDoubleConverter();
 
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        switch (value)
-        {
-            case float f: return (double) f;
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
+        switch (value) {
+            case float f:  return (double) f;
             case double _: return value;
-            default: return value;
+            default:       return value;
         }
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        switch (value)
-        {
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
+        switch (value) {
             case double d: return (float) d;
-            case float _: return value;
-            default: return value;
+            case float _:  return value;
+            default:       return value;
         }
     }
 }

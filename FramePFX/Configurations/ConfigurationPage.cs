@@ -29,8 +29,7 @@ public delegate void ConfigurationPageIsModifiedChangedEventHandler(Configuratio
 /// to pages such as <see cref="Apply"/>, or it may be entirely custom (e.g. shortcut editor tree)
 /// </para>
 /// </summary>
-public abstract class ConfigurationPage
-{
+public abstract class ConfigurationPage {
     /// <summary>
     /// Gets the configuration context currently applicable to this page. This is updated when the page
     /// is being viewed by the user. An instance of a page cannot be concurrently viewed multiple times,
@@ -39,11 +38,10 @@ public abstract class ConfigurationPage
     public ConfigurationContext? ActiveContext { get; private set; }
 
     public bool IsMarkedImmediatelyModified { get; internal set; }
-    
-    protected ConfigurationPage()
-    {
+
+    protected ConfigurationPage() {
     }
-    
+
     /// <summary>
     /// Applies the current data into the application. This is invoked when the user clicks
     /// the Apply (which just applies) or Save button (which applies then closes the dialog)
@@ -58,19 +56,17 @@ public abstract class ConfigurationPage
     /// </summary>
     /// <param name="context">The context that was created</param>
     /// <returns></returns>
-    public virtual ValueTask OnContextCreated(ConfigurationContext context)
-    {
+    public virtual ValueTask OnContextCreated(ConfigurationContext context) {
         return ValueTask.CompletedTask;
     }
-    
+
     /// <summary>
     /// Invoked when the context is no longer in use, meaning the settings dialog was closed.
     /// This method is always called and can be used to for example unregistered global event handlers
     /// </summary>
     /// <param name="context">The context that was destroyed</param>
     /// <returns></returns>
-    public virtual ValueTask OnContextDestroyed(ConfigurationContext context)
-    {
+    public virtual ValueTask OnContextDestroyed(ConfigurationContext context) {
         return ValueTask.CompletedTask;
     }
 
@@ -78,28 +74,24 @@ public abstract class ConfigurationPage
     /// Returns true if this page has different data since it was loaded
     /// </summary>
     /// <returns></returns>
-    public virtual bool IsModified()
-    {
+    public virtual bool IsModified() {
         return this.IsMarkedImmediatelyModified;
     }
 
     /// <summary>
     /// Marks this page as immediately modified for the current context, rather than relying on periodic checkups
     /// </summary>
-    public void MarkModified()
-    {
+    public void MarkModified() {
         this.IsMarkedImmediatelyModified = true;
         this.ActiveContext?.MarkImmediatelyModified(this);
     }
 
-    public void ClearModifiedState()
-    {
+    public void ClearModifiedState() {
         this.IsMarkedImmediatelyModified = false;
         this.ActiveContext?.ClearModifiedState(this);
     }
 
-    public static void InternalSetContext(ConfigurationPage page, ConfigurationContext? context)
-    {
+    public static void InternalSetContext(ConfigurationPage page, ConfigurationContext? context) {
         page.ActiveContext = context;
     }
 }

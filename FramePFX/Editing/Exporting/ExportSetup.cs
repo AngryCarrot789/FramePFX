@@ -31,8 +31,7 @@ public delegate void ExportSetupExporterChangedEventHandler(ExportSetup sender, 
 /// <summary>
 /// Information about preparing to export. This is created when the user opens the export dialog
 /// </summary>
-public sealed class ExportSetup
-{
+public sealed class ExportSetup {
     private FrameSpan span;
     private string? filePath;
     private BaseExporterInfo? exporter;
@@ -55,11 +54,9 @@ public sealed class ExportSetup
     /// <summary>
     /// Gets or sets the region of the timeline that is to be exported
     /// </summary>
-    public FrameSpan Span
-    {
+    public FrameSpan Span {
         get => this.span;
-        set
-        {
+        set {
             FrameSpan oldSpan = this.span;
             if (oldSpan == value)
                 return;
@@ -72,11 +69,9 @@ public sealed class ExportSetup
     /// <summary>
     /// Gets or sets the destination file path for the export. May be a folder if the current exporter requires that
     /// </summary>
-    public string? FilePath
-    {
+    public string? FilePath {
         get => this.filePath;
-        set
-        {
+        set {
             string? oldFilePath = this.filePath;
             if (oldFilePath == value)
                 return;
@@ -89,11 +84,9 @@ public sealed class ExportSetup
     /// <summary>
     /// Gets or sets the exporter registration that will be used for actually exporting
     /// </summary>
-    public BaseExporterInfo? Exporter
-    {
+    public BaseExporterInfo? Exporter {
         get => this.exporter;
-        set
-        {
+        set {
             BaseExporterInfo? oldExporter = this.exporter;
             if (oldExporter == value)
                 return;
@@ -109,8 +102,7 @@ public sealed class ExportSetup
     public event ExportSetupFilePathChangedEventHandler? FilePathChanged;
     public event ExportSetupExporterChangedEventHandler? ExporterChanged;
 
-    public ExportSetup(VideoEditor editor, Timeline timeline)
-    {
+    public ExportSetup(VideoEditor editor, Timeline timeline) {
         Validate.NotNull(editor);
         Validate.NotNull(timeline);
         if (editor.Project == null)

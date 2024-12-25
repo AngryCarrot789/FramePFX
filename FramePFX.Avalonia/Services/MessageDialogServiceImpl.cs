@@ -25,42 +25,33 @@ using MessageBoxDialog = FramePFX.Avalonia.Services.Messages.Controls.MessageBox
 
 namespace FramePFX.Avalonia.Services;
 
-public class MessageDialogServiceImpl : IMessageDialogService
-{
-    public Task<MessageBoxResult> ShowMessage(string caption, string message, MessageBoxButton buttons = MessageBoxButton.OK)
-    {
+public class MessageDialogServiceImpl : IMessageDialogService {
+    public Task<MessageBoxResult> ShowMessage(string caption, string message, MessageBoxButton buttons = MessageBoxButton.OK) {
         MessageBoxInfo info = new MessageBoxInfo(caption, message) { Buttons = buttons };
         info.SetDefaultButtonText();
         return this.ShowMessage(info);
     }
 
-    public Task<MessageBoxResult> ShowMessage(string caption, string header, string message, MessageBoxButton buttons = MessageBoxButton.OK)
-    {
+    public Task<MessageBoxResult> ShowMessage(string caption, string header, string message, MessageBoxButton buttons = MessageBoxButton.OK) {
         MessageBoxInfo info = new MessageBoxInfo(caption, header, message) { Buttons = buttons };
         info.SetDefaultButtonText();
         return this.ShowMessage(info);
     }
 
-    public async Task<MessageBoxResult> ShowMessage(MessageBoxInfo info)
-    {
+    public async Task<MessageBoxResult> ShowMessage(MessageBoxInfo info) {
         Validate.NotNull(info);
-        if (Application.Instance.Dispatcher.CheckAccess())
-        {
+        if (Application.Instance.Dispatcher.CheckAccess()) {
             return await ShowMessageMainThread(info);
         }
-        else
-        {
+        else {
             return await await Application.Instance.Dispatcher.InvokeAsync(() => ShowMessageMainThread(info));
         }
     }
 
-    private static async Task<MessageBoxResult> ShowMessageMainThread(MessageBoxInfo info)
-    {
+    private static async Task<MessageBoxResult> ShowMessageMainThread(MessageBoxInfo info) {
         Validate.NotNull(info);
-        if (ApplicationImpl.TryGetActiveWindow(out Window? window))
-        {
-            MessageBoxDialog dialog = new MessageBoxDialog
-            {
+        if (ApplicationImpl.TryGetActiveWindow(out Window? window)) {
+            MessageBoxDialog dialog = new MessageBoxDialog {
                 MessageBoxData = info
             };
 

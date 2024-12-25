@@ -37,8 +37,7 @@ namespace FramePFX.Avalonia.Bindings;
 /// </para>
 /// </summary>
 /// <typeparam name="TModel">The type of model</typeparam>
-public abstract class BaseBinder<TModel> : IBinder<TModel> where TModel : class
-{
+public abstract class BaseBinder<TModel> : IBinder<TModel> where TModel : class {
     protected Control? myControl;
     protected TModel? myModel;
 
@@ -57,31 +56,25 @@ public abstract class BaseBinder<TModel> : IBinder<TModel> where TModel : class
 
     protected BaseBinder() { }
 
-    public void UpdateControl()
-    {
-        if (!this.IsFullyAttached)
-        {
+    public void UpdateControl() {
+        if (!this.IsFullyAttached) {
             return;
         }
 
         // We don't check if we are updating the control, just in case the model
         // decided to coerce its own value which is different from the UI control
 
-        try
-        {
+        try {
             this.IsUpdatingControl = true;
             this.UpdateControlOverride();
         }
-        finally
-        {
+        finally {
             this.IsUpdatingControl = false;
         }
     }
 
-    public void UpdateModel()
-    {
-        if (!this.IsUpdatingControl && this.IsFullyAttached)
-        {
+    public void UpdateModel() {
+        if (!this.IsUpdatingControl && this.IsFullyAttached) {
             this.UpdateModelOverride();
         }
     }
@@ -96,8 +89,7 @@ public abstract class BaseBinder<TModel> : IBinder<TModel> where TModel : class
     /// </summary>
     protected abstract void UpdateControlOverride();
 
-    public void Attach(Control control, TModel model)
-    {
+    public void Attach(Control control, TModel model) {
         if (this.IsFullyAttached)
             throw new Exception("Already fully attached");
         if (this.myControl != null)
@@ -117,8 +109,7 @@ public abstract class BaseBinder<TModel> : IBinder<TModel> where TModel : class
         this.AttachInternal();
     }
 
-    public void AttachControl(Control control)
-    {
+    public void AttachControl(Control control) {
         if (this.IsFullyAttached)
             throw new Exception("Already fully attached");
         if (this.myControl != null)
@@ -128,14 +119,12 @@ public abstract class BaseBinder<TModel> : IBinder<TModel> where TModel : class
 
         this.CheckAttachControl(control);
         this.myControl = control;
-        if (this.myModel != null)
-        {
+        if (this.myModel != null) {
             this.AttachInternal();
         }
     }
 
-    public void AttachModel(TModel model)
-    {
+    public void AttachModel(TModel model) {
         if (this.IsFullyAttached)
             throw new Exception("Already fully attached");
         if (this.myModel != null)
@@ -145,14 +134,12 @@ public abstract class BaseBinder<TModel> : IBinder<TModel> where TModel : class
 
         this.CheckAttachModel(model);
         this.myModel = model;
-        if (this.myControl != null)
-        {
+        if (this.myControl != null) {
             this.AttachInternal();
         }
     }
 
-    public void Detach()
-    {
+    public void Detach() {
         if (!this.IsFullyAttached)
             throw new Exception("Not fully attached");
 
@@ -161,8 +148,7 @@ public abstract class BaseBinder<TModel> : IBinder<TModel> where TModel : class
         this.myControl = null;
     }
 
-    public void DetachControl()
-    {
+    public void DetachControl() {
         if (this.myControl == null)
             throw new InvalidOperationException("No control is attached");
 
@@ -170,8 +156,7 @@ public abstract class BaseBinder<TModel> : IBinder<TModel> where TModel : class
         this.myControl = null;
     }
 
-    public void DetachModel()
-    {
+    public void DetachModel() {
         if (this.myModel == null)
             throw new InvalidOperationException("No model is attached");
 
@@ -179,8 +164,7 @@ public abstract class BaseBinder<TModel> : IBinder<TModel> where TModel : class
         this.myModel = null;
     }
 
-    public void SwitchModel(TModel? newModel)
-    {
+    public void SwitchModel(TModel? newModel) {
         if (this.myModel != null)
             this.DetachModel();
 
@@ -206,17 +190,14 @@ public abstract class BaseBinder<TModel> : IBinder<TModel> where TModel : class
 
     protected abstract void OnDetached();
 
-    private void AttachInternal()
-    {
+    private void AttachInternal() {
         this.IsFullyAttached = true;
         this.OnAttached();
         this.UpdateControl();
     }
 
-    private void TryDetachInternal()
-    {
-        if (this.IsFullyAttached)
-        {
+    private void TryDetachInternal() {
+        if (this.IsFullyAttached) {
             this.OnDetached();
             this.IsFullyAttached = false;
         }

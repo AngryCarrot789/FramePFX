@@ -29,12 +29,10 @@ using FramePFX.Services.Messaging;
 
 namespace FramePFX.Avalonia.Services.Messages.Controls;
 
-public partial class MessageBoxDialog : WindowEx
-{
+public partial class MessageBoxDialog : WindowEx {
     public static readonly StyledProperty<MessageBoxInfo?> MessageBoxDataProperty = AvaloniaProperty.Register<MessageBoxDialog, MessageBoxInfo?>("MessageBoxData");
 
-    public MessageBoxInfo? MessageBoxData
-    {
+    public MessageBoxInfo? MessageBoxData {
         get => this.GetValue(MessageBoxDataProperty);
         set => this.SetValue(MessageBoxDataProperty, value);
     }
@@ -46,8 +44,7 @@ public partial class MessageBoxDialog : WindowEx
     private readonly DataParameterPropertyBinder<MessageBoxInfo> noTextBinder = new DataParameterPropertyBinder<MessageBoxInfo>(ContentProperty, MessageBoxInfo.NoTextParameter);
     private readonly DataParameterPropertyBinder<MessageBoxInfo> cancelTextBinder = new DataParameterPropertyBinder<MessageBoxInfo>(ContentProperty, MessageBoxInfo.CancelTextParameter);
 
-    public MessageBoxDialog()
-    {
+    public MessageBoxDialog() {
         this.InitializeComponent();
         this.captionBinder.AttachControl(this);
         this.headerBinder.AttachControl(this.PART_Header);
@@ -62,36 +59,29 @@ public partial class MessageBoxDialog : WindowEx
         this.PART_CancelButton.Click += this.OnCancelButtonClicked;
     }
 
-    private void OnHeaderTextBlockPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
-    {
-        if (e.Property == TextBlock.TextProperty)
-        {
+    private void OnHeaderTextBlockPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e) {
+        if (e.Property == TextBlock.TextProperty) {
             this.PART_MessageContainer.IsVisible = !string.IsNullOrWhiteSpace(e.GetNewValue<string?>());
         }
     }
 
-    static MessageBoxDialog()
-    {
+    static MessageBoxDialog() {
         MessageBoxDataProperty.Changed.AddClassHandler<MessageBoxDialog, MessageBoxInfo?>((o, e) => o.OnMessageBoxDataChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }
 
-    protected override void OnKeyDown(KeyEventArgs e)
-    {
+    protected override void OnKeyDown(KeyEventArgs e) {
         base.OnKeyDown(e);
-        if (e.Key == Key.Escape)
-        {
+        if (e.Key == Key.Escape) {
             this.CancelDialog();
         }
     }
 
-    protected override void OnLoaded(RoutedEventArgs e)
-    {
+    protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
         this.PART_DockPanelRoot.Measure(new Size(800, 800));
         Size size = this.PART_DockPanelRoot.DesiredSize;
         size = new Size(size.Width + 2, size.Height);
-        if (size.Width > 300.0)
-        {
+        if (size.Width > 300.0) {
             this.Width = size.Width;
         }
 
@@ -99,16 +89,13 @@ public partial class MessageBoxDialog : WindowEx
         this.Height = Math.Max(size.Height + TitleBarHeight, 125);
     }
 
-    private void OnConfirmButtonClicked(object? sender, RoutedEventArgs e)
-    {
+    private void OnConfirmButtonClicked(object? sender, RoutedEventArgs e) {
         MessageBoxInfo? data = this.MessageBoxData;
-        if (data == null)
-        {
+        if (data == null) {
             return;
         }
 
-        switch (data.Buttons)
-        {
+        switch (data.Buttons) {
             case MessageBoxButton.OK:
             case MessageBoxButton.OKCancel:
                 this.Close(MessageBoxResult.OK);
@@ -123,46 +110,37 @@ public partial class MessageBoxDialog : WindowEx
         }
     }
 
-    private void OnNoButtonClicked(object? sender, RoutedEventArgs e)
-    {
+    private void OnNoButtonClicked(object? sender, RoutedEventArgs e) {
         MessageBoxInfo? data = this.MessageBoxData;
-        if (data == null)
-        {
+        if (data == null) {
             return;
         }
 
-        if ((data.Buttons == MessageBoxButton.YesNo || data.Buttons == MessageBoxButton.YesNoCancel))
-        {
+        if ((data.Buttons == MessageBoxButton.YesNo || data.Buttons == MessageBoxButton.YesNoCancel)) {
             this.Close(MessageBoxResult.No);
         }
-        else
-        {
+        else {
             this.Close(MessageBoxResult.None);
         }
     }
 
-    private void OnCancelButtonClicked(object? sender, RoutedEventArgs e)
-    {
+    private void OnCancelButtonClicked(object? sender, RoutedEventArgs e) {
         MessageBoxInfo? data = this.MessageBoxData;
-        if (data == null)
-        {
+        if (data == null) {
             return;
         }
 
-        if ((data.Buttons == MessageBoxButton.OKCancel || data.Buttons == MessageBoxButton.YesNoCancel))
-        {
+        if ((data.Buttons == MessageBoxButton.OKCancel || data.Buttons == MessageBoxButton.YesNoCancel)) {
             this.Close(MessageBoxResult.Cancel);
         }
-        else
-        {
+        else {
             this.Close(MessageBoxResult.None);
         }
     }
 
     private void CancelDialog() => base.Close(null);
 
-    private void OnMessageBoxDataChanged(MessageBoxInfo? oldData, MessageBoxInfo? newData)
-    {
+    private void OnMessageBoxDataChanged(MessageBoxInfo? oldData, MessageBoxInfo? newData) {
         if (oldData != null)
             oldData.ButtonsChanged -= this.OnActiveButtonsChanged;
         if (newData != null)
@@ -176,69 +154,62 @@ public partial class MessageBoxDialog : WindowEx
         this.noTextBinder.SwitchModel(newData);
         this.cancelTextBinder.SwitchModel(newData);
         this.UpdateVisibleButtons();
-        if (newData != null)
-        {
-            Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                switch (newData.DefaultButton)
-                {
+        if (newData != null) {
+            Dispatcher.UIThread.InvokeAsync(() => {
+                switch (newData.DefaultButton) {
                     case MessageBoxResult.None: break;
                     case MessageBoxResult.Yes:
                     case MessageBoxResult.OK:
                         if (this.PART_YesOkButton.IsVisible)
                             this.PART_YesOkButton.Focus();
-                        break;
+                    break;
                     case MessageBoxResult.Cancel:
                         if (this.PART_CancelButton.IsVisible)
                             this.PART_CancelButton.Focus();
-                        break;
+                    break;
                     case MessageBoxResult.No:
                         if (this.PART_NoButton.IsVisible)
                             this.PART_NoButton.Focus();
-                        break;
+                    break;
                 }
             }, DispatcherPriority.Loaded);
         }
     }
 
-    private void OnActiveButtonsChanged(MessageBoxInfo sender)
-    {
+    private void OnActiveButtonsChanged(MessageBoxInfo sender) {
         this.UpdateVisibleButtons();
     }
 
     /// <summary>
     /// Updates which buttons are visible based on our message box data's <see cref="MessageBoxInfo.Buttons"/> property
     /// </summary>
-    public void UpdateVisibleButtons()
-    {
+    public void UpdateVisibleButtons() {
         MessageBoxInfo? data = this.MessageBoxData;
-        if (data == null)
-        {
+        if (data == null) {
             return;
         }
 
-        switch (data.Buttons)
-        {
+        switch (data.Buttons) {
             case MessageBoxButton.OK:
                 this.PART_YesOkButton.IsVisible = true;
                 this.PART_NoButton.IsVisible = false;
                 this.PART_CancelButton.IsVisible = false;
-                break;
+            break;
             case MessageBoxButton.OKCancel:
                 this.PART_YesOkButton.IsVisible = true;
                 this.PART_NoButton.IsVisible = false;
                 this.PART_CancelButton.IsVisible = true;
-                break;
+            break;
             case MessageBoxButton.YesNoCancel:
                 this.PART_YesOkButton.IsVisible = true;
                 this.PART_NoButton.IsVisible = true;
                 this.PART_CancelButton.IsVisible = true;
-                break;
+            break;
             case MessageBoxButton.YesNo:
                 this.PART_YesOkButton.IsVisible = true;
                 this.PART_NoButton.IsVisible = true;
                 this.PART_CancelButton.IsVisible = false;
-                break;
+            break;
             default: throw new ArgumentOutOfRangeException();
         }
     }
@@ -248,8 +219,7 @@ public partial class MessageBoxDialog : WindowEx
     /// </summary>
     /// <param name="result">The dialog result wanted</param>
     /// <returns>True if the dialog was closed, false if it could not be closed due to a validation error or other error</returns>
-    public void Close(MessageBoxResult result)
-    {
+    public void Close(MessageBoxResult result) {
         base.Close(result);
     }
 }

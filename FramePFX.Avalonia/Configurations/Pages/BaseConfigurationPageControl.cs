@@ -24,35 +24,30 @@ using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.Configurations.Pages;
 
-public class BaseConfigurationPageControl : TemplatedControl
-{
+public class BaseConfigurationPageControl : TemplatedControl {
     public ConfigurationPage? Page { get; private set; }
 
-    public void Connect(ConfigurationPage page)
-    {
+    public void Connect(ConfigurationPage page) {
         Validate.NotNull(page);
         if (this.Page != null)
             throw new InvalidOperationException("Already connected");
-        
+
         this.Page = page;
         this.OnConnected();
     }
 
-    public void Disconnect()
-    {
+    public void Disconnect() {
         if (this.Page == null)
             throw new InvalidOperationException("Not connected");
-        
+
         this.OnDisconnected();
         this.Page = null;
     }
 
-    public virtual void OnConnected()
-    {
+    public virtual void OnConnected() {
     }
 
-    public virtual void OnDisconnected()
-    {
+    public virtual void OnDisconnected() {
         this.Page = null;
     }
 }

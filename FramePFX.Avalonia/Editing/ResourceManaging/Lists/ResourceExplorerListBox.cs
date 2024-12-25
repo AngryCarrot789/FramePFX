@@ -37,8 +37,7 @@ using ResourceManager = FramePFX.Editing.ResourceManaging.ResourceManager;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Lists;
 
-public class ResourceExplorerListBox : ListBox, IResourceListElement
-{
+public class ResourceExplorerListBox : ListBox, IResourceListElement {
     public static readonly StyledProperty<ResourceManager?> ResourceManagerProperty = AvaloniaProperty.Register<ResourceExplorerListBox, ResourceManager?>(nameof(ResourceManager));
     public static readonly StyledProperty<ResourceFolder?> CurrentFolderProperty = AvaloniaProperty.Register<ResourceExplorerListBox, ResourceFolder?>(nameof(CurrentFolder));
 
@@ -51,14 +50,12 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement
     private bool isProcessingManagerCurrentFolderChanged;
     private bool isProcessingAsyncDrop;
 
-    public ResourceManager? ResourceManager
-    {
+    public ResourceManager? ResourceManager {
         get => this.GetValue(ResourceManagerProperty);
         set => this.SetValue(ResourceManagerProperty, value);
     }
 
-    public ResourceFolder? CurrentFolder
-    {
+    public ResourceFolder? CurrentFolder {
         get => this.GetValue(CurrentFolderProperty);
         set => this.SetValue(CurrentFolderProperty, value);
     }
@@ -72,8 +69,7 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement
     IResourceListItemElement? IResourceListElement.CurrentFolderItem => this.CurrentFolder is ResourceFolder folder && !folder.IsRoot ? this.itemMap.GetControl(folder) : null;
     ISelectionManager<BaseResource> IResourceListElement.Selection => this.SelectionManager;
 
-    public ResourceExplorerListBox()
-    {
+    public ResourceExplorerListBox() {
         this.SelectionMode = SelectionMode.Multiple;
         this.itemContentCacheMap = new Dictionary<Type, Stack<ResourceExplorerListItemContent>>();
         this.itemCache = new Stack<ResourceExplorerListBoxItem>();
@@ -84,8 +80,7 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement
         DragDrop.SetAllowDrop(this, true);
     }
 
-    static ResourceExplorerListBox()
-    {
+    static ResourceExplorerListBox() {
         ResourceManagerProperty.Changed.AddClassHandler<ResourceExplorerListBox, ResourceManager?>((d, e) => d.OnResourceManagerChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
         CurrentFolderProperty.Changed.AddClassHandler<ResourceExplorerListBox, ResourceFolder?>((d, e) => d.OnCurrentFolderChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
         PointerPressedEvent.AddClassHandler<ResourceExplorerListBox>((d, e) => d.OnPreviewPointerPressed(e), RoutingStrategies.Tunnel);
@@ -95,23 +90,19 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement
         DragDrop.DropEvent.AddClassHandler<ResourceExplorerListBox>((o, e) => o.OnDrop(e));
     }
 
-    protected override void OnLoaded(RoutedEventArgs e)
-    {
+    protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
         AdvancedContextMenu.SetContextRegistry(this, BaseResource.ResourceSurfaceContextRegistry);
     }
 
-    protected override void OnUnloaded(RoutedEventArgs e)
-    {
+    protected override void OnUnloaded(RoutedEventArgs e) {
         base.OnUnloaded(e);
         AdvancedContextMenu.SetContextRegistry(this, null);
     }
 
-    private void OnPreviewPointerPressed(PointerPressedEventArgs e)
-    {
+    private void OnPreviewPointerPressed(PointerPressedEventArgs e) {
         PointerPointProperties props = e.GetCurrentPoint(this).Properties;
-        switch (props.PointerUpdateKind)
-        {
+        switch (props.PointerUpdateKind) {
             case PointerUpdateKind.XButton1Pressed:
                 this.CurrentFolder = this.CurrentFolder?.Parent ?? this.ResourceManager?.RootContainer;
                 e.Handled = true;
@@ -123,17 +114,14 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement
                 // which does work but we also want to clear all the items in the tree 
                 // which won't happen since it's only clearing the items in the list.
                 // Basically, this is a wonky workaround for inaccessible code. Saves rewriting it
-                if (this.SelectionManager.Count < 1)
-                {
+                if (this.SelectionManager.Count < 1) {
                     this.SelectionManager.RaiseSelectionCleared();
                 }
-                else if (e.KeyModifiers == KeyModifiers.None)
-                {
+                else if (e.KeyModifiers == KeyModifiers.None) {
                     this.SelectionManager.Clear();
                 }
 
-                if (!VisualTreeUtils.IsTemplatedItemOrDescended<ResourceExplorerListBoxItem>(e.Source as AvaloniaObject))
-                {
+                if (!VisualTreeUtils.IsTemplatedItemOrDescended<ResourceExplorerListBoxItem>(e.Source as AvaloniaObject)) {
                     this.Focus();
                 }
 
@@ -141,107 +129,86 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement
         }
     }
 
-    private void OnCurrentFolderChanged(ResourceFolder? oldFolder, ResourceFolder? newFolder)
-    {
-        if (oldFolder != null)
-        {
+    private void OnCurrentFolderChanged(ResourceFolder? oldFolder, ResourceFolder? newFolder) {
+        if (oldFolder != null) {
             oldFolder.ResourceAdded -= this.CurrentFolder_OnResourceAdded;
             oldFolder.ResourceRemoved -= this.CurrentFolder_OnResourceRemoved;
             oldFolder.ResourceMoved -= this.CurrentFolder_OnResourceMoved;
-            for (int i = this.Items.Count - 1; i >= 0; i--)
-            {
+            for (int i = this.Items.Count - 1; i >= 0; i--) {
                 this.RemoveResourceInternal(i);
             }
         }
 
-        if (newFolder != null)
-        {
+        if (newFolder != null) {
             newFolder.ResourceAdded += this.CurrentFolder_OnResourceAdded;
             newFolder.ResourceRemoved += this.CurrentFolder_OnResourceRemoved;
             newFolder.ResourceMoved += this.CurrentFolder_OnResourceMoved;
             int i = 0;
-            foreach (BaseResource resource in newFolder.Items)
-            {
+            foreach (BaseResource resource in newFolder.Items) {
                 this.InsertResourceInternal(resource, i++);
             }
         }
 
         ResourceManager? manager;
-        if (!this.isProcessingManagerCurrentFolderChanged && (manager = this.ResourceManager) != null)
-        {
+        if (!this.isProcessingManagerCurrentFolderChanged && (manager = this.ResourceManager) != null) {
             manager.CurrentFolder = newFolder ?? manager.RootContainer;
         }
     }
 
-    private void CurrentFolder_OnResourceAdded(ResourceFolder parent, BaseResource item, int index)
-    {
+    private void CurrentFolder_OnResourceAdded(ResourceFolder parent, BaseResource item, int index) {
         this.InsertResourceInternal(item, index);
     }
 
-    private void CurrentFolder_OnResourceRemoved(ResourceFolder parent, BaseResource item, int index)
-    {
+    private void CurrentFolder_OnResourceRemoved(ResourceFolder parent, BaseResource item, int index) {
         this.RemoveResourceInternal(index);
     }
 
-    private void CurrentFolder_OnResourceMoved(ResourceFolder sender, ResourceMovedEventArgs e)
-    {
-        if (e.IsSameFolder)
-        {
+    private void CurrentFolder_OnResourceMoved(ResourceFolder sender, ResourceMovedEventArgs e) {
+        if (e.IsSameFolder) {
             // Item was moved within the current folder itself
             this.MoveResourceInternal(e.OldIndex, e.NewIndex);
         }
-        else if (e.NewFolder == sender)
-        {
+        else if (e.NewFolder == sender) {
             // It was effectively added
             this.InsertResourceInternal(e.Item, e.NewIndex);
         }
-        else
-        {
+        else {
             // It was effectively removed
             this.RemoveResourceInternal(e.OldIndex);
         }
     }
 
-    private void OnResourceManagerChanged(ResourceManager? oldManager, ResourceManager? newManager)
-    {
-        if (oldManager != null)
-        {
+    private void OnResourceManagerChanged(ResourceManager? oldManager, ResourceManager? newManager) {
+        if (oldManager != null) {
             oldManager.CurrentFolderChanged -= this.OnManagerCurrentFolderChanged;
         }
 
-        if (newManager != null)
-        {
+        if (newManager != null) {
             newManager.CurrentFolderChanged += this.OnManagerCurrentFolderChanged;
         }
 
         this.CurrentFolder = newManager?.CurrentFolder;
     }
 
-    private void OnManagerCurrentFolderChanged(ResourceManager manager, ResourceFolder oldFolder, ResourceFolder newFolder)
-    {
-        try
-        {
+    private void OnManagerCurrentFolderChanged(ResourceManager manager, ResourceFolder oldFolder, ResourceFolder newFolder) {
+        try {
             this.isProcessingManagerCurrentFolderChanged = true;
             this.CurrentFolder = newFolder;
         }
-        finally
-        {
+        finally {
             this.isProcessingManagerCurrentFolderChanged = false;
         }
     }
 
-    protected override Control CreateContainerForItemOverride(object? item, int index, object? recycleKey)
-    {
+    protected override Control CreateContainerForItemOverride(object? item, int index, object? recycleKey) {
         return new ResourceExplorerListBoxItem();
     }
 
-    protected override bool NeedsContainerOverride(object? item, int index, out object? recycleKey)
-    {
+    protected override bool NeedsContainerOverride(object? item, int index, out object? recycleKey) {
         return this.NeedsContainer<ResourceExplorerListBoxItem>(item, out recycleKey);
     }
 
-    private void InsertResourceInternal(BaseResource resource, int index)
-    {
+    private void InsertResourceInternal(BaseResource resource, int index) {
         ResourceExplorerListBoxItem control = this.itemCache.Count > 0 ? this.itemCache.Pop() : new ResourceExplorerListBoxItem();
         this.itemMap.AddMapping(resource, control);
         control.OnAddingToList(this, resource);
@@ -251,8 +218,7 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement
         control.OnAddedToList();
     }
 
-    private void RemoveResourceInternal(int index)
-    {
+    private void RemoveResourceInternal(int index) {
         ResourceExplorerListBoxItem control = (ResourceExplorerListBoxItem) this.Items[index]!;
         this.itemMap.RemoveMapping(control.Resource!, control);
         control.OnRemovingFromList();
@@ -262,8 +228,7 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement
             this.itemCache.Push(control);
     }
 
-    private void MoveResourceInternal(int oldIndex, int newIndex)
-    {
+    private void MoveResourceInternal(int oldIndex, int newIndex) {
         ResourceExplorerListBoxItem control = (ResourceExplorerListBoxItem) this.Items[oldIndex]!;
         this.Items.RemoveAt(oldIndex);
         this.Items.Insert(newIndex, control);
@@ -276,15 +241,12 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement
     /// </summary>
     /// <param name="resource">The resource object type</param>
     /// <returns>A reused or new content object</returns>
-    public ResourceExplorerListItemContent GetContentObject(BaseResource resource)
-    {
+    public ResourceExplorerListItemContent GetContentObject(BaseResource resource) {
         ResourceExplorerListItemContent content;
-        if (this.itemContentCacheMap.TryGetValue(resource.GetType(), out Stack<ResourceExplorerListItemContent>? stack) && stack.Count > 0)
-        {
+        if (this.itemContentCacheMap.TryGetValue(resource.GetType(), out Stack<ResourceExplorerListItemContent>? stack) && stack.Count > 0) {
             content = stack.Pop();
         }
-        else
-        {
+        else {
             content = ResourceExplorerListItemContent.Registry.NewInstance(resource);
         }
 
@@ -300,15 +262,12 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement
     /// <param name="resourceType">The resource object type</param>
     /// <param name="content">The content object type that is no longer in use</param>
     /// <returns>True when the object was cached, false when the cache is too large and could not fit the object in</returns>
-    public bool ReleaseContentObject(BaseResource resource, ResourceExplorerListItemContent content)
-    {
+    public bool ReleaseContentObject(BaseResource resource, ResourceExplorerListItemContent content) {
         Type resourceType = resource.GetType();
-        if (!this.itemContentCacheMap.TryGetValue(resourceType, out Stack<ResourceExplorerListItemContent>? stack))
-        {
+        if (!this.itemContentCacheMap.TryGetValue(resourceType, out Stack<ResourceExplorerListItemContent>? stack)) {
             this.itemContentCacheMap[resourceType] = stack = new Stack<ResourceExplorerListItemContent>();
         }
-        else if (stack.Count == MaxItemContentCacheSize)
-        {
+        else if (stack.Count == MaxItemContentCacheSize) {
             return false;
         }
 
@@ -318,27 +277,21 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement
 
     #region Drop
 
-    private void OnDragEnter(DragEventArgs e)
-    {
+    private void OnDragEnter(DragEventArgs e) {
         this.OnDragOver(e);
     }
 
-    private void OnDragOver(DragEventArgs e)
-    {
+    private void OnDragOver(DragEventArgs e) {
         EnumDropType dropType = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
-        if (!ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? droppedItems))
-        {
+        if (!ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? droppedItems)) {
             e.DragEffects = (DragDropEffects) ResourceDropRegistry.CanDropNativeTypeIntoListOrItem(this, null, new DataObjectWrapper(e.Data), DataManager.GetFullContextData(this), dropType);
         }
-        else
-        {
+        else {
             ResourceFolder? folder = this.ResourceManager?.RootContainer;
-            if (folder != null)
-            {
+            if (folder != null) {
                 e.DragEffects = ResourceDropRegistry.CanDropResourceListIntoFolder(folder, droppedItems, dropType) ? (DragDropEffects) dropType : DragDropEffects.None;
             }
-            else
-            {
+            else {
                 e.DragEffects = DragDropEffects.None;
             }
         }
@@ -347,30 +300,24 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement
         e.Handled = true;
     }
 
-    private void OnDragLeave(DragEventArgs e)
-    {
+    private void OnDragLeave(DragEventArgs e) {
         // if (!this.IsPointerOver) {
         //     this.IsDroppableTargetOver = false;
         // }
     }
 
-    private async void OnDrop(DragEventArgs e)
-    {
+    private async void OnDrop(DragEventArgs e) {
         e.Handled = true;
-        if (this.isProcessingAsyncDrop || !(this.ResourceManager?.RootContainer is ResourceFolder folder))
-        {
+        if (this.isProcessingAsyncDrop || !(this.ResourceManager?.RootContainer is ResourceFolder folder)) {
             return;
         }
 
-        try
-        {
+        try {
             this.isProcessingAsyncDrop = true;
             EnumDropType dropType = DropUtils.GetDropAction(e.KeyModifiers, (EnumDropType) e.DragEffects);
-            if (!ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? droppedItems))
-            {
+            if (!ResourceTreeViewItem.GetResourceListFromDragEvent(e, out List<BaseResource>? droppedItems)) {
                 // Dropped non-resources into this node
-                if (!await ResourceDropRegistry.OnDropNativeTypeIntoListOrItem(this, null, new DataObjectWrapper(e.Data), DataManager.GetFullContextData(this), dropType))
-                {
+                if (!await ResourceDropRegistry.OnDropNativeTypeIntoListOrItem(this, null, new DataObjectWrapper(e.Data), DataManager.GetFullContextData(this), dropType)) {
                     await IMessageDialogService.Instance.ShowMessage("Unknown Data", "Unknown dropped item. Drop files here");
                 }
 
@@ -388,8 +335,7 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement
             await FramePFX.IoC.MessageService.ShowMessage("Error", "An error occurred while processing list item drop", exception.ToString());
         }
 #endif
-        finally
-        {
+        finally {
             // this.IsDroppableTargetOver = false;
             this.isProcessingAsyncDrop = false;
         }

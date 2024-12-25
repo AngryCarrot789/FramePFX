@@ -31,34 +31,30 @@ namespace FramePFX.Configurations;
 /// <summary>
 /// The configuration manager for the entire FramePFX application
 /// </summary>
-public class ApplicationConfigurationManager : ConfigurationManager
-{
+public class ApplicationConfigurationManager : ConfigurationManager {
     public static readonly ApplicationConfigurationManager Instance = new ApplicationConfigurationManager();
-    
+
     public ConfigurationEntry EditorConfigurationEntry { get; }
 
-    private ApplicationConfigurationManager()
-    {
+    private ApplicationConfigurationManager() {
         if (Instance != null)
             throw new InvalidOperationException("Singleton");
-        
-        this.RootEntry.AddEntry(this.EditorConfigurationEntry = new ConfigurationEntry()
-        {
-            DisplayName = "Editor", Id = "config.editor", Page = new EditorWindowConfigurationPage(), 
-            Items = [new ConfigurationEntry()
-            {
-                DisplayName = "Colours", Id = "config.editor.colours", Page = new EditorWindowPropEditorConfigurationPage()
-            }]
+
+        this.RootEntry.AddEntry(this.EditorConfigurationEntry = new ConfigurationEntry() {
+            DisplayName = "Editor", Id = "config.editor", Page = new EditorWindowConfigurationPage(),
+            Items = [
+                new ConfigurationEntry() {
+                    DisplayName = "Colours", Id = "config.editor.colours", Page = new EditorWindowPropEditorConfigurationPage()
+                }
+            ]
         });
-        
-        this.RootEntry.AddEntry(new ConfigurationEntry()
-        {
+
+        this.RootEntry.AddEntry(new ConfigurationEntry() {
             DisplayName = "Keymap", Id = "config.keymap", Page = new ShortcutEditorConfigurationPage(ShortcutManager.Instance)
         });
     }
 
-    public class EditorWindowPropEditorConfigurationPage : PropertyEditorConfigurationPage, ITransferableData
-    {
+    public class EditorWindowPropEditorConfigurationPage : PropertyEditorConfigurationPage, ITransferableData {
         public static readonly DataParameter<SKColor> TitleBarBrushParameter =
             DataParameter.Register(
                 new DataParameter<SKColor>(
@@ -68,43 +64,38 @@ public class ApplicationConfigurationManager : ConfigurationManager
 
         private SKColor titleBarBrush;
 
-        public SKColor TitleBarBrush
-        {
+        public SKColor TitleBarBrush {
             get => this.titleBarBrush;
             set => DataParameter.SetValueHelper(this, TitleBarBrushParameter, ref this.titleBarBrush, value);
         }
-        
+
         public TransferableData TransferableData { get; }
-        
-        public EditorWindowPropEditorConfigurationPage()
-        {
+
+        public EditorWindowPropEditorConfigurationPage() {
             this.TransferableData = new TransferableData(this);
             this.titleBarBrush = TitleBarBrushParameter.GetDefaultValue(this);
             TitleBarBrushParameter.AddValueChangedHandler(this, this.Handler);
-            
+
             this.PropertyEditor.Root.AddItem(new DataParameterColourPropertyEditorSlot(TitleBarBrushParameter, typeof(EditorWindowPropEditorConfigurationPage), "Titlebar Brush"));
         }
 
         private void Handler(DataParameter parameter, ITransferableData owner) => this.MarkModified();
 
-        public override async ValueTask OnContextCreated(ConfigurationContext context)
-        {
+        public override async ValueTask OnContextCreated(ConfigurationContext context) {
             EditorConfigurationOptions options = EditorConfigurationOptions.Instance;
             this.titleBarBrush = options.TitleBarBrush;
             this.PropertyEditor.Root.SetupHierarchyState([this]);
         }
 
-        public override ValueTask OnContextDestroyed(ConfigurationContext context)
-        {
+        public override ValueTask OnContextDestroyed(ConfigurationContext context) {
             this.PropertyEditor.Root.ClearHierarchy();
             return ValueTask.CompletedTask;
         }
 
-        public override async ValueTask Apply()
-        {
+        public override async ValueTask Apply() {
             EditorConfigurationOptions options = EditorConfigurationOptions.Instance;
             options.TitleBarBrush = this.titleBarBrush;
-        
+
             // await IoC.MessageService.ShowMessage("Change title", "Change window title to: " + this.TitleBar);
         }
     }

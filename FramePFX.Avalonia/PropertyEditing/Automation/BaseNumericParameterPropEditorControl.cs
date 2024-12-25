@@ -26,16 +26,14 @@ using FramePFX.PropertyEditing.Automation;
 
 namespace FramePFX.Avalonia.PropertyEditing.Automation;
 
-public abstract class BaseNumericParameterPropEditorControl : BaseParameterPropertyEditorControl
-{
+public abstract class BaseNumericParameterPropEditorControl : BaseParameterPropertyEditorControl {
     protected NumberDragger? dragger;
     protected bool IsUpdatingControl;
     private readonly AutoUpdateAndEventPropertyBinder<NumericParameterPropertyEditorSlot> valueFormatterBinder;
 
     public new NumericParameterPropertyEditorSlot? SlotModel => (NumericParameterPropertyEditorSlot?) base.SlotControl?.Model;
 
-    protected BaseNumericParameterPropEditorControl()
-    {
+    protected BaseNumericParameterPropEditorControl() {
         this.valueFormatterBinder = new AutoUpdateAndEventPropertyBinder<NumericParameterPropertyEditorSlot>(NumberDragger.ValueFormatterProperty, nameof(NumericParameterPropertyEditorSlot.ValueFormatterChanged), (x) => ((NumberDragger) x.Control).ValueFormatter = x.Model.ValueFormatter, null);
     }
 
@@ -43,32 +41,25 @@ public abstract class BaseNumericParameterPropEditorControl : BaseParameterPrope
 
     protected abstract void UpdateModelValue();
 
-    private void OnModelValueChanged()
-    {
-        if (this.SlotModel != null)
-        {
+    private void OnModelValueChanged() {
+        if (this.SlotModel != null) {
             this.IsUpdatingControl = true;
-            try
-            {
+            try {
                 this.UpdateControlValue();
             }
-            finally
-            {
+            finally {
                 this.IsUpdatingControl = false;
             }
         }
     }
 
-    private void OnControlValueChanged()
-    {
-        if (!this.IsUpdatingControl && this.SlotModel != null)
-        {
+    private void OnControlValueChanged() {
+        if (!this.IsUpdatingControl && this.SlotModel != null) {
             this.UpdateModelValue();
         }
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.dragger = e.NameScope.GetTemplateChild<NumberDragger>("PART_DraggerX");
         this.dragger.ValueChanged += (sender, args) => this.OnControlValueChanged();
@@ -76,18 +67,15 @@ public abstract class BaseNumericParameterPropEditorControl : BaseParameterPrope
         this.UpdateDraggerMultiValueState();
     }
 
-    private void UpdateDraggerMultiValueState()
-    {
-        if (!this.IsConnected)
-        {
+    private void UpdateDraggerMultiValueState() {
+        if (!this.IsConnected) {
             return;
         }
 
         BaseNumberDraggerDataParamPropEditorControl.UpdateNumberDragger(this.dragger!, this.SlotModel!.HasMultipleValues, this.SlotModel!.HasProcessedMultipleValuesSinceSetup);
     }
 
-    protected override void OnConnected()
-    {
+    protected override void OnConnected() {
         this.valueFormatterBinder.AttachModel(this.SlotModel!);
         base.OnConnected();
         NumericParameterPropertyEditorSlot slot = this.SlotModel!;
@@ -98,26 +86,22 @@ public abstract class BaseNumericParameterPropEditorControl : BaseParameterPrope
         this.UpdateDraggerMultiValueState();
     }
 
-    protected override void OnDisconnected()
-    {
+    protected override void OnDisconnected() {
         this.valueFormatterBinder.DetachModel();
         base.OnDisconnected();
         NumericParameterPropertyEditorSlot slot = this.SlotModel!;
         slot.ValueChanged -= this.OnSlotValueChanged;
     }
 
-    private void OnHasMultipleValuesChanged(ParameterPropertyEditorSlot slot)
-    {
+    private void OnHasMultipleValuesChanged(ParameterPropertyEditorSlot slot) {
         this.UpdateDraggerMultiValueState();
     }
 
-    private void OnHasProcessedMultipleValuesChanged(ParameterPropertyEditorSlot slot)
-    {
+    private void OnHasProcessedMultipleValuesChanged(ParameterPropertyEditorSlot slot) {
         this.UpdateDraggerMultiValueState();
     }
 
-    private void OnSlotValueChanged(ParameterPropertyEditorSlot slot)
-    {
+    private void OnSlotValueChanged(ParameterPropertyEditorSlot slot) {
         this.OnModelValueChanged();
     }
 }

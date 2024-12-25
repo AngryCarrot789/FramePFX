@@ -29,24 +29,20 @@ namespace FramePFX.PropertyEditing.Automation;
 
 public delegate void ParameterVector2ValueFormatterChangedEventHandler(ParameterVector2PropertyEditorSlot sender, IValueFormatter? oldValueFormatter, IValueFormatter? newValueFormatter);
 
-public class ParameterVector2PropertyEditorSlot : ParameterPropertyEditorSlot
-{
+public class ParameterVector2PropertyEditorSlot : ParameterPropertyEditorSlot {
     private Vector2 value;
     private IValueFormatter? valueFormatter;
 
-    public Vector2 Value
-    {
+    public Vector2 Value {
         get => this.value;
-        set
-        {
+        set {
             Vector2 oldVal = this.value;
             this.value = value;
             bool useAddition = this.IsMultiHandler;
             Vector2 change = value - oldVal;
             ParameterVector2 parameter = this.Parameter;
             ParameterDescriptorVector2 pdesc = parameter.Descriptor;
-            for (int i = 0, c = this.Handlers.Count; i < c; i++)
-            {
+            for (int i = 0, c = this.Handlers.Count; i < c; i++) {
                 IAutomatable obj = (IAutomatable) this.Handlers[i];
                 Vector2 newValue = pdesc.Clamp(useAddition ? (parameter.GetCurrentValue(obj) + change) : value);
                 AutomationUtils.SetDefaultKeyFrameOrAddNew(obj, parameter, newValue, (k, d, o) => k.SetVector2Value(o, d));
@@ -56,11 +52,9 @@ public class ParameterVector2PropertyEditorSlot : ParameterPropertyEditorSlot
         }
     }
 
-    public IValueFormatter? ValueFormatter
-    {
+    public IValueFormatter? ValueFormatter {
         get => this.valueFormatter;
-        set
-        {
+        set {
             IValueFormatter? oldValueFormatter = this.valueFormatter;
             if (oldValueFormatter == value)
                 return;
@@ -76,13 +70,11 @@ public class ParameterVector2PropertyEditorSlot : ParameterPropertyEditorSlot
 
     public DragStepProfile StepProfile { get; }
 
-    public ParameterVector2PropertyEditorSlot(ParameterVector2 parameter, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName)
-    {
+    public ParameterVector2PropertyEditorSlot(ParameterVector2 parameter, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, applicableType, displayName) {
         this.StepProfile = stepProfile;
     }
 
-    protected override void QueryValueFromHandlers()
-    {
+    protected override void QueryValueFromHandlers() {
         this.HasMultipleValues = !CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetCurrentValue((IAutomatable) x), out this.value);
     }
 }

@@ -26,8 +26,7 @@ public delegate void ObservableItemProcessorItemMovedEventHandler<in T>(object s
 /// <summary>
 /// A helper class for creating observable item processors
 /// </summary>
-public static class ObservableItemProcessor
-{
+public static class ObservableItemProcessor {
     /// <summary>
     /// Creates a simple item processor that invokes two callbacks when an item is added to or removed from the collection 
     /// </summary>
@@ -36,8 +35,7 @@ public static class ObservableItemProcessor
     /// <param name="onItemRemoved"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static ObservableItemProcessorSimple<T> MakeSimple<T>(IObservableList<T> list, Action<T>? onItemAdded, Action<T>? onItemRemoved)
-    {
+    public static ObservableItemProcessorSimple<T> MakeSimple<T>(IObservableList<T> list, Action<T>? onItemAdded, Action<T>? onItemRemoved) {
         return new ObservableItemProcessorSimple<T>(list, onItemAdded, onItemRemoved);
     }
 
@@ -49,21 +47,18 @@ public static class ObservableItemProcessor
     /// <param name="onItemRemoved"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static ObservableItemProcessorIndexing<T> MakeIndexable<T>(IObservableList<T> list, ObservableItemProcessorItemEventHandler<T>? onItemAdded, ObservableItemProcessorItemEventHandler<T>? onItemRemoved, ObservableItemProcessorItemMovedEventHandler<T>? onItemMoved, bool useOptimisedRemovalProcessing = true)
-    {
+    public static ObservableItemProcessorIndexing<T> MakeIndexable<T>(IObservableList<T> list, ObservableItemProcessorItemEventHandler<T>? onItemAdded, ObservableItemProcessorItemEventHandler<T>? onItemRemoved, ObservableItemProcessorItemMovedEventHandler<T>? onItemMoved, bool useOptimisedRemovalProcessing = true) {
         return new ObservableItemProcessorIndexing<T>(list, onItemAdded, onItemRemoved, onItemMoved, useOptimisedRemovalProcessing);
     }
 }
 
-public sealed class ObservableItemProcessorSimple<T> : IDisposable
-{
+public sealed class ObservableItemProcessorSimple<T> : IDisposable {
     private readonly IObservableList<T> list;
 
     public event Action<T>? OnItemAdded;
     public event Action<T>? OnItemRemoved;
 
-    public ObservableItemProcessorSimple(IObservableList<T> list, Action<T>? itemAdded, Action<T>? itemRemoved)
-    {
+    public ObservableItemProcessorSimple(IObservableList<T> list, Action<T>? itemAdded, Action<T>? itemRemoved) {
         this.list = list ?? throw new ArgumentNullException(nameof(list));
         list.ItemsAdded += this.OnItemsAdded;
         list.ItemsRemoved += this.OnItemsRemoved;
@@ -73,8 +68,7 @@ public sealed class ObservableItemProcessorSimple<T> : IDisposable
         this.OnItemRemoved = itemRemoved;
     }
 
-    private void OnItemsAdded(IObservableList<T> observableList, IList<T> items, int index)
-    {
+    private void OnItemsAdded(IObservableList<T> observableList, IList<T> items, int index) {
         Action<T>? handler = this.OnItemAdded;
         if (handler == null)
             return;
@@ -83,8 +77,7 @@ public sealed class ObservableItemProcessorSimple<T> : IDisposable
             handler(item);
     }
 
-    private void OnItemsRemoved(IObservableList<T> observableList, IList<T> items, int index)
-    {
+    private void OnItemsRemoved(IObservableList<T> observableList, IList<T> items, int index) {
         Action<T>? handler = this.OnItemRemoved;
         if (handler == null)
             return;
@@ -93,22 +86,19 @@ public sealed class ObservableItemProcessorSimple<T> : IDisposable
             handler(item);
     }
 
-    private void OnItemReplaced(IObservableList<T> observableList, T olditem, T newitem, int index)
-    {
+    private void OnItemReplaced(IObservableList<T> observableList, T olditem, T newitem, int index) {
         this.OnItemRemoved?.Invoke(olditem);
         this.OnItemAdded?.Invoke(newitem);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         this.list.ItemsAdded -= this.OnItemsAdded;
         this.list.ItemsRemoved -= this.OnItemsRemoved;
         this.list.ItemReplaced -= this.OnItemReplaced;
     }
 }
 
-public sealed class ObservableItemProcessorIndexing<T> : IDisposable
-{
+public sealed class ObservableItemProcessorIndexing<T> : IDisposable {
     private readonly IObservableList<T> list;
     private readonly bool useOptimisedRemovalProcessing;
 
@@ -116,8 +106,7 @@ public sealed class ObservableItemProcessorIndexing<T> : IDisposable
     public event ObservableItemProcessorItemEventHandler<T>? OnItemRemoved;
     public event ObservableItemProcessorItemMovedEventHandler<T>? OnItemMoved;
 
-    public ObservableItemProcessorIndexing(IObservableList<T> list, ObservableItemProcessorItemEventHandler<T>? itemAdded, ObservableItemProcessorItemEventHandler<T>? itemRemoved, ObservableItemProcessorItemMovedEventHandler<T>? itemMoved, bool useOptimisedRemovalProcessing)
-    {
+    public ObservableItemProcessorIndexing(IObservableList<T> list, ObservableItemProcessorItemEventHandler<T>? itemAdded, ObservableItemProcessorItemEventHandler<T>? itemRemoved, ObservableItemProcessorItemMovedEventHandler<T>? itemMoved, bool useOptimisedRemovalProcessing) {
         this.list = list ?? throw new ArgumentNullException(nameof(list));
         this.useOptimisedRemovalProcessing = useOptimisedRemovalProcessing;
         list.ItemsAdded += this.ItemsAdded;
@@ -130,8 +119,7 @@ public sealed class ObservableItemProcessorIndexing<T> : IDisposable
         this.OnItemMoved = itemMoved;
     }
 
-    private void ItemsAdded(IObservableList<T> observableList, IList<T> items, int index)
-    {
+    private void ItemsAdded(IObservableList<T> observableList, IList<T> items, int index) {
         ObservableItemProcessorItemEventHandler<T>? handler = this.OnItemAdded;
         if (handler == null)
             return;
@@ -141,44 +129,37 @@ public sealed class ObservableItemProcessorIndexing<T> : IDisposable
             handler(this, ++i, item);
     }
 
-    private void ItemsRemoved(IObservableList<T> observableList, IList<T> items, int index)
-    {
+    private void ItemsRemoved(IObservableList<T> observableList, IList<T> items, int index) {
         ObservableItemProcessorItemEventHandler<T>? handler = this.OnItemRemoved;
         if (handler == null)
             return;
 
-        if (this.useOptimisedRemovalProcessing)
-        {
+        if (this.useOptimisedRemovalProcessing) {
             // Remove back to front, as it's usually the most performant for array-based
             // list implementations that may be modified by the handler,
             // since they will do overall less copying
-            for (int j = items.Count, i = index + j - 1; i >= index; i--)
-            {
+            for (int j = items.Count, i = index + j - 1; i >= index; i--) {
                 // i = index of last item in unaware listeners' list, points to junk in real list
                 // j = index in items parameter list
                 handler(this, i, items[--j]);
             }
         }
-        else
-        {
+        else {
             foreach (T item in items)
                 handler(this, index, item);
         }
     }
 
-    private void ItemReplaced(IObservableList<T> observableList, T olditem, T newitem, int index)
-    {
+    private void ItemReplaced(IObservableList<T> observableList, T olditem, T newitem, int index) {
         this.OnItemRemoved?.Invoke(this, index, olditem);
         this.OnItemAdded?.Invoke(this, index, newitem);
     }
 
-    private void ItemMoved(IObservableList<T> observableList, T item, int oldIndex, int newIndex)
-    {
+    private void ItemMoved(IObservableList<T> observableList, T item, int oldIndex, int newIndex) {
         this.OnItemMoved?.Invoke(this, oldIndex, newIndex, item);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() {
         this.list.ItemsAdded -= this.ItemsAdded;
         this.list.ItemsRemoved -= this.ItemsRemoved;
         this.list.ItemReplaced -= this.ItemReplaced;

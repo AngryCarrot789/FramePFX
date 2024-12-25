@@ -23,15 +23,13 @@ using FramePFX.PropertyEditing.DataTransfer.Enums;
 
 namespace FramePFX.Editing.Exporting.FFmpeg;
 
-public class DataParameterAVCodecIDPropertyEditorSlot : DataParameterEnumPropertyEditorSlot<AVCodecID>
-{
+public class DataParameterAVCodecIDPropertyEditorSlot : DataParameterEnumPropertyEditorSlot<AVCodecID> {
     public static DataParameterEnumInfo<AVCodecID> CodedIdEnumInfo { get; }
-    
+
     public DataParameterAVCodecIDPropertyEditorSlot(DataParameter<AVCodecID> parameter, Type applicableType, string displayName, IEnumerable<AVCodecID>? values = null, DataParameterEnumInfo<AVCodecID>? translationInfo = null) : base(parameter, applicableType, displayName, values, translationInfo) { }
     public DataParameterAVCodecIDPropertyEditorSlot(DataParameter<AVCodecID> parameter, Type applicableType, string? displayName = null) : base(parameter, applicableType, displayName ?? "Codec ID", EnumValues.OrderBy(x => x.ToString()), CodedIdEnumInfo) { }
 
-    static DataParameterAVCodecIDPropertyEditorSlot()
-    {
+    static DataParameterAVCodecIDPropertyEditorSlot() {
         Dictionary<AVCodecID, string> coded2name = new Dictionary<AVCodecID, string>();
         foreach (AVCodecID codec in EnumValues)
             coded2name[codec] = codec.ToString().Substring(12);

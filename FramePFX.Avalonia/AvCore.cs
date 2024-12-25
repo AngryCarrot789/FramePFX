@@ -28,13 +28,11 @@ namespace FramePFX.Avalonia;
 /// <summary>
 /// A class that exposes avalonia internals that should be public
 /// </summary>
-public static class AvCore
-{
+public static class AvCore {
     private static AvaloniaLocator Locator;
     private static MethodInfo GetServiceMethod;
 
-    public static void OnApplicationInitialised()
-    {
+    public static void OnApplicationInitialised() {
         Locator = (AvaloniaLocator) GetProperty<AvaloniaLocator, IAvaloniaDependencyResolver>(null, "Current", true)!;
         GetServiceMethod = typeof(AvaloniaLocator).GetMethod("GetService", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, [typeof(Type)], null) ?? throw new Exception("Could not find GetService method");
 
@@ -62,8 +60,7 @@ public static class AvCore
     /// <returns>Whether or not the service was found</returns>
     public static bool TryGetService<T>(out T value) where T : class => (value = (GetService(typeof(T)) as T)!) != null;
 
-    private static TValue? GetProperty<TOwner, TValue>(object? instance, string name, bool isStatic, bool allowNull = false)
-    {
+    private static TValue? GetProperty<TOwner, TValue>(object? instance, string name, bool isStatic, bool allowNull = false) {
         Type owner = typeof(TOwner);
         BindingFlags initialFlags = isStatic ? BindingFlags.Static : BindingFlags.Instance;
         PropertyInfo? property;
@@ -88,11 +85,9 @@ public static class AvCore
         throw new Exception("Property value is incompatible with type");
     }
 
-    public static Point GetRelativePosition(Visual relativeTo, Point point)
-    {
+    public static Point GetRelativePosition(Visual relativeTo, Point point) {
         IRenderRoot? root = relativeTo.GetVisualRoot();
-        if (root == null)
-        {
+        if (root == null) {
             return point;
         }
 

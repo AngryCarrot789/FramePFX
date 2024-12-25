@@ -24,15 +24,12 @@ public delegate void GroupCaptionEntryCaptionChangedEventHandler(CaptionEntry se
 /// <summary>
 /// A context entry that is placed above a group of items. This is not necessarily related to <see cref="IContextGroup"/> objects
 /// </summary>
-public class CaptionEntry : IContextObject
-{
+public class CaptionEntry : IContextObject {
     private string? caption;
 
-    public string? Caption
-    {
+    public string? Caption {
         get => this.caption;
-        set
-        {
+        set {
             if (this.caption == value)
                 return;
 
@@ -43,8 +40,7 @@ public class CaptionEntry : IContextObject
 
     public event GroupCaptionEntryCaptionChangedEventHandler? CaptionChanged;
 
-    public CaptionEntry(string caption)
-    {
+    public CaptionEntry(string caption) {
         this.caption = caption;
     }
 }

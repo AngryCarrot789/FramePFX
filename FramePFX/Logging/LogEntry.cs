@@ -19,8 +19,7 @@
 
 namespace FramePFX.Logging;
 
-public class LogEntry
-{
+public class LogEntry {
     /// <summary>
     /// Gets the time at which this log entry was created
     /// </summary>
@@ -36,8 +35,7 @@ public class LogEntry
     /// </summary>
     public string Content { get; }
 
-    public LogEntry(DateTime logTime, string stackTrace, string content)
-    {
+    public LogEntry(DateTime logTime, string stackTrace, string content) {
         this.LogTime = logTime;
         this.StackTrace = stackTrace;
         this.Content = content;

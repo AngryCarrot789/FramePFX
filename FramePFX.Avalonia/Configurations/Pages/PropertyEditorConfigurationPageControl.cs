@@ -27,28 +27,24 @@ namespace FramePFX.Avalonia.Configurations.Pages;
 /// <summary>
 /// A configuration page control that consists entirely of a property editor control
 /// </summary>
-public class PropertyEditorConfigurationPageControl : BaseConfigurationPageControl
-{
+public class PropertyEditorConfigurationPageControl : BaseConfigurationPageControl {
     private PropertyEditorControl? PART_PropertyEditor;
 
     public PropertyEditorConfigurationPageControl() { }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.PART_PropertyEditor = e.NameScope.GetTemplateChild<PropertyEditorControl>("PART_PropertyEditor");
         this.PART_PropertyEditor.ApplyStyling();
         this.PART_PropertyEditor.ApplyTemplate();
     }
-    
-    public override void OnConnected()
-    {
+
+    public override void OnConnected() {
         base.OnConnected();
         this.PART_PropertyEditor!.PropertyEditor = ((PropertyEditorConfigurationPage) this.Page!).PropertyEditor;
     }
 
-    public override void OnDisconnected()
-    {
+    public override void OnDisconnected() {
         base.OnDisconnected();
         this.PART_PropertyEditor!.PropertyEditor = null;
     }

@@ -24,11 +24,10 @@ namespace FramePFX.Services.InputStrokes;
 /// <summary>
 /// A service that lets the user specify an input stroke, e.g. a key stroke or mouse clic
 /// </summary>
-public interface IInputStrokeQueryDialogService
-{
+public interface IInputStrokeQueryDialogService {
     public static IInputStrokeQueryDialogService Instance => Application.Instance.ServiceManager.GetService<IInputStrokeQueryDialogService>();
-    
+
     Task<KeyStroke?> ShowGetKeyStrokeDialog(KeyStroke? keyStroke);
-    
+
     Task<MouseStroke?> ShowGetMouseStrokeDialog(MouseStroke? mouseStroke);
 }

@@ -27,21 +27,17 @@ using SkiaSharp;
 
 namespace FramePFX.Avalonia.Services.Colours;
 
-public partial class ColourUserInputControl : UserControl, IUserInputContent
-{
+public partial class ColourUserInputControl : UserControl, IUserInputContent {
     private readonly DataParameterPropertyBinder<ColourUserInputInfo> colourBinder;
     private UserInputDialog myDialog;
     private ColourUserInputInfo myData;
 
-    public ColourUserInputControl()
-    {
+    public ColourUserInputControl() {
         this.InitializeComponent();
-        this.colourBinder = new DataParameterPropertyBinder<ColourUserInputInfo>(ColorView.ColorProperty, ColourUserInputInfo.ColourParameter, arg =>
-        {
+        this.colourBinder = new DataParameterPropertyBinder<ColourUserInputInfo>(ColorView.ColorProperty, ColourUserInputInfo.ColourParameter, arg => {
             SKColor c = (SKColor) arg!;
             return new Color(c.Alpha, c.Red, c.Green, c.Blue);
-        }, arg =>
-        {
+        }, arg => {
             Color c = (Color) arg!;
             return new SKColor(c.R, c.G, c.B, c.A);
         });
@@ -49,22 +45,19 @@ public partial class ColourUserInputControl : UserControl, IUserInputContent
         this.colourBinder.AttachControl(this.PART_ColorView);
     }
 
-    public void Connect(UserInputDialog dialog, UserInputInfo info)
-    {
+    public void Connect(UserInputDialog dialog, UserInputInfo info) {
         this.myDialog = dialog;
         this.myData = (ColourUserInputInfo) info;
         this.colourBinder.AttachModel(this.myData);
     }
 
-    public void Disconnect()
-    {
+    public void Disconnect() {
         this.colourBinder.DetachModel();
         this.myDialog = null;
         this.myData = null;
     }
 
-    public bool FocusPrimaryInput()
-    {
+    public bool FocusPrimaryInput() {
         return false;
     }
 }

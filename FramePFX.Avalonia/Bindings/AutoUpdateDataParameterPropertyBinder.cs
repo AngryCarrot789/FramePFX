@@ -23,34 +23,28 @@ using FramePFX.DataTransfer;
 
 namespace FramePFX.Avalonia.Bindings;
 
-public class AutoUpdateDataParameterPropertyBinder<TModel> : AutoUpdatePropertyBinder<TModel> where TModel : class, ITransferableData
-{
+public class AutoUpdateDataParameterPropertyBinder<TModel> : AutoUpdatePropertyBinder<TModel> where TModel : class, ITransferableData {
     public DataParameter Parameter { get; }
 
-    public AutoUpdateDataParameterPropertyBinder(DataParameter parameter, Action<IBinder<TModel>>? updateControl, Action<IBinder<TModel>>? updateModel = null) : base(updateControl, updateModel)
-    {
+    public AutoUpdateDataParameterPropertyBinder(DataParameter parameter, Action<IBinder<TModel>>? updateControl, Action<IBinder<TModel>>? updateModel = null) : base(updateControl, updateModel) {
         this.Parameter = parameter ?? throw new ArgumentNullException(nameof(parameter));
     }
 
-    public AutoUpdateDataParameterPropertyBinder(DataParameter parameter, AvaloniaProperty? property, Action<IBinder<TModel>>? updateControl, Action<IBinder<TModel>>? updateModel = null) : base(property, updateControl, updateModel)
-    {
+    public AutoUpdateDataParameterPropertyBinder(DataParameter parameter, AvaloniaProperty? property, Action<IBinder<TModel>>? updateControl, Action<IBinder<TModel>>? updateModel = null) : base(property, updateControl, updateModel) {
         this.Parameter = parameter ?? throw new ArgumentNullException(nameof(parameter));
     }
 
-    protected override void OnAttached()
-    {
+    protected override void OnAttached() {
         base.OnAttached();
         this.Parameter.AddValueChangedHandler(this.Model, this.OnParameterChanged);
     }
 
-    protected override void OnDetached()
-    {
+    protected override void OnDetached() {
         base.OnDetached();
         this.Parameter.RemoveValueChangedHandler(this.Model, this.OnParameterChanged);
     }
 
-    private void OnParameterChanged(DataParameter parameter, ITransferableData owner)
-    {
+    private void OnParameterChanged(DataParameter parameter, ITransferableData owner) {
         this.UpdateControl();
     }
 }

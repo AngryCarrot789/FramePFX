@@ -16,14 +16,14 @@
             </ControlTemplate>
         </Setter>
     </ControlTheme>
-    
+
     <ControlTheme x:Key="{x:Type pages:PropertyEditorConfigurationPageControl}" TargetType="{x:Type pages:PropertyEditorConfigurationPageControl}">
         <Setter Property="Template">
             <ControlTemplate TargetType="{x:Type pages:PropertyEditorConfigurationPageControl}">
                 <propertyEditing:PropertyEditorControl x:Name="PART_PropertyEditor"/>
             </ControlTemplate>
         </Setter>
-    </ControlTheme>    
+    </ControlTheme>
     <ControlTheme x:Key="{x:Type b:ShortcutEditorConfigurationPageControl}" TargetType="{x:Type b:ShortcutEditorConfigurationPageControl}">
         <Setter Property="Template">
             <ControlTemplate TargetType="{x:Type b:ShortcutEditorConfigurationPageControl}">

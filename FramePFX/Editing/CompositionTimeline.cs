@@ -22,8 +22,7 @@ using FramePFX.Editing.Timelines;
 
 namespace FramePFX.Editing;
 
-public sealed class CompositionTimeline : Timeline
-{
+public sealed class CompositionTimeline : Timeline {
     /// <summary>
     /// Gets the resource that owns this composition timeline
     /// </summary>
@@ -32,8 +31,7 @@ public sealed class CompositionTimeline : Timeline
     public CompositionTimeline() {
     }
 
-    internal static void InternalConstructCompositionTimeline(ResourceComposition resource)
-    {
+    internal static void InternalConstructCompositionTimeline(ResourceComposition resource) {
         resource.Timeline.Resource = resource;
     }
 }

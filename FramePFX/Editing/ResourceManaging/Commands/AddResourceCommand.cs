@@ -29,17 +29,13 @@ using SkiaSharp;
 
 namespace FramePFX.Editing.ResourceManaging.Commands;
 
-public abstract class AddResourceCommand<T> : AsyncCommand where T : BaseResource
-{
-    protected override Executability CanExecuteOverride(CommandEventArgs e)
-    {
+public abstract class AddResourceCommand<T> : AsyncCommand where T : BaseResource {
+    protected override Executability CanExecuteOverride(CommandEventArgs e) {
         return DataKeys.ResourceManagerUIKey.GetExecutabilityForPresence(e.ContextData);
     }
 
-    protected override async Task ExecuteAsync(CommandEventArgs e)
-    {
-        if (!DataKeys.ResourceManagerUIKey.TryGetContext(e.ContextData, out IResourceManagerElement? manager))
-        {
+    protected override async Task ExecuteAsync(CommandEventArgs e) {
+        if (!DataKeys.ResourceManagerUIKey.TryGetContext(e.ContextData, out IResourceManagerElement? manager)) {
             return;
         }
 
@@ -55,54 +51,43 @@ public abstract class AddResourceCommand<T> : AsyncCommand where T : BaseResourc
         using ErrorList list = new ErrorList("Exception adding resource to track");
 
         bool success = false;
-        try
-        {
+        try {
             targetFolder.AddItem(resource);
             success = true;
         }
-        catch (Exception ex)
-        {
+        catch (Exception ex) {
             list.Add(ex);
         }
-        finally
-        {
-            try
-            {
+        finally {
+            try {
                 await this.OnPostAddToFolder(targetFolder, resource, current, !success ? null : manager.GetNode(resource), success, e.ContextData);
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 list.Add(ex);
             }
         }
     }
 
-    protected virtual T NewInstance()
-    {
+    protected virtual T NewInstance() {
         return (T) ResourceTypeFactory.Instance.NewResource(ResourceTypeFactory.Instance.GetId(typeof(T)));
     }
 
-    protected virtual Task OnPreAddToFolder(ResourceFolder folder, T resource, IResourceTreeNodeElement? folderUI, IContextData ctx)
-    {
+    protected virtual Task OnPreAddToFolder(ResourceFolder folder, T resource, IResourceTreeNodeElement? folderUI, IContextData ctx) {
         return Task.CompletedTask;
     }
 
-    protected virtual Task OnPostAddToFolder(ResourceFolder folder, T resource, IResourceTreeNodeElement? folderUI, IResourceTreeNodeElement? resourceUI, bool success, IContextData ctx)
-    {
+    protected virtual Task OnPostAddToFolder(ResourceFolder folder, T resource, IResourceTreeNodeElement? folderUI, IResourceTreeNodeElement? resourceUI, bool success, IContextData ctx) {
         return Task.CompletedTask;
     }
 }
 
-public class AddResourceImageCommand : AddResourceCommand<ResourceImage>
-{
-    protected override async Task OnPostAddToFolder(ResourceFolder folder, ResourceImage resource, IResourceTreeNodeElement? folderUI, IResourceTreeNodeElement? resourceUI, bool success, IContextData ctx)
-    {
+public class AddResourceImageCommand : AddResourceCommand<ResourceImage> {
+    protected override async Task OnPostAddToFolder(ResourceFolder folder, ResourceImage resource, IResourceTreeNodeElement? folderUI, IResourceTreeNodeElement? resourceUI, bool success, IContextData ctx) {
         if (!success)
             return;
 
         string? path = await IFilePickDialogService.Instance.OpenFile("Open an image file", Filters.CombinedImageTypesAndAll);
-        if (path != null)
-        {
+        if (path != null) {
             resource.FilePath = path;
             resource.DisplayName = Path.GetFileName(path);
             if (string.IsNullOrWhiteSpace(resource.DisplayName))
@@ -113,16 +98,13 @@ public class AddResourceImageCommand : AddResourceCommand<ResourceImage>
     }
 }
 
-public class AddResourceAVMediaCommand : AddResourceCommand<ResourceAVMedia>
-{
-    protected override async Task OnPostAddToFolder(ResourceFolder folder, ResourceAVMedia resource, IResourceTreeNodeElement? folderUI, IResourceTreeNodeElement? resourceUI, bool success, IContextData ctx)
-    {
+public class AddResourceAVMediaCommand : AddResourceCommand<ResourceAVMedia> {
+    protected override async Task OnPostAddToFolder(ResourceFolder folder, ResourceAVMedia resource, IResourceTreeNodeElement? folderUI, IResourceTreeNodeElement? resourceUI, bool success, IContextData ctx) {
         if (!success)
             return;
 
         string? path = await IFilePickDialogService.Instance.OpenFile("Open a media file for this resource?", Filters.CombinedVideoTypesAndAll);
-        if (path != null)
-        {
+        if (path != null) {
             resource.FilePath = path;
             resource.DisplayName = Path.GetFileName(path);
             if (string.IsNullOrWhiteSpace(resource.DisplayName))
@@ -132,16 +114,13 @@ public class AddResourceAVMediaCommand : AddResourceCommand<ResourceAVMedia>
     }
 }
 
-public class AddResourceColourCommand : AddResourceCommand<ResourceColour>
-{
-    protected override async Task OnPostAddToFolder(ResourceFolder folder, ResourceColour resource, IResourceTreeNodeElement? folderUI, IResourceTreeNodeElement? resourceUI, bool success, IContextData ctx)
-    {
+public class AddResourceColourCommand : AddResourceCommand<ResourceColour> {
+    protected override async Task OnPostAddToFolder(ResourceFolder folder, ResourceColour resource, IResourceTreeNodeElement? folderUI, IResourceTreeNodeElement? resourceUI, bool success, IContextData ctx) {
         if (!success)
             return;
 
         SKColor? colour = await IColourPickerDialogService.Instance.PickColourAsync(SKColors.DodgerBlue);
-        if (colour.HasValue)
-        {
+        if (colour.HasValue) {
             resource.Colour = colour.Value;
         }
     }

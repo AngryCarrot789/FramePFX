@@ -28,19 +28,16 @@ using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.AdvancedMenuService;
 
-public class AdvancedContextCustomMenuItem : AdvancedContextMenuItem
-{
+public class AdvancedContextCustomMenuItem : AdvancedContextMenuItem {
     private bool canExecute;
-    
+
     public new CustomContextEntry? Entry => (CustomContextEntry?) base.Entry;
 
     public bool IsExecuting { get; private set; }
-    
-    protected bool CanExecute
-    {
+
+    protected bool CanExecute {
         get => this.canExecute;
-        set
-        {
+        set {
             this.canExecute = value;
 
             // Causes IsEnableCore to be fetched, which returns false if we are executing something or
@@ -48,49 +45,41 @@ public class AdvancedContextCustomMenuItem : AdvancedContextMenuItem
             this.UpdateIsEffectivelyEnabled();
         }
     }
-    
+
     protected override bool IsEnabledCore => base.IsEnabledCore && this.CanExecute;
-    
+
     public AdvancedContextCustomMenuItem() {
     }
 
-    public override void UpdateCanExecute()
-    {
+    public override void UpdateCanExecute() {
         if (!this.IsLoaded)
             return;
 
-        if (this.IsExecuting)
-        {
+        if (this.IsExecuting) {
             this.CanExecute = false;
         }
-        else if (this.Entry is CustomContextEntry entry)
-        {
+        else if (this.Entry is CustomContextEntry entry) {
             IContextData ctx = this.Container?.Context ?? EmptyContext.Instance;
             this.CanExecute = entry.CanExecute(ctx);
         }
-        else
-        {
+        else {
             this.CanExecute = false;
         }
     }
 
-    protected override void OnLoaded(RoutedEventArgs e)
-    {
+    protected override void OnLoaded(RoutedEventArgs e) {
         this.UpdateCanExecute();
         base.OnLoaded(e);
     }
 
-    protected override void OnClick(RoutedEventArgs e)
-    {
-        if (this.IsExecuting)
-        {
+    protected override void OnClick(RoutedEventArgs e) {
+        if (this.IsExecuting) {
             this.CanExecute = false;
             return;
         }
 
         this.IsExecuting = true;
-        if (!(this.Entry is CustomContextEntry entry))
-        {
+        if (!(this.Entry is CustomContextEntry entry)) {
             base.OnClick(e);
             this.IsExecuting = false;
             this.UpdateCanExecute();
@@ -100,18 +89,15 @@ public class AdvancedContextCustomMenuItem : AdvancedContextMenuItem
         // disable execution while executing command
         this.CanExecute = false;
         base.OnClick(e);
-        if (!this.DispatchCommand(entry))
-        {
+        if (!this.DispatchCommand(entry)) {
             this.IsExecuting = false;
             this.CanExecute = true;
         }
     }
 
-    private bool DispatchCommand(CustomContextEntry entry)
-    {
+    private bool DispatchCommand(CustomContextEntry entry) {
         IContextData context = this.Container?.Context ?? EmptyContext.Instance;
-        if (!entry.CanExecute(context))
-        {
+        if (!entry.CanExecute(context)) {
             return false;
         }
 
@@ -119,16 +105,12 @@ public class AdvancedContextCustomMenuItem : AdvancedContextMenuItem
         return true;
     }
 
-    private async void ExecuteCommand(CustomContextEntry entry, IContextData context)
-    {
-        try
-        {
+    private async void ExecuteCommand(CustomContextEntry entry, IContextData context) {
+        try {
             await entry.OnExecute(context);
         }
-        catch (Exception e)
-        {
-            if (!Debugger.IsAttached)
-            {
+        catch (Exception e) {
+            if (!Debugger.IsAttached) {
                 await IMessageDialogService.Instance.ShowMessage(
                     "Error",
                     "An unexpected error occurred while processing command. " +
@@ -136,8 +118,7 @@ public class AdvancedContextCustomMenuItem : AdvancedContextMenuItem
                     e.GetToString());
             }
         }
-        finally
-        {
+        finally {
             this.UpdateCanExecute();
         }
     }

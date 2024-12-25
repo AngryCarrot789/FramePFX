@@ -22,48 +22,40 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Avalonia.Editing.CommandContexts;
 
-public class BasicPlaybackCommandUsage : CommandSourceCommandUsage
-{
+public class BasicPlaybackCommandUsage : CommandSourceCommandUsage {
     private VideoEditor? editor;
 
     public BasicPlaybackCommandUsage(string cmdId) : base(cmdId) {
     }
 
-    private void OnEditorPlayStateChanged(PlaybackManager sender, PlayState state, long frame)
-    {
+    private void OnEditorPlayStateChanged(PlaybackManager sender, PlayState state, long frame) {
         this.UpdateCanExecute();
     }
 
-    protected override void OnContextChanged()
-    {
+    protected override void OnContextChanged() {
         base.OnContextChanged();
-        if (this.editor != null)
-        {
+        if (this.editor != null) {
             this.editor.Playback.PlaybackStateChanged -= this.OnEditorPlayStateChanged;
             this.editor = null;
         }
 
-        if (this.GetContextData() is IContextData ctx && DataKeys.VideoEditorKey.TryGetContext(ctx, out this.editor))
-        {
+        if (this.GetContextData() is IContextData ctx && DataKeys.VideoEditorKey.TryGetContext(ctx, out this.editor)) {
             this.editor.Playback.PlaybackStateChanged += this.OnEditorPlayStateChanged;
         }
     }
 }
 
-public class PlayCommandUsage : BasicPlaybackCommandUsage
-{
+public class PlayCommandUsage : BasicPlaybackCommandUsage {
     public PlayCommandUsage() : base("commands.editor.PlaybackPlayCommand") {
     }
 }
 
-public class PauseCommandUsage : BasicPlaybackCommandUsage
-{
+public class PauseCommandUsage : BasicPlaybackCommandUsage {
     public PauseCommandUsage() : base("commands.editor.PlaybackPauseCommand") {
     }
 }
 
-public class StopCommandUsage : BasicPlaybackCommandUsage
-{
+public class StopCommandUsage : BasicPlaybackCommandUsage {
     public StopCommandUsage() : base("commands.editor.PlaybackStopCommand") {
     }
 }

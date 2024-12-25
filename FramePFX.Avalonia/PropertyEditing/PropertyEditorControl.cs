@@ -25,8 +25,7 @@ using FramePFX.PropertyEditing;
 
 namespace FramePFX.Avalonia.PropertyEditing;
 
-public class PropertyEditorControl : TemplatedControl
-{
+public class PropertyEditorControl : TemplatedControl {
     private static readonly GridLength Star = new GridLength(1, GridUnitType.Star);
 
     public static readonly StyledProperty<PropertyEditor?> PropertyEditorProperty = AvaloniaProperty.Register<PropertyEditorControl, PropertyEditor?>("PropertyEditor");
@@ -36,8 +35,7 @@ public class PropertyEditorControl : TemplatedControl
 
     // public static readonly AvaloniaProperty PropertyEditorProperty = AvaloniaProperty.Register("PropertyEditor", typeof(BasePropertyEditor), typeof(PropertyEditorControl), new PropertyMetadata(null, (d, e) => ((PropertyEditorControl) d).OnPropertyEditorChanged((BasePropertyEditor) e.OldValue, (BasePropertyEditor) e.NewValue)));
 
-    public PropertyEditor? PropertyEditor
-    {
+    public PropertyEditor? PropertyEditor {
         get => this.GetValue(PropertyEditorProperty);
         set => this.SetValue(PropertyEditorProperty, value);
     }
@@ -53,8 +51,7 @@ public class PropertyEditorControl : TemplatedControl
     public PropertyEditorControl() {
     }
 
-    static PropertyEditorControl()
-    {
+    static PropertyEditorControl() {
         PropertyEditorProperty.Changed.AddClassHandler<PropertyEditorControl, PropertyEditor?>((o, e) => o.OnPropertyEditorChanged(e.GetOldValue<PropertyEditor?>(), e.GetNewValue<PropertyEditor?>()));
     }
 
@@ -71,23 +68,19 @@ public class PropertyEditorControl : TemplatedControl
     //     this.PropertyEditor?.ClearSelection();
     // }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.RootGroupControl = e.NameScope.GetTemplateChild<PropertyEditorGroupControl>("PART_RootGroupControl");
         this.RootGroupControl.ApplyStyling();
         this.RootGroupControl.ApplyTemplate();
     }
 
-    private void OnPropertyEditorChanged(PropertyEditor? oldEditor, PropertyEditor? newEditor)
-    {
-        if (oldEditor != null)
-        {
+    private void OnPropertyEditorChanged(PropertyEditor? oldEditor, PropertyEditor? newEditor) {
+        if (oldEditor != null) {
             this.RootGroupControl.DisconnectModel();
         }
 
-        if (newEditor != null)
-        {
+        if (newEditor != null) {
             this.RootGroupControl.ConnectModel(this, newEditor.Root);
         }
     }

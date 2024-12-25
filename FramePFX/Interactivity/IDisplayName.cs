@@ -24,8 +24,7 @@ public delegate void DisplayNameChangedEventHandler(IDisplayName sender, string?
 /// <summary>
 /// An generic interface for models with a display name
 /// </summary>
-public interface IDisplayName
-{
+public interface IDisplayName {
     /// <summary>
     /// Gets or sets the display name. Setting this fires an event
     /// </summary>

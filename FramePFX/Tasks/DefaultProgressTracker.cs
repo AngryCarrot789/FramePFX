@@ -21,20 +21,16 @@ using FramePFX.Utils.RDA;
 
 namespace FramePFX.Tasks;
 
-public class DefaultProgressTracker : IActivityProgress
-{
+public class DefaultProgressTracker : IActivityProgress {
     private readonly object dataLock = new object(); // only really used as a memory barrier
     private bool isIndeterminate;
     private string? headerText;
     private string? descriptionText;
 
-    public bool IsIndeterminate
-    {
+    public bool IsIndeterminate {
         get => this.isIndeterminate;
-        set
-        {
-            lock (this.dataLock)
-            {
+        set {
+            lock (this.dataLock) {
                 if (this.isIndeterminate == value)
                     return;
                 this.isIndeterminate = value;
@@ -44,13 +40,10 @@ public class DefaultProgressTracker : IActivityProgress
         }
     }
 
-    public string? Caption
-    {
+    public string? Caption {
         get => this.headerText;
-        set
-        {
-            lock (this.dataLock)
-            {
+        set {
+            lock (this.dataLock) {
                 if (this.headerText == value)
                     return;
                 this.headerText = value;
@@ -60,13 +53,10 @@ public class DefaultProgressTracker : IActivityProgress
         }
     }
 
-    public string? Text
-    {
+    public string? Text {
         get => this.descriptionText;
-        set
-        {
-            lock (this.dataLock)
-            {
+        set {
+            lock (this.dataLock) {
                 if (this.descriptionText == value)
                     return;
                 this.descriptionText = value;
@@ -86,12 +76,11 @@ public class DefaultProgressTracker : IActivityProgress
     private readonly DispatchPriority eventDispatchPriority;
 
     public CompletionState CompletionState { get; }
-    
+
     public DefaultProgressTracker() : this(DispatchPriority.Loaded) {
     }
 
-    public DefaultProgressTracker(DispatchPriority eventDispatchPriority)
-    {
+    public DefaultProgressTracker(DispatchPriority eventDispatchPriority) {
         this.eventDispatchPriority = eventDispatchPriority;
         this.updateIsIndeterminateRda = RapidDispatchActionEx.ForSync(() => this.IsIndeterminateChanged?.Invoke(this), eventDispatchPriority);
         this.updateCaptionRda = RapidDispatchActionEx.ForSync(() => this.CaptionChanged?.Invoke(this), eventDispatchPriority);

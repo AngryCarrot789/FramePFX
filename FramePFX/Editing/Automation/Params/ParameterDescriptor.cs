@@ -27,18 +27,15 @@ namespace FramePFX.Editing.Automation.Params;
 /// <summary>
 /// Used to describe information about a specific instance of an automation parameter. Inheritors should be immutable
 /// </summary>
-public abstract class ParameterDescriptor
-{
+public abstract class ParameterDescriptor {
     public AutomationDataType DataType { get; }
 
-    protected ParameterDescriptor(AutomationDataType dataType)
-    {
+    protected ParameterDescriptor(AutomationDataType dataType) {
         this.DataType = dataType;
     }
 }
 
-public sealed class ParameterDescriptorFloat : ParameterDescriptor, IRangedParameter<float>
-{
+public sealed class ParameterDescriptorFloat : ParameterDescriptor, IRangedParameter<float> {
     /// <summary>
     /// The default value of the parameter
     /// </summary>
@@ -56,8 +53,7 @@ public sealed class ParameterDescriptorFloat : ParameterDescriptor, IRangedParam
 
     public bool HasExplicitRangeLimit { get; }
 
-    public ParameterDescriptorFloat(float defaultValue = default, float minimum = float.MinValue, float maximum = float.MaxValue) : base(AutomationDataType.Float)
-    {
+    public ParameterDescriptorFloat(float defaultValue = default, float minimum = float.MinValue, float maximum = float.MaxValue) : base(AutomationDataType.Float) {
         if (minimum > maximum)
             throw new ArgumentException($"Minimum value exceeds the maximum value: {minimum} > {maximum}", nameof(minimum));
         if (defaultValue < minimum || defaultValue > maximum)
@@ -73,8 +69,7 @@ public sealed class ParameterDescriptorFloat : ParameterDescriptor, IRangedParam
     public bool IsValueOutOfRange(float value) => value < this.Minimum || value > this.Maximum;
 }
 
-public sealed class ParameterDescriptorDouble : ParameterDescriptor, IRangedParameter<double>
-{
+public sealed class ParameterDescriptorDouble : ParameterDescriptor, IRangedParameter<double> {
     /// <summary>
     /// The default value of the parameter
     /// </summary>
@@ -92,8 +87,7 @@ public sealed class ParameterDescriptorDouble : ParameterDescriptor, IRangedPara
 
     public bool HasExplicitRangeLimit { get; }
 
-    public ParameterDescriptorDouble(double defaultValue = default, double minimum = double.MinValue, double maximum = double.MaxValue) : base(AutomationDataType.Double)
-    {
+    public ParameterDescriptorDouble(double defaultValue = default, double minimum = double.MinValue, double maximum = double.MaxValue) : base(AutomationDataType.Double) {
         if (minimum > maximum)
             throw new ArgumentException($"Minimum value exceeds the maximum value: {minimum} > {maximum}", nameof(minimum));
         if (defaultValue < minimum || defaultValue > maximum)
@@ -109,8 +103,7 @@ public sealed class ParameterDescriptorDouble : ParameterDescriptor, IRangedPara
     public bool IsValueOutOfRange(double value) => value < this.Minimum || value > this.Maximum;
 }
 
-public sealed class ParameterDescriptorLong : ParameterDescriptor, IRangedParameter<long>
-{
+public sealed class ParameterDescriptorLong : ParameterDescriptor, IRangedParameter<long> {
     /// <summary>
     /// The default value of the parameter
     /// </summary>
@@ -128,8 +121,7 @@ public sealed class ParameterDescriptorLong : ParameterDescriptor, IRangedParame
 
     public bool HasExplicitRangeLimit { get; }
 
-    public ParameterDescriptorLong(long defaultValue = default, long minimum = long.MinValue, long maximum = long.MaxValue) : base(AutomationDataType.Long)
-    {
+    public ParameterDescriptorLong(long defaultValue = default, long minimum = long.MinValue, long maximum = long.MaxValue) : base(AutomationDataType.Long) {
         if (minimum > maximum)
             throw new ArgumentException($"Minimum value exceeds the maximum value: {minimum} > {maximum}", nameof(minimum));
         if (defaultValue < minimum || defaultValue > maximum)
@@ -145,21 +137,18 @@ public sealed class ParameterDescriptorLong : ParameterDescriptor, IRangedParame
     public bool IsValueOutOfRange(long value) => value < this.Minimum || value > this.Maximum;
 }
 
-public sealed class ParameterDescriptorBool : ParameterDescriptor
-{
+public sealed class ParameterDescriptorBool : ParameterDescriptor {
     /// <summary>
     /// The default value of the parameter
     /// </summary>
     public bool DefaultValue { get; }
 
-    public ParameterDescriptorBool(bool defaultValue = false) : base(AutomationDataType.Boolean)
-    {
+    public ParameterDescriptorBool(bool defaultValue = false) : base(AutomationDataType.Boolean) {
         this.DefaultValue = defaultValue;
     }
 }
 
-public sealed class ParameterDescriptorVector2 : ParameterDescriptor, IRangedParameter<Vector2>
-{
+public sealed class ParameterDescriptorVector2 : ParameterDescriptor, IRangedParameter<Vector2> {
     /// <summary>
     /// The default value of the parameter
     /// </summary>
@@ -183,8 +172,7 @@ public sealed class ParameterDescriptorVector2 : ParameterDescriptor, IRangedPar
     public ParameterDescriptorVector2(Vector2 defaultValue) : this(defaultValue, Vectors.MinValue, Vectors.MaxValue) {
     }
 
-    public ParameterDescriptorVector2(Vector2 defaultValue, Vector2 minimum, Vector2 maximum) : base(AutomationDataType.Vector2)
-    {
+    public ParameterDescriptorVector2(Vector2 defaultValue, Vector2 minimum, Vector2 maximum) : base(AutomationDataType.Vector2) {
         if (minimum.X > maximum.X || minimum.Y > maximum.Y)
             throw new ArgumentException($"Minimum value exceeds the maximum value: {minimum} > {maximum}", nameof(minimum));
         if (defaultValue.X < minimum.X || defaultValue.X > maximum.X || defaultValue.Y < minimum.Y || defaultValue.Y > maximum.Y)
@@ -197,8 +185,7 @@ public sealed class ParameterDescriptorVector2 : ParameterDescriptor, IRangedPar
 
     public Vector2 Clamp(Vector2 value) => Vector2.Clamp(value, this.Minimum, this.Maximum);
 
-    public bool IsValueOutOfRange(Vector2 value)
-    {
+    public bool IsValueOutOfRange(Vector2 value) {
         return value.IsLessThan(this.Minimum) || value.IsGreaterThan(this.Maximum);
     }
 }

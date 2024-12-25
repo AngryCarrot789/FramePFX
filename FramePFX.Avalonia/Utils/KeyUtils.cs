@@ -21,12 +21,9 @@ using System;
 
 namespace FramePFX.Avalonia.Utils;
 
-public static class KeyUtils
-{
-    public static global::Avalonia.Input.Key ParseKey(string input)
-    {
-        if (string.IsNullOrEmpty(input))
-        {
+public static class KeyUtils {
+    public static global::Avalonia.Input.Key ParseKey(string input) {
+        if (string.IsNullOrEmpty(input)) {
             return global::Avalonia.Input.Key.None;
         }
 
@@ -34,8 +31,7 @@ public static class KeyUtils
         // 'a' == 97 | 'z' == 122
 
         char first = input[0]; // Parse D0-D9
-        if (input.Length == 1)
-        {
+        if (input.Length == 1) {
             // Parse 0-9
             if (first >= '0' && first <= '9')
                 return (global::Avalonia.Input.Key) (first - '0' + (int) global::Avalonia.Input.Key.D0);
@@ -53,19 +49,16 @@ public static class KeyUtils
         }
 
         // Parse D0-D9
-        if (input.Length == 2 && (first == 'D' || first == 'd') && input[1] >= '0' && input[1] <= '9')
-        {
+        if (input.Length == 2 && (first == 'D' || first == 'd') && input[1] >= '0' && input[1] <= '9') {
             return (global::Avalonia.Input.Key) (input[1] - '0' + (int) global::Avalonia.Input.Key.D0);
         }
 
         // Try parse F1-F24
-        if (first == 'F' && input.Length <= 3 && int.TryParse(input.AsSpan(1), out int value) && value > 0 && value < 25)
-        {
+        if (first == 'F' && input.Length <= 3 && int.TryParse(input.AsSpan(1), out int value) && value > 0 && value < 25) {
             return global::Avalonia.Input.Key.F1 + (value - 1);
         }
 
-        switch (input.ToLower())
-        {
+        switch (input.ToLower()) {
             case "del": return global::Avalonia.Input.Key.Delete;
             case "esc": return global::Avalonia.Input.Key.Escape;
             case "ret":
@@ -94,15 +87,12 @@ public static class KeyUtils
         return Enum.TryParse(input, out global::Avalonia.Input.Key key) ? key : global::Avalonia.Input.Key.None;
     }
 
-    public static string KeyToString(global::Avalonia.Input.Key key)
-    {
-        if (key >= global::Avalonia.Input.Key.A && key <= global::Avalonia.Input.Key.Z)
-        {
+    public static string KeyToString(global::Avalonia.Input.Key key) {
+        if (key >= global::Avalonia.Input.Key.A && key <= global::Avalonia.Input.Key.Z) {
             return ((char) ('a' + (key - global::Avalonia.Input.Key.A))).ToString();
         }
 
-        switch (key)
-        {
+        switch (key) {
             case global::Avalonia.Input.Key.D0: return "0";
             case global::Avalonia.Input.Key.D1: return "1";
             case global::Avalonia.Input.Key.D2: return "2";

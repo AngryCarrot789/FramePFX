@@ -27,8 +27,7 @@ namespace FramePFX.DataTransfer;
 /// A <see cref="DataParameter{T}"/> that manages an SKPoint, which is two 32-bit single precision floating
 /// point numbers (aka, a float). This also has an optional minimum and maximum value range
 /// </summary>
-public sealed class DataParameterPoint : DataParameter<SKPoint>, IRangedParameter<SKPoint>
-{
+public sealed class DataParameterPoint : DataParameter<SKPoint>, IRangedParameter<SKPoint> {
     public static SKPoint SKPointMinValue => new SKPoint(float.MinValue, float.MinValue);
     public static SKPoint SKPointMaxValue => new SKPoint(float.MaxValue, float.MaxValue);
 
@@ -42,8 +41,7 @@ public sealed class DataParameterPoint : DataParameter<SKPoint>, IRangedParamete
     public DataParameterPoint(Type ownerType, string name, SKPoint defValue, ValueAccessor<SKPoint> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, name, defValue, SKPointMinValue, SKPointMaxValue, accessor, flags) {
     }
 
-    public DataParameterPoint(Type ownerType, string name, SKPoint defValue, SKPoint minValue, SKPoint maxValue, ValueAccessor<SKPoint> accessor, DataParameterFlags flags = DataParameterFlags.None) : base(ownerType, name, defValue, accessor, flags)
-    {
+    public DataParameterPoint(Type ownerType, string name, SKPoint defValue, SKPoint minValue, SKPoint maxValue, ValueAccessor<SKPoint> accessor, DataParameterFlags flags = DataParameterFlags.None) : base(ownerType, name, defValue, accessor, flags) {
         if (minValue.X > maxValue.X || minValue.Y > maxValue.Y)
             throw new ArgumentException($"All or a part of the Minimum value exceeds the Maximum value: {minValue} > {maxValue}", nameof(minValue));
         if (defValue.X < minValue.X || defValue.Y < minValue.Y || defValue.X > maxValue.X || defValue.Y > maxValue.Y)
@@ -57,20 +55,16 @@ public sealed class DataParameterPoint : DataParameter<SKPoint>, IRangedParamete
 
     public bool IsValueOutOfRange(SKPoint value) => value.X < this.Minimum.X || value.Y < this.Minimum.Y || value.X > this.Maximum.X || value.Y > this.Maximum.Y;
 
-    public override void SetValue(ITransferableData owner, SKPoint value)
-    {
-        if (this.HasExplicitRangeLimit)
-        {
+    public override void SetValue(ITransferableData owner, SKPoint value) {
+        if (this.HasExplicitRangeLimit) {
             value = this.Clamp(value);
         }
 
         base.SetValue(owner, value);
     }
 
-    public override void SetObjectValue(ITransferableData owner, object? value)
-    {
-        if (this.HasExplicitRangeLimit)
-        {
+    public override void SetObjectValue(ITransferableData owner, object? value) {
+        if (this.HasExplicitRangeLimit) {
             SKPoint unboxed = (SKPoint) value!;
             SKPoint clamped = this.Clamp(unboxed);
             if (!Maths.Equals(unboxed, clamped))

@@ -24,50 +24,39 @@ using FramePFX.Utils.Accessing;
 
 namespace FramePFX.Avalonia.Bindings;
 
-public static class Binders
-{
-    public static AccessorAutoUpdateAndEventPropertyBinder<TModel, TValue> AccessorAEDPLinq<TModel, TValue>(AvaloniaProperty<TValue> property, string eventName, string propertyOrFieldName) where TModel : class
-    {
+public static class Binders {
+    public static AccessorAutoUpdateAndEventPropertyBinder<TModel, TValue> AccessorAEDPLinq<TModel, TValue>(AvaloniaProperty<TValue> property, string eventName, string propertyOrFieldName) where TModel : class {
         // Uses cached accessor
         return AccessorAEDP<TModel, TValue>(property, eventName, ValueAccessors.LinqExpression<TValue>(typeof(TModel), propertyOrFieldName, true));
     }
 
-    public static AccessorAutoUpdateAndEventPropertyBinder<TModel, TValue> AccessorAEDPFastStartup<TModel, TValue>(AvaloniaProperty<TValue> property, string eventName, string propertyOrFieldName) where TModel : class
-    {
+    public static AccessorAutoUpdateAndEventPropertyBinder<TModel, TValue> AccessorAEDPFastStartup<TModel, TValue>(AvaloniaProperty<TValue> property, string eventName, string propertyOrFieldName) where TModel : class {
         // Uses cached accessor
         return AccessorAEDP<TModel, TValue>(property, eventName, ValueAccessors.FastStartupAccessor<TValue>(typeof(TModel), propertyOrFieldName));
     }
 
-    public static AccessorAutoUpdateAndEventPropertyBinder<TModel, TValue> AccessorAEDP<TModel, TValue>(AvaloniaProperty<TValue> property, string eventName, ValueAccessor<TValue> accessor) where TModel : class
-    {
+    public static AccessorAutoUpdateAndEventPropertyBinder<TModel, TValue> AccessorAEDP<TModel, TValue>(AvaloniaProperty<TValue> property, string eventName, ValueAccessor<TValue> accessor) where TModel : class {
         return new AccessorAutoUpdateAndEventPropertyBinder<TModel, TValue>(property, eventName, accessor);
     }
 
-    public static AutoUpdateAndEventPropertyBinder<TModel> AutoUpdateAndEvent<TModel>(AvaloniaProperty property, string eventName, Action<IBinder<TModel>>? updateControl, Action<IBinder<TModel>>? updateModel) where TModel : class
-    {
+    public static AutoUpdateAndEventPropertyBinder<TModel> AutoUpdateAndEvent<TModel>(AvaloniaProperty property, string eventName, Action<IBinder<TModel>>? updateControl, Action<IBinder<TModel>>? updateModel) where TModel : class {
         return new AutoUpdateAndEventPropertyBinder<TModel>(property, eventName, updateControl, updateModel);
     }
 
-    public static void AttachControls<TModel>(Control control, params IBinder<TModel>[] binders) where TModel : class
-    {
-        foreach (IBinder<TModel> b in binders)
-        {
+    public static void AttachControls<TModel>(Control control, params IBinder<TModel>[] binders) where TModel : class {
+        foreach (IBinder<TModel> b in binders) {
             b.AttachControl(control);
         }
     }
 
-    public static void AttachModels<TModel>(TModel model, params IBinder<TModel>[] binders) where TModel : class
-    {
-        foreach (IBinder<TModel> b in binders)
-        {
+    public static void AttachModels<TModel>(TModel model, params IBinder<TModel>[] binders) where TModel : class {
+        foreach (IBinder<TModel> b in binders) {
             b.AttachModel(model);
         }
     }
 
-    public static void DetachModels<TModel>(params IBinder<TModel>[] binders) where TModel : class
-    {
-        foreach (IBinder<TModel> b in binders)
-        {
+    public static void DetachModels<TModel>(params IBinder<TModel>[] binders) where TModel : class {
+        foreach (IBinder<TModel> b in binders) {
             b.DetachModel();
         }
     }

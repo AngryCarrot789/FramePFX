@@ -27,64 +27,53 @@ using FramePFX.Editing.Timelines;
 
 namespace FramePFX.Avalonia.Editing.Playheads;
 
-public class GrippedPlayHeadControl : BasePlayHeadControl
-{
+public class GrippedPlayHeadControl : BasePlayHeadControl {
     private Thumb? PART_ThumbHead;
     private Thumb? PART_ThumbBody;
 
     public GrippedPlayHeadControl() {
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.PART_ThumbHead = e.NameScope.Find("PART_ThumbHead") as Thumb;
         this.PART_ThumbBody = e.NameScope.Find("PART_ThumbBody") as Thumb;
-        if (this.PART_ThumbHead != null)
-        {
+        if (this.PART_ThumbHead != null) {
             this.PART_ThumbHead.DragDelta += this.PART_ThumbOnDragDelta;
         }
 
-        if (this.PART_ThumbBody != null)
-        {
+        if (this.PART_ThumbBody != null) {
             this.PART_ThumbBody.DragDelta += this.PART_ThumbOnDragDelta;
         }
     }
 
-    private void PART_ThumbOnDragDelta(object? sender, VectorEventArgs e)
-    {
-        if (!(this.TimelineControl is TimelineControl control) || !(control.Timeline is Timeline timeline))
-        {
+    private void PART_ThumbOnDragDelta(object? sender, VectorEventArgs e) {
+        if (!(this.TimelineControl is TimelineControl control) || !(control.Timeline is Timeline timeline)) {
             return;
         }
 
         long change = (long) Math.Round(e.Vector.X / control.Zoom);
-        if (change != 0)
-        {
+        if (change != 0) {
             long oldFrame = this.Frame;
             long newFrame = Math.Max(oldFrame + change, 0);
-            if (newFrame >= timeline.MaxDuration)
-            {
+            if (newFrame >= timeline.MaxDuration) {
                 newFrame = timeline.MaxDuration - 1;
             }
 
-            if (newFrame != oldFrame)
-            {
+            if (newFrame != oldFrame) {
                 this.Frame = newFrame;
             }
         }
     }
 
-    protected override void SetPixelMargin(Thickness thickness)
-    {
+    protected override void SetPixelMargin(Thickness thickness) {
         thickness = new Thickness(thickness.Left - 7, thickness.Top, thickness.Right, thickness.Bottom);
         base.SetPixelMargin(thickness);
     }
 
     protected static readonly FieldInfo LastPointField = typeof(Thumb).GetField("_lastPoint", BindingFlags.NonPublic | BindingFlags.Instance)!;
 
-    public void EnableDragging(PointerEventArgs e)
-    {
+    public void EnableDragging(PointerEventArgs e) {
         Thumb thumb = this.PART_ThumbBody!;
         e.Handled = true;
         e.Pointer.Capture(thumb);
@@ -92,8 +81,7 @@ public class GrippedPlayHeadControl : BasePlayHeadControl
         Point pt = new Point(thumb.Bounds.Width / 2.0, thumb.Bounds.Height / 2.0);
         LastPointField.SetValue(thumb, pt);
 
-        VectorEventArgs ev = new VectorEventArgs
-        {
+        VectorEventArgs ev = new VectorEventArgs {
             RoutedEvent = Thumb.DragStartedEvent,
             Vector = pt,
         };

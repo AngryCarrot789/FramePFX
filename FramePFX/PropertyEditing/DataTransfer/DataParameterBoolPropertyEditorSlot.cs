@@ -22,19 +22,15 @@ using FramePFX.Utils;
 
 namespace FramePFX.PropertyEditing.DataTransfer;
 
-public class DataParameterBoolPropertyEditorSlot : DataParameterPropertyEditorSlot
-{
+public class DataParameterBoolPropertyEditorSlot : DataParameterPropertyEditorSlot {
     private bool value;
 
-    public bool Value
-    {
+    public bool Value {
         get => this.value;
-        set
-        {
+        set {
             this.value = value;
             DataParameterBool parameter = this.Parameter;
-            for (int i = 0, c = this.Handlers.Count; i < c; i++)
-            {
+            for (int i = 0, c = this.Handlers.Count; i < c; i++) {
                 parameter.SetValue((ITransferableData) this.Handlers[i], value);
             }
 
@@ -47,8 +43,7 @@ public class DataParameterBoolPropertyEditorSlot : DataParameterPropertyEditorSl
     public DataParameterBoolPropertyEditorSlot(DataParameterBool parameter, Type applicableType, string displayName) : base(parameter, applicableType, displayName) {
     }
 
-    public override void QueryValueFromHandlers()
-    {
+    public override void QueryValueFromHandlers() {
         this.HasMultipleValues = !CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetValue((ITransferableData) x), out this.value);
     }
 }

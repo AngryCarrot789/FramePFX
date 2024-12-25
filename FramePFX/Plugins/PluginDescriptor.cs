@@ -19,8 +19,7 @@
 
 namespace FramePFX.Plugins;
 
-public class PluginDescriptor
-{
+public class PluginDescriptor {
     /// <summary>
     /// Gets or sets the DLL path that contains the plugin class. This can be relative to the plugin folder,
     /// so it can just be the actual DLL's name, with .dll on the end
@@ -34,8 +33,6 @@ public class PluginDescriptor
 
     public List<string>? XamlResources { get; set; }
 
-    public PluginDescriptor()
-    {
-        
+    public PluginDescriptor() {
     }
 }

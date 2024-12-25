@@ -24,8 +24,7 @@ using FramePFX.PropertyEditing.Automation;
 
 namespace FramePFX.Avalonia.PropertyEditing.Automation;
 
-public class ParameterBoolPropertyEditorControl : BaseParameterPropertyEditorControl
-{
+public class ParameterBoolPropertyEditorControl : BaseParameterPropertyEditorControl {
     private CheckBox valueCheckBox;
     protected bool IsUpdatingControl;
 
@@ -34,61 +33,49 @@ public class ParameterBoolPropertyEditorControl : BaseParameterPropertyEditorCon
     public ParameterBoolPropertyEditorControl() {
     }
 
-    protected void UpdateControlValue()
-    {
+    protected void UpdateControlValue() {
         this.valueCheckBox.IsChecked = this.SlotModel.Value;
     }
 
-    protected void UpdateModelValue()
-    {
+    protected void UpdateModelValue() {
         this.SlotModel.Value = this.valueCheckBox.IsChecked ?? false;
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.valueCheckBox = e.NameScope.GetTemplateChild<CheckBox>("PART_ValueCheckBox");
         this.valueCheckBox.IsCheckedChanged += (s, ex) => this.OnControlValueChanged();
     }
 
-    private void OnModelValueChanged()
-    {
-        if (this.SlotModel != null)
-        {
+    private void OnModelValueChanged() {
+        if (this.SlotModel != null) {
             this.IsUpdatingControl = true;
-            try
-            {
+            try {
                 this.UpdateControlValue();
             }
-            finally
-            {
+            finally {
                 this.IsUpdatingControl = false;
             }
         }
     }
 
-    private void OnControlValueChanged()
-    {
-        if (!this.IsUpdatingControl && this.SlotModel != null)
-        {
+    private void OnControlValueChanged() {
+        if (!this.IsUpdatingControl && this.SlotModel != null) {
             this.UpdateModelValue();
         }
     }
 
-    protected override void OnConnected()
-    {
+    protected override void OnConnected() {
         base.OnConnected();
         this.SlotModel.ValueChanged += this.SlotOnValueChanged;
     }
 
-    protected override void OnDisconnected()
-    {
+    protected override void OnDisconnected() {
         base.OnDisconnected();
         this.SlotModel.ValueChanged += this.SlotOnValueChanged;
     }
 
-    private void SlotOnValueChanged(ParameterPropertyEditorSlot slot)
-    {
+    private void SlotOnValueChanged(ParameterPropertyEditorSlot slot) {
         this.OnModelValueChanged();
     }
 }

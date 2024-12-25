@@ -19,8 +19,7 @@
 
 namespace FramePFX.Avalonia.Editing.CommandContexts;
 
-public class NewVideoTrackCommandUsage : BasicButtonCommandUsage
-{
+public class NewVideoTrackCommandUsage : BasicButtonCommandUsage {
     public NewVideoTrackCommandUsage() : base("commands.editor.NewVideoTrack") {
     }
 }

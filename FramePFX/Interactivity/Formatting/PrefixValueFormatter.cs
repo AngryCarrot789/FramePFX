@@ -22,15 +22,12 @@ namespace FramePFX.Interactivity.Formatting;
 /// <summary>
 /// A value formatter that converts a unit value (0.0 to 1.0) into a percentage (0 to 100%) with an optional decimal precision
 /// </summary>
-public class PrefixValueFormatter : BaseSimpleValueFormatter
-{
+public class PrefixValueFormatter : BaseSimpleValueFormatter {
     private string? prefix;
 
-    public string? Prefix
-    {
+    public string? Prefix {
         get => this.prefix;
-        set
-        {
+        set {
             if (this.prefix == value)
                 return;
             this.prefix = value;
@@ -38,28 +35,23 @@ public class PrefixValueFormatter : BaseSimpleValueFormatter
         }
     }
 
-    public PrefixValueFormatter(string? prefix = null, int nonEditingRoundedPlaces = 2, int editingRoundedPlaces = 6)
-    {
+    public PrefixValueFormatter(string? prefix = null, int nonEditingRoundedPlaces = 2, int editingRoundedPlaces = 6) {
         this.prefix = prefix;
         this.NonEditingRoundedPlaces = nonEditingRoundedPlaces;
         this.EditingRoundedPlaces = editingRoundedPlaces;
     }
 
-    public override string ToString(double value, bool isEditing)
-    {
+    public override string ToString(double value, bool isEditing) {
         return value.ToString(isEditing ? this.EditingRoundedPlacesFormat : this.NonEditingRoundedPlacesFormat) + (this.prefix ?? "");
     }
 
-    public override bool TryConvertToDouble(string format, out double value)
-    {
+    public override bool TryConvertToDouble(string format, out double value) {
         int i = 0, j = format.Length;
-        if (!string.IsNullOrEmpty(this.prefix) && format.StartsWith(this.prefix))
-        {
+        if (!string.IsNullOrEmpty(this.prefix) && format.StartsWith(this.prefix)) {
             i += this.prefix.Length;
         }
-        
-        if (i >= j)
-        {
+
+        if (i >= j) {
             value = default;
             return false;
         }
@@ -67,8 +59,7 @@ public class PrefixValueFormatter : BaseSimpleValueFormatter
         return double.TryParse(format.AsSpan(i, j - i), out value);
     }
 
-    public static PrefixValueFormatter Parse(string input)
-    {
+    public static PrefixValueFormatter Parse(string input) {
         if (string.IsNullOrWhiteSpace(input))
             throw new ArgumentException("Input is null, empty or whitespaces only", nameof(input));
 

@@ -19,8 +19,7 @@
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 
-public class StandardResourceTreeView : ResourceTreeView
-{
+public class StandardResourceTreeView : ResourceTreeView {
     public StandardResourceTreeView() {
     }
 

@@ -23,67 +23,55 @@ using SkiaSharp;
 
 namespace FramePFX.Editing.ResourceManaging.Resources;
 
-public class ResourceColour : ResourceItem
-{
+public class ResourceColour : ResourceItem {
     private SKColor myColour;
 
-    public SKColor Colour
-    {
+    public SKColor Colour {
         get => this.myColour;
-        set
-        {
-            if (this.myColour != value)
-            {
+        set {
+            if (this.myColour != value) {
                 this.myColour = value;
                 this.ColourChanged?.Invoke(this);
             }
         }
     }
 
-    public float ScR
-    {
+    public float ScR {
         get => Maths.Clamp(this.myColour.Red / 255F, 0F, 1F);
         set => this.myColour = this.myColour.WithRed((byte) Maths.Clamp((int) (value * 255F), 0, 255));
     }
 
-    public float ScG
-    {
+    public float ScG {
         get => Maths.Clamp(this.myColour.Green / 255F, 0F, 1F);
         set => this.myColour = this.myColour.WithGreen((byte) Maths.Clamp((int) (value * 255F), 0, 255));
     }
 
-    public float ScB
-    {
+    public float ScB {
         get => Maths.Clamp(this.myColour.Blue / 255F, 0F, 1F);
         set => this.myColour = this.myColour.WithBlue((byte) Maths.Clamp((int) (value * 255F), 0, 255));
     }
 
-    public float ScA
-    {
+    public float ScA {
         get => Maths.Clamp(this.myColour.Alpha / 255F, 0F, 1F);
         set => this.myColour = this.myColour.WithAlpha((byte) Maths.Clamp((int) (value * 255F), 0, 255));
     }
 
-    public byte ByteR
-    {
+    public byte ByteR {
         get => this.myColour.Red;
         set => this.myColour = this.myColour.WithRed(value);
     }
 
-    public byte ByteG
-    {
+    public byte ByteG {
         get => this.myColour.Green;
         set => this.myColour = this.myColour.WithGreen(value);
     }
 
-    public byte ByteB
-    {
+    public byte ByteB {
         get => this.myColour.Blue;
         set => this.myColour = this.myColour.WithBlue(value);
     }
 
-    public byte ByteA
-    {
+    public byte ByteA {
         get => this.myColour.Alpha;
         set => this.myColour = this.myColour.WithAlpha(value);
     }
@@ -93,27 +81,22 @@ public class ResourceColour : ResourceItem
     public ResourceColour() : this(0, 0, 0) {
     }
 
-    public ResourceColour(byte r, byte g, byte b, byte a = 255)
-    {
+    public ResourceColour(byte r, byte g, byte b, byte a = 255) {
         this.myColour = new SKColor(r, g, b, a);
         this.Enable();
     }
 
-    static ResourceColour()
-    {
-        SerialisationRegistry.Register<ResourceColour>(0, (resource, data, ctx) =>
-        {
+    static ResourceColour() {
+        SerialisationRegistry.Register<ResourceColour>(0, (resource, data, ctx) => {
             ctx.DeserialiseBaseType(data);
             resource.myColour = new SKColor(data.GetUInt(nameof(resource.myColour)));
-        }, (resource, data, ctx) =>
-        {
+        }, (resource, data, ctx) => {
             ctx.SerialiseBaseType(data);
             data.SetUInt(nameof(resource.myColour), (uint) resource.myColour);
         });
     }
 
-    protected override void LoadDataIntoClone(BaseResource clone)
-    {
+    protected override void LoadDataIntoClone(BaseResource clone) {
         base.LoadDataIntoClone(clone);
         ((ResourceColour) clone).myColour = this.myColour;
     }

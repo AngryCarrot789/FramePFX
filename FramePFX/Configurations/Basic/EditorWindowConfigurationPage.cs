@@ -23,18 +23,15 @@ namespace FramePFX.Configurations.Basic;
 
 public delegate void EditorWindowConfigurationPageTitleBarChangedEventHandler(EditorWindowConfigurationPage sender);
 
-public class EditorWindowConfigurationPage : ConfigurationPage
-{
+public class EditorWindowConfigurationPage : ConfigurationPage {
     private string? titleBar;
 
-    public string? TitleBar
-    {
+    public string? TitleBar {
         get => this.titleBar;
-        set
-        {
+        set {
             if (this.titleBar == value)
                 return;
-            
+
             this.titleBar = value;
             this.TitleBarChanged?.Invoke(this);
             this.MarkModified();
@@ -43,24 +40,20 @@ public class EditorWindowConfigurationPage : ConfigurationPage
 
     public event EditorWindowConfigurationPageTitleBarChangedEventHandler? TitleBarChanged;
 
-    public EditorWindowConfigurationPage()
-    {
+    public EditorWindowConfigurationPage() {
     }
 
-    public override async ValueTask OnContextCreated(ConfigurationContext context)
-    {
+    public override async ValueTask OnContextCreated(ConfigurationContext context) {
         EditorConfigurationOptions options = EditorConfigurationOptions.Instance;
         this.titleBar = options.TitleBarPrefix;
     }
 
-    public override async ValueTask Apply()
-    {
+    public override async ValueTask Apply() {
         EditorConfigurationOptions options = EditorConfigurationOptions.Instance;
-        if (!string.IsNullOrWhiteSpace(this.titleBar))
-        {
+        if (!string.IsNullOrWhiteSpace(this.titleBar)) {
             options.TitleBarPrefix = this.titleBar;
         }
-        
+
         // await IoC.MessageService.ShowMessage("Change title", "Change window title to: " + this.TitleBar);
     }
 }

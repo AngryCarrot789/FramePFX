@@ -22,18 +22,15 @@ using FramePFX.PropertyEditing.DataTransfer.Automatic;
 
 namespace FramePFX.Avalonia.PropertyEditing.DataTransfer.Automatic;
 
-public class AutomaticDataParameterFloatPropertyEditorControl : BaseAutomaticNumericDataParameterPropertyEditorControl<float>
-{
+public class AutomaticDataParameterFloatPropertyEditorControl : BaseAutomaticNumericDataParameterPropertyEditorControl<float> {
     public new AutomaticDataParameterFloatPropertyEditorSlot? SlotModel => (AutomaticDataParameterFloatPropertyEditorSlot?) base.SlotControl?.Model;
 
-    public override double SlotValue
-    {
+    public override double SlotValue {
         get => this.SlotModel!.Value;
         set => this.SlotModel!.Value = (float) value;
     }
 
-    protected override void OnConnected()
-    {
+    protected override void OnConnected() {
         base.OnConnected();
         AutomaticDataParameterFloatPropertyEditorSlot setting = this.SlotModel!;
         DataParameterFloat param = setting.Parameter;

@@ -24,8 +24,7 @@ namespace FramePFX.Avalonia.Shortcuts.Trees;
 /// <summary>
 /// An interface for shared properties between a <see cref="ShortcutTreeView"/> and <see cref="ShortcutTreeViewItem"/>
 /// </summary>
-public interface IShortcutTreeOrNode
-{
+public interface IShortcutTreeOrNode {
     /// <summary>
     /// Gets the configuration tree view associated with this node, or returns the current instance
     /// </summary>

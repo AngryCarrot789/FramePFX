@@ -19,8 +19,7 @@
 
 namespace FramePFX.Editing.ResourceManaging.NewResourceHelper;
 
-public interface IResourceHolder : IHaveProject
-{
+public interface IResourceHolder : IHaveProject {
     /// <summary>
     /// Gets the resource management object
     /// </summary>

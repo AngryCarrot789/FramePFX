@@ -25,8 +25,7 @@ namespace FramePFX.Editing.ResourceManaging;
 /// <summary>
 /// A group of resource items
 /// </summary>
-public sealed class ResourceFolder : BaseResource
-{
+public sealed class ResourceFolder : BaseResource {
     private readonly List<BaseResource> items;
 
     public IReadOnlyList<BaseResource> Items => this.items;
@@ -37,43 +36,33 @@ public sealed class ResourceFolder : BaseResource
 
     public bool IsRoot => this.Parent == null;
 
-    public ResourceFolder()
-    {
+    public ResourceFolder() {
         this.items = new List<BaseResource>();
     }
 
-    public ResourceFolder(string displayName) : this()
-    {
+    public ResourceFolder(string displayName) : this() {
         this.DisplayName = displayName;
     }
 
-    static ResourceFolder()
-    {
-        SerialisationRegistry.Register<ResourceFolder>(0, (resource, data, ctx) =>
-        {
+    static ResourceFolder() {
+        SerialisationRegistry.Register<ResourceFolder>(0, (resource, data, ctx) => {
             ctx.DeserialiseBaseType(data);
             RBEList list = data.GetList("Items");
-            foreach (RBEDictionary dictionary in list.Cast<RBEDictionary>())
-            {
+            foreach (RBEDictionary dictionary in list.Cast<RBEDictionary>()) {
                 resource.AddItem(ReadSerialisedWithType(dictionary));
             }
-        }, (resource, data, ctx) =>
-        {
+        }, (resource, data, ctx) => {
             ctx.SerialiseBaseType(data);
             RBEList list = data.CreateList("Items");
-            foreach (BaseResource item in resource.items)
-            {
+            foreach (BaseResource item in resource.items) {
                 list.Add(WriteSerialisedWithType(item));
             }
         });
     }
 
-    public bool IsNameFree(string name)
-    {
-        foreach (BaseResource item in this.items)
-        {
-            if (item.DisplayName == name)
-            {
+    public bool IsNameFree(string name) {
+        foreach (BaseResource item in this.items) {
+            if (item.DisplayName == name) {
                 return false;
             }
         }
@@ -81,20 +70,16 @@ public sealed class ResourceFolder : BaseResource
         return true;
     }
 
-    protected internal override void OnAttachedToManager()
-    {
+    protected internal override void OnAttachedToManager() {
         base.OnAttachedToManager();
-        foreach (BaseResource resource in this.items)
-        {
+        foreach (BaseResource resource in this.items) {
             InternalSetResourceManager(resource, this.Manager);
         }
     }
 
-    protected internal override void OnDetachedFromManager()
-    {
+    protected internal override void OnDetachedFromManager() {
         base.OnDetachedFromManager();
-        foreach (BaseResource resource in this.items)
-        {
+        foreach (BaseResource resource in this.items) {
             InternalSetResourceManager(resource, null);
         }
     }
@@ -103,13 +88,11 @@ public sealed class ResourceFolder : BaseResource
     /// Adds the item to this resource folder
     /// </summary>
     /// <param name="item"></param>
-    public void AddItem(BaseResource item)
-    {
+    public void AddItem(BaseResource item) {
         this.InsertItem(this.items.Count, item);
     }
 
-    public void InsertItem(int index, BaseResource item)
-    {
+    public void InsertItem(int index, BaseResource item) {
         if (item.Parent != null)
             throw new InvalidOperationException("Item already exists in another folder");
         if (index < 0 || index > this.items.Count)
@@ -126,15 +109,13 @@ public sealed class ResourceFolder : BaseResource
     /// </summary>
     /// <param name="item">The item to check</param>
     /// <returns>True if this folder contains the item</returns>
-    public bool Contains(BaseResource item)
-    {
+    public bool Contains(BaseResource item) {
         // This assumes no maliciously corrupted resource items,
         // meaning this code should always work under proper conditions
         return item != null && ReferenceEquals(item.Parent, this);
     }
 
-    public bool RemoveItem(BaseResource item)
-    {
+    public bool RemoveItem(BaseResource item) {
         int index = this.items.IndexOf(item);
         if (index < 0)
             return false;
@@ -142,21 +123,18 @@ public sealed class ResourceFolder : BaseResource
         return true;
     }
 
-    public void RemoveItemAt(int index)
-    {
+    public void RemoveItemAt(int index) {
         BaseResource item = this.items[index];
         this.items.RemoveAt(index);
         InternalOnItemRemoved(item, this);
         this.ResourceRemoved?.Invoke(this, item, index);
     }
 
-    public void MoveItemTo(ResourceFolder target, BaseResource item)
-    {
+    public void MoveItemTo(ResourceFolder target, BaseResource item) {
         this.MoveItemTo(target, item, target.items.Count);
     }
 
-    public void MoveItemTo(ResourceFolder target, BaseResource item, int dstIndex)
-    {
+    public void MoveItemTo(ResourceFolder target, BaseResource item, int dstIndex) {
         int index = this.items.IndexOf(item);
         if (index == -1)
             throw new InvalidOperationException("Item is not stored in this folder");
@@ -179,15 +157,13 @@ public sealed class ResourceFolder : BaseResource
     /// <param name="srcIndex"></param>
     /// <param name="dstIndex"></param>
     /// <exception cref="Exception"></exception>
-    public void MoveItemTo(ResourceFolder target, int srcIndex, int dstIndex)
-    {
+    public void MoveItemTo(ResourceFolder target, int srcIndex, int dstIndex) {
         BaseResource item = this.items[srcIndex];
         if (target.Manager != null && target.Manager != this.Manager)
             throw new Exception("Target's manager is non-null and different from the current instance");
 
         // Assist drop-move behaviour by correcting the destination index
-        if (this == target)
-        {
+        if (this == target) {
             if (dstIndex == this.items.Count)
                 dstIndex--;
 
@@ -202,8 +178,7 @@ public sealed class ResourceFolder : BaseResource
         this.ResourceMoved?.Invoke(this, args);
 
         // Obviously no reason to fire it again
-        if (this != target)
-        {
+        if (this != target) {
             target.ResourceMoved?.Invoke(target, args);
         }
     }
@@ -217,12 +192,9 @@ public sealed class ResourceFolder : BaseResource
     /// True when the item is a parent at some point (or equal to the current
     /// instance when <see cref="startAtThis"/> is true). False when it's not a parent
     /// </returns>
-    public bool IsParentInHierarchy(ResourceFolder item, bool startAtThis = true)
-    {
-        for (ResourceFolder? self = startAtThis ? this : this.Parent, check = item; check != null; check = item.Parent)
-        {
-            if (ReferenceEquals(self, check))
-            {
+    public bool IsParentInHierarchy(ResourceFolder item, bool startAtThis = true) {
+        for (ResourceFolder? self = startAtThis ? this : this.Parent, check = item; check != null; check = item.Parent) {
+            if (ReferenceEquals(self, check)) {
                 return true;
             }
         }
@@ -230,12 +202,10 @@ public sealed class ResourceFolder : BaseResource
         return false;
     }
 
-    protected override void LoadDataIntoClone(BaseResource clone)
-    {
+    protected override void LoadDataIntoClone(BaseResource clone) {
         base.LoadDataIntoClone(clone);
         ResourceFolder folder = (ResourceFolder) clone;
-        foreach (BaseResource child in this.items)
-        {
+        foreach (BaseResource child in this.items) {
             folder.AddItem(Clone(child));
         }
     }
@@ -245,10 +215,8 @@ public sealed class ResourceFolder : BaseResource
     /// </summary>
     /// <param name="folder">The folder to clear recursively. Null accepted for convenience (e.g. resource as ResourceFolder)</param>
     /// <param name="destroy">True to destroy resources before removing</param>
-    public static void ClearHierarchy(ResourceFolder? folder, bool destroy = true)
-    {
-        if (folder == null)
-        {
+    public static void ClearHierarchy(ResourceFolder? folder, bool destroy = true) {
+        if (folder == null) {
             return;
         }
 
@@ -256,8 +224,7 @@ public sealed class ResourceFolder : BaseResource
         // in n-1 copies of all elements when removing from the front of the list.
         // Even if we made 'items' a LinkedList, WPF still uses array based collections
         // so the UI could stall this operation for large folders
-        for (int i = folder.items.Count - 1; i >= 0; i--)
-        {
+        for (int i = folder.items.Count - 1; i >= 0; i--) {
             BaseResource item = folder.items[i];
             if (destroy)
                 item.Destroy();
@@ -267,16 +234,13 @@ public sealed class ResourceFolder : BaseResource
         }
     }
 
-    public int IndexOf(BaseResource resource)
-    {
+    public int IndexOf(BaseResource resource) {
         return this.items.IndexOf(resource);
     }
 
-    public void InsertItems(int index, List<BaseResource> items)
-    {
+    public void InsertItems(int index, List<BaseResource> items) {
         int i = index;
-        foreach (BaseResource resource in items)
-        {
+        foreach (BaseResource resource in items) {
             this.InsertItem(i++, resource);
         }
     }
@@ -286,37 +250,30 @@ public sealed class ResourceFolder : BaseResource
     /// </summary>
     /// <param name="folders">A reference to the number of folders encountered</param>
     /// <param name="items">A reference to the number of items encountered</param>
-    public void CountHierarchy(ref int folders, ref int items, ref int references)
-    {
+    public void CountHierarchy(ref int folders, ref int items, ref int references) {
         CountHierarchy(this.items, ref folders, ref items, ref references);
     }
 
-    public (int folders, int items) CountHierarchy()
-    {
+    public (int folders, int items) CountHierarchy() {
         int a = 0, b = 0, unused = 0;
         this.CountHierarchy(ref a, ref b, ref unused);
         return (a, b);
     }
 
-    public static void CountHierarchy(IEnumerable<BaseResource> list, ref int folders, ref int items, ref int references)
-    {
-        foreach (BaseResource resource in list)
-        {
-            if (resource is ResourceFolder)
-            {
+    public static void CountHierarchy(IEnumerable<BaseResource> list, ref int folders, ref int items, ref int references) {
+        foreach (BaseResource resource in list) {
+            if (resource is ResourceFolder) {
                 ((ResourceFolder) resource).CountHierarchy(ref folders, ref items, ref references);
                 folders++;
             }
-            else
-            {
+            else {
                 items++;
                 references += ((ResourceItem) resource).References.Count;
             }
         }
     }
 
-    public static void MoveListTo(ResourceFolder destination, List<BaseResource> items, int targetIndex)
-    {
+    public static void MoveListTo(ResourceFolder destination, List<BaseResource> items, int targetIndex) {
         // Assume this folder contains items 0,1,2,3,4. Moved items behave like this:
         // Move(1,3) // Items now become 0,2,3,1,4
         // Move(0,4) // Items now become 2,3,1,4,0
@@ -330,14 +287,11 @@ public sealed class ResourceFolder : BaseResource
         // int count = droppedItems.Count(x => x.Parent == myParent && x.Parent.IndexOf(x) < dropIndex);
         // dropIndex -= count;// = Maths.Clamp(dropIndex - count, 0, parentFolder.Items.Count);
 
-        foreach (BaseResource item in items)
-        {
-            if (item.Parent != null)
-            {
+        foreach (BaseResource item in items) {
+            if (item.Parent != null) {
                 item.Parent.MoveItemTo(destination, item, targetIndex++);
             }
-            else
-            {
+            else {
                 destination.InsertItem(targetIndex++, item);
             }
         }

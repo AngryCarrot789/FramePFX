@@ -26,8 +26,7 @@ public delegate void TimelineChangedEventHandler(IHaveTimeline sender, Timeline?
 /// <summary>
 /// An interface for an object that exists in a timeline, somewhere. This could be a track, clip or effect
 /// </summary>
-public interface IHaveTimeline : IHaveProject
-{
+public interface IHaveTimeline : IHaveProject {
     /// <summary>
     /// Gets the timeline associated with this object. May return null
     /// </summary>

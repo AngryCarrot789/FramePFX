@@ -22,7 +22,6 @@ using Avalonia.Controls.Primitives;
 
 namespace FramePFX.Avalonia.Editing.Playheads;
 
-public class CancellableThumb : Thumb
-{
+public class CancellableThumb : Thumb {
     protected override Type StyleKeyOverride => typeof(Thumb);
 }

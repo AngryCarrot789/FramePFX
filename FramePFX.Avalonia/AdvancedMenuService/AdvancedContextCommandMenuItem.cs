@@ -33,18 +33,15 @@ using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.AdvancedMenuService;
 
-public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem
-{
+public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem {
     private bool canExecute;
     private TextBlock? InputGestureTextBlock;
 
     public bool IsExecuting { get; private set; }
 
-    protected bool CanExecute
-    {
+    protected bool CanExecute {
         get => this.canExecute;
-        set
-        {
+        set {
             this.canExecute = value;
 
             // Causes IsEnableCore to be fetched, which returns false if we are executing something or
@@ -60,53 +57,43 @@ public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem
     public AdvancedContextCommandMenuItem() {
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         e.NameScope.GetTemplateChild("PART_InputGestureText", out this.InputGestureTextBlock);
         this.UpdateInputGestureText();
     }
 
-    protected override void OnLoaded(RoutedEventArgs e)
-    {
+    protected override void OnLoaded(RoutedEventArgs e) {
         this.UpdateCanExecute();
         base.OnLoaded(e);
         this.UpdateInputGestureText();
     }
 
-    private void UpdateInputGestureText()
-    {
-        if (this.InputGestureTextBlock == null)
-        {
+    private void UpdateInputGestureText() {
+        if (this.InputGestureTextBlock == null) {
             return;
         }
 
         CommandContextEntry? entry = this.Entry;
-        if (entry == null)
-        {
+        if (entry == null) {
             return;
         }
 
-        if (CommandManager.Instance.GetCommandById(entry.CommandId) != null)
-        {
-            if (CommandIdToGestureConverter.CommandIdToGesture(entry.CommandId, null, out string value))
-            {
+        if (CommandManager.Instance.GetCommandById(entry.CommandId) != null) {
+            if (CommandIdToGestureConverter.CommandIdToGesture(entry.CommandId, null, out string value)) {
                 this.InputGestureTextBlock.Text = value;
             }
         }
     }
 
-    public override void UpdateCanExecute()
-    {
+    public override void UpdateCanExecute() {
         if (!this.IsLoaded)
             return;
 
-        if (this.IsExecuting)
-        {
+        if (this.IsExecuting) {
             this.CanExecute = false;
         }
-        else
-        {
+        else {
             IContextData? ctx = this.Container?.Context;
             string? cmdId = this.Entry?.CommandId;
             Executability state = !string.IsNullOrWhiteSpace(cmdId) && ctx != null ? CommandManager.Instance.CanExecute(cmdId, ctx, true) : Executability.Invalid;
@@ -115,18 +102,15 @@ public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem
         }
     }
 
-    protected override void OnClick(RoutedEventArgs e)
-    {
-        if (this.IsExecuting)
-        {
+    protected override void OnClick(RoutedEventArgs e) {
+        if (this.IsExecuting) {
             this.CanExecute = false;
             return;
         }
 
         this.IsExecuting = true;
         string? cmdId = this.Entry?.CommandId;
-        if (string.IsNullOrWhiteSpace(cmdId))
-        {
+        if (string.IsNullOrWhiteSpace(cmdId)) {
             base.OnClick(e);
             this.IsExecuting = false;
             this.UpdateCanExecute();
@@ -136,18 +120,15 @@ public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem
         // disable execution while executing command
         this.CanExecute = false;
         base.OnClick(e);
-        if (!this.DispatchCommand(cmdId))
-        {
+        if (!this.DispatchCommand(cmdId)) {
             this.IsExecuting = false;
             this.CanExecute = true;
         }
     }
 
-    private bool DispatchCommand(string cmdId)
-    {
+    private bool DispatchCommand(string cmdId) {
         IContextData? context = this.Container?.Context;
-        if (context == null)
-        {
+        if (context == null) {
             return false;
         }
 
@@ -155,17 +136,13 @@ public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem
         return true;
     }
 
-    private async void ExecuteCommand(string cmdId, IContextData? context)
-    {
-        try
-        {
+    private async void ExecuteCommand(string cmdId, IContextData? context) {
+        try {
             if (!string.IsNullOrWhiteSpace(cmdId) && context != null)
                 CommandManager.Instance.Execute(cmdId, context);
         }
-        catch (Exception e)
-        {
-            if (!Debugger.IsAttached)
-            {
+        catch (Exception e) {
+            if (!Debugger.IsAttached) {
                 await IMessageDialogService.Instance.ShowMessage(
                     "Error",
                     "An unexpected error occurred while processing command. " +
@@ -173,8 +150,7 @@ public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem
                     e.GetToString());
             }
         }
-        finally
-        {
+        finally {
             this.IsExecuting = false;
             this.UpdateCanExecute();
         }

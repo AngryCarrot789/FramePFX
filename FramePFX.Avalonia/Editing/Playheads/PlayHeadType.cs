@@ -19,8 +19,7 @@
 
 namespace FramePFX.Avalonia.Editing.Playheads;
 
-public enum PlayHeadType
-{
+public enum PlayHeadType {
     None,
     PlayHead,
     StopHead

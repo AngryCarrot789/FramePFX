@@ -35,26 +35,22 @@ namespace FramePFX.Avalonia.Editing.Timelines;
 /// <summary>
 /// A control with two grips to drag around a frame span based region
 /// </summary>
-public class TimelineLoopControl : TemplatedControl
-{
+public class TimelineLoopControl : TemplatedControl {
     public static readonly StyledProperty<TimelineControl?> TimelineControlProperty = AvaloniaProperty.Register<TimelineLoopControl, TimelineControl?>(nameof(TimelineControl));
     public static readonly StyledProperty<FrameSpan> LoopSpanProperty = AvaloniaProperty.Register<TimelineLoopControl, FrameSpan>(nameof(LoopSpan));
     public static readonly StyledProperty<ScrollViewer?> ScrollViewerReferenceProperty = AvaloniaProperty.Register<TimelineLoopControl, ScrollViewer?>(nameof(ScrollViewerReference));
 
-    public TimelineControl? TimelineControl
-    {
+    public TimelineControl? TimelineControl {
         get => this.GetValue(TimelineControlProperty);
         set => this.SetValue(TimelineControlProperty, value);
     }
 
-    public FrameSpan LoopSpan
-    {
+    public FrameSpan LoopSpan {
         get => this.GetValue(LoopSpanProperty);
         set => this.SetValue(LoopSpanProperty, value);
     }
 
-    public ScrollViewer? ScrollViewerReference
-    {
+    public ScrollViewer? ScrollViewerReference {
         get => this.GetValue(ScrollViewerReferenceProperty);
         set => this.SetValue(ScrollViewerReferenceProperty, value);
     }
@@ -73,23 +69,19 @@ public class TimelineLoopControl : TemplatedControl
     public TimelineLoopControl() {
     }
 
-    static TimelineLoopControl()
-    {
+    static TimelineLoopControl() {
         TimelineControlProperty.Changed.AddClassHandler<TimelineLoopControl, TimelineControl?>((d, e) => d.OnTimelineControlChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
         LoopSpanProperty.Changed.AddClassHandler<TimelineLoopControl, FrameSpan>((d, e) => d.OnControlLoopSpanChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
         ScrollViewerReferenceProperty.Changed.AddClassHandler<TimelineLoopControl, ScrollViewer?>((d, e) => d.OnScrollViewerReferenceChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }
 
-    private void OnScrollViewerReferenceChanged(ScrollViewer? oldValue, ScrollViewer? newValue)
-    {
-        if (oldValue != null)
-        {
+    private void OnScrollViewerReferenceChanged(ScrollViewer? oldValue, ScrollViewer? newValue) {
+        if (oldValue != null) {
             oldValue.ScrollChanged += this.OnScrollViewerScrollChanged;
             oldValue.EffectiveViewportChanged += this.OnScrollViewerEffectiveViewPortChanged;
         }
 
-        if (newValue != null)
-        {
+        if (newValue != null) {
             newValue.ScrollChanged += this.OnScrollViewerScrollChanged;
             newValue.EffectiveViewportChanged += this.OnScrollViewerEffectiveViewPortChanged;
         }
@@ -100,26 +92,21 @@ public class TimelineLoopControl : TemplatedControl
     private void OnScrollViewerScrollChanged(object? sender, ScrollChangedEventArgs e) => this.UpdatePosition();
 
 
-    private void OnTimelineControlChanged(TimelineControl? oldTimeline, TimelineControl? newTimeline)
-    {
+    private void OnTimelineControlChanged(TimelineControl? oldTimeline, TimelineControl? newTimeline) {
         this.zoomChangeHandler?.Dispose();
-        if (oldTimeline != null)
-        {
+        if (oldTimeline != null) {
             oldTimeline.TimelineModelChanged -= this.OnControlTimelineChanged;
         }
-        
-        if (this.myTimeline != null)
-        {
+
+        if (this.myTimeline != null) {
             this.OnTimelineChanged(this.myTimeline, null);
         }
 
-        if (newTimeline != null)
-        {
+        if (newTimeline != null) {
             this.zoomChangeHandler = TimelineControl.ZoomProperty.Changed.Subscribe(new AnonymousObserver<AvaloniaPropertyChangedEventArgs<double>>(this.OnTimelineZoomed));
             this.currZoom = newTimeline.Zoom;
             newTimeline.TimelineModelChanged += this.OnControlTimelineChanged;
-            if (newTimeline.Timeline is Timeline timeline)
-            {
+            if (newTimeline.Timeline is Timeline timeline) {
                 this.OnTimelineChanged(null, timeline);
             }
 
@@ -127,24 +114,20 @@ public class TimelineLoopControl : TemplatedControl
         }
     }
 
-    private void OnControlTimelineChanged(ITimelineElement element, Timeline? oldTimeline, Timeline? newTimeline)
-    {
+    private void OnControlTimelineChanged(ITimelineElement element, Timeline? oldTimeline, Timeline? newTimeline) {
         Debug.Assert(oldTimeline == this.myTimeline);
         this.myTimeline = newTimeline;
         this.OnTimelineChanged(oldTimeline, newTimeline);
         this.UpdatePosition();
     }
 
-    private void OnTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline)
-    {
-        if (oldTimeline != null)
-        {
+    private void OnTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline) {
+        if (oldTimeline != null) {
             oldTimeline.LoopRegionChanged -= this.OnTimelineLoopRegionChanged;
             oldTimeline.IsLoopRegionEnabledChanged -= this.OnIsLoopRegionEnabledChanged;
         }
 
-        if (newTimeline != null)
-        {
+        if (newTimeline != null) {
             newTimeline.LoopRegionChanged += this.OnTimelineLoopRegionChanged;
             newTimeline.IsLoopRegionEnabledChanged += this.OnIsLoopRegionEnabledChanged;
             this.isLoopRegionEnabled = newTimeline.IsLoopRegionEnabled;
@@ -153,43 +136,36 @@ public class TimelineLoopControl : TemplatedControl
         }
     }
 
-    private void OnIsLoopRegionEnabledChanged(Timeline timeline)
-    {
+    private void OnIsLoopRegionEnabledChanged(Timeline timeline) {
         this.isLoopRegionEnabled = timeline.IsLoopRegionEnabled;
         this.InvalidateVisual();
     }
 
-    private void OnControlLoopSpanChanged(FrameSpan oldValue, FrameSpan newValue)
-    {
-        if (!this.isUpdatingControl && this.myTimeline != null)
-        {
+    private void OnControlLoopSpanChanged(FrameSpan oldValue, FrameSpan newValue) {
+        if (!this.isUpdatingControl && this.myTimeline != null) {
             this.myTimeline.LoopRegion = newValue.Clamp(new FrameSpan(0, this.myTimeline.MaxDuration));
         }
 
         this.UpdatePosition();
     }
 
-    private void OnTimelineLoopRegionChanged(Timeline timeline)
-    {
+    private void OnTimelineLoopRegionChanged(Timeline timeline) {
         this.isUpdatingControl = true;
         this.LoopSpan = timeline.LoopRegion ?? FrameSpan.Empty;
         this.isUpdatingControl = false;
         this.InvalidateVisual();
     }
 
-    private void OnTimelineZoomed(AvaloniaPropertyChangedEventArgs<double> e)
-    {
+    private void OnTimelineZoomed(AvaloniaPropertyChangedEventArgs<double> e) {
         this.currZoom = e.NewValue.GetValueOrDefault(1.0);
         this.UpdatePosition();
     }
 
-    private void UpdatePosition()
-    {
+    private void UpdatePosition() {
         long beginFrame = this.LoopSpan.Begin;
         Thickness m = this.Margin;
         double left;
-        if (this.ScrollViewerReference is ScrollViewer scroller)
-        {
+        if (this.ScrollViewerReference is ScrollViewer scroller) {
             // Point translated = scroller.TranslatePoint(new Point(frame * zoom, 0.0), this) ?? new Point(scroller.Offset.X, 0.0);
             double offset = scroller.Offset.X;
             // double start = zoom - (offset - (long) (offset / zoom) * zoom);
@@ -202,25 +178,21 @@ public class TimelineLoopControl : TemplatedControl
 
             left = (beginFrame * this.currZoom) - Math.Round(offset);
         }
-        else
-        {
+        else {
             left = (beginFrame * this.currZoom);
         }
 
         this.Margin = new Thickness(Math.Floor(left), m.Top, m.Right, m.Bottom);
     }
 
-    public override void Render(DrawingContext ctx)
-    {
+    public override void Render(DrawingContext ctx) {
         base.Render(ctx);
-        if (!(this.TimelineControl is TimelineControl control))
-        {
+        if (!(this.TimelineControl is TimelineControl control)) {
             return;
         }
 
         FrameSpan span = this.LoopSpan;
-        if (span.Begin < 0 || span.IsEmpty)
-        {
+        if (span.Begin < 0 || span.IsEmpty) {
             return;
         }
 
@@ -229,10 +201,8 @@ public class TimelineLoopControl : TemplatedControl
         double x2 = TimelineUtils.FrameToPixel(span.Duration, this.currZoom);
         double height = this.Bounds.Height;
 
-        using (ctx.PushRenderOptions(new RenderOptions() { EdgeMode = EdgeMode.Aliased }))
-        {
-            if (this.isLoopRegionEnabled)
-            {
+        using (ctx.PushRenderOptions(new RenderOptions() { EdgeMode = EdgeMode.Aliased })) {
+            if (this.isLoopRegionEnabled) {
                 ImmutableSolidColorBrush brush = new ImmutableSolidColorBrush(Colors.DodgerBlue, 0.1);
                 ctx.DrawRectangle(brush, null, new Rect(x1, 0, x2 - x1, height));
             }

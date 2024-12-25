@@ -24,24 +24,20 @@ namespace FramePFX.Utils;
 /// <summary>
 /// A class that helps with object creation based on a unique string identifier
 /// </summary>
-public class ObjectFactory
-{
+public class ObjectFactory {
     private readonly Dictionary<string, Type> idToType;
     private readonly Dictionary<Type, string> typeToId;
 
-    public ObjectFactory()
-    {
+    public ObjectFactory() {
         this.idToType = new Dictionary<string, Type>();
         this.typeToId = new Dictionary<Type, string>();
     }
 
-    protected virtual bool IsTypeValid(Type type)
-    {
+    protected virtual bool IsTypeValid(Type type) {
         return true;
     }
 
-    protected void RegisterType(string id, Type type)
-    {
+    protected void RegisterType(string id, Type type) {
         ValidateId(id);
         if (type == null)
             throw new ArgumentNullException(nameof(type));
@@ -58,8 +54,7 @@ public class ObjectFactory
         this.OnRegistered(id, type);
     }
 
-    protected bool UnregisterType(string id)
-    {
+    protected bool UnregisterType(string id) {
         ValidateId(id);
         if (!this.idToType.Remove(id, out Type? type))
             return false;
@@ -74,42 +69,36 @@ public class ObjectFactory
     protected virtual void OnUnregistered(string id, Type type) {
     }
 
-    public bool IsIdRegistered(string id)
-    {
+    public bool IsIdRegistered(string id) {
         ValidateId(id);
         return this.idToType.ContainsKey(id);
     }
 
-    public bool IsTypeRegistered(Type type)
-    {
+    public bool IsTypeRegistered(Type type) {
         if (type == null)
             throw new ArgumentNullException(nameof(type));
         return this.typeToId.ContainsKey(type);
     }
 
-    public bool TryGetType(string id, [NotNullWhen(true)] out Type? type)
-    {
+    public bool TryGetType(string id, [NotNullWhen(true)] out Type? type) {
         ValidateId(id);
         return this.idToType.TryGetValue(id, out type);
     }
 
-    public bool TryGetId(Type type, [NotNullWhen(true)] out string? id)
-    {
+    public bool TryGetId(Type type, [NotNullWhen(true)] out string? id) {
         if (type == null)
             throw new ArgumentNullException(nameof(type));
         return this.typeToId.TryGetValue(type, out id);
     }
 
-    public Type GetType(string id)
-    {
+    public Type GetType(string id) {
         ValidateId(id);
         if (!this.idToType.TryGetValue(id, out Type? type))
             throw new Exception($"No entry registered with ID '{id}'");
         return type;
     }
 
-    public string GetId(Type type)
-    {
+    public string GetId(Type type) {
         if (type == null)
             throw new ArgumentNullException(nameof(type));
         if (!this.typeToId.TryGetValue(type, out string? id))
@@ -119,8 +108,7 @@ public class ObjectFactory
         return id;
     }
 
-    private static void ValidateId(string id)
-    {
+    private static void ValidateId(string id) {
         if (id == null)
             throw new ArgumentNullException(nameof(id));
         if (string.IsNullOrWhiteSpace(id))

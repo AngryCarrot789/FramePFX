@@ -28,31 +28,24 @@ using FramePFX.Utils;
 
 namespace FramePFX.Editing.Timelines;
 
-public static class ClipDropRegistry
-{
+public static class ClipDropRegistry {
     public static DragDropRegistry<Clip> DropRegistry { get; }
 
-    static ClipDropRegistry()
-    {
+    static ClipDropRegistry() {
         DropRegistry = new DragDropRegistry<Clip>();
-        DropRegistry.Register<Clip, EffectProviderEntry>((clip, x, dt, ctx) =>
-        {
+        DropRegistry.Register<Clip, EffectProviderEntry>((clip, x, dt, ctx) => {
             return clip.IsEffectTypeAccepted(x.EffectType) ? EnumDropType.Copy : EnumDropType.None;
-        }, async (clip, x, dt, ctx) =>
-        {
+        }, async (clip, x, dt, ctx) => {
             BaseEffect effect;
-            try
-            {
+            try {
                 effect = x.CreateEffect();
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 await IMessageDialogService.Instance.ShowMessage("Error", "Failed to create effect from the dropped effect", e.GetToString());
                 return;
             }
 
-            if (!effect.IsObjectValidForOwner(clip))
-            {
+            if (!effect.IsObjectValidForOwner(clip)) {
                 await IMessageDialogService.Instance.ShowMessage("Error", "This effect is not allowed to be placed in this clip");
                 return;
             }
@@ -61,30 +54,25 @@ public static class ClipDropRegistry
             clip.Timeline?.InvalidateRender();
         });
 
-        DropRegistry.Register<VideoClipShape, ResourceColour>((clip, h, dt, ctx) => EnumDropType.Link, async (clip, h, dt, c) =>
-        {
+        DropRegistry.Register<VideoClipShape, ResourceColour>((clip, h, dt, ctx) => EnumDropType.Link, async (clip, h, dt, c) => {
             await clip.ResourceHelper.SetResourceHelper(VideoClipShape.ColourKey, h);
         });
 
-        DropRegistry.Register<ImageVideoClip, ResourceImage>((clip, h, dt, ctx) => EnumDropType.Link, async (clip, h, dt, c) =>
-        {
+        DropRegistry.Register<ImageVideoClip, ResourceImage>((clip, h, dt, ctx) => EnumDropType.Link, async (clip, h, dt, c) => {
             await clip.ResourceHelper.SetResourceHelper(ImageVideoClip.ResourceImageKey, h);
         });
 
-        DropRegistry.Register<AVMediaVideoClip, ResourceAVMedia>((clip, h, dt, ctx) => EnumDropType.Link, async (clip, h, dt, c) =>
-        {
+        DropRegistry.Register<AVMediaVideoClip, ResourceAVMedia>((clip, h, dt, ctx) => EnumDropType.Link, async (clip, h, dt, c) => {
             await clip.ResourceHelper.SetResourceHelper(AVMediaVideoClip.MediaKey, h);
         });
-        
-        DropRegistry.Register<CompositionVideoClip, ResourceComposition>((clip, h, dt, ctx) => EnumDropType.Link, async (clip, h, dt, c) =>
-        {
-            if (h.HasReachedResourceLimit())
-            {
+
+        DropRegistry.Register<CompositionVideoClip, ResourceComposition>((clip, h, dt, ctx) => EnumDropType.Link, async (clip, h, dt, c) => {
+            if (h.HasReachedResourceLimit()) {
                 int count = h.ResourceLinkLimit;
                 await IMessageDialogService.Instance.ShowMessage("Resource Limit", $"At the moment, composition timelines cannot be used by more than {count} clip{Lang.S(count)}");
                 return;
             }
-            
+
             clip.ResourceHelper.SetResource(CompositionVideoClip.ResourceCompositionKey, h);
         });
     }

@@ -32,28 +32,24 @@ namespace FramePFX.Avalonia.PropertyEditing;
 /// <summary>
 /// A control that contains a collection of property editor objects, such as slots, groups and separators
 /// </summary>
-public class PropertyEditorGroupControl : TemplatedControl
-{
+public class PropertyEditorGroupControl : TemplatedControl {
     public static readonly ModelControlRegistry<BasePropertyEditorObject, Control> Registry;
 
     public static readonly StyledProperty<bool> IsExpandedProperty = AvaloniaProperty.Register<PropertyEditorGroupControl, bool>("IsExpanded");
     public static readonly StyledProperty<GroupType> GroupTypeProperty = AvaloniaProperty.Register<PropertyEditorGroupControl, GroupType>("GroupType");
     public static readonly StyledProperty<PropertyEditorControl?> PropertyEditorProperty = AvaloniaProperty.Register<PropertyEditorGroupControl, PropertyEditorControl?>("PropertyEditor");
-    
-    public bool IsExpanded
-    {
+
+    public bool IsExpanded {
         get => this.GetValue(IsExpandedProperty);
         set => this.SetValue(IsExpandedProperty, value);
     }
 
-    public GroupType GroupType
-    {
+    public GroupType GroupType {
         get => this.GetValue(GroupTypeProperty);
         set => this.SetValue(GroupTypeProperty, value);
     }
 
-    public PropertyEditorControl? PropertyEditor
-    {
+    public PropertyEditorControl? PropertyEditor {
         get => this.GetValue(PropertyEditorProperty);
         set => this.SetValue(PropertyEditorProperty, value);
     }
@@ -71,39 +67,33 @@ public class PropertyEditorGroupControl : TemplatedControl
     public PropertyEditorGroupControl() {
     }
 
-    static PropertyEditorGroupControl()
-    {
+    static PropertyEditorGroupControl() {
         Registry = new ModelControlRegistry<BasePropertyEditorObject, Control>();
         Registry.RegisterType<GridPropertyEditorGroup>(() => new PropertyEditorGridGroupControl());
         Registry.RegisterType<BasePropertyEditorGroup>((x) => x.GroupType == GroupType.NoExpander ? new PropertyEditorGroupNonExpanderControl() : new PropertyEditorGroupControl());
         Registry.RegisterType<PropertyEditorSlot>(() => new PropertyEditorSlotControl());
     }
-    
-    protected override void OnPointerPressed(PointerPressedEventArgs e)
-    {
+
+    protected override void OnPointerPressed(PointerPressedEventArgs e) {
         base.OnPointerPressed(e);
         // WONKY CHANGE e.OriginalSource -> e.Source
-        if (!e.Handled && e.Source is PropertyEditorItemsPanel)
-        {
+        if (!e.Handled && e.Source is PropertyEditorItemsPanel) {
             e.Handled = true;
             this.PropertyEditor?.PropertyEditor?.ClearSelection();
             this.Focus();
         }
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.Panel = e.NameScope.GetTemplateChild<PropertyEditorItemsPanel>("PART_Panel");
         this.Panel.OwnerGroup = this;
-        if (e.NameScope.TryGetTemplateChild("PART_Expander", out Expander? expander))
-        {
+        if (e.NameScope.TryGetTemplateChild("PART_Expander", out Expander? expander)) {
             this.TheExpander = expander;
         }
     }
 
-    public void ConnectModel(PropertyEditorControl propertyEditor, BasePropertyEditorGroup group)
-    {
+    public void ConnectModel(PropertyEditorControl propertyEditor, BasePropertyEditorGroup group) {
         if (propertyEditor == null)
             throw new ArgumentNullException(nameof(propertyEditor));
         this.PropertyEditor = propertyEditor;
@@ -117,16 +107,13 @@ public class PropertyEditorGroupControl : TemplatedControl
         this.isExpandedBinder.Attach(this, group);
 
         int i = 0;
-        foreach (BasePropertyEditorObject obj in group.PropertyObjects)
-        {
+        foreach (BasePropertyEditorObject obj in group.PropertyObjects) {
             this.Panel!.InsertItem(obj, i++);
         }
     }
 
-    public void DisconnectModel()
-    {
-        for (int i = this.Panel!.Count - 1; i >= 0; i--)
-        {
+    public void DisconnectModel() {
+        for (int i = this.Panel!.Count - 1; i >= 0; i--) {
             this.Panel.RemoveItem(i);
         }
 
@@ -139,24 +126,20 @@ public class PropertyEditorGroupControl : TemplatedControl
         this.Model = null;
     }
 
-    private void ModelOnItemAdded(BasePropertyEditorGroup group, BasePropertyEditorObject item, int index)
-    {
+    private void ModelOnItemAdded(BasePropertyEditorGroup group, BasePropertyEditorObject item, int index) {
         this.Panel!.InsertItem(item, index);
         this.Panel.UpdateLayout();
     }
 
-    private void ModelOnItemRemoved(BasePropertyEditorGroup group, BasePropertyEditorObject item, int index)
-    {
+    private void ModelOnItemRemoved(BasePropertyEditorGroup group, BasePropertyEditorObject item, int index) {
         this.Panel!.RemoveItem(index);
     }
 
-    private void ModelOnItemMoved(BasePropertyEditorGroup group, BasePropertyEditorObject item, int oldindex, int newindex)
-    {
+    private void ModelOnItemMoved(BasePropertyEditorGroup group, BasePropertyEditorObject item, int oldindex, int newindex) {
         this.Panel!.MoveItem(oldindex, newindex);
     }
 
-    private static void UpdateControlDisplayName(IBinder<BasePropertyEditorGroup> obj)
-    {
+    private static void UpdateControlDisplayName(IBinder<BasePropertyEditorGroup> obj) {
         PropertyEditorGroupControl ctrl = (PropertyEditorGroupControl) obj.Control;
         if (ctrl.TheExpander != null)
             ctrl.TheExpander.Header = obj.Model.DisplayName;

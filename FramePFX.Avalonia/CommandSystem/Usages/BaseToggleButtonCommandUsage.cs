@@ -29,15 +29,13 @@ namespace FramePFX.Avalonia.CommandSystem.Usages;
 /// A base usage class for a command that is called by a toggle button, where the command is expected to
 /// update some sort of model boolean state that the toggle button should reflect
 /// </summary>
-public abstract class BaseToggleButtonCommandUsage : CommandUsage
-{
+public abstract class BaseToggleButtonCommandUsage : CommandUsage {
     private bool ignoreCheckChanged;
 
     protected BaseToggleButtonCommandUsage(string commandId) : base(commandId) {
     }
 
-    protected override void OnConnected()
-    {
+    protected override void OnConnected() {
         base.OnConnected();
         if (!(this.Control is ToggleButton btn))
             throw new InvalidOperationException("Cannot connect to non-toggle-button");
@@ -45,8 +43,7 @@ public abstract class BaseToggleButtonCommandUsage : CommandUsage
         btn.Unchecked += this.OnCheckChanged;
     }
 
-    protected override void OnDisconnected()
-    {
+    protected override void OnDisconnected() {
         base.OnDisconnected();
         if (!(this.Control is ToggleButton btn))
             throw new InvalidOperationException("Fatal error");
@@ -54,15 +51,12 @@ public abstract class BaseToggleButtonCommandUsage : CommandUsage
         btn.Unchecked -= this.OnCheckChanged;
     }
 
-    protected override void OnUpdateForCanExecuteState(Executability state)
-    {
+    protected override void OnUpdateForCanExecuteState(Executability state) {
         ((ToggleButton) this.Control).IsEnabled = state == Executability.Valid;
     }
 
-    private void OnCheckChanged(object sender, RoutedEventArgs e)
-    {
-        if (this.ignoreCheckChanged || !this.IsConnected)
-        {
+    private void OnCheckChanged(object sender, RoutedEventArgs e) {
+        if (this.ignoreCheckChanged || !this.IsConnected) {
             return;
         }
 
@@ -77,14 +71,12 @@ public abstract class BaseToggleButtonCommandUsage : CommandUsage
     /// <summary>
     /// Updates the <see cref="ToggleButton.IsChecked"/> property based on what <see cref="GetRealIsChecked"/> returns
     /// </summary>
-    public void UpdateIsChecked()
-    {
+    public void UpdateIsChecked() {
         this.ignoreCheckChanged = true;
         bool isChecked = this.GetRealIsChecked();
         ToggleButton btn = (ToggleButton) this.Control;
 
-        if (isChecked != btn.IsChecked)
-        {
+        if (isChecked != btn.IsChecked) {
             btn.IsChecked = isChecked;
         }
 
@@ -94,8 +86,7 @@ public abstract class BaseToggleButtonCommandUsage : CommandUsage
     /// <summary>
     /// Calls <see cref="UpdateIsChecked"/> and <see cref="CommandUsage.UpdateCanExecuteLater"/>
     /// </summary>
-    public void UpdateIsCheckedAndCanExecute()
-    {
+    public void UpdateIsCheckedAndCanExecute() {
         this.UpdateIsChecked();
         this.UpdateCanExecuteLater();
     }

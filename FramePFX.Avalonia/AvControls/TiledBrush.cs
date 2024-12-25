@@ -22,42 +22,31 @@ using Avalonia.Media;
 
 namespace FramePFX.Avalonia.AvControls;
 
-public static class TiledBrush
-{
+public static class TiledBrush {
     // TODO: customisable tile brushes maybe?
     private static DrawingBrush? brushTile4, brushTile8;
 
     public static DrawingBrush TiledTransparencyBrush4 => brushTile4 ??= Generate(4);
     public static DrawingBrush TiledTransparencyBrush8 => brushTile8 ??= Generate(8);
 
-    private static DrawingBrush Generate(int tileSize)
-    {
+    private static DrawingBrush Generate(int tileSize) {
         int totalSize = tileSize * 2;
-        return new DrawingBrush()
-        {
-            Drawing = new DrawingGroup()
-            {
-                Children =
-                {
-                    new GeometryDrawing()
-                    {
+        return new DrawingBrush() {
+            Drawing = new DrawingGroup() {
+                Children = {
+                    new GeometryDrawing() {
                         Brush = Brushes.White,
-                        Geometry = new GeometryGroup()
-                        {
-                            Children =
-                            {
+                        Geometry = new GeometryGroup() {
+                            Children = {
                                 new RectangleGeometry(new Rect(0, 0, tileSize, tileSize)),
                                 new RectangleGeometry(new Rect(tileSize, tileSize, tileSize, tileSize)),
                             }
                         }
                     },
-                    new GeometryDrawing()
-                    {
+                    new GeometryDrawing() {
                         Brush = Brushes.DarkGray,
-                        Geometry = new GeometryGroup()
-                        {
-                            Children =
-                            {
+                        Geometry = new GeometryGroup() {
+                            Children = {
                                 new RectangleGeometry(new Rect(tileSize, 0, tileSize, tileSize)),
                                 new RectangleGeometry(new Rect(0, tileSize, tileSize, tileSize)),
                             }

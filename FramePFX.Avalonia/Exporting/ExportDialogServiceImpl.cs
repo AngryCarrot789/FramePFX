@@ -23,12 +23,9 @@ using FramePFX.Editing.Exporting;
 
 namespace FramePFX.Avalonia.Exporting;
 
-public class ExportDialogServiceImpl : IExportDialogService
-{
-    public Task ShowExportDialog(ExportSetup setup)
-    {
-        if (!ApplicationImpl.TryGetActiveWindow(out Window? window))
-        {
+public class ExportDialogServiceImpl : IExportDialogService {
+    public Task ShowExportDialog(ExportSetup setup) {
+        if (!ApplicationImpl.TryGetActiveWindow(out Window? window)) {
             return Task.CompletedTask;
         }
 

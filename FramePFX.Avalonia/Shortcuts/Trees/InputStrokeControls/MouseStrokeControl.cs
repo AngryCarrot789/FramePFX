@@ -26,41 +26,34 @@ using FramePFX.Shortcuts.Inputs;
 
 namespace FramePFX.Avalonia.Shortcuts.Trees.InputStrokeControls;
 
-public class MouseStrokeControl : TemplatedControl
-{
+public class MouseStrokeControl : TemplatedControl {
     public static readonly StyledProperty<MouseStroke?> MouseStrokeProperty = AvaloniaProperty.Register<MouseStrokeControl, MouseStroke?>(nameof(MouseStroke));
 
-    public MouseStroke? MouseStroke
-    {
+    public MouseStroke? MouseStroke {
         get => this.GetValue(MouseStrokeProperty);
         set => this.SetValue(MouseStrokeProperty, value);
     }
 
     private TextBlock? PART_TextBlock;
-    
-    public MouseStrokeControl()
-    {
+
+    public MouseStrokeControl() {
     }
 
-    static MouseStrokeControl()
-    {
+    static MouseStrokeControl() {
         MouseStrokeProperty.Changed.AddClassHandler<MouseStrokeControl, MouseStroke?>((d, e) => d.OnMouseStrokeChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.PART_TextBlock = e.NameScope.GetTemplateChild<TextBlock>("PART_TextBlock");
         this.UpdateText();
     }
 
-    private void OnMouseStrokeChanged(MouseStroke? oldValue, MouseStroke? newValue)
-    {
+    private void OnMouseStrokeChanged(MouseStroke? oldValue, MouseStroke? newValue) {
         this.UpdateText();
     }
 
-    private void UpdateText()
-    {
+    private void UpdateText() {
         if (this.PART_TextBlock == null)
             return;
 

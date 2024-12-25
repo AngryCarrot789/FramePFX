@@ -25,36 +25,29 @@ using DataKeys = FramePFX.Interactivity.Contexts.DataKeys;
 
 namespace FramePFX.Editing.Timelines.Commands;
 
-public class NewVideoTrackCommand : Command
-{
-    public override Executability CanExecute(CommandEventArgs e)
-    {
+public class NewVideoTrackCommand : Command {
+    public override Executability CanExecute(CommandEventArgs e) {
         return e.ContextData.ContainsKey(DataKeys.TimelineKey) ? Executability.Valid : Executability.Invalid;
     }
 
-    protected override void Execute(CommandEventArgs e)
-    {
+    protected override void Execute(CommandEventArgs e) {
         // if (DataKeys.TimelineUIKey.TryGetContext(e.ContextData, out ITimelineElement? timelineElement)) {
         //     var seleted = timelineElement.Selection.SelectedItems.FirstOrDefault();
         // }
-        if (DataKeys.TrackUIKey.TryGetContext(e.ContextData, out ITrackElement? trackUIContext))
-        {
+        if (DataKeys.TrackUIKey.TryGetContext(e.ContextData, out ITrackElement? trackUIContext)) {
             Timeline timeline = trackUIContext.Timeline.Timeline!;
             int index = timeline.IndexOf(trackUIContext.Track!);
             if (index == -1)
                 throw new Exception("Fatal error... track index error");
 
-            VideoTrack track = new VideoTrack()
-            {
+            VideoTrack track = new VideoTrack() {
                 DisplayName = "New Video Track"
             };
 
             timeline.InsertTrack(index, track);
         }
-        else if (DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline? timeline))
-        {
-            VideoTrack track = new VideoTrack()
-            {
+        else if (DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline? timeline)) {
+            VideoTrack track = new VideoTrack() {
                 DisplayName = "New Video Track"
             };
 

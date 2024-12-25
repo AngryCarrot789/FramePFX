@@ -28,8 +28,7 @@ namespace FramePFX.Avalonia.Editing.ResourceManaging.Autoloading;
 /// <summary>
 /// A control that represents the information present in the resource loader dialog's details panel
 /// </summary>
-public class InvalidResourceEntryControl : TemplatedControl
-{
+public class InvalidResourceEntryControl : TemplatedControl {
     public static readonly ModelControlRegistry<InvalidResourceEntry, InvalidResourceEntryControl> Registry;
 
     public InvalidResourceEntry? Entry { get; private set; }
@@ -37,21 +36,18 @@ public class InvalidResourceEntryControl : TemplatedControl
     public InvalidResourceEntryControl() {
     }
 
-    static InvalidResourceEntryControl()
-    {
+    static InvalidResourceEntryControl() {
         Registry = new ModelControlRegistry<InvalidResourceEntry, InvalidResourceEntryControl>();
         Registry.RegisterType<InvalidImagePathEntry>(() => new InvalidImagePathEntryControl());
         Registry.RegisterType<InvalidMediaPathEntry>(() => new InvalidMediaPathEntryControl());
     }
 
-    public void Attach(InvalidResourceEntry item)
-    {
+    public void Attach(InvalidResourceEntry item) {
         this.Entry = item ?? throw new ArgumentNullException(nameof(item));
         this.OnAttached();
     }
 
-    public void Detach()
-    {
+    public void Detach() {
         this.OnDetached();
         this.Entry = null;
     }

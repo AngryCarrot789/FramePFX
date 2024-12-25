@@ -28,8 +28,7 @@ using FramePFX.Utils.Commands;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Autoloading;
 
-public class InvalidImagePathEntryControl : InvalidResourceEntryControl
-{
+public class InvalidImagePathEntryControl : InvalidResourceEntryControl {
     private TextBox? filePathBox;
     private Button? confirmButton;
 
@@ -37,33 +36,27 @@ public class InvalidImagePathEntryControl : InvalidResourceEntryControl
 
     public new InvalidImagePathEntry? Entry => (InvalidImagePathEntry?) base.Entry;
 
-    public InvalidImagePathEntryControl()
-    {
+    public InvalidImagePathEntryControl() {
         this.filePathBinder = new GetSetAutoUpdateAndEventPropertyBinder<InvalidImagePathEntry>(TextBox.TextProperty, nameof(InvalidImagePathEntry.FilePathChanged), b => b.Model.FilePath, (b, v) => b.Model.FilePath = (string) v!);
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.filePathBox = e.NameScope.GetTemplateChild<TextBox>("PART_TextBox");
         this.confirmButton = e.NameScope.GetTemplateChild<Button>("PART_Button");
-        this.confirmButton.Command = new AsyncRelayCommand(async () =>
-        {
-            if (!await this.Entry!.TryLoad())
-            {
+        this.confirmButton.Command = new AsyncRelayCommand(async () => {
+            if (!await this.Entry!.TryLoad()) {
                 await IMessageDialogService.Instance.ShowMessage("No such file", "File path is still invalid");
             }
         });
     }
 
-    protected override void OnLoaded(RoutedEventArgs e)
-    {
+    protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
         this.filePathBinder.Attach(this.filePathBox!, this.Entry!);
     }
 
-    protected override void OnUnloaded(RoutedEventArgs e)
-    {
+    protected override void OnUnloaded(RoutedEventArgs e) {
         base.OnUnloaded(e);
         this.filePathBinder.Detach();
     }

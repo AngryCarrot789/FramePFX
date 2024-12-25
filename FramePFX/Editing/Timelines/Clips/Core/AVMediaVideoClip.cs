@@ -29,10 +29,9 @@ using SkiaSharp;
 
 namespace FramePFX.Editing.Timelines.Clips.Core;
 
-public class AVMediaVideoClip : VideoClip
-{
+public class AVMediaVideoClip : VideoClip {
     public static readonly ResourceSlot<ResourceAVMedia> MediaKey = ResourceSlot.Register<ResourceAVMedia>(typeof(AVMediaVideoClip), "AVMediaKey");
-    
+
     private VideoFrame? renderFrameRgb, downloadedHwFrame;
     private unsafe SwsContext* scaler;
     private PictureFormat scalerInputFormat;
@@ -42,35 +41,26 @@ public class AVMediaVideoClip : VideoClip
     private long decodeFrameBegin;
     private long lastDecodeFrameDuration;
 
-    public AVMediaVideoClip()
-    {
+    public AVMediaVideoClip() {
         this.IsMediaFrameSensitive = true;
         this.UsesCustomOpacityCalculation = true;
     }
 
-    static AVMediaVideoClip()
-    {
-        SerialisationRegistry.Register<AVMediaVideoClip>(0, (clip, data, ctx) =>
-        {
+    static AVMediaVideoClip() {
+        SerialisationRegistry.Register<AVMediaVideoClip>(0, (clip, data, ctx) => {
             ctx.DeserialiseBaseType(data);
-
-        }, (clip, data, ctx) =>
-        {
+        }, (clip, data, ctx) => {
             ctx.SerialiseBaseType(data);
-
         });
 
-        MediaKey.ResourceChanged += (slot, owner, oldResource, newResource) =>
-        {
+        MediaKey.ResourceChanged += (slot, owner, oldResource, newResource) => {
             AVMediaVideoClip clip = (AVMediaVideoClip) owner;
             clip.renderFrameRgb?.Dispose();
             clip.renderFrameRgb = null;
             clip.downloadedHwFrame?.Dispose();
             clip.downloadedHwFrame = null;
-            unsafe
-            {
-                if (clip.scaler != null)
-                {
+            unsafe {
+                if (clip.scaler != null) {
                     ffmpeg.sws_freeContext(clip.scaler);
                     clip.scaler = null;
                 }
@@ -78,34 +68,29 @@ public class AVMediaVideoClip : VideoClip
         };
     }
 
-    public override Vector2? GetRenderSize()
-    {
+    public override Vector2? GetRenderSize() {
         if (MediaKey.TryGetResource(this, out ResourceAVMedia? resource) && resource.GetResolution() is SKSizeI size)
             return new Vector2(size.Width, size.Height);
 
         return null;
     }
 
-    public override bool PrepareRenderFrame(PreRenderContext rc, long frame)
-    {
+    public override bool PrepareRenderFrame(PreRenderContext rc, long frame) {
         if (!MediaKey.TryGetResource(this, out ResourceAVMedia? resource))
             return false;
-        
+
         // if (!this.ResourceAVMediaKey.TryGetResource(out ResourceAVMedia? resource))
         //     return false;
-        
+
         if (resource.stream == null || resource.Demuxer == null)
             return false;
 
-        if (frame == this.currentFrame && this.renderFrameRgb != null)
-        {
+        if (frame == this.currentFrame && this.renderFrameRgb != null) {
             return true;
         }
 
-        if (this.renderFrameRgb == null)
-        {
-            unsafe
-            {
+        if (this.renderFrameRgb == null) {
+            unsafe {
                 AVCodecParameters* pars = resource.stream.Handle->codecpar;
                 this.renderFrameRgb = new VideoFrame(pars->width, pars->height, PixelFormats.BGRA);
             }
@@ -116,17 +101,14 @@ public class AVMediaVideoClip : VideoClip
 
         // No need to dispose as the frames are stored in a frame buffer, which is disposed by the resource itself
         this.currentFrame = frame;
-        this.decodeFrameTask = Task.Run(() =>
-        {
+        this.decodeFrameTask = Task.Run(() => {
             this.decodeFrameBegin = Time.GetSystemTicks();
             VideoFrame? output = null;
             VideoFrame? ready = resource.GetFrameAt(timestamp, out _);
-            if (ready != null && !ready.IsDisposed)
-            {
+            if (ready != null && !ready.IsDisposed) {
                 // TODO: Maybe add an async frame fetcher that buffers the frames, or maybe add
                 // a project preview resolution so that decoding is lightning fast for low resolution?
-                if (ready.IsHardwareFrame)
-                {
+                if (ready.IsHardwareFrame) {
                     // As of ffmpeg 6.0, GetHardwareTransferFormats() only returns more than one format for VAAPI,
                     // which isn't widely supported on Windows yet, so we can't transfer directly to RGB without
                     // hacking into the API specific device context (like D3D11VA).
@@ -145,42 +127,34 @@ public class AVMediaVideoClip : VideoClip
         return true;
     }
 
-    public override void RenderFrame(RenderContext rc, ref SKRect renderArea)
-    {
+    public override void RenderFrame(RenderContext rc, ref SKRect renderArea) {
         VideoFrame? ready;
-        if (this.decodeFrameTask != null)
-        {
+        if (this.decodeFrameTask != null) {
             this.lastReadyFrame = ready = this.decodeFrameTask.Result;
             this.decodeFrameTask = null;
             // System.Diagnostics.Debug.WriteLine("Last decode time: " + Math.Round((double) this.lastDecodeFrameDuration) / Time.TICK_PER_MILLIS + " ms");
         }
-        else
-        {
+        else {
             ready = this.lastReadyFrame;
         }
 
-        if (ready == null || ready.IsDisposed)
-        {
+        if (ready == null || ready.IsDisposed) {
             renderArea = default;
             return;
         }
 
-        unsafe
-        {
+        unsafe {
             // long startA = Time.GetSystemTicks();
             byte* ptr;
             GetFrameData(this.renderFrameRgb!, 0, &ptr, out int rowBytes);
             SKImageInfo image = new SKImageInfo(this.renderFrameRgb!.Width, this.renderFrameRgb.Height, SKColorType.Bgra8888);
-            using (SKImage img = SKImage.FromPixels(image, (IntPtr) ptr, rowBytes))
-            {
-                if (img == null)
-                {
+            using (SKImage img = SKImage.FromPixels(image, (IntPtr) ptr, rowBytes)) {
+                if (img == null) {
                     return;
                 }
 
                 using SKPaint? paint = rc.FilterQuality != SKFilterQuality.None || this.RenderOpacityByte != 255 ? new SKPaint() : null;
-                if (paint != null)
-                {
+                if (paint != null) {
                     paint.FilterQuality = rc.FilterQuality;
                     paint.Color = SKColors.White.WithAlpha(this.RenderOpacityByte);
                 }
@@ -196,10 +170,8 @@ public class AVMediaVideoClip : VideoClip
         }
     }
 
-    private unsafe void ScaleFrame(VideoFrame ready)
-    {
-        if (this.scaler == null)
-        {
+    private unsafe void ScaleFrame(VideoFrame ready) {
+        if (this.scaler == null) {
             PictureFormat srcfmt = ready.Format;
             PictureFormat dstfmt = this.renderFrameRgb!.Format;
             this.scalerInputFormat = srcfmt;
@@ -215,15 +187,13 @@ public class AVMediaVideoClip : VideoClip
         ffmpeg.sws_scale(this.scaler, src->data, src->linesize, 0, min, dst->data, dst->linesize);
     }
 
-    public static unsafe void GetFrameData(VideoFrame frame, int plane, byte** data, out int stride)
-    {
+    public static unsafe void GetFrameData(VideoFrame frame, int plane, byte** data, out int stride) {
         int height = frame.GetPlaneSize(plane).Height;
         AVFrame* ptr = frame.Handle;
         *data = ptr->data[(uint) plane];
         int rowSize = ptr->linesize[(uint) plane];
 
-        if (rowSize < 0)
-        {
+        if (rowSize < 0) {
             *data += rowSize * (height - 1);
             rowSize = unchecked(rowSize * -1);
         }

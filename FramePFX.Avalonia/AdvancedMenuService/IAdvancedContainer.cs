@@ -24,8 +24,7 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Avalonia.AdvancedMenuService;
 
-public interface IAdvancedContainer
-{
+public interface IAdvancedContainer {
     /// <summary>
     /// Gets the context for the container menu or root container menu item
     /// </summary>

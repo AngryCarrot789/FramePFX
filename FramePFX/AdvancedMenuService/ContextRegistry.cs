@@ -22,6 +22,7 @@ using FramePFX.Interactivity.Contexts;
 namespace FramePFX.AdvancedMenuService;
 
 public delegate void ContextRegistryEventHandler(ContextRegistry registry);
+
 public delegate void ContextRegistryContextEventHandler(ContextRegistry registry, IContextData context);
 
 /// <summary>
@@ -32,8 +33,7 @@ public delegate void ContextRegistryContextEventHandler(ContextRegistry registry
 /// into the right group... hopefully
 /// </para>
 /// </summary>
-public class ContextRegistry
-{
+public class ContextRegistry {
     private readonly Dictionary<int, Dictionary<string, IContextGroup>> groups;
     private string? caption;
 
@@ -45,11 +45,9 @@ public class ContextRegistry
     /// <summary>
     /// Gets or sets this registry's caption
     /// </summary>
-    public string? Caption
-    {
+    public string? Caption {
         get => this.caption;
-        set
-        {
+        set {
             if (this.caption == value)
                 return;
 
@@ -64,32 +62,28 @@ public class ContextRegistry
     public event ContextRegistryContextEventHandler? Opened;
     public event ContextRegistryEventHandler? Closed;
 
-    public ContextRegistry(string caption)
-    {
+    public ContextRegistry(string caption) {
         this.groups = new Dictionary<int, Dictionary<string, IContextGroup>>();
         this.Caption = caption;
     }
 
-    public void OnOpened(IContextData context)
-    {
+    public void OnOpened(IContextData context) {
         if (this.IsOpened)
             throw new InvalidOperationException("Already open");
 
         this.IsOpened = true;
         this.Opened?.Invoke(this, context ?? EmptyContext.Instance);
     }
-    
-    public void OnClosed()
-    {
+
+    public void OnClosed() {
         if (!this.IsOpened)
             throw new InvalidOperationException("Not opened");
 
         this.IsOpened = false;
         this.Closed?.Invoke(this);
     }
-    
-    public FixedContextGroup GetFixedGroup(string name, int weight = 0)
-    {
+
+    public FixedContextGroup GetFixedGroup(string name, int weight = 0) {
         if (!this.GetDictionary(weight).TryGetValue(name, out IContextGroup? group))
             this.SetDictionary(weight, name, group = new FixedContextGroup());
         else if (!(group is FixedContextGroup))
@@ -97,8 +91,7 @@ public class ContextRegistry
         return (FixedContextGroup) group;
     }
 
-    public DynamicContextGroup CreateDynamicGroup(string name, DynamicGenerateContextFunction generate, int weight = 0)
-    {
+    public DynamicContextGroup CreateDynamicGroup(string name, DynamicGenerateContextFunction generate, int weight = 0) {
         if (!this.GetDictionary(weight).TryGetValue(name, out IContextGroup? group))
             this.SetDictionary(weight, name, group = new DynamicContextGroup(generate));
         else if (!(group is DynamicContextGroup))
@@ -106,23 +99,20 @@ public class ContextRegistry
         return (DynamicContextGroup) group;
     }
 
-    private Dictionary<string, IContextGroup> GetDictionary(int weight)
-    {
+    private Dictionary<string, IContextGroup> GetDictionary(int weight) {
         if (!this.groups.TryGetValue(weight, out Dictionary<string, IContextGroup>? dict))
             this.groups[weight] = dict = new Dictionary<string, IContextGroup>();
         return dict;
     }
 
-    private void SetDictionary(int weight, string name, IContextGroup group)
-    {
+    private void SetDictionary(int weight, string name, IContextGroup group) {
         this.GetDictionary(weight)[name] = group;
     }
 
-    public static void AddStaticOnlineStateHandlers(ContextRegistry registry, ContextRegistryContextEventHandler? onOpened, ContextRegistryEventHandler? onClosed)
-    {
+    public static void AddStaticOnlineStateHandlers(ContextRegistry registry, ContextRegistryContextEventHandler? onOpened, ContextRegistryEventHandler? onClosed) {
         if (onOpened != null)
             registry.Opened += onOpened;
-        
+
         if (onClosed != null)
             registry.Closed += onClosed;
     }

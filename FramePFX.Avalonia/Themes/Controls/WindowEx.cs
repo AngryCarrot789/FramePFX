@@ -29,12 +29,10 @@ using FramePFX.Avalonia.Utils;
 
 namespace FramePFX.Avalonia.Themes.Controls;
 
-public class WindowEx : Window
-{
+public class WindowEx : Window {
     public static readonly StyledProperty<IBrush?> TitleBarBrushProperty = AvaloniaProperty.Register<WindowEx, IBrush?>("TitleBarBrush");
 
-    public IBrush? TitleBarBrush
-    {
+    public IBrush? TitleBarBrush {
         get => this.GetValue(TitleBarBrushProperty);
         set => this.SetValue(TitleBarBrushProperty, value);
     }
@@ -42,12 +40,9 @@ public class WindowEx : Window
     // Override it here so that any window using WindowEx gets the automatic WindowEx style
     protected override Type StyleKeyOverride => typeof(WindowEx);
 
-    public WindowEx()
-    {
-        if (AvCore.TryGetService(out Win32PlatformOptions options))
-        {
-            if (options.CompositionMode.Any(x => x == Win32CompositionMode.LowLatencyDxgiSwapChain))
-            {
+    public WindowEx() {
+        if (AvCore.TryGetService(out Win32PlatformOptions options)) {
+            if (options.CompositionMode.Any(x => x == Win32CompositionMode.LowLatencyDxgiSwapChain)) {
                 this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.PreferSystemChrome;
                 this.ExtendClientAreaToDecorationsHint = true;
                 this.ExtendClientAreaTitleBarHeightHint = -1;
@@ -60,13 +55,11 @@ public class WindowEx : Window
         this.ExtendClientAreaTitleBarHeightHint = -1;
     }
 
-    static WindowEx()
-    {
+    static WindowEx() {
         // Window.ShowActivatedProperty
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         e.NameScope.GetTemplateChild<Button>("PART_ButtonMinimize").Click += OnMinimizeButtonClick;
         e.NameScope.GetTemplateChild<Button>("PART_ButtonRestore").Click += OnRestoreButtonClick;
@@ -74,26 +67,22 @@ public class WindowEx : Window
         e.NameScope.GetTemplateChild<Button>("PART_ButtonClose").Click += OnCloseButtonClick;
     }
 
-    private static void OnMinimizeButtonClick(object? sender, RoutedEventArgs e)
-    {
+    private static void OnMinimizeButtonClick(object? sender, RoutedEventArgs e) {
         if (GetTopLevel(sender as Button) is WindowEx window)
             window.WindowState = WindowState.Minimized;
     }
 
-    private static void OnRestoreButtonClick(object? sender, RoutedEventArgs e)
-    {
+    private static void OnRestoreButtonClick(object? sender, RoutedEventArgs e) {
         if (GetTopLevel(sender as Button) is WindowEx window)
             window.WindowState = WindowState.Normal;
     }
 
-    private static void OnMaximizeButtonClick(object? sender, RoutedEventArgs e)
-    {
+    private static void OnMaximizeButtonClick(object? sender, RoutedEventArgs e) {
         if (GetTopLevel(sender as Button) is WindowEx window)
             window.WindowState = WindowState.Maximized;
     }
 
-    private static void OnCloseButtonClick(object? sender, RoutedEventArgs e)
-    {
+    private static void OnCloseButtonClick(object? sender, RoutedEventArgs e) {
         if (GetTopLevel(sender as Button) is WindowEx window)
             window.Close();
     }

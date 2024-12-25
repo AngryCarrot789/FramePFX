@@ -24,10 +24,9 @@ namespace FramePFX.Services.FilePicking;
 /// <summary>
 /// An interface that provides file picking services, such as picking a file to open or a file to save. This also includes for directories too
 /// </summary>
-public interface IFilePickDialogService
-{
+public interface IFilePickDialogService {
     public static IFilePickDialogService Instance => Application.Instance.ServiceManager.GetService<IFilePickDialogService>();
-    
+
     /// <summary>
     /// Shows a dialog that allows the user to pick a single file
     /// </summary>

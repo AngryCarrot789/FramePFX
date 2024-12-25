@@ -23,17 +23,14 @@ using FramePFX.Services.Messaging;
 
 namespace FramePFX.Editing.Commands;
 
-public abstract class UndoRedoCommand : Command
-{
+public abstract class UndoRedoCommand : Command {
     public bool IsUndo { get; }
 
-    protected UndoRedoCommand(bool isUndo)
-    {
+    protected UndoRedoCommand(bool isUndo) {
         this.IsUndo = isUndo;
     }
 
-    public override Executability CanExecute(CommandEventArgs e)
-    {
+    public override Executability CanExecute(CommandEventArgs e) {
         if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? editor))
             return Executability.Invalid;
 
@@ -41,61 +38,49 @@ public abstract class UndoRedoCommand : Command
         return canExecute ? Executability.Valid : Executability.ValidButCannotExecute;
     }
 
-    public static void Undo(IContextData context)
-    {
+    public static void Undo(IContextData context) {
         if (!DataKeys.VideoEditorKey.TryGetContext(context, out VideoEditor? editor))
             return;
-        if (!editor.HistoryManager.HasUndoableActions)
-        {
+        if (!editor.HistoryManager.HasUndoableActions) {
             IMessageDialogService.Instance.ShowMessage("Undo attempt", "Nothing to undo!");
         }
-        else if (editor.HistoryManager.IsUndoInProgress)
-        {
+        else if (editor.HistoryManager.IsUndoInProgress) {
             IMessageDialogService.Instance.ShowMessage("Cannot Undo", "An undo action is already in progress... somehow");
         }
-        else
-        {
+        else {
             editor.HistoryManager.Undo();
         }
     }
 
-    public static void Redo(IContextData context)
-    {
+    public static void Redo(IContextData context) {
         if (!DataKeys.VideoEditorKey.TryGetContext(context, out VideoEditor? editor))
             return;
-        if (!editor.HistoryManager.HasRedoableActions)
-        {
+        if (!editor.HistoryManager.HasRedoableActions) {
             IMessageDialogService.Instance.ShowMessage("Redo attempt", "Nothing to redo!");
         }
-        else if (editor.HistoryManager.IsRedoInProgress)
-        {
+        else if (editor.HistoryManager.IsRedoInProgress) {
             IMessageDialogService.Instance.ShowMessage("Cannot Redo", "A redo action is already in progress... somehow");
         }
-        else
-        {
+        else {
             editor.HistoryManager.Redo();
         }
     }
 }
 
-public class UndoCommand : UndoRedoCommand
-{
+public class UndoCommand : UndoRedoCommand {
     public UndoCommand() : base(true) {
     }
 
-    protected override void Execute(CommandEventArgs e)
-    {
+    protected override void Execute(CommandEventArgs e) {
         Undo(e.ContextData);
     }
 }
 
-public class RedoCommand : UndoRedoCommand
-{
+public class RedoCommand : UndoRedoCommand {
     public RedoCommand() : base(false) {
     }
 
-    protected override void Execute(CommandEventArgs e)
-    {
+    protected override void Execute(CommandEventArgs e) {
         Redo(e.ContextData);
     }
 }

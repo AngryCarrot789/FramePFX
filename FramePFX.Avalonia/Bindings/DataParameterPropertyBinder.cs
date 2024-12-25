@@ -29,8 +29,7 @@ namespace FramePFX.Avalonia.Bindings;
 /// between different types (e.g. string to double and vice versa)
 /// </summary>
 /// <typeparam name="TModel">The type of model which implements <see cref="ITransferableData"/> and can store property values</typeparam>
-public class DataParameterPropertyBinder<TModel> : BaseAutoUpdatePropertyBinder<TModel> where TModel : class, ITransferableData
-{
+public class DataParameterPropertyBinder<TModel> : BaseAutoUpdatePropertyBinder<TModel> where TModel : class, ITransferableData {
     public DataParameter? Parameter { get; }
 
     private readonly Func<object?, object?>? ParamToProp;
@@ -45,26 +44,21 @@ public class DataParameterPropertyBinder<TModel> : BaseAutoUpdatePropertyBinder<
     /// <param name="parameter">The data parameter, used to listen to model value changes</param>
     /// <param name="parameterToProperty">Converts the parameter value to an appropriate property value (e.g. double to string)</param>
     /// <param name="propertyToParameter">Converts the property value back to the parameter value (e.g. string to double, or returns validation error)</param>
-    public DataParameterPropertyBinder(AvaloniaProperty? property, DataParameter? parameter, Func<object?, object?>? parameterToProperty = null, Func<object?, object?>? propertyToParameter = null) : base(property)
-    {
+    public DataParameterPropertyBinder(AvaloniaProperty? property, DataParameter? parameter, Func<object?, object?>? parameterToProperty = null, Func<object?, object?>? propertyToParameter = null) : base(property) {
         this.Parameter = parameter;
         this.ParamToProp = parameterToProperty;
         this.PropToParam = propertyToParameter;
     }
 
-    protected override void UpdateModelOverride()
-    {
-        if (this.CanUpdateModel && this.IsFullyAttached && this.Property != null && this.Parameter != null)
-        {
+    protected override void UpdateModelOverride() {
+        if (this.CanUpdateModel && this.IsFullyAttached && this.Property != null && this.Parameter != null) {
             object? newValue = this.myControl!.GetValue(this.Property);
             this.Parameter.SetObjectValue(this.Model, this.PropToParam != null ? this.PropToParam(newValue) : newValue);
         }
     }
 
-    protected override void UpdateControlOverride()
-    {
-        if (this.IsFullyAttached && this.Property != null && this.Parameter != null)
-        {
+    protected override void UpdateControlOverride() {
+        if (this.IsFullyAttached && this.Property != null && this.Parameter != null) {
             object? newValue = this.Parameter.GetObjectValue(this.Model);
             this.myControl!.SetValue(this.Property, this.ParamToProp != null ? this.ParamToProp(newValue) : newValue);
         }
@@ -72,14 +66,12 @@ public class DataParameterPropertyBinder<TModel> : BaseAutoUpdatePropertyBinder<
 
     private void OnDataParameterValueChanged(DataParameter parameter, ITransferableData owner) => this.UpdateControl();
 
-    protected override void OnAttached()
-    {
+    protected override void OnAttached() {
         base.OnAttached();
         this.Parameter?.AddValueChangedHandler(this.Model, this.OnDataParameterValueChanged);
     }
 
-    protected override void OnDetached()
-    {
+    protected override void OnDetached() {
         base.OnDetached();
         this.Parameter?.RemoveValueChangedHandler(this.Model, this.OnDataParameterValueChanged);
     }

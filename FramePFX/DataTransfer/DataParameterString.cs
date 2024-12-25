@@ -25,8 +25,7 @@ namespace FramePFX.DataTransfer;
 /// <summary>
 /// A <see cref="DataParameter{T}"/> that manages a string value, and provides a character limit (both upper and lower limits)
 /// </summary>
-public sealed class DataParameterString : DataParameter<string?>
-{
+public sealed class DataParameterString : DataParameter<string?> {
     private readonly bool hasCharLimit;
 
     /// <summary>
@@ -45,8 +44,7 @@ public sealed class DataParameterString : DataParameter<string?>
     public DataParameterString(Type ownerType, string name, string? defValue, ValueAccessor<string?> accessor, DataParameterFlags flags = DataParameterFlags.None) : this(ownerType, name, defValue, 0, int.MaxValue, accessor, flags) {
     }
 
-    public DataParameterString(Type ownerType, string name, string? defValue, int minChars, int maxChars, ValueAccessor<string?> accessor, DataParameterFlags flags = DataParameterFlags.None) : base(ownerType, name, defValue, accessor, flags)
-    {
+    public DataParameterString(Type ownerType, string name, string? defValue, int minChars, int maxChars, ValueAccessor<string?> accessor, DataParameterFlags flags = DataParameterFlags.None) : base(ownerType, name, defValue, accessor, flags) {
         if (minChars > maxChars)
             throw new ArgumentException($"Minimum value exceeds the maximum value: {minChars} > {maxChars}", nameof(minChars));
         this.hasCharLimit = minChars != 0 || maxChars != int.MaxValue;
@@ -57,35 +55,27 @@ public sealed class DataParameterString : DataParameter<string?>
         this.MaximumChars = maxChars;
     }
 
-    public override void SetValue(ITransferableData owner, string? value)
-    {
+    public override void SetValue(ITransferableData owner, string? value) {
         if (this.hasCharLimit)
             value = (value ?? this.DefaultValue ?? "").FitLength(this.MinimumChars);
         base.SetValue(owner, value);
     }
 
-    public override void SetObjectValue(ITransferableData owner, object? value)
-    {
+    public override void SetObjectValue(ITransferableData owner, object? value) {
         base.SetObjectValue(owner, this.CoerceValue((string?) value));
     }
 
-    private string? CoerceValue(string? value)
-    {
-        if (this.hasCharLimit)
-        {
-            if (value == null || value.Length < this.MinimumChars)
-            {
-                if (value == null)
-                {
+    private string? CoerceValue(string? value) {
+        if (this.hasCharLimit) {
+            if (value == null || value.Length < this.MinimumChars) {
+                if (value == null) {
                     value = this.DefaultValue ?? "";
                 }
-                else
-                {
+                else {
                     value += StringUtils.Repeat(' ', this.MinimumChars - value.Length);
                 }
             }
-            else if (value.Length > this.MaximumChars)
-            {
+            else if (value.Length > this.MaximumChars) {
                 value = value.Substring(0, this.MaximumChars);
             }
         }

@@ -22,8 +22,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace FramePFX.Avalonia.Editing;
 
-public interface IModelControlDictionary<TModel, TControl> where TModel : class where TControl : class
-{
+public interface IModelControlDictionary<TModel, TControl> where TModel : class where TControl : class {
     /// <summary>
     /// Gets all of the models in this dictionary
     /// </summary>

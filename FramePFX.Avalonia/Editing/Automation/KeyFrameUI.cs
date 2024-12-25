@@ -31,8 +31,7 @@ namespace FramePFX.Avalonia.Editing.Automation;
 /// <summary>
 /// A class which contains UI information about a key frame
 /// </summary>
-public class KeyFrameUI
-{
+public class KeyFrameUI {
     public readonly AutomationSequenceEditorControl editor;
     public readonly AutomationSequence sequence;
     public readonly KeyFrame keyFrame;
@@ -43,10 +42,8 @@ public class KeyFrameUI
 
     public KeyFrameElementPart? MouseOverPart;
 
-    public KeyFrameUI? Next
-    {
-        get
-        {
+    public KeyFrameUI? Next {
+        get {
             if (this.Index == -1)
                 return null;
 
@@ -56,10 +53,8 @@ public class KeyFrameUI
         }
     }
 
-    public KeyFrameUI? Prev
-    {
-        get
-        {
+    public KeyFrameUI? Prev {
+        get {
             if (this.Index == -1)
                 return null;
 
@@ -69,8 +64,7 @@ public class KeyFrameUI
         }
     }
 
-    public KeyFrameUI(AutomationSequenceEditorControl editor, KeyFrame keyFrame)
-    {
+    public KeyFrameUI(AutomationSequenceEditorControl editor, KeyFrame keyFrame) {
         Validate.NotNull(keyFrame);
 
         this.editor = editor;
@@ -79,8 +73,7 @@ public class KeyFrameUI
         this.IsDefaultKeyFrame = ReferenceEquals(keyFrame, this.sequence.DefaultKeyFrame);
     }
 
-    public Point GetPosition()
-    {
+    public Point GetPosition() {
         if (this.myPosition.HasValue)
             return this.myPosition.Value;
 
@@ -91,120 +84,97 @@ public class KeyFrameUI
         return new Point(px, DoubleUtils.IsValid(py) ? py : 0.0);
     }
 
-    public void OnAdded()
-    {
+    public void OnAdded() {
         this.keyFrame.ValueChanged += this.OnKeyFrameValueChange;
         this.keyFrame.FrameChanged += this.OnKeyFrameLocationChange;
     }
 
-    public void OnRemoved()
-    {
+    public void OnRemoved() {
         this.keyFrame.ValueChanged -= this.OnKeyFrameValueChange;
         this.keyFrame.FrameChanged -= this.OnKeyFrameLocationChange;
     }
 
-    public void OnZoomChanged()
-    {
+    public void OnZoomChanged() {
         this.myPosition = null;
     }
 
-    private void OnKeyFrameValueChange(KeyFrame keyframe)
-    {
+    private void OnKeyFrameValueChange(KeyFrame keyframe) {
         this.myPosition = default;
         this.editor.InvalidateVisual();
     }
 
-    private void OnKeyFrameLocationChange(KeyFrame keyframe, long oldframe, long newframe)
-    {
+    private void OnKeyFrameLocationChange(KeyFrame keyframe, long oldframe, long newframe) {
         this.myPosition = default;
         this.editor.InvalidateVisual();
     }
 
-    public static double GetYHelper(bool isHugeRange, KeyFrame keyFrame, double height)
-    {
+    public static double GetYHelper(bool isHugeRange, KeyFrame keyFrame, double height) {
         return isHugeRange ? (height / 2d) : (height - GetY(keyFrame, height));
     }
 
     [SwitchAutomationDataType]
-    public static double GetY(KeyFrame keyFrame, double height)
-    {
+    public static double GetY(KeyFrame keyFrame, double height) {
         Parameter key = keyFrame.Sequence!.Parameter;
-        switch (keyFrame)
-        {
-            case KeyFrameFloat frame:
-            {
+        switch (keyFrame) {
+            case KeyFrameFloat frame: {
                 ParameterDescriptorFloat desc = (ParameterDescriptorFloat) key.Descriptor;
                 return Maths.Map(frame.Value, desc.Minimum, desc.Maximum, 0, height);
             }
-            case KeyFrameDouble frame:
-            {
+            case KeyFrameDouble frame: {
                 ParameterDescriptorDouble desc = (ParameterDescriptorDouble) key.Descriptor;
                 return Maths.Map(frame.Value, desc.Minimum, desc.Maximum, 0, height);
             }
-            case KeyFrameLong frame:
-            {
+            case KeyFrameLong frame: {
                 ParameterDescriptorLong desc = (ParameterDescriptorLong) key.Descriptor;
                 return Maths.Map(frame.Value, desc.Minimum, desc.Maximum, 0, height);
             }
-            case KeyFrameBool frame:
-            {
+            case KeyFrameBool frame: {
                 double offset = (height / 100) * 10;
                 return frame.Value ? (height - offset) : offset;
             }
-            case KeyFrameVector2 _:
-            {
+            case KeyFrameVector2 _: {
                 return height / 2d;
             }
-            default:
-            {
+            default: {
                 throw new Exception($"Unknown key frame: {keyFrame}");
             }
         }
     }
 
-    public static bool IsValueTooLarge(float min, float max)
-    {
+    public static bool IsValueTooLarge(float min, float max) {
         return float.IsInfinity(min) || float.IsInfinity(max) || Maths.GetRange(min, max) > AutomationSequenceEditorControl.MaximumFloatingPointRange;
     }
 
-    public static bool IsValueTooLarge(double min, double max)
-    {
+    public static bool IsValueTooLarge(double min, double max) {
         return double.IsInfinity(min) || double.IsInfinity(max) || Maths.GetRange(min, max) > AutomationSequenceEditorControl.MaximumFloatingPointRange;
     }
 
-    public static bool IsValueTooLarge(long min, long max)
-    {
+    public static bool IsValueTooLarge(long min, long max) {
         return Maths.GetRange(min, max) > AutomationSequenceEditorControl.MaximumFloatingPointRange;
     }
 
     [SwitchAutomationDataType]
-    public bool SetValueForMousePoint(Point point)
-    {
+    public bool SetValueForMousePoint(Point point) {
         double height = this.editor.Bounds.Height;
-        if (double.IsNaN(height) || height <= 0d)
-        {
+        if (double.IsNaN(height) || height <= 0d) {
             return false;
         }
 
         Parameter key = this.keyFrame.Sequence!.Parameter;
-        switch (this.keyFrame)
-        {
-            case KeyFrameFloat frame when key.Descriptor is ParameterDescriptorFloat fd: frame.SetFloatValue((float) Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum), fd); break;
+        switch (this.keyFrame) {
+            case KeyFrameFloat frame when key.Descriptor is ParameterDescriptorFloat fd:   frame.SetFloatValue((float) Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum), fd); break;
             case KeyFrameDouble frame when key.Descriptor is ParameterDescriptorDouble fd: frame.SetDoubleValue(Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum), fd); break;
-            case KeyFrameLong frame when key.Descriptor is ParameterDescriptorLong fd: frame.SetLongValue((long) Math.Round(Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum)), fd); break;
+            case KeyFrameLong frame when key.Descriptor is ParameterDescriptorLong fd:     frame.SetLongValue((long) Math.Round(Maths.Map(point.Y, height, 0, fd.Minimum, fd.Maximum)), fd); break;
             case KeyFrameBool frame:
                 double offset = (height / 100) * 30;
                 double bound_b = height - offset;
-                if (point.Y >= bound_b)
-                {
+                if (point.Y >= bound_b) {
                     frame.SetBoolValue(false);
                 }
-                else if (point.Y < offset)
-                {
+                else if (point.Y < offset) {
                     frame.SetBoolValue(true);
                 }
-                else
-                {
+                else {
                     return false;
                 }
 

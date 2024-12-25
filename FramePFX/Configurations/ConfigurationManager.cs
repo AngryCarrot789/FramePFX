@@ -24,56 +24,47 @@ namespace FramePFX.Configurations;
 /// FramePFX has two: the application settings and project settings, both of which
 /// are separate instances and store their own hierarchy of configuration pages
 /// </summary>
-public abstract class ConfigurationManager
-{
+public abstract class ConfigurationManager {
     /// <summary>
     /// Gets our root configuration entry
     /// </summary>
     public ConfigurationEntry RootEntry { get; }
-    
-    public ConfigurationManager()
-    {
+
+    public ConfigurationManager() {
         this.RootEntry = new ConfigurationEntry() { DisplayName = "<root>" };
     }
 
     private const int Flag_None = 0;
     private const int Flag_OnlyIfModified = 1;
 
-    public async Task ApplyHierarchyAsync()
-    {
+    public async Task ApplyHierarchyAsync() {
         await ApplyPagesRecursive(this.RootEntry, (x) => x.Apply(), Flag_OnlyIfModified);
     }
-    
-    public async Task LoadContextAsync(ConfigurationContext context)
-    {
-        await ApplyPagesRecursive(this.RootEntry, (x) =>
-        {
+
+    public async Task LoadContextAsync(ConfigurationContext context) {
+        await ApplyPagesRecursive(this.RootEntry, (x) => {
             x.IsMarkedImmediatelyModified = false;
             return x.OnContextCreated(context);
         }, Flag_None);
     }
-    
-    public async Task UnloadContextAsync(ConfigurationContext context)
-    {
+
+    public async Task UnloadContextAsync(ConfigurationContext context) {
         await ApplyPagesRecursive(this.RootEntry, (x) => x.OnContextDestroyed(context), Flag_None);
     }
 
-    private static async ValueTask ApplyPagesRecursive(ConfigurationEntry entry, Func<ConfigurationPage, ValueTask> action, int flags)
-    {
-        if (entry.Page != null)
-        {
+    private static async ValueTask ApplyPagesRecursive(ConfigurationEntry entry, Func<ConfigurationPage, ValueTask> action, int flags) {
+        if (entry.Page != null) {
             // ReSharper disable once ReplaceWithSingleAssignment.True
-            
+
             bool canExec = true;
             if ((flags & Flag_OnlyIfModified) != 0 && !entry.Page.IsModified())
                 canExec = false;
-            
+
             if (canExec)
                 await action(entry.Page);
         }
 
-        foreach (ConfigurationEntry item in entry.Items)
-        {
+        foreach (ConfigurationEntry item in entry.Items) {
             await ApplyPagesRecursive(item, action, flags);
         }
     }

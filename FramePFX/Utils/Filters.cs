@@ -22,8 +22,7 @@ using System.Text.RegularExpressions;
 
 namespace FramePFX.Utils;
 
-public static class Filters
-{
+public static class Filters {
     public static readonly FileFilter All = FileFilter.Builder("All").Patterns("*.*").AppleUniformTypeIds("public.item").MimeTypes("*/*").Build();
     public static readonly FileFilter TextType = FileFilter.Builder("Text Files").Patterns("*.txt", "*.text").AppleUniformTypeIds("public.plain-text").MimeTypes("text/plain").Build();
 
@@ -56,8 +55,7 @@ public static class Filters
     public static readonly IReadOnlyList<FileFilter> CombinedVideoTypesAndAll = [CombinedVideoTypes, MediaMp4, MediaM4v, MediaMpg, MediaMpeg, MediaMp2, MediaMov, MediaAvi, MediaMkv, MediaFlv, MediaGifv, MediaQt, All];
 }
 
-public class FileFilter
-{
+public class FileFilter {
     /// <summary>
     /// File type name
     /// </summary>
@@ -88,16 +86,14 @@ public class FileFilter
     /// </remarks>
     public IReadOnlyList<string>? AppleUniformTypeIdentifiers { get; init; }
 
-    public FileFilter(string? name)
-    {
+    public FileFilter(string? name) {
         Validate.NotNullOrWhiteSpaces(name);
         this.Name = name;
     }
 
     public static FileFilterBuilder Builder(string name) => new FileFilterBuilder(name);
 
-    internal IReadOnlyList<string>? TryGetExtensions()
-    {
+    internal IReadOnlyList<string>? TryGetExtensions() {
         // Converts random glob pattern to a simple extension name.
         // Path.GetExtension should be sufficient here,
         // Only exception is "*.*proj" patterns that should be filtered as well.
@@ -109,18 +105,14 @@ public class FileFilter
     /// </summary>
     /// <param name="path">The file path</param>
     /// <returns>Null if we have no patterns, true if a match was made, false if no matches were made</returns>
-    public bool? MatchFilePath(string path)
-    {
-        if (this.Patterns == null || this.Patterns.Count < 1)
-        {
+    public bool? MatchFilePath(string path) {
+        if (this.Patterns == null || this.Patterns.Count < 1) {
             return null;
         }
 
         string fileName = Path.GetFileName(path);
-        foreach (string filter in this.Patterns)
-        {
-            if (IsMatch(fileName, filter))
-            {
+        foreach (string filter in this.Patterns) {
+            if (IsMatch(fileName, filter)) {
                 return true;
             }
         }
@@ -128,16 +120,13 @@ public class FileFilter
         return false;
     }
 
-    private static bool IsMatch(string fileName, string filter)
-    {
+    private static bool IsMatch(string fileName, string filter) {
         string regexPattern = "^" + Regex.Escape(filter).Replace("\\*", ".*").Replace("\\?", ".") + "$";
         return Regex.IsMatch(fileName, regexPattern, RegexOptions.IgnoreCase);
     }
 
-    public static FileFilter Combine(string name, IReadOnlyList<FileFilter> filters)
-    {
-        return new FileFilter(name)
-        {
+    public static FileFilter Combine(string name, IReadOnlyList<FileFilter> filters) {
+        return new FileFilter(name) {
             Patterns = filters.SelectMany(x => x.Patterns ?? ImmutableList<string>.Empty).ToList(),
             MimeTypes = filters.SelectMany(x => x.MimeTypes ?? ImmutableList<string>.Empty).Distinct().ToList(),
             AppleUniformTypeIdentifiers = filters.SelectMany(x => x.AppleUniformTypeIdentifiers ?? ImmutableList<string>.Empty).Distinct().ToList(),
@@ -145,45 +134,37 @@ public class FileFilter
     }
 }
 
-public class FileFilterBuilder
-{
+public class FileFilterBuilder {
     private List<string>? myPatterns, myAppleUniformTypeIds, myMimeTypes;
     private readonly string name;
 
-    public FileFilterBuilder(string name)
-    {
+    public FileFilterBuilder(string name) {
         Validate.NotNullOrWhiteSpaces(name);
         this.name = name;
     }
 
-    public FileFilterBuilder Patterns(string pattern)
-    {
+    public FileFilterBuilder Patterns(string pattern) {
         (this.myPatterns ??= new List<string>()).Add(pattern);
         return this;
     }
 
-    public FileFilterBuilder Patterns(params string[] patterns)
-    {
+    public FileFilterBuilder Patterns(params string[] patterns) {
         (this.myPatterns ??= new List<string>()).AddRange(patterns);
         return this;
     }
 
-    public FileFilterBuilder AppleUniformTypeIds(params string[] typeIds)
-    {
+    public FileFilterBuilder AppleUniformTypeIds(params string[] typeIds) {
         (this.myAppleUniformTypeIds ??= new List<string>()).AddRange(typeIds);
         return this;
     }
 
-    public FileFilterBuilder MimeTypes(params string[] mimes)
-    {
+    public FileFilterBuilder MimeTypes(params string[] mimes) {
         (this.myMimeTypes ??= new List<string>()).AddRange(mimes);
         return this;
     }
 
-    public FileFilter Build()
-    {
-        return new FileFilter(this.name)
-        {
+    public FileFilter Build() {
+        return new FileFilter(this.name) {
             Patterns = this.myPatterns ?? new List<string>(),
             MimeTypes = this.myMimeTypes ?? new List<string>(),
             AppleUniformTypeIdentifiers = this.myAppleUniformTypeIds ?? new List<string>()

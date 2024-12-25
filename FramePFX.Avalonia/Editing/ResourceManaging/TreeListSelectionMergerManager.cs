@@ -26,8 +26,7 @@ using FramePFX.Interactivity;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging;
 
-public class TreeListSelectionMergerManager : IResourceSelectionManager
-{
+public class TreeListSelectionMergerManager : IResourceSelectionManager {
     public ResourceExplorerListBox ListBox { get; }
 
     public ResourceTreeView TreeView { get; }
@@ -36,17 +35,14 @@ public class TreeListSelectionMergerManager : IResourceSelectionManager
 
     public ISelectionManager<BaseResource> List => this.ListBox.SelectionManager;
 
-    public bool SyncTreeWithList
-    {
+    public bool SyncTreeWithList {
         get => this.syncTreeWithList;
-        set
-        {
+        set {
             if (this.syncTreeWithList == value)
                 return;
 
             this.syncTreeWithList = value;
-            if (value)
-            {
+            if (value) {
                 this.SyncImmediateListSelection();
             }
         }
@@ -55,8 +51,7 @@ public class TreeListSelectionMergerManager : IResourceSelectionManager
     private bool isUpdatingList, isUpdatingTree;
     private bool syncTreeWithList = true;
 
-    public TreeListSelectionMergerManager(ResourceExplorerListBox listBox, ResourceTreeView treeView)
-    {
+    public TreeListSelectionMergerManager(ResourceExplorerListBox listBox, ResourceTreeView treeView) {
         this.ListBox = listBox;
         this.TreeView = treeView;
 
@@ -67,95 +62,79 @@ public class TreeListSelectionMergerManager : IResourceSelectionManager
         this.SyncImmediateListSelection();
     }
 
-    private void SyncImmediateListSelection()
-    {
-        if (this.isUpdatingList)
-        {
+    private void SyncImmediateListSelection() {
+        if (this.isUpdatingList) {
             return;
         }
 
         this.isUpdatingList = true;
 
-        try
-        {
+        try {
             if (this.ListBox.SelectionManager.Count > 0)
                 this.ListBox.SelectionManager.Clear();
 
             if (this.Tree.Count > 0)
                 this.ListBox.SelectionManager.Select(this.Tree.SelectedItems.ToList());
         }
-        finally
-        {
+        finally {
             this.isUpdatingList = false;
         }
     }
 
-    private void OnListBoxSelectionCleared(ISelectionManager<BaseResource> sender)
-    {
+    private void OnListBoxSelectionCleared(ISelectionManager<BaseResource> sender) {
         if (this.isUpdatingList)
             return;
 
-        try
-        {
+        try {
             this.isUpdatingTree = true;
             this.TreeView.SelectionManager.Clear();
         }
-        finally
-        {
+        finally {
             this.isUpdatingTree = false;
         }
     }
 
-    private void OnTreeViewSelectionCleared(ISelectionManager<BaseResource> sender)
-    {
+    private void OnTreeViewSelectionCleared(ISelectionManager<BaseResource> sender) {
         if (this.isUpdatingTree)
             return;
 
-        try
-        {
+        try {
             this.isUpdatingList = true;
             this.ListBox.SelectionManager.Clear();
         }
-        finally
-        {
+        finally {
             this.isUpdatingList = false;
         }
     }
 
-    private void OnListBoxSelectionChanged(ISelectionManager<BaseResource> sender, IList<BaseResource>? oldItems, IList<BaseResource>? newItems)
-    {
+    private void OnListBoxSelectionChanged(ISelectionManager<BaseResource> sender, IList<BaseResource>? oldItems, IList<BaseResource>? newItems) {
         if (this.isUpdatingList)
             return;
 
-        try
-        {
+        try {
             this.isUpdatingTree = true;
             if (oldItems != null && oldItems.Count > 0)
                 this.TreeView.SelectionManager.Unselect(oldItems);
             if (newItems != null && newItems.Count > 0)
                 this.TreeView.SelectionManager.Select(newItems);
         }
-        finally
-        {
+        finally {
             this.isUpdatingTree = false;
         }
     }
 
-    private void OnTreeViewSelectionChanged(ISelectionManager<BaseResource> sender, IList<BaseResource>? oldItems, IList<BaseResource>? newItems)
-    {
+    private void OnTreeViewSelectionChanged(ISelectionManager<BaseResource> sender, IList<BaseResource>? oldItems, IList<BaseResource>? newItems) {
         if (this.isUpdatingTree)
             return;
 
-        try
-        {
+        try {
             this.isUpdatingList = true;
             if (oldItems != null && oldItems.Count > 0)
                 this.ListBox.SelectionManager.Unselect(oldItems);
             if (newItems != null && newItems.Count > 0)
                 this.ListBox.SelectionManager.Select(newItems);
         }
-        finally
-        {
+        finally {
             this.isUpdatingList = false;
         }
     }

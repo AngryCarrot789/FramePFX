@@ -23,48 +23,41 @@ using FramePFX.Tasks;
 
 namespace FramePFX.Avalonia;
 
-public partial class AppSplashScreen : Window, IApplicationStartupProgress
-{
+public partial class AppSplashScreen : Window, IApplicationStartupProgress {
     private volatile string? myActionText;
-    
-    public string? ActionText
-    {
+
+    public string? ActionText {
         get => this.myActionText;
-        set
-        {
+        set {
             if (this.myActionText == value)
                 return;
-            
-            Application.Instance.Dispatcher.Invoke(() =>
-            {
+
+            Application.Instance.Dispatcher.Invoke(() => {
                 this.myActionText = value;
                 return this.PART_ActivityTextBlock.Text = value;
             }, DispatchPriority.Loaded);
         }
     }
-    
+
     public CompletionState CompletionState { get; }
 
-    public AppSplashScreen()
-    {
+    public AppSplashScreen() {
         this.InitializeComponent();
         this.CompletionState = new ConcurrentCompletionState(DispatchPriority.INTERNAL_BeforeRender);
         this.CompletionState.CompletionValueChanged += this.CompletionStateOnCompletionValueChanged;
     }
 
-    private void CompletionStateOnCompletionValueChanged(CompletionState state)
-    {
+    private void CompletionStateOnCompletionValueChanged(CompletionState state) {
         this.PART_ProgressBar.Value = this.CompletionState.TotalCompletion;
     }
 
-    public Task ProgressAndSynchroniseAsync(string? action, double? newProgress)
-    {
+    public Task ProgressAndSynchroniseAsync(string? action, double? newProgress) {
         if (action != null)
             this.ActionText = action;
         if (newProgress.HasValue)
             this.CompletionState.SetProgress(newProgress.Value);
         return this.SynchroniseAsync();
     }
-    
+
     public Task SynchroniseAsync() => Application.Instance.Dispatcher.Process(DispatchPriority.INTERNAL_AfterRender);
 }

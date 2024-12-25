@@ -28,46 +28,37 @@ namespace FramePFX.Avalonia.Bindings;
 /// </summary>
 /// <typeparam name="TModel">Model type</typeparam>
 /// <typeparam name="TControl">Control type</typeparam>
-public class PropertyAutoSetter<TModel, TControl> where TModel : class where TControl : Control
-{
+public class PropertyAutoSetter<TModel, TControl> where TModel : class where TControl : Control {
     public AvaloniaProperty<TModel?> Property { get; }
 
     public TControl? TargetControl { get; private set; }
 
     public TModel? Model { get; private set; }
 
-    public PropertyAutoSetter(AvaloniaProperty<TModel?> property, TModel model = null)
-    {
+    public PropertyAutoSetter(AvaloniaProperty<TModel?> property, TModel model = null) {
         this.Property = property;
         this.Model = model;
     }
 
-    public void SetModel(TModel? model)
-    {
+    public void SetModel(TModel? model) {
         this.Model = model;
-        if (this.TargetControl != null)
-        {
-            if (model != null)
-            {
+        if (this.TargetControl != null) {
+            if (model != null) {
                 this.TargetControl.SetValue(this.Property, model);
             }
-            else
-            {
+            else {
                 this.TargetControl.ClearValue(this.Property);
             }
         }
     }
 
-    public void SetControl(TControl control)
-    {
-        if (this.TargetControl != null)
-        {
+    public void SetControl(TControl control) {
+        if (this.TargetControl != null) {
             this.TargetControl.ClearValue(this.Property);
         }
 
         this.TargetControl = control;
-        if (this.Model != null)
-        {
+        if (this.Model != null) {
             this.TargetControl.SetValue(this.Property, this.Model);
         }
     }

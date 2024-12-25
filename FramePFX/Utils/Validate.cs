@@ -25,16 +25,14 @@ namespace FramePFX.Utils;
 /// <summary>
 /// A class the provides simple argument validation
 /// </summary>
-public static class Validate
-{
+public static class Validate {
     /// <summary>
     /// Ensures the value is not null
     /// </summary>
     /// <param name="value">The value</param>
     /// <param name="argName">The argument name</param>
     /// <exception cref="ArgumentNullException">The value is null</exception>
-    public static void NotNull([NotNull] object? value, [CallerArgumentExpression(nameof(value))] string? paramName = null)
-    {
+    public static void NotNull([NotNull] object? value, [CallerArgumentExpression(nameof(value))] string? paramName = null) {
         if (value == null)
             throw new ArgumentNullException($"'{paramName}' cannot be null", paramName);
     }
@@ -45,8 +43,7 @@ public static class Validate
     /// <param name="value">The string value</param>
     /// <param name="argName">The argument name</param>
     /// <exception cref="ArgumentException">The string is null or empty</exception>
-    public static void NotNullOrEmpty([NotNull] string? value, [CallerArgumentExpression(nameof(value))] string? argName = null)
-    {
+    public static void NotNullOrEmpty([NotNull] string? value, [CallerArgumentExpression(nameof(value))] string? argName = null) {
         if (string.IsNullOrEmpty(value))
             throw new ArgumentException($"'{argName}' cannot be null or empty", argName);
     }
@@ -57,8 +54,7 @@ public static class Validate
     /// <param name="value">The string value</param>
     /// <param name="argName">The argument name</param>
     /// <exception cref="ArgumentException">The string is null, empty or consists of only whitespaces</exception>
-    public static void NotNullOrWhiteSpaces([NotNull] string? value, [CallerArgumentExpression(nameof(value))] string? argName = null)
-    {
+    public static void NotNullOrWhiteSpaces([NotNull] string? value, [CallerArgumentExpression(nameof(value))] string? argName = null) {
         if (string.IsNullOrWhiteSpace(value))
             throw new ArgumentException($"'{argName}' cannot be null, empty or consist of only whitespaces", argName);
     }

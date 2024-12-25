@@ -38,8 +38,7 @@ using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.PropertyEditing;
 
-public abstract class BasePropEditControlContent : TemplatedControl
-{
+public abstract class BasePropEditControlContent : TemplatedControl {
     public static readonly ModelControlRegistry<PropertyEditorSlot, BasePropEditControlContent> Registry;
 
     public PropertyEditorSlotControl? SlotControl { get; private set; }
@@ -51,8 +50,7 @@ public abstract class BasePropEditControlContent : TemplatedControl
     protected BasePropEditControlContent() {
     }
 
-    static BasePropEditControlContent()
-    {
+    static BasePropEditControlContent() {
         Registry = new ModelControlRegistry<PropertyEditorSlot, BasePropEditControlContent>();
         // specific case editors
         Registry.RegisterType<DisplayNamePropertyEditorSlot>(() => new DisplayNamePropertyEditorControl());
@@ -80,30 +78,26 @@ public abstract class BasePropEditControlContent : TemplatedControl
         Registry.RegisterType<ParameterLongPropertyEditorSlot>(() => new ParameterLongPropertyEditorControl());
         Registry.RegisterType<ParameterVector2PropertyEditorSlot>(() => new ParameterVector2PropertyEditorControl());
         Registry.RegisterType<ParameterBoolPropertyEditorSlot>(() => new ParameterBoolPropertyEditorControl());
-        
+
         // Enums
         RegisterEnumProperty<AVCodecID, DataParameterAVCodecIDPropertyEditorSlot>();
     }
 
-    public static void RegisterEnumProperty<TEnum, TSlot>() where TEnum : struct, Enum where TSlot : DataParameterEnumPropertyEditorSlot<TEnum>
-    {
+    public static void RegisterEnumProperty<TEnum, TSlot>() where TEnum : struct, Enum where TSlot : DataParameterEnumPropertyEditorSlot<TEnum> {
         Registry.RegisterType<TSlot>(() => new EnumDataParameterPropertyEditorControl<TEnum>());
     }
 
-    public static BasePropEditControlContent NewContentInstance(PropertyEditorSlot slot)
-    {
+    public static BasePropEditControlContent NewContentInstance(PropertyEditorSlot slot) {
         Validate.NotNull(slot);
         return Registry.NewInstance(slot);
     }
 
-    public void Connect(PropertyEditorSlotControl slot)
-    {
+    public void Connect(PropertyEditorSlotControl slot) {
         this.SlotControl = slot;
         this.OnConnected();
     }
 
-    public void Disconnect()
-    {
+    public void Disconnect() {
         this.OnDisconnected();
         this.SlotControl = null;
     }

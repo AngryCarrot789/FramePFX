@@ -1,18 +1,18 @@
 <c:WindowEx xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:trees="clr-namespace:FramePFX.Avalonia.Configurations.Trees"
-        xmlns:configurations="clr-namespace:FramePFX.Avalonia.Configurations"
-        xmlns:c="clr-namespace:FramePFX.Avalonia.Themes.Controls"
-        mc:Ignorable="d" Width="950" Height="700"
-        x:Class="FramePFX.Avalonia.Configurations.ConfigurationDialog"
-        Title="Settings"
-        Background="{DynamicResource PanelBackground0}"
-        BorderBrush="{DynamicResource PanelBorderBrush}"
-        TitleBarBrush="{DynamicResource ABrush.Tone7.Background.Static}"
-        FontFamily="{StaticResource FontOxanium}" FontWeight="Medium"
-        WindowStartupLocation="CenterScreen">
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+            xmlns:trees="clr-namespace:FramePFX.Avalonia.Configurations.Trees"
+            xmlns:configurations="clr-namespace:FramePFX.Avalonia.Configurations"
+            xmlns:c="clr-namespace:FramePFX.Avalonia.Themes.Controls"
+            mc:Ignorable="d" Width="950" Height="700"
+            x:Class="FramePFX.Avalonia.Configurations.ConfigurationDialog"
+            Title="Settings"
+            Background="{DynamicResource PanelBackground0}"
+            BorderBrush="{DynamicResource PanelBorderBrush}"
+            TitleBarBrush="{DynamicResource ABrush.Tone7.Background.Static}"
+            FontFamily="{StaticResource FontOxanium}" FontWeight="Medium"
+            WindowStartupLocation="CenterScreen">
     <DockPanel>
         <Border DockPanel.Dock="Bottom"
                 Background="{DynamicResource ABrush.Tone4.Background.Static}"
@@ -20,9 +20,9 @@
                 BorderThickness="0,1,0,0"
                 Height="42">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,0" Spacing="10">
-                <Button x:Name="PART_ApplyButton" Content="Apply" 
-                        Width="72" Height="24" 
-                        CornerRadius="3" FocusAdorner="{x:Null}" 
+                <Button x:Name="PART_ApplyButton" Content="Apply"
+                        Width="72" Height="24"
+                        CornerRadius="3" FocusAdorner="{x:Null}"
                         Theme="{StaticResource ButtonImplicitStyleSetters}">
                     <Button.Styles>
                         <Style Selector="Button[IsPointerOver=False]">
@@ -41,9 +41,9 @@
                         </Style>
                     </Button.Styles>
                 </Button>
-                <Button x:Name="PART_ConfirmButton" Content="Save" 
-                        Width="72" Height="24" 
-                        CornerRadius="3" FocusAdorner="{x:Null}" 
+                <Button x:Name="PART_ConfirmButton" Content="Save"
+                        Width="72" Height="24"
+                        CornerRadius="3" FocusAdorner="{x:Null}"
                         Theme="{StaticResource ButtonImplicitStyleSetters}">
                     <Button.Styles>
                         <Style Selector="Button[IsPointerOver=True]">
@@ -57,9 +57,9 @@
                         </Style>
                     </Button.Styles>
                 </Button>
-                <Button x:Name="PART_CancelButton" Content="Cancel" 
-                        Width="72" Height="24" 
-                        CornerRadius="3" FocusAdorner="{x:Null}" 
+                <Button x:Name="PART_CancelButton" Content="Cancel"
+                        Width="72" Height="24"
+                        CornerRadius="3" FocusAdorner="{x:Null}"
                         Theme="{StaticResource ButtonImplicitStyleSetters}">
                     <Button.Styles>
                         <Style Selector="Button[IsPointerOver=True]">

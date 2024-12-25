@@ -26,28 +26,22 @@ using SkiaSharp;
 
 namespace FramePFX.Avalonia.Converters;
 
-public class PerceivedForegroundConverter : IValueConverter
-{
+public class PerceivedForegroundConverter : IValueConverter {
     public static PerceivedForegroundConverter Instance { get; } = new PerceivedForegroundConverter();
 
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
-        if (value is ISolidColorBrush brush)
-        {
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) {
+        if (value is ISolidColorBrush brush) {
             return GetColour(brush.Color);
         }
-        else if (value is SKColor skCb)
-        {
+        else if (value is SKColor skCb) {
             return GetColour(new Color(255, skCb.Red, skCb.Green, skCb.Blue));
         }
-        else
-        {
+        else {
             throw new ArgumentException("Incompatible value", nameof(value));
         }
     }
 
-    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-    {
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) {
         throw new NotImplementedException();
     }
 
@@ -55,8 +49,7 @@ public class PerceivedForegroundConverter : IValueConverter
 
     public static Color GetColour(Color c) => GetColour(c.R, c.G, c.B);
 
-    public static Color GetColour(int r, int g, int b)
-    {
+    public static Color GetColour(int r, int g, int b) {
         const double MulR = 0.28, MulG = 0.52, MulB = 0.125;
         int brightness = (int) Math.Sqrt(r * r * MulR + g * g * MulG + b * b * MulB);
         return brightness > 180 ? Colors.Black : Colors.White;

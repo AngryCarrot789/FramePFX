@@ -47,8 +47,7 @@ public delegate void AsyncViewPortEndRenderEventHandler(SKAsyncViewPort sender, 
 /// </param>
 public delegate void AsyncViewPortRenderEventHandler(SKAsyncViewPort sender, DrawingContext ctx, Size size, Point minatureOffset);
 
-public class SKAsyncViewPort : Control
-{
+public class SKAsyncViewPort : Control {
     private WriteableBitmap? bitmap;
     private SKSurface? targetSurface;
     private SKImageInfo myOtherImageInfo;
@@ -69,11 +68,9 @@ public class SKAsyncViewPort : Control
     /// <summary>Gets or sets a value indicating whether the drawing canvas should be resized on high resolution displays.</summary>
     /// <value />
     /// <remarks>By default, when false, the canvas is resized to 1 canvas pixel per display pixel. When true, the canvas is resized to device independent pixels, and then stretched to fill the view. Although performance is improved and all objects are the same size on different display densities, blurring and pixelation may occur.</remarks>
-    public bool IgnorePixelScaling
-    {
+    public bool IgnorePixelScaling {
         get => this.ignorePixelScaling;
-        set
-        {
+        set {
             this.ignorePixelScaling = value;
             this.InvalidateVisual();
         }
@@ -86,35 +83,30 @@ public class SKAsyncViewPort : Control
     public SKAsyncViewPort() {
     }
 
-    public bool BeginRender(out SKSurface surface)
-    {
+    public bool BeginRender(out SKSurface surface) {
         IRenderRoot? source;
-        if (this.targetSurface != null || (source = this.GetVisualRoot()) == null)
-        {
+        if (this.targetSurface != null || (source = this.GetVisualRoot()) == null) {
             surface = null;
             return false;
         }
 
         SKSizeI pixelSize = this.CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, source);
         this.CanvasSize = this.ignorePixelScaling ? unscaledSize : pixelSize;
-        if (pixelSize.Width <= 0 || pixelSize.Height <= 0)
-        {
+        if (pixelSize.Width <= 0 || pixelSize.Height <= 0) {
             surface = null;
             return false;
         }
 
         SKImageInfo frameInfo = new SKImageInfo(pixelSize.Width, pixelSize.Height, SKImageInfo.PlatformColorType, SKAlphaType.Premul);
         this.myOtherImageInfo = frameInfo;
-        if (this.bitmap == null || frameInfo.Width != this.bitmap.PixelSize.Width || frameInfo.Height != this.bitmap.PixelSize.Height)
-        {
+        if (this.bitmap == null || frameInfo.Width != this.bitmap.PixelSize.Width || frameInfo.Height != this.bitmap.PixelSize.Height) {
             this.bitmap?.Dispose();
             this.bitmap = new WriteableBitmap(new PixelSize(frameInfo.Width, frameInfo.Height), new Vector(scaleX * 96d, scaleY * 96d));
         }
 
         this.lockKey = this.bitmap.Lock();
         this.targetSurface = surface = SKSurface.Create(frameInfo, this.lockKey.Address, this.lockKey.RowBytes);
-        if (this.ignorePixelScaling)
-        {
+        if (this.ignorePixelScaling) {
             SKCanvas canvas = surface.Canvas;
             canvas.Scale((float) scaleX, (float) scaleY);
             canvas.Save();
@@ -124,8 +116,7 @@ public class SKAsyncViewPort : Control
         return true;
     }
 
-    public void EndRender(bool invalidateVisual = true)
-    {
+    public void EndRender(bool invalidateVisual = true) {
         // SKImageInfo info = this.skImageInfo;
         // this.lockKey.AddDirtyRect(new Int32Rect(0, 0, info.Width, info.Height));
         this.EndRenderExtension?.Invoke(this, this.targetSurface!);
@@ -137,58 +128,49 @@ public class SKAsyncViewPort : Control
         this.targetSurface = null;
     }
 
-    public static bool GetVisibleRectangle(Point p1, Point p2, Size mySize, Size parentSize, double scale, out Rect rectangle)
-    {
+    public static bool GetVisibleRectangle(Point p1, Point p2, Size mySize, Size parentSize, double scale, out Rect rectangle) {
         double newX = Math.Max(-p1.X, 0);
         double newY = Math.Max(-p1.Y, 0);
         double newR = Math.Min(mySize.Width * scale, -p1.X + p2.X);
         double newB = Math.Min(mySize.Height * scale, -p1.Y + p2.Y);
-        if (newR > newX && newB > newY)
-        {
+        if (newR > newX && newB > newY) {
             double w1 = parentSize.Width - p1.X - newX;
             double h1 = parentSize.Height - p1.Y - newY;
             rectangle = new Rect(newX, newY, Math.Min(w1, newR - newX), Math.Min(h1, newB - newY));
             return true;
         }
-        else
-        {
+        else {
             rectangle = default;
             return false;
         }
     }
-    
-    public bool GetVisibleRectangle(Control relativeTo, double scale, out Rect rectangle)
-    {
+
+    public bool GetVisibleRectangle(Control relativeTo, double scale, out Rect rectangle) {
         Size mySize = this.Bounds.Size;
         Point p1 = this.TranslatePoint(new Point(), relativeTo) ?? default;
         Point p2 = this.TranslatePoint(new Point(mySize.Width, mySize.Height), relativeTo) ?? default;
         return GetVisibleRectangle(p1, p2, mySize, relativeTo.Bounds.Size, scale, out rectangle);
     }
 
-    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
-    {
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e) {
         base.OnAttachedToVisualTree(e);
         this.freeMoveViewPort = ((FreeMoveViewPortV2?) this.Parent?.Parent) ?? throw new Exception("FreeMoveViewPort");
         this.disposableZoomHandler = FreeMoveViewPortV2.ZoomScaleProperty.Changed.Subscribe(new AnonymousObserver<AvaloniaPropertyChangedEventArgs<double>>(this.OnZoomChanged));
     }
 
-    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
-    {
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e) {
         base.OnDetachedFromVisualTree(e);
         this.freeMoveViewPort = null;
         this.disposableZoomHandler?.Dispose();
         this.disposableZoomHandler = null;
     }
-    
-    private void OnZoomChanged(AvaloniaPropertyChangedEventArgs<double> obj)
-    {
+
+    private void OnZoomChanged(AvaloniaPropertyChangedEventArgs<double> obj) {
         IRenderRoot? source = this.GetVisualRoot();
-        if (source != null)
-        {
+        if (source != null) {
             SKSizeI pixelSize = this.CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, source);
             this.CanvasSize = this.ignorePixelScaling ? unscaledSize : pixelSize;
-            if (pixelSize.Width > 0 && pixelSize.Height > 0)
-            {
+            if (pixelSize.Width > 0 && pixelSize.Height > 0) {
                 this.UpdateScaledBitmap(new Vector(unscaledSize.Width == pixelSize.Width ? 96d : (96d * scaleX), unscaledSize.Height == pixelSize.Height ? 96d : (96d * scaleY)));
                 this.DrawRenderIntoBitmap();
                 this.InvalidateVisual();
@@ -196,81 +178,73 @@ public class SKAsyncViewPort : Control
         }
     }
 
-    public override void Render(DrawingContext context)
-    {
+    public override void Render(DrawingContext context) {
         // Compositor.TryGetDefaultCompositor().
         base.Render(context);
         if (this.bitmap == null)
             return;
 
         Rect myBounds = this.Bounds, finalBounds = new Rect(0d, 0d, myBounds.Width, myBounds.Height);
-        
+
         // While this might be somewhat useful in some cases, it didn't seem to work well
         // for the selection outline when I tried to use it. It's almost like avalonia is doing some
         // internal rounding and there's also rounding error too, making it not that useful... or maybe
         // I didn't try hard enough :---)
         Point offset = new Point(myBounds.X - Maths.Floor(myBounds.X), myBounds.Y - Maths.Floor(myBounds.Y));
-        
+
         this.PreRenderExtension?.Invoke(this, context, finalBounds.Size, offset);
-            
+
         // Here's 3 primary ways of drawing the bitmap.
         // First is using mfb, which is the effective visible rectangle (My Final Bounds)
         // Since this control will be scaled to the zoom, we inverse it to get back to full size,
         // Then we do additional processing to specify the absolute visible source and dest rectangles
         // using (context.PushTransform(Matrix.CreateScale(inverseScale, inverseScale)))
         //     ((IImage) this.bitmap).Draw(context, mfb * inverseScale, mfb);
-            
+
         // 2nd is draw the entire bitmap using our full rectangle size, and rely on scaling to scale it down.
         // I have a very strong feeling this is basically the exact same as above, except we just do
         // more processing in the above method, whereas this one does it for us... 
         // context.DrawImage(this.bitmap, finalBounds);
-            
+
         // 3rd way is hella expensive since we allocate an SKBitmap and Bitmap that wrap
         // this.bitmap. But, during playback, the gizmos are exactly in the right spot, but dragging
         // things around still yields the issue with them rendering the previous position
         // context.Custom(new DrawBitmapOperation(this.bitmap, finalBounds, mfb, inverseScale));
 
-        if (this.isUsing2ndRenderingMethod)
-        {
+        if (this.isUsing2ndRenderingMethod) {
             context.DrawImage(this.bitmap, finalBounds);
         }
-        else
-        {
+        else {
             double scale = this.freeMoveViewPort!.ZoomScale;
             double inverseScale = 1.0 / scale;
-            if (this.GetVisibleRectangle(this.freeMoveViewPort!, scale, out Rect visibleRect))
-            {
+            if (this.GetVisibleRectangle(this.freeMoveViewPort!, scale, out Rect visibleRect)) {
                 using (context.PushTransform(Matrix.CreateScale(inverseScale, inverseScale)))
                     ((IImage) this.bitmap).Draw(context, visibleRect * inverseScale, visibleRect);
             }
         }
-        
+
         this.PostRenderExtension?.Invoke(this, context, finalBounds.Size, offset);
     }
 
-    public bool BeginRenderWithSurface(SKImageInfo frameInfo)
-    {
+    public bool BeginRenderWithSurface(SKImageInfo frameInfo) {
         IRenderRoot? source;
-        if (this.targetSurface != null || (source = this.GetVisualRoot()) == null)
-        {
+        if (this.targetSurface != null || (source = this.GetVisualRoot()) == null) {
             return false;
         }
 
         SKSizeI pixelSize = this.CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, source);
         this.CanvasSize = this.ignorePixelScaling ? unscaledSize : pixelSize;
-        if (pixelSize.Width <= 0 || pixelSize.Height <= 0)
-        {
+        if (pixelSize.Width <= 0 || pixelSize.Height <= 0) {
             return false;
         }
-        
+
         this.unscaledImageInfo = frameInfo;
         this.UpdateScaledBitmap(new Vector(unscaledSize.Width == pixelSize.Width ? 96d : (96d * scaleX), unscaledSize.Height == pixelSize.Height ? 96d : (96d * scaleY)));
         this.isUsing2ndRenderingMethod = true;
         return true;
     }
 
-    public void EndRenderWithSurface(SKSurface surface)
-    {
+    public void EndRenderWithSurface(SKSurface surface) {
         this.EndRenderExtension?.Invoke(this, this.targetSurface!);
         surface.Flush(true, true);
         this.RenderedBitmap?.Dispose();
@@ -280,52 +254,45 @@ public class SKAsyncViewPort : Control
         this.InvalidateVisual();
     }
 
-    private void UpdateScaledBitmap(Vector dpi)
-    {
+    private void UpdateScaledBitmap(Vector dpi) {
         SKImageInfo unscaled = this.unscaledImageInfo;
         if (unscaled.Width < 1 || unscaled.Height < 1)
             return;
-        
+
         double scale = this.freeMoveViewPort!.ZoomScale;
         SKSizeI newSize = new SKSizeI((int) Math.Ceiling(unscaled.Width * scale), (int) Math.Ceiling(unscaled.Height * scale));
         newSize.Width = Math.Min(newSize.Width, unscaled.Width);
         newSize.Height = Math.Min(newSize.Height, unscaled.Height);
-        
+
         this.scaledImageInfo = new SKImageInfo(newSize.Width, newSize.Height, unscaled.ColorType, unscaled.AlphaType);
-        if (this.bitmap == null || newSize.Width != this.bitmap.PixelSize.Width || newSize.Height != this.bitmap.PixelSize.Height)
-        {
+        if (this.bitmap == null || newSize.Width != this.bitmap.PixelSize.Width || newSize.Height != this.bitmap.PixelSize.Height) {
             this.bitmap?.Dispose();
             this.bitmap = new WriteableBitmap(new PixelSize(newSize.Width, newSize.Height), dpi, PixelFormat.Bgra8888);
         }
     }
 
-    private void DrawRenderIntoBitmap()
-    {
-        if (this.RenderedBitmap != null)
-        {
+    private void DrawRenderIntoBitmap() {
+        if (this.RenderedBitmap != null) {
             using ILockedFramebuffer buffer = this.bitmap!.Lock();
             using SKPixmap dstPixmap = new SKPixmap(this.scaledImageInfo, buffer.Address);
             this.RenderedBitmap.ScalePixels(dstPixmap, SKFilterQuality.Low);
         }
     }
 
-    protected override void OnSizeChanged(SizeChangedEventArgs e)
-    {
+    protected override void OnSizeChanged(SizeChangedEventArgs e) {
         base.OnSizeChanged(e);
         this.InvalidateVisual();
     }
 
     public new void InvalidateVisual() => base.InvalidateVisual();
 
-    private SKSizeI CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, IRenderRoot source)
-    {
+    private SKSizeI CreateSize(out SKSizeI unscaledSize, out double scaleX, out double scaleY, IRenderRoot source) {
         unscaledSize = SKSizeI.Empty;
         scaleX = 1f;
         scaleY = 1f;
 
         Size bounds = this.Bounds.Size;
-        if (IsPositive(bounds.Width) && IsPositive(bounds.Height))
-        {
+        if (IsPositive(bounds.Width) && IsPositive(bounds.Height)) {
             unscaledSize = new SKSizeI((int) bounds.Width, (int) bounds.Height);
             double transformToDevice = source.RenderScaling;
             scaleX = transformToDevice;
@@ -337,7 +304,7 @@ public class SKAsyncViewPort : Control
     }
 
     private static bool IsPositive(double value) => !double.IsNaN(value) && !double.IsInfinity(value) && value > 0.0;
-    
+
     // private class DrawBitmapOperation : ICustomDrawOperation
     // {
     //     private readonly SKBitmap bitmap;

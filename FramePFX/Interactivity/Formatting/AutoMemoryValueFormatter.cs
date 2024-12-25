@@ -28,18 +28,15 @@ public delegate void AutoMemoryFormatFormatterEventHandler(AutoMemoryValueFormat
 /// A value formatter that formats memory (e.g. bits, bytes, kbits, etc.) automatically
 /// into an appropriate format based on the actual numerical value (e.g. 1000 bits into 1kbit)
 /// </summary>
-public class AutoMemoryValueFormatter : BaseSimpleValueFormatter
-{
+public class AutoMemoryValueFormatter : BaseSimpleValueFormatter {
     private MemoryFormatType sourceFormat = MemoryFormatType.Byte;
 
     /// <summary>
     /// Gets the format that is provided as a double to the <see cref="ToString"/> method (e.g. byte to megabyte, this value is byte)
     /// </summary>
-    public MemoryFormatType SourceFormat
-    {
+    public MemoryFormatType SourceFormat {
         get => this.sourceFormat;
-        set
-        {
+        set {
             if (this.sourceFormat == value)
                 return;
 
@@ -54,14 +51,12 @@ public class AutoMemoryValueFormatter : BaseSimpleValueFormatter
 
     public event AutoMemoryFormatFormatterEventHandler? SourceFormatChanged;
 
-    public AutoMemoryValueFormatter(int nonEditingRoundedPlaces = 2, int editingRoundedPlaces = 6)
-    {
+    public AutoMemoryValueFormatter(int nonEditingRoundedPlaces = 2, int editingRoundedPlaces = 6) {
         this.NonEditingRoundedPlaces = nonEditingRoundedPlaces;
         this.EditingRoundedPlaces = editingRoundedPlaces;
     }
 
-    public AutoMemoryValueFormatter(IReadOnlySet<MemoryFormatType> allowedFormats, int nonEditingRoundedPlaces = 2, int editingRoundedPlaces = 6) : this(nonEditingRoundedPlaces, editingRoundedPlaces)
-    {
+    public AutoMemoryValueFormatter(IReadOnlySet<MemoryFormatType> allowedFormats, int nonEditingRoundedPlaces = 2, int editingRoundedPlaces = 6) : this(nonEditingRoundedPlaces, editingRoundedPlaces) {
         this.AllowedFormats = allowedFormats as ImmutableHashSet<MemoryFormatType> ?? allowedFormats.ToImmutableHashSet();
     }
 
@@ -70,8 +65,7 @@ public class AutoMemoryValueFormatter : BaseSimpleValueFormatter
     // the last optimalFormat in order to change the increment
     // value based on which unit is being displayed
 
-    public override string ToString(double value, bool isEditing)
-    {
+    public override string ToString(double value, bool isEditing) {
         double sourceFormatBytes = MemoryValueFormatter.ConversionTable[this.sourceFormat];
         double valueInBytes = value * sourceFormatBytes;
         MemoryFormatType optimalFormat = GetOptimalFormat(valueInBytes, this.AllowedFormats);
@@ -82,31 +76,26 @@ public class AutoMemoryValueFormatter : BaseSimpleValueFormatter
         return $"{formatted} {MemoryValueFormatter.GetFormatLabel(optimalFormat, DoubleUtils.AreClose(outputValue, 1.0))}";
     }
 
-    public override bool TryConvertToDouble(string format, out double value)
-    {
+    public override bool TryConvertToDouble(string format, out double value) {
         ReadOnlySpan<char> valueText;
 
         // Try and parse a custom targetFormat from the string
-        if (MemoryValueFormatter.ParseFormatFromLabel(format, out MemoryFormatType memoryFormat, out int suffixLength))
-        {
+        if (MemoryValueFormatter.ParseFormatFromLabel(format, out MemoryFormatType memoryFormat, out int suffixLength)) {
             valueText = format.AsSpan(0, format.Length - suffixLength).Trim(); // remove whitespaces
         }
-        else
-        {
+        else {
             // If the format is just a plain number, assume our sourceFormat
             memoryFormat = this.sourceFormat;
             valueText = format.Trim();
         }
 
-        if (!double.TryParse(valueText, out double theOriginalOutput))
-        {
+        if (!double.TryParse(valueText, out double theOriginalOutput)) {
             value = default;
             return false;
         }
 
         // Skip pointless calculations if we can
-        if (memoryFormat == this.sourceFormat)
-        {
+        if (memoryFormat == this.sourceFormat) {
             value = theOriginalOutput;
             return true;
         }
@@ -116,13 +105,10 @@ public class AutoMemoryValueFormatter : BaseSimpleValueFormatter
         return true;
     }
 
-    public static MemoryFormatType GetOptimalFormat(double valueInBytes, IReadOnlySet<MemoryFormatType>? allowedFormats)
-    {
+    public static MemoryFormatType GetOptimalFormat(double valueInBytes, IReadOnlySet<MemoryFormatType>? allowedFormats) {
         // Go back to front because if valueInBytes is 1000, ideally we want to select 1kbit, not something else
-        foreach (MemoryValueFormatter.MemoryFormatConversion conversion in MemoryValueFormatter.Conversions)
-        {
-            if (allowedFormats != null && !allowedFormats.Contains(conversion.Format))
-            {
+        foreach (MemoryValueFormatter.MemoryFormatConversion conversion in MemoryValueFormatter.Conversions) {
+            if (allowedFormats != null && !allowedFormats.Contains(conversion.Format)) {
                 continue;
             }
 

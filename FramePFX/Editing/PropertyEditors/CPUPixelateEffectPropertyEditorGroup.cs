@@ -24,12 +24,10 @@ using FramePFX.PropertyEditing.DataTransfer;
 
 namespace FramePFX.Editing.PropertyEditors;
 
-public class CPUPixelateEffectPropertyEditorGroup : EffectPropertyEditorGroup
-{
+public class CPUPixelateEffectPropertyEditorGroup : EffectPropertyEditorGroup {
     public new CPUPixelateEffect Effect => (CPUPixelateEffect) base.Effect;
 
-    public CPUPixelateEffectPropertyEditorGroup() : base(typeof(CPUPixelateEffect))
-    {
+    public CPUPixelateEffectPropertyEditorGroup() : base(typeof(CPUPixelateEffect)) {
         this.DisplayName = "CPU Pixelate";
         this.AddItem(new ParameterLongPropertyEditorSlot(CPUPixelateEffect.BlockSizeParameter, typeof(CPUPixelateEffect), "Block Size", DragStepProfile.InfPixelRange));
     }

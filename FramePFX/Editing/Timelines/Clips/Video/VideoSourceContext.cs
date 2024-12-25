@@ -25,8 +25,7 @@ namespace FramePFX.Editing.Timelines.Clips.Video;
 /// <summary>
 /// The base class for a video source for a specific clip
 /// </summary>
-public abstract class VideoSourceContext
-{
+public abstract class VideoSourceContext {
     /// <summary>
     /// Gets our video source, which is what created this instance. This is non-null
     /// </summary>
@@ -37,8 +36,7 @@ public abstract class VideoSourceContext
     /// </summary>
     public VideoClip Clip { get; }
 
-    protected VideoSourceContext(VideoSource source, VideoClip clip)
-    {
+    protected VideoSourceContext(VideoSource source, VideoClip clip) {
         this.Source = source;
         this.Clip = clip;
     }

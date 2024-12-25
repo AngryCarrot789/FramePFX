@@ -36,8 +36,7 @@ namespace FramePFX.CommandSystem;
 /// These commands can be executed through the <see cref="CommandManager.Execute(string,FramePFX.CommandSystem.Command,FramePFX.Interactivity.Contexts.IContextData,bool)"/> function
 /// </para>
 /// </summary>
-public abstract class Command
-{
+public abstract class Command {
     protected Command() { }
 
     // When focus changes, raise notification to update commands
@@ -64,34 +63,26 @@ public abstract class Command
     /// <param name="e">The command event args, containing info about the current context</param>
     protected abstract void Execute(CommandEventArgs e);
 
-    internal static void InternalExecute(string cmdId, Command command, CommandEventArgs e)
-    {
+    internal static void InternalExecute(string cmdId, Command command, CommandEventArgs e) {
         Application.Instance.Dispatcher.VerifyAccess();
-        if (e.IsUserInitiated)
-        {
-            try
-            {
+        if (e.IsUserInitiated) {
+            try {
                 command.Execute(e);
             }
-            catch (Exception ex) when (!Debugger.IsAttached)
-            {
+            catch (Exception ex) when (!Debugger.IsAttached) {
                 IMessageDialogService.Instance.ShowMessage("Command execution exception", $"An exception occurred while executing '{CmdToString(cmdId, command)}'", ex.GetToString());
             }
         }
-        else
-        {
+        else {
             command.Execute(e);
         }
     }
 
-    private static string CmdToString(string cmdId, Command cmd)
-    {
-        if (cmdId != null && !string.IsNullOrWhiteSpace(cmdId))
-        {
+    private static string CmdToString(string cmdId, Command cmd) {
+        if (cmdId != null && !string.IsNullOrWhiteSpace(cmdId)) {
             return $"{cmdId} ({cmd.GetType()})";
         }
-        else
-        {
+        else {
             return cmd.GetType().ToString();
         }
     }

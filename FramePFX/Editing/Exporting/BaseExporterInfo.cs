@@ -31,8 +31,7 @@ public delegate void ExporterInfoCurrentSetupChangedEventHandler(BaseExporterInf
 /// Exporters are singletons, but an <see cref="BaseExportContext"/> is created each time the user actually attempts to export content.
 /// </para>
 /// </summary>
-public abstract class BaseExporterInfo : ITransferableData
-{
+public abstract class BaseExporterInfo : ITransferableData {
     private ExporterKey myKey;
 
     public ExporterKey Key => !this.myKey.IsEmpty ? this.myKey : throw new InvalidOperationException("This exporter has not been registered yet");
@@ -50,14 +49,12 @@ public abstract class BaseExporterInfo : ITransferableData
 
     public event ExporterInfoCurrentSetupChangedEventHandler? CurrentSetupChanged;
 
-    protected BaseExporterInfo()
-    {
+    protected BaseExporterInfo() {
         this.TransferableData = new TransferableData(this);
         this.PropertyEditor = new PropertyEditor();
     }
 
-    public void OnSelected(ExportSetup setup)
-    {
+    public void OnSelected(ExportSetup setup) {
         if (this.CurrentSetup != null)
             throw new InvalidOperationException("Setup already connected");
 
@@ -70,8 +67,7 @@ public abstract class BaseExporterInfo : ITransferableData
         this.CurrentSetupChanged?.Invoke(this, oldCurrentSetup, setup);
     }
 
-    public void Deselect()
-    {
+    public void Deselect() {
         ExportSetup? old = this.CurrentSetup;
         if (old == null)
             throw new InvalidOperationException("Setup not connected");

@@ -30,8 +30,7 @@ namespace FramePFX.Utils.Commands;
 /// be relied on due to the reality of multithreading; the command could finish just after another piece of code detects it's already running
 /// </para>
 /// </summary>
-public abstract class BaseAsyncRelayCommand : BaseRelayCommand, IAsyncRelayCommand
-{
+public abstract class BaseAsyncRelayCommand : BaseRelayCommand, IAsyncRelayCommand {
     /// <summary>
     /// Because <see cref="Execute"/> is async void, it can be fired multiple
     /// times while the task that <see cref="execute"/> returns is still running. This
@@ -57,8 +56,7 @@ public abstract class BaseAsyncRelayCommand : BaseRelayCommand, IAsyncRelayComma
     /// </summary>
     /// <param name="parameter">The parameter passed to this command</param>
     /// <returns>Whether or not this command can be executed or not</returns>
-    public sealed override bool CanExecute(object? parameter)
-    {
+    public sealed override bool CanExecute(object? parameter) {
         return this.isRunningState == 0 && base.CanExecute(parameter) && this.CanExecuteCore(parameter);
     }
 
@@ -67,8 +65,7 @@ public abstract class BaseAsyncRelayCommand : BaseRelayCommand, IAsyncRelayComma
     /// </summary>
     /// <param name="parameter">The parameter passed to this command</param>
     /// <returns>Whether or not this command can be executed or not</returns>
-    protected virtual bool CanExecuteCore(object? parameter)
-    {
+    protected virtual bool CanExecuteCore(object? parameter) {
         return true;
     }
 
@@ -78,8 +75,7 @@ public abstract class BaseAsyncRelayCommand : BaseRelayCommand, IAsyncRelayComma
     /// because this function just calls that
     /// </summary>
     /// <param name="parameter">The parameter passed to this command</param>
-    public sealed override async void Execute(object? parameter)
-    {
+    public sealed override async void Execute(object? parameter) {
         await this.ExecuteAsync(parameter);
     }
 
@@ -95,17 +91,13 @@ public abstract class BaseAsyncRelayCommand : BaseRelayCommand, IAsyncRelayComma
     /// </summary>
     /// <param name="parameter">The parameter passed to this command</param>
     // Slight optimisation by not using async for ExecuteAsync, so that a state machine isn't needed
-    public async Task ExecuteAsync(object? parameter)
-    {
-        if (Interlocked.CompareExchange(ref this.isRunningState, 1, 0) == 0)
-        {
-            try
-            {
+    public async Task ExecuteAsync(object? parameter) {
+        if (Interlocked.CompareExchange(ref this.isRunningState, 1, 0) == 0) {
+            try {
                 this.RaiseCanExecuteChanged();
                 await this.ExecuteCoreAsync(parameter);
             }
-            finally
-            {
+            finally {
                 this.isRunningState = 0;
             }
 
@@ -121,17 +113,13 @@ public abstract class BaseAsyncRelayCommand : BaseRelayCommand, IAsyncRelayComma
     /// </para>
     /// </summary>
     /// <param name="parameter">The parameter passed to this command</param>
-    public async Task<bool> TryExecuteAsync(object? parameter)
-    {
-        if (this.CanExecute(parameter) && Interlocked.CompareExchange(ref this.isRunningState, 1, 0) == 0)
-        {
-            try
-            {
+    public async Task<bool> TryExecuteAsync(object? parameter) {
+        if (this.CanExecute(parameter) && Interlocked.CompareExchange(ref this.isRunningState, 1, 0) == 0) {
+            try {
                 this.RaiseCanExecuteChanged();
                 await this.ExecuteCoreAsync(parameter);
             }
-            finally
-            {
+            finally {
                 this.isRunningState = 0;
             }
 

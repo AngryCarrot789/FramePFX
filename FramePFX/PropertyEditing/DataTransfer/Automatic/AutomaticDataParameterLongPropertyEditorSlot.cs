@@ -21,15 +21,13 @@ using FramePFX.DataTransfer;
 
 namespace FramePFX.PropertyEditing.DataTransfer.Automatic;
 
-public class AutomaticDataParameterLongPropertyEditorSlot : BaseAutomaticNumericDataParameterPropertyEditorSlot<long>
-{
+public class AutomaticDataParameterLongPropertyEditorSlot : BaseAutomaticNumericDataParameterPropertyEditorSlot<long> {
     public new DataParameterLong Parameter => (DataParameterLong) base.Parameter;
 
     public AutomaticDataParameterLongPropertyEditorSlot(DataParameterLong parameter, DataParameterBool isAutomaticParameter, Type applicableType, string displayName, DragStepProfile stepProfile) : base(parameter, isAutomaticParameter, applicableType, displayName, stepProfile) {
     }
 
-    public override void QueryValueFromHandlers()
-    {
+    public override void QueryValueFromHandlers() {
         base.QueryValueFromHandlers();
         DataParameterLong param = this.Parameter;
         if (this.HasMultipleValues && param.HasExplicitRangeLimit)

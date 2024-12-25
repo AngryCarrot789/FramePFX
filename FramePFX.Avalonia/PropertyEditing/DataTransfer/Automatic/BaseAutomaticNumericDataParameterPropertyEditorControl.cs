@@ -25,21 +25,18 @@ using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.PropertyEditing.DataTransfer.Automatic;
 
-public abstract class BaseAutomaticNumericDataParameterPropertyEditorControl<T> : BaseNumberDraggerDataParamPropEditorControl
-{
+public abstract class BaseAutomaticNumericDataParameterPropertyEditorControl<T> : BaseNumberDraggerDataParamPropEditorControl {
     public new BaseAutomaticNumericDataParameterPropertyEditorSlot<T>? SlotModel => (BaseAutomaticNumericDataParameterPropertyEditorSlot<T>?) base.SlotControl?.Model;
 
     public BaseAutomaticNumericDataParameterPropertyEditorControl() {
     }
 
-    protected override void UpdateControlValue()
-    {
+    protected override void UpdateControlValue() {
         base.UpdateControlValue();
         this.UpdateTextPreview();
     }
 
-    protected override void OnConnected()
-    {
+    protected override void OnConnected() {
         base.OnConnected();
         BaseAutomaticNumericDataParameterPropertyEditorSlot<T> slot = this.SlotModel!;
         DragStepProfile profile = slot.StepProfile;
@@ -51,76 +48,60 @@ public abstract class BaseAutomaticNumericDataParameterPropertyEditorControl<T> 
         this.dragger.InvalidInputEntered += this.PartDraggerOnInvalidInputEntered;
     }
 
-    protected override void OnDisconnected()
-    {
+    protected override void OnDisconnected() {
         base.OnDisconnected();
         this.dragger.InvalidInputEntered -= this.PartDraggerOnInvalidInputEntered;
     }
 
-    protected override void OnHandlersLoadedOverride(bool isLoaded)
-    {
+    protected override void OnHandlersLoadedOverride(bool isLoaded) {
         base.OnHandlersLoadedOverride(isLoaded);
-        if (isLoaded)
-        {
+        if (isLoaded) {
             if (this.singleHandler != null)
                 this.SlotModel!.IsAutomaticParameter.AddValueChangedHandler(this.singleHandler, this.OnIsAutomaticChanged);
         }
-        else if (this.singleHandler != null)
-        {
+        else if (this.singleHandler != null) {
             this.SlotModel!.IsAutomaticParameter.RemoveValueChangedHandler(this.singleHandler, this.OnIsAutomaticChanged);
         }
     }
 
-    private void OnIsAutomaticChanged(DataParameter parameter, ITransferableData owner)
-    {
+    private void OnIsAutomaticChanged(DataParameter parameter, ITransferableData owner) {
         this.UpdateTextPreview();
     }
 
-    private void UpdateTextPreview()
-    {
-        if (this.singleHandler != null && this.SlotModel!.IsAutomaticParameter.GetValue(this.singleHandler) && !this.SlotModel.HasMultipleValues)
-        {
+    private void UpdateTextPreview() {
+        if (this.singleHandler != null && this.SlotModel!.IsAutomaticParameter.GetValue(this.singleHandler) && !this.SlotModel.HasMultipleValues) {
             this.dragger.FinalPreviewStringFormat = "{0} (Auto)";
         }
-        else
-        {
+        else {
             this.dragger.FinalPreviewStringFormat = null;
         }
     }
 
-    private void PartDraggerOnInvalidInputEntered(object? sender, InvalidInputEnteredEventArgs e)
-    {
+    private void PartDraggerOnInvalidInputEntered(object? sender, InvalidInputEnteredEventArgs e) {
         BaseAutomaticNumericDataParameterPropertyEditorSlot<T>? model = this.SlotModel;
-        if (model == null || !model.IsCurrentlyApplicable)
-        {
+        if (model == null || !model.IsCurrentlyApplicable) {
             return;
         }
 
-        if (("auto".EqualsIgnoreCase(e.Input) || "automatic".EqualsIgnoreCase(e.Input) || "\"auto\"".EqualsIgnoreCase(e.Input)))
-        {
-            foreach (object handler in model.Handlers)
-            {
+        if (("auto".EqualsIgnoreCase(e.Input) || "automatic".EqualsIgnoreCase(e.Input) || "\"auto\"".EqualsIgnoreCase(e.Input))) {
+            foreach (object handler in model.Handlers) {
                 model.IsAutomaticParameter.SetValue((ITransferableData) handler, true);
             }
         }
     }
 
-    protected override void ResetValue()
-    {
+    protected override void ResetValue() {
         BaseAutomaticNumericDataParameterPropertyEditorSlot<T>? slot = this.SlotModel;
-        if (slot == null)
-        {
+        if (slot == null) {
             return;
         }
 
-        foreach (ITransferableData handler in slot.Handlers)
-        {
+        foreach (ITransferableData handler in slot.Handlers) {
             slot.IsAutomaticParameter.SetValue(handler, true);
         }
     }
 
-    protected override void OnHasMultipleValuesChanged(DataParameterPropertyEditorSlot sender)
-    {
+    protected override void OnHasMultipleValuesChanged(DataParameterPropertyEditorSlot sender) {
         base.OnHasMultipleValuesChanged(sender);
         this.UpdateTextPreview();
     }

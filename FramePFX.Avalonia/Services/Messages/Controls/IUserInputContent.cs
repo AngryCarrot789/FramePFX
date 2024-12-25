@@ -24,8 +24,7 @@ namespace FramePFX.Avalonia.Services.Messages.Controls;
 /// <summary>
 /// An interface for user input content controls
 /// </summary>
-public interface IUserInputContent
-{
+public interface IUserInputContent {
     void Connect(UserInputDialog dialog, UserInputInfo info);
 
     void Disconnect();

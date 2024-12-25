@@ -25,31 +25,26 @@ using FramePFX.Configurations.Basic;
 
 namespace FramePFX.Avalonia.Configurations.Pages.Basic;
 
-public class BasicEditorWindowConfigurationPageControl : BaseConfigurationPageControl
-{
+public class BasicEditorWindowConfigurationPageControl : BaseConfigurationPageControl {
     private TextBox? editorWindowTitleTextBox;
     private readonly IBinder<EditorWindowConfigurationPage> titleBarBinder;
-    
-    public BasicEditorWindowConfigurationPageControl()
-    {
+
+    public BasicEditorWindowConfigurationPageControl() {
         this.titleBarBinder = new AutoUpdateAndEventPropertyBinder<EditorWindowConfigurationPage>(TextBox.TextProperty, nameof(EditorWindowConfigurationPage.TitleBarChanged), obj => obj.Control.SetValue(TextBox.TextProperty, obj.Model.TitleBar), obj => obj.Model.TitleBar = obj.Control.GetValue(TextBox.TextProperty) ?? "");
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.editorWindowTitleTextBox = e.NameScope.GetTemplateChild<TextBox>("PART_TitleBarTextBox");
         this.titleBarBinder.AttachControl(this.editorWindowTitleTextBox);
     }
 
-    public override void OnConnected()
-    {
+    public override void OnConnected() {
         base.OnConnected();
         this.titleBarBinder.AttachModel((EditorWindowConfigurationPage) this.Page!);
     }
 
-    public override void OnDisconnected()
-    {
+    public override void OnDisconnected() {
         base.OnDisconnected();
         this.titleBarBinder.DetachModel();
     }

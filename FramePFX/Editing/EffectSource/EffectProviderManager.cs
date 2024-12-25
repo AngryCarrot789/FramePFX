@@ -24,24 +24,21 @@ using FramePFX.Editing.Timelines.Effects;
 
 namespace FramePFX.Editing.EffectSource;
 
-public class EffectProviderManager
-{
+public class EffectProviderManager {
     public static EffectProviderManager Instance { get; } = new EffectProviderManager();
 
     private readonly List<EffectProviderEntry> entries;
 
     public ReadOnlyCollection<EffectProviderEntry> Entries { get; }
 
-    private EffectProviderManager()
-    {
+    private EffectProviderManager() {
         this.entries = new List<EffectProviderEntry>();
         this.Entries = this.entries.AsReadOnly();
 
         this.RegisterEffect<CPUPixelateEffect>("CPU Pixelate Effect", (p) => p.SetDefaultValue(CPUPixelateEffect.BlockSizeParameter, 16));
     }
 
-    public void RegisterEffect<T>(string displayName, Action<T> postProcessor) where T : BaseEffect
-    {
+    public void RegisterEffect<T>(string displayName, Action<T> postProcessor) where T : BaseEffect {
         string id = EffectFactory.Instance.GetId(typeof(T));
         Action<BaseEffect> postProc = null;
         if (postProcessor != null)

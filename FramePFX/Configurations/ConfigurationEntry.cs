@@ -28,8 +28,7 @@ namespace FramePFX.Configurations;
 /// is what will be presented when this entry is selected in the UI. If the page is null,
 /// but we have child items, the first available child item's page will be shown instead
 /// </summary>
-public class ConfigurationEntry
-{
+public class ConfigurationEntry {
     private readonly List<ConfigurationEntry> items;
     private string? id;
     private string? fullIdPath;
@@ -37,11 +36,9 @@ public class ConfigurationEntry
     /// <summary>
     /// Gets this entry's child items
     /// </summary>
-    public IReadOnlyList<ConfigurationEntry> Items
-    {
+    public IReadOnlyList<ConfigurationEntry> Items {
         get => this.items;
-        init
-        {
+        init {
             foreach (ConfigurationEntry item in value)
                 this.AddEntry(item);
         }
@@ -56,15 +53,13 @@ public class ConfigurationEntry
     /// <summary>
     /// Gets a unique identifier for this entry
     /// </summary>
-    public string? Id
-    {
+    public string? Id {
         get => this.id;
-        init
-        {
+        init {
             Validate.NotNullOrWhiteSpaces(value);
             if (value.Contains('/') || value.Contains('\\'))
                 throw new InvalidOperationException("Id cannot contain a forward or back slash character");
-            
+
             this.id = value;
         }
     }
@@ -74,8 +69,7 @@ public class ConfigurationEntry
     /// from a parent configuration entry. This is unique across a configuration hierarchy, and
     /// is used to find a specific entry e.g. for plugins 
     /// </summary>
-    public string? FullIdPath
-    {
+    public string? FullIdPath {
         get => this.fullIdPath ??= GetFullPath(this);
     }
 
@@ -92,48 +86,40 @@ public class ConfigurationEntry
     /// </summary>
     public bool IsRoot => this.Parent == null;
 
-    public ConfigurationEntry()
-    {
+    public ConfigurationEntry() {
         this.items = new List<ConfigurationEntry>();
     }
 
-    public bool TryGetEntry(string entryId, [NotNullWhen(true)] out ConfigurationEntry? entry)
-    {
-        foreach (ConfigurationEntry theEntry in this.items)
-        {
-            if (theEntry.id == entryId)
-            {
+    public bool TryGetEntry(string entryId, [NotNullWhen(true)] out ConfigurationEntry? entry) {
+        foreach (ConfigurationEntry theEntry in this.items) {
+            if (theEntry.id == entryId) {
                 entry = theEntry;
                 return true;
             }
         }
-        
+
         entry = null;
         return false;
     }
 
-    public void AddEntry(ConfigurationEntry entry)
-    {
+    public void AddEntry(ConfigurationEntry entry) {
         if (entry.Parent != null)
             throw new InvalidOperationException("Entry already added to another entry");
 
         if (entry.Id == null)
             throw new InvalidOperationException("Entry has no ID");
-        
+
         Debug.Assert(!this.items.Contains(entry), "Did not expect our list to contain the entry");
         this.items.Add(entry);
         entry.Parent = this;
         entry.fullIdPath = null;
     }
-    
-    private static string? GetFullPath(ConfigurationEntry entry)
-    {
-        if (entry.Parent == null)
-        {
+
+    private static string? GetFullPath(ConfigurationEntry entry) {
+        if (entry.Parent == null) {
             return null;
         }
-        else
-        {
+        else {
             if (entry.Id == null)
                 return null;
 

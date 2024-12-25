@@ -26,8 +26,7 @@ public delegate void ResourceLoaderEntryEventHandler(ResourceLoader loader, Inva
 /// <summary>
 /// A class used to assist in auto-loading of resource objects, specifically <see cref="ResourceItem"/> objects
 /// </summary>
-public sealed class ResourceLoader
-{
+public sealed class ResourceLoader {
     private readonly List<InvalidResourceEntry> entries;
 
     public IReadOnlyList<InvalidResourceEntry> Entries => this.entries;
@@ -35,15 +34,13 @@ public sealed class ResourceLoader
     public event ResourceLoaderEntryEventHandler? EntryAdded;
     public event ResourceLoaderEntryEventHandler? EntryRemoved;
 
-    public ResourceLoader()
-    {
+    public ResourceLoader() {
         this.entries = new List<InvalidResourceEntry>();
     }
 
     public void AddEntry(InvalidResourceEntry entry) => this.InsertEntry(entry, this.entries.Count);
 
-    public void InsertEntry(InvalidResourceEntry entry, int index)
-    {
+    public void InsertEntry(InvalidResourceEntry entry, int index) {
         if (entry.ResourceLoader != null)
             throw new Exception("Resource already added to a resource loader");
         this.entries.Insert(index, entry);
@@ -51,8 +48,7 @@ public sealed class ResourceLoader
         this.EntryAdded?.Invoke(this, entry, index);
     }
 
-    public bool RemoveEntry(InvalidResourceEntry entry)
-    {
+    public bool RemoveEntry(InvalidResourceEntry entry) {
         int index = this.entries.IndexOf(entry);
         if (index == -1)
             return false;
@@ -60,35 +56,29 @@ public sealed class ResourceLoader
         return true;
     }
 
-    public void RemoveEntryAt(int index)
-    {
+    public void RemoveEntryAt(int index) {
         InvalidResourceEntry entry = this.entries[index];
         this.entries.RemoveAt(index);
         InvalidResourceEntry.InternalSetLoader(entry, null);
         this.EntryRemoved?.Invoke(this, entry, index);
     }
 
-    public Task<bool> TryLoadEntry(ResourceItem item)
-    {
+    public Task<bool> TryLoadEntry(ResourceItem item) {
         int index = this.entries.FindIndex(x => x.Resource == item);
-        if (index == -1)
-        {
+        if (index == -1) {
             throw new InvalidOperationException("Resource is not in this loader");
         }
 
         return this.TryLoadEntry(index);
     }
 
-    public async Task<bool> TryLoadEntry(int index)
-    {
+    public async Task<bool> TryLoadEntry(int index) {
         ResourceItem item = this.entries[index].Resource;
-        if (item.IsOnline)
-        {
+        if (item.IsOnline) {
             return true;
         }
 
-        if (await item.TryEnableForLoaderEntry(this.entries[index]))
-        {
+        if (await item.TryEnableForLoaderEntry(this.entries[index])) {
             this.RemoveEntryAt(index);
             return true;
         }
@@ -96,22 +86,18 @@ public sealed class ResourceLoader
         return false;
     }
 
-    public async Task<bool> TryLoadEntry(InvalidResourceEntry entry)
-    {
+    public async Task<bool> TryLoadEntry(InvalidResourceEntry entry) {
         int index = this.entries.IndexOf(entry);
-        if (index == -1)
-        {
+        if (index == -1) {
             throw new InvalidOperationException("Entry is not in this loader");
         }
 
         ResourceItem item = entry.Resource;
-        if (item.IsOnline)
-        {
+        if (item.IsOnline) {
             return true;
         }
 
-        if (await item.TryEnableForLoaderEntry(entry))
-        {
+        if (await item.TryEnableForLoaderEntry(entry)) {
             this.RemoveEntryAt(index);
             return true;
         }

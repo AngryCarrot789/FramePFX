@@ -24,24 +24,21 @@ namespace FramePFX.Plugins;
 /// <summary>
 /// The base class for a plugin's entry point class
 /// </summary>
-public abstract class Plugin
-{
+public abstract class Plugin {
     public PluginDescriptor Descriptor { get; internal set; } = null!;
-    
+
     public PluginLoader PluginLoader { get; internal set; } = null!;
 
     public string PluginFolder { get; internal set; } = null!;
-    
-    protected Plugin()
-    {
-        
+
+    protected Plugin() {
     }
 
     /// <summary>
     /// Invoked after the plugin is created and the descriptor is set
     /// </summary>
     public abstract void OnCreated();
-    
+
     /// <summary>
     /// Register this plugin's commands
     /// </summary>

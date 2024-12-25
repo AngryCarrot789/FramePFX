@@ -19,9 +19,8 @@
 
 namespace FramePFX.Configurations;
 
-public interface IConfigurationDialogService
-{
+public interface IConfigurationDialogService {
     public static IConfigurationDialogService Instance => Application.Instance.ServiceManager.GetService<IConfigurationDialogService>();
-    
+
     Task ShowConfigurationDialog(ConfigurationManager configurationManager);
 }

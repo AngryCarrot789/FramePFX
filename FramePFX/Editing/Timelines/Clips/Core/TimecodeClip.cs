@@ -29,8 +29,7 @@ using SkiaSharp;
 
 namespace FramePFX.Editing.Timelines.Clips.Core;
 
-public class TimecodeClip : VideoClip
-{
+public class TimecodeClip : VideoClip {
     public static readonly ParameterDouble FontSizeParameter = Parameter.RegisterDouble(typeof(TimecodeClip), nameof(TimecodeClip), nameof(FontSize), 40, ValueAccessors.LinqExpression<double>(typeof(TimecodeClip), nameof(FontSize)), ParameterFlags.StandardProjectVisual);
     public static readonly DataParameterBool UseClipStartTimeParameter = DataParameter.Register(new DataParameterBool(typeof(TimecodeClip), nameof(UseClipStartTime), true, ValueAccessors.Reflective<bool>(typeof(TimecodeClip), nameof(UseClipStartTime)), DataParameterFlags.StandardProjectVisual));
     public static readonly DataParameter<SKColor> ForegroundParameter = DataParameter.Register(new DataParameter<SKColor>(typeof(TimecodeClip), nameof(Foreground), SKColors.Red, ValueAccessors.Reflective<SKColor>(typeof(TimecodeClip), nameof(foreground)), DataParameterFlags.StandardProjectVisual));
@@ -47,13 +46,11 @@ public class TimecodeClip : VideoClip
     private double EndTime;
     private string? fontFamily = "Consolas";
 
-    private class LockedFontData : IDisposable
-    {
+    private class LockedFontData : IDisposable {
         public SKFont? cachedFont;
         public SKTypeface? cachedTypeFace;
 
-        public void Dispose()
-        {
+        public void Dispose() {
             this.cachedFont?.Dispose();
             this.cachedFont = null;
             this.cachedTypeFace?.Dispose();
@@ -70,11 +67,9 @@ public class TimecodeClip : VideoClip
     private double renderFontSize;
     private SKRect lastRenderRect;
 
-    public string? FontFamily
-    {
+    public string? FontFamily {
         get => this.fontFamily;
-        set
-        {
+        set {
             if (this.fontFamily == value)
                 return;
             this.fontFamily = value;
@@ -83,17 +78,15 @@ public class TimecodeClip : VideoClip
             this.InvalidateRender();
         }
     }
-    
-    public SKColor Foreground
-    {
+
+    public SKColor Foreground {
         get => this.foreground;
         set => DataParameter.SetValueHelper(this, ForegroundParameter, ref this.foreground, value);
     }
-    
+
     public event ClipEventHandler? FontFamilyChanged;
 
-    public TimecodeClip()
-    {
+    public TimecodeClip() {
         this.UsesCustomOpacityCalculation = true;
         this.fontData = new DisposableRef<LockedFontData>(new LockedFontData(), true);
         this.FontSize = FontSizeParameter.Descriptor.DefaultValue;
@@ -104,17 +97,14 @@ public class TimecodeClip : VideoClip
         this.foreground = ForegroundParameter.GetDefaultValue(this);
     }
 
-    private string GetCurrentTimeString()
-    {
+    private string GetCurrentTimeString() {
         double percent = Maths.InverseLerp(this.render_Span.Begin, this.render_Span.EndIndex, this.render_Frame);
         TimeSpan time = TimeSpan.FromSeconds(Maths.Lerp(this.render_StartTime.TotalSeconds, this.render_EndTime.TotalSeconds, percent));
         return string.Format("{0:00}:{1:00}:{2:00}.{3:00}", (int) time.TotalHours, time.Minutes, time.Seconds, time.Milliseconds / 10.0);
     }
 
-    static TimecodeClip()
-    {
-        SerialisationRegistry.Register<TimecodeClip>(0, (clip, data, ctx) =>
-        {
+    static TimecodeClip() {
+        SerialisationRegistry.Register<TimecodeClip>(0, (clip, data, ctx) => {
             ctx.DeserialiseBaseType(data);
             clip.UseClipStartTime = data.GetBool("UseClipStart");
             clip.UseClipEndTime = data.GetBool("UseClipEnd");
@@ -122,8 +112,7 @@ public class TimecodeClip : VideoClip
             clip.EndTime = data.GetDouble("EndTime");
             clip.fontFamily = data.GetString("FontFamily", null);
             clip.foreground = data.GetUInt("Foreground");
-        }, (clip, data, ctx) =>
-        {
+        }, (clip, data, ctx) => {
             ctx.SerialiseBaseType(data);
             data.SetBool("UseClipStart", clip.UseClipStartTime);
             data.SetBool("UseClipEnd", clip.UseClipEndTime);
@@ -133,26 +122,23 @@ public class TimecodeClip : VideoClip
                 data.SetString("FontFamily", clip.fontFamily);
             data.SetUInt("Foreground", (uint) clip.foreground);
         });
-        
+
         DataParameter.AddMultipleHandlers((parameter, owner) => ((TimecodeClip) owner).InvalidateRender(), ForegroundParameter);
-        
-        DataParameter.AddMultipleHandlers((parameter, owner) =>
-        {
+
+        DataParameter.AddMultipleHandlers((parameter, owner) => {
             ((TimecodeClip) owner).InvalidateRender();
             ((TimecodeClip) owner).OnRenderSizeChanged();
         }, UseClipStartTimeParameter, UseClipEndTimeParameter, StartTimeParameter, EndTimeParameter);
-        
-        FontSizeParameter.ValueChanged += sequence =>
-        {
+
+        FontSizeParameter.ValueChanged += sequence => {
             TimecodeClip owner = (TimecodeClip) sequence.AutomationData.Owner;
             owner.fontData.Dispose();
             owner.InvalidateRender();
             owner.OnRenderSizeChanged();
         };
     }
-    
-    protected override void LoadDataIntoClone(Clip clone, ClipCloneOptions options)
-    {
+
+    protected override void LoadDataIntoClone(Clip clone, ClipCloneOptions options) {
         base.LoadDataIntoClone(clone, options);
         TimecodeClip timer = (TimecodeClip) clone;
         timer.UseClipStartTime = this.UseClipStartTime;
@@ -162,13 +148,11 @@ public class TimecodeClip : VideoClip
         timer.foreground = this.foreground;
     }
 
-    public override Vector2? GetRenderSize()
-    {
+    public override Vector2? GetRenderSize() {
         return new Vector2(this.lastRenderRect.Width, this.lastRenderRect.Height);
     }
 
-    public override bool PrepareRenderFrame(PreRenderContext rc, long frame)
-    {
+    public override bool PrepareRenderFrame(PreRenderContext rc, long frame) {
         long playHead = this.FrameSpan.Begin + frame;
         this.render_Frame = playHead;
         this.render_Span = this.FrameSpan;
@@ -181,23 +165,20 @@ public class TimecodeClip : VideoClip
         return true;
     }
 
-    public override void RenderFrame(RenderContext rc, ref SKRect renderArea)
-    {
-        this.fontData.BeginUsage(this, (clip, data) =>
-        {
+    public override void RenderFrame(RenderContext rc, ref SKRect renderArea) {
+        this.fontData.BeginUsage(this, (clip, data) => {
             data.cachedTypeFace = clip.fontFamily != null ? SKTypeface.FromFamilyName(clip.fontFamily) : SKTypeface.CreateDefault();
             data.cachedFont = new SKFont(data.cachedTypeFace, (float) clip.renderFontSize);
         });
 
         string text = this.GetCurrentTimeString();
         LockedFontData fd = this.fontData.Value;
-        
+
         using SKPaint paint = new SKPaint();
         paint.IsAntialias = true;
         paint.Color = RenderUtils.BlendAlpha(this.foreground, this.RenderOpacityByte);
         paint.FilterQuality = rc.FilterQuality;
-        using (SKTextBlob blob = SKTextBlob.Create(text, fd.cachedFont))
-        {
+        using (SKTextBlob blob = SKTextBlob.Create(text, fd.cachedFont)) {
             fd.cachedFont!.GetFontMetrics(out SKFontMetrics metrics);
             // we can get away with this since we just use numbers and not any 'special'
             // characters with bits below the baseline and whatnot

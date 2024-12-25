@@ -22,7 +22,5 @@ namespace FramePFX.Avalonia.Icons;
 /// <summary>
 /// A key for a registered icon. This is used to access the icon itself and also obtain information about the icon
 /// </summary>
-public class IconKey
-{
-    
+public class IconKey {
 }

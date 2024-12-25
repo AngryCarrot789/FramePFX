@@ -28,12 +28,10 @@ using FramePFX.Utils.RDA;
 
 namespace FramePFX.Avalonia.Exporting;
 
-public partial class ExportProgressDialog : WindowEx, IExportProgress
-{
+public partial class ExportProgressDialog : WindowEx, IExportProgress {
     public static readonly StyledProperty<bool> HasEncodeProgressProperty = AvaloniaProperty.Register<ExportProgressDialog, bool>(nameof(HasEncodeProgress));
 
-    public bool HasEncodeProgress
-    {
+    public bool HasEncodeProgress {
         get => this.GetValue(HasEncodeProgressProperty);
         set => this.SetValue(HasEncodeProgressProperty, value);
     }
@@ -63,8 +61,7 @@ public partial class ExportProgressDialog : WindowEx, IExportProgress
     public ExportProgressDialog() : this(default, new CancellationTokenSource()) {
     }
 
-    public ExportProgressDialog(FrameSpan renderSpan, CancellationTokenSource cancellation)
-    {
+    public ExportProgressDialog(FrameSpan renderSpan, CancellationTokenSource cancellation) {
         this.renderSpan = renderSpan;
         this.InitializeComponent();
 
@@ -76,28 +73,24 @@ public partial class ExportProgressDialog : WindowEx, IExportProgress
         this.rapidUpdateEncode = RapidDispatchActionEx.ForSync(() => this.PART_EncodeProgressBar.Value = this.EncodeProgressPercentage, DispatchPriority.INTERNAL_BeforeRender, "ExportUpdateEncode");
     }
 
-    private void UpdateRenderedFrame()
-    {
+    private void UpdateRenderedFrame() {
         int newCompletion = this.RenderProgressPercentage;
         this.PART_RenderProgressBar.Value = newCompletion;
         this.PART_FrameProgressText.Text = $"{this.currentRenderFrame}/{this.EndFrame - 1}";
-        
+
         // Try to update the activity if there's one associated with the export process
         IActivityProgress? progress = this.ActivityTask?.Progress;
-        if (progress != null)
-        {
+        if (progress != null) {
             progress.CompletionState.SetProgress(newCompletion / 100.0);
         }
     }
 
-    public void OnFrameRendered(long frame)
-    {
+    public void OnFrameRendered(long frame) {
         Interlocked.Increment(ref this.currentRenderFrame);
         this.rapidUpdateRender.InvokeAsync();
     }
 
-    public void OnFrameEncoded(long frame)
-    {
+    public void OnFrameEncoded(long frame) {
         Interlocked.Increment(ref this.currentEncodeFrame);
         this.rapidUpdateEncode.InvokeAsync();
     }

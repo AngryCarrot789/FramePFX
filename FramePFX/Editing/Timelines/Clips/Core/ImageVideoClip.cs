@@ -27,23 +27,19 @@ using SkiaSharp;
 
 namespace FramePFX.Editing.Timelines.Clips.Core;
 
-public class ImageVideoClip : VideoClip
-{
+public class ImageVideoClip : VideoClip {
     private readonly RenderLockedData<SKImage> lockedImage;
 
     public static readonly ResourceSlot<ResourceImage> ResourceImageKey = ResourceSlot.Register<ResourceImage>(typeof(ImageVideoClip), "ImageKey");
 
-    public ImageVideoClip()
-    {
+    public ImageVideoClip() {
         this.UsesCustomOpacityCalculation = true;
         ResourceImageKey.AddResourceChangedHandler(this, this.OnResourceChanged);
         this.lockedImage = new RenderLockedData<SKImage>();
     }
 
-    static ImageVideoClip()
-    {
-        ResourceImageKey.ResourceChanged += (slot, owner, oldResource, newResource) =>
-        {
+    static ImageVideoClip() {
+        ResourceImageKey.ResourceChanged += (slot, owner, oldResource, newResource) => {
             ImageVideoClip clip = (ImageVideoClip) owner;
             clip.SignalDisposeImage();
             if (oldResource != null)
@@ -53,10 +49,8 @@ public class ImageVideoClip : VideoClip
         };
     }
 
-    public override Vector2? GetRenderSize()
-    {
-        if (ResourceImageKey.TryGetResource(this, out ResourceImage? res) && res.image != null)
-        {
+    public override Vector2? GetRenderSize() {
+        if (ResourceImageKey.TryGetResource(this, out ResourceImage? res) && res.image != null) {
             return new Vector2(res.image.Width, res.image.Height);
         }
 
@@ -65,17 +59,13 @@ public class ImageVideoClip : VideoClip
 
     private void SignalDisposeImage() => this.lockedImage.Dispose();
 
-    private void OnResourceChanged(IResourceHolder owner, ResourceSlot slot, ResourceItem? oldItem, ResourceItem? newItem)
-    {
-
+    private void OnResourceChanged(IResourceHolder owner, ResourceSlot slot, ResourceItem? oldItem, ResourceItem? newItem) {
     }
 
     private void OnImageChanged(BaseResource resource) => this.SignalDisposeImage();
 
-    public override bool PrepareRenderFrame(PreRenderContext rc, long frame)
-    {
-        if (ResourceImageKey.TryGetResource(this, out ResourceImage? resource) && resource.image != null)
-        {
+    public override bool PrepareRenderFrame(PreRenderContext rc, long frame) {
+        if (ResourceImageKey.TryGetResource(this, out ResourceImage? resource) && resource.image != null) {
             this.lockedImage.OnPrepareRender(resource.image);
             return true;
         }
@@ -83,15 +73,12 @@ public class ImageVideoClip : VideoClip
         return false;
     }
 
-    public override void RenderFrame(RenderContext rc, ref SKRect renderArea)
-    {
-        if (!this.lockedImage.OnRenderBegin(out SKImage image))
-        {
+    public override void RenderFrame(RenderContext rc, ref SKRect renderArea) {
+        if (!this.lockedImage.OnRenderBegin(out SKImage image)) {
             return;
         }
 
-        using (SKPaint paint = new SKPaint())
-        {
+        using (SKPaint paint = new SKPaint()) {
             paint.FilterQuality = rc.FilterQuality;
             paint.Color = RenderUtils.BlendAlpha(SKColors.White, this.RenderOpacity);
             rc.Canvas.DrawImage(image, 0, 0, paint);

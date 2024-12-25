@@ -22,8 +22,7 @@ using SkiaSharp;
 
 namespace FramePFX.Editing.Rendering;
 
-public readonly struct PreRenderContext
-{
+public readonly struct PreRenderContext {
     /// <summary>
     /// The image info associated with the surface that will be used to do the final render
     /// </summary>
@@ -38,8 +37,7 @@ public readonly struct PreRenderContext
 
     public SKFilterQuality FilterQuality { get; }
 
-    public PreRenderContext(SKImageInfo imageInfo, EnumRenderQuality renderQuality)
-    {
+    public PreRenderContext(SKImageInfo imageInfo, EnumRenderQuality renderQuality) {
         this.ImageInfo = imageInfo;
         this.RenderQuality = renderQuality;
         this.FilterQuality = renderQuality.ToFilterQuality();

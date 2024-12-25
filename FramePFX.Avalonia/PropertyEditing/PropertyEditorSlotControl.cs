@@ -29,8 +29,7 @@ using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.PropertyEditing;
 
-public class PropertyEditorSlotControl : ContentControl
-{
+public class PropertyEditorSlotControl : ContentControl {
     public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<PropertyEditorSlotControl, bool>("IsSelected", coerce: (o, val) => ((PropertyEditorSlotControl) o).IsSelectable && val);
     public static readonly StyledProperty<bool> IsSelectableProperty = AvaloniaProperty.Register<PropertyEditorSlotControl, bool>("IsSelectable");
 
@@ -39,15 +38,13 @@ public class PropertyEditorSlotControl : ContentControl
     /// our <see cref="PropertyEditor"/>'s selected items
     /// </summary>
     [Category("Appearance")]
-    public bool IsSelected
-    {
+    public bool IsSelected {
         get => this.GetValue(IsSelectedProperty);
         set => this.SetValue(IsSelectedProperty, value);
     }
 
     [Category("Appearance")]
-    public bool IsSelectable
-    {
+    public bool IsSelectable {
         get => this.GetValue(IsSelectableProperty);
         set => this.SetValue(IsSelectableProperty, value);
     }
@@ -61,33 +58,26 @@ public class PropertyEditorSlotControl : ContentControl
     public PropertyEditorSlotControl() {
     }
 
-    static PropertyEditorSlotControl()
-    {
+    static PropertyEditorSlotControl() {
         IsSelectedProperty.Changed.AddClassHandler<PropertyEditorSlotControl, bool>((o, e) => o.OnSelectionChanged(e.GetOldValue<bool>(), e.GetNewValue<bool>()));
         IsSelectableProperty.Changed.AddClassHandler<PropertyEditorSlotControl, bool>((o, e) => o.CoerceValue(IsSelectedProperty));
         PointerPressedEvent.AddClassHandler<PropertyEditorSlotControl>((t, e) => t.OnPreviewMouseDown(e), RoutingStrategies.Tunnel);
     }
 
-    private void OnPreviewMouseDown(PointerPressedEventArgs e)
-    {
-        if (!e.Handled && this.IsSelectable)
-        {
-            if ((e.KeyModifiers & KeyModifiers.Control) != 0)
-            {
+    private void OnPreviewMouseDown(PointerPressedEventArgs e) {
+        if (!e.Handled && this.IsSelectable) {
+            if ((e.KeyModifiers & KeyModifiers.Control) != 0) {
                 this.IsSelected = !this.IsSelected;
             }
-            else if (this.Model?.PropertyEditor is PropertyEditor editor)
-            {
+            else if (this.Model?.PropertyEditor is PropertyEditor editor) {
                 editor.ClearSelection();
                 this.IsSelected = true;
             }
-            else
-            {
+            else {
                 return;
             }
 
-            if (this.OwnerGroup?.PropertyEditor is PropertyEditorControl editorControl)
-            {
+            if (this.OwnerGroup?.PropertyEditor is PropertyEditorControl editorControl) {
                 editorControl.TouchedSlot = this;
             }
 
@@ -114,16 +104,14 @@ public class PropertyEditorSlotControl : ContentControl
     //     return true;
     // }
 
-    public void OnPreConnection(PropertyEditorGroupControl ownerGroup, PropertyEditorSlot item)
-    {
+    public void OnPreConnection(PropertyEditorGroupControl ownerGroup, PropertyEditorSlot item) {
         BasePropEditControlContent content = BasePropEditControlContent.NewContentInstance(item);
         this.Model = item;
         this.OwnerGroup = ownerGroup;
         this.Content = content;
     }
 
-    public void ConnectModel()
-    {
+    public void ConnectModel() {
         this.IsSelectable = this.Model!.IsSelectable;
         this.isSelectedBinder.Attach(this, this.Model);
         this.Model.IsCurrentlyApplicableChanged += this.Model_IsCurrentlyApplicableChanged;
@@ -138,8 +126,7 @@ public class PropertyEditorSlotControl : ContentControl
         this.UpdateVisibility();
     }
 
-    public void DisconnectModel()
-    {
+    public void DisconnectModel() {
         ((BasePropEditControlContent) this.Content!).Disconnect();
         this.isSelectedBinder.Detach();
         this.UpdateVisibility();
@@ -151,13 +138,11 @@ public class PropertyEditorSlotControl : ContentControl
     private void OnSelectionChanged(bool oldValue, bool newValue) {
     }
 
-    private void Model_IsCurrentlyApplicableChanged(BasePropertyEditorItem sender)
-    {
+    private void Model_IsCurrentlyApplicableChanged(BasePropertyEditorItem sender) {
         this.UpdateVisibility();
     }
 
-    protected virtual void UpdateVisibility()
-    {
+    protected virtual void UpdateVisibility() {
         this.IsVisible = this.Model!.IsVisible;
     }
 }

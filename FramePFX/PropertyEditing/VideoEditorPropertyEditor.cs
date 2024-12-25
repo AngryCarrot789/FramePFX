@@ -33,8 +33,7 @@ namespace FramePFX.PropertyEditing;
 /// <summary>
 /// A class which stores the video editor's general property editor information
 /// </summary>
-public class VideoEditorPropertyEditor : PropertyEditor
-{
+public class VideoEditorPropertyEditor : PropertyEditor {
     public static VideoEditorPropertyEditor Instance { get; } = new VideoEditorPropertyEditor();
 
     public SimplePropertyEditorGroup ClipGroup { get; }
@@ -45,11 +44,9 @@ public class VideoEditorPropertyEditor : PropertyEditor
 
     public EffectListPropertyEditorGroup TrackEffectListGroup { get; }
 
-    private VideoEditorPropertyEditor()
-    {
+    private VideoEditorPropertyEditor() {
         {
-            this.ClipGroup = new SimplePropertyEditorGroup(typeof(Clip))
-            {
+            this.ClipGroup = new SimplePropertyEditorGroup(typeof(Clip)) {
                 DisplayName = "Clip", IsExpanded = true
             };
 
@@ -89,8 +86,8 @@ public class VideoEditorPropertyEditor : PropertyEditor
                 SimplePropertyEditorGroup group = new SimplePropertyEditorGroup(typeof(TimecodeClip), GroupType.SecondaryExpander) { DisplayName = "Timecode Info" };
                 group.AddItem(new TimecodeFontFamilyPropertyEditorSlot());
                 group.AddItem(new ParameterDoublePropertyEditorSlot(TimecodeClip.FontSizeParameter, typeof(TimecodeClip), "Font Size", DragStepProfile.FontSize) { ValueFormatter = SuffixValueFormatter.StandardPixels });
-                group.AddItem(new DataParameterDoublePropertyEditorSlot(TimecodeClip.StartTimeParameter, TimecodeClip.UseClipStartTimeParameter, true, typeof(TimecodeClip), "Start secs", DragStepProfile.SecondsRealtime) { ValueFormatter = SuffixValueFormatter.StandardSeconds});
-                group.AddItem(new DataParameterDoublePropertyEditorSlot(TimecodeClip.EndTimeParameter, TimecodeClip.UseClipEndTimeParameter, true, typeof(TimecodeClip), "End secs", DragStepProfile.SecondsRealtime) { ValueFormatter = SuffixValueFormatter.StandardSeconds});
+                group.AddItem(new DataParameterDoublePropertyEditorSlot(TimecodeClip.StartTimeParameter, TimecodeClip.UseClipStartTimeParameter, true, typeof(TimecodeClip), "Start secs", DragStepProfile.SecondsRealtime) { ValueFormatter = SuffixValueFormatter.StandardSeconds });
+                group.AddItem(new DataParameterDoublePropertyEditorSlot(TimecodeClip.EndTimeParameter, TimecodeClip.UseClipEndTimeParameter, true, typeof(TimecodeClip), "End secs", DragStepProfile.SecondsRealtime) { ValueFormatter = SuffixValueFormatter.StandardSeconds });
                 group.AddItem(new DataParameterColourPropertyEditorSlot(TimecodeClip.ForegroundParameter, typeof(TimecodeClip), "Foreground"));
                 this.ClipGroup.AddItem(group);
             }
@@ -102,8 +99,7 @@ public class VideoEditorPropertyEditor : PropertyEditor
         this.Root.AddItem(this.ClipGroup);
 
         {
-            this.TrackGroup = new SimplePropertyEditorGroup(typeof(Track))
-            {
+            this.TrackGroup = new SimplePropertyEditorGroup(typeof(Track)) {
                 DisplayName = "Track"
             };
 
@@ -127,8 +123,7 @@ public class VideoEditorPropertyEditor : PropertyEditor
         this.Root.AddItem(this.TrackGroup);
     }
 
-    public void OnProjectChanged()
-    {
+    public void OnProjectChanged() {
         this.ClipEffectListGroup.ClearHierarchy();
         this.TrackEffectListGroup.ClearHierarchy();
         this.ClipGroup.ClearHierarchy();

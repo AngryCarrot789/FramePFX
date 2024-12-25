@@ -19,8 +19,7 @@
 
 namespace FramePFX.Interactivity;
 
-public static class NativeDropTypes
-{
+public static class NativeDropTypes {
     public static readonly string Text = nameof(Text);
     public static readonly string UnicodeText = nameof(UnicodeText);
     public static readonly string Dib = "DeviceIndependentBitmap";

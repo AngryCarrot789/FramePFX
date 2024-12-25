@@ -33,8 +33,7 @@ using FramePFX.Shortcuts.Inputs;
 
 namespace FramePFX.Avalonia.Shortcuts.Trees;
 
-public class ShortcutTreeViewItem : TreeViewItem, IShortcutTreeOrNode
-{
+public class ShortcutTreeViewItem : TreeViewItem, IShortcutTreeOrNode {
     public ShortcutTreeView? ResourceTree { get; private set; }
 
     public ShortcutTreeViewItem? ParentNode { get; private set; }
@@ -44,33 +43,28 @@ public class ShortcutTreeViewItem : TreeViewItem, IShortcutTreeOrNode
     private TextBlock? PART_HeaderTextBlock;
     private StackPanel? PART_InputStrokeList;
 
-    public ShortcutTreeViewItem()
-    {
+    public ShortcutTreeViewItem() {
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.PART_HeaderTextBlock = e.NameScope.GetTemplateChild<TextBlock>(nameof(this.PART_HeaderTextBlock));
         this.PART_InputStrokeList = e.NameScope.GetTemplateChild<StackPanel>(nameof(this.PART_InputStrokeList));
     }
 
-    protected override void OnLoaded(RoutedEventArgs e)
-    {
+    protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
         AdvancedContextMenu.SetContextRegistry(this, ShortcutContextRegistry.Registry);
     }
 
-    protected override void OnUnloaded(RoutedEventArgs e)
-    {
+    protected override void OnUnloaded(RoutedEventArgs e) {
         base.OnUnloaded(e);
         AdvancedContextMenu.SetContextRegistry(this, null);
     }
 
     #region Model Connection
 
-    public virtual void OnAdding(ShortcutTreeView tree, ShortcutTreeViewItem? parentNode, BaseShortcutEntry resource)
-    {
+    public virtual void OnAdding(ShortcutTreeView tree, ShortcutTreeViewItem? parentNode, BaseShortcutEntry resource) {
         this.ResourceTree = tree;
         this.ParentNode = parentNode;
         this.Entry = resource;
@@ -78,18 +72,14 @@ public class ShortcutTreeViewItem : TreeViewItem, IShortcutTreeOrNode
             DataManager.SetContextData(this, new ContextData().Set(DataKeys.ShortcutEntryKey, entry));
     }
 
-    public virtual void OnAdded()
-    {
-        if (this.Entry is ShortcutGroupEntry group)
-        {
+    public virtual void OnAdded() {
+        if (this.Entry is ShortcutGroupEntry group) {
             int i = 0;
-            foreach (BaseShortcutEntry item in group.Items)
-            {
+            foreach (BaseShortcutEntry item in group.Items) {
                 this.InsertNode(item, i++);
             }
         }
-        else if (this.Entry is ShortcutEntry shortcut)
-        {
+        else if (this.Entry is ShortcutEntry shortcut) {
             shortcut.ShortcutChanged += this.OnEntryShortcutChanged;
             this.OnEntryShortcutChanged(shortcut);
         }
@@ -97,39 +87,31 @@ public class ShortcutTreeViewItem : TreeViewItem, IShortcutTreeOrNode
         this.Header = this.Entry!.GroupedObject.Name ?? "Unnamed Configuration";
     }
 
-    private void OnEntryShortcutChanged(ShortcutEntry sender)
-    {
+    private void OnEntryShortcutChanged(ShortcutEntry sender) {
         this.PART_InputStrokeList!.Children.Clear();
-        foreach (IInputStroke stroke in sender.Shortcut.InputStrokes)
-        {
-            if (stroke is KeyStroke keyStroke)
-            {
-                this.PART_InputStrokeList.Children.Add(new KeyStrokeControl() {KeyStroke = keyStroke});
+        foreach (IInputStroke stroke in sender.Shortcut.InputStrokes) {
+            if (stroke is KeyStroke keyStroke) {
+                this.PART_InputStrokeList.Children.Add(new KeyStrokeControl() { KeyStroke = keyStroke });
             }
-            else if (stroke is MouseStroke mouseStroke)
-            {
-                this.PART_InputStrokeList.Children.Add(new MouseStrokeControl() {MouseStroke = mouseStroke});
+            else if (stroke is MouseStroke mouseStroke) {
+                this.PART_InputStrokeList.Children.Add(new MouseStrokeControl() { MouseStroke = mouseStroke });
             }
         }
     }
 
-    public virtual void OnRemoving()
-    {
+    public virtual void OnRemoving() {
         int count = this.Items.Count;
-        for (int i = count - 1; i >= 0; i--)
-        {
+        for (int i = count - 1; i >= 0; i--) {
             this.RemoveNode(i);
         }
-        
-        if (this.Entry is ShortcutEntry shortcut)
-        {
+
+        if (this.Entry is ShortcutEntry shortcut) {
             shortcut.ShortcutChanged -= this.OnEntryShortcutChanged;
             this.PART_InputStrokeList!.Children.Clear();
         }
     }
 
-    public virtual void OnRemoved()
-    {
+    public virtual void OnRemoved() {
         this.ResourceTree = null;
         this.ParentNode = null;
         this.Entry = null;
@@ -144,8 +126,7 @@ public class ShortcutTreeViewItem : TreeViewItem, IShortcutTreeOrNode
 
     public void InsertNode(BaseShortcutEntry item, int index) => this.InsertNode(null, item, index);
 
-    public void InsertNode(ShortcutTreeViewItem? control, BaseShortcutEntry layer, int index)
-    {
+    public void InsertNode(ShortcutTreeViewItem? control, BaseShortcutEntry layer, int index) {
         ShortcutTreeView? tree = this.ResourceTree;
         if (tree == null)
             throw new InvalidOperationException("Cannot add children when we have no resource tree associated");
@@ -160,8 +141,7 @@ public class ShortcutTreeViewItem : TreeViewItem, IShortcutTreeOrNode
         control.OnAdded();
     }
 
-    public void RemoveNode(int index, bool canCache = true)
-    {
+    public void RemoveNode(int index, bool canCache = true) {
         ShortcutTreeView? tree = this.ResourceTree;
         if (tree == null)
             throw new InvalidOperationException("Cannot remove children when we have no resource tree associated");
@@ -178,31 +158,25 @@ public class ShortcutTreeViewItem : TreeViewItem, IShortcutTreeOrNode
 
     #endregion
 
-    protected override void OnPointerPressed(PointerPressedEventArgs e)
-    {
+    protected override void OnPointerPressed(PointerPressedEventArgs e) {
         base.OnPointerPressed(e);
-        if (e.Handled)
-        {
+        if (e.Handled) {
             return;
         }
 
         PointerPoint point = e.GetCurrentPoint(this);
-        if (point.Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonPressed)
-        {
+        if (point.Properties.PointerUpdateKind != PointerUpdateKind.LeftButtonPressed) {
             return;
         }
 
         bool isToggle = (e.KeyModifiers & KeyModifiers.Control) != 0;
-        if ((e.ClickCount % 2) == 0)
-        {
-            if (!isToggle)
-            {
+        if ((e.ClickCount % 2) == 0) {
+            if (!isToggle) {
                 this.SetCurrentValue(IsExpandedProperty, !this.IsExpanded);
                 e.Handled = true;
             }
         }
-        else if ((this.IsFocused || this.Focus()))
-        {
+        else if ((this.IsFocused || this.Focus())) {
             e.Pointer.Capture(this);
             this.ResourceTree?.SetSelection(this);
             e.Handled = true;

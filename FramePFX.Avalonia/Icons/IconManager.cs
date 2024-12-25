@@ -24,16 +24,13 @@ namespace FramePFX.Avalonia.Icons;
 /// <summary>
 /// A class that manages a set of registered icons throughout the application. This is used to simply icon usage
 /// </summary>
-public class IconManager
-{
-    public IconKey RegisterIconByFilePath(string name, string filePath)
-    {
+public class IconManager {
+    public IconKey RegisterIconByFilePath(string name, string filePath) {
         // Try to find an existing icon with the same file path. Share pixel data, maybe using a wrapper, because icons are lazily loaded
         return null;
     }
-    
-    public IconKey RegisterIconUsingBitmap(string name, SKBitmap bitmap)
-    {
+
+    public IconKey RegisterIconUsingBitmap(string name, SKBitmap bitmap) {
         // Try to find an existing icon with the same file path. Share pixel data, maybe using a wrapper, because icons are lazily loaded
         return null;
     }

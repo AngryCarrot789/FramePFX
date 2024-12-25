@@ -25,8 +25,7 @@ namespace FramePFX.Editing.Rendering;
 /// <summary>
 /// A class that manages the render state of a track
 /// </summary>
-public class TrackRenderState
-{
+public class TrackRenderState {
     /// <summary>
     /// The primary clip to render
     /// </summary>
@@ -42,8 +41,7 @@ public class TrackRenderState
     /// </summary>
     public VideoTrack Track { get; }
 
-    public TrackRenderState(VideoTrack track)
-    {
+    public TrackRenderState(VideoTrack track) {
         this.Track = track;
     }
 

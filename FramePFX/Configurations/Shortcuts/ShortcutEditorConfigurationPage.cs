@@ -24,8 +24,7 @@ namespace FramePFX.Configurations.Shortcuts;
 
 public delegate void ModifiedShortcutsChangedEventHandler(ShortcutEditorConfigurationPage page);
 
-public class ShortcutEditorConfigurationPage : ConfigurationPage
-{
+public class ShortcutEditorConfigurationPage : ConfigurationPage {
     public ShortcutManager ShortcutManager { get; }
 
     public ShortcutGroupEntry RootGroupEntry { get; private set; }
@@ -33,34 +32,29 @@ public class ShortcutEditorConfigurationPage : ConfigurationPage
     private HashSet<ShortcutEntry>? modifiedEntries;
 
     public IEnumerable<ShortcutEntry> ModifiedEntries => this.modifiedEntries ?? Enumerable.Empty<ShortcutEntry>();
-    
+
     /// <summary>
     /// An event fired when a shortcut entry is added to or removed from our modified shortcuts list
     /// </summary>
     public event ModifiedShortcutsChangedEventHandler? ModifiedShortcutsChanged;
-    
-    public ShortcutEditorConfigurationPage(ShortcutManager shortcutManager)
-    {
+
+    public ShortcutEditorConfigurationPage(ShortcutManager shortcutManager) {
         this.ShortcutManager = shortcutManager;
     }
-    
-    public override ValueTask OnContextCreated(ConfigurationContext context)
-    {
+
+    public override ValueTask OnContextCreated(ConfigurationContext context) {
         this.RootGroupEntry = new ShortcutGroupEntry(this, null, this.ShortcutManager.Root);
         return base.OnContextCreated(context);
     }
 
-    public override ValueTask OnContextDestroyed(ConfigurationContext context)
-    {
+    public override ValueTask OnContextDestroyed(ConfigurationContext context) {
         this.RootGroupEntry = null;
         this.modifiedEntries = null;
         return base.OnContextDestroyed(context);
     }
 
-    public override ValueTask Apply()
-    {
-        if (this.modifiedEntries != null)
-        {
+    public override ValueTask Apply() {
+        if (this.modifiedEntries != null) {
             foreach (ShortcutEntry entry in this.modifiedEntries)
                 entry.GroupedObject.Shortcut = entry.Shortcut;
 
@@ -70,17 +64,14 @@ public class ShortcutEditorConfigurationPage : ConfigurationPage
         return ValueTask.CompletedTask;
     }
 
-    public void OnShortcutChanged(ShortcutEntry entry, IShortcut newShortcut)
-    {
-        if (Equals(newShortcut, entry.GroupedObject.Shortcut))
-        {
+    public void OnShortcutChanged(ShortcutEntry entry, IShortcut newShortcut) {
+        if (Equals(newShortcut, entry.GroupedObject.Shortcut)) {
             this.modifiedEntries?.Remove(entry);
         }
-        else if (!(this.modifiedEntries ??= new HashSet<ShortcutEntry>()).Add(entry))
-        {
+        else if (!(this.modifiedEntries ??= new HashSet<ShortcutEntry>()).Add(entry)) {
             return;
         }
-        
+
         this.ModifiedShortcutsChanged?.Invoke(this);
         this.MarkModified();
     }

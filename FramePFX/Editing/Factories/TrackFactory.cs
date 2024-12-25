@@ -21,18 +21,15 @@ using FramePFX.Editing.Timelines.Tracks;
 
 namespace FramePFX.Editing.Factories;
 
-public class TrackFactory : ReflectiveObjectFactory<Track>
-{
+public class TrackFactory : ReflectiveObjectFactory<Track> {
     public static TrackFactory Instance { get; } = new TrackFactory();
 
-    private TrackFactory()
-    {
+    private TrackFactory() {
         this.RegisterType("track_vid", typeof(VideoTrack));
         this.RegisterType("track_aud", typeof(AudioTrack));
     }
 
-    public Track NewTrack(string id)
-    {
+    public Track NewTrack(string id) {
         return base.NewInstance(id);
     }
 }

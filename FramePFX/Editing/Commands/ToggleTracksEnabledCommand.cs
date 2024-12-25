@@ -25,73 +25,58 @@ using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.Editing.Commands;
 
-public class ToggleTracksEnabledCommand : Command
-{
-    public override Executability CanExecute(CommandEventArgs e)
-    {
-        if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track? track) && track is VideoTrack)
-        {
+public class ToggleTracksEnabledCommand : Command {
+    public override Executability CanExecute(CommandEventArgs e) {
+        if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track? track) && track is VideoTrack) {
             return Executability.Valid;
         }
 
         return DataKeys.TimelineUIKey.IsPresent(e.ContextData) ? Executability.Valid : Executability.Invalid;
     }
 
-    protected override void Execute(CommandEventArgs e)
-    {
-        if (!TimelineCommandUtils.TryGetSelectedVideoTrackModels(e.ContextData, out List<VideoTrack>? list) || list.Count < 1)
-        {
+    protected override void Execute(CommandEventArgs e) {
+        if (!TimelineCommandUtils.TryGetSelectedVideoTrackModels(e.ContextData, out List<VideoTrack>? list) || list.Count < 1) {
             return;
         }
 
         int visibleCount = list.Count(clip => VideoTrack.IsEnabledParameter.GetCurrentValue(clip));
         bool newIsEnabled = list.Count == 1 ? (visibleCount == 0) : (visibleCount < (list.Count / 2));
-        foreach (VideoTrack track in list)
-        {
+        foreach (VideoTrack track in list) {
             AutomationUtils.SetDefaultKeyFrameOrAddNew(track, VideoTrack.IsEnabledParameter, newIsEnabled, (k, d, v) => k.SetBoolValue(v));
         }
     }
 }
 
-public abstract class SetTrackEnabledStateCommand : Command
-{
+public abstract class SetTrackEnabledStateCommand : Command {
     public bool State { get; }
 
-    protected SetTrackEnabledStateCommand(bool state)
-    {
+    protected SetTrackEnabledStateCommand(bool state) {
         this.State = state;
     }
 
-    public override Executability CanExecute(CommandEventArgs e)
-    {
-        if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track? track) && track is VideoTrack)
-        {
+    public override Executability CanExecute(CommandEventArgs e) {
+        if (DataKeys.TrackKey.TryGetContext(e.ContextData, out Track? track) && track is VideoTrack) {
             return Executability.Valid;
         }
 
         return DataKeys.TimelineUIKey.IsPresent(e.ContextData) ? Executability.Valid : Executability.Invalid;
     }
 
-    protected override void Execute(CommandEventArgs e)
-    {
-        if (!TimelineCommandUtils.TryGetSelectedVideoTrackModels(e.ContextData, out List<VideoTrack>? list) || list.Count < 1)
-        {
+    protected override void Execute(CommandEventArgs e) {
+        if (!TimelineCommandUtils.TryGetSelectedVideoTrackModels(e.ContextData, out List<VideoTrack>? list) || list.Count < 1) {
             return;
         }
 
-        foreach (VideoTrack track in list)
-        {
+        foreach (VideoTrack track in list) {
             AutomationUtils.SetDefaultKeyFrameOrAddNew(track, VideoTrack.IsEnabledParameter, this.State, (k, d, v) => k.SetBoolValue(v));
         }
     }
 }
 
-public class EnableTracksCommand : SetTrackEnabledStateCommand
-{
+public class EnableTracksCommand : SetTrackEnabledStateCommand {
     public EnableTracksCommand() : base(true) { }
 }
 
-public class DisableTracksCommand : SetTrackEnabledStateCommand
-{
+public class DisableTracksCommand : SetTrackEnabledStateCommand {
     public DisableTracksCommand() : base(false) { }
 }

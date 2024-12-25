@@ -19,8 +19,7 @@
 
 namespace FramePFX.Interactivity.Formatting;
 
-public interface IValueFormatter
-{
+public interface IValueFormatter {
     /// <summary>
     /// Converts the value into a readable string
     /// </summary>

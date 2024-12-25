@@ -24,18 +24,15 @@ namespace FramePFX.AdvancedMenuService;
 /// <summary>
 /// A context entry that invokes a callback method
 /// </summary>
-public abstract class CustomContextEntry : BaseContextEntry
-{
+public abstract class CustomContextEntry : BaseContextEntry {
     public Action<CustomContextEntry, IContextData>? Action { get; init; }
 
-    protected CustomContextEntry(string displayName, string? description) : base(displayName, description)
-    {
+    protected CustomContextEntry(string displayName, string? description) : base(displayName, description) {
     }
 
-    public virtual bool CanExecute(IContextData context)
-    {
+    public virtual bool CanExecute(IContextData context) {
         return true;
     }
-    
+
     public abstract Task OnExecute(IContextData context);
 }

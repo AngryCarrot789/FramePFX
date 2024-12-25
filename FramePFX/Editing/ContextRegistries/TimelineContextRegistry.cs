@@ -19,7 +19,5 @@
 
 namespace FramePFX.Editing.ContextRegistries;
 
-public class TimelineContextRegistry
-{
-    
+public class TimelineContextRegistry {
 }

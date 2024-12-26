@@ -35,9 +35,9 @@ namespace FramePFX.Configurations;
 public class ProjectConfigurationManager : ConfigurationManager, IDestroy {
     public Project Project { get; }
 
-    public IVideoEditorUI VideoEditor { get; }
+    public IVideoEditorWindow VideoEditor { get; }
 
-    public ProjectConfigurationManager(Project project, IVideoEditorUI editorUi) {
+    public ProjectConfigurationManager(Project project, IVideoEditorWindow editorUi) {
         this.Project = project;
         this.VideoEditor = editorUi;
         this.RootEntry.AddEntry(new ConfigurationEntry() {
@@ -49,7 +49,7 @@ public class ProjectConfigurationManager : ConfigurationManager, IDestroy {
         
     }
 
-    public static ProjectConfigurationManager GetInstance(Project project, IVideoEditorUI videoEditor) {
+    public static ProjectConfigurationManager GetInstance(Project project, IVideoEditorWindow videoEditor) {
         if (!project.ServiceManager.TryGetService(out ProjectConfigurationManager? manager))
             project.ServiceManager.RegisterConstant(manager = new ProjectConfigurationManager(project, videoEditor));
         return manager;

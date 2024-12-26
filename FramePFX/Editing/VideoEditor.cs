@@ -215,6 +215,10 @@ public class VideoEditor : IServiceable, IDestroy {
             throw new Exception("There is no project opened");
         }
 
+        if (this.Playback.PlayState != PlayState.Stop) {
+            this.Playback.Stop();
+        }
+
         PlaybackManager.InternalOnActiveTimelineChanged(this.Playback, oldProject.ActiveTimeline, null);
         oldProject.Settings.FrameRateChanged -= this.OnProjectFrameRateChanged;
         this.Project = null;
@@ -233,6 +237,7 @@ public class VideoEditor : IServiceable, IDestroy {
     }
 
     public void Destroy() {
+        this.Playback.Stop();
         this.Playback.StopTimer();
     }
 }

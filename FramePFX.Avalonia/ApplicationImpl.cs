@@ -34,10 +34,10 @@ using FramePFX.Avalonia.Exporting;
 using FramePFX.Avalonia.Services;
 using FramePFX.Avalonia.Services.Colours;
 using FramePFX.Avalonia.Services.Files;
+using FramePFX.Avalonia.Services.Startups;
 using FramePFX.Avalonia.Shortcuts.Avalonia;
 using FramePFX.Avalonia.Shortcuts.Dialogs;
 using FramePFX.Configurations;
-using FramePFX.Editing;
 using FramePFX.Editing.Exporting;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Natives;
@@ -47,6 +47,8 @@ using FramePFX.Services.FilePicking;
 using FramePFX.Services.InputStrokes;
 using FramePFX.Services.Messaging;
 using FramePFX.Services.UserInputs;
+using FramePFX.Services.VideoEditors;
+using FramePFX.Shortcuts;
 using FramePFX.Utils;
 
 namespace FramePFX.Avalonia;
@@ -63,16 +65,9 @@ public class ApplicationImpl : Application {
         this.App = app ?? throw new ArgumentNullException(nameof(app));
         this.Dispatcher = new DispatcherImpl(global::Avalonia.Threading.Dispatcher.UIThread);
     }
-
-    public static void InternalPreInititaliseImpl(App app) => InternalPreInititalise(new ApplicationImpl(app));
-
-    public static Task InternalInititaliseImpl(IApplicationStartupProgress progress) => InternalInititalise(progress);
-
-    public static void InternalExit(int exitCode) => InternalOnExit(exitCode);
-
-    public static Task InternalOnInitialised(VideoEditor editor, string[] args) => InternalOnInitialised2(editor, args);
-
+    
     protected override void RegisterServices(ServiceManager manager) {
+        manager.RegisterConstant<ShortcutManager>(new AvaloniaShortcutManager());
         base.RegisterServices(manager);
         manager.RegisterConstant<IMessageDialogService>(new MessageDialogServiceImpl());
         manager.RegisterConstant<IUserInputDialogService>(new InputDialogServiceImpl());
@@ -82,35 +77,17 @@ public class ApplicationImpl : Application {
         manager.RegisterConstant<IExportDialogService>(new ExportDialogServiceImpl());
         manager.RegisterConstant<IConfigurationDialogService>(new ConfigurationDialogServiceImpl());
         manager.RegisterConstant<IInputStrokeQueryDialogService>(new InputStrokeDialogsImpl());
+        manager.RegisterConstant<IVideoEditorService>(new VideoEditorServiceImpl());
+        manager.RegisterConstant<StartupManager>(new StartupManagerImpl());
     }
 
-    protected override async Task OnInitialise(IApplicationStartupProgress progress) {
-        // Since we're calling a base method which will complete to 100%,
-        // we need to push a completion range for our custom code
-        using (progress.CompletionState.PushCompletionRange(0.0, 0.5))
-            await base.OnInitialise(progress);
-
-        // PFXCE engine removed because it's a hassle to compile it, mainly PortAudio
-        // await progress.SetAction("Loading PFXCE native engine...", null);
-        // try {
-        //     PFXNative.InitialiseLibrary();
-        // }
-        // catch (Exception e) {
-        //     await IoC.MessageService.ShowMessage(
-        //         "Native Library Failure",
-        //         "Error loading native engine library. Be sure to build the C++ project. If it built correctly, then one of its" +
-        //         "library DLL dependencies may be missing. Make sure the FFmpeg and PortAudio DLLs are available (e.g. in the bin folder)." +
-        //         "\n\nError:\n" + e.GetToString());
-        //     throw new Exception("PFXCE native engine load failed", e);
-        // }
-
-        await progress.ProgressAndSynchroniseAsync("Loading keymap...");
-
+    protected override async Task<bool> LoadKeyMapAsync() {
         string keymapFilePath = Path.GetFullPath(@"Keymap.xml");
         if (File.Exists(keymapFilePath)) {
             try {
                 await using FileStream stream = File.OpenRead(keymapFilePath);
                 AvaloniaShortcutManager.AvaloniaInstance.DeserialiseRoot(stream);
+                return true;
             }
             catch (Exception ex) {
                 await IMessageDialogService.Instance.ShowMessage("Keymap", "Failed to read keymap file" + keymapFilePath + ". This error can be ignored, but shortcuts won't work", ex.GetToString());
@@ -119,8 +96,18 @@ public class ApplicationImpl : Application {
         else {
             await IMessageDialogService.Instance.ShowMessage("Keymap", "Keymap file does not exist at " + keymapFilePath + ". This error can be ignored, but shortcuts won't work");
         }
+        
+        return false;
+    }
 
-        await progress.ProgressAndSynchroniseAsync("Loading Native Engine...", 0.65);
+    protected override async Task OnInitialised(IApplicationStartupProgress progress) {
+        // Since we're calling a base method which will complete to 100%,
+        // we need to push a completion range for our custom code
+        using (progress.CompletionState.PushCompletionRange(0.0, 0.25)) {
+            await base.OnInitialised(progress);
+        }
+
+        await progress.ProgressAndSynchroniseAsync("Loading Native Engine...", 0.5);
 
         try {
             PFXNative.InitialiseLibrary();
@@ -129,7 +116,7 @@ public class ApplicationImpl : Application {
             await IMessageDialogService.Instance.ShowMessage("Native Engine Initialisation Failed", "Failed to initialise native engine", e.GetToString());
         }
 
-        await progress.ProgressAndSynchroniseAsync("Loading FFmpeg...", 0.8);
+        await progress.ProgressAndSynchroniseAsync("Loading FFmpeg...", 0.75);
 
         // FramePFX is a small non-linear video editor, written in C# using Avalonia for the UI
         // but what if we don't
@@ -156,13 +143,6 @@ public class ApplicationImpl : Application {
         }
     }
 
-    protected override async Task OnFullyInitialised(VideoEditor editor, string[] args) {
-        await base.OnFullyInitialised(editor, args);
-        if (this.App.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
-            ((EditorWindow) desktop.MainWindow!).PART_ViewPort!.PART_FreeMoveViewPort!.FitContentToCenter();
-        }
-    }
-
     public static bool TryGetActiveWindow([NotNullWhen(true)] out Window? window) {
         if (global::Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             return (window = desktop.Windows.FirstOrDefault(x => x.IsActive) ?? desktop.MainWindow) != null;
@@ -171,6 +151,14 @@ public class ApplicationImpl : Application {
         window = null;
         return false;
     }
+    
+    internal static void InternalSetupApplicationInstance(App app) => InternalSetInstance(new ApplicationImpl(app));
+
+    internal static Task InternalInitialiseImpl(IApplicationStartupProgress progress) => InternalInitialise(progress);
+
+    internal static void InternalOnExited(int exitCode) => InternalOnExit(exitCode);
+
+    internal static Task InternalOnInitialised() => InternalOnInitialised2();
 
     private class DispatcherImpl : IDispatcher {
         private static readonly Action EmptyAction = () => {

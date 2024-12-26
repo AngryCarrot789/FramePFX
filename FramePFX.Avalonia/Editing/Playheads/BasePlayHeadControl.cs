@@ -23,15 +23,13 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Layout;
-using Avalonia.Reactive;
 using FramePFX.Avalonia.Editing.Timelines;
 using FramePFX.Editing.Timelines;
+using FramePFX.Editing.UI;
 
 namespace FramePFX.Avalonia.Editing.Playheads;
 
 public abstract class BasePlayHeadControl : TemplatedControl {
-    private IDisposable? zoomChangeHandler;
-    private IDisposable? timelineChangeHandler;
     public static readonly StyledProperty<TimelineControl?> TimelineControlProperty = AvaloniaProperty.Register<BasePlayHeadControl, TimelineControl?>(nameof(TimelineControl));
     public static readonly StyledProperty<PlayHeadType> PlayHeadTypeProperty = AvaloniaProperty.Register<BasePlayHeadControl, PlayHeadType>(nameof(PlayHeadType), PlayHeadType.PlayHead);
     public static readonly StyledProperty<ScrollViewer?> ScrollViewerReferenceProperty = AvaloniaProperty.Register<BasePlayHeadControl, ScrollViewer?>(nameof(ScrollViewerReference));
@@ -63,22 +61,22 @@ public abstract class BasePlayHeadControl : TemplatedControl {
         set => this.SetValue(AdditionalOffsetProperty, value);
     }
 
-    private Timeline? currTimeline;
-    private long currFrame;
-    private double currZoom;
+    private Timeline? myTimeline;
+    private long myFrame;
+    private double myZoom;
 
     public long Frame {
-        get => this.currFrame;
+        get => this.myFrame;
         set {
-            if (this.currTimeline == null)
+            if (this.myTimeline == null)
                 throw new InvalidOperationException("No timeline attached");
 
-            if (value == this.currFrame)
+            if (value == this.myFrame)
                 return;
 
             switch (this.PlayHeadType) {
-                case PlayHeadType.PlayHead: this.currTimeline.PlayHeadPosition = value; break;
-                case PlayHeadType.StopHead: this.currTimeline.StopHeadPosition = value; break;
+                case PlayHeadType.PlayHead: this.myTimeline.PlayHeadPosition = value; break;
+                case PlayHeadType.StopHead: this.myTimeline.StopHeadPosition = value; break;
             }
         }
     }
@@ -103,8 +101,8 @@ public abstract class BasePlayHeadControl : TemplatedControl {
     }
 
     protected virtual void OnTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline) {
-        Debug.Assert(this.currTimeline == oldTimeline, "Different last timelines");
-        this.currTimeline = newTimeline;
+        Debug.Assert(this.myTimeline == oldTimeline, "Different last timelines");
+        this.myTimeline = newTimeline;
         if (oldTimeline != null) {
             this.UnregisterPlayHeadEvents(oldTimeline, this.PlayHeadType);
         }
@@ -119,31 +117,36 @@ public abstract class BasePlayHeadControl : TemplatedControl {
         }
     }
 
-    protected virtual void OnTimelineControlChanged(TimelineControl? oldTimeline, TimelineControl? newTimeline) {
-        if (oldTimeline != null) {
-            this.zoomChangeHandler?.Dispose();
-            this.timelineChangeHandler?.Dispose();
+    protected virtual void OnTimelineControlChanged(TimelineControl? oldControl, TimelineControl? newControl) {
+        if (oldControl != null) {
+            oldControl.TimelineModelChanged -= this.OnTimelineModelChangedHandler;
+            oldControl.ZoomChanged -= this.OnTimelineZoomChangedHandler;
         }
 
-        if (newTimeline != null) {
-            this.timelineChangeHandler = TimelineControl.TimelineProperty.Changed.Subscribe(new AnonymousObserver<AvaloniaPropertyChangedEventArgs<Timeline?>>((e) => this.OnTimelineChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault())));
-            this.zoomChangeHandler = TimelineControl.ZoomProperty.Changed.Subscribe(new AnonymousObserver<AvaloniaPropertyChangedEventArgs<double>>(this.OnTimelineZoomed));
-            this.currZoom = newTimeline.Zoom;
-
-            Timeline? newTimelineModel = newTimeline.Timeline;
+        if (newControl != null) {
+            newControl.TimelineModelChanged += this.OnTimelineModelChangedHandler;
+            newControl.ZoomChanged += this.OnTimelineZoomChangedHandler;
+            this.myZoom = newControl.Zoom;
+            Timeline? newTimelineModel = newControl.Timeline;
             if (newTimelineModel != null) {
-                Debug.Assert(this.currTimeline == oldTimeline?.Timeline, "Different last timelines");
-                this.currTimeline = newTimelineModel;
-                this.OnTimelineChanged(oldTimeline?.Timeline, newTimelineModel);
+                Debug.Assert(this.myTimeline == oldControl?.Timeline, "Different last timelines");
+                this.OnTimelineChanged(oldControl?.Timeline, newTimelineModel);
             }
 
             // this.IsVisible = newTimeline.Timeline != null;
             this.UpdatePosition();
         }
         else {
+            if (this.myTimeline != null) {
+                this.OnTimelineChanged(this.myTimeline, null);
+            }
+
             // this.IsVisible = false;
         }
     }
+
+    private void OnTimelineZoomChangedHandler(object sender, AvaloniaPropertyChangedEventArgs<double> e) => this.OnTimelineZoomed(e);
+    private void OnTimelineModelChangedHandler(ITimelineElement element, Timeline? oldTimeline, Timeline? newTimeline) => this.OnTimelineChanged(oldTimeline, newTimeline);
 
     private void OnScrollViewerReferenceChanged(ScrollViewer? oldValue, ScrollViewer? newValue) {
         if (oldValue != null) {
@@ -162,9 +165,9 @@ public abstract class BasePlayHeadControl : TemplatedControl {
     private void OnScrollViewerScrollChanged(object? sender, ScrollChangedEventArgs e) => this.UpdatePosition();
 
     private void OnPlayHeadTypeChanged(PlayHeadType oldValue, PlayHeadType newValue) {
-        if (this.currTimeline != null) {
-            this.UnregisterPlayHeadEvents(this.currTimeline, oldValue);
-            this.RegisterPlayHeadEvents(this.currTimeline, newValue);
+        if (this.myTimeline != null) {
+            this.UnregisterPlayHeadEvents(this.myTimeline, oldValue);
+            this.RegisterPlayHeadEvents(this.myTimeline, newValue);
         }
     }
 
@@ -181,27 +184,27 @@ public abstract class BasePlayHeadControl : TemplatedControl {
             case PlayHeadType.None: break;
             case PlayHeadType.PlayHead:
                 timeline.PlayHeadChanged += this.OnPlayHeadValueChanged;
-                this.currFrame = timeline.PlayHeadPosition;
+                this.myFrame = timeline.PlayHeadPosition;
                 return;
             case PlayHeadType.StopHead:
                 timeline.StopHeadChanged += this.OnPlayHeadValueChanged;
-                this.currFrame = timeline.PlayHeadPosition;
+                this.myFrame = timeline.PlayHeadPosition;
                 return;
         }
     }
 
     private void OnPlayHeadValueChanged(Timeline timeline, long oldValue, long newValue) {
-        this.currFrame = newValue;
+        this.myFrame = newValue;
         this.UpdatePosition();
     }
 
     private void OnTimelineZoomed(AvaloniaPropertyChangedEventArgs<double> e) {
-        this.currZoom = e.NewValue.GetValueOrDefault(1.0);
+        this.myZoom = e.NewValue.GetValueOrDefault(1.0);
         this.UpdatePosition();
     }
 
     private void UpdatePosition() {
-        this.SetPixelFromFrameAndZoom(this.currFrame, this.TimelineControl?.Zoom ?? 1.0);
+        this.SetPixelFromFrameAndZoom(this.myFrame, this.TimelineControl?.Zoom ?? 1.0);
     }
 
     protected virtual void SetPixelFromFrameAndZoom(long frame, double zoom) {

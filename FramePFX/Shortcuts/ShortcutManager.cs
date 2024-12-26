@@ -53,7 +53,7 @@ public abstract class ShortcutManager {
     /// <summary>
     /// Gets or sets the application wide shortcut manager. Realistically, only 1 needs to exist during the runtime of the app
     /// </summary>
-    public static ShortcutManager Instance { get; set; }
+    public static ShortcutManager Instance => Application.Instance.ServiceManager.GetService<ShortcutManager>();
 
     protected ShortcutManager() {
         this.cachedCmdToShortcut = new Dictionary<string, LinkedList<GroupedShortcut>>();

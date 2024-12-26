@@ -19,6 +19,7 @@
 
 using System;
 using System.Text;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Interactivity;
 using Avalonia.Media;
@@ -40,7 +41,7 @@ using SkiaSharp;
 
 namespace FramePFX.Avalonia;
 
-public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
+public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
     public static readonly StyledProperty<VideoEditor?> VideoEditorProperty = AvaloniaProperty.Register<EditorWindow, VideoEditor?>(nameof(VideoEditor));
 
     public VideoEditor? VideoEditor {
@@ -48,7 +49,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
         set => this.SetValue(VideoEditorProperty, value);
     }
 
-    ITimelineElement IVideoEditorUI.TimelineElement => this.TheTimeline;
+    ITimelineElement IVideoEditorWindow.TimelineElement => this.TheTimeline;
 
     private readonly NumberAverager renderTimeAverager;
     private ActivityTask? primaryActivity;
@@ -326,5 +327,20 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
 
     public void CenterViewPort() {
         Application.Instance.Dispatcher.InvokeAsync(() => this.PART_ViewPort?.PART_FreeMoveViewPort?.FitContentToCenter(), DispatchPriority.Background);
+    }
+
+    protected override void OnClosed(EventArgs e) {
+        if (this.activeProject != null) {
+            this.VideoEditor!.CloseProject();
+        }
+
+        this.VideoEditor?.Destroy();
+        this.VideoEditor = null;
+        base.OnClosed(e);
+    }
+
+    public async Task CloseEditor() {
+        this.Close();
+        
     }
 }

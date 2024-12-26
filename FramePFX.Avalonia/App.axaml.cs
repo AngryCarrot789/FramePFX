@@ -23,8 +23,7 @@ using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using FramePFX.Avalonia.Shortcuts.Avalonia;
-using FramePFX.Editing;
+using FramePFX.Services.VideoEditors;
 
 namespace FramePFX.Avalonia;
 
@@ -37,15 +36,14 @@ public partial class App : global::Avalonia.Application {
 
     public override void Initialize() {
         AvaloniaXamlLoader.Load(this);
-        ApplicationImpl.InternalPreInititaliseImpl(this);
         AvCore.OnApplicationInitialised();
+        ApplicationImpl.InternalSetupApplicationInstance(this);
     }
 
     public override async void OnFrameworkInitializationCompleted() {
         base.OnFrameworkInitializationCompleted();
         AvCore.OnFrameworkInitialised();
-        UIInputManager.Init();
-
+        
         IApplicationStartupProgress progress;
         if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop1) {
             desktop1.Exit += this.OnExit;
@@ -72,7 +70,7 @@ public partial class App : global::Avalonia.Application {
 #if !DEBUG
             try {
 #endif
-            await ApplicationImpl.InternalInititaliseImpl(progress);
+            await ApplicationImpl.InternalInitialiseImpl(progress);
 #if !DEBUG
             }
             catch (Exception ex) {
@@ -83,23 +81,17 @@ public partial class App : global::Avalonia.Application {
 #endif
         }
 
-        await progress.ProgressAndSynchroniseAsync("Loading editor window", 0.8);
-
-        VideoEditor editor = new VideoEditor();
+        await progress.ProgressAndSynchroniseAsync("Finalizing startup...", 0.9);
         if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
-            EditorWindow mainWindow = new EditorWindow();
-            await progress.ProgressAndSynchroniseAsync("Loading editor window", 0.9);
-            mainWindow.Show();
             (progress as AppSplashScreen)?.Close();
-            desktop.MainWindow = mainWindow;
+            await StartupManager.Instance.ShowStartupOrOpenProject(envArgs.Length > 1 ? envArgs.Skip(1).ToArray() : Array.Empty<string>());
             desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
-            mainWindow.VideoEditor = editor;
         }
 
-        await ApplicationImpl.InternalOnInitialised(editor, envArgs.Length > 1 ? envArgs.Skip(1).ToArray() : Array.Empty<string>());
+        await ApplicationImpl.InternalOnInitialised();
     }
 
     private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e) {
-        ApplicationImpl.InternalExit(e.ApplicationExitCode);
+        ApplicationImpl.InternalOnExited(e.ApplicationExitCode);
     }
 }

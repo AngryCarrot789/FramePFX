@@ -22,11 +22,11 @@ namespace FramePFX.Editing.UI;
 /// <summary>
 /// An interface for the UI of a video editor window
 /// </summary>
-public interface IVideoEditorUI {
+public interface IVideoEditorWindow {
     /// <summary>
     /// Gets our video editor model
     /// </summary>
-    VideoEditor VideoEditor { get; }
+    VideoEditor? VideoEditor { get; }
 
     /// <summary>
     /// Gets the timeline UI
@@ -37,4 +37,10 @@ public interface IVideoEditorUI {
     /// Makes the view port take up as much space in the view port area
     /// </summary>
     void CenterViewPort();
+
+    /// <summary>
+    /// Closes this video editor window
+    /// </summary>
+    /// <returns></returns>
+    Task CloseEditor();
 }

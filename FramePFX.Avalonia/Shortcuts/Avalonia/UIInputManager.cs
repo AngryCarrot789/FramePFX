@@ -26,7 +26,6 @@ using Avalonia.Controls.Presenters;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using FramePFX.Avalonia.Utils;
-using FramePFX.Shortcuts;
 
 namespace FramePFX.Avalonia.Shortcuts.Avalonia;
 
@@ -114,10 +113,6 @@ public class UIInputManager {
         // AvalonEdit
         // IsKeyShortcutProcessingBlockedProperty.OverrideMetadata(typeof(TextEditor), new StyledPropertyMetadata<bool>(true));
         // IsKeyShortcutProcessingBlockedProperty.OverrideMetadata(typeof(TextArea), new StyledPropertyMetadata<bool>(true));
-    }
-
-    public static void Init() {
-        ShortcutManager.Instance = new AvaloniaShortcutManager();
     }
 
     private static void OnTopLevelPreviewPointerPressed(TopLevel sender, PointerPressedEventArgs e) {

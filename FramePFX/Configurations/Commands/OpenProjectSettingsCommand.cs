@@ -26,17 +26,17 @@ namespace FramePFX.Configurations.Commands;
 
 public class OpenProjectSettingsCommand : AsyncCommand {
     protected override Executability CanExecuteOverride(CommandEventArgs e) {
-        if (!DataKeys.VideoEditorUIKey.TryGetContext(e.ContextData, out IVideoEditorUI? editor))
+        if (!DataKeys.VideoEditorUIKey.TryGetContext(e.ContextData, out IVideoEditorWindow? editor))
             return Executability.Invalid;
 
-        return editor.VideoEditor.Project != null ? Executability.Valid : Executability.ValidButCannotExecute;
+        return editor.VideoEditor?.Project != null ? Executability.Valid : Executability.ValidButCannotExecute;
     }
 
     protected override async Task ExecuteAsync(CommandEventArgs e) {
-        if (!DataKeys.VideoEditorUIKey.TryGetContext(e.ContextData, out IVideoEditorUI? editorUI))
+        if (!DataKeys.VideoEditorUIKey.TryGetContext(e.ContextData, out IVideoEditorWindow? editorUI))
             return;
 
-        if (editorUI.VideoEditor.Project is Project project) {
+        if (editorUI.VideoEditor?.Project is Project project) {
             ProjectConfigurationManager config = ProjectConfigurationManager.GetInstance(project, editorUI);
             await IConfigurationDialogService.Instance.ShowConfigurationDialog(config);
             editorUI.TimelineElement.Timeline!.InvalidateRender();

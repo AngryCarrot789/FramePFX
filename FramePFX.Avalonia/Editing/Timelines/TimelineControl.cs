@@ -45,6 +45,8 @@ using Track = FramePFX.Editing.Timelines.Tracks.Track;
 
 namespace FramePFX.Avalonia.Editing.Timelines;
 
+public delegate void AvaloniaPropertyChangedEventHandler<T>(object sender, AvaloniaPropertyChangedEventArgs<T> e);
+
 /// <summary>
 /// The main control for a timeline in a video editor
 /// </summary>
@@ -121,7 +123,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
 
     public EditorWindow? EditorOwner { get; set; }
 
-    IVideoEditorUI ITimelineElement.VideoEditor => this.EditorOwner ?? throw new InvalidOperationException("Not connected to an editor window");
+    IVideoEditorWindow ITimelineElement.VideoEditor => this.EditorOwner ?? throw new InvalidOperationException("Not connected to an editor window");
 
     public IReadOnlyList<ITrackElement> Tracks { get; }
 
@@ -134,7 +136,8 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
 
     public event UITimelineModelChanged? TimelineModelChanging;
     public event UITimelineModelChanged? TimelineModelChanged;
-
+    public event AvaloniaPropertyChangedEventHandler<double>? ZoomChanged;
+    
     public TimelineControl() {
         this.Tracks = new TrackListImpl(this);
         this.myTrackElements = new List<TrackElementImpl>();
@@ -146,6 +149,8 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         TimelineProperty.Changed.AddClassHandler<TimelineControl, Timeline?>((d, e) => d.OnTimelineChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
         IsTrackAutomationVisibleProperty.Changed.AddClassHandler<TimelineControl, bool>((d, e) => d.OnIsTrackAutomationVisibilityChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
         IsClipAutomationVisibleProperty.Changed.AddClassHandler<TimelineControl, bool>((d, e) => d.OnIsClipAutomationVisibilityChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
+        ZoomProperty.Changed.AddClassHandler<TimelineControl, double>((d, e) => d.ZoomChanged?.Invoke(d, e));
+
     }
 
     ITrackElement ITimelineElement.GetTrackFromModel(Track track) => this.trackElementMap.GetControl(track);

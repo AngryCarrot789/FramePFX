@@ -31,6 +31,7 @@ using FramePFX.Avalonia.AdvancedMenuService;
 using FramePFX.Avalonia.Bindings;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Utils;
+using FramePFX.Editing.ContextRegistries;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.Events;
 using FramePFX.Editing.ResourceManaging.UI;
@@ -200,7 +201,7 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
 
         this.displayNameBinder.Attach(this, this.Resource!);
         DataManager.GetContextData(this).Set(DataKeys.ResourceObjectKey, this.Resource);
-        AdvancedContextMenu.SetContextRegistry(this, this.IsFolderItem ? BaseResource.ResourceFolderContextRegistry : BaseResource.ResourceItemContextRegistry);
+        AdvancedContextMenu.SetContextRegistry(this, this.IsFolderItem ? ResourceContextRegistry.ResourceFolderContextRegistry : ResourceContextRegistry.ResourceItemContextRegistry);
     }
 
     public virtual void OnRemoving() {

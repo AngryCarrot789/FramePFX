@@ -27,6 +27,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using FramePFX.Avalonia.AdvancedMenuService;
 using FramePFX.Avalonia.Interactivity;
+using FramePFX.Editing.ContextRegistries;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.Events;
 using FramePFX.Editing.ResourceManaging.UI;
@@ -82,7 +83,7 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
 
     protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
-        AdvancedContextMenu.SetContextRegistry(this, BaseResource.ResourceSurfaceContextRegistry);
+        AdvancedContextMenu.SetContextRegistry(this, ResourceContextRegistry.ResourceSurfaceContextRegistry);
     }
 
     protected override void OnUnloaded(RoutedEventArgs e) {

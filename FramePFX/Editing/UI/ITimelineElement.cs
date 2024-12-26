@@ -32,7 +32,7 @@ public interface ITimelineElement {
     /// <summary>
     /// Gets our video editor Ui
     /// </summary>
-    IVideoEditorUI VideoEditor { get; }
+    IVideoEditorWindow VideoEditor { get; }
 
     /// <summary>
     /// Gets a read-only collection of the tracks in this timeline

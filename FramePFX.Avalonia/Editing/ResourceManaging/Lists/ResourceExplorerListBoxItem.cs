@@ -28,6 +28,7 @@ using FramePFX.Avalonia.AdvancedMenuService;
 using FramePFX.Avalonia.Bindings;
 using FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 using FramePFX.Avalonia.Interactivity;
+using FramePFX.Editing.ContextRegistries;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Interactivity;
@@ -121,7 +122,7 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
         content.ApplyTemplate();
         content.Connect(this);
         DataManager.GetContextData(this).Set(DataKeys.ResourceObjectKey, this.Resource);
-        AdvancedContextMenu.SetContextRegistry(this, this.Resource is ResourceFolder ? BaseResource.ResourceFolderContextRegistry : BaseResource.ResourceItemContextRegistry);
+        AdvancedContextMenu.SetContextRegistry(this, this.Resource is ResourceFolder ? ResourceContextRegistry.ResourceFolderContextRegistry : ResourceContextRegistry.ResourceItemContextRegistry);
     }
 
     public void OnRemovingFromList() {

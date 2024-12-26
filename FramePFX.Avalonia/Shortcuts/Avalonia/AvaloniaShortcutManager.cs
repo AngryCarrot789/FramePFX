@@ -55,14 +55,14 @@ public class AvaloniaShortcutManager : ShortcutManager {
 
         MouseStroke.MouseButtonToStringProvider = (x) => {
             switch (x) {
-                case 0:                 return "LMB";
-                case 1:                 return "MMB";
-                case 2:                 return "RMB";
-                case 3:                 return "X1";
-                case 4:                 return "X2";
-                case BUTTON_WHEEL_UP:   return "WHEEL_UP";
-                case BUTTON_WHEEL_DOWN: return "WHEEL_DOWN";
-                default:                return $"Unknown Button ({x})";
+                case (int) MouseButton.Left:     return "LMB";
+                case (int) MouseButton.Middle:   return "MMB";
+                case (int) MouseButton.Right:    return "RMB";
+                case (int) MouseButton.XButton1: return "X1";
+                case (int) MouseButton.XButton2: return "X2";
+                case BUTTON_WHEEL_UP:            return "WHEEL_UP";
+                case BUTTON_WHEEL_DOWN:          return "WHEEL_DOWN";
+                default:                         return $"Unknown Button ({x})";
             }
         };
     }
@@ -130,18 +130,18 @@ public class AvaloniaShortcutManager : ShortcutManager {
     }
 
     protected override bool OnShortcutActivatedOverride(ShortcutInputProcessor inputProcessor, GroupedShortcut shortcut) {
-        string tostr;
+        string str;
 
         if (Debugger.IsAttached) {
-            tostr = $"shortcut command: {shortcut} -> {(string.IsNullOrWhiteSpace(shortcut.CommandId) ? "<none>" : shortcut.CommandId)}";
+            str = $"shortcut command: {shortcut} -> {(string.IsNullOrWhiteSpace(shortcut.CommandId) ? "<none>" : shortcut.CommandId)}";
         }
         else {
-            tostr = $"shortcut command: {(string.IsNullOrWhiteSpace(shortcut.CommandId) ? "<none>" : shortcut.CommandId)}";
+            str = $"shortcut command: {(string.IsNullOrWhiteSpace(shortcut.CommandId) ? "<none>" : shortcut.CommandId)}";
         }
 
-        BroadcastShortcutActivity($"Activating {tostr}...");
+        BroadcastShortcutActivity($"Activating {str}...");
         bool result = Application.Instance.Dispatcher.Invoke(() => base.OnShortcutActivatedOverride(inputProcessor, shortcut), DispatchPriority.Render);
-        BroadcastShortcutActivity($"Activated {tostr}!");
+        BroadcastShortcutActivity($"Activated {str}!");
         return result;
     }
 

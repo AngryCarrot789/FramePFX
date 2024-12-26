@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Text;
 using FramePFX.CommandSystem;
 using FramePFX.Configurations;
 using FramePFX.Configurations.Commands;
@@ -28,11 +27,8 @@ using FramePFX.Editing.ResourceManaging.Commands;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Commands;
 using FramePFX.Natives;
-using FramePFX.Plugins.Exceptions;
 using FramePFX.Services;
-using FramePFX.Services.Messaging;
 using FramePFX.Tasks;
-using FramePFX.Utils;
 
 namespace FramePFX;
 
@@ -81,29 +77,15 @@ public abstract class Application : IServiceable {
         this.ServiceManager = new ServiceManager(this);
     }
 
-    protected virtual async Task OnInitialise(IApplicationStartupProgress progress) {
-        await progress.ProgressAndSynchroniseAsync("Loading plugins...");
-
-        List<BasePluginLoadException> exceptions = new List<BasePluginLoadException>();
-        if (exceptions.Count > 0) {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < exceptions.Count; i++) {
-                BasePluginLoadException e = exceptions[i];
-                sb.Append($"Exception {i + 1}: ").Append(e).Append('\n').Append('\n');
-            }
-
-            await IMessageDialogService.Instance.ShowMessage("Error loading one or more plugins", sb.ToString());
-        }
-
-        await progress.ProgressAndSynchroniseAsync("Initialising services");
-        using (progress.CompletionState.PushCompletionRange(0.0, 0.5)) {
-            this.RegisterServices(this.ServiceManager);
-        }
-
-        await progress.ProgressAndSynchroniseAsync("Initialising commands");
-        using (progress.CompletionState.PushCompletionRange(0.5, 1.0)) {
-            this.RegisterCommands(progress, CommandManager.Instance);
-        }
+    protected abstract Task<bool> LoadKeyMapAsync();
+    
+    /// <summary>
+    /// Invoked when the application is initialised
+    /// </summary>
+    /// <param name="progress"></param>
+    /// <returns></returns>
+    protected virtual Task OnInitialised(IApplicationStartupProgress progress) {
+        return Task.CompletedTask;
     }
 
     protected virtual void RegisterServices(ServiceManager manager) {
@@ -189,20 +171,7 @@ public abstract class Application : IServiceable {
         progress.CompletionState.SetProgress(1.0);
     }
 
-    protected virtual async Task OnFullyInitialised(VideoEditor editor, string[] args) {
-        if (args.Length > 0 && File.Exists(args[0]) && Filters.ProjectType.MatchFilePath(args[0]) == true) {
-            ActivityTask<bool> task = OpenProjectCommand.RunOpenProjectTask(editor, args[0]);
-            if (!await task) {
-                editor.LoadDefaultProject();
-            }
-        }
-        else {
-            // Use to debug why something is causing a crash only in Release mode
-            // string path = ...;
-            // OpenProjectCommand.RunOpenProjectTask(editor, path);
-            editor.LoadDefaultProject();
-        }
-
+    protected virtual async Task OnFullyInitialised() {
         // Testing resource loader dialog
         // ResourceAVMedia media = new ResourceAVMedia();
         // media.FilePath = "C:\\sexy";
@@ -218,7 +187,7 @@ public abstract class Application : IServiceable {
         PFXNative.ShutdownLibrary();
     }
 
-    protected static void InternalPreInititalise(Application application) {
+    protected static void InternalSetInstance(Application application) {
         if (application == null)
             throw new ArgumentNullException(nameof(application));
 
@@ -228,17 +197,34 @@ public abstract class Application : IServiceable {
         instance = application;
     }
 
-    protected static async Task InternalInititalise(IApplicationStartupProgress progress) {
+    protected static async Task InternalInitialise(IApplicationStartupProgress progress) {
         if (instance == null)
             throw new InvalidOperationException("Application has not been pre-initialised yet");
 
-        using (progress.CompletionState.PushCompletionRange(0, 1))
-            await instance.OnInitialise(progress);
+        using (progress.CompletionState.PushCompletionRange(0, 1)) {
+            await progress.ProgressAndSynchroniseAsync("Initialising services");
+            using (progress.CompletionState.PushCompletionRange(0.0, 0.25)) {
+                instance.RegisterServices(instance.ServiceManager);
+            }
+
+            await progress.ProgressAndSynchroniseAsync("Initialising commands");
+            using (progress.CompletionState.PushCompletionRange(0.25, 0.5)) {
+                instance.RegisterCommands(progress, CommandManager.Instance);
+            }
+
+            await progress.ProgressAndSynchroniseAsync("Loading keymap...");
+            await instance.LoadKeyMapAsync();
+            
+            await progress.ProgressAndSynchroniseAsync(null, 0.75);
+            using (progress.CompletionState.PushCompletionRange(0.75, 1.0)) {
+                await instance.OnInitialised(progress);
+            }
+        }
 
         await progress.SynchroniseAsync();
     }
 
     protected static void InternalOnExit(int exitCode) => instance!.OnExit(exitCode);
 
-    protected static Task InternalOnInitialised2(VideoEditor editor, string[] args) => instance!.OnFullyInitialised(editor, args);
+    protected static Task InternalOnInitialised2() => instance!.OnFullyInitialised();
 }

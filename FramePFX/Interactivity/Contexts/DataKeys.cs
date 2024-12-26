@@ -41,7 +41,7 @@ public static class DataKeys {
     public static readonly DataKey<Clip> ClipKey = DataKey<Clip>.Create("Clip");
     public static readonly DataKey<BaseEffect> EffectKey = DataKey<BaseEffect>.Create("Effect");
 
-    public static readonly DataKey<IVideoEditorUI> VideoEditorUIKey = DataKey<IVideoEditorUI>.Create("VideoEditorUI");
+    public static readonly DataKey<IVideoEditorWindow> VideoEditorUIKey = DataKey<IVideoEditorWindow>.Create("VideoEditorUI");
     public static readonly DataKey<ITimelineElement> TimelineUIKey = DataKey<ITimelineElement>.Create("TimelineUI");
     public static readonly DataKey<ITrackElement> TrackUIKey = DataKey<ITrackElement>.Create("TrackUI");
     public static readonly DataKey<IClipElement> ClipUIKey = DataKey<IClipElement>.Create("ClipUI");

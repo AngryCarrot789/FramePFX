@@ -24,6 +24,7 @@ using FramePFX.Interactivity.Formatting;
 using FramePFX.PropertyEditing.DataTransfer;
 using FramePFX.Utils;
 using FramePFX.Utils.Accessing;
+using FramePFX.Utils.Destroying;
 using SkiaSharp;
 
 namespace FramePFX.Configurations;
@@ -31,7 +32,7 @@ namespace FramePFX.Configurations;
 /// <summary>
 /// The configuration manager for a FramePFX project
 /// </summary>
-public class ProjectConfigurationManager : ConfigurationManager {
+public class ProjectConfigurationManager : ConfigurationManager, IDestroy {
     public Project Project { get; }
 
     public IVideoEditorUI VideoEditor { get; }
@@ -45,6 +46,13 @@ public class ProjectConfigurationManager : ConfigurationManager {
     }
 
     public void Destroy() {
+        
+    }
+
+    public static ProjectConfigurationManager GetInstance(Project project, IVideoEditorUI videoEditor) {
+        if (!project.ServiceManager.TryGetService(out ProjectConfigurationManager? manager))
+            project.ServiceManager.RegisterConstant(manager = new ProjectConfigurationManager(project, videoEditor));
+        return manager;
     }
 }
 

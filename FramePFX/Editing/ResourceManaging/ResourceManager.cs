@@ -20,8 +20,8 @@
 using System.Diagnostics.CodeAnalysis;
 using FramePFX.Editing.ResourceManaging.Events;
 using FramePFX.Utils;
+using FramePFX.Utils.BTE;
 using FramePFX.Utils.Destroying;
-using FramePFX.Utils.RBC;
 
 namespace FramePFX.Editing.ResourceManaging;
 
@@ -122,12 +122,12 @@ public class ResourceManager : IDestroy {
         return this.currId = id;
     }
 
-    public void WriteToRBE(RBEDictionary data) {
+    public void WriteToBTE(BTEDictionary data) {
         BaseResource.SerialisationRegistry.Serialise(this.RootContainer, data.CreateDictionary(nameof(this.RootContainer)));
         data.SetULong("CurrId", this.currId);
     }
 
-    public void ReadFromRBE(RBEDictionary data) {
+    public void ReadFromBTE(BTEDictionary data) {
         if (this.uuidToItem.Count > 0)
             throw new Exception("Cannot read data while resources are still registered");
 

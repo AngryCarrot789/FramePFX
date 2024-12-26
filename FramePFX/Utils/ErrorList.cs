@@ -18,6 +18,7 @@
 // 
 
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 
 namespace FramePFX.Utils;
 
@@ -28,12 +29,12 @@ namespace FramePFX.Utils;
 public class ErrorList : IDisposable, IEnumerable<Exception> {
     private readonly bool tryUseFirstException;
     private readonly bool throwOnDispose;
-    private List<Exception> exceptions;
+    private List<Exception>? exceptions;
 
     /// <summary>
     /// Gets (or creatces) the internal exception list
     /// </summary>
-    public List<Exception> Exceptions => this.exceptions ?? (this.exceptions = new List<Exception>());
+    public List<Exception> Exceptions => this.exceptions ??= new List<Exception>();
 
     /// <summary>
     /// True when there are no exceptions present in this error list
@@ -43,7 +44,7 @@ public class ErrorList : IDisposable, IEnumerable<Exception> {
     /// <summary>
     /// The exception message that is used in the <see cref="Destroy"/> function to throw an exception when there are exceptions in the stack
     /// </summary>
-    public string Message { get; set; }
+    public string? Message { get; set; }
 
     /// <summary>
     /// Creates an exception stack that is not pushed onto the global stack
@@ -53,7 +54,7 @@ public class ErrorList : IDisposable, IEnumerable<Exception> {
     /// <param name="tryUseFirstException">
     /// Whether to try and use the first (and only) pushed exception as the main exception or to instead create one using the message
     /// </param>
-    public ErrorList(string message, bool throwOnDispose = true, bool tryUseFirstException = false) {
+    public ErrorList(string? message, bool throwOnDispose = true, bool tryUseFirstException = false) {
         this.Message = message;
         this.throwOnDispose = throwOnDispose;
         this.tryUseFirstException = tryUseFirstException;
@@ -71,15 +72,22 @@ public class ErrorList : IDisposable, IEnumerable<Exception> {
             throw new ArgumentNullException(nameof(exception));
         this.Exceptions.Add(exception);
     }
+    
+    public void Insert(int index, Exception exception) {
+        if (exception == null)
+            throw new ArgumentNullException(nameof(exception));
+        
+        this.Exceptions.Insert(index, exception);
+    }
 
     public void Dispose() {
-        if (this.throwOnDispose && this.TryGetException(out Exception exception)) {
+        if (this.throwOnDispose && this.TryGetException(out Exception? exception)) {
             throw exception;
         }
     }
 
-    public bool TryGetException(out Exception exception) {
-        List<Exception> list = this.exceptions;
+    public bool TryGetException([NotNullWhen(true)] out Exception? exception) {
+        List<Exception>? list = this.exceptions;
         if (list == null || list.Count < 1) {
             exception = null;
             return false;
@@ -96,7 +104,7 @@ public class ErrorList : IDisposable, IEnumerable<Exception> {
     }
 
     public IEnumerator<Exception> GetEnumerator() {
-        return this.exceptions != null ? this.exceptions.GetEnumerator() : Enumerable.Empty<Exception>().GetEnumerator();
+        return this.exceptions?.GetEnumerator() ?? Enumerable.Empty<Exception>().GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();

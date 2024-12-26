@@ -31,10 +31,8 @@ using Avalonia.Threading;
 using Avalonia.VisualTree;
 using FramePFX.Avalonia.AdvancedMenuService;
 using FramePFX.Avalonia.Editing.Timelines.Selection;
-using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Utils;
 using FramePFX.Editing.UI;
-using FramePFX.Interactivity.Contexts;
 using FramePFX.Utils;
 using Track = FramePFX.Editing.Timelines.Tracks.Track;
 
@@ -46,7 +44,6 @@ public class TrackControlSurfaceItem : ContentControl {
 
     private Track? myTrack;
     private bool wasFocusedBeforeMoving;
-    internal readonly ContextData contextData;
     private bool internalIsSelected;
     private Point clickPos;
     private PixelPoint lastMovePosAbs;
@@ -54,7 +51,7 @@ public class TrackControlSurfaceItem : ContentControl {
     private DragState dragState;
     internal IPointer? initiatedDragPointer;
     private bool isMovingBetweenTracks, hasMovedTrackExFlag;
-    private ContentPresenter PART_ContentPresenter;
+    private ContentPresenter? PART_ContentPresenter;
 
     public Track? Track {
         get => this.myTrack;
@@ -73,10 +70,9 @@ public class TrackControlSurfaceItem : ContentControl {
 
     public ITrackElement? TrackElement { get; internal set; }
 
-    private static PropertyInfo IsPointerOverPropertyInfo = typeof(InputElement).GetProperty("IsPointerOver")!;
+    private static readonly PropertyInfo IsPointerOverPropertyInfo = typeof(InputElement).GetProperty("IsPointerOver")!;
 
     public TrackControlSurfaceItem() {
-        DataManager.SetContextData(this, this.contextData = new ContextData());
     }
 
     protected override void OnLoaded(RoutedEventArgs e) {

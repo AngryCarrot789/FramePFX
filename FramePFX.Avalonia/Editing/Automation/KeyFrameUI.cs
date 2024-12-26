@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Generic;
 using Avalonia;
-using FramePFX.Editing;
 using FramePFX.Editing.Automation;
 using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Automation.Params;

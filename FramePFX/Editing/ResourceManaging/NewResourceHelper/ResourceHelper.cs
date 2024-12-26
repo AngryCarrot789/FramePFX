@@ -19,7 +19,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using FramePFX.Services.Messaging;
-using FramePFX.Utils.RBC;
+using FramePFX.Utils.BTE;
 
 namespace FramePFX.Editing.ResourceManaging.NewResourceHelper;
 
@@ -183,15 +183,15 @@ public class ResourceHelper {
         }
     }
 
-    public void ReadFromRootRBE(RBEDictionary data) {
+    public void ReadFromRootBTE(BTEDictionary data) {
         if (this.references != null) {
             throw new InvalidOperationException("Cannot deserialise while references are loaded");
         }
 
-        if (data.TryGetElement("ResourceMap", out RBEDictionary resourceMapDictionary)) {
-            foreach (KeyValuePair<string, RBEBase> pair in resourceMapDictionary.Map) {
+        if (data.TryGetElement("ResourceMap", out BTEDictionary resourceMapDictionary)) {
+            foreach (KeyValuePair<string, BinaryTreeElement> pair in resourceMapDictionary.Map) {
                 string globalKey = pair.Key;
-                RBEDictionary resourceReferenceData = (RBEDictionary) pair.Value;
+                BTEDictionary resourceReferenceData = (BTEDictionary) pair.Value;
                 if (ResourceSlot.TryGetSlotFromKey(globalKey, out ResourceSlot? slot)) {
                     ulong id = resourceReferenceData.GetULong("ResourceId");
                     if (id == ResourceManager.EmptyId)
@@ -255,17 +255,17 @@ public class ResourceHelper {
             this.OnResourceManagerLoaded(manager, notFoundIds, limitReachedResources);
     }
 
-    public void WriteToRootRBE(RBEDictionary data) {
+    public void WriteToRootBTE(BTEDictionary data) {
         if (this.references == null)
             return;
 
-        RBEDictionary resourceMapDictionary = data.CreateDictionary("ResourceMap");
+        BTEDictionary resourceMapDictionary = data.CreateDictionary("ResourceMap");
         foreach (KeyValuePair<ResourceSlot, ResourceItem> pair in this.references) {
             ulong id = pair.Value.UniqueId;
             if (id == ResourceManager.EmptyId)
                 throw new InvalidOperationException("Resource item has an empty id");
 
-            RBEDictionary subDict = resourceMapDictionary.CreateDictionary(pair.Key.GlobalKey);
+            BTEDictionary subDict = resourceMapDictionary.CreateDictionary(pair.Key.GlobalKey);
             subDict.SetULong("ResourceId", id);
         }
     }

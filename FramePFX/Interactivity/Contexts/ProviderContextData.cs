@@ -24,15 +24,15 @@ namespace FramePFX.Interactivity.Contexts;
 /// <summary>
 /// A context data object that stores value provider functions instead of direct objects
 /// </summary>
-public class ProviderContextData : IContextData, IRandomAccessContext {
-    private Dictionary<string, ObjectProvider>? map;
+public class ProviderContextData : IContextData, IRandomAccessContextData {
+    private Dictionary<string, ObjectProvider>? myData;
 
     public IEnumerable<KeyValuePair<string, object>> Entries {
         get {
-            if (this.map == null)
+            if (this.myData == null)
                 yield break;
 
-            foreach (KeyValuePair<string, ObjectProvider> entry in this.map) {
+            foreach (KeyValuePair<string, ObjectProvider> entry in this.myData) {
                 object? value = entry.Value.ProvideValue();
                 if (value != null)
                     yield return new KeyValuePair<string, object>(entry.Key, value);
@@ -40,7 +40,7 @@ public class ProviderContextData : IContextData, IRandomAccessContext {
         }
     }
 
-    public int Count => this.map?.Count ?? 0;
+    public int Count => this.myData?.Count ?? 0;
 
     public ProviderContextData() {
     }
@@ -58,11 +58,11 @@ public class ProviderContextData : IContextData, IRandomAccessContext {
     public void SetProviderRaw(string key, Func<object> provider) => this.SetProviderImpl(key, ObjectProvider.ForProvider(provider));
 
     private void SetProviderImpl(string key, ObjectProvider provider) {
-        (this.map ??= new Dictionary<string, ObjectProvider>())[key] = provider;
+        (this.myData ??= new Dictionary<string, ObjectProvider>())[key] = provider;
     }
 
     public bool TryGetContext(string key, [NotNullWhen(true)] out object? value) {
-        if (this.map != null && this.map.TryGetValue(key, out ObjectProvider provider)) {
+        if (this.myData != null && this.myData.TryGetValue(key, out ObjectProvider provider)) {
             return (value = provider.ProvideValue()) != null;
         }
 
@@ -74,20 +74,20 @@ public class ProviderContextData : IContextData, IRandomAccessContext {
 
     public IContextData Clone() {
         return new ProviderContextData() {
-            map = this.map != null ? new Dictionary<string, ObjectProvider>(this.map) : null
+            myData = this.myData != null ? new Dictionary<string, ObjectProvider>(this.myData) : null
         };
     }
 
     public void Merge(IContextData ctx) {
-        Dictionary<string, ObjectProvider>? dictionary;
+        Dictionary<string, ObjectProvider>? myMap;
         if (ctx is ProviderContextData provider) {
-            if (provider.map != null) {
-                if ((dictionary = this.map) == null) {
-                    this.map = new Dictionary<string, ObjectProvider>(provider.map);
+            if (provider.myData != null) {
+                if ((myMap = this.myData) == null) {
+                    this.myData = new Dictionary<string, ObjectProvider>(provider.myData);
                 }
                 else {
-                    foreach (KeyValuePair<string, ObjectProvider> entry in provider.map) {
-                        dictionary[entry.Key] = entry.Value;
+                    foreach (KeyValuePair<string, ObjectProvider> entry in provider.myData) {
+                        myMap[entry.Key] = entry.Value;
                     }
                 }
             }
@@ -97,10 +97,10 @@ public class ProviderContextData : IContextData, IRandomAccessContext {
             if (!enumerator.MoveNext())
                 return;
 
-            dictionary = this.map ??= new Dictionary<string, ObjectProvider>();
+            myMap = this.myData ??= new Dictionary<string, ObjectProvider>();
             do {
                 KeyValuePair<string, object> entry = enumerator.Current;
-                dictionary[entry.Key] = ObjectProvider.ForValue(entry.Value);
+                myMap[entry.Key] = ObjectProvider.ForValue(entry.Value);
             } while (enumerator.MoveNext());
         }
     }

@@ -21,7 +21,7 @@ using System.Collections.ObjectModel;
 using System.Numerics;
 using FramePFX.Editing.Automation.Params;
 using FramePFX.Editing.Timelines;
-using FramePFX.Utils.RBC;
+using FramePFX.Utils.BTE;
 
 namespace FramePFX.Editing.Automation.Keyframes;
 
@@ -496,32 +496,32 @@ public class AutomationSequence {
 
     // read/write operations are used for cloning as well as reading from disk
 
-    public void WriteToRBE(RBEDictionary data) {
+    public void WriteToBTE(BTEDictionary data) {
         data.SetByte(nameof(this.DataType), (byte) this.DataType);
         data.SetBool(nameof(this.IsOverrideEnabled), this.IsOverrideEnabled);
-        this.DefaultKeyFrame.WriteToRBE(data.CreateDictionary(nameof(this.DefaultKeyFrame)));
+        this.DefaultKeyFrame.WriteToBTE(data.CreateDictionary(nameof(this.DefaultKeyFrame)));
 
-        RBEList list = data.CreateList(nameof(this.KeyFrames));
+        BTEList list = data.CreateList(nameof(this.KeyFrames));
         foreach (KeyFrame keyFrame in this.keyFrameList) {
             // when reading, use key's DataType to create new key frames and hope the types are correct
-            keyFrame.WriteToRBE(list.AddDictionary());
+            keyFrame.WriteToBTE(list.AddDictionary());
         }
     }
 
-    public void ReadFromRBE(RBEDictionary data) {
+    public void ReadFromBTE(BTEDictionary data) {
         AutomationDataType type = (AutomationDataType) data.GetByte(nameof(this.DataType));
         if (type != this.DataType) {
             throw new Exception($"Data and current instance data type mis-match: {type} != {this.DataType}");
         }
 
         this.IsOverrideEnabled = data.GetBool(nameof(this.IsOverrideEnabled), false);
-        this.DefaultKeyFrame.ReadFromRBE(data.GetDictionary(nameof(this.DefaultKeyFrame)));
+        this.DefaultKeyFrame.ReadFromBTE(data.GetDictionary(nameof(this.DefaultKeyFrame)));
 
         List<KeyFrame> frames = new List<KeyFrame>();
-        RBEList list = data.GetList(nameof(this.KeyFrames));
-        foreach (RBEDictionary rbe in list.Cast<RBEDictionary>()) {
+        BTEList list = data.GetList(nameof(this.KeyFrames));
+        foreach (BTEDictionary bte in list.Cast<BTEDictionary>()) {
             KeyFrame keyFrame = this.Parameter.CreateKeyFrame();
-            keyFrame.ReadFromRBE(rbe);
+            keyFrame.ReadFromBTE(bte);
             frames.Add(keyFrame);
         }
 
@@ -540,9 +540,9 @@ public class AutomationSequence {
         }
 
         // slower than manual copy, but safer in terms of updates just in case
-        RBEDictionary dictionary = new RBEDictionary();
-        src.WriteToRBE(dictionary);
-        dst.ReadFromRBE(dictionary);
+        BTEDictionary dictionary = new BTEDictionary();
+        src.WriteToBTE(dictionary);
+        dst.ReadFromBTE(dictionary);
     }
 
     public static void ValidateType(AutomationDataType expected, AutomationDataType actual) {

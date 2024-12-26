@@ -17,26 +17,26 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
+using System.Numerics;
 using FramePFX.DataTransfer;
 using FramePFX.Utils;
-using SkiaSharp;
 
 namespace FramePFX.PropertyEditing.DataTransfer;
 
-public class DataParameterPointPropertyEditorSlot : DataParameterFormattableNumberPropertyEditorSlot {
-    private SKPoint value;
+public class DataParameterVector2PropertyEditorSlot : DataParameterFormattableNumberPropertyEditorSlot {
+    private Vector2 value;
 
-    public SKPoint Value {
+    public Vector2 Value {
         get => this.value;
         set {
-            SKPoint oldVal = this.value;
+            Vector2 oldVal = this.value;
             this.value = value;
             bool useAddition = false; //this.IsMultiHandler; TODO: Fix with new NumberDragger
-            SKPoint change = value - oldVal;
-            DataParameterPoint parameter = this.Parameter;
+            Vector2 change = value - oldVal;
+            DataParameterVector2 parameter = this.Parameter;
             for (int i = 0, c = this.Handlers.Count; i < c; i++) {
                 ITransferableData obj = (ITransferableData) this.Handlers[i];
-                SKPoint newValue = parameter.Clamp(useAddition ? (parameter.GetValue(obj) + change) : value);
+                Vector2 newValue = parameter.Clamp(useAddition ? (parameter.GetValue(obj) + change) : value);
                 parameter.SetValue(obj, newValue);
             }
 
@@ -44,18 +44,18 @@ public class DataParameterPointPropertyEditorSlot : DataParameterFormattableNumb
         }
     }
 
-    public new DataParameterPoint Parameter => (DataParameterPoint) base.Parameter;
+    public new DataParameterVector2 Parameter => (DataParameterVector2) base.Parameter;
 
     public DragStepProfile StepProfile { get; init; }
 
-    public DataParameterPointPropertyEditorSlot(DataParameterPoint parameter, Type applicableType, string displayName) : base(parameter, applicableType, displayName) {
+    public DataParameterVector2PropertyEditorSlot(DataParameterVector2 parameter, Type applicableType, string displayName) : base(parameter, applicableType, displayName) {
     }
 
     public override void QueryValueFromHandlers() {
         this.HasMultipleValues = !CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetValue((ITransferableData) x), out this.value);
         if (this.HasMultipleValues) {
-            SKPoint range = (this.Parameter.Maximum - this.Parameter.Minimum);
-            this.value = new SKPoint(Math.Abs(range.X) / 2.0F, Math.Abs(range.Y) / 2.0F);
+            Vector2 range = (this.Parameter.Maximum - this.Parameter.Minimum);
+            this.value = new Vector2(Math.Abs(range.X) / 2.0F, Math.Abs(range.Y) / 2.0F);
         }
     }
 }

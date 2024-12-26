@@ -24,8 +24,8 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using FramePFX.Avalonia.Interactivity;
+using FramePFX.Avalonia.Interactivity.Contexts;
 using FramePFX.Avalonia.Themes.Controls;
-using FramePFX.Configurations;
 using FramePFX.Editing;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.Timelines;
@@ -50,26 +50,9 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
 
     ITimelineElement IVideoEditorUI.TimelineElement => this.TheTimeline;
 
-    public ProjectConfigurationManager? ActiveProjectConfigurationManager {
-        get {
-            if (this.myActiveProjectConfiguration != null) {
-                return this.myActiveProjectConfiguration;
-            }
-
-            if (this.activeProject != null)
-                return this.myActiveProjectConfiguration = new ProjectConfigurationManager(this.activeProject, this);
-
-            return null;
-        }
-    }
-
-    private readonly ContextData contextData = new ContextData();
-    private bool doNotInvalidateContext;
     private readonly NumberAverager renderTimeAverager;
     private ActivityTask? primaryActivity;
-    private readonly ContextData timelineGroupBoxContextData;
     private RateLimitedDispatchAction<Timeline> updateFpsInfoRlda;
-    private ProjectConfigurationManager? myActiveProjectConfiguration;
     private Project? activeProject;
 
     public EditorWindow() {
@@ -89,8 +72,11 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
             this.PART_AvgRenderTimeBlock.Text = $"RT: {Math.Round(avgRenderMillis, 2).ToString(),5} ms ({((int) Math.Round(1000.0 / avgRenderMillis)).ToString(),3} FPS)";
         }, TimeSpan.FromSeconds(0.05), DispatchPriority.Loaded);
 
-        DataManager.SetContextData(this, this.contextData.Set(DataKeys.TopLevelHostKey, this).Set(DataKeys.VideoEditorUIKey, this));
-        DataManager.SetContextData(this.PART_TimelinePresenterGroupBox, this.timelineGroupBoxContextData = new ContextData().Set(DataKeys.TimelineUIKey, this.TheTimeline));
+        using (MultiChangeToken batch = DataManager.GetContextData(this).BeginChange()) {
+            batch.Context.Set(DataKeys.TopLevelHostKey, this).Set(DataKeys.VideoEditorUIKey, this);
+        }
+
+        DataManager.GetContextData(this.PART_TimelinePresenterGroupBox).Set(DataKeys.TimelineUIKey, this.TheTimeline);
 
         TaskManager taskManager = TaskManager.Instance;
         taskManager.TaskStarted += this.OnTaskStarted;
@@ -107,9 +93,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
 
     protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
-        this.contextData.Set(DataKeys.ResourceManagerUIKey, this.PART_ResourcePanelControl);
-
-        DataManager.InvalidateInheritedContext(this);
+        DataManager.GetContextData(this).Set(DataKeys.ResourceManagerUIKey, this.PART_ResourcePanelControl);
 
         this.ThePropertyEditor.ApplyTemplate();
         this.ThePropertyEditor.PropertyEditor = VideoEditorPropertyEditor.Instance;
@@ -139,7 +123,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
     }
 
     private void OnVideoEditorChanged(VideoEditor? oldEditor, VideoEditor? newEditor) {
-        this.doNotInvalidateContext = true;
+        using var myDataBatch = DataManager.GetContextData(this).BeginChange();
         if (oldEditor != null) {
             oldEditor.ProjectChanged -= this.OnProjectChanged;
             Project? oldProject = oldEditor.Project;
@@ -159,9 +143,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
             this.OnIsExportingChanged(newEditor);
         }
 
-        this.doNotInvalidateContext = false;
-        this.contextData.Set(DataKeys.VideoEditorKey, newEditor);
-        DataManager.InvalidateInheritedContext(this);
+        myDataBatch.Context.Set(DataKeys.VideoEditorKey, newEditor);
     }
 
     private void OnIsExportingChanged(VideoEditor editor) {
@@ -188,20 +170,15 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
         }
 
         this.activeProject = newProject;
-        this.myActiveProjectConfiguration?.Destroy();
-        this.myActiveProjectConfiguration = null;
-        this.contextData.Set(DataKeys.ProjectKey, newProject);
+        DataManager.GetContextData(this).Set(DataKeys.ProjectKey, newProject);
         this.PART_ResourcePanelControl.ResourceManager = newProject?.ResourceManager;
         this.OnActiveTimelineChanged(oldProject?.ActiveTimeline, newProject?.ActiveTimeline);
         this.UpdateWindowTitle(newProject);
 
-        // this.contextData.Set(DataKeys.ResourceTreeSelectionManagerKey, this.PART_ResourcePanelControl.MultiSelectionManager);
-        // this.contextData.Set(DataKeys.TrackSelectionManagerKey, newProject);
-        // this.contextData.Set(DataKeys.ClipSelectionManagerKey, newProject);
-        // this.contextData.Set(DataKeys.TimelineClipSelectionManagerKey, newProject);
-        if (!this.doNotInvalidateContext)
-            DataManager.InvalidateInheritedContext(this);
-
+        // DataManager.GetContextData(this).Set(DataKeys.ResourceTreeSelectionManagerKey, this.PART_ResourcePanelControl.MultiSelectionManager);
+        // DataManager.GetContextData(this).Set(DataKeys.TrackSelectionManagerKey, newProject);
+        // DataManager.GetContextData(this).Set(DataKeys.ClipSelectionManagerKey, newProject);
+        // DataManager.GetContextData(this).Set(DataKeys.TimelineClipSelectionManagerKey, newProject);
         VideoEditorPropertyEditorHelper.OnProjectChanged();
 
         Application.Instance.Dispatcher.InvokeAsync(() => {
@@ -229,8 +206,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorUI {
         }
 
         this.TheTimeline.Timeline = newTimeline;
-        this.timelineGroupBoxContextData.Set(DataKeys.TimelineKey, newTimeline);
-        DataManager.InvalidateInheritedContext(this.PART_TimelinePresenterGroupBox);
+        DataManager.GetContextData(this.PART_TimelinePresenterGroupBox).Set(DataKeys.TimelineKey, newTimeline);
         this.UpdateTimelineName();
         this.PART_CloseTimelineButton.IsEnabled = newTimeline is Timeline timeline && timeline is CompositionTimeline;
     }

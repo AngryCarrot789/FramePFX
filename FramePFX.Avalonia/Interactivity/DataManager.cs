@@ -20,11 +20,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
+using FramePFX.Avalonia.Interactivity.Contexts;
 using FramePFX.Avalonia.Utils;
 using FramePFX.Interactivity.Contexts;
 
@@ -50,8 +52,8 @@ public class DataManager {
     /// or just call <see cref="InvalidateInheritedContext"/> when it is mutated
     /// </para>
     /// </summary>
-    public static readonly AttachedProperty<IContextData?> ContextDataProperty =
-        AvaloniaProperty.RegisterAttached<DataManager, AvaloniaObject, IContextData?>("ContextData");
+    private static readonly AttachedProperty<IControlContextData?> ContextDataProperty =
+        AvaloniaProperty.RegisterAttached<DataManager, AvaloniaObject, IControlContextData?>("ContextData");
 
     private static readonly AttachedProperty<IContextData?> InheritedContextDataProperty =
         AvaloniaProperty.RegisterAttached<DataManager, AvaloniaObject, IContextData?>("InheritedContextData");
@@ -61,21 +63,14 @@ public class DataManager {
 
     /// <summary>
     /// An event that gets raised on every single visual child (similar to tunnelling) when its inherited context
-    /// becomes invalid (caused by either manual invalidation or when the <see cref="ContextDataProperty"/> changes
-    /// for any parent element).
+    /// becomes invalid (caused by either manual invalidation or when the context data is modified for any parent element).
     /// </summary>
     public static readonly RoutedEvent InheritedContextChangedEvent =
         RoutedEvent.Register<DataManager, RoutedEventArgs>("InheritedContextChanged", RoutingStrategies.Direct);
 
     static DataManager() {
-        ContextDataProperty.Changed.AddClassHandler<AvaloniaObject, IContextData?>(OnContextDataChanged);
-
         // May cause performance issues... xaml seems to be loaded bottom-to-top when a control template is loaded
         Visual.VisualParentProperty.Changed.AddClassHandler<Visual, Visual?>(OnVisualParentChanged);
-    }
-
-    private static void OnContextDataChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs<IContextData?> e) {
-        InvalidateInheritedContext(d);
     }
 
     private static void OnVisualParentChanged(Visual sender, AvaloniaPropertyChangedEventArgs<Visual?> e) => InvalidateInheritedContext(sender);
@@ -143,25 +138,70 @@ public class DataManager {
     }
 
     /// <summary>
-    /// Clears the <see cref="ContextDataProperty"/> value for the specific dependency object
+    /// Clears the context data for the given element
     /// </summary>
-    public static void ClearContextData(AvaloniaObject element) {
-        element.ClearValue(ContextDataProperty);
+    /// <param name="element">The element</param>
+    public static void ClearContextData(AvaloniaObject element, bool invalidate = true) {
+        if (element.IsSet(ContextDataProperty)) {
+            element.ClearValue(ContextDataProperty);
+            if (invalidate) {
+                InvalidateInheritedContext(element);
+            }
+        }
     }
 
     /// <summary>
-    /// Sets or replaces the context data for the specific dependency object
+    /// Gets or creates this control's context data
     /// </summary>
-    public static void SetContextData(AvaloniaObject element, IContextData value) {
-        element.SetValue(ContextDataProperty, value);
+    /// <param name="element">The element to get the context data from</param>
+    /// <returns>The context data</returns>
+    public static IControlContextData GetContextData(AvaloniaObject element) {
+        IControlContextData? data = element.GetValue(ContextDataProperty);
+        if (data == null) {
+            element.SetValue(ContextDataProperty, data = new ControlContextData(element));
+        }
+
+        return data;
     }
 
+    public static bool TryGetContextData(AvaloniaObject element, [NotNullWhen(true)] out IControlContextData? data) {
+        return (data = element.GetValue(ContextDataProperty)) != null;
+    }
+    
     /// <summary>
-    /// Gets the local context data for the specific dependency object. The returned
-    /// value is the same as the value passed to <see cref="SetContextData"/>
+    /// Sets the element's context data to a delegating instance. Inherited context data can be stacked 
     /// </summary>
-    public static IContextData GetContextData(AvaloniaObject element) {
-        return element.GetValue(ContextDataProperty);
+    /// <param name="element">The element</param>
+    /// <param name="inherited">The inherited context data</param>
+    public static void MakeInheritedContextData(AvaloniaObject element, IContextData inherited) {
+        IControlContextData? data = element.GetValue(ContextDataProperty);
+        element.SetValue(ContextDataProperty, data == null ? new InheritingControlContextData(element, inherited) : data.CreateInherited(inherited));
+        InvalidateInheritedContext(element);
+    }
+    
+    /// <summary>
+    /// Makes the element's context data no longer inherit from anything. Only does anything if the current context is actually inheriting
+    /// </summary>
+    /// <param name="element">The element</param>
+    public static void ClearInheritedContextData(AvaloniaObject element) {
+        IControlContextData? data = element.GetValue(ContextDataProperty);
+        if (data is InheritingControlContextData inheriting) {
+            element.SetValue(ContextDataProperty, new ControlContextData(element, inheriting));
+            InvalidateInheritedContext(element);
+        }
+    }
+
+    public static void SwapInheritedContextData(AvaloniaObject element, IContextData inherited) {
+        IControlContextData? data = element.GetValue(ContextDataProperty);
+        if (data is InheritingControlContextData inheriting) {
+            data = new ControlContextData(element, inheriting).CreateInherited(inherited);
+        }
+        else {
+            data = new InheritingControlContextData(element, inherited);
+        }
+
+        element.SetValue(ContextDataProperty, data);
+        InvalidateInheritedContext(element);
     }
 
     /// <summary>
@@ -171,8 +211,8 @@ public class DataManager {
     /// See <see cref="EvaluateContextDataRaw"/> for more info on how this works
     /// </para>
     /// <para>
-    /// Although the returned value may be an instance of <see cref="ContextData"/>, it should NEVER be
-    /// modified directly (see docs for <see cref="ContextDataProperty"/> or <see cref="InheritedContextDataProperty"/>)
+    /// The returned data should not be modified, even though it is mutable,
+    /// since changes will not be reflected down the visual tree
     /// </para>
     /// </summary>
     /// <param name="component">The target object</param>
@@ -222,8 +262,8 @@ public class DataManager {
         // Scan top-down in order to allow deeper objects' entries to override higher up entries
         for (int i = visualTree.Count - 1; i >= 0; i--) {
             AvaloniaObject dp = visualTree[i];
-            IContextData? data = dp.GetBaseValue(ContextDataProperty).GetValueOrDefault();
-            if (data != null) {
+            IControlContextData? data = dp.GetBaseValue(ContextDataProperty).GetValueOrDefault();
+            if (data != null && data.Count > 0) {
                 ctx.Merge(data);
             }
         }

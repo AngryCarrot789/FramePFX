@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Numerics;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
@@ -28,14 +29,13 @@ using FramePFX.DataTransfer;
 using FramePFX.PropertyEditing.DataTransfer;
 using FramePFX.PropertyEditing.DataTransfer.Automatic;
 using FramePFX.Utils;
-using SkiaSharp;
 
 namespace FramePFX.Avalonia.PropertyEditing.DataTransfer.Automatic;
 
-public class AutomaticDataParameterPointPropertyEditorControl : BaseDataParameterPropertyEditorControl {
+public class AutomaticDataParameterVector2PropertyEditorControl : BaseDataParameterPropertyEditorControl {
     internal static readonly IImmutableBrush MultipleValuesBrush = BaseNumberDraggerDataParamPropEditorControl.MultipleValuesBrush;
 
-    public new AutomaticDataParameterPointPropertyEditorSlot? SlotModel => (AutomaticDataParameterPointPropertyEditorSlot?) base.SlotControl?.Model;
+    public new AutomaticDataParameterVector2PropertyEditorSlot? SlotModel => (AutomaticDataParameterVector2PropertyEditorSlot?) base.SlotControl?.Model;
 
     protected NumberDragger draggerX;
     protected NumberDragger draggerY;
@@ -43,9 +43,9 @@ public class AutomaticDataParameterPointPropertyEditorControl : BaseDataParamete
 
     private readonly AutoUpdateAndEventPropertyBinder<DataParameterFormattableNumberPropertyEditorSlot> valueFormatterBinder;
 
-    public AutomaticDataParameterPointPropertyEditorControl() {
+    public AutomaticDataParameterVector2PropertyEditorControl() {
         this.valueFormatterBinder = new AutoUpdateAndEventPropertyBinder<DataParameterFormattableNumberPropertyEditorSlot>(null, nameof(DataParameterFormattableNumberPropertyEditorSlot.ValueFormatterChanged), (x) => {
-            AutomaticDataParameterPointPropertyEditorControl editor = (AutomaticDataParameterPointPropertyEditorControl) x.Control;
+            AutomaticDataParameterVector2PropertyEditorControl editor = (AutomaticDataParameterVector2PropertyEditorControl) x.Control;
             editor.draggerX.ValueFormatter = x.Model.ValueFormatter;
             editor.draggerY.ValueFormatter = x.Model.ValueFormatter;
         }, null);
@@ -67,7 +67,7 @@ public class AutomaticDataParameterPointPropertyEditorControl : BaseDataParamete
     }
 
     private void PartDraggerOnInvalidInputEntered(object? sender, InvalidInputEnteredEventArgs e) {
-        AutomaticDataParameterPointPropertyEditorSlot? model = this.SlotModel;
+        AutomaticDataParameterVector2PropertyEditorSlot? model = this.SlotModel;
         if (model == null || !model.IsCurrentlyApplicable) {
             return;
         }
@@ -80,7 +80,7 @@ public class AutomaticDataParameterPointPropertyEditorControl : BaseDataParamete
     }
 
     private void ResetButtonOnClick(object? sender, RoutedEventArgs e) {
-        AutomaticDataParameterPointPropertyEditorSlot? slot = this.SlotModel;
+        AutomaticDataParameterVector2PropertyEditorSlot? slot = this.SlotModel;
         if (slot != null && slot.HasHandlers) {
             foreach (ITransferableData handler in slot.Handlers) {
                 slot.IsAutomaticParameter.SetValue(handler, true);
@@ -107,8 +107,8 @@ public class AutomaticDataParameterPointPropertyEditorControl : BaseDataParamete
         this.valueFormatterBinder.AttachModel(this.SlotModel!);
         base.OnConnected();
 
-        AutomaticDataParameterPointPropertyEditorSlot slot = this.SlotModel!;
-        DataParameterPoint param = slot.Parameter;
+        AutomaticDataParameterVector2PropertyEditorSlot slot = this.SlotModel!;
+        DataParameterVector2 param = slot.Parameter;
         this.draggerX.Minimum = param.Minimum.X;
         this.draggerY.Minimum = param.Minimum.Y;
         this.draggerX.Maximum = param.Maximum.X;
@@ -165,13 +165,13 @@ public class AutomaticDataParameterPointPropertyEditorControl : BaseDataParamete
     }
 
     protected override void UpdateControlValue() {
-        SKPoint value = this.SlotModel!.Value;
+        Vector2 value = this.SlotModel!.Value;
         this.draggerX.Value = value.X;
         this.draggerY.Value = value.Y;
         this.UpdateTextPreview();
     }
 
     protected override void UpdateModelValue() {
-        this.SlotModel!.Value = new SKPoint((float) this.draggerX.Value, (float) this.draggerY.Value);
+        this.SlotModel!.Value = new Vector2((float) this.draggerX.Value, (float) this.draggerY.Value);
     }
 }

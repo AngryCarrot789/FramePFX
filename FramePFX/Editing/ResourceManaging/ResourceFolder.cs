@@ -18,7 +18,7 @@
 //
 
 using FramePFX.Editing.ResourceManaging.Events;
-using FramePFX.Utils.RBC;
+using FramePFX.Utils.BTE;
 
 namespace FramePFX.Editing.ResourceManaging;
 
@@ -47,13 +47,13 @@ public sealed class ResourceFolder : BaseResource {
     static ResourceFolder() {
         SerialisationRegistry.Register<ResourceFolder>(0, (resource, data, ctx) => {
             ctx.DeserialiseBaseType(data);
-            RBEList list = data.GetList("Items");
-            foreach (RBEDictionary dictionary in list.Cast<RBEDictionary>()) {
+            BTEList list = data.GetList("Items");
+            foreach (BTEDictionary dictionary in list.Cast<BTEDictionary>()) {
                 resource.AddItem(ReadSerialisedWithType(dictionary));
             }
         }, (resource, data, ctx) => {
             ctx.SerialiseBaseType(data);
-            RBEList list = data.CreateList("Items");
+            BTEList list = data.CreateList("Items");
             foreach (BaseResource item in resource.items) {
                 list.Add(WriteSerialisedWithType(item));
             }
@@ -112,22 +112,26 @@ public sealed class ResourceFolder : BaseResource {
     public bool Contains(BaseResource item) {
         // This assumes no maliciously corrupted resource items,
         // meaning this code should always work under proper conditions
-        return item != null && ReferenceEquals(item.Parent, this);
+        return ReferenceEquals(item.Parent, this);
     }
 
-    public bool RemoveItem(BaseResource item) {
+    public bool RemoveItem(BaseResource item, bool destroy) {
         int index = this.items.IndexOf(item);
         if (index < 0)
             return false;
-        this.RemoveItemAt(index);
+
+        this.RemoveItemAt(index, destroy);
         return true;
     }
 
-    public void RemoveItemAt(int index) {
+    public void RemoveItemAt(int index, bool destroy) {
         BaseResource item = this.items[index];
         this.items.RemoveAt(index);
         InternalOnItemRemoved(item, this);
         this.ResourceRemoved?.Invoke(this, item, index);
+        
+        if (destroy)
+            item.Destroy();
     }
 
     public void MoveItemTo(ResourceFolder target, BaseResource item) {
@@ -215,7 +219,7 @@ public sealed class ResourceFolder : BaseResource {
     /// </summary>
     /// <param name="folder">The folder to clear recursively. Null accepted for convenience (e.g. resource as ResourceFolder)</param>
     /// <param name="destroy">True to destroy resources before removing</param>
-    public static void ClearHierarchy(ResourceFolder? folder, bool destroy = true) {
+    public static void ClearHierarchy(ResourceFolder? folder, bool destroy) {
         if (folder == null) {
             return;
         }
@@ -226,11 +230,10 @@ public sealed class ResourceFolder : BaseResource {
         // so the UI could stall this operation for large folders
         for (int i = folder.items.Count - 1; i >= 0; i--) {
             BaseResource item = folder.items[i];
-            if (destroy)
-                item.Destroy();
             if (item is ResourceFolder)
                 ClearHierarchy((ResourceFolder) item, destroy);
-            folder.RemoveItemAt(i);
+
+            folder.RemoveItemAt(i, destroy);
         }
     }
 
@@ -263,7 +266,7 @@ public sealed class ResourceFolder : BaseResource {
     public static void CountHierarchy(IEnumerable<BaseResource> list, ref int folders, ref int items, ref int references) {
         foreach (BaseResource resource in list) {
             if (resource is ResourceFolder) {
-                ((ResourceFolder) resource).CountHierarchy(ref folders, ref items, ref references);
+                CountHierarchy(((ResourceFolder) resource).items, ref folders, ref items, ref references);
                 folders++;
             }
             else {

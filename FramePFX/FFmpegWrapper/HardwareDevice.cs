@@ -37,7 +37,7 @@ public unsafe class HardwareDevice : FFObject {
         this._ctx = deviceCtx;
     }
 
-    public static HardwareDevice Create(AVHWDeviceType type) {
+    public static HardwareDevice? Create(AVHWDeviceType type) {
         AVBufferRef* ctx;
         if (ffmpeg.av_hwdevice_ctx_create(&ctx, type, null, null, 0) < 0) {
             return null;

@@ -63,14 +63,14 @@ public abstract class BasePropEditControlContent : TemplatedControl {
         Registry.RegisterType<DataParameterFloatPropertyEditorSlot>(() => new DataParameterFloatPropertyEditorControl());
         Registry.RegisterType<DataParameterBoolPropertyEditorSlot>(() => new DataParameterBoolPropertyEditorControl());
         Registry.RegisterType<DataParameterStringPropertyEditorSlot>(() => new DataParameterStringPropertyEditorControl());
-        Registry.RegisterType<DataParameterPointPropertyEditorSlot>(() => new DataParameterPointPropertyEditorControl());
+        Registry.RegisterType<DataParameterVector2PropertyEditorSlot>(() => new DataParameterVector2PropertyEditorControl());
         Registry.RegisterType<DataParameterColourPropertyEditorSlot>(() => new DataParameterColourPropertyEditorControl());
 
         // automatic editors
         Registry.RegisterType<AutomaticDataParameterFloatPropertyEditorSlot>(() => new AutomaticDataParameterFloatPropertyEditorControl());
         Registry.RegisterType<AutomaticDataParameterDoublePropertyEditorSlot>(() => new AutomaticDataParameterDoublePropertyEditorControl());
         Registry.RegisterType<AutomaticDataParameterLongPropertyEditorSlot>(() => new AutomaticDataParameterLongPropertyEditorControl());
-        Registry.RegisterType<AutomaticDataParameterPointPropertyEditorSlot>(() => new AutomaticDataParameterPointPropertyEditorControl());
+        Registry.RegisterType<AutomaticDataParameterVector2PropertyEditorSlot>(() => new AutomaticDataParameterVector2PropertyEditorControl());
 
         // automation parameter editors
         Registry.RegisterType<ParameterFloatPropertyEditorSlot>(() => new ParameterFloatPropertyEditorControl());

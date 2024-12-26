@@ -29,8 +29,8 @@ using FramePFX.Editing.Timelines.Effects;
 using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Interactivity;
 using FramePFX.Serialisation;
+using FramePFX.Utils.BTE;
 using FramePFX.Utils.Destroying;
-using FramePFX.Utils.RBC;
 
 namespace FramePFX.Editing.Timelines.Clips;
 
@@ -184,18 +184,18 @@ public abstract class Clip : IClip, IDestroy {
             clip.FrameSpan = data.GetStruct<FrameSpan>(nameof(clip.FrameSpan));
             clip.MediaFrameOffset = data.GetLong(nameof(clip.MediaFrameOffset));
             // clip.IsRenderingEnabled = data.GetBool(nameof(clip.IsRenderingEnabled), true);
-            clip.AutomationData.ReadFromRBE(data.GetDictionary(nameof(clip.AutomationData)));
+            clip.AutomationData.ReadFromBTE(data.GetDictionary(nameof(clip.AutomationData)));
             BaseEffect.ReadSerialisedWithIdList(clip, data.GetList("Effects"));
-            clip.ResourceHelper.ReadFromRootRBE(data);
+            clip.ResourceHelper.ReadFromRootBTE(data);
         }, (clip, data, ctx) => {
             if (!string.IsNullOrEmpty(clip.displayName))
                 data.SetString(nameof(clip.DisplayName), clip.displayName);
             data.SetStruct(nameof(clip.FrameSpan), clip.FrameSpan);
             data.SetLong(nameof(clip.MediaFrameOffset), clip.MediaFrameOffset);
             // data.SetBool(nameof(clip.IsRenderingEnabled), clip.IsRenderingEnabled);
-            clip.AutomationData.WriteToRBE(data.CreateDictionary(nameof(clip.AutomationData)));
+            clip.AutomationData.WriteToBTE(data.CreateDictionary(nameof(clip.AutomationData)));
             BaseEffect.WriteSerialisedWithIdList(clip, data.CreateList("Effects"));
-            clip.ResourceHelper.WriteToRootRBE(data);
+            clip.ResourceHelper.WriteToRootBTE(data);
         });
 
         // Example new serialisers for new feature added in new build version
@@ -250,14 +250,14 @@ public abstract class Clip : IClip, IDestroy {
         return clone;
     }
 
-    public static void WriteSerialisedWithId(RBEDictionary dictionary, Clip clip) {
+    public static void WriteSerialisedWithId(BTEDictionary dictionary, Clip clip) {
         if (!(clip.FactoryId is string id))
             throw new Exception("Unknown clip type: " + clip.GetType());
         dictionary.SetString(nameof(FactoryId), id);
         SerialisationRegistry.Serialise(clip, dictionary.CreateDictionary("Data"));
     }
 
-    public static Clip ReadSerialisedWithId(RBEDictionary dictionary) {
+    public static Clip ReadSerialisedWithId(BTEDictionary dictionary) {
         string? id = dictionary.GetString(nameof(FactoryId));
         Clip clip = ClipFactory.Instance.NewClip(id);
         SerialisationRegistry.Deserialise(clip, dictionary.GetDictionary("Data"));

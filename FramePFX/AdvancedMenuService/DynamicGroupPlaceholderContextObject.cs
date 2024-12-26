@@ -17,11 +17,15 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Interactivity.Contexts;
+namespace FramePFX.AdvancedMenuService;
 
-public interface IRandomAccessContext : IContextData {
-    /// <summary>
-    /// Gets the number of context elements
-    /// </summary>
-    int Count { get; }
+/// <summary>
+/// This interface is an invisible placeholder which is where dynamic items will be injected
+/// </summary>
+public class DynamicGroupPlaceholderContextObject : IContextObject {
+    public DynamicContextGroup DynamicGroup { get; }
+
+    public DynamicGroupPlaceholderContextObject(DynamicContextGroup dynamicGroup) {
+        this.DynamicGroup = dynamicGroup;
+    }
 }

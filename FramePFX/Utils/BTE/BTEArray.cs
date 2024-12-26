@@ -17,12 +17,12 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Utils.RBC;
+namespace FramePFX.Utils.BTE;
 
 public enum LengthReadStrategy {
     /// <summary>
     /// Appends a byte, short, int or long before the data to indicate the length.
-    /// This is fixed per RBE type and does not change, and is therefore the easiest to implement
+    /// This is fixed per BTE type and does not change, and is therefore the easiest to implement
     /// </summary>
     LazyLength,
 
@@ -37,19 +37,19 @@ public enum LengthReadStrategy {
 /// <summary>
 /// Used to store an array of bytes (unsigned)
 /// </summary>
-public class RBEByteArray : RBEBase {
+public class BTEByteArray : BinaryTreeElement {
     public byte[]? Array { get; set; }
 
     public bool IsEmpty {
         get => this.Array == null || this.Array.Length == 0;
     }
 
-    public override RBEType Type => RBEType.ByteArray;
+    public override BTEType Type => BTEType.ByteArray;
 
-    public RBEByteArray() {
+    public BTEByteArray() {
     }
 
-    public RBEByteArray(byte[]? array) {
+    public BTEByteArray(byte[]? array) {
         this.Array = array;
     }
 
@@ -68,26 +68,26 @@ public class RBEByteArray : RBEBase {
         }
     }
 
-    public override RBEBase Clone() => this.CloneCore();
+    public override BinaryTreeElement Clone() => this.CloneCore();
 
-    public RBEByteArray CloneCore() {
-        return new RBEByteArray(this.Array.CloneArrayUnsafe());
+    public BTEByteArray CloneCore() {
+        return new BTEByteArray(this.Array.CloneArrayUnsafe());
     }
 }
 
-public class RBEShortArray : RBEBase {
+public class BTEShortArray : BinaryTreeElement {
     public short[]? Array { get; set; }
 
     public bool IsEmpty {
         get => this.Array == null || this.Array.Length == 0;
     }
 
-    public override RBEType Type => RBEType.ShortArray;
+    public override BTEType Type => BTEType.ShortArray;
 
-    public RBEShortArray() {
+    public BTEShortArray() {
     }
 
-    public RBEShortArray(short[]? array) {
+    public BTEShortArray(short[]? array) {
         this.Array = array;
     }
 
@@ -111,29 +111,29 @@ public class RBEShortArray : RBEBase {
         }
     }
 
-    public override RBEBase Clone() => this.CloneCore();
+    public override BinaryTreeElement Clone() => this.CloneCore();
 
-    public RBEShortArray CloneCore() {
-        return new RBEShortArray(this.Array.CloneArrayUnsafe());
+    public BTEShortArray CloneCore() {
+        return new BTEShortArray(this.Array.CloneArrayUnsafe());
     }
 }
 
 /// <summary>
 /// Used to store an array of integers (signed)
 /// </summary>
-public class RBEIntArray : RBEBase {
+public class BTEIntArray : BinaryTreeElement {
     public int[]? Array { get; set; }
 
     public bool IsEmpty {
         get => this.Array == null || this.Array.Length == 0;
     }
 
-    public override RBEType Type => RBEType.IntArray;
+    public override BTEType Type => BTEType.IntArray;
 
-    public RBEIntArray() {
+    public BTEIntArray() {
     }
 
-    public RBEIntArray(int[]? array) {
+    public BTEIntArray(int[]? array) {
         this.Array = array;
     }
 
@@ -160,26 +160,26 @@ public class RBEIntArray : RBEBase {
         }
     }
 
-    public override RBEBase Clone() => this.CloneCore();
+    public override BinaryTreeElement Clone() => this.CloneCore();
 
-    public RBEIntArray CloneCore() {
-        return new RBEIntArray(this.Array.CloneArrayUnsafe());
+    public BTEIntArray CloneCore() {
+        return new BTEIntArray(this.Array.CloneArrayUnsafe());
     }
 }
 
-public class RBELongArray : RBEBase {
+public class BTELongArray : BinaryTreeElement {
     public long[]? Array { get; set; }
 
     public bool IsEmpty {
         get => this.Array == null || this.Array.Length == 0;
     }
 
-    public override RBEType Type => RBEType.LongArray;
+    public override BTEType Type => BTEType.LongArray;
 
-    public RBELongArray() {
+    public BTELongArray() {
     }
 
-    public RBELongArray(long[]? array) {
+    public BTELongArray(long[]? array) {
         this.Array = array;
     }
 
@@ -206,26 +206,26 @@ public class RBELongArray : RBEBase {
         }
     }
 
-    public override RBEBase Clone() => this.CloneCore();
+    public override BinaryTreeElement Clone() => this.CloneCore();
 
-    public RBELongArray CloneCore() {
-        return new RBELongArray(this.Array.CloneArrayUnsafe());
+    public BTELongArray CloneCore() {
+        return new BTELongArray(this.Array.CloneArrayUnsafe());
     }
 }
 
-public class RBEFloatArray : RBEBase {
+public class BTEFloatArray : BinaryTreeElement {
     public float[]? Array { get; set; }
 
     public bool IsEmpty {
         get => this.Array == null || this.Array.Length == 0;
     }
 
-    public override RBEType Type => RBEType.FloatArray;
+    public override BTEType Type => BTEType.FloatArray;
 
-    public RBEFloatArray() {
+    public BTEFloatArray() {
     }
 
-    public RBEFloatArray(float[]? array) {
+    public BTEFloatArray(float[]? array) {
         this.Array = array;
     }
 
@@ -249,26 +249,26 @@ public class RBEFloatArray : RBEBase {
         }
     }
 
-    public override RBEBase Clone() => this.CloneCore();
+    public override BinaryTreeElement Clone() => this.CloneCore();
 
-    public RBEFloatArray CloneCore() {
-        return new RBEFloatArray(this.Array.CloneArrayUnsafe());
+    public BTEFloatArray CloneCore() {
+        return new BTEFloatArray(this.Array.CloneArrayUnsafe());
     }
 }
 
-public class RBEDoubleArray : RBEBase {
+public class BTEDoubleArray : BinaryTreeElement {
     public double[]? Array { get; set; }
 
     public bool IsEmpty {
         get => this.Array == null || this.Array.Length == 0;
     }
 
-    public override RBEType Type => RBEType.DoubleArray;
+    public override BTEType Type => BTEType.DoubleArray;
 
-    public RBEDoubleArray() {
+    public BTEDoubleArray() {
     }
 
-    public RBEDoubleArray(double[]? array) {
+    public BTEDoubleArray(double[]? array) {
         this.Array = array;
     }
 
@@ -292,22 +292,22 @@ public class RBEDoubleArray : RBEBase {
         }
     }
 
-    public override RBEBase Clone() => this.CloneCore();
+    public override BinaryTreeElement Clone() => this.CloneCore();
 
-    public RBEDoubleArray CloneCore() {
-        return new RBEDoubleArray(this.Array.CloneArrayUnsafe());
+    public BTEDoubleArray CloneCore() {
+        return new BTEDoubleArray(this.Array.CloneArrayUnsafe());
     }
 }
 
-public class RBEStringArray : RBEBase {
-    public override RBEType Type => RBEType.StringArray;
+public class BTEStringArray : BinaryTreeElement {
+    public override BTEType Type => BTEType.StringArray;
 
     public string[]? Array { get; set; }
 
-    public RBEStringArray() {
+    public BTEStringArray() {
     }
 
-    public RBEStringArray(string[]? array) {
+    public BTEStringArray(string[]? array) {
         this.Array = array;
     }
 
@@ -315,7 +315,7 @@ public class RBEStringArray : RBEBase {
         int length = reader.ReadInt32();
         string[] array = this.Array = new string[length];
         for (int i = 0; i < length; i++) {
-            array[i] = RBEString.ReadString(reader);
+            array[i] = BTEString.ReadString(reader);
         }
     }
 
@@ -323,7 +323,7 @@ public class RBEStringArray : RBEBase {
         if (this.Array != null) {
             writer.Write(this.Array.Length);
             foreach (string value in this.Array) {
-                RBEString.WriteString(writer, value);
+                BTEString.WriteString(writer, value);
             }
         }
         else {
@@ -331,22 +331,22 @@ public class RBEStringArray : RBEBase {
         }
     }
 
-    public override RBEBase Clone() => this.CloneCore();
-    public RBEStringArray CloneCore() => new RBEStringArray(this.Array.CloneArrayMax());
+    public override BinaryTreeElement Clone() => this.CloneCore();
+    public BTEStringArray CloneCore() => new BTEStringArray(this.Array.CloneArrayMax());
 }
 
-public class RBEStructArray : RBEBase {
+public class BTEStructArray : BinaryTreeElement {
     private byte[] data;
 
-    public override RBEType Type => RBEType.StructArray;
+    public override BTEType Type => BTEType.StructArray;
 
-    public RBEStructArray() {
+    public BTEStructArray() {
     }
 
-    public static RBEStructArray ForValues<T>(T[] value) where T : unmanaged {
-        RBEStructArray rbe = new RBEStructArray();
-        rbe.SetValues(value);
-        return rbe;
+    public static BTEStructArray ForValues<T>(T[] value) where T : unmanaged {
+        BTEStructArray bte = new BTEStructArray();
+        bte.SetValues(value);
+        return bte;
     }
 
     protected override void Read(BinaryReader reader) {
@@ -421,9 +421,9 @@ public class RBEStructArray : RBEBase {
         }
     }
 
-    public override RBEBase Clone() => this.CloneCore();
+    public override BinaryTreeElement Clone() => this.CloneCore();
 
-    public RBEStructArray CloneCore() {
-        return new RBEStructArray { data = this.data.CloneArrayUnsafe() };
+    public BTEStructArray CloneCore() {
+        return new BTEStructArray { data = this.data.CloneArrayUnsafe() };
     }
 }

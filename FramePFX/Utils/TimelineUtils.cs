@@ -17,7 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 //
 
-namespace FramePFX.Editing;
+namespace FramePFX.Utils;
 
 public static class TimelineUtils {
     public const double MinUnitZoom = 0.1d;

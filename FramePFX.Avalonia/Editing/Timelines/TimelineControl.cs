@@ -33,8 +33,8 @@ using FramePFX.Avalonia.Editing.Playheads;
 using FramePFX.Avalonia.Editing.Timelines.Selection;
 using FramePFX.Avalonia.Editing.Timelines.TrackSurfaces;
 using FramePFX.Avalonia.Interactivity;
+using FramePFX.Avalonia.Interactivity.Contexts;
 using FramePFX.Avalonia.Utils;
-using FramePFX.Editing;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.UI;
@@ -130,7 +130,6 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
     ISelectionManager<IClipElement> ITimelineElement.ClipSelection => this.ClipSelectionManager!;
 
     private double myZoomFactor = 1.0;
-    private readonly ContextData contextData;
     internal readonly List<TrackElementImpl> myTrackElements;
 
     public event UITimelineModelChanged? TimelineModelChanging;
@@ -140,7 +139,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         this.Tracks = new TrackListImpl(this);
         this.myTrackElements = new List<TrackElementImpl>();
         this.trackElementMap = new ModelControlDictionary<Track, ITrackElement>();
-        DataManager.SetContextData(this, this.contextData = new ContextData().Set(DataKeys.TimelineUIKey, this));
+        DataManager.GetContextData(this).Set(DataKeys.TimelineUIKey, this);
     }
 
     static TimelineControl() {
@@ -295,6 +294,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
             return;
         }
 
+        using MultiChangeToken myContextBatch = DataManager.GetContextData(this).BeginChange();
         this.TimelineModelChanging?.Invoke(this, oldTimeline, newTimeline);
         if (oldTimeline != null) {
             oldTimeline.MaxDurationChanged -= this.OnTimelineMaxDurationChanged;
@@ -305,7 +305,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
                 this.RemoveTrackElement(i);
             }
 
-            this.contextData.Set(DataKeys.TimelineKey, null);
+            myContextBatch.Context.Set(DataKeys.TimelineKey, null);
         }
 
         this.TrackStorage!.SetTimelineControl(this);
@@ -325,12 +325,11 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
                 this.InsertTrackElement(track, i++, true);
             }
 
-            this.contextData.Set(DataKeys.TimelineKey, newTimeline);
+            myContextBatch.Context.Set(DataKeys.TimelineKey, newTimeline);
             this.UpdateIsTrackAutomationVisible(this.IsTrackAutomationVisible, this.IsClipAutomationVisible);
         }
 
         this.TrackSelectionManager!.UpdateSelection();
-        DataManager.InvalidateInheritedContext(this);
 
         this.TimelineModelChanged?.Invoke(this, oldTimeline, newTimeline);
 
@@ -362,7 +361,7 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         // We have to assume this method is invoked after the surface and real timeline are added
         TrackControlSurfaceItem surfaceItem = this.SurfaceTrackList!.GetTrack(i);
         TimelineTrackControl trackControl = this.TrackStorage!.GetTrack(i);
-        this.myTrackElements.Insert(i, new TrackElementImpl(this, surfaceItem, trackControl, track, isLoadingTimeline));
+        this.myTrackElements.Insert(i, new TrackElementImpl(this, surfaceItem, trackControl, track));
         UpdateTrackAutomationVisible(trackControl, this.IsTrackAutomationVisible, this.IsClipAutomationVisible, true);
     }
 
@@ -563,24 +562,17 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
             }
         }
 
-        public TrackElementImpl(TimelineControl timeline, TrackControlSurfaceItem surfaceControl, TimelineTrackControl trackControl, Track track, bool isLoadingTimeline) {
+        public TrackElementImpl(TimelineControl timeline, TrackControlSurfaceItem surfaceControl, TimelineTrackControl trackControl, Track track) {
             this.Timeline = timeline;
             this.SurfaceControl = surfaceControl;
             this.TrackControl = trackControl;
             this.myTrack = track;
 
-            this.SurfaceControl.contextData.Set(DataKeys.TrackKey, this.Track).Set(DataKeys.TrackUIKey, this.SurfaceControl.TrackElement = this);
-            this.TrackControl.contextData.Set(DataKeys.TrackKey, this.Track).Set(DataKeys.TrackUIKey, this.TrackControl.TrackElement = this);
-
-            // We can invalidate the surface control since it's in a different branch of the visual tree
-            DataManager.InvalidateInheritedContext(this.SurfaceControl);
-
-            // Don't invalidate if the TimelineControl is adding the clips for the TimelineChanged event,
-            // because there's no point since the timeline invalidates its own context after all tracks
-            // are loaded which 
-            if (!isLoadingTimeline) {
-                DataManager.InvalidateInheritedContext(this.TrackControl);
-            }
+            using (MultiChangeToken batch = DataManager.GetContextData(this.SurfaceControl).BeginChange())
+                batch.Context.Set(DataKeys.TrackKey, this.Track).Set(DataKeys.TrackUIKey, this.SurfaceControl.TrackElement = this);
+            
+            using (MultiChangeToken batch = DataManager.GetContextData(this.TrackControl).BeginChange())
+                batch.Context.Set(DataKeys.TrackKey, this.Track).Set(DataKeys.TrackUIKey, this.TrackControl.TrackElement = this);
         }
 
         public IClipElement GetClipFromModel(Clip clip) {
@@ -591,12 +583,8 @@ public class TimelineControl : TemplatedControl, ITimelineElement {
         }
 
         public void Destroy() {
-            this.SurfaceControl.contextData.Set(DataKeys.TrackKey, null).Set(DataKeys.TrackUIKey, null);
-            DataManager.InvalidateInheritedContext(this.SurfaceControl);
-
-            this.TrackControl.contextData.Set(DataKeys.TrackKey, null).Set(DataKeys.TrackUIKey, null);
-            DataManager.InvalidateInheritedContext(this.TrackControl);
-
+            DataManager.GetContextData(this.SurfaceControl).Remove(DataKeys.TrackKey, DataKeys.TrackUIKey);
+            DataManager.GetContextData(this.TrackControl).Remove(DataKeys.TrackKey, DataKeys.TrackUIKey);
             this.myTrack = null;
         }
 

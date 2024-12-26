@@ -68,6 +68,7 @@ public class TrackControlSurfaceList : TemplatedControl {
     private void OnTimelineChanged(Timeline? oldTimeline, Timeline? newTimeline) {
         if (oldTimeline == newTimeline)
             return;
+        
         if (oldTimeline != null) {
             oldTimeline.TrackAdded -= this.OnTrackAdded;
             oldTimeline.TrackRemoved -= this.OnTrackRemoved;
@@ -80,11 +81,9 @@ public class TrackControlSurfaceList : TemplatedControl {
             newTimeline.TrackRemoved += this.OnTrackRemoved;
             newTimeline.TrackMoved += this.OnTrackMoved;
             this.TrackStorage!.LoadTracks(newTimeline);
-            DataManager.SetContextData(this, new ContextData().Set(DataKeys.TimelineKey, newTimeline));
         }
-        else {
-            DataManager.ClearContextData(this);
-        }
+
+        DataManager.GetContextData(this).Set(DataKeys.TimelineKey, newTimeline);
     }
 
     private void OnTrackAdded(Timeline timeline, Track track, int index) {

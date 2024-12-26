@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Interactivity;

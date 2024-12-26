@@ -117,8 +117,7 @@ public class ResourceDropRegistry {
 
         if (!await IResourceLoaderDialogService.Instance.TryLoadResources(resources.ToArray())) {
             foreach (BaseResource res in resources) {
-                res.Destroy();
-                res.Parent!.RemoveItem(res);
+                res.Parent!.RemoveItem(res, true);
             }
         }
 

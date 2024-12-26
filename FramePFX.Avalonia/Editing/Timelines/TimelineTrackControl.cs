@@ -60,7 +60,6 @@ public class TimelineTrackControl : TemplatedControl {
     private Track? myTrack;
     private ILinearGradientBrush? clipHeaderBrush;
     private ISolidColorBrush? _trackColourForegroundBrush;
-    internal readonly ContextData contextData;
     private MovedClip? clipBeingMoved;
     private bool internalIsSelected;
     private bool isProcessingAsyncDrop;
@@ -136,7 +135,6 @@ public class TimelineTrackControl : TemplatedControl {
         this.SelectionManager = new ClipSelectionManager(this);
         this.Focusable = true;
         this.UseLayoutRounding = true;
-        DataManager.SetContextData(this, this.contextData = new ContextData());
         this.automationSequenceBinder = new PropertyBinder<AutomationSequence?>(this, AutomationSequenceProperty, AutomationSequenceEditorControl.AutomationSequenceProperty);
         DragDrop.SetAllowDrop(this, true);
     }
@@ -360,8 +358,7 @@ public class TimelineTrackControl : TemplatedControl {
             // update context data, used by action system and context menu system
             PointerUpdateKind change = e.GetCurrentPoint(this).Properties.PointerUpdateKind;
             if (change == PointerUpdateKind.LeftButtonPressed || change == PointerUpdateKind.RightButtonPressed) {
-                this.contextData.Set(DataKeys.TrackContextMouseFrameKey, this.GetFrameAtMousePoint(e));
-                DataManager.InvalidateInheritedContext(this);
+                DataManager.GetContextData(this).Set(DataKeys.TrackContextMouseFrameKey, this.GetFrameAtMousePoint(e));
             }
 
             // don't focus if the click hit a clip, since the clip will be focused right after so it's pointless

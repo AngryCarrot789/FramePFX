@@ -30,8 +30,8 @@ using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Serialisation;
 using FramePFX.Utils;
+using FramePFX.Utils.BTE;
 using FramePFX.Utils.Destroying;
-using FramePFX.Utils.RBC;
 using SkiaSharp;
 
 namespace FramePFX.Editing.Timelines.Tracks;
@@ -144,17 +144,17 @@ public abstract class Track : IDisplayName, IAutomatable, ITransferableData, IHa
             track.DisplayName = data.GetString(nameof(track.DisplayName), null);
             if (data.TryGetUInt(nameof(track.Colour), out uint colourU32))
                 track.Colour = new SKColor(colourU32);
-            track.AutomationData.ReadFromRBE(data.GetDictionary(nameof(track.AutomationData)));
+            track.AutomationData.ReadFromBTE(data.GetDictionary(nameof(track.AutomationData)));
             BaseEffect.ReadSerialisedWithIdList(track, data.GetList("Effects"));
-            foreach (RBEDictionary dictionary in data.GetList(nameof(track.Clips)).Cast<RBEDictionary>()) {
+            foreach (BTEDictionary dictionary in data.GetList(nameof(track.Clips)).Cast<BTEDictionary>()) {
                 track.AddClip(Clip.ReadSerialisedWithId(dictionary));
             }
         }, (track, data, ctx) => {
             data.SetDouble(nameof(track.Height), track.Height);
             data.SetString(nameof(track.DisplayName), track.DisplayName);
             data.SetUInt(nameof(track.Colour), (uint) track.Colour);
-            track.AutomationData.WriteToRBE(data.CreateDictionary(nameof(track.AutomationData)));
-            RBEList list = data.CreateList(nameof(track.Clips));
+            track.AutomationData.WriteToBTE(data.CreateDictionary(nameof(track.AutomationData)));
+            BTEList list = data.CreateList(nameof(track.Clips));
             BaseEffect.WriteSerialisedWithIdList(track, data.CreateList("Effects"));
             foreach (Clip clip in track.clips) {
                 Clip.WriteSerialisedWithId(list.AddDictionary(), clip);

@@ -76,7 +76,7 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement {
         this.itemMap = new ModelControlDictionary<BaseResource, ResourceExplorerListBoxItem>();
         this.SelectionManager = new ResourceExplorerSelectionManager(this);
         this.Focusable = true;
-        DataManager.SetContextData(this, new ContextData().Set(DataKeys.ResourceListUIKey, this));
+        DataManager.GetContextData(this).Set(DataKeys.ResourceListUIKey, this);
         DragDrop.SetAllowDrop(this, true);
     }
 

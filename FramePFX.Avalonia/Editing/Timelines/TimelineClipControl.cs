@@ -34,7 +34,6 @@ using FramePFX.Avalonia.Editing.Automation;
 using FramePFX.Avalonia.Editing.Timelines.Selection;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Utils;
-using FramePFX.Editing;
 using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.ContextRegistries;
 using FramePFX.Editing.Rendering;
@@ -149,7 +148,6 @@ public class TimelineClipControl : ContentControl, IClipElement {
     private bool hasMadeRangeSelectionInMousePress;
     private bool shouldUpdatePlayHeadOnMouseUp;
     private bool isMovingBetweenTracks;
-    private readonly ContextData contextData;
     private bool wasSelectedOnPress;
     private bool isProcessingAsyncDrop;
     private FormattedText? myDisplayNameFormattedText;
@@ -159,7 +157,7 @@ public class TimelineClipControl : ContentControl, IClipElement {
     public TimelineClipControl() {
         Binders.AttachControls(this, this.frameSpanBinder, this.displayNameBinder, this.activeAutoSequenceBinder);
         this.renderSizeRectGeometry = new RectangleGeometry();
-        DataManager.SetContextData(this, this.contextData = new ContextData().Set(DataKeys.ClipUIKey, this));
+        DataManager.GetContextData(this).Set(DataKeys.ClipUIKey, this);
         DragDrop.SetAllowDrop(this, true);
         this.autoSequenceBinder = new PropertyBinder<AutomationSequence?>(this, ActiveSequenceProperty, AutomationSequenceEditorControl.AutomationSequenceProperty);
 
@@ -222,8 +220,7 @@ public class TimelineClipControl : ContentControl, IClipElement {
     public void OnConnecting(ClipStoragePanel storagePanel, Clip clip) {
         this.StoragePanel = storagePanel;
         this.ClipModel = clip;
-        this.contextData.Set(DataKeys.ClipKey, clip);
-        DataManager.InvalidateInheritedContext(this);
+        DataManager.GetContextData(this).Set(DataKeys.ClipKey, clip);
     }
 
     public void OnConnected() {
@@ -245,6 +242,7 @@ public class TimelineClipControl : ContentControl, IClipElement {
 
     public void OnDisconnected() {
         this.IsConnected = false;
+        DataManager.GetContextData(this).Set(DataKeys.ClipKey, null);
     }
 
     private void OnIsVisibleChanged(AutomationSequence sequence) {

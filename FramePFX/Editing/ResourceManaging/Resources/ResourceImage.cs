@@ -188,8 +188,8 @@ public class ResourceImage : ResourceItem {
         this.ImageChanged?.Invoke(this);
     }
 
-    protected override void OnDisableCore(bool user) {
-        base.OnDisableCore(user);
+    protected override void OnDisabled() {
+        base.OnDisabled();
         this.DisposeImage(false);
     }
 

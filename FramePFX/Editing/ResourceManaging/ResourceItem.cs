@@ -112,14 +112,12 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
     /// </param>
     /// <returns></returns>
     public void Disable(bool user) {
-        if (!this.IsOnline) {
-            return;
+        if (this.IsOnline) {
+            this.IsOnline = false;
+            this.IsOfflineByUser = user;
+            this.OnDisabled();
+            this.RaiseOnlineStateChanged();
         }
-
-        this.OnDisableCore(user);
-        this.IsOnline = false;
-        this.IsOfflineByUser = user;
-        this.RaiseOnlineStateChanged();
     }
 
     /// <summary>
@@ -129,11 +127,7 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
     /// Any errors should just be logged to the console
     /// </para>
     /// </summary>
-    /// <param name="user">
-    /// True if this was disabled forcefully by the user via the UI. False if it was disabled by something
-    /// else, such as an error or this resource being deleted
-    /// </param>
-    protected virtual void OnDisableCore(bool user) {
+    protected virtual void OnDisabled() {
     }
 
     /// <summary>
@@ -244,10 +238,9 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
     }
 
     public override void Destroy() {
-        if (this.IsOnline) {
+        if (this.IsOnline)
             this.Disable(false);
-        }
-
+        
         base.Destroy();
     }
 

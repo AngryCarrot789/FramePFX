@@ -19,17 +19,17 @@
 
 using System.Text;
 
-namespace FramePFX.Utils.RBC;
+namespace FramePFX.Utils.BTE;
 
-public class RBEByte : RBEBase {
-    public override RBEType Type => RBEType.Byte;
+public class BTEByte : BinaryTreeElement {
+    public override BTEType Type => BTEType.Byte;
 
     public byte Value { get; set; }
 
-    public RBEByte() {
+    public BTEByte() {
     }
 
-    public RBEByte(byte value) {
+    public BTEByte(byte value) {
         this.Value = value;
     }
 
@@ -41,19 +41,19 @@ public class RBEByte : RBEBase {
         writer.Write(this.Value);
     }
 
-    public override RBEBase Clone() => this.CloneCore();
-    public RBEByte CloneCore() => new RBEByte(this.Value);
+    public override BinaryTreeElement Clone() => this.CloneCore();
+    public BTEByte CloneCore() => new BTEByte(this.Value);
 }
 
-public class RBEShort : RBEBase {
-    public override RBEType Type => RBEType.Short;
+public class BTEShort : BinaryTreeElement {
+    public override BTEType Type => BTEType.Short;
 
     public short Value { get; set; }
 
-    public RBEShort() {
+    public BTEShort() {
     }
 
-    public RBEShort(short value) {
+    public BTEShort(short value) {
         this.Value = value;
     }
 
@@ -65,19 +65,19 @@ public class RBEShort : RBEBase {
         writer.Write(this.Value);
     }
 
-    public override RBEBase Clone() => this.CloneCore();
-    public RBEShort CloneCore() => new RBEShort(this.Value);
+    public override BinaryTreeElement Clone() => this.CloneCore();
+    public BTEShort CloneCore() => new BTEShort(this.Value);
 }
 
-public class RBEInt : RBEBase {
-    public override RBEType Type => RBEType.Int;
+public class BTEInt : BinaryTreeElement {
+    public override BTEType Type => BTEType.Int;
 
     public int Value { get; set; }
 
-    public RBEInt() {
+    public BTEInt() {
     }
 
-    public RBEInt(int value) {
+    public BTEInt(int value) {
         this.Value = value;
     }
 
@@ -89,19 +89,19 @@ public class RBEInt : RBEBase {
         writer.Write(this.Value);
     }
 
-    public override RBEBase Clone() => this.CloneCore();
-    public RBEInt CloneCore() => new RBEInt(this.Value);
+    public override BinaryTreeElement Clone() => this.CloneCore();
+    public BTEInt CloneCore() => new BTEInt(this.Value);
 }
 
-public class RBELong : RBEBase {
-    public override RBEType Type => RBEType.Long;
+public class BTELong : BinaryTreeElement {
+    public override BTEType Type => BTEType.Long;
 
     public long Value { get; set; }
 
-    public RBELong() {
+    public BTELong() {
     }
 
-    public RBELong(long value) {
+    public BTELong(long value) {
         this.Value = value;
     }
 
@@ -113,19 +113,19 @@ public class RBELong : RBEBase {
         writer.Write(this.Value);
     }
 
-    public override RBEBase Clone() => this.CloneCore();
-    public RBELong CloneCore() => new RBELong(this.Value);
+    public override BinaryTreeElement Clone() => this.CloneCore();
+    public BTELong CloneCore() => new BTELong(this.Value);
 }
 
-public class RBEFloat : RBEBase {
-    public override RBEType Type => RBEType.Float;
+public class BTEFloat : BinaryTreeElement {
+    public override BTEType Type => BTEType.Float;
 
     public float Value { get; set; }
 
-    public RBEFloat() {
+    public BTEFloat() {
     }
 
-    public RBEFloat(float value) {
+    public BTEFloat(float value) {
         this.Value = value;
     }
 
@@ -137,19 +137,19 @@ public class RBEFloat : RBEBase {
         writer.Write(this.Value);
     }
 
-    public override RBEBase Clone() => this.CloneCore();
-    public RBEFloat CloneCore() => new RBEFloat(this.Value);
+    public override BinaryTreeElement Clone() => this.CloneCore();
+    public BTEFloat CloneCore() => new BTEFloat(this.Value);
 }
 
-public class RBEDouble : RBEBase {
-    public override RBEType Type => RBEType.Double;
+public class BTEDouble : BinaryTreeElement {
+    public override BTEType Type => BTEType.Double;
 
     public double Value { get; set; }
 
-    public RBEDouble() {
+    public BTEDouble() {
     }
 
-    public RBEDouble(double value) {
+    public BTEDouble(double value) {
         this.Value = value;
     }
 
@@ -161,18 +161,18 @@ public class RBEDouble : RBEBase {
         writer.Write(this.Value);
     }
 
-    public override RBEBase Clone() => this.CloneCore();
-    public RBEDouble CloneCore() => new RBEDouble(this.Value);
+    public override BinaryTreeElement Clone() => this.CloneCore();
+    public BTEDouble CloneCore() => new BTEDouble(this.Value);
 }
 
 /// <summary>
-/// An RBE element that stores a string. Max string length is an unsigned short (<see cref="ushort.MaxValue"/>)
+/// An BTE element that stores a string. Max string length is an unsigned short (<see cref="ushort.MaxValue"/>)
 /// </summary>
-public class RBEString : RBEBase {
+public class BTEString : BinaryTreeElement {
     public const int MaxValueLength = ushort.MaxValue;
     private string? value;
 
-    public override RBEType Type => RBEType.String;
+    public override BTEType Type => BTEType.String;
 
     public string? Value {
         get => this.value;
@@ -185,10 +185,10 @@ public class RBEString : RBEBase {
         }
     }
 
-    public RBEString() {
+    public BTEString() {
     }
 
-    public RBEString(string? value) {
+    public BTEString(string? value) {
         this.Value = value;
     }
 
@@ -198,23 +198,23 @@ public class RBEString : RBEBase {
         return input;
     }
 
-    public static void CreateStringList(RBEList list, string input) {
+    public static void CreateStringList(BTEList list, string input) {
         for (int i = 0, length = input.Length; i < length; i += MaxValueLength) {
-            list.Add(new RBEString(input.Substring(i, Math.Min(MaxValueLength, length - i))));
+            list.Add(new BTEString(input.Substring(i, Math.Min(MaxValueLength, length - i))));
         }
     }
 
-    public static RBEList CreateStringList(string input) {
-        RBEList list = new RBEList(new List<RBEBase>(input.Length / MaxValueLength + 1));
+    public static BTEList CreateStringList(string input) {
+        BTEList list = new BTEList(new List<BinaryTreeElement>(input.Length / MaxValueLength + 1));
         CreateStringList(list, input);
         return list;
     }
 
-    public static string ReadFromStringList(RBEList list) {
-        IEnumerable<RBEString> enumerable = list.Cast<RBEString>();
+    public static string ReadFromStringList(BTEList list) {
+        IEnumerable<BTEString> enumerable = list.Cast<BTEString>();
         StringBuilder sb = new StringBuilder(list.List.Count * MaxValueLength);
-        foreach (RBEString rbe in enumerable)
-            sb.Append(rbe.value);
+        foreach (BTEString bte in enumerable)
+            sb.Append(bte.value);
         return sb.ToString();
     }
 
@@ -255,6 +255,6 @@ public class RBEString : RBEBase {
         WriteString(writer, this.value);
     }
 
-    public override RBEBase Clone() => this.CloneCore();
-    public RBEString CloneCore() => new RBEString(this.value);
+    public override BinaryTreeElement Clone() => this.CloneCore();
+    public BTEString CloneCore() => new BTEString(this.value);
 }

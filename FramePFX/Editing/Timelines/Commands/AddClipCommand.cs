@@ -145,8 +145,7 @@ public class AddImageVideoClipCommand : AddClipCommand<ImageVideoClip> {
                     clip.ResourceHelper.SetResource(ImageVideoClip.ResourceImageKey, resourceImage);
                 }
                 else {
-                    targetFolder.RemoveItem(resourceImage);
-                    resourceImage.Destroy();
+                    targetFolder.RemoveItem(resourceImage, destroy: true);
                 }
             }
         }

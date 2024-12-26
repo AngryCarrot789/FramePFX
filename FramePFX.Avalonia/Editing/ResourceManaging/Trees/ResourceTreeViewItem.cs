@@ -79,7 +79,6 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
 
     private TextBlock? PART_HeaderTextBlock;
     private TextBox? PART_HeaderTextBox;
-    private readonly ContextData contextData;
 
     private ResourceNodeDragState dragBtnState;
     private bool hasCompletedDrop;
@@ -111,7 +110,7 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
 
     protected ResourceTreeViewItem() {
         DragDrop.SetAllowDrop(this, true);
-        DataManager.SetContextData(this, this.contextData = new ContextData().Set(DataKeys.ResourceNodeUIKey, this));
+        DataManager.GetContextData(this).Set(DataKeys.ResourceNodeUIKey, this);
     }
 
     static ResourceTreeViewItem() {
@@ -200,7 +199,7 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
         }
 
         this.displayNameBinder.Attach(this, this.Resource!);
-        DataManager.SetContextData(this, this.contextData.Set(DataKeys.ResourceObjectKey, this.Resource));
+        DataManager.GetContextData(this).Set(DataKeys.ResourceObjectKey, this.Resource);
         AdvancedContextMenu.SetContextRegistry(this, this.IsFolderItem ? BaseResource.ResourceFolderContextRegistry : BaseResource.ResourceItemContextRegistry);
     }
 
@@ -224,7 +223,7 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
         this.ParentNode = null;
         this.Resource = null;
         this.IsFolderItem = false;
-        DataManager.ClearContextData(this);
+        DataManager.GetContextData(this).Set(DataKeys.ResourceObjectKey, null);
         AdvancedContextMenu.SetContextRegistry(this, null);
     }
 

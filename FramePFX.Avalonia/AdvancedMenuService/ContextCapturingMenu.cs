@@ -79,9 +79,9 @@ public class ContextCapturingMenu : Menu {
 
     private void CaptureContextFromObject(InputElement inputElement) {
         IContextData ctx = DataManager.GetFullContextData(inputElement);
-        Debug.WriteLine($"Captured context{(ctx is IRandomAccessContext data ? $" ({data.Count} entries) " : " ")}before menu focus switch from {inputElement.GetType().Name}");
+        Debug.WriteLine($"Captured context{(ctx is IRandomAccessContextData data ? $" ({data.Count} entries) " : " ")}before menu focus switch from {inputElement.GetType().Name}");
         this.SetValue(CapturedContextProperty, ctx);
-        DataManager.SetContextData(this, ctx);
+        DataManager.SwapInheritedContextData(this, ctx);
     }
 
     public static IContextData? GetCapturedContext(AvaloniaObject obj) => obj.GetValue(CapturedContextProperty);

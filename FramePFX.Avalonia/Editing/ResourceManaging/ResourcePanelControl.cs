@@ -37,7 +37,6 @@ public class ResourcePanelControl : TemplatedControl, IResourceManagerElement {
 
     private readonly PropertyBinder<ResourceManager?> resourceTreeManagerBinder;
     private readonly PropertyBinder<ResourceManager?> resourceListManagerBinder;
-    private readonly ContextData contextData;
 
     public ResourceManager? ResourceManager {
         get => this.GetValue(ResourceManagerProperty);
@@ -52,7 +51,7 @@ public class ResourcePanelControl : TemplatedControl, IResourceManagerElement {
     public ResourcePanelControl() {
         this.resourceTreeManagerBinder = new PropertyBinder<ResourceManager?>(this, ResourceManagerProperty, ResourceTreeView.ResourceManagerProperty);
         this.resourceListManagerBinder = new PropertyBinder<ResourceManager?>(this, ResourceManagerProperty, ResourceExplorerListBox.ResourceManagerProperty);
-        DataManager.SetContextData(this, this.contextData = new ContextData().Set(DataKeys.ResourceManagerUIKey, this));
+        DataManager.GetContextData(this).Set(DataKeys.ResourceManagerUIKey, this);
     }
 
     static ResourcePanelControl() {
@@ -67,7 +66,6 @@ public class ResourcePanelControl : TemplatedControl, IResourceManagerElement {
         this.ResourceListBox!.ManagerUI = this;
 
         this.MultiSelectionManager = new TreeListSelectionMergerManager(this.ResourceListBox!, this.ResourceTreeView!);
-        DataManager.InvalidateInheritedContext(this);
     }
 
     IResourceSelectionManager IResourceManagerElement.Selection => this.MultiSelectionManager ?? throw new InvalidOperationException("Not ready");

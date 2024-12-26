@@ -47,9 +47,8 @@ public abstract class DataKey {
     }
 
     protected static void RegisterInternal(string id, DataKey key) {
-        if (ReferenceEquals(key, null))
-            throw new ArgumentNullException(nameof(key));
-        ArgumentNullException.ThrowIfNull(id);
+        Validate.NotNullOrWhiteSpaces(id);
+        Validate.NotNull(key);
         lock (Registry) {
             if (!Registry.TryAdd(id, key))
                 throw new InvalidOperationException("ID already in use: " + id);

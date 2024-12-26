@@ -21,7 +21,7 @@ using System.Diagnostics;
 using System.Numerics;
 using FramePFX.Editing.Automation.Params;
 using FramePFX.Utils;
-using FramePFX.Utils.RBC;
+using FramePFX.Utils.BTE;
 
 namespace FramePFX.Editing.Automation.Keyframes;
 
@@ -133,18 +133,18 @@ public abstract class KeyFrame {
     }
 
     /// <summary>
-    /// Writes this key frame data to the given <see cref="RBEDictionary"/>
+    /// Writes this key frame data to the given <see cref="BTEDictionary"/>
     /// </summary>
     /// <param name="data"></param>
-    public virtual void WriteToRBE(RBEDictionary data) {
+    public virtual void WriteToBTE(BTEDictionary data) {
         data.SetULong("Time", (ulong) this.myFrame);
     }
 
     /// <summary>
-    /// Reads the key frame data from the given <see cref="RBEDictionary"/>
+    /// Reads the key frame data from the given <see cref="BTEDictionary"/>
     /// </summary>
     /// <param name="data"></param>
-    public virtual void ReadFromRBE(RBEDictionary data) {
+    public virtual void ReadFromBTE(BTEDictionary data) {
         this.myFrame = (long) data.GetULong("Time");
     }
 
@@ -326,13 +326,13 @@ public class KeyFrameFloat : KeyFrame {
         return (float) (blend * (frame.myValue - this.myValue)) + this.myValue;
     }
 
-    public override void WriteToRBE(RBEDictionary data) {
-        base.WriteToRBE(data);
+    public override void WriteToBTE(BTEDictionary data) {
+        base.WriteToBTE(data);
         data.SetFloat(nameof(this.Value), this.myValue);
     }
 
-    public override void ReadFromRBE(RBEDictionary data) {
-        base.ReadFromRBE(data);
+    public override void ReadFromBTE(BTEDictionary data) {
+        base.ReadFromBTE(data);
         this.myValue = data.GetFloat(nameof(this.Value));
     }
 
@@ -383,13 +383,13 @@ public class KeyFrameDouble : KeyFrame {
         return blend * (nextFrame.myValue - this.myValue) + this.myValue;
     }
 
-    public override void WriteToRBE(RBEDictionary data) {
-        base.WriteToRBE(data);
+    public override void WriteToBTE(BTEDictionary data) {
+        base.WriteToBTE(data);
         data.SetDouble(nameof(this.Value), this.myValue);
     }
 
-    public override void ReadFromRBE(RBEDictionary data) {
-        base.ReadFromRBE(data);
+    public override void ReadFromBTE(BTEDictionary data) {
+        base.ReadFromBTE(data);
         this.myValue = data.GetDouble(nameof(this.Value));
     }
 
@@ -445,13 +445,13 @@ public class KeyFrameLong : KeyFrame {
         return Maths.Lerp(this.Value, frame.Value, blend, this.RoundingMode);
     }
 
-    public override void WriteToRBE(RBEDictionary data) {
-        base.WriteToRBE(data);
+    public override void WriteToBTE(BTEDictionary data) {
+        base.WriteToBTE(data);
         data.SetLong(nameof(this.Value), this.myValue);
     }
 
-    public override void ReadFromRBE(RBEDictionary data) {
-        base.ReadFromRBE(data);
+    public override void ReadFromBTE(BTEDictionary data) {
+        base.ReadFromBTE(data);
         this.myValue = data.GetLong(nameof(this.Value));
     }
 
@@ -510,13 +510,13 @@ public class KeyFrameBool : KeyFrame {
         }
     }
 
-    public override void WriteToRBE(RBEDictionary data) {
-        base.WriteToRBE(data);
+    public override void WriteToBTE(BTEDictionary data) {
+        base.WriteToBTE(data);
         data.SetBool(nameof(this.Value), this.myValue);
     }
 
-    public override void ReadFromRBE(RBEDictionary data) {
-        base.ReadFromRBE(data);
+    public override void ReadFromBTE(BTEDictionary data) {
+        base.ReadFromBTE(data);
         this.myValue = data.GetBool(nameof(this.Value));
     }
 
@@ -567,13 +567,13 @@ public class KeyFrameVector2 : KeyFrame {
         return Vector2.Lerp(this.Value, frame.myValue, (float) blend);
     }
 
-    public override void WriteToRBE(RBEDictionary data) {
-        base.WriteToRBE(data);
+    public override void WriteToBTE(BTEDictionary data) {
+        base.WriteToBTE(data);
         data.SetStruct(nameof(this.Value), this.Value);
     }
 
-    public override void ReadFromRBE(RBEDictionary data) {
-        base.ReadFromRBE(data);
+    public override void ReadFromBTE(BTEDictionary data) {
+        base.ReadFromBTE(data);
         this.Value = data.GetStruct<Vector2>(nameof(this.Value));
     }
 

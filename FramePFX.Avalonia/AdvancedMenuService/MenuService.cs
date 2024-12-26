@@ -108,8 +108,8 @@ public static class MenuService {
         ItemCollection items = parent.Items;
         int i = index;
         foreach (IContextObject entry in entries) {
-            if (entry is DynamicGroupContextObject) {
-                (parent as IAdvancedContextElement)?.StoreDynamicGroup((DynamicGroupContextObject) entry, i);
+            if (entry is DynamicGroupPlaceholderContextObject) {
+                (parent as IAdvancedContextElement)?.StoreDynamicGroup((DynamicGroupPlaceholderContextObject) entry, i);
             }
             else {
                 Control element = container.CreateChildItem(entry);
@@ -225,20 +225,20 @@ public static class MenuService {
         return element;
     }
 
-    public static void GenerateDynamicItems(IAdvancedContextElement element, ref Dictionary<int, DynamicGroupContextObject>? dynamicInsertion, ref Dictionary<int, int>? dynamicInserted) {
+    public static void GenerateDynamicItems(IAdvancedContextElement element, ref Dictionary<int, DynamicGroupPlaceholderContextObject>? dynamicInsertion, ref Dictionary<int, int>? dynamicInserted) {
         ClearDynamicItems(element, ref dynamicInserted);
         if (dynamicInsertion == null || dynamicInsertion.Count < 1) {
             return;
         }
 
         IAdvancedContainer container = element.Container ?? throw new InvalidOperationException("No container available");
-        IContextData context = element.Context ?? EmptyContext.Instance;
+        IContextData context = element.CapturedContext ?? EmptyContext.Instance;
 
         dynamicInserted ??= new Dictionary<int, int>();
 
         int offset = 0;
-        List<KeyValuePair<int, DynamicGroupContextObject>> items = dynamicInsertion.OrderBy(x => x.Key).ToList();
-        foreach (KeyValuePair<int, DynamicGroupContextObject> item in items) {
+        List<KeyValuePair<int, DynamicGroupPlaceholderContextObject>> items = dynamicInsertion.OrderBy(x => x.Key).ToList();
+        foreach (KeyValuePair<int, DynamicGroupPlaceholderContextObject> item in items) {
             // The key is a marker, we still need to post process the true index
             // This is also why we must insert from start to end
             int index = item.Key + offset;

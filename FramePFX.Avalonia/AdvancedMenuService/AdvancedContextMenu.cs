@@ -51,11 +51,11 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
     private readonly Dictionary<Type, Stack<Control>> itemCache;
     private readonly List<Control> owners;
     private Control? currentTarget;
-    private Dictionary<int, DynamicGroupContextObject>? dynamicInsertion;
+    private Dictionary<int, DynamicGroupPlaceholderContextObject>? dynamicInsertion;
     private Dictionary<int, int>? dynamicInserted;
     private bool ignoreUpdateNormalisation;
 
-    public IContextData? Context { get; private set; }
+    public IContextData? CapturedContext { get; private set; }
     IAdvancedContainer IAdvancedContextElement.Container => this;
 
     public AdvancedContextMenu() {
@@ -120,7 +120,7 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
         if (this.ContextRegistry.IsOpened)
             this.ContextRegistry.OnClosed();
 
-        this.ContextRegistry.OnOpened(this.Context ?? EmptyContext.Instance);
+        this.ContextRegistry.OnOpened(this.CapturedContext ?? EmptyContext.Instance);
         this.captionBinder.Attach(this, this.ContextRegistry);
     }
 
@@ -137,13 +137,13 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
     }
 
     private void ClearContext() {
-        DataManager.ClearContextData(this);
-        this.Context = null;
+        DataManager.ClearInheritedContextData(this);
+        this.CapturedContext = null;
         this.currentTarget = null;
     }
 
-    private void CaptureContextFromObject(InputElement inputElement) {
-        DataManager.SetContextData(this, this.Context = DataManager.GetFullContextData(inputElement));
+    private void CaptureContextFromObject(InputElement inputElement) { ;
+        DataManager.MakeInheritedContextData(this, this.CapturedContext = DataManager.GetFullContextData(inputElement));
     }
 
     private static void OnContextRegistryChanged(Control target, ContextRegistry? oldValue, ContextRegistry? newValue) {
@@ -173,7 +173,7 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
 
                     switch (entry.Value) {
                         case FixedContextGroup fixedGroup:     contextObjects.AddRange(fixedGroup.Items); break;
-                        case DynamicContextGroup dynamicGroup: contextObjects.Add(new DynamicGroupContextObject(dynamicGroup)); break;
+                        case DynamicContextGroup dynamicGroup: contextObjects.Add(new DynamicGroupPlaceholderContextObject(dynamicGroup)); break;
                     }
                 }
 
@@ -218,8 +218,8 @@ public class AdvancedContextMenu : ContextMenu, IAdvancedContainer, IAdvancedCon
 
     public Control CreateChildItem(IContextObject entry) => MenuService.CreateChildItem(this, entry);
 
-    public void StoreDynamicGroup(DynamicGroupContextObject group, int index) {
-        (this.dynamicInsertion ??= new Dictionary<int, DynamicGroupContextObject>())[index] = group;
+    public void StoreDynamicGroup(DynamicGroupPlaceholderContextObject groupPlaceholder, int index) {
+        (this.dynamicInsertion ??= new Dictionary<int, DynamicGroupPlaceholderContextObject>())[index] = groupPlaceholder;
     }
 
     public static void SetContextRegistry(Control obj, ContextRegistry? value) => obj.SetValue(ContextRegistryProperty, value);

@@ -17,15 +17,30 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.AdvancedMenuService;
+namespace FramePFX.Utils.BTE;
 
-/// <summary>
-/// This interface is an invisible placeholder which is where dynamic items will be injected
-/// </summary>
-public class DynamicGroupContextObject : IContextObject {
-    public DynamicContextGroup DynamicGroup { get; }
+public class BTEGuid : BinaryTreeElement {
+    public override BTEType Type => BTEType.Guid;
 
-    public DynamicGroupContextObject(DynamicContextGroup dynamicGroup) {
-        this.DynamicGroup = dynamicGroup;
+    public Guid Value { get; set; }
+
+    public BTEGuid() {
     }
+
+    public BTEGuid(Guid value) {
+        this.Value = value;
+    }
+
+    // These are probably ultra slow but faster than writing/reading strings
+
+    protected override void Read(BinaryReader reader) {
+        this.Value = new Guid(reader.ReadBytes(16));
+    }
+
+    protected override void Write(BinaryWriter writer) {
+        writer.Write(this.Value.ToByteArray());
+    }
+
+    public override BinaryTreeElement Clone() => this.CloneCore();
+    public BTEGuid CloneCore() => new BTEGuid(this.Value);
 }

@@ -23,15 +23,15 @@ using FramePFX.Interactivity.Contexts;
 namespace FramePFX.Avalonia.AdvancedMenuService;
 
 public interface IAdvancedContextElement {
-    IContextData? Context { get; }
+    IContextData? CapturedContext { get; }
 
     IAdvancedContainer? Container { get; }
 
     /// <summary>
     /// Stores the dynamic group for insertion at the given index inside this element's item
-    /// list. This is a marker index, so post-processing must be done during generation
+    /// list. Post-processing must be done on this index during generation
     /// </summary>
-    /// <param name="group"></param>
-    /// <param name="index"></param>
-    void StoreDynamicGroup(DynamicGroupContextObject group, int index);
+    /// <param name="groupPlaceholder">The dynamic group</param>
+    /// <param name="index">The unprocessed index</param>
+    void StoreDynamicGroup(DynamicGroupPlaceholderContextObject groupPlaceholder, int index);
 }

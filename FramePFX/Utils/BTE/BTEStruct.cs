@@ -19,7 +19,7 @@
 
 using System.Runtime.CompilerServices;
 
-namespace FramePFX.Utils.RBC;
+namespace FramePFX.Utils.BTE;
 
 /// <summary>
 /// Used to store unmanaged structs in the little-endian format. Struct can have a max size of 65535 (<see cref="ushort.MaxValue"/>) bytes
@@ -28,18 +28,18 @@ namespace FramePFX.Utils.RBC;
 /// that contains a reference type as a field/property is not unmanaged and cannot be stored (maybe apart from strings? not sure)
 /// </para>
 /// </summary>
-public class RBEStruct : RBEBase {
+public class BTEStruct : BinaryTreeElement {
     private byte[] data;
 
-    public override RBEType Type => RBEType.Struct;
+    public override BTEType Type => BTEType.Struct;
 
-    public RBEStruct() {
+    public BTEStruct() {
     }
 
-    public static RBEStruct ForValue<T>(in T value) where T : unmanaged {
-        RBEStruct rbe = new RBEStruct();
-        rbe.SetValue(value);
-        return rbe;
+    public static BTEStruct ForValue<T>(in T value) where T : unmanaged {
+        BTEStruct bte = new BTEStruct();
+        bte.SetValue(value);
+        return bte;
     }
 
     protected override void Read(BinaryReader reader) {
@@ -95,15 +95,15 @@ public class RBEStruct : RBEBase {
         BinaryUtils.WriteStruct(value, this.data, 0);
     }
 
-    public override RBEBase Clone() => this.CloneCore();
+    public override BinaryTreeElement Clone() => this.CloneCore();
 
-    public RBEStruct CloneCore() {
+    public BTEStruct CloneCore() {
         byte[] src = this.data, dest = null;
         if (src != null) {
             dest = new byte[src.Length];
             Unsafe.CopyBlock(ref dest[0], ref src[0], (uint) dest.Length);
         }
 
-        return new RBEStruct { data = dest };
+        return new BTEStruct { data = dest };
     }
 }

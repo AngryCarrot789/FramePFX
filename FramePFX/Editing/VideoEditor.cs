@@ -28,8 +28,8 @@ using FramePFX.Editing.Timelines.Clips.Video;
 using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.History;
 using FramePFX.PropertyEditing;
+using FramePFX.Services;
 using FramePFX.Utils.Destroying;
-using SkiaSharp;
 
 namespace FramePFX.Editing;
 
@@ -43,7 +43,7 @@ public delegate void VideoEditorEventHandler(VideoEditor editor);
 /// <summary>
 /// The class which stores all of the data for the video editor application
 /// </summary>
-public class VideoEditor : IDestroy {
+public class VideoEditor : IServiceable, IDestroy {
     private bool isExporting;
 
     /// <summary>
@@ -57,6 +57,8 @@ public class VideoEditor : IDestroy {
     public Project? Project { get; private set; }
 
     public PlaybackManager Playback { get; }
+    
+    public ServiceManager ServiceManager { get; }
 
     /// <summary>
     /// Gets or sets if this editor is being used to export at the current moment
@@ -77,6 +79,7 @@ public class VideoEditor : IDestroy {
 
     public VideoEditor() {
         this.HistoryManager = new HistoryManager();
+        this.ServiceManager = new ServiceManager(this);
         this.Playback = new PlaybackManager(this);
         this.Playback.SetFrameRate(new Rational(1, 1));
         this.Playback.StartTimer();
@@ -128,7 +131,7 @@ public class VideoEditor : IDestroy {
             };
 
             clip2.SetDefaultValue(VideoClipShape.SizeParameter, new Vector2(200, 200));
-            VideoClip.MediaScaleOriginParameter.SetValue(clip2, new SKPoint(100, 100));
+            VideoClip.MediaScaleOriginParameter.SetValue(clip2, new Vector2(100, 100));
 
             clip2.ResourceHelper.SetResource(VideoClipShape.ColourKey, id_g);
             clip2.AutomationData.UpdateBackingStorage();

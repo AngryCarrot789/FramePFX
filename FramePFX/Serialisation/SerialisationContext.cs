@@ -18,7 +18,7 @@
 // 
 
 
-using FramePFX.Utils.RBC;
+using FramePFX.Utils.BTE;
 
 namespace FramePFX.Serialisation;
 
@@ -78,15 +78,15 @@ public readonly struct SerialisationContext {
     /// <summary>
     /// Serialises our current object using its base type. Uses the <see cref="TargetVersion"/> field as a target version
     /// </summary>
-    /// <param name="data">The RBE dictionary, which should be written into</param>
-    public void SerialiseBaseType(RBEDictionary data) => this.SerialiseBaseType(data, this.TargetVersion);
+    /// <param name="data">The BTE dictionary, which should be written into</param>
+    public void SerialiseBaseType(BTEDictionary data) => this.SerialiseBaseType(data, this.TargetVersion);
 
     /// <summary>
     /// Serialises our current object using its base type
     /// </summary>
-    /// <param name="data">The RBE dictionary, which should be written into</param>
+    /// <param name="data">The BTE dictionary, which should be written into</param>
     /// <param name="version">The version of our current type's base type's serialiser to use</param>
-    public void SerialiseBaseType(RBEDictionary data, int version) {
+    public void SerialiseBaseType(BTEDictionary data, int version) {
         Type? baseType = this.CurrentType.BaseType;
         if (baseType != null) {
             this.Registry.RunSerialisersInternal(true, this.CurrentObject, baseType, data, version);
@@ -97,25 +97,25 @@ public readonly struct SerialisationContext {
     /// Serialises the object using the nearest previous serialiser version. This should be used if you're
     /// certain the previous serialiser version will work properly
     /// </summary>
-    /// <param name="data">The RBE dictionary, which should be written into</param>
-    public void SerialiseLastVersion(RBEDictionary data) {
+    /// <param name="data">The BTE dictionary, which should be written into</param>
+    public void SerialiseLastVersion(BTEDictionary data) {
         if (this.ActualVersion <= 0)
             throw new InvalidOperationException("Cannot serialise the previous version of our object when we are the first version");
         this.Registry.RunSerialisersInternal(true, this.CurrentObject, this.CurrentType, data, this.ActualVersion - 1);
     }
 
     /// <summary>
-    /// Same as <see cref="SerialiseBaseType(RBEDictionary)"/>, except for deserialisation
+    /// Same as <see cref="SerialiseBaseType(BTEDictionary)"/>, except for deserialisation
     /// </summary>
-    /// <param name="data">The RBE dictionary, which should be read from</param>
-    public void DeserialiseBaseType(RBEDictionary data) => this.DeserialiseBaseType(data, this.TargetVersion);
+    /// <param name="data">The BTE dictionary, which should be read from</param>
+    public void DeserialiseBaseType(BTEDictionary data) => this.DeserialiseBaseType(data, this.TargetVersion);
 
     /// <summary>
-    /// Same as <see cref="SerialiseBaseType(RBEDictionary, int)"/>, except for deserialisation
+    /// Same as <see cref="SerialiseBaseType(BTEDictionary, int)"/>, except for deserialisation
     /// </summary>
-    /// <param name="data">The RBE dictionary, which should be read from</param>
+    /// <param name="data">The BTE dictionary, which should be read from</param>
     /// <param name="version">The version of our current type's base type's serialiser to use</param>
-    public void DeserialiseBaseType(RBEDictionary data, int version) {
+    public void DeserialiseBaseType(BTEDictionary data, int version) {
         Type? baseType = this.CurrentType.BaseType;
         if (baseType != null) {
             this.Registry.RunSerialisersInternal(false, this.CurrentObject, baseType, data, version);
@@ -125,8 +125,8 @@ public readonly struct SerialisationContext {
     /// <summary>
     /// Same as <see cref="SerialiseLastVersion{T}"/>, except for deserialisation
     /// </summary>
-    /// <param name="data">The RBE dictionary, which should be read from</param>
-    public void DeserialiseLastVersion(RBEDictionary data) {
+    /// <param name="data">The BTE dictionary, which should be read from</param>
+    public void DeserialiseLastVersion(BTEDictionary data) {
         if (this.ActualVersion <= 0)
             throw new InvalidOperationException("Cannot deserialise the previous version of our object when we are the first version");
         this.Registry.RunSerialisersInternal(false, this.CurrentObject, this.CurrentType, data, this.ActualVersion - 1);

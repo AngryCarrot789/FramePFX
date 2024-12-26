@@ -17,20 +17,20 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Utils.RBC;
+namespace FramePFX.Utils.BTE;
 
 /// <summary>
 /// Used to store an ordered list of elements
 /// </summary>
-public class RBEList : RBEBase {
-    public List<RBEBase> List { get; private set; }
+public class BTEList : BinaryTreeElement {
+    public List<BinaryTreeElement> List { get; private set; }
 
-    public override RBEType Type => RBEType.List;
+    public override BTEType Type => BTEType.List;
 
-    public RBEList() : this(new List<RBEBase>()) {
+    public BTEList() : this(new List<BinaryTreeElement>()) {
     }
 
-    public RBEList(List<RBEBase> children) {
+    public BTEList(List<BinaryTreeElement> children) {
         this.List = children ?? throw new ArgumentNullException(nameof(children), "List cannot be null");
     }
 
@@ -40,7 +40,7 @@ public class RBEList : RBEBase {
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public IEnumerable<T> Cast<T>() where T : RBEBase {
+    public IEnumerable<T> Cast<T>() where T : BinaryTreeElement {
         if (this.List.Any(x => !(x is T))) {
             throw new Exception($"Expected list to contain only {GetReadableTypeName(typeof(T))} instances");
         }
@@ -48,7 +48,7 @@ public class RBEList : RBEBase {
         return this.List.Cast<T>();
     }
 
-    private bool GetElementByType<T>(int index, out T value) where T : RBEBase {
+    private bool GetElementByType<T>(int index, out T value) where T : BinaryTreeElement {
         if (index >= 0 && index < this.List.Count) {
             if (this.List[index] is T val) {
                 value = val;
@@ -64,205 +64,205 @@ public class RBEList : RBEBase {
         }
     }
 
-    public RBEDictionary GetDictionaryElement(int index) {
-        return this.GetElementByType(index, out RBEDictionary rbe) ? rbe : null;
+    public BTEDictionary GetDictionaryElement(int index) {
+        return this.GetElementByType(index, out BTEDictionary bte) ? bte : null;
     }
 
-    public Dictionary<string, RBEBase> GetDictionary(int index, Dictionary<string, RBEBase> def = null) {
-        return this.GetElementByType(index, out RBEDictionary rbe) ? rbe.Map : def;
+    public Dictionary<string, BinaryTreeElement> GetDictionary(int index, Dictionary<string, BinaryTreeElement> def = null) {
+        return this.GetElementByType(index, out BTEDictionary bte) ? bte.Map : def;
     }
 
-    public bool TryGetDictionary(int index, out Dictionary<string, RBEBase> value) {
-        RBEDictionary element = this.GetDictionaryElement(index);
+    public bool TryGetDictionary(int index, out Dictionary<string, BinaryTreeElement> value) {
+        BTEDictionary element = this.GetDictionaryElement(index);
         value = element?.Map;
         return element != null;
     }
 
-    public RBEList GetListElement(int index) {
-        return this.GetElementByType(index, out RBEList rbe) ? rbe : null;
+    public BTEList GetListElement(int index) {
+        return this.GetElementByType(index, out BTEList bte) ? bte : null;
     }
 
-    public List<RBEBase> GetList(int index, List<RBEBase> def = null) {
-        return this.GetElementByType(index, out RBEList rbe) ? rbe.List : def;
+    public List<BinaryTreeElement> GetList(int index, List<BinaryTreeElement> def = null) {
+        return this.GetElementByType(index, out BTEList bte) ? bte.List : def;
     }
 
-    public bool TryGetList(int index, out List<RBEBase> value) {
-        RBEList element = this.GetListElement(index);
+    public bool TryGetList(int index, out List<BinaryTreeElement> value) {
+        BTEList element = this.GetListElement(index);
         value = element?.List;
         return element != null;
     }
 
-    public RBEByte GetInt8Element(int index) {
-        return this.GetElementByType(index, out RBEByte rbe) ? rbe : null;
+    public BTEByte GetInt8Element(int index) {
+        return this.GetElementByType(index, out BTEByte bte) ? bte : null;
     }
 
     public byte GetInt8(int index, byte def = default) {
-        return this.GetElementByType(index, out RBEByte rbe) ? rbe.Value : def;
+        return this.GetElementByType(index, out BTEByte bte) ? bte.Value : def;
     }
 
     public bool TryGetInt8(int index, out byte value) {
-        RBEByte element = this.GetInt8Element(index);
+        BTEByte element = this.GetInt8Element(index);
         value = element?.Value ?? default;
         return element != null;
     }
 
-    public RBEShort GetInt16Element(int index) {
-        return this.GetElementByType(index, out RBEShort rbe) ? rbe : null;
+    public BTEShort GetInt16Element(int index) {
+        return this.GetElementByType(index, out BTEShort bte) ? bte : null;
     }
 
     public short GetInt16(int index, short def = default) {
-        return this.GetElementByType(index, out RBEShort rbe) ? rbe.Value : def;
+        return this.GetElementByType(index, out BTEShort bte) ? bte.Value : def;
     }
 
     public bool TryGetInt16(int index, out short value) {
-        RBEShort element = this.GetInt16Element(index);
+        BTEShort element = this.GetInt16Element(index);
         value = element?.Value ?? default;
         return element != null;
     }
 
-    public RBEInt GetInt32Element(int index) {
-        return this.GetElementByType(index, out RBEInt rbe) ? rbe : null;
+    public BTEInt GetInt32Element(int index) {
+        return this.GetElementByType(index, out BTEInt bte) ? bte : null;
     }
 
     public int GetInt32(int index, int def = default) {
-        return this.GetElementByType(index, out RBEInt rbe) ? rbe.Value : def;
+        return this.GetElementByType(index, out BTEInt bte) ? bte.Value : def;
     }
 
     public bool TryGetInt32(int index, out int value) {
-        RBEInt element = this.GetInt32Element(index);
+        BTEInt element = this.GetInt32Element(index);
         value = element?.Value ?? default;
         return element != null;
     }
 
-    public RBELong GetInt64Element(int index) {
-        return this.GetElementByType(index, out RBELong rbe) ? rbe : null;
+    public BTELong GetInt64Element(int index) {
+        return this.GetElementByType(index, out BTELong bte) ? bte : null;
     }
 
     public long GetInt64(int index, long def = default) {
-        return this.GetElementByType(index, out RBELong rbe) ? rbe.Value : def;
+        return this.GetElementByType(index, out BTELong bte) ? bte.Value : def;
     }
 
     public bool TryGetInt64(int index, out long value) {
-        RBELong element = this.GetInt64Element(index);
+        BTELong element = this.GetInt64Element(index);
         value = element?.Value ?? default;
         return element != null;
     }
 
-    public RBEFloat GetFloatElement(int index) {
-        return this.GetElementByType(index, out RBEFloat rbe) ? rbe : null;
+    public BTEFloat GetFloatElement(int index) {
+        return this.GetElementByType(index, out BTEFloat bte) ? bte : null;
     }
 
     public float GetFloat(int index, float def = default) {
-        return this.GetElementByType(index, out RBEFloat rbe) ? rbe.Value : def;
+        return this.GetElementByType(index, out BTEFloat bte) ? bte.Value : def;
     }
 
     public bool TryGetFloat(int index, out float value) {
-        RBEFloat element = this.GetFloatElement(index);
+        BTEFloat element = this.GetFloatElement(index);
         value = element?.Value ?? default;
         return element != null;
     }
 
-    public RBEDouble GetDoubleElement(int index) {
-        return this.GetElementByType(index, out RBEDouble rbe) ? rbe : null;
+    public BTEDouble GetDoubleElement(int index) {
+        return this.GetElementByType(index, out BTEDouble bte) ? bte : null;
     }
 
     public double GetDouble(int index, double def = default) {
-        return this.GetElementByType(index, out RBEDouble rbe) ? rbe.Value : def;
+        return this.GetElementByType(index, out BTEDouble bte) ? bte.Value : def;
     }
 
     public bool TryGetDouble(int index, out double value) {
-        RBEDouble element = this.GetDoubleElement(index);
+        BTEDouble element = this.GetDoubleElement(index);
         value = element?.Value ?? default;
         return element != null;
     }
 
-    public RBEStruct GetStructElement(int index) {
-        return this.GetElementByType(index, out RBEStruct rbe) ? rbe : null;
+    public BTEStruct GetStructElement(int index) {
+        return this.GetElementByType(index, out BTEStruct bte) ? bte : null;
     }
 
-    public RBEStructArray GetStructArrayElement(int index) {
-        return this.GetElementByType(index, out RBEStructArray rbe) ? rbe : null;
+    public BTEStructArray GetStructArrayElement(int index) {
+        return this.GetElementByType(index, out BTEStructArray bte) ? bte : null;
     }
 
     public T GetStruct<T>(int index) where T : unmanaged {
-        return this.GetElementByType(index, out RBEStruct value) ? value.GetValue<T>() : default;
+        return this.GetElementByType(index, out BTEStruct value) ? value.GetValue<T>() : default;
     }
 
     public T GetStruct<T>(int index, T def) where T : unmanaged {
-        return this.GetElementByType(index, out RBEStruct value) ? value.GetValue<T>() : def;
+        return this.GetElementByType(index, out BTEStruct value) ? value.GetValue<T>() : def;
     }
 
     public bool TryGetStruct<T>(int index, out T value) where T : unmanaged {
-        RBEStruct element = this.GetStructElement(index);
+        BTEStruct element = this.GetStructElement(index);
         value = element?.GetValue<T>() ?? default;
         return element != null;
     }
 
     public T[] GetStructArray<T>(int index, T[] def = default) where T : unmanaged {
-        return this.GetElementByType(index, out RBEStructArray value) ? value.GetValues<T>() : def;
+        return this.GetElementByType(index, out BTEStructArray value) ? value.GetValues<T>() : def;
     }
 
     public bool TryGetStructArray<T>(int index, out T[] value) where T : unmanaged {
-        RBEStructArray element = this.GetStructArrayElement(index);
+        BTEStructArray element = this.GetStructArrayElement(index);
         value = element?.GetValues<T>();
         return value != null;
     }
 
-    public void Add(RBEBase element) {
+    public void Add(BinaryTreeElement element) {
         this.List.Add(element);
     }
 
-    public RBEDictionary AddDictionary(Dictionary<string, RBEBase> value = null) {
-        RBEDictionary dictionary = new RBEDictionary(value ?? new Dictionary<string, RBEBase>());
+    public BTEDictionary AddDictionary(Dictionary<string, BinaryTreeElement> value = null) {
+        BTEDictionary dictionary = new BTEDictionary(value ?? new Dictionary<string, BinaryTreeElement>());
         this.List.Add(dictionary);
         return dictionary;
     }
 
-    public RBEList AddList(List<RBEBase> value = null) {
-        RBEList list = new RBEList(value ?? new List<RBEBase>());
+    public BTEList AddList(List<BinaryTreeElement> value = null) {
+        BTEList list = new BTEList(value ?? new List<BinaryTreeElement>());
         this.List.Add(list);
         return list;
     }
 
     public void AddInt8(byte value) {
-        this.List.Add(new RBEByte(value));
+        this.List.Add(new BTEByte(value));
     }
 
     public void AddInt16(short value) {
-        this.List.Add(new RBEShort(value));
+        this.List.Add(new BTEShort(value));
     }
 
     public void AddInt32(int value) {
-        this.List.Add(new RBEInt(value));
+        this.List.Add(new BTEInt(value));
     }
 
     public void AddInt64(long value) {
-        this.List.Add(new RBELong(value));
+        this.List.Add(new BTELong(value));
     }
 
     public void AddFloat(float value) {
-        this.List.Add(new RBEFloat(value));
+        this.List.Add(new BTEFloat(value));
     }
 
     public void AddDouble(double value) {
-        this.List.Add(new RBEDouble(value));
+        this.List.Add(new BTEDouble(value));
     }
 
     public void AddStruct<T>(in T value) where T : unmanaged {
-        RBEStruct obj = new RBEStruct();
+        BTEStruct obj = new BTEStruct();
         obj.SetValue(value);
         this.List.Add(obj);
     }
 
     public void AddStructArray<T>(in T[] value) where T : unmanaged {
-        RBEStructArray obj = new RBEStructArray();
+        BTEStructArray obj = new BTEStructArray();
         obj.SetValues(value);
         this.List.Add(obj);
     }
 
     protected override void Read(BinaryReader reader) {
         int length = reader.ReadUInt16();
-        this.List = new List<RBEBase>(length);
+        this.List = new List<BinaryTreeElement>(length);
         for (int i = 0; i < length; i++) {
             this.List.Add(ReadIdAndElement(reader));
         }
@@ -270,7 +270,7 @@ public class RBEList : RBEBase {
 
     protected override void ReadPacked(BinaryReader reader, Dictionary<int, string> packData) {
         int length = reader.ReadUInt16();
-        this.List = new List<RBEBase>(length);
+        this.List = new List<BinaryTreeElement>(length);
         for (int i = 0; i < length; i++) {
             this.List.Add(ReadIdAndElementPacked(reader, packData));
         }
@@ -278,32 +278,32 @@ public class RBEList : RBEBase {
 
     protected override void Write(BinaryWriter writer) {
         writer.Write((ushort) this.List.Count);
-        foreach (RBEBase child in this.List) {
+        foreach (BinaryTreeElement child in this.List) {
             WriteIdAndElement(writer, child);
         }
     }
 
     protected override void WritePacked(BinaryWriter writer, Dictionary<string, int> dictionary) {
         writer.Write((ushort) this.List.Count);
-        foreach (RBEBase child in this.List) {
+        foreach (BinaryTreeElement child in this.List) {
             WriteIdAndElementPacked(writer, child, dictionary);
         }
     }
 
     protected internal override void AccumulatePackedEntries(Dictionary<string, int> dictionary) {
-        foreach (RBEBase rbe in this.List) {
-            rbe.AccumulatePackedEntries(dictionary);
+        foreach (BinaryTreeElement bte in this.List) {
+            bte.AccumulatePackedEntries(dictionary);
         }
     }
 
-    public override RBEBase Clone() => this.CloneCore();
+    public override BinaryTreeElement Clone() => this.CloneCore();
 
-    public RBEList CloneCore() {
-        List<RBEBase> list = new List<RBEBase>(this.List);
+    public BTEList CloneCore() {
+        List<BinaryTreeElement> list = new List<BinaryTreeElement>(this.List);
         // not using Select because there's a possibility it causes a stack overflow exception,
         // because there could be a huge chain of elements (lists in lists in lists etc...)
-        foreach (RBEBase element in this.List)
+        foreach (BinaryTreeElement element in this.List)
             list.Add(element.Clone());
-        return new RBEList(list);
+        return new BTEList(list);
     }
 }

@@ -20,7 +20,7 @@
 using System.Numerics;
 using SkiaSharp;
 
-namespace FramePFX.Editing;
+namespace FramePFX.Utils;
 
 public static class MatrixUtils {
     public static SKMatrix CreateTransformationMatrix(Vector2 pos, Vector2 scale, double rotation, Vector2 scaleOrigin, Vector2 rotationOrigin) {

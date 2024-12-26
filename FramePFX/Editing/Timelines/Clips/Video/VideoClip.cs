@@ -67,8 +67,8 @@ public abstract class VideoClip : Clip {
     public static readonly ParameterVector2 MediaPositionParameter = Parameter.RegisterVector2(typeof(VideoClip), nameof(VideoClip), nameof(MediaPosition), ValueAccessors.LinqExpression<Vector2>(typeof(VideoClip), nameof(MediaPosition)), ParameterFlags.StandardProjectVisual);
     public static readonly ParameterVector2 MediaScaleParameter = Parameter.RegisterVector2(typeof(VideoClip), nameof(VideoClip), nameof(MediaScale), Vector2.One, ValueAccessors.LinqExpression<Vector2>(typeof(VideoClip), nameof(MediaScale)), ParameterFlags.StandardProjectVisual);
     public static readonly ParameterDouble MediaRotationParameter = Parameter.RegisterDouble(typeof(VideoClip), nameof(VideoClip), nameof(MediaRotation), ValueAccessors.LinqExpression<double>(typeof(VideoClip), nameof(MediaRotation)), ParameterFlags.StandardProjectVisual);
-    public static readonly DataParameterPoint MediaScaleOriginParameter = DataParameter.Register(new DataParameterPoint(typeof(VideoClip), nameof(MediaScaleOrigin), ValueAccessors.Reflective<SKPoint>(typeof(VideoClip), nameof(mediaScaleOrigin))));
-    public static readonly DataParameterPoint MediaRotationOriginParameter = DataParameter.Register(new DataParameterPoint(typeof(VideoClip), nameof(MediaRotationOrigin), ValueAccessors.Reflective<SKPoint>(typeof(VideoClip), nameof(mediaRotationOrigin))));
+    public static readonly DataParameterVector2 MediaScaleOriginParameter = DataParameter.Register(new DataParameterVector2(typeof(VideoClip), nameof(MediaScaleOrigin), ValueAccessors.Reflective<Vector2>(typeof(VideoClip), nameof(mediaScaleOrigin))));
+    public static readonly DataParameterVector2 MediaRotationOriginParameter = DataParameter.Register(new DataParameterVector2(typeof(VideoClip), nameof(MediaRotationOrigin), ValueAccessors.Reflective<Vector2>(typeof(VideoClip), nameof(mediaRotationOrigin))));
 
     public static readonly ParameterBool IsEnabledParameter = Parameter.RegisterBool(typeof(VideoClip), nameof(VideoClip), nameof(IsEnabled), true, ValueAccessors.LinqExpression<bool>(typeof(VideoClip), nameof(IsEnabled)), ParameterFlags.StandardProjectVisual);
     public static readonly DataParameterBool IsMediaScaleOriginAutomaticParameter = DataParameter.Register(new DataParameterBool(typeof(VideoClip), nameof(IsMediaScaleOriginAutomatic), true, ValueAccessors.Reflective<bool>(typeof(VideoClip), nameof(isMediaScaleOriginAutomatic)), DataParameterFlags.StandardProjectVisual));
@@ -78,8 +78,8 @@ public abstract class VideoClip : Clip {
     private Vector2 MediaPosition;
     private Vector2 MediaScale;
     private double MediaRotation;
-    private SKPoint mediaScaleOrigin;
-    private SKPoint mediaRotationOrigin;
+    private Vector2 mediaScaleOrigin;
+    private Vector2 mediaRotationOrigin;
     private bool isMediaScaleOriginAutomatic;
     private bool isMediaRotationOriginAutomatic;
     private SKMatrix myTransformationMatrix, myInverseTransformationMatrix;
@@ -155,12 +155,12 @@ public abstract class VideoClip : Clip {
         }
     }
 
-    public SKPoint MediaScaleOrigin {
+    public Vector2 MediaScaleOrigin {
         get => this.mediaScaleOrigin;
         set => DataParameter.SetValueHelper(this, MediaScaleOriginParameter, ref this.mediaScaleOrigin, value);
     }
 
-    public SKPoint MediaRotationOrigin {
+    public Vector2 MediaRotationOrigin {
         get => this.mediaRotationOrigin;
         set => DataParameter.SetValueHelper(this, MediaRotationOriginParameter, ref this.mediaRotationOrigin, value);
     }
@@ -302,14 +302,14 @@ public abstract class VideoClip : Clip {
     protected void UpdateAutomaticScaleOrigin() {
         if (this.IsMediaScaleOriginAutomatic) {
             SKSize size = this.GetSizeForAutomaticOrigins();
-            MediaScaleOriginParameter.SetValue(this, new SKPoint(size.Width / 2, size.Height / 2));
+            MediaScaleOriginParameter.SetValue(this, new Vector2(size.Width / 2, size.Height / 2));
         }
     }
 
     protected void UpdateAutomaticRotationOrigin() {
         if (this.IsMediaRotationOriginAutomatic) {
             SKSize size = this.GetSizeForAutomaticOrigins();
-            MediaRotationOriginParameter.SetValue(this, new SKPoint(size.Width / 2, size.Height / 2));
+            MediaRotationOriginParameter.SetValue(this, new Vector2(size.Width / 2, size.Height / 2));
         }
     }
 

@@ -44,7 +44,7 @@ using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Editing.UI;
 using FramePFX.Utils;
 using SkiaSharp;
-using MatrixUtils = FramePFX.Editing.MatrixUtils;
+using MatrixUtils = FramePFX.Utils.MatrixUtils;
 
 namespace FramePFX.Avalonia.Editing;
 
@@ -308,8 +308,8 @@ public class VideoEditorViewPortControl : TemplatedControl {
             new SKPoint(sz.Width, 0),
             new SKPoint(sz.Width, sz.Height),
             new SKPoint(0, sz.Height),
-            clip.MediaRotationOrigin,
-            clip.MediaScaleOrigin,
+            Vec2Pt(clip.MediaRotationOrigin),
+            Vec2Pt(clip.MediaScaleOrigin),
             new SKPoint(sz.Width / 2.0F, sz.Height / 2.0F)
         });
 
@@ -325,16 +325,16 @@ public class VideoEditorViewPortControl : TemplatedControl {
             new Point(func(pts[0].X) * scale, func(pts[0].Y) * scale)
         }, false);
 
-        SKPoint rotationOrigin = clip.MediaRotationOrigin;
+        Vector2 rotationOrigin = clip.MediaRotationOrigin;
         SKMatrix newMat = ((VideoTrack) clip.Track!).TransformationMatrix.PreConcat(
             MatrixUtils.CreateTransformationMatrix(
                 VideoClip.MediaPositionParameter.GetCurrentValue(clip),
                 new Vector2(1, 1),
                 VideoClip.MediaRotationParameter.GetCurrentValue(clip),
                 default,
-                new Vector2(rotationOrigin.X, rotationOrigin.Y)));
+                rotationOrigin));
 
-        SKPoint rOrg = newMat.MapPoint(rotationOrigin);
+        SKPoint rOrg = newMat.MapPoint(new SKPoint(rotationOrigin.X, rotationOrigin.Y));
         Point cC = new Point(func(pts[6].X) * scale, func(pts[6].Y) * scale);
         Point cR = new Point(func(rOrg.X) * scale, func(rOrg.Y) * scale);
         Point cS = new Point(func(pts[5].X) * scale, func(pts[5].Y) * scale);

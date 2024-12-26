@@ -26,7 +26,6 @@ using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using FramePFX.Avalonia.Editing.Timelines;
-using FramePFX.Editing;
 using FramePFX.Editing.Automation;
 using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Automation.Params;

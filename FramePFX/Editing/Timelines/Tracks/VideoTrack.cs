@@ -46,8 +46,8 @@ public class VideoTrack : Track {
     public static readonly ParameterVector2 MediaScaleParameter = Parameter.RegisterVector2(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaScale), Vector2.One, ValueAccessors.LinqExpression<Vector2>(typeof(VideoTrack), nameof(MediaScale)), ParameterFlags.StandardProjectVisual);
     public static readonly ParameterDouble MediaRotationParameter = Parameter.RegisterDouble(typeof(VideoTrack), nameof(VideoTrack), nameof(MediaRotation), ValueAccessors.LinqExpression<double>(typeof(VideoTrack), nameof(MediaRotation)), ParameterFlags.StandardProjectVisual);
 
-    public static readonly DataParameterPoint MediaScaleOriginParameter = DataParameter.Register(new DataParameterPoint(typeof(VideoTrack), nameof(MediaScaleOrigin), ValueAccessors.Reflective<SKPoint>(typeof(VideoTrack), nameof(mediaScaleOrigin))));
-    public static readonly DataParameterPoint MediaRotationOriginParameter = DataParameter.Register(new DataParameterPoint(typeof(VideoTrack), nameof(MediaRotationOrigin), ValueAccessors.Reflective<SKPoint>(typeof(VideoTrack), nameof(mediaRotationOrigin))));
+    public static readonly DataParameterVector2 MediaScaleOriginParameter = DataParameter.Register(new DataParameterVector2(typeof(VideoTrack), nameof(MediaScaleOrigin), ValueAccessors.Reflective<Vector2>(typeof(VideoTrack), nameof(mediaScaleOrigin))));
+    public static readonly DataParameterVector2 MediaRotationOriginParameter = DataParameter.Register(new DataParameterVector2(typeof(VideoTrack), nameof(MediaRotationOrigin), ValueAccessors.Reflective<Vector2>(typeof(VideoTrack), nameof(mediaRotationOrigin))));
     public static readonly DataParameterBool IsMediaScaleOriginAutomaticParameter = DataParameter.Register(new DataParameterBool(typeof(VideoTrack), nameof(IsMediaScaleOriginAutomatic), true, ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(isMediaScaleOriginAutomatic)), DataParameterFlags.StandardProjectVisual));
     public static readonly DataParameterBool IsMediaRotationOriginAutomaticParameter = DataParameter.Register(new DataParameterBool(typeof(VideoTrack), nameof(IsMediaRotationOriginAutomatic), true, ValueAccessors.Reflective<bool>(typeof(VideoTrack), nameof(isMediaRotationOriginAutomatic)), DataParameterFlags.StandardProjectVisual));
 
@@ -55,8 +55,8 @@ public class VideoTrack : Track {
     private Vector2 MediaPosition;
     private Vector2 MediaScale;
     private double MediaRotation;
-    private SKPoint mediaScaleOrigin;
-    private SKPoint mediaRotationOrigin;
+    private Vector2 mediaScaleOrigin;
+    private Vector2 mediaRotationOrigin;
     private bool isMediaScaleOriginAutomatic;
     private bool isMediaRotationOriginAutomatic;
     private SKMatrix myTransformationMatrix, myInverseTransformationMatrix;
@@ -88,12 +88,12 @@ public class VideoTrack : Track {
         }
     }
 
-    public SKPoint MediaScaleOrigin {
+    public Vector2 MediaScaleOrigin {
         get => this.mediaScaleOrigin;
         set => DataParameter.SetValueHelper(this, MediaScaleOriginParameter, ref this.mediaScaleOrigin, value);
     }
 
-    public SKPoint MediaRotationOrigin {
+    public Vector2 MediaRotationOrigin {
         get => this.mediaRotationOrigin;
         set => DataParameter.SetValueHelper(this, MediaRotationOriginParameter, ref this.mediaRotationOrigin, value);
     }
@@ -170,14 +170,14 @@ public class VideoTrack : Track {
     protected void UpdateAutomaticScaleOrigin() {
         if (this.IsMediaScaleOriginAutomatic) {
             SKSize size = this.GetSizeForAutomaticOrigins();
-            MediaScaleOriginParameter.SetValue(this, new SKPoint(size.Width / 2, size.Height / 2));
+            MediaScaleOriginParameter.SetValue(this, new Vector2(size.Width / 2, size.Height / 2));
         }
     }
 
     protected void UpdateAutomaticRotationOrigin() {
         if (this.IsMediaRotationOriginAutomatic) {
             SKSize size = this.GetSizeForAutomaticOrigins();
-            MediaRotationOriginParameter.SetValue(this, new SKPoint(size.Width / 2, size.Height / 2));
+            MediaRotationOriginParameter.SetValue(this, new Vector2(size.Width / 2, size.Height / 2));
         }
     }
 

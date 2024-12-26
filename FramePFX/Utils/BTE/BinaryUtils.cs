@@ -20,7 +20,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace FramePFX.Utils.RBC;
+namespace FramePFX.Utils.BTE;
 
 public static class BinaryUtils {
     // Buffer.MemoryCopy implementation (on windows at least, .NET Framework) uses an internal function which accepts ulong length

@@ -18,7 +18,7 @@
 //
 
 using FramePFX.Editing.Utils;
-using FramePFX.Utils.RBC;
+using FramePFX.Utils.BTE;
 using SkiaSharp;
 
 namespace FramePFX.Editing;
@@ -79,18 +79,18 @@ public class ProjectSettings {
 
     public ProjectSettings Clone(Project project = null) {
         ProjectSettings settings = new ProjectSettings(project ?? this.Project);
-        RBEDictionary dictionary = new RBEDictionary();
-        this.WriteToRBE(dictionary);
-        settings.ReadFromRBE(dictionary);
+        BTEDictionary dictionary = new BTEDictionary();
+        this.WriteToBTE(dictionary);
+        settings.ReadFromBTE(dictionary);
         return settings;
     }
 
-    public void WriteToRBE(RBEDictionary dictionary) {
+    public void WriteToBTE(BTEDictionary dictionary) {
         dictionary.SetULong(nameof(this.FrameRate), (ulong) this.frameRate);
         dictionary.SetULong(nameof(this.Resolution), this.resolution.ToLong());
     }
 
-    public void ReadFromRBE(RBEDictionary dictionary) {
+    public void ReadFromBTE(BTEDictionary dictionary) {
         this.frameRate = (Rational) dictionary.GetULong(nameof(this.FrameRate));
         this.resolution = SKUtils.Long2SizeI(dictionary.GetULong(nameof(this.Resolution)));
     }

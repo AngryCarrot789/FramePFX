@@ -17,8 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.Configurations;
-
 namespace FramePFX.Editing.UI;
 
 /// <summary>
@@ -34,8 +32,6 @@ public interface IVideoEditorUI {
     /// Gets the timeline UI
     /// </summary>
     ITimelineElement TimelineElement { get; }
-
-    ProjectConfigurationManager? ActiveProjectConfigurationManager { get; }
 
     /// <summary>
     /// Makes the view port take up as much space in the view port area

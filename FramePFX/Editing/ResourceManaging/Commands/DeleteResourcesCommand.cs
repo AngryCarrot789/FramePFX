@@ -75,12 +75,12 @@ public class DeleteResourcesCommand : AsyncCommand {
         foreach (BaseResource item in selection) {
             // Since the tree's selected items will be unordered (hash set), we might end up removing
             // a folder containing some selected items, so parent will be null since it deletes the hierarchy
-            if (item.Parent == null)
+            if (item.Parent == null) {
                 continue;
+            }
 
-            ResourceFolder.ClearHierarchy(item as ResourceFolder);
-            item.Parent.RemoveItem(item);
-            item.Destroy();
+            ResourceFolder.ClearHierarchy(item as ResourceFolder, true);
+            item.Parent.RemoveItem(item, true);
         }
     }
 

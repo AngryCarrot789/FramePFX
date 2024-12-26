@@ -24,7 +24,7 @@ namespace FramePFX.Interactivity.Contexts;
 /// <summary>
 /// An implementation of <see cref="IContextData"/> that stores static entries in an internal dictionary
 /// </summary>
-public class ContextData : IRandomAccessContext {
+public class ContextData : IRandomAccessContextData {
     private Dictionary<string, object>? map;
 
     /// <summary>

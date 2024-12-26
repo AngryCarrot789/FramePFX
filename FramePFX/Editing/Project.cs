@@ -20,12 +20,13 @@
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.Timelines;
+using FramePFX.Services;
 using FramePFX.Services.FilePicking;
 using FramePFX.Services.Messaging;
 using FramePFX.Tasks;
 using FramePFX.Utils;
+using FramePFX.Utils.BTE;
 using FramePFX.Utils.Destroying;
-using FramePFX.Utils.RBC;
 
 namespace FramePFX.Editing;
 
@@ -33,7 +34,7 @@ public delegate void ProjectEventHandler(Project project);
 
 public delegate void ActiveTimelineChangedEventHandler(Project project, Timeline oldTimeline, Timeline newTimeline);
 
-public class Project : IDestroy {
+public class Project : IServiceable, IDestroy {
     private string projectName;
     private Timeline activeTimeline;
     private volatile bool isSaving;
@@ -130,6 +131,8 @@ public class Project : IDestroy {
             this.IsSavingChanged?.Invoke(this);
         }
     }
+    
+    public ServiceManager ServiceManager { get; }
 
     public event ProjectEventHandler? ProjectNameChanged;
     public event ProjectEventHandler? ProjectFilePathChanged;
@@ -144,6 +147,7 @@ public class Project : IDestroy {
 
     public Project() {
         this.projectName = "Unnamed Project";
+        this.ServiceManager = new ServiceManager(this);
         this.Settings = ProjectSettings.CreateDefault(this);
         this.ResourceManager = new ResourceManager(this);
         this.MainTimeline = new Timeline();
@@ -156,40 +160,40 @@ public class Project : IDestroy {
             throw new ArgumentException("Invalid file path", nameof(filePath));
 
         if (this.ResourceManager.EntryMap.Count > 0 || this.ResourceManager.RootContainer.Items.Count > 0 || this.MainTimeline.Tracks.Count > 0)
-            throw new InvalidOperationException("Cannot read RBE data on a project that already has data");
+            throw new InvalidOperationException("Cannot read BTE data on a project that already has data");
 
-        RBEBase root;
+        BinaryTreeElement root;
         try {
-            root = RBEUtils.ReadFromFilePacked(filePath);
+            root = BTEUtils.ReadFromFilePacked(filePath);
         }
         catch (Exception e) {
             throw new Exception("File contained invalid data", e);
         }
 
-        if (!(root is RBEDictionary dictionary)) {
-            throw new Exception("File contained invalid data: root object was not an RBE Dictionary");
+        if (!(root is BTEDictionary dictionary)) {
+            throw new Exception("File contained invalid data: root object was not an BTE Dictionary");
         }
 
         this.ReadProjectData(dictionary, filePath);
     }
 
-    private void ReadProjectData(RBEDictionary data, string filePath) {
+    private void ReadProjectData(BTEDictionary data, string filePath) {
         // just in case the deserialise methods access these, which they shouldn't anyway
         this.ProjectFilePath = filePath;
         this.DataFolderPath = Path.GetDirectoryName(filePath);
 
         try {
-            RBEDictionary manager = data.GetDictionary("ResourceManager");
-            RBEDictionary timeline = data.GetDictionary("Timeline");
-            RBEDictionary settings = data.GetDictionary("Settings");
+            BTEDictionary manager = data.GetDictionary("ResourceManager");
+            BTEDictionary timeline = data.GetDictionary("Timeline");
+            BTEDictionary settings = data.GetDictionary("Settings");
 
             this.ProjectName = data.GetString(nameof(this.ProjectName), "Unnamed project");
 
             // TODO: video editor specific settings that can be applied when this project is loaded
 
-            this.Settings.ReadFromRBE(settings);
-            this.ResourceManager.ReadFromRBE(manager);
-            this.MainTimeline.ReadFromRBE(timeline);
+            this.Settings.ReadFromBTE(settings);
+            this.ResourceManager.ReadFromBTE(manager);
+            this.MainTimeline.ReadFromBTE(timeline);
             Timeline.InternalLoadResources(this.MainTimeline, this.ResourceManager);
         }
         catch (Exception e) {
@@ -216,14 +220,14 @@ public class Project : IDestroy {
             newDataFolder = Path.GetDirectoryName(filePath) ?? throw new Exception("Invalid file path: could not get directory path");
         }
 
-        RBEDictionary dictionary = new RBEDictionary();
+        BTEDictionary dictionary = new BTEDictionary();
         this.WriteProjectData(dictionary);
 
         try {
-            RBEUtils.WriteToFilePacked(dictionary, filePath);
+            BTEUtils.WriteToFilePacked(dictionary, filePath);
         }
         catch (Exception e) {
-            throw new IOException("Failed to write RBE data to file", e);
+            throw new IOException("Failed to write BTE data to file", e);
         }
 
         this.HasSavedOnce = true;
@@ -233,11 +237,11 @@ public class Project : IDestroy {
         }
     }
 
-    private void WriteProjectData(RBEDictionary data) {
+    private void WriteProjectData(BTEDictionary data) {
         try {
-            this.Settings.WriteToRBE(data.CreateDictionary("Settings"));
-            this.ResourceManager.WriteToRBE(data.CreateDictionary("ResourceManager"));
-            this.MainTimeline.WriteToRBE(data.CreateDictionary("Timeline"));
+            this.Settings.WriteToBTE(data.CreateDictionary("Settings"));
+            this.ResourceManager.WriteToBTE(data.CreateDictionary("ResourceManager"));
+            this.MainTimeline.WriteToBTE(data.CreateDictionary("Timeline"));
             data.SetString(nameof(this.ProjectName), this.ProjectName);
 
             if (this.ActiveTimeline is CompositionTimeline timeline) {

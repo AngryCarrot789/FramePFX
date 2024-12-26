@@ -134,7 +134,7 @@ public class TimelineClipSelectionManager : ISelectionManager<IClipElement>, ILi
     }
 
     public void Unselect(IClipElement item) {
-        item.TrackUI.Selection!.Unselect(item);
+        item.TrackUI.Selection.Unselect(item);
     }
 
     public void Unselect(IEnumerable<IClipElement> items) {

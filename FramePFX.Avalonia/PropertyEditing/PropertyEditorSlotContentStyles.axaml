@@ -143,10 +143,10 @@
         </Setter>
     </ControlTheme>
 
-    <ControlTheme x:Key="{x:Type dt:DataParameterPointPropertyEditorControl}" TargetType="{x:Type dt:DataParameterPointPropertyEditorControl}">
+    <ControlTheme x:Key="{x:Type dt:DataParameterVector2PropertyEditorControl}" TargetType="{x:Type dt:DataParameterVector2PropertyEditorControl}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type dt:DataParameterPointPropertyEditorControl}">
+                <ControlTemplate TargetType="{x:Type dt:DataParameterVector2PropertyEditorControl}">
                     <Grid Margin="5,0,2,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
@@ -281,14 +281,14 @@
                   BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorControl}}"/>
 
     <Design.PreviewWith>
-        <dta:AutomaticDataParameterPointPropertyEditorControl/>
+        <dta:AutomaticDataParameterVector2PropertyEditorControl/>
     </Design.PreviewWith>
 
-    <ControlTheme x:Key="{x:Type dta:AutomaticDataParameterPointPropertyEditorControl}"
-                  TargetType="{x:Type dta:AutomaticDataParameterPointPropertyEditorControl}">
+    <ControlTheme x:Key="{x:Type dta:AutomaticDataParameterVector2PropertyEditorControl}"
+                  TargetType="{x:Type dta:AutomaticDataParameterVector2PropertyEditorControl}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type dt:DataParameterPointPropertyEditorControl}">
+                <ControlTemplate TargetType="{x:Type dt:DataParameterVector2PropertyEditorControl}">
                     <Grid Margin="5,0,2,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>

@@ -120,7 +120,7 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
         content.ApplyStyling();
         content.ApplyTemplate();
         content.Connect(this);
-        DataManager.SetContextData(this, new ContextData().Set(DataKeys.ResourceObjectKey, this.Resource));
+        DataManager.GetContextData(this).Set(DataKeys.ResourceObjectKey, this.Resource);
         AdvancedContextMenu.SetContextRegistry(this, this.Resource is ResourceFolder ? BaseResource.ResourceFolderContextRegistry : BaseResource.ResourceItemContextRegistry);
     }
 
@@ -139,7 +139,7 @@ public class ResourceExplorerListBoxItem : ListBoxItem, IResourceListItemElement
     public void OnRemovedFromList() {
         this.ResourceExplorerList = null;
         this.Resource = null;
-        DataManager.ClearContextData(this);
+        DataManager.GetContextData(this).Remove(DataKeys.ResourceObjectKey);
         AdvancedContextMenu.SetContextRegistry(this, null);
     }
 

@@ -35,10 +35,10 @@ public sealed class ResourceComposition : ResourceItem {
     static ResourceComposition() {
         SerialisationRegistry.Register<ResourceComposition>(0, (resource, data, ctx) => {
             ctx.DeserialiseBaseType(data);
-            resource.Timeline.ReadFromRBE(data.GetDictionary(nameof(resource.Timeline)));
+            resource.Timeline.ReadFromBTE(data.GetDictionary(nameof(resource.Timeline)));
         }, (resource, data, ctx) => {
             ctx.SerialiseBaseType(data);
-            resource.Timeline.WriteToRBE(data.CreateDictionary(nameof(resource.Timeline)));
+            resource.Timeline.WriteToBTE(data.CreateDictionary(nameof(resource.Timeline)));
         });
     }
 

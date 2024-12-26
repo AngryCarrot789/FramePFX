@@ -28,7 +28,7 @@ public interface IAdvancedContainer {
     /// <summary>
     /// Gets the context for the container menu or root container menu item
     /// </summary>
-    IContextData? Context { get; }
+    IContextData? CapturedContext { get; }
 
     bool PushCachedItem(Type entryType, Control element);
 

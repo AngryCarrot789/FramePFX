@@ -30,7 +30,7 @@ namespace FramePFX.Avalonia.AdvancedMenuService;
 public class AdvancedContextMenuItem : MenuItem, IAdvancedContextElement {
     protected override Type StyleKeyOverride => typeof(MenuItem);
 
-    public IContextData? Context => this.Container?.Context;
+    public IContextData? CapturedContext => this.Container?.CapturedContext;
 
     /// <summary>
     /// Gets the container object, that being, the root object that stores the menu item tree that this instance is in
@@ -44,7 +44,7 @@ public class AdvancedContextMenuItem : MenuItem, IAdvancedContextElement {
 
     public BaseContextEntry? Entry { get; private set; }
 
-    private Dictionary<int, DynamicGroupContextObject>? dynamicInsertion;
+    private Dictionary<int, DynamicGroupPlaceholderContextObject>? dynamicInsertion;
     private Dictionary<int, int>? dynamicInserted;
 
     public AdvancedContextMenuItem() { }
@@ -89,7 +89,7 @@ public class AdvancedContextMenuItem : MenuItem, IAdvancedContextElement {
     public virtual void UpdateCanExecute() {
     }
 
-    public void StoreDynamicGroup(DynamicGroupContextObject group, int index) {
-        (this.dynamicInsertion ??= new Dictionary<int, DynamicGroupContextObject>())[index] = group;
+    public void StoreDynamicGroup(DynamicGroupPlaceholderContextObject groupPlaceholder, int index) {
+        (this.dynamicInsertion ??= new Dictionary<int, DynamicGroupPlaceholderContextObject>())[index] = groupPlaceholder;
     }
 }

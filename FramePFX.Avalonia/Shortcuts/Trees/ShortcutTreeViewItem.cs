@@ -69,7 +69,7 @@ public class ShortcutTreeViewItem : TreeViewItem, IShortcutTreeOrNode {
         this.ParentNode = parentNode;
         this.Entry = resource;
         if (resource is ShortcutEntry entry)
-            DataManager.SetContextData(this, new ContextData().Set(DataKeys.ShortcutEntryKey, entry));
+            DataManager.GetContextData(this).Set(DataKeys.ShortcutEntryKey, entry);
     }
 
     public virtual void OnAdded() {

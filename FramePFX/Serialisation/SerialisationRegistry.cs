@@ -17,16 +17,16 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.Utils.BTE;
 using FramePFX.Utils.Collections;
-using FramePFX.Utils.RBC;
 
 namespace FramePFX.Serialisation;
 
-public delegate void SerialiseHandler<in T>(T obj, RBEDictionary data, SerialisationContext ctx);
+public delegate void SerialiseHandler<in T>(T obj, BTEDictionary data, SerialisationContext ctx);
 
 /// <summary>
 /// A class which helps version-based serialisation, for serialising objects of typically the current-version into binary
-/// data (RBE system) and deserialising the current-version objects based on similar version or lower version binary data
+/// data (BTE system) and deserialising the current-version objects based on similar version or lower version binary data
 /// </summary>
 public class SerialisationRegistry {
     private readonly InheritanceDictionary<TypeSerialiser> map;
@@ -61,18 +61,18 @@ public class SerialisationRegistry {
     /// This uses the application's current version as a target serialiser version
     /// </summary>
     /// <param name="obj">The object to serialise</param>
-    /// <param name="data">The RBE dictionary, in which data is written into</param>
+    /// <param name="data">The BTE dictionary, in which data is written into</param>
     /// <param name="flags">Optional flags for the serialisation process</param>
-    public void Serialise(object obj, RBEDictionary data) => this.Serialise(obj, data, Application.Instance.CurrentBuild);
+    public void Serialise(object obj, BTEDictionary data) => this.Serialise(obj, data, Application.Instance.CurrentBuild);
 
     /// <summary>
     /// Serialises the object, using it's full type as a starting point for the serialisers to target
     /// </summary>
     /// <param name="obj">The object to serialise</param>
-    /// <param name="data">The RBE dictionary, in which data is written into</param>
+    /// <param name="data">The BTE dictionary, in which data is written into</param>
     /// <param name="version">The version of the serialiser to use</param>
     /// <param name="flags">Optional flags for the serialisation process</param>
-    public void Serialise(object obj, RBEDictionary data, int version) {
+    public void Serialise(object obj, BTEDictionary data, int version) {
         this.RunSerialisersInternal(true, obj, obj.GetType(), data, version);
     }
 
@@ -81,18 +81,18 @@ public class SerialisationRegistry {
     /// This uses the application's current version as a target deserialiser version
     /// </summary>
     /// <param name="obj">The object to serialise</param>
-    /// <param name="data">The RBE dictionary, in which data is written into</param>
+    /// <param name="data">The BTE dictionary, in which data is written into</param>
     /// <param name="flags">Optional flags for the serialisation process</param>
-    public void Deserialise(object obj, RBEDictionary data) => this.Deserialise(obj, data, Application.Instance.CurrentBuild);
+    public void Deserialise(object obj, BTEDictionary data) => this.Deserialise(obj, data, Application.Instance.CurrentBuild);
 
     /// <summary>
     /// Deserialises the object, using it's full type as a starting point for the deserialisers to target
     /// </summary>
     /// <param name="obj">The object to deserialise</param>
-    /// <param name="data">The RBE dictionary, in which data is read from</param>
+    /// <param name="data">The BTE dictionary, in which data is read from</param>
     /// <param name="version">The version of the deserialiser to use</param>
     /// <param name="flags">Optional flags for the deserialisation process</param>
-    public void Deserialise(object obj, RBEDictionary data, int version) {
+    public void Deserialise(object obj, BTEDictionary data, int version) {
         this.RunSerialisersInternal(false, obj, obj.GetType(), data, version);
     }
 
@@ -107,7 +107,7 @@ public class SerialisationRegistry {
         }
     }
 
-    internal void RunSerialisersInternal(bool serialise, object obj, Type objType, RBEDictionary data, int version) {
+    internal void RunSerialisersInternal(bool serialise, object obj, Type objType, BTEDictionary data, int version) {
         while (this.isDirty) {
             this.CleanDirtyStates(objType);
         }
@@ -140,7 +140,7 @@ public class SerialisationRegistry {
     }
 
     private class TypeSerialiser {
-        public delegate void NonGenericSerialiseHandler(object obj, RBEDictionary data, SerialisationContext context);
+        public delegate void NonGenericSerialiseHandler(object obj, BTEDictionary data, SerialisationContext context);
 
         public readonly SortedList<int, SerialiserList> versionInfo;
 

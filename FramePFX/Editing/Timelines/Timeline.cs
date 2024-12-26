@@ -28,8 +28,8 @@ using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Services;
 using FramePFX.Utils;
+using FramePFX.Utils.BTE;
 using FramePFX.Utils.Destroying;
-using FramePFX.Utils.RBC;
 
 namespace FramePFX.Editing.Timelines;
 
@@ -223,29 +223,29 @@ public class Timeline : ITransferableData, IServiceable, IDestroy {
             this.InvalidateRender();
     }
 
-    public virtual void WriteToRBE(RBEDictionary data) {
+    public virtual void WriteToBTE(BTEDictionary data) {
         data.SetLong(nameof(this.PlayHeadPosition), this.PlayHeadPosition);
         data.SetLong(nameof(this.StopHeadPosition), this.StopHeadPosition);
         data.SetLong(nameof(this.MaxDuration), this.MaxDuration);
-        RBEList list = data.CreateList(nameof(this.Tracks));
+        BTEList list = data.CreateList(nameof(this.Tracks));
         foreach (Track track in this.tracks) {
             if (!(track.FactoryId is string registryId))
                 throw new Exception("Unknown track type: " + track.GetType());
-            RBEDictionary trackTag = list.AddDictionary();
+            BTEDictionary trackTag = list.AddDictionary();
             trackTag.SetString(nameof(Track.FactoryId), registryId);
             Track.SerialisationRegistry.Serialise(track, trackTag.CreateDictionary("Data"));
         }
     }
 
-    public virtual void ReadFromRBE(RBEDictionary data) {
+    public virtual void ReadFromBTE(BTEDictionary data) {
         if (this.tracks.Count > 0) {
-            throw new InvalidOperationException("Cannot read track RBE data while there are still tracks");
+            throw new InvalidOperationException("Cannot read track BTE data while there are still tracks");
         }
 
         this.playHeadPosition = data.GetLong(nameof(this.PlayHeadPosition));
         this.stopHeadPosition = data.GetLong(nameof(this.StopHeadPosition));
         this.maxDuration = data.GetLong(nameof(this.MaxDuration));
-        foreach (RBEDictionary trackTag in data.GetList(nameof(this.Tracks)).Cast<RBEDictionary>()) {
+        foreach (BTEDictionary trackTag in data.GetList(nameof(this.Tracks)).Cast<BTEDictionary>()) {
             string registryId = trackTag.GetString(nameof(Track.FactoryId));
             Track track = TrackFactory.Instance.NewTrack(registryId);
             Track.SerialisationRegistry.Deserialise(track, trackTag.GetDictionary("Data"));
@@ -259,7 +259,7 @@ public class Timeline : ITransferableData, IServiceable, IDestroy {
 
     public void LoadDataIntoClone(Timeline clone) {
         if (this.tracks.Count > 0) {
-            throw new InvalidOperationException("Cannot read track RBE data while there are still tracks");
+            throw new InvalidOperationException("Cannot read track BTE data while there are still tracks");
         }
 
         clone.playHeadPosition = this.playHeadPosition;
@@ -374,6 +374,7 @@ public class Timeline : ITransferableData, IServiceable, IDestroy {
         // TODO: this is no good
         while (this.RenderManager.IsRendering)
             Thread.Sleep(1);
+        
         using (this.RenderManager.SuspendRenderInvalidation()) {
             for (int i = this.tracks.Count - 1; i >= 0; i--) {
                 Track track = this.tracks[i];

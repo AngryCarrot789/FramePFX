@@ -18,6 +18,7 @@
 // 
 
 using FramePFX.CommandSystem;
+using FramePFX.Editing;
 using FramePFX.Editing.UI;
 using FramePFX.Interactivity.Contexts;
 
@@ -35,8 +36,8 @@ public class OpenProjectSettingsCommand : AsyncCommand {
         if (!DataKeys.VideoEditorUIKey.TryGetContext(e.ContextData, out IVideoEditorUI? editorUI))
             return;
 
-        ProjectConfigurationManager? config = editorUI.ActiveProjectConfigurationManager;
-        if (config != null) {
+        if (editorUI.VideoEditor.Project is Project project) {
+            ProjectConfigurationManager config = ProjectConfigurationManager.GetInstance(project, editorUI);
             await IConfigurationDialogService.Instance.ShowConfigurationDialog(config);
             editorUI.TimelineElement.Timeline!.InvalidateRender();
         }

@@ -47,7 +47,7 @@ public class FixedContextGroup : IContextGroup {
     }
 
     public void AddDynamicSubGroup(DynamicGenerateContextFunction generate) {
-        this.AddEntry(new DynamicGroupContextObject(new DynamicContextGroup(generate)));
+        this.AddEntry(new DynamicGroupPlaceholderContextObject(new DynamicContextGroup(generate)));
     }
 
     public CaptionEntry AddHeader(string caption) {

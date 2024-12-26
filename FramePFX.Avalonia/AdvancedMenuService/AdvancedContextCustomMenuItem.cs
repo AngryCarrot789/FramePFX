@@ -59,7 +59,7 @@ public class AdvancedContextCustomMenuItem : AdvancedContextMenuItem {
             this.CanExecute = false;
         }
         else if (this.Entry is CustomContextEntry entry) {
-            IContextData ctx = this.Container?.Context ?? EmptyContext.Instance;
+            IContextData ctx = this.Container?.CapturedContext ?? EmptyContext.Instance;
             this.CanExecute = entry.CanExecute(ctx);
         }
         else {
@@ -96,7 +96,7 @@ public class AdvancedContextCustomMenuItem : AdvancedContextMenuItem {
     }
 
     private bool DispatchCommand(CustomContextEntry entry) {
-        IContextData context = this.Container?.Context ?? EmptyContext.Instance;
+        IContextData context = this.Container?.CapturedContext ?? EmptyContext.Instance;
         if (!entry.CanExecute(context)) {
             return false;
         }

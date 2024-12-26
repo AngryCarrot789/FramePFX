@@ -23,8 +23,8 @@ using FramePFX.Editing.Automation.Params;
 using FramePFX.Editing.Factories;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Tracks;
+using FramePFX.Utils.BTE;
 using FramePFX.Utils.Destroying;
-using FramePFX.Utils.RBC;
 
 namespace FramePFX.Editing.Timelines.Effects;
 
@@ -109,39 +109,39 @@ public abstract class BaseEffect : IStrictFrameRange, IAutomatable, ITransferabl
         this.AutomationData.LoadDataIntoClone(clone.AutomationData);
     }
 
-    public static BaseEffect ReadSerialisedWithId(RBEDictionary dictionary) {
+    public static BaseEffect ReadSerialisedWithId(BTEDictionary dictionary) {
         string? id = dictionary.GetString(nameof(FactoryId));
-        RBEDictionary data = dictionary.GetDictionary("Data");
+        BTEDictionary data = dictionary.GetDictionary("Data");
         BaseEffect effect = EffectFactory.Instance.NewEffect(id);
-        effect.ReadFromRBE(data);
+        effect.ReadFromBTE(data);
         return effect;
     }
 
-    public static void WriteSerialisedWithIdList(IHaveEffects srcOwner, RBEList list) {
+    public static void WriteSerialisedWithIdList(IHaveEffects srcOwner, BTEList list) {
         foreach (BaseEffect effect in srcOwner.Effects) {
             if (!(effect.FactoryId is string id))
                 throw new Exception("Unknown clip type: " + effect.GetType());
-            RBEDictionary dictionary = list.AddDictionary();
+            BTEDictionary dictionary = list.AddDictionary();
             dictionary.SetString(nameof(FactoryId), id);
-            effect.WriteToRBE(dictionary.CreateDictionary("Data"));
+            effect.WriteToBTE(dictionary.CreateDictionary("Data"));
         }
     }
 
-    public static void ReadSerialisedWithIdList(IHaveEffects dstOwner, RBEList list) {
-        foreach (RBEDictionary dictionary in list.Cast<RBEDictionary>()) {
+    public static void ReadSerialisedWithIdList(IHaveEffects dstOwner, BTEList list) {
+        foreach (BTEDictionary dictionary in list.Cast<BTEDictionary>()) {
             string? factoryId = dictionary.GetString(nameof(FactoryId));
             BaseEffect effect = EffectFactory.Instance.NewEffect(factoryId);
-            effect.ReadFromRBE(dictionary.GetDictionary("Data"));
+            effect.ReadFromBTE(dictionary.GetDictionary("Data"));
             dstOwner.AddEffect(effect);
         }
     }
 
-    public virtual void WriteToRBE(RBEDictionary data) {
-        this.AutomationData.WriteToRBE(data.CreateDictionary(nameof(this.AutomationData)));
+    public virtual void WriteToBTE(BTEDictionary data) {
+        this.AutomationData.WriteToBTE(data.CreateDictionary(nameof(this.AutomationData)));
     }
 
-    public virtual void ReadFromRBE(RBEDictionary data) {
-        this.AutomationData.ReadFromRBE(data.GetDictionary(nameof(this.AutomationData)));
+    public virtual void ReadFromBTE(BTEDictionary data) {
+        this.AutomationData.ReadFromBTE(data.GetDictionary(nameof(this.AutomationData)));
     }
 
     protected virtual void OnAdded() {

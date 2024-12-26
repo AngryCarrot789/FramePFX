@@ -94,7 +94,7 @@ public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem {
             this.CanExecute = false;
         }
         else {
-            IContextData? ctx = this.Container?.Context;
+            IContextData? ctx = this.Container?.CapturedContext;
             string? cmdId = this.Entry?.CommandId;
             Executability state = !string.IsNullOrWhiteSpace(cmdId) && ctx != null ? CommandManager.Instance.CanExecute(cmdId, ctx, true) : Executability.Invalid;
             this.CanExecute = state == Executability.Valid;
@@ -127,7 +127,7 @@ public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem {
     }
 
     private bool DispatchCommand(string cmdId) {
-        IContextData? context = this.Container?.Context;
+        IContextData? context = this.Container?.CapturedContext;
         if (context == null) {
             return false;
         }

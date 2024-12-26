@@ -77,7 +77,7 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
         this.SelectionManager = new ResourceTreeSelectionManager(this);
         this.Focusable = true;
         DragDrop.SetAllowDrop(this, true);
-        DataManager.SetContextData(this, new ContextData().Set(DataKeys.ResourceTreeUIKey, this));
+        DataManager.GetContextData(this).Set(DataKeys.ResourceTreeUIKey, this);
     }
 
     protected override void OnLoaded(RoutedEventArgs e) {

@@ -20,7 +20,7 @@
 using System.Diagnostics.CodeAnalysis;
 using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.Automation.Params;
-using FramePFX.Utils.RBC;
+using FramePFX.Utils.BTE;
 
 namespace FramePFX.Editing.Automation;
 
@@ -118,31 +118,31 @@ public class AutomationData {
         return false;
     }
 
-    public void WriteToRBE(RBEDictionary data) {
+    public void WriteToBTE(BTEDictionary data) {
         if (!this.ActiveParameter.IsEmpty)
             data.SetString(nameof(this.ActiveParameter), this.ActiveParameter.ToString());
 
-        RBEList list = data.CreateList(nameof(this.Sequences));
+        BTEList list = data.CreateList(nameof(this.Sequences));
         foreach (AutomationSequence sequence in this.sequences.Values) {
-            RBEDictionary dictionary = list.AddDictionary();
+            BTEDictionary dictionary = list.AddDictionary();
             dictionary.SetString("KeyId", sequence.Parameter.Key.ToString());
-            sequence.WriteToRBE(dictionary);
+            sequence.WriteToBTE(dictionary);
         }
     }
 
-    public void ReadFromRBE(RBEDictionary data) {
+    public void ReadFromBTE(BTEDictionary data) {
         if (data.TryGetString(nameof(this.ActiveParameter), out string? activeParamText))
             this.ActiveParameter = ParameterKey.Parse(activeParamText, default);
-        RBEList list = data.GetList(nameof(this.Sequences));
-        foreach (RBEBase rbe in list.List) {
-            if (!(rbe is RBEDictionary dictionary))
+        BTEList list = data.GetList(nameof(this.Sequences));
+        foreach (BinaryTreeElement bte in list.List) {
+            if (!(bte is BTEDictionary dictionary))
                 throw new Exception("Expected a list of dictionaries");
 
             ParameterKey paramKey = ParameterKey.Parse(dictionary.GetString("KeyId"));
             if (!Parameter.TryGetParameterByKey(paramKey, out Parameter? parameter))
                 throw new Exception("Unknown automation parameter: " + paramKey);
 
-            this[parameter].ReadFromRBE(dictionary);
+            this[parameter].ReadFromBTE(dictionary);
         }
 
         this.UpdateBackingStorage();

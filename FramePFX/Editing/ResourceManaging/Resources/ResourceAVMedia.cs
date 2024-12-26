@@ -25,6 +25,7 @@ using FramePFX.FFmpegWrapper;
 using FramePFX.FFmpegWrapper.Codecs;
 using FramePFX.FFmpegWrapper.Containers;
 using FramePFX.Utils;
+using FramePFX.Utils.Destroying;
 using SkiaSharp;
 
 namespace FramePFX.Editing.ResourceManaging.Resources;
@@ -75,6 +76,11 @@ public class ResourceAVMedia : ResourceItem {
     protected override void LoadDataIntoClone(BaseResource clone) {
         base.LoadDataIntoClone(clone);
         ((ResourceAVMedia) clone).filePath = this.filePath;
+    }
+
+    protected override void OnDisabled() {
+        base.OnDisabled();
+        this.DisposeMediaFile(null);
     }
 
     protected override ValueTask<bool> OnTryAutoEnable(ResourceLoader? loader) {
@@ -178,8 +184,8 @@ public class ResourceAVMedia : ResourceItem {
     }
 
     public void LoadMediaFile() {
-        this.DisposeMediaFile();
-
+        this.DisposeMediaFile(null);
+        
         if (string.IsNullOrWhiteSpace(this.FilePath))
             throw new InvalidOperationException("No file path provided");
 
@@ -188,8 +194,8 @@ public class ResourceAVMedia : ResourceItem {
             this.stream = this.Demuxer.FindBestStream(MediaTypes.Video);
         }
         catch (Exception e) {
-            this.DisposeMediaFile();
-            // Invalid media file
+            this.stream = null;
+            this.DisposeMediaFile(null);
             throw new IOException("Failed to open demuxer", e);
         }
 
@@ -200,45 +206,20 @@ public class ResourceAVMedia : ResourceItem {
             this.decoder.Open();
         }
         catch (Exception e) {
-            this.DisposeMediaFile();
+            this.DisposeMediaFile(null);
             throw new Exception("Could not open decoder", e);
         }
 
         if (this.stream == null) {
-            this.DisposeMediaFile();
+            this.DisposeMediaFile(null);
             throw new Exception("Could not find a video stream for media");
         }
 
         this.loadedFilePath = this.FilePath;
     }
 
-    public override void Destroy() {
-        base.Destroy();
-        this.DisposeMediaFile();
-    }
-
-    public void DisposeMediaFile() {
-        try {
-            this.Demuxer?.Dispose();
-        }
-        catch (Exception e) {
-            // AppLogger.Instance.WriteLine("Error disposing demuxer: " + e.GetToString());
-        }
-
-        try {
-            this.decoder?.Dispose();
-        }
-        catch (Exception e) {
-            // AppLogger.Instance.WriteLine("Error disposing decoder: " + e.GetToString());
-        }
-
-        try {
-            this.frameQueue?.Dispose();
-        }
-        catch (Exception e) {
-            // AppLogger.Instance.WriteLine("Error disposing frame queue: " + e.GetToString());
-        }
-
+    public void DisposeMediaFile(ErrorList? list) {
+        DisposableUtils.DisposeMany(list, this.Demuxer, this.decoder, this.frameQueue);
         this.Demuxer = null;
         this.decoder = null;
         this.frameQueue = null;
@@ -246,19 +227,21 @@ public class ResourceAVMedia : ResourceItem {
     }
 
     private bool TrySetupHardwareDecoder() {
-        if (this.decoder.PixelFormat != AVPixelFormat.AV_PIX_FMT_YUV420P &&
-            this.decoder.PixelFormat != AVPixelFormat.AV_PIX_FMT_YUV420P10LE) {
+        if (this.decoder == null) {
+            throw new InvalidOperationException("Decoder not initialised");
+        }
+        
+        if (this.decoder.PixelFormat != AVPixelFormat.AV_PIX_FMT_YUV420P && this.decoder.PixelFormat != AVPixelFormat.AV_PIX_FMT_YUV420P10LE) {
             //TODO: SetupHardwareAccelerator() will return NONE from get_format() rather than fallback to sw formats,
             //      causing SendPacket() to throw with InvalidData for sources with unsupported hw pixel formats like YUV444.
             return false;
         }
 
         foreach (CodecHardwareConfig config in this.decoder.GetHardwareConfigs()) {
-            using (HardwareDevice device = HardwareDevice.Create(config.DeviceType)) {
-                if (device != null) {
-                    this.decoder.SetupHardwareAccelerator(device, config.PixelFormat);
-                    return true;
-                }
+            using HardwareDevice? device = HardwareDevice.Create(config.DeviceType);
+            if (device != null) {
+                this.decoder.SetupHardwareAccelerator(device, config.PixelFormat);
+                return true;
             }
         }
 

@@ -26,9 +26,9 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using Avalonia.Reactive;
-using FramePFX.Editing;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.UI;
+using FramePFX.Utils;
 
 namespace FramePFX.Avalonia.Editing.Timelines;
 

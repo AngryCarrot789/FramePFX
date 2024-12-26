@@ -26,15 +26,15 @@ using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Serialisation;
+using FramePFX.Utils.BTE;
 using FramePFX.Utils.Destroying;
-using FramePFX.Utils.RBC;
 
 namespace FramePFX.Editing.ResourceManaging;
 
 /// <summary>
 /// Base class for resource items and groups
 /// </summary>
-public abstract class BaseResource : IDisplayName, IDestroy {
+public abstract class BaseResource : IDestroy, IDisplayName {
     public static readonly SerialisationRegistry SerialisationRegistry;
     public static readonly ContextRegistry ResourceItemContextRegistry;
     public static readonly ContextRegistry ResourceFolderContextRegistry;
@@ -236,25 +236,25 @@ public abstract class BaseResource : IDisplayName, IDestroy {
     protected internal virtual void OnDetachedFromManager() {
     }
 
-    public static BaseResource ReadSerialisedWithType(RBEDictionary dictionary) {
+    public static BaseResource ReadSerialisedWithType(BTEDictionary dictionary) {
         string registryId = dictionary.GetString(nameof(FactoryId), null);
         if (string.IsNullOrEmpty(registryId))
             throw new Exception("Missing the registry ID for item");
-        RBEDictionary data = dictionary.GetDictionary("Data");
+        BTEDictionary data = dictionary.GetDictionary("Data");
         BaseResource item = ResourceTypeFactory.Instance.NewResource(registryId);
         SerialisationRegistry.Deserialise(item, data);
         return item;
     }
 
-    public static void WriteSerialisedWithType(RBEDictionary dictionary, BaseResource item) {
+    public static void WriteSerialisedWithType(BTEDictionary dictionary, BaseResource item) {
         if (!(item.FactoryId is string id))
             throw new Exception("Unknown resource item type: " + item.GetType());
         dictionary.SetString(nameof(FactoryId), id);
         SerialisationRegistry.Serialise(item, dictionary.CreateDictionary("Data"));
     }
 
-    public static RBEDictionary WriteSerialisedWithType(BaseResource clip) {
-        RBEDictionary dictionary = new RBEDictionary();
+    public static BTEDictionary WriteSerialisedWithType(BaseResource clip) {
+        BTEDictionary dictionary = new BTEDictionary();
         WriteSerialisedWithType(dictionary, clip);
         return dictionary;
     }
@@ -317,7 +317,7 @@ public abstract class BaseResource : IDisplayName, IDestroy {
         obj.Parent = newParent;
     }
 
-    protected static void InternalSetResourceManager(BaseResource resource, ResourceManager manager) {
+    protected static void InternalSetResourceManager(BaseResource resource, ResourceManager? manager) {
         if (ReferenceEquals(resource.Manager, manager)) {
             throw new InvalidOperationException("Cannot set manager to same instance");
         }

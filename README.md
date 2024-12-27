@@ -53,6 +53,32 @@ Sometimes, the SkiaSharp nuget library doesn't copy the skia library files to th
 - Or, delete the `packages` folder in the solution dir, then right-click the solution in visual studio and click "Clean Solution", then click Restore Nuget Packages, then rebuild all.
   If none of these work, try uninstalling SkiaSharp in the nuget manager and then reinstalling. If that still does not work, then I really don't know what's going on...
 
+# Plugins!
+FramePFX now supports plugins! The plugin API is very work in progress, but it can load plugins. 
+Plugins currently must be compiled using the same dependency versions that FramePFX uses, since we don't use AssemblyLoadContext
+
+### Examples
+The `AnotherTestPlugin` plugin adds a test configuration page (found in `File > Open Editor Settings`), and also adds a useless test exporter to the export dialog.
+
+Adding the page is very simple, and is doable from the plugin's `OnApplicationLoaded` handler:
+
+```cs
+public override async Task OnApplicationLoaded() {
+    ApplicationConfigurationManager.Instance.RootEntry.AddEntry(new ConfigurationEntry() {
+        DisplayName = "Test Plugin Settings", 
+        Id = "config.testplugineditorsettings",
+        
+        // This page is just a PropertyEditor page. 
+        // Completely custom xaml pages are a bit wonky at the moment, 
+        // only user controls will work properly due to resource dictionaries
+        Page = new TestPluginConfigurationPage()
+    });
+}
+```
+
+This results in:
+![](FramePFX-DesktopUI_2024-12-27_03.33.53.png)
+
 # TODO
 ### Avalonia Remake:
 - Implement UI for Effects list that can be dropped into a clip/track

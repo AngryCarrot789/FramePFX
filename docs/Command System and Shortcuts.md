@@ -23,8 +23,9 @@ So far, all context menus use the `AdvancedContextMenu` class. The menu items ha
 which, when linked to a control, will find the `AdvancedContextMenu` instance associated with the registry, or it creates one and then the UI components are generated,
 and it sets it as the control's ContextMenu so that standard context behaviour works. There's one menu per registry, to help with performance and memory usage.
 
-Context registries contain a list of group objects, which are name. This gives some control order the ordering of menu items if
-a plugin system is ever implemented; plugins could access known groups and insert their commands into the appropriate ones.
+Context registries contain a list of group objects, which are name. This gives some control order the ordering of menu items
+in cae a plugin wants to access known groups and insert their commands into a suitable location. A better API to simply this process
+is being worked on
 
 Entries are the actual menu item models, which are represented as the `IContextObject` interface.
 `IContextEntry` is for actual menu items, but things like separators and captions just use IContextGroup

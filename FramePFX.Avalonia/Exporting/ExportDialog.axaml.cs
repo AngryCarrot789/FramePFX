@@ -94,7 +94,17 @@ public partial class ExportDialog : WindowEx {
         this.UpdateEndFrameDragger();
 
         // Select the first exporter for convenience
-        this.PART_ComboBox.SelectedIndex = 0;
+        if (this.PART_ComboBox.Items.Count > 0) {
+            this.PART_ExportButton.IsEnabled = true;
+            this.PART_ComboBox.IsEnabled = true;
+            this.PART_ComboBox.PlaceholderText = null;
+            this.PART_ComboBox.SelectedIndex = 0;
+        }
+        else {
+            this.PART_ComboBox.IsEnabled = false;
+            this.PART_ComboBox.PlaceholderText = "No exporters available";
+            this.PART_ExportButton.IsEnabled = false;
+        }
     }
 
     // TODO: combobox can change exporter, but changing exporter externally will not change combo box. Too lazy to implement :-)
@@ -108,8 +118,9 @@ public partial class ExportDialog : WindowEx {
     }
 
     private async void PART_ExportButton_OnClick(object? sender, RoutedEventArgs e) {
-        if (this.IsExporting)
+        if (this.IsExporting) {
             return;
+        }
 
         ExportSetup setup = this.Setup;
         BaseExporterInfo? exporter = setup.Exporter;

@@ -29,7 +29,7 @@ using FramePFX.PropertyEditing.DataTransfer;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing.Automation;
 
-public class ParameterVector2PropertyEditorControl : BaseParameterPropertyEditorControl {
+public class ParameterVector2PropertyEditorSlotControl : BaseParameterPropertyEditorSlotControl {
     protected NumberDragger draggerX;
     protected NumberDragger draggerY;
     protected bool IsUpdatingControl;
@@ -38,11 +38,11 @@ public class ParameterVector2PropertyEditorControl : BaseParameterPropertyEditor
 
     private readonly AutoUpdateAndEventPropertyBinder<ParameterVector2PropertyEditorSlot> valueFormatterBinder;
 
-    public ParameterVector2PropertyEditorControl() {
+    public ParameterVector2PropertyEditorSlotControl() {
         this.valueFormatterBinder = new AutoUpdateAndEventPropertyBinder<ParameterVector2PropertyEditorSlot>(null, nameof(ParameterVector2PropertyEditorSlot.ValueFormatterChanged), (x) => {
-            ParameterVector2PropertyEditorControl editor = (ParameterVector2PropertyEditorControl) x.Control;
-            editor.draggerX.ValueFormatter = x.Model.ValueFormatter;
-            editor.draggerY.ValueFormatter = x.Model.ValueFormatter;
+            ParameterVector2PropertyEditorSlotControl editorSlot = (ParameterVector2PropertyEditorSlotControl) x.Control;
+            editorSlot.draggerX.ValueFormatter = x.Model.ValueFormatter;
+            editorSlot.draggerY.ValueFormatter = x.Model.ValueFormatter;
         }, null);
         this.valueFormatterBinder.AttachControl(this);
     }
@@ -62,8 +62,8 @@ public class ParameterVector2PropertyEditorControl : BaseParameterPropertyEditor
         }
 
         bool flag = this.SlotModel!.HasMultipleValues, flag2 = this.SlotModel!.HasProcessedMultipleValuesSinceSetup;
-        BaseNumberDraggerDataParamPropEditorControl.UpdateNumberDragger(this.draggerX, flag, flag2);
-        BaseNumberDraggerDataParamPropEditorControl.UpdateNumberDragger(this.draggerY, flag, flag2);
+        BaseNumberDraggerDataParamPropEditorSlotControl.UpdateNumberDragger(this.draggerX, flag, flag2);
+        BaseNumberDraggerDataParamPropEditorSlotControl.UpdateNumberDragger(this.draggerY, flag, flag2);
     }
 
     protected void UpdateControlValue() {

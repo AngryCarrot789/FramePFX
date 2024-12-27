@@ -22,18 +22,18 @@ using FramePFX.PropertyEditing.DataTransfer.Automatic;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing.DataTransfer.Automatic;
 
-public class AutomaticDataParameterLongPropertyEditorControl : BaseAutomaticNumericDataParameterPropertyEditorControl<long> {
-    public new AutomaticDataParameterLongPropertyEditorSlot? SlotModel => (AutomaticDataParameterLongPropertyEditorSlot?) base.SlotControl?.Model;
+public class AutomaticDataParameterFloatPropertyEditorSlotControl : BaseAutomaticNumericDataParameterPropertyEditorSlotControl<float> {
+    public new AutomaticDataParameterFloatPropertyEditorSlot? SlotModel => (AutomaticDataParameterFloatPropertyEditorSlot?) base.SlotControl?.Model;
 
     public override double SlotValue {
         get => this.SlotModel!.Value;
-        set => this.SlotModel!.Value = (long) value;
+        set => this.SlotModel!.Value = (float) value;
     }
 
     protected override void OnConnected() {
         base.OnConnected();
-        AutomaticDataParameterLongPropertyEditorSlot setting = this.SlotModel!;
-        DataParameterLong param = setting.Parameter;
+        AutomaticDataParameterFloatPropertyEditorSlot setting = this.SlotModel!;
+        DataParameterFloat param = setting.Parameter;
         this.dragger.Minimum = param.Minimum;
         this.dragger.Maximum = param.Maximum;
     }

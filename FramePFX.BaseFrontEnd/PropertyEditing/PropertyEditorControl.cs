@@ -46,7 +46,7 @@ public class PropertyEditorControl : TemplatedControl {
 
     public PropertyEditorGroupControl RootGroupControl { get; private set; }
 
-    public PropertyEditorSlotControl TouchedSlot { get; set; }
+    public PropertyEditorSlotContainerControl TouchedSlotContainer { get; set; }
 
     public PropertyEditorControl() {
     }
@@ -83,6 +83,11 @@ public class PropertyEditorControl : TemplatedControl {
         if (newEditor != null) {
             this.RootGroupControl.ConnectModel(this, newEditor.Root);
         }
+    }
+
+    // TODO: cache items
+    public bool PushCachedItem(BasePropertyEditorSlotControl slot) {
+        return false;
     }
 }
 

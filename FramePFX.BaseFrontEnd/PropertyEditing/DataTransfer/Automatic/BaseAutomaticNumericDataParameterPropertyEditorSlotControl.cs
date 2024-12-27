@@ -25,10 +25,10 @@ using FramePFX.Utils;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing.DataTransfer.Automatic;
 
-public abstract class BaseAutomaticNumericDataParameterPropertyEditorControl<T> : BaseNumberDraggerDataParamPropEditorControl {
+public abstract class BaseAutomaticNumericDataParameterPropertyEditorSlotControl<T> : BaseNumberDraggerDataParamPropEditorSlotControl {
     public new BaseAutomaticNumericDataParameterPropertyEditorSlot<T>? SlotModel => (BaseAutomaticNumericDataParameterPropertyEditorSlot<T>?) base.SlotControl?.Model;
 
-    public BaseAutomaticNumericDataParameterPropertyEditorControl() {
+    public BaseAutomaticNumericDataParameterPropertyEditorSlotControl() {
     }
 
     protected override void UpdateControlValue() {

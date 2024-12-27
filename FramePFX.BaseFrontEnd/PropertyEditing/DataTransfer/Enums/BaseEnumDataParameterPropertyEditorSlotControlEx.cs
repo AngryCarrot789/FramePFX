@@ -1,5 +1,5 @@
 // 
-// Copyright (c) 2023-2024 REghZy
+// Copyright (c) 2024-2024 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -19,32 +19,37 @@
 
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
-using FramePFX.BaseFrontEnd.Bindings;
 using FramePFX.BaseFrontEnd.Utils;
-using FramePFX.PropertyEditing.Core;
 
-namespace FramePFX.BaseFrontEnd.PropertyEditing.Core;
+namespace FramePFX.BaseFrontEnd.PropertyEditing.DataTransfer.Enums;
 
-public class DisplayNamePropertyEditorControl : BasePropEditControlContent {
-    public new DisplayNamePropertyEditorSlot? SlotModel => (DisplayNamePropertyEditorSlot?) base.SlotControl.Model;
+public abstract class BaseEnumDataParameterPropertyEditorSlotControlEx : BaseDataParameterPropertyEditorSlotControl {
+    protected ComboBox? comboBox;
 
-    private TextBox displayNameBox;
+    protected override Type StyleKeyOverride => typeof(BaseEnumDataParameterPropertyEditorSlotControlEx);
 
-    private readonly GetSetAutoUpdateAndEventPropertyBinder<DisplayNamePropertyEditorSlot> displayNameBinder = new GetSetAutoUpdateAndEventPropertyBinder<DisplayNamePropertyEditorSlot>(TextBox.TextProperty, nameof(DisplayNamePropertyEditorSlot.DisplayNameChanged), binder => binder.Model.DisplayName, (binder, v) => binder.Model.SetValue((string) v));
-
-    public DisplayNamePropertyEditorControl() {
+    protected BaseEnumDataParameterPropertyEditorSlotControlEx() {
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
-        this.displayNameBox = e.NameScope.GetTemplateChild<TextBox>("PART_TextBox");
+        this.comboBox = e.NameScope.GetTemplateChild<ComboBox>("PART_ComboBox");
+        if (this.IsConnected)
+            this.comboBox.SelectionChanged += this.OnSelectionChanged;
+    }
+
+    private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e) {
+        this.OnControlValueChanged();
     }
 
     protected override void OnConnected() {
-        this.displayNameBinder.Attach(this.displayNameBox, this.SlotModel!);
+        base.OnConnected();
+        this.comboBox!.SelectionChanged += this.OnSelectionChanged;
     }
 
     protected override void OnDisconnected() {
-        this.displayNameBinder.Detach();
+        base.OnDisconnected();
+        this.comboBox!.SelectionChanged -= this.OnSelectionChanged;
+        this.comboBox!.Items.Clear();
     }
 }

@@ -26,14 +26,14 @@ using FramePFX.PropertyEditing.Automation;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing.Automation;
 
-public abstract class BaseNumericParameterPropEditorControl : BaseParameterPropertyEditorControl {
+public abstract class BaseNumericParameterPropertyEditorSlotControl : BaseParameterPropertyEditorSlotControl {
     protected NumberDragger? dragger;
     protected bool IsUpdatingControl;
     private readonly AutoUpdateAndEventPropertyBinder<NumericParameterPropertyEditorSlot> valueFormatterBinder;
 
     public new NumericParameterPropertyEditorSlot? SlotModel => (NumericParameterPropertyEditorSlot?) base.SlotControl?.Model;
 
-    protected BaseNumericParameterPropEditorControl() {
+    protected BaseNumericParameterPropertyEditorSlotControl() {
         this.valueFormatterBinder = new AutoUpdateAndEventPropertyBinder<NumericParameterPropertyEditorSlot>(NumberDragger.ValueFormatterProperty, nameof(NumericParameterPropertyEditorSlot.ValueFormatterChanged), (x) => ((NumberDragger) x.Control).ValueFormatter = x.Model.ValueFormatter, null);
     }
 
@@ -72,7 +72,7 @@ public abstract class BaseNumericParameterPropEditorControl : BaseParameterPrope
             return;
         }
 
-        BaseNumberDraggerDataParamPropEditorControl.UpdateNumberDragger(this.dragger!, this.SlotModel!.HasMultipleValues, this.SlotModel!.HasProcessedMultipleValuesSinceSetup);
+        BaseNumberDraggerDataParamPropEditorSlotControl.UpdateNumberDragger(this.dragger!, this.SlotModel!.HasMultipleValues, this.SlotModel!.HasProcessedMultipleValuesSinceSetup);
     }
 
     protected override void OnConnected() {

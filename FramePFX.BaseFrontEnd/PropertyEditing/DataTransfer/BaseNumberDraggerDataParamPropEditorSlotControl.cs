@@ -29,7 +29,7 @@ using FramePFX.PropertyEditing.DataTransfer;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing.DataTransfer;
 
-public abstract class BaseNumberDraggerDataParamPropEditorControl : BaseDataParameterPropertyEditorControl {
+public abstract class BaseNumberDraggerDataParamPropEditorSlotControl : BaseDataParameterPropertyEditorSlotControl {
     internal static readonly IImmutableBrush MultipleValuesBrush;
 
     public new DataParameterFormattableNumberPropertyEditorSlot? SlotModel => (DataParameterFormattableNumberPropertyEditorSlot?) base.SlotControl?.Model;
@@ -43,11 +43,11 @@ public abstract class BaseNumberDraggerDataParamPropEditorControl : BaseDataPara
     protected Button? resetButton;
     private readonly AutoUpdateAndEventPropertyBinder<DataParameterFormattableNumberPropertyEditorSlot> valueFormatterBinder;
 
-    protected BaseNumberDraggerDataParamPropEditorControl() {
+    protected BaseNumberDraggerDataParamPropEditorSlotControl() {
         this.valueFormatterBinder = new AutoUpdateAndEventPropertyBinder<DataParameterFormattableNumberPropertyEditorSlot>(NumberDragger.ValueFormatterProperty, nameof(DataParameterFormattableNumberPropertyEditorSlot.ValueFormatterChanged), (x) => ((NumberDragger) x.Control).ValueFormatter = x.Model.ValueFormatter, null);
     }
 
-    static BaseNumberDraggerDataParamPropEditorControl() {
+    static BaseNumberDraggerDataParamPropEditorSlotControl() {
         MultipleValuesBrush = new ImmutableSolidColorBrush(Brushes.OrangeRed.Color, 0.7);
     }
 

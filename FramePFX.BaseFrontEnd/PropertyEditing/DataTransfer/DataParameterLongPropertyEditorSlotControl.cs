@@ -22,7 +22,7 @@ using FramePFX.PropertyEditing.DataTransfer;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing.DataTransfer;
 
-public class DataParameterLongPropertyEditorControl : BaseNumberDraggerDataParamPropEditorControl {
+public class DataParameterLongPropertyEditorSlotControl : BaseNumberDraggerDataParamPropEditorSlotControl {
     public new DataParameterLongPropertyEditorSlot? SlotModel => (DataParameterLongPropertyEditorSlot?) base.SlotControl?.Model;
 
     public override double SlotValue {
@@ -30,7 +30,7 @@ public class DataParameterLongPropertyEditorControl : BaseNumberDraggerDataParam
         set => this.SlotModel!.Value = (long) Math.Round(value);
     }
 
-    public DataParameterLongPropertyEditorControl() {
+    public DataParameterLongPropertyEditorSlotControl() {
     }
 
     protected override void OnConnected() {

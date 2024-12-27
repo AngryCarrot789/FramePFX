@@ -56,10 +56,10 @@
 
     <!-- Specific Property Editors -->
 
-    <ControlTheme x:Key="{x:Type ac:DisplayNamePropertyEditorControl}" TargetType="{x:Type ac:DisplayNamePropertyEditorControl}">
+    <ControlTheme x:Key="{x:Type ac:DisplayNamePropertyEditorSlotControl}" TargetType="{x:Type ac:DisplayNamePropertyEditorSlotControl}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type ac:DisplayNamePropertyEditorControl}">
+                <ControlTemplate TargetType="{x:Type ac:DisplayNamePropertyEditorSlotControl}">
                     <Grid Margin="5,0,2,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
@@ -74,10 +74,10 @@
         </Setter>
     </ControlTheme>
 
-    <ControlTheme x:Key="{x:Type ac:TimecodeFontFamilyPropertyEditorControl}" TargetType="{x:Type ac:TimecodeFontFamilyPropertyEditorControl}">
+    <ControlTheme x:Key="{x:Type ac:TimecodeFontFamilyPropertyEditorSlotControl}" TargetType="{x:Type ac:TimecodeFontFamilyPropertyEditorSlotControl}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type ac:TimecodeFontFamilyPropertyEditorControl}">
+                <ControlTemplate TargetType="{x:Type ac:TimecodeFontFamilyPropertyEditorSlotControl}">
                     <Grid Margin="5,0,2,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
@@ -92,10 +92,10 @@
         </Setter>
     </ControlTheme>
 
-    <ControlTheme x:Key="{x:Type ac:VideoClipMediaFrameOffsetPropertyEditorControl}" TargetType="{x:Type ac:VideoClipMediaFrameOffsetPropertyEditorControl}">
+    <ControlTheme x:Key="{x:Type ac:VideoClipMediaFrameOffsetPropertyEditorSlotControl}" TargetType="{x:Type ac:VideoClipMediaFrameOffsetPropertyEditorSlotControl}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type ac:VideoClipMediaFrameOffsetPropertyEditorControl}">
+                <ControlTemplate TargetType="{x:Type ac:VideoClipMediaFrameOffsetPropertyEditorSlotControl}">
                     <Grid Margin="5,0,2,0" ToolTip.Tip="A frame offset from the start of this clip which is where the actual media begins">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
@@ -113,10 +113,10 @@
     <!-- ######################################################################################################################################################################## -->
 
     <!-- Data Transferable Property Editors -->
-    <ControlTheme x:Key="{x:Type dt:BaseNumberDraggerDataParamPropEditorControl}" TargetType="{x:Type dt:BaseNumberDraggerDataParamPropEditorControl}">
+    <ControlTheme x:Key="{x:Type dt:BaseNumberDraggerDataParamPropEditorSlotControl}" TargetType="{x:Type dt:BaseNumberDraggerDataParamPropEditorSlotControl}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type dt:BaseNumberDraggerDataParamPropEditorControl}">
+                <ControlTemplate TargetType="{x:Type dt:BaseNumberDraggerDataParamPropEditorSlotControl}">
                     <Grid Margin="5,0,2,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
@@ -142,10 +142,10 @@
         </Setter>
     </ControlTheme>
 
-    <ControlTheme x:Key="{x:Type dt:DataParameterVector2PropertyEditorControl}" TargetType="{x:Type dt:DataParameterVector2PropertyEditorControl}">
+    <ControlTheme x:Key="{x:Type dt:DataParameterVector2PropertyEditorSlotControl}" TargetType="{x:Type dt:DataParameterVector2PropertyEditorSlotControl}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type dt:DataParameterVector2PropertyEditorControl}">
+                <ControlTemplate TargetType="{x:Type dt:DataParameterVector2PropertyEditorSlotControl}">
                     <Grid Margin="5,0,2,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
@@ -179,10 +179,10 @@
         </Setter>
     </ControlTheme>
 
-    <ControlTheme x:Key="{x:Type dt:DataParameterBoolPropertyEditorControl}" TargetType="{x:Type dt:DataParameterBoolPropertyEditorControl}">
+    <ControlTheme x:Key="{x:Type dt:DataParameterBoolPropertyEditorSlotControl}" TargetType="{x:Type dt:DataParameterBoolPropertyEditorSlotControl}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type dt:DataParameterBoolPropertyEditorControl}">
+                <ControlTemplate TargetType="{x:Type dt:DataParameterBoolPropertyEditorSlotControl}">
                     <Grid Margin="5,0,2,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
@@ -199,10 +199,10 @@
         </Setter>
     </ControlTheme>
 
-    <ControlTheme x:Key="{x:Type dt:DataParameterStringPropertyEditorControl}" TargetType="{x:Type dt:DataParameterStringPropertyEditorControl}">
+    <ControlTheme x:Key="{x:Type dt:DataParameterStringPropertyEditorSlotControl}" TargetType="{x:Type dt:DataParameterStringPropertyEditorSlotControl}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type dt:DataParameterStringPropertyEditorControl}">
+                <ControlTemplate TargetType="{x:Type dt:DataParameterStringPropertyEditorSlotControl}">
                     <Grid Margin="5,0,2,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
@@ -219,22 +219,22 @@
         </Setter>
     </ControlTheme>
 
-    <ControlTheme x:Key="{x:Type dt:DataParameterFloatPropertyEditorControl}"
-                  TargetType="{x:Type dt:DataParameterFloatPropertyEditorControl}"
-                  BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorControl}}"/>
+    <ControlTheme x:Key="{x:Type dt:DataParameterFloatPropertyEditorSlotControl}"
+                  TargetType="{x:Type dt:DataParameterFloatPropertyEditorSlotControl}"
+                  BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorSlotControl}}"/>
 
-    <ControlTheme x:Key="{x:Type dt:DataParameterDoublePropertyEditorControl}"
-                  TargetType="{x:Type dt:DataParameterDoublePropertyEditorControl}"
-                  BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorControl}}"/>
+    <ControlTheme x:Key="{x:Type dt:DataParameterDoublePropertyEditorSlotControl}"
+                  TargetType="{x:Type dt:DataParameterDoublePropertyEditorSlotControl}"
+                  BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorSlotControl}}"/>
 
-    <ControlTheme x:Key="{x:Type dt:DataParameterLongPropertyEditorControl}"
-                  TargetType="{x:Type dt:DataParameterLongPropertyEditorControl}"
-                  BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorControl}}"/>
+    <ControlTheme x:Key="{x:Type dt:DataParameterLongPropertyEditorSlotControl}"
+                  TargetType="{x:Type dt:DataParameterLongPropertyEditorSlotControl}"
+                  BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorSlotControl}}"/>
 
-    <ControlTheme x:Key="{x:Type dt:DataParameterColourPropertyEditorControl}"
-                  TargetType="{x:Type dt:DataParameterColourPropertyEditorControl}">
+    <ControlTheme x:Key="{x:Type dt:DataParameterColourPropertyEditorSlotControl}"
+                  TargetType="{x:Type dt:DataParameterColourPropertyEditorSlotControl}">
         <Setter Property="Template">
-            <ControlTemplate TargetType="{x:Type dt:DataParameterColourPropertyEditorControl}">
+            <ControlTemplate TargetType="{x:Type dt:DataParameterColourPropertyEditorSlotControl}">
                 <Grid Margin="5,0,2,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
@@ -250,10 +250,10 @@
     </ControlTheme>
 
 
-    <ControlTheme x:Key="{x:Type enums:BaseEnumDataParameterPropertyEditorControlEx}" TargetType="{x:Type enums:BaseEnumDataParameterPropertyEditorControlEx}">
+    <ControlTheme x:Key="{x:Type enums:BaseEnumDataParameterPropertyEditorSlotControlEx}" TargetType="{x:Type enums:BaseEnumDataParameterPropertyEditorSlotControlEx}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type enums:BaseEnumDataParameterPropertyEditorControlEx}">
+                <ControlTemplate TargetType="{x:Type enums:BaseEnumDataParameterPropertyEditorSlotControlEx}">
                     <Grid Margin="5,0,2,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
@@ -269,25 +269,25 @@
         </Setter>
     </ControlTheme>
 
-    <ControlTheme x:Key="{x:Type dta:AutomaticDataParameterFloatPropertyEditorControl}"
-                  TargetType="{x:Type dta:AutomaticDataParameterFloatPropertyEditorControl}"
-                  BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorControl}}"/>
-    <ControlTheme x:Key="{x:Type dta:AutomaticDataParameterDoublePropertyEditorControl}"
-                  TargetType="{x:Type dta:AutomaticDataParameterDoublePropertyEditorControl}"
-                  BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorControl}}"/>
-    <ControlTheme x:Key="{x:Type dta:AutomaticDataParameterLongPropertyEditorControl}"
-                  TargetType="{x:Type dta:AutomaticDataParameterLongPropertyEditorControl}"
-                  BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorControl}}"/>
+    <ControlTheme x:Key="{x:Type dta:AutomaticDataParameterFloatPropertyEditorSlotControl}"
+                  TargetType="{x:Type dta:AutomaticDataParameterFloatPropertyEditorSlotControl}"
+                  BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorSlotControl}}"/>
+    <ControlTheme x:Key="{x:Type dta:AutomaticDataParameterDoublePropertyEditorSlotControl}"
+                  TargetType="{x:Type dta:AutomaticDataParameterDoublePropertyEditorSlotControl}"
+                  BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorSlotControl}}"/>
+    <ControlTheme x:Key="{x:Type dta:AutomaticDataParameterLongPropertyEditorSlotControl}"
+                  TargetType="{x:Type dta:AutomaticDataParameterLongPropertyEditorSlotControl}"
+                  BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorSlotControl}}"/>
 
     <Design.PreviewWith>
-        <dta:AutomaticDataParameterVector2PropertyEditorControl/>
+        <dta:AutomaticDataParameterVector2PropertyEditorSlotControl/>
     </Design.PreviewWith>
 
-    <ControlTheme x:Key="{x:Type dta:AutomaticDataParameterVector2PropertyEditorControl}"
-                  TargetType="{x:Type dta:AutomaticDataParameterVector2PropertyEditorControl}">
+    <ControlTheme x:Key="{x:Type dta:AutomaticDataParameterVector2PropertyEditorSlotControl}"
+                  TargetType="{x:Type dta:AutomaticDataParameterVector2PropertyEditorSlotControl}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type dt:DataParameterVector2PropertyEditorControl}">
+                <ControlTemplate TargetType="{x:Type dt:DataParameterVector2PropertyEditorSlotControl}">
                     <Grid Margin="5,0,2,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
@@ -335,7 +335,7 @@
 
     <!-- Automatable Property Editors -->
 
-    <ControlTheme x:Key="{x:Type pea:BaseParameterPropertyEditorControl}" TargetType="{x:Type pea:BaseParameterPropertyEditorControl}">
+    <ControlTheme x:Key="{x:Type pea:BaseParameterPropertyEditorSlotControl}" TargetType="{x:Type pea:BaseParameterPropertyEditorSlotControl}">
         <Setter Property="AutomationLedBrush" Value="{DynamicResource ABrush.AutomationActiveColour.Static}"/>
     </ControlTheme>
 
@@ -346,10 +346,10 @@
         <Run Text="When "/><Run BaselineAlignment="Center" Text="lit" Foreground="{DynamicResource ABrush.AutomationActiveColour.Static}"/><Run Text=", it means automation is active, and grey (off) means override is enabled"/>
     </TextBlock>
 
-    <ControlTheme x:Key="{x:Type pea:BaseNumericParameterPropEditorControl}" TargetType="{x:Type pea:BaseNumericParameterPropEditorControl}" BasedOn="{StaticResource {x:Type pea:BaseParameterPropertyEditorControl}}">
+    <ControlTheme x:Key="{x:Type pea:BaseNumericParameterPropertyEditorSlotControl}" TargetType="{x:Type pea:BaseNumericParameterPropertyEditorSlotControl}" BasedOn="{StaticResource {x:Type pea:BaseParameterPropertyEditorSlotControl}}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type pea:BaseNumericParameterPropEditorControl}">
+                <ControlTemplate TargetType="{x:Type pea:BaseNumericParameterPropertyEditorSlotControl}">
                     <Grid Margin="5,0,2,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
@@ -373,14 +373,14 @@
         </Setter>
     </ControlTheme>
 
-    <ControlTheme x:Key="{x:Type pea:ParameterFloatPropertyEditorControl}" TargetType="{x:Type pea:ParameterFloatPropertyEditorControl}" BasedOn="{StaticResource {x:Type pea:BaseNumericParameterPropEditorControl}}"/>
-    <ControlTheme x:Key="{x:Type pea:ParameterDoublePropertyEditorControl}" TargetType="{x:Type pea:ParameterDoublePropertyEditorControl}" BasedOn="{StaticResource {x:Type pea:BaseNumericParameterPropEditorControl}}"/>
-    <ControlTheme x:Key="{x:Type pea:ParameterLongPropertyEditorControl}" TargetType="{x:Type pea:ParameterLongPropertyEditorControl}" BasedOn="{StaticResource {x:Type pea:BaseNumericParameterPropEditorControl}}"/>
+    <ControlTheme x:Key="{x:Type pea:ParameterFloatPropertyEditorSlotControl}" TargetType="{x:Type pea:ParameterFloatPropertyEditorSlotControl}" BasedOn="{StaticResource {x:Type pea:BaseNumericParameterPropertyEditorSlotControl}}"/>
+    <ControlTheme x:Key="{x:Type pea:ParameterDoublePropertyEditorSlotControl}" TargetType="{x:Type pea:ParameterDoublePropertyEditorSlotControl}" BasedOn="{StaticResource {x:Type pea:BaseNumericParameterPropertyEditorSlotControl}}"/>
+    <ControlTheme x:Key="{x:Type pea:ParameterLongPropertyEditorSlotControl}" TargetType="{x:Type pea:ParameterLongPropertyEditorSlotControl}" BasedOn="{StaticResource {x:Type pea:BaseNumericParameterPropertyEditorSlotControl}}"/>
 
-    <ControlTheme x:Key="{x:Type pea:ParameterBoolPropertyEditorControl}" TargetType="{x:Type pea:ParameterBoolPropertyEditorControl}" BasedOn="{StaticResource {x:Type pea:BaseParameterPropertyEditorControl}}">
+    <ControlTheme x:Key="{x:Type pea:ParameterBoolPropertyEditorSlotControl}" TargetType="{x:Type pea:ParameterBoolPropertyEditorSlotControl}" BasedOn="{StaticResource {x:Type pea:BaseParameterPropertyEditorSlotControl}}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type pea:ParameterBoolPropertyEditorControl}">
+                <ControlTemplate TargetType="{x:Type pea:ParameterBoolPropertyEditorSlotControl}">
                     <Grid Margin="5,0,2,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
@@ -404,10 +404,10 @@
         </Setter>
     </ControlTheme>
 
-    <ControlTheme x:Key="{x:Type pea:ParameterVector2PropertyEditorControl}" TargetType="{x:Type pea:ParameterVector2PropertyEditorControl}" BasedOn="{StaticResource {x:Type pea:BaseParameterPropertyEditorControl}}">
+    <ControlTheme x:Key="{x:Type pea:ParameterVector2PropertyEditorSlotControl}" TargetType="{x:Type pea:ParameterVector2PropertyEditorSlotControl}" BasedOn="{StaticResource {x:Type pea:BaseParameterPropertyEditorSlotControl}}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type pea:ParameterVector2PropertyEditorControl}">
+                <ControlTemplate TargetType="{x:Type pea:ParameterVector2PropertyEditorSlotControl}">
                     <Grid Margin="5,0,2,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>

@@ -28,8 +28,8 @@ using FramePFX.PropertyEditing.DataTransfer;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing.DataTransfer;
 
-public abstract class BaseDataParameterPropertyEditorControl : BasePropEditControlContent {
-    public static readonly StyledProperty<bool> IsCheckBoxToggleableProperty = AvaloniaProperty.Register<BaseDataParameterPropertyEditorControl, bool>("IsCheckBoxToggleable");
+public abstract class BaseDataParameterPropertyEditorSlotControl : BasePropertyEditorSlotControl {
+    public static readonly StyledProperty<bool> IsCheckBoxToggleableProperty = AvaloniaProperty.Register<BaseDataParameterPropertyEditorSlotControl, bool>("IsCheckBoxToggleable");
 
     protected ITransferableData? singleHandler;
     protected CheckBox? displayNameCheckBox;
@@ -43,7 +43,7 @@ public abstract class BaseDataParameterPropertyEditorControl : BasePropEditContr
 
     public new DataParameterPropertyEditorSlot? SlotModel => (DataParameterPropertyEditorSlot?) base.SlotModel;
 
-    protected BaseDataParameterPropertyEditorControl() {
+    protected BaseDataParameterPropertyEditorSlotControl() {
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {

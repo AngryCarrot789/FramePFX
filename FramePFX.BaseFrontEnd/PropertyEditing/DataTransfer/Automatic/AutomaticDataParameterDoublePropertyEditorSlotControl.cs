@@ -22,7 +22,7 @@ using FramePFX.PropertyEditing.DataTransfer.Automatic;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing.DataTransfer.Automatic;
 
-public class AutomaticDataParameterDoublePropertyEditorControl : BaseAutomaticNumericDataParameterPropertyEditorControl<double> {
+public class AutomaticDataParameterDoublePropertyEditorSlotControl : BaseAutomaticNumericDataParameterPropertyEditorSlotControl<double> {
     public new AutomaticDataParameterDoublePropertyEditorSlot? SlotModel => (AutomaticDataParameterDoublePropertyEditorSlot?) base.SlotControl?.Model;
 
     public override double SlotValue {

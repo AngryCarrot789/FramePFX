@@ -30,18 +30,18 @@ using SkiaSharp;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing.DataTransfer;
 
-public class DataParameterColourPropertyEditorControl : BaseDataParameterPropertyEditorControl {
+public class DataParameterColourPropertyEditorSlotControl : BaseDataParameterPropertyEditorSlotControl {
     public new DataParameterColourPropertyEditorSlot? SlotModel => (DataParameterColourPropertyEditorSlot?) base.SlotControl?.Model;
 
     private Rectangle? myRectangle;
     private SKColor myColour;
-    private static readonly AsyncRelayCommand<DataParameterColourPropertyEditorControl> choseColourCommand;
+    private static readonly AsyncRelayCommand<DataParameterColourPropertyEditorSlotControl> choseColourCommand;
 
-    public DataParameterColourPropertyEditorControl() {
+    public DataParameterColourPropertyEditorSlotControl() {
     }
 
-    static DataParameterColourPropertyEditorControl() {
-        choseColourCommand = new AsyncRelayCommand<DataParameterColourPropertyEditorControl>(async (x) => {
+    static DataParameterColourPropertyEditorSlotControl() {
+        choseColourCommand = new AsyncRelayCommand<DataParameterColourPropertyEditorSlotControl>(async (x) => {
             SKColor? colour = await IColourPickerDialogService.Instance.PickColourAsync(x!.myColour);
             if (colour.HasValue) {
                 x.myColour = colour.Value;

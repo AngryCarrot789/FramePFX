@@ -196,6 +196,12 @@ public sealed class PluginLoader {
         return (plugin, descriptor);
     }
 
+    public async Task OnApplicationLoading() {
+        foreach (Plugin plugin in this.plugins) {
+            await plugin.OnApplicationLoading();
+        }
+    }
+    
     public async Task OnApplicationLoaded() {
         foreach (Plugin plugin in this.plugins) {
             await plugin.OnApplicationLoaded();

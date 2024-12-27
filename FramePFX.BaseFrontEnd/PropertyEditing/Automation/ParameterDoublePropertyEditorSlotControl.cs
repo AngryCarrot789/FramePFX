@@ -23,31 +23,31 @@ using FramePFX.PropertyEditing.DataTransfer;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing.Automation;
 
-public class ParameterLongPropertyEditorControl : BaseNumericParameterPropEditorControl {
-    public new ParameterLongPropertyEditorSlot SlotModel => (ParameterLongPropertyEditorSlot) base.SlotControl.Model;
+public class ParameterDoublePropertyEditorSlotControl : BaseNumericParameterPropertyEditorSlotControl {
+    public new ParameterDoublePropertyEditorSlot SlotModel => (ParameterDoublePropertyEditorSlot) base.SlotControl.Model;
 
-    public ParameterLongPropertyEditorControl() {
+    public ParameterDoublePropertyEditorSlotControl() {
     }
 
     protected override void UpdateControlValue() {
-        this.dragger!.Value = this.SlotModel.Value;
+        this.dragger.Value = this.SlotModel.Value;
     }
 
     protected override void UpdateModelValue() {
-        this.SlotModel.Value = (long) Math.Round(this.dragger!.Value);
+        this.SlotModel.Value = this.dragger.Value;
     }
 
     protected override void OnConnected() {
         base.OnConnected();
-        ParameterLongPropertyEditorSlot slot = this.SlotModel;
-        ParameterDescriptorLong desc = slot.Parameter.Descriptor;
-        this.dragger!.Minimum = desc.Minimum;
-        this.dragger!.Maximum = desc.Maximum;
+        ParameterDoublePropertyEditorSlot slot = this.SlotModel;
+        ParameterDescriptorDouble desc = slot.Parameter.Descriptor;
+        this.dragger.Minimum = desc.Minimum;
+        this.dragger.Maximum = desc.Maximum;
 
         DragStepProfile profile = slot.StepProfile;
-        this.dragger.TinyChange = Math.Max(profile.TinyStep, 1.0);
-        this.dragger.SmallChange = Math.Max(profile.SmallStep, 1.0);
-        this.dragger.NormalChange = Math.Max(profile.NormalStep, 1.0);
-        this.dragger.LargeChange = Math.Max(profile.LargeStep, 1.0);
+        this.dragger.TinyChange = profile.TinyStep;
+        this.dragger.SmallChange = profile.SmallStep;
+        this.dragger.NormalChange = profile.NormalStep;
+        this.dragger.LargeChange = profile.LargeStep;
     }
 }

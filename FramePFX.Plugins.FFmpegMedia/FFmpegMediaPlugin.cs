@@ -59,6 +59,10 @@ public class FFmpegMediaPlugin : Plugin {
     public override void RegisterServices() {
     }
 
+    public override Task OnApplicationLoading() {
+        return Task.CompletedTask;
+    }
+
     public override Task OnApplicationLoaded() {
         ResourceTypeFactory.Instance.RegisterType("r_avmedia", typeof(ResourceAVMedia));
         ClipFactory.Instance.RegisterType("vc_avmedia", typeof(AVMediaVideoClip));
@@ -75,7 +79,7 @@ public class FFmpegMediaPlugin : Plugin {
         InvalidResourceEntryControl.Registry.RegisterType<InvalidMediaPathEntry>(() => new InvalidMediaPathEntryControl());
         
         // Exporter
-        BasePropEditControlContent.RegisterEnumProperty<AVCodecID, DataParameterAVCodecIDPropertyEditorSlot>();
+        BasePropertyEditorSlotControl.RegisterEnumProperty<AVCodecID, DataParameterAVCodecIDPropertyEditorSlot>();
 
         ExporterRegistry.Instance.RegisterExporter(new ExporterKey("exporter_ffmpeg", "FFmpeg"), new FFmpegExporterInfo());
         

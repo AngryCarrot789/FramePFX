@@ -25,7 +25,7 @@ using FramePFX.Utils.Accessing;
 
 namespace FramePFX.Plugins.AnotherTestPlugin;
 
-public class TestPluginConfigurationPage : PropertyEditorConfigurationPage, ITransferableData {
+public class TestPluginConfigurationPage : PropertyEditorConfigurationPage {
     public static string? GlobalCoolString { get; set; } = "Cool!!!";
 
     public static readonly DataParameterString CoolStringParameter =
@@ -42,10 +42,7 @@ public class TestPluginConfigurationPage : PropertyEditorConfigurationPage, ITra
         set => DataParameter.SetValueHelper(this, CoolStringParameter, ref this.coolString, value);
     }
     
-    public TransferableData TransferableData { get; }
-
     public TestPluginConfigurationPage() {
-        this.TransferableData = new TransferableData(this);
         this.coolString = CoolStringParameter.GetDefaultValue(this);
         CoolStringParameter.AddValueChangedHandler(this, this.OnStringChanged);
         this.PropertyEditor.Root.AddItem(new DataParameterStringPropertyEditorSlot(CoolStringParameter, typeof(TestPluginConfigurationPage), "Very Cool String") {AnticipatedLineCount = 4});

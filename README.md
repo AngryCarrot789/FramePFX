@@ -1,10 +1,22 @@
-<div style="margin-top: 10pt; display: flex">
-    <img src="icons/FramePFX-256.png" alt="drawing" width="64">
-    <div style="margin-left: 10pt; text-align: center; font-weight: bold; font-size: 32pt">FramePFX</div>
-</div>
+# FramePFX
 
-FramePFX is a small, open source, non-linear video editor, written in C# using Avalonia for the UI.
+FramePFX is an open source, non-linear video editor, written in C# using Avalonia for the UI.
 
+# Docs
+
+Here are some links to the documentation files, if you want to learn more about the frontend and backend
+
+[Plugin system + FramePFX API](docs/Plugins.md)
+
+[Automation/Animation System](docs/Automation.md)
+
+[Command system, Context Menu System, Shortcuts](docs/Command%20System%20and%20Shortcuts.md)
+
+[Rendering System](docs/Rendering.md)
+
+[Shortcut System Overview](docs/Shortcuts.md)
+
+[UI Overview](docs/TheUI.md)
 
 # Previews
 
@@ -20,20 +32,24 @@ The grey panel below "Exporter: FFmpeg" is encoder-specific details
 # Building
 FramePFX assumes everything is 64 bit --- x86/32-bit/AnyCPU won't work properly!
 
-All of the native projects are automatically downloaded and compiled when you 
-first build the C# projects, however,  FFmpeg needs to be downloaded separately. 
+The native projects are automatically downloaded and compiled when you first build the C# projects, 
+however, if you want media clips and exporting to work, FFmpeg needs to be downloaded separately. 
 Here is the specific version that works currently (windows only):
 https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2024-09-30-15-36/ffmpeg-N-117275-g04182b5549-win64-gpl-shared.zip
 
-### Instructions
+## Downloading
+Clone the project recursively:
 
-- Clone repo: `git clone --recursive https://github.com/AngryCarrot789/FramePFX`
+`git clone --recursive https://github.com/AngryCarrot789/FramePFX`
+
+If you want to install FFmpeg to use video media clips and FFmpeg export:
 - Create ffmpeg folder in solution: `cd FramePFX && mkdir ffmpeg`
-- From the downloaded ffmpeg archive, copy everything (the 4 dirs and the LICENCE.txt) into that new ffmpeg folder
+- From the downloaded ffmpeg archive, copy the 4 dirs and the LICENCE.txt into that new ffmpeg folder
 
 >There should be 8 DLL files in `\FramePFX\ffmpeg\bin`, and one of them should be avcodec-61.dll. If it's not 61 you have the wrong version of FFmpeg.
 You can delete the EXE files if you want, since they aren't used
 
+## Build project
 - Open FramePFX.sln. You will get an error about the `portaudio` project not being loaded; Ignore it, and build the solution by going to the `Build` menu and clicking `Build Solution` 
 
 Hopefully then you should be able to run and modify FramePFX projects without issue. This project uses Avalonia 11.2.2 and .NET 8 (C# 12). 
@@ -45,8 +61,6 @@ Hopefully then you should be able to run and modify FramePFX projects without is
 The projects in the solution use windows commands like mkdir and xcopy, which may not work on other platforms.
 Feel free to create a pull request on a more cross-platform solution!
 
-The 8 DLLs just have to be in the same directly as the FramePFX-DesktopUI.exe executable
-
 ### Possible build problems
 Sometimes, the SkiaSharp nuget library doesn't copy the skia library files to the bin folder when you clone this repo and built. There are 2 fixes I found:
 - Copy `\packages\SkiaSharp.2.88.7\runtimes\win-x64\native\libSkiaSharp.dll` into the editor's bin folder.
@@ -56,6 +70,8 @@ Sometimes, the SkiaSharp nuget library doesn't copy the skia library files to th
 # Plugins!
 FramePFX now supports plugins! The plugin API is very work in progress, but it can load plugins. 
 Plugins currently must be compiled using the same dependency versions that FramePFX uses, since we don't use AssemblyLoadContext
+
+You can find more info here: [Plugin system + FramePFX API](docs/Plugins.md) 
 
 ### Examples
 The `AnotherTestPlugin` plugin adds a test configuration page (found in `File > Open Editor Settings`), and also adds a useless test exporter to the export dialog.

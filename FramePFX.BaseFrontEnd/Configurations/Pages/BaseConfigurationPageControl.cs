@@ -47,6 +47,5 @@ public class BaseConfigurationPageControl : TemplatedControl {
     }
 
     public virtual void OnDisconnected() {
-        this.Page = null;
     }
 }

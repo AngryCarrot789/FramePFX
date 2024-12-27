@@ -1,21 +1,21 @@
-// 
+//
 // Copyright (c) 2023-2024 REghZy
-// 
+//
 // This file is part of FramePFX.
-// 
+//
 // FramePFX is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either
 // version 3.0 of the License, or (at your option) any later version.
-// 
+//
 // FramePFX is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // Lesser General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
-// 
+//
 
 using FramePFX.Editing.Automation.Params;
 using FramePFX.PropertyEditing.Automation;
@@ -23,10 +23,10 @@ using FramePFX.PropertyEditing.DataTransfer;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing.Automation;
 
-public class ParameterDoublePropertyEditorControl : BaseNumericParameterPropEditorControl {
-    public new ParameterDoublePropertyEditorSlot SlotModel => (ParameterDoublePropertyEditorSlot) base.SlotControl.Model;
+public class ParameterFloatPropertyEditorSlotControl : BaseNumericParameterPropertyEditorSlotControl {
+    public new ParameterFloatPropertyEditorSlot SlotModel => (ParameterFloatPropertyEditorSlot) base.SlotControl.Model;
 
-    public ParameterDoublePropertyEditorControl() {
+    public ParameterFloatPropertyEditorSlotControl() {
     }
 
     protected override void UpdateControlValue() {
@@ -34,13 +34,13 @@ public class ParameterDoublePropertyEditorControl : BaseNumericParameterPropEdit
     }
 
     protected override void UpdateModelValue() {
-        this.SlotModel.Value = this.dragger.Value;
+        this.SlotModel.Value = (float) this.dragger.Value;
     }
 
     protected override void OnConnected() {
         base.OnConnected();
-        ParameterDoublePropertyEditorSlot slot = this.SlotModel;
-        ParameterDescriptorDouble desc = slot.Parameter.Descriptor;
+        ParameterFloatPropertyEditorSlot slot = this.SlotModel;
+        ParameterDescriptorFloat desc = slot.Parameter.Descriptor;
         this.dragger.Minimum = desc.Minimum;
         this.dragger.Maximum = desc.Maximum;
 

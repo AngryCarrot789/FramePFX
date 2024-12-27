@@ -25,12 +25,12 @@ using FramePFX.PropertyEditing.DataTransfer;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing.DataTransfer;
 
-public class DataParameterBoolPropertyEditorControl : BaseDataParameterPropertyEditorControl {
+public class DataParameterBoolPropertyEditorSlotControl : BaseDataParameterPropertyEditorSlotControl {
     protected CheckBox checkBox;
 
     public new DataParameterBoolPropertyEditorSlot SlotModel => (DataParameterBoolPropertyEditorSlot) base.SlotControl.Model;
 
-    public DataParameterBoolPropertyEditorControl() {
+    public DataParameterBoolPropertyEditorSlotControl() {
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {

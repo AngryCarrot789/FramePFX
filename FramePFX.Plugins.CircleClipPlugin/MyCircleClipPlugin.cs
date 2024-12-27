@@ -19,8 +19,11 @@
 
 using FramePFX.AdvancedMenuService;
 using FramePFX.CommandSystem;
+using FramePFX.Editing;
 using FramePFX.Editing.ContextRegistries;
 using FramePFX.Editing.Factories;
+using FramePFX.Editing.ResourceManaging.Resources;
+using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Commands;
 using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Editing.UI;
@@ -34,7 +37,6 @@ namespace FramePFX.Plugins.CircleClipPlugin;
 
 public class MyCircleClipPlugin : Plugin {
     public override void OnCreated() {
-        
     }
 
     // Uses the standard clip creation system via AddClipCommand<T>
@@ -58,7 +60,35 @@ public class MyCircleClipPlugin : Plugin {
         manager.Register("commands.mycircleclipplugin.editor.AddCircleClip", new AddCircleClipCommand());
     }
 
+    private class ShowCompTimlineNameCommand : AsyncCommand {
+        protected override Executability CanExecuteOverride(CommandEventArgs e) {
+            if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline? timeline)) {
+                return Executability.Invalid;
+            }
+            
+            return timeline is CompositionTimeline 
+                ? Executability.Valid 
+                : Executability.ValidButCannotExecute;
+        }
+
+        protected override async Task ExecuteAsync(CommandEventArgs e) {
+            if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out var timeline)) {
+                return;
+            }
+
+            if (!(timeline is CompositionTimeline composition)) {
+                return;
+            }
+
+            await IMessageDialogService.Instance.ShowMessage("hello", $"My resource = '{composition.Resource.DisplayName}'");
+        }
+    }
+
     public override void RegisterServices() {
+    }
+
+    public override Task OnApplicationLoading() {
+        return Task.CompletedTask;
     }
 
     public override async Task OnApplicationLoaded() {

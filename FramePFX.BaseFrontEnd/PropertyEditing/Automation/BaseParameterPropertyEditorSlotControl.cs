@@ -30,8 +30,8 @@ using FramePFX.PropertyEditing.Automation;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing.Automation;
 
-public abstract class BaseParameterPropertyEditorControl : BasePropEditControlContent {
-    public static readonly StyledProperty<IBrush?> AutomationLedBrushProperty = AvaloniaProperty.Register<BaseParameterPropertyEditorControl, IBrush?>(nameof(AutomationLedBrush), Brushes.OrangeRed);
+public abstract class BaseParameterPropertyEditorSlotControl : BasePropertyEditorSlotControl {
+    public static readonly StyledProperty<IBrush?> AutomationLedBrushProperty = AvaloniaProperty.Register<BaseParameterPropertyEditorSlotControl, IBrush?>(nameof(AutomationLedBrush), Brushes.OrangeRed);
 
     public IBrush? AutomationLedBrush {
         get => this.GetValue(AutomationLedBrushProperty);
@@ -44,7 +44,7 @@ public abstract class BaseParameterPropertyEditorControl : BasePropEditControlCo
     private KeyFrameToolsControl? keyFrameTools;
     private Ellipse? automationLed;
 
-    protected BaseParameterPropertyEditorControl() {
+    protected BaseParameterPropertyEditorSlotControl() {
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {

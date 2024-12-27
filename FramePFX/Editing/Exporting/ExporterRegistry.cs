@@ -26,7 +26,7 @@ namespace FramePFX.Editing.Exporting;
 /// A registry of exporters
 /// </summary>
 public class ExporterRegistry {
-    public static ExporterRegistry Instance { get; } = new ExporterRegistry();
+    public static ExporterRegistry Instance => Application.Instance.ServiceManager.GetService<ExporterRegistry>();
 
     private readonly Dictionary<ExporterKey, BaseExporterInfo> exporters;
     private readonly List<(ExporterKey, BaseExporterInfo)> exporterList;
@@ -41,7 +41,7 @@ public class ExporterRegistry {
     /// </summary>
     public IEnumerable<ExporterKey> Keys => this.exporterList.Select(x => x.Item1);
 
-    private ExporterRegistry() {
+    public ExporterRegistry() {
         this.exporters = new Dictionary<ExporterKey, BaseExporterInfo>(ExporterKey.DefaultComparer);
         this.exporterList = new List<(ExporterKey, BaseExporterInfo)>();
     }

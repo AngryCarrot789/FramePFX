@@ -30,6 +30,8 @@ using SkiaSharp;
 
 namespace FramePFX.Configurations;
 
+public delegate void SetupProjectConfigurationEventHandler(ProjectConfigurationManager configuration);
+
 /// <summary>
 /// The configuration manager for a FramePFX project
 /// </summary>
@@ -38,6 +40,13 @@ public class ProjectConfigurationManager : ConfigurationManager, IDestroy {
 
     public IVideoEditorWindow VideoEditor { get; }
 
+    /// <summary>
+    /// A global event fired whenever an instance of <see cref="ProjectConfigurationManager"/> is
+    /// created for usage in the project's settings dialog.
+    /// Since this is static, care must be taken to remove handlers when no longer needed
+    /// </summary>
+    public static event SetupProjectConfigurationEventHandler? SetupProjectConfiguration;
+    
     public ProjectConfigurationManager(Project project, IVideoEditorWindow editorUi) {
         this.Project = project;
         this.VideoEditor = editorUi;
@@ -51,13 +60,16 @@ public class ProjectConfigurationManager : ConfigurationManager, IDestroy {
     }
 
     public static ProjectConfigurationManager GetInstance(Project project, IVideoEditorWindow videoEditor) {
-        if (!project.ServiceManager.TryGetService(out ProjectConfigurationManager? manager))
+        if (!project.ServiceManager.TryGetService(out ProjectConfigurationManager? manager)) {
             project.ServiceManager.RegisterConstant(manager = new ProjectConfigurationManager(project, videoEditor));
+            SetupProjectConfiguration?.Invoke(manager);
+        }
+
         return manager;
     }
 }
 
-public class ProjectVideoPropertyEditorConfigurationPage : PropertyEditorConfigurationPage, ITransferableData {
+public class ProjectVideoPropertyEditorConfigurationPage : PropertyEditorConfigurationPage {
     public static readonly DataParameterLong WidthParameter =
         DataParameter.Register(
             new DataParameterLong(
@@ -99,11 +111,8 @@ public class ProjectVideoPropertyEditorConfigurationPage : PropertyEditorConfigu
         set => DataParameter.SetValueHelper(this, FrameRateParameter, ref this.frameRate, value);
     }
 
-    public TransferableData TransferableData { get; }
-
     public ProjectVideoPropertyEditorConfigurationPage(ProjectConfigurationManager manager) {
         this.manager = manager;
-        this.TransferableData = new TransferableData(this);
         this.width = WidthParameter.GetDefaultValue(this);
         this.height = HeightParameter.GetDefaultValue(this);
         this.frameRate = FrameRateParameter.GetDefaultValue(this);

@@ -54,7 +54,7 @@ public class ApplicationConfigurationManager : ConfigurationManager {
         });
     }
 
-    public class EditorWindowPropEditorConfigurationPage : PropertyEditorConfigurationPage, ITransferableData {
+    public class EditorWindowPropEditorConfigurationPage : PropertyEditorConfigurationPage {
         public static readonly DataParameter<SKColor> TitleBarBrushParameter =
             DataParameter.Register(
                 new DataParameter<SKColor>(
@@ -69,10 +69,7 @@ public class ApplicationConfigurationManager : ConfigurationManager {
             set => DataParameter.SetValueHelper(this, TitleBarBrushParameter, ref this.titleBarBrush, value);
         }
 
-        public TransferableData TransferableData { get; }
-
         public EditorWindowPropEditorConfigurationPage() {
-            this.TransferableData = new TransferableData(this);
             this.titleBarBrush = TitleBarBrushParameter.GetDefaultValue(this);
             TitleBarBrushParameter.AddValueChangedHandler(this, this.Handler);
 

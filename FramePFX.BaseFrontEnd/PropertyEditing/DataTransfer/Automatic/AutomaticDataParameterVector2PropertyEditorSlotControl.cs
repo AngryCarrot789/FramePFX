@@ -1,21 +1,21 @@
-//
-// Copyright (c) 2023-2024 REghZy
-//
+﻿// 
+// Copyright (c) 2024-2024 REghZy
+// 
 // This file is part of FramePFX.
-//
+// 
 // FramePFX is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either
 // version 3.0 of the License, or (at your option) any later version.
-//
+// 
 // FramePFX is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 // Lesser General Public License for more details.
-//
+// 
 // You should have received a copy of the GNU General Public License
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
-//
+// 
 
 using System.Numerics;
 using Avalonia.Controls;
@@ -27,13 +27,15 @@ using FramePFX.BaseFrontEnd.Bindings;
 using FramePFX.BaseFrontEnd.Utils;
 using FramePFX.DataTransfer;
 using FramePFX.PropertyEditing.DataTransfer;
+using FramePFX.PropertyEditing.DataTransfer.Automatic;
+using FramePFX.Utils;
 
-namespace FramePFX.BaseFrontEnd.PropertyEditing.DataTransfer;
+namespace FramePFX.BaseFrontEnd.PropertyEditing.DataTransfer.Automatic;
 
-public class DataParameterVector2PropertyEditorControl : BaseDataParameterPropertyEditorControl {
-    internal static readonly IImmutableBrush MultipleValuesBrush = BaseNumberDraggerDataParamPropEditorControl.MultipleValuesBrush;
+public class AutomaticDataParameterVector2PropertyEditorSlotControl : BaseDataParameterPropertyEditorSlotControl {
+    internal static readonly IImmutableBrush MultipleValuesBrush = BaseNumberDraggerDataParamPropEditorSlotControl.MultipleValuesBrush;
 
-    public new DataParameterVector2PropertyEditorSlot? SlotModel => (DataParameterVector2PropertyEditorSlot?) base.SlotControl?.Model;
+    public new AutomaticDataParameterVector2PropertyEditorSlot? SlotModel => (AutomaticDataParameterVector2PropertyEditorSlot?) base.SlotControl?.Model;
 
     protected NumberDragger draggerX;
     protected NumberDragger draggerY;
@@ -41,9 +43,9 @@ public class DataParameterVector2PropertyEditorControl : BaseDataParameterProper
 
     private readonly AutoUpdateAndEventPropertyBinder<DataParameterFormattableNumberPropertyEditorSlot> valueFormatterBinder;
 
-    public DataParameterVector2PropertyEditorControl() {
+    public AutomaticDataParameterVector2PropertyEditorSlotControl() {
         this.valueFormatterBinder = new AutoUpdateAndEventPropertyBinder<DataParameterFormattableNumberPropertyEditorSlot>(null, nameof(DataParameterFormattableNumberPropertyEditorSlot.ValueFormatterChanged), (x) => {
-            DataParameterVector2PropertyEditorControl editor = (DataParameterVector2PropertyEditorControl) x.Control;
+            AutomaticDataParameterVector2PropertyEditorSlotControl editor = (AutomaticDataParameterVector2PropertyEditorSlotControl) x.Control;
             editor.draggerX.ValueFormatter = x.Model.ValueFormatter;
             editor.draggerY.ValueFormatter = x.Model.ValueFormatter;
         }, null);
@@ -52,17 +54,38 @@ public class DataParameterVector2PropertyEditorControl : BaseDataParameterProper
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.draggerX = e.NameScope.GetTemplateChild<NumberDragger>("PART_DraggerX");
-        this.draggerX.ValueChanged += (sender, args) => this.OnControlValueChanged();
         this.draggerY = e.NameScope.GetTemplateChild<NumberDragger>("PART_DraggerY");
-        this.draggerY.ValueChanged += (sender, args) => this.OnControlValueChanged();
         this.resetButton = e.NameScope.GetTemplateChild<Button>("PART_ResetButton");
+        this.draggerX.ValueChanged += (sender, args) => this.OnControlValueChanged();
+        this.draggerY.ValueChanged += (sender, args) => this.OnControlValueChanged();
         this.resetButton.Click += this.ResetButtonOnClick;
         this.valueFormatterBinder.AttachControl(this);
         this.UpdateDraggerMultiValueState();
+
+        this.draggerX.InvalidInputEntered += this.PartDraggerOnInvalidInputEntered;
+        this.draggerY.InvalidInputEntered += this.PartDraggerOnInvalidInputEntered;
+    }
+
+    private void PartDraggerOnInvalidInputEntered(object? sender, InvalidInputEnteredEventArgs e) {
+        AutomaticDataParameterVector2PropertyEditorSlot? model = this.SlotModel;
+        if (model == null || !model.IsCurrentlyApplicable) {
+            return;
+        }
+
+        if (("auto".EqualsIgnoreCase(e.Input) || "automatic".EqualsIgnoreCase(e.Input) || "\"auto\"".EqualsIgnoreCase(e.Input))) {
+            foreach (object handler in model.Handlers) {
+                model.IsAutomaticParameter.SetValue((ITransferableData) handler, true);
+            }
+        }
     }
 
     private void ResetButtonOnClick(object? sender, RoutedEventArgs e) {
-        this.SlotModel.Value = this.SlotModel.Parameter.DefaultValue;
+        AutomaticDataParameterVector2PropertyEditorSlot? slot = this.SlotModel;
+        if (slot != null && slot.HasHandlers) {
+            foreach (ITransferableData handler in slot.Handlers) {
+                slot.IsAutomaticParameter.SetValue(handler, true);
+            }
+        }
     }
 
     private void UpdateDraggerMultiValueState() {
@@ -71,8 +94,8 @@ public class DataParameterVector2PropertyEditorControl : BaseDataParameterProper
         }
 
         bool flag = this.SlotModel!.HasMultipleValues, flag2 = this.SlotModel!.HasProcessedMultipleValuesSinceSetup;
-        BaseNumberDraggerDataParamPropEditorControl.UpdateNumberDragger(this.draggerX, flag, flag2);
-        BaseNumberDraggerDataParamPropEditorControl.UpdateNumberDragger(this.draggerY, flag, flag2);
+        BaseNumberDraggerDataParamPropEditorSlotControl.UpdateNumberDragger(this.draggerX, flag, flag2);
+        BaseNumberDraggerDataParamPropEditorSlotControl.UpdateNumberDragger(this.draggerY, flag, flag2);
     }
 
     protected override void OnCanEditValueChanged(bool canEdit) {
@@ -84,7 +107,7 @@ public class DataParameterVector2PropertyEditorControl : BaseDataParameterProper
         this.valueFormatterBinder.AttachModel(this.SlotModel!);
         base.OnConnected();
 
-        DataParameterVector2PropertyEditorSlot slot = this.SlotModel;
+        AutomaticDataParameterVector2PropertyEditorSlot slot = this.SlotModel!;
         DataParameterVector2 param = slot.Parameter;
         this.draggerX.Minimum = param.Minimum.X;
         this.draggerY.Minimum = param.Minimum.Y;
@@ -113,6 +136,30 @@ public class DataParameterVector2PropertyEditorControl : BaseDataParameterProper
         this.SlotModel!.HasMultipleValuesChanged -= this.OnHasMultipleValuesChanged;
     }
 
+    protected override void OnHandlersLoadedOverride(bool isLoaded) {
+        base.OnHandlersLoadedOverride(isLoaded);
+        if (isLoaded) {
+            if (this.singleHandler != null)
+                this.SlotModel!.IsAutomaticParameter.AddValueChangedHandler(this.singleHandler, this.OnIsAutomaticChanged);
+        }
+        else if (this.singleHandler != null) {
+            this.SlotModel!.IsAutomaticParameter.RemoveValueChangedHandler(this.singleHandler, this.OnIsAutomaticChanged);
+        }
+    }
+
+    private void OnIsAutomaticChanged(DataParameter parameter, ITransferableData owner) {
+        this.UpdateTextPreview();
+    }
+
+    private void UpdateTextPreview() {
+        if (this.singleHandler != null && this.SlotModel!.IsAutomaticParameter.GetValue(this.singleHandler)) {
+            this.draggerX.FinalPreviewStringFormat = this.draggerY.FinalPreviewStringFormat = "{0} (Auto)";
+        }
+        else {
+            this.draggerX.FinalPreviewStringFormat = this.draggerY.FinalPreviewStringFormat = null;
+        }
+    }
+
     private void OnHasMultipleValuesChanged(DataParameterPropertyEditorSlot sender) {
         this.UpdateDraggerMultiValueState();
     }
@@ -121,6 +168,7 @@ public class DataParameterVector2PropertyEditorControl : BaseDataParameterProper
         Vector2 value = this.SlotModel!.Value;
         this.draggerX.Value = value.X;
         this.draggerY.Value = value.Y;
+        this.UpdateTextPreview();
     }
 
     protected override void UpdateModelValue() {

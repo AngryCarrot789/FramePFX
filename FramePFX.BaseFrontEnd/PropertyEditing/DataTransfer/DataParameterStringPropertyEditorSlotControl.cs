@@ -24,12 +24,12 @@ using FramePFX.PropertyEditing.DataTransfer;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing.DataTransfer;
 
-public class DataParameterStringPropertyEditorControl : BaseDataParameterPropertyEditorControl {
+public class DataParameterStringPropertyEditorSlotControl : BaseDataParameterPropertyEditorSlotControl {
     protected TextBox? textBox;
 
     public new DataParameterStringPropertyEditorSlot? SlotModel => (DataParameterStringPropertyEditorSlot?) base.SlotControl?.Model;
 
-    public DataParameterStringPropertyEditorControl() {
+    public DataParameterStringPropertyEditorSlotControl() {
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {

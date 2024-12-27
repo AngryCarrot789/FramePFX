@@ -50,7 +50,7 @@ public class PropertyEditorGroupControl : TemplatedControl {
 
     public PropertyEditorControl? PropertyEditor {
         get => this.GetValue(PropertyEditorProperty);
-        set => this.SetValue(PropertyEditorProperty, value);
+        private set => this.SetValue(PropertyEditorProperty, value);
     }
 
     public PropertyEditorItemsPanel? Panel { get; private set; }
@@ -70,7 +70,7 @@ public class PropertyEditorGroupControl : TemplatedControl {
         Registry = new ModelControlRegistry<BasePropertyEditorObject, Control>();
         Registry.RegisterType<GridPropertyEditorGroup>(() => new PropertyEditorGridGroupControl());
         Registry.RegisterType<BasePropertyEditorGroup>((x) => x.GroupType == GroupType.NoExpander ? new PropertyEditorGroupNonExpanderControl() : new PropertyEditorGroupControl());
-        Registry.RegisterType<PropertyEditorSlot>(() => new PropertyEditorSlotControl());
+        Registry.RegisterType<PropertyEditorSlot>(() => new PropertyEditorSlotContainerControl());
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e) {

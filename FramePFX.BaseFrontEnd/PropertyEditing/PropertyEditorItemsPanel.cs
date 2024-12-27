@@ -88,12 +88,12 @@ public class PropertyEditorItemsPanel : StackPanel {
             ((PropertyEditorGroupControl) control).ConnectModel(editor, group);
         }
         else if (item is PropertyEditorSlot) {
-            control = new PropertyEditorSlotControl();
-            ((PropertyEditorSlotControl) control).OnPreConnection(this.OwnerGroup!, (PropertyEditorSlot) item);
+            control = new PropertyEditorSlotContainerControl();
+            ((PropertyEditorSlotContainerControl) control).OnPreConnection(this.OwnerGroup!, (PropertyEditorSlot) item);
             this.Children.Insert(index, control);
             control.ApplyStyling();
             control.ApplyTemplate();
-            ((PropertyEditorSlotControl) control).ConnectModel();
+            ((PropertyEditorSlotContainerControl) control).ConnectModel();
         }
         else {
             throw new InvalidOperationException("Invalid model: " + item);
@@ -105,8 +105,8 @@ public class PropertyEditorItemsPanel : StackPanel {
         if (item is PropertyEditorGroupControl) {
             ((PropertyEditorGroupControl) item).DisconnectModel();
         }
-        else if (item is PropertyEditorSlotControl) {
-            ((PropertyEditorSlotControl) item).DisconnectModel();
+        else if (item is PropertyEditorSlotContainerControl) {
+            ((PropertyEditorSlotContainerControl) item).DisconnectModel();
         }
 
         this.Children.RemoveAt(index);

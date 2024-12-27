@@ -66,6 +66,12 @@ public abstract class Plugin {
     /// Register this plugin's services
     /// </summary>
     public abstract void RegisterServices();
+
+    /// <summary>
+    /// Invoked when the application is in the process of loading. This is where configurations are read among other things
+    /// </summary>
+    /// <returns></returns>
+    public abstract Task OnApplicationLoading();
     
     /// <summary>
     /// Invoked when the application has loaded. This is invoked before any editor window is created.

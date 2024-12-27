@@ -29,9 +29,13 @@ using FramePFX.Utils;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing;
 
-public class PropertyEditorSlotControl : ContentControl {
-    public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<PropertyEditorSlotControl, bool>("IsSelected", coerce: (o, val) => ((PropertyEditorSlotControl) o).IsSelectable && val);
-    public static readonly StyledProperty<bool> IsSelectableProperty = AvaloniaProperty.Register<PropertyEditorSlotControl, bool>("IsSelectable");
+/// <summary>
+/// Represents a slot container in a property editor. This class is sealed, and is used
+/// to implement selection and visibility without actual slots needing to do anything
+/// </summary>
+public sealed class PropertyEditorSlotContainerControl : ContentControl {
+    public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<PropertyEditorSlotContainerControl, bool>("IsSelected", coerce: (o, val) => ((PropertyEditorSlotContainerControl) o).IsSelectable && val);
+    public static readonly StyledProperty<bool> IsSelectableProperty = AvaloniaProperty.Register<PropertyEditorSlotContainerControl, bool>("IsSelectable");
 
     /// <summary>
     /// Whether or not this slot is selected. Setting this property automatically affects
@@ -51,17 +55,17 @@ public class PropertyEditorSlotControl : ContentControl {
 
     public PropertyEditorSlot? Model { get; private set; }
 
-    public PropertyEditorGroupControl OwnerGroup { get; private set; }
+    public PropertyEditorGroupControl? OwnerGroup { get; private set; }
 
     private readonly GetSetAutoUpdateAndEventPropertyBinder<PropertyEditorSlot> isSelectedBinder = new GetSetAutoUpdateAndEventPropertyBinder<PropertyEditorSlot>(IsSelectedProperty, nameof(PropertyEditorSlot.IsSelectedChanged), b => b.Model.IsSelected.Box(), (b, v) => b.Model.IsSelected = (bool) v!);
 
-    public PropertyEditorSlotControl() {
+    public PropertyEditorSlotContainerControl() {
     }
 
-    static PropertyEditorSlotControl() {
-        IsSelectedProperty.Changed.AddClassHandler<PropertyEditorSlotControl, bool>((o, e) => o.OnSelectionChanged(e.GetOldValue<bool>(), e.GetNewValue<bool>()));
-        IsSelectableProperty.Changed.AddClassHandler<PropertyEditorSlotControl, bool>((o, e) => o.CoerceValue(IsSelectedProperty));
-        PointerPressedEvent.AddClassHandler<PropertyEditorSlotControl>((t, e) => t.OnPreviewMouseDown(e), RoutingStrategies.Tunnel);
+    static PropertyEditorSlotContainerControl() {
+        IsSelectedProperty.Changed.AddClassHandler<PropertyEditorSlotContainerControl, bool>((o, e) => o.OnSelectionChanged(e.GetOldValue<bool>(), e.GetNewValue<bool>()));
+        IsSelectableProperty.Changed.AddClassHandler<PropertyEditorSlotContainerControl, bool>((o, e) => o.CoerceValue(IsSelectedProperty));
+        PointerPressedEvent.AddClassHandler<PropertyEditorSlotContainerControl>((t, e) => t.OnPreviewMouseDown(e), RoutingStrategies.Tunnel);
     }
 
     private void OnPreviewMouseDown(PointerPressedEventArgs e) {
@@ -78,7 +82,7 @@ public class PropertyEditorSlotControl : ContentControl {
             }
 
             if (this.OwnerGroup?.PropertyEditor is PropertyEditorControl editorControl) {
-                editorControl.TouchedSlot = this;
+                editorControl.TouchedSlotContainer = this;
             }
 
             // if (!(e.OriginalSource is Control element)) {
@@ -105,7 +109,7 @@ public class PropertyEditorSlotControl : ContentControl {
     // }
 
     public void OnPreConnection(PropertyEditorGroupControl ownerGroup, PropertyEditorSlot item) {
-        BasePropEditControlContent content = BasePropEditControlContent.NewContentInstance(item);
+        BasePropertyEditorSlotControl content = BasePropertyEditorSlotControl.NewOrCachedContentInstance(item);
         this.Model = item;
         this.OwnerGroup = ownerGroup;
         this.Content = content;
@@ -116,7 +120,7 @@ public class PropertyEditorSlotControl : ContentControl {
         this.isSelectedBinder.Attach(this, this.Model);
         this.Model.IsCurrentlyApplicableChanged += this.Model_IsCurrentlyApplicableChanged;
 
-        BasePropEditControlContent content = (BasePropEditControlContent) this.Content!;
+        BasePropertyEditorSlotControl content = (BasePropertyEditorSlotControl) this.Content!;
         content.ApplyStyling();
         content.ApplyTemplate();
         if (content.Template == null)
@@ -127,12 +131,15 @@ public class PropertyEditorSlotControl : ContentControl {
     }
 
     public void DisconnectModel() {
-        ((BasePropEditControlContent) this.Content!).Disconnect();
+        BasePropertyEditorSlotControl slot = (BasePropertyEditorSlotControl) this.Content!;
+        slot.Disconnect();
         this.isSelectedBinder.Detach();
         this.UpdateVisibility();
         this.Model!.IsCurrentlyApplicableChanged -= this.Model_IsCurrentlyApplicableChanged;
         this.Model = null;
+        this.OwnerGroup!.PropertyEditor!.PushCachedItem(slot);
         this.OwnerGroup = null;
+        this.Content = null;
     }
 
     private void OnSelectionChanged(bool oldValue, bool newValue) {
@@ -142,7 +149,7 @@ public class PropertyEditorSlotControl : ContentControl {
         this.UpdateVisibility();
     }
 
-    protected virtual void UpdateVisibility() {
+    private void UpdateVisibility() {
         this.IsVisible = this.Model!.IsVisible;
     }
 }

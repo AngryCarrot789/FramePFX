@@ -278,12 +278,12 @@
 
     <ControlTheme x:Key="RootPropertyGroupStyle" TargetType="{x:Type l:PropertyEditorGroupControl}" BasedOn="{StaticResource NonExpandableGroupControlStyle}"/>
 
-    <ControlTheme x:Key="{x:Type l:PropertyEditorSlotControl}" TargetType="{x:Type l:PropertyEditorSlotControl}">
+    <ControlTheme x:Key="{x:Type l:PropertyEditorSlotContainerControl}" TargetType="{x:Type l:PropertyEditorSlotContainerControl}">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Padding" Value="0,1"/>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type l:PropertyEditorSlotControl}">
+                <ControlTemplate TargetType="{x:Type l:PropertyEditorSlotContainerControl}">
                     <Border x:Name="Bd" BorderBrush="Transparent" BorderThickness="0" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                           Content="{TemplateBinding Content}"

@@ -91,6 +91,7 @@ public partial class App : global::Avalonia.Application {
             await ApplicationImpl.InternalLoadPluginsImpl(progress);
         }
 
+        await Application.Instance.PluginLoader.OnApplicationLoading();
         await progress.ProgressAndSynchroniseAsync("Finalizing startup...", 0.99);
 
         List<(Plugin, string)> list = new List<(Plugin, string)>();

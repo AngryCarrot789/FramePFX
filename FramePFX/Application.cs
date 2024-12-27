@@ -23,6 +23,7 @@ using FramePFX.Configurations.Commands;
 using FramePFX.Configurations.Shortcuts.Commands;
 using FramePFX.Editing;
 using FramePFX.Editing.Commands;
+using FramePFX.Editing.Exporting;
 using FramePFX.Editing.ResourceManaging.Commands;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Commands;
@@ -117,6 +118,7 @@ public abstract class Application : IServiceable {
         manager.RegisterConstant(new ResourceDropOnTimelineService());
         manager.RegisterConstant(new EditorConfigurationOptions());
         manager.RegisterConstant(new TimelineDropManager());
+        manager.RegisterConstant(new ExporterRegistry());
         manager.RegisterConstant(ApplicationConfigurationManager.Instance);
     }
 

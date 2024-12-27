@@ -22,21 +22,21 @@ using FramePFX.PropertyEditing.DataTransfer;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing.DataTransfer;
 
-public class DataParameterFloatPropertyEditorControl : BaseNumberDraggerDataParamPropEditorControl {
-    public new DataParameterFloatPropertyEditorSlot? SlotModel => (DataParameterFloatPropertyEditorSlot?) base.SlotControl?.Model;
+public class DataParameterDoublePropertyEditorSlotControl : BaseNumberDraggerDataParamPropEditorSlotControl {
+    public new DataParameterDoublePropertyEditorSlot? SlotModel => (DataParameterDoublePropertyEditorSlot?) base.SlotControl?.Model;
 
     public override double SlotValue {
         get => this.SlotModel!.Value;
-        set => this.SlotModel!.Value = (float) value;
+        set => this.SlotModel!.Value = value;
     }
 
-    public DataParameterFloatPropertyEditorControl() {
+    public DataParameterDoublePropertyEditorSlotControl() {
     }
 
     protected override void OnConnected() {
         base.OnConnected();
-        DataParameterFloatPropertyEditorSlot slot = this.SlotModel!;
-        DataParameterFloat param = slot.Parameter;
+        DataParameterDoublePropertyEditorSlot slot = this.SlotModel!;
+        DataParameterDouble param = slot.Parameter;
         this.dragger!.Minimum = param.Minimum;
         this.dragger!.Maximum = param.Maximum;
 

@@ -19,35 +19,33 @@
 
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using FramePFX.BaseFrontEnd.Bindings;
 using FramePFX.BaseFrontEnd.Utils;
 using FramePFX.Editing.PropertyEditors;
-using FramePFX.PropertyEditing;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing.Core;
 
-public class VideoClipMediaFrameOffsetPropertyEditorControl : BasePropEditControlContent {
-    public VideoClipMediaFrameOffsetPropertyEditorSlot? SlotModel => (VideoClipMediaFrameOffsetPropertyEditorSlot?) base.SlotControl?.Model;
+public class TimecodeFontFamilyPropertyEditorSlotControl : BasePropertyEditorSlotControl {
+    public TimecodeFontFamilyPropertyEditorSlot? SlotModel => (TimecodeFontFamilyPropertyEditorSlot?) base.SlotControl?.Model;
 
-    private TextBlock? textBlock;
+    private TextBox? fontFamilyTextBox;
 
-    public VideoClipMediaFrameOffsetPropertyEditorControl() {
+    private readonly IBinder<TimecodeFontFamilyPropertyEditorSlot> fontFamilyBinder = new GetSetAutoUpdateAndEventPropertyBinder<TimecodeFontFamilyPropertyEditorSlot>(TextBox.TextProperty, nameof(TimecodeFontFamilyPropertyEditorSlot.FontFamilyChanged), binder => binder.Model.FontFamily, (binder, v) => binder.Model.SetValue((string) v));
+
+    public TimecodeFontFamilyPropertyEditorSlotControl() {
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
-        this.textBlock = e.NameScope.GetTemplateChild<TextBlock>("PART_TextBlock");
-    }
-
-    private void SlotModelOnUpdateMediaFrameOffset(PropertyEditorSlot sender) {
-        if (this.textBlock != null)
-            this.textBlock.Text = this.SlotModel!.MediaFrameOffset.ToString();
+        this.fontFamilyTextBox = e.NameScope.GetTemplateChild<TextBox>("PART_TextBox");
+        // this.fontFamilyTextBox.TextChanged += (sender, args) => this.fontFamilyBinder.OnControlValueChanged();
     }
 
     protected override void OnConnected() {
-        this.SlotModel!.UpdateMediaFrameOffset += this.SlotModelOnUpdateMediaFrameOffset;
+        this.fontFamilyBinder.Attach(this.fontFamilyTextBox!, this.SlotModel!);
     }
 
     protected override void OnDisconnected() {
-        this.SlotModel!.UpdateMediaFrameOffset -= this.SlotModelOnUpdateMediaFrameOffset;
+        this.fontFamilyBinder.Detach();
     }
 }

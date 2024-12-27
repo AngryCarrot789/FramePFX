@@ -24,13 +24,13 @@ using FramePFX.PropertyEditing.Automation;
 
 namespace FramePFX.BaseFrontEnd.PropertyEditing.Automation;
 
-public class ParameterBoolPropertyEditorControl : BaseParameterPropertyEditorControl {
+public class ParameterBoolPropertyEditorSlotControl : BaseParameterPropertyEditorSlotControl {
     private CheckBox valueCheckBox;
     protected bool IsUpdatingControl;
 
     public new ParameterBoolPropertyEditorSlot SlotModel => (ParameterBoolPropertyEditorSlot) base.SlotControl.Model;
 
-    public ParameterBoolPropertyEditorControl() {
+    public ParameterBoolPropertyEditorSlotControl() {
     }
 
     protected void UpdateControlValue() {

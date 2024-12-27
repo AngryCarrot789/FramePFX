@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.DataTransfer;
 using FramePFX.PropertyEditing;
 using FramePFX.Utils;
 
@@ -25,15 +26,17 @@ namespace FramePFX.Configurations;
 /// <summary>
 /// A configuration page that consists entirely of a property editor
 /// </summary>
-public abstract class PropertyEditorConfigurationPage : ConfigurationPage {
+public abstract class PropertyEditorConfigurationPage : ConfigurationPage, ITransferableData {
     public PropertyEditor PropertyEditor { get; }
+    
+    public TransferableData TransferableData { get; }
 
-    public PropertyEditorConfigurationPage() {
-        this.PropertyEditor = new PropertyEditor();
+    public PropertyEditorConfigurationPage() : this(new PropertyEditor()) {
     }
 
     public PropertyEditorConfigurationPage(PropertyEditor propertyEditor) {
         Validate.NotNull(propertyEditor);
+        this.TransferableData = new TransferableData(this);
         this.PropertyEditor = propertyEditor;
     }
 }

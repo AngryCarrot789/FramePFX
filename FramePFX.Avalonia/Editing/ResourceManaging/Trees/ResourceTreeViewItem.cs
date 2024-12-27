@@ -634,7 +634,7 @@ public abstract class ResourceTreeViewItem : TreeViewItem, IResourceTreeNodeElem
         }
 #if !DEBUG
         catch (Exception exception) {
-            await FramePFX.IoC.MessageService.ShowMessage("Error", "An error occurred while processing list item drop", exception.ToString());
+            await FramePFX.Services.Messaging.IMessageDialogService.Instance.ShowMessage("Error", "An error occurred while processing list item drop", exception.ToString());
         }
 #endif
         finally {

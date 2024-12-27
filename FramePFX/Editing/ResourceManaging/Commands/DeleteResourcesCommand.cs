@@ -20,6 +20,7 @@
 using System.Diagnostics;
 using FramePFX.CommandSystem;
 using FramePFX.Editing.ResourceManaging.UI;
+using FramePFX.Editing.Timelines;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Services.Messaging;
 
@@ -27,14 +28,22 @@ namespace FramePFX.Editing.ResourceManaging.Commands;
 
 public class DeleteResourcesCommand : AsyncCommand {
     protected override Executability CanExecuteOverride(CommandEventArgs e) {
-        if (DataKeys.ResourceTreeUIKey.IsPresent(e.ContextData))
+        if (!DataKeys.VideoEditorKey.IsPresent(e.ContextData)) {
+            return Executability.Invalid;
+        }
+
+        if (DataKeys.ResourceTreeUIKey.IsPresent(e.ContextData) || DataKeys.ResourceListUIKey.IsPresent(e.ContextData)) {
             return Executability.Valid;
-        if (DataKeys.ResourceListUIKey.IsPresent(e.ContextData))
-            return Executability.Valid;
+        }
+        
         return Executability.Invalid;
     }
 
     protected override async Task ExecuteAsync(CommandEventArgs e) {
+        if (!DataKeys.VideoEditorKey.TryGetContext(e.ContextData, out VideoEditor? videoEditor)) {
+            return;
+        }
+        
         List<BaseResource> selection;
         if (DataKeys.ResourceTreeUIKey.TryGetContext(e.ContextData, out IResourceTreeElement? tree)) {
             selection = tree.Selection.SelectedItems.ToList();
@@ -72,15 +81,46 @@ public class DeleteResourcesCommand : AsyncCommand {
             return;
         }
 
-        foreach (BaseResource item in selection) {
-            // Since the tree's selected items will be unordered (hash set), we might end up removing
-            // a folder containing some selected items, so parent will be null since it deletes the hierarchy
-            if (item.Parent == null) {
-                continue;
-            }
+        bool continuePlaying = false;
 
-            ResourceFolder.ClearHierarchy(item as ResourceFolder, true);
-            item.Parent.RemoveItem(item, true);
+        if (videoEditor.Playback.PlayState == PlayState.Play) {
+            videoEditor.Playback.Pause();
+            continuePlaying = true;
+        }
+
+        Timeline? activeTimeline = videoEditor.Project?.ActiveTimeline;
+        using (activeTimeline?.RenderManager.SuspendRenderInvalidation()) {
+            if (activeTimeline != null && activeTimeline.RenderManager.IsRendering) {
+                await Task.WhenAny(Task.Delay(1000), Task.Run(async () => {
+                    while (activeTimeline.RenderManager.IsRendering) {
+                        await Task.Delay(10);
+                    }
+                }));
+
+                if (activeTimeline.RenderManager.IsRendering) {
+                    await IMessageDialogService.Instance.ShowMessage("Error", "Could not pause playback");
+                    if (continuePlaying) {
+                        videoEditor.Playback.Play();
+                    }
+                    
+                    return;
+                }
+            }
+            
+            foreach (BaseResource item in selection) {
+                // Since the tree's selected items will be unordered (hash set), we might end up removing
+                // a folder containing some selected items, so parent will be null since it deletes the hierarchy
+                if (item.Parent == null) {
+                    continue;
+                }
+
+                ResourceFolder.ClearHierarchy(item as ResourceFolder, true);
+                item.Parent.RemoveItem(item, true);
+            }
+        }
+
+        if (continuePlaying) {
+            videoEditor.Playback.Play();
         }
     }
 

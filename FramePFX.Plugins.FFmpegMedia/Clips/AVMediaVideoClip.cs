@@ -23,6 +23,7 @@ using FramePFX.Editing.Rendering;
 using FramePFX.Editing.ResourceManaging.NewResourceHelper;
 using FramePFX.Editing.Timelines.Clips.Video;
 using FramePFX.FFmpegWrapper;
+using FramePFX.Logging;
 using FramePFX.Plugins.FFmpegMedia.Resources;
 using FramePFX.Utils;
 using SkiaSharp;
@@ -114,25 +115,31 @@ public class AVMediaVideoClip : VideoClip {
         this.currentFrame = frame;
         this.decodeFrameTask = Task.Run(() => {
             this.decodeFrameBegin = Time.GetSystemTicks();
-            VideoFrame? output = null;
-            VideoFrame? ready = resource.GetFrameAt(timestamp, out _);
-            if (ready != null && !ready.IsDisposed) {
-                // TODO: Maybe add an async frame fetcher that buffers the frames, or maybe add
-                // a project preview resolution so that decoding is lightning fast for low resolution?
-                if (ready.IsHardwareFrame) {
-                    // As of ffmpeg 6.0, GetHardwareTransferFormats() only returns more than one format for VAAPI,
-                    // which isn't widely supported on Windows yet, so we can't transfer directly to RGB without
-                    // hacking into the API specific device context (like D3D11VA).
-                    ready.TransferTo(this.downloadedHwFrame ??= new VideoFrame());
-                    ready = this.downloadedHwFrame;
+            try {
+                VideoFrame? output = null;
+                VideoFrame? ready = resource.GetFrameAt(timestamp, out _);
+                if (ready != null && !ready.IsDisposed) {
+                    // TODO: Maybe add an async frame fetcher that buffers the frames, or maybe add
+                    // a project preview resolution so that decoding is lightning fast for low resolution?
+                    if (ready.IsHardwareFrame) {
+                        // As of ffmpeg 6.0, GetHardwareTransferFormats() only returns more than one format for VAAPI,
+                        // which isn't widely supported on Windows yet, so we can't transfer directly to RGB without
+                        // hacking into the API specific device context (like D3D11VA).
+                        ready.TransferTo(this.downloadedHwFrame ??= new VideoFrame());
+                        ready = this.downloadedHwFrame;
+                    }
+
+                    this.ScaleFrame(ready);
+                    output = ready;
                 }
 
-                this.ScaleFrame(ready);
-                output = ready;
+                this.lastDecodeFrameDuration = Time.GetSystemTicks() - this.decodeFrameBegin;
+                return output;
             }
-
-            this.lastDecodeFrameDuration = Time.GetSystemTicks() - this.decodeFrameBegin;
-            return output;
+            catch (Exception e) {
+                AppLogger.Instance.WriteLine("Decoder exception: " + e.GetToString());
+                return null;
+            }
         });
 
         return true;
@@ -159,22 +166,21 @@ public class AVMediaVideoClip : VideoClip {
             byte* ptr;
             GetFrameData(this.renderFrameRgb!, 0, &ptr, out int rowBytes);
             SKImageInfo image = new SKImageInfo(this.renderFrameRgb!.Width, this.renderFrameRgb.Height, SKColorType.Bgra8888);
-            using (SKImage img = SKImage.FromPixels(image, (IntPtr) ptr, rowBytes)) {
-                if (img == null) {
-                    return;
-                }
-
-                using SKPaint? paint = rc.FilterQuality != SKFilterQuality.None || this.RenderOpacityByte != 255 ? new SKPaint() : null;
-                if (paint != null) {
-                    paint.FilterQuality = rc.FilterQuality;
-                    paint.Color = SKColors.White.WithAlpha(this.RenderOpacityByte);
-                }
-
-                rc.Canvas.DrawImage(img, 0, 0, paint);
-
-                renderArea = rc.TranslateRect(new SKRect(0, 0, img.Width, img.Height));
-                // renderArea = new SKRect(0, 0, img.Width, img.Height);
+            using SKPixmap pixmap = new SKPixmap(image, (IntPtr) ptr, rowBytes);
+            using SKImage img = SKImage.FromPixels(pixmap, null, null);
+            if (img == null) {
+                return;
             }
+
+            using SKPaint? paint = rc.FilterQuality != SKFilterQuality.None || this.RenderOpacityByte != 255 ? new SKPaint() : null;
+            if (paint != null) {
+                paint.FilterQuality = rc.FilterQuality;
+                paint.Color = SKColors.White.WithAlpha(this.RenderOpacityByte);
+            }
+
+            rc.Canvas.DrawImage(img, 0, 0, paint);
+
+            renderArea = rc.TranslateRect(new SKRect(0, 0, image.Width, image.Height));
 
             // long time = Time.GetSystemTicks() - startA;
             // System.Diagnostics.Debug.WriteLine("Last render time: " + Math.Round((double) time) / Time.TICK_PER_MILLIS + " ms");

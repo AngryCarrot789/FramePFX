@@ -25,6 +25,7 @@ using FramePFX.FFmpeg;
 using FramePFX.FFmpegWrapper;
 using FramePFX.FFmpegWrapper.Codecs;
 using FramePFX.FFmpegWrapper.Containers;
+using FramePFX.Logging;
 using FramePFX.Utils;
 using FramePFX.Utils.Destroying;
 using SkiaSharp;
@@ -120,7 +121,14 @@ public class ResourceAVMedia : ResourceItem {
         if (this.stream != null) {
             //Wrappers don't expose this stuff so :')
             AVCodecParameters* pars = this.stream.Handle->codecpar;
-            return new SKSizeI(pars->width, pars->height);
+            if (pars != null) {
+                try {
+                    return new SKSizeI(pars->width, pars->height);
+                }
+                catch (AccessViolationException) {
+                    AppLogger.Instance.WriteLine("Stream was invalid while reading resolution");
+                }
+            }
         }
 
         return null;

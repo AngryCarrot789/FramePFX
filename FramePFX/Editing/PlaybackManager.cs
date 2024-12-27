@@ -21,6 +21,7 @@ using System.Diagnostics;
 using Fractions;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.Timelines;
+using FramePFX.Logging;
 using FramePFX.Natives;
 using FramePFX.Utils;
 
@@ -334,8 +335,8 @@ public class PlaybackManager {
             }
             catch (Exception e) {
                 this.thread_IsPlaying = false;
-                // AppLogger.Instance.WriteLine("Render exception on playback thread");
-                // AppLogger.Instance.WriteLine(e.GetToString());
+                AppLogger.Instance.WriteLine("Render exception on playback thread");
+                AppLogger.Instance.WriteLine(e.GetToString());
             }
         }
 

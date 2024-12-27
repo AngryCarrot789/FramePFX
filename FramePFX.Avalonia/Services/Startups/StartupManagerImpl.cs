@@ -88,6 +88,10 @@ public class StartupManagerImpl : StartupManager {
             
             return Application.Instance.Dispatcher.InvokeAsync(() => OpenEditorAsMainWindow(editor));
         });
+        
+        if (global::Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+            desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+        }
             
         this.Close();
         return Task.CompletedTask;

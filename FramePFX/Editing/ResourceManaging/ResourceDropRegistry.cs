@@ -22,6 +22,7 @@ using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Logging;
 using FramePFX.Utils;
 
 namespace FramePFX.Editing.ResourceManaging;
@@ -188,7 +189,7 @@ public class ResourceDropRegistry {
             }
             else {
                 Debug.Assert(false, "No parent");
-                // AppLogger.Instance.WriteLine("A resource was dropped with a null parent???");
+                AppLogger.Instance.WriteLine("A resource was dropped with a null parent???");
             }
         }
 

@@ -31,6 +31,7 @@ using FramePFX.BaseFrontEnd.Bindings;
 using FramePFX.BaseFrontEnd.Themes.Controls;
 using FramePFX.Editing.Exporting;
 using FramePFX.Editing.Timelines;
+using FramePFX.Logging;
 using FramePFX.Services.Messaging;
 using FramePFX.Tasks;
 using FramePFX.Utils;
@@ -161,7 +162,7 @@ public partial class ExportDialog : WindowEx {
                 File.Delete(setup.FilePath);
             }
             catch (Exception ex) {
-                // AppLogger.Instance.WriteLine("Failed to delete cancelled export's file: " + ex.GetToString());
+                AppLogger.Instance.WriteLine("Failed to delete cancelled export's file: " + ex.GetToString());
             }
         }
 

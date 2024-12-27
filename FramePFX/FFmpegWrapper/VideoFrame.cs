@@ -162,6 +162,9 @@ public unsafe class VideoFrame : MediaFrame {
     /// <summary> Copy data from this frame to <paramref name="dest"/>. At least one of <see langword="this"/> or <paramref name="dest"/> must be a hardware frame. </summary>
     public void TransferTo(VideoFrame dest) {
         this.ValidateNotDisposed();
+        if (this.frame == null)
+            throw new ObjectDisposedException("this", "This object is disposed due to a null frame");
+        
         FFUtils.CheckError(ffmpeg.av_hwframe_transfer_data(dest.Handle, this.frame, 0), "Failed to transfer data from hardware frame");
     }
 

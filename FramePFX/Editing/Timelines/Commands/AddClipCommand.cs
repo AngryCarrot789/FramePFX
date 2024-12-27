@@ -21,7 +21,6 @@ using FramePFX.CommandSystem;
 using FramePFX.Editing.Factories;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.Resources;
-using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Clips.Core;
 using FramePFX.Editing.Timelines.Tracks;

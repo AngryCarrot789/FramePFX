@@ -17,8 +17,10 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using FramePFX.Services.Messaging;
+using FramePFX.Utils;
 using FramePFX.Utils.BTE;
 
 namespace FramePFX.Editing.ResourceManaging.NewResourceHelper;
@@ -52,6 +54,7 @@ public class ResourceHelper {
             return false;
         }
 
+        Debug.Assert(value != null, "ResourceItem should not be null since it's in the reference map");
         resource = (T) value;
         return true;
     }
@@ -97,6 +100,9 @@ public class ResourceHelper {
     }
 
     private void SetResourceInternal(ResourceSlot slot, ResourceItem resource) {
+        Validate.NotNull(slot);
+        Validate.NotNull(resource);
+        
         InternalBeginValueChange(slot, this);
         ResourceItem? oldResource = null;
         if (this.references != null && this.references.TryGetValue(slot, out oldResource)) {
@@ -188,7 +194,7 @@ public class ResourceHelper {
             throw new InvalidOperationException("Cannot deserialise while references are loaded");
         }
 
-        if (data.TryGetElement("ResourceMap", out BTEDictionary resourceMapDictionary)) {
+        if (data.TryGetElement("ResourceMap", out BTEDictionary? resourceMapDictionary)) {
             foreach (KeyValuePair<string, BinaryTreeElement> pair in resourceMapDictionary.Map) {
                 string globalKey = pair.Key;
                 BTEDictionary resourceReferenceData = (BTEDictionary) pair.Value;
@@ -213,7 +219,7 @@ public class ResourceHelper {
 
         this.manager = newManager;
         foreach ((ResourceSlot Slot, ulong Id) tuple in this.resourcesToLoad) {
-            if (newManager.TryGetEntryItem(tuple.Id, out ResourceItem resource)) {
+            if (newManager.TryGetEntryItem(tuple.Id, out ResourceItem? resource)) {
                 if (resource.HasReachedResourceLimit()) {
                     limitReachedResources?.Add(resource);
                 }

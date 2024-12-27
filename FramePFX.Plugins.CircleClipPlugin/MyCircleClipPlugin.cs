@@ -22,7 +22,6 @@ using FramePFX.CommandSystem;
 using FramePFX.Editing;
 using FramePFX.Editing.ContextRegistries;
 using FramePFX.Editing.Factories;
-using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Commands;
 using FramePFX.Editing.Timelines.Tracks;

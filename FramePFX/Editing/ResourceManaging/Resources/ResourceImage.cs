@@ -20,6 +20,8 @@
 using System.Runtime.InteropServices;
 using FramePFX.Editing.ResourceManaging.Autoloading;
 using FramePFX.Editing.ResourceManaging.Events;
+using FramePFX.Logging;
+using FramePFX.Utils;
 using SkiaSharp;
 
 namespace FramePFX.Editing.ResourceManaging.Resources;
@@ -152,7 +154,7 @@ public class ResourceImage : ResourceItem {
                 await this.LoadImageAsync(imgEntry.FilePath);
             }
             catch (Exception e) {
-                // AppLogger.Instance.WriteLine("Failed to autoload load image file: " + e.GetToString());
+                AppLogger.Instance.WriteLine("Failed to autoload load image file: " + e.GetToString());
                 return false;
             }
         }

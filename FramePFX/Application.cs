@@ -251,6 +251,8 @@ public abstract class Application : IServiceable {
     protected static async Task InternalLoadPlugins(IApplicationStartupProgress progress) {
         List<BasePluginLoadException> exceptions = new List<BasePluginLoadException>();
 
+        Instance.PluginLoader.LoadCorePlugins(exceptions);
+        
 #if DEBUG
         // Load plugins in the solution folder
         string solutionPluginFolder = Path.GetFullPath(@"..\\..\\..\\..\\..\\Plugins");
@@ -263,7 +265,7 @@ public abstract class Application : IServiceable {
         if (Directory.Exists("Plugins")) {
             await Instance.PluginLoader.LoadPlugins("Plugins", exceptions);
         }
-
+        
         if (exceptions.Count > 0) {
             await IMessageDialogService.Instance.ShowMessage("Errors", "One or more exceptions occurred while loading plugins", new AggregateException(exceptions).ToString());
         }

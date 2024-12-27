@@ -26,6 +26,7 @@ using FramePFX.Editing.Exporting;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.Timelines;
 using FramePFX.FFmpegWrapper;
+using FramePFX.Logging;
 using FramePFX.Utils;
 using SkiaSharp;
 
@@ -277,7 +278,7 @@ public class FFmpegExportContext : BaseExportContext {
 
                     Debugger.Break();
                     Debug.Assert(false);
-                    // AppLogger.Instance.WriteLine("Exception while rendering project timeline: " + e.GetToString());
+                    AppLogger.Instance.WriteLine("Exception while rendering project timeline: " + e.GetToString());
                 }
 
                 surface.Flush();

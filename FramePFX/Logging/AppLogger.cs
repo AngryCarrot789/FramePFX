@@ -38,10 +38,18 @@ public class AppLogger {
         this.entries = new ObservableList<LogEntry>();
         this.Entries = new ReadOnlyObservableList<LogEntry>(this.entries);
 
+#if DEBUG
+        if (System.Diagnostics.Debugger.IsAttached) {
+            ObservableItemProcessor.MakeSimple(this.entries, (e) => {
+                System.Diagnostics.Debug.WriteLine($"[{e.LogTime:hh:mm:ss}] {e.Content}");
+            }, null);
+        }
+#endif
+
         // We use a delayed flushing mechanism in order to reduce complete UI stall if
         // some random thread is dumping 10000s of log entries into the UI.
         this.cachedEntries = new List<LogEntry>();
-        this.delayedFlush = new RateLimitedDispatchAction(this.FlushEntries, TimeSpan.FromMilliseconds(50)) {DebugName = nameof(AppLogger)};
+        this.delayedFlush = new RateLimitedDispatchAction(this.FlushEntries, TimeSpan.FromMilliseconds(50)) { DebugName = nameof(AppLogger) };
     }
 
     static AppLogger() {

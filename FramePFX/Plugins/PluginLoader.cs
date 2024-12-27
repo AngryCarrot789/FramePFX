@@ -50,9 +50,12 @@ public sealed class PluginLoader {
         (this.corePlugins ??= new List<CorePluginDescriptor>()).Add(descriptor);
     }
 
-    public async Task LoadPlugins(string pluginsFolder, List<BasePluginLoadException> exceptions) {
-        pluginsFolder = Path.GetFullPath(pluginsFolder);
-        foreach (CorePluginDescriptor descriptor in this.corePlugins ?? []) {
+    public void LoadCorePlugins(List<BasePluginLoadException> exceptions) {
+        if (this.corePlugins == null) {
+            return;
+        }
+        
+        foreach (CorePluginDescriptor descriptor in this.corePlugins) {
             Plugin? instance;
             try {
                 instance = (Plugin?) Activator.CreateInstance(descriptor.PluginType) ?? throw new InvalidOperationException($"Failed to create plugin instance of type {descriptor.PluginType}");
@@ -65,6 +68,12 @@ public sealed class PluginLoader {
             this.OnPluginCreated(null, instance, descriptor);
         }
         
+        this.corePlugins.Clear();
+        this.corePlugins = null;
+    }
+
+    public async Task LoadPlugins(string pluginsFolder, List<BasePluginLoadException> exceptions) {
+        pluginsFolder = Path.GetFullPath(pluginsFolder);
         string[] dirs;
         try {
             dirs = Directory.GetDirectories(pluginsFolder);

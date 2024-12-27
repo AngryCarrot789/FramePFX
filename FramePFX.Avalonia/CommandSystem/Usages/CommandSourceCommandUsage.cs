@@ -58,7 +58,7 @@ public class CommandSourceCommandUsage : CommandUsage {
         SetCommand(this.Control, null);
     }
 
-    protected override void UpdateCanExecute() => this.command?.RaiseCanExecuteChanged();
+    public override void UpdateCanExecute() => this.command?.RaiseCanExecuteChanged();
 
     private class CoreCommandICommand : ICommand {
         private readonly CommandSourceCommandUsage usage;

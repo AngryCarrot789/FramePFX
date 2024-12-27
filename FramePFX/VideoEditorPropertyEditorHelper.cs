@@ -17,9 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Editing.UI;
@@ -27,11 +24,9 @@ using FramePFX.PropertyEditing;
 using FramePFX.Utils;
 using FramePFX.Utils.RDA;
 
-namespace FramePFX.Avalonia;
+namespace FramePFX;
 
 public static class VideoEditorPropertyEditorHelper {
-    public static VideoEditorPropertyEditor PropertyEditor => VideoEditorPropertyEditor.Instance;
-
     private static readonly RateLimitedDispatchAction<ITimelineElement> rateLimitedClipUpdate, rateLimitedTrackUpdate;
 
     static VideoEditorPropertyEditorHelper() {
@@ -65,41 +60,47 @@ public static class VideoEditorPropertyEditorHelper {
     }
 
     private static void UpdateClipSelection(ITimelineElement timeline) {
+        VideoEditorPropertyEditor propertyEditor = timeline.VideoEditor.PropertyEditor;
+        
         List<IClipElement> selection = timeline.ClipSelection.SelectedItems.ToList();
         List<Clip> modelList = selection.Select(x => x.Clip).ToList();
 
         // This check can massively improve performance, especially if there's plenty of clip effects
-        if (modelList.CollectionEquals(PropertyEditor.ClipGroup.Handlers))
+        if (modelList.CollectionEquals(propertyEditor.ClipGroup.Handlers))
             return;
 
-        PropertyEditor.ClipGroup.SetupHierarchyState(modelList);
+        propertyEditor.ClipGroup.SetupHierarchyState(modelList);
         if (selection.Count == 1) {
-            PropertyEditor.ClipEffectListGroup.SetupHierarchyState(selection[0].Clip);
+            propertyEditor.ClipEffectListGroup.SetupHierarchyState(selection[0].Clip);
         }
         else {
-            PropertyEditor.ClipEffectListGroup.ClearHierarchy();
+            propertyEditor.ClipEffectListGroup.ClearHierarchy();
         }
     }
 
     private static void UpdateTrackSelection(ITimelineElement timeline) {
+        VideoEditorPropertyEditor propertyEditor = timeline.VideoEditor.PropertyEditor;
+        
         List<ITrackElement> selection = timeline.Selection.SelectedItems.ToList();
         List<Track> modelList = selection.Select(x => x.Track).ToList();
-        if (modelList.CollectionEquals(PropertyEditor.TrackGroup.Handlers))
+        if (modelList.CollectionEquals(propertyEditor.TrackGroup.Handlers))
             return;
 
-        PropertyEditor.TrackGroup.SetupHierarchyState(modelList);
+        propertyEditor.TrackGroup.SetupHierarchyState(modelList);
         if (selection.Count == 1) {
-            PropertyEditor.TrackEffectListGroup.SetupHierarchyState(selection[0].Track);
+            propertyEditor.TrackEffectListGroup.SetupHierarchyState(selection[0].Track);
         }
         else {
-            PropertyEditor.TrackEffectListGroup.ClearHierarchy();
+            propertyEditor.TrackEffectListGroup.ClearHierarchy();
         }
     }
 
-    public static void OnProjectChanged() {
-        PropertyEditor.ClipEffectListGroup.ClearHierarchy();
-        PropertyEditor.TrackEffectListGroup.ClearHierarchy();
-        PropertyEditor.ClipGroup.ClearHierarchy();
-        PropertyEditor.TrackGroup.ClearHierarchy();
+    public static void OnProjectChanged(IVideoEditorWindow videoEditor) {
+        VideoEditorPropertyEditor propertyEditor = videoEditor.PropertyEditor;
+        
+        propertyEditor.ClipEffectListGroup.ClearHierarchy();
+        propertyEditor.TrackEffectListGroup.ClearHierarchy();
+        propertyEditor.ClipGroup.ClearHierarchy();
+        propertyEditor.TrackGroup.ClearHierarchy();
     }
 }

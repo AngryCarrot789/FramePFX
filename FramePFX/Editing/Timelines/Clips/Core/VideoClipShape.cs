@@ -58,9 +58,13 @@ public class VideoClipShape : VideoClip {
             if (newItem != null)
                 newItem.ColourChanged += this.OnColourChanged;
         });
+        
+        this.UpdateAutomaticScaleAndRotationOrigin(true);
     }
 
-    static VideoClipShape() => SizeParameter.ValueChanged += sequence => ((VideoClipShape) sequence.AutomationData.Owner).OnRenderSizeChanged();
+    static VideoClipShape() {
+        SizeParameter.ValueChanged += sequence => ((VideoClipShape) sequence.AutomationData.Owner).OnRenderSizeChanged();
+    }
 
     private void OnColourChanged(BaseResource resource) {
         this.InvalidateRender();

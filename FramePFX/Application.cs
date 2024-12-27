@@ -27,7 +27,10 @@ using FramePFX.Editing.ResourceManaging.Commands;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Commands;
 using FramePFX.Natives;
+using FramePFX.Plugins;
+using FramePFX.Plugins.Exceptions;
 using FramePFX.Services;
+using FramePFX.Services.Messaging;
 using FramePFX.Tasks;
 
 namespace FramePFX;
@@ -73,12 +76,16 @@ public abstract class Application : IServiceable {
     /// </summary>
     public int CurrentBuild => this.CurrentVersion.Build;
 
+    public PluginLoader PluginLoader { get; }
+
     protected Application() {
         this.ServiceManager = new ServiceManager(this);
+        this.PluginLoader = new PluginLoader();
+        // this.PluginLoader.RegisterCorePlugin(CorePluginDescriptor.FindType("FramePFX.CircleClipPlugin.MyCircleClipPlugin"));
     }
 
     protected abstract Task<bool> LoadKeyMapAsync();
-    
+
     /// <summary>
     /// Invoked when the application is initialised
     /// </summary>
@@ -214,7 +221,7 @@ public abstract class Application : IServiceable {
 
             await progress.ProgressAndSynchroniseAsync("Loading keymap...");
             await instance.LoadKeyMapAsync();
-            
+
             await progress.ProgressAndSynchroniseAsync(null, 0.75);
             using (progress.CompletionState.PushCompletionRange(0.75, 1.0)) {
                 await instance.OnInitialised(progress);
@@ -224,7 +231,30 @@ public abstract class Application : IServiceable {
         await progress.SynchroniseAsync();
     }
 
+    protected static async Task InternalLoadPlugins(IApplicationStartupProgress progress) {
+        List<BasePluginLoadException> exceptions = new List<BasePluginLoadException>();
+
+        // Load plugins in the solution folder
+        string solutionPluginFolder = Path.GetFullPath(@"..\\..\\..\\..\\..\\Plugins");
+        if (Directory.Exists(solutionPluginFolder)) {
+            await Instance.PluginLoader.LoadPlugins(solutionPluginFolder, exceptions);
+        }
+        
+        // Load full release plugins
+        if (Directory.Exists("Plugins")) {
+            await Instance.PluginLoader.LoadPlugins("Plugins", exceptions);
+        }
+
+        if (exceptions.Count > 0) {
+            await IMessageDialogService.Instance.ShowMessage("Errors", "One or more exceptions occurred while loading plugins", new AggregateException(exceptions).ToString());
+        }
+
+        await progress.ProgressAndSynchroniseAsync("Initialising plugins...", 0.5);
+        Instance.PluginLoader.RegisterCommands(CommandManager.Instance);
+        Instance.PluginLoader.RegisterServices();
+    }
+
     protected static void InternalOnExit(int exitCode) => instance!.OnExit(exitCode);
 
-    protected static Task InternalOnInitialised2() => instance!.OnFullyInitialised();
+    protected static Task InternalOnFullyInitialisedImpl() => instance!.OnFullyInitialised();
 }

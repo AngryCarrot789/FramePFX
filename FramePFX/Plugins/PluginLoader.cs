@@ -25,8 +25,9 @@ using FramePFX.Plugins.XML;
 
 namespace FramePFX.Plugins;
 
-public class PluginLoader {
+public sealed class PluginLoader {
     private readonly List<Plugin> plugins;
+    private List<CorePluginDescriptor>? corePlugins;
 
     public ReadOnlyCollection<Plugin> Plugins { get; }
 
@@ -35,11 +36,38 @@ public class PluginLoader {
         this.Plugins = this.plugins.AsReadOnly();
     }
 
+    public void RegisterCorePlugin(CorePluginDescriptor descriptor) {
+        (this.corePlugins ??= new List<CorePluginDescriptor>()).Add(descriptor);
+    }
+
     public async Task LoadPlugins(string pluginsFolder, List<BasePluginLoadException> exceptions) {
-        foreach (string folder in Directory.GetDirectories(pluginsFolder)) {
-            (Plugin, PluginDescriptor)? info = null;
+        pluginsFolder = Path.GetFullPath(pluginsFolder);
+        foreach (CorePluginDescriptor descriptor in this.corePlugins ?? []) {
+            Plugin? instance;
             try {
-                info = await LoadPlugin(folder);
+                instance = (Plugin?) Activator.CreateInstance(descriptor.PluginType) ?? throw new InvalidOperationException($"Failed to create plugin instance of type {descriptor.PluginType}");
+            }
+            catch (Exception e) {
+                exceptions.Add(new BasePluginLoadException("Failed to create instance of plugin", e));
+                continue;
+            }
+
+            this.OnPluginCreated(pluginsFolder, instance, descriptor);
+        }
+        
+        string[] dirs;
+        try {
+            dirs = Directory.GetDirectories(pluginsFolder);
+        }
+        catch {
+            // Plugins dir doesn't exist maybe
+            dirs = [];
+        }
+
+        foreach (string folder in dirs) {
+            (Plugin, AssemblyPluginDescriptor)? info = null;
+            try {
+                info = await ReadDescriptorAndCreatePluginInstance(folder);
             }
             catch (BasePluginLoadException e) {
                 exceptions.Add(e);
@@ -59,12 +87,20 @@ public class PluginLoader {
             plugin.RegisterCommands(manager);
         }
     }
+    public void RegisterServices() {
+        foreach (Plugin plugin in this.plugins) {
+            plugin.RegisterServices();
+        }
+    }
 
     private void OnPluginCreated(string pluginsFolder, Plugin plugin, PluginDescriptor descriptor) {
-        List<string>? list = descriptor.XamlResources;
-        if (list?.Count > 0) {
-            for (int i = list.Count - 1; i >= 0; i--) {
-                list[i] = Path.GetFullPath(Path.Combine(pluginsFolder, list[i]));
+        if (descriptor is AssemblyPluginDescriptor assemblyPluginDescriptor) {
+            // TODO: inject xaml into application resources
+            List<string>? list = assemblyPluginDescriptor.XamlResources;
+            if (list?.Count > 0) {
+                for (int i = list.Count - 1; i >= 0; i--) {
+                    list[i] = Path.GetFullPath(Path.Combine(pluginsFolder, list[i]));
+                }
             }
         }
 
@@ -75,9 +111,9 @@ public class PluginLoader {
         plugin.OnCreated();
     }
 
-    private static async Task<(Plugin, PluginDescriptor)> LoadPlugin(string folder) {
+    private static async Task<(Plugin, AssemblyPluginDescriptor)> ReadDescriptorAndCreatePluginInstance(string folder) {
         string path = Path.Combine(folder, "plugin.xml");
-        PluginDescriptor descriptor;
+        AssemblyPluginDescriptor descriptor;
 
         try {
             await using FileStream stream = new FileStream(path, FileMode.Open);
@@ -94,7 +130,7 @@ public class PluginLoader {
 
         Assembly assembly;
         try {
-            assembly = Assembly.LoadFrom(descriptor.EntryPointLibraryPath);
+            assembly = Assembly.LoadFrom(Path.Combine(folder, descriptor.EntryPointLibraryPath));
         }
         catch (Exception e) {
             throw new PluginAssemblyLoadException(e);
@@ -119,9 +155,15 @@ public class PluginLoader {
         return (plugin, descriptor);
     }
 
-    public async Task OnApplicationInitialised() {
+    public async Task OnApplicationLoaded() {
         foreach (Plugin plugin in this.plugins) {
             await plugin.OnApplicationLoaded();
+        }
+    }
+    
+    public void OnApplicationExiting() {
+        foreach (Plugin plugin in this.plugins) {
+            plugin.OnApplicationExiting();
         }
     }
 }

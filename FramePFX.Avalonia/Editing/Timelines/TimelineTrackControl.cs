@@ -35,6 +35,7 @@ using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Utils;
 using FramePFX.Editing;
 using FramePFX.Editing.Automation.Keyframes;
+using FramePFX.Editing.ContextRegistries;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Clips;
@@ -141,7 +142,7 @@ public class TimelineTrackControl : TemplatedControl {
 
     protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
-        AdvancedContextMenu.SetContextRegistry(this, Track.TimelineTrackContextRegistry);
+        AdvancedContextMenu.SetContextRegistry(this, TrackContextRegistry.TimelineTrackContextRegistry);
     }
 
     protected override void OnUnloaded(RoutedEventArgs e) {

@@ -17,6 +17,8 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace FramePFX.Utils.BTE;
 
 /// <summary>
@@ -48,7 +50,7 @@ public class BTEList : BinaryTreeElement {
         return this.List.Cast<T>();
     }
 
-    private bool GetElementByType<T>(int index, out T value) where T : BinaryTreeElement {
+    private bool GetElementByType<T>(int index, [NotNullWhen(true)] out T? value) where T : BinaryTreeElement {
         if (index >= 0 && index < this.List.Count) {
             if (this.List[index] is T val) {
                 value = val;
@@ -64,40 +66,40 @@ public class BTEList : BinaryTreeElement {
         }
     }
 
-    public BTEDictionary GetDictionaryElement(int index) {
-        return this.GetElementByType(index, out BTEDictionary bte) ? bte : null;
+    public BTEDictionary? GetDictionaryElement(int index) {
+        return this.GetElementByType(index, out BTEDictionary? bte) ? bte : null;
     }
 
-    public Dictionary<string, BinaryTreeElement> GetDictionary(int index, Dictionary<string, BinaryTreeElement> def = null) {
-        return this.GetElementByType(index, out BTEDictionary bte) ? bte.Map : def;
+    public Dictionary<string, BinaryTreeElement>? GetDictionary(int index, Dictionary<string, BinaryTreeElement>? def = null) {
+        return this.GetElementByType(index, out BTEDictionary? bte) ? bte.Map : def;
     }
 
-    public bool TryGetDictionary(int index, out Dictionary<string, BinaryTreeElement> value) {
-        BTEDictionary element = this.GetDictionaryElement(index);
+    public bool TryGetDictionary(int index, [NotNullWhen(true)] out Dictionary<string, BinaryTreeElement>? value) {
+        BTEDictionary? element = this.GetDictionaryElement(index);
         value = element?.Map;
         return element != null;
     }
 
-    public BTEList GetListElement(int index) {
-        return this.GetElementByType(index, out BTEList bte) ? bte : null;
+    public BTEList? GetListElement(int index) {
+        return this.GetElementByType(index, out BTEList? bte) ? bte : null;
     }
 
-    public List<BinaryTreeElement> GetList(int index, List<BinaryTreeElement> def = null) {
-        return this.GetElementByType(index, out BTEList bte) ? bte.List : def;
+    public List<BinaryTreeElement>? GetList(int index, List<BinaryTreeElement>? def = null) {
+        return this.GetElementByType(index, out BTEList? bte) ? bte.List : def;
     }
 
-    public bool TryGetList(int index, out List<BinaryTreeElement> value) {
-        BTEList element = this.GetListElement(index);
+    public bool TryGetList(int index, [NotNullWhen(true)] out List<BinaryTreeElement>? value) {
+        BTEList? element = this.GetListElement(index);
         value = element?.List;
         return element != null;
     }
 
     public BTEByte GetInt8Element(int index) {
-        return this.GetElementByType(index, out BTEByte bte) ? bte : null;
+        return this.GetElementByType(index, out BTEByte? bte) ? bte : null;
     }
 
     public byte GetInt8(int index, byte def = default) {
-        return this.GetElementByType(index, out BTEByte bte) ? bte.Value : def;
+        return this.GetElementByType(index, out BTEByte? bte) ? bte.Value : def;
     }
 
     public bool TryGetInt8(int index, out byte value) {
@@ -107,11 +109,11 @@ public class BTEList : BinaryTreeElement {
     }
 
     public BTEShort GetInt16Element(int index) {
-        return this.GetElementByType(index, out BTEShort bte) ? bte : null;
+        return this.GetElementByType(index, out BTEShort? bte) ? bte : null;
     }
 
     public short GetInt16(int index, short def = default) {
-        return this.GetElementByType(index, out BTEShort bte) ? bte.Value : def;
+        return this.GetElementByType(index, out BTEShort? bte) ? bte.Value : def;
     }
 
     public bool TryGetInt16(int index, out short value) {
@@ -121,11 +123,11 @@ public class BTEList : BinaryTreeElement {
     }
 
     public BTEInt GetInt32Element(int index) {
-        return this.GetElementByType(index, out BTEInt bte) ? bte : null;
+        return this.GetElementByType(index, out BTEInt? bte) ? bte : null;
     }
 
     public int GetInt32(int index, int def = default) {
-        return this.GetElementByType(index, out BTEInt bte) ? bte.Value : def;
+        return this.GetElementByType(index, out BTEInt? bte) ? bte.Value : def;
     }
 
     public bool TryGetInt32(int index, out int value) {
@@ -134,76 +136,76 @@ public class BTEList : BinaryTreeElement {
         return element != null;
     }
 
-    public BTELong GetInt64Element(int index) {
-        return this.GetElementByType(index, out BTELong bte) ? bte : null;
+    public BTELong? GetInt64Element(int index) {
+        return this.GetElementByType(index, out BTELong? bte) ? bte : null;
     }
 
     public long GetInt64(int index, long def = default) {
-        return this.GetElementByType(index, out BTELong bte) ? bte.Value : def;
+        return this.GetElementByType(index, out BTELong? bte) ? bte.Value : def;
     }
 
     public bool TryGetInt64(int index, out long value) {
-        BTELong element = this.GetInt64Element(index);
+        BTELong? element = this.GetInt64Element(index);
         value = element?.Value ?? default;
         return element != null;
     }
 
-    public BTEFloat GetFloatElement(int index) {
-        return this.GetElementByType(index, out BTEFloat bte) ? bte : null;
+    public BTEFloat? GetFloatElement(int index) {
+        return this.GetElementByType(index, out BTEFloat? bte) ? bte : null;
     }
 
     public float GetFloat(int index, float def = default) {
-        return this.GetElementByType(index, out BTEFloat bte) ? bte.Value : def;
+        return this.GetElementByType(index, out BTEFloat? bte) ? bte.Value : def;
     }
 
     public bool TryGetFloat(int index, out float value) {
-        BTEFloat element = this.GetFloatElement(index);
+        BTEFloat? element = this.GetFloatElement(index);
         value = element?.Value ?? default;
         return element != null;
     }
 
-    public BTEDouble GetDoubleElement(int index) {
-        return this.GetElementByType(index, out BTEDouble bte) ? bte : null;
+    public BTEDouble? GetDoubleElement(int index) {
+        return this.GetElementByType(index, out BTEDouble? bte) ? bte : null;
     }
 
     public double GetDouble(int index, double def = default) {
-        return this.GetElementByType(index, out BTEDouble bte) ? bte.Value : def;
+        return this.GetElementByType(index, out BTEDouble? bte) ? bte.Value : def;
     }
 
     public bool TryGetDouble(int index, out double value) {
-        BTEDouble element = this.GetDoubleElement(index);
+        BTEDouble? element = this.GetDoubleElement(index);
         value = element?.Value ?? default;
         return element != null;
     }
 
-    public BTEStruct GetStructElement(int index) {
-        return this.GetElementByType(index, out BTEStruct bte) ? bte : null;
+    public BTEStruct? GetStructElement(int index) {
+        return this.GetElementByType(index, out BTEStruct? bte) ? bte : null;
     }
 
-    public BTEStructArray GetStructArrayElement(int index) {
-        return this.GetElementByType(index, out BTEStructArray bte) ? bte : null;
+    public BTEStructArray? GetStructArrayElement(int index) {
+        return this.GetElementByType(index, out BTEStructArray? bte) ? bte : null;
     }
 
     public T GetStruct<T>(int index) where T : unmanaged {
-        return this.GetElementByType(index, out BTEStruct value) ? value.GetValue<T>() : default;
+        return this.GetElementByType(index, out BTEStruct? value) ? value.GetValue<T>() : default;
     }
 
     public T GetStruct<T>(int index, T def) where T : unmanaged {
-        return this.GetElementByType(index, out BTEStruct value) ? value.GetValue<T>() : def;
+        return this.GetElementByType(index, out BTEStruct? value) ? value.GetValue<T>() : def;
     }
 
     public bool TryGetStruct<T>(int index, out T value) where T : unmanaged {
-        BTEStruct element = this.GetStructElement(index);
+        BTEStruct? element = this.GetStructElement(index);
         value = element?.GetValue<T>() ?? default;
         return element != null;
     }
 
-    public T[] GetStructArray<T>(int index, T[] def = default) where T : unmanaged {
-        return this.GetElementByType(index, out BTEStructArray value) ? value.GetValues<T>() : def;
+    public T[]? GetStructArray<T>(int index, T[]? def = default) where T : unmanaged {
+        return this.GetElementByType(index, out BTEStructArray? value) ? value.GetValues<T>() : def;
     }
 
-    public bool TryGetStructArray<T>(int index, out T[] value) where T : unmanaged {
-        BTEStructArray element = this.GetStructArrayElement(index);
+    public bool TryGetStructArray<T>(int index, out T[]? value) where T : unmanaged {
+        BTEStructArray? element = this.GetStructArrayElement(index);
         value = element?.GetValues<T>();
         return value != null;
     }
@@ -212,13 +214,13 @@ public class BTEList : BinaryTreeElement {
         this.List.Add(element);
     }
 
-    public BTEDictionary AddDictionary(Dictionary<string, BinaryTreeElement> value = null) {
+    public BTEDictionary AddDictionary(Dictionary<string, BinaryTreeElement>? value = null) {
         BTEDictionary dictionary = new BTEDictionary(value ?? new Dictionary<string, BinaryTreeElement>());
         this.List.Add(dictionary);
         return dictionary;
     }
 
-    public BTEList AddList(List<BinaryTreeElement> value = null) {
+    public BTEList AddList(List<BinaryTreeElement>? value = null) {
         BTEList list = new BTEList(value ?? new List<BinaryTreeElement>());
         this.List.Add(list);
         return list;

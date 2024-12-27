@@ -24,8 +24,8 @@ namespace FramePFX.Avalonia.Editing;
 /// <summary>
 /// A button that handles automatically playing and pausing/stopping the playback
 /// </summary>
-public class TogglePlayStateButton : PlayStateButton {
-    public TogglePlayStateButton() {
+public class TogglePlayStateButtonControl : PlayStateButtonControl {
+    public TogglePlayStateButtonControl() {
         this.CommandId = "commands.editor.TogglePlayCommand";
     }
 

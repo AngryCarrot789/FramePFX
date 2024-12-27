@@ -20,13 +20,13 @@
 using System;
 using System.Text;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using FramePFX.Avalonia.Interactivity;
 using FramePFX.Avalonia.Interactivity.Contexts;
 using FramePFX.Avalonia.Themes.Controls;
+using FramePFX.Avalonia.Utils;
 using FramePFX.Editing;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.Timelines;
@@ -42,12 +42,9 @@ using SkiaSharp;
 namespace FramePFX.Avalonia;
 
 public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
-    public static readonly StyledProperty<VideoEditor?> VideoEditorProperty = AvaloniaProperty.Register<EditorWindow, VideoEditor?>(nameof(VideoEditor));
-
-    public VideoEditor? VideoEditor {
-        get => this.GetValue(VideoEditorProperty)!;
-        set => this.SetValue(VideoEditorProperty, value);
-    }
+    public VideoEditor VideoEditor { get; }
+    
+    public VideoEditorPropertyEditor PropertyEditor { get; }
 
     ITimelineElement IVideoEditorWindow.TimelineElement => this.TheTimeline;
 
@@ -56,8 +53,13 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
     private RateLimitedDispatchAction<Timeline> updateFpsInfoRlda;
     private Project? activeProject;
 
-    public EditorWindow() {
+    public EditorWindow(VideoEditor videoEditor) {
+        this.VideoEditor = videoEditor;
         this.InitializeComponent();
+        TemplateUtils.ApplyRecursive(this);
+        this.PropertyEditor = new VideoEditorPropertyEditor();
+        // this.Measure(default);
+        
 
         // average 5 samples. Will take a second to catch up when playing at 5 fps but meh
         this.renderTimeAverager = new NumberAverager(5);
@@ -82,14 +84,22 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
         TaskManager taskManager = TaskManager.Instance;
         taskManager.TaskStarted += this.OnTaskStarted;
         taskManager.TaskCompleted += this.OnTaskCompleted;
-    }
 
+        using (MultiChangeToken myDataBatch = DataManager.GetContextData(this).BeginChange()) {
+            videoEditor.ProjectChanged += this.OnProjectChanged;
+            videoEditor.IsExportingChanged += this.OnIsExportingChanged;
+            TemplateUtils.Apply(this.PART_ViewPort);
+            this.PART_ViewPort.Owner = this;
+            this.PART_ViewPort.VideoEditor = videoEditor;
+            this.OnProjectChanged(null, videoEditor.Project);
+            this.OnIsExportingChanged(videoEditor);
+
+            myDataBatch.Context.Set(DataKeys.VideoEditorKey, videoEditor);
+        }
+    }
+    
     private void OnTimelineClipSelectionChanged(ILightSelectionManager<IClipElement> sender) {
         this.PART_ViewPort.OnClipSelectionChanged();
-    }
-
-    static EditorWindow() {
-        VideoEditorProperty.Changed.AddClassHandler<EditorWindow, VideoEditor?>((d, e) => d.OnVideoEditorChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
     }
 
     protected override void OnLoaded(RoutedEventArgs e) {
@@ -97,7 +107,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
         DataManager.GetContextData(this).Set(DataKeys.ResourceManagerUIKey, this.PART_ResourcePanelControl);
 
         this.ThePropertyEditor.ApplyTemplate();
-        this.ThePropertyEditor.PropertyEditor = VideoEditorPropertyEditor.Instance;
+        this.ThePropertyEditor.PropertyEditor = this.PropertyEditor;
         this.PART_ActiveBackgroundTaskGrid.IsVisible = false;
         ((ILightSelectionManager<IClipElement>) this.TheTimeline.ClipSelectionManager!).SelectionChanged += this.OnTimelineClipSelectionChanged;
         this.PART_ViewPort.OnClipSelectionChanged();
@@ -121,30 +131,6 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
     private void OnApplicationTitleBarBrushChanged(EditorConfigurationOptions sender) {
         SKColor c = sender.TitleBarBrush;
         this.TitleBarBrush = new ImmutableSolidColorBrush(new Color(c.Alpha, c.Red, c.Green, c.Blue));
-    }
-
-    private void OnVideoEditorChanged(VideoEditor? oldEditor, VideoEditor? newEditor) {
-        using var myDataBatch = DataManager.GetContextData(this).BeginChange();
-        if (oldEditor != null) {
-            oldEditor.ProjectChanged -= this.OnProjectChanged;
-            Project? oldProject = oldEditor.Project;
-            if (oldProject != null)
-                this.OnProjectChanged(oldProject, null);
-
-            this.PART_ViewPort.VideoEditor = null;
-            oldEditor.IsExportingChanged -= this.OnIsExportingChanged;
-        }
-
-        if (newEditor != null) {
-            newEditor.ProjectChanged += this.OnProjectChanged;
-            newEditor.IsExportingChanged += this.OnIsExportingChanged;
-            this.PART_ViewPort.Owner = this;
-            this.PART_ViewPort.VideoEditor = newEditor;
-            this.OnProjectChanged(null, newEditor.Project);
-            this.OnIsExportingChanged(newEditor);
-        }
-
-        myDataBatch.Context.Set(DataKeys.VideoEditorKey, newEditor);
     }
 
     private void OnIsExportingChanged(VideoEditor editor) {
@@ -180,7 +166,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
         // DataManager.GetContextData(this).Set(DataKeys.TrackSelectionManagerKey, newProject);
         // DataManager.GetContextData(this).Set(DataKeys.ClipSelectionManagerKey, newProject);
         // DataManager.GetContextData(this).Set(DataKeys.TimelineClipSelectionManagerKey, newProject);
-        VideoEditorPropertyEditorHelper.OnProjectChanged();
+        VideoEditorPropertyEditorHelper.OnProjectChanged(this);
 
         Application.Instance.Dispatcher.InvokeAsync(() => {
             this.PART_ViewPort?.PART_FreeMoveViewPort?.FitContentToCenter();
@@ -320,7 +306,7 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
     #endregion
 
     private void CloseTimelineClick(object? sender, RoutedEventArgs e) {
-        if (this.VideoEditor?.Project is Project project) {
+        if (this.VideoEditor.Project is Project project) {
             project.ActiveTimeline = project.MainTimeline;
         }
     }
@@ -331,16 +317,14 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
 
     protected override void OnClosed(EventArgs e) {
         if (this.activeProject != null) {
-            this.VideoEditor!.CloseProject();
+            this.VideoEditor.CloseProject();
         }
 
-        this.VideoEditor?.Destroy();
-        this.VideoEditor = null;
+        this.VideoEditor.Destroy();
         base.OnClosed(e);
     }
 
     public async Task CloseEditor() {
         this.Close();
-        
     }
 }

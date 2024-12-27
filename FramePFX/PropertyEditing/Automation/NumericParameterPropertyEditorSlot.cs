@@ -41,6 +41,6 @@ public abstract class NumericParameterPropertyEditorSlot : ParameterPropertyEdit
 
     public event SlotValueFormatterChangedEventHandler? ValueFormatterChanged;
 
-    protected NumericParameterPropertyEditorSlot(Parameter parameter, Type applicableType, string displayName = null) : base(parameter, applicableType, displayName) {
+    protected NumericParameterPropertyEditorSlot(Parameter parameter, Type applicableType, string? displayName = null) : base(parameter, applicableType, displayName) {
     }
 }

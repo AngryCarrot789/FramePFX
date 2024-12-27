@@ -80,18 +80,24 @@ public partial class App : global::Avalonia.Application {
             }
 #endif
         }
+        
+        await progress.ProgressAndSynchroniseAsync("Loading plugins", 0.7);
+        using (progress.CompletionState.PushCompletionRange(0.7, 0.9)) {
+            await ApplicationImpl.InternalLoadPluginsImpl(progress);
+        }
 
-        await progress.ProgressAndSynchroniseAsync("Finalizing startup...", 0.9);
+        await progress.ProgressAndSynchroniseAsync("Finalizing startup...", 0.99);
+        await ApplicationImpl.InternalOnInitialised();
+        await Application.Instance.PluginLoader.OnApplicationLoaded();
         if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             (progress as AppSplashScreen)?.Close();
             await StartupManager.Instance.ShowStartupOrOpenProject(envArgs.Length > 1 ? envArgs.Skip(1).ToArray() : Array.Empty<string>());
             desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
         }
-
-        await ApplicationImpl.InternalOnInitialised();
     }
 
     private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e) {
+        Application.Instance.PluginLoader.OnApplicationExiting();
         ApplicationImpl.InternalOnExited(e.ApplicationExitCode);
     }
 }

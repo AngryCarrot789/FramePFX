@@ -65,6 +65,8 @@ public class AVMediaVideoClip : VideoClip {
                     clip.scaler = null;
                 }
             }
+            
+            clip.OnRenderSizeChanged();
         };
     }
 

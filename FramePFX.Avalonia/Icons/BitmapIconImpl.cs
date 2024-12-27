@@ -1,5 +1,5 @@
 // 
-// Copyright (c) 2023-2024 REghZy
+// Copyright (c) 2024-2024 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -17,21 +17,24 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using SkiaSharp;
+using Avalonia;
+using Avalonia.Markup.Xaml.MarkupExtensions;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
 
 namespace FramePFX.Avalonia.Icons;
 
-/// <summary>
-/// A class that manages a set of registered icons throughout the application. This is used to simply icon usage
-/// </summary>
-public class IconManager {
-    public IconKey RegisterIconByFilePath(string name, string filePath) {
-        // Try to find an existing icon with the same file path. Share pixel data, maybe using a wrapper, because icons are lazily loaded
-        return null;
+public class BitmapIconImpl : AbstractAvaloniaIcon {
+    public Bitmap Bitmap { get; }
+    
+    public BitmapIconImpl(string name, Bitmap bitmap) : base(name) {
+        this.Bitmap = bitmap;
+        
+        DynamicResourceExtension extension = new DynamicResourceExtension("okay");
+        
     }
 
-    public IconKey RegisterIconUsingBitmap(string name, SKBitmap bitmap) {
-        // Try to find an existing icon with the same file path. Share pixel data, maybe using a wrapper, because icons are lazily loaded
-        return null;
+    public override void Render(DrawingContext context, Rect rect) {
+        context.DrawImage(this.Bitmap, rect);
     }
 }

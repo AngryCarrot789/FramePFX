@@ -1,5 +1,5 @@
 // 
-// Copyright (c) 2023-2024 REghZy
+// Copyright (c) 2024-2024 REghZy
 // 
 // This file is part of FramePFX.
 // 
@@ -17,10 +17,12 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-namespace FramePFX.Avalonia.Icons;
+namespace FramePFX.Avalonia.Editing.Toolbars;
 
-/// <summary>
-/// A key for a registered icon. This is used to access the icon itself and also obtain information about the icon
-/// </summary>
-public class IconKey {
+public class PlayStateToolbarButton : AbstractToolbarButtonImpl {
+    public PlayStateButtonControl Button { get; }
+
+    public PlayStateToolbarButton(PlayStateButtonControl button) : base(null) {
+        this.Button = button;
+    }
 }

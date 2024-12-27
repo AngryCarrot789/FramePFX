@@ -206,19 +206,19 @@
                         <DockPanel LastChildFill="False">
                             <Border DockPanel.Dock="Left" Background="{DynamicResource PanelBorderBrush}" BorderBrush="{Binding RelativeSource={RelativeSource Self}, Path=Background}" BorderThickness="0,0,1,0">
                                 <StackPanel Spacing="1" Orientation="Horizontal">
-                                    <ap:TogglePlayStateButton Focusable="False"
+                                    <ap:TogglePlayStateButtonControl Focusable="False"
                                                               Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderThickness="0"
                                                               Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
                                                               ToolTip.Tip="Play or pause playback"/>
-                                    <ap:PlayStateButton Focusable="False" Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
+                                    <ap:PlayStateButtonControl Focusable="False" Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
                                                         Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderThickness="0"
                                                         PlayState="Play" CommandId="commands.editor.PlaybackPlayCommand"
                                                         ToolTip.Tip="Start playback"/>
-                                    <ap:PlayStateButton Focusable="False" Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
+                                    <ap:PlayStateButtonControl Focusable="False" Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
                                                         Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderThickness="0"
                                                         PlayState="Pause" CommandId="commands.editor.PlaybackPauseCommand"
                                                         ToolTip.Tip="Pause playback, keeping the play head at the current frame"/>
-                                    <ap:PlayStateButton Focusable="False" Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
+                                    <ap:PlayStateButtonControl Focusable="False" Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
                                                         Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderThickness="0"
                                                         PlayState="Stop" CommandId="commands.editor.PlaybackStopCommand"
                                                         ToolTip.Tip="Stop playback, returning the play head to the stop head location"/>

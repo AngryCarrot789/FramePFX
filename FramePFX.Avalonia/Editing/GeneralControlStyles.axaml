@@ -23,7 +23,7 @@
         </Grid>
     </DataTemplate>
 
-    <ControlTheme x:Key="{x:Type c:PlayStateButton}" TargetType="{x:Type c:PlayStateButton}" BasedOn="{StaticResource {x:Type Button}}">
+    <ControlTheme x:Key="{x:Type c:PlayStateButtonControl}" TargetType="{x:Type c:PlayStateButtonControl}" BasedOn="{StaticResource {x:Type Button}}">
         <Style Selector="^[PlayState=Play]">
             <Setter Property="ContentTemplate" Value="{StaticResource PlayStateButton_PlayContentTemplate}"/>
         </Style>
@@ -34,7 +34,7 @@
             <Setter Property="ContentTemplate" Value="{StaticResource PlayStateButton_StopContentTemplate}"/>
         </Style>
     </ControlTheme>
-    <ControlTheme x:Key="{x:Type c:TogglePlayStateButton}" TargetType="{x:Type c:TogglePlayStateButton}" BasedOn="{StaticResource {x:Type c:PlayStateButton}}">
+    <ControlTheme x:Key="{x:Type c:TogglePlayStateButtonControl}" TargetType="{x:Type c:TogglePlayStateButtonControl}" BasedOn="{StaticResource {x:Type c:PlayStateButtonControl}}">
         <Style Selector="^[PlayState=Play]">
             <Setter Property="ContentTemplate" Value="{StaticResource TogglePlayStateButton_PlayContentTemplate}"/>
         </Style>

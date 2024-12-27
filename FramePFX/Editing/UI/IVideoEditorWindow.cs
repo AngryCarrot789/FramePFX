@@ -17,21 +17,28 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.PropertyEditing;
+
 namespace FramePFX.Editing.UI;
 
 /// <summary>
-/// An interface for the UI of a video editor window
+/// The video editor UI window
 /// </summary>
 public interface IVideoEditorWindow {
     /// <summary>
     /// Gets our video editor model
     /// </summary>
-    VideoEditor? VideoEditor { get; }
+    VideoEditor VideoEditor { get; }
 
     /// <summary>
     /// Gets the timeline UI
     /// </summary>
     ITimelineElement TimelineElement { get; }
+
+    /// <summary>
+    /// Gets the main property editor for the video editor
+    /// </summary>
+    VideoEditorPropertyEditor PropertyEditor { get; }
 
     /// <summary>
     /// Makes the view port take up as much space in the view port area

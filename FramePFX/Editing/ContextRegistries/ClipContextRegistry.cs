@@ -27,7 +27,7 @@ namespace FramePFX.Editing.ContextRegistries;
 
 public static class ClipContextRegistry {
     public static readonly ContextRegistry Registry = new ContextRegistry("Clips");
-
+    
     static ClipContextRegistry() {
         FixedContextGroup modGeneric = Registry.GetFixedGroup("modify.general");
         modGeneric.AddHeader("General");

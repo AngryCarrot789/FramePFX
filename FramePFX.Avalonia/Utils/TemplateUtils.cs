@@ -22,6 +22,7 @@ using System.Diagnostics.CodeAnalysis;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.VisualTree;
 
 namespace FramePFX.Avalonia.Utils;
 
@@ -74,5 +75,18 @@ public static class TemplateUtils {
     /// <returns>True if the child was found, or false if not</returns>
     public static bool TryGetTemplateChild<T>(this INameScope scope, string childName, [NotNullWhen(true)] out T? value) where T : AvaloniaObject {
         return (value = scope?.Find(childName) as T) != null;
+    }
+
+    public static void Apply(Control control) {
+        control.ApplyStyling();
+        control.ApplyTemplate();
+    }
+    
+    public static void ApplyRecursive(Control control) {
+        Apply(control);
+        foreach (Visual child in control.GetVisualChildren()) {
+            if (child is Control)
+                ApplyRecursive((Control) child);
+        }
     }
 }

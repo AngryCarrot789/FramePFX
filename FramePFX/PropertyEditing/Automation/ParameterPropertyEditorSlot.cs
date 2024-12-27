@@ -87,7 +87,7 @@ public abstract class ParameterPropertyEditorSlot : PropertyEditorSlot {
     public event ParameterPropertyEditorSlotEventHandler? HasMultipleValuesChanged;
     public event ParameterPropertyEditorSlotEventHandler? HasProcessedMultipleValuesChanged;
 
-    protected ParameterPropertyEditorSlot(Parameter parameter, Type applicableType, string displayName = null) : base(applicableType) {
+    protected ParameterPropertyEditorSlot(Parameter parameter, Type applicableType, string? displayName = null) : base(applicableType) {
         this.Parameter = parameter ?? throw new ArgumentNullException(nameof(parameter));
         this.displayName = displayName ?? parameter.Key.ToString();
         this.IsSelectedChanged += this.OnIsSelectedChanged;

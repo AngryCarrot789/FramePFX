@@ -52,6 +52,12 @@ public abstract class BaseRateLimitedDispatchAction {
         }
     }
 
+    public string? DebugName { get; set; }
+
+#if DEBUG
+    private StackTrace CreationStackTrace { get; } = new StackTrace();
+#endif
+
     protected BaseRateLimitedDispatchAction() : this(DefaultTimeout) { }
 
     protected BaseRateLimitedDispatchAction(TimeSpan minimumInterval) {
@@ -250,6 +256,10 @@ public abstract class BaseRateLimitedDispatchAction {
     }
 
     #endregion
+
+    public sealed override string ToString() {
+        return this.GetType().Name + (string.IsNullOrWhiteSpace(this.DebugName) ? "" : $" ({this.DebugName})");
+    }
 }
 
 /// <summary>

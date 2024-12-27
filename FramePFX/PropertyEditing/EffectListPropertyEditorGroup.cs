@@ -26,7 +26,7 @@ namespace FramePFX.PropertyEditing;
 /// A group which manages a collection of effects
 /// </summary>
 public class EffectListPropertyEditorGroup : BasePropertyEditorGroup {
-    public IHaveEffects EffectOwner { get; private set; }
+    public IHaveEffects? EffectOwner { get; private set; }
 
     public EffectListPropertyEditorGroup() : base(typeof(object)) {
         this.DisplayName = "Effects";
@@ -58,7 +58,7 @@ public class EffectListPropertyEditorGroup : BasePropertyEditorGroup {
     /// <see cref="BasePropertyObjectViewModel.IsCurrentlyApplicable"/> is set to true and the hierarchy is loaded
     /// </summary>
     /// <param name="input">Input list of objects</param>
-    public virtual void SetupHierarchyState(IHaveEffects owner) {
+    public virtual void SetupHierarchyState(IHaveEffects? owner) {
         this.ClearHierarchy();
         if (owner == null) {
             return;

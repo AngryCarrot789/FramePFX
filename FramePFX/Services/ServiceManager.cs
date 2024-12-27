@@ -157,6 +157,18 @@ public sealed class ServiceManager {
         Validate.NotNull(factory);
         this.services[typeof(T)] = new ServiceEntry(true, new Func<object, object>(o => factory(o)!));
     }
+    
+    /// <summary>
+    /// Gets or registers a lazily creatable service
+    /// </summary>
+    /// <param name="factory"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public T GetOrCreateService<T>(Func<T> factory) where T : class {
+        if (!this.TryGetService(out T? value))
+            this.RegisterConstant(value = factory());
+        return value;
+    }
 
     private readonly struct ServiceEntry {
         public readonly bool isLazyEntry;

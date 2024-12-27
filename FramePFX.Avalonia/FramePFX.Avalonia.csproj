@@ -57,10 +57,42 @@
 
     <ItemGroup>
         <AdditionalFiles Include="AvControls\Dragger\NumberDraggerStyles.axaml"/>
-        <AdditionalFiles Include="Services\Messages\Controls\DoubleUserInputControl.axaml"/>
-        <AdditionalFiles Include="Services\Messages\Controls\MessageBoxDialog.axaml"/>
-        <AdditionalFiles Include="Services\Messages\Controls\SingleUserInputControl.axaml"/>
-        <AdditionalFiles Include="Services\Messages\Controls\UserInputDialog.axaml"/>
+        <AdditionalFiles Include="Services\Colours\ColourUserInputControl.axaml" />
+        <AdditionalFiles Include="Services\Startups\StartupWindow.axaml" />
+        <AdditionalFiles Include="Shortcuts\Dialogs\KeyStrokeUserInputControl.axaml" />
+        <AdditionalFiles Include="Shortcuts\Dialogs\MouseStrokeUserInputControl.axaml" />
+        <AdditionalFiles Include="Shortcuts\Trees\ShortcutTreeThemes.axaml" />
+        <AdditionalFiles Include="Themes\Colours\SoftDark.axaml" />
+        <AdditionalFiles Include="Themes\ControlColours.axaml" />
+        <AdditionalFiles Include="Themes\Controls.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\Button.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\ButtonSpinner.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\CheckBox.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\ComboBox.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\ComboBoxItem.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\ContextMenus.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\GridSplitter.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\GroupBox.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\ListBox.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\ListBoxItem.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\Menu.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\MenuFlyoutPresenter.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\MenuItem.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\ProgressBar.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\RadioButton.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\RepeatButton.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\ScrollBar.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\ScrollViewer.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\Separator.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\Slider.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\TabControl.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\TabItem.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\TextBox.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\Thumb.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\ToggleButton.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\TreeView.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\TreeViewItem.axaml" />
+        <AdditionalFiles Include="Themes\ControlStyles\Window.axaml" />
     </ItemGroup>
 
     <ItemGroup>
@@ -75,9 +107,14 @@
         <UpToDateCheckInput Remove="PicNet\Toolbars\Controls\ToolBarItemStyles.axaml"/>
         <UpToDateCheckInput Remove="Editing\Controls\Dragger\NumberDraggerStyles.axaml"/>
         <UpToDateCheckInput Remove="Editing\Controls\GeneralControlStyles.axaml"/>
+        <UpToDateCheckInput Remove="Services\Colours\ColourUserInputControl.axaml" />
+        <UpToDateCheckInput Remove="Shortcuts\Dialogs\KeyStrokeUserInputControl.axaml" />
+        <UpToDateCheckInput Remove="Shortcuts\Dialogs\MouseStrokeUserInputControl.axaml" />
+        <UpToDateCheckInput Remove="Shortcuts\Trees\ShortcutTreeThemes.axaml" />
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\FramePFX.Controls\FramePFX.Controls.csproj"/>
         <ProjectReference Include="..\FramePFX\FramePFX.csproj"/>
     </ItemGroup>
 

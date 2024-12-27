@@ -34,17 +34,27 @@ namespace FramePFX.PropertyEditing;
 /// A class which stores the video editor's general property editor information
 /// </summary>
 public class VideoEditorPropertyEditor : PropertyEditor {
-    public static VideoEditorPropertyEditor Instance { get; } = new VideoEditorPropertyEditor();
-
+    /// <summary>
+    /// Gets the property editor group used to present selected clip(s) properties
+    /// </summary>
     public SimplePropertyEditorGroup ClipGroup { get; }
 
+    /// <summary>
+    /// Gets the property editor group used to present selected track(s) properties
+    /// </summary>
     public SimplePropertyEditorGroup TrackGroup { get; }
 
+    /// <summary>
+    /// Gets the special property editor group used to present the effects of the selected clip(s)
+    /// </summary>
     public EffectListPropertyEditorGroup ClipEffectListGroup { get; }
 
+    /// <summary>
+    /// Gets the special property editor group used to present the effects of the selected track(s)
+    /// </summary>
     public EffectListPropertyEditorGroup TrackEffectListGroup { get; }
 
-    private VideoEditorPropertyEditor() {
+    public VideoEditorPropertyEditor() {
         {
             this.ClipGroup = new SimplePropertyEditorGroup(typeof(Clip)) {
                 DisplayName = "Clip", IsExpanded = true
@@ -121,12 +131,5 @@ public class VideoEditorPropertyEditor : PropertyEditor {
         }
 
         this.Root.AddItem(this.TrackGroup);
-    }
-
-    public void OnProjectChanged() {
-        this.ClipEffectListGroup.ClearHierarchy();
-        this.TrackEffectListGroup.ClearHierarchy();
-        this.ClipGroup.ClearHierarchy();
-        this.TrackGroup.ClearHierarchy();
     }
 }

@@ -24,14 +24,14 @@ using FramePFX.Utils;
 namespace FramePFX.Plugins.XML;
 
 public static class PluginDescriptorParser {
-    public static PluginDescriptor Parse(Stream stream) {
+    public static AssemblyPluginDescriptor Parse(Stream stream) {
         XmlDocument document = new XmlDocument();
         document.Load(stream);
         if (!(document.SelectSingleNode("/Plugin") is XmlElement pluginRoot)) {
             throw new Exception("Expected element of type 'Plugin' to be the root element for the XML document");
         }
 
-        return new PluginDescriptor() {
+        return new AssemblyPluginDescriptor() {
             EntryPoint = GetAttributeNullable(pluginRoot, "EntryPoint", true),
             EntryPointLibraryPath = GetAttributeNullable(pluginRoot, "EntryPointLibraryPath", true),
             XamlResources = ParseXamlResources(pluginRoot).ToList()

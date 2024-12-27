@@ -27,7 +27,6 @@ using FramePFX.Editing.Timelines.Clips.Core;
 using FramePFX.Editing.Timelines.Clips.Video;
 using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.History;
-using FramePFX.PropertyEditing;
 using FramePFX.Services;
 using FramePFX.Utils.Destroying;
 
@@ -41,7 +40,7 @@ public delegate void ProjectChangedEventHandler(VideoEditor editor, Project oldP
 public delegate void VideoEditorEventHandler(VideoEditor editor);
 
 /// <summary>
-/// The class which stores all of the data for the video editor application
+/// The model class for an editor window
 /// </summary>
 public class VideoEditor : IServiceable, IDestroy {
     private bool isExporting;
@@ -202,8 +201,6 @@ public class VideoEditor : IServiceable, IDestroy {
 
         this.Playback.SetFrameRate(settings.FrameRate);
         this.ProjectChanged?.Invoke(this, null, project);
-        VideoEditorPropertyEditor.Instance.OnProjectChanged();
-
         Application.Instance.Dispatcher.InvokeAsync(() => {
             this.Project?.ActiveTimeline.InvalidateRender();
         }, DispatchPriority.Background);
@@ -224,7 +221,6 @@ public class VideoEditor : IServiceable, IDestroy {
         this.Project = null;
         this.ProjectChanged?.Invoke(this, oldProject, null);
         Project.OnClosed(this, oldProject);
-        VideoEditorPropertyEditor.Instance.OnProjectChanged();
         this.HistoryManager.Clear();
     }
 

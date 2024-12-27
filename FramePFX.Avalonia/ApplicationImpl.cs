@@ -30,7 +30,9 @@ using Avalonia.Threading;
 using FFmpeg.AutoGen;
 using FramePFX.Avalonia.Configurations;
 using FramePFX.Avalonia.Editing.ResourceManaging.Autoloading;
+using FramePFX.Avalonia.Editing.Toolbars;
 using FramePFX.Avalonia.Exporting;
+using FramePFX.Avalonia.Icons;
 using FramePFX.Avalonia.Services;
 using FramePFX.Avalonia.Services.Colours;
 using FramePFX.Avalonia.Services.Files;
@@ -40,6 +42,8 @@ using FramePFX.Avalonia.Shortcuts.Dialogs;
 using FramePFX.Configurations;
 using FramePFX.Editing.Exporting;
 using FramePFX.Editing.ResourceManaging;
+using FramePFX.Editing.Toolbars;
+using FramePFX.Icons;
 using FramePFX.Natives;
 using FramePFX.Services;
 using FramePFX.Services.ColourPicking;
@@ -67,7 +71,9 @@ public class ApplicationImpl : Application {
     }
     
     protected override void RegisterServices(ServiceManager manager) {
+        manager.RegisterConstant<IconManager>(new IconManagerImpl());
         manager.RegisterConstant<ShortcutManager>(new AvaloniaShortcutManager());
+        manager.RegisterConstant<StartupManager>(new StartupManagerImpl());
         base.RegisterServices(manager);
         manager.RegisterConstant<IMessageDialogService>(new MessageDialogServiceImpl());
         manager.RegisterConstant<IUserInputDialogService>(new InputDialogServiceImpl());
@@ -78,7 +84,7 @@ public class ApplicationImpl : Application {
         manager.RegisterConstant<IConfigurationDialogService>(new ConfigurationDialogServiceImpl());
         manager.RegisterConstant<IInputStrokeQueryDialogService>(new InputStrokeDialogsImpl());
         manager.RegisterConstant<IVideoEditorService>(new VideoEditorServiceImpl());
-        manager.RegisterConstant<StartupManager>(new StartupManagerImpl());
+        manager.RegisterConstant<TimelineToolBarManager>(new TimelineToolBarManagerImpl());
     }
 
     protected override async Task<bool> LoadKeyMapAsync() {
@@ -156,9 +162,11 @@ public class ApplicationImpl : Application {
 
     internal static Task InternalInitialiseImpl(IApplicationStartupProgress progress) => InternalInitialise(progress);
 
+    internal static Task InternalLoadPluginsImpl(IApplicationStartupProgress progress) => InternalLoadPlugins(progress);
+
     internal static void InternalOnExited(int exitCode) => InternalOnExit(exitCode);
 
-    internal static Task InternalOnInitialised() => InternalOnInitialised2();
+    internal static Task InternalOnInitialised() => InternalOnFullyInitialisedImpl();
 
     private class DispatcherImpl : IDispatcher {
         private static readonly Action EmptyAction = () => {

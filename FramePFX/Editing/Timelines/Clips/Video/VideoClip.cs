@@ -228,8 +228,8 @@ public abstract class VideoClip : Clip {
 
         Parameter.AddMultipleHandlers(s => ((VideoClip) s.AutomationData.Owner).InvalidateTransformationMatrix(), MediaPositionParameter, MediaScaleParameter, MediaRotationParameter);
         DataParameter.AddMultipleHandlers((p, o) => ((VideoClip) o).InvalidateTransformationMatrix(), MediaScaleOriginParameter, MediaRotationOriginParameter);
-        IsMediaScaleOriginAutomaticParameter.PriorityValueChanged += (parameter, owner) => ((VideoClip) owner).UpdateAutomaticScaleOrigin();
-        IsMediaRotationOriginAutomaticParameter.PriorityValueChanged += (parameter, owner) => ((VideoClip) owner).UpdateAutomaticRotationOrigin();
+        IsMediaScaleOriginAutomaticParameter.PriorityValueChanged += (parameter, owner) => ((VideoClip) owner).UpdateAutomaticScaleOrigin(false);
+        IsMediaRotationOriginAutomaticParameter.PriorityValueChanged += (parameter, owner) => ((VideoClip) owner).UpdateAutomaticRotationOrigin(false);
     }
 
     /// <summary>
@@ -299,18 +299,35 @@ public abstract class VideoClip : Clip {
         this.isMatrixDirty = false;
     }
 
-    protected void UpdateAutomaticScaleOrigin() {
+    protected void UpdateAutomaticScaleOrigin(bool isInitialising) {
         if (this.IsMediaScaleOriginAutomatic) {
             SKSize size = this.GetSizeForAutomaticOrigins();
-            MediaScaleOriginParameter.SetValue(this, new Vector2(size.Width / 2, size.Height / 2));
+            Vector2 value = new Vector2(size.Width / 2, size.Height / 2);
+            if (isInitialising) {
+                this.MediaScaleOrigin = value;
+            }
+            else {
+                MediaScaleOriginParameter.SetValue(this, value);
+            }
         }
     }
 
-    protected void UpdateAutomaticRotationOrigin() {
+    protected void UpdateAutomaticRotationOrigin(bool isInitialising) {
         if (this.IsMediaRotationOriginAutomatic) {
             SKSize size = this.GetSizeForAutomaticOrigins();
-            MediaRotationOriginParameter.SetValue(this, new Vector2(size.Width / 2, size.Height / 2));
+            Vector2 value = new Vector2(size.Width / 2, size.Height / 2);
+            if (isInitialising) {
+                this.MediaRotationOrigin = value;
+            }
+            else {
+                MediaRotationOriginParameter.SetValue(this, value);
+            }
         }
+    }
+    
+    protected void UpdateAutomaticScaleAndRotationOrigin(bool isInitialising) {
+        this.UpdateAutomaticScaleOrigin(isInitialising);
+        this.UpdateAutomaticRotationOrigin(isInitialising);
     }
 
     public virtual SKSize GetSizeForAutomaticOrigins() {
@@ -336,8 +353,7 @@ public abstract class VideoClip : Clip {
     public virtual Vector2? GetRenderSize() => null;
 
     protected virtual void OnRenderSizeChanged() {
-        this.UpdateAutomaticScaleOrigin();
-        this.UpdateAutomaticRotationOrigin();
+        this.UpdateAutomaticScaleAndRotationOrigin(false);
         this.InvalidateRender();
     }
 

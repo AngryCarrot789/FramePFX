@@ -2,15 +2,14 @@
             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-            xmlns:sa="clr-namespace:FramePFX.Avalonia.AdvancedMenuService"
             xmlns:pe="clr-namespace:FramePFX.Avalonia.PropertyEditing"
             xmlns:av="clr-namespace:FramePFX.Avalonia.Shortcuts.Avalonia"
             xmlns:c="clr-namespace:FramePFX.Avalonia.Themes.Controls"
             xmlns:tl="clr-namespace:FramePFX.Avalonia.Editing.Timelines"
             xmlns:c1="clr-namespace:FramePFX.Avalonia.Editing"
             xmlns:resourceManaging="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging"
-            xmlns:commandSystem="clr-namespace:FramePFX.CommandSystem;assembly=FramePFX-core"
             xmlns:usages="clr-namespace:FramePFX.Avalonia.CommandSystem.Usages"
+            xmlns:sa="clr-namespace:FramePFX.Avalonia.AdvancedMenuService"
             mc:Ignorable="d"
             x:Class="FramePFX.Avalonia.EditorWindow"
             Background="{DynamicResource PanelBackground0}"
@@ -23,8 +22,13 @@
             Title="FramePFX">
     <Grid Margin="0" x:Name="PART_EditorWindowContent">
         <Grid.RowDefinitions>
+            <!-- Top menu row -->
             <RowDefinition Height="Auto"/>
+            
+            <!-- Main content rows -->
             <RowDefinition Height="*"/>
+
+            <!-- Status bar row -->
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <!-- 
@@ -52,7 +56,7 @@
                                     ToolTip.Tip="Exports the currently active timeline only (not the project timeline)"/>
             </MenuItem>
         </sa:ContextCapturingMenu>
-        <Grid Grid.Row="1" x:Name="PART_MainVideoEditorContent">
+        <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" MinHeight="100"/>
                 <RowDefinition Height="1"/>
@@ -104,16 +108,16 @@
 
                                 <!-- Center Panel -->
                                 <StackPanel Margin="0,4" Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <c1:TogglePlayStateButton Width="24" Focusable="False" ToolTip.Tip="Play or pause playback"/>
-                                    <c1:PlayStateButton Width="24" Focusable="False"
+                                    <c1:TogglePlayStateButtonControl Width="24" Focusable="False" ToolTip.Tip="Play or pause playback"/>
+                                    <c1:PlayStateButtonControl Width="24" Focusable="False"
                                                         HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Play"
                                                         CommandId="commands.editor.PlaybackPlayCommand"
                                                         ToolTip.Tip="Start playback"/>
-                                    <c1:PlayStateButton Width="24" Focusable="False"
+                                    <c1:PlayStateButtonControl Width="24" Focusable="False"
                                                         HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Pause"
                                                         CommandId="commands.editor.PlaybackPauseCommand"
                                                         ToolTip.Tip="Pause playback, keeping the play head at the current frame"/>
-                                    <c1:PlayStateButton Width="24" Focusable="False"
+                                    <c1:PlayStateButtonControl Width="24" Focusable="False"
                                                         HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Stop"
                                                         CommandId="commands.editor.PlaybackStopCommand"
                                                         ToolTip.Tip="Stop playback, returning the play head to the stop head location"/>

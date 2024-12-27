@@ -1,3 +1,22 @@
+// 
+// Copyright (c) 2024-2024 REghZy
+// 
+// This file is part of FramePFX.
+// 
+// FramePFX is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either
+// version 3.0 of the License, or (at your option) any later version.
+// 
+// FramePFX is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// Lesser General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
+// 
+
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -28,7 +47,7 @@ public abstract class BaseControlContextData : IControlContextData {
     protected BaseControlContextData(AvaloniaObject owner) {
         this.Owner = owner;
     }
-    
+
     protected BaseControlContextData(AvaloniaObject owner, IControlContextData? copyFrom) : this(owner) {
         this.CopyFrom(copyFrom?.Entries);
     }
@@ -53,7 +72,7 @@ public abstract class BaseControlContextData : IControlContextData {
         else if (this.batchCounter > 0) {
             (this.myBatchModifications ??= new List<ModificationEntry>()).Add(new ModificationEntry(key, value));
         }
-        else {
+        else if (this.myData == null || !this.myData.TryGetValue(key, out object? existing) || !ReferenceEquals(existing, value)) {
             (this.myData ??= new Dictionary<string, object>())[key] = value;
             DataManager.InvalidateInheritedContext(this.Owner);
         }
@@ -104,7 +123,7 @@ public abstract class BaseControlContextData : IControlContextData {
         entry = default;
         return false;
     }
-    
+
     protected void ProcessBatches() {
         if (this.myBatchModifications == null || this.myBatchModifications.Count < 1) {
             return;
@@ -120,13 +139,13 @@ public abstract class BaseControlContextData : IControlContextData {
                 myMap.Remove(entry.Key);
             }
         }
-            
+
         this.myBatchModifications = null;
         DataManager.InvalidateInheritedContext(this.Owner);
     }
-    
+
     public abstract MultiChangeToken BeginChange();
-    
+
     public IControlContextData CreateInherited(IContextData inherited) {
         return new InheritingControlContextData(this, inherited);
     }
@@ -135,7 +154,7 @@ public abstract class BaseControlContextData : IControlContextData {
         if (--this.batchCounter == 0)
             this.ProcessBatches();
     }
-    
+
     public override string ToString() {
         string details = "";
         if (this.myData != null && this.myData.Count > 0) {

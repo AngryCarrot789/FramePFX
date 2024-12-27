@@ -32,6 +32,7 @@ using Avalonia.VisualTree;
 using FramePFX.Avalonia.AdvancedMenuService;
 using FramePFX.Avalonia.Editing.Timelines.Selection;
 using FramePFX.Avalonia.Utils;
+using FramePFX.Editing.ContextRegistries;
 using FramePFX.Editing.UI;
 using FramePFX.Utils;
 using Track = FramePFX.Editing.Timelines.Tracks.Track;
@@ -78,7 +79,7 @@ public class TrackControlSurfaceItem : ContentControl {
     protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
         Dispatcher.UIThread.InvokeAsync(() => this.isMovingBetweenTracks = false, DispatcherPriority.Send);
-        AdvancedContextMenu.SetContextRegistry(this, Track.TrackControlSurfaceContextRegistry);
+        AdvancedContextMenu.SetContextRegistry(this, TrackContextRegistry.TrackControlSurfaceContextRegistry);
     }
 
     protected override void OnUnloaded(RoutedEventArgs e) {

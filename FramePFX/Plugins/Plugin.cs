@@ -46,8 +46,19 @@ public abstract class Plugin {
     public abstract void RegisterCommands(CommandManager manager);
 
     /// <summary>
-    /// Invoked when the application has loaded. This is invoked before an editor window is created
+    /// Register this plugin's services
+    /// </summary>
+    public abstract void RegisterServices();
+    
+    /// <summary>
+    /// Invoked when the application has loaded. This is invoked before any editor window is created.
+    /// Things like context menus, clip types, resource types, etc., should be registered here
     /// </summary>
     /// <returns></returns>
     public abstract Task OnApplicationLoaded();
+    
+    /// <summary>
+    /// Invoked when the application is about to exit. This is sort of pointless, but it exists just in case
+    /// </summary>
+    public abstract void OnApplicationExiting();
 }

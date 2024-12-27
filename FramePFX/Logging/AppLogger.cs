@@ -41,7 +41,7 @@ public class AppLogger {
         // We use a delayed flushing mechanism in order to reduce complete UI stall if
         // some random thread is dumping 10000s of log entries into the UI.
         this.cachedEntries = new List<LogEntry>();
-        this.delayedFlush = new RateLimitedDispatchAction(this.FlushEntries, TimeSpan.FromMilliseconds(50));
+        this.delayedFlush = new RateLimitedDispatchAction(this.FlushEntries, TimeSpan.FromMilliseconds(50)) {DebugName = nameof(AppLogger)};
     }
 
     static AppLogger() {

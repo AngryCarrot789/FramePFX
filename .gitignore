@@ -32,7 +32,12 @@ bld/
 [Oo]ut/
 [Ll]og/
 [Ll]ogs/
+
+# Exclude binaries copied into this by native project build process
 NativeEngineBinaries/
+
+# Exclude core plugins folder
+Plugins/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/

@@ -37,15 +37,14 @@ namespace FramePFX.Avalonia.CommandSystem.Usages;
 /// executability state to be re-queried from the command based on the new contextual data
 /// </para>
 /// </summary>
-public abstract class CommandUsage {
+public abstract class CommandUsage : ICommandUsage {
     // Since its invoke method is only called from the main thread,
     // there's no need for the extended version
     private RapidDispatchAction? delayedContextUpdate;
 
-    /// <summary>
-    /// Gets the target command ID for this usage instance. This is not null, not empty and does not consist of whitespaces only
-    /// </summary>
     public string CommandId { get; }
+
+    IContextData ICommandUsage.ContextData => this.GetContextData() ?? EmptyContext.Instance;
 
     public AvaloniaObject? Control { get; private set; }
 
@@ -115,7 +114,7 @@ public abstract class CommandUsage {
         guard.InvokeAsync();
     }
 
-    protected virtual void UpdateCanExecute() {
+    public virtual void UpdateCanExecute() {
         IContextData? ctx = this.GetContextData();
         this.OnUpdateForCanExecuteState(ctx != null ? CommandManager.Instance.CanExecute(this.CommandId, ctx) : Executability.Invalid);
     }

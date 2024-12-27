@@ -29,9 +29,9 @@ using FramePFX.Utils.RDA;
 
 namespace FramePFX.Avalonia.Editing;
 
-public class PlayStateButton : Button {
-    public static readonly StyledProperty<PlayState> PlayStateProperty = AvaloniaProperty.Register<PlayStateButton, PlayState>(nameof(PlayState));
-    public static readonly StyledProperty<string?> CommandIdProperty = AvaloniaProperty.Register<PlayStateButton, string?>(nameof(CommandId));
+public class PlayStateButtonControl : Button {
+    public static readonly StyledProperty<PlayState> PlayStateProperty = AvaloniaProperty.Register<PlayStateButtonControl, PlayState>(nameof(PlayState));
+    public static readonly StyledProperty<string?> CommandIdProperty = AvaloniaProperty.Register<PlayStateButtonControl, string?>(nameof(CommandId));
 
     /// <summary>
     /// Gets or sets the play state that is shown in the UI, e.g. if this value is <see cref="Play"/> then it shows a play arrow.
@@ -51,7 +51,7 @@ public class PlayStateButton : Button {
     private readonly RapidDispatchAction delayedContextChangeUpdater;
     private readonly RelayCommand command;
 
-    public PlayStateButton() {
+    public PlayStateButtonControl() {
         DataManager.AddInheritedContextChangedHandler(this, this.OnInheritedContextChanged);
         this.delayedContextChangeUpdater = new RapidDispatchAction(this.UpdateForContext, DispatchPriority.Loaded, "UpdateCanExecute");
         this.command = new RelayCommand(() => {
@@ -66,8 +66,8 @@ public class PlayStateButton : Button {
         this.Command = this.command;
     }
 
-    static PlayStateButton() {
-        CommandIdProperty.Changed.AddClassHandler<PlayStateButton>((d, e) => d.UpdateButtonUI());
+    static PlayStateButtonControl() {
+        CommandIdProperty.Changed.AddClassHandler<PlayStateButtonControl>((d, e) => d.UpdateButtonUI());
     }
 
     protected override void OnLoaded(RoutedEventArgs e) {

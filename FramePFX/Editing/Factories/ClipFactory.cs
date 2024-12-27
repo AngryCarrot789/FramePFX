@@ -30,17 +30,19 @@ public class ClipFactory : ReflectiveObjectFactory<Clip> {
         // no need to register the base class, since you can't
         // create an instance of an abstract class
         // this.RegisterType("clip_vid", typeof(VideoClip));
-        this.RegisterType("vc_shape", typeof(VideoClipShape));
-        this.RegisterType("vc_image", typeof(ImageVideoClip));
-        this.RegisterType("vc_timecode", typeof(TimecodeClip));
-        this.RegisterType("vc_avmedia", typeof(AVMediaVideoClip));
-        this.RegisterType("vc_text", typeof(TextVideoClip));
-        this.RegisterType("vc_comp", typeof(CompositionVideoClip));
+        base.RegisterType("vc_shape", typeof(VideoClipShape));
+        base.RegisterType("vc_image", typeof(ImageVideoClip));
+        base.RegisterType("vc_timecode", typeof(TimecodeClip));
+        base.RegisterType("vc_avmedia", typeof(AVMediaVideoClip));
+        base.RegisterType("vc_text", typeof(TextVideoClip));
+        base.RegisterType("vc_comp", typeof(CompositionVideoClip));
 
-        this.RegisterType("ac_dummytest", typeof(AudioClip));
+        base.RegisterType("ac_dummytest", typeof(AudioClip));
     }
 
     public Clip NewClip(string id) {
         return base.NewInstance(id);
     }
+
+    public new void RegisterType(string id, Type type) => base.RegisterType(id, type);
 }

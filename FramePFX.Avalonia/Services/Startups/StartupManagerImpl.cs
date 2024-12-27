@@ -50,6 +50,9 @@ public class StartupManagerImpl : StartupManager {
         
         this.myWindow = new StartupWindow(this);
         this.myWindow.Show();
+        if (global::Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+            desktop.MainWindow = this.myWindow;
+        }
     }
 
     protected override Task OnOpenDummyProject() {
@@ -62,8 +65,14 @@ public class StartupManagerImpl : StartupManager {
             progress.Caption = "Open empty editor";
             progress.Text = "Opening editor...";
             
-            return Application.Instance.Dispatcher.InvokeAsync(() => OpenEditorAsMainWindow(editor));
+            return Application.Instance.Dispatcher.InvokeAsync(() => {
+                OpenEditorAsMainWindow(editor);
+            });
         });
+        
+        if (global::Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+            desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+        }
         
         this.Close();
         return Task.CompletedTask;
@@ -109,6 +118,7 @@ public class StartupManagerImpl : StartupManager {
         IVideoEditorWindow editorWindow = Application.Instance.ServiceManager.GetService<IVideoEditorService>().OpenVideoEditor(editor);
         if (global::Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             desktop.MainWindow = (Window) editorWindow;
+            desktop.ShutdownMode = ShutdownMode.OnLastWindowClose;
         }
     }
 

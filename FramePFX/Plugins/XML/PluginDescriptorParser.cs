@@ -33,20 +33,8 @@ public static class PluginDescriptorParser {
 
         return new AssemblyPluginDescriptor() {
             EntryPoint = GetAttributeNullable(pluginRoot, "EntryPoint", true),
-            EntryPointLibraryPath = GetAttributeNullable(pluginRoot, "EntryPointLibraryPath", true),
-            XamlResources = ParseXamlResources(pluginRoot).ToList()
+            EntryPointLibraryPath = GetAttributeNullable(pluginRoot, "EntryPointLibraryPath", true)
         };
-    }
-
-    private static IEnumerable<string> ParseXamlResources(XmlElement pluginRoot) {
-        foreach (XmlElement node in pluginRoot.ChildNodes.OfType<XmlElement>()) {
-            if (node.Name == "XamlResource") {
-                string? sourcePath = GetAttributeNullable(node, "Source", true)?.Trim();
-                if (sourcePath != null) {
-                    yield return sourcePath;
-                }
-            }
-        }
     }
 
     public static string? GetAttributeNullable(XmlElement element, string key, bool whitespacesToNull = true) {

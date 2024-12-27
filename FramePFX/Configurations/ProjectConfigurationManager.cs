@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using Fractions;
 using FramePFX.DataTransfer;
 using FramePFX.Editing;
 using FramePFX.Editing.UI;
@@ -124,7 +125,7 @@ public class ProjectVideoPropertyEditorConfigurationPage : PropertyEditorConfigu
         ProjectSettings settings = this.manager.Project.Settings;
         this.width = settings.Width;
         this.height = settings.Height;
-        this.frameRate = settings.FrameRate.AsDouble;
+        this.frameRate = settings.FrameRateDouble;
         this.PropertyEditor.Root.SetupHierarchyState([this]);
     }
 
@@ -137,7 +138,7 @@ public class ProjectVideoPropertyEditorConfigurationPage : PropertyEditorConfigu
         ProjectSettings settings = this.manager.Project.Settings;
         settings.Resolution = new SKSizeI((int) this.Width, (int) this.Height);
         if (DoubleUtils.IsValid(this.FrameRate)) {
-            settings.FrameRate = Rational.FromDouble(this.FrameRate);
+            settings.FrameRate = Fraction.FromDouble(this.FrameRate);
         }
 
         this.manager.VideoEditor.CenterViewPort();

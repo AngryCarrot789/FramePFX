@@ -62,10 +62,6 @@ public static class ClipDropRegistry {
             await clip.ResourceHelper.SetResourceHelper(ImageVideoClip.ResourceImageKey, h);
         });
 
-        DropRegistry.Register<AVMediaVideoClip, ResourceAVMedia>((clip, h, dt, ctx) => EnumDropType.Link, async (clip, h, dt, c) => {
-            await clip.ResourceHelper.SetResourceHelper(AVMediaVideoClip.MediaKey, h);
-        });
-
         DropRegistry.Register<CompositionVideoClip, ResourceComposition>((clip, h, dt, ctx) => EnumDropType.Link, async (clip, h, dt, c) => {
             if (h.HasReachedResourceLimit()) {
                 int count = h.ResourceLinkLimit;

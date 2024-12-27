@@ -34,6 +34,7 @@ namespace FramePFX.Plugins.CircleClipPlugin;
 
 public class MyCircleClipPlugin : Plugin {
     public override void OnCreated() {
+        
     }
 
     // Uses the standard clip creation system via AddClipCommand<T>

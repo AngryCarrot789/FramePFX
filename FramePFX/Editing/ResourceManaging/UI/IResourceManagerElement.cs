@@ -24,7 +24,8 @@ namespace FramePFX.Editing.ResourceManaging.UI;
 /// </summary>
 public interface IResourceManagerElement {
     /// <summary>
-    /// Gets the resource manager object
+    /// Gets the resource manager object. This returns null when
+    /// the UI is no longer valid (maybe the editor window was closed)
     /// </summary>
     ResourceManager? ResourceManager { get; }
 

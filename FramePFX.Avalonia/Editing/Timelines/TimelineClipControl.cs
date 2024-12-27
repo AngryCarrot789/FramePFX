@@ -28,12 +28,12 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Reactive;
 using Avalonia.Threading;
-using FramePFX.Avalonia.AdvancedMenuService;
-using FramePFX.Avalonia.Bindings;
 using FramePFX.Avalonia.Editing.Automation;
 using FramePFX.Avalonia.Editing.Timelines.Selection;
-using FramePFX.Avalonia.Interactivity;
-using FramePFX.Avalonia.Utils;
+using FramePFX.BaseFrontEnd.AdvancedMenuService;
+using FramePFX.BaseFrontEnd.Bindings;
+using FramePFX.BaseFrontEnd.Interactivity;
+using FramePFX.BaseFrontEnd.Utils;
 using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.ContextRegistries;
 using FramePFX.Editing.Rendering;
@@ -213,8 +213,8 @@ public class TimelineClipControl : ContentControl, IClipElement {
 
     protected override void OnSizeChanged(SizeChangedEventArgs e) {
         base.OnSizeChanged(e);
-        // this.renderSizeRectGeometry.Rect = new Rect(e.NewSize);
-        // this.InvalidateVisual();
+        this.renderSizeRectGeometry.Rect = new Rect(e.NewSize);
+        this.InvalidateVisual();
     }
 
     public void OnConnecting(ClipStoragePanel storagePanel, Clip clip) {

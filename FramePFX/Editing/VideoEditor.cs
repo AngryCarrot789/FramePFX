@@ -19,6 +19,7 @@
 
 using System.Diagnostics;
 using System.Numerics;
+using Fractions;
 using FramePFX.Editing.Automation.Keyframes;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.Resources;
@@ -80,7 +81,7 @@ public class VideoEditor : IServiceable, IDestroy {
         this.HistoryManager = new HistoryManager();
         this.ServiceManager = new ServiceManager(this);
         this.Playback = new PlaybackManager(this);
-        this.Playback.SetFrameRate(new Rational(1, 1));
+        this.Playback.SetFrameRate(new Fraction(1, 1));
         this.Playback.StartTimer();
     }
 

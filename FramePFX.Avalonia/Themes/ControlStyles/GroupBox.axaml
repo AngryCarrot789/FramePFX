@@ -1,7 +1,7 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:c="clr-namespace:FramePFX.Avalonia.Themes.Controls"
-                    xmlns:cv="clr-namespace:FramePFX.Avalonia.Themes.Converters">
+                    xmlns:cv="clr-namespace:FramePFX.Avalonia.Themes.Converters"
+                    xmlns:c="clr-namespace:FramePFX.BaseFrontEnd.Themes.Controls;assembly=FramePFX.BaseFrontEnd">
     <ControlTheme x:Key="{x:Type c:GroupBox}" TargetType="{x:Type c:GroupBox}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone3.Background.Static}"/>
         <Setter Property="HeaderBrush" Value="{DynamicResource GroupBox.Header.Static.Background}"/>

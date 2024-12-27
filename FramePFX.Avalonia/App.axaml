@@ -1,9 +1,7 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:a="clr-namespace:FramePFX.Avalonia"
-             xmlns:avalonia="clr-namespace:FramePFX.Avalonia"
-             xmlns:c="clr-namespace:FramePFX.Avalonia.AvControls"
-             xmlns:editing="clr-namespace:FramePFX.Avalonia.Editing"
+             xmlns:e="clr-namespace:FramePFX.Avalonia.Editing"
+             xmlns:avControls="clr-namespace:FramePFX.BaseFrontEnd.AvControls;assembly=FramePFX.BaseFrontEnd"
              x:Class="FramePFX.Avalonia.App"
              RequestedThemeVariant="Default">
     <Application.Styles>
@@ -11,53 +9,51 @@
         <StyleInclude Source="Themes/Controls.axaml"/>
         <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Simple/Simple.xaml"/>
     </Application.Styles>
-
     <Application.Resources>
         <ResourceDictionary>
             <FontFamily x:Key="FontOxanium">/Resources/Fonts/Oxanium/#Oxanium</FontFamily>
             <ResourceDictionary.MergedDictionaries>
-                <MergeResourceInclude Source="/Themes/Colours/SoftDark.axaml"/>
-                <MergeResourceInclude Source="/Themes/ControlColours.axaml"/>
-                <MergeResourceInclude Source="/AvControls/ControlStyles.axaml"/>
-
-                <MergeResourceInclude Source="/AvControls/Dragger/NumberDraggerStyles.axaml"/>
-                <MergeResourceInclude Source="/PropertyEditing/PropertyEditorGridStyles.axaml"/>
-                <MergeResourceInclude Source="/PropertyEditing/PropertyEditorSlotContentStyles.axaml"/>
-
+                <ResourceInclude Source="/Themes/Colours/SoftDark.axaml"/>
+                <ResourceInclude Source="/Themes/ControlColours.axaml"/>
+                <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/AvControls/ControlStyles.axaml"/>
+                <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/AvControls/Dragger/NumberDraggerStyles.axaml"/>
+                <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/Editing/GeneralControlStyles.axaml"/>
+                <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/Shortcuts/Trees/ShortcutTreeThemes.axaml"/>
+                <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/PropertyEditing/PropertyEditorGridStyles.axaml"/>
+                <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/PropertyEditing/PropertyEditorSlotContentStyles.axaml"/>
+                <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/Configurations/Trees/ConfigurationTreeThemes.axaml"/>
+                <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/Configurations/Pages/Basic/BaseConfigurationPageThemes.axaml"/>
+                <ResourceInclude Source="avares://FramePFX.BaseFrontEnd/ResourceManaging/Autoloading/InvalidResourceEntryThemes.axaml"/>
+                
                 <MergeResourceInclude Source="/Editing/Playheads/PlayHeadThemes.axaml"/>
-                <MergeResourceInclude Source="/Editing/GeneralControlStyles.axaml"/>
-                <MergeResourceInclude Source="/Editing/ResourceManaging/Autoloading/InvalidResourceEntryThemes.axaml"/>
                 <MergeResourceInclude Source="/Editing/Automation/AutomationSequenceEditorThemes.axaml"/>
                 <MergeResourceInclude Source="/Editing/Timelines/TimelineRulerThemes.axaml"/>
                 <MergeResourceInclude Source="/Editing/Timelines/TrackSurfaces/TrackControlSurfaceThemes.axaml"/>
                 <MergeResourceInclude Source="/Editing/Timelines/TimelineThemes.axaml"/>
                 <MergeResourceInclude Source="/Editing/ResourceManaging/Trees/ResourceTreeThemes.axaml"/>
                 <MergeResourceInclude Source="/Editing/ResourceManaging/Lists/ResourceListThemes.axaml"/>
-                <MergeResourceInclude Source="/Configurations/Trees/ConfigurationTreeThemes.axaml"/>
-                <MergeResourceInclude Source="/Configurations/Pages/Basic/BaseConfigurationPageThemes.axaml"/>
-                <MergeResourceInclude Source="Shortcuts/Trees/ShortcutTreeThemes.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
 
-        <ControlTheme x:Key="{x:Type editing:VideoEditorViewPortControl}" TargetType="{x:Type editing:VideoEditorViewPortControl}">
+        <ControlTheme x:Key="{x:Type e:VideoEditorViewPortControl}" TargetType="{x:Type e:VideoEditorViewPortControl}">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="{DynamicResource Button.Static.Border}"/>
             <Setter Property="Foreground" Value="{DynamicResource Button.Static.Foreground}"/>
             <Setter Property="UseLayoutRounding" Value="False"/>
             <Setter Property="PanToCursorOnUserZoom" Value="True"/>
             <Setter Property="Template">
-                <ControlTemplate TargetType="{x:Type editing:VideoEditorViewPortControl}">
+                <ControlTemplate TargetType="{x:Type e:VideoEditorViewPortControl}">
                     <Grid>
-                        <c:FreeMoveViewPortV2 x:Name="PART_FreeMoveViewPort"
+                        <avControls:FreeMoveViewPortV2 x:Name="PART_FreeMoveViewPort"
                                               UseLayoutRounding="False"
                                               PanToCursorOnUserZoom="{TemplateBinding PanToCursorOnUserZoom}"
                                               HorizontalAlignment="Stretch"
                                               VerticalAlignment="Stretch"
                                               Margin="{TemplateBinding BorderThickness}">
-                            <a:TransformationContainer x:Name="PART_CanvasContainer" UseLayoutRounding="False">
-                                <c:SKAsyncViewPort x:Name="PART_SkiaViewPort" UseLayoutRounding="False"/>
-                            </a:TransformationContainer>
-                        </c:FreeMoveViewPortV2>
+                            <avControls:TransformationContainer x:Name="PART_CanvasContainer" UseLayoutRounding="False">
+                                <avControls:SKAsyncViewPort x:Name="PART_SkiaViewPort" UseLayoutRounding="False"/>
+                            </avControls:TransformationContainer>
+                        </avControls:FreeMoveViewPortV2>
                         <!-- Setting background to null should disable hit-testing but I set the property just to be double sure -->
                         <Border Background="{x:Null}" IsHitTestVisible="False"
                                 BorderBrush="{TemplateBinding BorderBrush}"

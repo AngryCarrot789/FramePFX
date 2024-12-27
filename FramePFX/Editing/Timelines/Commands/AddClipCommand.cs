@@ -25,6 +25,7 @@ using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Editing.Timelines.Clips.Core;
 using FramePFX.Editing.Timelines.Tracks;
+using FramePFX.Editing.UI;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
 using FramePFX.Services.FilePicking;
@@ -97,8 +98,8 @@ public class AddTimecodeClipCommand : AddClipCommand<TimecodeClip>;
 
 public class AddVideoClipShapeCommand : AddClipCommand<VideoClipShape> {
     protected override async Task OnPostAddToTrack(Track track, VideoClipShape clip, bool success, IContextData ctx) {
-        if (DataKeys.ResourceManagerUIKey.TryGetContext(ctx, out IResourceManagerElement? manager)) {
-            ISelectionManager<BaseResource> selection = manager.List.Selection;
+        if (DataKeys.VideoEditorUIKey.TryGetContext(ctx, out IVideoEditorWindow? videoEditor)) {
+            ISelectionManager<BaseResource> selection = videoEditor.ResourceManager.List.Selection;
             if (selection.Count == 1 && selection.SelectedItems.First() is ResourceColour colour && colour.IsRegistered()) {
                 if (await IMessageDialogService.Instance.ShowMessage("Link resource", $"Link '{colour.DisplayName ?? "Selected Media Resource"}' to this clip?", MessageBoxButton.YesNo) == MessageBoxResult.Yes) {
                     clip.ResourceHelper.SetResource(VideoClipShape.ColourKey, colour);
@@ -108,32 +109,21 @@ public class AddVideoClipShapeCommand : AddClipCommand<VideoClipShape> {
     }
 }
 
-public class AddAVMediaClipCommand : AddClipCommand<AVMediaVideoClip> {
-    protected override async Task OnPostAddToTrack(Track track, AVMediaVideoClip clip, bool success, IContextData ctx) {
-        if (DataKeys.ResourceManagerUIKey.TryGetContext(ctx, out IResourceManagerElement? manager)) {
-            ISelectionManager<BaseResource> selection = manager.List.Selection;
-            if (selection.Count == 1 && selection.SelectedItems.First() is ResourceAVMedia media && media.IsRegistered()) {
-                if (await IMessageDialogService.Instance.ShowMessage("Link resource", $"Link '{media.DisplayName ?? "Selected Media Resource"}' to this clip?", MessageBoxButton.YesNo) == MessageBoxResult.Yes) {
-                    await clip.ResourceHelper.SetResourceHelper(AVMediaVideoClip.MediaKey, media);
-                }
-            }
-        }
-    }
-}
-
 public class AddImageVideoClipCommand : AddClipCommand<ImageVideoClip> {
     protected override async Task OnPreAddToTrack(Track track, ImageVideoClip clip, IContextData ctx) {
         ResourceManager? resMan;
-        if (!DataKeys.ResourceManagerUIKey.TryGetContext(ctx, out IResourceManagerElement? manager) || (resMan = manager.ResourceManager) == null) {
+        if (!DataKeys.VideoEditorUIKey.TryGetContext(ctx, out IVideoEditorWindow? videoEditor))
             return;
-        }
+        
+        if ((resMan = videoEditor.ResourceManager.ResourceManager) == null)
+            return;
 
         if (MessageBoxResult.Yes == await IMessageDialogService.Instance.ShowMessage("Open image", "Do you want to open up an image file for this new clip?", MessageBoxButton.YesNo)) {
             string? path = await IFilePickDialogService.Instance.OpenFile("Open an image file for this image?", Filters.CombinedImageTypesAndAll);
             if (path != null) {
                 ResourceImage resourceImage = new ResourceImage();
                 ResourceFolder targetFolder;
-                if (manager.List.CurrentFolderTreeNode?.Resource is ResourceFolder folder) {
+                if (videoEditor.ResourceManager.List.CurrentFolderTreeNode?.Resource is ResourceFolder folder) {
                     (targetFolder = folder).AddItem(resourceImage);
                 }
                 else {

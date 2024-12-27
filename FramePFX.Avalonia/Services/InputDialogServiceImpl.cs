@@ -18,38 +18,17 @@
 // 
 
 using System.Threading.Tasks;
-using Avalonia.Controls;
+using FramePFX.BaseFrontEnd.Services.UserInputs;
 using FramePFX.Services.UserInputs;
-using FramePFX.Utils;
-using UserInputDialog = FramePFX.Avalonia.Services.Messages.Controls.UserInputDialog;
 
 namespace FramePFX.Avalonia.Services;
 
 public class InputDialogServiceImpl : IUserInputDialogService {
     public Task<bool?> ShowInputDialogAsync(SingleUserInputInfo info) {
-        return ShowDialogAsync(info);
+        return UserInputDialog.ShowDialogAsync(info);
     }
 
     public Task<bool?> ShowInputDialogAsync(DoubleUserInputInfo info) {
-        return ShowDialogAsync(info);
-    }
-
-    public static async Task<bool?> ShowDialogAsync(UserInputInfo info) {
-        Validate.NotNull(info);
-
-        if (ApplicationImpl.TryGetActiveWindow(out Window? window)) {
-            UserInputDialog dialog = new UserInputDialog {
-                UserInputData = info
-            };
-
-            bool? result = await dialog.ShowDialog<bool?>(window);
-            if (result == true && dialog.DialogResult == true) {
-                return true;
-            }
-
-            return result;
-        }
-
-        return null;
+        return UserInputDialog.ShowDialogAsync(info);
     }
 }

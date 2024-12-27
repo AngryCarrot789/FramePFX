@@ -1,11 +1,10 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:ii="clr-namespace:FramePFX.Avalonia.Interactivity"
-                    xmlns:sc="clr-namespace:FramePFX.Avalonia.Shortcuts.Avalonia"
-                    xmlns:av="clr-namespace:FramePFX.Avalonia.AvControls"
                     xmlns:trees="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging.Trees"
                     xmlns:lc="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging"
-                    xmlns:lists="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging.Lists">
+                    xmlns:lists="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging.Lists"
+                    xmlns:ii="clr-namespace:FramePFX.BaseFrontEnd.Interactivity;assembly=FramePFX.BaseFrontEnd"
+                    xmlns:avalonia="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Avalonia;assembly=FramePFX.BaseFrontEnd">
     <!--
         Credits to Siemens for SVGs - MIT
         https://www.svgrepo.com/svg/486676/folder-outline
@@ -41,7 +40,7 @@
         <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="0"/>
-        <Setter Property="sc:UIInputManager.FocusPath" Value="Application/EditorWindow/ResourceManager"/>
+        <Setter Property="avalonia:UIInputManager.FocusPath" Value="Application/EditorWindow/ResourceManager"/>
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
         <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
         <Setter Property="ScrollViewer.IsScrollChainingEnabled" Value="True"/>
@@ -51,7 +50,7 @@
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderBrush" Value="{DynamicResource AColour.Tone4.Border.Static}"/>
         <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
-        <Setter Property="sc:UIInputManager.FocusPath" Value="Application/EditorWindow/ResourceManager/TreeItem"/>
+        <Setter Property="avalonia:UIInputManager.FocusPath" Value="Application/EditorWindow/ResourceManager/TreeItem"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
         <Setter Property="Margin" Value="0"/>
         <Setter Property="Padding" Value="0"/>

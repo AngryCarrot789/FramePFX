@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="FramePFX.BaseFrontEnd.Shortcuts.Dialogs.KeyStrokeUserInputControl">
+    <Grid RowDefinitions="0,Auto,5,*,10,Auto,0">
+        <TextBlock VerticalAlignment="Top" Padding="2" Margin="0,0"
+                   Text="Press any key combination in here:"
+                   Grid.Row="1"/>
+        <StackPanel Orientation="Horizontal" Spacing="10" Grid.Row="5" Margin="0,0">
+            <RadioButton IsCheckedChanged="ToggleButton_OnIsCheckedChanged" IsChecked="True"
+                         Content="Is key down"/>
+            <RadioButton IsCheckedChanged="ToggleButton_OnIsCheckedChanged" IsChecked="False"
+                         x:Name="IsKeyReleaseCheckBox" Content="Is key up"/>
+        </StackPanel>
+        <TextBox x:Name="InputBox" Grid.Row="3" Margin="0,0"
+                 Padding="4,2" IsReadOnly="True" VerticalContentAlignment="Center"
+                 Background="{DynamicResource ABrush.Tone2.Background.Static}"/>
+    </Grid>
+</UserControl>

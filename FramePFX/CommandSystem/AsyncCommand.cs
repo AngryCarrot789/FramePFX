@@ -62,8 +62,7 @@ public abstract class AsyncCommand : Command {
     private async void ExecuteAsyncImpl(CommandEventArgs args) {
         try {
             if (!this.allowMultipleExecutions && this.isExecuting) {
-                if (args.IsUserInitiated)
-                    await IMessageDialogService.Instance.ShowMessage("Already running", "This command is already running");
+                await this.OnAlreadyExecuting(args);
                 return;
             }
 
@@ -73,8 +72,7 @@ public abstract class AsyncCommand : Command {
         catch (Exception e) when (!Debugger.IsAttached) {
             // we need to handle the exception here, because otherwise the application
             // would never catch it, and therefore the exception would be lost forever
-            string msg = e.GetToString();
-            await IMessageDialogService.Instance.ShowMessage("Command Error", "An exception occurred while executing command", msg);
+            await this.OnExecutionException(args, e);
         }
         finally {
             this.isExecuting = false;
@@ -82,4 +80,20 @@ public abstract class AsyncCommand : Command {
     }
 
     protected abstract Task ExecuteAsync(CommandEventArgs e);
+
+    /// <summary>
+    /// Invoked when this command is already running, but <see cref="Execute"/> was called again.
+    /// By default, this shows a message box
+    /// </summary>
+    /// <param name="args">Command event args</param>
+    protected virtual Task OnAlreadyExecuting(CommandEventArgs args) {
+        if (args.IsUserInitiated)
+            return IMessageDialogService.Instance.ShowMessage("Already running", "This command is already running");
+
+        return Task.CompletedTask;
+    }
+
+    protected virtual Task OnExecutionException(CommandEventArgs args, Exception e) {
+        return IMessageDialogService.Instance.ShowMessage("Command Error", "An exception occurred while executing command", e.GetToString());
+    }
 }

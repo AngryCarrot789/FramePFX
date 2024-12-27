@@ -50,6 +50,9 @@ public abstract class Application : IServiceable {
         }
     }
 
+    /// <summary>
+    /// Gets the application service manager
+    /// </summary>
     public ServiceManager ServiceManager { get; }
 
     /// <summary>
@@ -76,11 +79,26 @@ public abstract class Application : IServiceable {
     /// </summary>
     public int CurrentBuild => this.CurrentVersion.Build;
 
+    /// <summary>
+    /// Gets the application's plugin loader
+    /// </summary>
     public PluginLoader PluginLoader { get; }
+    
+    /// <summary>
+    /// Gets whether the application is in the process of shutting down
+    /// </summary>
+    public bool IsShuttingDown { get; protected set; }
+    
+    /// <summary>
+    /// Gets whether the application is actually running. False after exited
+    /// </summary>
+    public bool IsRunning { get; protected set; }
 
     protected Application() {
         this.ServiceManager = new ServiceManager(this);
         this.PluginLoader = new PluginLoader();
+        this.IsRunning = true;
+        this.IsShuttingDown = false;
     }
 
     protected abstract Task<bool> LoadKeyMapAsync();
@@ -142,7 +160,6 @@ public abstract class Application : IServiceable {
         manager.Register("commands.editor.AddTextClip", new AddTextClipCommand());
         manager.Register("commands.editor.AddTimecodeClip", new AddTimecodeClipCommand());
         manager.Register("commands.editor.AddVideoClipShape", new AddVideoClipShapeCommand());
-        manager.Register("commands.editor.AddAVMediaClip", new AddAVMediaClipCommand());
         manager.Register("commands.editor.AddImageVideoClip", new AddImageVideoClipCommand());
         manager.Register("commands.editor.AddCompositionVideoClip", new AddCompositionVideoClipCommand());
 
@@ -150,7 +167,6 @@ public abstract class Application : IServiceable {
         manager.Register("commands.resources.RenameResource", new RenameResourceCommand());
         manager.Register("commands.resources.DeleteResources", new DeleteResourcesCommand());
         manager.Register("commands.resources.AddResourceImage", new AddResourceImageCommand());
-        manager.Register("commands.resources.AddResourceAVMedia", new AddResourceAVMediaCommand());
         manager.Register("commands.resources.AddResourceColour", new AddResourceColourCommand());
         manager.Register("commands.resources.AddResourceComposition", new AddResourceCompositionCommand());
         manager.Register("commands.resources.GroupResources", new GroupResourcesCommand());
@@ -233,11 +249,13 @@ public abstract class Application : IServiceable {
     protected static async Task InternalLoadPlugins(IApplicationStartupProgress progress) {
         List<BasePluginLoadException> exceptions = new List<BasePluginLoadException>();
 
+#if DEBUG
         // Load plugins in the solution folder
         string solutionPluginFolder = Path.GetFullPath(@"..\\..\\..\\..\\..\\Plugins");
         if (Directory.Exists(solutionPluginFolder)) {
             await Instance.PluginLoader.LoadPlugins(solutionPluginFolder, exceptions);
-        }
+        }  
+#endif
         
         // Load full release plugins
         if (Directory.Exists("Plugins")) {

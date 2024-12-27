@@ -56,12 +56,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <AdditionalFiles Include="AvControls\Dragger\NumberDraggerStyles.axaml"/>
-        <AdditionalFiles Include="Services\Colours\ColourUserInputControl.axaml" />
         <AdditionalFiles Include="Services\Startups\StartupWindow.axaml" />
-        <AdditionalFiles Include="Shortcuts\Dialogs\KeyStrokeUserInputControl.axaml" />
-        <AdditionalFiles Include="Shortcuts\Dialogs\MouseStrokeUserInputControl.axaml" />
-        <AdditionalFiles Include="Shortcuts\Trees\ShortcutTreeThemes.axaml" />
         <AdditionalFiles Include="Themes\Colours\SoftDark.axaml" />
         <AdditionalFiles Include="Themes\ControlColours.axaml" />
         <AdditionalFiles Include="Themes\Controls.axaml" />
@@ -96,33 +91,47 @@
     </ItemGroup>
 
     <ItemGroup>
-        <UpToDateCheckInput Remove="Services\Messages\Controls\DoubleUserInputControl.axaml"/>
-        <UpToDateCheckInput Remove="Services\Messages\Controls\MessageBoxDialog.axaml"/>
-        <UpToDateCheckInput Remove="Services\Messages\Controls\SingleUserInputControl.axaml"/>
-        <UpToDateCheckInput Remove="Services\Messages\Controls\UserInputDialog.axaml"/>
-        <UpToDateCheckInput Remove="PicNet\PropertyEditing\Controls\PropertyEditorGridStyles.axaml"/>
-        <UpToDateCheckInput Remove="PicNet\PropertyEditing\Controls\PropertyEditorSlotContentStyles.axaml"/>
-        <UpToDateCheckInput Remove="PicNet\Layers\LayerControlStyles.axaml"/>
-        <UpToDateCheckInput Remove="PicNet\Layers\StateMods\LayerStateModifierControlStyles.axaml"/>
-        <UpToDateCheckInput Remove="PicNet\Toolbars\Controls\ToolBarItemStyles.axaml"/>
-        <UpToDateCheckInput Remove="Editing\Controls\Dragger\NumberDraggerStyles.axaml"/>
-        <UpToDateCheckInput Remove="Editing\Controls\GeneralControlStyles.axaml"/>
+        <UpToDateCheckInput Remove="Services\Messages\Controls\DoubleUserInputControl.axaml" />
+        <UpToDateCheckInput Remove="Services\Messages\Controls\MessageBoxDialog.axaml" />
+        <UpToDateCheckInput Remove="Services\Messages\Controls\SingleUserInputControl.axaml" />
+        <UpToDateCheckInput Remove="Services\Messages\Controls\UserInputDialog.axaml" />
+        <UpToDateCheckInput Remove="PicNet\PropertyEditing\Controls\PropertyEditorGridStyles.axaml" />
+        <UpToDateCheckInput Remove="PicNet\PropertyEditing\Controls\PropertyEditorSlotContentStyles.axaml" />
+        <UpToDateCheckInput Remove="PicNet\Layers\LayerControlStyles.axaml" />
+        <UpToDateCheckInput Remove="PicNet\Layers\StateMods\LayerStateModifierControlStyles.axaml" />
+        <UpToDateCheckInput Remove="PicNet\Toolbars\Controls\ToolBarItemStyles.axaml" />
+        <UpToDateCheckInput Remove="Editing\Controls\Dragger\NumberDraggerStyles.axaml" />
+        <UpToDateCheckInput Remove="Editing\Controls\GeneralControlStyles.axaml" />
         <UpToDateCheckInput Remove="Services\Colours\ColourUserInputControl.axaml" />
         <UpToDateCheckInput Remove="Shortcuts\Dialogs\KeyStrokeUserInputControl.axaml" />
         <UpToDateCheckInput Remove="Shortcuts\Dialogs\MouseStrokeUserInputControl.axaml" />
         <UpToDateCheckInput Remove="Shortcuts\Trees\ShortcutTreeThemes.axaml" />
+        <UpToDateCheckInput Remove="AvControls\ControlStyles.axaml" />
+        <UpToDateCheckInput Remove="Services\Messages\Controls\DoubleUserInputControl.axaml" />
+        <UpToDateCheckInput Remove="Services\Messages\Controls\MessageBoxDialog.axaml" />
+        <UpToDateCheckInput Remove="Services\Messages\Controls\SingleUserInputControl.axaml" />
+        <UpToDateCheckInput Remove="Configurations\ConfigurationDialog.axaml" />
+        <UpToDateCheckInput Remove="Configurations\ConfigurationPanelControl.axaml" />
+        <UpToDateCheckInput Remove="Configurations\Pages\Basic\BaseConfigurationPageThemes.axaml" />
+        <UpToDateCheckInput Remove="Configurations\Trees\ConfigurationTreeThemes.axaml" />
+        <UpToDateCheckInput Remove="PropertyEditing\PropertyEditorGridStyles.axaml" />
+        <UpToDateCheckInput Remove="PropertyEditing\PropertyEditorSlotContentStyles.axaml" />
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\FramePFX.BaseFrontEnd\FramePFX.BaseFrontEnd.csproj" />
         <ProjectReference Include="..\FramePFX.Plugins.AnotherTestPlugin\FramePFX.Plugins.AnotherTestPlugin.csproj" />
-        <ProjectReference Include="..\FramePFX\FramePFX.csproj"/>
+        <ProjectReference Include="..\FramePFX.Plugins.FFmpegMedia\FramePFX.Plugins.FFmpegMedia.csproj" />
+        <ProjectReference Include="..\FramePFX\FramePFX.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <AvaloniaResource Include="FramePFX-256.ico"/>
+        <AvaloniaResource Include="FramePFX-256.ico" />
     </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-        <Exec Command="xcopy /y &quot;$(SolutionDir)NativeEngineBinaries\*.dll&quot; $(TargetDir)&#xA;xcopy /y &quot;$(SolutionDir)ffmpeg\bin\*.dll&quot; $(TargetDir)&#xA;        "/>
+        <Exec Command="xcopy /y &quot;$(SolutionDir)NativeEngineBinaries\*.dll&quot; $(TargetDir)&#xA;"/>
+        <!-- Allow the ffmpeg copy command to fail. FFmpeg is now optional -->
+        <Exec Command="xcopy /y &quot;$(SolutionDir)ffmpeg\bin\*.dll&quot; $(TargetDir)" ContinueOnError="true"/>
     </Target>
 </Project>

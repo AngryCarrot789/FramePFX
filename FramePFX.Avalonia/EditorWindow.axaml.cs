@@ -20,15 +20,17 @@
 using System;
 using System.Text;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
-using FramePFX.Avalonia.Interactivity;
-using FramePFX.Avalonia.Interactivity.Contexts;
-using FramePFX.Avalonia.Themes.Controls;
-using FramePFX.Avalonia.Utils;
+using FramePFX.BaseFrontEnd.Interactivity;
+using FramePFX.BaseFrontEnd.Interactivity.Contexts;
+using FramePFX.BaseFrontEnd.Themes.Controls;
+using FramePFX.BaseFrontEnd.Utils;
 using FramePFX.Editing;
 using FramePFX.Editing.Rendering;
+using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.UI;
 using FramePFX.Interactivity;
@@ -45,9 +47,14 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
     public VideoEditor VideoEditor { get; }
     
     public VideoEditorPropertyEditor PropertyEditor { get; }
+    
+    public bool IsClosing { get; private set; }
+    public bool IsClosed { get; private set; }
 
     ITimelineElement IVideoEditorWindow.TimelineElement => this.TheTimeline;
 
+    IResourceManagerElement IVideoEditorWindow.ResourceManager => this.PART_ResourcePanelControl;
+    
     private readonly NumberAverager renderTimeAverager;
     private ActivityTask? primaryActivity;
     private RateLimitedDispatchAction<Timeline> updateFpsInfoRlda;
@@ -99,7 +106,6 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
             this.OnProjectChanged(null, this.VideoEditor.Project);
             this.OnIsExportingChanged(this.VideoEditor);
             myDataBatch.Context.Set(DataKeys.VideoEditorKey, this.VideoEditor);
-            myDataBatch.Context.Set(DataKeys.ResourceManagerUIKey, this.PART_ResourcePanelControl);
         }
 
         DataManager.GetContextData(this.PART_TimelinePresenterGroupBox).Set(DataKeys.TimelineUIKey, this.TheTimeline);
@@ -310,7 +316,16 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
         Application.Instance.Dispatcher.InvokeAsync(() => this.PART_ViewPort?.PART_FreeMoveViewPort?.FitContentToCenter(), DispatchPriority.Background);
     }
 
+    protected override void OnClosing(WindowClosingEventArgs e) {
+        base.OnClosing(e);
+        if (!e.Cancel) {
+            this.IsClosing = true;
+        }
+    }
+
     protected override void OnClosed(EventArgs e) {
+        this.IsClosing = false;
+        this.IsClosed = true;
         if (this.activeProject != null) {
             this.VideoEditor.CloseProject();
         }
@@ -318,8 +333,10 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
         this.VideoEditor.Destroy();
         base.OnClosed(e);
     }
-
-    public async Task CloseEditor() {
+    
+    public Task CloseEditor() {
+        this.IsClosing = true;
         this.Close();
+        return Task.CompletedTask;
     }
 }

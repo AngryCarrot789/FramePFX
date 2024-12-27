@@ -19,6 +19,7 @@
 
 using Avalonia.Controls;
 using Avalonia.Media;
+using FramePFX.BaseFrontEnd.Editing;
 using FramePFX.Editing.Toolbars;
 
 namespace FramePFX.Avalonia.Editing.Toolbars;

@@ -1,6 +1,6 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:ams="clr-namespace:FramePFX.Avalonia.AdvancedMenuService">
+                    xmlns:ams="clr-namespace:FramePFX.BaseFrontEnd.AdvancedMenuService;assembly=FramePFX.BaseFrontEnd">
     <ControlTheme x:Key="{x:Type ContextMenu}" TargetType="{x:Type ContextMenu}">
         <Setter Property="Background" Value="{DynamicResource Popup.Static.Background}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource Popup.Static.Border}"/>

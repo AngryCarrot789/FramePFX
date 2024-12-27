@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <Platforms>x64</Platforms>
+        <Configurations>Debug;Release</Configurations>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia" Version="11.2.2"/>
+        <PackageReference Include="Avalonia.Desktop" Version="11.2.2"/>
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.2"/>
+        <PackageReference Include="Avalonia.Themes.Simple" Version="11.2.2"/>
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.2"/>
+        <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.2.2"/>
+        <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.2.2"/>
+        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\FramePFX\FramePFX.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Shortcuts\" />
+      <Folder Include="Themes\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Include="AvControls\ControlStyles.axaml" />
+      <AdditionalFiles Include="Configurations\ConfigurationDialog.axaml" />
+      <AdditionalFiles Include="Configurations\ConfigurationPanelControl.axaml" />
+      <AdditionalFiles Include="Configurations\Pages\Basic\BaseConfigurationPageThemes.axaml" />
+      <AdditionalFiles Include="Configurations\Trees\ConfigurationTreeThemes.axaml" />
+      <AdditionalFiles Include="PropertyEditing\PropertyEditorGridStyles.axaml" />
+      <AdditionalFiles Include="PropertyEditing\PropertyEditorSlotContentStyles.axaml" />
+      <AdditionalFiles Include="ResourceManaging\Autoloading\InvalidResourceEntryThemes.axaml" />
+      <AdditionalFiles Include="ResourceManaging\Autoloading\ResourceLoaderDialog.axaml" />
+      <AdditionalFiles Include="Services\Messages\Controls\DoubleUserInputControl.axaml" />
+      <AdditionalFiles Include="Services\Messages\Controls\MessageBoxDialog.axaml" />
+      <AdditionalFiles Include="Services\Messages\Controls\SingleUserInputControl.axaml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Services\UserInputs\UserInputDialog.axaml.cs">
+        <DependentUpon>UserInputDialog.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
+    </ItemGroup>
+
+</Project>

@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
+using FramePFX.BaseFrontEnd;
 using FramePFX.Editing.Timelines.Clips;
 using FramePFX.Utils;
 using Track = FramePFX.Editing.Timelines.Tracks.Track;

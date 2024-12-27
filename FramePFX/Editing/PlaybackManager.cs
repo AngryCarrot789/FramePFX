@@ -18,6 +18,7 @@
 //
 
 using System.Diagnostics;
+using Fractions;
 using FramePFX.Editing.Rendering;
 using FramePFX.Editing.Timelines;
 using FramePFX.Natives;
@@ -164,8 +165,11 @@ public class PlaybackManager {
         // this.thread?.Join();
     }
 
-    public void SetFrameRate(Rational frameRate) {
-        double fps = frameRate.AsDouble;
+    public void SetFrameRate(Fraction frameRate) {
+        double fps = frameRate.ToDouble();
+        if (double.IsNaN(fps) || double.IsInfinity(fps))
+            fps = 1.0;
+        
         this.intervalTicks = (long) Math.Round(Time.TICK_PER_SECOND_D / fps);
         this.audioSamplesPerFrame = (int) Math.Ceiling(44100.0 / fps);
     }
@@ -282,7 +286,7 @@ public class PlaybackManager {
                 // it will take even longer, meaning we skip more frames, and so on...
                 // So, frame skipping is limited to 3 frames just to be safe. Still need to work out a better
                 // solution but for now 3 frames should be generally safe
-                double fps = project.Settings.FrameRate.AsDouble;
+                double fps = project.Settings.FrameRateDouble;
                 double expectedInterval = Time.TICK_PER_SECOND_D / fps;
                 double actualInterval = DateTime.Now.Ticks - this.lastRenderTime.Ticks;
                 this.lastRenderTime = DateTime.Now;

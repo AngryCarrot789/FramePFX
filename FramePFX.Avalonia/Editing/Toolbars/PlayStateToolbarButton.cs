@@ -17,6 +17,8 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.BaseFrontEnd.Editing;
+
 namespace FramePFX.Avalonia.Editing.Toolbars;
 
 public class PlayStateToolbarButton : AbstractToolbarButtonImpl {

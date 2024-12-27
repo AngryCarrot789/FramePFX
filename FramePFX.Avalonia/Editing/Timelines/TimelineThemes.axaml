@@ -2,16 +2,14 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:s="clr-namespace:FramePFX.Avalonia.Editing.Timelines.TrackSurfaces"
                     xmlns:t="clr-namespace:FramePFX.Avalonia.Editing.Timelines"
-                    xmlns:d="clr-namespace:FramePFX.Avalonia.AvControls.Dragger"
-                    xmlns:ap="clr-namespace:FramePFX.Avalonia.Editing"
-                    xmlns:av="clr-namespace:FramePFX.Avalonia.Shortcuts.Avalonia"
-                    xmlns:ct="clr-namespace:FramePFX.Avalonia.Converters"
-                    xmlns:f="clr-namespace:FramePFX.Interactivity.Formatting;assembly=FramePFX-core"
+                    xmlns:ap="clr-namespace:FramePFX.BaseFrontEnd.Editing;assembly=FramePFX.BaseFrontEnd"
                     xmlns:p="clr-namespace:FramePFX.Avalonia.Editing.Playheads"
-                    xmlns:u="clr-namespace:FramePFX.Avalonia.CommandSystem.Usages"
-                    xmlns:cc="clr-namespace:FramePFX.Avalonia.Editing.CommandContexts"
-                    xmlns:a="clr-namespace:FramePFX.Avalonia.Editing.Automation">
-    <ct:AutomationBrushConverter x:Key="AutomationBrushConverter" AutomationBrush="{StaticResource ABrush.AutomationActiveColour.Static}"/>
+                    xmlns:a="clr-namespace:FramePFX.Avalonia.Editing.Automation"
+                    xmlns:avalonia="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Avalonia;assembly=FramePFX.BaseFrontEnd"
+                    xmlns:converters="clr-namespace:FramePFX.BaseFrontEnd.Converters;assembly=FramePFX.BaseFrontEnd"
+                    xmlns:commandUsages="clr-namespace:FramePFX.BaseFrontEnd.CommandUsages;assembly=FramePFX.BaseFrontEnd"
+                    xmlns:cc="clr-namespace:FramePFX.Avalonia.Editing.CommandUsages">
+    <converters:AutomationBrushConverter x:Key="AutomationBrushConverter" AutomationBrush="{StaticResource ABrush.AutomationActiveColour.Static}"/>
     <ControlTheme x:Key="{x:Type t:TimelineLoopControl}" TargetType="{x:Type t:TimelineLoopControl}">
     </ControlTheme>
 
@@ -21,7 +19,7 @@
 
     <ControlTheme x:Key="{x:Type t:TimelineTrackControl}" TargetType="{x:Type t:TimelineTrackControl}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone2.Background.Static}"/>
-        <Setter Property="av:UIInputManager.FocusPath" Value="Application/EditorWindow/Timeline/Sequence/Track"/>
+        <Setter Property="avalonia:UIInputManager.FocusPath" Value="Application/EditorWindow/Timeline/Sequence/Track"/>
         <Setter Property="Template">
             <ControlTemplate TargetType="{x:Type t:TimelineTrackControl}">
                 <Panel>
@@ -40,7 +38,7 @@
 
     <ControlTheme x:Key="{x:Type t:TimelineClipControl}" TargetType="{x:Type t:TimelineClipControl}">
         <Setter Property="Background" Value="{DynamicResource ABrush.Tone5.Background.Static}"/>
-        <Setter Property="av:UIInputManager.FocusPath" Value="Application/EditorWindow/Timeline/Sequence/Track/Clip"/>
+        <Setter Property="avalonia:UIInputManager.FocusPath" Value="Application/EditorWindow/Timeline/Sequence/Track/Clip"/>
         <Setter Property="Focusable" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
         <Setter Property="Template">
@@ -88,7 +86,7 @@
 
     <ControlTheme x:Key="{x:Type t:TimelineControl}" TargetType="{x:Type t:TimelineControl}">
         <Setter Property="Background" Value="{DynamicResource PanelBackground0}"/>
-        <Setter Property="av:UIInputManager.FocusPath" Value="Application/EditorWindow/Timeline"/>
+        <Setter Property="avalonia:UIInputManager.FocusPath" Value="Application/EditorWindow/Timeline"/>
         <Setter Property="Template">
             <ControlTemplate TargetType="{x:Type t:TimelineControl}">
                 <Grid VerticalAlignment="Stretch"
@@ -109,12 +107,12 @@
 
                     <!-- Surface List Box Area -->
                     <ScrollViewer Grid.Column="0" Grid.Row="2"
+                                  Background="{DynamicResource ABrush.Tone3.Background.Static}"
                                   HorizontalScrollBarVisibility="Visible"
                                   VerticalScrollBarVisibility="Auto"
-                                  Background="{DynamicResource ABrush.Tone4.Background.Static}"
                                   x:Name="PART_TrackListScrollViewer"
                                   ap:ScrollBinder.VerticalBindGroup="TimelineVerticalScrollGroup"
-                                  av:UIInputManager.FocusPath="Application/EditorWindow/Timeline/ControlSurfaces">
+                                  avalonia:UIInputManager.FocusPath="Application/EditorWindow/Timeline/ControlSurfaces">
                         <s:TrackControlSurfaceList x:Name="PART_TrackListBox"
                                                    Padding="0"
                                                    VerticalAlignment="Top"
@@ -130,7 +128,7 @@
                                   ap:ScrollBinder.VerticalBindGroup="TimelineVerticalScrollGroup"
                                   Grid.Column="2" Grid.Row="2"
                                   Background="{DynamicResource ABrush.Tone4.Background.Static}"
-                                  av:UIInputManager.FocusPath="Application/EditorWindow/Timeline/Sequence">
+                                  avalonia:UIInputManager.FocusPath="Application/EditorWindow/Timeline/Sequence">
                         <t:TimelineScrollableContentGrid x:Name="PART_ContentGrid"
                                                          Timeline="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=Timeline}"
                                                          Background="{TemplateBinding Background}"
@@ -198,7 +196,7 @@
                                 <Button Content="+V" BorderThickness="0" FontSize="12"
                                         Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
                                         Background="{DynamicResource ABrush.Tone6.Background.Static}"
-                                        x:Name="PART_AddVideoTrackButton" u:CommandUsageManager.UsageClassType="{x:Type cc:NewVideoTrackCommandUsage}"/>
+                                        x:Name="PART_AddVideoTrackButton" commandUsages:CommandUsageManager.UsageClassType="{x:Type cc:NewVideoTrackCommandUsage}"/>
                             </StackPanel>
                         </Border>
                     </Border>
@@ -222,7 +220,7 @@
                                                         Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderThickness="0"
                                                         PlayState="Stop" CommandId="commands.editor.PlaybackStopCommand"
                                                         ToolTip.Tip="Stop playback, returning the play head to the stop head location"/>
-                                    <ToggleButton u:CommandUsageManager.UsageClassType="{x:Type cc:ToggleLoopCommandUsage}"
+                                    <ToggleButton commandUsages:CommandUsageManager.UsageClassType="{x:Type cc:ToggleLoopCommandUsage}"
                                                   Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
                                                   Background="{DynamicResource ABrush.Tone6.Background.Static}"
                                                   BorderThickness="0" Focusable="False"

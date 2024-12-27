@@ -41,12 +41,18 @@ public abstract class Plugin {
     /// in which case you may be able to default to <see cref="Environment.CurrentDirectory"/>
     /// </summary>
     public string? PluginFolder { get; internal set; }
+    
+    /// <summary>
+    /// Gets the display name of this plugin
+    /// </summary>
+    public virtual string Name => this.GetType().Name;
 
     protected Plugin() {
     }
 
     /// <summary>
-    /// Invoked after the plugin is created and the descriptor is set
+    /// Invoked after the plugin is created and the descriptor is set.
+    /// Exceptions throw in this method will crash the entire application
     /// </summary>
     public abstract void OnCreated();
 
@@ -63,7 +69,7 @@ public abstract class Plugin {
     
     /// <summary>
     /// Invoked when the application has loaded. This is invoked before any editor window is created.
-    /// Things like context menus, clip types, resource types, etc., should be registered here
+    /// Things like context menus, clip types, resource types, model->control mappings and so on should be registered here
     /// </summary>
     /// <returns></returns>
     public abstract Task OnApplicationLoaded();
@@ -72,4 +78,8 @@ public abstract class Plugin {
     /// Invoked when the application is about to exit. This is sort of pointless, but it exists just in case
     /// </summary>
     public abstract void OnApplicationExiting();
+
+    public virtual void GetXamlResources(List<string> paths) {
+        
+    }
 }

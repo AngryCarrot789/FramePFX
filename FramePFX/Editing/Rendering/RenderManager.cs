@@ -217,7 +217,7 @@ public class RenderManager {
             imgInfo = this.ImageInfo;
             beginRender = Time.GetSystemTicks();
 
-            double fps = project.Settings.FrameRate.AsDouble;
+            double fps = project.Settings.FrameRateDouble;
             double sampleDouble = Math.Ceiling(44100.0 / fps) + this.accumulatedSamples;
             // Ensure value is even. 44100/60fps == 735, meaning that last sample for the
             // right channel wouldn't get generated, and the next render would write the first

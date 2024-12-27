@@ -1,8 +1,11 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:av="clr-namespace:FramePFX.Avalonia.AvControls"
-                    xmlns:avs="clr-namespace:FramePFX.Avalonia.Shortcuts.Avalonia"
-                    xmlns:e="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging.Lists">
+                    xmlns:e="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging.Lists"
+                    xmlns:avalonia="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Avalonia;assembly=FramePFX.BaseFrontEnd"
+                    xmlns:avControls="clr-namespace:FramePFX.BaseFrontEnd.AvControls;assembly=FramePFX.BaseFrontEnd"
+                    xmlns:lists="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging.Lists;assembly=FramePFX.BaseFrontEnd"
+                    xmlns:resourceManaging="clr-namespace:FramePFX.BaseFrontEnd.ResourceManaging;assembly=FramePFX.BaseFrontEnd"
+                    xmlns:contentItems="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging.Lists.ContentItems">
     <ControlTheme x:Key="{x:Type e:ResourceExplorerListBox}" TargetType="{x:Type e:ResourceExplorerListBox}" BasedOn="{StaticResource {x:Type ListBox}}">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderBrush" Value="Transparent"/>
@@ -10,7 +13,7 @@
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
-        <Setter Property="avs:UIInputManager.FocusPath" Value="Application/EditorWindow/ResourceManager"/>
+        <Setter Property="avalonia:UIInputManager.FocusPath" Value="Application/EditorWindow/ResourceManager"/>
         <Setter Property="ItemsPanel">
             <ItemsPanelTemplate>
                 <WrapPanel Orientation="Horizontal"/>
@@ -62,7 +65,7 @@
         <Setter Property="VerticalAlignment" Value="Stretch"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="VerticalContentAlignment" Value="Stretch"/>
-        <Setter Property="avs:UIInputManager.FocusPath" Value="Application/EditorWindow/ResourceManager/Item"/>
+        <Setter Property="avalonia:UIInputManager.FocusPath" Value="Application/EditorWindow/ResourceManager/Item"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type e:ResourceExplorerListBoxItem}">
@@ -133,11 +136,11 @@
         </Style>
     </ControlTheme>
 
-    <ControlTheme x:Key="{x:Type e:ResourceExplorerListItemContent}" TargetType="{x:Type e:ResourceExplorerListItemContent}"/>
-    <ControlTheme x:Key="{x:Type e:RELICFolder}" TargetType="{x:Type e:RELICFolder}" BasedOn="{StaticResource {x:Type e:ResourceExplorerListItemContent}}">
+    <ControlTheme x:Key="{x:Type resourceManaging:ResourceExplorerListItemContent}" TargetType="{x:Type resourceManaging:ResourceExplorerListItemContent}"/>
+    <ControlTheme x:Key="{x:Type contentItems:RELIC_Folder}" TargetType="{x:Type contentItems:RELIC_Folder}" BasedOn="{StaticResource {x:Type resourceManaging:ResourceExplorerListItemContent}}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type e:RELICFolder}">
+                <ControlTemplate TargetType="{x:Type contentItems:RELIC_Folder}">
                     <TextBlock Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ItemCount, StringFormat='{}{0} Items'}"
                                VerticalAlignment="Center" HorizontalAlignment="Center"/>
                 </ControlTemplate>
@@ -145,31 +148,31 @@
         </Setter>
     </ControlTheme>
 
-    <ControlTheme x:Key="{x:Type e:RELICColour}" TargetType="{x:Type e:RELICColour}" BasedOn="{StaticResource {x:Type e:ResourceExplorerListItemContent}}">
+    <ControlTheme x:Key="{x:Type contentItems:RELIC_Colour}" TargetType="{x:Type contentItems:RELIC_Colour}" BasedOn="{StaticResource {x:Type resourceManaging:ResourceExplorerListItemContent}}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type e:RELICColour}">
+                <ControlTemplate TargetType="{x:Type contentItems:RELIC_Colour}">
                     <Border Background="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Brush}"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </ControlTheme>
 
-    <ControlTheme x:Key="{x:Type e:RELICImage}" TargetType="{x:Type e:RELICImage}" BasedOn="{StaticResource {x:Type e:ResourceExplorerListItemContent}}">
+    <ControlTheme x:Key="{x:Type contentItems:RELIC_Image}" TargetType="{x:Type contentItems:RELIC_Image}" BasedOn="{StaticResource {x:Type resourceManaging:ResourceExplorerListItemContent}}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type e:RELICImage}">
+                <ControlTemplate TargetType="{x:Type contentItems:RELIC_Image}">
                     <Image x:Name="PART_Image" Stretch="Fill"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </ControlTheme>
 
-    <ControlTheme x:Key="{x:Type e:RELICComposition}" TargetType="{x:Type e:RELICComposition}" BasedOn="{StaticResource {x:Type e:ResourceExplorerListItemContent}}">
+    <ControlTheme x:Key="{x:Type contentItems:RELIC_Composition}" TargetType="{x:Type contentItems:RELIC_Composition}" BasedOn="{StaticResource {x:Type resourceManaging:ResourceExplorerListItemContent}}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type e:RELICComposition}">
-                    <av:SKPreviewViewPortEx x:Name="PART_ViewPort"/>
+                <ControlTemplate TargetType="{x:Type contentItems:RELIC_Composition}">
+                    <avControls:SKPreviewViewPortEx x:Name="PART_ViewPort"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

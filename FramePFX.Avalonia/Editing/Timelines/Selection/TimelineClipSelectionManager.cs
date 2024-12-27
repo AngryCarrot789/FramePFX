@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using FramePFX.BaseFrontEnd;
 using FramePFX.Editing.Timelines.Tracks;
 using FramePFX.Editing.UI;
 using FramePFX.Interactivity;

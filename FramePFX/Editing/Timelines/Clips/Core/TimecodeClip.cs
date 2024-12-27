@@ -158,7 +158,7 @@ public class TimecodeClip : VideoClip {
         this.render_Span = this.FrameSpan;
         this.render_StartTime = this.UseClipStartTime ? default : TimeSpan.FromSeconds(this.StartTime);
         this.render_EndTime =
-            this.UseClipEndTime ? TimeSpan.FromSeconds(this.FrameSpan.Duration / this.Project!.Settings.FrameRate.AsDouble) : TimeSpan.FromSeconds(this.EndTime);
+            this.UseClipEndTime ? TimeSpan.FromSeconds(this.FrameSpan.Duration / this.Project!.Settings.FrameRateDouble) : TimeSpan.FromSeconds(this.EndTime);
         if (this.UseClipEndTime)
             this.render_EndTime += this.render_StartTime;
         this.renderFontSize = this.FontSize;

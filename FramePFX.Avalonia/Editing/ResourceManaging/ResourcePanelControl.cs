@@ -20,11 +20,11 @@
 using System;
 using Avalonia;
 using Avalonia.Controls.Primitives;
-using FramePFX.Avalonia.Bindings;
 using FramePFX.Avalonia.Editing.ResourceManaging.Lists;
 using FramePFX.Avalonia.Editing.ResourceManaging.Trees;
-using FramePFX.Avalonia.Interactivity;
-using FramePFX.Avalonia.Utils;
+using FramePFX.BaseFrontEnd.Bindings;
+using FramePFX.BaseFrontEnd.Interactivity;
+using FramePFX.BaseFrontEnd.Utils;
 using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.Interactivity.Contexts;

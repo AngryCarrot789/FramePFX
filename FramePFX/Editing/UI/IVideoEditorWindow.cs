@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.Editing.ResourceManaging.UI;
 using FramePFX.PropertyEditing;
 
 namespace FramePFX.Editing.UI;
@@ -26,19 +27,39 @@ namespace FramePFX.Editing.UI;
 /// </summary>
 public interface IVideoEditorWindow {
     /// <summary>
-    /// Gets our video editor model
-    /// </summary>
-    VideoEditor VideoEditor { get; }
-
-    /// <summary>
     /// Gets the timeline UI
     /// </summary>
     ITimelineElement TimelineElement { get; }
+    
+    /// <summary>
+    /// Gets out resource manager UI
+    /// </summary>
+    IResourceManagerElement ResourceManager { get; }
 
+    /// <summary>
+    /// Gets our video editor model
+    /// </summary>
+    VideoEditor VideoEditor { get; }
+    
     /// <summary>
     /// Gets the main property editor for the video editor
     /// </summary>
     VideoEditorPropertyEditor PropertyEditor { get; }
+
+    /// <summary>
+    /// Gets whether the editor window is in the process of being closed
+    /// </summary>
+    bool IsClosing { get; }
+    
+    /// <summary>
+    /// Gets whether this editor window is currently closed
+    /// </summary>
+    bool IsClosed { get; }
+    
+    /// <summary>
+    /// Gets whether the editor is being closed or is already closed
+    /// </summary>
+    bool IsClosingOrClosed => this.IsClosing || this.IsClosed;
 
     /// <summary>
     /// Makes the view port take up as much space in the view port area

@@ -18,11 +18,16 @@
 // 
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Markup.Xaml.Styling;
+using FramePFX.BaseFrontEnd;
+using FramePFX.Plugins;
+using FramePFX.Services.Messaging;
 using FramePFX.Services.VideoEditors;
 
 namespace FramePFX.Avalonia;
@@ -43,7 +48,7 @@ public partial class App : global::Avalonia.Application {
     public override async void OnFrameworkInitializationCompleted() {
         base.OnFrameworkInitializationCompleted();
         AvCore.OnFrameworkInitialised();
-        
+
         IApplicationStartupProgress progress;
         if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop1) {
             desktop1.Exit += this.OnExit;
@@ -80,19 +85,61 @@ public partial class App : global::Avalonia.Application {
             }
 #endif
         }
-        
+
         await progress.ProgressAndSynchroniseAsync("Loading plugins", 0.7);
         using (progress.CompletionState.PushCompletionRange(0.7, 0.9)) {
             await ApplicationImpl.InternalLoadPluginsImpl(progress);
         }
 
         await progress.ProgressAndSynchroniseAsync("Finalizing startup...", 0.99);
-        await ApplicationImpl.InternalOnInitialised();
+
+        List<(Plugin, string)> list = new List<(Plugin, string)>();
+        Application.Instance.PluginLoader.CollectInjectedXamlResources(list);
+        if (list.Count > 0) {
+            List<ResourceInclude> includes = new List<ResourceInclude>();
+
+            // ffmpeg expected: avares://FramePFX.Plugins.FFmpegMedia/FFmpegMediaStyles.axaml
+            List<string> errorLines = new List<string>();
+            foreach ((Plugin plugin, string path) in list) {
+                try {
+                    includes.Add(new ResourceInclude((Uri?) null) {Source = new Uri(path)});
+                }
+                catch {
+                    errorLines.Add(plugin.Name + ": " + plugin);
+                }
+            }
+
+            if (errorLines.Count > 0) {
+                await IMessageDialogService.Instance.ShowMessage("Error loading plugin XAML", "One or more plugins' XAML files are invalid");
+            }
+
+            IList<IResourceProvider> resources = this.Resources.MergedDictionaries;
+            // int indexOfLastResourceInclude = -1;
+            // for (int i = resources.Count - 1; i >= 0; i--) {
+            //     if ((resources[i] is ResourceInclude)) {
+            //         indexOfLastResourceInclude = Math.Min(resources.Count, i + 1);
+            //         break;
+            //     }
+            // }
+            //
+            // if (indexOfLastResourceInclude == -1) {
+            //     indexOfLastResourceInclude = resources.Count;
+            // }
+            // for (int i = 0; i < includes.Count; i++) {
+            //     resources.Insert(indexOfLastResourceInclude + i, includes[i]);
+            // }
+            
+            foreach (ResourceInclude t in includes) {
+                resources.Add(t);
+            }
+        }
+
+        await ApplicationImpl.InternalOnFullyInitialised();
         await Application.Instance.PluginLoader.OnApplicationLoaded();
         if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             (progress as AppSplashScreen)?.Close();
             await StartupManager.Instance.ShowStartupOrOpenProject(envArgs.Length > 1 ? envArgs.Skip(1).ToArray() : Array.Empty<string>());
-            desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            desktop.ShutdownMode = ShutdownMode.OnLastWindowClose;
         }
     }
 

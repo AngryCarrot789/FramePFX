@@ -34,12 +34,4 @@ public class CorePluginDescriptor : PluginDescriptor {
         
         this.PluginType = pluginType;
     }
-    
-    public static CorePluginDescriptor FindType(string fullName) {
-        Type? type = Type.GetType(fullName, true);
-        if (type == null)
-            throw new Exception("Could not find type by full name: " + fullName);
-
-        return new CorePluginDescriptor(type);
-    }
 }

@@ -19,7 +19,7 @@
 
 using System.Threading;
 using Avalonia;
-using FramePFX.Avalonia.Themes.Controls;
+using FramePFX.BaseFrontEnd.Themes.Controls;
 using FramePFX.Editing.Exporting;
 using FramePFX.Editing.Timelines;
 using FramePFX.Tasks;

@@ -19,7 +19,7 @@
 
 using System.Runtime.InteropServices;
 using FFmpeg.AutoGen;
-using FramePFX.Editing;
+using Fractions;
 using FramePFX.FFmpegWrapper;
 using FramePFX.FFmpegWrapper.Containers;
 
@@ -200,7 +200,7 @@ public unsafe class FFmpegReader {
 
     #endregion
 
-    public static Rational GetAspectRatio(MediaStream stream, int width, int height) {
+    public static Fraction GetAspectRatio(MediaStream stream, int width, int height) {
         int pr_num = 1, pr_den = 1;
         AVRational sar = stream.Handle->sample_aspect_ratio;
         if (sar.num != 0) {
@@ -212,8 +212,8 @@ public unsafe class FFmpegReader {
             pr_den = sar.den;
         }
 
-        Rational size = new Rational(width * pr_num, height * pr_den);
-        return size.Reduced;
+        Fraction size = new Fraction(width * pr_num, height * pr_den);
+        return size.Reduce();
     }
 
     #region Helper Stream Functions

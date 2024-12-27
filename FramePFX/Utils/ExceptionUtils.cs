@@ -19,6 +19,7 @@
 
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Security;
 using System.Text;
@@ -91,6 +92,22 @@ public static class ExceptionUtils {
                 else {
                     sb.Append(line).Append(Environment.NewLine);
                 }
+            }
+        }
+
+        return sb.ToString().Trim();
+    }
+
+    public static string GetToString(this StackTrace e, bool fileInfo = true) {
+        StackFrame[] trace = e.GetFrames();
+        StringBuilder sb = new StringBuilder(2048);
+        foreach (StackFrame frame in trace) {
+            string line = $"    at {FormatFrame(frame, fileInfo)}";
+            if (line.EndsWith(Environment.NewLine) || line[line.Length - 1] == '\n') {
+                sb.Append(line);
+            }
+            else {
+                sb.Append(line).Append(Environment.NewLine);
             }
         }
 
@@ -219,6 +236,18 @@ public static class ExceptionUtils {
     public static void Assert(bool condition, string msg) {
         if (!condition) {
             throw new Exception(msg);
+        }
+    }
+
+    public static bool TryExecute<TIn, TOut>(TIn value, Func<TIn, TOut> executor, [MaybeNullWhen(false)] out TOut output) {
+        try {
+            output = executor(value);
+            return true;
+        }
+        catch {
+            output = default;
+            
+            return false;
         }
     }
 }

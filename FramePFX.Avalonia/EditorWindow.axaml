@@ -1,15 +1,16 @@
-<c:WindowEx xmlns="https://github.com/avaloniaui"
+<controls:WindowEx xmlns="https://github.com/avaloniaui"
             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-            xmlns:pe="clr-namespace:FramePFX.Avalonia.PropertyEditing"
-            xmlns:av="clr-namespace:FramePFX.Avalonia.Shortcuts.Avalonia"
-            xmlns:c="clr-namespace:FramePFX.Avalonia.Themes.Controls"
             xmlns:tl="clr-namespace:FramePFX.Avalonia.Editing.Timelines"
-            xmlns:c1="clr-namespace:FramePFX.Avalonia.Editing"
+            xmlns:c1="clr-namespace:FramePFX.BaseFrontEnd.Editing;assembly=FramePFX.BaseFrontEnd"
             xmlns:resourceManaging="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging"
-            xmlns:usages="clr-namespace:FramePFX.Avalonia.CommandSystem.Usages"
-            xmlns:sa="clr-namespace:FramePFX.Avalonia.AdvancedMenuService"
+            xmlns:avalonia="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Avalonia;assembly=FramePFX.BaseFrontEnd"
+            xmlns:editing="clr-namespace:FramePFX.Avalonia.Editing"
+            xmlns:controls="clr-namespace:FramePFX.BaseFrontEnd.Themes.Controls;assembly=FramePFX.BaseFrontEnd"
+            xmlns:advancedMenuService="clr-namespace:FramePFX.BaseFrontEnd.AdvancedMenuService;assembly=FramePFX.BaseFrontEnd"
+            xmlns:propertyEditing="clr-namespace:FramePFX.BaseFrontEnd.PropertyEditing;assembly=FramePFX.BaseFrontEnd"
+            xmlns:commandUsages="clr-namespace:FramePFX.BaseFrontEnd.CommandUsages;assembly=FramePFX.BaseFrontEnd"
             mc:Ignorable="d"
             x:Class="FramePFX.Avalonia.EditorWindow"
             Background="{DynamicResource PanelBackground0}"
@@ -17,7 +18,7 @@
             TitleBarBrush="{DynamicResource ABrush.Tone7.Background.Static}"
             Height="840" Width="1348"
             FontFamily="{StaticResource FontOxanium}" FontWeight="Medium"
-            av:UIInputManager.FocusPath="Application/EditorWindow"
+            avalonia:UIInputManager.FocusPath="Application/EditorWindow"
             WindowStartupLocation="CenterScreen"
             Title="FramePFX">
     <Grid Margin="0" x:Name="PART_EditorWindowContent">
@@ -36,26 +37,26 @@
             currently focused item before focus is switched to a menu item.
             This is used to implement a kind of "contextual" non-context menu item
         -->
-        <sa:ContextCapturingMenu Grid.Row="0" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1"
-                                 Background="{Binding TitleBarBrush, RelativeSource={RelativeSource AncestorType={x:Type c:WindowEx}, Mode=FindAncestor}}">
+        <advancedMenuService:ContextCapturingMenu Grid.Row="0" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1"
+                                 Background="{Binding TitleBarBrush, RelativeSource={RelativeSource AncestorType={x:Type controls:WindowEx}, Mode=FindAncestor}}">
             <MenuItem Header="File">
-                <sa:CommandMenuItem Header="New Project" CommandId="commands.editor.NewProject"/>
-                <sa:CommandMenuItem Header="Open Project..." CommandId="commands.editor.OpenProject"/>
-                <sa:CommandMenuItem Header="Save Project" CommandId="commands.editor.SaveProject"/>
-                <sa:CommandMenuItem Header="Save Project As..." CommandId="commands.editor.SaveProjectAs"/>
-                <sa:CommandMenuItem Header="Close Project" CommandId="commands.editor.CloseProject"/>
+                <advancedMenuService:CommandMenuItem Header="New Project" CommandId="commands.editor.NewProject"/>
+                <advancedMenuService:CommandMenuItem Header="Open Project..." CommandId="commands.editor.OpenProject"/>
+                <advancedMenuService:CommandMenuItem Header="Save Project" CommandId="commands.editor.SaveProject"/>
+                <advancedMenuService:CommandMenuItem Header="Save Project As..." CommandId="commands.editor.SaveProjectAs"/>
+                <advancedMenuService:CommandMenuItem Header="Close Project" CommandId="commands.editor.CloseProject"/>
                 <Separator/>
-                <sa:CommandMenuItem Header="Open Editor Settings" CommandId="commands.editor.OpenEditorSettings"
+                <advancedMenuService:CommandMenuItem Header="Open Editor Settings" CommandId="commands.editor.OpenEditorSettings"
                                     ToolTip.Tip="Opens the editor's settings in a dialog"/>
-                <sa:CommandMenuItem Header="Open Project Settings" CommandId="commands.editor.OpenProjectSettings"
+                <advancedMenuService:CommandMenuItem Header="Open Project Settings" CommandId="commands.editor.OpenProjectSettings"
                                     ToolTip.Tip="Opens the project's settings in a dialog"/>
                 <Separator/>
-                <sa:CommandMenuItem Header="Export" CommandId="commands.editor.Export"
+                <advancedMenuService:CommandMenuItem Header="Export" CommandId="commands.editor.Export"
                                     ToolTip.Tip="Export the current project"/>
-                <sa:CommandMenuItem Header="Export Active Timeline" CommandId="commands.generic.ExportActiveTimelineCommand"
+                <advancedMenuService:CommandMenuItem Header="Export Active Timeline" CommandId="commands.generic.ExportActiveTimelineCommand"
                                     ToolTip.Tip="Exports the currently active timeline only (not the project timeline)"/>
             </MenuItem>
-        </sa:ContextCapturingMenu>
+        </advancedMenuService:ContextCapturingMenu>
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" MinHeight="100"/>
@@ -72,7 +73,7 @@
                 </Grid.ColumnDefinitions>
                 <Border Background="{DynamicResource PanelBackground3}">
                     <TabControl BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0" Margin="0">
-                        <TabItem Header="Resources" av:UIInputManager.FocusPath="Application/EditorWindow/ResourceManager">
+                        <TabItem Header="Resources" avalonia:UIInputManager.FocusPath="Application/EditorWindow/ResourceManager">
                             <resourceManaging:ResourcePanelControl x:Name="PART_ResourcePanelControl"/>
                         </TabItem>
                         <!--
@@ -81,12 +82,12 @@
                             <tv:FileTreeView x:Name="PART_FileTree"/>
                         </TabItem>
                         -->
-                        <TabItem Header="Effects" av:UIInputManager.FocusPath="Application/EditorWindow/EffectSourcePanel">
+                        <TabItem Header="Effects" avalonia:UIInputManager.FocusPath="Application/EditorWindow/EffectSourcePanel">
                         </TabItem>
                     </TabControl>
                 </Border>
-                <c:GroupBox Grid.Column="2" BorderThickness="0" Header="View Port Preview" BorderBrush="{DynamicResource PanelBorderBrush}"
-                            av:UIInputManager.FocusPath="Application/EditorWindow/ViewPort"
+                <controls:GroupBox Grid.Column="2" BorderThickness="0" Header="View Port Preview" BorderBrush="{DynamicResource PanelBorderBrush}"
+                            avalonia:UIInputManager.FocusPath="Application/EditorWindow/ViewPort"
                             Focusable="True">
                     <DockPanel>
                         <Border Background="{DynamicResource ABrush.Tone5.Background.Static}" DockPanel.Dock="Bottom" Height="32" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0 1 0 0">
@@ -131,55 +132,55 @@
                             <Grid>
                                 <ComboBox x:Name="PART_RenderQualityComboBox" HorizontalAlignment="Left" BorderThickness="0" ToolTip.Tip="Rendering quality"/>
                                 <Button Content="Edit Project Settings" HorizontalAlignment="Right" Padding="15,0" BorderThickness="0"
-                                        usages:CommandUsageManager.SimpleButtonCommandId="commands.editor.OpenProjectSettings"
+                                        commandUsages:CommandUsageManager.SimpleButtonCommandId="commands.editor.OpenProjectSettings"
                                         ToolTip.Tip="Opens the project's settings in a dialog"/>
                             </Grid>
                         </Border>
                         <Grid Background="Transparent">
-                            <c1:VideoEditorViewPortControl x:Name="PART_ViewPort"
+                            <editing:VideoEditorViewPortControl x:Name="PART_ViewPort"
                                                            Background="Transparent"
                                                            Focusable="True"
-                                                           av:UIInputManager.FocusPath="Application/EditorWindow/Canvas">
-                                <c1:VideoEditorViewPortControl.Styles>
-                                    <Style Selector="c1|VideoEditorViewPortControl[IsFocused=false]">
+                                                           avalonia:UIInputManager.FocusPath="Application/EditorWindow/Canvas">
+                                <editing:VideoEditorViewPortControl.Styles>
+                                    <Style Selector="editing|VideoEditorViewPortControl[IsFocused=false]">
                                         <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
                                     </Style>
-                                    <Style Selector="c1|VideoEditorViewPortControl[IsFocused=true]">
+                                    <Style Selector="editing|VideoEditorViewPortControl[IsFocused=true]">
                                         <Setter Property="BorderBrush" Value="DodgerBlue"/>
                                     </Style>
-                                </c1:VideoEditorViewPortControl.Styles>
-                            </c1:VideoEditorViewPortControl>
+                                </editing:VideoEditorViewPortControl.Styles>
+                            </editing:VideoEditorViewPortControl>
                         </Grid>
                     </DockPanel>
-                </c:GroupBox>
-                <c:GroupBox Grid.Column="4" BorderThickness="0" Header="Property Editor" BorderBrush="{DynamicResource PanelBorderBrush}"
-                            av:UIInputManager.FocusPath="Application/EditorWindow/PropertyEditor" Focusable="True">
+                </controls:GroupBox>
+                <controls:GroupBox Grid.Column="4" BorderThickness="0" Header="Property Editor" BorderBrush="{DynamicResource PanelBorderBrush}"
+                            avalonia:UIInputManager.FocusPath="Application/EditorWindow/PropertyEditor" Focusable="True">
                     <Border Background="{DynamicResource PanelBackground3}">
-                        <pe:PropertyEditorControl x:Name="ThePropertyEditor" Focusable="True" Background="Transparent"/>
+                        <propertyEditing:PropertyEditorControl x:Name="ThePropertyEditor" Focusable="True" Background="Transparent"/>
                     </Border>
-                </c:GroupBox>
+                </controls:GroupBox>
                 <Border Grid.Column="1" Focusable="False" UseLayoutRounding="True" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                 <GridSplitter Grid.Column="1" Focusable="False" BorderThickness="0" Background="Transparent" Margin="-5,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                 <Border Grid.Column="3" Focusable="False" UseLayoutRounding="True" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
                 <GridSplitter Grid.Column="3" Focusable="False" BorderThickness="0" Background="Transparent" Margin="-5,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </Grid>
-            <c:GroupBox Grid.Row="2"
+            <controls:GroupBox Grid.Row="2"
                         Grid.ColumnSpan="3"
                         BorderThickness="0" Background="{DynamicResource ABrush.Tone5.Background.Static}"
                         Focusable="True" BorderBrush="{DynamicResource PanelBorderBrush}"
-                        av:UIInputManager.FocusPath="Application/EditorWindow/Timeline"
+                        avalonia:UIInputManager.FocusPath="Application/EditorWindow/Timeline"
                         x:Name="PART_TimelinePresenterGroupBox">
-                <c:GroupBox.Header>
+                <controls:GroupBox.Header>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Timeline" x:Name="PART_TimelineName" VerticalAlignment="Center"/>
                         <Separator Theme="{StaticResource VerticalSeparatorTheme}" Margin="5,0"/>
                         <Button x:Name="PART_CloseTimelineButton" Click="CloseTimelineClick" Content="Close Timeline" ToolTip.Tip="Closes the active composition timeline and opens the project timeline" Padding="5,2"/>
                     </StackPanel>
-                </c:GroupBox.Header>
+                </controls:GroupBox.Header>
                 <Border>
                     <tl:TimelineControl VerticalAlignment="Stretch" x:Name="TheTimeline"/>
                 </Border>
-            </c:GroupBox>
+            </controls:GroupBox>
             <Border Grid.Row="1" BorderThickness="0" Background="{DynamicResource PanelBorderBrush}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             <GridSplitter Grid.Row="1" BorderThickness="0" Background="Transparent" Margin="0,-3,0,-12" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
         </Grid>
@@ -229,4 +230,4 @@
             </DockPanel>
         </Border>
     </Grid>
-</c:WindowEx>
+</controls:WindowEx>

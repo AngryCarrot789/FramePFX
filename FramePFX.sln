@@ -34,6 +34,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FramePFX.Plugins.CircleClip
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FramePFX.Plugins.AnotherTestPlugin", "FramePFX.Plugins.AnotherTestPlugin\FramePFX.Plugins.AnotherTestPlugin.csproj", "{F114E9FE-B680-408B-9090-2690D91CB63C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FramePFX.BaseFrontEnd", "FramePFX.BaseFrontEnd\FramePFX.BaseFrontEnd.csproj", "{98D14D78-DA41-4CE3-9274-0C27823FC6EE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CorePlugins", "CorePlugins", "{1D2D23D9-F6DB-4740-A50A-B94CB12EE577}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FramePFX.Plugins.FFmpegMedia", "FramePFX.Plugins.FFmpegMedia\FramePFX.Plugins.FFmpegMedia.csproj", "{51FCC121-502E-4A8C-BBBE-9298AAF379F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -56,19 +62,32 @@ Global
 		{4FFAF3C7-639D-3D9E-BCC9-21C43FCC0652}.Debug|x64.Build.0 = Debug|x64
 		{4FFAF3C7-639D-3D9E-BCC9-21C43FCC0652}.Release|x64.ActiveCfg = Release|x64
 		{4FFAF3C7-639D-3D9E-BCC9-21C43FCC0652}.Release|x64.Build.0 = Release|x64
-		{2FC5EC2B-0C71-4796-872D-3EE6BC824D4C}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{2FC5EC2B-0C71-4796-872D-3EE6BC824D4C}.Debug|x64.Build.0 = Debug|Any CPU
-		{2FC5EC2B-0C71-4796-872D-3EE6BC824D4C}.Release|x64.ActiveCfg = Release|Any CPU
-		{2FC5EC2B-0C71-4796-872D-3EE6BC824D4C}.Release|x64.Build.0 = Release|Any CPU
-		{F114E9FE-B680-408B-9090-2690D91CB63C}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{F114E9FE-B680-408B-9090-2690D91CB63C}.Debug|x64.Build.0 = Debug|Any CPU
-		{F114E9FE-B680-408B-9090-2690D91CB63C}.Release|x64.ActiveCfg = Release|Any CPU
-		{F114E9FE-B680-408B-9090-2690D91CB63C}.Release|x64.Build.0 = Release|Any CPU
+		{2FC5EC2B-0C71-4796-872D-3EE6BC824D4C}.Debug|x64.ActiveCfg = Debug|x64
+		{2FC5EC2B-0C71-4796-872D-3EE6BC824D4C}.Debug|x64.Build.0 = Debug|x64
+		{2FC5EC2B-0C71-4796-872D-3EE6BC824D4C}.Release|x64.ActiveCfg = Release|x64
+		{2FC5EC2B-0C71-4796-872D-3EE6BC824D4C}.Release|x64.Build.0 = Release|x64
+		{F114E9FE-B680-408B-9090-2690D91CB63C}.Debug|x64.ActiveCfg = Debug|x64
+		{F114E9FE-B680-408B-9090-2690D91CB63C}.Debug|x64.Build.0 = Debug|x64
+		{F114E9FE-B680-408B-9090-2690D91CB63C}.Release|x64.ActiveCfg = Release|x64
+		{F114E9FE-B680-408B-9090-2690D91CB63C}.Release|x64.Build.0 = Release|x64
+		{98D14D78-DA41-4CE3-9274-0C27823FC6EE}.Debug|x64.ActiveCfg = Debug|x64
+		{98D14D78-DA41-4CE3-9274-0C27823FC6EE}.Debug|x64.Build.0 = Debug|x64
+		{98D14D78-DA41-4CE3-9274-0C27823FC6EE}.Release|x64.ActiveCfg = Release|x64
+		{98D14D78-DA41-4CE3-9274-0C27823FC6EE}.Release|x64.Build.0 = Release|x64
+		{51FCC121-502E-4A8C-BBBE-9298AAF379F3}.Debug|x64.ActiveCfg = Debug|x64
+		{51FCC121-502E-4A8C-BBBE-9298AAF379F3}.Debug|x64.Build.0 = Debug|x64
+		{51FCC121-502E-4A8C-BBBE-9298AAF379F3}.Release|x64.ActiveCfg = Release|x64
+		{51FCC121-502E-4A8C-BBBE-9298AAF379F3}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AAB9BB0E-2ADF-4AD1-850C-EE500E4E4AB7}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2FC5EC2B-0C71-4796-872D-3EE6BC824D4C} = {1D2D23D9-F6DB-4740-A50A-B94CB12EE577}
+		{F114E9FE-B680-408B-9090-2690D91CB63C} = {1D2D23D9-F6DB-4740-A50A-B94CB12EE577}
+		{51FCC121-502E-4A8C-BBBE-9298AAF379F3} = {1D2D23D9-F6DB-4740-A50A-B94CB12EE577}
 	EndGlobalSection
 EndGlobal

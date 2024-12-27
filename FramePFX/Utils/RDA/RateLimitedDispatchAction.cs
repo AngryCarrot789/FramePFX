@@ -55,7 +55,7 @@ public abstract class RateLimitedDispatchActionBase {
     public string? DebugName { get; set; }
 
 #if DEBUG
-    private StackTrace CreationStackTrace { get; } = new StackTrace();
+    private string CreationStackTrace { get; } = new StackTrace().GetToString();
 #endif
 
     protected RateLimitedDispatchActionBase() : this(DefaultTimeout) { }

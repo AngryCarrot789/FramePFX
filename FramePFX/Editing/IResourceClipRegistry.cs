@@ -38,7 +38,6 @@ public sealed class ResourceDropOnTimelineService {
 
     public ResourceDropOnTimelineService() {
         this.information = new Dictionary<Type, IResourceDropHandler>();
-        this.Register(typeof(ResourceAVMedia), new AvMediaDropHandler());
         this.Register(typeof(ResourceColour), new ResourceColourDropHandler());
         this.Register(typeof(ResourceImage), new ResourceImageDropHandler());
         this.Register(typeof(ResourceComposition), new CompositionResourceDropHandler());
@@ -55,33 +54,6 @@ public sealed class ResourceDropOnTimelineService {
     }
 
     public bool TryGetHandler(Type key, [NotNullWhen(true)] out IResourceDropHandler? value) => this.information.TryGetValue(key, out value);
-
-    private class AvMediaDropHandler : IResourceDropHandler {
-        public long GetClipDurationForDrop(Track track, ResourceItem resource) {
-            if (resource.Manager == null)
-                return -1;
-
-            TimeSpan duration = ((ResourceAVMedia) resource).GetDuration();
-            double fps = resource.Manager.Project.Settings.FrameRate.AsDouble;
-
-            return (long) (duration.TotalSeconds * fps);
-        }
-
-        public async Task OnDroppedInTrack(Track track, ResourceItem resource, FrameSpan span) {
-            if (resource.HasReachedResourceLimit()) {
-                int count = resource.ResourceLinkLimit;
-                await IMessageDialogService.Instance.ShowMessage("Resource Limit", $"This resource cannot be used by more than {count} clip{Lang.S(count)}");
-                return;
-            }
-
-            ResourceAVMedia media = (ResourceAVMedia) resource;
-            AVMediaVideoClip clip = new AVMediaVideoClip();
-            clip.FrameSpan = span;
-            await clip.ResourceHelper.SetResourceHelper(AVMediaVideoClip.MediaKey, media);
-
-            track.AddClip(clip);
-        }
-    }
 
     private class ResourceImageDropHandler : IResourceDropHandler {
         public long GetClipDurationForDrop(Track track, ResourceItem resource) => 300;

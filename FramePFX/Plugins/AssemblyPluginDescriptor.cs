@@ -25,7 +25,10 @@ namespace FramePFX.Plugins;
 public class AssemblyPluginDescriptor : PluginDescriptor {
     /// <summary>
     /// Gets or sets the DLL path that contains the plugin class. This can be relative to the plugin folder,
-    /// so it can just be the actual DLL's name, with .dll on the end
+    /// so it can just be the actual DLL's name, with .dll on the end.
+    /// <para>
+    /// When the plugin is created, this property is updated to the absolute path
+    /// </para>
     /// </summary>
     public string? EntryPointLibraryPath { get; set; }
 
@@ -33,6 +36,4 @@ public class AssemblyPluginDescriptor : PluginDescriptor {
     /// Gets or sets the full type name of the class that extends <see cref="Plugin"/> 
     /// </summary>
     public string? EntryPoint { get; set; }
-
-    public List<string>? XamlResources { get; set; }
 }

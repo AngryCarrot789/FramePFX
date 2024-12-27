@@ -1,0 +1,440 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:dragger="clr-namespace:FramePFX.BaseFrontEnd.AvControls.Dragger;assembly=FramePFX.BaseFrontEnd"
+                    xmlns:pea="clr-namespace:FramePFX.BaseFrontEnd.PropertyEditing.Automation"
+                    xmlns:converters="clr-namespace:FramePFX.BaseFrontEnd.Converters"
+                    xmlns:ac="clr-namespace:FramePFX.BaseFrontEnd.PropertyEditing.Core"
+                    xmlns:l="clr-namespace:FramePFX.BaseFrontEnd.PropertyEditing"
+                    xmlns:dt="clr-namespace:FramePFX.BaseFrontEnd.PropertyEditing.DataTransfer"
+                    xmlns:enums="clr-namespace:FramePFX.BaseFrontEnd.PropertyEditing.DataTransfer.Enums"
+                    xmlns:dta="clr-namespace:FramePFX.BaseFrontEnd.PropertyEditing.DataTransfer.Automatic">
+    <ControlTheme x:Key="{x:Type pea:KeyFrameToolsControl}" TargetType="{x:Type pea:KeyFrameToolsControl}">
+        <Setter Property="Background" Value="{DynamicResource ABrush.Tone4.Border.Static}"/>
+        <Setter Property="BorderBrush" Value="Black"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type pea:KeyFrameToolsControl}">
+                    <StackPanel x:Name="PART_AutomationPanel" Orientation="Horizontal" Spacing="1">
+                        <Button x:Name="PART_InsertKeyFrame" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                Height="20" Width="20" CornerRadius="2"
+                                ToolTip.Tip="Insert a key frame at the current play head">
+                            <Ellipse Width="8" Height="8" Fill="{DynamicResource ABrush.Glyph.Static}"/>
+                        </Button>
+                        <ToggleButton x:Name="PART_ToggleOverride" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                      Height="20" Width="20" CornerRadius="2" IsThreeState="False"
+                                      ToolTip.Tip="Toggles the parameter override state for this track. This is used to enable or disable automation for the parameter">
+                            <TextBlock Text="O" Margin="0,1,0,0"/>
+                        </ToggleButton>
+                        <Button x:Name="PART_ResetValue" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                Width="20" Height="20" CornerRadius="2" ToolTip.Tip="Reset the value to the default (for this parameter)">
+                            <Path Width="12" Height="14" Stretch="Fill" Fill="{DynamicResource ABrush.Glyph.Static}" Data="{StaticResource ResetGeometry}"/>
+                        </Button>
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+
+    <ControlTheme x:Key="NonToggleableCheckBox" TargetType="{x:Type CheckBox}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Foreground.Static}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type CheckBox}">
+                    <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="Left"
+                                      RecognizesAccessKey="True"
+                                      VerticalAlignment="Center"
+                                      Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+
+    <converters:BoolConverter x:Key="IsCheckBoxToggleableToStyleConverter" TrueValue="{StaticResource {x:Type CheckBox}}" FalseValue="{StaticResource NonToggleableCheckBox}"/>
+
+    <!-- Specific Property Editors -->
+
+    <ControlTheme x:Key="{x:Type ac:DisplayNamePropertyEditorControl}" TargetType="{x:Type ac:DisplayNamePropertyEditorControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ac:DisplayNamePropertyEditorControl}">
+                    <Grid Margin="5,0,2,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Display Name" Grid.Column="0" VerticalAlignment="Center"/>
+                        <TextBox x:Name="PART_TextBox" Grid.Column="2" Padding="2" VerticalAlignment="Center"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type ac:TimecodeFontFamilyPropertyEditorControl}" TargetType="{x:Type ac:TimecodeFontFamilyPropertyEditorControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ac:TimecodeFontFamilyPropertyEditorControl}">
+                    <Grid Margin="5,0,2,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Font" Grid.Column="0" VerticalAlignment="Center"/>
+                        <TextBox x:Name="PART_TextBox" Grid.Column="2" Padding="2" VerticalAlignment="Center" Tag="e.g. Consolas"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type ac:VideoClipMediaFrameOffsetPropertyEditorControl}" TargetType="{x:Type ac:VideoClipMediaFrameOffsetPropertyEditorControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ac:VideoClipMediaFrameOffsetPropertyEditorControl}">
+                    <Grid Margin="5,0,2,0" ToolTip.Tip="A frame offset from the start of this clip which is where the actual media begins">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Media Offset" Grid.Column="0" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="PART_TextBlock" Grid.Column="2" Padding="2" VerticalAlignment="Center"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+
+    <!-- ######################################################################################################################################################################## -->
+
+    <!-- Data Transferable Property Editors -->
+    <ControlTheme x:Key="{x:Type dt:BaseNumberDraggerDataParamPropEditorControl}" TargetType="{x:Type dt:BaseNumberDraggerDataParamPropEditorControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type dt:BaseNumberDraggerDataParamPropEditorControl}">
+                    <Grid Margin="5,0,2,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox x:Name="PART_DisplayNameCheckBox" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0"
+                                  Theme="{TemplateBinding IsCheckBoxToggleable, Converter={StaticResource IsCheckBoxToggleableToStyleConverter}}"
+                                  Focusable="False"/>
+                        <DockPanel Grid.Row="0" Grid.Column="2" Height="20">
+                            <Button x:Name="PART_ResetButton" Margin="2,0,0,0"
+                                    Background="{DynamicResource ABrush.Tone4.Border.Static}"
+                                    BorderBrush="Black"
+                                    Width="20" Height="20" CornerRadius="2"
+                                    ToolTip.Tip="Reset value" DockPanel.Dock="Right" Focusable="False">
+                                <Path Width="12" Height="14" Stretch="Fill" Fill="{DynamicResource ABrush.Glyph.Static}" Data="{StaticResource ResetGeometry}"/>
+                            </Button>
+                            <dragger:NumberDragger x:Name="PART_Dragger" BorderBrush="Black" Padding="4,2"/>
+                        </DockPanel>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type dt:DataParameterVector2PropertyEditorControl}" TargetType="{x:Type dt:DataParameterVector2PropertyEditorControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type dt:DataParameterVector2PropertyEditorControl}">
+                    <Grid Margin="5,0,2,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox x:Name="PART_DisplayNameCheckBox" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0"
+                                  Theme="{TemplateBinding IsCheckBoxToggleable, Converter={StaticResource IsCheckBoxToggleableToStyleConverter}}"
+                                  Focusable="False"/>
+                        <Grid Grid.Row="0" Grid.Column="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="2"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="2"/>
+                                <ColumnDefinition Width="20"/>
+                            </Grid.ColumnDefinitions>
+                            <dragger:NumberDragger x:Name="PART_DraggerX" Height="20" Grid.Column="0" BorderBrush="Black" Padding="4,2"/>
+                            <dragger:NumberDragger x:Name="PART_DraggerY" Height="20" Grid.Column="2" BorderBrush="Black" Padding="4,2"/>
+                            <Button x:Name="PART_ResetButton" Margin="0"
+                                    Background="{DynamicResource ABrush.Tone4.Border.Static}"
+                                    BorderBrush="Black"
+                                    Width="20" Height="20" CornerRadius="2"
+                                    ToolTip.Tip="Reset value" Grid.Column="4" Focusable="False">
+                                <Path Width="12" Height="14" Stretch="Fill" Fill="{DynamicResource ABrush.Glyph.Static}" Data="{StaticResource ResetGeometry}"/>
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type dt:DataParameterBoolPropertyEditorControl}" TargetType="{x:Type dt:DataParameterBoolPropertyEditorControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type dt:DataParameterBoolPropertyEditorControl}">
+                    <Grid Margin="5,0,2,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox x:Name="PART_DisplayNameCheckBox" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0"
+                                  Theme="{TemplateBinding IsCheckBoxToggleable, Converter={StaticResource IsCheckBoxToggleableToStyleConverter}}"
+                                  Focusable="False"/>
+                        <CheckBox x:Name="PART_CheckBox" Grid.Row="0" Grid.Column="2" Height="20" HorizontalContentAlignment="Left" Padding="4,2"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type dt:DataParameterStringPropertyEditorControl}" TargetType="{x:Type dt:DataParameterStringPropertyEditorControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type dt:DataParameterStringPropertyEditorControl}">
+                    <Grid Margin="5,0,2,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox x:Name="PART_DisplayNameCheckBox" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Focusable="False"
+                                  Theme="{TemplateBinding IsCheckBoxToggleable, Converter={StaticResource IsCheckBoxToggleableToStyleConverter}}"
+                                  Padding="0,4"/>
+                        <TextBox x:Name="PART_TextBox" Grid.Column="2" Padding="2" VerticalAlignment="Center"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type dt:DataParameterFloatPropertyEditorControl}"
+                  TargetType="{x:Type dt:DataParameterFloatPropertyEditorControl}"
+                  BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorControl}}"/>
+
+    <ControlTheme x:Key="{x:Type dt:DataParameterDoublePropertyEditorControl}"
+                  TargetType="{x:Type dt:DataParameterDoublePropertyEditorControl}"
+                  BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorControl}}"/>
+
+    <ControlTheme x:Key="{x:Type dt:DataParameterLongPropertyEditorControl}"
+                  TargetType="{x:Type dt:DataParameterLongPropertyEditorControl}"
+                  BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorControl}}"/>
+
+    <ControlTheme x:Key="{x:Type dt:DataParameterColourPropertyEditorControl}"
+                  TargetType="{x:Type dt:DataParameterColourPropertyEditorControl}">
+        <Setter Property="Template">
+            <ControlTemplate TargetType="{x:Type dt:DataParameterColourPropertyEditorControl}">
+                <Grid Margin="5,0,2,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
+                        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
+                        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox x:Name="PART_DisplayNameCheckBox" VerticalAlignment="Top" Grid.Row="0" Grid.Column="0" Focusable="False" Padding="0,4"
+                              Theme="{TemplateBinding IsCheckBoxToggleable, Converter={StaticResource IsCheckBoxToggleableToStyleConverter}}"/>
+                    <Rectangle x:Name="PART_Rectangle" Grid.Row="0" Grid.Column="2" Height="24" Margin="0,2"/>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+
+
+    <ControlTheme x:Key="{x:Type enums:BaseEnumDataParameterPropertyEditorControlEx}" TargetType="{x:Type enums:BaseEnumDataParameterPropertyEditorControlEx}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type enums:BaseEnumDataParameterPropertyEditorControlEx}">
+                    <Grid Margin="5,0,2,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox x:Name="PART_DisplayNameCheckBox" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0" Focusable="False"
+                                  Theme="{TemplateBinding IsCheckBoxToggleable, Converter={StaticResource IsCheckBoxToggleableToStyleConverter}}"/>
+                        <ComboBox x:Name="PART_ComboBox" Grid.Row="0" Grid.Column="2"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type dta:AutomaticDataParameterFloatPropertyEditorControl}"
+                  TargetType="{x:Type dta:AutomaticDataParameterFloatPropertyEditorControl}"
+                  BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorControl}}"/>
+    <ControlTheme x:Key="{x:Type dta:AutomaticDataParameterDoublePropertyEditorControl}"
+                  TargetType="{x:Type dta:AutomaticDataParameterDoublePropertyEditorControl}"
+                  BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorControl}}"/>
+    <ControlTheme x:Key="{x:Type dta:AutomaticDataParameterLongPropertyEditorControl}"
+                  TargetType="{x:Type dta:AutomaticDataParameterLongPropertyEditorControl}"
+                  BasedOn="{StaticResource {x:Type dt:BaseNumberDraggerDataParamPropEditorControl}}"/>
+
+    <Design.PreviewWith>
+        <dta:AutomaticDataParameterVector2PropertyEditorControl/>
+    </Design.PreviewWith>
+
+    <ControlTheme x:Key="{x:Type dta:AutomaticDataParameterVector2PropertyEditorControl}"
+                  TargetType="{x:Type dta:AutomaticDataParameterVector2PropertyEditorControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type dt:DataParameterVector2PropertyEditorControl}">
+                    <Grid Margin="5,0,2,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox x:Name="PART_DisplayNameCheckBox" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0"
+                                  Theme="{TemplateBinding IsCheckBoxToggleable, Converter={StaticResource IsCheckBoxToggleableToStyleConverter}}"
+                                  Focusable="False"/>
+                        <Grid Grid.Row="0" Grid.Column="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="2"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="2"/>
+                                <ColumnDefinition Width="20"/>
+                            </Grid.ColumnDefinitions>
+                            <dragger:NumberDragger x:Name="PART_DraggerX" Height="20" Grid.Column="0" BorderBrush="Black" Padding="4,2"/>
+                            <dragger:NumberDragger x:Name="PART_DraggerY" Height="20" Grid.Column="2" BorderBrush="Black" Padding="4,2"/>
+                            <!--
+                            <Button x:Name="PART_SetAutomaticButton" Margin="0"
+                                    Background="{DynamicResource ABrush.Tone4.Border.Static}"
+                                    BorderBrush="Black"
+                                    Width="20" Height="20" CornerRadius="2"
+                                    ToolTip.Tip="Make this parameter automatically calculated" 
+                                    Grid.Column="4" Focusable="False">
+                                <Path Width="12" Height="14" Stretch="Fill" Fill="{DynamicResource ABrush.Glyph.Static}" Data="M0 40 10 0 25 0 35 40 30 40 21 5 14 5 5 40ZM11.4286 15 23.5714 15 23.3142 14 11.6857 14"/>
+                            </Button>
+                            -->
+                            <Button x:Name="PART_ResetButton" Margin="0"
+                                    Background="{DynamicResource ABrush.Tone4.Border.Static}"
+                                    BorderBrush="Black"
+                                    Width="20" Height="20" CornerRadius="2"
+                                    ToolTip.Tip="Reset value" Grid.Column="4" Focusable="False">
+                                <Path Width="12" Height="14" Stretch="Fill" Fill="{DynamicResource ABrush.Glyph.Static}" Data="{StaticResource ResetGeometry}"/>
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+
+    <!-- ################################################################################################################## -->
+
+    <!-- Automatable Property Editors -->
+
+    <ControlTheme x:Key="{x:Type pea:BaseParameterPropertyEditorControl}" TargetType="{x:Type pea:BaseParameterPropertyEditorControl}">
+        <Setter Property="AutomationLedBrush" Value="{DynamicResource ABrush.AutomationActiveColour.Static}"/>
+    </ControlTheme>
+
+    <TextBlock x:Key="AutomationLedTooltipTextBlock" x:Shared="True">
+        <Run Text="This LED being visible indicates key frames are present for this parameter"/>
+        <LineBreak/>
+        <!-- must remain single lined!!! avalonia is weird and it isn't drawn the same when multi-line -->
+        <Run Text="When "/><Run BaselineAlignment="Center" Text="lit" Foreground="{DynamicResource ABrush.AutomationActiveColour.Static}"/><Run Text=", it means automation is active, and grey (off) means override is enabled"/>
+    </TextBlock>
+
+    <ControlTheme x:Key="{x:Type pea:BaseNumericParameterPropEditorControl}" TargetType="{x:Type pea:BaseNumericParameterPropEditorControl}" BasedOn="{StaticResource {x:Type pea:BaseParameterPropertyEditorControl}}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type pea:BaseNumericParameterPropEditorControl}">
+                    <Grid Margin="5,0,2,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                            <TextBlock x:Name="PART_DisplayName" VerticalAlignment="Center"/>
+                            <Ellipse x:Name="PART_AutomationLED" Fill="{DynamicResource ABrush.AutomationActiveColour.Static}"
+                                     Stroke="Black" StrokeThickness="1" Width="7" Margin="2,2,0,0"
+                                     Height="7" IsVisible="False" VerticalAlignment="Top"
+                                     ToolTip.Tip="{StaticResource AutomationLedTooltipTextBlock}"/>
+                        </StackPanel>
+                        <DockPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Center">
+                            <pea:KeyFrameToolsControl x:Name="PART_KeyFrameTools" Margin="2,0,0,0" DockPanel.Dock="Right"/>
+                            <dragger:NumberDragger x:Name="PART_DraggerX" BorderBrush="Black" Padding="4,2"/>
+                        </DockPanel>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type pea:ParameterFloatPropertyEditorControl}" TargetType="{x:Type pea:ParameterFloatPropertyEditorControl}" BasedOn="{StaticResource {x:Type pea:BaseNumericParameterPropEditorControl}}"/>
+    <ControlTheme x:Key="{x:Type pea:ParameterDoublePropertyEditorControl}" TargetType="{x:Type pea:ParameterDoublePropertyEditorControl}" BasedOn="{StaticResource {x:Type pea:BaseNumericParameterPropEditorControl}}"/>
+    <ControlTheme x:Key="{x:Type pea:ParameterLongPropertyEditorControl}" TargetType="{x:Type pea:ParameterLongPropertyEditorControl}" BasedOn="{StaticResource {x:Type pea:BaseNumericParameterPropEditorControl}}"/>
+
+    <ControlTheme x:Key="{x:Type pea:ParameterBoolPropertyEditorControl}" TargetType="{x:Type pea:ParameterBoolPropertyEditorControl}" BasedOn="{StaticResource {x:Type pea:BaseParameterPropertyEditorControl}}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type pea:ParameterBoolPropertyEditorControl}">
+                    <Grid Margin="5,0,2,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                            <TextBlock x:Name="PART_DisplayName" VerticalAlignment="Center"/>
+                            <Ellipse x:Name="PART_AutomationLED" Fill="{DynamicResource ABrush.AutomationActiveColour.Static}"
+                                     Stroke="Black" StrokeThickness="1" Width="7" Margin="2,2,0,0"
+                                     Height="7" IsVisible="False" VerticalAlignment="Top"
+                                     ToolTip.Tip="{StaticResource AutomationLedTooltipTextBlock}"/>
+                        </StackPanel>
+                        <DockPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Center">
+                            <pea:KeyFrameToolsControl x:Name="PART_KeyFrameTools" Margin="2,0,0,0" DockPanel.Dock="Right"/>
+                            <CheckBox x:Name="PART_ValueCheckBox"/>
+                        </DockPanel>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type pea:ParameterVector2PropertyEditorControl}" TargetType="{x:Type pea:ParameterVector2PropertyEditorControl}" BasedOn="{StaticResource {x:Type pea:BaseParameterPropertyEditorControl}}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type pea:ParameterVector2PropertyEditorControl}">
+                    <Grid Margin="5,0,2,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth0, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth1, Mode=TwoWay}"/>
+                            <ColumnDefinition Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type l:PropertyEditorControl}}, Path=ColumnWidth2, Mode=TwoWay}"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                            <TextBlock x:Name="PART_DisplayName" VerticalAlignment="Center"/>
+                            <Ellipse x:Name="PART_AutomationLED" Fill="{DynamicResource ABrush.AutomationActiveColour.Static}"
+                                     Stroke="Black" StrokeThickness="1" Width="7" Margin="2,2,0,0"
+                                     Height="7" IsVisible="False" VerticalAlignment="Top"
+                                     ToolTip.Tip="{StaticResource AutomationLedTooltipTextBlock}"/>
+                        </StackPanel>
+                        <DockPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Center">
+                            <pea:KeyFrameToolsControl x:Name="PART_KeyFrameTools" Margin="2,0,0,0" DockPanel.Dock="Right"/>
+                            <Grid ColumnDefinitions="*,2,*">
+                                <dragger:NumberDragger x:Name="PART_DraggerX" Grid.Column="0" BorderBrush="Black" Padding="4,2"/>
+                                <dragger:NumberDragger x:Name="PART_DraggerY" Grid.Column="2" BorderBrush="Black" Padding="4,2"/>
+                            </Grid>
+                        </DockPanel>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+
+    <!-- ################################################################################################################## -->
+
+
+</ResourceDictionary>

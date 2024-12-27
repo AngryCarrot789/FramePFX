@@ -1,10 +1,10 @@
-<c:WindowEx xmlns="https://github.com/avaloniaui"
+<controls:WindowEx xmlns="https://github.com/avaloniaui"
             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-            xmlns:c="clr-namespace:FramePFX.Avalonia.Themes.Controls"
-            xmlns:dr="clr-namespace:FramePFX.Avalonia.AvControls.Dragger"
-            xmlns:pe="clr-namespace:FramePFX.Avalonia.PropertyEditing"
+            xmlns:dragger="clr-namespace:FramePFX.BaseFrontEnd.AvControls.Dragger;assembly=FramePFX.BaseFrontEnd"
+            xmlns:controls="clr-namespace:FramePFX.BaseFrontEnd.Themes.Controls;assembly=FramePFX.BaseFrontEnd"
+            xmlns:propertyEditing="clr-namespace:FramePFX.BaseFrontEnd.PropertyEditing;assembly=FramePFX.BaseFrontEnd"
             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
             x:Class="FramePFX.Avalonia.Exporting.ExportDialog"
             Height="450" Width="400"
@@ -23,13 +23,13 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="Begin Frame" Padding="0,0,0,2" HorizontalAlignment="Center"/>
-                    <dr:NumberDragger x:Name="PART_BeginFrameDragger" TinyChange="1" SmallChange="1" NormalChange="1" LargeChange="10"
+                    <dragger:NumberDragger x:Name="PART_BeginFrameDragger" TinyChange="1" SmallChange="1" NormalChange="1" LargeChange="10"
                                       Padding="0,1" BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}"
                                       Theme="{StaticResource NumberDraggerAbletonTheme}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="End Frame" Padding="0,0,0,2" HorizontalAlignment="Center"/>
-                    <dr:NumberDragger x:Name="PART_EndFrameDragger" TinyChange="1" SmallChange="1" NormalChange="1" LargeChange="10"
+                    <dragger:NumberDragger x:Name="PART_EndFrameDragger" TinyChange="1" SmallChange="1" NormalChange="1" LargeChange="10"
                                       Padding="0,1" BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}"
                                       Theme="{StaticResource NumberDraggerAbletonTheme}"/>
                 </StackPanel>
@@ -43,7 +43,7 @@
             <ComboBox x:Name="PART_ComboBox" Grid.Column="2" Grid.Row="5" VerticalAlignment="Center"/>
 
             <Border Grid.ColumnSpan="4" Grid.Row="7" Background="{DynamicResource PanelBackground1}" BorderBrush="{DynamicResource ABrush.Tone4.Border.Static}" BorderThickness="0,1">
-                <pe:PropertyEditorControl x:Name="ThePropertyEditor" Focusable="True" Background="Transparent" Margin="0,2"/>
+                <propertyEditing:PropertyEditorControl x:Name="ThePropertyEditor" Focusable="True" Background="Transparent" Margin="0,2"/>
             </Border>
 
             <Border Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="4" Height="42"
@@ -83,4 +83,4 @@
             </Border>
         </Grid>
     </Grid>
-</c:WindowEx>
+</controls:WindowEx>

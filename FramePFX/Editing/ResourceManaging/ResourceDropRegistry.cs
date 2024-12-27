@@ -26,12 +26,41 @@ using FramePFX.Utils;
 
 namespace FramePFX.Editing.ResourceManaging;
 
+public delegate bool FileDropInFolderEventHandler(ResourceFolder folder, List<BaseResource> addedResources, string filePath, string fileExtension);
+
 public class ResourceDropRegistry {
     public const string DropTypeText = "PFXResManResources_DropType";
 
-    public static DragDropRegistry<TreePath> TreeDropRegistry { get; } = new DragDropRegistry<TreePath>();
-
+    private static readonly List<FileDropInFolderEventHandler> fileDropInFolderHandlers = new List<FileDropInFolderEventHandler>();
+    
+    public static event FileDropInFolderEventHandler? FileDropInFolder {
+        add {
+            if (value != null)
+                fileDropInFolderHandlers.TryAdd(value);
+        }
+        remove {
+            if (value != null)
+                fileDropInFolderHandlers.Remove(value);
+        }
+    }
+    
     static ResourceDropRegistry() {
+        // Handle simple image file drop
+        FileDropInFolder += (folder, resources, path, extension) => {
+            switch (extension) {
+                case ".png":
+                case ".bmp":
+                case ".jpg":
+                case ".jpeg": {
+                    ResourceImage image = new ResourceImage() { FilePath = path, DisplayName = Path.GetFileName(path) };
+                    resources.Add(image);
+                    folder.AddItem(image);
+                    return true;
+                }
+            }
+
+            return false;
+        };
     }
 
     public static EnumDropType CanDropNativeTypeIntoTreeOrNode(IResourceTreeElement tree, IResourceTreeNodeElement? node, IDataObjekt obj, IContextData ctx, EnumDropType inputDropType) {
@@ -77,46 +106,18 @@ public class ResourceDropRegistry {
             return false;
         }
 
-        List<BaseResource> resources = new List<BaseResource>();
+        List<BaseResource> addedResources = new List<BaseResource>();
         foreach (string path in files) {
-            switch (Path.GetExtension(path).ToLower()) {
-                case ".gif":
-                case ".mp3":
-                case ".wav":
-                case ".ogg":
-                case ".mp4":
-                case ".wmv":
-                case ".avi":
-                case ".avchd":
-                case ".f4v":
-                case ".swf":
-                case ".mov":
-                case ".mkv":
-                case ".qt":
-                case ".webm":
-                case ".flv": {
-                    ResourceAVMedia media = new ResourceAVMedia() {
-                        FilePath = path, DisplayName = Path.GetFileName(path)
-                    };
-
-                    resources.Add(media);
-                    folder.AddItem(media);
-                    break;
-                }
-                case ".png":
-                case ".bmp":
-                case ".jpg":
-                case ".jpeg": {
-                    ResourceImage image = new ResourceImage() { FilePath = path, DisplayName = Path.GetFileName(path) };
-                    resources.Add(image);
-                    folder.AddItem(image);
+            string extension = Path.GetExtension(path).ToLower();
+            foreach (FileDropInFolderEventHandler handler in fileDropInFolderHandlers) {
+                if (handler(folder, addedResources, path, extension)) {
                     break;
                 }
             }
         }
 
-        if (!await IResourceLoaderDialogService.Instance.TryLoadResources(resources.ToArray())) {
-            foreach (BaseResource res in resources) {
+        if (!await IResourceLoaderDialogService.Instance.TryLoadResources(addedResources.ToArray())) {
+            foreach (BaseResource res in addedResources) {
                 res.Parent!.RemoveItem(res, true);
             }
         }

@@ -40,21 +40,21 @@ public static class VideoEditorPropertyEditorHelper {
         // operations will be stalling the background operations... well I assume that's how it works lmfao)
         rateLimitedClipUpdate = new RateLimitedDispatchAction<ITimelineElement>((t) => {
             return Application.Instance.Dispatcher.InvokeAsync(() => UpdateClipSelection(t), DispatchPriority.Background);
-        }, TimeSpan.FromMilliseconds(100));
+        }, TimeSpan.FromMilliseconds(100)) {DebugName = "ClipUpdate_VideoEditorPropEditor"};
 
         rateLimitedTrackUpdate = new RateLimitedDispatchAction<ITimelineElement>((t) => {
             return Application.Instance.Dispatcher.InvokeAsync(() => UpdateTrackSelection(t), DispatchPriority.Background);
-        }, TimeSpan.FromMilliseconds(100));
+        }, TimeSpan.FromMilliseconds(100)){DebugName = "TrackUpdate_VideoEditorPropEditor"};
     }
 
     public static void UpdateClipSelectionAsync(ITimelineElement? timeline) {
-        if (timeline != null) {
+        if (timeline != null && !timeline.VideoEditor.IsClosingOrClosed) {
             rateLimitedClipUpdate.InvokeAsync(timeline);
         }
     }
 
     public static void UpdateTrackSelectionAsync(ITimelineElement? timeline) {
-        if (timeline != null) {
+        if (timeline != null && !timeline.VideoEditor.IsClosingOrClosed) {
             rateLimitedTrackUpdate.InvokeAsync(timeline);
         }
     }

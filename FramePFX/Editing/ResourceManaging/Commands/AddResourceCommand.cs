@@ -98,22 +98,6 @@ public class AddResourceImageCommand : AddResourceCommand<ResourceImage> {
     }
 }
 
-public class AddResourceAVMediaCommand : AddResourceCommand<ResourceAVMedia> {
-    protected override async Task OnPostAddToFolder(ResourceFolder folder, ResourceAVMedia resource, IResourceTreeNodeElement? folderUI, IResourceTreeNodeElement? resourceUI, bool success, IContextData ctx) {
-        if (!success)
-            return;
-
-        string? path = await IFilePickDialogService.Instance.OpenFile("Open a media file for this resource?", Filters.CombinedVideoTypesAndAll);
-        if (path != null) {
-            resource.FilePath = path;
-            resource.DisplayName = Path.GetFileName(path);
-            if (string.IsNullOrWhiteSpace(resource.DisplayName))
-                resource.DisplayName = "New AVMedia";
-            await IResourceLoaderDialogService.Instance.TryLoadResource(resource);
-        }
-    }
-}
-
 public class AddResourceColourCommand : AddResourceCommand<ResourceColour> {
     protected override async Task OnPostAddToFolder(ResourceFolder folder, ResourceColour resource, IResourceTreeNodeElement? folderUI, IResourceTreeNodeElement? resourceUI, bool success, IContextData ctx) {
         if (!success)

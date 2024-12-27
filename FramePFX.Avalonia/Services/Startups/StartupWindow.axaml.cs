@@ -18,7 +18,7 @@
 // 
 
 using Avalonia.Interactivity;
-using FramePFX.Avalonia.Themes.Controls;
+using FramePFX.BaseFrontEnd.Themes.Controls;
 using FramePFX.Services.VideoEditors;
 
 namespace FramePFX.Avalonia.Services.Startups;

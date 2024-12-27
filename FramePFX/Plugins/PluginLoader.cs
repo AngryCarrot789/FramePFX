@@ -18,9 +18,10 @@
 // 
 
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Reflection;
+using System.Text;
 using FramePFX.CommandSystem;
+using FramePFX.Logging;
 using FramePFX.Plugins.Exceptions;
 using FramePFX.Plugins.XML;
 using FramePFX.Utils;
@@ -96,25 +97,53 @@ public sealed class PluginLoader {
             plugin.RegisterCommands(manager);
         }
     }
+    
     public void RegisterServices() {
         foreach (Plugin plugin in this.plugins) {
             plugin.RegisterServices();
         }
-    }
+    }    
+    
+    public void CollectInjectedXamlResources(List<(Plugin, string)> fullPaths) {
+        foreach (Plugin plugin in this.plugins) {
+            List<string> pluginPaths = new List<string>();
+            plugin.GetXamlResources(pluginPaths);
 
-    private void OnPluginCreated(string? pluginFolder, Plugin plugin, PluginDescriptor descriptor) {
-        if (descriptor is AssemblyPluginDescriptor assemblyPluginDescriptor) {
-            Debug.Assert(pluginFolder != null, nameof(pluginFolder) + " should not be null when loading assembly plugins");
-            
-            // TODO: inject xaml into application resources
-            List<string>? list = assemblyPluginDescriptor.XamlResources;
-            if (list?.Count > 0) {
-                for (int i = list.Count - 1; i >= 0; i--) {
-                    list[i] = Path.GetFullPath(Path.Combine(pluginFolder!, list[i]));
+            if (pluginPaths.Count > 0) {
+                string? asmFullName = null;
+                if (plugin.Descriptor is AssemblyPluginDescriptor descriptor) {
+                    asmFullName = Path.GetDirectoryName(descriptor.EntryPointLibraryPath);
+                }
+                
+                if (string.IsNullOrWhiteSpace(asmFullName)) {
+                    Assembly asm = plugin.GetType().Assembly;
+                    if ((asmFullName = asm.GetName().Name) == null) {
+                        asmFullName = plugin.GetType().Namespace;
+                    }
+                }
+
+                if (asmFullName == null) {
+                    AppLogger.Instance.WriteLine("Could not identify plugin's root folder from the assembly");
+                }
+                else {
+                    foreach (string path in pluginPaths) {
+                        if (!string.IsNullOrWhiteSpace(path)) {
+                            StringBuilder sb = new StringBuilder();
+                            sb.Append("avares://").Append(asmFullName);
+                            if (path[0] != '/') {
+                                sb.Append('/');
+                            }
+
+                            sb.Append(path);
+                            fullPaths.Add((plugin, sb.ToString()));
+                        }
+                    }
                 }
             }
         }
+    }
 
+    private void OnPluginCreated(string? pluginFolder, Plugin plugin, PluginDescriptor descriptor) {
         this.plugins.Add(plugin);
         plugin.Descriptor = descriptor;
         plugin.PluginLoader = this;
@@ -141,7 +170,8 @@ public sealed class PluginLoader {
 
         Assembly assembly;
         try {
-            assembly = Assembly.LoadFrom(Path.Combine(folder, descriptor.EntryPointLibraryPath));
+            descriptor.EntryPointLibraryPath = Path.Combine(folder, descriptor.EntryPointLibraryPath); 
+            assembly = Assembly.LoadFrom(descriptor.EntryPointLibraryPath);
         }
         catch (Exception e) {
             throw new PluginAssemblyLoadException(e);

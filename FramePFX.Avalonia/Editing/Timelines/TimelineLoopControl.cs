@@ -55,11 +55,6 @@ public class TimelineLoopControl : TemplatedControl {
         set => this.SetValue(ScrollViewerReferenceProperty, value);
     }
 
-    private const int StateNone = 0;
-    private const int StateInit = 1;
-    private const int StateActive = 2;
-    private const double MinDragInitPx = 5d;
-
     private Timeline? myTimeline;
     private bool isUpdatingControl;
     private bool isLoopRegionEnabled;

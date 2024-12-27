@@ -19,9 +19,10 @@
 
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using FramePFX.BaseFrontEnd;
 using FramePFX.Services.Messaging;
 using FramePFX.Utils;
-using MessageBoxDialog = FramePFX.Avalonia.Services.Messages.Controls.MessageBoxDialog;
+using MessageBoxDialog = FramePFX.BaseFrontEnd.Services.Messages.Controls.MessageBoxDialog;
 
 namespace FramePFX.Avalonia.Services;
 
@@ -50,7 +51,7 @@ public class MessageDialogServiceImpl : IMessageDialogService {
 
     private static async Task<MessageBoxResult> ShowMessageMainThread(MessageBoxInfo info) {
         Validate.NotNull(info);
-        if (ApplicationImpl.TryGetActiveWindow(out Window? window)) {
+        if (IFrontEndApplication.Instance.TryGetActiveWindow(out Window? window)) {
             MessageBoxDialog dialog = new MessageBoxDialog {
                 MessageBoxData = info
             };

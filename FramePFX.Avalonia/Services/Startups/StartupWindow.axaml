@@ -1,8 +1,8 @@
-<c:WindowEx xmlns="https://github.com/avaloniaui"
+<controls:WindowEx xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:c="clr-namespace:FramePFX.Avalonia.Themes.Controls"
+        xmlns:controls="clr-namespace:FramePFX.BaseFrontEnd.Themes.Controls;assembly=FramePFX.BaseFrontEnd"
         mc:Ignorable="d" Width="450" Height="150"
         x:Class="FramePFX.Avalonia.Services.Startups.StartupWindow"
         Title="Welcome to FramePFX!"
@@ -27,4 +27,4 @@
             <Button Grid.Column="4" x:Name="PART_OpenEditorWithoutProjectButton" Content="Open Editor without Project" CornerRadius="2"/>
         </Grid>
     </Grid>
-</c:WindowEx>
+</controls:WindowEx>

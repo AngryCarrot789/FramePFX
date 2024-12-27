@@ -299,7 +299,7 @@ public abstract class VideoClip : Clip {
         this.isMatrixDirty = false;
     }
 
-    protected void UpdateAutomaticScaleOrigin(bool isInitialising) {
+    protected virtual void UpdateAutomaticScaleOrigin(bool isInitialising) {
         if (this.IsMediaScaleOriginAutomatic) {
             SKSize size = this.GetSizeForAutomaticOrigins();
             Vector2 value = new Vector2(size.Width / 2, size.Height / 2);
@@ -312,7 +312,7 @@ public abstract class VideoClip : Clip {
         }
     }
 
-    protected void UpdateAutomaticRotationOrigin(bool isInitialising) {
+    protected virtual void UpdateAutomaticRotationOrigin(bool isInitialising) {
         if (this.IsMediaRotationOriginAutomatic) {
             SKSize size = this.GetSizeForAutomaticOrigins();
             Vector2 value = new Vector2(size.Width / 2, size.Height / 2);

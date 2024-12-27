@@ -18,7 +18,6 @@
 // 
 
 using System.Diagnostics.CodeAnalysis;
-using FramePFX.Editing.Exporting.FFmpeg;
 using FramePFX.Utils;
 
 namespace FramePFX.Editing.Exporting;
@@ -48,8 +47,6 @@ public class ExporterRegistry {
     }
 
     static ExporterRegistry() {
-        // Standard exporters
-        Instance.RegisterExporter(new ExporterKey("exporter_ffmpeg", "FFmpeg"), new FFmpegExporterInfo());
     }
 
     public void RegisterExporter(ExporterKey key, BaseExporterInfo exporter) {

@@ -28,25 +28,30 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using FFmpeg.AutoGen;
-using FramePFX.Avalonia.Configurations;
-using FramePFX.Avalonia.Editing.ResourceManaging.Autoloading;
+using FramePFX.Avalonia.Editing.ResourceManaging.Lists.ContentItems;
 using FramePFX.Avalonia.Editing.Toolbars;
 using FramePFX.Avalonia.Exporting;
-using FramePFX.Avalonia.Icons;
 using FramePFX.Avalonia.Services;
-using FramePFX.Avalonia.Services.Colours;
-using FramePFX.Avalonia.Services.Files;
 using FramePFX.Avalonia.Services.Startups;
-using FramePFX.Avalonia.Shortcuts.Avalonia;
-using FramePFX.Avalonia.Shortcuts.Dialogs;
+using FramePFX.BaseFrontEnd;
+using FramePFX.BaseFrontEnd.Configurations;
+using FramePFX.BaseFrontEnd.Icons;
+using FramePFX.BaseFrontEnd.ResourceManaging;
+using FramePFX.BaseFrontEnd.ResourceManaging.Autoloading;
+using FramePFX.BaseFrontEnd.Services.Colours;
+using FramePFX.BaseFrontEnd.Services.Files;
+using FramePFX.BaseFrontEnd.Shortcuts.Avalonia;
+using FramePFX.BaseFrontEnd.Shortcuts.Dialogs;
 using FramePFX.Configurations;
 using FramePFX.Editing.Exporting;
 using FramePFX.Editing.ResourceManaging;
+using FramePFX.Editing.ResourceManaging.Resources;
 using FramePFX.Editing.Toolbars;
 using FramePFX.Icons;
 using FramePFX.Natives;
 using FramePFX.Plugins;
 using FramePFX.Plugins.AnotherTestPlugin;
+using FramePFX.Plugins.FFmpegMedia;
 using FramePFX.Services;
 using FramePFX.Services.ColourPicking;
 using FramePFX.Services.FilePicking;
@@ -59,7 +64,7 @@ using FramePFX.Utils;
 
 namespace FramePFX.Avalonia;
 
-public class ApplicationImpl : Application {
+public class ApplicationImpl : Application, IFrontEndApplication {
     public override IDispatcher Dispatcher { get; }
 
     /// <summary>
@@ -69,10 +74,24 @@ public class ApplicationImpl : Application {
 
     public ApplicationImpl(App app) {
         this.App = app ?? throw new ArgumentNullException(nameof(app));
-        this.Dispatcher = new DispatcherImpl(global::Avalonia.Threading.Dispatcher.UIThread);
+
+        Dispatcher avd = global::Avalonia.Threading.Dispatcher.UIThread;
+        this.Dispatcher = new DispatcherImpl(avd);
+        
+        avd.ShutdownStarted += this.OnDispatcherShuttingDown;
+        avd.ShutdownFinished += this.OnDispatcherShutDown;
         this.PluginLoader.AddCorePluginEntry(new CorePluginDescriptor(typeof(TestPlugin)));
     }
+
+    private void OnDispatcherShuttingDown(object? sender, EventArgs e) {
+        this.IsShuttingDown = true;
+    }
     
+    private void OnDispatcherShutDown(object? sender, EventArgs e) {
+        this.IsShuttingDown = false;
+        this.IsRunning = false;
+    }
+
     protected override void RegisterServices(ServiceManager manager) {
         manager.RegisterConstant<IconManager>(new IconManagerImpl());
         manager.RegisterConstant<ShortcutManager>(new AvaloniaShortcutManager());
@@ -130,11 +149,17 @@ public class ApplicationImpl : Application {
         // FramePFX is a small non-linear video editor, written in C# using Avalonia for the UI
         // but what if we don't
 
+        bool success = false;
         try {
             ffmpeg.avdevice_register_all();
+            success = true;
         }
         catch (Exception e) {
-            await IMessageDialogService.Instance.ShowMessage("FFmpeg registration failed", "Failed to register all FFmpeg devices. Is FFmpeg installed correctly?", e.GetToString());
+            await IMessageDialogService.Instance.ShowMessage("FFmpeg registration failed", "Failed to register all FFmpeg devices. Check FFmpeg is installed. Media clips now unavailable", e.GetToString());
+        }
+
+        if (success) {
+            this.PluginLoader.AddCorePluginEntry(new CorePluginDescriptor(typeof(FFmpegMediaPlugin)));
         }
 
         {
@@ -152,9 +177,19 @@ public class ApplicationImpl : Application {
         }
     }
 
-    public static bool TryGetActiveWindow([NotNullWhen(true)] out Window? window) {
-        if (global::Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
-            return (window = desktop.Windows.FirstOrDefault(x => x.IsActive) ?? desktop.MainWindow) != null;
+    protected override Task OnFullyInitialised() {
+        // Register standard controls
+        ResourceExplorerListItemContent.Registry.RegisterType<ResourceFolder>(() => new RELIC_Folder());
+        ResourceExplorerListItemContent.Registry.RegisterType<ResourceColour>(() => new RELIC_Colour());
+        ResourceExplorerListItemContent.Registry.RegisterType<ResourceImage>(() => new RELIC_Image());
+        ResourceExplorerListItemContent.Registry.RegisterType<ResourceComposition>(() => new RELIC_Composition());
+        
+        return base.OnFullyInitialised();
+    }
+
+    public bool TryGetActiveWindow([NotNullWhen(true)] out Window? window, bool fallbackToMainWindow = true) {
+        if (this.App.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
+            return (window = desktop.Windows.FirstOrDefault(x => x.IsActive) ?? (fallbackToMainWindow ? desktop.MainWindow : null)) != null;
         }
 
         window = null;
@@ -169,7 +204,7 @@ public class ApplicationImpl : Application {
 
     internal static void InternalOnExited(int exitCode) => InternalOnExit(exitCode);
 
-    internal static Task InternalOnInitialised() => InternalOnFullyInitialisedImpl();
+    internal static Task InternalOnFullyInitialised() => InternalOnFullyInitialisedImpl();
 
     private class DispatcherImpl : IDispatcher {
         private static readonly Action EmptyAction = () => {

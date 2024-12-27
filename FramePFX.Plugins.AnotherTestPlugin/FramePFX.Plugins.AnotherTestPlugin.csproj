@@ -52,8 +52,4 @@
             <ExcludeAssets>runtime</ExcludeAssets>
         </ProjectReference>
     </ItemGroup>
-
-    <ItemGroup>
-        <None Remove="plugin.xml" />
-    </ItemGroup>
 </Project>

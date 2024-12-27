@@ -29,11 +29,12 @@ public class ResourceTypeFactory : ReflectiveObjectFactory<BaseResource> {
         this.RegisterType("r_group", typeof(ResourceFolder));
         this.RegisterType("r_argb", typeof(ResourceColour));
         this.RegisterType("r_img", typeof(ResourceImage));
-        this.RegisterType("r_avmedia", typeof(ResourceAVMedia));
         this.RegisterType("r_comp", typeof(ResourceComposition));
     }
 
     public BaseResource NewResource(string id) {
         return base.NewInstance(id);
     }
+    
+    public new void RegisterType(string id, Type type) => base.RegisterType(id, type);
 }

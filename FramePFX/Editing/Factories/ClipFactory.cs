@@ -33,7 +33,6 @@ public class ClipFactory : ReflectiveObjectFactory<Clip> {
         base.RegisterType("vc_shape", typeof(VideoClipShape));
         base.RegisterType("vc_image", typeof(ImageVideoClip));
         base.RegisterType("vc_timecode", typeof(TimecodeClip));
-        base.RegisterType("vc_avmedia", typeof(AVMediaVideoClip));
         base.RegisterType("vc_text", typeof(TextVideoClip));
         base.RegisterType("vc_comp", typeof(CompositionVideoClip));
 

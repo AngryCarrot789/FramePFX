@@ -81,7 +81,6 @@ public abstract class Application : IServiceable {
     protected Application() {
         this.ServiceManager = new ServiceManager(this);
         this.PluginLoader = new PluginLoader();
-        // this.PluginLoader.RegisterCorePlugin(CorePluginDescriptor.FindType("FramePFX.CircleClipPlugin.MyCircleClipPlugin"));
     }
 
     protected abstract Task<bool> LoadKeyMapAsync();

@@ -18,10 +18,12 @@
 // 
 
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Reflection;
 using FramePFX.CommandSystem;
 using FramePFX.Plugins.Exceptions;
 using FramePFX.Plugins.XML;
+using FramePFX.Utils;
 
 namespace FramePFX.Plugins;
 
@@ -36,7 +38,14 @@ public sealed class PluginLoader {
         this.Plugins = this.plugins.AsReadOnly();
     }
 
-    public void RegisterCorePlugin(CorePluginDescriptor descriptor) {
+    /// <summary>
+    /// Adds a core plugin descriptor to the list of plugins to load once the application begins
+    /// loading plugins. A core plugin is a plugin directly referenced by FramePFX, rather than
+    /// being completely dynamically loaded
+    /// </summary>
+    /// <param name="descriptor">the descriptor</param>
+    public void AddCorePluginEntry(CorePluginDescriptor descriptor) {
+        Validate.NotNull(descriptor);
         (this.corePlugins ??= new List<CorePluginDescriptor>()).Add(descriptor);
     }
 
@@ -52,7 +61,7 @@ public sealed class PluginLoader {
                 continue;
             }
 
-            this.OnPluginCreated(pluginsFolder, instance, descriptor);
+            this.OnPluginCreated(null, instance, descriptor);
         }
         
         string[] dirs;
@@ -77,7 +86,7 @@ public sealed class PluginLoader {
             }
 
             if (info.HasValue) {
-                this.OnPluginCreated(pluginsFolder, info.Value.Item1, info.Value.Item2);
+                this.OnPluginCreated(folder, info.Value.Item1, info.Value.Item2);
             }
         }
     }
@@ -93,13 +102,15 @@ public sealed class PluginLoader {
         }
     }
 
-    private void OnPluginCreated(string pluginsFolder, Plugin plugin, PluginDescriptor descriptor) {
+    private void OnPluginCreated(string? pluginFolder, Plugin plugin, PluginDescriptor descriptor) {
         if (descriptor is AssemblyPluginDescriptor assemblyPluginDescriptor) {
+            Debug.Assert(pluginFolder != null, nameof(pluginFolder) + " should not be null when loading assembly plugins");
+            
             // TODO: inject xaml into application resources
             List<string>? list = assemblyPluginDescriptor.XamlResources;
             if (list?.Count > 0) {
                 for (int i = list.Count - 1; i >= 0; i--) {
-                    list[i] = Path.GetFullPath(Path.Combine(pluginsFolder, list[i]));
+                    list[i] = Path.GetFullPath(Path.Combine(pluginFolder!, list[i]));
                 }
             }
         }
@@ -107,7 +118,7 @@ public sealed class PluginLoader {
         this.plugins.Add(plugin);
         plugin.Descriptor = descriptor;
         plugin.PluginLoader = this;
-        plugin.PluginFolder = pluginsFolder;
+        plugin.PluginFolder = pluginFolder;
         plugin.OnCreated();
     }
 

@@ -196,7 +196,7 @@ public partial class ConfigurationPanelControl : UserControl {
         try {
             if (oldValue != null) {
                 Debug.Assert(this.ActiveContext != null, "Context could not be null if we have an old value");
-                await oldValue.UnloadContextAsync(this.ActiveContext);
+                await ConfigurationManager.InternalUnloadContext(oldValue, this.ActiveContext);
             }
         }
         catch (Exception ex) {
@@ -211,7 +211,7 @@ public partial class ConfigurationPanelControl : UserControl {
         if (newValue != null) {
             try {
                 this.ActiveContext = new ConfigurationContext();
-                await newValue.LoadContextAsync(this.ActiveContext);
+                await ConfigurationManager.InternalLoadContext(newValue, this.ActiveContext);
             }
             catch (Exception ex) {
                 await IMessageDialogService.Instance.ShowMessage("Error", "Error loading settings properties. The editor will now crash", ex.ToString());
@@ -226,7 +226,7 @@ public partial class ConfigurationPanelControl : UserControl {
         Application.Instance.Dispatcher.Post(() => {
             this.SetLoadingState(false);
             this.UpdateSelection();
-        }, DispatchPriority.Loaded);
+        }, DispatchPriority.INTERNAL_AfterRender);
     }
 
     private void SetLoadingState(bool isLoading) {

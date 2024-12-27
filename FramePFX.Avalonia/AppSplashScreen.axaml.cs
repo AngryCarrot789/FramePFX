@@ -35,7 +35,7 @@ public partial class AppSplashScreen : Window, IApplicationStartupProgress {
             Application.Instance.Dispatcher.Invoke(() => {
                 this.myActionText = value;
                 return this.PART_ActivityTextBlock.Text = value;
-            }, DispatchPriority.Loaded);
+            });
         }
     }
 

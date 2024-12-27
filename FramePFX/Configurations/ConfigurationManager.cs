@@ -26,7 +26,8 @@ namespace FramePFX.Configurations;
 /// </summary>
 public abstract class ConfigurationManager {
     /// <summary>
-    /// Gets our root configuration entry
+    /// Gets our root configuration entry. Add sub-entries to this if you want them to
+    /// appear as top-level tree entries in the configuration tree
     /// </summary>
     public ConfigurationEntry RootEntry { get; }
 
@@ -37,18 +38,21 @@ public abstract class ConfigurationManager {
     private const int Flag_None = 0;
     private const int Flag_OnlyIfModified = 1;
 
-    public async Task ApplyHierarchyAsync() {
-        await ApplyPagesRecursive(this.RootEntry, (x) => x.Apply(), Flag_OnlyIfModified);
+    /// <summary>
+    /// Applies all changes to our configuration manager's hierarchy (aka recursively apply)
+    /// </summary>
+    public async Task ApplyChangesInHierarchyAsync(List<ApplyChangesFailureEntry>? errors) {
+        await ApplyPagesRecursive(this.RootEntry, (x) => x.Apply(errors), Flag_OnlyIfModified);
     }
 
-    public async Task LoadContextAsync(ConfigurationContext context) {
+    protected async Task LoadContextAsync(ConfigurationContext context) {
         await ApplyPagesRecursive(this.RootEntry, (x) => {
             x.IsMarkedImmediatelyModified = false;
             return x.OnContextCreated(context);
         }, Flag_None);
     }
 
-    public async Task UnloadContextAsync(ConfigurationContext context) {
+    protected async Task UnloadContextAsync(ConfigurationContext context) {
         await ApplyPagesRecursive(this.RootEntry, (x) => x.OnContextDestroyed(context), Flag_None);
     }
 
@@ -68,4 +72,7 @@ public abstract class ConfigurationManager {
             await ApplyPagesRecursive(item, action, flags);
         }
     }
+
+    public static Task InternalLoadContext(ConfigurationManager manager, ConfigurationContext context) => manager.LoadContextAsync(context);
+    public static Task InternalUnloadContext(ConfigurationManager manager, ConfigurationContext context) => manager.UnloadContextAsync(context);
 }

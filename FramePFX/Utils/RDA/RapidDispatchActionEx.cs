@@ -148,9 +148,14 @@ public abstract class RapidDispatchActionExBase {
 /// An extended version of <see cref="RapidDispatchAction"/> that is thread-safe and tries to re-scheduled the
 /// callback after it has completed if our invoke method was called during the execution of the callback action.
 /// <para>
-/// This is a thread-safe version of <see cref="RapidDispatchAction"/>. This class is designed to handle multiple
-/// threads calling <see cref="InvokeAsync"/>, ensuring that the callback handles is always 'up to date' if, for
-/// example, the execute callback updates a progress bar when asynchronous progress is made on another thread
+/// This is a thread-safe version of <see cref="RapidDispatchAction"/>, it is designed handle multiple threads
+/// calling <see cref="InvokeAsync"/>, ensuring that the callback handler is always 'up to date' if, for
+/// example, the callback updates a progress bar when asynchronous progress is made on another thread.
+/// </para>
+/// <para>
+/// This class does not add any rate limitation to how often the callback can be called, that's purely based on
+/// how fast the dispatcher responds. If you need to rate limit the callback,
+/// either await <see cref="Task.Delay(int)"/> in your callback, or use <see cref="RateLimitedDispatchAction"/>
 /// </para>
 /// </summary>
 public sealed class RapidDispatchActionEx : RapidDispatchActionExBase, IDispatchAction {
@@ -217,7 +222,7 @@ public sealed class RapidDispatchActionEx : RapidDispatchActionExBase, IDispatch
 public sealed class RapidDispatchActionEx<T> : RapidDispatchActionExBase, IDispatchAction<T> {
     private readonly Func<T, Task> callback;
     private readonly object paramLock;
-    private T parameter;
+    private T? parameter;
 
     private RapidDispatchActionEx(IDispatcher dispatcher, Func<T, Task> callback, DispatchPriority priority, string debugId) : base(dispatcher, priority, debugId) {
         this.callback = callback;
@@ -261,17 +266,19 @@ public sealed class RapidDispatchActionEx<T> : RapidDispatchActionExBase, IDispa
     protected override Task ExecuteCore() {
         T param;
         lock (this.paramLock) {
-            param = this.parameter;
+            param = this.parameter!;
             this.parameter = default;
         }
 
+        // See RateLimitedDispatchAction<T>.ExecuteCore method for more info on why we clear this state
+        this.ClearRescheduledState();
         return this.callback(param);
     }
 
     public void InvokeAsync(T param) {
         lock (this.paramLock)
             this.parameter = param;
-
+        
         this.BeginInvoke();
     }
 }

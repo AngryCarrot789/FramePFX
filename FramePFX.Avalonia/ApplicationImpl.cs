@@ -45,6 +45,8 @@ using FramePFX.Editing.ResourceManaging;
 using FramePFX.Editing.Toolbars;
 using FramePFX.Icons;
 using FramePFX.Natives;
+using FramePFX.Plugins;
+using FramePFX.Plugins.AnotherTestPlugin;
 using FramePFX.Services;
 using FramePFX.Services.ColourPicking;
 using FramePFX.Services.FilePicking;
@@ -68,6 +70,7 @@ public class ApplicationImpl : Application {
     public ApplicationImpl(App app) {
         this.App = app ?? throw new ArgumentNullException(nameof(app));
         this.Dispatcher = new DispatcherImpl(global::Avalonia.Threading.Dispatcher.UIThread);
+        this.PluginLoader.AddCorePluginEntry(new CorePluginDescriptor(typeof(TestPlugin)));
     }
     
     protected override void RegisterServices(ServiceManager manager) {

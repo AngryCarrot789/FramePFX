@@ -128,7 +128,6 @@ public class PropertyEditorGroupControl : TemplatedControl {
 
     private void ModelOnItemAdded(BasePropertyEditorGroup group, BasePropertyEditorObject item, int index) {
         this.Panel!.InsertItem(item, index);
-        this.Panel.UpdateLayout();
     }
 
     private void ModelOnItemRemoved(BasePropertyEditorGroup group, BasePropertyEditorObject item, int index) {

@@ -19,6 +19,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
@@ -132,27 +133,38 @@ public class AdvancedContextCommandMenuItem : AdvancedContextMenuItem {
             return false;
         }
 
-        Dispatcher.UIThread.Post(() => this.ExecuteCommand(cmdId, context), DispatcherPriority.Render);
+        Dispatcher.UIThread.Post(async void () => {
+            try {
+                await ExecuteCommandAndHandleError(cmdId, context);
+            }
+            catch {
+                // ignored, should be handled above
+            }
+            finally {
+                this.IsExecuting = false;
+                this.UpdateCanExecute();
+            }
+        }, DispatcherPriority.Render);
         return true;
     }
 
-    private async void ExecuteCommand(string cmdId, IContextData? context) {
+    public static async ValueTask ExecuteCommandAndHandleError(string cmdId, IContextData context) {
         try {
-            if (!string.IsNullOrWhiteSpace(cmdId) && context != null)
-                CommandManager.Instance.Execute(cmdId, context);
+            CommandManager.Instance.Execute(cmdId, context);
         }
         catch (Exception e) {
             if (!Debugger.IsAttached) {
-                await IMessageDialogService.Instance.ShowMessage(
-                    "Error",
-                    "An unexpected error occurred while processing command. " +
-                    "FramePFX may or may not crash now, but you should probably restart and save just in case",
-                    e.GetToString());
+                try {
+                    await IMessageDialogService.Instance.ShowMessage(
+                        "Error executing command",
+                        "An unexpected error occurred while executing a command. " +
+                        "FramePFX may or may not crash now, but you should probably restart WITHOUT saving just in case",
+                        e.GetToString());
+                }
+                catch {
+                    // ignored
+                }
             }
-        }
-        finally {
-            this.IsExecuting = false;
-            this.UpdateCanExecute();
         }
     }
 }

@@ -24,6 +24,9 @@ namespace FramePFX.Services.VideoEditors;
 
 public delegate void VideoEditorCreationEventHandler(IVideoEditorWindow window, bool isBeforeShow);
 
+/// <summary>
+/// A service that manages video editors and notifications of video editor creation
+/// </summary>
 public interface IVideoEditorService {
     /// <summary>
     /// Creates a new video editor window using the given video editor model

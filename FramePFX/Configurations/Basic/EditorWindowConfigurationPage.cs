@@ -48,7 +48,7 @@ public class EditorWindowConfigurationPage : ConfigurationPage {
         this.titleBar = options.TitleBarPrefix;
     }
 
-    public override async ValueTask Apply() {
+    public override async ValueTask Apply(List<ApplyChangesFailureEntry>? errors) {
         EditorConfigurationOptions options = EditorConfigurationOptions.Instance;
         if (!string.IsNullOrWhiteSpace(this.titleBar)) {
             options.TitleBarPrefix = this.titleBar;

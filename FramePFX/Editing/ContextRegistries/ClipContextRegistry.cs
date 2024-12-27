@@ -59,6 +59,6 @@ public static class ClipContextRegistry {
         });
 
         FixedContextGroup modDestruction = Registry.GetFixedGroup("modify.destruction", 100000);
-        modDestruction.AddCommand("commands.editor.DeleteClipOwnerTrack", "Delete Track", "Delete the track this clip resides in");
+        modDestruction.AddCommand("commands.editor.DeleteClipOwnerTrack", "Delete Residential Track", "Delete the track this clip resides in");
     }
 }

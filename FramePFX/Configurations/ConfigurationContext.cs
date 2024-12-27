@@ -25,6 +25,13 @@ public delegate void ConfigurationContextActivePageChangedEventHandler(Configura
 
 public delegate void ConfigurationContextEventHandler(ConfigurationContext context);
 
+/// <summary>
+/// Stores information about the user's current changes to many different pages.
+/// It also tracks which page the user is currently viewing.
+/// <para>
+/// An instance of this class is created whenever the settings dialog is opened
+/// </para>
+/// </summary>
 public class ConfigurationContext {
     private HashSet<ConfigurationPage>? modifiedPages;
 
@@ -46,7 +53,7 @@ public class ConfigurationContext {
     private readonly RateLimitedDispatchAction updateIsModifiedAction;
 
     public ConfigurationContext() {
-        this.updateIsModifiedAction = BaseRateLimitedDispatchAction.ForDispatcherSync(() => {
+        this.updateIsModifiedAction = RateLimitedDispatchActionBase.ForDispatcherSync(() => {
             if (this.lastModificationLevelForNotification != this.modificationLevelForModifiedPages) {
                 this.lastModificationLevelForNotification = this.modificationLevelForModifiedPages;
                 this.ModifiedPagesUpdated?.Invoke(this);
@@ -60,8 +67,9 @@ public class ConfigurationContext {
     /// <param name="page"></param>
     public void SetViewPage(ConfigurationPage? page) {
         ConfigurationPage? oldPage = this.activePage;
-        if (oldPage == page)
+        if (oldPage == page) {
             return;
+        }
 
         if (oldPage != null) {
             if (oldPage.IsModified()) {
@@ -104,8 +112,10 @@ public class ConfigurationContext {
     }
 
     public void OnCreated() {
+        
     }
 
     public void OnDestroyed() {
+        
     }
 }

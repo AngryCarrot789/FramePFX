@@ -40,8 +40,9 @@ public abstract class RapidDispatchActionBase {
     /// </summary>
     /// <returns>True if scheduled, false if already scheduled</returns>
     protected bool BeginInvoke() {
-        if (this.isScheduled)
+        if (this.isScheduled) {
             return false;
+        }
 
         this.isScheduled = true;
         Application.Instance.Dispatcher.InvokeAsync(this.doExecuteCallback, this.Priority);
@@ -70,10 +71,10 @@ public abstract class RapidDispatchActionBase {
 /// ensuring that the callback cannot be enqueued more than once before it has completed.
 /// <para>
 /// This class is not thread safe. The <see cref="InvokeAsync"/> method must be called from the main thread.
-/// For multi-threaded use, see <see cref="RapidDispatchActionEx"/>
+/// For multithreaded use, see <see cref="RapidDispatchActionEx"/>
 /// </para>
 /// </summary>
-public class RapidDispatchAction : RapidDispatchActionBase, IDispatchAction {
+public sealed class RapidDispatchAction : RapidDispatchActionBase, IDispatchAction {
     private readonly Action callback;
 
     public RapidDispatchAction(Action callback, string debugId = null) : this(callback, DispatchPriority.Normal, debugId) {
@@ -99,9 +100,9 @@ public class RapidDispatchAction : RapidDispatchActionBase, IDispatchAction {
 /// A parameterised version of <see cref="RapidDispatchAction"/> that passes a custom parameter to the callback method
 /// </summary>
 /// <typeparam name="T">The type of parameter</typeparam>
-public class RapidDispatchAction<T> : RapidDispatchActionBase, IDispatchAction<T> {
+public sealed class RapidDispatchAction<T> : RapidDispatchActionBase, IDispatchAction<T> {
     private readonly Action<T> callback;
-    private T parameter;
+    private T? parameter;
 
     public RapidDispatchAction(Action<T> callback, string debugId = null) : this(callback, DispatchPriority.Normal, debugId) {
     }
@@ -111,7 +112,7 @@ public class RapidDispatchAction<T> : RapidDispatchActionBase, IDispatchAction<T
     }
 
     protected override void Execute() {
-        T param = this.parameter;
+        T param = this.parameter!;
         this.parameter = default;
         this.callback(param);
     }

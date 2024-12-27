@@ -28,7 +28,7 @@ public class ToggleLoopTimelineRegionCommand : Command {
     /// Gets or sets the special behaviour state which allows us to update the loop region around
     /// selected clips if applicable and keep the loop enabled rather than toggle it. If false, we just toggle it as usual
     /// </summary>
-    public bool CanUpdateRegionToClipSelection { get; set; }
+    public bool CanUpdateRegionToClipSelection { get; init; }
 
     public ToggleLoopTimelineRegionCommand() {
     }

@@ -25,8 +25,8 @@ public delegate void ConfigurationPageIsModifiedChangedEventHandler(Configuratio
 /// The base class for a configuration page model. A page is what is presented
 /// on the right side of the settings dialog
 /// <para>
-/// A custom page may wish to implement sub-configuration sections that implement similar behaviour
-/// to pages such as <see cref="Apply"/>, or it may be entirely custom (e.g. shortcut editor tree)
+/// A custom page may wish to implement their own sub-page or sub-section system that implement similar behaviour
+/// to these pages (such as <see cref="Apply"/>), or it may be an entirely custom page (e.g. shortcut editor tree)
 /// </para>
 /// </summary>
 public abstract class ConfigurationPage {
@@ -46,13 +46,22 @@ public abstract class ConfigurationPage {
     /// Applies the current data into the application. This is invoked when the user clicks
     /// the Apply (which just applies) or Save button (which applies then closes the dialog)
     /// </summary>
-    public abstract ValueTask Apply();
+    /// <param name="errors">
+    /// A list of errors encountered while applying changes (e.g. bugs or conflicting
+    /// values, maybe a and b cannot both be true)
+    /// </param>
+    public abstract ValueTask Apply(List<ApplyChangesFailureEntry>? errors);
 
     /// <summary>
-    /// Invoked when a new configuration context is created for use with a
-    /// configuration manager in which this page exists in.
+    /// Invoked when a new configuration context is created for use with a configuration manager
+    /// in which this page exists in. This is typically invoked recursively
+    /// <para>
     /// At this point, the settings dialog will not be fully loaded, and so,
     /// we are free to modify our internal state without notifying of changes
+    /// </para>
+    /// <para>
+    /// Basically, this is where you load data from the application in preparation for the UI.
+    /// </para>
     /// </summary>
     /// <param name="context">The context that was created</param>
     /// <returns></returns>
@@ -70,6 +79,17 @@ public abstract class ConfigurationPage {
         return ValueTask.CompletedTask;
     }
 
+    /// <summary>
+    /// Invoked when the active context changes. One of the parameters will be null, unless I forget
+    /// to update this comment. This happens when the page is no longer being viewed, and so maybe
+    /// the page shouldn't listen to intense application updates
+    /// </summary>
+    /// <param name="oldContext">The previous context</param>
+    /// <param name="newContext">The new context</param>
+    protected virtual void OnActiveContextChanged(ConfigurationContext? oldContext, ConfigurationContext? newContext) {
+        
+    }
+    
     /// <summary>
     /// Returns true if this page has different data since it was loaded
     /// </summary>
@@ -91,7 +111,10 @@ public abstract class ConfigurationPage {
         this.ActiveContext?.ClearModifiedState(this);
     }
 
-    public static void InternalSetContext(ConfigurationPage page, ConfigurationContext? context) {
+    internal static void InternalSetContext(ConfigurationPage page, ConfigurationContext? context) {
+        ConfigurationContext? oldContext = page.ActiveContext;
         page.ActiveContext = context;
+        
+        page.OnActiveContextChanged(oldContext, context);
     }
 }

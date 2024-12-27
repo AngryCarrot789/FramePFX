@@ -34,34 +34,38 @@ public partial class ConfigurationDialog : WindowEx {
         this.InitializeComponent();
         this.configManager = manager;
 
-        this.PART_ApplyButton.Click += this.OnApplyButtonClicked;
-        this.PART_ConfirmButton.Click += this.OnConfirmButtonClicked;
-        this.PART_CancelButton.Click += this.OnCancelButtonClicked;
-
         this.PART_ApplyButton.IsEnabled = true;
         this.PART_ConfirmButton.IsEnabled = true;
         this.PART_CancelButton.IsEnabled = true;
         this.PART_EditorPanel.IsEnabled = true;
+
         this.ApplyCommand = new AsyncRelayCommand(async () => {
             this.PART_ApplyButton.IsEnabled = false;
             this.PART_ConfirmButton.IsEnabled = false;
             this.PART_CancelButton.IsEnabled = false;
             this.PART_EditorPanel.IsEnabled = false;
-            await this.configManager.ApplyHierarchyAsync();
+            await this.configManager.ApplyChangesInHierarchyAsync(null);
             this.PART_ApplyButton.IsEnabled = true;
             this.PART_ConfirmButton.IsEnabled = true;
             this.PART_CancelButton.IsEnabled = true;
             this.PART_EditorPanel.IsEnabled = true;
         });
+
         this.ApplyThenCloseCommand = new AsyncRelayCommand(async () => {
             this.PART_ApplyButton.IsEnabled = false;
             this.PART_ConfirmButton.IsEnabled = false;
             this.PART_CancelButton.IsEnabled = false;
             this.PART_EditorPanel.IsEnabled = false;
-            await this.configManager.ApplyHierarchyAsync();
+            
+            // TODO: 'failure to apply' system; a list of FailedApplyConfigurationEntry which gets presented to the user?
+            await this.configManager.ApplyChangesInHierarchyAsync(null);
             this.Close(true);
         });
 
+        this.PART_ApplyButton.Command = this.ApplyCommand;
+        this.PART_ConfirmButton.Command = this.ApplyThenCloseCommand;
+        this.PART_CancelButton.Click += this.OnCancelButtonClicked;
+        
         this.PART_EditorPanel.ActiveContextChanged += this.OnEditorContextChanged;
         this.PART_EditorPanel.ConfigurationManager = manager;
     }
@@ -79,32 +83,18 @@ public partial class ConfigurationDialog : WindowEx {
 
         if (newContext != null)
             newContext.ModifiedPagesUpdated += this.OnModifiedPagesChanged;
+        
+        this.UpdateConfirm();
     }
 
     private void OnModifiedPagesChanged(ConfigurationContext context) {
-        this.PART_ConfirmButton.IsEnabled = context.ModifiedPages.Any();
+        this.UpdateConfirm();
     }
 
-    private void OnApplyButtonClicked(object? sender, RoutedEventArgs e) => this.ApplyCommand.Execute(null);
-
-    private void OnConfirmButtonClicked(object? sender, RoutedEventArgs e) => this.TryCloseDialog(true);
-
-    private void OnCancelButtonClicked(object? sender, RoutedEventArgs e) => this.TryCloseDialog(false);
-
-    /// <summary>
-    /// Tries to close the dialog
-    /// </summary>
-    /// <param name="result">The dialog result wanted</param>
-    /// <returns>True if the dialog was closed, false if it could not be closed due to a validation error or other error</returns>
-    public bool TryCloseDialog(bool result) {
-        if (result) {
-            // TODO: 'failure to apply' system; a list of FailedApplyConfigurationEntry which gets presented to the user?
-            this.ApplyThenCloseCommand.Execute(null);
-            return true;
-        }
-        else {
-            this.Close(false);
-            return true;
-        }
+    private void UpdateConfirm() {
+        ConfigurationContext? ctx = this.PART_EditorPanel.ActiveContext;
+        this.PART_ConfirmButton.IsEnabled = ctx != null && ctx.ModifiedPages.Any();
     }
+
+    private void OnCancelButtonClicked(object? sender, RoutedEventArgs e) => this.Close(false);
 }

@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<Plugin EntryPoint="FramePFX.CircleClipPlugin.MyCircleClipPlugin" 
-        EntryPointLibraryPath="FramePFX.CircleClipPlugin.dll">
-    
-</Plugin>

@@ -133,7 +133,7 @@ public class ProjectVideoPropertyEditorConfigurationPage : PropertyEditorConfigu
         return ValueTask.CompletedTask;
     }
 
-    public override async ValueTask Apply() {
+    public override async ValueTask Apply(List<ApplyChangesFailureEntry>? errors) {
         ProjectSettings settings = this.manager.Project.Settings;
         settings.Resolution = new SKSizeI((int) this.Width, (int) this.Height);
         if (DoubleUtils.IsValid(this.FrameRate)) {

@@ -55,17 +55,16 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
 
     public EditorWindow(VideoEditor videoEditor) {
         this.VideoEditor = videoEditor;
-        this.InitializeComponent();
-        TemplateUtils.ApplyRecursive(this);
         this.PropertyEditor = new VideoEditorPropertyEditor();
+        this.InitializeComponent();
+        // TemplateUtils.ApplyRecursive(this);
         // this.Measure(default);
-        
 
         // average 5 samples. Will take a second to catch up when playing at 5 fps but meh
         this.renderTimeAverager = new NumberAverager(5);
         this.TheTimeline.EditorOwner = this;
 
-        this.updateFpsInfoRlda = BaseRateLimitedDispatchAction.ForDispatcherSync<Timeline>((t) => {
+        this.updateFpsInfoRlda = RateLimitedDispatchActionBase.ForDispatcherSync<Timeline>((t) => {
             if (t.Project?.Editor is VideoEditor editor) {
                 double avgPlaybackMillis = editor.Playback.AveragePlaybackIntervalMillis;
                 this.PART_AvgFPSBlock.Text = $"PB: {((int) Math.Round(1000.0 / avgPlaybackMillis)).ToString(),3} FPS ({Math.Round(avgPlaybackMillis, 2).ToString(),5} ms)";
@@ -79,23 +78,9 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
             batch.Context.Set(DataKeys.TopLevelHostKey, this).Set(DataKeys.VideoEditorUIKey, this);
         }
 
-        DataManager.GetContextData(this.PART_TimelinePresenterGroupBox).Set(DataKeys.TimelineUIKey, this.TheTimeline);
-
         TaskManager taskManager = TaskManager.Instance;
         taskManager.TaskStarted += this.OnTaskStarted;
         taskManager.TaskCompleted += this.OnTaskCompleted;
-
-        using (MultiChangeToken myDataBatch = DataManager.GetContextData(this).BeginChange()) {
-            videoEditor.ProjectChanged += this.OnProjectChanged;
-            videoEditor.IsExportingChanged += this.OnIsExportingChanged;
-            TemplateUtils.Apply(this.PART_ViewPort);
-            this.PART_ViewPort.Owner = this;
-            this.PART_ViewPort.VideoEditor = videoEditor;
-            this.OnProjectChanged(null, videoEditor.Project);
-            this.OnIsExportingChanged(videoEditor);
-
-            myDataBatch.Context.Set(DataKeys.VideoEditorKey, videoEditor);
-        }
     }
     
     private void OnTimelineClipSelectionChanged(ILightSelectionManager<IClipElement> sender) {
@@ -104,10 +89,20 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
 
     protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
-        DataManager.GetContextData(this).Set(DataKeys.ResourceManagerUIKey, this.PART_ResourcePanelControl);
-
-        this.ThePropertyEditor.ApplyTemplate();
         this.ThePropertyEditor.PropertyEditor = this.PropertyEditor;
+        using (MultiChangeToken myDataBatch = DataManager.GetContextData(this).BeginChange()) {
+            this.VideoEditor.ProjectChanged += this.OnProjectChanged;
+            this.VideoEditor.IsExportingChanged += this.OnIsExportingChanged;
+            TemplateUtils.Apply(this.PART_ViewPort);
+            this.PART_ViewPort.Owner = this;
+            this.PART_ViewPort.VideoEditor = this.VideoEditor;
+            this.OnProjectChanged(null, this.VideoEditor.Project);
+            this.OnIsExportingChanged(this.VideoEditor);
+            myDataBatch.Context.Set(DataKeys.VideoEditorKey, this.VideoEditor);
+            myDataBatch.Context.Set(DataKeys.ResourceManagerUIKey, this.PART_ResourcePanelControl);
+        }
+
+        DataManager.GetContextData(this.PART_TimelinePresenterGroupBox).Set(DataKeys.TimelineUIKey, this.TheTimeline);
         this.PART_ActiveBackgroundTaskGrid.IsVisible = false;
         ((ILightSelectionManager<IClipElement>) this.TheTimeline.ClipSelectionManager!).SelectionChanged += this.OnTimelineClipSelectionChanged;
         this.PART_ViewPort.OnClipSelectionChanged();

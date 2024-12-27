@@ -92,7 +92,7 @@ public class ApplicationConfigurationManager : ConfigurationManager {
             return ValueTask.CompletedTask;
         }
 
-        public override async ValueTask Apply() {
+        public override async ValueTask Apply(List<ApplyChangesFailureEntry>? errors) {
             EditorConfigurationOptions options = EditorConfigurationOptions.Instance;
             options.TitleBarBrush = this.titleBarBrush;
 

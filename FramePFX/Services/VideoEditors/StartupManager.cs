@@ -28,7 +28,9 @@ public abstract class StartupManager {
     public static StartupManager Instance => Application.Instance.ServiceManager.GetService<StartupManager>();
     
     public AsyncRelayCommand DoOpenDummyProjectCommand { get; }
+    
     public AsyncRelayCommand DoOpenEmptyEditorCommand { get; }
+    
     public AsyncRelayCommand DoOpenProjectCommand { get; }
 
     protected StartupManager() {
@@ -43,5 +45,10 @@ public abstract class StartupManager {
     protected abstract Task OnOpenEmptyEditor();
     protected abstract Task OnOpenProjectFromFileSystem();
 
+    /// <summary>
+    /// Invoked during once the application is fully initialised. This takes the app args and tries
+    /// to extract and open a project from them, or opens up the startup window
+    /// </summary>
+    /// <param name="args">The command line arguments, excluding the path of the application</param>
     public abstract Task ShowStartupOrOpenProject(string[] args);
 }

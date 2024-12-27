@@ -24,7 +24,7 @@ namespace FramePFX.Utils.RDA;
 /// <summary>
 /// The base class for a rate-limited dispatch action
 /// </summary>
-public abstract class BaseRateLimitedDispatchAction {
+public abstract class RateLimitedDispatchActionBase {
     protected static readonly TimeSpan DefaultTimeout = TimeSpan.FromMicroseconds(250);
 
     protected const int S_CONTINUE = 1; // Keeps the task running
@@ -58,9 +58,9 @@ public abstract class BaseRateLimitedDispatchAction {
     private StackTrace CreationStackTrace { get; } = new StackTrace();
 #endif
 
-    protected BaseRateLimitedDispatchAction() : this(DefaultTimeout) { }
+    protected RateLimitedDispatchActionBase() : this(DefaultTimeout) { }
 
-    protected BaseRateLimitedDispatchAction(TimeSpan minimumInterval) {
+    protected RateLimitedDispatchActionBase(TimeSpan minimumInterval) {
         if (minimumInterval.Ticks < 0)
             throw new ArgumentOutOfRangeException(nameof(minimumInterval), "Minimum interval must represent zero or more time");
 
@@ -131,12 +131,15 @@ public abstract class BaseRateLimitedDispatchAction {
                 // state at this point is S_EXECUTING possibly with S_CONTINUE_CRITICAL
                 await this.ExecuteCore();
             }
+            catch (OperationCanceledException) {
+                // ignored
+            }
             catch (Exception e) {
                 Application.Instance.Dispatcher.Post(() => throw new Exception("Exception while awaiting operation", e));
             }
             finally {
                 // This sets CONTINUE to false, indicating that there is no more work required.
-                // However there is a window between when the task finishes and condition being set to false
+                // However, there is a window between when the task finishes and condition being set to false
                 // where another thread can set condition to true:
                 //     Task just completes, another thread sets condition from false to true,
                 //     but then that change is overwritten and condition is set to false here
@@ -264,9 +267,13 @@ public abstract class BaseRateLimitedDispatchAction {
 
 /// <summary>
 /// A class that is similar to <see cref="RapidDispatchActionEx"/>, but has a set amount of time
-/// that has to pass before the callback is scheduled, ensuring the callback is not executed too quickly
+/// that has to pass before the callback is scheduled, ensuring the callback is not executed too quickly.
+/// <para>
+/// This class cannot add a delay to the first or first-in-a-while callback. If you need this, then consider
+/// using <see cref="RapidDispatchActionEx"/> and awaiting <see cref="Task.Delay(int)"/> at the start of the callback
+/// </para>
 /// </summary>
-public class RateLimitedDispatchAction : BaseRateLimitedDispatchAction, IDispatchAction {
+public sealed class RateLimitedDispatchAction : RateLimitedDispatchActionBase, IDispatchAction {
     private readonly Func<Task> callback;
 
     public RateLimitedDispatchAction(Func<Task> callback) : this(callback, DefaultTimeout) {
@@ -286,9 +293,9 @@ public class RateLimitedDispatchAction : BaseRateLimitedDispatchAction, IDispatc
 /// A parameter version of <see cref="RateLimitedDispatchAction"/>. 
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class RateLimitedDispatchAction<T> : BaseRateLimitedDispatchAction, IDispatchAction<T> where T : class {
+public sealed class RateLimitedDispatchAction<T> : RateLimitedDispatchActionBase, IDispatchAction<T> where T : class {
     private class ObjectWrapper {
-        public T value;
+        public readonly T value;
 
         public ObjectWrapper(T value) {
             this.value = value;
@@ -299,6 +306,7 @@ public class RateLimitedDispatchAction<T> : BaseRateLimitedDispatchAction, IDisp
     private ObjectWrapper? currentValue;
 
     public RateLimitedDispatchAction(Func<T, Task> callback) : this(callback, DefaultTimeout) {
+        
     }
 
     public RateLimitedDispatchAction(Func<T, Task> callback, TimeSpan minimumInterval) : base(minimumInterval) {
@@ -316,19 +324,20 @@ public class RateLimitedDispatchAction<T> : BaseRateLimitedDispatchAction, IDisp
     }
 
     protected override Task ExecuteCore() {
-        // BUG:
-        // InvokeAsync(value)
-        // ExecuteCore, value not exchanged yet ---
-        // InvokeAsync(another_value)
-        // ExecuteCore exchanges the value, but now the critical state is met due to the above InvokeAsync
-        // ExecuteCore completes and then executes again due to the critical state
+        // THE BUG :
+        // -> InvokeAsync(value)
+        // -> ExecuteCore, value not exchanged yet ---
+        // -> InvokeAsync(another_value)
+        // ... ExecuteCore exchanges the value, but now the critical state is met due to the above InvokeAsync
+        // ... ExecuteCore completes and then reschedules execution due to the critical state
         // ExecuteCore runs again but with a null currentValue
 
-        // FIX:
+        // THE FIX :
         // We need to clear the critical state after reading the value.
-        // This way, we still get the latest value but ExecuteCore won't get called again,
-        // unless InvokeAsync is invoked right after the critical state is cleared which is fine.
-        // Technically ExecuteCore should get called twice, but i can't think of a better solution currently 
+        // This way, we still get the latest value but ExecuteCore won't get called again, unless InvokeAsync
+        // is invoked right after the critical state is cleared which is fine since we got the value.
+        // Technically ExecuteCore should get called twice, but I can't think of a better solution currently, and
+        // no actual user work gets done in those few microseconds (maybe even 100s of nanos), so it's fine.
         ObjectWrapper? value = Interlocked.Exchange(ref this.currentValue, null);
         this.ClearCriticalState();
 

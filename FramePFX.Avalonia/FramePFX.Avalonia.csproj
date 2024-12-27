@@ -114,6 +114,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\FramePFX.Plugins.AnotherTestPlugin\FramePFX.Plugins.AnotherTestPlugin.csproj" />
         <ProjectReference Include="..\FramePFX\FramePFX.csproj"/>
     </ItemGroup>
 

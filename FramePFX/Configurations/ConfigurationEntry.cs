@@ -32,6 +32,7 @@ public class ConfigurationEntry {
     private readonly List<ConfigurationEntry> items;
     private string? id;
     private string? fullIdPath;
+    private ConfigurationEntry? myParent;
 
     /// <summary>
     /// Gets this entry's child items
@@ -51,7 +52,8 @@ public class ConfigurationEntry {
     public string? DisplayName { get; init; }
 
     /// <summary>
-    /// Gets a unique identifier for this entry
+    /// Gets a unique identifier for this entry. This is typically something along the lines of:
+    /// <code>config.rootsection.subsection</code>
     /// </summary>
     public string? Id {
         get => this.id;
@@ -79,7 +81,7 @@ public class ConfigurationEntry {
     /// </summary>
     public ConfigurationPage? Page { get; init; }
 
-    public ConfigurationEntry? Parent { get; private set; }
+    public ConfigurationEntry? Parent => this.myParent;
 
     /// <summary>
     /// Returns true when we are the root entry. This is a helper for checking if our parent is null
@@ -90,15 +92,41 @@ public class ConfigurationEntry {
         this.items = new List<ConfigurationEntry>();
     }
 
-    public bool TryGetEntry(string entryId, [NotNullWhen(true)] out ConfigurationEntry? entry) {
+    public bool TryGetEntry(string id, [NotNullWhen(true)] out ConfigurationEntry? entry) {
         foreach (ConfigurationEntry theEntry in this.items) {
-            if (theEntry.id == entryId) {
+            if (theEntry.id == id) {
                 entry = theEntry;
                 return true;
             }
         }
 
         entry = null;
+        return false;
+    }
+    
+    public bool TryGetEntryByFullId(string fullId, [NotNullWhen(true)] out ConfigurationEntry? entry) {
+        foreach (ConfigurationEntry theEntry in this.items) {
+            if (theEntry.fullIdPath == fullId) {
+                entry = theEntry;
+                return true;
+            }
+        }
+
+        entry = null;
+        return false;
+    }
+
+    public bool TryFindEntry(string fullId, [NotNullWhen(true)] out ConfigurationEntry? entry) {
+        if (this.TryGetEntryByFullId(fullId, out entry)) {
+            return true;
+        }
+
+        foreach (ConfigurationEntry item in this.items) {
+            if (item.TryGetEntryByFullId(fullId, out entry)) {
+                return true;
+            }
+        }
+
         return false;
     }
 
@@ -111,7 +139,7 @@ public class ConfigurationEntry {
 
         Debug.Assert(!this.items.Contains(entry), "Did not expect our list to contain the entry");
         this.items.Add(entry);
-        entry.Parent = this;
+        entry.myParent = this;
         entry.fullIdPath = null;
     }
 

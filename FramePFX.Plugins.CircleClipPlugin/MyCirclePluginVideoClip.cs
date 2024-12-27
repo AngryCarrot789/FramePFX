@@ -24,7 +24,7 @@ using FramePFX.Editing.Timelines.Clips.Video;
 using FramePFX.Utils.Accessing;
 using SkiaSharp;
 
-namespace FramePFX.CircleClipPlugin;
+namespace FramePFX.Plugins.CircleClipPlugin;
 
 public class MyCirclePluginVideoClip : VideoClip {
     public static readonly DataParameterFloat RadiusParameter =

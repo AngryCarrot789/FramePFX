@@ -53,7 +53,7 @@ public class ShortcutEditorConfigurationPage : ConfigurationPage {
         return base.OnContextDestroyed(context);
     }
 
-    public override ValueTask Apply() {
+    public override ValueTask Apply(List<ApplyChangesFailureEntry>? errors) {
         if (this.modifiedEntries != null) {
             foreach (ShortcutEntry entry in this.modifiedEntries)
                 entry.GroupedObject.Shortcut = entry.Shortcut;

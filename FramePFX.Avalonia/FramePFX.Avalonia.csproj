@@ -114,7 +114,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\FramePFX.Controls\FramePFX.Controls.csproj"/>
         <ProjectReference Include="..\FramePFX\FramePFX.csproj"/>
     </ItemGroup>
 

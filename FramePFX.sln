@@ -31,8 +31,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "portaudio", "portaudio\buil
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FramePFX.CircleClipPlugin", "FramePFX.CircleClipPlugin\FramePFX.CircleClipPlugin.csproj", "{2FC5EC2B-0C71-4796-872D-3EE6BC824D4C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FramePFX.Controls", "FramePFX.Controls\FramePFX.Controls.csproj", "{12284C16-6BA9-4C51-823F-CF705EFDBAD6}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -59,10 +57,6 @@ Global
 		{2FC5EC2B-0C71-4796-872D-3EE6BC824D4C}.Debug|x64.Build.0 = Debug|Any CPU
 		{2FC5EC2B-0C71-4796-872D-3EE6BC824D4C}.Release|x64.ActiveCfg = Release|Any CPU
 		{2FC5EC2B-0C71-4796-872D-3EE6BC824D4C}.Release|x64.Build.0 = Release|Any CPU
-		{12284C16-6BA9-4C51-823F-CF705EFDBAD6}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{12284C16-6BA9-4C51-823F-CF705EFDBAD6}.Debug|x64.Build.0 = Debug|Any CPU
-		{12284C16-6BA9-4C51-823F-CF705EFDBAD6}.Release|x64.ActiveCfg = Release|Any CPU
-		{12284C16-6BA9-4C51-823F-CF705EFDBAD6}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

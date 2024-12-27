@@ -66,7 +66,7 @@ public class ResourceExplorerListBox : ListBox, IResourceListElement {
     public IModelControlDictionary<BaseResource, ResourceExplorerListBoxItem> ItemMap => this.itemMap;
 
     public IResourceManagerElement ManagerUI { get; set; }
-    IResourceTreeNodeElement? IResourceListElement.CurrentFolderNode => this.CurrentFolder is ResourceFolder folder && !folder.IsRoot ? this.ManagerUI.GetNode(folder) : null;
+    IResourceTreeNodeElement? IResourceListElement.CurrentFolderTreeNode => this.CurrentFolder is ResourceFolder folder && !folder.IsRoot ? this.ManagerUI.GetTreeNode(folder) : null;
     IResourceListItemElement? IResourceListElement.CurrentFolderItem => this.CurrentFolder is ResourceFolder folder && !folder.IsRoot ? this.itemMap.GetControl(folder) : null;
     ISelectionManager<BaseResource> IResourceListElement.Selection => this.SelectionManager;
 

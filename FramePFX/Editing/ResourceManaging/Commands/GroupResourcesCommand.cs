@@ -36,7 +36,7 @@ public class GroupResourcesCommand : Command {
         List<BaseResource> resources;
         if (DataKeys.ResourceListUIKey.TryGetContext(e.ContextData, out IResourceListElement? list)) {
             resources = list.Selection.SelectedItems.ToList();
-            dest = (ResourceFolder?) list.CurrentFolderNode?.Resource ?? list.ManagerUI.ResourceManager!.RootContainer;
+            dest = (ResourceFolder?) list.CurrentFolderTreeNode?.Resource ?? list.ManagerUI.ResourceManager!.RootContainer;
         }
         else {
             return;

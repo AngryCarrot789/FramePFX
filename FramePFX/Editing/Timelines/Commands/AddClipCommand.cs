@@ -133,7 +133,7 @@ public class AddImageVideoClipCommand : AddClipCommand<ImageVideoClip> {
             if (path != null) {
                 ResourceImage resourceImage = new ResourceImage();
                 ResourceFolder targetFolder;
-                if (manager.List.CurrentFolderNode?.Resource is ResourceFolder folder) {
+                if (manager.List.CurrentFolderTreeNode?.Resource is ResourceFolder folder) {
                     (targetFolder = folder).AddItem(resourceImage);
                 }
                 else {

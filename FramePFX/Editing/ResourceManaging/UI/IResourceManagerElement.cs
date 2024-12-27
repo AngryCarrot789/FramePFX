@@ -29,17 +29,17 @@ public interface IResourceManagerElement {
     ResourceManager? ResourceManager { get; }
 
     /// <summary>
-    /// Gets the resource selection manager
+    /// Gets the resource selection manager, which is capable of synchronizing the tree and list selection together
     /// </summary>
     IResourceSelectionManager Selection { get; }
 
     /// <summary>
-    /// Gets our resource list
+    /// Gets our resource list UI element
     /// </summary>
     IResourceTreeElement Tree { get; }
 
     /// <summary>
-    /// Gets our resource list
+    /// Gets our resource list UI element
     /// </summary>
     IResourceListElement List { get; }
 
@@ -48,5 +48,5 @@ public interface IResourceManagerElement {
     /// </summary>
     /// <param name="resource">The model</param>
     /// <returns>The UI</returns>
-    IResourceTreeNodeElement GetNode(BaseResource resource);
+    IResourceTreeNodeElement GetTreeNode(BaseResource resource) => this.Tree.GetNode(resource);
 }

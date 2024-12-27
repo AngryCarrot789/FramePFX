@@ -19,18 +19,27 @@
 
 namespace FramePFX.Editing.ResourceManaging.UI;
 
+/// <summary>
+/// An interface for a resource tree node UI element
+/// </summary>
 public interface IResourceTreeNodeElement {
     /// <summary>
-    /// Gets the layer model for this node
+    /// Gets the resource model associated with this node. Returns null when <see cref="Parent"/> is null
     /// </summary>
     BaseResource? Resource { get; }
 
+    /// <summary>
+    /// Gets the parent node of this node. Returns null when we're a top level node
+    /// </summary>
     IResourceTreeNodeElement? Parent { get; }
 
+    /// <summary>
+    /// Gets the tree that this node exists in. Returns null when we're not in a tree (maybe this node was removed but still referenced)
+    /// </summary>
     IResourceTreeElement? Tree { get; }
 
     /// <summary>
-    /// Gets or sets if this item is selected
+    /// Gets or sets if this node is selected
     /// </summary>
     bool IsSelected { get; set; }
 

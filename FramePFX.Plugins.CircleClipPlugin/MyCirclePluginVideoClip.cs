@@ -58,8 +58,13 @@ public class MyCirclePluginVideoClip : VideoClip {
     }
 
     public override void RenderFrame(RenderContext rc, ref SKRect renderArea) {
+        float d = this.radius * 2.0F;
+        
         using SKPaint paint = new SKPaint();
         paint.Color = SKColors.Orange;
+        paint.IsAntialias = true;
         rc.Canvas.DrawCircle(this.radius, this.radius, this.radius, paint);
+
+        renderArea = rc.TranslateRect(new SKRect(0, 0, d, d));
     }
 }

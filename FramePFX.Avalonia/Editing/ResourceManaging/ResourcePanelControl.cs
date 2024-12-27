@@ -46,7 +46,7 @@ public class ResourcePanelControl : TemplatedControl, IResourceManagerElement {
     public ResourceTreeView? ResourceTreeView => this.resourceTreeManagerBinder.TargetControl as ResourceTreeView;
     public ResourceExplorerListBox? ResourceListBox => this.resourceListManagerBinder.TargetControl as ResourceExplorerListBox;
 
-    public TreeListSelectionMergerManager MultiSelectionManager { get; private set; }
+    public TreeListSelectionMergerManager? MultiSelectionManager { get; private set; }
 
     public ResourcePanelControl() {
         this.resourceTreeManagerBinder = new PropertyBinder<ResourceManager?>(this, ResourceManagerProperty, ResourceTreeView.ResourceManagerProperty);
@@ -72,7 +72,7 @@ public class ResourcePanelControl : TemplatedControl, IResourceManagerElement {
     IResourceTreeElement IResourceManagerElement.Tree => this.ResourceTreeView!;
     IResourceListElement IResourceManagerElement.List => this.ResourceListBox!;
 
-    public IResourceTreeNodeElement GetNode(BaseResource resource) {
+    public IResourceTreeNodeElement GetTreeNode(BaseResource resource) {
         return this.ResourceTreeView!.ItemMap.GetControl(resource);
     }
 }

@@ -68,7 +68,7 @@ public class ResourceDropRegistry {
             return Task.FromResult<bool>(false);
         }
 
-        ResourceFolder folder = item != null ? (ResourceFolder) item.Resource! : ((ResourceFolder?) list.CurrentFolderNode?.Resource ?? list.ManagerUI.ResourceManager!.RootContainer);
+        ResourceFolder folder = item != null ? (ResourceFolder) item.Resource! : ((ResourceFolder?) list.CurrentFolderTreeNode?.Resource ?? list.ManagerUI.ResourceManager!.RootContainer);
         return OnDropNativeType(folder, obj, ctx, inputDropType);
     }
 

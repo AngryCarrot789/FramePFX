@@ -21,21 +21,27 @@ using FramePFX.Interactivity;
 
 namespace FramePFX.Editing.ResourceManaging.UI;
 
+/// <summary>
+/// An interface the resource list UI element
+/// </summary>
 public interface IResourceListElement {
+    /// <summary>
+    /// Gets the resource manager associated with this list item
+    /// </summary>
     IResourceManagerElement ManagerUI { get; }
 
     /// <summary>
     /// Gets the folder TREE NODE being presented. This is a helper property to access the tree node from our <see cref="ManagerUI"/>
     /// </summary>
-    IResourceTreeNodeElement? CurrentFolderNode { get; }
+    IResourceTreeNodeElement? CurrentFolderTreeNode { get; }
 
     /// <summary>
-    /// Gets the folder item being presented
+    /// Gets the folder list element currently being presented. This is effectively the list equivalent of <see cref="CurrentFolderTreeNode"/>
     /// </summary>
     IResourceListItemElement? CurrentFolderItem { get; }
 
     /// <summary>
-    /// Gets the resource list's selection manager. This may be synced with the resource manager UI selection
+    /// Gets the resource list's selection manager. This may or may not be synced with the resource manager UI selection
     /// </summary>
     ISelectionManager<BaseResource> Selection { get; }
 }

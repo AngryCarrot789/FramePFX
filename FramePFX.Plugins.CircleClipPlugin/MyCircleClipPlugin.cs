@@ -83,8 +83,9 @@ public class MyCircleClipPlugin : Plugin {
     }
 
     private static void OnVideoEditorCreatedOrShown(IVideoEditorWindow window, bool isBeforeShow) {
-        // We don't really need to check this, because the property editor control listens to the
-        // events for add/remove/move, so it would just add in the slot control as per usual
+        // We don't really an isBeforeShow event for this, because the property editor control listens to
+        // the events for add/remove/move, so it would just add in the slot control as per usual.
+        // But maybe in the future a pre-post indicator will be needed, so we might as well keep it now
         if (isBeforeShow) {
             window.PropertyEditor.ClipGroup.AddItem(
                 new DataParameterFloatPropertyEditorSlot(MyCirclePluginVideoClip.RadiusParameter, typeof(MyCirclePluginVideoClip), "Radius", DragStepProfile.Pixels) {

@@ -21,6 +21,9 @@ using FramePFX.Interactivity;
 
 namespace FramePFX.Editing.ResourceManaging;
 
+/// <summary>
+/// An interface that stores the tree and list selection managers, and can automatically synchronise them if enabled  
+/// </summary>
 public interface IResourceSelectionManager {
     /// <summary>
     /// Gets our tree's selection manager

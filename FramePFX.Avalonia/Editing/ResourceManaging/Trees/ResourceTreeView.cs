@@ -37,7 +37,7 @@ using FramePFX.Services.Messaging;
 
 namespace FramePFX.Avalonia.Editing.ResourceManaging.Trees;
 
-public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX.Editing.ResourceManaging.UI.IResourceTreeElement {
+public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, IResourceTreeElement {
     public static readonly StyledProperty<ResourceManager?> ResourceManagerProperty = AvaloniaProperty.Register<ResourceTreeView, ResourceManager?>(nameof(ResourceManager));
     public static readonly DirectProperty<ResourceTreeView, bool> IsDroppableTargetOverProperty = AvaloniaProperty.RegisterDirect<ResourceTreeView, bool>(nameof(IsDroppableTargetOver), o => o.IsDroppableTargetOver);
 
@@ -47,8 +47,8 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
     private bool isProcessingAsyncDrop;
     private bool _isDroppableTargetOver;
     private ResourceFolder rootFolder;
-    private BaseResource targetDropResourceFolder; // the drop target for DragDrop
-    private IResourceTreeOrNode targetDropNodeFolder; // the control associated with the drop resource
+    private BaseResource? targetDropResourceFolder; // the drop target for DragDrop
+    private IResourceTreeOrNode? targetDropNodeFolder; // the control associated with the drop resource
 
     public IModelControlDictionary<BaseResource, ResourceTreeViewItem> ItemMap => this.itemMap;
 
@@ -70,6 +70,10 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
 
     BaseResource IResourceTreeOrNode.Resource => this.rootFolder;
 
+    public IResourceManagerElement ManagerUI { get; set; }
+    
+    ISelectionManager<BaseResource> IResourceTreeElement.Selection => this.SelectionManager;
+    
     public ResourceTreeSelectionManager SelectionManager { get; }
 
     public ResourceTreeView() {
@@ -80,6 +84,8 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
         DragDrop.SetAllowDrop(this, true);
         DataManager.GetContextData(this).Set(DataKeys.ResourceTreeUIKey, this);
     }
+    
+    IResourceTreeNodeElement IResourceTreeElement.GetNode(BaseResource resource) => this.itemMap.GetControl(resource);
 
     protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
@@ -90,7 +96,7 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
         base.OnUnloaded(e);
         AdvancedContextMenu.SetContextRegistry(this, null);
     }
-
+    
     protected override void OnPointerPressed(PointerPressedEventArgs e) {
         base.OnPointerPressed(e);
         if (e.Handled || e.Source is ResourceTreeViewItem) {
@@ -295,6 +301,7 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
             return root.ItemMap.GetControl(resource);
         }
 
+        // Realistically we should never reach this point, ResourceTree should be valid
         ItemCollection list = ((ItemsControl) self).Items;
         for (int i = 0, count = list.Count; i < count; i++) {
             ResourceTreeViewItem control = (ResourceTreeViewItem) list[i]!;
@@ -306,8 +313,4 @@ public abstract class ResourceTreeView : TreeView, IResourceTreeOrNode, FramePFX
         // Oh well
         return null;
     }
-
-    public IResourceManagerElement ManagerUI { get; set; }
-
-    ISelectionManager<BaseResource> FramePFX.Editing.ResourceManaging.UI.IResourceTreeElement.Selection => this.SelectionManager;
 }

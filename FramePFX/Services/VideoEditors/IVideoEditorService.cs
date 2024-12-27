@@ -36,7 +36,7 @@ public interface IVideoEditorService {
     IVideoEditorWindow OpenVideoEditor(VideoEditor editor);
     
     /// <summary>
-    /// An event fired when any video editor is created and also after it is shown
+    /// An event fired when any video editor is created and also fired again when it is shown
     /// </summary>
     event VideoEditorCreationEventHandler? VideoEditorCreatedOrShown;
 }

@@ -34,4 +34,11 @@ public interface IResourceTreeElement {
     /// Gets the resource tree's selection manager. This may be synced with the resource manager UI selection
     /// </summary>
     ISelectionManager<BaseResource> Selection { get; }
+
+    /// <summary>
+    /// Gets the node for the given resource
+    /// </summary>
+    /// <param name="resource">The model</param>
+    /// <returns>The UI</returns>
+    IResourceTreeNodeElement GetNode(BaseResource resource);
 }

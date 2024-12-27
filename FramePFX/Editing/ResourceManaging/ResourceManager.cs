@@ -205,23 +205,24 @@ public class ResourceManager : IDestroy {
     }
 
     internal static void InternalProcessResourceOnDetached(BaseResource resource) {
-        ResourceManager manager = resource.Manager;
+        ResourceManager? manager = resource.Manager;
         if (manager == null)
             throw new InvalidOperationException("Expected resource item to have a manager associated with it when it was being detached...");
         manager.Project.MarkModified();
     }
 
     internal static void InternalOnResourceItemAttachedToManager(ResourceItem item) {
-        ResourceManager manager = item.Manager;
+        ResourceManager? manager = item.Manager;
         if (manager == null)
             throw new InvalidOperationException("Expected resource item to have a manager associated with it when it was being attached...");
         manager.RegisterEntryInternal(item.UniqueId == EmptyId ? manager.GetNextId() : item.UniqueId, item);
     }
 
     internal static void InternalOnResourceItemDetachedFromManager(ResourceItem item) {
-        item.Manager.UnregisterItem(item);
+        item.Manager!.UnregisterItem(item);
     }
 
     public void Destroy() {
+        this.Clear();
     }
 }

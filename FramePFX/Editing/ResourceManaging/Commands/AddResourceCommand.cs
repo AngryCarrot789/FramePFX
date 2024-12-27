@@ -40,7 +40,7 @@ public abstract class AddResourceCommand<T> : AsyncCommand where T : BaseResourc
         }
 
         ResourceManager resMan = manager.ResourceManager!;
-        IResourceTreeNodeElement? current = manager.List.CurrentFolderNode;
+        IResourceTreeNodeElement? current = manager.List.CurrentFolderTreeNode;
         ResourceFolder targetFolder = (ResourceFolder) (current?.Resource ?? resMan.RootContainer);
 
         T resource = this.NewInstance();
@@ -60,7 +60,7 @@ public abstract class AddResourceCommand<T> : AsyncCommand where T : BaseResourc
         }
         finally {
             try {
-                await this.OnPostAddToFolder(targetFolder, resource, current, !success ? null : manager.GetNode(resource), success, e.ContextData);
+                await this.OnPostAddToFolder(targetFolder, resource, current, !success ? null : manager.GetTreeNode(resource), success, e.ContextData);
             }
             catch (Exception ex) {
                 list.Add(ex);

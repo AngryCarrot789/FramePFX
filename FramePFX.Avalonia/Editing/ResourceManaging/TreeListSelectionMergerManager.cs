@@ -38,8 +38,9 @@ public class TreeListSelectionMergerManager : IResourceSelectionManager {
     public bool SyncTreeWithList {
         get => this.syncTreeWithList;
         set {
-            if (this.syncTreeWithList == value)
+            if (this.syncTreeWithList == value) {
                 return;
+            }
 
             this.syncTreeWithList = value;
             if (value) {
@@ -95,8 +96,9 @@ public class TreeListSelectionMergerManager : IResourceSelectionManager {
     }
 
     private void OnTreeViewSelectionCleared(ISelectionManager<BaseResource> sender) {
-        if (this.isUpdatingTree)
+        if (this.isUpdatingTree) {
             return;
+        }
 
         try {
             this.isUpdatingList = true;
@@ -108,8 +110,9 @@ public class TreeListSelectionMergerManager : IResourceSelectionManager {
     }
 
     private void OnListBoxSelectionChanged(ISelectionManager<BaseResource> sender, IList<BaseResource>? oldItems, IList<BaseResource>? newItems) {
-        if (this.isUpdatingList)
+        if (this.isUpdatingList) {
             return;
+        }
 
         try {
             this.isUpdatingTree = true;
@@ -124,8 +127,9 @@ public class TreeListSelectionMergerManager : IResourceSelectionManager {
     }
 
     private void OnTreeViewSelectionChanged(ISelectionManager<BaseResource> sender, IList<BaseResource>? oldItems, IList<BaseResource>? newItems) {
-        if (this.isUpdatingTree)
+        if (this.isUpdatingTree) {
             return;
+        }
 
         try {
             this.isUpdatingList = true;

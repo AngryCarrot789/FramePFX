@@ -47,7 +47,7 @@ public abstract class ResourceItem : BaseResource, ITransferableData {
     public bool IsOnline { get; private set; }
 
     /// <summary>
-    /// Gets or sets if the reason the resource is offline is because a user forced it offline
+    /// Gets or sets if the reason the resource is offline is that a user forced it offline
     /// </summary>
     public bool IsOfflineByUser { get; set; }
 

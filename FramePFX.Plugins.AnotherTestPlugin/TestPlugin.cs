@@ -24,21 +24,6 @@ using FramePFX.Editing.Exporting;
 namespace FramePFX.Plugins.AnotherTestPlugin;
 
 public class TestPlugin : Plugin {
-    public override void OnCreated() {
-        
-    }
-
-    public override void RegisterCommands(CommandManager manager) {
-    }
-
-    public override void RegisterServices() {
-        
-    }
-
-    public override Task OnApplicationLoading() {
-        return Task.CompletedTask;
-    }
-
     public override async Task OnApplicationLoaded() {
         // Register a test exporter
         ExporterRegistry.Instance.RegisterExporter(new ExporterKey("testplugin.TestExporter", "Test Exporter (do not use)"), new TestExporterInfo());
@@ -58,9 +43,6 @@ public class TestPlugin : Plugin {
         configuration.RootEntry.AddEntry(new ConfigurationEntry() {
             DisplayName = "Test Plugin Settings", Id = "config.testplugineditorsettings", Page = new TestPluginConfigurationPage()
         });
-    }
-
-    public override void OnApplicationExiting() {
     }
 
     private class TestExporterInfo : BaseExporterInfo {

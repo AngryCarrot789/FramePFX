@@ -27,6 +27,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Markup.Xaml.Styling;
 using FramePFX.BaseFrontEnd;
 using FramePFX.Editing;
+using FramePFX.Persistence;
 using FramePFX.Plugins;
 using FramePFX.Services.Messaging;
 using FramePFX.Services.VideoEditors;
@@ -91,12 +92,19 @@ public partial class App : global::Avalonia.Application {
         using (progress.CompletionState.PushCompletionRange(0.7, 0.9)) {
             await ApplicationImpl.InternalLoadPluginsImpl(progress);
         }
-        
-        Application.Instance.PersistentStorageManager.Register(new EditorConfigurationOptions(), "editor", "window");
-        
-        await Application.Instance.PluginLoader.OnApplicationLoading();
-        await progress.ProgressAndSynchroniseAsync("Finalizing startup...", 0.99);
 
+        {
+            await progress.ProgressAndSynchroniseAsync("Loading configurations...", 0.8);
+            PersistentStorageManager psm = Application.Instance.PersistentStorageManager;
+            
+            psm.Register(new EditorConfigurationOptions(), "editor", "window");
+            
+            Application.Instance.PluginLoader.RegisterConfigurations(psm);
+
+            await psm.LoadAllAsync(null);
+        }
+
+        await progress.ProgressAndSynchroniseAsync("Finalizing startup...", 0.99);
         List<(Plugin, string)> list = new List<(Plugin, string)>();
         Application.Instance.PluginLoader.CollectInjectedXamlResources(list);
         if (list.Count > 0) {
@@ -137,8 +145,6 @@ public partial class App : global::Avalonia.Application {
                 resources.Add(t);
             }
         }
-
-        await Application.Instance.PersistentStorageManager.LoadAllAsync(null);
         
         await ApplicationImpl.InternalOnFullyInitialised();
         await Application.Instance.PluginLoader.OnApplicationLoaded();

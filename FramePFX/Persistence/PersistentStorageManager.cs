@@ -95,6 +95,7 @@ public sealed class PersistentStorageManager {
             // ignored
         }
 
+        HashSet<PersistentConfiguration> unloaded = this.allConfigs.ToHashSet();
         foreach (KeyValuePair<string, Dictionary<string, PersistentConfiguration>> areaEntry in this.areaMap) {
             if (areaEntry.Value.Count < 1) {
                 continue;
@@ -139,12 +140,17 @@ public sealed class PersistentStorageManager {
                 }
             }).Where(x => x.Value != null!).ToDictionary();
 
-            foreach (KeyValuePair<string, PersistentConfiguration> configMap in areaEntry.Value) {
-                if (configToElementMap.TryGetValue(configMap.Key, out XmlElement? configElement)) {
+            foreach (KeyValuePair<string, PersistentConfiguration> configEntry in areaEntry.Value) {
+                if (configToElementMap.TryGetValue(configEntry.Key, out XmlElement? configElement)) {
                     // TODO: versioning
-                    LoadConfiguration(configMap.Value, configElement);
+                    LoadConfiguration(configEntry.Value, configElement);
+                    unloaded.Remove(configEntry.Value);
                 }
             }
+        }
+
+        foreach (PersistentConfiguration config in unloaded) {
+            config.LoadDefaults();
         }
     }
     

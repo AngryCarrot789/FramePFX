@@ -59,6 +59,12 @@ public abstract class PersistentConfiguration {
     public IEnumerable<PersistentProperty> GetProperties() {
         return PersistentProperty.GetProperties(this.GetType(), true);
     }
+    
+    public void LoadDefaults() {
+        foreach (PersistentProperty property in this.GetProperties()) {
+            property.LoadDefaultValue(this);
+        }
+    }
 
     internal static void InternalOnValueChanged<T>(PersistentConfiguration config, PersistentProperty<T> property, T oldValue, T newValue) {
     }

@@ -65,7 +65,7 @@ public abstract class PersistentProperty {
     /// Registers a property that represents a primitive numeric value (e.g. int, uint, byte, decimal and so on)
     /// </summary>
     /// <returns></returns>
-    public static PersistentProperty<TValue> RegisterStringParsable<TValue, TOwner>(string name, TValue defaultValue, Func<TOwner, TValue> getValue, Action<TOwner, TValue> setValue, bool canSaveDefault) where TValue : IParsable<TValue> where TOwner : PersistentConfiguration {
+    public static PersistentProperty<TValue> RegisterParsable<TValue, TOwner>(string name, TValue defaultValue, Func<TOwner, TValue> getValue, Action<TOwner, TValue> setValue, bool canSaveDefault) where TValue : IParsable<TValue> where TOwner : PersistentConfiguration {
         PersistentPropertyStringParsable<TValue> property = new PersistentPropertyStringParsable<TValue>(defaultValue, (x) => getValue((TOwner) x), (x, y) => setValue((TOwner) x, y), (x) => TValue.Parse(x, null), null, canSaveDefault);
         RegisterCore(property, name, typeof(TOwner));
         return property;
@@ -176,6 +176,8 @@ public abstract class PersistentProperty {
 
         return props;
     }
+
+    public abstract void LoadDefaultValue(PersistentConfiguration config);
 }
 
 /// <summary>
@@ -211,4 +213,6 @@ public abstract class PersistentProperty<T> : PersistentProperty {
             PersistentConfiguration.InternalOnValueChanged(config, this, oldValue, value);
         }
     }
+
+    public override void LoadDefaultValue(PersistentConfiguration config) => this.SetValue(config, this.DefaultValue);
 }

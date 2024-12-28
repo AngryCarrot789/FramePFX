@@ -18,6 +18,8 @@
 // 
 
 using FramePFX.CommandSystem;
+using FramePFX.Configurations;
+using FramePFX.Persistence;
 
 namespace FramePFX.Plugins;
 
@@ -54,36 +56,48 @@ public abstract class Plugin {
     /// Invoked after the plugin is created and the descriptor is set.
     /// Exceptions throw in this method will crash the entire application
     /// </summary>
-    public abstract void OnCreated();
+    public virtual void OnCreated() {
+    
+    }
 
     /// <summary>
     /// Register this plugin's commands
     /// </summary>
     /// <param name="manager">Command manager</param>
-    public abstract void RegisterCommands(CommandManager manager);
+    public virtual void RegisterCommands(CommandManager manager) {
+    
+    }
 
     /// <summary>
     /// Register this plugin's services
     /// </summary>
-    public abstract void RegisterServices();
+    public virtual void RegisterServices() {
+    
+    }
 
     /// <summary>
-    /// Invoked when the application is in the process of loading. This is where configurations should be registered, among other things
+    /// Registers this plugin's configurations
     /// </summary>
     /// <returns></returns>
-    public abstract Task OnApplicationLoading();
+    public virtual void RegisterConfigurations(PersistentStorageManager manager) {
+    
+    }
     
     /// <summary>
     /// Invoked when the application has loaded. This is invoked before any editor window is created.
     /// Things like context menus, clip types, resource types, model->control mappings and so on should be registered here
     /// </summary>
     /// <returns></returns>
-    public abstract Task OnApplicationLoaded();
+    public virtual Task OnApplicationLoaded() {
+        return Task.CompletedTask;
+    }
     
     /// <summary>
     /// Invoked when the application is about to exit. This is sort of pointless, but it exists just in case
     /// </summary>
-    public abstract void OnApplicationExiting();
+    public virtual void OnApplicationExiting() {
+    
+    }
 
     public virtual void GetXamlResources(List<string> paths) {
         

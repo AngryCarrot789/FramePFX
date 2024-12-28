@@ -35,9 +35,6 @@ using FramePFX.Services.VideoEditors;
 namespace FramePFX.Plugins.CircleClipPlugin;
 
 public class MyCircleClipPlugin : Plugin {
-    public override void OnCreated() {
-    }
-
     // Uses the standard clip creation system via AddClipCommand<T>
     private class AddCircleClipCommand : AddClipCommand<MyCirclePluginVideoClip> {
         protected override async Task OnPostAddToTrack(Track track, MyCirclePluginVideoClip clip, bool success, IContextData ctx) {
@@ -81,13 +78,6 @@ public class MyCircleClipPlugin : Plugin {
 
             await IMessageDialogService.Instance.ShowMessage("hello", $"My resource = '{composition.Resource.DisplayName}'");
         }
-    }
-
-    public override void RegisterServices() {
-    }
-
-    public override Task OnApplicationLoading() {
-        return Task.CompletedTask;
     }
 
     public override async Task OnApplicationLoaded() {

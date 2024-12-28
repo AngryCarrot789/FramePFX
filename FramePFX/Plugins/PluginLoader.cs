@@ -22,6 +22,7 @@ using System.Reflection;
 using System.Text;
 using FramePFX.CommandSystem;
 using FramePFX.Logging;
+using FramePFX.Persistence;
 using FramePFX.Plugins.Exceptions;
 using FramePFX.Plugins.XML;
 using FramePFX.Utils;
@@ -205,9 +206,9 @@ public sealed class PluginLoader {
         return (plugin, descriptor);
     }
 
-    public async Task OnApplicationLoading() {
+    public void RegisterConfigurations(PersistentStorageManager manager) {
         foreach (Plugin plugin in this.plugins) {
-            await plugin.OnApplicationLoading();
+            plugin.RegisterConfigurations(manager);
         }
     }
     

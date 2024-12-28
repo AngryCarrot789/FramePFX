@@ -48,19 +48,9 @@ namespace FramePFX.Plugins.FFmpegMedia;
 /// This plugin implements FFmpeg clips and resources to allow video playback via FFmpeg
 /// </summary>
 public class FFmpegMediaPlugin : Plugin {
-    public override void OnCreated() {
-    }
-
     public override void RegisterCommands(CommandManager manager) {
         manager.Register("commands.editor.AddAVMediaClip", new AddAVMediaClipCommand());
         manager.Register("commands.resources.AddResourceAVMedia", new AddResourceAVMediaCommand());
-    }
-
-    public override void RegisterServices() {
-    }
-
-    public override Task OnApplicationLoading() {
-        return Task.CompletedTask;
     }
 
     public override Task OnApplicationLoaded() {
@@ -84,10 +74,6 @@ public class FFmpegMediaPlugin : Plugin {
         ExporterRegistry.Instance.RegisterExporter(new ExporterKey("exporter_ffmpeg", "FFmpeg"), new FFmpegExporterInfo());
         
         return Task.CompletedTask;
-    }
-
-    public override void OnApplicationExiting() {
-        
     }
 
     public override void GetXamlResources(List<string> paths) {

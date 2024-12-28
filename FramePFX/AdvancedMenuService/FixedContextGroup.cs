@@ -17,6 +17,8 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.Icons;
+
 namespace FramePFX.AdvancedMenuService;
 
 /// <summary>
@@ -40,19 +42,19 @@ public class FixedContextGroup : IContextGroup {
 
     public void AddSeparator() => this.AddEntry(new SeparatorEntry());
 
-    public void AddGroupCaption(string caption) => this.AddEntry(new CaptionEntry(caption));
-
-    public void AddCommand(string cmdId, string displayName, string? description = null) {
-        this.AddEntry(new CommandContextEntry(cmdId, displayName, description));
-    }
-
-    public void AddDynamicSubGroup(DynamicGenerateContextFunction generate) {
-        this.AddEntry(new DynamicGroupPlaceholderContextObject(new DynamicContextGroup(generate)));
-    }
-
     public CaptionEntry AddHeader(string caption) {
         CaptionEntry entry = new CaptionEntry(caption);
         this.items.Add(entry);
         return entry;
+    }
+    
+    public CommandContextEntry AddCommand(string cmdId, string displayName, string? description = null, Icon? icon = null, bool scaleIcon = true) {
+        CommandContextEntry entry = new CommandContextEntry(cmdId, displayName, description, icon, scaleIcon);
+        this.AddEntry(entry);
+        return entry;
+    }
+
+    public void AddDynamicSubGroup(DynamicGenerateContextFunction generate) {
+        this.AddEntry(new DynamicGroupPlaceholderContextObject(new DynamicContextGroup(generate)));
     }
 }

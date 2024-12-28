@@ -17,6 +17,8 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.Icons;
+
 namespace FramePFX.AdvancedMenuService;
 
 /// <summary>
@@ -25,7 +27,7 @@ namespace FramePFX.AdvancedMenuService;
 public class CommandContextEntry : BaseContextEntry {
     public string CommandId { get; }
 
-    public CommandContextEntry(string commandId, string displayName, string? description) : base(displayName, description) {
+    public CommandContextEntry(string commandId, string displayName, string? description, Icon? icon = null, bool scaleIcon = true) : base(displayName, description, icon, scaleIcon) {
         this.CommandId = commandId;
     }
 }

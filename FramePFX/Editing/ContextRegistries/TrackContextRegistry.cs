@@ -31,7 +31,7 @@ public static class TrackContextRegistry {
         {
             FixedContextGroup modGeneric = TimelineTrackContextRegistry.GetFixedGroup("modify.general");
             modGeneric.AddHeader("General");
-            modGeneric.AddCommand("commands.editor.RenameTrack", "Rename", "Open a dialog to rename this track");
+            modGeneric.AddCommand("commands.editor.RenameTrack", "Rename", "Open a dialog to rename this track", SimpleIcons.RenameIcon);
             modGeneric.AddCommand("commands.editor.SelectClipsInTracks", "Select All", "Select all clips in this track");
             modGeneric.AddDynamicSubGroup(GenerateEnableDisableCommands);
 
@@ -39,7 +39,7 @@ public static class TrackContextRegistry {
             modAdd.AddHeader("Add new clips");
             modAdd.AddCommand("commands.editor.AddTextClip", "Add Text clip", "Create a new Text clip");
             modAdd.AddCommand("commands.editor.AddTimecodeClip", "Add Timecode clip", "Create a new Timecode clip");
-            modAdd.AddCommand("commands.editor.AddAVMediaClip", "Add Video Media clip", "Create a new media clip for playing videos or most types of media");
+            modAdd.AddCommand("commands.editor.AddAVMediaClip", "Add Video Media clip", "Create a new media clip for playing videos or most types of media", SimpleIcons.VideoIcon);
             modAdd.AddCommand("commands.editor.AddVideoClipShape", "Add Shape clip", "Create a new Shape clip");
             modAdd.AddCommand("commands.editor.AddImageVideoClip", "Add Image clip", "Create a new Image clip");
             modAdd.AddCommand("commands.editor.AddCompositionVideoClip", "Add Composition clip", "Create a new Composition clip");
@@ -54,7 +54,7 @@ public static class TrackContextRegistry {
             modExternal.AddCommand("commands.editor.NewAudioTrack", "Insert Audio Track Above", "Inserts a new Audio Track above this track");
 
             FixedContextGroup mod4 = TimelineTrackContextRegistry.GetFixedGroup("modify.destruction", 100000);
-            mod4.AddCommand("commands.editor.DeleteSpecificTrack", "Delete Track", "Delete this track");
+            mod4.AddCommand("commands.editor.DeleteSpecificTrack", "Delete Track", "Delete this track", SimpleIcons.BinIcon);
         }
         {
             FixedContextGroup modGeneric = TrackControlSurfaceContextRegistry.GetFixedGroup("modify.general");
@@ -68,7 +68,7 @@ public static class TrackContextRegistry {
             modExternal.AddCommand("commands.editor.NewAudioTrack", "Insert Audio Track Above", "Inserts a new Audio Track above this track");
 
             FixedContextGroup mod3 = TrackControlSurfaceContextRegistry.GetFixedGroup("modify.destruction", 100000);
-            mod3.AddCommand("commands.editor.DeleteSpecificTrack", "Delete Track", "Delete this track");
+            mod3.AddCommand("commands.editor.DeleteSpecificTrack", "Delete Track", "Delete this track", SimpleIcons.BinIcon);
         }
     }
     

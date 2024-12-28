@@ -144,7 +144,7 @@ public class ResourceContextRegistry {
         }
 
         static void ApplyModifyDestruction(FixedContextGroup g) {
-            g.AddCommand("commands.resources.DeleteResources", "Delete", "Delete this/these resource(s)");
+            g.AddCommand("commands.resources.DeleteResources", "Delete", "Delete this/these resource(s)", SimpleIcons.BinIcon);
         }
     }
 }

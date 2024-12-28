@@ -22,10 +22,6 @@ using SkiaSharp;
 
 namespace FramePFX.Editing;
 
-public delegate void EditorConfigurationOptionsTitleBarPrefixChangedEventHandler(EditorConfigurationOptions sender);
-
-public delegate void EditorConfigurationOptionsTitleBarBrushChangedEventHandler(EditorConfigurationOptions sender);
-
 /// <summary>
 /// A singleton object which contains properties that all editors share in common such as the titlebar prefix (for version control)
 /// </summary>
@@ -34,9 +30,11 @@ public sealed class EditorConfigurationOptions : PersistentConfiguration {
     
     public static readonly PersistentProperty<string> TitleBarPrefixProperty = PersistentProperty.RegisterString<EditorConfigurationOptions>(nameof(TitleBarPrefix), "Bootleg sony vegas (FramePFX v2.0.1)", x => x.titleBar, (x, y) => x.titleBar = y, true);
     public static readonly PersistentProperty<ulong> TitleBarBrushProperty = PersistentProperty.RegisterParsable<ulong, EditorConfigurationOptions>(nameof(TitleBarBrush), (ulong) SKColors.Red, x => (ulong) x.titleBarBrush, (x, y) => x.titleBarBrush = (SKColor) y, true);
+    public static readonly PersistentProperty<bool> UseIconAntiAliasingProperty = PersistentProperty.RegisterBool<EditorConfigurationOptions>(nameof(UseIconAntiAliasing), false, x => x.useIconAntiAliasing, (x, y) => x.useIconAntiAliasing = y, false);
     
     private string titleBar = null!;
     private SKColor titleBarBrush;
+    private bool useIconAntiAliasing;
 
     public string TitleBarPrefix {
         get => TitleBarPrefixProperty.GetValue(this);
@@ -50,6 +48,11 @@ public sealed class EditorConfigurationOptions : PersistentConfiguration {
     public SKColor TitleBarBrush {
         get => (SKColor) TitleBarBrushProperty.GetValue(this);
         set => TitleBarBrushProperty.SetValue(this, (ulong) value);
+    }
+    
+    public bool UseIconAntiAliasing {
+        get => UseIconAntiAliasingProperty.GetValue(this);
+        set => UseIconAntiAliasingProperty.SetValue(this, value);
     }
 
     public event PersistentPropertyInstanceValueChangeEventHandler<string>? TitleBarPrefixChanged {

@@ -24,6 +24,8 @@ using FramePFX.Utils;
 
 namespace FramePFX.Persistence;
 
+public delegate void PersistentConfigurationValueChangeEventHandler(PersistentConfiguration config, PersistentProperty property, bool isBeforeChange);
+
 /// <summary>
 /// The base class for an object that stores a set of registered configuration options that
 /// are loaded on application startup and saved during application exit (they may also be
@@ -54,6 +56,11 @@ public abstract class PersistentConfiguration {
     /// <exception cref="InvalidOperationException"></exception>
     public string Name => this.name ?? throw new InvalidOperationException("Not registered yet");
 
+    /// <summary>
+    /// An event fired when any property belonging to this configuration changes
+    /// </summary>
+    public event PersistentConfigurationValueChangeEventHandler? PropertyValueChanged; 
+    
     protected PersistentConfiguration() {
         // If derived classes do not have an explicit static ctor, their static readonly
         // fields may not get generated until accessed. This forces them to be generated.
@@ -76,12 +83,12 @@ public abstract class PersistentConfiguration {
     /// </summary>
     /// <param name="property">The property that must change to invoke the handler</param>
     /// <param name="handler">The handler to invoke when the property changes for this configuration instance</param>
-    /// <param name="onChanging">True to handle ValueChanging, False to handle ValueChanged.<para>Default value is false</para></param>
+    /// <param name="isBeforeChange">True to handle ValueChanging, False to handle ValueChanged.<para>Default value is false</para></param>
     /// <typeparam name="T">The type of property value</typeparam>
-    public void AddValueChangeHandler<T>(PersistentProperty<T> property, PersistentPropertyInstanceValueChangeEventHandler<T>? handler, bool onChanging = false) {
+    public void AddValueChangeHandler<T>(PersistentProperty<T> property, PersistentPropertyInstanceValueChangeEventHandler<T>? handler, bool isBeforeChange = false) {
         if (handler != null) {
             PropertyData<T> d = this.GetOrCreateParamData(property);
-            if (onChanging)
+            if (isBeforeChange)
                 d.ValueChanging += handler;
             else
                 d.ValueChanged += handler;
@@ -93,21 +100,23 @@ public abstract class PersistentConfiguration {
     /// </summary>
     /// <param name="property">The property that must change to invoke the handler</param>
     /// <param name="handler">The handler to invoke when the property changes for this configuration instance</param>
-    /// <param name="onChanging">True for the ValueChanging event, False for the ValueChanged event.<para>Default value is false</para></param>
+    /// <param name="isBeforeChange">True for the ValueChanging event, False for the ValueChanged event.<para>Default value is false</para></param>
     /// <typeparam name="T">The type of property value</typeparam>
-    public void RemoveValueChangeHandler<T>(PersistentProperty<T> property, PersistentPropertyInstanceValueChangeEventHandler<T>? handler, bool onChanging = false) {
+    public void RemoveValueChangeHandler<T>(PersistentProperty<T> property, PersistentPropertyInstanceValueChangeEventHandler<T>? handler, bool isBeforeChange = false) {
         if (handler != null && this.TryGetPropertyData(property, out PropertyData<T>? d)) {
-            if (onChanging)
+            if (isBeforeChange)
                 d.ValueChanging -= handler;
             else 
                 d.ValueChanged -= handler;
         }
     }
 
-    internal static void InternalRaiseValueChange<T>(PersistentConfiguration config, PersistentProperty<T> property, T oldValue, T newValue, bool isChanging) {
+    internal static void InternalRaiseValueChange<T>(PersistentConfiguration config, PersistentProperty<T> property, T oldValue, T newValue, bool isBeforeChange) {
         if (config.TryGetPropertyData(property, out PropertyData<T>? data)) {
-            data.RaiseValueChange(config, property, oldValue, newValue, isChanging);
+            data.RaiseValueChange(config, property, oldValue, newValue, isBeforeChange);
         }
+        
+        config.PropertyValueChanged?.Invoke(config, property, isBeforeChange);
     }
 
     internal static void InternalOnRegistered(PersistentConfiguration config, PersistentStorageManager storageManager, string area, string name) {

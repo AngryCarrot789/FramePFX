@@ -8,7 +8,9 @@
                     xmlns:avalonia="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Avalonia;assembly=FramePFX.BaseFrontEnd"
                     xmlns:converters="clr-namespace:FramePFX.BaseFrontEnd.Converters;assembly=FramePFX.BaseFrontEnd"
                     xmlns:cu="clr-namespace:FramePFX.BaseFrontEnd.CommandUsages;assembly=FramePFX.BaseFrontEnd"
-                    xmlns:cc="clr-namespace:FramePFX.Avalonia.Editing.CommandUsages">
+                    xmlns:cc="clr-namespace:FramePFX.Avalonia.Editing.CommandUsages"
+                    xmlns:avc="clr-namespace:FramePFX.BaseFrontEnd.AvControls;assembly=FramePFX.BaseFrontEnd"
+                    xmlns:framePfx="clr-namespace:FramePFX;assembly=FramePFX-core">
     <converters:AutomationBrushConverter x:Key="AutomationBrushConverter" AutomationBrush="{StaticResource ABrush.AutomationActiveColour.Static}"/>
     <ControlTheme x:Key="{x:Type t:TimelineLoopControl}" TargetType="{x:Type t:TimelineLoopControl}">
     </ControlTheme>
@@ -225,7 +227,7 @@
                                                   Background="{DynamicResource ABrush.Tone6.Background.Static}"
                                                   BorderThickness="0" Focusable="False"
                                                   ToolTip.Tip="Toggles if looping is enabled. When enabled and the play head is inside the loop region, the play head returns back to the start of the loop when it reaches the end">
-                                        <Path Fill="{DynamicResource ABrush.Glyph.Static}" Data="M0 11 0 0 16.8 0 16.8 11.6 10 11.6 12.6 13.8 8.7 13.8 4.8 10.3 8.7 6.6 12.6 6.6 10 9.2 14.4 9.2 14.4 2.6 2.6 2.6 2.6 9 4.6 9 3.6 10.3 4.5 11.6 0 11.6Z"/>
+                                        <avc:IconControl Icon="{x:Static framePfx:SimpleIcons.LoopIcon}" Focusable="False" HorizontalAlignment="Left"/>
                                     </ToggleButton>
                                 </StackPanel>
                             </Border>

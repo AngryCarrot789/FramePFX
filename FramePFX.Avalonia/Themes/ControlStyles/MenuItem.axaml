@@ -23,7 +23,7 @@
     <ControlTheme x:Key="{x:Type MenuItem}" TargetType="{x:Type MenuItem}">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="6 0"/>
+        <Setter Property="Padding" Value="4 0"/>
         <Setter Property="Template">
             <ControlTemplate>
                 <Border x:Name="PART_LayoutRoot"
@@ -34,7 +34,7 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="{StaticResource MenuItemIconTrayGridLength}"/>
-                            <ColumnDefinition Width="5"/>
+                            <ColumnDefinition Width="2"/>
                             <ColumnDefinition Width="*"/>
                             <!-- A large amount of padding between the Header and Input Gesture Text -->
                             <!-- The default simple theme has no padding, and the two blend together -->
@@ -45,12 +45,12 @@
                         <ContentControl Grid.Column="0"
                                         x:Name="PART_ToggleIconPresenter"
                                         IsVisible="False"
-                                        Margin="2"
+                                        Margin="4,2,2,2"
                                         Width="16" Height="16"/>
                         <ContentControl Grid.Column="0"
                                         x:Name="PART_IconPresenter"
                                         Width="16" Height="16"
-                                        Margin="2"
+                                        Margin="4,2,2,2"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         Content="{TemplateBinding Icon}"/>

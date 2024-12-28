@@ -102,8 +102,10 @@ public abstract class ConfigurationPage {
     /// Marks this page as immediately modified for the current context, rather than relying on periodic checkups
     /// </summary>
     public void MarkModified() {
-        this.IsMarkedImmediatelyModified = true;
-        this.ActiveContext?.MarkImmediatelyModified(this);
+        if (!this.IsMarkedImmediatelyModified) {
+            this.IsMarkedImmediatelyModified = true;
+            this.ActiveContext?.MarkImmediatelyModified(this);
+        }
     }
 
     public void ClearModifiedState() {

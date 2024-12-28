@@ -17,13 +17,15 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using System.Net.Security;
 using Avalonia;
 using Avalonia.Media;
 using FramePFX.Icons;
 
 namespace FramePFX.BaseFrontEnd.Icons;
 
+/// <summary>
+/// The main abstract class for icons implemented for AvaloniaUI
+/// </summary>
 public abstract class AbstractAvaloniaIcon : Icon {
     /// <summary>
     /// An event fired when this icon's visual becomes invalid (e.g. a dynamic resource value changes)
@@ -35,8 +37,18 @@ public abstract class AbstractAvaloniaIcon : Icon {
     }
     
     protected void OnRenderInvalidated() => this.RenderInvalidated?.Invoke(this, EventArgs.Empty);
-    
-    public abstract void Render(DrawingContext context, Rect rect);
 
-    public abstract Size GetSize(Size availableSize);
+    /// <summary>
+    /// Renders this avalonia icon into the given drawing context
+    /// </summary>
+    /// <param name="context">The drawing context</param>
+    /// <param name="size">The drawing area size</param>
+    /// <param name="scale">True to scale this icon to the given size, false to draw the icon in its original size</param>
+    public abstract void Render(DrawingContext context, Rect size, bool scale);
+
+    /// <summary>
+    /// Gets the size of this icon, in pixels. Typically called by a control's measurement functions
+    /// </summary>
+    /// <returns>The amount of space this icon will take up</returns>
+    public abstract Size GetSize();
 }

@@ -14,6 +14,8 @@
                         <TextBlock Text="Editor Title Bar: " DockPanel.Dock="Left" VerticalAlignment="Center" Padding="5,2"/>
                         <TextBox x:Name="PART_TitleBarTextBox" VerticalContentAlignment="Center" Padding="4"/>
                     </DockPanel>
+                    <CheckBox Content="Use icon anti-aliasing" x:Name="PART_ToggleUseAliasing" VerticalAlignment="Center" Padding="4"
+                              ToolTip.Tip="Changing this option does not effect every icon until a restart"/>
                 </StackPanel>
             </ControlTemplate>
         </Setter>

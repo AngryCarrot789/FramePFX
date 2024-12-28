@@ -26,16 +26,14 @@ using FramePFX.Themes;
 namespace FramePFX.BaseFrontEnd.Icons;
 
 public class GeometryIconImpl : AbstractAvaloniaIcon {
-    public string[] Elements { get; }
-
-    public IColourBrush? TheFillBrush { get; }
-    public IColourBrush? TheStrokeBrush { get; }
+    public readonly string[] Elements;
+    public readonly IColourBrush? TheFillBrush;
+    public readonly IColourBrush? TheStrokeBrush;
+    public readonly double StrokeThickness;
 
     private IBrush? myFillBrush, myPenBrush;
     private IPen? myPen;
-    
-    public double StrokeThickness { get; set; }
-    
+
     private Geometry?[]? geometries;
     private readonly IDisposable disposeFillBrush, disposeStrokeBrush;
 
@@ -56,22 +54,22 @@ public class GeometryIconImpl : AbstractAvaloniaIcon {
             return this.geometries!;
         }
     }
-    
+
     public GeometryIconImpl(string name, IColourBrush? brush, IColourBrush? stroke, double strokeThickness, string[] svgElements) : base(name) {
         this.Elements = svgElements;
         this.TheFillBrush = brush;
         this.TheStrokeBrush = stroke;
         this.StrokeThickness = strokeThickness;
-        
+
         if (brush is DynamicResourceAvaloniaColourBrush b) {
             this.disposeFillBrush = b.Subscribe(this.OnFillBrushInvalidated);
         }
         else if (brush != null) {
             this.myFillBrush = ((ImmutableAvaloniaColourBrush) brush).Brush;
         }
-        
+
         if (stroke is DynamicResourceAvaloniaColourBrush s) {
-            this.disposeFillBrush = s.Subscribe(this.OnStrokeBrushInvalidated);
+            this.disposeStrokeBrush = s.Subscribe(this.OnStrokeBrushInvalidated);
         }
         else if (stroke != null) {
             this.myFillBrush = ((ImmutableAvaloniaColourBrush) stroke).Brush;
@@ -82,37 +80,50 @@ public class GeometryIconImpl : AbstractAvaloniaIcon {
         this.myFillBrush = brush;
         this.OnRenderInvalidated();
     }
-    
+
     private void OnStrokeBrushInvalidated(IBrush? brush) {
         this.myPenBrush = brush;
         this.myPen = null;
         this.OnRenderInvalidated();
     }
 
-    public override void Render(DrawingContext context, Rect rect) {
-        foreach (Geometry? geometry in this.Geometries) {
-            if (geometry != null) {
-                if (this.myPen == null && this.myPenBrush != null) {
-                    this.myPen = new Pen(this.myPenBrush, this.StrokeThickness);
+    public override void Render(DrawingContext context, Rect size, bool scale) {
+        DrawingContext.PushedState? x = null;
+        if (scale) {
+            Rect geometryBounds = this.GetBounds();
+            Vector theScale = new Vector(size.Width / geometryBounds.Width, size.Height / geometryBounds.Height);
+            x = context.PushTransform(Matrix.CreateScale(theScale));
+        }
+
+        using (x) {
+            foreach (Geometry? geometry in this.Geometries) {
+                if (geometry != null) {
+                    if (this.myPen == null && this.myPenBrush != null) {
+                        this.myPen = new Pen(this.myPenBrush, this.StrokeThickness);
+                    }
+
+                    context.DrawGeometry(this.myFillBrush, this.myPen, geometry);
                 }
-                
-                context.DrawGeometry(this.myFillBrush, this.myPen, geometry);
             }
         }
     }
 
-    public override Size GetSize(Size availableSize) {
+    public Rect GetBounds() {
         Rect b = new Rect();
         foreach (Geometry? g in this.Geometries) {
             if (g == null)
                 continue;
-            
+
             Rect a = g.Bounds;
             double le = Math.Min(a.Left, b.Left), to = Math.Min(a.Top, b.Top);
             double ri = Math.Max(a.Right, b.Right), bo = Math.Max(a.Bottom, b.Bottom);
             b = new Rect(le, to, ri - le, bo - to);
         }
 
-        return availableSize.Constrain(b.Size);
+        return b;
+    }
+    
+    public override Size GetSize() {
+        return this.GetBounds().Size;
     }
 }

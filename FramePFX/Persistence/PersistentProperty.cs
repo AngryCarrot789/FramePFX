@@ -116,10 +116,35 @@ public abstract class PersistentProperty {
         return property;
     }
     
+    /// <summary>
+    /// Registers an enum property
+    /// </summary>
+    /// <param name="name">The name of the property</param>
+    /// <param name="defaultValue">The property's default value</param>
+    /// <param name="getValue">The getter</param>
+    /// <param name="setValue">The setter</param>
+    /// <param name="canSaveDefault">When true, a configuration's value of this property can be serialised even if the current value is the default value</param>
+    /// <typeparam name="TEnum">The enum type</typeparam>
+    /// <typeparam name="TOwner">The owner of the property</typeparam>
+    /// <returns>The property, which you can store as a public static readonly field</returns>
     public static PersistentProperty<TEnum> RegisterEnum<TEnum, TOwner>(string name, TEnum defaultValue, Func<TOwner, TEnum> getValue, Action<TOwner, TEnum> setValue, bool canSaveDefault) where TEnum : struct, Enum where TOwner : PersistentConfiguration {
         PersistentPropertyEnum<TEnum> property = new PersistentPropertyEnum<TEnum>(defaultValue, (x) => getValue((TOwner) x), (x, y) => setValue((TOwner) x, y), canSaveDefault);
         RegisterCore(property, name, typeof(TOwner));
         return property;
+    }
+    
+    /// <summary>
+    /// Registers a boolean property
+    /// </summary>
+    /// <param name="name">The name of the property</param>
+    /// <param name="defaultValue">The property's default value</param>
+    /// <param name="getValue">The getter</param>
+    /// <param name="setValue">The setter</param>
+    /// <param name="canSaveDefault">When true, a configuration's value of this property can be serialised even if the current value is the default value</param>
+    /// <typeparam name="TOwner">The owner of the property</typeparam>
+    /// <returns>The property, which you can store as a public static readonly field</returns>
+    public static PersistentProperty<bool> RegisterBool<TOwner>(string name, bool defaultValue, Func<TOwner, bool> getValue, Action<TOwner, bool> setValue, bool canSaveDefault) where TOwner : PersistentConfiguration {
+        return RegisterParsable(name, defaultValue, getValue, setValue, canSaveDefault);
     }
 
     private static void RegisterCore(PersistentProperty property, string name, Type ownerType) {
@@ -320,9 +345,9 @@ public abstract class PersistentProperty<T> : PersistentProperty {
     /// </summary>
     /// <param name="configuration">The configuration whose value must change to invoke the handler</param>
     /// <param name="handler">The handler to invoke when the property changes for this configuration instance</param>
-    /// <param name="onChanging">True to handle ValueChanging, False to handle ValueChanged.<para>Default value is false</para></param>
-    public void AddValueChangeHandler(PersistentConfiguration configuration, PersistentPropertyInstanceValueChangeEventHandler<T>? handler, bool onChanging = false) {
-        configuration.AddValueChangeHandler(this, handler, onChanging);
+    /// <param name="isBeforeChange">True to handle ValueChanging, False to handle ValueChanged.<para>Default value is false</para></param>
+    public void AddValueChangeHandler(PersistentConfiguration configuration, PersistentPropertyInstanceValueChangeEventHandler<T>? handler, bool isBeforeChange = false) {
+        configuration.AddValueChangeHandler(this, handler, isBeforeChange);
     }
 
     /// <summary>
@@ -330,8 +355,8 @@ public abstract class PersistentProperty<T> : PersistentProperty {
     /// </summary>
     /// <param name="configuration">The configuration whose value must change to invoke the handler</param>
     /// <param name="handler">The handler to invoke when the property changes for this configuration instance</param>
-    /// <param name="onChanging">True for the ValueChanging event, False for the ValueChanged event.<para>Default value is false</para></param>
-    public void RemoveValueChangeHandler(PersistentConfiguration configuration, PersistentPropertyInstanceValueChangeEventHandler<T>? handler, bool onChanging = false) {
-        configuration.RemoveValueChangeHandler(this, handler, onChanging);
+    /// <param name="isBeforeChange">True for the ValueChanging event, False for the ValueChanged event.<para>Default value is false</para></param>
+    public void RemoveValueChangeHandler(PersistentConfiguration configuration, PersistentPropertyInstanceValueChangeEventHandler<T>? handler, bool isBeforeChange = false) {
+        configuration.RemoveValueChangeHandler(this, handler, isBeforeChange);
     }
 }

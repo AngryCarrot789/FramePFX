@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.Icons;
 using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.AdvancedMenuService;
@@ -27,7 +28,7 @@ namespace FramePFX.AdvancedMenuService;
 public abstract class CustomContextEntry : BaseContextEntry {
     public Action<CustomContextEntry, IContextData>? Action { get; init; }
 
-    protected CustomContextEntry(string displayName, string? description) : base(displayName, description) {
+    protected CustomContextEntry(string displayName, string? description, Icon? icon = null) : base(displayName, description, icon) {
     }
 
     public virtual bool CanExecute(IContextData context) {

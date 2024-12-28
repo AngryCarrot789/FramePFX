@@ -1,6 +1,3 @@
-// 
-// Copyright (c) 2024-2024 REghZy
-// 
 // This file is part of FramePFX.
 // 
 // FramePFX is free software; you can redistribute it and/or
@@ -17,24 +14,19 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using Avalonia;
-using Avalonia.Media;
-using Avalonia.Media.Imaging;
+namespace FramePFX.Themes;
 
-namespace FramePFX.BaseFrontEnd.Icons;
+public delegate void DynamicColourBrushChangedEventHandler(IDynamicColourBrush brush);
 
-public class BitmapIconImpl : AbstractAvaloniaIcon {
-    public Bitmap Bitmap { get; }
-    
-    public BitmapIconImpl(string name, Bitmap bitmap) : base(name) {
-        this.Bitmap = bitmap;
-    }
+public interface IDynamicColourBrush : IColourBrush {
+    /// <summary>
+    /// Gets the key that locates the "brush" contents
+    /// </summary>
+    string ThemeKey { get; }
 
-    public override void Render(DrawingContext context, Rect size, bool scale) {
-        context.DrawImage(this.Bitmap, size);
-    }
-
-    public override Size GetSize() {
-        return this.Bitmap.Size;
-    }
+    /// <summary>
+    /// An event fired when the "brush" contents of this colour brush change (typically caused
+    /// by the application theme changing, or maybe the user modified the specific brush)
+    /// </summary>
+    event DynamicColourBrushChangedEventHandler? BrushChanged;
 }

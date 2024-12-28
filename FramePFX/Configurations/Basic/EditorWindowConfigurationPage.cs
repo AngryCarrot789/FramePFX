@@ -21,10 +21,11 @@ using FramePFX.Editing;
 
 namespace FramePFX.Configurations.Basic;
 
-public delegate void EditorWindowConfigurationPageTitleBarChangedEventHandler(EditorWindowConfigurationPage sender);
+public delegate void EditorWindowConfigurationPageEventHandler(EditorWindowConfigurationPage sender);
 
 public class EditorWindowConfigurationPage : ConfigurationPage {
     private string? titleBar;
+    private bool useIconAntiAliasing;
 
     public string? TitleBar {
         get => this.titleBar;
@@ -38,7 +39,22 @@ public class EditorWindowConfigurationPage : ConfigurationPage {
         }
     }
 
-    public event EditorWindowConfigurationPageTitleBarChangedEventHandler? TitleBarChanged;
+    public bool UseIconAntiAliasing
+    {
+        get => this.useIconAntiAliasing;
+        set
+        {
+            if (this.useIconAntiAliasing == value)
+                return;
+        
+            this.useIconAntiAliasing = value;
+            this.UseIconAntiAliasingChanged?.Invoke(this);
+            this.MarkModified();
+        }
+    }
+
+    public event EditorWindowConfigurationPageEventHandler? TitleBarChanged;
+    public event EditorWindowConfigurationPageEventHandler? UseIconAntiAliasingChanged;
 
     public EditorWindowConfigurationPage() {
     }
@@ -46,12 +62,14 @@ public class EditorWindowConfigurationPage : ConfigurationPage {
     public override async ValueTask OnContextCreated(ConfigurationContext context) {
         EditorConfigurationOptions options = EditorConfigurationOptions.Instance;
         this.titleBar = options.TitleBarPrefix;
+        this.useIconAntiAliasing = options.UseIconAntiAliasing;
     }
 
     public override async ValueTask Apply(List<ApplyChangesFailureEntry>? errors) {
         EditorConfigurationOptions options = EditorConfigurationOptions.Instance;
         if (!string.IsNullOrWhiteSpace(this.titleBar)) {
             options.TitleBarPrefix = this.titleBar;
+            options.UseIconAntiAliasing = this.useIconAntiAliasing;
         }
 
         options.StorageManager.SaveArea(options);

@@ -39,5 +39,5 @@ public abstract class BrushFactory {
     /// </summary>
     /// <param name="themeKey">The key</param>
     /// <returns>The brush</returns>
-    public abstract IColourBrush CreateDynamic(string themeKey);
+    public abstract IDynamicColourBrush CreateDynamic(string themeKey);
 }

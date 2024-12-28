@@ -11,7 +11,7 @@
             xmlns:ams="clr-namespace:FramePFX.BaseFrontEnd.AdvancedMenuService;assembly=FramePFX.BaseFrontEnd"
             xmlns:propertyEditing="clr-namespace:FramePFX.BaseFrontEnd.PropertyEditing;assembly=FramePFX.BaseFrontEnd"
             xmlns:cu="clr-namespace:FramePFX.BaseFrontEnd.CommandUsages;assembly=FramePFX.BaseFrontEnd"
-            xmlns:avControls="clr-namespace:FramePFX.BaseFrontEnd.AvControls;assembly=FramePFX.BaseFrontEnd"
+            xmlns:avc="clr-namespace:FramePFX.BaseFrontEnd.AvControls;assembly=FramePFX.BaseFrontEnd"
             xmlns:framePfx="clr-namespace:FramePFX;assembly=FramePFX-core"
             mc:Ignorable="d"
             x:Class="FramePFX.Avalonia.EditorWindow"
@@ -128,9 +128,6 @@
                                                         HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Stop"
                                                         CommandId="commands.editor.PlaybackStopCommand"
                                                         ToolTip.Tip="Stop playback, returning the play head to the stop head location"/>
-                                    <avControls:IconButton Icon="{x:Static framePfx:SimpleIcons.AnIcon}" 
-                                                           Width="24" Focusable="False"
-                                                           HorizontalAlignment="Left" Margin="5,0,0,0"/>
                                 </StackPanel>
                             </DockPanel>
                         </Border>

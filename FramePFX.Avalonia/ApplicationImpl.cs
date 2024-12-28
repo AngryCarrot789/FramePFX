@@ -33,7 +33,6 @@ using FramePFX.Avalonia.Editing.Toolbars;
 using FramePFX.Avalonia.Exporting;
 using FramePFX.Avalonia.Services;
 using FramePFX.Avalonia.Services.Startups;
-using FramePFX.Avalonia.Themes;
 using FramePFX.BaseFrontEnd;
 using FramePFX.BaseFrontEnd.Configurations;
 using FramePFX.BaseFrontEnd.Icons;

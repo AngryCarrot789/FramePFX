@@ -57,7 +57,7 @@ public class PropertyEditor {
             newEditor.selectedSlots.Add(slot);
         }
     }
-
+    
     public void ClearSelection() {
         // ToList() is required, otherwise the collection will be modified concurrently
         foreach (PropertyEditorSlot slot in this.selectedSlots.ToList()) {

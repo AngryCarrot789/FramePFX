@@ -18,11 +18,8 @@
 // 
 
 using System.Diagnostics;
-using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
-using Avalonia.Reactive;
-using Avalonia.Styling;
 using FramePFX.Themes;
 using SkiaSharp;
 
@@ -32,78 +29,128 @@ namespace FramePFX.BaseFrontEnd.Themes.BrushFactories;
 /// The primary base class for all avalonia implementations of <see cref="IColourBrush"/>
 /// </summary>
 public abstract class AvaloniaColourBrush : IColourBrush {
-    
+    /// <summary>
+    /// Gets the brush currently associated with this object
+    /// </summary>
+    public abstract IBrush? Brush { get; }
 }
 
-public class ImmutableAvaloniaColourBrush : AvaloniaColourBrush {
-    public ImmutableSolidColorBrush Brush { get; }
+public sealed class ImmutableAvaloniaColourBrush : AvaloniaColourBrush {
+    public override ImmutableSolidColorBrush Brush { get; }
 
     public ImmutableAvaloniaColourBrush(SKColor colour) {
         this.Brush = new ImmutableSolidColorBrush(new Color(colour.Alpha, colour.Red, colour.Green, colour.Blue));
     }
 }
 
-public class DynamicResourceAvaloniaColourBrush : AvaloniaColourBrush {
-    public string ThemeKey { get; set; }
+public sealed class DynamicResourceAvaloniaColourBrush : AvaloniaColourBrush, IDynamicColourBrush {
+    public string ThemeKey { get; }
 
     /// <summary>
-    /// Gets the fully resolved
+    /// Gets the fully resolved brush
     /// </summary>
     public IBrush? CurrentBrush { get; private set; }
 
-    private AnonymousObserver<AvaloniaPropertyChangedEventArgs<ThemeVariant>>? myThemeChangeHandler;
+    public override IBrush? Brush => this.CurrentBrush;
+
     private int usageCounter;
     private List<Action<IBrush?>>? handlers;
+    
+    public event DynamicColourBrushChangedEventHandler? BrushChanged;
 
     public DynamicResourceAvaloniaColourBrush(string themeKey) {
         this.ThemeKey = themeKey;
     }
 
-    public IDisposable Subscribe(Action<IBrush?>? onBrushChanged) {
+    /// <summary>
+    /// Subscribe to this brush using the given brush handler. This is more like
+    /// an "IncrementReferences" method, with an optional brush change handler.
+    /// <para>
+    /// The returned disposable unsubscribes and MUST be called when this brush is no longer
+    /// in use, because otherwise this brush will always be listening to application
+    /// theme and resource change events in order to notify listeners of brush changes 
+    /// </para>
+    /// </summary>
+    /// <param name="onBrushChanged">An optional handler for when our internal brush changes for any reason</param>
+    /// <param name="invokeHandlerImmediately">True to invoke the given handler in this method if we currently have a valid brush</param>
+    /// <returns>A disposable to unsubscribe</returns>
+    public IDisposable Subscribe(Action<IBrush?>? onBrushChanged, bool invokeHandlerImmediately = true) {
+        Application.Instance.Dispatcher.VerifyAccess();
+        
         if (onBrushChanged != null)
             (this.handlers ??= new List<Action<IBrush?>>()).Add(onBrushChanged);
 
         if (this.usageCounter++ == 0) {
-            global::Avalonia.Application.Current!.ActualThemeVariantChanged += this.OnApplicationThemeChanged;
-            this.QueryBrushFromApplication();
+            // We expect the handler list to be empty due to the logic in Unsubscribe
+            Debug.Assert(onBrushChanged != null ? this.handlers?.Count == 1 : (this.handlers == null || this.handlers.Count < 1));
+            
+            Avalonia.Application.Current!.ActualThemeVariantChanged += this.OnApplicationThemeChanged;
+            this.FindBrush(invokeHandlerImmediately);
+        }
+        else if (invokeHandlerImmediately && onBrushChanged != null && this.CurrentBrush != null) {
+            onBrushChanged(this.CurrentBrush);
         }
 
         return new UsageToken(this, onBrushChanged);
     }
 
     private void OnApplicationThemeChanged(object? sender, EventArgs e) {
-        this.QueryBrushFromApplication();
+        this.FindBrush();
     }
 
-    private void Unsubscribe(Action<IBrush?>? invalidatedHandler) {
+    private void Unsubscribe(UsageToken token) {
+        Application.Instance.Dispatcher.VerifyAccess();
+        
         if (this.usageCounter == 0) {
             throw new InvalidOperationException("Excessive unsubscribe count");
         }
 
-        if (invalidatedHandler != null) {
+        if (token.invalidatedHandler != null) {
             Debug.Assert(this.handlers != null);
-            this.handlers.Remove(invalidatedHandler);
+            this.handlers.Remove(token.invalidatedHandler);
         }
 
         if (--this.usageCounter == 0) {
-            global::Avalonia.Application.Current!.ActualThemeVariantChanged -= this.OnApplicationThemeChanged;
+            // Since token.invalidatedHandler cannot change and is readonly,
+            // it should be impossible for it to not get removed
+            Debug.Assert(this.handlers == null || this.handlers.Count < 1);
+            
+            Avalonia.Application.Current!.ActualThemeVariantChanged -= this.OnApplicationThemeChanged;
         }
     }
 
-    private void QueryBrushFromApplication() {
-        if (global::Avalonia.Application.Current!.TryGetResource(this.ThemeKey, global::Avalonia.Application.Current.ActualThemeVariant, out object? value)) {
+    private void FindBrush(bool notifyHandlers = true) {
+        if (Avalonia.Application.Current!.TryGetResource(this.ThemeKey, Avalonia.Application.Current.ActualThemeVariant, out object? value)) {
             if (value is IBrush brush) {
                 if (!ReferenceEquals(this.CurrentBrush, brush)) {
                     this.CurrentBrush = brush;
-                    this.NotifyHandlersBrushChanged();
+                    if (notifyHandlers)
+                        this.NotifyHandlersBrushChanged();
                 }
 
                 return;
             }
+            else {
+                // Try to convert to an immutable brush in case the user specified a colour key
+                if (value is Color colour) {
+                    // Already have the same colour, and we have an immutable brush,
+                    // so no need to notify handlers of changes
+                    if (this.CurrentBrush is ImmutableSolidColorBrush currBrush && currBrush.Color == colour) {
+                        return;
+                    }
+
+                    this.CurrentBrush = new ImmutableSolidColorBrush(colour);
+                    if (notifyHandlers)
+                        this.NotifyHandlersBrushChanged();
+                }
+            }
         }
-        
-        this.CurrentBrush = null;
-        this.NotifyHandlersBrushChanged();
+
+        if (this.CurrentBrush != null) {
+            this.CurrentBrush = null;
+            if (notifyHandlers)
+                this.NotifyHandlersBrushChanged();
+        }
     }
 
     private void NotifyHandlersBrushChanged() {
@@ -112,11 +159,13 @@ public class DynamicResourceAvaloniaColourBrush : AvaloniaColourBrush {
                 action(this.CurrentBrush);
             }
         }
+        
+        this.BrushChanged?.Invoke(this);
     }
 
     private class UsageToken : IDisposable {
         private DynamicResourceAvaloniaColourBrush? brush;
-        private readonly Action<IBrush?>? invalidatedHandler;
+        public readonly Action<IBrush?>? invalidatedHandler;
 
         public UsageToken(DynamicResourceAvaloniaColourBrush brush, Action<IBrush?>? invalidatedHandler) {
             this.brush = brush;
@@ -127,7 +176,7 @@ public class DynamicResourceAvaloniaColourBrush : AvaloniaColourBrush {
             if (this.brush == null)
                 throw new ObjectDisposedException("this", "Already disposed");
 
-            this.brush.Unsubscribe(this.invalidatedHandler);
+            this.brush.Unsubscribe(this);
             this.brush = null;
         }
     }

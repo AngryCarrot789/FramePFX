@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.Icons;
 using FramePFX.Utils;
 
 namespace FramePFX.AdvancedMenuService;
@@ -26,9 +27,15 @@ public class BaseContextEntry : IContextEntry {
 
     public string? Description { get; }
 
-    public BaseContextEntry(string displayName, string? description) {
+    public Icon? Icon { get; }
+
+    public bool ScaleIcon { get; }
+    
+    public BaseContextEntry(string displayName, string? description, Icon? icon = null, bool scaleIcon = true) {
         Validate.NotNullOrWhiteSpaces(displayName);
         this.DisplayName = displayName;
         this.Description = description;
+        this.Icon = icon;
+        this.ScaleIcon = scaleIcon;
     }
 }

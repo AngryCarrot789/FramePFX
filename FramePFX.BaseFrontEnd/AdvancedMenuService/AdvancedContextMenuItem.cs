@@ -21,6 +21,7 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using FramePFX.AdvancedMenuService;
+using FramePFX.BaseFrontEnd.AvControls;
 using FramePFX.Interactivity.Contexts;
 
 namespace FramePFX.BaseFrontEnd.AdvancedMenuService;
@@ -44,6 +45,7 @@ public class AdvancedContextMenuItem : MenuItem, IAdvancedContextElement {
 
     private Dictionary<int, DynamicGroupPlaceholderContextObject>? dynamicInsertion;
     private Dictionary<int, int>? dynamicInserted;
+    private IconControl? myIconControl;
 
     public AdvancedContextMenuItem() { }
 
@@ -69,12 +71,26 @@ public class AdvancedContextMenuItem : MenuItem, IAdvancedContextElement {
         if (this.Entry.Description != null)
             ToolTip.SetTip(this, this.Entry.Description ?? "");
 
-        if (this.Entry is SubListContextEntry list) {
-            MenuService.InsertItemNodes(this.Container!, this, list.ItemList);
+        if (this.Entry.Icon != null) {
+            this.myIconControl = new IconControl() {
+                Icon = this.Entry.Icon,
+                ScaleIcon = this.Entry.ScaleIcon
+            };
+            
+            this.Icon = this.myIconControl;
         }
+
+        if (this.Entry is SubListContextEntry list)
+            MenuService.InsertItemNodes(this.Container!, this, list.ItemList);
     }
 
     public virtual void OnRemoving() {
+        if (this.myIconControl != null) {
+            this.myIconControl.Icon = null;
+            this.myIconControl = null;
+            this.Icon = null;
+        }
+        
         MenuService.ClearItemNodes(this);
     }
 

@@ -50,6 +50,7 @@ public abstract class ConfigurationManager {
         await ApplyPagesRecursive(this.RootEntry, (x) => x.Apply(errors), Flag_OnlyIfModified);
         if (manager.EndSavingStack()) {
             manager.SaveStackedAreas();
+            manager.SaveAll();
         }
     }
 

@@ -7,10 +7,10 @@
         x:Class="FramePFX.Avalonia.Services.Startups.StartupWindow"
         Title="Welcome to FramePFX!"
         WindowStartupLocation="CenterScreen">
-    <Grid RowDefinitions="Auto,5,*" Margin="10">
+    <Grid RowDefinitions="Auto,5,*,Auto" Margin="10">
         <TextBlock Text="Select an action below" FontSize="16" FontWeight="Bold" TextAlignment="Center" VerticalAlignment="Center"/>
         <Grid ColumnDefinitions="4*,5,3*,5,5*" Grid.Row="2">
-            <Button Grid.Column="0" x:Name="PART_CreateDummyProjectButton" Content="Open Dummy Project" CornerRadius="2">
+            <Button Grid.Column="0" x:Name="PART_CreateDemoProjectButton" Content="Open Demo Project" CornerRadius="2">
                 <Button.Styles>
                     <Style Selector="Button[IsPointerOver=True]">
                         <Setter Property="Background" Value="{DynamicResource ABrush.AccentTone3.Background.Static}"/>
@@ -25,6 +25,9 @@
             </Button>
             <Button Grid.Column="2" x:Name="PART_OpenProjectButton" Content="Open Project..." CornerRadius="2"/>
             <Button Grid.Column="4" x:Name="PART_OpenEditorWithoutProjectButton" Content="Open Editor without Project" CornerRadius="2"/>
+        </Grid>
+        <Grid Grid.Row="3" Margin="5">
+            <CheckBox x:Name="PART_AlwaysUseThisOption" HorizontalAlignment="Left" Content="Always use this option"/>
         </Grid>
     </Grid>
 </controls:WindowEx>

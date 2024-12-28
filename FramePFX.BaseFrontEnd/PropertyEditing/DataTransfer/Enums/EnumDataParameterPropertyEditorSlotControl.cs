@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using Avalonia;
 using Avalonia.Controls;
 using FramePFX.PropertyEditing.DataTransfer.Enums;
 
@@ -84,5 +85,11 @@ public class EnumDataParameterPropertyEditorSlotControl<TEnum> : BaseEnumDataPar
         }
 
         base.OnConnected();
+        if (this.SlotModel.OptionArrangement is EnumArrangementComboBox arrangement) {
+            if (!arrangement.IsCompact) {
+                this.comboBox!.Margin = new Thickness(2, 3);
+                this.comboBox.Padding = new Thickness(3);
+            }
+        }
     }
 }

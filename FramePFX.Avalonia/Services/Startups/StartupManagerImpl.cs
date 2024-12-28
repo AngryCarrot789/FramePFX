@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Avalonia.Controls;
@@ -37,6 +38,21 @@ public class StartupManagerImpl : StartupManager {
     
     public StartupManagerImpl() {
     }
+    
+    private async Task HandleNormalStartup() {
+        switch (StartupConfigurationOptions.Instance.StartupBehaviour) {
+            case StartupConfigurationOptions.EnumStartupBehaviour.OpenStartupWindow:
+                this.OpenStartupWindow();
+                break;
+            case StartupConfigurationOptions.EnumStartupBehaviour.OpenDemoProject:
+                await this.OnOpenDemoProject();
+                break;
+            case StartupConfigurationOptions.EnumStartupBehaviour.OpenEmptyProject:
+                await this.OnOpenEmptyEditor();
+                break;
+            default: this.OpenStartupWindow(); break;
+        }
+    }
 
     public override void OpenStartupWindow() {
         if (this.myWindow != null) {
@@ -55,7 +71,7 @@ public class StartupManagerImpl : StartupManager {
         }
     }
 
-    protected override Task OnOpenDummyProject() {
+    protected override Task OnOpenDemoProject() {
         VideoEditor editor = new VideoEditor();
         editor.LoadDefaultProject();
         
@@ -139,14 +155,14 @@ public class StartupManagerImpl : StartupManager {
         }
     }
 
-    public override async Task ShowStartupOrOpenProject(string[] args) {
+    public override async Task OnApplicationStartupWithArgs(string[] args) {
         if (args.Length > 0 && File.Exists(args[0]) && Filters.ProjectType.MatchFilePath(args[0]) == true) {
             if (!await TryOpenProjectFromFile(args[0])) {
-                this.OpenStartupWindow();
+                await this.HandleNormalStartup();
             }
         }
         else {
-            this.OpenStartupWindow();
+            await this.HandleNormalStartup();
         }
     }
 }

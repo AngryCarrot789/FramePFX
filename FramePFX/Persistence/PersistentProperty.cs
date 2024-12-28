@@ -83,7 +83,7 @@ public abstract class PersistentProperty {
         RegisterCore(property, name, typeof(TOwner));
         return property;
     }
-
+    
     /// <summary>
     /// Registers a string property that represents a primitive numeric value (e.g. int, uint, byte, decimal and so on)
     /// </summary>

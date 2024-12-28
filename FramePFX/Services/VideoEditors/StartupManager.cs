@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.Editing;
 using FramePFX.Utils.Commands;
 
 namespace FramePFX.Services.VideoEditors;
@@ -26,23 +27,61 @@ namespace FramePFX.Services.VideoEditors;
 /// </summary>
 public abstract class StartupManager {
     public static StartupManager Instance => Application.Instance.ServiceManager.GetService<StartupManager>();
-    
-    public AsyncRelayCommand DoOpenDummyProjectCommand { get; }
-    
+
+    public AsyncRelayCommand DoOpenDemoProjectCommand { get; }
+
     public AsyncRelayCommand DoOpenEmptyEditorCommand { get; }
-    
+
     public AsyncRelayCommand DoOpenProjectCommand { get; }
 
+    /// <summary>
+    /// Gets or sets if the action the user selects should be saved as the
+    /// default option to the <see cref="FramePFX.Editing.StartupConfigurationOptions"/>
+    /// </summary>
+    public bool UseSelectedOptionOnStartup { get; set; }
+
     protected StartupManager() {
-        this.DoOpenDummyProjectCommand = new AsyncRelayCommand(this.OnOpenDummyProject);
-        this.DoOpenEmptyEditorCommand = new AsyncRelayCommand(this.OnOpenEmptyEditor);
-        this.DoOpenProjectCommand = new AsyncRelayCommand(this.OnOpenProjectFromFileSystem);
+        this.DoOpenDemoProjectCommand = new AsyncRelayCommand(this.OpenDemoProject);
+        this.DoOpenEmptyEditorCommand = new AsyncRelayCommand(this.OpenEmptyEditor);
+        this.DoOpenProjectCommand = new AsyncRelayCommand(this.OpenProjectFromFileSystem);
     }
 
     public abstract void OpenStartupWindow();
 
-    protected abstract Task OnOpenDummyProject();
+    private Task OpenDemoProject() {
+        if (this.UseSelectedOptionOnStartup) {
+            SetStartupOption(StartupConfigurationOptions.EnumStartupBehaviour.OpenDemoProject);
+        }
+
+        return this.OnOpenDemoProject();
+    }
+
+    private Task OpenEmptyEditor() {
+        if (this.UseSelectedOptionOnStartup) {
+            SetStartupOption(StartupConfigurationOptions.EnumStartupBehaviour.OpenEmptyProject);
+        }
+
+        return this.OnOpenEmptyEditor();
+    }
+
+    private Task OpenProjectFromFileSystem() {
+        if (this.UseSelectedOptionOnStartup) {
+            SetStartupOption(StartupConfigurationOptions.EnumStartupBehaviour.OpenStartupWindow);
+        }
+
+        return this.OnOpenProjectFromFileSystem();
+    }
+
+    private static void SetStartupOption(StartupConfigurationOptions.EnumStartupBehaviour behaviour) {
+        StartupConfigurationOptions config = StartupConfigurationOptions.Instance;
+        config.StartupBehaviour = behaviour;
+        config.StorageManager.SaveArea(config);
+    }
+
+    protected abstract Task OnOpenDemoProject();
+
     protected abstract Task OnOpenEmptyEditor();
+
     protected abstract Task OnOpenProjectFromFileSystem();
 
     /// <summary>
@@ -50,5 +89,5 @@ public abstract class StartupManager {
     /// to extract and open a project from them, or opens up the startup window
     /// </summary>
     /// <param name="args">The command line arguments, excluding the path of the application</param>
-    public abstract Task ShowStartupOrOpenProject(string[] args);
+    public abstract Task OnApplicationStartupWithArgs(string[] args);
 }

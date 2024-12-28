@@ -98,6 +98,7 @@ public partial class App : global::Avalonia.Application {
             PersistentStorageManager psm = Application.Instance.PersistentStorageManager;
             
             psm.Register(new EditorConfigurationOptions(), "editor", "window");
+            psm.Register(new StartupConfigurationOptions(), null, "startup");
             
             Application.Instance.PluginLoader.RegisterConfigurations(psm);
 
@@ -148,7 +149,7 @@ public partial class App : global::Avalonia.Application {
         await Application.Instance.PluginLoader.OnApplicationLoaded();
         if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
             (progress as AppSplashScreen)?.Close();
-            await StartupManager.Instance.ShowStartupOrOpenProject(envArgs.Length > 1 ? envArgs.Skip(1).ToArray() : Array.Empty<string>());
+            await StartupManager.Instance.OnApplicationStartupWithArgs(envArgs.Length > 1 ? envArgs.Skip(1).ToArray() : Array.Empty<string>());
             desktop.ShutdownMode = ShutdownMode.OnLastWindowClose;
         }
     }

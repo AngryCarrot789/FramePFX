@@ -59,6 +59,8 @@ public class DataParameterEnumPropertyEditorSlot<TEnum> : DataParameterPropertyE
 
     public new DataParameter<TEnum> Parameter => (DataParameter<TEnum>) base.Parameter;
 
+    public EnumOptionArrangement OptionArrangement { get; init; }
+
     public DataParameterEnumPropertyEditorSlot(DataParameter<TEnum> parameter, Type applicableType, string displayName, IEnumerable<TEnum>? values = null, DataParameterEnumInfo<TEnum>? translationInfo = null) : base(parameter, applicableType, displayName) {
         this.TranslationInfo = translationInfo;
         this.ValueEnumerable = values != null ? values.ToList().AsReadOnly() : EnumValues;

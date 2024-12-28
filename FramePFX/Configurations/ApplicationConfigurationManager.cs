@@ -22,6 +22,7 @@ using FramePFX.Configurations.Shortcuts;
 using FramePFX.DataTransfer;
 using FramePFX.Editing;
 using FramePFX.PropertyEditing.DataTransfer;
+using FramePFX.PropertyEditing.DataTransfer.Enums;
 using FramePFX.Shortcuts;
 using FramePFX.Utils.Accessing;
 using SkiaSharp;
@@ -35,6 +36,8 @@ public class ApplicationConfigurationManager : ConfigurationManager {
     public static readonly ApplicationConfigurationManager Instance = new ApplicationConfigurationManager();
 
     public ConfigurationEntry EditorConfigurationEntry { get; }
+    
+    public ConfigurationEntry StartupConfigurationEntry { get; }
 
     private ApplicationConfigurationManager() {
         if (Instance != null)
@@ -51,6 +54,10 @@ public class ApplicationConfigurationManager : ConfigurationManager {
 
         this.RootEntry.AddEntry(new ConfigurationEntry() {
             DisplayName = "Keymap", Id = "config.keymap", Page = new ShortcutEditorConfigurationPage(ShortcutManager.Instance)
+        });
+        
+        this.RootEntry.AddEntry(this.StartupConfigurationEntry = new ConfigurationEntry() {
+            DisplayName = "Startup", Id = "config.startup", Page = new StartupPropEditorConfigurationPage()
         });
     }
 
@@ -94,6 +101,64 @@ public class ApplicationConfigurationManager : ConfigurationManager {
             options.TitleBarBrush = this.titleBarBrush;
 
             // await IoC.MessageService.ShowMessage("Change title", "Change window title to: " + this.TitleBar);
+        }
+    }
+    
+    public class StartupPropEditorConfigurationPage : PropertyEditorConfigurationPage {
+        public static readonly DataParameter<StartupConfigurationOptions.EnumStartupBehaviour> StartupBehaviourParameter =
+            DataParameter.Register(
+                new DataParameter<StartupConfigurationOptions.EnumStartupBehaviour>(
+                    typeof(StartupPropEditorConfigurationPage),
+                    nameof(StartupBehaviour), default,
+                    ValueAccessors.Reflective<StartupConfigurationOptions.EnumStartupBehaviour>(typeof(StartupPropEditorConfigurationPage), nameof(startupBehaviour))));
+
+        private StartupConfigurationOptions.EnumStartupBehaviour startupBehaviour;
+
+        public StartupConfigurationOptions.EnumStartupBehaviour StartupBehaviour {
+            get => this.startupBehaviour;
+            set => DataParameter.SetValueHelper(this, StartupBehaviourParameter, ref this.startupBehaviour, value);
+        }
+        
+        public StartupPropEditorConfigurationPage() {
+            this.startupBehaviour = StartupBehaviourParameter.GetDefaultValue(this);
+            StartupBehaviourParameter.AddValueChangedHandler(this, this.MarkModifiedHandler);
+
+            this.PropertyEditor.Root.AddItem(new DataParameterStartupBehaviourPropertyEditorSlot(StartupBehaviourParameter, typeof(StartupPropEditorConfigurationPage), "Behaviour") {OptionArrangement = new EnumArrangementComboBox(false)});
+        }
+
+        private void MarkModifiedHandler(DataParameter parameter, ITransferableData owner) => this.MarkModified();
+
+        public override async ValueTask OnContextCreated(ConfigurationContext context) {
+            StartupConfigurationOptions options = StartupConfigurationOptions.Instance;
+            this.startupBehaviour = options.StartupBehaviour;
+            this.PropertyEditor.Root.SetupHierarchyState([this]);
+        }
+
+        public override ValueTask OnContextDestroyed(ConfigurationContext context) {
+            this.PropertyEditor.Root.ClearHierarchy();
+            return ValueTask.CompletedTask;
+        }
+
+        public override async ValueTask Apply(List<ApplyChangesFailureEntry>? errors) {
+            StartupConfigurationOptions options = StartupConfigurationOptions.Instance;
+            options.StartupBehaviour = this.startupBehaviour;
+
+            // await IoC.MessageService.ShowMessage("Change title", "Change window title to: " + this.TitleBar);
+        }
+    }
+    
+    public class DataParameterStartupBehaviourPropertyEditorSlot : DataParameterEnumPropertyEditorSlot<StartupConfigurationOptions.EnumStartupBehaviour> {
+        public static DataParameterEnumInfo<StartupConfigurationOptions.EnumStartupBehaviour> CodedIdEnumInfo { get; }
+
+        public DataParameterStartupBehaviourPropertyEditorSlot(DataParameter<StartupConfigurationOptions.EnumStartupBehaviour> parameter, Type applicableType, string displayName, IEnumerable<StartupConfigurationOptions.EnumStartupBehaviour>? values = null, DataParameterEnumInfo<StartupConfigurationOptions.EnumStartupBehaviour>? translationInfo = null) : base(parameter, applicableType, displayName, values, translationInfo) { }
+        public DataParameterStartupBehaviourPropertyEditorSlot(DataParameter<StartupConfigurationOptions.EnumStartupBehaviour> parameter, Type applicableType, string? displayName = null) : base(parameter, applicableType, displayName ?? "Codec ID", EnumValues.OrderBy(x => x.ToString()), CodedIdEnumInfo) { }
+
+        static DataParameterStartupBehaviourPropertyEditorSlot() {
+            CodedIdEnumInfo = new DataParameterEnumInfo<StartupConfigurationOptions.EnumStartupBehaviour>(null, new Dictionary<StartupConfigurationOptions.EnumStartupBehaviour, string>() {
+                [StartupConfigurationOptions.EnumStartupBehaviour.OpenStartupWindow] = "Open startup window",
+                [StartupConfigurationOptions.EnumStartupBehaviour.OpenDemoProject] = "Open a demo project",
+                [StartupConfigurationOptions.EnumStartupBehaviour.OpenEmptyProject] = "Open a new empty project",
+            });
         }
     }
 }

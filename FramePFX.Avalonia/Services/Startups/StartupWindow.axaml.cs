@@ -18,6 +18,7 @@
 // 
 
 using Avalonia.Interactivity;
+using FramePFX.BaseFrontEnd.Bindings;
 using FramePFX.BaseFrontEnd.Themes.Controls;
 using FramePFX.Services.VideoEditors;
 
@@ -29,13 +30,18 @@ public partial class StartupWindow : WindowEx {
     public StartupWindow(StartupManager startupManager) {
         this.InitializeComponent();
         this.startupManager = startupManager;
-        this.PART_CreateDummyProjectButton.Command = this.startupManager.DoOpenDummyProjectCommand;
+        this.PART_CreateDemoProjectButton.Command = this.startupManager.DoOpenDemoProjectCommand;
         this.PART_OpenEditorWithoutProjectButton.Command = this.startupManager.DoOpenEmptyEditorCommand;
         this.PART_OpenProjectButton.Command = this.startupManager.DoOpenProjectCommand;
+        this.PART_AlwaysUseThisOption.IsCheckedChanged += this.PART_AlwaysUseThisOptionOnIsCheckedChanged;
+    }
+
+    private void PART_AlwaysUseThisOptionOnIsCheckedChanged(object? sender, RoutedEventArgs e) {
+        this.startupManager.UseSelectedOptionOnStartup = this.PART_AlwaysUseThisOption.IsChecked == true;
     }
 
     protected override void OnLoaded(RoutedEventArgs e) {
         base.OnLoaded(e);
-        this.PART_CreateDummyProjectButton.Focus();
+        this.PART_CreateDemoProjectButton.Focus();
     }
 }

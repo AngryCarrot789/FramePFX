@@ -79,7 +79,7 @@ public class EnumDataParameterPropertyEditorSlotControl<TEnum> : BaseEnumDataPar
             }
         }
         else {
-            foreach (TEnum value in this.SlotModel!.ValueEnumerable) {
+            foreach (TEnum value in this.SlotModel!.AllowedValues) {
                 list.Add(value);
             }
         }

@@ -108,13 +108,9 @@ public sealed class PersistentStorageManager {
     /// Loads all configurations from the system
     /// </summary>
     public async Task LoadAllAsync(List<string>? missingConfigSets, bool assignDefaultsForUnsavedConfigs) {
-        try {
-            Directory.CreateDirectory(this.StorageDirectory);
-        }
-        catch {
-            // ignored
-        }
-
+        this.EnsureDirectoryExists();
+        using ErrorList errors = new ErrorList("Errors occurred while loading all configurations", false, true);
+        
         HashSet<PersistentConfiguration>? unloaded = assignDefaultsForUnsavedConfigs ? this.allConfigs.ToHashSet() : null;
         foreach (KeyValuePair<string, Dictionary<string, PersistentConfiguration>> areaEntry in this.areaMap) {
             if (areaEntry.Value.Count < 1) {
@@ -148,7 +144,8 @@ public sealed class PersistentStorageManager {
             }
 
             if (!(document.SelectSingleNode("/ConfigurationArea") is XmlElement rootElement)) {
-                throw new Exception("Expected element of type 'KeyMap' to be the root element for the XML document");
+                AppLogger.Instance.WriteLine($"Configuration XML file at {configFilePath} was invalid: Expected element of type 'ConfigurationArea' to be the root element for the XML document");
+                continue;
             }
 
             Dictionary<string, XmlElement> configToElementMap = rootElement.GetElementsByTagName("Configuration").OfType<XmlElement>().Select(x => {
@@ -163,7 +160,13 @@ public sealed class PersistentStorageManager {
             foreach (KeyValuePair<string, PersistentConfiguration> configEntry in areaEntry.Value) {
                 if (configToElementMap.TryGetValue(configEntry.Key, out XmlElement? configElement)) {
                     // TODO: versioning
-                    LoadConfiguration(configEntry.Value, configElement);
+                    try {
+                        LoadConfiguration(configEntry.Value, configElement);
+                    }
+                    catch (Exception e) {
+                        errors.Add(e);
+                    }
+
                     unloaded?.Remove(configEntry.Value);
                 }
             }
@@ -172,6 +175,18 @@ public sealed class PersistentStorageManager {
         if (unloaded != null && unloaded.Count > 0) {
             foreach (PersistentConfiguration config in unloaded) {
                 config.InternalAssignDefaultValues();
+            }
+        }
+
+        if (errors.TryGetException(out Exception? exception)) {
+            AppLogger.Instance.WriteLine(errors.Message!);
+            if (exception is AggregateException e) {
+                foreach (Exception ex in e.InnerExceptions) {
+                    AppLogger.Instance.WriteLine(ex.GetToString());
+                }
+            }
+            else {
+                AppLogger.Instance.WriteLine(exception.GetToString());
             }
         }
     }
@@ -186,28 +201,34 @@ public sealed class PersistentStorageManager {
             }
         }).Where(x => x.Value != null!).ToDictionary();
 
+        using ErrorList list = new ErrorList("One or more errors occurred while deserializing properties");
         foreach (PersistentProperty property in config.GetProperties()) {
             if (propertyToElementMap.TryGetValue(property.Name, out XmlElement? propertyElement)) {
-                property.Deserialize(config, propertyElement);
+                try {
+                    property.Deserialize(config, propertyElement);
+                }
+                catch (Exception e) {
+                    list.Add(e);
+                }
             }
         }
-        
+            
         config.internalIsModified = false;
     }
 
-    public void SaveAll() {
+    public void SaveAll(ErrorList? areaErrors = null) {
         if (this.saveStackCount != 0) {
             throw new InvalidOperationException("Save stack is active");
         }
 
         foreach (string area in this.areaMap.Keys) {
-            this.SaveArea(area);
+            this.SaveArea(area, areaErrors);
         }
     }
 
-    public bool? SaveArea(PersistentConfiguration configuration) => this.SaveArea(configuration.Area);
+    public bool? SaveArea(PersistentConfiguration configuration, ErrorList? areaErrors = null) => this.SaveArea(configuration.Area, areaErrors);
 
-    public bool? SaveArea(string area) {
+    public bool? SaveArea(string area, ErrorList? areaErrors = null) {
         if (this.saveStackCount > 0) {
             (this.saveAreaStack ??= new HashSet<string>()).Add(area);
             return null;
@@ -220,14 +241,8 @@ public sealed class PersistentStorageManager {
         if (!configSet.Values.Any(x => x.internalIsModified)) {
             return false;
         }
-            
-        try {
-            Directory.CreateDirectory(this.StorageDirectory);
-        }
-        catch {
-            // ignored
-        }
 
+        this.EnsureDirectoryExists();
         string configFilePath = Path.GetFullPath(Path.Combine(this.StorageDirectory, area + ".xml"));
         XmlDocument document = new XmlDocument();
 
@@ -235,9 +250,19 @@ public sealed class PersistentStorageManager {
         document.AppendChild(rootElement);
 
         foreach (KeyValuePair<string, PersistentConfiguration> config in configSet) {
-            SaveConfiguration(config.Value, document, rootElement);
+            if (!config.Value.internalIsModified) {
+                continue;
+            }
+
+            try {
+                SaveConfiguration(config.Value, document, rootElement);
+            }
+            catch (Exception e) {
+                areaErrors?.Add(e);
+            }
         }
 
+        this.EnsureDirectoryExists();
         try {
             document.Save(configFilePath);
         }
@@ -274,8 +299,23 @@ public sealed class PersistentStorageManager {
             XmlElement propertyElement = document.CreateElement("Property");
             propertyElement.SetAttribute("name", property.Name);
             if (property.Serialize(config, document, propertyElement)) {
+                if (property.myDescription != null && property.myDescription.Count > 0) {
+                    foreach (string line in property.myDescription) {
+                        configElement.AppendChild(document.CreateComment(line));
+                    }
+                }
+                
                 configElement.AppendChild(propertyElement);
             }
+        }
+    }
+
+    private void EnsureDirectoryExists() {
+        try {
+            Directory.CreateDirectory(this.StorageDirectory);
+        }
+        catch {
+            // ignored
         }
     }
 }

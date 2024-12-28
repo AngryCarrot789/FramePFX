@@ -18,7 +18,6 @@
 // 
 
 using FramePFX.CommandSystem;
-using FramePFX.Configurations;
 using FramePFX.Configurations.Commands;
 using FramePFX.Configurations.Shortcuts.Commands;
 using FramePFX.Editing;

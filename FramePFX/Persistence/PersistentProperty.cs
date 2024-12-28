@@ -18,7 +18,7 @@
 // 
 
 using System.Xml;
-using FramePFX.Editing;
+using FramePFX.Utils.Collections.Observable;
 
 namespace FramePFX.Persistence;
 
@@ -38,6 +38,7 @@ public abstract class PersistentProperty {
     private Type ownerType;
     private string name;
     private string globalKey;
+    internal IList<string>? myDescription;
 
     /// <summary>
     /// Gets a unique name for this property, relative to the owner configuration type
@@ -62,10 +63,25 @@ public abstract class PersistentProperty {
     /// </summary>
     public string GlobalKey => this.globalKey;
 
-    // /// <summary>
-    // /// 
-    // /// </summary>
-    // /// <returns></returns>
+    /// <summary>
+    /// A list of lines added before the property definition in the configuration. Care must be taken not
+    /// to use an invalid XML characters or text sequences (e.g. '-->' at the end of a line)
+    /// </summary>
+    public IList<string> DescriptionLines {
+        get {
+            if (this.myDescription == null) {
+                ObservableList<string> list = new ObservableList<string>();
+                ObservableItemProcessor.MakeSimple(list, s => {
+                    if (s == null!)
+                        throw new InvalidOperationException("Cannot add null string to list");
+                }, null);
+
+                this.myDescription = list;
+            }
+
+            return this.myDescription;
+        }
+    }
 
     /// <summary>
     /// Registers a property for a type that is parsable from a string (e.g. int, uint, byte, decimal and so on)
@@ -96,6 +112,12 @@ public abstract class PersistentProperty {
     /// <returns>The property, which you can store as a public static readonly field</returns>
     public static PersistentProperty<string> RegisterString<TOwner>(string name, string defaultValue, Func<TOwner, string> getValue, Action<TOwner, string> setValue, bool canSaveDefault) where TOwner : PersistentConfiguration {
         PersistentPropertyStringParsable<string> property = new PersistentPropertyStringParsable<string>(defaultValue, (x) => getValue((TOwner) x), (x, y) => setValue((TOwner) x, y), (x) => x, null, canSaveDefault);
+        RegisterCore(property, name, typeof(TOwner));
+        return property;
+    }
+    
+    public static PersistentProperty<TEnum> RegisterEnum<TEnum, TOwner>(string name, TEnum defaultValue, Func<TOwner, TEnum> getValue, Action<TOwner, TEnum> setValue, bool canSaveDefault) where TEnum : struct, Enum where TOwner : PersistentConfiguration {
+        PersistentPropertyEnum<TEnum> property = new PersistentPropertyEnum<TEnum>(defaultValue, (x) => getValue((TOwner) x), (x, y) => setValue((TOwner) x, y), canSaveDefault);
         RegisterCore(property, name, typeof(TOwner));
         return property;
     }
@@ -166,9 +188,47 @@ public abstract class PersistentProperty {
         }
 
         public override void Deserialize(PersistentConfiguration config, XmlElement propertyElement) {
-            if (propertyElement.GetAttribute("value") is string text) {
-                this.SetValue(config, this.fromString(text));
+            if (!(propertyElement.GetAttribute("value") is string text)) {
+                throw new Exception("Missing 'value' attribute");
             }
+
+            this.SetValue(config, this.fromString(text));
+        }
+    }
+    
+    private class PersistentPropertyEnum<T> : PersistentProperty<T> where T : struct, Enum {
+        private readonly string defaultText;
+        private readonly bool canSaveDefault;
+
+        public PersistentPropertyEnum(T defaultValue, Func<PersistentConfiguration, T> getValue, Action<PersistentConfiguration, T> setValue, bool canSaveDefault = false) : base(defaultValue, getValue, setValue) {
+            this.canSaveDefault = canSaveDefault;
+            this.defaultText = Enum.GetName(defaultValue) ?? throw new InvalidOperationException("Default enum value does not exist");
+        }
+
+        public override bool Serialize(PersistentConfiguration config, XmlDocument document, XmlElement propertyElement) {
+            T value = this.GetValue(config);
+            if (!(Enum.GetName(value) is string text)) {
+                throw new Exception("Current enum value is invalid");
+            }
+
+            if (this.canSaveDefault || text != this.defaultText) {
+                propertyElement.SetAttribute("enum_value", text);
+                return true;
+            }
+
+            return false;
+        }
+
+        public override void Deserialize(PersistentConfiguration config, XmlElement propertyElement) {
+            if (!(propertyElement.GetAttribute("enum_value") is string text)) {
+                throw new Exception("Missing 'enum_value' attribute");
+            }
+            
+            if (!Enum.TryParse(text, out T value)) {
+                throw new Exception("Enum value does not exist: " + text);
+            }
+                
+            this.SetValue(config, value);
         }
     }
 

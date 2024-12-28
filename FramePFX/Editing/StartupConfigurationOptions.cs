@@ -18,22 +18,28 @@
 // 
 
 using FramePFX.Persistence;
+using FramePFX.PropertyEditing.DataTransfer.Enums;
 
 namespace FramePFX.Editing;
 
 public class StartupConfigurationOptions : PersistentConfiguration {
     public static StartupConfigurationOptions Instance => Application.Instance.PersistentStorageManager.GetConfiguration<StartupConfigurationOptions>();
     
-    private int startupBehaviour;
+    public static readonly PersistentProperty<EnumStartupBehaviour> StartupBehaviourProperty = PersistentProperty.RegisterEnum<EnumStartupBehaviour, StartupConfigurationOptions>(nameof(StartupBehaviour), EnumStartupBehaviour.OpenStartupWindow, x => x.startupBehaviour, (x, y) => x.startupBehaviour = y, true);
     
-    public static readonly PersistentProperty<int> StartupBehaviourProperty = PersistentProperty.RegisterParsable<int, StartupConfigurationOptions>(nameof(StartupBehaviour), (int) EnumStartupBehaviour.OpenStartupWindow, x => x.startupBehaviour, (x, y) => x.startupBehaviour = y, true);
+    private EnumStartupBehaviour startupBehaviour;
     
     /// <summary>
     /// Gets or sets the application's startup behaviour
     /// </summary>
     public EnumStartupBehaviour StartupBehaviour {
-        get => (EnumStartupBehaviour) StartupBehaviourProperty.GetValue(this);
-        set => StartupBehaviourProperty.SetValue(this, (int) value);
+        get => StartupBehaviourProperty.GetValue(this);
+        set => StartupBehaviourProperty.SetValue(this, value);
+    }
+
+    static StartupConfigurationOptions() {
+        StartupBehaviourProperty.DescriptionLines.Add("This property defines what to do on application startup.");
+        StartupBehaviourProperty.DescriptionLines.Add("Applicable values: " + string.Join(", ", DataParameterEnumInfo<EnumStartupBehaviour>.EnumValues));
     }
 
     public enum EnumStartupBehaviour {

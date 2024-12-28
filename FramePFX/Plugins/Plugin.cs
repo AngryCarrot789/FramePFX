@@ -18,7 +18,6 @@
 // 
 
 using FramePFX.CommandSystem;
-using FramePFX.Configurations;
 using FramePFX.Persistence;
 
 namespace FramePFX.Plugins;

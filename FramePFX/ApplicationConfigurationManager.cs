@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.Configurations;
 using FramePFX.Configurations.Basic;
 using FramePFX.Configurations.Shortcuts;
 using FramePFX.DataTransfer;
@@ -27,7 +28,7 @@ using FramePFX.Shortcuts;
 using FramePFX.Utils.Accessing;
 using SkiaSharp;
 
-namespace FramePFX.Configurations;
+namespace FramePFX;
 
 /// <summary>
 /// The configuration manager for the entire FramePFX application
@@ -105,6 +106,7 @@ public class ApplicationConfigurationManager : ConfigurationManager {
     }
     
     public class StartupPropEditorConfigurationPage : PropertyEditorConfigurationPage {
+        
         public static readonly DataParameter<StartupConfigurationOptions.EnumStartupBehaviour> StartupBehaviourParameter =
             DataParameter.Register(
                 new DataParameter<StartupConfigurationOptions.EnumStartupBehaviour>(
@@ -123,7 +125,7 @@ public class ApplicationConfigurationManager : ConfigurationManager {
             this.startupBehaviour = StartupBehaviourParameter.GetDefaultValue(this);
             StartupBehaviourParameter.AddValueChangedHandler(this, this.MarkModifiedHandler);
 
-            this.PropertyEditor.Root.AddItem(new DataParameterStartupBehaviourPropertyEditorSlot(StartupBehaviourParameter, typeof(StartupPropEditorConfigurationPage), "Behaviour") {OptionArrangement = new EnumArrangementComboBox(false)});
+            this.PropertyEditor.Root.AddItem(new DataParameterStartupBehaviourPropertyEditorSlot(StartupBehaviourParameter, typeof(StartupPropEditorConfigurationPage), "Behaviour"));
         }
 
         private void MarkModifiedHandler(DataParameter parameter, ITransferableData owner) => this.MarkModified();
@@ -150,11 +152,10 @@ public class ApplicationConfigurationManager : ConfigurationManager {
     public class DataParameterStartupBehaviourPropertyEditorSlot : DataParameterEnumPropertyEditorSlot<StartupConfigurationOptions.EnumStartupBehaviour> {
         public static DataParameterEnumInfo<StartupConfigurationOptions.EnumStartupBehaviour> CodedIdEnumInfo { get; }
 
-        public DataParameterStartupBehaviourPropertyEditorSlot(DataParameter<StartupConfigurationOptions.EnumStartupBehaviour> parameter, Type applicableType, string displayName, IEnumerable<StartupConfigurationOptions.EnumStartupBehaviour>? values = null, DataParameterEnumInfo<StartupConfigurationOptions.EnumStartupBehaviour>? translationInfo = null) : base(parameter, applicableType, displayName, values, translationInfo) { }
-        public DataParameterStartupBehaviourPropertyEditorSlot(DataParameter<StartupConfigurationOptions.EnumStartupBehaviour> parameter, Type applicableType, string? displayName = null) : base(parameter, applicableType, displayName ?? "Codec ID", EnumValues.OrderBy(x => x.ToString()), CodedIdEnumInfo) { }
+        public DataParameterStartupBehaviourPropertyEditorSlot(DataParameter<StartupConfigurationOptions.EnumStartupBehaviour> parameter, Type applicableType, string? displayName = null) : base(parameter, applicableType, displayName ?? "Codec ID", DataParameterEnumInfo<StartupConfigurationOptions.EnumStartupBehaviour>.EnumValuesOrderedByName, CodedIdEnumInfo) { }
 
         static DataParameterStartupBehaviourPropertyEditorSlot() {
-            CodedIdEnumInfo = new DataParameterEnumInfo<StartupConfigurationOptions.EnumStartupBehaviour>(null, new Dictionary<StartupConfigurationOptions.EnumStartupBehaviour, string>() {
+            CodedIdEnumInfo = DataParameterEnumInfo<StartupConfigurationOptions.EnumStartupBehaviour>.All(new Dictionary<StartupConfigurationOptions.EnumStartupBehaviour, string> {
                 [StartupConfigurationOptions.EnumStartupBehaviour.OpenStartupWindow] = "Open startup window",
                 [StartupConfigurationOptions.EnumStartupBehaviour.OpenDemoProject] = "Open a demo project",
                 [StartupConfigurationOptions.EnumStartupBehaviour.OpenEmptyProject] = "Open a new empty project",

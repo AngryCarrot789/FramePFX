@@ -11,29 +11,29 @@
         <Setter Property="Padding" Value="1"/>
         <Setter Property="Template">
             <ControlTemplate>
-                <ContentPresenter x:Name="PART_ContentPresenter"
-                                  Padding="{TemplateBinding Padding}"
-                                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                  Background="{TemplateBinding Background}"
-                                  BorderBrush="{TemplateBinding BorderBrush}"
-                                  BorderThickness="{TemplateBinding BorderThickness}"
-                                  Content="{TemplateBinding Content}"
-                                  ContentTemplate="{TemplateBinding ContentTemplate}"
-                                  CornerRadius="{TemplateBinding CornerRadius}"
-                                  RecognizesAccessKey="True"
-                                  TextElement.Foreground="{TemplateBinding Foreground}"/>
+                <Border x:Name="PART_Border" 
+                        Padding="{TemplateBinding Padding}"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}"
+                        TextElement.Foreground="{TemplateBinding Foreground}">
+                    <local:IconControl x:Name="PART_IconControl"
+                                       HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                       Icon="{TemplateBinding Icon}"/>
+                </Border>
             </ControlTemplate>
         </Setter>
-        <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Style Selector="^:pointerover /template/ Border#PART_Border">
             <Setter Property="Background" Value="{DynamicResource Button.MouseOver.Background}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource Button.MouseOver.Border}"/>
         </Style>
-        <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+        <Style Selector="^:pressed /template/ Border#PART_Border">
             <Setter Property="Background" Value="{DynamicResource Button.Pressed.Background}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource Button.Pressed.Border}"/>
         </Style>
-        <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Style Selector="^:disabled /template/ Border#PART_Border">
             <Setter Property="Background" Value="{DynamicResource Button.Disabled.Background}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource Button.Disabled.Border}"/>
         </Style>

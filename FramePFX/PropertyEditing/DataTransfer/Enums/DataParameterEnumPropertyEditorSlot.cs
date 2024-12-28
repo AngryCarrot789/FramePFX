@@ -24,23 +24,20 @@ using FramePFX.Utils;
 namespace FramePFX.PropertyEditing.DataTransfer.Enums;
 
 public class DataParameterEnumPropertyEditorSlot<TEnum> : DataParameterPropertyEditorSlot where TEnum : struct, Enum {
-    public static readonly ReadOnlyCollection<TEnum> EnumValues = Enum.GetValues<TEnum>().ToList().AsReadOnly();
-    public static readonly IReadOnlySet<TEnum> EnumValuesSet = new HashSet<TEnum>(EnumValues);
-
     public readonly DataParameterEnumInfo<TEnum>? TranslationInfo;
 
     /// <summary>
     /// An enumerable which returns the allowed enum values
     /// </summary>
-    public ReadOnlyCollection<TEnum> ValueEnumerable { get; }
+    public ReadOnlyCollection<TEnum> AllowedValues { get; }
 
     private TEnum value;
 
     public TEnum Value {
         get => this.value;
         set {
-            if (!EnumValuesSet.Contains(value))
-                value = EnumValues[0];
+            if (!DataParameterEnumInfo<TEnum>.EnumValuesSet.Contains(value))
+                value = DataParameterEnumInfo<TEnum>.EnumValues[0];
 
             if (EqualityComparer<TEnum>.Default.Equals(value, this.value))
                 return;
@@ -55,19 +52,19 @@ public class DataParameterEnumPropertyEditorSlot<TEnum> : DataParameterPropertyE
         }
     }
 
-    public TEnum? DefaultValue => ReferenceEquals(this.ValueEnumerable, EnumValues) ? EnumValues[0] : this.ValueEnumerable.FirstOrDefault();
+    public TEnum? DefaultValue => ReferenceEquals(this.AllowedValues, DataParameterEnumInfo<TEnum>.EnumValues) ? DataParameterEnumInfo<TEnum>.EnumValues[0] : this.AllowedValues.FirstOrDefault();
 
     public new DataParameter<TEnum> Parameter => (DataParameter<TEnum>) base.Parameter;
 
-    public EnumOptionArrangement OptionArrangement { get; init; }
+    public EnumOptionArrangement OptionArrangement { get; init; } = new EnumArrangementComboBox(false);
 
     public DataParameterEnumPropertyEditorSlot(DataParameter<TEnum> parameter, Type applicableType, string displayName, IEnumerable<TEnum>? values = null, DataParameterEnumInfo<TEnum>? translationInfo = null) : base(parameter, applicableType, displayName) {
         this.TranslationInfo = translationInfo;
-        this.ValueEnumerable = values != null ? values.ToList().AsReadOnly() : EnumValues;
+        this.AllowedValues = values != null ? values.Distinct().ToList().AsReadOnly() : DataParameterEnumInfo<TEnum>.EnumValues;
     }
 
     public override void QueryValueFromHandlers() {
         TEnum? val = CollectionUtils.GetEqualValue(this.Handlers, (x) => this.Parameter.GetValue((ITransferableData) x), out TEnum? d) ? d : default;
-        this.value = val.HasValue && EnumValuesSet.Contains(val.Value) ? val.Value : EnumValues[0];
+        this.value = val.HasValue && DataParameterEnumInfo<TEnum>.EnumValuesSet.Contains(val.Value) ? val.Value : DataParameterEnumInfo<TEnum>.EnumValues[0];
     }
 }

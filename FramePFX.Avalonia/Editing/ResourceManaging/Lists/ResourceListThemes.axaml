@@ -3,7 +3,6 @@
                     xmlns:e="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging.Lists"
                     xmlns:avalonia="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Avalonia;assembly=FramePFX.BaseFrontEnd"
                     xmlns:avControls="clr-namespace:FramePFX.BaseFrontEnd.AvControls;assembly=FramePFX.BaseFrontEnd"
-                    xmlns:lists="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging.Lists;assembly=FramePFX.BaseFrontEnd"
                     xmlns:resourceManaging="clr-namespace:FramePFX.BaseFrontEnd.ResourceManaging;assembly=FramePFX.BaseFrontEnd"
                     xmlns:contentItems="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging.Lists.ContentItems">
     <ControlTheme x:Key="{x:Type e:ResourceExplorerListBox}" TargetType="{x:Type e:ResourceExplorerListBox}" BasedOn="{StaticResource {x:Type ListBox}}">

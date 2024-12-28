@@ -6,11 +6,11 @@
             xmlns:c1="clr-namespace:FramePFX.BaseFrontEnd.Editing;assembly=FramePFX.BaseFrontEnd"
             xmlns:resourceManaging="clr-namespace:FramePFX.Avalonia.Editing.ResourceManaging"
             xmlns:avalonia="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Avalonia;assembly=FramePFX.BaseFrontEnd"
-            xmlns:editing="clr-namespace:FramePFX.Avalonia.Editing"
+            xmlns:e="clr-namespace:FramePFX.Avalonia.Editing"
             xmlns:controls="clr-namespace:FramePFX.BaseFrontEnd.Themes.Controls;assembly=FramePFX.BaseFrontEnd"
             xmlns:ams="clr-namespace:FramePFX.BaseFrontEnd.AdvancedMenuService;assembly=FramePFX.BaseFrontEnd"
             xmlns:propertyEditing="clr-namespace:FramePFX.BaseFrontEnd.PropertyEditing;assembly=FramePFX.BaseFrontEnd"
-            xmlns:commandUsages="clr-namespace:FramePFX.BaseFrontEnd.CommandUsages;assembly=FramePFX.BaseFrontEnd"
+            xmlns:cu="clr-namespace:FramePFX.BaseFrontEnd.CommandUsages;assembly=FramePFX.BaseFrontEnd"
             mc:Ignorable="d"
             x:Class="FramePFX.Avalonia.EditorWindow"
             Background="{DynamicResource PanelBackground0}"
@@ -122,6 +122,11 @@
                                                         HorizontalAlignment="Left" Margin="5,0,0,0" PlayState="Stop"
                                                         CommandId="commands.editor.PlaybackStopCommand"
                                                         ToolTip.Tip="Stop playback, returning the play head to the stop head location"/>
+                                    <!--
+                                    <avControls:IconButton Icon="{x:Static framePfx:SimpleIcons.AnIcon}" 
+                                                           Width="24" Focusable="False"
+                                                           HorizontalAlignment="Left" Margin="5,0,0,0"/>
+                                    -->
                                 </StackPanel>
                             </DockPanel>
                         </Border>
@@ -132,24 +137,24 @@
                             <Grid>
                                 <ComboBox x:Name="PART_RenderQualityComboBox" HorizontalAlignment="Left" BorderThickness="0" ToolTip.Tip="Rendering quality"/>
                                 <Button Content="Edit Project Settings" HorizontalAlignment="Right" Padding="15,0" BorderThickness="0"
-                                        commandUsages:CommandUsageManager.SimpleButtonCommandId="commands.editor.OpenProjectSettings"
+                                        cu:CommandUsageManager.SimpleButtonCommandId="commands.editor.OpenProjectSettings"
                                         ToolTip.Tip="Opens the project's settings in a dialog"/>
                             </Grid>
                         </Border>
                         <Grid Background="Transparent">
-                            <editing:VideoEditorViewPortControl x:Name="PART_ViewPort"
+                            <e:VideoEditorViewPortControl x:Name="PART_ViewPort"
                                                            Background="Transparent"
                                                            Focusable="True"
                                                            avalonia:UIInputManager.FocusPath="EditorWindow/Canvas">
-                                <editing:VideoEditorViewPortControl.Styles>
-                                    <Style Selector="editing|VideoEditorViewPortControl[IsFocused=false]">
+                                <e:VideoEditorViewPortControl.Styles>
+                                    <Style Selector="e|VideoEditorViewPortControl[IsFocused=false]">
                                         <Setter Property="BorderBrush" Value="{DynamicResource PanelBorderBrush}"/>
                                     </Style>
-                                    <Style Selector="editing|VideoEditorViewPortControl[IsFocused=true]">
+                                    <Style Selector="e|VideoEditorViewPortControl[IsFocused=true]">
                                         <Setter Property="BorderBrush" Value="DodgerBlue"/>
                                     </Style>
-                                </editing:VideoEditorViewPortControl.Styles>
-                            </editing:VideoEditorViewPortControl>
+                                </e:VideoEditorViewPortControl.Styles>
+                            </e:VideoEditorViewPortControl>
                         </Grid>
                     </DockPanel>
                 </controls:GroupBox>

@@ -18,7 +18,6 @@
 // 
 
 using Avalonia.Interactivity;
-using FramePFX.BaseFrontEnd.Bindings;
 using FramePFX.BaseFrontEnd.Themes.Controls;
 using FramePFX.Services.VideoEditors;
 

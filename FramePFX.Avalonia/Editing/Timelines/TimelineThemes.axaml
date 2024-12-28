@@ -7,7 +7,7 @@
                     xmlns:a="clr-namespace:FramePFX.Avalonia.Editing.Automation"
                     xmlns:avalonia="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Avalonia;assembly=FramePFX.BaseFrontEnd"
                     xmlns:converters="clr-namespace:FramePFX.BaseFrontEnd.Converters;assembly=FramePFX.BaseFrontEnd"
-                    xmlns:commandUsages="clr-namespace:FramePFX.BaseFrontEnd.CommandUsages;assembly=FramePFX.BaseFrontEnd"
+                    xmlns:cu="clr-namespace:FramePFX.BaseFrontEnd.CommandUsages;assembly=FramePFX.BaseFrontEnd"
                     xmlns:cc="clr-namespace:FramePFX.Avalonia.Editing.CommandUsages">
     <converters:AutomationBrushConverter x:Key="AutomationBrushConverter" AutomationBrush="{StaticResource ABrush.AutomationActiveColour.Static}"/>
     <ControlTheme x:Key="{x:Type t:TimelineLoopControl}" TargetType="{x:Type t:TimelineLoopControl}">
@@ -196,7 +196,7 @@
                                 <Button Content="+V" BorderThickness="0" FontSize="12"
                                         Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
                                         Background="{DynamicResource ABrush.Tone6.Background.Static}"
-                                        x:Name="PART_AddVideoTrackButton" commandUsages:CommandUsageManager.UsageClassType="{x:Type cc:NewVideoTrackCommandUsage}"/>
+                                        x:Name="PART_AddVideoTrackButton" cu:CommandUsageManager.UsageClassType="{x:Type cc:NewVideoTrackCommandUsage}"/>
                             </StackPanel>
                         </Border>
                     </Border>
@@ -220,7 +220,7 @@
                                                         Background="{DynamicResource ABrush.Tone6.Background.Static}" BorderThickness="0"
                                                         PlayState="Stop" CommandId="commands.editor.PlaybackStopCommand"
                                                         ToolTip.Tip="Stop playback, returning the play head to the stop head location"/>
-                                    <ToggleButton commandUsages:CommandUsageManager.UsageClassType="{x:Type cc:ToggleLoopCommandUsage}"
+                                    <ToggleButton cu:CommandUsageManager.UsageClassType="{x:Type cc:ToggleLoopCommandUsage}"
                                                   Width="{Binding RelativeSource={RelativeSource Self}, Path=Bounds.Height}"
                                                   Background="{DynamicResource ABrush.Tone6.Background.Static}"
                                                   BorderThickness="0" Focusable="False"

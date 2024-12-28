@@ -17,7 +17,9 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using Avalonia;
 using Avalonia.Controls;
+using FramePFX.Icons;
 
 namespace FramePFX.BaseFrontEnd.AvControls;
 
@@ -25,5 +27,10 @@ namespace FramePFX.BaseFrontEnd.AvControls;
 /// A button that uses a <see cref="FramePFX.Icons.Icon"/> to present an icon for the button contents
 /// </summary>
 public class IconButton : Button {
-    
+    public static readonly StyledProperty<Icon?> IconProperty = AvaloniaProperty.Register<IconButton, Icon?>(nameof(Icon));
+
+    public Icon? Icon {
+        get => this.GetValue(IconProperty);
+        set => this.SetValue(IconProperty, value);
+    }
 }

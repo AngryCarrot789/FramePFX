@@ -18,7 +18,6 @@
 // 
 
 using Avalonia;
-using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 
@@ -29,12 +28,13 @@ public class BitmapIconImpl : AbstractAvaloniaIcon {
     
     public BitmapIconImpl(string name, Bitmap bitmap) : base(name) {
         this.Bitmap = bitmap;
-        
-        DynamicResourceExtension extension = new DynamicResourceExtension("okay");
-        
     }
 
     public override void Render(DrawingContext context, Rect rect) {
         context.DrawImage(this.Bitmap, rect);
+    }
+
+    public override Size GetSize(Size availableSize) {
+        return availableSize.Constrain(this.Bitmap.Size);
     }
 }

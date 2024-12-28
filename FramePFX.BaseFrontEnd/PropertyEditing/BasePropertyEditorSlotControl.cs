@@ -24,7 +24,6 @@ using FramePFX.BaseFrontEnd.PropertyEditing.DataTransfer;
 using FramePFX.BaseFrontEnd.PropertyEditing.DataTransfer.Automatic;
 using FramePFX.BaseFrontEnd.PropertyEditing.DataTransfer.Enums;
 using FramePFX.BaseFrontEnd.Utils;
-using FramePFX.Configurations;
 using FramePFX.Editing;
 using FramePFX.Editing.PropertyEditors;
 using FramePFX.PropertyEditing;

@@ -4,7 +4,7 @@
                     xmlns:f="clr-namespace:FramePFX.Interactivity.Formatting;assembly=FramePFX-core"
                     xmlns:avalonia="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Avalonia;assembly=FramePFX.BaseFrontEnd"
                     xmlns:dragger="clr-namespace:FramePFX.BaseFrontEnd.AvControls.Dragger;assembly=FramePFX.BaseFrontEnd"
-                    xmlns:commandUsages="clr-namespace:FramePFX.BaseFrontEnd.CommandUsages;assembly=FramePFX.BaseFrontEnd"
+                    xmlns:cu="clr-namespace:FramePFX.BaseFrontEnd.CommandUsages;assembly=FramePFX.BaseFrontEnd"
                     xmlns:cc="clr-namespace:FramePFX.Avalonia.Editing.CommandUsages">
     <f:UnitToPercentFormatter x:Key="OpacityUnitPercentageFormatter" NonEditingRoundedPlaces="1" EditingRoundedPlaces="4"/>
     <ControlTheme x:Key="TrackListExpandToggleButtonStyle" TargetType="{x:Type ToggleButton}" BasedOn="{StaticResource {x:Type ToggleButton}}">
@@ -156,7 +156,7 @@
                             <Button Content="x" Grid.Row="2" Width="20" Height="20"
                                     Background="Transparent" BorderThickness="0"
                                     Focusable="False" ToolTip.Tip="Delete this track"
-                                    commandUsages:CommandUsageManager.UsageClassType="{x:Type cc:DeleteSpecificTrackCommandUsage}"
+                                    cu:CommandUsageManager.UsageClassType="{x:Type cc:DeleteSpecificTrackCommandUsage}"
                                     Foreground="{TemplateBinding TrackColourForegroundBrush}"/>
                         </Grid>
                     </Border>

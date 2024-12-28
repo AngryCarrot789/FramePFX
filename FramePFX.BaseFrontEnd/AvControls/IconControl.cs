@@ -40,11 +40,7 @@ public class IconControl : Control {
     }
 
     static IconControl() {
-        IconProperty.Changed.AddClassHandler<IconControl, Icon?>((d, e) => d.OnIconChanged(e.OldValue.GetValueOrDefault(), e.NewValue.GetValueOrDefault()));
         AffectsRender<IconControl>(IconProperty);
-    }
-
-    private void OnIconChanged(Icon? oldValue, Icon? newValue) {
     }
 
     public override void Render(DrawingContext context) {
@@ -53,5 +49,14 @@ public class IconControl : Control {
         if (this.Icon is AbstractAvaloniaIcon icon) {
             icon.Render(context, this.Bounds);
         }
+    }
+    
+    protected override Size MeasureOverride(Size availableSize)
+    {
+        return !(this.Icon is AbstractAvaloniaIcon icon) ? new Size() : icon.GetSize(availableSize);
+    }
+
+    protected override Size ArrangeOverride(Size finalSize) {
+        return finalSize;
     }
 }

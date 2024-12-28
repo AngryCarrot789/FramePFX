@@ -17,7 +17,6 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
-using FramePFX.CommandSystem;
 using FramePFX.Configurations;
 using FramePFX.Editing.Exporting;
 

@@ -28,6 +28,7 @@ using FramePFX.Editing.ResourceManaging.Commands;
 using FramePFX.Editing.Timelines;
 using FramePFX.Editing.Timelines.Commands;
 using FramePFX.Natives;
+using FramePFX.Persistence;
 using FramePFX.Plugins;
 using FramePFX.Plugins.Exceptions;
 using FramePFX.Services;
@@ -55,6 +56,11 @@ public abstract class Application : IServiceable {
     /// Gets the application service manager
     /// </summary>
     public ServiceManager ServiceManager { get; }
+
+    /// <summary>
+    /// Gets the application's persistent storage manager
+    /// </summary>
+    public PersistentStorageManager PersistentStorageManager => this.ServiceManager.GetService<PersistentStorageManager>();
 
     /// <summary>
     /// Gets the main application thread dispatcher
@@ -116,7 +122,6 @@ public abstract class Application : IServiceable {
     protected virtual void RegisterServices(ServiceManager manager) {
         manager.RegisterConstant(new TaskManager());
         manager.RegisterConstant(new ResourceDropOnTimelineService());
-        manager.RegisterConstant(new EditorConfigurationOptions());
         manager.RegisterConstant(new TimelineDropManager());
         manager.RegisterConstant(new ExporterRegistry());
         manager.RegisterConstant(ApplicationConfigurationManager.Instance);
@@ -230,6 +235,9 @@ public abstract class Application : IServiceable {
             using (progress.CompletionState.PushCompletionRange(0.0, 0.25)) {
                 instance.RegisterServices(instance.ServiceManager);
             }
+
+            string storageDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "FramePFX/Options");
+            instance.ServiceManager.RegisterConstant(new PersistentStorageManager(storageDir));
 
             await progress.ProgressAndSynchroniseAsync("Initialising commands");
             using (progress.CompletionState.PushCompletionRange(0.25, 0.5)) {

@@ -52,7 +52,7 @@ public class SKAsyncViewPort : Control {
     private SKImageInfo myOtherImageInfo;
     private SKImageInfo unscaledImageInfo, scaledImageInfo;
     private bool isUsing2ndRenderingMethod;
-    private bool ignorePixelScaling;
+    private bool ignorePixelScaling = true;
     private ILockedFramebuffer? lockKey;
 
     private SKPixmap? RenderedBitmap;

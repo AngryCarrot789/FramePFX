@@ -54,6 +54,7 @@ public class EditorWindowConfigurationPage : ConfigurationPage {
             options.TitleBarPrefix = this.titleBar;
         }
 
+        options.StorageManager.SaveArea(options);
         // await IoC.MessageService.ShowMessage("Change title", "Change window title to: " + this.TitleBar);
     }
 }

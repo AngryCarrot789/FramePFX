@@ -17,6 +17,7 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.Persistence;
 using SkiaSharp;
 
 namespace FramePFX.Editing;
@@ -28,11 +29,14 @@ public delegate void EditorConfigurationOptionsTitleBarBrushChangedEventHandler(
 /// <summary>
 /// A singleton object which contains properties that all editors share in common such as the titlebar prefix (for version control)
 /// </summary>
-public sealed class EditorConfigurationOptions {
-    public static EditorConfigurationOptions Instance => Application.Instance.ServiceManager.GetService<EditorConfigurationOptions>();
-
-    private string titleBar;
-    private SKColor titleBarBrush;
+public sealed class EditorConfigurationOptions : PersistentConfiguration {
+    public static EditorConfigurationOptions Instance => Application.Instance.PersistentStorageManager.GetConfiguration<EditorConfigurationOptions>();
+    
+    public static readonly PersistentProperty<string> TitleBarPrefixProperty = PersistentProperty.RegisterString<EditorConfigurationOptions>(nameof(TitleBarPrefix), "Bootleg sony vegas (FramePFX v2.0.1)", x => x.TitleBarPrefix, (x, y) => x.TitleBarPrefix = y, true);
+    public static readonly PersistentProperty<ulong> TitleBarBrushProperty = PersistentProperty.RegisterStringParsable<ulong, EditorConfigurationOptions>(nameof(TitleBarBrush), (ulong) SKColors.Red, x => (ulong) x.TitleBarBrush, (x, y) => x.TitleBarBrush = (SKColor) y, true);
+    
+    private string titleBar = TitleBarPrefixProperty.DefaultValue;
+    private SKColor titleBarBrush = (SKColor) TitleBarBrushProperty.DefaultValue;
 
     public string TitleBarPrefix {
         get => this.titleBar;
@@ -65,7 +69,5 @@ public sealed class EditorConfigurationOptions {
     public event EditorConfigurationOptionsTitleBarPrefixChangedEventHandler? TitleBarPrefixChanged;
 
     public EditorConfigurationOptions() {
-        this.titleBar = "Bootleg sony vegas (FramePFX v2.0.1)";
-        this.TitleBarBrush = SKColors.Red;
     }
 }

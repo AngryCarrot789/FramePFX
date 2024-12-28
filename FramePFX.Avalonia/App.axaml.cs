@@ -26,6 +26,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Markup.Xaml.Styling;
 using FramePFX.BaseFrontEnd;
+using FramePFX.Editing;
 using FramePFX.Plugins;
 using FramePFX.Services.Messaging;
 using FramePFX.Services.VideoEditors;
@@ -90,7 +91,9 @@ public partial class App : global::Avalonia.Application {
         using (progress.CompletionState.PushCompletionRange(0.7, 0.9)) {
             await ApplicationImpl.InternalLoadPluginsImpl(progress);
         }
-
+        
+        Application.Instance.PersistentStorageManager.Register(new EditorConfigurationOptions(), "editor", "window");
+        
         await Application.Instance.PluginLoader.OnApplicationLoading();
         await progress.ProgressAndSynchroniseAsync("Finalizing startup...", 0.99);
 
@@ -135,6 +138,8 @@ public partial class App : global::Avalonia.Application {
             }
         }
 
+        await Application.Instance.PersistentStorageManager.LoadAllAsync(null);
+        
         await ApplicationImpl.InternalOnFullyInitialised();
         await Application.Instance.PluginLoader.OnApplicationLoaded();
         if (this.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) {
@@ -145,6 +150,7 @@ public partial class App : global::Avalonia.Application {
     }
 
     private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e) {
+        Application.Instance.PersistentStorageManager.SaveAll();
         Application.Instance.PluginLoader.OnApplicationExiting();
         ApplicationImpl.InternalOnExited(e.ApplicationExitCode);
     }

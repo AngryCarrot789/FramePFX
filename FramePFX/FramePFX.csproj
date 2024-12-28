@@ -18,4 +18,8 @@
         <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.0"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Persistence\Serialisation\Impl\" />
+    </ItemGroup>
+
 </Project>

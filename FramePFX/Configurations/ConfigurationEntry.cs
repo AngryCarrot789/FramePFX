@@ -58,11 +58,16 @@ public class ConfigurationEntry {
     public string? Id {
         get => this.id;
         init {
+            if (this.myParent != null) {
+                throw new InvalidOperationException("Id cannot be changed once the parent is set");
+            }
+            
             Validate.NotNullOrWhiteSpaces(value);
             if (value.Contains('/') || value.Contains('\\'))
                 throw new InvalidOperationException("Id cannot contain a forward or back slash character");
 
             this.id = value;
+            this.fullIdPath = null;
         }
     }
 

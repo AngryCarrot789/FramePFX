@@ -4,7 +4,8 @@
                     xmlns:b="clr-namespace:FramePFX.BaseFrontEnd.Configurations.Pages.Basic"
                     xmlns:pages="clr-namespace:FramePFX.BaseFrontEnd.Configurations.Pages"
                     xmlns:propertyEditing="clr-namespace:FramePFX.BaseFrontEnd.PropertyEditing"
-                    xmlns:c="clr-namespace:FramePFX.BaseFrontEnd.Themes.Controls">
+                    xmlns:c="clr-namespace:FramePFX.BaseFrontEnd.Themes.Controls"
+                    xmlns:cu="clr-namespace:FramePFX.BaseFrontEnd.CommandUsages">
     <ControlTheme x:Key="{x:Type b:BasicEditorWindowConfigurationPageControl}" TargetType="{x:Type b:BasicEditorWindowConfigurationPageControl}">
         <Setter Property="Template">
             <ControlTemplate TargetType="{x:Type b:BasicEditorWindowConfigurationPageControl}">
@@ -40,11 +41,11 @@
                         </TextBlock>
                     </Grid>
                     <c:GroupBox Grid.Row="2" Header="Keymap" Margin="5,0,5,5">
-                        <Grid Margin="0,2" RowDefinitions="Auto,*">
+                        <Grid Margin="0" RowDefinitions="Auto,*">
                             <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
                                 <StackPanel Orientation="Horizontal" Grid.Column="0">
-                                    <Button Content="EXP"/>
-                                    <Button Content="COL"/>
+                                    <Button Content="Expand All" cu:CommandUsageManager.SimpleButtonCommandId="commands.config.keymap.ExpandShortcutTree"/>
+                                    <Button Content="Collapse All" cu:CommandUsageManager.SimpleButtonCommandId="commands.config.keymap.CollapseShortcutTree"/>
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal" Grid.Column="2">
                                     <TextBox Width="200" Text="Search..."/>

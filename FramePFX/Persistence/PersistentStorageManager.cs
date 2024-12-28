@@ -32,10 +32,15 @@ public sealed class PersistentStorageManager {
     private readonly Dictionary<string, Dictionary<string, PersistentConfiguration>> areaMap;
     private readonly Dictionary<Type, PersistentConfiguration> typeMap;
 
+    private int saveStackCount;
+    private HashSet<string>? saveAreaStack;
+
     /// <summary>
     /// Gets the location of the configuration storage directory
     /// </summary>
     public string StorageDirectory { get; }
+    
+    public bool IsSaveStackActive => this.saveStackCount > 0;
 
     public PersistentStorageManager(string storageDirectory) {
         Validate.NotNullOrWhiteSpaces(storageDirectory);
@@ -45,16 +50,31 @@ public sealed class PersistentStorageManager {
         this.typeMap = new Dictionary<Type, PersistentConfiguration>();
         this.StorageDirectory = storageDirectory;
     }
-    
+
+    public void BeginSavingStack() {
+        this.saveStackCount++;
+    }
+
+    /// <summary>
+    /// Ends a saving section
+    /// </summary>
+    /// <returns>True when the stacked configurations need to be saved</returns>
+    public bool EndSavingStack() {
+        if (this.saveStackCount == 0)
+            throw new InvalidOperationException("Excessive calls to " + nameof(this.EndSavingStack));
+
+        return --this.saveStackCount == 0;
+    }
+
     public T GetConfiguration<T>() where T : PersistentConfiguration {
         return (T) this.typeMap[typeof(T)];
     }
 
     /// <summary>
-    /// Registers a persistent configuration with the given name and area
+    /// Registers a persistent configuration with the given area and name
     /// </summary>
     /// <param name="config">The config</param>
-    /// <param name="area">The name of the area</param>
+    /// <param name="area">The name of the area. Set as null to use the application area</param>
     /// <param name="name">The name of the configuration</param>
     public void Register(PersistentConfiguration config, string? area, string name) {
         Validate.NotNull(config);
@@ -87,7 +107,7 @@ public sealed class PersistentStorageManager {
     /// <summary>
     /// Loads all configurations from the system
     /// </summary>
-    public async Task LoadAllAsync(List<string>? missingConfigSets) {
+    public async Task LoadAllAsync(List<string>? missingConfigSets, bool assignDefaultsForUnsavedConfigs) {
         try {
             Directory.CreateDirectory(this.StorageDirectory);
         }
@@ -95,7 +115,7 @@ public sealed class PersistentStorageManager {
             // ignored
         }
 
-        HashSet<PersistentConfiguration> unloaded = this.allConfigs.ToHashSet();
+        HashSet<PersistentConfiguration>? unloaded = assignDefaultsForUnsavedConfigs ? this.allConfigs.ToHashSet() : null;
         foreach (KeyValuePair<string, Dictionary<string, PersistentConfiguration>> areaEntry in this.areaMap) {
             if (areaEntry.Value.Count < 1) {
                 continue;
@@ -144,16 +164,18 @@ public sealed class PersistentStorageManager {
                 if (configToElementMap.TryGetValue(configEntry.Key, out XmlElement? configElement)) {
                     // TODO: versioning
                     LoadConfiguration(configEntry.Value, configElement);
-                    unloaded.Remove(configEntry.Value);
+                    unloaded?.Remove(configEntry.Value);
                 }
             }
         }
 
-        foreach (PersistentConfiguration config in unloaded) {
-            config.LoadDefaults();
+        if (unloaded != null && unloaded.Count > 0) {
+            foreach (PersistentConfiguration config in unloaded) {
+                config.InternalAssignDefaultValues();
+            }
         }
     }
-    
+
     private static void LoadConfiguration(PersistentConfiguration config, XmlElement configElement) {
         Dictionary<string, XmlElement> propertyToElementMap = configElement.GetElementsByTagName("Property").OfType<XmlElement>().Select(x => {
             if (x.GetAttribute("name") is string configName && !string.IsNullOrWhiteSpace(configName)) {
@@ -163,49 +185,88 @@ public sealed class PersistentStorageManager {
                 return default;
             }
         }).Where(x => x.Value != null!).ToDictionary();
-        
+
         foreach (PersistentProperty property in config.GetProperties()) {
             if (propertyToElementMap.TryGetValue(property.Name, out XmlElement? propertyElement)) {
                 property.Deserialize(config, propertyElement);
             }
         }
+        
+        config.internalIsModified = false;
     }
 
     public void SaveAll() {
+        if (this.saveStackCount != 0) {
+            throw new InvalidOperationException("Save stack is active");
+        }
+
         foreach (string area in this.areaMap.Keys) {
             this.SaveArea(area);
         }
     }
 
-    public void SaveArea(string area) {
-        if (this.areaMap.TryGetValue(area, out Dictionary<string, PersistentConfiguration>? configSet) && configSet.Count > 0) {
-            try {
-                Directory.CreateDirectory(this.StorageDirectory);
-            }
-            catch {
-                // ignored
-            }
+    public bool? SaveArea(PersistentConfiguration configuration) => this.SaveArea(configuration.Area);
 
-            string configFilePath = Path.GetFullPath(Path.Combine(this.StorageDirectory, area + ".xml"));
-            XmlDocument document = new XmlDocument();
-
-            XmlElement rootElement = document.CreateElement("ConfigurationArea");
-            document.AppendChild(rootElement);
-
-            foreach (KeyValuePair<string, PersistentConfiguration> config in configSet) {
-                SaveConfiguration(config.Value, document, rootElement);
-            }
-
-            try {
-                document.Save(configFilePath);
-            }
-            catch (Exception e) {
-                AppLogger.Instance.WriteLine($"Failed to save configuration at {configFilePath}: " + e.GetToString());
-            }
+    public bool? SaveArea(string area) {
+        if (this.saveStackCount > 0) {
+            (this.saveAreaStack ??= new HashSet<string>()).Add(area);
+            return null;
         }
+
+        if (!this.areaMap.TryGetValue(area, out Dictionary<string, PersistentConfiguration>? configSet) || configSet.Count <= 0) {
+            return false;
+        }
+
+        if (!configSet.Values.Any(x => x.internalIsModified)) {
+            return false;
+        }
+            
+        try {
+            Directory.CreateDirectory(this.StorageDirectory);
+        }
+        catch {
+            // ignored
+        }
+
+        string configFilePath = Path.GetFullPath(Path.Combine(this.StorageDirectory, area + ".xml"));
+        XmlDocument document = new XmlDocument();
+
+        XmlElement rootElement = document.CreateElement("ConfigurationArea");
+        document.AppendChild(rootElement);
+
+        foreach (KeyValuePair<string, PersistentConfiguration> config in configSet) {
+            SaveConfiguration(config.Value, document, rootElement);
+        }
+
+        try {
+            document.Save(configFilePath);
+        }
+        catch (Exception e) {
+            AppLogger.Instance.WriteLine($"Failed to save configuration at {configFilePath}: " + e.GetToString());
+        }
+
+        return true;
+    }
+
+    public void SaveStackedAreas() {
+        if (this.saveStackCount != 0) {
+            throw new InvalidOperationException("Save stack still active");
+        }
+
+        if (this.saveAreaStack == null) {
+            return;
+        }
+
+        foreach (string area in this.saveAreaStack) {
+            this.SaveArea(area);
+        }
+
+        this.saveAreaStack = null;
     }
 
     private static void SaveConfiguration(PersistentConfiguration config, XmlDocument document, XmlElement rootElement) {
+        config.internalIsModified = false;
+        
         XmlElement configElement = (XmlElement) rootElement.AppendChild(document.CreateElement("Configuration"))!;
         configElement.SetAttribute("name", config.Name);
 
@@ -217,6 +278,4 @@ public sealed class PersistentStorageManager {
             }
         }
     }
-
-    public void SaveArea(PersistentConfiguration configuration) => this.SaveArea(configuration.Area);
 }

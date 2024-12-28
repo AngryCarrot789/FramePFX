@@ -17,6 +17,8 @@
 // along with FramePFX. If not, see <https://www.gnu.org/licenses/>.
 // 
 
+using FramePFX.Persistence;
+
 namespace FramePFX.Configurations;
 
 /// <summary>
@@ -42,7 +44,13 @@ public abstract class ConfigurationManager {
     /// Applies all changes to our configuration manager's hierarchy (aka recursively apply)
     /// </summary>
     public async Task ApplyChangesInHierarchyAsync(List<ApplyChangesFailureEntry>? errors) {
+        PersistentStorageManager manager = Application.Instance.PersistentStorageManager;
+        
+        manager.BeginSavingStack();
         await ApplyPagesRecursive(this.RootEntry, (x) => x.Apply(errors), Flag_OnlyIfModified);
+        if (manager.EndSavingStack()) {
+            manager.SaveStackedAreas();
+        }
     }
 
     protected async Task LoadContextAsync(ConfigurationContext context) {
@@ -59,7 +67,7 @@ public abstract class ConfigurationManager {
             if (x.ActiveContext != null) {
                 ConfigurationPage.InternalSetContext(x, null);
             }
-            
+
             return x.OnContextDestroyed(context);
         }, Flag_None);
     }

@@ -56,30 +56,6 @@ public class MyCircleClipPlugin : Plugin {
         manager.Register("commands.mycircleclipplugin.editor.AddCircleClip", new AddCircleClipCommand());
     }
 
-    private class ShowCompTimlineNameCommand : AsyncCommand {
-        protected override Executability CanExecuteOverride(CommandEventArgs e) {
-            if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out Timeline? timeline)) {
-                return Executability.Invalid;
-            }
-            
-            return timeline is CompositionTimeline 
-                ? Executability.Valid 
-                : Executability.ValidButCannotExecute;
-        }
-
-        protected override async Task ExecuteAsync(CommandEventArgs e) {
-            if (!DataKeys.TimelineKey.TryGetContext(e.ContextData, out var timeline)) {
-                return;
-            }
-
-            if (!(timeline is CompositionTimeline composition)) {
-                return;
-            }
-
-            await IMessageDialogService.Instance.ShowMessage("hello", $"My resource = '{composition.Resource.DisplayName}'");
-        }
-    }
-
     public override async Task OnApplicationLoaded() {
         // Register our super cool useless video clip type
         ClipFactory.Instance.RegisterType("vc_plugin_circleclip", typeof(MyCirclePluginVideoClip));

@@ -19,11 +19,13 @@
 
 using Avalonia;
 using Avalonia.Controls;
+using FramePFX.BaseFrontEnd.Interactivity;
+using FramePFX.Configurations.UI;
 using FramePFX.Shortcuts;
 
 namespace FramePFX.BaseFrontEnd.Shortcuts.Trees;
 
-public class ShortcutTreeView : TreeView, IShortcutTreeOrNode {
+public class ShortcutTreeView : TreeView, IShortcutTreeOrNode, IShortcutTreeElement {
     public static readonly StyledProperty<ShortcutGroupEntry?> RootEntryProperty = AvaloniaProperty.Register<ShortcutTreeView, ShortcutGroupEntry?>(nameof(RootEntry));
 
     /// <summary>
@@ -52,6 +54,7 @@ public class ShortcutTreeView : TreeView, IShortcutTreeOrNode {
     public ShortcutTreeView() {
         this.itemCache = new Stack<ShortcutTreeViewItem>();
         this.Focusable = true;
+        DataManager.GetContextData(this).Set(IShortcutTreeElement.TreeElementKey, this);
     }
 
     static ShortcutTreeView() {
@@ -170,6 +173,21 @@ public class ShortcutTreeView : TreeView, IShortcutTreeOrNode {
             if (selectTarget) {
                 treeItem.IsSelected = true;
             }
+        }
+    }
+
+    public void ExpandAll() {
+        ExpandTree(this.Items.OfType<TreeViewItem>(), true);
+    }
+
+    public void CollapseAll() {
+        ExpandTree(this.Items.OfType<TreeViewItem>(), false);
+    }
+
+    public static void ExpandTree(IEnumerable<TreeViewItem> items, bool isExpanded) {
+        foreach (TreeViewItem item in items) {
+            item.IsExpanded = isExpanded;
+            ExpandTree(item.Items.OfType<TreeViewItem>(), isExpanded);
         }
     }
 }

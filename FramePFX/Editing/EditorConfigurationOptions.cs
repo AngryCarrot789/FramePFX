@@ -32,21 +32,15 @@ public delegate void EditorConfigurationOptionsTitleBarBrushChangedEventHandler(
 public sealed class EditorConfigurationOptions : PersistentConfiguration {
     public static EditorConfigurationOptions Instance => Application.Instance.PersistentStorageManager.GetConfiguration<EditorConfigurationOptions>();
     
-    public static readonly PersistentProperty<string> TitleBarPrefixProperty = PersistentProperty.RegisterString<EditorConfigurationOptions>(nameof(TitleBarPrefix), "Bootleg sony vegas (FramePFX v2.0.1)", x => x.TitleBarPrefix, (x, y) => x.TitleBarPrefix = y, true);
-    public static readonly PersistentProperty<ulong> TitleBarBrushProperty = PersistentProperty.RegisterParsable<ulong, EditorConfigurationOptions>(nameof(TitleBarBrush), (ulong) SKColors.Red, x => (ulong) x.TitleBarBrush, (x, y) => x.TitleBarBrush = (SKColor) y, true);
+    public static readonly PersistentProperty<string> TitleBarPrefixProperty = PersistentProperty.RegisterString<EditorConfigurationOptions>(nameof(TitleBarPrefix), "Bootleg sony vegas (FramePFX v2.0.1)", x => x.titleBar, (x, y) => x.titleBar = y, true);
+    public static readonly PersistentProperty<ulong> TitleBarBrushProperty = PersistentProperty.RegisterParsable<ulong, EditorConfigurationOptions>(nameof(TitleBarBrush), (ulong) SKColors.Red, x => (ulong) x.titleBarBrush, (x, y) => x.titleBarBrush = (SKColor) y, true);
     
-    private string titleBar;
+    private string titleBar = null!;
     private SKColor titleBarBrush;
 
     public string TitleBarPrefix {
-        get => this.titleBar;
-        set {
-            if (this.titleBar == value)
-                return;
-
-            this.titleBar = value;
-            this.TitleBarPrefixChanged?.Invoke(this);
-        }
+        get => TitleBarPrefixProperty.GetValue(this);
+        set => TitleBarPrefixProperty.SetValue(this, value);
     }
 
     /// <summary>
@@ -54,19 +48,19 @@ public sealed class EditorConfigurationOptions : PersistentConfiguration {
     /// not stick since it's wonky having this and no other customisation features
     /// </summary>
     public SKColor TitleBarBrush {
-        get => this.titleBarBrush;
-        set {
-            if (this.titleBarBrush == value)
-                return;
-
-            this.titleBarBrush = value;
-            this.TitleBarBrushChanged?.Invoke(this);
-        }
+        get => (SKColor) TitleBarBrushProperty.GetValue(this);
+        set => TitleBarBrushProperty.SetValue(this, (ulong) value);
     }
 
-    public event EditorConfigurationOptionsTitleBarBrushChangedEventHandler? TitleBarBrushChanged;
-
-    public event EditorConfigurationOptionsTitleBarPrefixChangedEventHandler? TitleBarPrefixChanged;
+    public event PersistentPropertyInstanceValueChangeEventHandler<string>? TitleBarPrefixChanged {
+        add => TitleBarPrefixProperty.AddValueChangeHandler(this, value);
+        remove => TitleBarPrefixProperty.RemoveValueChangeHandler(this, value);
+    }
+    
+    public event PersistentPropertyInstanceValueChangeEventHandler<ulong>? TitleBarBrushChanged {
+        add => TitleBarBrushProperty.AddValueChangeHandler(this, value);
+        remove => TitleBarBrushProperty.RemoveValueChangeHandler(this, value);
+    }
 
     public EditorConfigurationOptions() {
     }

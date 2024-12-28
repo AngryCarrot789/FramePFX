@@ -8,7 +8,7 @@
             xmlns:avalonia="clr-namespace:FramePFX.BaseFrontEnd.Shortcuts.Avalonia;assembly=FramePFX.BaseFrontEnd"
             xmlns:editing="clr-namespace:FramePFX.Avalonia.Editing"
             xmlns:controls="clr-namespace:FramePFX.BaseFrontEnd.Themes.Controls;assembly=FramePFX.BaseFrontEnd"
-            xmlns:advancedMenuService="clr-namespace:FramePFX.BaseFrontEnd.AdvancedMenuService;assembly=FramePFX.BaseFrontEnd"
+            xmlns:ams="clr-namespace:FramePFX.BaseFrontEnd.AdvancedMenuService;assembly=FramePFX.BaseFrontEnd"
             xmlns:propertyEditing="clr-namespace:FramePFX.BaseFrontEnd.PropertyEditing;assembly=FramePFX.BaseFrontEnd"
             xmlns:commandUsages="clr-namespace:FramePFX.BaseFrontEnd.CommandUsages;assembly=FramePFX.BaseFrontEnd"
             mc:Ignorable="d"
@@ -37,26 +37,26 @@
             currently focused item before focus is switched to a menu item.
             This is used to implement a kind of "contextual" non-context menu item
         -->
-        <advancedMenuService:ContextCapturingMenu Grid.Row="0" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1"
+        <ams:ContextCapturingMenu Grid.Row="0" BorderBrush="{DynamicResource PanelBorderBrush}" BorderThickness="0,0,0,1"
                                  Background="{Binding TitleBarBrush, RelativeSource={RelativeSource AncestorType={x:Type controls:WindowEx}, Mode=FindAncestor}}">
             <MenuItem Header="File">
-                <advancedMenuService:CommandMenuItem Header="New Project" CommandId="commands.editor.NewProject"/>
-                <advancedMenuService:CommandMenuItem Header="Open Project..." CommandId="commands.editor.OpenProject"/>
-                <advancedMenuService:CommandMenuItem Header="Save Project" CommandId="commands.editor.SaveProject"/>
-                <advancedMenuService:CommandMenuItem Header="Save Project As..." CommandId="commands.editor.SaveProjectAs"/>
-                <advancedMenuService:CommandMenuItem Header="Close Project" CommandId="commands.editor.CloseProject"/>
+                <ams:CommandMenuItem Header="New Project" CommandId="commands.editor.NewProject"/>
+                <ams:CommandMenuItem Header="Open Project..." CommandId="commands.editor.OpenProject"/>
+                <ams:CommandMenuItem Header="Save Project" CommandId="commands.editor.SaveProject"/>
+                <ams:CommandMenuItem Header="Save Project As..." CommandId="commands.editor.SaveProjectAs"/>
+                <ams:CommandMenuItem Header="Close Project" CommandId="commands.editor.CloseProject"/>
                 <Separator/>
-                <advancedMenuService:CommandMenuItem Header="Open Editor Settings" CommandId="commands.editor.OpenEditorSettings"
+                <ams:CommandMenuItem Header="Open Editor Settings" CommandId="commands.editor.OpenEditorSettings"
                                     ToolTip.Tip="Opens the editor's settings in a dialog"/>
-                <advancedMenuService:CommandMenuItem Header="Open Project Settings" CommandId="commands.editor.OpenProjectSettings"
+                <ams:CommandMenuItem Header="Open Project Settings" CommandId="commands.editor.OpenProjectSettings"
                                     ToolTip.Tip="Opens the project's settings in a dialog"/>
                 <Separator/>
-                <advancedMenuService:CommandMenuItem Header="Export" CommandId="commands.editor.Export"
+                <ams:CommandMenuItem Header="Export" CommandId="commands.editor.Export"
                                     ToolTip.Tip="Export the current project"/>
-                <advancedMenuService:CommandMenuItem Header="Export Active Timeline" CommandId="commands.generic.ExportActiveTimelineCommand"
+                <ams:CommandMenuItem Header="Export Active Timeline" CommandId="commands.generic.ExportActiveTimelineCommand"
                                     ToolTip.Tip="Exports the currently active timeline only (not the project timeline)"/>
             </MenuItem>
-        </advancedMenuService:ContextCapturingMenu>
+        </ams:ContextCapturingMenu>
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" MinHeight="100"/>

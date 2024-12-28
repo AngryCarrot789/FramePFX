@@ -35,6 +35,7 @@ using FramePFX.Editing.Timelines;
 using FramePFX.Editing.UI;
 using FramePFX.Interactivity;
 using FramePFX.Interactivity.Contexts;
+using FramePFX.Persistence;
 using FramePFX.PropertyEditing;
 using FramePFX.Tasks;
 using FramePFX.Utils;
@@ -125,12 +126,12 @@ public partial class EditorWindow : WindowEx, ITopLevel, IVideoEditorWindow {
         EditorConfigurationOptions.Instance.TitleBarBrushChanged -= this.OnApplicationTitleBarBrushChanged;
     }
 
-    private void OnApplicationTitleBarPrefixChanged(EditorConfigurationOptions sender) {
-        this.UpdateWindowTitle(this.VideoEditor?.Project);
+    private void OnApplicationTitleBarPrefixChanged(PersistentConfiguration config, PersistentProperty<string> property, string oldValue, string newValue) {
+        this.UpdateWindowTitle(this.VideoEditor.Project);
     }
 
-    private void OnApplicationTitleBarBrushChanged(EditorConfigurationOptions sender) {
-        SKColor c = sender.TitleBarBrush;
+    private void OnApplicationTitleBarBrushChanged(PersistentConfiguration config, PersistentProperty<ulong> property, ulong oldValue, ulong newValue) {
+        SKColor c = ((EditorConfigurationOptions) config).TitleBarBrush;
         this.TitleBarBrush = new ImmutableSolidColorBrush(new Color(c.Alpha, c.Red, c.Green, c.Blue));
     }
 

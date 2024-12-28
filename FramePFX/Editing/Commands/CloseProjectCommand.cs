@@ -52,7 +52,7 @@ public class CloseProjectCommand : AsyncCommand {
 
         progress.Text = "Closing active project";
         progress.CompletionState.OnProgress(0.2);
-        MessageBoxResult result = await await Application.Instance.Dispatcher.InvokeAsync(() => IMessageDialogService.Instance.ShowMessage(msgTitle, message, MessageBoxButton.YesNoCancel));
+        MessageBoxResult result = await Application.Instance.Dispatcher.InvokeAsync(() => IMessageDialogService.Instance.ShowMessage(msgTitle, message, MessageBoxButton.YesNoCancel)).Unwrap();
         switch (result) {
             case MessageBoxResult.Cancel: return false;
             case MessageBoxResult.Yes: {
@@ -60,7 +60,7 @@ public class CloseProjectCommand : AsyncCommand {
                 using (progress.CompletionState.PushCompletionRange(0.2, 0.5)) {
                     progress.Text = "Saving project...";
                     progress.CompletionState.OnProgress(0.5);
-                    saveResult = await await Application.Instance.Dispatcher.InvokeAsync(() => Project.SaveProject(editor.Project, progress));
+                    saveResult = await Application.Instance.Dispatcher.InvokeAsync(() => Project.SaveProject(oldProject, progress)).Unwrap();
                     progress.CompletionState.OnProgress(0.5);
                 }
 

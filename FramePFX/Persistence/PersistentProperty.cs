@@ -18,6 +18,7 @@
 // 
 
 using System.Xml;
+using FramePFX.Editing;
 
 namespace FramePFX.Persistence;
 
@@ -32,7 +33,7 @@ public abstract class PersistentProperty {
     // this is used to provide protection against two parameters having the same GlobalIndex
     private static volatile int RegistrationFlag;
     private static int NextGlobalIndex = 1;
-    
+
     private int globalIndex;
     private Type ownerType;
     private string name;
@@ -61,20 +62,38 @@ public abstract class PersistentProperty {
     /// </summary>
     public string GlobalKey => this.globalKey;
 
+    // /// <summary>
+    // /// 
+    // /// </summary>
+    // /// <returns></returns>
+
     /// <summary>
-    /// Registers a property that represents a primitive numeric value (e.g. int, uint, byte, decimal and so on)
+    /// Registers a property for a type that is parsable from a string (e.g. int, uint, byte, decimal and so on)
     /// </summary>
-    /// <returns></returns>
+    /// <param name="name">The name of the property</param>
+    /// <param name="defaultValue">The property's default value</param>
+    /// <param name="getValue">The getter</param>
+    /// <param name="setValue">The setter</param>
+    /// <param name="canSaveDefault">When true, a configuration's value of this property can be serialised even if the current value is the default value</param>
+    /// <typeparam name="TValue">The value type</typeparam>
+    /// <typeparam name="TOwner">The owner of the property</typeparam>
+    /// <returns>The property, which you can store as a public static readonly field</returns>
     public static PersistentProperty<TValue> RegisterParsable<TValue, TOwner>(string name, TValue defaultValue, Func<TOwner, TValue> getValue, Action<TOwner, TValue> setValue, bool canSaveDefault) where TValue : IParsable<TValue> where TOwner : PersistentConfiguration {
         PersistentPropertyStringParsable<TValue> property = new PersistentPropertyStringParsable<TValue>(defaultValue, (x) => getValue((TOwner) x), (x, y) => setValue((TOwner) x, y), (x) => TValue.Parse(x, null), null, canSaveDefault);
         RegisterCore(property, name, typeof(TOwner));
         return property;
     }
-    
+
     /// <summary>
-    /// Registers a property that represents a primitive numeric value (e.g. int, uint, byte, decimal and so on)
+    /// Registers a string property that represents a primitive numeric value (e.g. int, uint, byte, decimal and so on)
     /// </summary>
-    /// <returns></returns>
+    /// <param name="name">The name of the property</param>
+    /// <param name="defaultValue">The property's default value</param>
+    /// <param name="getValue">The getter</param>
+    /// <param name="setValue">The setter</param>
+    /// <param name="canSaveDefault">When true, a configuration's value of this property can be serialised even if the current value is the default value</param>
+    /// <typeparam name="TOwner">The owner of the property</typeparam>
+    /// <returns>The property, which you can store as a public static readonly field</returns>
     public static PersistentProperty<string> RegisterString<TOwner>(string name, string defaultValue, Func<TOwner, string> getValue, Action<TOwner, string> setValue, bool canSaveDefault) where TOwner : PersistentConfiguration {
         PersistentPropertyStringParsable<string> property = new PersistentPropertyStringParsable<string>(defaultValue, (x) => getValue((TOwner) x), (x, y) => setValue((TOwner) x, y), (x) => x, null, canSaveDefault);
         RegisterCore(property, name, typeof(TOwner));
@@ -98,7 +117,7 @@ public abstract class PersistentProperty {
             RegistryMap[path] = property;
             if (!TypeToParametersMap.TryGetValue(ownerType, out List<PersistentProperty>? list))
                 TypeToParametersMap[ownerType] = list = new List<PersistentProperty>();
-            
+
             list.Add(property);
             property.globalIndex = NextGlobalIndex++;
             property.name = name;
@@ -127,11 +146,11 @@ public abstract class PersistentProperty {
         private readonly string? defaultText;
         private readonly bool canSaveDefault;
 
-        public PersistentPropertyStringParsable(T defaultValue, Func<PersistentConfiguration, T> getValue, Action<PersistentConfiguration, T> setValue, Func<string, T> fromString, Func<T, string> toString = null, bool canSaveDefault = false) : base(defaultValue, getValue, setValue) {
+        public PersistentPropertyStringParsable(T defaultValue, Func<PersistentConfiguration, T> getValue, Action<PersistentConfiguration, T> setValue, Func<string, T> fromString, Func<T, string>? toString = null, bool canSaveDefault = false) : base(defaultValue, getValue, setValue) {
             this.fromString = fromString;
             this.toString = toString;
             this.canSaveDefault = canSaveDefault;
-            
+
             this.defaultText = this.toString != null ? this.toString(defaultValue) : defaultValue.ToString();
         }
 
@@ -159,7 +178,7 @@ public abstract class PersistentProperty {
             while (Interlocked.CompareExchange(ref RegistrationFlag, 1, 0) != 0) {
                 Thread.SpinWait(32);
             }
-            
+
             try {
                 if (TypeToParametersMap.TryGetValue(type, out List<PersistentProperty>? properties)) {
                     props.AddRange(properties);
@@ -168,7 +187,7 @@ public abstract class PersistentProperty {
             finally {
                 RegistrationFlag = 0;
             }
-            
+
             if (!baseTypes) {
                 break;
             }
@@ -177,8 +196,26 @@ public abstract class PersistentProperty {
         return props;
     }
 
-    public abstract void LoadDefaultValue(PersistentConfiguration config);
+    internal abstract void InternalAssignDefaultValue(PersistentConfiguration config);
+
+    public bool IsValidForConfiguration(PersistentConfiguration configuration) {
+        return this.OwnerType.IsInstanceOfType(configuration);
+    }
+
+    public void ValidateIsValidForConfiguration(PersistentConfiguration configuration) {
+        if (!this.IsValidForConfiguration(configuration))
+            throw new InvalidOperationException($"Configuration ({configuration.GetType().Name}) does not own this property '{this.GlobalKey}'");
+    }
+
+    public void CheckIsValid() {
+        if (this.globalIndex == 0 || string.IsNullOrWhiteSpace(this.name) || this.ownerType == null)
+            throw new InvalidOperationException("This property has been unsafely created and is invalid");
+    }
 }
+
+public delegate void PersistentPropertyValueChangeEventHandler<T>(PersistentProperty<T> property, T oldValue, T newValue);
+
+public delegate void PersistentPropertyInstanceValueChangeEventHandler<T>(PersistentConfiguration config, PersistentProperty<T> property, T oldValue, T newValue);
 
 /// <summary>
 /// The main implementation for a persistent property
@@ -205,14 +242,36 @@ public abstract class PersistentProperty<T> : PersistentProperty {
         if (config == null)
             throw new ArgumentNullException(nameof(config), "Config cannot be null");
 
-        // TODO: value changed event before and after
-        
         T oldValue = this.GetValue(config);
         if (!EqualityComparer<T>.Default.Equals(oldValue, value)) {
+            config.internalIsModified = true;
+            PersistentConfiguration.InternalRaiseValueChange(config, this, oldValue, value, true);
             this.setter(config, value);
-            PersistentConfiguration.InternalOnValueChanged(config, this, oldValue, value);
+            PersistentConfiguration.InternalRaiseValueChange(config, this, oldValue, value, false);
         }
     }
 
-    public override void LoadDefaultValue(PersistentConfiguration config) => this.SetValue(config, this.DefaultValue);
+    internal override void InternalAssignDefaultValue(PersistentConfiguration config) {
+        this.setter(config, this.DefaultValue);
+    }
+
+    /// <summary>
+    /// Adds a value change handler for the given property for this configuration instance
+    /// </summary>
+    /// <param name="configuration">The configuration whose value must change to invoke the handler</param>
+    /// <param name="handler">The handler to invoke when the property changes for this configuration instance</param>
+    /// <param name="onChanging">True to handle ValueChanging, False to handle ValueChanged.<para>Default value is false</para></param>
+    public void AddValueChangeHandler(PersistentConfiguration configuration, PersistentPropertyInstanceValueChangeEventHandler<T>? handler, bool onChanging = false) {
+        configuration.AddValueChangeHandler(this, handler, onChanging);
+    }
+
+    /// <summary>
+    /// Removes the value change handler for the given property for this configuration instance
+    /// </summary>
+    /// <param name="configuration">The configuration whose value must change to invoke the handler</param>
+    /// <param name="handler">The handler to invoke when the property changes for this configuration instance</param>
+    /// <param name="onChanging">True for the ValueChanging event, False for the ValueChanged event.<para>Default value is false</para></param>
+    public void RemoveValueChangeHandler(PersistentConfiguration configuration, PersistentPropertyInstanceValueChangeEventHandler<T>? handler, bool onChanging = false) {
+        configuration.RemoveValueChangeHandler(this, handler, onChanging);
+    }
 }

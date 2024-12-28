@@ -194,22 +194,17 @@ public abstract class Application : IServiceable {
         manager.Register("commands.editor.OpenEditorSettings", new OpenEditorSettingsCommand());
         manager.Register("commands.editor.OpenProjectSettings", new OpenProjectSettingsCommand());
 
+        // Config managers
         manager.Register("commands.shortcuts.AddKeyStrokeToShortcut", new AddKeyStrokeToShortcutUsingDialogCommand());
         manager.Register("commands.shortcuts.AddMouseStrokeToShortcut", new AddMouseStrokeToShortcutUsingDialogCommand());
+        manager.Register("commands.config.keymap.ExpandShortcutTree", new ExpandShortcutTreeCommand());
+        manager.Register("commands.config.keymap.CollapseShortcutTree", new CollapseShortcutTreeCommand());
 
         progress.CompletionState.SetProgress(1.0);
     }
 
-    protected virtual async Task OnFullyInitialised() {
-        // Testing resource loader dialog
-        // ResourceAVMedia media = new ResourceAVMedia();
-        // media.FilePath = "C:\\sexy";
-        // 
-        // ResourceImage img = new ResourceImage();
-        // img.FilePath = "C:\\sexy2";
-        // 
-        // await this.serviceManager.GetService<IResourceLoaderService>().TryLoadResources(new BaseResource[]{media, img});
-        // media.Destroy();
+    protected virtual Task OnFullyInitialised() {
+        return Task.CompletedTask;
     }
 
     protected virtual void OnExit(int exitCode) {

@@ -45,7 +45,7 @@ public class MessageDialogServiceImpl : IMessageDialogService {
             return await ShowMessageMainThread(info);
         }
         else {
-            return await await Application.Instance.Dispatcher.InvokeAsync(() => ShowMessageMainThread(info));
+            return await Application.Instance.Dispatcher.InvokeAsync(() => ShowMessageMainThread(info)).Unwrap();
         }
     }
 

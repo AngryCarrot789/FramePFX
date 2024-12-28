@@ -106,7 +106,7 @@ public class OpenProjectCommand : AsyncCommand {
             progress.Text = "Loading resources";
             progress.CompletionState.OnProgress(0.5);
 
-            bool result = await await Application.Instance.Dispatcher.InvokeAsync(async () => {
+            bool result = await Application.Instance.Dispatcher.InvokeAsync(async () => {
                 if (!await IResourceLoaderDialogService.Instance.TryLoadResource(project.ResourceManager.RootContainer)) {
                     try {
                         editor.CloseProject();
@@ -119,7 +119,7 @@ public class OpenProjectCommand : AsyncCommand {
                 }
 
                 return true;
-            }, DispatchPriority.Input);
+            }, DispatchPriority.Input).Unwrap();
 
             if (!result)
                 return false;

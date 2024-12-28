@@ -20,9 +20,11 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
+using FramePFX.BaseFrontEnd.Interactivity;
 using FramePFX.BaseFrontEnd.Shortcuts.Trees;
 using FramePFX.BaseFrontEnd.Utils;
 using FramePFX.Configurations.Shortcuts;
+using FramePFX.Configurations.UI;
 using FramePFX.Shortcuts;
 
 namespace FramePFX.BaseFrontEnd.Configurations.Pages.Basic;
@@ -36,6 +38,8 @@ public class ShortcutEditorConfigurationPageControl : BaseConfigurationPageContr
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e) {
         base.OnApplyTemplate(e);
         this.PART_ShortcutTree = e.NameScope.GetTemplateChild<ShortcutTreeView>("PART_ShortcutTree");
+        DataManager.GetContextData(this).Set(IShortcutTreeElement.TreeElementKey, this.PART_ShortcutTree);
+        
         if (e.NameScope.TryGetTemplateChild("PART_DemoHyperlink", out HyperlinkButton? hyperlink)) {
             hyperlink.Click += this.OnHyperlinkClicked;
         }

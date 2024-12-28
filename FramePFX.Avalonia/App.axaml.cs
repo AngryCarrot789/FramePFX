@@ -101,7 +101,7 @@ public partial class App : global::Avalonia.Application {
             
             Application.Instance.PluginLoader.RegisterConfigurations(psm);
 
-            await psm.LoadAllAsync(null);
+            await psm.LoadAllAsync(null, false);
         }
 
         await progress.ProgressAndSynchroniseAsync("Finalizing startup...", 0.99);
@@ -109,8 +109,6 @@ public partial class App : global::Avalonia.Application {
         Application.Instance.PluginLoader.CollectInjectedXamlResources(list);
         if (list.Count > 0) {
             List<ResourceInclude> includes = new List<ResourceInclude>();
-
-            // ffmpeg expected: avares://FramePFX.Plugins.FFmpegMedia/FFmpegMediaStyles.axaml
             List<string> errorLines = new List<string>();
             foreach ((Plugin plugin, string path) in list) {
                 try {
@@ -156,7 +154,16 @@ public partial class App : global::Avalonia.Application {
     }
 
     private void OnExit(object? sender, ControlledApplicationLifetimeExitEventArgs e) {
-        Application.Instance.PersistentStorageManager.SaveAll();
+        PersistentStorageManager manager = Application.Instance.PersistentStorageManager;
+        
+        // Should be inactive at this point realistically, but just in case, clear it all since we're exiting
+        while (manager.IsSaveStackActive) {
+            if (manager.EndSavingStack()) {
+                break;
+            }
+        }
+
+        manager.SaveAll();
         Application.Instance.PluginLoader.OnApplicationExiting();
         ApplicationImpl.InternalOnExited(e.ApplicationExitCode);
     }

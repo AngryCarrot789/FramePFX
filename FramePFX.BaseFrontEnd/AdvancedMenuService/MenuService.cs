@@ -85,6 +85,7 @@ public static class MenuService {
                     separator.IsVisible = false;
                 }
                 else {
+                    separator.IsVisible = true;
                     lastVisibleWasEntry = false;
                 }
             }

@@ -149,20 +149,21 @@ public partial class ConfigurationPanelControl : UserControl {
         HyperlinkButton hyperlinkButton = new HyperlinkButton() {
             Content = entry.DisplayName ?? "Unnamed Configuration",
             ClickMode = ClickMode.Press,
-            Tag = new HyperlinkTagInfo(entry, this)
+            Tag = entry.FullIdPath
         };
 
         ToolTip.SetTip(hyperlinkButton, "Navigate to " + (entry.DisplayName ?? entry.FullIdPath ?? "this unnamed entry"));
-        hyperlinkButton.Click += OnHyperlinkClicked;
+        hyperlinkButton.Click += this.OnHyperlinkClicked;
         collection.Add(hyperlinkButton);
     }
 
-    private static void OnHyperlinkClicked(object? sender, RoutedEventArgs e) {
-        if (((HyperlinkButton?) sender)?.Tag is HyperlinkTagInfo info) {
-            if (info.Editor is ConfigurationPanelControl editor && info.Entry is ConfigurationEntry entry) {
-                if (editor.PART_ConfigurationTree.ItemMap.TryGetControl(entry, out ConfigurationTreeViewItem? treeItem)) {
+    private void OnHyperlinkClicked(object? sender, RoutedEventArgs e) {
+        if (((HyperlinkButton?) sender)?.Tag is string fullId) {
+            ConfigurationManager? manager = this.ConfigurationManager;
+            if (manager != null && manager.RootEntry.TryFindEntry(fullId, out var entry)) {
+                if (this.PART_ConfigurationTree.ItemMap.TryGetControl(entry, out ConfigurationTreeViewItem? treeItem)) {
                     treeItem.ResourceTree?.SetSelection(treeItem);
-                }
+                }                
             }
         }
     }

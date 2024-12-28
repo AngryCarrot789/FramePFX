@@ -56,9 +56,7 @@ public class SaveProjectAsCommand : SaveProjectCommand {
                 IActivityProgress progress = TaskManager.Instance.GetCurrentProgressOrEmpty();
                 progress.Text = "Saving project as...";
 
-                await await Application.Instance.Dispatcher.InvokeAsync(async () => {
-                    await Project.SaveProjectAs(project, progress);
-                });
+                await Application.Instance.Dispatcher.InvokeAsync(() => Project.SaveProjectAs(project, progress)).Unwrap();
             });
         }
     }
